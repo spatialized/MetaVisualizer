@@ -1,0 +1,1140 @@
+package gmViewer;
+
+import processing.core.*;
+
+import org.homeunix.thecave.moss.util.image.ExifToolWrapper;
+import com.drew.imaging.jpeg.JpegMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.Tag;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+/**************
+ * GMV_Metadata
+ * @author davidgordon
+ * Class for extracting metadata and add 3D media to field 
+ */
+class GMV_Metadata
+{
+	public String imageFolder = "", smallImageFolder = "", videoFolder = "", smallVideoFolder = "";		// Filepath for media folders
+
+	public File imageFolderFile, videoFolderFile;								// Folders containing the media 
+	boolean imageFolderFound = false, videoFolderFound = false; 	// Were expected folders found?
+	public File[] imageFiles, videoFiles;							// Arrays for images and videos
+	
+	int iCount = 0, pCount = 0, vCount = 0;							// Media count by type 
+	public File exifToolFile;										// File for ExifTool executable
+
+	GMV_Utilities u;												// Utility class
+	GMV_Field p;													// Parent field
+	
+	GMV_Metadata(GMV_Field parent)
+	{
+		p = parent;
+		exifToolFile = new File("/usr/local/bin/exiftool");						// Initialize metadata extraction class	
+	}
+
+	/**
+	 * load()
+	 * Load metadata for the field
+	 */
+	public void load(String library, String fieldPath)
+	{
+		loadImageFolder(library, fieldPath); 	// Load image file names
+		loadVideoFolder(library, fieldPath); 	// Load video file names
+
+		iCount = 0; 
+		pCount = 0;
+		vCount = 0;
+
+		if(imageFolderFound)				// Load images and image metadata 
+			loadImagesFromTags(imageFiles);
+		if(videoFolderFound)					// Load videos and video metadata 
+			loadVideosFromTags(videoFiles);	
+	}
+	
+	/**
+	 * loadImageFolder()
+	 * Load metadata for folder of images and/or panoramas
+	 */
+	public void loadImageFolder(String library, String fieldPath) 		
+	{
+		File smallImageFolderFile;								// Folders containing the media 
+		File[] smallImageFiles;				
+		smallImageFiles = null;
+		smallImageFolder = library + "/" + fieldPath + "/small_images/";		// Max width 640 pixels
+		smallImageFolderFile = new File(smallImageFolder);
+		boolean smallImageFolderFound = (smallImageFolderFile != null);	// Check whether small_images folder exists
+		boolean smallImageFilesFound = false;
+		
+//		PApplet.println("Small Image Folder Location:" + smallImageFolder);
+
+		imageFiles = null;
+		
+		if(smallImageFolderFound)
+		{
+//			PApplet.println("Found small_images folder. Checking for files...");
+			smallImageFiles = smallImageFolderFile.listFiles();
+
+			if(smallImageFiles != null && smallImageFiles.length > 0)
+					smallImageFilesFound = true;
+			
+			if(smallImageFilesFound)
+			{
+				if(smallImageFiles.length == 1)
+				{
+					File f = smallImageFiles[0];
+					String check = f.getName();
+					PApplet.println("DSStore?"+check);
+					if(check.equals(".DS_Store"))
+					{
+						if(p.p.debug.metadata) PApplet.println("Only found .DS_Store, ignoring it...");
+						smallImageFilesFound = false;
+					}
+				}
+				
+				if(smallImageFilesFound && p.p.debug.metadata) PApplet.println("Files found in small_images folder, will use instead of shrinking large images...");
+			}
+		}
+		else
+		{
+			if(p.p.debug.metadata) 	
+				PApplet.println("No small_images folder found! Creating one...");
+			
+			GMV_Command commandExecutor;
+			ArrayList<String> command = new ArrayList<String>();
+			ArrayList<String> files = new ArrayList<String>();
+
+			/* Get files in directory */
+			command = new ArrayList<String>();
+			command.add("mkdir");
+			command.add("small_images");
+			commandExecutor = new GMV_Command(library, command);
+			try {
+				int result = commandExecutor.executeCommand();
+
+				StringBuilder stdout = commandExecutor.getStandardOutputFromCommand();
+				StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
+
+//				if (stderr.length() > 0)
+//					System.out.println("LS STDERR:" + stderr);
+
+//				PApplet.println("---> mkdir output:"+stdout.toString()+" result:"+result);
+			}
+			catch(Throwable t)
+			{
+				PApplet.println("Throwable t while creating small_images directory:"+t);
+			}
+		}
+			
+		if(!smallImageFilesFound)			// If no small images are in directory, copy large images to directory and resize
+		{
+			imageFolder = library + "/" + fieldPath + "/images/";					// Original size
+			boolean success = p.p.utilities.shrinkImages(imageFolder, smallImageFolder);		
+			if(success)
+			{
+				if(p.p.debug.metadata) 	PApplet.println("Shrink images successful...");
+			}
+			else
+			{
+				if(p.p.debug.metadata) 	PApplet.println("Shrink images failed...");
+			}
+		}
+
+		imageFolder = smallImageFolder;					// Set imageFolder to small_images
+		imageFolderFile = new File(imageFolder);
+		imageFiles = imageFolderFile.listFiles();
+
+		if(p.p.debug.metadata) 	
+			PApplet.println("Image Folder Location:" + imageFolderFile + " imageFiles.length:"+imageFiles.length);
+		
+		if (imageFiles != null)
+			imageFolderFound = true;
+		else
+			imageFolderFound = false;
+	}
+
+	/**
+	 * loadVideoFolder()
+	 * Load metadata for folder of videos
+	 */
+	public void loadVideoFolder(String library, String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	{
+		File smallVideoFolderFile;
+		File[] smallVideoFiles;				
+		
+		videoFolder = library  + "/" + fieldPath + "/videos/";					// Original size
+		smallVideoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max width 720 pixels  -- Check this!
+
+		videoFolderFile = new File(videoFolder);
+		videoFiles = new File[1];
+
+		smallVideoFolderFile = new File(smallImageFolder);
+		smallVideoFiles = new File[1];
+
+		if (p.p.debug.metadata)
+		{
+			PApplet.println("Video Folder:" + videoFolder);
+//			PApplet.println("Small Video Folder:" + smallVideoFolder);
+		}
+
+		videoFiles = videoFolderFile.listFiles();
+
+		if (videoFiles != null)
+			videoFolderFound = true;
+		else
+			videoFolderFound = false;
+	}
+
+	/**
+	 * Read video metadata using ExifToolWrapper
+	 * @param file File location to read metadata from
+	 * @param exifToolFile File object for ExifTool executable
+	 * @return Map containing metadata values
+	 */
+	private Map<String, String> readVideoMetadata(File file, File exifToolFile)
+	{
+		Map<String, String> result;
+		try
+		{
+			Set<String> tags = new HashSet();
+			tags.add("GPSLongitude");
+			tags.add("GPSLatitude");
+			tags.add("GPSAltitude");
+			tags.add("MediaDuration");
+			tags.add("CreationDate");
+			tags.add("ImageWidth");
+			tags.add("ImageHeight");
+			
+			ExifToolWrapper exifToolWrapper = new ExifToolWrapper(exifToolFile);
+			
+			result = exifToolWrapper.getTagsFromFile(file, tags);
+			return result;
+		}
+		catch(Throwable t)
+		{
+			PApplet.println("Throwable while getting video tags from file:" + t);			
+		}
+		
+		return null;
+	}
+	
+	/** 
+	 * Read tags from array of image/panorama files and create 3D image/panorama objects
+	 * @param files File array
+	 */
+	public void loadImagesFromTags(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	{
+		int fileCount = files.length;	 		// File count
+
+		boolean imagesExist = true;
+		
+		if (imageFiles == null)					// Check if any images exist
+			imagesExist = false;
+
+		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
+		{
+			String name = "";
+			boolean hasImage = true;
+			
+			if (!imagesExist || imageFiles.length <= currentMedia)		// Check if this image exists
+				hasImage = false;
+
+			name = imageFiles[currentMedia].getName();
+
+			boolean panorama = false;
+			boolean dataMissing = false;
+
+			Calendar calendarTime = null;			// Calendar date and time			
+
+			float fDirection = 0, fElevation = 0, fRotation = 0,
+					fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
+			float fFocusDistance = p.p.defaultFocusDistance;									// Focus distance currently NOT used
+			int iWidth = -1, iHeight = -1;
+			int iCameraModel = 0;
+			float fBrightness = -1.f;
+
+			String dateTime = null;
+			String latitude = null, longitude = null, altitude = null;
+			String focalLength = null, focalLength35 = null, software = null, orientation = null, direction = null;
+			String camera_model = null, description = null;
+			String keyword = null;
+
+			PVector pLoc = new PVector(0, 0, 0);
+			String pFilePath = "";
+
+			File file = null;				
+			Metadata imageMetadata = null;				// For images
+
+			file = files[currentMedia];				// Get current file from array
+
+			if(p.p.debug.metadata && p.p.debug.detailed)
+				PApplet.println("Loading image: "+name);
+
+				/* Read metadata with JpegMetadataReader */
+				try {
+					imageMetadata = JpegMetadataReader.readMetadata(file);				
+				}
+				catch (Throwable t) 
+				{
+					PApplet.println("Throwable:" + t);
+					if(!dataMissing)
+						dataMissing = true;
+				}
+				
+				/* Set image variables from metadata */
+				if (imageMetadata != null) 
+				{
+					for (Directory directory : imageMetadata.getDirectories()) {
+						for (Tag tag : directory.getTags()) {
+							String tagString = tag.toString();							
+							
+							if (tag.getTagName().equals("Software")) // Software
+							{
+								software = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Software..." + software);
+								
+								if(software.equals("[Exif IFD0] Software - Occipital 360 Panorama"))
+								{
+									panorama = true;		// Image is a panorama
+									if(dataMissing) p.addPanoramaError();		// Count dataMissing as panorama error
+								}
+								else
+								{
+									if(dataMissing) p.addImageError();			// Count dataMissing as image error
+								}
+
+							}
+							if (tag.getTagName().equals("Orientation")) // Orientation
+							{
+								orientation = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Orientation..." + orientation);
+							}
+							if (tag.getTagName().equals("Date/Time Original")) // Orientation
+							{
+								dateTime = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found DateTimeOriginal..." + dateTime);
+							}
+							if (tag.getTagName().equals("GPS Latitude")) // Latitude
+							{
+								latitude = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Latitude..." + latitude);
+							}
+							if (tag.getTagName().equals("GPS Longitude")) // Longitude
+							{
+								longitude = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Longitude..." + longitude);
+							}
+							if (tag.getTagName().equals("GPS Altitude")) // Altitude
+							{
+								altitude = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Altitude..." + altitude);
+							}
+							if (tag.getTagName().equals("Focal Length")) // Focal Length
+							{
+								focalLength = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Focal Length..." + focalLength);
+							}
+							if (tag.getTagName().equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
+							{
+								focalLength35 = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Focal Length 35mm Equivalent..." + focalLength);
+							}
+							if (tag.getTagName().equals("GPS Img Direction")) // Image Direction
+							{
+								direction = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Direction..." + direction);
+							}
+							if (tag.getTagName().equals("Model")) // Model
+							{
+								camera_model = tagString;
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Model..." + camera_model);
+							}
+							if (tag.getTagName().equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
+							{
+								description = tagString;
+								String[] parts = tagString.split("Image Description -");
+								String input = parts[1];
+								parts = input.split("vert_angle_deg=");
+								if(parts.length > 1)
+								{
+									input = parts[1];
+									parts = input.split("/");
+									fElevation = Float.valueOf(parts[0]);
+									input = parts[1];
+									parts = input.split("=");
+									fRotation = Float.valueOf(parts[1]);
+								}
+								else
+								{
+									if(!dataMissing)
+									{
+										if(panorama) p.addPanoramaError();
+										else p.addImageError();
+										dataMissing = true;
+									}
+									
+									if(p.p.debug.metadata)
+									{
+										PApplet.println("Not a Theodolite image...");
+									}
+								}
+
+								if (p.p.debug.metadata && p.p.debug.detailed)
+									PApplet.println("Found Description..." + description);
+							}
+							if (tag.getTagName().equals("AFPointsUsed")) // Orientation
+							{
+								// String afPointsStr = tagString;
+								// if (afPointsStr.equals("-"))
+								// afPoints[0] = 0;
+								// else
+								// afPoints = ParseAFPointsArray(afPointsStr);
+							}
+
+							if (tag.getTagName().equals("Keywords"))
+							{
+								// keywordArr = json.getJSONArray("Keywords"); //
+								// Assume multiple keywords
+							}
+							
+							if (tag.getTagName().equals("Aperture Value")) // Aperture
+							{
+//								fAperture
+//								 PApplet.println("Aperture Value (not recorded)..."+tagString);
+							}
+							
+							if (tag.getTagName().equals("Brightness Value")) // Brightness
+							{
+								fBrightness = parseBrightness(tagString);
+								if(fBrightness == -1.f && !dataMissing)
+								{
+									if(panorama) p.addPanoramaError();
+									else p.addImageError();
+									dataMissing = true;
+								}
+							}
+							
+							if (tag.getTagName().equals("Image Width")) // Orientation
+								iWidth = ParseWidthOrHeight(tagString);
+
+							if (tag.getTagName().equals("Image Height")) // Orientation
+								iHeight = ParseWidthOrHeight(tagString);
+						}
+
+						pFilePath = file.getPath();
+
+						if (directory.hasErrors()) {
+							for (String error : directory.getErrors()) {
+								PApplet.println("ERROR: " + error);
+							}
+						}
+					}
+
+					try {
+						calendarTime = parseDateTime(dateTime);
+					} 
+					catch (RuntimeException ex) 
+					{
+						PApplet.println("Error in date / time... " + ex);
+						if(!dataMissing)
+						{
+							if(panorama) p.addPanoramaError();
+							else p.addImageError();
+							dataMissing = true;
+						}					
+					}
+
+					if(!panorama)			// -- Update this
+					{
+						try {
+							iCameraModel = parseCameraModel(camera_model);
+							fFocalLength = parseFocalLength(focalLength);
+							fSensorSize = parseSensorSize(focalLength35);
+						} 
+						catch (Throwable t) // If not, must be only one keyword
+						{
+							PApplet.println("Throwable in camera model / focal length..." + t);
+							if(!dataMissing)
+							{
+								if(panorama) p.addPanoramaError();
+								else p.addImageError();
+								dataMissing = true;
+							}						
+						}
+					}
+					else
+					{
+						iCameraModel = -1;
+						fFocalLength = -1.f;
+					}
+					
+					/* Parse image GPS coordinates */
+					try {
+						float xCoord, yCoord, zCoord;
+						xCoord = parseLongitude(longitude);
+						yCoord = parseAltitude(altitude);
+						zCoord = parseLatitude(latitude);
+
+						if (p.p.utilities.isNaN(xCoord) || p.p.utilities.isNaN(yCoord) || p.p.utilities.isNaN(zCoord)) 
+						{
+							pLoc = new PVector(0, 0, 0);
+							if(!dataMissing)
+							{
+								if(panorama) p.addPanoramaError();
+								else p.addImageError();
+								dataMissing = true;
+							}						
+						}
+						pLoc = new PVector(xCoord, yCoord, zCoord);
+					} 
+					catch (RuntimeException ex) 
+					{
+						if (p.p.debug.metadata)
+							PApplet.println("Error reading image location:" + name + "  " + ex);
+						
+						if(!dataMissing)
+						{
+							if(panorama) p.addPanoramaError();
+							else p.addImageError();
+							dataMissing = true;
+						}					}
+
+					try {
+						fOrientation = ParseOrientation(orientation);
+						fDirection = ParseDirection(direction);
+					} 
+					catch (RuntimeException ex) {
+						if (p.p.debug.metadata)
+							PApplet.println("Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  "
+									+ ex);
+						if(!panorama && !dataMissing)
+						{
+							if(panorama) p.addPanoramaError();
+							else p.addImageError();
+							dataMissing = true;
+						}					
+					}
+				}
+			
+			/* Add new 3D media object to field based on given metadata */
+			try 
+			{
+				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f) && hasImage)
+				{
+					if(panorama && !dataMissing)
+					{
+						p.panoramas.add( new GMV_Panorama( p, pCount, name, pFilePath, pLoc, fDirection, iCameraModel, 
+								iWidth, iHeight, fBrightness, calendarTime ) );
+						pCount++;
+					}
+					else if(!dataMissing)
+					{
+						p.images.add( new GMV_Image(p, iCount, name, pFilePath, pLoc, fDirection, fFocalLength, fOrientation, fElevation, 
+								fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, calendarTime ) );
+						iCount++;
+					}
+				}
+				else
+					PApplet.println("Excluded "+(panorama?"panorama:":"image:")+name);
+			}
+			catch (RuntimeException ex) {
+				if (p.p.debug.metadata)
+					PApplet.println("Could not add image! Error: "+ex);
+			}
+		}
+	}
+	
+	/** 
+	 * Read tags from array of video files and create 3D video objects
+	 * @param files File array
+	 */
+	public void loadVideosFromTags(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	{
+		int fileCount;
+		fileCount = files.length;	 		// File count
+
+		boolean videosExist = true;
+		
+		if (videoFiles == null)					// Check if any videos exist
+			videosExist = false;
+		
+		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
+		{
+			String name = "";
+
+			boolean dataMissing = false;
+			boolean hasVideo = true;
+			
+			if (!videosExist || videoFiles.length <= currentMedia)		// Check if this video exists
+				hasVideo = false;
+
+			name = videoFiles[currentMedia].getName();
+
+			Calendar calendarTime = null;			// Calendar date and time
+
+			float fFocusDistance = p.p.defaultFocusDistance;									// Focus distance currently NOT used
+			int iWidth = -1, iHeight = -1;
+			float fBrightness = -1.f;
+			PVector pLoc = new PVector(0, 0, 0);
+			String pFilePath = "";
+			
+			String dateTime = null, sWidth = null, sHeight = null;
+			String latitude = null, longitude = null, altitude = null;
+			String duration = null;								// Video specific 
+			String keyword = null;
+
+			File file = null;				
+
+			file = files[currentMedia];				// Get current file from array
+
+			if(p.p.debug.metadata && p.p.debug.detailed)
+				PApplet.println("Loading video: "+name);
+
+
+			Map<String, String> videoMetadata = null;
+			/* Read video metadata from file using ExifToolWrapper */
+			try {
+				videoMetadata = readVideoMetadata(file, exifToolFile);		
+			}
+			catch(Throwable t)
+			{
+				PApplet.println("Throwable while reading video metadata: " + t);
+				dataMissing = true;
+			}
+
+			/* Set video variables from metadata */
+			try {
+				longitude = videoMetadata.get("GPSLongitude");
+				latitude = videoMetadata.get("GPSLatitude");
+				altitude = videoMetadata.get("GPSAltitude");
+				duration = videoMetadata.get("MediaDuration");
+				dateTime = videoMetadata.get("CreationDate");
+				sWidth = videoMetadata.get("ImageWidth");
+				sHeight= videoMetadata.get("ImageHeight");
+
+				if(p.p.debug.metadata && p.p.debug.video && p.p.debug.detailed)
+				{
+					PApplet.println("Video latitude:"+latitude);
+					PApplet.println("  longitude:"+longitude);
+					PApplet.println("  altitude:"+altitude);
+					PApplet.println("  duration:"+duration);
+					PApplet.println("  date:"+dateTime);
+					PApplet.println("  width:"+sWidth);
+					PApplet.println("  height:"+sHeight);
+				}
+
+				try {
+					calendarTime = parseVideoDateTime(dateTime);
+				} 
+				catch (Throwable t) {
+					PApplet.println("Throwable while parsing date / time... " + t);
+					dataMissing = true;
+				}
+
+				/* Parse video GPS coordinates */
+				try {
+					float xCoord, yCoord, zCoord;
+					xCoord = Float.valueOf(longitude);				// Flip sign of longitude?
+					yCoord = Float.valueOf(altitude);
+					zCoord = Float.valueOf(latitude);				// Flip sign of latitude?
+
+					if (p.p.utilities.isNaN(xCoord) || p.p.utilities.isNaN(yCoord) || p.p.utilities.isNaN(zCoord)) {
+						pLoc = new PVector(0, 0, 0);
+						if(!dataMissing)
+						{
+							p.addVideoError();
+							dataMissing = true;
+						}
+					}
+					pLoc = new PVector(xCoord, yCoord, zCoord);
+				} 
+				catch (RuntimeException ex) 
+				{
+					if (p.p.debug.metadata)
+						PApplet.println("Error reading video location:" + name + "  " + ex);
+					dataMissing = true;
+				}
+
+				iWidth = Integer.valueOf(sWidth);
+				iHeight = Integer.valueOf(sHeight);
+				pFilePath = file.getPath();
+			} 
+			catch (Throwable t) {
+				PApplet.println("Throwable while extracting video EXIF data:" + t);
+				if(!dataMissing)
+				{
+					p.addVideoError();
+					dataMissing = true;
+				}
+			}
+
+			/* Add 3D video object to field based on given metadata */
+			try 
+			{
+				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f ) && hasVideo && !dataMissing)
+				{
+					p.videos.add( new GMV_Video(p, vCount, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
+								   				-1, iWidth, iHeight, fBrightness, calendarTime) );
+					vCount++;
+				}
+				else if(p.p.debug.metadata || p.p.debug.video)
+					PApplet.println("Excluded video:"+name);
+
+			}
+			catch (Throwable t) {
+				if (p.p.debug.metadata)
+				{
+					PApplet.println("Throwable while adding video to ArrayList: "+t);
+					PApplet.println("   pFilePath:" + pFilePath);
+					PApplet.print("    pLoc.x:" + pLoc.x);
+					PApplet.print("    pLoc.y:" + pLoc.y);
+					PApplet.println("    pLoc.z:" + pLoc.z);
+					PApplet.println("   dataMissing:" + dataMissing);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Parse metadata input for GPS longitude in D/M/S format
+	 * @param input String input
+	 * @return GPS decimal longitude
+	 */
+	public float parseLongitude(String input) {
+		String[] parts = input.split("Longitude -");
+		input = parts[1];
+		parts = input.split("°");
+		float degrees = Float.valueOf(parts[0]);
+		input = parts[1];
+		parts = input.split("'");
+		float minutes = Float.valueOf(parts[0]);
+		input = parts[1];
+		parts = input.split("\"");
+		float seconds = Float.valueOf(parts[0]);
+
+		float decimal = ConvertDMSToDDLongitude(degrees, minutes, seconds);
+		return decimal;
+	}
+
+	/**
+	 * Parse metadata input for GPS latitude in D/M/S format
+	 * @param input String input
+	 * @return GPS decimal latitude
+	 */
+	public float parseLatitude(String input) {
+		String[] parts = input.split("Latitude -");
+		input = parts[1];
+		parts = input.split("°");
+		float degrees = Float.valueOf(parts[0]);
+		input = parts[1];
+		parts = input.split("'");
+		float minutes = Float.valueOf(parts[0]);
+		input = parts[1];
+		parts = input.split("\"");
+		float seconds = Float.valueOf(parts[0]);
+
+		float decimal = ConvertDMSToDD(degrees, minutes, seconds);
+		return decimal;
+	}
+
+	/**
+	 * Parse metadata input for GPS longitude in decimal format
+	 * @param input String input
+	 * @return GPS decimal longitude
+	 */
+	public float parseFloatLongitude(String input) {
+		String[] parts = input.split("W");
+		float decimal = Float.valueOf(parts[0]);
+		return decimal;
+	}
+
+	/**
+	 * Parse metadata input for GPS latitude in decimal format
+	 * @param input String input
+	 * @return GPS decimal latitude
+	 */
+	public float parseFloatLatitude(String input) {
+		String[] parts = input.split("N");
+		float decimal = Float.valueOf(parts[0]);
+		return decimal;
+	}
+	
+	/**
+	 * Parse metadata input for GPS bearing (i.e. compass orientation) in decimal format, given in degrees
+	 * @param input String input
+	 * @return GPS orientation in degrees
+	 */
+	public float parseFloatBearing(String input) {
+		String[] parts = input.split("Magnetic North");
+		float bearing = Float.valueOf(parts[0]);
+
+		return bearing;
+	}
+
+	/**
+	 * Parse metadata input for GPS altitude in decimal format, given in m.
+	 * @param input String input
+	 * @return Altitude in meters
+	 */
+	public float parseAltitude(String input) {
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split("metres");
+		float altitude = Float.valueOf(parts[0]);
+
+		return altitude;
+	}
+
+	/**
+	 * Parse metadata input for lens focal length, given in mm.
+	 * @param input String input
+	 * @return Focal length in millimeters
+	 */
+	public float parseFocalLength(String input) {
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split("m");
+		float focLength = Float.valueOf(parts[0]);
+
+		if (parts[0] == "-")
+			focLength = -1000.f;
+
+		return focLength;
+	}
+
+	/**
+	 * Parse metadata input for camera sensor size, given in mm.
+	 * @param input String input
+	 * @return Camera sensor size in millimeters
+	 */
+	public float parseSensorSize(String input)
+	{
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split("m");
+		float sensorSize = Float.valueOf(parts[0]);
+
+		return sensorSize;
+	}
+	
+	/**
+	 * Parse metadata input for focus distance 
+	 * @param input String input
+	 * @return Focus distance in meters
+	 */
+	public float ParseFocusDistance(String input) {
+		String[] parts = input.split("m");
+		float focusDist = Float.valueOf(parts[0]);
+
+		if (parts[0] == "-")
+			focusDist = -1000.f;
+
+		return focusDist;
+	}
+
+	public int ParseOrientation(String input) 	// Currently only handles horizontal
+	{
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split(",");
+		input = parts[0];
+		if (parts[0].trim().equals("Top"))
+			return 0;
+		else {
+			return Integer.valueOf(parts[1].trim());
+		}
+	}
+
+
+	public int parseCameraModel(String input) {
+		String[] parts = input.split(" ");
+		String model = parts[0];
+
+		if (model.equals("NIKON"))
+			return 0;
+		else
+			return 1;
+	}
+
+	public float ParseDirection(String input) 
+	{
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split("degrees");
+		return Float.valueOf(parts[0].trim());
+	}
+
+	public int ParseKeyword(String input)
+	{
+		if (input.equals(null)) {
+			PApplet.println("Image has no keyword!");
+		}
+
+		if (input.equals("Center"))
+			return 0;
+		else if (input.equals("Lower 1"))
+			return -1;
+		else if (input.equals("Lower 2"))
+			return -2;
+		else if (input.equals("Lower 3"))
+			return -3;
+		else if (input.equals("Lower 4"))
+			return -4;
+		else if (input.equals("Upper 1"))
+			return 1;
+		else if (input.equals("Upper 2"))
+			return 2;
+		else if (input.equals("Upper 3"))
+			return 3;
+		else if (input.equals("Upper 4"))
+			return 4;
+
+		return 0;
+	}
+
+	public int ParseWidthOrHeight(String input)
+	{
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split("pixels");
+		return Integer.valueOf(parts[0].trim());
+	}
+
+	public float parseBrightness(String input)
+	{
+		String[] parts = input.split("-");
+		input = parts[1];							// Fractional brightness
+		
+		parts = input.split("/");
+
+		if(parts.length == 2)
+			return Float.parseFloat(parts[0]) / Float.parseFloat(parts[1]);
+		else 
+			return -1.f;
+	}
+
+	/**
+	 * ConvertDMSToDD()
+	 * @param degrees Degrees
+	 * @param minutes Minutes
+	 * @param seconds Seconds
+	 * @return Decimal value of coordinates
+	 */
+	public float ConvertDMSToDD(float degrees, float minutes, float seconds) 
+	{
+		float dd = degrees + minutes / 60 + seconds / (60 * 60);
+
+		/*
+		 * if (direction == "S" || direction == "W") { dd = dd * -1; } // Don't
+		 * do anything for N or E
+		 */
+
+		return dd;
+	}
+
+	public float ConvertDMSToDDLongitude(float degrees, float minutes, float seconds) {
+		float dd;
+
+		dd = degrees - minutes/60.f - seconds/(60.f*60.f);
+
+		return dd;
+	}
+
+
+
+	public int[] parseAFPointsArray(String input) 
+	{
+		String[] parts = input.split(",");
+		int[] afPoints = new int[parts.length];
+
+		for (int i = 0; i < parts.length; i++) {
+			if (parts[i].startsWith(" ")) {
+				parts[i] = parts[i].substring(1);
+			}
+			afPoints[i] = parseAFPoint(parts[i]);
+			if (p.p.debug.metadata)
+				PApplet.println("afPoints[i]:" + afPoints[i]);
+		}
+
+		return afPoints;
+	}
+
+	
+	public int parseAFPoint(String afPoint) 
+	{
+		if (afPoint.equals("Center"))
+			return 0;
+		else if (afPoint.equals("Top"))
+			return 1;
+		else if (afPoint.equals("Bottom"))
+			return 2;
+		else if (afPoint.equals("Mid-left"))
+			return 3;
+		else if (afPoint.equals("Mid-right"))
+			return 4;
+		else if (afPoint.equals("Upper-left"))
+			return 5;
+		else if (afPoint.equals("Upper-right"))
+			return 6;
+		else if (afPoint.equals("Lower-left"))
+			return 7;
+		else if (afPoint.equals("Lower-right"))
+			return 8;
+		else if (afPoint.equals("Far Left"))
+			return 9;
+		else if (afPoint.equals("Far Right"))
+			return 10;
+
+		if (p.p.debug.metadata) {
+			PApplet.println("Not a valid afPoint: " + afPoint);
+		}
+
+		return 1000;
+	}
+
+	public Calendar parseDateTime(String input) 
+	{		
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		int sec = Integer.valueOf(parts[4]);
+		input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		Calendar c = Calendar.getInstance();
+		c.set(year, month, day, hour, min, sec);
+
+		return c;
+	}
+
+	public Calendar parseVideoDateTime(String input) 
+	{		
+		String[] parts = input.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		String secStr = parts[4];
+
+		input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		parts = secStr.split("-");
+		int sec = Integer.valueOf(parts[0]);
+
+		Calendar c = Calendar.getInstance();
+		c.set(year, month, day, hour, min, sec);
+
+		return c;
+	}
+
+//	public float parseSoundDateTime(String input) 
+//	{
+//		String[] parts = input.split(":");
+//
+//		int year = Integer.valueOf(parts[0]);
+//		int month = Integer.valueOf(parts[1]);
+//		int min = Integer.valueOf(parts[3]);
+//		int sec = Integer.valueOf(parts[4]);
+//		input = parts[2];
+//		parts = input.split(" ");
+//		int day = Integer.valueOf(parts[0]);
+//		int hour = Integer.valueOf(parts[1]);
+//
+//		Calendar c = Calendar.getInstance();
+//		c.set(year, month, day, hour, min, sec);
+//
+//		PVector result = p.p.utilities.calculateDateTime(c); // Returns float between 0. and 1. for sunrise/sunset adjusted time
+//		float time = result.y;
+//
+//		return time;
+//	}
+	
+//	public int convertKeywordToElevation(String keyword) {
+//	if (keyword.equals("Center"))
+//		return 0;
+//	else if (keyword.equals("Lower 1")) {
+//		return -1;
+//	} else if (keyword.equals("Lower 2")) {
+//		return -2;
+//	} else if (keyword.equals("Lower 3")) {
+//		return -3;
+//	} else if (keyword.equals("Upper 1")) {
+//		return 1;
+//	} else if (keyword.equals("Upper 2")) {
+//		return 2;
+//	} else if (keyword.equals("Upper 3")) {
+//		return 3;
+//	}
+//	if (p.p.debug.metadata) {
+//		System.out.println("Not an elevation keyword: " + keyword);
+//	}
+//
+//	return 1000;
+//}
+
+//	public int ParseKeywordArrayForElevation(String input) {
+//	String[] parts = input.split(",");
+//	String[] keywords = new String[parts.length];
+//
+//	for (int i = 0; i < parts.length; i++) {
+//		// String[] split = input.split("\"");
+//		String[] split = parts[i].split("\"");
+//		keywords[i] = split[1];
+//		if (p.p.debug.metadata)
+//			PApplet.println("keywords[i]:" + keywords[i]);
+//	}
+//
+//	for (int i = 0; i < keywords.length; i++) {
+//		int result = convertKeywordToElevation(keywords[i]);
+//
+//		if (result != 1000)
+//			return result;
+//	}
+//
+//	if (p.p.debug.metadata) {
+//		System.out.println("No elevation keyword found: setting to default of 0");
+//	}
+//
+//	return 0;
+//}
+	
+
+//	public PVector ParseTrackLocation(String input) 
+//	{
+//		String[] parts = input.split(",");
+//
+//		float latitude = Float.valueOf(parts[0]);
+//		float longitude = Float.valueOf(parts[1]);
+//		float altitude = Float.valueOf(parts[2]);
+//
+//		PVector loc = new PVector(longitude, altitude, latitude);
+//		return loc;
+//	}
+
+}

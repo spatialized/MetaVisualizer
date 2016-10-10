@@ -625,7 +625,6 @@ public abstract class GMV_Viewable
 	}
 
 	/**
-	 * isHidden()
 	 * @return Whether the media is hidden
 	 */
 	public boolean isHidden()

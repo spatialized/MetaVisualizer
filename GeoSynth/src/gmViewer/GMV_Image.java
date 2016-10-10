@@ -659,7 +659,6 @@ class GMV_Image extends GMV_Viewable
 	}
 	
 	/**
-	 * getFacingAngle()
 	 * @return Angle between the image and direction the camera is facing
 	 */
 	public float getFacingAngle()
@@ -675,7 +674,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * isBackFacing()
 	 * @return Is the camera behind the image?  
 	 */
 	public boolean isBackFacing()										
@@ -692,7 +690,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * isBehindCamera()
 	 * Is the image behind the camera?  
 	 * @return Whether image is behind camera
 	 */
@@ -717,7 +714,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * calcCenterVertex()
 	 * @return Center vertex of image rectangle
 	 */
 	private PVector calcCenterVertex()

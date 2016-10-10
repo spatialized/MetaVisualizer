@@ -326,6 +326,12 @@ public class GMV_Input
 				p.getCurrentField().fadeObjectDistances(1.176f);
 			}
 
+			if (key == 'q') 
+				p.viewer.startZoomTransition(-1);
+
+			if (key == 'z') 
+				p.viewer.startZoomTransition(1);
+
 			/* 3D Controls disabled in HUD view */
 			if(!p.display.inDisplayView())							
 			{
@@ -433,12 +439,6 @@ public class GMV_Input
 						p.display.message("No selected image!");
 				}
 				
-				if (key == 'q') 
-					p.viewer.startZoomTransition(-1);
-
-				if (key == 'z') 
-					p.viewer.startZoomTransition(1);
-
 				if (key == 'l') 	// Turn towards selected image
 					p.viewer.turnTowardsSelected();
 

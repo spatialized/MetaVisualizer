@@ -522,14 +522,15 @@ class GMV_Metadata
 					} 
 					catch (RuntimeException ex) {
 						if (p.p.debug.metadata)
-							PApplet.println("Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  "
-									+ ex);
-						if(!panorama && !dataMissing)
+							PApplet.println("Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
+						if(!panorama)
 						{
-							if(panorama) p.addPanoramaError();
-							else p.addImageError();
-							dataMissing = true;
-						}					
+							if(!dataMissing)
+							{
+								p.addImageError();
+								dataMissing = true;
+							}			
+						}
 					}
 				}
 			

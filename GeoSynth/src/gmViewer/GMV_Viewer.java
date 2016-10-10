@@ -28,18 +28,16 @@ import processing.data.IntList;
 public class GMV_Viewer 
 {
 	/* Camera */
-	Camera camera;									 	// Camera object
-	private float farViewingDistance = 16.f; 							// Distance (m.) of far clipping plane
+	Camera camera;									 				// Camera object
+	private float farViewingDistance = 16.f; 						// Distance (m.) of far clipping plane
 	private float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
-	private float nearViewingDistance = nearClippingDistance * 2.f; 		// Near distance at which transparency reaches zero
+	private float nearViewingDistance = nearClippingDistance * 2.f; // Near distance at which transparency reaches zero
 
-	private float fieldOfView = PApplet.PI * 0.35f;				// Field of view
-	private final float initFieldOfView = fieldOfView; 				// Initial field of view
+	private float fieldOfView = PApplet.PI * 0.375f;					// Field of view
+	private final float defaultFieldOfView = PApplet.PI / 3.0f;			// Default FOV
+	private final float initFieldOfView = fieldOfView; 		// Initial field of view
+	private boolean firstCamInitialization = true;			// Has camera been initialized?	
 
-	private final float initZoom = 0.03f;					// Initial zoom	amount
-	private boolean firstCamInitialization = true;		// Has the camera been initialized?	
-
-//	private float pitch, yaw, roll;							// For HUD drawing
 	private float rotateIncrement = 3.1415f / 256.f;		// Rotation amount each frame when turning
 	private float zoomIncrement = 3.1415f / 32.f;			// Zoom amount each frame when zooming
 
@@ -208,15 +206,12 @@ public class GMV_Viewer
 	 */
 	public void initialize(float x, float y, float z)
 	{
-//		float farClippingDistance = farViewingDistance > p.hudDistance ? farViewingDistance * 2.f : p.hudDistance * 2.f;	// Real far clipping extends beyond farClippingDistance by defaultFocusDistance
 		camera = new Camera( p, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, fieldOfView, nearClippingDistance, 10000.f);
 		location = new PVector(x, y, z);
 		teleportGoal = new PVector(x, y, z);
 		
-		camera.zoom(initZoom);
-//		pitch = 0.f;
-//		yaw = 0.f;
-//		roll = 0.f;
+		fieldOfView = initFieldOfView;
+//		zoomCamera(zoomInit);
 
 		if(firstCamInitialization)
 			firstCamInitialization = false;
@@ -311,9 +306,8 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * teleportToPoint()
-	 * @param dest	Destination point
-	 * @param fadeTransition	Use fade transition?
+	 * @param dest	Destination point in 3D virtual space
+	 * @param fadeTransition  Use fade transition (true) or jump (false)
 	 */
 	public void teleportToPoint( PVector dest, boolean fadeTransition ) 
 	{
@@ -1672,7 +1666,7 @@ public class GMV_Viewer
 	
 	private void slow()
 	{
-		if(p.debug.temp)
+		if(p.debug.viewer)
 			p.display.message("Slowing...");
 		
 		slowing = true;										// Slowing when close to attractor
@@ -1680,7 +1674,7 @@ public class GMV_Viewer
 
 	private void halt()
 	{
-		if(p.debug.temp)
+		if(p.debug.viewer)
 			p.display.message("Halting...");
 		
 		slowing = false;
@@ -1831,7 +1825,9 @@ public class GMV_Viewer
 			if (zooming) 
 			{
 				if (p.frameCount < zoomStart + zoomLength) 
-					camera.zoom(zoomIncrement / zoomLength * zoomDirection);
+				{
+					zoomCamera(zoomIncrement / zoomLength * zoomDirection);
+				}
 				else 
 					zooming = false;
 			}
@@ -1907,48 +1903,63 @@ public class GMV_Viewer
 		}
 	}
 	
+	public void zoomCamera(float zoom)
+	{
+		fieldOfView += zoom;
+		camera.zoom(zoom);
+//		PApplet.println("zoomCamera() fieldOfView:"+fieldOfView);
+	}
+
+	public void resetCamera()
+	{
+		initialize( getLocation().x,getLocation().y,getLocation().z );							// Initialize camera
+	}
+	
 	/**
 	 * updateTeleporting()
-	 * Update teleporting variables and perform interpolation
+	 * Update teleporting interpolation values
 	 */
 	private void updateTeleporting()
 	{
-//		p.display.sendMessage("updateTeleporting()...");
 		if(p.frameCount >= teleportStart + p.getCurrentField().teleportLength)		// If the teleport has finished
 		{
-//			p.display.sendMessage("Reached teleport goal...");
+			if(p.debug.viewer)
+				p.display.message(" Reached teleport goal...");
+
 			if(teleportWaitingCount > p.getCurrentField().teleportLength * 2.f)
 			{
 				if(p.debug.viewer)
-					p.display.message("Exceeded teleport wait time. Stopping all media...");
+					p.display.message(" Exceeded teleport wait time. Stopping all media...");
 				p.getCurrentField().stopAllMediaFading();
 			}
 			
 			if( !p.getCurrentField().mediaAreFading() )			// Once no more images are fading
 			{
-//				p.display.sendMessage("updateTeleporting(): Media finished fading...");
+				if(p.debug.viewer)
+					p.display.message(" Media finished fading...");
+
 				if(teleportToField != -1)							// If a new field has been specified 
 				{
 					if(p.debug.viewer)
-						p.display.message("Teleported to field "+teleportToField+"...");
+						p.display.message(" Teleported to field "+teleportToField+"...");
 
 					setCurrentField(teleportToField);				// Set new field
 					teleportToField = -1;							// Reset target field
 				}
 
 				if(p.debug.viewer)
-					p.display.message("Teleported to x:"+teleportGoal.x+" y:"+teleportGoal.y+" z:"+teleportGoal.z);
+					p.display.message(" Teleported to x:"+teleportGoal.x+" y:"+teleportGoal.y+" z:"+teleportGoal.z);
 
 				if(teleportGoalCluster != -1)
 				{
 					currentCluster = teleportGoalCluster;
 					teleportGoalCluster = -1;
 					if(p.debug.field)
-						p.display.message("After teleport, set current cluster to teleportGoalCluster:"+currentCluster);
+						p.display.message(" After teleport, set current cluster to teleportGoalCluster:"+currentCluster);
 				}
 				
 				camera.jump(teleportGoal.x, teleportGoal.y, teleportGoal.z);			// Move the camera
-				teleporting = false;								// Change the system status
+				teleporting = false;													// Change the system status
 				
 				if(movingToCluster)
 				{
@@ -1970,7 +1981,8 @@ public class GMV_Viewer
 				{
 					movingToAttractor = false;
 					currentCluster = getNearestCluster(false);		// Set currentCluster to nearest
-					p.display.message("Reached attractor... turning towards image");
+//					if(p.debug.viewer)
+//						p.display.message("Reached attractor... turning towards image");
 					
 //					if(attractorPoint != null)
 //						turnTowardsPoint(attractorPoint.getLocation());
@@ -2636,7 +2648,7 @@ public class GMV_Viewer
 	{
 		loadGPSTrack(selection);
 	}
-	
+
 	/**
 	 * loadGPSTrack()
 	 * Load and analyze GPS track file in response to user selection
@@ -2936,6 +2948,11 @@ public class GMV_Viewer
 	public float getFieldOfView()
 	{
 		return fieldOfView;
+	}
+	
+	public float getInitFieldOfView()
+	{
+		return initFieldOfView;
 	}
 	
 	public float getNearClippingDistance()

@@ -180,7 +180,7 @@ class GMV_Display
 				displayStatistics();
 
 			if(cluster)
-				displayClusterView();
+				displayClusterStats();
 			
 			if(control)
 				displayControls();
@@ -206,7 +206,7 @@ class GMV_Display
 				displayStatistics();
 
 			if(clusterOverlay)
-				displayClusterView();				
+				displayClusterStats();				
 
 			if(controlOverlay)
 				displayControls();
@@ -219,7 +219,7 @@ class GMV_Display
 
 //			if(aboutOverlay)
 
-			if(mapOverlay && drawForceVector)						// Draw force vector
+			if((map || mapOverlay) && drawForceVector)						// Draw force vector
 			{
 				mapVectorOrigin = p.viewer.getLocation();
 				float ptSize = cameraPointSize * 2.f;
@@ -554,7 +554,15 @@ class GMV_Display
 	 */
 	void beginHUD()
 	{
-		p.translate(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
+		// TESTING
+		float camInitFov = p.viewer.getInitFieldOfView();
+		float camFov = p.viewer.getFieldOfView();
+		
+		PVector t = new PVector(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
+	
+		p.perspective(camInitFov, (float)p.width/(float)p.height, p.viewer.getNearClippingDistance(), 10000);
+		
+		p.translate(t.x, t.y, t.z);
 		p.rotateY(p.viewer.camera.attitude()[0]);
 		p.rotateX(-p.viewer.camera.attitude()[1]);
 		p.rotateZ(p.viewer.camera.attitude()[2]);
@@ -982,7 +990,7 @@ class GMV_Display
 		if(image.location != null && !image.disabled && !image.hidden)
 		{
 			if(capture)
-				drawMapPoint( image.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapImageCaptureHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( image.getCaptureLocation(), pointSize * (image.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapImageCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
 				drawMapPoint( image.location, pointSize, mapWidth, mapHeight, mapImageHue, saturation, 255.f, mapMediaTransparency );
 		}
@@ -1015,7 +1023,7 @@ class GMV_Display
 		if(panorama.location != null && !panorama.disabled && !panorama.hidden)
 		{
 			if(capture)
-				drawMapPoint( panorama.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapPanoramaCaptureHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( panorama.getCaptureLocation(), pointSize * (panorama.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapPanoramaCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
 				drawMapPoint( panorama.location, pointSize, mapWidth, mapHeight, mapPanoramaHue, saturation, 255.f, mapMediaTransparency );
 		}
@@ -1047,7 +1055,7 @@ class GMV_Display
 		if(video.location != null && !video.disabled && !video.hidden)
 		{
 			if(capture)
-				drawMapPoint( video.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapVideoCaptureHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( video.getCaptureLocation(), pointSize * (video.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapVideoCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
 				drawMapPoint( video.location, pointSize, mapWidth, mapHeight, mapVideoHue, saturation, 255.f, mapMediaTransparency );
 		}
@@ -1379,10 +1387,10 @@ class GMV_Display
 	}
 
 	/**
-	 * displayClusterView()
+	 * displayClusterStats()
 	 * Draw cluster statistics display
 	 */
-	void displayClusterView()
+	void displayClusterStats()
 	{
 		p.pushMatrix();
 		beginHUD();
@@ -1419,6 +1427,20 @@ class GMV_Display
 //			p.text(" Field Timeline Times: "+ c.getFieldTimes().size(), dispLocX, textYPos += lineWidth, hudDistance);
 		}
 		
+		FloatList clusterTimes = p.getCurrentCluster().getClusterTimes();
+		
+		if(clusterTimes.size() == 0)
+			p.text("No timeline!", dispLocX, textYPos += lineWidth, hudDistance);
+		else
+			p.text("Timeline:", dispLocX , textYPos += lineWidth, hudDistance);
+
+		if(clusterTimes.size() == 1)
+			p.text(clusterTimes.get(0), dispLocX + 50.f, textYPos, hudDistance);
+		if(clusterTimes.size() == 2)
+			p.text(clusterTimes.get(0)+" "+clusterTimes.get(1), dispLocX + 100.f, textYPos, hudDistance);
+		if(clusterTimes.size() >= 3)
+			p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), dispLocX + 150.f, textYPos, hudDistance);
+				
 		p.text(" ", dispLocX, textYPos += lineWidth, hudDistance);
 		p.text(" ", dispLocX, textYPos += lineWidth, hudDistance);
 

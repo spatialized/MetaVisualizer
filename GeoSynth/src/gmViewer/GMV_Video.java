@@ -690,7 +690,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 * isBackFacing()
 	 * @return Is the camera behind the video?  
 	 */
-	boolean isBackFacing()										
+	public boolean isBackFacing()										
 	{
 		PVector camLoc = p.p.viewer.getLocation();
 
@@ -707,7 +707,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 * getFacingAngle()
 	 * @return Angle between the video and direction the camera is facing
 	 */
-	float getFacingAngle()
+	public float getFacingAngle()
 	{
 		PVector camOrientation = p.p.viewer.getOrientationVector();
 		PVector faceNormal = getFaceNormal();

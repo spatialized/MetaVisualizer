@@ -221,39 +221,7 @@ class GMV_Display
 
 			if((map || mapOverlay) && drawForceVector)						// Draw force vector
 			{
-				mapVectorOrigin = p.viewer.getLocation();
-				float ptSize = cameraPointSize * 2.f;
-				drawMapPoint( mapVectorOrigin, ptSize, largeMapWidth, largeMapHeight, mapCameraHue, 255.f, 255.f, mapMediaTransparency );
-				
-				/* Change viewer arrow based on fieldWidth -- should be fieldLength?  -- should depend on zoom level too! */
-//				int arrowLength = (int)PApplet.map( p.getCurrentField().model.fieldWidth, 100.f, 10000.f, 6.f, 100.f );
-				int arrowLength = 30;
-				
-				ScaleMap logMap;
-				logMap = new ScaleMap(6., 60., 6., 60.);		/* Time fading interpolation */
-				logMap.setMapFunction(p.circularEaseOut);
-
-				arrowLength = (int)logMap.getMappedValueFor(arrowLength);
-				
-				logMap = new ScaleMap(0.f, 0.25f, 0.f, 0.25f);		/* Time fading interpolation */
-				logMap.setMapFunction(p.circularEaseOut);
-				
-				float shrinkFactor = PApplet.map(arrowLength, 6.f, 60.f, 0.f, 0.25f);
-				shrinkFactor = (float)logMap.getMappedValueFor(shrinkFactor);
-				shrinkFactor = 0.95f - (0.25f - shrinkFactor);		// Reverse mapping high to low
-				PVector current = mapVectorVector;
-				
-				for(int i=1; i<arrowLength; i++)
-				{
-					p.textSize(ptSize);
-					float mult = (i+6) * 0.025f;
-					current = mapVectorVector.mult( mult );
-					
-					PVector arrowPoint = new PVector(mapVectorOrigin.x + current.x, 0, mapVectorOrigin.z + current.z);
-					drawMapPoint( arrowPoint, ptSize, largeMapWidth, largeMapHeight, 255.f-mapCameraHue, 170.f, 255.f, 255.f );
-
-					ptSize *= shrinkFactor;
-				}
+				drawForceVector();
 			}
 		}
 	}
@@ -277,10 +245,6 @@ class GMV_Display
 
 		if(!p.utilities.isNaN(point.x) && !p.utilities.isNaN(point.y) && !p.utilities.isNaN(point.z))
 		{
-			/* Adjust point coordinates to current map view */
-//			point.x += mapLeftEdge;				
-//			point.z += mapTopEdge;
-			
 			/* Find 2D map coordinates for this image */
 			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth * mapZoom );		
 			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight * mapZoom );
@@ -535,12 +499,12 @@ class GMV_Display
 		{
 			p.pushMatrix();
 			beginHUD();
+			
 			p.fill(140, 100, 255);
 			float xPos = PApplet.map(i, 0, length, 0, p.width * 1.33f);
 			float inc = PApplet.map(2, 0, length, 0, p.width * 1.33f) - PApplet.map(1, 0, length, 0, p.width*1.33f);
 			int x = -p.width/2 + (int)xPos;
 			int y = -p.height/2+p.height/2;
-//			PApplet.println("x:"+x+" y:"+y+" inc:"+inc);
 
 			p.translate(x, y, hudDistance);
 			p.box(inc, inc*10.f, 1);    // Display 
@@ -554,14 +518,10 @@ class GMV_Display
 	 */
 	void beginHUD()
 	{
-		// TESTING
 		float camInitFov = p.viewer.getInitFieldOfView();
-		float camFov = p.viewer.getFieldOfView();
-		
-		PVector t = new PVector(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
-	
 		p.perspective(camInitFov, (float)p.width/(float)p.height, p.viewer.getNearClippingDistance(), 10000);
 		
+		PVector t = new PVector(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
 		p.translate(t.x, t.y, t.z);
 		p.rotateY(p.viewer.camera.attitude()[0]);
 		p.rotateX(-p.viewer.camera.attitude()[1]);
@@ -577,104 +537,103 @@ class GMV_Display
 		p.pushMatrix();
 		beginHUD();
 		
-		float textXPos = centerTextXOffset;
-//		float dispLocX = centerTextXOffset;
-		float textYPos = topTextYOffset;			// Starting vertical position
+		float xPos = centerTextXOffset;
+		float yPos = topTextYOffset;			// Starting vertical position
 		
 		p.fill(0, 0, 255, 255);                        
 		p.textSize(largeTextSize);
-		p.text(" Keyboard Controls ", textXPos, textYPos, hudDistance);
+		p.text(" Keyboard Controls ", xPos, yPos, hudDistance);
 
-		textXPos = midLeftTextXOffset;
+		xPos = midLeftTextXOffset;
 		p.textSize(mediumTextSize);
-		p.text(" Display", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Display", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" 1  Show/Hide Field Map   		  +SHIFT to Overlay", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" 2	Show/Hide Field Statistics    +SHIFT to Overlay", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" 3	Show/Hide Cluster Statistics  +SHIFT to Overlay", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" 4 	Show/Hide Keyboard Controls   +SHIFT to Overlay", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" 1  Show/Hide Field Map   		  +SHIFT to Overlay", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" 2	Show/Hide Field Statistics    +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
+		p.text(" 3	Show/Hide Cluster Statistics  +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
+		p.text(" 4 	Show/Hide Keyboard Controls   +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
 
 		p.textSize(mediumTextSize);
-		p.text(" Time", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Time", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" OPTION + F    Time Fading On/Off", textXPos, textYPos += lineWidthWide, hudDistance);
+		p.text(" OPTION + F    Time Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
 //		p.text(" Z    Toggle Time Fading Mode (Field/Cluster)", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" SHIFT + Up/Dn   Cycle Length - / +", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" space Pause On/Off   ", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" SHIFT + Lt/Rt   Current Time - / +", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" SHIFT + Up/Dn   Cycle Length - / +", xPos, yPos += lineWidth, hudDistance);
+		p.text(" space Pause On/Off   ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" SHIFT + Lt/Rt   Current Time - / +", xPos, yPos += lineWidth, hudDistance);
 
 		p.textSize(mediumTextSize);
-		p.text(" Time Navigation", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Time Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" F    Move to First Field Time Segment", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" N    Move to Next Field Time Segment", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" B    Move to Previous Field Time Segment", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" n 	  Move to Next Cluster Time Segment", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" b    Move to Previous Cluster Time Segment", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" F    Move to First Field Time Segment", xPos, yPos += lineWidth, hudDistance);
+		p.text(" N    Move to Next Field Time Segment", xPos, yPos += lineWidth, hudDistance);
+		p.text(" B    Move to Previous Field Time Segment", xPos, yPos += lineWidth, hudDistance);
+		p.text(" n 	  Move to Next Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" b    Move to Previous Cluster Time Segment", xPos, yPos += lineWidth, hudDistance);
 
-		textXPos = centerTextXOffset;
-		textYPos = topTextYOffset;			// Starting vertical position
+		xPos = centerTextXOffset;
+		yPos = topTextYOffset;			// Starting vertical position
 		
 		p.textSize(mediumTextSize);
-		p.text(" Graphics", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Graphics", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" G    Angle Fading On/Off", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" _ + Visible Angle  - / +      ", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" - = Default Focus Distance  - / +      ", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" P Transparency Mode  On / Off      ", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" ( ) Blend Mode  - / +      ", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" D  Video Mode On/Off ", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" h H v  Hide images / panoramas / videos    ", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" G    Angle Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" , .  Object Distance + / - ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" _ + Visible Angle  - / +      ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" - = Default Focus Distance  - / +      ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" P Transparency Mode  On / Off      ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" ( ) Blend Mode  - / +      ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" D  Video Mode On/Off ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" h H v  Hide images / panoramas / videos    ", xPos, yPos += lineWidth, hudDistance);
 
 		p.textSize(mediumTextSize);
-		p.text(" Movement", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Movement", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" a d w s   Walk Left / Right / Forward / Backward ", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" Arrows    Turn Camera ", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" q z  Zoom In / Out + / - ", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" a d w s   Walk Left / Right / Forward / Backward ", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" Arrows    Turn Camera ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" q z  Zoom In / Out + / - ", xPos, yPos += lineWidth, hudDistance);
 		
 		p.textSize(mediumTextSize);
-		p.text(" Navigation", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" E    Move to Nearest Cluster", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" W    Move to Nearest Cluster in Front", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" Q    Move to Next Cluster in Time", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" A    Move to Next Location in Memory", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" Z    Move to Random Cluster", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" u    Move to Nearest Video ", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" C    Lock Viewer to Nearest Cluster On/Off", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" l    Look At Selected Media", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" L    Look for Media", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" { }  Teleport to Next / Previous Field ", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" E    Move to Nearest Cluster", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" W    Move to Nearest Cluster in Front", xPos, yPos += lineWidth, hudDistance);
+		p.text(" Q    Move to Next Cluster in Time", xPos, yPos += lineWidth, hudDistance);
+		p.text(" A    Move to Next Location in Memory", xPos, yPos += lineWidth, hudDistance);
+		p.text(" Z    Move to Random Cluster", xPos, yPos += lineWidth, hudDistance);
+		p.text(" u    Move to Nearest Video ", xPos, yPos += lineWidth, hudDistance);
+		p.text(" C    Lock Viewer to Nearest Cluster On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" l    Look At Selected Media", xPos, yPos += lineWidth, hudDistance);
+		p.text(" L    Look for Media", xPos, yPos += lineWidth, hudDistance);
+		p.text(" { }  Teleport to Next / Previous Field ", xPos, yPos += lineWidth, hudDistance);
 
-		textXPos = midRightTextXOffset;
-		textYPos = topTextYOffset;			// Starting vertical position
-
-		p.textSize(mediumTextSize);
-		p.text(" Interaction", textXPos, textYPos += lineWidthVeryWide, hudDistance);
-		p.textSize(smallTextSize);
-		p.text(" O    Selection Mode On/Off", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" f    Select Media in Front", textXPos, textYPos += lineWidth, hudDistance);
+		xPos = midRightTextXOffset;
+		yPos = topTextYOffset;			// Starting vertical position
 
 		p.textSize(mediumTextSize);
-		p.text(" Memory", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Interaction", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" `    Save Current View to  Memory", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" y	  Navigate Memorized Places", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" Y    Clear Memory", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" O    Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" f    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
 
 		p.textSize(mediumTextSize);
-		p.text(" Output", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" o    Set Image Output Folder", textXPos, textYPos += lineWidthWide, hudDistance);
-		p.text(" p    Save Screen Image to Disk", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" F    Select Media in Front", textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" R    Clear Selection", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" `    Save Current View to  Memory", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" y	  Navigate Memorized Places", xPos, yPos += lineWidth, hudDistance);
+		p.text(" Y    Clear Memory", xPos, yPos += lineWidth, hudDistance);
+
+		p.textSize(mediumTextSize);
+		p.text(" Output", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.textSize(smallTextSize);
+		p.text(" o    Set Image Output Folder", xPos, yPos += lineWidthWide, hudDistance);
+		p.text(" p    Save Screen Image to Disk", xPos, yPos += lineWidth, hudDistance);
+		p.text(" F    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
+		p.text(" R    Clear Selection", xPos, yPos += lineWidth, hudDistance);
 	
 //		p.text(" 2 1 Camera Speed + / - ", dispLocX, textYPos += lineWidth * 2, hudDistance);
 //		p.text(" 4 3 Background Brightness + / - ", dispLocX, textYPos += lineWidth, hudDistance);
 //		p.text(" - = Default Focal Length - / +      ", dispLocX, textYPos += lineWidth, hudDistance);
-//		p.text(" , .  Image Size + / - ", dispLocX, textYPos += lineWidth, hudDistance);
 //		p.text(" k j  Altitude Scale Factor  + / - ", dispLocX, textYPos += lineWidth, hudDistance);
 //		p.text(" _ + Cluster Minimum Points - / +      ", dispLocX, textYPos += lineWidth, hudDistance);
 
@@ -1080,16 +1039,17 @@ class GMV_Display
 		logMap.setMapFunction(p.circularEaseOut);
 
 		/* Change viewer arrow based on fieldWidth -- should be fieldLength??  -- should depend on zoom level too! */
-		int iterations = (int)logMap.getMappedValueFor( PApplet.map( p.getCurrentField().model.fieldWidth, 100.f, 10000.f, 6.f, 60.f ) );
+//		int arrowLength = (int)logMap.getMappedValueFor( PApplet.map( p.getCurrentField().model.fieldWidth, 100.f, 10000.f, 6.f, 60.f ) );
+		int arrowLength = 30;
 		
 		logMap = new ScaleMap(0.f, 0.25f, 0.f, 0.25f);		/* Time fading interpolation */
 		logMap.setMapFunction(p.circularEaseOut);
 		
-		float shrinkFactor = PApplet.map(iterations, 6.f, 60.f, 0.f, 0.25f);
+		float shrinkFactor = PApplet.map(arrowLength, 6.f, 60.f, 0.f, 0.25f);
 		shrinkFactor = (float)logMap.getMappedValueFor(shrinkFactor);
 		shrinkFactor = 0.95f - (0.25f - shrinkFactor);		// Reverse mapping high to low
 				
-		for(int i=1; i<iterations; i++)
+		for(int i=1; i<arrowLength; i++)
 		{
 			p.textSize(ptSize);
 			float x = i * cameraPointSize * 0.5f * (float)Math.cos( camYaw );
@@ -1132,6 +1092,42 @@ class GMV_Display
 		for( GMV_Cluster c : p.getCurrentField().clusters )								// For all clusters at current depth
 		{
 			drawMapPoint( c.getLocation(), 5.f, largeMapWidth, largeMapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+		}
+	}
+	
+	private void drawForceVector()
+	{
+		mapVectorOrigin = p.viewer.getLocation();
+		
+		float ptSize = cameraPointSize * 2.f;
+		drawMapPoint( mapVectorOrigin, ptSize, largeMapWidth, largeMapHeight, mapCameraHue, 255.f, 255.f, mapMediaTransparency );
+		
+		int arrowLength = 30;
+		
+		ScaleMap logMap;
+		logMap = new ScaleMap(6., 60., 6., 60.);		/* Time fading interpolation */
+		logMap.setMapFunction(p.circularEaseOut);
+
+//		arrowLength = (int)logMap.getMappedValueFor(arrowLength);
+		
+		logMap = new ScaleMap(0.f, 0.25f, 0.f, 0.25f);		/* Time fading interpolation */
+		logMap.setMapFunction(p.circularEaseOut);
+		
+		float shrinkFactor = PApplet.map(arrowLength, 6.f, 60.f, 0.f, 0.25f);
+		shrinkFactor = (float)logMap.getMappedValueFor(shrinkFactor);
+		shrinkFactor = 0.95f - (0.25f - shrinkFactor);		// Reverse mapping high to low
+		PVector current = mapVectorVector;
+		
+		for(int i=1; i<arrowLength; i++)
+		{
+			p.textSize(ptSize);
+			float mult = (i+6) * 0.025f;
+			current = mapVectorVector.mult( mult );
+			
+			PVector arrowPoint = new PVector(mapVectorOrigin.x + current.x, 0, mapVectorOrigin.z + current.z);
+			drawMapPoint( arrowPoint, ptSize, largeMapWidth, largeMapHeight, 255.f-mapCameraHue, 170.f, 255.f, 255.f );
+
+			ptSize *= shrinkFactor;
 		}
 	}
 	

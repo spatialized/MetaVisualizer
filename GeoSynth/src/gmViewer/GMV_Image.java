@@ -272,7 +272,7 @@ class GMV_Image extends GMV_Viewable
 			if(isBackFacing() || isBehindCamera())
 				visible = false;
 
-			if(visible && !fading)						// Fade in at beginning
+			if(visible && !fading)								// Fade in
 				fadeIn();
 
 //			if (visible && !stillVisible && !initFading)
@@ -286,7 +286,6 @@ class GMV_Image extends GMV_Viewable
 
 		if(isFading())                       // Fade in and out with time
 		{
-//			p.p.display.sendMessage("Image isFading()... id: "+id);
 			updateFadingBrightness();
 
 			if(fadingBrightness == 0.f)

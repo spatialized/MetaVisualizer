@@ -39,8 +39,10 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	private boolean fieldsCreated = false;			// Initialized media folders
 	private boolean running = false;				// Is simulation running?
 	private boolean exit = false;					// System message to exit the program
-	private boolean firstFrame = true;				// First running frame
+	private boolean startup = true;				// First running frame
 	private boolean startRunning = false;			// Program just started running
+	private boolean saveImage = false;
+
 	private int initializationField = 0;			// Field to be initialized this frame
 	
 	public int setupProgress = 0;						// Setup progress (0 to 100)
@@ -142,7 +144,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 //	public boolean musicOn = true;						// Generate music from the photos?
 	
 	/** 
-	 * main()
 	 * Load the PApplet, either in a window of specified size or in fullscreen
 	 */
 	static public void main(String[] args) 
@@ -152,7 +153,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * settings()
 	 * Set window resolution and graphics mode
 	 */
 	public void settings() 
@@ -165,7 +165,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/** 
-	 * setup()
 	 * Called at program startup time
 	 */
 	public void setup()
@@ -174,33 +173,62 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/** 
-	 * draw()
 	 * Handles main application processes per frame
 	 */
 	public void draw() 
 	{		
-		/* Startup Screen */
-		if (firstFrame)									
-			startupScreen();
+		if (startup) showStartup();		/* Startup screen */
+		else if(!running) runSetup();	/* Run setup */
+		else run();						/* Run program */
+	}
+	
+	void run()
+	{
+		/* Viewing and navigating 3D environment */
+		if (!initialSetup && !interactive && !exit) 			
+			runSimulation();							// Run current simulation
 		
-		/* Create and initialize fields from folders, perform initial clustering, finish setup */
-		if (!firstFrame && libraryFolderSelected && initialSetup && !creatingFields && !running)
+		if (exit) 									
 		{
+			if(debug.detailed)
+				println("Exit command! about to quit...");
+			stopGeoSynth();								//  Exit simulation
+		}
+		
+		if ( debug.memory && frameCount % memoryCheckFrequency == 0 )
+		{
+			debug.checkMemory();
+			debug.checkFrameRate();
+		}
+		
+		if(saveImage && libraryFolderSelected)
+		{
+			saveFrame(outputFolder + "/image" + "-######.jpg");
+			saveImage = false;
+		}
+	}
+	
+	private void runSetup()
+	{
+		/* Create and initialize fields from folders, perform initial clustering, finish setup */
+		println("HERE");
+		if (libraryFolderSelected && initialSetup && !creatingFields && !running)
+		{
+			println("HERE2");
 			createFieldsFromFolders(folders);		// Create empty field for each media folder		Progress Bar: 10pts
 
 			display.sendSetupMessage(" ");	// Show startup message
 			display.sendSetupMessage("Creating "+fields.size()+" fields...");	// Show startup message
-			if(fields.size() > 5)
-			{
-//				display.sendSetupMessage("This may take a while...");	// Show startup message
-			}
+			
+			if(fields.size() > 5) display.sendSetupMessage("This may take several minutes...");	// Show long startup time warning
+
 			display.draw();											
 			
 			fieldProgressInc = PApplet.round(100.f / fields.size());				// Amount to increment progress bar for each field
 			creatingFields = true;
 		}
 
-		if (!firstFrame && libraryFolderSelected && initialSetup && creatingFields && !fieldsCreated)
+		if (libraryFolderSelected && initialSetup && creatingFields && !fieldsCreated)
 		{
 			if(!fieldsCreated && !exit)
 			{
@@ -214,24 +242,16 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 				fieldsCreated = true;
 		}
 
+//		if (fieldsCreated && initialSetup && !running)
 		if (fieldsCreated && initialSetup && !running)
 		{
-			PApplet.println("Finishing setup...");
-			setupProgress = 100;
-			
-			display.initializeMaps();
-			
-			initialSetup = false;				
-			display.initialSetup = false;
-			
-			running = true;
-			startRunning = true;
+			finishSetup();
 		}
 
 		/* Once library folder is selected */
-		if(!firstFrame && libraryFolderSelected && !initialSetup && !interactive && !running)
+		if(libraryFolderSelected && !initialSetup && !interactive && !running)
 			startInitialClustering();								// Start clustering mode 
-
+		
 		/* Start interactive clustering */
 		if(startInteractive && !interactive && !running)
 			startInteractiveClustering();						
@@ -239,57 +259,40 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		/* Running interactive clustering */
 		if(interactive && !startInteractive && !running)
 			runInteractiveClustering();							// Start clustering mode 
-
-		/* Viewing and navigating 3D environment */
-		if (running && !initialSetup && !interactive && !exit) 			
-		{
-			viewer.update();							// Update navigation
-
-			if(startRunning)							// If simulation just started 
-			{
-//				if(timeFadingMode == 0)
-//					viewer.moveToTimeInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
-//				else
-					viewer.moveToNearestCluster(true);
-				
-				viewer.firstTeleport = true;
-				startRunning = false;
-			}
-
-			updateTime();
-			
-			getCurrentField().update();					// Update clusters in current field
-			getCurrentField().draw();					// Display media in current field
-
-			if(debug.model || viewer.mapMode)	
-				getCurrentField().showClusters();		// Display field cluster centers (media capture locations) 	
-			
-			viewer.camera.feed();						// Send the 3D camera view to the screen
-			display.draw();								// Draw 2D display after 3D graphics
-			
-			// updateLeapMotion();						// Update Leap Motion 
-		}
-		
-		if (exit) 									
-		{
-			if(debug.detailed)
-				println("Exit command! about to quit...");
-			stopGMViewer();								//  Exit simulation
-		}
-		
-		if ( debug.memory && frameCount % memoryCheckFrequency == 0 )
-		{
-			debug.checkMemory();
-			debug.checkFrameRate();
-		}
-		
-		if (firstFrame)
-			firstFrame = false;							// After first frame
 	}
 	
+	/**
+	 * Run the current simulation
+	 */
+	void runSimulation()
+	{
+		/* 3D Display */
+		getCurrentField().update();					// Update clusters in current field
+		getCurrentField().draw();					// Display media in current field
+
+		if(debug.model || viewer.mapMode)	
+			getCurrentField().showClusters();		// Display field cluster centers (media capture locations) 	
+		
+		viewer.update();							// Update navigation
+		viewer.camera.feed();						// Send the 3D camera view to the screen
+		
+		/* 2D Display */
+		display.draw();								// Draw 2D display after 3D graphics
+		updateTime();								// Update time cycle
+
+		if(startRunning)							// If simulation just started running
+		{
+//				viewer.moveToTimeInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
+			viewer.moveToNearestCluster(true);
+			
+			viewer.firstTeleport = true;
+			startRunning = false;
+		}
+		
+		// updateLeapMotion();						// Update Leap Motion 
+	}
 
 	/** 
-	 * updateTime()
 	 * Update main time loop
 	 */
 	void updateTime()
@@ -301,25 +304,41 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 			if(currentTime > timeCycleLength)
 				currentTime = 0;
 
-//			if(currentTime > p.timeCycleLength + p.defaultMediaLength * 0.25f)
-//			{
-//				if(mediaAreActive())
-//				{
-//					if(p.debug.field && p.debug.detailed)
-//						PApplet.println("Media still active...");
-//				}
-//				else
-//				{
-//					currentTime = 0;
-//					if(p.debug.field && p.debug.detailed)
-//						PApplet.println("Reached end of day at frameCount:"+p.frameCount);
-//				}
-//			}
+			if(debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
+			{
+				if(getCurrentField().mediaAreActive())
+				{
+					if(debug.detailed)
+						PApplet.println("Media still active...");
+				}
+				else
+				{
+					currentTime = 0;
+					if(debug.detailed)
+						PApplet.println("Reached end of day at frameCount:"+frameCount);
+				}
+			}
 		}
 	}
 	
 	/**
-	 * stopAllVideos()
+	 * Finish the setup process
+	 */
+	void finishSetup()
+	{
+		PApplet.println("Finishing setup...");
+		setupProgress = 100;
+		
+		display.initializeMaps();
+		
+		initialSetup = false;				
+		display.initialSetup = false;
+		
+		running = true;
+		startRunning = true;
+	}
+	
+	/**
 	 * Stops any currently playing videos
 	 */
 	void stopAllVideos()
@@ -332,17 +351,15 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/**
-	 * stopGMViewer()
 	 * Exit the program
 	 */
-	void stopGMViewer() 		
+	void stopGeoSynth() 		
 	{
 		println("Exiting GMViewer 1.0.0...");
 		exit();
 	}
 
 	/**
-	 * initializeGMViewer()
 	 * Set up the main classes and variables
 	 */
 	void initializeGMViewer() 
@@ -374,7 +391,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * initializeField()
 	 * @param field Field ID to initialize
 	 */
 	void initializeField(int field)
@@ -403,19 +419,20 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * startupScreen()
 	 * Show startup screen
 	 */
-	public void startupScreen()
+	public void showStartup()
 	{
 		display.sendSetupMessage("Welcome to GeoSynth!");
 		display.sendSetupMessage(" ");
 		display.sendSetupMessage("Please select a library folder...");
 		display.draw();								// Draw setup display
+		
+		if (startup)
+			startup = false;							// After first frame
 	}
 	
 	/**
-	 * startInitialClustering()
 	 * Start initial clustering process
 	 */
 	public void startInitialClustering()
@@ -435,7 +452,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * startInteractiveClustering()
 	 * Start interactive clustering mode
 	 */
 	public void startInteractiveClustering()
@@ -456,7 +472,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * runInteractiveClustering()
 	 * Run user clustering 
 	 */
 	public void runInteractiveClustering()
@@ -467,7 +482,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * finishInteractiveClustering()
 	 * Restart simulation after running Interactive Clustering
 	 */
 	public void finishInteractiveClustering()
@@ -481,27 +495,21 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		startRunning = true;				// Start GMViewer running
 		running = true;	
 		
-		fadeInMedia();
-	}
-	
-	void fadeInMedia()
-	{
 		viewer.currentCluster = viewer.getNearestCluster(false);
 		getCurrentField().blackoutMedia();
 	}
 	
 	/**
-	 * createFieldsFromClusters()
+	 * createFieldsFromFolder()		-- TO DO!!
 	 * @param mediaFolder Folder containing the media
-	 * @param depth Clustering depth (scale) used to determine fields, technically dendrogram weight level
-	 * Create fields from single media folder using hierarchical k-means clustering at given depth
+	 * Create fields from single media folder using k-means clustering 
 	 */
-	public void createFieldsFromClusters(String mediaFolder, int depth)
+	public void createFieldsFromFolder(String mediaFolder)
 	{
 		fields = new ArrayList<GMV_Field>();			// Initialize fields array
-//		int count = 0;
 //		ArrayList<GMV_Cluster> clusters;
 		
+//		int count = 0;
 //		for(String s : clusters)
 //		{
 //			fields.add(new GMV_Field(this, s, count));
@@ -788,10 +796,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 
 	public void saveImage() 
 	{
-		String title;
-		title = outputFolder + "/image";
-		PApplet.println("Outputting lo-res image to:"+title);
-		saveFrame(title + "-######.jpg");
+		if(debug.main)
+			PApplet.println("Will output image to disk.");
+		saveImage = true;
 	}
 
 	public int getFieldCount()

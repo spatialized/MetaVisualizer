@@ -33,7 +33,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	private float sensorSize;
 	private PVector disp = new PVector(0, 0, 0);    		// Displacement from capture location
 	private float length;
-	
+
 	/* Graphics */
 	private float videoWidth = 0, videoHeight = 0;			// Video width and height
 	PVector[] vertices;
@@ -41,6 +41,12 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float outlineSize = 10.f;
+	
+	private float fadingObjectDistanceStartFrame = 0.f, fadingObjectDistanceEndFrame = 0.f;	// Fade focus distance and image size together
+	private float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
+	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
+	private float fadingObjectDistanceLength = 30.f;
+
 	private boolean thinningVisibility = false;
  	
 	/* Sound */
@@ -258,7 +264,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	{
 		if(!disabled)			
 		{
-			calculateVertices();  						// Update geometry
+//			calculateVertices();  						// Update geometry
 
 			visible = getAngleVisibility();				// Check if the image is currently visible
 			if(p.p.debug.video && p.p.frameCount % 30 == 0)
@@ -270,21 +276,23 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 				visible = false;
 
-//			if(isBackFacing())
 			if(isBackFacing() || isBehindCamera())
 				visible = false;
 
-			if(p.p.debug.video && p.p.frameCount % 30 == 0)
-				p.p.display.message("After backFacing... "+visible);
-
-			if(visible && !fading)				// Fade in if visible at beginning 
+			if(visible && !fading && !fadedOut)					// Fade in
 			{
 				if(!videoLoaded) loadMedia();
 				fadeIn();
 			}
 
-//			if (visible && !stillVisible && !fading)		// If video is newly visible, fade in
+			if(fadedOut) fadedOut = false;						
+
+			if(p.p.debug.video && p.p.frameCount % 30 == 0)
+				p.p.display.message("After backFacing... "+visible);
+
+//			if(visible && !fading)				// Fade in if visible at beginning 
 //			{
+//				if(!videoLoaded) loadMedia();
 //				fadeIn();
 //			}
 
@@ -297,6 +305,13 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				if(fadingBrightness == 0.f)
 					visible = false;
 			}
+
+			if(fadingObjectDistance)
+			{
+				updateFadingObjectDistance();
+			}
+			else if(visible)
+				calculateVertices();  			// Update image parameters
 
 			if(fadingBrightness == 1.f && wasFading && !isFading())		// Fade in sound once video has faded in
 			{
@@ -1149,6 +1164,42 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 		return curAlpha;
 	}
+	
+	/**
+	 * Fade focus distance to given target while rescaling images 
+	 * @param target New focus distance
+	 */
+	public void fadeObjectDistance(float target)
+	{
+		fadingObjectDistance = true;
+		fadingObjectDistanceStartFrame = p.p.frameCount;					
+		fadingObjectDistanceEndFrame = p.p.frameCount + fadingObjectDistanceLength;	
+		fadingFocusDistanceStart = focusDistance;
+		fadingFocusDistanceTarget = target;
+	}
+	
+	/**
+	 * Update fading of object distance (focus distance and image size together)
+	 */
+	private void updateFadingObjectDistance()
+	{
+		float newFocusDistance = 0.f;
+
+		if (p.p.frameCount >= fadingObjectDistanceEndFrame)
+		{
+			fadingObjectDistance = false;
+			newFocusDistance = fadingFocusDistanceTarget;
+		} 
+		else
+		{
+			newFocusDistance = PApplet.map( p.p.frameCount, fadingObjectDistanceStartFrame, fadingObjectDistanceEndFrame, 
+											fadingFocusDistanceStart, fadingFocusDistanceTarget);      // Fade with distance from current time
+		}
+
+		setFocusDistance( newFocusDistance );	// Set focus distance
+		calculateVertices();  					// Update vertices given new width
+	}
+
 
 	/**	
 	 * initializeVertices()

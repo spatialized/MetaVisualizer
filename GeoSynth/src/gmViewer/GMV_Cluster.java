@@ -333,10 +333,9 @@ public class GMV_Cluster
 		for(int idx : images)
 		{
 			GMV_Image m = p.images.get(idx);
-			
 			float imgAngle = PApplet.radians(m.theta);
-//			PApplet.println("image "+idx+" angle:"+imgAngle);
 			m.setThinningVisibility(false);
+
 			for(int i=0; i<numPts; i++)
 			{
 				float ppAngle = i * (PApplet.PI * 2.f / numPts);					// Angle of perimeter point i
@@ -344,12 +343,11 @@ public class GMV_Cluster
 				{
 					perimeterPoints[i] = idx;
 					perimeterDistances[i] = p.p.utilities.getAngularDistance(imgAngle, ppAngle);
-					PApplet.println("ppAngle:"+ppAngle);
 				}
 				else							// Compare image angular distance from point to current closest
 				{
 					float imgDist = p.p.utilities.getAngularDistance(imgAngle, ppAngle);		// Current image angular distance
-//					PApplet.println("image:"+idx+" point:"+i+" dist:"+imgDist+" previous dist:"+perimeterDistances[i]+(imgDist < perimeterDistances[i]?" yes":" no"));
+					
 					if(imgDist < perimeterDistances[i])
 					{
 						perimeterPoints[i] = m.getID();
@@ -392,12 +390,12 @@ public class GMV_Cluster
 			{
 				if(idx < videoIdxOffset)
 				{
-					PApplet.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
+//					PApplet.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
 					p.images.get(idx).setThinningVisibility(true);
 				}
 				else
 				{
-					PApplet.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
+//					PApplet.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
 					p.videos.get(idx-videoIdxOffset).setThinningVisibility(true);
 				}
 			}

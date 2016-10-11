@@ -613,7 +613,7 @@ public class GMV_Field
 	
 	/**
 	 * Fade object distance for each media point in field, i.e. move closer or further from capture location and rescale
-	 * @param multiple
+	 * @param multiple Multiple to scale object distance by
 	 */
 	public void fadeObjectDistances(float multiple)
 	{
@@ -622,7 +622,13 @@ public class GMV_Field
 			float newFocusDistance = i.getFocusDistance() * multiple;
 			i.fadeObjectDistance(newFocusDistance);
 		}
-		
+
+		for(GMV_Video v:videos)
+		{
+			float newFocusDistance = v.getFocusDistance() * multiple;
+			v.fadeObjectDistance(newFocusDistance);
+		}
+
 //		p.viewer.setFarViewingDistance( p.viewer.getFarViewingDistance() * multiple );		// --Fade value
 //		p.viewer.setNearClippingDistance( p.viewer.getNearClippingDistance() * multiple );	// --Fade value
 	}

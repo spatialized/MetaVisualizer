@@ -152,6 +152,25 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 //		PApplet.main(new String[] { "--present", "gmViewer.GeoSynth" });	// Open in fullscreen mode
 	}
 	
+
+	/** 
+	 * Called at program startup time
+	 */
+	public void setup()
+	{
+		initialize();					// Initialize main classes and variables
+	}
+
+	/** 
+	 * Call main program methods
+	 */
+	public void draw() 
+	{		
+		if (startup) showStartup();		/* Startup screen */
+		else if(!running) runSetup();	/* Run setup */
+		else run();						/* Run program */
+	}
+
 	/**
 	 * Set window resolution and graphics mode
 	 */
@@ -162,24 +181,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 //		size(1980, 1080, processing.core.PConstants.P3D);
 		size(1600, 900, processing.core.PConstants.P3D);		// MacBook Pro
 //		size(1280, 960, processing.core.PConstants.P3D);
-	}
-
-	/** 
-	 * Called at program startup time
-	 */
-	public void setup()
-	{
-		initializeGMViewer();		// Initialize main classes and variables
-	}
-
-	/** 
-	 * Handles main application processes per frame
-	 */
-	public void draw() 
-	{		
-		if (startup) showStartup();		/* Startup screen */
-		else if(!running) runSetup();	/* Run setup */
-		else run();						/* Run program */
 	}
 	
 	void run()
@@ -361,7 +362,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	/**
 	 * Set up the main classes and variables
 	 */
-	void initializeGMViewer() 
+	void initialize() 
 	{
 		/* Create main classes */
 	    utilities = new GMV_Utilities(this);

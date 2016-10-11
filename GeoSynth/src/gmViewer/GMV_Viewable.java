@@ -58,7 +58,8 @@ public abstract class GMV_Viewable
 	public float fadingBrightness;							// Media transparency due to fading in / out
 	public boolean beginFading = false, fading = false, initFading = true;		
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
-
+	public boolean fadedOut = false;			// Recently faded out
+	
 	/* Status Modes */
 	public boolean visible = false;				// Media is currently visible and will be drawn
 	public boolean active = false;				// True when the image has faded in and isn't fading out	-- Needed?
@@ -483,6 +484,7 @@ public abstract class GMV_Viewable
 			if(initFading) initFading = false;
 			if(isFadingOut) isFadingOut = false;
 			if(isFadingIn) isFadingIn = false;
+			fadedOut = true;
 		} 
 		else
 		{

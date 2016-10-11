@@ -15,10 +15,10 @@ public class GMV_Debug
 	
 	/* Classes */
 	public boolean main = true;					// Debug main GMViewer class
-	public boolean viewer = true;				// Debug GMV_Viewer class
-	public boolean field = true;				// Debug GMV_Field class
+	public boolean viewer = false;				// Debug GMV_Viewer class
+	public boolean field = false;				// Debug GMV_Field class
 	public boolean time = false;
-	public boolean model = true;				// Debug GMV_Model class
+	public boolean model = false;				// Debug GMV_Model class
 	public boolean cluster = false;				// Debug GMV_Cluster class
 	public boolean display = false;				// Debug GMV_Display class
 	

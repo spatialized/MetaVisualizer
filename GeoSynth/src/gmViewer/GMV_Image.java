@@ -272,9 +272,11 @@ class GMV_Image extends GMV_Viewable
 			if(isBackFacing() || isBehindCamera())
 				visible = false;
 
-			if(visible && !fading)								// Fade in
+			if(visible && !fading && !fadedOut)								// Fade in
 				fadeIn();
 
+			if(fadedOut) fadedOut = false;
+			
 //			if (visible && !stillVisible && !initFading)
 //				if(!fading)												// If image is newly visible, fade in
 //					fadeIn();

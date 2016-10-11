@@ -201,20 +201,19 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 			debug.checkFrameRate();
 		}
 		
-		if(saveImage && libraryFolderSelected)
+		if(saveImage && outputFolderSelected)
 		{
 			saveFrame(outputFolder + "/image" + "-######.jpg");
 			saveImage = false;
+			println("Saved image:"+outputFolder + "/image" + "-######.jpg");
 		}
 	}
 	
 	private void runSetup()
 	{
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
-		println("HERE");
 		if (libraryFolderSelected && initialSetup && !creatingFields && !running)
 		{
-			println("HERE2");
 			createFieldsFromFolders(folders);		// Create empty field for each media folder		Progress Bar: 10pts
 
 			display.sendSetupMessage(" ");	// Show startup message
@@ -654,7 +653,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 			String input = selection.getPath();
 
 			if (debug.main)
-				println("User selected output folder: " + input);
+				println("----> User selected output folder: " + input);
 
 			outputFolder = input;
 			outputFolderSelected = true;

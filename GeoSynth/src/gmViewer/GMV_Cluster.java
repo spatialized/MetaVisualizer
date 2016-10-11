@@ -300,12 +300,11 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * update()
 	 * Update cluster variables
 	 */
 	void update()
 	{
-		clusterMass = mediaPoints;			// Set cluster mass
+		clusterMass = mediaPoints;			// Set cluster mass each frame
 
 		if(mediaPoints == 0)
 		{
@@ -313,40 +312,100 @@ public class GMV_Cluster
 			empty = true;
 		}
 
-		active = true;
-//		updateTime();
-	}
-
-	/** 
-	 * updateTime()
-	 * Update time variables each frame
-	 */
-	public void updateTime()
-	{
-//		if(p.p.frameCount % timeUnitLength == 0 && !p.p.pause)
-//		{
-//			curTime++;							// Increment time
-//
-//			if(curTime > dayLength)
-//			{
-//				if(mediaAreActive())
-//				{
-//					if(p.p.debug.field)
-//						PApplet.println("Media still active...");
-//				}
-//				else
-//				{
-//					curTime = 0;
-//					//					if(p.p.debug.field)
-//					//						PApplet.println("Reached end of day at frameCount:"+p.p.frameCount);
-//				}
-//			}
-//		}
+//		active = true;
 	}
 
 	/**
-	 * getImages()
-	 * @return ArrayList of Image3Ds associated with cluster
+	 * Analyze angles of all images and videos for Thinning Visibility Mode
+	 */
+	public void analyzeAngles()
+	{
+		PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
+		float tAngle = p.p.thinningAngle;							// Angle to thin images and videos by
+		int numPts = PApplet.round(PApplet.PI * 2.f / tAngle);		// Number of points on perimeter == number of images visible
+		int[] perimeterPoints = new int[numPts];					// Points to compare each cluster image/video to
+		float[] perimeterDistances = new float[numPts];					// Distances of images associated with each point
+		int videoIdxOffset = p.images.size();
+		
+		for(int i=0; i<numPts; i++)
+			perimeterPoints[i] = -1;								// Start with empty perimeter point
+
+		for(int idx : images)
+		{
+			GMV_Image m = p.images.get(idx);
+			
+			float imgAngle = PApplet.radians(m.theta);
+//			PApplet.println("image "+idx+" angle:"+imgAngle);
+			m.setThinningVisibility(false);
+			for(int i=0; i<numPts; i++)
+			{
+				float ppAngle = i * (PApplet.PI * 2.f / numPts);					// Angle of perimeter point i
+				if(perimeterPoints[i] == -1)
+				{
+					perimeterPoints[i] = idx;
+					perimeterDistances[i] = p.p.utilities.getAngularDistance(imgAngle, ppAngle);
+					PApplet.println("ppAngle:"+ppAngle);
+				}
+				else							// Compare image angular distance from point to current closest
+				{
+					float imgDist = p.p.utilities.getAngularDistance(imgAngle, ppAngle);		// Current image angular distance
+//					PApplet.println("image:"+idx+" point:"+i+" dist:"+imgDist+" previous dist:"+perimeterDistances[i]+(imgDist < perimeterDistances[i]?" yes":" no"));
+					if(imgDist < perimeterDistances[i])
+					{
+						perimeterPoints[i] = m.getID();
+						perimeterDistances[i] = imgDist;
+					}
+				}
+			}
+		}
+		
+		for(int idx : videos)
+		{
+			GMV_Video v = p.videos.get(idx);
+			float vidAngle = PApplet.radians(v.theta);
+			v.setThinningVisibility(false);
+
+			for(int i=0; i<numPts; i++)
+			{
+				float ppAngle = i * (PApplet.PI * 2.f / numPts);					// Angle of perimeter point i
+				if(perimeterPoints[i] == -1)
+				{
+					perimeterPoints[i] = idx;
+					perimeterDistances[i] = p.p.utilities.getAngularDistance(vidAngle, ppAngle);
+				}
+				else							// Compare image angular distance from point to current closest
+				{
+					float vidDist = p.p.utilities.getAngularDistance(vidAngle, ppAngle);		// Current image angular distance
+					if(vidDist < perimeterDistances[i])
+					{
+						perimeterPoints[i] = v.getID() + videoIdxOffset;
+						perimeterDistances[i] = vidDist;
+					}
+				}
+			}
+		}
+		
+		for(int i=0; i<numPts; i++)
+		{
+			int idx = perimeterPoints[i];
+			if(idx != -1)
+			{
+				if(idx < videoIdxOffset)
+				{
+					PApplet.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
+					p.images.get(idx).setThinningVisibility(true);
+				}
+				else
+				{
+					PApplet.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
+					p.videos.get(idx-videoIdxOffset).setThinningVisibility(true);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * @return Images associated with cluster
 	 */
 	public ArrayList<GMV_Image> getImages()
 	{
@@ -360,7 +419,7 @@ public class GMV_Cluster
 
 	/**
 	 * getPanoramas()
-	 * @return ArrayList of Image3Ds associated with cluster
+	 * @return Panoramas associated with cluster
 	 */
 	public ArrayList<GMV_Panorama> getPanoramas()
 	{
@@ -374,7 +433,7 @@ public class GMV_Cluster
 	
 	/**
 	 * getVideos()
-	 * @return ArrayList of Video3Ds associated with cluster
+	 * @return Videos associated with cluster
 	 */
 	public ArrayList<GMV_Video> getVideos()
 	{

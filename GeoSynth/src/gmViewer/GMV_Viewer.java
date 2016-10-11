@@ -2321,6 +2321,8 @@ public class GMV_Viewer
 				p.display.message("Total points:"+path.size());
 			}
 		}
+		else if(p.debug.memory)
+			p.display.message("Couldn't add memory point... walking? "+walking+" teleporting?"+teleporting+" velocity.mag():"+velocity.mag());
 	}
 	
 	/**

@@ -115,18 +115,22 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	
 	/* Graphics */
 	public boolean alphaMode = false;					// Use alpha fading instead of grayscale
+	public boolean blurEdges = false;					// Blur image edges
+	public PImage blurMask;								// Image used as mask for blurring
+
 	public boolean angleFading = false;					// Do photos fade out as the camera turns away from them?
 	public boolean angleHidingMode = true;				// Do photos disappear when fading out as the camera turns away from them?
+	public boolean angleThinning = false;				// Thin images and videos within
+	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
+	
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
-	public boolean blurEdges = false;					// Blur image edges
-	public PImage blurMask;
 	
 	/* Video */
 	final float videoMaxVolume = 0.9f;
 	public float assocVideoDistTolerance = 15.f;		// How far a photo can be taken from a video's location to become associated.
 	public float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
-	// (GMViewer assumes videographers will take a photo with Theodolite shortly before hitting record,
-	// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
+														// (GeoSynth assumes videographers will take a photo with Theodolite shortly before hitting record,
+														// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
 
 	/* Interpolation */
 	ScaleMap angleFadeMap, distanceFadeMap, timeFadeMap;
@@ -413,6 +417,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 			f.model.lockMediaToClusters();	
 
 		f.createTimeline();					// Create field timeline
+		f.analyzeClusterAngles();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 		
 		setupProgress += fieldProgressInc;		// Update progress bar
 		display.draw();							// Draw progress bar

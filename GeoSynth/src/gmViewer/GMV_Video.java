@@ -41,7 +41,8 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float outlineSize = 10.f;
-	
+	private boolean thinningVisibility = false;
+ 	
 	/* Sound */
 	private float volume = 0.f;			// Video volume between 0. and 1.
 	private boolean fadingVolume = false;
@@ -628,10 +629,33 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		{
 			if(p.p.angleHidingMode)
 			{
-				return isFacingCamera();	// Return true if image plane is facing the camera
+				if(p.p.angleThinning)										// Angle Thinning mode
+				{
+					return isFacingCamera() && thinningVisibility;		
+				}
+				else return isFacingCamera();	// Return true if image plane is facing the camera
 			}
-			else return true;     										 		
+			else 
+				return true;     										 		
 		}
+	}
+	
+	/**
+	 * Set thinning visibility of video
+	 * @param state New visibility
+	 */
+	void setThinningVisibility(boolean state)
+	{
+		thinningVisibility = state;
+	}
+	
+	/**
+	 * Get thinning visibility of image
+	 * @param state New visibility
+	 */
+	public boolean getThinningVisibility()
+	{
+		return thinningVisibility;
 	}
 
 	/**

@@ -23,9 +23,39 @@ public class GMV_Utilities
 	{
 		p = parent;
 	}
+	
+	/**
+	 * Get distance in radians between two angles
+	 * @param theta1 First angle
+	 * @param theta2 Second angle
+	 * @return Angular distance in radians
+	 */
+	public float getAngularDistance(float theta1, float theta2)
+	{
+		if (theta1 < 0)
+			theta1 += PApplet.PI * 2.f;
+		if (theta2 < 0)
+			theta2 += PApplet.PI * 2.f;
+		if (theta1 > PApplet.PI * 2.f)
+			theta1 -= PApplet.PI * 2.f;
+		if (theta2 > PApplet.PI * 2.f)
+			theta2 -= PApplet.PI * 2.f;
+
+		float dist1 = PApplet.abs(theta1-theta2);
+		float dist2;
+
+		if (theta1 > theta2)
+			dist2   = PApplet.abs(theta1 - PApplet.PI*2.f-theta2);
+		else
+			dist2   = PApplet.abs(theta2 - PApplet.PI*2.f-theta1);
+
+		if (dist1 > dist2)
+			return dist2;
+		else
+			return dist1;
+	}
 
 	/** 
-	 * gpsToMeters()
 	 * Get (approximate) distance between two GPS points in meters 
 	 * @param startLatitude Latitude of first point
 	 * @param startLongitude Longitude of first point

@@ -26,6 +26,7 @@ class GMV_Image extends GMV_Viewable
 	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
 	private float fadingObjectDistanceLength = 30.f;
 	
+	private boolean thinningVisibility = false;
 
 	/* Metadata */
 	private float imageWidth, imageHeight;		// Image width and height
@@ -257,8 +258,7 @@ class GMV_Image extends GMV_Viewable
 
 		if(image.width > 0 && !disabled)			
 		{
-			boolean stillVisible = visible;				// Remember if image was visible last frame
-			visible = getAngleVisibility();				// Check if the image is currently visible
+			visible = getAngleVisibility();						// Check if the image is currently visible
 			
 			if(p.p.debug.hideImages)
 				visible = false;
@@ -272,14 +272,10 @@ class GMV_Image extends GMV_Viewable
 			if(isBackFacing() || isBehindCamera())
 				visible = false;
 
-			if(visible && !fading && !fadedOut)								// Fade in
+			if(visible && !fading && !fadedOut)					// Fade in
 				fadeIn();
 
 			if(fadedOut) fadedOut = false;
-			
-//			if (visible && !stillVisible && !initFading)
-//				if(!fading)												// If image is newly visible, fade in
-//					fadeIn();
 		}
 		else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
 		{
@@ -299,7 +295,7 @@ class GMV_Image extends GMV_Viewable
 			updateFadingObjectDistance();
 		}
 		else if(visible)
-			calculateVertices();  	// Update image parameters			NEEDED?
+			calculateVertices();  			// Update image parameters
 	}
 
 	/** 
@@ -597,7 +593,7 @@ class GMV_Image extends GMV_Viewable
 	{
 		boolean visible = false;
 
-		if(p.p.transitionsOnly)					// With StaticMode ON, determine visibility based on distance of associated cluster 
+		if(p.p.transitionsOnly)							// In Transitions Only Mode, visibility is based on distance of associated cluster 
 		{
 			if(cluster == p.p.viewer.currentCluster)		// If this photo's cluster is the current (closest) cluster, it is visible
 				visible = true;
@@ -614,11 +610,33 @@ class GMV_Image extends GMV_Viewable
 		{
 			if(p.p.angleHidingMode)
 			{
-				return isFacingCamera();	// Return true if image plane is facing the camera
+				if(p.p.angleThinning)										// Angle Thinning mode
+				{
+					return isFacingCamera() && thinningVisibility;		
+				}
+				else return isFacingCamera();	// Return true if image plane is facing the camera
 			}
 			else 
 				return true;     										 		
 		}
+	}
+	
+	/**
+	 * Set thinning visibility of image
+	 * @param state New visibility
+	 */
+	public void setThinningVisibility(boolean state)
+	{
+		thinningVisibility = state;
+	}
+
+	/**
+	 * Get thinning visibility of image
+	 * @param state New visibility
+	 */
+	public boolean getThinningVisibility()
+	{
+		return thinningVisibility;
 	}
 
 	/**

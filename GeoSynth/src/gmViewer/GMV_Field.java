@@ -576,7 +576,13 @@ public class GMV_Field
 		}
 	}
 	
-	void showClusters()
+	public void analyzeClusterAngles()
+	{
+		for(GMV_Cluster c : clusters)
+			c.analyzeAngles();
+	}
+	
+	public void showClusters()
 	{
 		if(p.viewer.currentCluster != -1)
 			clusters.get(p.viewer.currentCluster).draw(255);		// Draw current cluster
@@ -588,10 +594,9 @@ public class GMV_Field
 	}
 	
 	/**
-	 * clearAllAttractors()
 	 * Change all clusters to non-attractors
 	 */
-	void clearAllAttractors()
+	public void clearAllAttractors()
 	{
 		if(p.debug.viewer && p.debug.detailed)
 			PApplet.println("Clear all attractors...");

@@ -14,7 +14,7 @@ public class GMV_Debug
 	public boolean print = true;				// Print all user messages
 	
 	/* Classes */
-	public boolean main = true;					// Debug main GMViewer class
+	public boolean main = true;					// Debug main GeoSynth class
 	public boolean viewer = false;				// Debug GMV_Viewer class
 	public boolean field = false;				// Debug GMV_Field class
 	public boolean time = false;

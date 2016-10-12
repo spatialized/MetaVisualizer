@@ -10,15 +10,15 @@ public class GMV_Debug
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
-	public boolean detailed = false;			// Use verbose debugging messages
+	public boolean detailed = true;			// Use verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	
 	/* Classes */
 	public boolean main = true;					// Debug main GeoSynth class
 	public boolean viewer = false;				// Debug GMV_Viewer class
-	public boolean field = false;				// Debug GMV_Field class
+	public boolean field = true;				// Debug GMV_Field class
 	public boolean time = false;
-	public boolean model = false;				// Debug GMV_Model class
+	public boolean model = true;				// Debug GMV_Model class
 	public boolean cluster = false;				// Debug GMV_Cluster class
 	public boolean display = false;				// Debug GMV_Display class
 	

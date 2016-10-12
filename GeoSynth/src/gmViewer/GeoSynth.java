@@ -77,7 +77,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
 	public float minTimeBrightness = 0.f;				// Time dimming factor minimum
-	public int defaultMediaLength = 90;					// Default length of media
+	public int defaultMediaLength = 60;					// Default frame length of media in time cycle
 
 	public boolean pause = false;
 //	public final float minFrameRate = 10;						// Minimum frame rate to run program

@@ -59,6 +59,7 @@ public abstract class GMV_Viewable
 	public boolean beginFading = false, fading = false, initFading = true;		
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
 	public boolean fadedOut = false;			// Recently faded out
+	public boolean fadedIn = false;
 	
 	/* Status Modes */
 	public boolean visible = false;				// Media is currently visible and will be drawn
@@ -482,9 +483,16 @@ public abstract class GMV_Viewable
 			newFadeValue = fadingTarget;
 
 			if(initFading) initFading = false;
-			if(isFadingOut) isFadingOut = false;
-			if(isFadingIn) isFadingIn = false;
-			fadedOut = true;
+			if(isFadingOut)
+			{
+				isFadingOut = false;
+				fadedOut = true;
+			}
+			if(isFadingIn)
+			{
+				isFadingIn = false;
+				fadedIn = true;
+			}
 		} 
 		else
 		{

@@ -20,6 +20,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	private final float defaultFrameRate = 29.98f;
 	private boolean videoLoaded = false;
 	private boolean videoPlaying = false;
+	private boolean soundFadedIn = false, soundFadedOut = false;
 	
 	/* Metadata */
 	int origVideoWidth = 0, origVideoHeight = 0;
@@ -285,8 +286,6 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				fadeIn();
 			}
 
-			if(fadedOut) fadedOut = false;						
-
 			if(p.p.debug.video && p.p.frameCount % 30 == 0)
 				p.p.display.message("After backFacing... "+visible);
 
@@ -313,16 +312,23 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			else if(visible)
 				calculateVertices();  			// Update image parameters
 
-			if(fadingBrightness == 1.f && wasFading && !isFading())		// Fade in sound once video has faded in
+//			if(fadingBrightness == 1.f && wasFading && !isFading())		// Fade in sound once video has faded in
+			if(fadedIn)		// Fade in sound once video has faded in
 			{
 				fadeSoundIn();
+				fadedIn = false;						
 			}
 
-			if(fadingBrightness == 0.f && wasFading && !isFading())		// Fade out sound once video has faded out
+//			if(fadingBrightness == 0.f && wasFading && !isFading())		// Fade out sound once video has faded out
+			if(fadedOut) 
 			{
 				fadeSoundOut();
+				fadedOut = false;						
 			}
-
+			
+			if(soundFadedIn) soundFadedIn = false;
+			if(soundFadedOut) soundFadedOut = false;
+			
 			if(fadingVolume && video != null)
 			{
 				updateFadingVolume();
@@ -1003,7 +1009,12 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		{
 			volume = volumeFadingTarget;
 			fadingVolume = false;
-			video.frameRate(defaultFrameRate);			// Set default frame rate
+			if(volume == 1.f)
+				soundFadedIn = true;
+			else if(volume == 0.f)
+				soundFadedOut = true;
+			
+//			video.frameRate(defaultFrameRate);			// Set default frame rate
 		}
 	}
 

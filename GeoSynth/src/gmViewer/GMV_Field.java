@@ -175,7 +175,7 @@ public class GMV_Field
 	
 	/**
 	 * createTimeline()
-	 * Calculate cluster timeline for this field
+	 * Create timeline for this field from cluster timelines
 	 */
 	public void createTimeline()
 	{
@@ -205,7 +205,6 @@ public class GMV_Field
 		}
 
 		timeline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort time points 
-//		timeline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort time points 
 		
 //		int count = 0;
 //		for(GMV_TimeSegment t : timeline)

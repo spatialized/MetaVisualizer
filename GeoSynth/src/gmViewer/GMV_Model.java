@@ -58,11 +58,20 @@ public class GMV_Model
 	/** Metadata **/
 	public float highLongitude = -1000000, lowLongitude = 1000000, highLatitude = -1000000, lowLatitude = 1000000,
 			highAltitude = -1000000, lowAltitude = 1000000;
-	public float highVideoLongitude = -1000000, lowVideoLongitude = 1000000, highVideoLatitude = -1000000,
-			lowVideoLatitude = 1000000, highVideoAltitude = -1000000, lowVideoAltitude = 1000000;
-	float highTime = -1000000, lowTime = 1000000, highVideoTime = -1000000, lowVideoTime = 1000000; //, imagesLargestGap;
-	float highDate = -1000000, lowDate = 1000000, highVideoDate = -1000000, lowVideoDate = 1000000;
-	float longestDayLength = -1000000, longestVideoDayLength = -1000000;	
+//	public float highPanoLongitude = -1000000, lowPanoLongitude = 1000000, highPanoLatitude = -1000000,
+//			lowPanoLatitude = 1000000, highPanoAltitude = -1000000, lowPanoAltitude = 1000000;
+//	public float highVideoLongitude = -1000000, lowVideoLongitude = 1000000, highVideoLatitude = -1000000,
+//			lowVideoLatitude = 1000000, highVideoAltitude = -1000000, lowVideoAltitude = 1000000;
+	float highTime = -1000000, lowTime = 1000000;
+	float highDate = -1000000, lowDate = 1000000;
+	
+	float highImageTime = -1000000, lowImageTime = 1000000;
+	float highImageDate = -1000000, lowImageDate = 1000000;
+	float highPanoTime = -1000000, lowPanoTime = 1000000;
+	float highPanoDate = -1000000, lowPanoDate = 1000000;
+	float highVideoTime = -1000000, lowVideoTime = 1000000;
+	float highVideoDate = -1000000, lowVideoDate = 1000000;
+	float longestImageDayLength = -1000000, longestPanoDayLength = -1000000, longestVideoDayLength = -1000000;	
 
 	/*** Misc. ***/
 	public int minFrameRate = 15;
@@ -87,17 +96,26 @@ public class GMV_Model
 			float midLongitude = (highLongitude - lowLongitude) / 2.f;
 			float midLatitude = (highLatitude - lowLatitude) / 2.f;
 
-			if(p.p.debug.field) PApplet.println("Initializing field...");
-
-			fieldWidth = p.p.utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
-			fieldLength = p.p.utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
-			fieldHeight = highAltitude - lowAltitude;					
+			if(p.p.debug.field) PApplet.println("Initializing model for field #"+p.fieldID+"...");
 
 			validImages = p.getImageCount();
 			validPanoramas = p.getPanoramaCount();
 			validVideos = p.getVideoCount();
 			validMedia = validImages + validPanoramas + validVideos;
 
+			if(validMedia > 1)
+			{
+			fieldWidth = p.p.utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
+			fieldLength = p.p.utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
+			fieldHeight = highAltitude - lowAltitude;					
+			}
+			else
+			{
+				fieldWidth = 1000.f;
+				fieldLength = 1000.f;
+				fieldHeight = 1000.f;
+			}
+			
 			fieldArea = fieldWidth * fieldLength;				// Use volume instead?
 			mediaDensity = validMedia / fieldArea;				// Media per sq. m.
 
@@ -235,13 +253,11 @@ public class GMV_Model
 			PApplet.println("Creating "+numClusters+" initial clusters based on "+validMedia+" valid media...");
 
 		/* K-means Clustering */
-		if (p.images.size() > 1 || p.panoramas.size() > 1 || p.videos.size() > 1) 		// If there are more than 0 media
+		if (validMedia > 1) 							// If there are more than 1 media point
 		{
 			initializeKMeansClusters(numClusters);		// Create initial clusters at random image locations	
-			refineKMeansClusters(refinement);
-
-			if(p.clusters.size() > 0)				// Calculate capture times for each cluster
-				createSingleClusters();
+			refineKMeansClusters(refinement);			// Refine clusters over many iterations
+			createSingleClusters();						// Create clusters for single media points
 			
 			p.initializeClusters();					// Initialize clusters (merge, etc.)
 
@@ -250,12 +266,16 @@ public class GMV_Model
 		}
 		else
 		{
-			if(p.p.display.initialSetup)
-				PApplet.println("No media loaded in field!  Can't run k-means clustering... Will exit.");
-			else
+			if (p.images.size() == 0 && p.panoramas.size() == 0 && p.videos.size() == 0) 		// If there are 0 media
+			{
 				p.p.display.message("No media loaded!  Can't run k-means clustering... Will exit.");
-
-			p.p.exit();
+				p.p.exit();
+			}
+			else
+			{
+				if(p.p.debug.cluster)
+					p.p.display.message("Single media point scene...");
+			}
 		}
 		
 		if(!p.p.display.initialSetup)
@@ -1284,15 +1304,15 @@ public class GMV_Model
 	  */
 	 public void analyzeMedia() 
 	 {
-		 float longestDayLength = (float) -1.;			// Length of the longest day
-		 boolean initTime = true, initDate = true, initVideoTime = true, initVideoDate = true;	
+		 float longestImageDayLength = (float) -1.;			// Length of the longest day
+		 boolean initImageTime = true, initImageDate = true;
+		 boolean initPanoTime = true, initPanoDate = true;	
+		 boolean initVideoTime = true, initVideoDate = true;	
 
 		 if(p.p.debug.field) PApplet.println("Analyzing media in field...");
 
 		 for ( GMV_Video v : p.videos ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
-			 float fDayLength = v.time.getDayLength();
-
 			 if (initVideoTime) 		// Calculate most recent and oldest video time
 			 {		
 				 highVideoTime = v.time.getTime();
@@ -1317,47 +1337,105 @@ public class GMV_Model
 			 if (v.time.getDate() < lowVideoDate)
 				 lowVideoDate = v.time.getDate();
 
-			 if (fDayLength > longestDayLength)		// Calculate longest video day length
-				 longestVideoDayLength = fDayLength;
+			 if (v.time.getDayLength() > longestVideoDayLength)		// Calculate longest video day length
+				 longestVideoDayLength = v.time.getDayLength();
 		 }
 
 		 for (GMV_Image i : p.images) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
-			 float fDayLength = i.time.getDayLength();
-
-			 if (initTime) 	// Calculate most recent and oldest image time
+			 if (initImageTime) 	// Calculate most recent and oldest image time
 			 {		
-				 highTime = i.time.getTime();
-				 lowTime = i.time.getTime();
-				 initTime = false;
+				 highImageTime = i.time.getTime();
+				 lowImageTime = i.time.getTime();
+				 initImageTime = false;
 			 }
 
-			 if (initDate)  	// Calculate most recent and oldest image date
+			 if (initImageDate)  	// Calculate most recent and oldest image date
 			 {	
-				 highDate = i.time.getDate();
-				 lowDate = i.time.getDate();
-				 initDate = false;
+				 highImageDate = i.time.getDate();
+				 lowImageDate = i.time.getDate();
+				 initImageDate = false;
 			 }
 
-			 if (i.time.getTime() > highTime)
-				 highTime = i.time.getTime();
-			 if (i.time.getTime() < lowTime)
-				 lowTime = i.time.getTime();
+			 if (i.time.getTime() > highImageTime)
+				 highImageTime = i.time.getTime();
+			 if (i.time.getTime() < lowImageTime)
+				 lowImageTime = i.time.getTime();
 
-			 if (i.time.getDate() > highDate)
-				 highDate = i.time.getDate();
-			 if (i.time.getDate() < lowDate)
-				 lowDate = i.time.getDate();
+			 if (i.time.getDate() > highImageDate)
+				 highImageDate = i.time.getDate();
+			 if (i.time.getDate() < lowImageDate)
+				 lowImageDate = i.time.getDate();
 
-			 if (fDayLength > longestDayLength)		// Calculate longest day length
-				 longestDayLength = fDayLength;
+			 if (i.time.getDayLength() > longestImageDayLength)		// Calculate longest day length
+				 longestImageDayLength = i.time.getDayLength();
 		 }
+
+		 for (GMV_Panorama i : p.panoramas) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 {
+			 if (initPanoTime) 	// Calculate most recent and oldest Pano time
+			 {		
+				 highPanoTime = i.time.getTime();
+				 lowPanoTime = i.time.getTime();
+				 initPanoTime = false;
+			 }
+
+			 if (initPanoDate)  	// Calculate most recent and oldest Pano date
+			 {	
+				 highPanoDate = i.time.getDate();
+				 lowPanoDate = i.time.getDate();
+				 initPanoDate = false;
+			 }
+
+			 if (i.time.getTime() > highPanoTime)
+				 highPanoTime = i.time.getTime();
+			 if (i.time.getTime() < lowPanoTime)
+				 lowPanoTime = i.time.getTime();
+
+			 if (i.time.getDate() > highPanoDate)
+				 highPanoDate = i.time.getDate();
+			 if (i.time.getDate() < lowPanoDate)
+				 lowPanoDate = i.time.getDate();
+
+			 if (i.time.getDayLength() > longestPanoDayLength)		// Calculate longest day length
+				 longestPanoDayLength = i.time.getDayLength();
+		 }
+
+		 lowTime = lowImageTime;
+		 if (lowPanoTime < lowTime)
+			 lowTime = lowPanoTime;
+		 if (lowVideoTime < lowTime)
+			 lowTime = lowVideoTime;
+
+		 highTime = highImageTime;
+		 if (highPanoTime > highTime)
+			 highTime = highPanoTime;
+		 if (highVideoTime > highTime)
+			 highTime = highVideoTime;
+
+		 lowDate = lowImageDate;
+		 if (lowPanoDate < lowDate)
+			 lowDate = lowPanoDate;
+		 if (lowVideoDate < lowDate)
+			 lowDate = lowVideoDate;
+
+		 highDate = highImageDate;
+		 if (highPanoDate > highDate)
+			 highDate = highPanoDate;
+		 if (highVideoDate > highDate)
+			 highDate = highVideoDate;
 
 		 if (p.p.debug.metadata) 							// Display results for debugging
 		 {
-			 System.out.println("High Time:" + highTime);
-			 System.out.println("High Date:" + highDate);
-			 System.out.println("Longest Day Length:" + longestDayLength);
+			 System.out.println("High Image Time:" + highImageTime);
+			 System.out.println("High Image Date:" + highImageDate);
+			 System.out.println("High Panorama Time:" + highPanoTime);
+			 System.out.println("High Panorama Date:" + highPanoDate);
+			 System.out.println("High Video Time:" + highVideoTime);
+			 System.out.println("High Video Date:" + highVideoDate);
+			 System.out.println("Longest Image Day Length:" + longestImageDayLength);
+			 System.out.println("Longest Panorama Day Length:" + longestPanoDayLength);
+			 System.out.println("Longest Video Day Length:" + longestVideoDayLength);
 		 }
 	 }
 

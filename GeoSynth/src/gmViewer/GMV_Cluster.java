@@ -1101,15 +1101,13 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * getTimeClusters()
+	 * Perform clustering to find peaks in media activity
 	 * @param times List of times
 	 * @param timePrecision Number of histogram bins
 	 * @return Time clusters
 	 */
 	IntList getTimePoints(int histogram[], int timePrecision)				// -- clusterTimelineMinPoints!!								
 	{
-		/* Clustering to find peaks in media activity */
-		
 		/* Initialize list of media times */
 		ArrayList<GMV_TimeSegment> mediaTimes = new ArrayList<GMV_TimeSegment>();
 		

@@ -299,7 +299,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/** 
-	 * drawImage()
 	 * Draw the image
 	 */
 	private void drawImage()

@@ -53,8 +53,7 @@ public class GMV_Panorama extends GMV_Viewable
 	}  
 	
 	/**
-	 * update()
-=	 * Update main variables 
+=	 * Update main variables
 	 */
 	public void update()
 	{
@@ -68,18 +67,18 @@ public class GMV_Panorama extends GMV_Viewable
 
 		if(texture.width > 0 && !disabled)			
 		{
-			boolean stillVisible = visible;				// Remember if image was visible last frame
-//			visible = getAngleVisibility();				// Check if the image is currently visible
-			
+			visible = (getDistanceBrightness() > 0.f);
+
 			if(p.p.debug.hidePanoramas)
 				visible = false;
 			
-			if(visible && initFading && !fading)						// Fade in at beginning
+			if(visible && !fading && !fadedOut)					// Fade in
 				fadeIn();
 
-			if (visible && !stillVisible && !initFading)
-				if(!fading)			// If image wasn't visible last frame, but is now, fade in
-					fadeIn();
+			if(fadedOut) fadedOut = false;
+			
+//			if(p.p.frameCount % 10 == 0)
+//				PApplet.println("Update panorama..."+getID()+" visible:"+visible+" fading:"+fading);
 		}
 		else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
 		{
@@ -88,15 +87,19 @@ public class GMV_Panorama extends GMV_Viewable
 
 		if(isFading())                       // Fade in and out with time
 		{
-			p.p.display.message("Panorama isFading()... id: "+getID());
+//			p.p.display.message("Panorama fading... id: "+getID());
 			updateFadingBrightness();
 
-			if(fadingBrightness == 0)
+			if(fadingBrightness == 0.f)
 				visible = false;
 		}
 
-//		if(visible)
-//			updateParams();  	// Update panorama parameters
+//		if(fadingObjectDistance)
+//		{
+//			updateFadingObjectDistance();
+//		}
+//		else if(visible)
+//			calculateVertices();  			// Update image parameters
 	}
 
 	/**
@@ -195,8 +198,7 @@ public class GMV_Panorama extends GMV_Viewable
 	 }
 	
 	/**
-	 * drawPanorama()
-	 * Draw a panoramic 360-degree image
+	 * Draw the panorama
 	 */
 	private void drawPanorama() 
 	{
@@ -209,37 +211,43 @@ public class GMV_Panorama extends GMV_Viewable
 		p.p.textureMode(PApplet.IMAGE);
 		p.p.noStroke();
 		p.p.beginShape(PApplet.TRIANGLE_STRIP);
-		p.p.textureMode(PApplet.NORMAL);
+
 		p.p.texture(texture);
 
-		
-		// Set the panorama transparency		-- Work on this
-		//	  p.tint(255, alpha);          
-		
-//		if(p.p.viewer.selectionMode)
-//		{
-//			if(selected)
-//			{
-//				if(!p.p.alphaMode)
-//					p.p.tint(viewingBrightness, 255);          				
-//				else
-//					p.p.tint(255, viewingBrightness);          				
-//			}
-//			else
-//			{
-//				if(!p.p.alphaMode)
-//					p.p.tint(viewingBrightness * 0.333f, 255);          // Set the image transparency					
-//				else
-//					p.p.tint(255, viewingBrightness * 0.333f);          				
-//			}
-//		}
-//		else
-//		{
-//			if(!p.p.alphaMode)
-//				p.p.tint(viewingBrightness, 255);          				
-//			else
-//				p.p.tint(255, viewingBrightness);          				
-//		}
+		PApplet.println("texture.width:"+texture.width);
+		PApplet.println("texture.height:"+texture.height);
+		// Set the panorama transparency		
+		if(p.p.viewer.selectionMode)
+		{
+			if(isSelected())
+			{
+				if(!p.p.alphaMode)
+					p.p.tint(viewingBrightness, 255);          				
+				else
+					p.p.tint(255, viewingBrightness);          				
+			}
+			else
+			{
+				if(!p.p.alphaMode)
+					p.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
+				else
+					p.p.tint(255, viewingBrightness * 0.333f);          				
+			}
+		}
+		else if(p.p.viewer.videoMode)
+		{
+			if(!p.p.alphaMode)
+				p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
+			else
+				p.p.tint(255, viewingBrightness * 0.333f);          				
+		}
+		else
+		{
+			if(!p.p.alphaMode)
+				p.p.tint(viewingBrightness, 255);          				
+			else
+				p.p.tint(255, viewingBrightness);          				
+		}
 		
 		float iu = (float)(texture.width-1)/(panoramaDetail);
 		float iv = (float)(texture.height-1)/(panoramaDetail);
@@ -377,10 +385,39 @@ public class GMV_Panorama extends GMV_Viewable
 			p.p.requestedPanoramas++;
 		}
 	}
-	
+
+	/** 
+	 * @return Distance visibility multiplier between 0. and 1.
+	 * Find panorama brightness due to distance (fades away in distance and as camera gets close)
+	 */
+	public float getDistanceBrightness()									
+	{
+		float viewDist = getViewingDistance();
+		float farViewingDistance = p.p.viewer.getFarViewingDistance();
+		float nearViewingDistance = p.p.viewer.getNearViewingDistance();
+		
+		float distVisibility = 1.f;
+
+		if(viewDist > farViewingDistance)
+		{
+			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
+			if(viewDist < vanishingPoint)
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, p.p.viewer.getFarViewingDistance(), vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+			else
+				distVisibility = 0.f;
+		}
+//		else if(viewDist < nearViewingDistance)								
+//		{
+//			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), p.p.viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
+////			if(isSelected())
+//				PApplet.println("Panorama ID:"+getID()+" dist:"+viewDist+" distVisibility:"+distVisibility+" near:"+p.p.viewer.getNearClippingDistance()+" far:"+p.p.viewer.getNearViewingDistance());
+//		}
+
+		return distVisibility;
+	}
+
 	/**
-	 * getViewingDistance()
-	 * @return How far the image is from the camera
+	 * @return Distance from the panorama to the camera
 	 */
 	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{

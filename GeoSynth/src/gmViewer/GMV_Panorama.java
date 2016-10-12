@@ -36,17 +36,13 @@ public class GMV_Panorama extends GMV_Viewable
 		p = parent;
 
 		texture = p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
-//		name = newName;
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
-//		setLength(p.p.defaultMediaLength);					// ADD EXTRA TIME AT END OF DAY FOR FADEOUT!
 
 		filePath = newFilePath;
 
 		gpsLocation = newGPSLocation;
-//		captureLocation = new PVector(0, 0, 0);
-
 		cameraModel = newCameraModel;
 
 		theta = newTheta;              			// GPS Orientation (Yaw angle)
@@ -214,9 +210,7 @@ public class GMV_Panorama extends GMV_Viewable
 
 		p.p.texture(texture);
 
-		PApplet.println("texture.width:"+texture.width);
-		PApplet.println("texture.height:"+texture.height);
-		// Set the panorama transparency		
+		/* Set the panorama brightness */		
 		if(p.p.viewer.selectionMode)
 		{
 			if(isSelected())

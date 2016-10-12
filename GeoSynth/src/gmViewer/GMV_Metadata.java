@@ -64,7 +64,7 @@ class GMV_Metadata
 		pCount = 0;
 		vCount = 0;
 
-		if(imageFilesFound)				// Load image metadata 
+		if(imageFilesFound || smallImageFilesFound)				// Load image metadata 
 			loadImagesFromTags(imageFiles);
 		if(panoramaFilesFound)				// Load panorama metadata 
 			loadImagesFromTags(panoramaFiles);
@@ -118,6 +118,10 @@ class GMV_Metadata
 				
 				if(smallImageFilesFound && p.p.debug.metadata) 
 					PApplet.println("Files found in small_images folder, will use instead of shrinking large images...");
+
+				imageFolder = smallImageFolder;					// Set imageFolder to small_images
+				imageFolderFile = new File(imageFolder);
+				imageFiles = imageFolderFile.listFiles();
 			}
 		}
 		else if(imageFolderFound || panoramaFolderFound)		// If no small images, look for original images and panoramas
@@ -194,11 +198,11 @@ class GMV_Metadata
 		if(p.p.debug.metadata) 	
 		{
 			if(smallImageFilesFound)
-				PApplet.println("Small Image Folder Location:" + imageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
+				PApplet.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
 			if(imageFilesFound)
 				PApplet.println("Image Folder Location:" + imageFolderFile + " imageFiles.length:"+imageFiles.length);
 			if(panoramaFilesFound)
-				PApplet.println("Panorama Folder Location:" + imageFolderFile + " panoramaFiles.length:"+panoramaFiles.length);
+				PApplet.println("Panorama Folder Location:" + panoramaFolderFile + " panoramaFiles.length:"+panoramaFiles.length);
 		}
 	}
 

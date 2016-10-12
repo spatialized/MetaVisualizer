@@ -304,6 +304,12 @@ public class GMV_Input
 			if (key == 'U') 		// Go to nearest cluster with video
 				p.viewer.moveToNextCluster(false, 2);
 
+			if (key == 'm') 		// Teleport to nearest cluster with panorama
+				p.viewer.moveToNextCluster(true, 1);
+
+			if (key == 'M') 		// Go to nearest cluster with panorama
+				p.viewer.moveToNextCluster(false, 1);
+
 			if (key == '{')
 				p.viewer.teleportToField(-1);
 

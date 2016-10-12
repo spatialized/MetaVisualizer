@@ -75,6 +75,9 @@ public class GMV_Cluster
 
 	/* Video */
 	boolean video = false;
+	
+	/* Panorama */
+	public boolean panorama = false;
 
 	GMV_Field p;
 
@@ -131,6 +134,8 @@ public class GMV_Cluster
 	 */
 	void addPanorama(GMV_Panorama newPanorama)
 	{
+		if(!panorama) panorama = true;
+		
 		if(!panoramas.hasValue(newPanorama.getID()))
 		{
 			panoramas.append(newPanorama.getID());
@@ -316,11 +321,12 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * Analyze angles of all images and videos for Thinning Visibility Mode
+	 * Analyze angles of all images and videos for Thinning Visibility Mode -- Can run every frame for transitions?
 	 */
 	public void analyzeAngles()
 	{
-		PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
+		if(p.p.debug.cluster || p.p.debug.model)
+			PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
 		float tAngle = p.p.thinningAngle;							// Angle to thin images and videos by
 		int numPts = PApplet.round(PApplet.PI * 2.f / tAngle);		// Number of points on perimeter == number of images visible
 		int[] perimeterPoints = new int[numPts];					// Points to compare each cluster image/video to

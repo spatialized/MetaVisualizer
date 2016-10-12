@@ -32,7 +32,7 @@ public class GMV_Field
 	
 	/* Visibility */
 	float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
-	int alphaTransitionLength = 15, teleportLength = 120;
+	int alphaTransitionLength = 15, teleportLength = 60;
 
 	/* Data */
 	GMV_Metadata metadata;									// Image and video metadata reader for this field

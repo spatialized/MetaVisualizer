@@ -586,7 +586,6 @@ class GMV_Metadata
 			{
 				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f) && hasImage)
 				{
-					PApplet.println("dataMissing? "+dataMissing);
 					if(panorama && !dataMissing)
 					{
 						PApplet.println("Adding panorama #"+pCount);

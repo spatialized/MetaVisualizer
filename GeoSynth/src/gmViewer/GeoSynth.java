@@ -92,9 +92,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean refineClusterDistances = false;		// Adjust minClusterDistance/maxClusterDistance based on mediaDensity?
 	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 	
-	public final float clusterCenterSize = 1.f;				// Size of cluster center, where autoNavigation stops
-	public float mediaPointMass = 0.05f;		// Mass contribution of each media point
-	public final float farDistanceFactor = 4.f;				// Multiplier for defaultFocusDistance to get farDistance
+	public final float clusterCenterSize = 1.f;			// Size of cluster center, where autoNavigation stops
+	public float mediaPointMass = 0.05f;				// Mass contribution of each media point
+	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
 	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
 
 	public float minClusterDistance = 4.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
@@ -208,7 +208,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		
 		if(saveImage && outputFolderSelected)
 		{
-			saveFrame(outputFolder + "/image" + "-######.jpg");
+			saveFrame(outputFolder + "/" + getCurrentField().name + "-######.jpg");
 			saveImage = false;
 			println("Saved image:"+outputFolder + "/image" + "-######.jpg");
 		}

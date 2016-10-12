@@ -65,22 +65,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
-
-	/* Time */
-	public boolean timeFading = true;					// Does time affect photos' brightness? (true = yes; false = no)
-	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
-//	public int timeFadingMode = 0;						// 0: Field	1: Cluster OBSOLETE
-
-	public int timeCycleLength = 500;					// Length of main time loop in frames
-	public int timeUnitLength = 1;						// How many frames between time increments
-	public float timeInc = timeCycleLength / 30.f;			
-
-	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
-	public float minTimeBrightness = 0.f;				// Time dimming factor minimum
-	public int defaultMediaLength = 60;					// Default frame length of media in time cycle
-
-	public boolean pause = false;
-//	public final float minFrameRate = 10;						// Minimum frame rate to run program
 	
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
@@ -96,22 +80,32 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public float mediaPointMass = 0.05f;				// Mass contribution of each media point
 	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
 	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
-
 	public float minClusterDistance = 4.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-	public float maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which
-														// single media clusters are created
+	public float maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
 	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
-	public final int clusterTimelineMinPoints = 3;			// Minimum points to be a cluster on timeline   -- Not used!!
-	public final int clusterTimePrecision = 500;				// Precision of timesHistogram (number of bins)
-	public final int fieldTimePrecision = 5000;				// Precision of timesHistogram (number of bins)
+	/* Time */
+	public boolean timeFading = true;					// Does time affect photos' brightness? (true = yes; false = no)
+	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
+	public boolean pause = false;
+
+	public int timeCycleLength = 500;					// Length of main time loop in frames
+	public int timeUnitLength = 1;						// How many frames between time increments
+	public float timeInc = timeCycleLength / 30.f;			
+
+	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
+	public float minTimeBrightness = 0.f;				// Time dimming factor minimum
+	public int defaultMediaLength = 60;					// Default frame length of media in time cycle
+
+	public final int clusterTimelineMinPoints = 3;		// Minimum points to be a cluster on timeline   -- Not used??
+	public final int clusterTimePrecision = 500;		// Precision of timesHistogram (number of bins)
+	public final int fieldTimePrecision = 5000;			// Precision of timesHistogram (number of bins)
 
 	/* Media */
 	private ArrayList<GMV_Field> fields;					// Large geographical area containing media for simulation
 	private ArrayList<String> folders;					// Directories for each field in library
 	private String library;								// Filepath for library folder 					
-//	private String selectedLibrary = "";				// User selection for library folder
 	
 	/* Graphics */
 	public boolean alphaMode = false;					// Use alpha fading instead of grayscale

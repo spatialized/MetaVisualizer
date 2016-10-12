@@ -262,35 +262,40 @@ public class GMV_Input
 			if (key == 'W') 
 				p.viewer.moveToNearestClusterAhead(false);
 
-			if (optionKey && key == 'f')  //key == 'F') 
-				p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
+			if(optionKey)
+			{
+				if (key == 'f')  //key == 'F') 
+					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
 
-			if (optionKey && key == 'F') 
-				p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
+				if (key == 'F') 
+					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
 
-			if (!optionKey && key == 'n')						// Move to current time segment
-				p.viewer.moveToNextTimeSegment(true, false);
+				if (key == 'n')						// Teleport to current time segment
+					p.viewer.moveToNextTimeSegment(true, true);
 
-			if (!optionKey && key == 'b')						// Move to current time segment
-				p.viewer.moveToPreviousTimeSegment(true, false);
+				if (key == 'b')						// Teleport to current time segment
+					p.viewer.moveToPreviousTimeSegment(true, true);
 
-			if (!optionKey && key == 'N')						// Move to next cluster time segment
-				p.viewer.moveToNextTimeSegment(false, false);
-			
-			if (!optionKey && key == 'B')						// Move to previous cluster time segment
-				p.viewer.moveToPreviousTimeSegment(false, false);
-			
-			if (optionKey && key == 'n')						// Teleport to current time segment
-				p.viewer.moveToNextTimeSegment(true, true);
+				if (key == 'N')						// Teleport to next cluster time segment
+					p.viewer.moveToNextTimeSegment(false, true);
 
-			if (optionKey && key == 'b')						// Teleport to current time segment
-				p.viewer.moveToPreviousTimeSegment(true, true);
+				if (key == 'B')						// Teleport to previous cluster time segment
+					p.viewer.moveToPreviousTimeSegment(false, true);
+			}
+			else
+			{
+				if (key == 'n')						// Move to current time segment
+					p.viewer.moveToNextTimeSegment(true, false);
 
-			if (optionKey && key == 'N')						// Teleport to next cluster time segment
-				p.viewer.moveToNextTimeSegment(false, true);
-			
-			if (optionKey && key == 'B')						// Teleport to previous cluster time segment
-				p.viewer.moveToPreviousTimeSegment(false, true);
+				if (key == 'b')						// Move to current time segment
+					p.viewer.moveToPreviousTimeSegment(true, false);
+
+				if (key == 'N')						// Move to next cluster time segment
+					p.viewer.moveToNextTimeSegment(false, false);
+
+				if (key == 'B')						// Move to previous cluster time segment
+					p.viewer.moveToPreviousTimeSegment(false, false);
+			}
 			
 			if (key == 'y')
 				p.viewer.followMemory();

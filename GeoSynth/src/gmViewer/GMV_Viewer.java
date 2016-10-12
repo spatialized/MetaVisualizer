@@ -594,13 +594,13 @@ public class GMV_Viewer
 
 					if(count > 3)
 					{
-						p.display.message("No non-empty video clusters found!");
+						p.display.message("No panoramas found...");
 						break;
 					}
 				}
 				
 				if(p.getCurrentField().clusters.get(next).isEmpty() && p.getCurrentField().clusters.get(next).mediaPoints != 0)		// Testing
-					PApplet.println("Error: Video cluster marked empty but mediaPoints != 0!  clusterID:"+next);
+					PApplet.println("Error: Panorama cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 			
 			if(count <= 3)				// If a cluster was found in 2 iterations
@@ -612,7 +612,7 @@ public class GMV_Viewer
 			else
 			{
 				if(p.debug.viewer)
-					p.display.message("No non-empty panorama clusters found!");
+					p.display.message("No panoramas found...");
 			}
 		}
 		
@@ -631,7 +631,7 @@ public class GMV_Viewer
 
 					if(count > 3)
 					{
-						p.display.message("No non-empty video clusters found!");
+						p.display.message("No videos found...");
 						break;
 					}
 				}
@@ -649,7 +649,7 @@ public class GMV_Viewer
 			else
 			{
 				if(p.debug.viewer)
-					p.display.message("No non-empty video clusters found!");
+					p.display.message("No videos found...");
 			}
 		}
 		

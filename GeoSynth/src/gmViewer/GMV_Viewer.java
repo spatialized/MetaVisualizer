@@ -56,11 +56,13 @@ public class GMV_Viewer
 	private int field = 0;					// Current field
 	GMV_Cluster attractorPoint;						// For navigation to points outside cluster list
 	public int attractorCluster = -1;				// Cluster attracting the camera
+	private int attractionStart = 0;
+	
 	public IntList clustersVisible;					// Clusters visible to camera (Static mode) 
 	public int currentCluster = 0;					// Image cluster currently in view
 	public int teleportGoalCluster = -1;			// Cluster to navigate to (-1 == none)
 	public float clusterNearDistance;				// Distance from cluster center to slow down to prevent missing the target
-	public float clusterNearDistanceFactor = 3.f;			// Multiplier for clusterCenterSize to get clusterNearDistance
+	public float clusterNearDistanceFactor = 2.f;			// Multiplier for clusterCenterSize to get clusterNearDistance
 
 	/* Navigation Modes */
 	public boolean mapMode = false;					// 2D Map Mode
@@ -104,13 +106,13 @@ public class GMV_Viewer
 	public PVector velocity, acceleration, attraction;      // Physics model parameters
 	public PVector walkingVelocity, walkingAcceleration;	// Physics parameters applied relative to camera direction
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction
-	private float velocityMin = 0.001f;						// Threshold under which velocity counts as zero
-	private float velocityMax = 0.666f;						// Camera maximum velocity
-	private float accelerationMax = 0.1f;					// Camera maximum acceleration
+	private float velocityMin = 0.00005f;						// Threshold under which velocity counts as zero
+	private float velocityMax = 0.75f;						// Camera maximum velocity
+	private float accelerationMax = 0.15f;					// Camera maximum acceleration
 	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
 	private float walkingAccelInc = 0.002f;					// Camera walking acceleration increment 
-	private float camDecelInc = 0.88f;						// Camera deceleration increment
-	private float camHaltInc = 0.22f;						// Camera fast deceleration increment
+	private float camDecelInc = 0.85f;						// Camera deceleration increment
+	private float camHaltInc = 0.1f;						// Camera fast deceleration increment
 	public float lastAttractorDistance = -1.f;
 
 	/* Looking */
@@ -536,10 +538,9 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * moveToNextCluster()
+	 * Move to the next cluster numerically containing given media type
 	 * @param teleport Teleport instead of moving to cluster?
 	 * @param mediaType Return next cluster by media type: -1: any 0: image, 1: panorama, 2: video
-	 * Move to the next cluster numerically by clusterID
 	 */
 	public void moveToNextCluster(boolean teleport, int mediaType) 
 	{
@@ -697,10 +698,10 @@ public class GMV_Viewer
 		float smallest = 100000.f;
 		int smallestIdx = 0;
 
-		if (p.getCurrentField().clusters.size() > 0) {
-			for (int i = 0; i < p.getCurrentField().clusters.size(); i++) 
+		if (p.getCurrentField().clusters.size() > 0) 
+		{
+			for (GMV_Cluster c : p.getActiveClusters()) 
 			{
-				GMV_Cluster c = (GMV_Cluster) p.getCurrentField().clusters.get(i);
 				float dist = PVector.dist(cPos, c.getLocation());
 				if (dist < smallest) 
 				{
@@ -709,13 +710,13 @@ public class GMV_Viewer
 						if(!c.isEmpty())
 						{
 							smallest = dist;
-							smallestIdx = i;	
+							smallestIdx = c.getID();	
 						}
 					}
-					else if (i != currentCluster && !c.isEmpty()) 		// If current cluster is excluded
+					else if (c.getID() != currentCluster) 		// If current cluster is excluded
 					{
 						smallest = dist;
-						smallestIdx = i;
+						smallestIdx = c.getID();
 					}
 				}
 			}
@@ -723,7 +724,7 @@ public class GMV_Viewer
 		else
 		{
 			if(p.debug.cluster)
-				PApplet.println("No photo clusters...");
+				PApplet.println("No clusters in field...");
 		}
 
 		return smallestIdx;
@@ -741,7 +742,7 @@ public class GMV_Viewer
 		IntList nearList = new IntList();
 		FloatList distList = new FloatList();
 
-		for (GMV_Cluster c : p.getCurrentField().clusters) 	// Iterate through the clusters
+		for (GMV_Cluster c : p.getActiveClusters()) 	// Iterate through the clusters
 		{
 			float dist = PVector.dist(cPos, c.getLocation());			// Distance of cluster to check
 
@@ -766,7 +767,7 @@ public class GMV_Viewer
 					count++;
 				}
 				
-				float fcDist = PVector.dist(cPos, p.getCurrentField().clusters.get(largestIdx).getLocation());		// Distance of farthest cluster on nearList
+				float fcDist = PVector.dist(cPos, p.getCluster(largestIdx).getLocation());		// Distance of farthest cluster on nearList
 				if(dist < fcDist)
 				{
 					nearList.remove(largestIdx);
@@ -790,7 +791,7 @@ public class GMV_Viewer
 	public int getClusterAlongVector(ArrayList<GMV_Cluster> clusterList, PVector direction)
 	{
 		if(clusterList.size() == 0)
-			clusterList = p.getFieldClusters();
+			clusterList = p.getActiveClusters();
 		
 		IntList clustersAlongVector = new IntList();
 		
@@ -827,7 +828,6 @@ public class GMV_Viewer
 			float dist = PVector.dist(cPos, c.getLocation());
 			if (dist < smallest) 
 			{
-//				p.display.sendUserMessage("Cluster "+c.clusterID+" is closer!");
 				smallest = dist;
 				smallestIdx = i;
 			}
@@ -1247,6 +1247,7 @@ public class GMV_Viewer
 		attractorCluster = newCluster;											// Set attractorCluster
 		currentCluster = newCluster;											// Set currentCluster
 		movingToCluster = true;													// Move to cluster
+		attractionStart = p.frameCount;
 		
 		p.getCurrentField().clusters.get(attractorCluster).setAttractor(true);
 		
@@ -1479,6 +1480,8 @@ public class GMV_Viewer
 			{
 				if(PApplet.abs(acceleration.mag()) < accelerationMax)			/* Apply attraction up to maximum acceleration */
 					acceleration.add( PVector.div(attraction, cameraMass) );	
+				else
+					p.display.message("--> Attraction but no acceleration... attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
 			}
 
 			if(slowing)
@@ -1486,16 +1489,15 @@ public class GMV_Viewer
 				acceleration.mult(camDecelInc);							// Decrease acceleration
 				velocity.mult(camDecelInc);								// Decrease velocity
 			}
-			else if(halting)
+			
+			if(halting)
 			{
 				acceleration.mult(camHaltInc);							// Decrease acceleration
 				velocity.mult(camHaltInc);								// Decrease velocity
 			}
-			else
-			{
-				if(PApplet.abs(acceleration.mag()) > 0.f)					// Add acceleration to velocity
-					velocity.add(acceleration);				
-			}	
+			
+			if(PApplet.abs(acceleration.mag()) > 0.f)					// Add acceleration to velocity
+				velocity.add(acceleration);					
 
 			if(PApplet.abs(velocity.mag()) > velocityMax)				/* If reached max velocity, slow down */
 			{
@@ -1514,6 +1516,9 @@ public class GMV_Viewer
 			
 			if( (movingToAttractor || follow) && attractorPoint != null )
 			{
+				if(p.frameCount - attractionStart > 60)					/* If not slowing and attraction force exists */
+					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
+
 				curAttractor = attractorPoint;
 				attractorFound = true;
 			}
@@ -1533,11 +1538,15 @@ public class GMV_Viewer
 					{
 						if(!slowing) slow();
 					}
-//					else 
-//					{
-//						if(slowing) slowing = false;
-//						reachedAttractor = true;
-//					}
+					else 
+					{
+//						if(curAttractor.getClusterDistance() < p.clusterCenterSize)
+//						{
+//							if(halting) halting = false;
+//							if(slowing) slowing = false;
+//							reachedAttractor = true;
+//						}
+					}
 				}
 
 				if(curAttractor.getClusterDistance() < p.clusterCenterSize)
@@ -1549,6 +1558,7 @@ public class GMV_Viewer
 					else 
 					{
 						if(halting) halting = false;
+						if(slowing) slowing = false;
 						reachedAttractor = true;
 					}
 				}
@@ -1575,12 +1585,11 @@ public class GMV_Viewer
 			float curAttractorDistance = PVector.dist( p.getCurrentField().clusters.get(attractorCluster).getLocation(), getLocation() );
 			if(curAttractorDistance > lastAttractorDistance && !slowing)	// If the camera is getting farther than attractor
 			{
-//				slow();														// Slow down
-				
-				if(p.debug.viewer)
+				if(p.debug.viewer && attractionStart - p.frameCount > 20)
+				{
 					p.display.message("Getting farther from attractor: will stop moving...");
-
-				stopMoving();												// Stop
+					stopMoving();												// Stop
+				}
 			}
 
 			/* Record last attractor distance */
@@ -2237,6 +2246,7 @@ public class GMV_Viewer
 		attractorPoint.setEmpty(false);
 		attractorPoint.setAttractor(true);
 		attractorPoint.setMass(p.mediaPointMass * 25.f);
+		attractionStart = p.frameCount;
 	}
 	
 	/**
@@ -2982,6 +2992,16 @@ public class GMV_Viewer
 	public boolean isMovingToCluster()
 	{
 		return movingToCluster;
+	}
+
+	public boolean isSlowing()
+	{
+		return slowing;
+	}
+
+	public boolean isHalting()
+	{
+		return halting;
 	}
 	
 	public float getFieldOfView()

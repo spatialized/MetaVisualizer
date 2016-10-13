@@ -26,7 +26,7 @@ public class GMV_Debug
 	public boolean image = false;				// Debug GMV_Image class
 	public boolean panorama = false;				// Debug GMV_Panorama class
 	public boolean video = false;				// Debug GMV_Video class
-	public boolean metadata = true;				// Debug GMV_Metadata class
+	public boolean metadata = false;				// Debug GMV_Metadata class
 	
 	/* Interactive Debugging */
 	public boolean hideImages = false;

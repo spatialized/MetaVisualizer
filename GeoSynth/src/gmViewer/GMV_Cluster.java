@@ -999,7 +999,7 @@ public class GMV_Cluster
 	 */
 	void calculateDimensions()
 	{
-		if(p.p.debug.field) PApplet.println("Calculating cluster dimensions...");
+//		if(p.p.debug.field) PApplet.println("Calculating cluster dimensions...");
 
 		boolean init = true;	
 
@@ -1259,7 +1259,7 @@ public class GMV_Cluster
 		return single;
 	}
 	
-	void setMass(float newMass)
+	public void setMass(float newMass)
 	{
 		clusterMass = newMass;
 	}
@@ -1268,13 +1268,13 @@ public class GMV_Cluster
 	 * setAttractor()
 	 * Set this cluster as an attractor
 	 */
-	void setAttractor(boolean state)
+	public void setAttractor(boolean state)
 	{
 		isAttractor = state;
-//		if(isAttractor)
-//		p.p.display.message("Set cluster isAttractor to true:"+getID());
+		if(p.p.debug.viewer && isAttractor())
+			p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
 	}
-
+	
 	public boolean isAttractor()
 	{
 		return isAttractor;

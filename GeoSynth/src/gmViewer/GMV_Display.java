@@ -1306,14 +1306,17 @@ class GMV_Display
 				p.text(" Debug: Current Attraction: "+p.viewer.attraction.mag(), textXPos, textYPos += lineWidth, hudDistance);
 				p.text(" Debug: Current Acceleration: "+(p.viewer.walking ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), textXPos, textYPos += lineWidth, hudDistance);
 				p.text(" Debug: Current Velocity: "+ (p.viewer.walking ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Moving? " + p.viewer.isMoving(), textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Slowing? " + p.viewer.isSlowing(), textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Halting? " + p.viewer.isHalting(), textXPos, textYPos += lineWidth, hudDistance);
 			}
 
 			p.textSize(mediumTextSize);
 			p.text(" Graphics ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.textSize(smallTextSize);
+			p.text(" Image Size Factor:"+p.subjectSizeRatio, textXPos, textYPos += lineWidth, hudDistance);
 			p.text(" Default Focus Distance (m.):"+p.defaultFocusDistance, textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.text(" Image Size Factor:"+p.subjectSizeRatio, textXPos, textYPos += lineWidth, hudDistance);
-//			p.text(" Default Image Size:"+p.defaultImageSize, textXPos, textYPos += lineWidth, hudDistance);
 
 			if(p.debug.viewer)
 			{

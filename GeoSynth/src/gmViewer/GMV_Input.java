@@ -264,10 +264,7 @@ public class GMV_Input
 
 			if(optionKey)
 			{
-				if (key == 'f')  //key == 'F') 
-					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
-
-				if (key == 'F') 
+				if (key == 'f') 
 					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
 
 				if (key == 'n')						// Teleport to current time segment
@@ -284,6 +281,9 @@ public class GMV_Input
 			}
 			else
 			{
+				if (key == 'f')  //key == 'F') 
+					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
+
 				if (key == 'n')						// Move to current time segment
 					p.viewer.moveToNextTimeSegment(true, false);
 
@@ -393,7 +393,7 @@ public class GMV_Input
 				if (key == 'X') 
 					p.viewer.selectNextImage();
 
-				if (!optionKey && key == 'f')
+				if (!optionKey && key == 'F')
 					p.viewer.selectFrontMedia();
 
 				/* GPS */

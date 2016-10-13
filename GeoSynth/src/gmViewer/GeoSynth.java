@@ -622,6 +622,21 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/**
+	 * getActiveClusters()
+	 * @return Clusters in current field
+	 */
+	public ArrayList<GMV_Cluster> getActiveClusters()
+	{
+		ArrayList<GMV_Cluster> clusters = new ArrayList<GMV_Cluster>();
+
+		for(GMV_Cluster c : getCurrentField().clusters)
+			if(c.isActive() && !c.isEmpty())
+				clusters.add(c);
+		
+		return clusters;
+	}
+
+	/**
 	 * getCluster()
 	 * @return Requested cluster from current field
 	 */

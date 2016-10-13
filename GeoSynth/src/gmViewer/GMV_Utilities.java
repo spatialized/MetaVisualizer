@@ -181,7 +181,7 @@ public class GMV_Utilities
 		for (String fileName : files)					// -- Do in one command??
 		{
 			boolean isJpeg = false;
-			PApplet.println("fileName:"+fileName);
+//			PApplet.println("fileName:"+fileName);
 
 			if(fileName != null && !fileName.equals(""))
 			{

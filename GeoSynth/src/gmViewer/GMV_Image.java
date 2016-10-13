@@ -858,6 +858,7 @@ class GMV_Image extends GMV_Viewable
 		String strTheta = "Direction: "+PApplet.str(theta);
 		String strElevation = "Vertical Angle: "+PApplet.str(phi);
 		String strRotation = "Rotation: "+PApplet.str(rotation);
+		String strFocusDistance = "Focus Distance: "+PApplet.str(focusDistance);
 
 		String strTitleDebug = "--- Debugging ---";
 		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
@@ -876,6 +877,7 @@ class GMV_Image extends GMV_Viewable
 		p.p.display.metadata(strTheta);
 		p.p.display.metadata(strElevation);
 		p.p.display.metadata(strRotation);
+		p.p.display.metadata(strFocusDistance);
 
 		if(p.p.debug.image)
 		{

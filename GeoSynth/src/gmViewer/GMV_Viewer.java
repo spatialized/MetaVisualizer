@@ -111,8 +111,8 @@ public class GMV_Viewer
 	private float accelerationMax = 0.15f;					// Camera maximum acceleration
 	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
 	private float walkingAccelInc = 0.002f;					// Camera walking acceleration increment 
-	private float camDecelInc = 0.85f;						// Camera deceleration increment
-	private float camHaltInc = 0.1f;						// Camera fast deceleration increment
+	private float camDecelInc = 0.8f;						// Camera deceleration increment
+	private float camHaltInc = 0.05f;						// Camera fast deceleration increment
 	public float lastAttractorDistance = -1.f;
 
 	/* Looking */
@@ -1486,19 +1486,23 @@ public class GMV_Viewer
 
 			if(slowing)
 			{
+				attraction.mult(camDecelInc);
 				acceleration.mult(camDecelInc);							// Decrease acceleration
 				velocity.mult(camDecelInc);								// Decrease velocity
 			}
 			
 			if(halting)
 			{
-				acceleration.mult(camHaltInc);							// Decrease acceleration
-				velocity.mult(camHaltInc);								// Decrease velocity
+//				float camAccelerationHalt = acceleration.mag() * 0.1f;
+//				float camVelocityHalt = velocity.mag() * 0.1f;
+				attraction.mult(attraction.mag() * camHaltInc);
+				acceleration.mult(acceleration.mag() * camHaltInc);							// Decrease acceleration
+				velocity.mult(velocity.mag() * camHaltInc);								// Decrease velocity
 			}
-			
+
 			if(PApplet.abs(acceleration.mag()) > 0.f)					// Add acceleration to velocity
 				velocity.add(acceleration);					
-
+			
 			if(PApplet.abs(velocity.mag()) > velocityMax)				/* If reached max velocity, slow down */
 			{
 				acceleration.mult(camDecelInc);							// Decrease acceleration

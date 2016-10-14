@@ -40,15 +40,8 @@ public class GMV_Input
 				p.finishInteractiveClustering();			// Restart simulation after interative clustering
 			}
 		}
-
-		/* Clustering */
-		if (key == 'r')
-			p.startInteractiveClustering();
-
-		if (key == 'C')
-			p.startInitialClustering();				// Re-run clustering on all fields
-
-		/* Map View */
+		
+		/* Display Modes */
 		if (!optionKey && key == '1') 
 		{
 			boolean state = p.display.map;
@@ -63,7 +56,56 @@ public class GMV_Input
 			p.display.mapOverlay = !state;
 		}
 		
-		if(p.display.map || p.display.mapOverlay)
+		if (!optionKey && key == '2') 
+		{
+			boolean state = p.display.info;
+			p.display.resetDisplayModes();
+			p.display.info = !state;
+		}
+		
+		if (!optionKey && key == '@') 
+		{
+			boolean state = p.display.infoOverlay;
+			p.display.resetDisplayModes();
+			p.display.infoOverlay = !state;
+		}
+
+		if (!optionKey && key == '3') 
+		{
+			boolean state = p.display.cluster;
+			p.display.resetDisplayModes();
+			p.display.cluster = !state;
+		}
+		
+		if (!optionKey && key == '#') 
+		{
+			boolean state = p.display.clusterOverlay;
+			p.display.resetDisplayModes();
+			p.display.clusterOverlay = !state;
+		}
+		
+		if (!optionKey && key == '4') 
+		{
+			boolean state = p.display.control;
+			p.display.resetDisplayModes();
+			p.display.control = !state;
+		}
+		
+		if (!optionKey && key == '$') 
+		{
+			boolean state = p.display.controlOverlay;
+			p.display.resetDisplayModes();
+			p.display.controlOverlay = !state;
+		}
+
+		/* Clustering */
+		if (key == 'r')
+			p.startInteractiveClustering();
+
+		if (key == 'C')
+			p.startInitialClustering();				// Re-run clustering on all fields
+		
+		if(p.display.map || p.display.mapOverlay)	/* 2D Map View */
 		{
 			// Option Key
 			if (optionKey && key == '1') 
@@ -126,43 +168,11 @@ public class GMV_Input
 					p.display.mapTopEdge -= 10.f;
 			}
 		}
-		
-		/* Info View */
-		if (!optionKey && key == '2') 
-		{
-			boolean state = p.display.info;
-			p.display.resetDisplayModes();
-			p.display.info = !state;
-		}
-		
-		if (!optionKey && key == '@') 
-		{
-			boolean state = p.display.infoOverlay;
-			p.display.resetDisplayModes();
-			p.display.infoOverlay = !state;
-		}
-
-		if(p.display.info || p.display.infoOverlay)
+		else if(p.display.info || p.display.infoOverlay)		/* Info View */
 		{
 		
 		}
-		
-		/* Cluster View */
-		if (!optionKey && key == '3') 
-		{
-			boolean state = p.display.cluster;
-			p.display.resetDisplayModes();
-			p.display.cluster = !state;
-		}
-		
-		if (!optionKey && key == '#') 
-		{
-			boolean state = p.display.clusterOverlay;
-			p.display.resetDisplayModes();
-			p.display.clusterOverlay = !state;
-		}
-
-		if(p.display.cluster || p.display.clusterOverlay)
+		else if(p.display.cluster || p.display.clusterOverlay)		/* Cluster View */
 		{
 			if (key == PApplet.CODED) 					
 			{
@@ -205,23 +215,7 @@ public class GMV_Input
 				}
 			}
 		}
-
-		/* Controls View */
-		if (!optionKey && key == '4') 
-		{
-			boolean state = p.display.control;
-			p.display.resetDisplayModes();
-			p.display.control = !state;
-		}
-		
-		if (!optionKey && key == '$') 
-		{
-			boolean state = p.display.controlOverlay;
-			p.display.resetDisplayModes();
-			p.display.controlOverlay = !state;
-		}
-		
-		if(p.display.control || p.display.controlOverlay)
+		else if(p.display.control || p.display.controlOverlay)		/* Controls View */
 		{
 
 		}
@@ -261,7 +255,21 @@ public class GMV_Input
 
 			if (key == 'W') 
 				p.viewer.moveToNearestClusterAhead(false);
+			
+			if (key == ']') {
+				float value = p.altitudeAdjustmentFactor * 1.031f;
+				p.altitudeAdjustmentFactor = PApplet.constrain(value, 0.f, 1.f);
+				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+				p.getCurrentField().createClusters();				// Recalculate cluster locations
+			}
 
+			if (key == '[') {
+				float value = p.altitudeAdjustmentFactor *= 0.97f;
+				p.altitudeAdjustmentFactor = PApplet.constrain(value, 0.f, 1.f);
+				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+				p.getCurrentField().createClusters();				// Recalculate cluster locations
+			}
+			
 			if(optionKey)
 			{
 				if (key == 'f') 

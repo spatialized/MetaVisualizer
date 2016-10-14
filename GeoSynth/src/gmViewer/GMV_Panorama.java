@@ -119,7 +119,7 @@ public class GMV_Panorama extends GMV_Viewable
 		{
 			if (viewingBrightness > 0)
 			{
-				if(texture.width > 0 && !p.p.viewer.mapMode)		// If image has been loaded
+				if(texture.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
 				{
 					drawPanorama();
 				}
@@ -132,7 +132,7 @@ public class GMV_Panorama extends GMV_Viewable
 
 		if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw image locations for debugging or map display
 			drawLocation(centerSize);
-		if (visible && !disabled && p.p.viewer.mapMode)
+		if (visible && !disabled && p.p.viewer.map3DMode)
 			drawLocation(centerSize);
 	}
 

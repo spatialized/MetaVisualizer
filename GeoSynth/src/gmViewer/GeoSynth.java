@@ -55,14 +55,14 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	
 	/* Model */
 	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
-	public boolean altitudeOff = false;					// Ignore altitude 
-//	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing
+	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
+	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing
 	
 	/* Viewer */
 	public boolean firstTeleport = false;
 
 	/* Media */
-	public float visibleAngle = PApplet.PI / 5.f;		// Angle within which images and videos become visible
+	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 3.f;	// At what angle is the image centered?
 
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
@@ -115,7 +115,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean blurEdges = false;					// Blur image edges
 	public PImage blurMask;								// Image used as mask for blurring
 
-	public boolean angleFading = false;					// Do photos fade out as the camera turns away from them?
+	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public boolean angleHidingMode = true;				// Do photos disappear when fading out as the camera turns away from them?
 	public boolean angleThinning = false;				// Thin images and videos within
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
@@ -271,7 +271,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		getCurrentField().update();					// Update clusters in current field
 		getCurrentField().draw();					// Display media in current field
 
-		if(debug.model || viewer.mapMode)	
+		if(debug.model || viewer.map3DMode)	
 			getCurrentField().showClusters();		// Display field cluster centers (media capture locations) 	
 		
 		viewer.update();							// Update navigation

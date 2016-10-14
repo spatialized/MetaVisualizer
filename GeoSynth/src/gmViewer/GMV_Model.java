@@ -133,7 +133,6 @@ public class GMV_Model
 			{
 				minClusterDistance = p.p.minClusterDistance; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
 				maxClusterDistance = p.p.maxClusterDistance;				// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
-
 			}
 
 			//			for(GMV_Image i : p.images)						

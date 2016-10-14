@@ -250,7 +250,6 @@ public class GMV_Field
 	}
 
 	/**
-	 * calculateMediaLocations()
 	 * Calculate location of each media file in virtual space from GPS, orientation metadata
 	 */
 	public void calculateMediaLocations() 
@@ -264,9 +263,14 @@ public class GMV_Field
 		for (int i = 0; i < videos.size(); i++)
 			videos.get(i).calculateCaptureLocation();
 	}
+	
+	public void createClusters()
+	{
+		for(GMV_Cluster c : clusters)
+			c.create();
+	}
 
 	/**
-	 * initializeClusters()
 	 * Merge and initialize clusters in field
 	 */
 	void initializeClusters()
@@ -275,7 +279,7 @@ public class GMV_Field
 		{
 			if(c.mediaPoints <= 0)
 			{
-				c.emptyCluster();
+				c.empty();
 				
 				if(p.debug.cluster)
 					PApplet.println("Fixed empty cluster #"+c.getID()+"!!!");
@@ -639,7 +643,35 @@ public class GMV_Field
 		else
 			return -1;
 	}
-	
+
+	/**
+	 * Get ID of time segment <number> in field timeline matching given cluster ID 
+	 * @param clusterID Cluster to get time segment from
+	 * @param number Segment in cluster timeline to get
+	 * @return
+	 */
+	public int getTimeSegmentOfCluster(int clusterID, int number)
+	{
+		IntList times = new IntList();
+		
+		if(timeline.size() > clusterID)
+		{
+			int count = 0;
+			for(GMV_TimeSegment t : timeline)
+			{
+				if(t.getID() == clusterID)
+					times.append(count);
+
+				count++;
+			}
+			
+			if(times.size() > number)
+				return times.get(number);
+		}
+
+		return -1;
+	}
+
 	public IntList getTimeSegments()
 	{
 		IntList result = new IntList();

@@ -67,7 +67,7 @@ public class GMV_Viewer
 	private float clusterNearDistanceFactor = 2.f;			// Multiplier for clusterCenterSize to get clusterNearDistance
 
 	/* Interaction Modes */
-	public boolean mapMode = false;					// 2D Map Mode
+	public boolean map3DMode = false;				// 3D Map Mode
 	public boolean selectionMode = false;			// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean autoNavigation = false;			// Attraction towards centers of clusters
 	public boolean lockToCluster = false;			// Automatically move viewer to nearest cluster when idle
@@ -1613,6 +1613,7 @@ public class GMV_Viewer
 
 		if(movingToCluster)		// Stop attracting when reached attractorCluster
 		{
+			p.display.message("Moving to cluster... current:"+currentCluster+" attractor: "+attractorCluster+"...");
 			if(attractorCluster != -1)
 			{
 				attractorCluster = -1;
@@ -1620,22 +1621,28 @@ public class GMV_Viewer
 			}
 			else
 			{
-				if(currentCluster == -1)
-				{
-					currentCluster = getNearestCluster(false);
-				}
+//				if(currentCluster == -1)
+//				{
+//					currentCluster = getNearestCluster(false);
+//					if(p.debug.viewer && p.debug.detailed)
+
+//				}
 			}
 			
+//			currentFieldTimeSegment = p.getCurrentCluster().getFirstTimeSegment();
+			currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+			
+			p.display.message("Reached cluster... current:"+currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+currentFieldTimeSegment);
 			movingToCluster = false;
 		}
 
 		if(movingToAttractor)		// Stop attracting when reached attractorPoint
 		{
 			currentCluster = getNearestCluster(false);		// Set currentCluster to nearest
-			if(p.debug.viewer && p.debug.detailed)
-				p.display.message("Reached point of interest... setting current timeline point to cluster #"+currentCluster);
+//			if(p.debug.viewer && p.debug.detailed)
+//				p.display.message("Reached point of interest... setting current timeline point to cluster #"+currentCluster);
 
-			currentFieldTimeSegment = p.getCurrentCluster().getFirstTimeSegment();
+			currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
 			
 			//					turnTowardsPoint(attractorPoint.getLocation());
 			p.getCurrentField().clearAllAttractors();
@@ -3035,6 +3042,11 @@ public class GMV_Viewer
 	public float getNearViewingDistance()
 	{
 		return nearViewingDistance;
+	}
+	
+	public float getClusterNearDistance()
+	{
+		return clusterNearDistance;
 	}
 
 	public void startMoveXTransition(int dir)

@@ -149,7 +149,7 @@ class GMV_Image extends GMV_Viewable
 			{
 				if (viewingBrightness > 0)
 				{
-					if(image.width > 0 && !p.p.viewer.mapMode)		// If image has been loaded
+					if(image.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
 					{
 						drawImage();          // Draw the image 
 					}
@@ -162,7 +162,7 @@ class GMV_Image extends GMV_Viewable
 
 			if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw image locations for debugging or map display
 				drawLocation(centerSize);
-			if (visible && !disabled && p.p.viewer.mapMode)
+			if (visible && !disabled && p.p.viewer.map3DMode)
 				drawLocation(centerSize);
 		}
 	}
@@ -380,7 +380,8 @@ class GMV_Image extends GMV_Viewable
 		}
 		else
 		{
-			angleBrightness = PApplet.constrain((float)p.p.angleFadeMap.getMappedValueFor(1.-PApplet.map(imageAngle, 0.f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
+//			angleBrightness = PApplet.constrain((float)p.p.angleFadeMap.getMappedValueFor(1.-PApplet.map(imageAngle, 0.f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
+			angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, 0.f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
 		}
 
 		return angleBrightness;

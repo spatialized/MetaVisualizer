@@ -163,7 +163,7 @@ public class GMV_Cluster
 	 * emptyCluster()
 	 * Empty this cluster of all media
 	 */
-	void emptyCluster()
+	void empty()
 	{
 		images = new IntList();
 		panoramas = new IntList();
@@ -175,14 +175,14 @@ public class GMV_Cluster
 	
 	/**
 	 * create()
-	 * Initialize cluster during simple k-means clustering. Calculate location and assign media to it.
+	 * Initialize cluster from media associated with it; calculate location and assign media to it.
 	 */
 	void create() 						
 	{			
 		mediaPoints = 0;
 
 		PVector newLocation = new PVector((float)0.0, (float)0.0, (float)0.0);
-		emptyCluster();
+		empty();
 				
 		/* Find images associated with this cluster ID */
 		for (int i = 0; i < p.images.size(); i++) 
@@ -500,28 +500,6 @@ public class GMV_Cluster
 		baseTimeScale = newBaseTimeScale;
 	}
 
-//	/**
-//	 * decrementTime()
-//	 * Decrease the current time
-//	 */
-//	public void decrementTime()
-//	{
-//		curTime -= timeIncrement;
-//		if (curTime < 0)
-//			curTime = 0;
-//	}
-//
-//	/**
-//	 * incrementTime()
-//	 * Increase the current time
-//	 */
-//	void incrementTime()
-//	{
-//		curTime += timeIncrement;
-//		if (curTime > dayLength)
-//			curTime = dayLength - 200;
-//	}
-
 	/**
 	 * attractViewer()
 	 * Attract the camera
@@ -558,8 +536,19 @@ public class GMV_Cluster
 			mass = clusterMass;
 		
 //		PApplet.println("PApplet.sqrt(distance):"+PApplet.sqrt(distance));
-
-		float strength = (clusterGravity * mass * p.p.viewer.cameraMass) / (distance * distance);	// Calculate strength
+		float strength;
+		
+		if(distance > p.p.viewer.getClusterNearDistance())
+		{
+			strength = (clusterGravity * mass * p.p.viewer.cameraMass) / (distance * distance);	// Calculate strength
+		}
+		else				// Reduce strength of attraction at close distance
+		{
+			float diff = p.p.viewer.getClusterNearDistance() - distance;
+			float factor = 0.5f - PApplet.map(diff, 0.f, p.p.viewer.getClusterNearDistance(), 0.f, 0.5f);
+			strength = (clusterGravity * mass * p.p.viewer.cameraMass) / (distance * distance) * factor;
+		}
+		
 		force.mult(strength);
 		
 		if(p.p.drawForceVector)
@@ -575,41 +564,8 @@ public class GMV_Cluster
 		else
 			return -1;
 	}
-
-//	void calcAverageTime() 
-//	{
-//		float sum = (float) 0.;
-//		int count = 0;
-//
-//		for (int i = 0; i < p.images.size(); i++) {
-//			if (p.images.get(i).cluster == clusterID) {
-//				sum += p.images.get(i).time.getTime();
-//				count++;
-//			}
-//		}
-//
-//		averageTime = sum / count;
-//	}
-//
-//
-//	void calcAverageDate() 
-//	{
-//		float sum = (float) 0.;
-//		int count = 0;
-//
-//		for (int i = 0; i < p.images.size(); i++) {
-//			if (p.images.get(i).cluster == clusterID) {
-//				sum += p.images.get(i).time.getDate();
-//				count++;
-//			}
-//		}
-//
-//		averageDate = sum / count;
-//	}
 	
-
-	/***
-	 * mergeWithCluster()
+	/**
 	 * @param mCluster Cluster to merge with
 	 * Merge this cluster with given cluster. Empty and make the given cluster non-active.
 	 */
@@ -652,7 +608,6 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * analyzeMedia()
 	 * Analyze associated media capture times (Need to implement: find on which scales it operates, i.e. minute, day, month, year)
 	 */
 	public void analyzeMedia() 

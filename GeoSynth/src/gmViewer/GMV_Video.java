@@ -171,7 +171,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				PApplet.println("Vertices are null! Image ID:"+getID());
 		}
 
-		if (visible && !hidden && !disabled && !p.p.viewer.mapMode) 
+		if (visible && !hidden && !disabled && !p.p.viewer.map3DMode) 
 		{
 			if (viewingBrightness > 0)
 			{
@@ -195,7 +195,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			p.p.noFill();                  // Hide video if it isn't visible
 		}
 
-		if (visible && !disabled && (p.p.debug.model || p.p.viewer.mapMode))
+		if (visible && !disabled && (p.p.debug.model || p.p.viewer.map3DMode))
 			drawLocation(centerSize);
 	}
 

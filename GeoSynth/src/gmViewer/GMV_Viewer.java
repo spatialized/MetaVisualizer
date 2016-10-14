@@ -1278,6 +1278,7 @@ public class GMV_Viewer
 		
 		walking = false;
 		slowing = false;
+		halting = false;
 		movingToAttractor = false;
 		movingToCluster = false;
 	}
@@ -1495,9 +1496,12 @@ public class GMV_Viewer
 			{
 //				float camAccelerationHalt = acceleration.mag() * 0.1f;
 //				float camVelocityHalt = velocity.mag() * 0.1f;
-				attraction.mult(attraction.mag() * camHaltInc);
-				acceleration.mult(acceleration.mag() * camHaltInc);							// Decrease acceleration
-				velocity.mult(velocity.mag() * camHaltInc);								// Decrease velocity
+				float attractionMult = camHaltInc-PApplet.map(attraction.mag(), 0.f, 1.f, 0.f, camHaltInc);
+				float accelerationMult = camHaltInc-PApplet.map(acceleration.mag(), 0.f, 1.f, 0.f, camHaltInc);
+				float velocityMult = camHaltInc-PApplet.map(velocity.mag(), 0.f, 1.f, 0.f, camHaltInc);
+				attraction.mult(attractionMult);
+				acceleration.mult(accelerationMult);							// Decrease acceleration
+				velocity.mult(velocityMult);								// Decrease velocity
 			}
 
 			if(PApplet.abs(acceleration.mag()) > 0.f)					// Add acceleration to velocity

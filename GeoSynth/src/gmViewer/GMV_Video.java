@@ -167,7 +167,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 				angleBrightnessFactor = getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
 				brightness *= angleBrightnessFactor;
-				p.p.display.message("brightness:"+brightness+" viewingBrightness:"+PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f));
+//				p.p.display.message("brightness:"+brightness+" viewingBrightness:"+PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f));
 			}
 
 			viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range

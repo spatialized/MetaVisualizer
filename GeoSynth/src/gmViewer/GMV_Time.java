@@ -9,7 +9,7 @@ import processing.core.PVector;
  * @author davidgordon
  * When a media file was captured
  */
-public class GMV_TimePoint 
+public class GMV_Time 
 {
 	private int year, month, day, hour, minute, second, millisecond;
 	private float dayLength;
@@ -17,7 +17,7 @@ public class GMV_TimePoint
 	
 	private GeoSynth p;
 	
-	GMV_TimePoint(GeoSynth parent, Calendar newCalendar)
+	GMV_Time(GeoSynth parent, Calendar newCalendar)
 	{
 		p = parent;
 

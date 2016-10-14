@@ -2865,9 +2865,9 @@ public class GMV_Viewer
 		}
 	}
 	
-	public GMV_TimePoint getCurrentTime()
+	public GMV_Time getCurrentTime()
 	{
-		GMV_TimePoint curTime = new GMV_TimePoint(p, null);
+		GMV_Time curTime = new GMV_Time(p, null);
 		return curTime;
 	}
 	

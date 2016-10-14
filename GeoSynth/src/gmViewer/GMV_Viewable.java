@@ -35,7 +35,7 @@ public abstract class GMV_Viewable
 	public float brightness;
 	
 	/* Time */
-	GMV_TimePoint time;
+	GMV_Time time;
 	
 	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
 	ScaleMap timeLogMap;
@@ -82,7 +82,7 @@ public abstract class GMV_Viewable
 		id = newID; 
 		filePath = newFilePath;
 
-		time = new GMV_TimePoint( p.p, newCalendar );
+		time = new GMV_Time( p.p, newCalendar );
 		
 		gpsLocation = newGPSLocation;
 		captureLocation = new PVector(0, 0, 0);

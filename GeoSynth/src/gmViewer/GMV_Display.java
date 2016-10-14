@@ -153,7 +153,6 @@ class GMV_Display
 	}
 
 	/**
-	 * draw()
 	 * Draw Heads-Up Display elements: messages, interactive map, field statistics, metadata.
 	 */
 	void draw()
@@ -227,7 +226,6 @@ class GMV_Display
 	}
 
 	/**
-	 * drawMapPoint()
 	 * Draw (on 2D map) a point given in 3D world coordinates 
 	 * @param point Point in 3D world coordinates
 	 * @param pointSize Point size
@@ -266,7 +264,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * drawFuzzyMapPoint()
 	 * Draw (on 2D map) a point given in 3D world coordinates 
 	 * @param point Point in 3D world coordinates
 	 * @param pointSize Point size
@@ -294,7 +291,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * displayInteractiveClustering()
 	 * Draw Interactive Clustering screen
 	 */
 	void displayInteractiveClustering()
@@ -304,10 +300,9 @@ class GMV_Display
 	}
 
 	/**
-	 * clusteringFooter()
 	 * Draw Interactive Clustering footer text
 	 */
-	void clusteringFooter()
+	void displayClusteringInfo()
 	{
 //		message("Interactive Clustering Mode: "+(p.hierarchical ?"Hierarchical Clustering":"K-Means Clustering"));
 //		message(" ");
@@ -331,7 +326,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * drawLargeMap()
 	 * Draw large 2D map
 	 */
 	void drawLargeMap()

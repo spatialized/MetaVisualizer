@@ -193,7 +193,6 @@ public class GMV_Viewer
 	}
 
 	/** 
-	 * initialize()
 	 * Initialize camera at a given virtual point
 	 * @param x Initial X coordinate
 	 * @param y Initial Y coordinate
@@ -206,7 +205,6 @@ public class GMV_Viewer
 		teleportGoal = new PVector(x, y, z);
 		
 		fieldOfView = initFieldOfView;
-//		zoomCamera(zoomInit);
 
 		if(firstCamInitialization)
 			firstCamInitialization = false;
@@ -215,16 +213,10 @@ public class GMV_Viewer
 	}
 
 	/*** 
-	 * update()
 	 * Update camera movement and variables each frame
 	 */
 	void update()
 	{
-		/* Update orientation */
-//		yaw = camera.attitude()[0];
-//		pitch = camera.attitude()[1];
-//		roll = camera.attitude()[2];
-
 		if(!p.transitionsOnly)
 			location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
 
@@ -267,7 +259,6 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * walkForward()
 	 * Move camera forward
 	 */
 	public void walkForward()
@@ -278,7 +269,6 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * walkSlower()
 	 * Slow viewer movement along active walking axes
 	 */
 	public void walkSlower()
@@ -326,83 +316,6 @@ public class GMV_Viewer
 	}	
 
 	/**
-	 * teleportToCluster()
-	 * @param dest Destination cluster ID
-	 * @param fade Fade (true) or jump (false)?
-	 */
-	public void teleportToCluster( int dest, boolean fade ) 
-	{
-		if(dest < p.getFieldClusters().size())
-		{
-		GMV_Cluster c = p.getCurrentField().clusters.get(dest);
-
-		if(p.transitionsOnly)
-		{
-			teleportGoalCluster = dest;
-			teleportGoal = c.getLocation();
-			location = teleportGoal;
-		}
-		else
-		{
-			if(fade)
-			{
-				teleportGoalCluster = dest;
-				teleportGoal = c.getLocation();
-				startTeleport(-1);
-			}
-			else
-			{
-				camera.jump(c.getLocation().x, c.getLocation().y, c.getLocation().z);
-			}
-		}
-		}
-		else if(p.debug.cluster || p.debug.field || p.debug.viewer)
-		{
-			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().clusters.size());
-		}
-	}
-
-	/**
-	 * teleportToField()
-	 * @param offset Field ID offset amount (0 stays in same field)
-	 * Teleport to the field ID <inc> from current field
-	 */
-	public void teleportToField(int offset) 
-	{
-		if(offset != 0)
-		{
-			p.stopAllVideos();
-			int newField = field + offset;
-
-			if(newField >= p.getFieldCount())
-				newField = 0;
-			
-			if(newField < 0)
-				newField = p.getFieldCount() - 1;
-
-			teleportGoalCluster = 0;
-			currentCluster = 0;
-
-			if(p.debug.viewer)
-				p.display.message("Moving to field: "+newField+" out of "+p.getFieldCount());
-			if(p.debug.viewer)
-				p.display.message("... at cluster: "+currentCluster+" out of "+p.getField(newField).clusters.size());
-
-			if(p.getField(newField).clusters.size() > 0)			// Check whether field has clusters (is valid)
-			{
-				teleportGoal = new PVector(0,0,0);				// -- Change this!
-				startTeleport(newField);
-			}
-			else
-			{
-				if(p.debug.viewer)
-					p.display.message("This field has no clusters!");
-			}
-		}
-	}
-
-	/**
-	 * setCurrentField()
 	 * @param newField  New field
 	 * Set specified field as current field
 	 */
@@ -426,7 +339,6 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * moveToCaptureLocation()
 	 * @param teleport  Whether to teleport (true) or navigate (false)
 	 * Move camera to the nearest cluster
 	 */
@@ -451,7 +363,6 @@ public class GMV_Viewer
 	}
 	
 	/**
-	 * moveToCluster()
 	 * @param teleport  Whether to teleport (true) or navigate (false)
 	 * Move camera to the nearest cluster
 	 */
@@ -527,7 +438,6 @@ public class GMV_Viewer
 			}
 		}
 		else p.display.message("moveToNearestClusterAhead... can't move to same cluster!... "+ahead);
-
 	}
 
 	/**
@@ -663,6 +573,122 @@ public class GMV_Viewer
 	}
 
 	/**
+	 * moveToTimeInField()
+	 * @param nextFieldTime Index in timeline of cluster to move to
+	 */
+	void moveToTimeInField(int fieldID, int nextFieldTime, boolean teleport)
+	{
+		GMV_Field f = p.getField(fieldID);
+		
+		if(p.debug.viewer && p.debug.detailed)
+			p.display.message("moveToTimeInField:"+f.timeline.get(nextFieldTime).getID()+" f.timeline.size():"+f.timeline.size());
+
+		if(teleport)
+		{
+			teleportToCluster(f.timeline.get(nextFieldTime).getID(), true);
+		}
+		else
+		{
+			setAttractorCluster(f.timeline.get(nextFieldTime).getID());
+		}
+	}
+	
+	/**
+	 * moveToTimeInCluster()
+	 * @param nextFieldTime Time index in current cluster timeline to move to
+	 */
+	void moveToTimeInCluster(int clusterID, int nextClusterTime, boolean teleport)
+	{
+		GMV_Cluster c = p.getCluster(clusterID);
+		
+//		if(p.debug.viewer && p.debug.detailed)
+			p.display.message("moveToTimeInCluster:"+c.timeline.get(nextClusterTime).getID()+" c.timeline.size():"+c.timeline.size());
+
+		if(teleport)
+		{
+			teleportToCluster(c.timeline.get(nextClusterTime).getID(), true);
+		}
+		else
+		{
+			setAttractorCluster(c.timeline.get(nextClusterTime).getID());
+		}
+	}
+	
+	/**
+	 * @param dest Destination cluster ID
+	 * @param fade Fade (true) or jump (false)?
+	 */
+	public void teleportToCluster( int dest, boolean fade ) 
+	{
+		if(dest < p.getFieldClusters().size())
+		{
+		GMV_Cluster c = p.getCurrentField().clusters.get(dest);
+
+		if(p.transitionsOnly)
+		{
+			teleportGoalCluster = dest;
+			teleportGoal = c.getLocation();
+			location = teleportGoal;
+		}
+		else
+		{
+			if(fade)
+			{
+				teleportGoalCluster = dest;
+				teleportGoal = c.getLocation();
+				startTeleport(-1);
+			}
+			else
+			{
+				camera.jump(c.getLocation().x, c.getLocation().y, c.getLocation().z);
+			}
+		}
+		}
+		else if(p.debug.cluster || p.debug.field || p.debug.viewer)
+		{
+			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().clusters.size());
+		}
+	}
+
+	/**
+	 * @param offset Field ID offset amount (0 stays in same field)
+	 * Teleport to the field ID <inc> from current field
+	 */
+	public void teleportToField(int offset) 
+	{
+		if(offset != 0)
+		{
+			p.stopAllVideos();
+			int newField = field + offset;
+
+			if(newField >= p.getFieldCount())
+				newField = 0;
+			
+			if(newField < 0)
+				newField = p.getFieldCount() - 1;
+
+			teleportGoalCluster = 0;
+			currentCluster = 0;
+
+			if(p.debug.viewer)
+				p.display.message("Moving to field: "+newField+" out of "+p.getFieldCount());
+			if(p.debug.viewer)
+				p.display.message("... at cluster: "+currentCluster+" out of "+p.getField(newField).clusters.size());
+
+			if(p.getField(newField).clusters.size() > 0)			// Check whether field has clusters (is valid)
+			{
+				teleportGoal = new PVector(0,0,0);				// -- Change this!
+				startTeleport(newField);
+			}
+			else
+			{
+				if(p.debug.viewer)
+					p.display.message("This field has no clusters!");
+			}
+		}
+	}
+
+	/**
 	 * jumpToNearestCluster()
 	 * @param teleport  Whether to teleport (true) or navigate (false)
 	 * Move camera to the nearest cluster
@@ -772,68 +798,6 @@ public class GMV_Viewer
 		}
 		
 		return nearList;
-	}
-	
-
-	/**
-	 * getClusterAlongVector()
-	 * @param clusterList Clusters to search through
-	 * @param direction Directional vector of camera movement
-	 * @return Cluster in the approximate direction of given vector from camera. If none within 30 degrees, returns currentCluster
-	 */
-	public int getClusterAlongVector(ArrayList<GMV_Cluster> clusterList, PVector direction)
-	{
-		if(clusterList.size() == 0)
-			clusterList = p.getActiveClusters();
-		
-		IntList clustersAlongVector = new IntList();
-		
-		for (GMV_Cluster c : clusterList) 							// Iterate through the clusters
-		{
-			PVector clusterVector = getVectorToCluster(c);
-			PVector crossVector = new PVector();
-			PVector.cross(direction, clusterVector, crossVector);		// Cross vector gives angle between camera and image
-			float result = crossVector.mag();
-			
-			if(PApplet.abs(result) < PApplet.PI / 6.f && !c.isEmpty())
-			{
-				p.display.message("Finding Distance of Centered Cluster:"+c.getID()+" at Angle "+result+" from History Vector...");
-				if(c.getID() != currentCluster)
-					clustersAlongVector.append(c.getID());
-			}
-			else
-			{
-				if(p.debug.viewer && p.debug.detailed)
-					p.display.message("Cluster ID:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
-			}
-		}
-
-		float smallest = 100000.f;
-		int smallestIdx = 0;
-
-		for (int i = 0; i < clustersAlongVector.size(); i++) 		// Compare distances of clusters in front
-		{
-			PVector cPos = getLocation();
-			GMV_Cluster c = (GMV_Cluster) p.getCurrentField().clusters.get(i);
-			if(p.debug.viewer && p.debug.detailed)
-				p.display.message("Checking Centered Cluster... "+c.getID());
-		
-			float dist = PVector.dist(cPos, c.getLocation());
-			if (dist < smallest) 
-			{
-				smallest = dist;
-				smallestIdx = i;
-			}
-		}		
-		
-		if(clustersAlongVector.size() > 0)
-			return smallestIdx;
-		else
-		{
-			if(p.debug.viewer && p.debug.detailed)
-				p.display.message("No clusters found along vector!");
-			return currentCluster;
-		}
 	}
 
 	/**
@@ -1055,49 +1019,68 @@ public class GMV_Viewer
 		rotateYDirection = dir;
 		rotatingY = true;
 	}
-	
-	/**
-	 * moveToTimeInField()
-	 * @param nextFieldTime Index in timeline of cluster to move to
-	 */
-	void moveToTimeInField(int fieldID, int nextFieldTime, boolean teleport)
-	{
-		GMV_Field f = p.getField(fieldID);
-		
-		if(p.debug.viewer && p.debug.detailed)
-			p.display.message("moveToTimeInField:"+f.timeline.get(nextFieldTime).getID()+" f.timeline.size():"+f.timeline.size());
 
-		if(teleport)
+	/**
+	 * getClusterAlongVector()
+	 * @param clusterList Clusters to search through
+	 * @param direction Directional vector of camera movement
+	 * @return Cluster in the approximate direction of given vector from camera. If none within 30 degrees, returns currentCluster
+	 */
+	public int getClusterAlongVector(ArrayList<GMV_Cluster> clusterList, PVector direction)
+	{
+		if(clusterList.size() == 0)
+			clusterList = p.getActiveClusters();
+		
+		IntList clustersAlongVector = new IntList();
+		
+		for (GMV_Cluster c : clusterList) 							// Iterate through the clusters
 		{
-			teleportToCluster(f.timeline.get(nextFieldTime).getID(), true);
+			PVector clusterVector = getVectorToCluster(c);
+			PVector crossVector = new PVector();
+			PVector.cross(direction, clusterVector, crossVector);		// Cross vector gives angle between camera and image
+			float result = crossVector.mag();
+			
+			if(PApplet.abs(result) < PApplet.PI / 6.f && !c.isEmpty())
+			{
+				p.display.message("Finding Distance of Centered Cluster:"+c.getID()+" at Angle "+result+" from History Vector...");
+				if(c.getID() != currentCluster)
+					clustersAlongVector.append(c.getID());
+			}
+			else
+			{
+				if(p.debug.viewer && p.debug.detailed)
+					p.display.message("Cluster ID:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
+			}
 		}
+
+		float smallest = 100000.f;
+		int smallestIdx = 0;
+
+		for (int i = 0; i < clustersAlongVector.size(); i++) 		// Compare distances of clusters in front
+		{
+			PVector cPos = getLocation();
+			GMV_Cluster c = (GMV_Cluster) p.getCurrentField().clusters.get(i);
+			if(p.debug.viewer && p.debug.detailed)
+				p.display.message("Checking Centered Cluster... "+c.getID());
+		
+			float dist = PVector.dist(cPos, c.getLocation());
+			if (dist < smallest) 
+			{
+				smallest = dist;
+				smallestIdx = i;
+			}
+		}		
+		
+		if(clustersAlongVector.size() > 0)
+			return smallestIdx;
 		else
 		{
-			setAttractorCluster(f.timeline.get(nextFieldTime).getID());
+			if(p.debug.viewer && p.debug.detailed)
+				p.display.message("No clusters found along vector!");
+			return currentCluster;
 		}
 	}
-	
-	/**
-	 * moveToTimeInCluster()
-	 * @param nextFieldTime Time index in current cluster timeline to move to
-	 */
-	void moveToTimeInCluster(int clusterID, int nextClusterTime, boolean teleport)
-	{
-		GMV_Cluster c = p.getCluster(clusterID);
-		
-//		if(p.debug.viewer && p.debug.detailed)
-			p.display.message("moveToTimeInCluster:"+c.timeline.get(nextClusterTime).getID()+" c.timeline.size():"+c.timeline.size());
 
-		if(teleport)
-		{
-			teleportToCluster(c.timeline.get(nextClusterTime).getID(), true);
-		}
-		else
-		{
-			setAttractorCluster(c.timeline.get(nextClusterTime).getID());
-		}
-	}
-	
 	/**
 	 * moveToNearestClusterWithTimes()
 	 * @param minTimelinePoints Minimum points in timeline of cluster to move to

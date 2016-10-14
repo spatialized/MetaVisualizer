@@ -468,7 +468,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		display.initializeLargeMap();
 		
 		display.resetDisplayModes();			// Clear messages
-		display.clusteringFooter();
+		display.displayClusteringInfo();
 		
 		getCurrentField().blackoutMedia();					// Blackout all media
 	}

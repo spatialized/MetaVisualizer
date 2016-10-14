@@ -243,7 +243,7 @@ public class GMV_Model
 			p.p.display.message("Iterations:"+refinement);
 			p.p.display.message("Population Factor:"+populationFactor);
 			p.p.display.message(" ");
-			p.p.display.clusteringFooter();
+			p.p.display.displayClusteringInfo();
 		}
 
 		/* Estimate number of clusters */
@@ -449,7 +449,7 @@ public class GMV_Model
 			p.p.display.message(" ");
 			p.p.display.message("Cluster Depth:"+clusterDepth);
 			p.p.display.message(" ");
-			p.p.display.clusteringFooter();
+			p.p.display.displayClusteringInfo();
 			p.p.display.message("Found "+p.clusters.size()+" clusters...");
 		}
 		

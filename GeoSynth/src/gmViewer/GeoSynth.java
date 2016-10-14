@@ -55,7 +55,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	
 	/* Model */
 	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
-	public boolean altitudeOff = true;					// Ignore altitude 
+	public boolean altitudeOff = false;					// Ignore altitude 
 //	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing
 	
 	/* Viewer */

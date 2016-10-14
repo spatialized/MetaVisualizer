@@ -58,6 +58,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean altitudeOff = true;					// Ignore altitude 
 //	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing
 	
+	/* Viewer */
+	public boolean firstTeleport = false;
+
 	/* Media */
 	public float visibleAngle = PApplet.PI / 5.f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 3.f;	// At what angle is the image centered?
@@ -283,7 +286,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 //				viewer.moveToTimeInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
 			viewer.moveToNearestCluster(true);
 			
-			viewer.firstTeleport = true;
+			firstTeleport = true;
 			startRunning = false;
 		}
 		
@@ -487,14 +490,13 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	{
 		background(0.f);
 		
-		viewer.attractorCluster = -1;
-		viewer.currentCluster = -1;
+		viewer.clearAttractorCluster();
 
 		interactive = false;		// Stop interactive clustering mode
 		startRunning = true;				// Start GMViewer running
 		running = true;	
 		
-		viewer.currentCluster = viewer.getNearestCluster(false);
+		viewer.setCurrentCluster( viewer.getNearestCluster(false) );
 		getCurrentField().blackoutMedia();
 	}
 	
@@ -563,9 +565,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public GMV_Cluster getCurrentCluster()
 	{
 		GMV_Cluster c;
-		if(viewer.currentCluster < getCurrentField().clusters.size())
+		if(viewer.getCurrentCluster() < getCurrentField().clusters.size())
 		{
-			c = getCurrentField().clusters.get(viewer.currentCluster);
+			c = getCurrentField().clusters.get(viewer.getCurrentCluster());
 			return c;
 		}
 		else return null;
@@ -577,7 +579,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	 */
 	public GMV_Cluster getAttractorCluster()
 	{
-		GMV_Cluster c = getCurrentField().clusters.get(viewer.attractorCluster);
+		GMV_Cluster c = getCurrentField().clusters.get(viewer.getAttractorCluster());
 		return c;
 	}
 	

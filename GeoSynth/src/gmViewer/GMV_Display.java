@@ -910,10 +910,10 @@ class GMV_Display
 		{
 			if(mapMode == 1 || mapMode == 2 || mapMode == 3 || mapMode == 5)
 			{
-				if(p.viewer.attractorCluster != -1 && p.viewer.attractorCluster < p.getFieldClusters().size())
+				if(p.viewer.getAttractorCluster() != -1 && p.viewer.getAttractorCluster() < p.getFieldClusters().size())
 					drawMapPoint( p.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 
-				if(p.viewer.currentCluster != -1 && p.viewer.currentCluster < p.getFieldClusters().size())
+				if(p.viewer.getCurrentCluster() != -1 && p.viewer.getCurrentCluster() < p.getFieldClusters().size())
 					drawMapPoint( p.getCurrentCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 			}
 			
@@ -1245,7 +1245,7 @@ class GMV_Display
 		
 		GMV_Field f = p.getCurrentField();
 		
-		if(p.viewer.currentCluster >= 0)
+		if(p.viewer.getCurrentCluster() >= 0)
 		{
 			GMV_Cluster c = p.getCurrentCluster();
 			float[] camTar = p.viewer.camera.target();
@@ -1291,21 +1291,21 @@ class GMV_Display
 					 PApplet.round(p.viewer.getLocation().z), textXPos, textYPos += lineWidthVeryWide, hudDistance);		
 			p.text(" GPS Longitude: "+p.viewer.getGPSLocation().x+" Latitude:"+p.viewer.getGPSLocation().y, textXPos, textYPos += lineWidth, hudDistance);		
 
-			p.text(" Current Cluster: "+p.viewer.currentCluster, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.text(" Current Cluster: "+p.viewer.getCurrentCluster(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.text("   Media Points: "+c.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
 			p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
-			if(p.viewer.attractorCluster != -1)
+			if(p.viewer.getAttractorCluster() != -1)
 			{
-				p.text(" Destination Cluster : "+p.viewer.attractorCluster, textXPos, textYPos += lineWidth, hudDistance);
-				p.text(" Destination Media Points: "+p.getCluster(p.viewer.attractorCluster).mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
-				p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.attractorCluster).getLocation(), p.viewer.getLocation() )), textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Destination Media Points: "+p.getCluster(p.viewer.getAttractorCluster()).mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
+				p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), textXPos, textYPos += lineWidth, hudDistance);
 			}
 
 			if(p.debug.viewer) 
 			{
 				p.text(" Debug: Current Attraction: "+p.viewer.attraction.mag(), textXPos, textYPos += lineWidth, hudDistance);
-				p.text(" Debug: Current Acceleration: "+(p.viewer.walking ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), textXPos, textYPos += lineWidth, hudDistance);
-				p.text(" Debug: Current Velocity: "+ (p.viewer.walking ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Current Acceleration: "+(p.viewer.isWalking() ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Current Velocity: "+ (p.viewer.isWalking() ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , textXPos, textYPos += lineWidth, hudDistance);
 				p.text(" Debug: Moving? " + p.viewer.isMoving(), textXPos, textYPos += lineWidth, hudDistance);
 				p.text(" Debug: Slowing? " + p.viewer.isSlowing(), textXPos, textYPos += lineWidth, hudDistance);
 				p.text(" Debug: Halting? " + p.viewer.isHalting(), textXPos, textYPos += lineWidth, hudDistance);
@@ -1380,7 +1380,7 @@ class GMV_Display
 
 		}
 		else
-			message("Can't display statistics: currentCluster == "+p.viewer.currentCluster+"!!!");
+			message("Can't display statistics: currentCluster == "+p.viewer.getCurrentCluster()+"!!!");
 		
 		p.popMatrix();
 	}
@@ -1444,19 +1444,19 @@ class GMV_Display
 		p.text(" ", dispLocX, textYPos += lineWidth, hudDistance);
 
 		c = p.getCurrentCluster();
-		p.text(" Current Cluster ID: "+p.viewer.currentCluster, dispLocX, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Current Cluster ID: "+p.viewer.getCurrentCluster(), dispLocX, textYPos += lineWidthVeryWide, hudDistance);
 		p.text("   Media Points: "+c.mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
 		p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), dispLocX, textYPos += lineWidth, hudDistance);
-		if(p.viewer.attractorCluster != -1)
+		if(p.viewer.getAttractorCluster() != -1)
 		{
-			p.text(" Destination Cluster ID: "+p.viewer.attractorCluster, dispLocX, textYPos += lineWidth, hudDistance);
-//			p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.attractorCluster).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
-			p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.attractorCluster).getLocation(), p.viewer.getLocation() )), dispLocX, textYPos += lineWidth, hudDistance);
+			p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), dispLocX, textYPos += lineWidth, hudDistance);
+//			p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.getAttractorCluster()).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
+			p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), dispLocX, textYPos += lineWidth, hudDistance);
 			if(p.debug.viewer) 
 			{
 				p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), dispLocX, textYPos += lineWidth, hudDistance);
-				p.text(" Debug: Current Acceleration:"+(p.viewer.walking ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), dispLocX, textYPos += lineWidth, hudDistance);
-				p.text(" Debug: Current Velocity:"+ (p.viewer.walking ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , dispLocX, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Current Acceleration:"+(p.viewer.isWalking() ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), dispLocX, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Current Velocity:"+ (p.viewer.isWalking() ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , dispLocX, textYPos += lineWidth, hudDistance);
 			}
 		}
 
@@ -1474,11 +1474,11 @@ class GMV_Display
 	}
 
 //	p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), dispLocX, textYPos += lineWidth, hudDistance);
-//	if(p.viewer.attractorCluster != -1)
+//	if(p.viewer.getAttractorCluster() != -1)
 //	{
-//		p.text(" Destination Cluster : "+p.viewer.attractorCluster, dispLocX, textYPos += lineWidth, hudDistance);
-//		//		p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.attractorCluster).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
-//		p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.attractorCluster).getLocation(), p.viewer.getLocation() )), dispLocX, textYPos += lineWidth, hudDistance);
+//		p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), dispLocX, textYPos += lineWidth, hudDistance);
+//		//		p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.getAttractorCluster()).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
+//		p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), dispLocX, textYPos += lineWidth, hudDistance);
 //		if(p.debug.viewer) 
 //		{
 //			p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), dispLocX, textYPos += lineWidth, hudDistance);

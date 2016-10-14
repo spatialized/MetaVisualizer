@@ -228,9 +228,9 @@ public abstract class GMV_Viewable
 		PVector camLoc;
 
 		if(p.p.transitionsOnly)
-			camLoc = p.p.viewer.location;
+			camLoc = p.p.viewer.getLocation();
 		else
-			camLoc = p.p.viewer.location;
+			camLoc = p.p.viewer.getLocation();
 
 		float distance = PVector.dist(captureLocation, camLoc);     
 

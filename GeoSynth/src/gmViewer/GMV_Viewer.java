@@ -29,104 +29,106 @@ public class GMV_Viewer
 {
 	/* Camera */
 	Camera camera;									 				// Camera object
-	private float farViewingDistance = 16.f; 						// Distance (m.) of far clipping plane
-	private float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
-	private float nearViewingDistance = nearClippingDistance * 2.f; // Near distance at which transparency reaches zero
-
-	private float fieldOfView = PApplet.PI * 0.375f;					// Field of view
-	private final float defaultFieldOfView = PApplet.PI / 3.0f;			// Default FOV
-	private final float initFieldOfView = fieldOfView; 		// Initial field of view
-	private boolean firstCamInitialization = true;			// Has camera been initialized?	
-
-	private float rotateIncrement = 3.1415f / 256.f;		// Rotation amount each frame when turning
-	private float zoomIncrement = 3.1415f / 32.f;			// Zoom amount each frame when zooming
-
-	/* Memory */
-	private ArrayList<GMV_Waypoint> memory;			// Path for camera to take
-	private ArrayList<GMV_Waypoint> path; 			// Record of camera path
+	private boolean firstCamInitialization = true;					// Whether the camera has been initialized	
 	
-	private boolean movingToAttractor = false;		// Moving to attractor point
-	private boolean movingToCluster = false;			// Moving to cluster
-	private PVector pathGoal;						// Next goal point for camera in navigating from memory
-	private boolean follow = false;					// Is the camera currently navigating from memory?
-//	private int revisitClusterGoal;					// Next cluster in memory to navigate to
+	private float fieldOfView = PApplet.PI * 0.375f;				// Field of view
+	private final float defaultFieldOfView = PApplet.PI / 3.0f;		// Default FOV
+	private final float initFieldOfView = fieldOfView; 				// Initial field of view
+	private float rotateIncrement = 3.1415f / 256.f;				// Rotation amount each frame when turning
+	private float zoomIncrement = 3.1415f / 32.f;					// Zoom amount each frame when zooming
+
+	private float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
+	private float nearViewingDistance = nearClippingDistance * 2.f; // Near distance (m.) at which media start fading out
+	private float farViewingDistance = 16.f; 						// Far distance (m.) at which media start fading out
+
+	/* Time */
+	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
+	public int currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
+	
+	/* Memory */
+	private ArrayList<GMV_Waypoint> memory;				// Path for camera to take
+	private ArrayList<GMV_Waypoint> path; 				// Record of camera path
+	
+	private boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
+	private boolean movingToCluster = false;			// Moving to cluster 
+	private PVector pathGoal;							// Next goal point for camera in navigating from memory
+	private boolean follow = false;						// Is the camera currently navigating from memory?
 	private int pathLocationIdx;						// Index of current cluster in memory
 	
 	/* Clusters */
-	private int field = 0;					// Current field
-	GMV_Cluster attractorPoint;						// For navigation to points outside cluster list
-	public int attractorCluster = -1;				// Cluster attracting the camera
+	private int field = 0;								// Current field
+	public IntList clustersVisible;						// Clusters visible to camera (Static mode) 
+	private int currentCluster = 0;						// Image cluster currently in view
+	GMV_Cluster attractorPoint;							// For navigation to points outside cluster list
+	private int attractorCluster = -1;					// Cluster attracting the camera
 	private int attractionStart = 0;
-	
-	public IntList clustersVisible;					// Clusters visible to camera (Static mode) 
-	public int currentCluster = 0;					// Image cluster currently in view
-	public int teleportGoalCluster = -1;			// Cluster to navigate to (-1 == none)
-	public float clusterNearDistance;				// Distance from cluster center to slow down to prevent missing the target
-	public float clusterNearDistanceFactor = 2.f;			// Multiplier for clusterCenterSize to get clusterNearDistance
+	private int teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
+	private float clusterNearDistance;					// Distance from cluster center to slow down to prevent missing the target
+	private float clusterNearDistanceFactor = 2.f;			// Multiplier for clusterCenterSize to get clusterNearDistance
 
-	/* Navigation Modes */
+	/* Interaction Modes */
 	public boolean mapMode = false;					// 2D Map Mode
 	public boolean selectionMode = false;			// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean autoNavigation = false;			// Attraction towards centers of clusters
 	public boolean lockToCluster = false;			// Automatically move viewer to nearest cluster when idle
-	public boolean manualPathNavigation = false;	// Is the user manually navigating a path
 	public boolean mouseNavigation = false;			// Mouse navigation
+	public boolean videoMode = false;
 
-	/* Time */
-	public int currentFieldTimeSegment = 0;				// Current time cluster
-	public int currentClusterTimeSegment = 0;				// Current time cluster
-	
 	/* Teleporting */
-	public PVector teleportGoal;				// Where in virtual space should the camera go next?
-	boolean teleporting = false;				// Transition where all images fade in or out
-	int teleportStart;							// Frame that fade transition started
-	int teleportToField = -1;					// What field ID to fade transition to	 (-1 remains in current field)
-	public boolean firstTeleport = false;
+	private PVector teleportGoal;				// Where in virtual space should the camera go next?
+	private boolean teleporting = false;				// Transition where all images fade in or out
+	private int teleportStart;							// Frame that fade transition started
+	private int teleportToField = -1;					// What field ID to fade transition to	 (-1 remains in current field)
 	private int teleportWaitingCount = 0;		// How long has the viewer been waiting for media to fade out before teleport?
 	
-	/* Movement */
-	public boolean walking = false;				// Viewer is walking
-	private boolean slowing = false;			// Viewer is slowing 
-	private boolean halting = false;			// Viewer is halting
-	
-	private boolean movingX = false;			// Is viewer automatically moving in X dimension (side to side)?
-	private boolean movingY = false;			// Is viewer automatically moving in Y dimension (up or down)?
-	private boolean movingZ = false;			// Is viewer automatically moving in Z dimension (forward or backward)?
-	
-	private float moveXDirection;				// 1 (right)   or -1 (left)
-	private float moveYDirection;				// 1 (down)    or -1 (up)
-	private float moveZDirection;				// 1 (forward) or -1 (backward)
-	
-	private boolean walkSlowerX = false;		// Flag to stop X movement
-	private boolean walkSlowerY = false;		// Flag to stop Y movement
-	private boolean walkSlowerZ = false;		// Flag to stop Z movement
-
 	/* Physics */
-	public PVector location, orientation;											// Location of the camera in virtual space
+	private PVector location, orientation;											// Location of the camera in virtual space
 	public PVector velocity, acceleration, attraction;      // Physics model parameters
-	public PVector walkingVelocity, walkingAcceleration;	// Physics parameters applied relative to camera direction
+
+	public float lastAttractorDistance = -1.f;
+	
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction
 	private float velocityMin = 0.00005f;						// Threshold under which velocity counts as zero
 	private float velocityMax = 0.75f;						// Camera maximum velocity
 	private float accelerationMax = 0.15f;					// Camera maximum acceleration
 	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
-	private float walkingAccelInc = 0.002f;					// Camera walking acceleration increment 
 	private float camDecelInc = 0.8f;						// Camera deceleration increment
 	private float camHaltInc = 0.05f;						// Camera fast deceleration increment
-	public float lastAttractorDistance = -1.f;
+
+	/* Movement */
+	private boolean walking = false;			// Whether viewer is walking
+	public PVector walkingVelocity;
+	public PVector walkingAcceleration;			// Physics parameters applied relative to camera direction
+	private float walkingAccelInc = 0.002f;		// Camera walking acceleration increment
+
+	private boolean slowing = false;			// Whether viewer is slowing 
+	private boolean slowingX = false;			// Slowing X movement
+	private boolean slowingY = false;			// Slowing Y movement
+	private boolean slowingZ = false;			// Slowing Z movement
+
+	private boolean halting = false;			// Viewer is halting
+	
+	private boolean movingX = false;			// Is viewer automatically moving in X dimension (side to side)?
+	private boolean movingY = false;			// Is viewer automatically moving in Y dimension (up or down)?
+	private boolean movingZ = false;			// Is viewer automatically moving in Z dimension (forward or backward)?
+	private float moveXDirection;				// 1 (right)   or -1 (left)
+	private float moveYDirection;				// 1 (down)    or -1 (up)
+	private float moveZDirection;				// 1 (forward) or -1 (backward)
+	
 
 	/* Looking */
-	public boolean looking = false;				// Is the viewer automatically turning to look for images, since none are visible?
-	public int lookingStartFrameCount, lookingLength, lookingDirection;
-	public int lookingRotationCount = 0;		// Amount of times viewer has rotated looking for images
-	public float lookingStartAngle;				// Angle when looking started
-	private boolean waiting = false;			// During memory navigation, is the camera waiting to move on?
+	private boolean looking = false;				// Whether viewer is turning to look for images, since none are visible
+	private int lookingStartFrameCount, lookingLength, lookingDirection;
+	private int lookingRotationCount = 0;		// Amount of times viewer has rotated looking for images
+	private float lookingStartAngle;				// Angle when looking started
+	private boolean waiting = false;			// During memory navigation, whether the camera is waiting to move 
 	private int pathWaitStartFrame, pathWaitLength = 25;
 
 	/* Turning */
 	private PVector turnTargetPoint;			// Point to turn towards
-	private boolean turningX = false;			// Is the viewer turning (right or left)?
-	private boolean turningY = false;			// Is the viewer turning (up or down)?
+	private boolean turningX = false;			// Whether the viewer is turning (right or left)
+	private boolean turningY = false;			// Whether the viewer is turning (up or down)
+	
 	private int turnXStartFrame, turnYStartFrame, 
 				turnXTargetFrame, turnYTargetFrame;
 	private float turnXDirection, turnXTarget, 
@@ -135,40 +137,31 @@ public class GMV_Viewer
 				  turnYStart, turnYIncrement;
 	private float turnIncrement = PApplet.PI / 90.f;
 	
-	private boolean rotatingX = false;			// Is the camera rotating in X dimension (turning left or right)?
-	private boolean rotatingY = false;			// Is the camera rotating in Y dimension (turning up or down)?
-	private boolean rotatingZ = false;			// Is the camera rotating in Z dimension (rolling left or right)?
+	private boolean rotatingX = false;			// Whether the camera is rotating in X dimension (turning left or right)?
+	private boolean rotatingY = false;			// Whether the camera is rotating in Y dimension (turning up or down)?
+	private boolean rotatingZ = false;			// Whether the camera is rotating in Z dimension (rolling left or right)?
 	private float rotateXDirection;				// Rotation direction in X dimension
 	private float rotateYDirection;				// Rotation direction in Y dimension
 	private float rotateZDirection;				// Rotation direction in Z dimension
 
 	/* Interaction */
-	public float selectionMaxDistance;					// Maximum distance user can select a photo
+	private float selectionMaxDistance;					// Maximum distance user can select a photo
 	private float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
-	
 	public int lastMovementFrame = 500000, lastLookFrame = 500000;
-	public int clusterLockIdleFrames = 0;				// How long to wait after user input before auto navigation moves the camera?
-	public int lockToClusterWaitLength = 40;
-	
-	/* Graphics Modes */
-	public boolean videoMode = false;
-	
+	private int clusterLockIdleFrames = 0;				// How long to wait after user input before auto navigation moves the camera?
+	private int lockToClusterWaitLength = 40;
+
 	/* GPS Tracks */
-	File gpsTrackFile;							// GPS track file
-	ArrayList<GMV_Waypoint> history;			// Stores a GPS track in virtual coordinates
-	ArrayList<GMV_Waypoint> gpsTrack;			// Stores a GPS track in virtual coordinates
-	boolean gpsTrackSelected = false;			// Has a GPS track been selected?
-	String gpsTrackName = "";					// GPS track name
+	private File gpsTrackFile;							// GPS track file
+	private ArrayList<GMV_Waypoint> history;			// Stores a GPS track in virtual coordinates
+	private ArrayList<GMV_Waypoint> gpsTrack;			// Stores a GPS track in virtual coordinates
+	private boolean gpsTrackSelected = false;			// Has a GPS track been selected?
+	private String gpsTrackName = "";					// GPS track name
 
 	/* Zooming */
 	private boolean zooming = false;
 	private float zoomStart, zoomDirection;
 	private int zoomLength = 15;
-	
-	/* Static Mode */
-//	PVector staticLocation;		// Location in Static mode 
-
-	public boolean turn = false;
 
 	GeoSynth p;
 
@@ -281,7 +274,7 @@ public class GMV_Viewer
 	{
 		moveZDirection = -1;
 		movingZ = true;
-		walkSlowerZ = false;
+		slowingZ = false;
 	}
 
 	/**
@@ -293,17 +286,17 @@ public class GMV_Viewer
 		if(movingX)
 		{
 			movingX = false;
-			walkSlowerX = true;
+			slowingX = true;
 		}
 		if(movingY)
 		{
 			movingY = false;
-			walkSlowerY = true;
+			slowingY = true;
 		}
 		if(movingZ)
 		{
 			movingZ = false;
-			walkSlowerZ = true;
+			slowingZ = true;
 		}
 	}
 
@@ -1228,9 +1221,9 @@ public class GMV_Viewer
 	 */
 	public void moveToNextLocation()
 	{
-		if(manualPathNavigation)
-			moveToNextClusterAlongHistoryVector();				// Move to next attractor on a path (not retracing N steps) 
-//		else
+		moveToNextClusterAlongHistoryVector();				// Move to next attractor on a path (not retracing N steps) 
+
+//		if(!manualPathNavigation)
 //			moveToNearestCluster(false);			// Move to closest cluster besides current
 	}
 	
@@ -1261,6 +1254,13 @@ public class GMV_Viewer
 //		saveAttitude = getOrientation();
 	}
 
+	public void clearAttractorCluster()
+	{
+		attractorCluster = -1;											// Set attractorCluster
+		movingToCluster = false;
+		movingToAttractor = false;
+	}
+	
 	/**
 	 * stopMoving()
 	 * Stop any current viewer movement
@@ -1460,17 +1460,17 @@ public class GMV_Viewer
 
 			if(PApplet.abs(walkingVelocity.mag()) > 0.f && PApplet.abs(walkingVelocity.mag()) < velocityMin && !movingX && !movingY && !movingZ)
 			{
-				walkSlowerX = false;
-				walkSlowerY = false;
-				walkSlowerZ = false;
+				slowingX = false;
+				slowingY = false;
+				slowingZ = false;
 				walkingVelocity = new PVector(0,0,0);			// Clear walkingVelocity when reaches close to zero (below velocityMin)
 			}
 
-			if(PApplet.abs(walkingVelocity.mag()) == 0.f && (walkSlowerX  || walkSlowerY ||	walkSlowerZ ) )
+			if(PApplet.abs(walkingVelocity.mag()) == 0.f && (slowingX  || slowingY ||	slowingZ ) )
 			{
-				walkSlowerX = false;
-				walkSlowerY = false;
-				walkSlowerZ = false;
+				slowingX = false;
+				slowingY = false;
+				slowingZ = false;
 			}
 		}
 		else if( movingToAttractor || movingToCluster || follow )								
@@ -1650,8 +1650,10 @@ public class GMV_Viewer
 		{
 			currentCluster = getNearestCluster(false);		// Set currentCluster to nearest
 			if(p.debug.viewer && p.debug.detailed)
-				p.display.message("Reached point of interest... turning towards image");
+				p.display.message("Reached point of interest... setting current timeline point to cluster #"+currentCluster);
 
+			currentFieldTimeSegment = p.getCurrentCluster().getFirstTimeSegment();
+			
 			//					turnTowardsPoint(attractorPoint.getLocation());
 			p.getCurrentField().clearAllAttractors();
 			movingToAttractor = false;
@@ -1661,27 +1663,27 @@ public class GMV_Viewer
 	public void updateWalking()
 	{
 		// Move X Transition
-		if (movingX && !walkSlowerX) 
+		if (movingX && !slowingX) 
 		{
 			walkingAcceleration.x += walkingAccelInc * moveXDirection;
 			lastMovementFrame = p.frameCount;
 		}
 
 		// Move Y Transition
-		if (movingY && !walkSlowerY) 
+		if (movingY && !slowingY) 
 		{
 			walkingAcceleration.y += walkingAccelInc * moveYDirection;
 			lastMovementFrame = p.frameCount;
 		}
 
 		// Move Z Transition
-		if (movingZ && !walkSlowerZ) 		
+		if (movingZ && !slowingZ) 		
 		{
 			walkingAcceleration.z += walkingAccelInc * moveZDirection;
 			lastMovementFrame = p.frameCount;
 		}
 
-		if(walkSlowerX || walkSlowerY || walkSlowerZ)
+		if(slowingX || slowingY || slowingZ)
 		{
 			walkingVelocity.mult(camDecelInc);
 			walkingAcceleration.mult(camDecelInc);
@@ -2974,11 +2976,6 @@ public class GMV_Viewer
 		nearViewingDistance = nearClippingDistance * 2.f;
 	}
 	
-//	public void setNearViewingDistance( float newNearViewingDistance)
-//	{
-//		nearViewingDistance = newNearViewingDistance;
-//	}
-
 	public boolean isMoving()
 	{
 		if(movingToCluster || movingToAttractor)
@@ -3002,6 +2999,11 @@ public class GMV_Viewer
 		return movingToCluster;
 	}
 
+	public boolean isWalking()
+	{
+		return walking;
+	}
+
 	public boolean isSlowing()
 	{
 		return slowing;
@@ -3010,6 +3012,21 @@ public class GMV_Viewer
 	public boolean isHalting()
 	{
 		return halting;
+	}
+	
+	public int getAttractorCluster()
+	{
+		return attractorCluster;
+	}
+
+	public int getCurrentCluster()
+	{
+		return currentCluster;
+	}
+	
+	public void setCurrentCluster(int newCluster)
+	{
+		currentCluster = newCluster;
 	}
 	
 	public float getFieldOfView()
@@ -3058,19 +3075,19 @@ public class GMV_Viewer
 	public void stopMoveXTransition()
 	{
 		movingX = false;
-		walkSlowerX = true;
+		slowingX = true;
 	}
 	
 	public void stopMoveYTransition()
 	{
 		movingY = false;
-		walkSlowerY = true;
+		slowingY = true;
 	}
 	
 	public void stopMoveZTransition()
 	{
 		movingZ = false;
-		walkSlowerZ = true;
+		slowingZ = true;
 	}
 	
 	public void stopRotateXTransition()
@@ -3094,17 +3111,6 @@ public class GMV_Viewer
 		zoomDirection = dir;
 		zooming = true;
 	}
-	
-//	/**
-//	 * jumpAndPointAtTarget()
-//	 * @param goal Goal point
-//	 * @param target Location to point at
-//	 */
-//	public void jumpAndPointAtTarget(PVector goal, PVector target) 
-//	{
-//		initialize(goal.x, goal.y, goal.z);
-//		camera.aim(target.x, target.y, target.z);
-//	}
 	
 	/***
 	 * jump()
@@ -3148,4 +3154,17 @@ public class GMV_Viewer
 		else
 			return val;
 	}
+	
+
+	
+//	/**
+//	 * jumpAndPointAtTarget()
+//	 * @param goal Goal point
+//	 * @param target Location to point at
+//	 */
+//	public void jumpAndPointAtTarget(PVector goal, PVector target) 
+//	{
+//		initialize(goal.x, goal.y, goal.z);
+//		camera.aim(target.x, target.y, target.z);
+//	}
 }

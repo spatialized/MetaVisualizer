@@ -122,7 +122,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				}
 				else
 				{
-					if(p.p.viewer.currentCluster == cluster)
+					if(p.p.viewer.getCurrentCluster() == cluster)
 					{
 						timeBrightnessFactor = getTimeBrightness();        
 						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
@@ -568,11 +568,11 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 		if(p.p.transitionsOnly)
 		{
-			camLoc = p.p.viewer.location;
+			camLoc = p.p.viewer.getLocation();
 		}
 		else
 		{
-			camLoc = p.p.viewer.location;
+			camLoc = p.p.viewer.getLocation();
 		}
 
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
@@ -635,7 +635,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 		if(p.p.transitionsOnly)					// With StaticMode ON, determine visibility based on distance of associated cluster 
 		{
-			if(cluster == p.p.viewer.currentCluster)		// If this photo's cluster is the current (closest) cluster, it is visible
+			if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
 				visible = true;
 
 			for(int id : p.p.viewer.clustersVisible)

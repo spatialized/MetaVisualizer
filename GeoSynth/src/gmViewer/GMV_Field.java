@@ -583,13 +583,13 @@ public class GMV_Field
 	
 	public void showClusters()
 	{
-		if(p.viewer.currentCluster != -1)
-			clusters.get(p.viewer.currentCluster).draw(255);		// Draw current cluster
+		if(p.viewer.getCurrentCluster() != -1)
+			clusters.get(p.viewer.getCurrentCluster()).draw(255);		// Draw current cluster
 		else if(p.debug.cluster || p.debug.field)
 			PApplet.println("currentCluster == -1!!!");
 		
-		if(p.viewer.attractorCluster != -1)
-			clusters.get(p.viewer.attractorCluster).draw(50);		// Draw attractor cluster
+		if(p.viewer.getAttractorCluster() != -1)
+			clusters.get(p.viewer.getAttractorCluster()).draw(50);		// Draw attractor cluster
 	}
 	
 	/**
@@ -598,11 +598,11 @@ public class GMV_Field
 	public void clearAllAttractors()
 	{
 		if(p.debug.viewer && p.debug.detailed)
-			PApplet.println("Clear all attractors...");
+			PApplet.println("Clearing all attractors...");
 		
-		if(p.viewer.attractorCluster != -1)
+		if(p.viewer.getAttractorCluster() != -1)
 		{
-			p.viewer.attractorCluster = -1;
+			p.viewer.clearAttractorCluster();
 
 			for(GMV_Cluster c : clusters)
 				if(c.isAttractor())
@@ -630,6 +630,23 @@ public class GMV_Field
 
 //		p.viewer.setFarViewingDistance( p.viewer.getFarViewingDistance() * multiple );		// --Fade value
 //		p.viewer.setNearClippingDistance( p.viewer.getNearClippingDistance() * multiple );	// --Fade value
+	}
+
+	public int getFirstTimeSegment()
+	{
+		if(timeline.size() > 0)
+			return timeline.get(0).getID();
+		else
+			return -1;
+	}
+	
+	public IntList getTimeSegments()
+	{
+		IntList result = new IntList();
+		for(GMV_TimeSegment t : timeline)
+			result.append(t.getID());
+		
+		return result;
 	}
 	
 	public void addImageError()

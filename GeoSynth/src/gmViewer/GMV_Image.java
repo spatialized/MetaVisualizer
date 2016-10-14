@@ -115,7 +115,7 @@ class GMV_Image extends GMV_Viewable
 					}
 					else
 					{
-						if(p.p.viewer.currentCluster == cluster)
+						if(p.p.viewer.getCurrentCluster() == cluster)
 						{
 							timeBrightnessFactor = getTimeBrightness();        
 							brightness *= timeBrightnessFactor; 					// Fade brightness based on time
@@ -417,9 +417,9 @@ class GMV_Image extends GMV_Viewable
 		PVector camLoc;
 
 		if(p.p.transitionsOnly)
-			camLoc = p.p.viewer.location;
+			camLoc = p.p.viewer.getLocation();
 		else
-			camLoc = p.p.viewer.location;
+			camLoc = p.p.viewer.getLocation();
 
 		float distance;
 
@@ -594,7 +594,7 @@ class GMV_Image extends GMV_Viewable
 
 		if(p.p.transitionsOnly)							// In Transitions Only Mode, visibility is based on distance of associated cluster 
 		{
-			if(cluster == p.p.viewer.currentCluster)		// If this photo's cluster is the current (closest) cluster, it is visible
+			if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
 				visible = true;
 
 			for(int id : p.p.viewer.clustersVisible)

@@ -568,6 +568,14 @@ public class GMV_Cluster
 		return force; 								// Return force to be applied
 	}
 
+	public int getFirstTimeSegment()
+	{
+		if(timeline.size() > 0)
+			return timeline.get(0).getID();
+		else
+			return -1;
+	}
+
 //	void calcAverageTime() 
 //	{
 //		float sum = (float) 0.;

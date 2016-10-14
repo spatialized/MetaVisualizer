@@ -82,7 +82,8 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		
 		videoWidth = newVideoWidth;
 		videoHeight = newVideoHeight;
-
+		brightness = newBrightness;
+		
 		gpsLocation = newGPSLocation;
 //		setCaptureLocationPVector(0, 0, 0);
 		focusDistance = newFocusDistance;
@@ -102,101 +103,90 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 */
 	void draw()
 	{
-		float curBrightness = fadingBrightness;					
-		float distanceBrightnessFactor = 0.f; 					// Fade with distance
-		float timeBrightnessFactor;                          // Fade with time 
-
-		if( p.p.timeFading )
-		{
-			if(!p.p.viewer.isMoving())
-			{
-				if(p.p.showAllTimeSegments)
-				{
-					if(p.p.getCluster(cluster).timeline.size() > 0)
-						timeBrightnessFactor = getTimeBrightness();    
-					else
-					{
-						timeBrightnessFactor = 0.f;
-						p.p.display.message("Video Cluster: "+cluster+" has no timeline points!");
-					}
-				}
-				else
-				{
-					if(p.p.viewer.getCurrentCluster() == cluster)
-					{
-						timeBrightnessFactor = getTimeBrightness();        
-						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-					}
-					else														// Hide media outside current cluster
-					{
-						timeBrightnessFactor = 0.f;
-						brightness = 0.f;
-					}
-				}
-			}
-		}
-
-		distanceBrightnessFactor = getDistanceBrightness(); 
-		curBrightness *= distanceBrightnessFactor; 								// Fade alpha based on distance to camera
-
-		if(isClose && distanceBrightnessFactor == 0.f)							// Video recently moved out of range
-		{
-			isClose = false;
-			fadeOut();
-		}
-		
-		if(p.p.debug.video && p.p.debug.detailed && p.p.frameCount % 30 == 0)
-			p.p.display.message("curBrightness after distance:"+curBrightness);
-
 		if(!verticesAreNull())
 		{
-			float videoAngle = getFacingAngle();
+			float distanceBrightnessFactor = 0.f; 					// Fade with distance
+			float timeBrightnessFactor;                          // Fade with time 
+			float angleBrightnessFactor;
+			
+			float brightness = fadingBrightness;					
 
-			if(p.p.utilities.isNaN(videoAngle))
+			distanceBrightnessFactor = getDistanceBrightness(); 
+			brightness *= distanceBrightnessFactor; 								// Fade alpha based on distance to camera
+
+			if( p.p.timeFading )
 			{
-				videoAngle = 0;
-				visible = false;
-				disabled = true;
-				if(p.p.debug.video && p.p.debug.detailed)
-					p.p.display.message("Video angle error for ID:"+getID()+"  Setting visibility to FALSE...");
+				if(!p.p.viewer.isMoving())
+				{
+					if(p.p.showAllTimeSegments)
+					{
+						if(p.p.getCluster(cluster).timeline.size() > 0)
+							timeBrightnessFactor = getTimeBrightness();    
+						else
+						{
+							timeBrightnessFactor = 0.f;
+							p.p.display.message("Video Cluster: "+cluster+" has no timeline points!");
+						}
+						
+						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
+					}
+					else
+					{
+						if(p.p.viewer.getCurrentCluster() == cluster)
+						{
+							timeBrightnessFactor = getTimeBrightness();        
+							brightness *= timeBrightnessFactor; 					// Fade brightness based on time
+						}
+						else														// Hide media outside current cluster
+						{
+							timeBrightnessFactor = 0.f;
+							brightness = 0.f;
+						}
+					}
+				}
 			}
 
-			viewingBrightness = calculateAlpha(curBrightness, videoAngle);                 // Fade out as turns sideways or gets too far / close
-			if(p.p.debug.video)
-				PApplet.println("Video viewingBrightness:"+viewingBrightness);
-		}
-		else 
-		{
-			if(p.p.debug.video)
-				PApplet.println("Vertices are null! Image ID:"+getID());
-		}
-
-		if (visible && !hidden && !disabled && !p.p.viewer.map3DMode) 
-		{
-			if (viewingBrightness > 0)
+			if(isClose && distanceBrightnessFactor == 0.f)							// Video recently moved out of range
 			{
-//				if(p.p.debug.video) 
-//				{
-//					PApplet.print("Visible Video");
-//					PApplet.print(" ID:" + getID());
-//					PApplet.print(" theta:" + theta);
-//					PApplet.print(" elevation:" + phi);
-//					PApplet.print(" orientation:" + orientation);
-//					PApplet.print(" gps longitude:" + gpsLocation.x);
-//					PApplet.print(" gps latitude:" + gpsLocation.z);
-//					PApplet.println(" gps altitude:" + gpsLocation.y);
-//				}
-
-				drawVideo();          // Draw the video 
+				isClose = false;
+				fadeOut();
 			}
-		}
-		else
-		{      
-			p.p.noFill();                  // Hide video if it isn't visible
-		}
 
-		if (visible && !disabled && (p.p.debug.model || p.p.viewer.map3DMode))
-			drawLocation(centerSize);
+			if(p.p.debug.video && p.p.debug.detailed && p.p.frameCount % 30 == 0)
+				p.p.display.message("Video brightness after distance:"+brightness);
+
+			if( p.p.angleFading )
+			{
+				float videoAngle = getFacingAngle();
+				if(p.p.utilities.isNaN(videoAngle))
+				{
+					videoAngle = 0;				
+					visible = false;
+					disabled = true;
+				}
+
+				angleBrightnessFactor = getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
+				brightness *= angleBrightnessFactor;
+				p.p.display.message("brightness:"+brightness+" viewingBrightness:"+PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f));
+			}
+
+			viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
+
+			if (visible && !hidden && !disabled && !p.p.viewer.map3DMode) 
+			{
+				if (viewingBrightness > 0)
+				{
+					drawVideo();          // Draw the video 
+				}
+			}
+			else
+			{      
+				p.p.noFill();                  // Hide video if it isn't visible
+			}
+
+			if (visible && !disabled && (p.p.debug.model || p.p.viewer.map3DMode))
+				drawLocation(centerSize);
+		}
 	}
 
 	/**
@@ -460,7 +450,6 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 		p.p.textureMode(PApplet.IMAGE);
 		p.p.texture(video);
-//		p.p.texture(p.p.getCurrentField().images.get(imagePlaceholder).image);
 
 		if(p.p.viewer.selectionMode)
 		{
@@ -493,16 +482,11 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			else
 				p.p.tint(255, viewingBrightness);          				
 		}
-
-//		p.p.display.message("vertices[2]: "+vertices[2].x+ "y:"+vertices[2].y+ "z:"+vertices[2].z+ "dim: "+origVideoWidth+ " " +origVideoHeight);
+		
 		p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
 		p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
 		p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
 		p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, origVideoHeight);           // LOWER LEFT
-//		p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
-//		p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);           // UPPER RIGHT           
-//		p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
-//		p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);           // LOWER LEFT
 
 		p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
 		p.p.popMatrix();
@@ -1152,28 +1136,23 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * calculateAlpha()
 	 * Calculate and return alpha value given camera distance and image angle
+	 * @param videoAngle Angle between video and viewer
 	 */
-	private float calculateAlpha(float curAlpha, float videoAngle)
+	private float getAngleBrightness(float videoAngle)
 	{
-		float angleFadeAmt = 0.f;
+//		float angleFadeAmt = 0.f;
+
+		float angleBrightness = 0.f;
 
 		if(videoAngle > p.p.visibleAngle)
-		{
-			angleFadeAmt = 0.f;
-		}
+			angleBrightness = 0.f;
+		else if (videoAngle < p.p.visibleAngle * 0.66f)
+			angleBrightness = 1.f;
 		else
-		{
-			angleFadeAmt = PApplet.constrain((float)p.p.angleFadeMap.getMappedValueFor(1.-PApplet.map(videoAngle, 0.f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
-		}
+			angleBrightness = PApplet.constrain((1.f-PApplet.map(videoAngle, p.p.visibleAngle * 0.66f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
 
-		if(p.p.angleFading)
-			curAlpha *= angleFadeAmt;  			// Fade with angle to camera;
-
-		curAlpha = PApplet.map(curAlpha, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
-
-		return curAlpha;
+		return angleBrightness;
 	}
 	
 	/**

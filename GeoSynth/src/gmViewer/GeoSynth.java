@@ -130,10 +130,11 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 														// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
 
 	/* Interpolation */
-	ScaleMap angleFadeMap, distanceFadeMap, timeFadeMap;
+	ScaleMap distanceFadeMap, timeFadeMap;
 	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
 	InterpolateStrategy circularEaseIn = new CircularInterpolation(true);		// Steepest ascent toward end value
 	InterpolateStrategy zoomLens = new ZoomLensInterpolation();
+	InterpolateStrategy linear = new LinearInterpolation();
 
 	/* File System */
 	public String outputFolder;
@@ -382,8 +383,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
 		timeFadeMap.setMapFunction(circularEaseOut);
 
-		angleFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with angle interpolation
-		angleFadeMap.setMapFunction(circularEaseOut);		
+//		angleFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with angle interpolation
+//		angleFadeMap.setMapFunction(circularEaseOut);		
+//		angleFadeMap.setMapFunction(linear);		
 
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);

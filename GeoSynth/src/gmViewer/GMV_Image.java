@@ -36,6 +36,7 @@ class GMV_Image extends GMV_Viewable
 	private float focalLength = 0; 			// Zoom Level 
 	private float focusDistance; 	 		// Image viewing distance (or estimated object distance, if given in metadata)
 	private float sensorSize;				// Approx. size of sensor in mm.
+	private float brightness;
 	
 	/* Video Association */
 	private boolean isVideoPlaceHolder = false;
@@ -65,6 +66,7 @@ class GMV_Image extends GMV_Viewable
 		gpsLocation = newGPSLocation;
 		focusDistance = newFocusDistance;
 		sensorSize = newSensorSize;
+		brightness = newBrightness;
 		
 		theta = newTheta;              		// GPS Orientation (Yaw angle)
 		phi = newElevation;            		// Pitch angle
@@ -375,14 +377,11 @@ class GMV_Image extends GMV_Viewable
 		float angleBrightness = 0.f;
 
 		if(imageAngle > p.p.visibleAngle)
-		{
 			angleBrightness = 0.f;
-		}
+		else if (imageAngle < p.p.visibleAngle * 0.66f)
+			angleBrightness = 1.f;
 		else
-		{
-//			angleBrightness = PApplet.constrain((float)p.p.angleFadeMap.getMappedValueFor(1.-PApplet.map(imageAngle, 0.f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
-			angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, 0.f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
-		}
+			angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, p.p.visibleAngle * 0.66f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
 
 		return angleBrightness;
 	}

@@ -122,7 +122,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	
 	/* Graphics */
 	public boolean alphaMode = false;					// Use alpha fading instead of grayscale
-	public boolean blurEdges = false;					// Blur image edges
+	public boolean blurEdges = true;					// Blur image edges
 	public PImage blurMask;								// Image used as mask for blurring
 
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?

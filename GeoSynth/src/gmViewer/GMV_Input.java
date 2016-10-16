@@ -370,7 +370,10 @@ public class GMV_Input
 			if(!p.display.inDisplayView())							
 			{
 				if (key == 'D')
+				{
 					p.blurEdges = !p.blurEdges;
+					PApplet.println("p.blurEdges:"+p.blurEdges);
+				}
 
 				if (key == 'h')	
 					p.debug.hideImages = !p.debug.hideImages;

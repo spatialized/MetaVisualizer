@@ -13,10 +13,10 @@ import processing.core.*;
 class GMV_Image extends GMV_Viewable						 
 {
 	/* Graphics */
-	public PImage image;					// Image pixels
+	public PImage image, blurred;			// Image pixels
 	private PVector[] vertices;				// Vertex list
 
-	private boolean blur = false;
+//	private boolean blur = false;
 	private PImage blurMask;
 	private float outlineSize = 10.f;		// Size of the outline around a selected image
 
@@ -77,9 +77,8 @@ class GMV_Image extends GMV_Viewable
 		cameraModel = newCameraModel;
 		
 //		blurMask = p.p.createImage(image.width, image.height, processing.core.PConstants.RGB);
-		blur = p.p.blurEdges;
+//		blur = p.p.blurEdges;
 		blurMask = p.p.blurMask;
-//		PApplet.println("Set blurMask: width:"+blurMask.width+" height:"+blurMask.height);
 	}  
 
 	/**
@@ -171,11 +170,15 @@ class GMV_Image extends GMV_Viewable
 		}
 	}
 
-	void applyMask(PImage mask)
+	
+	private PImage applyMask(PImage source, PImage mask)
 	{
+		PImage result = p.p.createImage(640, 480, PApplet.RGB);
+		
 		try
 		{
-			image.mask(mask); 
+			result = source.copy();
+			result.mask(mask); 
 		}
 		catch(RuntimeException ex)
 		{
@@ -183,12 +186,13 @@ class GMV_Image extends GMV_Viewable
 				PApplet.println("Blur Mask Error:"+ex);
 				PApplet.println("mask.width:"+mask.width);
 				PApplet.println("mask.height:"+mask.height);
-				PApplet.println("image.imageID:"+getID());
-				PApplet.println("image.width:"+image.width);
-				PApplet.println("image.height:"+image.height);
+				PApplet.println("main.imageID:"+getID());
+				PApplet.println("main.width:"+image.width);
+				PApplet.println("main.height:"+image.height);
 			}
-			//	      PApplet.println("orientation:"+(int)(orientation));
 		}
+		
+		return result;
 	}
 
 //	PImage createMask(PImage mask) // Must be same size
@@ -250,11 +254,7 @@ class GMV_Image extends GMV_Viewable
 //			averageColor = getAverageColor();
 //			averageBrightness = getAverageBrightness();
 			
-			if(blur)
-			{
-//				blurMask = createMask(blurMask);
-				applyMask(blurMask);				// Apply blur mask once image has loaded
-			}
+			blurred = applyMask(image, blurMask);				// Apply blur mask once image has loaded
 
 			requested = false;
 			p.p.requestedImages--;
@@ -322,7 +322,10 @@ class GMV_Image extends GMV_Viewable
 		p.p.pushMatrix();
 		p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
 		p.p.textureMode(PApplet.NORMAL);
-		p.p.texture(image);        			// Apply the image to the face as a texture 
+		if(p.p.blurEdges)
+			p.p.texture(blurred);
+		else
+			p.p.texture(image);        			// Apply the image to the face as a texture 
 
 		if(p.p.viewer.selectionMode)
 		{

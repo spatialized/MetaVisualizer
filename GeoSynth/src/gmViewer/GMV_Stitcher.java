@@ -63,6 +63,12 @@ public class GMV_Stitcher
 		boolean success = false, impossible = false;		
 		boolean reduce = false;				// Reduce images to try to stitch
 		int count = 0;
+		
+		// Prevent fatal error
+		while(imageList.size() > 25)
+		{
+			imageList.remove(imageList.size()-1);
+		}
 
 		while(!success || impossible)
 		{
@@ -114,7 +120,6 @@ public class GMV_Stitcher
 					}
 
 					imgs.close();
-
 					if(count++ > 100) break;		// Avoid infinite while loop
 				}
 				else
@@ -123,6 +128,7 @@ public class GMV_Stitcher
 					break;
 				}
 			}
+			else break;
 		}
 	
 		PImage result = p.createImage(0,0,PApplet.RGB);

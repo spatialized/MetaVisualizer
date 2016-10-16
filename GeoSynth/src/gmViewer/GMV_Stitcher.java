@@ -31,7 +31,7 @@ public class GMV_Stitcher
 {
 	private Stitcher stitcher;
 	
-	private final boolean try_use_gpu = false;
+	private final boolean try_use_gpu = true;
 
 	GeoSynth p;
 	GMV_Stitcher(GeoSynth parent)
@@ -39,11 +39,26 @@ public class GMV_Stitcher
 		p = parent;
 		
 		stitcher = Stitcher.createDefault(try_use_gpu);
+//		stitcher.setPanoConfidenceThresh(-1);   
 
-		stitcher.setRegistrationResol(-1); 		/// 0.6
-		stitcher.setSeamEstimationResol(-1);   	/// 0.1
-		stitcher.setCompositingResol(-1);   	//1
-		stitcher.setPanoConfidenceThresh(-1);   //1
+//		stitcher.setRegistrationResol(0.3f);
+//		stitcher.setSeamEstimationResol(0.05f);
+		stitcher.setPanoConfidenceThresh(0.8f);
+
+//	    Stitcher stitcher;
+//	    50     stitcher.setRegistrationResol(0.6);
+//	    51     stitcher.setSeamEstimationResol(0.1);
+//	    52     stitcher.setCompositingResol(ORIG_RESOL);
+//	    53     stitcher.setPanoConfidenceThresh(1);
+//	    54     stitcher.setWaveCorrection(true);
+//	    55     stitcher.setWaveCorrectKind(detail::WAVE_CORRECT_HORIZ);
+//	    56     stitcher.setFeaturesMatcher(makePtr<detail::BestOf2NearestMatcher>(try_use_gpu));
+//	    57     stitcher.setBundleAdjuster(makePtr<detail::BundleAdjusterRay>());
+//	   
+//		stitcher.setRegistrationResol(-1); 		/// 0.6
+//		stitcher.setSeamEstimationResol(-1);   	/// 0.1
+//		stitcher.setCompositingResol(-1);   	//1
+//		stitcher.setPanoConfidenceThresh(-1);   //1
 
 //		stitcher.setWaveCorrection(true);
 //		stitcher.setWaveCorrectKind((org.bytedeco.javacpp.opencv_imgcodecs.detail)::WAVE_CORRECT_HORIZ;
@@ -53,7 +68,7 @@ public class GMV_Stitcher
 	 * Stitch spherical panorama from images
 	 * @param library
 	 */
-	public PImage stitch(String library, IntList imageList)
+	public PImage stitch(String library, IntList imageList, int clusterID)
 	{
 		
 		Mat panorama = new Mat();				// Panoramic image result
@@ -101,6 +116,13 @@ public class GMV_Stitcher
 					
 					Mat pano = new Mat();
 					int status = stitcher.stitch(imgs, pano);
+					
+					/* Status Enum */
+//					OK 	= 0
+//					ERR_NEED_MORE_IMGS 	 = 1
+//					ERR_HOMOGRAPHY_EST_FAIL  = 2 	
+//					ERR_CAMERA_PARAMS_ADJUST_FAIL  = 3 	
+					
 					if(p.debug.stitching)
 						System.out.println("Stitching completed with error code " + status+"...");
 
@@ -139,7 +161,7 @@ public class GMV_Stitcher
 			// Testing
 			if(p.debug.stitching)
 			{
-				String output_name = p.stitchingPath+"stitched.jpg";
+				String output_name = p.stitchingPath+p.getCurrentField().name+"_"+clusterID+"_stitched.jpg";
 				org.bytedeco.javacpp.opencv_imgcodecs.imwrite(output_name, panorama);
 				System.out.println(""+images.length+" images stitched, output result to: " + output_name);
 			}

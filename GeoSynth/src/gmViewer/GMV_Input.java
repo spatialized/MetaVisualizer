@@ -97,6 +97,15 @@ public class GMV_Input
 			p.display.resetDisplayModes();
 			p.display.controlOverlay = !state;
 		}
+		
+		if (!optionKey && key == '5') 
+			p.showMediaToCluster = !p.showMediaToCluster;			// Draw line from each media point to cluster
+		
+		if (!optionKey && key == '6') 
+			p.showCaptureToMedia = !p.showCaptureToMedia;			// Draw line from each media point to its capture location
+		
+		if (!optionKey && key == '7') 
+			p.showCaptureToCluster = !p.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
 		/* Clustering */
 		if (key == 'r')

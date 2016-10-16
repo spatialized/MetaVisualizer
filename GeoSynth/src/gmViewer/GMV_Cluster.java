@@ -81,8 +81,9 @@ public class GMV_Cluster
 	boolean video = false;
 	
 	/* Panorama */
-	public boolean panorama = false;
-
+	public boolean panorama = false;					// Cluster has panorama files?
+	IntList valid;										// List of images that are good stitching candidates
+		
 	GMV_Field p;
 
 	GMV_Cluster(GMV_Field parent, int _clusterID, float _x, float _y, float _z) {
@@ -319,7 +320,44 @@ public class GMV_Cluster
 
 	public void stitchImages()
 	{
-		stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), images);
+		checkImagesForStitching(30.f);			// Validate images 30 degrees or less from others
+		stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID());
+//		stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), images, getID());
+	}
+	
+	public void checkImagesForStitching(float threshold)
+	{
+		ArrayList<PVector> orientations = new ArrayList<PVector>();		// List of orientations (x) and indices (y)
+		valid = new IntList();									// List of images likely to overlap
+		for(int i:images)
+		{
+			GMV_Image img = p.images.get(i);
+			orientations.add(new PVector(img.getOrientation(), i));
+		}
+			
+		for(int i:images)
+		{
+			float closestDist = 10000;
+			int closestIdx = -1;
+			
+			for(PVector o:orientations)
+			{
+				if(i != (int)o.y)
+				{
+					float dist = p.images.get(i).getOrientation()-o.x;
+					if(dist < closestDist)
+					{
+						closestDist = dist;
+						closestIdx = (int)o.y;
+					}
+				}
+			}
+			
+			if(closestDist < threshold && !valid.hasValue(i) && closestIdx != -1)
+				valid.append(i);
+			else if(p.p.debug.stitching)
+				PApplet.println("Excluded image #"+i+" for being "+closestDist+" degrees from next closest image...");
+		}
 	}
 	
 	/**

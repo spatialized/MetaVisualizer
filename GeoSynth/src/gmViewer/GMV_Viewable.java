@@ -213,9 +213,28 @@ public abstract class GMV_Viewable
 	{
 		p.p.pushMatrix();
 		p.p.translate(location.x, location.y, location.z);
-		p.p.stroke(200, 50, 255);
-		p.p.fill(0, 0, 255, 150);
+//		p.p.stroke(150, 50, 255);
+		p.p.fill(150, 0, 255, 150);
 		p.p.sphere(size);
+		PVector c = p.p.getCluster(cluster).getLocation();
+		PVector loc = getLocation();
+		PVector cl = getCaptureLocation();
+
+		p.p.strokeWeight(1.f);
+		p.p.stroke(80, 255, 255, 120);
+		if(p.p.showMediaToCluster)
+			p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+
+//		p.p.strokeWeight(1.f);
+		p.p.stroke(180, 255, 255, 120);
+		if(p.p.showCaptureToMedia)
+			p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+
+//		p.p.strokeWeight(1.f);
+		p.p.stroke(140, 255, 255, 120);
+		if(p.p.showCaptureToCluster)
+			p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+
 		p.p.popMatrix();
 	}
 	
@@ -515,8 +534,7 @@ public abstract class GMV_Viewable
 			if(p.model.highLongitude != p.model.lowLongitude && p.model.highLatitude != p.model.lowLatitude)
 			{
 				newX = PApplet.map(gpsLocation.x, p.model.lowLongitude, p.model.highLongitude, -0.5f * p.model.fieldWidth, 0.5f*p.model.fieldWidth); 				// GPS longitude decreases from left to right
-//				newY = -PApplet.map(gpsLocation.y, p.model.lowAltitude, p.model.highAltitude, -0.5f * p.model.fieldHeight, 0.5f*p.model.fieldHeight); 			// Convert altitude feet to meters, negative sign to match P3D coordinate space
-				newY = PApplet.map(gpsLocation.y, p.model.lowAltitude, p.model.highAltitude, -0.5f * p.model.fieldHeight, 0.5f*p.model.fieldHeight); 			// Convert altitude feet to meters, negative sign to match P3D coordinate space
+				newY = -PApplet.map(gpsLocation.y, p.model.lowAltitude, p.model.highAltitude, -0.5f * p.model.fieldHeight, 0.5f*p.model.fieldHeight); 			// Convert altitude feet to meters, negative sign to match P3D coordinate space
 				newZ = -PApplet.map(gpsLocation.z, p.model.lowLatitude, p.model.highLatitude, -0.5f * p.model.fieldLength, 0.5f*p.model.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
 
 				if(p.p.altitudeScaling)	

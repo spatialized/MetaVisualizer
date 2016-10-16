@@ -40,7 +40,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	private boolean fieldsCreated = false;			// Initialized media folders
 	private boolean running = false;				// Is simulation running?
 	private boolean exit = false;					// System message to exit the program
-	private boolean startup = true;				// First running frame
+	private boolean startup = true;					// Startup frame
 	private boolean startRunning = false;			// Program just started running
 	private boolean saveImage = false;
 
@@ -59,6 +59,11 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
 	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing
 	
+	public boolean showModel = true;					// Activate Model Display 
+	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
+	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
+	public boolean showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
+
 	/* Viewer */
 	public boolean firstTeleport = false;
 
@@ -72,7 +77,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	
 	/* Stitching */
 	String stitchingPath;
-	int maxStitchingImages = 16;						// Maximum number of images to try to stitch
+	int maxStitchingImages = 24;						// Maximum number of images to try to stitch
 	
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 

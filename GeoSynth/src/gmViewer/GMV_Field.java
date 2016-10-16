@@ -603,6 +603,15 @@ public class GMV_Field
 		}
 	}
 	
+	/**
+	 * Try stitching panoramas for all clusters in field
+	 */
+	public void stitchAllClusters()
+	{
+		for(GMV_Cluster c : clusters)
+			c.stitchImages();
+	}
+	
 	public void analyzeClusterAngles()
 	{
 		for(GMV_Cluster c : clusters)

@@ -162,9 +162,11 @@ class GMV_Image extends GMV_Viewable
 				p.p.noFill();                  // Hide image if it isn't visible
 			}
 
-			if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw image locations for debugging or map display
-				drawLocation(centerSize);
-			if (visible && !disabled && p.p.viewer.map3DMode)
+//			if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw image locations for debugging or map display
+//				drawLocation(centerSize);
+//			if (visible && !disabled && p.p.viewer.map3DMode)
+//				drawLocation(centerSize);
+			if(visible && p.p.showModel && !disabled)
 				drawLocation(centerSize);
 		}
 	}

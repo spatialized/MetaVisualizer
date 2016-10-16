@@ -10,7 +10,6 @@ import toxi.math.ScaleMap;
 /***********************************
  * GMV_Display
  * @author davidgordon
- * 
  * Class for displaying 2D text and graphics
  */
 
@@ -1055,6 +1054,17 @@ class GMV_Display
 			ptSize *= shrinkFactor;
 		}
 	}
+
+	/**
+	 * Show startup screen
+	 */
+	public void showStartup()
+	{
+		sendSetupMessage("Welcome to GeoSynth!");
+		sendSetupMessage(" ");
+		sendSetupMessage("Please select a library folder...");
+		draw();								// Draw setup display
+	}
 	
 	/**
 	 * drawForceVector()
@@ -1341,15 +1351,16 @@ class GMV_Display
 			p.text(" Time Fading: "+ p.timeFading, textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.text(" Timeline Segments: "+ p.getCurrentField().timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
 			p.text(" Current Segment: "+ p.viewer.currentFieldTimeSegment, textXPos, textYPos += lineWidth, hudDistance);
-			p.text(" Upper: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+f.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
-											 " Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
+			if(f.timeline.size() > 0 && p.viewer.currentFieldTimeSegment >= 0 && p.viewer.currentFieldTimeSegment < f.timeline.size())
+				p.text(" Upper: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+f.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
+					   " Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
 			p.text(" Cluster Segments: "+ p.getCurrentCluster().timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
 //			p.text(" Current Cluster Segment: "+ p.viewer.currentClusterTimeSegment, textXPos, textYPos += lineWidth, hudDistance);
 //			p.text(" Upper: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+c.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
 //					 " Lower: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
 
-			textXPos = midRightTextXOffset;
-			textYPos = topTextYOffset;			// Starting vertical position
+//			textXPos = midRightTextXOffset;
+//			textYPos = topTextYOffset;			// Starting vertical position
 
 			p.textSize(mediumTextSize);
 			p.text(" Output ", textXPos, textYPos += lineWidthVeryWide, hudDistance);

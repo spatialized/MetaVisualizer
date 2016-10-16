@@ -87,6 +87,16 @@ public class GMV_Viewer
 
 	public float lastAttractorDistance = -1.f;
 	
+	// Slow Navigation
+//	public float cameraMass = 0.3f;						// Camera mass for cluster attraction
+//	private float velocityMin = 0.000033f;						// Threshold under which velocity counts as zero
+//	private float velocityMax = 0.33f;						// Camera maximum velocity
+//	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
+//	private float accelerationMax = 0.075f;					// Camera maximum acceleration
+//	private float camDecelInc = 0.75f;						// Camera deceleration increment
+//	private float camHaltInc = 0.075f;						// Camera fast deceleration increment
+
+	// Fast Navigation
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction
 	private float velocityMin = 0.00005f;						// Threshold under which velocity counts as zero
 	private float velocityMax = 0.75f;						// Camera maximum velocity
@@ -357,7 +367,7 @@ public class GMV_Viewer
 		{
 			if(teleporting)	teleporting = false;
 			if(p.debug.viewer && p.debug.detailed)
-			p.display.message("moveToCaptureLocation... setting attractor point:"+newLocation);
+				p.display.message("moveToCaptureLocation... setting attractor point:"+newLocation);
 			setAttractorPoint(newLocation);
 		}
 	}
@@ -381,7 +391,8 @@ public class GMV_Viewer
 		{
 			if(teleporting)	teleporting = false;
 			currentCluster = newCluster;
-			p.display.message("moveToNearestCluster... setting attractor and currentCluster:"+currentCluster);
+			if(p.debug.viewer)
+				p.display.message("moveToNearestCluster... setting attractor and currentCluster:"+currentCluster);
 			setAttractorCluster(currentCluster);
 		}
 	}
@@ -433,11 +444,16 @@ public class GMV_Viewer
 			else
 			{
 				if(teleporting)	teleporting = false;
-				p.display.message("moveToNearestClusterAhead... setting currentCluster and attractor to same:"+currentCluster);
+				if(p.debug.viewer)
+					p.display.message("moveToNearestClusterAhead... setting currentCluster and attractor to same:"+currentCluster);
 				setAttractorCluster(currentCluster);
 			}
 		}
-		else p.display.message("moveToNearestClusterAhead... can't move to same cluster!... "+ahead);
+		else
+		{
+			if(p.debug.viewer)
+				p.display.message("moveToNearestClusterAhead... can't move to same cluster!... "+ahead);
+		}
 	}
 
 	/**
@@ -498,7 +514,8 @@ public class GMV_Viewer
 
 					if(count > 3)
 					{
-						p.display.message("No panoramas found...");
+						if(p.debug.viewer)
+							p.display.message("No panoramas found...");
 						break;
 					}
 				}
@@ -1608,16 +1625,17 @@ public class GMV_Viewer
 //			if(p.debug.viewer)
 //				p.display.message("Reached attractor... turning to memory target:"+path.get(pathLocationIdx).target);
 //			if(path.get(pathLocationIdx).target != null)
-//			turnTowardsPoint(path.get(pathLocationIdx).target);				// Turn towards memory target view
+//				turnTowardsPoint(path.get(pathLocationIdx).target);				// Turn towards memory target view
 		}
 
-		if(movingToCluster)		// Stop attracting when reached attractorCluster
+		if(movingToCluster)		
 		{
-			p.display.message("Moving to cluster... current:"+currentCluster+" attractor: "+attractorCluster+"...");
+			if(p.debug.viewer)
+				p.display.message("Moving to cluster... current:"+currentCluster+" attractor: "+attractorCluster+"...");
 			if(attractorCluster != -1)
 			{
 				attractorCluster = -1;
-				p.getCurrentField().clearAllAttractors();
+				p.getCurrentField().clearAllAttractors();	// Stop attracting when reached attractorCluster
 			}
 			else
 			{
@@ -1625,14 +1643,14 @@ public class GMV_Viewer
 //				{
 //					currentCluster = getNearestCluster(false);
 //					if(p.debug.viewer && p.debug.detailed)
-
 //				}
 			}
 			
 //			currentFieldTimeSegment = p.getCurrentCluster().getFirstTimeSegment();
 			currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
 			
-			p.display.message("Reached cluster... current:"+currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+currentFieldTimeSegment);
+			if(p.debug.viewer)
+				p.display.message("Reached cluster... current:"+currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+currentFieldTimeSegment);
 			movingToCluster = false;
 		}
 
@@ -2110,6 +2128,7 @@ public class GMV_Viewer
 		{
 			if( mediaAreVisible( true ) )				// Check whether any images are visible and centered
 			{
+				if(p.debug.viewer)
 				p.display.message("Finished rotating to look, found image(s) ");
 				stopAllTransitions();			// Also sets lookingForImages to false
 			}
@@ -2120,13 +2139,15 @@ public class GMV_Viewer
 				if ( p.frameCount - lookingStartFrameCount > lookingLength )
 				{
 					lookingRotationCount++;							// Record camera rotations while looking for images
+					if(p.debug.viewer)
 					p.display.message("Rotated to look "+lookingRotationCount+" times...");
 					lookingStartFrameCount = p.frameCount;		// Restart the count
 				}
 
 				if (lookingRotationCount > 2) 
 				{
-					p.display.message("Couldn't see any images. Moving to next nearest cluster...");
+					if(p.debug.viewer)
+						p.display.message("Couldn't see any images. Moving to next nearest cluster...");
 					stopAllTransitions();							// Sets lookingForImages and all transitions to false
 					moveToNearestCluster(false);
 				}
@@ -2188,7 +2209,8 @@ public class GMV_Viewer
 			{
 				follow = true;
 				pathLocationIdx = 0;
-				p.display.message("followTimeline()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
+				if(p.debug.viewer)
+					p.display.message("followTimeline()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
 				pathGoal = path.get(pathLocationIdx).getLocation();
 				setAttractorPoint(pathGoal);
 			}
@@ -2196,7 +2218,8 @@ public class GMV_Viewer
 		}
 		else
 		{
-			p.display.message("Already called followTimeline(): Stopping... "+path.get(pathLocationIdx).getLocation());
+			if(p.debug.viewer)
+				p.display.message("Already called followTimeline(): Stopping... "+path.get(pathLocationIdx).getLocation());
 			pathLocationIdx = 0;
 			follow = false;
 		}

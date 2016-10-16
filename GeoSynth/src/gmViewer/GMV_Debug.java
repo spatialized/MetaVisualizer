@@ -27,6 +27,7 @@ public class GMV_Debug
 	public boolean panorama = false;			// Debug GMV_Panorama class
 	public boolean video = false;				// Debug GMV_Video class
 	public boolean metadata = false;			// Debug GMV_Metadata class
+	public boolean stitching = true;
 	
 	/* Interactive Debugging */
 	public boolean hideImages = false;

@@ -31,6 +31,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	GMV_Viewer viewer;				// Handles viewer location
 	GMV_Debug debug;				// Handles debugging functions
 	GMV_Utilities utilities;		// Utility methods
+	GMV_Stitcher stitcher;			// Image stitcher
 
 	/* System Status */
 	private boolean initialSetup = false;			// Performing initial setup 
@@ -68,6 +69,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
+	
+	/* Stitching */
+	String stitchingPath;
 	
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
@@ -141,9 +145,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean outputFolderSelected = false;
 	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk
 	public int requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk
-
-	/* Sound */
-//	public boolean musicOn = true;						// Generate music from the photos?
 	
 	/** 
 	 * Load the PApplet, either in a window of specified size or in fullscreen
@@ -156,21 +157,25 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	
 
 	/** 
-	 * Called at program startup time
+	 * Setup function called at startup
 	 */
 	public void setup()
 	{
-		initialize();					// Initialize main classes and variables
+		initialize();						/* Initialize main classes and variables */
 	}
 
 	/** 
-	 * Call main program methods
+	 * Main program loop called every frame
 	 */
 	public void draw() 
 	{		
-		if (startup) showStartup();		/* Startup screen */
-		else if(!running) runSetup();	/* Run setup */
-		else run();						/* Run program */
+		if (startup)
+		{ 
+			display.showStartup();			/* Startup screen */
+			if (startup) startup = false;	
+		}
+		else if(!running) runSetup();		/* Run setup */
+		else run();							/* Run program */
 	}
 
 	/**
@@ -234,9 +239,12 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		{
 			if(!fieldsCreated && !exit)
 			{
-				if(debug.field)
-					PApplet.println("Initializing field:"+initializationField);
-				initializeField(initializationField);
+				if(debug.field) PApplet.println("Initializing field:"+initializationField);
+
+				getField(initializationField).initialize(library);
+				
+				setupProgress += fieldProgressInc;		// Update progress bar
+				display.draw();							// Draw progress bar
 			}
 			
 			initializationField++;
@@ -244,11 +252,8 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 				fieldsCreated = true;
 		}
 
-//		if (fieldsCreated && initialSetup && !running)
 		if (fieldsCreated && initialSetup && !running)
-		{
 			finishSetup();
-		}
 
 		/* Once library folder is selected */
 		if(libraryFolderSelected && !initialSetup && !interactive && !running)
@@ -353,7 +358,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/**
-	 * Exit the program
+	 * Stop the program
 	 */
 	void stopGeoSynth() 		
 	{
@@ -374,6 +379,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		
 		viewer = new GMV_Viewer(this);	// Initialize navigation + viewer
 		display = new GMV_Display(this);		// Initialize displays
+	    stitcher = new GMV_Stitcher(this);
 
 		/* Initialize graphics and text parameters */
 		colorMode(HSB);
@@ -383,57 +389,10 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
 		timeFadeMap.setMapFunction(circularEaseOut);
 
-//		angleFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with angle interpolation
-//		angleFadeMap.setMapFunction(circularEaseOut);		
-//		angleFadeMap.setMapFunction(linear);		
-
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
 
 		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
-	}
-	
-	/**
-	 * @param field Field ID to initialize
-	 */
-	void initializeField(int field)
-	{
-		GMV_Field f = fields.get(field);
-		String fieldPath = f.name;
-		f.metadata.load(library, fieldPath);					// Import metadata for all media in field
-		
-		f.model.calculateFieldSize(); 		// Calculate bounds of photo GPS locations
-		f.model.analyzeMedia();				// Analyze media locations and times 
-		f.model.setup(); 					// Initialize field for first time 
-
-		f.calculateMediaLocations(); 		// Set location of each photo in simulation
-		f.findImagePlaceHolders();			// Find image place holders for videos
-		f.calculateMediaVertices();			// Calculate all image vertices
-
-		f.model.runInitialClustering();		// Find media clusters
-
-		if(lockMediaToClusters)				// Center media capture locations at associated cluster locations
-			f.model.lockMediaToClusters();	
-
-		f.createTimeline();					// Create field timeline
-		f.analyzeClusterAngles();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
-		
-		setupProgress += fieldProgressInc;		// Update progress bar
-		display.draw();							// Draw progress bar
-	}
-	
-	/**
-	 * Show startup screen
-	 */
-	public void showStartup()
-	{
-		display.sendSetupMessage("Welcome to GeoSynth!");
-		display.sendSetupMessage(" ");
-		display.sendSetupMessage("Please select a library folder...");
-		display.draw();								// Draw setup display
-		
-		if (startup)
-			startup = false;							// After first frame
 	}
 	
 	/**
@@ -523,7 +482,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * createFieldsFromFolders()
 	 * Create fields from the media folders
 	 */
 	void createFieldsFromFolders(ArrayList<String> folders)
@@ -541,7 +499,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * getCurrentField()
 	 * @return Current field
 	 */
 	public GMV_Field getCurrentField()
@@ -551,7 +508,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * getCurrentModel()
 	 * @return Model of current field
 	 */
 	public GMV_Model getCurrentModel()
@@ -561,7 +517,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * getCurrentCluster()
 	 * @return Current cluster
 	 */
 	public GMV_Cluster getCurrentCluster()
@@ -606,7 +561,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * getFieldVideos()
 	 * @return All videos in this field
 	 */
 	public ArrayList<GMV_Video> getFieldVideos()
@@ -616,7 +570,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * getCurrentClusters()
 	 * @return Clusters in current field
 	 */
 	public ArrayList<GMV_Cluster> getFieldClusters()
@@ -626,7 +579,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/**
-	 * getActiveClusters()
 	 * @return Clusters in current field
 	 */
 	public ArrayList<GMV_Cluster> getActiveClusters()
@@ -641,7 +593,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/**
-	 * getCluster()
 	 * @return Requested cluster from current field
 	 */
 	GMV_Cluster getCluster(int theCluster)
@@ -651,8 +602,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/**
-	 * libraryFolderSelected()
-	 * Called when user selects a library folder
+	 * Called when library folder has been selected
 	 * @param selection File object for selected folder
 	 */
 	public void libraryFolderSelected(File selection) 
@@ -660,6 +610,10 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		openLibraryFolder(selection);
 	}
 
+	/**
+	 * Called when image output folder has been selected
+	 * @param selection
+	 */
 	public void outputFolderSelected(File selection) 
 	{
 		if (selection == null) 
@@ -680,7 +634,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	/**
-	 * openLibraryFolder()
 	 * Analyze and load media folders in response to user selection
 	 * @param selection Selected folder
 	 */
@@ -702,45 +655,49 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 
 			String[] parts = input.split("/");
 			
-			boolean valid = true; // = parts[parts.length-1].equals("GeoSynthLibrary");		// Check for correct library name
-			if(valid)
+//			boolean valid = true; // = parts[parts.length-1].equals("GeoSynthLibrary");		// Check for correct library name
+//			if(valid)
+//			{
+			
+			File libFile = new File(library);
+			String[] mediaFolderList = libFile.list();
+			for(String mediaFolder : mediaFolderList)
 			{
-				File libFile = new File(library);
-				String[] mediaFolderList = libFile.list();
-				for(String mediaFolder : mediaFolderList)
-				{
-					if(!mediaFolder.equals(".DS_Store"))
-						folders.add(mediaFolder);
-				}
-				
-				selectedFolder = true;
-				
-				String maskPath = "";
-				for(int i=0; i<parts.length-1; i++)
-				{
-					maskPath = maskPath + parts[i] + "/";
-				}
-				maskPath = maskPath + "masks/";
-//				PApplet.println("maskPath:"+maskPath);
-				File maskFolder = new File(maskPath);
-				String[] maskFolderList = maskFolder.list();
-				for(String mask : maskFolderList)
-				{
-					if(mask.equals("blurMask.jpg"))
-					{
-						blurMask = loadImage(maskPath + mask);
-//						println("loaded blurMask.jpg: width:"+blurMask.width+" height:"+blurMask.height);
-					}
-				}
-				
-				selectedFolder = true;
-				
+				if(!mediaFolder.equals(".DS_Store"))
+					folders.add(mediaFolder);
 			}
-			else
+
+			selectedFolder = true;
+
+			String parentFilePath = "";
+			for(int i=0; i<parts.length-1; i++)
 			{
-				libraryFolderSelected = false;
-				selectFolder("Select a library folder:", "libraryFolderSelected");
+				parentFilePath = parentFilePath + parts[i] + "/";
 			}
+			String maskPath = parentFilePath + "masks/";
+			stitchingPath = parentFilePath + "stitched/";
+			
+			//				PApplet.println("maskPath:"+maskPath);
+
+			File maskFolder = new File(maskPath);
+			String[] maskFolderList = maskFolder.list();
+			for(String mask : maskFolderList)
+			{
+				if(mask.equals("blurMask.jpg"))
+				{
+					blurMask = loadImage(parentFilePath + mask);
+					//						println("loaded blurMask.jpg: width:"+blurMask.width+" height:"+blurMask.height);
+				}
+			}
+
+			selectedFolder = true;
+
+//			}
+//			else
+//			{
+//				libraryFolderSelected = false;
+//				selectFolder("Select a library folder:", "libraryFolderSelected");
+//			}
 		}
 		
 		if(selectedFolder)
@@ -749,6 +706,87 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		}
 	}
 
+	/**
+	 * Manually move back in time
+	 */
+	void decrementTime()
+	{
+		currentTime -= timeInc;
+		if (currentTime < 0)
+			currentTime = 0;
+	}
+	
+	/**
+	 * Manually move forward in time
+	 */
+	void incrementTime()
+	{
+		currentTime += timeInc;
+		if (currentTime > timeCycleLength)
+			currentTime = timeCycleLength - 200;
+	}
+	
+	/**
+	 * Decrement time cycle length
+	 */
+	void decrementCycleLength()
+	{
+		if(timeCycleLength - 20 > 40.f)
+		{
+			timeCycleLength -= 20.f;
+			timeInc = timeCycleLength / 30.f;			
+		}
+	}
+	
+	/**
+	 * Increment time cycle length
+	 */
+	void incrementCycleLength()
+	{
+		if(timeCycleLength + 20 > 1000.f)
+		{
+			timeCycleLength += 20.f;
+			timeInc = timeCycleLength / 30.f;			
+		}
+	}
+
+	/**
+	 * Save current view to disk
+	 */
+	public void saveImage() 
+	{
+		if(debug.main)
+			PApplet.println("Will output image to disk.");
+		saveImage = true;
+	}
+
+	/**
+	 * @return Number of fields in simulation
+	 */
+	public int getFieldCount()
+	{
+		return fields.size();
+	}
+
+	/**
+	 * @return Current media library
+	 */
+	public String getLibrary()
+	{
+		return library;
+	}
+
+	/**
+	 * @return Current field
+	 */
+	public GMV_Field getField(int fieldIndex)
+	{
+		if(fieldIndex >= 0 && fieldIndex < fields.size())
+			return fields.get(fieldIndex);
+		else
+			return null;
+	}
+	
 	public void keyPressed() {
 		input.handleKeyPressed(key);
 	}
@@ -758,7 +796,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/**
-	 * movieEvent()
 	 * @param m Movie the event pertains to
 	 */
 	public void movieEvent(Movie m) 	// Called every time a new frame is available to read
@@ -780,63 +817,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		}
 	}
 	
-	void decrementTime()
-	{
-		currentTime -= timeInc;
-		if (currentTime < 0)
-			currentTime = 0;
-	}
-	
-	void incrementTime()
-	{
-		currentTime += timeInc;
-		if (currentTime > timeCycleLength)
-			currentTime = timeCycleLength - 200;
-	}
-	
-	void decrementCycleLength()
-	{
-		if(timeCycleLength - 20 > 40.f)
-		{
-			timeCycleLength -= 20.f;
-			timeInc = timeCycleLength / 30.f;			
-		}
-	}
-	
-	void incrementCycleLength()
-	{
-		if(timeCycleLength + 20 > 1000.f)
-		{
-			timeCycleLength += 20.f;
-			timeInc = timeCycleLength / 30.f;			
-		}
-	}
-
-	public void saveImage() 
-	{
-		if(debug.main)
-			PApplet.println("Will output image to disk.");
-		saveImage = true;
-	}
-
-	public int getFieldCount()
-	{
-		return fields.size();
-	}
-
-	public String getLibrary()
-	{
-		return library;
-	}
-
-	public GMV_Field getField(int fieldIndex)
-	{
-		if(fieldIndex >= 0 && fieldIndex < fields.size())
-			return fields.get(fieldIndex);
-		else
-			return null;
-	}
-
 //	public void mousePressed()
 //	{
 //		if(viewer.mouseNavigation)

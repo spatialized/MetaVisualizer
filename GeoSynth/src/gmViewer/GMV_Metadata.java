@@ -90,9 +90,9 @@ class GMV_Metadata
 		imageFolderFound = (imageFolderFile.exists() && imageFolderFile.isDirectory());	
 		panoramaFolderFound = (panoramaFolderFile.exists() && panoramaFolderFile.isDirectory());
 		
-		PApplet.println("smallImageFolderFound:"+smallImageFolderFound);
-		PApplet.println("imageFolderFound:"+imageFolderFound);
-		PApplet.println("panoramaFolderFound:"+panoramaFolderFound);
+//		PApplet.println("smallImageFolderFound:"+smallImageFolderFound);
+//		PApplet.println("imageFolderFound:"+imageFolderFound);
+//		PApplet.println("panoramaFolderFound:"+panoramaFolderFound);
 
 		smallImageFiles = null;
 		imageFiles = null;

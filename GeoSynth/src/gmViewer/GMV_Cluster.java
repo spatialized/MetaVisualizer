@@ -113,7 +113,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * addImage()
 	 * @param newImage Image to add
 	 * Add an image to the cluster
 	 */
@@ -128,7 +127,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * addPanorama()
 	 * @param newPanorama Panorama to add
 	 * Add a panorama to the cluster
 	 */
@@ -145,7 +143,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * addVideo()
 	 * @param newImage Image to add
 	 * Add a video to the cluster
 	 */
@@ -160,7 +157,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * emptyCluster()
 	 * Empty this cluster of all media
 	 */
 	void empty()
@@ -174,7 +170,6 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * create()
 	 * Initialize cluster from media associated with it; calculate location and assign media to it.
 	 */
 	void create() 						
@@ -254,7 +249,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * createSingle()
 	 * @param mediaID  Single image to determine the cluster location
 	 * @param mediaType  0: image 1: panorama 2:video
 	 * Create a cluster with a single image
@@ -287,7 +281,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * draw()
 	 * Draw the cluster center
 	 * @param hue 
 	 */
@@ -320,6 +313,11 @@ public class GMV_Cluster
 //		active = true;
 	}
 
+	public void stitchImages()
+	{
+		p.p.stitcher.stitch(p.p.getLibrary(), images);
+	}
+	
 	/**
 	 * Analyze angles of all images and videos for Thinning Visibility Mode -- Can run every frame for transitions?
 	 */
@@ -422,7 +420,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * getPanoramas()
 	 * @return Panoramas associated with cluster
 	 */
 	public ArrayList<GMV_Panorama> getPanoramas()
@@ -436,7 +433,6 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * getVideos()
 	 * @return Videos associated with cluster
 	 */
 	public ArrayList<GMV_Video> getVideos()
@@ -450,7 +446,6 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * mediaAreActive()
 	 * @return Are any images or videos in the cluster currently active?
 	 */
 	public boolean mediaAreActive()
@@ -491,7 +486,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * setBaseTimeScale()
 	 * @param newBaseTimeScale New baseTimeScale
 	 * Set base time scale, i.e. unit to cycle through during simulation (0 = minute, 1 = hour, 2 = day, 3 = month, 4 = year)
 	 */
@@ -501,7 +495,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * attractViewer()
 	 * Attract the camera
 	 */
 	void attractViewer()
@@ -511,7 +504,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * getClusterDistance()
 	 * @return Distance from cluster center to camera
 	 */
 	float getClusterDistance()       // Find distance from camera to point in virtual space where photo appears           
@@ -520,7 +512,6 @@ public class GMV_Cluster
 	}
 
 	/**
-	 * getAttractionForce()
 	 * @return Attraction force to be applied on the camera
 	 */
 	public PVector getAttractionForce() 
@@ -557,6 +548,9 @@ public class GMV_Cluster
 		return force; 								// Return force to be applied
 	}
 
+	/**
+	 * @return ID of first time segment in cluster
+	 */
 	public int getFirstTimeSegment()
 	{
 		if(timeline.size() > 0)
@@ -566,32 +560,32 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * @param mCluster Cluster to merge with
+	 * @param cluster Cluster to merge with
 	 * Merge this cluster with given cluster. Empty and make the given cluster non-active.
 	 */
-	void absorbCluster(GMV_Cluster mCluster)
+	void absorbCluster(GMV_Cluster cluster)
 	{
 		//		if(p.p.debug.clusters)
 		//			p.p.display.sendUserMessage("Merging cluster "+clusterID+" with "+mCluster.clusterID);
 
-		/* Find images associated with mCluster */
+		/* Find images associated with cluster */
 		for (int i = 0; i < p.images.size(); i++) 
 		{
 			GMV_Image curImg = (GMV_Image) p.images.get(i);
 
-			if (curImg.cluster == mCluster.getID()) 				// If the image is assigned to this cluster
+			if (curImg.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
 				curImg.cluster = id;
 				mediaPoints++;
 			}
 		}
 
-		/* Find videos associated with mCluster */
+		/* Find videos associated with cluster */
 		for (int i = 0; i < p.videos.size(); i++) 
 		{
 			GMV_Video curVid = (GMV_Video) p.videos.get(i);
 
-			if (curVid.cluster == mCluster.getID()) 				// If the image is assigned to this cluster
+			if (curVid.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
 				curVid.cluster = id;
 				mediaPoints++;
@@ -599,12 +593,12 @@ public class GMV_Cluster
 		}
 
 		/* Empty merged cluster */
-		mCluster.images = new IntList();
-		mCluster.panoramas = new IntList();
-		mCluster.videos = new IntList();
-		mCluster.mediaPoints = 0;
-		mCluster.active = false;
-		mCluster.empty = true;
+		cluster.images = new IntList();
+		cluster.panoramas = new IntList();
+		cluster.videos = new IntList();
+		cluster.mediaPoints = 0;
+		cluster.active = false;
+		cluster.empty = true;
 	}
 	
 	/**
@@ -618,41 +612,37 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * createTimeline()
 	 * Find time points for this cluster
 	 */
 	void createTimeline()
 	{
-		FloatList mediaTimes = new FloatList();				// List of times to analyze
-		IntList tc;										// Temporary time point list for finding duplicates
+		FloatList mediaTimes = new FloatList();							// List of times to analyze
+		IntList timeSegments;														// Temporary time point list for finding duplicates
 		
 		/* Get times of all media of all types in this cluster */
-		for(int i : images)
-			mediaTimes.append( p.images.get(i).time.getTime() );
-		for(int n : panoramas)
-			mediaTimes.append( p.panoramas.get(n).time.getTime() );
-		for(int v : videos)
-			mediaTimes.append( p.videos.get(v).time.getTime() );
+		for(int i : images) mediaTimes.append( p.images.get(i).time.getTime() );
+		for(int n : panoramas) mediaTimes.append( p.panoramas.get(n).time.getTime() );
+		for(int v : videos) mediaTimes.append( p.videos.get(v).time.getTime() );
 
 		/* Create cluster-specific times histogram */
 		for (int i = 0; i < p.p.clusterTimePrecision; i++) // Initialize histogram
 			clusterTimesHistogram[i] = 0;
 		
-		for (int i = 0; i < mediaTimes.size(); i++) 				// Fill cluster times histogram
+		for (int i = 0; i < mediaTimes.size(); i++) 							// Fill cluster times histogram
 		{
 			int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaTimes.get(i), 0.f, 1.f, 0.f, 
 									p.p.clusterTimePrecision - 1), 0.f, p.p.clusterTimePrecision - 1.f));
 			clusterTimesHistogram[idx]++;
 		}
 
-		tc = getTimePoints(clusterTimesHistogram, p.p.clusterTimePrecision);	// Get relative (cluster) time points
+		timeSegments = getTimeSegments(clusterTimesHistogram, p.p.clusterTimePrecision);	// Get relative (cluster) time segments
 		
 		clusterTimes = new FloatList();
 		clusterTimesLowerBounds = new FloatList();
 		clusterTimesUpperBounds = new FloatList();
 		timeline = new ArrayList<GMV_TimeSegment>();
 		
-		for(int t:tc)
+		for(int t:timeSegments)
 		{
 			if(!clusterTimes.hasValue(t))
 			{
@@ -691,48 +681,38 @@ public class GMV_Cluster
 				clusterTimesUpperBounds.append(PApplet.map(i, 0, p.p.clusterTimePrecision, 0.f, 1.f));
 			}
 		}
-//		PApplet.println("clusterTimes.size():"+clusterTimes.size());
-//		PApplet.println("clusterTimesLowerBounds.size():"+clusterTimesLowerBounds.size());
-//		PApplet.println("clusterTimesUpperBounds.size():"+clusterTimesUpperBounds.size());
+
 		int count = 0;
 		for( float t:clusterTimes )							// Add times to timeline
 		{
-//			GMV_TimeSegment(float newID, float newTime, float newUpper, float newLower)
 			timeline.add(new GMV_TimeSegment(count, t, clusterTimesUpperBounds.get(count), clusterTimesLowerBounds.get(count)));
-//			timeline.get(count).setID(count);
-//			timeline.get(count).setUpper(clusterTimesUpperBounds.get(count));
-//			timeline.get(count).setLower(clusterTimesLowerBounds.get(count));
 			count++;
 		}
 
 		mediaTimes = new FloatList();
 
 		/* Get times of all media of all types in field */
-		for(GMV_Image i : p.images)
-			mediaTimes.append( i.time.getTime() );
-		for(GMV_Panorama n : p.panoramas)
-			mediaTimes.append( n.time.getTime() );
-		for(GMV_Video v : p.videos)
-			mediaTimes.append( v.time.getTime() );
+		for(GMV_Image i : p.images) mediaTimes.append( i.time.getTime() );
+		for(GMV_Panorama n : p.panoramas) mediaTimes.append( n.time.getTime() );
+		for(GMV_Video v : p.videos) mediaTimes.append( v.time.getTime() );
 
-		for (int i = 0; i < p.p.fieldTimePrecision; i++) // Initialize histogram
+		for (int i = 0; i < p.p.fieldTimePrecision; i++) 		// Initialize histogram
 			fieldTimesHistogram[i] = 0;
 
-		for (int i = 0; i < mediaTimes.size(); i++) 				// Fill field times histogram
+		for (int i = 0; i < mediaTimes.size(); i++) 			// Fill field times histogram
 		{
-			int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaTimes.get(i), 0.f, 1.f, 0.f, 
-					p.p.fieldTimePrecision - 1), 0.f, p.p.fieldTimePrecision - 1.f));
+			int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaTimes.get(i), 0.f, 1.f, 0.f, p.p.fieldTimePrecision - 1), 0.f, p.p.fieldTimePrecision - 1.f));
 			fieldTimesHistogram[idx]++;
 		}
 		
-		tc = new IntList();														
-		tc = getTimePoints(fieldTimesHistogram, p.p.fieldTimePrecision);		// Get absolute (field) time points
+		timeSegments = new IntList();														
+		timeSegments = getTimeSegments(fieldTimesHistogram, p.p.fieldTimePrecision);		// Get absolute (field) time segments
 		
 		fieldTimes = new FloatList();
 		fieldTimesLowerBounds = new FloatList();
 		fieldTimesUpperBounds = new FloatList();
 		
-		for(int t:tc)
+		for(int t:timeSegments)
 		{
 			if(!fieldTimes.hasValue(t))
 			{
@@ -770,48 +750,35 @@ public class GMV_Cluster
 				fieldTimesUpperBounds.append(PApplet.map(i, 0, p.p.clusterTimePrecision, 0.f, 1.f));
 			}
 		}
-		
-//		count = 0;
-//		for( float t:fieldTimes )							// Add times to timeline
-//		{
-//			fieldTimeline.add(new GMV_TimePoint(t));
-//			fieldTimeline.get(count).setID(count);
-//			fieldTimeline.get(count).setUpper(clusterTimesUpperBounds.get(count));
-//			fieldTimeline.get(count).setLower(clusterTimesLowerBounds.get(count));
-//			count++;
-//		}
-
+	
 		clusterTimes.sort();
 		fieldTimes.sort();
 		timeline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
 		
-//		fieldTimeline.sort(GMV_TimePoint.GMV_TimeMidpointComparator);			// Sort time points 
-
 		/* Debugging */
 		if(p.p.debug.cluster && clusterTimes.size()>1)
 		{
 			PApplet.println("--> Cluster "+id+" with "+clusterTimes.size()+" different cluster times...");
 
-//			int count = 0;
+			int ct = 0;
 			for(float f:clusterTimes)
 			{
-				PApplet.println("Cluster "+id+", cluster time #"+(count++)+": "+f);
+				PApplet.println("Cluster "+id+", cluster time #"+(ct++)+": "+f);
 			}
 		}
-//		if(clusterFieldTimes.size()>1)
-//		{
-//			PApplet.println("--> Cluster "+id+" with "+clusterFieldTimes.size()+"different field times...");
-//
-//			int count = 0;
-//			for(float f:clusterFieldTimes)
-//			{
-//				PApplet.println("Cluster "+id+", cluster field time #"+(count++)+": "+f);
-//			}
-//		}
+		if(p.p.debug.cluster && fieldTimes.size()>1)
+		{
+			PApplet.println("--> Cluster "+id+" with "+fieldTimes.size()+"different field times...");
+
+			int ct = 0;
+			for(float f:fieldTimes)
+			{
+				PApplet.println("Cluster "+id+", cluster field time #"+(ct++)+": "+f);
+			}
+		}
 	}
 	
 	/**
-	 * calculateTimes()
 	 * Calculate low and high values for time and date for each media point
 	 */
 	void calculateTimes()
@@ -957,7 +924,132 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * calculateDimensions()
+	 * Display cluster data
+	 */
+	public void displayClusterData()
+	{
+//		p.p.display.metadata("");
+		System.out.println("Cluster "+id+" High Longitude:" + highLongitude);
+		System.out.println("Cluster "+id+" High Latitude:" + highLatitude);
+		System.out.println("Cluster "+id+" High Altitude:" + highAltitude);
+		System.out.println("Cluster "+id+" Low Longitude:" + lowLongitude);
+		System.out.println("Cluster "+id+" Low Latitude:" + lowLatitude);
+		System.out.println("Cluster "+id+" Low Altitude:" + lowAltitude);	
+		
+
+		System.out.println("Cluster "+id+" High Time:" + highTime);
+		System.out.println("Cluster "+id+" High Date:" + highDate);
+		System.out.println("Cluster "+id+" Low Time:" + lowTime);
+		System.out.println("Cluster "+id+" Low Date:" + lowDate);
+		
+		System.out.println("Cluster "+id+" High Latitude:" + highLatitude);
+		System.out.println("Cluster "+id+" Low Latitude:" + lowLatitude);
+		System.out.println("Cluster "+id+" High Longitude:" + highLongitude);
+		System.out.println("Cluster "+id+" Low Longitude:" + lowLongitude);
+//		System.out.println("Cluster "+id+" Longest Day Length (working?):" + longestDayLength);
+		System.out.println(" ");
+	}
+	
+	/**
+	 * Perform clustering to find cluster time segments from media capture times
+	 * @param times List of times
+	 * @param timePrecision Number of histogram bins
+	 * @return Time clusters
+	 */
+	IntList getTimeSegments(int histogram[], int timePrecision)				// -- clusterTimelineMinPoints!!								
+	{
+		/* Initialize list of media times */
+		ArrayList<GMV_TimeSegment> mediaTimes = new ArrayList<GMV_TimeSegment>();
+		
+		for (int i=0; i<timePrecision; i++) 				
+			for(int j=0; j<histogram[i]; j++)							// Add time to list for each media point
+				mediaTimes.add(new GMV_TimeSegment(0, i, 0, 0));		// Don't need ID, upper or lower values
+		
+		/* Initialize clusters */
+		int numTimeSegments = 8;								// Max (default) 8 time clusters
+		IntList timeSegments = new IntList();
+		
+		for (int i = 0; i < numTimeSegments; i++) 				// Iterate through the clusters
+		{
+			int idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.random(mediaTimes.size()-1))).getCenter());		// Random index
+			int ct = 0;
+			boolean created = true;
+			
+			while(timeSegments.hasValue(idx))					// Try repeatedly to find a random time not already in list
+			{
+				idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.random(mediaTimes.size()-1))).getCenter());
+				ct++;
+				if(ct > mediaTimes.size())		// If failed after many tries
+				{
+					created = false;		// Give up
+					break;
+				}
+			}
+			
+			if(created)						// If a new time was cound, add to timeClusters
+				timeSegments.append(idx);
+		}
+		
+		numTimeSegments = timeSegments.size();
+
+		/* Refine clusters */
+		if(numTimeSegments > 1)						 
+		{
+			int iterations = 60;
+			int count = 0;
+
+			while (count < iterations)
+			{
+				for(GMV_TimeSegment m : mediaTimes)					// Find nearest cluster for each data point
+				{
+					int closestIndex = 0;
+					int closest = 1000000;
+
+					for (int idx : timeSegments) 						
+					{
+						int distance = PApplet.abs(idx - (int)m.getCenter());		// Calculate distance
+
+						if (distance < closest)
+						{
+							closestIndex = idx;
+							closest = distance;
+						}
+					}
+
+					m.setID(closestIndex);			
+				}
+
+				IntList newClusters = new IntList();
+				for(int i:timeSegments)							// For each cluster, add and divide by number of data points
+				{
+					FloatList dataPoints = new FloatList();
+
+					for(GMV_TimeSegment m:mediaTimes)					
+						if(m.getID() == i)	
+							dataPoints.append((float)m.getCenter());
+
+					if(dataPoints.size() > 0)
+					{
+						int total = 0;
+						
+						for(float d:dataPoints) 
+							total += d;
+
+						int newCluster = PApplet.round(total / dataPoints.size());
+						newClusters.append(newCluster);
+					}
+				}
+
+				timeSegments = newClusters;
+				count++;
+			}
+		}
+		
+		return timeSegments;			// Return cluster list
+	}
+	
+	
+	/**
 	 * Calculate high and low longitude, latitude and altitude for cluster
 	 */
 	void calculateDimensions()
@@ -1040,135 +1132,8 @@ public class GMV_Cluster
 				lowLatitude = gpsLocation.z;
 		}
 	}
-	
-	/**
-	 * displayClusterData()
-	 * Display cluster data
-	 */
-	public void displayClusterData()
-	{
-//		p.p.display.metadata("");
-		System.out.println("Cluster "+id+" High Longitude:" + highLongitude);
-		System.out.println("Cluster "+id+" High Latitude:" + highLatitude);
-		System.out.println("Cluster "+id+" High Altitude:" + highAltitude);
-		System.out.println("Cluster "+id+" Low Longitude:" + lowLongitude);
-		System.out.println("Cluster "+id+" Low Latitude:" + lowLatitude);
-		System.out.println("Cluster "+id+" Low Altitude:" + lowAltitude);	
-		
-
-		System.out.println("Cluster "+id+" High Time:" + highTime);
-		System.out.println("Cluster "+id+" High Date:" + highDate);
-		System.out.println("Cluster "+id+" Low Time:" + lowTime);
-		System.out.println("Cluster "+id+" Low Date:" + lowDate);
-		
-		System.out.println("Cluster "+id+" High Latitude:" + highLatitude);
-		System.out.println("Cluster "+id+" Low Latitude:" + lowLatitude);
-		System.out.println("Cluster "+id+" High Longitude:" + highLongitude);
-		System.out.println("Cluster "+id+" Low Longitude:" + lowLongitude);
-//		System.out.println("Cluster "+id+" Longest Day Length (working?):" + longestDayLength);
-		System.out.println(" ");
-	}
-	
-	/**
-	 * Perform clustering to find peaks in media activity
-	 * @param times List of times
-	 * @param timePrecision Number of histogram bins
-	 * @return Time clusters
-	 */
-	IntList getTimePoints(int histogram[], int timePrecision)				// -- clusterTimelineMinPoints!!								
-	{
-		/* Initialize list of media times */
-		ArrayList<GMV_TimeSegment> mediaTimes = new ArrayList<GMV_TimeSegment>();
-		
-		for (int i=0; i<timePrecision; i++) 				
-			for(int j=0; j<histogram[i]; j++)							// Add time to list for each media point
-				mediaTimes.add(new GMV_TimeSegment(0, i, 0, 0));		// Don't need ID, upper or lower values
-		
-		/* Initialize clusters */
-		int numTimeClusters = 8;								// Max (default) 8 time clusters
-		IntList timeClusters = new IntList();
-		
-		for (int i = 0; i < numTimeClusters; i++) 				// Iterate through the clusters
-		{
-			int idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.random(mediaTimes.size()-1))).getCenter());		// Random index
-			int ct = 0;
-			boolean created = true;
-			
-			while(timeClusters.hasValue(idx))					// Try repeatedly to find a random time not already in list
-			{
-				idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.random(mediaTimes.size()-1))).getCenter());
-				ct++;
-				if(ct > mediaTimes.size())		// If failed after many tries
-				{
-					created = false;		// Give up
-					break;
-				}
-			}
-			
-			if(created)						// If a new time was cound, add to timeClusters
-				timeClusters.append(idx);
-		}
-		
-		numTimeClusters = timeClusters.size();
-
-		/* Refine clusters */
-		if(numTimeClusters > 1)						 
-		{
-			int iterations = 60;
-			int count = 0;
-
-			while (count < iterations)
-			{
-				for(GMV_TimeSegment m : mediaTimes)					// Find nearest cluster for each data point
-				{
-					int closestIndex = 0;
-					int closest = 1000000;
-
-					for (int idx : timeClusters) 						
-					{
-						int distance = PApplet.abs(idx - (int)m.getCenter());		// Calculate distance
-
-						if (distance < closest)
-						{
-							closestIndex = idx;
-							closest = distance;
-						}
-					}
-
-					m.setID(closestIndex);			
-				}
-
-				IntList newClusters = new IntList();
-				for(int i:timeClusters)							// For each cluster, add and divide by number of data points
-				{
-					FloatList dataPoints = new FloatList();
-
-					for(GMV_TimeSegment m:mediaTimes)					
-						if(m.getID() == i)	
-							dataPoints.append((float)m.getCenter());
-
-					if(dataPoints.size() > 0)
-					{
-						int total = 0;
-						
-						for(float d:dataPoints) 
-							total += d;
-
-						int newCluster = PApplet.round(total / dataPoints.size());
-						newClusters.append(newCluster);
-					}
-				}
-
-				timeClusters = newClusters;
-				count++;
-			}
-		}
-		
-		return timeClusters;			// Return cluster list
-	}
 
 	/**
-	 * getClusterAsWaypoint()
 	 * @return This cluster as a waypoint for navigation
 	 */
 	GMV_Waypoint getClusterAsWaypoint()
@@ -1201,6 +1166,16 @@ public class GMV_Cluster
 	{
 		empty = newEmpty;
 	}
+		
+	/**
+	 * Set this cluster as an attractor
+	 */
+	public void setAttractor(boolean state)
+	{
+		isAttractor = state;
+		if(p.p.debug.viewer && isAttractor())
+			p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
+	}
 	
 	public void setSingle(boolean state)
 	{
@@ -1226,18 +1201,6 @@ public class GMV_Cluster
 	{
 		clusterMass = newMass;
 	}
-	
-	/**
-	 * setAttractor()
-	 * Set this cluster as an attractor
-	 */
-	public void setAttractor(boolean state)
-	{
-		isAttractor = state;
-		if(p.p.debug.viewer && isAttractor())
-			p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
-	}
-	
 	public boolean isAttractor()
 	{
 		return isAttractor;
@@ -1247,13 +1210,6 @@ public class GMV_Cluster
 	{
 		return clusterMass;
 	}
-	
-//	private boolean isAttractor;					// Is it currently set as the only attractor?
-//	private float clusterGravity = 0.1333f;		// Cluster cravitational pull
-//	private float p.p.mediaPointMass = 0.05f;		// Mass contribution of each media point
-//	
-//	private float farMassFactor = 8.f;		// How much more mass to give distant attractors to speed up navigation?
-	
 	public int getID()
 	{
 		return id;

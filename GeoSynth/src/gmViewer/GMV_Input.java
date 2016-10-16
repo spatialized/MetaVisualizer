@@ -223,6 +223,9 @@ public class GMV_Input
 		if (!p.interactive)		
 		{
 			/* 3D View Controls */
+			if (key == '|')
+				p.getCurrentCluster().stitchImages();    			// Testing this	
+			
 			if (key == 'a') 
 				p.viewer.startMoveXTransition(-1);
 

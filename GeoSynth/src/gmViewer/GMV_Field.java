@@ -161,6 +161,33 @@ public class GMV_Field
 	}
 	
 	/**
+	 * Initialize field with given library folder
+	 * @param library Current library folder
+	 */
+	public void initialize(String library)
+	{
+//		GMV_Field f = fields.get(field);
+		String fieldPath = name;
+		metadata.load(library, fieldPath);					// Import metadata for all media in field
+		
+		model.calculateFieldSize(); 		// Calculate bounds of photo GPS locations
+		model.analyzeMedia();				// Analyze media locations and times 
+		model.setup(); 					// Initialize field for first time 
+
+		calculateMediaLocations(); 		// Set location of each photo in simulation
+		findImagePlaceHolders();			// Find image place holders for videos
+		calculateMediaVertices();			// Calculate all image vertices
+
+		model.runInitialClustering();		// Find media clusters
+
+		if(p.lockMediaToClusters)				// Center media capture locations at associated cluster locations
+			model.lockMediaToClusters();	
+
+		createTimeline();					// Create field timeline
+		analyzeClusterAngles();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
+	}
+	
+	/**
 	 * update()
 	 * Update field variables each frame
 	 */
@@ -197,6 +224,7 @@ public class GMV_Field
 //				times.get(count).setID(c.getID());
 //				times.get(count).setLower(c.getClusterTimesLowerBounds().get(count));
 //				times.get(count).setUpper(c.getClusterTimesUpperBounds().get(count));
+
 				count++;
 			}
 
@@ -205,10 +233,6 @@ public class GMV_Field
 		}
 
 		timeline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort time points 
-		
-//		int count = 0;
-//		for(GMV_TimeSegment t : timeline)
-//			PApplet.println("count:"+(count++)+" t.lower():"+t.getLower());
 		
 		if(p.debug.time)
 		{

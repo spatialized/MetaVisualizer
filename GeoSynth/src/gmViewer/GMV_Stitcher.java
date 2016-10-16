@@ -55,7 +55,6 @@ public class GMV_Stitcher
 	 */
 	public PImage stitch(String library, IntList imageList)
 	{
-		String[] images = getImageNames(imageList);				
 		
 		Mat panorama = new Mat();				// Panoramic image result
 //		MatVector complete = new MatVector();		
@@ -65,10 +64,10 @@ public class GMV_Stitcher
 		int count = 0;
 		
 		// Prevent fatal error
-		while(imageList.size() > 25)
-		{
+		while(imageList.size() > 20)
 			imageList.remove(imageList.size()-1);
-		}
+
+		String[] images = getImageNames(imageList);				
 
 		while(!success || impossible)
 		{

@@ -29,23 +29,22 @@ import static org.bytedeco.javacpp.opencv_stitching.Stitcher;
  */
 public class GMV_Stitcher 
 {
-//	String filename1, filename2, filename3;
 	private Stitcher stitcher;
 	
-	private final boolean try_use_gpu = false;
+	private final boolean try_use_gpu = true;
 
 	GeoSynth p;
 	GMV_Stitcher(GeoSynth parent)
 	{
 		p = parent;
 		
-//		Stitcher stitcher = Stitcher.createDefault(try_use_gpu);
-//		Stitcher stitcher = Stitcher.createDefault(true);
-		stitcher = Stitcher.createDefault(false);
+		stitcher = Stitcher.createDefault(try_use_gpu);
+
 		stitcher.setRegistrationResol(-1); /// 0.6
 		stitcher.setSeamEstimationResol(-1);   /// 0.1
 		stitcher.setCompositingResol(-1);   //1
 		stitcher.setPanoConfidenceThresh(-1);   //1
+
 //		stitcher.setWaveCorrection(true);
 //		stitcher.setWaveCorrectKind((org.bytedeco.javacpp.opencv_imgcodecs.detail)::WAVE_CORRECT_HORIZ;
 	}
@@ -54,13 +53,12 @@ public class GMV_Stitcher
 	 * Stitch spherical panorama from images
 	 * @param library
 	 */
-	public void stitch(String library, IntList imageList)
+	public PImage stitch(String library, IntList imageList)
 	{
 		String[] images = getImageNames(imageList);				
 		
 		Mat panorama = new Mat();				// Panoramic image result
-
-		MatVector complete = new MatVector();		
+//		MatVector complete = new MatVector();		
 
 		boolean success = false, impossible = false;		
 		boolean reduce = false;				// Reduce images to try to stitch
@@ -70,7 +68,7 @@ public class GMV_Stitcher
 		{
 			if(reduce)		// Use orientation to exclude!
 			{
-				if(imageList.size() > 1)
+				if(imageList.size() > 2)
 				{
 					imageList.remove(imageList.size()-1);
 					images = getImageNames(imageList);
@@ -81,46 +79,74 @@ public class GMV_Stitcher
 			
 			if(!impossible)
 			{
+//				@SuppressWarnings("resource")
 				MatVector imgs = new MatVector();		
 				imgs = getMatVectorImages(images);
-				if(count == 0)
-					complete = imgs;						// Save full image list
 
-				if(p.debug.stitching)
-					PApplet.println("Attempting to stitch "+imgs.size()+" images...");
-				Mat pano = new Mat();
+//				if(count == 0)
+//					complete = imgs;						// Save full image list
 
-				int status = stitcher.stitch(imgs, pano);
-
-				if (status == Stitcher.OK) 
+				if(!imgs.isNull())
 				{
-					success = true;
-					impossible = false;
-					panorama = pano;
+					if(p.debug.stitching)
+						PApplet.println("Attempting to stitch "+imgs.size()+" images...");
+
+					if(stitcher == null)
+						PApplet.println("Stitcher is NULL!!!");
+					
+					Mat pano = new Mat();
+					int status = stitcher.stitch(imgs, pano);
+
+					if (status == Stitcher.OK) 
+					{
+						success = true;
+						impossible = false;
+						panorama = pano;
+					}
+					else
+					{
+						if(p.debug.stitching)
+							System.out.println("Error code " + status + " while stitching, will try again...");
+						if(status == 3)		// Not enough overlap 
+							reduce = true;
+						else
+							impossible = true;
+					}
+
+					imgs.close();
+
+					if(count++ > 100) break;		// Avoid infinite while loop
 				}
 				else
 				{
-					if(p.debug.stitching)
-						System.out.println("Error code " + status + " while stitching, will try again...");
-					if(status == 3)		// Not enough overlap 
-						reduce = true;
+					PApplet.println("Couldn't stitch images... imgs == NULL!");
+					break;
 				}
-
-				imgs.close();
-
-				if(count++ > 100) break;		// Avoid infinite while loop
 			}
 		}
-		
-		// Testing
-		if(p.debug.stitching)
-		{
-			String output_name = p.stitchingPath+"/stitched.jpg";
-			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(output_name, panorama);
-			System.out.println(""+images.length+" images stitched, output result to: " + output_name);
-		}
+	
+		PImage result = p.createImage(0,0,PApplet.RGB);
 
-		//	return pano;
+		if(success)
+		{
+			// Testing
+			if(p.debug.stitching)
+			{
+				String output_name = p.stitchingPath+"stitched.jpg";
+				org.bytedeco.javacpp.opencv_imgcodecs.imwrite(output_name, panorama);
+				System.out.println(""+images.length+" images stitched, output result to: " + output_name);
+			}
+
+			IplImage img = new IplImage(panorama);
+			if(img != null)
+				result = iplImageToPImage(img);
+
+			if(img == null)
+				PApplet.println("Panorama is null...");
+		}
+		panorama.close();
+		
+		return result;
 	}
 	
 	private MatVector getMatVectorImages(String[] images)
@@ -129,14 +155,17 @@ public class GMV_Stitcher
 		for(int i=0; i<images.length; i++)
 		{
 			Mat img = org.bytedeco.javacpp.opencv_imgcodecs.imread(images[i]);
-			imgs.resize(imgs.size() + 1);
-			imgs.put(imgs.size() - 1, img);
 
-			if(p.debug.stitching)
+			if( img.empty())
 			{
-				if( img.empty())
+				if(p.debug.stitching)
 					PApplet.println("Image "+i+" is empty...");
-				else
+			}
+			else
+			{
+				imgs.resize(imgs.size() + 1);
+				imgs.put(imgs.size() - 1, img);
+				if(p.debug.stitching)
 					PApplet.println("Added image to stitching list: "+images[i]);
 			}
 		}
@@ -144,10 +173,15 @@ public class GMV_Stitcher
 		return imgs;
 	}
 
-	
+	/**
+	 * Get image names from list of image IDs
+	 * @param imageList List of image IDs
+	 * @return Array of image names
+	 */
 	private String[] getImageNames(IntList imageList)
 	{
 		String[] images = new String[imageList.size()];
+		
 //		PApplet.println("names.length:"+images.length);
 //		PApplet.println("images.size():"+imageList.size());
 //		PApplet.println("p.images.size():"+p.getCurrentField().images.size());

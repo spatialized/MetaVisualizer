@@ -357,6 +357,9 @@ public class GMV_Input
 			/* 3D Controls disabled in HUD view */
 			if(!p.display.inDisplayView())							
 			{
+				if (key == 'D')
+					p.blurEdges = !p.blurEdges;
+
 				if (key == 'h')	
 					p.debug.hideImages = !p.debug.hideImages;
 
@@ -387,12 +390,12 @@ public class GMV_Input
 					p.viewer.selectionMode = !p.viewer.selectionMode;
 				}
 
-				if (key == 'D')
-				{
-					if(p.viewer.selectionMode)
-						p.viewer.selectionMode = false;
-					p.viewer.videoMode = !p.viewer.videoMode;
-				}
+//				if (key == 'D')
+//				{
+//					if(p.viewer.selectionMode)
+//						p.viewer.selectionMode = false;
+//					p.viewer.videoMode = !p.viewer.videoMode;
+//				}
 
 				if (key == '_')
 					p.visibleAngle -= 3.1415f / 128.f; 

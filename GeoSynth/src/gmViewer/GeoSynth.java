@@ -685,7 +685,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 			{
 				if(mask.equals("blurMask.jpg"))
 				{
-					blurMask = loadImage(parentFilePath + mask);
+					blurMask = loadImage(maskPath + mask);
 					//						println("loaded blurMask.jpg: width:"+blurMask.width+" height:"+blurMask.height);
 				}
 			}

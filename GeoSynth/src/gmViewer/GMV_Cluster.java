@@ -2,6 +2,7 @@ package gmViewer;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.FloatList;
 import processing.data.IntList;
@@ -14,12 +15,15 @@ import processing.data.IntList;
 public class GMV_Cluster 
 {
 	/* General */
-	private int id;				// Unique cluster ID
+	private int id;						// Cluster ID
 	private PVector location;			// Cluster center location
-	private boolean active = false; 		// Active (i.e. not disabled)
-	private boolean empty = false;		// Empty?
+	private boolean active = false; 	// Currently active
+	private boolean empty = false;		// Currently empty
 	private boolean single = false;		// Only one media point in cluster?
 
+	/* Graphics */
+	private PImage stitchedPanorama;			// Stitched panorama		-- Make into arrayList
+	
 	/* Physics */
 	private boolean isAttractor;					// Is it currently set as the only attractor?
 	private float clusterGravity = 0.1333f;		// Cluster cravitational pull
@@ -315,7 +319,7 @@ public class GMV_Cluster
 
 	public void stitchImages()
 	{
-		p.p.stitcher.stitch(p.p.getLibrary(), images);
+		stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), images);
 	}
 	
 	/**

@@ -31,7 +31,7 @@ public class GMV_Stitcher
 {
 	private Stitcher stitcher;
 	
-	private final boolean try_use_gpu = true;
+	private final boolean try_use_gpu = false;
 
 	GeoSynth p;
 	GMV_Stitcher(GeoSynth parent)
@@ -40,9 +40,9 @@ public class GMV_Stitcher
 		
 		stitcher = Stitcher.createDefault(try_use_gpu);
 
-		stitcher.setRegistrationResol(-1); /// 0.6
-		stitcher.setSeamEstimationResol(-1);   /// 0.1
-		stitcher.setCompositingResol(-1);   //1
+		stitcher.setRegistrationResol(-1); 		/// 0.6
+		stitcher.setSeamEstimationResol(-1);   	/// 0.1
+		stitcher.setCompositingResol(-1);   	//1
 		stitcher.setPanoConfidenceThresh(-1);   //1
 
 //		stitcher.setWaveCorrection(true);
@@ -64,7 +64,7 @@ public class GMV_Stitcher
 		int count = 0;
 		
 		// Prevent fatal error
-		while(imageList.size() > 20)
+		while(imageList.size() > p.maxStitchingImages)
 			imageList.remove(imageList.size()-1);
 
 		String[] images = getImageNames(imageList);				
@@ -101,6 +101,8 @@ public class GMV_Stitcher
 					
 					Mat pano = new Mat();
 					int status = stitcher.stitch(imgs, pano);
+					if(p.debug.stitching)
+						System.out.println("Stitching completed with error code " + status+"...");
 
 					if (status == Stitcher.OK) 
 					{

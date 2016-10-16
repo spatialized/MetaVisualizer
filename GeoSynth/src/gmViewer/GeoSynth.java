@@ -59,7 +59,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
 	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing
 	
-	public boolean showModel = true;					// Activate Model Display 
+	public boolean showModel = false;					// Activate Model Display 
 	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
 	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
 	public boolean showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster

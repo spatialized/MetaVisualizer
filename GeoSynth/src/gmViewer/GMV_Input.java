@@ -107,6 +107,9 @@ public class GMV_Input
 		if (!optionKey && key == '7') 
 			p.showCaptureToCluster = !p.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
+		if (key == '-')
+			p.showModel = !p.showModel;
+		
 		/* Clustering */
 		if (key == 'r')
 			p.startInteractiveClustering();

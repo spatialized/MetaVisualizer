@@ -213,27 +213,35 @@ public abstract class GMV_Viewable
 	{
 		p.p.pushMatrix();
 		p.p.translate(location.x, location.y, location.z);
-//		p.p.stroke(150, 50, 255);
+
 		p.p.fill(150, 0, 255, 150);
 		p.p.sphere(size);
 		PVector c = p.p.getCluster(cluster).getLocation();
 		PVector loc = getLocation();
 		PVector cl = getCaptureLocation();
+		p.p.popMatrix();
 
-		p.p.strokeWeight(1.f);
-		p.p.stroke(80, 255, 255, 120);
+		p.p.pushMatrix();
 		if(p.p.showMediaToCluster)
+		{
+			p.p.strokeWeight(5.f);
+			p.p.stroke(40, 155, 255, 180);
 			p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+		}
 
-//		p.p.strokeWeight(1.f);
-		p.p.stroke(180, 255, 255, 120);
 		if(p.p.showCaptureToMedia)
+		{
+			p.p.strokeWeight(2.f);
+			p.p.stroke(160, 100, 255, 120);
 			p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+		}
 
-//		p.p.strokeWeight(1.f);
-		p.p.stroke(140, 255, 255, 120);
 		if(p.p.showCaptureToCluster)
+		{
+			p.p.strokeWeight(3.f);
+			p.p.stroke(100, 55, 255, 180);
 			p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+		}
 
 		p.p.popMatrix();
 	}
@@ -573,7 +581,6 @@ public abstract class GMV_Viewable
 	}
 
 	/**
-	 * adjustCaptureLocation()
 	 * Move the capture location to the associated cluster location
 	 */
 	public void adjustCaptureLocation()
@@ -590,7 +597,6 @@ public abstract class GMV_Viewable
 	}
 
 	/**
-	 * setAssociatedCluster()
 	 * @param newCluster New associated cluster
 	 * Set nearest cluster to the capture location to be the associated cluster
 	 */	
@@ -608,7 +614,6 @@ public abstract class GMV_Viewable
 //	{
 //		captureLocation = newCaptureLocation;
 //	}
-//	
 
 	/**
 	 * isVisible()

@@ -45,9 +45,8 @@ public class GMV_Cluster
 	public int baseTimeScale = 0; 					// (Not implemented yet) 0 = minutes, 1 = hours, 2 = days, 3 = months, 4 = years
 
 	/* Segmentation */
-	public ArrayList<int[]> imageSegments;		// List of arrays corresponding to each segment of images
-	public ArrayList<int[]> videoSegments;		// List of arrays corresponding to each segment of videos
-	private int numSegments = 8;						// Number of segments of the cluster
+	public ArrayList<GMV_MediaSegment> segments;		// List of arrays corresponding to each segment of images
+	private int numSegments = 0;						// Number of segments of the cluster
 	
 	/* Media */
 	public float mediaPoints;			// No. of points (photos) associated with this cluster
@@ -96,6 +95,7 @@ public class GMV_Cluster
 		images = new IntList();
 		panoramas = new IntList();
 		videos = new IntList();
+		segments = new ArrayList<GMV_MediaSegment>();
 		
 		mediaPoints = 0;
 		
@@ -115,6 +115,13 @@ public class GMV_Cluster
 		timeline = new ArrayList<GMV_TimeSegment>();
 		timeUnitLength = p.p.timeUnitLength;				// Length of time unit in frames  (e.g. 10 means every 10 frames)
 		timeIncrement = p.p.timeInc;							// User time increment
+	}
+	
+	void findMediaSegments()
+	{
+//		public ArrayList<int[]> imageSegments;		// List of arrays corresponding to each segment of images
+//		public ArrayList<int[]> videoSegments;		// List of arrays corresponding to each segment of videos
+		numSegments = 8;						// Number of segments of the cluster
 	}
 
 	/**

@@ -328,7 +328,9 @@ public class GMV_Field
 		for( GMV_Cluster c : clusters )
 		{
 			if(!c.isEmpty())
+			{
 				c.analyzeMedia();					// Analyze media in each cluster 
+			}
 		}
 		
 		for(GMV_Cluster c : clusters)
@@ -350,6 +352,8 @@ public class GMV_Field
 				v.setClusterTime();
 				v.setClusterDate();
 			}
+
+			c.findMediaSegments();
 		}
 	}
 

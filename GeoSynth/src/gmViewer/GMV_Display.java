@@ -1410,14 +1410,18 @@ class GMV_Display
 		p.fill(0, 0, 255, 255);
 
 		p.textSize(mediumTextSize);
-		p.text(""+p.getCurrentField().name+ " Clusters", dispLocX, textYPos, hudDistance);
+		p.text(""+p.getCurrentField().name+ " Media Clusters", dispLocX, textYPos, hudDistance);
 		p.textSize(smallTextSize);
 		p.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), dispLocX, textYPos += lineWidthVeryWide, hudDistance);
 		p.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", dispLocX, textYPos += lineWidth, hudDistance);
 		if(p.hierarchical) p.text(" Current Cluster Depth: "+f.model.clusterDepth, dispLocX, textYPos += lineWidth, hudDistance);
+		p.text(" Minimum Distance: "+p.minClusterDistance, dispLocX, textYPos += lineWidth, hudDistance);
+		p.text(" Maximum Distance: "+p.maxClusterDistance, dispLocX, textYPos += lineWidth, hudDistance);
+		p.text(" Population Factor: "+f.model.clusterPopulationFactor, dispLocX, textYPos += lineWidth, hudDistance);
 		p.text(" ID: "+ c.getID(), dispLocX, textYPos += lineWidthVeryWide, hudDistance);
 		p.text(" Location: "+ c.getLocation(), dispLocX, textYPos += lineWidth, hudDistance);
 		p.text(" Media Points: "+ c.mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
+		p.text(" Media Segments: "+ c.segments.size(), dispLocX, textYPos += lineWidth, hudDistance);
 		p.text(" Timeline Points: "+ c.timeline.size(), dispLocX, textYPos += lineWidth, hudDistance);
 		p.text(" ", dispLocX, textYPos += lineWidth, hudDistance);
 		p.text(" Active: "+ c.isActive(), dispLocX, textYPos += lineWidth, hudDistance);

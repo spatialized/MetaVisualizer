@@ -126,16 +126,31 @@ public class GMV_Cluster
 		IntList allImages = images;
 		
 		boolean done = false;
+		
+		if(allImages.size() == 0)
+			done = true;					// Do nothing if no images
+		
+		if(allImages.size() == 1)
+		{
+			IntList curSegment = new IntList();
+			curSegment.append(allImages.get(0));
+			imageSegments.add(curSegment);
+			done = true;
+		}
+//		PApplet.println("--> Done? "+done+" images.size():"+images.size()+" allImages.size():"+allImages.size());
+		
 		while(!done)
 		{
 			IntList curSegment = new IntList();
 			IntList remove = new IntList();
 
+			if(p.p.debug.cluster || p.p.debug.model)
+				PApplet.println("--> Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
+
 			int count = 0;
 			for(int i : allImages)
 			{
 				GMV_Image img = p.images.get(i);
-//				PApplet.println("allImages.get(0):"+allImages.get(0)+" allImages.size():"+ allImages.size()+" imageSegments.size():"+imageSegments.size());
 			
 				if(curSegment.size() == 0)
 				{
@@ -144,26 +159,37 @@ public class GMV_Cluster
 				}
 				else 
 				{
-					for(int m : curSegment)						// Compare img to images in segment
+					boolean found = false;
+					int idx = 0;
+
+					while(!found && idx < curSegment.size())
 					{
+						int m = curSegment.get(idx);
 						if(p.images.get(m).getID() != img.getID())
 						{
-//							PApplet.println("m:"+m);
-							if(img.getOrientation() - p.images.get(m).getOrientation() < p.p.stitchingMinAngle)
+							if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+								PApplet.println("Comparing img:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
+							if(img.getDirection() - p.images.get(m).getDirection() < p.p.stitchingMinAngle)
 							{
+								if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+									PApplet.println("Added image:"+img.getID()+" to segment...");
+
 								if(!curSegment.hasValue(img.getID()))
 									curSegment.append(img.getID());		// -- Add video too?
 								
 								if(!remove.hasValue(count))
 									remove.append(count);				// Remove added image from list
+								
+								found = true;
 							}
 						}
-						else if(allImages.size() == 1)
+						else if(allImages.size() == 1)			// Add last image
 						{
-//							PApplet.println("Last image:"+m);
 							curSegment.append(img.getID());		// -- Add video too?
 							remove.append(count);				// Remove added image from list
 						}
+						
+						idx++;
 					}
 				}
 				
@@ -171,18 +197,35 @@ public class GMV_Cluster
 			}
 			
 			remove.sort();
-			for(int i=remove.size()-1; i>0; i--)
+			for(int i=remove.size()-1; i>=0; i--)
+			{
+				if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+					PApplet.println("Removing image ID:"+allImages.get(remove.get(i)));
 				allImages.remove(remove.get(i));		// Remove images added to curSegment
+			}
 
 			imageSegments.add(curSegment);
-//			PApplet.println("Added segment of size: "+curSegment.size()+" imageSegments.size():"+imageSegments.size());
-			done = (allImages.size() == 1);
-
-//			if(allImages.size() == 1) done = true;		// -- Test
+			if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+				PApplet.println("Added segment of size: "+curSegment.size());
+			
+			done = (allImages.size() == 1 || allImages.size() == 0);
 		}
 
 		numSegments = imageSegments.size();						// Number of media segments in the cluster
-		PApplet.println("Cluster #"+getID()+" segments:"+numSegments);
+		if(numSegments > 0)
+		{
+			if(p.p.debug.cluster || p.p.debug.model)
+				PApplet.println(" Found "+numSegments+" segments...");
+
+			for(IntList segment:imageSegments)
+			{
+				GMV_MediaSegment m = new GMV_MediaSegment(segment, null);
+				segments.add(m);
+				if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+					PApplet.println(" Adding segment to cluster segments, new size:"+segments.size());
+			}
+		}
+		else PApplet.println("No segments added... cluster "+getID()+" has no images!");
 	}
 
 	/**

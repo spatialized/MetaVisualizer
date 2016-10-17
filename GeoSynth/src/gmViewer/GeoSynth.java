@@ -84,7 +84,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	/* Stitching */
 	String stitchingPath;
 	int maxStitchingImages = 20;						// Maximum number of images to try to stitch
-	float stitchingMinAngle = PApplet.PI / 12.f;		// Determines media segments for stitching 
+	float stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
 	
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 

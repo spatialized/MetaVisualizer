@@ -117,11 +117,66 @@ public class GMV_Cluster
 		timeIncrement = p.p.timeInc;							// User time increment
 	}
 	
+	/**
+	 * Organize adjacent media into segments using orientation metadata
+	 */
 	void findMediaSegments()
 	{
-//		public ArrayList<int[]> imageSegments;		// List of arrays corresponding to each segment of images
-//		public ArrayList<int[]> videoSegments;		// List of arrays corresponding to each segment of videos
-		numSegments = 8;						// Number of segments of the cluster
+		ArrayList<IntList> imageSegments = new ArrayList<IntList>();
+		IntList allImages = images;
+		
+		boolean done = false;
+		while(!done)
+		{
+			IntList curSegment = new IntList();
+			IntList remove = new IntList();
+
+			int count = 0;
+			for(int i : allImages)
+			{
+				GMV_Image img = p.images.get(i);
+				PApplet.println("allImages.get(0):"+allImages.get(0)+" allImages.size():"+ allImages.size()+" imageSegments.size():"+imageSegments.size());
+			
+				if(curSegment.size() == 0)
+				{
+					curSegment.append(img.getID());				// Add first image	
+					remove.append(count);						// Remove added image from list
+				}
+				else 
+				{
+					for(int m : curSegment)						// Compare img to images in segment
+					{
+						if(p.images.get(m).getID() != img.getID())
+						{
+							PApplet.println("m:"+m);
+							if(img.getOrientation() - p.images.get(m).getOrientation() < p.p.stitchingMinAngle)
+							{
+								if(!curSegment.hasValue(img.getID()))
+									curSegment.append(img.getID());		// -- Add video too?
+								
+								if(!remove.hasValue(count))
+									remove.append(count);				// Remove added image from list
+							}
+						}
+					}
+				}
+				
+				count++;
+			}
+			
+			remove.sort();
+			for(int i=remove.size()-1; i>0; i--)
+			{
+				allImages.remove(remove.get(i));		// Remove images added to curSegment
+			}
+			
+			imageSegments.add(curSegment);
+			PApplet.println("Added segment of size: "+curSegment.size()+" imageSegments.size():"+imageSegments.size());
+			done = (allImages.size() == 0);
+		}
+
+		numSegments = imageSegments.size();						// Number of media segments in the cluster
+		PApplet.println("Cluster #"+getID()+" segments:"+numSegments);
 	}
 
 	/**
@@ -327,7 +382,7 @@ public class GMV_Cluster
 
 	public void stitchImages()
 	{
-		checkImagesForStitching(30.f);			// Validate images 30 degrees or less from others
+		checkImagesForStitching(p.p.stitchingMinAngle);			// Validate images 30 degrees or less from others
 		stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID());
 //		stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), images, getID());
 	}

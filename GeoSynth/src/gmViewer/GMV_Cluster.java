@@ -135,7 +135,7 @@ public class GMV_Cluster
 			for(int i : allImages)
 			{
 				GMV_Image img = p.images.get(i);
-				PApplet.println("allImages.get(0):"+allImages.get(0)+" allImages.size():"+ allImages.size()+" imageSegments.size():"+imageSegments.size());
+//				PApplet.println("allImages.get(0):"+allImages.get(0)+" allImages.size():"+ allImages.size()+" imageSegments.size():"+imageSegments.size());
 			
 				if(curSegment.size() == 0)
 				{
@@ -148,7 +148,7 @@ public class GMV_Cluster
 					{
 						if(p.images.get(m).getID() != img.getID())
 						{
-							PApplet.println("m:"+m);
+//							PApplet.println("m:"+m);
 							if(img.getOrientation() - p.images.get(m).getOrientation() < p.p.stitchingMinAngle)
 							{
 								if(!curSegment.hasValue(img.getID()))
@@ -158,6 +158,12 @@ public class GMV_Cluster
 									remove.append(count);				// Remove added image from list
 							}
 						}
+						else if(allImages.size() == 1)
+						{
+//							PApplet.println("Last image:"+m);
+							curSegment.append(img.getID());		// -- Add video too?
+							remove.append(count);				// Remove added image from list
+						}
 					}
 				}
 				
@@ -166,13 +172,13 @@ public class GMV_Cluster
 			
 			remove.sort();
 			for(int i=remove.size()-1; i>0; i--)
-			{
 				allImages.remove(remove.get(i));		// Remove images added to curSegment
-			}
-			
+
 			imageSegments.add(curSegment);
-			PApplet.println("Added segment of size: "+curSegment.size()+" imageSegments.size():"+imageSegments.size());
-			done = (allImages.size() == 0);
+//			PApplet.println("Added segment of size: "+curSegment.size()+" imageSegments.size():"+imageSegments.size());
+			done = (allImages.size() == 1);
+
+//			if(allImages.size() == 1) done = true;		// -- Test
 		}
 
 		numSegments = imageSegments.size();						// Number of media segments in the cluster

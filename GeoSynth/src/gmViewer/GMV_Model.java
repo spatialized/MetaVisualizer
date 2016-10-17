@@ -26,21 +26,21 @@ public class GMV_Model
 
 	/* Media */
 	public int validImages, validPanoramas, validVideos;	// Number of valid images / number of valid videos
-	public int validMedia;					// Total number of valid media 
-	public float mediaDensity;										// Number of images as a function of field area
+	public int validMedia;									// Total valid media count
+	public float mediaDensity;								// Number of images as a function of field area
 
 	/* Clustering */
-	int mergedClusters = 0;									// Number of merged clusters
+	public int mergedClusters = 0;							// Number of merged clusters
 	public float minClusterDistance; 						// Minimum distance between clusters, i.e. closer than which clusters are merged
 	public float maxClusterDistance;						// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
 
 	/* K-Means Clustering */
-	float clusterPopulationFactor = 10.f;					// Scaling from media spread (1/mediaDensity) to numClusters
+	public float clusterPopulationFactor = 10.f;					// Scaling from media spread (1/mediaDensity) to numClusters
 	public float minPopulationFactor = 1.f, maxPopulationFactor = 30.f;	// Minimum and maximum values of populationFactor
-
-	int clusterRefinement = 60;								// Number of iterations used to refine clusters
+	public int clusterRefinement = 60;								// Number of iterations used to refine clusters
 	public int minClusterRefinement = 20, maxClusterRefinement = 300;	// Minimum and maximum values of clusterRefinement
-	long clusteringRandomSeed = (long)0.f;
+	public long clusteringRandomSeed = (long)0.f;
+	public boolean clustersNeedUpdate = false;				// --NEED TO IMPLEMENT
 	
 	/* Hierarchical Clustering */
 	private Cluster dendrogramTop;							// Top cluster of the dendrogram
@@ -123,7 +123,7 @@ public class GMV_Model
 			//			float fieldVolumeDensity = mediaNum / fieldVolume;
 
 			/* Increase maxClusterDistance as mediaDensity decreases */
-			if(p.p.refineClusterDistances)
+			if(p.p.autoClusterDistances)
 			{
 				maxClusterDistance = p.p.maxClusterDistanceConstant / mediaDensity;
 				if(maxClusterDistance > minClusterDistance * p.p.maxClusterDistanceFactor)
@@ -131,8 +131,8 @@ public class GMV_Model
 			}
 			else
 			{
-				minClusterDistance = p.p.minClusterDistance; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-				maxClusterDistance = p.p.maxClusterDistance;				// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
+				setMinClusterDistance(p.p.minClusterDistance); 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+				setMaxClusterDistance(p.p.maxClusterDistance);				// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
 			}
 
 			//			for(GMV_Image i : p.images)						
@@ -186,7 +186,7 @@ public class GMV_Model
 	 */
 	void runInitialClustering() 					
 	{
-		if(p.p.debug.field) 
+		if(p.p.debug.cluster || p.p.debug.model)
 			PApplet.println("Running initial clustering for field: "+p.name);
 
 		clustersByDepth = new IntList();
@@ -204,7 +204,7 @@ public class GMV_Model
 		}
 		else										// If using k-means clustering
 		{
-			runKMeansClustering( clusterRefinement, clusterPopulationFactor );	// Get initial clusters using K-Means method
+			runKMeansClustering( p.p.kMeansClusteringEpsilon, clusterRefinement, clusterPopulationFactor );	// Get initial clusters using K-Means method
 		}
 
 		if(p.p.debug.cluster || p.p.debug.model)
@@ -213,7 +213,6 @@ public class GMV_Model
 
 	
 	/**
-	 * runHierarchicalClustering()
 	 * Build the dendrogram and calculate clusters at each depth
 	 */
 	public void runHierarchicalClustering()
@@ -224,12 +223,12 @@ public class GMV_Model
 	}
 
 	/**
-	 * runKMeansClustering()
 	 * Run k-means clustering on media in field to find capture locations
+	 * @param epsilon Minimum cluster movement 
 	 * @param refinement Number of iterations to refine clusters
 	 * @param populationFactor Cluster population factor
 	 */
-	public void runKMeansClustering(int refinement, float populationFactor)
+	public void runKMeansClustering(float epsilon, int refinement, float populationFactor)
 	{
 		p.clusters = new ArrayList<GMV_Cluster>();			// Clear current cluster list
 
@@ -239,8 +238,15 @@ public class GMV_Model
 			p.p.display.clearMessages();
 			p.p.display.message("Running K-Means Clustering...");
 			p.p.display.message(" ");
-			p.p.display.message("Iterations:"+refinement);
-			p.p.display.message("Population Factor:"+populationFactor);
+			p.p.display.message("  Iterations:"+refinement);
+			p.p.display.message("  Population Factor:"+populationFactor);
+			if(p.p.mergeClusters)
+			{
+				p.p.display.message("");
+				p.p.display.message("Cluster Merging:");
+				p.p.display.message("  Minimum Cluster Distance:"+p.p.minClusterDistance);
+				p.p.display.message("  Maximum Cluster Distance:"+p.p.maxClusterDistance);
+			}
 			p.p.display.message(" ");
 			p.p.display.displayClusteringInfo();
 		}
@@ -255,7 +261,7 @@ public class GMV_Model
 		if (validMedia > 1) 							// If there are more than 1 media point
 		{
 			initializeKMeansClusters(numClusters);		// Create initial clusters at random image locations	
-			refineKMeansClusters(refinement);			// Refine clusters over many iterations
+			refineKMeansClusters(epsilon, refinement);			// Refine clusters over many iterations
 			createSingleClusters();						// Create clusters for single media points
 			
 			p.initializeClusters();					// Initialize clusters (merge, etc.)
@@ -936,21 +942,62 @@ public class GMV_Model
 	 * Refine clusters over given iterations
 	 * @param iterations Number of iterations
 	 */	
-	void refineKMeansClusters(int iterations)
+	void refineKMeansClusters(float epsilon, int iterations)
 	{
 		int count = 0;
-
+		boolean moved = false;						// Has any cluster moved farther than epsilon?
+		
+		ArrayList<GMV_Cluster> last = p.clusters;
+		if(p.p.debug.cluster || p.p.debug.model)
+			PApplet.println("--> Refining clusters...");
+		
 		while( count < iterations ) 							// Iterate to create the clusters
 		{		
 			for (int i = 0; i < p.images.size(); i++) 			// Find closest cluster for each image
-				p.images.get(i).findAssociatedCluster();			// Set associated cluster
-			for (int i = 0; i < p.panoramas.size(); i++) 			// Find closest cluster for each image
+				p.images.get(i).findAssociatedCluster();		// Set associated cluster
+			for (int i = 0; i < p.panoramas.size(); i++) 		// Find closest cluster for each image
 				p.panoramas.get(i).findAssociatedCluster();		// Set associated cluster
 			for (int i = 0; i < p.videos.size(); i++) 			// Find closest cluster for each image
-				p.videos.get(i).findAssociatedCluster();			// Set associated cluster
+				p.videos.get(i).findAssociatedCluster();		// Set associated cluster
 			for (int i = 0; i < p.clusters.size(); i++) 		// Find closest cluster for each image
 				p.clusters.get(i).create();						// Assign clusters
 
+			if(p.clusters.size() == last.size())				// Check cluster movement
+			{
+				for(GMV_Cluster c : p.clusters)
+				{
+//					int closestIdx = -1;
+					float closestDist = 10000.f;
+					
+					for(GMV_Cluster d : last)
+					{
+						float dist = c.getLocation().dist(d.getLocation());
+						if(dist < closestDist)
+						{
+							closestDist = dist;
+//							closestIdx = d.getID();
+						}
+					}
+					
+					if(closestDist > epsilon)
+					{
+						moved = true;
+					}
+				}
+				
+				if(!moved)
+				{
+					if(p.p.debug.cluster || p.p.debug.model)
+						PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
+					break;								// If all clusters moved less than epsilon, stop refinement
+				}
+			}
+			else
+			{
+				if(p.p.debug.cluster || p.p.debug.model)
+					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+p.clusters.size()+" last.size():"+last.size());
+			}
+			
 			count++;
 		}
 	}
@@ -1480,6 +1527,17 @@ public class GMV_Model
 		 return p.clusters.size() - mergedClusters;
 	 }
 	 
+	// Minimum distance between clusters, i.e. closer than which clusters are merged
+	void setMinClusterDistance(float newMinClusterDistance)
+	{
+		minClusterDistance = newMinClusterDistance;
+	}
+	
+	// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
+	void setMaxClusterDistance(float newMaxClusterDistance)
+	{
+		maxClusterDistance = newMaxClusterDistance;
+	}
 
 		/**
 		 * drawClustersAtDepth()

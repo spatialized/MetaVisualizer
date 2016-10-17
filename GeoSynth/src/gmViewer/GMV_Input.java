@@ -507,8 +507,36 @@ public class GMV_Input
 				{
 					p.hierarchical = false;
 					GMV_Model m = p.getCurrentField().model;
-					m.runKMeansClustering(m.clusterRefinement, m.clusterPopulationFactor);
+					m.runKMeansClustering(p.kMeansClusteringEpsilon, m.clusterRefinement, m.clusterPopulationFactor);
 					p.getCurrentField().createTimeline();					// Create field timeline
+				}
+			}
+			
+			if (key == '[') 	
+			{
+				if(!p.autoClusterDistances && p.minClusterDistance > 0.25f)
+				{
+					p.minClusterDistance -= 0.25f;
+//					PApplet.println("p.minClusterDistance:"+p.minClusterDistance);
+					for(GMV_Field f : p.getFields())
+					{
+						f.model.setMinClusterDistance(p.minClusterDistance);	
+						f.model.clustersNeedUpdate = true;
+					}
+				}
+			}
+			
+			if (key == ']') 	
+			{
+				if(!p.autoClusterDistances && p.minClusterDistance < p.maxClusterDistance - 2.f)
+				{
+					p.minClusterDistance += 0.25f;
+//					PApplet.println("p.minClusterDistance:"+p.minClusterDistance);
+					for(GMV_Field f : p.getFields())
+					{
+						f.model.setMinClusterDistance(p.minClusterDistance);
+						f.model.clustersNeedUpdate = true;					// -- Temporary: will make minClusterDistance field specific...
+					}
 				}
 			}
 		}
@@ -573,7 +601,7 @@ public class GMV_Input
 
 							if(p.getCurrentField().model.clusterRefinement >= p.getCurrentField().model.minClusterRefinement)
 							{
-								p.getCurrentField().model.runKMeansClustering( p.getCurrentField().model.clusterRefinement, populationFactor );
+								p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
 								p.getCurrentField().initializeClusters();			
 								p.display.initializeMaps();
 							}
@@ -587,7 +615,7 @@ public class GMV_Input
 
 							if(p.getCurrentField().model.clusterRefinement <= p.getCurrentField().model.maxClusterRefinement)
 							{
-								p.getCurrentField().model.runKMeansClustering( p.getCurrentField().model.clusterRefinement, populationFactor );
+								p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
 								p.getCurrentField().initializeClusters();			
 								p.display.initializeMaps();
 							}
@@ -601,7 +629,7 @@ public class GMV_Input
 
 							if(p.getCurrentField().model.clusterPopulationFactor >= p.getCurrentField().model.minPopulationFactor)
 							{
-								p.getCurrentField().model.runKMeansClustering( refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
+								p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
 								p.getCurrentField().initializeClusters();			
 								p.display.initializeMaps();
 							}
@@ -615,7 +643,7 @@ public class GMV_Input
 
 							if(p.getCurrentField().model.clusterPopulationFactor <= p.getCurrentField().model.maxPopulationFactor)
 							{
-								p.getCurrentField().model.runKMeansClustering( refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
+								p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
 								p.getCurrentField().initializeClusters();			
 								p.display.initializeMaps();
 							}

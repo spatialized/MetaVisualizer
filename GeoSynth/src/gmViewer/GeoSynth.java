@@ -45,7 +45,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	private boolean saveImage = false;
 
 	private int initializationField = 0;			// Field to be initialized this frame
-	
 	public int setupProgress = 0;						// Setup progress (0 to 100)
 	public float fieldProgressInc;						// How much to increment progress bar per field
 	
@@ -55,7 +54,15 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public int minFrameRate = 10;
 	
 	/* Model */
+	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
+	public boolean angleHidingMode = true;				// Do photos disappear when fading out as the camera turns away from them?
+	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
+	public float centeredAngle = visibleAngle / 3.f;	// At what angle is the image centered?
+
 	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
+	public boolean angleThinning = false;				// Thin images and videos of similar orientation
+	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
+
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
 	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing
 	
@@ -68,16 +75,13 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean firstTeleport = false;
 
 	/* Media */
-	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
-	public float centeredAngle = visibleAngle / 3.f;	// At what angle is the image centered?
-
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
 	
 	/* Stitching */
 	String stitchingPath;
-	int maxStitchingImages = 24;						// Maximum number of images to try to stitch
+	int maxStitchingImages = 20;						// Maximum number of images to try to stitch
 	
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
@@ -86,7 +90,8 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 
 	/* Clusters */
 	public boolean mergeClusters = true;				// Merge nearby clusters?
-	public boolean refineClusterDistances = false;		// Adjust minClusterDistance/maxClusterDistance based on mediaDensity?
+	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
+	public float kMeansClusteringEpsilon = 0.025f;		// If no clusters move farther than this threshold, stop cluster refinement
 	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 	
 	public final float clusterCenterSize = 1.f;			// Size of cluster center, where autoNavigation stops
@@ -124,12 +129,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean alphaMode = false;					// Use alpha fading instead of grayscale
 	public boolean blurEdges = true;					// Blur image edges
 	public PImage blurMask;								// Image used as mask for blurring
-
-	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
-	public boolean angleHidingMode = true;				// Do photos disappear when fading out as the camera turns away from them?
-	public boolean angleThinning = false;				// Thin images and videos within
-	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
-	
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 	
 	/* Video */
@@ -511,6 +510,14 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	{
 		GMV_Field f = fields.get(viewer.getField());
 		return f;
+	}
+	
+	/**
+	 * @return All fields in library
+	 */
+	public ArrayList<GMV_Field> getFields()
+	{
+		return fields;
 	}
 	
 	/**

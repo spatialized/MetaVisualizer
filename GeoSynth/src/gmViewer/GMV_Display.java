@@ -308,16 +308,18 @@ class GMV_Display
 		
 		if(p.hierarchical)
 		{
-			message("Hierarchical Clustering");
+//			message("Hierarchical Clustering");
 			message(" ");
 			message("Use arrow keys UP and DOWN to change clustering depth... ");
+			message("Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		else
 		{
-			message("K-Means Clustering");
+//			message("K-Means Clustering");
 			message(" ");
 			message("Use arrow keys LEFT and RIGHT to change Iterations... ");
 			message("Use arrow keys UP and DOWN to change Population Factor... ");
+			message("Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		
 		message(" ");
@@ -339,7 +341,7 @@ class GMV_Display
 
 		if(p.interactive)
 		{
-			p.text("Multimedia Interactive Clustering", textXPos, textYPos, hudDistance);
+			p.text("Interactive "+(p.hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, hudDistance);
 		}
 		else
 			p.text(p.getCurrentField().name, textXPos, textYPos, hudDistance);

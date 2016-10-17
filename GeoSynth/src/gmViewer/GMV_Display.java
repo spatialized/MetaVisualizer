@@ -761,7 +761,7 @@ class GMV_Display
 	 */
 	void displayMetadata()
 	{
-		if( !(p.viewer.lastMovementFrame == p.frameCount) )				// As long as the user doesn't move, display metadata
+//		if( !(p.viewer.lastMovementFrame == p.frameCount) )				// As long as the user doesn't move, display metadata
 		{
 			float yPos = metadataYOffset - lineWidth;
 			
@@ -777,10 +777,10 @@ class GMV_Display
 			}
 			p.popMatrix();
 		}
-		else
-		{
-			metadata = new ArrayList<String>();							// Reset message list if viewer moves
-		}
+//		else
+//		{
+//			metadata = new ArrayList<String>();							// Reset message list if viewer moves
+//		}
 	}
 	
 	/**

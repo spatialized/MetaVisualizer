@@ -56,15 +56,17 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	/* Model */
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public boolean angleHidingMode = true;				// Do photos disappear when fading out as the camera turns away from them?
+//	public float defaultVisibleAngle = PApplet.PI / 3.f;		// Angle within which images and videos become visible
+//	public float visibleAngle = PApplet.PI / 3.f;		// Angle within which images and videos become visible
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
-	public float centeredAngle = visibleAngle / 3.f;	// At what angle is the image centered?
+	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
 
 	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
-	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing
+	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing	-- Work more on this...
 	
 	public boolean showModel = false;					// Activate Model Display 
 	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster

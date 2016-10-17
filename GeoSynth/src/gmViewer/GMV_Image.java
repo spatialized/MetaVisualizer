@@ -262,8 +262,12 @@ class GMV_Image extends GMV_Viewable
 
 		if(image.width > 0 && !disabled)			
 		{
-			visible = getAngleVisibility();						// Check if the image is currently visible
-			
+			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
+
+			float imageAngle = getFacingAngle();				// Check if image is visible at current angle facing viewer
+			if(!p.p.utilities.isNaN(imageAngle))
+				visible = (getAngleBrightness(imageAngle) > 0.f);
+
 			if(p.p.debug.hideImages)
 				visible = false;
 			
@@ -644,16 +648,15 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * isFacingCamera()
 	 * @return Whether image is facing the camera
 	 */	
 	public boolean isFacingCamera()
 	{
 		return PApplet.abs(getAngleToCamera()) > p.p.visibleAngle;     			// If the result is positive, then it is facing the camera.
+//		return PApplet.abs(getAngleToCamera()) > p.p.defaultVisibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 	
 	/**
-	 * getAngleToCamera()
 	 * @return Angle between camera location and image
 	 */	
 	public float getAngleToCamera()
@@ -706,7 +709,8 @@ class GMV_Image extends GMV_Viewable
 		float captureToCam = getCaptureLocation().dist(camLoc);  	// Find distance from capture location to camera
 		float camToImage = location.dist(camLoc);  					// Find distance from camera to image
 
-		if(captureToCam > camToImage + p.p.viewer.getNearClippingDistance())								// If captureToCam > camToPhoto, then back of the image is facing the camera
+//		if(captureToCam > camToImage + p.p.viewer.getNearClippingDistance())								// If captureToCam > camToPhoto, then back of the image is facing the camera
+		if(captureToCam > camToImage + p.p.viewer.getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
 			return true;
 		else
 			return false; 

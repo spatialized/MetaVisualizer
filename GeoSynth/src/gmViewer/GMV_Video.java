@@ -255,11 +255,12 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	{
 		if(!disabled)			
 		{
-//			calculateVertices();  						// Update geometry
+			visible = getAngleVisibility();						// Check if video should be visible from current viewer position
 
-			visible = getAngleVisibility();				// Check if the image is currently visible
-			if(p.p.debug.video && p.p.frameCount % 30 == 0)
-				p.p.display.message("After angleVisibility... "+visible);
+			float videoAngle = getFacingAngle();				// Check if video is visible at current angle facing viewer
+			if(!p.p.utilities.isNaN(videoAngle))
+				visible = (getAngleBrightness(videoAngle) > 0.f);
+
 
 			if(visible)
 				visible = (getDistanceBrightness() > 0.f);
@@ -713,6 +714,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	public boolean isFacingCamera()
 	{
 		return PApplet.abs(getAngleToCamera()) > p.p.visibleAngle;     			// If the result is positive, then it is facing the camera.
+//		return PApplet.abs(getAngleToCamera()) > p.p.defaultVisibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 
 	/**
@@ -726,7 +728,8 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		float captureToCam = getCaptureLocation().dist(camLoc);  	// Find distance from capture location to camera
 		float camToVideo = location.dist(camLoc);  		// Find distance from camera to image
 
-		if(captureToCam > camToVideo + p.p.viewer.getNearClippingDistance())			// If captureToCam > camToVideo, then back of video is facing the camera
+//		if(captureToCam > camToVideo + p.p.viewer.getNearClippingDistance())			// If captureToCam > camToVideo, then back of video is facing the camera
+		if(captureToCam > camToVideo + p.p.viewer.getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
 			return true;
 		else
 			return false; 

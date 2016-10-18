@@ -102,7 +102,8 @@ public class GMV_Model
 			validPanoramas = p.getPanoramaCount();
 			validVideos = p.getVideoCount();
 			validMedia = validImages + validPanoramas + validVideos;
-
+//			PApplet.println("Valid Media:"+validMedia+" images.size()"+p.images.size()+" videos.size()"+p.videos.size());
+			
 			if(validMedia > 1)
 			{
 			fieldWidth = p.p.utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
@@ -209,6 +210,12 @@ public class GMV_Model
 
 		if(p.p.debug.cluster || p.p.debug.model)
 			p.p.display.message("Created "+getClusterAmount()+" clusters...");
+		
+		for(GMV_Cluster c : p.clusters)
+		{
+			if(!c.isEmpty())
+				PApplet.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
+		}
 	}
 
 	

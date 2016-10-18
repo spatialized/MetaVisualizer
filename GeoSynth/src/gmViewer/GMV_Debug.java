@@ -10,7 +10,7 @@ public class GMV_Debug
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
-	public boolean detailed = true;			// Use verbose debugging messages
+	public boolean detailed = false;			// Use verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	
 	/* Classes */

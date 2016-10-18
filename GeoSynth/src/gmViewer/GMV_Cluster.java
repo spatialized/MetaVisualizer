@@ -118,12 +118,12 @@ public class GMV_Cluster
 	}
 	
 	/**
-	 * Organize adjacent media into segments using orientation metadata
-	 */
+	 * Group adjacent, overlapping media into segments, where each image or video is at least stitchingMinAngle from one or more others
+ 	 */
 	void findMediaSegments()
 	{
 		ArrayList<IntList> imageSegments = new ArrayList<IntList>();
-		IntList allImages = images;
+		IntList allImages = new IntList(images);
 		
 		boolean done = false;
 		
@@ -132,61 +132,83 @@ public class GMV_Cluster
 		
 		if(allImages.size() == 1)
 		{
-			IntList curSegment = new IntList();
-			curSegment.append(allImages.get(0));
-			imageSegments.add(curSegment);
+			IntList curImages = new IntList();
+			curImages.append(allImages.get(0));
+			
+			float lower = p.images.get(allImages.get(0)).getDirection();
+			float upper = p.images.get(allImages.get(0)).getDirection();
+			float center = p.images.get(allImages.get(0)).getDirection();
+
+			float lowerElevation = p.images.get(allImages.get(0)).getElevation();
+			float upperElevation = p.images.get(allImages.get(0)).getElevation();
+			float centerElevation = p.images.get(allImages.get(0)).getElevation();
+
+			segments.add( new GMV_MediaSegment( this, curImages, null, upper, lower, center, 
+												upperElevation, lowerElevation, centerElevation) );
+			
 			done = true;
 		}
-//		PApplet.println("--> Done? "+done+" images.size():"+images.size()+" allImages.size():"+allImages.size());
 		
 		while(!done)
 		{
-			IntList curSegment = new IntList();
-			IntList remove = new IntList();
+			IntList curImages = new IntList();
+			float lower = 360.f, upper = 0.f, center;	// Upper and lower bounds (in degrees) of segment
+			float lowerElevation = 100.f, upperElevation = -100.f, centerElevation;	// Upper and lower bounds (in degrees)
 
-			if(p.p.debug.cluster || p.p.debug.model)
-				PApplet.println("--> Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
+			IntList added = new IntList();			// Images added to current segment 
+
+//			if(p.p.debug.cluster || p.p.debug.model)
+//				PApplet.println("Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
 
 			int count = 0;
-			for(int i : allImages)
+			for(int i : allImages)							// Search for images at least stitchingMinAngle from each image
 			{
 				GMV_Image img = p.images.get(i);
 			
-				if(curSegment.size() == 0)
+				if(curImages.size() == 0)
 				{
-					curSegment.append(img.getID());				// Add first image	
-					remove.append(count);						// Remove added image from list
+					curImages.append(img.getID());			// Add first image	
+					added.append(count);					// Remove added image from list
 				}
 				else 
 				{
 					boolean found = false;
 					int idx = 0;
 
-					while(!found && idx < curSegment.size())
+					while(!found && idx < curImages.size())
 					{
-						int m = curSegment.get(idx);
+						int m = curImages.get(idx);
 						if(p.images.get(m).getID() != img.getID())
 						{
-							if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
-								PApplet.println("Comparing img:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
-							if(img.getDirection() - p.images.get(m).getDirection() < p.p.stitchingMinAngle)
+//							if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+//								PApplet.println("Comparing img:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
+							
+							if(PApplet.abs(img.getDirection() - p.images.get(m).getDirection()) < p.p.stitchingMinAngle)
 							{
+								float direction = img.getDirection();
+								float elevation = img.getElevation();
+								
+								if(direction < lower) lower = direction;
+								if(direction > upper) upper = direction;
+								if(elevation < lowerElevation) lowerElevation = elevation;
+								if(elevation > upperElevation) upper = elevation;
+
 								if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
 									PApplet.println("Added image:"+img.getID()+" to segment...");
 
-								if(!curSegment.hasValue(img.getID()))
-									curSegment.append(img.getID());		// -- Add video too?
+								if(!curImages.hasValue(img.getID()))
+									curImages.append(img.getID());		// -- Add video too?
 								
-								if(!remove.hasValue(count))
-									remove.append(count);				// Remove added image from list
+								if(!added.hasValue(count))
+									added.append(count);				// Remove added image from list
 								
 								found = true;
 							}
 						}
 						else if(allImages.size() == 1)			// Add last image
 						{
-							curSegment.append(img.getID());		// -- Add video too?
-							remove.append(count);				// Remove added image from list
+							curImages.append(img.getID());		// -- Add video too?
+							added.append(count);				// Remove added image from list
 						}
 						
 						idx++;
@@ -196,36 +218,53 @@ public class GMV_Cluster
 				count++;
 			}
 			
-			remove.sort();
-			for(int i=remove.size()-1; i>=0; i--)
+			added.sort();
+			for(int i=added.size()-1; i>=0; i--)
 			{
 				if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
-					PApplet.println("Removing image ID:"+allImages.get(remove.get(i)));
-				allImages.remove(remove.get(i));		// Remove images added to curSegment
+					PApplet.println("Removing image ID:"+allImages.get(added.get(i)));
+				allImages.remove(added.get(i));		// Remove images added to curSegment
 			}
 
-			imageSegments.add(curSegment);
-			if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
-				PApplet.println("Added segment of size: "+curSegment.size());
+			if(lower < 0.f)
+				lower += 360.f;
+			
+			if(upper > 360.f)
+				upper -= 360.f;
+						
+			if(curImages.size() == 1)			// Only one image
+			{
+				lower = p.images.get(curImages.get(0)).getDirection();
+				upper = p.images.get(curImages.get(0)).getDirection();
+				center = p.images.get(curImages.get(0)).getDirection();
+
+				lowerElevation = p.images.get(allImages.get(0)).getElevation();
+				upperElevation = p.images.get(allImages.get(0)).getElevation();
+				centerElevation = p.images.get(allImages.get(0)).getElevation();
+			}
+			else
+			{
+				center = upper + lower / 2.f;
+				centerElevation = upperElevation + lowerElevation / 2.f;
+			}
+
+			segments.add( new GMV_MediaSegment( this, curImages, null, lower, upper, center, lowerElevation, 
+					   upperElevation, centerElevation) );
+
+			if((p.p.debug.cluster || p.p.debug.model))
+				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Lower:"+lower+" Center:"+center+" Upper:"+upper);
 			
 			done = (allImages.size() == 1 || allImages.size() == 0);
 		}
 
-		numSegments = imageSegments.size();						// Number of media segments in the cluster
+		numSegments = segments.size();						// Number of media segments in the cluster
 		if(numSegments > 0)
 		{
 			if(p.p.debug.cluster || p.p.debug.model)
-				PApplet.println(" Found "+numSegments+" segments...");
+				PApplet.println(" Created "+numSegments+" segments...");
 
-			for(IntList segment:imageSegments)
-			{
-				GMV_MediaSegment m = new GMV_MediaSegment(segment, null);
-				segments.add(m);
-				if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
-					PApplet.println(" Adding segment to cluster segments, new size:"+segments.size());
-			}
 		}
-		else PApplet.println("No segments added... cluster "+getID()+" has no images!");
+		else PApplet.println(" No segments added... cluster "+getID()+" has no images!");
 	}
 
 	/**
@@ -718,8 +757,8 @@ public class GMV_Cluster
 	 */
 	void absorbCluster(GMV_Cluster cluster)
 	{
-		//		if(p.p.debug.clusters)
-		//			p.p.display.sendUserMessage("Merging cluster "+clusterID+" with "+mCluster.clusterID);
+//		if(p.p.debug.clusters)
+//			p.p.display.sendUserMessage("Merging cluster "+clusterID+" with "+mCluster.clusterID);
 
 		/* Find images associated with cluster */
 		for (int i = 0; i < p.images.size(); i++) 
@@ -729,7 +768,7 @@ public class GMV_Cluster
 			if (curImg.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
 				curImg.cluster = id;
-				mediaPoints++;
+				addImage(curImg);
 			}
 		}
 
@@ -741,7 +780,7 @@ public class GMV_Cluster
 			if (curVid.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
 				curVid.cluster = id;
-				mediaPoints++;
+				addVideo(curVid);
 			}
 		}
 

@@ -26,6 +26,7 @@ import static org.bytedeco.javacpp.opencv_stitching.Stitcher;
  * GMV_Stitcher
  * @author davidgordon
  * Class for stitching image sets into spherical panoramas
+ * 
  */
 public class GMV_Stitcher 
 {
@@ -39,29 +40,28 @@ public class GMV_Stitcher
 		p = parent;
 		
 		stitcher = Stitcher.createDefault(try_use_gpu);
-//		stitcher.setPanoConfidenceThresh(-1);   
+//		stitcher.setWaveCorrection(true);
+//		stitcher.setWaveCorrectKind(org.bytedeco.javacpp.opencv_stitching.WAVE_CORRECT_HORIZ);
 
+		// Testing
 //		stitcher.setRegistrationResol(0.3f);
 //		stitcher.setSeamEstimationResol(0.05f);
 		stitcher.setPanoConfidenceThresh(0.8f);
 
 //	    Stitcher stitcher;
-//	    50     stitcher.setRegistrationResol(0.6);
-//	    51     stitcher.setSeamEstimationResol(0.1);
-//	    52     stitcher.setCompositingResol(ORIG_RESOL);
-//	    53     stitcher.setPanoConfidenceThresh(1);
-//	    54     stitcher.setWaveCorrection(true);
-//	    55     stitcher.setWaveCorrectKind(detail::WAVE_CORRECT_HORIZ);
-//	    56     stitcher.setFeaturesMatcher(makePtr<detail::BestOf2NearestMatcher>(try_use_gpu));
-//	    57     stitcher.setBundleAdjuster(makePtr<detail::BundleAdjusterRay>());
+//	    stitcher.setRegistrationResol(0.6);
+//	    stitcher.setSeamEstimationResol(0.1);
+//	    stitcher.setCompositingResol(ORIG_RESOL);
+//	    stitcher.setPanoConfidenceThresh(1);
+//	    stitcher.setWaveCorrection(true);
+//	    stitcher.setWaveCorrectKind(detail::WAVE_CORRECT_HORIZ);
+//	    stitcher.setFeaturesMatcher(makePtr<detail::BestOf2NearestMatcher>(try_use_gpu));
+//	    stitcher.setBundleAdjuster(makePtr<detail::BundleAdjusterRay>());
 //	   
-//		stitcher.setRegistrationResol(-1); 		/// 0.6
-//		stitcher.setSeamEstimationResol(-1);   	/// 0.1
-//		stitcher.setCompositingResol(-1);   	//1
-//		stitcher.setPanoConfidenceThresh(-1);   //1
-
-//		stitcher.setWaveCorrection(true);
-//		stitcher.setWaveCorrectKind((org.bytedeco.javacpp.opencv_imgcodecs.detail)::WAVE_CORRECT_HORIZ;
+//		stitcher.setRegistrationResol(-1); 		/// ??
+//		stitcher.setSeamEstimationResol(-1);   	/// ??
+//		stitcher.setCompositingResol(-1);   	//??
+//		stitcher.setPanoConfidenceThresh(-1);   //??
 	}
 	
 	/**
@@ -70,7 +70,6 @@ public class GMV_Stitcher
 	 */
 	public PImage stitch(String library, IntList imageList, int clusterID)
 	{
-		
 		Mat panorama = new Mat();				// Panoramic image result
 //		MatVector complete = new MatVector();		
 
@@ -99,12 +98,10 @@ public class GMV_Stitcher
 			
 			if(!impossible)
 			{
-//				@SuppressWarnings("resource")
+				/* Error Codes: 	OK = 0	ERR_NEED_MORE_IMGS = 1	ERR_HOMOGRAPHY_EST_FAIL = 2	 ERR_CAMERA_PARAMS_ADJUST_FAIL = 3 	*/
+				
 				MatVector imgs = new MatVector();		
 				imgs = getMatVectorImages(images);
-
-//				if(count == 0)
-//					complete = imgs;						// Save full image list
 
 				if(!imgs.isNull())
 				{
@@ -116,12 +113,6 @@ public class GMV_Stitcher
 					
 					Mat pano = new Mat();
 					int status = stitcher.stitch(imgs, pano);
-					
-					/* Status Enum */
-//					OK 	= 0
-//					ERR_NEED_MORE_IMGS 	 = 1
-//					ERR_HOMOGRAPHY_EST_FAIL  = 2 	
-//					ERR_CAMERA_PARAMS_ADJUST_FAIL  = 3 	
 					
 					if(p.debug.stitching)
 						System.out.println("Stitching completed with error code " + status+"...");
@@ -169,9 +160,6 @@ public class GMV_Stitcher
 			IplImage img = new IplImage(panorama);
 			if(img != null)
 				result = iplImageToPImage(img);
-
-			if(img == null)
-				PApplet.println("Panorama is null...");
 		}
 		panorama.close();
 		

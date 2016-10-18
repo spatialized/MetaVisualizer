@@ -356,8 +356,8 @@ class GMV_Metadata
 							{
 								if(dataMissing) p.addImageError();			// Count dataMissing as image error
 							}
-
 						}
+						
 						if (tag.getTagName().equals("Orientation")) // Orientation
 						{
 							orientation = tagString;
@@ -394,6 +394,7 @@ class GMV_Metadata
 							if (p.p.debug.metadata && p.p.debug.detailed)
 								PApplet.println("Found Focal Length..." + focalLength);
 						}
+
 						if (tag.getTagName().equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
 						{
 							focalLength35 = tagString;
@@ -968,7 +969,7 @@ class GMV_Metadata
 
 	public float parseBrightness(String input)
 	{
-		String[] parts = input.split("-");
+		String[] parts = input.split("Value - ");
 		input = parts[1];							// Fractional brightness
 		
 		parts = input.split("/");

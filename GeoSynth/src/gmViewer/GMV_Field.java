@@ -335,25 +335,28 @@ public class GMV_Field
 		
 		for(GMV_Cluster c : clusters)
 		{
-			for(GMV_Image i : c.getImages())
+			if(!c.isEmpty())
 			{
-				i.setClusterTime();
-				i.setClusterDate();
-			}
+				for(GMV_Image i : c.getImages())
+				{
+					i.setClusterTime();
+					i.setClusterDate();
+				}
 
-			for(GMV_Panorama n : c.getPanoramas())
-			{
-				n.setClusterTime();
-				n.setClusterDate();
-			}
+				for(GMV_Panorama n : c.getPanoramas())
+				{
+					n.setClusterTime();
+					n.setClusterDate();
+				}
 
-			for(GMV_Video v : c.getVideos())
-			{
-				v.setClusterTime();
-				v.setClusterDate();
-			}
+				for(GMV_Video v : c.getVideos())
+				{
+					v.setClusterTime();
+					v.setClusterDate();
+				}
 
-			c.findMediaSegments();
+				c.findMediaSegments();
+			}
 		}
 	}
 
@@ -619,7 +622,8 @@ public class GMV_Field
 	public void analyzeClusterAngles()
 	{
 		for(GMV_Cluster c : clusters)
-			c.analyzeAngles();
+			if(!c.isEmpty())
+				c.analyzeAngles();
 	}
 	
 	public void showClusters()

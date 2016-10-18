@@ -1264,6 +1264,11 @@ class GMV_Image extends GMV_Viewable
 		 return isVideoPlaceHolder;
 	 }
 
+	 public float getElevation()
+	 {
+		 return phi;
+	 }
+
 	 public float getOrientation()
 	 {
 		 return orientation;

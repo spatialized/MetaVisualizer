@@ -2268,14 +2268,14 @@ public class GMV_Viewer
 	 */
 	public void followMemory()
 	{
-		path = memory;								// Follow memory path 
+		path = new ArrayList<GMV_Waypoint>(memory);								// Follow memory path 
 		
 		if(path.size() > 0)
 		{
 			following = true;
 			pathLocationIdx = 0;
 			if(p.debug.viewer)
-				p.display.message("followMemory()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
+				p.display.message("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
 			pathGoal = path.get(pathLocationIdx).getLocation();
 			setAttractorPoint(pathGoal);
 		}
@@ -2430,14 +2430,14 @@ public class GMV_Viewer
 			GMV_Waypoint curWaypoint = new GMV_Waypoint(path.size(), getLocation());
 			curWaypoint.setTarget(getOrientation());
 			curWaypoint.setID(currentCluster);				// Need to make sure camera is at current cluster!
-			path.add(curWaypoint);
-			if(p.debug.memory)
+			memory.add(curWaypoint);
+			if(p.debug.viewer)
 			{
 				p.display.message("Added point to memory! "+curWaypoint.getLocation());
-				p.display.message("Total points:"+path.size());
+				p.display.message("Total points:"+memory.size());
 			}
 		}
-		else if(p.debug.memory)
+		else if(p.debug.viewer)
 			p.display.message("Couldn't add memory point... walking? "+walking+" teleporting?"+teleporting+" velocity.mag():"+velocity.mag());
 	}
 	
@@ -2449,7 +2449,7 @@ public class GMV_Viewer
 	{
 		following = false;
 		waiting = false;
-		path = new ArrayList<GMV_Waypoint>();
+		memory = new ArrayList<GMV_Waypoint>();
 	}
 
 	/**

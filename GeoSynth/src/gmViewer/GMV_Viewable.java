@@ -82,7 +82,10 @@ public abstract class GMV_Viewable
 		id = newID; 
 		filePath = newFilePath;
 
-		time = new GMV_Time( p.p, newCalendar );
+		if(newCalendar != null)
+			time = new GMV_Time( p.p, newCalendar );
+		else
+			time = null;
 		
 		gpsLocation = newGPSLocation;
 		captureLocation = new PVector(0, 0, 0);
@@ -266,7 +269,6 @@ public abstract class GMV_Viewable
 
 
 	/**
-	 * getCaptureDistanceFrom()
 	 * @return How far the image capture location is from a point
 	 */
 	float getCaptureDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
@@ -276,7 +278,6 @@ public abstract class GMV_Viewable
 	}
 
 	/**
-	 * getTimeBrightness()
 	 * @return Time brightness factor between 0. and 1.
 	 * Calculate media brightness based on distance (fades away in distance and as camera gets close)
 	 */
@@ -490,7 +491,6 @@ public abstract class GMV_Viewable
 	}
 	
 	/**
-	 * updateFadingBrightness()
 	 * Update viewingBrightnessFadeValue each frame
 	 */
 	void updateFadingBrightness()
@@ -530,7 +530,6 @@ public abstract class GMV_Viewable
 	}
 
 	/**
-	 * calculateCaptureLocation()
 	 * Calculate media capture location in virtual space based on GPS location
 	 */
 	void calculateCaptureLocation()                                  

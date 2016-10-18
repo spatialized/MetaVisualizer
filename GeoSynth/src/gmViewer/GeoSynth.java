@@ -88,6 +88,11 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 //	float stitchingMinAngle = PApplet.degrees(thinningAngle/2.f);		// Angle in degrees that determines media segments for stitching 
 	float stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
 	public boolean persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
+
+	public boolean showUserPanoramas = false;			// Show panoramas stitched from user selected media
+	public boolean showStitchedPanoramas = false;		// Show panoramas stitched from media segments
+
+	
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
 	public boolean interactive = false;					// In user clustering mode?
@@ -289,6 +294,12 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 
 		if(debug.model || viewer.map3DMode)	
 			getCurrentField().showClusters();		// Display field cluster centers (media capture locations) 	
+		
+		if(showUserPanoramas)
+			getCurrentField().showUserPanoramas();
+		
+		if(showStitchedPanoramas)
+			getCurrentField().showStitchedPanoramas();
 		
 		viewer.update();							// Update navigation
 		viewer.camera.feed();						// Send the 3D camera view to the screen

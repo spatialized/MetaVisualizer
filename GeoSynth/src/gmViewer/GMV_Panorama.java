@@ -29,13 +29,16 @@ public class GMV_Panorama extends GMV_Viewable
 	int sinCosLength = (int)(360.0f / sinCosPrecision);
 
 	GMV_Panorama ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-					int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar )
+					int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, PImage newTexture )
 	{
 		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
 		
 		p = parent;
 
-		texture = p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
+		if(newTexture == null)
+			texture = p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
+		else
+			texture = newTexture;
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
@@ -94,8 +97,6 @@ public class GMV_Panorama extends GMV_Viewable
 //		{
 //			updateFadingObjectDistance();
 //		}
-//		else if(visible)
-//			calculateVertices();  			// Update image parameters
 	}
 
 	/**
@@ -107,7 +108,7 @@ public class GMV_Panorama extends GMV_Viewable
 		float curBrightness = fadingBrightness;					
 		float timeBrightnessFactor;                          // Fade with time 
 
-		if(p.p.timeFading)
+		if(p.p.timeFading && time != null)
 		{
 			timeBrightnessFactor = getTimeBrightness();        
 			curBrightness *= timeBrightnessFactor; 																			// Fade alpha based on time or date
@@ -121,6 +122,7 @@ public class GMV_Panorama extends GMV_Viewable
 			{
 				if(texture.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
 				{
+//					PApplet.println("Drawing panorama..."+getID());
 					drawPanorama();
 				}
 			}

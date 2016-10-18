@@ -622,14 +622,28 @@ public class GMV_Field
 	public void showClusters()
 	{
 		if(p.viewer.getCurrentCluster() != -1)
-			clusters.get(p.viewer.getCurrentCluster()).draw(255);		// Draw current cluster
+			clusters.get(p.viewer.getCurrentCluster()).drawCenter(255);		// Draw current cluster
 		else if(p.debug.cluster || p.debug.field)
 			PApplet.println("currentCluster == -1!!!");
 		
 		if(p.viewer.getAttractorCluster() != -1)
-			clusters.get(p.viewer.getAttractorCluster()).draw(50);		// Draw attractor cluster
+			clusters.get(p.viewer.getAttractorCluster()).drawCenter(50);	// Draw attractor cluster
 	}
 	
+	public void showUserPanoramas()
+	{
+		if(p.viewer.getCurrentCluster() != -1)
+			clusters.get(p.viewer.getCurrentCluster()).drawUserPanoramas();		// Draw current cluster
+//		else if(p.debug.cluster || p.debug.field)
+//			PApplet.println("currentCluster == -1!!!");
+	}
+
+	public void showStitchedPanoramas()
+	{
+		if(p.viewer.getCurrentCluster() != -1)
+			clusters.get(p.viewer.getCurrentCluster()).drawStitchedPanoramas();		// Draw current cluster
+	}
+
 	/**
 	 * Change all clusters to non-attractors
 	 */

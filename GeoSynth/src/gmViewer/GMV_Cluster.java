@@ -1,5 +1,6 @@
 package gmViewer;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -21,8 +22,9 @@ public class GMV_Cluster
 	private boolean empty = false;		// Currently empty
 	private boolean single = false;		// Only one media point in cluster?
 
-	/* Graphics */
-	private PImage stitchedPanorama;			// Stitched panorama		-- Make into arrayList
+	/* Panorama */
+	ArrayList<GMV_Panorama> stitchedPanoramas, userPanoramas;
+//	private PImage stitchedPanorama;			// Stitched panorama		-- Make into arrayList
 	
 	/* Physics */
 	private boolean isAttractor;					// Is it currently set as the only attractor?
@@ -97,6 +99,8 @@ public class GMV_Cluster
 		videos = new IntList();
 		segments = new ArrayList<GMV_MediaSegment>();
 		
+		stitchedPanoramas = new ArrayList<GMV_Panorama>();
+		userPanoramas = new ArrayList<GMV_Panorama>();
 		mediaPoints = 0;
 		
 		clusterDates = new FloatList();
@@ -446,7 +450,7 @@ public class GMV_Cluster
 	 * Draw the cluster center
 	 * @param hue 
 	 */
-	void draw(int hue)
+	void drawCenter(int hue)
 	{
 		//		if(!empty)
 		{
@@ -459,8 +463,30 @@ public class GMV_Cluster
 		}
 	}
 
+	void drawStitchedPanoramas()
+	{
+//		PApplet.println("drawStitchedPanoramas()...");
+		for(GMV_Panorama p : stitchedPanoramas)
+		{
+			p.update();
+			p.draw();
+		}
+	}
+
+	void drawUserPanoramas()
+	{
+//		PApplet.println("drawUserPanoramas()...");
+		for(GMV_Panorama p : userPanoramas)
+		{
+			p.update();
+			p.draw();
+		}
+	}
+
 	public void stitchImages()
 	{
+//		PImage stitchedPanorama;
+		
 		if(p.p.viewer.multiSelection || p.p.viewer.segmentSelection)
 		{
 			IntList valid = new IntList();
@@ -473,7 +499,14 @@ public class GMV_Cluster
 			if(p.p.debug.stitching)
 				p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-			stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1);
+			PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1);
+			
+			GMV_Panorama pano = new GMV_Panorama( p, userPanoramas.size(), "_user_"+Integer.toString(userPanoramas.size()), 
+					"", getLocation(), -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
+					1.f, null, stitchedPanorama );
+
+			pano.initializePanorama(pano.panoramaDetail);
+			userPanoramas.add(pano);
 		}
 		else
 		{
@@ -512,10 +545,22 @@ public class GMV_Cluster
 					}
 					
 					if(valid.size() > 1)
-						stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID());
+					{
+						PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID());
+
+						GMV_Panorama pano = new GMV_Panorama( p, m.getID(), "_stitched_"+Integer.toString(m.getID()), 
+											"", getLocation(), -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
+											1.f, null, stitchedPanorama );
+						
+						pano.initializePanorama(pano.panoramaDetail);
+						stitchedPanoramas.add(pano);
+						
+//						PApplet.println("stitchedPanorama.width:"+stitchedPanorama.width);
+//						PApplet.println("stitchedPanorama.height:"+stitchedPanorama.height);
+					}
 				}
 			}
-		}
+		}		
 	}
 	
 	/**

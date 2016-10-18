@@ -1015,6 +1015,11 @@ class GMV_Display
 		}
 	}
 
+	/**
+	 * Draw the map origin
+	 * @param mapWidth
+	 * @param mapHeight
+	 */
 	void drawOriginOnMap(float mapWidth, float mapHeight)
 	{
 		int size = (int)(mapWidth / 20.f);

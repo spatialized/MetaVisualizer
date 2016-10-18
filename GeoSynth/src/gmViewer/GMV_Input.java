@@ -417,6 +417,18 @@ public class GMV_Input
 					p.display.changeBlendMode(-1);
 				}
 
+				if (key == ':')
+				{
+					PApplet.println("showUserPanoramas:"+p.showUserPanoramas);
+					p.showUserPanoramas = !p.showUserPanoramas;
+				}
+
+				if (key == ';')
+				{
+					PApplet.println("showStitchedPanoramas:"+p.showStitchedPanoramas);
+					p.showStitchedPanoramas = !p.showStitchedPanoramas;
+				}
+
 				if (key == 'O') 
 				{
 					p.viewer.selection = !p.viewer.selection;

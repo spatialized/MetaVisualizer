@@ -44,7 +44,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	private boolean startRunning = false;			// Program just started running
 	private boolean saveImage = false;
 
-	private int initializationField = 0;				// Field to be initialized this frame
+	private int initializationField = 0;			// Field to be initialized this frame
 	public int setupProgress = 0;						// Setup progress (0 to 100)
 	public float fieldProgressInc;						// How much to increment progress bar per field
 	

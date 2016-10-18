@@ -279,7 +279,7 @@ class GMV_Metadata
 	{
 		int fileCount = files.length;	 		// File count
 
-		PApplet.println("fileCount:"+fileCount);
+//		PApplet.println("fileCount:"+fileCount);
 		boolean imagesExist = true;
 
 		if (imageFiles == null)					// Check if any images exist

@@ -263,25 +263,27 @@ class GMV_Image extends GMV_Viewable
 		if(image.width > 0 && !disabled)			
 		{
 			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
-
-			float imageAngle = getFacingAngle();				// Check if image is visible at current angle facing viewer
-			if(!p.p.utilities.isNaN(imageAngle))
-				visible = (getAngleBrightness(imageAngle) > 0.f);
-
-			if(p.p.debug.hideImages)
-				visible = false;
-			
 			if(visible)
-				visible = (getDistanceBrightness() > 0.f);
+			{
+				float imageAngle = getFacingAngle();				// Check if image is visible at current angle facing viewer
+				if(!p.p.utilities.isNaN(imageAngle))
+					visible = (getAngleBrightness(imageAngle) > 0.f);
 
-			if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
-				visible = false;
+				if(p.p.debug.hideImages)
+					visible = false;
 
-			if(isBackFacing() || isBehindCamera())
-				visible = false;
+				if(visible)
+					visible = (getDistanceBrightness() > 0.f);
 
-			if(visible && !fading && !fadedOut)					// Fade in
-				fadeIn();
+				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
+					visible = false;
+
+				if(isBackFacing() || isBehindCamera())
+					visible = false;
+
+				if(visible && !fading && !fadedOut)					// Fade in
+					fadeIn();
+			}
 
 			if(fadedOut) fadedOut = false;
 		}
@@ -620,6 +622,8 @@ class GMV_Image extends GMV_Viewable
 			{
 				if(p.p.angleThinning)										// Angle Thinning mode
 				{
+//					if(!thinningVisibility)
+//						PApplet.println("Should be invisible:"+(isFacingCamera() && thinningVisibility));
 					return isFacingCamera() && thinningVisibility;		
 				}
 				else return isFacingCamera();	// Return true if image plane is facing the camera

@@ -257,29 +257,31 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		{
 			visible = getAngleVisibility();						// Check if video should be visible from current viewer position
 
-			float videoAngle = getFacingAngle();				// Check if video is visible at current angle facing viewer
-			if(!p.p.utilities.isNaN(videoAngle))
-				visible = (getAngleBrightness(videoAngle) > 0.f);
-
-
 			if(visible)
-				visible = (getDistanceBrightness() > 0.f);
-
-			if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
-				visible = false;
-
-			if(isBackFacing() || isBehindCamera())
-				visible = false;
-
-			if(visible && !fading && !fadedOut)					// Fade in
 			{
-				if(!videoLoaded) loadMedia();
-				fadeIn();
+				float videoAngle = getFacingAngle();				// Check if video is visible at current angle facing viewer
+				if(!p.p.utilities.isNaN(videoAngle))
+					visible = (getAngleBrightness(videoAngle) > 0.f);
+
+
+				if(visible)
+					visible = (getDistanceBrightness() > 0.f);
+
+				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
+					visible = false;
+
+				if(isBackFacing() || isBehindCamera())
+					visible = false;
+
+				if(visible && !fading && !fadedOut)					// Fade in
+				{
+					if(!videoLoaded) loadMedia();
+					fadeIn();
+				}
+
+				if(p.p.debug.video && p.p.frameCount % 30 == 0)
+					p.p.display.message("After backFacing... "+visible);
 			}
-
-			if(p.p.debug.video && p.p.frameCount % 30 == 0)
-				p.p.display.message("After backFacing... "+visible);
-
 //			if(visible && !fading)				// Fade in if visible at beginning 
 //			{
 //				if(!videoLoaded) loadMedia();

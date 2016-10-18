@@ -442,6 +442,12 @@ public class GMV_Input
 					p.angleFading = !p.angleFading;
 					p.angleHidingMode = p.angleFading;
 				}
+				
+				if (key == 'T')
+				{
+					p.angleThinning = !p.angleThinning;
+					p.display.message("p.angleThinning:"+p.angleThinning);
+				}
 
 				if (key == '9') {
 //					p.defaultImageSize += 0.1f;

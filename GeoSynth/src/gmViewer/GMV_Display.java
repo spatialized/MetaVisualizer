@@ -860,7 +860,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * drawMap()
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
 	 * @param mapXOffset Map X offset
@@ -914,10 +913,11 @@ class GMV_Display
 			
 			drawCameraOnMap(mapWidth, mapHeight);
 		}
+		
+		drawOriginOnMap(mapWidth, mapHeight);
 	}
 
 	/**
-	 * drawImageOnMap()
 	 * @param image GMV_Image to draw
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
@@ -1015,8 +1015,30 @@ class GMV_Display
 		}
 	}
 
+	void drawOriginOnMap(float mapWidth, float mapHeight)
+	{
+		int size = (int)(mapWidth / 20.f);
+		for(int i=-size/2; i<size/2; i+=size/20)
+			drawMapPoint( new PVector(i, 0.f, 0.f), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+		for(int i=-size/2; i<size/2; i+=size/20)
+			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+	}
+	
 	/**
-	 * drawCameraOnMap()
+	 * Interesting effect
+	 * @param mapWidth
+	 * @param mapHeight
+	 */
+	void drawMandalaOnMap(float mapWidth, float mapHeight)
+	{
+		int size = (int)(mapWidth / 20.f);
+		for(int i=-size/2; i<size/2; i+=size/20)
+			drawMapPoint( new PVector(i, 0.f, 0.f), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+		for(int i=-size/2; i<size/2; i+=size/20)
+			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+	}
+
+	/**
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
 	 * Draw current viewer location and orientation on map of specified size

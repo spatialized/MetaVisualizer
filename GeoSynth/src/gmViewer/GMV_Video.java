@@ -441,7 +441,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 		if(isSelected())
 		{
-			if (!p.p.viewer.selectionMode && p.p.debug.field)     // Draw outline
+			if (!p.p.viewer.selection && p.p.debug.field)     // Draw outline
 			{
 				p.p.stroke(19, 200, 150);
 				p.p.strokeWeight(outlineSize);
@@ -454,7 +454,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		p.p.textureMode(PApplet.IMAGE);
 		p.p.texture(video);
 
-		if(p.p.viewer.selectionMode)
+		if(p.p.viewer.selection)
 		{
 			if(isSelected())
 			{
@@ -584,7 +584,6 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/** 
-	 * getDistanceBrightness()
 	 * @return Distance visibility multiplier between 0. and 1.
 	 * Find video visibility due to distance (fades away in distance and as camera gets close)
 	 */
@@ -613,7 +612,6 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * getAngleVisibility()
 	 * Check whether video is at an angle where it should currently be visible
 	 */
 	public boolean getAngleVisibility()				 // Check if video should be visible

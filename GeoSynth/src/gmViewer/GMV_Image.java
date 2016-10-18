@@ -54,7 +54,6 @@ class GMV_Image extends GMV_Viewable
 		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
 
 		p = parent;
-//		name = newName;		
 		filePath = newFilePath;
 
 		image = p.p.createImage(0, 0, processing.core.PConstants.RGB);		// Create empty image
@@ -76,8 +75,6 @@ class GMV_Image extends GMV_Viewable
 		focalLength = newFocalLength;
 		cameraModel = newCameraModel;
 		
-//		blurMask = p.p.createImage(image.width, image.height, processing.core.PConstants.RGB);
-//		blur = p.p.blurEdges;
 		blurMask = p.p.blurMask;
 	}  
 
@@ -263,9 +260,11 @@ class GMV_Image extends GMV_Viewable
 		if(image.width > 0 && !disabled)			
 		{
 			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
+			
 			if(visible)
 			{
 				float imageAngle = getFacingAngle();				// Check if image is visible at current angle facing viewer
+				
 				if(!p.p.utilities.isNaN(imageAngle))
 					visible = (getAngleBrightness(imageAngle) > 0.f);
 
@@ -280,9 +279,27 @@ class GMV_Image extends GMV_Viewable
 
 				if(isBackFacing() || isBehindCamera())
 					visible = false;
-
+			}
+			
+			if(!p.p.angleThinning)
+			{
 				if(visible && !fading && !fadedOut)					// Fade in
 					fadeIn();
+			}
+			else
+			{
+				if(visible && !thinningVisibility && !fading)
+				{
+					fadeOut();
+				}
+				
+				if(!visible && thinningVisibility && !fading) 
+				{
+					if(!fadedOut)					// Fade in if didn't just finish fading out this frame
+					{
+						fadeIn();
+					}
+				}
 			}
 
 			if(fadedOut) fadedOut = false;
@@ -318,7 +335,7 @@ class GMV_Image extends GMV_Viewable
 
 		if (isSelected())     // Draw outline
 		{
-			if(!p.p.viewer.selectionMode && p.p.debug.field)
+			if(!p.p.viewer.selection && p.p.debug.field)
 			{
 				p.p.stroke(155, 146, 255, 255);
 				p.p.strokeWeight(outlineSize);
@@ -333,7 +350,7 @@ class GMV_Image extends GMV_Viewable
 		else
 			p.p.texture(image);        			// Apply the image to the face as a texture 
 
-		if(p.p.viewer.selectionMode)
+		if(p.p.viewer.selection)
 		{
 			if(isSelected())
 			{
@@ -620,13 +637,7 @@ class GMV_Image extends GMV_Viewable
 		{
 			if(p.p.angleHidingMode)
 			{
-				if(p.p.angleThinning)										// Angle Thinning mode
-				{
-//					if(!thinningVisibility)
-//						PApplet.println("Should be invisible:"+(isFacingCamera() && thinningVisibility));
-					return isFacingCamera() && thinningVisibility;		
-				}
-				else return isFacingCamera();	// Return true if image plane is facing the camera
+				return isFacingCamera();		
 			}
 			else 
 				return true;     										 		

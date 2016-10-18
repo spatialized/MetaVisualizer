@@ -62,7 +62,7 @@ public class GMV_Field
 	public int disassociatedVideos = 0;
 	
 	/* Interaction */
-	public int selectedImage = -1, selectedPanorama = -1, selectedVideo = -1;
+//	public int selectedImage = -1, selectedPanorama = -1, selectedVideo = -1;
 
 	GeoSynth p;
 
@@ -720,6 +720,17 @@ public class GMV_Field
 			result.append(t.getID());
 		
 		return result;
+	}
+	
+	public IntList getSelectedImages()
+	{
+		IntList selected = new IntList();
+
+		for(GMV_Image i : images)
+			if(i.isSelected())
+				selected.append(i.getID());
+		
+		return selected;
 	}
 	
 	public void addImageError()

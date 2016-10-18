@@ -212,7 +212,7 @@ class GMV_Display
 			if(messages.size() > 0)
 				displayMessages();
 
-			if(metadata.size() > 0 && p.viewer.selectionMode)
+			if(metadata.size() > 0 && p.viewer.selection)
 				displayMetadata();
 
 //			if(aboutOverlay)
@@ -1338,12 +1338,12 @@ class GMV_Display
 			}
 			p.text(" Field of View:"+p.viewer.camera.fov(), textXPos, textYPos += lineWidth, hudDistance);
 
-			if(f.selectedImage != -1)
-				p.text(" Selected Image:"+f.selectedImage, textXPos, textYPos += lineWidthVeryWide, hudDistance);
-			if(f.selectedPanorama != -1)
-				p.text(" Selected Panorama:"+f.selectedPanorama, textXPos, textYPos += lineWidthVeryWide, hudDistance);
-			if(f.selectedVideo != -1)
-				p.text(" Selected Video:"+f.selectedVideo, textXPos, textYPos += lineWidth, hudDistance);
+//			if(f.selectedImage != -1)
+//				p.text(" Selected Image:"+f.selectedImage, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+//			if(f.selectedPanorama != -1)
+//				p.text(" Selected Panorama:"+f.selectedPanorama, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+//			if(f.selectedVideo != -1)
+//				p.text(" Selected Video:"+f.selectedVideo, textXPos, textYPos += lineWidth, hudDistance);
 
 			
 			

@@ -211,7 +211,7 @@ public class GMV_Panorama extends GMV_Viewable
 		p.p.texture(texture);
 
 		/* Set the panorama brightness */		
-		if(p.p.viewer.selectionMode)
+		if(p.p.viewer.selection)
 		{
 			if(isSelected())
 			{

@@ -569,7 +569,7 @@ public abstract class GMV_Viewable
 	public void setSelected(boolean selection)
 	{
 		selected = selection;
-		p.selectedImage = id;
+//		p.selectedImage = id;
 
 		if(selection)
 		{

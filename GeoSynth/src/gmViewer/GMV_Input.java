@@ -400,9 +400,8 @@ public class GMV_Input
 
 				if (key == 'O') 
 				{
-					if(p.viewer.videoMode)
-						p.viewer.videoMode = false;
-					p.viewer.selectionMode = !p.viewer.selectionMode;
+					p.viewer.selection = !p.viewer.selection;
+					if(p.viewer.multiSelection) p.viewer.multiSelection = false;
 				}
 
 //				if (key == 'D')
@@ -419,11 +418,25 @@ public class GMV_Input
 					p.visibleAngle += 3.1415f / 128.f; 
 
 				/* Selection */
-				if (key == 'X') 
-					p.viewer.selectNextImage();
+				if (key == 'x') 
+					p.viewer.selectFrontMedia(true);
 
-				if (!optionKey && key == 'F')
-					p.viewer.selectFrontMedia();
+				if (key == 'X')
+					p.viewer.selectFrontMedia(false);
+				
+				if (key == 'S')
+				{
+					p.viewer.multiSelection = !p.viewer.multiSelection;
+					if(p.viewer.multiSelection && !p.viewer.selection)
+						p.viewer.selection = true;
+				}
+
+				if (optionKey && key == 's')
+				{
+					p.viewer.segmentSelection = !p.viewer.segmentSelection;
+					if(p.viewer.segmentSelection && !p.viewer.selection)
+						p.viewer.selection = true;
+				}
 
 				/* GPS */
 				if (key == 'g') 
@@ -477,16 +490,16 @@ public class GMV_Input
 //				if(key == 'I')
 //					p.viewer.autoNavigation = !p.viewer.autoNavigation;
 
-				if (key == 'S')		// Move and turn to face selected image
-				{
-					if(p.getCurrentField().selectedImage != -1)
-						p.viewer.moveToCaptureLocation(p.getCurrentField().selectedImage, true);
-					else
-						p.display.message("No selected image!");
-				}
+//				if (key == 't')		// Move and turn to face selected image
+//				{
+//					if(p.getCurrentField().selectedImage != -1)
+//						p.viewer.moveToCaptureLocation(p.getCurrentField().selectedImage, true);
+//					else
+//						p.display.message("No selected image!");
+//				}
 				
-				if (key == 'l') 	// Turn towards selected image
-					p.viewer.turnTowardsSelected();
+//				if (key == 'l') 	// Turn towards selected image
+//					p.viewer.turnTowardsSelected();
 
 				if (key == 'L') 			// Look for images when none are visible
 					p.viewer.lookForImages();

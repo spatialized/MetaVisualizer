@@ -68,18 +68,20 @@ public class GMV_Viewer
 
 	/* Interaction Modes */
 	public boolean map3DMode = false;				// 3D Map Mode
-	public boolean selectionMode = false;			// Allows selection, increases transparency to make selected image(s) easier to see
+	public boolean selection = false;				// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean autoNavigation = false;			// Attraction towards centers of clusters
 	public boolean lockToCluster = false;			// Automatically move viewer to nearest cluster when idle
 	public boolean mouseNavigation = false;			// Mouse navigation
-	public boolean videoMode = false;
-
+	public boolean multiSelection = false;			// User can select multiple images for stitching
+	public boolean segmentSelection = false;		// Select image segments at a time
+	public boolean videoMode = false;				// Highlights videos by dimming other media types	-- Unused
+	
 	/* Teleporting */
-	private PVector teleportGoal;				// Where in virtual space should the camera go next?
-	private boolean teleporting = false;				// Transition where all images fade in or out
-	private int teleportStart;							// Frame that fade transition started
-	private int teleportToField = -1;					// What field ID to fade transition to	 (-1 remains in current field)
-	private int teleportWaitingCount = 0;		// How long has the viewer been waiting for media to fade out before teleport?
+	private PVector teleportGoal;					// Coordinates of teleport goal
+	private boolean teleporting = false;			// Transition where all images fade in or out
+	private int teleportStart;						// Frame that fade transition started
+	private int teleportToField = -1;				// What field ID to fade transition to	 (-1 remains in current field)
+	private int teleportWaitingCount = 0;			// How long has the viewer been waiting for media to fade out before teleport?
 	
 	/* Physics */
 	private PVector location, orientation;											// Location of the camera in virtual space
@@ -88,8 +90,8 @@ public class GMV_Viewer
 	public float lastAttractorDistance = -1.f;
 	
 	// Slow Navigation
-//	public float cameraMass = 0.3f;						// Camera mass for cluster attraction
-//	private float velocityMin = 0.000033f;						// Threshold under which velocity counts as zero
+//	public float cameraMass = 0.3f;							// Camera mass for cluster attraction
+//	private float velocityMin = 0.000033f;					// Threshold under which velocity counts as zero
 //	private float velocityMax = 0.33f;						// Camera maximum velocity
 //	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
 //	private float accelerationMax = 0.075f;					// Camera maximum acceleration
@@ -98,7 +100,7 @@ public class GMV_Viewer
 
 	// Fast Navigation
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction
-	private float velocityMin = 0.00005f;						// Threshold under which velocity counts as zero
+	private float velocityMin = 0.00005f;					// Threshold under which velocity counts as zero
 	private float velocityMax = 0.75f;						// Camera maximum velocity
 	private float accelerationMax = 0.15f;					// Camera maximum acceleration
 	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
@@ -1319,15 +1321,15 @@ public class GMV_Viewer
 	 * turnTowardsSelected()
 	 * Turn towards the selected image
 	 */
-	public void turnTowardsSelected()
-	{
-		if(p.getCurrentField().selectedImage != -1)
-		{
-			PVector selectedImageLoc;
-			selectedImageLoc = p.getCurrentField().images.get(p.getCurrentField().selectedImage).getLocation();
-			p.viewer.turnTowardsPoint(selectedImageLoc);
-		}
-	}
+//	public void turnTowardsSelected(int selectedImage)
+//	{
+//		if(selectedImage != -1)
+//		{
+//			PVector selectedImageLoc;
+//			selectedImageLoc = p.getCurrentField().images.get(selectedImage).getLocation();
+//			p.viewer.turnTowardsPoint(selectedImageLoc);
+//		}
+//	}
 	
 //	public PVector location, orientation;											// Location of the camera in virtual space
 //	public PVector velocity, acceleration, attraction;      // Physics model parameters
@@ -2420,38 +2422,37 @@ public class GMV_Viewer
 	 * selectNextImage()
 	 * Selects next image numerically for viewing, exporting, etc.
 	 */
-	public void selectNextImage() 
-	{
-		int nextSelectedImage = p.getCurrentField().selectedImage + 1;
-
-		if(nextSelectedImage >= p.getCurrentField().images.size())
-			nextSelectedImage = 0;
-
-		int count = 0;
-		while (!p.getCurrentField().images.get(nextSelectedImage).visible && count < p.getCurrentField().images.size()) 
-		{
-			nextSelectedImage++;
-			if(nextSelectedImage >= p.getCurrentField().images.size())
-				nextSelectedImage = 0;
-		}
-
-		if(count > p.getCurrentField().images.size())
-		{
-			p.display.message("No visible images to select!");
-		}
-		else
-		{
-			p.getCurrentField().deselectAllMedia();
-			p.getCurrentField().selectedImage = nextSelectedImage;
-			p.getCurrentField().images.get( nextSelectedImage ).setSelected(true);
-		}
-	}
+//	public void selectNextImage() 
+//	{
+//		int nextSelectedImage = p.getCurrentField().selectedImage + 1;
+//
+//		if(nextSelectedImage >= p.getCurrentField().images.size())
+//			nextSelectedImage = 0;
+//
+//		int count = 0;
+//		while (!p.getCurrentField().images.get(nextSelectedImage).visible && count < p.getCurrentField().images.size()) 
+//		{
+//			nextSelectedImage++;
+//			if(nextSelectedImage >= p.getCurrentField().images.size())
+//				nextSelectedImage = 0;
+//		}
+//
+//		if(count > p.getCurrentField().images.size())
+//		{
+//			p.display.message("No visible images to select!");
+//		}
+//		else
+//		{
+//			p.getCurrentField().deselectAllMedia();
+//			p.getCurrentField().selectedImage = nextSelectedImage;
+//			p.getCurrentField().images.get( nextSelectedImage ).setSelected(true);
+//		}
+//	}
 
 	/**
-	 * selectFrontMedia()
 	 * Select image or video in front of camera and within selection angle.	-- Need to include panoramas too!
 	 */
-	public void selectFrontMedia() 
+	public void selectFrontMedia(boolean select) 
 	{
 		ArrayList<GMV_Image> possible = new ArrayList<GMV_Image>();
 
@@ -2497,7 +2498,7 @@ public class GMV_Viewer
 			{
 				float result = PApplet.abs(v.getFacingAngle());				// Get angle at which it faces camera
 
-				if(result < closestVideoDist)										// Find closest to camera orientation
+				if(result < closestVideoDist)								// Find closest to camera orientation
 				{
 					closestVideoDist = result;
 					closestVideoID = v.getID();
@@ -2506,28 +2507,54 @@ public class GMV_Viewer
 		}
 
 		int newSelected;
-		p.getCurrentField().deselectAllMedia();							// Deselect all media
+		if(select && !multiSelection)
+			p.getCurrentField().deselectAllMedia();				// If selecting media, deselect all media unless in Multi Selection Mode
 	
 		if(closestImageDist < closestVideoDist && closestImageDist != 1000.f)
 		{
 			newSelected = closestImageID;
-			if(p.debug.viewer)
-				p.display.message("Selected image in front: "+newSelected);
-			p.getCurrentField().selectedImage = newSelected;	
-			if(newSelected != -1)
-				p.getCurrentField().images.get(newSelected).setSelected(true);
+			if(p.debug.viewer) p.display.message("Selected image in front: "+newSelected);
+			
+//			if(select)
+//				p.getCurrentField().selectedImage = newSelected;	
+			
+			if(segmentSelection)											// Segment selection
+			{
+				int segmentID = -1;
+				GMV_Cluster c = p.getCluster( p.getCurrentField().images.get(newSelected).cluster );
+				for(GMV_MediaSegment m : c.segments)
+				{
+					if(m.getImages().hasValue(newSelected))
+					{
+						segmentID = m.getID();
+						break;
+					}
+				}
+	
+				if(select && !multiSelection)
+					p.getCurrentField().deselectAllMedia();						// Deselect all media
+
+				if(segmentID != -1)
+				{
+					for(int i : c.segments.get(segmentID).getImages())				// Set all images in selected segment to new state
+						p.getCurrentField().images.get(i).setSelected(select);
+				}
+			}
+			else												// Single image selection
+			{
+				if(newSelected != -1)
+					p.getCurrentField().images.get(newSelected).setSelected(select);
+			}
 		}
 		else if(closestVideoDist < closestImageDist && closestVideoDist != 1000.f)
 		{
 			newSelected = closestVideoID;
-			if(p.debug.viewer)
-				p.display.message("Selected video in front: "+newSelected);
-			p.getCurrentField().selectedVideo = newSelected;	
+			if(p.debug.viewer) 	p.display.message("Selected video in front: "+newSelected);
+			
+//			if(select)
+//				p.getCurrentField().selectedVideo = newSelected;	
 			if(newSelected != -1)
-			{
-				PApplet.println("HERE");
-				p.getCurrentField().videos.get(newSelected).setSelected(true);
-			}
+				p.getCurrentField().videos.get(newSelected).setSelected(select);
 		}
 	}
 

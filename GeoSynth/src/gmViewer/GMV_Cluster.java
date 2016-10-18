@@ -122,8 +122,11 @@ public class GMV_Cluster
  	 */
 	void findMediaSegments()
 	{
-		ArrayList<IntList> imageSegments = new ArrayList<IntList>();
-		IntList allImages = new IntList(images);
+//		ArrayList<IntList> imageSegments = new ArrayList<IntList>();
+
+		IntList allImages = new IntList();
+		for(int i:images)
+			allImages.append(i);
 		
 		boolean done = false;
 		
@@ -143,9 +146,12 @@ public class GMV_Cluster
 			float upperElevation = p.images.get(allImages.get(0)).getElevation();
 			float centerElevation = p.images.get(allImages.get(0)).getElevation();
 
-			segments.add( new GMV_MediaSegment( this, curImages, null, upper, lower, center, 
+			segments.add( new GMV_MediaSegment( this, 0, curImages, null, upper, lower, center, 
 												upperElevation, lowerElevation, centerElevation) );
-			
+
+			if(p.p.debug.cluster || p.p.debug.model)
+				PApplet.println("Added media segment in cluster: "+getID()+" with single image...");
+
 			done = true;
 		}
 		
@@ -157,8 +163,8 @@ public class GMV_Cluster
 
 			IntList added = new IntList();			// Images added to current segment 
 
-//			if(p.p.debug.cluster || p.p.debug.model)
-//				PApplet.println("Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
+			if(p.p.debug.cluster || p.p.debug.model)
+				PApplet.println("Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
 
 			int count = 0;
 			for(int i : allImages)							// Search for images at least stitchingMinAngle from each image
@@ -180,8 +186,8 @@ public class GMV_Cluster
 						int m = curImages.get(idx);
 						if(p.images.get(m).getID() != img.getID())
 						{
-//							if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
-//								PApplet.println("Comparing img:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
+							if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+								PApplet.println("Comparing img:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
 							
 							if(PApplet.abs(img.getDirection() - p.images.get(m).getDirection()) < p.p.stitchingMinAngle)
 							{
@@ -248,8 +254,8 @@ public class GMV_Cluster
 				centerElevation = upperElevation + lowerElevation / 2.f;
 			}
 
-			segments.add( new GMV_MediaSegment( this, curImages, null, lower, upper, center, lowerElevation, 
-					   upperElevation, centerElevation) );
+			segments.add( new GMV_MediaSegment( this, segments.size(), curImages, null, lower, upper, center, lowerElevation, 
+					      upperElevation, centerElevation) );
 
 			if((p.p.debug.cluster || p.p.debug.model))
 				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Lower:"+lower+" Center:"+center+" Upper:"+upper);
@@ -470,45 +476,89 @@ public class GMV_Cluster
 
 	public void stitchImages()
 	{
-		checkImagesForStitching(p.p.stitchingMinAngle);			// Validate images 30 degrees or less from others
-		stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID());
-//		stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), images, getID());
-	}
-	
-	public void checkImagesForStitching(float threshold)
-	{
-		ArrayList<PVector> orientations = new ArrayList<PVector>();		// List of orientations (x) and indices (y)
-		valid = new IntList();									// List of images likely to overlap
-		for(int i:images)
+//		IntList valid = getImagesForStitching(p.p.stitchingMinAngle);			// Validate images 30 degrees or less from others
+		
+		if(p.p.viewer.multiSelection)
 		{
-			GMV_Image img = p.images.get(i);
-			orientations.add(new PVector(img.getOrientation(), i));
+			IntList valid = new IntList();
+			for( int i : p.getSelectedImages() )
+				valid.append(i);
+
+			if(p.p.debug.stitching)
+				p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
+			stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1);
 		}
-			
-		for(int i:images)
+		else
 		{
-			float closestDist = 10000;
-			int closestIdx = -1;
-			
-			for(PVector o:orientations)
+			if(p.p.debug.stitching)
+				p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
+
+			for(GMV_MediaSegment m : segments)			// Stitch panorama for each media segment
 			{
-				if(i != (int)o.y)
+				if(m.getImages().size() > 1)
 				{
-					float dist = p.images.get(i).getOrientation()-o.x;
-					if(dist < closestDist)
+					IntList valid = new IntList();
+					for( int i : m.getImages() )
+						valid.append(i);
+					
+					if(p.p.debug.stitching && p.p.debug.detailed)
+						p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
+					
+					if(p.p.angleThinning)				// Remove invisible images
 					{
-						closestDist = dist;
-						closestIdx = (int)o.y;
+						IntList remove = new IntList();
+						
+						for(int v:valid)
+							if(!p.images.get(v).getThinningVisibility())
+								remove.append(v);
+
+						for(int r:remove)
+							valid.remove(r);
 					}
+					
+					if(valid.size() > 1)
+						stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID());
 				}
 			}
-			
-			if(closestDist < threshold && !valid.hasValue(i) && closestIdx != -1)
-				valid.append(i);
-			else if(p.p.debug.stitching)
-				PApplet.println("Excluded image #"+i+" for being "+closestDist+" degrees from next closest image...");
 		}
 	}
+	
+//	private IntList getImagesForStitching(float threshold)
+//	{
+//		ArrayList<PVector> orientations = new ArrayList<PVector>();		// List of orientations (x) and indices (y)
+//		IntList valid = new IntList();									// List of images likely to overlap
+//		for(int i:images)
+//		{
+//			GMV_Image img = p.images.get(i);
+//			orientations.add(new PVector(img.getOrientation(), i));
+//		}
+//			
+//		for(int i:images)
+//		{
+//			float closestDist = 10000;
+//			int closestIdx = -1;
+//			
+//			for(PVector o:orientations)
+//			{
+//				if(i != (int)o.y)
+//				{
+//					float dist = p.images.get(i).getOrientation()-o.x;
+//					if(dist < closestDist)
+//					{
+//						closestDist = dist;
+//						closestIdx = (int)o.y;
+//					}
+//				}
+//			}
+//			
+//			if(closestDist < threshold && !valid.hasValue(i) && closestIdx != -1)
+//				valid.append(i);
+//			else if(p.p.debug.stitching)
+//				PApplet.println("Excluded image #"+i+" for being "+closestDist+" degrees from next closest image...");
+//		}
+//		
+//		return valid;
+//	}
 	
 	/**
 	 * Analyze angles of all images and videos for Thinning Visibility Mode -- Can run every frame for transitions?

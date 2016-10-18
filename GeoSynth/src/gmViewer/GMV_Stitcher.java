@@ -68,7 +68,7 @@ public class GMV_Stitcher
 	 * Stitch spherical panorama from images
 	 * @param library
 	 */
-	public PImage stitch(String library, IntList imageList, int clusterID)
+	public PImage stitch(String library, IntList imageList, int clusterID, int segmentID)
 	{
 		Mat panorama = new Mat();				// Panoramic image result
 //		MatVector complete = new MatVector();		
@@ -152,9 +152,15 @@ public class GMV_Stitcher
 			// Testing
 			if(p.debug.stitching)
 			{
-				String output_name = p.stitchingPath+p.getCurrentField().name+"_"+clusterID+"_stitched.jpg";
+				String output_name = "";
+				
+				if(segmentID != -1)
+					output_name = p.stitchingPath+p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched.jpg";
+				else
+					output_name = p.stitchingPath+p.getCurrentField().name+"_"+clusterID+"_stitched.jpg";
+					
+				p.display.message("Stitched panorama with "+images.length+" images... outputting to: " + output_name);
 				org.bytedeco.javacpp.opencv_imgcodecs.imwrite(output_name, panorama);
-				System.out.println(""+images.length+" images stitched, output result to: " + output_name);
 			}
 
 			IplImage img = new IplImage(panorama);

@@ -31,8 +31,8 @@ import static org.bytedeco.javacpp.opencv_stitching.Stitcher;
 public class GMV_Stitcher 
 {
 	private Stitcher stitcher;
-	
 	private final boolean try_use_gpu = true;
+	private int stitchNum = 0;						// Export count for file naming
 
 	GeoSynth p;
 	GMV_Stitcher(GeoSynth parent)
@@ -73,7 +73,7 @@ public class GMV_Stitcher
 		Mat panorama = new Mat();				// Panoramic image result
 //		MatVector complete = new MatVector();		
 
-		boolean success = false, impossible = false;		
+		boolean success = false, end = false;		
 		boolean reduce = false;				// Reduce images to try to stitch
 		int count = 0;
 		
@@ -83,7 +83,7 @@ public class GMV_Stitcher
 
 		String[] images = getImageNames(imageList);				
 
-		while(!success || impossible)
+		while(!success || end)
 		{
 			if(reduce)		// Use orientation to exclude!
 			{
@@ -93,10 +93,10 @@ public class GMV_Stitcher
 					images = getImageNames(imageList);
 				}
 				else
-					impossible = true;
+					end = true;				// Impossible to stitch less than 2 images
 			}
 			
-			if(!impossible)
+			if(!end)
 			{
 				/* Error Codes: 	OK = 0	ERR_NEED_MORE_IMGS = 1	ERR_HOMOGRAPHY_EST_FAIL = 2	 ERR_CAMERA_PARAMS_ADJUST_FAIL = 3 	*/
 				
@@ -105,32 +105,27 @@ public class GMV_Stitcher
 
 				if(!imgs.isNull())
 				{
-					if(p.debug.stitching)
-						PApplet.println("Attempting to stitch "+imgs.size()+" images...");
+					if(p.debug.stitching) PApplet.println("Attempting to stitch "+imgs.size()+" images...");
 
-					if(stitcher == null)
-						PApplet.println("Stitcher is NULL!!!");
-					
 					Mat pano = new Mat();
 					int status = stitcher.stitch(imgs, pano);
 					
-					if(p.debug.stitching)
-						System.out.println("Stitching completed with error code " + status+"...");
-
 					if (status == Stitcher.OK) 
 					{
 						success = true;
-						impossible = false;
+						end = false;
 						panorama = pano;
 					}
 					else
 					{
-						if(p.debug.stitching)
-							System.out.println("Error code " + status + " while stitching, will try again...");
-						if(status == 3)		// Not enough overlap 
-							reduce = true;
+						if(p.debug.stitching) p.display.message("Error #" + status + " couldn't stitch panorama...");
+						if(status == 3)				// Error estimating camera parameters
+						{
+							if(p.persistentStitching) reduce = true;
+							else end = true;
+						}
 						else
-							impossible = true;
+							end = true;
 					}
 
 					imgs.close();
@@ -138,7 +133,7 @@ public class GMV_Stitcher
 				}
 				else
 				{
-					PApplet.println("Couldn't stitch images... imgs == NULL!");
+					if(p.debug.stitching) p.display.message("Couldn't stitch panorama... No images!");
 					break;
 				}
 			}
@@ -149,21 +144,21 @@ public class GMV_Stitcher
 
 		if(success)
 		{
-			// Testing
-			if(p.debug.stitching)
-			{
-				String output_name = "";
-				
-				if(segmentID != -1)
-					output_name = p.stitchingPath+p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched.jpg";
-				else
-					output_name = p.stitchingPath+p.getCurrentField().name+"_"+clusterID+"_stitched.jpg";
-					
-				p.display.message("Stitched panorama with "+images.length+" images... outputting to: " + output_name);
-				org.bytedeco.javacpp.opencv_imgcodecs.imwrite(output_name, panorama);
-			}
+			String filePath = "";
+			String fileName = "";
+			
+			if(segmentID != -1)
+				fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched.jpg";
+			else
+				fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+(stitchNum++)+".jpg";
+			
+			filePath = p.stitchingPath+fileName;
+
+			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, panorama);
+			if(p.debug.stitching) p.display.message("Panorama stitching successful, output to file: " + fileName);
 
 			IplImage img = new IplImage(panorama);
+			
 			if(img != null)
 				result = iplImageToPImage(img);
 		}

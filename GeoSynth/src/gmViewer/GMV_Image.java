@@ -306,7 +306,7 @@ class GMV_Image extends GMV_Viewable
 		}
 		else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
 		{
-			loadMedia(); 
+			loadMedia(); 					// Request image pixels from disk
 		}
 
 		if(isFading())                       // Fade in and out with time
@@ -635,7 +635,7 @@ class GMV_Image extends GMV_Viewable
 		}
 		else 
 		{
-			if(p.p.angleHidingMode)
+			if(p.p.angleFading)
 			{
 				return isFacingCamera();		
 			}

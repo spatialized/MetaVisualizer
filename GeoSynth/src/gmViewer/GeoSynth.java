@@ -53,11 +53,12 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public int memoryCheckFrequency = 50;
 	public int minFrameRate = 10;
 	
+	/* Metadata */
+	public boolean showMetadata = false;
+	
 	/* Model */
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
-	public boolean angleHidingMode = true;				// Do photos disappear when fading out as the camera turns away from them?
-//	public float defaultVisibleAngle = PApplet.PI / 3.f;		// Angle within which images and videos become visible
-//	public float visibleAngle = PApplet.PI / 3.f;		// Angle within which images and videos become visible
+//	public boolean angleHidingMode = true;				// Do photos disappear when fading out as the camera turns away from them?
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
 
@@ -84,8 +85,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	/* Stitching */
 	String stitchingPath;
 	int maxStitchingImages = 30;						// Maximum number of images to try to stitch
+//	float stitchingMinAngle = PApplet.degrees(thinningAngle/2.f);		// Angle in degrees that determines media segments for stitching 
 	float stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
-	
+	public boolean persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
 	public boolean interactive = false;					// In user clustering mode?
@@ -109,7 +111,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	/* Time */
 	public boolean timeFading = true;					// Does time affect photos' brightness? (true = yes; false = no)
 	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
-	public boolean pause = false;
+//	public boolean pause = false;
 
 	public int timeCycleLength = 500;					// Length of main time loop in frames
 	public int timeUnitLength = 1;						// How many frames between time increments
@@ -312,7 +314,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	 */
 	void updateTime()
 	{
-		if(timeFading && frameCount % timeUnitLength == 0 && !pause)
+		if(timeFading && frameCount % timeUnitLength == 0)
 		{
 			currentTime++;															// Increment field time
 
@@ -833,7 +835,16 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		}
 	}
 	
-//	public void mousePressed()
+	public void mouseDragged() {
+		if(display.inDisplayView())
+		{
+			PApplet.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
+			PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY);
+			input.handleMouseDragged(pmouseX, pmouseY);
+		}
+	}
+
+	//	public void mousePressed()
 //	{
 //		if(viewer.mouseNavigation)
 //			input.handleMousePressed(mouseX, mouseY);
@@ -844,10 +855,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 //			input.handleMouseClicked(mouseX, mouseY);
 //	}
 
-//	public void mouseDragged() {
-//		if(p.mouseNavigation)
-//			input.handleMouseDragged(mouseX, mouseY);
-//	}
 
 //	public void mouseReleased() {
 //		if(viewer.mouseNavigation)

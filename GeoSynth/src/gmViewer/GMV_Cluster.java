@@ -122,8 +122,6 @@ public class GMV_Cluster
  	 */
 	void findMediaSegments()
 	{
-//		ArrayList<IntList> imageSegments = new ArrayList<IntList>();
-
 		IntList allImages = new IntList();
 		for(int i:images)
 			allImages.append(i);
@@ -178,37 +176,40 @@ public class GMV_Cluster
 				}
 				else 
 				{
-					boolean found = false;
+					boolean found = false;					// Have we found a media segment for the image?
 					int idx = 0;
 
 					while(!found && idx < curImages.size())
 					{
 						int m = curImages.get(idx);
-						if(p.images.get(m).getID() != img.getID())
+						if(p.images.get(m).getID() != img.getID())		// Don't compare image to itself
 						{
 							if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
 								PApplet.println("Comparing img:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
 							
 							if(PApplet.abs(img.getDirection() - p.images.get(m).getDirection()) < p.p.stitchingMinAngle)
 							{
-								float direction = img.getDirection();
-								float elevation = img.getElevation();
-								
-								if(direction < lower) lower = direction;
-								if(direction > upper) upper = direction;
-								if(elevation < lowerElevation) lowerElevation = elevation;
-								if(elevation > upperElevation) upper = elevation;
+								if(PApplet.abs(img.getElevation() - p.images.get(m).getElevation()) < p.p.stitchingMinAngle)
+								{
+									float direction = img.getDirection();
+									float elevation = img.getElevation();
 
-								if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
-									PApplet.println("Added image:"+img.getID()+" to segment...");
+									if(direction < lower) lower = direction;
+									if(direction > upper) upper = direction;
+									if(elevation < lowerElevation) lowerElevation = elevation;
+									if(elevation > upperElevation) upper = elevation;
 
-								if(!curImages.hasValue(img.getID()))
-									curImages.append(img.getID());		// -- Add video too?
-								
-								if(!added.hasValue(count))
-									added.append(count);				// Remove added image from list
-								
-								found = true;
+									if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+										PApplet.println("Added image:"+img.getID()+" to segment...");
+
+									if(!curImages.hasValue(img.getID()))
+										curImages.append(img.getID());		// -- Add video too?
+
+									if(!added.hasValue(count))
+										added.append(count);				// Remove added image from list
+
+									found = true;
+								}
 							}
 						}
 						else if(allImages.size() == 1)			// Add last image
@@ -458,34 +459,20 @@ public class GMV_Cluster
 		}
 	}
 
-	/**
-	 * Update cluster variables
-	 */
-	void update()
-	{
-		clusterMass = mediaPoints;			// Set cluster mass each frame
-
-		if(mediaPoints == 0)
-		{
-			active = false;
-			empty = true;
-		}
-
-//		active = true;
-	}
-
 	public void stitchImages()
 	{
-//		IntList valid = getImagesForStitching(p.p.stitchingMinAngle);			// Validate images 30 degrees or less from others
-		
-		if(p.p.viewer.multiSelection)
+		if(p.p.viewer.multiSelection || p.p.viewer.segmentSelection)
 		{
 			IntList valid = new IntList();
 			for( int i : p.getSelectedImages() )
-				valid.append(i);
+			{
+				if(p.images.get(i).isVisible())
+					valid.append(i);
+			}
 
 			if(p.p.debug.stitching)
 				p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
+			
 			stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1);
 		}
 		else
@@ -499,7 +486,10 @@ public class GMV_Cluster
 				{
 					IntList valid = new IntList();
 					for( int i : m.getImages() )
-						valid.append(i);
+					{
+						if(p.images.get(i).isVisible())
+							valid.append(i);
+					}
 					
 					if(p.p.debug.stitching && p.p.debug.detailed)
 						p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
@@ -508,12 +498,17 @@ public class GMV_Cluster
 					{
 						IntList remove = new IntList();
 						
+						int count = 0;
 						for(int v:valid)
+						{
 							if(!p.images.get(v).getThinningVisibility())
-								remove.append(v);
+								remove.append(count);
+							count++;
+						}
 
-						for(int r:remove)
-							valid.remove(r);
+						remove.sort();
+						for(int i=remove.size()-1; i>=0; i--)
+							valid.remove(remove.get(i));	
 					}
 					
 					if(valid.size() > 1)
@@ -523,58 +518,21 @@ public class GMV_Cluster
 		}
 	}
 	
-//	private IntList getImagesForStitching(float threshold)
-//	{
-//		ArrayList<PVector> orientations = new ArrayList<PVector>();		// List of orientations (x) and indices (y)
-//		IntList valid = new IntList();									// List of images likely to overlap
-//		for(int i:images)
-//		{
-//			GMV_Image img = p.images.get(i);
-//			orientations.add(new PVector(img.getOrientation(), i));
-//		}
-//			
-//		for(int i:images)
-//		{
-//			float closestDist = 10000;
-//			int closestIdx = -1;
-//			
-//			for(PVector o:orientations)
-//			{
-//				if(i != (int)o.y)
-//				{
-//					float dist = p.images.get(i).getOrientation()-o.x;
-//					if(dist < closestDist)
-//					{
-//						closestDist = dist;
-//						closestIdx = (int)o.y;
-//					}
-//				}
-//			}
-//			
-//			if(closestDist < threshold && !valid.hasValue(i) && closestIdx != -1)
-//				valid.append(i);
-//			else if(p.p.debug.stitching)
-//				PApplet.println("Excluded image #"+i+" for being "+closestDist+" degrees from next closest image...");
-//		}
-//		
-//		return valid;
-//	}
-	
 	/**
-	 * Analyze angles of all images and videos for Thinning Visibility Mode -- Can run every frame for transitions?
+	 * Analyze directions of all images and videos for Thinning Visibility Mode
 	 */
-	public void analyzeAngles()
+	public void analyzeMediaDirections()
 	{
 //		if(p.p.debug.cluster || p.p.debug.model)
 //			PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
-		float tAngle = p.p.thinningAngle;							// Angle to thin images and videos by
-		int numPerimeterPts = PApplet.round(PApplet.PI * 2.f / tAngle);		// Number of points on perimeter == number of images visible
+		float thinningAngle = p.p.thinningAngle;									// Angle to thin images and videos by
+		int numPerimeterPts = PApplet.round(PApplet.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
 		int[] perimeterPoints = new int[numPerimeterPts];					// Points to compare each cluster image/video to
-		float[] perimeterDistances = new float[numPerimeterPts];					// Distances of images associated with each point
+		float[] perimeterDistances = new float[numPerimeterPts];			// Distances of images associated with each point
 		int videoIdxOffset = p.images.size();
 		
 		for(int i=0; i<numPerimeterPts; i++)
-			perimeterPoints[i] = -1;								// Start with empty perimeter point
+			perimeterPoints[i] = -1;										// Start with empty perimeter point
 
 		for(int idx : images)
 		{
@@ -584,7 +542,7 @@ public class GMV_Cluster
 
 			for(int i=0; i<numPerimeterPts; i++)
 			{
-				float ppAngle = i * (PApplet.PI * 2.f / numPerimeterPts);					// Angle of perimeter point i
+				float ppAngle = i * (PApplet.PI * 2.f / numPerimeterPts);	// Angle of perimeter point i
 				if(perimeterPoints[i] == -1)
 				{
 					perimeterPoints[i] = idx;
@@ -638,17 +596,31 @@ public class GMV_Cluster
 			{
 				if(idx < videoIdxOffset)
 				{
-					PApplet.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
+//					PApplet.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
 					p.images.get(idx).setThinningVisibility(true);
 				}
 				else
 				{
-					PApplet.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
+//					PApplet.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
 					p.videos.get(idx-videoIdxOffset).setThinningVisibility(true);
 				}
 			}
 		}
 	}
+	
+	/**
+	 * Update cluster variables
+	 */
+//	void update()
+//	{
+//		clusterMass = mediaPoints;			// Set cluster mass each frame
+//
+//		if(mediaPoints == 0)
+//		{
+//			active = false;
+//			empty = true;
+//		}
+//	}
 	
 	/**
 	 * @return Images associated with cluster
@@ -1031,6 +1003,12 @@ public class GMV_Cluster
 			{
 				PApplet.println("Cluster "+id+", cluster field time #"+(ct++)+": "+f);
 			}
+		}
+		
+		if(timeline.size() == 0)
+		{
+			PApplet.println("Cluster timeline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
+			empty();
 		}
 	}
 	

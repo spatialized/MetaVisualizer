@@ -330,12 +330,12 @@ public abstract class GMV_Viewable
 			{
 				length = p.p.timeCycleLength;		// -- Should depend on cluster it belongs to 
 
-				if(selected)
-				{
-					PApplet.println("Only one cluster time segment, full length:"+length);
-					PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
-					PApplet.println("lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
-				}
+//				if(selected &&p.p.debug.viewable)
+//				{
+//					PApplet.println("Only one cluster time segment, full length:"+length);
+//					PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
+//					PApplet.println("lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
+//				}
 				
 				fadeInStart = 0;		// Frame media starts fading in
 				fadeInEnd = centerTime - (int)length / 4;		// Frame media reaches full brightness
@@ -353,13 +353,13 @@ public abstract class GMV_Viewable
 				fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
 				fadeOutEnd = centerTime + (int)length / 2;		// Frame media finishes fading out
 				
-				if(selected)
-				{
-					PApplet.println("Segment length:"+segmentLength+" timeline length:"+timelineLength+" media length:"+length);
-					PApplet.println(" media time:"+time.getTime()+" centerTime:"+centerTime+" currentTime:"+p.p.currentTime+" cycleLength:"+cycleLength);
-					PApplet.println(" lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
-					PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-				}
+//				if(selected &&p.p.debug.viewable)
+//				{
+//					PApplet.println("Segment length:"+segmentLength+" timeline length:"+timelineLength+" media length:"+length);
+//					PApplet.println(" media time:"+time.getTime()+" centerTime:"+centerTime+" currentTime:"+p.p.currentTime+" cycleLength:"+cycleLength);
+//					PApplet.println(" lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
+//					PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+//				}
 			}	
 			
 			/* Adjust fading times to fit cycle length */
@@ -379,7 +379,7 @@ public abstract class GMV_Viewable
 			
 			if(fadeOutStart > cycleLength)
 			{
-				if(selected)
+				if(selected && p.p.debug.viewable)
 					PApplet.println("Adjusting fadeOutStart");
 
 				fadeOutStart = cycleLength-PApplet.round(length*0.25f);			// Adjust fadeOutStart
@@ -388,7 +388,7 @@ public abstract class GMV_Viewable
 			
 			if(fadeOutEnd > cycleLength)
 			{
-				if(selected)
+				if(selected && p.p.debug.viewable)
 					PApplet.println("Adjusting fadeOutEnd");
 				
 //				if(fadeOutEnd - fadeOutStart < fadeLength) 
@@ -396,7 +396,7 @@ public abstract class GMV_Viewable
 				fadeOutEnd = cycleLength;		// Frame media finishes fading out
 			}
 
-			if(selected)
+			if(selected && p.p.debug.viewable)
 			{
 				PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
 				PApplet.println("fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
@@ -480,7 +480,7 @@ public abstract class GMV_Viewable
 
 		timeBrightness = (float)timeLogMap.getMappedValueFor(timeBrightness);   		// Logarithmic scaling
 
-		if(selected)
+		if(selected && p.p.debug.viewable)
 			PApplet.println("timeBrightness"+timeBrightness);
 
 		if(!error)

@@ -260,9 +260,9 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			if(visible)
 			{
 				float videoAngle = getFacingAngle();				// Check if video is visible at current angle facing viewer
+
 				if(!p.p.utilities.isNaN(videoAngle))
 					visible = (getAngleBrightness(videoAngle) > 0.f);
-
 
 				if(visible)
 					visible = (getDistanceBrightness() > 0.f);
@@ -272,21 +272,35 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 				if(isBackFacing() || isBehindCamera())
 					visible = false;
+			}
 
+			if(!p.p.angleThinning)
+			{
 				if(visible && !fading && !fadedOut)					// Fade in
 				{
 					if(!videoLoaded) loadMedia();
 					fadeIn();
 				}
-
-				if(p.p.debug.video && p.p.frameCount % 30 == 0)
-					p.p.display.message("After backFacing... "+visible);
 			}
-//			if(visible && !fading)				// Fade in if visible at beginning 
-//			{
-//				if(!videoLoaded) loadMedia();
-//				fadeIn();
-//			}
+			else
+			{
+				if(visible && !thinningVisibility && !fading)
+				{
+					fadeOut();
+				}
+
+				if(!visible && thinningVisibility && !fading) 
+				{
+					if(!fadedOut)					// Fade in if didn't just finish fading out this frame
+					{
+						if(!videoLoaded) loadMedia();
+						fadeIn();
+					}
+				}
+			}
+
+			if(p.p.debug.video && p.p.frameCount % 30 == 0)
+				p.p.display.message("After backFacing... "+visible);
 
 			boolean wasFading = false;
 			if(isFading())									// Update brightness while fading
@@ -625,7 +639,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 			for(int id : p.p.viewer.clustersVisible)
 			{
-				if(cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+				if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 					visible = true;
 			}
 
@@ -633,13 +647,9 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		}
 		else 
 		{
-			if(p.p.angleHidingMode)
+			if(p.p.angleFading)
 			{
-				if(p.p.angleThinning)										// Angle Thinning mode
-				{
-					return isFacingCamera() && thinningVisibility;		
-				}
-				else return isFacingCamera();	// Return true if image plane is facing the camera
+				return isFacingCamera();		
 			}
 			else 
 				return true;     										 		
@@ -954,7 +964,11 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			
 			aspectRatio = getAspectRatio();								// Set aspect ratio from original height / width		
 			videoWidth = i.getWidth();								// Use image width
-			videoHeight = (int) (i.getWidth() * aspectRatio);		
+			videoHeight = (int) (i.getWidth() * aspectRatio);	
+			
+			calculateVertices();
+//			PApplet.println("Video focusDistance:"+focusDistance+" p.p.defaultFocusDistance:"+p.p.defaultFocusDistance);
+//			PApplet.println("   placeholder focusDistance:"+p.images.get(imagePlaceholder).getFocusDistance());
 		}
 		
 		return success;

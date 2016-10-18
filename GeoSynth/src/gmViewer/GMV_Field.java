@@ -184,7 +184,7 @@ public class GMV_Field
 			model.lockMediaToClusters();	
 
 		createTimeline();					// Create field timeline
-		analyzeClusterAngles();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
+		model.analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 	}
 	
 	/**
@@ -195,9 +195,9 @@ public class GMV_Field
 	{
 		attractViewer();					// Attract the viewer
 
-		for(GMV_Cluster c : clusters)		// Update all clusters
-			if(c.isActive())
-				c.update();
+//		for(GMV_Cluster c : clusters)		// Update all clusters
+//			if(c.isActive())
+//				c.update();
 	}
 	
 	/**
@@ -619,13 +619,6 @@ public class GMV_Field
 			c.stitchImages();
 	}
 	
-	public void analyzeClusterAngles()
-	{
-		for(GMV_Cluster c : clusters)
-			if(!c.isEmpty())
-				c.analyzeAngles();
-	}
-	
 	public void showClusters()
 	{
 		if(p.viewer.getCurrentCluster() != -1)
@@ -688,39 +681,43 @@ public class GMV_Field
 	/**
 	 * Get ID of time segment <number> in field timeline matching given cluster ID 
 	 * @param clusterID Cluster to get time segment from
-	 * @param number Segment in cluster timeline to get
+	 * @param index Segment in cluster timeline to get
 	 * @return
 	 */
-	public int getTimeSegmentOfCluster(int clusterID, int number)
+	public int getTimeSegmentOfCluster(int clusterID, int index)
 	{
 		IntList times = new IntList();
 		
-		if(timeline.size() > clusterID)
+//		if(timeline.size() > clusterID)
+//		{
+		int count = 0;
+		for(GMV_TimeSegment t : timeline)
 		{
-			int count = 0;
-			for(GMV_TimeSegment t : timeline)
-			{
-				if(t.getID() == clusterID)
-					times.append(count);
+			if(t.getID() == clusterID)
+				times.append(count);
 
-				count++;
-			}
-			
-			if(times.size() > number)
-				return times.get(number);
+			count++;
 		}
 
+		if(times.size() > index)
+			return times.get(index);
+//		}
+
+		p.display.message("Couldn't get time segment "+index+" of cluster "+clusterID+" times.size() = "+times.size());
 		return -1;
 	}
 
-	public IntList getTimeSegments()
-	{
-		IntList result = new IntList();
-		for(GMV_TimeSegment t : timeline)
-			result.append(t.getID());
-		
-		return result;
-	}
+//	/**
+//	 * @return Time segments in field timeline
+//	 */
+//	public ArrayList<GMV_TimeSegment> getTimeSegments()
+//	{
+//		ArrayList<GMV_TimeSegment> result = new ArrayList<GMV_TimeSegment>();
+//		for(GMV_TimeSegment t : timeline)
+//			result.add(t);
+//		
+//		return result;
+//	}
 	
 	public IntList getSelectedImages()
 	{

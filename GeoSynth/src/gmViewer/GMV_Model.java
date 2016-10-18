@@ -181,6 +181,13 @@ public class GMV_Model
 		}
 	}
 
+	public void analyzeClusterMediaDirections()
+	{
+		for(GMV_Cluster c : p.clusters)
+			if(!c.isEmpty())
+				c.analyzeMediaDirections();
+	}
+	
 	/** 
 	 * runInitialClustering()
 	 * Create clusters for all media in field at startup	

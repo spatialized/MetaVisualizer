@@ -236,19 +236,41 @@ public class GMV_Input
 		{
 			/* 3D View Controls */
 			if (key == '|')
-				p.getCurrentCluster().stitchImages();    			// Testing this	
+				p.getCurrentCluster().stitchImages();    			
 			
-			if (key == 'a') 
+			if (optionKey && key == '[')
+			{
+				if(p.thinningAngle > PApplet.PI / 64.f)
+					p.thinningAngle -= PApplet.PI / 128.f;
+//				p.display.message("Set thinningAngle:"+p.thinningAngle);
+				p.getCurrentField().model.analyzeClusterMediaDirections();
+			}
+
+			if (optionKey && key == ']')
+			{
+				if(p.thinningAngle < p.visibleAngle - PApplet.PI / 128.f)
+					p.thinningAngle += PApplet.PI / 128.f;
+//				p.display.message("Set thinningAngle:"+p.thinningAngle);
+				p.getCurrentField().model.analyzeClusterMediaDirections();
+			}
+
+			if (optionKey && key == '\\')
+				p.getCurrentField().stitchAllClusters();		// Teleport to cluster with > 1 times
+			
+			if (!optionKey && key == 'a') 
 				p.viewer.startMoveXTransition(-1);
 
-			if (key == 'd') 
+			if (!optionKey && key == 'd') 
 				p.viewer.startMoveXTransition(1);
 
-			if (key == 's') 
+			if (!optionKey && key == 's') 
 				p.viewer.startMoveZTransition(1);
 
-			if (key == 'w') 
+			if (!optionKey && key == 'w') 
 				p.viewer.walkForward();
+
+			if (optionKey && key == 'm') 
+				p.showMetadata = !p.showMetadata;
 
 			if (key == 'Q')
 				p.viewer.moveToNextCluster(false, -1);
@@ -271,15 +293,15 @@ public class GMV_Input
 			if (key == 'W') 
 				p.viewer.moveToNearestClusterAhead(false);
 			
-			if (key == ']') {
-				float value = p.altitudeAdjustmentFactor * 1.031f;
+			if (!optionKey && key == ']') {
+				float value = p.altitudeAdjustmentFactor * 1.052f;
 				p.altitudeAdjustmentFactor = PApplet.constrain(value, 0.f, 1.f);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
 			}
 
-			if (key == '[') {
-				float value = p.altitudeAdjustmentFactor *= 0.97f;
+			if (!optionKey && key == '[') {
+				float value = p.altitudeAdjustmentFactor *= 0.95f;
 				p.altitudeAdjustmentFactor = PApplet.constrain(value, 0.f, 1.f);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
@@ -347,9 +369,6 @@ public class GMV_Input
 			if (key == 'E') 
 				p.viewer.moveToNearestCluster(false);
 
-			if (key == '\\')
-				p.viewer.moveToNearestClusterWithTimes(2, true);		// Teleport to cluster with > 1 times
-
 			if (key == ',') 
 			{
 				p.getCurrentField().fadeObjectDistances(0.85f);
@@ -401,8 +420,12 @@ public class GMV_Input
 				if (key == 'O') 
 				{
 					p.viewer.selection = !p.viewer.selection;
-					if(p.viewer.multiSelection) p.viewer.multiSelection = false;
+					if(p.viewer.selection && p.viewer.multiSelection) p.viewer.multiSelection = false;
+					if(p.viewer.selection && p.viewer.segmentSelection) p.viewer.segmentSelection = false;
 				}
+				
+				if (optionKey && key == 'd')
+					p.getCurrentField().deselectAllMedia();
 
 //				if (key == 'D')
 //				{
@@ -453,13 +476,13 @@ public class GMV_Input
 				if (key == 'G')
 				{
 					p.angleFading = !p.angleFading;
-					p.angleHidingMode = p.angleFading;
+//					p.angleHidingMode = p.angleFading;
 				}
 				
 				if (key == 'T')
 				{
 					p.angleThinning = !p.angleThinning;
-					p.display.message("p.angleThinning:"+p.angleThinning);
+//					p.display.message("p.angleThinning:"+p.angleThinning);
 				}
 
 				if (key == '9') {

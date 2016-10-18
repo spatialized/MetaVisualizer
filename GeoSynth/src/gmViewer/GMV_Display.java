@@ -212,7 +212,7 @@ class GMV_Display
 			if(messages.size() > 0)
 				displayMessages();
 
-			if(metadata.size() > 0 && p.viewer.selection)
+			if(p.showMetadata && metadata.size() > 0 && p.viewer.selection)	
 				displayMetadata();
 
 //			if(aboutOverlay)
@@ -1259,7 +1259,7 @@ class GMV_Display
 			p.fill(0, 0, 255, 255);
 
 			p.textSize(mediumTextSize);
-			if(p.pause) p.text(" --- Paused --- ", textXPos, textYPos, hudDistance);
+//			if(p.pause) p.text(" --- Paused --- ", textXPos, textYPos, hudDistance);
 			p.text(" Settings ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.textSize(smallTextSize);
 			p.text("Angle Fading: "+p.angleFading, textXPos, textYPos += lineWidthVeryWide, hudDistance);

@@ -217,32 +217,56 @@ public class GMV_Stitcher
 	}
 	
 	/**
-	 * Add border to image			-- Need to finish
+	 * Add border to image			-- Need to finish!
 	 * @param source
-	 * @param border
+	 * @param topBorder
+	 * @param bottomBorder
+	 * @param leftBorder
+	 * @param rightBorder
 	 * @return
 	 */
-	public PImage addImageBorders(PImage source, int border)
+	public PImage addImageBorders(PImage source, int topBorder, int bottomBorder, int leftBorder, int rightBorder)
 	{
-		
+		boolean error = false;
 //		 Mat image = org.bytedeco.javacpp.opencv_imgcodecs.imread(sketchPath("")+"/img.jpg");
 		Mat image = new Mat( pImageToIplImage(source) );
-		  if (image.empty()) 
-		  {
-		    PApplet.println("addImageBorders(): Error reading image...");
-		    System.exit(0);
-		  }
-		  // constructs a larger image to fit both the image and the border
-		  Mat resized = new Mat(image.rows() + border*2, image.cols() + border*2, image.depth());
+		if (image.empty()) 
+		{
+			if(p.debug.stitching)
+				PApplet.println("addImageBorders(): Error reading image...");
+			error = true;
+		}
 
-		  org.bytedeco.javacpp.opencv_core.copyMakeBorder(image, resized, border, border, border, border, 
-		          org.bytedeco.javacpp.opencv_core.BORDER_CONSTANT, 
-		          new org.bytedeco.javacpp.opencv_core.Scalar((double)0.f));
+		if(!error)
+		{
+			Mat resized = new Mat(image.rows() + topBorder + bottomBorder, image.cols() + rightBorder + leftBorder, image.depth());
 
-//		  org.bytedeco.javacpp.opencv_imgcodecs.imwrite(sketchPath("")+"/output.jpg", resized);
-		  PApplet.println("Finished adding image border... ");
 
-		return null;
+			  //		  void copyMakeBorder(InputArray src, OutputArray dst, int top, int bottom, int left, int right, int borderType, const Scalar& value=Scalar() )¶
+			  //		  src – Source image.
+			  //		  dst – Destination image of the same type as src and the size Size(src.cols+left+right, src.rows+top+bottom) .
+			  //		  top –
+			  //		  bottom –
+			  //		  left –
+			  //		  right – Parameter specifying how many pixels in each direction from the source image rectangle to extrapolate. For example, top=1, bottom=1, left=1, right=1 mean that 1 pixel-wide border needs to be built.
+			  //		  borderType – Border type. See borderInterpolate() for details.
+			  //		  value – Border value if borderType==BORDER_CONSTANT .
+
+			org.bytedeco.javacpp.opencv_core.copyMakeBorder(image, resized, topBorder, bottomBorder, leftBorder, rightBorder, 
+					org.bytedeco.javacpp.opencv_core.BORDER_CONSTANT, 
+					new org.bytedeco.javacpp.opencv_core.Scalar((double)0.f));
+
+			//		  org.bytedeco.javacpp.opencv_imgcodecs.imwrite(sketchPath("")+"/output.jpg", resized);
+			if(p.debug.stitching)
+				PApplet.println("Finished adding image border... ");
+			image.close();
+			return iplImageToPImage(new IplImage(resized));
+		}
+		else
+		{
+			image.close();
+			return null;
+		}
 	}
 	
 	IplImage pImageToIplImage( PImage img )

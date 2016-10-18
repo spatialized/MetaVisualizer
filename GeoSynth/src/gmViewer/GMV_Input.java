@@ -345,8 +345,13 @@ public class GMV_Input
 			if (key == 'y')
 				p.viewer.followMemory();
 
-			if (key == '>')						
-				p.viewer.followTimeline();
+			if (key == '>')
+			{
+				if(!p.viewer.isFollowing())
+					p.viewer.followTimeline(true);
+				else
+					p.viewer.followTimeline(false);
+			}
 
 			if (key == 'u') 		// Teleport to nearest cluster with video
 				p.viewer.moveToNextCluster(true, 2);
@@ -419,14 +424,14 @@ public class GMV_Input
 
 				if (key == ':')
 				{
-					PApplet.println("showUserPanoramas:"+p.showUserPanoramas);
 					p.showUserPanoramas = !p.showUserPanoramas;
+					PApplet.println("showUserPanoramas:"+p.showUserPanoramas);
 				}
 
 				if (key == ';')
 				{
-					PApplet.println("showStitchedPanoramas:"+p.showStitchedPanoramas);
 					p.showStitchedPanoramas = !p.showStitchedPanoramas;
+					PApplet.println("showStitchedPanoramas:"+p.showStitchedPanoramas);
 				}
 
 				if (key == 'O') 

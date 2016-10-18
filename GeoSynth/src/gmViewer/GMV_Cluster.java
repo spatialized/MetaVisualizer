@@ -465,7 +465,7 @@ public class GMV_Cluster
 
 	void drawStitchedPanoramas()
 	{
-//		PApplet.println("drawStitchedPanoramas()...");
+		PApplet.println("drawStitchedPanoramas()..."+stitchedPanoramas.size());
 		for(GMV_Panorama p : stitchedPanoramas)
 		{
 			p.update();
@@ -501,9 +501,10 @@ public class GMV_Cluster
 			
 			PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1);
 			
+			PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
 			GMV_Panorama pano = new GMV_Panorama( p, userPanoramas.size(), "_user_"+Integer.toString(userPanoramas.size()), 
-					"", getLocation(), -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
-					1.f, null, stitchedPanorama );
+					"", null, -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
+					1.f, null, getLocation(), stitchedPanorama );
 
 			pano.initializePanorama(pano.panoramaDetail);
 			userPanoramas.add(pano);
@@ -549,8 +550,8 @@ public class GMV_Cluster
 						PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID());
 
 						GMV_Panorama pano = new GMV_Panorama( p, m.getID(), "_stitched_"+Integer.toString(m.getID()), 
-											"", getLocation(), -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
-											1.f, null, stitchedPanorama );
+											"", null, -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
+											1.f, null, getLocation(), stitchedPanorama );
 						
 						pano.initializePanorama(pano.panoramaDetail);
 						stitchedPanoramas.add(pano);

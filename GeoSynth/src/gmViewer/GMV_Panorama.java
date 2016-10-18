@@ -29,7 +29,8 @@ public class GMV_Panorama extends GMV_Viewable
 	int sinCosLength = (int)(360.0f / sinCosPrecision);
 
 	GMV_Panorama ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-					int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, PImage newTexture )
+					int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, 
+					PVector newLocation, PImage newTexture )
 	{
 		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
 		
@@ -45,6 +46,12 @@ public class GMV_Panorama extends GMV_Viewable
 
 		filePath = newFilePath;
 
+		if(newLocation != null)
+		{
+			location = newLocation;
+			captureLocation = newLocation;
+		}
+		
 		gpsLocation = newGPSLocation;
 		cameraModel = newCameraModel;
 
@@ -66,13 +73,17 @@ public class GMV_Panorama extends GMV_Viewable
 
 		if(texture.width > 0 && !disabled)			
 		{
+			PApplet.println("1 Update panorama... visible? "+visible);
 			visible = (getDistanceBrightness() > 0.f);
+			PApplet.println("2 Update panorama... visible? "+visible);
 
 			if(p.p.debug.hidePanoramas)
 				visible = false;
-			
+			PApplet.println("3 Update panorama... visible? "+visible);
+
 			if(visible && !fading && !fadedOut)					// Fade in
 				fadeIn();
+			PApplet.println("4 Update panorama... fading? "+fading);
 
 			if(fadedOut) fadedOut = false;
 			
@@ -132,7 +143,7 @@ public class GMV_Panorama extends GMV_Viewable
 			p.p.noFill();                  // Hide image if it isn't visible
 		}
 
-		if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw image locations for debugging or map display
+		if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw panorama location for debugging or map display
 			drawLocation(centerSize);
 		if (visible && !disabled && p.p.viewer.map3DMode)
 			drawLocation(centerSize);
@@ -390,7 +401,7 @@ public class GMV_Panorama extends GMV_Viewable
 	{
 		float viewDist = getViewingDistance();
 		float farViewingDistance = p.p.viewer.getFarViewingDistance();
-		float nearViewingDistance = p.p.viewer.getNearViewingDistance();
+//		float nearViewingDistance = p.p.viewer.getNearViewingDistance();
 		
 		float distVisibility = 1.f;
 
@@ -409,6 +420,9 @@ public class GMV_Panorama extends GMV_Viewable
 //				PApplet.println("Panorama ID:"+getID()+" dist:"+viewDist+" distVisibility:"+distVisibility+" near:"+p.p.viewer.getNearClippingDistance()+" far:"+p.p.viewer.getNearViewingDistance());
 //		}
 
+//		PApplet.println("captureLocation.x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y+" captureLocation.z:"+captureLocation.z);
+//		PApplet.println("viewer.x:"+p.p.viewer.getLocation().x+" viewer.y:"+p.p.viewer.getLocation().y+" viewer.z:"+p.p.viewer.getLocation().z);
+//		PApplet.println("viewDist:+"+viewDist+" farViewingDistance:"+farViewingDistance+" distVisibility:"+distVisibility);
 		return distVisibility;
 	}
 

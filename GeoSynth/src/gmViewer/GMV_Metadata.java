@@ -591,7 +591,7 @@ class GMV_Metadata
 					{
 						PApplet.println("Adding panorama #"+pCount);
 						p.panoramas.add( new GMV_Panorama( p, pCount, name, pFilePath, pLoc, fDirection, iCameraModel, 
-								iWidth, iHeight, fBrightness, calendarTime, null ) );
+								iWidth, iHeight, fBrightness, calendarTime, null, null ) );
 						pCount++;
 					}
 					else if(!dataMissing)

@@ -8,6 +8,7 @@ import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 
 /******************

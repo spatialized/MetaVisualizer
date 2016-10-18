@@ -220,7 +220,7 @@ public class GMV_Model
 		
 		for(GMV_Cluster c : p.clusters)
 		{
-			if(!c.isEmpty())
+			if(p.p.debug.model && !c.isEmpty())
 				PApplet.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
 		}
 	}

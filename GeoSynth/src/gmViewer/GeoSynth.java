@@ -684,49 +684,56 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 
 			String[] parts = input.split("/");
 			
-//			boolean valid = true; // = parts[parts.length-1].equals("GeoSynthLibrary");		// Check for correct library name
-//			if(valid)
-//			{
+			String[] nameParts = parts[parts.length-1].split("_");		// Check if single field library 
+			boolean singleField = !nameParts[0].equals("Environments");
+			String maskPath = "", parentFilePath = "";
 			
-			File libFile = new File(library);
-			String[] mediaFolderList = libFile.list();
-			for(String mediaFolder : mediaFolderList)
+			if(singleField)
 			{
-				if(!mediaFolder.equals(".DS_Store"))
-					folders.add(mediaFolder);
+				String libFilePath = "";
+				for(int i=0; i<parts.length-1; i++)
+				{
+					libFilePath = libFilePath + parts[i] + "/";
+				}
+
+				folders.add(parts[parts.length-1]);
+
+				library = libFilePath;
+				File libFile = new File(library);
+
+				selectedFolder = true;
+
+				for(int i=0; i<parts.length-2; i++)
+					parentFilePath = parentFilePath + parts[i] + "/";
+			}
+			else
+			{
+				File libFile = new File(library);
+				String[] mediaFolderList = libFile.list();
+				for(String mediaFolder : mediaFolderList)
+				{
+					if(!mediaFolder.equals(".DS_Store"))
+						folders.add(mediaFolder);
+					
+					PApplet.println("Added media folder:"+mediaFolder);
+
+				}
+
+				selectedFolder = true;
+
+				for(int i=0; i<parts.length-1; i++)
+					parentFilePath = parentFilePath + parts[i] + "/";
 			}
 
-			selectedFolder = true;
-
-			String parentFilePath = "";
-			for(int i=0; i<parts.length-1; i++)
-			{
-				parentFilePath = parentFilePath + parts[i] + "/";
-			}
-			String maskPath = parentFilePath + "masks/";
+			maskPath = parentFilePath + "masks/";
 			stitchingPath = parentFilePath + "stitched/";
-			
-			//				PApplet.println("maskPath:"+maskPath);
-
 			File maskFolder = new File(maskPath);
 			String[] maskFolderList = maskFolder.list();
 			for(String mask : maskFolderList)
-			{
 				if(mask.equals("blurMask.jpg"))
-				{
 					blurMask = loadImage(maskPath + mask);
-					//						println("loaded blurMask.jpg: width:"+blurMask.width+" height:"+blurMask.height);
-				}
-			}
 
 			selectedFolder = true;
-
-//			}
-//			else
-//			{
-//				libraryFolderSelected = false;
-//				selectFolder("Select a library folder:", "libraryFolderSelected");
-//			}
 		}
 		
 		if(selectedFolder)

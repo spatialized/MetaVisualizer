@@ -52,7 +52,7 @@ public class GMV_Viewer
 	private boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
 	private boolean movingToCluster = false;			// Moving to cluster 
 	private PVector pathGoal;							// Next goal point for camera in navigating from memory
-	private boolean follow = false;						// Is the camera currently navigating from memory?
+	private boolean following = false;						// Is the camera currently navigating from memory?
 	private int pathLocationIdx;						// Index of current cluster in memory
 	
 	/* Clusters */
@@ -1499,7 +1499,7 @@ public class GMV_Viewer
 				slowingZ = false;
 			}
 		}
-		else if( movingToAttractor || movingToCluster || follow )								
+		else if( movingToAttractor || movingToCluster || following )								
 		{
 			if(walking) walking = false;
 
@@ -1548,9 +1548,9 @@ public class GMV_Viewer
 			GMV_Cluster curAttractor = new GMV_Cluster(p.getCurrentField(), 0, 0, 0, 0);	 /* Find current attractor if one exists */
 			boolean attractorFound = false;
 			
-			if( (movingToAttractor || follow) && attractorPoint != null )
+			if( (movingToAttractor || following) && attractorPoint != null )
 			{
-				if(p.frameCount - attractionStart > 60)					/* If not slowing and attraction force exists */
+				if(p.debug.viewer && p.frameCount - attractionStart > 100)					/* If not slowing and attraction force exists */
 					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
 
 				curAttractor = attractorPoint;
@@ -1644,7 +1644,7 @@ public class GMV_Viewer
 	 */
 	private void handleReachedAttractor()
 	{
-		if(follow && path.size() > 0)
+		if(following && path.size() > 0)
 		{
 			if(p.debug.viewer)
 				p.display.message("Reached path goal #"+pathLocationIdx+", will start waiting...");
@@ -1872,7 +1872,7 @@ public class GMV_Viewer
 				lastLookFrame = p.frameCount;
 			}
 			
-			if(follow && waiting)				// If revisiting places in memory and currently waiting
+			if(following && waiting)				// If revisiting places in memory and currently waiting
 			{				
 				if(p.frameCount > pathWaitStartFrame + pathWaitLength )
 				{
@@ -2224,29 +2224,41 @@ public class GMV_Viewer
 	 * followTimeline()
 	 * Revisit all places stored in memory
 	 */
-	public void followTimeline()
+	public void followTimeline(boolean start)
 	{
-		if(!follow)
+		if(start)		// Start following timeline
 		{
-			path = p.getCurrentField().getTimelineAsPath();								// Follow memory path 
-
-			if(path.size() > 0)
+			if(!following)
 			{
-				follow = true;
-				pathLocationIdx = 0;
-				if(p.debug.viewer)
-					p.display.message("followTimeline()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
-				pathGoal = path.get(pathLocationIdx).getLocation();
-				setAttractorPoint(pathGoal);
+				path = p.getCurrentField().getTimelineAsPath();								// Follow memory path 
+
+				if(path.size() > 0)
+				{
+					following = true;
+					pathLocationIdx = 0;
+					if(p.debug.viewer)
+						p.display.message("followTimeline()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
+					pathGoal = path.get(pathLocationIdx).getLocation();
+					setAttractorPoint(pathGoal);
+				}
+				else p.display.message("No timeline points!");
 			}
-			else p.display.message("No timeline points!");
+			else
+			{
+				if(p.debug.viewer)
+					p.display.message("Already called followTimeline(): Stopping... "+path.get(pathLocationIdx).getLocation());
+				pathLocationIdx = 0;
+				following = false;
+			}
 		}
-		else
+		else				// Stop following timeline
 		{
-			if(p.debug.viewer)
-				p.display.message("Already called followTimeline(): Stopping... "+path.get(pathLocationIdx).getLocation());
-			pathLocationIdx = 0;
-			follow = false;
+			if(following)
+			{
+				following = false;
+//				p.getCurrentField().clearAllAttractors();
+				clearAttractorPoint();
+			}
 		}
 	}
 	
@@ -2260,9 +2272,10 @@ public class GMV_Viewer
 		
 		if(path.size() > 0)
 		{
-			follow = true;
+			following = true;
 			pathLocationIdx = 0;
-			p.display.message("followMemory()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
+			if(p.debug.viewer)
+				p.display.message("followMemory()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
 			pathGoal = path.get(pathLocationIdx).getLocation();
 			setAttractorPoint(pathGoal);
 		}
@@ -2295,6 +2308,14 @@ public class GMV_Viewer
 		attractorPoint.setAttractor(true);
 		attractorPoint.setMass(p.mediaPointMass * 25.f);
 		attractionStart = p.frameCount;
+	}
+	
+	private void clearAttractorPoint()
+	{
+		stopMoving();									// -- Improve by slowing down instead and then starting
+		p.getCurrentField().clearAllAttractors();
+		movingToAttractor = false;
+		attractorPoint.setAttractor(false);
 	}
 	
 	/**
@@ -2426,7 +2447,7 @@ public class GMV_Viewer
 	 */
 	public void clearMemory()
 	{
-		follow = false;
+		following = false;
 		waiting = false;
 		path = new ArrayList<GMV_Waypoint>();
 	}
@@ -2437,7 +2458,7 @@ public class GMV_Viewer
 	 */
 	public void stopFollowing()
 	{
-		follow = false;
+		following = false;
 		pathLocationIdx = 0;
 	}
 
@@ -3057,6 +3078,11 @@ public class GMV_Viewer
 	public boolean isMovingToCluster()
 	{
 		return movingToCluster;
+	}
+	
+	public boolean isFollowing()
+	{
+		return following;
 	}
 
 	public boolean isWalking()

@@ -3,6 +3,8 @@ package gmViewer;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
+
 import javax.imageio.*;
 
 import org.bytedeco.javacv.*;
@@ -214,7 +216,41 @@ public class GMV_Stitcher
 		return images;
 	}
 	
-	/* convert IplImage to PImage */
+	/**
+	 * Add border to image			-- Need to finish
+	 * @param source
+	 * @param border
+	 * @return
+	 */
+	public PImage addImageBorders(PImage source, int border)
+	{
+		
+//		 Mat image = org.bytedeco.javacpp.opencv_imgcodecs.imread(sketchPath("")+"/img.jpg");
+		Mat image = new Mat( pImageToIplImage(source) );
+		  if (image.empty()) 
+		  {
+		    PApplet.println("addImageBorders(): Error reading image...");
+		    System.exit(0);
+		  }
+		  // constructs a larger image to fit both the image and the border
+		  Mat resized = new Mat(image.rows() + border*2, image.cols() + border*2, image.depth());
+
+		  org.bytedeco.javacpp.opencv_core.copyMakeBorder(image, resized, border, border, border, border, 
+		          org.bytedeco.javacpp.opencv_core.BORDER_CONSTANT, 
+		          new org.bytedeco.javacpp.opencv_core.Scalar((double)0.f));
+
+//		  org.bytedeco.javacpp.opencv_imgcodecs.imwrite(sketchPath("")+"/output.jpg", resized);
+		  PApplet.println("Finished adding image border... ");
+
+		return null;
+	}
+	
+	IplImage pImageToIplImage( PImage img )
+	{
+		BufferedImage bufferedImage = pImageToBufferedImage(img);
+		return bufferedImageToIplImage(bufferedImage);
+	}
+	
 	PImage iplImageToPImage ( IplImage iplImg ) 
 	{
 	  java.awt.image.BufferedImage bImg = IplImageToBufferedImage(iplImg);
@@ -224,7 +260,17 @@ public class GMV_Stitcher
 	  return img;
 	}
 
-	IplImage toIplImage(BufferedImage bufImage) {
+	public BufferedImage pImageToBufferedImage( PImage img )
+	{
+		img.loadPixels();
+		int type = (img.format == PApplet.RGB) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+		BufferedImage image = new BufferedImage(img.width, img.height, type);
+		WritableRaster wr = image.getRaster();
+		wr.setDataElements(0, 0, img.width, img.height, img.pixels);
+		return image;
+	}
+
+	IplImage bufferedImageToIplImage(BufferedImage bufImage) {
 
 	  ToIplImage iplConverter = new OpenCVFrameConverter.ToIplImage();
 	  Java2DFrameConverter java2dConverter = new Java2DFrameConverter();

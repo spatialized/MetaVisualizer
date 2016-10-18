@@ -29,6 +29,11 @@ public class GMV_Waypoint {
 		return dist;
 	}
 	
+	public int getID()
+	{
+		return id;
+	}
+	
 	public void setID(int newID)
 	{
 		id = newID;

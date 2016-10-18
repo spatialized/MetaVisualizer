@@ -348,9 +348,9 @@ public class GMV_Input
 			if (key == '>')
 			{
 				if(!p.viewer.isFollowing())
-					p.viewer.followTimeline(true);
+					p.viewer.followTimeline(true, false);
 				else
-					p.viewer.followTimeline(false);
+					p.viewer.followTimeline(false, false);
 			}
 
 			if (key == 'u') 		// Teleport to nearest cluster with video

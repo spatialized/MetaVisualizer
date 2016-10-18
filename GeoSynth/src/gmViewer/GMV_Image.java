@@ -106,7 +106,8 @@ class GMV_Image extends GMV_Viewable
 						else
 						{
 							timeBrightnessFactor = 0.f;
-							p.p.display.message("Cluster: "+cluster+" has no timeline points!");
+							if(p.p.debug.cluster || p.p.debug.image || p.p.debug.viewable)
+								p.p.display.message("Cluster: "+cluster+" has no timeline points!");
 						}
 						
 						brightness *= timeBrightnessFactor; 					// Fade brightness based on time

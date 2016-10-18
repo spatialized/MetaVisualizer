@@ -125,7 +125,8 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 						else
 						{
 							timeBrightnessFactor = 0.f;
-							p.p.display.message("Video Cluster: "+cluster+" has no timeline points!");
+							if(p.p.debug.cluster || p.p.debug.video || p.p.debug.viewable)
+								p.p.display.message("Video Cluster: "+cluster+" has no timeline points!");
 						}
 						
 						brightness *= timeBrightnessFactor; 					// Fade brightness based on time

@@ -258,8 +258,8 @@ public class GMV_Field
 			GMV_Waypoint w = clusters.get(t.getID()).getClusterAsWaypoint();
 			timelinePath.add(w);
 		}
-
-		PApplet.println("getTimelineAsPath()... timelinePath.size():"+timelinePath.size());
+		if(p.debug.field)
+			PApplet.println("getTimelineAsPath()... timelinePath.size():"+timelinePath.size());
 		return timelinePath;
 	}
 

@@ -88,17 +88,6 @@ public class GMV_Viewer
 	public PVector velocity, acceleration, attraction;      // Physics model parameters
 
 	public float lastAttractorDistance = -1.f;
-	
-	// Slow Navigation
-//	public float cameraMass = 0.3f;							// Camera mass for cluster attraction
-//	private float velocityMin = 0.000033f;					// Threshold under which velocity counts as zero
-//	private float velocityMax = 0.33f;						// Camera maximum velocity
-//	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
-//	private float accelerationMax = 0.075f;					// Camera maximum acceleration
-//	private float camDecelInc = 0.75f;						// Camera deceleration increment
-//	private float camHaltInc = 0.075f;						// Camera fast deceleration increment
-
-	// Fast Navigation
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction
 	private float velocityMin = 0.00005f;					// Threshold under which velocity counts as zero
 	private float velocityMax = 0.75f;						// Camera maximum velocity
@@ -106,6 +95,8 @@ public class GMV_Viewer
 	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
 	private float camDecelInc = 0.8f;						// Camera deceleration increment
 	private float camHaltInc = 0.05f;						// Camera fast deceleration increment
+	private boolean waiting = false;			// During memory navigation, whether the camera is waiting to move 
+	private int pathWaitStartFrame, pathWaitLength = 75;
 
 	/* Movement */
 	private boolean walking = false;			// Whether viewer is walking
@@ -126,7 +117,6 @@ public class GMV_Viewer
 	private float moveXDirection;				// 1 (right)   or -1 (left)
 	private float moveYDirection;				// 1 (down)    or -1 (up)
 	private float moveZDirection;				// 1 (forward) or -1 (backward)
-	
 	private boolean movingNearby = false;		// Moving to a point within nearClusterDistance
 
 	/* Looking */
@@ -134,8 +124,6 @@ public class GMV_Viewer
 	private int lookingStartFrameCount, lookingLength, lookingDirection;
 	private int lookingRotationCount = 0;		// Amount of times viewer has rotated looking for images
 	private float lookingStartAngle;				// Angle when looking started
-	private boolean waiting = false;			// During memory navigation, whether the camera is waiting to move 
-	private int pathWaitStartFrame, pathWaitLength = 25;
 
 	/* Turning */
 	private PVector turnTargetPoint;			// Point to turn towards
@@ -593,7 +581,6 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * moveToTimeInField()
 	 * @param nextFieldTime Index in timeline of cluster to move to
 	 */
 	void moveToTimeInField(int fieldID, int nextFieldTime, boolean teleport)
@@ -603,7 +590,7 @@ public class GMV_Viewer
 		if(p.debug.viewer && p.debug.detailed)
 			p.display.message("moveToTimeInField:"+f.timeline.get(nextFieldTime).getID()+" f.timeline.size():"+f.timeline.size());
 
-		if(f.timeline.get(nextFieldTime).getID() == currentCluster)	// Moving to different time in same cluster
+		if(f.timeline.get(nextFieldTime).getID() == currentCluster && p.getCluster(f.timeline.get(nextFieldTime).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different time in same cluster
 		{
 			currentFieldTimeSegment++;
 			if(p.debug.viewer && p.debug.detailed)
@@ -623,7 +610,6 @@ public class GMV_Viewer
 	}
 	
 	/**
-	 * moveToTimeInCluster()
 	 * @param nextFieldTime Time index in current cluster timeline to move to
 	 */
 	void moveToTimeInCluster(int clusterID, int nextClusterTime, boolean teleport)
@@ -1550,7 +1536,7 @@ public class GMV_Viewer
 			
 			if( (movingToAttractor || following) && attractorPoint != null )
 			{
-				if(p.debug.viewer && p.frameCount - attractionStart > 100)					/* If not slowing and attraction force exists */
+				if(p.debug.viewer && p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
 					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
 
 				curAttractor = attractorPoint;
@@ -1667,9 +1653,7 @@ public class GMV_Viewer
 				
 				currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
 				if(currentFieldTimeSegment == -1) 
-				{
 					PApplet.println("currentFieldTimeSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
-				}
 			}
 			else
 				currentCluster = getNearestCluster(false);
@@ -1682,8 +1666,6 @@ public class GMV_Viewer
 		if(movingToAttractor)		// Stop attracting when reached attractorPoint
 		{
 			currentCluster = getNearestCluster(false);		// Set currentCluster to nearest
-//			if(p.debug.viewer && p.debug.detailed)
-//				p.display.message("Reached point of interest... setting current timeline point to cluster #"+currentCluster);
 
 			currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
 			
@@ -1884,27 +1866,27 @@ public class GMV_Viewer
 					if(pathLocationIdx < path.size())
 					{
 						pathGoal = path.get(pathLocationIdx).getLocation();
-						p.display.message("Incremented pathLocationIdx:"+pathLocationIdx);
-						p.display.message("New pathGoal:"+pathGoal);
+//						p.display.message("Incremented pathLocationIdx:"+pathLocationIdx);
+//						p.display.message("New pathGoal:"+pathGoal);
 						
 						if(pathLocationIdx >= 1)
 						{
 							if(pathGoal != path.get(pathLocationIdx-1).getLocation())
 							{
 								setAttractorPoint(pathGoal);
-								p.display.message("Moving to next attraction point..."+attractorPoint.getLocation());
+//								p.display.message("Moving to next attraction point..."+attractorPoint.getLocation());
 							}
 							else
 							{
-								p.display.message("Same attraction point!");
+//								p.display.message("Same attraction point!");
 //								turnTowardsPoint(memory.get(revisitPoint).target);			// Turn towards memory target view
 							}
 						}
 					}
 					else
 					{
-						p.display.message("Reached end of path... ");
-						p.display.message(" ");
+//						p.display.message("Reached end of path... ");
+//						p.display.message(" ");
 						stopFollowing();
 					}
 				}
@@ -2224,20 +2206,42 @@ public class GMV_Viewer
 	 * followTimeline()
 	 * Revisit all places stored in memory
 	 */
-	public void followTimeline(boolean start)
+	public void followTimeline(boolean start, boolean fromBeginning)
 	{
 		if(start)		// Start following timeline
 		{
 			if(!following)
 			{
-				path = p.getCurrentField().getTimelineAsPath();								// Follow memory path 
+				path = p.getCurrentField().getTimelineAsPath();			// Get timeline as path of Waypoints matching cluster IDs
 
 				if(path.size() > 0)
 				{
 					following = true;
-					pathLocationIdx = 0;
+					pathLocationIdx = -1;								// Find path start
+					
+					if(fromBeginning)
+					{
+						pathLocationIdx = 0;
+					}
+					else
+					{
+						int count = 0;
+						for(GMV_Waypoint w : path)
+						{
+							if(w.getID() == p.getCurrentCluster().getID())
+							{
+								pathLocationIdx = count;
+								break;
+							}
+							count++;
+						}
+
+						if(pathLocationIdx == -1) pathLocationIdx = 0;
+					}
+					
 					if(p.debug.viewer)
 						p.display.message("followTimeline()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
+					
 					pathGoal = path.get(pathLocationIdx).getLocation();
 					setAttractorPoint(pathGoal);
 				}

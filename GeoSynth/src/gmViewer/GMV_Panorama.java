@@ -216,7 +216,6 @@ public class GMV_Panorama extends GMV_Viewable
 		p.p.textureMode(PApplet.IMAGE);
 		p.p.noStroke();
 		p.p.beginShape(PApplet.TRIANGLE_STRIP);
-
 		p.p.texture(texture);
 
 		/* Set the panorama brightness */		
@@ -351,7 +350,9 @@ public class GMV_Panorama extends GMV_Viewable
 		for (int i = 1; i < resolution; i++) {
 			float curRadius = sinLUT[(int) angle % sinCosLength];
 			float currY = -cosLUT[(int) angle % sinCosLength];
-			for (int j = 0; j < resolution; j++) {
+
+//			for (int j = 0; j < resolution; j++) {
+		    for (int j = resolution-1; j >= 0; j--) {
 				sphereX[currVert] = cx[j] * curRadius;
 				sphereY[currVert] = currY;
 				sphereZ[currVert++] = cz[j] * curRadius;

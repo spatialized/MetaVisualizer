@@ -285,11 +285,11 @@ public class GMV_Stitcher
 //				result.save(filePath);
 //			}
 
-//			float panoDirection = segment.getCenterDirection();
-//			float panoElevation = segment.getCenterElevation();
+			float panoDirection = segment.getCenterDirection() - 90.f;		// Why 90.f?
+			float panoElevation = segment.getCenterElevation();
 			
 			GMV_Panorama pano = new GMV_Panorama( p.getCurrentField(), segment.getID(), "_stitched_"+Integer.toString(segment.getID()), 
-					"", null, segment.getCenterDirection(), segment.getCenterElevation(), -1, result.width, result.height, 
+					"", null, panoDirection, panoElevation, -1, result.width, result.height, 
 					1.f, null, p.getCluster(clusterID).getLocation(), result );
 		
 			PApplet.println("Final Width:"+result.width+" Height:"+result.height);
@@ -368,20 +368,24 @@ public class GMV_Stitcher
 		
 		float aspect = (float)src.width() / (float)src.height();
 		
-		PApplet.println("--> addImageBorders()...");
-		PApplet.println(" width():"+src.width()+" height:"+src.height()+" aspect:"+aspect);
-		PApplet.println(" sLeft:"+sLeft+" sRight:"+sRight+" sBottom:"+sBottom+" sTop:"+sTop);
-
+		if(p.debug.stitching)
+		{
+			PApplet.println("--> addImageBorders()...");
+			PApplet.println(" width():"+src.width()+" height:"+src.height()+" aspect:"+aspect);
+			PApplet.println(" sLeft:"+sLeft+" sRight:"+sRight+" sBottom:"+sBottom+" sTop:"+sTop);
+		}
 		float top = sTop + imgVertCoverage * 0.5f;
 		float bottom = sBottom - imgVertCoverage * 0.5f;
 		float left = sLeft - imgHorizCoverage * 0.5f;
 		float right = sRight + imgHorizCoverage * 0.5f;
 		
-		PApplet.println(" top:"+top+" bottom:"+bottom+" left:"+left+" right:"+right);
+		if(p.debug.stitching)
+			PApplet.println(" top:"+top+" bottom:"+bottom+" left:"+left+" right:"+right);
 
 		float xCoverage = PApplet.constrain(right - left, 0.f, 360.f);			// -- Check if constrain works
 		float yCoverage = PApplet.constrain(top - bottom, 0.f, 180.f);
-		PApplet.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
+		if(p.debug.stitching)
+			PApplet.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
 
 		float fullWidth = 360.f * src.width() / xCoverage;
 		float fullHeight = 180.f * src.height() / yCoverage;
@@ -396,7 +400,8 @@ public class GMV_Stitcher
 		
 		boolean error = false;
 
-		PApplet.println(" topBorder:"+topBorder+" bottomBorder:"+bottomBorder+" leftBorder:"+leftBorder+" rightBorder:"+rightBorder);
+		if(p.debug.stitching)
+			PApplet.println(" topBorder:"+topBorder+" bottomBorder:"+bottomBorder+" leftBorder:"+leftBorder+" rightBorder:"+rightBorder);
 
 		Mat image = new Mat( src );
 		if (image.empty()) 
@@ -410,40 +415,10 @@ public class GMV_Stitcher
 		{
 			Mat resized = new Mat(image.rows() + top + bottom, image.cols() + right + left, image.depth());
 			
-//			
-//			String filePath = "";
-//			String fileName = "";
-//			
-//				fileName = p.getCurrentField().name+"_testResizedImage.jpg";
-//			
-//			filePath = p.stitchingPath+fileName;
-//	
-//			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, image);
-//			if(p.debug.stitching) p.display.message("Panorama stitching successful, output to file: " + fileName);
-	
-//			resized = new Mat(image);
-		
-			
-		
-
-			  //		  void copyMakeBorder(InputArray src, OutputArray dst, int top, int bottom, int left, int right, int borderType, const Scalar& value=Scalar() )¶
-			  //		  src – Source image.
-			  //		  dst – Destination image of the same type as src and the size Size(src.cols+left+right, src.rows+top+bottom) .
-			  //		  top –
-			  //		  bottom –
-			  //		  left –
-			  //		  right – Parameter specifying how many pixels in each direction from the source image rectangle to extrapolate. For example, top=1, bottom=1, left=1, right=1 mean that 1 pixel-wide border needs to be built.
-			  //		  borderType – Border type. See borderInterpolate() for details.
-			  //		  value – Border value if borderType==BORDER_CONSTANT .
-
-			
 			org.bytedeco.javacpp.opencv_core.copyMakeBorder(image, resized, topBorder, bottomBorder, leftBorder, rightBorder, 
 					org.bytedeco.javacpp.opencv_core.BORDER_CONSTANT, 
 					new org.bytedeco.javacpp.opencv_core.Scalar((double)0.f));
 
-			if(p.debug.stitching)
-				PApplet.println("--> Finished adding image border... ");
-			
 			PImage pImg = iplImageToPImage(new IplImage(resized));
 			image.close();
 			resized.close();
@@ -464,7 +439,7 @@ public class GMV_Stitcher
 	 */
 	IplImage pImageToIplImage( PImage img )
 	{
-	  BufferedImage bufferedImage = pImageToBufferedImage(img);    // WORKS
+	  BufferedImage bufferedImage = pImageToBufferedImage(img);   
 	  return bufferedImageToIplImage(bufferedImage);              
 	}
 
@@ -473,7 +448,7 @@ public class GMV_Stitcher
 	 * @param img Image source
 	 * @return The PImage
 	 */
-	PImage iplImageToPImage ( IplImage img )                       // ERROR
+	PImage iplImageToPImage ( IplImage img )                      
 	{
 	  java.awt.image.BufferedImage bImg = iplImageToBufferedImage(img);
 	  PImage pImg = bufferedImageToPImage(bImg);
@@ -486,21 +461,17 @@ public class GMV_Stitcher
 	 * @param img Image source
 	 * @return The BufferedImage
 	 */
-	public BufferedImage pImageToBufferedImage( PImage img )            // WORKS
+	public BufferedImage pImageToBufferedImage( PImage img )           
 	{
 	  PGraphics pg = p.createGraphics(img.width, img.height, PApplet.JAVA2D);
-
 	  pg.colorMode(PApplet.RGB);
+
 	  pg.beginDraw();
 	  pg.image(img, 0, 0);
-	  //pg.background(0, 0, 255);
-	  //pg.background(0, 255, 255);
 	  pg.endDraw();
 
 	  BufferedImageBuilder bufImgBuilder = new BufferedImageBuilder();
 	  int type = (img.format == PApplet.RGB) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
-	  //BufferedImage buf = bufImgBuilder.bufferImage((java.awt.Image)pg.image, 2);
-	  //type = BufferedImage.TYPE_INT_ARGB_PRE;   // Testing
 	  BufferedImage buf = bufImgBuilder.bufferImage((java.awt.Image)pg.image, type);
 
 	  return buf;
@@ -511,13 +482,14 @@ public class GMV_Stitcher
 	 * @param img Image source
 	 * @return The IplImage
 	 */
-	IplImage bufferedImageToIplImage(BufferedImage img) {      // WORKS
+	IplImage bufferedImageToIplImage(BufferedImage img) 
+	{     
 	  ToIplImage iplConverter = new OpenCVFrameConverter.ToIplImage();
 	  Java2DFrameConverter java2dConverter = new Java2DFrameConverter();
 	  Java2DFrameConverter.copy( java2dConverter.convert(img), img, (double)1, true, new Rectangle(img.getWidth(), img.getHeight()) );
 
 	  IplImage iplImage = iplConverter.convert(java2dConverter.convert(img));
-	  org.bytedeco.javacpp.opencv_core.cvMixChannels(iplImage, 1, iplImage, 1, new int[] {0,0, 1,1, 2,2, 3,3}, 4); // ARGB to BGRA 
+	  org.bytedeco.javacpp.opencv_core.cvMixChannels(iplImage, 1, iplImage, 1, new int[] {0,0, 1,1, 2,2, 3,3}, 4); 	// -- Needed?
 
 	  iplImage.clone();
 	  return iplImage;

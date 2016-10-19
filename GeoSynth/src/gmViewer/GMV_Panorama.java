@@ -355,21 +355,14 @@ public class GMV_Panorama extends GMV_Viewable
 		float angle = angle_step;
 
 		// Step along Y axis
-		for (int i = 1; i < resolution; i++) {
+		for (int i = 1; i < resolution; i++) 
+		{
 			float curRadius = sinLUT[(int) angle % sinCosLength];
 			float currY = -cosLUT[(int) angle % sinCosLength];
 
-			//			for (int j = 0; j < resolution; j++) {
 			for (int j = resolution-1; j >= 0; j--) 
-			{
-//				sphereX[currVert] = cx[j] * curRadius;
-//				sphereY[currVert] = currY;
-//				sphereZ[currVert] = cz[j] * curRadius;
-				
-				sphere[currVert] = new PVector(cx[j] * curRadius, currY, cz[j] * curRadius);
-				currVert++;
-//				PApplet.println("currVert:"+currVert+"+ sphere.length:"+sphere.length);
-			}
+				sphere[currVert++] = new PVector(cx[j] * curRadius, currY, cz[j] * curRadius);
+
 			angle += angle_step;
 		}
 

@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.awt.image.WritableRaster;
+import java.util.ArrayList;
 
 import javax.imageio.*;
 
@@ -70,7 +71,7 @@ public class GMV_Stitcher
 	 * Stitch spherical panorama from images
 	 * @param library
 	 */
-	public PImage stitch(String library, IntList imageList, int clusterID, int segmentID)
+	public PImage stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
 	{
 		Mat panorama = new Mat();				// Panoramic image result
 //		MatVector complete = new MatVector();		
@@ -164,11 +165,63 @@ public class GMV_Stitcher
 			if(img != null)
 				result = iplImageToPImage(img);
 		}
-		panorama.close();
 		
+		panorama.close();
+
+		if(success)
+		{
+//			GMV_MediaSegment( GMV_Cluster parent, int newID, IntList newImages, IntList newVideos, float newLower, float newUpper, 
+//				  float newCenter, float newLowerElevation, float newUpperElevation, float newCenterElevation)
+
+			GMV_MediaSegment segment;			// Segment of the panorama
+
+			PApplet.println("Calculating user selection borders...");
+
+			/* Calculate user selection borders */
+			if(segmentID == -1)
+			{
+				float left = 360.f;
+				float right = 0.f;
+				float lower = 90.f;
+				float upper = -90.f;
+
+				for(int index : selected)
+				{
+					GMV_Image i = p.getCurrentField().images.get(index);
+					if(i.getDirection() < left)
+						left = i.getDirection();
+					if(i.getDirection() > right)
+						right = i.getDirection();
+					if(i.getElevation() > upper)
+						upper = i.getElevation();
+					if(i.getElevation() < lower)
+						lower = i.getElevation();
+				}
+
+				float centerDirection = (right + left) / 2.f;
+				float centerElevation = (upper + lower) / 2.f;
+
+				PApplet.println(" left:"+left+" right:"+right+" lower:"+lower+" upper:"+upper+" centerDirection:"+centerDirection+" centerElevation:"+centerElevation);
+
+				segment = new GMV_MediaSegment( p.getCluster(clusterID), -1, selected, null, left, right, centerDirection,
+						lower, upper, centerElevation);
+			}
+			else
+			{
+				segment = p.getCluster(clusterID).getMediaSegment(segmentID);
+			}
+			result = addImageBorders(result, clusterID, segment);
+
+			PApplet.println("Final Aspect Ratio:"+(result.width/result.height));
+		}
 		return result;
 	}
 	
+	/**
+	 * Get array of images as MatVector 
+	 * @param images Image filepaths
+	 * @return MatVector of the images
+	 */
 	private MatVector getMatVectorImages(String[] images)
 	{
 		MatVector imgs = new MatVector();		
@@ -194,17 +247,13 @@ public class GMV_Stitcher
 	}
 
 	/**
-	 * Get image names from list of image IDs
+	 * Get image names from image IDs
 	 * @param imageList List of image IDs
 	 * @return Array of image names
 	 */
 	private String[] getImageNames(IntList imageList)
 	{
 		String[] images = new String[imageList.size()];
-		
-//		PApplet.println("names.length:"+images.length);
-//		PApplet.println("images.size():"+imageList.size());
-//		PApplet.println("p.images.size():"+p.getCurrentField().images.size());
 		
 		int count = 0;
 		for(int i:imageList)
@@ -217,29 +266,65 @@ public class GMV_Stitcher
 	}
 	
 	/**
-	 * Add border to image			-- Need to finish!
-	 * @param source
-	 * @param topBorder
-	 * @param bottomBorder
-	 * @param leftBorder
-	 * @param rightBorder
-	 * @return
+	 * Add black border to images			
+	 * @param source Image source
+	 * @param clusterID Source image cluster
+	 * @param segmentID Source image media segment in cluster
+	 * @return Image with specified borders 
 	 */
-	public PImage addImageBorders(PImage source, int topBorder, int bottomBorder, int leftBorder, int rightBorder)
+	public PImage addImageBorders(PImage src, int clusterID, GMV_MediaSegment s)
 	{
+		float imgVertCoverage = 45.f;		// 60 is default (vert) field of view
+		float imgHorizCoverage = 60.f;		// 80 is default (horiz) field of view
+		
+//		GMV_MediaSegment s = p.getCluster(clusterID).getMediaSegment(segmentID);
+		float sLeft = s.getLeft();
+		float sRight = s.getRight();
+		float sBottom = s.getBottom();
+		float sTop = s.getTop();
+		
+		float aspect = src.width / src.height;
+		
+		PApplet.println("--> addImageBorders()... width:"+src.width+" height:"+src.height+" aspect:"+aspect);
+		PApplet.println(" sLeft:"+sLeft+" sRight:"+sRight+" sBottom:"+sBottom+" sTop:"+sTop);
+
+		float top = sTop + imgVertCoverage * 0.5f;
+		float bottom = sBottom - imgVertCoverage * 0.5f;
+		float left = sLeft - imgHorizCoverage * 0.5f;
+		float right = sRight + imgHorizCoverage * 0.5f;
+		
+		PApplet.println(" top:"+top+" bottom:"+bottom+" left:"+left+" right:"+right);
+
+		float xCoverage = PApplet.constrain(right - left, 0.f, 360.f);			// -- Check if constrain works
+		float yCoverage = PApplet.constrain(top - bottom, 0.f, 180.f);
+		PApplet.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
+
+		float fullHeight = src.height * yCoverage / 180.f;
+		float fullWidth = src.width * xCoverage / 360.f;		
+		
+		float xDiff = fullWidth - src.width;
+		float yDiff = fullHeight - src.height;
+		
+		int topBorder = PApplet.abs(PApplet.round(yDiff / 2.f));
+		int bottomBorder = PApplet.abs(PApplet.round(yDiff / 2.f));
+		int leftBorder = PApplet.abs(PApplet.round(xDiff / 2.f));
+		int rightBorder = PApplet.abs(PApplet.round(xDiff / 2.f));
+		
 		boolean error = false;
-//		 Mat image = org.bytedeco.javacpp.opencv_imgcodecs.imread(sketchPath("")+"/img.jpg");
-		Mat image = new Mat( pImageToIplImage(source) );
+
+		PApplet.println(" topBorder:"+topBorder+" bottomBorder:"+bottomBorder+" leftBorder:"+leftBorder+" rightBorder:"+rightBorder);
+
+		Mat image = new Mat( pImageToIplImage(src) );
 		if (image.empty()) 
 		{
 			if(p.debug.stitching)
-				PApplet.println("addImageBorders(): Error reading image...");
+				PApplet.println(" Error reading image...");
 			error = true;
 		}
 
 		if(!error)
 		{
-			Mat resized = new Mat(image.rows() + topBorder + bottomBorder, image.cols() + rightBorder + leftBorder, image.depth());
+			Mat resized = new Mat(image.rows() + top + bottom, image.cols() + right + left, image.depth());
 
 
 			  //		  void copyMakeBorder(InputArray src, OutputArray dst, int top, int bottom, int left, int right, int borderType, const Scalar& value=Scalar() )¶
@@ -256,9 +341,9 @@ public class GMV_Stitcher
 					org.bytedeco.javacpp.opencv_core.BORDER_CONSTANT, 
 					new org.bytedeco.javacpp.opencv_core.Scalar((double)0.f));
 
-			//		  org.bytedeco.javacpp.opencv_imgcodecs.imwrite(sketchPath("")+"/output.jpg", resized);
 			if(p.debug.stitching)
-				PApplet.println("Finished adding image border... ");
+				PApplet.println("--> Finished adding image border... ");
+			
 			image.close();
 			return iplImageToPImage(new IplImage(resized));
 		}
@@ -269,21 +354,36 @@ public class GMV_Stitcher
 		}
 	}
 	
+	/**
+	 * Convert PImage to IplImage
+	 * @param img Image source
+	 * @return The IplImage
+	 */
 	IplImage pImageToIplImage( PImage img )
 	{
 		BufferedImage bufferedImage = pImageToBufferedImage(img);
 		return bufferedImageToIplImage(bufferedImage);
 	}
 	
-	PImage iplImageToPImage ( IplImage iplImg ) 
+	/**
+	 * Convert IplImage to PImage 
+	 * @param img Image source
+	 * @return The PImage
+	 */
+	PImage iplImageToPImage ( IplImage img ) 
 	{
-	  java.awt.image.BufferedImage bImg = IplImageToBufferedImage(iplImg);
-	  PImage img = new PImage( bImg.getWidth(), bImg.getHeight(), PApplet.ARGB );
-	  bImg.getRGB( 0, 0, img.width, img.height, img.pixels, 0, img.width );
-	  img.updatePixels();
-	  return img;
+	  java.awt.image.BufferedImage bImg = iplImageToBufferedImage(img);
+	  PImage pImg = new PImage( bImg.getWidth(), bImg.getHeight(), PApplet.ARGB );
+	  bImg.getRGB( 0, 0, pImg.width, pImg.height, pImg.pixels, 0, pImg.width );
+	  pImg.updatePixels();
+	  return pImg;
 	}
 
+	/**
+	 * Convert PImage to BufferedImage
+	 * @param img Image source
+	 * @return The BufferedImage
+	 */
 	public BufferedImage pImageToBufferedImage( PImage img )
 	{
 		img.loadPixels();
@@ -294,19 +394,29 @@ public class GMV_Stitcher
 		return image;
 	}
 
-	IplImage bufferedImageToIplImage(BufferedImage bufImage) {
+	/**
+	 * Convert BufferedImage to IplImage
+	 * @param img Image source
+	 * @return The IplImage
+	 */
+	IplImage bufferedImageToIplImage(BufferedImage img) {
 
 	  ToIplImage iplConverter = new OpenCVFrameConverter.ToIplImage();
 	  Java2DFrameConverter java2dConverter = new Java2DFrameConverter();
-	  IplImage iplImage = iplConverter.convert(java2dConverter.convert(bufImage));
+	  IplImage iplImage = iplConverter.convert(java2dConverter.convert(img));
 	  return iplImage;
 	}
 
-	public static BufferedImage IplImageToBufferedImage(IplImage src) {
-	  OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
-	  Java2DFrameConverter paintConverter = new Java2DFrameConverter();
-	  Frame frame = grabberConverter.convert(src);
-	  return paintConverter.getBufferedImage(frame, 1);
+	/**
+	 * Convert IplImage to BufferedImage
+	 * @param img Image source
+	 * @return The IplImage
+	 */
+	public static BufferedImage iplImageToBufferedImage(IplImage img) {
+	  OpenCVFrameConverter.ToIplImage converter1 = new OpenCVFrameConverter.ToIplImage();
+	  Java2DFrameConverter converter2 = new Java2DFrameConverter();
+	  Frame frame = converter1.convert(img);
+	  return converter2.getBufferedImage(frame, 1);
 	}
 }
 

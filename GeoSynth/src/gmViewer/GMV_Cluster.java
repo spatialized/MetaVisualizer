@@ -140,16 +140,16 @@ public class GMV_Cluster
 			IntList curImages = new IntList();
 			curImages.append(allImages.get(0));
 			
-			float lower = p.images.get(allImages.get(0)).getDirection();
-			float upper = p.images.get(allImages.get(0)).getDirection();
-			float center = p.images.get(allImages.get(0)).getDirection();
+			float left = p.images.get(allImages.get(0)).getDirection();
+			float right = p.images.get(allImages.get(0)).getDirection();
+			float centerDirection = p.images.get(allImages.get(0)).getDirection();
 
-			float lowerElevation = p.images.get(allImages.get(0)).getElevation();
-			float upperElevation = p.images.get(allImages.get(0)).getElevation();
+			float bottom = p.images.get(allImages.get(0)).getElevation();
+			float top = p.images.get(allImages.get(0)).getElevation();
 			float centerElevation = p.images.get(allImages.get(0)).getElevation();
 
-			segments.add( new GMV_MediaSegment( this, 0, curImages, null, upper, lower, center, 
-												upperElevation, lowerElevation, centerElevation) );
+			segments.add( new GMV_MediaSegment( this, 0, curImages, null, right, left, centerDirection, 
+												top, bottom, centerElevation) );
 
 			if(p.p.debug.cluster || p.p.debug.model)
 				PApplet.println("Added media segment in cluster: "+getID()+" with single image...");
@@ -160,8 +160,8 @@ public class GMV_Cluster
 		while(!done)
 		{
 			IntList curImages = new IntList();
-			float lower = 360.f, upper = 0.f, center;	// Upper and lower bounds (in degrees) of segment
-			float lowerElevation = 100.f, upperElevation = -100.f, centerElevation;	// Upper and lower bounds (in degrees)
+			float left = 360.f, right = 0.f, centerDirection;		// Left and right bounds (in degrees) of segment 
+			float bottom = 100.f, top = -100.f, centerElevation;	// Top and bottom bounds (in degrees) of segment 
 
 			IntList added = new IntList();			// Images added to current segment 
 
@@ -198,10 +198,10 @@ public class GMV_Cluster
 									float direction = img.getDirection();
 									float elevation = img.getElevation();
 
-									if(direction < lower) lower = direction;
-									if(direction > upper) upper = direction;
-									if(elevation < lowerElevation) lowerElevation = elevation;
-									if(elevation > upperElevation) upper = elevation;
+									if(direction < left) left = direction;
+									if(direction > right) right = direction;
+									if(elevation < bottom) bottom = elevation;
+									if(elevation > top) right = elevation;
 
 									if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
 										PApplet.println("Added image:"+img.getID()+" to segment...");
@@ -237,33 +237,33 @@ public class GMV_Cluster
 				allImages.remove(added.get(i));		// Remove images added to curSegment
 			}
 
-			if(lower < 0.f)
-				lower += 360.f;
+			if(left < 0.f)
+				left += 360.f;
 			
-			if(upper > 360.f)
-				upper -= 360.f;
+			if(right > 360.f)
+				right -= 360.f;
 						
 			if(curImages.size() == 1)			// Only one image
 			{
-				lower = p.images.get(curImages.get(0)).getDirection();
-				upper = p.images.get(curImages.get(0)).getDirection();
-				center = p.images.get(curImages.get(0)).getDirection();
+				left = p.images.get(curImages.get(0)).getDirection();
+				right = p.images.get(curImages.get(0)).getDirection();
+				centerDirection = p.images.get(curImages.get(0)).getDirection();
 
-				lowerElevation = p.images.get(allImages.get(0)).getElevation();
-				upperElevation = p.images.get(allImages.get(0)).getElevation();
+				bottom = p.images.get(allImages.get(0)).getElevation();
+				top = p.images.get(allImages.get(0)).getElevation();
 				centerElevation = p.images.get(allImages.get(0)).getElevation();
 			}
 			else
 			{
-				center = upper + lower / 2.f;
-				centerElevation = upperElevation + lowerElevation / 2.f;
+				centerDirection = (right + left) / 2.f;
+				centerElevation = (top + bottom) / 2.f;
 			}
 
-			segments.add( new GMV_MediaSegment( this, segments.size(), curImages, null, lower, upper, center, lowerElevation, 
-					      upperElevation, centerElevation) );
+			segments.add( new GMV_MediaSegment( this, segments.size(), curImages, null, left, right, centerDirection, bottom, 
+					      top, centerElevation) );
 
 			if((p.p.debug.cluster || p.p.debug.model))
-				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Lower:"+lower+" Center:"+center+" Upper:"+upper);
+				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Lower:"+left+" Center:"+centerDirection+" Upper:"+right);
 			
 			done = (allImages.size() == 1 || allImages.size() == 0);
 		}
@@ -499,15 +499,18 @@ public class GMV_Cluster
 			if(p.p.debug.stitching)
 				p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-			PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1);
+			PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1, p.getSelectedImages());
 			
-			PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
-			GMV_Panorama pano = new GMV_Panorama( p, userPanoramas.size(), "_user_"+Integer.toString(userPanoramas.size()), 
-					"", null, -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
-					1.f, null, getLocation(), stitchedPanorama );
+			if(stitchedPanorama.width > 0 && stitchedPanorama.height > 0)
+			{
+				PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
+				GMV_Panorama pano = new GMV_Panorama( p, userPanoramas.size(), "_user_"+Integer.toString(userPanoramas.size()), 
+						"", null, -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
+						1.f, null, getLocation(), stitchedPanorama );
 
-			pano.initializePanorama(pano.panoramaDetail);
-			userPanoramas.add(pano);
+				pano.initializePanorama(pano.panoramaDetail);
+				userPanoramas.add(pano);
+			}
 		}
 		else
 		{
@@ -547,7 +550,7 @@ public class GMV_Cluster
 					
 					if(valid.size() > 1)
 					{
-						PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID());
+						PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID(), null);
 
 						GMV_Panorama pano = new GMV_Panorama( p, m.getID(), "_stitched_"+Integer.toString(m.getID()), 
 											"", null, -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
@@ -652,6 +655,23 @@ public class GMV_Cluster
 				}
 			}
 		}
+	}
+	
+	/**
+	 * @param id Media segment ID
+	 * @return Cluster media segment with given ID
+	 */
+	public GMV_MediaSegment getMediaSegment(int id)
+	{
+		return segments.get(id);
+	}
+	
+	/**
+	 * @return Cluster media segments
+	 */
+	public ArrayList<GMV_MediaSegment> getMediaSegments()
+	{
+		return segments;
 	}
 	
 	/**

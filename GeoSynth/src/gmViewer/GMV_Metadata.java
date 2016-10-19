@@ -513,7 +513,7 @@ class GMV_Metadata
 					try {
 						iCameraModel = parseCameraModel(camera_model);
 						fFocalLength = parseFocalLength(focalLength);
-						fSensorSize = parseSensorSize(focalLength35);
+						fSensorSize = parseSensorSize(focalLength35);		// 29 mm for iPhone 6S+
 					} 
 					catch (Throwable t) // If not, must be only one keyword
 					{

@@ -913,7 +913,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * getAverageColor()
 	 * @return Average color across all pixels  
 	 */	
 	PVector getAverageColor() 
@@ -934,7 +933,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * getAverageBrightness()
 	 * @return Average brightness across all pixels
 	 */		
 	private float getAverageBrightness() 
@@ -950,7 +948,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * associateVideo()
 	 * Associate this image with given video ID  
 	 * @param videoID 
 	 */	
@@ -964,7 +961,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * getAspectRatio()
 	 * @return Aspect ratio of the image
 	 */
 	public float getAspectRatio()
@@ -1015,18 +1011,14 @@ class GMV_Image extends GMV_Viewable
 	}
 	
 	/**	
-	 * initializeVertices()
 	 * Setup image rectangle geometry 
 	 */
 	private void initializeVertices()
 	{
-//		float width = p.p.defaultImageSize;								// CHECK THIS			
-//		float height = p.p.defaultImageSize * aspectRatio;		
-
-		float width = calculateImageWidth();								// CHECK THIS			
+		float width = calculateImageWidth();										
 		float height = width * aspectRatio;		
 
-		float left = -width * 0.5f;
+		float left = -width * 0.5f;						
 		float right = width * 0.5f;
 		float top = -height * 0.5f;
 		float bottom = height * 0.5f;
@@ -1103,13 +1095,15 @@ class GMV_Image extends GMV_Viewable
 	private float calculateImageWidth()
 	{
 //		float subjectSizeRatio = subjectPixelWidth / originalImageWidth;		// --More accurate
-		float objectWidthOnSensor = sensorSize * p.p.subjectSizeRatio;
-		return objectWidthOnSensor * focusDistance / focalLength;
+
+		float objectWidthOnSensor = sensorSize * p.p.subjectSizeRatio;			// 29 * 0.18 == 5.22
+		float imgWidth = objectWidthOnSensor * focusDistance / focalLength;		// 5.22 * 9 / 4.2 == 11.19	Actual: 11.320482
+
+		return imgWidth;
 	}
 
 
 	/**
-	 * rotateVerts()
 	 * Rotate list of vertices using matrices
 	 * @param verts Vertices list
 	 * @param angle Angle to rotate by
@@ -1152,7 +1146,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	 /** 
-	  * translateVerts()
 	  * Translate list of vertices using matrices
 	  * @param verts Vertices list
 	  * @param dest Destination vector
@@ -1180,7 +1173,6 @@ class GMV_Image extends GMV_Viewable
 	 }
 
 	 /**
-	  * lineToCaptureLocation()
 	  * Draw image capture location for debugging or map display
 	  */
 	 public void lineToCaptureLocation()
@@ -1193,7 +1185,6 @@ class GMV_Image extends GMV_Viewable
 
 
 	 /**
-	  * verticesAreNull()
 	  * @return Whether the vertices are null
 	  */
 	 public boolean verticesAreNull()

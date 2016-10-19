@@ -13,8 +13,8 @@ public class GMV_MediaSegment
 	private int id;
 	IntList images;					// Images in segment
 //	IntList videos;					// Videos in segment
-	float lower, upper, center;		// Upper and lower bounds (in degrees)
-	float lowerElevation, upperElevation, centerElevation;	// Upper and lower bounds (in degrees)
+	private float left, right, centerDirection;		// Upper and lower bounds for direction (in degrees)
+	private float bottom, top, centerElevation;	// Upper and lower bounds (in degrees)
 
 	GMV_Cluster p;
 	
@@ -27,12 +27,12 @@ public class GMV_MediaSegment
 		images = newImages;
 //		videos = newVideos;
 		
-		lower = newLower;
-		upper = newUpper;
-		center = newCenter;
+		left = newLower;
+		right = newUpper;
+		centerDirection = newCenter;
 		
-		lowerElevation = newLowerElevation;
-		upperElevation = newUpperElevation;
+		bottom = newLowerElevation;
+		top = newUpperElevation;
 		centerElevation = newCenterElevation;
 
 //		calculateDimensions();
@@ -85,10 +85,30 @@ public class GMV_MediaSegment
 	{
 		return id;
 	}
-	
+
 	public IntList getImages()
 	{
 		return images;
+	}
+
+	public float getRight()
+	{
+		return right;
+	}
+
+	public float getLeft()
+	{
+		return left;
+	}
+
+	public float getBottom()
+	{
+		return bottom;
+	}
+
+	public float getTop()
+	{
+		return top;
 	}
 
 //	public IntList getVideos()

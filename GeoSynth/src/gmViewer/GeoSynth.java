@@ -58,7 +58,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	
 	/* Model */
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
-//	public boolean angleHidingMode = true;				// Do photos disappear when fading out as the camera turns away from them?
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
 
@@ -89,8 +88,8 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	float stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
 	public boolean persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
 
-	public boolean showUserPanoramas = false;			// Show panoramas stitched from user selected media
-	public boolean showStitchedPanoramas = false;		// Show panoramas stitched from media segments
+	public boolean showUserPanoramas = true;			// Show panoramas stitched from user selected media
+	public boolean showStitchedPanoramas = true;		// Show panoramas stitched from media segments
 
 	
 	/* Clustering Modes */
@@ -292,15 +291,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		getCurrentField().update();					// Update clusters in current field
 		getCurrentField().draw();					// Display media in current field
 
-		if(debug.model || viewer.map3DMode)	
-			getCurrentField().showClusters();		// Display field cluster centers (media capture locations) 	
-		
-		if(showUserPanoramas)
-			getCurrentField().showUserPanoramas();
-		
-		if(showStitchedPanoramas)
-			getCurrentField().showStitchedPanoramas();
-		
 		viewer.update();							// Update navigation
 		viewer.camera.feed();						// Send the 3D camera view to the screen
 		

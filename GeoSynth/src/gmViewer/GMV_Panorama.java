@@ -16,6 +16,7 @@ public class GMV_Panorama extends GMV_Viewable
 {
 	/* Graphics */
 	PImage texture;								// Texture image pixels
+	boolean initialized;
 	
 	/* EXIF Metadata */
 	private float imageWidth, imageHeight;		// Width and height
@@ -77,29 +78,34 @@ public class GMV_Panorama extends GMV_Viewable
 			p.p.requestedPanoramas--;
 		}
 
+		if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
+			if(!initialized)
+				loadMedia(); 
+
+//		if(p.p.frameCount % 10 == 0)
+//			PApplet.println("Update panorama..."+getID()+" visible:"+visible+" fading:"+fading);
+
 		if(texture.width > 0 && !disabled)			
 		{
 			visible = (getDistanceBrightness() > 0.f);
 
-			if(p.p.debug.hidePanoramas)
+			if(!fading && p.hidePanoramas)
 				visible = false;
+//				fadeOut();
 
-			if(visible && !fading && !fadedOut)					// Fade in
+			if(visible && !fading && !fadedOut && !p.hidePanoramas)					// Fade in
 				fadeIn();
 
 			if(fadedOut) fadedOut = false;
 
-			//			if(p.p.frameCount % 10 == 0)
-			//				PApplet.println("Update panorama..."+getID()+" visible:"+visible+" fading:"+fading);
+//			if(p.p.frameCount % 10 == 0)
+//				PApplet.println("---Update panorama..."+getID()+" visible:"+visible+" fading:"+fading);
 		}
-		else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
-		{
-			loadMedia(); 
-		}
-
+		
 		if(isFading())                       // Fade in and out with time
 		{
-			//			p.p.display.message("Panorama fading... id: "+getID());
+			if(p.p.debug.panorama && p.p.debug.detailed)
+				p.p.display.message("Panorama fading... id: "+getID());
 			updateFadingBrightness();
 
 			if(fadingBrightness == 0.f)
@@ -118,16 +124,16 @@ public class GMV_Panorama extends GMV_Viewable
 	 */
 	public void draw()
 	{
-		float curBrightness = fadingBrightness;					
+		float brightness = fadingBrightness;					
 		float timeBrightnessFactor;                          // Fade with time 
 
 		if(p.p.timeFading && time != null)
 		{
 			timeBrightnessFactor = getTimeBrightness();        
-			curBrightness *= timeBrightnessFactor; 																			// Fade alpha based on time or date
+			brightness *= timeBrightnessFactor; 																			// Fade alpha based on time or date
 		}
 
-		viewingBrightness = getViewingBrightness(curBrightness);               		  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
+		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);	  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
 
 		if (visible && !hidden && !disabled) 
 		{
@@ -135,7 +141,6 @@ public class GMV_Panorama extends GMV_Viewable
 			{
 				if(texture.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
 				{
-					//					PApplet.println("Drawing panorama..."+getID());
 					drawPanorama();
 				}
 			}
@@ -152,7 +157,6 @@ public class GMV_Panorama extends GMV_Viewable
 	}
 
 	/**
-	 * fadeIn()
 	 * Fade in panorama
 	 */
 	public void fadeIn()
@@ -165,7 +169,6 @@ public class GMV_Panorama extends GMV_Viewable
 	}
 
 	/**
-	 * fadeOut()
 	 * Fade out panorama
 	 */
 	public void fadeOut()
@@ -178,19 +181,17 @@ public class GMV_Panorama extends GMV_Viewable
 	}
 
 	/**
-	 * getViewingBrightness()
 	 * Calculate and return viewing brightness given viewer distance 
-	 * @param viewingBrightness 
+	 * @param brightness 
 	 * @return Viewing brightness of the panorama
 	 */
-	public float getViewingBrightness(float viewingBrightness)
-	{
-		viewingBrightness = PApplet.map(viewingBrightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
-		return viewingBrightness;
-	}
+//	public float getViewingBrightness(float brightness)
+//	{
+//		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
+//		return brightness;
+//	}
 
 	/**
-	 * setSelected()
 	 * Select or unselect this panorama
 	 * @param selection New selection
 	 */
@@ -376,6 +377,7 @@ public class GMV_Panorama extends GMV_Viewable
 			sphere = rotateVertices(sphere, 360-theta, azimuthAxis);          // Rotate around Z axis
 
 		panoramaDetail = resolution;
+		initialized = true;
 	}
 
 	/**

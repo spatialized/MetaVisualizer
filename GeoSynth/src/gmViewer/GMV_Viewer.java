@@ -32,7 +32,7 @@ public class GMV_Viewer
 	private boolean firstCamInitialization = true;					// Whether the camera has been initialized	
 	
 	private float fieldOfView = PApplet.PI * 0.375f;				// Field of view
-	private final float defaultFieldOfView = PApplet.PI / 3.0f;		// Default FOV
+//	private final float defaultFieldOfView = PApplet.PI / 3.0f;		// Default FOV
 	private final float initFieldOfView = fieldOfView; 				// Initial field of view
 	private float rotateIncrement = 3.1415f / 256.f;				// Rotation amount each frame when turning
 	private float zoomIncrement = 3.1415f / 32.f;					// Zoom amount each frame when zooming

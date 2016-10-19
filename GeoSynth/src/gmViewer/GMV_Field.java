@@ -33,6 +33,9 @@ public class GMV_Field
 	/* Visibility */
 	float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
 	int alphaTransitionLength = 15, teleportLength = 60;
+	public boolean hideImages = false;						// Hide images
+	public boolean hidePanoramas = false;					// Hide panoramas
+	public boolean hideVideos = false;						// Hide videos
 
 	/* Data */
 	GMV_Metadata metadata;									// Image and video metadata reader for this field
@@ -132,7 +135,9 @@ public class GMV_Field
 					panoramasVisible++;
 				}
 				else if(n.isFading())
+				{
 					n.update();  	// Update geometry + visibility
+				}
 			}
 		}
 
@@ -158,6 +163,12 @@ public class GMV_Field
 		// filter(THRESHOLD, 0.4);
 		// filter(INVERT);
 		// filter(DILATE);
+		
+		if(p.debug.model || p.viewer.map3DMode)	
+			showClusterCenters();									// Display field cluster centers (media capture locations) 	
+		
+		if(p.showUserPanoramas || p.showStitchedPanoramas)
+			clusters.get(p.viewer.getCurrentCluster()).draw();		// Draw current cluster
 	}
 	
 	/**
@@ -166,15 +177,14 @@ public class GMV_Field
 	 */
 	public void initialize(String library)
 	{
-//		GMV_Field f = fields.get(field);
 		String fieldPath = name;
-		metadata.load(library, fieldPath);					// Import metadata for all media in field
+		metadata.load(library, fieldPath);			// Import metadata for all media in field
 		
 		model.calculateFieldSize(); 		// Calculate bounds of photo GPS locations
 		model.analyzeMedia();				// Analyze media locations and times 
-		model.setup(); 					// Initialize field for first time 
+		model.setup(); 						// Initialize field for first time 
 
-		calculateMediaLocations(); 		// Set location of each photo in simulation
+		calculateMediaLocations(); 			// Set location of each photo in simulation
 		findImagePlaceHolders();			// Find image place holders for videos
 		calculateMediaVertices();			// Calculate all image vertices
 
@@ -188,20 +198,14 @@ public class GMV_Field
 	}
 	
 	/**
-	 * update()
 	 * Update field variables each frame
 	 */
 	public void update()
 	{
 		attractViewer();					// Attract the viewer
-
-//		for(GMV_Cluster c : clusters)		// Update all clusters
-//			if(c.isActive())
-//				c.update();
 	}
 	
 	/**
-	 * createTimeline()
 	 * Create timeline for this field from cluster timelines
 	 */
 	public void createTimeline()
@@ -216,15 +220,7 @@ public class GMV_Field
 				GMV_TimeSegment time = new GMV_TimeSegment(	c.getID(), f, c.getClusterTimesLowerBounds().get(count), 
 														    c.getClusterTimesUpperBounds().get(count));
 				times.add( time );							// Add segment to timeline
-				
-//				PApplet.println("-->time.getID():"+time.getID());
-//				PApplet.println("time.getUpper():"+time.getUpper());
-//				PApplet.println("time.getCenter():"+time.getCenter());
-//				PApplet.println("time.getLower():"+time.getLower());
-//				times.get(count).setID(c.getID());
-//				times.get(count).setLower(c.getClusterTimesLowerBounds().get(count));
-//				times.get(count).setUpper(c.getClusterTimesUpperBounds().get(count));
-
+			
 				count++;
 			}
 
@@ -246,7 +242,6 @@ public class GMV_Field
 	}
 	
 	/**
-	 * getTimelineAsPath()
 	 * @return List of waypoints based on field timeline
 	 */
 	public ArrayList<GMV_Waypoint> getTimelineAsPath()
@@ -264,7 +259,6 @@ public class GMV_Field
 	}
 
 	/**
-	 * findImagePlaceHolders()
 	 * Find image place holders for each video in field
 	 */
 	void findImagePlaceHolders()
@@ -619,30 +613,28 @@ public class GMV_Field
 			c.stitchImages();
 	}
 	
-	public void showClusters()
+	public void showClusterCenters()
 	{
-		if(p.viewer.getCurrentCluster() != -1)
+		if(p.getCurrentCluster().getID() != -1)
 			clusters.get(p.viewer.getCurrentCluster()).drawCenter(255);		// Draw current cluster
-		else if(p.debug.cluster || p.debug.field)
-			PApplet.println("currentCluster == -1!!!");
 		
 		if(p.viewer.getAttractorCluster() != -1)
 			clusters.get(p.viewer.getAttractorCluster()).drawCenter(50);	// Draw attractor cluster
 	}
 	
-	public void showUserPanoramas()
-	{
-		if(p.viewer.getCurrentCluster() != -1)
-			clusters.get(p.viewer.getCurrentCluster()).drawUserPanoramas();		// Draw current cluster
+//	public void showUserPanoramas()
+//	{
+//		if(p.viewer.getCurrentCluster() != -1)
+//			clusters.get(p.viewer.getCurrentCluster()).drawUserPanoramas();		// Draw current cluster
 //		else if(p.debug.cluster || p.debug.field)
 //			PApplet.println("currentCluster == -1!!!");
-	}
+//	}
 
-	public void showStitchedPanoramas()
-	{
-		if(p.viewer.getCurrentCluster() != -1)
-			clusters.get(p.viewer.getCurrentCluster()).drawStitchedPanoramas();		// Draw current cluster
-	}
+//	public void showStitchedPanoramasX()
+//	{
+//		if(p.viewer.getCurrentCluster() != -1)
+//			clusters.get(p.viewer.getCurrentCluster()).drawStitchedPanoramas();		// Draw current cluster
+//	}
 
 	/**
 	 * Change all clusters to non-attractors
@@ -744,6 +736,62 @@ public class GMV_Field
 		return selected;
 	}
 	
+	public void showImages()
+	{
+		hideImages = false;
+	}
+	
+	public void hideImages()
+	{
+		hideImages = true;
+		for(GMV_Image i : images)
+		{
+			if(i.visible)
+			{
+				if(i.isFading()) i.stopFading();
+				i.fadeOut();
+			}
+		}
+	}
+	
+	public void showPanoramas()
+	{
+		for(GMV_Panorama n : panoramas)
+			if(n.isFading()) n.stopFading();
+		hidePanoramas = false;
+	}
+	
+	public void hidePanoramas()
+	{
+		hidePanoramas = true;
+		for(GMV_Panorama n : panoramas)
+		{
+			if(n.visible)
+			{
+				if(n.isFading()) n.stopFading();
+				n.fadeOut();
+			}
+		}
+	}
+	
+	public void showVideos()
+	{
+		hideVideos = false;
+	}
+	
+	public void hideVideos()
+	{
+		hideVideos = true;
+		for(GMV_Video v : videos)
+		{
+			if(v.visible)
+			{
+				if(v.isFading()) v.stopFading();
+				v.fadeOut();
+			}
+		}
+	}
+	
 	public void addImageError()
 	{
 		imageErrors++;
@@ -789,13 +837,12 @@ public class GMV_Field
 		return videos.size() - videoErrors;
 	}
 
-//	/**
-//	 * removeCluster()
-//	 * @param r Cluster to remove
-//	 * Remove a cluster
-//	 */
-//	public void removeCluster(GMV_Cluster r)
-//	{
-//		clusters.remove(r);
-//	}
+	/**
+	 * @param r Cluster to remove
+	 * Remove a cluster
+	 */
+	public void removeCluster(GMV_Cluster r)
+	{
+		clusters.remove(r);
+	}
 }

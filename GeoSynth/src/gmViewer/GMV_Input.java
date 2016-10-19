@@ -390,23 +390,35 @@ public class GMV_Input
 			if (key == 'z') 
 				p.viewer.startZoomTransition(1);
 
-			/* 3D Controls disabled in HUD view */
+			/* 3D Controls Disabled in HUD View */
 			if(!p.display.inDisplayView())							
 			{
 				if (key == 'D')
-				{
 					p.blurEdges = !p.blurEdges;
-					PApplet.println("p.blurEdges:"+p.blurEdges);
-				}
 
 				if (key == 'h')	
-					p.debug.hideImages = !p.debug.hideImages;
+				{
+					if(p.getCurrentField().hideImages)
+						p.getCurrentField().showImages();
+					else
+						p.getCurrentField().hideImages();
+				}
 
 				if (key == 'H')	
-					p.debug.hidePanoramas = !p.debug.hidePanoramas;
+				{
+					if(p.getCurrentField().hidePanoramas)
+						p.getCurrentField().showPanoramas();
+					else
+						p.getCurrentField().hidePanoramas();
+				}
 
 				if (key == 'v')	
-					p.debug.hideVideos = !p.debug.hideVideos;
+				{
+					if(p.getCurrentField().hideVideos)
+						p.getCurrentField().showVideos();
+					else
+						p.getCurrentField().hideVideos();
+				}
 
 				if (key == 'P')
 					p.alphaMode = !p.alphaMode;

@@ -452,7 +452,7 @@ public class GMV_Cluster
 	 */
 	void drawCenter(int hue)
 	{
-		//		if(!empty)
+		if(!empty)
 		{
 			p.p.pushMatrix();
 			p.p.fill(hue,255,255);
@@ -463,30 +463,32 @@ public class GMV_Cluster
 		}
 	}
 
-	void drawStitchedPanoramas()
+	void draw()
 	{
-		PApplet.println("drawStitchedPanoramas()..."+stitchedPanoramas.size());
-		for(GMV_Panorama p : stitchedPanoramas)
+		if(p.p.showUserPanoramas)
 		{
-			p.update();
-			p.draw();
+			for(GMV_Panorama p : userPanoramas)
+			{
+				p.update();
+				p.draw();
+			}
+		}
+
+		if(p.p.showStitchedPanoramas)
+		{
+			for(GMV_Panorama p : stitchedPanoramas)
+			{
+				p.update();
+				p.draw();
+			}
 		}
 	}
 
-	void drawUserPanoramas()
-	{
-//		PApplet.println("drawUserPanoramas()...");
-		for(GMV_Panorama p : userPanoramas)
-		{
-			p.update();
-			p.draw();
-		}
-	}
-
+	/**
+	 * Stitch images based on current selection: if nothing selected, attempt to stitch all media segments in cluster
+	 */
 	public void stitchImages()
 	{
-//		PImage stitchedPanorama;
-		
 		if(p.p.viewer.multiSelection || p.p.viewer.segmentSelection)
 		{
 			IntList valid = new IntList();
@@ -496,26 +498,32 @@ public class GMV_Cluster
 					valid.append(i);
 			}
 
-			if(p.p.debug.stitching)
-				p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
+			if(p.p.debug.stitching) p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-//			PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1, p.getSelectedImages());
-//				GMV_Panorama pano = new GMV_Panorama( p, userPanoramas.size(), "_user_"+Integer.toString(userPanoramas.size()), 
-//						"", null, 0.f, 0.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
-//						1.f, null, getLocation(), stitchedPanorama );
 			GMV_Panorama pano = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1, p.getSelectedImages());
+
 			if(pano != null)
 			{
-				PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
+				if(p.p.debug.panorama || p.p.debug.stitching)
+					PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
 
 				pano.initializeSphere(pano.panoramaDetail);
-				userPanoramas.add(pano);
+				
+				if(userPanoramas.size() == 0)
+				{
+					userPanoramas.add(pano);
+				}
+				else
+				{
+					userPanoramas.set(0, pano);
+//					userPanoramas.set(0, p.p.stitcher.combinePanoramas(userPanoramas.get(0), pano));	// -- To finish
+				}
+
 			}
 		}
 		else
 		{
-			if(p.p.debug.stitching)
-				p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
+			if(p.p.debug.stitching) p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
 
 			for(GMV_MediaSegment m : segments)			// Stitch panorama for each media segment
 			{
@@ -528,8 +536,7 @@ public class GMV_Cluster
 							valid.append(i);
 					}
 					
-					if(p.p.debug.stitching && p.p.debug.detailed)
-						p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
+					if(p.p.debug.stitching && p.p.debug.detailed) p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
 					
 					if(p.p.angleThinning)				// Remove invisible images
 					{
@@ -549,23 +556,22 @@ public class GMV_Cluster
 					}
 					
 					if(valid.size() > 1)
-					{
-//						PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID(), null);
-//
-//						GMV_Panorama pano = new GMV_Panorama( p, m.getID(), "_stitched_"+Integer.toString(m.getID()), 
-//											"", null, 0.f, 0.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
-//											1.f, null, getLocation(), stitchedPanorama );
-						
+					{					
 						GMV_Panorama pano = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID(), null);
 						
 						if(pano != null)
 						{
 							pano.initializeSphere(pano.panoramaDetail);
-							stitchedPanoramas.add(pano);
+							if(stitchedPanoramas.size() == 0)
+							{
+								stitchedPanoramas.add(pano);
+							}
+							else
+							{
+								stitchedPanoramas.set(0, pano);
+//								stitchedPanoramas.set(0, p.p.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
+							}
 						}
-						
-//						PApplet.println("stitchedPanorama.width:"+stitchedPanorama.width);
-//						PApplet.println("stitchedPanorama.height:"+stitchedPanorama.height);
 					}
 				}
 			}
@@ -678,20 +684,6 @@ public class GMV_Cluster
 	{
 		return segments;
 	}
-	
-	/**
-	 * Update cluster variables
-	 */
-//	void update()
-//	{
-//		clusterMass = mediaPoints;			// Set cluster mass each frame
-//
-//		if(mediaPoints == 0)
-//		{
-//			active = false;
-//			empty = true;
-//		}
-//	}
 	
 	/**
 	 * @return Images associated with cluster

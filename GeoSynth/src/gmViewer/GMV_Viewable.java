@@ -150,7 +150,6 @@ public abstract class GMV_Viewable
 	}
 
 	/**
-	 * calculateDate()
 	 * @return Image date in virtual time
 	 */
 //	float calculateDate()
@@ -167,7 +166,6 @@ public abstract class GMV_Viewable
 
 	
 	/**
-	 * fadeBrightness()
 	 * Transition alpha from current to given value
 	 */
 	void fadeBrightness(float target)
@@ -175,7 +173,7 @@ public abstract class GMV_Viewable
 		if(target != fadingBrightness)			// Check if already at target
 		{
 			beginFading = true;
-			fading = true;    
+			fading = true;   
 			fadingStart = fadingBrightness;
 			fadingTarget = target;
 			fadingStartFrame = p.p.frameCount;
@@ -189,7 +187,6 @@ public abstract class GMV_Viewable
 	}
 	
 	/**
-	 * stopFading()
 	 * Stop fading in / out video
 	 */
 	public void stopFading()

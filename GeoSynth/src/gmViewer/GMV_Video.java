@@ -256,7 +256,29 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	{
 		if(!disabled)			
 		{
-			visible = getAngleVisibility();						// Check if video should be visible from current viewer position
+//			visible = getAngleVisibility();						// Check if video should be visible from current viewer position
+			visible = false;
+
+			if(p.p.transitionsOnly)					// With StaticMode ON, determine visibility based on distance of associated cluster 
+			{
+				if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
+					visible = true;
+
+				for(int id : p.p.viewer.clustersVisible)
+				{
+					if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+						visible = true;
+				}
+			}
+			else 
+			{
+				if(p.p.angleFading)
+				{
+					visible = isFacingCamera();		
+				}
+				else 
+					visible = true;     										 		
+			}
 
 			if(visible)
 			{
@@ -265,6 +287,10 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				if(!p.p.utilities.isNaN(videoAngle))
 					visible = (getAngleBrightness(videoAngle) > 0.f);
 
+				if(!fading && p.hideVideos)
+					visible = false;
+//					fadeOut();
+					
 				if(visible)
 					visible = (getDistanceBrightness() > 0.f);
 
@@ -277,7 +303,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 			if(!p.p.angleThinning)
 			{
-				if(visible && !fading && !fadedOut)					// Fade in
+				if(visible && !fading && !fadedOut && !p.hideVideos)					// Fade in
 				{
 					if(!videoLoaded) loadMedia();
 					fadeIn();
@@ -290,7 +316,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 					fadeOut();
 				}
 
-				if(!visible && thinningVisibility && !fading) 
+				if(!visible && thinningVisibility && !fading && !p.hideVideos) 
 				{
 					if(!fadedOut)					// Fade in if didn't just finish fading out this frame
 					{
@@ -629,33 +655,33 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	/**
 	 * Check whether video is at an angle where it should currently be visible
 	 */
-	public boolean getAngleVisibility()				 // Check if video should be visible
-	{
-		boolean visible = false;
-
-		if(p.p.transitionsOnly)					// With StaticMode ON, determine visibility based on distance of associated cluster 
-		{
-			if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
-				visible = true;
-
-			for(int id : p.p.viewer.clustersVisible)
-			{
-				if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-					visible = true;
-			}
-
-			return visible;
-		}
-		else 
-		{
-			if(p.p.angleFading)
-			{
-				return isFacingCamera();		
-			}
-			else 
-				return true;     										 		
-		}
-	}
+//	public boolean getAngleVisibility()				 // Check if video should be visible
+//	{
+//		boolean visible = false;
+//
+//		if(p.p.transitionsOnly)					// With StaticMode ON, determine visibility based on distance of associated cluster 
+//		{
+//			if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
+//				visible = true;
+//
+//			for(int id : p.p.viewer.clustersVisible)
+//			{
+//				if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+//					visible = true;
+//			}
+//
+//			return visible;
+//		}
+//		else 
+//		{
+//			if(p.p.angleFading)
+//			{
+//				return isFacingCamera();		
+//			}
+//			else 
+//				return true;     										 		
+//		}
+//	}
 	
 	/**
 	 * Set thinning visibility of video

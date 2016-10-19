@@ -79,8 +79,7 @@ class GMV_Image extends GMV_Viewable
 	}  
 
 	/**
-	 * draw()
-	 * Display the image or spherical panorama in virtual space
+	 * Display the image in virtual space
 	 */
 	public void draw()
 	{
@@ -260,17 +259,40 @@ class GMV_Image extends GMV_Viewable
 
 		if(image.width > 0 && !disabled)			
 		{
-			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
+//			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
+			visible = false;
+
+			if(p.p.transitionsOnly)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
+			{
+				if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
+					visible = true;
+
+				for(int id : p.p.viewer.clustersVisible)
+				{
+					if(cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+						visible = true;
+				}
+			}
+			else 
+			{
+				if(p.p.angleFading)
+				{
+					visible = isFacingCamera();		
+				}
+				else 
+					visible = true;     										 		
+			}
 			
 			if(visible)
 			{
-				float imageAngle = getFacingAngle();				// Check if image is visible at current angle facing viewer
+				float imageAngle = getFacingAngle();			// Check if image is visible at current angle facing viewer
 				
 				if(!p.p.utilities.isNaN(imageAngle))
 					visible = (getAngleBrightness(imageAngle) > 0.f);
 
-				if(p.p.debug.hideImages)
+				if(!fading && p.hideImages)
 					visible = false;
+//					fadeOut();
 
 				if(visible)
 					visible = (getDistanceBrightness() > 0.f);
@@ -284,7 +306,7 @@ class GMV_Image extends GMV_Viewable
 			
 			if(!p.p.angleThinning)
 			{
-				if(visible && !fading && !fadedOut)					// Fade in
+				if(visible && !fading && !fadedOut && !p.hideImages)			// Fade in
 					fadeIn();
 			}
 			else
@@ -294,7 +316,7 @@ class GMV_Image extends GMV_Viewable
 					fadeOut();
 				}
 				
-				if(!visible && thinningVisibility && !fading) 
+				if(!visible && thinningVisibility && !fading && !p.hideImages) 
 				{
 					if(!fadedOut)					// Fade in if didn't just finish fading out this frame
 					{
@@ -396,7 +418,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * getAngleBrightness()
 	 * Calculate and return alpha value given camera to image angle
 	 * @param imageAngle 
 	 * @return Fading amount due to image angle
@@ -613,37 +634,37 @@ class GMV_Image extends GMV_Viewable
 			 return false;
 	 }
 
-	/**
-	 * getAngleVisibility()
-	 * Check whether image is at an angle where it should currently be visible
-	 */
-	private boolean getAngleVisibility()				 // Check if image should be visible
-	{
-		boolean visible = false;
-
-		if(p.p.transitionsOnly)							// In Transitions Only Mode, visibility is based on distance of associated cluster 
-		{
-			if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
-				visible = true;
-
-			for(int id : p.p.viewer.clustersVisible)
-			{
-				if(cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-					visible = true;
-			}
-
-			return visible;
-		}
-		else 
-		{
-			if(p.p.angleFading)
-			{
-				return isFacingCamera();		
-			}
-			else 
-				return true;     										 		
-		}
-	}
+//	/**
+//	 * getAngleVisibility()
+//	 * Check whether image is at an angle where it should currently be visible
+//	 */
+//	private boolean getAngleVisibility()				 // Check if image should be visible
+//	{
+//		boolean visible = false;
+//
+//		if(p.p.transitionsOnly)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
+//		{
+//			if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
+//				visible = true;
+//
+//			for(int id : p.p.viewer.clustersVisible)
+//			{
+//				if(cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+//					visible = true;
+//			}
+//
+//			return visible;
+//		}
+//		else 
+//		{
+//			if(p.p.angleFading)
+//			{
+//				return isFacingCamera();		
+//			}
+//			else 
+//				return true;     										 		
+//		}
+//	}
 	
 	/**
 	 * Set thinning visibility of image

@@ -433,6 +433,50 @@ public class GMV_Stitcher
 	}
 	
 	/**
+	 * Combine two panoramas into one, blending textures together and moving the location of the second to be identical to the first's
+	 * @param first First panorama
+	 * @param second Second panorama
+	 * @return Combined panorama
+	 */
+	public GMV_Panorama combinePanoramas(GMV_Panorama first, GMV_Panorama second)
+	{
+		PApplet.println("Combining panoramas...");
+		Mat blended = linearBlend(new Mat(pImageToIplImage(first.texture)), new Mat(pImageToIplImage(second.texture)));
+		PImage newTexture = iplImageToPImage( new IplImage(blended) );
+		GMV_Panorama newPano = first;
+		first.texture = newTexture;
+		return newPano;
+	}
+	
+	/**
+	 * Use linear blend operator on two Mat images of same size
+	 * @param image1 First image
+	 * @param image2 Second image
+	 * @return Blended image
+	 */
+	private Mat linearBlend(Mat image1, Mat image2)
+	{
+		Mat result = image1;
+		
+		if (image1.empty() || image2.empty()) 
+		{
+			PApplet.println("Blending Error... one or both images are NULL!");
+			System.exit(0);
+		}
+		
+		double alpha = 0.5; 
+		double beta; 
+
+		alpha = 0.5; 
+
+		beta = ( 1.0 - alpha );
+		org.bytedeco.javacpp.opencv_core.addWeighted( image1, alpha, image2, beta, 0.0, result);
+
+		return result;
+//		org.bytedeco.javacpp.opencv_imgcodecs.imwrite(sketchPath("")+"/output.jpg", dst);
+	}
+	
+	/**
 	 * Convert PImage to IplImage
 	 * @param img Image source
 	 * @return The IplImage

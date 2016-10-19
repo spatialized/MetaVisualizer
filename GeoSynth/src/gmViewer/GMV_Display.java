@@ -871,27 +871,27 @@ class GMV_Display
 //					5:  Clusters Only   6: Media Only   7: Capture Locations Only
 		
 		/* Media */
-		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapImages && !p.debug.hideImages)
+		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapImages && !p.getCurrentField().hideImages)
 			for ( GMV_Image i : p.getCurrentField().images )		// Draw images on 2D Map
 				drawImageOnMap(i, mapWidth, mapHeight, false);
 
-		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapPanoramas && !p.debug.hidePanoramas)
+		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapPanoramas && !p.getCurrentField().hidePanoramas)
 			for ( GMV_Panorama n : p.getCurrentField().panoramas )	// Draw panoramas on 2D Map
 				drawPanoramaOnMap(n, mapWidth, mapHeight, false);
 
-		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapVideos && !p.debug.hideVideos)
+		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapVideos && !p.getCurrentField().hideVideos)
 			for (GMV_Video v : p.getCurrentField().videos)			// Draw videos on 2D Map
 				drawVideoOnMap(v, mapWidth, mapHeight, false);
 
-		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapImages && !p.debug.hideImages)
+		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapImages && !p.getCurrentField().hideImages)
 			for ( GMV_Image i : p.getCurrentField().images )		// Draw image capture locations on 2D Map
 				drawImageOnMap(i, mapWidth, mapHeight, true);
 
-		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapPanoramas && !p.debug.hidePanoramas)
+		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapPanoramas && !p.getCurrentField().hidePanoramas)
 			for ( GMV_Panorama n : p.getCurrentField().panoramas )	// Draw panorama capture locations on 2D Map
 				drawPanoramaOnMap(n, mapWidth, mapHeight, true);
 
-		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapVideos && !p.debug.hideVideos)
+		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapVideos && !p.getCurrentField().hideVideos)
 			for (GMV_Video v : p.getCurrentField().videos)			// Draw video capture locations on 2D Map
 				drawVideoOnMap(v, mapWidth, mapHeight, true);
 
@@ -1265,7 +1265,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * displayStatistics()
 	 * Show statistics of the current simulation
 	 */
 	void displayStatistics()
@@ -1325,8 +1324,11 @@ class GMV_Display
 			p.text(" GPS Longitude: "+p.viewer.getGPSLocation().x+" Latitude:"+p.viewer.getGPSLocation().y, textXPos, textYPos += lineWidth, hudDistance);		
 
 			p.text(" Current Cluster: "+p.viewer.getCurrentCluster(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-			p.text("   Media Points: "+c.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
-			p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
+			p.text("  Media Points: "+c.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
+			p.text("  Media Segments: "+p.getCurrentCluster().segments.size(), textXPos, textYPos += lineWidth, hudDistance);
+			p.text("  Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
+			p.text("  Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
+			p.text("  User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
 			if(p.viewer.getAttractorCluster() != -1)
 			{
 				p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), textXPos, textYPos += lineWidth, hudDistance);
@@ -1428,7 +1430,7 @@ class GMV_Display
 		p.pushMatrix();
 		beginHUD();
 		
-		float dispLocX = centerTextXOffset;
+		float textXPos = centerTextXOffset;
 		float textYPos = topTextYOffset;			// Starting vertical position
 		
 		GMV_Field f = p.getCurrentField();
@@ -1437,64 +1439,66 @@ class GMV_Display
 		p.fill(0, 0, 255, 255);
 
 		p.textSize(mediumTextSize);
-		p.text(""+p.getCurrentField().name+ " Media Clusters", dispLocX, textYPos, hudDistance);
+		p.text(""+p.getCurrentField().name+ " Media Clusters", textXPos, textYPos, hudDistance);
 		p.textSize(smallTextSize);
-		p.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), dispLocX, textYPos += lineWidthVeryWide, hudDistance);
-		p.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", dispLocX, textYPos += lineWidth, hudDistance);
-		if(p.hierarchical) p.text(" Current Cluster Depth: "+f.model.clusterDepth, dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Minimum Distance: "+p.minClusterDistance, dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Maximum Distance: "+p.maxClusterDistance, dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Population Factor: "+f.model.clusterPopulationFactor, dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" ID: "+ c.getID(), dispLocX, textYPos += lineWidthVeryWide, hudDistance);
-		p.text(" Location: "+ c.getLocation(), dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Media Points: "+ c.mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Media Segments: "+ c.segments.size(), dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Timeline Points: "+ c.timeline.size(), dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" ", dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Active: "+ c.isActive(), dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Single: "+ c.isSingle(), dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Empty: "+ c.isEmpty(), dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" ", dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), dispLocX, textYPos += lineWidth, hudDistance);
+		p.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", textXPos, textYPos += lineWidth, hudDistance);
+		if(p.hierarchical) p.text(" Current Cluster Depth: "+f.model.clusterDepth, textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Minimum Distance: "+p.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Maximum Distance: "+p.maxClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Population Factor: "+f.model.clusterPopulationFactor, textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" ID: "+ c.getID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text(" Location: "+ c.getLocation(), textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Media Points: "+ c.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Media Segments: "+ c.segments.size(), textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Timeline Points: "+ c.timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Empty: "+ c.isEmpty(), textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
 		
 		if(p.debug.cluster)
 		{
-			p.text(" -- Debug --", dispLocX, textYPos += lineWidth, hudDistance);
-			p.text(" Cluster Times (Size): "+ c.getClusterTimes().size(), dispLocX, textYPos += lineWidth, hudDistance);
+			p.text(" -- Debug --", textXPos, textYPos += lineWidth, hudDistance);
+			p.text(" Cluster Times (Size): "+ c.getClusterTimes().size(), textXPos, textYPos += lineWidth, hudDistance);
 //			p.text(" Field Timeline Times: "+ c.getFieldTimes().size(), dispLocX, textYPos += lineWidth, hudDistance);
 		}
 		
 		FloatList clusterTimes = p.getCurrentCluster().getClusterTimes();
 		
 		if(clusterTimes.size() == 0)
-			p.text("No timeline!", dispLocX, textYPos += lineWidth, hudDistance);
+			p.text("No timeline!", textXPos, textYPos += lineWidth, hudDistance);
 		else
-			p.text("Timeline:", dispLocX , textYPos += lineWidth, hudDistance);
+			p.text("Timeline:", textXPos , textYPos += lineWidth, hudDistance);
 
 		if(clusterTimes.size() == 1)
-			p.text(clusterTimes.get(0), dispLocX + 50.f, textYPos, hudDistance);
+			p.text(clusterTimes.get(0), textXPos + 50.f, textYPos, hudDistance);
 		if(clusterTimes.size() == 2)
-			p.text(clusterTimes.get(0)+" "+clusterTimes.get(1), dispLocX + 100.f, textYPos, hudDistance);
+			p.text(clusterTimes.get(0)+" "+clusterTimes.get(1), textXPos + 100.f, textYPos, hudDistance);
 		if(clusterTimes.size() >= 3)
-			p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), dispLocX + 150.f, textYPos, hudDistance);
+			p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), textXPos + 150.f, textYPos, hudDistance);
 				
-		p.text(" ", dispLocX, textYPos += lineWidth, hudDistance);
-		p.text(" ", dispLocX, textYPos += lineWidth, hudDistance);
+		p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
+		p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
 
 		c = p.getCurrentCluster();
-		p.text(" Current Cluster ID: "+p.viewer.getCurrentCluster(), dispLocX, textYPos += lineWidthVeryWide, hudDistance);
-		p.text("   Media Points: "+c.mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
-		p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), dispLocX, textYPos += lineWidth, hudDistance);
+		p.text(" Current Cluster ID: "+p.viewer.getCurrentCluster(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.text("   Media Points: "+c.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
+		p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
 		if(p.viewer.getAttractorCluster() != -1)
 		{
-			p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), dispLocX, textYPos += lineWidth, hudDistance);
+			p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), textXPos, textYPos += lineWidth, hudDistance);
 //			p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.getAttractorCluster()).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
-			p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), dispLocX, textYPos += lineWidth, hudDistance);
+			p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), textXPos, textYPos += lineWidth, hudDistance);
 			if(p.debug.viewer) 
 			{
-				p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), dispLocX, textYPos += lineWidth, hudDistance);
-				p.text(" Debug: Current Acceleration:"+(p.viewer.isWalking() ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), dispLocX, textYPos += lineWidth, hudDistance);
-				p.text(" Debug: Current Velocity:"+ (p.viewer.isWalking() ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , dispLocX, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Current Acceleration:"+(p.viewer.isWalking() ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), textXPos, textYPos += lineWidth, hudDistance);
+				p.text(" Debug: Current Velocity:"+ (p.viewer.isWalking() ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , textXPos, textYPos += lineWidth, hudDistance);
 			}
 		}
 

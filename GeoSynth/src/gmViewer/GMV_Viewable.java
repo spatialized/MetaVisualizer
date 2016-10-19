@@ -5,6 +5,7 @@ import java.util.Calendar;
 //import com.sun.xml.internal.ws.org.objectweb.asm.Type;
 
 import processing.core.PApplet;
+import processing.core.PMatrix3D;
 //import processing.core.PApplet;
 import processing.core.PVector;
 import toxi.math.ScaleMap;
@@ -733,4 +734,79 @@ public abstract class GMV_Viewable
 	 {
 		 return cluster;
 	 }
+	 
+		/**
+		 * Rotate list of vertices using matrices
+		 * @param verts Vertices list
+		 * @param angle Angle to rotate by
+		 * @param axis Axis to rotate around
+		 * @return Rotated vertices
+		 */
+		public PVector[] rotateVertices(PVector[] verts, float angle, PVector axis) 
+		{
+			boolean failed = false;
+			int vl = verts.length;
+			PVector[] clone = new PVector[vl];
+			PVector[] dst = new PVector[vl];
+
+			try
+			{
+				for (int i = 0; i < vl; i++)
+				{
+					if(verts[i]!=null)
+						clone[i] = PVector.add(verts[i], new PVector());
+					else
+						PApplet.println("verts["+i+"] is null!!");
+				}
+
+				PMatrix3D rMat = new PMatrix3D();
+				rMat.rotate(PApplet.radians(angle), axis.x, axis.y, axis.z);
+
+				for (int i = 0; i < vl; i++)
+					dst[i] = new PVector();
+				for (int i = 0; i < vl; i++)
+					rMat.mult(clone[i], dst[i]);
+			}
+			catch(NullPointerException e)
+			{
+				PApplet.println("NullPointerException: "+e);
+				failed = true;
+			}
+			if(!failed)
+			{
+				return dst;
+			}
+			else
+			{
+				PApplet.println("Failed rotating vertices!");
+				return new PVector[0];
+			}
+		}
+
+		 /** 
+		  * Translate list of vertices using matrices
+		  * @param verts Vertices list
+		  * @param dest Destination vector
+		  * @return Translated vertices 
+		  */
+		 public PVector[] translateVertices(PVector[] verts, PVector dest) // Translate vertices to a designated point
+		 {
+			 int vl = verts.length;
+			 PVector[] clone = new PVector[vl];
+
+			 for (int i = 0; i < vl; i++)
+				 clone[i] = PVector.add(verts[i], new PVector());
+
+			 PMatrix3D tMat = new PMatrix3D();
+			 tMat.translate(dest.x, dest.y, dest.z);
+
+			 PVector[] dst = new PVector[vl];
+
+			 for (int i = 0; i < vl; i++)
+				 dst[i] = new PVector();
+			 for (int i = 0; i < vl; i++)
+				 tMat.mult(clone[i], dst[i]);
+
+			 return dst;
+		 }
 }

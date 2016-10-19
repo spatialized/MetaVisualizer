@@ -110,6 +110,16 @@ public class GMV_MediaSegment
 	{
 		return top;
 	}
+	
+	public float getCenterDirection()
+	{
+		return centerDirection;
+	}
+	
+	public float getCenterElevation()
+	{
+		return centerElevation;
+	}
 
 //	public IntList getVideos()
 //	{

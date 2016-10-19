@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.imageio.*;
 
@@ -18,6 +19,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.core.PVector;
 import processing.data.IntList;
 
 import org.bytedeco.javacpp.*;
@@ -76,7 +78,7 @@ public class GMV_Stitcher
 	 * Stitch spherical panorama from images
 	 * @param library
 	 */
-	public PImage stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
+	public GMV_Panorama stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
 	{
 		Mat panorama = new Mat();				// Panoramic image result
 		IplImage iplImage = null;
@@ -267,27 +269,36 @@ public class GMV_Stitcher
 
 			result = addImageBorders(iplImage, clusterID, segment);
 			
-			{	// TESTING
-				String filePath = "";
-				String fileName = "";
+//			{	// TESTING
+//				String filePath = "";
+//				String fileName = "";
+//
+//				if(segmentID != -1)
+//					fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched_borders.jpg";
+//				else
+//					fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_borders.jpg";
+//
+//				filePath = p.stitchingPath+fileName;
+//
+//				if(p.debug.stitching) p.display.message("Debugging: output panorama with borders to file: " + fileName);
+//				
+//				result.save(filePath);
+//			}
 
-				if(segmentID != -1)
-					fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched_borders.jpg";
-				else
-					fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_borders.jpg";
-
-				filePath = p.stitchingPath+fileName;
-
-//			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, panorama);
-				if(p.debug.stitching) p.display.message("Debugging: output panorama with borders to file: " + fileName);
-				result.save(filePath);
-			}
-
+//			float panoDirection = segment.getCenterDirection();
+//			float panoElevation = segment.getCenterElevation();
 			
+			GMV_Panorama pano = new GMV_Panorama( p.getCurrentField(), segment.getID(), "_stitched_"+Integer.toString(segment.getID()), 
+					"", null, segment.getCenterDirection(), segment.getCenterElevation(), -1, result.width, result.height, 
+					1.f, null, p.getCluster(clusterID).getLocation(), result );
+		
 			PApplet.println("Final Width:"+result.width+" Height:"+result.height);
 			PApplet.println("Final Aspect Ratio:"+((float)result.width/(float)result.height));
+			return pano;
 		}
-		return result;
+		
+		return null;
+		
 	}
 	
 	/**

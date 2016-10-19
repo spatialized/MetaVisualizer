@@ -1,5 +1,6 @@
 package gmViewer;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import processing.core.PApplet;
@@ -17,11 +18,15 @@ public class GMV_Panorama extends GMV_Viewable
 	PImage texture;								// Texture image pixels
 	
 	/* EXIF Metadata */
-	public float imageWidth, imageHeight;		// Width and height
-	public int origWidth, origHeight;			// Original width and height
+	private float imageWidth, imageHeight;		// Width and height
+//	public int origWidth, origHeight;			// Original width and height
 
+	/* Derived Metadata */
+	private float phi = 0.f;
+	
 	/* Panorama */
-	float[] sphereX, sphereY, sphereZ;								// Sphere vertices
+//	float[] sphereX, sphereY, sphereZ;								// Sphere vertices
+	PVector[] sphere;		
 	int panoramaDetail = 50;  										// Sphere detail setting
 	float sinLUT[];
 	float cosLUT[];
@@ -29,18 +34,18 @@ public class GMV_Panorama extends GMV_Viewable
 	int sinCosLength = (int)(360.0f / sinCosPrecision);
 
 	GMV_Panorama ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-					int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, 
-					PVector newLocation, PImage newTexture )
+			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, 
+			PVector newLocation, PImage newTexture )
 	{
 		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
-		
+
 		p = parent;
 
 		if(newTexture == null)
 			texture = p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
 		else
 			texture = newTexture;
-		
+
 		imageWidth = newWidth;
 		imageHeight = newHeight;
 
@@ -55,9 +60,10 @@ public class GMV_Panorama extends GMV_Viewable
 		gpsLocation = newGPSLocation;
 		cameraModel = newCameraModel;
 
-		theta = newTheta;              			// GPS Orientation (Yaw angle)
+		theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
+		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 	}  
-	
+
 	/**
 =	 * Update main variables
 	 */
@@ -65,7 +71,7 @@ public class GMV_Panorama extends GMV_Viewable
 	{
 		if(requested && texture.width != 0)			// If requested image has loaded, initialize image 
 		{
-			initializePanorama(panoramaDetail);					
+			initializeSphere(panoramaDetail);					
 
 			requested = false;
 			p.p.requestedPanoramas--;
@@ -82,9 +88,9 @@ public class GMV_Panorama extends GMV_Viewable
 				fadeIn();
 
 			if(fadedOut) fadedOut = false;
-			
-//			if(p.p.frameCount % 10 == 0)
-//				PApplet.println("Update panorama..."+getID()+" visible:"+visible+" fading:"+fading);
+
+			//			if(p.p.frameCount % 10 == 0)
+			//				PApplet.println("Update panorama..."+getID()+" visible:"+visible+" fading:"+fading);
 		}
 		else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
 		{
@@ -93,17 +99,17 @@ public class GMV_Panorama extends GMV_Viewable
 
 		if(isFading())                       // Fade in and out with time
 		{
-//			p.p.display.message("Panorama fading... id: "+getID());
+			//			p.p.display.message("Panorama fading... id: "+getID());
 			updateFadingBrightness();
 
 			if(fadingBrightness == 0.f)
 				visible = false;
 		}
 
-//		if(fadingObjectDistance)
-//		{
-//			updateFadingObjectDistance();
-//		}
+		//		if(fadingObjectDistance)
+		//		{
+		//			updateFadingObjectDistance();
+		//		}
 	}
 
 	/**
@@ -129,7 +135,7 @@ public class GMV_Panorama extends GMV_Viewable
 			{
 				if(texture.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
 				{
-//					PApplet.println("Drawing panorama..."+getID());
+					//					PApplet.println("Drawing panorama..."+getID());
 					drawPanorama();
 				}
 			}
@@ -188,20 +194,20 @@ public class GMV_Panorama extends GMV_Viewable
 	 * Select or unselect this panorama
 	 * @param selection New selection
 	 */
-	 public void setSelected(boolean selection)
-	 {
-//		 selected = selection;
-//		 p.selectedPanorama = id;
-//		 
-//		 if(selection)
-//		 {
-//			 if(p.p.debug.viewer && p.p.debug.detailed)
-//				 p.p.display.sendMessage("Selected image:"+id);
-//			 
-//			 displayMetadata();
-//		 }
-	 }
-	
+	public void setSelected(boolean selection)
+	{
+		//		 selected = selection;
+		//		 p.selectedPanorama = id;
+		//		 
+		//		 if(selection)
+		//		 {
+		//			 if(p.p.debug.viewer && p.p.debug.detailed)
+		//				 p.p.display.sendMessage("Selected image:"+id);
+		//			 
+		//			 displayMetadata();
+		//		 }
+	}
+
 	/**
 	 * Draw the panorama
 	 */
@@ -250,6 +256,7 @@ public class GMV_Panorama extends GMV_Viewable
 			else
 				p.p.tint(255, viewingBrightness);          				
 		}
+
 		
 		float iu = (float)(texture.width-1)/(panoramaDetail);
 		float iv = (float)(texture.height-1)/(panoramaDetail);
@@ -258,12 +265,12 @@ public class GMV_Panorama extends GMV_Viewable
 		for (int i = 0; i < panoramaDetail; i++) 
 		{
 			p.p.vertex(0, -r, 0,u,0);
-			p.p.vertex(sphereX[i] * r, sphereY[i] * r, sphereZ[i] * r, u, v);
+			p.p.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
 			u += iu;
 		}
 
 		p.p.vertex(0, -r, 0, u, 0);
-		p.p.vertex(sphereX[0] * r, sphereY[0] * r, sphereZ[0] * r, u, v);
+		p.p.vertex(sphere[0].x * r, sphere[0].y * r, sphere[0].z * r, u, v);
 		p.p.endShape();   
 
 		// Draw middle rings
@@ -278,16 +285,16 @@ public class GMV_Panorama extends GMV_Viewable
 			p.p.texture(texture);
 			for(int j = 0; j < panoramaDetail; j++) 			// Draw ring
 			{
-				p.p.vertex(sphereX[v1] * r, sphereY[v1] * r, sphereZ[v1++] * r, u, v);
-				p.p.vertex(sphereX[v2] * r, sphereY[v2] * r, sphereZ[v2++] * r, u, v + iv);
+				p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
+				p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
 				u += iu;
 			}
 
 			// Close ring
 			v1 = v0;
 			v2 = voff;
-			p.p.vertex(sphereX[v1] * r, sphereY[v1] * r, sphereZ[v1] * r, u, v);
-			p.p.vertex(sphereX[v2] * r, sphereY[v2] * r, sphereZ[v2] * r, u, v + iv);
+			p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1].z * r, u, v);
+			p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v + iv);
 			p.p.endShape();
 			v += iv;
 		}
@@ -299,12 +306,12 @@ public class GMV_Panorama extends GMV_Viewable
 		for(int i = 0; i < panoramaDetail; i++) 
 		{
 			v2 = voff + i;
-			p.p.vertex(sphereX[v2] * r, sphereY[v2] * r, sphereZ[v2] * r, u, v);
+			p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
 			p.p.vertex(0, r, 0, u, v + iv);    
 			u += iu;
 		}
 
-		p.p.vertex(sphereX[voff] * r, sphereY[voff] * r, sphereZ[voff] * r, u, v);
+		p.p.vertex(sphere[voff].x * r, sphere[voff].y * r, sphere[voff].z * r, u, v);
 		p.p.endShape();
 
 		p.p.popMatrix();
@@ -312,10 +319,9 @@ public class GMV_Panorama extends GMV_Viewable
 	}
 
 	/***
-	 * initializePanorama()
 	 * Initialize panorama geometry
 	 */
-	void initializePanorama(int resolution)
+	void initializeSphere(int resolution)
 	{
 		sinLUT = new float[sinCosLength];
 		cosLUT = new float[sinCosLength];
@@ -340,9 +346,11 @@ public class GMV_Panorama extends GMV_Viewable
 		int currVert = 0;
 
 		// Re-init arrays to store vertices
-		sphereX = new float[vertCount];
-		sphereY = new float[vertCount];
-		sphereZ = new float[vertCount];
+		
+		sphere = new PVector[vertCount];
+//		sphereX = new float[vertCount];
+//		sphereY = new float[vertCount];
+//		sphereZ = new float[vertCount];
 		float angle_step = (sinCosLength*0.5f)/resolution;
 		float angle = angle_step;
 
@@ -351,15 +359,29 @@ public class GMV_Panorama extends GMV_Viewable
 			float curRadius = sinLUT[(int) angle % sinCosLength];
 			float currY = -cosLUT[(int) angle % sinCosLength];
 
-//			for (int j = 0; j < resolution; j++) {
-		    for (int j = resolution-1; j >= 0; j--) {
-				sphereX[currVert] = cx[j] * curRadius;
-				sphereY[currVert] = currY;
-				sphereZ[currVert++] = cz[j] * curRadius;
+			//			for (int j = 0; j < resolution; j++) {
+			for (int j = resolution-1; j >= 0; j--) 
+			{
+//				sphereX[currVert] = cx[j] * curRadius;
+//				sphereY[currVert] = currY;
+//				sphereZ[currVert] = cz[j] * curRadius;
+				
+				sphere[currVert] = new PVector(cx[j] * curRadius, currY, cz[j] * curRadius);
+				currVert++;
+//				PApplet.println("currVert:"+currVert+"+ sphere.length:"+sphere.length);
 			}
 			angle += angle_step;
 		}
+
+		sphere[currVert++] = new PVector(0,0,0);
+		sphere[currVert++] = new PVector(0,0,0);
 		
+		if (phi != 0.f)
+			sphere = rotateVertices(sphere, -phi, verticalAxis);         // Rotate around X axis
+
+		if( theta != 0.f )
+			sphere = rotateVertices(sphere, 360-theta, azimuthAxis);          // Rotate around Z axis
+
 		panoramaDetail = resolution;
 	}
 
@@ -398,8 +420,8 @@ public class GMV_Panorama extends GMV_Viewable
 	{
 		float viewDist = getViewingDistance();
 		float farViewingDistance = p.p.viewer.getFarViewingDistance();
-//		float nearViewingDistance = p.p.viewer.getNearViewingDistance();
-		
+		//		float nearViewingDistance = p.p.viewer.getNearViewingDistance();
+
 		float distVisibility = 1.f;
 
 		if(viewDist > farViewingDistance)
@@ -410,16 +432,16 @@ public class GMV_Panorama extends GMV_Viewable
 			else
 				distVisibility = 0.f;
 		}
-//		else if(viewDist < nearViewingDistance)								
-//		{
-//			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), p.p.viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
-////			if(isSelected())
-//				PApplet.println("Panorama ID:"+getID()+" dist:"+viewDist+" distVisibility:"+distVisibility+" near:"+p.p.viewer.getNearClippingDistance()+" far:"+p.p.viewer.getNearViewingDistance());
-//		}
+		//		else if(viewDist < nearViewingDistance)								
+		//		{
+		//			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), p.p.viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
+		////			if(isSelected())
+		//				PApplet.println("Panorama ID:"+getID()+" dist:"+viewDist+" distVisibility:"+distVisibility+" near:"+p.p.viewer.getNearClippingDistance()+" far:"+p.p.viewer.getNearViewingDistance());
+		//		}
 
-//		PApplet.println("captureLocation.x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y+" captureLocation.z:"+captureLocation.z);
-//		PApplet.println("viewer.x:"+p.p.viewer.getLocation().x+" viewer.y:"+p.p.viewer.getLocation().y+" viewer.z:"+p.p.viewer.getLocation().z);
-//		PApplet.println("viewDist:+"+viewDist+" farViewingDistance:"+farViewingDistance+" distVisibility:"+distVisibility);
+		//		PApplet.println("captureLocation.x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y+" captureLocation.z:"+captureLocation.z);
+		//		PApplet.println("viewer.x:"+p.p.viewer.getLocation().x+" viewer.y:"+p.p.viewer.getLocation().y+" viewer.z:"+p.p.viewer.getLocation().z);
+		//		PApplet.println("viewDist:+"+viewDist+" farViewingDistance:"+farViewingDistance+" distVisibility:"+distVisibility);
 		return distVisibility;
 	}
 
@@ -441,73 +463,78 @@ public class GMV_Panorama extends GMV_Viewable
 
 		return distance;
 	}
-	
-	 /**
-	  * findAssociatedCluster()
-	  * @return Whether associated cluster was successfully found
-	  * Set nearest cluster to the capture location to be the associated cluster
-	  */	
-	 public boolean findAssociatedCluster()    				 // Associate cluster that is closest to photo
-	 {
-		 int closestClusterIndex = 0;
-		 float closestDistance = 100000;
-		 
-		 for (int i = 0; i < p.clusters.size(); i++) 
-		 {     
-			 GMV_Cluster curCluster = (GMV_Cluster) p.clusters.get(i);
-			 float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
-			 if (distanceCheck < closestDistance)
-			 {
-				 closestClusterIndex = i;
-				 closestDistance = distanceCheck;
-			 }
-		 }
-
-		 if(closestDistance < p.p.getCurrentModel().maxClusterDistance)
-		 {
-			 cluster = closestClusterIndex;
-		 }
-		 else
-		 {
-			 cluster = -1;						// Create a new single image cluster here!
-			 p.disassociatedPanoramas++;
-		 }
-		 
-		 if(cluster != -1)
-			 return true;
-		 else
-			 return false;
-	 }
-	
-	public void displayMetadata()
+	/**
+	 * findAssociatedCluster()
+	 * @return Whether associated cluster was successfully found
+	 * Set nearest cluster to the capture location to be the associated cluster
+	 */	
+	public boolean findAssociatedCluster()    				 // Associate cluster that is closest to photo
 	{
-		
+		int closestClusterIndex = 0;
+		float closestDistance = 100000;
+
+		for (int i = 0; i < p.clusters.size(); i++) 
+		{     
+			GMV_Cluster curCluster = (GMV_Cluster) p.clusters.get(i);
+			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
+
+			if (distanceCheck < closestDistance)
+			{
+				closestClusterIndex = i;
+				closestDistance = distanceCheck;
+			}
+		}
+
+		if(closestDistance < p.p.getCurrentModel().maxClusterDistance)
+		{
+			cluster = closestClusterIndex;
+		}
+		else
+		{
+			cluster = -1;						// Create a new single image cluster here!
+			p.disassociatedPanoramas++;
+		}
+
+		if(cluster != -1)
+			return true;
+		else
+			return false;
 	}
 
-	 /**
-	  * setGPSLocation()
-	  * @param newGPSLocation New GPS location
-	  * Set the current GPS location
-	  */
-	 void setGPSLocation(PVector newGPSLocation) 
-	 {
-		 gpsLocation = newGPSLocation;
-		 calculateCaptureLocation();
-	 }
-	 
-	 public float getDirection()
-	 {
-		 return theta;
-	 }
+	public void setDirection( float newTheta )
+	{
+		theta = newTheta;
+	}
 
-	 public float getWidth()
-	 {
-		 return imageWidth;
-	 }
+	public void displayMetadata()
+	{
 
-	 public float getHeight()
-	 {
-		 return imageHeight;
-	 }
+	}
+
+	/**
+	 * setGPSLocation()
+	 * @param newGPSLocation New GPS location
+	 * Set the current GPS location
+	 */
+	void setGPSLocation(PVector newGPSLocation) 
+	{
+		gpsLocation = newGPSLocation;
+		calculateCaptureLocation();
+	}
+
+	public float getDirection()
+	{
+		return theta;
+	}
+
+	public float getWidth()
+	{
+		return imageWidth;
+	}
+
+	public float getHeight()
+	{
+		return imageHeight;
+	}
 }

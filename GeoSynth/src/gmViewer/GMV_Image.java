@@ -29,8 +29,8 @@ class GMV_Image extends GMV_Viewable
 	private boolean thinningVisibility = false;
 
 	/* Metadata */
-	private float imageWidth, imageHeight;		// Image width and height
-	private float phi;			        // Image Elevation (in Degrees N)
+	private float imageWidth, imageHeight;	// Image width and height
+	private float phi;			        	// Image Elevation (in Degrees N)
 	private float orientation;              // Landscape = 0, Portrait = 90, Upside Down Landscape = 180, Upside Down Portrait = 270
 	private float rotation;				    // Elevation angle and Z-axis rotation
 	private float focalLength = 0; 			// Zoom Level 
@@ -513,12 +513,12 @@ class GMV_Image extends GMV_Viewable
 		initializeVertices();					// Initialize vertices
 
 		if (phi != 0.)
-			vertices = rotateVerts(vertices, -phi, verticalAxis);         // Rotate around X axis
+			vertices = rotateVertices(vertices, -phi, verticalAxis);         // Rotate around X axis
 
-		vertices = rotateVerts(vertices, 360-theta, azimuthAxis);          // Rotate around Z axis
+		vertices = rotateVertices(vertices, 360-theta, azimuthAxis);          // Rotate around Z axis
 
 		if(vertices.length == 0) disabled = true;
-		if(!p.p.transitionsOnly)	vertices = translateVerts(vertices, getCaptureLocation());                       // Move image to photo capture location   
+		if(!p.p.transitionsOnly)	vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
 
 		float r;				  				 // Viewing sphere radius
 		if(focusDistance == -1.f)
@@ -532,7 +532,7 @@ class GMV_Image extends GMV_Viewable
 
 		disp = new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
 
-		vertices = translateVerts(vertices, disp);          // Translate image vertices from capture to viewing location
+		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 
 		if(p.p.transitionsOnly)
 			location = new PVector (0, 0, 0);													// Location in Transition Mode
@@ -1102,75 +1102,6 @@ class GMV_Image extends GMV_Viewable
 		return imgWidth;
 	}
 
-
-	/**
-	 * Rotate list of vertices using matrices
-	 * @param verts Vertices list
-	 * @param angle Angle to rotate by
-	 * @param axis Axis to rotate around
-	 * @return Rotated vertices
-	 */
-	public PVector[] rotateVerts(PVector[] verts, float angle, PVector axis) 
-	{
-		boolean failed = false;
-		int vl = verts.length;
-		PVector[] clone = new PVector[vl];
-		PVector[] dst = new PVector[vl];
-
-		try
-		{
-			for (int i = 0; i < vl; i++)
-				clone[i] = PVector.add(verts[i], new PVector());
-
-			PMatrix3D rMat = new PMatrix3D();
-			rMat.rotate(PApplet.radians(angle), axis.x, axis.y, axis.z);
-
-			for (int i = 0; i < vl; i++)
-				dst[i] = new PVector();
-			for (int i = 0; i < vl; i++)
-				rMat.mult(clone[i], dst[i]);
-		}
-		catch(NullPointerException e)
-		{
-			PApplet.println("NullPointerException: "+e);
-			failed = true;
-		}
-		if(!failed)
-		{
-			return dst;
-		}
-		else
-		{
-			return new PVector[0];
-		}
-	}
-
-	 /** 
-	  * Translate list of vertices using matrices
-	  * @param verts Vertices list
-	  * @param dest Destination vector
-	  * @return Translated vertices 
-	  */
-	 private PVector[] translateVerts(PVector[] verts, PVector dest) // Translate vertices to a designated point
-	 {
-		 int vl = verts.length;
-		 PVector[] clone = new PVector[vl];
-
-		 for (int i = 0; i < vl; i++)
-			 clone[i] = PVector.add(verts[i], new PVector());
-
-		 PMatrix3D tMat = new PMatrix3D();
-		 tMat.translate(dest.x, dest.y, dest.z);
-
-		 PVector[] dst = new PVector[vl];
-
-		 for (int i = 0; i < vl; i++)
-			 dst[i] = new PVector();
-		 for (int i = 0; i < vl; i++)
-			 tMat.mult(clone[i], dst[i]);
-
-		 return dst;
-	 }
 
 	 /**
 	  * Draw image capture location for debugging or map display

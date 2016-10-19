@@ -566,7 +566,7 @@ class GMV_Metadata
 
 				try {
 					fOrientation = ParseOrientation(orientation);
-					fDirection = ParseDirection(direction);
+					fDirection = ParseDirection(direction);				// -- What about panoramas??
 				} 
 				catch (RuntimeException ex) {
 					if (p.p.debug.metadata)
@@ -590,7 +590,7 @@ class GMV_Metadata
 					if(panorama && !dataMissing)
 					{
 						PApplet.println("Adding panorama #"+pCount);
-						p.panoramas.add( new GMV_Panorama( p, pCount, name, pFilePath, pLoc, fDirection, iCameraModel, 
+						p.panoramas.add( new GMV_Panorama( p, pCount, name, pFilePath, pLoc, 0.f, 0.f, iCameraModel, 	// Ignore elevation and direction
 								iWidth, iHeight, fBrightness, calendarTime, null, null ) );
 						pCount++;
 					}

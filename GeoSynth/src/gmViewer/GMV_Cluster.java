@@ -499,16 +499,16 @@ public class GMV_Cluster
 			if(p.p.debug.stitching)
 				p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-			PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1, p.getSelectedImages());
-			
-			if(stitchedPanorama.width > 0 && stitchedPanorama.height > 0)
+//			PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1, p.getSelectedImages());
+//				GMV_Panorama pano = new GMV_Panorama( p, userPanoramas.size(), "_user_"+Integer.toString(userPanoramas.size()), 
+//						"", null, 0.f, 0.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
+//						1.f, null, getLocation(), stitchedPanorama );
+			GMV_Panorama pano = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1, p.getSelectedImages());
+			if(pano != null)
 			{
 				PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
-				GMV_Panorama pano = new GMV_Panorama( p, userPanoramas.size(), "_user_"+Integer.toString(userPanoramas.size()), 
-						"", null, -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
-						1.f, null, getLocation(), stitchedPanorama );
 
-				pano.initializePanorama(pano.panoramaDetail);
+				pano.initializeSphere(pano.panoramaDetail);
 				userPanoramas.add(pano);
 			}
 		}
@@ -550,14 +550,19 @@ public class GMV_Cluster
 					
 					if(valid.size() > 1)
 					{
-						PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID(), null);
-
-						GMV_Panorama pano = new GMV_Panorama( p, m.getID(), "_stitched_"+Integer.toString(m.getID()), 
-											"", null, -1.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
-											1.f, null, getLocation(), stitchedPanorama );
+//						PImage stitchedPanorama = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID(), null);
+//
+//						GMV_Panorama pano = new GMV_Panorama( p, m.getID(), "_stitched_"+Integer.toString(m.getID()), 
+//											"", null, 0.f, 0.f, -1, stitchedPanorama.width, stitchedPanorama.height, 
+//											1.f, null, getLocation(), stitchedPanorama );
 						
-						pano.initializePanorama(pano.panoramaDetail);
-						stitchedPanoramas.add(pano);
+						GMV_Panorama pano = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID(), null);
+						
+						if(pano != null)
+						{
+							pano.initializeSphere(pano.panoramaDetail);
+							stitchedPanoramas.add(pano);
+						}
 						
 //						PApplet.println("stitchedPanorama.width:"+stitchedPanorama.width);
 //						PApplet.println("stitchedPanorama.height:"+stitchedPanorama.height);

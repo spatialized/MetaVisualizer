@@ -73,17 +73,13 @@ public class GMV_Panorama extends GMV_Viewable
 
 		if(texture.width > 0 && !disabled)			
 		{
-			PApplet.println("1 Update panorama... visible? "+visible);
 			visible = (getDistanceBrightness() > 0.f);
-			PApplet.println("2 Update panorama... visible? "+visible);
 
 			if(p.p.debug.hidePanoramas)
 				visible = false;
-			PApplet.println("3 Update panorama... visible? "+visible);
 
 			if(visible && !fading && !fadedOut)					// Fade in
 				fadeIn();
-			PApplet.println("4 Update panorama... fading? "+fading);
 
 			if(fadedOut) fadedOut = false;
 			

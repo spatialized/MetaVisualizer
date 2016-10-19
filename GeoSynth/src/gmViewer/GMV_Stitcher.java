@@ -1,8 +1,11 @@
 package gmViewer;
 
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
 import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 
@@ -12,6 +15,7 @@ import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.OpenCVFrameConverter.*;
 
 import processing.core.PApplet;
+import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.data.IntList;
 
@@ -201,7 +205,7 @@ public class GMV_Stitcher
 				float centerDirection = (right + left) / 2.f;
 				float centerElevation = (upper + lower) / 2.f;
 
-				PApplet.println(" left:"+left+" right:"+right+" lower:"+lower+" upper:"+upper+" centerDirection:"+centerDirection+" centerElevation:"+centerElevation);
+//				PApplet.println(" left:"+left+" right:"+right+" lower:"+lower+" upper:"+upper+" centerDirection:"+centerDirection+" centerElevation:"+centerElevation);
 
 				segment = new GMV_MediaSegment( p.getCluster(clusterID), -1, selected, null, left, right, centerDirection,
 						lower, upper, centerElevation);
@@ -212,7 +216,30 @@ public class GMV_Stitcher
 			}
 			result = addImageBorders(result, clusterID, segment);
 
-			PApplet.println("Final Aspect Ratio:"+(result.width/result.height));
+			
+			String filePath = "";
+			String fileName = "";
+			
+			if(segmentID != -1)
+				fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched_borders.jpg";
+			else
+				fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+(stitchNum++)+"_borders.jpg";
+			
+			filePath = p.stitchingPath+fileName;
+
+			result.save(filePath);
+//			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, panorama);
+			if(p.debug.stitching) p.display.message("Debugging: output panorama with borders to file: " + fileName);
+
+//			IplImage img = new IplImage(panorama);
+
+			
+			
+			
+			
+			
+			PApplet.println("Final Width:"+result.width+" Height:"+result.height);
+			PApplet.println("Final Aspect Ratio:"+((float)result.width/(float)result.height));
 		}
 		return result;
 	}
@@ -283,9 +310,10 @@ public class GMV_Stitcher
 		float sBottom = s.getBottom();
 		float sTop = s.getTop();
 		
-		float aspect = src.width / src.height;
+		float aspect = (float)src.width / (float)src.height;
 		
-		PApplet.println("--> addImageBorders()... width:"+src.width+" height:"+src.height+" aspect:"+aspect);
+		PApplet.println("--> addImageBorders()...");
+		PApplet.println(" width:"+src.width+" height:"+src.height+" aspect:"+aspect);
 		PApplet.println(" sLeft:"+sLeft+" sRight:"+sRight+" sBottom:"+sBottom+" sTop:"+sTop);
 
 		float top = sTop + imgVertCoverage * 0.5f;
@@ -299,9 +327,11 @@ public class GMV_Stitcher
 		float yCoverage = PApplet.constrain(top - bottom, 0.f, 180.f);
 		PApplet.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
 
-		float fullHeight = src.height * yCoverage / 180.f;
-		float fullWidth = src.width * xCoverage / 360.f;		
-		
+//		float fullHeight = src.height * yCoverage / 180.f;
+//		float fullWidth = src.width * xCoverage / 360.f;		
+		float fullWidth = 360.f * src.width / xCoverage;
+		float fullHeight = 180.f * src.height / yCoverage;
+
 		float xDiff = fullWidth - src.width;
 		float yDiff = fullHeight - src.height;
 		
@@ -361,21 +391,24 @@ public class GMV_Stitcher
 	 */
 	IplImage pImageToIplImage( PImage img )
 	{
-		BufferedImage bufferedImage = pImageToBufferedImage(img);
-		return bufferedImageToIplImage(bufferedImage);
+	  BufferedImage bufferedImage = pImageToBufferedImage(img);    // WORKS
+	  return bufferedImageToIplImage(bufferedImage);              
 	}
-	
+
 	/**
 	 * Convert IplImage to PImage 
 	 * @param img Image source
 	 * @return The PImage
 	 */
-	PImage iplImageToPImage ( IplImage img ) 
+	PImage iplImageToPImage ( IplImage img )                       // ERROR
 	{
 	  java.awt.image.BufferedImage bImg = iplImageToBufferedImage(img);
-	  PImage pImg = new PImage( bImg.getWidth(), bImg.getHeight(), PApplet.ARGB );
-	  bImg.getRGB( 0, 0, pImg.width, pImg.height, pImg.pixels, 0, pImg.width );
-	  pImg.updatePixels();
+	  PImage pImg = bufferedImageToPImage(bImg);
+
+	  //new PImage( bImg.getWidth(), bImg.getHeight(), PApplet.ARGB );
+	  ////PImage pImg = new PImage( bImg.getWidth(), bImg.getHeight(), PApplet.RGB );
+	  //bImg.getRGB( 0, 0, pImg.width, pImg.height, pImg.pixels, 0, pImg.width );
+	  //pImg.updatePixels();
 	  return pImg;
 	}
 
@@ -384,14 +417,24 @@ public class GMV_Stitcher
 	 * @param img Image source
 	 * @return The BufferedImage
 	 */
-	public BufferedImage pImageToBufferedImage( PImage img )
+	public BufferedImage pImageToBufferedImage( PImage img )            // WORKS
 	{
-		img.loadPixels();
-		int type = (img.format == PApplet.RGB) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
-		BufferedImage image = new BufferedImage(img.width, img.height, type);
-		WritableRaster wr = image.getRaster();
-		wr.setDataElements(0, 0, img.width, img.height, img.pixels);
-		return image;
+	  PGraphics pg = p.createGraphics(img.width, img.height, PApplet.JAVA2D);
+
+	  pg.colorMode(PApplet.RGB);
+	  pg.beginDraw();
+	  pg.image(img, 0, 0);
+	  //pg.background(0, 0, 255);
+	  //pg.background(0, 255, 255);
+	  pg.endDraw();
+
+	  BufferedImageBuilder bufImgBuilder = new BufferedImageBuilder();
+	  int type = (img.format == PApplet.RGB) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+	  //BufferedImage buf = bufImgBuilder.bufferImage((java.awt.Image)pg.image, 2);
+	  //type = BufferedImage.TYPE_INT_ARGB_PRE;   // Testing
+	  BufferedImage buf = bufImgBuilder.bufferImage((java.awt.Image)pg.image, type);
+
+	  return buf;
 	}
 
 	/**
@@ -399,11 +442,15 @@ public class GMV_Stitcher
 	 * @param img Image source
 	 * @return The IplImage
 	 */
-	IplImage bufferedImageToIplImage(BufferedImage img) {
-
+	IplImage bufferedImageToIplImage(BufferedImage img) {      // WORKS
 	  ToIplImage iplConverter = new OpenCVFrameConverter.ToIplImage();
 	  Java2DFrameConverter java2dConverter = new Java2DFrameConverter();
+	  Java2DFrameConverter.copy( java2dConverter.convert(img), img, (double)1, true, new Rectangle(img.getWidth(), img.getHeight()) );
+
 	  IplImage iplImage = iplConverter.convert(java2dConverter.convert(img));
+	  org.bytedeco.javacpp.opencv_core.cvMixChannels(iplImage, 1, iplImage, 1, new int[] {0,0, 1,1, 2,2, 3,3}, 4); // ARGB to BGRA 
+
+	  iplImage.clone();
 	  return iplImage;
 	}
 
@@ -413,10 +460,144 @@ public class GMV_Stitcher
 	 * @return The IplImage
 	 */
 	public static BufferedImage iplImageToBufferedImage(IplImage img) {
-	  OpenCVFrameConverter.ToIplImage converter1 = new OpenCVFrameConverter.ToIplImage();
-	  Java2DFrameConverter converter2 = new Java2DFrameConverter();
-	  Frame frame = converter1.convert(img);
-	  return converter2.getBufferedImage(frame, 1);
+	  ToIplImage iplConverter = new OpenCVFrameConverter.ToIplImage();
+	  Java2DFrameConverter java2dConverter = new Java2DFrameConverter();
+	  Frame frame = iplConverter.convert(img);
+	  //return java2dConverter.getBufferedImage(frame, 1);
+
+	  BufferedImage buffered = new BufferedImage(img.width(), img.height(), BufferedImage.TYPE_INT_RGB);
+	  Java2DFrameConverter.copy( frame, buffered, (double)1, true, new Rectangle(img.width(), img.height()) );
+	  //return java2dConverter.getBufferedImage(frame, 1);
+	  return buffered;
 	}
+
+	public PImage bufferedImageToPImage(BufferedImage bimg) {          // WORKS
+	  try {
+	    //ByteArrayInputStream bis=new ByteArrayInputStream(bytes); 
+	    //BufferedImage bimg = ImageIO.read(bis); 
+	    PImage img=new PImage(bimg.getWidth(), bimg.getHeight(), PApplet.ARGB);
+	    bimg.getRGB(0, 0, img.width, img.height, img.pixels, 0, img.width);
+	    img.updatePixels();
+	    return img;
+	  }
+	  catch(Exception e) {
+	    System.err.println("Can't create image from buffer");
+	    e.printStackTrace();
+	  }
+	  return null;
+	}
+
+	public class BufferedImageBuilder {
+	  private static final int DEFAULT_IMAGE_TYPE = BufferedImage.TYPE_INT_RGB;
+	  //private static final int DEFAULT_IMAGE_TYPE = BufferedImage.TYPE_INT_;
+
+	  public BufferedImage bufferImage(Image image) {
+	    return bufferImage(image, DEFAULT_IMAGE_TYPE);
+	  }
+
+	  public BufferedImage bufferImage(Image image, int type) {
+	    BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);
+	    Graphics2D g1 = bufferedImage.createGraphics();
+	    g1.drawImage(image, null, null);
+	    waitForImage(bufferedImage);
+	    return bufferedImage;
+	  }
+
+	  private void waitForImage(BufferedImage bufferedImage) {
+	    final ImageLoadStatus imageLoadStatus = new ImageLoadStatus();
+	    bufferedImage.getHeight(new ImageObserver() {
+	      public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+	        if (infoflags == ALLBITS) {
+	          imageLoadStatus.heightDone = true;
+	          return true;
+	        }
+	        return false;
+	      }
+	    }
+	    );
+
+	    bufferedImage.getWidth(new ImageObserver() {
+	      public boolean imageUpdate(Image img, int infoflags, int x, int y, int width, int height) {
+	        if (infoflags == ALLBITS) {
+	          imageLoadStatus.widthDone = true;
+	          return true;
+	        }
+	        return false;
+	      }
+	    }
+	    );
+	  }
+
+	  class ImageLoadStatus {
+	    public boolean widthDone = false;
+	    public boolean heightDone = false;
+	  }
+	}
+
+	
+//	/**
+//	 * Convert PImage to IplImage
+//	 * @param img Image source
+//	 * @return The IplImage
+//	 */
+//	IplImage pImageToIplImage( PImage img )
+//	{
+//		BufferedImage bufferedImage = pImageToBufferedImage(img);
+//		return bufferedImageToIplImage(bufferedImage);
+//	}
+//	
+//	/**
+//	 * Convert IplImage to PImage 
+//	 * @param img Image source
+//	 * @return The PImage
+//	 */
+//	PImage iplImageToPImage ( IplImage img ) 
+//	{
+//	  java.awt.image.BufferedImage bImg = iplImageToBufferedImage(img);
+//	  PImage pImg = new PImage( bImg.getWidth(), bImg.getHeight(), PApplet.ARGB );
+//	  bImg.getRGB( 0, 0, pImg.width, pImg.height, pImg.pixels, 0, pImg.width );
+//	  pImg.updatePixels();
+//	  return pImg;
+//	}
+//
+//	/**
+//	 * Convert PImage to BufferedImage
+//	 * @param img Image source
+//	 * @return The BufferedImage
+//	 */
+//	public BufferedImage pImageToBufferedImage( PImage img )
+//	{
+//		img.loadPixels();
+//		int type = (img.format == PApplet.RGB) ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+//		BufferedImage image = new BufferedImage(img.width, img.height, type);
+//		WritableRaster wr = image.getRaster();
+//		wr.setDataElements(0, 0, img.width, img.height, img.pixels);
+//		return image;
+//	}
+//
+//	/**
+//	 * Convert BufferedImage to IplImage
+//	 * @param img Image source
+//	 * @return The IplImage
+//	 */
+//	IplImage bufferedImageToIplImage(BufferedImage img) {
+//
+//	  ToIplImage iplConverter = new OpenCVFrameConverter.ToIplImage();
+//	  Java2DFrameConverter java2dConverter = new Java2DFrameConverter();
+//	  IplImage iplImage = iplConverter.convert(java2dConverter.convert(img));
+//	  return iplImage;
+//	}
+//
+//	/**
+//	 * Convert IplImage to BufferedImage
+//	 * @param img Image source
+//	 * @return The IplImage
+//	 */
+//	public static BufferedImage iplImageToBufferedImage(IplImage img) {
+//	  OpenCVFrameConverter.ToIplImage converter1 = new OpenCVFrameConverter.ToIplImage();
+//	  Java2DFrameConverter converter2 = new Java2DFrameConverter();
+//	  Frame frame = converter1.convert(img);
+//	  return converter2.getBufferedImage(frame, 1);
+//	}
 }
 

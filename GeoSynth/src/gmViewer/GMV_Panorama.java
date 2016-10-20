@@ -218,6 +218,7 @@ public class GMV_Panorama extends GMV_Viewable
 		p.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
 
 		float r = p.p.defaultFocusDistance;				// Testing this
+//		float r = p.p.defaultFocusDistance;				// Testing this
 		int v0,v1,v2;
 
 		p.p.textureMode(PApplet.IMAGE);
@@ -257,7 +258,6 @@ public class GMV_Panorama extends GMV_Viewable
 			else
 				p.p.tint(255, viewingBrightness);          				
 		}
-
 		
 		float iu = (float)(texture.width-1)/(panoramaDetail);
 		float iv = (float)(texture.height-1)/(panoramaDetail);
@@ -336,22 +336,19 @@ public class GMV_Panorama extends GMV_Viewable
 		float[] cx = new float[resolution];
 		float[] cz = new float[resolution];
 
-		// Calc unit circle in XZ plane
-		for (int i = 0; i < resolution; i++) {
+		for (int i = 0; i < resolution; i++) 		// Calc unit circle in XZ plane
+		{
 			cx[i] = -cosLUT[(int) (i*delta) % sinCosLength];
 			cz[i] = sinLUT[(int) (i*delta) % sinCosLength];
 		}
 
-		// Computing vertexlist vertexlist starts at south pole
-		int vertCount = resolution * (resolution-1) + 2;
+		int vertCount = resolution * (resolution-1) + 2;			// Computing vertexlist, starting at south pole
 		int currVert = 0;
 
 		// Re-init arrays to store vertices
 		
 		sphere = new PVector[vertCount];
-//		sphereX = new float[vertCount];
-//		sphereY = new float[vertCount];
-//		sphereZ = new float[vertCount];
+
 		float angle_step = (sinCosLength*0.5f)/resolution;
 		float angle = angle_step;
 
@@ -373,6 +370,8 @@ public class GMV_Panorama extends GMV_Viewable
 		if (phi != 0.f)
 			sphere = rotateVertices(sphere, -phi, verticalAxis);         // Rotate around X axis
 
+//		if( theta != 0.f )
+//			sphere = rotateVertices(sphere, 360-theta, azimuthAxis);          // Rotate around Z axis
 		if( theta != 0.f )
 			sphere = rotateVertices(sphere, 360-theta, azimuthAxis);          // Rotate around Z axis
 

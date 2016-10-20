@@ -342,7 +342,7 @@ public class GMV_Input
 					p.viewer.moveToPreviousTimeSegment(false, false);
 			}
 			
-			if (key == 'y')
+			if (key == '~')
 				p.viewer.followMemory();
 
 			if (key == '>')

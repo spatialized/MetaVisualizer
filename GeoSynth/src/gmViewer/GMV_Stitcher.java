@@ -269,36 +269,44 @@ public class GMV_Stitcher
 
 			result = addImageBorders(iplImage, clusterID, segment);
 			
-//			{	// TESTING
-//				String filePath = "";
-//				String fileName = "";
-//
-//				if(segmentID != -1)
-//					fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched_borders.jpg";
-//				else
-//					fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_borders.jpg";
-//
-//				filePath = p.stitchingPath+fileName;
-//
-//				if(p.debug.stitching) p.display.message("Debugging: output panorama with borders to file: " + fileName);
-//				
-//				result.save(filePath);
-//			}
+			if(p.debug.stitching)	// TESTING
+			{	
+				String filePath = "";
+				String fileName = "";
 
-			float panoDirection = segment.getCenterDirection() - 90.f;		// Why 90.f?
+				if(segmentID != -1)
+					fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched_borders.jpg";
+				else
+					fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_borders.jpg";
+
+				filePath = p.stitchingPath+fileName;
+
+				if(p.debug.stitching) p.display.message("Debugging: output panorama with borders to file: " + fileName);
+				
+				result.save(filePath);
+			}
+
+			float panoDirection = segment.getCenterDirection() - 90.f;		// Why 180.f?
+//			float panoDirection = segment.getCenterDirection() + 90.f;		// Why 180.f?
+			if(panoDirection < 0.f) panoDirection += 360.f;
+			if(panoDirection > 360.f) panoDirection -= 360.f;
+			
+//			float panoDirection = segment.getCenterDirection();		
 			float panoElevation = segment.getCenterElevation();
 			
 			GMV_Panorama pano = new GMV_Panorama( p.getCurrentField(), segment.getID(), "_stitched_"+Integer.toString(segment.getID()), 
 					"", null, panoDirection, panoElevation, -1, result.width, result.height, 
 					1.f, null, p.getCluster(clusterID).getLocation(), result );
 		
-			PApplet.println("Final Width:"+result.width+" Height:"+result.height);
-			PApplet.println("Final Aspect Ratio:"+((float)result.width/(float)result.height));
+			if(p.debug.stitching)
+			{
+				PApplet.println("Final Width:"+result.width+" Height:"+result.height);
+				PApplet.println("Final Aspect Ratio:"+((float)result.width/(float)result.height));
+			}
 			return pano;
 		}
 		
 		return null;
-		
 	}
 	
 	/**
@@ -387,11 +395,34 @@ public class GMV_Stitcher
 		if(p.debug.stitching)
 			PApplet.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
 
-		float fullWidth = 360.f * src.width() / xCoverage;
-		float fullHeight = 180.f * src.height() / yCoverage;
+		float fullWidth, fullHeight;
+		
+		// New Method:
+		if(aspect > 2.f)	// Wider than 2/1
+		{
+			fullWidth = 4096;
+			fullHeight = PApplet.round(fullWidth / aspect);
+		}
+		else if(aspect < 2.f)	// Taller than 2/1
+		{
+			fullHeight = 2048;
+			fullWidth = PApplet.round(fullHeight * aspect);
+		}
+		else
+		{
+			fullWidth = 4096;
+			fullHeight = 2048;
+		}
+		
+		// Old Method:
+//		float fullWidth = 360.f * src.width() / xCoverage;
+//		float fullHeight = 180.f * src.height() / yCoverage;
 
 		float xDiff = fullWidth - src.width();
 		float yDiff = fullHeight - src.height();
+		
+		if(p.debug.stitching)
+			PApplet.println(" fullWidth:"+fullWidth+" fullHeight:"+fullHeight+" xDiff:"+xDiff+" yDiff:"+yDiff);
 		
 		int topBorder = PApplet.abs(PApplet.round(yDiff / 2.f));
 		int bottomBorder = PApplet.abs(PApplet.round(yDiff / 2.f));

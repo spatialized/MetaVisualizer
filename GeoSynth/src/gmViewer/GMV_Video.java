@@ -114,7 +114,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			distanceBrightnessFactor = getDistanceBrightness(); 
 			brightness *= distanceBrightnessFactor; 								// Fade alpha based on distance to camera
 
-			if( p.p.timeFading )
+			if( p.p.timeFading || p.p.dateFading )
 			{
 				if(!p.p.viewer.isMoving())
 				{

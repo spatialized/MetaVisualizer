@@ -50,24 +50,15 @@ public class GMV_Field
 
 	/* Time */
 	public final int numBins = 100; 							// Time precision
-	public int[] timesHistogram = new int[numBins]; 	// Which times of the day have the most or least photos?
-
-//	public int currentTime = 0;								// Time units since start of time cycle (day / month / year)
-//	public int timeUnitLength;					// Length of time unit in frames  (e.g. 10 means every 10 frames)
-//	public float timeInc;						// User time increment
-	public boolean initFading = true;
-	
-
-	/* Clusters */	
 	ArrayList<GMV_TimeSegment> timeline;								// Cluster timeline for this field
-	public int disassociatedImages = 0;
-	public int disassociatedPanoramas = 0;
-	public int disassociatedVideos = 0;
-	
-	/* Interaction */
-//	public int selectedImage = -1, selectedPanorama = -1, selectedVideo = -1;
+	ArrayList<GMV_TimeSegment> dateline;								// Cluster timeline for this field
 
 	GeoSynth p;
+	
+	/* -- Debug -- */	
+	public int disassociatedImages = 0;					// -- Check and delete variables
+	public int disassociatedPanoramas = 0;
+	public int disassociatedVideos = 0;
 
 	GMV_Field(GeoSynth parent, String newMediaFolder, int newFieldID)
 	{
@@ -84,7 +75,7 @@ public class GMV_Field
 		videos = new ArrayList<GMV_Video>();		
 
 		timeline = new ArrayList<GMV_TimeSegment>();
-
+		dateline = new ArrayList<GMV_TimeSegment>();
 	}
 
 	public void draw() 				// Draw currently visible media
@@ -194,6 +185,7 @@ public class GMV_Field
 			model.lockMediaToClusters();	
 
 		createTimeline();					// Create field timeline
+		createDateline();					// Create field timeline
 		model.analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 	}
 	
@@ -228,7 +220,7 @@ public class GMV_Field
 				timeline.add(t);
 		}
 
-		timeline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort time points 
+		timeline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort time segments 
 		
 		if(p.debug.time)
 		{
@@ -241,6 +233,39 @@ public class GMV_Field
 		}
 	}
 	
+	public void createDateline()
+	{
+		for(GMV_Cluster c : clusters)											// Find all media cluster times
+		{
+			ArrayList<GMV_TimeSegment> dates = new ArrayList<GMV_TimeSegment>();
+			int count = 0;
+			
+			for(float f : c.getClusterDates())									// Iterate through cluster dates
+			{
+				GMV_TimeSegment date = new GMV_TimeSegment(	c.getID(), f, c.getClusterDatesLowerBounds().get(count), 
+														    c.getClusterDatesUpperBounds().get(count));
+				dates.add( date );							// Add segment to dateline
+			
+				count++;
+			}
+
+			for(GMV_TimeSegment t : dates)										// Add indexed cluster times to dateline
+				dateline.add(t);
+		}
+
+		dateline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
+		
+		if(p.debug.time)
+		{
+			PApplet.println("---> First lower:"+" dateline.get(0).lower():"+dateline.get(0).getLower());
+			PApplet.println("---> First center:"+" dateline.get(0).lower():"+dateline.get(0).getCenter());
+			PApplet.println("---> First upper:"+" dateline.get(0).lower():"+dateline.get(0).getUpper());
+			PApplet.println("---> Last lower:"+" dateline.get(dateline.size()-1).lower():"+dateline.get(dateline.size()-1).getLower());
+			PApplet.println("---> Last center:"+" dateline.get(dateline.size()-1).center():"+dateline.get(dateline.size()-1).getCenter());
+			PApplet.println("---> Last upper:"+" dateline.get(dateline.size()-1).upper():"+dateline.get(dateline.size()-1).getUpper());
+		}
+	}
+
 	/**
 	 * @return List of waypoints based on field timeline
 	 */
@@ -256,6 +281,23 @@ public class GMV_Field
 		if(p.debug.field)
 			PApplet.println("getTimelineAsPath()... timelinePath.size():"+timelinePath.size());
 		return timelinePath;
+	}
+
+	/**
+	 * @return List of waypoints based on field dateline
+	 */
+	public ArrayList<GMV_Waypoint> getDatelineAsPath()
+	{
+		ArrayList<GMV_Waypoint> datelinePath = new ArrayList<GMV_Waypoint>();
+
+		for(GMV_TimeSegment d : dateline)
+		{
+			GMV_Waypoint w = clusters.get(d.getID()).getClusterAsWaypoint();
+			datelinePath.add(w);
+		}
+		if(p.debug.field)
+			PApplet.println("getDatelineAsPath()... datelinePath.size():"+datelinePath.size());
+		return datelinePath;
 	}
 
 	/**
@@ -366,7 +408,7 @@ public class GMV_Field
 		{
 			images.get(i).calculateVertices();
 		}
-
+		
 		for (int i = 0; i < videos.size(); i++) 
 		{
 			videos.get(i).calculateVertices();

@@ -9,6 +9,7 @@ import processing.core.*;
 
 public class GMV_Input
 {
+	public boolean wasTimeFading, wasDateFading;
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
 	int mouseClickedX = 0, mouseClickedY = 0;
@@ -21,6 +22,8 @@ public class GMV_Input
 
 	GMV_Input(GeoSynth parent) {
 		p = parent;
+		wasDateFading = p.dateFading;
+		wasTimeFading = p.timeFading;
 	}
 
 	/**
@@ -266,6 +269,12 @@ public class GMV_Input
 			if (!optionKey && key == 'd') 
 				p.viewer.startMoveXTransition(1);
 
+			if (key == 'D') 
+				p.dateFading = !p.dateFading;
+
+			if (key == 'T') 
+				p.timeFading = !p.timeFading;
+
 			if (!optionKey && key == 's') 
 				p.viewer.startMoveZTransition(1);
 
@@ -312,8 +321,17 @@ public class GMV_Input
 			
 			if(optionKey)
 			{
-				if (key == 'f') 
+				if (key == 't') 
 					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
+
+				if (key == 'd') 
+					p.viewer.moveToDateInField(p.getCurrentField().fieldID, 0, true);
+
+				if (key == 'T')
+					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
+
+				if (key == 'D') 
+					p.viewer.moveToDateInField(p.getCurrentField().fieldID, 0, false);
 
 				if (key == 'n')						// Teleport to current time segment
 					p.viewer.moveToNextTimeSegment(true, true);
@@ -329,9 +347,6 @@ public class GMV_Input
 			}
 			else
 			{
-				if (key == 'f')  //key == 'F') 
-					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
-
 				if (key == 'n')						// Move to current time segment
 					p.viewer.moveToNextTimeSegment(true, false);
 
@@ -396,10 +411,10 @@ public class GMV_Input
 			/* 3D Controls Disabled in HUD View */
 			if(!p.display.inDisplayView())							
 			{
-				if (key == 'D')
+				if (optionKey && key == 'e')
 					p.blurEdges = !p.blurEdges;
 
-				if (key == 'h')	
+				if (key == 'i')	
 				{
 					if(p.getCurrentField().hideImages)
 						p.getCurrentField().showImages();
@@ -426,8 +441,15 @@ public class GMV_Input
 				if (key == 'P')
 					p.alphaMode = !p.alphaMode;
 
-				if (key == ' ') 
+				if (!shiftKey && key == ' ') 
+				{
 					p.timeFading = !p.timeFading;
+				}
+
+				if (shiftKey && key == ' ') 
+				{
+					p.dateFading = !p.dateFading;
+				}
 
 				if (key == ')') {
 					p.display.changeBlendMode(1);
@@ -440,13 +462,13 @@ public class GMV_Input
 				if (key == ':')
 				{
 					p.showUserPanoramas = !p.showUserPanoramas;
-					PApplet.println("showUserPanoramas:"+p.showUserPanoramas);
+//					PApplet.println("showUserPanoramas:"+p.showUserPanoramas);
 				}
 
 				if (key == ';')
 				{
 					p.showStitchedPanoramas = !p.showStitchedPanoramas;
-					PApplet.println("showStitchedPanoramas:"+p.showStitchedPanoramas);
+//					PApplet.println("showStitchedPanoramas:"+p.showStitchedPanoramas);
 				}
 
 				if (key == 'O') 
@@ -456,7 +478,7 @@ public class GMV_Input
 					if(p.viewer.selection && p.viewer.segmentSelection) p.viewer.segmentSelection = false;
 				}
 				
-				if (optionKey && key == 'd')
+				if (optionKey && key == 'x')
 					p.getCurrentField().deselectAllMedia();
 
 //				if (key == 'D')
@@ -511,7 +533,7 @@ public class GMV_Input
 //					p.angleHidingMode = p.angleFading;
 				}
 				
-				if (key == 'T')
+				if (key == 'h')
 				{
 					p.angleThinning = !p.angleThinning;
 //					p.display.message("p.angleThinning:"+p.angleThinning);
@@ -541,20 +563,6 @@ public class GMV_Input
 				/* Navigation */
 				if (key == 'k') 
 					p.viewer.lockToCluster = !p.viewer.lockToCluster;
-
-//				if(key == 'I')
-//					p.viewer.autoNavigation = !p.viewer.autoNavigation;
-
-//				if (key == 't')		// Move and turn to face selected image
-//				{
-//					if(p.getCurrentField().selectedImage != -1)
-//						p.viewer.moveToCaptureLocation(p.getCurrentField().selectedImage, true);
-//					else
-//						p.display.message("No selected image!");
-//				}
-				
-//				if (key == 'l') 	// Turn towards selected image
-//					p.viewer.turnTowardsSelected();
 
 				if (key == 'L') 			// Look for images when none are visible
 					p.viewer.lookForImages();

@@ -88,7 +88,6 @@ class GMV_Image extends GMV_Viewable
 		if(!verticesAreNull())
 		{
 			float distanceBrightnessFactor; 						// Fade with distance
-			float timeBrightnessFactor;                        		// Fade with time 
 			float angleBrightnessFactor;							// Fade with angle
 
 			float brightness = fadingBrightness;					
@@ -98,6 +97,7 @@ class GMV_Image extends GMV_Viewable
 			
 			if( p.p.timeFading )
 			{
+				float timeBrightnessFactor;                        		// Fade with time 
 				if(!p.p.viewer.isMoving())
 				{
 					if(p.p.showAllTimeSegments)
@@ -123,6 +123,40 @@ class GMV_Image extends GMV_Viewable
 						else														// Hide media outside current cluster
 						{
 							timeBrightnessFactor = 0.f;
+							brightness = 0.f;
+						}
+					}
+				}
+			}
+
+			if( p.p.dateFading )
+			{
+				float dateBrightnessFactor;                        		// Fade with time 
+				if(!p.p.viewer.isMoving())
+				{
+					if(p.p.showAllDateSegments)
+					{
+						if(p.p.getCluster(cluster).dateline.size() > 0)
+							dateBrightnessFactor = getDateBrightness();    
+						else
+						{
+							dateBrightnessFactor = 0.f;
+							if(p.p.debug.cluster || p.p.debug.image || p.p.debug.viewable)
+								p.p.display.message("Cluster: "+cluster+" has no dateline points!");
+						}
+						
+						brightness *= dateBrightnessFactor; 					// Fade brightness based on time
+					}
+					else
+					{
+						if(p.p.viewer.getCurrentCluster() == cluster)
+						{
+							dateBrightnessFactor = getDateBrightness();        
+							brightness *= dateBrightnessFactor; 					// Fade brightness based on time
+						}
+						else														// Hide media outside current cluster
+						{
+							dateBrightnessFactor = 0.f;
 							brightness = 0.f;
 						}
 					}

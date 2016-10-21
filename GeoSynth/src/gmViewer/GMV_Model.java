@@ -271,6 +271,13 @@ public class GMV_Model
 		if(p.p.debug.cluster && p.p.display.initialSetup)
 			PApplet.println("Creating "+numClusters+" initial clusters based on "+validMedia+" valid media...");
 
+		boolean test = false;
+//		if(numClusters - validMedia > 10000)
+//		{
+//			test = true;;
+//			numClusters = validMedia;
+//		}
+		
 		/* K-means Clustering */
 		if (validMedia > 1) 							// If there are more than 1 media point
 		{

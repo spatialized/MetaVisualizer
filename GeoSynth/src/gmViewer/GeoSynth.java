@@ -48,14 +48,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public int setupProgress = 0;						// Setup progress (0 to 100)
 	public float fieldProgressInc;						// How much to increment progress bar per field
 	
-	/* Memory */
-	public int minAvailableMemory = 50000000;			// Minimum available memory
-	public int memoryCheckFrequency = 50;
-	public int minFrameRate = 10;
-	
-	/* Metadata */
-	public boolean showMetadata = false;
-	
 	/* Model */
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
@@ -76,6 +68,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	/* Viewer */
 	public boolean firstTeleport = false;
 
+	/* Metadata */
+	public boolean showMetadata = false;
+	
 	/* Media */
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
@@ -91,7 +86,6 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean showUserPanoramas = true;			// Show panoramas stitched from user selected media
 	public boolean showStitchedPanoramas = true;		// Show panoramas stitched from media segments
 
-	
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
 	public boolean interactive = false;					// In user clustering mode?
@@ -113,22 +107,37 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
 	/* Time */
-	public boolean timeFading = true;					// Does time affect photos' brightness? (true = yes; false = no)
-	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
-//	public boolean pause = false;
+	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
+	public boolean dateFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
 
-	public int timeCycleLength = 500;					// Length of main time loop in frames
+	// -- TESTING
+	public boolean showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
+	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
+
+	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
+	public int timeCycleLength = 300;					// Length of main time loop in frames
 	public int timeUnitLength = 1;						// How many frames between time increments
 	public float timeInc = timeCycleLength / 30.f;			
 
-	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
-	public float minTimeBrightness = 0.f;				// Time dimming factor minimum
+	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
+	public int dateCycleLength = 500;					// Length of main date loop in frames
+	public int dateUnitLength = 1;						// How many frames between date increments
+	public float dateInc = dateCycleLength / 30.f;			
+
 	public int defaultMediaLength = 60;					// Default frame length of media in time cycle
 
-	public final int clusterTimelineMinPoints = 3;		// Minimum points to be a cluster on timeline   -- Not used??
-	public final int clusterTimePrecision = 500;		// Precision of timesHistogram (number of bins)
-	public final int fieldTimePrecision = 5000;			// Precision of timesHistogram (number of bins)
+	public final int clusterTimePrecision = 500;		// Precision of timesHistogram (no. of bins)
+	public final int clusterDatePrecision = 500;		// Precision of datesHistogram (no. of bins)
+	public final int fieldTimePrecision = 5000;			// Precision of timesHistogram (no. of bins)
+	public final int fieldDatePrecision = 5000;			// Precision of timesHistogram (no. of bins)
+//	public final int clusterTimelineMinPoints = 3;		// Minimum points to be a cluster on timeline   -- Not used
+//	public final int clusterDatelineMinPoints = 3;		// Minimum points to be a cluster on dateline   -- Not used
 
+	/* Memory */
+	public int minAvailableMemory = 50000000;			// Minimum available memory
+	public int memoryCheckFrequency = 50;
+	public int minFrameRate = 10;
+	
 	/* Media */
 	private ArrayList<GMV_Field> fields;					// Large geographical area containing media for simulation
 	private ArrayList<String> folders;					// Directories for each field in library
@@ -322,7 +331,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	 */
 	void updateTime()
 	{
-		if(timeFading && frameCount % timeUnitLength == 0)
+		if(timeFading && !dateFading && frameCount % timeUnitLength == 0)
 		{
 			currentTime++;															// Increment field time
 
@@ -339,6 +348,29 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 				else
 				{
 					currentTime = 0;
+					if(debug.detailed)
+						PApplet.println("Reached end of day at frameCount:"+frameCount);
+				}
+			}
+		}
+		
+		if(dateFading && !timeFading && frameCount % dateUnitLength == 0)
+		{
+			currentDate++;															// Increment field date
+
+			if(currentDate > dateCycleLength)
+				currentDate = 0;
+
+			if(debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
+			{
+				if(getCurrentField().mediaAreActive())
+				{
+					if(debug.detailed)
+						PApplet.println("Media still active...");
+				}
+				else
+				{
+					currentDate = 0;
 					if(debug.detailed)
 						PApplet.println("Reached end of day at frameCount:"+frameCount);
 				}

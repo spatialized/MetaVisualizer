@@ -42,6 +42,9 @@ public class GMV_Cluster
 	
 	int[] clusterTimesHistogram, fieldTimesHistogram;					// Histogram of media times in cluster	
 	ArrayList<GMV_TimeSegment> timeline;								// Timeline for this cluster
+	int[] clusterDatesHistogram, fieldDatesHistogram;					// Histogram of media times in cluster	
+	ArrayList<GMV_TimeSegment> dateline;								// Date timeline for this cluster
+	
 	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
 	public int timeUnitLength;			// Length of time unit in frames  (e.g. 10 means every 10 frames)
 	public int baseTimeScale = 0; 					// (Not implemented yet) 0 = minutes, 1 = hours, 2 = days, 3 = months, 4 = years
@@ -104,6 +107,9 @@ public class GMV_Cluster
 		mediaPoints = 0;
 		
 		clusterDates = new FloatList();
+		clusterDatesLowerBounds = new FloatList();
+		clusterDatesUpperBounds = new FloatList();
+
 		clusterTimes = new FloatList();
 		clusterTimesLowerBounds = new FloatList();
 		clusterTimesUpperBounds = new FloatList();
@@ -111,10 +117,16 @@ public class GMV_Cluster
 		fieldTimes = new FloatList();
 		fieldTimesLowerBounds = new FloatList();
 		fieldTimesUpperBounds = new FloatList();
+
 		fieldDates = new FloatList();
+		fieldDatesLowerBounds = new FloatList();
+		fieldDatesUpperBounds = new FloatList();
 		
 		clusterTimesHistogram = new int[p.p.clusterTimePrecision];
 		fieldTimesHistogram = new int[p.p.fieldTimePrecision];
+
+		clusterDatesHistogram = new int[p.p.clusterTimePrecision];
+		fieldDatesHistogram = new int[p.p.fieldTimePrecision];
 
 		timeline = new ArrayList<GMV_TimeSegment>();
 		timeUnitLength = p.p.timeUnitLength;				// Length of time unit in frames  (e.g. 10 means every 10 frames)
@@ -902,7 +914,8 @@ public class GMV_Cluster
 	{
 		calculateDimensions();		// Calculate cluster dimensions (bounds)
 		calculateTimes();			// Calculate cluster times
-		createTimeline();			// Create times histograms and analyze for time points 
+		createTimeline();			// Create times histograms and analyze for time segments
+		createDateline();			// Create dates histograms and analyze for date segments
 	}
 	
 	/**
@@ -935,7 +948,7 @@ public class GMV_Cluster
 		clusterTimesLowerBounds = new FloatList();
 		clusterTimesUpperBounds = new FloatList();
 		timeline = new ArrayList<GMV_TimeSegment>();
-		
+
 		for(int t:timeSegments)
 		{
 			if(!clusterTimes.hasValue(t))
@@ -1074,6 +1087,176 @@ public class GMV_Cluster
 		if(timeline.size() == 0)
 		{
 			PApplet.println("Cluster timeline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
+			empty();
+		}
+	}
+	
+	void createDateline()
+	{
+		FloatList mediaDates = new FloatList();							// List of times to analyze
+		IntList dateSegments;														// Temporary time point list for finding duplicates
+
+		/* Get times of all media of all types in this cluster */
+		for(int i : images) mediaDates.append( p.images.get(i).time.getDate() );
+		for(int n : panoramas) mediaDates.append( p.panoramas.get(n).time.getDate() );
+		for(int v : videos) mediaDates.append( p.videos.get(v).time.getDate() );
+
+		/* Create cluster-specific times histogram */
+		for (int i = 0; i < p.p.clusterDatePrecision; i++) // Initialize histogram
+			clusterDatesHistogram[i] = 0;
+		
+		for (int i = 0; i < mediaDates.size(); i++) 							// Fill cluster times histogram
+		{
+			int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, 
+									p.p.clusterDatePrecision - 1), 0.f, p.p.clusterDatePrecision - 1.f));
+			clusterDatesHistogram[idx]++;
+		}
+
+		dateSegments = getTimeSegments(clusterDatesHistogram, p.p.clusterDatePrecision);	// Get relative (cluster) time segments
+
+		clusterDates = new FloatList();
+		clusterDatesLowerBounds = new FloatList();
+		clusterDatesUpperBounds = new FloatList();
+		dateline = new ArrayList<GMV_TimeSegment>();
+		
+		for(int t:dateSegments)
+		{
+			if(!clusterDates.hasValue(t))
+			{
+				/* Add cluster date */
+				clusterDates.append(PApplet.map(t, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+				
+				/* Find upper and lower bounds for cluster dates */
+				int i = t;
+				int val = clusterDatesHistogram[i];
+				while(val != 0) 				
+				{
+					i--;
+					if(i >= 0)
+						val = clusterDatesHistogram[i];
+					else
+					{
+						i=0;
+						break;
+					}
+				}
+				clusterDatesLowerBounds.append(PApplet.map(i, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+				
+				i = t;
+				val = clusterDatesHistogram[i];
+				while(val != 0) 				
+				{
+					i++;
+					if(i < clusterDatesHistogram.length)
+						val = clusterDatesHistogram[i];
+					else
+					{
+						i=clusterDatesHistogram.length - 1;
+						break;
+					}
+				}
+				clusterDatesUpperBounds.append(PApplet.map(i, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+			}
+		}
+
+		int count = 0;
+		for( float t:clusterDates )							// Add dates to dateline
+		{
+			dateline.add(new GMV_TimeSegment(count, t, clusterDatesUpperBounds.get(count), clusterDatesLowerBounds.get(count)));
+			count++;
+		}
+
+		mediaDates = new FloatList();
+
+		/* Get dates of all media of all types in field */
+		for(GMV_Image i : p.images) mediaDates.append( i.time.getDate() );
+		for(GMV_Panorama n : p.panoramas) mediaDates.append( n.time.getDate() );
+		for(GMV_Video v : p.videos) mediaDates.append( v.time.getDate() );
+
+		for (int i = 0; i < p.p.fieldDatePrecision; i++) 		// Initialize histogram
+			fieldDatesHistogram[i] = 0;
+
+		for (int i = 0; i < mediaDates.size(); i++) 			// Fill field dates histogram
+		{
+			int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, p.p.fieldDatePrecision - 1), 0.f, p.p.fieldDatePrecision - 1.f));
+			fieldDatesHistogram[idx]++;
+		}
+		
+		dateSegments = new IntList();														
+		dateSegments = getTimeSegments(fieldDatesHistogram, p.p.fieldDatePrecision);		// Get absolute (field) date segments
+		
+		fieldDates = new FloatList();
+		fieldDatesLowerBounds = new FloatList();
+		fieldDatesUpperBounds = new FloatList();
+		
+		for(int t:dateSegments)
+		{
+			if(!fieldDates.hasValue(t))
+			{
+				fieldDates.append(PApplet.map(t, 0, p.p.fieldDatePrecision, 0.f, 1.f));
+
+				/* Find upper and lower bounds for field dates */
+				int i = t;
+				int val = fieldDatesHistogram[i];
+				while(val != 0) 				
+				{
+					i--;
+					if(i >= 0)
+						val = fieldDatesHistogram[i];
+					else
+					{
+						i=0;
+						break;
+					}
+				}
+				fieldDatesLowerBounds.append(PApplet.map(i, 0, p.p.fieldDatePrecision, 0.f, 1.f));
+
+				i = t;
+				val = fieldDatesHistogram[i];
+				while(val != 0) 				
+				{
+					i++;
+					if(i < fieldDatesHistogram.length)
+						val = fieldDatesHistogram[i];
+					else
+					{
+						i=fieldDatesHistogram.length - 1;
+						break;
+					}
+				}
+				fieldDatesUpperBounds.append(PApplet.map(i, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+			}
+		}
+	
+		clusterDates.sort();
+		fieldDates.sort();
+		dateline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort dateline points 
+		
+		/* Debugging */
+		if(p.p.debug.cluster && clusterDates.size()>1)
+		{
+			PApplet.println("--> Cluster "+id+" with "+clusterDates.size()+" different cluster dates...");
+
+			int ct = 0;
+			for(float f:clusterDates)
+			{
+				PApplet.println("Cluster "+id+", cluster date #"+(ct++)+": "+f);
+			}
+		}
+		if(p.p.debug.cluster && fieldDates.size()>1)
+		{
+			PApplet.println("--> Cluster "+id+" with "+fieldDates.size()+"different field dates...");
+
+			int ct = 0;
+			for(float f:fieldDates)
+			{
+				PApplet.println("Cluster "+id+", cluster field date #"+(ct++)+": "+f);
+			}
+		}
+		
+		if(dateline.size() == 0)
+		{
+			PApplet.println("Cluster dateline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
 			empty();
 		}
 	}
@@ -1455,6 +1638,21 @@ public class GMV_Cluster
 	public FloatList getClusterTimesUpperBounds()
 	{
 		return clusterTimesUpperBounds;
+	}
+
+	public FloatList getClusterDates()
+	{
+		return clusterDates;
+	}
+
+	public FloatList getClusterDatesLowerBounds()
+	{
+		return clusterDatesLowerBounds;
+	}
+
+	public FloatList getClusterDatesUpperBounds()
+	{
+		return clusterDatesUpperBounds;
 	}
 	
 	public void setActive(boolean newActive)

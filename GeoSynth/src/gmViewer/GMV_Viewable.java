@@ -93,10 +93,10 @@ public abstract class GMV_Viewable
 		fadingBrightness = 0.f;			
 		fadingStart = 0.f;
 
-		timeLogMap = new ScaleMap(0., 1., p.p.minTimeBrightness, 1.f);		/* Time fading interpolation */
+		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(p.p.circularEaseOut);
 		
-		if(p.p.timeFading)
+		if(p.p.timeFading || p.p.dateFading)
 			initFading = false;			/* No need for initial fade in during Time Fading Mode */
 	}  
 
@@ -289,152 +289,95 @@ public abstract class GMV_Viewable
 		int fadeLength = fadeOutEnd - fadeOutStart;
 
 		boolean error = false;
-		
+
 		GMV_Cluster c = p.p.getCluster(cluster);			// Get cluster for this media
-		
-//		switch(p.p.timeFadingMode)
-//		{
-//		case 0:					// Field Time Mode
-//			centerTime = PApplet.round( PApplet.map(time.getTime(), 0.f, 1.f,  p.p.defaultMediaLength * 0.25f, 
-//										cycleLength - p.p.defaultMediaLength * 0.25f) );				// Calculate center time in field timeline
-//			length = p.p.defaultMediaLength;				
-//			
-//			fadeInStart = centerTime - (int)length / 2;		// Frame media starts fading in
-//			fadeInEnd = centerTime - (int)length / 4;		// Frame media reaches full brightness
-//			fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
-//			fadeOutEnd = centerTime + (int)length / 2;		// Frame media finishes fading out
-//			
-//			break;
-//			
-//		case 1:					// Cluster Time Mode
-			
-			
-			float lower = c.timeline.get(0).getLower();												// Get cluster timeline lower bound
-			float upper = c.timeline.get(c.timeline.size()-1).getUpper();							// Get cluster timeline upper bound
-			float curLower = c.timeline.get(p.p.viewer.currentClusterTimeSegment).getLower();			// Get current segment lower bound
-			float curUpper = c.timeline.get(p.p.viewer.currentClusterTimeSegment).getUpper();			// Get current segment lower bound
-			float timelineLength = upper - lower;
-			float segmentLength = curUpper - curLower;
-			
-			centerTime = PApplet.round(PApplet.map( time.getTime(), lower, upper, p.p.defaultMediaLength * 0.25f, 
-												    cycleLength - p.p.defaultMediaLength * 0.25f) );	// Calculate center time in cluster timeline
-//			centerTime = PApplet.round(PApplet.map(time.getTime(), lower, upper, 0.f, cycleLength));	
-			
-			if(lower == curLower && upper == curUpper)				// Only one cluster segment
-			{
-				length = p.p.timeCycleLength;		// -- Should depend on cluster it belongs to 
 
-//				if(selected &&p.p.debug.viewable)
-//				{
-//					PApplet.println("Only one cluster time segment, full length:"+length);
-//					PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
-//					PApplet.println("lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
-//				}
-				
-				fadeInStart = 0;		// Frame media starts fading in
-				fadeInEnd = centerTime - (int)length / 4;		// Frame media reaches full brightness
-				fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
-				fadeOutEnd = cycleLength;		// Frame media finishes fading out
-			}
-			else
-			{
-			 	/* Scale media length based on time segment length */
-				length = PApplet.map(segmentLength, 0, timelineLength, p.p.defaultMediaLength * 0.5f, p.p.timeCycleLength);
-				length = PApplet.constrain(length, p.p.defaultMediaLength * 0.5f, p.p.timeCycleLength);
-				
-				fadeInStart = centerTime - (int)length / 2;		// Frame media starts fading in
-				fadeInEnd = centerTime - (int)length / 4;		// Frame media reaches full brightness
-				fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
-				fadeOutEnd = centerTime + (int)length / 2;		// Frame media finishes fading out
-				
-//				if(selected &&p.p.debug.viewable)
-//				{
-//					PApplet.println("Segment length:"+segmentLength+" timeline length:"+timelineLength+" media length:"+length);
-//					PApplet.println(" media time:"+time.getTime()+" centerTime:"+centerTime+" currentTime:"+p.p.currentTime+" cycleLength:"+cycleLength);
-//					PApplet.println(" lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
-//					PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-//				}
-			}	
-			
-			/* Adjust fading times to fit cycle length */
-			if(fadeInStart > cycleLength)
-				PApplet.println("Error: fadeInStart after day end!!");
-			
-			if(fadeInEnd > cycleLength)
-			{
-				error = true;
-				if(p.p.debug.viewable)
-				{
-					PApplet.println("------Error: fadeInEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
-					PApplet.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-					PApplet.println("-----cluster:"+cluster+" currentCluster:"+p.p.getCurrentCluster().getID()+" curClusterTimeSegment:"+p.p.viewer.currentClusterTimeSegment);
-				}
-			}
-			
-			if(fadeOutStart > cycleLength)
-			{
-				if(selected && p.p.debug.viewable)
-					PApplet.println("Adjusting fadeOutStart");
+		float lower = c.timeline.get(0).getLower();												// Get cluster timeline lower bound
+		float upper = c.timeline.get(c.timeline.size()-1).getUpper();							// Get cluster timeline upper bound
+		float curLower = c.timeline.get(p.p.viewer.currentClusterTimeSegment).getLower();			// Get current segment lower bound
+		float curUpper = c.timeline.get(p.p.viewer.currentClusterTimeSegment).getUpper();			// Get current segment lower bound
+		float timelineLength = upper - lower;
+		float segmentLength = curUpper - curLower;
 
-				fadeOutStart = cycleLength-PApplet.round(length*0.25f);			// Adjust fadeOutStart
-				fadeOutEnd = cycleLength;		// Frame media finishes fading out
-			}
-			
-			if(fadeOutEnd > cycleLength)
-			{
-				if(selected && p.p.debug.viewable)
-					PApplet.println("Adjusting fadeOutEnd");
-				
-//				if(fadeOutEnd - fadeOutStart < fadeLength) 
-				fadeOutStart = PApplet.round(cycleLength-length*0.25f);			// Adjust fadeOutStart
-				fadeOutEnd = cycleLength;		// Frame media finishes fading out
-			}
+		centerTime = PApplet.round(PApplet.map( time.getTime(), lower, upper, p.p.defaultMediaLength * 0.25f, 
+				cycleLength - p.p.defaultMediaLength * 0.25f) );	// Calculate center time in cluster timeline
 
-			if(selected && p.p.debug.viewable)
+		if(lower == curLower && upper == curUpper)				// Only one cluster segment
+		{
+			length = p.p.timeCycleLength;		// -- Should depend on cluster it belongs to 
+
+			if(selected && p.p.debug.viewable && p.p.debug.detailed)
 			{
+				PApplet.println("Only one cluster time segment, full length:"+length);
 				PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
-				PApplet.println("fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+				PApplet.println("lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
 			}
-			
-//			if(cluster != -1)
-//			{
-//				switch(p.clusters.get(cluster).baseTimeScale)					// Calculate center time based on cluster's baseTimeScale
-//				{
-//				case 0:
-//					centerTime = (int)(time.getTime() * dayLength);			
-//					break;
-//				case 1:
-////					centerTime = (int)(time * dayLength);			
-//					break;
-//				case 2:
-////					centerTime = (int)(time * dayLength);			
-//					break;
-//				case 3:
-////					centerTime = (int)(time * dayLength);			
-//					break;
-//				case 4:
-////					centerTime = (int)(time * dayLength);			
-//					break;
-//				default:
-//					centerTime = (int)(time.getTime() * dayLength);			
-//					break;
-//				}
-//			}
-//			else
-//			{
-//				if(p.p.debug.viewable)
-//					PApplet.println("Error: no associated cluster!");
-//			}
-//			break;
 
-//		default:				
-//			break;
-//		}
+			fadeInStart = 0;		// Frame media starts fading in
+			fadeInEnd = centerTime - (int)length / 4;		// Frame media reaches full brightness
+			fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
+			fadeOutEnd = cycleLength;		// Frame media finishes fading out
+		}
+		else
+		{
+			/* Scale media length based on time segment length */
+			length = PApplet.map(segmentLength, 0, timelineLength, p.p.defaultMediaLength * 0.5f, p.p.timeCycleLength);
+			length = PApplet.constrain(length, p.p.defaultMediaLength * 0.5f, p.p.timeCycleLength);
 
-		// Fade in whole cluster together
-//		float fTime = p.p.getCurrentField().timeline.get(p.p.viewer.currentFieldTime).getTime();	// Get field time 
-//		float mediaTime = PApplet.round( PApplet.map(fTime, 0.f, 1.f, 0.f, cycleLength) );
-		
+			fadeInStart = centerTime - (int)length / 2;		// Frame media starts fading in
+			fadeInEnd = centerTime - (int)length / 4;		// Frame media reaches full brightness
+			fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
+			fadeOutEnd = centerTime + (int)length / 2;		// Frame media finishes fading out
+
+			if(selected && p.p.debug.viewable && p.p.debug.detailed)
+			{
+				PApplet.println("Segment length:"+segmentLength+" timeline length:"+timelineLength+" media length:"+length);
+				PApplet.println(" media time:"+time.getTime()+" centerTime:"+centerTime+" currentTime:"+p.p.currentTime+" cycleLength:"+cycleLength);
+				PApplet.println(" lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
+				PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+			}
+		}	
+
+		/* Adjust fading times to fit cycle length */
+		if(fadeInStart > cycleLength)
+			PApplet.println("Error: fadeInStart after day end!!");
+
+		if(fadeInEnd > cycleLength)
+		{
+			error = true;
+			if(p.p.debug.viewable)
+			{
+				PApplet.println("------Error: fadeInEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
+				PApplet.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+				PApplet.println("-----cluster:"+cluster+" currentCluster:"+p.p.getCurrentCluster().getID()+" curClusterTimeSegment:"+p.p.viewer.currentClusterTimeSegment);
+			}
+		}
+
+		if(fadeOutStart > cycleLength)
+		{
+			if(selected && p.p.debug.viewable)
+				PApplet.println("Adjusting fadeOutStart");
+
+			fadeOutStart = cycleLength-PApplet.round(length*0.25f);			// Adjust fadeOutStart
+			fadeOutEnd = cycleLength;		// Frame media finishes fading out
+		}
+
+		if(fadeOutEnd > cycleLength)
+		{
+			if(selected && p.p.debug.viewable)
+				PApplet.println("Adjusting fadeOutEnd");
+
+			//				if(fadeOutEnd - fadeOutStart < fadeLength) 
+			fadeOutStart = PApplet.round(cycleLength-length*0.25f);			// Adjust fadeOutStart
+			fadeOutEnd = cycleLength;		// Frame media finishes fading out
+		}
+
+		if(selected && p.p.debug.viewable)
+		{
+			PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
+			PApplet.println("fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+		}
+
 		if(p.p.currentTime <= cycleLength)
 		{
 			if(p.p.currentTime < fadeInStart || p.p.currentTime > fadeOutEnd)			// If before fade in or after fade out
@@ -480,7 +423,163 @@ public abstract class GMV_Viewable
 		if(!error)
 			return timeBrightness;
 		else
-			return p.p.minTimeBrightness;
+			return 0.f;
+	}
+	
+	/**
+	 * @return Date brightness factor between 0. and 1.
+	 * Calculate media brightness based on distance (fades away in distance and as camera gets close)
+	 */
+	float getDateBrightness()												
+	{
+		int cycleLength = p.p.timeCycleLength;				// Length of main time loop
+		int centerDate = -1;								// Midpoint of visibility for this media 		
+		float dateBrightness = 0.f;
+
+		float length = p.p.defaultMediaLength;				// Start with default length
+		
+		int fadeInStart = 0;								// When image starts fading in
+		int fadeInEnd = 0;									// When image reaches full brightness
+		int fadeOutStart = 0;								// When image starts fading out
+		int fadeOutEnd = 0;									// When image finishes fading out
+		int fadeLength = fadeOutEnd - fadeOutStart;
+
+		boolean error = false;
+
+		GMV_Cluster c = p.p.getCluster(cluster);			// Get cluster for this media
+
+		float lower = c.dateline.get(0).getLower();												// Get cluster dateline lower bound
+		float upper = c.dateline.get(c.dateline.size()-1).getUpper();							// Get cluster dateline upper bound
+		float curLower = c.dateline.get(p.p.viewer.currentClusterDateSegment).getLower();			// Get current segment lower bound
+		float curUpper = c.dateline.get(p.p.viewer.currentClusterDateSegment).getUpper();			// Get current segment lower bound
+		float datelineLength = upper - lower;
+		float segmentLength = curUpper - curLower;
+
+		centerDate = PApplet.round(PApplet.map( time.getDate(), lower, upper, p.p.defaultMediaLength * 0.25f, 
+				cycleLength - p.p.defaultMediaLength * 0.25f) );	// Calculate center date in cluster dateline
+
+		if(lower == curLower && upper == curUpper)				// Only one cluster segment
+		{
+			length = p.p.dateCycleLength;		// -- Should depend on cluster it belongs to 
+
+			if(selected && p.p.debug.viewable && p.p.debug.detailed)
+			{
+				PApplet.println("Only one cluster date segment, full length:"+length);
+				PApplet.println("date:"+time.getDate()+" centerDate:"+centerDate+" curDate:"+p.p.currentDate+" dayLength:"+cycleLength);
+				PApplet.println("lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
+			}
+
+			fadeInStart = 0;		// Frame media starts fading in
+			fadeInEnd = centerDate - (int)length / 4;		// Frame media reaches full brightness
+			fadeOutStart = centerDate + (int)length / 4;	// Frame media starts fading out
+			fadeOutEnd = cycleLength;		// Frame media finishes fading out
+		}
+		else
+		{
+			/* Scale media length based on date segment length */
+			length = PApplet.map(segmentLength, 0, datelineLength, p.p.defaultMediaLength * 0.5f, p.p.dateCycleLength);
+			length = PApplet.constrain(length, p.p.defaultMediaLength * 0.5f, p.p.dateCycleLength);
+
+			fadeInStart = centerDate - (int)length / 2;		// Frame media starts fading in
+			fadeInEnd = centerDate - (int)length / 4;		// Frame media reaches full brightness
+			fadeOutStart = centerDate + (int)length / 4;	// Frame media starts fading out
+			fadeOutEnd = centerDate + (int)length / 2;		// Frame media finishes fading out
+
+			if(selected && p.p.debug.viewable && p.p.debug.detailed)
+			{
+				PApplet.println("Segment length:"+segmentLength+" dateline length:"+datelineLength+" media length:"+length);
+				PApplet.println(" media date:"+time.getDate()+" centerDate:"+centerDate+" currentDate:"+p.p.currentDate+" cycleLength:"+cycleLength);
+				PApplet.println(" lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
+				PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+			}
+		}	
+
+		/* Adjust fading times to fit cycle length */
+		if(fadeInStart > cycleLength)
+			PApplet.println("Error: fadeInStart after day end!!");
+
+		if(fadeInEnd > cycleLength)
+		{
+			error = true;
+			if(p.p.debug.viewable)
+			{
+				PApplet.println("------Error: fadeInEnd after day end-----date:"+time.getDate()+" centerDate:"+centerDate+" lower:"+lower+" upper:"+upper+" curDate:"+p.p.currentDate+" dayLength:"+cycleLength);
+				PApplet.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+				PApplet.println("-----cluster:"+cluster+" currentCluster:"+p.p.getCurrentCluster().getID()+" curClusterDateSegment:"+p.p.viewer.currentClusterDateSegment);
+			}
+		}
+
+		if(fadeOutStart > cycleLength)
+		{
+			if(selected && p.p.debug.viewable)
+				PApplet.println("Adjusting fadeOutStart");
+
+			fadeOutStart = cycleLength-PApplet.round(length*0.25f);			// Adjust fadeOutStart
+			fadeOutEnd = cycleLength;		// Frame media finishes fading out
+		}
+
+		if(fadeOutEnd > cycleLength)
+		{
+			if(selected && p.p.debug.viewable)
+				PApplet.println("Adjusting fadeOutEnd");
+
+			//				if(fadeOutEnd - fadeOutStart < fadeLength) 
+			fadeOutStart = PApplet.round(cycleLength-length*0.25f);			// Adjust fadeOutStart
+			fadeOutEnd = cycleLength;		// Frame media finishes fading out
+		}
+
+		if(selected && p.p.debug.viewable)
+		{
+			PApplet.println("date:"+time.getDate()+" centerDate:"+centerDate+" curDate:"+p.p.currentDate+" dayLength:"+cycleLength);
+			PApplet.println("fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+		}
+
+		if(p.p.currentDate <= cycleLength)
+		{
+			if(p.p.currentDate < fadeInStart || p.p.currentDate > fadeOutEnd)			// If before fade in or after fade out
+			{
+				if(active)							// If image was active
+					active = false;					// Set to inactive
+
+				dateBrightness = 0.f;			   					// Zero visibility
+			}
+			else if(p.p.currentDate < fadeInEnd)						// During fade in
+			{
+				if(!active)							// If image was not active
+					active = true;
+
+				dateBrightness = PApplet.constrain(PApplet.map(p.p.currentDate, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
+				if(selected && p.p.debug.viewable)
+					PApplet.println(" Fading In..."+id);
+			}
+			else if(p.p.currentDate > fadeOutStart)					// During fade out
+			{
+				if(selected && p.p.debug.viewable)
+					PApplet.println(" Fading Out..."+id);
+				dateBrightness = PApplet.constrain(1.f - PApplet.map(p.p.currentDate, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f);    
+			}
+			else													// After fade in, before fade out
+			{
+				if(selected && p.p.debug.viewable && p.p.debug.detailed)
+					PApplet.println(" Full visibility...");				// Full visibility
+				dateBrightness = 1.f;								
+			}
+		}
+		else
+		{
+			if(active && p.p.currentTime > fadeOutEnd)					// If image was active and has faded out
+				active = false;										// Set to inactive
+		}
+
+		dateBrightness = (float)timeLogMap.getMappedValueFor(dateBrightness);   		// Logarithmic scaling
+
+		if(selected && p.p.debug.viewable)
+			PApplet.println("timeBrightness"+dateBrightness);
+
+		if(!error)
+			return dateBrightness;
+		else
+			return 0.f;
 	}
 	
 	/**

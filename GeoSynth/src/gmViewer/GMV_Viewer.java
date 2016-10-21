@@ -44,6 +44,8 @@ public class GMV_Viewer
 	/* Time */
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
+	public int currentFieldDateSegment = 0;				// Current date segment in field dateline
+	public int currentClusterDateSegment = 0;			// Current date segment in cluster dateline
 	
 	/* Memory */
 	private ArrayList<GMV_Waypoint> memory;				// Path for camera to take
@@ -616,7 +618,7 @@ public class GMV_Viewer
 	{
 		GMV_Cluster c = p.getCluster(clusterID);
 		
-//		if(p.debug.viewer && p.debug.detailed)
+		if(p.debug.viewer && p.debug.detailed)
 			p.display.message("moveToTimeInCluster:"+c.timeline.get(nextClusterTime).getID()+" c.timeline.size():"+c.timeline.size());
 
 		if(teleport)
@@ -626,6 +628,55 @@ public class GMV_Viewer
 		else
 		{
 			setAttractorCluster(c.timeline.get(nextClusterTime).getID());
+		}
+	}
+	
+	/**
+	 * @param nextFieldDate Index in dateline of cluster to move to
+	 */
+	void moveToDateInField(int fieldID, int nextFieldDate, boolean teleport)
+	{
+		GMV_Field f = p.getField(fieldID);
+		
+		if(p.debug.viewer && p.debug.detailed)
+			p.display.message("moveToDateInField:"+f.dateline.get(nextFieldDate).getID()+" f.dateline.size():"+f.dateline.size());
+
+		if(f.dateline.get(nextFieldDate).getID() == currentCluster && p.getCluster(f.dateline.get(nextFieldDate).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different date in same cluster
+		{
+			currentFieldDateSegment++;
+			if(p.debug.viewer && p.debug.detailed)
+				p.display.message("Advanced date segment in same cluster... "+f.dateline.get(nextFieldDate).getID());
+		}
+		else
+		{
+			if(teleport)
+			{
+				teleportToCluster(f.dateline.get(nextFieldDate).getID(), true);
+			}
+			else
+			{
+				setAttractorCluster(f.dateline.get(nextFieldDate).getID());
+			}
+		}
+	}
+	
+	/**
+	 * @param nextFieldDate Date index in current cluster dateline to move to
+	 */
+	void moveToDateInCluster(int clusterID, int nextClusterDate, boolean teleport)
+	{
+		GMV_Cluster c = p.getCluster(clusterID);
+		
+//		if(p.debug.viewer && p.debug.detailed)
+			p.display.message("moveToDateInCluster:"+c.dateline.get(nextClusterDate).getID()+" c.dateline.size():"+c.dateline.size());
+
+		if(teleport)
+		{
+			teleportToCluster(c.dateline.get(nextClusterDate).getID(), true);
+		}
+		else
+		{
+			setAttractorCluster(c.dateline.get(nextClusterDate).getID());
 		}
 	}
 	
@@ -1266,6 +1317,87 @@ public class GMV_Viewer
 //		saveAttitude = getOrientation();
 	}
 
+	
+	void moveToNextTimeSegment(boolean field, boolean teleport)
+	{
+		if(field)
+		{
+			currentFieldTimeSegment++;
+			if(currentFieldTimeSegment >= p.getCurrentField().timeline.size())
+				currentFieldTimeSegment = 0;
+
+			moveToTimeInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport);
+		}
+		else
+		{
+			currentClusterTimeSegment++;
+			if(currentClusterTimeSegment >= p.getCurrentCluster().timeline.size())
+				currentClusterTimeSegment = 0;
+
+			moveToTimeInCluster(p.getCurrentCluster().getID(), currentClusterTimeSegment, teleport);
+		}
+	}
+	
+	void moveToPreviousTimeSegment(boolean field, boolean teleport)
+	{
+		if(field)
+		{
+			currentFieldTimeSegment--;
+			if(currentFieldTimeSegment < 0)
+				currentFieldTimeSegment = p.getCurrentField().timeline.size()-1;
+
+			moveToTimeInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport);
+		}
+		else
+		{
+			currentClusterTimeSegment++;
+			if(currentClusterTimeSegment >= p.getCurrentCluster().timeline.size())
+				currentClusterTimeSegment = 0;
+
+			moveToTimeInCluster(p.getCurrentCluster().getID(), currentClusterTimeSegment, teleport);
+		}
+	}
+	
+	void moveToNextDateSegment(boolean field, boolean teleport)
+	{
+		if(field)
+		{
+			currentFieldDateSegment++;
+			if(currentFieldDateSegment >= p.getCurrentField().dateline.size())
+				currentFieldDateSegment = 0;
+
+			moveToDateInField(p.getCurrentField().fieldID, currentFieldDateSegment, teleport);
+		}
+		else
+		{
+			currentClusterDateSegment++;
+			if(currentClusterDateSegment >= p.getCurrentCluster().dateline.size())
+				currentClusterDateSegment = 0;
+
+			moveToDateInCluster(p.getCurrentCluster().getID(), currentClusterDateSegment, teleport);
+		}
+	}
+	
+	void moveToPreviousDateSegment(boolean field, boolean teleport)
+	{
+		if(field)
+		{
+			currentFieldDateSegment--;
+			if(currentFieldDateSegment < 0)
+				currentFieldDateSegment = p.getCurrentField().dateline.size()-1;
+
+			moveToDateInField(p.getCurrentField().fieldID, currentFieldDateSegment, teleport);
+		}
+		else
+		{
+			currentClusterDateSegment++;
+			if(currentClusterDateSegment >= p.getCurrentCluster().dateline.size())
+				currentClusterDateSegment = 0;
+
+			moveToDateInCluster(p.getCurrentCluster().getID(), currentClusterDateSegment, teleport);
+		}
+	}
+	
 	public void clearAttractorCluster()
 	{
 		attractorCluster = -1;											// Set attractorCluster
@@ -2052,8 +2184,7 @@ public class GMV_Viewer
 				{
 					movingToAttractor = false;
 					currentCluster = getNearestCluster(false);		// Set currentCluster to nearest
-//					if(p.debug.viewer)
-//						p.display.message("Reached attractor... turning towards image");
+//					if(p.debug.viewer) p.display.message("Reached attractor... turning towards image");
 					
 //					if(attractorPoint != null)
 //						turnTowardsPoint(attractorPoint.getLocation());
@@ -2091,8 +2222,6 @@ public class GMV_Viewer
 			movingZ = false;
 		if(movingToCluster) 
 			movingToCluster = false;
-//		if(sideStepping)
-//			sideStepping = false;
 		if(turningX)
 			turningX = false;
 		if(turningY) 
@@ -2162,46 +2291,6 @@ public class GMV_Viewer
 		}
 	}
 	
-	void moveToNextTimeSegment(boolean field, boolean teleport)
-	{
-		if(field)
-		{
-			currentFieldTimeSegment++;
-			if(currentFieldTimeSegment >= p.getCurrentField().timeline.size())
-				currentFieldTimeSegment = 0;
-
-			moveToTimeInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport);
-		}
-		else
-		{
-			currentClusterTimeSegment++;
-			if(currentClusterTimeSegment >= p.getCurrentCluster().timeline.size())
-				currentClusterTimeSegment = 0;
-
-			moveToTimeInCluster(p.getCurrentCluster().getID(), currentClusterTimeSegment, teleport);
-		}
-	}
-	
-	void moveToPreviousTimeSegment(boolean field, boolean teleport)
-	{
-		if(field)
-		{
-			currentFieldTimeSegment--;
-			if(currentFieldTimeSegment < 0)
-				currentFieldTimeSegment = p.getCurrentField().timeline.size()-1;
-
-			moveToTimeInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport);
-		}
-		else
-		{
-			currentClusterTimeSegment++;
-			if(currentClusterTimeSegment >= p.getCurrentCluster().timeline.size())
-				currentClusterTimeSegment = 0;
-
-			moveToTimeInCluster(p.getCurrentCluster().getID(), currentClusterTimeSegment, teleport);
-		}
-	}
-	
 	/**
 	 * followTimeline()
 	 * Revisit all places stored in memory
@@ -2260,7 +2349,69 @@ public class GMV_Viewer
 			if(following)
 			{
 				following = false;
-//				p.getCurrentField().clearAllAttractors();
+				clearAttractorPoint();
+			}
+		}
+	}
+	
+	/**
+	 * followDateline()
+	 * Revisit all places stored in memory
+	 */
+	public void followDateline(boolean start, boolean fromBeginning)
+	{
+		if(start)		// Start following dateline
+		{
+			if(!following)
+			{
+				path = p.getCurrentField().getDatelineAsPath();			// Get dateline as path of Waypoints matching cluster IDs
+
+				if(path.size() > 0)
+				{
+					following = true;
+					pathLocationIdx = -1;								// Find path start
+					
+					if(fromBeginning)
+					{
+						pathLocationIdx = 0;
+					}
+					else
+					{
+						int count = 0;
+						for(GMV_Waypoint w : path)
+						{
+							if(w.getID() == p.getCurrentCluster().getID())
+							{
+								pathLocationIdx = count;
+								break;
+							}
+							count++;
+						}
+
+						if(pathLocationIdx == -1) pathLocationIdx = 0;
+					}
+					
+					if(p.debug.viewer)
+						p.display.message("followDateline()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
+					
+					pathGoal = path.get(pathLocationIdx).getLocation();
+					setAttractorPoint(pathGoal);
+				}
+				else p.display.message("No dateline points!");
+			}
+			else
+			{
+				if(p.debug.viewer)
+					p.display.message("Already called followDateline(): Stopping... "+path.get(pathLocationIdx).getLocation());
+				pathLocationIdx = 0;
+				following = false;
+			}
+		}
+		else				// Stop following dateline
+		{
+			if(following)
+			{
+				following = false;
 				clearAttractorPoint();
 			}
 		}
@@ -2457,7 +2608,6 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * stopFollowing()
 	 * Stop navigation along points in memory
 	 */
 	public void stopFollowing()
@@ -2465,38 +2615,7 @@ public class GMV_Viewer
 		following = false;
 		pathLocationIdx = 0;
 	}
-
-	/**
-	 * selectNextImage()
-	 * Selects next image numerically for viewing, exporting, etc.
-	 */
-//	public void selectNextImage() 
-//	{
-//		int nextSelectedImage = p.getCurrentField().selectedImage + 1;
-//
-//		if(nextSelectedImage >= p.getCurrentField().images.size())
-//			nextSelectedImage = 0;
-//
-//		int count = 0;
-//		while (!p.getCurrentField().images.get(nextSelectedImage).visible && count < p.getCurrentField().images.size()) 
-//		{
-//			nextSelectedImage++;
-//			if(nextSelectedImage >= p.getCurrentField().images.size())
-//				nextSelectedImage = 0;
-//		}
-//
-//		if(count > p.getCurrentField().images.size())
-//		{
-//			p.display.message("No visible images to select!");
-//		}
-//		else
-//		{
-//			p.getCurrentField().deselectAllMedia();
-//			p.getCurrentField().selectedImage = nextSelectedImage;
-//			p.getCurrentField().images.get( nextSelectedImage ).setSelected(true);
-//		}
-//	}
-
+	
 	/**
 	 * Select image or video in front of camera and within selection angle.	-- Need to include panoramas too!
 	 */
@@ -2603,6 +2722,11 @@ public class GMV_Viewer
 		}
 	}
 
+	/**
+	 * Get list of closest clusters
+	 * @param n Number of closest clusters to return
+	 * @return Closest <n> clusters
+	 */
 	public IntList getClosestClusters(int n)				// Return list of IDs of n closest clusters to the current location (not including current cluster)
 	{
 		IntList list;
@@ -2684,7 +2808,6 @@ public class GMV_Viewer
 
 
 	/**
-	 * getFrontImage()
 	 * @return Image closest to directly in front of the camera
 	 */
 	public int getFrontImage() {
@@ -2729,7 +2852,6 @@ public class GMV_Viewer
 	}
 	
 	/**
-	 * getFrontVideo()
 	 * @return Image closest to directly in front of the camera
 	 */
 	public int getFrontVideo() {
@@ -2752,7 +2874,6 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * getNearestVideo()
 	 * @return Video nearest to the camera in any direction
 	 */
 	public int getNearestVideo() {
@@ -2844,7 +2965,6 @@ public class GMV_Viewer
 	}
 
 	/**
-	 * analyzeGPSTrack()
 	 * Analyze current GPS track
 	 */
 	public void analyzeGPSTrack()
@@ -2960,14 +3080,17 @@ public class GMV_Viewer
 		}
 	}
 	
-	public GMV_Time getCurrentTime()
-	{
-		GMV_Time curTime = new GMV_Time(p, null);
-		return curTime;
-	}
+	/**
+	 * Get current time				-- ????
+	 * @return Current time
+	 */
+//	public GMV_Time getCurrentTime()
+//	{
+//		GMV_Time curTime = new GMV_Time(p, null);
+//		return curTime;
+//	}
 	
 	/**
-	 * getHistoryVector()
 	 * Get vector of direction of camera motion by comparing current and previous waypoints
 	 * @return Vector of direction of camera motion
 	 */

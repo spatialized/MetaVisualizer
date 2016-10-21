@@ -172,6 +172,7 @@ class GMV_Display
 			{
 				drawLargeMap();
 				drawTimelines();
+				drawDatelines();
 			}
 
 			if(info)
@@ -351,7 +352,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * drawTimelines()
 	 * Draw timelines
 	 */
 	void drawTimelines()
@@ -480,6 +480,137 @@ class GMV_Display
 //			}
 		}
 	}
+	
+	/**
+	 * Draw datelines
+	 */
+	void drawDatelines()
+	{
+		float y = logoYOffset * 0.75f - 250.f;			// Starting vertical position
+		float x = logoXOffset * 0.525f;
+
+		p.fill(55, 0, 255, 255);
+		p.stroke(55, 0, 255, 255);
+		p.strokeWeight(1.f);
+
+		GMV_Cluster c = p.getCurrentCluster();
+
+		if(c != null)
+		{
+			p.pushMatrix();
+			beginHUD();						
+			p.textSize(mediumTextSize);
+			p.text("Dateline", x, y, hudDistance);
+			p.popMatrix();
+
+			y += 100.f;			
+			x = logoXOffset / 4.f;
+
+			p.pushMatrix();
+			beginHUD();						
+			p.textSize(smallTextSize);
+			p.text("Cluster", x, y, hudDistance);
+			p.popMatrix();
+
+			float inc = p.width * 0.3f / c.clusterDatesHistogram.length;
+			int currentDate = (int)PApplet.map(p.currentDate, 0, p.dateCycleLength, 0, c.clusterDatesHistogram.length);
+			
+			for(int i=0; i<c.clusterDatesHistogram.length; i++)
+			{
+				float val = inc * PApplet.sqrt( c.clusterDatesHistogram[i] ) * 50.f / PApplet.sqrt( (p.getCurrentCluster().images.size() + 
+												p.getCurrentCluster().panoramas.size() + p.getCurrentCluster().videos.size() ) );
+				x = logoXOffset / 3.f + i * inc;
+
+				p.pushMatrix();
+				beginHUD();
+				p.translate(x, y, hudDistance);
+				p.box(inc, val, 0);
+				p.popMatrix();
+				
+				if(i == currentDate)					// Draw current date
+				{
+					p.fill(145, 255, 255, 255);
+					p.stroke(145, 255, 255, 255);
+					
+					p.pushMatrix();
+					beginHUD();
+					p.translate(x, y, hudDistance);
+					p.box(inc, 25.f, 0);
+					p.popMatrix();
+					
+					p.fill(55, 0, 255, 255);
+					p.stroke(55, 0, 255, 255);
+				}
+			}
+
+			if(p.debug.time)
+			{
+				p.pushMatrix();
+				beginHUD();
+
+				FloatList clusterDates = p.getCurrentCluster().getClusterDates();
+				x = logoXOffset / 3.f + c.clusterDatesHistogram.length * inc + 30.f;
+				
+				if(clusterDates.size() == 1)
+					p.text(clusterDates.get(0), x, y, hudDistance);
+				if(clusterDates.size() == 2)
+					p.text(clusterDates.get(0)+" "+clusterDates.get(1), x, y, hudDistance);
+				if(clusterDates.size() >= 3)
+					p.text(clusterDates.get(0)+" "+clusterDates.get(1)+" "+clusterDates.get(2), x, y, hudDistance);
+				
+				p.popMatrix();
+			}
+
+			y += 100.f;			
+			x = logoXOffset / 4.f;
+
+			p.pushMatrix();
+			beginHUD();						
+			p.textSize(smallTextSize);
+			p.text("Field", x, y, hudDistance);
+			p.popMatrix();
+
+			inc = p.width * 0.3f / c.fieldDatesHistogram.length;
+			currentDate = (int)PApplet.map(p.currentDate, 0, p.dateCycleLength, 0, c.fieldDatesHistogram.length);
+
+			for(int i=0; i<c.fieldDatesHistogram.length; i++)
+			{
+				float val = inc * PApplet.sqrt( c.fieldDatesHistogram[i] ) * 500.f / PApplet.sqrt( (p.getCurrentField().images.size() + 
+												p.getCurrentField().panoramas.size() + p.getCurrentField().videos.size() ) );
+				x = logoXOffset / 3.f + i * inc;
+
+				p.pushMatrix();
+				beginHUD();
+				p.translate(x, y, hudDistance);
+				p.box(inc, val, 0);
+				p.popMatrix();
+				
+				if(i == currentDate)					// Draw current date
+				{
+					p.fill(145, 255, 255, 255);
+					p.stroke(145, 255, 255, 255);
+					
+					p.pushMatrix();
+					beginHUD();
+					p.translate(x, y, hudDistance);
+					p.box(inc, 25.f, 0);
+					p.popMatrix();
+					
+					p.fill(55, 0, 255, 255);
+					p.stroke(55, 0, 255, 255);
+				}
+			}
+//			for(float f : c.clusterDates)
+//			{
+//
+//			}
+//			for(float f : c.fieldDates)
+//			{
+//
+//			}
+		}
+	}
+
 
 	/**
 	 * progressBar()
@@ -1380,6 +1511,7 @@ class GMV_Display
 			p.text(" Time ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.textSize(smallTextSize);
 			p.text(" Time Fading: "+ p.timeFading, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.text(" Date Fading: "+ p.dateFading, textXPos, textYPos += lineWidth, hudDistance);
 			p.text(" Timeline Segments: "+ p.getCurrentField().timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
 			p.text(" Current Segment: "+ p.viewer.currentFieldTimeSegment, textXPos, textYPos += lineWidth, hudDistance);
 			if(f.timeline.size() > 0 && p.viewer.currentFieldTimeSegment >= 0 && p.viewer.currentFieldTimeSegment < f.timeline.size())

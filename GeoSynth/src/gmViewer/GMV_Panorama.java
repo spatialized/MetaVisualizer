@@ -29,10 +29,10 @@ public class GMV_Panorama extends GMV_Viewable
 //	float[] sphereX, sphereY, sphereZ;								// Sphere vertices
 	PVector[] sphere;		
 	int panoramaDetail = 50;  										// Sphere detail setting
-	float sinLUT[];
-	float cosLUT[];
-	float sinCosPrecision = 0.5f;
-	int sinCosLength = (int)(360.0f / sinCosPrecision);
+	float sinTable[];
+	float cosTable[];
+	float tablePrecision = 0.5f;
+	int tableLength = (int)(360.0f / tablePrecision);
 
 	GMV_Panorama ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, 
@@ -324,39 +324,37 @@ public class GMV_Panorama extends GMV_Viewable
 	 */
 	void initializeSphere(int resolution)
 	{
-		sinLUT = new float[sinCosLength];
-		cosLUT = new float[sinCosLength];
+		sinTable = new float[tableLength];
+		cosTable = new float[tableLength];
 
-		for (int i = 0; i < sinCosLength; i++) {
-			sinLUT[i] = (float) Math.sin(i * PApplet.DEG_TO_RAD * sinCosPrecision);
-			cosLUT[i] = (float) Math.cos(i * PApplet.DEG_TO_RAD * sinCosPrecision);
+		for (int i = 0; i < tableLength; i++) {
+			sinTable[i] = (float) Math.sin(i * PApplet.DEG_TO_RAD * tablePrecision);
+			cosTable[i] = (float) Math.cos(i * PApplet.DEG_TO_RAD * tablePrecision);
 		}
 
-		float delta = (float)sinCosLength/resolution;
+		float delta = (float)tableLength/resolution;
 		float[] cx = new float[resolution];
 		float[] cz = new float[resolution];
 
 		for (int i = 0; i < resolution; i++) 		// Calc unit circle in XZ plane
 		{
-			cx[i] = -cosLUT[(int) (i*delta) % sinCosLength];
-			cz[i] = sinLUT[(int) (i*delta) % sinCosLength];
+			cx[i] = -cosTable[(int) (i*delta) % tableLength];
+			cz[i] = sinTable[(int) (i*delta) % tableLength];
 		}
 
 		int vertCount = resolution * (resolution-1) + 2;			// Computing vertexlist, starting at south pole
 		int currVert = 0;
 
-		// Re-init arrays to store vertices
-		
-		sphere = new PVector[vertCount];
+		sphere = new PVector[vertCount];			// Initialize sphere vertices array
 
-		float angle_step = (sinCosLength*0.5f)/resolution;
+		float angle_step = (tableLength*0.5f)/resolution;
 		float angle = angle_step;
 
 		// Step along Y axis
 		for (int i = 1; i < resolution; i++) 
 		{
-			float curRadius = sinLUT[(int) angle % sinCosLength];
-			float currY = -cosLUT[(int) angle % sinCosLength];
+			float curRadius = sinTable[(int) angle % tableLength];
+			float currY = -cosTable[(int) angle % tableLength];
 
 			for (int j = resolution-1; j >= 0; j--) 
 				sphere[currVert++] = new PVector(cx[j] * curRadius, currY, cz[j] * curRadius);
@@ -367,14 +365,15 @@ public class GMV_Panorama extends GMV_Viewable
 		sphere[currVert++] = new PVector(0,0,0);
 		sphere[currVert++] = new PVector(0,0,0);
 		
+//		if (phi != 0.f)
+//		sphere = rotateVertices(sphere, -phi, verticalAxis);         // Rotate around X axis
+		
 		if (phi != 0.f)
-			sphere = rotateVertices(sphere, -phi, verticalAxis);         // Rotate around X axis
+			sphere = rotateVertices(sphere, -phi, rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
 
-//		if( theta != 0.f )
-//			sphere = rotateVertices(sphere, 360-theta, azimuthAxis);          // Rotate around Z axis
 		if( theta != 0.f )
-			sphere = rotateVertices(sphere, 360-theta, azimuthAxis);          // Rotate around Z axis
-
+			sphere = rotateVertices(sphere, 360-theta, azimuthAxis); // Rotate around Z axis
+		
 		panoramaDetail = resolution;
 		initialized = true;
 	}

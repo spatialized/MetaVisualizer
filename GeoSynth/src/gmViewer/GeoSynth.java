@@ -385,6 +385,28 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 
 	/**
+	 * Restart the program
+	 */
+	void restartGeoSynth()
+	{
+		camera();
+		setup();
+		
+		// Reset variables
+		initializationField = 0;			// Field to be initialized this frame
+		setupProgress = 0;						// Setup progress (0 to 100)
+		startup = true;
+		initialSetup = false;			
+		libraryFolderSelected = false;	
+		creatingFields = false;			
+		fieldsCreated = false;			
+		running = false;				
+		exit = false;					
+		startup = true;					
+		startRunning = false;			
+	}
+	
+	/**
 	 * Set up the main classes and variables
 	 */
 	void initialize() 

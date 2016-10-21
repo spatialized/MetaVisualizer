@@ -371,7 +371,6 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	}
 	
 	/**
-	 * calculateVertices()
 	 * Update video geometry each frame
 	 */
 	public void calculateVertices()								
@@ -420,25 +419,21 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 */
 	public void loadMedia()
 	{
-		if(!p.p.debug.lowMemory)			// Check enough memory available
+		if(!disabled)																	
 		{
-			if(!disabled)																	
-			{
-				video = new Movie(p.p, filePath);
-				setLength( video.duration() );				// Set video length (in seconds)
+			video = new Movie(p.p, filePath);
+			setLength( video.duration() );				// Set video length (in seconds)
 
-				video.play();					// Start playing
-				video.loop();					// Start loop
-				videoPlaying = true;
-				
-				if(p.p.debug.video)
-					p.p.display.message("Loading video file..."+filePath+" video.duration():"+video.duration());
-				
-				calculateVertices(); 
-				videoLoaded = true;
-			}
+			video.play();					// Start playing
+			video.loop();					// Start loop
+			videoPlaying = true;
+
+			if(p.p.debug.video)
+				p.p.display.message("Loading video file..."+filePath+" video.duration():"+video.duration());
+
+			calculateVertices(); 
+			videoLoaded = true;
 		}
-		else p.p.display.message("Low memory: cannot load video!");
 	}
 
 	/**
@@ -980,6 +975,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			imagePlaceholder = imageID;
 			GMV_Image i = p.images.get(imagePlaceholder);
 			
+			/* Set video parameters from image placeholder metadata */
 			cameraModel = i.getCameraModel();
 			focusDistance = i.getFocusDistance();		    
 			focalLength = i.getFocalLength();
@@ -990,12 +986,10 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			sensorSize = i.getSensorSize();
 			
 			aspectRatio = getAspectRatio();								// Set aspect ratio from original height / width		
-			videoWidth = i.getWidth();								// Use image width
+			videoWidth = i.getWidth();									
 			videoHeight = (int) (i.getWidth() * aspectRatio);	
 			
 			calculateVertices();
-//			PApplet.println("Video focusDistance:"+focusDistance+" p.p.defaultFocusDistance:"+p.p.defaultFocusDistance);
-//			PApplet.println("   placeholder focusDistance:"+p.images.get(imagePlaceholder).getFocusDistance());
 		}
 		
 		return success;

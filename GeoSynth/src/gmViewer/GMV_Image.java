@@ -520,15 +520,13 @@ class GMV_Image extends GMV_Viewable
 		else if(viewDist < nearViewingDistance)								
 		{
 			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), p.p.viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
-//			if(isSelected())
-//				PApplet.println("ID:"+getID()+" dist:"+viewDist+" distVisibility:"+distVisibility+" near:"+p.p.viewer.getNearClippingDistance()+" far:"+p.p.viewer.getNearViewingDistance());
+//			if(isSelected()) PApplet.println("ID:"+getID()+" dist:"+viewDist+" distVisibility:"+distVisibility+" near:"+p.p.viewer.getNearClippingDistance()+" far:"+p.p.viewer.getNearViewingDistance());
 		}
 
 		return distVisibility;
 	}
 
 	/**
-	 * calculateVertices()
 	 * Update image geometry each frame
 	 */
 	public void calculateVertices()									
@@ -536,9 +534,10 @@ class GMV_Image extends GMV_Viewable
 		initializeVertices();					// Initialize vertices
 
 		if (phi != 0.)
-			vertices = rotateVertices(vertices, -phi, verticalAxis);         // Rotate around X axis
+			vertices = rotateVertices(vertices, -phi, verticalAxis);        	 // Rotate around X axis
 
-		vertices = rotateVertices(vertices, 360-theta, azimuthAxis);          // Rotate around Z axis
+		if (theta != 0.)
+			vertices = rotateVertices(vertices, 360-theta, azimuthAxis);         // Rotate around Z axis
 
 		if(vertices.length == 0) disabled = true;
 		if(!p.p.transitionsOnly)	vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
@@ -571,7 +570,6 @@ class GMV_Image extends GMV_Viewable
 	}
 
 	/**
-	 * loadMedia()
 	 * Request the image to be loaded from disk
 	 */
 	public void loadMedia()

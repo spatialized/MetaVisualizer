@@ -75,21 +75,20 @@ public class GMV_Stitcher
 	}
 	
 	/**
-	 * Stitch spherical panorama from images
+	 * Stitch a spherical panorama or panorama segment from images
 	 * @param library
 	 */
 	public GMV_Panorama stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
 	{
-		Mat panorama = new Mat();				// Panoramic image result
+		Mat panorama = new Mat();							// Panoramic image result
 		IplImage iplImage = null;
 
 		boolean success = false, end = false;		
-		boolean reduce = false;				// Reduce images to try to stitch
+		boolean reduce = false;								// Reduce images to try to force stitching
 		int count = 0;
 		
-		// Prevent fatal error
-		while(imageList.size() > p.maxStitchingImages)
-			imageList.remove(imageList.size()-1);
+		while(imageList.size() > p.maxStitchingImages)		// Remove images above maximum number
+			imageList.remove(imageList.size()-1);			
 
 		String[] images = getImageNames(imageList);				
 
@@ -150,8 +149,6 @@ public class GMV_Stitcher
 			else break;
 		}
 	
-		PImage result = p.createImage(0,0,PApplet.RGB);
-
 		if(success)
 		{
 			String filePath = "";
@@ -173,64 +170,12 @@ public class GMV_Stitcher
 			PApplet.println("panorama.channels():"+panorama.channels());
 			PApplet.println("iplImage.toString():"+iplImage.toString());
 			PApplet.println("iplImage.depth():"+iplImage.depth());
-			PApplet.println("iplImage.nChannels():"+iplImage.nChannels());
-			PApplet.println("iplImage.dataOrder():"+iplImage.dataOrder());
-			PApplet.println("iplImage.widthStep():"+iplImage.widthStep());
 		}
-		
-
-
-//		{	// TESTING CONVERSION FUNCTIONS		-- Read panorama from disk using OpenCV??!!
-//			
-//			PImage test = iplImageToPImage(new IplImage(panorama));		
-//			test.save(p.stitchingPath+p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_conversionTestPImage.jpg");
-//			IplImage iplTest = pImageToIplImage(test);
-//			
-//			String filePath = "";
-//			String fileName = "";
-//
-//			if(segmentID != -1)
-//				fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched.jpg";
-//			else
-//				fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_conversionTest1Ipl.jpg";
-//
-//			filePath = p.stitchingPath+fileName;
-//
-//			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, new Mat(iplTest));
-//			if(p.debug.stitching) p.display.message("CONVERSION FUNCTIONS test 1 successful... " + fileName);
-//		}
-//		
-//		{
-//			Mat testing = org.bytedeco.javacpp.opencv_imgcodecs.imread("/Users/davidgordon/Dropbox/Software/GeoSynth2016/Code/JavaCVPImageConversion/img.jpg");
-//			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(p.stitchingPath+"_testing.jpg", testing);
-//
-//			PImage test = iplImageToPImage(new IplImage(testing));		
-//			test.save(p.stitchingPath+p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_conversionTestImread.jpg");
-//			IplImage iplTest = pImageToIplImage(test);
-//			
-//			String filePath = "";
-//			String fileName = "";
-//
-//			if(segmentID != -1)
-//				fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched.jpg";
-//			else
-//				fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_conversionTest2Ipl.jpg";
-//
-//			filePath = p.stitchingPath+fileName;
-//
-//			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, new Mat(iplTest));
-//			if(p.debug.stitching) p.display.message("CONVERSION FUNCTIONS test 2 successful... " + fileName);
-//		}
-
-		
 		
 		panorama.close();
 
 		if(success)
 		{
-//			GMV_MediaSegment( GMV_Cluster parent, int newID, IntList newImages, IntList newVideos, float newLower, float newUpper, 
-//				  float newCenter, float newLowerElevation, float newUpperElevation, float newCenterElevation)
-
 			GMV_MediaSegment segment;			// Segment of the panorama
 
 			PApplet.println("Calculating user selection borders...");
@@ -267,7 +212,7 @@ public class GMV_Stitcher
 				segment = p.getCluster(clusterID).getMediaSegment(segmentID);
 			}
 
-			result = addImageBorders(iplImage, clusterID, segment);
+			PImage result = addImageBorders(iplImage, clusterID, segment);
 			
 			if(p.debug.stitching)	// TESTING
 			{	
@@ -286,12 +231,10 @@ public class GMV_Stitcher
 				result.save(filePath);
 			}
 
-			float panoDirection = segment.getCenterDirection() - 90.f;		// Why 180.f?
-//			float panoDirection = segment.getCenterDirection() + 90.f;		// Why 180.f?
+			float panoDirection = segment.getCenterDirection() - 90.f;		// Why 90?
 			if(panoDirection < 0.f) panoDirection += 360.f;
 			if(panoDirection > 360.f) panoDirection -= 360.f;
 			
-//			float panoDirection = segment.getCenterDirection();		
 			float panoElevation = segment.getCenterElevation();
 			
 			GMV_Panorama pano = new GMV_Panorama( p.getCurrentField(), segment.getID(), "_stitched_"+Integer.toString(segment.getID()), 
@@ -398,15 +341,15 @@ public class GMV_Stitcher
 		float fullWidth, fullHeight;
 		
 		// New Method:
-		if(aspect > 2.f)	// Wider than 2/1
+		if(aspect > 2.f)		// Wider than 2/1
 		{
 			fullWidth = 4096;
-			fullHeight = PApplet.round(fullWidth / aspect);
+			fullHeight = PApplet.round(fullWidth * 0.5f);
 		}
 		else if(aspect < 2.f)	// Taller than 2/1
 		{
 			fullHeight = 2048;
-			fullWidth = PApplet.round(fullHeight * aspect);
+			fullWidth = PApplet.round(fullHeight * 2.f);
 		}
 		else
 		{
@@ -472,7 +415,7 @@ public class GMV_Stitcher
 	public GMV_Panorama combinePanoramas(GMV_Panorama first, GMV_Panorama second)
 	{
 		PApplet.println("Combining panoramas...");
-		Mat blended = linearBlend(new Mat(pImageToIplImage(first.texture)), new Mat(pImageToIplImage(second.texture)));
+		Mat blended = linearBlend(  new Mat(pImageToIplImage(first.texture)), new Mat(pImageToIplImage(second.texture)));
 		PImage newTexture = iplImageToPImage( new IplImage(blended) );
 		GMV_Panorama newPano = first;
 		first.texture = newTexture;

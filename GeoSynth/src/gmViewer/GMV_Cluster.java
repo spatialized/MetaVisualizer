@@ -509,15 +509,16 @@ public class GMV_Cluster
 
 				pano.initializeSphere(pano.panoramaDetail);
 				
-				if(userPanoramas.size() == 0)
-				{
-					userPanoramas.add(pano);
-				}
-				else
-				{
-					userPanoramas.set(0, pano);
-//					userPanoramas.set(0, p.p.stitcher.combinePanoramas(userPanoramas.get(0), pano));	// -- To finish
-				}
+				userPanoramas.add(pano);
+//				if(userPanoramas.size() == 0)
+//				{
+//					userPanoramas.add(pano);
+//				}
+//				else
+//				{
+////					userPanoramas.set(0, pano);
+//					userPanoramas.set(0, p.p.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
+//				}
 
 			}
 		}
@@ -562,15 +563,17 @@ public class GMV_Cluster
 						if(pano != null)
 						{
 							pano.initializeSphere(pano.panoramaDetail);
-							if(stitchedPanoramas.size() == 0)
-							{
-								stitchedPanoramas.add(pano);
-							}
-							else
-							{
-								stitchedPanoramas.set(0, pano);
+							stitchedPanoramas.add(pano);
+							
+//							if(stitchedPanoramas.size() == 0)
+//							{
+//								stitchedPanoramas.add(pano);
+//							}
+//							else
+//							{
+////								stitchedPanoramas.set(0, pano);
 //								stitchedPanoramas.set(0, p.p.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
-							}
+//							}
 						}
 					}
 				}

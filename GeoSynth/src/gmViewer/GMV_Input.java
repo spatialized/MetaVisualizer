@@ -117,6 +117,9 @@ public class GMV_Input
 		if (key == 'C')
 			p.startInitialClustering();				// Re-run clustering on all fields
 		
+		if (key == 'R')
+			p.restartGeoSynth();
+		
 		if(p.display.map || p.display.mapOverlay)	/* 2D Map View */
 		{
 			// Option Key

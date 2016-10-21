@@ -27,6 +27,7 @@ public abstract class GMV_Viewable
 	/* Model */
 	public PVector captureLocation;				// Media capture location in simulation – EXIF GPS coords scaled to fieldSize.
 	public PVector location;        			// Media location in simulation 
+	int cluster = -1;				 			// Cluster it belongs to	
 	float theta = 0;                			// Media Orientation (in Degrees N)
 	public boolean fadingObjectDistance = false, beginFadingObjectDistance = false;			// Fading distance of object in image?
 	
@@ -37,21 +38,18 @@ public abstract class GMV_Viewable
 	
 	/* Time */
 	GMV_Time time;
-	
-	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
 	ScaleMap timeLogMap;
+	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
 
 	/* Interaction */
 	private boolean selected = false;
-
-	/* Cluster */
-	int cluster = -1;				 			// Cluster it belongs too								-- Note: Have images belong to multiple clusters??
 
 	/* Graphics */
 	public float aspectRatio = (float) 0.666;	// Aspect ratio of image
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
+	public float centerSize = 0.05f;
 
 	/* Transparency */
 	public float viewingBrightness = 0;				// Final image brightness (or alpha in useAlphaFading mode) 
@@ -68,9 +66,6 @@ public abstract class GMV_Viewable
 	public boolean disabled = false;			// Disabled due to errors or user and will not be drawn
 	public boolean hidden = false;				// Hidden from view											-- Needed?
 	public boolean requested = false;			// Indicates a recent request to load media from disk
-
-	/* Display */
-	public float centerSize = 0.05f;
 
 	GMV_Field p;								// Parent field
 

@@ -137,7 +137,14 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	/* Graphics */
 	public boolean alphaMode = false;					// Use alpha fading instead of grayscale
 	public boolean blurEdges = true;					// Blur image edges
-	public PImage blurMask;								// Image used as mask for blurring
+	public PImage blurMaskLeftTop, blurMaskLeftCenter, 	// Blur masks
+				  blurMaskLeftBottom, blurMaskLeftBoth;
+	public PImage blurMaskCenterTop, blurMaskCenterCenter, 	// Blur masks
+	  blurMaskCenterBottom, blurMaskCenterBoth;
+	public PImage blurMaskRightTop, blurMaskRightCenter, 	// Blur masks
+	  blurMaskRightBottom, blurMaskRightBoth;
+	public PImage blurMaskBothTop, blurMaskBothCenter, 	// Blur masks
+	  blurMaskBothBottom, blurMaskBothBoth;
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 	
 	/* Video */
@@ -720,16 +727,46 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 			File maskFolder = new File(maskPath);
 			String[] maskFolderList = maskFolder.list();
 			for(String mask : maskFolderList)
-				if(mask.equals("blurMask.jpg"))
-					blurMask = loadImage(maskPath + mask);
-
+			{
+				if(mask.equals("blurMaskLeftTop.jpg"))
+					blurMaskLeftTop = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftCenter.jpg"))
+					blurMaskLeftCenter = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBottom.jpg"))
+					blurMaskLeftBottom = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBoth.jpg"))
+					blurMaskLeftBoth = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterTop.jpg"))
+					blurMaskCenterTop = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterCenter.jpg"))
+					blurMaskCenterCenter = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBottom.jpg"))
+					blurMaskCenterBottom = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBoth.jpg"))
+					blurMaskCenterBoth = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightTop.jpg"))
+					blurMaskRightTop = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightCenter.jpg"))
+					blurMaskRightCenter = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBottom.jpg"))
+					blurMaskRightBottom = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBoth.jpg"))
+					blurMaskRightBoth = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothTop.jpg"))
+					blurMaskBothTop = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothCenter.jpg"))
+					blurMaskBothCenter = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBottom.jpg"))
+					blurMaskBothBottom = loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBoth.jpg"))
+					blurMaskBothBoth = loadImage(maskPath + mask);
+				PApplet.println("maskPath + mask:"+(maskPath + mask));
+			}
 			selectedFolder = true;
 		}
 		
 		if(selectedFolder)
-		{
 			libraryFolderSelected = true;	// Library folder has been selected
-		}
 	}
 
 	/**

@@ -1498,6 +1498,7 @@ public class GMV_Cluster
 	{
 		clusterMass = newMass;
 	}
+	
 	public boolean isAttractor()
 	{
 		return isAttractor;

@@ -16,7 +16,9 @@ class GMV_Image extends GMV_Viewable
 	public PImage image, blurred;			// Image pixels
 	private PVector[] vertices;				// Vertex list
 
-//	private boolean blur = false;
+	private int horizBorderID = -1;					// Blur horizBorderID   0: Left 1: Center 2: Right  3: Left+Right
+	private int vertBorderID = -1;					// Blur vertBorderID	0: Bottom 1: Center 2: Top  3: Top+Bottom
+											// 6: All
 	private PImage blurMask;
 	private float outlineSize = 10.f;		// Size of the outline around a selected image
 
@@ -75,7 +77,7 @@ class GMV_Image extends GMV_Viewable
 		focalLength = newFocalLength;
 		cameraModel = newCameraModel;
 		
-		blurMask = p.p.blurMask;
+//		blurMask = p.p.blurMaskAll;
 	}  
 
 	/**
@@ -1178,12 +1180,95 @@ class GMV_Image extends GMV_Viewable
 	  * @param newGPSLocation New GPS location
 	  * Set the current GPS location
 	  */
-	 void setGPSLocation(PVector newGPSLocation) 
+	 public void setGPSLocation(PVector newGPSLocation) 
 	 {
 		 gpsLocation = newGPSLocation;
 		 calculateCaptureLocation();
 	 }
-
+	 
+	 public void setBlurMask()
+	 {
+		 // horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
+		 // vertBorderID	 0: Top  1: Center  2: Bottom  3: Top+Bottom
+		 
+		 if(horizBorderID == 0)
+		 {
+			 switch(vertBorderID)
+			 {
+			 case 0:
+				 blurMask = p.p.blurMaskLeftTop;
+				 break;
+			 case 1:
+				 blurMask = p.p.blurMaskLeftCenter;
+				 break;
+			 case 2:
+				 blurMask = p.p.blurMaskLeftBottom;
+				 break;
+			 case 3:
+			 default:
+				 blurMask = p.p.blurMaskLeftBoth;
+				 break;
+			 }
+		 }
+		 else if(horizBorderID == 1)
+		 {
+			 switch(vertBorderID)
+			 {
+			 case 0:
+				 blurMask = p.p.blurMaskCenterTop;
+				 break;
+			 case 1:
+				 blurMask = p.p.blurMaskCenterCenter;
+				 break;
+			 case 2:
+				 blurMask = p.p.blurMaskCenterBottom;
+				 break;
+			 case 3:
+			 default:
+				 blurMask = p.p.blurMaskCenterBoth;
+				 break;
+			 }
+		 }
+		 else if(horizBorderID == 2)
+		 {
+			 switch(vertBorderID)
+			 {
+			 case 0:
+				 blurMask = p.p.blurMaskRightTop;
+				 break;
+			 case 1:
+				 blurMask = p.p.blurMaskRightCenter;
+				 break;
+			 case 2:
+				 blurMask = p.p.blurMaskRightBottom;
+				 break;
+			 case 3:
+			 default:
+				 blurMask = p.p.blurMaskRightBoth;
+				 break;
+			 }
+		 }
+		 else if(horizBorderID == 3)
+		 {
+			 switch(vertBorderID)
+			 {
+			 case 0:
+				 blurMask = p.p.blurMaskBothTop;
+				 break;
+			 case 1:
+				 blurMask = p.p.blurMaskBothCenter;
+				 break;
+			 case 2:
+				 blurMask = p.p.blurMaskBothBottom;
+				 break;
+			 case 3:
+			 default:
+				 blurMask = p.p.blurMaskBothBoth;
+				 break;
+			 }
+		 }
+	 }
+	 
 	 public float getDirection()
 	 {
 		 return theta;
@@ -1261,5 +1346,15 @@ class GMV_Image extends GMV_Viewable
 	 public void setSensorSize(float newSensorSize)
 	 {
 		 sensorSize = newSensorSize;
+	 }
+	 
+	 public void setHorizBorderID(int newHorizBorderID)
+	 {
+		 horizBorderID = newHorizBorderID;
+	 }
+
+	 public void setVertBorderID(int newVertBorderID)
+	 {
+		 vertBorderID = newVertBorderID;
 	 }
 }

@@ -46,14 +46,13 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 
 	private int initializationField = 0;			// Field to be initialized this frame
 	public int setupProgress = 0;						// Setup progress (0 to 100)
-	public float fieldProgressInc;						// How much to increment progress bar per field
 	
 	/* Model */
+	// -- TO DO:
+	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
-
-	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
@@ -249,6 +248,8 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	
 	private void runSetup()
 	{
+		float fieldProgressInc = 100.f;
+		
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
 		if (libraryFolderSelected && initialSetup && !creatingFields && !running)
 		{

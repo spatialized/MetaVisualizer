@@ -1511,19 +1511,25 @@ class GMV_Display
 			p.text(" Time ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.textSize(smallTextSize);
 			p.text(" Time Fading: "+ p.timeFading, textXPos, textYPos += lineWidthVeryWide, hudDistance);
-			p.text(" Date Fading: "+ p.dateFading, textXPos, textYPos += lineWidth, hudDistance);
 			p.text(" Timeline Segments: "+ p.getCurrentField().timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
 			p.text(" Current Segment: "+ p.viewer.currentFieldTimeSegment, textXPos, textYPos += lineWidth, hudDistance);
 			if(f.timeline.size() > 0 && p.viewer.currentFieldTimeSegment >= 0 && p.viewer.currentFieldTimeSegment < f.timeline.size())
 				p.text(" Upper: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+f.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
-					   " Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
+						" Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
 			p.text(" Cluster Segments: "+ p.getCurrentCluster().timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
 //			p.text(" Current Cluster Segment: "+ p.viewer.currentClusterTimeSegment, textXPos, textYPos += lineWidth, hudDistance);
 //			p.text(" Upper: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+c.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
-//					 " Lower: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
-
+//					 " Lower: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);			
 //			textXPos = midRightTextXOffset;
 //			textYPos = topTextYOffset;			// Starting vertical position
+			
+			p.text(" Date Fading: "+ p.dateFading, textXPos, textYPos += lineWidthWide, hudDistance);
+			p.text(" Dateline Segments: "+ p.getCurrentField().dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
+			p.text(" Current Segment: "+ p.viewer.currentFieldDateSegment, textXPos, textYPos += lineWidth, hudDistance);
+			if(f.dateline.size() > 0 && p.viewer.currentFieldDateSegment >= 0 && p.viewer.currentFieldDateSegment < f.dateline.size())
+				p.text(" Upper: "+f.dateline.get(p.viewer.currentFieldDateSegment).getUpper()+" Center:"+f.dateline.get(p.viewer.currentFieldDateSegment).getCenter()+
+						" Lower: "+f.dateline.get(p.viewer.currentFieldDateSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
+			p.text(" Cluster Segments: "+ p.getCurrentCluster().dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
 
 			p.textSize(mediumTextSize);
 			p.text(" Output ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
@@ -1585,7 +1591,9 @@ class GMV_Display
 		p.text(" Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
 		p.text(" User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
 		p.text(" Media Segments: "+ c.segments.size(), textXPos, textYPos += lineWidth, hudDistance);
-		p.text(" Timeline Points: "+ c.timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
+		
+		p.text(" Timeline Points: "+ c.timeline.size(), textXPos, textYPos += lineWidthWide, hudDistance);
+		p.text(" Dateline Points: "+ c.dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
 		p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
 		p.text(" Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
 		p.text(" Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);

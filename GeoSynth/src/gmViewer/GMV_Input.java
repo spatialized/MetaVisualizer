@@ -344,6 +344,18 @@ public class GMV_Input
 
 				if (key == 'B')						// Teleport to previous cluster time segment
 					p.viewer.moveToPreviousTimeSegment(false, true);
+
+				if (key == 'l')						// Teleport to current date segment
+					p.viewer.moveToNextDateSegment(true, true);
+
+				if (key == 'k')						// Teleport to current date segment
+					p.viewer.moveToPreviousDateSegment(true, true);
+
+				if (key == 'L')						// Teleport to next cluster date segment
+					p.viewer.moveToNextDateSegment(false, true);
+
+				if (key == 'K')						// Teleport to previous cluster date segment
+					p.viewer.moveToPreviousDateSegment(false, true);
 			}
 			else
 			{
@@ -358,6 +370,18 @@ public class GMV_Input
 
 				if (key == 'B')						// Move to previous cluster time segment
 					p.viewer.moveToPreviousTimeSegment(false, false);
+
+				if (key == 'l')						// Move to current date segment
+					p.viewer.moveToNextDateSegment(true, false);
+
+				if (key == 'k')						// Move to current date segment
+					p.viewer.moveToPreviousDateSegment(true, false);
+
+				if (key == 'L')						// Move to next cluster date segment
+					p.viewer.moveToNextDateSegment(false, false);
+
+				if (key == 'K')						// Move to previous cluster date segment
+					p.viewer.moveToPreviousDateSegment(false, false);
 			}
 			
 			if (key == '~')
@@ -481,13 +505,6 @@ public class GMV_Input
 				if (optionKey && key == 'x')
 					p.getCurrentField().deselectAllMedia();
 
-//				if (key == 'D')
-//				{
-//					if(p.viewer.selectionMode)
-//						p.viewer.selectionMode = false;
-//					p.viewer.videoMode = !p.viewer.videoMode;
-//				}
-
 				if (key == '_')
 					p.visibleAngle -= 3.1415f / 128.f; 
 
@@ -561,11 +578,11 @@ public class GMV_Input
 				}
 
 				/* Navigation */
-				if (key == 'k') 
-					p.viewer.lockToCluster = !p.viewer.lockToCluster;
-
-				if (key == 'L') 			// Look for images when none are visible
-					p.viewer.lookForImages();
+//				if (key == 'k') 
+//					p.viewer.lockToCluster = !p.viewer.lockToCluster;
+//
+//				if (key == 'L') 			// Look for images when none are visible
+//					p.viewer.lookForImages();
 			}
 		}
 		else 						// Interactive Clustering Mode

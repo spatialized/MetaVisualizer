@@ -20,11 +20,9 @@ import toxi.math.ZoomLensInterpolation;
 
 public class GMV_World {
 	/* System Status */
-	private boolean libraryFolderSelected = false;	// Has user selected a library folder?
 	private boolean initialSetup = false;			// Performing initial setup 
 	private boolean creatingFields = false;			// Initializing media folders
 	private boolean fieldsCreated = false;			// Initialized media folders
-	private boolean exit = false;					// System message to exit the program
 	private boolean startRunning = false;			// Program just started running
 	private boolean saveImage = false;
 	
@@ -32,16 +30,11 @@ public class GMV_World {
 	GMV_Input input;				// Handles input
 	GMV_Display display;			// Handles heads up display
 	GMV_Viewer viewer;				// Handles viewer location
-	GMV_Debug debug;				// Handles debugging functions
 	GMV_Utilities utilities;		// Utility methods
-	GMV_Stitcher stitcher;			// Image stitcher
-
+	
 	/* Media */
 	private ArrayList<GMV_Field> fields;					// Large geographical area containing media for simulation
-	private ArrayList<String> folders;					// Directories for each field in library
-	private String library;								// Filepath for library folder 					
 
-	/* Media */
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
@@ -49,7 +42,6 @@ public class GMV_World {
 	/* Stitching */
 	String stitchingPath;
 	int maxStitchingImages = 30;						// Maximum number of images to try to stitch
-//	float stitchingMinAngle = PApplet.degrees(thinningAngle/2.f);		// Angle in degrees that determines media segments for stitching 
 	float stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
 	public boolean persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
 
@@ -79,8 +71,6 @@ public class GMV_World {
 	/* Time */
 	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
 	public boolean dateFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
-
-	// -- TESTING
 	public boolean showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 
@@ -127,8 +117,10 @@ public class GMV_World {
 	public int setupProgress = 0;						// Setup progress (0 to 100)
 	
 	/* Model */
+
 	// -- TO DO:
 	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
+	
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
@@ -175,7 +167,6 @@ public class GMV_World {
 		p = parent;
 	}
 	
-
 	/**
 	 * Set up the main classes and variables
 	 */
@@ -184,12 +175,9 @@ public class GMV_World {
 		/* Create main classes */
 		utilities = new GMV_Utilities(this);
 		input = new GMV_Input(this);
-		debug = new GMV_Debug(this);
-		folders = new ArrayList<String>();
 
 		viewer = new GMV_Viewer(this);	// Initialize navigation + viewer
 		display = new GMV_Display(this);		// Initialize displays
-		stitcher = new GMV_Stitcher(this);
 
 		/* Initialize graphics and text parameters */
 		p.colorMode(PConstants.HSB);
@@ -208,20 +196,20 @@ public class GMV_World {
 	void run()
 	{
 		/* Viewing and navigating 3D environment */
-		if (!initialSetup && !interactive && !exit) 			
+		if (!initialSetup && !interactive && !p.exit) 			
 			runSimulation();							// Run current simulation
 		
-		if (exit) 									
+		if (p.exit) 									
 		{
-			if(debug.detailed)
+			if(p.debug.detailed)
 				PApplet.println("Exit command! about to quit...");
-			stopGeoSynth();								//  Exit simulation
+			p.stopGeoSynth();								//  Exit simulation
 		}
 		
-		if ( debug.memory && p.frameCount % memoryCheckFrequency == 0 )
+		if ( p.debug.memory && p.frameCount % memoryCheckFrequency == 0 )
 		{
-			debug.checkMemory();
-			debug.checkFrameRate();
+			p.debug.checkMemory();
+			p.debug.checkFrameRate();
 		}
 		
 		if(saveImage && outputFolderSelected)
@@ -237,9 +225,9 @@ public class GMV_World {
 		float fieldProgressInc = 100.f;
 		
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
-		if (libraryFolderSelected && initialSetup && !creatingFields && !p.running)
+		if (p.selectedLibrary && initialSetup && !creatingFields && !p.running)
 		{
-			createFieldsFromFolders(folders);		// Create empty field for each media folder		Progress Bar: 10pts
+			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder		Progress Bar: 10pts
 
 			display.sendSetupMessage(" ");	// Show startup message
 			display.sendSetupMessage("Creating "+fields.size()+" fields...");	// Show startup message
@@ -252,13 +240,15 @@ public class GMV_World {
 			creatingFields = true;
 		}
 
-		if (libraryFolderSelected && initialSetup && creatingFields && !fieldsCreated)
+		if (p.selectedLibrary && initialSetup && creatingFields && !fieldsCreated)
 		{
-			if(!fieldsCreated && !exit)
+			if(!fieldsCreated && !p.exit)
 			{
-				if(debug.field) PApplet.println("Initializing field:"+initializationField);
+				if(p.debug.field) PApplet.println("Initializing field:"+initializationField);
+				GMV_Field f = getField(initializationField);
 
-				getField(initializationField).initialize(library);
+				p.metadata.load(f);								// Import metadata for all media in field
+				f.initialize(p.library.getLibraryFolder());		// Initialize field
 				
 				setupProgress += fieldProgressInc;		// Update progress bar
 				display.draw();							// Draw progress bar
@@ -273,8 +263,8 @@ public class GMV_World {
 			finishSetup();
 
 		/* Once library folder is selected */
-		if(libraryFolderSelected && !initialSetup && !interactive && !p.running)
-			startInitialClustering();								// Start clustering mode 
+		if(p.selectedLibrary && !initialSetup && !interactive && !p.running)
+			startInitialClustering();							// Start clustering 
 		
 		/* Start interactive clustering */
 		if(startInteractive && !interactive && !p.running)
@@ -282,7 +272,7 @@ public class GMV_World {
 		
 		/* Running interactive clustering */
 		if(interactive && !startInteractive && !p.running)
-			runInteractiveClustering();							// Start clustering mode 
+			runInteractiveClustering();							// Start interactive clustering mode 
 	}
 	
 	/**
@@ -329,17 +319,17 @@ public class GMV_World {
 			if(currentTime > timeCycleLength)
 				currentTime = 0;
 
-			if(debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
+			if(p.debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
 			{
 				if(getCurrentField().mediaAreActive())
 				{
-					if(debug.detailed)
+					if(p.debug.detailed)
 						PApplet.println("Media still active...");
 				}
 				else
 				{
 					currentTime = 0;
-					if(debug.detailed)
+					if(p.debug.detailed)
 						PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
 				}
 			}
@@ -352,20 +342,67 @@ public class GMV_World {
 			if(currentDate > dateCycleLength)
 				currentDate = 0;
 
-			if(debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
+			if(p.debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
 			{
 				if(getCurrentField().mediaAreActive())
 				{
-					if(debug.detailed)
+					if(p.debug.detailed)
 						PApplet.println("Media still active...");
 				}
 				else
 				{
 					currentDate = 0;
-					if(debug.detailed)
+					if(p.debug.detailed)
 						PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Load image masks
+	 */
+	public void loadImageMasks(String libFolder)
+	{
+		String maskPath = libFolder + "masks/";
+		stitchingPath = libFolder + "stitched/";
+		File maskFolder = new File(maskPath);
+		String[] maskFolderList = maskFolder.list();
+		for(String mask : maskFolderList)
+		{
+			if(mask.equals("blurMaskLeftTop.jpg"))
+				blurMaskLeftTop = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskLeftCenter.jpg"))
+				blurMaskLeftCenter = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskLeftBottom.jpg"))
+				blurMaskLeftBottom = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskLeftBoth.jpg"))
+				blurMaskLeftBoth = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskCenterTop.jpg"))
+				blurMaskCenterTop = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskCenterCenter.jpg"))
+				blurMaskCenterCenter = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskCenterBottom.jpg"))
+				blurMaskCenterBottom = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskCenterBoth.jpg"))
+				blurMaskCenterBoth = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskRightTop.jpg"))
+				blurMaskRightTop = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskRightCenter.jpg"))
+				blurMaskRightCenter = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskRightBottom.jpg"))
+				blurMaskRightBottom = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskRightBoth.jpg"))
+				blurMaskRightBoth = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskBothTop.jpg"))
+				blurMaskBothTop = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskBothCenter.jpg"))
+				blurMaskBothCenter = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskBothBottom.jpg"))
+				blurMaskBothBottom = p.loadImage(maskPath + mask);
+			if(mask.equals("blurMaskBothBoth.jpg"))
+				blurMaskBothBoth = p.loadImage(maskPath + mask);
+			PApplet.println("maskPath + mask:"+(maskPath + mask));
 		}
 	}
 	
@@ -399,35 +436,17 @@ public class GMV_World {
 	}
 
 	/**
-	 * Stop the program
+	 * Reset variables
 	 */
-	void stopGeoSynth() 		
+	void reset()
 	{
-		PApplet.println("Exiting GMViewer 1.0.0...");
-		p.exit();
-	}
-
-	/**
-	 * Restart the program
-	 */
-	void restartGeoSynth()
-	{
-		p.camera();
-		p.setup();
-		
-		// Reset variables
-		initializationField = 0;			// Field to be initialized this frame
+		initializationField = 0;				// Field to be initialized this frame
 		setupProgress = 0;						// Setup progress (0 to 100)
-		p.startup = true;
 		initialSetup = false;			
-		libraryFolderSelected = false;	
 		creatingFields = false;			
 		fieldsCreated = false;			
-		p.running = false;				
-		exit = false;					
 		startRunning = false;			
 	}
-	
 	
 	/**
 	 * Start initial clustering process
@@ -435,9 +454,9 @@ public class GMV_World {
 	public void startInitialClustering()
 	{
 		display.startupMessages = new ArrayList<String>();	// Clear startup messages
-		if(debug.metadata)
+		if(p.debug.metadata)
 		{
-			display.sendSetupMessage("Library folder: "+library);	// Show library folder name
+			display.sendSetupMessage("Library folder: "+p.library.getLibraryFolder());	// Show library folder name
 			display.sendSetupMessage(" ");
 		}
 		
@@ -692,7 +711,7 @@ public class GMV_World {
 	 */
 	public void saveImage() 
 	{
-		if(debug.main)
+		if(p.debug.main)
 			PApplet.println("Will output image to disk.");
 		saveImage = true;
 	}
@@ -706,14 +725,6 @@ public class GMV_World {
 	}
 
 	/**
-	 * @return Current media library
-	 */
-	public String getLibrary()
-	{
-		return library;
-	}
-
-	/**
 	 * @return Current field
 	 */
 	public GMV_Field getField(int fieldIndex)
@@ -723,116 +734,4 @@ public class GMV_World {
 		else
 			return null;
 	}
-	
-	/**
-	 * Analyze and load media folders in response to user selection
-	 * @param selection Selected folder
-	 */
-	public void openLibraryFolder(File selection) 
-	{
-		boolean selectedFolder = false;
-		
-		if (selection == null) {
-			PApplet.println("Window was closed or the user hit cancel.");
-		} 
-		else 
-		{
-			String input = selection.getPath();
-
-			if (debug.metadata)
-				PApplet.println("User selected library folder: " + input);
-
-			library = input;
-
-			String[] parts = input.split("/");
-			
-			String[] nameParts = parts[parts.length-1].split("_");		// Check if single field library 
-			boolean singleField = !nameParts[0].equals("Environments");
-			String maskPath = "", parentFilePath = "";
-			
-			if(singleField)
-			{
-				String libFilePath = "";
-				for(int i=0; i<parts.length-1; i++)
-				{
-					libFilePath = libFilePath + parts[i] + "/";
-				}
-
-				folders.add(parts[parts.length-1]);
-
-				library = libFilePath;
-				File libFile = new File(library);
-
-				selectedFolder = true;
-
-				for(int i=0; i<parts.length-2; i++)
-					parentFilePath = parentFilePath + parts[i] + "/";
-			}
-			else
-			{
-				File libFile = new File(library);
-				String[] mediaFolderList = libFile.list();
-				for(String mediaFolder : mediaFolderList)
-				{
-					if(!mediaFolder.equals(".DS_Store"))
-						folders.add(mediaFolder);
-					
-					PApplet.println("Added media folder:"+mediaFolder);
-
-				}
-
-				selectedFolder = true;
-
-				for(int i=0; i<parts.length-1; i++)
-					parentFilePath = parentFilePath + parts[i] + "/";
-			}
-
-			maskPath = parentFilePath + "masks/";
-			stitchingPath = parentFilePath + "stitched/";
-			File maskFolder = new File(maskPath);
-			String[] maskFolderList = maskFolder.list();
-			for(String mask : maskFolderList)
-			{
-				if(mask.equals("blurMaskLeftTop.jpg"))
-					blurMaskLeftTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftCenter.jpg"))
-					blurMaskLeftCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftBottom.jpg"))
-					blurMaskLeftBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftBoth.jpg"))
-					blurMaskLeftBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterTop.jpg"))
-					blurMaskCenterTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterCenter.jpg"))
-					blurMaskCenterCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterBottom.jpg"))
-					blurMaskCenterBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterBoth.jpg"))
-					blurMaskCenterBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightTop.jpg"))
-					blurMaskRightTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightCenter.jpg"))
-					blurMaskRightCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightBottom.jpg"))
-					blurMaskRightBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightBoth.jpg"))
-					blurMaskRightBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothTop.jpg"))
-					blurMaskBothTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothCenter.jpg"))
-					blurMaskBothCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothBottom.jpg"))
-					blurMaskBothBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothBoth.jpg"))
-					blurMaskBothBoth = p.loadImage(maskPath + mask);
-				PApplet.println("maskPath + mask:"+(maskPath + mask));
-			}
-			selectedFolder = true;
-		}
-		
-		if(selectedFolder)
-			libraryFolderSelected = true;	// Library folder has been selected
-	}
-
-
 }

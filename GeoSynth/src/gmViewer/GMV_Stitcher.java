@@ -115,7 +115,7 @@ public class GMV_Stitcher
 
 				if(!imgs.isNull())
 				{
-					if(p.debug.stitching) PApplet.println("Attempting to stitch "+imgs.size()+" images...");
+					if(p.p.debug.stitching) PApplet.println("Attempting to stitch "+imgs.size()+" images...");
 
 					Mat pano = new Mat();
 					int status = stitcher.stitch(imgs, pano);
@@ -128,7 +128,7 @@ public class GMV_Stitcher
 					}
 					else
 					{
-						if(p.debug.stitching) p.display.message("Error #" + status + " couldn't stitch panorama...");
+						if(p.p.debug.stitching) p.display.message("Error #" + status + " couldn't stitch panorama...");
 						if(status == 3)				// Error estimating camera parameters
 						{
 							if(p.persistentStitching) reduce = true;
@@ -143,7 +143,7 @@ public class GMV_Stitcher
 				}
 				else
 				{
-					if(p.debug.stitching) p.display.message("Couldn't stitch panorama... No images!");
+					if(p.p.debug.stitching) p.display.message("Couldn't stitch panorama... No images!");
 					break;
 				}
 			}
@@ -163,7 +163,7 @@ public class GMV_Stitcher
 			filePath = p.stitchingPath+fileName;
 
 			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, panorama);
-			if(p.debug.stitching) p.display.message("Panorama stitching successful, output to file: " + fileName);
+			if(p.p.debug.stitching) p.display.message("Panorama stitching successful, output to file: " + fileName);
 
 			iplImage = new IplImage(panorama);
 			PApplet.println("panorama.toString():"+panorama.toString());
@@ -215,7 +215,7 @@ public class GMV_Stitcher
 
 			PImage result = addImageBorders(iplImage, clusterID, segment);
 			
-			if(p.debug.stitching)	// TESTING
+			if(p.p.debug.stitching)	// TESTING
 			{	
 				String filePath = "";
 				String fileName = "";
@@ -227,7 +227,7 @@ public class GMV_Stitcher
 
 				filePath = p.stitchingPath+fileName;
 
-				if(p.debug.stitching) p.display.message("Debugging: output panorama with borders to file: " + fileName);
+				if(p.p.debug.stitching) p.display.message("Debugging: output panorama with borders to file: " + fileName);
 				
 				result.save(filePath);
 			}
@@ -242,7 +242,7 @@ public class GMV_Stitcher
 					"", null, panoDirection, panoElevation, -1, result.width, result.height, 
 					1.f, null, p.getCluster(clusterID).getLocation(), result );
 		
-			if(p.debug.stitching)
+			if(p.p.debug.stitching)
 			{
 				PApplet.println("Final Width:"+result.width+" Height:"+result.height);
 				PApplet.println("Final Aspect Ratio:"+((float)result.width/(float)result.height));
@@ -267,14 +267,14 @@ public class GMV_Stitcher
 
 			if( img.empty())
 			{
-				if(p.debug.stitching)
+				if(p.p.debug.stitching)
 					PApplet.println("Image "+i+" is empty...");
 			}
 			else
 			{
 				imgs.resize(imgs.size() + 1);
 				imgs.put(imgs.size() - 1, img);
-				if(p.debug.stitching)
+				if(p.p.debug.stitching)
 					PApplet.println("Added image to stitching list: "+images[i]);
 			}
 		}
@@ -320,7 +320,7 @@ public class GMV_Stitcher
 		
 		float aspect = (float)src.width() / (float)src.height();
 		
-		if(p.debug.stitching)
+		if(p.p.debug.stitching)
 		{
 			PApplet.println("--> addImageBorders()...");
 			PApplet.println(" width():"+src.width()+" height:"+src.height()+" aspect:"+aspect);
@@ -331,12 +331,12 @@ public class GMV_Stitcher
 		float left = sLeft - imgHorizCoverage * 0.5f;
 		float right = sRight + imgHorizCoverage * 0.5f;
 		
-		if(p.debug.stitching)
+		if(p.p.debug.stitching)
 			PApplet.println(" top:"+top+" bottom:"+bottom+" left:"+left+" right:"+right);
 
 		float xCoverage = PApplet.constrain(right - left, 0.f, 360.f);			// -- Check if constrain works
 		float yCoverage = PApplet.constrain(top - bottom, 0.f, 180.f);
-		if(p.debug.stitching)
+		if(p.p.debug.stitching)
 			PApplet.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
 
 		float fullWidth, fullHeight;
@@ -365,7 +365,7 @@ public class GMV_Stitcher
 		float xDiff = fullWidth - src.width();
 		float yDiff = fullHeight - src.height();
 		
-		if(p.debug.stitching)
+		if(p.p.debug.stitching)
 			PApplet.println(" fullWidth:"+fullWidth+" fullHeight:"+fullHeight+" xDiff:"+xDiff+" yDiff:"+yDiff);
 		
 		int topBorder = PApplet.abs(PApplet.round(yDiff / 2.f));
@@ -375,13 +375,13 @@ public class GMV_Stitcher
 		
 		boolean error = false;
 
-		if(p.debug.stitching)
+		if(p.p.debug.stitching)
 			PApplet.println(" topBorder:"+topBorder+" bottomBorder:"+bottomBorder+" leftBorder:"+leftBorder+" rightBorder:"+rightBorder);
 
 		Mat image = new Mat( src );
 		if (image.empty()) 
 		{
-			if(p.debug.stitching)
+			if(p.p.debug.stitching)
 				PApplet.println(" Error reading image...");
 			error = true;
 		}

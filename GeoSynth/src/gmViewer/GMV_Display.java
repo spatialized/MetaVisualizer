@@ -413,7 +413,7 @@ class GMV_Display
 				}
 			}
 
-			if(p.debug.time)
+			if(p.p.debug.time)
 			{
 				p.p.pushMatrix();
 				beginHUD();
@@ -543,7 +543,7 @@ class GMV_Display
 				}
 			}
 
-			if(p.debug.time)
+			if(p.p.debug.time)
 			{
 				p.p.pushMatrix();
 				beginHUD();
@@ -828,7 +828,7 @@ class GMV_Display
 				messages.remove(0);
 		}
 
-		if(p.debug.print)
+		if(p.p.debug.print)
 			PApplet.println(message);
 	}
 	
@@ -937,7 +937,7 @@ class GMV_Display
 			while(startupMessages.size() > 16)
 				startupMessages.remove(0);
 
-			if(p.debug.print)
+			if(p.p.debug.print)
 				PApplet.println(message);
 		}
 	}
@@ -1391,7 +1391,7 @@ class GMV_Display
 			break;
 		}
 
-		if (p.debug.field)
+		if (p.p.debug.field)
 			PApplet.println("blendMode:" + blendMode);
 	}
 	
@@ -1467,7 +1467,7 @@ class GMV_Display
 				p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), textXPos, textYPos += lineWidth, hudDistance);
 			}
 
-			if(p.debug.viewer) 
+			if(p.p.debug.viewer) 
 			{
 				p.p.text(" Debug: Current Attraction: "+p.viewer.attraction.mag(), textXPos, textYPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Current Acceleration: "+(p.viewer.isWalking() ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), textXPos, textYPos += lineWidth, hudDistance);
@@ -1484,7 +1484,7 @@ class GMV_Display
 			p.p.text(" Default Focus Distance (m.):"+p.defaultFocusDistance, textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, textXPos, textYPos += lineWidth, hudDistance);
 
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 			{
 				p.p.text(" Debug: X Orientation (Yaw):" + p.viewer.getXOrientation(), textXPos, textYPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Y Orientation (Pitch):" + p.viewer.getYOrientation(), textXPos, textYPos += lineWidth, hudDistance);
@@ -1537,18 +1537,18 @@ class GMV_Display
 //			p.p.text(" Image Output Folder:"+p.outputFolder, textXPos, textYPos += lineWidthVeryWide, hudDistance);
 //			p.p.text(" Library Folder:"+p.p.getLibrary(), dispLocX, textYPos += lineWidthWide, hudDistance);
 
-			if(p.debug.memory)
+			if(p.p.debug.memory)
 			{
-				if(p.debug.detailed)
+				if(p.p.debug.detailed)
 				{
-					p.p.text("Total memory (bytes): " + p.debug.totalMemory, textXPos, textYPos += lineWidth, hudDistance);
-					p.p.text("Available processors (cores): "+p.debug.availableProcessors, textXPos, textYPos += lineWidth, hudDistance);
-					p.p.text("Maximum memory (bytes): " +  (p.debug.maxMemory == Long.MAX_VALUE ? "no limit" : p.debug.maxMemory), textXPos, textYPos += lineWidth, hudDistance); 
-					p.p.text("Total memory (bytes): " + p.debug.totalMemory, textXPos, textYPos += lineWidth, hudDistance);
-					p.p.text("Allocated memory (bytes): " + p.debug.allocatedMemory, textXPos, textYPos += lineWidth, hudDistance);
+					p.p.text("Total memory (bytes): " + p.p.debug.totalMemory, textXPos, textYPos += lineWidth, hudDistance);
+					p.p.text("Available processors (cores): "+p.p.debug.availableProcessors, textXPos, textYPos += lineWidth, hudDistance);
+					p.p.text("Maximum memory (bytes): " +  (p.p.debug.maxMemory == Long.MAX_VALUE ? "no limit" : p.p.debug.maxMemory), textXPos, textYPos += lineWidth, hudDistance); 
+					p.p.text("Total memory (bytes): " + p.p.debug.totalMemory, textXPos, textYPos += lineWidth, hudDistance);
+					p.p.text("Allocated memory (bytes): " + p.p.debug.allocatedMemory, textXPos, textYPos += lineWidth, hudDistance);
 				}
-				p.p.text("Free memory (bytes): "+p.debug.freeMemory, textXPos, textYPos += lineWidth, hudDistance);
-				p.p.text("Approx. usable free memory (bytes): " + p.debug.approxUsableFreeMemory, textXPos, textYPos += lineWidth, hudDistance);
+				p.p.text("Free memory (bytes): "+p.p.debug.freeMemory, textXPos, textYPos += lineWidth, hudDistance);
+				p.p.text("Approx. usable free memory (bytes): " + p.p.debug.approxUsableFreeMemory, textXPos, textYPos += lineWidth, hudDistance);
 			}			
 			p.p.text(" GeoSynth v1.0 by David Gordon, Copyright © 2016", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 
@@ -1601,7 +1601,7 @@ class GMV_Display
 		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
 		
-		if(p.debug.cluster)
+		if(p.p.debug.cluster)
 		{
 			p.p.text(" -- Debug --", textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Cluster Times (Size): "+ c.getClusterTimes().size(), textXPos, textYPos += lineWidth, hudDistance);
@@ -1634,7 +1634,7 @@ class GMV_Display
 			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), textXPos, textYPos += lineWidth, hudDistance);
 //			p.p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.getAttractorCluster()).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
 			p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), textXPos, textYPos += lineWidth, hudDistance);
-			if(p.debug.viewer) 
+			if(p.p.debug.viewer) 
 			{
 				p.p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), textXPos, textYPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Current Acceleration:"+(p.viewer.isWalking() ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), textXPos, textYPos += lineWidth, hudDistance);
@@ -1661,7 +1661,7 @@ class GMV_Display
 //		p.p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), dispLocX, textYPos += lineWidth, hudDistance);
 //		//		p.p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.getAttractorCluster()).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
 //		p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), dispLocX, textYPos += lineWidth, hudDistance);
-//		if(p.debug.viewer) 
+//		if(p.p.debug.viewer) 
 //		{
 //			p.p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), dispLocX, textYPos += lineWidth, hudDistance);
 //			p.p.text(" Debug: Current Acceleration:"+(p.viewer.walking ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), dispLocX, textYPos += lineWidth, hudDistance);

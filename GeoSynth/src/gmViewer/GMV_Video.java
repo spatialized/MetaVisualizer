@@ -125,7 +125,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 						else
 						{
 							timeBrightnessFactor = 0.f;
-							if(p.p.debug.cluster || p.p.debug.video || p.p.debug.viewable)
+							if(p.p.p.debug.cluster || p.p.p.debug.video || p.p.p.debug.viewable)
 								p.p.display.message("Video Cluster: "+cluster+" has no timeline points!");
 						}
 						
@@ -159,7 +159,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 						else
 						{
 							dateBrightnessFactor = 0.f;
-							if(p.p.debug.cluster || p.p.debug.image || p.p.debug.viewable)
+							if(p.p.p.debug.cluster || p.p.p.debug.image || p.p.p.debug.viewable)
 								p.p.display.message("Cluster: "+cluster+" has no dateline points!");
 						}
 						
@@ -187,7 +187,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				fadeOut();
 			}
 
-			if(p.p.debug.video && p.p.debug.detailed && p.p.p.frameCount % 30 == 0)
+			if(p.p.p.debug.video && p.p.p.debug.detailed && p.p.p.frameCount % 30 == 0)
 				p.p.display.message("Video brightness after distance:"+brightness);
 
 			if( p.p.angleFading )
@@ -219,7 +219,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				p.p.p.noFill();                  // Hide video if it isn't visible
 			}
 
-			if (visible && !disabled && (p.p.debug.model || p.p.viewer.map3DMode))
+			if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.map3DMode))
 				drawLocation(centerSize);
 		}
 	}
@@ -360,7 +360,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				}
 			}
 
-			if(p.p.debug.video && p.p.p.frameCount % 30 == 0)
+			if(p.p.p.debug.video && p.p.p.frameCount % 30 == 0)
 				p.p.display.message("After backFacing... "+visible);
 
 			boolean wasFading = false;
@@ -462,7 +462,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			video.loop();					// Start loop
 			videoPlaying = true;
 
-			if(p.p.debug.video)
+			if(p.p.p.debug.video)
 				p.p.display.message("Loading video file..."+filePath+" video.duration():"+video.duration());
 
 			calculateVertices(); 
@@ -476,7 +476,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 */
 	public void stopVideo()
 	{
-		if(p.p.debug.video) 
+		if(p.p.p.debug.video) 
 			p.p.display.message("Stopping video file..."+getID());
 
 		video.noLoop();
@@ -490,7 +490,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 */
 	public void clearVideo()
 	{
-		if(p.p.debug.video) 
+		if(p.p.p.debug.video) 
 			p.p.display.message("Clearing video file..."+getID());
 
 		video.noLoop();
@@ -511,7 +511,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 		if(isSelected())
 		{
-			if (!p.p.viewer.selection && p.p.debug.field)     // Draw outline
+			if (!p.p.viewer.selection && p.p.p.debug.field)     // Draw outline
 			{
 				p.p.p.stroke(19, 200, 150);
 				p.p.p.strokeWeight(outlineSize);
@@ -607,7 +607,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		p.p.display.metadata(strElevation);
 		p.p.display.metadata(strRotation);
 
-		if(p.p.debug.video)
+		if(p.p.p.debug.video)
 		{
 			p.p.display.metadata(strTitleDebug);
 			p.p.display.metadata(strBrightness);
@@ -967,13 +967,13 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		
 		if(closestIdx != -1)
 		{
-			if(p.p.debug.video || p.p.debug.metadata)
+			if(p.p.p.debug.video || p.p.p.debug.metadata)
 				PApplet.println("Found image placeholder:"+p.images.get(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+p.images.get(closestIdx).getID()+" closestIdx:"+closestIdx);
 			boolean success = associateImagePlaceholder(p.images.get(closestIdx).getID(), closestDist, PApplet.abs(time.getTime() - p.images.get(closestIdx).time.getTime()));
 			
 			if(success)
 			{
-				if(p.p.debug.video || p.p.debug.metadata)
+				if(p.p.p.debug.video || p.p.p.debug.metadata)
 					PApplet.println("Set placeholder image id:"+p.images.get(closestIdx).getID());
 			
 				p.images.get(closestIdx).associateVideo(getID());

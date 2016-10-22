@@ -104,7 +104,7 @@ public class GMV_Panorama extends GMV_Viewable
 		
 		if(isFading())                       // Fade in and out with time
 		{
-			if(p.p.debug.panorama && p.p.debug.detailed)
+			if(p.p.p.debug.panorama && p.p.p.debug.detailed)
 				p.p.display.message("Panorama fading... id: "+getID());
 			updateFadingBrightness();
 
@@ -155,7 +155,7 @@ public class GMV_Panorama extends GMV_Viewable
 			p.p.p.noFill();                  // Hide image if it isn't visible
 		}
 
-		if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw panorama location for debugging or map display
+		if (visible && isSelected() && !disabled && p.p.p.debug.model)		// Draw panorama location for debugging or map display
 			drawLocation(centerSize);
 		if (visible && !disabled && p.p.viewer.map3DMode)
 			drawLocation(centerSize);
@@ -207,7 +207,7 @@ public class GMV_Panorama extends GMV_Viewable
 		//		 
 		//		 if(selection)
 		//		 {
-		//			 if(p.p.debug.viewer && p.p.debug.detailed)
+		//			 if(p.p.p.debug.viewer && p.p.p.debug.detailed)
 		//				 p.p.display.sendMessage("Selected image:"+id);
 		//			 
 		//			 displayMetadata();
@@ -389,10 +389,10 @@ public class GMV_Panorama extends GMV_Viewable
 	 */
 	public void loadMedia()
 	{
-		if(p.p.debug.panorama && p.p.debug.detailed)
+		if(p.p.p.debug.panorama && p.p.p.debug.detailed)
 			p.p.display.message("Requesting panorama file:"+getName());
 
-		if(!p.p.debug.lowMemory)			// Check enough memory available
+		if(!p.p.p.debug.lowMemory)			// Check enough memory available
 		{
 			if(p.p.transitionsOnly)
 				location = new PVector (0, 0, 0);

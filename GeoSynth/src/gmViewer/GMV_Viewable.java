@@ -186,7 +186,7 @@ public abstract class GMV_Viewable
 	 */
 	public void stopFading()
 	{
-		if(p.p.debug.viewable)
+		if(p.p.p.debug.viewable)
 			PApplet.println("Stop fading for media:"+id);
 
 		fadingEndFrame = p.p.p.frameCount;
@@ -306,7 +306,7 @@ public abstract class GMV_Viewable
 		{
 			length = p.p.timeCycleLength;		// -- Should depend on cluster it belongs to 
 
-			if(selected && p.p.debug.viewable && p.p.debug.detailed)
+			if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 			{
 				PApplet.println("Only one cluster time segment, full length:"+length);
 				PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
@@ -329,7 +329,7 @@ public abstract class GMV_Viewable
 			fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
 			fadeOutEnd = centerTime + (int)length / 2;		// Frame media finishes fading out
 
-			if(selected && p.p.debug.viewable && p.p.debug.detailed)
+			if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 			{
 				PApplet.println("Segment length:"+segmentLength+" timeline length:"+timelineLength+" media length:"+length);
 				PApplet.println(" media time:"+time.getTime()+" centerTime:"+centerTime+" currentTime:"+p.p.currentTime+" cycleLength:"+cycleLength);
@@ -345,7 +345,7 @@ public abstract class GMV_Viewable
 		if(fadeInEnd > cycleLength)
 		{
 			error = true;
-			if(p.p.debug.viewable)
+			if(p.p.p.debug.viewable)
 			{
 				PApplet.println("------Error: fadeInEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
 				PApplet.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
@@ -355,7 +355,7 @@ public abstract class GMV_Viewable
 
 		if(fadeOutStart > cycleLength)
 		{
-			if(selected && p.p.debug.viewable)
+			if(selected && p.p.p.debug.viewable)
 				PApplet.println("Adjusting fadeOutStart");
 
 			fadeOutStart = cycleLength-PApplet.round(length*0.25f);			// Adjust fadeOutStart
@@ -364,7 +364,7 @@ public abstract class GMV_Viewable
 
 		if(fadeOutEnd > cycleLength)
 		{
-			if(selected && p.p.debug.viewable)
+			if(selected && p.p.p.debug.viewable)
 				PApplet.println("Adjusting fadeOutEnd");
 
 			//				if(fadeOutEnd - fadeOutStart < fadeLength) 
@@ -372,7 +372,7 @@ public abstract class GMV_Viewable
 			fadeOutEnd = cycleLength;		// Frame media finishes fading out
 		}
 
-		if(selected && p.p.debug.viewable)
+		if(selected && p.p.p.debug.viewable)
 		{
 			PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" curTime:"+p.p.currentTime+" dayLength:"+cycleLength);
 			PApplet.println("fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
@@ -393,18 +393,18 @@ public abstract class GMV_Viewable
 					active = true;
 
 				timeBrightness = PApplet.constrain(PApplet.map(p.p.currentTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
-				if(selected && p.p.debug.viewable)
+				if(selected && p.p.p.debug.viewable)
 					PApplet.println(" Fading In..."+id);
 			}
 			else if(p.p.currentTime > fadeOutStart)					// During fade out
 			{
-				if(selected && p.p.debug.viewable)
+				if(selected && p.p.p.debug.viewable)
 					PApplet.println(" Fading Out..."+id);
 				timeBrightness = PApplet.constrain(1.f - PApplet.map(p.p.currentTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f);    
 			}
 			else													// After fade in, before fade out
 			{
-				if(selected && p.p.debug.viewable && p.p.debug.detailed)
+				if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 					PApplet.println(" Full visibility...");				// Full visibility
 				timeBrightness = 1.f;								
 			}
@@ -417,7 +417,7 @@ public abstract class GMV_Viewable
 
 		timeBrightness = (float)timeLogMap.getMappedValueFor(timeBrightness);   		// Logarithmic scaling
 
-		if(selected && p.p.debug.viewable)
+		if(selected && p.p.p.debug.viewable)
 			PApplet.println("timeBrightness"+timeBrightness);
 
 		if(!error)
@@ -462,7 +462,7 @@ public abstract class GMV_Viewable
 		{
 			length = p.p.dateCycleLength;		// -- Should depend on cluster it belongs to 
 
-			if(selected && p.p.debug.viewable && p.p.debug.detailed)
+			if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 			{
 				PApplet.println("Only one cluster date segment, full length:"+length);
 				PApplet.println("date:"+time.getDate()+" centerDate:"+centerDate+" curDate:"+p.p.currentDate+" dayLength:"+cycleLength);
@@ -485,7 +485,7 @@ public abstract class GMV_Viewable
 			fadeOutStart = centerDate + (int)length / 4;	// Frame media starts fading out
 			fadeOutEnd = centerDate + (int)length / 2;		// Frame media finishes fading out
 
-			if(selected && p.p.debug.viewable && p.p.debug.detailed)
+			if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 			{
 				PApplet.println("Segment length:"+segmentLength+" dateline length:"+datelineLength+" media length:"+length);
 				PApplet.println(" media date:"+time.getDate()+" centerDate:"+centerDate+" currentDate:"+p.p.currentDate+" cycleLength:"+cycleLength);
@@ -501,7 +501,7 @@ public abstract class GMV_Viewable
 		if(fadeInEnd > cycleLength)
 		{
 			error = true;
-			if(p.p.debug.viewable)
+			if(p.p.p.debug.viewable)
 			{
 				PApplet.println("------Error: fadeInEnd after day end-----date:"+time.getDate()+" centerDate:"+centerDate+" lower:"+lower+" upper:"+upper+" curDate:"+p.p.currentDate+" dayLength:"+cycleLength);
 				PApplet.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
@@ -511,7 +511,7 @@ public abstract class GMV_Viewable
 
 		if(fadeOutStart > cycleLength)
 		{
-			if(selected && p.p.debug.viewable)
+			if(selected && p.p.p.debug.viewable)
 				PApplet.println("Adjusting fadeOutStart");
 
 			fadeOutStart = cycleLength-PApplet.round(length*0.25f);			// Adjust fadeOutStart
@@ -520,7 +520,7 @@ public abstract class GMV_Viewable
 
 		if(fadeOutEnd > cycleLength)
 		{
-			if(selected && p.p.debug.viewable)
+			if(selected && p.p.p.debug.viewable)
 				PApplet.println("Adjusting fadeOutEnd");
 
 			//				if(fadeOutEnd - fadeOutStart < fadeLength) 
@@ -528,7 +528,7 @@ public abstract class GMV_Viewable
 			fadeOutEnd = cycleLength;		// Frame media finishes fading out
 		}
 
-		if(selected && p.p.debug.viewable)
+		if(selected && p.p.p.debug.viewable)
 		{
 			PApplet.println("date:"+time.getDate()+" centerDate:"+centerDate+" curDate:"+p.p.currentDate+" dayLength:"+cycleLength);
 			PApplet.println("fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
@@ -549,18 +549,18 @@ public abstract class GMV_Viewable
 					active = true;
 
 				dateBrightness = PApplet.constrain(PApplet.map(p.p.currentDate, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
-				if(selected && p.p.debug.viewable)
+				if(selected && p.p.p.debug.viewable)
 					PApplet.println(" Fading In..."+id);
 			}
 			else if(p.p.currentDate > fadeOutStart)					// During fade out
 			{
-				if(selected && p.p.debug.viewable)
+				if(selected && p.p.p.debug.viewable)
 					PApplet.println(" Fading Out..."+id);
 				dateBrightness = PApplet.constrain(1.f - PApplet.map(p.p.currentDate, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f);    
 			}
 			else													// After fade in, before fade out
 			{
-				if(selected && p.p.debug.viewable && p.p.debug.detailed)
+				if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 					PApplet.println(" Full visibility...");				// Full visibility
 				dateBrightness = 1.f;								
 			}
@@ -573,7 +573,7 @@ public abstract class GMV_Viewable
 
 		dateBrightness = (float)timeLogMap.getMappedValueFor(dateBrightness);   		// Logarithmic scaling
 
-		if(selected && p.p.debug.viewable)
+		if(selected && p.p.p.debug.viewable)
 			PApplet.println("timeBrightness"+dateBrightness);
 
 		if(!error)
@@ -665,7 +665,7 @@ public abstract class GMV_Viewable
 
 		if(selection)
 		{
-			if(p.p.debug.viewer && p.p.debug.detailed)
+			if(p.p.p.debug.viewer && p.p.p.debug.detailed)
 				p.p.display.message("Selected image:"+id);
 
 			displayMetadata();

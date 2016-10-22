@@ -40,23 +40,23 @@ public class GMV_Debug
 	boolean lowMemory = false;
 	boolean performanceSlow = false;
 	
-	GMV_World p;
+	GeoSynth p;
 	
-	GMV_Debug (GMV_World parent)
+	GMV_Debug (GeoSynth parent)
 	{
 		p = parent;
 	}
 	
 	public void checkFrameRate()
 	{
-		if(p.p.frameRate < p.minFrameRate)
+		if(p.frameRate < p.world.minFrameRate)
 		{
 			if(!performanceSlow)
 				performanceSlow = true;
 			
 			if(performanceSlow && memory)
 			{
-				p.display.message("Performance slow...");
+				p.world.display.message("Performance slow...");
 			}
 		}
 		else
@@ -90,9 +90,9 @@ public class GMV_Debug
 			  System.out.println("Approx. usable free memory (bytes): " + approxUsableFreeMemory);
 		  }
 		  
-		  if(approxUsableFreeMemory < p.minAvailableMemory && !lowMemory)
+		  if(approxUsableFreeMemory < p.world.minAvailableMemory && !lowMemory)
 			  lowMemory = true;
-		  if(approxUsableFreeMemory > p.minAvailableMemory && lowMemory)
+		  if(approxUsableFreeMemory > p.world.minAvailableMemory && lowMemory)
 			  lowMemory = false;
 		  
 		  /* Other possible memory tests: */

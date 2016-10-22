@@ -81,7 +81,7 @@ public class GMV_MediaSegment
 			img.setVertBorderID(vertBorderID);
 			img.setBlurMask();
 			
-			if(p.p.p.debug.image)
+			if(p.p.p.p.debug.image)
 				PApplet.println("Found image "+img.getID()+" borders horiz:"+horizBorderID+" vert:"+vertBorderID);
 		}
 	}

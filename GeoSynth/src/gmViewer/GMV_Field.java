@@ -66,7 +66,6 @@ public class GMV_Field
 		name = newMediaFolder;
 		fieldID = newFieldID;
 
-		metadata = new GMV_Metadata(this);
 		model = new GMV_Model(this);
 		clusters = new ArrayList<GMV_Cluster>();
 		
@@ -141,7 +140,7 @@ public class GMV_Field
 
 				if (distance < vanishingPoint)
 				{
-					if(p.p.frameCount % 60 == 0 && p.debug.video)
+					if(p.p.frameCount % 60 == 0 && p.p.debug.video)
 						p.display.message("Video within view... "+i+" disabled?"+v.disabled);
 
 					v.update();  	// Update geometry + visibility
@@ -155,7 +154,7 @@ public class GMV_Field
 		// filter(INVERT);
 		// filter(DILATE);
 		
-		if(p.debug.model || p.viewer.map3DMode)	
+		if(p.p.debug.model || p.viewer.map3DMode)	
 			showClusterCenters();									// Display field cluster centers (media capture locations) 	
 		
 		if(p.showUserPanoramas || p.showStitchedPanoramas)
@@ -168,9 +167,6 @@ public class GMV_Field
 	 */
 	public void initialize(String library)
 	{
-		String fieldPath = name;
-		metadata.load(library, fieldPath);			// Import metadata for all media in field
-		
 		model.calculateFieldSize(); 		// Calculate bounds of photo GPS locations
 		model.analyzeMedia();				// Analyze media locations and times 
 		model.setup(); 						// Initialize field for first time 
@@ -222,7 +218,7 @@ public class GMV_Field
 
 		timeline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort time segments 
 		
-		if(p.debug.time)
+		if(p.p.debug.time)
 		{
 			PApplet.println("---> First lower:"+" timeline.get(0).lower():"+timeline.get(0).getLower());
 			PApplet.println("---> First center:"+" timeline.get(0).lower():"+timeline.get(0).getCenter());
@@ -255,7 +251,7 @@ public class GMV_Field
 
 		dateline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
 		
-		if(p.debug.time)
+		if(p.p.debug.time)
 		{
 			PApplet.println("---> First lower:"+" dateline.get(0).lower():"+dateline.get(0).getLower());
 			PApplet.println("---> First center:"+" dateline.get(0).lower():"+dateline.get(0).getCenter());
@@ -278,7 +274,7 @@ public class GMV_Field
 			GMV_Waypoint w = clusters.get(t.getID()).getClusterAsWaypoint();
 			timelinePath.add(w);
 		}
-		if(p.debug.field)
+		if(p.p.debug.field)
 			PApplet.println("getTimelineAsPath()... timelinePath.size():"+timelinePath.size());
 		return timelinePath;
 	}
@@ -295,7 +291,7 @@ public class GMV_Field
 			GMV_Waypoint w = clusters.get(d.getID()).getClusterAsWaypoint();
 			datelinePath.add(w);
 		}
-		if(p.debug.field)
+		if(p.p.debug.field)
 			PApplet.println("getDatelineAsPath()... datelinePath.size():"+datelinePath.size());
 		return datelinePath;
 	}
@@ -314,7 +310,7 @@ public class GMV_Field
 	 */
 	public void calculateMediaLocations() 
 	{
-		if(p.debug.field) PApplet.println("Calculating image locations...");
+		if(p.p.debug.field) PApplet.println("Calculating image locations...");
 
 		for (int i = 0; i < images.size(); i++)
 			images.get(i).calculateCaptureLocation();
@@ -341,7 +337,7 @@ public class GMV_Field
 			{
 				c.empty();
 				
-				if(p.debug.cluster)
+				if(p.p.debug.cluster)
 					PApplet.println("Fixed empty cluster #"+c.getID()+"!!!");
 			}
 		}
@@ -358,7 +354,7 @@ public class GMV_Field
 	 */
 	void initializeClusterMedia()
 	{
-		if(p.debug.cluster)
+		if(p.p.debug.cluster)
 			PApplet.println("initializeClusterMedia() for "+clusters.size()+" clusters...");
 		
 		for( GMV_Cluster c : clusters )
@@ -402,7 +398,7 @@ public class GMV_Field
 	 */
 	public void calculateMediaVertices() 
 	{
-		if(p.debug.field) 	PApplet.println("Calculating media vertices...");
+		if(p.p.debug.field) 	PApplet.println("Calculating media vertices...");
 		
 		for (int i = 0; i < images.size(); i++) 
 		{
@@ -421,7 +417,7 @@ public class GMV_Field
 	 */
 	public void fadeOutMedia()
 	{
-		if(p.debug.field) PApplet.println("Fading out media...");
+		if(p.p.debug.field) PApplet.println("Fading out media...");
 
 		for (GMV_Image i : images)
 			i.fadeOut();
@@ -439,7 +435,7 @@ public class GMV_Field
 	 */
 	public void blackoutMedia()
 	{
-		if(p.debug.field) PApplet.println("Fading out media...");
+		if(p.p.debug.field) PApplet.println("Fading out media...");
 
 		for (GMV_Image i : images)
 			i.fadingBrightness = 0;
@@ -457,7 +453,7 @@ public class GMV_Field
 	 */
 	public void stopAllFading()
 	{
-		if(p.debug.field) PApplet.println("Stopping all fading...");
+		if(p.p.debug.field) PApplet.println("Stopping all fading...");
 
 		for (GMV_Image i : images)
 			i.stopFading();
@@ -490,13 +486,13 @@ public class GMV_Field
 	 * Check that all field parameters are ready before simulation starts
 	 */
 	void verifyField() {
-		if(p.debug.field) PApplet.println("Verifying field...");
+		if(p.p.debug.field) PApplet.println("Verifying field...");
 
 		boolean exit = false;
 
 		if (model.fieldWidth <= 0 && clusters.size() > 1)
 		{
-			if(p.debug.model)
+			if(p.p.debug.model)
 			PApplet.println("Field size <= 0! Exiting...");
 			exit = true;			
 		}
@@ -512,7 +508,7 @@ public class GMV_Field
 			p.p.exit();
 		} 
 		else {
-			if(p.debug.field)
+			if(p.p.debug.field)
 			PApplet.println("Checked Variables... OK");
 		}
 	}
@@ -553,7 +549,7 @@ public class GMV_Field
 				if(v.isFading() && !v.disabled)
 					fading = true;
 
-		if(p.debug.viewable || p.debug.field)
+		if(p.p.debug.viewable || p.p.debug.field)
 			if(fading)
 				p.display.message("Still fading media...");
 		
@@ -668,7 +664,7 @@ public class GMV_Field
 //	{
 //		if(p.viewer.getCurrentCluster() != -1)
 //			clusters.get(p.viewer.getCurrentCluster()).drawUserPanoramas();		// Draw current cluster
-//		else if(p.debug.cluster || p.debug.field)
+//		else if(p.p.debug.cluster || p.p.debug.field)
 //			PApplet.println("currentCluster == -1!!!");
 //	}
 
@@ -683,7 +679,7 @@ public class GMV_Field
 	 */
 	public void clearAllAttractors()
 	{
-		if(p.debug.viewer && p.debug.detailed)
+		if(p.p.debug.viewer && p.p.debug.detailed)
 			PApplet.println("Clearing all attractors...");
 		
 		if(p.viewer.getAttractorCluster() != -1)

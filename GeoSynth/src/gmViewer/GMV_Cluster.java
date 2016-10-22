@@ -163,7 +163,7 @@ public class GMV_Cluster
 			segments.add( new GMV_MediaSegment( this, 0, curImages, null, right, left, centerDirection, 
 												top, bottom, centerElevation) );
 
-			if(p.p.debug.cluster || p.p.debug.model)
+			if(p.p.p.debug.cluster || p.p.p.debug.model)
 				PApplet.println("Added media segment in cluster: "+getID()+" with single image...");
 
 			done = true;
@@ -177,7 +177,7 @@ public class GMV_Cluster
 
 			IntList added = new IntList();			// Images added to current segment 
 
-			if(p.p.debug.cluster || p.p.debug.model)
+			if(p.p.p.debug.cluster || p.p.p.debug.model)
 				PApplet.println("Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
 
 			int count = 0;
@@ -200,7 +200,7 @@ public class GMV_Cluster
 						int m = curImages.get(idx);
 						if(p.images.get(m).getID() != img.getID())		// Don't compare image to itself
 						{
-							if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+							if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
 								PApplet.println("Comparing img:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
 							
 							if(PApplet.abs(img.getDirection() - p.images.get(m).getDirection()) < p.p.stitchingMinAngle)
@@ -215,7 +215,7 @@ public class GMV_Cluster
 									if(elevation < bottom) bottom = elevation;
 									if(elevation > top) right = elevation;
 
-									if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+									if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
 										PApplet.println("Added image:"+img.getID()+" to segment...");
 
 									if(!curImages.hasValue(img.getID()))
@@ -244,7 +244,7 @@ public class GMV_Cluster
 			added.sort();
 			for(int i=added.size()-1; i>=0; i--)
 			{
-				if((p.p.debug.cluster || p.p.debug.model) && p.p.debug.detailed)
+				if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
 					PApplet.println("Removing image ID:"+allImages.get(added.get(i)));
 				allImages.remove(added.get(i));		// Remove images added to curSegment
 			}
@@ -274,7 +274,7 @@ public class GMV_Cluster
 			segments.add( new GMV_MediaSegment( this, segments.size(), curImages, null, left, right, centerDirection, bottom, 
 					      top, centerElevation) );
 
-			if((p.p.debug.cluster || p.p.debug.model))
+			if((p.p.p.debug.cluster || p.p.p.debug.model))
 				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Lower:"+left+" Center:"+centerDirection+" Upper:"+right);
 			
 			done = (allImages.size() == 1 || allImages.size() == 0);
@@ -283,7 +283,7 @@ public class GMV_Cluster
 		numSegments = segments.size();						// Number of media segments in the cluster
 		if(numSegments > 0)
 		{
-			if(p.p.debug.cluster || p.p.debug.model)
+			if(p.p.p.debug.cluster || p.p.p.debug.model)
 				PApplet.println(" Created "+numSegments+" segments...");
 
 		}
@@ -510,13 +510,13 @@ public class GMV_Cluster
 					valid.append(i);
 			}
 
-			if(p.p.debug.stitching) p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
+			if(p.p.p.debug.stitching) p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-			GMV_Panorama pano = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), -1, p.getSelectedImages());
+			GMV_Panorama pano = p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
 
 			if(pano != null)
 			{
-				if(p.p.debug.panorama || p.p.debug.stitching)
+				if(p.p.p.debug.panorama || p.p.p.debug.stitching)
 					PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
 
 				pano.initializeSphere(pano.panoramaDetail);
@@ -529,14 +529,14 @@ public class GMV_Cluster
 //				else
 //				{
 ////					userPanoramas.set(0, pano);
-//					userPanoramas.set(0, p.p.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
+//					userPanoramas.set(0, p.p.utilities.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
 //				}
 
 			}
 		}
 		else
 		{
-			if(p.p.debug.stitching) p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
+			if(p.p.p.debug.stitching) p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
 
 			for(GMV_MediaSegment m : segments)			// Stitch panorama for each media segment
 			{
@@ -549,7 +549,7 @@ public class GMV_Cluster
 							valid.append(i);
 					}
 					
-					if(p.p.debug.stitching && p.p.debug.detailed) p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
+					if(p.p.p.debug.stitching && p.p.p.debug.detailed) p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
 					
 					if(p.p.angleThinning)				// Remove invisible images
 					{
@@ -570,7 +570,7 @@ public class GMV_Cluster
 					
 					if(valid.size() > 1)
 					{					
-						GMV_Panorama pano = p.p.stitcher.stitch(p.p.getLibrary(), valid, getID(), m.getID(), null);
+						GMV_Panorama pano = p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
 						
 						if(pano != null)
 						{
@@ -586,7 +586,7 @@ public class GMV_Cluster
 //							else
 //							{
 ////								stitchedPanoramas.set(0, pano);
-//								stitchedPanoramas.set(0, p.p.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
+//								stitchedPanoramas.set(0, p.p.utilities.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
 //							}
 						}
 					}
@@ -600,7 +600,7 @@ public class GMV_Cluster
 	 */
 	public void analyzeMediaDirections()
 	{
-//		if(p.p.debug.cluster || p.p.debug.model)
+//		if(p.p.p.debug.cluster || p.p.p.debug.model)
 //			PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
 		float thinningAngle = p.p.thinningAngle;									// Angle to thin images and videos by
 		int numPerimeterPts = PApplet.round(PApplet.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
@@ -861,7 +861,7 @@ public class GMV_Cluster
 	 */
 	void absorbCluster(GMV_Cluster cluster)
 	{
-//		if(p.p.debug.clusters)
+//		if(p.p.p.debug.clusters)
 //			p.p.display.sendUserMessage("Merging cluster "+clusterID+" with "+mCluster.clusterID);
 
 		/* Find images associated with cluster */
@@ -1065,7 +1065,7 @@ public class GMV_Cluster
 		timeline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
 		
 		/* Debugging */
-		if(p.p.debug.cluster && clusterTimes.size()>1)
+		if(p.p.p.debug.cluster && clusterTimes.size()>1)
 		{
 			PApplet.println("--> Cluster "+id+" with "+clusterTimes.size()+" different cluster times...");
 
@@ -1075,7 +1075,7 @@ public class GMV_Cluster
 				PApplet.println("Cluster "+id+", cluster time #"+(ct++)+": "+f);
 			}
 		}
-		if(p.p.debug.cluster && fieldTimes.size()>1)
+		if(p.p.p.debug.cluster && fieldTimes.size()>1)
 		{
 			PApplet.println("--> Cluster "+id+" with "+fieldTimes.size()+"different field times...");
 
@@ -1235,7 +1235,7 @@ public class GMV_Cluster
 		dateline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort dateline points 
 		
 		/* Debugging */
-		if(p.p.debug.cluster && clusterDates.size()>1)
+		if(p.p.p.debug.cluster && clusterDates.size()>1)
 		{
 			PApplet.println("--> Cluster "+id+" with "+clusterDates.size()+" different cluster dates...");
 
@@ -1245,7 +1245,7 @@ public class GMV_Cluster
 				PApplet.println("Cluster "+id+", cluster date #"+(ct++)+": "+f);
 			}
 		}
-		if(p.p.debug.cluster && fieldDates.size()>1)
+		if(p.p.p.debug.cluster && fieldDates.size()>1)
 		{
 			PApplet.println("--> Cluster "+id+" with "+fieldDates.size()+"different field dates...");
 
@@ -1272,7 +1272,7 @@ public class GMV_Cluster
 		boolean initImageTime = true, initPanoramaTime = true, initVideoTime = true, 
 				initImageDate = true, initPanoramaDate = true, initVideoDate = true;	
 
-//		if(p.p.debug.cluster && (images.size() != 0 || panoramas.size() != 0 || videos.size() != 0))
+//		if(p.p.p.debug.cluster && (images.size() != 0 || panoramas.size() != 0 || videos.size() != 0))
 //			PApplet.println("Analyzing media times in cluster "+id+" ..." + " associatedImages.size():"+images.size()+" associatedPanoramas:"+panoramas.size()+" associatedVideos:"+videos.size());
 			
 		ArrayList<GMV_Image> cImages = new ArrayList<GMV_Image>();
@@ -1539,7 +1539,7 @@ public class GMV_Cluster
 	 */
 	void calculateDimensions()
 	{
-//		if(p.p.debug.field) PApplet.println("Calculating cluster dimensions...");
+//		if(p.p.p.debug.field) PApplet.println("Calculating cluster dimensions...");
 
 		boolean init = true;	
 
@@ -1673,7 +1673,7 @@ public class GMV_Cluster
 	public void setAttractor(boolean state)
 	{
 		isAttractor = state;
-		if(p.p.debug.viewer && isAttractor())
+		if(p.p.p.debug.viewer && isAttractor())
 			p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
 	}
 	

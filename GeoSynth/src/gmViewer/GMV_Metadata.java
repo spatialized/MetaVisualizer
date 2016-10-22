@@ -22,6 +22,7 @@ import java.util.Set;
  */
 class GMV_Metadata
 {
+	public String library = "";
 	public String imageFolder = "", smallImageFolder = "";
 	public String panoramaFolder = "";
 	public String videoFolder = "", smallVideoFolder = "";				// File path for media folders
@@ -43,9 +44,10 @@ class GMV_Metadata
 	public File exifToolFile;										// File for ExifTool executable
 
 	GMV_Utilities u;												// Utility class
-	GMV_Field p;													// Parent field
+	GMV_Field f;													// Parent field
+	GeoSynth p;
 	
-	GMV_Metadata(GMV_Field parent)
+	GMV_Metadata(GeoSynth parent)
 	{
 		p = parent;
 		exifToolFile = new File("/usr/local/bin/exiftool");						// Initialize metadata extraction class	
@@ -55,8 +57,13 @@ class GMV_Metadata
 	 * load()
 	 * Load metadata for the field
 	 */
-	public void load(String library, String fieldPath)
+	public void load(GMV_Field field)
 	{
+		library = p.library.getLibraryFolder();
+
+		f = field;
+		String fieldPath = f.name;
+		
 		loadImageFolders(library, fieldPath); 	// Load image file names
 		loadVideoFolder(library, fieldPath); 	// Load video file names
 
@@ -116,7 +123,7 @@ class GMV_Metadata
 						smallImageFilesFound = false;			/* Only found .DS_Store, ignore it */
 				}
 				
-				if(smallImageFilesFound && p.p.debug.metadata) 
+				if(smallImageFilesFound && f.p.p.debug.metadata) 
 					PApplet.println("Files found in small_images folder, will use instead of shrinking large images...");
 
 				imageFolder = smallImageFolder;					// Set imageFolder to small_images
@@ -126,7 +133,7 @@ class GMV_Metadata
 		}
 		else if(imageFolderFound || panoramaFolderFound)		// If no small images, look for original images and panoramas
 		{
-			if(p.p.debug.metadata) 	
+			if(f.p.p.debug.metadata) 	
 			{
 				PApplet.println("No small_images folder... ");
 			}
@@ -180,14 +187,14 @@ class GMV_Metadata
 		if(imageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
 		{
 			imageFolder = library + "/" + fieldPath + "/images/";					// Original size
-			boolean success = p.p.utilities.shrinkImages(imageFolder, smallImageFolder);		
+			boolean success = f.p.utilities.shrinkImages(imageFolder, smallImageFolder);		
 			if(success)
 			{
-				if(p.p.debug.metadata) 	PApplet.println("Shrink images successful...");
+				if(f.p.p.debug.metadata) 	PApplet.println("Shrink images successful...");
 			}
 			else
 			{
-				if(p.p.debug.metadata) 	PApplet.println("Shrink images failed...");
+				if(f.p.p.debug.metadata) 	PApplet.println("Shrink images failed...");
 			}
 
 			imageFolder = smallImageFolder;					// Set imageFolder to small_images
@@ -195,7 +202,7 @@ class GMV_Metadata
 			imageFiles = imageFolderFile.listFiles();
 		}
 
-		if(p.p.debug.metadata) 	
+		if(f.p.p.debug.metadata) 	
 		{
 			if(smallImageFilesFound)
 				PApplet.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
@@ -232,7 +239,7 @@ class GMV_Metadata
 				videoFilesFound = true;
 		}
 		
-//		if (p.p.debug.metadata)
+//		if (p.p.p.debug.metadata)
 //		{
 //			PApplet.println("Video Folder:" + videoFolder);
 //		}
@@ -302,7 +309,7 @@ class GMV_Metadata
 
 			float fDirection = 0, fElevation = 0, fRotation = 0,
 					fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
-			float fFocusDistance = p.p.defaultFocusDistance;									// Focus distance currently NOT used
+			float fFocusDistance = f.p.defaultFocusDistance;									// Focus distance currently NOT used
 			int iWidth = -1, iHeight = -1;
 			int iCameraModel = 0;
 			float fBrightness = -1.f;
@@ -321,7 +328,7 @@ class GMV_Metadata
 
 			file = files[currentMedia];				// Get current file from array
 
-			if(p.p.debug.metadata && p.p.debug.detailed)
+			if(f.p.p.debug.metadata && f.p.p.debug.detailed)
 				PApplet.println("Loading image: "+name);
 
 			try {
@@ -344,73 +351,73 @@ class GMV_Metadata
 						if (tag.getTagName().equals("Software")) // Software
 						{
 							software = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Software..." + software);
 
 							if(software.equals("[Exif IFD0] Software - Occipital 360 Panorama"))
 							{
 								panorama = true;		// Image is a panorama
-								if(dataMissing) p.addPanoramaError();		// Count dataMissing as panorama error
+								if(dataMissing) f.addPanoramaError();		// Count dataMissing as panorama error
 							}
 							else
 							{
-								if(dataMissing) p.addImageError();			// Count dataMissing as image error
+								if(dataMissing) f.addImageError();			// Count dataMissing as image error
 							}
 						}
 						
 						if (tag.getTagName().equals("Orientation")) // Orientation
 						{
 							orientation = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Orientation..." + orientation);
 						}
 						if (tag.getTagName().equals("Date/Time Original")) // Orientation
 						{
 							dateTime = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found DateTimeOriginal..." + dateTime);
 						}
 						if (tag.getTagName().equals("GPS Latitude")) // Latitude
 						{
 							latitude = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Latitude..." + latitude);
 						}
 						if (tag.getTagName().equals("GPS Longitude")) // Longitude
 						{
 							longitude = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Longitude..." + longitude);
 						}
 						if (tag.getTagName().equals("GPS Altitude")) // Altitude
 						{
 							altitude = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Altitude..." + altitude);
 						}
 						if (tag.getTagName().equals("Focal Length")) // Focal Length
 						{
 							focalLength = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Focal Length..." + focalLength);
 						}
 
 						if (tag.getTagName().equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
 						{
 							focalLength35 = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Focal Length 35mm Equivalent..." + focalLength);
 						}
 						if (tag.getTagName().equals("GPS Img Direction")) // Image Direction
 						{
 							direction = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Direction..." + direction);
 						}
 						if (tag.getTagName().equals("Model")) // Model
 						{
 							camera_model = tagString;
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Model..." + camera_model);
 						}
 						if (tag.getTagName().equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
@@ -432,18 +439,18 @@ class GMV_Metadata
 							{
 								if(!dataMissing)
 								{
-									if(panorama) p.addPanoramaError();
-									else p.addImageError();
+									if(panorama) f.addPanoramaError();
+									else f.addImageError();
 									dataMissing = true;
 								}
 
-								if(p.p.debug.metadata)
+								if(f.p.p.debug.metadata)
 								{
 									PApplet.println("Not a Theodolite image...");
 								}
 							}
 
-							if (p.p.debug.metadata && p.p.debug.detailed)
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Description..." + description);
 						}
 						if (tag.getTagName().equals("AFPointsUsed")) // Orientation
@@ -472,8 +479,8 @@ class GMV_Metadata
 							fBrightness = parseBrightness(tagString);
 							if(fBrightness == -1.f && !dataMissing)
 							{
-								if(panorama) p.addPanoramaError();
-								else p.addImageError();
+								if(panorama) f.addPanoramaError();
+								else f.addImageError();
 								dataMissing = true;
 							}
 						}
@@ -502,8 +509,8 @@ class GMV_Metadata
 					PApplet.println("Error in date / time... " + ex);
 					if(!dataMissing)
 					{
-						if(panorama) p.addPanoramaError();
-						else p.addImageError();
+						if(panorama) f.addPanoramaError();
+						else f.addImageError();
 						dataMissing = true;
 					}					
 				}
@@ -520,8 +527,8 @@ class GMV_Metadata
 						PApplet.println("Throwable in camera model / focal length..." + t);
 						if(!dataMissing)
 						{
-							if(panorama) p.addPanoramaError();
-							else p.addImageError();
+							if(panorama) f.addPanoramaError();
+							else f.addImageError();
 							dataMissing = true;
 						}						
 					}
@@ -539,13 +546,13 @@ class GMV_Metadata
 					yCoord = parseAltitude(altitude);
 					zCoord = parseLatitude(latitude);
 
-					if (p.p.utilities.isNaN(xCoord) || p.p.utilities.isNaN(yCoord) || p.p.utilities.isNaN(zCoord)) 
+					if (f.p.utilities.isNaN(xCoord) || f.p.utilities.isNaN(yCoord) || f.p.utilities.isNaN(zCoord)) 
 					{
 						pLoc = new PVector(0, 0, 0);
 						if(!dataMissing)
 						{
-							if(panorama) p.addPanoramaError();
-							else p.addImageError();
+							if(panorama) f.addPanoramaError();
+							else f.addImageError();
 							dataMissing = true;
 						}						
 					}
@@ -553,13 +560,13 @@ class GMV_Metadata
 				} 
 				catch (RuntimeException ex) 
 				{
-					if (p.p.debug.metadata)
+					if (f.p.p.debug.metadata)
 						PApplet.println("Error reading image location:" + name + "  " + ex);
 
 					if(!dataMissing)
 					{
-						if(panorama) p.addPanoramaError();
-						else p.addImageError();
+						if(panorama) f.addPanoramaError();
+						else f.addImageError();
 						dataMissing = true;
 					}					
 				}
@@ -569,13 +576,13 @@ class GMV_Metadata
 					fDirection = ParseDirection(direction);				// -- What about panoramas??
 				} 
 				catch (RuntimeException ex) {
-					if (p.p.debug.metadata)
+					if (f.p.p.debug.metadata)
 						PApplet.println("Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
 					if(!panorama)
 					{
 						if(!dataMissing)
 						{
-							p.addImageError();
+							f.addImageError();
 							dataMissing = true;
 						}			
 					}
@@ -590,13 +597,13 @@ class GMV_Metadata
 					if(panorama && !dataMissing)
 					{
 						PApplet.println("Adding panorama #"+pCount);
-						p.panoramas.add( new GMV_Panorama( p, pCount, name, pFilePath, pLoc, 0.f, 0.f, iCameraModel, 	// Ignore elevation and direction
+						f.panoramas.add( new GMV_Panorama( f, pCount, name, pFilePath, pLoc, 0.f, 0.f, iCameraModel, 	// Ignore elevation and direction
 								iWidth, iHeight, fBrightness, calendarTime, null, null ) );
 						pCount++;
 					}
 					else if(!dataMissing)
 					{
-						p.images.add( new GMV_Image(p, iCount, name, pFilePath, pLoc, fDirection, fFocalLength, fOrientation, fElevation, 
+						f.images.add( new GMV_Image(f, iCount, name, pFilePath, pLoc, fDirection, fFocalLength, fOrientation, fElevation, 
 								fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, calendarTime ) );
 						iCount++;
 					}
@@ -605,7 +612,7 @@ class GMV_Metadata
 					PApplet.println("Excluded "+(panorama?"panorama:":"image:")+name);
 			}
 			catch (RuntimeException ex) {
-				if (p.p.debug.metadata)
+				if (f.p.p.debug.metadata)
 					PApplet.println("Could not add image! Error: "+ex);
 			}
 		}
@@ -639,7 +646,7 @@ class GMV_Metadata
 
 			Calendar calendarTime = null;			// Calendar date and time
 
-			float fFocusDistance = p.p.defaultFocusDistance;									// Focus distance currently NOT used
+			float fFocusDistance = f.p.defaultFocusDistance;									// Focus distance currently NOT used
 			int iWidth = -1, iHeight = -1;
 			float fBrightness = -1.f;
 			PVector pLoc = new PVector(0, 0, 0);
@@ -654,7 +661,7 @@ class GMV_Metadata
 
 			file = files[currentMedia];				// Get current file from array
 
-			if(p.p.debug.metadata && p.p.debug.detailed)
+			if(f.p.p.debug.metadata && f.p.p.debug.detailed)
 				PApplet.println("Loading video: "+name);
 
 
@@ -679,7 +686,7 @@ class GMV_Metadata
 				sWidth = videoMetadata.get("ImageWidth");
 				sHeight= videoMetadata.get("ImageHeight");
 
-				if(p.p.debug.metadata && p.p.debug.video && p.p.debug.detailed)
+				if(f.p.p.debug.metadata && f.p.p.debug.video && f.p.p.debug.detailed)
 				{
 					PApplet.println("Video latitude:"+latitude);
 					PApplet.println("  longitude:"+longitude);
@@ -705,11 +712,11 @@ class GMV_Metadata
 					yCoord = Float.valueOf(altitude);
 					zCoord = Float.valueOf(latitude);				// Flip sign of latitude?
 
-					if (p.p.utilities.isNaN(xCoord) || p.p.utilities.isNaN(yCoord) || p.p.utilities.isNaN(zCoord)) {
+					if (f.p.utilities.isNaN(xCoord) || f.p.utilities.isNaN(yCoord) || f.p.utilities.isNaN(zCoord)) {
 						pLoc = new PVector(0, 0, 0);
 						if(!dataMissing)
 						{
-							p.addVideoError();
+							f.addVideoError();
 							dataMissing = true;
 						}
 					}
@@ -717,7 +724,7 @@ class GMV_Metadata
 				} 
 				catch (RuntimeException ex) 
 				{
-					if (p.p.debug.metadata)
+					if (f.p.p.debug.metadata)
 						PApplet.println("Error reading video location:" + name + "  " + ex);
 					dataMissing = true;
 				}
@@ -730,7 +737,7 @@ class GMV_Metadata
 				PApplet.println("Throwable while extracting video EXIF data:" + t);
 				if(!dataMissing)
 				{
-					p.addVideoError();
+					f.addVideoError();
 					dataMissing = true;
 				}
 			}
@@ -740,16 +747,16 @@ class GMV_Metadata
 			{
 				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f ) && hasVideo && !dataMissing)
 				{
-					p.videos.add( new GMV_Video(p, vCount, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
+					f.videos.add( new GMV_Video(f, vCount, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
 								   				-1, iWidth, iHeight, fBrightness, calendarTime) );
 					vCount++;
 				}
-				else if(p.p.debug.metadata || p.p.debug.video)
+				else if(f.p.p.debug.metadata || f.p.p.debug.video)
 					PApplet.println("Excluded video:"+name);
 
 			}
 			catch (Throwable t) {
-				if (p.p.debug.metadata)
+				if (f.p.p.debug.metadata)
 				{
 					PApplet.println("Throwable while adding video to ArrayList: "+t);
 					PApplet.println("   pFilePath:" + pFilePath);
@@ -1019,7 +1026,7 @@ class GMV_Metadata
 				parts[i] = parts[i].substring(1);
 			}
 			afPoints[i] = parseAFPoint(parts[i]);
-			if (p.p.debug.metadata)
+			if (f.p.p.debug.metadata)
 				PApplet.println("afPoints[i]:" + afPoints[i]);
 		}
 
@@ -1052,7 +1059,7 @@ class GMV_Metadata
 		else if (afPoint.equals("Far Right"))
 			return 10;
 
-		if (p.p.debug.metadata) {
+		if (f.p.p.debug.metadata) {
 			PApplet.println("Not a valid afPoint: " + afPoint);
 		}
 
@@ -1141,7 +1148,7 @@ class GMV_Metadata
 //	} else if (keyword.equals("Upper 3")) {
 //		return 3;
 //	}
-//	if (p.p.debug.metadata) {
+//	if (p.p.p.debug.metadata) {
 //		System.out.println("Not an elevation keyword: " + keyword);
 //	}
 //
@@ -1156,7 +1163,7 @@ class GMV_Metadata
 //		// String[] split = input.split("\"");
 //		String[] split = parts[i].split("\"");
 //		keywords[i] = split[1];
-//		if (p.p.debug.metadata)
+//		if (p.p.p.debug.metadata)
 //			PApplet.println("keywords[i]:" + keywords[i]);
 //	}
 //
@@ -1167,7 +1174,7 @@ class GMV_Metadata
 //			return result;
 //	}
 //
-//	if (p.p.debug.metadata) {
+//	if (p.p.p.debug.metadata) {
 //		System.out.println("No elevation keyword found: setting to default of 0");
 //	}
 //

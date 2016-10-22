@@ -329,12 +329,12 @@ public class GMV_Viewer
 		p.display.initializeSmallMap();
 		p.display.initializeLargeMap();
 
-		if(p.debug.field || p.debug.viewer)		
+		if(p.p.debug.field || p.p.debug.viewer)		
 			p.display.message("Set new field:"+field);
 
 		initialize(0,0,0);							// Initialize camera
 
-		if(p.debug.field || p.debug.viewer)		
+		if(p.p.debug.field || p.p.debug.viewer)		
 			p.display.message("Moving (teleporting) to nearest cluster:"+field);
 
 		moveToNearestCluster(true);					// Teleport to new location						
@@ -346,7 +346,7 @@ public class GMV_Viewer
 	 */
 	void moveToCaptureLocation(int imageID, boolean teleport) 
 	{
-		if (p.debug.viewer)
+		if (p.p.debug.viewer)
 			p.display.message("Moving to capture location... "+imageID);
 
 		PVector newLocation = p.getFieldImages().get(imageID).getCaptureLocation();
@@ -358,7 +358,7 @@ public class GMV_Viewer
 		else
 		{
 			if(teleporting)	teleporting = false;
-			if(p.debug.viewer && p.debug.detailed)
+			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("moveToCaptureLocation... setting attractor point:"+newLocation);
 			setAttractorPoint(newLocation);
 		}
@@ -370,7 +370,7 @@ public class GMV_Viewer
 	 */
 	void moveToCluster(int newCluster, boolean teleport) 
 	{
-		if (p.debug.viewer)
+		if (p.p.debug.viewer)
 			p.display.message("Moving to nearest cluster... "+newCluster);
 
 		if(teleport)
@@ -383,7 +383,7 @@ public class GMV_Viewer
 		{
 			if(teleporting)	teleporting = false;
 			currentCluster = newCluster;
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("moveToNearestCluster... setting attractor and currentCluster:"+currentCluster);
 			setAttractorCluster(currentCluster);
 		}
@@ -398,7 +398,7 @@ public class GMV_Viewer
 	{
 		int nearest = getNearestCluster(false);		
 		
-		if (p.debug.viewer)
+		if (p.p.debug.viewer)
 			p.display.message("Moving to nearest cluster... "+nearest);
 
 		if(teleport)
@@ -408,7 +408,7 @@ public class GMV_Viewer
 		else
 		{
 			if(teleporting)	teleporting = false;
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("moveToNearestCluster... setting attractor and currentCluster:"+currentCluster);
 			currentCluster = nearest;
 			setAttractorCluster(currentCluster);
@@ -426,7 +426,7 @@ public class GMV_Viewer
 
 		if(ahead != currentCluster)					// If a cluster ahead has been found
 		{
-			if (p.debug.viewer)
+			if (p.p.debug.viewer)
 				p.display.message("moveToNearestClusterAhead goal:"+ahead);
 
 			if(teleport)							
@@ -436,14 +436,14 @@ public class GMV_Viewer
 			else
 			{
 				if(teleporting)	teleporting = false;
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message("moveToNearestClusterAhead... setting currentCluster and attractor to same:"+currentCluster);
 				setAttractorCluster(currentCluster);
 			}
 		}
 		else
 		{
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("moveToNearestClusterAhead... can't move to same cluster!... "+ahead);
 		}
 	}
@@ -462,7 +462,7 @@ public class GMV_Viewer
 		if (next >= p.getCurrentField().clusters.size())
 			next = 0;
 		
-		if(p.debug.viewer)
+		if(p.p.debug.viewer)
 			p.display.message("moveToNextCluster()... mediaType "+mediaType);
 
 		/* Find goal cluster */
@@ -487,7 +487,7 @@ public class GMV_Viewer
 			if(count <= 3)				// If a cluster was found in 2 iterations
 			{
 				found = true;
-				if(p.debug.viewer) PApplet.println("Moving to next cluster:"+next+" from current cluster:"+currentCluster);
+				if(p.p.debug.viewer) PApplet.println("Moving to next cluster:"+next+" from current cluster:"+currentCluster);
 			}
 		}
 
@@ -506,7 +506,7 @@ public class GMV_Viewer
 
 					if(count > 3)
 					{
-						if(p.debug.viewer)
+						if(p.p.debug.viewer)
 							p.display.message("No panoramas found...");
 						break;
 					}
@@ -519,12 +519,12 @@ public class GMV_Viewer
 			if(count <= 3)				// If a cluster was found in 2 iterations
 			{
 				found = true;
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					PApplet.println("Moving to next cluster with panorama:"+next+" from current cluster:"+currentCluster);
 			}
 			else
 			{
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message("No panoramas found...");
 			}
 		}
@@ -556,12 +556,12 @@ public class GMV_Viewer
 			if(count <= 3)				// If a cluster was found in 2 iterations
 			{
 				found = true;
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					PApplet.println("Moving to next cluster with video:"+next+" from current cluster:"+currentCluster);
 			}
 			else
 			{
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message("No videos found...");
 			}
 		}
@@ -588,13 +588,13 @@ public class GMV_Viewer
 	{
 		GMV_Field f = p.getField(fieldID);
 		
-		if(p.debug.viewer && p.debug.detailed)
+		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToTimeInField:"+f.timeline.get(nextFieldTime).getID()+" f.timeline.size():"+f.timeline.size());
 
 		if(f.timeline.get(nextFieldTime).getID() == currentCluster && p.getCluster(f.timeline.get(nextFieldTime).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different time in same cluster
 		{
 			currentFieldTimeSegment++;
-			if(p.debug.viewer && p.debug.detailed)
+			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("Advanced time segment in same cluster... "+f.timeline.get(nextFieldTime).getID());
 		}
 		else
@@ -617,7 +617,7 @@ public class GMV_Viewer
 	{
 		GMV_Cluster c = p.getCluster(clusterID);
 		
-		if(p.debug.viewer && p.debug.detailed)
+		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToTimeInCluster:"+c.timeline.get(nextClusterTime).getID()+" c.timeline.size():"+c.timeline.size());
 
 		if(teleport)
@@ -637,13 +637,13 @@ public class GMV_Viewer
 	{
 		GMV_Field f = p.getField(fieldID);
 		
-		if(p.debug.viewer && p.debug.detailed)
+		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToDateInField:"+f.dateline.get(nextFieldDate).getID()+" f.dateline.size():"+f.dateline.size());
 
 		if(f.dateline.get(nextFieldDate).getID() == currentCluster && p.getCluster(f.dateline.get(nextFieldDate).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different date in same cluster
 		{
 			currentFieldDateSegment++;
-			if(p.debug.viewer && p.debug.detailed)
+			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("Advanced date segment in same cluster... "+f.dateline.get(nextFieldDate).getID());
 		}
 		else
@@ -666,7 +666,7 @@ public class GMV_Viewer
 	{
 		GMV_Cluster c = p.getCluster(clusterID);
 		
-//		if(p.debug.viewer && p.debug.detailed)
+//		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToDateInCluster:"+c.dateline.get(nextClusterDate).getID()+" c.dateline.size():"+c.dateline.size());
 
 		if(teleport)
@@ -709,7 +709,7 @@ public class GMV_Viewer
 			}
 		}
 		}
-		else if(p.debug.cluster || p.debug.field || p.debug.viewer)
+		else if(p.p.debug.cluster || p.p.debug.field || p.p.debug.viewer)
 		{
 			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().clusters.size());
 		}
@@ -735,9 +735,9 @@ public class GMV_Viewer
 			teleportGoalCluster = 0;
 			currentCluster = 0;
 
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("Moving to field: "+newField+" out of "+p.getFieldCount());
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("... at cluster: "+currentCluster+" out of "+p.getField(newField).clusters.size());
 
 			if(p.getField(newField).clusters.size() > 0)			// Check whether field has clusters (is valid)
@@ -747,7 +747,7 @@ public class GMV_Viewer
 			}
 			else
 			{
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message("This field has no clusters!");
 			}
 		}
@@ -762,7 +762,7 @@ public class GMV_Viewer
 	{
 		int nearest = getNearestCluster(false);		
 		
-		if (p.debug.viewer)
+		if (p.p.debug.viewer)
 			PApplet.println("Jumping to nearest cluster... "+nearest);
 		
 		currentCluster = nearest;
@@ -807,7 +807,7 @@ public class GMV_Viewer
 		} 
 		else
 		{
-			if(p.debug.cluster)
+			if(p.p.debug.cluster)
 				PApplet.println("No clusters in field...");
 		}
 
@@ -902,7 +902,7 @@ public class GMV_Viewer
 				
 			turnXIncrement = turnIncrement;
 			turnXTargetFrame = turnXStartFrame + (int)turnInfo.z;
-			if(p.debug.viewer && p.debug.detailed)
+			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("turnXStartFrame:"+turnXStartFrame+" turnXTargetFrame:"+turnXTargetFrame+" turnXDirection:"+turnXDirection);
 			turningX = true;
 		}
@@ -949,7 +949,7 @@ public class GMV_Viewer
 			turnXDirection = turnInfo.x;
 			turnXIncrement = turnIncrement;
 			turnXTargetFrame = turnXStartFrame + (int)turnInfo.z;
-			if(p.debug.viewer && p.debug.detailed)
+			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("turnXStartFrame:"+turnXStartFrame+" turnXTargetFrame:"+turnXTargetFrame+" turnXDirection:"+turnXDirection);
 			turningX = true;
 		}
@@ -1113,7 +1113,7 @@ public class GMV_Viewer
 			}
 			else
 			{
-				if(p.debug.viewer && p.debug.detailed)
+				if(p.p.debug.viewer && p.p.debug.detailed)
 					p.display.message("Cluster ID:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
 			}
 		}
@@ -1125,7 +1125,7 @@ public class GMV_Viewer
 		{
 			PVector cPos = getLocation();
 			GMV_Cluster c = (GMV_Cluster) p.getCurrentField().clusters.get(i);
-			if(p.debug.viewer && p.debug.detailed)
+			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("Checking Centered Cluster... "+c.getID());
 		
 			float dist = PVector.dist(cPos, c.getLocation());
@@ -1140,7 +1140,7 @@ public class GMV_Viewer
 			return smallestIdx;
 		else
 		{
-			if(p.debug.viewer && p.debug.detailed)
+			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("No clusters found along vector!");
 			return currentCluster;
 		}
@@ -1182,7 +1182,7 @@ public class GMV_Viewer
 		if(count < p.getCurrentField().clusters.size())
 			found = true;
 
-		if(p.debug.viewer && p.debug.detailed)
+		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToClusterWith2OrMoreTimes... setting attractor:"+p.getCurrentField().timeline.get(nextCluster).getID());
 
 		if(found)
@@ -1212,7 +1212,7 @@ public class GMV_Viewer
 //			}
 //		}
 //		
-//		if(p.debug.viewer && p.debug.detailed)
+//		if(p.p.debug.viewer && p.p.debug.detailed)
 //			p.display.message("moveToNearestClusterInFuture... setting attractor:"+p.getCurrentField().timeline.get(nextTimeCluster).getID());
 //		setAttractorCluster(p.getCurrentField().timeline.get(nextTimeCluster).getID());
 	}
@@ -1285,7 +1285,7 @@ public class GMV_Viewer
 		stopMoving();									// -- Improve by slowing down instead and then starting
 		p.getCurrentField().clearAllAttractors();
 		
-		if(p.debug.viewer)
+		if(p.p.debug.viewer)
 			p.display.message("Setting new attractor:"+newCluster+" old attractor:"+attractorCluster);
 
 		attractorCluster = newCluster;											// Set attractorCluster
@@ -1410,7 +1410,7 @@ public class GMV_Viewer
 	 */
 	public void stopMoving()
 	{
-		if(p.debug.viewer)
+		if(p.p.debug.viewer)
 			p.display.message("Stopping...");
 
 		attraction = new PVector(0,0,0);						
@@ -1667,7 +1667,7 @@ public class GMV_Viewer
 			
 			if( (movingToAttractor || following) && attractorPoint != null )
 			{
-				if(p.debug.viewer && p.p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
+				if(p.p.debug.viewer && p.p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
 					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
 
 				curAttractor = attractorPoint;
@@ -1737,7 +1737,7 @@ public class GMV_Viewer
 			float curAttractorDistance = PVector.dist( p.getCurrentField().clusters.get(attractorCluster).getLocation(), getLocation() );
 			if(curAttractorDistance > lastAttractorDistance && !slowing)	// If the camera is getting farther than attractor
 			{
-				if(p.debug.viewer && attractionStart - p.p.frameCount > 20)
+				if(p.p.debug.viewer && attractionStart - p.p.frameCount > 20)
 				{
 					p.display.message("Getting farther from attractor: will stop moving...");
 					stopMoving();												// Stop
@@ -1763,17 +1763,17 @@ public class GMV_Viewer
 	{
 		if(following && path.size() > 0)
 		{
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("Reached path goal #"+pathLocationIdx+", will start waiting...");
 			startWaiting(pathWaitLength);
-//			if(p.debug.viewer)	p.display.message("Reached attractor... turning to memory target:"+path.get(pathLocationIdx).target);
+//			if(p.p.debug.viewer)	p.display.message("Reached attractor... turning to memory target:"+path.get(pathLocationIdx).target);
 //			if(path.get(pathLocationIdx).target != null)
 //				turnTowardsPoint(path.get(pathLocationIdx).target);				// Turn towards memory target view
 		}
 
 		if(movingToCluster)		
 		{
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("Moving to cluster... current:"+currentCluster+" attractor: "+attractorCluster+"...");
 			if(attractorCluster != -1)
 			{
@@ -1789,7 +1789,7 @@ public class GMV_Viewer
 			else
 				currentCluster = getNearestCluster(false);
 			
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("Reached cluster... current:"+currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+currentFieldTimeSegment);
 			movingToCluster = false;
 		}
@@ -1868,7 +1868,7 @@ public class GMV_Viewer
 	
 	private void slow()
 	{
-		if(p.debug.viewer)
+		if(p.p.debug.viewer)
 			p.display.message("Slowing...");
 		
 		slowing = true;										// Slowing when close to attractor
@@ -1876,7 +1876,7 @@ public class GMV_Viewer
 
 	private void halt()
 	{
-		if(p.debug.viewer)
+		if(p.p.debug.viewer)
 			p.display.message("Halting...");
 		
 		slowing = false;
@@ -1920,12 +1920,12 @@ public class GMV_Viewer
 			
 			if(PApplet.abs(result) < fieldOfView && c.getID() != currentCluster && !c.isEmpty())			// If cluster (center) is within field of view
 			{
-				if(p.debug.cluster || p.debug.viewer)
+				if(p.p.debug.cluster || p.p.debug.viewer)
 					p.display.message("Centered cluster:"+c.getID()+" == "+i+" at angle "+result+" from camera...");
 				frontClusters.append(c.getID());
 			}
 			else
-				if(p.debug.cluster || p.debug.viewer)
+				if(p.p.debug.cluster || p.p.debug.viewer)
 					p.display.message("Non-centered, current or empty cluster:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
 		}
 
@@ -1935,13 +1935,13 @@ public class GMV_Viewer
 		for (int i = 0; i < frontClusters.size(); i++) 		// Compare distances of clusters in front
 		{
 			GMV_Cluster c = (GMV_Cluster) p.getCurrentField().clusters.get(i);
-			if(p.debug.cluster || p.debug.viewer)
+			if(p.p.debug.cluster || p.p.debug.viewer)
 				p.display.message("Checking Centered Cluster... "+c.getID());
 		
 			float dist = PVector.dist(getLocation(), c.getLocation());
 			if (dist < smallest) 
 			{
-				if(p.debug.cluster || p.debug.viewer)
+				if(p.p.debug.cluster || p.p.debug.viewer)
 					p.display.message("Cluster "+c.getID()+" is closer!");
 				smallest = dist;
 				smallestIdx = i;
@@ -1990,7 +1990,7 @@ public class GMV_Viewer
 				if(p.p.frameCount > pathWaitStartFrame + pathWaitLength )
 				{
 					waiting = false;
-					if(p.debug.viewer)
+					if(p.p.debug.viewer)
 						p.display.message("Finished waiting...");
 
 					pathLocationIdx++;
@@ -2125,38 +2125,38 @@ public class GMV_Viewer
 	{
 		if(p.p.frameCount >= teleportStart + p.getCurrentField().teleportLength)		// If the teleport has finished
 		{
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message(" Reached teleport goal...");
 
 			if(teleportWaitingCount > p.getCurrentField().teleportLength * 2.f)
 			{
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message(" Exceeded teleport wait time. Stopping all media...");
 				p.getCurrentField().stopAllMediaFading();
 			}
 			
 			if( !p.getCurrentField().mediaAreFading() )			// Once no more images are fading
 			{
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message(" Media finished fading...");
 
 				if(teleportToField != -1)							// If a new field has been specified 
 				{
-					if(p.debug.viewer)
+					if(p.p.debug.viewer)
 						p.display.message(" Teleported to field "+teleportToField+"...");
 
 					setCurrentField(teleportToField);				// Set new field
 					teleportToField = -1;							// Reset target field
 				}
 
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message(" Teleported to x:"+teleportGoal.x+" y:"+teleportGoal.y+" z:"+teleportGoal.z);
 
 				if(teleportGoalCluster != -1)
 				{
 					currentCluster = teleportGoalCluster;
 					teleportGoalCluster = -1;
-					if(p.debug.field)
+					if(p.p.debug.field)
 						p.display.message(" After teleport, set current cluster to teleportGoalCluster:"+currentCluster);
 				}
 				
@@ -2183,7 +2183,7 @@ public class GMV_Viewer
 				{
 					movingToAttractor = false;
 					currentCluster = getNearestCluster(false);		// Set currentCluster to nearest
-//					if(p.debug.viewer) p.display.message("Reached attractor... turning towards image");
+//					if(p.p.debug.viewer) p.display.message("Reached attractor... turning towards image");
 					
 //					if(attractorPoint != null)
 //						turnTowardsPoint(attractorPoint.getLocation());
@@ -2195,7 +2195,7 @@ public class GMV_Viewer
 			else
 			{
 				teleportWaitingCount++;
-				if(p.debug.viewer && p.debug.detailed)
+				if(p.p.debug.viewer && p.p.debug.detailed)
 					PApplet.println("Waiting to finish teleport... "+teleportWaitingCount);
 			}
 		}
@@ -2263,7 +2263,7 @@ public class GMV_Viewer
 		{
 			if( mediaAreVisible( true ) )				// Check whether any images are visible and centered
 			{
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 				p.display.message("Finished rotating to look, found image(s) ");
 				stopAllTransitions();			// Also sets lookingForImages to false
 			}
@@ -2274,14 +2274,14 @@ public class GMV_Viewer
 				if ( p.p.frameCount - lookingStartFrameCount > lookingLength )
 				{
 					lookingRotationCount++;							// Record camera rotations while looking for images
-					if(p.debug.viewer)
+					if(p.p.debug.viewer)
 					p.display.message("Rotated to look "+lookingRotationCount+" times...");
 					lookingStartFrameCount = p.p.frameCount;		// Restart the count
 				}
 
 				if (lookingRotationCount > 2) 
 				{
-					if(p.debug.viewer)
+					if(p.p.debug.viewer)
 						p.display.message("Couldn't see any images. Moving to next nearest cluster...");
 					stopAllTransitions();							// Sets lookingForImages and all transitions to false
 					moveToNearestCluster(false);
@@ -2327,7 +2327,7 @@ public class GMV_Viewer
 						if(pathLocationIdx == -1) pathLocationIdx = 0;
 					}
 					
-					if(p.debug.viewer)
+					if(p.p.debug.viewer)
 						p.display.message("followTimeline()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
 					
 					pathGoal = path.get(pathLocationIdx).getLocation();
@@ -2337,7 +2337,7 @@ public class GMV_Viewer
 			}
 			else
 			{
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message("Already called followTimeline(): Stopping... "+path.get(pathLocationIdx).getLocation());
 				pathLocationIdx = 0;
 				following = false;
@@ -2390,7 +2390,7 @@ public class GMV_Viewer
 						if(pathLocationIdx == -1) pathLocationIdx = 0;
 					}
 					
-					if(p.debug.viewer)
+					if(p.p.debug.viewer)
 						p.display.message("followDateline()... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
 					
 					pathGoal = path.get(pathLocationIdx).getLocation();
@@ -2400,7 +2400,7 @@ public class GMV_Viewer
 			}
 			else
 			{
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 					p.display.message("Already called followDateline(): Stopping... "+path.get(pathLocationIdx).getLocation());
 				pathLocationIdx = 0;
 				following = false;
@@ -2428,7 +2428,7 @@ public class GMV_Viewer
 		{
 			following = true;
 			pathLocationIdx = 0;
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
 			pathGoal = path.get(pathLocationIdx).getLocation();
 			setAttractorPoint(pathGoal);
@@ -2508,7 +2508,7 @@ public class GMV_Viewer
 				{
 					if(result < p.centeredAngle)					// Find closest to camera orientation
 					{
-						if(p.debug.viewer && p.debug.detailed)
+						if(p.p.debug.viewer && p.p.debug.detailed)
 							p.display.message("Image:"+i.getID()+" result:"+result+" is less than centeredAngle:"+p.centeredAngle);
 						imagesVisible = true;
 						break;
@@ -2585,13 +2585,13 @@ public class GMV_Viewer
 			curWaypoint.setTarget(getOrientation());
 			curWaypoint.setID(currentCluster);				// Need to make sure camera is at current cluster!
 			memory.add(curWaypoint);
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 			{
 				p.display.message("Added point to memory! "+curWaypoint.getLocation());
 				p.display.message("Total points:"+memory.size());
 			}
 		}
-		else if(p.debug.viewer)
+		else if(p.p.debug.viewer)
 			p.display.message("Couldn't add memory point... walking? "+walking+" teleporting?"+teleporting+" velocity.mag():"+velocity.mag());
 	}
 	
@@ -2679,7 +2679,7 @@ public class GMV_Viewer
 		if(closestImageDist < closestVideoDist && closestImageDist != 1000.f)
 		{
 			newSelected = closestImageID;
-			if(p.debug.viewer) p.display.message("Selected image in front: "+newSelected);
+			if(p.p.debug.viewer) p.display.message("Selected image in front: "+newSelected);
 			
 			if(segmentSelection)											// Segment selection
 			{
@@ -2712,7 +2712,7 @@ public class GMV_Viewer
 		else if(closestVideoDist < closestImageDist && closestVideoDist != 1000.f)
 		{
 			newSelected = closestVideoID;
-			if(p.debug.viewer) 	p.display.message("Selected video in front: "+newSelected);
+			if(p.p.debug.viewer) 	p.display.message("Selected video in front: "+newSelected);
 			
 //			if(select)
 //				p.getCurrentField().selectedVideo = newSelected;	
@@ -2928,7 +2928,7 @@ public class GMV_Viewer
 		{
 			String input = selection.getPath();
 
-			if(p.debug.viewer)
+			if(p.p.debug.viewer)
 				p.display.message("User selected GPS Track: " + input);
 
 			gpsTrackName = input;
@@ -3051,7 +3051,7 @@ public class GMV_Viewer
 				
 				hour = p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
 
-				if(p.debug.viewer)
+				if(p.p.debug.viewer)
 				{
 					PApplet.print("latitude:"+latitude);
 					PApplet.print("  longitude:"+longitude);

@@ -96,7 +96,7 @@ public class GMV_Model
 			float midLongitude = (highLongitude - lowLongitude) / 2.f;
 			float midLatitude = (highLatitude - lowLatitude) / 2.f;
 
-			if(p.p.debug.field) PApplet.println("Initializing model for field #"+p.fieldID+"...");
+			if(p.p.p.debug.field) PApplet.println("Initializing model for field #"+p.fieldID+"...");
 
 			validImages = p.getImageCount();
 			validPanoramas = p.getPanoramaCount();
@@ -143,7 +143,7 @@ public class GMV_Model
 			//			for(GMV_Video v : p.videos)						
 			//				v.maxClusterDistance = max;
 
-			if(p.p.debug.cluster)
+			if(p.p.p.debug.cluster)
 				PApplet.println("------> Set maxClusterDistance:"+maxClusterDistance);
 
 			if(highLongitude == -1000000 || lowLongitude == 1000000 || highLatitude == -1000000 || lowLatitude == 1000000)	// If field dimensions aren't initialized
@@ -162,7 +162,7 @@ public class GMV_Model
 
 			fieldAspectRatio = fieldWidth / fieldLength;
 
-			if (p.p.debug.model)
+			if (p.p.p.debug.model)
 			{
 				PApplet.print("Field Width:"+fieldWidth);
 				PApplet.print(" Field Length:"+fieldLength);
@@ -176,7 +176,7 @@ public class GMV_Model
 		}
 		else 
 		{
-			if(p.p.debug.field) 
+			if(p.p.p.debug.field) 
 				PApplet.println("No images loaded! Couldn't initialize field.");
 		}
 	}
@@ -194,7 +194,7 @@ public class GMV_Model
 	 */
 	void runInitialClustering() 					
 	{
-		if(p.p.debug.cluster || p.p.debug.model)
+		if(p.p.p.debug.cluster || p.p.p.debug.model)
 			PApplet.println("Running initial clustering for field: "+p.name);
 
 		clustersByDepth = new IntList();
@@ -215,12 +215,12 @@ public class GMV_Model
 			runKMeansClustering( p.p.kMeansClusteringEpsilon, clusterRefinement, clusterPopulationFactor );	// Get initial clusters using K-Means method
 		}
 
-		if(p.p.debug.cluster || p.p.debug.model)
+		if(p.p.p.debug.cluster || p.p.p.debug.model)
 			p.p.display.message("Created "+getClusterAmount()+" clusters...");
 		
 		for(GMV_Cluster c : p.clusters)
 		{
-			if(p.p.debug.model && !c.isEmpty())
+			if(p.p.p.debug.model && !c.isEmpty())
 				PApplet.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
 		}
 	}
@@ -270,7 +270,7 @@ public class GMV_Model
 		/* Estimate number of clusters */
 		int numClusters = PApplet.round( (1.f / PApplet.sqrt(mediaDensity)) * populationFactor ); 	// Calculate numClusters from media density
 
-		if(p.p.debug.cluster && p.p.display.initialSetup)
+		if(p.p.p.debug.cluster && p.p.display.initialSetup)
 			PApplet.println("Creating "+numClusters+" initial clusters based on "+validMedia+" valid media...");
 
 		boolean test = false;
@@ -301,7 +301,7 @@ public class GMV_Model
 			}
 			else
 			{
-				if(p.p.debug.cluster)
+				if(p.p.p.debug.cluster)
 					p.p.display.message("Single media point scene...");
 			}
 		}
@@ -327,7 +327,7 @@ public class GMV_Model
 		int panoramaCount = 0;
 		int videoCount = 0;
 
-		if(p.p.debug.cluster)
+		if(p.p.p.debug.cluster)
 			PApplet.println("--- Getting GMV_Clusters at depth "+depth+" ---");
 
 		if(dendrogramTop != null)
@@ -341,7 +341,7 @@ public class GMV_Model
 		}
 		else
 		{
-			if(p.p.debug.cluster)
+			if(p.p.p.debug.cluster)
 				PApplet.println("Top cluster is null!");
 			p.p.p.exit();
 		}
@@ -362,7 +362,7 @@ public class GMV_Model
 			{
 				if(!p.p.utilities.isInteger(parts[0], 10))
 				{
-					if(p.p.debug.cluster)
+					if(p.p.p.debug.cluster)
 						PApplet.println("Media name error! "+name);
 				}
 				else isMedia = true;
@@ -371,13 +371,13 @@ public class GMV_Model
 			{
 				if(!p.p.utilities.isInteger(parts[1], 10))
 				{
-					if(p.p.debug.cluster)
+					if(p.p.p.debug.cluster)
 						PApplet.println("Cluster name error! "+name);
 				}
 			}
 			else
 			{
-				if(p.p.debug.cluster)
+				if(p.p.p.debug.cluster)
 					PApplet.println("Media or cluster name error! "+name);
 			}
 
@@ -385,7 +385,7 @@ public class GMV_Model
 
 			if(isMedia)
 			{
-//				if(p.p.debug.cluster && p.p.debug.detailed)
+//				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
 //					PApplet.println("Cluster "+cluster.getName()+" is a media file..."+name);
 
 				mediaIdx = Integer.parseInt(name);
@@ -435,7 +435,7 @@ public class GMV_Model
 
 				location = calculateAveragePoint(mediaPoints);					// Calculate cluster location from average of media points
 
-//				if(p.p.debug.cluster && p.p.debug.detailed)
+//				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
 //					PApplet.println("Calculated Average Point: "+location);
 			}
 
@@ -493,7 +493,7 @@ public class GMV_Model
 //				empty++;
 //			}
 //		}
-//		if(p.p.debug.cluster)
+//		if(p.p.p.debug.cluster)
 //			PApplet.println("Empty clusters:"+empty);
 
 	}
@@ -516,7 +516,7 @@ public class GMV_Model
 			String name = top.getName();										// Otherwise, save the result if appropriate
 			int mediaIdx = Integer.parseInt(name);
 
-			if(p.p.debug.cluster)
+			if(p.p.p.debug.cluster)
 				PApplet.println("No children in cluster "+name+" ... Already a media file!");
 
 			if(mediaIdx < indexPanoramaOffset)
@@ -549,7 +549,7 @@ public class GMV_Model
 			boolean deepest = false;
 			depthCount++;														// Move to next dendrogram level
 
-			if(p.p.debug.cluster && p.p.debug.detailed)
+			if(p.p.p.debug.cluster && p.p.p.debug.detailed)
 				PApplet.println("Searching for media in cluster: "+top.getName()+"...");
 
 			while(!deepest)														// Until the deepest level
@@ -565,7 +565,7 @@ public class GMV_Model
 						for( Cluster c : children )								// Add to nextDepth clusters
 							nextDepth.add(c);
 
-						if(p.p.debug.cluster && p.p.debug.detailed)
+						if(p.p.p.debug.cluster && p.p.p.debug.detailed)
 						{
 //							PApplet.print("  Cluster "+cluster.getName()+" has "+children.size()+" children at depth "+depthCount);
 //							PApplet.println("  Added to next depth, array size:"+nextDepth.size()+"...");
@@ -574,7 +574,7 @@ public class GMV_Model
 
 					if(children.size() == 0 || (children == null))															
 					{
-//						if(p.p.debug.cluster && p.p.debug.detailed)
+//						if(p.p.p.debug.cluster && p.p.p.debug.detailed)
 //							PApplet.println("  Cluster "+cluster.getName()+" has no children...");
 
 						String name = cluster.getName();								// Otherwise, save the result if appropriate
@@ -617,7 +617,7 @@ public class GMV_Model
 			}
 		}
 
-		if(p.p.debug.cluster && p.p.debug.detailed && mediaCount > 0)
+		if(p.p.p.debug.cluster && p.p.p.debug.detailed && mediaCount > 0)
 			PApplet.println( "Found "+mediaCount+" media at depth "+depthCount+" result.size():"+result.size() );
 
 		return result;
@@ -646,7 +646,7 @@ public class GMV_Model
 			clusters = nextDepth;										// Move to next depth
 		}	
 
-		if(p.p.debug.cluster) 
+		if(p.p.p.debug.cluster) 
 			PApplet.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
 
 		return clusters;
@@ -662,7 +662,7 @@ public class GMV_Model
 		ArrayList<Cluster> clusters = (ArrayList<Cluster>) topCluster.getChildren();	// Dendrogram clusters
 		int depthCount = 0;
 
-		if(p.p.debug.cluster)
+		if(p.p.p.debug.cluster)
 			PApplet.println("Counting clusters at all depth levels...");
 		clustersByDepth.append(1);					// Add top cluster to clustersByDepth list
 
@@ -689,7 +689,7 @@ public class GMV_Model
 
 				clustersByDepth.append(clusters.size());							// Record cluster number at depthCount
 
-				if(p.p.debug.cluster && p.p.debug.detailed)
+				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
 					PApplet.println("Found "+clusters.size()+" clusters at depth:"+depthCount);
 
 				deepest = !( children.size() > 0 );								// At deepest level when list of chidren is empty
@@ -916,7 +916,7 @@ public class GMV_Model
 
 				if(i > 0)
 					i--;
-				else if(p.p.debug.model)
+				else if(p.p.p.debug.model)
 					PApplet.println("Error in initClusters()... No media!!");
 			}
 			else															// Find a random media (image, panorama or video) location for new cluster
@@ -971,7 +971,7 @@ public class GMV_Model
 		boolean moved = false;						// Has any cluster moved farther than epsilon?
 		
 		ArrayList<GMV_Cluster> last = p.clusters;
-		if(p.p.debug.cluster || p.p.debug.model)
+		if(p.p.p.debug.cluster || p.p.p.debug.model)
 			PApplet.println("--> Refining clusters...");
 		
 		while( count < iterations ) 							// Iterate to create the clusters
@@ -1010,14 +1010,14 @@ public class GMV_Model
 				
 				if(!moved)
 				{
-					if(p.p.debug.cluster || p.p.debug.model)
+					if(p.p.p.debug.cluster || p.p.p.debug.model)
 						PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
 					break;								// If all clusters moved less than epsilon, stop refinement
 				}
 			}
 			else
 			{
-				if(p.p.debug.cluster || p.p.debug.model)
+				if(p.p.p.debug.cluster || p.p.p.debug.model)
 					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+p.clusters.size()+" last.size():"+last.size());
 			}
 			
@@ -1039,7 +1039,7 @@ public class GMV_Model
 		IntList merged = new IntList();											// List of clusters already merged with neighbors
 		float firstMergePct = 0.2f;												// Fraction of clusters with most neighbors to merge first
 		
-		if((p.p.debug.cluster || p.p.debug.model ) && p.p.debug.detailed) PApplet.println("Merging adjacent clusters... ");
+		if((p.p.p.debug.cluster || p.p.p.debug.model ) && p.p.p.debug.detailed) PApplet.println("Merging adjacent clusters... ");
 
 		for( GMV_Cluster c : p.clusters )					// Find distances of close neighbors to each cluster
 		{
@@ -1097,7 +1097,7 @@ public class GMV_Model
 
 		for( PVector v : mostNeighbors ) 					// For clusters with most close neighbors, absorb neighbors into cluster
 		{
-			if(p.p.debug.cluster && v.y > 0 && p.p.debug.detailed)
+			if(p.p.p.debug.cluster && v.y > 0 && p.p.p.debug.detailed)
 				PApplet.println("Merging cluster "+(int)v.x+" with "+(int)v.y+" neighbors...");
 
 			GMV_Cluster c = p.clusters.get( (int)v.x );
@@ -1141,7 +1141,7 @@ public class GMV_Model
 			}
 		}
 
-		if(p.p.debug.cluster)
+		if(p.p.p.debug.cluster)
 			PApplet.println("Merged Clusters "+mergedClusters);
 	}
 
@@ -1190,7 +1190,7 @@ public class GMV_Model
 			 }
 		 }
 
-		 if(p.p.debug.cluster)
+		 if(p.p.p.debug.cluster)
 			 PApplet.println("Created "+(newClusterID-initial)+" clusters from single images...");
 	 }
 
@@ -1211,12 +1211,12 @@ public class GMV_Model
 				 {
 					 v.cluster = p.images.get(id).cluster;	// Set video cluster to cluster of associated image
 					 p.clusters.get(v.cluster).video = true;	// Set cluster video property to true
-					 if(p.p.debug.video)
+					 if(p.p.p.debug.video)
 						 PApplet.println("Image placeholder for video: "+i+" is:"+id+" p.clusters.get(v.cluster).video:"+p.clusters.get(v.cluster).video);
 				 }
 				 else
 				 {
-					 if(p.p.debug.video)
+					 if(p.p.p.debug.video)
 						 PApplet.println("No image placeholder found for video: "+i+" p.clusters.get(v.cluster).video:"+p.clusters.get(v.cluster).video);
 					 v.disabled = true;
 				 }
@@ -1287,7 +1287,7 @@ public class GMV_Model
 	  */
 	 void calculateFieldSize() 
 	 {
-		 if(p.p.debug.field) PApplet.println("Calculating field dimensions...");
+		 if(p.p.p.debug.field) PApplet.println("Calculating field dimensions...");
 
 		 boolean init = true;	
 
@@ -1356,7 +1356,7 @@ public class GMV_Model
 				 lowLatitude = v.gpsLocation.z;
 		 }
 
-		 if (p.p.debug.model) 							// Display results for debugging
+		 if (p.p.p.debug.model) 							// Display results for debugging
 		 {
 			 System.out.println("High Longitude:" + highLongitude);
 			 System.out.println("High Latitude:" + highLatitude);
@@ -1378,7 +1378,7 @@ public class GMV_Model
 		 boolean initPanoTime = true, initPanoDate = true;	
 		 boolean initVideoTime = true, initVideoDate = true;	
 
-		 if(p.p.debug.field) PApplet.println("Analyzing media in field...");
+		 if(p.p.p.debug.field) PApplet.println("Analyzing media in field...");
 
 		 for ( GMV_Video v : p.videos ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
@@ -1494,7 +1494,7 @@ public class GMV_Model
 		 if (highVideoDate > highDate)
 			 highDate = highVideoDate;
 
-		 if (p.p.debug.metadata) 							// Display results for debugging
+		 if (p.p.p.debug.metadata) 							// Display results for debugging
 		 {
 			 System.out.println("High Image Time:" + highImageTime);
 			 System.out.println("High Image Date:" + highImageDate);
@@ -1515,7 +1515,7 @@ public class GMV_Model
 	  */
 	 public void lockMediaToClusters()
 	 {
-		 if(p.p.debug.field || p.p.debug.model) PApplet.println("lockMediaToClusters(): Moving media... ");
+		 if(p.p.p.debug.field || p.p.p.debug.model) PApplet.println("lockMediaToClusters(): Moving media... ");
 		 for (int i = 0; i < p.images.size(); i++) 
 			 p.images.get(i).adjustCaptureLocation();		
 		 for (int i = 0; i < p.panoramas.size(); i++) 
@@ -1610,7 +1610,7 @@ public class GMV_Model
 //				p.p.display.message("Drawing point:");
 //				p.p.display.drawMapPoint(location, 20.f, p.p.display.largeMapWidth, p.p.display.largeMapHeight, p.p.display.mapClusterHue, 255, 255, p.p.display.mapClusterHue);
 //			}
-//			if(p.p.debug.cluster) 
+//			if(p.p.p.debug.cluster) 
 //				PApplet.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
 //		}
 

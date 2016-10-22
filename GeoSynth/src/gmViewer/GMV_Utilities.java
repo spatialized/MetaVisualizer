@@ -19,11 +19,13 @@ import processing.core.PVector;
 
 public class GMV_Utilities 
 {
+	GMV_Stitcher stitcher;
 	GMV_World p;
 	
 	GMV_Utilities(GMV_World parent)
 	{
 		p = parent;
+		stitcher = new GMV_Stitcher(p);
 	}
 	
 	/**

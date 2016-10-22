@@ -107,7 +107,7 @@ class GMV_Image extends GMV_Viewable
 						else
 						{
 							timeBrightnessFactor = 0.f;
-							if(p.p.debug.cluster || p.p.debug.image || p.p.debug.viewable)
+							if(p.p.p.debug.cluster || p.p.p.debug.image || p.p.p.debug.viewable)
 								p.p.display.message("Cluster: "+cluster+" has no timeline points!");
 						}
 						
@@ -141,7 +141,7 @@ class GMV_Image extends GMV_Viewable
 						else
 						{
 							dateBrightnessFactor = 0.f;
-							if(p.p.debug.cluster || p.p.debug.image || p.p.debug.viewable)
+							if(p.p.p.debug.cluster || p.p.p.debug.image || p.p.p.debug.viewable)
 								p.p.display.message("Cluster: "+cluster+" has no dateline points!");
 						}
 						
@@ -194,7 +194,7 @@ class GMV_Image extends GMV_Viewable
 				p.p.p.noFill();                  // Hide image if it isn't visible
 			}
 
-//			if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw image locations for debugging or map display
+//			if (visible && isSelected() && !disabled && p.p.p.debug.model)		// Draw image locations for debugging or map display
 //				drawLocation(centerSize);
 //			if (visible && !disabled && p.p.viewer.map3DMode)
 //				drawLocation(centerSize);
@@ -215,7 +215,7 @@ class GMV_Image extends GMV_Viewable
 		}
 		catch(RuntimeException ex)
 		{
-			if(p.p.debug.image){
+			if(p.p.p.debug.image){
 				PApplet.println("Blur Mask Error:"+ex);
 				PApplet.println("mask.width:"+mask.width);
 				PApplet.println("mask.height:"+mask.height);
@@ -394,7 +394,7 @@ class GMV_Image extends GMV_Viewable
 
 		if (isSelected())     // Draw outline
 		{
-			if(!p.p.viewer.selection && p.p.debug.field)
+			if(!p.p.viewer.selection && p.p.p.debug.field)
 			{
 				p.p.p.stroke(155, 146, 255, 255);
 				p.p.p.strokeWeight(outlineSize);
@@ -608,7 +608,7 @@ class GMV_Image extends GMV_Viewable
 	 */
 	public void loadMedia()
 	{
-		if(!p.p.debug.lowMemory)			// Check enough memory available
+		if(!p.p.p.debug.lowMemory)			// Check enough memory available
 		{
 			if( p.imagesVisible < p.maxVisiblePhotos && !hidden && !disabled)
 			{
@@ -959,7 +959,7 @@ class GMV_Image extends GMV_Viewable
 		p.p.display.metadata(strRotation);
 		p.p.display.metadata(strFocusDistance);
 
-		if(p.p.debug.image)
+		if(p.p.p.debug.image)
 		{
 			p.p.display.metadata(strTitleDebug);
 			p.p.display.metadata(strBrightness);
@@ -1011,7 +1011,7 @@ class GMV_Image extends GMV_Viewable
 		isVideoPlaceHolder = true;
 		assocVideoID = videoID;
 		hidden = true;
-		if(p.p.debug.video)
+		if(p.p.p.debug.video)
 			PApplet.println("Image "+getID()+" is now associated with video "+videoID);
 	}
 

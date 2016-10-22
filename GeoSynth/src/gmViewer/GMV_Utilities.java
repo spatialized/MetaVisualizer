@@ -19,8 +19,9 @@ import processing.core.PVector;
 
 public class GMV_Utilities 
 {
-	GeoSynth p;
-	GMV_Utilities(GeoSynth parent)
+	GMV_World p;
+	
+	GMV_Utilities(GMV_World parent)
 	{
 		p = parent;
 	}

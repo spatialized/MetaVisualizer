@@ -171,7 +171,7 @@ public abstract class GMV_Viewable
 			fading = true;   
 			fadingStart = fadingBrightness;
 			fadingTarget = target;
-			fadingStartFrame = p.p.frameCount;
+			fadingStartFrame = p.p.p.frameCount;
 			fadingEndFrame = fadingStartFrame + p.teleportLength;
 
 			if(target > fadingBrightness)
@@ -189,7 +189,7 @@ public abstract class GMV_Viewable
 		if(p.p.debug.viewable)
 			PApplet.println("Stop fading for media:"+id);
 
-		fadingEndFrame = p.p.frameCount;
+		fadingEndFrame = p.p.p.frameCount;
 		fadingStart = fadingBrightness;
 		fading = false;
 
@@ -207,39 +207,39 @@ public abstract class GMV_Viewable
 	 */
 	void drawLocation(float size)
 	{
-		p.p.pushMatrix();
-		p.p.translate(location.x, location.y, location.z);
+		p.p.p.pushMatrix();
+		p.p.p.translate(location.x, location.y, location.z);
 
-		p.p.fill(150, 0, 255, 150);
-		p.p.sphere(size);
+		p.p.p.fill(150, 0, 255, 150);
+		p.p.p.sphere(size);
 		PVector c = p.p.getCluster(cluster).getLocation();
 		PVector loc = getLocation();
 		PVector cl = getCaptureLocation();
-		p.p.popMatrix();
+		p.p.p.popMatrix();
 
-		p.p.pushMatrix();
+		p.p.p.pushMatrix();
 		if(p.p.showMediaToCluster)
 		{
-			p.p.strokeWeight(5.f);
-			p.p.stroke(40, 155, 255, 180);
-			p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+			p.p.p.strokeWeight(5.f);
+			p.p.p.stroke(40, 155, 255, 180);
+			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(p.p.showCaptureToMedia)
 		{
-			p.p.strokeWeight(2.f);
-			p.p.stroke(160, 100, 255, 120);
-			p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+			p.p.p.strokeWeight(2.f);
+			p.p.p.stroke(160, 100, 255, 120);
+			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(p.p.showCaptureToCluster)
 		{
-			p.p.strokeWeight(3.f);
-			p.p.stroke(100, 55, 255, 180);
-			p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+			p.p.p.strokeWeight(3.f);
+			p.p.p.stroke(100, 55, 255, 180);
+			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
 
-		p.p.popMatrix();
+		p.p.p.popMatrix();
 	}
 	
 	/**
@@ -591,12 +591,12 @@ public abstract class GMV_Viewable
 
 		if(beginFading)
 		{
-			fadingStartFrame = p.p.frameCount;					
-			fadingEndFrame = p.p.frameCount + p.teleportLength;	
+			fadingStartFrame = p.p.p.frameCount;					
+			fadingEndFrame = p.p.p.frameCount + p.teleportLength;	
 			beginFading = false;
 		}
 
-		if (p.p.frameCount >= fadingEndFrame)
+		if (p.p.p.frameCount >= fadingEndFrame)
 		{
 			fading = false;
 			newFadeValue = fadingTarget;
@@ -615,7 +615,7 @@ public abstract class GMV_Viewable
 		} 
 		else
 		{
-			newFadeValue = PApplet.map(p.p.frameCount, fadingStartFrame, fadingEndFrame, fadingStart, fadingTarget);      // Fade with distance from current time
+			newFadeValue = PApplet.map(p.p.p.frameCount, fadingStartFrame, fadingEndFrame, fadingStart, fadingTarget);      // Fade with distance from current time
 		}
 
 		fadingBrightness = newFadeValue;

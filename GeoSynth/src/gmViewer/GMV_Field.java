@@ -53,14 +53,14 @@ public class GMV_Field
 	ArrayList<GMV_TimeSegment> timeline;								// Cluster timeline for this field
 	ArrayList<GMV_TimeSegment> dateline;								// Cluster timeline for this field
 
-	GeoSynth p;
+	GMV_World p;
 	
 	/* -- Debug -- */	
 	public int disassociatedImages = 0;					// -- Check and delete variables
 	public int disassociatedPanoramas = 0;
 	public int disassociatedVideos = 0;
 
-	GMV_Field(GeoSynth parent, String newMediaFolder, int newFieldID)
+	GMV_Field(GMV_World parent, String newMediaFolder, int newFieldID)
 	{
 		p = parent;
 		name = newMediaFolder;
@@ -88,8 +88,8 @@ public class GMV_Field
 		videosVisible = 0;
 		videosSeen = 0;
 
-		p.hint(PApplet.ENABLE_DEPTH_TEST);					// Enable depth testing for drawing 3D graphics
-		p.background(0.f);								// Set background
+		p.p.hint(PApplet.ENABLE_DEPTH_TEST);					// Enable depth testing for drawing 3D graphics
+		p.p.background(0.f);								// Set background
 
 		for (int i = 0; i < images.size(); i++) 		// Update and display images
 		{
@@ -141,7 +141,7 @@ public class GMV_Field
 
 				if (distance < vanishingPoint)
 				{
-					if(p.frameCount % 60 == 0 && p.debug.video)
+					if(p.p.frameCount % 60 == 0 && p.debug.video)
 						p.display.message("Video within view... "+i+" disabled?"+v.disabled);
 
 					v.update();  	// Update geometry + visibility
@@ -509,7 +509,7 @@ public class GMV_Field
 
 		if (exit) {
 			System.out.println("Fatal Error...");
-			p.exit();
+			p.p.exit();
 		} 
 		else {
 			if(p.debug.field)
@@ -635,12 +635,12 @@ public class GMV_Field
 		for (float y = 0; y < model.fieldHeight / 2; y += dist) {
 			for (float x = 0; x < model.fieldWidth / 2; x += dist) {
 				for (float z = 0; z < model.fieldLength / 2; z += dist) {
-					p.stroke(50, 150, 250);
-					p.strokeWeight(1);
-					p.pushMatrix();
-					p.translate(x, y, z);
-					p.box(2);
-					p.popMatrix();
+					p.p.stroke(50, 150, 250);
+					p.p.strokeWeight(1);
+					p.p.pushMatrix();
+					p.p.translate(x, y, z);
+					p.p.box(2);
+					p.p.popMatrix();
 				}
 			}
 		}

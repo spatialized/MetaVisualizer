@@ -58,7 +58,7 @@ class GMV_Image extends GMV_Viewable
 		p = parent;
 		filePath = newFilePath;
 
-		image = p.p.createImage(0, 0, processing.core.PConstants.RGB);		// Create empty image
+		image = p.p.p.createImage(0, 0, processing.core.PConstants.RGB);		// Create empty image
 		imageWidth = newWidth;
 		imageHeight = newHeight;
 		
@@ -191,7 +191,7 @@ class GMV_Image extends GMV_Viewable
 			} 
 			else
 			{      
-				p.p.noFill();                  // Hide image if it isn't visible
+				p.p.p.noFill();                  // Hide image if it isn't visible
 			}
 
 //			if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw image locations for debugging or map display
@@ -206,7 +206,7 @@ class GMV_Image extends GMV_Viewable
 	
 	private PImage applyMask(PImage source, PImage mask)
 	{
-		PImage result = p.p.createImage(640, 480, PApplet.RGB);
+		PImage result = p.p.p.createImage(640, 480, PApplet.RGB);
 		
 		try
 		{
@@ -389,65 +389,65 @@ class GMV_Image extends GMV_Viewable
 	 */
 	private void drawImage()
 	{
-		p.p.noStroke(); 
-		p.p.rectMode(PApplet.CENTER);
+		p.p.p.noStroke(); 
+		p.p.p.rectMode(PApplet.CENTER);
 
 		if (isSelected())     // Draw outline
 		{
 			if(!p.p.viewer.selection && p.p.debug.field)
 			{
-				p.p.stroke(155, 146, 255, 255);
-				p.p.strokeWeight(outlineSize);
+				p.p.p.stroke(155, 146, 255, 255);
+				p.p.p.strokeWeight(outlineSize);
 			}
 		}
 
-		p.p.pushMatrix();
-		p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
-		p.p.textureMode(PApplet.NORMAL);
+		p.p.p.pushMatrix();
+		p.p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
+		p.p.p.textureMode(PApplet.NORMAL);
 		if(p.p.blurEdges)
-			p.p.texture(blurred);
+			p.p.p.texture(blurred);
 		else
-			p.p.texture(image);        			// Apply the image to the face as a texture 
+			p.p.p.texture(image);        			// Apply the image to the face as a texture 
 
 		if(p.p.viewer.selection)
 		{
 			if(isSelected())
 			{
 				if(!p.p.alphaMode)
-					p.p.tint(viewingBrightness, 255);          				
+					p.p.p.tint(viewingBrightness, 255);          				
 				else
-					p.p.tint(255, viewingBrightness);          				
+					p.p.p.tint(255, viewingBrightness);          				
 			}
 			else
 			{
 				if(!p.p.alphaMode)
-					p.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
+					p.p.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
 				else
-					p.p.tint(255, viewingBrightness * 0.333f);          				
+					p.p.p.tint(255, viewingBrightness * 0.333f);          				
 			}
 		}
 		else if(p.p.viewer.videoMode)
 		{
 			if(!p.p.alphaMode)
-				p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
+				p.p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
 			else
-				p.p.tint(255, viewingBrightness * 0.333f);          				
+				p.p.p.tint(255, viewingBrightness * 0.333f);          				
 		}
 		else
 		{
 			if(!p.p.alphaMode)
-				p.p.tint(viewingBrightness, 255);          				
+				p.p.p.tint(viewingBrightness, 255);          				
 			else
-				p.p.tint(255, viewingBrightness);          				
+				p.p.p.tint(255, viewingBrightness);          				
 		}
 
-		p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);            // UPPER LEFT      
-		p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);            // UPPER RIGHT           
-		p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1);			// LOWER RIGHT        
-		p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);            // LOWER LEFT
+		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);            // UPPER LEFT      
+		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);            // UPPER RIGHT           
+		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1);			// LOWER RIGHT        
+		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);            // LOWER LEFT
 
-		p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
-		p.p.popMatrix();
+		p.p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
+		p.p.p.popMatrix();
 
 
 		p.imagesSeen++;
@@ -478,20 +478,20 @@ class GMV_Image extends GMV_Viewable
 	 */
 	void outline()
 	{
-		p.p.stroke(100, 20, 250);
-		p.p.strokeWeight(outlineSize);
+		p.p.p.stroke(100, 20, 250);
+		p.p.p.strokeWeight(outlineSize);
 
-		p.p.pushMatrix();
-		p.p.beginShape(PApplet.QUADS);    
-		p.p.noFill();
+		p.p.p.pushMatrix();
+		p.p.p.beginShape(PApplet.QUADS);    
+		p.p.p.noFill();
 
-		p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
-		p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
-		p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
-		p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
+		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
+		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
+		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
+		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
 
-		p.p.endShape(); 
-		p.p.popMatrix();
+		p.p.p.endShape(); 
+		p.p.p.popMatrix();
 	}
 	
 	/**
@@ -613,7 +613,7 @@ class GMV_Image extends GMV_Viewable
 			if( p.imagesVisible < p.maxVisiblePhotos && !hidden && !disabled)
 			{
 				calculateVertices();
-				image = p.p.requestImage(filePath);
+				image = p.p.p.requestImage(filePath);
 				requested = true;
 				p.p.requestedImages++;
 			}
@@ -995,7 +995,7 @@ class GMV_Image extends GMV_Viewable
 		image.loadPixels();
 		int b = 0;
 		for (int i=0; i<image.pixels.length; i++) {
-			float cur = p.p.brightness(image.pixels[i]);
+			float cur = p.p.p.brightness(image.pixels[i]);
 			b += cur;
 		}
 		b /= image.pixels.length;
@@ -1037,8 +1037,8 @@ class GMV_Image extends GMV_Viewable
 	public void fadeObjectDistance(float target)
 	{
 		fadingObjectDistance = true;
-		fadingObjectDistanceStartFrame = p.p.frameCount;					
-		fadingObjectDistanceEndFrame = p.p.frameCount + fadingObjectDistanceLength;	
+		fadingObjectDistanceStartFrame = p.p.p.frameCount;					
+		fadingObjectDistanceEndFrame = p.p.p.frameCount + fadingObjectDistanceLength;	
 		fadingFocusDistanceStart = focusDistance;
 		fadingFocusDistanceTarget = target;
 	}
@@ -1050,14 +1050,14 @@ class GMV_Image extends GMV_Viewable
 	{
 		float newFocusDistance = 0.f;
 
-		if (p.p.frameCount >= fadingObjectDistanceEndFrame)
+		if (p.p.p.frameCount >= fadingObjectDistanceEndFrame)
 		{
 			fadingObjectDistance = false;
 			newFocusDistance = fadingFocusDistanceTarget;
 		} 
 		else
 		{
-			newFocusDistance = PApplet.map( p.p.frameCount, fadingObjectDistanceStartFrame, fadingObjectDistanceEndFrame, 
+			newFocusDistance = PApplet.map( p.p.p.frameCount, fadingObjectDistanceStartFrame, fadingObjectDistanceEndFrame, 
 											fadingFocusDistanceStart, fadingFocusDistanceTarget);      // Fade with distance from current time
 		}
 
@@ -1164,9 +1164,9 @@ class GMV_Image extends GMV_Viewable
 	 public void lineToCaptureLocation()
 	 {
 		 PVector centerVertex = calcCenterVertex();
-		 p.p.stroke(150, 150, 255, 255);
-		 p.p.strokeWeight(2);
-		 p.p.line(location.x, location.y, location.z, centerVertex.x, centerVertex.y, centerVertex.z);
+		 p.p.p.stroke(150, 150, 255, 255);
+		 p.p.p.strokeWeight(2);
+		 p.p.p.line(location.x, location.y, location.z, centerVertex.x, centerVertex.y, centerVertex.z);
 	 }
 
 
@@ -1186,10 +1186,10 @@ class GMV_Image extends GMV_Viewable
 		 PImage out = in.get();
 		 for (int i = 0; i < out.pixels.length; i++) {
 			 int c = out.pixels[i];
-			 float h = p.p.hue(c);
-			 float s = p.p.saturation(c) * amt;
-			 float b = p.p.brightness(c);
-			 out.pixels[i] = p.p.color(h, s, b);
+			 float h = p.p.p.hue(c);
+			 float s = p.p.p.saturation(c) * amt;
+			 float b = p.p.p.brightness(c);
+			 out.pixels[i] = p.p.p.color(h, s, b);
 		 }
 		 return out;
 	 }
@@ -1199,10 +1199,10 @@ class GMV_Image extends GMV_Viewable
 		 PImage out = image.get();
 		 for (int i = 0; i < out.pixels.length; i++) {
 			 int c = out.pixels[i];
-			 float h = p.p.hue(c);
-			 float s = p.p.saturation(c) * amt;
-			 float b = p.p.brightness(c) * amt;
-			 out.pixels[i] = p.p.color(h, s, b);
+			 float h = p.p.p.hue(c);
+			 float s = p.p.p.saturation(c) * amt;
+			 float b = p.p.p.brightness(c) * amt;
+			 out.pixels[i] = p.p.p.color(h, s, b);
 		 }
 		 return out;
 	 }

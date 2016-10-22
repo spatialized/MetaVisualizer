@@ -187,7 +187,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				fadeOut();
 			}
 
-			if(p.p.debug.video && p.p.debug.detailed && p.p.frameCount % 30 == 0)
+			if(p.p.debug.video && p.p.debug.detailed && p.p.p.frameCount % 30 == 0)
 				p.p.display.message("Video brightness after distance:"+brightness);
 
 			if( p.p.angleFading )
@@ -216,7 +216,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			}
 			else
 			{      
-				p.p.noFill();                  // Hide video if it isn't visible
+				p.p.p.noFill();                  // Hide video if it isn't visible
 			}
 
 			if (visible && !disabled && (p.p.debug.model || p.p.viewer.map3DMode))
@@ -259,9 +259,9 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		if(volume < p.p.videoMaxVolume)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.p.frameCount; 
+			volumeFadingStartFrame = p.p.p.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = p.p.videoMaxVolume;
 		}
 	}
@@ -275,9 +275,9 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		if(volume > 0.f)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.p.frameCount; 
+			volumeFadingStartFrame = p.p.p.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = 0.f;
 		}
 	}
@@ -360,7 +360,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 				}
 			}
 
-			if(p.p.debug.video && p.p.frameCount % 30 == 0)
+			if(p.p.debug.video && p.p.p.frameCount % 30 == 0)
 				p.p.display.message("After backFacing... "+visible);
 
 			boolean wasFading = false;
@@ -455,7 +455,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	{
 		if(!disabled)																	
 		{
-			video = new Movie(p.p, filePath);
+			video = new Movie(p.p.p, filePath);
 			setLength( video.duration() );				// Set video length (in seconds)
 
 			video.play();					// Start playing
@@ -506,63 +506,63 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 */
 	private void drawVideo()
 	{
-		p.p.rectMode(PApplet.CENTER);
-		p.p.noStroke(); 
+		p.p.p.rectMode(PApplet.CENTER);
+		p.p.p.noStroke(); 
 
 		if(isSelected())
 		{
 			if (!p.p.viewer.selection && p.p.debug.field)     // Draw outline
 			{
-				p.p.stroke(19, 200, 150);
-				p.p.strokeWeight(outlineSize);
+				p.p.p.stroke(19, 200, 150);
+				p.p.p.strokeWeight(outlineSize);
 			}
 		}
 
-		p.p.pushMatrix();
-		p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
+		p.p.p.pushMatrix();
+		p.p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
 
-		p.p.textureMode(PApplet.IMAGE);
-		p.p.texture(video);
+		p.p.p.textureMode(PApplet.IMAGE);
+		p.p.p.texture(video);
 
 		if(p.p.viewer.selection)
 		{
 			if(isSelected())
 			{
 				if(!p.p.alphaMode)
-					p.p.tint(viewingBrightness, 255);          				
+					p.p.p.tint(viewingBrightness, 255);          				
 				else
-					p.p.tint(255, viewingBrightness);          				
+					p.p.p.tint(255, viewingBrightness);          				
 			}
 			else
 			{
 				if(!p.p.alphaMode)
-					p.p.tint(viewingBrightness * 0.333f, 255);          // Set the image transparency					
+					p.p.p.tint(viewingBrightness * 0.333f, 255);          // Set the image transparency					
 				else
-					p.p.tint(255, viewingBrightness * 0.333f);          				
+					p.p.p.tint(255, viewingBrightness * 0.333f);          				
 			}
 		}
 		else if(p.p.viewer.videoMode)
 		{
 			if(!p.p.alphaMode)
-				p.p.tint(viewingBrightness, 255);          				
+				p.p.p.tint(viewingBrightness, 255);          				
 			else
-				p.p.tint(255, viewingBrightness);          				
+				p.p.p.tint(255, viewingBrightness);          				
 		}
 		else
 		{
 			if(!p.p.alphaMode)
-				p.p.tint(viewingBrightness, 255);          				
+				p.p.p.tint(viewingBrightness, 255);          				
 			else
-				p.p.tint(255, viewingBrightness);          				
+				p.p.p.tint(255, viewingBrightness);          				
 		}
 		
-		p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
-		p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
-		p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
-		p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, origVideoHeight);           // LOWER LEFT
+		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
+		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
+		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
+		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, origVideoHeight);           // LOWER LEFT
 
-		p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
-		p.p.popMatrix();
+		p.p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
+		p.p.p.popMatrix();
 
 		p.videosSeen++;
 	}
@@ -1035,20 +1035,20 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 */
 	private void outline()
 	{
-		p.p.stroke(100, 20, 250);
-		p.p.strokeWeight(outlineSize);
+		p.p.p.stroke(100, 20, 250);
+		p.p.p.strokeWeight(outlineSize);
 
-		p.p.pushMatrix();
-		p.p.beginShape(PApplet.QUADS);    
-		p.p.noFill();
+		p.p.p.pushMatrix();
+		p.p.p.beginShape(PApplet.QUADS);    
+		p.p.p.noFill();
 
-		p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
-		p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
-		p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
-		p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
+		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
+		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
+		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
+		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
 
-		p.p.endShape(); 
-		p.p.popMatrix();
+		p.p.p.endShape(); 
+		p.p.p.popMatrix();
 	}
 
 	/**
@@ -1057,9 +1057,9 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	 */
 	private void updateFadingVolume()
 	{
-		if(fadingVolume && p.p.frameCount < volumeFadingEndFrame)	// Still fading
+		if(fadingVolume && p.p.p.frameCount < volumeFadingEndFrame)	// Still fading
 		{
-			volume = PApplet.map(p.p.frameCount, volumeFadingStartFrame, volumeFadingEndFrame, volumeFadingStartVal, volumeFadingTarget);
+			volume = PApplet.map(p.p.p.frameCount, volumeFadingStartFrame, volumeFadingEndFrame, volumeFadingStartVal, volumeFadingTarget);
 		}
 		else								// Reached target
 		{
@@ -1081,9 +1081,9 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	void lineToCaptureLocation()
 	{
 		PVector centerVertex = calcCenterVertex();
-		p.p.stroke(150, 150, 255, 255);
-		p.p.strokeWeight(2);
-		p.p.line(location.x, location.y, location.z, centerVertex.x, centerVertex.y, centerVertex.z);
+		p.p.p.stroke(150, 150, 255, 255);
+		p.p.p.strokeWeight(2);
+		p.p.p.line(location.x, location.y, location.z, centerVertex.x, centerVertex.y, centerVertex.z);
 	}
 
 	/**
@@ -1163,8 +1163,8 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	public void fadeObjectDistance(float target)
 	{
 		fadingObjectDistance = true;
-		fadingObjectDistanceStartFrame = p.p.frameCount;					
-		fadingObjectDistanceEndFrame = p.p.frameCount + fadingObjectDistanceLength;	
+		fadingObjectDistanceStartFrame = p.p.p.frameCount;					
+		fadingObjectDistanceEndFrame = p.p.p.frameCount + fadingObjectDistanceLength;	
 		fadingFocusDistanceStart = focusDistance;
 		fadingFocusDistanceTarget = target;
 	}
@@ -1176,14 +1176,14 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	{
 		float newFocusDistance = 0.f;
 
-		if (p.p.frameCount >= fadingObjectDistanceEndFrame)
+		if (p.p.p.frameCount >= fadingObjectDistanceEndFrame)
 		{
 			fadingObjectDistance = false;
 			newFocusDistance = fadingFocusDistanceTarget;
 		} 
 		else
 		{
-			newFocusDistance = PApplet.map( p.p.frameCount, fadingObjectDistanceStartFrame, fadingObjectDistanceEndFrame, 
+			newFocusDistance = PApplet.map( p.p.p.frameCount, fadingObjectDistanceStartFrame, fadingObjectDistanceEndFrame, 
 											fadingFocusDistanceStart, fadingFocusDistanceTarget);      // Fade with distance from current time
 		}
 
@@ -1230,7 +1230,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		video.loadPixels();
 		int b = 0;
 		for (int i=0; i<video.pixels.length; i++) {
-			float cur = p.p.brightness(video.pixels[i]);
+			float cur = p.p.p.brightness(video.pixels[i]);
 			b += cur;
 		}
 		b /= video.pixels.length;

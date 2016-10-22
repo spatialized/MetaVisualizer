@@ -15,9 +15,9 @@ public class GMV_Time
 	private float dayLength;
 	private float date, time;
 	
-	private GeoSynth p;
+	private GMV_World p;
 	
-	GMV_Time(GeoSynth parent, Calendar newCalendar)
+	GMV_Time(GMV_World parent, Calendar newCalendar)
 	{
 		p = parent;
 

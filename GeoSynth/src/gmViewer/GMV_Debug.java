@@ -40,16 +40,16 @@ public class GMV_Debug
 	boolean lowMemory = false;
 	boolean performanceSlow = false;
 	
-	GeoSynth p;
+	GMV_World p;
 	
-	GMV_Debug (GeoSynth parent)
+	GMV_Debug (GMV_World parent)
 	{
 		p = parent;
 	}
 	
 	public void checkFrameRate()
 	{
-		if(p.frameRate < p.minFrameRate)
+		if(p.p.frameRate < p.minFrameRate)
 		{
 			if(!performanceSlow)
 				performanceSlow = true;

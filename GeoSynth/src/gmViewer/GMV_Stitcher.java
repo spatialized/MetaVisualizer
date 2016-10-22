@@ -44,8 +44,9 @@ public class GMV_Stitcher
 	private final boolean try_use_gpu = true;
 	private int stitchNum = 0;						// Export count for file naming
 
-	GeoSynth p;
-	GMV_Stitcher(GeoSynth parent)
+	GMV_World p;
+	
+	GMV_Stitcher(GMV_World parent)
 	{
 		p = parent;
 		
@@ -481,7 +482,7 @@ public class GMV_Stitcher
 	 */
 	public BufferedImage pImageToBufferedImage( PImage img )           
 	{
-	  PGraphics pg = p.createGraphics(img.width, img.height, PApplet.JAVA2D);
+	  PGraphics pg = p.p.createGraphics(img.width, img.height, PApplet.JAVA2D);
 	  pg.colorMode(PApplet.RGB);
 
 	  pg.beginDraw();

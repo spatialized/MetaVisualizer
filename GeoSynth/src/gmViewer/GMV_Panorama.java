@@ -43,7 +43,7 @@ public class GMV_Panorama extends GMV_Viewable
 		p = parent;
 
 		if(newTexture == null)
-			texture = p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
+			texture = p.p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
 		else
 			texture = newTexture;
 
@@ -152,7 +152,7 @@ public class GMV_Panorama extends GMV_Viewable
 		} 
 		else
 		{      
-			p.p.noFill();                  // Hide image if it isn't visible
+			p.p.p.noFill();                  // Hide image if it isn't visible
 		}
 
 		if (visible && isSelected() && !disabled && p.p.debug.model)		// Draw panorama location for debugging or map display
@@ -219,17 +219,17 @@ public class GMV_Panorama extends GMV_Viewable
 	 */
 	private void drawPanorama() 
 	{
-		p.p.pushMatrix();
-		p.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
+		p.p.p.pushMatrix();
+		p.p.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
 
 		float r = p.p.defaultFocusDistance;				// Testing this
 //		float r = p.p.defaultFocusDistance;				// Testing this
 		int v0,v1,v2;
 
-		p.p.textureMode(PApplet.IMAGE);
-		p.p.noStroke();
-		p.p.beginShape(PApplet.TRIANGLE_STRIP);
-		p.p.texture(texture);
+		p.p.p.textureMode(PApplet.IMAGE);
+		p.p.p.noStroke();
+		p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
+		p.p.p.texture(texture);
 
 		/* Set the panorama brightness */		
 		if(p.p.viewer.selection)
@@ -237,31 +237,31 @@ public class GMV_Panorama extends GMV_Viewable
 			if(isSelected())
 			{
 				if(!p.p.alphaMode)
-					p.p.tint(viewingBrightness, 255);          				
+					p.p.p.tint(viewingBrightness, 255);          				
 				else
-					p.p.tint(255, viewingBrightness);          				
+					p.p.p.tint(255, viewingBrightness);          				
 			}
 			else
 			{
 				if(!p.p.alphaMode)
-					p.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
+					p.p.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
 				else
-					p.p.tint(255, viewingBrightness * 0.333f);          				
+					p.p.p.tint(255, viewingBrightness * 0.333f);          				
 			}
 		}
 		else if(p.p.viewer.videoMode)
 		{
 			if(!p.p.alphaMode)
-				p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
+				p.p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
 			else
-				p.p.tint(255, viewingBrightness * 0.333f);          				
+				p.p.p.tint(255, viewingBrightness * 0.333f);          				
 		}
 		else
 		{
 			if(!p.p.alphaMode)
-				p.p.tint(viewingBrightness, 255);          				
+				p.p.p.tint(viewingBrightness, 255);          				
 			else
-				p.p.tint(255, viewingBrightness);          				
+				p.p.p.tint(255, viewingBrightness);          				
 		}
 		
 		float iu = (float)(texture.width-1)/(panoramaDetail);
@@ -270,14 +270,14 @@ public class GMV_Panorama extends GMV_Viewable
 
 		for (int i = 0; i < panoramaDetail; i++) 
 		{
-			p.p.vertex(0, -r, 0,u,0);
-			p.p.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
+			p.p.p.vertex(0, -r, 0,u,0);
+			p.p.p.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
 			u += iu;
 		}
 
-		p.p.vertex(0, -r, 0, u, 0);
-		p.p.vertex(sphere[0].x * r, sphere[0].y * r, sphere[0].z * r, u, v);
-		p.p.endShape();   
+		p.p.p.vertex(0, -r, 0, u, 0);
+		p.p.p.vertex(sphere[0].x * r, sphere[0].y * r, sphere[0].z * r, u, v);
+		p.p.p.endShape();   
 
 		// Draw middle rings
 		int voff = 0;
@@ -287,41 +287,41 @@ public class GMV_Panorama extends GMV_Viewable
 			voff += panoramaDetail;
 			v2 = voff;
 			u = 0;
-			p.p.beginShape(PApplet.TRIANGLE_STRIP);
-			p.p.texture(texture);
+			p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
+			p.p.p.texture(texture);
 			for(int j = 0; j < panoramaDetail; j++) 			// Draw ring
 			{
-				p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
-				p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
+				p.p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
+				p.p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
 				u += iu;
 			}
 
 			// Close ring
 			v1 = v0;
 			v2 = voff;
-			p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1].z * r, u, v);
-			p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v + iv);
-			p.p.endShape();
+			p.p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1].z * r, u, v);
+			p.p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v + iv);
+			p.p.p.endShape();
 			v += iv;
 		}
 		u = 0;
 
 		// Draw northern "cap"
-		p.p.beginShape(PApplet.TRIANGLE_STRIP);
-		p.p.texture(texture);
+		p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
+		p.p.p.texture(texture);
 		for(int i = 0; i < panoramaDetail; i++) 
 		{
 			v2 = voff + i;
-			p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
-			p.p.vertex(0, r, 0, u, v + iv);    
+			p.p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
+			p.p.p.vertex(0, r, 0, u, v + iv);    
 			u += iu;
 		}
 
-		p.p.vertex(sphere[voff].x * r, sphere[voff].y * r, sphere[voff].z * r, u, v);
-		p.p.endShape();
+		p.p.p.vertex(sphere[voff].x * r, sphere[voff].y * r, sphere[voff].z * r, u, v);
+		p.p.p.endShape();
 
-		p.p.popMatrix();
-		p.p.textureMode(PApplet.NORMAL);
+		p.p.p.popMatrix();
+		p.p.p.textureMode(PApplet.NORMAL);
 	}
 
 	/***
@@ -404,7 +404,7 @@ public class GMV_Panorama extends GMV_Viewable
 				location = new PVector (0, 0, 0);
 			}
 
-			texture = p.p.requestImage(filePath);
+			texture = p.p.p.requestImage(filePath);
 			requested = true;
 			p.p.requestedPanoramas++;
 		}

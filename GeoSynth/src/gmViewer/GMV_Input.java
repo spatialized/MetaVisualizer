@@ -18,9 +18,9 @@ public class GMV_Input
 	int clickedRecentlyFrame = 1000000;
 	int doubleClickSpeed = 10;
 
-	GeoSynth p;
+	GMV_World p;
 
-	GMV_Input(GeoSynth parent) {
+	GMV_Input(GMV_World parent) {
 		p = parent;
 		wasDateFading = p.dateFading;
 		wasTimeFading = p.timeFading;
@@ -167,22 +167,22 @@ public class GMV_Input
 
 			if (key == PApplet.CODED) 					
 			{
-				if (p.keyCode == PApplet.LEFT) 
+				if (p.p.keyCode == PApplet.LEFT) 
 					p.viewer.rotateX(-1);
 
-				if (p.keyCode == PApplet.RIGHT) 
+				if (p.p.keyCode == PApplet.RIGHT) 
 					p.viewer.rotateX(1);
 
-				if (shiftKey && p.keyCode == PApplet.LEFT) 
+				if (shiftKey && p.p.keyCode == PApplet.LEFT) 
 					p.display.mapLeftEdge -= 10.f;
 
-				if (shiftKey && p.keyCode == PApplet.RIGHT) 
+				if (shiftKey && p.p.keyCode == PApplet.RIGHT) 
 					p.display.mapLeftEdge += 10.f;
 
-				if (shiftKey && p.keyCode == PApplet.DOWN) 
+				if (shiftKey && p.p.keyCode == PApplet.DOWN) 
 					p.display.mapTopEdge += 10.f;
 
-				if (shiftKey && p.keyCode == PApplet.UP) 
+				if (shiftKey && p.p.keyCode == PApplet.UP) 
 					p.display.mapTopEdge -= 10.f;
 			}
 		}
@@ -194,7 +194,7 @@ public class GMV_Input
 		{
 			if (key == PApplet.CODED) 					
 			{
-				if (p.keyCode == PApplet.LEFT) 
+				if (p.p.keyCode == PApplet.LEFT) 
 				{
 					p.display.displayCluster--;
 					if(p.display.displayCluster < 0)
@@ -213,7 +213,7 @@ public class GMV_Input
 					}
 				}
 
-				if (p.keyCode == PApplet.RIGHT) 
+				if (p.p.keyCode == PApplet.RIGHT) 
 				{
 					p.display.displayCluster++;
 					if( p.display.displayCluster >= p.getFieldClusters().size())
@@ -565,11 +565,11 @@ public class GMV_Input
 
 				/* Output */
 				if (key == 'o') 
-					p.selectFolder("Select an output folder:", "outputFolderSelected");
+					p.p.selectFolder("Select an output folder:", "outputFolderSelected");
 
 				if (key == 'p') 	// Save image to disk
 				{	
-					if(!p.outputFolderSelected) p.selectFolder("Select an output folder:", "outputFolderSelected");
+					if(!p.outputFolderSelected) p.p.selectFolder("Select an output folder:", "outputFolderSelected");
 					p.saveImage();
 				}
 
@@ -648,29 +648,29 @@ public class GMV_Input
 			if(!p.display.inDisplayView())
 			{
 				/* Navigation */
-				if (p.keyCode == PApplet.LEFT) 
+				if (p.p.keyCode == PApplet.LEFT) 
 					p.viewer.rotateX(-1);
 
-				if (p.keyCode == PApplet.RIGHT) 
+				if (p.p.keyCode == PApplet.RIGHT) 
 					p.viewer.rotateX(1);
 				
-				if (p.keyCode == PApplet.UP) 
+				if (p.p.keyCode == PApplet.UP) 
 					p.viewer.rotateY(-1);
 				
-				if (p.keyCode == PApplet.DOWN) 
+				if (p.p.keyCode == PApplet.DOWN) 
 					p.viewer.rotateY(1);
 				
 				/* Time */
-				if (shiftKey && p.keyCode == PApplet.UP) 
+				if (shiftKey && p.p.keyCode == PApplet.UP) 
 					p.incrementTime();
 
-				if (shiftKey && p.keyCode == PApplet.DOWN) 
+				if (shiftKey && p.p.keyCode == PApplet.DOWN) 
 					p.decrementTime();
 				
-				if (shiftKey && p.keyCode == PApplet.LEFT) 
+				if (shiftKey && p.p.keyCode == PApplet.LEFT) 
 					p.decrementCycleLength();
 
-				if (shiftKey && p.keyCode == PApplet.RIGHT) 
+				if (shiftKey && p.p.keyCode == PApplet.RIGHT) 
 					p.incrementCycleLength();
 			}
 			else
@@ -679,14 +679,14 @@ public class GMV_Input
 				{
 					if(p.hierarchical)
 					{
-						if (p.keyCode == PApplet.UP) 
+						if (p.p.keyCode == PApplet.UP) 
 						{
 							int clusterDepth = p.getCurrentField().model.clusterDepth + 1;
 							if(clusterDepth <= p.getCurrentField().model.deepestLevel)
 								p.getCurrentField().model.setDendrogramDepth( clusterDepth );
 						}
 
-						if (p.keyCode == PApplet.DOWN) 
+						if (p.p.keyCode == PApplet.DOWN) 
 						{
 							int clusterDepth = p.getCurrentField().model.clusterDepth - 1;
 							if(clusterDepth >= p.getCurrentField().model.minClusterDepth)
@@ -695,7 +695,7 @@ public class GMV_Input
 					}
 					else
 					{
-						if (p.keyCode == PApplet.LEFT) 		
+						if (p.p.keyCode == PApplet.LEFT) 		
 						{
 							p.getCurrentField().model.clusterRefinement -= 10;
 							float populationFactor = p.getCurrentField().model.clusterPopulationFactor;
@@ -709,7 +709,7 @@ public class GMV_Input
 							else p.getCurrentField().model.clusterRefinement += 10;
 						}
 
-						if (p.keyCode == PApplet.RIGHT) 	
+						if (p.p.keyCode == PApplet.RIGHT) 	
 						{
 							p.getCurrentField().model.clusterRefinement += 10;
 							float populationFactor = p.getCurrentField().model.clusterPopulationFactor;
@@ -723,7 +723,7 @@ public class GMV_Input
 							else p.getCurrentField().model.clusterRefinement -= 10;
 						}
 
-						if (p.keyCode == PApplet.DOWN) 		
+						if (p.p.keyCode == PApplet.DOWN) 		
 						{
 							int refinementAmount = p.getCurrentField().model.clusterRefinement;
 							p.getCurrentField().model.clusterPopulationFactor -= 1.f;
@@ -737,7 +737,7 @@ public class GMV_Input
 							else p.getCurrentField().model.clusterPopulationFactor += 1.f;
 						}
 
-						if (p.keyCode == PApplet.UP) 	
+						if (p.p.keyCode == PApplet.UP) 	
 						{
 							int refinementAmount = p.getCurrentField().model.clusterRefinement;
 							p.getCurrentField().model.clusterPopulationFactor += 1.f;
@@ -754,11 +754,11 @@ public class GMV_Input
 				}
 			}
 			
-			if (p.keyCode == PApplet.SHIFT) {
+			if (p.p.keyCode == PApplet.SHIFT) {
 				shiftKey = true;
 			}
 			
-			if (p.keyCode == PApplet.ALT) 
+			if (p.p.keyCode == PApplet.ALT) 
 				optionKey = true;
 		}
 	}
@@ -785,17 +785,17 @@ public class GMV_Input
 
 		/* Arrow and Shift Keys */
 		if (key == PApplet.CODED) {
-			if (p.keyCode == PApplet.LEFT) 
+			if (p.p.keyCode == PApplet.LEFT) 
 				p.viewer.stopRotateXTransition();
-			if (p.keyCode == PApplet.RIGHT) 
+			if (p.p.keyCode == PApplet.RIGHT) 
 				p.viewer.stopRotateXTransition();
-			if (p.keyCode == PApplet.UP) 
+			if (p.p.keyCode == PApplet.UP) 
 				p.viewer.stopRotateYTransition();
-			if (p.keyCode == PApplet.DOWN) 
+			if (p.p.keyCode == PApplet.DOWN) 
 				p.viewer.stopRotateYTransition();
-			if (p.keyCode == PApplet.SHIFT) 
+			if (p.p.keyCode == PApplet.SHIFT) 
 				shiftKey = false;
-			if (p.keyCode == PApplet.ALT) 
+			if (p.p.keyCode == PApplet.ALT) 
 				optionKey = false;
 		}
 	}
@@ -803,37 +803,37 @@ public class GMV_Input
 	/* Mouse */
 	void updateMouseNavigation(int mouseX, int mouseY)
 	{			
-		if(p.frameCount - clickedRecentlyFrame > doubleClickSpeed && clickedRecently)
+		if(p.p.frameCount - clickedRecentlyFrame > doubleClickSpeed && clickedRecently)
 		{
 			clickedRecently = false;
 	//			PApplet.println("SET CLICKED RECENTLY TO FALSE");
 		}
 			
-		if (mouseX < p.width * 0.25 && mouseX > -1) {
-//				p.navigation.cam.rotateXStartFrame = p.frameCount;
+		if (mouseX < p.p.width * 0.25 && mouseX > -1) {
+//				p.navigation.cam.rotateXStartFrame = p.p.frameCount;
 //				p.navigation.cam.rotateXDirection = -1;
 //				p.navigation.cam.rotateXTransition = true;
-//				p.navigation.lastMovementFrame = p.frameCount;
+//				p.navigation.lastMovementFrame = p.p.frameCount;
 //				p.navigation.idleMoveCount = 0;
 //				p.navigation.idleTime = 0;
 		}
-		else if (mouseX > p.width * 0.75 && mouseX < p.width + 1) {
-//				p.navigation.cam.rotateXStartFrame = p.frameCount;
+		else if (mouseX > p.p.width * 0.75 && mouseX < p.p.width + 1) {
+//				p.navigation.cam.rotateXStartFrame = p.p.frameCount;
 //				p.navigation.cam.rotateXDirection = 1;
 //				p.navigation.cam.rotateXTransition = true;
-//				p.navigation.lastMovementFrame = p.frameCount;
+//				p.navigation.lastMovementFrame = p.p.frameCount;
 		}
-		else if (mouseY < p.height * 0.25 && mouseY > -1) {
-//				p.navigation.cam.rotateYStartFrame = p.frameCount;
+		else if (mouseY < p.p.height * 0.25 && mouseY > -1) {
+//				p.navigation.cam.rotateYStartFrame = p.p.frameCount;
 //				p.navigation.cam.rotateYDirection = -1;
 //				p.navigation.cam.rotateYTransition = true;
-//				p.navigation.lastMovementFrame = p.frameCount;
+//				p.navigation.lastMovementFrame = p.p.frameCount;
 		}
-		else if (mouseY > p.height * 0.75 && mouseY < p.height + 1) {
-//				p.navigation.cam.rotateYStartFrame = p.frameCount;
+		else if (mouseY > p.p.height * 0.75 && mouseY < p.p.height + 1) {
+//				p.navigation.cam.rotateYStartFrame = p.p.frameCount;
 //				p.navigation.cam.rotateYDirection = 1;
 //				p.navigation.cam.rotateYTransition = true;
-//				p.navigation.lastMovementFrame = p.frameCount;
+//				p.navigation.lastMovementFrame = p.p.frameCount;
 		}
 		else
 		{
@@ -849,7 +849,7 @@ public class GMV_Input
 //			PApplet.println("MousePressed!");
 		if(!p.transitionsOnly && p.viewer.lastMovementFrame > 5)
 		{
-			if(mouseX > p.width * 0.25 && mouseX < p.width * 0.75 && mouseY < p.height * 0.75 && mouseY > p.height * 0.25)
+			if(mouseX > p.p.width * 0.25 && mouseX < p.p.width * 0.75 && mouseY < p.p.height * 0.75 && mouseY > p.p.height * 0.25)
 			{
 				p.viewer.walkForward();
 			}
@@ -858,7 +858,7 @@ public class GMV_Input
 				mouseClickedX = mouseX;
 				mouseClickedY = mouseY;
 			}
-			p.viewer.lastMovementFrame = p.frameCount;
+			p.viewer.lastMovementFrame = p.p.frameCount;
 		}
 		else p.viewer.moveToNextCluster(false, -1);
 
@@ -869,7 +869,7 @@ public class GMV_Input
 	void handleMouseReleased(int mouseX, int mouseY)
 	{
 		p.viewer.walkSlower();
-		p.viewer.lastMovementFrame = p.frameCount;
+		p.viewer.lastMovementFrame = p.p.frameCount;
 
 		boolean doubleClick = false, switchedViews = false;
 
@@ -890,6 +890,6 @@ public class GMV_Input
 		mouseOffsetX = mouseClickedX - mouseX;
 		mouseOffsetY = mouseClickedY - mouseY;
 
-		p.viewer.lastMovementFrame = p.frameCount;			// Turn faster if larger offset X or Y?
+		p.viewer.lastMovementFrame = p.p.frameCount;			// Turn faster if larger offset X or Y?
 	}
 }

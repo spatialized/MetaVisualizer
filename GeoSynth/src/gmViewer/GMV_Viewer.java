@@ -165,9 +165,9 @@ public class GMV_Viewer
 	private float zoomStart, zoomDirection;
 	private int zoomLength = 15;
 
-	GeoSynth p;
+	GMV_World p;
 
-	public GMV_Viewer(GeoSynth parent)
+	public GMV_Viewer(GMV_World parent)
 	{
 		p = parent;
 
@@ -202,7 +202,7 @@ public class GMV_Viewer
 	 */
 	public void initialize(float x, float y, float z)
 	{
-		camera = new Camera( p, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, fieldOfView, nearClippingDistance, 10000.f);
+		camera = new Camera( p.p, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, fieldOfView, nearClippingDistance, 10000.f);
 		location = new PVector(x, y, z);
 		teleportGoal = new PVector(x, y, z);
 		
@@ -874,7 +874,7 @@ public class GMV_Viewer
 	{
 		p.getCurrentField().fadeOutMedia();
 		teleporting = true;
-		teleportStart = p.frameCount;
+		teleportStart = p.p.frameCount;
 		teleportWaitingCount = 0;
 		
 		if(newField != -1)
@@ -890,7 +890,7 @@ public class GMV_Viewer
 	{
 		if(!turningX)
 		{
-			turnXStartFrame = p.frameCount;
+			turnXStartFrame = p.p.frameCount;
 			turnXStart = getXOrientation();
 			turnXTarget = angle;
 			
@@ -917,7 +917,7 @@ public class GMV_Viewer
 	{
 		if(!turningY)
 		{
-			turnYStartFrame = p.frameCount;
+			turnYStartFrame = p.p.frameCount;
 			turnYStart = getYOrientation();
 			turnYTarget = angle;
 			
@@ -942,7 +942,7 @@ public class GMV_Viewer
 	{
 		if(!turningX)
 		{
-			turnXStartFrame = p.frameCount;
+			turnXStartFrame = p.p.frameCount;
 			turnXStart = getXOrientation();
 			turnXTarget = turnXStart + angle;
 			PVector turnInfo = getTurnInfo(turnXStart, turnXTarget, 0);
@@ -969,7 +969,7 @@ public class GMV_Viewer
 			else if(angle > 2*PApplet.PI)
 				angle -= 2*PApplet.PI;
 
-			turnYStartFrame = p.frameCount;
+			turnYStartFrame = p.p.frameCount;
 			turnYStart = getYOrientation();
 			turnYTarget = turnYStart + angle;
 			PVector turnInfo = getTurnInfo(turnYStart, turnYTarget, 0);
@@ -1238,10 +1238,10 @@ public class GMV_Viewer
 	 */
 	public void moveToRandomCluster(boolean teleport)
 	{
-		int rand = (int) p.random(p.getCurrentField().clusters.size());
+		int rand = (int) p.p.random(p.getCurrentField().clusters.size());
 		while(p.getCurrentField().clusters.get(rand).isEmpty())
 		{
-			rand = (int) p.random(p.getCurrentField().clusters.size());
+			rand = (int) p.p.random(p.getCurrentField().clusters.size());
 		}
 
 		if(teleport)
@@ -1249,7 +1249,7 @@ public class GMV_Viewer
 			int goal = rand;
 			while(p.getCurrentField().clusters.get(goal).isEmpty() || goal == currentCluster)
 			{
-				goal = (int) p.random(p.getCurrentField().clusters.size());
+				goal = (int) p.p.random(p.getCurrentField().clusters.size());
 			}
 
 			teleportToCluster(goal, true);
@@ -1291,7 +1291,7 @@ public class GMV_Viewer
 		attractorCluster = newCluster;											// Set attractorCluster
 		currentCluster = newCluster;											// Set currentCluster
 		movingToCluster = true;													// Move to cluster
-		attractionStart = p.frameCount;
+		attractionStart = p.p.frameCount;
 		
 		p.getCurrentField().clusters.get(attractorCluster).setAttractor(true);
 
@@ -1667,7 +1667,7 @@ public class GMV_Viewer
 			
 			if( (movingToAttractor || following) && attractorPoint != null )
 			{
-				if(p.debug.viewer && p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
+				if(p.debug.viewer && p.p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
 					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
 
 				curAttractor = attractorPoint;
@@ -1737,7 +1737,7 @@ public class GMV_Viewer
 			float curAttractorDistance = PVector.dist( p.getCurrentField().clusters.get(attractorCluster).getLocation(), getLocation() );
 			if(curAttractorDistance > lastAttractorDistance && !slowing)	// If the camera is getting farther than attractor
 			{
-				if(p.debug.viewer && attractionStart - p.frameCount > 20)
+				if(p.debug.viewer && attractionStart - p.p.frameCount > 20)
 				{
 					p.display.message("Getting farther from attractor: will stop moving...");
 					stopMoving();												// Stop
@@ -1812,21 +1812,21 @@ public class GMV_Viewer
 		if (movingX && !slowingX) 
 		{
 			walkingAcceleration.x += walkingAccelInc * moveXDirection;
-			lastMovementFrame = p.frameCount;
+			lastMovementFrame = p.p.frameCount;
 		}
 
 		// Move Y Transition
 		if (movingY && !slowingY) 
 		{
 			walkingAcceleration.y += walkingAccelInc * moveYDirection;
-			lastMovementFrame = p.frameCount;
+			lastMovementFrame = p.p.frameCount;
 		}
 
 		// Move Z Transition
 		if (movingZ && !slowingZ) 		
 		{
 			walkingAcceleration.z += walkingAccelInc * moveZDirection;
-			lastMovementFrame = p.frameCount;
+			lastMovementFrame = p.p.frameCount;
 		}
 
 		if(slowingX || slowingY || slowingZ)
@@ -1969,25 +1969,25 @@ public class GMV_Viewer
 			/* Rotate X Transition */
 			if (rotatingX) {
 				camera.pan(rotateIncrement * rotateXDirection);
-				lastLookFrame = p.frameCount;
+				lastLookFrame = p.p.frameCount;
 			}
 
 			/* Rotate Y Transition */
 			if (rotatingY) {
 				camera.tilt(rotateIncrement * rotateYDirection);
-				lastLookFrame = p.frameCount;
+				lastLookFrame = p.p.frameCount;
 			}
 
 			/* Rotate Z Transition */
 			if (rotatingZ) 
 			{
 				camera.roll(rotateIncrement * rotateZDirection);
-				lastLookFrame = p.frameCount;
+				lastLookFrame = p.p.frameCount;
 			}
 			
 			if(following && waiting)				// If revisiting places in memory and currently waiting
 			{				
-				if(p.frameCount > pathWaitStartFrame + pathWaitLength )
+				if(p.p.frameCount > pathWaitStartFrame + pathWaitLength )
 				{
 					waiting = false;
 					if(p.debug.viewer)
@@ -2026,7 +2026,7 @@ public class GMV_Viewer
 			/* Zoom Transition */
 			if (zooming) 
 			{
-				if (p.frameCount < zoomStart + zoomLength) 
+				if (p.p.frameCount < zoomStart + zoomLength) 
 				{
 					zoomCamera(zoomIncrement / zoomLength * zoomDirection);
 				}
@@ -2036,10 +2036,10 @@ public class GMV_Viewer
 			
 			/* Turn Y Transition */
 			if (turningY) {
-				if (p.frameCount <= turnYTargetFrame) 
+				if (p.p.frameCount <= turnYTargetFrame) 
 				{
 					camera.tilt(turnYIncrement * turnYDirection);
-					lastLookFrame = p.frameCount;
+					lastLookFrame = p.p.frameCount;
 				}
 				else
 				{
@@ -2061,10 +2061,10 @@ public class GMV_Viewer
 
 			/* Turn X Transition */
 			if (turningX) {
-				if (p.frameCount <= turnXTargetFrame) 
+				if (p.p.frameCount <= turnXTargetFrame) 
 				{
 					camera.pan(turnXIncrement * turnXDirection);
-					lastLookFrame = p.frameCount;
+					lastLookFrame = p.p.frameCount;
 				}
 				else
 				{
@@ -2089,7 +2089,7 @@ public class GMV_Viewer
 //			if (turnZTransition) 
 //			{
 //				cam.roll(rotateIncrement * rotateZDirection);
-//				lastLookFrame = p.frameCount;
+//				lastLookFrame = p.p.frameCount;
 //			}
 		}
 		else										// If no transitions
@@ -2123,7 +2123,7 @@ public class GMV_Viewer
 	 */
 	private void updateTeleporting()
 	{
-		if(p.frameCount >= teleportStart + p.getCurrentField().teleportLength)		// If the teleport has finished
+		if(p.p.frameCount >= teleportStart + p.getCurrentField().teleportLength)		// If the teleport has finished
 		{
 			if(p.debug.viewer)
 				p.display.message(" Reached teleport goal...");
@@ -2246,8 +2246,8 @@ public class GMV_Viewer
 	{
 		stopAllTransitions();										// Stop all current transitions
 		lookingStartAngle = getOrientation().x;
-		lookingStartFrameCount = p.frameCount;
-		lookingDirection = Math.round(p.random(1)) == 1 ? 1 : -1;		// Choose random direction to look
+		lookingStartFrameCount = p.p.frameCount;
+		lookingDirection = Math.round(p.p.random(1)) == 1 ? 1 : -1;		// Choose random direction to look
 		lookingLength = PApplet.round(2.f*PApplet.PI / rotateIncrement);
 		turnXToAngle(lookingStartAngle, lookingDirection);
 		looking = true;
@@ -2269,14 +2269,14 @@ public class GMV_Viewer
 			}
 			else
 			{
-				lastLookFrame = p.frameCount;
+				lastLookFrame = p.p.frameCount;
 
-				if ( p.frameCount - lookingStartFrameCount > lookingLength )
+				if ( p.p.frameCount - lookingStartFrameCount > lookingLength )
 				{
 					lookingRotationCount++;							// Record camera rotations while looking for images
 					if(p.debug.viewer)
 					p.display.message("Rotated to look "+lookingRotationCount+" times...");
-					lookingStartFrameCount = p.frameCount;		// Restart the count
+					lookingStartFrameCount = p.p.frameCount;		// Restart the count
 				}
 
 				if (lookingRotationCount > 2) 
@@ -2444,7 +2444,7 @@ public class GMV_Viewer
 	private void startWaiting(int length)	
 	{
 		waiting = true;
-		pathWaitStartFrame = p.frameCount;
+		pathWaitStartFrame = p.p.frameCount;
 		pathWaitLength = length;
 	}
 	
@@ -2461,7 +2461,7 @@ public class GMV_Viewer
 		attractorPoint.setEmpty(false);
 		attractorPoint.setAttractor(true);
 		attractorPoint.setMass(p.mediaPointMass * 25.f);
-		attractionStart = p.frameCount;
+		attractionStart = p.p.frameCount;
 	}
 	
 	private void clearAttractorPoint()
@@ -2900,7 +2900,7 @@ public class GMV_Viewer
 	public void importGPSTrack()
 	{
 		gpsTrackSelected = false;
-		p.selectInput("Select a GPS Track:", "gpsTrackSelected");
+		p.p.selectInput("Select a GPS Track:", "gpsTrackSelected");
 	}
 	
 	/**
@@ -3324,7 +3324,7 @@ public class GMV_Viewer
 	
 	public void startZoomTransition(int dir)
 	{
-		zoomStart = p.frameCount;
+		zoomStart = p.p.frameCount;
 		zoomDirection = dir;
 		zooming = true;
 	}

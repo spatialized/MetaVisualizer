@@ -82,7 +82,7 @@ public class GMV_Model
 	{
 		p = parent;
 		clustersByDepth = new IntList();
-		clusteringRandomSeed = (long) p.p.random(1000.f);
+		clusteringRandomSeed = (long) p.p.p.random(1000.f);
 	}
 
 	/**
@@ -297,7 +297,7 @@ public class GMV_Model
 			if (p.images.size() == 0 && p.panoramas.size() == 0 && p.videos.size() == 0) 		// If there are 0 media
 			{
 				p.p.display.message("No media loaded!  Can't run k-means clustering... Will exit.");
-				p.p.exit();
+				p.p.p.exit();
 			}
 			else
 			{
@@ -343,7 +343,7 @@ public class GMV_Model
 		{
 			if(p.p.debug.cluster)
 				PApplet.println("Top cluster is null!");
-			p.p.exit();
+			p.p.p.exit();
 		}
 
 		for( Cluster cluster : clusters )				// For each cluster at given depth
@@ -863,10 +863,10 @@ public class GMV_Model
 
 			if(i == 0)			
 			{
-				p.p.randomSeed(clusteringRandomSeed);
-				imageID = (int) p.p.random(p.images.size());  			// Random image ID for setting cluster's start location				
-				panoramaID = (int) p.p.random(p.panoramas.size());  		// Random panorama ID for setting cluster's start location				
-				videoID = (int) p.p.random(p.videos.size());  			// Random video ID for setting cluster's start location				
+				p.p.p.randomSeed(clusteringRandomSeed);
+				imageID = (int) p.p.p.random(p.images.size());  			// Random image ID for setting cluster's start location				
+				panoramaID = (int) p.p.p.random(p.panoramas.size());  		// Random panorama ID for setting cluster's start location				
+				videoID = (int) p.p.p.random(p.videos.size());  			// Random video ID for setting cluster's start location				
 				addedImages.append(imageID);								
 				addedPanoramas.append(panoramaID);								
 				addedVideos.append(videoID);								
@@ -921,14 +921,14 @@ public class GMV_Model
 			}
 			else															// Find a random media (image, panorama or video) location for new cluster
 			{
-				int mediaID = (int) p.p.random(p.images.size() + p.panoramas.size() + p.videos.size());
+				int mediaID = (int) p.p.p.random(p.images.size() + p.panoramas.size() + p.videos.size());
 				PVector clusterPoint = new PVector(0,0,0);
 
 				if( mediaID < p.images.size() )				// If image, compare to already picked images
 				{
-					imageID = (int) p.p.random(p.images.size());  						
+					imageID = (int) p.p.p.random(p.images.size());  						
 					while(addedImages.hasValue(imageID) && nearImages.hasValue(imageID))
-						imageID = (int) p.p.random(p.images.size());  						
+						imageID = (int) p.p.p.random(p.images.size());  						
 
 					addedImages.append(imageID);
 
@@ -936,9 +936,9 @@ public class GMV_Model
 				}
 				else if( mediaID < p.images.size() + p.panoramas.size() )		// If panorama, compare to already picked panoramas
 				{
-					panoramaID = (int) p.p.random(p.panoramas.size());  						
+					panoramaID = (int) p.p.p.random(p.panoramas.size());  						
 					while(addedPanoramas.hasValue(panoramaID) && nearPanoramas.hasValue(panoramaID))
-						panoramaID = (int) p.p.random(p.panoramas.size());  						
+						panoramaID = (int) p.p.p.random(p.panoramas.size());  						
 
 					addedPanoramas.append(panoramaID);
 
@@ -946,9 +946,9 @@ public class GMV_Model
 				}
 				else if( mediaID < p.images.size() + p.panoramas.size() + p.videos.size() )		// If video, compare to already picked videos
 				{
-					videoID = (int) p.p.random(p.videos.size());  						
+					videoID = (int) p.p.p.random(p.videos.size());  						
 					while(addedImages.hasValue(videoID) && nearImages.hasValue(videoID))
-						videoID = (int) p.p.random(p.videos.size());  						
+						videoID = (int) p.p.p.random(p.videos.size());  						
 
 					addedVideos.append(videoID);
 

@@ -466,12 +466,12 @@ public class GMV_Cluster
 	{
 		if(!empty)
 		{
-			p.p.pushMatrix();
-			p.p.fill(hue,255,255);
-			p.p.stroke(255-hue,255,255);
-			p.p.translate(location.x, location.y, location.z);
-			p.p.sphere(p.p.clusterCenterSize);
-			p.p.popMatrix();
+			p.p.p.pushMatrix();
+			p.p.p.fill(hue,255,255);
+			p.p.p.stroke(255-hue,255,255);
+			p.p.p.translate(location.x, location.y, location.z);
+			p.p.p.sphere(p.p.clusterCenterSize);
+			p.p.p.popMatrix();
 		}
 	}
 
@@ -1456,13 +1456,13 @@ public class GMV_Cluster
 		
 		for (int i = 0; i < numTimeSegments; i++) 				// Iterate through the clusters
 		{
-			int idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.random(mediaTimes.size()-1))).getCenter());		// Random index
+			int idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.p.random(mediaTimes.size()-1))).getCenter());		// Random index
 			int ct = 0;
 			boolean created = true;
 			
 			while(timeSegments.hasValue(idx))					// Try repeatedly to find a random time not already in list
 			{
-				idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.random(mediaTimes.size()-1))).getCenter());
+				idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.p.random(mediaTimes.size()-1))).getCenter());
 				ct++;
 				if(ct > mediaTimes.size())		// If failed after many tries
 				{

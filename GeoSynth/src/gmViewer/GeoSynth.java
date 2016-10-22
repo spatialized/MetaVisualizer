@@ -317,8 +317,12 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 
 		if(startRunning)							// If simulation just started running
 		{
-			viewer.moveToTimeInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
-//			viewer.moveToNearestCluster(true);
+			if(timeFading && !dateFading)
+				viewer.moveToTimeInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
+			else if(!timeFading && dateFading)
+				viewer.moveToDateInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
+			else
+				viewer.moveToTimeInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
 			
 			firstTeleport = true;
 			startRunning = false;

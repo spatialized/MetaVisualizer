@@ -17,7 +17,8 @@ public class GMV_MediaSegment
 	
 	private float left, right, centerDirection;		// Upper and lower bounds for direction (in degrees)
 	private float bottom, top, centerElevation;		// Upper and lower bounds (in degrees)
-
+	private boolean hidden;
+	
 	GMV_Cluster p;
 	
 	GMV_MediaSegment( GMV_Cluster parent, int newID, IntList newImages, IntList newVideos, float newLower, float newUpper, 
@@ -83,6 +84,27 @@ public class GMV_MediaSegment
 			if(p.p.p.debug.image)
 				PApplet.println("Found image "+img.getID()+" borders horiz:"+horizBorderID+" vert:"+vertBorderID);
 		}
+	}
+
+	public boolean isHidden()
+	{
+		return hidden;
+	}
+	
+	public void hide()
+	{
+		for(int i:images)				// Set images in segment to hidden
+			p.p.images.get(i).hidden = true;
+
+		hidden = true;
+	}
+	
+	public void show()
+	{
+		for(int i:images)				// Set images in segment to hidden
+			p.p.images.get(i).hidden = false;
+
+		hidden = false;
 	}
 	
 	public int getID()

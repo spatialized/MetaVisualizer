@@ -55,7 +55,7 @@ public abstract class GMV_Viewable
 	public float viewingBrightness = 0;				// Final image brightness (or alpha in useAlphaFading mode) 
 	public boolean isFadingIn = false, isFadingOut = false;
 	public float fadingBrightness;							// Media transparency due to fading in / out
-	public boolean beginFading = false, fading = false, initFading = true;		
+	public boolean beginFading = false, fading = false;		
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
 	public boolean fadedOut = false;			// Recently faded out
 	public boolean fadedIn = false;
@@ -96,8 +96,8 @@ public abstract class GMV_Viewable
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(p.p.circularEaseOut);
 		
-		if(p.p.timeFading || p.p.dateFading)
-			initFading = false;			/* No need for initial fade in during Time Fading Mode */
+//		if(p.p.timeFading || p.p.dateFading)
+//			initFading = false;			/* No need for initial fade in during Time Fading Mode */
 	}  
 
 	abstract void draw();
@@ -196,8 +196,8 @@ public abstract class GMV_Viewable
 		if(isFadingOut) isFadingOut = false;
 		if(isFadingIn) isFadingIn = false;
 
-		if(initFading)
-			initFading = false;
+//		if(initFading)
+//			initFading = false;
 	}
 
 	/**
@@ -601,7 +601,7 @@ public abstract class GMV_Viewable
 			fading = false;
 			newFadeValue = fadingTarget;
 
-			if(initFading) initFading = false;
+//			if(initFading) initFading = false;
 			if(isFadingOut)
 			{
 				isFadingOut = false;

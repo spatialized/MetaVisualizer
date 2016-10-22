@@ -264,6 +264,8 @@ public class GMV_Model
 			p.p.display.message(" ");
 			p.p.display.displayClusteringInfo();
 		}
+		
+//		if(mediaDensity < XXX)			// ---Split into fields here
 
 		/* Estimate number of clusters */
 		int numClusters = PApplet.round( (1.f / PApplet.sqrt(mediaDensity)) * populationFactor ); 	// Calculate numClusters from media density
@@ -282,12 +284,12 @@ public class GMV_Model
 		if (validMedia > 1) 							// If there are more than 1 media point
 		{
 			initializeKMeansClusters(numClusters);		// Create initial clusters at random image locations	
-			refineKMeansClusters(epsilon, refinement);			// Refine clusters over many iterations
+			refineKMeansClusters(epsilon, refinement);	// Refine clusters over many iterations
 			createSingleClusters();						// Create clusters for single media points
 			
-			p.initializeClusters();					// Initialize clusters (merge, etc.)
+			p.initializeClusters();						// Initialize clusters (merge, etc.)
 
-			if(p.clusters.size() > 0)				// Calculate capture times for each cluster
+			if(p.clusters.size() > 0)					// Calculate capture times for each cluster
 				findVideoPlaceholders();
 		}
 		else

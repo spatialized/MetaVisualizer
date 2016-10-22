@@ -106,7 +106,6 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		if(!verticesAreNull())
 		{
 			float distanceBrightnessFactor = 0.f; 					// Fade with distance
-			float timeBrightnessFactor;                          // Fade with time 
 			float angleBrightnessFactor;
 			
 			float brightness = fadingBrightness;					
@@ -114,8 +113,9 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			distanceBrightnessFactor = getDistanceBrightness(); 
 			brightness *= distanceBrightnessFactor; 								// Fade alpha based on distance to camera
 
-			if( p.p.timeFading || p.p.dateFading )
+			if( p.p.timeFading )
 			{
+				float timeBrightnessFactor;                          // Fade with time 
 				if(!p.p.viewer.isMoving())
 				{
 					if(p.p.showAllTimeSegments)
@@ -141,6 +141,40 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 						else														// Hide media outside current cluster
 						{
 							timeBrightnessFactor = 0.f;
+							brightness = 0.f;
+						}
+					}
+				}
+			}
+			
+			if( p.p.dateFading )
+			{
+				float dateBrightnessFactor;                        		// Fade with time 
+				if(!p.p.viewer.isMoving())
+				{
+					if(p.p.showAllDateSegments)
+					{
+						if(p.p.getCluster(cluster).dateline.size() > 0)
+							dateBrightnessFactor = getDateBrightness();    
+						else
+						{
+							dateBrightnessFactor = 0.f;
+							if(p.p.debug.cluster || p.p.debug.image || p.p.debug.viewable)
+								p.p.display.message("Cluster: "+cluster+" has no dateline points!");
+						}
+						
+						brightness *= dateBrightnessFactor; 					// Fade brightness based on time
+					}
+					else
+					{
+						if(p.p.viewer.getCurrentCluster() == cluster)
+						{
+							dateBrightnessFactor = getDateBrightness();        
+							brightness *= dateBrightnessFactor; 					// Fade brightness based on time
+						}
+						else														// Hide media outside current cluster
+						{
+							dateBrightnessFactor = 0.f;
 							brightness = 0.f;
 						}
 					}
@@ -197,7 +231,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	public void fadeIn()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-			if(!initFading)		
+//			if(!initFading)		
 				stopFading();
 
 		fadeBrightness(1.f);					// Fade in
@@ -210,7 +244,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	public void fadeOut()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-			if(!initFading)			
+//			if(!initFading)			
 				stopFading();
 
 		fadeBrightness(0.f);					// Fade out

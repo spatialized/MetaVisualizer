@@ -125,12 +125,17 @@ public class GMV_Panorama extends GMV_Viewable
 	public void draw()
 	{
 		float brightness = fadingBrightness;					
-		float timeBrightnessFactor;                          // Fade with time 
 
 		if(p.p.timeFading && time != null)
 		{
-			timeBrightnessFactor = getTimeBrightness();        
+			float timeBrightnessFactor = getTimeBrightness();        
 			brightness *= timeBrightnessFactor; 																			// Fade alpha based on time or date
+		}
+		
+		if(p.p.dateFading && time != null)
+		{
+			float dateBrightnessFactor = getDateBrightness();        
+			brightness *= dateBrightnessFactor; 																			// Fade alpha based on time or date
 		}
 
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);	  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
@@ -162,7 +167,7 @@ public class GMV_Panorama extends GMV_Viewable
 	public void fadeIn()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-			if(!initFading)		
+//			if(!initFading)		
 				stopFading();
 
 		fadeBrightness(1.f);					// Fade in
@@ -174,7 +179,7 @@ public class GMV_Panorama extends GMV_Viewable
 	public void fadeOut()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-			if(!initFading)			
+//			if(!initFading)			
 				stopFading();
 
 		fadeBrightness(0.f);					// Fade out

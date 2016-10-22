@@ -95,9 +95,9 @@ public class GMV_Viewer
 	private float velocityMax = 0.75f;						// Camera maximum velocity
 	private float accelerationMax = 0.15f;					// Camera maximum acceleration
 	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
-	private float camDecelInc = 0.8f;						// Camera deceleration increment
-	private float camHaltInc = 0.05f;						// Camera fast deceleration increment
-	private boolean waiting = false;			// During memory navigation, whether the camera is waiting to move 
+	private float camDecelInc = 0.75f;						// Camera deceleration increment
+	private float camHaltInc = 0.033f;						// Camera fast deceleration increment
+	private boolean waiting = false;						// Whether the camera is waiting to move while following a path
 	private int pathWaitStartFrame, pathWaitLength = 75;
 
 	/* Movement */
@@ -110,7 +110,6 @@ public class GMV_Viewer
 	private boolean slowingX = false;			// Slowing X movement
 	private boolean slowingY = false;			// Slowing Y movement
 	private boolean slowingZ = false;			// Slowing Z movement
-
 	private boolean halting = false;			// Viewer is halting
 	
 	private boolean movingX = false;			// Is viewer automatically moving in X dimension (side to side)?

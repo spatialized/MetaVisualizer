@@ -576,6 +576,8 @@ public class GMV_Cluster
 						{
 							pano.initializeSphere(pano.panoramaDetail);
 							stitchedPanoramas.add(pano);
+
+							m.hide();
 							
 //							if(stitchedPanoramas.size() == 0)
 //							{

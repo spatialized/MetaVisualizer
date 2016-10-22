@@ -110,7 +110,7 @@ public class GMV_Input
 		if (!optionKey && key == '7') 
 			p.showCaptureToCluster = !p.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
-		if (key == '-')
+		if (key == '_')
 			p.showModel = !p.showModel;
 		
 		/* Clustering */
@@ -387,12 +387,25 @@ public class GMV_Input
 			if (key == '~')
 				p.viewer.followMemory();
 
-			if (key == '>')
+			if (!optionKey && key == '>')
 			{
 				if(!p.viewer.isFollowing())
 					p.viewer.followTimeline(true, false);
-				else
+			}
+
+			if (optionKey && key == '.')
+			{
+				if(!p.viewer.isFollowing())
+					p.viewer.followDateline(true, false);
+			}
+			
+			if (!optionKey && key == '.')
+			{
+				if(p.viewer.isFollowing())
+				{
 					p.viewer.followTimeline(false, false);
+					p.viewer.followDateline(false, false);
+				}
 			}
 
 			if (key == 'u') 		// Teleport to nearest cluster with video
@@ -416,15 +429,11 @@ public class GMV_Input
 			if (key == 'E') 
 				p.viewer.moveToNearestCluster(false);
 
-			if (key == ',') 
-			{
+			if (key == '-') 
 				p.getCurrentField().fadeObjectDistances(0.85f);
-			}
 			
-			if (key == '.')
-			{
+			if (key == '=')
 				p.getCurrentField().fadeObjectDistances(1.176f);
-			}
 
 			if (key == 'q') 
 				p.viewer.startZoomTransition(-1);
@@ -446,7 +455,7 @@ public class GMV_Input
 						p.getCurrentField().hideImages();
 				}
 
-				if (key == 'H')	
+				if (key == 'h')	
 				{
 					if(p.getCurrentField().hidePanoramas)
 						p.getCurrentField().showPanoramas();
@@ -505,17 +514,17 @@ public class GMV_Input
 				if (optionKey && key == 'x')
 					p.getCurrentField().deselectAllMedia();
 
-				if (key == '_')
+				if (optionKey && key == '-')
 					p.visibleAngle -= 3.1415f / 128.f; 
 
-				if (key == '+')
+				if (optionKey && key == '=')
 					p.visibleAngle += 3.1415f / 128.f; 
 
 				/* Selection */
-				if (key == 'x') 
+				if (!optionKey && key == 'x') 
 					p.viewer.selectFrontMedia(true);
 
-				if (key == 'X')
+				if (!optionKey && key == 'X')
 					p.viewer.selectFrontMedia(false);
 				
 				if (key == 'S')
@@ -547,24 +556,11 @@ public class GMV_Input
 				if (key == 'G')
 				{
 					p.angleFading = !p.angleFading;
-//					p.angleHidingMode = p.angleFading;
 				}
 				
-				if (key == 'h')
+				if (key == 'H')
 				{
 					p.angleThinning = !p.angleThinning;
-//					p.display.message("p.angleThinning:"+p.angleThinning);
-				}
-
-				if (key == '9') {
-//					p.defaultImageSize += 0.1f;
-//					PApplet.println("p.defaultImageSize:"+p.defaultImageSize);
-				}
-
-				if (key == '0') {
-//					if(p.defaultImageSize > 2)
-//						p.defaultImageSize -= 0.1f;
-//					PApplet.println("p.defaultImageSize:"+p.defaultImageSize);
 				}
 
 				/* Output */
@@ -620,7 +616,10 @@ public class GMV_Input
 					for(GMV_Field f : p.getFields())
 					{
 						f.model.setMinClusterDistance(p.minClusterDistance);	
-						f.model.clustersNeedUpdate = true;
+//						f.model.clustersNeedUpdate = true;
+						p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
+						p.getCurrentField().initializeClusters();			
+						p.display.initializeMaps();
 					}
 				}
 			}
@@ -634,7 +633,10 @@ public class GMV_Input
 					for(GMV_Field f : p.getFields())
 					{
 						f.model.setMinClusterDistance(p.minClusterDistance);
-						f.model.clustersNeedUpdate = true;					// -- Temporary: will make minClusterDistance field specific...
+//						f.model.clustersNeedUpdate = true;					// -- Temporary: will make minClusterDistance field specific...
+						p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
+						p.getCurrentField().initializeClusters();			
+						p.display.initializeMaps();
 					}
 				}
 			}

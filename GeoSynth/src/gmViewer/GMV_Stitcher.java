@@ -75,7 +75,7 @@ public class GMV_Stitcher
 	}
 	
 	/**
-	 * Stitch a spherical panorama or panorama segment from images
+	 * Stitch a 360 degree panorama or panorama segment from images
 	 * @param library
 	 */
 	public GMV_Panorama stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)

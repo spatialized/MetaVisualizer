@@ -198,7 +198,7 @@ class GMV_Image extends GMV_Viewable
 //				drawLocation(centerSize);
 //			if (visible && !disabled && p.p.viewer.map3DMode)
 //				drawLocation(centerSize);
-			if(visible && p.p.showModel && !disabled)
+			if(visible && p.p.showModel && !hidden && !disabled)
 				drawLocation(centerSize);
 		}
 	}
@@ -254,7 +254,7 @@ class GMV_Image extends GMV_Viewable
 	public void fadeIn()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-			if(!initFading)		
+//			if(!initFading)		
 				stopFading();
 
 		fadeBrightness(1.f);					// Fade in
@@ -267,7 +267,7 @@ class GMV_Image extends GMV_Viewable
 	public void fadeOut()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-			if(!initFading)			
+//			if(!initFading)			
 				stopFading();
 
 		fadeBrightness(0.f);					// Fade out
@@ -293,7 +293,7 @@ class GMV_Image extends GMV_Viewable
 			p.p.requestedImages--;
 		}
 
-		if(image.width > 0 && !disabled)			
+		if(image.width > 0 && !hidden && !disabled)			
 		{
 //			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
 			visible = false;
@@ -610,7 +610,7 @@ class GMV_Image extends GMV_Viewable
 	{
 		if(!p.p.debug.lowMemory)			// Check enough memory available
 		{
-			if( p.imagesVisible < p.maxVisiblePhotos && !disabled)
+			if( p.imagesVisible < p.maxVisiblePhotos && !hidden && !disabled)
 			{
 				calculateVertices();
 				image = p.p.requestImage(filePath);

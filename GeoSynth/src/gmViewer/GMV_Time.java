@@ -30,7 +30,7 @@ public class GMV_Time
 		second = newCalendar.get(Calendar.SECOND);
 //		millisecond =;
 		
-		PVector simulationTime = p.utilities.getSimulationTime( newCalendar ); 
+		PVector simulationTime = p.p.utilities.getSimulationTime( newCalendar ); 
 		date = simulationTime.x;
 		time = simulationTime.y;
 //		dayLength = simulationTime.z;

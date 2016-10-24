@@ -168,7 +168,7 @@ class GMV_Image extends GMV_Viewable
 			if( p.p.angleFading )
 			{
 				float imageAngle = getFacingAngle();
-				if(p.p.utilities.isNaN(imageAngle))
+				if(p.p.p.utilities.isNaN(imageAngle))
 				{
 					imageAngle = 0;				
 					visible = false;
@@ -325,7 +325,7 @@ class GMV_Image extends GMV_Viewable
 			{
 				float imageAngle = getFacingAngle();			// Check if image is visible at current angle facing viewer
 				
-				if(!p.p.utilities.isNaN(imageAngle))
+				if(!p.p.p.utilities.isNaN(imageAngle))
 					visible = (getAngleBrightness(imageAngle) > 0.f);
 
 				if(!fading && p.hideImages)
@@ -599,7 +599,7 @@ class GMV_Image extends GMV_Viewable
 
 		location.add(disp);     													 
 
-		if (p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x))
+		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
 		{
 			location = new PVector (0, 0, 0);
 		}

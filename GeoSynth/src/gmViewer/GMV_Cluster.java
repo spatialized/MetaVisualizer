@@ -512,7 +512,7 @@ public class GMV_Cluster
 
 			if(p.p.p.debug.stitching) p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-			GMV_Panorama pano = p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
+			GMV_Panorama pano = p.p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
 
 			if(pano != null)
 			{
@@ -529,7 +529,7 @@ public class GMV_Cluster
 //				else
 //				{
 ////					userPanoramas.set(0, pano);
-//					userPanoramas.set(0, p.p.utilities.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
+//					userPanoramas.set(0, p.p.p.utilities.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
 //				}
 
 			}
@@ -570,7 +570,7 @@ public class GMV_Cluster
 					
 					if(valid.size() > 1)
 					{					
-						GMV_Panorama pano = p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
+						GMV_Panorama pano = p.p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
 						
 						if(pano != null)
 						{
@@ -586,7 +586,7 @@ public class GMV_Cluster
 //							else
 //							{
 ////								stitchedPanoramas.set(0, pano);
-//								stitchedPanoramas.set(0, p.p.utilities.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
+//								stitchedPanoramas.set(0, p.p.p.utilities.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
 //							}
 						}
 					}
@@ -623,12 +623,12 @@ public class GMV_Cluster
 				if(perimeterPoints[i] == -1)
 				{
 					perimeterPoints[i] = idx;
-					perimeterDistances[i] = p.p.utilities.getAngularDistance(imgAngle, ppAngle);
+					perimeterDistances[i] = p.p.p.utilities.getAngularDistance(imgAngle, ppAngle);
 				}
 				else										
 				{
 					/* Compare image angular distance from point to current closest */
-					float imgDist = p.p.utilities.getAngularDistance(imgAngle, ppAngle);		
+					float imgDist = p.p.p.utilities.getAngularDistance(imgAngle, ppAngle);		
 					
 					if(imgDist < perimeterDistances[i])
 					{
@@ -651,12 +651,12 @@ public class GMV_Cluster
 				if(perimeterPoints[i] == -1)
 				{
 					perimeterPoints[i] = idx;
-					perimeterDistances[i] = p.p.utilities.getAngularDistance(vidAngle, ppAngle);
+					perimeterDistances[i] = p.p.p.utilities.getAngularDistance(vidAngle, ppAngle);
 				}
 				else											
 				{
 					/* Compare image angular distance from point to current closest */
-					float vidDist = p.p.utilities.getAngularDistance(vidAngle, ppAngle);		
+					float vidDist = p.p.p.utilities.getAngularDistance(vidAngle, ppAngle);		
 					if(vidDist < perimeterDistances[i])
 					{
 						perimeterPoints[i] = v.getID() + videoIdxOffset;

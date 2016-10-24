@@ -193,7 +193,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			if( p.p.angleFading )
 			{
 				float videoAngle = getFacingAngle();
-				if(p.p.utilities.isNaN(videoAngle))
+				if(p.p.p.utilities.isNaN(videoAngle))
 				{
 					videoAngle = 0;				
 					visible = false;
@@ -318,7 +318,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			{
 				float videoAngle = getFacingAngle();				// Check if video is visible at current angle facing viewer
 
-				if(!p.p.utilities.isNaN(videoAngle))
+				if(!p.p.p.utilities.isNaN(videoAngle))
 					visible = (getAngleBrightness(videoAngle) > 0.f);
 
 				if(!fading && p.hideVideos)
@@ -443,7 +443,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 		location.add(disp);
 
-		if (p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x))
+		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
 			location = new PVector (0, 0, 0);
 	}
 

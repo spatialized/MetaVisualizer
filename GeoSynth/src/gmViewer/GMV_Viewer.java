@@ -3049,7 +3049,7 @@ public class GMV_Viewer
 				int minute = Integer.parseInt(minuteStr);
 				int second = Integer.parseInt(secondStr);
 				
-				hour = p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
+				hour = p.p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
 
 				if(p.p.debug.viewer)
 				{

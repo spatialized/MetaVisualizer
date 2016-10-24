@@ -399,7 +399,7 @@ public class GMV_Panorama extends GMV_Viewable
 			else
 				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
-			if (p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x))
+			if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
 			{
 				location = new PVector (0, 0, 0);
 			}

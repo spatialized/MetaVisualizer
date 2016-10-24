@@ -3,8 +3,7 @@
 * @author davidgordon
 * 
 * A program for displaying large multimedia collections as 3D immersive 
-* environments. Photos, panoramas and videos become virtual scenes that change
-* over time.
+* environments. 
 * 
 * Built using GeoMultimediaViewer, a Java library for creative visualization of
 * media using temporal, spatial and orientation metadata
@@ -38,6 +37,9 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	/* World */
 	GMV_World world;				// The 3D World
 
+	/* Utilities */
+	GMV_Utilities utilities;		// Utility methods
+
 	/* Debugging */
 	GMV_Debug debug;				// Handles debugging functions
 
@@ -57,6 +59,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	{
 		world = new GMV_World(this);
 		metadata = new GMV_Metadata(this);
+		utilities = new GMV_Utilities(world);
 		debug = new GMV_Debug(this);
 		world.initialize();
 	}

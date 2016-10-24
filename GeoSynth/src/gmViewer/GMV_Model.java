@@ -106,8 +106,8 @@ public class GMV_Model
 			
 			if(validMedia > 1)
 			{
-			fieldWidth = p.p.utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
-			fieldLength = p.p.utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
+			fieldWidth = p.p.p.utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
+			fieldLength = p.p.p.utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
 			fieldHeight = highAltitude - lowAltitude;					
 			}
 			else
@@ -360,7 +360,7 @@ public class GMV_Model
 
 			if ( parts.length == 1 )					// If '#' isn't in the name, must be a media file
 			{
-				if(!p.p.utilities.isInteger(parts[0], 10))
+				if(!p.p.p.utilities.isInteger(parts[0], 10))
 				{
 					if(p.p.p.debug.cluster)
 						PApplet.println("Media name error! "+name);
@@ -369,7 +369,7 @@ public class GMV_Model
 			}
 			else if( parts.length == 2 )				
 			{
-				if(!p.p.utilities.isInteger(parts[1], 10))
+				if(!p.p.p.utilities.isInteger(parts[1], 10))
 				{
 					if(p.p.p.debug.cluster)
 						PApplet.println("Cluster name error! "+name);
@@ -811,7 +811,7 @@ public class GMV_Model
 			for( int j = 0; i<size; i++)
 			{
 				double d = distances[i][j];
-				if(p.p.utilities.isNaN(d))
+				if(p.p.p.utilities.isNaN(d))
 				{
 					PApplet.println("Not a number:"+d);
 					error = true;

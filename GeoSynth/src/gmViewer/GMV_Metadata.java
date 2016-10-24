@@ -187,7 +187,7 @@ class GMV_Metadata
 		if(imageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
 		{
 			imageFolder = library + "/" + fieldPath + "/images/";					// Original size
-			boolean success = f.p.utilities.shrinkImages(imageFolder, smallImageFolder);		
+			boolean success = f.p.p.utilities.shrinkImages(imageFolder, smallImageFolder);		
 			if(success)
 			{
 				if(f.p.p.debug.metadata) 	PApplet.println("Shrink images successful...");
@@ -546,7 +546,7 @@ class GMV_Metadata
 					yCoord = parseAltitude(altitude);
 					zCoord = parseLatitude(latitude);
 
-					if (f.p.utilities.isNaN(xCoord) || f.p.utilities.isNaN(yCoord) || f.p.utilities.isNaN(zCoord)) 
+					if (f.p.p.utilities.isNaN(xCoord) || f.p.p.utilities.isNaN(yCoord) || f.p.p.utilities.isNaN(zCoord)) 
 					{
 						pLoc = new PVector(0, 0, 0);
 						if(!dataMissing)
@@ -712,7 +712,7 @@ class GMV_Metadata
 					yCoord = Float.valueOf(altitude);
 					zCoord = Float.valueOf(latitude);				// Flip sign of latitude?
 
-					if (f.p.utilities.isNaN(xCoord) || f.p.utilities.isNaN(yCoord) || f.p.utilities.isNaN(zCoord)) {
+					if (f.p.p.utilities.isNaN(xCoord) || f.p.p.utilities.isNaN(yCoord) || f.p.p.utilities.isNaN(zCoord)) {
 						pLoc = new PVector(0, 0, 0);
 						if(!dataMissing)
 						{
@@ -1126,7 +1126,7 @@ class GMV_Metadata
 //		Calendar c = Calendar.getInstance();
 //		c.set(year, month, day, hour, min, sec);
 //
-//		PVector result = p.p.utilities.calculateDateTime(c); // Returns float between 0. and 1. for sunrise/sunset adjusted time
+//		PVector result = p.p.p.utilities.calculateDateTime(c); // Returns float between 0. and 1. for sunrise/sunset adjusted time
 //		float time = result.y;
 //
 //		return time;

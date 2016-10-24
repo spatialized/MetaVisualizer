@@ -30,7 +30,6 @@ public class GMV_World {
 	GMV_Input input;				// Handles input
 	GMV_Display display;			// Handles heads up display
 	GMV_Viewer viewer;				// Handles viewer location
-	GMV_Utilities utilities;		// Utility methods
 	
 	/* Media */
 	private ArrayList<GMV_Field> fields;					// Large geographical area containing media for simulation
@@ -173,7 +172,6 @@ public class GMV_World {
 	void initialize() 
 	{
 		/* Create main classes */
-		utilities = new GMV_Utilities(this);
 		input = new GMV_Input(this);
 
 		viewer = new GMV_Viewer(this);	// Initialize navigation + viewer

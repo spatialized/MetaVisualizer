@@ -241,7 +241,7 @@ class GMV_Display
 		float mapLocX, mapLocY;
 		GMV_Model m = p.getCurrentField().model;
 
-		if(!p.utilities.isNaN(point.x) && !p.utilities.isNaN(point.y) && !p.utilities.isNaN(point.z))
+		if(!p.p.utilities.isNaN(point.x) && !p.p.utilities.isNaN(point.y) && !p.p.utilities.isNaN(point.z))
 		{
 			/* Find 2D map coordinates for this image */
 			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth * mapZoom );		
@@ -1492,7 +1492,7 @@ class GMV_Display
 			}
 			else
 			{
-				p.p.text(" Compass Direction:" + p.utilities.angleToCompass(p.viewer.getXOrientation())+" Angle: "+p.viewer.getXOrientation(), textXPos, textYPos += lineWidth, hudDistance);
+				p.p.text(" Compass Direction:" + p.p.utilities.angleToCompass(p.viewer.getXOrientation())+" Angle: "+p.viewer.getXOrientation(), textXPos, textYPos += lineWidth, hudDistance);
 				p.p.text(" Vertical Direction:" + PApplet.degrees(p.viewer.getYOrientation()), textXPos, textYPos += lineWidth, hudDistance);
 				p.p.text(" Zoom:"+p.viewer.camera.fov(), textXPos, textYPos += lineWidth, hudDistance);
 			}

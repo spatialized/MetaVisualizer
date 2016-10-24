@@ -87,7 +87,7 @@ public class GMV_World {
 	public int defaultMediaLength = 60;					// Default frame length of media in time cycle
 
 	public final int clusterTimePrecision = 500;		// Precision of timesHistogram (no. of bins)
-	public final int clusterDatePrecision = 500;		// Precision of datesHistogram (no. of bins)
+	public final int clusterDatePrecision = 100;		// Precision of datesHistogram (no. of bins)
 	public final int fieldTimePrecision = 5000;			// Precision of timesHistogram (no. of bins)
 	public final int fieldDatePrecision = 5000;			// Precision of timesHistogram (no. of bins)
 //	public final int clusterTimelineMinPoints = 3;		// Minimum points to be a cluster on timeline   -- Not used

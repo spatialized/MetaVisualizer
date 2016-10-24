@@ -137,7 +137,9 @@ class GMV_Image extends GMV_Viewable
 					if(p.p.showAllDateSegments)
 					{
 						if(p.p.getCluster(cluster).dateline.size() > 0)
+						{
 							dateBrightnessFactor = getDateBrightness();    
+						}
 						else
 						{
 							dateBrightnessFactor = 0.f;

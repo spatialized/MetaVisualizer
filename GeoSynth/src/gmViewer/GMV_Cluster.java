@@ -45,9 +45,9 @@ public class GMV_Cluster
 	int[] clusterDatesHistogram, fieldDatesHistogram;					// Histogram of media times in cluster	
 	ArrayList<GMV_TimeSegment> dateline;								// Date timeline for this cluster
 	
-	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
-	public int timeUnitLength;			// Length of time unit in frames  (e.g. 10 means every 10 frames)
-	public int baseTimeScale = 0; 					// (Not implemented yet) 0 = minutes, 1 = hours, 2 = days, 3 = months, 4 = years
+//	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
+//	public int timeUnitLength;			// Length of time unit in frames  (e.g. 10 means every 10 frames)
+//	public int baseTimeScale = 0; 					// (Not implemented yet) 0 = minutes, 1 = hours, 2 = days, 3 = months, 4 = years
 
 	/* Segmentation */
 	public ArrayList<GMV_MediaSegment> segments;		// List of arrays corresponding to each segment of images
@@ -79,7 +79,7 @@ public class GMV_Cluster
 	private float longestImageDayLength = -1000000, longestPanoramaDayLength = -1000000, longestVideoDayLength = -1000000;	
 
 	/* Interaction */
-	public float timeIncrement;				// User time increment
+//	public float timeIncrement;				// User time increment
 
 	/* Video */
 	boolean video = false;
@@ -129,8 +129,8 @@ public class GMV_Cluster
 		fieldDatesHistogram = new int[p.p.fieldTimePrecision];
 
 		timeline = new ArrayList<GMV_TimeSegment>();
-		timeUnitLength = p.p.timeUnitLength;				// Length of time unit in frames  (e.g. 10 means every 10 frames)
-		timeIncrement = p.p.timeInc;							// User time increment
+//		timeUnitLength = p.p.timeUnitLength;				// Length of time unit in frames  (e.g. 10 means every 10 frames)
+//		timeIncrement = p.p.timeInc;							// User time increment
 	}
 	
 	/**
@@ -785,10 +785,10 @@ public class GMV_Cluster
 	 * @param newBaseTimeScale New baseTimeScale
 	 * Set base time scale, i.e. unit to cycle through during simulation (0 = minute, 1 = hour, 2 = day, 3 = month, 4 = year)
 	 */
-	public void setBaseTimeScale(int newBaseTimeScale)
-	{
-		baseTimeScale = newBaseTimeScale;
-	}
+//	public void setBaseTimeScale(int newBaseTimeScale)
+//	{
+//		baseTimeScale = newBaseTimeScale;
+//	}
 
 	/**
 	 * Attract the camera
@@ -965,14 +965,16 @@ public class GMV_Cluster
 				{
 					i--;
 					if(i >= 0)
+					{
 						val = clusterTimesHistogram[i];
+					}
 					else
 					{
 						i=0;
 						break;
 					}
 				}
-				clusterTimesLowerBounds.append(PApplet.map(i, 0, p.p.clusterTimePrecision, 0.f, 1.f));
+				clusterTimesLowerBounds.append(PApplet.map(i+1, 0, p.p.clusterTimePrecision, 0.f, 1.f));
 				
 				i = t;
 				val = clusterTimesHistogram[i];
@@ -980,14 +982,16 @@ public class GMV_Cluster
 				{
 					i++;
 					if(i < clusterTimesHistogram.length)
+					{
 						val = clusterTimesHistogram[i];
+					}
 					else
 					{
 						i=clusterTimesHistogram.length - 1;
 						break;
 					}
 				}
-				clusterTimesUpperBounds.append(PApplet.map(i, 0, p.p.clusterTimePrecision, 0.f, 1.f));
+				clusterTimesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterTimePrecision, 0.f, 1.f));
 			}
 		}
 
@@ -1041,7 +1045,7 @@ public class GMV_Cluster
 						break;
 					}
 				}
-				fieldTimesLowerBounds.append(PApplet.map(i, 0, p.p.fieldTimePrecision, 0.f, 1.f));
+				fieldTimesLowerBounds.append(PApplet.map(i+1, 0, p.p.fieldTimePrecision, 0.f, 1.f));
 
 				i = t;
 				val = fieldTimesHistogram[i];
@@ -1056,7 +1060,7 @@ public class GMV_Cluster
 						break;
 					}
 				}
-				fieldTimesUpperBounds.append(PApplet.map(i, 0, p.p.clusterTimePrecision, 0.f, 1.f));
+				fieldTimesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterTimePrecision, 0.f, 1.f));
 			}
 		}
 	
@@ -1109,8 +1113,10 @@ public class GMV_Cluster
 		
 		for (int i = 0; i < mediaDates.size(); i++) 							// Fill cluster times histogram
 		{
-			int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, 
-									p.p.clusterDatePrecision - 1), 0.f, p.p.clusterDatePrecision - 1.f));
+			int idx = PApplet.round( PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, 
+									 p.p.clusterDatePrecision - 1), 0.f, p.p.clusterDatePrecision - 1.f) );
+			PApplet.println("mediaDates.get(i):"+mediaDates.get(i)+" idx: "+idx);
+
 			clusterDatesHistogram[idx]++;
 		}
 
@@ -1135,14 +1141,16 @@ public class GMV_Cluster
 				{
 					i--;
 					if(i >= 0)
+					{
 						val = clusterDatesHistogram[i];
+					}
 					else
 					{
 						i=0;
 						break;
 					}
 				}
-				clusterDatesLowerBounds.append(PApplet.map(i, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+				clusterDatesLowerBounds.append(PApplet.map(i+1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
 				
 				i = t;
 				val = clusterDatesHistogram[i];
@@ -1150,14 +1158,16 @@ public class GMV_Cluster
 				{
 					i++;
 					if(i < clusterDatesHistogram.length)
+					{
 						val = clusterDatesHistogram[i];
+					}
 					else
 					{
 						i=clusterDatesHistogram.length - 1;
 						break;
 					}
 				}
-				clusterDatesUpperBounds.append(PApplet.map(i, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+				clusterDatesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
 			}
 		}
 
@@ -1211,7 +1221,7 @@ public class GMV_Cluster
 						break;
 					}
 				}
-				fieldDatesLowerBounds.append(PApplet.map(i, 0, p.p.fieldDatePrecision, 0.f, 1.f));
+				fieldDatesLowerBounds.append(PApplet.map(i+1, 0, p.p.fieldDatePrecision, 0.f, 1.f));
 
 				i = t;
 				val = fieldDatesHistogram[i];
@@ -1226,7 +1236,7 @@ public class GMV_Cluster
 						break;
 					}
 				}
-				fieldDatesUpperBounds.append(PApplet.map(i, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+				fieldDatesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
 			}
 		}
 	

@@ -38,7 +38,6 @@ public class GMV_Field
 	public boolean hideVideos = false;						// Hide videos
 
 	/* Data */
-	GMV_Metadata metadata;									// Image and video metadata reader for this field
 	GMV_Model model;										// Dimensions and properties of current virtual space
 
 	public ArrayList<GMV_Image> images; 					// All images in this field
@@ -49,7 +48,7 @@ public class GMV_Field
 	private int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
 
 	/* Time */
-	public final int numBins = 100; 							// Time precision
+//	public final int numBins = 100; 							// Time precision
 	ArrayList<GMV_TimeSegment> timeline;								// Cluster timeline for this field
 	ArrayList<GMV_TimeSegment> dateline;								// Cluster timeline for this field
 
@@ -241,7 +240,6 @@ public class GMV_Field
 				GMV_TimeSegment date = new GMV_TimeSegment(	c.getID(), f, c.getClusterDatesLowerBounds().get(count), 
 														    c.getClusterDatesUpperBounds().get(count));
 				dates.add( date );							// Add segment to dateline
-			
 				count++;
 			}
 
@@ -251,11 +249,11 @@ public class GMV_Field
 
 		dateline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
 		
-		if(p.p.debug.time)
+//		if(p.p.debug.time)
 		{
-			PApplet.println("---> First lower:"+" dateline.get(0).lower():"+dateline.get(0).getLower());
-			PApplet.println("---> First center:"+" dateline.get(0).lower():"+dateline.get(0).getCenter());
-			PApplet.println("---> First upper:"+" dateline.get(0).lower():"+dateline.get(0).getUpper());
+			PApplet.println("---> First lower:"+" dateline.get(0).getLower():"+dateline.get(0).getLower());
+			PApplet.println("---> First center:"+" dateline.get(0).getCenter():"+dateline.get(0).getCenter());
+			PApplet.println("---> First upper:"+" dateline.get(0).getUpper():"+dateline.get(0).getUpper());
 			PApplet.println("---> Last lower:"+" dateline.get(dateline.size()-1).lower():"+dateline.get(dateline.size()-1).getLower());
 			PApplet.println("---> Last center:"+" dateline.get(dateline.size()-1).center():"+dateline.get(dateline.size()-1).getCenter());
 			PApplet.println("---> Last upper:"+" dateline.get(dateline.size()-1).upper():"+dateline.get(dateline.size()-1).getUpper());

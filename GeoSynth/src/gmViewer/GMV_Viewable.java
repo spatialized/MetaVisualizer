@@ -179,6 +179,10 @@ public abstract class GMV_Viewable
 			else
 				isFadingOut = true;
 		}
+		else
+		{
+			fading = false;
+		}
 	}
 	
 	/**

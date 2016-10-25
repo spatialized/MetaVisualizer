@@ -344,7 +344,7 @@ class GMV_Image extends GMV_Viewable
 			
 			if(!p.p.angleThinning)
 			{
-				if(visible && !fading && !fadedOut && !p.hideImages)			// Fade in
+				if(visible && !fading && !fadedOut && !p.hideImages && fadingBrightness == 0.f)			// Fade in
 					fadeIn();
 			}
 			else

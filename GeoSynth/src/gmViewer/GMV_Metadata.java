@@ -519,8 +519,6 @@ class GMV_Metadata
 							if(fBrightness == -1.f && !dataMissing)
 							{
 								brightnessMissing = true;
-								PApplet.println("-------> set brightnessMissing: " + brightnessMissing);
-								
 							}
 						}
 

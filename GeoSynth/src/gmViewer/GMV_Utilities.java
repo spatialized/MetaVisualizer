@@ -29,6 +29,20 @@ public class GMV_Utilities
 	}
 	
 	/**
+	 * Constrain float value between <min> and <max> by wrapping values around
+	 */
+	float constrainWrap(float value, float min, float max)
+	{
+		if(value < min)
+			value += max;
+
+		else if(value > max)
+			value -= max;
+
+		return value;
+	}
+	
+	/**
 	 * Get distance in radians between two angles
 	 * @param theta1 First angle
 	 * @param theta2 Second angle

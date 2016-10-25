@@ -24,10 +24,10 @@ public class GMV_Cluster
 //	private PImage stitchedPanorama;			// Stitched panorama		-- Make into arrayList
 	
 	/* Physics */
-	private boolean isAttractor;					// Is it currently set as the only attractor?
-	private float clusterGravity = 0.1333f;		// Cluster cravitational pull
-	private float clusterMass = 0.f;				// Cluster mass, tied to value of mediaPoints
-	private float farMassFactor = 8.f;		// How much more mass to give distant attractors to speed up navigation?
+	private boolean isAttractor;				// Whether cluster is attracting viewer
+	private float clusterGravity = 0.1333f;		// Cluster gravitational pull
+	private float clusterMass = 1.5f;			// Cluster mass		-- No longer tied to value of mediaPoints
+	private float farMassFactor = 8.f;			// How much more mass to give distant attractors to speed up navigation?
 	
 	/* Time */
 	private FloatList clusterDates, clusterTimes;
@@ -204,11 +204,18 @@ public class GMV_Cluster
 								{
 									float direction = img.getDirection();
 									float elevation = img.getElevation();
-
+									
+//									PApplet.println("direction before:"+direction);
+//									PApplet.println("elevation before:"+elevation);
+									direction = p.p.p.utilities.constrainWrap(direction, 0.f, 360.f);
+									elevation = p.p.p.utilities.constrainWrap(elevation, -90.f, 90.f);
+//									PApplet.println("direction after:"+direction);
+//									PApplet.println("elevation after:"+elevation);
+									
 									if(direction < left) left = direction;
 									if(direction > right) right = direction;
 									if(elevation < bottom) bottom = elevation;
-									if(elevation > top) right = elevation;
+									if(elevation > top) top = elevation;
 
 									if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
 										PApplet.println("Added image:"+img.getID()+" to segment...");
@@ -243,22 +250,38 @@ public class GMV_Cluster
 					PApplet.println("Removing image ID:"+allImages.get(added.get(i)));
 				allImages.remove(added.get(i));		// Remove images added to curSegment
 			}
-
-			if(left < 0.f)
-				left += 360.f;
-			
-			if(right > 360.f)
-				right -= 360.f;
-						
+	
 			if(curImages.size() == 1)			// Only one image
 			{
 				left = p.images.get(curImages.get(0)).getDirection();
 				right = p.images.get(curImages.get(0)).getDirection();
 				centerDirection = p.images.get(curImages.get(0)).getDirection();
-
+				
 				bottom = p.images.get(allImages.get(0)).getElevation();
 				top = p.images.get(allImages.get(0)).getElevation();
 				centerElevation = p.images.get(allImages.get(0)).getElevation();
+				
+				left = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
+				right = p.p.p.utilities.constrainWrap(right, 0.f, 360.f);
+				centerDirection = p.p.p.utilities.constrainWrap(centerDirection, 0.f, 360.f);
+				bottom = p.p.p.utilities.constrainWrap(bottom, -90.f, 90.f);
+				top = p.p.p.utilities.constrainWrap(top, -90.f, 90.f);
+				centerElevation = p.p.p.utilities.constrainWrap(centerElevation, -90.f, 90.f);
+				
+//				if(left < 0.f)
+//					left += 360.f;
+//				
+//				if(right > 360.f)
+//					right -= 360.f;
+//				
+//				if(right < 0.f)
+//					right += 360.f;
+//							
+//				if(top > 90.f)
+//					top -= 90.f;
+//				
+//				if(bottom < -90.f)
+//					bottom -= 360.f;
 			}
 			else
 			{
@@ -270,7 +293,7 @@ public class GMV_Cluster
 					      top, centerElevation) );
 
 			if((p.p.p.debug.cluster || p.p.p.debug.model))
-				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Lower:"+left+" Center:"+centerDirection+" Upper:"+right);
+				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
 			
 			done = (allImages.size() == 1 || allImages.size() == 0);
 		}
@@ -295,7 +318,7 @@ public class GMV_Cluster
 		{
 			images.append(newImage.getID());
 			mediaPoints++;
-			clusterMass = mediaPoints * p.p.mediaPointMass;	
+//			clusterMass = mediaPoints * p.p.mediaPointMass;	
 		}
 	}
 
@@ -311,7 +334,7 @@ public class GMV_Cluster
 		{
 			panoramas.append(newPanorama.getID());
 			mediaPoints++;
-			clusterMass = mediaPoints * 25.f * p.p.mediaPointMass;			
+//			clusterMass = mediaPoints * 25.f * p.p.mediaPointMass;			
 		}
 	}
 
@@ -325,7 +348,7 @@ public class GMV_Cluster
 		{
 			videos.append(newVideo.getID());
 			mediaPoints++;
-			clusterMass = mediaPoints * p.p.mediaPointMass;		
+//			clusterMass = mediaPoints * p.p.mediaPointMass;		
 		}
 	}
 
@@ -413,7 +436,7 @@ public class GMV_Cluster
 			newLocation.div(mediaPoints);
 			location = newLocation;
 
-			clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
+//			clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
 			active = true;
 			empty = false;
 		}
@@ -450,7 +473,7 @@ public class GMV_Cluster
 		}
 		
 		mediaPoints = 1;
-		clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
+//		clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
 
 		active = true;
 		empty = false;

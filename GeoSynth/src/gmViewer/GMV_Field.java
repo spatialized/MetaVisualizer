@@ -795,8 +795,6 @@ public class GMV_Field
 	
 	public void showPanoramas()
 	{
-		for(GMV_Panorama n : panoramas)
-			if(n.isFading()) n.stopFading();
 		hidePanoramas = false;
 	}
 	
@@ -809,6 +807,27 @@ public class GMV_Field
 			{
 				if(n.isFading()) n.stopFading();
 				n.fadeOut();
+			}
+		}
+		
+		for(GMV_Cluster c : clusters)
+		{
+			if(c.stitchedPanoramas.size() > 0)
+			{
+				for(GMV_Panorama n : c.stitchedPanoramas)
+				{
+					if(n.isFading()) n.stopFading();
+					n.fadeOut();
+				}
+			}
+			
+			if(c.userPanoramas.size() > 0)
+			{
+				for(GMV_Panorama n : c.userPanoramas)
+				{
+					if(n.isFading()) n.stopFading();
+					n.fadeOut();
+				}
 			}
 		}
 	}

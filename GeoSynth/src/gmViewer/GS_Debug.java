@@ -15,15 +15,15 @@ public class GS_Debug
 	
 	/* Classes */
 	public boolean main = true;					// Debug main GeoSynth class
-	public boolean viewer = true;				// Debug GMV_Viewer class
-	public boolean field = true;				// Debug GMV_Field class
+	public boolean viewer = false;				// Debug GMV_Viewer class
+	public boolean field = false;				// Debug GMV_Field class
 	public boolean time = false;
-	public boolean model = true;				// Debug GMV_Model class
+	public boolean model = false;				// Debug GMV_Model class
 	public boolean cluster = true;				// Debug GMV_Cluster class
 	public boolean display = false;				// Debug GMV_Display class
 	public boolean viewable = true;			// Debug GMV_Viewable class
 	public boolean image = false;				// Debug GMV_Image class
-	public boolean panorama = true;				// Debug GMV_Panorama class
+	public boolean panorama = false;				// Debug GMV_Panorama class
 	public boolean video = false;				// Debug GMV_Video class
 	public boolean metadata = false;			// Debug GMV_Metadata class
 	public boolean stitching = false;			// Debug GMV_Stitcher class

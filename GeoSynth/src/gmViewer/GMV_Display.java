@@ -1434,6 +1434,7 @@ class GMV_Display
 			p.p.text(" Total Videos: "+f.getVideoCount(), textXPos, textYPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
 			p.p.text(" Media Density per sq. m.: "+f.model.mediaDensity, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Images Visible: "+f.imagesVisible, textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Panoramas Visible: "+f.panoramasVisible, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Videos Visible: "+f.videosVisible, textXPos, textYPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
@@ -1442,6 +1443,9 @@ class GMV_Display
 			p.p.text(" Clustering Mode : "+ ( p.hierarchical ? "Hierarchical" : "K-Means" ), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Minimum Distance: "+p.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Maximum Distance: "+p.maxClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Population Factor: "+f.model.clusterPopulationFactor, textXPos, textYPos += lineWidth, hudDistance);
 			if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, textXPos, textYPos += lineWidth, hudDistance);
 
 			textXPos = centerTextXOffset;

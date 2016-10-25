@@ -55,7 +55,7 @@ public class GMV_World {
 	/* Clusters */
 	public boolean mergeClusters = true;				// Merge nearby clusters?
 	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
-	public float kMeansClusteringEpsilon = 0.025f;		// If no clusters move farther than this threshold, stop cluster refinement
+	public float kMeansClusteringEpsilon = 0.005f;		// If no clusters move farther than this threshold, stop cluster refinement
 	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 	
 	public final float clusterCenterSize = 1.f;			// Size of cluster center, where autoNavigation stops

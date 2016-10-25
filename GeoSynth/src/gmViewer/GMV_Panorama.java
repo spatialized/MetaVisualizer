@@ -33,7 +33,8 @@ public class GMV_Panorama extends GMV_Viewable
 	float cosTable[];
 	float tablePrecision = 0.5f;
 	int tableLength = (int)(360.0f / tablePrecision);
-
+	float radius;
+	
 	GMV_Panorama ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, 
 			PVector newLocation, PImage newTexture )
@@ -63,6 +64,9 @@ public class GMV_Panorama extends GMV_Viewable
 
 		theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
+		
+//		radius = p.p.defaultFocusDistance * 0.75f;
+		radius = p.p.defaultFocusDistance;
 	}  
 
 	/**
@@ -94,11 +98,19 @@ public class GMV_Panorama extends GMV_Viewable
 			if(!fading && p.hidePanoramas)
 				visible = false;
 
-			if(visible && !fading && !fadedOut && !p.hidePanoramas)					// Fade in
+			if(visible && !fading && !fadedOut && !p.hidePanoramas && fadingBrightness == 0.f)					// Fade in
+			{
+				PApplet.println("fadeIn()...pano id:"+getID());
 				fadeIn();
+			}
 
 			if(fadedOut) fadedOut = false;
+
+//			if(visible && !fading && !fadedOut && !p.hideImages)			// Fade in
+//				fadeIn();
 		}
+
+//		PApplet.println("update() in panorama..."+getID()+" fading:"+fading+" fadingBrightness:"+fadingBrightness);
 		
 		if(isFading())                       // Fade in and out with time
 		{
@@ -126,7 +138,10 @@ public class GMV_Panorama extends GMV_Viewable
 
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
-//		PApplet.println("distanceBrightnessFactor:"+distanceBrightnessFactor+" brightness:"+brightness);
+
+//		if(fadingBrightness>0.f && fadingBrightness<1.f)
+//			PApplet.println("fadingBrightness:"+fadingBrightness);
+		
 		if(p.p.timeFading && time != null)
 		{
 			float timeBrightnessFactor = getTimeBrightness();        
@@ -169,8 +184,8 @@ public class GMV_Panorama extends GMV_Viewable
 	public void fadeIn()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-//			if(!initFading)		
 				stopFading();
+//		PApplet.println("fadeBrightness(1.f)...pano id:"+getID()+" fadingBrightness now:"+fadingBrightness);
 
 		fadeBrightness(1.f);					// Fade in
 	}
@@ -181,9 +196,9 @@ public class GMV_Panorama extends GMV_Viewable
 	public void fadeOut()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-//			if(!initFading)			
 				stopFading();
 
+//		PApplet.println("fadeBrightness(0.f)...pano id:"+getID()+" fadingBrightness now:"+fadingBrightness);
 		fadeBrightness(0.f);					// Fade out
 	}
 
@@ -224,7 +239,7 @@ public class GMV_Panorama extends GMV_Viewable
 		p.p.p.pushMatrix();
 		p.p.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
 
-		float r = p.p.defaultFocusDistance;				// Testing this
+		float r = radius;				// Testing this
 //		float r = p.p.defaultFocusDistance;				// Testing this
 		int v0,v1,v2;
 
@@ -424,10 +439,10 @@ public class GMV_Panorama extends GMV_Viewable
 
 		float distVisibility = 1.f;
 
-		if(viewDist > p.p.defaultFocusDistance-p.p.clusterCenterSize*3.f)
+		if(viewDist > radius-p.p.clusterCenterSize*3.f)
 		{
 //			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
-			float vanishingPoint = p.p.defaultFocusDistance;	// Distance where transparency reaches zero
+			float vanishingPoint = radius;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
 				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-p.p.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else

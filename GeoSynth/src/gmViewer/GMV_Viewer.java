@@ -1096,7 +1096,7 @@ public class GMV_Viewer
 			{
 				if(p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter() != current)
 				{
-					PApplet.println("... found: getCenter():"+p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter()+" current:"+current);
+//					PApplet.println("... found: getCenter():"+p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter()+" current:"+current);
 					found = true;
 				}
 				else
@@ -1129,72 +1129,83 @@ public class GMV_Viewer
 
 	public int getFirstTimeForDate(int dateSegment)
 	{
-		boolean found = false;
-		int curTimeSegment = 0;
-		float date = p.getCurrentField().dateline.get(dateSegment).getCenter();
-		while(!found)
+		float earliest = 1000000.f;
+		int earliestIdx = -1;
+
+		for(GMV_Cluster c : p.getFieldClusters())
 		{
-			if(curTimeSegment >= p.getCurrentField().timeline.size()) 					// Reached end of day
+			GMV_TimeSegment t = c.getFirstTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
+			if(t != null)
 			{
-				PApplet.println("Couldn't find first time for date segment:"+dateSegment);
-				break;
-			}
-			else
-			{
-				int id = p.getCurrentField().timeline.get(curTimeSegment).getID();		// Find cluster for current time segment
-				for(GMV_TimeSegment t : p.getCluster(id).dateline)						// Look through dates for cluster
+				if(t.getCenter() < earliest)
 				{
-					if(!found)							// -- To do: Make sure it doesn't return time segment from wrong date!!!
-					{	
-						if(t.getCenter() == date)										// If cluster has date,
-						{
-							found = true;												// destination cluster has been found
-							PApplet.println("found cluster with date... "+id+" curTimeSegment:"+curTimeSegment+" date:"+date);
-						}
-						else
-						{
-							PApplet.println("didn't find next cluster... id:"+id+" t.getCenter():"+t.getCenter()+" date:"+date);
-						}
-					}
-				}
-				if(!found)
-				{
-					curTimeSegment++;
-					PApplet.println("Not found, new curTimeSegment:"+curTimeSegment+" p.getCluster(id).dateline.size:"+p.getCluster(id).dateline.size());
+					earliest = t.getCenter();
+					earliestIdx = c.getID();
 				}
 			}
 		}
 		
-//		for(GMV_TimeSegment t:p.getCurrentField().dateline)
-//		{
-//			
-//		}
+		if(earliestIdx != -1)
+		{
+			int count = 0;
+			for(GMV_TimeSegment t : p.getCurrentField().timeline)
+			{
+				if(t.getID() == earliestIdx)
+				{
+					if(t.getCenter() == earliest)
+					{
+						PApplet.println("Found first time for dateSegment:"+dateSegment+" count:"+count+" t.getID():"+t.getID()+" t.getCenter():"+t.getCenter());
+//						return t.getID();
+						return count;
+					}
+				}
+				count++;
+			}
+			
+			PApplet.println("Couldn't find first time for date in field:"+dateSegment);
+			return -1;
+		}
 		
-		return curTimeSegment;
+		PApplet.println("Couldn't find first time for date in cluster:"+dateSegment);
+		return -1;
 		
-//		float date = p.getCurrentField().dateline.get(dateSegment).getCenter();
-//		int count = 0;
 //		boolean found = false;
-//		int result = -1;
+//		int curTimeSegment = 0;
+//		float date = p.getCurrentField().dateline.get(dateSegment).getCenter();
 //		while(!found)
 //		{
-//			GMV_TimeSegment t = p.getCurrentField().timeline.get(count);
-//
-//			int ct = 0;
-//			for(GMV_TimeSegment d : p.getCluster(t.getID()).dateline)
+//			if(curTimeSegment >= p.getCurrentField().timeline.size()) 					// Reached end of day
 //			{
-//				if(d.getCenter() == date)
-//				{
-//					found = true;
-//					result = ct;
-//					break;
-//				}
-//				ct++;
+//				PApplet.println("Couldn't find first time for date segment:"+dateSegment);
+//				break;
 //			}
-//			count++;
+//			else
+//			{
+//				int id = p.getCurrentField().timeline.get(curTimeSegment).getID();		// Find cluster for current time segment
+//				for(GMV_TimeSegment t : p.getCluster(id).dateline)						// Look through dates for cluster
+//				{
+//					if(!found)							// -- To do: Make sure it doesn't return time segment from wrong date!!!
+//					{	
+//						if(t.getCenter() == date)										// If cluster has date,
+//						{
+//							found = true;												// destination cluster has been found
+//							PApplet.println("found cluster with date... "+id+" curTimeSegment:"+curTimeSegment+" date:"+date);
+//						}
+//						else
+//						{
+////							PApplet.println("didn't find next cluster... id:"+id+" t.getCenter():"+t.getCenter()+" date:"+date);
+//						}
+//					}
+//				}
+//				if(!found)
+//				{
+//					curTimeSegment++;
+//					PApplet.println("Not found, new curTimeSegment:"+curTimeSegment+" p.getCluster(id).dateline.size:"+p.getCluster(id).dateline.size());
+//				}
+//			}
 //		}
-//		
-//		return result;
+//	
+//		return curTimeSegment;	
 	}
 	
 	private int getLastTimeForDate(int dateSegment)
@@ -3002,7 +3013,7 @@ public class GMV_Viewer
 
 		int newSelected;
 		if(select && !multiSelection)
-			p.getCurrentField().deselectAllMedia();				// If selecting media, deselect all media unless in Multi Selection Mode
+			p.getCurrentField().deselectAllMedia(false);				// If selecting media, deselect all media unless in Multi Selection Mode
 	
 		if(closestImageDist < closestVideoDist && closestImageDist != 1000.f)
 		{
@@ -3023,7 +3034,7 @@ public class GMV_Viewer
 				}
 	
 				if(select && !multiSelection)
-					p.getCurrentField().deselectAllMedia();						// Deselect all media
+					p.getCurrentField().deselectAllMedia(false);						// Deselect all media
 
 				if(segmentID != -1)
 				{

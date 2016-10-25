@@ -85,16 +85,16 @@ public class GMV_World {
 
 	public int defaultMediaLength = 60;					// Default frame length of media in time cycle
 
-	public final int clusterTimePrecision = 500;		// Precision of timesHistogram (no. of bins)
-	public final int clusterDatePrecision = 100;		// Precision of datesHistogram (no. of bins)
-	public final int fieldTimePrecision = 5000;			// Precision of timesHistogram (no. of bins)
-	public final int fieldDatePrecision = 5000;			// Precision of timesHistogram (no. of bins)
+	public final int clusterTimePrecision = 10000;		// Precision of timesHistogram (no. of bins)
+	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
+	public final int fieldTimePrecision = 10000;			// Precision of timesHistogram (no. of bins)
+	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins)
 //	public final int clusterTimelineMinPoints = 3;		// Minimum points to be a cluster on timeline   -- Not used
 //	public final int clusterDatelineMinPoints = 3;		// Minimum points to be a cluster on dateline   -- Not used
 
 	/* Graphics */
 	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
-	public float alpha = 255.f;							// Transparency
+	public float alpha = 195.f;							// Transparency
 	private boolean beginFadingAlpha = false, fadingAlpha = false;
 	private int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
 	private float fadingAlphaStart, fadingAlphaTarget;
@@ -408,7 +408,7 @@ public class GMV_World {
 				blurMaskBothBottom = p.loadImage(maskPath + mask);
 			if(mask.equals("blurMaskBothBoth.jpg"))
 				blurMaskBothBoth = p.loadImage(maskPath + mask);
-			PApplet.println("maskPath + mask:"+(maskPath + mask));
+//			PApplet.println("maskPath + mask:"+(maskPath + mask));
 		}
 	}
 	

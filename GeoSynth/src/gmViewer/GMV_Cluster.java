@@ -41,6 +41,7 @@ public class GMV_Cluster
 	ArrayList<GMV_TimeSegment> timeline;								// Timeline for this cluster
 	int[] clusterDatesHistogram, fieldDatesHistogram;					// Histogram of media times in cluster	
 	ArrayList<GMV_TimeSegment> dateline;								// Date timeline for this cluster
+	ArrayList<ArrayList<GMV_TimeSegment>> timelines;
 	
 //	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
 
@@ -543,6 +544,10 @@ public class GMV_Cluster
 				pano.initializeSphere(pano.panoramaDetail);
 				
 				userPanoramas.add(pano);
+
+				p.p.viewer.selection = false;
+//				p.deselectAllMedia(true);		// Deselect and hide all currently selected media 
+				
 //				if(userPanoramas.size() == 0)
 //				{
 //					userPanoramas.add(pano);
@@ -552,7 +557,6 @@ public class GMV_Cluster
 ////					userPanoramas.set(0, pano);
 //					userPanoramas.set(0, p.p.p.utilities.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
 //				}
-
 			}
 		}
 		else
@@ -598,8 +602,11 @@ public class GMV_Cluster
 							pano.initializeSphere(pano.panoramaDetail);
 							stitchedPanoramas.add(pano);
 
-							m.hide();
-							
+//							m.hide();
+
+							p.p.viewer.selection = false;
+							p.deselectAllMedia(false);
+
 //							if(stitchedPanoramas.size() == 0)
 //							{
 //								stitchedPanoramas.add(pano);
@@ -937,12 +944,449 @@ public class GMV_Cluster
 	{
 		calculateDimensions();		// Calculate cluster dimensions (bounds)
 		calculateTimes();			// Calculate cluster times
-		createTimeline();			// Create times histograms and analyze for time segments
 		createDateline();			// Create dates histograms and analyze for date segments
+		if(dateline.size()>1)
+			createTimelinesByDate();
+		createTimeline();			// Create times histograms and analyze for time segments
 	}
 	
 	/**
-	 * Find time points for this cluster
+	 * Create dateline for cluster
+	 */
+	void createDateline()
+	{
+		FloatList mediaDates = new FloatList();							// List of times to analyze
+		IntList dateSegments;														// Temporary time point list for finding duplicates
+
+		/* Get times of all media of all types in this cluster */
+		for(int i : images) mediaDates.append( p.images.get(i).time.getDate() );
+		for(int n : panoramas) mediaDates.append( p.panoramas.get(n).time.getDate() );
+		for(int v : videos) mediaDates.append( p.videos.get(v).time.getDate() );
+
+		/* Create cluster-specific times histogram */
+		for (int i = 0; i < p.p.clusterDatePrecision; i++) // Initialize histogram
+			clusterDatesHistogram[i] = 0;
+		
+		for (int i = 0; i < mediaDates.size(); i++) 							// Fill cluster times histogram
+		{
+			int idx = PApplet.round( PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, 
+									 p.p.clusterDatePrecision), 0.f, p.p.clusterDatePrecision) );
+
+//			PApplet.println("------------> cluster:"+getID()+" idx:"+idx+" mediaDates.get(i):"+mediaDates.get(i));
+			clusterDatesHistogram[idx]++;
+		}
+
+		if(p.p.p.debug.time)
+			PApplet.println("Getting cluster date segments for cluster#"+getID());
+		dateSegments = getTimeSegments(clusterDatesHistogram, p.p.clusterDatePrecision);	// Get relative (cluster) time segments
+//		if(dateSegments == null) PApplet.println("dateSegments == null!!!!!!!!");
+
+		clusterDates = new FloatList();
+		clusterDatesLowerBounds = new FloatList();
+		clusterDatesUpperBounds = new FloatList();
+		dateline = new ArrayList<GMV_TimeSegment>();
+		
+		for(int t:dateSegments)
+		{
+			if(!clusterDates.hasValue(t))
+			{
+				/* Add cluster date */
+//				PApplet.println("------------> clusterDates  t:"+t+" PApplet.map(t, 0, p.p.clusterDatePrecision, 0.f, 1.f):"+(PApplet.map(t, 0, p.p.clusterDatePrecision, 0.f, 1.f)));
+				clusterDates.append(PApplet.map(t, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+
+				/* Find upper and lower bounds for cluster dates */
+				int i = t;
+				int val = clusterDatesHistogram[i];
+				while(val != 0) 				
+				{
+					i--;
+					if(i >= 0)
+					{
+						val = clusterDatesHistogram[i];
+					}
+					else
+					{
+						i=0;
+						break;
+					}
+				}
+				clusterDatesLowerBounds.append(PApplet.map(i+1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+				
+				i = t;
+				val = clusterDatesHistogram[i];
+				while(val != 0) 				
+				{
+					i++;
+					if(i < clusterDatesHistogram.length)
+					{
+						val = clusterDatesHistogram[i];
+					}
+					else
+					{
+						i=clusterDatesHistogram.length - 1;
+						break;
+					}
+				}
+				clusterDatesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+			}
+		}
+
+		int count = 0;
+		for( float t:clusterDates )							// Add dates to dateline
+		{
+			dateline.add(new GMV_TimeSegment(count, t, clusterDatesUpperBounds.get(count), clusterDatesLowerBounds.get(count)));
+			count++;
+		}
+
+		mediaDates = new FloatList();
+
+		/* Get dates of all media of all types in field */
+		for(GMV_Image i : p.images) mediaDates.append( i.time.getDate() );
+		for(GMV_Panorama n : p.panoramas) mediaDates.append( n.time.getDate() );
+		for(GMV_Video v : p.videos) mediaDates.append( v.time.getDate() );
+
+		for (int i = 0; i < p.p.fieldDatePrecision; i++) 		// Initialize histogram
+			fieldDatesHistogram[i] = 0;
+
+		for (int i = 0; i < mediaDates.size(); i++) 			// Fill field dates histogram
+		{
+			int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, p.p.fieldDatePrecision - 1), 0.f, p.p.fieldDatePrecision - 1.f));
+//			PApplet.println("------> mediaDates.get(i):"+mediaDates.get(i)+"   idx:"+idx+" p.p.fieldDatePrecision:"+p.p.fieldDatePrecision);
+			fieldDatesHistogram[idx]++;
+		}
+		
+		dateSegments = new IntList();
+		
+		if(p.p.p.debug.time)
+			PApplet.println("Getting field date segments for cluster#"+getID());
+
+		dateSegments = getTimeSegments(fieldDatesHistogram, p.p.fieldDatePrecision);		// Get absolute (field) date segments
+		
+		fieldDates = new FloatList();
+		fieldDatesLowerBounds = new FloatList();
+		fieldDatesUpperBounds = new FloatList();
+		
+//		PApplet.println("field dateSegments...");
+//		for(int t:dateSegments)
+//			PApplet.println("d:"+t);
+		for(int t:dateSegments)
+		{
+			if(!fieldDates.hasValue(t))
+			{
+				fieldDates.append(PApplet.map(t, 0, p.p.fieldDatePrecision, 0.f, 1.f));
+
+				/* Find upper and lower bounds for field dates */
+				int i = t;
+				int val = fieldDatesHistogram[i];
+				while(val != 0) 				
+				{
+					i--;
+					if(i >= 0)
+						val = fieldDatesHistogram[i];
+					else
+					{
+						i=0;
+						break;
+					}
+				}
+				fieldDatesLowerBounds.append(PApplet.map(i+1, 0, p.p.fieldDatePrecision, 0.f, 1.f));
+
+				i = t;
+				val = fieldDatesHistogram[i];
+				while(val != 0) 				
+				{
+					i++;
+					if(i < fieldDatesHistogram.length)
+						val = fieldDatesHistogram[i];
+					else
+					{
+						i=fieldDatesHistogram.length - 1;
+						break;
+					}
+				}
+				fieldDatesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+			}
+		}
+	
+		clusterDates.sort();
+		fieldDates.sort();
+		dateline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort dateline points 
+		
+		/* Debugging */
+		if(p.p.p.debug.time && clusterDates.size()>1)
+		{
+			PApplet.println("--> Cluster "+id+" with "+clusterDates.size()+" different cluster dates...");
+
+			int ct = 0;
+			for(float f:clusterDates)
+			{
+				PApplet.println("Cluster "+id+", cluster date #"+(ct++)+": "+f);
+			}
+		}
+		if(p.p.p.debug.time && fieldDates.size()>1)
+		{
+			PApplet.println("--> Cluster "+id+" with "+fieldDates.size()+"different field dates...");
+
+			int ct = 0;
+			for(float f:fieldDates)
+			{
+				PApplet.println("Cluster "+id+", cluster field date #"+(ct++)+": "+f);
+			}
+		}
+		
+		if(dateline.size() == 0)
+		{
+			PApplet.println("Cluster dateline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
+			empty();
+		}
+	}
+	
+	void createTimelinesByDate()
+	{
+		timelines = new ArrayList<ArrayList<GMV_TimeSegment>>();
+		int curTimeline = 0;
+		for(GMV_TimeSegment d : dateline)
+		{
+			float date = d.getCenter();
+			if(p.p.p.debug.time)
+				PApplet.println("Cluster #"+getID()+"... creating timeline for date:"+date);
+			FloatList mediaTimes = new FloatList();							// List of times to analyze
+			IntList timeSegments;											// Temporary time point list for finding duplicates
+
+			/* Get times of all media of all types in this cluster */
+			for(int i : images)
+			{
+				GMV_Image img = p.images.get(i);
+//				PApplet.println("img.getDate():"+img.getDate()+" date:"+date);
+//				PApplet.println("p.p.p.utilities.round(img.getDate(), 3):"+p.p.p.utilities.round(img.getDate(), 3)+" date:"+date);
+				if(p.p.p.utilities.round(img.getDate(), 3) == date)
+				{
+//					PApplet.println("Adding to mediaTimes.size():"+mediaTimes.size());
+					mediaTimes.append( p.images.get(i).time.getTime() );
+				}
+				else
+				{
+//					PApplet.println(".. not adding to mediaTimes.size() p.p.p.utilities.round(img.getDate(), 3):"+p.p.p.utilities.round(img.getDate(), 3)+" date:"+date+" mediaTimes.size()"+mediaTimes.size());
+
+				}
+			}
+			for(int n : panoramas) 
+			{
+				GMV_Panorama pano = p.panoramas.get(n);
+				if(p.p.p.utilities.round(pano.getDate(), 3) == date)
+					mediaTimes.append( p.panoramas.get(n).time.getTime() );
+			}
+			for(int v : videos)
+			{
+				GMV_Video vid = p.videos.get(v);
+				if(p.p.p.utilities.round(vid.getDate(), 3) == date)
+					mediaTimes.append( p.videos.get(v).time.getTime() );
+			}
+
+//			PApplet.println("mediaTimes.size():"+mediaTimes.size());
+			
+			/* Create cluster-specific times histogram */
+			for (int i = 0; i < p.p.clusterTimePrecision; i++) // Initialize histogram
+				clusterTimesHistogram[i] = 0;
+
+			for (int i = 0; i < mediaTimes.size(); i++) 							// Fill cluster times histogram
+			{
+				int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaTimes.get(i), 0.f, 1.f, 0.f, 
+						p.p.clusterTimePrecision - 1), 0.f, p.p.clusterTimePrecision - 1.f));
+//				PApplet.println("____mediaTimes.get(i):"+mediaTimes.get(i)+" ---> idx:"+idx);
+				clusterTimesHistogram[idx]++;
+			}
+
+			if(clusterTimesHistogram.length > 0)
+			{
+//				PApplet.println("clusterTimesHistogram.length:"+clusterTimesHistogram.length);
+				if(p.p.p.debug.time)
+					PApplet.println("Getting cluster time segments for cluster#"+getID());
+				timeSegments = getTimeSegments(clusterTimesHistogram, p.p.clusterTimePrecision);	// Get relative (cluster) time segments
+
+				clusterTimes = new FloatList();
+				clusterTimesLowerBounds = new FloatList();
+				clusterTimesUpperBounds = new FloatList();
+				timelines.add( new ArrayList<GMV_TimeSegment>() );
+
+				for(int t:timeSegments)
+				{
+					if(!clusterTimes.hasValue(t))
+					{
+						/* Add cluster time */
+						clusterTimes.append(PApplet.map(t, 0, p.p.clusterTimePrecision, 0.f, 1.f));
+
+						/* Find upper and lower bounds for cluster times */
+						int i = t;
+						int val = clusterTimesHistogram[i];
+						while(val != 0) 				
+						{
+							i--;
+							if(i >= 0)
+							{
+								val = clusterTimesHistogram[i];
+							}
+							else
+							{
+								i=0;
+								break;
+							}
+						}
+						clusterTimesLowerBounds.append(PApplet.map(i+1, 0, p.p.clusterTimePrecision, 0.f, 1.f));
+
+						i = t;
+						val = clusterTimesHistogram[i];
+						while(val != 0) 				
+						{
+							i++;
+							if(i < clusterTimesHistogram.length)
+							{
+								val = clusterTimesHistogram[i];
+							}
+							else
+							{
+								i=clusterTimesHistogram.length - 1;
+								break;
+							}
+						}
+						clusterTimesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterTimePrecision, 0.f, 1.f));
+					}
+				}
+			}
+			
+			int count = 0;
+			for( float t:clusterTimes )							// Add times to timeline
+			{
+				timelines.get(curTimeline).add(new GMV_TimeSegment(count, t, clusterTimesUpperBounds.get(count), clusterTimesLowerBounds.get(count)));
+				count++;
+			}
+			if(p.p.p.debug.time)
+				PApplet.println("  Created timeline #"+curTimeline+"... for date:"+date+" size:"+timelines.get(curTimeline).size());
+
+			mediaTimes = new FloatList();
+
+			/* Get times of all media of all types in cluster */
+			/* Get times of all media of all types in this cluster */
+			for(GMV_Image img : p.images)
+			{
+//				PApplet.println("img.getDate():"+img.getDate()+" date:"+date);
+//				PApplet.println("p.p.p.utilities.round(img.getDate(), 2):"+p.p.p.utilities.round(img.getDate(), 2)+" date:"+date);
+				if(p.p.p.utilities.round(img.getDate(), 2) == date)
+					mediaTimes.append( img.time.getTime() );
+			}
+			for(GMV_Panorama pano : p.panoramas) 
+			{
+				if(p.p.p.utilities.round(pano.getDate(), 2) == date)
+					mediaTimes.append( pano.time.getTime() );
+			}
+			for(GMV_Video vid : p.videos)
+			{
+				if(p.p.p.utilities.round(vid.getDate(), 2) == date)
+					mediaTimes.append( vid.time.getTime() );
+			}
+
+			for (int i = 0; i < p.p.fieldTimePrecision; i++) 		// Initialize histogram
+				fieldTimesHistogram[i] = 0;
+
+			if(fieldTimesHistogram.length > 0)
+			{
+			for (int i = 0; i < mediaTimes.size(); i++) 			// Fill field times histogram
+			{
+				int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaTimes.get(i), 0.f, 1.f, 0.f, p.p.fieldTimePrecision - 1), 0.f, p.p.fieldTimePrecision - 1.f));
+				fieldTimesHistogram[idx]++;
+			}
+
+			timeSegments = new IntList();														
+			if(p.p.p.debug.time)
+				PApplet.println("Getting field time segments for cluster#"+getID());
+			timeSegments = getTimeSegments(fieldTimesHistogram, p.p.fieldTimePrecision);		// Get absolute (field) time segments
+
+			fieldTimes = new FloatList();
+			fieldTimesLowerBounds = new FloatList();
+			fieldTimesUpperBounds = new FloatList();
+
+//			PApplet.println("curTimeline:"+curTimeline+" field timeSegments...");
+//			for(int t:timeSegments)
+//				PApplet.println("t:"+t);
+//
+//			for(int t:timeSegments)
+//			{
+//				if(!fieldTimes.hasValue(t))
+//				{
+//					fieldTimes.append(PApplet.map(t, 0, p.p.fieldTimePrecision, 0.f, 1.f));
+//
+//					/* Find upper and lower bounds for field times */
+//					int i = t;
+//					int val = fieldTimesHistogram[i];
+//					while(val != 0) 				
+//					{
+//						i--;
+//						if(i >= 0)
+//							val = fieldTimesHistogram[i];
+//						else
+//						{
+//							i=0;
+//							break;
+//						}
+//					}
+//					fieldTimesLowerBounds.append(PApplet.map(i+1, 0, p.p.fieldTimePrecision, 0.f, 1.f));
+//
+//					i = t;
+//					val = fieldTimesHistogram[i];
+//					while(val != 0) 				
+//					{
+//						i++;
+//						if(i < fieldTimesHistogram.length)
+//							val = fieldTimesHistogram[i];
+//						else
+//						{
+//							i=fieldTimesHistogram.length - 1;
+//							break;
+//						}
+//					}
+//					fieldTimesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterTimePrecision, 0.f, 1.f));
+//				}
+//			}
+//
+//			clusterTimes.sort();
+//			fieldTimes.sort();
+			}
+			timelines.get(curTimeline).sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
+
+			/* Debugging */
+			if(p.p.p.debug.cluster && clusterTimes.size()>1)
+			{
+				PApplet.println("--> Cluster "+id+" with "+clusterTimes.size()+" different cluster times...");
+
+				int ct = 0;
+				for(float f:clusterTimes)
+				{
+					PApplet.println("Cluster "+id+", cluster time #"+(ct++)+": "+f);
+				}
+			}
+			if(p.p.p.debug.cluster && fieldTimes.size()>1)
+			{
+				PApplet.println("--> Cluster "+id+" with "+fieldTimes.size()+"different field times...");
+
+				int ct = 0;
+				for(float f:fieldTimes)
+				{
+					PApplet.println("Cluster "+id+", cluster field time #"+(ct++)+": "+f);
+				}
+			}
+
+			if(timelines.get(curTimeline).size() == 0)
+			{
+				PApplet.println("Cluster timeline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
+				empty();
+			}
+			
+			curTimeline++;
+		}
+	}
+	
+	/**
+	 * Create date-independent timeline for cluster
 	 */
 	void createTimeline()
 	{
@@ -1123,184 +1567,48 @@ public class GMV_Cluster
 		}
 	}
 	
-	void createDateline()
+	public GMV_TimeSegment getFirstTimeSegmentForDate(float date)
 	{
-		FloatList mediaDates = new FloatList();							// List of times to analyze
-		IntList dateSegments;														// Temporary time point list for finding duplicates
-
-		/* Get times of all media of all types in this cluster */
-		for(int i : images) mediaDates.append( p.images.get(i).time.getDate() );
-		for(int n : panoramas) mediaDates.append( p.panoramas.get(n).time.getDate() );
-		for(int v : videos) mediaDates.append( p.videos.get(v).time.getDate() );
-
-		/* Create cluster-specific times histogram */
-		for (int i = 0; i < p.p.clusterDatePrecision; i++) // Initialize histogram
-			clusterDatesHistogram[i] = 0;
+		boolean found = false;
+		int timelineID = 0;
+//		float date = p.getCurrentField().dateline.get(dateSegment).getCenter();
 		
-		for (int i = 0; i < mediaDates.size(); i++) 							// Fill cluster times histogram
+		if(dateline != null)
 		{
-			int idx = PApplet.round( PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, 
-									 p.p.clusterDatePrecision - 1), 0.f, p.p.clusterDatePrecision - 1.f) );
-
-			clusterDatesHistogram[idx]++;
-		}
-
-		dateSegments = getTimeSegments(clusterDatesHistogram, p.p.clusterDatePrecision);	// Get relative (cluster) time segments
-
-		clusterDates = new FloatList();
-		clusterDatesLowerBounds = new FloatList();
-		clusterDatesUpperBounds = new FloatList();
-		dateline = new ArrayList<GMV_TimeSegment>();
-		
-		for(int t:dateSegments)
-		{
-			if(!clusterDates.hasValue(t))
+			for(GMV_TimeSegment t : dateline)		// Look through cluster dates for date
 			{
-				/* Add cluster date */
-				clusterDates.append(PApplet.map(t, 0, p.p.clusterDatePrecision, 0.f, 1.f));
-				
-				/* Find upper and lower bounds for cluster dates */
-				int i = t;
-				int val = clusterDatesHistogram[i];
-				while(val != 0) 				
-				{
-					i--;
-					if(i >= 0)
+				if(!found)						
+				{	
+					if(t.getCenter() == date)										// If cluster has date,
 					{
-						val = clusterDatesHistogram[i];
+						found = true;												// destination cluster has been found
+						//					PApplet.println("found cluster with date... "+id+" curTimeSegment:"+curTimeSegment+" date:"+date);
 					}
 					else
-					{
-						i=0;
-						break;
-					}
+						timelineID++;
 				}
-				clusterDatesLowerBounds.append(PApplet.map(i+1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
-				
-				i = t;
-				val = clusterDatesHistogram[i];
-				while(val != 0) 				
-				{
-					i++;
-					if(i < clusterDatesHistogram.length)
-					{
-						val = clusterDatesHistogram[i];
-					}
-					else
-					{
-						i=clusterDatesHistogram.length - 1;
-						break;
-					}
-				}
-				clusterDatesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
 			}
-		}
 
-		int count = 0;
-		for( float t:clusterDates )							// Add dates to dateline
-		{
-			dateline.add(new GMV_TimeSegment(count, t, clusterDatesUpperBounds.get(count), clusterDatesLowerBounds.get(count)));
-			count++;
-		}
-
-		mediaDates = new FloatList();
-
-		/* Get dates of all media of all types in field */
-		for(GMV_Image i : p.images) mediaDates.append( i.time.getDate() );
-		for(GMV_Panorama n : p.panoramas) mediaDates.append( n.time.getDate() );
-		for(GMV_Video v : p.videos) mediaDates.append( v.time.getDate() );
-
-		for (int i = 0; i < p.p.fieldDatePrecision; i++) 		// Initialize histogram
-			fieldDatesHistogram[i] = 0;
-
-		for (int i = 0; i < mediaDates.size(); i++) 			// Fill field dates histogram
-		{
-			int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, p.p.fieldDatePrecision - 1), 0.f, p.p.fieldDatePrecision - 1.f));
-			fieldDatesHistogram[idx]++;
-		}
-		
-		dateSegments = new IntList();														
-		dateSegments = getTimeSegments(fieldDatesHistogram, p.p.fieldDatePrecision);		// Get absolute (field) date segments
-		
-		fieldDates = new FloatList();
-		fieldDatesLowerBounds = new FloatList();
-		fieldDatesUpperBounds = new FloatList();
-		
-//		PApplet.println("field dateSegments...");
-//		for(int t:dateSegments)
-//			PApplet.println("d:"+t);
-		for(int t:dateSegments)
-		{
-			if(!fieldDates.hasValue(t))
+			if(found)
 			{
-				fieldDates.append(PApplet.map(t, 0, p.p.fieldDatePrecision, 0.f, 1.f));
-
-				/* Find upper and lower bounds for field dates */
-				int i = t;
-				int val = fieldDatesHistogram[i];
-				while(val != 0) 				
-				{
-					i--;
-					if(i >= 0)
-						val = fieldDatesHistogram[i];
-					else
-					{
-						i=0;
-						break;
-					}
-				}
-				fieldDatesLowerBounds.append(PApplet.map(i+1, 0, p.p.fieldDatePrecision, 0.f, 1.f));
-
-				i = t;
-				val = fieldDatesHistogram[i];
-				while(val != 0) 				
-				{
-					i++;
-					if(i < fieldDatesHistogram.length)
-						val = fieldDatesHistogram[i];
-					else
-					{
-						i=fieldDatesHistogram.length - 1;
-						break;
-					}
-				}
-				fieldDatesUpperBounds.append(PApplet.map(i-1, 0, p.p.clusterDatePrecision, 0.f, 1.f));
+				if(dateline.size()>1)
+					return timelines.get(timelineID).get(0);
+				else
+					return timeline.get(0);
 			}
-		}
-	
-		clusterDates.sort();
-		fieldDates.sort();
-		dateline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort dateline points 
-		
-		/* Debugging */
-		if(p.p.p.debug.cluster && clusterDates.size()>1)
-		{
-			PApplet.println("--> Cluster "+id+" with "+clusterDates.size()+" different cluster dates...");
-
-			int ct = 0;
-			for(float f:clusterDates)
+			else
 			{
-				PApplet.println("Cluster "+id+", cluster date #"+(ct++)+": "+f);
+//				PApplet.println("Date doesn't exist in cluster #"+getID()+"... "+date);
+				return null;
 			}
 		}
-		if(p.p.p.debug.cluster && fieldDates.size()>1)
+		else 
 		{
-			PApplet.println("--> Cluster "+id+" with "+fieldDates.size()+"different field dates...");
-
-			int ct = 0;
-			for(float f:fieldDates)
-			{
-				PApplet.println("Cluster "+id+", cluster field date #"+(ct++)+": "+f);
-			}
-		}
-		
-		if(dateline.size() == 0)
-		{
-			PApplet.println("Cluster dateline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
-			empty();
+//			PApplet.println("Cluster #"+getID()+" has no dateline... ");
+			return null;
 		}
 	}
-	
+
 	/**
 	 * Calculate low and high values for time and date for each media point
 	 */
@@ -1483,92 +1791,106 @@ public class GMV_Cluster
 	{
 		/* Initialize list of media times */
 		ArrayList<GMV_TimeSegment> mediaTimes = new ArrayList<GMV_TimeSegment>();
-		
+//		PApplet.println("histogram.length:"+histogram.length);
 		for (int i=0; i<timePrecision; i++) 				
-			for(int j=0; j<histogram[i]; j++)							// Add time to list for each media point
-				mediaTimes.add(new GMV_TimeSegment(0, i, 0, 0));		// Don't need ID, upper or lower values
-		
-		/* Initialize clusters */
-		int numTimeSegments = 8;								// Max (default) 8 time clusters
-		IntList timeSegments = new IntList();
-		
-		for (int i = 0; i < numTimeSegments; i++) 				// Iterate through the clusters
 		{
-			int idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.p.random(mediaTimes.size()-1))).getCenter());		// Random index
-			int ct = 0;
-			boolean created = true;
-			
-			while(timeSegments.hasValue(idx))					// Try repeatedly to find a random time not already in list
+			for(int j=0; j<histogram[i]; j++)							// Add time to list for each media point
 			{
-				idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.p.random(mediaTimes.size()-1))).getCenter());
-				ct++;
-				if(ct > mediaTimes.size())		// If failed after many tries
-				{
-					created = false;		// Give up
-					break;
-				}
+//				if(timePrecision == 100)
+//					PApplet.println("---> i:"+i);
+				mediaTimes.add(new GMV_TimeSegment(0, i, 0, 0));		// Don't need ID, upper or lower values
 			}
-			
-			if(created)						// If a new time was cound, add to timeClusters
-				timeSegments.append(idx);
 		}
 		
-		numTimeSegments = timeSegments.size();
-
-		/* Refine clusters */
-		if(numTimeSegments > 1)						 
+		if(mediaTimes.size() > 0)
 		{
-			int iterations = 60;
-			int count = 0;
+			/* Initialize clusters */
+			int numTimeSegments = 8;								// Max (default) 8 time clusters
+			IntList timeSegments = new IntList();
 
-			while (count < iterations)
+			for (int i = 0; i < numTimeSegments; i++) 				// Iterate through the clusters
 			{
-				for(GMV_TimeSegment m : mediaTimes)					// Find nearest cluster for each data point
+				int idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.p.random(mediaTimes.size()-1))).getCenter());		// Random index
+				int ct = 0;
+				boolean created = true;
+
+				while(timeSegments.hasValue(idx))					// Try repeatedly to find a random time not already in list
 				{
-					int closestIndex = 0;
-					int closest = 1000000;
-
-					for (int idx : timeSegments) 						
+					idx = PApplet.round(mediaTimes.get(PApplet.round(p.p.p.random(mediaTimes.size()-1))).getCenter());
+					ct++;
+					if(ct > mediaTimes.size())		// If failed after many tries
 					{
-						int distance = PApplet.abs(idx - (int)m.getCenter());		// Calculate distance
+						created = false;		// Give up
+						break;
+					}
+				}
 
-						if (distance < closest)
+				if(created)						// If a new time was found, add to timeClusters
+					timeSegments.append(idx);
+			}
+
+			numTimeSegments = timeSegments.size();
+
+			/* Refine clusters */
+			if(numTimeSegments > 1)						 
+			{
+				int iterations = 60;
+				int count = 0;
+
+				while (count < iterations)
+				{
+					for(GMV_TimeSegment m : mediaTimes)					// Find nearest cluster for each data point
+					{
+						int closestIndex = 0;
+						int closest = 1000000;
+
+						for (int idx : timeSegments) 						
 						{
-							closestIndex = idx;
-							closest = distance;
+							int distance = PApplet.abs(idx - (int)m.getCenter());		// Calculate distance
+
+							if (distance < closest)
+							{
+								closestIndex = idx;
+								closest = distance;
+							}
+						}
+
+						m.setID(closestIndex);			
+					}
+
+					IntList newClusters = new IntList();
+					for(int i:timeSegments)							// For each cluster, add and divide by number of data points
+					{
+						FloatList dataPoints = new FloatList();
+
+						for(GMV_TimeSegment m:mediaTimes)					
+							if(m.getID() == i)	
+								dataPoints.append((float)m.getCenter());
+
+						if(dataPoints.size() > 0)
+						{
+							int total = 0;
+
+							for(float d:dataPoints) 
+								total += d;
+
+							int newCluster = PApplet.round(total / dataPoints.size());
+							newClusters.append(newCluster);
 						}
 					}
 
-					m.setID(closestIndex);			
+					timeSegments = newClusters;
+					count++;
 				}
-
-				IntList newClusters = new IntList();
-				for(int i:timeSegments)							// For each cluster, add and divide by number of data points
-				{
-					FloatList dataPoints = new FloatList();
-
-					for(GMV_TimeSegment m:mediaTimes)					
-						if(m.getID() == i)	
-							dataPoints.append((float)m.getCenter());
-
-					if(dataPoints.size() > 0)
-					{
-						int total = 0;
-						
-						for(float d:dataPoints) 
-							total += d;
-
-						int newCluster = PApplet.round(total / dataPoints.size());
-						newClusters.append(newCluster);
-					}
-				}
-
-				timeSegments = newClusters;
-				count++;
 			}
+			return timeSegments;			// Return cluster list
 		}
-		
-		return timeSegments;			// Return cluster list
+		else
+		{
+			if(p.p.p.debug.time)
+				PApplet.println("cluster:"+getID()+" getTimeSegments() == null but has mediaPoints:"+mediaPoints);
+			return null;		
+		}
 	}
 	
 	

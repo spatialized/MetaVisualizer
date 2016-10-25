@@ -29,6 +29,17 @@ public class GMV_Utilities
 	}
 	
 	/**
+	 * Round to nearest <n> decimal places
+	 */
+	float round(float val, int n)
+	{
+		val *= PApplet.pow(10.f, n);
+		val = PApplet.round(val);
+		val /= PApplet.pow(10.f, n);
+		return val;
+	}
+	
+	/**
 	 * Constrain float value between <min> and <max> by wrapping values around
 	 */
 	float constrainWrap(float value, float min, float max)

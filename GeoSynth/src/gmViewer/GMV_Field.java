@@ -249,7 +249,7 @@ public class GMV_Field
 
 		dateline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
 		
-//		if(p.p.debug.time && dateline.size()>0)
+		if(p.p.debug.time && dateline.size()>0)
 		{
 			PApplet.println("---> First lower:"+" dateline.get(0).getLower():"+dateline.get(0).getLower());
 			PApplet.println("---> First center:"+" dateline.get(0).getCenter():"+dateline.get(0).getCenter());
@@ -515,12 +515,32 @@ public class GMV_Field
 	 * clearSelectedMedia()
 	 * Deselects all media in field
 	 */
-	public void deselectAllMedia() 
+	public void deselectAllMedia(boolean hide) 
 	{
-		for (int i = 0; i < images.size(); i++)
-			images.get(i).setSelected(false);
-		for (int i = 0; i < videos.size(); i++)
-			videos.get(i).setSelected(false);
+		for (GMV_Image i : images)
+		{
+			if(i.isSelected())
+			{
+				i.setSelected(false);
+				if(hide) i.hidden = true;
+			}
+		}
+		for (GMV_Panorama n : panoramas)
+		{
+			if(n.isSelected())
+			{
+				n.setSelected(false);
+//				if(hide) n.hidden = true;
+			}
+		}
+		for (GMV_Video v : videos)
+		{
+			if(v.isSelected())
+			{
+				v.setSelected(false);
+//				if(hide) v.hidden = true;
+			}
+		}
 
 		 p.display.clearMetadata();
 	}

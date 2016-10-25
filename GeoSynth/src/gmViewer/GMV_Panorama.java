@@ -162,7 +162,7 @@ public class GMV_Panorama extends GMV_Viewable
 			{
 				if(texture.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
 				{
-//					PApplet.println(" brightness before draw:"+brightness+" viewingBrightness:"+viewingBrightness);
+//					PApplet.println("pano viewingBrightness:"+viewingBrightness);
 					drawPanorama();
 				}
 			}
@@ -248,11 +248,15 @@ public class GMV_Panorama extends GMV_Viewable
 		p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
 		p.p.p.texture(texture);
 
+//		PApplet.println("drawPanorama  p.p.viewer.selection:"+p.p.viewer.selection);
+//		PApplet.println("p.p.alphaMode:"+p.p.alphaMode);
+
 		/* Set the panorama brightness */		
-		if(p.p.viewer.selection)
+		if(p.p.viewer.selection)					// Viewer in selection mode
 		{
 			if(isSelected())
 			{
+//				PApplet.println("selected viewingBrightness:"+viewingBrightness);
 				if(!p.p.alphaMode)
 					p.p.p.tint(viewingBrightness, 255);          				
 				else
@@ -263,22 +267,21 @@ public class GMV_Panorama extends GMV_Viewable
 				if(!p.p.alphaMode)
 					p.p.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
 				else
-					p.p.p.tint(255, viewingBrightness * 0.333f);          				
+					p.p.p.tint(255, viewingBrightness * 0.33f);          				
 			}
-		}
-		else if(p.p.viewer.videoMode)
-		{
-			if(!p.p.alphaMode)
-				p.p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
-			else
-				p.p.p.tint(255, viewingBrightness * 0.333f);          				
 		}
 		else
 		{
 			if(!p.p.alphaMode)
+			{
+//				PApplet.println("!alphaMode viewingBrightness:"+viewingBrightness);
 				p.p.p.tint(viewingBrightness, 255);          				
+			}
 			else
+			{
+//				PApplet.println("alphaMode viewingBrightness:"+viewingBrightness+" final alpha:"+PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));
 				p.p.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));          				
+			}
 		}
 		
 		float iu = (float)(texture.width-1)/(panoramaDetail);

@@ -521,7 +521,7 @@ public class GMV_Input
 				}
 				
 				if (optionKey && key == 'x')
-					p.getCurrentField().deselectAllMedia();
+					p.getCurrentField().deselectAllMedia(false);
 
 				if (optionKey && key == '-')
 					p.visibleAngle -= 3.1415f / 128.f; 

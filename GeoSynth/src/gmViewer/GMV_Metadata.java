@@ -163,8 +163,8 @@ class GMV_Metadata
 				command.add("small_images");
 				commandExecutor = new GMV_Command(library, command);
 				try {
-					int result = commandExecutor.executeCommand();
-					StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
+					int result = commandExecutor.execute();
+					StringBuilder stderr = commandExecutor.getStandardError();
 
 					if (stderr.length() > 0 || result != 0)
 						System.out.println("Error creating small_images directory:" + stderr + " result:"+result);

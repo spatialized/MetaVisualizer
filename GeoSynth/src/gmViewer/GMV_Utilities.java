@@ -115,10 +115,10 @@ public class GMV_Utilities
 		command.add("ls");
 		commandExecutor = new GMV_Command(largeImages, command);
 		try {
-			int result = commandExecutor.executeCommand();
+			int result = commandExecutor.execute();
 
 			// get the output from the command
-			StringBuilder stdout = commandExecutor.getStandardOutputFromCommand();
+			StringBuilder stdout = commandExecutor.getStandardOutput();
 //			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
 
 			String out = stdout.toString();
@@ -145,7 +145,7 @@ public class GMV_Utilities
 		
 		commandExecutor = new GMV_Command("", command);
 		try {
-			int result = commandExecutor.executeCommand();
+			int result = commandExecutor.execute();
 
 //			StringBuilder stdout = commandExecutor.getStandardOutputFromCommand();
 //			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
@@ -163,10 +163,10 @@ public class GMV_Utilities
 		command.add("ls");
 		commandExecutor = new GMV_Command(destination, command);
 		try {
-			int result = commandExecutor.executeCommand();
+			int result = commandExecutor.execute();
 
-			StringBuilder stdout = commandExecutor.getStandardOutputFromCommand();
-			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
+			StringBuilder stdout = commandExecutor.getStandardOutput();
+			StringBuilder stderr = commandExecutor.getStandardError();
 
 			String out = stdout.toString();
 			String[] parts = out.split("\n");
@@ -212,11 +212,11 @@ public class GMV_Utilities
 					commandExecutor = new GMV_Command(destination, command);
 
 					try {
-						int result = commandExecutor.executeCommand();
+						int result = commandExecutor.execute();
 
 						// get the output from the command
-						StringBuilder stdout = commandExecutor.getStandardOutputFromCommand();
-						StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
+						StringBuilder stdout = commandExecutor.getStandardOutput();
+						StringBuilder stderr = commandExecutor.getStandardError();
 					}
 					catch(Throwable t)
 					{

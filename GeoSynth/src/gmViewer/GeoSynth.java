@@ -5,7 +5,7 @@
 * A program for displaying large multimedia collections as 3D immersive 
 * environments. 
 * 
-* Built using GeoMultimediaViewer, a Java library for creative visualization of
+* Built using GeoMediaViewer, a Java library for creative visualization of
 * media using temporal, spatial and orientation metadata
 *********************************************************************************/
 
@@ -16,8 +16,6 @@
 * Main GMViewer app class
 */
 package gmViewer;
-import toxi.math.*;
-import java.util.*;
 import java.io.*;
 import processing.core.*;
 import processing.video.Movie;
@@ -41,7 +39,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	GMV_Utilities utilities;		// Utility methods
 
 	/* Debugging */
-	GMV_Debug debug;				// Handles debugging functions
+	GS_Debug debug;				// Handles debugging functions
 
 	/** 
 	 * Load the PApplet, either in a window of specified size or in fullscreen
@@ -60,7 +58,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 		world = new GMV_World(this);
 		metadata = new GMV_Metadata(this);
 		utilities = new GMV_Utilities(world);
-		debug = new GMV_Debug(this);
+		debug = new GS_Debug(this);
 		world.initialize();
 	}
 

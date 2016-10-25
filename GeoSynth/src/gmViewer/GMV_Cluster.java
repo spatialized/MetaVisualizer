@@ -1,9 +1,6 @@
 package gmViewer;
 import java.util.ArrayList;
-import java.util.Calendar;
-
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.FloatList;
 import processing.data.IntList;
@@ -11,7 +8,7 @@ import processing.data.IntList;
 /*********************************************
  * GMV_Cluster
  * @author davidgordon
- * Group of media files forming a spatial unit
+ * Class representing a group of media files forming a spatial unit
  */
 public class GMV_Cluster 
 {
@@ -40,14 +37,12 @@ public class GMV_Cluster
 	private FloatList fieldDatesLowerBounds, fieldTimesLowerBounds;
 	private FloatList fieldDatesUpperBounds, fieldTimesUpperBounds;
 	
-	int[] clusterTimesHistogram, fieldTimesHistogram;					// Histogram of media times in cluster	
+	int[] clusterTimesHistogram, fieldTimesHistogram;					// Histogram of media times relative to cluster	/ field
 	ArrayList<GMV_TimeSegment> timeline;								// Timeline for this cluster
 	int[] clusterDatesHistogram, fieldDatesHistogram;					// Histogram of media times in cluster	
 	ArrayList<GMV_TimeSegment> dateline;								// Date timeline for this cluster
 	
 //	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
-//	public int timeUnitLength;			// Length of time unit in frames  (e.g. 10 means every 10 frames)
-//	public int baseTimeScale = 0; 					// (Not implemented yet) 0 = minutes, 1 = hours, 2 = days, 3 = months, 4 = years
 
 	/* Segmentation */
 	public ArrayList<GMV_MediaSegment> segments;		// List of arrays corresponding to each segment of images
@@ -129,7 +124,7 @@ public class GMV_Cluster
 		fieldDatesHistogram = new int[p.p.fieldTimePrecision];
 
 		timeline = new ArrayList<GMV_TimeSegment>();
-//		timeUnitLength = p.p.timeUnitLength;				// Length of time unit in frames  (e.g. 10 means every 10 frames)
+//		timeUnitLength = p.p.timeUnitLength;					// Length of time unit in frames  (e.g. 10 means every 10 frames)
 //		timeIncrement = p.p.timeInc;							// User time increment
 	}
 	
@@ -383,8 +378,11 @@ public class GMV_Cluster
 				newLocation.add(curPano.getCaptureLocation());		// Move cluster towards the image
 				if(!panoramas.hasValue(curPano.getID()))
 				{
-//					PApplet.println("Adding pano "+curPano.getID()+" to cluster:"+clusterID);
-//					PApplet.println("associatedPanoramas.size(): "+associatedPanoramas.size());
+					if(p.p.p.debug.panorama)
+					{
+						PApplet.println("Adding panorama "+curPano.getID()+" to cluster:"+getID());
+						PApplet.println("associatedPanoramas.size(): "+panoramas.size());
+					}
 
 					panoramas.append(curPano.getID());
 					mediaPoints++;

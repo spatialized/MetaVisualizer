@@ -1,12 +1,12 @@
 package gmViewer;
 
 /******************************
- * GMV_Debug 
+ * GS_Debug 
  * @author David Gordon
  * Debug settings
  */
 
-public class GMV_Debug 
+public class GS_Debug 
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
@@ -24,12 +24,14 @@ public class GMV_Debug
 	
 	public boolean viewable = false;			// Debug GMV_Viewable class
 	public boolean image = false;				// Debug GMV_Image class
-	public boolean panorama = false;			// Debug GMV_Panorama class
+	public boolean panorama = true;			// Debug GMV_Panorama class
 	public boolean video = false;				// Debug GMV_Video class
 	public boolean metadata = false;			// Debug GMV_Metadata class
 	public boolean stitching = false;			// Debug GMV_Stitcher class
 
 	/* Memory */
+	boolean lowMemory = false;
+	boolean performanceSlow = false;
 	int availableProcessors;
 	long freeMemory;
 	long maxMemory;
@@ -37,12 +39,9 @@ public class GMV_Debug
 	long allocatedMemory;
 	long approxUsableFreeMemory;
 	
-	boolean lowMemory = false;
-	boolean performanceSlow = false;
-	
 	GeoSynth p;
 	
-	GMV_Debug (GeoSynth parent)
+	GS_Debug (GeoSynth parent)
 	{
 		p = parent;
 	}

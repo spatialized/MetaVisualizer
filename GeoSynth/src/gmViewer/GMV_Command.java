@@ -6,7 +6,7 @@ import java.util.List;
 /**
 * @author davidgordon 
 * Based on package com.devdaily.system;  
-* Runs given system command as a List of Strings
+* Runs given system command as List of Strings
 * @param command The command you want to run.
 */
 public class GMV_Command
@@ -27,7 +27,7 @@ public class GMV_Command
     this.adminPassword = null;
   }
 
-  public int executeCommand() throws IOException, InterruptedException
+  public int execute() throws IOException, InterruptedException
   {
     int exitValue = -99;
 
@@ -72,7 +72,7 @@ public class GMV_Command
   /**
    * Get standard output from the command 
    */
-  public StringBuilder getStandardOutputFromCommand()
+  public StringBuilder getStandardOutput()
   {
     return inputStreamHandler.getOutputBuffer();
   }
@@ -80,7 +80,7 @@ public class GMV_Command
   /**
    * Get standard error from the command 
    */
-  public StringBuilder getStandardErrorFromCommand()
+  public StringBuilder getStandardError()
   {
     return errorStreamHandler.getOutputBuffer();
   }

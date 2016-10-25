@@ -2,6 +2,8 @@ package gmViewer;
 
 import java.util.Comparator;
 
+import processing.core.PApplet;
+
 /*********************************************
  * GMV_TimeSegment
  * @author davidgordon
@@ -11,7 +13,7 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 {
 	private float time;			// Time 
 	private float lower, upper;	// Upper and lower bounds of cluster
-	private int id = -1;		// Time cluster ID
+	private int id = -1;		// Cluster ID
 	
 	GMV_TimeSegment(int newID, float newTime, float newUpper, float newLower)
 	{
@@ -19,6 +21,10 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 		time = newTime;
 		upper = newUpper;
 		lower = newLower;
+		if((lower!=0&&upper!=0)&&(time > upper || time < lower))
+		{
+			PApplet.println("ERROR: time:"+time+" lower:"+lower+" upper:"+upper);
+		}
 	}
 	
 	/** 
@@ -58,7 +64,6 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 	}
 	
 	/** 
-	 * getCenter()
 	 * @return Center time 
 	 */
 	public float getCenter()

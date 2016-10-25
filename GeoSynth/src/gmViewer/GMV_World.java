@@ -93,7 +93,7 @@ public class GMV_World {
 //	public final int clusterDatelineMinPoints = 3;		// Minimum points to be a cluster on dateline   -- Not used
 
 	/* Graphics */
-	public boolean alphaMode = false;					// Use alpha fading instead of grayscale
+	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
 	public float alpha = 255.f;							// Transparency
 	private boolean beginFadingAlpha = false, fadingAlpha = false;
 	private int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
@@ -132,7 +132,7 @@ public class GMV_World {
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
-	public float altitudeAdjustmentFactor = 1.f;		// Adjust altitude for ease of viewing	-- Work more on this...
+	public float altitudeAdjustmentFactor = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
 	
 	public boolean showModel = false;					// Activate Model Display 
 	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
@@ -301,12 +301,10 @@ public class GMV_World {
 //		}
 		if(startRunning)							// If simulation just started running
 		{
-			if(timeFading && !dateFading)
-				viewer.moveToTimeInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
-			else if(!timeFading && dateFading)
-				viewer.moveToDateInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
-			else
-				viewer.moveToTimeInField(getCurrentField().fieldID, viewer.currentFieldTimeSegment, true);
+//			if(viewer.dateNavigation)
+//				viewer.moveToDateInField(getCurrentField().fieldID, viewer.currentFieldDateSegment, true);
+//			else
+				viewer.moveToFirstTimeOnDate(getCurrentField().fieldID, viewer.currentFieldDateSegment, true);
 			
 			firstTeleport = true;
 			startRunning = false;

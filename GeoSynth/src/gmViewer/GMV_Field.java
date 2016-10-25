@@ -207,10 +207,8 @@ public class GMV_Field
 			
 			for(float f : c.getClusterTimes())									// Iterate through cluster times
 			{
-				GMV_TimeSegment time = new GMV_TimeSegment(	c.getID(), f, c.getClusterTimesLowerBounds().get(count), 
-														    c.getClusterTimesUpperBounds().get(count));
+				GMV_TimeSegment time = new GMV_TimeSegment(	c.getID(), f, c.getClusterTimesUpperBounds().get(count), c.getClusterTimesLowerBounds().get(count));
 				times.add( time );							// Add segment to timeline
-			
 				count++;
 			}
 
@@ -240,8 +238,7 @@ public class GMV_Field
 			
 			for(float f : c.getClusterDates())									// Iterate through cluster dates
 			{
-				GMV_TimeSegment date = new GMV_TimeSegment(	c.getID(), f, c.getClusterDatesLowerBounds().get(count), 
-														    c.getClusterDatesUpperBounds().get(count));
+				GMV_TimeSegment date = new GMV_TimeSegment(	c.getID(), f, c.getClusterDatesUpperBounds().get(count), c.getClusterDatesLowerBounds().get(count));
 				dates.add( date );							// Add segment to dateline
 				count++;
 			}
@@ -252,7 +249,7 @@ public class GMV_Field
 
 		dateline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
 		
-		if(p.p.debug.time && dateline.size()>0)
+//		if(p.p.debug.time && dateline.size()>0)
 		{
 			PApplet.println("---> First lower:"+" dateline.get(0).getLower():"+dateline.get(0).getLower());
 			PApplet.println("---> First center:"+" dateline.get(0).getCenter():"+dateline.get(0).getCenter());
@@ -749,6 +746,29 @@ public class GMV_Field
 //		}
 
 		p.display.message("Couldn't get time segment "+index+" of cluster "+clusterID+" times.size() = "+times.size());
+		return -1;
+	}
+
+	public int getDateSegmentOfCluster(int clusterID, int index)
+	{
+		IntList times = new IntList();
+		
+//		if(timeline.size() > clusterID)
+//		{
+		int count = 0;
+		for(GMV_TimeSegment t : timeline)
+		{
+			if(t.getID() == clusterID)
+				times.append(count);
+
+			count++;
+		}
+
+		if(times.size() > index)
+			return times.get(index);
+//		}
+
+		p.display.message("Couldn't get date segment "+index+" of cluster "+clusterID+" times.size() = "+times.size());
 		return -1;
 	}
 

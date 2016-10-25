@@ -1025,7 +1025,7 @@ public class GMV_Cluster
 
 		mediaTimes = new FloatList();
 
-		/* Get times of all media of all types in field */
+		/* Get times of all media of all types in cluster */
 		for(GMV_Image i : p.images) mediaTimes.append( i.time.getTime() );
 		for(GMV_Panorama n : p.panoramas) mediaTimes.append( n.time.getTime() );
 		for(GMV_Video v : p.videos) mediaTimes.append( v.time.getTime() );
@@ -1045,7 +1045,12 @@ public class GMV_Cluster
 		fieldTimes = new FloatList();
 		fieldTimesLowerBounds = new FloatList();
 		fieldTimesUpperBounds = new FloatList();
-		
+
+//		PApplet.println("field timeSegments...");
+//		for(int t:timeSegments)
+//			PApplet.println("t:"+t);
+//		
+
 		for(int t:timeSegments)
 		{
 			if(!fieldTimes.hasValue(t))
@@ -1136,7 +1141,6 @@ public class GMV_Cluster
 		{
 			int idx = PApplet.round( PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, 
 									 p.p.clusterDatePrecision - 1), 0.f, p.p.clusterDatePrecision - 1.f) );
-//			PApplet.println("mediaDates.get(i):"+mediaDates.get(i)+" idx: "+idx);
 
 			clusterDatesHistogram[idx]++;
 		}
@@ -1222,6 +1226,9 @@ public class GMV_Cluster
 		fieldDatesLowerBounds = new FloatList();
 		fieldDatesUpperBounds = new FloatList();
 		
+//		PApplet.println("field dateSegments...");
+//		for(int t:dateSegments)
+//			PApplet.println("d:"+t);
 		for(int t:dateSegments)
 		{
 			if(!fieldDates.hasValue(t))

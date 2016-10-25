@@ -281,7 +281,7 @@ public abstract class GMV_Viewable
 	float getTimeBrightness()												
 	{
 		int cycleLength = p.p.timeCycleLength;				// Length of main time loop
-		int centerTime = -1;								// Midpoint of visibility for this media 		
+		float centerTime = -1;								// Midpoint of visibility for this media 		
 		float timeBrightness = 0.f;
 
 		float length = p.p.defaultMediaLength;				// Start with default length
@@ -303,8 +303,12 @@ public abstract class GMV_Viewable
 		float timelineLength = upper - lower;
 		float segmentLength = curUpper - curLower;
 
-		centerTime = PApplet.round(PApplet.map( time.getTime(), lower, upper, p.p.defaultMediaLength * 0.25f, 
+		if(upper!=lower)
+		{
+			centerTime = PApplet.round(PApplet.map( time.getTime(), lower, upper, p.p.defaultMediaLength * 0.25f, 
 				cycleLength - p.p.defaultMediaLength * 0.25f) );	// Calculate center time in cluster timeline
+		}
+		else centerTime = cycleLength / 2.f;
 
 		if(lower == curLower && upper == curUpper)				// Only one cluster segment
 		{
@@ -318,8 +322,8 @@ public abstract class GMV_Viewable
 			}
 
 			fadeInStart = 0;		// Frame media starts fading in
-			fadeInEnd = centerTime - (int)length / 4;		// Frame media reaches full brightness
-			fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
+			fadeInEnd = PApplet.round(centerTime - length / 4.f);		// Frame media reaches full brightness
+			fadeOutStart = PApplet.round(centerTime + length / 4.f);	// Frame media starts fading out
 			fadeOutEnd = cycleLength;		// Frame media finishes fading out
 		}
 		else
@@ -328,10 +332,10 @@ public abstract class GMV_Viewable
 			length = PApplet.map(segmentLength, 0, timelineLength, p.p.defaultMediaLength * 0.5f, p.p.timeCycleLength);
 			length = PApplet.constrain(length, p.p.defaultMediaLength * 0.5f, p.p.timeCycleLength);
 
-			fadeInStart = centerTime - (int)length / 2;		// Frame media starts fading in
-			fadeInEnd = centerTime - (int)length / 4;		// Frame media reaches full brightness
-			fadeOutStart = centerTime + (int)length / 4;	// Frame media starts fading out
-			fadeOutEnd = centerTime + (int)length / 2;		// Frame media finishes fading out
+			fadeInStart = PApplet.round(centerTime - length / 2.f);		// Frame media starts fading in
+			fadeInEnd = PApplet.round(centerTime - length / 4.f);		// Frame media reaches full brightness
+			fadeOutStart = PApplet.round(centerTime + length / 4.f);	// Frame media starts fading out
+			fadeOutEnd = PApplet.round(centerTime + length / 2.f);		// Frame media finishes fading out
 
 			if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 			{
@@ -437,7 +441,7 @@ public abstract class GMV_Viewable
 	float getDateBrightness()												
 	{
 		int cycleLength = p.p.timeCycleLength;				// Length of main time loop
-		int centerDate = -1;								// Midpoint of visibility for this media 		
+		float centerDate = -1;								// Midpoint of visibility for this media 		
 		float dateBrightness = 0.f;
 
 		float length = p.p.defaultMediaLength;				// Start with default length
@@ -459,12 +463,17 @@ public abstract class GMV_Viewable
 		float datelineLength = upper - lower;
 		float segmentLength = curUpper - curLower;
 
-		centerDate = PApplet.round(PApplet.map( time.getDate(), lower, upper, p.p.defaultMediaLength * 0.25f, 
-				cycleLength - p.p.defaultMediaLength * 0.25f) );	// Calculate center date in cluster dateline
+		if(upper != lower)
+		{
+			centerDate = PApplet.round(PApplet.map( time.getDate(), lower, upper, p.p.defaultMediaLength * 0.25f, 
+				cycleLength - p.p.defaultMediaLength * 0.25f) );			// Calculate center date in cluster dateline
+		}
+		else
+			centerDate = cycleLength / 2.f;
 
 		if(lower == curLower && upper == curUpper)				// Only one cluster segment
 		{
-			length = p.p.dateCycleLength;		// -- Should depend on cluster it belongs to 
+			length = p.p.dateCycleLength;						// -- Should depend on cluster?
 
 			if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 			{
@@ -473,10 +482,10 @@ public abstract class GMV_Viewable
 				PApplet.println("lower:"+lower+" upper:"+upper+" cLower:"+curLower+" cUpper:"+curUpper);
 			}
 
-			fadeInStart = 0;		// Frame media starts fading in
-			fadeInEnd = centerDate - (int)length / 4;		// Frame media reaches full brightness
-			fadeOutStart = centerDate + (int)length / 4;	// Frame media starts fading out
-			fadeOutEnd = cycleLength;		// Frame media finishes fading out
+			fadeInStart = 0;											// Frame media starts fading in
+			fadeInEnd = PApplet.round(centerDate - length / 4.f);		// Frame media reaches full brightness
+			fadeOutStart = PApplet.round(centerDate + length / 4.f);	// Frame media starts fading out
+			fadeOutEnd = cycleLength;									// Frame media finishes fading out
 		}
 		else
 		{
@@ -484,10 +493,10 @@ public abstract class GMV_Viewable
 			length = PApplet.map(segmentLength, 0, datelineLength, p.p.defaultMediaLength * 0.5f, p.p.dateCycleLength);
 			length = PApplet.constrain(length, p.p.defaultMediaLength * 0.5f, p.p.dateCycleLength);
 
-			fadeInStart = centerDate - (int)length / 2;		// Frame media starts fading in
-			fadeInEnd = centerDate - (int)length / 4;		// Frame media reaches full brightness
-			fadeOutStart = centerDate + (int)length / 4;	// Frame media starts fading out
-			fadeOutEnd = centerDate + (int)length / 2;		// Frame media finishes fading out
+			fadeInStart = PApplet.round(centerDate - length / 2.f);		// Frame media starts fading in
+			fadeInEnd = PApplet.round(centerDate - length / 4.f);		// Frame media reaches full brightness
+			fadeOutStart = PApplet.round(centerDate + length / 4.f);	// Frame media starts fading out
+			fadeOutEnd = PApplet.round(centerDate + length / 2.f);		// Frame media finishes fading out
 
 			if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
 			{

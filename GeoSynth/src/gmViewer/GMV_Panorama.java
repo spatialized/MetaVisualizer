@@ -66,7 +66,7 @@ public class GMV_Panorama extends GMV_Viewable
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		
 //		radius = p.p.defaultFocusDistance * 0.75f;
-		radius = p.p.defaultFocusDistance * 1.2f;
+		radius = p.p.defaultFocusDistance * 0.9f;
 	}  
 
 	/**

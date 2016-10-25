@@ -113,6 +113,9 @@ public class GMV_Input
 		if (key == '_')
 			p.showModel = !p.showModel;
 		
+		if (key == '+')
+			p.viewer.dateNavigation = !p.viewer.dateNavigation;
+		
 		/* Clustering */
 		if (key == 'r')
 			p.startInteractiveClustering();
@@ -325,18 +328,18 @@ public class GMV_Input
 					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
 
 				if (key == 'd') 
-					p.viewer.moveToDateInField(p.getCurrentField().fieldID, 0, true);
+					p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, true);
 
 				if (key == 'T')
 					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
 
 				if (key == 'D') 
-					p.viewer.moveToDateInField(p.getCurrentField().fieldID, 0, false);
+					p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, false);
 
-				if (key == 'n')						// Teleport to current time segment
+				if (key == 'n')						// Teleport to next time segment
 					p.viewer.moveToNextTimeSegment(true, true);
 
-				if (key == 'b')						// Teleport to current time segment
+				if (key == 'b')						// Teleport to previous time segment
 					p.viewer.moveToPreviousTimeSegment(true, true);
 
 				if (key == 'N')						// Teleport to next cluster time segment
@@ -345,10 +348,10 @@ public class GMV_Input
 				if (key == 'B')						// Teleport to previous cluster time segment
 					p.viewer.moveToPreviousTimeSegment(false, true);
 
-				if (key == 'l')						// Teleport to current date segment
+				if (key == 'l')						// Teleport to next date segment
 					p.viewer.moveToNextDateSegment(true, true);
 
-				if (key == 'k')						// Teleport to current date segment
+				if (key == 'k')						// Teleport to previous date segment
 					p.viewer.moveToPreviousDateSegment(true, true);
 
 				if (key == 'L')						// Teleport to next cluster date segment

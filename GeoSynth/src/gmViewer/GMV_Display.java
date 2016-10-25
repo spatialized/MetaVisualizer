@@ -365,7 +365,7 @@ class GMV_Display
 
 		GMV_Cluster c = p.getCurrentCluster();
 
-		if(c != null)
+		if(c != null && c.timeline.size() > 0)
 		{
 			p.p.pushMatrix();
 			beginHUD();						
@@ -495,7 +495,7 @@ class GMV_Display
 
 		GMV_Cluster c = p.getCurrentCluster();
 
-		if(c != null)
+		if(c != null && c.dateline.size() > 0)
 		{
 			p.p.pushMatrix();
 			beginHUD();						
@@ -1045,7 +1045,7 @@ class GMV_Display
 			drawCameraOnMap(mapWidth, mapHeight);
 		}
 		
-		drawOriginOnMap(mapWidth, mapHeight);
+//		drawOriginOnMap(mapWidth, mapHeight);
 	}
 
 	/**
@@ -1520,7 +1520,7 @@ class GMV_Display
 			if(f.timeline.size() > 0 && p.viewer.currentFieldTimeSegment >= 0 && p.viewer.currentFieldTimeSegment < f.timeline.size())
 				p.p.text(" Upper: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+f.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
 						" Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
-			p.p.text(" Cluster Segments: "+ p.getCurrentCluster().timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Cluster Timeline Segments: "+ p.getCurrentCluster().timeline.size(), textXPos, textYPos += lineWidth, hudDistance);
 //			p.p.text(" Current Cluster Segment: "+ p.viewer.currentClusterTimeSegment, textXPos, textYPos += lineWidth, hudDistance);
 //			p.p.text(" Upper: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+c.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
 //					 " Lower: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);			
@@ -1530,11 +1530,13 @@ class GMV_Display
 			p.p.text(" Date Fading: "+ p.dateFading, textXPos, textYPos += lineWidthWide, hudDistance);
 			p.p.text(" Dateline Segments: "+ p.getCurrentField().dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Current Segment: "+ p.viewer.currentFieldDateSegment, textXPos, textYPos += lineWidth, hudDistance);
-			if(f.dateline.size() > 0 && p.viewer.currentFieldDateSegment >= 0 && p.viewer.currentFieldDateSegment < f.dateline.size())
-				p.p.text(" Upper: "+f.dateline.get(p.viewer.currentFieldDateSegment).getUpper()+" Center:"+f.dateline.get(p.viewer.currentFieldDateSegment).getCenter()+
-						" Lower: "+f.dateline.get(p.viewer.currentFieldDateSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
-			p.p.text(" Cluster Segments: "+ p.getCurrentCluster().dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
-
+			if(f.dateline.size() > 0) 
+			{
+				if( p.viewer.currentFieldDateSegment >= 0 && p.viewer.currentFieldDateSegment < f.dateline.size())
+					p.p.text(" Upper: "+f.dateline.get(p.viewer.currentFieldDateSegment).getUpper()+" Center:"+f.dateline.get(p.viewer.currentFieldDateSegment).getCenter()+
+							" Lower: "+f.dateline.get(p.viewer.currentFieldDateSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);
+				p.p.text(" Cluster Dateline Segments: "+ p.getCurrentCluster().dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
+			}
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Output ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
@@ -1596,8 +1598,10 @@ class GMV_Display
 		p.p.text(" User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" Media Segments: "+ c.segments.size(), textXPos, textYPos += lineWidth, hudDistance);
 		
-		p.p.text(" Timeline Points: "+ c.timeline.size(), textXPos, textYPos += lineWidthWide, hudDistance);
-		p.p.text(" Dateline Points: "+ c.dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
+		if(c.timeline.size() > 0)
+			p.p.text(" Timeline Points: "+ c.timeline.size(), textXPos, textYPos += lineWidthWide, hudDistance);
+		if(c.dateline.size() > 0)
+			p.p.text(" Dateline Points: "+ c.dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);

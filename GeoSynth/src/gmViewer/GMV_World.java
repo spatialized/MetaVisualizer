@@ -94,6 +94,11 @@ public class GMV_World {
 
 	/* Graphics */
 	public boolean alphaMode = false;					// Use alpha fading instead of grayscale
+	public float alpha = 255.f;							// Transparency
+	private boolean beginFadingAlpha = false, fadingAlpha = false;
+	private int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
+	private float fadingAlphaStart, fadingAlphaTarget;
+
 	public boolean blurEdges = true;					// Blur image edges
 	public PImage blurMaskLeftTop, blurMaskLeftCenter, 	// Blur masks
 				  blurMaskLeftBottom, blurMaskLeftBoth;
@@ -288,7 +293,12 @@ public class GMV_World {
 		/* 2D Display */
 		display.draw();								// Draw 2D display after 3D graphics
 		updateTime();								// Update time cycle
-
+		if(fadingAlpha)                      		// Fade alpha
+			updateFadingAlpha();
+//		{
+//			if(p.p.p.debug.panorama && p.p.p.debug.detailed)
+//				p.p.display.message("Panorama fading... id: "+getID());
+//		}
 		if(startRunning)							// If simulation just started running
 		{
 			if(timeFading && !dateFading)
@@ -548,7 +558,67 @@ public class GMV_World {
 
 //		PApplet.println("Created "+folders.size()+" fields from "+folders.size()+" media folders...");
 	}
+
+	/**
+	 * Transition alpha from current to given value
+	 */
+	void fadeAlpha(float target)
+	{
+		if(target != alpha)			// Check if already at target
+		{
+			beginFadingAlpha = true;
+			fadingAlpha = true;   
+			fadingAlphaStart = alpha;
+			fadingAlphaTarget = target;
+			fadingAlphaStartFrame = p.frameCount;
+			fadingAlphaEndFrame = fadingAlphaStartFrame + fadingAlphaLength;
+		}
+		else
+		{
+			fadingAlpha = false;
+		}
+	}
 	
+	/**
+	 * Update alpha each frame
+	 */
+	void updateFadingAlpha()
+	{
+		float newAlphaFadeValue = 0.f;
+
+		if(beginFadingAlpha)
+		{
+			fadingAlphaStartFrame = p.frameCount;					
+			fadingAlphaEndFrame = p.frameCount + fadingAlphaLength;	
+			beginFadingAlpha = false;
+		}
+
+		if (p.frameCount >= fadingAlphaEndFrame)
+		{
+			fadingAlpha = false;
+			newAlphaFadeValue = fadingAlphaTarget;
+
+//			if(initFading) initFading = false;
+//			if(isFadingOut)
+//			{
+//				isFadingOut = false;
+//				fadedOut = true;
+//			}
+//			if(isFadingIn)
+//			{
+//				isFadingIn = false;
+//				fadedIn = true;
+//			}
+		} 
+		else
+		{
+			newAlphaFadeValue = PApplet.map(p.frameCount, fadingAlphaStartFrame, fadingAlphaEndFrame, fadingAlphaStart, fadingAlphaTarget);      // Fade with distance from current time
+		}
+
+		alpha = newAlphaFadeValue;
+	}
+
+
 	/**
 	 * @return Current field
 	 */

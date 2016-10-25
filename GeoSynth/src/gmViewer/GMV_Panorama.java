@@ -66,7 +66,7 @@ public class GMV_Panorama extends GMV_Viewable
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		
 //		radius = p.p.defaultFocusDistance * 0.75f;
-		radius = p.p.defaultFocusDistance;
+		radius = p.p.defaultFocusDistance * 1.2f;
 	}  
 
 	/**
@@ -278,7 +278,7 @@ public class GMV_Panorama extends GMV_Viewable
 			if(!p.p.alphaMode)
 				p.p.p.tint(viewingBrightness, 255);          				
 			else
-				p.p.p.tint(255, viewingBrightness);          				
+				p.p.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));          				
 		}
 		
 		float iu = (float)(texture.width-1)/(panoramaDetail);

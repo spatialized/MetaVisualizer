@@ -485,11 +485,17 @@ public class GMV_Input
 				}
 
 				if (key == ')') {
-					p.display.changeBlendMode(1);
+					float newAlpha = PApplet.constrain(p.alpha+15.f, 0.f, 255.f);
+					p.fadeAlpha(newAlpha);
+					PApplet.println("p.alpha goal:"+newAlpha);
+//					p.display.changeBlendMode(1);
 				}
 
 				if (key == '(') {
-					p.display.changeBlendMode(-1);
+					float newAlpha = PApplet.constrain(p.alpha-15.f, 0.f, 255.f);
+					PApplet.println("p.alpha goal:"+newAlpha);
+					p.fadeAlpha(newAlpha);
+//					p.display.changeBlendMode(-1);
 				}
 
 				if (key == ':')

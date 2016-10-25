@@ -553,7 +553,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 			if(!p.p.alphaMode)
 				p.p.p.tint(viewingBrightness, 255);          				
 			else
-				p.p.p.tint(255, viewingBrightness);          				
+				p.p.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));          				
 		}
 		
 		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      

@@ -45,14 +45,14 @@ public abstract class GMV_Viewable
 	private boolean selected = false;
 
 	/* Graphics */
-	public float aspectRatio = (float) 0.666;	// Aspect ratio of image
+	public float aspectRatio = (float) 0.666;	// Aspect ratio of image or texture
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float centerSize = 0.05f;
-
+	
 	/* Transparency */
-	public float viewingBrightness = 0;				// Final image brightness (or alpha in useAlphaFading mode) 
+	public float viewingBrightness = 0;			// Final image brightness (or alpha in useAlphaFading mode) 
 	public boolean isFadingIn = false, isFadingOut = false;
 	public float fadingBrightness;							// Media transparency due to fading in / out
 	public boolean beginFading = false, fading = false;		

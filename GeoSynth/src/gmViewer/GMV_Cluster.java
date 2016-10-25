@@ -311,7 +311,7 @@ public class GMV_Cluster
 		{
 			panoramas.append(newPanorama.getID());
 			mediaPoints++;
-			clusterMass = mediaPoints * p.p.mediaPointMass;			
+			clusterMass = mediaPoints * 25.f * p.p.mediaPointMass;			
 		}
 	}
 
@@ -1113,7 +1113,7 @@ public class GMV_Cluster
 		{
 			int idx = PApplet.round( PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, 
 									 p.p.clusterDatePrecision - 1), 0.f, p.p.clusterDatePrecision - 1.f) );
-			PApplet.println("mediaDates.get(i):"+mediaDates.get(i)+" idx: "+idx);
+//			PApplet.println("mediaDates.get(i):"+mediaDates.get(i)+" idx: "+idx);
 
 			clusterDatesHistogram[idx]++;
 		}

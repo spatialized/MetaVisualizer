@@ -591,21 +591,24 @@ public class GMV_Viewer
 		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToTimeInField:"+f.timeline.get(nextFieldTime).getID()+" f.timeline.size():"+f.timeline.size());
 
-		if(f.timeline.get(nextFieldTime).getID() == currentCluster && p.getCluster(f.timeline.get(nextFieldTime).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different time in same cluster
+		if(f.timeline.size()>0)
 		{
-			currentFieldTimeSegment++;
-			if(p.p.debug.viewer && p.p.debug.detailed)
-				p.display.message("Advanced time segment in same cluster... "+f.timeline.get(nextFieldTime).getID());
-		}
-		else
-		{
-			if(teleport)
+			if(f.timeline.get(nextFieldTime).getID() == currentCluster && p.getCluster(f.timeline.get(nextFieldTime).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different time in same cluster
 			{
-				teleportToCluster(f.timeline.get(nextFieldTime).getID(), true);
+				currentFieldTimeSegment++;
+				if(p.p.debug.viewer && p.p.debug.detailed)
+					p.display.message("Advanced time segment in same cluster... "+f.timeline.get(nextFieldTime).getID());
 			}
 			else
 			{
-				setAttractorCluster(f.timeline.get(nextFieldTime).getID());
+				if(teleport)
+				{
+					teleportToCluster(f.timeline.get(nextFieldTime).getID(), true);
+				}
+				else
+				{
+					setAttractorCluster(f.timeline.get(nextFieldTime).getID());
+				}
 			}
 		}
 	}
@@ -640,21 +643,24 @@ public class GMV_Viewer
 		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToDateInField:"+f.dateline.get(nextFieldDate).getID()+" f.dateline.size():"+f.dateline.size());
 
-		if(f.dateline.get(nextFieldDate).getID() == currentCluster && p.getCluster(f.dateline.get(nextFieldDate).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different date in same cluster
+		if(f.dateline.size()>0)
 		{
-			currentFieldDateSegment++;
-			if(p.p.debug.viewer && p.p.debug.detailed)
-				p.display.message("Advanced date segment in same cluster... "+f.dateline.get(nextFieldDate).getID());
-		}
-		else
-		{
-			if(teleport)
+			if(f.dateline.get(nextFieldDate).getID() == currentCluster && p.getCluster(f.dateline.get(nextFieldDate).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different date in same cluster
 			{
-				teleportToCluster(f.dateline.get(nextFieldDate).getID(), true);
+				currentFieldDateSegment++;
+				if(p.p.debug.viewer && p.p.debug.detailed)
+					p.display.message("Advanced date segment in same cluster... "+f.dateline.get(nextFieldDate).getID());
 			}
 			else
 			{
-				setAttractorCluster(f.dateline.get(nextFieldDate).getID());
+				if(teleport)
+				{
+					teleportToCluster(f.dateline.get(nextFieldDate).getID(), true);
+				}
+				else
+				{
+					setAttractorCluster(f.dateline.get(nextFieldDate).getID());
+				}
 			}
 		}
 	}

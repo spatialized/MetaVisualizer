@@ -74,7 +74,10 @@ class GMV_Metadata
 		if(imageFilesFound || smallImageFilesFound)				// Load image metadata 
 			loadImagesFromTags(imageFiles);
 		if(panoramaFilesFound)				// Load panorama metadata 
+		{
+			PApplet.println("loadImagesFromTags panoramas:"+panoramaFiles.length);
 			loadImagesFromTags(panoramaFiles);
+		}
 		if(videoFilesFound)					// Load video metadata 
 			loadVideosFromTags(videoFiles);	
 	}
@@ -104,6 +107,13 @@ class GMV_Metadata
 		smallImageFiles = null;
 		imageFiles = null;
 		panoramaFiles = null;
+		
+		if(panoramaFolderFound)
+		{
+			panoramaFiles = panoramaFolderFile.listFiles();
+			if(panoramaFiles != null && panoramaFiles.length > 0)
+				panoramaFilesFound = true;	
+		}
 		
 		if(smallImageFolderFound)		// Found small_images folder. Check for files
 		{
@@ -145,13 +155,6 @@ class GMV_Metadata
 					imageFilesFound = true;
 			}
 			
-			if(panoramaFolderFound)				// Check for panorama files
-			{
-				panoramaFiles = panoramaFolderFile.listFiles();
-				if(panoramaFiles != null && panoramaFiles.length > 0)
-					panoramaFilesFound = true;
-			}
-
 			if(imageFilesFound)				/* If no small images, but there are images */
 			{
 				GMV_Command commandExecutor;
@@ -175,12 +178,12 @@ class GMV_Metadata
 				}
 			}
 			
-			if(panoramaFilesFound && !imageFilesFound)
-			{
-				imageFolder = panoramaFolder;
-				imageFolderFile = new File(panoramaFolder);
-				imageFiles = panoramaFolderFile.listFiles();
-			}
+//			if(panoramaFilesFound && !imageFilesFound)
+//			{
+//				imageFolder = panoramaFolder;
+//				imageFolderFile = new File(panoramaFolder);
+//				imageFiles = panoramaFolderFile.listFiles();
+//			}
 		}
 			
 		// If images exist but no small images are found
@@ -295,15 +298,15 @@ class GMV_Metadata
 		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
 		{
 			String name = "";
-			boolean hasImage = true;
+//			boolean hasImage = true;
 
-			if (!imagesExist || imageFiles.length <= currentMedia)		// Check if this image exists
-				hasImage = false;
+//			if (!imagesExist || imageFiles.length <= currentMedia)		// Check if this image exists
+//				hasImage = false;
 
-			name = imageFiles[currentMedia].getName();
+			name = files[currentMedia].getName();
 
 			boolean panorama = false;
-			boolean dataMissing = false;
+			boolean dataMissing = false, brightnessMissing = false, descriptionMissing = false;
 
 			Calendar calendarTime = null;			// Calendar date and time			
 
@@ -347,6 +350,7 @@ class GMV_Metadata
 				for (Directory directory : imageMetadata.getDirectories()) {
 					for (Tag tag : directory.getTags()) {
 						String tagString = tag.toString();							
+//						PApplet.println("--> dataMissing:"+dataMissing+" tagString:"+tagString);
 
 						if (tag.getTagName().equals("Software")) // Software
 						{
@@ -364,7 +368,53 @@ class GMV_Metadata
 								if(dataMissing) f.addImageError();			// Count dataMissing as image error
 							}
 						}
-						
+
+						if (tag.getTagName().equals("Model")) // Model
+						{
+							camera_model = tagString;
+							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+								PApplet.println("Found Camera Model..." + camera_model);
+
+							try
+							{
+								iCameraModel = parseCameraModel(camera_model);
+							}
+							catch (Throwable t) // If not, must be only one keyword
+							{
+								PApplet.println("Throwable in camera model / focal length..." + t);
+								if(!dataMissing)
+								{
+									f.addImageError();
+									dataMissing = true;
+								}						
+							}
+
+//							PApplet.println("iCameraModel:"+iCameraModel);
+
+							if(iCameraModel == 1)
+							{
+								panorama = true;		// Image is a panorama
+//								PApplet.println("panorama:"+panorama+" dataMissing:"+dataMissing);
+
+								if(dataMissing) f.addPanoramaError();		// Count dataMissing as panorama error
+							}
+							else
+							{
+								if(brightnessMissing || descriptionMissing)
+								{
+									if(!dataMissing)
+									{
+										f.addImageError();
+										dataMissing = true;
+									}						
+								}
+							}
+//							else if(iCameraModel == 2)						// Unknown camera model
+//							{
+//								if(dataMissing) f.addImageError();			// Count dataMissing as image error
+//							}			
+						}
+
 						if (tag.getTagName().equals("Orientation")) // Orientation
 						{
 							orientation = tagString;
@@ -414,12 +464,6 @@ class GMV_Metadata
 							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Direction..." + direction);
 						}
-						if (tag.getTagName().equals("Model")) // Model
-						{
-							camera_model = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
-								PApplet.println("Found Model..." + camera_model);
-						}
 						if (tag.getTagName().equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
 						{
 							description = tagString;
@@ -437,12 +481,7 @@ class GMV_Metadata
 							}
 							else
 							{
-								if(!dataMissing)
-								{
-									if(panorama) f.addPanoramaError();
-									else f.addImageError();
-									dataMissing = true;
-								}
+								descriptionMissing = true;
 
 								if(f.p.p.debug.metadata)
 								{
@@ -479,9 +518,9 @@ class GMV_Metadata
 							fBrightness = parseBrightness(tagString);
 							if(fBrightness == -1.f && !dataMissing)
 							{
-								if(panorama) f.addPanoramaError();
-								else f.addImageError();
-								dataMissing = true;
+								brightnessMissing = true;
+								PApplet.println("-------> set brightnessMissing: " + brightnessMissing);
+								
 							}
 						}
 
@@ -518,7 +557,6 @@ class GMV_Metadata
 				if(!panorama)			// -- Update this
 				{
 					try {
-						iCameraModel = parseCameraModel(camera_model);
 						fFocalLength = parseFocalLength(focalLength);
 						fSensorSize = parseSensorSize(focalLength35);		// 29 mm for iPhone 6S+
 					} 
@@ -592,7 +630,7 @@ class GMV_Metadata
 			/* Add this 3D media object to field based on given metadata */
 			try 
 			{
-				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f) && hasImage)
+				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f))
 				{
 					if(panorama && !dataMissing)
 					{
@@ -921,13 +959,24 @@ class GMV_Metadata
 
 
 	public int parseCameraModel(String input) {
-		String[] parts = input.split(" ");
-		String model = parts[0];
-
-		if (model.equals("NIKON"))
+		String[] parts = input.split(" Model - ");
+		String model = parts[parts.length-1];
+		model = model.replaceAll("\\s\\s","");
+//		PApplet.println("parse model:"+model);
+		if (model.equals("iPhone"))
 			return 0;
-		else
+		else if (model.equals("RICOH THETA S") || model.equals("RICOH THETA"))
+		{
+//			PApplet.println("RICOH THETA S");
 			return 1;
+		}
+		else
+		{
+//			PApplet.println("NOT RICOH THETA S:"+model);
+			return 2;
+		}
+//		else if (model.equals("NIKON"))
+//			return 2;
 	}
 
 	public float ParseDirection(String input) 

@@ -1,10 +1,7 @@
 package gmViewer;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-
 import processing.core.PApplet;
-import processing.data.FloatList;
 import processing.data.IntList;
 //import processing.core.PVector;
 
@@ -153,11 +150,17 @@ public class GMV_Field
 		// filter(INVERT);
 		// filter(DILATE);
 		
-		if(p.p.debug.model || p.viewer.map3DMode)	
-			showClusterCenters();									// Display field cluster centers (media capture locations) 	
+		if(p.p.debug.model || p.viewer.map3DMode)
+		{
+			if(clusters.size()>0)
+				showClusterCenters();									// Display field cluster centers (media capture locations) 	
+		}
 		
 		if(p.showUserPanoramas || p.showStitchedPanoramas)
-			clusters.get(p.viewer.getCurrentCluster()).draw();		// Draw current cluster
+		{
+			if(clusters.size()>0)
+				clusters.get(p.viewer.getCurrentCluster()).draw();		// Draw current cluster
+		}
 	}
 	
 	/**
@@ -249,7 +252,7 @@ public class GMV_Field
 
 		dateline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
 		
-//		if(p.p.debug.time)
+		if(p.p.debug.time && dateline.size()>0)
 		{
 			PApplet.println("---> First lower:"+" dateline.get(0).getLower():"+dateline.get(0).getLower());
 			PApplet.println("---> First center:"+" dateline.get(0).getCenter():"+dateline.get(0).getCenter());

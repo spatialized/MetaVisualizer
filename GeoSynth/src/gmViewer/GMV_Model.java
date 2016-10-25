@@ -177,7 +177,10 @@ public class GMV_Model
 		else 
 		{
 			if(p.p.p.debug.field) 
-				PApplet.println("No images loaded! Couldn't initialize field.");
+			{
+				PApplet.println("No images loaded! Couldn't initialize field...");
+				PApplet.println("p.panoramas.size():"+p.panoramas.size());
+			}
 		}
 	}
 

@@ -88,18 +88,16 @@ public class GMV_Panorama extends GMV_Viewable
 		if(texture.width > 0 && !disabled)			
 		{
 			visible = (getDistanceBrightness() > 0.f);
+//			if(visible)
+//			PApplet.println("visible panorama..."+getID()+" fading:"+fading);
 
 			if(!fading && p.hidePanoramas)
 				visible = false;
-//				fadeOut();
 
 			if(visible && !fading && !fadedOut && !p.hidePanoramas)					// Fade in
 				fadeIn();
 
 			if(fadedOut) fadedOut = false;
-
-//			if(p.p.frameCount % 10 == 0)
-//				PApplet.println("---Update panorama..."+getID()+" visible:"+visible+" fading:"+fading);
 		}
 		
 		if(isFading())                       // Fade in and out with time
@@ -126,6 +124,9 @@ public class GMV_Panorama extends GMV_Viewable
 	{
 		float brightness = fadingBrightness;					
 
+		float distanceBrightnessFactor = getDistanceBrightness(); 
+		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
+//		PApplet.println("distanceBrightnessFactor:"+distanceBrightnessFactor+" brightness:"+brightness);
 		if(p.p.timeFading && time != null)
 		{
 			float timeBrightnessFactor = getTimeBrightness();        
@@ -146,6 +147,7 @@ public class GMV_Panorama extends GMV_Viewable
 			{
 				if(texture.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
 				{
+//					PApplet.println(" brightness before draw:"+brightness+" viewingBrightness:"+viewingBrightness);
 					drawPanorama();
 				}
 			}
@@ -422,13 +424,16 @@ public class GMV_Panorama extends GMV_Viewable
 
 		float distVisibility = 1.f;
 
-		if(viewDist > farViewingDistance)
+		if(viewDist > p.p.defaultFocusDistance-p.p.clusterCenterSize*3.f)
 		{
-			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
+//			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
+			float vanishingPoint = p.p.defaultFocusDistance;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, p.p.viewer.getFarViewingDistance(), vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-p.p.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
+//			if(distVisibility!=0&&distVisibility!=1)
+//				PApplet.println("viewDist:+"+viewDist+" vanishingPoint:"+vanishingPoint+" distVisibility:"+distVisibility);
 		}
 		//		else if(viewDist < nearViewingDistance)								
 		//		{
@@ -439,7 +444,6 @@ public class GMV_Panorama extends GMV_Viewable
 
 		//		PApplet.println("captureLocation.x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y+" captureLocation.z:"+captureLocation.z);
 		//		PApplet.println("viewer.x:"+p.p.viewer.getLocation().x+" viewer.y:"+p.p.viewer.getLocation().y+" viewer.z:"+p.p.viewer.getLocation().z);
-		//		PApplet.println("viewDist:+"+viewDist+" farViewingDistance:"+farViewingDistance+" distVisibility:"+distVisibility);
 		return distVisibility;
 	}
 

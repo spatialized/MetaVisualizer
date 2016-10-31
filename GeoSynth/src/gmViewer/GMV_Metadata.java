@@ -71,14 +71,19 @@ class GMV_Metadata
 		pCount = 0;
 		vCount = 0;
 
+//		boolean result;
+		
 		if(imageFilesFound || smallImageFilesFound)				// Load image metadata 
-			loadImagesFromTags(imageFiles);
-		if(panoramaFilesFound)				// Load panorama metadata 
 		{
-			PApplet.println("loadImagesFromTags panoramas:"+panoramaFiles.length);
+			loadImagesFromTags(imageFiles);
+		}
+		if(panoramaFilesFound)									// Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
+		{
+			if(p.debug.metadata)
+				PApplet.println("loadImagesFromTags panoramas:"+panoramaFiles.length);
 			loadImagesFromTags(panoramaFiles);
 		}
-		if(videoFilesFound)					// Load video metadata 
+		if(videoFilesFound)										// Load video metadata 
 			loadVideosFromTags(videoFiles);	
 	}
 	
@@ -285,10 +290,15 @@ class GMV_Metadata
 	 * Read tags from array of image/panorama files and create 3D image/panorama objects
 	 * @param files File array
 	 */
-	public void loadImagesFromTags(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	public boolean loadImagesFromTags(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
 	{
-		int fileCount = files.length;	 		// File count
-
+		int fileCount;
+		
+		if(files != null)
+			fileCount = files.length;	 		// File count
+		else 
+			return false;
+		
 //		PApplet.println("fileCount:"+fileCount);
 		boolean imagesExist = true;
 
@@ -652,17 +662,22 @@ class GMV_Metadata
 					PApplet.println("Could not add image! Error: "+ex);
 			}
 		}
+		
+		return true;
 	}
 	
 	/** 
 	 * Read tags from array of video files and create 3D video objects
 	 * @param files File array
 	 */
-	public void loadVideosFromTags(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	public boolean loadVideosFromTags(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
 	{
 		int fileCount;
-		fileCount = files.length;	 		// File count
-
+		if(files != null)
+			fileCount = files.length;	 		// File count
+		else
+			return false;
+		
 		boolean videosExist = true;
 		
 		if (videoFiles == null)					// Check if any videos exist
@@ -803,6 +818,8 @@ class GMV_Metadata
 				}
 			}
 		}
+		
+		return true;
 	}
 	
 	/**

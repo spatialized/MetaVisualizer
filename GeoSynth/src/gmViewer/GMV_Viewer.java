@@ -713,7 +713,7 @@ public class GMV_Viewer
 	{
 		GMV_Field f = p.getField(fieldID);
 		
-//		if(p.p.debug.viewer && p.p.debug.detailed)
+		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToDateInField: nextFieldDate:"+nextFieldDate+" id:"+f.dateline.get(nextFieldDate).getID()+" f.dateline.size():"+f.dateline.size());
 
 		if(f.dateline.size()>0)
@@ -721,7 +721,7 @@ public class GMV_Viewer
 			if(f.dateline.get(nextFieldDate).getID() == currentCluster && p.getCluster(f.dateline.get(nextFieldDate).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different date in same cluster
 			{
 				currentFieldDateSegment++;
-//				if(p.p.debug.viewer && p.p.debug.detailed)
+				if(p.p.debug.viewer && p.p.debug.detailed)
 					p.display.message("Advanced date segment in same cluster... "+f.dateline.get(nextFieldDate).getID());
 			}
 			else
@@ -745,7 +745,7 @@ public class GMV_Viewer
 	{
 		GMV_Cluster c = p.getCluster(clusterID);
 		
-//		if(p.p.debug.viewer && p.p.debug.detailed)
+		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToDateInCluster:"+c.dateline.get(nextClusterDate).getID()+" c.dateline.size():"+c.dateline.size());
 
 		if(teleport)
@@ -1094,26 +1094,18 @@ public class GMV_Viewer
 			currentFieldDateSegment++;
 			while(!found)
 			{
-				if(p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter() != current)
-				{
-//					PApplet.println("... found: getCenter():"+p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter()+" current:"+current);
-					found = true;
-				}
-				else
-					currentFieldDateSegment++;
-
 				if(currentFieldDateSegment >= p.getCurrentField().dateline.size())
 				{
 					currentFieldDateSegment = 0;
 					PApplet.println("End of dateline...");
 					found = true;
 				}
+				else if(p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter() != current)
+					found = true;
+				else 
+					currentFieldDateSegment++;
 			}
 			currentFieldTimeSegment = getFirstTimeForDate(currentFieldDateSegment);	// test
-//			currentFieldTimeSegment = 0;
-
-//			int fieldID, int nextFieldTime, int fieldDateSegment, boolean teleport
-//			moveToFieldTimeOnDate(p.getCurrentField().fieldID, currentFieldTimeSegment, currentFieldDateSegment, teleport);
 			moveToDateInField(p.getCurrentField().fieldID, currentFieldDateSegment, teleport);
 		}
 		else
@@ -1126,6 +1118,62 @@ public class GMV_Viewer
 			moveToDateInCluster(p.getCurrentCluster().getID(), currentClusterDateSegment, teleport);
 		}
 	}
+	
+	/**
+	 * Move to previous date segment in field
+	 * @param field
+	 * @param teleport
+	 */
+	void moveToPreviousDateSegment(boolean field, boolean teleport)
+	{
+		if(field)
+		{
+			boolean found = false;
+			float current = p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter();
+			currentFieldDateSegment--;
+			while(!found)
+			{
+//				if(currentFieldDateSegment >= p.getCurrentField().dateline.size())
+//				{
+//					currentFieldDateSegment = 0;
+//					PApplet.println("End of dateline...");
+//					found = true;
+//				}
+//
+//				if(p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter() != current)
+//				{
+//					found = true;
+//				}
+//				else if(!found)
+//					currentFieldDateSegment++;
+				
+				if(currentFieldDateSegment < 0)
+				{
+					currentFieldDateSegment = p.getCurrentField().dateline.size()-1;
+					found = true;
+				}				
+				else if(currentFieldDateSegment >= 0)
+				{
+					if(p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter() != current)
+						found = true;
+					else 
+						currentFieldDateSegment--;
+				}
+			}
+			currentFieldTimeSegment = getLastTimeForDate(currentFieldDateSegment);	// test
+			moveToDateInField(p.getCurrentField().fieldID, currentFieldDateSegment, teleport);
+		}
+		else
+		{
+			currentClusterDateSegment++;
+			if(currentClusterDateSegment >= p.getCurrentCluster().dateline.size())
+				currentClusterDateSegment = 0;
+			currentClusterTimeSegment = 0;
+
+			moveToDateInCluster(p.getCurrentCluster().getID(), currentClusterDateSegment, teleport);
+		}
+	}
+
 
 	public int getFirstTimeForDate(int dateSegment)
 	{
@@ -1167,116 +1215,52 @@ public class GMV_Viewer
 		}
 		
 		PApplet.println("Couldn't find first time for date in cluster:"+dateSegment);
-		return -1;
-		
-//		boolean found = false;
-//		int curTimeSegment = 0;
-//		float date = p.getCurrentField().dateline.get(dateSegment).getCenter();
-//		while(!found)
-//		{
-//			if(curTimeSegment >= p.getCurrentField().timeline.size()) 					// Reached end of day
-//			{
-//				PApplet.println("Couldn't find first time for date segment:"+dateSegment);
-//				break;
-//			}
-//			else
-//			{
-//				int id = p.getCurrentField().timeline.get(curTimeSegment).getID();		// Find cluster for current time segment
-//				for(GMV_TimeSegment t : p.getCluster(id).dateline)						// Look through dates for cluster
-//				{
-//					if(!found)							// -- To do: Make sure it doesn't return time segment from wrong date!!!
-//					{	
-//						if(t.getCenter() == date)										// If cluster has date,
-//						{
-//							found = true;												// destination cluster has been found
-//							PApplet.println("found cluster with date... "+id+" curTimeSegment:"+curTimeSegment+" date:"+date);
-//						}
-//						else
-//						{
-////							PApplet.println("didn't find next cluster... id:"+id+" t.getCenter():"+t.getCenter()+" date:"+date);
-//						}
-//					}
-//				}
-//				if(!found)
-//				{
-//					curTimeSegment++;
-//					PApplet.println("Not found, new curTimeSegment:"+curTimeSegment+" p.getCluster(id).dateline.size:"+p.getCluster(id).dateline.size());
-//				}
-//			}
-//		}
-//	
-//		return curTimeSegment;	
+		return -1;	
 	}
 	
 	private int getLastTimeForDate(int dateSegment)
 	{
-		float date = p.getCurrentField().dateline.get(dateSegment).getCenter();
-		int count = 0;
-		boolean found = false;
-		int result = -1;
-		while(!found)
-		{
-			GMV_TimeSegment t = p.getCurrentField().timeline.get(count);
+		float latest = -1000000.f;
+		int latestIdx = -1;
 
-			int ct = p.getCurrentField().timeline.size()-1;
-			for(GMV_TimeSegment d : p.getCluster(t.getID()).dateline)
+		for(GMV_Cluster c : p.getFieldClusters())
+		{
+			GMV_TimeSegment t = c.getLastTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
+			if(t != null)
 			{
-				if(d.getCenter() == date)
+				if(t.getCenter() > latest)
 				{
-					found = true;
-					result = ct;
-					break;
+					latest = t.getCenter();
+					latestIdx = c.getID();
 				}
-				ct--;
 			}
-			count--;
 		}
 		
-		return result;
-	}
-	
-	/**
-	 * Move to previous date segment in field
-	 * @param field
-	 * @param teleport
-	 */
-	void moveToPreviousDateSegment(boolean field, boolean teleport)
-	{
-		if(field)
+		if(latestIdx != -1)
 		{
-			boolean found = false;
-			float current = p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter();
-			currentFieldDateSegment--;
-			while(!found)
+			int count = 0;
+			for(GMV_TimeSegment t : p.getCurrentField().timeline)
 			{
-				if(currentFieldDateSegment >= 0)
+				if(t.getID() == latestIdx)
 				{
-					if(p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter() != current)
-						found = true;
-					else
-						currentFieldDateSegment--;
+					if(t.getCenter() == latest)
+					{
+						PApplet.println("Found last time for dateSegment:"+dateSegment+" count:"+count+" t.getID():"+t.getID()+" t.getCenter():"+t.getCenter());
+//						return t.getID();
+						return count;
+					}
 				}
-
-				if(currentFieldDateSegment < 0)
-				{
-					currentFieldDateSegment = p.getCurrentField().dateline.size()-1;
-					found = true;
-				}
+				count++;
 			}
-			currentFieldTimeSegment = getLastTimeForDate(currentFieldDateSegment);	// test
-			moveToDateInField(p.getCurrentField().fieldID, currentFieldDateSegment, teleport);
+			
+			PApplet.println("Couldn't find last time for date in field:"+dateSegment);
+			return -1;
 		}
-		else
-		{
-			currentClusterDateSegment++;
-			if(currentClusterDateSegment >= p.getCurrentCluster().dateline.size())
-				currentClusterDateSegment = 0;
-			currentClusterTimeSegment = 0;
+		
+		PApplet.println("Couldn't find last time for date in cluster:"+dateSegment);
+		return -1;	
 
-			moveToDateInCluster(p.getCurrentCluster().getID(), currentClusterDateSegment, teleport);
-		}
 	}
-
 	/**
 	 * teleportToGoal()
 	 * @param newField Goal field ID; value of -1 indicates to stay in current field

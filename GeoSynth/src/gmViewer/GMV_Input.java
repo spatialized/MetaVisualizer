@@ -36,12 +36,15 @@ public class GMV_Input
 		/* General */
 		if (key == ' ') 
 		{
-//			if(!p.interactive)
-//				p.pause = !p.pause;
 			if(p.interactive)
 			{
 				p.finishInteractiveClustering();			// Restart simulation after interative clustering
 			}
+		}
+		
+		if (key == ' ') 
+		{
+ 			p.p.world.paused = !p.p.world.paused;
 		}
 		
 		/* Display Modes */
@@ -290,7 +293,7 @@ public class GMV_Input
 			if (key == 'Q')
 				p.viewer.moveToNextCluster(false, -1);
 
-			if (key == 'e')									// Move UP
+			if (!optionKey && key == 'e')									// Move UP
 				p.viewer.startMoveYTransition(-1);
 
 			if (key == 'c') 									// Move DOWN
@@ -477,12 +480,12 @@ public class GMV_Input
 				if (key == 'P')
 					p.alphaMode = !p.alphaMode;
 
-				if (!shiftKey && key == ' ') 
+				if (!shiftKey && optionKey && key == ' ') 
 				{
 					p.timeFading = !p.timeFading;
 				}
 
-				if (shiftKey && key == ' ') 
+				if (shiftKey && !optionKey && key == ' ') 
 				{
 					p.dateFading = !p.dateFading;
 				}

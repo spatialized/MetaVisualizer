@@ -27,7 +27,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	public boolean startup = true;					// Startup frame
 	public boolean exit = false;					// System message to exit the program
 	public boolean selectedLibrary = false;	// Has user selected a library folder?
-
+	
 	/* Library */
 	GMV_Metadata metadata;			// Metadata handler class
 	GS_Library library;				// GeoSynth Media Library

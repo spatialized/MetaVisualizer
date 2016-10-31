@@ -545,8 +545,10 @@ public class GMV_Cluster
 				
 				userPanoramas.add(pano);
 
-				p.p.viewer.selection = false;
-//				p.deselectAllMedia(true);		// Deselect and hide all currently selected media 
+//				p.p.viewer.selection = false;
+//				p.p.viewer.multiSelection = false;
+//				p.p.viewer.segmentSelection = false;
+				p.deselectAllMedia(true);		// Deselect and hide all currently selected media 
 				
 //				if(userPanoramas.size() == 0)
 //				{
@@ -602,9 +604,11 @@ public class GMV_Cluster
 							pano.initializeSphere(pano.panoramaDetail);
 							stitchedPanoramas.add(pano);
 
-//							m.hide();
+							m.hide();
 
-							p.p.viewer.selection = false;
+//							p.p.viewer.selection = false;
+//							p.p.viewer.multiSelection = false;
+//							p.p.viewer.segmentSelection = false;
 							p.deselectAllMedia(false);
 
 //							if(stitchedPanoramas.size() == 0)
@@ -1595,6 +1599,46 @@ public class GMV_Cluster
 					return timelines.get(timelineID).get(0);
 				else
 					return timeline.get(0);
+			}
+			else
+			{
+//				PApplet.println("Date doesn't exist in cluster #"+getID()+"... "+date);
+				return null;
+			}
+		}
+		else 
+		{
+//			PApplet.println("Cluster #"+getID()+" has no dateline... ");
+			return null;
+		}
+	}
+	
+	public GMV_TimeSegment getLastTimeSegmentForDate(float date)
+	{
+		boolean found = false;
+		int timelineID = 0;
+//		float date = p.getCurrentField().dateline.get(dateSegment).getCenter();
+		
+		if(dateline != null)
+		{
+			for(int index=dateline.size()-1; index >= 0; index--)					// Look through cluster dates for date
+			{
+				GMV_TimeSegment t = dateline.get(index);
+				if(!found)						
+				{	
+					if(t.getCenter() == date)										// If cluster has date,
+						found = true;												// destination cluster has been found
+					else
+						timelineID++;
+				}
+			}
+
+			if(found)
+			{
+				if(dateline.size()>1)
+					return timelines.get(timelineID).get(timelines.get(timelineID).size()-1);
+				else
+					return timeline.get(timeline.size()-1);
 			}
 			else
 			{

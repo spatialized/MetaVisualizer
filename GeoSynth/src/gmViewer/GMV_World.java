@@ -70,6 +70,8 @@ public class GMV_World {
 	/* Time */
 	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
 	public boolean dateFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
+	public boolean paused = false;						// Time is paused
+
 	public boolean showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 

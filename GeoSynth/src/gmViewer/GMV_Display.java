@@ -2,7 +2,7 @@ package gmViewer;
 
 import java.util.ArrayList;
 
-import damkjer.ocd.Camera;
+//import damkjer.ocd.Camera;
 import processing.core.*;
 import processing.data.FloatList;
 import toxi.math.ScaleMap;
@@ -418,15 +418,15 @@ class GMV_Display
 				p.p.pushMatrix();
 				beginHUD();
 
-				FloatList clusterTimes = p.getCurrentCluster().getClusterTimes();
-				x = logoXOffset / 3.f + c.clusterTimesHistogram.length * inc + 30.f;
-				
-				if(clusterTimes.size() == 1)
-					p.p.text(clusterTimes.get(0), x, y, hudDistance);
-				if(clusterTimes.size() == 2)
-					p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1), x, y, hudDistance);
-				if(clusterTimes.size() >= 3)
-					p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), x, y, hudDistance);
+//				FloatList clusterTimes = p.getCurrentCluster().getClusterTimes();
+//				x = logoXOffset / 3.f + c.clusterTimesHistogram.length * inc + 30.f;
+//				
+//				if(clusterTimes.size() == 1)
+//					p.p.text(clusterTimes.get(0), x, y, hudDistance);
+//				if(clusterTimes.size() == 2)
+//					p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1), x, y, hudDistance);
+//				if(clusterTimes.size() >= 3)
+//					p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), x, y, hudDistance);
 				
 				p.p.popMatrix();
 			}
@@ -1612,23 +1612,23 @@ class GMV_Display
 		if(p.p.debug.cluster)
 		{
 			p.p.text(" -- Debug --", textXPos, textYPos += lineWidth, hudDistance);
-			p.p.text(" Cluster Times (Size): "+ c.getClusterTimes().size(), textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Cluster Timeline Length: "+ c.getTimeline().size(), textXPos, textYPos += lineWidth, hudDistance);
 //			p.p.text(" Field Timeline Times: "+ c.getFieldTimes().size(), dispLocX, textYPos += lineWidth, hudDistance);
 		}
 		
-		FloatList clusterTimes = p.getCurrentCluster().getClusterTimes();
-		
-		if(clusterTimes.size() == 0)
-			p.p.text("No timeline!", textXPos, textYPos += lineWidth, hudDistance);
-		else
-			p.p.text("Timeline:", textXPos , textYPos += lineWidth, hudDistance);
-
-		if(clusterTimes.size() == 1)
-			p.p.text(clusterTimes.get(0), textXPos + 50.f, textYPos, hudDistance);
-		if(clusterTimes.size() == 2)
-			p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1), textXPos + 100.f, textYPos, hudDistance);
-		if(clusterTimes.size() >= 3)
-			p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), textXPos + 150.f, textYPos, hudDistance);
+//		FloatList clusterTimes = p.getCurrentCluster().getClusterTimes();
+//		
+//		if(clusterTimes.size() == 0)
+//			p.p.text("No timeline!", textXPos, textYPos += lineWidth, hudDistance);
+//		else
+//			p.p.text("Timeline:", textXPos , textYPos += lineWidth, hudDistance);
+//
+//		if(clusterTimes.size() == 1)
+//			p.p.text(clusterTimes.get(0), textXPos + 50.f, textYPos, hudDistance);
+//		if(clusterTimes.size() == 2)
+//			p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1), textXPos + 100.f, textYPos, hudDistance);
+//		if(clusterTimes.size() >= 3)
+//			p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), textXPos + 150.f, textYPos, hudDistance);
 				
 		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);

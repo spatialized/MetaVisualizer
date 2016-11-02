@@ -197,7 +197,7 @@ public class GMV_Cluster
 						if(p.images.get(m).getID() != img.getID())		// Don't compare image to itself
 						{
 							if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
-								PApplet.println("Comparing img:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
+								PApplet.println("Comparing image:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
 							
 							if(PApplet.abs(img.getDirection() - p.images.get(m).getDirection()) < p.p.stitchingMinAngle)
 							{
@@ -206,12 +206,8 @@ public class GMV_Cluster
 									float direction = img.getDirection();
 									float elevation = img.getElevation();
 									
-//									PApplet.println("direction before:"+direction);
-//									PApplet.println("elevation before:"+elevation);
 									direction = p.p.p.utilities.constrainWrap(direction, 0.f, 360.f);
 									elevation = p.p.p.utilities.constrainWrap(elevation, -90.f, 90.f);
-//									PApplet.println("direction after:"+direction);
-//									PApplet.println("elevation after:"+elevation);
 									
 									if(direction < left) left = direction;
 									if(direction > right) right = direction;
@@ -1038,6 +1034,12 @@ public class GMV_Cluster
 		int count = 0;
 		for( float t:clusterDates )							// Add dates to dateline
 		{
+
+			if(p.p.p.debug.time)
+			{
+				PApplet.println(">>> Creating cluster #"+getID()+" dateline points: <<<");
+			}
+			
 			dateline.add(new GMV_TimeSegment(count, t, clusterDatesUpperBounds.get(count), clusterDatesLowerBounds.get(count)));
 			count++;
 		}
@@ -1261,6 +1263,10 @@ public class GMV_Cluster
 			int count = 0;
 			for( float t:clusterTimes )							// Add times to timeline
 			{
+				if(p.p.p.debug.time)
+					PApplet.println("  Created timeline point for cluster:"+getID()+" upper:"+clusterTimesUpperBounds.get(count)+
+							 " center:"+t+" lower:"+clusterTimesLowerBounds.get(count));
+
 				timelines.get(curTimeline).add(new GMV_TimeSegment(count, t, clusterTimesUpperBounds.get(count), clusterTimesLowerBounds.get(count)));
 				count++;
 			}
@@ -1464,11 +1470,22 @@ public class GMV_Cluster
 			}
 		}
 
+		if(p.p.p.debug.time)
+		{
+			PApplet.println(">>> Creating cluster #"+getID()+" timeline points: <<<");
+		}
+
 		int count = 0;
 		for( float t:clusterTimes )							// Add times to timeline
 		{
 			timeline.add(new GMV_TimeSegment(count, t, clusterTimesUpperBounds.get(count), clusterTimesLowerBounds.get(count)));
+			if(p.p.p.debug.time)
+			{
+				PApplet.println("  Created timeline point for cluster:"+getID()+" upper:"+clusterTimesUpperBounds.get(count)+
+						"center:"+t+" lower:"+clusterTimesLowerBounds.get(count));
+			}
 			count++;
+
 		}
 
 		mediaTimes = new FloatList();
@@ -1538,9 +1555,19 @@ public class GMV_Cluster
 			}
 		}
 	
-		clusterTimes.sort();
-		fieldTimes.sort();
 		timeline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
+		
+		// RECALCULATE CLUSTER TIMES AFTER SORT? --- NO, DELETE THESE REDUNDANT VARIABLES!!! ///
+
+//		clusterTimes = new FloatList();
+//		clusterTimesUpperBounds = new FloatList();
+//		clusterTimesLowerBounds = new FloatList();
+//		for(GMV_TimeSegment t : timeline)
+//		{
+//			t.getCenter()
+//			t.getLower()
+//			t.getUpper()
+//		}
 		
 		/* Debugging */
 		if(p.p.p.debug.cluster && clusterTimes.size()>1)
@@ -1835,13 +1862,15 @@ public class GMV_Cluster
 	{
 		/* Initialize list of media times */
 		ArrayList<GMV_TimeSegment> mediaTimes = new ArrayList<GMV_TimeSegment>();
-//		PApplet.println("histogram.length:"+histogram.length);
+//		if(p.p.p.debug.time)
+//			PApplet.println("-------> Creating histogram of length:"+histogram.length);
+	
 		for (int i=0; i<timePrecision; i++) 				
 		{
 			for(int j=0; j<histogram[i]; j++)							// Add time to list for each media point
 			{
-//				if(timePrecision == 100)
-//					PApplet.println("---> i:"+i);
+				if(timePrecision == 100)
+					PApplet.println("---> i:"+i);
 				mediaTimes.add(new GMV_TimeSegment(0, i, 0, 0));		// Don't need ID, upper or lower values
 			}
 		}
@@ -2031,20 +2060,25 @@ public class GMV_Cluster
 		return result;
 	}
 	
-	public FloatList getClusterTimes()
+	public ArrayList<GMV_TimeSegment> getTimeline()
 	{
-		return clusterTimes;
+		return timeline;
 	}
-
-	public FloatList getClusterTimesLowerBounds()
-	{
-		return clusterTimesLowerBounds;
-	}
-
-	public FloatList getClusterTimesUpperBounds()
-	{
-		return clusterTimesUpperBounds;
-	}
+	
+//	public FloatList getClusterTimes()
+//	{
+//		return clusterTimes;
+//	}
+//
+//	public FloatList getClusterTimesLowerBounds()
+//	{
+//		return clusterTimesLowerBounds;
+//	}
+//
+//	public FloatList getClusterTimesUpperBounds()
+//	{
+//		return clusterTimesUpperBounds;
+//	}
 
 	public FloatList getClusterDates()
 	{

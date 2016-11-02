@@ -7,23 +7,23 @@ import processing.core.PApplet;
 /*********************************************
  * GMV_TimeSegment
  * @author davidgordon
- * Simple class for associating a 
+ * Represents a media object or cluster time span
  */
 public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>									
 {
-	private float time;			// Time 
+	private float center;			// Time 
 	private float lower, upper;	// Upper and lower bounds of cluster
 	private int id = -1;		// Cluster ID
 	
 	GMV_TimeSegment(int newID, float newTime, float newUpper, float newLower)
 	{
 		id = newID;
-		time = newTime;
+		center = newTime;
 		upper = newUpper;
 		lower = newLower;
-		if((lower!=0&&upper!=0)&&(time > upper || time < lower))
+		if((lower!=0&&upper!=0)&&(center > upper || center < lower))
 		{
-			PApplet.println("ERROR: time:"+time+" lower:"+lower+" upper:"+upper);
+			PApplet.println("ERROR: id:"+id+" lower:"+lower+" center:"+center+" upper:"+upper);
 		}
 	}
 	
@@ -51,7 +51,7 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 	 */
 	public void setCenter(float newCenter)
 	{
-		time = newCenter;
+		center = newCenter;
 	}
 	
 	/** 
@@ -68,7 +68,7 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 	 */
 	public float getCenter()
 	{
-		return time;
+		return center;
 	}
 	
 	/** 
@@ -105,7 +105,7 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 	 */
 	public int compareTo(GMV_TimeSegment t)
 	{
-		return Float.compare(this.time, t.time);		
+		return Float.compare(this.center, t.center);		
 	}
 
 	public static Comparator<GMV_TimeSegment> GMV_TimeMidpointComparator = new Comparator<GMV_TimeSegment>() 

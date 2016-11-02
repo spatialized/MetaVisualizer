@@ -203,13 +203,19 @@ public class GMV_Field
 		for(GMV_Cluster c : clusters)											// Find all media cluster times
 		{
 			ArrayList<GMV_TimeSegment> times = new ArrayList<GMV_TimeSegment>();
-			int count = 0;
+//			int count = 0;
 			
-			for(float f : c.getClusterTimes())									// Iterate through cluster times
+			if(p.p.debug.time)
+				PApplet.println(">>> Creating Field Timeline... <<<");
+
+//			for(float f : c.getClusterTimes())									// Iterate through cluster times
+			for(GMV_TimeSegment t : c.getTimeline())
 			{
-				GMV_TimeSegment time = new GMV_TimeSegment(	c.getID(), f, c.getClusterTimesUpperBounds().get(count), c.getClusterTimesLowerBounds().get(count));
+				PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
+//				PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+c.getClusterTimesLowerBounds().get(count)+" center:"+f+" upper:"+ c.getClusterTimesUpperBounds().get(count) );
+				GMV_TimeSegment time = new GMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
 				times.add( time );							// Add segment to timeline
-				count++;
+//				count++;
 			}
 
 			for(GMV_TimeSegment t : times)										// Add indexed cluster times to timeline
@@ -220,12 +226,13 @@ public class GMV_Field
 		
 		if(p.p.debug.time)
 		{
-			PApplet.println("---> First lower:"+" timeline.get(0).lower():"+timeline.get(0).getLower());
-			PApplet.println("---> First center:"+" timeline.get(0).lower():"+timeline.get(0).getCenter());
-			PApplet.println("---> First upper:"+" timeline.get(0).lower():"+timeline.get(0).getUpper());
-			PApplet.println("---> Last lower:"+" timeline.get(timeline.size()-1).lower():"+timeline.get(timeline.size()-1).getLower());
-			PApplet.println("---> Last center:"+" timeline.get(timeline.size()-1).center():"+timeline.get(timeline.size()-1).getCenter());
-			PApplet.println("---> Last upper:"+" timeline.get(timeline.size()-1).upper():"+timeline.get(timeline.size()-1).getUpper());
+			PApplet.println("------ Field Timeline ------");
+			PApplet.println("---> First lower:"+" timeline.get(0).getLower():"+timeline.get(0).getLower());
+			PApplet.println("---> First center:"+" timeline.get(0).getCenter():"+timeline.get(0).getCenter());
+			PApplet.println("---> First upper:"+" timeline.get(0).getUpper():"+timeline.get(0).getUpper());
+			PApplet.println("---> Last lower:"+" timeline.get(timeline.size()-1).getLower():"+timeline.get(timeline.size()-1).getLower());
+			PApplet.println("---> Last center:"+" timeline.get(timeline.size()-1).getCenter():"+timeline.get(timeline.size()-1).getCenter());
+			PApplet.println("---> Last upper:"+" timeline.get(timeline.size()-1).getUpper():"+timeline.get(timeline.size()-1).getUpper());
 		}
 	}
 	

@@ -1114,8 +1114,8 @@ public class GMV_Cluster
 			}
 		}
 	
-		clusterDates.sort();
-		fieldDates.sort();
+//		clusterDates.sort();
+//		fieldDates.sort();
 		dateline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort dateline points 
 		
 		/* Debugging */
@@ -1142,7 +1142,7 @@ public class GMV_Cluster
 		
 		if(dateline.size() == 0)
 		{
-			PApplet.println("Cluster dateline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
+			PApplet.println("-------> Cluster "+getID()+" dateline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
 			empty();
 		}
 	}
@@ -2059,10 +2059,15 @@ public class GMV_Cluster
 		GMV_Waypoint result = new GMV_Waypoint(getID(), getLocation());
 		return result;
 	}
-	
+
 	public ArrayList<GMV_TimeSegment> getTimeline()
 	{
 		return timeline;
+	}
+
+	public ArrayList<GMV_TimeSegment> getDateline()
+	{
+		return dateline;
 	}
 	
 //	public FloatList getClusterTimes()
@@ -2080,20 +2085,20 @@ public class GMV_Cluster
 //		return clusterTimesUpperBounds;
 //	}
 
-	public FloatList getClusterDates()
-	{
-		return clusterDates;
-	}
-
-	public FloatList getClusterDatesLowerBounds()
-	{
-		return clusterDatesLowerBounds;
-	}
-
-	public FloatList getClusterDatesUpperBounds()
-	{
-		return clusterDatesUpperBounds;
-	}
+//	public FloatList getClusterDates()
+//	{
+//		return clusterDates;
+//	}
+//
+//	public FloatList getClusterDatesLowerBounds()
+//	{
+//		return clusterDatesLowerBounds;
+//	}
+//
+//	public FloatList getClusterDatesUpperBounds()
+//	{
+//		return clusterDatesUpperBounds;
+//	}
 	
 	public void setActive(boolean newActive)
 	{

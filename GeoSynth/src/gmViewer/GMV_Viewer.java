@@ -983,7 +983,9 @@ public class GMV_Viewer
 								if(t.getCenter() == p.getCurrentField().dateline.get(currentFieldDateSegment).getCenter())
 								{
 									found = true;															// destination cluster has been found
-									PApplet.println("found next cluster... "+id+" currentFieldTimeSegment:"+currentFieldTimeSegment);
+									
+									if(p.p.debug.viewer)
+										PApplet.println("found next cluster... "+id+" currentFieldTimeSegment:"+currentFieldTimeSegment);
 								}
 							}
 						}

@@ -211,8 +211,9 @@ public class GMV_Field
 //			for(float f : c.getClusterTimes())									// Iterate through cluster times
 			for(GMV_TimeSegment t : c.getTimeline())
 			{
-				PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
-//				PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+c.getClusterTimesLowerBounds().get(count)+" center:"+f+" upper:"+ c.getClusterTimesUpperBounds().get(count) );
+				if(p.p.debug.time)
+					PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
+
 				GMV_TimeSegment time = new GMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
 				times.add( time );							// Add segment to timeline
 //				count++;
@@ -241,17 +242,20 @@ public class GMV_Field
 		for(GMV_Cluster c : clusters)											// Find all media cluster times
 		{
 			ArrayList<GMV_TimeSegment> dates = new ArrayList<GMV_TimeSegment>();
-			int count = 0;
 			
-			for(float f : c.getClusterDates())									// Iterate through cluster dates
+			if(!c.isEmpty())
 			{
-				GMV_TimeSegment date = new GMV_TimeSegment(	c.getID(), f, c.getClusterDatesUpperBounds().get(count), c.getClusterDatesLowerBounds().get(count));
-				dates.add( date );							// Add segment to dateline
-				count++;
-			}
+//				int count = 0;
+				for(GMV_TimeSegment d : c.getDateline())							// Iterate through cluster dateline
+				{
+					GMV_TimeSegment date = new GMV_TimeSegment(	c.getID(), d.getCenter(), d.getUpper(), d.getLower());
+					dates.add( date );												// Add segment to field dateline
+//					count++;
+				}
 
-			for(GMV_TimeSegment t : dates)										// Add indexed cluster times to dateline
-				dateline.add(t);
+				for(GMV_TimeSegment t : dates)										// Add indexed cluster times to dateline
+					dateline.add(t);
+			}
 		}
 
 		dateline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments

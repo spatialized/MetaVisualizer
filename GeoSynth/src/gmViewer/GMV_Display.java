@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 //import damkjer.ocd.Camera;
 import processing.core.*;
-import processing.data.FloatList;
+//import processing.data.FloatList;
 import toxi.math.ScaleMap;
 
 /***********************************
@@ -548,15 +548,15 @@ class GMV_Display
 				p.p.pushMatrix();
 				beginHUD();
 
-				FloatList clusterDates = p.getCurrentCluster().getClusterDates();
-				x = logoXOffset / 3.f + c.clusterDatesHistogram.length * inc + 30.f;
-				
-				if(clusterDates.size() == 1)
-					p.p.text(clusterDates.get(0), x, y, hudDistance);
-				if(clusterDates.size() == 2)
-					p.p.text(clusterDates.get(0)+" "+clusterDates.get(1), x, y, hudDistance);
-				if(clusterDates.size() >= 3)
-					p.p.text(clusterDates.get(0)+" "+clusterDates.get(1)+" "+clusterDates.get(2), x, y, hudDistance);
+//				FloatList clusterDates = p.getCurrentCluster().getClusterDates();
+//				x = logoXOffset / 3.f + c.clusterDatesHistogram.length * inc + 30.f;
+//				
+//				if(clusterDates.size() == 1)
+//					p.p.text(clusterDates.get(0), x, y, hudDistance);
+//				if(clusterDates.size() == 2)
+//					p.p.text(clusterDates.get(0)+" "+clusterDates.get(1), x, y, hudDistance);
+//				if(clusterDates.size() >= 3)
+//					p.p.text(clusterDates.get(0)+" "+clusterDates.get(1)+" "+clusterDates.get(2), x, y, hudDistance);
 				
 				p.p.popMatrix();
 			}

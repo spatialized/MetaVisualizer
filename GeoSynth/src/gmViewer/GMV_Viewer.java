@@ -625,6 +625,7 @@ public class GMV_Viewer
 
 		p.display.message("moveToFirstTimeOnDate:"+fieldDateSegment);
 		currentFieldTimeSegment = getFirstTimeForDate(fieldDateSegment);
+		p.display.message("... new currentFieldTimeSegment:"+currentFieldTimeSegment);
 
 //		boolean found = false;
 //		while(!found)
@@ -672,8 +673,8 @@ public class GMV_Viewer
 //			}
 //		}
 
-//		if(found)
-//		{
+		if(f.timeline.size() > currentFieldTimeSegment)
+		{
 			if(teleport)
 			{
 				teleportToCluster(f.timeline.get(currentFieldTimeSegment).getID(), true);
@@ -682,8 +683,9 @@ public class GMV_Viewer
 			{
 				setAttractorCluster(f.timeline.get(currentFieldTimeSegment).getID());
 			}
-//		}
-		
+		}
+		else
+			PApplet.println("Chose a time not on timeline!... currentFieldTimeSegment:"+currentFieldTimeSegment+" timeline size:"+f.timeline.size());
 	}
 	
 	/**

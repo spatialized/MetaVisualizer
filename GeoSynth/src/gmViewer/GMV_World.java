@@ -468,7 +468,7 @@ public class GMV_World {
 			display.sendSetupMessage(" ");
 		}
 		
-		display.sendSetupMessage("Starting GeoSynth v1.0...");	// Show startup message
+		display.sendSetupMessage("Starting WorldMediaViewer v1.0...");	// Show startup message
 		display.draw();											
 
 		p.running = false;			// Stop running

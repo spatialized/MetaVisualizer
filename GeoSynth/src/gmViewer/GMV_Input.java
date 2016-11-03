@@ -2,7 +2,7 @@ package gmViewer;
 import processing.core.*;
 
 /**************************************
- * GMV_Input
+ * WMV_Input
  * @author davidgordon
  * Methods for responding to user input from keyboard or mouse
  */

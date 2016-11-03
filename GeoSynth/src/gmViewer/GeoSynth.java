@@ -1,5 +1,5 @@
 /********************************************************************************
-* GeoSynth v1.0.0
+* WorldMediaViewer v1.0.0
 * @author davidgordon
 * 
 * A program for displaying large multimedia collections as 3D immersive 
@@ -10,7 +10,7 @@
 *********************************************************************************/
 
 /*****************************
-* GeoSynth 
+* WorldMediaViewer 
 * @author davidgordon
 * 
 * Main GMViewer app class
@@ -101,7 +101,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	 */
 	void stopGeoSynth() 		
 	{
-		PApplet.println("Exiting GMViewer 1.0.0...");
+		PApplet.println("Exiting WorldMediaViewer 1.0.0...");
 		exit();
 	}
 

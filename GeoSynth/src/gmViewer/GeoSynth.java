@@ -248,28 +248,31 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	}
 	
 	public void mouseDragged() {
-		if(world.display.inDisplayView())
-		{
-			PApplet.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
-			PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY);
-			world.input.handleMouseDragged(pmouseX, pmouseY);
-		}
+//		if(world.mouseNavigation)
+//		{
+//			if(world.display.inDisplayView())
+//			{
+//				PApplet.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
+//				PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY);
+//				world.input.handleMouseDragged(pmouseX, pmouseY);
+//			}
+//		}
 	}
 
-	//	public void mousePressed()
-//	{
-//		if(viewer.mouseNavigation)
-//			world.input.handleMousePressed(mouseX, mouseY);
-//	}
-
-//	public void mouseClicked() {
-//		if(navigation.mouseNavigation)
-//			world.input.handleMouseClicked(mouseX, mouseY);
-//	}
+	public void mousePressed()
+	{
+		if(world.viewer.mouseNavigation)
+			world.input.handleMousePressed(mouseX, mouseY);
+	}
 
 
-//	public void mouseReleased() {
-//		if(viewer.mouseNavigation)
-//			world.input.handleMouseReleased(mouseX, mouseY);
-//	}
+	public void mouseReleased() {
+		if(world.viewer.mouseNavigation)
+			world.input.handleMouseReleased(mouseX, mouseY);
+	}
+	
+	public void mouseClicked() {
+		if(world.viewer.mouseNavigation)
+			world.input.handleMouseClicked(mouseX, mouseY);
+	}
 }

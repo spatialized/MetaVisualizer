@@ -14,8 +14,11 @@ public class GMV_Input
 	public boolean optionKey = false;
 	int mouseClickedX = 0, mouseClickedY = 0;
 	int mouseOffsetX = 0, mouseOffsetY = 0;
-	boolean clickedRecently = false;
+	
+	boolean mouseClickedRecently = false;
+	boolean mouseReleased = false;
 	int clickedRecentlyFrame = 1000000;
+	int releasedRecentlyFrame = 1000000;
 	int doubleClickSpeed = 10;
 
 	GMV_World p;
@@ -815,42 +818,81 @@ public class GMV_Input
 	/* Mouse */
 	void updateMouseNavigation(int mouseX, int mouseY)
 	{			
-		if(p.p.frameCount - clickedRecentlyFrame > doubleClickSpeed && clickedRecently)
+		if(p.p.frameCount - clickedRecentlyFrame > doubleClickSpeed && mouseClickedRecently)
 		{
-			clickedRecently = false;
+			mouseClickedRecently = false;
+//			mouseReleasedRecently = false;
 	//			PApplet.println("SET CLICKED RECENTLY TO FALSE");
 		}
+		
+		if(p.p.frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
+		{
+			PApplet.println("Held mouse...");
+			p.viewer.addPlaceToMemory();
+		}
+		
+//		PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY+" p.p.width * 0.25:"+(p.p.width * 0.25));
 			
-		if (mouseX < p.p.width * 0.25 && mouseX > -1) {
-//				p.navigation.cam.rotateXStartFrame = p.p.frameCount;
-//				p.navigation.cam.rotateXDirection = -1;
-//				p.navigation.cam.rotateXTransition = true;
-//				p.navigation.lastMovementFrame = p.p.frameCount;
-//				p.navigation.idleMoveCount = 0;
-//				p.navigation.idleTime = 0;
+		if (mouseX < p.p.width * 0.25 && mouseX > -1) 
+		{
+//			PApplet.println("LEFT p.viewer.getXOrientation():"+p.viewer.getXOrientation());
+			if(!p.viewer.turningX)
+			{
+				p.viewer.turnXToAngle(PApplet.radians(5.f), -1);
+//				p.viewer.turnXStartFrame = p.p.frameCount;
+//				p.viewer.turnXDirection = -1;
+//				p.viewer.turnXTarget = p.viewer.getXOrientation() - PApplet.radians(15.f);
+//				p.viewer.turnXTargetFrame = p.viewer.turnXStartFrame + 30;
+//				p.viewer.turningX = true;
+//				p.viewer.lastMovementFrame = p.p.frameCount;
+			}
 		}
-		else if (mouseX > p.p.width * 0.75 && mouseX < p.p.width + 1) {
-//				p.navigation.cam.rotateXStartFrame = p.p.frameCount;
-//				p.navigation.cam.rotateXDirection = 1;
-//				p.navigation.cam.rotateXTransition = true;
-//				p.navigation.lastMovementFrame = p.p.frameCount;
+		else if (mouseX > p.p.width * 0.75 && mouseX < p.p.width + 1) 
+		{
+			if(!p.viewer.turningX)
+			{
+				p.viewer.turnXToAngle(PApplet.radians(5.f), 1);
+
+//				p.viewer.turnXStartFrame = p.p.frameCount;
+//				p.viewer.turnXDirection = 1;
+//				p.viewer.turnXTarget = p.viewer.getXOrientation() + PApplet.radians(15.f);
+//				p.viewer.turnXTargetFrame = p.viewer.turnXStartFrame + 30;
+//				p.viewer.turningX = true;
+//				p.viewer.lastMovementFrame = p.p.frameCount;
+			}
 		}
-		else if (mouseY < p.p.height * 0.25 && mouseY > -1) {
-//				p.navigation.cam.rotateYStartFrame = p.p.frameCount;
-//				p.navigation.cam.rotateYDirection = -1;
-//				p.navigation.cam.rotateYTransition = true;
-//				p.navigation.lastMovementFrame = p.p.frameCount;
+		else if (mouseY < p.p.height * 0.25 && mouseY > -1) 
+		{
+			if(!p.viewer.turningY)
+			{
+				p.viewer.turnYToAngle(PApplet.radians(5.f), -1);
+
+//				p.viewer.turnYStartFrame = p.p.frameCount;
+//				p.viewer.turnYDirection = -1;
+//				p.viewer.turnYTarget = p.viewer.getYOrientation() - PApplet.radians(15.f);
+//				p.viewer.turnYTargetFrame = p.viewer.turnYStartFrame + 30;
+//				p.viewer.turningY = true;
+//				p.viewer.lastMovementFrame = p.p.frameCount;
+			}
 		}
-		else if (mouseY > p.p.height * 0.75 && mouseY < p.p.height + 1) {
-//				p.navigation.cam.rotateYStartFrame = p.p.frameCount;
-//				p.navigation.cam.rotateYDirection = 1;
-//				p.navigation.cam.rotateYTransition = true;
-//				p.navigation.lastMovementFrame = p.p.frameCount;
+		else if (mouseY > p.p.height * 0.75 && mouseY < p.p.height + 1) 
+		{
+			if(!p.viewer.turningY)
+			{
+				p.viewer.turnYToAngle(PApplet.radians(5.f), 1);
+
+//				p.viewer.turnYStartFrame = p.p.frameCount;
+//				p.viewer.turnYDirection = 1;
+//				p.viewer.turnYTarget = p.viewer.getYOrientation() + PApplet.radians(15.f);
+//				p.viewer.turnYTargetFrame = p.viewer.turnYStartFrame + 30;
+//				p.viewer.turningY = true;
+//				p.viewer.lastMovementFrame = p.p.frameCount;
+			}
 		}
 		else
 		{
-//				if(p.navigation.cam.rotateXTransition) p.navigation.cam.rotateXTransition = false;
-//				if(p.navigation.cam.rotateYTransition) p.navigation.cam.rotateYTransition = false;
+				if(p.viewer.turningX) p.viewer.turningX = false;
+				if(p.viewer.turningY) p.viewer.turningY = false;
 		}
 	}
 
@@ -880,21 +922,34 @@ public class GMV_Input
 
 	void handleMouseReleased(int mouseX, int mouseY)
 	{
+		mouseReleased = true;
+		releasedRecentlyFrame = p.p.frameCount;
+		
 		p.viewer.walkSlower();
 		p.viewer.lastMovementFrame = p.p.frameCount;
 
 		boolean doubleClick = false, switchedViews = false;
 
-		if(clickedRecently)		// Double click
+		if(mouseClickedRecently)		// Double click
 		{
 			doubleClick = true;
 		}
 
-		if(doubleClick)			// Single click on map
+		if(doubleClick)			// Double clicked
 		{
-			p.viewer.moveToNextCluster(false, -1);
+			if(p.p.debug.viewer)
+				PApplet.println("Double click...");
+			p.viewer.moveToNearestCluster(true);
+//			p.viewer.moveToNextCluster(false, -1);
 		}
 
+	}
+	
+	void handleMouseClicked(int mouseX, int mouseY)
+	{
+		mouseClickedRecently = true;
+		clickedRecentlyFrame = p.p.frameCount;
+		mouseReleased = false;
 	}
 
 	void handleMouseDragged(int mouseX, int mouseY)

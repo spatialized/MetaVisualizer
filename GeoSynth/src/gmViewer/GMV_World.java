@@ -312,6 +312,9 @@ public class GMV_World {
 			startRunning = false;
 		}
 		
+		if(viewer.mouseNavigation)
+			input.updateMouseNavigation(p.mouseX, p.mouseY);
+		
 		// updateLeapMotion();						// Update Leap Motion 
 	}
 

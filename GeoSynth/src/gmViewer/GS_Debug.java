@@ -15,7 +15,7 @@ public class GS_Debug
 	
 	/* Classes */
 	public boolean main = true;					// Debug main GeoSynth class
-	public boolean viewer = false;				// Debug GMV_Viewer class
+	public boolean viewer = true;				// Debug GMV_Viewer class
 	public boolean field = false;				// Debug GMV_Field class
 	public boolean time = true;
 	public boolean model = false;				// Debug GMV_Model class

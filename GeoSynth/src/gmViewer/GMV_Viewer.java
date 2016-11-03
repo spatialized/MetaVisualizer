@@ -70,11 +70,11 @@ public class GMV_Viewer
 	private float clusterNearDistanceFactor = 2.f;			// Multiplier for clusterCenterSize to get clusterNearDistance
 
 	/* Interaction Modes */
+	public boolean mouseNavigation = true;			// Mouse navigation
 	public boolean map3DMode = false;				// 3D Map Mode
 	public boolean selection = false;				// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean autoNavigation = false;			// Attraction towards centers of clusters
 	public boolean lockToCluster = false;			// Automatically move viewer to nearest cluster when idle
-	public boolean mouseNavigation = false;			// Mouse navigation
 	public boolean multiSelection = false;			// User can select multiple images for stitching
 	public boolean segmentSelection = false;		// Select image segments at a time
 	public boolean videoMode = false;				// Highlights videos by dimming other media types	-- Unused
@@ -128,17 +128,17 @@ public class GMV_Viewer
 	private float lookingStartAngle;				// Angle when looking started
 
 	/* Turning */
-	private PVector turnTargetPoint;			// Point to turn towards
-	private boolean turningX = false;			// Whether the viewer is turning (right or left)
-	private boolean turningY = false;			// Whether the viewer is turning (up or down)
+	public PVector turnTargetPoint;			// Point to turn towards
+	public boolean turningX = false;			// Whether the viewer is turning (right or left)
+	public boolean turningY = false;			// Whether the viewer is turning (up or down)
 	
-	private int turnXStartFrame, turnYStartFrame, 
+	public int turnXStartFrame, turnYStartFrame, 
 				turnXTargetFrame, turnYTargetFrame;
-	private float turnXDirection, turnXTarget, 
+	public float turnXDirection, turnXTarget, 
 				  turnXStart, turnXIncrement;
-	private float turnYDirection, turnYTarget,
+	public float turnYDirection, turnYTarget,
 				  turnYStart, turnYIncrement;
-	private float turnIncrement = PApplet.PI / 90.f;
+	public float turnIncrement = PApplet.PI / 240.f;
 	
 	private boolean rotatingX = false;			// Whether the camera is rotating in X dimension (turning left or right)?
 	private boolean rotatingY = false;			// Whether the camera is rotating in Y dimension (turning up or down)?
@@ -238,9 +238,9 @@ public class GMV_Viewer
 			{
 				if(clusterLockIdleFrames > 0) clusterLockIdleFrames = 0;											
 			}
-			else										// If idle
+			else															// If idle
 			{
-				clusterLockIdleFrames++;										// Count frames with no attracting clusters
+				clusterLockIdleFrames++;									// Count frames with no attracting clusters
 				if(clusterLockIdleFrames > lockToClusterWaitLength)			// If after wait length, lock to nearest cluster
 				{
 					int nearest = getNearestCluster(true);					// Get nearest cluster location, including current cluster
@@ -251,6 +251,17 @@ public class GMV_Viewer
 			}
 		}
 
+		if(mouseNavigation)
+		{
+			if(lastMovementFrame-p.p.frameCount > 60)			// Start following memory path if idle for a few seconds
+			{
+				if(!isFollowing() && memory.size() > 0)
+				{
+					followMemory();
+				}
+			}
+		}
+		
 		/* Aim camera */
 //		if(movingToAttractor)
 //			camera.aim(attractorPoint.getLocation().x, attractorPoint.getLocation().y, attractorPoint.getLocation().z);
@@ -2078,7 +2089,6 @@ public class GMV_Viewer
 	}
 	
 	/**
-	 * handleReachedAttractor()
 	 * Called once attractorPoint or attractorCluster has been reached
 	 */
 	private void handleReachedAttractor()
@@ -2515,6 +2525,14 @@ public class GMV_Viewer
 				{
 					movingToAttractor = false;
 					currentCluster = getNearestCluster(false);		// Set currentCluster to nearest
+					
+					currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+					if(currentFieldTimeSegment == -1) 
+						PApplet.println("currentFieldTimeSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
+					currentFieldDateSegment = p.getCurrentField().getDateSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+					if(currentFieldDateSegment == -1) 
+						PApplet.println("currentFieldDateSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
+
 //					if(p.p.debug.viewer) p.display.message("Reached attractor... turning towards image");
 					
 //					if(attractorPoint != null)
@@ -2765,7 +2783,7 @@ public class GMV_Viewer
 			pathGoal = path.get(pathLocationIdx).getLocation();
 			setAttractorPoint(pathGoal);
 		}
-		else p.display.message("No memory points!");
+		else p.display.message("path.size() == 0!");
 	}
 	
 	/**
@@ -2915,12 +2933,17 @@ public class GMV_Viewer
 		{
 			GMV_Waypoint curWaypoint = new GMV_Waypoint(path.size(), getLocation());
 			curWaypoint.setTarget(getOrientation());
-			curWaypoint.setID(currentCluster);				// Need to make sure camera is at current cluster!
+			curWaypoint.setID(currentCluster);						// Need to make sure camera is at current cluster!
+			
+			while(memory.size() > 100)								// Prevent memory path from getting too long
+				memory.remove(0);
+				
 			memory.add(curWaypoint);
+			
 			if(p.p.debug.viewer)
 			{
-				p.display.message("Added point to memory! "+curWaypoint.getLocation());
-				p.display.message("Total points:"+memory.size());
+				p.display.message("Added point to memory... "+curWaypoint.getLocation());
+				p.display.message("Path length:"+memory.size());
 			}
 		}
 		else if(p.p.debug.viewer)

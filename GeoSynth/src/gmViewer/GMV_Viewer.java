@@ -675,17 +675,22 @@ public class GMV_Viewer
 
 		if(f.timeline.size() > currentFieldTimeSegment)
 		{
-			if(teleport)
+			if(f.clusters.size() > f.timeline.get(currentFieldTimeSegment).getID())
 			{
-				teleportToCluster(f.timeline.get(currentFieldTimeSegment).getID(), true);
+				if(teleport)
+					teleportToCluster(f.timeline.get(currentFieldTimeSegment).getID(), true);
+				else
+					setAttractorCluster(f.timeline.get(currentFieldTimeSegment).getID());
 			}
 			else
 			{
-				setAttractorCluster(f.timeline.get(currentFieldTimeSegment).getID());
+				PApplet.println("... Chose a cluster that doesn't exist!... ID:"+f.timeline.get(currentFieldTimeSegment).getID());
 			}
 		}
 		else
-			PApplet.println("Chose a time not on timeline!... currentFieldTimeSegment:"+currentFieldTimeSegment+" timeline size:"+f.timeline.size());
+		{
+			PApplet.println("...Chose a time not on timeline!... currentFieldTimeSegment:"+currentFieldTimeSegment+" timeline size:"+f.timeline.size());
+		}
 	}
 	
 	/**

@@ -1220,7 +1220,7 @@ class GMV_Display
 	 */
 	public void showStartup()
 	{
-		sendSetupMessage("Welcome to GeoSynth!");
+		sendSetupMessage("Welcome to MediaWorldViewer!");
 		sendSetupMessage(" ");
 		sendSetupMessage("Please select a library folder...");
 		draw();								// Draw setup display
@@ -1556,7 +1556,7 @@ class GMV_Display
 				p.p.text("Free memory (bytes): "+p.p.debug.freeMemory, textXPos, textYPos += lineWidth, hudDistance);
 				p.p.text("Approx. usable free memory (bytes): " + p.p.debug.approxUsableFreeMemory, textXPos, textYPos += lineWidth, hudDistance);
 			}			
-			p.p.text(" GeoSynth v1.0 by David Gordon, Copyright © 2016", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" MediaWorldViewer v1.0 by David Gordon, Copyright © 2016", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 
 		}
 		else

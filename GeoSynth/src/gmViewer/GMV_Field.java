@@ -200,23 +200,20 @@ public class GMV_Field
 	 */
 	public void createTimeline()
 	{
+		if(p.p.debug.time)
+			PApplet.println(">>> Creating Field Timeline... <<<");
+
 		for(GMV_Cluster c : clusters)											// Find all media cluster times
 		{
 			ArrayList<GMV_TimeSegment> times = new ArrayList<GMV_TimeSegment>();
-//			int count = 0;
 			
-			if(p.p.debug.time)
-				PApplet.println(">>> Creating Field Timeline... <<<");
-
-//			for(float f : c.getClusterTimes())									// Iterate through cluster times
 			for(GMV_TimeSegment t : c.getTimeline())
 			{
-				if(p.p.debug.time)
-					PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
+//				if(p.p.debug.time)
+//					PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
 
 				GMV_TimeSegment time = new GMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
-				times.add( time );							// Add segment to timeline
-//				count++;
+				times.add( time );												// Add segment to timeline
 			}
 
 			for(GMV_TimeSegment t : times)										// Add indexed cluster times to timeline

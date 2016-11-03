@@ -15,10 +15,10 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 	private float lower, upper;	// Upper and lower bounds of cluster
 	private int id = -1;		// Cluster ID
 	
-	GMV_TimeSegment(int newID, float newTime, float newUpper, float newLower)
+	GMV_TimeSegment(int newID, float newCenter, float newUpper, float newLower)
 	{
 		id = newID;
-		center = newTime;
+		center = newCenter;
 		upper = newUpper;
 		lower = newLower;
 		if((lower!=0&&upper!=0)&&(center > upper || center < lower))

@@ -8,7 +8,7 @@
 
 /************************************
 * @author davidgordon 
-* wmViewer main app class
+* WMViewer main app class
 */
 
 package wmViewer;
@@ -16,7 +16,7 @@ import java.io.*;
 import processing.core.*;
 import processing.video.Movie;
 
-public class WorldMediaViewer extends PApplet 			// WMViewer extends PApplet class
+public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 {
 	/* System Status */
 	public boolean running = false;				// Is simulation running?

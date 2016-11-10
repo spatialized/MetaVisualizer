@@ -76,12 +76,12 @@ public class WMV_World
 	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
-	public int timeCycleLength = 300;					// Length of main time loop in frames
+	public int timeCycleLength = 500;					// Length of main time loop in frames
 	public int timeUnitLength = 1;						// How many frames between time increments
 	public float timeInc = timeCycleLength / 30.f;			
 
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
-	public int dateCycleLength = 500;					// Length of main date loop in frames
+	public int dateCycleLength = 1000;					// Length of main date loop in frames
 	public int dateUnitLength = 1;						// How many frames between date increments
 	public float dateInc = dateCycleLength / 30.f;			
 

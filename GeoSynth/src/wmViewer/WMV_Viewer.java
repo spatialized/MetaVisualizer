@@ -92,13 +92,13 @@ public class WMV_Viewer
 	public float lastAttractorDistance = -1.f;
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction
 	private float velocityMin = 0.00005f;					// Threshold under which velocity counts as zero
-	private float velocityMax = 0.75f;						// Camera maximum velocity
+	private float velocityMax = 0.66f;						// Camera maximum velocity
 	private float accelerationMax = 0.15f;					// Camera maximum acceleration
 	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
 	private float camDecelInc = 0.75f;						// Camera deceleration increment
-	private float camHaltInc = 0.033f;						// Camera fast deceleration increment
+	private float camHaltInc = 0.02f;						// Camera fast deceleration increment
 	private boolean waiting = false;						// Whether the camera is waiting to move while following a path
-	private int pathWaitStartFrame, pathWaitLength = 75;
+	private int pathWaitStartFrame, pathWaitLength = 100;
 
 	/* Movement */
 	private boolean walking = false;			// Whether viewer is walking
@@ -151,7 +151,7 @@ public class WMV_Viewer
 	private float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
 	public int lastMovementFrame = 500000, lastLookFrame = 500000;
 	private int clusterLockIdleFrames = 0;				// How long to wait after user input before auto navigation moves the camera?
-	private int lockToClusterWaitLength = 40;
+	private int lockToClusterWaitLength = 100;
 
 	/* GPS Tracks */
 	private File gpsTrackFile;							// GPS track file

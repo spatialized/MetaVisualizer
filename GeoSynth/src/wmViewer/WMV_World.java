@@ -12,12 +12,13 @@ import toxi.math.LinearInterpolation;
 import toxi.math.ScaleMap;
 import toxi.math.ZoomLensInterpolation;
 
-/**************************************************
+/********************************************
  * @author davidgordon
  * Class representing a world, with a viewer and fields to be displayed
  */
 
-public class WMV_World {
+public class WMV_World 
+{
 	/* System Status */
 	private boolean initialSetup = false;			// Performing initial setup 
 	private boolean creatingFields = false;			// Initializing media folders
@@ -90,8 +91,6 @@ public class WMV_World {
 	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
 	public final int fieldTimePrecision = 10000;			// Precision of timesHistogram (no. of bins)
 	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins)
-//	public final int clusterTimelineMinPoints = 3;		// Minimum points to be a cluster on timeline   -- Not used
-//	public final int clusterDatelineMinPoints = 3;		// Minimum points to be a cluster on dateline   -- Not used
 
 	/* Graphics */
 	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
@@ -118,14 +117,13 @@ public class WMV_World {
 														// (GeoSynth assumes videographers will take a photo with Theodolite shortly before hitting record,
 														// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
 
-	private int initializationField = 0;			// Field to be initialized this frame
+	private int initializationField = 0;				// Field to be initialized this frame
 	public int setupProgress = 0;						// Setup progress (0 to 100)
 	
 	/* Model */
 
 	// -- TO DO:
 	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
-	
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
@@ -146,7 +144,6 @@ public class WMV_World {
 	/* Metadata */
 	public boolean showMetadata = false;
 	
-
 	/* Memory */
 	public int minAvailableMemory = 50000000;			// Minimum available memory
 	public int memoryCheckFrequency = 50;
@@ -207,7 +204,7 @@ public class WMV_World {
 		{
 			if(p.debug.detailed)
 				PApplet.println("Exit command! about to quit...");
-			p.stopGeoSynth();								//  Exit simulation
+			p.stopWorldMediaViewer();								//  Exit simulation
 		}
 		
 		if ( p.debug.memory && p.frameCount % memoryCheckFrequency == 0 )
@@ -296,16 +293,10 @@ public class WMV_World {
 		updateTime();								// Update time cycle
 		if(fadingAlpha)                      		// Fade alpha
 			updateFadingAlpha();
-//		{
-//			if(p.p.p.debug.panorama && p.p.p.debug.detailed)
-//				p.p.display.message("Panorama fading... id: "+getID());
-//		}
+
 		if(startRunning)							// If simulation just started running
 		{
-//			if(viewer.dateNavigation)
-//				viewer.moveToDateInField(getCurrentField().fieldID, viewer.currentFieldDateSegment, true);
-//			else
-				viewer.moveToFirstTimeOnDate(getCurrentField().fieldID, viewer.currentFieldDateSegment, true);
+			viewer.moveToFirstTimeOnDate(getCurrentField().fieldID, viewer.currentFieldDateSegment, true);
 			
 			firstTeleport = true;
 			startRunning = false;
@@ -507,7 +498,7 @@ public class WMV_World {
 	}
 	
 	/**
-	 * Restart simulation after running Interactive Clustering
+	 * Finish running Interactive Clustering and restart simulation 
 	 */
 	public void finishInteractiveClustering()
 	{
@@ -521,26 +512,6 @@ public class WMV_World {
 		
 		viewer.setCurrentCluster( viewer.getNearestCluster(false) );
 		getCurrentField().blackoutMedia();
-	}
-	
-	/**
-	 * -- TO DO!!
-	 * @param mediaFolder Folder containing the media
-	 * Create fields from single media folder using k-means clustering 
-	 */
-	public void createFieldsFromFolder(String mediaFolder)
-	{
-		fields = new ArrayList<WMV_Field>();			// Initialize fields array
-//		ArrayList<GMV_Cluster> clusters;
-		
-//		int count = 0;
-//		for(String s : clusters)
-//		{
-//			fields.add(new GMV_Field(this, s, count));
-//			count++;
-//		}
-		
-//		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
 	}
 	
 	/**
@@ -581,6 +552,24 @@ public class WMV_World {
 	}
 	
 	/**
+	 * -- TO DO!!
+	 * @param mediaFolder Folder containing the media
+	 * Create fields from single media folder using k-means clustering 
+	 */
+	public void createFieldsFromFolder(String mediaFolder)
+	{
+		fields = new ArrayList<WMV_Field>();			// Initialize fields array
+//		ArrayList<GMV_Cluster> clusters;		
+//		int count = 0;
+//		for(String s : clusters)
+//		{
+//			fields.add(new GMV_Field(this, s, count));
+//			count++;
+//		}
+//		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
+	}
+	
+	/**
 	 * Update alpha each frame
 	 */
 	void updateFadingAlpha()
@@ -606,7 +595,6 @@ public class WMV_World {
 
 		alpha = newAlphaFadeValue;
 	}
-
 
 	/**
 	 * @return Current field
@@ -685,7 +673,7 @@ public class WMV_World {
 	}
 	
 	/**
-	 * @return Clusters in current field
+	 * @return All clusters in current field
 	 */
 	public ArrayList<WMV_Cluster> getFieldClusters()
 	{
@@ -694,7 +682,7 @@ public class WMV_World {
 	}
 
 	/**
-	 * @return Clusters in current field
+	 * @return Active clusters in current field
 	 */
 	public ArrayList<WMV_Cluster> getActiveClusters()
 	{

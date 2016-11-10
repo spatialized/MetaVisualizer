@@ -8,7 +8,7 @@
 
 /************************************
 * @author davidgordon 
-* Main WMViewer App class
+* wmViewer main app class
 */
 
 package wmViewer;
@@ -25,25 +25,25 @@ public class WorldMediaViewer extends PApplet 			// WMViewer extends PApplet cla
 	public boolean selectedLibrary = false;		// Has user selected a library folder?
 	
 	/* Library */
-	WMV_Metadata metadata;				// Metadata handler class
-	WMV_Library library;					// GeoSynth Media Library
+	WMV_Metadata metadata;						// Metadata handler class
+	WMV_Library library;						// WMViewer Media Library
 
 	/* World */
-	WMV_World world;					// The 3D World
+	WMV_World world;							// The 3D World
 
 	/* Utilities */
-	WMV_Utilities utilities;			// Utility methods
+	WMV_Utilities utilities;					// Utility methods
 
 	/* Debugging */
-	WMV_Debug debug;						// Handles debugging functions
+	WMV_Debug debug;							// Handles debugging functions
 
 	/** 
 	 * Load the PApplet either in a window of specified size or in fullscreen
 	 */
 	static public void main(String[] args) 
 	{
-		PApplet.main("gmViewer.WorldMediaViewer");									// Open in window
-//		PApplet.main(new String[] { "--present", "gmViewer.WorldMediaViewer" });	// Open in fullscreen mode
+		PApplet.main("wmViewer.WorldMediaViewer");									// Open in window
+//		PApplet.main(new String[] { "--present", "wmViewer.WorldMediaViewer" });	// Open in fullscreen mode
 	}
 	
 	/** 
@@ -55,6 +55,7 @@ public class WorldMediaViewer extends PApplet 			// WMViewer extends PApplet cla
 		metadata = new WMV_Metadata(this);
 		utilities = new WMV_Utilities(world);
 		debug = new WMV_Debug(this);
+		
 		world.initialize();
 	}
 
@@ -91,11 +92,10 @@ public class WorldMediaViewer extends PApplet 			// WMViewer extends PApplet cla
 		openLibraryFolder(selection);
 	}
 
-
 	/**
 	 * Stop the program
 	 */
-	void stopGeoSynth() 		
+	void stopWorldMediaViewer() 
 	{
 		PApplet.println("Exiting WorldMediaViewer 1.0.0...");
 		exit();
@@ -104,7 +104,7 @@ public class WorldMediaViewer extends PApplet 			// WMViewer extends PApplet cla
 	/**
 	 * Restart the program
 	 */
-	void restartGeoSynth()
+	void restartWorldMediaViewer()
 	{
 		camera();
 		setup();
@@ -140,7 +140,6 @@ public class WorldMediaViewer extends PApplet 			// WMViewer extends PApplet cla
 		}
 	}
 	
-
 	/**
 	 * Analyze and load media folders in response to user selection
 	 * @param selection Selected folder

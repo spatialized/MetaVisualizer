@@ -1,5 +1,4 @@
 package wmViewer;
-
 import java.util.ArrayList;
 
 //import damkjer.ocd.Camera;
@@ -44,8 +43,8 @@ class WMV_Display
 	public int displayCluster = 0;
 
 	/* Map Modes */
-	int mapMode = 1;			// 	1:  All   2: Clusters + Media   3: Clusters + Capture Locations  4: Capture Locations + Media
-								//	5:  Clusters Only   6: Media Only   7: Capture Locations Only
+	int mapMode = 1;							// 	1:  All   2: Clusters + Media   3: Clusters + Capture Locations  4: Capture Locations + Media
+												//	5:  Clusters Only   6: Media Only   7: Capture Locations Only
 	/* Map */
 	public float mapZoom = 1.f;
 	public float mapLeftEdge = 0.f, mapTopEdge = 0.f;
@@ -407,8 +406,8 @@ class WMV_Display
 
 			if(p.p.debug.time)
 			{
-				p.p.pushMatrix();
-				beginHUD();
+//				p.p.pushMatrix();
+//				beginHUD();
 
 //				FloatList clusterTimes = p.getCurrentCluster().getClusterTimes();
 //				x = logoXOffset / 3.f + c.clusterTimesHistogram.length * inc + 30.f;
@@ -420,7 +419,7 @@ class WMV_Display
 //				if(clusterTimes.size() >= 3)
 //					p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), x, y, hudDistance);
 				
-				p.p.popMatrix();
+//				p.p.popMatrix();
 			}
 
 			y += 100.f;			
@@ -529,8 +528,8 @@ class WMV_Display
 
 			if(p.p.debug.time)
 			{
-				p.p.pushMatrix();
-				beginHUD();
+//				p.p.pushMatrix();
+//				beginHUD();
 
 //				FloatList clusterDates = p.getCurrentCluster().getClusterDates();
 //				x = logoXOffset / 3.f + c.clusterDatesHistogram.length * inc + 30.f;
@@ -542,7 +541,7 @@ class WMV_Display
 //				if(clusterDates.size() >= 3)
 //					p.p.text(clusterDates.get(0)+" "+clusterDates.get(1)+" "+clusterDates.get(2), x, y, hudDistance);
 				
-				p.p.popMatrix();
+//				p.p.popMatrix();
 			}
 
 			y += 100.f;			
@@ -601,8 +600,8 @@ class WMV_Display
 			beginHUD();
 			
 			p.p.fill(140, 100, 255);
-			float xPos = PApplet.map(i, 0, length, 0, p.p.width * 1.33f);
-			float inc = PApplet.map(2, 0, length, 0, p.p.width * 1.33f) - PApplet.map(1, 0, length, 0, p.p.width*1.33f);
+			float xPos = PApplet.map(i, 0, length, 0, p.p.width * 1.f);
+			float inc = PApplet.map(2, 0, length, 0, p.p.width * 1.f) - PApplet.map(1, 0, length, 0, p.p.width*1.f);
 			int x = -p.p.width/2 + (int)xPos;
 			int y = -p.p.height/2+p.p.height/2;
 
@@ -756,29 +755,9 @@ class WMV_Display
 
 	void initializeMaps()
 	{
-//		initializeSmallMap();
 		initializeLargeMap();
 	}
 	
-//	void initializeSmallMap()
-//	{
-//		float fr = p.getCurrentField().model.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
-//
-//		if(fr > 1)
-//		{
-//			smallMapWidth = smallMapMaxWidth;
-//			smallMapHeight = smallMapWidth / fr;
-//		}
-//		else
-//		{
-//			smallMapHeight = smallMapMaxHeight;
-//			smallMapWidth = smallMapHeight * fr;
-//		}
-//		
-//		smallMapXOffset = p.p.width / 2.5f;
-//		smallMapYOffset = logoYOffset - smallMapHeight / 3.f;
-//	}
-
 	/**
 	 * Add message to queue
 	 * @param message Message to send
@@ -1045,7 +1024,6 @@ class WMV_Display
 	}
 	
 	/**
-	 * drawPanoramaOnMap()
 	 * @param panorama GMV_Panorama to draw
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
@@ -1077,7 +1055,6 @@ class WMV_Display
 	}
 
 	/**
-	 * drawVideoOnMap()
 	 * @param video GMV_Video to draw
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height

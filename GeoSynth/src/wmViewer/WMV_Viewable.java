@@ -2,11 +2,9 @@ package wmViewer;
 
 import java.util.Calendar;
 
-//import com.sun.xml.internal.ws.org.objectweb.asm.Type;
-
 import processing.core.PApplet;
 import processing.core.PMatrix3D;
-//import processing.core.PApplet;
+
 import processing.core.PVector;
 import toxi.math.ScaleMap;
 
@@ -29,12 +27,12 @@ public abstract class WMV_Viewable
 	int cluster = -1;				 			// Cluster it belongs to	
 	float theta = 0;                			// Media Orientation (in Degrees N)
 	public boolean fadingObjectDistance = false, beginFadingObjectDistance = false;			// Fading distance of object in image?
-	
-	/* EXIF Metadata */
+
+	/* Metadata */
 	public PVector gpsLocation;            		// Location in original GPS coords
 	public int cameraModel;                 	// Camera model
 	public float brightness;
-	
+
 	/* Time */
 	WMV_Time time;
 	ScaleMap timeLogMap;
@@ -49,7 +47,7 @@ public abstract class WMV_Viewable
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float centerSize = 0.05f;
-	
+
 	/* Transparency */
 	public float viewingBrightness = 0;			// Final image brightness (or alpha in useAlphaFading mode) 
 	public boolean isFadingIn = false, isFadingOut = false;
@@ -58,7 +56,7 @@ public abstract class WMV_Viewable
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
 	public boolean fadedOut = false;			// Recently faded out
 	public boolean fadedIn = false;
-	
+
 	/* Status Modes */
 	public boolean visible = false;				// Media is currently visible and will be drawn
 	public boolean active = false;				// True when the image has faded in and isn't fading out	-- Needed?
@@ -81,7 +79,7 @@ public abstract class WMV_Viewable
 			time = new WMV_Time( p.p, newCalendar );
 		else
 			time = null;
-		
+
 		gpsLocation = newGPSLocation;
 		captureLocation = new PVector(0, 0, 0);
 
@@ -94,18 +92,17 @@ public abstract class WMV_Viewable
 
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(p.p.circularEaseOut);
-		
-//		if(p.p.timeFading || p.p.dateFading)
-//			initFading = false;			/* No need for initial fade in during Time Fading Mode */
+
+		//		if(p.p.timeFading || p.p.dateFading)
+		//			initFading = false;			/* No need for initial fade in during Time Fading Mode */
 	}  
 
 	abstract void draw();
 	abstract void displayMetadata();
 	abstract void loadMedia();
-	
+
 	/**
-	 * setClusterDate()
-	 * Set clusterTime for this media based on media times in associated cluster
+	 * Set clusterDate for this media based on media times in associated cluster
 	 */
 	void setClusterDate()
 	{
@@ -146,19 +143,19 @@ public abstract class WMV_Viewable
 	/**
 	 * @return Image date in virtual time
 	 */
-//	float calculateDate()
-//	{
-//		float minDate = ((GMV_Cluster)p.clusters.get(cluster)).lowImageDate;
-//		float maxDate = ((GMV_Cluster)p.clusters.get(cluster)).highImageDate;
-//		float d = PApplet.abs(p.p.fields.get(p.p.viewer.curField).curTime - PApplet.map(time.date, minDate, maxDate, 0.f, p.p.fields.get(p.p.viewer.curField).dayLength));   
-//
-//		if(minDate == maxDate) 
-//			return p.p.fields.get(p.p.viewer.curField).dayLength;
-//		else
-//			return d;
-//	}
+	//	float calculateDate()
+	//	{
+	//		float minDate = ((GMV_Cluster)p.clusters.get(cluster)).lowImageDate;
+	//		float maxDate = ((GMV_Cluster)p.clusters.get(cluster)).highImageDate;
+	//		float d = PApplet.abs(p.p.fields.get(p.p.viewer.curField).curTime - PApplet.map(time.date, minDate, maxDate, 0.f, p.p.fields.get(p.p.viewer.curField).dayLength));   
+	//
+	//		if(minDate == maxDate) 
+	//			return p.p.fields.get(p.p.viewer.curField).dayLength;
+	//		else
+	//			return d;
+	//	}
 
-	
+
 	/**
 	 * Transition alpha from current to given value
 	 */
@@ -183,7 +180,7 @@ public abstract class WMV_Viewable
 			fading = false;
 		}
 	}
-	
+
 	/**
 	 * Stop fading in / out video
 	 */
@@ -199,8 +196,8 @@ public abstract class WMV_Viewable
 		if(isFadingOut) isFadingOut = false;
 		if(isFadingIn) isFadingIn = false;
 
-//		if(initFading)
-//			initFading = false;
+		//		if(initFading)
+		//			initFading = false;
 	}
 
 	/**
@@ -244,9 +241,8 @@ public abstract class WMV_Viewable
 
 		p.p.p.popMatrix();
 	}
-	
+
 	/**
-	 * getCaptureDistance()
 	 * @return Distance from the image capture location to the camera
 	 */
 	float getCaptureDistance()       // Find distance from camera to point in virtual space where photo appears           
@@ -284,7 +280,7 @@ public abstract class WMV_Viewable
 		float timeBrightness = 0.f;
 
 		float length = p.p.defaultMediaLength;				// Start with default length
-		
+
 		int fadeInStart = 0;								// When image starts fading in
 		int fadeInEnd = 0;									// When image reaches full brightness
 		int fadeOutStart = 0;								// When image starts fading out
@@ -305,7 +301,7 @@ public abstract class WMV_Viewable
 		if(upper!=lower)
 		{
 			centerTime = PApplet.round(PApplet.map( time.getTime(), lower, upper, p.p.defaultMediaLength * 0.25f, 
-				cycleLength - p.p.defaultMediaLength * 0.25f) );	// Calculate center time in cluster timeline
+					cycleLength - p.p.defaultMediaLength * 0.25f) );	// Calculate center time in cluster timeline
 		}
 		else centerTime = cycleLength / 2.f;
 
@@ -432,7 +428,7 @@ public abstract class WMV_Viewable
 		else
 			return 0.f;
 	}
-	
+
 	/**
 	 * @return Date brightness factor between 0. and 1.
 	 * Calculate media brightness based on distance (fades away in distance and as camera gets close)
@@ -444,7 +440,7 @@ public abstract class WMV_Viewable
 		float dateBrightness = 0.f;
 
 		float length = p.p.defaultMediaLength;				// Start with default length
-		
+
 		int fadeInStart = 0;								// When image starts fading in
 		int fadeInEnd = 0;									// When image reaches full brightness
 		int fadeOutStart = 0;								// When image starts fading out
@@ -465,7 +461,7 @@ public abstract class WMV_Viewable
 		if(upper != lower)
 		{
 			centerDate = PApplet.round(PApplet.map( time.getDate(), lower, upper, p.p.defaultMediaLength * 0.25f, 
-				cycleLength - p.p.defaultMediaLength * 0.25f) );			// Calculate center date in cluster dateline
+					cycleLength - p.p.defaultMediaLength * 0.25f) );			// Calculate center date in cluster dateline
 		}
 		else
 			centerDate = cycleLength / 2.f;
@@ -593,7 +589,7 @@ public abstract class WMV_Viewable
 		else
 			return 0.f;
 	}
-	
+
 	/**
 	 * Update viewingBrightnessFadeValue each frame
 	 */
@@ -613,7 +609,7 @@ public abstract class WMV_Viewable
 			fading = false;
 			newFadeValue = fadingTarget;
 
-//			if(initFading) initFading = false;
+			//			if(initFading) initFading = false;
 			if(isFadingOut)
 			{
 				isFadingOut = false;
@@ -644,14 +640,13 @@ public abstract class WMV_Viewable
 		{
 			if(p.model.highLongitude != p.model.lowLongitude && p.model.highLatitude != p.model.lowLatitude)
 			{
-				newX = PApplet.map(gpsLocation.x, p.model.lowLongitude, p.model.highLongitude, -0.5f * p.model.fieldWidth, 0.5f*p.model.fieldWidth); 				// GPS longitude decreases from left to right
-//				newY = -PApplet.map(gpsLocation.y, p.model.lowAltitude, p.model.highAltitude, -0.5f * p.model.fieldHeight, 0.5f*p.model.fieldHeight); 			// Convert altitude feet to meters, negative sign to match P3D coordinate space
-				newY = -PApplet.map(gpsLocation.y, p.model.lowAltitude, p.model.highAltitude, 0.f, p.model.fieldHeight); 			// Convert altitude feet to meters, negative sign to match P3D coordinate space
+				newX = PApplet.map(gpsLocation.x, p.model.lowLongitude, p.model.highLongitude, -0.5f * p.model.fieldWidth, 0.5f*p.model.fieldWidth); 			// GPS longitude decreases from left to right
+				newY = PApplet.map(gpsLocation.y, p.model.lowAltitude, p.model.highAltitude, 0.f, p.model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
 				newZ = -PApplet.map(gpsLocation.z, p.model.lowLatitude, p.model.highLatitude, -0.5f * p.model.fieldLength, 0.5f*p.model.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
 
 				if(p.p.altitudeScaling)	
 				{
-//					newY = 0.f;
+					//					newY = 0.f;
 					newY *= p.p.altitudeAdjustmentFactor;
 				}
 			}
@@ -666,14 +661,13 @@ public abstract class WMV_Viewable
 
 
 	/**
-	 * setSelected()
 	 * Select or unselect this image
 	 * @param selection New selection
 	 */
 	public void setSelected(boolean selection)
 	{
 		selected = selection;
-//		p.selectedImage = id;
+		//		p.selectedImage = id;
 
 		if(selection)
 		{
@@ -692,7 +686,7 @@ public abstract class WMV_Viewable
 		if(cluster != -1)
 		{
 			captureLocation = p.clusters.get(cluster).getLocation();
-//			calculateVertices();
+			//			calculateVertices();
 		}
 		else
 		{
@@ -713,14 +707,8 @@ public abstract class WMV_Viewable
 	{
 		id = newID;
 	}
-//
-//	public void setCaptureLocation(PVector newCaptureLocation)
-//	{
-//		captureLocation = newCaptureLocation;
-//	}
 
 	/**
-	 * isVisible()
 	 * @return Whether the media is visible
 	 */
 	public boolean isVisible()
@@ -729,7 +717,6 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * isActive()
 	 * @return Whether the media is active at the current time
 	 */
 	public boolean isActive()
@@ -738,7 +725,6 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * isFading()
 	 * @return Whether the image is currently fading in or out
 	 */
 	public boolean isFading()
@@ -757,7 +743,6 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * isDisabled()
 	 * @return Whether the media is disabled
 	 */
 	public boolean isDisabled()
@@ -773,143 +758,143 @@ public abstract class WMV_Viewable
 		return hidden;
 	}
 
-	 public int getID()
-	 {
-		 return id;
-	 }
-	
-	 public float getTime()
-	 {
-		 return time.getTime();
-	 }
-	 
-	 public float getDate()
-	 {
-		 return time.getDate();
-	 }
-	 
-	 public String getName()
-	 {
-		 return name;
-	 }
-	 
-	 public String getFilePath()
-	 {
-		 return filePath;
-	 }
-	 
-	 public PVector getLocation()
-	 {
-		 return location;
-	 }
+	public int getID()
+	{
+		return id;
+	}
 
-	 public void setLocation(PVector newLocation)
-	 {
-		 location = newLocation;
-	 }
-	 
-	 public PVector getCaptureLocation()
-	 {
-		 return captureLocation;
-	 }
-	 
-	 public PVector getGPSLocation()
-	 {
-		 return gpsLocation;
-	 }
+	public float getTime()
+	{
+		return time.getTime();
+	}
 
-	 public int getCameraModel()
-	 {
-		 return cameraModel;
-	 }
-	 
-	 public float getBrightness()
-	 {
-		 return brightness;
-	 }
-	 
-	 public boolean isSelected()
-	 {
-		 return selected;
-	 }
+	public float getDate()
+	{
+		return time.getDate();
+	}
 
-	 public int getCluster()
-	 {
-		 return cluster;
-	 }
-	 
-		/**
-		 * Rotate list of vertices using matrices
-		 * @param verts Vertices list
-		 * @param angle Angle to rotate by
-		 * @param axis Axis to rotate around
-		 * @return Rotated vertices
-		 */
-		public PVector[] rotateVertices(PVector[] verts, float angle, PVector axis) 
+	public String getName()
+	{
+		return name;
+	}
+
+	public String getFilePath()
+	{
+		return filePath;
+	}
+
+	public PVector getLocation()
+	{
+		return location;
+	}
+
+	public void setLocation(PVector newLocation)
+	{
+		location = newLocation;
+	}
+
+	public PVector getCaptureLocation()
+	{
+		return captureLocation;
+	}
+
+	public PVector getGPSLocation()
+	{
+		return gpsLocation;
+	}
+
+	public int getCameraModel()
+	{
+		return cameraModel;
+	}
+
+	public float getBrightness()
+	{
+		return brightness;
+	}
+
+	public boolean isSelected()
+	{
+		return selected;
+	}
+
+	public int getCluster()
+	{
+		return cluster;
+	}
+
+	/**
+	 * Rotate list of vertices using matrices
+	 * @param verts Vertices list
+	 * @param angle Angle to rotate by
+	 * @param axis Axis to rotate around
+	 * @return Rotated vertices
+	 */
+	public PVector[] rotateVertices(PVector[] verts, float angle, PVector axis) 
+	{
+		boolean failed = false;
+		int vl = verts.length;
+		PVector[] clone = new PVector[vl];
+		PVector[] dst = new PVector[vl];
+
+		try
 		{
-			boolean failed = false;
-			int vl = verts.length;
-			PVector[] clone = new PVector[vl];
-			PVector[] dst = new PVector[vl];
+			for (int i = 0; i < vl; i++)
+			{
+				if(verts[i]!=null)
+					clone[i] = PVector.add(verts[i], new PVector());
+				else
+					PApplet.println("verts["+i+"] is null!!");
+			}
 
-			try
-			{
-				for (int i = 0; i < vl; i++)
-				{
-					if(verts[i]!=null)
-						clone[i] = PVector.add(verts[i], new PVector());
-					else
-						PApplet.println("verts["+i+"] is null!!");
-				}
+			PMatrix3D rMat = new PMatrix3D();
+			rMat.rotate(PApplet.radians(angle), axis.x, axis.y, axis.z);
 
-				PMatrix3D rMat = new PMatrix3D();
-				rMat.rotate(PApplet.radians(angle), axis.x, axis.y, axis.z);
-
-				for (int i = 0; i < vl; i++)
-					dst[i] = new PVector();
-				for (int i = 0; i < vl; i++)
-					rMat.mult(clone[i], dst[i]);
-			}
-			catch(NullPointerException e)
-			{
-				PApplet.println("NullPointerException: "+e);
-				failed = true;
-			}
-			if(!failed)
-			{
-				return dst;
-			}
-			else
-			{
-				PApplet.println("Failed rotating vertices!");
-				return new PVector[0];
-			}
+			for (int i = 0; i < vl; i++)
+				dst[i] = new PVector();
+			for (int i = 0; i < vl; i++)
+				rMat.mult(clone[i], dst[i]);
 		}
+		catch(NullPointerException e)
+		{
+			PApplet.println("NullPointerException: "+e);
+			failed = true;
+		}
+		if(!failed)
+		{
+			return dst;
+		}
+		else
+		{
+			PApplet.println("Failed rotating vertices!");
+			return new PVector[0];
+		}
+	}
 
-		 /** 
-		  * Translate list of vertices using matrices
-		  * @param verts Vertices list
-		  * @param dest Destination vector
-		  * @return Translated vertices 
-		  */
-		 public PVector[] translateVertices(PVector[] verts, PVector dest) // Translate vertices to a designated point
-		 {
-			 int vl = verts.length;
-			 PVector[] clone = new PVector[vl];
+	/**
+	 * Translate list of vertices using matrices
+	 * @param verts Vertices list
+	 * @param dest Destination vector
+	 * @return Translated vertices 
+	 */
+	public PVector[] translateVertices(PVector[] verts, PVector dest) // Translate vertices to a designated point
+	{
+		int vl = verts.length;
+		PVector[] clone = new PVector[vl];
 
-			 for (int i = 0; i < vl; i++)
-				 clone[i] = PVector.add(verts[i], new PVector());
+		for (int i = 0; i < vl; i++)
+			clone[i] = PVector.add(verts[i], new PVector());
 
-			 PMatrix3D tMat = new PMatrix3D();
-			 tMat.translate(dest.x, dest.y, dest.z);
+		PMatrix3D tMat = new PMatrix3D();
+		tMat.translate(dest.x, dest.y, dest.z);
 
-			 PVector[] dst = new PVector[vl];
+		PVector[] dst = new PVector[vl];
 
-			 for (int i = 0; i < vl; i++)
-				 dst[i] = new PVector();
-			 for (int i = 0; i < vl; i++)
-				 tMat.mult(clone[i], dst[i]);
+		for (int i = 0; i < vl; i++)
+			dst[i] = new PVector();
+		for (int i = 0; i < vl; i++)
+			tMat.mult(clone[i], dst[i]);
 
-			 return dst;
-		 }
+		return dst;
+	}
 }

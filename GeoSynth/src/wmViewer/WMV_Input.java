@@ -130,7 +130,7 @@ public class WMV_Input
 			p.startInitialClustering();				// Re-run clustering on all fields
 		
 		if (key == 'R')
-			p.p.restartGeoSynth();
+			p.p.restartWorldMediaViewer();
 		
 		if(p.display.map || p.display.mapOverlay)	/* 2D Map View */
 		{

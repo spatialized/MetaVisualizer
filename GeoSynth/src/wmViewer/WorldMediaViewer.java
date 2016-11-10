@@ -3,51 +3,47 @@
 * @author davidgordon
 * 
 * A program for displaying large multimedia collections as 3D immersive 
-* environments. 
-* 
-* Built using GeoMediaViewer, a Java library for creative visualization of
-* media using temporal, spatial and orientation metadata
+* environments based on spatial, temporal and orientation metadata. 
 *********************************************************************************/
 
-/*****************************
-* WorldMediaViewer 
-* @author davidgordon
-* 
-* Main GMViewer app class
+/************************************
+* @author davidgordon 
+* Main WMViewer App class
 */
-package gmViewer;
+
+package wmViewer;
 import java.io.*;
 import processing.core.*;
 import processing.video.Movie;
 
-public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
+public class WorldMediaViewer extends PApplet 			// WMViewer extends PApplet class
 {
 	/* System Status */
 	public boolean running = false;				// Is simulation running?
-	public boolean startup = true;					// Startup frame
-	public boolean exit = false;					// System message to exit the program
-	public boolean selectedLibrary = false;	// Has user selected a library folder?
+	public boolean startup = true;				// Startup frame
+	public boolean exit = false;				// System message to exit the program
+	public boolean selectedLibrary = false;		// Has user selected a library folder?
 	
 	/* Library */
-	GMV_Metadata metadata;			// Metadata handler class
-	GS_Library library;				// GeoSynth Media Library
+	WMV_Metadata metadata;				// Metadata handler class
+	WMV_Library library;					// GeoSynth Media Library
 
 	/* World */
-	GMV_World world;				// The 3D World
+	WMV_World world;					// The 3D World
 
 	/* Utilities */
-	GMV_Utilities utilities;		// Utility methods
+	WMV_Utilities utilities;			// Utility methods
 
 	/* Debugging */
-	GS_Debug debug;				// Handles debugging functions
+	WMV_Debug debug;						// Handles debugging functions
 
 	/** 
-	 * Load the PApplet, either in a window of specified size or in fullscreen
+	 * Load the PApplet either in a window of specified size or in fullscreen
 	 */
 	static public void main(String[] args) 
 	{
-		PApplet.main("gmViewer.GeoSynth");									// Open in window
-//		PApplet.main(new String[] { "--present", "gmViewer.GeoSynth" });	// Open in fullscreen mode
+		PApplet.main("gmViewer.WorldMediaViewer");									// Open in window
+//		PApplet.main(new String[] { "--present", "gmViewer.WorldMediaViewer" });	// Open in fullscreen mode
 	}
 	
 	/** 
@@ -55,10 +51,10 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 	 */
 	public void setup()
 	{
-		world = new GMV_World(this);
-		metadata = new GMV_Metadata(this);
-		utilities = new GMV_Utilities(world);
-		debug = new GS_Debug(this);
+		world = new WMV_World(this);
+		metadata = new WMV_Metadata(this);
+		utilities = new WMV_Utilities(world);
+		debug = new WMV_Debug(this);
 		world.initialize();
 	}
 
@@ -163,7 +159,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 			if (debug.metadata)
 				PApplet.println("User selected library folder: " + input);
 
-			library = new GS_Library(input);
+			library = new WMV_Library(input);
 
 			String[] parts = input.split("/");
 			
@@ -179,7 +175,7 @@ public class GeoSynth extends PApplet 				// GMViewer extends PApplet class
 					libFilePath = libFilePath + parts[i] + "/";
 				}
 
-				library = new GS_Library(libFilePath);
+				library = new WMV_Library(libFilePath);
 				library.addFolder(parts[parts.length-1]);
 				
 				selectedFolder = true;

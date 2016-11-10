@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 import processing.core.*;
 
 /**************************************
@@ -7,7 +7,7 @@ import processing.core.*;
  * Methods for responding to user input from keyboard or mouse
  */
 
-public class GMV_Input
+public class WMV_Input
 {
 	public boolean wasTimeFading, wasDateFading;
 	public boolean shiftKey = false;
@@ -21,9 +21,9 @@ public class GMV_Input
 	int releasedRecentlyFrame = 1000000;
 	int doubleClickSpeed = 10;
 
-	GMV_World p;
+	WMV_World p;
 
-	GMV_Input(GMV_World parent) {
+	WMV_Input(WMV_World parent) {
 		p = parent;
 		wasDateFading = p.dateFading;
 		wasTimeFading = p.timeFading;
@@ -616,7 +616,7 @@ public class GMV_Input
 				if(p.hierarchical)
 				{
 					p.hierarchical = false;
-					GMV_Model m = p.getCurrentField().model;
+					WMV_Model m = p.getCurrentField().model;
 					m.runKMeansClustering(p.kMeansClusteringEpsilon, m.clusterRefinement, m.clusterPopulationFactor);
 					p.getCurrentField().createTimeline();					// Create field timeline
 				}
@@ -628,7 +628,7 @@ public class GMV_Input
 				{
 					p.minClusterDistance -= 0.25f;
 //					PApplet.println("p.minClusterDistance:"+p.minClusterDistance);
-					for(GMV_Field f : p.getFields())
+					for(WMV_Field f : p.getFields())
 					{
 						f.model.setMinClusterDistance(p.minClusterDistance);	
 //						f.model.clustersNeedUpdate = true;
@@ -645,7 +645,7 @@ public class GMV_Input
 				{
 					p.minClusterDistance += 0.25f;
 //					PApplet.println("p.minClusterDistance:"+p.minClusterDistance);
-					for(GMV_Field f : p.getFields())
+					for(WMV_Field f : p.getFields())
 					{
 						f.model.setMinClusterDistance(p.minClusterDistance);
 //						f.model.clustersNeedUpdate = true;					// -- Temporary: will make minClusterDistance field specific...

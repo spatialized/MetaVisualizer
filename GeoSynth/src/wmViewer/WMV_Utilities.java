@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,20 +12,19 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 /******************
- * GMV_Utilities
  * @author davidgordon
  * Utility methods 
  */
 
-public class GMV_Utilities 
+public class WMV_Utilities 
 {
-	GMV_Stitcher stitcher;
-	GMV_World p;
+	WMV_Stitcher stitcher;
+	WMV_World p;
 	
-	GMV_Utilities(GMV_World parent)
+	WMV_Utilities(WMV_World parent)
 	{
 		p = parent;
-		stitcher = new GMV_Stitcher(p);
+		stitcher = new WMV_Stitcher(p);
 	}
 	
 	/**
@@ -131,14 +130,14 @@ public class GMV_Utilities
 	public boolean shrinkImages(String largeImages, String destination)
 	{
 		PApplet.println("Shrinking images:"+largeImages+" to:"+destination+"...");
-		GMV_Command commandExecutor;
+		WMV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		ArrayList<String> files = new ArrayList<String>();
 
 		/* Get files in directory */
 		command = new ArrayList<String>();
 		command.add("ls");
-		commandExecutor = new GMV_Command(largeImages, command);
+		commandExecutor = new WMV_Command(largeImages, command);
 		try {
 			int result = commandExecutor.execute();
 
@@ -168,7 +167,7 @@ public class GMV_Utilities
 		command.add(destination);
 //		PApplet.println("Copying command:"+command.toString());
 		
-		commandExecutor = new GMV_Command("", command);
+		commandExecutor = new WMV_Command("", command);
 		try {
 			int result = commandExecutor.execute();
 
@@ -186,7 +185,7 @@ public class GMV_Utilities
 		files = new ArrayList<String>();
 		command = new ArrayList<String>();
 		command.add("ls");
-		commandExecutor = new GMV_Command(destination, command);
+		commandExecutor = new WMV_Command(destination, command);
 		try {
 			int result = commandExecutor.execute();
 
@@ -234,7 +233,7 @@ public class GMV_Utilities
 					command.add("640");
 					command.add(fileName);
 //					PApplet.println("destination:"+destination +" command:"+command);
-					commandExecutor = new GMV_Command(destination, command);
+					commandExecutor = new WMV_Command(destination, command);
 
 					try {
 						int result = commandExecutor.execute();

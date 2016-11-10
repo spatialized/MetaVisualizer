@@ -1,15 +1,13 @@
-package gmViewer;
+package wmViewer;
 
 import processing.core.PApplet;
 import processing.data.IntList;
 
 /***************
- * GMV_MediaSegment
  * @author davidgordon
- * 
  * Portion of a cluster containing overlapping media without any gaps
  */
-public class GMV_MediaSegment 
+public class WMV_MediaSegment 
 {
 	private int id;
 	IntList images;					// Images in segment
@@ -19,9 +17,9 @@ public class GMV_MediaSegment
 	private float bottom, top, centerElevation;		// Upper and lower bounds (in degrees)
 	private boolean hidden;
 	
-	GMV_Cluster p;
+	WMV_Cluster p;
 	
-	GMV_MediaSegment( GMV_Cluster parent, int newID, IntList newImages, IntList newVideos, float newLower, float newUpper, 
+	WMV_MediaSegment( WMV_Cluster parent, int newID, IntList newImages, IntList newVideos, float newLower, float newUpper, 
 					  float newCenter, float newLowerElevation, float newUpperElevation, float newCenterElevation)
 	{
 		p = parent;
@@ -51,7 +49,7 @@ public class GMV_MediaSegment
 			int horizBorderID = 1;					// horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
 			int vertBorderID = 1;					// vertBorderID		0: Top  1: Center  2: Bottom  3: Top+Bottom
 
-			GMV_Image img = p.p.images.get(i);
+			WMV_Image img = p.p.images.get(i);
 			float xDir = img.getDirection();
 			float yDir = img.getElevation();
 			

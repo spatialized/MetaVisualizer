@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -8,11 +8,10 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 /**********************************************
- * GMV_Panorama
  * @author davidgordon
  * Represents a 360 degree panorama in virtual space
  */
-public class GMV_Panorama extends GMV_Viewable 
+public class WMV_Panorama extends WMV_Viewable 
 {
 	/* Graphics */
 	PImage texture;								// Texture image pixels
@@ -35,7 +34,7 @@ public class GMV_Panorama extends GMV_Viewable
 	int tableLength = (int)(360.0f / tablePrecision);
 	float radius;
 	
-	GMV_Panorama ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+	WMV_Panorama ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, 
 			PVector newLocation, PImage newTexture )
 	{
@@ -496,7 +495,7 @@ public class GMV_Panorama extends GMV_Viewable
 
 		for (int i = 0; i < p.clusters.size(); i++) 
 		{     
-			GMV_Cluster curCluster = (GMV_Cluster) p.clusters.get(i);
+			WMV_Cluster curCluster = (WMV_Cluster) p.clusters.get(i);
 			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
 			if (distanceCheck < closestDistance)

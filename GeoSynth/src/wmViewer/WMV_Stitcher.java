@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -33,20 +33,18 @@ import static org.bytedeco.javacpp.opencv_core.MatVector;
 import static org.bytedeco.javacpp.opencv_stitching.Stitcher;
 
 /***********************************
- * GMV_Stitcher
  * @author davidgordon
  * Class for stitching image sets into spherical panoramas
- * 
  */
-public class GMV_Stitcher 
+public class WMV_Stitcher 
 {
 	private Stitcher stitcher;
 	private final boolean try_use_gpu = true;
 	private int stitchNum = 0;						// Export count for file naming
 
-	GMV_World p;
+	WMV_World p;
 	
-	GMV_Stitcher(GMV_World parent)
+	WMV_Stitcher(WMV_World parent)
 	{
 		p = parent;
 		
@@ -79,7 +77,7 @@ public class GMV_Stitcher
 	 * Stitch a 360 degree panorama or panorama segment from images
 	 * @param library
 	 */
-	public GMV_Panorama stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
+	public WMV_Panorama stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
 	{
 		Mat panorama = new Mat();							// Panoramic image result
 		IplImage iplImage = null;
@@ -177,7 +175,7 @@ public class GMV_Stitcher
 
 		if(success)
 		{
-			GMV_MediaSegment segment;			// Segment of the panorama
+			WMV_MediaSegment segment;			// Segment of the panorama
 
 			PApplet.println("Calculating user selection borders...");
 
@@ -191,7 +189,7 @@ public class GMV_Stitcher
 
 				for(int index : selected)
 				{
-					GMV_Image i = p.getCurrentField().images.get(index);
+					WMV_Image i = p.getCurrentField().images.get(index);
 					if(i.getDirection() < left)
 						left = i.getDirection();
 					if(i.getDirection() > right)
@@ -205,7 +203,7 @@ public class GMV_Stitcher
 				float centerDirection = (right + left) / 2.f;
 				float centerElevation = (upper + lower) / 2.f;
 
-				segment = new GMV_MediaSegment( p.getCluster(clusterID), -1, selected, null, left, right, centerDirection,
+				segment = new WMV_MediaSegment( p.getCluster(clusterID), -1, selected, null, left, right, centerDirection,
 						lower, upper, centerElevation);
 			}
 			else
@@ -238,7 +236,7 @@ public class GMV_Stitcher
 			
 			float panoElevation = segment.getCenterElevation();
 			
-			GMV_Panorama pano = new GMV_Panorama( p.getCurrentField(), segment.getID(), "_stitched_"+Integer.toString(segment.getID()), 
+			WMV_Panorama pano = new WMV_Panorama( p.getCurrentField(), segment.getID(), "_stitched_"+Integer.toString(segment.getID()), 
 					"", null, panoDirection, panoElevation, -1, result.width, result.height, 
 					1.f, null, p.getCluster(clusterID).getLocation(), result );
 		
@@ -308,7 +306,7 @@ public class GMV_Stitcher
 	 * @param segmentID Source image media segment in cluster
 	 * @return Image with specified borders 
 	 */
-	public PImage addImageBorders(IplImage src, int clusterID, GMV_MediaSegment s)
+	public PImage addImageBorders(IplImage src, int clusterID, WMV_MediaSegment s)
 	{
 		float imgVertCoverage = 45.f;		// 60 is default (vert) field of view
 		float imgHorizCoverage = 60.f;		// 80 is default (horiz) field of view
@@ -413,12 +411,12 @@ public class GMV_Stitcher
 	 * @param second Second panorama
 	 * @return Combined panorama
 	 */
-	public GMV_Panorama combinePanoramas(GMV_Panorama first, GMV_Panorama second)
+	public WMV_Panorama combinePanoramas(WMV_Panorama first, WMV_Panorama second)
 	{
 		PApplet.println("Combining panoramas...");
 		Mat blended = linearBlend(  new Mat(pImageToIplImage(first.texture)), new Mat(pImageToIplImage(second.texture)));
 		PImage newTexture = iplImageToPImage( new IplImage(blended) );
-		GMV_Panorama newPano = first;
+		WMV_Panorama newPano = first;
 		first.texture = newTexture;
 		return newPano;
 	}

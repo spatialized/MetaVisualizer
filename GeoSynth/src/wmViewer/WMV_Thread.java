@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 
 import java.io.*;
@@ -6,7 +6,7 @@ import java.io.*;
 /**
 * Based on package com.devdaily.system;  
 */
-class GMV_Thread extends Thread
+class WMV_Thread extends Thread
 {
   InputStream inputStream;
   String adminPassword;
@@ -20,7 +20,7 @@ class GMV_Thread extends Thread
    * @param inputStream
    * @param streamType
    */
-  GMV_Thread(InputStream inputStream)
+  WMV_Thread(InputStream inputStream)
   {
     this.inputStream = inputStream;
   }

@@ -1,16 +1,15 @@
-package gmViewer;
+package wmViewer;
 
 import java.util.Calendar;
 
 import processing.core.*;
 
 /************************************
- * GMV_Image
  * @author davidgordon
  * A rectangular image in virtual space
  */
 
-class GMV_Image extends GMV_Viewable						 
+class WMV_Image extends WMV_Viewable						 
 {
 	/* Graphics */
 	public PImage image, blurred;			// Image pixels
@@ -47,9 +46,9 @@ class GMV_Image extends GMV_Viewable
 //	private PVector averageColor;
 //	private float averageBrightness;
 
-	GMV_Field p;					// Parent field
+	WMV_Field p;					// Parent field
 
-	GMV_Image ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
+	WMV_Image ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
 			int newWidth, int newHeight, float newBrightness, Calendar newCalendar)
 	{
@@ -647,7 +646,7 @@ class GMV_Image extends GMV_Viewable
 		 
 		 for (int i = 0; i < p.clusters.size(); i++) 
 		 {     
-			 GMV_Cluster curCluster = (GMV_Cluster) p.clusters.get(i);
+			 WMV_Cluster curCluster = (WMV_Cluster) p.clusters.get(i);
 			 float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
 			 if (distanceCheck < closestDistance)

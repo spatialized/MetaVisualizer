@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.util.Calendar;
 
@@ -11,11 +11,10 @@ import processing.core.PVector;
 import toxi.math.ScaleMap;
 
 /***************************************
- * GMV_Viewable
  * @author davidgordon
  * Abstract class representing objects viewable in 3D virtual space
  */
-public abstract class GMV_Viewable 
+public abstract class WMV_Viewable 
 {
 	/* General */
 	private int id;
@@ -37,7 +36,7 @@ public abstract class GMV_Viewable
 	public float brightness;
 	
 	/* Time */
-	GMV_Time time;
+	WMV_Time time;
 	ScaleMap timeLogMap;
 	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
 
@@ -67,9 +66,9 @@ public abstract class GMV_Viewable
 	public boolean hidden = false;				// Hidden from view											-- Needed?
 	public boolean requested = false;			// Indicates a recent request to load media from disk
 
-	GMV_Field p;								// Parent field
+	WMV_Field p;								// Parent field
 
-	GMV_Viewable ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+	WMV_Viewable ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			int newCameraModel, float newBrightness, Calendar newCalendar )
 	{
 		p = parent;
@@ -79,7 +78,7 @@ public abstract class GMV_Viewable
 		filePath = newFilePath;
 
 		if(newCalendar != null)
-			time = new GMV_Time( p.p, newCalendar );
+			time = new WMV_Time( p.p, newCalendar );
 		else
 			time = null;
 		
@@ -112,7 +111,7 @@ public abstract class GMV_Viewable
 	{
 		if(cluster != -1)
 		{
-			GMV_Cluster c = p.clusters.get(cluster);
+			WMV_Cluster c = p.clusters.get(cluster);
 			if(c.lowImageDate == c.highImageDate)
 			{
 				clusterDate = c.lowImageDate;
@@ -132,7 +131,7 @@ public abstract class GMV_Viewable
 	{
 		if(cluster != -1)
 		{
-			GMV_Cluster c = p.clusters.get(cluster);
+			WMV_Cluster c = p.clusters.get(cluster);
 			if(c.lowImageTime == c.highImageTime)
 			{
 				clusterTime = c.lowImageTime;
@@ -294,7 +293,7 @@ public abstract class GMV_Viewable
 
 		boolean error = false;
 
-		GMV_Cluster c = p.p.getCluster(cluster);			// Get cluster for this media
+		WMV_Cluster c = p.p.getCluster(cluster);			// Get cluster for this media
 
 		float lower = c.timeline.get(0).getLower();												// Get cluster timeline lower bound
 		float upper = c.timeline.get(c.timeline.size()-1).getUpper();							// Get cluster timeline upper bound
@@ -454,7 +453,7 @@ public abstract class GMV_Viewable
 
 		boolean error = false;
 
-		GMV_Cluster c = p.p.getCluster(cluster);			// Get cluster for this media
+		WMV_Cluster c = p.p.getCluster(cluster);			// Get cluster for this media
 
 		float lower = c.dateline.get(0).getLower();												// Get cluster dateline lower bound
 		float upper = c.dateline.get(c.dateline.size()-1).getUpper();							// Get cluster dateline upper bound

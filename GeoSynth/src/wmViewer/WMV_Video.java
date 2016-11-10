@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import processing.video.*;
 
@@ -8,12 +8,11 @@ import processing.core.*;
 import processing.data.IntList;
 
 /**************************************************
- * GMV_Video
  * @author davidgordon
  * A rectangular video in 3D virtual space
  */
 
-class GMV_Video extends GMV_Viewable          		 // Represents a video in virtual space
+class WMV_Video extends WMV_Viewable          		 // Represents a video in virtual space
 {
 	/* Video */
 	Movie video;
@@ -64,7 +63,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 	private boolean hasImagePlaceholder = false;
 	private int imagePlaceholder = -1;
 
-	GMV_Video ( GMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
+	WMV_Video ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, int newCameraModel, int newVideoWidth, 
 			int newVideoHeight, float newBrightness, Calendar newCalendar )
 	{
@@ -1007,7 +1006,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 		{
 			hasImagePlaceholder = true;
 			imagePlaceholder = imageID;
-			GMV_Image i = p.images.get(imagePlaceholder);
+			WMV_Image i = p.images.get(imagePlaceholder);
 			
 			/* Set video parameters from image placeholder metadata */
 			cameraModel = i.getCameraModel();
@@ -1249,7 +1248,7 @@ class GMV_Video extends GMV_Viewable          		 // Represents a video in virtua
 
 		for (int i = 0; i < p.clusters.size(); i++) 
 		{     
-			GMV_Cluster curCluster = (GMV_Cluster) p.clusters.get(i);
+			WMV_Cluster curCluster = (WMV_Cluster) p.clusters.get(i);
 			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
 			if (distanceCheck < closestDistance)

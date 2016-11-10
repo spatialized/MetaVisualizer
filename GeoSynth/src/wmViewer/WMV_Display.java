@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.util.ArrayList;
 
@@ -8,12 +8,11 @@ import processing.core.*;
 import toxi.math.ScaleMap;
 
 /***********************************
- * GMV_Display
  * @author davidgordon
  * Class for displaying 2D text and graphics
  */
 
-class GMV_Display
+class WMV_Display
 {
 	/* Display Modes */
 	public boolean map = false;					// Display map only
@@ -41,7 +40,7 @@ class GMV_Display
 	public int blendMode = 0;							// Alpha blending mode
 	public int numBlendModes = 10;						// Number of blending modes
 
-	/* Cluster Display */
+	/* Clusters */
 	public int displayCluster = 0;
 
 	/* Map Modes */
@@ -100,9 +99,9 @@ class GMV_Display
 	float lineWidthWide = largeTextSize + linePadding;			
 	float lineWidthVeryWide = largeTextSize * 2.f;			
 
-	GMV_World p;
+	WMV_World p;
 
-	GMV_Display(GMV_World parent)
+	WMV_Display(WMV_World parent)
 	{
 		p = parent;
 		
@@ -144,11 +143,6 @@ class GMV_Display
 		largePointSize = 0.0000032f * p.p.width;
 		hugePointSize = 0.0000039f * p.p.width;
 		cameraPointSize = 0.004f * p.p.width;
-		
-//		rightEdge = p.p.width / 2.f;
-//		leftEdge = -p.p.width / 2.f;
-//		topEdge = p.p.height / 2.f;
-//		bottomEdge = -p.p.height / 2.f;
 	}
 
 	/**
@@ -183,8 +177,6 @@ class GMV_Display
 			
 			if(control)
 				displayControls();
-
-//			if(about)
 
 			if(p.interactive)
 			{
@@ -239,7 +231,7 @@ class GMV_Display
 	public void drawMapPoint( PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
 	{		
 		float mapLocX, mapLocY;
-		GMV_Model m = p.getCurrentField().model;
+		WMV_Model m = p.getCurrentField().model;
 
 		if(!p.p.utilities.isNaN(point.x) && !p.p.utilities.isNaN(point.y) && !p.p.utilities.isNaN(point.z))
 		{
@@ -363,7 +355,7 @@ class GMV_Display
 		p.p.stroke(55, 0, 255, 255);
 		p.p.strokeWeight(1.f);
 
-		GMV_Cluster c = p.getCurrentCluster();
+		WMV_Cluster c = p.getCurrentCluster();
 
 		if(c != null && c.timeline.size() > 0)
 		{
@@ -470,14 +462,6 @@ class GMV_Display
 					p.p.stroke(55, 0, 255, 255);
 				}
 			}
-//			for(float f : c.clusterTimes)
-//			{
-//
-//			}
-//			for(float f : c.fieldTimes)
-//			{
-//
-//			}
 		}
 	}
 	
@@ -493,7 +477,7 @@ class GMV_Display
 		p.p.stroke(55, 0, 255, 255);
 		p.p.strokeWeight(1.f);
 
-		GMV_Cluster c = p.getCurrentCluster();
+		WMV_Cluster c = p.getCurrentCluster();
 
 		if(c != null && c.dateline.size() > 0)
 		{
@@ -600,20 +584,10 @@ class GMV_Display
 					p.p.stroke(55, 0, 255, 255);
 				}
 			}
-//			for(float f : c.clusterDates)
-//			{
-//
-//			}
-//			for(float f : c.fieldDates)
-//			{
-//
-//			}
 		}
 	}
 
-
 	/**
-	 * progressBar()
 	 * Draw progress bar
 	 */
 	void progressBar()
@@ -639,7 +613,6 @@ class GMV_Display
 	}
 
 	/**
-	 * beginHUD()
 	 * Initialize 2D drawing 
 	 */
 	void beginHUD()
@@ -655,7 +628,6 @@ class GMV_Display
 	}
 
 	/**
-	 * displayControls()
 	 * Display the main key commands on screen
 	 */
 	void displayControls()
@@ -784,31 +756,30 @@ class GMV_Display
 
 	void initializeMaps()
 	{
-		initializeSmallMap();
+//		initializeSmallMap();
 		initializeLargeMap();
 	}
 	
-	void initializeSmallMap()
-	{
-		float fr = p.getCurrentField().model.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
-
-		if(fr > 1)
-		{
-			smallMapWidth = smallMapMaxWidth;
-			smallMapHeight = smallMapWidth / fr;
-		}
-		else
-		{
-			smallMapHeight = smallMapMaxHeight;
-			smallMapWidth = smallMapHeight * fr;
-		}
-		
-		smallMapXOffset = p.p.width / 2.5f;
-		smallMapYOffset = logoYOffset - smallMapHeight / 3.f;
-	}
+//	void initializeSmallMap()
+//	{
+//		float fr = p.getCurrentField().model.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
+//
+//		if(fr > 1)
+//		{
+//			smallMapWidth = smallMapMaxWidth;
+//			smallMapHeight = smallMapWidth / fr;
+//		}
+//		else
+//		{
+//			smallMapHeight = smallMapMaxHeight;
+//			smallMapWidth = smallMapHeight * fr;
+//		}
+//		
+//		smallMapXOffset = p.p.width / 2.5f;
+//		smallMapYOffset = logoYOffset - smallMapHeight / 3.f;
+//	}
 
 	/**
-	 * message()
 	 * Add message to queue
 	 * @param message Message to send
 	 */
@@ -833,7 +804,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * clearMessages()
 	 * Clear previous messages
 	 */
 	void clearMessages()
@@ -842,7 +812,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * displayMessages()
 	 * Display current messages
 	 */
 	void displayMessages()
@@ -873,7 +842,6 @@ class GMV_Display
 	}
 
 	/**
-	 * sendMetadata()
 	 * Add a metadata message (single line) to the display queue
 	 * @param message Line of metadata 
 	 */
@@ -887,7 +855,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * displayMetadata()
 	 * Draw current metadata messages to the screen
 	 */
 	void displayMetadata()
@@ -908,14 +875,9 @@ class GMV_Display
 			}
 			p.p.popMatrix();
 		}
-//		else
-//		{
-//			metadata = new ArrayList<String>();							// Reset message list if viewer moves
-//		}
 	}
 	
 	/**
-	 * clearMetadata()
 	 * Clear previous metadata messages
 	 */
 	void clearMetadata()
@@ -924,7 +886,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * sendSetupMessage()
 	 * @param message Message to be sent
 	 * Add startup message to display queue
 	 */
@@ -943,7 +904,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * displayStartupMessages()
 	 * Display startup messages in queue
 	 */
 	void displayStartupMessages()
@@ -967,7 +927,6 @@ class GMV_Display
 	}
 	
 	/**
-	 * clearSetupMessages()
 	 * Clear previous setup messages
 	 */
 	void clearSetupMessages()
@@ -975,6 +934,9 @@ class GMV_Display
 		startupMessages = new ArrayList<String>();
 	}
 	
+	/**
+	 * Reset (turn off) display modes and clear messages
+	 */
 	void resetDisplayModes()
 	{
 		map = false;
@@ -1003,32 +965,32 @@ class GMV_Display
 		
 		/* Media */
 		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapImages && !p.getCurrentField().hideImages)
-			for ( GMV_Image i : p.getCurrentField().images )		// Draw images on 2D Map
+			for ( WMV_Image i : p.getCurrentField().images )		// Draw images on 2D Map
 				drawImageOnMap(i, mapWidth, mapHeight, false);
 
 		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapPanoramas && !p.getCurrentField().hidePanoramas)
-			for ( GMV_Panorama n : p.getCurrentField().panoramas )	// Draw panoramas on 2D Map
+			for ( WMV_Panorama n : p.getCurrentField().panoramas )	// Draw panoramas on 2D Map
 				drawPanoramaOnMap(n, mapWidth, mapHeight, false);
 
 		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapVideos && !p.getCurrentField().hideVideos)
-			for (GMV_Video v : p.getCurrentField().videos)			// Draw videos on 2D Map
+			for (WMV_Video v : p.getCurrentField().videos)			// Draw videos on 2D Map
 				drawVideoOnMap(v, mapWidth, mapHeight, false);
 
 		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapImages && !p.getCurrentField().hideImages)
-			for ( GMV_Image i : p.getCurrentField().images )		// Draw image capture locations on 2D Map
+			for ( WMV_Image i : p.getCurrentField().images )		// Draw image capture locations on 2D Map
 				drawImageOnMap(i, mapWidth, mapHeight, true);
 
 		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapPanoramas && !p.getCurrentField().hidePanoramas)
-			for ( GMV_Panorama n : p.getCurrentField().panoramas )	// Draw panorama capture locations on 2D Map
+			for ( WMV_Panorama n : p.getCurrentField().panoramas )	// Draw panorama capture locations on 2D Map
 				drawPanoramaOnMap(n, mapWidth, mapHeight, true);
 
 		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapVideos && !p.getCurrentField().hideVideos)
-			for (GMV_Video v : p.getCurrentField().videos)			// Draw video capture locations on 2D Map
+			for (WMV_Video v : p.getCurrentField().videos)			// Draw video capture locations on 2D Map
 				drawVideoOnMap(v, mapWidth, mapHeight, true);
 
 		/* Clusters */
 		if((mapMode == 1 || mapMode == 2 || mapMode == 3 || mapMode == 5) && mapClusters)
-			for( GMV_Cluster c : p.getCurrentField().clusters )							
+			for( WMV_Cluster c : p.getCurrentField().clusters )							
 				drawFuzzyMapPoint( c.getLocation(), PApplet.sqrt(c.mediaPoints) * 0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 
 		if(!p.interactive)				// While not in Clustering Mode
@@ -1055,7 +1017,7 @@ class GMV_Display
 	 * @param capture Draw capture location (true) or viewing location (false)
 	 * Draw image location on map of specified size
 	 */
-	void drawImageOnMap(GMV_Image image, float mapWidth, float mapHeight, boolean capture)
+	void drawImageOnMap(WMV_Image image, float mapWidth, float mapHeight, boolean capture)
 	{
 		float pointSize = smallPointSize * mapWidth;
 		
@@ -1089,7 +1051,7 @@ class GMV_Display
 	 * @param mapHeight Map height
 	 * Draw image location on map of specified size
 	 */
-	void drawPanoramaOnMap(GMV_Panorama panorama, float mapWidth, float mapHeight, boolean capture)
+	void drawPanoramaOnMap(WMV_Panorama panorama, float mapWidth, float mapHeight, boolean capture)
 	{
 		float pointSize = mediumPointSize * mapWidth;
 		
@@ -1121,7 +1083,7 @@ class GMV_Display
 	 * @param mapHeight Map height
 	 * Draw image location on map of specified size
 	 */
-	void drawVideoOnMap(GMV_Video video, float mapWidth, float mapHeight, boolean capture)
+	void drawVideoOnMap(WMV_Video video, float mapWidth, float mapHeight, boolean capture)
 	{
 		float pointSize = mediumPointSize * mapWidth;
 		
@@ -1160,20 +1122,6 @@ class GMV_Display
 			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
 	}
 	
-	/**
-	 * Interesting effect
-	 * @param mapWidth
-	 * @param mapHeight
-	 */
-	void drawMandalaOnMap(float mapWidth, float mapHeight)
-	{
-		int size = (int)(mapWidth / 20.f);
-		for(int i=-size/2; i<size/2; i+=size/20)
-			drawMapPoint( new PVector(i, 0.f, 0.f), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
-		for(int i=-size/2; i<size/2; i+=size/20)
-			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
-	}
-
 	/**
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
@@ -1220,14 +1168,13 @@ class GMV_Display
 	 */
 	public void showStartup()
 	{
-		sendSetupMessage("Welcome to MediaWorldViewer!");
+		sendSetupMessage("Welcome to WorldMediaViewer!");
 		sendSetupMessage(" ");
 		sendSetupMessage("Please select a library folder...");
 		draw();								// Draw setup display
 	}
 	
 	/**
-	 * drawForceVector()
 	 * @param origin Vector starting point
 	 * @param vector Direction vector
 	 * Draw current viewer location and orientation on map of specified size
@@ -1242,7 +1189,6 @@ class GMV_Display
 	}
 
 	/**
-	 * drawGMVClusters()
 	 * Draw the clusters at given depth
 	 */
 	void drawGMVClusters()
@@ -1253,12 +1199,15 @@ class GMV_Display
 			p.p.hint(PApplet.DISABLE_DEPTH_TEST);						// Disable depth testing for drawing HUD
 		}
 
-		for( GMV_Cluster c : p.getCurrentField().clusters )								// For all clusters at current depth
+		for( WMV_Cluster c : p.getCurrentField().clusters )								// For all clusters at current depth
 		{
 			drawMapPoint( c.getLocation(), 5.f, largeMapWidth, largeMapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 		}
 	}
 	
+	/**
+	 * Draw camera attraction force vector
+	 */
 	private void drawForceVector()
 	{
 		mapVectorOrigin = p.viewer.getLocation();
@@ -1296,7 +1245,6 @@ class GMV_Display
 	}
 	
 	 /**
-	  * changeBlendMode()
 	  * Increment blendMode by given amount and call setBlendMode()
 	  * @param inc Increment to blendMode number
 	  */
@@ -1324,7 +1272,6 @@ class GMV_Display
 	}
 
 	/**
-	 * setBlendMode()
 	 * Change effect of image alpha channel on blending
 	 * @param blendMode
 	 */
@@ -1406,17 +1353,16 @@ class GMV_Display
 		float textXPos = midLeftTextXOffset;
 		float textYPos = topTextYOffset;			// Starting vertical position
 		
-		GMV_Field f = p.getCurrentField();
+		WMV_Field f = p.getCurrentField();
 		
 		if(p.viewer.getCurrentCluster() >= 0)
 		{
-			GMV_Cluster c = p.getCurrentCluster();
+			WMV_Cluster c = p.getCurrentCluster();
 			float[] camTar = p.viewer.camera.target();
 
 			p.p.fill(0, 0, 255, 255);
-
 			p.p.textSize(mediumTextSize);
-//			if(p.p.pause) p.p.text(" --- Paused --- ", textXPos, textYPos, hudDistance);
+
 			p.p.text(" Settings ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
 			p.p.text("Angle Fading: "+p.angleFading, textXPos, textYPos += lineWidthVeryWide, hudDistance);
@@ -1508,8 +1454,6 @@ class GMV_Display
 //				p.p.text(" Selected Panorama:"+f.selectedPanorama, textXPos, textYPos += lineWidthVeryWide, hudDistance);
 //			if(f.selectedVideo != -1)
 //				p.p.text(" Selected Video:"+f.selectedVideo, textXPos, textYPos += lineWidth, hudDistance);
-
-			
 			
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Time ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
@@ -1566,7 +1510,6 @@ class GMV_Display
 	}
 
 	/**
-	 * displayClusterStats()
 	 * Draw cluster statistics display
 	 */
 	void displayClusterStats()
@@ -1577,8 +1520,8 @@ class GMV_Display
 		float textXPos = centerTextXOffset;
 		float textYPos = topTextYOffset;			// Starting vertical position
 		
-		GMV_Field f = p.getCurrentField();
-		GMV_Cluster c = p.getCluster(displayCluster);	// Get the cluster to display info about
+		WMV_Field f = p.getCurrentField();
+		WMV_Cluster c = p.getCluster(displayCluster);	// Get the cluster to display info about
 
 		p.p.fill(0, 0, 255, 255);
 
@@ -1613,22 +1556,7 @@ class GMV_Display
 		{
 			p.p.text(" -- Debug --", textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Cluster Timeline Length: "+ c.getTimeline().size(), textXPos, textYPos += lineWidth, hudDistance);
-//			p.p.text(" Field Timeline Times: "+ c.getFieldTimes().size(), dispLocX, textYPos += lineWidth, hudDistance);
 		}
-		
-//		FloatList clusterTimes = p.getCurrentCluster().getClusterTimes();
-//		
-//		if(clusterTimes.size() == 0)
-//			p.p.text("No timeline!", textXPos, textYPos += lineWidth, hudDistance);
-//		else
-//			p.p.text("Timeline:", textXPos , textYPos += lineWidth, hudDistance);
-//
-//		if(clusterTimes.size() == 1)
-//			p.p.text(clusterTimes.get(0), textXPos + 50.f, textYPos, hudDistance);
-//		if(clusterTimes.size() == 2)
-//			p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1), textXPos + 100.f, textYPos, hudDistance);
-//		if(clusterTimes.size() >= 3)
-//			p.p.text(clusterTimes.get(0)+" "+clusterTimes.get(1)+" "+clusterTimes.get(2), textXPos + 150.f, textYPos, hudDistance);
 				
 		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
@@ -1637,6 +1565,7 @@ class GMV_Display
 		p.p.text(" Current Cluster ID: "+p.viewer.getCurrentCluster(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 		p.p.text("   Media Points: "+c.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
+		
 		if(p.viewer.getAttractorCluster() != -1)
 		{
 			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), textXPos, textYPos += lineWidth, hudDistance);
@@ -1655,89 +1584,32 @@ class GMV_Display
 	
 	public boolean inDisplayView()
 	{
-		if( map || control || info || about || cluster || p.interactive ||
-		mapOverlay || controlOverlay || infoOverlay || clusterOverlay )
-		{
+		if( map || control || info || about || cluster || p.interactive || mapOverlay || controlOverlay || infoOverlay || clusterOverlay )
 			return true;
-		}
-		else return false;
+		else 
+			return false;
 	}
 
-//	p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), dispLocX, textYPos += lineWidth, hudDistance);
-//	if(p.viewer.getAttractorCluster() != -1)
-//	{
-//		p.p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), dispLocX, textYPos += lineWidth, hudDistance);
-//		//		p.p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.getAttractorCluster()).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
-//		p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), dispLocX, textYPos += lineWidth, hudDistance);
-//		if(p.p.debug.viewer) 
-//		{
-//			p.p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), dispLocX, textYPos += lineWidth, hudDistance);
-//			p.p.text(" Debug: Current Acceleration:"+(p.viewer.walking ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), dispLocX, textYPos += lineWidth, hudDistance);
-//			p.p.text(" Debug: Current Velocity:"+ (p.viewer.walking ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , dispLocX, textYPos += lineWidth, hudDistance);
-//		}
-//	}
-
-//	public boolean isActive()
-//	{
-//		return active;
-//	}
-//	
-//	public boolean isEmpty()
-//	{
-//		return empty;
-//	}
-//	
-//	public boolean isSingle()
-//	{
-//		return single;
-//	}
-//	
-//	void setMass(float newMass)
-//	{
-//		clusterMass = newMass;
-//	}
-//	
-//	/**
-//	 * setAttractor()
-//	 * Set this cluster as an attractor
-//	 */
-//	void setAttractor(boolean state)
-//	{
-//		isAttractor = state;
-//	}
-//
-//	public boolean isAttractor()
-//	{
-//		return isAttractor;
-//	}
-//	
-//	public float getClusterMass()
-//	{
-//		return clusterMass;
-//	}
-//	
-
 	/**
-	 * drawSmallMap()
 	 * Draw Heads-Up Display of 2D Map and Logo
 	 */
 	void drawSmallMap()
 	{
-//		float textYPos = logoYOffset;			// Starting vertical position
-//
-//		p.p.pushMatrix();
-//		beginHUD();									// Begin 2D drawing
-//		
-//		p.p.fill(55, 0, 255, 255);
-//		p.p.textSize(largeTextSize);
-//
-////		p.p.text("GeoMultimediaViewer v1.0", logoXOffset, textYPos, hudDistance);
-//		p.p.text("3D Multimedia Display System Using Metadata", logoXOffset, textYPos += lineWidth, hudDistance);
-//		p.p.text("by David Gordon", logoXOffset, textYPos += lineWidth, hudDistance);
-//
-//		p.p.popMatrix();
-//
-//		drawMap(smallMapWidth, smallMapHeight, smallMapXOffset, smallMapYOffset);
+		
+	}
+	
+	/**
+	 * Interesting effect
+	 * @param mapWidth
+	 * @param mapHeight
+	 */
+	void drawMandalaOnMap(float mapWidth, float mapHeight)
+	{
+		int size = (int)(mapWidth / 20.f);
+		for(int i=-size/2; i<size/2; i+=size/20)
+			drawMapPoint( new PVector(i, 0.f, 0.f), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+		for(int i=-size/2; i<size/2; i+=size/20)
+			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
 	}
 }
 

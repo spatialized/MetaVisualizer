@@ -1,25 +1,26 @@
-package gmViewer;
+package wmViewer;
 
 import java.io.*;
 import java.util.List;
 
-/**
+/*********************************************
 * @author davidgordon 
 * Based on package com.devdaily.system;  
 * Runs given system command as List of Strings
 * @param command The command you want to run.
 */
-public class GMV_Command
+
+public class WMV_Command
 {
   private List<String> command;
   private String adminPassword;
-  private GMV_Thread inputStreamHandler;
-  private GMV_Thread errorStreamHandler;
+  private WMV_Thread inputStreamHandler;
+  private WMV_Thread errorStreamHandler;
   private String directory;
   
   /**
    */
-  public GMV_Command(final String newDirectory, final List<String> command)
+  public WMV_Command(final String newDirectory, final List<String> command)
   {
     directory = newDirectory;
     if (command==null) throw new NullPointerException("The command is required.");
@@ -44,8 +45,8 @@ public class GMV_Command
       InputStream inputStream = process.getInputStream();
       InputStream errorStream = process.getErrorStream();
 
-      inputStreamHandler = new GMV_Thread(inputStream);
-      errorStreamHandler = new GMV_Thread(errorStream);
+      inputStreamHandler = new WMV_Thread(inputStream);
+      errorStreamHandler = new WMV_Thread(errorStream);
 
       inputStreamHandler.start();
       errorStreamHandler.start();

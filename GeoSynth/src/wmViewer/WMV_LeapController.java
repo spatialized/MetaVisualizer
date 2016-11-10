@@ -1,6 +1,6 @@
-package gmViewer;
+package wmViewer;
 
-public class Leap_Controller {
+public class WMV_LeapController {
 
 	//
 	// void updateLeapMotion() {

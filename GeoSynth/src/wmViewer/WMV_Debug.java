@@ -1,12 +1,11 @@
-package gmViewer;
+package wmViewer;
 
 /******************************
- * GS_Debug 
  * @author David Gordon
  * Debug settings
  */
 
-public class GS_Debug 
+public class WMV_Debug 
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
@@ -38,9 +37,9 @@ public class GS_Debug
 	long allocatedMemory;
 	long approxUsableFreeMemory;
 	
-	GeoSynth p;
+	WorldMediaViewer p;
 	
-	GS_Debug (GeoSynth parent)
+	WMV_Debug (WorldMediaViewer parent)
 	{
 		p = parent;
 	}

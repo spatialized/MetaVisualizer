@@ -1,15 +1,15 @@
-package gmViewer;
+package wmViewer;
+
+import beads.*;
 
 /**************************************************
- * Sound (OBSOLETE)
  * @author davidgordon
- * 
- * Class for drawing to screen and exporting images
+ * Represents a sound in 3D virtual space
  */
 
-public class GMV_Sound 
+public class WMV_Sound 
 {
-
+//	SoundFile sound;
 	float audibleFarDistanceMin, audibleFarDistanceMax;
 	float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal,
 			audibleFarDistanceDestVal;

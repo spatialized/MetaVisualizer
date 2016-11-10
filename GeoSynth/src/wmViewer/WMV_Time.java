@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.util.Calendar;
 
@@ -6,19 +6,18 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 /******************************************
- * GMV_TimePoint
  * @author davidgordon
  * When a media file was captured
  */
-public class GMV_Time 
+public class WMV_Time 
 {
 	private int year, month, day, hour, minute, second, millisecond;
 	private float dayLength;
 	private float date, time;
 	
-	private GMV_World p;
+	private WMV_World p;
 	
-	GMV_Time(GMV_World parent, Calendar newCalendar)
+	WMV_Time(WMV_World parent, Calendar newCalendar)
 	{
 		p = parent;
 

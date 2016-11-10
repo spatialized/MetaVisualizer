@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -6,11 +6,11 @@ import processing.data.FloatList;
 import processing.data.IntList;
 
 /*********************************************
- * GMV_Cluster
  * @author davidgordon
  * Class representing a group of media files forming a spatial unit
  */
-public class GMV_Cluster 
+
+public class WMV_Cluster 
 {
 	/* General */
 	private int id;						// Cluster ID
@@ -20,7 +20,7 @@ public class GMV_Cluster
 	private boolean single = false;		// Only one media point in cluster?
 
 	/* Panorama */
-	ArrayList<GMV_Panorama> stitchedPanoramas, userPanoramas;
+	ArrayList<WMV_Panorama> stitchedPanoramas, userPanoramas;
 //	private PImage stitchedPanorama;			// Stitched panorama		-- Make into arrayList
 	
 	/* Physics */
@@ -38,15 +38,15 @@ public class GMV_Cluster
 	private FloatList fieldDatesUpperBounds, fieldTimesUpperBounds;
 	
 	int[] clusterTimesHistogram, fieldTimesHistogram;					// Histogram of media times relative to cluster	/ field
-	ArrayList<GMV_TimeSegment> timeline;								// Timeline for this cluster
+	ArrayList<WMV_TimeSegment> timeline;								// Timeline for this cluster
 	int[] clusterDatesHistogram, fieldDatesHistogram;					// Histogram of media times in cluster	
-	ArrayList<GMV_TimeSegment> dateline;								// Date timeline for this cluster
-	ArrayList<ArrayList<GMV_TimeSegment>> timelines;
+	ArrayList<WMV_TimeSegment> dateline;								// Date timeline for this cluster
+	ArrayList<ArrayList<WMV_TimeSegment>> timelines;
 	
 //	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
 
 	/* Segmentation */
-	public ArrayList<GMV_MediaSegment> segments;		// List of arrays corresponding to each segment of images
+	public ArrayList<WMV_MediaSegment> segments;		// List of arrays corresponding to each segment of images
 	private int numSegments = 0;						// Number of segments of the cluster
 	
 	/* Media */
@@ -84,9 +84,9 @@ public class GMV_Cluster
 	public boolean panorama = false;					// Cluster has panorama files?
 	IntList valid;										// List of images that are good stitching candidates
 		
-	GMV_Field p;
+	WMV_Field p;
 
-	GMV_Cluster(GMV_Field parent, int _clusterID, float _x, float _y, float _z) {
+	WMV_Cluster(WMV_Field parent, int _clusterID, float _x, float _y, float _z) {
 		p = parent;
 		location = new PVector(_x, _y, _z);
 		id = _clusterID;
@@ -96,10 +96,10 @@ public class GMV_Cluster
 		images = new IntList();
 		panoramas = new IntList();
 		videos = new IntList();
-		segments = new ArrayList<GMV_MediaSegment>();
+		segments = new ArrayList<WMV_MediaSegment>();
 		
-		stitchedPanoramas = new ArrayList<GMV_Panorama>();
-		userPanoramas = new ArrayList<GMV_Panorama>();
+		stitchedPanoramas = new ArrayList<WMV_Panorama>();
+		userPanoramas = new ArrayList<WMV_Panorama>();
 		mediaPoints = 0;
 		
 		clusterDates = new FloatList();
@@ -124,7 +124,7 @@ public class GMV_Cluster
 		clusterDatesHistogram = new int[p.p.clusterTimePrecision];
 		fieldDatesHistogram = new int[p.p.fieldTimePrecision];
 
-		timeline = new ArrayList<GMV_TimeSegment>();
+		timeline = new ArrayList<WMV_TimeSegment>();
 //		timeUnitLength = p.p.timeUnitLength;					// Length of time unit in frames  (e.g. 10 means every 10 frames)
 //		timeIncrement = p.p.timeInc;							// User time increment
 	}
@@ -156,7 +156,7 @@ public class GMV_Cluster
 			float top = p.images.get(allImages.get(0)).getElevation();
 			float centerElevation = p.images.get(allImages.get(0)).getElevation();
 
-			segments.add( new GMV_MediaSegment( this, 0, curImages, null, right, left, centerDirection, 
+			segments.add( new WMV_MediaSegment( this, 0, curImages, null, right, left, centerDirection, 
 												top, bottom, centerElevation) );
 
 			if(p.p.p.debug.cluster || p.p.p.debug.model)
@@ -179,7 +179,7 @@ public class GMV_Cluster
 			int count = 0;
 			for(int i : allImages)							// Search for images at least stitchingMinAngle from each image
 			{
-				GMV_Image img = p.images.get(i);
+				WMV_Image img = p.images.get(i);
 			
 				if(curImages.size() == 0)
 				{
@@ -286,7 +286,7 @@ public class GMV_Cluster
 				centerElevation = (top + bottom) / 2.f;
 			}
 
-			segments.add( new GMV_MediaSegment( this, segments.size(), curImages, null, left, right, centerDirection, bottom, 
+			segments.add( new WMV_MediaSegment( this, segments.size(), curImages, null, left, right, centerDirection, bottom, 
 					      top, centerElevation) );
 
 			if((p.p.p.debug.cluster || p.p.p.debug.model))
@@ -309,7 +309,7 @@ public class GMV_Cluster
 	 * @param newImage Image to add
 	 * Add an image to the cluster
 	 */
-	void addImage(GMV_Image newImage)
+	void addImage(WMV_Image newImage)
 	{
 		if(!images.hasValue(newImage.getID()))
 		{
@@ -323,7 +323,7 @@ public class GMV_Cluster
 	 * @param newPanorama Panorama to add
 	 * Add a panorama to the cluster
 	 */
-	void addPanorama(GMV_Panorama newPanorama)
+	void addPanorama(WMV_Panorama newPanorama)
 	{
 		if(!panorama) panorama = true;
 		
@@ -339,7 +339,7 @@ public class GMV_Cluster
 	 * @param newImage Image to add
 	 * Add a video to the cluster
 	 */
-	void addVideo(GMV_Video newVideo)
+	void addVideo(WMV_Video newVideo)
 	{
 		if(!videos.hasValue(newVideo.getID()))
 		{
@@ -375,7 +375,7 @@ public class GMV_Cluster
 		/* Find images associated with this cluster ID */
 		for (int i = 0; i < p.images.size(); i++) 
 		{
-			GMV_Image curImg = (GMV_Image) p.images.get(i);
+			WMV_Image curImg = (WMV_Image) p.images.get(i);
 
 			if (curImg.cluster == id) 			// If the image is assigned to this cluster
 			{
@@ -391,7 +391,7 @@ public class GMV_Cluster
 		/* Find panoramas associated with this cluster ID */
 		for (int i = 0; i < p.panoramas.size(); i++) 
 		{
-			GMV_Panorama curPano = (GMV_Panorama) p.panoramas.get(i);
+			WMV_Panorama curPano = (WMV_Panorama) p.panoramas.get(i);
 
 			if (curPano.cluster == id) 			// If the image is assigned to this cluster
 			{
@@ -413,7 +413,7 @@ public class GMV_Cluster
 		/* Find videos associated with this cluster ID */
 		for (int i = 0; i < p.videos.size(); i++) 
 		{
-			GMV_Video curVid = (GMV_Video) p.videos.get(i);
+			WMV_Video curVid = (WMV_Video) p.videos.get(i);
 
 			if (curVid.cluster == id) 				// If the image is assigned to this cluster
 			{
@@ -497,7 +497,7 @@ public class GMV_Cluster
 	{
 		if(p.p.showUserPanoramas)
 		{
-			for(GMV_Panorama p : userPanoramas)
+			for(WMV_Panorama p : userPanoramas)
 			{
 				p.update();
 				p.draw();
@@ -506,7 +506,7 @@ public class GMV_Cluster
 
 		if(p.p.showStitchedPanoramas)
 		{
-			for(GMV_Panorama p : stitchedPanoramas)
+			for(WMV_Panorama p : stitchedPanoramas)
 			{
 				p.update();
 				p.draw();
@@ -530,7 +530,7 @@ public class GMV_Cluster
 
 			if(p.p.p.debug.stitching) p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-			GMV_Panorama pano = p.p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
+			WMV_Panorama pano = p.p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
 
 			if(pano != null)
 			{
@@ -561,7 +561,7 @@ public class GMV_Cluster
 		{
 			if(p.p.p.debug.stitching) p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
 
-			for(GMV_MediaSegment m : segments)			// Stitch panorama for each media segment
+			for(WMV_MediaSegment m : segments)			// Stitch panorama for each media segment
 			{
 				if(m.getImages().size() > 1)
 				{
@@ -593,7 +593,7 @@ public class GMV_Cluster
 					
 					if(valid.size() > 1)
 					{					
-						GMV_Panorama pano = p.p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
+						WMV_Panorama pano = p.p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
 						
 						if(pano != null)
 						{
@@ -641,7 +641,7 @@ public class GMV_Cluster
 
 		for(int idx : images)
 		{
-			GMV_Image m = p.images.get(idx);
+			WMV_Image m = p.images.get(idx);
 			float imgAngle = PApplet.radians(m.theta);
 			m.setThinningVisibility(false);
 
@@ -669,7 +669,7 @@ public class GMV_Cluster
 		
 		for(int idx : videos)
 		{
-			GMV_Video v = p.videos.get(idx);
+			WMV_Video v = p.videos.get(idx);
 			float vidAngle = PApplet.radians(v.theta);
 			v.setThinningVisibility(false);
 
@@ -717,7 +717,7 @@ public class GMV_Cluster
 	 * @param id Media segment ID
 	 * @return Cluster media segment with given ID
 	 */
-	public GMV_MediaSegment getMediaSegment(int id)
+	public WMV_MediaSegment getMediaSegment(int id)
 	{
 		return segments.get(id);
 	}
@@ -725,7 +725,7 @@ public class GMV_Cluster
 	/**
 	 * @return Cluster media segments
 	 */
-	public ArrayList<GMV_MediaSegment> getMediaSegments()
+	public ArrayList<WMV_MediaSegment> getMediaSegments()
 	{
 		return segments;
 	}
@@ -733,9 +733,9 @@ public class GMV_Cluster
 	/**
 	 * @return Images associated with cluster
 	 */
-	public ArrayList<GMV_Image> getImages()
+	public ArrayList<WMV_Image> getImages()
 	{
-		ArrayList<GMV_Image> cImages = new ArrayList<GMV_Image>();
+		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
 		for(int i : images)
 		{
 			cImages.add(p.images.get(i));
@@ -746,9 +746,9 @@ public class GMV_Cluster
 	/**
 	 * @return Panoramas associated with cluster
 	 */
-	public ArrayList<GMV_Panorama> getPanoramas()
+	public ArrayList<WMV_Panorama> getPanoramas()
 	{
-		ArrayList<GMV_Panorama> cPanoramas = new ArrayList<GMV_Panorama>();
+		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
 		for(int i : panoramas)
 		{
 			cPanoramas.add(p.panoramas.get(i));
@@ -759,9 +759,9 @@ public class GMV_Cluster
 	/**
 	 * @return Videos associated with cluster
 	 */
-	public ArrayList<GMV_Video> getVideos()
+	public ArrayList<WMV_Video> getVideos()
 	{
-		ArrayList<GMV_Video> cVideos = new ArrayList<GMV_Video>();
+		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
 		for(int i : videos)
 		{
 			cVideos.add(p.videos.get(i));
@@ -780,7 +780,7 @@ public class GMV_Cluster
 		{
 			for(int imgIdx : images)
 			{
-				GMV_Image i = p.images.get(imgIdx);
+				WMV_Image i = p.images.get(imgIdx);
 				if(i.isActive())
 					active = true;
 			}
@@ -790,7 +790,7 @@ public class GMV_Cluster
 		{
 			for(int panoIdx : panoramas)
 			{
-				GMV_Panorama n = p.panoramas.get(panoIdx);
+				WMV_Panorama n = p.panoramas.get(panoIdx);
 				if(n.isActive())
 					active = true;
 			}
@@ -800,7 +800,7 @@ public class GMV_Cluster
 		{
 			for(int vidIdx : videos)
 			{
-				GMV_Video v = p.videos.get(vidIdx);
+				WMV_Video v = p.videos.get(vidIdx);
 				if(v.isActive())
 					active = true;
 			}
@@ -887,7 +887,7 @@ public class GMV_Cluster
 	 * @param cluster Cluster to merge with
 	 * Merge this cluster with given cluster. Empty and make the given cluster non-active.
 	 */
-	void absorbCluster(GMV_Cluster cluster)
+	void absorbCluster(WMV_Cluster cluster)
 	{
 //		if(p.p.p.debug.clusters)
 //			p.p.display.sendUserMessage("Merging cluster "+clusterID+" with "+mCluster.clusterID);
@@ -895,7 +895,7 @@ public class GMV_Cluster
 		/* Find images associated with cluster */
 		for (int i = 0; i < p.images.size(); i++) 
 		{
-			GMV_Image curImg = p.images.get(i);
+			WMV_Image curImg = p.images.get(i);
 
 			if (curImg.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
@@ -907,7 +907,7 @@ public class GMV_Cluster
 		/* Find panoramas associated with cluster */
 		for (int i = 0; i < p.panoramas.size(); i++) 
 		{
-			GMV_Panorama curPano = p.panoramas.get(i);
+			WMV_Panorama curPano = p.panoramas.get(i);
 
 			if (curPano.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
@@ -919,7 +919,7 @@ public class GMV_Cluster
 		/* Find videos associated with cluster */
 		for (int i = 0; i < p.videos.size(); i++) 
 		{
-			GMV_Video curVid = p.videos.get(i);
+			WMV_Video curVid = p.videos.get(i);
 
 			if (curVid.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
@@ -1120,7 +1120,7 @@ public class GMV_Cluster
 //		clusterDates.sort();
 //		fieldDates.sort();
 		
-		dateline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort dateline points 
+		dateline.sort(WMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort dateline points 
 		
 		/* Debugging */
 		if(p.p.p.debug.time && clusterDates.size()>1)
@@ -1157,9 +1157,9 @@ public class GMV_Cluster
 	 */
 	void createTimelinesByDate()
 	{
-		timelines = new ArrayList<ArrayList<GMV_TimeSegment>>();
+		timelines = new ArrayList<ArrayList<WMV_TimeSegment>>();
 		int curTimeline = 0;
-		for(GMV_TimeSegment d : dateline)
+		for(WMV_TimeSegment d : dateline)
 		{
 //			float date = d.getCenter();
 			int date = (int) p.p.p.utilities.round(d.getCenter(), 3);
@@ -1171,7 +1171,7 @@ public class GMV_Cluster
 			/* Get times of all media of all types in this cluster */
 			for(int i : images)
 			{
-				GMV_Image img = p.images.get(i);
+				WMV_Image img = p.images.get(i);
 //				PApplet.println("img.getDate():"+img.getDate()+" date:"+date);
 //				PApplet.println("p.p.p.utilities.round(img.getDate(), 3):"+p.p.p.utilities.round(img.getDate(), 3)+" date:"+date);
 				if((int)p.p.p.utilities.round(img.getDate(), 3) == date)
@@ -1186,13 +1186,13 @@ public class GMV_Cluster
 			}
 			for(int n : panoramas) 
 			{
-				GMV_Panorama pano = p.panoramas.get(n);
+				WMV_Panorama pano = p.panoramas.get(n);
 				if((int)p.p.p.utilities.round(pano.getDate(), 3) == date)
 					mediaTimes.append( p.panoramas.get(n).time.getTime() );
 			}
 			for(int v : videos)
 			{
-				GMV_Video vid = p.videos.get(v);
+				WMV_Video vid = p.videos.get(v);
 				if((int)p.p.p.utilities.round(vid.getDate(), 3) == date)
 					mediaTimes.append( p.videos.get(v).time.getTime() );
 			}
@@ -1235,7 +1235,7 @@ public class GMV_Cluster
 				PApplet.println("...getTimeSegments... mediaTimes.size():"+mediaTimes.size());
 				timelines.add(getTimeSegments(clusterTimesHistogram, p.p.clusterTimePrecision));
 				if(timelines.get(curTimeline) != null)
-					timelines.get(curTimeline).sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
+					timelines.get(curTimeline).sort(WMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
 			}
 			
 			/* Debugging */
@@ -1313,7 +1313,7 @@ public class GMV_Cluster
 		{
 			timeline = getTimeSegments(clusterTimesHistogram, p.p.clusterTimePrecision);	// Get relative (cluster) time segments
 			if(timeline != null)
-				timeline.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
+				timeline.sort(WMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
 		}
 
 		/* Debugging */
@@ -1360,7 +1360,7 @@ public class GMV_Cluster
 //		}
 	}
 	
-	public GMV_TimeSegment getFirstTimeSegmentForDate(float date)
+	public WMV_TimeSegment getFirstTimeSegmentForDate(float date)
 	{
 		boolean found = false;
 		int timelineID = 0;
@@ -1368,7 +1368,7 @@ public class GMV_Cluster
 		
 		if(dateline != null)
 		{
-			for(GMV_TimeSegment t : dateline)		// Look through cluster dates for date
+			for(WMV_TimeSegment t : dateline)		// Look through cluster dates for date
 			{
 				if(!found)						
 				{	
@@ -1402,7 +1402,7 @@ public class GMV_Cluster
 		}
 	}
 	
-	public GMV_TimeSegment getLastTimeSegmentForDate(float date)
+	public WMV_TimeSegment getLastTimeSegmentForDate(float date)
 	{
 		boolean found = false;
 		int timelineID = 0;
@@ -1412,7 +1412,7 @@ public class GMV_Cluster
 		{
 			for(int index=dateline.size()-1; index >= 0; index--)					// Look through cluster dates for date
 			{
-				GMV_TimeSegment t = dateline.get(index);
+				WMV_TimeSegment t = dateline.get(index);
 				if(!found)						
 				{	
 					if(t.getCenter() == date)										// If cluster has date,
@@ -1454,9 +1454,9 @@ public class GMV_Cluster
 //		if(p.p.p.debug.cluster && (images.size() != 0 || panoramas.size() != 0 || videos.size() != 0))
 //			PApplet.println("Analyzing media times in cluster "+id+" ..." + " associatedImages.size():"+images.size()+" associatedPanoramas:"+panoramas.size()+" associatedVideos:"+videos.size());
 			
-		ArrayList<GMV_Image> cImages = new ArrayList<GMV_Image>();
-		ArrayList<GMV_Panorama> cPanoramas = new ArrayList<GMV_Panorama>();
-		ArrayList<GMV_Video> cVideos = new ArrayList<GMV_Video>();
+		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
+		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
+		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
 		
 		for(int i : images)
 			cImages.add(p.images.get(i));
@@ -1465,7 +1465,7 @@ public class GMV_Cluster
 		for(int i : videos)
 			cVideos.add(p.videos.get(i));
 
-		for (GMV_Image i : cImages) 			// Iterate over cluster images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		for (WMV_Image i : cImages) 			// Iterate over cluster images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
 			float fDayLength = i.time.getDayLength();
 
@@ -1498,7 +1498,7 @@ public class GMV_Cluster
 		}
 		
 		
-		for (GMV_Panorama n : cPanoramas) 			// Iterate over cluster panoramas to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		for (WMV_Panorama n : cPanoramas) 			// Iterate over cluster panoramas to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
 			float fDayLength = n.time.getDayLength();
 
@@ -1530,7 +1530,7 @@ public class GMV_Cluster
 				longestPanoramaDayLength = fDayLength;
 		}
 		
-		for (GMV_Video v : cVideos) 			// Iterate over cluster videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		for (WMV_Video v : cVideos) 			// Iterate over cluster videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
 			float fDayLength = v.time.getDayLength();
 
@@ -1620,7 +1620,7 @@ public class GMV_Cluster
 	 * @param timePrecision Number of histogram bins
 	 * @return Time segments
 	 */
-	ArrayList<GMV_TimeSegment> getTimeSegments(int histogram[], int timePrecision)				// -- clusterTimelineMinPoints!!								
+	ArrayList<WMV_TimeSegment> getTimeSegments(int histogram[], int timePrecision)				// -- clusterTimelineMinPoints!!								
 	{
 		/* Initialize list of media times */
 //		ArrayList<GMV_TimeSegment> mediaTimes = new ArrayList<GMV_TimeSegment>();
@@ -1646,7 +1646,7 @@ public class GMV_Cluster
 		{
 			/* Initialize clusters */
 //			IntList timeSegments = new IntList();
-			ArrayList<GMV_TimeSegment> timeSegments = new ArrayList<GMV_TimeSegment>();
+			ArrayList<WMV_TimeSegment> timeSegments = new ArrayList<WMV_TimeSegment>();
 //			boolean segment = true;
 			
 			int idx = 0;
@@ -1673,7 +1673,7 @@ public class GMV_Cluster
 							center = PApplet.round((curUpper+curLower)/2);
 
 						PApplet.println("Cluster #"+getID()+" timeline... Creating time segment... center:"+(center/timePrecision)+" curUpper:"+(curUpper/timePrecision)+" curLower:"+(curLower/timePrecision));
-						timeSegments.add(new GMV_TimeSegment(count, center/timePrecision, curUpper/timePrecision, curLower/timePrecision));
+						timeSegments.add(new WMV_TimeSegment(count, center/timePrecision, curUpper/timePrecision, curLower/timePrecision));
 						curLower = Integer.valueOf(t);
 						curUpper = Integer.valueOf(t);
 						count++;
@@ -1692,7 +1692,7 @@ public class GMV_Cluster
 						center = PApplet.round((curUpper+curLower)/2);
 
 					PApplet.println("Cluster #"+getID()+" timeline... Creating LAST time segment... center:"+center+" curUpper:"+curUpper+" curLower:"+curLower);
-					timeSegments.add(new GMV_TimeSegment(count, center, curUpper, curLower));
+					timeSegments.add(new WMV_TimeSegment(count, center, curUpper, curLower));
 					curLower = Integer.valueOf(t);
 					curUpper = Integer.valueOf(t);
 					count++;
@@ -1814,7 +1814,7 @@ public class GMV_Cluster
 
 		for (int img : images) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			GMV_Image i = p.images.get(img);
+			WMV_Image i = p.images.get(img);
 			PVector gpsLocation = i.getGPSLocation();
 			
 			if (init) 	
@@ -1850,7 +1850,7 @@ public class GMV_Cluster
 
 		for (int pano : panoramas) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			GMV_Panorama n = p.panoramas.get(pano);
+			WMV_Panorama n = p.panoramas.get(pano);
 			PVector gpsLocation = n.getGPSLocation();
 
 			if (gpsLocation.x > highLongitude)
@@ -1869,7 +1869,7 @@ public class GMV_Cluster
 		
 		for (int vid : videos) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			GMV_Video v = p.videos.get(vid);
+			WMV_Video v = p.videos.get(vid);
 			PVector gpsLocation = v.getGPSLocation();
 			
 			if (gpsLocation.x > highLongitude)
@@ -1890,18 +1890,18 @@ public class GMV_Cluster
 	/**
 	 * @return This cluster as a waypoint for navigation
 	 */
-	GMV_Waypoint getClusterAsWaypoint()
+	WMV_Waypoint getClusterAsWaypoint()
 	{
-		GMV_Waypoint result = new GMV_Waypoint(getID(), getLocation());
+		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation());
 		return result;
 	}
 
-	public ArrayList<GMV_TimeSegment> getTimeline()
+	public ArrayList<WMV_TimeSegment> getTimeline()
 	{
 		return timeline;
 	}
 
-	public ArrayList<GMV_TimeSegment> getDateline()
+	public ArrayList<WMV_TimeSegment> getDateline()
 	{
 		return dateline;
 	}

@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,12 +13,11 @@ import toxi.math.ScaleMap;
 import toxi.math.ZoomLensInterpolation;
 
 /**************************************************
- * GMV_World
  * @author davidgordon
  * Class representing a world, with a viewer and fields to be displayed
  */
 
-public class GMV_World {
+public class WMV_World {
 	/* System Status */
 	private boolean initialSetup = false;			// Performing initial setup 
 	private boolean creatingFields = false;			// Initializing media folders
@@ -27,12 +26,12 @@ public class GMV_World {
 	private boolean saveImage = false;
 	
 	/* Classes */
-	GMV_Input input;				// Handles input
-	GMV_Display display;			// Handles heads up display
-	GMV_Viewer viewer;				// Handles viewer location
+	WMV_Input input;				// Handles input
+	WMV_Display display;			// Handles heads up display
+	WMV_Viewer viewer;				// Handles viewer location
 	
 	/* Media */
-	private ArrayList<GMV_Field> fields;					// Large geographical area containing media for simulation
+	private ArrayList<WMV_Field> fields;					// Large geographical area containing media for simulation
 
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
@@ -166,9 +165,9 @@ public class GMV_World {
 	InterpolateStrategy zoomLens = new ZoomLensInterpolation();
 	InterpolateStrategy linear = new LinearInterpolation();
 
-	GeoSynth p;
+	WorldMediaViewer p;
 	
-	GMV_World(GeoSynth parent)
+	WMV_World(WorldMediaViewer parent)
 	{
 		p = parent;
 	}
@@ -179,10 +178,10 @@ public class GMV_World {
 	void initialize() 
 	{
 		/* Create main classes */
-		input = new GMV_Input(this);
+		input = new WMV_Input(this);
 
-		viewer = new GMV_Viewer(this);	// Initialize navigation + viewer
-		display = new GMV_Display(this);		// Initialize displays
+		viewer = new WMV_Viewer(this);	// Initialize navigation + viewer
+		display = new WMV_Display(this);		// Initialize displays
 
 		/* Initialize graphics and text parameters */
 		p.colorMode(PConstants.HSB);
@@ -250,7 +249,7 @@ public class GMV_World {
 			if(!fieldsCreated && !p.exit)
 			{
 				if(p.debug.field) PApplet.println("Initializing field:"+initializationField);
-				GMV_Field f = getField(initializationField);
+				WMV_Field f = getField(initializationField);
 
 				p.metadata.load(f);								// Import metadata for all media in field
 				f.initialize(p.library.getLibraryFolder());		// Initialize field
@@ -474,7 +473,7 @@ public class GMV_World {
 		display.sendSetupMessage("Starting WorldMediaViewer v1.0...");	// Show startup message
 		display.draw();											
 
-		p.running = false;			// Stop running
+		p.running = false;				// Stop running
 		initialSetup = true;			// Start clustering mode
 	}
 	
@@ -483,19 +482,19 @@ public class GMV_World {
 	 */
 	public void startInteractiveClustering()
 	{
-		p.background(0.f);								// Clear screen
+		p.background(0.f);					// Clear screen
 		
-		p.running = false;						// Stop running simulation
-		interactive = true;			// Start interactive clustering mode
-		startInteractive = false;		// Have started
+		p.running = false;					// Stop running simulation
+		interactive = true;					// Start interactive clustering mode
+		startInteractive = false;			// Have started
 		
-		display.initializeSmallMap();
+//		display.initializeSmallMap();
 		display.initializeLargeMap();
 		
-		display.resetDisplayModes();			// Clear messages
+		display.resetDisplayModes();		// Clear messages
 		display.displayClusteringInfo();
 		
-		getCurrentField().blackoutMedia();					// Blackout all media
+		getCurrentField().blackoutMedia();	// Blackout all media
 	}
 	
 	/**
@@ -503,9 +502,8 @@ public class GMV_World {
 	 */
 	public void runInteractiveClustering()
 	{
-		p.background(0.f);							// Clear screen
-		display.draw();								// Draw text		
-//		display.drawLargeMap();						// Draw text		
+		p.background(0.f);					// Clear screen
+		display.draw();						// Draw text		
 	}
 	
 	/**
@@ -526,13 +524,13 @@ public class GMV_World {
 	}
 	
 	/**
-	 * createFieldsFromFolder()		-- TO DO!!
+	 * -- TO DO!!
 	 * @param mediaFolder Folder containing the media
 	 * Create fields from single media folder using k-means clustering 
 	 */
 	public void createFieldsFromFolder(String mediaFolder)
 	{
-		fields = new ArrayList<GMV_Field>();			// Initialize fields array
+		fields = new ArrayList<WMV_Field>();			// Initialize fields array
 //		ArrayList<GMV_Cluster> clusters;
 		
 //		int count = 0;
@@ -550,12 +548,12 @@ public class GMV_World {
 	 */
 	void createFieldsFromFolders(ArrayList<String> folders)
 	{
-		fields = new ArrayList<GMV_Field>();			// Initialize fields array
+		fields = new ArrayList<WMV_Field>();			// Initialize fields array
 		int count = 0;
 		
 		for(String s : folders)
 		{
-			fields.add(new GMV_Field(this, s, count));
+			fields.add(new WMV_Field(this, s, count));
 			count++;
 		}
 
@@ -600,18 +598,6 @@ public class GMV_World {
 		{
 			fadingAlpha = false;
 			newAlphaFadeValue = fadingAlphaTarget;
-
-//			if(initFading) initFading = false;
-//			if(isFadingOut)
-//			{
-//				isFadingOut = false;
-//				fadedOut = true;
-//			}
-//			if(isFadingIn)
-//			{
-//				isFadingIn = false;
-//				fadedIn = true;
-//			}
 		} 
 		else
 		{
@@ -625,16 +611,16 @@ public class GMV_World {
 	/**
 	 * @return Current field
 	 */
-	public GMV_Field getCurrentField()
+	public WMV_Field getCurrentField()
 	{
-		GMV_Field f = fields.get(viewer.getField());
+		WMV_Field f = fields.get(viewer.getField());
 		return f;
 	}
 	
 	/**
 	 * @return All fields in library
 	 */
-	public ArrayList<GMV_Field> getFields()
+	public ArrayList<WMV_Field> getFields()
 	{
 		return fields;
 	}
@@ -642,18 +628,18 @@ public class GMV_World {
 	/**
 	 * @return Model of current field
 	 */
-	public GMV_Model getCurrentModel()
+	public WMV_Model getCurrentModel()
 	{
-		GMV_Model m = getCurrentField().model;
+		WMV_Model m = getCurrentField().model;
 		return m;
 	}
 	
 	/**
 	 * @return Current cluster
 	 */
-	public GMV_Cluster getCurrentCluster()
+	public WMV_Cluster getCurrentCluster()
 	{
-		GMV_Cluster c;
+		WMV_Cluster c;
 		if(viewer.getCurrentCluster() < getCurrentField().clusters.size())
 		{
 			c = getCurrentField().clusters.get(viewer.getCurrentCluster());
@@ -663,61 +649,58 @@ public class GMV_World {
 	}
 	
 	/**
-	 * getAttractorCluster()
 	 * @return Current cluster
 	 */
-	public GMV_Cluster getAttractorCluster()
+	public WMV_Cluster getAttractorCluster()
 	{
-		GMV_Cluster c = getCurrentField().clusters.get(viewer.getAttractorCluster());
+		WMV_Cluster c = getCurrentField().clusters.get(viewer.getAttractorCluster());
 		return c;
 	}
 	
 	/**
-	 * getFieldImages()
 	 * @return All images in this field
 	 */
-	public ArrayList<GMV_Image> getFieldImages()
+	public ArrayList<WMV_Image> getFieldImages()
 	{
-		ArrayList<GMV_Image> iList = getCurrentField().images;
+		ArrayList<WMV_Image> iList = getCurrentField().images;
 		return iList;
 	}
 	
 	/**
-	 * getFieldPanoramas()
 	 * @return All images in this field
 	 */
-	public ArrayList<GMV_Panorama> getFieldPanoramas()
+	public ArrayList<WMV_Panorama> getFieldPanoramas()
 	{
-		ArrayList<GMV_Panorama> pList = getCurrentField().panoramas;
+		ArrayList<WMV_Panorama> pList = getCurrentField().panoramas;
 		return pList;
 	}
 	
 	/**
 	 * @return All videos in this field
 	 */
-	public ArrayList<GMV_Video> getFieldVideos()
+	public ArrayList<WMV_Video> getFieldVideos()
 	{
-		ArrayList<GMV_Video> iList = getCurrentField().videos;
+		ArrayList<WMV_Video> iList = getCurrentField().videos;
 		return iList;
 	}
 	
 	/**
 	 * @return Clusters in current field
 	 */
-	public ArrayList<GMV_Cluster> getFieldClusters()
+	public ArrayList<WMV_Cluster> getFieldClusters()
 	{
-		ArrayList<GMV_Cluster> clusters = getCurrentField().clusters;
+		ArrayList<WMV_Cluster> clusters = getCurrentField().clusters;
 		return clusters;
 	}
 
 	/**
 	 * @return Clusters in current field
 	 */
-	public ArrayList<GMV_Cluster> getActiveClusters()
+	public ArrayList<WMV_Cluster> getActiveClusters()
 	{
-		ArrayList<GMV_Cluster> clusters = new ArrayList<GMV_Cluster>();
+		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
 
-		for(GMV_Cluster c : getCurrentField().clusters)
+		for(WMV_Cluster c : getCurrentField().clusters)
 			if(c.isActive() && !c.isEmpty())
 				clusters.add(c);
 		
@@ -727,9 +710,9 @@ public class GMV_World {
 	/**
 	 * @return Requested cluster from current field
 	 */
-	GMV_Cluster getCluster(int theCluster)
+	WMV_Cluster getCluster(int theCluster)
 	{
-		GMV_Cluster c = getCurrentField().clusters.get(theCluster);
+		WMV_Cluster c = getCurrentField().clusters.get(theCluster);
 		return c;
 	}
 
@@ -798,7 +781,7 @@ public class GMV_World {
 	/**
 	 * @return Current field
 	 */
-	public GMV_Field getField(int fieldIndex)
+	public WMV_Field getField(int fieldIndex)
 	{
 		if(fieldIndex >= 0 && fieldIndex < fields.size())
 			return fields.get(fieldIndex);

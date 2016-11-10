@@ -1,21 +1,20 @@
-package gmViewer;
+package wmViewer;
 
 import java.util.Comparator;
 
 import processing.core.PApplet;
 
 /*********************************************
- * GMV_TimeSegment
  * @author davidgordon
  * Represents a media object or cluster time span
  */
-public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>									
+public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>									
 {
 	private float center;			// Time 
 	private float lower, upper;	// Upper and lower bounds of cluster
 	private int id = -1;		// Cluster ID
 	
-	GMV_TimeSegment(int newID, float newCenter, float newUpper, float newLower)
+	WMV_TimeSegment(int newID, float newCenter, float newUpper, float newLower)
 	{
 		id = newID;
 		center = newCenter;
@@ -103,14 +102,14 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 	 * @param t Time segment to compare to
 	 * Compare this time segment with given one
 	 */
-	public int compareTo(GMV_TimeSegment t)
+	public int compareTo(WMV_TimeSegment t)
 	{
 		return Float.compare(this.center, t.center);		
 	}
 
-	public static Comparator<GMV_TimeSegment> GMV_TimeMidpointComparator = new Comparator<GMV_TimeSegment>() 
+	public static Comparator<WMV_TimeSegment> GMV_TimeMidpointComparator = new Comparator<WMV_TimeSegment>() 
 	{
-		public int compare(GMV_TimeSegment t1, GMV_TimeSegment t2) 
+		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{
 
 			float time1 = t1.getCenter();
@@ -124,9 +123,9 @@ public class GMV_TimeSegment implements Comparable<GMV_TimeSegment>
 	};
 	
 
-	public static Comparator<GMV_TimeSegment> GMV_TimeLowerBoundComparator = new Comparator<GMV_TimeSegment>() 
+	public static Comparator<WMV_TimeSegment> GMV_TimeLowerBoundComparator = new Comparator<WMV_TimeSegment>() 
 	{
-		public int compare(GMV_TimeSegment t1, GMV_TimeSegment t2) 
+		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{
 
 			float lower1 = t1.getLower();

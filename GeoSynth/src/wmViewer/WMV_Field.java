@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.util.ArrayList;
 import processing.core.PApplet;
@@ -6,12 +6,11 @@ import processing.data.IntList;
 //import processing.core.PVector;
 
 /**************************************************
- * GMV_Field
  * @author davidgordon
  * Class representing media in a large geographical area
  */
 
-public class GMV_Field 
+public class WMV_Field 
 {
 	/* General */
 	public int fieldID;
@@ -35,42 +34,42 @@ public class GMV_Field
 	public boolean hideVideos = false;						// Hide videos
 
 	/* Data */
-	GMV_Model model;										// Dimensions and properties of current virtual space
+	WMV_Model model;										// Dimensions and properties of current virtual space
 
-	public ArrayList<GMV_Image> images; 					// All images in this field
-	public ArrayList<GMV_Panorama> panoramas; 				// All panoramas in this field
-	public ArrayList<GMV_Video> videos; 					// All videos in this field
-	public ArrayList<GMV_Cluster> clusters;					// Spatial groupings of media in the Image3D and Video3D arrays
+	public ArrayList<WMV_Image> images; 					// All images in this field
+	public ArrayList<WMV_Panorama> panoramas; 				// All panoramas in this field
+	public ArrayList<WMV_Video> videos; 					// All videos in this field
+	public ArrayList<WMV_Cluster> clusters;					// Spatial groupings of media in the Image3D and Video3D arrays
 
 	private int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
 
 	/* Time */
 //	public final int numBins = 100; 							// Time precision
-	ArrayList<GMV_TimeSegment> timeline;								// Cluster timeline for this field
-	ArrayList<GMV_TimeSegment> dateline;								// Cluster timeline for this field
+	ArrayList<WMV_TimeSegment> timeline;								// Cluster timeline for this field
+	ArrayList<WMV_TimeSegment> dateline;								// Cluster timeline for this field
 
-	GMV_World p;
+	WMV_World p;
 	
 	/* -- Debug -- */	
 	public int disassociatedImages = 0;					// -- Check and delete variables
 	public int disassociatedPanoramas = 0;
 	public int disassociatedVideos = 0;
 
-	GMV_Field(GMV_World parent, String newMediaFolder, int newFieldID)
+	WMV_Field(WMV_World parent, String newMediaFolder, int newFieldID)
 	{
 		p = parent;
 		name = newMediaFolder;
 		fieldID = newFieldID;
 
-		model = new GMV_Model(this);
-		clusters = new ArrayList<GMV_Cluster>();
+		model = new WMV_Model(this);
+		clusters = new ArrayList<WMV_Cluster>();
 		
-		images = new ArrayList<GMV_Image>();
-		panoramas = new ArrayList<GMV_Panorama>();
-		videos = new ArrayList<GMV_Video>();		
+		images = new ArrayList<WMV_Image>();
+		panoramas = new ArrayList<WMV_Panorama>();
+		videos = new ArrayList<WMV_Video>();		
 
-		timeline = new ArrayList<GMV_TimeSegment>();
-		dateline = new ArrayList<GMV_TimeSegment>();
+		timeline = new ArrayList<WMV_TimeSegment>();
+		dateline = new ArrayList<WMV_TimeSegment>();
 	}
 
 	public void draw() 				// Draw currently visible media
@@ -88,7 +87,7 @@ public class GMV_Field
 
 		for (int i = 0; i < images.size(); i++) 		// Update and display images
 		{
-			GMV_Image m = images.get(i);
+			WMV_Image m = images.get(i);
 			if(!m.disabled)
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
@@ -109,7 +108,7 @@ public class GMV_Field
 
 		for (int i = 0; i < panoramas.size(); i++)  	// Update and display panoramas
 		{
-			GMV_Panorama n = panoramas.get(i);
+			WMV_Panorama n = panoramas.get(i);
 			if(!n.disabled)
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
@@ -129,7 +128,7 @@ public class GMV_Field
 
 		for (int i = 0; i < videos.size(); i++)  		// Update and display videos
 		{
-			GMV_Video v = videos.get(i);
+			WMV_Video v = videos.get(i);
 			if(!v.disabled)
 			{
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
@@ -203,24 +202,24 @@ public class GMV_Field
 		if(p.p.debug.time)
 			PApplet.println(">>> Creating Field Timeline... <<<");
 
-		for(GMV_Cluster c : clusters)											// Find all media cluster times
+		for(WMV_Cluster c : clusters)											// Find all media cluster times
 		{
-			ArrayList<GMV_TimeSegment> times = new ArrayList<GMV_TimeSegment>();
+			ArrayList<WMV_TimeSegment> times = new ArrayList<WMV_TimeSegment>();
 			
-			for(GMV_TimeSegment t : c.getTimeline())
+			for(WMV_TimeSegment t : c.getTimeline())
 			{
 //				if(p.p.debug.time)
 //					PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
 
-				GMV_TimeSegment time = new GMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
+				WMV_TimeSegment time = new WMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
 				times.add( time );												// Add segment to timeline
 			}
 
-			for(GMV_TimeSegment t : times)										// Add indexed cluster times to timeline
+			for(WMV_TimeSegment t : times)										// Add indexed cluster times to timeline
 				timeline.add(t);
 		}
 
-		timeline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort time segments 
+		timeline.sort(WMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort time segments 
 		
 		if(p.p.debug.time)
 		{
@@ -236,26 +235,26 @@ public class GMV_Field
 	
 	public void createDateline()
 	{
-		for(GMV_Cluster c : clusters)											// Find all media cluster times
+		for(WMV_Cluster c : clusters)											// Find all media cluster times
 		{
-			ArrayList<GMV_TimeSegment> dates = new ArrayList<GMV_TimeSegment>();
+			ArrayList<WMV_TimeSegment> dates = new ArrayList<WMV_TimeSegment>();
 			
 			if(!c.isEmpty())
 			{
 //				int count = 0;
-				for(GMV_TimeSegment d : c.getDateline())							// Iterate through cluster dateline
+				for(WMV_TimeSegment d : c.getDateline())							// Iterate through cluster dateline
 				{
-					GMV_TimeSegment date = new GMV_TimeSegment(	c.getID(), d.getCenter(), d.getUpper(), d.getLower());
+					WMV_TimeSegment date = new WMV_TimeSegment(	c.getID(), d.getCenter(), d.getUpper(), d.getLower());
 					dates.add( date );												// Add segment to field dateline
 //					count++;
 				}
 
-				for(GMV_TimeSegment t : dates)										// Add indexed cluster times to dateline
+				for(WMV_TimeSegment t : dates)										// Add indexed cluster times to dateline
 					dateline.add(t);
 			}
 		}
 
-		dateline.sort(GMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
+		dateline.sort(WMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
 		
 		if(p.p.debug.time && dateline.size()>0)
 		{
@@ -271,13 +270,13 @@ public class GMV_Field
 	/**
 	 * @return List of waypoints based on field timeline
 	 */
-	public ArrayList<GMV_Waypoint> getTimelineAsPath()
+	public ArrayList<WMV_Waypoint> getTimelineAsPath()
 	{
-		ArrayList<GMV_Waypoint> timelinePath = new ArrayList<GMV_Waypoint>();
+		ArrayList<WMV_Waypoint> timelinePath = new ArrayList<WMV_Waypoint>();
 
-		for(GMV_TimeSegment t : timeline)
+		for(WMV_TimeSegment t : timeline)
 		{
-			GMV_Waypoint w = clusters.get(t.getID()).getClusterAsWaypoint();
+			WMV_Waypoint w = clusters.get(t.getID()).getClusterAsWaypoint();
 			timelinePath.add(w);
 		}
 		if(p.p.debug.field)
@@ -288,13 +287,13 @@ public class GMV_Field
 	/**
 	 * @return List of waypoints based on field dateline
 	 */
-	public ArrayList<GMV_Waypoint> getDatelineAsPath()
+	public ArrayList<WMV_Waypoint> getDatelineAsPath()
 	{
-		ArrayList<GMV_Waypoint> datelinePath = new ArrayList<GMV_Waypoint>();
+		ArrayList<WMV_Waypoint> datelinePath = new ArrayList<WMV_Waypoint>();
 
-		for(GMV_TimeSegment d : dateline)
+		for(WMV_TimeSegment d : dateline)
 		{
-			GMV_Waypoint w = clusters.get(d.getID()).getClusterAsWaypoint();
+			WMV_Waypoint w = clusters.get(d.getID()).getClusterAsWaypoint();
 			datelinePath.add(w);
 		}
 		if(p.p.debug.field)
@@ -307,7 +306,7 @@ public class GMV_Field
 	 */
 	void findImagePlaceHolders()
 	{
-		for(GMV_Video v : videos)
+		for(WMV_Video v : videos)
 			v.findPlaceholder();
 	}
 
@@ -328,7 +327,7 @@ public class GMV_Field
 	
 	public void createClusters()
 	{
-		for(GMV_Cluster c : clusters)
+		for(WMV_Cluster c : clusters)
 			c.create();
 	}
 
@@ -337,7 +336,7 @@ public class GMV_Field
 	 */
 	void initializeClusters()
 	{
-		for( GMV_Cluster c : clusters )
+		for( WMV_Cluster c : clusters )
 		{
 			if(c.mediaPoints <= 0)
 			{
@@ -363,7 +362,7 @@ public class GMV_Field
 		if(p.p.debug.cluster)
 			PApplet.println("initializeClusterMedia() for "+clusters.size()+" clusters...");
 		
-		for( GMV_Cluster c : clusters )
+		for( WMV_Cluster c : clusters )
 		{
 			if(!c.isEmpty())
 			{
@@ -371,23 +370,23 @@ public class GMV_Field
 			}
 		}
 		
-		for(GMV_Cluster c : clusters)
+		for(WMV_Cluster c : clusters)
 		{
 			if(!c.isEmpty())
 			{
-				for(GMV_Image i : c.getImages())
+				for(WMV_Image i : c.getImages())
 				{
 					i.setClusterTime();
 					i.setClusterDate();
 				}
 
-				for(GMV_Panorama n : c.getPanoramas())
+				for(WMV_Panorama n : c.getPanoramas())
 				{
 					n.setClusterTime();
 					n.setClusterDate();
 				}
 
-				for(GMV_Video v : c.getVideos())
+				for(WMV_Video v : c.getVideos())
 				{
 					v.setClusterTime();
 					v.setClusterDate();
@@ -425,13 +424,13 @@ public class GMV_Field
 	{
 		if(p.p.debug.field) PApplet.println("Fading out media...");
 
-		for (GMV_Image i : images)
+		for (WMV_Image i : images)
 			i.fadeOut();
 		
-		for (GMV_Panorama n : panoramas) 
+		for (WMV_Panorama n : panoramas) 
 			n.fadeOut();
 
-		for (GMV_Video v : videos) 
+		for (WMV_Video v : videos) 
 			v.fadeOut();
 	}
 
@@ -443,13 +442,13 @@ public class GMV_Field
 	{
 		if(p.p.debug.field) PApplet.println("Fading out media...");
 
-		for (GMV_Image i : images)
+		for (WMV_Image i : images)
 			i.fadingBrightness = 0;
 		
-		for (GMV_Panorama n : panoramas) 
+		for (WMV_Panorama n : panoramas) 
 			n.fadingBrightness = 0;
 
-		for (GMV_Video v : videos) 
+		for (WMV_Video v : videos) 
 			v.fadingBrightness = 0;
 	}
 
@@ -461,10 +460,10 @@ public class GMV_Field
 	{
 		if(p.p.debug.field) PApplet.println("Stopping all fading...");
 
-		for (GMV_Image i : images)
+		for (WMV_Image i : images)
 			i.stopFading();
 		
-		for (GMV_Video v : videos) 
+		for (WMV_Video v : videos) 
 			v.stopFading();
 	}
 
@@ -474,15 +473,15 @@ public class GMV_Field
 	 */
 	public void stopAllMediaFading()
 	{
-		for(GMV_Image i : images)
+		for(WMV_Image i : images)
 			if(i.isFading())
 				i.stopFading();
 
-		for(GMV_Panorama n : panoramas)
+		for(WMV_Panorama n : panoramas)
 			if(n.isFading())
 				n.stopFading();
 
-		for(GMV_Video v : videos)
+		for(WMV_Video v : videos)
 			if(v.isFading())
 				v.stopFading();
 	}
@@ -525,7 +524,7 @@ public class GMV_Field
 	 */
 	public void deselectAllMedia(boolean hide) 
 	{
-		for (GMV_Image i : images)
+		for (WMV_Image i : images)
 		{
 			if(i.isSelected())
 			{
@@ -533,7 +532,7 @@ public class GMV_Field
 				if(hide) i.hidden = true;
 			}
 		}
-		for (GMV_Panorama n : panoramas)
+		for (WMV_Panorama n : panoramas)
 		{
 			if(n.isSelected())
 			{
@@ -541,7 +540,7 @@ public class GMV_Field
 //				if(hide) n.hidden = true;
 			}
 		}
-		for (GMV_Video v : videos)
+		for (WMV_Video v : videos)
 		{
 			if(v.isSelected())
 			{
@@ -561,17 +560,17 @@ public class GMV_Field
 	{
 		boolean fading = false;
 		
-		for(GMV_Image i : images)
+		for(WMV_Image i : images)
 			if(i.isFading() && !i.disabled)
 				fading = true;
 
 		if(!fading)
-			for(GMV_Panorama n : panoramas)
+			for(WMV_Panorama n : panoramas)
 				if(n.isFading() && !n.disabled)
 					fading = true;
 
 		if(!fading)
-			for(GMV_Video v : videos)
+			for(WMV_Video v : videos)
 				if(v.isFading() && !v.disabled)
 					fading = true;
 
@@ -594,7 +593,7 @@ public class GMV_Field
 		}
 		else if(p.viewer.isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
 		{
-			for( GMV_Cluster c : getAttractingClusters() )
+			for( WMV_Cluster c : getAttractingClusters() )
 				if(c.getClusterDistance() > p.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
 					c.attractViewer();
 		}
@@ -604,10 +603,10 @@ public class GMV_Field
 	 * getAttractingClusters()
 	 * @return List of attracting clusters
 	 */
-	public ArrayList<GMV_Cluster> getAttractingClusters()
+	public ArrayList<WMV_Cluster> getAttractingClusters()
 	{
-		ArrayList<GMV_Cluster> cList = new ArrayList<GMV_Cluster>();
-		for(GMV_Cluster c : p.getCurrentField().clusters)		// Attract the camera to the attracting cluster(s) 
+		ArrayList<WMV_Cluster> cList = new ArrayList<WMV_Cluster>();
+		for(WMV_Cluster c : p.getCurrentField().clusters)		// Attract the camera to the attracting cluster(s) 
 		{
 			if(c.isAttractor())										
 			{
@@ -627,19 +626,19 @@ public class GMV_Field
 	{
 		boolean active = false;
 		
-		for(GMV_Image i : images)
+		for(WMV_Image i : images)
 		{
 			if(i.isActive())
 				active = true;
 		}
 		
-		for(GMV_Panorama n : panoramas)
+		for(WMV_Panorama n : panoramas)
 		{
 			if(n.isActive())
 				active = true;
 		}
 		
-		for(GMV_Video v : videos)
+		for(WMV_Video v : videos)
 		{
 			if(v.isActive())
 				active = true;
@@ -673,7 +672,7 @@ public class GMV_Field
 	 */
 	public void stitchAllClusters()
 	{
-		for(GMV_Cluster c : clusters)
+		for(WMV_Cluster c : clusters)
 			c.stitchImages();
 	}
 	
@@ -712,7 +711,7 @@ public class GMV_Field
 		{
 			p.viewer.clearAttractorCluster();
 
-			for(GMV_Cluster c : clusters)
+			for(WMV_Cluster c : clusters)
 				if(c.isAttractor())
 					c.setAttractor(false);
 		}
@@ -724,13 +723,13 @@ public class GMV_Field
 	 */
 	public void fadeObjectDistances(float multiple)
 	{
-		for(GMV_Image i:images)
+		for(WMV_Image i:images)
 		{
 			float newFocusDistance = i.getFocusDistance() * multiple;
 			i.fadeObjectDistance(newFocusDistance);
 		}
 
-		for(GMV_Video v:videos)
+		for(WMV_Video v:videos)
 		{
 			float newFocusDistance = v.getFocusDistance() * multiple;
 			v.fadeObjectDistance(newFocusDistance);
@@ -761,7 +760,7 @@ public class GMV_Field
 //		if(timeline.size() > clusterID)
 //		{
 		int count = 0;
-		for(GMV_TimeSegment t : timeline)
+		for(WMV_TimeSegment t : timeline)
 		{
 			if(t.getID() == clusterID)
 				times.append(count);
@@ -784,7 +783,7 @@ public class GMV_Field
 //		if(timeline.size() > clusterID)
 //		{
 		int count = 0;
-		for(GMV_TimeSegment t : timeline)
+		for(WMV_TimeSegment t : timeline)
 		{
 			if(t.getID() == clusterID)
 				times.append(count);
@@ -816,7 +815,7 @@ public class GMV_Field
 	{
 		IntList selected = new IntList();
 
-		for(GMV_Image i : images)
+		for(WMV_Image i : images)
 			if(i.isSelected())
 				selected.append(i.getID());
 		
@@ -831,7 +830,7 @@ public class GMV_Field
 	public void hideImages()
 	{
 		hideImages = true;
-		for(GMV_Image i : images)
+		for(WMV_Image i : images)
 		{
 			if(i.visible)
 			{
@@ -849,7 +848,7 @@ public class GMV_Field
 	public void hidePanoramas()
 	{
 		hidePanoramas = true;
-		for(GMV_Panorama n : panoramas)
+		for(WMV_Panorama n : panoramas)
 		{
 			if(n.visible)
 			{
@@ -858,11 +857,11 @@ public class GMV_Field
 			}
 		}
 		
-		for(GMV_Cluster c : clusters)
+		for(WMV_Cluster c : clusters)
 		{
 			if(c.stitchedPanoramas.size() > 0)
 			{
-				for(GMV_Panorama n : c.stitchedPanoramas)
+				for(WMV_Panorama n : c.stitchedPanoramas)
 				{
 					if(n.isFading()) n.stopFading();
 					n.fadeOut();
@@ -871,7 +870,7 @@ public class GMV_Field
 			
 			if(c.userPanoramas.size() > 0)
 			{
-				for(GMV_Panorama n : c.userPanoramas)
+				for(WMV_Panorama n : c.userPanoramas)
 				{
 					if(n.isFading()) n.stopFading();
 					n.fadeOut();
@@ -888,7 +887,7 @@ public class GMV_Field
 	public void hideVideos()
 	{
 		hideVideos = true;
-		for(GMV_Video v : videos)
+		for(WMV_Video v : videos)
 		{
 			if(v.visible)
 			{
@@ -947,7 +946,7 @@ public class GMV_Field
 	 * @param r Cluster to remove
 	 * Remove a cluster
 	 */
-	public void removeCluster(GMV_Cluster r)
+	public void removeCluster(WMV_Cluster r)
 	{
 		clusters.remove(r);
 	}

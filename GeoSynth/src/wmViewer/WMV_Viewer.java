@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -21,11 +21,10 @@ import processing.data.FloatList;
 import processing.data.IntList;
 
 /*********************************
- * GMV_Viewer
  * @author davidgordon
  * Represents the viewer able to navigate and interact with multimedia in virtual 3D environment
  */
-public class GMV_Viewer 
+public class WMV_Viewer 
 {
 	/* Camera */
 	Camera camera;									 				// Camera object
@@ -49,8 +48,8 @@ public class GMV_Viewer
 	public int currentClusterDateSegment = 0;			// Current date segment in cluster dateline
 	
 	/* Memory */
-	private ArrayList<GMV_Waypoint> memory;				// Path for camera to take
-	private ArrayList<GMV_Waypoint> path; 				// Record of camera path
+	private ArrayList<WMV_Waypoint> memory;				// Path for camera to take
+	private ArrayList<WMV_Waypoint> path; 				// Record of camera path
 	
 	private boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
 	private boolean movingToCluster = false;			// Moving to cluster 
@@ -62,7 +61,7 @@ public class GMV_Viewer
 	private int field = 0;								// Current field
 	public IntList clustersVisible;						// Clusters visible to camera (Static mode) 
 	private int currentCluster = 0;						// Image cluster currently in view
-	GMV_Cluster attractorPoint;							// For navigation to points outside cluster list
+	WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
 	private int attractorCluster = -1;					// Cluster attracting the camera
 	private int attractionStart = 0;
 	private int teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
@@ -70,7 +69,7 @@ public class GMV_Viewer
 	private float clusterNearDistanceFactor = 2.f;			// Multiplier for clusterCenterSize to get clusterNearDistance
 
 	/* Interaction Modes */
-	public boolean mouseNavigation = true;			// Mouse navigation
+	public boolean mouseNavigation = false;			// Mouse navigation
 	public boolean map3DMode = false;				// 3D Map Mode
 	public boolean selection = false;				// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean autoNavigation = false;			// Attraction towards centers of clusters
@@ -156,8 +155,8 @@ public class GMV_Viewer
 
 	/* GPS Tracks */
 	private File gpsTrackFile;							// GPS track file
-	private ArrayList<GMV_Waypoint> history;			// Stores a GPS track in virtual coordinates
-	private ArrayList<GMV_Waypoint> gpsTrack;			// Stores a GPS track in virtual coordinates
+	private ArrayList<WMV_Waypoint> history;			// Stores a GPS track in virtual coordinates
+	private ArrayList<WMV_Waypoint> gpsTrack;			// Stores a GPS track in virtual coordinates
 	private boolean gpsTrackSelected = false;			// Has a GPS track been selected?
 	private String gpsTrackName = "";					// GPS track name
 
@@ -166,9 +165,9 @@ public class GMV_Viewer
 	private float zoomStart, zoomDirection;
 	private int zoomLength = 15;
 
-	GMV_World p;
+	WMV_World p;
 
-	public GMV_Viewer(GMV_World parent)
+	public WMV_Viewer(WMV_World parent)
 	{
 		p = parent;
 
@@ -181,11 +180,11 @@ public class GMV_Viewer
 
 		fieldOfView = initFieldOfView; 		// Field of view
 
-		history = new ArrayList<GMV_Waypoint>();
-		gpsTrack = new ArrayList<GMV_Waypoint>();
+		history = new ArrayList<WMV_Waypoint>();
+		gpsTrack = new ArrayList<WMV_Waypoint>();
 
-		memory = new ArrayList<GMV_Waypoint>();
-		path = new ArrayList<GMV_Waypoint>();
+		memory = new ArrayList<WMV_Waypoint>();
+		path = new ArrayList<WMV_Waypoint>();
 		teleportGoal = new PVector(0, 0, 0);
 
 		field = 0;
@@ -244,7 +243,7 @@ public class GMV_Viewer
 				if(clusterLockIdleFrames > lockToClusterWaitLength)			// If after wait length, lock to nearest cluster
 				{
 					int nearest = getNearestCluster(true);					// Get nearest cluster location, including current cluster
-					GMV_Cluster c = p.getCluster(nearest);
+					WMV_Cluster c = p.getCluster(nearest);
 					if(c.getClusterDistance() > p.clusterCenterSize * 2.f)	// If the nearest cluster is farther than threshold distance
 						moveToCluster(c.getID(), false);					// Move to nearest cluster
 				}
@@ -338,7 +337,7 @@ public class GMV_Viewer
 		if(newField < p.getFieldCount())
 			field = newField;
 
-		p.display.initializeSmallMap();
+//		p.display.initializeSmallMap();
 		p.display.initializeLargeMap();
 
 		if(p.p.debug.field || p.p.debug.viewer)		
@@ -388,7 +387,7 @@ public class GMV_Viewer
 		if(teleport)
 		{
 			teleportGoalCluster = newCluster;
-			PVector newLocation = ((GMV_Cluster) p.getCurrentField().clusters.get(newCluster)).getLocation();
+			PVector newLocation = ((WMV_Cluster) p.getCurrentField().clusters.get(newCluster)).getLocation();
 			teleportToPoint(newLocation, true);
 		}
 		else
@@ -597,7 +596,7 @@ public class GMV_Viewer
 	 */
 	void moveToTimeInField(int fieldID, int nextFieldTime, boolean teleport)
 	{
-		GMV_Field f = p.getField(fieldID);
+		WMV_Field f = p.getField(fieldID);
 		
 		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToTimeInField:"+f.timeline.get(nextFieldTime).getID()+" f.timeline.size():"+f.timeline.size());
@@ -630,7 +629,7 @@ public class GMV_Viewer
 	 */
 	void moveToFirstTimeOnDate(int fieldID, int fieldDateSegment, boolean teleport)
 	{
-		GMV_Field f = p.getField(fieldID);
+		WMV_Field f = p.getField(fieldID);
 
 //		if(p.p.debug.viewer && p.p.debug.detailed)
 
@@ -709,7 +708,7 @@ public class GMV_Viewer
 	 */
 	void moveToTimeInCluster(int clusterID, int nextClusterTime, boolean teleport)
 	{
-		GMV_Cluster c = p.getCluster(clusterID);
+		WMV_Cluster c = p.getCluster(clusterID);
 		
 		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToTimeInCluster:"+c.timeline.get(nextClusterTime).getID()+" c.timeline.size():"+c.timeline.size());
@@ -729,7 +728,7 @@ public class GMV_Viewer
 	 */
 	void moveToDateInField(int fieldID, int nextFieldDate, boolean teleport)
 	{
-		GMV_Field f = p.getField(fieldID);
+		WMV_Field f = p.getField(fieldID);
 		
 		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToDateInField: nextFieldDate:"+nextFieldDate+" id:"+f.dateline.get(nextFieldDate).getID()+" f.dateline.size():"+f.dateline.size());
@@ -761,7 +760,7 @@ public class GMV_Viewer
 	 */
 	void moveToDateInCluster(int clusterID, int nextClusterDate, boolean teleport)
 	{
-		GMV_Cluster c = p.getCluster(clusterID);
+		WMV_Cluster c = p.getCluster(clusterID);
 		
 		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToDateInCluster:"+c.dateline.get(nextClusterDate).getID()+" c.dateline.size():"+c.dateline.size());
@@ -784,7 +783,7 @@ public class GMV_Viewer
 	{
 		if(dest < p.getFieldClusters().size())
 		{
-		GMV_Cluster c = p.getCurrentField().clusters.get(dest);
+		WMV_Cluster c = p.getCurrentField().clusters.get(dest);
 
 		if(p.transitionsOnly)
 		{
@@ -879,7 +878,7 @@ public class GMV_Viewer
 
 		if (p.getCurrentField().clusters.size() > 0) 
 		{
-			for (GMV_Cluster c : p.getActiveClusters()) 
+			for (WMV_Cluster c : p.getActiveClusters()) 
 			{
 				float dist = PVector.dist(cPos, c.getLocation());
 				if (dist < smallest) 
@@ -920,7 +919,7 @@ public class GMV_Viewer
 		IntList nearList = new IntList();
 		FloatList distList = new FloatList();
 
-		for (GMV_Cluster c : p.getActiveClusters()) 	// Iterate through the clusters
+		for (WMV_Cluster c : p.getActiveClusters()) 	// Iterate through the clusters
 		{
 			float dist = PVector.dist(cPos, c.getLocation());			// Distance of cluster to check
 
@@ -994,7 +993,7 @@ public class GMV_Viewer
 					else
 					{
 						int id = p.getCurrentField().timeline.get(currentFieldTimeSegment).getID();
-						for(GMV_TimeSegment t : p.getCluster(id).dateline)
+						for(WMV_TimeSegment t : p.getCluster(id).dateline)
 						{
 							if(p.getCurrentField().dateline.size() > currentFieldDateSegment)
 							{
@@ -1062,7 +1061,7 @@ public class GMV_Viewer
 					else
 					{
 						int id = p.getCurrentField().timeline.get(currentFieldTimeSegment).getID();
-						for(GMV_TimeSegment t : p.getCluster(id).dateline)
+						for(WMV_TimeSegment t : p.getCluster(id).dateline)
 						{
 							if(p.getCurrentField().dateline.size() > currentFieldDateSegment)
 							{
@@ -1200,9 +1199,9 @@ public class GMV_Viewer
 		float earliest = 1000000.f;
 		int earliestIdx = -1;
 
-		for(GMV_Cluster c : p.getFieldClusters())
+		for(WMV_Cluster c : p.getFieldClusters())
 		{
-			GMV_TimeSegment t = c.getFirstTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
+			WMV_TimeSegment t = c.getFirstTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
 			if(t != null)
 			{
 				if(t.getCenter() < earliest)
@@ -1216,7 +1215,7 @@ public class GMV_Viewer
 		if(earliestIdx != -1)
 		{
 			int count = 0;
-			for(GMV_TimeSegment t : p.getCurrentField().timeline)
+			for(WMV_TimeSegment t : p.getCurrentField().timeline)
 			{
 				if(t.getID() == earliestIdx)
 				{
@@ -1243,9 +1242,9 @@ public class GMV_Viewer
 		float latest = -1000000.f;
 		int latestIdx = -1;
 
-		for(GMV_Cluster c : p.getFieldClusters())
+		for(WMV_Cluster c : p.getFieldClusters())
 		{
-			GMV_TimeSegment t = c.getLastTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
+			WMV_TimeSegment t = c.getLastTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
 			if(t != null)
 			{
 				if(t.getCenter() > latest)
@@ -1259,7 +1258,7 @@ public class GMV_Viewer
 		if(latestIdx != -1)
 		{
 			int count = 0;
-			for(GMV_TimeSegment t : p.getCurrentField().timeline)
+			for(WMV_TimeSegment t : p.getCurrentField().timeline)
 			{
 				if(t.getID() == latestIdx)
 				{
@@ -1505,14 +1504,14 @@ public class GMV_Viewer
 	 * @param direction Directional vector of camera movement
 	 * @return Cluster in the approximate direction of given vector from camera. If none within 30 degrees, returns currentCluster
 	 */
-	public int getClusterAlongVector(ArrayList<GMV_Cluster> clusterList, PVector direction)
+	public int getClusterAlongVector(ArrayList<WMV_Cluster> clusterList, PVector direction)
 	{
 		if(clusterList.size() == 0)
 			clusterList = p.getActiveClusters();
 		
 		IntList clustersAlongVector = new IntList();
 		
-		for (GMV_Cluster c : clusterList) 							// Iterate through the clusters
+		for (WMV_Cluster c : clusterList) 							// Iterate through the clusters
 		{
 			PVector clusterVector = getVectorToCluster(c);
 			PVector crossVector = new PVector();
@@ -1538,7 +1537,7 @@ public class GMV_Viewer
 		for (int i = 0; i < clustersAlongVector.size(); i++) 		// Compare distances of clusters in front
 		{
 			PVector cPos = getLocation();
-			GMV_Cluster c = (GMV_Cluster) p.getCurrentField().clusters.get(i);
+			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().clusters.get(i);
 			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("Checking Centered Cluster... "+c.getID());
 		
@@ -1638,7 +1637,7 @@ public class GMV_Viewer
 	public void moveToNextClusterAlongHistoryVector()
 	{
 		IntList closest = getNearClusters(20, p.defaultFocusDistance * 4.f);		// Find 20 near clusters 	- Set number based on cluster density?
-		ArrayList<GMV_Cluster> clusterList = clustersAreInList(closest, 10);		// Are the clusters within the last 10 waypoints in history?
+		ArrayList<WMV_Cluster> clusterList = clustersAreInList(closest, 10);		// Are the clusters within the last 10 waypoints in history?
 		PVector hv = getHistoryVector();											// Get vector for direction of camera movement
 
 		int newCluster = getClusterAlongVector(clusterList, hv);		
@@ -1709,7 +1708,7 @@ public class GMV_Viewer
 		
 		p.getCurrentField().clusters.get(attractorCluster).setAttractor(true);
 
-		for(GMV_Cluster c : p.getCurrentField().clusters)
+		for(WMV_Cluster c : p.getCurrentField().clusters)
 			if(c.getID() != attractorCluster)
 				c.setAttractor(false);
 		
@@ -1781,7 +1780,7 @@ public class GMV_Viewer
 		else
 			vLoc = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);			// Update location
 		
-		GMV_Model m = p.getCurrentField().model;
+		WMV_Model m = p.getCurrentField().model;
 		
 		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
 		float newY = -PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.lowLatitude, m.highLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
@@ -1995,7 +1994,7 @@ public class GMV_Viewer
 			if(velocity.mag() != 0.f && PApplet.abs(velocity.mag()) < velocityMin)		/* If reached min velocity, set velocity to zero */
 				velocity = new PVector(0,0,0);							
 
-			GMV_Cluster curAttractor = new GMV_Cluster(p.getCurrentField(), 0, 0, 0, 0);	 /* Find current attractor if one exists */
+			WMV_Cluster curAttractor = new WMV_Cluster(p.getCurrentField(), 0, 0, 0, 0);	 /* Find current attractor if one exists */
 			boolean attractorFound = false;
 			
 			if( (movingToAttractor || following) && attractorPoint != null )
@@ -2230,7 +2229,7 @@ public class GMV_Viewer
 	 * @param cluster Cluster to calculate vector from camera
 	 * @return Current camera orientation as a directional unit vector
 	 */
-	public PVector getVectorToCluster(GMV_Cluster cluster)
+	public PVector getVectorToCluster(WMV_Cluster cluster)
 	{
 		PVector cameraPosition = getLocation();
 
@@ -2254,7 +2253,7 @@ public class GMV_Viewer
 		
 		for (int i : nearClusters) 							// Iterate through the clusters
 		{
-			GMV_Cluster c = p.getCurrentField().clusters.get(i);
+			WMV_Cluster c = p.getCurrentField().clusters.get(i);
 			PVector clusterVector = getVectorToCluster(c);
 			PVector crossVector = new PVector();
 			PVector.cross(camOrientation, clusterVector, crossVector);		// Cross vector gives angle between camera and image
@@ -2276,7 +2275,7 @@ public class GMV_Viewer
 
 		for (int i = 0; i < frontClusters.size(); i++) 		// Compare distances of clusters in front
 		{
-			GMV_Cluster c = (GMV_Cluster) p.getCurrentField().clusters.get(i);
+			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().clusters.get(i);
 			if(p.p.debug.cluster || p.p.debug.viewer)
 				p.display.message("Checking Centered Cluster... "+c.getID());
 		
@@ -2664,7 +2663,7 @@ public class GMV_Viewer
 					else
 					{
 						int count = 0;
-						for(GMV_Waypoint w : path)
+						for(WMV_Waypoint w : path)
 						{
 							if(w.getID() == p.getCurrentCluster().getID())
 							{
@@ -2727,7 +2726,7 @@ public class GMV_Viewer
 					else
 					{
 						int count = 0;
-						for(GMV_Waypoint w : path)
+						for(WMV_Waypoint w : path)
 						{
 							if(w.getID() == p.getCurrentCluster().getID())
 							{
@@ -2772,7 +2771,7 @@ public class GMV_Viewer
 	 */
 	public void followMemory()
 	{
-		path = new ArrayList<GMV_Waypoint>(memory);								// Follow memory path 
+		path = new ArrayList<WMV_Waypoint>(memory);								// Follow memory path 
 		
 		if(path.size() > 0)
 		{
@@ -2807,7 +2806,7 @@ public class GMV_Viewer
 		stopMoving();									// -- Improve by slowing down instead and then starting
 		p.getCurrentField().clearAllAttractors();
 		movingToAttractor = true;
-		attractorPoint = new GMV_Cluster(p.getCurrentField(), 0, newPoint.x, newPoint.y, newPoint.z);
+		attractorPoint = new WMV_Cluster(p.getCurrentField(), 0, newPoint.x, newPoint.y, newPoint.z);
 		attractorPoint.setEmpty(false);
 		attractorPoint.setAttractor(true);
 		attractorPoint.setMass(p.mediaPointMass * 25.f);
@@ -2830,15 +2829,15 @@ public class GMV_Viewer
 	public boolean mediaAreVisible( boolean front )
 	{
 		boolean imagesVisible = false;
-		ArrayList<GMV_Image> closeImages = new ArrayList<GMV_Image>();		// List of images in range
+		ArrayList<WMV_Image> closeImages = new ArrayList<WMV_Image>();		// List of images in range
 		boolean panoramasVisible = false;
-		ArrayList<GMV_Panorama> closePanoramas = new ArrayList<GMV_Panorama>();		// List of images in range
+		ArrayList<WMV_Panorama> closePanoramas = new ArrayList<WMV_Panorama>();		// List of images in range
 		boolean videosVisible = false;
-		ArrayList<GMV_Video> closeVideos = new ArrayList<GMV_Video>();		// List of images in range
+		ArrayList<WMV_Video> closeVideos = new ArrayList<WMV_Video>();		// List of images in range
 		
 		float result;
 		
-		for( GMV_Image i : p.getFieldImages() )
+		for( WMV_Image i : p.getFieldImages() )
 		{
 			if(i.getViewingDistance() < farViewingDistance + i.getFocusDistance() 
 					&& i.getViewingDistance() > nearClippingDistance * 2.f )		// Find images in range
@@ -2848,7 +2847,7 @@ public class GMV_Viewer
 			}
 		}
 
-		for( GMV_Image i : closeImages )
+		for( WMV_Image i : closeImages )
 		{
 			if(!i.isBackFacing() && !i.isBehindCamera())			// If image is ahead and front facing
 			{
@@ -2875,7 +2874,7 @@ public class GMV_Viewer
 			}
 		}
 
-		for( GMV_Panorama n : p.getFieldPanoramas() )
+		for( WMV_Panorama n : p.getFieldPanoramas() )
 		{
 			if(n.getViewingDistance() < farViewingDistance + p.defaultFocusDistance 
 					&& n.getViewingDistance() > nearClippingDistance * 2.f )		// Find images in range
@@ -2885,7 +2884,7 @@ public class GMV_Viewer
 			}
 		}
 
-		for( GMV_Video v : p.getFieldVideos() )
+		for( WMV_Video v : p.getFieldVideos() )
 		{
 			if(v.getViewingDistance() <= farViewingDistance + v.getFocusDistance()
 					&& v.getViewingDistance() > nearClippingDistance * 2.f )		// Find videos in range
@@ -2895,7 +2894,7 @@ public class GMV_Viewer
 			}
 		}
 
-		for(GMV_Video v : closeVideos)
+		for(WMV_Video v : closeVideos)
 		{
 			if(!v.isBackFacing() && !v.isBehindCamera())			// If video is ahead and front facing
 			{
@@ -2931,7 +2930,7 @@ public class GMV_Viewer
 	{
 		if(!teleporting && !walking && velocity.mag() == 0.f)		// Only record points when stationary
 		{
-			GMV_Waypoint curWaypoint = new GMV_Waypoint(path.size(), getLocation());
+			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation());
 			curWaypoint.setTarget(getOrientation());
 			curWaypoint.setID(currentCluster);						// Need to make sure camera is at current cluster!
 			
@@ -2958,7 +2957,7 @@ public class GMV_Viewer
 	{
 		following = false;
 		waiting = false;
-		memory = new ArrayList<GMV_Waypoint>();
+		memory = new ArrayList<WMV_Waypoint>();
 	}
 
 	/**
@@ -2975,9 +2974,9 @@ public class GMV_Viewer
 	 */
 	public void selectFrontMedia(boolean select) 
 	{
-		ArrayList<GMV_Image> possible = new ArrayList<GMV_Image>();
+		ArrayList<WMV_Image> possible = new ArrayList<WMV_Image>();
 
-		for(GMV_Image i : p.getCurrentField().images)
+		for(WMV_Image i : p.getCurrentField().images)
 		{
 			if(i.getViewingDistance() <= selectionMaxDistance)
 				if(!i.disabled)
@@ -2987,7 +2986,7 @@ public class GMV_Viewer
 		float closestImageDist = 1000.f;
 		int closestImageID = -1;
 
-		for(GMV_Image s : possible)
+		for(WMV_Image s : possible)
 		{
 			if(!s.isBackFacing() && !s.isBehindCamera())					// If image is ahead and front facing
 			{
@@ -3001,9 +3000,9 @@ public class GMV_Viewer
 			}
 		}
 
-		ArrayList<GMV_Video> possibleVideos = new ArrayList<GMV_Video>();
+		ArrayList<WMV_Video> possibleVideos = new ArrayList<WMV_Video>();
 
-		for(GMV_Video v : p.getCurrentField().videos)
+		for(WMV_Video v : p.getCurrentField().videos)
 		{
 			if(v.getViewingDistance() <= selectionMaxDistance)
 				if(!v.disabled)
@@ -3013,7 +3012,7 @@ public class GMV_Viewer
 		float closestVideoDist = 1000.f;
 		int closestVideoID = -1;
 
-		for(GMV_Video v : possibleVideos)
+		for(WMV_Video v : possibleVideos)
 		{
 			if(!v.isBackFacing() && !v.isBehindCamera())					// If image is ahead and front facing
 			{
@@ -3039,8 +3038,8 @@ public class GMV_Viewer
 			if(segmentSelection)											// Segment selection
 			{
 				int segmentID = -1;
-				GMV_Cluster c = p.getCluster( p.getCurrentField().images.get(newSelected).cluster );
-				for(GMV_MediaSegment m : c.segments)
+				WMV_Cluster c = p.getCluster( p.getCurrentField().images.get(newSelected).cluster );
+				for(WMV_MediaSegment m : c.segments)
 				{
 					if(m.getImages().hasValue(newSelected))
 					{
@@ -3093,7 +3092,7 @@ public class GMV_Viewer
 			int highestIdx = -1;		// farthest cluster ID in list
 			float highestDist = 0.f;		
 
-			for(GMV_Cluster c : p.getCurrentField().clusters)
+			for(WMV_Cluster c : p.getCurrentField().clusters)
 			{
 				float dist = PVector.dist(c.getLocation(), location);
 				float highest = 0.f;
@@ -3168,7 +3167,7 @@ public class GMV_Viewer
 		float smallest = 100000.f;
 		int smallestIdx = 0;
 
-		GMV_Field f = p.getCurrentField();
+		WMV_Field f = p.getCurrentField();
 
 		for (int i = 0; i < f.images.size(); i++) {
 			if (f.images.get(i).visible) {
@@ -3190,7 +3189,7 @@ public class GMV_Viewer
 	public int getNearestImage() {
 		float smallest = 100000.f;
 		int smallestIdx = 0;
-		GMV_Field f = p.getCurrentField();
+		WMV_Field f = p.getCurrentField();
 
 		for (int i = 0; i < f.images.size(); i++) {
 			if (f.images.get(i).visible) {
@@ -3212,7 +3211,7 @@ public class GMV_Viewer
 		float smallest = 100000.f;
 		int smallestIdx = 0;
 
-		GMV_Field f = p.getCurrentField();
+		WMV_Field f = p.getCurrentField();
 
 		for (int i = 0; i < f.videos.size(); i++) {
 			if (f.videos.get(i).visible) {
@@ -3233,7 +3232,7 @@ public class GMV_Viewer
 	public int getNearestVideo() {
 		float smallest = 100000.f;
 		int smallestIdx = 0;
-		GMV_Field f = p.getCurrentField();
+		WMV_Field f = p.getCurrentField();
 
 		for (int i = 0; i < f.videos.size(); i++) {
 			if (f.videos.get(i).visible) {
@@ -3422,7 +3421,7 @@ public class GMV_Viewer
 
 				PVector newLoc = new PVector(latitude,longitude,elevation);
 
-				GMV_Waypoint wp = new GMV_Waypoint(count, newLoc);		// GPS track node as a Waypoint
+				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc);		// GPS track node as a Waypoint
 				gpsTrack.add(wp);																									// Add Waypoint to gpsTrack
 				
 				count++;
@@ -3454,8 +3453,8 @@ public class GMV_Viewer
 		
 		if(history.size() > 1)
 		{
-			GMV_Waypoint w1 = history.get(history.size()-1);
-			GMV_Waypoint w2 = history.get(history.size()-2);
+			WMV_Waypoint w1 = history.get(history.size()-1);
+			WMV_Waypoint w2 = history.get(history.size()-2);
 			
 //			float dist = w1.getDistance(w2);
 			
@@ -3474,11 +3473,11 @@ public class GMV_Viewer
 	 * @param memory How far back in memory to look
 	 * @return Waypoints found in history within the last <memory> waypoints
 	 */
-	public ArrayList<GMV_Waypoint> pointsAreInList(ArrayList<GMV_Waypoint> check, int memory)
+	public ArrayList<WMV_Waypoint> pointsAreInList(ArrayList<WMV_Waypoint> check, int memory)
 	{
-		ArrayList<GMV_Waypoint> found = new ArrayList<GMV_Waypoint>();
+		ArrayList<WMV_Waypoint> found = new ArrayList<WMV_Waypoint>();
 		
-		for( GMV_Waypoint p : check )
+		for( WMV_Waypoint p : check )
 		{
 //			PApplet.println("pointsAreInList()... memory:"+memory);
 
@@ -3486,7 +3485,7 @@ public class GMV_Viewer
 			for(int i = history.size()-1; i >= history.size()-memory; i--)		// Iterate through history from last element to 
 			{
 				PApplet.println("i:"+i);
-				GMV_Waypoint w = history.get(i);
+				WMV_Waypoint w = history.get(i);
 				
 				if(p.getLocation() == w.getLocation())
 				{
@@ -3504,9 +3503,9 @@ public class GMV_Viewer
 	 * @param memory How far back to look in memory 
 	 * @return Clusters found within the last <memory> waypoints
 	 */
-	public ArrayList<GMV_Cluster> clustersAreInList(IntList check, int memory)
+	public ArrayList<WMV_Cluster> clustersAreInList(IntList check, int memory)
 	{
-		ArrayList<GMV_Cluster> found = new ArrayList<GMV_Cluster>();
+		ArrayList<WMV_Cluster> found = new ArrayList<WMV_Cluster>();
 		
 		for( int cPoint : check )
 		{
@@ -3515,7 +3514,7 @@ public class GMV_Viewer
 			for(int i = history.size()-1; i >= history.size()-memory; i--)		// Iterate through history from last element to 
 			{
 				PApplet.println("i:"+i);
-				GMV_Waypoint w = history.get(i);
+				WMV_Waypoint w = history.get(i);
 				
 				if(p.getCurrentField().clusters.get(cPoint).getLocation() == w.getLocation())
 				{

@@ -1,4 +1,4 @@
-package gmViewer;
+package wmViewer;
 
 import processing.core.*;
 
@@ -16,11 +16,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**************
- * GMV_Metadata
  * @author davidgordon
  * Class for extracting metadata and add 3D media to field 
  */
-class GMV_Metadata
+class WMV_Metadata
 {
 	public String library = "";
 	public String imageFolder = "", smallImageFolder = "";
@@ -43,11 +42,11 @@ class GMV_Metadata
 	int iCount = 0, pCount = 0, vCount = 0;							// Media count by type 
 	public File exifToolFile;										// File for ExifTool executable
 
-	GMV_Utilities u;												// Utility class
-	GMV_Field f;													// Parent field
-	GeoSynth p;
+	WMV_Utilities u;												// Utility class
+	WMV_Field f;													// Parent field
+	WorldMediaViewer p;
 	
-	GMV_Metadata(GeoSynth parent)
+	WMV_Metadata(WorldMediaViewer parent)
 	{
 		p = parent;
 		exifToolFile = new File("/usr/local/bin/exiftool");						// Initialize metadata extraction class	
@@ -57,7 +56,7 @@ class GMV_Metadata
 	 * load()
 	 * Load metadata for the field
 	 */
-	public void load(GMV_Field field)
+	public void load(WMV_Field field)
 	{
 		library = p.library.getLibraryFolder();
 
@@ -162,14 +161,14 @@ class GMV_Metadata
 			
 			if(imageFilesFound)				/* If no small images, but there are images */
 			{
-				GMV_Command commandExecutor;
+				WMV_Command commandExecutor;
 				ArrayList<String> command = new ArrayList<String>();
 				ArrayList<String> files = new ArrayList<String>();
 
 				command = new ArrayList<String>();				/* Create small_images directory */
 				command.add("mkdir");
 				command.add("small_images");
-				commandExecutor = new GMV_Command(library, command);
+				commandExecutor = new WMV_Command(library, command);
 				try {
 					int result = commandExecutor.execute();
 					StringBuilder stderr = commandExecutor.getStandardError();
@@ -643,13 +642,13 @@ class GMV_Metadata
 					if(panorama && !dataMissing)
 					{
 //						PApplet.println("Adding panorama #"+pCount);
-						f.panoramas.add( new GMV_Panorama( f, pCount, name, pFilePath, pLoc, 0.f, 0.f, iCameraModel, 	// Ignore elevation and direction
+						f.panoramas.add( new WMV_Panorama( f, pCount, name, pFilePath, pLoc, 0.f, 0.f, iCameraModel, 	// Ignore elevation and direction
 								iWidth, iHeight, fBrightness, calendarTime, null, null ) );
 						pCount++;
 					}
 					else if(!dataMissing)
 					{
-						f.images.add( new GMV_Image(f, iCount, name, pFilePath, pLoc, fDirection, fFocalLength, fOrientation, fElevation, 
+						f.images.add( new WMV_Image(f, iCount, name, pFilePath, pLoc, fDirection, fFocalLength, fOrientation, fElevation, 
 								fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, calendarTime ) );
 						iCount++;
 					}
@@ -798,7 +797,7 @@ class GMV_Metadata
 			{
 				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f ) && hasVideo && !dataMissing)
 				{
-					f.videos.add( new GMV_Video(f, vCount, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
+					f.videos.add( new WMV_Video(f, vCount, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
 								   				-1, iWidth, iHeight, fBrightness, calendarTime) );
 					vCount++;
 				}

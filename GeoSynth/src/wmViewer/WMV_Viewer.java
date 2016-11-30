@@ -96,7 +96,7 @@ public class WMV_Viewer
 	private float accelerationMax = 0.15f;					// Camera maximum acceleration
 	private float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
 	private float camDecelInc = 0.75f;						// Camera deceleration increment
-	private float camHaltInc = 0.02f;						// Camera fast deceleration increment
+	private float camHaltInc = 0.01f;						// Camera fast deceleration increment
 	private boolean waiting = false;						// Whether the camera is waiting to move while following a path
 	private int pathWaitStartFrame, pathWaitLength = 100;
 
@@ -1999,8 +1999,8 @@ public class WMV_Viewer
 			
 			if( (movingToAttractor || following) && attractorPoint != null )
 			{
-				if(p.p.debug.viewer && p.p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
-					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
+//				if(p.p.debug.viewer && p.p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
+//					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
 
 				curAttractor = attractorPoint;
 				attractorFound = true;
@@ -2764,7 +2764,7 @@ public class WMV_Viewer
 			}
 		}
 	}
-	
+
 	/**
 	 * followMemory()
 	 * Revisit all places stored in memory
@@ -2779,6 +2779,25 @@ public class WMV_Viewer
 			pathLocationIdx = 0;
 			if(p.p.debug.viewer)
 				p.display.message("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
+			pathGoal = path.get(pathLocationIdx).getLocation();
+			setAttractorPoint(pathGoal);
+		}
+		else p.display.message("path.size() == 0!");
+	}
+
+	/**
+	 * Revisit all places stored in memory
+	 */
+	public void followGPSTrack()
+	{
+		path = new ArrayList<WMV_Waypoint>(gpsTrack);								// Follow memory path 
+		
+		if(path.size() > 0)
+		{
+			following = true;
+			pathLocationIdx = 0;
+			if(p.p.debug.viewer)
+				p.display.message("--> followGPSTrack() points:"+path.size()+"... Setting first path goal: "+path.get(pathLocationIdx).getLocation());
 			pathGoal = path.get(pathLocationIdx).getLocation();
 			setAttractorPoint(pathGoal);
 		}
@@ -3256,16 +3275,7 @@ public class WMV_Viewer
 		gpsTrackSelected = false;
 		p.p.selectInput("Select a GPS Track:", "gpsTrackSelected");
 	}
-	
-	/**
-	 * gpsTrackSelected()
-	 * Called when user selects a GPS track file
-	 * @param selection Selected GPS Track file
-	 */
-	public void gpsTrackSelected(File selection)
-	{
-		loadGPSTrack(selection);
-	}
+
 
 	/**
 	 * loadGPSTrack()
@@ -3405,21 +3415,55 @@ public class WMV_Viewer
 				
 				hour = p.p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
 
-				if(p.p.debug.viewer)
+
+//				PVector newLoc = new PVector(latitude,longitude,elevation);
+
+				float newX = 0.f, newZ = 0.f, newY = 0.f;
+
+				if(p.getCurrentField().model.highLongitude != -1000000 && p.getCurrentField().model.lowLongitude != 1000000 && p.getCurrentField().model.highLatitude != -1000000 && p.getCurrentField().model.lowLatitude != 1000000 && p.getCurrentField().model.highAltitude != -1000000 && p.getCurrentField().model.lowAltitude != 1000000)
+				{
+					if(p.getCurrentField().model.highLongitude != p.getCurrentField().model.lowLongitude && p.getCurrentField().model.highLatitude != p.getCurrentField().model.lowLatitude)
+					{
+//						xCoord = parseLongitude(longitude);
+//						yCoord = parseAltitude(altitude);
+//						zCoord = parseLatitude(latitude);
+
+						newX = PApplet.map(longitude, p.getCurrentField().model.lowLongitude, p.getCurrentField().model.highLongitude, -0.5f * p.getCurrentField().model.fieldWidth, 0.5f*p.getCurrentField().model.fieldWidth); 			// GPS longitude decreases from left to right
+						newY = PApplet.map(elevation, p.getCurrentField().model.lowAltitude, p.getCurrentField().model.highAltitude, 0.f, p.getCurrentField().model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
+						newZ = -PApplet.map(latitude, p.getCurrentField().model.lowLatitude, p.getCurrentField().model.highLatitude, -0.5f * p.getCurrentField().model.fieldLength, 0.5f*p.getCurrentField().model.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
+
+						if(p.p.world.altitudeScaling)	
+						{
+							newY *= p.p.world.altitudeAdjustmentFactor;
+						}
+					}
+					else
+					{
+						newX = newY = newZ = 0.f;
+					}
+				}
+				
+
+//				if(p.p.debug.viewer)
 				{
 					PApplet.print("latitude:"+latitude);
 					PApplet.print("  longitude:"+longitude);
 					PApplet.println("  elevation:"+elevation);
+					PApplet.print("newX:"+newX);
+					PApplet.print("  newY:"+newY);
+					PApplet.println("  newZ:"+newZ);
 
-					PApplet.print("hour:"+hour);
-					PApplet.print("  minute:"+minute);
-					PApplet.print("  second:"+second);
-					PApplet.print("  year:"+year);
-					PApplet.print("  month:"+month);
-					PApplet.println("  day:"+day);
+//					PApplet.print("hour:"+hour);
+//					PApplet.print("  minute:"+minute);
+//					PApplet.print("  second:"+second);
+//					PApplet.print("  year:"+year);
+//					PApplet.print("  month:"+month);
+//					PApplet.println("  day:"+day);
 				}
 
-				PVector newLoc = new PVector(latitude,longitude,elevation);
+//				captureLocation = new PVector(newX, newY, newZ);
+				
+				PVector newLoc = new PVector(newX, newY, newZ);
 
 				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc);		// GPS track node as a Waypoint
 				gpsTrack.add(wp);																									// Add Waypoint to gpsTrack
@@ -3548,6 +3592,16 @@ public class WMV_Viewer
 	public int getField()
 	{
 		return field;
+	}
+
+	public ArrayList<WMV_Waypoint> getPath()
+	{
+		return path;
+	}
+
+	public ArrayList<WMV_Waypoint> getGPSTrack()
+	{
+		return gpsTrack;
 	}
 
 	public boolean isMovingToAttractor()

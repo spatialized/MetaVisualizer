@@ -986,6 +986,11 @@ class WMV_Display
 			drawCameraOnMap(mapWidth, mapHeight);
 		}
 		
+//		if(p.viewer.getPath().size() > 0)
+//			drawPathOnMap(p.viewer.getPath(), mapWidth, mapHeight);
+		if(p.viewer.getGPSTrack().size() > 0)
+			drawPathOnMap(p.viewer.getGPSTrack(), mapWidth, mapHeight);
+			
 //		drawOriginOnMap(mapWidth, mapHeight);
 	}
 
@@ -1022,7 +1027,7 @@ class WMV_Display
 		}
 		
 	}
-	
+
 	/**
 	 * @param panorama GMV_Panorama to draw
 	 * @param mapWidth Map width
@@ -1083,6 +1088,8 @@ class WMV_Display
 			else
 				drawMapPoint( video.location, pointSize, mapWidth, mapHeight, mapVideoHue, saturation, 255.f, mapMediaTransparency );
 		}
+		PApplet.println("Video ---> location.x:"+video.getCaptureLocation().x+" y:"+video.getCaptureLocation().y);
+
 	}
 
 	/**
@@ -1137,6 +1144,28 @@ class WMV_Display
 			drawMapPoint( arrowPoint, ptSize, mapWidth, mapHeight, mapCameraHue, 120.f, 255.f, 255.f );
 
 			ptSize *= shrinkFactor;
+		}
+	}
+	
+
+	/**
+	 * @param path Path to draw
+	 * @param mapWidth Map width
+	 * @param mapHeight Map height
+	 * @param capture Draw capture location (true) or viewing location (false)
+	 * Draw image location on map of specified size
+	 */
+	void drawPathOnMap(ArrayList<WMV_Waypoint> path, float mapWidth, float mapHeight)
+	{
+		PApplet.println("drawPathOnMap..."+path.size());
+		float pointSize = smallPointSize * mapWidth;
+		
+		float saturation = maxSaturation;                                              
+
+		for(WMV_Waypoint w : path)
+		{
+			drawMapPoint( w.getLocation(), pointSize * 4.f, mapWidth, mapHeight, 30, saturation, 255.f, mapMediaTransparency );
+			PApplet.println("Path ---> location.x:"+w.getLocation().x+" y:"+w.getLocation().y);
 		}
 	}
 

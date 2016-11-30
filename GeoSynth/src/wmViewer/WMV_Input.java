@@ -396,6 +396,9 @@ public class WMV_Input
 			if (key == '~')
 				p.viewer.followMemory();
 
+			if (optionKey && key == 'g')
+				p.viewer.followGPSTrack();
+			
 			if (!optionKey && key == '>')
 			{
 				if(!p.viewer.isFollowing())
@@ -557,7 +560,7 @@ public class WMV_Input
 				}
 
 				/* GPS */
-				if (key == 'g') 
+				if (!optionKey && key == 'g') 
 					p.viewer.importGPSTrack();				// Select a GPS tracking file from disk to load and navigate 
 
 				/* Memory */

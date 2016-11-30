@@ -221,7 +221,6 @@ class WMV_Metadata
 	}
 
 	/**
-	 * loadVideoFolder()
 	 * Load metadata for folder of videos
 	 */
 	public void loadVideoFolder(String library, String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
@@ -229,8 +228,8 @@ class WMV_Metadata
 //		File smallVideoFolderFile;
 //		File[] smallVideoFiles;				
 		
-		videoFolder = library  + "/" + fieldPath + "/videos/";					// Original size
-//		smallVideoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max width 720 pixels  -- Check this!
+//		videoFolder = library  + "/" + fieldPath + "/videos/";					// Original size
+		videoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max width 720 pixels  -- Check this!
 
 		videoFolderFile = new File(videoFolder);
 		videoFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());	
@@ -246,7 +245,7 @@ class WMV_Metadata
 				videoFilesFound = true;
 		}
 		
-//		if (p.p.p.debug.metadata)
+//		if (p.p.debug.metadata)
 //		{
 //			PApplet.println("Video Folder:" + videoFolder);
 //		}

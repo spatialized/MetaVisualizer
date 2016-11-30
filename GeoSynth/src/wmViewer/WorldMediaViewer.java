@@ -270,4 +270,15 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		if(world.viewer.mouseNavigation)
 			world.input.handleMouseClicked(mouseX, mouseY);
 	}
+	
+	
+	/**
+	 * gpsTrackSelected()
+	 * Called when user selects a GPS track file
+	 * @param selection Selected GPS Track file
+	 */
+	public void gpsTrackSelected(File selection)
+	{
+		world.viewer.loadGPSTrack(selection);
+	}
 }

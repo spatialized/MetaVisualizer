@@ -653,7 +653,8 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Time", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" OPTION + F    Time Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" T    Time Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" D    Date Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
 //		p.p.text(" Z    Toggle Time Fading Mode (Field/Cluster)", textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" SHIFT + Up/Dn   Cycle Length - / +", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" space Pause On/Off   ", xPos, yPos += lineWidth, hudDistance);
@@ -662,11 +663,18 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Time Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" F    Move to First Field Time Segment", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" N    Move to Next Field Time Segment", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" B    Move to Previous Field Time Segment", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" n 	Move to Next Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" b    Move to Previous Cluster Time Segment", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" t    Teleport to Earliest Time in Field", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" T    Move to Earliest Time in Field", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" d    Teleport to Earliest Time on Earliest Date", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" D    Move to Earliest Time on Earliest Date", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" n    Move to Next Time Segment in Field", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" N    Move to Next Time Segment in Cluster", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" b    Move to Previous Time Segment in Field", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" B    Move to Previous Time Segment in Cluster", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" l    Move to Next Date in Field", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" L    Move to Next Date in Cluster", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" k    Move to Previous Date in Field", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" K    Move to Previous Date in Cluster", xPos, yPos += lineWidth, hudDistance);
 
 		xPos = centerTextXOffset;
 		yPos = topTextYOffset;			// Starting vertical position
@@ -703,8 +711,8 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" .    Follow Timelines by Date", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" >    Follow Timeline Only", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" .    Follow Timeline by Date", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" OPTION + .    Follow Dateline Only", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" E    Move to Nearest Cluster", xPos, yPos += lineWidthWide, hudDistance);
 		p.p.text(" W    Move to Nearest Cluster in Front", xPos, yPos += lineWidth, hudDistance);
@@ -1115,7 +1123,7 @@ class WMV_Display
 			else
 				drawMapPoint( video.location, pointSize, mapWidth, mapHeight, mapVideoHue, saturation, 255.f, mapMediaTransparency );
 		}
-		PApplet.println("Video ---> location.x:"+video.getCaptureLocation().x+" y:"+video.getCaptureLocation().y);
+//		PApplet.println("Video ---> location.x:"+video.getCaptureLocation().x+" y:"+video.getCaptureLocation().y);
 
 	}
 
@@ -1415,6 +1423,7 @@ class WMV_Display
 			p.p.text(" Images Visible: "+f.imagesVisible, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Panoramas Visible: "+f.panoramasVisible, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Videos Visible: "+f.videosVisible, textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Videos Playing: "+f.videosPlaying, textXPos, textYPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Model ", textXPos, textYPos += lineWidthVeryWide, hudDistance);

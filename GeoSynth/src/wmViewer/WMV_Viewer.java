@@ -1034,7 +1034,7 @@ public class WMV_Viewer
 	
 	void moveToPreviousTimeSegment(boolean field, boolean teleport)
 	{
-		if(field)
+		if(field)				// In field
 		{
 			if(dateNavigation)
 			{
@@ -1094,7 +1094,7 @@ public class WMV_Viewer
 
 			moveToTimeInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport);
 		}
-		else
+		else					// In cluster
 		{
 			currentClusterTimeSegment--;
 			if(currentClusterTimeSegment < 0)

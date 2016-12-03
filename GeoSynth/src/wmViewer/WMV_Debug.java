@@ -13,19 +13,19 @@ public class WMV_Debug
 	public boolean print = true;				// Print all user messages
 	
 	/* Classes */
-	public boolean main = true;					// Debug main GeoSynth class
-	public boolean viewer = false;				// Debug GMV_Viewer class
-	public boolean field = false;				// Debug GMV_Field class
+	public boolean main = true;					// Debug main WorldMediaViewer class
+	public boolean viewer = false;				// Debug WMV_Viewer class
+	public boolean field = false;				// Debug WMV_Field class
 	public boolean time = true;
-	public boolean model = false;				// Debug GMV_Model class
-	public boolean cluster = false;				// Debug GMV_Cluster class
-	public boolean display = false;				// Debug GMV_Display class
-	public boolean viewable = true;				// Debug GMV_Viewable class
-	public boolean image = false;				// Debug GMV_Image class
-	public boolean panorama = false;			// Debug GMV_Panorama class
-	public boolean video = false;				// Debug GMV_Video class
-	public boolean metadata = false;			// Debug GMV_Metadata class
-	public boolean stitching = false;			// Debug GMV_Stitcher class
+	public boolean model = false;				// Debug WMV_Model class
+	public boolean cluster = false;				// Debug WMV_Cluster class
+	public boolean display = false;				// Debug WMV_Display class
+	public boolean viewable = true;				// Debug WMV_Viewable class
+	public boolean image = false;				// Debug WMV_Image class
+	public boolean panorama = false;			// Debug WMV_Panorama class
+	public boolean video = false;				// Debug WMV_Video class
+	public boolean metadata = false;			// Debug WMV_Metadata class
+	public boolean stitching = false;			// Debug WMV_Stitcher class
 
 	/* Memory */
 	boolean lowMemory = false;

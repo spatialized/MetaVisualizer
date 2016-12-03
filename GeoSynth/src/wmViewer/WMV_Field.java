@@ -24,7 +24,7 @@ public class WMV_Field
 	public final int maxVisibleVideos = 12;					// Maximum visible videos at one time
 	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
 	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas and currently seen
-	public int videosVisible = 0, videosSeen = 0;
+	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;
 	
 	/* Visibility */
 	float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
@@ -132,8 +132,14 @@ public class WMV_Field
 			if(!v.disabled)
 			{
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
+				boolean nowVisible = (distance < vanishingPoint);
 
-				if (distance < vanishingPoint)
+				if ( v.isVisible() && !nowVisible )
+				{
+					v.fadeOut();
+				}
+				
+				if (nowVisible || v.isFading())
 				{
 					v.update();  	// Update geometry + visibility
 					v.draw(); 		// Display video

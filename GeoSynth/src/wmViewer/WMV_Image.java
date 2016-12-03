@@ -180,7 +180,8 @@ class WMV_Image extends WMV_Viewable
 
 			viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
 
-			if (visible && !hidden && !disabled) 
+//			if (visible && !hidden && !disabled) 
+			if (!hidden && !disabled) 
 			{
 				if (viewingBrightness > 0)
 				{
@@ -275,8 +276,7 @@ class WMV_Image extends WMV_Viewable
 	}
 
 	/**
-	 * update()
-=	 * Update main variables 
+=	 * Update image geometry + visibility
 	 */
 	public void update()
 	{
@@ -296,6 +296,10 @@ class WMV_Image extends WMV_Viewable
 
 		if(image.width > 0 && !hidden && !disabled)			
 		{
+			boolean wasVisible = visible;
+			boolean visibilitySetToTrue = false;
+			boolean visibilitySetToFalse = false;
+
 //			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
 			visible = false;
 
@@ -341,9 +345,30 @@ class WMV_Image extends WMV_Viewable
 					visible = false;
 			}
 			
+			if(isFading())									// Update brightness while fading
+			{
+				if(fadingBrightness == 0.f)
+					visible = false;
+			}
+			else 
+			{
+				if(!wasVisible && visible)
+					visibilitySetToTrue = true;
+
+				if(fadingBrightness == 0.f && visible)
+					visibilitySetToTrue = true;
+
+				if(wasVisible && !visible)
+					visibilitySetToFalse = true;
+
+				if(fadingBrightness > 0.f && !visible)
+					visibilitySetToFalse = true;
+			}
+			
 			if(!p.p.angleThinning)
 			{
-				if(visible && !fading && !fadedOut && !p.hideImages && fadingBrightness == 0.f)			// Fade in
+//				if(visible && !fading && !fadedOut && !p.hideImages && fadingBrightness == 0.f)			// Fade in
+				if(visibilitySetToTrue && !fading && !fadedOut && !p.hideImages && fadingBrightness == 0.f)			// Fade in
 					fadeIn();
 			}
 			else
@@ -362,19 +387,21 @@ class WMV_Image extends WMV_Viewable
 				}
 			}
 
+			if(visibilitySetToFalse)
+			{
+				fadeOut();
+			}
+
 			if(fadedOut) fadedOut = false;
 		}
 		else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
 		{
 			loadMedia(); 					// Request image pixels from disk
 		}
-
+		
 		if(isFading())                       // Fade in and out with time
 		{
 			updateFadingBrightness();
-
-			if(fadingBrightness == 0.f)
-				visible = false;
 		}
 		
 		if(fadingObjectDistance)

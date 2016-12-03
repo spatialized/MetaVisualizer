@@ -65,7 +65,7 @@ public class WMV_Panorama extends WMV_Viewable
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		
 //		radius = p.p.defaultFocusDistance * 0.75f;
-		radius = p.p.defaultFocusDistance * 0.9f;
+		radius = p.p.defaultFocusDistance * p.p.panoramaFocusDistanceFactor;
 	}  
 
 	/**
@@ -90,6 +90,19 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if(texture.width > 0 && !disabled)			
 		{
+			if(p.p.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+			{
+				for(int id : p.p.viewer.clustersVisible)
+				{
+					if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+						visible = true;
+				}
+			}
+			else 
+			{
+				visible = true;     										 		
+			}
+			
 			visible = (getDistanceBrightness() > 0.f);
 //			if(visible)
 //			PApplet.println("visible panorama..."+getID()+" fading:"+fading);
@@ -413,7 +426,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if(!p.p.p.debug.lowMemory)			// Check enough memory available
 		{
-			if(p.p.transitionsOnly)
+			if(p.p.orientationMode)
 				location = new PVector (0, 0, 0);
 			else
 				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
@@ -471,7 +484,7 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		PVector camLoc;
 
-		if(p.p.transitionsOnly)
+		if(p.p.orientationMode)
 			camLoc = p.p.viewer.getLocation();
 		else
 			camLoc = p.p.viewer.getLocation();

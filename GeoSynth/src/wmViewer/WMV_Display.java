@@ -694,9 +694,10 @@ class WMV_Display
 		p.p.text(" Graphics", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
 		p.p.text(" G    Angle Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" H    Angle Thinning On/Off", xPos, yPos += lineWidthWide, hudDistance);
 		p.p.text(" P    Transparency Mode  On / Off      ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" ( )  Blend Mode  - / +      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" h H v  Hide images / panoramas / videos    ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" i h v  Hide images / panoramas / videos    ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" D    Video Mode On/Off ", xPos, yPos += lineWidth, hudDistance);
 
 		/* Movement */
@@ -1406,10 +1407,13 @@ class WMV_Display
 
 			p.p.text(" Settings ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
-			p.p.text("Angle Fading: "+p.angleFading, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text("Media Angle Fading: "+p.angleFading, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text("Media Angle Thinning: "+p.angleThinning, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text("Lock Media to Clusters:"+p.lockMediaToClusters, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text("Alpha Mode: "+p.alphaMode, textXPos, textYPos += lineWidth, hudDistance);
-
+			p.p.text("Orientation Mode: "+p.orientationMode, textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text("Altitude Scaling: "+p.altitudeScaling, textXPos, textYPos += lineWidth, hudDistance);
+			
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Field ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
@@ -1424,11 +1428,16 @@ class WMV_Display
 			p.p.text(" Panoramas Visible: "+f.panoramasVisible, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Videos Visible: "+f.videosVisible, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Videos Playing: "+f.videosPlaying, textXPos, textYPos += lineWidth, hudDistance);
+			if(p.orientationMode)
+				p.p.text(" Clusters Visible: "+p.viewer.clustersVisible+"  (Orientation Mode)", textXPos, textYPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Model ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
-			p.p.text(" Clustering Mode : "+ ( p.hierarchical ? "Hierarchical" : "K-Means" ), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			
+			if(p.altitudeScaling)
+				p.p.text(" Altitude Scaling Factor: "+p.altitudeScalingFactor+"  (Altitude Scaling)", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Clustering Mode : "+ ( p.hierarchical ? "Hierarchical" : "K-Means" ), textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Minimum Distance: "+p.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
@@ -1472,8 +1481,12 @@ class WMV_Display
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Graphics ", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
+			p.p.text(" Alpha Mode:"+p.alphaMode, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Alpha:"+p.alpha, textXPos, textYPos += lineWidth, hudDistance);
+			if(p.angleThinning)
+				p.p.text(" Media Thinning Angle:"+p.thinningAngle, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, textXPos, textYPos += lineWidth, hudDistance);
-			p.p.text(" Default Focus Distance (m.):"+p.defaultFocusDistance, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Default Focus Distance (m.):"+p.defaultFocusDistance, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, textXPos, textYPos += lineWidth, hudDistance);
 
 			if(p.p.debug.viewer)

@@ -315,15 +315,15 @@ public class WMV_Input
 				p.viewer.moveToNearestClusterAhead(false);
 			
 			if (!optionKey && key == ']') {
-				float value = p.altitudeAdjustmentFactor * 1.052f;
-				p.altitudeAdjustmentFactor = PApplet.constrain(value, 0.f, 1.f);
+				float value = p.altitudeScalingFactor * 1.052f;
+				p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
 			}
 
 			if (!optionKey && key == '[') {
-				float value = p.altitudeAdjustmentFactor *= 0.95f;
-				p.altitudeAdjustmentFactor = PApplet.constrain(value, 0.f, 1.f);
+				float value = p.altitudeScalingFactor *= 0.95f;
+				p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
 			}
@@ -904,7 +904,7 @@ public class WMV_Input
 		boolean doubleClick = false, switchedViews = false;
 
 //			PApplet.println("MousePressed!");
-		if(!p.transitionsOnly && p.viewer.lastMovementFrame > 5)
+		if(!p.orientationMode && p.viewer.lastMovementFrame > 5)
 		{
 			if(mouseX > p.p.width * 0.25 && mouseX < p.p.width * 0.75 && mouseY < p.p.height * 0.75 && mouseY > p.p.height * 0.25)
 			{

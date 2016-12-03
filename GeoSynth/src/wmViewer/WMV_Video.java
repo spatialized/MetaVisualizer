@@ -280,7 +280,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	 */
 	void fadeSoundOut()
 	{
-		p.p.display.message("fadeSoundOut() for video #"+getID()+" Initial volume:"+volume);
 		if(volume > 0.f)
 		{
 			fadingVolume = true;
@@ -305,9 +304,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			
 			/* Check Visibility */			
 			visible = false;
-//			visible = getAngleVisibility();							// Check if video should be visible from current viewer position
 
-			if(p.p.transitionsOnly)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+			if(p.p.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
 				if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
@@ -463,13 +461,13 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 
 		if(vertices.length == 0) disabled = true;
 
-		if(!p.p.transitionsOnly)
+		if(!p.p.orientationMode)
 			vertices = translateVertices(vertices, getCaptureLocation());                       // Move video to movie capture location   
 
 		float r;				   // Radius of sphere
 
 		if(focusDistance == -1.f)
-			r = p.p.defaultFocusDistance;						// Use default if no focus distance in metadata					      
+			r = p.p.defaultFocusDistance * p.p.videoFocusDistanceFactor;						// Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -481,8 +479,11 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 
 		vertices = translateVertices(vertices, disp);         // Translate vertices to viewing location
 
-		if(p.p.transitionsOnly)
-			location = new PVector (0, 0, 0);
+		if(p.p.orientationMode)
+		{
+//			location = new PVector (0, 0, 0);
+			location = p.p.viewer.getLocation();
+		}
 		else
 			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
@@ -682,15 +683,13 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	{
 		PVector camLoc;
 
-		if(p.p.transitionsOnly)
-		{
+//		if(p.p.orientationMode)
+//		{
+//			camLoc = p.p.viewer.getLocation();
+//		}
+//		else
 			camLoc = p.p.viewer.getLocation();
-		}
-		else
-		{
-			camLoc = p.p.viewer.getLocation();
-		}
-
+		
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
 		float r;

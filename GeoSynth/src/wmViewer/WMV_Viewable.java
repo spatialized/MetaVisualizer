@@ -249,10 +249,10 @@ public abstract class WMV_Viewable
 	{
 		PVector camLoc;
 
-		if(p.p.transitionsOnly)
-			camLoc = p.p.viewer.getLocation();
-		else
-			camLoc = p.p.viewer.getLocation();
+//		if(p.p.orientationMode)
+//			camLoc = p.p.viewer.getLocation();
+//		else
+		camLoc = p.p.viewer.getLocation();
 
 		float distance = PVector.dist(captureLocation, camLoc);     
 
@@ -647,7 +647,7 @@ public abstract class WMV_Viewable
 				if(p.p.altitudeScaling)	
 				{
 					//					newY = 0.f;
-					newY *= p.p.altitudeAdjustmentFactor;
+					newY *= p.p.altitudeScalingFactor;
 				}
 			}
 			else

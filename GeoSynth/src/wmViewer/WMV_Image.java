@@ -303,7 +303,7 @@ class WMV_Image extends WMV_Viewable
 //			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
 			visible = false;
 
-			if(p.p.transitionsOnly)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
+			if(p.p.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
 				if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
@@ -317,9 +317,7 @@ class WMV_Image extends WMV_Viewable
 			else 
 			{
 				if(p.p.angleFading)
-				{
 					visible = isFacingCamera();		
-				}
 				else 
 					visible = true;     										 		
 			}
@@ -333,7 +331,6 @@ class WMV_Image extends WMV_Viewable
 
 				if(!fading && p.hideImages)
 					visible = false;
-//					fadeOut();
 
 				if(visible)
 					visible = (getDistanceBrightness() > 0.f);
@@ -367,7 +364,6 @@ class WMV_Image extends WMV_Viewable
 			
 			if(!p.p.angleThinning)
 			{
-//				if(visible && !fading && !fadedOut && !p.hideImages && fadingBrightness == 0.f)			// Fade in
 				if(visibilitySetToTrue && !fading && !fadedOut && !p.hideImages && fadingBrightness == 0.f)			// Fade in
 					fadeIn();
 			}
@@ -408,7 +404,8 @@ class WMV_Image extends WMV_Viewable
 		{
 			updateFadingObjectDistance();
 		}
-		else if(visible)
+//		else if(visible)
+		else
 			calculateVertices();  			// Update image parameters
 	}
 
@@ -533,10 +530,7 @@ class WMV_Image extends WMV_Viewable
 	{
 		PVector camLoc;
 
-		if(p.p.transitionsOnly)
-			camLoc = p.p.viewer.getLocation();
-		else
-			camLoc = p.p.viewer.getLocation();
+		camLoc = p.p.viewer.getLocation();
 
 		float distance;
 
@@ -605,7 +599,11 @@ class WMV_Image extends WMV_Viewable
 			vertices = rotateVertices(vertices, 360-theta, azimuthAxis);         // Rotate around Z axis
 
 		if(vertices.length == 0) disabled = true;
-		if(!p.p.transitionsOnly)	vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
+		
+		if(p.p.orientationMode)	
+			vertices = translateVertices(vertices, p.p.viewer.getLocation());
+		else
+			vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
 
 		float r;				  				 // Viewing sphere radius
 		if(focusDistance == -1.f)
@@ -621,8 +619,11 @@ class WMV_Image extends WMV_Viewable
 
 		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 
-		if(p.p.transitionsOnly)
-			location = new PVector (0, 0, 0);													// Location in Transition Mode
+		if(p.p.orientationMode)
+		{
+//			location = new PVector (0, 0, 0);													// Location in Transition Mode
+			location = p.p.viewer.getLocation();
+		}
 		else
 			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
 

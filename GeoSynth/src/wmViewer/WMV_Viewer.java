@@ -212,6 +212,8 @@ public class WMV_Viewer
 			firstCamInitialization = false;
 
 		selectionMaxDistance = p.defaultFocusDistance * selectionMaxDistanceFactor;
+		
+		clustersVisible = new IntList();
 	}
 
 	/*** 
@@ -219,8 +221,8 @@ public class WMV_Viewer
 	 */
 	void update()
 	{
-		if(!p.transitionsOnly)
-			location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
+//		if(!p.orientationMode)			
+		location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
 
 		updateWalking();						/* Update walking */
 		updatePhysics();						/* Update physics */
@@ -261,6 +263,24 @@ public class WMV_Viewer
 			}
 		}
 		
+		if(p.orientationMode)
+		{
+			clustersVisible = new IntList();
+			
+			for(WMV_Cluster c : p.getCurrentField().clusters)
+			{
+				if(c.getLocation().dist(location) < farViewingDistance)
+				{
+					clustersVisible.append(c.getID());
+				}
+				else
+				{
+//					PApplet.println("too far:"+c.getLocation().dist(location));
+				}
+			}
+			
+//			p.display.message("clustersVisible:"+clustersVisible.size()+" location.x:"+location.x+" location.y:"+location.y+" location.z:"+location.z);
+		}
 		/* Aim camera */
 //		if(movingToAttractor)
 //			camera.aim(attractorPoint.getLocation().x, attractorPoint.getLocation().y, attractorPoint.getLocation().z);
@@ -309,12 +329,12 @@ public class WMV_Viewer
 	 */
 	public void teleportToPoint( PVector dest, boolean fadeTransition ) 
 	{
-		if(p.transitionsOnly)
-		{
-			teleportGoal = dest;
-			location = dest;
-		}
-		else
+//		if(p.orientationMode)
+//		{
+//			teleportGoal = dest;
+//			location = dest;
+//		}
+//		else
 		{
 			if(fadeTransition)
 			{
@@ -785,13 +805,13 @@ public class WMV_Viewer
 		{
 		WMV_Cluster c = p.getCurrentField().clusters.get(dest);
 
-		if(p.transitionsOnly)
-		{
-			teleportGoalCluster = dest;
-			teleportGoal = c.getLocation();
-			location = teleportGoal;
-		}
-		else
+//		if(p.orientationMode)
+//		{
+//			teleportGoalCluster = dest;
+//			teleportGoal = c.getLocation();
+//			location = teleportGoal;
+//		}
+//		else
 		{
 			if(fade)
 			{
@@ -1764,20 +1784,20 @@ public class WMV_Viewer
 	 */
 	public PVector getLocation()
 	{
-		if(p.transitionsOnly)
-			return location;
-		else
+//		if(p.orientationMode)
+//			return location;
+//		else
 			location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);			// Update location
 
 		return location;
 	}
 
-	public PVector getGPSLocation()
+	public PVector getGPSLocation()			// Working??
 	{
 		PVector vLoc;
-		if(p.transitionsOnly)
-			vLoc = location;
-		else
+//		if(p.orientationMode)
+//			vLoc = location;
+//		else
 			vLoc = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);			// Update location
 		
 		WMV_Model m = p.getCurrentField().model;
@@ -1788,6 +1808,7 @@ public class WMV_Viewer
 		PVector gpsLoc = new PVector(newX, newY);
 
 		return gpsLoc;
+//		return new PVector(0,0,0);
 	}
 	
 	/**
@@ -2051,12 +2072,12 @@ public class WMV_Viewer
 					handleReachedAttractor();
 			}
 
-			if(p.transitionsOnly)
-			{
-				location.add(velocity);	// Add velocity to staticLocation
-				jumpTo(location);			// Jump to new location
-			}
-			else 
+//			if(p.orientationMode)
+//			{
+//				location.add(velocity);	// Add velocity to staticLocation
+//				jumpTo(location);			// Jump to new location
+//			}
+//			else 
 			{
 				location.add(velocity);			// Add velocity to location
 				jumpTo(location);				// Move camera
@@ -2183,11 +2204,11 @@ public class WMV_Viewer
 	 */
 	private void walk()
 	{
-		if(p.transitionsOnly)					// Add relativeVelocity to staticLocation
-		{
-			location.add(walkingVelocity);	
-		}
-		else 								// Move the camera
+//		if(p.orientationMode)					// Add relativeVelocity to staticLocation
+//		{
+//			location.add(walkingVelocity);	
+//		}
+//		else 								// Move the camera
 		{
 			if(walkingVelocity.x != 0.f)
 			{
@@ -3434,7 +3455,7 @@ public class WMV_Viewer
 
 						if(p.p.world.altitudeScaling)	
 						{
-							newY *= p.p.world.altitudeAdjustmentFactor;
+							newY *= p.p.world.altitudeScalingFactor;
 						}
 					}
 					else

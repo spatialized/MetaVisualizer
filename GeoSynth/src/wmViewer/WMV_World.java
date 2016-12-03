@@ -33,10 +33,6 @@ public class WMV_World
 	
 	/* Media */
 	private ArrayList<WMV_Field> fields;					// Large geographical area containing media for simulation
-
-	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
-	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
 	
 	/* Stitching */
 	String stitchingPath;
@@ -51,21 +47,6 @@ public class WMV_World
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
 	public boolean interactive = false;					// In user clustering mode?
 	public boolean startInteractive = false;			// Start user clustering
-
-	/* Clusters */
-	public boolean mergeClusters = true;				// Merge nearby clusters?
-	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
-	public float kMeansClusteringEpsilon = 0.005f;		// If no clusters move farther than this threshold, stop cluster refinement
-	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
-	
-	public final float clusterCenterSize = 1.f;			// Size of cluster center, where autoNavigation stops
-	public float mediaPointMass = 0.05f;				// Mass contribution of each media point
-	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
-	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
-	public float minClusterDistance = 4.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-	public float maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
-	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
-	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
 	/* Time */
 	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
@@ -93,6 +74,8 @@ public class WMV_World
 	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins)
 
 	/* Graphics */
+	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
+
 	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
 	public float alpha = 195.f;							// Transparency
 	private boolean beginFadingAlpha = false, fadingAlpha = false;
@@ -121,22 +104,41 @@ public class WMV_World
 	public int setupProgress = 0;						// Setup progress (0 to 100)
 	
 	/* Model */
-
-	// -- TO DO:
-	public boolean transitionsOnly = false;				// Transitions Only Mode: no simulation of viewer movement (only images fading in and out)
+	public boolean orientationMode = true;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
+
+	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
+	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
+	public float panoramaFocusDistanceFactor = 0.9f;	// Scaling from defaultFocusDistance to panorama radius
+	public float videoFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to video focus distance
+
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
-	public float altitudeAdjustmentFactor = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
+	public float altitudeScalingFactor = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
 	
 	public boolean showModel = false;					// Activate Model Display 
 	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
 	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
 	public boolean showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
+
+	/* Clusters */
+	public boolean mergeClusters = true;				// Merge nearby clusters?
+	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
+	public float kMeansClusteringEpsilon = 0.005f;		// If no clusters move farther than this threshold, stop cluster refinement
+	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
+	
+	public final float clusterCenterSize = 1.f;			// Size of cluster center, where autoNavigation stops
+	public float mediaPointMass = 0.05f;				// Mass contribution of each media point
+	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
+	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
+	public float minClusterDistance = 4.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+	public float maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
+	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
+	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
 	/* Viewer */
 	public boolean firstTeleport = false;

@@ -413,7 +413,7 @@ public class WMV_Input
 			
 			if (!optionKey && key == '.')
 			{
-				if(p.viewer.isFollowing())
+				if(p.viewer.isFollowing())			// Check this
 				{
 					p.viewer.followTimeline(false, false);
 					p.viewer.followDateline(false, false);

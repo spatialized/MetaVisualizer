@@ -207,6 +207,9 @@ public class WMV_Model
 		validVideos = p.getVideoCount();
 		validMedia = validImages + validPanoramas + validVideos;				
 
+		if(validMedia < 20)
+			p.p.hierarchical = true;
+		
 		if(p.p.hierarchical)						// If using hierarchical clustering
 		{
 			runHierarchicalClustering();			// Create dendrogram

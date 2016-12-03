@@ -113,7 +113,7 @@ public class WMV_Field
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
 
-				if(distance < vanishingPoint)	// In visible range?
+				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
 					n.update();  	// Update geometry + visibility
 					n.draw(); 		// Display panorama
@@ -135,12 +135,17 @@ public class WMV_Field
 
 				if (distance < vanishingPoint)
 				{
-					if(p.p.frameCount % 60 == 0 && p.p.debug.video)
-						p.display.message("Video within view... "+i+" disabled?"+v.disabled);
-
 					v.update();  	// Update geometry + visibility
 					v.draw(); 		// Display video
 					videosVisible++;
+				}
+				else
+				{
+					if(v.isFading() || v.isFadingVolume())
+						v.update();  	// Update geometry + visibility
+					
+					if(v.isVisible())
+						v.fadeOut();
 				}
 			}
 		}
@@ -176,14 +181,23 @@ public class WMV_Field
 		findImagePlaceHolders();			// Find image place holders for videos
 		calculateMediaVertices();			// Calculate all image vertices
 
+		if(p.p.debug.main)
+			p.display.message("Will run initial clustering for field #"+fieldID+"...");
+
 		model.runInitialClustering();		// Find media clusters
 
 		if(p.lockMediaToClusters)				// Center media capture locations at associated cluster locations
 			model.lockMediaToClusters();	
 
+		if(p.p.debug.main)
+			p.display.message("Creating timeline and dateline for field #"+fieldID+"...");
+
 		createTimeline();					// Create field timeline
 		createDateline();					// Create field timeline
 		model.analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
+		
+//		if(p.p.debug.main)
+//			p.display.message("Finished initializing field #"+fieldID+"...");
 	}
 	
 	/**

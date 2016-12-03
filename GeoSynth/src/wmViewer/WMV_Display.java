@@ -665,24 +665,33 @@ class WMV_Display
 		p.p.text(" F    Move to First Field Time Segment", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" N    Move to Next Field Time Segment", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" B    Move to Previous Field Time Segment", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" n 	  Move to Next Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" n 	Move to Next Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
 		p.p.text(" b    Move to Previous Cluster Time Segment", xPos, yPos += lineWidth, hudDistance);
 
 		xPos = centerTextXOffset;
 		yPos = topTextYOffset;			// Starting vertical position
+
+		/* Model */
+		p.p.textSize(mediumTextSize);
+		p.p.text(" Model", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.textSize(smallTextSize);
+		p.p.text(" [ ]  Altitude Scaling Adjustment  + / - ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" , .  Object Distance  + / - ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" - =  Object Distance  - / +      ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" OPTION + -   Visible Angle  -      ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" OPTION + =   Visible Angle  +      ", xPos, yPos += lineWidth, hudDistance);
 		
+		/* Graphics */
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Graphics", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
 		p.p.text(" G    Angle Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" , .  Object Distance + / - ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" _ + Visible Angle  - / +      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" - = Default Focus Distance  - / +      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" P Transparency Mode  On / Off      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" ( ) Blend Mode  - / +      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" D  Video Mode On/Off ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" P    Transparency Mode  On / Off      ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" ( )  Blend Mode  - / +      ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" h H v  Hide images / panoramas / videos    ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" D    Video Mode On/Off ", xPos, yPos += lineWidth, hudDistance);
 
+		/* Movement */
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Movement", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
@@ -690,18 +699,25 @@ class WMV_Display
 		p.p.text(" Arrows    Turn Camera ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" q z  Zoom In / Out + / - ", xPos, yPos += lineWidth, hudDistance);
 		
+		/* Navigation */
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
+		p.p.text(" .    Follow Timelines by Date", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" >    Follow Timeline Only", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" OPTION + .    Follow Dateline Only", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" E    Move to Nearest Cluster", xPos, yPos += lineWidthWide, hudDistance);
 		p.p.text(" W    Move to Nearest Cluster in Front", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" Q    Move to Next Cluster in Time", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" A    Move to Next Location in Memory", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" Z    Move to Random Cluster", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" u    Move to Nearest Video ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" C    Lock Viewer to Nearest Cluster On/Off", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" l    Look At Selected Media", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" L    Look for Media", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" U    Move to Next Video ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" u    Teleport to Next Video ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" M    Move to Next Panorama ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" m    Teleport to Next Panorama ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" C    Lock Viewer to Nearest Cluster On/Off", xPos, yPos += lineWidthWide, hudDistance);
+//		p.p.text(" l    Look At Selected Media", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" L    Look for Media", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" { }  Teleport to Next / Previous Field ", xPos, yPos += lineWidth, hudDistance);
 
 		xPos = midRightTextXOffset;
@@ -711,13 +727,25 @@ class WMV_Display
 		p.p.text(" Interaction", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
 		p.p.text(" O    Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" f    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" S    Multi-Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" OPTION + s    Segment Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" x    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" X    Deselect Media in Front", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" OPTION + x    Deselect All Media", xPos, yPos += lineWidth, hudDistance);
+
+		p.p.textSize(mediumTextSize);
+		p.p.text(" GPS Tracks", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.textSize(smallTextSize);
+		p.p.text(" g    Load GPS Track from File", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" OPTION + g    Follow GPS Track", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" y	  Navigate Memorized Places", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" Y    Clear Memory", xPos, yPos += lineWidth, hudDistance);
 
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" `    Save Current View to  Memory", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" y	  Navigate Memorized Places", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" `    Save Current View to Memory", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" ~    Follow Memory Path", xPos, yPos += lineWidthWide, hudDistance);
 		p.p.text(" Y    Clear Memory", xPos, yPos += lineWidth, hudDistance);
 
 		p.p.textSize(mediumTextSize);
@@ -730,7 +758,6 @@ class WMV_Display
 	
 //		p.p.text(" 2 1 Camera Speed + / - ", dispLocX, textYPos += lineWidth * 2, hudDistance);
 //		p.p.text(" 4 3 Background Brightness + / - ", dispLocX, textYPos += lineWidth, hudDistance);
-//		p.p.text(" - = Default Focal Length - / +      ", dispLocX, textYPos += lineWidth, hudDistance);
 //		p.p.text(" k j  Altitude Scale Factor  + / - ", dispLocX, textYPos += lineWidth, hudDistance);
 //		p.p.text(" _ + Cluster Minimum Points - / +      ", dispLocX, textYPos += lineWidth, hudDistance);
 

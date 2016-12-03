@@ -271,6 +271,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	 */
 	void fadeSoundOut()
 	{
+		p.p.display.message("fadeSoundOut() for video #"+getID()+" Initial volume:"+volume);
 		if(volume > 0.f)
 		{
 			fadingVolume = true;
@@ -283,16 +284,21 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	
 	/**
 	 * update()
-=	 * Update main variables 
+=	 * Update geometry + visibility 
 	 */
 	void update()
 	{
 		if(!disabled)			
 		{
-//			visible = getAngleVisibility();						// Check if video should be visible from current viewer position
+			boolean wasVisible = visible;
+			boolean visibilitySetToTrue = false;
+			boolean visibilitySetToFalse = false;
+			
+			/* Check Visibility */			
 			visible = false;
+//			visible = getAngleVisibility();							// Check if video should be visible from current viewer position
 
-			if(p.p.transitionsOnly)					// With StaticMode ON, determine visibility based on distance of associated cluster 
+			if(p.p.transitionsOnly)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
 				if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
@@ -306,23 +312,20 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			else 
 			{
 				if(p.p.angleFading)
-				{
 					visible = isFacingCamera();		
-				}
 				else 
 					visible = true;     										 		
 			}
 
 			if(visible)
 			{
-				float videoAngle = getFacingAngle();				// Check if video is visible at current angle facing viewer
+				float videoAngle = getFacingAngle();				
 
 				if(!p.p.p.utilities.isNaN(videoAngle))
-					visible = (getAngleBrightness(videoAngle) > 0.f);
+					visible = (getAngleBrightness(videoAngle) > 0.f);	 // Check if video is visible at current angle facing viewer
 
 				if(!fading && p.hideVideos)
 					visible = false;
-//					fadeOut();
 					
 				if(visible)
 					visible = (getDistanceBrightness() > 0.f);
@@ -333,43 +336,69 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 				if(isBackFacing() || isBehindCamera())
 					visible = false;
 			}
-
-			if(!p.p.angleThinning)
+			
+			if(isFading())									// Update brightness while fading
 			{
-				if(visible && !fading && !fadedOut && !p.hideVideos)					// Fade in
+				if(fadingBrightness == 0.f)
+					visible = false;
+			}
+			else 
+			{
+				if(!wasVisible && visible)
+					visibilitySetToTrue = true;
+
+				if(fadingBrightness == 0.f && visible)
+					visibilitySetToTrue = true;
+
+				if(wasVisible && !visible)
+					visibilitySetToFalse = true;
+
+				if(fadingBrightness > 0.f && !visible)
+					visibilitySetToFalse = true;
+			}
+			
+			if(visibilitySetToFalse && p.p.p.debug.video)
+			{
+				p.p.display.message("visibilitySetToFalse:"+visibilitySetToFalse);
+			}
+			
+			if(p.p.p.frameCount % 50 == 0 && p.p.p.debug.video)
+			{
+				p.p.display.message("video #"+getID()+" visible:"+visible);
+			}
+			/* Update */
+			if(!p.p.angleThinning)										// Check Angle Thinning Mode
+			{
+//				if(visible && !fading && !fadedOut && !p.hideVideos)	// If should be visible and already fading, fade in 
+				if(visibilitySetToTrue && !fading && !fadedOut && !p.hideVideos)	// If should be visible and already fading, fade in 
 				{
 					if(!videoLoaded) loadMedia();
-					fadeIn();
+					fadeIn();											// Fade in
 				}
 			}
-			else
+			else													// If in Angle Thinning Mode
 			{
+//				if(visible && !thinningVisibility && !fading)
 				if(visible && !thinningVisibility && !fading)
 				{
 					fadeOut();
 				}
 
-				if(!visible && thinningVisibility && !fading && !p.hideVideos) 
+				if(!visible && thinningVisibility && !fading && !fadedOut && !p.hideVideos) 
 				{
-					if(!fadedOut)					// Fade in if didn't just finish fading out this frame
-					{
-						if(!videoLoaded) loadMedia();
-						fadeIn();
-					}
+					if(!videoLoaded) loadMedia();
+					fadeIn();
 				}
 			}
+			
+			if(visibilitySetToFalse)
+			{
+				fadeOut();
+			}
 
-			if(p.p.p.debug.video && p.p.p.frameCount % 30 == 0)
-				p.p.display.message("After backFacing... "+visible);
-
-			boolean wasFading = false;
 			if(isFading())									// Update brightness while fading
 			{
-				wasFading = true;
 				updateFadingBrightness();
-
-				if(fadingBrightness == 0.f)
-					visible = false;
 			}
 
 			if(fadingObjectDistance)
@@ -377,11 +406,15 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 				updateFadingObjectDistance();
 			}
 			else if(visible)
-				calculateVertices();  			// Update image parameters
+			{
+				calculateVertices();  						// Update video vertices
+			}
 
 //			if(fadingBrightness == 1.f && wasFading && !isFading())		// Fade in sound once video has faded in
 			if(fadedIn)		// Fade in sound once video has faded in
 			{
+				if(p.p.p.debug.video)
+					p.p.display.message("Will fade sound in for video #"+getID());
 				fadeSoundIn();
 				fadedIn = false;						
 			}
@@ -389,6 +422,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 //			if(fadingBrightness == 0.f && wasFading && !isFading())		// Fade out sound once video has faded out
 			if(fadedOut) 
 			{
+				if(p.p.p.debug.video)
+					p.p.display.message("Will fade sound out for video #"+getID());
 				fadeSoundOut();
 				fadedOut = false;						
 			}
@@ -398,6 +433,9 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			
 			if(fadingVolume && video != null)
 			{
+				if(p.p.p.debug.video)
+					p.p.display.message("updateFadingVolume for video #"+getID()+" volume:"+volume);
+
 				updateFadingVolume();
 			}
 		}
@@ -455,11 +493,15 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		if(!disabled)																	
 		{
 			video = new Movie(p.p.p, filePath);
+			
 			setLength( video.duration() );				// Set video length (in seconds)
 
 			video.play();					// Start playing
 			video.loop();					// Start loop
 			videoPlaying = true;
+
+			video.volume(0.f);
+			volume = 0.f;
 
 			if(p.p.p.debug.video)
 				p.p.display.message("Loading video file..."+filePath+" video.duration():"+video.duration());
@@ -677,6 +719,10 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
 		}
 
+//		if(p.p.p.debug.video)
+//		{
+//			p.p.display.message("video #"+getID()+"  distVisibility:"+distVisibility);
+//		}
 		return distVisibility;
 	}
 
@@ -1059,6 +1105,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		if(fadingVolume && p.p.p.frameCount < volumeFadingEndFrame)	// Still fading
 		{
 			volume = PApplet.map(p.p.p.frameCount, volumeFadingStartFrame, volumeFadingEndFrame, volumeFadingStartVal, volumeFadingTarget);
+			video.volume(volume);
 		}
 		else								// Reached target
 		{
@@ -1319,6 +1366,11 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	 public float getSensorSize()
 	 {
 		 return sensorSize;
+	 }
+	 
+	 public boolean isFadingVolume()
+	 {
+		 return fadingVolume;
 	 }
 
 	 public void setFocusDistance(float newFocusDistance)

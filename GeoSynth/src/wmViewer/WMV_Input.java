@@ -116,6 +116,18 @@ public class WMV_Input
 		if (!optionKey && key == '7') 
 			p.showCaptureToCluster = !p.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
+		if (!optionKey && key == '8') 
+		{
+			if(p.viewer.maxVisibleClusters > 1)
+				p.viewer.maxVisibleClusters--;		// Draw line from each media capture location to associated cluster
+		}
+
+		if (!optionKey && key == '9') 
+		{
+			if(p.viewer.maxVisibleClusters < 9)
+				p.viewer.maxVisibleClusters++;		// Draw line from each media capture location to associated cluster
+		}
+		
 		if (key == '_')
 			p.showModel = !p.showModel;
 		
@@ -310,6 +322,9 @@ public class WMV_Input
 
 			if (key == 'J') 
 				p.viewer.moveToRandomCluster(false);				// Jump (teleport) to random cluster
+
+			if (key == 'I')
+				p.orientationMode = !p.orientationMode;
 
 			if (key == 'W') 
 				p.viewer.moveToNearestClusterAhead(false);
@@ -591,12 +606,17 @@ public class WMV_Input
 					p.saveImage();
 				}
 
-				/* Navigation */
-//				if (key == 'k') 
-//					p.viewer.lockToCluster = !p.viewer.lockToCluster;
-//
-//				if (key == 'L') 			// Look for images when none are visible
-//					p.viewer.lookForImages();
+				if (key == '&') 
+				{
+					if(p.p.world.defaultMediaLength > 10)
+						p.p.world.defaultMediaLength -= 10;
+				}
+					
+				if (key == '*') 			// Look for images when none are visible
+				{
+					if(p.p.world.defaultMediaLength < 990)
+						p.p.world.defaultMediaLength += 10;
+				}
 			}
 		}
 		else 						// Interactive Clustering Mode

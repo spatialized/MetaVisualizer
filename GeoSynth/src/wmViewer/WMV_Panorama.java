@@ -427,7 +427,7 @@ public class WMV_Panorama extends WMV_Viewable
 		if(!p.p.p.debug.lowMemory)			// Check enough memory available
 		{
 			if(p.p.orientationMode)
-				location = new PVector (0, 0, 0);
+				location = p.p.viewer.getLocation();
 			else
 				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
@@ -450,13 +450,11 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		float viewDist = getViewingDistance();
 		float farViewingDistance = p.p.viewer.getFarViewingDistance();
-		//		float nearViewingDistance = p.p.viewer.getNearViewingDistance();
 
 		float distVisibility = 1.f;
 
 		if(viewDist > radius-p.p.clusterCenterSize*3.f)
 		{
-//			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
 			float vanishingPoint = radius;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
 				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-p.p.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
@@ -555,6 +553,11 @@ public class WMV_Panorama extends WMV_Viewable
 		calculateCaptureLocation();
 	}
 
+	public PVector getLocation()
+	{
+		return location;
+	}
+	
 	public float getDirection()
 	{
 		return theta;

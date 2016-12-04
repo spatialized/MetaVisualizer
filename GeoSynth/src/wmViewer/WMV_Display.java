@@ -374,8 +374,13 @@ class WMV_Display
 			p.p.popMatrix();
 
 			float inc = p.p.width * 0.3f / c.clusterTimesHistogram.length;
-			int currentTime = (int)PApplet.map(p.currentTime, 0, p.timeCycleLength, 0, c.clusterTimesHistogram.length);
+			int currentTime;
 			
+			if(p.timeMode == 0)
+				currentTime = (int)PApplet.map(c.currentTime, 0, p.timeCycleLength, 0, c.clusterTimesHistogram.length);
+			else
+				currentTime = (int)PApplet.map(p.currentTime, 0, p.timeCycleLength, 0, c.fieldTimesHistogram.length);
+
 			for(int i=0; i<c.clusterTimesHistogram.length; i++)
 			{
 				float val = inc * PApplet.sqrt( c.clusterTimesHistogram[i] ) * 50.f / PApplet.sqrt( (p.getCurrentCluster().images.size() + 
@@ -1059,7 +1064,7 @@ class WMV_Display
 			if(capture)
 				drawMapPoint( image.getCaptureLocation(), pointSize * (image.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapImageCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
-				drawMapPoint( image.location, pointSize, mapWidth, mapHeight, mapImageHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( image.getLocation(), pointSize, mapWidth, mapHeight, mapImageHue, saturation, 255.f, mapMediaTransparency );
 		}
 		
 	}
@@ -1091,7 +1096,7 @@ class WMV_Display
 			if(capture)
 				drawMapPoint( panorama.getCaptureLocation(), pointSize * (panorama.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapPanoramaCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
-				drawMapPoint( panorama.location, pointSize, mapWidth, mapHeight, mapPanoramaHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( panorama.getLocation(), pointSize, mapWidth, mapHeight, mapPanoramaHue, saturation, 255.f, mapMediaTransparency );
 		}
 	}
 
@@ -1122,10 +1127,8 @@ class WMV_Display
 			if(capture)
 				drawMapPoint( video.getCaptureLocation(), pointSize * (video.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapVideoCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
-				drawMapPoint( video.location, pointSize, mapWidth, mapHeight, mapVideoHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( video.getLocation(), pointSize, mapWidth, mapHeight, mapVideoHue, saturation, 255.f, mapMediaTransparency );
 		}
-//		PApplet.println("Video ---> location.x:"+video.getCaptureLocation().x+" y:"+video.getCaptureLocation().y);
-
 	}
 
 	/**
@@ -1483,6 +1486,7 @@ class WMV_Display
 			p.p.textSize(smallTextSize);
 			p.p.text(" Alpha Mode:"+p.alphaMode, textXPos, textYPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Alpha:"+p.alpha, textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Default Media Length:"+p.defaultMediaLength, textXPos, textYPos += lineWidth, hudDistance);
 			if(p.angleThinning)
 				p.p.text(" Media Thinning Angle:"+p.thinningAngle, textXPos, textYPos += lineWidth, hudDistance);
 			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, textXPos, textYPos += lineWidth, hudDistance);

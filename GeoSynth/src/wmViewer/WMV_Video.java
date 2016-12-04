@@ -450,24 +450,44 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	/**
 	 * Update video geometry each frame
 	 */
-	public void calculateVertices()								
+	public void calculateVertices()									
 	{
-		initializeVertices();
+		initializeVertices();					// Initialize vertices
 
 		if (phi != 0.)
-			vertices = rotateVertices(vertices, -phi, verticalAxis);         // Rotate around X axis
+			vertices = rotateVertices(vertices, -phi, verticalAxis);        	 // Rotate around X axis
 
-		vertices = rotateVertices(vertices, 360-theta, azimuthAxis);          // Rotate around Z axis
+		if (theta != 0.)
+			vertices = rotateVertices(vertices, 360-theta, azimuthAxis);         // Rotate around Z axis
 
 		if(vertices.length == 0) disabled = true;
+		
+		if(p.p.orientationMode)	
+			vertices = translateVertices(vertices, p.p.viewer.getLocation());
+		else
+			vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
 
-		if(!p.p.orientationMode)
-			vertices = translateVertices(vertices, getCaptureLocation());                       // Move video to movie capture location   
+		disp = getDisplacementVector();
+		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 
-		float r;				   // Radius of sphere
+		if(p.p.orientationMode)
+			location = p.p.viewer.getLocation();
+		else
+			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
 
+		location.add(disp);     													 
+
+		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
+		{
+			location = new PVector (0, 0, 0);
+		}
+	}
+	
+	public PVector getDisplacementVector()
+	{
+		float r;				  				 // Viewing sphere radius
 		if(focusDistance == -1.f)
-			r = p.p.defaultFocusDistance * p.p.videoFocusDistanceFactor;						// Use default if no focus distance in metadata					      
+			r = p.p.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -475,22 +495,19 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi));  
 		float yDisp = r * PApplet.cos(PApplet.radians(90-phi)); 
 
-		disp = new PVector(-xDisp, -yDisp, -zDisp);
+		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
+	}
 
-		vertices = translateVertices(vertices, disp);         // Translate vertices to viewing location
-
+	public PVector getLocation()
+	{
 		if(p.p.orientationMode)
 		{
-//			location = new PVector (0, 0, 0);
-			location = p.p.viewer.getLocation();
+			PVector result = new PVector(location.x, location.y, location.z);
+			result.add(getDisplacementVector());
+			return result;
 		}
 		else
-			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
-
-		location.add(disp);
-
-		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
-			location = new PVector (0, 0, 0);
+			return location;
 	}
 
 	/**

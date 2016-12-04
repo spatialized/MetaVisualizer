@@ -50,28 +50,29 @@ public class WMV_World
 
 	/* Time */
 	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
-	public boolean dateFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
+	public boolean dateFading = false;					// Does date affect photos' brightness? (true = yes; false = no)
+	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
 	public boolean paused = false;						// Time is paused
 
 	public boolean showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
-	public int timeCycleLength = 500;					// Length of main time loop in frames
+	public int timeCycleLength = 250;					// Length of main time loop in frames
 	public int timeUnitLength = 1;						// How many frames between time increments
 	public float timeInc = timeCycleLength / 30.f;			
 
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
-	public int dateCycleLength = 1000;					// Length of main date loop in frames
+	public int dateCycleLength = 500;					// Length of main date loop in frames
 	public int dateUnitLength = 1;						// How many frames between date increments
 	public float dateInc = dateCycleLength / 30.f;			
 
-	public int defaultMediaLength = 60;					// Default frame length of media in time cycle
+	public int defaultMediaLength = 125;					// Default frame length of media in time cycle
 
 	public final int clusterTimePrecision = 10000;		// Precision of timesHistogram (no. of bins)
 	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
-	public final int fieldTimePrecision = 10000;			// Precision of timesHistogram (no. of bins)
-	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins)
+	public final int fieldTimePrecision = 10000;		// Precision of timesHistogram (no. of bins) -- Obsolete
+	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins) -- Obsolete
 
 	/* Graphics */
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
@@ -315,48 +316,59 @@ public class WMV_World
 	 */
 	void updateTime()
 	{
-		if(timeFading && !dateFading && p.frameCount % timeUnitLength == 0)
+		if(timeMode == 0)					// Time Mode: Cluster
 		{
-			currentTime++;															// Increment field time
-
-			if(currentTime > timeCycleLength)
-				currentTime = 0;
-
-			if(p.debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
+			for(WMV_Cluster c : getCurrentField().clusters)
 			{
-				if(getCurrentField().mediaAreActive())
-				{
-					if(p.debug.detailed)
-						PApplet.println("Media still active...");
-				}
-				else
-				{
-					currentTime = 0;
-					if(p.debug.detailed)
-						PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
-				}
+				if(c.timeFading)
+					c.updateTime();
 			}
 		}
-		
-		if(dateFading && !timeFading && p.frameCount % dateUnitLength == 0)
+		else if(timeMode == 1)				// Time Mode: Field
 		{
-			currentDate++;															// Increment field date
-
-			if(currentDate > dateCycleLength)
-				currentDate = 0;
-
-			if(p.debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
+			if(timeFading && !dateFading && p.frameCount % timeUnitLength == 0)
 			{
-				if(getCurrentField().mediaAreActive())
+				currentTime++;															// Increment field time
+
+				if(currentTime > timeCycleLength)
+					currentTime = 0;
+
+				if(p.debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
 				{
-					if(p.debug.detailed)
-						PApplet.println("Media still active...");
+					if(getCurrentField().mediaAreActive())
+					{
+						if(p.debug.detailed)
+							PApplet.println("Media still active...");
+					}
+					else
+					{
+						currentTime = 0;
+						if(p.debug.detailed)
+							PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
+					}
 				}
-				else
-				{
+			}
+
+			if(dateFading && !timeFading && p.frameCount % dateUnitLength == 0)
+			{
+				currentDate++;															// Increment field date
+
+				if(currentDate > dateCycleLength)
 					currentDate = 0;
-					if(p.debug.detailed)
-						PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
+
+				if(p.debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
+				{
+					if(getCurrentField().mediaAreActive())
+					{
+						if(p.debug.detailed)
+							PApplet.println("Media still active...");
+					}
+					else
+					{
+						currentDate = 0;
+						if(p.debug.detailed)
+							PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
+					}
 				}
 			}
 		}

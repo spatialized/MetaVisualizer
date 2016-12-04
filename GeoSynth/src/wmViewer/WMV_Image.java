@@ -605,6 +605,24 @@ class WMV_Image extends WMV_Viewable
 		else
 			vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
 
+		disp = getDisplacementVector();
+		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
+
+		if(p.p.orientationMode)
+			location = p.p.viewer.getLocation();
+		else
+			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
+
+		location.add(disp);     													 
+
+		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
+		{
+			location = new PVector (0, 0, 0);
+		}
+	}
+	
+	public PVector getDisplacementVector()
+	{
 		float r;				  				 // Viewing sphere radius
 		if(focusDistance == -1.f)
 			r = p.p.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
@@ -615,24 +633,19 @@ class WMV_Image extends WMV_Viewable
 		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi));  
 		float yDisp = r * PApplet.cos(PApplet.radians(90-phi)); 
 
-		disp = new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
+		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
+	}
 
-		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
-
+	public PVector getLocation()
+	{
 		if(p.p.orientationMode)
 		{
-//			location = new PVector (0, 0, 0);													// Location in Transition Mode
-			location = p.p.viewer.getLocation();
+			PVector result = new PVector(location.x, location.y, location.z);
+			result.add(getDisplacementVector());
+			return result;
 		}
 		else
-			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
-
-		location.add(disp);     													 
-
-		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
-		{
-			location = new PVector (0, 0, 0);
-		}
+			return location;
 	}
 
 	/**

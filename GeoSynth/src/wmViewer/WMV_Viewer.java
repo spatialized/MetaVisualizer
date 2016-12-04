@@ -269,13 +269,16 @@ public class WMV_Viewer
 			
 			for(WMV_Cluster c : p.getCurrentField().clusters)
 			{
-				if(c.getLocation().dist(location) < farViewingDistance)
+				if(!c.isEmpty())
 				{
-					clustersVisible.append(c.getID());
-				}
-				else
-				{
-//					PApplet.println("too far:"+c.getLocation().dist(location));
+					if(c.getLocation().dist(location) < farViewingDistance)
+					{
+						clustersVisible.append(c.getID());
+					}
+					else
+					{
+						//					PApplet.println("too far:"+c.getLocation().dist(location));
+					}
 				}
 			}
 			
@@ -1260,13 +1263,16 @@ public class WMV_Viewer
 
 		for(WMV_Cluster c : p.getFieldClusters())
 		{
-			WMV_TimeSegment t = c.getFirstTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
-			if(t != null)
+			if(!c.isEmpty())
 			{
-				if(t.getCenter() < earliest)
+				WMV_TimeSegment t = c.getFirstTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
+				if(t != null)
 				{
-					earliest = t.getCenter();
-					earliestIdx = c.getID();
+					if(t.getCenter() < earliest)
+					{
+						earliest = t.getCenter();
+						earliestIdx = c.getID();
+					}
 				}
 			}
 		}
@@ -1303,13 +1309,16 @@ public class WMV_Viewer
 
 		for(WMV_Cluster c : p.getFieldClusters())
 		{
-			WMV_TimeSegment t = c.getLastTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
-			if(t != null)
+			if(!c.isEmpty())
 			{
-				if(t.getCenter() > latest)
+				WMV_TimeSegment t = c.getLastTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment).getCenter());
+				if(t != null)
 				{
-					latest = t.getCenter();
-					latestIdx = c.getID();
+					if(t.getCenter() > latest)
+					{
+						latest = t.getCenter();
+						latestIdx = c.getID();
+					}
 				}
 			}
 		}
@@ -3173,59 +3182,62 @@ public class WMV_Viewer
 
 			for(WMV_Cluster c : p.getCurrentField().clusters)
 			{
-				float dist = PVector.dist(c.getLocation(), location);
-				float highest = 0.f;
-
-				if(dist > highest)
-					highest = dist;
-
-				if(leastIdx == -1)				// Init leastIdx
+				if(!c.isEmpty())
 				{
-					leastIdx = c.getID();
-					leastDist = dist;
-				}
+					float dist = PVector.dist(c.getLocation(), location);
+					float highest = 0.f;
 
-				if(highestIdx == -1)			// Init highestIdx
-				{
-					highestIdx = c.getID();
-					highestDist = dist;
-				}
+					if(dist > highest)
+						highest = dist;
 
-				if(list.size() < n)				// Fill list with first 3 cluster IDs
-				{
-					if(!list.hasValue(c.getID()) && !(currentCluster == c.getID()))
-						list.append(c.getID());
-				}
-				else
-				{
-					for(int i : list)				// Sort the list lowest to highest
+					if(leastIdx == -1)				// Init leastIdx
 					{
-						float checkDist = PVector.dist(p.getCurrentField().clusters.get(i).getLocation(), location);
-						if(checkDist < leastDist)
-						{
-							leastDist = checkDist;
-							leastIdx = i;
-						}
-						if(checkDist > highestDist)
-						{
-							highestDist = checkDist;
-							highestIdx = i;
-						}
+						leastIdx = c.getID();
+						leastDist = dist;
 					}
 
-					while(list.size() > n)		// Trim any extra elements from list
-						list.removeValue(highestIdx);
-				}
+					if(highestIdx == -1)			// Init highestIdx
+					{
+						highestIdx = c.getID();
+						highestDist = dist;
+					}
 
-				if(dist < leastDist && !(currentCluster == c.getID()))		// Ignore the current cluster, since the distance is zero (?)
-				{
-					if(list.size() >= n)
-						list.remove(n-1);				// Remove highest
+					if(list.size() < n)				// Fill list with first 3 cluster IDs
+					{
+						if(!list.hasValue(c.getID()) && !(currentCluster == c.getID()))
+							list.append(c.getID());
+					}
+					else
+					{
+						for(int i : list)				// Sort the list lowest to highest
+						{
+							float checkDist = PVector.dist(p.getCurrentField().clusters.get(i).getLocation(), location);
+							if(checkDist < leastDist)
+							{
+								leastDist = checkDist;
+								leastIdx = i;
+							}
+							if(checkDist > highestDist)
+							{
+								highestDist = checkDist;
+								highestIdx = i;
+							}
+						}
 
-					leastIdx = c.getID();
-					leastDist = dist;
-					if(!list.hasValue(c.getID()))
-						list.append(leastIdx);			// Replace with new lowest
+						while(list.size() > n)		// Trim any extra elements from list
+							list.removeValue(highestIdx);
+					}
+
+					if(dist < leastDist && !(currentCluster == c.getID()))		// Ignore the current cluster, since the distance is zero (?)
+					{
+						if(list.size() >= n)
+							list.remove(n-1);				// Remove highest
+
+						leastIdx = c.getID();
+						leastDist = dist;
+						if(!list.hasValue(c.getID()))
+							list.append(leastIdx);			// Replace with new lowest
+					}
 				}
 			}
 		}

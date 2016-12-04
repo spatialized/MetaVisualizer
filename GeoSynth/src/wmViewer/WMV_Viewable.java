@@ -337,15 +337,30 @@ public abstract class WMV_Viewable
 		}
 		else
 		{
-			centerTime = PApplet.round(PApplet.map( time.getTime(), lower, upper, p.p.defaultMediaLength * 0.25f, 
+			float cTime = p.p.p.utilities.round(time.getTime(), 4);
+			
+			if(cTime > upper)
+			{
+//				if(p.p.p.debug.time)
+//					PApplet.println("adjusted upper up from "+upper+" to:"+cTime);
+				upper = cTime;
+			}
+			if(cTime < lower)
+			{
+//				if(p.p.p.debug.time)
+//					PApplet.println("adjusted lower down from "+lower+" to:"+cTime);
+				lower = cTime;
+			}
+			
+			centerTime = PApplet.round(PApplet.map( cTime, lower, upper, p.p.defaultMediaLength * 0.25f, 
 					cycleLength - p.p.defaultMediaLength * 0.25f) );	// Calculate center time in cluster timeline
-
+//			centerTime = PApplet.constrain(amt, low, high)
 			fadeInStart = PApplet.round(centerTime - length / 2.f);		// Frame media starts fading in
 			fadeInEnd = PApplet.round(centerTime - length / 4.f);		// Frame media reaches full brightness
 			fadeOutStart = PApplet.round(centerTime + length / 4.f);	// Frame media starts fading out
 			fadeOutEnd = PApplet.round(centerTime + length / 2.f);		// Frame media finishes fading out
 
-			if(selected && p.p.p.debug.viewable && p.p.p.debug.detailed)
+			if(selected && p.p.p.debug.time && p.p.p.debug.detailed)
 			{
 				PApplet.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength);
 				PApplet.println(" lower:"+lower+" upper:"+upper);
@@ -355,10 +370,21 @@ public abstract class WMV_Viewable
 
 		/* Adjust fading times to fit cycle length */
 		if(fadeInStart < 0)
-			PApplet.println("Error: fadeInStart before day start!!");
+		{
+//			PApplet.println(">>> Error: fadeInStart before day start!!");
+//			PApplet.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength);
+//			PApplet.println(" lower:"+lower+" upper:"+upper);
+//			PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+			fadeInStart = 0;
+		}
 
 		if(fadeInStart > cycleLength)
+		{
 			PApplet.println("Error: fadeInStart after day end!!");
+			PApplet.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength);
+			PApplet.println(" p.p.p.utilities.round(time.getTime(), 3):"+p.p.p.utilities.round(time.getTime(), 4)+" lower:"+lower+" upper:"+upper);
+			PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+		}
 
 		if(fadeInEnd > cycleLength)
 		{

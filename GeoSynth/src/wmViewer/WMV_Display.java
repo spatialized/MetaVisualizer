@@ -648,27 +648,34 @@ class WMV_Display
 
 		xPos = midLeftTextXOffset;
 		p.p.textSize(mediumTextSize);
+		p.p.text(" Main", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.textSize(smallTextSize);
+		p.p.text(" R    Restart WorldMediaViewer", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" CMD + q    Quit WorldMediaViewer", xPos, yPos += lineWidth, hudDistance);
+
+		p.p.textSize(mediumTextSize);
 		p.p.text(" Display", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" 1  Show/Hide Field Map   		  +SHIFT to Overlay", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" 2	Show/Hide Field Statistics    +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" 3	Show/Hide Cluster Statistics  +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" 4 	Show/Hide Keyboard Controls   +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" 1    Show/Hide Field Map   		  +SHIFT to Overlay", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" 2    Show/Hide Field Statistics    +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" 3    Show/Hide Cluster Statistics  +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" 4    Show/Hide Keyboard Controls   +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
 
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Time", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" T    Time Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" D    Date Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" T    Time Fading On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" D    Date Fading On/Off", xPos, yPos += lineWidth, hudDistance);
 //		p.p.text(" Z    Toggle Time Fading Mode (Field/Cluster)", textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" SHIFT + Up/Dn   Cycle Length - / +", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" space Pause On/Off   ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" SHIFT + Lt/Rt   Current Time - / +", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" &/*  Default Media Length - / +", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" SHIFT + Lt/Rt   Cycle Length - / +", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" SHIFT + Up/Dn   Current Time - / +", xPos, yPos += lineWidth, hudDistance);
 
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Time Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" t    Teleport to Earliest Time in Field", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" t    Teleport to Earliest Time in Field", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.text(" T    Move to Earliest Time in Field", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" d    Teleport to Earliest Time on Earliest Date", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" D    Move to Earliest Time on Earliest Date", xPos, yPos += lineWidth, hudDistance);
@@ -688,7 +695,7 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Model", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" [ ]  Altitude Scaling Adjustment  + / - ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" [ ]  Altitude Scaling Adjustment  + / - ", xPos, yPos += lineWidthVeryWide, hudDistance);
 //		p.p.text(" , .  Object Distance  + / - ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" - =  Object Distance  - / +      ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" OPTION + -   Visible Angle  -      ", xPos, yPos += lineWidth, hudDistance);
@@ -698,8 +705,8 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Graphics", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" G    Angle Fading On/Off", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" H    Angle Thinning On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" G    Angle Fading On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" H    Angle Thinning On/Off", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" P    Transparency Mode  On / Off      ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" ( )  Blend Mode  - / +      ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" i h v  Hide images / panoramas / videos    ", xPos, yPos += lineWidth, hudDistance);
@@ -709,7 +716,7 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Movement", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" a d w s   Walk Left / Right / Forward / Backward ", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" a d w s   Walk Left / Right / Forward / Backward ", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.text(" Arrows    Turn Camera ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" q z  Zoom In / Out + / - ", xPos, yPos += lineWidth, hudDistance);
 		
@@ -717,7 +724,7 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" >    Follow Timeline Only", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" >    Follow Timeline Only", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.text(" .    Follow Timeline by Date", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" OPTION + .    Follow Dateline Only", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" E    Move to Nearest Cluster", xPos, yPos += lineWidthWide, hudDistance);
@@ -725,7 +732,7 @@ class WMV_Display
 		p.p.text(" Q    Move to Next Cluster in Time", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" A    Move to Next Location in Memory", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" Z    Move to Random Cluster", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" U    Move to Next Video ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" U    Move to Next Video ", xPos, yPos += lineWidthWide, hudDistance);
 		p.p.text(" u    Teleport to Next Video ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" M    Move to Next Panorama ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" m    Teleport to Next Panorama ", xPos, yPos += lineWidth, hudDistance);
@@ -740,8 +747,8 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Interaction", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" O    Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" S    Multi-Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" O    Selection Mode On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" S    Multi-Selection Mode On/Off", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" OPTION + s    Segment Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
 		p.p.text(" x    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" X    Deselect Media in Front", xPos, yPos += lineWidth, hudDistance);
@@ -750,7 +757,7 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" GPS Tracks", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" g    Load GPS Track from File", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" g    Load GPS Track from File", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.text(" OPTION + g    Follow GPS Track", xPos, yPos += lineWidth, hudDistance);
 //		p.p.text(" y	  Navigate Memorized Places", xPos, yPos += lineWidth, hudDistance);
 //		p.p.text(" Y    Clear Memory", xPos, yPos += lineWidth, hudDistance);
@@ -758,18 +765,17 @@ class WMV_Display
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" `    Save Current View to Memory", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" ~    Follow Memory Path", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" `    Save Current View to Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" ~    Follow Memory Path", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" Y    Clear Memory", xPos, yPos += lineWidth, hudDistance);
 
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Output", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(smallTextSize);
-		p.p.text(" o    Set Image Output Folder", xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" o    Set Image Output Folder", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.text(" p    Save Screen Image to Disk", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" F    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" R    Clear Selection", xPos, yPos += lineWidth, hudDistance);
 	
+//		p.p.text(" F    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
 //		p.p.text(" 2 1 Camera Speed + / - ", dispLocX, textYPos += lineWidth * 2, hudDistance);
 //		p.p.text(" 4 3 Background Brightness + / - ", dispLocX, textYPos += lineWidth, hudDistance);
 //		p.p.text(" k j  Altitude Scale Factor  + / - ", dispLocX, textYPos += lineWidth, hudDistance);

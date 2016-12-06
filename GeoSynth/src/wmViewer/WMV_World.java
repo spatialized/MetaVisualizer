@@ -67,7 +67,7 @@ public class WMV_World
 	public int dateUnitLength = 1;						// How many frames between date increments
 	public float dateInc = dateCycleLength / 30.f;			
 
-	public int defaultMediaLength = 125;					// Default frame length of media in time cycle
+	public int defaultMediaLength = 90;					// Default frame length of media in time cycle
 
 	public final int clusterTimePrecision = 10000;		// Precision of timesHistogram (no. of bins)
 	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
@@ -105,7 +105,7 @@ public class WMV_World
 	public int setupProgress = 0;						// Setup progress (0 to 100)
 	
 	/* Model */
-	public boolean orientationMode = true;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
+	public boolean orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)

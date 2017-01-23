@@ -21,7 +21,6 @@ public class WMV_Cluster
 
 	/* Panorama */
 	ArrayList<WMV_Panorama> stitchedPanoramas, userPanoramas;
-//	private PImage stitchedPanorama;			// Stitched panorama		-- Make into arrayList
 	
 	/* Physics */
 	private boolean isAttractor;				// Whether cluster is attracting viewer
@@ -312,6 +311,19 @@ public class WMV_Cluster
 				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
 			
 			done = (allImages.size() == 1 || allImages.size() == 0);
+		}
+		
+		for(int i : panoramas)
+		{
+			float left = p.p.p.utilities.constrainWrap(p.panoramas.get(i).getDirection(), 0.f, 360.f);
+			float right = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
+			float centerDirection = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
+			float bottom = -90.f;
+			float top = 90.f;
+			float centerElevation = 0.f;
+
+			segments.add( new WMV_MediaSegment( this, segments.size(), null, null, left, right, centerDirection, bottom, 
+					top, centerElevation) );
 		}
 
 		numSegments = segments.size();						// Number of media segments in the cluster
@@ -961,12 +973,12 @@ public class WMV_Cluster
 	 */
 	public void analyzeMedia() 
 	{
-		calculateDimensions();		// Calculate cluster dimensions (bounds)
-		calculateTimes();			// Calculate cluster times
-		createDateline();			// Create dates histograms and analyze for date segments
-		if(dateline.size()>1)
+		calculateDimensions();			// Calculate cluster dimensions (bounds)
+		calculateTimes();				// Calculate cluster times
+		createDateline();				// Create dates histograms and analyze for date segments
+		if(dateline.size()>1)			// Create timeline for each date
 			createTimelinesByDate();
-		createTimeline();			// Create times histograms and analyze for time segments
+		createTimeline();				// Create timeline independent of date 
 	}
 	
 	/**
@@ -1050,18 +1062,19 @@ public class WMV_Cluster
 			{
 				WMV_Image img = p.images.get(i);
 				
-//				PApplet.println("img.getDate():"+img.getDate()+" date:"+date);
-//				PApplet.println("p.p.p.utilities.round(img.getDate(), 3):"+p.p.p.utilities.round(img.getDate(), 3)+" date:"+date);
+				/*WAS COMMENTED OUT:*/
 				if((int)p.p.p.utilities.round(img.getDate(), 3) == date)
 				{
-					PApplet.println("Adding to mediaTimes.size():"+mediaTimes.size());
+//					PApplet.println("Adding to mediaTimes.size():"+mediaTimes.size());
 					mediaTimes.append( p.images.get(i).time.getTime() );
 				}
 				else
 				{
-					PApplet.println(".. not adding to mediaTimes.size() p.p.p.utilities.round(img.getDate(), 3):"+p.p.p.utilities.round(img.getDate(), 3)+" date:"+date+" mediaTimes.size()"+mediaTimes.size());
+//					PApplet.println(".. not adding to mediaTimes.size() p.p.p.utilities.round(img.getDate(), 3):"+p.p.p.utilities.round(img.getDate(), 3)+" date:"+date+" mediaTimes.size()"+mediaTimes.size());
 				}
+				/*******/
 			}
+			
 			for(int n : panoramas) 
 			{
 				WMV_Panorama pano = p.panoramas.get(n);
@@ -1081,8 +1094,6 @@ public class WMV_Cluster
 
 			for (int i = 0; i < mediaTimes.size(); i++) 							// Fill cluster times histogram
 			{
-//				int idx = PApplet.round(mediaTimes.get(i));
-//				PApplet.println("<-------->> idx:"+idx+" mediaTimes.get(i):"+mediaTimes.get(i));
 				int idx = PApplet.round(PApplet.constrain(PApplet.map(mediaTimes.get(i), 0.f, 1.f, 0.f, 
 						p.p.clusterTimePrecision - 1), 0.f, p.p.clusterTimePrecision - 1.f));
 
@@ -1293,10 +1304,33 @@ public class WMV_Cluster
 
 			if(found)
 			{
+				WMV_TimeSegment result;
 				if(dateline.size()>1)
-					return timelines.get(timelineID).get(0);
+				{
+//					return timelines.get(timelineID).get(0);
+					try{
+						result = timelines.get(timelineID).get(0);
+					}
+					catch(NullPointerException e)
+					{
+						PApplet.println("No timeline found! ... dateline.size():"+dateline.size()+" timelineID:"+timelineID+" ... cluster id:"+getID());
+						result = null;
+					}
+				}
 				else
-					return timeline.get(0);
+				{
+//					return timeline.get(0);
+					try{
+						result = timeline.get(0);
+					}
+					catch(NullPointerException e)
+					{
+						PApplet.println("No timeline found!... cluster id:"+getID());
+						result = null;
+					}
+				}
+				
+				return result;
 			}
 			else
 			{

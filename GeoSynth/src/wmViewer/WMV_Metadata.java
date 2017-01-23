@@ -53,7 +53,6 @@ class WMV_Metadata
 	}
 
 	/**
-	 * load()
 	 * Load metadata for the field
 	 */
 	public void load(WMV_Field field)
@@ -471,6 +470,8 @@ class WMV_Metadata
 							direction = tagString;
 							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
 								PApplet.println("Found Direction..." + direction);
+//							if(panorama)
+//								PApplet.println("Found Panorama Direction..." + direction);
 						}
 						if (tag.getTagName().equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
 						{
@@ -617,7 +618,10 @@ class WMV_Metadata
 
 				try {
 					fOrientation = ParseOrientation(orientation);
-					fDirection = ParseDirection(direction);				// -- What about panoramas??
+					fDirection = ParseDirection(direction);		
+
+					if(panorama && direction == null)
+						PApplet.println("Panorama fDirection is null!");
 				} 
 				catch (RuntimeException ex) {
 					if (f.p.p.debug.metadata)
@@ -640,8 +644,7 @@ class WMV_Metadata
 				{
 					if(panorama && !dataMissing)
 					{
-//						PApplet.println("Adding panorama #"+pCount);
-						f.panoramas.add( new WMV_Panorama( f, pCount, name, pFilePath, pLoc, 0.f, 0.f, iCameraModel, 	// Ignore elevation and direction
+						f.panoramas.add( new WMV_Panorama( f, pCount, name, pFilePath, pLoc, fDirection, 0.f, iCameraModel, 	// Ignore elevation
 								iWidth, iHeight, fBrightness, calendarTime, null, null ) );
 						pCount++;
 					}

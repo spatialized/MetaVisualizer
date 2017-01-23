@@ -60,7 +60,7 @@ public class WMV_Viewer
 	/* Clusters */
 	private int field = 0;								// Current field
 	public IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
-	public int maxVisibleClusters = 3;					// Maximum visible clusters in Orientation Mode
+	public int maxVisibleClusters = 2;					// Maximum visible clusters in Orientation Mode
 	private int currentCluster = 0;						// Image cluster currently in view
 	WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
 	private int attractorCluster = -1;					// Cluster attracting the camera
@@ -1784,12 +1784,12 @@ public class WMV_Viewer
 		{
 			if(p.getCurrentField().clusters.get(attractorCluster).getClusterDistance() > p.clusterCenterSize)
 			{
-				p.display.message("Moving nearby...");
+//				p.display.message("Moving nearby...");
 				movingNearby = true;
 			}
 			else
 			{
-				p.display.message("Reached attractor without moving...");
+//				p.display.message("Reached attractor without moving...");
 				handleReachedAttractor();				// Reached attractor without moving
 			}
 		}

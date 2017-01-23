@@ -49,8 +49,8 @@ public class WMV_World
 	public boolean startInteractive = false;			// Start user clustering
 
 	/* Time */
-	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
-	public boolean dateFading = false;					// Does date affect photos' brightness? (true = yes; false = no)
+	public boolean timeFading = false;					// Does time affect media brightness? 
+	public boolean dateFading = false;					// Does date affect media brightness? 
 	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
 	public boolean paused = false;						// Time is paused
 

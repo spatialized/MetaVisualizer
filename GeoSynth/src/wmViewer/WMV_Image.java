@@ -50,7 +50,7 @@ class WMV_Image extends WMV_Viewable
 
 	WMV_Image ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
-			int newWidth, int newHeight, float newBrightness, Calendar newCalendar)
+			int newWidth, int newHeight, float newBrightness, Calendar newCalendar )
 	{
 		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
 

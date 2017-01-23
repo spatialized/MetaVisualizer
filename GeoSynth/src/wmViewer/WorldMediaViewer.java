@@ -81,10 +81,11 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 //		size(4000, 3000, processing.core.PConstants.P3D);		// Large
 //		size(1980, 1080, processing.core.PConstants.P3D);
 		size(1600, 900, processing.core.PConstants.P3D);		// MacBook Pro
+//		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
 	}
 	
 	/**
-	 * Called when library folder has been selected
+	 * Open library folder when folder has been selected
 	 * @param selection File object for selected folder
 	 */
 	public void libraryFolderSelected(File selection) 
@@ -141,7 +142,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	}
 	
 	/**
-	 * Analyze and load media folders in response to user selection
+	 * Analyze and load media folders given user selection
 	 * @param selection Selected folder
 	 */
 	public void openLibraryFolder(File selection) 
@@ -221,9 +222,10 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	}
 
 	/**
+	 * Called every time a new frame is available to read
 	 * @param m Movie the event pertains to
 	 */
-	public void movieEvent(Movie m) 	// Called every time a new frame is available to read
+	public void movieEvent(Movie m) 	
 	{
 		try{
 			if(m != null)				// Testing skipping 30th frame to avoid NullPointerException

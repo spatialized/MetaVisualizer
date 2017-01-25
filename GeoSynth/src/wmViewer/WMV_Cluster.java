@@ -1062,7 +1062,6 @@ public class WMV_Cluster
 			{
 				WMV_Image img = p.images.get(i);
 				
-				/*WAS COMMENTED OUT:*/
 				if((int)p.p.p.utilities.round(img.getDate(), 3) == date)
 				{
 //					PApplet.println("Adding to mediaTimes.size():"+mediaTimes.size());

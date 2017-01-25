@@ -1,6 +1,11 @@
 package wmViewer;
 import java.util.ArrayList;
 
+import g4p_controls.GButton;
+import g4p_controls.GCheckbox;
+import g4p_controls.GEvent;
+import g4p_controls.GToggleControl;
+import g4p_controls.GValueControl;
 //import damkjer.ocd.Camera;
 import processing.core.*;
 //import processing.data.FloatList;
@@ -13,6 +18,9 @@ import toxi.math.ScaleMap;
 
 class WMV_Display
 {
+	/* Classes */
+	public WMV_Window window;					// Main interaction window
+	
 	/* Display Modes */
 	public boolean map = false;					// Display map only
 	public boolean info = false;				// Display simulation info 
@@ -145,6 +153,8 @@ class WMV_Display
 		largePointSize = 0.0000032f * p.p.width;
 		hugePointSize = 0.0000039f * p.p.width;
 		cameraPointSize = 0.004f * p.p.width;
+		
+		window = new WMV_Window(this);				// Setup and display interaction window
 	}
 
 	/**
@@ -1440,7 +1450,7 @@ class WMV_Display
 			if(p.angleThinning)
 				p.p.text(" Media Thinning Angle:"+p.thinningAngle, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Default Focus Distance (m.):"+p.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Subject Distance (m.):"+p.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
 
 			xPos = centerTextXOffset;
@@ -1731,5 +1741,173 @@ class WMV_Display
 		for(int i=-size/2; i<size/2; i+=size/20)
 			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
 	}
+	
+	public void handleButtonEvent(GButton button, GEvent event) { 
+		  boolean state;
+		  
+//		  PApplet.println("button.tagNo:"+button.tagNo);
+//		  PApplet.println("button.tag:"+button.tag);
+		  
+		  switch(button.tag) 
+		  {
+				/* Display Modes */
+		  		case "Scene":
+		  			resetDisplayModes();
+					break;
+		  		case "Map":
+					resetDisplayModes();
+					map = true;
+					break;
+		  		case "Info":
+					resetDisplayModes();
+					info = true;
+					break;
+		  		case "Cluster":
+					resetDisplayModes();
+					cluster = true;
+					break;
+		  		case "Control":
+					resetDisplayModes();
+					control = true;
+					break;
+				
+				/* General */
+		  		case "Restart":
+					p.p.restartWorldMediaViewer();
+		  			break;
+					
+				/* Time */
+		  		case "NextTime":
+		  			p.viewer.moveToNextTimeSegment(true, false);
+//		  			p.viewer.moveToNextTimeSegment(true, true);		// Teleport
+		  			break;
+		  		case "PreviousTime":
+		  			p.viewer.moveToPreviousTimeSegment(true, false);
+		  			break;
+
+				/* Navigation */
+		  		case "NearestCluster":
+		  			p.viewer.moveToNearestCluster(false);
+		  			break;
+		  		case "LastCluster":
+//		  			p.viewer.moveToLastCluster(false);
+		  			break;
+		  		case "NextField":
+	  				p.viewer.teleportToField(1);
+		  			break;
+		  		case "PreviousField":
+	  				p.viewer.teleportToField(-1);
+		  			break;
+		  }
+//			if (key == '~')
+//			p.viewer.followMemory();
+	//
+		
+
+//		if (!optionKey && key == '>')
+//		{
+//			if(!p.viewer.isFollowing())
+//				p.viewer.followTimeline(true, false);
+//		}
+	//
+//		if (optionKey && key == '.')
+//		{
+//			if(!p.viewer.isFollowing())
+//				p.viewer.followDateline(true, false);
+//		}
+	//	
+//		if (!optionKey && key == '.')
+//		{
+//			if(p.viewer.isFollowing())			// Check this
+//			{
+//				p.viewer.followTimeline(false, false);
+//				p.viewer.followDateline(false, false);
+//			}
+//		}
+		
+//		if (optionKey && key == 'g')
+//			p.viewer.followGPSTrack();
+		
+		
+//		if (key == 'u') 		// Teleport to nearest cluster with video
+//			p.viewer.moveToNextCluster(true, 2);
+	//
+//		if (key == 'U') 		// Go to nearest cluster with video
+//			p.viewer.moveToNextCluster(false, 2);
+	//
+//		if (key == 'm') 		// Teleport to nearest cluster with panorama
+//			p.viewer.moveToNextCluster(true, 1);
+	//
+//		if (key == 'M') 		// Go to nearest cluster with panorama
+//			p.viewer.moveToNextCluster(false, 1);
+	//
+//		if (key == '-') 
+//			p.getCurrentField().fadeObjectDistances(0.85f);
+	//	
+//		if (key == '=')
+//			p.getCurrentField().fadeObjectDistances(1.176f);
+	//
+//		if (key == 'q') 
+//			p.viewer.startZoomTransition(-1);
+	//
+//		if (key == 'z') 
+//			p.viewer.startZoomTransition(1);
+
+
+//		if (key == 't') 
+//			p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
+	//
+//		if (key == 'd') 
+//			p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, true);
+	//
+//		if (key == 'T')
+//			p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
+	//
+//		if (key == 'D') 
+//			p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, false);
+	//
+		  
+		}
+	public void handleToggleControlEvent(GToggleControl option, GEvent event) 
+	{
+		switch (option.tag)
+		{
+			case "TimeFading":
+				break;
+			case "TimeTeleport":
+				break;
+			case "FollowTeleport":
+				break;
+			case "FadeEdges":
+				break;
+			case "HideImages":
+				break;
+			case "HideVideos":
+				break;
+			case "HidePanoramas":
+				break;
+			case "AlphaMode":
+				break;
+			case "OrientationMode":
+				break;
+			case "AngleFading":
+				break;
+			case "AngleThinning":
+				break;
+		}
+	}
+	
+	public void handleSliderEvent(GValueControl slider, GEvent event) 
+	{ 
+//		  if (slider == sdr)  // The slider being configured?
+//		    println(sdr.getValueS() + "    " + event);    
+//		  if (slider == sdrEasing)
+//		    sdr.setEasing(slider.getValueF());    
+//		  else if (slider == sdrNbrTicks)
+//		    sdr.setNbrTicks(slider.getValueI());    
+//		  else if (slider == sdrBack)
+//		    bgcol = slider.getValueI();
+		}
+
 }
 

@@ -200,13 +200,14 @@ public class WMV_World
 	void run()
 	{
 		/* Viewing and navigating 3D environment */
-		if (!initialSetup && !interactive && !p.exit) 			
-			runSimulation();							// Run current simulation
+		if ( !initialSetup && !interactive && !p.exit ) 			
+			runSimulation();										// Run current simulation
 		
-		if (p.exit) 									
+		if ( p.exit ) 									
 		{
 			if(p.debug.detailed)
 				PApplet.println("Exit command! about to quit...");
+			
 			p.stopWorldMediaViewer();								//  Exit simulation
 		}
 		
@@ -224,7 +225,10 @@ public class WMV_World
 		}
 	}
 	
-	public void runSetup()
+	/**
+	 * Setup the 3D world
+	 */
+	public void doSetup()
 	{
 		float fieldProgressInc = 100.f;
 		

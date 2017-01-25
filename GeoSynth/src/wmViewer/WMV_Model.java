@@ -1,5 +1,11 @@
 package wmViewer;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+
 import com.apporiented.algorithm.clustering.*;
 //import com.apporiented.algorithm.clustering.ClusteringAlgorithm;
 
@@ -1565,6 +1571,33 @@ public class WMV_Model
 	void setMaxClusterDistance(float newMaxClusterDistance)
 	{
 		maxClusterDistance = newMaxClusterDistance;
+	}
+	
+	void exportFieldInfo()
+	{
+        BufferedWriter writer = null;
+
+		try {
+            //create a temporary file
+            String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+            File logFile = new File(timeLog);
+
+            // This will output the full path where the file will be written to...
+            System.out.println(logFile.getCanonicalPath());
+
+            writer = new BufferedWriter(new FileWriter(logFile));
+            writer.write("Field: "+p.name);
+        } 
+		catch (Exception e) {
+            e.printStackTrace();
+        }
+		finally {
+            try {
+                // Close the writer regardless of what happens...
+                writer.close();
+            } catch (Exception e) {
+            }
+        }
 	}
 
 		/**

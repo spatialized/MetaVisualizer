@@ -155,10 +155,6 @@ public class WMV_Field
 				}
 			}
 		}
-
-		// filter(THRESHOLD, 0.4);
-		// filter(INVERT);
-		// filter(DILATE);
 		
 		if(p.p.debug.model || p.viewer.map3DMode)
 		{
@@ -198,12 +194,12 @@ public class WMV_Field
 		if(p.p.debug.main)
 			p.display.message("Creating timeline and dateline for field #"+fieldID+"...");
 
-		createTimeline();					// Create field timeline
-		createDateline();					// Create field timeline
+		createTimeline();								// Create field timeline
+		createDateline();								// Create field timeline
 		model.analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 		
-//		if(p.p.debug.main)
-//			p.display.message("Finished initializing field #"+fieldID+"...");
+		if(p.p.debug.main)
+			p.display.message("Finished initializing field #"+fieldID+"..."+name);
 	}
 	
 	/**

@@ -13,8 +13,23 @@
 
 package wmViewer;
 import java.io.*;
+
+import javax.swing.JFrame;
+
+import com.jogamp.*;
+
+import g4p_controls.GButton;
+import g4p_controls.GEvent;
+import g4p_controls.GToggleControl;
+import g4p_controls.GValueControl;
+import processing.awt.*;
+//import processing.awt.PSurfaceAWT;
+//import g4p_controls.GWinData;
 import processing.core.*;
+//import processing.event.MouseEvent;
 import processing.video.Movie;
+
+//import java.awt.Frame;
 
 public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 {
@@ -51,11 +66,14 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void setup()
 	{
+		surface.setLocation(310, 45);
+//		surface.setVisible(false);
+
 		world = new WMV_World(this);
 		metadata = new WMV_Metadata(this);
 		utilities = new WMV_Utilities(world);
-		debug = new WMV_Debug(this);
-		
+		debug = new WMV_Debug(this);		
+
 		world.initialize();
 	}
 
@@ -66,13 +84,13 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	{		
 		if (startup)
 		{ 
-			world.display.showStartup();			/* Startup screen */
+			world.display.showStartup();		/* Startup screen */
 			if (startup) startup = false;	
 		}
-		else if(!running) world.runSetup();		/* Run setup */
-		else world.run();							/* Run program */
+		else if(!running) world.doSetup();		/* Run setup */
+		else world.run();						/* Run program */
 	}
-
+	
 	/**
 	 * Set window resolution and graphics mode
 	 */
@@ -80,7 +98,8 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	{
 //		size(4000, 3000, processing.core.PConstants.P3D);		// Large
 //		size(1980, 1080, processing.core.PConstants.P3D);
-		size(1600, 900, processing.core.PConstants.P3D);		// MacBook Pro
+//		size(1600, 900, processing.core.PConstants.P3D);		// MacBook Pro
+		size(1360, 940, processing.core.PConstants.P3D);		// MacBook Pro
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
 	}
 	
@@ -273,7 +292,18 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.input.handleMouseClicked(mouseX, mouseY);
 	}
 	
+	public void handleButtonEvents(GButton button, GEvent event) { 
+		world.display.handleButtonEvent(button, event);
+	}
 	
+	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
+		world.display.handleToggleControlEvent(option, event);
+	}
+	
+	public void handleSliderEvents(GValueControl slider, GEvent event) 
+	{ 
+		world.display.handleSliderEvent(slider, event);
+	}
 	/**
 	 * gpsTrackSelected()
 	 * Called when user selects a GPS track file
@@ -283,4 +313,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	{
 		world.viewer.loadGPSTrack(selection);
 	}
+	
+		
+
 }

@@ -3,9 +3,12 @@ package wmViewer;
 import java.io.File;
 import java.util.ArrayList;
 
+import com.jogamp.newt.opengl.GLWindow;
+
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.core.PSurface;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
 import toxi.math.LinearInterpolation;
@@ -231,7 +234,7 @@ public class WMV_World
 	public void doSetup()
 	{
 		float fieldProgressInc = 100.f;
-		
+	
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
 		if (p.selectedLibrary && initialSetup && !creatingFields && !p.running)
 		{

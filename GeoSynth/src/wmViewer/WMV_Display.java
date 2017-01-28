@@ -1,11 +1,14 @@
 package wmViewer;
 import java.util.ArrayList;
 
+import com.jogamp.newt.event.KeyEvent;
+
 import g4p_controls.GButton;
 import g4p_controls.GCheckbox;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
+import g4p_controls.GWinData;
 //import damkjer.ocd.Camera;
 import processing.core.*;
 //import processing.data.FloatList;
@@ -20,6 +23,9 @@ class WMV_Display
 {
 	/* Classes */
 	public WMV_Window window;					// Main interaction window
+	
+	/* Window Modes */
+	public boolean fullscreen = true;
 	
 	/* Display Modes */
 	public boolean map = false;					// Display map only
@@ -1728,6 +1734,22 @@ class WMV_Display
 		
 	}
 	
+	void setFullScreen(boolean newState)
+	{
+		if(newState && !fullscreen)			// Switch to Fullscreen
+		{
+			if(!p.viewer.selection) window.mainSidebar.setVisible(false);	
+			else window.selectionSidebar.setVisible(false);
+		}
+		if(!newState && fullscreen)			// Switch to Window Size
+		{
+			if(!p.viewer.selection) window.mainSidebar.setVisible(true);	
+			else window.selectionSidebar.setVisible(true);
+		}
+		
+		fullscreen = newState;
+	}
+	
 	/**
 	 * Interesting effect
 	 * @param mapWidth
@@ -1775,7 +1797,17 @@ class WMV_Display
 		  		case "Restart":
 					p.p.restartWorldMediaViewer();
 		  			break;
+		  			
+		  		case "SelectionMode":
+					p.viewer.selection = true;
+					window.setupSelectionSidebar();
+		  			break;
 					
+		  		case "ExitSelectionMode":
+					p.viewer.selection = false;
+					window.setupMainSidebar();
+					break;
+
 				/* Time */
 		  		case "NextTime":
 		  			p.viewer.moveToNextTimeSegment(true, false);
@@ -1789,6 +1821,9 @@ class WMV_Display
 		  		case "NearestCluster":
 		  			p.viewer.moveToNearestCluster(false);
 		  			break;
+		  		case "RandomCluster":
+		  			p.viewer.moveToRandomCluster(true);
+		  			break;
 		  		case "LastCluster":
 //		  			p.viewer.moveToLastCluster(false);
 		  			break;
@@ -1798,6 +1833,7 @@ class WMV_Display
 		  		case "PreviousField":
 	  				p.viewer.teleportToField(-1);
 		  			break;
+		  			
 		  }
 //			if (key == '~')
 //			p.viewer.followMemory();
@@ -1868,6 +1904,8 @@ class WMV_Display
 	//
 		  
 		}
+
+	
 	public void handleToggleControlEvent(GToggleControl option, GEvent event) 
 	{
 		switch (option.tag)

@@ -16,15 +16,15 @@ public class WMV_Debug
 	public boolean main = true;					// Debug main WorldMediaViewer class
 	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean field = false;				// Debug WMV_Field class
-	public boolean time = true;
-	public boolean model = true;				// Debug WMV_Model class
-	public boolean cluster = true;				// Debug WMV_Cluster class
+	public boolean time = false;
+	public boolean model = false;				// Debug WMV_Model class
+	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean display = false;				// Debug WMV_Display class
 	public boolean viewable = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
-	public boolean metadata = true;			// Debug WMV_Metadata class
+	public boolean metadata = false;			// Debug WMV_Metadata class
 	public boolean stitching = false;			// Debug WMV_Stitcher class
 
 	/* Memory */

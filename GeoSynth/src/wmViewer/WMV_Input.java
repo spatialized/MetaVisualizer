@@ -34,7 +34,7 @@ public class WMV_Input
 	 * @param key Key that was pressed
 	 * Respond to user key presses
 	 */
-	void handleKeyPressed(char key)
+	void handleKeyPressed(char key, int keyCode)
 	{
 		/* General */
 		if (key == ' ') 
@@ -188,22 +188,22 @@ public class WMV_Input
 
 			if (key == PApplet.CODED) 					
 			{
-				if (p.p.keyCode == PApplet.LEFT) 
+				if (keyCode == PApplet.LEFT) 
 					p.viewer.rotateX(-1);
 
-				if (p.p.keyCode == PApplet.RIGHT) 
+				if (keyCode == PApplet.RIGHT) 
 					p.viewer.rotateX(1);
 
-				if (shiftKey && p.p.keyCode == PApplet.LEFT) 
+				if (shiftKey && keyCode == PApplet.LEFT) 
 					p.display.mapLeftEdge -= 10.f;
 
-				if (shiftKey && p.p.keyCode == PApplet.RIGHT) 
+				if (shiftKey && keyCode == PApplet.RIGHT) 
 					p.display.mapLeftEdge += 10.f;
 
-				if (shiftKey && p.p.keyCode == PApplet.DOWN) 
+				if (shiftKey && keyCode == PApplet.DOWN) 
 					p.display.mapTopEdge += 10.f;
 
-				if (shiftKey && p.p.keyCode == PApplet.UP) 
+				if (shiftKey && keyCode == PApplet.UP) 
 					p.display.mapTopEdge -= 10.f;
 			}
 		}
@@ -215,7 +215,7 @@ public class WMV_Input
 		{
 			if (key == PApplet.CODED) 					
 			{
-				if (p.p.keyCode == PApplet.LEFT) 
+				if (keyCode == PApplet.LEFT) 
 				{
 					p.display.displayCluster--;
 					if(p.display.displayCluster < 0)
@@ -234,7 +234,7 @@ public class WMV_Input
 					}
 				}
 
-				if (p.p.keyCode == PApplet.RIGHT) 
+				if (keyCode == PApplet.RIGHT) 
 				{
 					p.display.displayCluster++;
 					if( p.display.displayCluster >= p.getFieldClusters().size())
@@ -314,13 +314,14 @@ public class WMV_Input
 			if (key == 'c') 									// Move DOWN
 				p.viewer.startMoveYTransition(1);
 
-			if (key == 'A') 									// Move to next location 
-				p.viewer.moveToNextLocation();
-
-			if (key == 'j') 
-				p.viewer.moveToRandomCluster(true);					// Move to random cluster
+			if (key == 'A') 									// Move to next location  -- Not working
+				p.display.setFullScreen(!p.display.fullscreen);
+//				p.viewer.moveToNextLocation();
 
 			if (key == 'J') 
+				p.viewer.moveToRandomCluster(true);					// Move to random cluster
+
+			if (key == 'j') 
 				p.viewer.moveToRandomCluster(false);				// Jump (teleport) to random cluster
 
 			if (key == 'I')
@@ -686,29 +687,29 @@ public class WMV_Input
 			if(!p.display.inDisplayView())
 			{
 				/* Navigation */
-				if (p.p.keyCode == PApplet.LEFT) 
+				if (keyCode == PApplet.LEFT) 
 					p.viewer.rotateX(-1);
 
-				if (p.p.keyCode == PApplet.RIGHT) 
+				if (keyCode == PApplet.RIGHT) 
 					p.viewer.rotateX(1);
 				
-				if (p.p.keyCode == PApplet.UP) 
+				if (keyCode == PApplet.UP) 
 					p.viewer.rotateY(-1);
 				
-				if (p.p.keyCode == PApplet.DOWN) 
+				if (keyCode == PApplet.DOWN) 
 					p.viewer.rotateY(1);
 				
 				/* Time */
-				if (shiftKey && p.p.keyCode == PApplet.UP) 
+				if (shiftKey && keyCode == PApplet.UP) 
 					p.incrementTime();
 
-				if (shiftKey && p.p.keyCode == PApplet.DOWN) 
+				if (shiftKey && keyCode == PApplet.DOWN) 
 					p.decrementTime();
 				
-				if (shiftKey && p.p.keyCode == PApplet.LEFT) 
+				if (shiftKey && keyCode == PApplet.LEFT) 
 					p.decrementCycleLength();
 
-				if (shiftKey && p.p.keyCode == PApplet.RIGHT) 
+				if (shiftKey && keyCode == PApplet.RIGHT) 
 					p.incrementCycleLength();
 			}
 			else
@@ -717,14 +718,14 @@ public class WMV_Input
 				{
 					if(p.hierarchical)
 					{
-						if (p.p.keyCode == PApplet.UP) 
+						if (keyCode == PApplet.UP) 
 						{
 							int clusterDepth = p.getCurrentField().model.clusterDepth + 1;
 							if(clusterDepth <= p.getCurrentField().model.deepestLevel)
 								p.getCurrentField().model.setDendrogramDepth( clusterDepth );
 						}
 
-						if (p.p.keyCode == PApplet.DOWN) 
+						if (keyCode == PApplet.DOWN) 
 						{
 							int clusterDepth = p.getCurrentField().model.clusterDepth - 1;
 							if(clusterDepth >= p.getCurrentField().model.minClusterDepth)
@@ -733,7 +734,7 @@ public class WMV_Input
 					}
 					else
 					{
-						if (p.p.keyCode == PApplet.LEFT) 		
+						if (keyCode == PApplet.LEFT) 		
 						{
 							p.getCurrentField().model.clusterRefinement -= 10;
 							float populationFactor = p.getCurrentField().model.clusterPopulationFactor;
@@ -747,7 +748,7 @@ public class WMV_Input
 							else p.getCurrentField().model.clusterRefinement += 10;
 						}
 
-						if (p.p.keyCode == PApplet.RIGHT) 	
+						if (keyCode == PApplet.RIGHT) 	
 						{
 							p.getCurrentField().model.clusterRefinement += 10;
 							float populationFactor = p.getCurrentField().model.clusterPopulationFactor;
@@ -761,7 +762,7 @@ public class WMV_Input
 							else p.getCurrentField().model.clusterRefinement -= 10;
 						}
 
-						if (p.p.keyCode == PApplet.DOWN) 		
+						if (keyCode == PApplet.DOWN) 		
 						{
 							int refinementAmount = p.getCurrentField().model.clusterRefinement;
 							p.getCurrentField().model.clusterPopulationFactor -= 1.f;
@@ -775,7 +776,7 @@ public class WMV_Input
 							else p.getCurrentField().model.clusterPopulationFactor += 1.f;
 						}
 
-						if (p.p.keyCode == PApplet.UP) 	
+						if (keyCode == PApplet.UP) 	
 						{
 							int refinementAmount = p.getCurrentField().model.clusterRefinement;
 							p.getCurrentField().model.clusterPopulationFactor += 1.f;
@@ -792,11 +793,11 @@ public class WMV_Input
 				}
 			}
 			
-			if (p.p.keyCode == PApplet.SHIFT) {
+			if (keyCode == PApplet.SHIFT) {
 				shiftKey = true;
 			}
 			
-			if (p.p.keyCode == PApplet.ALT) 
+			if (keyCode == PApplet.ALT) 
 				optionKey = true;
 		}
 	}
@@ -805,7 +806,7 @@ public class WMV_Input
 	 * handleKeyReleased()
 	 * Respond to user key releases
 	 */
-	void handleKeyReleased(char key)
+	void handleKeyReleased(char key, int keyCode)
 	{
 		/* Navigation */
 		if (key == 'a') 
@@ -823,17 +824,17 @@ public class WMV_Input
 
 		/* Arrow and Shift Keys */
 		if (key == PApplet.CODED) {
-			if (p.p.keyCode == PApplet.LEFT) 
+			if (keyCode == PApplet.LEFT) 
 				p.viewer.stopRotateXTransition();
-			if (p.p.keyCode == PApplet.RIGHT) 
+			if (keyCode == PApplet.RIGHT) 
 				p.viewer.stopRotateXTransition();
-			if (p.p.keyCode == PApplet.UP) 
+			if (keyCode == PApplet.UP) 
 				p.viewer.stopRotateYTransition();
-			if (p.p.keyCode == PApplet.DOWN) 
+			if (keyCode == PApplet.DOWN) 
 				p.viewer.stopRotateYTransition();
-			if (p.p.keyCode == PApplet.SHIFT) 
+			if (keyCode == PApplet.SHIFT) 
 				shiftKey = false;
-			if (p.p.keyCode == PApplet.ALT) 
+			if (keyCode == PApplet.ALT) 
 				optionKey = false;
 		}
 	}

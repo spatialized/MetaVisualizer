@@ -17,15 +17,20 @@ import java.io.*;
 import javax.swing.JFrame;
 
 import com.jogamp.*;
+import com.jogamp.newt.event.KeyEvent;
+import com.jogamp.newt.opengl.GLWindow;
 
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
+import g4p_controls.GWinData;
+import g4p_controls.GWindow;
 import processing.awt.*;
 //import processing.awt.PSurfaceAWT;
 //import g4p_controls.GWinData;
 import processing.core.*;
+import processing.opengl.PSurfaceJOGL;
 //import processing.event.MouseEvent;
 import processing.video.Movie;
 
@@ -35,6 +40,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 {
 	/* System Status */
 	public boolean running = false;				// Is simulation running?
+	public boolean working = false;
 	public boolean startup = true;				// Startup frame
 	public boolean exit = false;				// System message to exit the program
 	public boolean selectedLibrary = false;		// Has user selected a library folder?
@@ -66,8 +72,9 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void setup()
 	{
-		surface.setLocation(310, 45);
-//		surface.setVisible(false);
+//		setSurfaceLocation(20, 20);
+		surface.setResizable(false);
+//		surface.setAlwaysOnTop(true);		// No effect?
 
 		world = new WMV_World(this);
 		metadata = new WMV_Metadata(this);
@@ -87,8 +94,18 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.display.showStartup();		/* Startup screen */
 			if (startup) startup = false;	
 		}
-		else if(!running) world.doSetup();		/* Run setup */
-		else world.run();						/* Run program */
+		else if(!running)
+		{        
+//			GLWindow glWindow = (GLWindow)surface.getNative();
+//			glWindow.setAlwaysOnTop(true);
+//			glWindow.setUndecorated(true);
+			world.doSetup();									/* Run setup */
+		}
+		else 
+		{
+			if(!working)
+				world.run();						/* Run program */
+		}
 	}
 	
 	/**
@@ -96,10 +113,9 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void settings() 
 	{
-//		size(4000, 3000, processing.core.PConstants.P3D);		// Large
 //		size(1980, 1080, processing.core.PConstants.P3D);
-//		size(1600, 900, processing.core.PConstants.P3D);		// MacBook Pro
-		size(1360, 940, processing.core.PConstants.P3D);		// MacBook Pro
+		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
+//		size(1360, 940, processing.core.PConstants.P3D);		// MacBook Pro
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
 	}
 	
@@ -229,7 +245,10 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void keyPressed() 
 	{
-		world.input.handleKeyPressed(key);
+		PApplet.println("key:"+key);
+		if (keyCode == PApplet.LEFT) 
+			PApplet.println("LEFT");
+		world.input.handleKeyPressed(key, keyCode);
 	}
 
 	/**
@@ -237,7 +256,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void keyReleased() 
 	{
-		world.input.handleKeyReleased(key);
+		world.input.handleKeyReleased(key, keyCode);
 	}
 
 	/**
@@ -281,7 +300,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.input.handleMousePressed(mouseX, mouseY);
 	}
 
-
 	public void mouseReleased() {
 		if(world.viewer.mouseNavigation)
 			world.input.handleMouseReleased(mouseX, mouseY);
@@ -290,6 +308,27 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	public void mouseClicked() {
 		if(world.viewer.mouseNavigation)
 			world.input.handleMouseClicked(mouseX, mouseY);
+	}
+	
+	public void sidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+//		PApplet.println("sidebarKey:"+keyevent.getKey());
+//		PApplet.println("sidebarKeyCode:"+keyevent.getKeyCode());
+		if (keyCode == PApplet.LEFT) 
+			PApplet.println("LEFT");
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+	}
+
+	public void selectionSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		PApplet.println("selectionSidebarKey:"+keyevent.getKey());
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void handleButtonEvents(GButton button, GEvent event) { 
@@ -304,8 +343,8 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	{ 
 		world.display.handleSliderEvent(slider, event);
 	}
+
 	/**
-	 * gpsTrackSelected()
 	 * Called when user selects a GPS track file
 	 * @param selection Selected GPS Track file
 	 */
@@ -314,6 +353,20 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		world.viewer.loadGPSTrack(selection);
 	}
 	
-		
+	public void setSurfaceSize(int newWidth, int newHeight)
+	{
+//		surface.setResizable(true);
+		surface.setSize(newWidth, newHeight);
+//		surface.setResizable(false);
+	}
 
+//	public void setSurfaceLocation(int newX, int newY)
+//	{
+//		surface.setLocation(newX, newY);
+//	}
+	
+	public void setSurfaceVisible(boolean newState)
+	{
+		surface.setVisible(newState);
+	}
 }

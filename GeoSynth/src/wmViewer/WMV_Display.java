@@ -1807,6 +1807,15 @@ class WMV_Display
 					p.viewer.selection = false;
 					window.setupMainSidebar();
 					break;
+				
+				/* Graphics */
+		  		case "ZoomIn":
+					p.viewer.startZoomTransition(-1);
+					break;
+
+		  		case "ZoomOut":
+					p.viewer.startZoomTransition(1);
+					break;
 
 				/* Time */
 		  		case "NextTime":
@@ -1833,7 +1842,15 @@ class WMV_Display
 		  		case "PreviousField":
 	  				p.viewer.teleportToField(-1);
 		  			break;
-		  			
+		  		
+		  		/* Output */
+		  		case "ExportImage":
+					if(!p.outputFolderSelected) p.p.selectFolder("Select an output folder:", "outputFolderSelected");
+					p.saveImage();
+					break;
+		  		case "OutputFolder":
+					p.p.selectFolder("Select an output folder:", "outputFolderSelected");
+					break;
 		  }
 //			if (key == '~')
 //			p.viewer.followMemory();
@@ -1905,32 +1922,58 @@ class WMV_Display
 		  
 		}
 
-	
+	/**
+	 * Handles checkboxes
+	 * @param option 
+	 * @param event
+	 */
 	public void handleToggleControlEvent(GToggleControl option, GEvent event) 
 	{
 		switch (option.tag)
 		{
 			case "TimeFading":
+				p.timeFading = option.isSelected();
+//				p.timeFading = !p.timeFading;
 				break;
 			case "TimeTeleport":
+//				p.timeFading = option.isSelected();
 				break;
 			case "FollowTeleport":
+//				p.timeFading = option.isSelected();
 				break;
 			case "FadeEdges":
+				p.blurEdges = option.isSelected();
 				break;
 			case "HideImages":
+				PApplet.println("option.isSelected():"+option.isSelected());
+				PApplet.println("p.getCurrentField().hideImages::"+p.getCurrentField().hideImages);
+				if(!option.isSelected() && p.getCurrentField().hideImages)
+					p.getCurrentField().showImages();
+				else if(option.isSelected() && !p.getCurrentField().hideImages)
+					p.getCurrentField().hideImages();
 				break;
 			case "HideVideos":
+				if(!option.isSelected() && p.getCurrentField().hideVideos)
+					p.getCurrentField().showVideos();
+				else if(option.isSelected() && !p.getCurrentField().hideVideos)
+					p.getCurrentField().hideVideos();
 				break;
 			case "HidePanoramas":
+				if(!option.isSelected() && p.getCurrentField().hidePanoramas)
+					p.getCurrentField().showPanoramas();
+				else if(option.isSelected() && !p.getCurrentField().hidePanoramas)
+					p.getCurrentField().hidePanoramas();
 				break;
 			case "AlphaMode":
+				p.alphaMode = option.isSelected();
 				break;
 			case "OrientationMode":
 				break;
 			case "AngleFading":
+				p.angleFading = option.isSelected();
 				break;
 			case "AngleThinning":
+				p.angleThinning = option.isSelected();
 				break;
 		}
 	}

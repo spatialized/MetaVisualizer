@@ -410,10 +410,12 @@ public class WMV_Input
 			}
 			
 			if (key == '~')
-				p.viewer.followMemory();
+				if(!p.viewer.isFollowing())
+					p.viewer.followMemory();
 
 			if (optionKey && key == 'g')
-				p.viewer.followGPSTrack();
+				if(!p.viewer.isFollowing())
+					p.viewer.followGPSTrack();
 			
 			if (!optionKey && key == '>')
 			{

@@ -9,7 +9,7 @@ import processing.core.PVector;
 
 /**********************************************
  * @author davidgordon
- * Represents a 360 degree panorama in virtual space
+ * A 360-degree panorama in 3D virtual space
  */
 public class WMV_Panorama extends WMV_Viewable 
 {

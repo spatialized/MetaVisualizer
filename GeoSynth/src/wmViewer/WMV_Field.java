@@ -19,9 +19,9 @@ public class WMV_Field
 	String name;
 
 	/* Graphics */
-	public final int maxVisiblePhotos = 600;				// Maximum visible images at one time
-	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time
-	public final int maxVisibleVideos = 12;					// Maximum visible videos at one time
+	public final int maxVisiblePhotos = 50;				// Maximum visible images at one time
+	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
+	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
 	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
 	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas and currently seen
 	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;

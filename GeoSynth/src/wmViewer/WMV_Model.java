@@ -17,7 +17,7 @@ import processing.data.IntList;
 
 /******************
  * @author davidgordon
- * Model of current environment based on metadata
+ * Spatial and temporal model of a 3D virtual environment
  */
 
 public class WMV_Model

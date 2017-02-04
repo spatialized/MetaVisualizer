@@ -269,9 +269,12 @@ public class WMV_World
 			if( initializationField >= fields.size() )
 				fieldsCreated = true;
 		}
-
+		
 		if (fieldsCreated && initialSetup && !p.running)
+		{
+			display.setupSidebar();									// Setup sidebar window
 			finishSetup();
+		}
 
 		/* Once library folder is selected */
 		if(p.selectedLibrary && !initialSetup && !interactive && !p.running)
@@ -283,7 +286,7 @@ public class WMV_World
 		
 		/* Running interactive clustering */
 		if(interactive && !startInteractive && !p.running)
-			runInteractiveClustering();							// Start interactive clustering mode 
+			runInteractiveClustering();							// Start interactive clustering mode
 	}
 	
 	/**

@@ -245,7 +245,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void keyPressed() 
 	{
-		PApplet.println("key:"+key);
 		if (keyCode == PApplet.LEFT) 
 			PApplet.println("LEFT");
 		world.input.handleKeyPressed(key, keyCode);

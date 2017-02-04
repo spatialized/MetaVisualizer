@@ -6,6 +6,7 @@ import com.jogamp.newt.event.KeyEvent;
 import g4p_controls.GButton;
 import g4p_controls.GCheckbox;
 import g4p_controls.GEvent;
+import g4p_controls.GOption;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
@@ -159,7 +160,10 @@ class WMV_Display
 		largePointSize = 0.0000032f * p.p.width;
 		hugePointSize = 0.0000039f * p.p.width;
 		cameraPointSize = 0.004f * p.p.width;
-		
+	}
+
+	void setupSidebar()
+	{
 		window = new WMV_Window(this);				// Setup and display interaction window
 	}
 
@@ -1842,7 +1846,39 @@ class WMV_Display
 		  		case "PreviousField":
 	  				p.viewer.teleportToField(-1);
 		  			break;
-		  		
+		  		case "ImportGPSTrack":
+					p.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
+					break;
+		  		case "FollowTimeline":
+					if(!p.viewer.isFollowing())
+						p.viewer.followTimeline(true, false);
+		  			break;
+		  		case "FollowGPSTrack":
+					if(!p.viewer.isFollowing())
+						p.viewer.followGPSTrack();
+		  			break;
+		  		case "FollowMemory":
+					if(!p.viewer.isFollowing())
+						p.viewer.followMemory();
+		  			break;
+		  	
+		  		/* Model */
+		  		case "SubjectDistanceDown":
+					p.getCurrentField().fadeObjectDistances(0.85f);
+		  			break;
+
+		  		case "SubjectDistanceUp":
+					p.getCurrentField().fadeObjectDistances(1.176f);
+		  			break;
+
+				/* Memory */
+		  		case "SaveLocation":
+					p.viewer.addPlaceToMemory();
+		  			break;
+		  		case "ClearMemory":
+					p.viewer.clearMemory();
+		  			break;
+		 
 		  		/* Output */
 		  		case "ExportImage":
 					if(!p.outputFolderSelected) p.p.selectFolder("Select an output folder:", "outputFolderSelected");
@@ -1968,6 +2004,7 @@ class WMV_Display
 				p.alphaMode = option.isSelected();
 				break;
 			case "OrientationMode":
+				p.orientationMode = !p.orientationMode;
 				break;
 			case "AngleFading":
 				p.angleFading = option.isSelected();

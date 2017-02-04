@@ -6,7 +6,7 @@ import processing.core.*;
 
 /************************************
  * @author davidgordon
- * A rectangular image in virtual space
+ * A rectangular image in 3D virtual space
  */
 
 class WMV_Image extends WMV_Viewable						 

@@ -2657,58 +2657,6 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * lookForImages()
-	 * Turn camera side to side, at different elevation angles, until images in range become visible
-	 */
-	public void lookForImages()
-	{
-		stopAllTransitions();										// Stop all current transitions
-		lookingStartAngle = getOrientation().x;
-		lookingStartFrameCount = p.p.frameCount;
-		lookingDirection = Math.round(p.p.random(1)) == 1 ? 1 : -1;		// Choose random direction to look
-		lookingLength = PApplet.round(2.f*PApplet.PI / rotateIncrement);
-		turnXToAngle(lookingStartAngle, lookingDirection);
-		looking = true;
-	}	
-	
-	/**
-	 * updateLooking()
-	 * Update turning to look for images 
-	 */
-	private void updateLooking()
-	{
-		if(looking)	// If looking for images
-		{
-			if( mediaAreVisible( true ) )				// Check whether any images are visible and centered
-			{
-				if(p.p.debug.viewer)
-				p.display.message("Finished rotating to look, found image(s) ");
-				stopAllTransitions();			// Also sets lookingForImages to false
-			}
-			else
-			{
-				lastLookFrame = p.p.frameCount;
-
-				if ( p.p.frameCount - lookingStartFrameCount > lookingLength )
-				{
-					lookingRotationCount++;							// Record camera rotations while looking for images
-					if(p.p.debug.viewer)
-					p.display.message("Rotated to look "+lookingRotationCount+" times...");
-					lookingStartFrameCount = p.p.frameCount;		// Restart the count
-				}
-
-				if (lookingRotationCount > 2) 
-				{
-					if(p.p.debug.viewer)
-						p.display.message("Couldn't see any images. Moving to next nearest cluster...");
-					stopAllTransitions();							// Sets lookingForImages and all transitions to false
-					moveToNearestCluster(false);
-				}
-			}
-		}
-	}
-	
-	/**
 	 * followTimeline()
 	 * Revisit all places stored in memory
 	 */
@@ -3160,6 +3108,59 @@ public class WMV_Viewer
 //				p.getCurrentField().selectedVideo = newSelected;	
 			if(newSelected != -1)
 				p.getCurrentField().videos.get(newSelected).setSelected(select);
+		}
+	}
+	
+
+	/**
+	 * lookForImages()
+	 * Turn camera side to side, at different elevation angles, until images in range become visible
+	 */
+	public void lookForImages()
+	{
+		stopAllTransitions();										// Stop all current transitions
+		lookingStartAngle = getOrientation().x;
+		lookingStartFrameCount = p.p.frameCount;
+		lookingDirection = Math.round(p.p.random(1)) == 1 ? 1 : -1;		// Choose random direction to look
+		lookingLength = PApplet.round(2.f*PApplet.PI / rotateIncrement);
+		turnXToAngle(lookingStartAngle, lookingDirection);
+		looking = true;
+	}	
+	
+	/**
+	 * updateLooking()
+	 * Update turning to look for images 
+	 */
+	private void updateLooking()
+	{
+		if(looking)	// If looking for images
+		{
+			if( mediaAreVisible( true ) )				// Check whether any images are visible and centered
+			{
+				if(p.p.debug.viewer)
+				p.display.message("Finished rotating to look, found image(s) ");
+				stopAllTransitions();			// Also sets lookingForImages to false
+			}
+			else
+			{
+				lastLookFrame = p.p.frameCount;
+
+				if ( p.p.frameCount - lookingStartFrameCount > lookingLength )
+				{
+					lookingRotationCount++;							// Record camera rotations while looking for images
+					if(p.p.debug.viewer)
+					p.display.message("Rotated to look "+lookingRotationCount+" times...");
+					lookingStartFrameCount = p.p.frameCount;		// Restart the count
+				}
+
+				if (lookingRotationCount > 2) 
+				{
+					if(p.p.debug.viewer)
+						p.display.message("Couldn't see any images. Moving to next nearest cluster...");
+					stopAllTransitions();							// Sets lookingForImages and all transitions to false
+					moveToNearestCluster(false);
+				}
+			}
 		}
 	}
 

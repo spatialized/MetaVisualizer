@@ -82,7 +82,7 @@ public class WMV_Cluster
 	private float highVideoLongitude = -1000000, lowVideoLongitude = 1000000, highVideoLatitude = -1000000,		// - NEED TO CALCULATE!
 			lowVideoLatitude = 1000000, highVideoAltitude = -1000000, lowVideoAltitude = 1000000;
 	
-	private float highTime, lowTime, highDate, lowDate;
+	public float highTime, lowTime, highDate, lowDate;
 	public float highImageTime = -1000000, lowImageTime = 1000000, 
 		  highPanoramaTime = -1000000, lowPanoramaTime = 1000000, 
 		  highVideoTime = -1000000, lowVideoTime = 1000000; 	
@@ -910,6 +910,8 @@ public class WMV_Cluster
 	{
 		if(timeline.size() > 0)
 			return timeline.get(0).getID();
+		else if(timelines.size() > 0)
+			return getFirstTimeSegmentForDate(dateline.get(0).getCenter()).getID();
 		else
 			return -1;
 	}
@@ -986,8 +988,8 @@ public class WMV_Cluster
 	 */
 	void createDateline()
 	{
-		FloatList mediaDates = new FloatList();							// List of times to analyze
-		IntList dateSegments;														// Temporary time point list for finding duplicates
+		FloatList mediaDates = new FloatList();										// List of times to analyze
+//		IntList dateSegments;														// Temporary time point list for finding duplicates
 
 		/* Get times of all media of all types in this cluster */
 		for(int i : images) mediaDates.append( p.images.get(i).time.getDate() );
@@ -1236,7 +1238,7 @@ public class WMV_Cluster
 		if(timeFading && !dateFading && p.p.p.frameCount % timeUnitLength == 0)
 		{
 			currentTime++;															// Increment cluster time
-
+//			PApplet.println("cluster id:"+getID()+" currentTime:"+currentTime);
 			if(currentTime > timeCycleLength)
 				currentTime = 0;
 

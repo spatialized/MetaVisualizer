@@ -35,7 +35,7 @@ public class WMV_World
 	WMV_Viewer viewer;				// Handles viewer location
 	
 	/* Media */
-	private ArrayList<WMV_Field> fields;					// Large geographical area containing media for simulation
+	private ArrayList<WMV_Field> fields;				// List of fields, i.e. large geographical areas for 3D display
 	
 	/* Stitching */
 	String stitchingPath;
@@ -52,9 +52,9 @@ public class WMV_World
 	public boolean startInteractive = false;			// Start user clustering
 
 	/* Time */
+	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
 	public boolean timeFading = false;					// Does time affect media brightness? 
 	public boolean dateFading = false;					// Does date affect media brightness? 
-	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
 	public boolean paused = false;						// Time is paused
 
 	public boolean showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?

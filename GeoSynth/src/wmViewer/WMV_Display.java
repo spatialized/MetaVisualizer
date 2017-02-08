@@ -179,62 +179,103 @@ class WMV_Display
 			displayStartupMessages();														// Draw startup messages
 			progressBar();
 		}
-		else if( map || control || info || about || cluster || p.interactive )
+		else
 		{
-			p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-			p.p.background(0.f);																// Hide 3D view
-
-			if(map)
+			if(window.mainSidebar.isVisible())
 			{
-				drawLargeMap();
-				drawTimelines();
-				drawDatelines();
+				if(p.timeFading)
+				{
+					if(p.timeMode == 0)			// Need to fix cluster date / time structures first!
+					{
+//						WMV_Cluster curCluster = p.getCurrentCluster();
+//						int firstTimeID = curCluster.getFirstTimeSegment();
+//						int dateCount = 1;
+//						
+//						if(curCluster.dateline != null)
+//							dateCount = curCluster.dateline.size();
+//						
+//						PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
+//						PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
+//						float fTime = (float) p.getCurrentCluster().currentTime / (float) p.getCurrentCluster().timeCycleLength;
+//						PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
+//						float fHour = fTime * 24.f;
+//						int hour = (int)(fHour);
+//						int min = PApplet.round((fHour - hour) * 60);
+//						window.lblCurrentTime.setText(hour+":"+min);
+//						PApplet.println("fHour:"+fHour+"  fHour - hour:"+(fHour - hour));
+//						PApplet.println("fTime:"+fTime+" Time = "+hour+":"+min);
+					}
+					else
+					{
+						float fTime = (float) p.currentTime / (float) p.timeCycleLength;
+//						PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
+						float fHour = fTime * 24.f;
+						int hour = (int)(fHour);
+						int min = PApplet.round((fHour - hour) * 60);
+						window.lblCurrentTime.setText((hour==0?"00":hour)+":"+(min==0?"00":min));
+//						PApplet.println("fHour:"+fHour+"  fHour - hour:"+(fHour - hour));
+//						PApplet.println("fTime:"+fTime+" Time = "+hour+":"+min);
+					}
+				}
 			}
-
-			if(info)
-				displayStatistics();
-
-			if(cluster)
-				displayClusterStats();
 			
-			if(control)
-				displayControls();
-
-			if(p.interactive)
+			if( map || control || info || about || cluster || p.interactive )
 			{
-				displayInteractiveClustering();
+				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
+				p.p.background(0.f);																// Hide 3D view
+
+				if(map)
+				{
+					drawLargeMap();
+					drawTimelines();
+					drawDatelines();
+				}
+
+				if(info)
+					displayStatistics();
+
+				if(cluster)
+					displayClusterStats();
+
+				if(control)
+					displayControls();
+
+				if(p.interactive)
+				{
+					displayInteractiveClustering();
+				}
 			}
-		}
-		else if( mapOverlay || controlOverlay || infoOverlay || clusterOverlay || messages.size() > 0 || metadata.size() > 0 )
-		{
-			p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-			
-			if(mapOverlay)
+			else if( mapOverlay || controlOverlay || infoOverlay || clusterOverlay || messages.size() > 0 || metadata.size() > 0 )
 			{
-				drawLargeMap();
-				drawTimelines();
-			}
+				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 
-			if(infoOverlay)
-				displayStatistics();
+				if(mapOverlay)
+				{
+					drawLargeMap();
+					drawTimelines();
+				}
 
-			if(clusterOverlay)
-				displayClusterStats();				
+				if(infoOverlay)
+					displayStatistics();
 
-			if(controlOverlay)
-				displayControls();
-			
-			if(messages.size() > 0)
-				displayMessages();
+				if(clusterOverlay)
+					displayClusterStats();				
 
-			if(p.showMetadata && metadata.size() > 0 && p.viewer.selection)	
-				displayMetadata();
+				if(controlOverlay)
+					displayControls();
 
-//			if(aboutOverlay)
+				if(messages.size() > 0)
+					displayMessages();
 
-			if((map || mapOverlay) && drawForceVector)						// Draw force vector
-			{
-				drawForceVector();
+				if(p.showMetadata && metadata.size() > 0 && p.viewer.selection)	
+					displayMetadata();
+
+				//			if(aboutOverlay)
+
+				if((map || mapOverlay) && drawForceVector)						// Draw force vector
+				{
+					drawForceVector();
+				}
 			}
 		}
 	}

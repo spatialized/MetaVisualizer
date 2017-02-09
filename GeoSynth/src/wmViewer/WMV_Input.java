@@ -9,7 +9,7 @@ import processing.core.*;
 
 public class WMV_Input
 {
-	public boolean wasTimeFading, wasDateFading;
+	public boolean wasTimeFading;
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
 	int mouseClickedX = 0, mouseClickedY = 0;
@@ -25,7 +25,7 @@ public class WMV_Input
 
 	WMV_Input(WMV_World parent) {
 		p = parent;
-		wasDateFading = p.dateFading;
+//		wasDateFading = p.dateFading;
 		wasTimeFading = p.timeFading;
 	}
 
@@ -290,8 +290,8 @@ public class WMV_Input
 			if (!optionKey && key == 'd') 
 				p.viewer.startMoveXTransition(1);
 
-			if (key == 'D') 
-				p.dateFading = !p.dateFading;
+//			if (key == 'D') 
+//				p.dateFading = !p.dateFading;
 
 			if (key == 'T') 
 				p.timeFading = !p.timeFading;
@@ -370,17 +370,17 @@ public class WMV_Input
 				if (key == 'B')						// Teleport to previous cluster time segment
 					p.viewer.moveToPreviousTimeSegment(false, true);
 
-				if (key == 'l')						// Teleport to next date segment
-					p.viewer.moveToNextDateSegment(true, true);
-
-				if (key == 'k')						// Teleport to previous date segment
-					p.viewer.moveToPreviousDateSegment(true, true);
-
-				if (key == 'L')						// Teleport to next cluster date segment
-					p.viewer.moveToNextDateSegment(false, true);
-
-				if (key == 'K')						// Teleport to previous cluster date segment
-					p.viewer.moveToPreviousDateSegment(false, true);
+//				if (key == 'l')						// Teleport to next date segment
+//					p.viewer.moveToNextDateSegment(true, true);
+//
+//				if (key == 'k')						// Teleport to previous date segment
+//					p.viewer.moveToPreviousDateSegment(true, true);
+//
+//				if (key == 'L')						// Teleport to next cluster date segment
+//					p.viewer.moveToNextDateSegment(false, true);
+//
+//				if (key == 'K')						// Teleport to previous cluster date segment
+//					p.viewer.moveToPreviousDateSegment(false, true);
 			}
 			else
 			{
@@ -396,17 +396,17 @@ public class WMV_Input
 				if (key == 'B')						// Move to previous cluster time segment
 					p.viewer.moveToPreviousTimeSegment(false, false);
 
-				if (key == 'l')						// Move to current date segment
-					p.viewer.moveToNextDateSegment(true, false);
-
-				if (key == 'k')						// Move to current date segment
-					p.viewer.moveToPreviousDateSegment(true, false);
-
-				if (key == 'L')						// Move to next cluster date segment
-					p.viewer.moveToNextDateSegment(false, false);
-
-				if (key == 'K')						// Move to previous cluster date segment
-					p.viewer.moveToPreviousDateSegment(false, false);
+//				if (key == 'l')						// Move to current date segment
+//					p.viewer.moveToNextDateSegment(true, false);
+//
+//				if (key == 'k')						// Move to current date segment
+//					p.viewer.moveToPreviousDateSegment(true, false);
+//
+//				if (key == 'L')						// Move to next cluster date segment
+//					p.viewer.moveToNextDateSegment(false, false);
+//
+//				if (key == 'K')						// Move to previous cluster date segment
+//					p.viewer.moveToPreviousDateSegment(false, false);
 			}
 			
 			if (key == '~')
@@ -423,20 +423,20 @@ public class WMV_Input
 					p.viewer.followTimeline(true, false);
 			}
 
-			if (optionKey && key == '.')
-			{
-				if(!p.viewer.isFollowing())
-					p.viewer.followDateline(true, false);
-			}
+//			if (optionKey && key == '.')
+//			{
+//				if(!p.viewer.isFollowing())
+//					p.viewer.followDateline(true, false);
+//			}
 			
-			if (!optionKey && key == '.')
-			{
-				if(p.viewer.isFollowing())			// Check this
-				{
-					p.viewer.followTimeline(false, false);
-					p.viewer.followDateline(false, false);
-				}
-			}
+//			if (!optionKey && key == '.')
+//			{
+//				if(p.viewer.isFollowing())			// Check this
+//				{
+//					p.viewer.followTimeline(false, false);
+////					p.viewer.followDateline(false, false);
+//				}
+//			}
 
 			if (key == 'u') 		// Teleport to nearest cluster with video
 				p.viewer.moveToNextCluster(true, 2);
@@ -509,10 +509,10 @@ public class WMV_Input
 					p.timeFading = !p.timeFading;
 				}
 
-				if (shiftKey && !optionKey && key == ' ') 
-				{
-					p.dateFading = !p.dateFading;
-				}
+//				if (shiftKey && !optionKey && key == ' ') 
+//				{
+//					p.dateFading = !p.dateFading;
+//				}
 
 				if (key == ')') {
 					float newAlpha = PApplet.constrain(p.alpha+15.f, 0.f, 255.f);

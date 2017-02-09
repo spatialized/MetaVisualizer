@@ -160,11 +160,11 @@ public class WMV_Panorama extends WMV_Viewable
 			brightness *= timeBrightnessFactor; 																			// Fade alpha based on time or date
 		}
 		
-		if(p.p.dateFading && time != null)
-		{
-			float dateBrightnessFactor = getDateBrightness();        
-			brightness *= dateBrightnessFactor; 																			// Fade alpha based on time or date
-		}
+//		if(p.p.dateFading && time != null)
+//		{
+//			float dateBrightnessFactor = getDateBrightness();        
+//			brightness *= dateBrightnessFactor; 																			// Fade alpha based on time or date
+//		}
 
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);	  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
 

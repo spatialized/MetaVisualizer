@@ -564,36 +564,36 @@ class WMV_Display
 			p.p.text("Cluster", x, y, hudDistance);
 			p.p.popMatrix();
 
-			float inc = p.p.width * 0.3f / c.clusterDatesHistogram.length;
-			int currentDate = (int)PApplet.map(p.currentDate, 0, p.dateCycleLength, 0, c.clusterDatesHistogram.length);
-			
-			for(int i=0; i<c.clusterDatesHistogram.length; i++)
-			{
-				float val = inc * PApplet.sqrt( c.clusterDatesHistogram[i] ) * 50.f / PApplet.sqrt( (p.getCurrentCluster().images.size() + 
-												p.getCurrentCluster().panoramas.size() + p.getCurrentCluster().videos.size() ) );
-				x = logoXOffset / 3.f + i * inc;
-
-				p.p.pushMatrix();
-				beginHUD();
-				p.p.translate(x, y, hudDistance);
-				p.p.box(inc, val, 0);
-				p.p.popMatrix();
-				
-				if(i == currentDate)					// Draw current date
-				{
-					p.p.fill(145, 255, 255, 255);
-					p.p.stroke(145, 255, 255, 255);
-					
-					p.p.pushMatrix();
-					beginHUD();
-					p.p.translate(x, y, hudDistance);
-					p.p.box(inc, 25.f, 0);
-					p.p.popMatrix();
-					
-					p.p.fill(55, 0, 255, 255);
-					p.p.stroke(55, 0, 255, 255);
-				}
-			}
+//			float inc = p.p.width * 0.3f / c.clusterDatesHistogram.length;
+//			int currentDate = (int)PApplet.map(p.currentDate, 0, p.dateCycleLength, 0, c.clusterDatesHistogram.length);
+//			
+//			for(int i=0; i<c.clusterDatesHistogram.length; i++)
+//			{
+//				float val = inc * PApplet.sqrt( c.clusterDatesHistogram[i] ) * 50.f / PApplet.sqrt( (p.getCurrentCluster().images.size() + 
+//												p.getCurrentCluster().panoramas.size() + p.getCurrentCluster().videos.size() ) );
+//				x = logoXOffset / 3.f + i * inc;
+//
+//				p.p.pushMatrix();
+//				beginHUD();
+//				p.p.translate(x, y, hudDistance);
+//				p.p.box(inc, val, 0);
+//				p.p.popMatrix();
+//				
+//				if(i == currentDate)					// Draw current date
+//				{
+//					p.p.fill(145, 255, 255, 255);
+//					p.p.stroke(145, 255, 255, 255);
+//					
+//					p.p.pushMatrix();
+//					beginHUD();
+//					p.p.translate(x, y, hudDistance);
+//					p.p.box(inc, 25.f, 0);
+//					p.p.popMatrix();
+//					
+//					p.p.fill(55, 0, 255, 255);
+//					p.p.stroke(55, 0, 255, 255);
+//				}
+//			}
 
 			if(p.p.debug.time)
 			{
@@ -622,36 +622,36 @@ class WMV_Display
 			p.p.text("Field", x, y, hudDistance);
 			p.p.popMatrix();
 
-			inc = p.p.width * 0.3f / c.fieldDatesHistogram.length;
-			currentDate = (int)PApplet.map(p.currentDate, 0, p.dateCycleLength, 0, c.fieldDatesHistogram.length);
-
-			for(int i=0; i<c.fieldDatesHistogram.length; i++)
-			{
-				float val = inc * PApplet.sqrt( c.fieldDatesHistogram[i] ) * 500.f / PApplet.sqrt( (p.getCurrentField().images.size() + 
-												p.getCurrentField().panoramas.size() + p.getCurrentField().videos.size() ) );
-				x = logoXOffset / 3.f + i * inc;
-
-				p.p.pushMatrix();
-				beginHUD();
-				p.p.translate(x, y, hudDistance);
-				p.p.box(inc, val, 0);
-				p.p.popMatrix();
-				
-				if(i == currentDate)					// Draw current date
-				{
-					p.p.fill(145, 255, 255, 255);
-					p.p.stroke(145, 255, 255, 255);
-					
-					p.p.pushMatrix();
-					beginHUD();
-					p.p.translate(x, y, hudDistance);
-					p.p.box(inc, 25.f, 0);
-					p.p.popMatrix();
-					
-					p.p.fill(55, 0, 255, 255);
-					p.p.stroke(55, 0, 255, 255);
-				}
-			}
+//			inc = p.p.width * 0.3f / c.fieldDatesHistogram.length;
+//			currentDate = (int)PApplet.map(p.currentDate, 0, p.dateCycleLength, 0, c.fieldDatesHistogram.length);
+//
+//			for(int i=0; i<c.fieldDatesHistogram.length; i++)
+//			{
+//				float val = inc * PApplet.sqrt( c.fieldDatesHistogram[i] ) * 500.f / PApplet.sqrt( (p.getCurrentField().images.size() + 
+//												p.getCurrentField().panoramas.size() + p.getCurrentField().videos.size() ) );
+//				x = logoXOffset / 3.f + i * inc;
+//
+//				p.p.pushMatrix();
+//				beginHUD();
+//				p.p.translate(x, y, hudDistance);
+//				p.p.box(inc, val, 0);
+//				p.p.popMatrix();
+//				
+//				if(i == currentDate)					// Draw current date
+//				{
+//					p.p.fill(145, 255, 255, 255);
+//					p.p.stroke(145, 255, 255, 255);
+//					
+//					p.p.pushMatrix();
+//					beginHUD();
+//					p.p.translate(x, y, hudDistance);
+//					p.p.box(inc, 25.f, 0);
+//					p.p.popMatrix();
+//					
+//					p.p.fill(55, 0, 255, 255);
+//					p.p.stroke(55, 0, 255, 255);
+//				}
+//			}
 		}
 	}
 
@@ -1487,7 +1487,7 @@ class WMV_Display
 			p.p.text(" Orientation Mode: "+p.orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Alpha Mode:"+p.alphaMode, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Time Fading: "+ p.timeFading, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Altitude Scaling: "+p.altitudeScaling, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Lock Media to Clusters:"+p.lockMediaToClusters, xPos, yPos += lineWidth, hudDistance);
 		

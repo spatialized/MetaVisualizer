@@ -57,8 +57,8 @@ public class WMV_Cluster
 	
 	int[] clusterTimesHistogram, fieldTimesHistogram;					// Histogram of media times relative to cluster	/ field
 	ArrayList<WMV_TimeSegment> timeline;								// Timeline for this cluster
-	int[] clusterDatesHistogram, fieldDatesHistogram;					// Histogram of media times in cluster	
-	ArrayList<WMV_TimeSegment> dateline;								// Date timeline for this cluster
+//	int[] clusterDatesHistogram, fieldDatesHistogram;					// Histogram of media times in cluster	
+	ArrayList<WMV_Date> dateline;								// Date timeline for this cluster
 	ArrayList<ArrayList<WMV_TimeSegment>> timelines;
 	
 //	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
@@ -139,8 +139,8 @@ public class WMV_Cluster
 		clusterTimesHistogram = new int[p.p.clusterTimePrecision];
 		fieldTimesHistogram = new int[p.p.fieldTimePrecision];
 
-		clusterDatesHistogram = new int[p.p.clusterTimePrecision];
-		fieldDatesHistogram = new int[p.p.fieldTimePrecision];
+//		clusterDatesHistogram = new int[p.p.clusterTimePrecision];
+//		fieldDatesHistogram = new int[p.p.fieldTimePrecision];
 
 		timeline = new ArrayList<WMV_TimeSegment>();
 //		timeUnitLength = p.p.timeUnitLength;					// Length of time unit in frames  (e.g. 10 means every 10 frames)
@@ -911,7 +911,7 @@ public class WMV_Cluster
 		if(timeline.size() > 0)
 			return timeline.get(0).getID();
 		else if(timelines.size() > 0)
-			return getFirstTimeSegmentForDate(dateline.get(0).getCenter()).getID();
+			return getFirstTimeSegmentForDate(dateline.get(0)).getID();
 		else
 			return -1;
 	}
@@ -978,43 +978,49 @@ public class WMV_Cluster
 		calculateDimensions();			// Calculate cluster dimensions (bounds)
 		calculateTimes();				// Calculate cluster times
 		createDateline();				// Create dates histograms and analyze for date segments
-		if(dateline.size()>1)			// Create timeline for each date
-			createTimelinesByDate();
+		createTimelinesByDate();
 		createTimeline();				// Create timeline independent of date 
 	}
 	
 	/**
-	 * Create dateline for cluster
+	 * Create list of all media capture dates in cluster
 	 */
 	void createDateline()
 	{
-		FloatList mediaDates = new FloatList();										// List of times to analyze
-//		IntList dateSegments;														// Temporary time point list for finding duplicates
+		dateline = new ArrayList<WMV_Date>();										// List of times to analyze
 
 		/* Get times of all media of all types in this cluster */
-		for(int i : images) mediaDates.append( p.images.get(i).time.getDate() );
-		for(int n : panoramas) mediaDates.append( p.panoramas.get(n).time.getDate() );
-		for(int v : videos) mediaDates.append( p.videos.get(v).time.getDate() );
-
-		/* Create cluster-specific times histogram */
-		for (int i = 0; i < p.p.clusterDatePrecision; i++) // Initialize histogram
-			clusterDatesHistogram[i] = 0;
-		
-		for (int i = 0; i < mediaDates.size(); i++) 							// Fill cluster dates histogram
+		for(int i : images)
 		{
-			int idx = PApplet.round( PApplet.constrain(PApplet.map(mediaDates.get(i), 0.f, 1.f, 0.f, 
-									 p.p.clusterDatePrecision), 0.f, p.p.clusterDatePrecision) );
-
-//			PApplet.println("------------> cluster id:"+getID()+" idx:"+idx+" adding date:"+mediaDates.get(i));
-			clusterDatesHistogram[idx]++;
+			WMV_Date date = p.images.get(i).time.getDate();
+			if(!dateline.contains(date)) 				// Add date if doesn't exist
+			{
+				dateline.add( date );
+				PApplet.println("Adding date to dateline:"+date.getDaysSince1980());
+			}
 		}
 
-//		if(p.p.p.debug.time)
-//			PApplet.println("Getting cluster date segments for cluster#"+getID());
+		for(int n : panoramas)
+		{
+			WMV_Date date = p.panoramas.get(n).time.getDate();
+			if(!dateline.contains(date)) 
+				dateline.add( date );
+		}
+
+		for(int v : videos) 
+		{
+			WMV_Date date = p.videos.get(v).time.getDate();
+			if(!dateline.contains(date)) 
+				dateline.add( date );
+		}
+
+		dateline.sort(WMV_Date.WMV_DateComparator);				// Sort dateline  
 		
-		dateline = getTimeSegments(clusterDatesHistogram, p.p.clusterDatePrecision);	// Get relative (cluster) time segments
-		dateline.sort(WMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort dateline points 
-		
+//		for (int i = 0; i < dateline.size(); i++) 		
+//		{
+//			dateline.get(dateline.indexOf(date)).addToTimeline
+//		}
+
 		/* Debugging */
 //		if(p.p.p.debug.time && clusterDates.size()>1)
 //		{
@@ -1040,7 +1046,7 @@ public class WMV_Cluster
 		
 		if(dateline.size() == 0)
 		{
-			PApplet.println("-------> Cluster "+getID()+" dateline has no points! "+getID()+" images.size():"+images.size()+" mediaDates.size():"+mediaDates.size());
+			PApplet.println("-------> Cluster "+getID()+" dateline has no points! "+getID()+" images.size():"+images.size()+" dateline.size():"+dateline.size());
 			empty();
 		}
 	}
@@ -1052,40 +1058,31 @@ public class WMV_Cluster
 	{
 		timelines = new ArrayList<ArrayList<WMV_TimeSegment>>();
 		int curTimeline = 0;
-		for(WMV_TimeSegment d : dateline)			// For each date on dateline
+
+		for(WMV_Date d : dateline)			// For each date on dateline
 		{
-			int date = (int) p.p.p.utilities.round(d.getCenter()/p.p.clusterTimePrecision, 3);
 			if(p.p.p.debug.time)
-				PApplet.println("Cluster #"+getID()+"... creating timeline for date:"+date);
+				PApplet.println("Cluster #"+getID()+"... creating timeline for date:"+d.getDate().x+" "+d.getDate().y+" "+d.getDate().z);
 			FloatList mediaTimes = new FloatList();							// List of times to analyze
 
 			/* Get times of all media of all types in this cluster */
 			for(int i : images)
 			{
 				WMV_Image img = p.images.get(i);
-				
-				if((int)p.p.p.utilities.round(img.getDate(), 3) == date)
-				{
-//					PApplet.println("Adding to mediaTimes.size():"+mediaTimes.size());
+				if((img.getDate()).equals(d))
 					mediaTimes.append( p.images.get(i).time.getTime() );
-				}
-				else
-				{
-//					PApplet.println(".. not adding to mediaTimes.size() p.p.p.utilities.round(img.getDate(), 3):"+p.p.p.utilities.round(img.getDate(), 3)+" date:"+date+" mediaTimes.size()"+mediaTimes.size());
-				}
-				/*******/
 			}
 			
 			for(int n : panoramas) 
 			{
 				WMV_Panorama pano = p.panoramas.get(n);
-				if((int)p.p.p.utilities.round(pano.getDate(), 3) == date)
+				if(pano.getDate().equals(d))
 					mediaTimes.append( p.panoramas.get(n).time.getTime() );
 			}
 			for(int v : videos)
 			{
 				WMV_Video vid = p.videos.get(v);
-				if((int)p.p.p.utilities.round(vid.getDate(), 3) == date)
+				if(vid.getDate().equals(d))
 					mediaTimes.append( p.videos.get(v).time.getTime() );
 			}
 			
@@ -1103,10 +1100,9 @@ public class WMV_Cluster
 
 			if(clusterTimesHistogram.length > 0)
 			{
-				PApplet.println("...createTimelinesByDate... mediaTimes.size():"+mediaTimes.size());
 				timelines.add(getTimeSegments(clusterTimesHistogram, p.p.clusterTimePrecision));		// Calculate and add timeline to list
 				if(timelines.get(curTimeline) != null)
-					timelines.get(curTimeline).sort(WMV_TimeSegment.GMV_TimeMidpointComparator);		// Sort timeline points 
+					timelines.get(curTimeline).sort(WMV_TimeSegment.WMV_TimeMidpointComparator);		// Sort timeline points 
 			}
 			
 			/* Debugging */
@@ -1120,6 +1116,7 @@ public class WMV_Cluster
 					PApplet.println("Cluster "+id+", cluster time #"+(ct++)+": "+f);
 				}
 			}
+			
 //			if(p.p.p.debug.time && fieldTimes.size()>1)
 //			{
 //				PApplet.println("--> Cluster "+id+" with "+fieldTimes.size()+"different field times...");
@@ -1154,7 +1151,7 @@ public class WMV_Cluster
 	void createTimeline()
 	{
 		FloatList mediaTimes = new FloatList();							// List of times to analyze
-		IntList timeSegments;														// Temporary time point list for finding duplicates
+//		IntList timeSegments;														// Temporary time point list for finding duplicates
 		
 		/* Get times of all media of all types in this cluster */
 		for(int i : images)
@@ -1184,7 +1181,7 @@ public class WMV_Cluster
 		{
 			timeline = getTimeSegments(clusterTimesHistogram, p.p.clusterTimePrecision);	// Get relative (cluster) time segments
 			if(timeline != null)
-				timeline.sort(WMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort timeline points 
+				timeline.sort(WMV_TimeSegment.WMV_TimeMidpointComparator);				// Sort timeline points 
 		}
 
 		/* Debugging */
@@ -1198,6 +1195,7 @@ public class WMV_Cluster
 				PApplet.println("Cluster "+id+", cluster time #"+(ct++)+": "+f);
 			}
 		}
+		
 //		if(p.p.p.debug.time && fieldTimes.size()>1)
 //		{
 //			PApplet.println("--> Cluster "+id+" with "+fieldTimes.size()+"different field times...");
@@ -1282,18 +1280,18 @@ public class WMV_Cluster
 		}
 	}
 	
-	public WMV_TimeSegment getFirstTimeSegmentForDate(float date)
+	public WMV_TimeSegment getFirstTimeSegmentForDate(WMV_Date date)
 	{
 		boolean found = false;
 		int timelineID = 0;
 		
 		if(dateline != null)
 		{
-			for(WMV_TimeSegment t : dateline)		// Look through cluster dates for date
+			for(WMV_Date d : dateline)		// Look through cluster dates for date
 			{
 				if(!found)						
 				{	
-					if(t.getCenter() == date)										// If cluster has date,
+					if(d == date)										// If cluster has date,
 					{
 						found = true;												// destination cluster has been found
 						//					PApplet.println("found cluster with date... "+id+" curTimeSegment:"+curTimeSegment+" date:"+date);
@@ -1350,7 +1348,7 @@ public class WMV_Cluster
 		}
 	}
 	
-	public WMV_TimeSegment getLastTimeSegmentForDate(float date)
+	public WMV_TimeSegment getLastTimeSegmentForDate(WMV_Date date)
 	{
 		boolean found = false;
 		int timelineID = 0;
@@ -1360,10 +1358,10 @@ public class WMV_Cluster
 		{
 			for(int index=dateline.size()-1; index >= 0; index--)					// Look through cluster dates for date
 			{
-				WMV_TimeSegment t = dateline.get(index);
+				WMV_Date d = dateline.get(index);
 				if(!found)						
 				{	
-					if(t.getCenter() == date)										// If cluster has date,
+					if(d == date)										// If cluster has date,
 						found = true;												// destination cluster has been found
 					else
 						timelineID++;
@@ -1379,7 +1377,7 @@ public class WMV_Cluster
 			}
 			else
 			{
-				PApplet.println("Date doesn't exist in cluster #"+getID()+"... "+date);
+				PApplet.println("Date doesn't exist in cluster #"+getID()+"... "+date.getDate());
 				return null;
 			}
 		}
@@ -1426,8 +1424,8 @@ public class WMV_Cluster
 
 			if (initImageDate)  	// Calculate most recent and oldest image date
 			{	
-				highImageDate = i.time.getDate();
-				lowImageDate = i.time.getDate();
+				highImageDate = i.time.getDate().getDaysSince1980();
+				lowImageDate = i.time.getDate().getDaysSince1980();
 				initImageDate = false;
 			}
 
@@ -1436,10 +1434,10 @@ public class WMV_Cluster
 			if (i.time.getTime() < lowImageTime)
 				lowImageTime = i.time.getTime();
 
-			if (i.time.getDate() > highImageDate)
-				highImageDate = i.time.getDate();
-			if (i.time.getDate() < lowImageDate)
-				lowImageDate = i.time.getDate();
+			if (i.time.getDate().getDaysSince1980() > highImageDate)
+				highImageDate = i.time.getDate().getDaysSince1980();
+			if (i.time.getDate().getDaysSince1980() < lowImageDate)
+				lowImageDate = i.time.getDate().getDaysSince1980();
 
 			if (fDayLength > longestDayLength)		// Calculate longest day length
 				longestDayLength = fDayLength;
@@ -1459,8 +1457,8 @@ public class WMV_Cluster
 
 			if (initPanoramaDate) 		// Calculate most recent and oldest panorama date
 			{		
-				highPanoramaDate = n.time.getDate();
-				lowPanoramaDate = n.time.getDate();
+				highPanoramaDate = n.time.getDate().getDaysSince1980();
+				lowPanoramaDate = n.time.getDate().getDaysSince1980();
 				initPanoramaDate = false;
 			}
 
@@ -1469,10 +1467,10 @@ public class WMV_Cluster
 			if (n.time.getTime() < lowPanoramaTime)
 				lowPanoramaTime = n.time.getTime();
 
-			if (n.time.getDate() > highPanoramaDate)
-				highPanoramaDate = n.time.getDate();
-			if (n.time.getDate() < lowPanoramaDate)
-				lowPanoramaDate = n.time.getDate();
+			if (n.time.getDate().getDaysSince1980() > highPanoramaDate)
+				highPanoramaDate = n.time.getDate().getDaysSince1980();
+			if (n.time.getDate().getDaysSince1980() < lowPanoramaDate)
+				lowPanoramaDate = n.time.getDate().getDaysSince1980();
 
 			if (fDayLength > longestPanoramaDayLength)		// Calculate longest panorama day length
 				longestPanoramaDayLength = fDayLength;
@@ -1491,8 +1489,8 @@ public class WMV_Cluster
 
 			if (initVideoDate) 		// Calculate most recent and oldest video date
 			{		
-				highVideoDate = v.time.getDate();
-				lowVideoDate = v.time.getDate();
+				highVideoDate = v.time.getDate().getDaysSince1980();
+				lowVideoDate = v.time.getDate().getDaysSince1980();
 				initImageDate = false;
 			}
 
@@ -1501,10 +1499,10 @@ public class WMV_Cluster
 			if (v.time.getTime() < lowVideoTime)
 				lowVideoTime = v.time.getTime();
 
-			if (v.time.getDate() > highVideoDate)
-				highVideoDate = v.time.getDate();
-			if (v.time.getDate() < lowVideoDate)
-				lowVideoDate = v.time.getDate();
+			if (v.time.getDate().getDaysSince1980() > highVideoDate)
+				highVideoDate = v.time.getDate().getDaysSince1980();
+			if (v.time.getDate().getDaysSince1980() < lowVideoDate)
+				lowVideoDate = v.time.getDate().getDaysSince1980();
 
 			if (fDayLength > longestVideoDayLength)		// Calculate longest video day length
 				longestVideoDayLength = fDayLength;
@@ -1763,7 +1761,7 @@ public class WMV_Cluster
 		return timeline;
 	}
 
-	public ArrayList<WMV_TimeSegment> getDateline()
+	public ArrayList<WMV_Date> getDateline()
 	{
 		return dateline;
 	}

@@ -11,8 +11,8 @@ import processing.core.PApplet;
 public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>									
 {
 	private float center;			// Time 
-	private float lower, upper;	// Upper and lower bounds of cluster
-	private int id = -1;		// Cluster ID
+	private float lower, upper;		// Upper and lower bounds of cluster
+	private int id = -1;			// Cluster ID
 	
 	WMV_TimeSegment(int newID, float newCenter, float newUpper, float newLower)
 	{
@@ -107,7 +107,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		return Float.compare(this.center, t.center);		
 	}
 
-	public static Comparator<WMV_TimeSegment> GMV_TimeMidpointComparator = new Comparator<WMV_TimeSegment>() 
+	public static Comparator<WMV_TimeSegment> WMV_TimeMidpointComparator = new Comparator<WMV_TimeSegment>() 
 	{
 		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{
@@ -122,8 +122,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		}
 	};
 	
-
-	public static Comparator<WMV_TimeSegment> GMV_TimeLowerBoundComparator = new Comparator<WMV_TimeSegment>() 
+	public static Comparator<WMV_TimeSegment> WMV_TimeLowerBoundComparator = new Comparator<WMV_TimeSegment>() 
 	{
 		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{

@@ -128,42 +128,6 @@ class WMV_Image extends WMV_Viewable
 				}
 			}
 
-			if( p.p.dateFading )
-			{
-				float dateBrightnessFactor;                        		// Fade with time 
-				if(!p.p.viewer.isMoving())
-				{
-					if(p.p.showAllDateSegments)
-					{
-						if(p.p.getCluster(cluster).dateline.size() > 0)
-						{
-							dateBrightnessFactor = getDateBrightness();    
-						}
-						else
-						{
-							dateBrightnessFactor = 0.f;
-							if(p.p.p.debug.cluster || p.p.p.debug.image || p.p.p.debug.viewable)
-								p.p.display.message("Cluster: "+cluster+" has no dateline points!");
-						}
-						
-						brightness *= dateBrightnessFactor; 					// Fade brightness based on time
-					}
-					else
-					{
-						if(p.p.viewer.getCurrentCluster() == cluster)
-						{
-							dateBrightnessFactor = getDateBrightness();        
-							brightness *= dateBrightnessFactor; 					// Fade brightness based on time
-						}
-						else														// Hide media outside current cluster
-						{
-							dateBrightnessFactor = 0.f;
-							brightness = 0.f;
-						}
-					}
-				}
-			}
-
 			if( p.p.angleFading )
 			{
 				float imageAngle = getFacingAngle();

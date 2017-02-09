@@ -348,21 +348,22 @@ public class WMV_Utilities
 	 * @return PVector containing (date, time, dayLength)
 	 * Calculate date, time and dayLength for given Calendar date
 	 */
-	public PVector getSimulationTime(Calendar c) 	
+	public float getSimulationTime(Calendar c) 	
 	{		
 		Location location = new Location("39.9522222", "-75.1641667");
 		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, "America/Los_Angeles");
 
-		Calendar sr = calculator.getOfficialSunriseCalendarForDate(c);		// Get sunrise time
-		Calendar ss = calculator.getOfficialSunsetCalendarForDate(c);		// Get sunset time
+//		Calendar sr = calculator.getOfficialSunriseCalendarForDate(c);		// Get sunrise time
+//		Calendar ss = calculator.getOfficialSunsetCalendarForDate(c);		// Get sunset time
 
 		/* Adjust for sunset time */
-		int cHour, cMin, cSec, srHour, srMin, srSec, ssHour, ssMin, ssSec;
-		int cDay, cMonth, cYear;
+		int cHour, cMin, cSec;
+//		int srHour, srMin, srSec, ssHour, ssMin, ssSec;
+//		int cDay, cMonth, cYear;
 
-		cYear = c.get(Calendar.YEAR);
-		cMonth = c.get(Calendar.MONTH);
-		cDay = c.get(Calendar.DAY_OF_MONTH);
+//		cYear = c.get(Calendar.YEAR);
+//		cMonth = c.get(Calendar.MONTH);
+//		cDay = c.get(Calendar.DAY_OF_MONTH);
 		cHour = c.get(Calendar.HOUR_OF_DAY); // Adjust for New York time
 		cMin = c.get(Calendar.MINUTE);
 		cSec = c.get(Calendar.SECOND);
@@ -370,22 +371,22 @@ public class WMV_Utilities
 		float cTime = cHour * 60 + cMin + cSec/60.f;
 		float time = PApplet.map(cTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
 
-		int daysInMonth = 0, daysCount = 0;
+//		int daysInMonth = 0, daysCount = 0;
 
-		for (int i = 1; i < cMonth; i++) 				// Find number of days in prior months
-		{
-			daysInMonth = getDaysInMonth(i, cYear);		// Get days in month
-			daysCount += daysInMonth;
-		}
+//		for (int i = 1; i < cMonth; i++) 				// Find number of days in prior months
+//		{
+//			daysInMonth = getDaysInMonth(i, cYear);		// Get days in month
+//			daysCount += daysInMonth;
+//		}
 
 		//		int startYear = 2013;							
 		//		int date = (year - startYear) * 365 + daysCount + day; 		
-		float date = daysCount + cDay; 						// Days since Jan. 1st							//	 NOTE:	need to account for leap years!		
+//		float date = daysCount + cDay; 						// Days since Jan. 1st							//	 NOTE:	need to account for leap years!		
 
 		//		int endDate = 5000;																					
-		date = PApplet.constrain(PApplet.map(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
+//		date = PApplet.constrain(PApplet.map(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
 
-		return new PVector(date, time);				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
+		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
 	}
 
 	/**

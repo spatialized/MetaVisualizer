@@ -54,7 +54,7 @@ public class WMV_World
 	/* Time */
 	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
 	public boolean timeFading = false;					// Does time affect media brightness? 
-	public boolean dateFading = false;					// Does date affect media brightness? 
+//	public boolean dateFading = false;					// Does date affect media brightness? 
 	public boolean paused = false;						// Time is paused
 
 	public boolean showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
@@ -309,7 +309,7 @@ public class WMV_World
 
 		if(startRunning)							// If simulation just started running
 		{
-			viewer.moveToFirstTimeOnDate(getCurrentField().fieldID, viewer.currentFieldDateSegment, true);
+			viewer.moveToFirstTimeOnDate(getCurrentField().fieldID, viewer.currentFieldDate, true);
 			
 			firstTeleport = true;
 			startRunning = false;
@@ -336,7 +336,7 @@ public class WMV_World
 		}
 		else if(timeMode == 1)				// Time Mode: Field
 		{
-			if(timeFading && !dateFading && p.frameCount % timeUnitLength == 0)
+			if(timeFading && p.frameCount % timeUnitLength == 0)
 			{
 				currentTime++;															// Increment field time
 
@@ -359,28 +359,28 @@ public class WMV_World
 				}
 			}
 
-			if(dateFading && !timeFading && p.frameCount % dateUnitLength == 0)
-			{
-				currentDate++;															// Increment field date
-
-				if(currentDate > dateCycleLength)
-					currentDate = 0;
-
-				if(p.debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
-				{
-					if(getCurrentField().mediaAreActive())
-					{
-						if(p.debug.detailed)
-							PApplet.println("Media still active...");
-					}
-					else
-					{
-						currentDate = 0;
-						if(p.debug.detailed)
-							PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
-					}
-				}
-			}
+//			if(dateFading && !timeFading && p.frameCount % dateUnitLength == 0)
+//			{
+//				currentDate++;															// Increment field date
+//
+//				if(currentDate > dateCycleLength)
+//					currentDate = 0;
+//
+//				if(p.debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
+//				{
+//					if(getCurrentField().mediaAreActive())
+//					{
+//						if(p.debug.detailed)
+//							PApplet.println("Media still active...");
+//					}
+//					else
+//					{
+//						currentDate = 0;
+//						if(p.debug.detailed)
+//							PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
+//					}
+//				}
+//			}
 		}
 	}
 	

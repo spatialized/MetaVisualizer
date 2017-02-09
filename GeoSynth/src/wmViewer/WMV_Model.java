@@ -1402,8 +1402,8 @@ public class WMV_Model
 
 			 if (initVideoDate) 		// Calculate most recent and oldest image date
 			 {		
-				 highVideoDate = v.time.getDate();
-				 lowVideoDate = v.time.getDate();
+				 highVideoDate = v.time.getDate().getDaysSince1980();
+				 lowVideoDate = v.time.getDate().getDaysSince1980();
 				 initVideoDate = false;
 			 }
 
@@ -1412,10 +1412,10 @@ public class WMV_Model
 			 if (v.time.getTime() < lowVideoTime)
 				 lowVideoTime = v.time.getTime();
 
-			 if (v.time.getDate() > highVideoDate)
-				 highVideoDate = v.time.getDate();
-			 if (v.time.getDate() < lowVideoDate)
-				 lowVideoDate = v.time.getDate();
+			 if (v.time.getDate().getDaysSince1980() > highVideoDate)
+				 highVideoDate = v.time.getDate().getDaysSince1980();
+			 if (v.time.getDate().getDaysSince1980() < lowVideoDate)
+				 lowVideoDate = v.time.getDate().getDaysSince1980();
 
 			 if (v.time.getDayLength() > longestVideoDayLength)		// Calculate longest video day length
 				 longestVideoDayLength = v.time.getDayLength();
@@ -1432,8 +1432,8 @@ public class WMV_Model
 
 			 if (initImageDate)  	// Calculate most recent and oldest image date
 			 {	
-				 highImageDate = i.time.getDate();
-				 lowImageDate = i.time.getDate();
+				 highImageDate = i.time.getDate().getDaysSince1980();
+				 lowImageDate = i.time.getDate().getDaysSince1980();
 				 initImageDate = false;
 			 }
 
@@ -1442,10 +1442,10 @@ public class WMV_Model
 			 if (i.time.getTime() < lowImageTime)
 				 lowImageTime = i.time.getTime();
 
-			 if (i.time.getDate() > highImageDate)
-				 highImageDate = i.time.getDate();
-			 if (i.time.getDate() < lowImageDate)
-				 lowImageDate = i.time.getDate();
+			 if (i.time.getDate().getDaysSince1980() > highImageDate)
+				 highImageDate = i.time.getDate().getDaysSince1980();
+			 if (i.time.getDate().getDaysSince1980() < lowImageDate)
+				 lowImageDate = i.time.getDate().getDaysSince1980();
 
 			 if (i.time.getDayLength() > longestImageDayLength)		// Calculate longest day length
 				 longestImageDayLength = i.time.getDayLength();
@@ -1462,8 +1462,8 @@ public class WMV_Model
 
 			 if (initPanoDate)  	// Calculate most recent and oldest Pano date
 			 {	
-				 highPanoDate = i.time.getDate();
-				 lowPanoDate = i.time.getDate();
+				 highPanoDate = i.time.getDate().getDaysSince1980();
+				 lowPanoDate = i.time.getDate().getDaysSince1980();
 				 initPanoDate = false;
 			 }
 
@@ -1472,10 +1472,10 @@ public class WMV_Model
 			 if (i.time.getTime() < lowPanoTime)
 				 lowPanoTime = i.time.getTime();
 
-			 if (i.time.getDate() > highPanoDate)
-				 highPanoDate = i.time.getDate();
-			 if (i.time.getDate() < lowPanoDate)
-				 lowPanoDate = i.time.getDate();
+			 if (i.time.getDate().getDaysSince1980() > highPanoDate)
+				 highPanoDate = i.time.getDate().getDaysSince1980();
+			 if (i.time.getDate().getDaysSince1980() < lowPanoDate)
+				 lowPanoDate = i.time.getDate().getDaysSince1980();
 
 			 if (i.time.getDayLength() > longestPanoDayLength)		// Calculate longest day length
 				 longestPanoDayLength = i.time.getDayLength();

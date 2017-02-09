@@ -46,7 +46,7 @@ public class WMV_Field
 	/* Time */
 //	public final int numBins = 100; 							// Time precision
 	ArrayList<WMV_TimeSegment> timeline;								// Cluster timeline for this field
-	ArrayList<WMV_TimeSegment> dateline;								// Cluster timeline for this field
+	ArrayList<WMV_Date> dateline;								// Cluster timeline for this field
 
 	WMV_World p;
 	
@@ -69,7 +69,7 @@ public class WMV_Field
 		videos = new ArrayList<WMV_Video>();		
 
 		timeline = new ArrayList<WMV_TimeSegment>();
-		dateline = new ArrayList<WMV_TimeSegment>();
+		dateline = new ArrayList<WMV_Date>();
 	}
 
 	public void draw() 				// Draw currently visible media
@@ -208,113 +208,6 @@ public class WMV_Field
 	public void update()
 	{
 		attractViewer();					// Attract the viewer
-	}
-	
-	/**
-	 * Create timeline for this field from cluster timelines
-	 */
-	public void createTimeline()
-	{
-		if(p.p.debug.time)
-			PApplet.println(">>> Creating Field Timeline... <<<");
-
-		for(WMV_Cluster c : clusters)											// Find all media cluster times
-		{
-			ArrayList<WMV_TimeSegment> times = new ArrayList<WMV_TimeSegment>();
-			
-			for(WMV_TimeSegment t : c.getTimeline())
-			{
-//				if(p.p.debug.time)
-//					PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
-
-				WMV_TimeSegment time = new WMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
-				times.add( time );												// Add segment to timeline
-			}
-
-			for(WMV_TimeSegment t : times)										// Add indexed cluster times to timeline
-				timeline.add(t);
-		}
-
-		timeline.sort(WMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort time segments 
-		
-		if(p.p.debug.time)
-		{
-			PApplet.println("------ Field Timeline ------");
-			PApplet.println("---> First lower:"+" timeline.get(0).getLower():"+timeline.get(0).getLower());
-			PApplet.println("---> First center:"+" timeline.get(0).getCenter():"+timeline.get(0).getCenter());
-			PApplet.println("---> First upper:"+" timeline.get(0).getUpper():"+timeline.get(0).getUpper());
-			PApplet.println("---> Last lower:"+" timeline.get(timeline.size()-1).getLower():"+timeline.get(timeline.size()-1).getLower());
-			PApplet.println("---> Last center:"+" timeline.get(timeline.size()-1).getCenter():"+timeline.get(timeline.size()-1).getCenter());
-			PApplet.println("---> Last upper:"+" timeline.get(timeline.size()-1).getUpper():"+timeline.get(timeline.size()-1).getUpper());
-		}
-	}
-	
-	public void createDateline()
-	{
-		for(WMV_Cluster c : clusters)											// Find all media cluster times
-		{
-			ArrayList<WMV_TimeSegment> dates = new ArrayList<WMV_TimeSegment>();
-			
-			if(!c.isEmpty())
-			{
-//				int count = 0;
-				for(WMV_TimeSegment d : c.getDateline())							// Iterate through cluster dateline
-				{
-					WMV_TimeSegment date = new WMV_TimeSegment(	c.getID(), d.getCenter(), d.getUpper(), d.getLower());
-					dates.add( date );												// Add segment to field dateline
-//					count++;
-				}
-
-				for(WMV_TimeSegment t : dates)										// Add indexed cluster times to dateline
-					dateline.add(t);
-			}
-		}
-
-		dateline.sort(WMV_TimeSegment.GMV_TimeLowerBoundComparator);				// Sort date segments
-		
-		if(p.p.debug.time && dateline.size()>0)
-		{
-			PApplet.println("---> First lower:"+" dateline.get(0).getLower():"+dateline.get(0).getLower());
-			PApplet.println("---> First center:"+" dateline.get(0).getCenter():"+dateline.get(0).getCenter());
-			PApplet.println("---> First upper:"+" dateline.get(0).getUpper():"+dateline.get(0).getUpper());
-			PApplet.println("---> Last lower:"+" dateline.get(dateline.size()-1).lower():"+dateline.get(dateline.size()-1).getLower());
-			PApplet.println("---> Last center:"+" dateline.get(dateline.size()-1).center():"+dateline.get(dateline.size()-1).getCenter());
-			PApplet.println("---> Last upper:"+" dateline.get(dateline.size()-1).upper():"+dateline.get(dateline.size()-1).getUpper());
-		}
-	}
-
-	/**
-	 * @return List of waypoints based on field timeline
-	 */
-	public ArrayList<WMV_Waypoint> getTimelineAsPath()
-	{
-		ArrayList<WMV_Waypoint> timelinePath = new ArrayList<WMV_Waypoint>();
-
-		for(WMV_TimeSegment t : timeline)
-		{
-			WMV_Waypoint w = clusters.get(t.getID()).getClusterAsWaypoint();
-			timelinePath.add(w);
-		}
-		if(p.p.debug.field)
-			PApplet.println("getTimelineAsPath()... timelinePath.size():"+timelinePath.size());
-		return timelinePath;
-	}
-
-	/**
-	 * @return List of waypoints based on field dateline
-	 */
-	public ArrayList<WMV_Waypoint> getDatelineAsPath()
-	{
-		ArrayList<WMV_Waypoint> datelinePath = new ArrayList<WMV_Waypoint>();
-
-		for(WMV_TimeSegment d : dateline)
-		{
-			WMV_Waypoint w = clusters.get(d.getID()).getClusterAsWaypoint();
-			datelinePath.add(w);
-		}
-		if(p.p.debug.field)
-			PApplet.println("getDatelineAsPath()... datelinePath.size():"+datelinePath.size());
-		return datelinePath;
 	}
 
 	/**
@@ -682,77 +575,89 @@ public class WMV_Field
 			}
 		}
 	}
+
 	
 	/**
-	 * Try stitching panoramas for all clusters in field
+	 * Create date-independent timeline for this field from cluster timelines
 	 */
-	public void stitchAllClusters()
+	public void createTimeline()
 	{
-		for(WMV_Cluster c : clusters)
-			c.stitchImages();
-	}
-	
-	public void showClusterCenters()
-	{
-		if(p.getCurrentCluster().getID() != -1)
-			clusters.get(p.viewer.getCurrentCluster()).drawCenter(255);		// Draw current cluster
+		if(p.p.debug.time)
+			PApplet.println(">>> Creating Field Timeline... <<<");
+
+		for(WMV_Cluster c : clusters)											// Find all media cluster times
+		{
+			ArrayList<WMV_TimeSegment> times = new ArrayList<WMV_TimeSegment>();
+			
+			for(WMV_TimeSegment t : c.getTimeline())
+			{
+//				if(p.p.debug.time)
+//					PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
+
+				WMV_TimeSegment time = new WMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
+				times.add( time );												// Add segment to timeline
+			}
+
+			for(WMV_TimeSegment t : times)										// Add indexed cluster times to timeline
+				timeline.add(t);
+		}
+
+		timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort time segments 
 		
-		if(p.viewer.getAttractorCluster() != -1)
-			clusters.get(p.viewer.getAttractorCluster()).drawCenter(50);	// Draw attractor cluster
+//		if(p.p.debug.time)
+//		{
+//			PApplet.println("------ Field Timeline ------");
+//			PApplet.println("---> First lower:"+" timeline.get(0).getLower():"+timeline.get(0).getLower());
+//			PApplet.println("---> First center:"+" timeline.get(0).getCenter():"+timeline.get(0).getCenter());
+//			PApplet.println("---> First upper:"+" timeline.get(0).getUpper():"+timeline.get(0).getUpper());
+//			PApplet.println("---> Last lower:"+" timeline.get(timeline.size()-1).getLower():"+timeline.get(timeline.size()-1).getLower());
+//			PApplet.println("---> Last center:"+" timeline.get(timeline.size()-1).getCenter():"+timeline.get(timeline.size()-1).getCenter());
+//			PApplet.println("---> Last upper:"+" timeline.get(timeline.size()-1).getUpper():"+timeline.get(timeline.size()-1).getUpper());
+//		}
 	}
 	
-//	public void showUserPanoramas()
-//	{
-//		if(p.viewer.getCurrentCluster() != -1)
-//			clusters.get(p.viewer.getCurrentCluster()).drawUserPanoramas();		// Draw current cluster
-//		else if(p.p.debug.cluster || p.p.debug.field)
-//			PApplet.println("currentCluster == -1!!!");
-//	}
-
-//	public void showStitchedPanoramasX()
-//	{
-//		if(p.viewer.getCurrentCluster() != -1)
-//			clusters.get(p.viewer.getCurrentCluster()).drawStitchedPanoramas();		// Draw current cluster
-//	}
-
-	/**
-	 * Change all clusters to non-attractors
+	/*
+	 * Create list of all media capture dates in field
 	 */
-	public void clearAllAttractors()
+	public void createDateline()
 	{
-		if(p.p.debug.viewer && p.p.debug.detailed)
-			PApplet.println("Clearing all attractors...");
+		for(WMV_Cluster c : clusters)											// Find all media cluster times
+		{
+			if(!c.isEmpty())
+			{
+				for(WMV_Date d : c.getDateline())							// Iterate through cluster dateline
+					dateline.add( d );												// Add segment to field dateline
+			}
+		}
+
+		dateline.sort(WMV_Date.WMV_DateComparator);				// Sort date segments
 		
-		if(p.viewer.getAttractorCluster() != -1)
+		if(p.p.debug.time && dateline.size()>0)
 		{
-			p.viewer.clearAttractorCluster();
-
-			for(WMV_Cluster c : clusters)
-				if(c.isAttractor())
-					c.setAttractor(false);
+//			PApplet.println("---> First lower:"+" dateline.get(0).getLower():"+dateline.get(0).getLower());
+//			PApplet.println("---> First center:"+" dateline.get(0).getCenter():"+dateline.get(0).getCenter());
+//			PApplet.println("---> First upper:"+" dateline.get(0).getUpper():"+dateline.get(0).getUpper());
+//			PApplet.println("---> Last lower:"+" dateline.get(dateline.size()-1).lower():"+dateline.get(dateline.size()-1).getLower());
+//			PApplet.println("---> Last center:"+" dateline.get(dateline.size()-1).center():"+dateline.get(dateline.size()-1).getCenter());
+//			PApplet.println("---> Last upper:"+" dateline.get(dateline.size()-1).upper():"+dateline.get(dateline.size()-1).getUpper());
 		}
 	}
-	
+
 	/**
-	 * Fade object distance for each media point in field, i.e. move closer or further from capture location and rescale
-	 * @param multiple Multiple to scale object distance by
+	 * @return List of waypoints based on field timeline
 	 */
-	public void fadeObjectDistances(float multiple)
+	public ArrayList<WMV_Waypoint> getTimelineAsPath()
 	{
-		for(WMV_Image i:images)
-		{
-			float newFocusDistance = i.getFocusDistance() * multiple;
-			i.fadeObjectDistance(newFocusDistance);
-		}
+		ArrayList<WMV_Waypoint> timelinePath = new ArrayList<WMV_Waypoint>();
 
-		for(WMV_Video v:videos)
+		for(WMV_TimeSegment t : timeline)
 		{
-			float newFocusDistance = v.getFocusDistance() * multiple;
-			v.fadeObjectDistance(newFocusDistance);
+			WMV_Waypoint w = clusters.get(t.getID()).getClusterAsWaypoint();
+			timelinePath.add(w);
 		}
-
-//		p.viewer.setFarViewingDistance( p.viewer.getFarViewingDistance() * multiple );		// --Fade value
-//		p.viewer.setNearClippingDistance( p.viewer.getNearClippingDistance() * multiple );	// --Fade value
+		if(p.p.debug.field)
+			PApplet.println("getTimelineAsPath()... timelinePath.size():"+timelinePath.size());
+		return timelinePath;
 	}
 
 	public int getFirstTimeSegment()
@@ -827,6 +732,80 @@ public class WMV_Field
 //		return result;
 //	}
 	
+	
+	/**
+	 * Try stitching panoramas for all clusters in field
+	 */
+	public void stitchAllClusters()
+	{
+		for(WMV_Cluster c : clusters)
+			c.stitchImages();
+	}
+	
+	public void showClusterCenters()
+	{
+		if(p.getCurrentCluster().getID() != -1)
+			clusters.get(p.viewer.getCurrentCluster()).drawCenter(255);		// Draw current cluster
+		
+		if(p.viewer.getAttractorCluster() != -1)
+			clusters.get(p.viewer.getAttractorCluster()).drawCenter(50);	// Draw attractor cluster
+	}
+	
+//	public void showUserPanoramas()
+//	{
+//		if(p.viewer.getCurrentCluster() != -1)
+//			clusters.get(p.viewer.getCurrentCluster()).drawUserPanoramas();		// Draw current cluster
+//		else if(p.p.debug.cluster || p.p.debug.field)
+//			PApplet.println("currentCluster == -1!!!");
+//	}
+
+//	public void showStitchedPanoramasX()
+//	{
+//		if(p.viewer.getCurrentCluster() != -1)
+//			clusters.get(p.viewer.getCurrentCluster()).drawStitchedPanoramas();		// Draw current cluster
+//	}
+
+	/**
+	 * Change all clusters to non-attractors
+	 */
+	public void clearAllAttractors()
+	{
+		if(p.p.debug.viewer && p.p.debug.detailed)
+			PApplet.println("Clearing all attractors...");
+		
+		if(p.viewer.getAttractorCluster() != -1)
+		{
+			p.viewer.clearAttractorCluster();
+
+			for(WMV_Cluster c : clusters)
+				if(c.isAttractor())
+					c.setAttractor(false);
+		}
+	}
+	
+	/**
+	 * Fade object distance for each media point in field, i.e. move closer or further from capture location and rescale
+	 * @param multiple Multiple to scale object distance by
+	 */
+	public void fadeObjectDistances(float multiple)
+	{
+		for(WMV_Image i:images)
+		{
+			float newFocusDistance = i.getFocusDistance() * multiple;
+			i.fadeObjectDistance(newFocusDistance);
+		}
+
+		for(WMV_Video v:videos)
+		{
+			float newFocusDistance = v.getFocusDistance() * multiple;
+			v.fadeObjectDistance(newFocusDistance);
+		}
+
+//		p.viewer.setFarViewingDistance( p.viewer.getFarViewingDistance() * multiple );		// --Fade value
+//		p.viewer.setNearClippingDistance( p.viewer.getNearClippingDistance() * multiple );	// --Fade value
+	}
+
+
 	public IntList getSelectedImages()
 	{
 		IntList selected = new IntList();

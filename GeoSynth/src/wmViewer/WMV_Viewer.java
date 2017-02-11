@@ -706,32 +706,33 @@ public class WMV_Viewer
 	 */
 	void moveToFirstTimeOnDate(int fieldID, int fieldDate, boolean teleport)
 	{
-		WMV_Field f = p.getField(fieldID);
-
-//		if(p.p.debug.viewer && p.p.debug.detailed)
-
-		p.display.message("moveToFirstTimeOnDate:"+fieldDate);
-		currentFieldTimeSegment = getFirstTimeForDate(fieldDate);
-		p.display.message("... new currentFieldTimeSegment:"+currentFieldTimeSegment);
-
-		if(f.timeline.size() > currentFieldTimeSegment)
-		{
-			if(f.clusters.size() > f.timeline.get(currentFieldTimeSegment).getID())
-			{
-				if(teleport)
-					teleportToCluster(f.timeline.get(currentFieldTimeSegment).getID(), true);
-				else
-					setAttractorCluster(f.timeline.get(currentFieldTimeSegment).getID());
-			}
-			else
-			{
-				PApplet.println("... Chose a cluster that doesn't exist!... ID:"+f.timeline.get(currentFieldTimeSegment).getID());
-			}
-		}
-		else
-		{
-			PApplet.println("...Chose a time not on timeline!... currentFieldTimeSegment:"+currentFieldTimeSegment+" timeline size:"+f.timeline.size());
-		}
+		PApplet.println("CAN'T moveToFirstTimeOnDate... function disabled!");
+//		WMV_Field f = p.getField(fieldID);
+//
+////		if(p.p.debug.viewer && p.p.debug.detailed)
+//
+//		p.display.message("moveToFirstTimeOnDate:"+fieldDate);
+//		currentFieldTimeSegment = getFirstTimeForDate(fieldDate);
+//		p.display.message("... new currentFieldTimeSegment:"+currentFieldTimeSegment);
+//
+//		if(f.timeline.size() > currentFieldTimeSegment)
+//		{
+//			if(f.clusters.size() > f.timeline.get(currentFieldTimeSegment).getID())				// ERROR
+//			{
+//				if(teleport)
+//					teleportToCluster(f.timeline.get(currentFieldTimeSegment).getID(), true);
+//				else
+//					setAttractorCluster(f.timeline.get(currentFieldTimeSegment).getID());
+//			}
+//			else
+//			{
+//				PApplet.println("... Chose a cluster that doesn't exist!... ID:"+f.timeline.get(currentFieldTimeSegment).getID());
+//			}
+//		}
+//		else
+//		{
+//			PApplet.println("...Chose a time not on timeline!... currentFieldTimeSegment:"+currentFieldTimeSegment+" timeline size:"+f.timeline.size());
+//		}
 	}
 	
 	/**

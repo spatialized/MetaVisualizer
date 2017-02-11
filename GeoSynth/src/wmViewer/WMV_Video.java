@@ -177,10 +177,10 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 				brightness *= angleBrightness;
 //				p.p.display.message("brightness:"+brightness+"  angleBrightnessFactor:"+angleBrightnessFactor+" id:"+getID());
 
-				if(p.p.p.debug.video)
-				{
-					p.p.display.message("Setting video #"+getID()+" videoAngle to 0 from :"+videoAngle);
-				}
+//				if(p.p.p.debug.video)
+//				{
+//					p.p.display.message("Setting video #"+getID()+" videoAngle to 0 from :"+videoAngle);
+//				}
 			}
 
 			viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
@@ -409,12 +409,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			if(soundFadedOut) soundFadedOut = false;
 			
 			if(fadingVolume && videoLoaded)
-			{
-				if(p.p.p.debug.video)
-					p.p.display.message("updateFadingVolume for video #"+getID()+" volume:"+volume);
-
 				updateFadingVolume();
-			}
 		}
 	}
 	
@@ -979,9 +974,9 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	{
 		IntList candidates = new IntList();							// List of placeholder candidates
 		
-		for (int i = 0; i < p.images.size(); i++) 
+		for (int i = 0; i < p.images.size(); i++) 					// -- Should limit this to only cluster!!
 		{
-			if(time.getDate() == p.images.get(i).time.getDate())				// Placeholder will be from same date
+			if(time.getDate().equals(p.images.get(i).time.getDate()))				// Placeholder will be from same date
 			{
 				PVector imgLocation = p.images.get(i).getCaptureLocation();
 				float curDist = PVector.dist(getCaptureLocation(), imgLocation);
@@ -998,7 +993,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		
 		if(candidates.size() == 0)
 		{
-			PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+p.p.assocVideoDistTolerance+"!");
+			if(p.p.p.debug.video)
+				PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+p.p.assocVideoDistTolerance+"!");
 		}
 		
 		for( int i : candidates )							// Compare distances of the candidates

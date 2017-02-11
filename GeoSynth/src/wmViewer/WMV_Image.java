@@ -75,7 +75,12 @@ class WMV_Image extends WMV_Viewable
 
 		focalLength = newFocalLength;
 		cameraModel = newCameraModel;
-		
+
+		if(newCalendar != null)
+			time = new WMV_Time( p.p, newCalendar, getID(), 0 );
+		else
+			time = null;
+
 //		blurMask = p.p.blurMaskAll;
 	}  
 

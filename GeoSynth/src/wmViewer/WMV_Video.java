@@ -90,6 +90,11 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		focalLength = newFocalLength;
 		cameraModel = newCameraModel;
 
+		if(newCalendar != null)
+			time = new WMV_Time( p.p, newCalendar, getID(), 2 );
+		else
+			time = null;
+
 		theta = newTheta;              		// GPS Orientation (Yaw angle)
 		orientation = newOrientation;       // Vertical (90) or Horizontal (0)
 		phi = newElevation;            		// Pitch angle

@@ -437,41 +437,41 @@ class WMV_Display
 			p.p.text("Cluster", x, y, hudDistance);
 			p.p.popMatrix();
 
-			float inc = p.p.width * 0.3f / c.clusterTimesHistogram.length;
-			int currentTime;
-			
-			if(p.timeMode == 0)
-				currentTime = (int)PApplet.map(c.currentTime, 0, p.timeCycleLength, 0, c.clusterTimesHistogram.length);
-			else
-				currentTime = (int)PApplet.map(p.currentTime, 0, p.timeCycleLength, 0, c.fieldTimesHistogram.length);
-
-			for(int i=0; i<c.clusterTimesHistogram.length; i++)
-			{
-				float val = inc * PApplet.sqrt( c.clusterTimesHistogram[i] ) * 50.f / PApplet.sqrt( (p.getCurrentCluster().images.size() + 
-												p.getCurrentCluster().panoramas.size() + p.getCurrentCluster().videos.size() ) );
-				x = logoXOffset / 3.f + i * inc;
-
-				p.p.pushMatrix();
-				beginHUD();
-				p.p.translate(x, y, hudDistance);
-				p.p.box(inc, val, 0);
-				p.p.popMatrix();
-				
-				if(i == currentTime)					// Draw current time
-				{
-					p.p.fill(145, 255, 255, 255);
-					p.p.stroke(145, 255, 255, 255);
-					
-					p.p.pushMatrix();
-					beginHUD();
-					p.p.translate(x, y, hudDistance);
-					p.p.box(inc, 25.f, 0);
-					p.p.popMatrix();
-					
-					p.p.fill(55, 0, 255, 255);
-					p.p.stroke(55, 0, 255, 255);
-				}
-			}
+//			float inc = p.p.width * 0.3f / c.clusterTimesHistogram.length;
+//			int currentTime;
+//			
+//			if(p.timeMode == 0)
+//				currentTime = (int)PApplet.map(c.currentTime, 0, p.timeCycleLength, 0, c.clusterTimesHistogram.length);
+//			else
+//				currentTime = (int)PApplet.map(p.currentTime, 0, p.timeCycleLength, 0, c.fieldTimesHistogram.length);
+//
+//			for(int i=0; i<c.clusterTimesHistogram.length; i++)
+//			{
+//				float val = inc * PApplet.sqrt( c.clusterTimesHistogram[i] ) * 50.f / PApplet.sqrt( (p.getCurrentCluster().images.size() + 
+//												p.getCurrentCluster().panoramas.size() + p.getCurrentCluster().videos.size() ) );
+//				x = logoXOffset / 3.f + i * inc;
+//
+//				p.p.pushMatrix();
+//				beginHUD();
+//				p.p.translate(x, y, hudDistance);
+//				p.p.box(inc, val, 0);
+//				p.p.popMatrix();
+//				
+//				if(i == currentTime)					// Draw current time
+//				{
+//					p.p.fill(145, 255, 255, 255);
+//					p.p.stroke(145, 255, 255, 255);
+//					
+//					p.p.pushMatrix();
+//					beginHUD();
+//					p.p.translate(x, y, hudDistance);
+//					p.p.box(inc, 25.f, 0);
+//					p.p.popMatrix();
+//					
+//					p.p.fill(55, 0, 255, 255);
+//					p.p.stroke(55, 0, 255, 255);
+//				}
+//			}
 
 			if(p.p.debug.time)
 			{
@@ -500,36 +500,36 @@ class WMV_Display
 			p.p.text("Field", x, y, hudDistance);
 			p.p.popMatrix();
 
-			inc = p.p.width * 0.3f / c.fieldTimesHistogram.length;
-			currentTime = (int)PApplet.map(p.currentTime, 0, p.timeCycleLength, 0, c.fieldTimesHistogram.length);
-
-			for(int i=0; i<c.fieldTimesHistogram.length; i++)
-			{
-				float val = inc * PApplet.sqrt( c.fieldTimesHistogram[i] ) * 500.f / PApplet.sqrt( (p.getCurrentField().images.size() + 
-												p.getCurrentField().panoramas.size() + p.getCurrentField().videos.size() ) );
-				x = logoXOffset / 3.f + i * inc;
-
-				p.p.pushMatrix();
-				beginHUD();
-				p.p.translate(x, y, hudDistance);
-				p.p.box(inc, val, 0);
-				p.p.popMatrix();
-				
-				if(i == currentTime)					// Draw current time
-				{
-					p.p.fill(145, 255, 255, 255);
-					p.p.stroke(145, 255, 255, 255);
-					
-					p.p.pushMatrix();
-					beginHUD();
-					p.p.translate(x, y, hudDistance);
-					p.p.box(inc, 25.f, 0);
-					p.p.popMatrix();
-					
-					p.p.fill(55, 0, 255, 255);
-					p.p.stroke(55, 0, 255, 255);
-				}
-			}
+//			inc = p.p.width * 0.3f / c.fieldTimesHistogram.length;
+//			currentTime = (int)PApplet.map(p.currentTime, 0, p.timeCycleLength, 0, c.fieldTimesHistogram.length);
+//
+//			for(int i=0; i<c.fieldTimesHistogram.length; i++)
+//			{
+//				float val = inc * PApplet.sqrt( c.fieldTimesHistogram[i] ) * 500.f / PApplet.sqrt( (p.getCurrentField().images.size() + 
+//												p.getCurrentField().panoramas.size() + p.getCurrentField().videos.size() ) );
+//				x = logoXOffset / 3.f + i * inc;
+//
+//				p.p.pushMatrix();
+//				beginHUD();
+//				p.p.translate(x, y, hudDistance);
+//				p.p.box(inc, val, 0);
+//				p.p.popMatrix();
+//				
+//				if(i == currentTime)					// Draw current time
+//				{
+//					p.p.fill(145, 255, 255, 255);
+//					p.p.stroke(145, 255, 255, 255);
+//					
+//					p.p.pushMatrix();
+//					beginHUD();
+//					p.p.translate(x, y, hudDistance);
+//					p.p.box(inc, 25.f, 0);
+//					p.p.popMatrix();
+//					
+//					p.p.fill(55, 0, 255, 255);
+//					p.p.stroke(55, 0, 255, 255);
+//				}
+//			}
 		}
 	}
 	

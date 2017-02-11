@@ -75,11 +75,6 @@ public abstract class WMV_Viewable
 		id = newID; 
 		filePath = newFilePath;
 
-		if(newCalendar != null)
-			time = new WMV_Time( p.p, newCalendar );
-		else
-			time = null;
-
 		gpsLocation = newGPSLocation;
 		captureLocation = new PVector(0, 0, 0);
 
@@ -299,21 +294,21 @@ public abstract class WMV_Viewable
 			curTime = c.currentTime;
 			if(c.dateline.size() == 1)
 			{
-				lower = c.timeline.get(0).getLower() / p.p.clusterTimePrecision;							// Get cluster timeline lower bound
-				upper = c.timeline.get(c.timeline.size()-1).getUpper() / p.p.clusterTimePrecision;			// Get cluster timeline upper bound
+				lower = c.timeline.get(0).getLower().getTime() / p.p.clusterTimePrecision;							// Get cluster timeline lower bound
+				upper = c.timeline.get(c.timeline.size()-1).getUpper().getTime() / p.p.clusterTimePrecision;			// Get cluster timeline upper bound
 			}
 			else
 			{
-				lower = c.timelines.get(0).get(0).getLower() / p.p.clusterTimePrecision;							// Get cluster timeline lower bound
+				lower = c.timelines.get(0).get(0).getLower().getTime() / p.p.clusterTimePrecision;							// Get cluster timeline lower bound
 				int lastIdx = c.timelines.size()-1;
-				upper = c.timelines.get(lastIdx).get(c.timelines.get(lastIdx).size()-1).getUpper() / p.p.clusterTimePrecision;			// Get cluster timeline upper bound
+				upper = c.timelines.get(lastIdx).get(c.timelines.get(lastIdx).size()-1).getUpper().getTime() / p.p.clusterTimePrecision;			// Get cluster timeline upper bound
 			}
 		}
 		else										// Time Mode: Field
 		{
 			curTime = p.p.currentTime;
-			lower = p.p.getCurrentField().timeline.get(0).getLower() / p.p.clusterTimePrecision;		// Check division					// Get cluster timeline lower bound
-			upper = p.p.getCurrentField().timeline.get(p.p.getCurrentField().timeline.size()-1).getUpper() / p.p.clusterTimePrecision;		// Get cluster timeline upper bound
+			lower = p.p.getCurrentField().timeline.get(0).getLower().getTime() / p.p.clusterTimePrecision;		// Check division					// Get cluster timeline lower bound
+			upper = p.p.getCurrentField().timeline.get(p.p.getCurrentField().timeline.size()-1).getUpper().getTime() / p.p.clusterTimePrecision;		// Get cluster timeline upper bound
 		}
 		
 		float timelineLength = upper - lower;

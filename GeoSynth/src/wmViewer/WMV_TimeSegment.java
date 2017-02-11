@@ -6,28 +6,25 @@ import processing.core.PApplet;
 
 /*********************************************
  * @author davidgordon
- * Represents a media object or cluster time span
+ * A time span of media objects
  */
 public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>									
 {
-	private float center;			// Time 
-	private float lower, upper;		// Upper and lower bounds of cluster
+//	IntList images, panoramas, videos;		// Associated media
+	
+	private WMV_Time center;			// Center time 	 	  -- Mean or median??
+	private WMV_Time lower, upper;		// Upper and lower bounds of cluster
 	private int id = -1;			// Cluster ID
 	
-	WMV_TimeSegment(int newID, float newCenter, float newUpper, float newLower)
+	WMV_TimeSegment(int newID, WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower)
 	{
 		id = newID;
 		center = newCenter;
 		upper = newUpper;
 		lower = newLower;
-		if((lower!=0&&upper!=0)&&(center > upper || center < lower))
-		{
-			PApplet.println("ERROR: id:"+id+" lower:"+lower+" center:"+center+" upper:"+upper);
-		}
 	}
 	
 	/** 
-	 * setID()
 	 * @param newID New time cluster ID
 	 */
 	public void setID(int newID)
@@ -36,42 +33,30 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	}
 
 	/** 
-	 * setUpper()
 	 * @param newUpper New upper bound
 	 */
-	public void setUpper(float newUpper)
+	public void setUpper(WMV_Time newUpper)
 	{
 		upper = newUpper;
 	}
 
 	/** 
-	 * setCenter()
 	 * @param newUpper New upper bound
 	 */
-	public void setCenter(float newCenter)
+	public void setCenter(WMV_Time newCenter)
 	{
 		center = newCenter;
 	}
 	
 	/** 
-	 * setLower()
 	 * @param newLower New lower bound
 	 */
-	public void setLower(float newLower)
+	public void setLower(WMV_Time newLower)
 	{
 		lower = newLower;
 	}
 	
 	/** 
-	 * @return Center time 
-	 */
-	public float getCenter()
-	{
-		return center;
-	}
-	
-	/** 
-	 * getID()
 	 * @return Time segment ID
 	 */
 	public int getID()
@@ -80,10 +65,16 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	}
 	
 	/** 
-	 * getUpper()
+	 * @return Center time 
+	 */
+	public WMV_Time getCenter()
+	{
+		return center;
+	}
+	/** 
 	 * @return Upper bound
 	 */
-	public float getUpper()
+	public WMV_Time getUpper()
 	{
 		return upper;
 	}
@@ -92,7 +83,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	 * getLower()
 	 * @return Lower bound
 	 */
-	public float getLower()
+	public WMV_Time getLower()
 	{
 		return lower;
 	}
@@ -104,7 +95,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	 */
 	public int compareTo(WMV_TimeSegment t)
 	{
-		return Float.compare(this.center, t.center);		
+		return Float.compare(this.center.getTime(), t.center.getTime());		
 	}
 
 	public static Comparator<WMV_TimeSegment> WMV_TimeMidpointComparator = new Comparator<WMV_TimeSegment>() 
@@ -112,8 +103,8 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{
 
-			float time1 = t1.getCenter();
-			float time2 = t2.getCenter();
+			float time1 = t1.center.getTime();
+			float time2 = t2.center.getTime();
 
 			time1 *= 1000000.f;
 			time2 *= 1000000.f;
@@ -127,13 +118,28 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
 		{
 
-			float lower1 = t1.getLower();
-			float lower2 = t2.getLower();
+			float lower1 = t1.lower.getTime();
+			float lower2 = t2.lower.getTime();
 
 			lower1 *= 1000000.f;
 			lower2 *= 1000000.f;
 			
 			return (int)(lower1 - lower2);
+		}
+	};
+
+	public static Comparator<WMV_TimeSegment> WMV_TimeUpperBoundComparator = new Comparator<WMV_TimeSegment>() 
+	{
+		public int compare(WMV_TimeSegment t1, WMV_TimeSegment t2) 
+		{
+
+			float upper1 = t1.upper.getTime();
+			float upper2 = t2.upper.getTime();
+
+			upper1 *= 1000000.f;
+			upper2 *= 1000000.f;
+			
+			return (int)(upper1 - upper2);
 		}
 	};
 }

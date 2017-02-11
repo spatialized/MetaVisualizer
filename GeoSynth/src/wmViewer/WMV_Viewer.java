@@ -704,14 +704,14 @@ public class WMV_Viewer
 	/**
 	 * @param nextFieldTime Index in timeline of cluster to move to
 	 */
-	void moveToFirstTimeOnDate(int fieldID, int fieldDateSegment, boolean teleport)
+	void moveToFirstTimeOnDate(int fieldID, int fieldDate, boolean teleport)
 	{
 		WMV_Field f = p.getField(fieldID);
 
 //		if(p.p.debug.viewer && p.p.debug.detailed)
 
-		p.display.message("moveToFirstTimeOnDate:"+fieldDateSegment);
-		currentFieldTimeSegment = getFirstTimeForDate(fieldDateSegment);
+		p.display.message("moveToFirstTimeOnDate:"+fieldDate);
+		currentFieldTimeSegment = getFirstTimeForDate(fieldDate);
 		p.display.message("... new currentFieldTimeSegment:"+currentFieldTimeSegment);
 
 		if(f.timeline.size() > currentFieldTimeSegment)
@@ -1222,9 +1222,9 @@ public class WMV_Viewer
 				WMV_TimeSegment t = c.getFirstTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment));
 				if(t != null)
 				{
-					if(t.getCenter() < earliest)
+					if(t.getCenter().getTime() < earliest)
 					{
-						earliest = t.getCenter();
+						earliest = t.getCenter().getTime();
 						earliestIdx = c.getID();
 					}
 				}
@@ -1238,7 +1238,7 @@ public class WMV_Viewer
 			{
 				if(t.getID() == earliestIdx)
 				{
-					if(t.getCenter() == earliest)
+					if(t.getCenter().getTime() == earliest)
 					{
 						PApplet.println("Found first time for dateSegment:"+dateSegment+" count:"+count+" t.getID():"+t.getID()+" t.getCenter():"+t.getCenter());
 //						return t.getID();
@@ -1268,9 +1268,9 @@ public class WMV_Viewer
 				WMV_TimeSegment t = c.getLastTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment));
 				if(t != null)
 				{
-					if(t.getCenter() > latest)
+					if(t.getCenter().getTime() > latest)
 					{
-						latest = t.getCenter();
+						latest = t.getCenter().getTime();
 						latestIdx = c.getID();
 					}
 				}
@@ -1284,7 +1284,7 @@ public class WMV_Viewer
 			{
 				if(t.getID() == latestIdx)
 				{
-					if(t.getCenter() == latest)
+					if(t.getCenter().getTime() == latest)
 					{
 						PApplet.println("Found last time for dateSegment:"+dateSegment+" count:"+count+" t.getID():"+t.getID()+" t.getCenter():"+t.getCenter());
 //						return t.getID();

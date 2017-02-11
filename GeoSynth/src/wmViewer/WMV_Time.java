@@ -13,18 +13,20 @@ import processing.core.PVector;
  */
 public class WMV_Time implements Comparable<WMV_Time>
 {
+	private int id, mediaType;
 	private int year, month, day, hour, minute, second, millisecond;
 	private float dayLength;
-	private float date, time;
+	private float time;
 	private Calendar calendar;
 	
 	private WMV_World p;
 	
-	WMV_Time(WMV_World parent, Calendar newCalendar)
+	WMV_Time(WMV_World parent, Calendar newCalendar, int newID, int newMediaType)
 	{
 		p = parent;
-
 		calendar = newCalendar;
+		id = newID;
+		mediaType = newMediaType;									// 0: image 1: panorama 2: video
 		
 		year = newCalendar.get(Calendar.YEAR);
 		month = newCalendar.get(Calendar.MONTH);
@@ -32,8 +34,9 @@ public class WMV_Time implements Comparable<WMV_Time>
 		hour = newCalendar.get(Calendar.HOUR_OF_DAY);
 		minute = newCalendar.get(Calendar.MINUTE);
 		second = newCalendar.get(Calendar.SECOND);
-		
-		time = p.p.utilities.getSimulationTime( newCalendar ); 		// Get normalized capture time
+		millisecond = newCalendar.get(Calendar.MILLISECOND);		// Check this!!
+	
+		time = p.p.utilities.getSimulationTime( newCalendar ); 		// Get normalized capture time (0. to 1. for 0:00 to 24:00)
 	}
 	
 	public int getYear()
@@ -66,10 +69,26 @@ public class WMV_Time implements Comparable<WMV_Time>
 		return second;
 	}
 	
+	public int getMillisecond()
+	{
+		return millisecond;
+	}
+	
+	public int getID()
+	{
+		return id;
+	}
+	
+	public int getMediaType()
+	{
+		return mediaType;
+	}
+	
+	/**
+	 * @return Date associated with this time
+	 */
 	public WMV_Date getDate()
 	{
-//		WMV_Date(WMV_World parent, Calendar newCalendar)
-
 		WMV_Date date = new WMV_Date(p, calendar);
 		return date;
 	}

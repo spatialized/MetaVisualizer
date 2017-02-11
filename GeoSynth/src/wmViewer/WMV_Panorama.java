@@ -61,6 +61,11 @@ public class WMV_Panorama extends WMV_Viewable
 		gpsLocation = newGPSLocation;
 		cameraModel = newCameraModel;
 
+		if(newCalendar != null)
+			time = new WMV_Time( p.p, newCalendar, getID(), 1 );
+		else
+			time = null;
+
 		theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		

@@ -1,5 +1,6 @@
 package wmViewer;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 import processing.core.PApplet;
@@ -14,14 +15,18 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	
 	private WMV_Time center;			// Center time 	 	  -- Mean or median??
 	private WMV_Time lower, upper;		// Upper and lower bounds of cluster
-	private int id = -1;			// Cluster ID
+	private int id, clusterID;			// Cluster ID
+	ArrayList<WMV_Time> timeline;
 	
-	WMV_TimeSegment(int newID, WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower)
+	WMV_TimeSegment(int newID, int newClusterID, WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower, ArrayList<WMV_Time> newTimeline)
 	{
 		id = newID;
+		clusterID = newClusterID;
 		center = newCenter;
 		upper = newUpper;
 		lower = newLower;
+		
+		timeline = newTimeline;
 	}
 	
 	/** 
@@ -62,6 +67,14 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	public int getID()
 	{
 		return id;
+	}
+	
+	/** 
+	 * @return Cluster ID
+	 */
+	public int getClusterID()
+	{
+		return clusterID;
 	}
 	
 	/** 

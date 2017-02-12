@@ -387,7 +387,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 				calculateVertices();  						// Update video vertices
 			}
 
-//			if(fadingBrightness == 1.f && wasFading && !isFading())		// Fade in sound once video has faded in
 			if(fadedIn)		// Fade in sound once video has faded in
 			{
 				if(p.p.p.debug.video)
@@ -396,7 +395,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 				fadedIn = false;						
 			}
 
-//			if(fadingBrightness == 0.f && wasFading && !isFading())		// Fade out sound once video has faded out
 			if(fadedOut) 
 			{
 				if(p.p.p.debug.video)

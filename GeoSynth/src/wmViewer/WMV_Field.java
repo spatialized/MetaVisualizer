@@ -582,24 +582,25 @@ public class WMV_Field
 	 */
 	public void createTimeline()
 	{
+		timeline = new ArrayList<WMV_TimeSegment>();
+		
 		if(p.p.debug.time)
 			PApplet.println(">>> Creating Field Timeline... <<<");
 
 		for(WMV_Cluster c : clusters)											// Find all media cluster times
 		{
-			ArrayList<WMV_TimeSegment> times = new ArrayList<WMV_TimeSegment>();
-			
 			for(WMV_TimeSegment t : c.getTimeline())
-			{
-//				if(p.p.debug.time)
-//					PApplet.println("Adding point to field #"+fieldID+" from cluster #"+c.getID()+" lower:"+t.getLower()+" center:"+t.getCenter()+" upper:"+ t.getUpper() );
-
-				WMV_TimeSegment time = new WMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
-				times.add( time );												// Add segment to timeline
-			}
-
-			for(WMV_TimeSegment t : times)										// Add indexed cluster times to timeline
 				timeline.add(t);
+			
+//			ArrayList<WMV_TimeSegment> times = new ArrayList<WMV_TimeSegment>();
+//			for(WMV_TimeSegment t : c.getTimeline())
+//			{
+//				WMV_TimeSegment time = new WMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
+//				times.add( time );												// Add segment to timeline
+//			}
+
+//			for(WMV_TimeSegment t : times)										// Add indexed cluster times to timeline
+//				timeline.add(t);
 		}
 
 		timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort time segments 
@@ -621,25 +622,25 @@ public class WMV_Field
 	 */
 	public void createDateline()
 	{
-		for(WMV_Cluster c : clusters)											// Find all media cluster times
+		for(WMV_Cluster c : clusters)										// Find all media cluster times
 		{
 			if(!c.isEmpty())
 			{
 				for(WMV_Date d : c.getDateline())							// Iterate through cluster dateline
-					dateline.add( d );												// Add segment to field dateline
+				{
+					WMV_Date nd = new WMV_Date(d);							// Use copy constructor to create copy
+					dateline.add( nd );										// Add segment to field dateline
+				}
 			}
 		}
 
 		dateline.sort(WMV_Date.WMV_DateComparator);				// Sort date segments
 		
-		if(p.p.debug.time && dateline.size()>0)
+		int count = 0;
+		for (WMV_Date d : dateline) 		
 		{
-//			PApplet.println("---> First lower:"+" dateline.get(0).getLower():"+dateline.get(0).getLower());
-//			PApplet.println("---> First center:"+" dateline.get(0).getCenter():"+dateline.get(0).getCenter());
-//			PApplet.println("---> First upper:"+" dateline.get(0).getUpper():"+dateline.get(0).getUpper());
-//			PApplet.println("---> Last lower:"+" dateline.get(dateline.size()-1).lower():"+dateline.get(dateline.size()-1).getLower());
-//			PApplet.println("---> Last center:"+" dateline.get(dateline.size()-1).center():"+dateline.get(dateline.size()-1).getCenter());
-//			PApplet.println("---> Last upper:"+" dateline.get(dateline.size()-1).upper():"+dateline.get(dateline.size()-1).getUpper());
+			d.setID(count);
+			count++;
 		}
 	}
 
@@ -655,8 +656,10 @@ public class WMV_Field
 			WMV_Waypoint w = clusters.get(t.getID()).getClusterAsWaypoint();
 			timelinePath.add(w);
 		}
+		
 		if(p.p.debug.field)
 			PApplet.println("getTimelineAsPath()... timelinePath.size():"+timelinePath.size());
+
 		return timelinePath;
 	}
 
@@ -672,52 +675,26 @@ public class WMV_Field
 	 * Get ID of time segment <number> in field timeline matching given cluster ID 
 	 * @param clusterID Cluster to get time segment from
 	 * @param index Segment in cluster timeline to get
-	 * @return
+	 * @return ID of time segment
 	 */
-	public int getTimeSegmentOfCluster(int clusterID, int index)
+	public WMV_TimeSegment getTimeSegmentInCluster(int clusterID, int index)
 	{
-		IntList times = new IntList();
+		WMV_TimeSegment t = clusters.get(clusterID).getTimeline().get(index);
+
+		if(t == null)
+			p.display.message("NULL time segment "+index+" returned by getTimeSegmentInCluster() clusterID:"+clusterID);
 		
-//		if(timeline.size() > clusterID)
-//		{
-		int count = 0;
-		for(WMV_TimeSegment t : timeline)
-		{
-			if(t.getID() == clusterID)
-				times.append(count);
-
-			count++;
-		}
-
-		if(times.size() > index)
-			return times.get(index);
-//		}
-
-		p.display.message("Couldn't get time segment "+index+" of cluster "+clusterID+" times.size() = "+times.size());
-		return -1;
+		return t;
 	}
 
-	public int getDateSegmentOfCluster(int clusterID, int index)
+	public WMV_Date getDateInCluster(int clusterID, int index)
 	{
-		IntList times = new IntList();
+		WMV_Date d = clusters.get(clusterID).dateline.get(index);
+
+		if(d == null)
+			p.display.message("Couldn't get date "+index+" in cluster "+clusterID);
 		
-//		if(timeline.size() > clusterID)
-//		{
-		int count = 0;
-		for(WMV_TimeSegment t : timeline)
-		{
-			if(t.getID() == clusterID)
-				times.append(count);
-
-			count++;
-		}
-
-		if(times.size() > index)
-			return times.get(index);
-//		}
-
-		p.display.message("Couldn't get date segment "+index+" of cluster "+clusterID+" times.size() = "+times.size());
-		return -1;
+		return d;
 	}
 
 //	/**

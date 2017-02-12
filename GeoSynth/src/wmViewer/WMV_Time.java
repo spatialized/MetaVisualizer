@@ -89,7 +89,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 	 */
 	public WMV_Date getDate()
 	{
-		WMV_Date date = new WMV_Date(p, calendar);
+		WMV_Date date = new WMV_Date(p, -1, calendar);
 		return date;
 	}
 

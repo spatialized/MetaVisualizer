@@ -707,10 +707,8 @@ public class WMV_Viewer
 	void moveToFirstTimeOnDate(int fieldID, int fieldDate, boolean teleport)
 	{
 		PApplet.println("CAN'T moveToFirstTimeOnDate... function disabled!");
-//		WMV_Field f = p.getField(fieldID);
-//
-////		if(p.p.debug.viewer && p.p.debug.detailed)
-//
+		WMV_Field f = p.getField(fieldID);
+
 //		p.display.message("moveToFirstTimeOnDate:"+fieldDate);
 //		currentFieldTimeSegment = getFirstTimeForDate(fieldDate);
 //		p.display.message("... new currentFieldTimeSegment:"+currentFieldTimeSegment);
@@ -741,72 +739,21 @@ public class WMV_Viewer
 	void moveToTimeInCluster(int clusterID, int nextClusterTimeSegment, boolean teleport)
 	{
 		WMV_Cluster c = p.getCluster(clusterID);
+		PApplet.println("CAN'T moveToTimeInCluster... function disabled!");
 		
-		if(p.p.debug.viewer && p.p.debug.detailed)
-			p.display.message("moveToTimeInCluster:"+c.timeline.get(nextClusterTimeSegment).getID()+" c.timeline.size():"+c.timeline.size());
-
-		if(teleport)
-		{
-			teleportToCluster(c.timeline.get(nextClusterTimeSegment).getID(), true);
-		}
-		else
-		{
-			setAttractorCluster(c.timeline.get(nextClusterTimeSegment).getID());
-		}
-	}
-	
-	/**
-	 * @param nextFieldDate Index in dateline of cluster to move to
-	 */
-//	void moveToDateInField(int fieldID, int nextFieldDate, boolean teleport)
-//	{
-//		WMV_Field f = p.getField(fieldID);
-//		
 //		if(p.p.debug.viewer && p.p.debug.detailed)
-//			p.display.message("moveToDateInField: nextFieldDate:"+nextFieldDate+" id:"+f.dateline.get(nextFieldDate).getID()+" f.dateline.size():"+f.dateline.size());
-//
-//		if(f.dateline.size()>0)
-//		{
-//			if(f.dateline.get(nextFieldDate).getID() == currentCluster && p.getCluster(f.dateline.get(nextFieldDate).getID()).getClusterDistance() < p.clusterCenterSize)	// Moving to different date in same cluster
-//			{
-//				currentFieldDateSegment++;
-//				if(p.p.debug.viewer && p.p.debug.detailed)
-//					p.display.message("Advanced date segment in same cluster... "+f.dateline.get(nextFieldDate).getID());
-//			}
-//			else
-//			{
-//				if(teleport)
-//				{
-//					teleportToCluster(f.dateline.get(nextFieldDate).getID(), true);
-//				}
-//				else
-//				{
-//					setAttractorCluster(f.dateline.get(nextFieldDate).getID());
-//				}
-//			}
-//		}
-//	}
-	
-//	/**
-//	 * @param nextFieldDate Date index in current cluster dateline to move to
-//	 */
-//	void moveToDateInCluster(int clusterID, int nextClusterDate, boolean teleport)
-//	{
-//		WMV_Cluster c = p.getCluster(clusterID);
-//		
-//		if(p.p.debug.viewer && p.p.debug.detailed)
-//			p.display.message("moveToDateInCluster:"+c.dateline.get(nextClusterDate).getID()+" c.dateline.size():"+c.dateline.size());
+//			p.display.message("moveToTimeInCluster:"+c.timeline.get(nextClusterTimeSegment).getID()+" c.timeline.size():"+c.timeline.size());
 //
 //		if(teleport)
 //		{
-//			teleportToCluster(c.dateline.get(nextClusterDate).getID(), true);
+//			teleportToCluster(c.timeline.get(nextClusterTimeSegment).getID(), true);
 //		}
 //		else
 //		{
-//			setAttractorCluster(c.dateline.get(nextClusterDate).getID());
+//			setAttractorCluster(c.timeline.get(nextClusterTimeSegment).getID());
 //		}
-//	}
-	
+	}
+		
 	/**
 	 * @param dest Destination cluster ID
 	 * @param fade Fade (true) or jump (false)?
@@ -836,6 +783,7 @@ public class WMV_Viewer
 				camera.jump(c.getLocation().x, c.getLocation().y, c.getLocation().z);
 			}
 		}
+		
 		}
 		else if(p.p.debug.cluster || p.p.debug.field || p.p.debug.viewer)
 		{
@@ -2121,6 +2069,7 @@ public class WMV_Viewer
 			if(p.p.debug.viewer)
 				p.display.message("Reached path goal #"+pathLocationIdx+", will start waiting...");
 			startWaiting(pathWaitLength);
+			
 //			if(p.p.debug.viewer)	p.display.message("Reached attractor... turning to memory target:"+path.get(pathLocationIdx).target);
 //			if(path.get(pathLocationIdx).target != null)
 //				turnTowardsPoint(path.get(pathLocationIdx).target);				// Turn towards memory target view
@@ -2138,10 +2087,10 @@ public class WMV_Viewer
 				p.getCurrentField().clearAllAttractors();	// Stop attracting when reached attractorCluster
 				
 				// -- Fix for dateNavigation
-				currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+				currentFieldTimeSegment = p.getCurrentField().getTimeSegmentInCluster(p.getCurrentCluster().getID(), 0).getID();
 				if(currentFieldTimeSegment == -1) 
 					PApplet.println("currentFieldTimeSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
-				currentFieldDate = p.getCurrentField().getDateSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+				currentFieldDate = p.getCurrentField().getDateInCluster(p.getCurrentCluster().getID(), 0).getID();
 				if(currentFieldDate == -1) 
 					PApplet.println("currentFieldDateSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
 			}
@@ -2158,10 +2107,10 @@ public class WMV_Viewer
 			setCurrentCluster( getNearestCluster(false) );		// Set currentCluster to nearest
 
 			// -- Fix for dateNavigation
-			currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+			currentFieldTimeSegment = p.getCurrentField().getTimeSegmentInCluster(p.getCurrentCluster().getID(), 0).getID();
 			if(currentFieldTimeSegment == -1) 
 				PApplet.println("currentFieldTimeSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
-			currentFieldDate = p.getCurrentField().getDateSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+			currentFieldDate = p.getCurrentField().getDateInCluster(p.getCurrentCluster().getID(), 0).getID();
 			if(currentFieldDate == -1) 
 				PApplet.println("currentFieldDateSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
 			
@@ -2549,10 +2498,10 @@ public class WMV_Viewer
 					movingToAttractor = false;
 					setCurrentCluster( getNearestCluster(false) );		// Set currentCluster to nearest
 					
-					currentFieldTimeSegment = p.getCurrentField().getTimeSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+					currentFieldTimeSegment = p.getCurrentField().getTimeSegmentInCluster(p.getCurrentCluster().getID(), 0).getID();
 					if(currentFieldTimeSegment == -1) 
 						PApplet.println("currentFieldTimeSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
-					currentFieldDate = p.getCurrentField().getDateSegmentOfCluster(p.getCurrentCluster().getID(), 0);
+					currentFieldDate = p.getCurrentField().getDateInCluster(p.getCurrentCluster().getID(), 0).getID();
 					if(currentFieldDate == -1) 
 						PApplet.println("currentFieldDateSegment was set to -1...");// resetting to last value:"+currentFieldTimeSegment);
 

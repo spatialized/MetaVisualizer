@@ -416,7 +416,7 @@ public class WMV_Viewer
 			field = newField;
 
 //		p.display.initializeSmallMap();
-		p.display.initializeLargeMap();
+		p.display.map2D.initializeLargeMap();
 
 		if(p.p.debug.field || p.p.debug.viewer)		
 			p.display.message("Set new field:"+field);
@@ -3025,10 +3025,10 @@ public class WMV_Viewer
 				String timeStr = parts[1];
 
 				parts = dateStr.split("-");
-				String yearStr, monthStr, dayStr;
-				yearStr = parts[0];
-				monthStr = parts[1];
-				dayStr = parts[2];
+//				String yearStr, monthStr, dayStr;
+//				yearStr = parts[0];
+//				monthStr = parts[1];
+//				dayStr = parts[2];
 //				int year = Integer.parseInt(yearStr);
 //				int month = Integer.parseInt(monthStr);
 //				int day = Integer.parseInt(dayStr);

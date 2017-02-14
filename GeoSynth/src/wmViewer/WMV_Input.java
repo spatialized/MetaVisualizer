@@ -147,42 +147,42 @@ public class WMV_Input
 		{
 			// Option Key
 			if (optionKey && key == '1') 
-				p.display.mapMode = 1;
+				p.display.map2D.mapMode = 1;
 
 			if (optionKey && key == '2') 
-				p.display.mapMode = 2;
+				p.display.map2D.mapMode = 2;
 
 			if (optionKey && key == '3') 
-				p.display.mapMode = 3;
+				p.display.map2D.mapMode = 3;
 
 			if (optionKey && key == '4') 
-				p.display.mapMode = 4;
+				p.display.map2D.mapMode = 4;
 
 			if (optionKey && key == '5') 
-				p.display.mapMode = 5;
+				p.display.map2D.mapMode = 5;
 
 			if (optionKey && key == '6') 
-				p.display.mapMode = 6;
+				p.display.map2D.mapMode = 6;
 
 			if (optionKey && key == '7') 
-				p.display.mapMode = 7;
+				p.display.map2D.mapMode = 7;
 
 			// Option + Shift Keys
 			if (optionKey && key == '!') 
-				p.display.mapImages = !p.display.mapImages;
+				p.display.map2D.mapImages = !p.display.map2D.mapImages;
 
 			if (optionKey && key == '@') 
-				p.display.mapPanoramas = !p.display.mapPanoramas;
+				p.display.map2D.mapPanoramas = !p.display.map2D.mapPanoramas;
 
 			if (optionKey && key == '#') 
-				p.display.mapVideos = !p.display.mapVideos;
+				p.display.map2D.mapVideos = !p.display.map2D.mapVideos;
 
 			if (key == ']') {
-				p.display.mapZoom *= 1.02f;
+				p.display.map2D.mapZoom *= 1.02f;
 			}
 
 			if (key == '[') {
-				p.display.mapZoom *= 0.985f;
+				p.display.map2D.mapZoom *= 0.985f;
 			}
 
 			if (key == PApplet.CODED) 					
@@ -194,16 +194,16 @@ public class WMV_Input
 					p.viewer.rotateX(1);
 
 				if (shiftKey && keyCode == PApplet.LEFT) 
-					p.display.mapLeftEdge -= 10.f;
+					p.display.map2D.mapLeftEdge -= 10.f;
 
 				if (shiftKey && keyCode == PApplet.RIGHT) 
-					p.display.mapLeftEdge += 10.f;
+					p.display.map2D.mapLeftEdge += 10.f;
 
 				if (shiftKey && keyCode == PApplet.DOWN) 
-					p.display.mapTopEdge += 10.f;
+					p.display.map2D.mapTopEdge += 10.f;
 
 				if (shiftKey && keyCode == PApplet.UP) 
-					p.display.mapTopEdge -= 10.f;
+					p.display.map2D.mapTopEdge -= 10.f;
 			}
 		}
 		else if(p.display.info || p.display.infoOverlay)		/* Info View */
@@ -289,9 +289,6 @@ public class WMV_Input
 			if (!optionKey && key == 'd') 
 				p.viewer.startMoveXTransition(1);
 
-//			if (key == 'D') 
-//				p.dateFading = !p.dateFading;
-
 			if (key == 'T') 
 				p.timeFading = !p.timeFading;
 
@@ -367,18 +364,6 @@ public class WMV_Input
 
 				if (key == 'B')						// Teleport to previous cluster time segment
 					p.viewer.moveToPreviousTimeSegment(false, true);
-
-//				if (key == 'l')						// Teleport to next date segment
-//					p.viewer.moveToNextDateSegment(true, true);
-//
-//				if (key == 'k')						// Teleport to previous date segment
-//					p.viewer.moveToPreviousDateSegment(true, true);
-//
-//				if (key == 'L')						// Teleport to next cluster date segment
-//					p.viewer.moveToNextDateSegment(false, true);
-//
-//				if (key == 'K')						// Teleport to previous cluster date segment
-//					p.viewer.moveToPreviousDateSegment(false, true);
 			}
 			else
 			{
@@ -393,18 +378,6 @@ public class WMV_Input
 
 				if (key == 'B')						// Move to previous cluster time segment
 					p.viewer.moveToPreviousTimeSegment(false, false);
-
-//				if (key == 'l')						// Move to current date segment
-//					p.viewer.moveToNextDateSegment(true, false);
-//
-//				if (key == 'k')						// Move to current date segment
-//					p.viewer.moveToPreviousDateSegment(true, false);
-//
-//				if (key == 'L')						// Move to next cluster date segment
-//					p.viewer.moveToNextDateSegment(false, false);
-//
-//				if (key == 'K')						// Move to previous cluster date segment
-//					p.viewer.moveToPreviousDateSegment(false, false);
 			}
 			
 			if (key == '~')
@@ -420,21 +393,6 @@ public class WMV_Input
 				if(!p.viewer.isFollowing())
 					p.viewer.followTimeline(true, false);
 			}
-
-//			if (optionKey && key == '.')
-//			{
-//				if(!p.viewer.isFollowing())
-//					p.viewer.followDateline(true, false);
-//			}
-			
-//			if (!optionKey && key == '.')
-//			{
-//				if(p.viewer.isFollowing())			// Check this
-//				{
-//					p.viewer.followTimeline(false, false);
-////					p.viewer.followDateline(false, false);
-//				}
-//			}
 
 			if (key == 'u') 		// Teleport to nearest cluster with video
 				p.viewer.moveToNextCluster(true, 2);
@@ -649,7 +607,7 @@ public class WMV_Input
 //						f.model.clustersNeedUpdate = true;
 						p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
 						p.getCurrentField().initializeClusters();			
-						p.display.initializeMaps();
+						p.display.map2D.initializeMaps();
 					}
 				}
 			}
@@ -666,7 +624,7 @@ public class WMV_Input
 //						f.model.clustersNeedUpdate = true;					// -- Temporary: will make minClusterDistance field specific...
 						p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
 						p.getCurrentField().initializeClusters();			
-						p.display.initializeMaps();
+						p.display.map2D.initializeMaps();
 					}
 				}
 			}
@@ -675,35 +633,33 @@ public class WMV_Input
 		/* Arrow and Shift Keys */
 		if (key == PApplet.CODED) 					
 		{
-			if(!p.display.inDisplayView())
-			{
-				/* Navigation */
-				if (keyCode == PApplet.LEFT) 
-					p.viewer.rotateX(-1);
+			/* Navigation */
+			if (keyCode == PApplet.LEFT) 
+				p.viewer.rotateX(-1);
 
-				if (keyCode == PApplet.RIGHT) 
-					p.viewer.rotateX(1);
-				
-				if (keyCode == PApplet.UP) 
-					p.viewer.rotateY(-1);
-				
-				if (keyCode == PApplet.DOWN) 
-					p.viewer.rotateY(1);
-				
-				/* Time */
-				if (shiftKey && keyCode == PApplet.UP) 
-					p.incrementTime();
+			if (keyCode == PApplet.RIGHT) 
+				p.viewer.rotateX(1);
 
-				if (shiftKey && keyCode == PApplet.DOWN) 
-					p.decrementTime();
-				
-				if (shiftKey && keyCode == PApplet.LEFT) 
-					p.decrementCycleLength();
+			if (keyCode == PApplet.UP) 
+				p.viewer.rotateY(-1);
 
-				if (shiftKey && keyCode == PApplet.RIGHT) 
-					p.incrementCycleLength();
-			}
-			else
+			if (keyCode == PApplet.DOWN) 
+				p.viewer.rotateY(1);
+
+			/* Time */
+			if (shiftKey && keyCode == PApplet.UP) 
+				p.incrementTime();
+
+			if (shiftKey && keyCode == PApplet.DOWN) 
+				p.decrementTime();
+
+			if (shiftKey && keyCode == PApplet.LEFT) 
+				p.decrementCycleLength();
+
+			if (shiftKey && keyCode == PApplet.RIGHT) 
+				p.incrementCycleLength();
+
+			if(p.display.inDisplayView())
 			{
 				if(p.interactive)			/* Interactive Clustering */
 				{
@@ -734,7 +690,7 @@ public class WMV_Input
 							{
 								p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
 								p.getCurrentField().initializeClusters();			
-								p.display.initializeMaps();
+								p.display.map2D.initializeMaps();
 							}
 							else p.getCurrentField().model.clusterRefinement += 10;
 						}
@@ -748,7 +704,7 @@ public class WMV_Input
 							{
 								p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
 								p.getCurrentField().initializeClusters();			
-								p.display.initializeMaps();
+								p.display.map2D.initializeMaps();
 							}
 							else p.getCurrentField().model.clusterRefinement -= 10;
 						}
@@ -762,7 +718,7 @@ public class WMV_Input
 							{
 								p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
 								p.getCurrentField().initializeClusters();			
-								p.display.initializeMaps();
+								p.display.map2D.initializeMaps();
 							}
 							else p.getCurrentField().model.clusterPopulationFactor += 1.f;
 						}
@@ -776,7 +732,7 @@ public class WMV_Input
 							{
 								p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
 								p.getCurrentField().initializeClusters();			
-								p.display.initializeMaps();
+								p.display.map2D.initializeMaps();
 							}
 							else p.getCurrentField().model.clusterPopulationFactor -= 1.f;
 						}

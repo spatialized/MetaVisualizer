@@ -439,7 +439,7 @@ public class WMV_World
 		PApplet.println("Finishing setup...");
 		setupProgress = 100;
 		
-		display.initializeMaps();
+		display.map2D.initializeMaps();
 		
 		initialSetup = false;				
 		display.initialSetup = false;
@@ -504,7 +504,7 @@ public class WMV_World
 		startInteractive = false;			// Have started
 		
 //		display.initializeSmallMap();
-		display.initializeLargeMap();
+		display.map2D.initializeLargeMap();
 		
 		display.resetDisplayModes();		// Clear messages
 		display.displayClusteringInfo();

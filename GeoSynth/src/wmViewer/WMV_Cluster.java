@@ -895,7 +895,7 @@ public class WMV_Cluster
 		force.mult(strength);
 		
 		if(p.p.drawForceVector)
-			p.p.display.drawForceVector(force);
+			p.p.display.map2D.drawForceVector(force);
 		
 		return force; 								// Return force to be applied
 	}

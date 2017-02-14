@@ -2,6 +2,7 @@ package wmViewer;
 
 import java.util.ArrayList;
 import processing.core.PApplet;
+import processing.core.PVector;
 import processing.data.IntList;
 //import processing.core.PVector;
 
@@ -181,6 +182,8 @@ public class WMV_Field
 		model.setup(); 						// Initialize field for first time 
 
 		calculateMediaLocations(); 			// Set location of each photo in simulation
+		detectMultipleFields();			// Run clustering on capture locations to detect multiple fields
+		
 		findImagePlaceHolders();			// Find image place holders for videos
 		calculateMediaVertices();			// Calculate all image vertices
 
@@ -265,7 +268,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * initializeClusterMedia()
 	 * Analyze media and initialize cluster variables for each media item 
 	 */
 	void initializeClusterMedia()
@@ -309,7 +311,6 @@ public class WMV_Field
 	}
 
 	/**
-	 * calculateMediaVertices()
 	 * Calculate vertices for all images and videos in the field
 	 */
 	public void calculateMediaVertices() 
@@ -559,7 +560,326 @@ public class WMV_Field
 	}
 	
 	/**
-	 * drawGrid()
+	 * Run k-means clustering to search for multiple fields
+	 */
+	void detectMultipleFields()
+	{
+		ArrayList<WMV_Cluster> clusterList = new ArrayList<WMV_Cluster>();			// Clear current cluster list
+
+		/* Estimate number of clusters */
+		int numClusters = 12; 								// Estimate number of clusters 
+		float minClusterDistance = 5000.f, maxClusterDistance = 25000.f;					
+		float epsilon = p.kMeansClusteringEpsilon;
+		int refinement = 60;
+				
+		/* K-means Clustering */
+		//				initializeKMeansClusters(numClusters);		// Create initial clusters at random image locations	
+		IntList addedImages = new IntList();			// Images already added to clusters; should include all images at end
+		IntList nearImages = new IntList();			// Images nearby added media 
+
+		IntList addedPanoramas = new IntList();		// Panoramas already added to clusters; should include all panoramas at end
+		IntList nearPanoramas = new IntList();		// Panoramas nearby added media 
+
+		IntList addedVideos = new IntList();			// Videos already added to clusters; should include all videos at end
+		IntList nearVideos = new IntList();			// Videos nearby added media 
+
+		for (int i = 0; i < numClusters; i++) 		// Iterate through the clusters
+		{
+			int imageID, panoramaID, videoID;			
+
+			if(i == 0)			
+			{
+				long clusteringRandomSeed = (long) p.p.random(1000.f);
+				p.p.randomSeed(clusteringRandomSeed);
+				imageID = (int) p.p.random(images.size());  			// Random image ID for setting cluster's start location				
+				panoramaID = (int) p.p.random(panoramas.size());  		// Random panorama ID for setting cluster's start location				
+				videoID = (int) p.p.random(videos.size());  			// Random video ID for setting cluster's start location				
+				addedImages.append(imageID);								
+				addedPanoramas.append(panoramaID);								
+				addedVideos.append(videoID);								
+
+				/* Record media nearby added media*/
+				for(WMV_Image img : images)						// Check for images near the picked one
+				{
+					float dist = img.getCaptureDistanceFrom(images.get(imageID).getCaptureLocation());  // Get distance
+					if(dist < minClusterDistance)
+						nearImages.append(img.getID());				// Record images nearby picked image
+				}
+
+				for(WMV_Panorama pano : panoramas)				// Check for panoramas near the picked one 
+				{
+					float dist = pano.getCaptureDistanceFrom(panoramas.get(panoramaID).getCaptureLocation());  // Get distance
+					if(dist < minClusterDistance)
+						nearPanoramas.append(pano.getID());			// Add to the list of nearby picked images
+				}
+
+				/* Create the first cluster */
+				PVector clusterPoint = new PVector(0,0,0);
+				if(images.size() > 0)
+				{
+					clusterPoint = new PVector(images.get(imageID).getCaptureLocation().x, images.get(imageID).getCaptureLocation().y, images.get(imageID).getCaptureLocation().z); // Choose random image location to start
+					clusterList.add(new WMV_Cluster(this, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+					i++;
+				}
+				else if(panoramas.size() > 0)
+				{
+					clusterPoint = new PVector(panoramas.get(panoramaID).getCaptureLocation().x, panoramas.get(panoramaID).getCaptureLocation().y, panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
+					clusterList.add(new WMV_Cluster(this, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+					i++;
+				}
+			}
+			else															// Find a random media (image, panorama or video) location for new cluster
+			{
+				int mediaID = (int) p.p.random(images.size() + panoramas.size() + videos.size());
+				PVector clusterPoint = new PVector(0,0,0);
+
+				if( mediaID < images.size() )				// If image, compare to already picked images
+				{
+					imageID = (int) p.p.random(images.size());  						
+					while(addedImages.hasValue(imageID) && nearImages.hasValue(imageID))
+						imageID = (int) p.p.random(images.size());  						
+
+					addedImages.append(imageID);
+					clusterPoint = new PVector(images.get(imageID).getCaptureLocation().x, images.get(imageID).getCaptureLocation().y, images.get(imageID).getCaptureLocation().z); // Choose random image location to start
+				}
+				else if( mediaID < images.size() + panoramas.size() )		// If panorama, compare to already picked panoramas
+				{
+					panoramaID = (int) p.p.random(panoramas.size());  						
+					while(addedPanoramas.hasValue(panoramaID) && nearPanoramas.hasValue(panoramaID))
+						panoramaID = (int) p.p.random(panoramas.size());  						
+
+					addedPanoramas.append(panoramaID);
+
+					clusterPoint = new PVector(panoramas.get(panoramaID).getCaptureLocation().x, panoramas.get(panoramaID).getCaptureLocation().y, panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
+				}
+				else if( mediaID < images.size() + panoramas.size() + videos.size() )		// If video, compare to already picked videos
+				{
+					videoID = (int) p.p.random(videos.size());  						
+					while(addedImages.hasValue(videoID) && nearImages.hasValue(videoID))
+						videoID = (int) p.p.random(videos.size());  						
+
+					addedVideos.append(videoID);
+
+					clusterPoint = new PVector(videos.get(videoID).getCaptureLocation().x, videos.get(videoID).getCaptureLocation().y, videos.get(videoID).getCaptureLocation().z); // Choose random image location to start
+				}
+
+				clusterList.add(new WMV_Cluster(this, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+			}
+		}	
+		
+		// Refine clusters 
+		int count = 0;
+		boolean moved = false;						// Has any cluster moved farther than epsilon?
+
+		ArrayList<WMV_Cluster> last = clusterList;
+		PApplet.println("--> Refining clusters...");
+
+		while( count < refinement ) 							// Iterate to create the clusters
+		{		
+			for (int i = 0; i < images.size(); i++) 			// Find closest cluster for each image
+				images.get(i).findAssociatedField(clusterList, maxClusterDistance);		// Set associated cluster
+			for (int i = 0; i < panoramas.size(); i++) 		// Find closest cluster for each image
+				panoramas.get(i).findAssociatedField(clusterList, maxClusterDistance);		// Set associated cluster
+			for (int i = 0; i < panoramas.size(); i++) 		// Find closest cluster for each image
+				panoramas.get(i).findAssociatedField(clusterList, maxClusterDistance);		// Set associated cluster
+			for (int i = 0; i < clusterList.size(); i++) 		// Find closest cluster for each image
+			{
+				clusterList.get(i).create();					// Assign clusters
+				PApplet.println(" clusterList.get(i).mediaPoints:"+clusterList.get(i).mediaPoints);
+			}
+
+			if(clusterList.size() == last.size())				// Check cluster movement
+			{
+				for(WMV_Cluster c : clusterList)
+				{
+					float closestDist = 10000.f;
+
+					for(WMV_Cluster d : last)
+					{
+						float dist = c.getLocation().dist(d.getLocation());
+						if(dist < closestDist)
+						{
+							closestDist = dist;
+						}
+					}
+
+					if(closestDist > epsilon)
+					{
+						moved = true;
+					}
+				}
+
+				if(!moved)
+				{
+					PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
+					break;								// If all clusters moved less than epsilon, stop refinement
+				}
+			}
+			else
+			{
+				PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+clusterList.size()+" last.size():"+last.size());
+			}
+
+			count++;
+		}
+		
+		int ct = 0;
+		for(WMV_Cluster c : clusterList)
+		{
+			PApplet.println("---->Cluster "+count+" images:"+c.images.size()+" panoramas:"+c.panoramas.size()+" videos:"+c.videos.size());
+			ct++;
+		}
+		clusterList = mergeAdjacentClusters(clusterList, 2500.f);
+		PApplet.println("Detected "+clusterList.size()+" fields...");
+		
+		ct = 0;
+		for(WMV_Cluster c : clusterList)
+		{
+			PApplet.println("Cluster "+count+" images:"+c.images.size()+" panoramas:"+c.panoramas.size()+" videos:"+c.videos.size());
+			ct++;
+		}
+	}
+	
+	/**
+	 * Merge together clusters with closest neighbor below minClusterDistance threshold
+	 */
+	ArrayList<WMV_Cluster> mergeAdjacentClusters(ArrayList<WMV_Cluster> clusterList, float minClusterDistance)
+	{
+		int mergedClusters = 0;			// Reset mergedClusters count
+
+		IntList[] closeNeighbors = new IntList[ clusterList.size()+1 ];			// List array of closest neighbor distances for each cluster 
+		ArrayList<PVector> mostNeighbors = new ArrayList<PVector>();			// List of clusters with most neighbors and number of neighbors as PVector(id, neighborCount)
+		IntList absorbed = new IntList();										// List of clusters absorbed into other clusters
+		IntList merged = new IntList();											// List of clusters already merged with neighbors
+		float firstMergePct = 0.2f;												// Fraction of clusters with most neighbors to merge first
+		
+		PApplet.println("Merging adjacent clusters... starting number:"+clusterList.size());
+
+		for( WMV_Cluster c : clusterList )					// Find distances of close neighbors to each cluster
+		{
+			PApplet.println("--> c.images.size():"+c.images.size()+" id:"+c.getID());
+			closeNeighbors[c.getID()] = new IntList();	// Initialize list for this cluster
+			for( WMV_Cluster d : clusterList )
+			{
+				float dist = PVector.dist(c.getLocation(), d.getLocation());			// Get distance between clusters
+				//				  PApplet.println("c.location:"+c.location+" d.location:"+d.location+" dist:"+dist+" min:"+minClusterDistance);
+
+				if(dist < minClusterDistance)								// If less than minimum distance
+				{
+					closeNeighbors[c.getID()].append(d.getID());		// Add d to closest clusters to c
+				}
+			}
+		}
+
+		int count = 0;
+		for( WMV_Cluster c : clusterList )					// Find distances of close neighbors for each cluster
+		{
+			if(count < clusterList.size() * firstMergePct )		// Fill array with initial clusters 
+			{
+				mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
+			}
+			else
+			{
+				boolean larger = false;
+				for(PVector v : mostNeighbors)
+				{
+					float numCloseNeighbors = closeNeighbors[c.getID()].size();
+					if( v.y > numCloseNeighbors ) larger = true;					// 
+				}
+
+				if(larger)
+				{
+					int smallestIdx = -1;							// Index in mostNeighbors array of cluster with smallest distance
+					float smallest = 10000.f;						// Smallest distance
+
+					for(int i = 0; i<mostNeighbors.size(); i++)			// Find smallest to remove
+					{
+						PVector v = mostNeighbors.get(i);
+
+						if(v.y < smallest)
+						{
+							smallestIdx = i;
+							smallest = v.y;
+						}
+					}
+					mostNeighbors.remove( smallestIdx );
+					mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
+				}
+			}
+
+			count++;
+		}		
+
+//		for( PVector v : mostNeighbors ) 					// For clusters with most close neighbors, absorb neighbors into cluster
+//		{
+//			if(p.p.debug.cluster && v.y > 0 && p.p.debug.detailed)
+//				PApplet.println("Merging cluster "+(int)v.x+" with "+(int)v.y+" neighbors...");
+//
+//			WMV_Cluster c = clusterList.get( (int)v.x );
+//			if(!merged.hasValue(c.getID()))
+//			{
+//				for(int i : closeNeighbors[c.getID()])
+//				{
+//					if(!absorbed.hasValue(i) && c.getID() != i) 		// If cluster i hasn't already been absorbed and isn't the same cluster
+//					{
+//						c.absorbCluster(clusterList.get(i));				// Absorb cluster
+//						absorbed.append(i);
+//
+//						merged.append(i);
+//						merged.append(c.getID());
+//						mergedClusters++;
+//					}
+//				}
+//			}
+//		}
+
+		for( WMV_Cluster c : clusterList )					// Merge remaining clusters under minClusterDistance 
+		{
+			PApplet.println("c.images.size():"+c.images.size()+" id:"+c.getID());
+			if(!merged.hasValue(c.getID()))
+			{
+				for( WMV_Cluster d : clusterList )
+				{
+					if( !absorbed.hasValue(d.getID()) && !merged.hasValue(d.getID()) && c.getID() != d.getID() ) 	// If is different cluster and hasn't already been absorbed or merged
+					{
+						float dist = PVector.dist(c.getLocation(), d.getLocation());			// Get distance between clusters
+						if(dist < minClusterDistance)
+						{
+							c.absorbCluster(d);
+							absorbed.append(d.getID());
+
+							merged.append(c.getID());
+							merged.append(d.getID());
+							mergedClusters++;
+						}
+					}
+				}
+			}
+		}
+
+		PApplet.println("Merged Clusters..."+mergedClusters);
+		
+//		absorbed.sort();
+//		for(int i=absorbed.size()-1;i>=0;i--)
+//			clusterList.remove(absorbed.get(i));
+//
+//		PApplet.println("Removed Clusters..."+absorbed.size());
+		
+		ArrayList<WMV_Cluster> newList = new ArrayList<WMV_Cluster>();
+		
+		for(WMV_Cluster c : clusterList)
+		{
+			if(!absorbed.hasValue(c.getID()))
+			{
+				newList.add(c);
+			}
+		}
+		
+		PApplet.println("Final clusters size..."+newList.size());
+		return newList;
+	}
+	
+	/**
 	 * @param dist Grid spacing
 	 */
 	public void drawGrid(float dist) 

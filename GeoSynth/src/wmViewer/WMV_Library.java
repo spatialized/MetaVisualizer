@@ -6,7 +6,9 @@ import processing.core.PApplet;
 
 /**************
  * @author davidgordon
- * GeoSynth media library 
+ * A media library in the expected format:
+ * 1. Subfolders containing media should be: "small_images", "small_videos", "panoramas"
+ * 2. Media should be: images <= 640px wide / videos <= 720px / panoramas full size
  */
 public class WMV_Library 
 {
@@ -27,7 +29,7 @@ public class WMV_Library
 	public void addFolder(String newFolder)
 	{
 		folders.add(newFolder);
-//		PApplet.println("Added media folder:"+newFolder);
+		PApplet.println("Added media folder "+newFolder+" to library");
 	}
 	
 	public ArrayList<String> getFolders()

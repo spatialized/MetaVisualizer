@@ -7,6 +7,7 @@ import g4p_controls.GButton;
 import g4p_controls.GCheckbox;
 import g4p_controls.GEvent;
 import g4p_controls.GOption;
+import g4p_controls.GSlider;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
@@ -1780,6 +1781,19 @@ class WMV_Display
 			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
 	}
 	
+	public void handleSliderEvent(GSlider slider)
+	{
+		if (slider.tag == "Alpha") 
+		{
+			p.alpha = slider.getValueF();
+		}
+
+		if (slider.tag == "MediaLength") 
+		{
+			p.defaultMediaLength = slider.getValueI();
+		}
+	}
+	
 	public void handleButtonEvent(GButton button, GEvent event) 
 	{ 
 		  boolean state;
@@ -1870,19 +1884,27 @@ class WMV_Display
 		  		case "ImportGPSTrack":
 					p.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
 					break;
-		  		case "FollowTimeline":
+		  		
+		  		case "FollowStart":
 					if(!p.viewer.isFollowing())
-						p.viewer.followTimeline(true, false);
+					{
+						switch(p.viewer.followMode)
+						{
+							case 0:
+								p.viewer.followTimeline(true, false);
+								break;
+							case 1:
+								p.viewer.followGPSTrack();
+								break;
+							case 2:
+								p.viewer.followMemory();
+								break;
+						}
+					}
 		  			break;
-		  		case "FollowGPSTrack":
-					if(!p.viewer.isFollowing())
-						p.viewer.followGPSTrack();
+		  		case "FollowStop":
+		  			p.viewer.stopFollowing();
 		  			break;
-		  		case "FollowMemory":
-					if(!p.viewer.isFollowing())
-						p.viewer.followMemory();
-		  			break;
-		  	
 		  		/* Model */
 		  		case "SubjectDistanceDown":
 					p.getCurrentField().fadeObjectDistances(0.85f);
@@ -1909,74 +1931,6 @@ class WMV_Display
 					p.p.selectFolder("Select an output folder:", "outputFolderSelected");
 					break;
 		  }
-//			if (key == '~')
-//			p.viewer.followMemory();
-	//
-		
-
-//		if (!optionKey && key == '>')
-//		{
-//			if(!p.viewer.isFollowing())
-//				p.viewer.followTimeline(true, false);
-//		}
-	//
-//		if (optionKey && key == '.')
-//		{
-//			if(!p.viewer.isFollowing())
-//				p.viewer.followDateline(true, false);
-//		}
-	//	
-//		if (!optionKey && key == '.')
-//		{
-//			if(p.viewer.isFollowing())			// Check this
-//			{
-//				p.viewer.followTimeline(false, false);
-//				p.viewer.followDateline(false, false);
-//			}
-//		}
-		
-//		if (optionKey && key == 'g')
-//			p.viewer.followGPSTrack();
-		
-		
-//		if (key == 'u') 		// Teleport to nearest cluster with video
-//			p.viewer.moveToNextCluster(true, 2);
-	//
-//		if (key == 'U') 		// Go to nearest cluster with video
-//			p.viewer.moveToNextCluster(false, 2);
-	//
-//		if (key == 'm') 		// Teleport to nearest cluster with panorama
-//			p.viewer.moveToNextCluster(true, 1);
-	//
-//		if (key == 'M') 		// Go to nearest cluster with panorama
-//			p.viewer.moveToNextCluster(false, 1);
-	//
-//		if (key == '-') 
-//			p.getCurrentField().fadeObjectDistances(0.85f);
-	//	
-//		if (key == '=')
-//			p.getCurrentField().fadeObjectDistances(1.176f);
-	//
-//		if (key == 'q') 
-//			p.viewer.startZoomTransition(-1);
-	//
-//		if (key == 'z') 
-//			p.viewer.startZoomTransition(1);
-
-
-//		if (key == 't') 
-//			p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
-	//
-//		if (key == 'd') 
-//			p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, true);
-	//
-//		if (key == 'T')
-//			p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
-	//
-//		if (key == 'D') 
-//			p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, false);
-	//
-		  
 		}
 
 	/**
@@ -1988,6 +1942,18 @@ class WMV_Display
 	{
 		switch (option.tag)
 		{
+			case "FollowTimeline":
+				if(option.isSelected())
+					p.viewer.followMode = 0;
+				break;
+	  		case "FollowGPSTrack":
+				if(option.isSelected())
+					p.viewer.followMode = 1;
+				break;
+	  		case "FollowMemory":
+				if(option.isSelected())
+					p.viewer.followMode = 2;
+				break;
 			case "TimeFading":
 				p.timeFading = option.isSelected();
 //				p.timeFading = !p.timeFading;

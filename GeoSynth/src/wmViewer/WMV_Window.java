@@ -33,8 +33,6 @@ public class WMV_Window {
 	private GButton btnGoToPreviousField, btnGoToNextField;
 	private GButton btnFollowStart, btnFollowStop;	
 
-//		p.showModel = !p.showModel;
-
 	private GLabel lblGraphics, lblTime, lblAutoNavigation, lblPathNavigation, lblModel, lblOutput;
 	public GLabel lblCurrentTime;
 	
@@ -57,7 +55,8 @@ public class WMV_Window {
 	private GLabel lblSelection, lblViewing, lblStatistics;
 	private GButton btnSelectFront, btnDeselectAll, btnExitSelectionMode, btnExitStatisticsMode;
 	private GCheckbox chkbxMultiSelection, chkbxSelectGroups, chkbxViewMetadata;
-
+	
+//		p.showModel = !p.showModel;
 //	private GDropList textH, textV, iconH, iconV, iconP;
 	
 	String windowTitle = " ";
@@ -137,7 +136,7 @@ public class WMV_Window {
 		btnNextTimeSegment.tag = "NextTime";
 		btnNextTimeSegment.setLocalColorScheme(5);
 
-		x = 70;
+		x = 50;
 		y += 30;
 
 		btnImportGPSTrack = new GButton(mainSidebar, x, y, 140, 20, "Import GPS Track");
@@ -188,7 +187,7 @@ public class WMV_Window {
 		chkbxFollowTeleport.setLocalColorScheme(10);
 
 		btnFollowStart = new GButton(mainSidebar, x+=90, y, 60, 20, "Start");
-		btnFollowStart.tag = "Follow";
+		btnFollowStart.tag = "FollowStart";
 		btnFollowStart.setLocalColorScheme(5);
 		
 		btnFollowStop = new GButton(mainSidebar, x+=60, y, 60, 20, "Stop");

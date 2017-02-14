@@ -2,6 +2,7 @@ package wmViewer;
 
 import processing.video.*;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import processing.core.*;
@@ -1281,11 +1282,10 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * findAssociatedCluster()
 	 * Set nearest cluster to the capture location to be the associated cluster
 	 * @return Whether associated cluster was successfully found
 	 */	
-	public boolean findAssociatedCluster()    				 // Associate cluster that is closest to photo
+	public boolean findAssociatedCluster(float maxClusterDistance)    				 // Associate cluster that is closest to photo
 	{
 		int closestClusterIndex = 0;
 		float closestDistance = 100000;
@@ -1302,12 +1302,48 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			}
 		}
 
-		if(closestDistance < p.p.getCurrentModel().maxClusterDistance)
+		if(closestDistance < maxClusterDistance)
 			cluster = closestClusterIndex;
 		else
 		{
 			cluster = -1;						// Create a new single image cluster here!
 			p.disassociatedVideos++;
+		}
+
+		if(cluster != -1)
+			return true;
+		else
+			return false;
+	}
+	
+	/**
+	 * @return Whether associated field was successfully found
+	 * Set nearest cluster to the capture location to be the associated cluster
+	 */	
+	public boolean findAssociatedField(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+	{
+		int closestClusterIndex = 0;
+		float closestDistance = 100000;
+
+		for (int i = 0; i < clusterList.size(); i++) 
+		{     
+			WMV_Cluster curCluster = (WMV_Cluster) clusterList.get(i);
+			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
+
+			if (distanceCheck < closestDistance)
+			{
+				closestClusterIndex = i;
+				closestDistance = distanceCheck;
+			}
+		}
+
+		if(closestDistance < maxClusterDistance)
+		{
+			cluster = closestClusterIndex;
+		}
+		else
+		{
+			cluster = -1;						// Create a new single image cluster here!
 		}
 
 		if(cluster != -1)

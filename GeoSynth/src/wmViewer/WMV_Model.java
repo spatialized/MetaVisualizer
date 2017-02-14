@@ -235,7 +235,6 @@ public class WMV_Model
 				PApplet.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
 		}
 	}
-
 	
 	/**
 	 * Build the dendrogram and calculate clusters at each depth
@@ -325,7 +324,6 @@ public class WMV_Model
 	}
 	
 	/**
-	 * createClustersFromDendrogram()
 	 * @param depth Dendrogram depth level
 	 * @return clusters GMV_Cluster list at given depth level based on dendrogram
 	 */
@@ -471,11 +469,11 @@ public class WMV_Model
 		p.clusters = createClustersFromDendrogram( depth );	// Get clusters at defaultClusterDepth	 -- Set this based on media density
 
 		for (int i = 0; i < p.images.size(); i++) 			// Find closest cluster for each image
-			p.images.get(i).findAssociatedCluster();
+			p.images.get(i).findAssociatedCluster(maxClusterDistance);
 		for (int i = 0; i < p.panoramas.size(); i++) 			// Find closest cluster for each image
-			p.panoramas.get(i).findAssociatedCluster();
+			p.panoramas.get(i).findAssociatedCluster(maxClusterDistance);
 		for (int i = 0; i < p.videos.size(); i++) 			// Find closest cluster for each video
-			p.videos.get(i).findAssociatedCluster();
+			p.videos.get(i).findAssociatedCluster(maxClusterDistance);
 
 		if(p.clusters.size() > 0)							// Find image place holders
 			findVideoPlaceholders();
@@ -988,11 +986,11 @@ public class WMV_Model
 		while( count < iterations ) 							// Iterate to create the clusters
 		{		
 			for (int i = 0; i < p.images.size(); i++) 			// Find closest cluster for each image
-				p.images.get(i).findAssociatedCluster();		// Set associated cluster
+				p.images.get(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
 			for (int i = 0; i < p.panoramas.size(); i++) 		// Find closest cluster for each image
-				p.panoramas.get(i).findAssociatedCluster();		// Set associated cluster
+				p.panoramas.get(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
 			for (int i = 0; i < p.videos.size(); i++) 			// Find closest cluster for each image
-				p.videos.get(i).findAssociatedCluster();		// Set associated cluster
+				p.videos.get(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
 			for (int i = 0; i < p.clusters.size(); i++) 		// Find closest cluster for each image
 				p.clusters.get(i).create();						// Assign clusters
 
@@ -1037,7 +1035,6 @@ public class WMV_Model
 	}
 
 	/**
-	 * mergeAdjacentClusters()
 	 * Merge together clusters with closest neighbor below minClusterDistance threshold
 	 */
 	void mergeAdjacentClusters()
@@ -1236,7 +1233,6 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * createCluster()
 	  * @param index New clusterID
 	  * @param location Location
 	  * @param images GMV_Image list

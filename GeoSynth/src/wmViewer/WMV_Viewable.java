@@ -116,7 +116,6 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * setClusterTime()
 	 * Set clusterTime for this image based on media times in associated cluster
 	 */
 	void setClusterTime()

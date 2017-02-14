@@ -29,7 +29,6 @@ public class WMV_Viewer
 	/* Camera */
 	Camera camera;									 				// Camera object
 	private boolean firstCamInitialization = true;					// Whether the camera has been initialized	
-	
 	private float fieldOfView = PApplet.PI * 0.375f;				// Field of view
 
 	private final float initFieldOfView = fieldOfView; 				// Initial field of view
@@ -104,6 +103,7 @@ public class WMV_Viewer
 	private int pathWaitStartFrame, pathWaitLength = 100;
 
 	/* Movement */
+	public int followMode = 0;					// 0: Timeline 1: GPS Track 2: Memory
 	private boolean walking = false;			// Whether viewer is walking
 	public PVector walkingVelocity;
 	public PVector walkingAcceleration;			// Physics parameters applied relative to camera direction
@@ -698,7 +698,6 @@ public class WMV_Viewer
 	void moveToTimeSegmentInField(int fieldID, int fieldTimeSegment, boolean teleport)
 	{
 		WMV_Field f = p.getField(fieldID);
-//		PApplet.println("CAN'T moveToTimeInField... function disabled!");
 
 		if(p.p.debug.viewer && p.p.debug.detailed)
 			p.display.message("moveToTimeInField:"+f.timeline.get(fieldTimeSegment).getID()+" f.timeline.size():"+f.timeline.size());
@@ -964,100 +963,7 @@ public class WMV_Viewer
 		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport);
 	}
 
-//	public int getFirstTimeForDate(int dateSegment)
-//	{
-//		float earliest = 1000000.f;
-//		int earliestIdx = -1;
-//
-//		for(WMV_Cluster c : p.getFieldClusters())
-//		{
-//			if(!c.isEmpty())
-//			{
-//				WMV_TimeSegment t = c.getFirstTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment));
-//				if(t != null)
-//				{
-//					if(t.getCenter().getTime() < earliest)
-//					{
-//						earliest = t.getCenter().getTime();
-//						earliestIdx = c.getID();
-//					}
-//				}
-//			}
-//		}
-//		
-//		if(earliestIdx != -1)
-//		{
-//			int count = 0;
-//			for(WMV_TimeSegment t : p.getCurrentField().timeline)
-//			{
-//				if(t.getID() == earliestIdx)
-//				{
-//					if(t.getCenter().getTime() == earliest)
-//					{
-//						PApplet.println("Found first time for dateSegment:"+dateSegment+" count:"+count+" t.getID():"+t.getID()+" t.getCenter():"+t.getCenter());
-////						return t.getID();
-//						return count;
-//					}
-//				}
-//				count++;
-//			}
-//			
-//			PApplet.println("Couldn't find first time for date in field:"+dateSegment);
-//			return -1;
-//		}
-//		
-//		PApplet.println("Couldn't find first time for date in cluster:"+dateSegment);
-//		return -1;	
-//	}
-//	
-//	private int getLastTimeForDate(int dateSegment)
-//	{
-//		float latest = -1000000.f;
-//		int latestIdx = -1;
-//
-//		for(WMV_Cluster c : p.getFieldClusters())
-//		{
-//			if(!c.isEmpty())
-//			{
-//				WMV_TimeSegment t = c.getLastTimeSegmentForDate(p.getCurrentField().dateline.get(dateSegment));
-//				if(t != null)
-//				{
-//					if(t.getCenter().getTime() > latest)
-//					{
-//						latest = t.getCenter().getTime();
-//						latestIdx = c.getID();
-//					}
-//				}
-//			}
-//		}
-//		
-//		if(latestIdx != -1)
-//		{
-//			int count = 0;
-//			for(WMV_TimeSegment t : p.getCurrentField().timeline)
-//			{
-//				if(t.getID() == latestIdx)
-//				{
-//					if(t.getCenter().getTime() == latest)
-//					{
-//						PApplet.println("Found last time for dateSegment:"+dateSegment+" count:"+count+" t.getID():"+t.getID()+" t.getCenter():"+t.getCenter());
-////						return t.getID();
-//						return count;
-//					}
-//				}
-//				count++;
-//			}
-//			
-//			PApplet.println("Couldn't find last time for date in field:"+dateSegment);
-//			return -1;
-//		}
-//		
-//		PApplet.println("Couldn't find last time for date in cluster:"+dateSegment);
-//		return -1;	
-//	}
-	
 	/**
-	 * teleportToGoal()
 	 * @param newField Goal field ID; value of -1 indicates to stay in current field
 	 * Fade out all visible media, move to goal, then fade in media visible at that location.
 	 */

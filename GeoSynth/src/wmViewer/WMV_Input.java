@@ -25,7 +25,6 @@ public class WMV_Input
 
 	WMV_Input(WMV_World parent) {
 		p = parent;
-//		wasDateFading = p.dateFading;
 		wasTimeFading = p.timeFading;
 	}
 
@@ -508,35 +507,26 @@ public class WMV_Input
 					p.timeFading = !p.timeFading;
 				}
 
-//				if (shiftKey && !optionKey && key == ' ') 
-//				{
-//					p.dateFading = !p.dateFading;
-//				}
-
 				if (key == ')') {
 					float newAlpha = PApplet.constrain(p.alpha+15.f, 0.f, 255.f);
 					p.fadeAlpha(newAlpha);
 					PApplet.println("p.alpha goal:"+newAlpha);
-//					p.display.changeBlendMode(1);
 				}
 
 				if (key == '(') {
 					float newAlpha = PApplet.constrain(p.alpha-15.f, 0.f, 255.f);
 					PApplet.println("p.alpha goal:"+newAlpha);
 					p.fadeAlpha(newAlpha);
-//					p.display.changeBlendMode(-1);
 				}
 
 				if (key == ':')
 				{
 					p.showUserPanoramas = !p.showUserPanoramas;
-//					PApplet.println("showUserPanoramas:"+p.showUserPanoramas);
 				}
 
 				if (key == ';')
 				{
 					p.showStitchedPanoramas = !p.showStitchedPanoramas;
-//					PApplet.println("showStitchedPanoramas:"+p.showStitchedPanoramas);
 				}
 
 				if (key == 'O') 

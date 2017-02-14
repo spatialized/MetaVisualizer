@@ -81,6 +81,7 @@ public class WMV_Viewer
 	public boolean videoMode = false;				// Highlights videos by dimming other media types	-- Unused
 	
 	/* Teleporting */
+	public boolean movementTeleport = false;		// Teleport when following navigation commands
 	private PVector teleportGoal;					// Coordinates of teleport goal
 	private boolean teleporting = false;			// Transition where all images fade in or out
 	private int teleportStart;						// Frame that fade transition started
@@ -458,9 +459,6 @@ public class WMV_Viewer
 	 */
 	void moveToCluster(int newCluster, boolean teleport) 
 	{
-		if (p.p.debug.viewer)
-			p.display.message("Moving to nearest cluster... "+newCluster);
-
 		if(teleport)
 		{
 			teleportGoalCluster = newCluster;
@@ -470,43 +468,13 @@ public class WMV_Viewer
 		else
 		{
 			if(teleporting)	teleporting = false;
-			setCurrentCluster( newCluster );
 			if(p.p.debug.viewer)
-				p.display.message("moveToNearestCluster... setting attractor and currentCluster:"+currentCluster);
-			setAttractorCluster( currentCluster );
+				p.display.message("Moving to nearest cluster... setting attractor:"+newCluster);
+			setAttractorCluster( newCluster );
 		}
 	}
-	
-
+		
 	/**
-	 * @param teleport  Whether to teleport (true) or navigate (false)
-	 * Move camera to the nearest cluster
-	 */
-	void moveToLastCluster(boolean teleport) 
-	{
-		if (p.p.debug.viewer)
-			p.display.message("Moving to last cluster... "+lastCluster);
-		if(lastCluster > 0)
-		{
-			if(teleport)
-			{
-				teleportGoalCluster = lastCluster;
-				PVector newLocation = ((WMV_Cluster) p.getCurrentField().clusters.get(lastCluster)).getLocation();
-				teleportToPoint(newLocation, true);
-			}
-			else
-			{
-				if(teleporting)	teleporting = false;
-				setCurrentCluster( lastCluster );
-				if(p.p.debug.viewer)
-					p.display.message("moveToLastCluster... setting attractor and currentCluster:"+currentCluster);
-				setAttractorCluster( currentCluster );
-			}
-		}
-	}
-	
-	/**
-	 * moveToNearestCluster()
 	 * @param teleport  Whether to teleport (true) or navigate (false)
 	 * Move camera to the nearest cluster
 	 */
@@ -515,7 +483,7 @@ public class WMV_Viewer
 		int nearest = getNearestCluster(false);		
 		
 		if (p.p.debug.viewer)
-			p.display.message("Moving to nearest cluster... "+nearest);
+			p.display.message("Moving to nearest cluster... "+nearest+" from current:"+currentCluster);
 
 		if(teleport)
 		{
@@ -525,14 +493,13 @@ public class WMV_Viewer
 		{
 			if(teleporting)	teleporting = false;
 			if(p.p.debug.viewer)
-				p.display.message("moveToNearestCluster... setting attractor and currentCluster:"+currentCluster);
-			setCurrentCluster( nearest );
-			setAttractorCluster( currentCluster );
+				p.display.message("moveToNearestCluster... setting attractor to nearest:"+nearest);
+//			setCurrentCluster( nearest );
+			setAttractorCluster( nearest );
 		}
 	}
 	
 	/**
-	 * moveToNearestClusterAhead()
 	 * @param teleport  Whether to teleport (true) or navigate (false)
 	 * Move camera to the nearest cluster
 	 */
@@ -561,6 +528,34 @@ public class WMV_Viewer
 		{
 			if(p.p.debug.viewer)
 				p.display.message("moveToNearestClusterAhead... can't move to same cluster!... "+ahead);
+		}
+	}
+	
+
+	/**
+	 * @param teleport  Whether to teleport (true) or navigate (false)
+	 * Move camera to the nearest cluster
+	 */
+	void moveToLastCluster(boolean teleport) 
+	{
+		if (p.p.debug.viewer)
+			p.display.message("Moving to last cluster... "+lastCluster);
+		if(lastCluster > 0)
+		{
+			if(teleport)
+			{
+				teleportGoalCluster = lastCluster;
+				PVector newLocation = ((WMV_Cluster) p.getCurrentField().clusters.get(lastCluster)).getLocation();
+				teleportToPoint(newLocation, true);
+			}
+			else
+			{
+				if(teleporting)	teleporting = false;
+//				setCurrentCluster( lastCluster );
+				if(p.p.debug.viewer)
+					p.display.message("moveToLastCluster... setting attractor and currentCluster:"+currentCluster);
+				setAttractorCluster( lastCluster );
+			}
 		}
 	}
 
@@ -802,24 +797,6 @@ public class WMV_Viewer
 		}
 	}
 
-	/**
-	 * @param teleport  Whether to teleport (true) or navigate (false)
-	 * Move camera to the nearest cluster
-	 */
-	void jumpToNearestCluster() 
-	{
-		int nearest = getNearestCluster(false);		
-		
-		if (p.p.debug.viewer)
-			PApplet.println("Jumping to nearest cluster... "+nearest);
-		
-		setCurrentCluster( nearest );
-		setAttractorCluster( currentCluster );
-
-//		jumpAndPointAtTarget(p.getCurrentCluster().getLocation(), )		// Need to implement initial direction
-		jumpTo(p.getCurrentCluster().getLocation());
-	}
-	
 	/**
 	 * @return Index of nearest cluster to camera, excluding the current cluster
 	 */
@@ -1359,7 +1336,6 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * moveToNearestClusterWithTimes()
 	 * @param minTimelinePoints Minimum points in timeline of cluster to move to
 	 */
 	void moveToNearestClusterWithTimes(int minTimelinePoints, boolean teleport)
@@ -1407,7 +1383,6 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * moveToNearestClusterInFuture()
 	 * @param nextTimeCluster Index in timeline of cluster to move to
 	 */
 	void moveToNearestClusterInFuture()
@@ -1466,7 +1441,7 @@ public class WMV_Viewer
 		}
 		else
 		{
-			setCurrentCluster( rand );
+//			setCurrentCluster( rand );
 			setAttractorCluster( rand );
 		}
 	}
@@ -1483,7 +1458,6 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * setAttractorCluster()
 	 * @param newCluster New attractor cluster
 	 * Set a specific cluster as the current attractor
 	 */
@@ -1496,7 +1470,7 @@ public class WMV_Viewer
 			p.display.message("Setting new attractor:"+newCluster+" old attractor:"+attractorCluster);
 
 		attractorCluster = newCluster;											// Set attractorCluster
-		setCurrentCluster( newCluster );											// Set currentCluster
+//		setCurrentCluster( newCluster );											// Set currentCluster
 		movingToCluster = true;													// Move to cluster
 		attractionStart = p.p.frameCount;
 		
@@ -1872,7 +1846,7 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * Called once attractorPoint or attractorCluster has been reached
+	 * Handle when viewer has reached attractorPoint or attractorCluster
 	 */
 	private void handleReachedAttractor()
 	{
@@ -1895,7 +1869,7 @@ public class WMV_Viewer
 				p.getCurrentField().clearAllAttractors();	// Stop attracting when reached attractorCluster
 			}
 			else
-				setCurrentCluster( getNearestCluster(false) );
+				setCurrentCluster( getNearestCluster(true) );
 			
 			if(p.p.debug.viewer)
 				p.display.message("Reached cluster... current:"+currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+currentFieldTimeSegment);
@@ -1904,9 +1878,9 @@ public class WMV_Viewer
 
 		if(movingToAttractor)		// Stop attracting when reached attractorPoint
 		{
-			setCurrentCluster( getNearestCluster(false) );		// Set currentCluster to nearest
+			setCurrentCluster( getNearestCluster(true) );		// Set currentCluster to nearest
 			
-			//					turnTowardsPoint(attractorPoint.getLocation());
+//			turnTowardsPoint(attractorPoint.getLocation());
 			p.getCurrentField().clearAllAttractors();
 			movingToAttractor = false;
 		}
@@ -2276,23 +2250,20 @@ public class WMV_Viewer
 					else
 					{
 						if(currentCluster == -1)
-						{
-							setCurrentCluster( getNearestCluster(false) );
-						}
+							setCurrentCluster( getNearestCluster(true) );
 					}
 				}
 				if(movingToAttractor)
 				{
 					movingToAttractor = false;
-					setCurrentCluster( getNearestCluster(false) );		// Set currentCluster to nearest
+					setCurrentCluster( getNearestCluster(true) );		// Set currentCluster to nearest
 
 //					if(p.p.debug.viewer) p.display.message("Reached attractor... turning towards image");
-					
 //					if(attractorPoint != null)
 //						turnTowardsPoint(attractorPoint.getLocation());
 					
 					p.getCurrentField().clearAllAttractors();	// Clear current attractors
-					setAttractorCluster(currentCluster);	
+//					setAttractorCluster(currentCluster);	
 				}
 			}
 			else
@@ -3152,9 +3123,9 @@ public class WMV_Viewer
 				yearStr = parts[0];
 				monthStr = parts[1];
 				dayStr = parts[2];
-				int year = Integer.parseInt(yearStr);
-				int month = Integer.parseInt(monthStr);
-				int day = Integer.parseInt(dayStr);
+//				int year = Integer.parseInt(yearStr);
+//				int month = Integer.parseInt(monthStr);
+//				int day = Integer.parseInt(dayStr);
 
 				/* Parse Node Time */
 				parts = timeStr.split("Z");
@@ -3167,8 +3138,8 @@ public class WMV_Viewer
 				minuteStr = parts[1];
 				secondStr = parts[2];
 				int hour = Integer.parseInt(hourStr);
-				int minute = Integer.parseInt(minuteStr);
-				int second = Integer.parseInt(secondStr);
+//				int minute = Integer.parseInt(minuteStr);
+//				int second = Integer.parseInt(secondStr);
 				
 				hour = p.p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
 

@@ -9,12 +9,12 @@ public class WMV_Debug
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
-	public boolean detailed = true;				// Verbose debugging messages
+	public boolean detailed = false;				// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	
 	/* Classes */
 	public boolean main = false;				// Debug main WorldMediaViewer class
-	public boolean viewer = true;				// Debug WMV_Viewer class
+	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean field = false;				// Debug WMV_Field class
 	public boolean time = false;
 	public boolean model = false;				// Debug WMV_Model class

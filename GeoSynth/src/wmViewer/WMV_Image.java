@@ -22,10 +22,10 @@ class WMV_Image extends WMV_Viewable
 	private float outlineSize = 10.f;		// Size of the outline around a selected image
 
 	private PVector disp = new PVector(0, 0, 0);   // Displacement from capture location
-	private float fadingObjectDistanceStartFrame = 0.f, fadingObjectDistanceEndFrame = 0.f;	// Fade focus distance and image size together
+	private float fadingFocusDistanceStartFrame = 0.f, fadingFocusDistanceEndFrame = 0.f;	// Fade focus distance and image size together
 	private float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
 //	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
-	private float fadingObjectDistanceLength = 30.f;
+	private float fadingFocusDistanceLength = 30.f;
 	
 	private boolean thinningVisibility = false;
 
@@ -36,6 +36,8 @@ class WMV_Image extends WMV_Viewable
 	private float rotation;				    // Elevation angle and Z-axis rotation
 	private float focalLength = 0; 			// Zoom Level 
 	private float focusDistance; 	 		// Image viewing distance (or estimated object distance, if given in metadata)
+	private float origFocusDistance; 	 	// Original image viewing distance
+	
 	private float sensorSize;				// Approx. size of sensor in mm.
 //	private float brightness;
 	
@@ -65,6 +67,7 @@ class WMV_Image extends WMV_Viewable
 
 		gpsLocation = newGPSLocation;
 		focusDistance = newFocusDistance;
+		origFocusDistance = focusDistance;
 		sensorSize = newSensorSize;
 		brightness = newBrightness;
 		
@@ -369,9 +372,9 @@ class WMV_Image extends WMV_Viewable
 			updateFadingBrightness();
 		}
 		
-		if(fadingObjectDistance)
+		if(fadingFocusDistance)
 		{
-			updateFadingObjectDistance();
+			updateFadingFocusDistance();
 		}
 //		else
 //			calculateVertices();  			// Update image parameters
@@ -538,7 +541,8 @@ class WMV_Image extends WMV_Viewable
 
 		if(viewDist > farViewingDistance)
 		{
-			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
+			float vanishingPoint = farViewingDistance + focusDistance;	// Distance where transparency reaches zero
+//			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
 				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, p.p.viewer.getFarViewingDistance(), vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
@@ -1011,11 +1015,11 @@ class WMV_Image extends WMV_Viewable
 	 * Fade focus distance to given target while rescaling images 
 	 * @param target New focus distance
 	 */
-	public void fadeObjectDistance(float target)
+	public void fadeFocusDistance(float target)
 	{
-		fadingObjectDistance = true;
-		fadingObjectDistanceStartFrame = p.p.p.frameCount;					
-		fadingObjectDistanceEndFrame = p.p.p.frameCount + fadingObjectDistanceLength;	
+		fadingFocusDistance = true;
+		fadingFocusDistanceStartFrame = p.p.p.frameCount;					
+		fadingFocusDistanceEndFrame = p.p.p.frameCount + fadingFocusDistanceLength;	
 		fadingFocusDistanceStart = focusDistance;
 		fadingFocusDistanceTarget = target;
 	}
@@ -1023,23 +1027,28 @@ class WMV_Image extends WMV_Viewable
 	/**
 	 * Update fading of object distance (focus distance and image size together)
 	 */
-	private void updateFadingObjectDistance()
+	private void updateFadingFocusDistance()
 	{
 		float newFocusDistance = 0.f;
 
-		if (p.p.p.frameCount >= fadingObjectDistanceEndFrame)
+		if (p.p.p.frameCount >= fadingFocusDistanceEndFrame)
 		{
-			fadingObjectDistance = false;
+			fadingFocusDistance = false;
 			newFocusDistance = fadingFocusDistanceTarget;
 		} 
 		else
 		{
-			newFocusDistance = PApplet.map( p.p.p.frameCount, fadingObjectDistanceStartFrame, fadingObjectDistanceEndFrame, 
+			newFocusDistance = PApplet.map( p.p.p.frameCount, fadingFocusDistanceStartFrame, fadingFocusDistanceEndFrame, 
 											fadingFocusDistanceStart, fadingFocusDistanceTarget);      // Fade with distance from current time
 		}
 
 		setFocusDistance( newFocusDistance );	// Set focus distance
 		calculateVertices();  					// Update vertices given new width
+	}
+	
+	void resetFocusDistance()
+	{
+		setFocusDistance(origFocusDistance);
 	}
 	
 	/**	

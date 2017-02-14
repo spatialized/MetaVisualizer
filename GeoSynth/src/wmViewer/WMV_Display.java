@@ -1839,29 +1839,27 @@ class WMV_Display
 		  		case "ZoomIn":
 					p.viewer.startZoomTransition(-1);
 					break;
-
 		  		case "ZoomOut":
 					p.viewer.startZoomTransition(1);
 					break;
 
 				/* Time */
 		  		case "NextTime":
-		  			p.viewer.moveToNextTimeSegment(true, false);
-//		  			p.viewer.moveToNextTimeSegment(true, true);		// Teleport
+		  			p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport);
 		  			break;
 		  		case "PreviousTime":
-		  			p.viewer.moveToPreviousTimeSegment(true, false);
+		  			p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport);
 		  			break;
 
 				/* Navigation */
 		  		case "NearestCluster":
-		  			p.viewer.moveToNearestCluster(false);
+		  			p.viewer.moveToNearestCluster(p.viewer.movementTeleport);
 		  			break;
 		  		case "RandomCluster":
-		  			p.viewer.moveToRandomCluster(true);
+		  			p.viewer.moveToRandomCluster(p.viewer.movementTeleport);
 		  			break;
 		  		case "LastCluster":
-		  			p.viewer.moveToLastCluster(false);
+		  			p.viewer.moveToLastCluster(p.viewer.movementTeleport);
 		  			break;
 		  		case "NextField":
 	  				p.viewer.teleportToField(1);
@@ -1994,8 +1992,8 @@ class WMV_Display
 				p.timeFading = option.isSelected();
 //				p.timeFading = !p.timeFading;
 				break;
-			case "TimeTeleport":
-//				p.timeFading = option.isSelected();
+			case "MovementTeleport":
+				p.viewer.movementTeleport = option.isSelected();
 				break;
 			case "FollowTeleport":
 //				p.timeFading = option.isSelected();

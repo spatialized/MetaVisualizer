@@ -14,8 +14,8 @@ import processing.core.PVector;
 public class WMV_Panorama extends WMV_Viewable 
 {
 	/* Graphics */
-	PImage texture;								// Texture image pixels
-	boolean initialized;
+	public PImage texture;								// Texture image pixels
+	private boolean initialized;
 	
 	/* EXIF Metadata */
 	private float imageWidth, imageHeight;		// Width and height
@@ -26,13 +26,14 @@ public class WMV_Panorama extends WMV_Viewable
 	
 	/* Panorama */
 //	float[] sphereX, sphereY, sphereZ;								// Sphere vertices
-	PVector[] sphere;		
-	int panoramaDetail = 50;  										// Sphere detail setting
-	float sinTable[];
-	float cosTable[];
-	float tablePrecision = 0.5f;
-	int tableLength = (int)(360.0f / tablePrecision);
-	float radius;
+	private PVector[] sphere;		
+	public int panoramaDetail = 50;  										// Sphere detail setting
+	private float sinTable[];
+	private float cosTable[];
+	private float tablePrecision = 0.5f;
+	private int tableLength = (int)(360.0f / tablePrecision);
+	public float radius;
+	public float origRadius;
 	
 	WMV_Panorama ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, 
@@ -71,6 +72,7 @@ public class WMV_Panorama extends WMV_Viewable
 		
 //		radius = p.p.defaultFocusDistance * 0.75f;
 		radius = p.p.defaultFocusDistance * p.p.panoramaFocusDistanceFactor;
+		origRadius = radius;
 	}  
 
 	/**
@@ -536,19 +538,68 @@ public class WMV_Panorama extends WMV_Viewable
 		else
 			return false;
 	}
+	
+	/**
+	 * Draw the panorama metadata in Heads-Up Display
+	 */
+	public void displayMetadata()
+	{
+		String strTitleImage = "Panorama";
+		String strTitleImage2 = "-----";
+		String strName = "Name: "+getName();
+		String strID = "ID: "+PApplet.str(getID());
+		String strCluster = "Cluster: "+PApplet.str(cluster);
+		String strX = "Location X: "+PApplet.str(getCaptureLocation().z);
+		String strY = " Y: "+PApplet.str(getCaptureLocation().x);
+		String strZ = " Z: "+PApplet.str(getCaptureLocation().y);
+		
+		String strLatitude = "GPS Latitude: "+PApplet.str(gpsLocation.z);
+		String strLongitude = " Longitude: "+PApplet.str(gpsLocation.x);
+		String strAltitude = "Altitude: "+PApplet.str(gpsLocation.y);
+		String strTheta = "Direction: "+PApplet.str(theta);
+		String strElevation = "Vertical Angle: "+PApplet.str(phi);
+
+		String strTitleDebug = "--- Debugging ---";
+		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
+		String strBrightnessFading = "brightnessFadingValue: "+PApplet.str(fadingBrightness);
+		
+		p.p.display.metadata(strTitleImage);
+		p.p.display.metadata(strTitleImage2);
+		p.p.display.metadata("");
+		p.p.display.metadata(strID);
+		p.p.display.metadata(strCluster);
+		p.p.display.metadata(strName);
+		p.p.display.metadata(strX + strY + strZ);
+
+		p.p.display.metadata(strLatitude + strLongitude);
+		p.p.display.metadata(strAltitude);
+		p.p.display.metadata(strTheta);
+		p.p.display.metadata(strElevation);
+
+		if(p.p.p.debug.image)
+		{
+			p.p.display.metadata(strTitleDebug);
+			p.p.display.metadata(strBrightness);
+			p.p.display.metadata(strBrightnessFading);
+		}
+	}
 
 	public void setDirection( float newTheta )
 	{
 		theta = newTheta;
 	}
 
-	public void displayMetadata()
+	void resetRadius()
 	{
-
+		setRadius(origRadius);
 	}
 
+	void setRadius(float newRadius)
+	{
+		radius = newRadius;
+	}
+	
 	/**
-	 * setGPSLocation()
 	 * @param newGPSLocation New GPS location
 	 * Set the current GPS location
 	 */

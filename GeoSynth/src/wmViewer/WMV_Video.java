@@ -29,7 +29,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	private float orientation;              		// Landscape = 0, Portrait = 90, Upside Down Landscape = 180, Upside Down Portrait = 270
 	private float phi, rotation;       				// Elevation angle and Z-axis rotation
 	private float focalLength = 0; 					// Zoom Level 
-	private float focusDistance; 	 		 		// Object Distance --> defaults to 30
+	private float focusDistance; 	 		 		// Video viewing distance
+	private float origFocusDistance; 	 		 		// Original video viewing distance
 	private float sensorSize;
 	private PVector disp = new PVector(0, 0, 0);    		// Displacement from capture location
 	private float length;
@@ -42,10 +43,10 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float outlineSize = 10.f;
 	
-	private float fadingObjectDistanceStartFrame = 0.f, fadingObjectDistanceEndFrame = 0.f;	// Fade focus distance and image size together
+	private float fadingFocusDistanceStartFrame = 0.f, fadingFocusDistanceEndFrame = 0.f;	// Fade focus distance and image size together
 	private float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
 	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
-	private float fadingObjectDistanceLength = 30.f;
+	private float fadingFocusDistanceLength = 30.f;
 
 	private boolean thinningVisibility = false;
  	
@@ -86,7 +87,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		gpsLocation = newGPSLocation;
 //		setCaptureLocationPVector(0, 0, 0);
 		focusDistance = newFocusDistance;
-
+		origFocusDistance = focusDistance;
 		focalLength = newFocalLength;
 		cameraModel = newCameraModel;
 
@@ -367,9 +368,9 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 				updateFadingBrightness();
 			}
 
-			if(fadingObjectDistance)
+			if(fadingFocusDistance)
 			{
-				updateFadingObjectDistance();
+				updateFadingFocusDistance();
 			}
 //			else if(visible)
 //			{
@@ -695,7 +696,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		
 		if(viewDist > farViewingDistance)
 		{
-			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
+			float vanishingPoint = farViewingDistance + focusDistance;	// Distance where transparency reaches zero
+//			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
 				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, farViewingDistance, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
@@ -1197,11 +1199,11 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	 * Fade focus distance to given target while rescaling images 
 	 * @param target New focus distance
 	 */
-	public void fadeObjectDistance(float target)
+	public void fadeFocusDistance(float target)
 	{
-		fadingObjectDistance = true;
-		fadingObjectDistanceStartFrame = p.p.p.frameCount;					
-		fadingObjectDistanceEndFrame = p.p.p.frameCount + fadingObjectDistanceLength;	
+		fadingFocusDistance = true;
+		fadingFocusDistanceStartFrame = p.p.p.frameCount;					
+		fadingFocusDistanceEndFrame = p.p.p.frameCount + fadingFocusDistanceLength;	
 		fadingFocusDistanceStart = focusDistance;
 		fadingFocusDistanceTarget = target;
 	}
@@ -1209,18 +1211,18 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	/**
 	 * Update fading of object distance (focus distance and image size together)
 	 */
-	private void updateFadingObjectDistance()
+	private void updateFadingFocusDistance()
 	{
 		float newFocusDistance = 0.f;
 
-		if (p.p.p.frameCount >= fadingObjectDistanceEndFrame)
+		if (p.p.p.frameCount >= fadingFocusDistanceEndFrame)
 		{
-			fadingObjectDistance = false;
+			fadingFocusDistance = false;
 			newFocusDistance = fadingFocusDistanceTarget;
 		} 
 		else
 		{
-			newFocusDistance = PApplet.map( p.p.p.frameCount, fadingObjectDistanceStartFrame, fadingObjectDistanceEndFrame, 
+			newFocusDistance = PApplet.map( p.p.p.frameCount, fadingFocusDistanceStartFrame, fadingFocusDistanceEndFrame, 
 											fadingFocusDistanceStart, fadingFocusDistanceTarget);      // Fade with distance from current time
 		}
 
@@ -1228,9 +1230,13 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		calculateVertices();  					// Update vertices given new width
 	}
 
+	
+	void resetFocusDistance()
+	{
+		setFocusDistance(origFocusDistance);
+	}
 
 	/**	
-	 * initializeVertices()
 	 * Setup video rectangle geometry 
 	 */
 	private void initializeVertices()

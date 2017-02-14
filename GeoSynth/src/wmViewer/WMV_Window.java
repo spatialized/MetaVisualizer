@@ -8,6 +8,9 @@ import processing.event.MouseEvent;
 public class WMV_Window {
 
 	WMV_Display p;
+	
+	private int sidebarWidth = 310;
+	
 	public GWindow mainSidebar, selectionSidebar, statisticsSidebar;
 	private GSketchPad sketchPad;
 
@@ -38,7 +41,7 @@ public class WMV_Window {
 	private GCheckbox chkbxTimeFading;
 	private GToggleGroup tgFollow;	
 	private GOption optTimeline, optGPSTrack, optMemory;
-	private GCheckbox chkbxTimeTeleport, chkbxFollowTeleport;
+	private GCheckbox chkbxMovementTeleport, chkbxFollowTeleport;
 	
 	private GCheckbox chkbxFadeEdges;
 	private GCheckbox chkbxHideImages, chkbxHideVideos, chkbxHidePanoramas;
@@ -69,7 +72,7 @@ public class WMV_Window {
 	
 	void setupMainSidebar()
 	{
-		mainSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, 45, 300, p.p.p.height, PApplet.JAVA2D);
+		mainSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
 		mainSidebar.addData(new WMV_WinData());
 		mainSidebar.addDrawHandler(this, "sidebarDraw");
 		mainSidebar.addMouseHandler(this, "sidebarMouse");
@@ -104,33 +107,33 @@ public class WMV_Window {
 		lblAutoNavigation.setTextBold();
 		lblAutoNavigation.setTextItalic();
 
-		x = 50;
+		x = 90;
 		y += 25;
 
 		btnMoveToNearestCluster = new GButton(mainSidebar, x, y, 100, 20, "Nearest Cluster");
 		btnMoveToNearestCluster.tag = "NearestCluster";
 		btnMoveToNearestCluster.setLocalColorScheme(5);
-		btnMoveToNearestCluster = new GButton(mainSidebar, x+=110, y, 100, 20, "Last Cluster");
+		btnMoveToNearestCluster = new GButton(mainSidebar, x+=105, y, 100, 20, "Last Cluster");
 		btnMoveToNearestCluster.tag = "LastCluster";
 		btnMoveToNearestCluster.setLocalColorScheme(5);
+
+		x = 15;
+		y += 25;
+
+		chkbxMovementTeleport = new GCheckbox(mainSidebar, x, y, 70, 20, "Teleport");
+		chkbxMovementTeleport.tag = "MovementTeleport";
+		chkbxMovementTeleport.setLocalColorScheme(10);
+		btnJumpToRandomCluster = new GButton(mainSidebar, x+75, y, 110, 20, "Random Cluster");
+		btnJumpToRandomCluster.tag = "RandomCluster";
+		btnJumpToRandomCluster.setLocalColorScheme(5);
 
 		x = 90;
 		y += 25;
 
-		btnJumpToRandomCluster = new GButton(mainSidebar, x, y, 110, 20, "Random Cluster");
-		btnJumpToRandomCluster.tag = "RandomCluster";
-		btnJumpToRandomCluster.setLocalColorScheme(5);
-
-		x = 10;
-		y += 25;
-
-		chkbxTimeTeleport = new GCheckbox(mainSidebar, x, y, 70, 20, "Teleport");
-		chkbxTimeTeleport.tag = "TimeTeleport";
-		chkbxTimeTeleport.setLocalColorScheme(10);
-		btnPreviousTimeSegment = new GButton(mainSidebar, x+=75, y, 100, 20, "Previous Time");
+		btnPreviousTimeSegment = new GButton(mainSidebar, x, y, 100, 20, "Previous Time");
 		btnPreviousTimeSegment.tag = "PreviousTime";
 		btnPreviousTimeSegment.setLocalColorScheme(5);
-		btnNextTimeSegment = new GButton(mainSidebar, x+=100, y, 100, 20, "Next Time");
+		btnNextTimeSegment = new GButton(mainSidebar, x+=105, y, 100, 20, "Next Time");
 		btnNextTimeSegment.tag = "NextTime";
 		btnNextTimeSegment.setLocalColorScheme(5);
 
@@ -160,7 +163,7 @@ public class WMV_Window {
 		lblPathNavigation.setTextBold();
 		lblPathNavigation.setTextItalic();
 
-		x = 20;
+		x = 15;
 		y += 25;
 		
 		optTimeline = new GOption(mainSidebar, x, y, 90, 20, "Timeline");
@@ -177,7 +180,7 @@ public class WMV_Window {
 		tgFollow = new GToggleGroup();
 		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
 
-		x = 20;
+		x = 15;
 		y += 25;
 
 		chkbxFollowTeleport = new GCheckbox(mainSidebar, x, y, 80, 20, "Teleporting");
@@ -340,7 +343,7 @@ public class WMV_Window {
 		lblOutput.setTextItalic();
 
 		x = 40;
-		y += 25;
+		y += 30;
 
 		btnSaveImage = new GButton(mainSidebar, x, y, 100, 20, "Export Image");
 		btnSaveImage.tag = "ExportImage";
@@ -350,7 +353,7 @@ public class WMV_Window {
 		btnOutputFolder.setLocalColorScheme(5);
 		
 		x = 85;
-		y += 50;
+		y += 40;
 
 		btnSelectionMode = new GButton(mainSidebar, x, y, 130, 20, "Selection Mode");
 		btnSelectionMode.tag = "SelectionMode";
@@ -390,6 +393,7 @@ public class WMV_Window {
 		lblDisplayMode.setTextAlign(GAlign.CENTER, null);
 		lblDisplayMode.setTextBold();
 		lblDisplayMode.setTextItalic();
+		
 		x = 15;
 		btnSceneView = new GButton(mainSidebar, x, y+=24, 55, 20, "Scene");			/* Display Mode Buttons */
 		btnSceneView.tag = "Scene";
@@ -412,7 +416,7 @@ public class WMV_Window {
 	
 	void setupStatisticsSidebar()
 	{
-		statisticsSidebar = GWindow.getWindow(p.p.p, "Statistics", 10, 45, 300, p.p.p.height, PApplet.JAVA2D);
+		statisticsSidebar = GWindow.getWindow(p.p.p, "Statistics", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
 		statisticsSidebar.addData(new WMV_WinData());
 		statisticsSidebar.addDrawHandler(this, "statisticsSidebarDraw");
 		statisticsSidebar.addMouseHandler(this, "statisticsSidebarMouse");
@@ -438,7 +442,7 @@ public class WMV_Window {
 
 	void setupSelectionSidebar()
 	{
-		selectionSidebar = GWindow.getWindow(p.p.p, "Selection Mode", 10, 45, 300, p.p.p.height, PApplet.JAVA2D);
+		selectionSidebar = GWindow.getWindow(p.p.p, "Selection Mode", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
 		selectionSidebar.addData(new WMV_WinData());
 		selectionSidebar.addDrawHandler(this, "selectionSidebarDraw");
 		selectionSidebar.addMouseHandler(this, "selectionSidebarMouse");

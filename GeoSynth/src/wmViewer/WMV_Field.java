@@ -93,12 +93,12 @@ public class WMV_Field
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
 				
-				if(!m.verticesAreNull() && (m.isFading() || m.fadingObjectDistance))
+				if(!m.verticesAreNull() && (m.isFading() || m.fadingFocusDistance))
 					m.update();  	// Update geometry + visibility
 
 				if (distance < vanishingPoint && distance > p.viewer.getNearClippingDistance() && !m.verticesAreNull()) 	// Visible	
 				{
-					if(!m.fadingObjectDistance && !m.isFading()) 
+					if(!m.fadingFocusDistance && !m.isFading()) 
 						m.update();  	// Update geometry + visibility
 					
 					m.draw(); 		// Draw image
@@ -894,7 +894,7 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Fade object distance for each media point in field, i.e. move closer or further from capture location and rescale
+	 * Fade object distance for each media point in field
 	 * @param multiple Multiple to scale object distance by
 	 */
 	public void fadeObjectDistances(float multiple)
@@ -902,20 +902,40 @@ public class WMV_Field
 		for(WMV_Image i:images)
 		{
 			float newFocusDistance = i.getFocusDistance() * multiple;
-			i.fadeObjectDistance(newFocusDistance);
+			i.fadeFocusDistance(newFocusDistance);
 		}
 
 		for(WMV_Video v:videos)
 		{
 			float newFocusDistance = v.getFocusDistance() * multiple;
-			v.fadeObjectDistance(newFocusDistance);
+			v.fadeFocusDistance(newFocusDistance);
 		}
 
 //		p.viewer.setFarViewingDistance( p.viewer.getFarViewingDistance() * multiple );		// --Fade value
 //		p.viewer.setNearClippingDistance( p.viewer.getNearClippingDistance() * multiple );	// --Fade value
 	}
 
+	/**
+	 * Reset object distances for each media point in field to original
+	 */
+	public void resetObjectDistances()
+	{
+		for(WMV_Image i:images)
+		{
+			i.resetFocusDistance();
+		}
 
+		for(WMV_Video v:videos)
+		{
+			v.resetFocusDistance();
+		}
+
+		for(WMV_Panorama p:panoramas)
+		{
+			p.resetRadius();
+		}
+	}
+	
 	public IntList getSelectedImages()
 	{
 		IntList selected = new IntList();

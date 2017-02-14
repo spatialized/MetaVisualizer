@@ -26,7 +26,7 @@ public abstract class WMV_Viewable
 	public PVector location;        			// Media location in simulation 
 	int cluster = -1;				 			// Cluster it belongs to	
 	float theta = 0;                			// Media Orientation (in Degrees N)
-	public boolean fadingObjectDistance = false, beginFadingObjectDistance = false;			// Fading distance of object in image?
+	public boolean fadingFocusDistance = false, beginFadingObjectDistance = false;			// Fading distance of object in image?
 
 	/* Metadata */
 	public PVector gpsLocation;            		// Location in original GPS coords

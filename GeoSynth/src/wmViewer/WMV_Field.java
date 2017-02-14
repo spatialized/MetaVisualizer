@@ -590,20 +590,8 @@ public class WMV_Field
 			PApplet.println(">>> Creating Field Timeline... <<<");
 
 		for(WMV_Cluster c : clusters)											// Find all media cluster times
-		{
 			for(WMV_TimeSegment t : c.getTimeline())
 				timeline.add(t);
-			
-//			ArrayList<WMV_TimeSegment> times = new ArrayList<WMV_TimeSegment>();
-//			for(WMV_TimeSegment t : c.getTimeline())
-//			{
-//				WMV_TimeSegment time = new WMV_TimeSegment(	c.getID(), t.getCenter(), t.getUpper(), t.getLower());
-//				times.add( time );												// Add segment to timeline
-//			}
-
-//			for(WMV_TimeSegment t : times)										// Add indexed cluster times to timeline
-//				timeline.add(t);
-		}
 
 		timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort time segments 
 		
@@ -613,17 +601,6 @@ public class WMV_Field
 			t.setID(count);
 			count++;
 		}
-		
-//		if(p.p.debug.time)
-//		{
-//			PApplet.println("------ Field Timeline ------");
-//			PApplet.println("---> First lower:"+" timeline.get(0).getLower():"+timeline.get(0).getLower());
-//			PApplet.println("---> First center:"+" timeline.get(0).getCenter():"+timeline.get(0).getCenter());
-//			PApplet.println("---> First upper:"+" timeline.get(0).getUpper():"+timeline.get(0).getUpper());
-//			PApplet.println("---> Last lower:"+" timeline.get(timeline.size()-1).getLower():"+timeline.get(timeline.size()-1).getLower());
-//			PApplet.println("---> Last center:"+" timeline.get(timeline.size()-1).getCenter():"+timeline.get(timeline.size()-1).getCenter());
-//			PApplet.println("---> Last upper:"+" timeline.get(timeline.size()-1).getUpper():"+timeline.get(timeline.size()-1).getUpper());
-//		}
 	}
 	
 	/*
@@ -690,21 +667,8 @@ public class WMV_Field
 					if(clusterMediaTimes.size() > 0)
 					{
 						ArrayList<WMV_TimeSegment> clusterTimeline = calculateTimeSegments(clusterMediaTimes, c.getID(), p.clusterTimePrecision);
-
-//						if(clusterTimeline != null) 
-//							clusterTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline 
-
-//						int count = 0;
-//						for (WMV_TimeSegment t : newTimeline) 		
-//						{
-//							t.setID(count);
-//							count++;
-//						}
-
 						for(WMV_TimeSegment ts : clusterTimeline)
-						{
 							dateTimeline.add(ts);
-						}
 					}
 				}
 			}
@@ -782,7 +746,6 @@ public class WMV_Field
 						
 						segments.add(new WMV_TimeSegment(-1, clusterID, center, curUpper, curLower, tl));	// Add time segment
 						
-//						tsID++;
 						curLower = t;
 						curUpper = t;
 						curLowerCount = count + 1;

@@ -316,7 +316,6 @@ public class WMV_Input
 
 			if (key == 'A') 									// Move to next location  -- Not working
 				p.display.setFullScreen(!p.display.fullscreen);
-//				p.viewer.moveToNextLocation();
 
 			if (key == 'J') 
 				p.viewer.moveToRandomCluster(true);					// Move to random cluster

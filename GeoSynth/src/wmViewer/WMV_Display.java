@@ -1604,14 +1604,8 @@ class WMV_Display
 						+" Center:"+f.timeline.get(p.viewer.currentFieldTimeSegment).getCenter().getTime()+
 						" Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Cluster Timeline Segments: "+ p.getCurrentCluster().timeline.size(), xPos, yPos += lineWidth, hudDistance);
-			
 			p.p.text(" Field Dateline Segments: "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidth, hudDistance);
-
 			p.p.textSize(mediumTextSize);
-//			p.p.text(" Output ", xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.textSize(smallTextSize);
-//			p.p.text(" Image Output Folder:"+p.outputFolder, textXPos, textYPos += lineWidthVeryWide, hudDistance);
-//			p.p.text(" Library Folder:"+p.p.getLibrary(), dispLocX, textYPos += lineWidthWide, hudDistance);
 
 			if(p.p.debug.memory)
 			{
@@ -1626,8 +1620,6 @@ class WMV_Display
 				p.p.text("Free memory (bytes): "+p.p.debug.freeMemory, xPos, yPos += lineWidth, hudDistance);
 				p.p.text("Approx. usable free memory (bytes): " + p.p.debug.approxUsableFreeMemory, xPos, yPos += lineWidth, hudDistance);
 			}			
-//			p.p.text(" MediaWorldViewer v1.0 by David Gordon, Copyright © 2016", xPos, yPos += lineWidthVeryWide, hudDistance);
-
 		}
 		else
 			message("Can't display statistics: currentCluster == "+p.viewer.getCurrentCluster()+"!!!");
@@ -1648,8 +1640,6 @@ class WMV_Display
 		
 		WMV_Field f = p.getCurrentField();
 		WMV_Cluster c = p.getCluster(displayCluster);	// Get the cluster to display info about
-
-//		PApplet.println("displayClusterStats(), id:"+c.getID());
 
 		p.p.fill(0, 0, 255, 255);
 
@@ -1680,15 +1670,6 @@ class WMV_Display
 		p.p.text(" Empty: "+ c.isEmpty(), textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
-		
-//		if(p.p.debug.cluster)
-//		{
-//			p.p.text(" -- Debug --", textXPos, textYPos += lineWidth, hudDistance);
-//			p.p.text(" Cluster Timeline Length: "+ c.getTimeline().size(), textXPos, textYPos += lineWidth, hudDistance);
-//		}
-				
-//		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
-//		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
 
 		WMV_Cluster cl = p.getCurrentCluster();
 		p.p.text(" Current Cluster ID: "+p.viewer.getCurrentCluster(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
@@ -1698,7 +1679,6 @@ class WMV_Display
 		if(p.viewer.getAttractorCluster() != -1)
 		{
 			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), textXPos, textYPos += lineWidth, hudDistance);
-//			p.p.text(" Attractor Cluster Media Points: "+f.clusters.get(p.viewer.getAttractorCluster()).mediaPoints, dispLocX, textYPos += lineWidth, hudDistance);
 			p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), textXPos, textYPos += lineWidth, hudDistance);
 			if(p.p.debug.viewer) 
 			{
@@ -1732,7 +1712,6 @@ class WMV_Display
 			float width = 90.f;
 			float height = width * origHeight / origWidth;
 			
-//			PApplet.println("i.getID():"+i.getID());
 			p.p.translate(imgXPos, imgYPos, hudDistance);
 			p.p.tint(255);
 			
@@ -1801,7 +1780,8 @@ class WMV_Display
 			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
 	}
 	
-	public void handleButtonEvent(GButton button, GEvent event) { 
+	public void handleButtonEvent(GButton button, GEvent event) 
+	{ 
 		  boolean state;
 		  
 //		  PApplet.println("button.tagNo:"+button.tagNo);
@@ -1881,7 +1861,7 @@ class WMV_Display
 		  			p.viewer.moveToRandomCluster(true);
 		  			break;
 		  		case "LastCluster":
-//		  			p.viewer.moveToLastCluster(false);
+		  			p.viewer.moveToLastCluster(false);
 		  			break;
 		  		case "NextField":
 	  				p.viewer.teleportToField(1);

@@ -60,13 +60,21 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	{
 		lower = newLower;
 	}
-	
+
 	/** 
 	 * @return Time segment ID
 	 */
 	public int getID()
 	{
 		return id;
+	}
+
+	/** 
+	 * @return Time segment ID
+	 */
+	public ArrayList<WMV_Time> getTimeline()
+	{
+		return timeline;
 	}
 	
 	/** 

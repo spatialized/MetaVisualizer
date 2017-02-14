@@ -28,6 +28,9 @@ class WMV_Display
 	/* Window Modes */
 	public boolean fullscreen = true;
 	
+	/* Sidebar Modes */
+	public boolean sidebarStatistics = false;			// Sidebar statistics view 
+
 	/* Display Modes */
 	public boolean map = false;					// Display map only
 	public boolean info = false;				// Display simulation info 
@@ -232,10 +235,10 @@ class WMV_Display
 				}
 
 				if(info)
-					displayStatistics();
+					displayInfo();
 
 				if(cluster)
-					displayClusterStats();
+					displayClusterInfo();
 
 				if(control)
 					displayControls();
@@ -256,10 +259,10 @@ class WMV_Display
 				}
 
 				if(infoOverlay)
-					displayStatistics();
+					displayInfo();
 
 				if(clusterOverlay)
-					displayClusterStats();				
+					displayClusterInfo();				
 
 				if(controlOverlay)
 					displayControls();
@@ -1460,7 +1463,7 @@ class WMV_Display
 	/**
 	 * Show statistics of the current simulation
 	 */
-	void displayStatistics()
+	void displayInfo()
 	{
 		p.p.pushMatrix();
 		beginHUD();
@@ -1597,24 +1600,13 @@ class WMV_Display
 			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().timeline.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Time Segment: "+ p.viewer.currentFieldTimeSegment, xPos, yPos += lineWidth, hudDistance);
 			if(f.timeline.size() > 0 && p.viewer.currentFieldTimeSegment >= 0 && p.viewer.currentFieldTimeSegment < f.timeline.size())
-				p.p.text(" Upper: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+f.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
-						" Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Upper: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getUpper().getTime()
+						+" Center:"+f.timeline.get(p.viewer.currentFieldTimeSegment).getCenter().getTime()+
+						" Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Cluster Timeline Segments: "+ p.getCurrentCluster().timeline.size(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Current Cluster Segment: "+ p.viewer.currentClusterTimeSegment, textXPos, textYPos += lineWidth, hudDistance);
-//			p.p.text(" Upper: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getUpper()+" Center:"+c.timeline.get(p.viewer.currentFieldTimeSegment).getCenter()+
-//					 " Lower: "+c.timeline.get(p.viewer.currentFieldTimeSegment).getLower(), textXPos, textYPos += lineWidth, hudDistance);			
-//			textXPos = midRightTextXOffset;
-//			textYPos = topTextYOffset;			// Starting vertical position
 			
 			p.p.text(" Field Dateline Segments: "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Current Segment: "+ p.viewer.currentFieldDateSegment, xPos, yPos += lineWidth, hudDistance);
-//			if(f.dateline.size() > 0) 
-//			{
-//				if( p.viewer.currentFieldDateSegment >= 0 && p.viewer.currentFieldDateSegment < f.dateline.size())
-//					p.p.text(" Upper: "+f.dateline.get(p.viewer.currentFieldDateSegment).getUpper()+" Center:"+f.dateline.get(p.viewer.currentFieldDateSegment).getCenter()+
-//							" Lower: "+f.dateline.get(p.viewer.currentFieldDateSegment).getLower(), xPos, yPos += lineWidth, hudDistance);
-//				p.p.text(" Cluster Dateline Segments: "+ p.getCurrentCluster().dateline.size(), xPos, yPos += lineWidth, hudDistance);
-//			}
+
 			p.p.textSize(mediumTextSize);
 //			p.p.text(" Output ", xPos, yPos += lineWidthVeryWide, hudDistance);
 //			p.p.textSize(smallTextSize);
@@ -1646,7 +1638,7 @@ class WMV_Display
 	/**
 	 * Draw cluster statistics display
 	 */
-	void displayClusterStats()
+	void displayClusterInfo()
 	{
 		p.p.pushMatrix();
 		beginHUD();
@@ -1842,17 +1834,27 @@ class WMV_Display
 		  		case "Restart":
 					p.p.restartWorldMediaViewer();
 		  			break;
-		  			
+
 		  		case "SelectionMode":
 					p.viewer.selection = true;
 					window.setupSelectionSidebar();
 		  			break;
-					
+
+		  		case "StatisticsView":
+		  			sidebarStatistics = true;
+					window.setupStatisticsSidebar();
+		  			break;
+
 		  		case "ExitSelectionMode":
 					p.viewer.selection = false;
 					window.setupMainSidebar();
 					break;
-				
+
+		  		case "ExitStatisticsMode":
+					sidebarStatistics = false;
+					window.setupMainSidebar();
+					break;
+					
 				/* Graphics */
 		  		case "ZoomIn":
 					p.viewer.startZoomTransition(-1);

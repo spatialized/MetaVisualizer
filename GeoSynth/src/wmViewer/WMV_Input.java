@@ -346,17 +346,17 @@ public class WMV_Input
 			
 			if(optionKey)
 			{
-				if (key == 't') 
-					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
-
-				if (key == 'd') 
-					p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, true);
-
-				if (key == 'T')
-					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
-
-				if (key == 'D') 
-					p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, false);
+//				if (key == 't') 
+//					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
+//
+//				if (key == 'd') 
+//					p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, true);
+//
+//				if (key == 'T')
+//					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
+//
+//				if (key == 'D') 
+//					p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, false);
 
 				if (key == 'n')						// Teleport to next time segment
 					p.viewer.moveToNextTimeSegment(true, true);

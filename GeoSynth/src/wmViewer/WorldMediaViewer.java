@@ -327,6 +327,15 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
+
+	public void statisticsSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		PApplet.println("selectionSidebarKey:"+keyevent.getKey());
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+	}
 	
 	public void handleButtonEvents(GButton button, GEvent event) { 
 		world.display.handleButtonEvent(button, event);

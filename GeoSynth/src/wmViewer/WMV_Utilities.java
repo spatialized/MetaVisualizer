@@ -389,6 +389,7 @@ public class WMV_Utilities
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
 	}
 
+	
 	/**
 	 * angleToCompass
 	 * @param radians (Yaw) angle in radians

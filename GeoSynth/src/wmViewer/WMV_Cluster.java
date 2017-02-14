@@ -47,12 +47,12 @@ public class WMV_Cluster
 	public float dateInc = dateCycleLength / 30.f;			
 
 	public int defaultMediaLength = 125;					// Default frame length of media in time cycle
-	private FloatList clusterDates, clusterTimes;
-	private FloatList clusterDatesLowerBounds, clusterTimesLowerBounds;	// Obsolete
-	private FloatList clusterDatesUpperBounds, clusterTimesUpperBounds;	// Obsolete
-	private FloatList fieldDates, fieldTimes;	// Obsolete
-	private FloatList fieldDatesLowerBounds, fieldTimesLowerBounds;	// Obsolete
-	private FloatList fieldDatesUpperBounds, fieldTimesUpperBounds;	// Obsolete
+//	private FloatList clusterDates, clusterTimes;
+//	private FloatList clusterDatesLowerBounds, clusterTimesLowerBounds;	// Obsolete
+//	private FloatList clusterDatesUpperBounds, clusterTimesUpperBounds;	// Obsolete
+//	private FloatList fieldDates, fieldTimes;	// Obsolete
+//	private FloatList fieldDatesLowerBounds, fieldTimesLowerBounds;	// Obsolete
+//	private FloatList fieldDatesUpperBounds, fieldTimesUpperBounds;	// Obsolete
 
 	
 //	int[] clusterTimesHistogram, fieldTimesHistogram;			// Histogram of media times relative to cluster	/ field
@@ -73,12 +73,12 @@ public class WMV_Cluster
 	
 	private float highLongitude, lowLongitude, highLatitude, lowLatitude, 		// - NEED TO CALCULATE!	
 			  	 highAltitude, lowAltitude;		
-	private float highImageLongitude = -1000000, lowImageLongitude = 1000000, highImageLatitude = -1000000, lowImageLatitude = 1000000,		// - NEED TO CALCULATE!
-			highImageAltitude = -1000000, lowImageAltitude = 1000000;
-	private float highPanoramaLongitude = -1000000, lowPanoramaLongitude = 1000000, highPanoramaLatitude = -1000000,		// - NEED TO CALCULATE!
-			lowPanoramaLatitude = 1000000, highPanoramaAltitude = -1000000, lowPanoramaAltitude = 1000000;
-	private float highVideoLongitude = -1000000, lowVideoLongitude = 1000000, highVideoLatitude = -1000000,		// - NEED TO CALCULATE!
-			lowVideoLatitude = 1000000, highVideoAltitude = -1000000, lowVideoAltitude = 1000000;
+//	private float highImageLongitude = -1000000, lowImageLongitude = 1000000, highImageLatitude = -1000000, lowImageLatitude = 1000000,		// - NEED TO CALCULATE!
+//			highImageAltitude = -1000000, lowImageAltitude = 1000000;
+//	private float highPanoramaLongitude = -1000000, lowPanoramaLongitude = 1000000, highPanoramaLatitude = -1000000,		// - NEED TO CALCULATE!
+//			lowPanoramaLatitude = 1000000, highPanoramaAltitude = -1000000, lowPanoramaAltitude = 1000000;
+//	private float highVideoLongitude = -1000000, lowVideoLongitude = 1000000, highVideoLatitude = -1000000,		// - NEED TO CALCULATE!
+//			lowVideoLatitude = 1000000, highVideoAltitude = -1000000, lowVideoAltitude = 1000000;
 	
 	public float highTime, lowTime, highDate, lowDate;
 	public float highImageTime = -1000000, lowImageTime = 1000000, 
@@ -118,21 +118,21 @@ public class WMV_Cluster
 		userPanoramas = new ArrayList<WMV_Panorama>();
 		mediaPoints = 0;
 		
-		clusterDates = new FloatList();
-		clusterDatesLowerBounds = new FloatList();
-		clusterDatesUpperBounds = new FloatList();
-
-		clusterTimes = new FloatList();
-		clusterTimesLowerBounds = new FloatList();
-		clusterTimesUpperBounds = new FloatList();
-
-		fieldTimes = new FloatList();
-		fieldTimesLowerBounds = new FloatList();
-		fieldTimesUpperBounds = new FloatList();
-
-		fieldDates = new FloatList();
-		fieldDatesLowerBounds = new FloatList();
-		fieldDatesUpperBounds = new FloatList();
+//		clusterDates = new FloatList();
+//		clusterDatesLowerBounds = new FloatList();
+//		clusterDatesUpperBounds = new FloatList();
+//
+//		clusterTimes = new FloatList();
+//		clusterTimesLowerBounds = new FloatList();
+//		clusterTimesUpperBounds = new FloatList();
+//
+//		fieldTimes = new FloatList();
+//		fieldTimesLowerBounds = new FloatList();
+//		fieldTimesUpperBounds = new FloatList();
+//
+//		fieldDates = new FloatList();
+//		fieldDatesLowerBounds = new FloatList();
+//		fieldDatesUpperBounds = new FloatList();
 		
 //		clusterTimesHistogram = new int[p.p.clusterTimePrecision];
 //		fieldTimesHistogram = new int[p.p.fieldTimePrecision];
@@ -1037,20 +1037,20 @@ public class WMV_Cluster
 			{
 				WMV_Image img = p.images.get(i);
 				if((img.getDate()).equals(d))
-					mediaTimes.add( p.images.get(i).time );
+					mediaTimes.add( img.time );
 			}
 			
 			for(int n : panoramas) 
 			{
 				WMV_Panorama pano = p.panoramas.get(n);
 				if(pano.getDate().equals(d))
-					mediaTimes.add( p.panoramas.get(n).time );
+					mediaTimes.add( pano.time );
 			}
 			for(int v : videos)
 			{
 				WMV_Video vid = p.videos.get(v);
 				if(vid.getDate().equals(d))
-					mediaTimes.add( p.videos.get(v).time );
+					mediaTimes.add( vid.time );
 			}
 
 			if(mediaTimes.size() > 0)
@@ -1059,6 +1059,13 @@ public class WMV_Cluster
 
 				if(newTimeline != null) 
 					newTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
+				
+				int count = 0;
+				for (WMV_TimeSegment t : newTimeline) 		
+				{
+					t.setID(count);
+					count++;
+				}
 				
 				timelines.add( newTimeline );		// Calculate and add timeline to list
 			}
@@ -1085,6 +1092,13 @@ public class WMV_Cluster
 			timeline = calculateTimeSegments(mediaTimes, p.p.clusterTimePrecision);	// Get relative (cluster) time segments
 			if(timeline != null)
 				timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
+			
+			int count = 0;
+			for (WMV_TimeSegment t : timeline) 		
+			{
+				t.setID(count);
+				count++;
+			}
 		}
 
 		if(timeline != null)
@@ -1418,7 +1432,6 @@ public class WMV_Cluster
 	 */
 	public void displayClusterData()
 	{
-//		p.p.display.metadata("");
 		System.out.println("Cluster "+id+" High Longitude:" + highLongitude);
 		System.out.println("Cluster "+id+" High Latitude:" + highLatitude);
 		System.out.println("Cluster "+id+" High Altitude:" + highAltitude);
@@ -1426,7 +1439,6 @@ public class WMV_Cluster
 		System.out.println("Cluster "+id+" Low Latitude:" + lowLatitude);
 		System.out.println("Cluster "+id+" Low Altitude:" + lowAltitude);	
 		
-
 		System.out.println("Cluster "+id+" High Time:" + highTime);
 		System.out.println("Cluster "+id+" High Date:" + highDate);
 		System.out.println("Cluster "+id+" Low Time:" + lowTime);
@@ -1436,7 +1448,6 @@ public class WMV_Cluster
 		System.out.println("Cluster "+id+" Low Latitude:" + lowLatitude);
 		System.out.println("Cluster "+id+" High Longitude:" + highLongitude);
 		System.out.println("Cluster "+id+" Low Longitude:" + lowLongitude);
-//		System.out.println("Cluster "+id+" Longest Day Length (working?):" + longestDayLength);
 		System.out.println(" ");
 	}
 	
@@ -1448,40 +1459,13 @@ public class WMV_Cluster
 	 */
 	ArrayList<WMV_TimeSegment> calculateTimeSegments(ArrayList<WMV_Time> mediaTimes, int timePrecision)				// -- clusterTimelineMinPoints!!								
 	{
-		/* Initialize list of media times */
-//		ArrayList<GMV_TimeSegment> mediaTimes = new ArrayList<GMV_TimeSegment>();
-//		if(p.p.p.debug.time)
-//			PApplet.println("-------> Cluster #"+getID()+" Creating histogram of length:"+histogram.length);
-//		IntList mediaTimes = new IntList();
-		
-//		for (int i=0; i<timePrecision; i++) 				
-//		{
-//			for(int j=0; j<histogram[i]; j++)							// Create list of all media points
-//			{
-////				PApplet.println("--- time index:"+i+" histogram[i]:"+histogram[i]+" j:"+j);
-////				PApplet.println("---> i:"+i+" j:"+j+" histogram[i]:"+histogram[i]+" cluster #"+getID());
-////				mediaTimes.add(new GMV_TimeSegment(0, i, 0, 0));		// Don't need ID, upper or lower values
-//				
-//				mediaTimes.append(i);
-//			}
-//		}
-//		PApplet.println("calculateTimeSegments...");
-		
 		mediaTimes.sort(WMV_Time.WMV_SimulationTimeComparator);			// Sort media by simulation time (normalized 0. to 1.)
-//		PApplet.println("mediaTimes size:"+mediaTimes.size());
 
 		if(mediaTimes.size() > 0)
 		{
 			ArrayList<WMV_TimeSegment> segments = new ArrayList<WMV_TimeSegment>();
-
-			if(p.p.p.debug.time && p.p.p.debug.detailed)
-				PApplet.println("Cluster id:"+getID()+"... analyzing mediaTimes...");
 			
-//			for(WMV_Time t:mediaTimes)
-//				PApplet.print(" "+t.getTime());
-//			PApplet.println("");
-			
-			int count = 0, curLowerCount = 0, tsID = 0;
+			int count = 0, curLowerCount = 0;
 			WMV_Time curLower, curUpper, last;
 
 			curLower = mediaTimes.get(0);
@@ -1495,7 +1479,6 @@ public class WMV_Cluster
 					if(t.getTime() - last.getTime() < timePrecision)		// If moved by less than precision amount since last time, extend segment 
 					{
 						curUpper = t;
-//						PApplet.println("Moving curUpper to:"+(curUpper.getTime()));
 					}
 					else
 					{
@@ -1518,9 +1501,9 @@ public class WMV_Cluster
 						for(int i=curLowerCount; i<=count; i++)
 							tl.add(mediaTimes.get(i));
 						
-						segments.add(new WMV_TimeSegment(tsID, getID(), center, curUpper, curLower, tl));	// Add time segment
+						segments.add(new WMV_TimeSegment(-1, getID(), center, curUpper, curLower, tl));	// Add time segment
 						
-						tsID++;
+//						tsID++;
 						curLower = t;
 						curUpper = t;
 						curLowerCount = count + 1;
@@ -1548,65 +1531,10 @@ public class WMV_Cluster
 				for(int i=0; i<mediaTimes.size(); i++)
 					tl.add(mediaTimes.get(i));
 				
-				segments.add(new WMV_TimeSegment(tsID, getID(), center, curUpper, curLower, tl));
+				segments.add(new WMV_TimeSegment(-1, getID(), center, curUpper, curLower, tl));
 			}
 			
 			return segments;			// Return cluster list
-			
-//			int idx = 0;
-//			int curLower = mediaTimes.get(idx);
-//			int curUpper = mediaTimes.get(idx);
-//			int lastTime = Integer.valueOf(curLower);
-
-//			int count = 0;
-//			
-//			while(idx < mediaTimes.size())
-//			{
-//				int t = mediaTimes.get(idx);
-////				PApplet.println(">> idx:"+idx+" t:"+t);
-//
-//				if(t != lastTime)
-//				{
-//					if(t - lastTime == 1)					// If advanced by one since last media time, extend the segment 
-//					{
-//						curUpper = Integer.valueOf(t);		// Advance current upper bound by 1
-//					}
-//					else									// Otherwise, save the segment and start a new one
-//					{
-//						int center;
-//						if(curUpper == curLower)
-//							center = Integer.valueOf(curUpper);					// If upper and lower are same, set center to that value
-//						else
-//							center = PApplet.round((curUpper+curLower)/2);		// Average upper and lower bounds to find center
-//
-//						if(p.p.p.debug.time && p.p.p.debug.detailed)
-//							PApplet.println("Cluster #"+getID()+"... Creating time segment... center:"+(center)+" curUpper:"+(curUpper)+" curLower:"+(curLower));
-//						timeSegments.add(new WMV_TimeSegment(count, center, curUpper, curLower));
-//						
-//						/* Start a new segment with current time */
-//						curLower = Integer.valueOf(t);
-//						curUpper = Integer.valueOf(t);
-//						count++;
-//					}
-//				}
-//				
-//				lastTime = Integer.valueOf(t);
-//				idx++;
-//				
-//				if(idx >= mediaTimes.size())				// Last media time
-//				{
-//					int center;
-//					if(curUpper == curLower)
-//						center = curUpper;
-//					else
-//						center = PApplet.round((curUpper+curLower)/2);
-//
-////					PApplet.println("Cluster #"+getID()+"... Creating LAST time segment... center:"+center+" curUpper:"+curUpper+" curLower:"+curLower);
-//					timeSegments.add(new WMV_TimeSegment(count, center, curUpper, curLower));
-//					count++;
-//				}
-//			}
-			
 		}
 		else
 		{
@@ -1616,116 +1544,11 @@ public class WMV_Cluster
 		}
 	}
 	
-//	/**
-//	 * Perform clustering to find cluster time segments from media capture times
-//	 * @param times List of times
-//	 * @param timePrecision Number of histogram bins
-//	 * @return Time segments
-//	 */
-//	ArrayList<WMV_TimeSegment> getTimeSegments(int histogram[], int timePrecision)				// -- clusterTimelineMinPoints!!								
-//	{
-//		/* Initialize list of media times */
-////		ArrayList<GMV_TimeSegment> mediaTimes = new ArrayList<GMV_TimeSegment>();
-//		if(p.p.p.debug.time)
-//			PApplet.println("-------> Cluster #"+getID()+" Creating histogram of length:"+histogram.length);
-//		IntList mediaTimes = new IntList();
-//		
-//		for (int i=0; i<timePrecision; i++) 				
-//		{
-//			for(int j=0; j<histogram[i]; j++)							// Create list of all media points
-//			{
-////				PApplet.println("--- time index:"+i+" histogram[i]:"+histogram[i]+" j:"+j);
-////				PApplet.println("---> i:"+i+" j:"+j+" histogram[i]:"+histogram[i]+" cluster #"+getID());
-////				mediaTimes.add(new GMV_TimeSegment(0, i, 0, 0));		// Don't need ID, upper or lower values
-//				
-//				mediaTimes.append(i);
-//			}
-//		}
-//		
-////		mediaTimes.sort(GMV_TimeSegment.GMV_TimeMidpointComparator);				// Sort media times
-//		
-//		if(mediaTimes.size() > 0)
-//		{
-//			ArrayList<WMV_TimeSegment> timeSegments = new ArrayList<WMV_TimeSegment>();
-//
-////			PApplet.println("id:"+getID()+" mediaTimes...");
-////			for(int i:mediaTimes)
-////			{
-////				PApplet.print(" "+i);
-////			}
-////			PApplet.println("");
-//			
-//			int idx = 0;
-//			int curLower = mediaTimes.get(idx);
-//			int curUpper = mediaTimes.get(idx);
-//			int lastTime = Integer.valueOf(curLower);
-//			int count = 0;
-//			
-//			while(idx < mediaTimes.size())
-//			{
-//				int t = mediaTimes.get(idx);
-////				PApplet.println(">> idx:"+idx+" t:"+t);
-//
-//				if(t != lastTime)
-//				{
-//					if(t - lastTime == 1)					// If advanced by one since last media time, extend the segment 
-//					{
-//						curUpper = Integer.valueOf(t);		// Advance current upper bound by 1
-//					}
-//					else									// Otherwise, save the segment and start a new one
-//					{
-//						int center;
-//						if(curUpper == curLower)
-//							center = Integer.valueOf(curUpper);					// If upper and lower are same, set center to that value
-//						else
-//							center = PApplet.round((curUpper+curLower)/2);		// Average upper and lower bounds to find center
-//
-//						if(p.p.p.debug.time && p.p.p.debug.detailed)
-//							PApplet.println("Cluster #"+getID()+"... Creating time segment... center:"+(center)+" curUpper:"+(curUpper)+" curLower:"+(curLower));
-//						timeSegments.add(new WMV_TimeSegment(count, center, curUpper, curLower));
-//						
-//						/* Start a new segment with current time */
-//						curLower = Integer.valueOf(t);
-//						curUpper = Integer.valueOf(t);
-//						count++;
-//					}
-//				}
-//				
-//				lastTime = Integer.valueOf(t);
-//				idx++;
-//				
-//				if(idx >= mediaTimes.size())				// Last media time
-//				{
-//					int center;
-//					if(curUpper == curLower)
-//						center = curUpper;
-//					else
-//						center = PApplet.round((curUpper+curLower)/2);
-//
-////					PApplet.println("Cluster #"+getID()+"... Creating LAST time segment... center:"+center+" curUpper:"+curUpper+" curLower:"+curLower);
-//					timeSegments.add(new WMV_TimeSegment(count, center, curUpper, curLower));
-//					count++;
-//				}
-//			}
-//			
-//			return timeSegments;			// Return cluster list
-//		}
-//		else
-//		{
-//			if(p.p.p.debug.time)
-//				PApplet.println("cluster:"+getID()+" getTimeSegments() == null but has mediaPoints:"+mediaPoints);
-//			return null;		
-//		}
-//	}
-//	
-	
 	/**
 	 * Calculate high and low longitude, latitude and altitude for cluster
 	 */
 	void calculateDimensions()
 	{
-//		if(p.p.p.debug.field) PApplet.println("Calculating cluster dimensions...");
-
 		boolean init = true;	
 
 		for (int img : images) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
@@ -1821,36 +1644,6 @@ public class WMV_Cluster
 	{
 		return dateline;
 	}
-	
-//	public FloatList getClusterTimes()
-//	{
-//		return clusterTimes;
-//	}
-//
-//	public FloatList getClusterTimesLowerBounds()
-//	{
-//		return clusterTimesLowerBounds;
-//	}
-//
-//	public FloatList getClusterTimesUpperBounds()
-//	{
-//		return clusterTimesUpperBounds;
-//	}
-
-//	public FloatList getClusterDates()
-//	{
-//		return clusterDates;
-//	}
-//
-//	public FloatList getClusterDatesLowerBounds()
-//	{
-//		return clusterDatesLowerBounds;
-//	}
-//
-//	public FloatList getClusterDatesUpperBounds()
-//	{
-//		return clusterDatesUpperBounds;
-//	}
 	
 	public void setActive(boolean newActive)
 	{

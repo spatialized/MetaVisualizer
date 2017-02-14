@@ -24,7 +24,7 @@ class WMV_Image extends WMV_Viewable
 	private PVector disp = new PVector(0, 0, 0);   // Displacement from capture location
 	private float fadingObjectDistanceStartFrame = 0.f, fadingObjectDistanceEndFrame = 0.f;	// Fade focus distance and image size together
 	private float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
-	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
+//	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
 	private float fadingObjectDistanceLength = 30.f;
 	
 	private boolean thinningVisibility = false;
@@ -37,7 +37,7 @@ class WMV_Image extends WMV_Viewable
 	private float focalLength = 0; 			// Zoom Level 
 	private float focusDistance; 	 		// Image viewing distance (or estimated object distance, if given in metadata)
 	private float sensorSize;				// Approx. size of sensor in mm.
-	private float brightness;
+//	private float brightness;
 	
 	/* Video Association */
 	private boolean isVideoPlaceHolder = false;
@@ -89,8 +89,8 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void draw()
 	{
-		if(!verticesAreNull())
-		{
+//		if(!verticesAreNull())
+//		{
 			float distanceBrightnessFactor; 						// Fade with distance
 			float angleBrightnessFactor;							// Fade with angle
 
@@ -106,7 +106,7 @@ class WMV_Image extends WMV_Viewable
 				{
 					if(p.p.showAllTimeSegments)
 					{
-						if(p.p.getCluster(cluster).timeline.size() > 0)
+						if(p.p.getCluster(cluster).timeline.size() > 0)		// -- Check this elsewhere?
 							timeBrightnessFactor = getTimeBrightness();    
 						else
 						{
@@ -171,7 +171,7 @@ class WMV_Image extends WMV_Viewable
 //				drawLocation(centerSize);
 			if(visible && p.p.showModel && !hidden && !disabled)
 				drawLocation(centerSize);
-		}
+//		}
 	}
 
 	
@@ -251,8 +251,8 @@ class WMV_Image extends WMV_Viewable
 	{
 		if(requested && image.width != 0)			// If requested image has loaded, initialize image 
 		{
-			calculateVertices();  					// Update geometry
-
+			calculateVertices();  					// Update geometry		
+			
 			aspectRatio = getAspectRatio();
 //			averageColor = getAverageColor();
 //			averageBrightness = getAverageBrightness();
@@ -373,9 +373,8 @@ class WMV_Image extends WMV_Viewable
 		{
 			updateFadingObjectDistance();
 		}
-//		else if(visible)
-		else
-			calculateVertices();  			// Update image parameters
+//		else
+//			calculateVertices();  			// Update image parameters
 	}
 
 	/** 
@@ -548,7 +547,6 @@ class WMV_Image extends WMV_Viewable
 		else if(viewDist < nearViewingDistance)								
 		{
 			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), p.p.viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
-//			if(isSelected()) PApplet.println("ID:"+getID()+" dist:"+viewDist+" distVisibility:"+distVisibility+" near:"+p.p.viewer.getNearClippingDistance()+" far:"+p.p.viewer.getNearViewingDistance());
 		}
 
 		return distVisibility;
@@ -643,76 +641,44 @@ class WMV_Image extends WMV_Viewable
 		float distance = PVector.dist(location, point);     
 		return distance;
 	}
-	
-	 /**
-	  * findAssociatedCluster()
-	  * @return Whether associated cluster was successfully found
-	  * Set nearest cluster to the capture location to be the associated cluster
-	  */	
-	 public boolean findAssociatedCluster()    				 // Associate cluster that is closest to photo
-	 {
-		 int closestClusterIndex = 0;
-		 float closestDistance = 100000;
-		 
-		 for (int i = 0; i < p.clusters.size(); i++) 
-		 {     
-			 WMV_Cluster curCluster = (WMV_Cluster) p.clusters.get(i);
-			 float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
-			 if (distanceCheck < closestDistance)
-			 {
-				 closestClusterIndex = i;
-				 closestDistance = distanceCheck;
-			 }
-		 }
+	/**
+	 * findAssociatedCluster()
+	 * @return Whether associated cluster was successfully found
+	 * Set nearest cluster to the capture location to be the associated cluster
+	 */	
+	public boolean findAssociatedCluster()    				 // Associate cluster that is closest to photo
+	{
+		int closestClusterIndex = 0;
+		float closestDistance = 100000;
 
-		 if(closestDistance < p.p.getCurrentModel().maxClusterDistance)
-		 {
-			 cluster = closestClusterIndex;
-		 }
-		 else
-		 {
-			 cluster = -1;						// Create a new single image cluster here!
-			 p.disassociatedImages++;
-		 }
-		 
-		 if(cluster != -1)
-			 return true;
-		 else
-			 return false;
-	 }
+		for (int i = 0; i < p.clusters.size(); i++) 
+		{     
+			WMV_Cluster curCluster = (WMV_Cluster) p.clusters.get(i);
+			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
-//	/**
-//	 * getAngleVisibility()
-//	 * Check whether image is at an angle where it should currently be visible
-//	 */
-//	private boolean getAngleVisibility()				 // Check if image should be visible
-//	{
-//		boolean visible = false;
-//
-//		if(p.p.transitionsOnly)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
-//		{
-//			if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
-//				visible = true;
-//
-//			for(int id : p.p.viewer.clustersVisible)
-//			{
-//				if(cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-//					visible = true;
-//			}
-//
-//			return visible;
-//		}
-//		else 
-//		{
-//			if(p.p.angleFading)
-//			{
-//				return isFacingCamera();		
-//			}
-//			else 
-//				return true;     										 		
-//		}
-//	}
+			if (distanceCheck < closestDistance)
+			{
+				closestClusterIndex = i;
+				closestDistance = distanceCheck;
+			}
+		}
+
+		if(closestDistance < p.p.getCurrentModel().maxClusterDistance)
+		{
+			cluster = closestClusterIndex;
+		}
+		else
+		{
+			cluster = -1;						// Create a new single image cluster here!
+			p.disassociatedImages++;
+		}
+
+		if(cluster != -1)
+			return true;
+		else
+			return false;
+	}
 	
 	/**
 	 * Set thinning visibility of image
@@ -738,7 +704,6 @@ class WMV_Image extends WMV_Viewable
 	public boolean isFacingCamera()
 	{
 		return PApplet.abs(getAngleToCamera()) > p.p.visibleAngle;     			// If the result is positive, then it is facing the camera.
-//		return PApplet.abs(getAngleToCamera()) > p.p.defaultVisibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 	
 	/**
@@ -873,7 +838,6 @@ class WMV_Image extends WMV_Viewable
 	}
 
 	/**
-	 * getFaceNormal()
 	 * @return Normalized vector perpendicular to the image plane
 	 */
 	private PVector getFaceNormal()
@@ -932,7 +896,6 @@ class WMV_Image extends WMV_Viewable
 	}
 	
 	/**
-	 * displayMetadata()
 	 * Draw the image metadata in Heads-Up Display
 	 */
 	public void displayMetadata()
@@ -1195,31 +1158,31 @@ class WMV_Image extends WMV_Viewable
 			 return true;
 	 }
 
-	 private PImage getDesaturated(PImage in, float amt) 
-	 {
-		 PImage out = in.get();
-		 for (int i = 0; i < out.pixels.length; i++) {
-			 int c = out.pixels[i];
-			 float h = p.p.p.hue(c);
-			 float s = p.p.p.saturation(c) * amt;
-			 float b = p.p.p.brightness(c);
-			 out.pixels[i] = p.p.p.color(h, s, b);
-		 }
-		 return out;
-	 }
-
-	 private PImage getFaintImage(PImage image, float amt) 
-	 {
-		 PImage out = image.get();
-		 for (int i = 0; i < out.pixels.length; i++) {
-			 int c = out.pixels[i];
-			 float h = p.p.p.hue(c);
-			 float s = p.p.p.saturation(c) * amt;
-			 float b = p.p.p.brightness(c) * amt;
-			 out.pixels[i] = p.p.p.color(h, s, b);
-		 }
-		 return out;
-	 }
+//	 private PImage getDesaturated(PImage in, float amt) 
+//	 {
+//		 PImage out = in.get();
+//		 for (int i = 0; i < out.pixels.length; i++) {
+//			 int c = out.pixels[i];
+//			 float h = p.p.p.hue(c);
+//			 float s = p.p.p.saturation(c) * amt;
+//			 float b = p.p.p.brightness(c);
+//			 out.pixels[i] = p.p.p.color(h, s, b);
+//		 }
+//		 return out;
+//	 }
+//
+//	 private PImage getFaintImage(PImage image, float amt) 
+//	 {
+//		 PImage out = image.get();
+//		 for (int i = 0; i < out.pixels.length; i++) {
+//			 int c = out.pixels[i];
+//			 float h = p.p.p.hue(c);
+//			 float s = p.p.p.saturation(c) * amt;
+//			 float b = p.p.p.brightness(c) * amt;
+//			 out.pixels[i] = p.p.p.color(h, s, b);
+//		 }
+//		 return out;
+//	 }
 
 	 /**
 	  * setGPSLocation()

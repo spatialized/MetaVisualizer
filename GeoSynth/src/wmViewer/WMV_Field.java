@@ -19,7 +19,7 @@ public class WMV_Field
 	String name;
 
 	/* Graphics */
-	public final int maxVisiblePhotos = 50;				// Maximum visible images at one time
+	public final int maxVisiblePhotos = 50;					// Maximum visible images at one time
 	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
 	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
 	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
@@ -45,13 +45,14 @@ public class WMV_Field
 
 	/* Time */
 //	public final int numBins = 100; 							// Time precision
-	ArrayList<WMV_TimeSegment> timeline;								// Cluster timeline for this field
-	ArrayList<WMV_Date> dateline;								// Cluster timeline for this field
+	ArrayList<WMV_TimeSegment> timeline;						// List of date-independent time segments in this field
+	ArrayList<WMV_Date> dateline;								// List of dates in this field
+	ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field by date
 
 	WMV_World p;
 	
 	/* -- Debug -- */	
-	public int disassociatedImages = 0;					// -- Check and delete variables
+	public int disassociatedImages = 0;						// Images not associated with a cluster -- Still needed?
 	public int disassociatedPanoramas = 0;
 	public int disassociatedVideos = 0;
 
@@ -194,8 +195,9 @@ public class WMV_Field
 		if(p.p.debug.main)
 			p.display.message("Creating timeline and dateline for field #"+fieldID+"...");
 
-		createTimeline();								// Create field timeline
-		createDateline();								// Create field timeline
+		createTimeline();								// Create date-independent timeline for field
+		createDateline();								// Create field dateline
+		createDateTimelines();							// Create date-specific timelines for field
 		model.analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 		
 		if(p.p.debug.main)
@@ -605,6 +607,13 @@ public class WMV_Field
 
 		timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort time segments 
 		
+		int count = 0;
+		for (WMV_TimeSegment t : timeline) 		
+		{
+			t.setID(count);
+			count++;
+		}
+		
 //		if(p.p.debug.time)
 //		{
 //			PApplet.println("------ Field Timeline ------");
@@ -641,6 +650,176 @@ public class WMV_Field
 		{
 			d.setID(count);
 			count++;
+		}
+	}
+	
+	/**
+	 * Create timeline for each date on dateline, where index of a date in dateline matches index of corresponding timeline in timelines array
+	 */
+	void createDateTimelines()
+	{
+		timelines = new ArrayList<ArrayList<WMV_TimeSegment>>();
+
+		for(WMV_Date d : dateline)			// For each date on dateline
+		{
+			ArrayList<WMV_TimeSegment> dateTimeline = new ArrayList<WMV_TimeSegment>();		// List of times to add to date-specific timeline for field
+
+			for(WMV_Cluster c : clusters)
+			{
+				ArrayList<WMV_Time> clusterMediaTimes = new ArrayList<WMV_Time>();		// List of times to add to date-specific timeline for field
+
+				if(!c.isEmpty())
+				{
+					for(WMV_Date cd : c.dateline)									// Search for date within cluster dateline
+					{
+						if(d.equals(cd))											// Compare dates
+						{
+							if(c.timelines.size() > d.getID())
+							{
+								for(WMV_TimeSegment t : c.timelines.get(d.getID()))		// Go through date-specific timeline for cluster
+								{
+									for(WMV_Time time : t.getTimeline())				// Add all times to list
+									{
+										clusterMediaTimes.add(time);
+									}
+								}
+							}
+						}
+					}
+
+					if(clusterMediaTimes.size() > 0)
+					{
+						ArrayList<WMV_TimeSegment> clusterTimeline = calculateTimeSegments(clusterMediaTimes, c.getID(), p.clusterTimePrecision);
+
+//						if(clusterTimeline != null) 
+//							clusterTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline 
+
+//						int count = 0;
+//						for (WMV_TimeSegment t : newTimeline) 		
+//						{
+//							t.setID(count);
+//							count++;
+//						}
+
+						for(WMV_TimeSegment ts : clusterTimeline)
+						{
+							dateTimeline.add(ts);
+						}
+					}
+				}
+			}
+
+			if(dateTimeline != null) 
+			{
+				if(dateTimeline.size() > 0)
+				{
+					dateTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
+
+					int count = 0;
+					for (WMV_TimeSegment t : dateTimeline) 		
+					{
+						t.setID(count);
+						count++;
+					}
+
+					timelines.add( dateTimeline );		// Add timeline to list
+				}
+			}
+		}
+		
+		PApplet.println("Created "+timelines.size()+" date-specific timelines for field #"+fieldID);
+	}
+	
+	/**
+	 * Find cluster time segments from given media's capture times
+	 * @param times List of times
+	 * @param timePrecision Number of histogram bins
+	 * @return Time segments
+	 */
+	ArrayList<WMV_TimeSegment> calculateTimeSegments(ArrayList<WMV_Time> mediaTimes, int clusterID, int timePrecision)				// -- clusterTimelineMinPoints!!								
+	{
+		mediaTimes.sort(WMV_Time.WMV_SimulationTimeComparator);			// Sort media by simulation time (normalized 0. to 1.)
+
+		if(mediaTimes.size() > 0)
+		{
+			ArrayList<WMV_TimeSegment> segments = new ArrayList<WMV_TimeSegment>();
+			
+			int count = 0, curLowerCount = 0;
+			WMV_Time curLower, curUpper, last;
+
+			curLower = mediaTimes.get(0);
+			curUpper = mediaTimes.get(0);
+			last = mediaTimes.get(0);
+
+			for(WMV_Time t : mediaTimes)
+			{
+				if(t.getTime() != last.getTime())
+				{
+					if(t.getTime() - last.getTime() < timePrecision)		// If moved by less than precision amount since last time, extend segment 
+					{
+						curUpper = t;
+					}
+					else
+					{
+						WMV_Time center;
+						if(curUpper.getTime() == curLower.getTime())
+							center = curUpper;								// If upper and lower are same, set center to that value
+						else
+						{
+							int middle = (count-curLowerCount)/2;			// Find center
+							if ((count-curLowerCount)%2 == 1) 
+							    center = mediaTimes.get(middle);			// Median if even #
+							else
+							   center = mediaTimes.get(middle-1);			// Use lower of center pair if odd #
+						}
+
+						if(p.p.debug.time && p.p.debug.detailed)
+							PApplet.println("Cluster #"+clusterID+"... Creating time segment... center:"+(center)+" curUpper:"+(curUpper)+" curLower:"+(curLower));
+
+						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+						for(int i=curLowerCount; i<=count; i++)
+							tl.add(mediaTimes.get(i));
+						
+						segments.add(new WMV_TimeSegment(-1, clusterID, center, curUpper, curLower, tl));	// Add time segment
+						
+//						tsID++;
+						curLower = t;
+						curUpper = t;
+						curLowerCount = count + 1;
+					}
+				}
+				
+				count++;
+			}
+			
+			if(curLowerCount == 0)
+			{
+				WMV_Time center;
+				if(curUpper.getTime() == curLower.getTime())
+					center = curUpper;								// If upper and lower are same, set center to that value
+				else
+				{
+					int middle = (count-curLowerCount)/2;			// Find center
+					if ((count-curLowerCount)%2 == 1) 
+					    center = mediaTimes.get(middle);			// Median if even #
+					else
+					   center = mediaTimes.get(middle-1);			// Use lower of center pair if odd #
+				}
+
+				ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+				for(int i=0; i<mediaTimes.size(); i++)
+					tl.add(mediaTimes.get(i));
+				
+				segments.add(new WMV_TimeSegment(-1, clusterID, center, curUpper, curLower, tl));
+			}
+			
+			return segments;			// Return cluster list
+		}
+		else
+		{
+			if(p.p.debug.time)
+				PApplet.println("cluster:"+clusterID+" getTimeSegments() == null!!");
+			return null;		
 		}
 	}
 
@@ -684,6 +863,10 @@ public class WMV_Field
 		if(t == null)
 			p.display.message("NULL time segment "+index+" returned by getTimeSegmentInCluster() clusterID:"+clusterID);
 		
+		if(clusterID != t.getClusterID())
+		{
+			PApplet.println("ERROR... getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+clusterID+" t.getClusterID():"+t.getClusterID());
+		}
 		return t;
 	}
 
@@ -696,19 +879,6 @@ public class WMV_Field
 		
 		return d;
 	}
-
-//	/**
-//	 * @return Time segments in field timeline
-//	 */
-//	public ArrayList<GMV_TimeSegment> getTimeSegments()
-//	{
-//		ArrayList<GMV_TimeSegment> result = new ArrayList<GMV_TimeSegment>();
-//		for(GMV_TimeSegment t : timeline)
-//			result.add(t);
-//		
-//		return result;
-//	}
-	
 	
 	/**
 	 * Try stitching panoramas for all clusters in field

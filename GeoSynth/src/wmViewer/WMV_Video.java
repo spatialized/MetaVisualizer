@@ -106,8 +106,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	 */
 	void draw()
 	{
-		if(!verticesAreNull())
-		{
+//		if(!verticesAreNull())
+//		{
 			float distanceBrightness = 0.f; 					// Fade with distance
 			float angleBrightness;
 			
@@ -202,7 +202,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 
 			if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.map3DMode))
 				drawLocation(centerSize);
-		}
+//		}
 	}
 
 	/**
@@ -335,17 +335,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 					visibilitySetToFalse = true;
 			}
 			
-//			if(visibilitySetToFalse && p.p.p.debug.video)
-//			{
-//				p.p.display.message("visibilitySetToFalse:"+visibilitySetToFalse);
-//			}
-			
-//			if(p.p.p.frameCount % 50 == 0 && p.p.p.debug.video)
-//			{
-//				p.p.display.message("video #"+getID()+" visible:"+visible);
-//			}
-			
-			/* Update */
 			if(!p.p.angleThinning)										// Check Angle Thinning Mode
 			{
 				if(visibilitySetToTrue && !fading && !fadedOut && !p.hideVideos)	// If should be visible and already fading, fade in 
@@ -382,10 +371,10 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			{
 				updateFadingObjectDistance();
 			}
-			else if(visible)
-			{
-				calculateVertices();  						// Update video vertices
-			}
+//			else if(visible)
+//			{
+//				calculateVertices();  						// Update video vertices
+//			}
 
 			if(fadedIn)		// Fade in sound once video has faded in
 			{

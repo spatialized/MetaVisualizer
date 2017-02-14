@@ -309,7 +309,7 @@ public class WMV_World
 
 		if(startRunning)							// If simulation just started running
 		{
-			viewer.moveToFirstTimeOnDate(getCurrentField().fieldID, viewer.currentFieldDate, true);
+			viewer.moveToTimeSegmentInField(0, 0, true);	// Move to first time segment in field
 			
 			firstTeleport = true;
 			startRunning = false;

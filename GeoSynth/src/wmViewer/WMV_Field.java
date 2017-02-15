@@ -1163,6 +1163,21 @@ public class WMV_Field
 		return d;
 	}
 	
+	public int getFieldDateIndexOfDate(WMV_Date clusterDate)
+	{
+		int idx = -1;
+		
+		for(WMV_Date d : dateline)
+		{
+			if(d.equals(clusterDate))
+			{
+				idx = d.getID();
+			}
+		}
+		
+		return idx;
+	}
+	
 	/**
 	 * Try stitching panoramas for all clusters in field
 	 */

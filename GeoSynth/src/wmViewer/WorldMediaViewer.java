@@ -14,27 +14,13 @@
 package wmViewer;
 import java.io.*;
 
-import javax.swing.JFrame;
-
-import com.jogamp.*;
-import com.jogamp.newt.event.KeyEvent;
-import com.jogamp.newt.opengl.GLWindow;
-
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
-import g4p_controls.GWindow;
-import processing.awt.*;
-//import processing.awt.PSurfaceAWT;
-//import g4p_controls.GWinData;
 import processing.core.*;
-import processing.opengl.PSurfaceJOGL;
-//import processing.event.MouseEvent;
 import processing.video.Movie;
-
-//import java.awt.Frame;
 
 public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 {
@@ -240,21 +226,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			selectedLibrary = true;	// Library folder has been selected
 	}
 	
-	/**
-	 * Called when a key is pressed
-	 */
-	public void keyPressed() 
-	{
-		world.input.handleKeyPressed(key, keyCode);
-	}
-
-	/**
-	 * Called when a key is released
-	 */
-	public void keyReleased() 
-	{
-		world.input.handleKeyReleased(key, keyCode);
-	}
 
 	/**
 	 * Called every time a new frame is available to read
@@ -279,18 +250,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		}
 	}
 	
-	public void mouseDragged() {
-//		if(world.mouseNavigation)
-//		{
-//			if(world.display.inDisplayView())
-//			{
-//				PApplet.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
-//				PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY);
-//				world.input.handleMouseDragged(pmouseX, pmouseY);
-//			}
-//		}
-	}
-
+	/* Input Handling */
 	public void mousePressed()
 	{
 		if(world.viewer.mouseNavigation)
@@ -307,7 +267,48 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.input.handleMouseClicked(mouseX, mouseY);
 	}
 	
-	public void sidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	public void mouseDragged() {
+//		if(world.mouseNavigation)
+//		{
+//			if(world.display.inDisplayView())
+//			{
+//				PApplet.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
+//				PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY);
+//				world.input.handleMouseDragged(pmouseX, pmouseY);
+//			}
+//		}
+	}
+
+	public void handleButtonEvents(GButton button, GEvent event) { 
+		world.input.handleButtonEvent(button, event);
+	}
+	
+	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
+		world.input.handleToggleControlEvent(option, event);
+	}
+	
+	public void handleSliderEvents(GValueControl slider, GEvent event) 
+	{ 
+		world.input.handleSliderEvent(slider, event);
+	}
+
+	/**
+	 * Processing method called when a key is pressed
+	 */
+	public void keyPressed() 
+	{
+		world.input.handleKeyPressed(key, keyCode);
+	}
+
+	/**
+	 * Processing method called when a key is released
+	 */
+	public void keyReleased() 
+	{
+		world.input.handleKeyReleased(key, keyCode);
+	}
+	
+	public void viewsSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 //		PApplet.println("sidebarKey:"+keyevent.getKey());
 //		PApplet.println("sidebarKeyCode:"+keyevent.getKeyCode());
@@ -318,38 +319,51 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
-
+	
+	public void navigationSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if (keyCode == PApplet.LEFT) 
+			PApplet.println("LEFT");
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	public void graphicsSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if (keyCode == PApplet.LEFT) 
+			PApplet.println("LEFT");
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
 	public void selectionSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-		PApplet.println("selectionSidebarKey:"+keyevent.getKey());
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
-
+	
 	public void statisticsSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-		PApplet.println("selectionSidebarKey:"+keyevent.getKey());
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
-	public void handleButtonEvents(GButton button, GEvent event) { 
-		world.display.handleButtonEvent(button, event);
+	public void helpSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
-	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
-		world.display.handleToggleControlEvent(option, event);
-	}
-	
-	public void handleSliderEvents(GValueControl slider, GEvent event) 
-	{ 
-		world.display.handleSliderEvent(slider, event);
-	}
-
 	/**
 	 * Called when user selects a GPS track file
 	 * @param selection Selected GPS Track file

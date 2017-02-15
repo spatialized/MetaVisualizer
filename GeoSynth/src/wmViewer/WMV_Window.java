@@ -1,5 +1,7 @@
 package wmViewer;
 
+import java.awt.Font;
+
 import g4p_controls.*;
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -9,31 +11,35 @@ public class WMV_Window {
 
 	WMV_Display p;
 	
-	private int sidebarWidth = 310;
+	private int sidebarWidth = 310, longSidebarHeight = 600;
+	private int shortSidebarHeight = sidebarWidth;
 	
-	public GWindow mainSidebar, selectionSidebar, statisticsSidebar;
-	private GSketchPad sketchPad;
+	/* Windows */
+	public GWindow mainSidebar, navigationSidebar, graphicsSidebar, selectionSidebar, statisticsSidebar, helpSidebar;
+	private GLabel lblViews, lblNavigation, lblGraphics, lblStatistics, lblHelp;				// Window headings
+//	private GSketchPad sketchPad;
 
-	/* Main Window */
-	private GLabel lblDisplayMode;
-	private GButton btnSceneView, btnMapView, btnInfoView, btnClusterView, btnControlView;
-	private GButton btnSelectionMode, btnStatisticsView, btnRestart;
-	
+	/* Views Window */
+	private GButton btnNavigationWindow, btnGraphicsWindow;										// Buttons to open other windows
+	private GButton btnSelectionWindow, btnStatisticsWindow, btnHelpWindow;
+	private GButton btnSceneView, btnMapView, btnInfoView, btnClusterView, btnControlView;		// Buttons to change Display View for main window
+	private GButton btnRestart;
+
+	/* Navigation Window */
 	private GButton btnImportGPSTrack;
 	private GButton btnSaveLocation, btnClearMemory;
 	private GButton btnJumpToRandomCluster;
 	private GButton btnZoomIn, btnZoomOut;
 	private GButton btnSaveImage, btnOutputFolder;
-	
-	private GLabel lblSubjectDistance;
-	private GButton btnSubjectDistanceUp, btnSubjectDistanceDown;
-	
+
 	private GButton btnNextTimeSegment, btnPreviousTimeSegment;
 	private GButton btnMoveToNearestCluster;
 	private GButton btnGoToPreviousField, btnGoToNextField;
 	private GButton btnFollowStart, btnFollowStop;	
 
-	private GLabel lblGraphics, lblTime, lblAutoNavigation, lblPathNavigation, lblModel, lblOutput;
+	/* Graphics Window */
+	private GLabel lblDisplayMode;
+	private GLabel lblGraphicsModes, lblTime, lblNavigationCommands, lblPathFollowing, lblModel, lblOutput;
 	public GLabel lblCurrentTime;
 	
 	private GCheckbox chkbxTimeFading;
@@ -51,10 +57,19 @@ public class WMV_Window {
 	private GSlider sdrAlpha;//, sdrMediaSize;
 	private GSlider sdrMediaLength;
 
+	private GLabel lblSubjectDistance;
+	private GButton btnSubjectDistanceUp, btnSubjectDistanceDown;
+
 	/* Selection Window */
-	private GLabel lblSelection, lblViewing, lblStatistics;
-	private GButton btnSelectFront, btnDeselectAll, btnExitSelectionMode, btnExitStatisticsMode;
+	private GLabel lblSelection, lblViewing;
 	private GCheckbox chkbxMultiSelection, chkbxSelectGroups, chkbxViewMetadata;
+	private GButton btnSelectFront, btnDeselectAll, btnExitSelectionMode;
+
+	/* Statistics Window */
+	private GButton btnExitStatisticsMode;
+
+	/* Help Window */
+	private GButton btnExitHelpMode;
 	
 //		p.showModel = !p.showModel;
 //	private GDropList textH, textV, iconH, iconV, iconP;
@@ -65,325 +80,75 @@ public class WMV_Window {
 	{
 		p = parent;
 
-		setupMainSidebar();
-		mainSidebar.setVisible(false);
+		setupViewsSidebar();
+		setupNavigationSidebar();
+		setupGraphicsSidebar();
+		setupHelpSidebar();
+		setupStatisticsSidebar();
+		setupSelectionSidebar();
 	}
 	
-	void setupMainSidebar()
+	void setupViewsSidebar()
 	{
-		mainSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
+		mainSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, 45, sidebarWidth, shortSidebarHeight, PApplet.JAVA2D);
+		mainSidebar.setVisible(true);
 		mainSidebar.addData(new WMV_WinData());
-		mainSidebar.addDrawHandler(this, "sidebarDraw");
-		mainSidebar.addMouseHandler(this, "sidebarMouse");
+		mainSidebar.addDrawHandler(this, "viewsSidebarDraw");
+		mainSidebar.addMouseHandler(this, "viewsSidebarMouse");
+		mainSidebar.addKeyHandler(p.p.p, "viewsSidebarKey");
 		
-		int x = 0, y = 30;
-
-		lblTime = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "Time");
-		lblTime.setLocalColorScheme(10);
-		lblTime.setTextAlign(GAlign.CENTER, null);
-		lblTime.setTextBold();
-		lblTime.setTextItalic();
-
-		x = 100;
-		y += 25;
-		
-		chkbxTimeFading = new GCheckbox(mainSidebar, x, y, 100, 20, "Time Fading");
-		chkbxTimeFading.tag = "TimeFading";
-		chkbxTimeFading.setLocalColorScheme(10);
-		
-		lblCurrentTime = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "-:-- am");
-		lblCurrentTime.setLocalColorScheme(10);
-		lblCurrentTime.setTextAlign(GAlign.CENTER, null);
-		lblCurrentTime.setTextBold();
-		lblCurrentTime.setTextItalic();
+		int x = 0, y = 12;
 
 		x = 0;
+
+		lblViews = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "WorldMediaViewer v1.0");
+		lblViews.setLocalColorScheme(10);
+		lblViews.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblViews.setTextAlign(GAlign.CENTER, null);
+		lblViews.setTextBold();
+
+		x = 80;
+		y += 30;
+
+		btnNavigationWindow = new GButton(mainSidebar, x, y, 130, 20, "Navigation Controls");
+		btnNavigationWindow.tag = "OpenNavigationWindow";
+		btnNavigationWindow.setLocalColorScheme(5);
+
+		x = 80;
+		y += 30;
+
+		btnGraphicsWindow = new GButton(mainSidebar, x, y, 130, 20, "Graphics Controls");
+		btnGraphicsWindow.tag = "OpenGraphicsWindow";
+		btnGraphicsWindow.setLocalColorScheme(5);
+
+		x = 80;
+		y += 30;
+
+		btnStatisticsWindow = new GButton(mainSidebar, x, y, 130, 20, "Show Statistics");
+		btnStatisticsWindow.tag = "OpenStatisticsWindow";
+		btnStatisticsWindow.setLocalColorScheme(5);
+		
+		x = 70;
 		y += 40;
 
-		lblAutoNavigation = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "Auto Navigation");
-		lblAutoNavigation.setLocalColorScheme(10);
-		lblAutoNavigation.setTextAlign(GAlign.CENTER, null);
-		lblAutoNavigation.setTextBold();
-		lblAutoNavigation.setTextItalic();
-
-		x = 90;
-		y += 25;
-
-		btnMoveToNearestCluster = new GButton(mainSidebar, x, y, 100, 20, "Nearest Cluster");
-		btnMoveToNearestCluster.tag = "NearestCluster";
-		btnMoveToNearestCluster.setLocalColorScheme(5);
-		btnMoveToNearestCluster = new GButton(mainSidebar, x+=105, y, 100, 20, "Last Cluster");
-		btnMoveToNearestCluster.tag = "LastCluster";
-		btnMoveToNearestCluster.setLocalColorScheme(5);
-
-		x = 15;
-		y += 25;
-
-		chkbxMovementTeleport = new GCheckbox(mainSidebar, x, y, 70, 20, "Teleport");
-		chkbxMovementTeleport.tag = "MovementTeleport";
-		chkbxMovementTeleport.setLocalColorScheme(10);
-		btnJumpToRandomCluster = new GButton(mainSidebar, x+75, y, 110, 20, "Random Cluster");
-		btnJumpToRandomCluster.tag = "RandomCluster";
-		btnJumpToRandomCluster.setLocalColorScheme(5);
-
-		x = 90;
-		y += 25;
-
-		btnPreviousTimeSegment = new GButton(mainSidebar, x, y, 100, 20, "Previous Time");
-		btnPreviousTimeSegment.tag = "PreviousTime";
-		btnPreviousTimeSegment.setLocalColorScheme(5);
-		btnNextTimeSegment = new GButton(mainSidebar, x+=105, y, 100, 20, "Next Time");
-		btnNextTimeSegment.tag = "NextTime";
-		btnNextTimeSegment.setLocalColorScheme(5);
-
-		x = 50;
-		y += 30;
-
-		btnImportGPSTrack = new GButton(mainSidebar, x, y, 140, 20, "Import GPS Track");
-		btnImportGPSTrack.tag = "ImportGPSTrack";
-		btnImportGPSTrack.setLocalColorScheme(5);		
-
-		x = 50;
-		y += 25;
-		
-		btnSaveLocation = new GButton(mainSidebar, x, y, 100, 20, "Save Location");
-		btnSaveLocation.tag = "SaveLocation";
-		btnSaveLocation.setLocalColorScheme(5);
-		btnClearMemory = new GButton(mainSidebar, x+100, y, 100, 20, "Clear Memory");
-		btnClearMemory.tag = "ClearMemory";
-		btnClearMemory.setLocalColorScheme(0);
-
-		
-		x = 0;
-		y += 30;
-		lblPathNavigation = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "Path Navigation");
-		lblPathNavigation.setLocalColorScheme(10);
-		lblPathNavigation.setTextAlign(GAlign.CENTER, null);
-		lblPathNavigation.setTextBold();
-		lblPathNavigation.setTextItalic();
-
-		x = 15;
-		y += 25;
-		
-		optTimeline = new GOption(mainSidebar, x, y, 90, 20, "Timeline");
-		optTimeline.setLocalColorScheme(10);
-		optTimeline.tag = "FollowTimeline";
-		optTimeline.setSelected(true);
-		optGPSTrack = new GOption(mainSidebar, x+=90, y, 90, 20, "GPS Track");
-		optGPSTrack.setLocalColorScheme(10);
-		optGPSTrack.tag = "FollowGPSTrack";
-		optMemory = new GOption(mainSidebar, x+=90, y, 90, 20, "Memory");
-		optMemory.setLocalColorScheme(10);
-		optMemory.tag = "FollowMemory";
-
-		tgFollow = new GToggleGroup();
-		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
-
-		x = 15;
-		y += 25;
-
-		chkbxFollowTeleport = new GCheckbox(mainSidebar, x, y, 80, 20, "Teleporting");
-		chkbxFollowTeleport.tag = "FollowTeleport";
-		chkbxFollowTeleport.setLocalColorScheme(10);
-
-		btnFollowStart = new GButton(mainSidebar, x+=90, y, 60, 20, "Start");
-		btnFollowStart.tag = "FollowStart";
-		btnFollowStart.setLocalColorScheme(5);
-		
-		btnFollowStop = new GButton(mainSidebar, x+=60, y, 60, 20, "Stop");
-		btnFollowStop.tag = "FollowStop";
-		btnFollowStop.setLocalColorScheme(0);
-
-		x = 0;
-		y += 40;
-
-		lblGraphics = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "Graphics");
-		lblGraphics.setLocalColorScheme(10);
-		lblGraphics.setTextAlign(GAlign.CENTER, null);
-		lblGraphics.setTextBold();
-		lblGraphics.setTextItalic();
-	
-		x = 85;
-		y += 25;
-
-		chkbxOrientationMode = new GCheckbox(mainSidebar, x, y, 115, 20, "Orientation Mode");
-		chkbxOrientationMode.tag = "OrientationMode";
-		chkbxOrientationMode.setLocalColorScheme(10);
-		chkbxOrientationMode.setSelected(false);
-
-		x = 50;
-		y += 25;
-
-		chkbxAlphaMode = new GCheckbox(mainSidebar, x, y, 85, 20, "Alpha Mode");
-		chkbxAlphaMode.tag = "AlphaMode";
-		chkbxAlphaMode.setLocalColorScheme(10);
-		chkbxAlphaMode.setSelected(false);
-
-		chkbxAngleFading = new GCheckbox(mainSidebar, x+=85, y, 100, 20, "Angle Fading");
-		chkbxAngleFading.tag = "AngleFading";
-		chkbxAngleFading.setLocalColorScheme(10);
-		chkbxAngleFading.setSelected(true);
-
-		x = 50;
-		y += 25;
-
-		chkbxFadeEdges = new GCheckbox(mainSidebar, x, y, 85, 20, "Fade Edges");
-		chkbxFadeEdges.tag = "FadeEdges";
-		chkbxFadeEdges.setLocalColorScheme(10);
-		chkbxFadeEdges.setSelected(true);
-
-		chkbxAngleThinning = new GCheckbox(mainSidebar, x += 85, y, 100, 20, "Angle Thinning");
-		chkbxAngleThinning.tag = "AngleThinning";
-		chkbxAngleThinning.setLocalColorScheme(10);
-		chkbxAngleThinning.setSelected(false);
-
-		x = 60;
-		y += 30;
-
-		btnZoomIn = new GButton(mainSidebar, x, y, 80, 20, "Zoom In");
-		btnZoomIn.tag = "ZoomIn";
-		btnZoomIn.setLocalColorScheme(5);
-		btnZoomOut = new GButton(mainSidebar, x+=90, y, 80, 20, "Zoom Out");
-		btnZoomOut.tag = "ZoomOut";
-		btnZoomOut.setLocalColorScheme(5);
-
-		x = 8;
-		y += 30;
-
-		chkbxHideImages = new GCheckbox(mainSidebar, x, y, 90, 20, "Hide Images");
-		chkbxHideImages.tag = "HideImages";
-		chkbxHideImages.setLocalColorScheme(10);
-		chkbxHideImages.setSelected(false);
-
-		chkbxHideVideos = new GCheckbox(mainSidebar, x += 90, y, 85, 20, "Hide Videos");
-		chkbxHideVideos.tag = "HideVideos";
-		chkbxHideVideos.setLocalColorScheme(10);
-		chkbxHideVideos.setSelected(false);
-
-		chkbxHidePanoramas = new GCheckbox(mainSidebar, x += 85, y, 120, 20, "Hide Panoramas");
-		chkbxHidePanoramas.tag = "HidePanoramas";
-		chkbxHidePanoramas.setLocalColorScheme(10);
-		chkbxHidePanoramas.setSelected(false);
-
-//		lblMediaSize= new GLabel(window, x, y, 80, 20, "Media Size");
-//		lblMediaSize.setLocalColorScheme(10);
-//		sdrMediaSize = new GSlider(window, x + 115, y-30, 150, 80, 12);
-//		sdrMediaSize.setLocalColorScheme(5);
-//		sdrMediaSize.setLimits(p.p.defaultFocusDistance, 2.f, 40.f);
-//		sdrMediaSize.setRotation(0);
-//		sdrMediaSize.setTextOrientation(G4P.ORIENT_RIGHT);
-//		sdrMediaSize.setEasing(10);
-//		sdrMediaSize.setShowValue(true);
-//		sdrMediaSize.tag = "MediaSize";
-
-//		private GCheckbox chkbxAngleFading, chkbxAngleThinning;
-//
-//		private GSlider sdrMediaSize, sdrMediaBrightness, sdrSubjectDistance;
-//		private GSlider sdrMediaLength;
-
-		x = 60;
-		y += 30;
-
-		lblAlpha= new GLabel(mainSidebar, x, y, 60, 20, "Alpha");
-		lblAlpha.setLocalColorScheme(10);
-		lblMediaLength = new GLabel(mainSidebar, x+100, y, 80, 20, "Media Length");
-		lblMediaLength .setLocalColorScheme(10);
-
-		x = 40;
-		y += 80;
-
-		sdrAlpha = new GSlider(mainSidebar, x, y, 60, 90, 20);
-		sdrAlpha.setLocalColorScheme(5);
-		sdrAlpha.setLimits(p.p.alpha, 0.f, 255.f);
-		sdrAlpha.setRotation(-PApplet.PI/2.f);
-		sdrAlpha.setTextOrientation(G4P.ORIENT_RIGHT);
-		sdrAlpha.setEasing(10);
-		sdrAlpha.setShowValue(true);
-		sdrAlpha.tag = "Alpha";
-
-		sdrMediaLength = new GSlider(mainSidebar, x + 100, y, 60, 90, 20);
-		sdrMediaLength.setLocalColorScheme(5);
-		sdrMediaLength.setLimits(p.p.defaultMediaLength, 10, 250);
-		sdrMediaLength.setRotation(-PApplet.PI/2.f);
-		sdrMediaLength.setTextOrientation(G4P.ORIENT_RIGHT);
-		sdrMediaLength.setEasing(10);
-		sdrMediaLength.setShowValue(true);
-		sdrMediaLength.tag = "MediaLength";
-
-		x = 0;
-		y += 30;
-		
-		lblModel = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "Model");
-		lblModel.setLocalColorScheme(10);
-		lblModel.setTextAlign(GAlign.CENTER, null);
-		lblModel.setTextBold();
-		lblModel.setTextItalic();
-
-		x = 60;
-		y += 30;
-		
-		btnSubjectDistanceDown = new GButton(mainSidebar, x, y, 30, 20, "-");
-		btnSubjectDistanceDown.tag = "SubjectDistanceDown";
-		btnSubjectDistanceDown.setLocalColorScheme(5);
-		lblSubjectDistance = new GLabel(mainSidebar, x += 35, y, 110, 20, "Subject Distance");
-		lblSubjectDistance.setLocalColorScheme(10);
-		lblSubjectDistance.setTextBold();
-		btnSubjectDistanceUp = new GButton(mainSidebar, x += 105, y, 30, 20, "+");
-		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
-		btnSubjectDistanceUp.setLocalColorScheme(5);
-		
-		x = 0;
-		y += 30;
-
-		lblOutput = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "Output");
-		lblOutput.setLocalColorScheme(10);
-		lblOutput.setTextAlign(GAlign.CENTER, null);
-		lblOutput.setTextBold();
-		lblOutput.setTextItalic();
-
-		x = 40;
-		y += 30;
-
-		btnSaveImage = new GButton(mainSidebar, x, y, 100, 20, "Export Image");
-		btnSaveImage.tag = "ExportImage";
-		btnSaveImage.setLocalColorScheme(5);
-		btnOutputFolder = new GButton(mainSidebar, x+100, y, 120, 20, "Set Output Folder");
-		btnOutputFolder.tag = "OutputFolder";
-		btnOutputFolder.setLocalColorScheme(5);
-		
-		x = 85;
-		y += 40;
-
-		btnSelectionMode = new GButton(mainSidebar, x, y, 130, 20, "Selection Mode");
-		btnSelectionMode.tag = "SelectionMode";
-		btnSelectionMode.setLocalColorScheme(5);
-
-		y += 40;
-
-		btnStatisticsView = new GButton(mainSidebar, x, y, 130, 20, "View Statistics");
-		btnStatisticsView.tag = "StatisticsView";
-		btnStatisticsView.setLocalColorScheme(5);
+		btnSelectionWindow = new GButton(mainSidebar, x, y, 150, 20, "Enter Selection Mode");
+		btnSelectionWindow.tag = "SelectionMode";
+		btnSelectionWindow.setLocalColorScheme(4);
 
 		x = 70;
 		y += 30;
 		
-		btnRestart = new GButton(mainSidebar, x, y, 160, 20, "Load Media Library...");
+		btnRestart = new GButton(mainSidebar, x, y, 150, 20, "Load Media Library...");
 		btnRestart.tag = "Restart";
-		btnRestart.setLocalColorScheme(5);
+		btnRestart.setLocalColorScheme(7);
 
-		if(p.p.getFields() != null)
-		{
-			x = 60;
-			y += 30;
-			btnGoToPreviousField = new GButton(mainSidebar, x, y, 90, 20, "Previous Field");
-			btnGoToPreviousField.tag = "PreviousField";
-			btnGoToPreviousField.setLocalColorScheme(5);
-
-			btnGoToNextField = new GButton(mainSidebar, x+=90, y, 90, 20, "Next Field");
-			btnGoToNextField.tag = "NextField";
-			btnGoToNextField.setLocalColorScheme(5);
-		}
-
+		x = 105;
+		y += 40;
+		
+		btnHelpWindow = new GButton(mainSidebar, x, y, 70, 20, "Help...");
+		btnHelpWindow.tag = "OpenHelpWindow";
+		btnHelpWindow.setLocalColorScheme(5);
+		
 		x = 0;
 		y = mainSidebar.height - 60;
 		lblDisplayMode = new GLabel(mainSidebar, x, y, mainSidebar.width, 20);						/* Display Mode Label */
@@ -409,31 +174,364 @@ public class WMV_Window {
 		btnControlView = new GButton(mainSidebar, x+=55, y, 55, 20, "Control");
 		btnControlView.tag = "Control";
 		btnControlView.setLocalColorScheme(5);
+	}
+	
+	void setupNavigationSidebar()
+	{
+		navigationSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
+		navigationSidebar.setVisible(false);
+		navigationSidebar.addData(new WMV_WinData());
+		navigationSidebar.addDrawHandler(this, "navigationSidebarDraw");
+		navigationSidebar.addMouseHandler(this, "navigationSidebarMouse");
+		navigationSidebar.addKeyHandler(p.p.p, "navigationSidebarKey");
 		
-		mainSidebar.addKeyHandler(p.p.p, "sidebarKey");
+		int x = 0, y = 12;
+
+		x = 0;
+
+		lblNavigation = new GLabel(navigationSidebar, x, y, navigationSidebar.width, 20, "Navigation");
+		lblNavigation.setLocalColorScheme(10);
+		lblNavigation.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblNavigation.setTextAlign(GAlign.CENTER, null);
+		lblNavigation.setTextBold();
+
+		y += 30;
+
+		lblNavigationCommands = new GLabel(navigationSidebar, x, y, navigationSidebar.width, 20, "Navigation Commands");
+		lblNavigationCommands.setLocalColorScheme(10);
+		lblNavigationCommands.setTextAlign(GAlign.CENTER, null);
+		lblNavigationCommands.setTextBold();
+		lblNavigationCommands.setTextItalic();
+
+		x = 90;
+		y += 25;
+
+		btnMoveToNearestCluster = new GButton(navigationSidebar, x, y, 100, 20, "Nearest Cluster");
+		btnMoveToNearestCluster.tag = "NearestCluster";
+		btnMoveToNearestCluster.setLocalColorScheme(5);
+		btnMoveToNearestCluster = new GButton(navigationSidebar, x+=105, y, 100, 20, "Last Cluster");
+		btnMoveToNearestCluster.tag = "LastCluster";
+		btnMoveToNearestCluster.setLocalColorScheme(5);
+
+		x = 15;
+		y += 25;
+
+		chkbxMovementTeleport = new GCheckbox(navigationSidebar, x, y, 70, 20, "Teleport");
+		chkbxMovementTeleport.tag = "MovementTeleport";
+		chkbxMovementTeleport.setLocalColorScheme(10);
+		btnJumpToRandomCluster = new GButton(navigationSidebar, x+75, y, 110, 20, "Random Cluster");
+		btnJumpToRandomCluster.tag = "RandomCluster";
+		btnJumpToRandomCluster.setLocalColorScheme(5);
+
+		x = 90;
+		y += 25;
+
+		btnPreviousTimeSegment = new GButton(navigationSidebar, x, y, 100, 20, "Previous Time");
+		btnPreviousTimeSegment.tag = "PreviousTime";
+		btnPreviousTimeSegment.setLocalColorScheme(5);
+		btnNextTimeSegment = new GButton(navigationSidebar, x+=105, y, 100, 20, "Next Time");
+		btnNextTimeSegment.tag = "NextTime";
+		btnNextTimeSegment.setLocalColorScheme(5);
+		
+		x = 0;
+		y += 30;
+		lblPathFollowing = new GLabel(navigationSidebar, x, y, navigationSidebar.width, 20, "Path Following");
+		lblPathFollowing.setLocalColorScheme(10);
+		lblPathFollowing.setTextAlign(GAlign.CENTER, null);
+		lblPathFollowing.setTextBold();
+		lblPathFollowing.setTextItalic();
+		
+		x = 40;
+		y += 25;
+		
+		btnSaveLocation = new GButton(navigationSidebar, x, y, 100, 20, "Save Location");
+		btnSaveLocation.tag = "SaveLocation";
+		btnSaveLocation.setLocalColorScheme(5);
+		btnClearMemory = new GButton(navigationSidebar, x+100, y, 100, 20, "Clear Memory");
+		btnClearMemory.tag = "ClearMemory";
+		btnClearMemory.setLocalColorScheme(0);
+
+		x = 80;
+		y += 30;
+
+		btnImportGPSTrack = new GButton(navigationSidebar, x, y, 140, 20, "Import GPS Track");
+		btnImportGPSTrack.tag = "ImportGPSTrack";
+		btnImportGPSTrack.setLocalColorScheme(5);		
+
+		x = 15;
+		y += 25;
+		
+		optTimeline = new GOption(navigationSidebar, x, y, 90, 20, "Timeline");
+		optTimeline.setLocalColorScheme(10);
+		optTimeline.tag = "FollowTimeline";
+		optTimeline.setSelected(true);
+		optGPSTrack = new GOption(navigationSidebar, x+=90, y, 90, 20, "GPS Track");
+		optGPSTrack.setLocalColorScheme(10);
+		optGPSTrack.tag = "FollowGPSTrack";
+		optMemory = new GOption(navigationSidebar, x+=90, y, 90, 20, "Memory");
+		optMemory.setLocalColorScheme(10);
+		optMemory.tag = "FollowMemory";
+
+		tgFollow = new GToggleGroup();
+		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
+
+		x = 15;
+		y += 25;
+
+		chkbxFollowTeleport = new GCheckbox(navigationSidebar, x, y, 80, 20, "Teleporting");
+		chkbxFollowTeleport.tag = "FollowTeleport";
+		chkbxFollowTeleport.setLocalColorScheme(10);
+
+		btnFollowStart = new GButton(navigationSidebar, x+=90, y, 60, 20, "Start");
+		btnFollowStart.tag = "FollowStart";
+		btnFollowStart.setLocalColorScheme(5);
+		
+		btnFollowStop = new GButton(navigationSidebar, x+=60, y, 60, 20, "Stop");
+		btnFollowStop.tag = "FollowStop";
+		btnFollowStop.setLocalColorScheme(0);
+
+		if(p.p.getFields() != null)
+		{
+			x = 60;
+			y += 30;
+			btnGoToPreviousField = new GButton(navigationSidebar, x, y, 90, 20, "Previous Field");
+			btnGoToPreviousField.tag = "PreviousField";
+			btnGoToPreviousField.setLocalColorScheme(5);
+
+			btnGoToNextField = new GButton(navigationSidebar, x+=90, y, 90, 20, "Next Field");
+			btnGoToNextField.tag = "NextField";
+			btnGoToNextField.setLocalColorScheme(5);
+		}
+	}
+	
+	
+	
+	void setupGraphicsSidebar()
+	{
+		graphicsSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
+		graphicsSidebar.setVisible(false);
+		graphicsSidebar.addData(new WMV_WinData());
+		graphicsSidebar.addDrawHandler(this, "graphicsSidebarDraw");
+		graphicsSidebar.addMouseHandler(this, "graphicsSidebarMouse");
+		graphicsSidebar.addKeyHandler(p.p.p, "graphicsSidebarKey");
+	
+		int x = 0, y = 12;
+
+		lblGraphics = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Graphics");
+		lblGraphics.setLocalColorScheme(10);
+		lblGraphics.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblGraphics.setTextAlign(GAlign.CENTER, null);
+		lblGraphics.setTextBold();
+
+		x = 60;
+		y += 30;
+		
+		btnZoomIn = new GButton(graphicsSidebar, x, y, 80, 20, "Zoom In");
+		btnZoomIn.tag = "ZoomIn";
+		btnZoomIn.setLocalColorScheme(5);
+		btnZoomOut = new GButton(graphicsSidebar, x+=90, y, 80, 20, "Zoom Out");
+		btnZoomOut.tag = "ZoomOut";
+		btnZoomOut.setLocalColorScheme(5);
+
+		x = 130;
+		y += 25;
+
+		lblAlpha= new GLabel(graphicsSidebar, x, y, 60, 20, "Alpha");
+		lblAlpha.setLocalColorScheme(10);
+//		lblAlpha= new GLabel(mainSidebar, x, y, 60, 20, "Alpha");
+//		lblAlpha.setLocalColorScheme(10);
+
+		x = 110;
+		y += 80;
+
+		sdrAlpha = new GSlider(graphicsSidebar, x, y+25, 80, 80, 20);
+		sdrAlpha.setLocalColorScheme(5);
+		sdrAlpha.setLimits(p.p.alpha, 0.f, 255.f);
+		sdrAlpha.setRotation(-PApplet.PI/2.f);
+		sdrAlpha.setTextOrientation(G4P.ORIENT_LEFT);
+		sdrAlpha.setEasing(10);
+		sdrAlpha.setShowValue(true);
+		sdrAlpha.tag = "Alpha";
+
+//		x = 50;
+//		y += 30;
+//
+//		x = 40;
+//		y += 100;
+//
+//		sdrAlpha = new GSlider(mainSidebar, x, y, 90, 90, 20);
+//		sdrAlpha.setLocalColorScheme(5);
+//		sdrAlpha.setLimits(p.p.alpha, 0.f, 255.f);
+//		sdrAlpha.setRotation(-PApplet.PI/2.f);
+//		sdrAlpha.setTextOrientation(G4P.ORIENT_LEFT);
+//		sdrAlpha.setEasing(10);
+//		sdrAlpha.setShowValue(true);
+//		sdrAlpha.tag = "Alpha";
+
+		x = 0;
+		y += 30;
+
+		lblGraphicsModes = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Modes");
+		lblGraphicsModes.setLocalColorScheme(10);
+		lblGraphicsModes.setTextAlign(GAlign.CENTER, null);
+		lblGraphicsModes.setTextBold();
+		lblGraphicsModes.setTextItalic();
+		
+		x = 50;
+		y += 25;
+
+		chkbxAlphaMode = new GCheckbox(graphicsSidebar, x, y, 85, 20, "Alpha Mode");
+		chkbxAlphaMode.tag = "AlphaMode";
+		chkbxAlphaMode.setLocalColorScheme(10);
+		chkbxAlphaMode.setSelected(true);
+
+		chkbxAngleFading = new GCheckbox(graphicsSidebar, x+=85, y, 100, 20, "Angle Fading");
+		chkbxAngleFading.tag = "AngleFading";
+		chkbxAngleFading.setLocalColorScheme(10);
+		chkbxAngleFading.setSelected(true);
+
+		x = 50;
+		y += 25;
+
+		chkbxFadeEdges = new GCheckbox(graphicsSidebar, x, y, 85, 20, "Fade Edges");
+		chkbxFadeEdges.tag = "FadeEdges";
+		chkbxFadeEdges.setLocalColorScheme(10);
+		chkbxFadeEdges.setSelected(true);
+
+		chkbxAngleThinning = new GCheckbox(graphicsSidebar, x += 85, y, 100, 20, "Angle Thinning");
+		chkbxAngleThinning.tag = "AngleThinning";
+		chkbxAngleThinning.setLocalColorScheme(10);
+		chkbxAngleThinning.setSelected(false);
+
+		x = 85;
+		y += 25;
+		
+		chkbxOrientationMode = new GCheckbox(graphicsSidebar, x, y, 115, 20, "Orientation Mode");
+		chkbxOrientationMode.tag = "OrientationMode";
+		chkbxOrientationMode.setLocalColorScheme(10);
+		chkbxOrientationMode.setSelected(false);
+
+		x = 8;
+		y += 30;
+
+		chkbxHideImages = new GCheckbox(graphicsSidebar, x, y, 90, 20, "Hide Images");
+		chkbxHideImages.tag = "HideImages";
+		chkbxHideImages.setLocalColorScheme(10);
+		chkbxHideImages.setSelected(false);
+
+		chkbxHideVideos = new GCheckbox(graphicsSidebar, x += 90, y, 85, 20, "Hide Videos");
+		chkbxHideVideos.tag = "HideVideos";
+		chkbxHideVideos.setLocalColorScheme(10);
+		chkbxHideVideos.setSelected(false);
+
+		chkbxHidePanoramas = new GCheckbox(graphicsSidebar, x += 85, y, 120, 20, "Hide Panoramas");
+		chkbxHidePanoramas.tag = "HidePanoramas";
+		chkbxHidePanoramas.setLocalColorScheme(10);
+		chkbxHidePanoramas.setSelected(false);
+
+		x = 0;
+		y += 30;
+
+		lblTime = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Time");
+		lblTime.setLocalColorScheme(10);
+		lblTime.setTextAlign(GAlign.CENTER, null);
+		lblTime.setTextBold();
+		lblTime.setTextItalic();
+
+		x = 125;
+		y += 25;
+
+		lblMediaLength = new GLabel(graphicsSidebar, x, y, 80, 20, "Media Length");
+		lblMediaLength .setLocalColorScheme(10);
+
+		x = 110;
+		y += 80;
+
+		sdrMediaLength = new GSlider(graphicsSidebar, x, y+25, 80, 80, 20);
+		sdrMediaLength.setLocalColorScheme(5);
+		sdrMediaLength.setLimits(p.p.defaultMediaLength, 10.f, 250.f);
+		sdrMediaLength.setRotation(-PApplet.PI/2.f);
+		sdrMediaLength.setTextOrientation(G4P.ORIENT_LEFT);
+		sdrMediaLength.setEasing(10);
+		sdrMediaLength.setShowValue(true);
+		sdrMediaLength.tag = "MediaLength";
+
+		x = 100;
+		y += 30;
+		
+		chkbxTimeFading = new GCheckbox(graphicsSidebar, x, y, 100, 20, "Time Fading");
+		chkbxTimeFading.tag = "TimeFading";
+		chkbxTimeFading.setLocalColorScheme(10);
+		
+		lblCurrentTime = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "-:-- am");
+		lblCurrentTime.setLocalColorScheme(10);
+		lblCurrentTime.setTextAlign(GAlign.CENTER, null);
+		lblCurrentTime.setTextBold();
+		lblCurrentTime.setTextItalic();
+		
+		x = 0;
+		y += 30;
+
+		lblModel = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Model");
+		lblModel.setLocalColorScheme(10);
+		lblModel.setTextAlign(GAlign.CENTER, null);
+		lblModel.setTextBold();
+		lblModel.setTextItalic();
+
+		x = 60;
+		y += 30;
+		
+		btnSubjectDistanceDown = new GButton(graphicsSidebar, x, y, 30, 20, "-");
+		btnSubjectDistanceDown.tag = "SubjectDistanceDown";
+		btnSubjectDistanceDown.setLocalColorScheme(5);
+		lblSubjectDistance = new GLabel(graphicsSidebar, x += 35, y, 110, 20, "Subject Distance");
+		lblSubjectDistance.setLocalColorScheme(10);
+		lblSubjectDistance.setTextBold();
+		btnSubjectDistanceUp = new GButton(graphicsSidebar, x += 105, y, 30, 20, "+");
+		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
+		btnSubjectDistanceUp.setLocalColorScheme(5);
+		
+		x = 0;
+		y += 30;
+
+		lblOutput = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Output");
+		lblOutput.setLocalColorScheme(10);
+		lblOutput.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblOutput.setTextAlign(GAlign.CENTER, null);
+		lblOutput.setTextBold();
+
+		x = 40;
+		y += 30;
+
+		btnSaveImage = new GButton(graphicsSidebar, x, y, 100, 20, "Export Image");
+		btnSaveImage.tag = "ExportImage";
+		btnSaveImage.setLocalColorScheme(5);
+		btnOutputFolder = new GButton(graphicsSidebar, x+100, y, 120, 20, "Set Output Folder");
+		btnOutputFolder.tag = "OutputFolder";
+		btnOutputFolder.setLocalColorScheme(5);
 	}
 	
 	void setupStatisticsSidebar()
 	{
 		statisticsSidebar = GWindow.getWindow(p.p.p, "Statistics", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
+		statisticsSidebar.setVisible(false);
 		statisticsSidebar.addData(new WMV_WinData());
 		statisticsSidebar.addDrawHandler(this, "statisticsSidebarDraw");
 		statisticsSidebar.addMouseHandler(this, "statisticsSidebarMouse");
 		
-		int x = 0, y = 20;
+		int x = 0, y = 10;
 
-		/* Selection Window */
 		lblStatistics = new GLabel(statisticsSidebar, x, y, statisticsSidebar.width, 20, "Statistics");
 		lblStatistics.setLocalColorScheme(10);
 		lblStatistics.setTextAlign(GAlign.CENTER, null);
+		lblStatistics.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblStatistics.setTextBold();
-		lblStatistics.setTextItalic();
 
 		x = 40;
 		y = p.p.p.height - 40;
 		
-		btnExitStatisticsMode = new GButton(statisticsSidebar, x, y, 180, 20, "Exit Statistics View");
-		btnExitStatisticsMode.tag = "ExitStatisticsMode";
+		btnExitStatisticsMode = new GButton(statisticsSidebar, x, y, 180, 20, "Close Window");
+		btnExitStatisticsMode.tag = "CloseStatisticsWindow";
 		btnExitStatisticsMode.setLocalColorScheme(0);
 		
 		statisticsSidebar.addKeyHandler(p.p.p, "statisticsSidebarKey");
@@ -441,19 +539,20 @@ public class WMV_Window {
 
 	void setupSelectionSidebar()
 	{
-		selectionSidebar = GWindow.getWindow(p.p.p, "Selection Mode", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
+		selectionSidebar = GWindow.getWindow(p.p.p, "Selection Mode", 10, 45, sidebarWidth, shortSidebarHeight, PApplet.JAVA2D);
+		selectionSidebar.setVisible(false);
 		selectionSidebar.addData(new WMV_WinData());
 		selectionSidebar.addDrawHandler(this, "selectionSidebarDraw");
 		selectionSidebar.addMouseHandler(this, "selectionSidebarMouse");
 		
-		int x = 0, y = 20;
+		int x = 0, y = 10;
 
 		/* Selection Window */
 		lblSelection = new GLabel(selectionSidebar, x, y, selectionSidebar.width, 20, "Selection");
 		lblSelection.setLocalColorScheme(10);
 		lblSelection.setTextAlign(GAlign.CENTER, null);
+		lblSelection.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblSelection.setTextBold();
-		lblSelection.setTextItalic();
 
 		x = 40;
 		y += 25;
@@ -497,13 +596,87 @@ public class WMV_Window {
 		selectionSidebar.addKeyHandler(p.p.p, "selectionSidebarKey");
 	}
 
+	void setupHelpSidebar()
+	{
+		helpSidebar = GWindow.getWindow(p.p.p, "Help", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
+		helpSidebar.setVisible(false);
+		helpSidebar.addData(new WMV_WinData());
+		helpSidebar.addDrawHandler(this, "helpSidebarDraw");
+		helpSidebar.addMouseHandler(this, "helpSidebarMouse");
+		
+		int x = 0, y = 10;
+
+		/* Selection Window */
+		lblHelp = new GLabel(helpSidebar, x, y, helpSidebar.width, 20, "Help");
+		lblHelp.setLocalColorScheme(10);
+		lblHelp.setTextAlign(GAlign.CENTER, null);
+		lblHelp.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblHelp.setTextBold();
+
+		x = 40;
+		y = p.p.p.height - 40;
+		
+		btnExitHelpMode = new GButton(helpSidebar, x, y, 180, 20, "Close Window");
+		btnExitHelpMode.tag = "CloseHelpWindow";
+		btnExitHelpMode.setLocalColorScheme(0);
+		
+		helpSidebar.addKeyHandler(p.p.p, "helpSidebarKey");
+	}
+
+
 	/**
 	 * Handles drawing to the windows PApplet area
-	 * 
 	 * @param applet the PApplet object embeded into the frame
 	 * @param data the data for the GWindow being used
 	 */
-	public void sidebarDraw(PApplet applet, GWinData data) {
+	public void viewsSidebarDraw(PApplet applet, GWinData data) {
+//		applet.background(10, 5, 50);
+		applet.background(0);
+		applet.stroke(255);
+		applet.strokeWeight(1);
+		applet.fill(0, 0, 255);
+
+//		int yPos = window.height - 60;
+//		applet.text("WorldMediaViewer v1.0", window.width / 2 - 10, yPos);
+//		applet.text("David Gordon", window.width / 2 - 10, yPos += 20);
+	}
+
+	/**
+	 * Handles mouse events for ALL GWindow objects
+	 * @param applet the PApplet object embeded into the frame
+	 * @param data the data for the GWindow being used
+	 * @param event the mouse event
+	 */
+	public void viewsSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
+		WMV_WinData data2 = (WMV_WinData)data;
+		switch(event.getAction()) {
+
+		case MouseEvent.PRESS:
+			data2.sx = data2.ex = applet.mouseX;
+			data2.sy = data2.ey = applet.mouseY;
+			data2.done = false;
+//			PApplet.println("Mouse pressed");
+			break;
+		case MouseEvent.RELEASE:
+			data2.ex = applet.mouseX;
+			data2.ey = applet.mouseY;
+			data2.done = true;
+			PApplet.println("Mouse released:"+data.toString());
+			break;
+		case MouseEvent.DRAG:
+			data2.ex = applet.mouseX;
+			data2.ey = applet.mouseY;
+//			PApplet.println("Mouse dragged");
+			break;
+		}
+	}
+		
+	/**
+	 * Handles drawing to the windows PApplet area
+	 * @param applet the PApplet object embeded into the frame
+	 * @param data the data for the GWindow being used
+	 */
+	public void navigationSidebarDraw(PApplet applet, GWinData data) {
 //		applet.background(10, 5, 50);
 		applet.background(0);
 		applet.stroke(255);
@@ -522,7 +695,7 @@ public class WMV_Window {
 	 * @param data the data for the GWindow being used
 	 * @param event the mouse event
 	 */
-	public void sidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
+	public void navigationSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
 		WMV_WinData data2 = (WMV_WinData)data;
 		switch(event.getAction()) {
 
@@ -729,13 +902,42 @@ public class WMV_Window {
 				applet.text("Free memory (bytes): "+p.p.p.debug.freeMemory, xPos, yPos += lineWidth);
 				applet.text("Approx. usable free memory (bytes): " + p.p.p.debug.approxUsableFreeMemory, xPos, yPos += lineWidth);
 			}			
-//			p.p.text(" MediaWorldViewer v1.0 by David Gordon, Copyright © 2016", xPos, yPos += lineWidthVeryWide);
+//			applet.text(" MediaWorldViewer v1.0 by David Gordon, Copyright © 2016", xPos, yPos += lineWidthVeryWide);
 
 		}
 		else
 			p.message("Can't display statistics: currentCluster == "+p.p.viewer.getCurrentCluster()+"!!!");
 		
 	}
+	
+	/**
+	 * Handles mouse events for Statistics Sidebar GWindow objects
+	 * @param applet the PApplet object embeded into the frame
+	 * @param data the data for the GWindow being used
+	 * @param event the mouse event
+	 */
+	public void statisticsSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
+		WMV_WinData wmvWinData = (WMV_WinData)data;
+		switch(event.getAction()) {
+
+		case MouseEvent.PRESS:
+			wmvWinData.sx = wmvWinData.ex = applet.mouseX;
+			wmvWinData.sy = wmvWinData.ey = applet.mouseY;
+			wmvWinData.done = false;
+			break;
+		case MouseEvent.RELEASE:
+			wmvWinData.ex = applet.mouseX;
+			wmvWinData.ey = applet.mouseY;
+			wmvWinData.done = true;
+			break;
+		case MouseEvent.DRAG:
+			wmvWinData.ex = applet.mouseX;
+			wmvWinData.ey = applet.mouseY;
+			break;
+		}
+	}
+	
+
 
 	/**
 	 * Handles drawing to the windows PApplet area
@@ -779,13 +981,169 @@ public class WMV_Window {
 		}
 	}
 	
+
 	/**
-	 * Handles mouse events for ALL GWindow objects
+	 * Handles drawing to the Help Sidebar PApplet area
+	 * @param applet the PApplet object embeded into the frame
+	 * @param data the data for the GWindow being used
+	 */
+	public void helpSidebarDraw(PApplet applet, GWinData data) 
+	{
+		applet.background(0,0,0);
+		applet.stroke(255);
+		applet.strokeWeight(1);
+		applet.fill(255, 255, 255);
+		
+		float lineWidthVeryWide = 17f;
+		float lineWidthWide = 15f;
+		float lineWidth = 13f;
+		
+		float xPos = 10;
+		float yPos = 50;			// Starting vertical position
+
+		float largeTextSize = 15.f;
+		float mediumTextSize = 13.f;
+		float smallTextSize = 11.f;
+
+		applet.fill(255, 255, 255, 255);                        
+		applet.textSize(largeTextSize);
+		applet.text(" About ", xPos, yPos);
+		
+		yPos += lineWidthWide;
+
+		applet.textSize(smallTextSize);
+		applet.text(" WorldMediaViewer is a 3D interactive browsing ", xPos, yPos += lineWidth);
+		applet.text(" and navigation system for large multimedia ", xPos, yPos += lineWidth);
+		applet.text(" collections, based on EXIF metadata.", xPos, yPos += lineWidth);
+
+		yPos += lineWidthVeryWide;
+		
+		applet.textSize(largeTextSize);
+		applet.text(" Keyboard Controls ", xPos, yPos += lineWidthVeryWide);
+
+		yPos += lineWidthWide;
+		
+		applet.textSize(mediumTextSize);
+		applet.text(" General", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" R    Restart WorldMediaViewer", xPos, yPos += lineWidthVeryWide);
+		applet.text(" CMD + q    Quit WorldMediaViewer", xPos, yPos += lineWidth);
+
+		/* Movement */
+		applet.textSize(mediumTextSize);
+		applet.text(" Movement", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+//		applet.text(" Navigate using the arrow keys, A, S, D and W.", xPos, yPos += lineWidth);
+//		applet.text(" For additional keyboard controls, see below.", xPos, yPos += lineWidth);
+		applet.text(" a d w s   Walk Left / Right / Forward / Backward ", xPos, yPos += lineWidthVeryWide);
+		applet.text(" Arrows    Turn Camera ", xPos, yPos += lineWidth);
+		applet.text(" q z  Zoom In / Out + / - ", xPos, yPos += lineWidth);
+		
+//		applet.textSize(mediumTextSize);
+//		applet.text(" Display", xPos, yPos += lineWidthVeryWide);
+//		applet.textSize(smallTextSize);
+//		applet.text(" 1    Show/Hide Field Map   		  +SHIFT to Overlay", xPos, yPos += lineWidthVeryWide);
+//		applet.text(" 2    Show/Hide Field Statistics    +SHIFT to Overlay", xPos, yPos += lineWidth);
+//		applet.text(" 3    Show/Hide Cluster Statistics  +SHIFT to Overlay", xPos, yPos += lineWidth);
+//		applet.text(" 4    Show/Hide Keyboard Controls   +SHIFT to Overlay", xPos, yPos += lineWidth);
+
+		applet.textSize(mediumTextSize);
+		applet.text(" Time", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" T    Time Fading On/Off", xPos, yPos += lineWidthVeryWide);
+//		applet.text(" Z    Toggle Time Fading Mode (Field/Cluster)", textXPos, textYPos += lineWidth);
+		applet.text(" space Pause On/Off   ", xPos, yPos += lineWidth);
+		applet.text(" &/*  Default Media Length - / +", xPos, yPos += lineWidth);
+		applet.text(" SHIFT + Lt/Rt   Cycle Length - / +", xPos, yPos += lineWidth);
+		applet.text(" SHIFT + Up/Dn   Current Time - / +", xPos, yPos += lineWidth);
+
+//		applet.textSize(mediumTextSize);
+//		applet.text(" Time Navigation", xPos, yPos += lineWidthVeryWide);
+//		applet.textSize(smallTextSize);
+		applet.text(" n    Move to Next Time Segment in Field", xPos, yPos += lineWidthWide);
+		applet.text(" b    Move to Previous Time Segment in Field", xPos, yPos += lineWidth);
+
+		/* Model */
+		applet.textSize(mediumTextSize);
+		applet.text(" Model", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" [ ]  Altitude Scaling Adjustment  + / - ", xPos, yPos += lineWidthVeryWide);
+//		applet.text(" , .  Object Distance  + / - ", xPos, yPos += lineWidth);
+		applet.text(" - =  Object Distance  - / +      ", xPos, yPos += lineWidth);
+		applet.text(" OPT + -   Visible Angle  -      ", xPos, yPos += lineWidth);
+		applet.text(" OPT + =   Visible Angle  +      ", xPos, yPos += lineWidth);
+		
+		/* Graphics */
+		applet.textSize(mediumTextSize);
+		applet.text(" Graphics", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" G    Angle Fading On/Off", xPos, yPos += lineWidthVeryWide);
+		applet.text(" H    Angle Thinning On/Off", xPos, yPos += lineWidth);
+		applet.text(" P    Transparency Mode  On / Off      ", xPos, yPos += lineWidth);
+		applet.text(" ( )  Blend Mode  - / +      ", xPos, yPos += lineWidth);
+		applet.text(" i h v  Hide images / panoramas / videos    ", xPos, yPos += lineWidth);
+		applet.text(" D    Video Mode On/Off ", xPos, yPos += lineWidth);
+
+		/* Navigation */
+		applet.textSize(mediumTextSize);
+		applet.text(" Navigation", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" >    Follow Timeline", xPos, yPos += lineWidthVeryWide);
+//		applet.text(" >    Follow Date-Independent Timeline", xPos, yPos += lineWidthVeryWide);
+//		applet.text(" .    Follow Date-Specific Timeline", xPos, yPos += lineWidth);
+		applet.text(" E    Move to Nearest Cluster", xPos, yPos += lineWidthWide);
+//		applet.text(" W    Move to Nearest Cluster in Front", xPos, yPos += lineWidth);
+//		applet.text(" Q    Move to Next Cluster in Time", xPos, yPos += lineWidth);
+//		applet.text(" A    Move to Next Location in Memory", xPos, yPos += lineWidth);
+		applet.text(" J    Teleport to Random Cluster", xPos, yPos += lineWidth);
+		applet.text(" U    Move to Next Video ", xPos, yPos += lineWidthWide);
+		applet.text(" u    Teleport to Next Video ", xPos, yPos += lineWidth);
+		applet.text(" M    Move to Next Panorama ", xPos, yPos += lineWidth);
+		applet.text(" m    Teleport to Next Panorama ", xPos, yPos += lineWidth);
+//		applet.text(" C    Lock Viewer to Nearest Cluster On/Off", xPos, yPos += lineWidthWide);
+//		applet.text(" l    Look At Selected Media", xPos, yPos += lineWidth);
+//		applet.text(" L    Look for Media", xPos, yPos += lineWidth);
+		applet.text(" { }  Teleport to Next / Previous Field ", xPos, yPos += lineWidth);
+
+		applet.textSize(mediumTextSize);
+		applet.text(" Interaction", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" O    Selection Mode On/Off", xPos, yPos += lineWidthVeryWide);
+//		applet.text(" S    Multi-Selection Mode On/Off", xPos, yPos += lineWidth);
+//		applet.text(" OPT + s    Segment Selection Mode On/Off", xPos, yPos += lineWidthWide);
+		applet.text(" x    Select Media in Front", xPos, yPos += lineWidth);
+		applet.text(" X    Deselect Media in Front", xPos, yPos += lineWidth);
+		applet.text(" OPT + x    Deselect All Media", xPos, yPos += lineWidth);
+
+		applet.textSize(mediumTextSize);
+		applet.text(" GPS Tracks", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" g    Load GPS Track from File", xPos, yPos += lineWidthVeryWide);
+		applet.text(" OPT + g    Follow GPS Track", xPos, yPos += lineWidth);
+//		applet.text(" y	  Navigate Memorized Places", xPos, yPos += lineWidth);
+//		applet.text(" Y    Clear Memory", xPos, yPos += lineWidth);
+
+		applet.textSize(mediumTextSize);
+		applet.text(" Memory", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" `    Save Current View to Memory", xPos, yPos += lineWidthVeryWide);
+		applet.text(" ~    Follow Memory Path", xPos, yPos += lineWidth);
+		applet.text(" Y    Clear Memory", xPos, yPos += lineWidth);
+
+		applet.textSize(mediumTextSize);
+		applet.text(" Output", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(smallTextSize);
+		applet.text(" o    Set Image Output Folder", xPos, yPos += lineWidthVeryWide);
+		applet.text(" p    Save Screen Image to Disk", xPos, yPos += lineWidth);
+	}
+
+	/**
+	 * Handles mouse events for Help Sidebar GWindow objects
 	 * @param applet the PApplet object embeded into the frame
 	 * @param data the data for the GWindow being used
 	 * @param event the mouse event
 	 */
-	public void statisticsSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
+	public void helpSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
 		WMV_WinData wmvWinData = (WMV_WinData)data;
 		switch(event.getAction()) {
 
@@ -793,28 +1151,31 @@ public class WMV_Window {
 			wmvWinData.sx = wmvWinData.ex = applet.mouseX;
 			wmvWinData.sy = wmvWinData.ey = applet.mouseY;
 			wmvWinData.done = false;
+//			PApplet.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			wmvWinData.ex = applet.mouseX;
 			wmvWinData.ey = applet.mouseY;
 			wmvWinData.done = true;
+//			PApplet.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			wmvWinData.ex = applet.mouseX;
 			wmvWinData.ey = applet.mouseY;
+//			PApplet.println("Mouse dragged");
 			break;
 		}
 	}
 }
 	
-	/**
-	 * Simple class that extends GWinData and holds the data 
-	 * that is specific to a particular window.
-	 * @author Peter Lager
-	 */
-	class WMV_WinData extends GWinData {
-		int sx, sy, ex, ey;
-		boolean done;
-		
-//		MyWinData(){}
-	}
+/**
+ * Simple class that extends GWinData and holds the data 
+ * that is specific to a particular window.
+ * @author Peter Lager
+ */
+class WMV_WinData extends GWinData {
+	int sx, sy, ex, ey;
+	boolean done;
+
+	//		MyWinData(){}
+}

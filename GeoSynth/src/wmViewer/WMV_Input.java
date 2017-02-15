@@ -1,4 +1,8 @@
 package wmViewer;
+import g4p_controls.GButton;
+import g4p_controls.GEvent;
+import g4p_controls.GToggleControl;
+import g4p_controls.GValueControl;
 import processing.core.*;
 
 /**************************************
@@ -26,6 +30,274 @@ public class WMV_Input
 	WMV_Input(WMV_World parent) {
 		p = parent;
 		wasTimeFading = p.timeFading;
+	}
+
+
+	public void handleSliderEvent(GValueControl slider, GEvent event)
+	{
+		if (slider.tag == "Alpha") 
+		{
+			p.alpha = slider.getValueF();
+		}
+
+		if (slider.tag == "MediaLength") 
+		{
+			p.defaultMediaLength = slider.getValueI();
+		}
+		
+//		  if (slider == sdr)  // The slider being configured?
+//	    println(sdr.getValueS() + "    " + event);    
+//	  if (slider == sdrEasing)
+//	    sdr.setEasing(slider.getValueF());    
+//	  else if (slider == sdrNbrTicks)
+//	    sdr.setNbrTicks(slider.getValueI());    
+//	  else if (slider == sdrBack)
+//	    bgcol = slider.getValueI();
+
+	}
+
+	public void handleButtonEvent(GButton button, GEvent event) 
+	{ 
+		boolean state;
+
+		//		  PApplet.println("button.tagNo:"+button.tagNo);
+		//		  PApplet.println("button.tag:"+button.tag);
+
+		switch(button.tag) 
+		{
+			/* Views + General */
+			case "Scene":
+				p.display.resetDisplayModes();
+				break;
+			case "Map":
+				p.display.resetDisplayModes();
+				p.display.map = true;
+				break;
+			case "Info":
+				p.display.resetDisplayModes();
+				p.display.info = true;
+				break;
+			case "Cluster":
+				p.display.resetDisplayModes();
+				p.display.cluster = true;
+				break;
+			case "Control":
+				p.display.resetDisplayModes();
+				p.display.control = true;
+				break;
+	
+			case "Restart":
+				p.p.restartWorldMediaViewer();
+				break;
+	
+			/* Navigation */
+			case "OpenNavigationWindow":
+				p.display.sidebarView = 1;
+				p.display.window.navigationSidebar.setVisible(true);
+				break;
+	
+			case "NearestCluster":
+				p.viewer.moveToNearestCluster(p.viewer.movementTeleport);
+				break;
+			case "RandomCluster":
+				p.viewer.moveToRandomCluster(p.viewer.movementTeleport);
+				break;
+			case "LastCluster":
+				p.viewer.moveToLastCluster(p.viewer.movementTeleport);
+				break;
+			case "NextField":
+				p.viewer.teleportToField(1);
+				break;
+			case "PreviousField":
+				p.viewer.teleportToField(-1);
+				break;
+			case "ImportGPSTrack":
+				p.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
+				break;
+	
+			case "FollowStart":
+				if(!p.viewer.isFollowing())
+				{
+					switch(p.viewer.followMode)
+					{
+					case 0:
+						p.viewer.followTimeline(true, false);
+						break;
+					case 1:
+						p.viewer.followGPSTrack();
+						break;
+					case 2:
+						p.viewer.followMemory();
+						break;
+					}
+				}
+				break;
+			case "FollowStop":
+				p.viewer.stopFollowing();
+				break;
+				/* Model */
+			case "SubjectDistanceDown":
+				p.getCurrentField().fadeObjectDistances(0.85f);
+				break;
+	
+			case "SubjectDistanceUp":
+				p.getCurrentField().fadeObjectDistances(1.176f);
+				break;
+			case "CloseNavigationWindow":
+				p.display.sidebarView = 0;
+				p.display.window.navigationSidebar.setVisible(false);
+				break;
+	
+			case "SelectionMode":
+				p.viewer.selection = true;
+				p.display.sidebarView = 3;
+//				p.display.window.mainSidebar.setVisible(false);
+				p.display.window.selectionSidebar.setVisible(true);
+				break;
+				
+			case "ExitSelectionMode":
+				p.display.sidebarView = 0;
+				p.viewer.selection = false;
+//				p.display.window.mainSidebar.setVisible(true);
+				p.display.window.selectionSidebar.setVisible(false);
+				break;
+				
+			case "OpenHelpWindow":
+				p.display.sidebarView = 2;
+//				p.display.window.mainSidebar.setVisible(false);
+				p.display.window.helpSidebar.setVisible(true);
+				break;
+				
+			case "CloseHelpWindow":
+				p.display.sidebarView = 0;
+//				p.display.window.mainSidebar.setVisible(true);
+				p.display.window.helpSidebar.setVisible(false);
+				break;
+				
+			case "OpenStatisticsWindow":
+				p.display.sidebarView = 1;
+//				p.display.window.mainSidebar.setVisible(false);
+				p.display.window.statisticsSidebar.setVisible(true);
+				break;
+				
+			case "CloseStatisticsWindow":
+				p.display.sidebarView = 0;
+//				p.display.window.mainSidebar.setVisible(true);
+				p.display.window.statisticsSidebar.setVisible(false);
+				break;
+
+				/* Graphics */
+			case "OpenGraphicsWindow":
+				p.display.sidebarView = 1;
+				p.display.window.navigationSidebar.setVisible(true);
+				break;
+	
+			case "CloseGraphicsWindow":
+				p.display.sidebarView = 0;
+				p.display.window.navigationSidebar.setVisible(false);
+				break;
+
+			case "ZoomIn":
+				p.viewer.startZoomTransition(-1);
+				break;
+			case "ZoomOut":
+				p.viewer.startZoomTransition(1);
+				break;
+	
+				/* Time */
+			case "NextTime":
+				p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport);
+				break;
+			case "PreviousTime":
+				p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport);
+				break;
+	
+				/* Memory */
+			case "SaveLocation":
+				p.viewer.addPlaceToMemory();
+				break;
+			case "ClearMemory":
+				p.viewer.clearMemory();
+				break;
+	
+				/* Output */
+			case "ExportImage":
+				if(!p.outputFolderSelected) p.p.selectFolder("Select an output folder:", "outputFolderSelected");
+				p.saveImage();
+				break;
+			case "OutputFolder":
+				p.p.selectFolder("Select an output folder:", "outputFolderSelected");
+				break;
+		}
+	}
+
+	/**
+	 * Handles checkboxes
+	 * @param option 
+	 * @param event
+	 */
+	public void handleToggleControlEvent(GToggleControl option, GEvent event) 
+	{
+		switch (option.tag)
+		{
+			case "FollowTimeline":
+				if(option.isSelected())
+					p.viewer.followMode = 0;
+				break;
+	  		case "FollowGPSTrack":
+				if(option.isSelected())
+					p.viewer.followMode = 1;
+				break;
+	  		case "FollowMemory":
+				if(option.isSelected())
+					p.viewer.followMode = 2;
+				break;
+			case "TimeFading":
+				p.timeFading = option.isSelected();
+//				p.timeFading = !p.timeFading;
+				break;
+			case "MovementTeleport":
+				p.viewer.movementTeleport = option.isSelected();
+				break;
+			case "FollowTeleport":
+//				p.timeFading = option.isSelected();
+				break;
+			case "FadeEdges":
+				p.blurEdges = option.isSelected();
+				break;
+			case "HideImages":
+				PApplet.println("option.isSelected():"+option.isSelected());
+				PApplet.println("p.getCurrentField().hideImages::"+p.getCurrentField().hideImages);
+				if(!option.isSelected() && p.getCurrentField().hideImages)
+					p.getCurrentField().showImages();
+				else if(option.isSelected() && !p.getCurrentField().hideImages)
+					p.getCurrentField().hideImages();
+				break;
+			case "HideVideos":
+				if(!option.isSelected() && p.getCurrentField().hideVideos)
+					p.getCurrentField().showVideos();
+				else if(option.isSelected() && !p.getCurrentField().hideVideos)
+					p.getCurrentField().hideVideos();
+				break;
+			case "HidePanoramas":
+				if(!option.isSelected() && p.getCurrentField().hidePanoramas)
+					p.getCurrentField().showPanoramas();
+				else if(option.isSelected() && !p.getCurrentField().hidePanoramas)
+					p.getCurrentField().hidePanoramas();
+				break;
+			case "AlphaMode":
+				p.alphaMode = option.isSelected();
+				break;
+			case "OrientationMode":
+				p.orientationMode = !p.orientationMode;
+				break;
+			case "AngleFading":
+				p.angleFading = option.isSelected();
+				break;
+			case "AngleThinning":
+				p.angleThinning = option.isSelected();
+				break;
+		}
 	}
 
 	/**

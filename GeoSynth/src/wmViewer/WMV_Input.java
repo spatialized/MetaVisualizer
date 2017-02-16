@@ -89,11 +89,13 @@ public class WMV_Input
 			case "Restart":
 				p.p.restartWorldMediaViewer();
 				break;
+				
+			
 	
 			/* Navigation */
 			case "OpenNavigationWindow":
 				p.display.sidebarView = 1;
-				p.display.window.navigationSidebar.setVisible(true);
+				p.display.window.navigationWindow.setVisible(true);
 				break;
 	
 			case "NearestCluster":
@@ -143,58 +145,41 @@ public class WMV_Input
 			case "SubjectDistanceUp":
 				p.getCurrentField().fadeObjectDistances(1.176f);
 				break;
+				
 			case "CloseNavigationWindow":
 				p.display.sidebarView = 0;
-				p.display.window.navigationSidebar.setVisible(false);
+				p.display.window.navigationWindow.setVisible(false);
 				break;
 	
-			case "SelectionMode":
-				p.viewer.selection = true;
-				p.display.sidebarView = 3;
-//				p.display.window.mainSidebar.setVisible(false);
-				p.display.window.selectionSidebar.setVisible(true);
-				break;
-				
-			case "ExitSelectionMode":
-				p.display.sidebarView = 0;
-				p.viewer.selection = false;
-//				p.display.window.mainSidebar.setVisible(true);
-				p.display.window.selectionSidebar.setVisible(false);
-				break;
-				
 			case "OpenHelpWindow":
 				p.display.sidebarView = 2;
-//				p.display.window.mainSidebar.setVisible(false);
-				p.display.window.helpSidebar.setVisible(true);
+				p.display.window.helpWindow.setVisible(true);
 				break;
 				
 			case "CloseHelpWindow":
 				p.display.sidebarView = 0;
-//				p.display.window.mainSidebar.setVisible(true);
-				p.display.window.helpSidebar.setVisible(false);
+				p.display.window.helpWindow.setVisible(false);
 				break;
 				
 			case "OpenStatisticsWindow":
 				p.display.sidebarView = 1;
-//				p.display.window.mainSidebar.setVisible(false);
-				p.display.window.statisticsSidebar.setVisible(true);
+				p.display.window.statisticsWindow.setVisible(true);
 				break;
 				
 			case "CloseStatisticsWindow":
 				p.display.sidebarView = 0;
-//				p.display.window.mainSidebar.setVisible(true);
-				p.display.window.statisticsSidebar.setVisible(false);
+				p.display.window.statisticsWindow.setVisible(false);
 				break;
 
 				/* Graphics */
 			case "OpenGraphicsWindow":
 				p.display.sidebarView = 1;
-				p.display.window.navigationSidebar.setVisible(true);
+				p.display.window.graphicsWindow.setVisible(true);
 				break;
 	
 			case "CloseGraphicsWindow":
 				p.display.sidebarView = 0;
-				p.display.window.navigationSidebar.setVisible(false);
+				p.display.window.graphicsWindow.setVisible(false);
 				break;
 
 			case "ZoomIn":
@@ -204,7 +189,7 @@ public class WMV_Input
 				p.viewer.startZoomTransition(1);
 				break;
 	
-				/* Time */
+			/* Time */
 			case "NextTime":
 				p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport);
 				break;
@@ -212,6 +197,31 @@ public class WMV_Input
 				p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport);
 				break;
 	
+			/* Selection */
+			case "SelectionMode":
+				p.viewer.selection = true;
+				p.display.sidebarView = 3;
+				p.display.window.selectionWindow.setVisible(true);
+				break;
+				
+			case "ExitSelectionMode":
+				p.display.sidebarView = 0;
+				p.viewer.selection = false;
+				p.display.window.selectionWindow.setVisible(false);
+				break;
+				
+			case "SelectFront":
+				p.viewer.selectFrontMedia(true);
+				break;
+				
+			case "DeselectFront":
+				p.viewer.selectFrontMedia(false);	
+				break;
+					
+			case "DeselectAll":
+				p.getCurrentField().deselectAllMedia(false);
+				break;
+							
 				/* Memory */
 			case "SaveLocation":
 				p.viewer.addPlaceToMemory();
@@ -240,6 +250,7 @@ public class WMV_Input
 	{
 		switch (option.tag)
 		{
+			/* Navigation */
 			case "FollowTimeline":
 				if(option.isSelected())
 					p.viewer.followMode = 0;
@@ -252,15 +263,16 @@ public class WMV_Input
 				if(option.isSelected())
 					p.viewer.followMode = 2;
 				break;
-			case "TimeFading":
-				p.timeFading = option.isSelected();
-//				p.timeFading = !p.timeFading;
-				break;
 			case "MovementTeleport":
 				p.viewer.movementTeleport = option.isSelected();
 				break;
 			case "FollowTeleport":
 //				p.timeFading = option.isSelected();
+				break;
+				
+			/* Graphics */
+			case "TimeFading":
+				p.timeFading = option.isSelected();
 				break;
 			case "FadeEdges":
 				p.blurEdges = option.isSelected();
@@ -297,6 +309,19 @@ public class WMV_Input
 			case "AngleThinning":
 				p.angleThinning = option.isSelected();
 				break;
+				
+			/* Selection */
+			case "MultiSelection":
+				p.viewer.multiSelection = option.isSelected();
+				break;
+					
+			case "SegmentSelection":
+				p.viewer.segmentSelection = option.isSelected();
+				break;
+				
+			case "ViewMetadata":
+				p.showMetadata = option.isSelected();
+				break;
 		}
 	}
 
@@ -318,7 +343,11 @@ public class WMV_Input
 		
 		if (key == ' ') 
 		{
- 			p.p.world.paused = !p.p.world.paused;
+// 			p.p.world.paused = !p.p.world.paused;
+			if(p.display.window.showWMVWindow)
+				p.display.window.hideWMVWindow();
+			else
+				p.display.window.showWMVWindow();
 		}
 		
 		/* Display Modes */
@@ -582,9 +611,11 @@ public class WMV_Input
 			if (key == 'c') 									// Move DOWN
 				p.viewer.startMoveYTransition(1);
 
-			if (key == 'A') 									// Move to next location  -- Not working
-				p.display.setFullScreen(!p.display.fullscreen);
-
+			if (key == 'A') 								
+			{
+				p.paused = !p.paused;
+//				p.display.setFullScreen(!p.display.fullscreen);
+			}
 			if (key == 'J') 
 				p.viewer.moveToRandomCluster(true);					// Move to random cluster
 

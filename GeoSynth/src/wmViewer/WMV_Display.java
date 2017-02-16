@@ -137,7 +137,7 @@ class WMV_Display
 		}
 		else
 		{
-			if(window.graphicsSidebar.isVisible())
+			if(window.graphicsWindow.isVisible())
 			{
 				if(p.timeFading)
 				{
@@ -1039,20 +1039,20 @@ class WMV_Display
 		
 	}
 	
-	void setFullScreen(boolean newState)
-	{
-		if(newState && !fullscreen)			// Switch to Fullscreen
-		{
-//			if(!p.viewer.selection) window.viewsSidebar.setVisible(false);	
-//			else window.selectionSidebar.setVisible(false);
-		}
-		if(!newState && fullscreen)			// Switch to Window Size
-		{
-//			if(!p.viewer.selection) window.mainSidebar.setVisible(true);	
-//			else window.selectionSidebar.setVisible(true);
-		}
-		
-		fullscreen = newState;
-	}
+//	void setFullScreen(boolean newState)
+//	{
+//		if(newState && !fullscreen)			// Switch to Fullscreen
+//		{
+////			if(!p.viewer.selection) window.viewsSidebar.setVisible(false);	
+////			else window.selectionSidebar.setVisible(false);
+//		}
+//		if(!newState && fullscreen)			// Switch to Window Size
+//		{
+////			if(!p.viewer.selection) window.mainSidebar.setVisible(true);	
+////			else window.selectionSidebar.setVisible(true);
+//		}
+//		
+//		fullscreen = newState;
+//	}
 }
 

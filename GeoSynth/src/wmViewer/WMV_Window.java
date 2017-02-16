@@ -15,15 +15,17 @@ public class WMV_Window {
 	private int shortSidebarHeight = sidebarWidth;
 	
 	/* Windows */
-	public GWindow mainSidebar, navigationSidebar, graphicsSidebar, selectionSidebar, statisticsSidebar, helpSidebar;
-	private GLabel lblViews, lblNavigation, lblGraphics, lblStatistics, lblHelp;				// Window headings
-//	private GSketchPad sketchPad;
+	public GWindow wmvWindow, navigationWindow, graphicsWindow, selectionWindow, statisticsWindow, helpWindow;
+	private GLabel lblWMViewer, lblNavigation, lblGraphics, lblStatistics, lblHelp;				// Window headings
+	public boolean showWMVWindow = false, showNavigationWindow = false, showGraphicsWindow = false,
+				    showSelectionWindow = false, showStatisticsWindow = false, showHelpWindow = false;
+	//	private GSketchPad sketchPad;
 
 	/* Views Window */
 	private GButton btnNavigationWindow, btnGraphicsWindow;										// Buttons to open other windows
 	private GButton btnSelectionWindow, btnStatisticsWindow, btnHelpWindow;
 	private GButton btnSceneView, btnMapView, btnInfoView, btnClusterView, btnControlView;		// Buttons to change Display View for main window
-	private GButton btnRestart;
+	private GButton btnLoadMediaLibrary;
 
 	/* Navigation Window */
 	private GButton btnImportGPSTrack;
@@ -63,7 +65,7 @@ public class WMV_Window {
 	/* Selection Window */
 	private GLabel lblSelection, lblViewing;
 	private GCheckbox chkbxMultiSelection, chkbxSelectGroups, chkbxViewMetadata;
-	private GButton btnSelectFront, btnDeselectAll, btnExitSelectionMode;
+	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnExitSelectionMode;
 
 	/* Statistics Window */
 	private GButton btnExitStatisticsMode;
@@ -80,78 +82,78 @@ public class WMV_Window {
 	{
 		p = parent;
 
-		setupViewsSidebar();
+		setupWMVWindow();
 		setupNavigationSidebar();
 		setupGraphicsSidebar();
-		setupHelpSidebar();
+		setupHelpWindow();
 		setupStatisticsSidebar();
-		setupSelectionSidebar();
+		setupSelectionWindow();
 	}
 	
-	void setupViewsSidebar()
+	void setupWMVWindow()
 	{
-		mainSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, 45, sidebarWidth, shortSidebarHeight, PApplet.JAVA2D);
-		mainSidebar.setVisible(true);
-		mainSidebar.addData(new WMV_WinData());
-		mainSidebar.addDrawHandler(this, "viewsSidebarDraw");
-		mainSidebar.addMouseHandler(this, "viewsSidebarMouse");
-		mainSidebar.addKeyHandler(p.p.p, "viewsSidebarKey");
+		wmvWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, sidebarWidth, shortSidebarHeight, PApplet.JAVA2D);
+		wmvWindow.setVisible(true);
+		wmvWindow.addData(new WMV_WinData());
+		wmvWindow.addDrawHandler(this, "wmvWindowDraw");
+		wmvWindow.addMouseHandler(this, "wmvWindowMouse");
+		wmvWindow.addKeyHandler(p.p.p, "wmvWindowKey");
 		
 		int x = 0, y = 12;
 
 		x = 0;
 
-		lblViews = new GLabel(mainSidebar, x, y, mainSidebar.width, 20, "WorldMediaViewer v1.0");
-		lblViews.setLocalColorScheme(10);
-		lblViews.setFont(new Font("Monospaced", Font.PLAIN, 14));
-		lblViews.setTextAlign(GAlign.CENTER, null);
-		lblViews.setTextBold();
+		lblWMViewer = new GLabel(wmvWindow, x, y, wmvWindow.width, 20, "WorldMediaViewer v1.0");
+		lblWMViewer.setLocalColorScheme(10);
+		lblWMViewer.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblWMViewer.setTextAlign(GAlign.CENTER, null);
+		lblWMViewer.setTextBold();
 
 		x = 80;
 		y += 30;
 
-		btnNavigationWindow = new GButton(mainSidebar, x, y, 130, 20, "Navigation Controls");
+		btnNavigationWindow = new GButton(wmvWindow, x, y, 130, 20, "Navigation Controls");
 		btnNavigationWindow.tag = "OpenNavigationWindow";
 		btnNavigationWindow.setLocalColorScheme(5);
 
 		x = 80;
 		y += 30;
 
-		btnGraphicsWindow = new GButton(mainSidebar, x, y, 130, 20, "Graphics Controls");
+		btnGraphicsWindow = new GButton(wmvWindow, x, y, 130, 20, "Graphics Controls");
 		btnGraphicsWindow.tag = "OpenGraphicsWindow";
 		btnGraphicsWindow.setLocalColorScheme(5);
 
 		x = 80;
 		y += 30;
 
-		btnStatisticsWindow = new GButton(mainSidebar, x, y, 130, 20, "Show Statistics");
+		btnStatisticsWindow = new GButton(wmvWindow, x, y, 130, 20, "Show Statistics");
 		btnStatisticsWindow.tag = "OpenStatisticsWindow";
 		btnStatisticsWindow.setLocalColorScheme(5);
 		
 		x = 70;
 		y += 40;
 
-		btnSelectionWindow = new GButton(mainSidebar, x, y, 150, 20, "Enter Selection Mode");
+		btnSelectionWindow = new GButton(wmvWindow, x, y, 150, 20, "Enter Selection Mode");
 		btnSelectionWindow.tag = "SelectionMode";
 		btnSelectionWindow.setLocalColorScheme(4);
 
 		x = 70;
 		y += 30;
 		
-		btnRestart = new GButton(mainSidebar, x, y, 150, 20, "Load Media Library...");
-		btnRestart.tag = "Restart";
-		btnRestart.setLocalColorScheme(7);
+		btnLoadMediaLibrary = new GButton(wmvWindow, x, y, 150, 20, "Load Media Library...");
+		btnLoadMediaLibrary.tag = "Restart";
+		btnLoadMediaLibrary.setLocalColorScheme(7);
 
 		x = 105;
 		y += 40;
 		
-		btnHelpWindow = new GButton(mainSidebar, x, y, 70, 20, "Help...");
+		btnHelpWindow = new GButton(wmvWindow, x, y, 70, 20, "Help...");
 		btnHelpWindow.tag = "OpenHelpWindow";
 		btnHelpWindow.setLocalColorScheme(5);
 		
 		x = 0;
-		y = mainSidebar.height - 60;
-		lblDisplayMode = new GLabel(mainSidebar, x, y, mainSidebar.width, 20);						/* Display Mode Label */
+		y = wmvWindow.height - 60;
+		lblDisplayMode = new GLabel(wmvWindow, x, y, wmvWindow.width, 20);						/* Display Mode Label */
 		lblDisplayMode.setText("Display Mode");
 		lblDisplayMode.setLocalColorScheme(10);
 		lblDisplayMode.setTextAlign(GAlign.CENTER, null);
@@ -159,37 +161,37 @@ public class WMV_Window {
 		lblDisplayMode.setTextItalic();
 		
 		x = 15;
-		btnSceneView = new GButton(mainSidebar, x, y+=24, 55, 20, "Scene");			/* Display Mode Buttons */
+		btnSceneView = new GButton(wmvWindow, x, y+=24, 55, 20, "Scene");			/* Display Mode Buttons */
 		btnSceneView.tag = "Scene";
 		btnSceneView.setLocalColorScheme(5);
-		btnMapView = new GButton(mainSidebar, x+=55, y, 55, 20, "Map");
+		btnMapView = new GButton(wmvWindow, x+=55, y, 55, 20, "Map");
 		btnMapView.tag = "Map";
 		btnMapView.setLocalColorScheme(5);
-		btnInfoView = new GButton(mainSidebar, x+=55, y, 55, 20, "Info");
+		btnInfoView = new GButton(wmvWindow, x+=55, y, 55, 20, "Info");
 		btnInfoView.tag = "Info";
 		btnInfoView.setLocalColorScheme(5);
-		btnClusterView = new GButton(mainSidebar, x+=55, y, 55, 20, "Cluster");
+		btnClusterView = new GButton(wmvWindow, x+=55, y, 55, 20, "Cluster");
 		btnClusterView.tag = "Cluster";
 		btnClusterView.setLocalColorScheme(5);
-		btnControlView = new GButton(mainSidebar, x+=55, y, 55, 20, "Control");
+		btnControlView = new GButton(wmvWindow, x+=55, y, 55, 20, "Control");
 		btnControlView.tag = "Control";
 		btnControlView.setLocalColorScheme(5);
 	}
 	
 	void setupNavigationSidebar()
 	{
-		navigationSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
-		navigationSidebar.setVisible(false);
-		navigationSidebar.addData(new WMV_WinData());
-		navigationSidebar.addDrawHandler(this, "navigationSidebarDraw");
-		navigationSidebar.addMouseHandler(this, "navigationSidebarMouse");
-		navigationSidebar.addKeyHandler(p.p.p, "navigationSidebarKey");
+		navigationWindow = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
+		navigationWindow.setVisible(false);
+		navigationWindow.addData(new WMV_WinData());
+		navigationWindow.addDrawHandler(this, "navigationSidebarDraw");
+		navigationWindow.addMouseHandler(this, "navigationSidebarMouse");
+		navigationWindow.addKeyHandler(p.p.p, "navigationSidebarKey");
 		
 		int x = 0, y = 12;
 
 		x = 0;
 
-		lblNavigation = new GLabel(navigationSidebar, x, y, navigationSidebar.width, 20, "Navigation");
+		lblNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Navigation");
 		lblNavigation.setLocalColorScheme(10);
 		lblNavigation.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblNavigation.setTextAlign(GAlign.CENTER, null);
@@ -197,7 +199,7 @@ public class WMV_Window {
 
 		y += 30;
 
-		lblNavigationCommands = new GLabel(navigationSidebar, x, y, navigationSidebar.width, 20, "Navigation Commands");
+		lblNavigationCommands = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Navigation Commands");
 		lblNavigationCommands.setLocalColorScheme(10);
 		lblNavigationCommands.setTextAlign(GAlign.CENTER, null);
 		lblNavigationCommands.setTextBold();
@@ -206,36 +208,36 @@ public class WMV_Window {
 		x = 90;
 		y += 25;
 
-		btnMoveToNearestCluster = new GButton(navigationSidebar, x, y, 100, 20, "Nearest Cluster");
+		btnMoveToNearestCluster = new GButton(navigationWindow, x, y, 100, 20, "Nearest Cluster");
 		btnMoveToNearestCluster.tag = "NearestCluster";
 		btnMoveToNearestCluster.setLocalColorScheme(5);
-		btnMoveToNearestCluster = new GButton(navigationSidebar, x+=105, y, 100, 20, "Last Cluster");
+		btnMoveToNearestCluster = new GButton(navigationWindow, x+=105, y, 100, 20, "Last Cluster");
 		btnMoveToNearestCluster.tag = "LastCluster";
 		btnMoveToNearestCluster.setLocalColorScheme(5);
 
 		x = 15;
 		y += 25;
 
-		chkbxMovementTeleport = new GCheckbox(navigationSidebar, x, y, 70, 20, "Teleport");
+		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 70, 20, "Teleport");
 		chkbxMovementTeleport.tag = "MovementTeleport";
 		chkbxMovementTeleport.setLocalColorScheme(10);
-		btnJumpToRandomCluster = new GButton(navigationSidebar, x+75, y, 110, 20, "Random Cluster");
+		btnJumpToRandomCluster = new GButton(navigationWindow, x+75, y, 110, 20, "Random Cluster");
 		btnJumpToRandomCluster.tag = "RandomCluster";
 		btnJumpToRandomCluster.setLocalColorScheme(5);
 
 		x = 90;
 		y += 25;
 
-		btnPreviousTimeSegment = new GButton(navigationSidebar, x, y, 100, 20, "Previous Time");
+		btnPreviousTimeSegment = new GButton(navigationWindow, x, y, 100, 20, "Previous Time");
 		btnPreviousTimeSegment.tag = "PreviousTime";
 		btnPreviousTimeSegment.setLocalColorScheme(5);
-		btnNextTimeSegment = new GButton(navigationSidebar, x+=105, y, 100, 20, "Next Time");
+		btnNextTimeSegment = new GButton(navigationWindow, x+=105, y, 100, 20, "Next Time");
 		btnNextTimeSegment.tag = "NextTime";
 		btnNextTimeSegment.setLocalColorScheme(5);
 		
 		x = 0;
 		y += 30;
-		lblPathFollowing = new GLabel(navigationSidebar, x, y, navigationSidebar.width, 20, "Path Following");
+		lblPathFollowing = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Path Following");
 		lblPathFollowing.setLocalColorScheme(10);
 		lblPathFollowing.setTextAlign(GAlign.CENTER, null);
 		lblPathFollowing.setTextBold();
@@ -244,31 +246,31 @@ public class WMV_Window {
 		x = 40;
 		y += 25;
 		
-		btnSaveLocation = new GButton(navigationSidebar, x, y, 100, 20, "Save Location");
+		btnSaveLocation = new GButton(navigationWindow, x, y, 100, 20, "Save Location");
 		btnSaveLocation.tag = "SaveLocation";
 		btnSaveLocation.setLocalColorScheme(5);
-		btnClearMemory = new GButton(navigationSidebar, x+100, y, 100, 20, "Clear Memory");
+		btnClearMemory = new GButton(navigationWindow, x+100, y, 100, 20, "Clear Memory");
 		btnClearMemory.tag = "ClearMemory";
 		btnClearMemory.setLocalColorScheme(0);
 
 		x = 80;
 		y += 30;
 
-		btnImportGPSTrack = new GButton(navigationSidebar, x, y, 140, 20, "Import GPS Track");
+		btnImportGPSTrack = new GButton(navigationWindow, x, y, 140, 20, "Import GPS Track");
 		btnImportGPSTrack.tag = "ImportGPSTrack";
 		btnImportGPSTrack.setLocalColorScheme(5);		
 
 		x = 15;
 		y += 25;
 		
-		optTimeline = new GOption(navigationSidebar, x, y, 90, 20, "Timeline");
+		optTimeline = new GOption(navigationWindow, x, y, 90, 20, "Timeline");
 		optTimeline.setLocalColorScheme(10);
 		optTimeline.tag = "FollowTimeline";
 		optTimeline.setSelected(true);
-		optGPSTrack = new GOption(navigationSidebar, x+=90, y, 90, 20, "GPS Track");
+		optGPSTrack = new GOption(navigationWindow, x+=90, y, 90, 20, "GPS Track");
 		optGPSTrack.setLocalColorScheme(10);
 		optGPSTrack.tag = "FollowGPSTrack";
-		optMemory = new GOption(navigationSidebar, x+=90, y, 90, 20, "Memory");
+		optMemory = new GOption(navigationWindow, x+=90, y, 90, 20, "Memory");
 		optMemory.setLocalColorScheme(10);
 		optMemory.tag = "FollowMemory";
 
@@ -278,15 +280,15 @@ public class WMV_Window {
 		x = 15;
 		y += 25;
 
-		chkbxFollowTeleport = new GCheckbox(navigationSidebar, x, y, 80, 20, "Teleporting");
+		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 80, 20, "Teleporting");
 		chkbxFollowTeleport.tag = "FollowTeleport";
 		chkbxFollowTeleport.setLocalColorScheme(10);
 
-		btnFollowStart = new GButton(navigationSidebar, x+=90, y, 60, 20, "Start");
+		btnFollowStart = new GButton(navigationWindow, x+=90, y, 60, 20, "Start");
 		btnFollowStart.tag = "FollowStart";
 		btnFollowStart.setLocalColorScheme(5);
 		
-		btnFollowStop = new GButton(navigationSidebar, x+=60, y, 60, 20, "Stop");
+		btnFollowStop = new GButton(navigationWindow, x+=60, y, 60, 20, "Stop");
 		btnFollowStop.tag = "FollowStop";
 		btnFollowStop.setLocalColorScheme(0);
 
@@ -294,11 +296,11 @@ public class WMV_Window {
 		{
 			x = 60;
 			y += 30;
-			btnGoToPreviousField = new GButton(navigationSidebar, x, y, 90, 20, "Previous Field");
+			btnGoToPreviousField = new GButton(navigationWindow, x, y, 90, 20, "Previous Field");
 			btnGoToPreviousField.tag = "PreviousField";
 			btnGoToPreviousField.setLocalColorScheme(5);
 
-			btnGoToNextField = new GButton(navigationSidebar, x+=90, y, 90, 20, "Next Field");
+			btnGoToNextField = new GButton(navigationWindow, x+=90, y, 90, 20, "Next Field");
 			btnGoToNextField.tag = "NextField";
 			btnGoToNextField.setLocalColorScheme(5);
 		}
@@ -308,16 +310,16 @@ public class WMV_Window {
 	
 	void setupGraphicsSidebar()
 	{
-		graphicsSidebar = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
-		graphicsSidebar.setVisible(false);
-		graphicsSidebar.addData(new WMV_WinData());
-		graphicsSidebar.addDrawHandler(this, "graphicsSidebarDraw");
-		graphicsSidebar.addMouseHandler(this, "graphicsSidebarMouse");
-		graphicsSidebar.addKeyHandler(p.p.p, "graphicsSidebarKey");
+		graphicsWindow = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
+		graphicsWindow.setVisible(false);
+		graphicsWindow.addData(new WMV_WinData());
+		graphicsWindow.addDrawHandler(this, "graphicsSidebarDraw");
+		graphicsWindow.addMouseHandler(this, "graphicsSidebarMouse");
+		graphicsWindow.addKeyHandler(p.p.p, "graphicsSidebarKey");
 	
 		int x = 0, y = 12;
 
-		lblGraphics = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Graphics");
+		lblGraphics = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "Graphics");
 		lblGraphics.setLocalColorScheme(10);
 		lblGraphics.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblGraphics.setTextAlign(GAlign.CENTER, null);
@@ -326,17 +328,17 @@ public class WMV_Window {
 		x = 60;
 		y += 30;
 		
-		btnZoomIn = new GButton(graphicsSidebar, x, y, 80, 20, "Zoom In");
+		btnZoomIn = new GButton(graphicsWindow, x, y, 80, 20, "Zoom In");
 		btnZoomIn.tag = "ZoomIn";
 		btnZoomIn.setLocalColorScheme(5);
-		btnZoomOut = new GButton(graphicsSidebar, x+=90, y, 80, 20, "Zoom Out");
+		btnZoomOut = new GButton(graphicsWindow, x+=90, y, 80, 20, "Zoom Out");
 		btnZoomOut.tag = "ZoomOut";
 		btnZoomOut.setLocalColorScheme(5);
 
 		x = 130;
 		y += 25;
 
-		lblAlpha= new GLabel(graphicsSidebar, x, y, 60, 20, "Alpha");
+		lblAlpha= new GLabel(graphicsWindow, x, y, 60, 20, "Alpha");
 		lblAlpha.setLocalColorScheme(10);
 //		lblAlpha= new GLabel(mainSidebar, x, y, 60, 20, "Alpha");
 //		lblAlpha.setLocalColorScheme(10);
@@ -344,7 +346,7 @@ public class WMV_Window {
 		x = 110;
 		y += 80;
 
-		sdrAlpha = new GSlider(graphicsSidebar, x, y+25, 80, 80, 20);
+		sdrAlpha = new GSlider(graphicsWindow, x, y+25, 80, 80, 20);
 		sdrAlpha.setLocalColorScheme(5);
 		sdrAlpha.setLimits(p.p.alpha, 0.f, 255.f);
 		sdrAlpha.setRotation(-PApplet.PI/2.f);
@@ -371,7 +373,7 @@ public class WMV_Window {
 		x = 0;
 		y += 30;
 
-		lblGraphicsModes = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Modes");
+		lblGraphicsModes = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "Modes");
 		lblGraphicsModes.setLocalColorScheme(10);
 		lblGraphicsModes.setTextAlign(GAlign.CENTER, null);
 		lblGraphicsModes.setTextBold();
@@ -380,12 +382,12 @@ public class WMV_Window {
 		x = 50;
 		y += 25;
 
-		chkbxAlphaMode = new GCheckbox(graphicsSidebar, x, y, 85, 20, "Alpha Mode");
+		chkbxAlphaMode = new GCheckbox(graphicsWindow, x, y, 85, 20, "Alpha Mode");
 		chkbxAlphaMode.tag = "AlphaMode";
 		chkbxAlphaMode.setLocalColorScheme(10);
 		chkbxAlphaMode.setSelected(true);
 
-		chkbxAngleFading = new GCheckbox(graphicsSidebar, x+=85, y, 100, 20, "Angle Fading");
+		chkbxAngleFading = new GCheckbox(graphicsWindow, x+=85, y, 100, 20, "Angle Fading");
 		chkbxAngleFading.tag = "AngleFading";
 		chkbxAngleFading.setLocalColorScheme(10);
 		chkbxAngleFading.setSelected(true);
@@ -393,12 +395,12 @@ public class WMV_Window {
 		x = 50;
 		y += 25;
 
-		chkbxFadeEdges = new GCheckbox(graphicsSidebar, x, y, 85, 20, "Fade Edges");
+		chkbxFadeEdges = new GCheckbox(graphicsWindow, x, y, 85, 20, "Fade Edges");
 		chkbxFadeEdges.tag = "FadeEdges";
 		chkbxFadeEdges.setLocalColorScheme(10);
 		chkbxFadeEdges.setSelected(true);
 
-		chkbxAngleThinning = new GCheckbox(graphicsSidebar, x += 85, y, 100, 20, "Angle Thinning");
+		chkbxAngleThinning = new GCheckbox(graphicsWindow, x += 85, y, 100, 20, "Angle Thinning");
 		chkbxAngleThinning.tag = "AngleThinning";
 		chkbxAngleThinning.setLocalColorScheme(10);
 		chkbxAngleThinning.setSelected(false);
@@ -406,7 +408,7 @@ public class WMV_Window {
 		x = 85;
 		y += 25;
 		
-		chkbxOrientationMode = new GCheckbox(graphicsSidebar, x, y, 115, 20, "Orientation Mode");
+		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 115, 20, "Orientation Mode");
 		chkbxOrientationMode.tag = "OrientationMode";
 		chkbxOrientationMode.setLocalColorScheme(10);
 		chkbxOrientationMode.setSelected(false);
@@ -414,17 +416,17 @@ public class WMV_Window {
 		x = 8;
 		y += 30;
 
-		chkbxHideImages = new GCheckbox(graphicsSidebar, x, y, 90, 20, "Hide Images");
+		chkbxHideImages = new GCheckbox(graphicsWindow, x, y, 90, 20, "Hide Images");
 		chkbxHideImages.tag = "HideImages";
 		chkbxHideImages.setLocalColorScheme(10);
 		chkbxHideImages.setSelected(false);
 
-		chkbxHideVideos = new GCheckbox(graphicsSidebar, x += 90, y, 85, 20, "Hide Videos");
+		chkbxHideVideos = new GCheckbox(graphicsWindow, x += 90, y, 85, 20, "Hide Videos");
 		chkbxHideVideos.tag = "HideVideos";
 		chkbxHideVideos.setLocalColorScheme(10);
 		chkbxHideVideos.setSelected(false);
 
-		chkbxHidePanoramas = new GCheckbox(graphicsSidebar, x += 85, y, 120, 20, "Hide Panoramas");
+		chkbxHidePanoramas = new GCheckbox(graphicsWindow, x += 85, y, 120, 20, "Hide Panoramas");
 		chkbxHidePanoramas.tag = "HidePanoramas";
 		chkbxHidePanoramas.setLocalColorScheme(10);
 		chkbxHidePanoramas.setSelected(false);
@@ -432,7 +434,7 @@ public class WMV_Window {
 		x = 0;
 		y += 30;
 
-		lblTime = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Time");
+		lblTime = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "Time");
 		lblTime.setLocalColorScheme(10);
 		lblTime.setTextAlign(GAlign.CENTER, null);
 		lblTime.setTextBold();
@@ -441,13 +443,13 @@ public class WMV_Window {
 		x = 125;
 		y += 25;
 
-		lblMediaLength = new GLabel(graphicsSidebar, x, y, 80, 20, "Media Length");
+		lblMediaLength = new GLabel(graphicsWindow, x, y, 80, 20, "Media Length");
 		lblMediaLength .setLocalColorScheme(10);
 
 		x = 110;
 		y += 80;
 
-		sdrMediaLength = new GSlider(graphicsSidebar, x, y+25, 80, 80, 20);
+		sdrMediaLength = new GSlider(graphicsWindow, x, y+25, 80, 80, 20);
 		sdrMediaLength.setLocalColorScheme(5);
 		sdrMediaLength.setLimits(p.p.defaultMediaLength, 10.f, 250.f);
 		sdrMediaLength.setRotation(-PApplet.PI/2.f);
@@ -459,11 +461,11 @@ public class WMV_Window {
 		x = 100;
 		y += 30;
 		
-		chkbxTimeFading = new GCheckbox(graphicsSidebar, x, y, 100, 20, "Time Fading");
+		chkbxTimeFading = new GCheckbox(graphicsWindow, x, y, 100, 20, "Time Fading");
 		chkbxTimeFading.tag = "TimeFading";
 		chkbxTimeFading.setLocalColorScheme(10);
 		
-		lblCurrentTime = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "-:-- am");
+		lblCurrentTime = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "-:-- am");
 		lblCurrentTime.setLocalColorScheme(10);
 		lblCurrentTime.setTextAlign(GAlign.CENTER, null);
 		lblCurrentTime.setTextBold();
@@ -472,7 +474,7 @@ public class WMV_Window {
 		x = 0;
 		y += 30;
 
-		lblModel = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Model");
+		lblModel = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "Model");
 		lblModel.setLocalColorScheme(10);
 		lblModel.setTextAlign(GAlign.CENTER, null);
 		lblModel.setTextBold();
@@ -481,20 +483,20 @@ public class WMV_Window {
 		x = 60;
 		y += 30;
 		
-		btnSubjectDistanceDown = new GButton(graphicsSidebar, x, y, 30, 20, "-");
+		btnSubjectDistanceDown = new GButton(graphicsWindow, x, y, 30, 20, "-");
 		btnSubjectDistanceDown.tag = "SubjectDistanceDown";
 		btnSubjectDistanceDown.setLocalColorScheme(5);
-		lblSubjectDistance = new GLabel(graphicsSidebar, x += 35, y, 110, 20, "Subject Distance");
+		lblSubjectDistance = new GLabel(graphicsWindow, x += 35, y, 110, 20, "Subject Distance");
 		lblSubjectDistance.setLocalColorScheme(10);
 		lblSubjectDistance.setTextBold();
-		btnSubjectDistanceUp = new GButton(graphicsSidebar, x += 105, y, 30, 20, "+");
+		btnSubjectDistanceUp = new GButton(graphicsWindow, x += 105, y, 30, 20, "+");
 		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
 		btnSubjectDistanceUp.setLocalColorScheme(5);
 		
 		x = 0;
 		y += 30;
 
-		lblOutput = new GLabel(graphicsSidebar, x, y, graphicsSidebar.width, 20, "Output");
+		lblOutput = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "Output");
 		lblOutput.setLocalColorScheme(10);
 		lblOutput.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblOutput.setTextAlign(GAlign.CENTER, null);
@@ -503,25 +505,25 @@ public class WMV_Window {
 		x = 40;
 		y += 30;
 
-		btnSaveImage = new GButton(graphicsSidebar, x, y, 100, 20, "Export Image");
+		btnSaveImage = new GButton(graphicsWindow, x, y, 100, 20, "Export Image");
 		btnSaveImage.tag = "ExportImage";
 		btnSaveImage.setLocalColorScheme(5);
-		btnOutputFolder = new GButton(graphicsSidebar, x+100, y, 120, 20, "Set Output Folder");
+		btnOutputFolder = new GButton(graphicsWindow, x+100, y, 120, 20, "Set Output Folder");
 		btnOutputFolder.tag = "OutputFolder";
 		btnOutputFolder.setLocalColorScheme(5);
 	}
 	
 	void setupStatisticsSidebar()
 	{
-		statisticsSidebar = GWindow.getWindow(p.p.p, "Statistics", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
-		statisticsSidebar.setVisible(false);
-		statisticsSidebar.addData(new WMV_WinData());
-		statisticsSidebar.addDrawHandler(this, "statisticsSidebarDraw");
-		statisticsSidebar.addMouseHandler(this, "statisticsSidebarMouse");
+		statisticsWindow = GWindow.getWindow(p.p.p, "Statistics", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
+		statisticsWindow.setVisible(false);
+		statisticsWindow.addData(new WMV_WinData());
+		statisticsWindow.addDrawHandler(this, "statisticsSidebarDraw");
+		statisticsWindow.addMouseHandler(this, "statisticsSidebarMouse");
 		
 		int x = 0, y = 10;
 
-		lblStatistics = new GLabel(statisticsSidebar, x, y, statisticsSidebar.width, 20, "Statistics");
+		lblStatistics = new GLabel(statisticsWindow, x, y, statisticsWindow.width, 20, "Statistics");
 		lblStatistics.setLocalColorScheme(10);
 		lblStatistics.setTextAlign(GAlign.CENTER, null);
 		lblStatistics.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -530,84 +532,91 @@ public class WMV_Window {
 		x = 40;
 		y = p.p.p.height - 40;
 		
-		btnExitStatisticsMode = new GButton(statisticsSidebar, x, y, 180, 20, "Close Window");
+		btnExitStatisticsMode = new GButton(statisticsWindow, x, y, 180, 20, "Close Window");
 		btnExitStatisticsMode.tag = "CloseStatisticsWindow";
 		btnExitStatisticsMode.setLocalColorScheme(0);
 		
-		statisticsSidebar.addKeyHandler(p.p.p, "statisticsSidebarKey");
+		statisticsWindow.addKeyHandler(p.p.p, "statisticsSidebarKey");
 	}
 
-	void setupSelectionSidebar()
+	void setupSelectionWindow()
 	{
-		selectionSidebar = GWindow.getWindow(p.p.p, "Selection Mode", 10, 45, sidebarWidth, shortSidebarHeight, PApplet.JAVA2D);
-		selectionSidebar.setVisible(false);
-		selectionSidebar.addData(new WMV_WinData());
-		selectionSidebar.addDrawHandler(this, "selectionSidebarDraw");
-		selectionSidebar.addMouseHandler(this, "selectionSidebarMouse");
+		selectionWindow = GWindow.getWindow(p.p.p, "Selection Mode", 10, 45, sidebarWidth, shortSidebarHeight, PApplet.JAVA2D);
+		selectionWindow.setVisible(false);
+		selectionWindow.addData(new WMV_WinData());
+		selectionWindow.addDrawHandler(this, "selectionWindowDraw");
+		selectionWindow.addMouseHandler(this, "selectionWindowMouse");
 		
 		int x = 0, y = 10;
 
 		/* Selection Window */
-		lblSelection = new GLabel(selectionSidebar, x, y, selectionSidebar.width, 20, "Selection");
+		lblSelection = new GLabel(selectionWindow, x, y, selectionWindow.width, 20, "Selection");
 		lblSelection.setLocalColorScheme(10);
 		lblSelection.setTextAlign(GAlign.CENTER, null);
 		lblSelection.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblSelection.setTextBold();
 
-		x = 40;
-		y += 25;
+		x = 50;
+		y += 30;
 
-		btnSelectFront = new GButton(selectionSidebar, x, y, 180, 20, "Select Media in Front");
+		btnSelectFront = new GButton(selectionWindow, x, y, 180, 20, "Select Media Ahead");
 		btnSelectFront.tag = "SelectFront";
 		btnSelectFront.setLocalColorScheme(5);
 
-		x = 60;
-		y += 25;
-
-		btnSelectFront = new GButton(selectionSidebar, x, y, 180, 20, "Deselect All Media");
-		btnSelectFront.tag = "DeselectAll";
-		btnSelectFront.setLocalColorScheme(5);
-
-
-		x = 30;
-		y += 25;
-		
-		chkbxMultiSelection = new GCheckbox(selectionSidebar, x, y, 110, 20, "Multi-Selection");
-		chkbxMultiSelection.tag = "MultiSelection";
-		chkbxMultiSelection.setLocalColorScheme(10);
-		chkbxSelectGroups = new GCheckbox(selectionSidebar, x+=110, y, 100, 20, "Select Segments");
-		chkbxSelectGroups.tag = "SelectSegments";
-		chkbxSelectGroups.setLocalColorScheme(10);
-		
 		x = 50;
 		y += 30;
 		
-		chkbxViewMetadata = new GCheckbox(selectionSidebar, x, y, 120, 20, "View Metadata");
+		btnDeselectFront = new GButton(selectionWindow, x, y, 180, 20, "Deselect Media Ahead");
+		btnDeselectFront.tag = "DeselectFront";
+		btnDeselectFront.setLocalColorScheme(5);
+
+		x = 50;
+		y += 30;
+
+		btnDeselectAll = new GButton(selectionWindow, x, y, 180, 20, "Deselect All Media");
+		btnDeselectAll.tag = "DeselectAll";
+		btnDeselectAll.setLocalColorScheme(5);
+
+		x = 20;
+		y += 40;
+		
+		chkbxMultiSelection = new GCheckbox(selectionWindow, x, y, 110, 20, "Multi-Selection");
+		chkbxMultiSelection.tag = "MultiSelection";
+		chkbxMultiSelection.setLocalColorScheme(10);
+
+		chkbxSelectGroups = new GCheckbox(selectionWindow, x+=120, y, 125, 20, "Segment Selection");
+		chkbxSelectGroups.tag = "SegmentSelection";
+		chkbxSelectGroups.setLocalColorScheme(10);
+		
+		x = 100;
+		y += 30;
+		
+		chkbxViewMetadata = new GCheckbox(selectionWindow, x, y, 110, 20, "View Metadata");
 		chkbxViewMetadata.tag = "ViewMetadata";
 		chkbxViewMetadata.setLocalColorScheme(10);
 		
-		x = 40;
-		y += 25;
+		x = 50;
+		y += 40;
 		
-		btnExitSelectionMode = new GButton(selectionSidebar, x, y, 180, 20, "Exit Selection Mode");
+		btnExitSelectionMode = new GButton(selectionWindow, x, y, 180, 20, "Exit Selection Mode");
 		btnExitSelectionMode.tag = "ExitSelectionMode";
 		btnExitSelectionMode.setLocalColorScheme(0);
 		
-		selectionSidebar.addKeyHandler(p.p.p, "selectionSidebarKey");
+		selectionWindow.addKeyHandler(p.p.p, "selectionSidebarKey");
 	}
 
-	void setupHelpSidebar()
+	void setupHelpWindow()
 	{
-		helpSidebar = GWindow.getWindow(p.p.p, "Help", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
-		helpSidebar.setVisible(false);
-		helpSidebar.addData(new WMV_WinData());
-		helpSidebar.addDrawHandler(this, "helpSidebarDraw");
-		helpSidebar.addMouseHandler(this, "helpSidebarMouse");
+		helpWindow = GWindow.getWindow(p.p.p, "Help", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
+		helpWindow.setVisible(false);
+		helpWindow.addData(new WMV_WinData());
+		helpWindow.addDrawHandler(this, "helpSidebarDraw");
+		helpWindow.addMouseHandler(this, "helpSidebarMouse");
 		
 		int x = 0, y = 10;
 
 		/* Selection Window */
-		lblHelp = new GLabel(helpSidebar, x, y, helpSidebar.width, 20, "Help");
+		lblHelp = new GLabel(helpWindow, x, y, helpWindow.width, 20, "Help");
 		lblHelp.setLocalColorScheme(10);
 		lblHelp.setTextAlign(GAlign.CENTER, null);
 		lblHelp.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -616,11 +625,11 @@ public class WMV_Window {
 		x = 40;
 		y = p.p.p.height - 40;
 		
-		btnExitHelpMode = new GButton(helpSidebar, x, y, 180, 20, "Close Window");
+		btnExitHelpMode = new GButton(helpWindow, x, y, 180, 20, "Close Window");
 		btnExitHelpMode.tag = "CloseHelpWindow";
 		btnExitHelpMode.setLocalColorScheme(0);
 		
-		helpSidebar.addKeyHandler(p.p.p, "helpSidebarKey");
+		helpWindow.addKeyHandler(p.p.p, "helpSidebarKey");
 	}
 
 
@@ -629,7 +638,7 @@ public class WMV_Window {
 	 * @param applet the PApplet object embeded into the frame
 	 * @param data the data for the GWindow being used
 	 */
-	public void viewsSidebarDraw(PApplet applet, GWinData data) {
+	public void wmvWindowDraw(PApplet applet, GWinData data) {
 //		applet.background(10, 5, 50);
 		applet.background(0);
 		applet.stroke(255);
@@ -647,7 +656,7 @@ public class WMV_Window {
 	 * @param data the data for the GWindow being used
 	 * @param event the mouse event
 	 */
-	public void viewsSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
+	public void wmvWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
 		WMV_WinData data2 = (WMV_WinData)data;
 		switch(event.getAction()) {
 
@@ -670,7 +679,7 @@ public class WMV_Window {
 			break;
 		}
 	}
-		
+
 	/**
 	 * Handles drawing to the windows PApplet area
 	 * @param applet the PApplet object embeded into the frame
@@ -696,6 +705,55 @@ public class WMV_Window {
 	 * @param event the mouse event
 	 */
 	public void navigationSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
+		WMV_WinData data2 = (WMV_WinData)data;
+		switch(event.getAction()) {
+
+		case MouseEvent.PRESS:
+			data2.sx = data2.ex = applet.mouseX;
+			data2.sy = data2.ey = applet.mouseY;
+			data2.done = false;
+//			PApplet.println("Mouse pressed");
+			break;
+		case MouseEvent.RELEASE:
+			data2.ex = applet.mouseX;
+			data2.ey = applet.mouseY;
+			data2.done = true;
+			PApplet.println("Mouse released:"+data.toString());
+			break;
+		case MouseEvent.DRAG:
+			data2.ex = applet.mouseX;
+			data2.ey = applet.mouseY;
+//			PApplet.println("Mouse dragged");
+			break;
+		}
+	}
+
+
+	/**
+	 * Handles drawing to the windows PApplet area
+	 * @param applet the PApplet object embeded into the frame
+	 * @param data the data for the GWindow being used
+	 */
+	public void graphicsSidebarDraw(PApplet applet, GWinData data) {
+//		applet.background(10, 5, 50);
+		applet.background(0);
+		applet.stroke(255);
+		applet.strokeWeight(1);
+		applet.fill(0, 0, 255);
+
+//		int yPos = window.height - 60;
+//		applet.text("WorldMediaViewer v1.0", window.width / 2 - 10, yPos);
+//		applet.text("David Gordon", window.width / 2 - 10, yPos += 20);
+	}
+
+
+	/**
+	 * Handles mouse events for ALL GWindow objects
+	 * @param applet the PApplet object embeded into the frame
+	 * @param data the data for the GWindow being used
+	 * @param event the mouse event
+	 */
+	public void graphicsSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
 		WMV_WinData data2 = (WMV_WinData)data;
 		switch(event.getAction()) {
 
@@ -944,7 +1002,7 @@ public class WMV_Window {
 	 * @param applet the PApplet object embeded into the frame
 	 * @param data the data for the GWindow being used
 	 */
-	public void selectionSidebarDraw(PApplet applet, GWinData data) {
+	public void selectionWindowDraw(PApplet applet, GWinData data) {
 		applet.background(10, 5, 50);
 		applet.stroke(255);
 		applet.strokeWeight(1);
@@ -957,7 +1015,7 @@ public class WMV_Window {
 	 * @param data the data for the GWindow being used
 	 * @param event the mouse event
 	 */
-	public void selectionSidebarMouse(PApplet applet, GWinData data, MouseEvent event) {
+	public void selectionWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
 		WMV_WinData wmvWinData = (WMV_WinData)data;
 		switch(event.getAction()) {
 
@@ -1165,6 +1223,67 @@ public class WMV_Window {
 //			PApplet.println("Mouse dragged");
 			break;
 		}
+	}
+	
+	void showWMVWindow()
+	{
+		showWMVWindow = true;
+		wmvWindow.setVisible(true);
+	} 
+	void showNavigationWindow()
+	{
+		showNavigationWindow = true;
+		navigationWindow.setVisible(true);
+	} 
+	void showGraphicsWindow()
+	{
+		showGraphicsWindow = true;
+		graphicsWindow.setVisible(true);
+	}
+	void showSelectionWindow()
+	{
+		showSelectionWindow = true;
+		selectionWindow.setVisible(true);
+	} 
+	void showStatisticsWindow()
+	{
+		showStatisticsWindow = true;
+		statisticsWindow.setVisible(true);
+	} 
+	void showHelpWindow()
+	{
+		showHelpWindow = false;
+		helpWindow.setVisible(true);
+	}
+	void hideWMVWindow()
+	{
+		showWMVWindow = false;
+		wmvWindow.setVisible(false);
+	} 
+	void hideNavigationWindow()
+	{
+		showNavigationWindow = false;
+		navigationWindow.setVisible(false);
+	} 
+	void hideGraphicsWindow()
+	{
+		showGraphicsWindow = false;
+		graphicsWindow.setVisible(false);
+	}
+	void hideSelectionWindow()
+	{
+		showSelectionWindow = false;
+		selectionWindow.setVisible(false);
+	} 
+	void hideStatisticsWindow()
+	{
+		showStatisticsWindow = false;
+		statisticsWindow.setVisible(false);
+	} 
+	void hideHelpWindow()
+	{
+		showHelpWindow = false;
+		helpWindow.setVisible(false);
 	}
 }
 	

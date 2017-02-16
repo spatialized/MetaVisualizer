@@ -60,7 +60,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	{
 //		setSurfaceLocation(20, 20);
 		surface.setResizable(false);
-//		surface.setAlwaysOnTop(true);		// No effect?
 
 		world = new WMV_World(this);
 		metadata = new WMV_Metadata(this);
@@ -308,7 +307,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		world.input.handleKeyReleased(key, keyCode);
 	}
 	
-	public void viewsSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	public void wmvWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 //		PApplet.println("sidebarKey:"+keyevent.getKey());
 //		PApplet.println("sidebarKeyCode:"+keyevent.getKeyCode());
@@ -375,9 +374,9 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	
 	public void setSurfaceSize(int newWidth, int newHeight)
 	{
-//		surface.setResizable(true);
+		surface.setResizable(true);
 		surface.setSize(newWidth, newHeight);
-//		surface.setResizable(false);
+		surface.setResizable(false);
 	}
 
 //	public void setSurfaceLocation(int newX, int newY)

@@ -326,7 +326,6 @@ public class WMV_Input
 	}
 
 	/**
-	 * handleKeyPressed()
 	 * @param key Key that was pressed
 	 * Respond to user key presses
 	 */

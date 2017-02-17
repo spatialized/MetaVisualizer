@@ -69,6 +69,19 @@ public class WMV_Viewer
 	private float clusterNearDistance;					// Distance from cluster center to slow down to prevent missing the target
 	private float clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
 
+	/* Sound */
+	float audibleFarDistanceMin, audibleFarDistanceMax;
+	float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal,
+			audibleFarDistanceDestVal;
+	float audibleFarDistanceDiv = (float) 1.5;
+	boolean audibleFarDistanceTransition = false;
+
+	float audibleNearDistanceMin, audibleNearDistanceMax;
+	float audibleNearDistanceFadeStart, audibleNearDistanceFadeLength = 40, audibleNearDistanceStartVal,
+			audibleNearDistanceDestVal;
+	float audibleNearDistanceDiv = (float) 1.2; 
+	boolean audibleNearDistanceTransition = false;
+
 	/* Interaction Modes */
 	public boolean mouseNavigation = false;			// Mouse navigation
 	public boolean map3DMode = false;				// 3D Map Mode
@@ -2383,7 +2396,6 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * startWaiting()
 	 * @param length Length of time to wait
 	 * Wait for specified time until moving to next memory point
 	 */
@@ -2395,7 +2407,6 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * setAttractorPoint()
 	 * @param newPoint Point of interest to attract camera 
 	 */
 	private void setAttractorPoint(PVector newPoint)
@@ -2901,7 +2912,6 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * importGPSTrack()
 	 * Open dialog to select GPS track file
 	 */
 	public void importGPSTrack()
@@ -2912,7 +2922,6 @@ public class WMV_Viewer
 
 
 	/**
-	 * loadGPSTrack()
 	 * Load and analyze GPS track file in response to user selection
 	 * @param selection Selected GPS track file
 	 */
@@ -2958,6 +2967,7 @@ public class WMV_Viewer
 		if(gpsTrackSelected)
 		{
 			analyzeGPSTrack();
+			getSoundLocationsFromGPSTrack();
 		}
 	}
 
@@ -3108,6 +3118,14 @@ public class WMV_Viewer
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+	
+	void getSoundLocationsFromGPSTrack()
+	{
+		for(WMV_Sound s : p.getCurrentField().sounds)
+		{
+			s.calculateLocationFromGPSTrack(gpsTrack);
 		}
 	}
 	

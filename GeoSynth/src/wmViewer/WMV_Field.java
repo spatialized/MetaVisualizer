@@ -40,6 +40,7 @@ public class WMV_Field
 	public ArrayList<WMV_Image> images; 					// All images in this field
 	public ArrayList<WMV_Panorama> panoramas; 				// All panoramas in this field
 	public ArrayList<WMV_Video> videos; 					// All videos in this field
+	public ArrayList<WMV_Sound> sounds; 					// All videos in this field
 	public ArrayList<WMV_Cluster> clusters;					// Spatial groupings of media in the Image3D and Video3D arrays
 
 	private int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
@@ -69,6 +70,7 @@ public class WMV_Field
 		images = new ArrayList<WMV_Image>();
 		panoramas = new ArrayList<WMV_Panorama>();
 		videos = new ArrayList<WMV_Video>();		
+		sounds = new ArrayList<WMV_Sound>();		
 
 		timeline = new ArrayList<WMV_TimeSegment>();
 		dateline = new ArrayList<WMV_Date>();

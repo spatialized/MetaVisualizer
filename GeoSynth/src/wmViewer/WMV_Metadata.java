@@ -25,19 +25,24 @@ class WMV_Metadata
 	public String imageFolder = "", smallImageFolder = "";
 	public String panoramaFolder = "";
 	public String videoFolder = "", smallVideoFolder = "";				// File path for media folders
-
+	public String soundFolder = "";
+	
 	public File imageFolderFile = null, smallImageFolderFile = null, panoramaFolderFile = null, // Folders containing the media 
-				videoFolderFile = null;	
+				videoFolderFile = null, soundFolderFile = null;	
+	
 	public boolean imageFolderFound = false, smallImageFolderFound = false;
 	public boolean panoramaFolderFound = false;
 	public boolean videoFolderFound = false; 	
+	public boolean soundFolderFound = false; 	
 	
-	public File[] smallImageFiles = null, imageFiles = null, panoramaFiles = null, videoFiles = null;		// Arrays for images and videos
+	public File[] smallImageFiles = null, imageFiles = null, panoramaFiles = null, // Temp arrays to store media files
+				  videoFiles = null, soundFiles = null;								
 
 	public boolean smallImageFilesFound = false;
 	public boolean imageFilesFound = false;
 	public boolean panoramaFilesFound = false;
 	public boolean videoFilesFound = false;
+	public boolean soundFilesFound = false;
 	
 	int iCount = 0, pCount = 0, vCount = 0;							// Media count by type 
 	public File exifToolFile;										// File for ExifTool executable
@@ -64,29 +69,26 @@ class WMV_Metadata
 		
 		loadImageFolders(library, fieldPath); 	// Load image file names
 		loadVideoFolder(library, fieldPath); 	// Load video file names
+		loadSoundFolder(library, fieldPath); 	// Load video file names
 
 		iCount = 0; 
 		pCount = 0;
 		vCount = 0;
 
-//		boolean result;
-		
-		if(imageFilesFound || smallImageFilesFound)				// Load image metadata 
-		{
-			loadImagesFromTags(imageFiles);
-		}
+		if(imageFilesFound || smallImageFilesFound)
+			loadImageMetadata(imageFiles);						// Load image metadata 
+
 		if(panoramaFilesFound)									// Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
-		{
-			if(p.debug.metadata)
-				PApplet.println("loadImagesFromTags panoramas:"+panoramaFiles.length);
-			loadImagesFromTags(panoramaFiles);
-		}
+			loadImageMetadata(panoramaFiles);
+
 		if(videoFilesFound)										// Load video metadata 
-			loadVideosFromTags(videoFiles);	
+			loadVideoMetadata(videoFiles);	
+
+		if(soundFilesFound)										// Load video metadata 
+			loadSounds(soundFiles);	
 	}
 	
 	/**
-	 * loadImageFolders()
 	 * Load metadata for folders of images, small images (640px wide) and panoramas
 	 */
 	public void loadImageFolders(String library, String fieldPath) 		
@@ -251,6 +253,49 @@ class WMV_Metadata
 	}
 
 	/**
+	 * Load metadata for folder of videos
+	 */
+	public void loadSoundFolder(String library, String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	{
+		soundFolder = library  + "/" + fieldPath + "/sounds/";		// Max width 720 pixels  -- Check this!
+
+		soundFolderFile = new File(videoFolder);
+		soundFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());	
+		soundFiles = null;
+
+		if(soundFolderFound)				// Check for sound files
+		{
+			soundFiles = soundFolderFile.listFiles();
+			if(soundFiles != null && soundFiles.length > 0)
+				soundFilesFound = true;
+		}
+		
+		if (p.debug.sound)
+		{
+			PApplet.println("Sound Folder:" + soundFolder);
+		}
+	}
+	
+	/** 
+	 * Read tags from array of video files and create 3D video objects
+	 * @param files File array
+	 */
+	public boolean loadSounds(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	{
+		int count = 0;
+		
+		/* -- Should calculate time / date at least here */
+		
+		for(File file : soundFiles)
+		{
+			f.sounds.add(new WMV_Sound ( f, count, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, null) );
+			count++;
+		}
+		
+		return true;
+	}
+
+	/**
 	 * Read video metadata using ExifToolWrapper
 	 * @param file File location to read metadata from
 	 * @param exifToolFile File object for ExifTool executable
@@ -287,7 +332,7 @@ class WMV_Metadata
 	 * Read tags from array of image/panorama files and create 3D image/panorama objects
 	 * @param files File array
 	 */
-	public boolean loadImagesFromTags(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	public boolean loadImageMetadata(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
 	{
 		int fileCount;
 		
@@ -671,7 +716,7 @@ class WMV_Metadata
 	 * Read tags from array of video files and create 3D video objects
 	 * @param files File array
 	 */
-	public boolean loadVideosFromTags(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	public boolean loadVideoMetadata(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
 	{
 		int fileCount;
 		if(files != null)

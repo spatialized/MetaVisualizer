@@ -232,7 +232,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * fadeSoundIn()
 	 * Fade in sound
 	 */
 	void fadeSoundIn()
@@ -248,7 +247,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 	
 	/**
-	 * fadeSoundOut()
 	 * Fade out sound
 	 */
 	void fadeSoundOut()
@@ -264,7 +262,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 	
 	/**
-	 * update()
 =	 * Update geometry + visibility 
 	 */
 	void update()

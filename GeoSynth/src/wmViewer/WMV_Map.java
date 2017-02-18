@@ -46,6 +46,10 @@ public class WMV_Map
 	float hugePointSize;
 	float cameraPointSize;
 
+	private boolean beginZoomTransition = false, zoomTransition = false;
+	private int zoomTransitionStartFrame = 0, zoomTransitionEndFrame = 0, zoomTransitionLength = 18;	
+	private float zoomTransitionStart, zoomTransitionTarget;
+
 	PVector mapVectorOrigin, mapVectorVector;
 
 	WMV_Display p;
@@ -107,6 +111,9 @@ public class WMV_Map
 		p.p.p.textSize(p.largeTextSize);
 		float textXPos = p.centerTextXOffset;
 		float textYPos = p.topTextYOffset;
+		
+		if(zoomTransition)                      		// Fade alpha
+			updateMapZoomTransition();
 
 		if(p.p.interactive)
 		{
@@ -130,7 +137,8 @@ public class WMV_Map
 	{
 //		Map Modes  	1:  All   2: Clusters + Media   3: Clusters + Capture Locations  4: Capture Locations + Media
 //					5:  Clusters Only   6: Media Only   7: Capture Locations Only
-		
+		p.beginHUD();
+
 		/* Media */
 		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapImages && !p.p.getCurrentField().hideImages)
 			for ( WMV_Image i : p.p.getCurrentField().images )		// Draw images on 2D Map
@@ -161,26 +169,28 @@ public class WMV_Map
 			for( WMV_Cluster c : p.p.getCurrentField().clusters )							
 				drawFuzzyMapPoint( c.getLocation(), PApplet.sqrt(c.mediaPoints) * 0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 
-		if(!p.p.interactive)				// While not in Clustering Mode
+		if(!zoomTransition)
 		{
-			if(mapMode == 1 || mapMode == 2 || mapMode == 3 || mapMode == 5)
+			if(!p.p.interactive)				// While not in Clustering Mode
 			{
-				if(p.p.viewer.getAttractorCluster() != -1 && p.p.viewer.getAttractorCluster() < p.p.getFieldClusters().size())
-					drawMapPoint( p.p.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
+				if(mapMode == 1 || mapMode == 2 || mapMode == 3 || mapMode == 5)
+				{
+					if(p.p.viewer.getAttractorCluster() != -1 && p.p.viewer.getAttractorCluster() < p.p.getFieldClusters().size())
+						drawMapPoint( p.p.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 
-				if(p.p.viewer.getCurrentCluster() != -1 && p.p.viewer.getCurrentCluster() < p.p.getFieldClusters().size())
-					drawMapPoint( p.p.getCurrentCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
+					if(p.p.viewer.getCurrentCluster() != -1 && p.p.viewer.getCurrentCluster() < p.p.getFieldClusters().size())
+						drawMapPoint( p.p.getCurrentCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
+				}
+
+				drawCameraOnMap(mapWidth, mapHeight);
 			}
-			
-			drawCameraOnMap(mapWidth, mapHeight);
+
+//			if(p.p.viewer.getPath().size() > 0)
+//				drawPathOnMap(p.p.viewer.getPath(), mapWidth, mapHeight);
+			if(p.p.viewer.getGPSTrack().size() > 0)
+				drawPathOnMap(p.p.viewer.getGPSTrack(), mapWidth, mapHeight);
+//			drawOriginOnMap(mapWidth, mapHeight);
 		}
-		
-//		if(p.p.viewer.getPath().size() > 0)
-//			drawPathOnMap(p.p.viewer.getPath(), mapWidth, mapHeight);
-		if(p.p.viewer.getGPSTrack().size() > 0)
-			drawPathOnMap(p.p.viewer.getGPSTrack(), mapWidth, mapHeight);
-			
-//		drawOriginOnMap(mapWidth, mapHeight);
 	}
 
 	/**
@@ -194,23 +204,21 @@ public class WMV_Map
 	{
 		float pointSize = smallPointSize * mapWidth;
 		
-		float saturation;
+		float saturation = maxSaturation;
 
-		float imageDistance = image.getViewingDistance();   // Get photo distance from current camera position
+//		float imageDistance = image.getViewingDistance();   // Get photo distance from current camera position
 
 		// IMPLEMENT TIME
 		// p.p.fill(mapVideoHue, 100, 255, 255);                         // If out of visible range and not at a visible time, lightest color
 		// p.p.p.stroke(mapVideoHue, 100, 255, 255);                                        
 
-		if (imageDistance < p.p.viewer.getFarViewingDistance() && imageDistance > p.p.viewer.getNearClippingDistance())    // If image is in visible range
-			saturation = 100.f;                                              
-		else      																				// If out of visible range
-			saturation = maxSaturation;                                              
+//		if (imageDistance < p.p.viewer.getFarViewingDistance() && imageDistance > p.p.viewer.getNearClippingDistance())    // If image is in visible range
+//			saturation = 100.f;                                              
 
 		if(image.location != null && !image.disabled && !image.hidden)
 		{
 			if(capture)
-				drawMapPoint( image.getCaptureLocation(), pointSize * (image.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapImageCaptureHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( image.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapImageCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
 				drawMapPoint( image.getLocation(), pointSize, mapWidth, mapHeight, mapImageHue, saturation, 255.f, mapMediaTransparency );
 		}
@@ -227,22 +235,20 @@ public class WMV_Map
 	{
 		float pointSize = mediumPointSize * mapWidth;
 		
-		float saturation = 255.f;
-		float panoramaDistance = panorama.getViewingDistance();   // Get photo distance from current camera position
+		float saturation = maxSaturation;
+//		float panoramaDistance = panorama.getViewingDistance();   // Get photo distance from current camera position
 
 		// IMPLEMENT TIME
 		// p.p.fill(mapVideoHue, 100, 255, 255);                         // If out of visible range and not at a visible time, lightest color
 		// p.p.p.stroke(mapVideoHue, 100, 255, 255);                                        
 
-		if (panoramaDistance < p.p.viewer.getFarViewingDistance() && panoramaDistance > p.p.viewer.getNearClippingDistance())    // If panorama is in visible range
-			saturation = 100.f;                                              
-		else      																				// If out of visible range
-			saturation = maxSaturation;                                              
+//		if (panoramaDistance < p.p.viewer.getFarViewingDistance() && panoramaDistance > p.p.viewer.getNearClippingDistance())    // If panorama is in visible range
+//			saturation = 100.f;                                              
 
 		if(panorama.location != null && !panorama.disabled && !panorama.hidden)
 		{
 			if(capture)
-				drawMapPoint( panorama.getCaptureLocation(), pointSize * (panorama.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapPanoramaCaptureHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( panorama.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapPanoramaCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
 				drawMapPoint( panorama.getLocation(), pointSize, mapWidth, mapHeight, mapPanoramaHue, saturation, 255.f, mapMediaTransparency );
 		}
@@ -258,22 +264,20 @@ public class WMV_Map
 	{
 		float pointSize = mediumPointSize * mapWidth;
 		
-		float saturation;
-		float videoDistance = video.getViewingDistance();   // Get photo distance from current camera position
+		float saturation = maxSaturation;
+//		float videoDistance = video.getViewingDistance();   // Get photo distance from current camera position
 
 		// IMPLEMENT TIME
 		// p.p.fill(mapVideoHue, 100, 255, 255);                         // If out of visible range and not at a visible time, lightest color
 		// p.p.p.stroke(mapVideoHue, 100, 255, 255);                                        
 
-		if (videoDistance < p.p.viewer.getFarViewingDistance() && videoDistance > p.p.viewer.getNearClippingDistance())    // If video is in visible range
-			saturation = minSaturation;                                              
-		else      																				// If out of visible range
-			saturation = maxSaturation;                                              
+//		if (videoDistance < p.p.viewer.getFarViewingDistance() && videoDistance > p.p.viewer.getNearClippingDistance())    // If video is in visible range
+//			saturation = minSaturation;                                              
 
 		if(video.location != null && !video.disabled && !video.hidden)
 		{
 			if(capture)
-				drawMapPoint( video.getCaptureLocation(), pointSize * (video.isSelected() ? 10.f : 1.f), mapWidth, mapHeight, mapVideoCaptureHue, saturation, 255.f, mapMediaTransparency );
+				drawMapPoint( video.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapVideoCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
 				drawMapPoint( video.getLocation(), pointSize, mapWidth, mapHeight, mapVideoHue, saturation, 255.f, mapMediaTransparency );
 		}
@@ -311,7 +315,6 @@ public class WMV_Map
 		logMap.setMapFunction(p.p.circularEaseOut);
 
 		/* Change viewer arrow based on fieldWidth -- should be fieldLength??  -- should depend on zoom level too! */
-//		int arrowLength = (int)logMap.p.getMappedValueFor( PApplet.map( p.p.getCurrentField().model.fieldWidth, 100.f, 10000.f, 6.f, 60.f ) );
 		int arrowLength = 30;
 		
 		logMap = new ScaleMap(0.f, 0.25f, 0.f, 0.25f);		/* Time fading interpolation */
@@ -407,18 +410,17 @@ public class WMV_Map
 		if(!p.p.p.utilities.isNaN(point.x) && !p.p.p.utilities.isNaN(point.y) && !p.p.p.utilities.isNaN(point.z))
 		{
 			/* Find 2D map coordinates for this image */
-			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth * mapZoom );		
-			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight * mapZoom );
+			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
 
 			if(mapLocX < mapWidth && mapLocX > 0 && mapLocY < mapHeight && mapLocY > 0)
 			{
 				p.p.p.stroke(hue, saturation, brightness, transparency);
 				p.p.p.pushMatrix();
-				p.beginHUD();
 
 				p.p.p.strokeWeight(pointSize);
 				p.p.p.translate(mapLeftEdge, mapTopEdge);
-				p.p.p.point(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance);
+				p.p.p.point(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance * mapZoom);
 
 				p.p.p.popMatrix();
 			}
@@ -492,6 +494,52 @@ public class WMV_Map
 		}
 	}
 	
+	/**
+	 * Transition map zoom from current to given value
+	 */
+	void mapZoomTransition(float target)
+	{
+		if(target != mapZoom)			// Check if already at target
+		{
+			beginZoomTransition = true;
+			zoomTransition = true;   
+			zoomTransitionStart = mapZoom;
+			zoomTransitionTarget = target;
+			zoomTransitionStartFrame = p.p.p.frameCount;
+			zoomTransitionEndFrame = zoomTransitionStartFrame + zoomTransitionLength;
+		}
+		else
+		{
+			zoomTransition = false;
+		}
+	}
+	
+	/**
+	 * Update map zoom level each frame
+	 */
+	void updateMapZoomTransition()
+	{
+		float newZoomLevel = 0.f;
+
+		if(beginZoomTransition)
+		{
+			zoomTransitionStartFrame = p.p.p.frameCount;					
+			zoomTransitionEndFrame = p.p.p.frameCount + zoomTransitionLength;	
+			beginZoomTransition = false;
+		}
+
+		if (p.p.p.frameCount >= zoomTransitionEndFrame)
+		{
+			zoomTransition = false;
+			newZoomLevel = zoomTransitionTarget;
+		} 
+		else
+		{
+			newZoomLevel = PApplet.map(p.p.p.frameCount, zoomTransitionStartFrame, zoomTransitionEndFrame, zoomTransitionStart, zoomTransitionTarget);      // Fade with distance from current time
+		}
+
+		mapZoom = newZoomLevel;
+	}
 
 	/**
 	 * Interesting effect

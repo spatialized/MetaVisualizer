@@ -478,11 +478,13 @@ public class WMV_Input
 				p.display.map2D.mapVideos = !p.display.map2D.mapVideos;
 
 			if (key == ']') {
-				p.display.map2D.mapZoom *= 1.02f;
+//				p.display.map2D.mapZoom *= 1.02f;
+				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 1.176f);
 			}
 
 			if (key == '[') {
-				p.display.map2D.mapZoom *= 0.985f;
+//				p.display.map2D.mapZoom *= 0.985f;
+				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 0.85f);
 			}
 
 			if (key == PApplet.CODED) 					

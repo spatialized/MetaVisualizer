@@ -282,10 +282,10 @@ class WMV_Display
 		int length = 100;	// total length
 		int pos = p.setupProgress;	//current position
 
+		beginHUD();
 		for(int i=0; i<pos; i++)
 		{
 			p.p.pushMatrix();
-			beginHUD();
 			
 			p.p.fill(140, 100, 255);
 			float xPos = PApplet.map(i, 0, length, 0, p.p.width * 1.f);
@@ -319,8 +319,8 @@ class WMV_Display
 	 */
 	void displayControls()
 	{
-		p.p.pushMatrix();
 		beginHUD();
+		p.p.pushMatrix();
 		
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
@@ -506,8 +506,8 @@ class WMV_Display
 	{
 		float yPos = userMessageYOffset - lineWidth;
 
-		p.p.pushMatrix();
 		beginHUD();
+		p.p.pushMatrix();
 		p.p.fill(0, 0, 255, 255);            								
 		p.p.textSize(smallTextSize);
 
@@ -551,8 +551,8 @@ class WMV_Display
 		{
 			float yPos = metadataYOffset - lineWidth;
 			
-			p.p.pushMatrix();
 			beginHUD();
+			p.p.pushMatrix();
 			
 			p.p.fill(0, 0, 255, 255);                     // White text
 			p.p.textSize(mediumTextSize);
@@ -609,8 +609,8 @@ class WMV_Display
 	{
 		float yPos = startupMessageYOffset - lineWidth;
 
-		p.p.pushMatrix();
 		beginHUD();
+		p.p.pushMatrix();
 		p.p.fill(0, 0, 255, 255);            								
 		p.p.textSize(largeTextSize * 1.5f);
 		
@@ -754,8 +754,8 @@ class WMV_Display
 	 */
 	void displayInfo()
 	{
-		p.p.pushMatrix();
 		beginHUD();
+		p.p.pushMatrix();
 		
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
@@ -921,8 +921,8 @@ class WMV_Display
 	 */
 	void displayClusterInfo()
 	{
-		p.p.pushMatrix();
 		beginHUD();
+		p.p.pushMatrix();
 		
 		float textXPos = centerTextXOffset;
 		float textYPos = topTextYOffset;			// Starting vertical position
@@ -992,10 +992,10 @@ class WMV_Display
 		p.p.strokeWeight(15);
 		p.p.fill(0, 0, 255, 255);
 
+		beginHUD();
 		for(WMV_Image i : cluster.getImages())
 		{
 			p.p.pushMatrix();
-			beginHUD();
 			float origWidth = i.getWidth();
 			float origHeight = i.getHeight();
 			float width = 90.f;
@@ -1018,8 +1018,8 @@ class WMV_Display
 				imgYPos += height * 1.5f;
 			}
 			
-			count++;
 			p.p.popMatrix();
+			count++;
 		}
 	}
 	

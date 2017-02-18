@@ -295,9 +295,11 @@ public class WMV_World
 	void runSimulation()
 	{
 		/* 3D Display */
-		getCurrentField().update();					// Update clusters in current field
-		getCurrentField().draw();					// Display media in current field
-
+		if(!display.map && !display.info && !display.cluster && !display.control && !display.about)
+		{
+			getCurrentField().update();					// Update clusters in current field
+			getCurrentField().draw();					// Display media in current field
+		}
 		viewer.update();							// Update navigation
 		viewer.camera.feed();						// Send the 3D camera view to the screen
 		

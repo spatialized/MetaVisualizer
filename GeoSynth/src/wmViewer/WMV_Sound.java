@@ -41,7 +41,9 @@ public class WMV_Sound extends WMV_Viewable
 //		Bead sound = new Bead();
 		
 		if(newCalendar != null)
+		{
 			time = new WMV_Time( p.p, newCalendar, getID(), 0 );
+		}
 		else
 			time = null;
 

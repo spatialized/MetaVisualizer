@@ -110,7 +110,6 @@ public class WMV_Time implements Comparable<WMV_Time>
 	}
 	
 	/**
-	 * compareTo()
 	 * @param t Time segment to compare to
 	 * Compare this time segment with given one
 	 */

@@ -74,16 +74,6 @@ public class WMV_Date implements Comparable<WMV_Date>
 		return days;
 	}
 	
-//	public void setTimeline( ArrayList<WMV_TimeSegment> newTimeline )
-//	{
-//		timeline = newTimeline;
-//	}
-//
-//	public ArrayList<WMV_TimeSegment> getTimeline()
-//	{
-//		return timeline;
-//	}
-	
 	public PVector getDate()
 	{
 		return date;
@@ -106,7 +96,6 @@ public class WMV_Date implements Comparable<WMV_Date>
 	}
 
 	/**
-	 * compareTo()
 	 * @param t Time segment to compare to
 	 * Compare this time segment with given one
 	 */

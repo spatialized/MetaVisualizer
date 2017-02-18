@@ -7,8 +7,14 @@ import com.drew.imaging.jpeg.JpegMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.Tag;
+import com.sun.tools.javac.util.Paths;
 
 import java.io.File;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -133,7 +139,7 @@ class WMV_Metadata
 				{
 					File f = smallImageFiles[0];
 					String check = f.getName();
-					PApplet.println("DSStore?"+check);
+//					PApplet.println("DSStore?"+check);
 					if(check.equals(".DS_Store"))
 						smallImageFilesFound = false;			/* Only found .DS_Store, ignore it */
 				}
@@ -259,8 +265,8 @@ class WMV_Metadata
 	{
 		soundFolder = library  + "/" + fieldPath + "/sounds/";		// Max width 720 pixels  -- Check this!
 
-		soundFolderFile = new File(videoFolder);
-		soundFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());	
+		soundFolderFile = new File(soundFolder);
+		soundFolderFound = (soundFolderFile.exists() && soundFolderFile.isDirectory());	
 		soundFiles = null;
 
 		if(soundFolderFound)				// Check for sound files
@@ -270,7 +276,7 @@ class WMV_Metadata
 				soundFilesFound = true;
 		}
 		
-		if (p.debug.sound)
+//		if (p.debug.sound)
 		{
 			PApplet.println("Sound Folder:" + soundFolder);
 		}
@@ -288,12 +294,77 @@ class WMV_Metadata
 		
 		for(File file : soundFiles)
 		{
-			f.sounds.add(new WMV_Sound ( f, count, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, null) );
+			String fPath = file.getPath();
+			Path path = FileSystems.getDefault().getPath(fPath);
+			
+			if(!file.getName().equals(".DS_Store"))
+			{
+				try
+				{
+					PApplet.println("Loading sound:"+fPath);
+
+					BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
+					FileTime creationTime = attr.creationTime();
+					PApplet.println("file: "+file.getName()+" creationTime: "+creationTime);
+					
+					Calendar soundTime = getCalendarFromTimeStamp(creationTime);
+					PApplet.println("soundTime.getTime():"+soundTime.getTime());
+					PApplet.println("sounds == null? "+(f.sounds==null));
+					
+					f.sounds.add(new WMV_Sound ( f, count, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime) );
+				}
+				catch(Throwable t)
+				{
+					PApplet.println("Throwable in loadSounds()... "+t);
+				}
+			}
 			count++;
 		}
 		
 		return true;
 	}
+	
+	private Calendar getCalendarFromTimeStamp(FileTime creationTime)
+	{
+		String tsStr = creationTime.toString();
+//		PApplet.println("tsStr:"+tsStr);
+		
+//		Ex: 2016-12-02T23:39:34Z
+		String[] parts = tsStr.split("T");
+		String strDate = parts[0];
+		String strTime = parts[1];
+
+//		PApplet.println("strDate:"+strDate);
+//		PApplet.println("strTime:"+strTime);
+
+		parts = strDate.split("-");
+		String strYear = parts[0];
+		String strMonth = parts[1];
+		String strDay = parts[2];
+	
+//		PApplet.println("strYear:"+Integer.parseInt(strYear));
+//		PApplet.println("strMonth:"+Integer.parseInt(strMonth));
+//		PApplet.println("strDay:"+Integer.parseInt(strDay));
+
+		parts = strTime.split("Z");
+		parts = parts[0].split(":");
+		
+		String strHour = parts[0];
+		String strMinute = parts[1];
+		String strSecond = parts[2];
+
+//		PApplet.println("strHour:"+Integer.parseInt(strHour));
+//		PApplet.println("strMinute:"+Integer.parseInt(strMinute));
+//		PApplet.println("strSecond:"+Integer.parseInt(strSecond));
+
+		Calendar time = Calendar.getInstance();
+		
+		time.set(Integer.parseInt(strYear), Integer.parseInt(strMonth), Integer.parseInt(strDay), 
+				 Integer.parseInt(strHour), Integer.parseInt(strMinute), Integer.parseInt(strSecond));
+		
+		return time;
+	}
+
 
 	/**
 	 * Read video metadata using ExifToolWrapper
@@ -441,13 +512,9 @@ class WMV_Metadata
 								}						
 							}
 
-//							PApplet.println("iCameraModel:"+iCameraModel);
-
 							if(iCameraModel == 1)
 							{
 								panorama = true;		// Image is a panorama
-//								PApplet.println("panorama:"+panorama+" dataMissing:"+dataMissing);
-
 								if(dataMissing) f.addPanoramaError();		// Count dataMissing as panorama error
 							}
 							else
@@ -461,10 +528,6 @@ class WMV_Metadata
 									}						
 								}
 							}
-//							else if(iCameraModel == 2)						// Unknown camera model
-//							{
-//								if(dataMissing) f.addImageError();			// Count dataMissing as image error
-//							}			
 						}
 
 						if (tag.getTagName().equals("Orientation")) // Orientation
@@ -513,10 +576,10 @@ class WMV_Metadata
 						if (tag.getTagName().equals("GPS Img Direction")) // Image Direction
 						{
 							direction = tagString;
+							
 							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
-								PApplet.println("Found Direction..." + direction);
-//							if(panorama)
-//								PApplet.println("Found Panorama Direction..." + direction);
+								if(panorama)
+									PApplet.println("Found Panorama Direction..." + direction);
 						}
 						if (tag.getTagName().equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
 						{
@@ -563,17 +626,15 @@ class WMV_Metadata
 
 						if (tag.getTagName().equals("Aperture Value")) // Aperture
 						{
-							//								fAperture
-							//								 PApplet.println("Aperture Value (not recorded)..."+tagString);
+//							fAperture = 
+//							PApplet.println("Aperture Value (not recorded)..."+tagString);
 						}
 
 						if (tag.getTagName().equals("Brightness Value")) // Brightness
 						{
 							fBrightness = parseBrightness(tagString);
 							if(fBrightness == -1.f && !dataMissing)
-							{
 								brightnessMissing = true;
-							}
 						}
 
 						if (tag.getTagName().equals("Image Width")) // Orientation

@@ -18,10 +18,13 @@ public class WMV_Cluster
 	private boolean active = false; 	// Currently active
 	private boolean empty = false;		// Currently empty
 	private boolean single = false;		// Only one media point in cluster?
+	
+	/* Interaction */
+	private boolean selected = false;
 
 	/* Panorama */
 	ArrayList<WMV_Panorama> stitchedPanoramas, userPanoramas;
-	
+
 	/* Physics */
 	private boolean isAttractor;				// Whether cluster is attracting viewer
 	private float clusterGravity = 0.1333f;		// Cluster gravitational pull
@@ -1712,5 +1715,15 @@ public class WMV_Cluster
 	public void setLocation(PVector newLocation)
 	{
 		location = newLocation;
+	}
+	
+	public boolean isSelected()
+	{
+		return selected;
+	}
+	
+	public void setSelected(boolean state)
+	{
+		selected = state;
 	}
 }

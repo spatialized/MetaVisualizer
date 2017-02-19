@@ -1341,6 +1341,39 @@ public class WMV_Field
 		}
 	}
 	
+
+	/**
+	 * @return Index of nearest cluster to camera, excluding the current cluster
+	 */
+	int getNearestClusterToPoint(PVector target) 	// Returns the cluster nearest to the current camera position, excluding the current cluster
+	{
+		float smallest = 100000.f;
+		int smallestIdx = 0;
+
+		if (p.getCurrentField().clusters.size() > 0) 
+		{
+			for (WMV_Cluster c : p.getActiveClusters()) 
+			{
+				float dist = PVector.dist(target, c.getLocation());
+				if (dist < smallest) 
+				{
+					if(!c.isEmpty())
+					{
+						smallest = dist;
+						smallestIdx = c.getID();	
+					}
+				}
+			}
+		} 
+		else
+		{
+			if(p.p.debug.cluster)
+				PApplet.println("No clusters in field...");
+		}
+
+		return smallestIdx;
+	}
+
 	public void showVideos()
 	{
 		hideVideos = false;

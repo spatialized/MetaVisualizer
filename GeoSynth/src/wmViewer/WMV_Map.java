@@ -166,9 +166,16 @@ public class WMV_Map
 
 		/* Clusters */
 		if((mapMode == 1 || mapMode == 2 || mapMode == 3 || mapMode == 5) && mapClusters)
-			for( WMV_Cluster c : p.p.getCurrentField().clusters )							
-				drawFuzzyMapPoint( c.getLocation(), PApplet.sqrt(c.mediaPoints) * 0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
-
+		{
+			for( WMV_Cluster c : p.p.getCurrentField().clusters )	
+			{
+				if(c.isSelected())
+					drawFuzzyMapPoint( c.getLocation(), PApplet.sqrt(c.mediaPoints) * 2.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+				else
+					drawFuzzyMapPoint( c.getLocation(), PApplet.sqrt(c.mediaPoints) * 0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+			}
+		}
+		
 		if(!zoomTransition)
 		{
 			if(!p.p.interactive)				// While not in Clustering Mode
@@ -337,7 +344,6 @@ public class WMV_Map
 		}
 	}
 	
-
 	/**
 	 * @param path Path to draw
 	 * @param mapWidth Map width
@@ -419,7 +425,7 @@ public class WMV_Map
 				p.p.p.pushMatrix();
 
 				p.p.p.strokeWeight(pointSize);
-				p.p.p.translate(mapLeftEdge, mapTopEdge);
+//				p.p.p.translate(mapLeftEdge, mapTopEdge);
 				p.p.p.point(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance * mapZoom);
 
 				p.p.p.popMatrix();
@@ -453,6 +459,72 @@ public class WMV_Map
 			size-=sizeDiff;
 			alpha-=alphaDiff;
 		}
+	}
+	
+	/**
+	 * Draw (on 2D map) a point given in 3D world coordinates 
+	 * @param point Point in 3D world coordinates
+	 * @param pointSize Point size
+	 * @param mapWidth Map width
+	 * @param mapHeight Map height
+	 * @param hue Point hue
+	 * @param saturation Point saturation
+	 * @param brightness Point brightness
+	 * @param transparency Point transparency
+	 */
+	public void drawMousePointOnMap( PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
+	{		
+		if(!p.p.p.utilities.isNaN(point.x) && !p.p.p.utilities.isNaN(point.y) && !p.p.p.utilities.isNaN(point.z))
+		{
+			if(point.x < mapWidth && point.x > 0 && point.y < mapHeight && point.y > 0)
+			{
+				p.p.p.stroke(hue, saturation, brightness, transparency);
+				p.p.p.pushMatrix();
+
+				p.p.p.strokeWeight(pointSize);
+//				p.p.p.translate(mapLeftEdge, mapTopEdge);
+				p.p.p.point(largeMapXOffset + point.x, largeMapYOffset + point.y, p.hudDistance * mapZoom);
+//				point.x += largeMapXOffset;
+//				point.y += largeMapYOffset;
+
+//				p.p.p.point(point.x, point.y, p.hudDistance * mapZoom);
+
+//				PApplet.print("point.x:"+(largeMapXOffset + point.x));
+//				PApplet.println("point.y:"+(largeMapYOffset + point.y));
+//				PApplet.print("mapLeftEdge:"+mapLeftEdge);
+//				PApplet.println("mapTopEdge:"+mapTopEdge);
+
+				WMV_Cluster c = getNearestClusterToMouse(point);
+				if(!c.isSelected())
+				{
+					c.setSelected(true);
+					for(WMV_Cluster cl : p.p.getActiveClusters())
+						if(cl.getID() != c.getID())
+							cl.setSelected(false);
+				}
+				p.p.p.popMatrix();
+			}
+		}
+		else p.message("Map point is NaN!:"+point+" hue:"+hue);
+	}
+	
+	public WMV_Cluster getNearestClusterToMouse( PVector mousePoint )
+	{
+		WMV_Model m = p.p.getCurrentModel();
+
+		float sceneLocX = PApplet.map( mousePoint.x, 0, largeMapWidth, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth );		
+		float sceneLocY = PApplet.map( mousePoint.z, 0, largeMapHeight, -0.5f * m.fieldLength, 0.5f*m.fieldLength );
+		float sceneLocZ = 0.f;
+		
+		PVector target = new PVector(sceneLocX, sceneLocY, sceneLocZ);
+		
+		int clusterID = p.p.getCurrentField().getNearestClusterToPoint(target);
+		WMV_Cluster cluster = p.p.getCluster(clusterID);
+
+//		mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+//		mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+
+		return cluster;
 	}
 	
 	/**

@@ -183,6 +183,8 @@ class WMV_Display
 				if(map)
 				{
 					map2D.drawLargeMap();
+					p.input.updateMapMouse();
+					
 //					drawTimelines();
 //					drawDatelines();
 				}

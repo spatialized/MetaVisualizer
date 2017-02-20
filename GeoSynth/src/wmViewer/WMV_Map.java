@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
 import toxi.math.ScaleMap;
+import picking.*;
 
 /***********************************
  * @author davidgordon
@@ -17,6 +18,11 @@ public class WMV_Map
 	int mapMode = 1;							// 	1:  All   2: Clusters + Media   3: Clusters + Capture Locations  4: Capture Locations + Media
 												//	5:  Clusters Only   6: Media Only   7: Capture Locations Only
 
+	/* Interaction */
+	Picker itemSelector;
+	int selectedCluster = -1;
+
+	/* Graphics */
 	public float mapZoom = 1.f;
 	public float mapLeftEdge = 0.f, mapTopEdge = 0.f;
 	
@@ -46,9 +52,13 @@ public class WMV_Map
 	float hugePointSize;
 	float cameraPointSize;
 
-	private boolean beginZoomTransition = false, zoomTransition = false;
+	public boolean beginZoomTransition = false, zoomTransition = false;
 	private int zoomTransitionStartFrame = 0, zoomTransitionEndFrame = 0, zoomTransitionLength = 18;	
 	private float zoomTransitionStart, zoomTransitionTarget;
+
+	public boolean beginScrollTransition = false, scrollTransition = false;
+	private int scrollTransitionStartFrame = 0, scrollTransitionEndFrame = 0, scrollTransitionLength = 18;	
+	private float mapXTransitionStart, mapXTransitionTarget, mapYTransitionStart, mapYTransitionTarget;
 
 	PVector mapVectorOrigin, mapVectorVector;
 
@@ -57,6 +67,8 @@ public class WMV_Map
 	WMV_Map(WMV_Display parent)
 	{
 		p = parent;
+
+		itemSelector = new Picker(p.p.p);
 
 		largeMapXOffset = -p.p.p.width * 0.5f;
 		largeMapYOffset = -p.p.p.height * 0.5f;
@@ -68,7 +80,6 @@ public class WMV_Map
 
 		logoXOffset = p.p.p.width - p.p.p.width / 3.f;
 		logoYOffset = p.p.p.height / 2.5f;
-		
 
 		smallPointSize = 0.0000022f * p.p.p.width;
 		mediumPointSize = 0.0000028f * p.p.p.width;
@@ -92,6 +103,8 @@ public class WMV_Map
 			largeMapHeight = largeMapMaxHeight;
 			largeMapWidth = largeMapHeight * fr;
 		}
+		
+		p.p.p.sphereDetail(6);
 	}
 
 	void initializeMaps()
@@ -111,14 +124,9 @@ public class WMV_Map
 		p.p.p.textSize(p.largeTextSize);
 		float textXPos = p.centerTextXOffset;
 		float textYPos = p.topTextYOffset;
-		
-		if(zoomTransition)                      		// Fade alpha
-			updateMapZoomTransition();
 
 		if(p.p.interactive)
-		{
 			p.p.p.text("Interactive "+(p.p.hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, p.hudDistance);
-		}
 		else
 			p.p.p.text(p.p.getCurrentField().name, textXPos, textYPos, p.hudDistance);
 
@@ -137,6 +145,7 @@ public class WMV_Map
 	{
 //		Map Modes  	1:  All   2: Clusters + Media   3: Clusters + Capture Locations  4: Capture Locations + Media
 //					5:  Clusters Only   6: Media Only   7: Capture Locations Only
+		
 		p.beginHUD();
 
 		/* Media */
@@ -169,10 +178,20 @@ public class WMV_Map
 		{
 			for( WMV_Cluster c : p.p.getCurrentField().clusters )	
 			{
-				if(c.isSelected())
-					drawFuzzyMapPoint( c.getLocation(), PApplet.sqrt(c.mediaPoints) * 2.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+				boolean selectable = false;
+
+				if(c.getID() == selectedCluster)
+					addCluster( c.getLocation(), false, -1, PApplet.sqrt(c.mediaPoints), mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 				else
-					drawFuzzyMapPoint( c.getLocation(), PApplet.sqrt(c.mediaPoints) * 0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+				{
+					if(!c.isEmpty())
+					{
+						if(!selectable) selectable = true;
+						addCluster( c.getLocation(), true, c.getID(), PApplet.sqrt(c.mediaPoints) * 0.2f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+					}
+				}
+				if(selectable)
+					itemSelector.stop();
 			}
 		}
 		
@@ -183,10 +202,10 @@ public class WMV_Map
 				if(mapMode == 1 || mapMode == 2 || mapMode == 3 || mapMode == 5)
 				{
 					if(p.p.viewer.getAttractorCluster() != -1 && p.p.viewer.getAttractorCluster() < p.p.getFieldClusters().size())
-						drawMapPoint( p.p.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
+						addPoint( p.p.getAttractorCluster().getLocation(), true, p.p.viewer.getAttractorCluster(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 
 					if(p.p.viewer.getCurrentCluster() != -1 && p.p.viewer.getCurrentCluster() < p.p.getFieldClusters().size())
-						drawMapPoint( p.p.getCurrentCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
+						addPoint( p.p.getCurrentCluster().getLocation(), true, p.p.viewer.getCurrentCluster(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 				}
 
 				drawCameraOnMap(mapWidth, mapHeight);
@@ -197,6 +216,10 @@ public class WMV_Map
 			if(p.p.viewer.getGPSTrack().size() > 0)
 				drawPathOnMap(p.p.viewer.getGPSTrack(), mapWidth, mapHeight);
 //			drawOriginOnMap(mapWidth, mapHeight);
+//			if(p.p.p.debug.map)
+//				drawMapBorder(mapWidth, mapHeight);
+			
+			itemSelector.draw();
 		}
 	}
 
@@ -225,9 +248,9 @@ public class WMV_Map
 		if(image.location != null && !image.disabled && !image.hidden)
 		{
 			if(capture)
-				drawMapPoint( image.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapImageCaptureHue, saturation, 255.f, mapMediaTransparency );
+				addPoint( image.getCaptureLocation(), false, -1, pointSize, mapWidth, mapHeight, mapImageCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
-				drawMapPoint( image.getLocation(), pointSize, mapWidth, mapHeight, mapImageHue, saturation, 255.f, mapMediaTransparency );
+				addPoint( image.getLocation(),  false, -1, pointSize, mapWidth, mapHeight, mapImageHue, saturation, 255.f, mapMediaTransparency );
 		}
 		
 	}
@@ -255,9 +278,9 @@ public class WMV_Map
 		if(panorama.location != null && !panorama.disabled && !panorama.hidden)
 		{
 			if(capture)
-				drawMapPoint( panorama.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapPanoramaCaptureHue, saturation, 255.f, mapMediaTransparency );
+				addPoint( panorama.getCaptureLocation(),  false, -1, pointSize, mapWidth, mapHeight, mapPanoramaCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
-				drawMapPoint( panorama.getLocation(), pointSize, mapWidth, mapHeight, mapPanoramaHue, saturation, 255.f, mapMediaTransparency );
+				addPoint( panorama.getLocation(),  false, -1, pointSize, mapWidth, mapHeight, mapPanoramaHue, saturation, 255.f, mapMediaTransparency );
 		}
 	}
 
@@ -284,9 +307,9 @@ public class WMV_Map
 		if(video.location != null && !video.disabled && !video.hidden)
 		{
 			if(capture)
-				drawMapPoint( video.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapVideoCaptureHue, saturation, 255.f, mapMediaTransparency );
+				addPoint( video.getCaptureLocation(), false, -1, pointSize, mapWidth, mapHeight, mapVideoCaptureHue, saturation, 255.f, mapMediaTransparency );
 			else
-				drawMapPoint( video.getLocation(), pointSize, mapWidth, mapHeight, mapVideoHue, saturation, 255.f, mapMediaTransparency );
+				addPoint( video.getLocation(), false, -1, pointSize, mapWidth, mapHeight, mapVideoHue, saturation, 255.f, mapMediaTransparency );
 		}
 	}
 
@@ -297,11 +320,33 @@ public class WMV_Map
 	 */
 	void drawOriginOnMap(float mapWidth, float mapHeight)
 	{
-		int size = (int)(mapWidth / 20.f);
-		for(int i=-size/2; i<size/2; i+=size/20)
-			drawMapPoint( new PVector(i, 0.f, 0.f), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
-		for(int i=-size/2; i<size/2; i+=size/20)
-			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+		int size = (int)(mapWidth / 40.f);
+		for(int i=-size/2; i<size/2; i+=size/10)
+			addPoint( new PVector(i, 0.f, 0.f), false, -1, hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+		for(int i=-size/2; i<size/2; i+=size/10)
+			addPoint( new PVector(0.f, 0.f, i), false, -1, hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+	}
+	
+
+	/**
+	 * @param mapWidth
+	 * @param mapHeight
+	 */
+	void drawMapBorder(float mapWidth, float mapHeight)
+	{
+		p.p.p.stroke(255,255,255,255);
+		p.p.p.strokeWeight(3);
+		p.p.p.pushMatrix();
+		
+		//p.p.p.line(x1, y1, z1, x2, y2, z2);
+		p.p.p.translate(largeMapXOffset, largeMapYOffset);
+		p.p.p.translate(mapLeftEdge, mapTopEdge);
+		p.p.p.line(0.f, 0.f, p.hudDistance * mapZoom, mapWidth, 0.f, p.hudDistance * mapZoom );
+		p.p.p.line(mapWidth, 0, p.hudDistance * mapZoom,  mapWidth, mapHeight, p.hudDistance * mapZoom );
+		p.p.p.line(mapWidth, mapHeight, p.hudDistance * mapZoom,  0.f, mapHeight, p.hudDistance * mapZoom );
+		p.p.p.line(0.f, mapHeight, p.hudDistance * mapZoom,  0.f, 0.f, p.hudDistance * mapZoom );
+
+		p.p.p.popMatrix();
 	}
 	
 	/**
@@ -314,11 +359,16 @@ public class WMV_Map
 		PVector camLoc = p.p.viewer.getLocation();
 		float camYaw = -p.p.viewer.getXOrientation() - 0.5f * PApplet.PI;
 
-		drawMapPoint( camLoc, cameraPointSize, mapWidth, mapHeight, mapCameraHue, 255.f, 255.f, mapMediaTransparency );
+		addPoint( camLoc, false, -1, cameraPointSize, mapWidth, mapHeight, mapCameraHue, 255.f, 255.f, mapMediaTransparency );
 		float ptSize = cameraPointSize;
-				
+		
+//		float arrowSize = 60.f;
+		float arrowSize = p.p.getCurrentModel().fieldWidth / 200.f;
+//		mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+//		mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+
 		ScaleMap logMap;
-		logMap = new ScaleMap(6., 60., 6., 60.);		/* Time fading interpolation */
+		logMap = new ScaleMap(6., arrowSize, 6., 60.);		/* Time fading interpolation */
 		logMap.setMapFunction(p.p.circularEaseOut);
 
 		/* Change viewer arrow based on fieldWidth -- should be fieldLength??  -- should depend on zoom level too! */
@@ -327,7 +377,7 @@ public class WMV_Map
 		logMap = new ScaleMap(0.f, 0.25f, 0.f, 0.25f);		/* Time fading interpolation */
 		logMap.setMapFunction(p.p.circularEaseOut);
 		
-		float shrinkFactor = PApplet.map(arrowLength, 6.f, 60.f, 0.f, 0.25f);
+		float shrinkFactor = PApplet.map(arrowLength, 6.f, arrowSize, 0.f, 0.25f);
 		shrinkFactor = (float)logMap.getMappedValueFor(shrinkFactor);
 		shrinkFactor = 0.95f - (0.25f - shrinkFactor);		// Reverse mapping high to low
 				
@@ -338,7 +388,7 @@ public class WMV_Map
 			float y = i * cameraPointSize * 0.5f * (float)Math.sin( camYaw );
 			
 			PVector arrowPoint = new PVector(camLoc.x + x, 0, camLoc.z + y);
-			drawMapPoint( arrowPoint, ptSize, mapWidth, mapHeight, mapCameraHue, 120.f, 255.f, 255.f );
+			addPoint( arrowPoint, false, -1, ptSize, mapWidth, mapHeight, mapCameraHue, 120.f, 255.f, 255.f );
 
 			ptSize *= shrinkFactor;
 		}
@@ -353,15 +403,15 @@ public class WMV_Map
 	 */
 	void drawPathOnMap(ArrayList<WMV_Waypoint> path, float mapWidth, float mapHeight)
 	{
-		PApplet.println("drawPathOnMap..."+path.size());
+//		PApplet.println("drawPathOnMap..."+path.size());
 		float pointSize = smallPointSize * mapWidth;
 		
 		float saturation = maxSaturation;                                              
 
 		for(WMV_Waypoint w : path)
 		{
-			drawMapPoint( w.getLocation(), pointSize * 4.f, mapWidth, mapHeight, 30, saturation, 255.f, mapMediaTransparency );
-			PApplet.println("Path ---> location.x:"+w.getLocation().x+" y:"+w.getLocation().y);
+			addPoint( w.getLocation(), false, -1, pointSize * 4.f, mapWidth, mapHeight, 30, saturation, 255.f, mapMediaTransparency );
+//			PApplet.println("Path ---> location.x:"+w.getLocation().x+" y:"+w.getLocation().y);
 		}
 	}
 
@@ -393,7 +443,7 @@ public class WMV_Map
 
 		for( WMV_Cluster c : p.p.getCurrentField().clusters )								// For all clusters at current depth
 		{
-			drawMapPoint( c.getLocation(), 5.f, largeMapWidth, largeMapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+			addPoint( c.getLocation(), false, -1, 5.f, largeMapWidth, largeMapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 		}
 	}
 	
@@ -408,7 +458,7 @@ public class WMV_Map
 	 * @param brightness Point brightness
 	 * @param transparency Point transparency
 	 */
-	public void drawMapPoint( PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
+	public void addPoint( PVector point, boolean selectable, int id, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
 	{		
 		float mapLocX, mapLocY;
 		WMV_Model m = p.p.getCurrentField().model;
@@ -422,11 +472,21 @@ public class WMV_Map
 			if(mapLocX < mapWidth && mapLocX > 0 && mapLocY < mapHeight && mapLocY > 0)
 			{
 				p.p.p.stroke(hue, saturation, brightness, transparency);
+				if(selectable)
+					itemSelector.start(id);
+
 				p.p.p.pushMatrix();
 
 				p.p.p.strokeWeight(pointSize);
-//				p.p.p.translate(mapLeftEdge, mapTopEdge);
-				p.p.p.point(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance * mapZoom);
+				p.p.p.translate(mapLeftEdge, mapTopEdge);
+				
+				if(selectable)
+				{
+					p.p.p.translate(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance * mapZoom);
+					p.p.p.sphere(pointSize);
+				}
+				else
+					p.p.p.point(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance * mapZoom);
 
 				p.p.p.popMatrix();
 			}
@@ -445,7 +505,7 @@ public class WMV_Map
 	 * @param brightness Point brightness
 	 * @param transparency Point transparency
 	 */
-	public void drawFuzzyMapPoint( PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
+	public void addCluster( PVector point, boolean selectable, int id, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
 	{
 		float size = pointSize;
 		int iterations = PApplet.round(size);
@@ -455,14 +515,20 @@ public class WMV_Map
 		
 		for(int i=0; i<iterations; i++)
 		{
-			drawMapPoint( point, size * smallPointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
+
+			if(selectable)
+				addPoint( point, true, id, size * largePointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
+			else
+				addPoint( point, false, id, size * largePointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
+
+
 			size-=sizeDiff;
 			alpha-=alphaDiff;
 		}
 	}
 	
 	/**
-	 * Draw (on 2D map) a point given in 3D world coordinates 
+	 * Draw cursor location (on 2D map) 
 	 * @param point Point in 3D world coordinates
 	 * @param pointSize Point size
 	 * @param mapWidth Map width
@@ -482,50 +548,62 @@ public class WMV_Map
 				p.p.p.pushMatrix();
 
 				p.p.p.strokeWeight(pointSize);
-//				p.p.p.translate(mapLeftEdge, mapTopEdge);
-				p.p.p.point(largeMapXOffset + point.x, largeMapYOffset + point.y, p.hudDistance * mapZoom);
-//				point.x += largeMapXOffset;
-//				point.y += largeMapYOffset;
-
-//				p.p.p.point(point.x, point.y, p.hudDistance * mapZoom);
-
-//				PApplet.print("point.x:"+(largeMapXOffset + point.x));
-//				PApplet.println("point.y:"+(largeMapYOffset + point.y));
-//				PApplet.print("mapLeftEdge:"+mapLeftEdge);
-//				PApplet.println("mapTopEdge:"+mapTopEdge);
-
-				WMV_Cluster c = getNearestClusterToMouse(point);
-				if(!c.isSelected())
-				{
-					c.setSelected(true);
-					for(WMV_Cluster cl : p.p.getActiveClusters())
-						if(cl.getID() != c.getID())
-							cl.setSelected(false);
-				}
+				p.p.p.translate(mapLeftEdge, mapTopEdge);
+				p.p.p.point(largeMapXOffset + point.x, largeMapYOffset + point.y, p.hudDistance);
+//				p.p.p.point(largeMapXOffset + point.x, largeMapYOffset + point.y, p.hudDistance * mapZoom);
+				
 				p.p.p.popMatrix();
 			}
 		}
 		else p.message("Map point is NaN!:"+point+" hue:"+hue);
 	}
 	
-	public WMV_Cluster getNearestClusterToMouse( PVector mousePoint )
+	public void selectMouseClusterOnMap()
 	{
-		WMV_Model m = p.p.getCurrentModel();
+//		WMV_Cluster c = getNearestClusterToMouse(point);
+		int clusterID = itemSelector.get(p.p.p.mouseX, p.p.p.mouseY);
 
-		float sceneLocX = PApplet.map( mousePoint.x, 0, largeMapWidth, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth );		
-		float sceneLocY = PApplet.map( mousePoint.z, 0, largeMapHeight, -0.5f * m.fieldLength, 0.5f*m.fieldLength );
-		float sceneLocZ = 0.f;
-		
-		PVector target = new PVector(sceneLocX, sceneLocY, sceneLocZ);
-		
-		int clusterID = p.p.getCurrentField().getNearestClusterToPoint(target);
-		WMV_Cluster cluster = p.p.getCluster(clusterID);
-
-//		mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-//		mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
-
-		return cluster;
+		if(clusterID >= 0 && clusterID < p.p.getCurrentField().clusters.size())
+		{
+			selectedCluster = clusterID;
+			PApplet.println("selectedCluster:"+selectedCluster);
+//			WMV_Cluster c = p.p.getCluster(clusterID);
+//			if(!c.isSelected())
+//			{
+//				c.setSelected(true);
+//				//			for(WMV_Cluster cl : p.p.getActiveClusters())
+////				for(WMV_Cluster cl : p.p.getCurrentField().clusters)
+////					if(cl.getID() != c.getID() && !c.isEmpty())
+////						cl.setSelected(false);
+//			}
+		}
 	}
+	
+	public void handleMouseReleased(int mouseX, int mouseY)
+	{
+		if(selectedCluster != -1)
+		{
+			PApplet.println("handleMouseReleased:"+selectedCluster);
+			p.p.viewer.teleportToCluster(selectedCluster, true);
+			p.p.display.map = false;
+		}
+	}
+	
+//	public WMV_Cluster getNearestClusterToMouse( PVector mousePoint )
+//	{
+//		WMV_Model m = p.p.getCurrentModel();
+//
+//		float sceneLocX = PApplet.map( mousePoint.x, 0, largeMapWidth, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth );		
+//		float sceneLocY = PApplet.map( mousePoint.z, 0, largeMapHeight, -0.5f * m.fieldLength, 0.5f*m.fieldLength );
+//		float sceneLocZ = 0.f;
+//		
+//		PVector target = new PVector(sceneLocX, sceneLocY, sceneLocZ);
+//		
+//		int clusterID = p.p.getCurrentField().getNearestClusterToPoint(target);
+//		WMV_Cluster cluster = p.p.getCluster(clusterID);
+//
+//		return cluster;
+//	}
 	
 	/**
 	 * Draw camera attraction force vector
@@ -535,7 +613,7 @@ public class WMV_Map
 		mapVectorOrigin = p.p.viewer.getLocation();
 		
 		float ptSize = cameraPointSize * 2.f;
-		drawMapPoint( mapVectorOrigin, ptSize, largeMapWidth, largeMapHeight, mapCameraHue, 255.f, 255.f, mapMediaTransparency );
+		addPoint( mapVectorOrigin, false, -1, ptSize, largeMapWidth, largeMapHeight, mapCameraHue, 255.f, 255.f, mapMediaTransparency );
 		
 		int arrowLength = 30;
 		
@@ -560,7 +638,7 @@ public class WMV_Map
 			current = mapVectorVector.mult( mult );
 			
 			PVector arrowPoint = new PVector(mapVectorOrigin.x + current.x, 0, mapVectorOrigin.z + current.z);
-			drawMapPoint( arrowPoint, ptSize, largeMapWidth, largeMapHeight, 255.f-mapCameraHue, 170.f, 255.f, 255.f );
+			addPoint( arrowPoint, false, -1, ptSize, largeMapWidth, largeMapHeight, 255.f-mapCameraHue, 170.f, 255.f, 255.f );
 
 			ptSize *= shrinkFactor;
 		}
@@ -607,10 +685,93 @@ public class WMV_Map
 		} 
 		else
 		{
-			newZoomLevel = PApplet.map(p.p.p.frameCount, zoomTransitionStartFrame, zoomTransitionEndFrame, zoomTransitionStart, zoomTransitionTarget);      // Fade with distance from current time
+			newZoomLevel = PApplet.map(p.p.p.frameCount, zoomTransitionStartFrame, zoomTransitionEndFrame, 
+									   zoomTransitionStart, zoomTransitionTarget);  
 		}
 
 		mapZoom = newZoomLevel;
+	}
+	
+	/**
+	 * Transition map zoom from current to given value
+	 */
+	void mapScrollTransition(float mapXOffset, float mapYOffset)
+	{
+		if(!scrollTransition)
+		{
+			if(mapXOffset != 0 || mapYOffset != 0)					// Check if already at target
+			{
+				beginScrollTransition = true;
+				scrollTransition = true;   
+				scrollTransitionStartFrame = p.p.p.frameCount;
+				scrollTransitionEndFrame = scrollTransitionStartFrame + scrollTransitionLength;
+				
+				if(mapXOffset != 0 && mapYOffset != 0)
+				{
+					mapXTransitionStart = mapLeftEdge;
+					mapXTransitionTarget = mapLeftEdge + mapXOffset;
+					mapYTransitionStart = mapTopEdge;
+					mapYTransitionTarget = mapTopEdge + mapYOffset;
+				}
+				else if(mapXOffset != 0 && mapYOffset == 0)
+				{
+					mapXTransitionStart = mapLeftEdge;
+					mapXTransitionTarget = mapLeftEdge + mapXOffset;
+					mapYTransitionTarget = mapTopEdge;
+				}
+				else if(mapXOffset == 0 && mapYOffset != 0)
+				{
+					mapXTransitionTarget = mapLeftEdge;
+					mapYTransitionStart = mapTopEdge;
+					mapYTransitionTarget = mapTopEdge + mapYOffset;
+				}
+			}
+			else
+			{
+				scrollTransition = false;
+			}
+		}
+	}
+	
+	/**
+	 * Update map zoom level each frame
+	 */
+	void updateMapScrollTransition()
+	{
+		float newMapX = mapLeftEdge;
+		float newMapY = mapTopEdge;
+
+		if(beginScrollTransition)
+		{
+			scrollTransitionStartFrame = p.p.p.frameCount;					
+			scrollTransitionEndFrame = p.p.p.frameCount + scrollTransitionLength;	
+			beginScrollTransition = false;
+		}
+
+		if (p.p.p.frameCount >= scrollTransitionEndFrame)
+		{
+			scrollTransition = false;
+			newMapX = mapXTransitionTarget;
+			newMapY = mapYTransitionTarget;
+		} 
+		else
+		{
+			if(mapLeftEdge != mapXTransitionTarget)
+			{
+				newMapX = PApplet.map(p.p.p.frameCount, scrollTransitionStartFrame, scrollTransitionEndFrame,
+									  mapXTransitionStart, mapXTransitionTarget); 
+			}
+			if(mapTopEdge != mapYTransitionTarget)
+			{
+				newMapY = PApplet.map(p.p.p.frameCount, scrollTransitionStartFrame, scrollTransitionEndFrame,
+									  mapYTransitionStart, mapYTransitionTarget);     			
+			}
+		}
+
+		if(mapLeftEdge != newMapX)
+			mapLeftEdge = newMapX;
+		if(mapTopEdge != newMapY)
+			mapTopEdge = newMapY;
 	}
 
 	/**
@@ -622,8 +783,8 @@ public class WMV_Map
 	{
 		int size = (int)(mapWidth / 20.f);
 		for(int i=-size/2; i<size/2; i+=size/20)
-			drawMapPoint( new PVector(i, 0.f, 0.f), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+			addPoint( new PVector(i, 0.f, 0.f), false, -1, hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
 		for(int i=-size/2; i<size/2; i+=size/20)
-			drawMapPoint( new PVector(0.f, 0.f, i), hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
+			addPoint( new PVector(0.f, 0.f, i), false, -1, hugePointSize * mapWidth * 20.f / (i+size/2), mapWidth, mapHeight, 180.f, 30.f, 255.f, mapMediaTransparency / 2.f );
 	}
 }

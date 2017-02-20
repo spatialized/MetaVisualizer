@@ -9,11 +9,11 @@ public class WMV_Debug
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
-	public boolean detailed = false;				// Verbose debugging messages
+	public boolean detailed = true;				// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	
 	/* Classes */
-	public boolean main = false;				// Debug main WorldMediaViewer class
+	public boolean main = false;					// Debug main WorldMediaViewer class
 	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean field = false;				// Debug WMV_Field class
 	public boolean time = false;
@@ -27,7 +27,8 @@ public class WMV_Debug
 	public boolean sound = false;				// Debug WMV_Sound class
 	public boolean metadata = false;			// Debug WMV_Metadata class
 	public boolean stitching = false;			// Debug WMV_Stitcher class
-
+	public boolean map = false;
+	
 	/* Memory */
 	boolean lowMemory = false;
 	boolean performanceSlow = false;

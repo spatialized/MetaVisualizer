@@ -118,7 +118,7 @@ class WMV_Display
 		map2D = new WMV_Map(this);
 	}
 
-	void setupSidebar()
+	void setupWindows()
 	{
 		window = new WMV_Window(this);				// Setup and display interaction window
 	}
@@ -169,8 +169,6 @@ class WMV_Display
 						int hour = (int)(fHour);
 						int min = PApplet.round((fHour - hour) * 60);
 						window.lblCurrentTime.setText((hour==0?"00":hour)+":"+(min==0?"00":min));
-//						PApplet.println("fHour:"+fHour+"  fHour - hour:"+(fHour - hour));
-//						PApplet.println("fTime:"+fTime+" Time = "+hour+":"+min);
 					}
 				}
 			}
@@ -183,6 +181,11 @@ class WMV_Display
 				if(map)
 				{
 					map2D.drawLargeMap();
+					if(map2D.zoomTransition)                      		// Fade alpha
+						map2D.updateMapZoomTransition();
+					if(map2D.scrollTransition)
+						map2D.updateMapScrollTransition();
+
 					p.input.updateMapMouse();
 					
 //					drawTimelines();

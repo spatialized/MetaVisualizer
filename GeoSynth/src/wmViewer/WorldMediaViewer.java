@@ -26,10 +26,10 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 {
 	/* System Status */
 	public boolean running = false;				// Is simulation running?
-	public boolean working = false;
 	public boolean startup = true;				// Startup frame
 	public boolean exit = false;				// System message to exit the program
 	public boolean selectedLibrary = false;		// Has user selected a library folder?
+	private int startedFrame = -1;
 	
 	/* Library */
 	WMV_Metadata metadata;						// Metadata handler class
@@ -58,7 +58,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void setup()
 	{
-//		setSurfaceLocation(20, 20);
 		surface.setResizable(false);
 
 		world = new WMV_World(this);
@@ -77,20 +76,12 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		if (startup)
 		{ 
 			world.display.showStartup();		/* Startup screen */
-			if (startup) startup = false;	
+			startup = false;	
 		}
 		else if(!running)
-		{        
-//			GLWindow glWindow = (GLWindow)surface.getNative();
-//			glWindow.setAlwaysOnTop(true);
-//			glWindow.setUndecorated(true);
-			world.doSetup();									/* Run setup */
-		}
-		else 
-		{
-			if(!working)
-				world.run();						/* Run program */
-		}
+			world.setup();						/* Run setup */
+		else
+			world.run();						/* Run program */
 	}
 	
 	/**
@@ -252,18 +243,20 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	/* Input Handling */
 	public void mousePressed()
 	{
-		if(world.viewer.mouseNavigation)
-			world.input.handleMousePressed(mouseX, mouseY);
+//		if(world.viewer.mouseNavigation)
+//			world.input.handleMousePressed(mouseX, mouseY);
 	}
 
 	public void mouseReleased() {
-		if(world.viewer.mouseNavigation)
+//		if(world.viewer.mouseNavigation)
+//			world.input.handleMouseReleased(mouseX, mouseY);
+		if(world.display.map)
 			world.input.handleMouseReleased(mouseX, mouseY);
 	}
 	
 	public void mouseClicked() {
-		if(world.viewer.mouseNavigation)
-			world.input.handleMouseClicked(mouseX, mouseY);
+//		if(world.viewer.mouseNavigation)
+//			world.input.handleMouseClicked(mouseX, mouseY);
 	}
 	
 	public void mouseDragged() {

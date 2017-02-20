@@ -92,9 +92,6 @@ public class WMV_Panorama extends WMV_Viewable
 			if(!initialized)
 				loadMedia(); 
 
-//		if(p.p.frameCount % 10 == 0)
-//			PApplet.println("Update panorama..."+getID()+" visible:"+visible+" fading:"+fading);
-
 		if(texture.width > 0 && !disabled)			
 		{
 			if(p.p.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
@@ -111,8 +108,6 @@ public class WMV_Panorama extends WMV_Viewable
 			}
 			
 			visible = (getDistanceBrightness() > 0.f);
-//			if(visible)
-//			PApplet.println("visible panorama..."+getID()+" fading:"+fading);
 
 			if(!fading && p.hidePanoramas)
 				visible = false;
@@ -124,12 +119,7 @@ public class WMV_Panorama extends WMV_Viewable
 			}
 
 			if(fadedOut) fadedOut = false;
-
-//			if(visible && !fading && !fadedOut && !p.hideImages)			// Fade in
-//				fadeIn();
 		}
-
-//		PApplet.println("update() in panorama..."+getID()+" fading:"+fading+" fadingBrightness:"+fadingBrightness);
 		
 		if(isFading())                       // Fade in and out with time
 		{
@@ -148,7 +138,6 @@ public class WMV_Panorama extends WMV_Viewable
 	}
 
 	/**
-	 * draw()
 	 * Display the image or spherical panorama in virtual space
 	 */
 	public void draw()
@@ -181,7 +170,6 @@ public class WMV_Panorama extends WMV_Viewable
 			{
 				if(texture.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
 				{
-//					PApplet.println("pano viewingBrightness:"+viewingBrightness);
 					drawPanorama();
 				}
 			}

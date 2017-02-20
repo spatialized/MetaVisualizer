@@ -18,7 +18,7 @@ class WMV_Image extends WMV_Viewable
 
 	private int horizBorderID = -1;					// Blur horizBorderID   0: Left 1: Center 2: Right  3: Left+Right
 	private int vertBorderID = -1;					// Blur vertBorderID	0: Bottom 1: Center 2: Top  3: Top+Bottom
-											// 6: All
+
 	private PImage blurMask;
 	private float outlineSize = 10.f;		// Size of the outline around a selected image
 
@@ -93,92 +93,81 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void draw()
 	{
-//		if(!verticesAreNull())
-//		{
-			float distanceBrightnessFactor; 						// Fade with distance
-			float angleBrightnessFactor;							// Fade with angle
+		float distanceBrightnessFactor; 						// Fade with distance
+		float angleBrightnessFactor;							// Fade with angle
 
-			float brightness = fadingBrightness;					
+		float brightness = fadingBrightness;					
 
-			distanceBrightnessFactor = getDistanceBrightness(); 
-			brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
-			
-			if( p.p.timeFading )
+		distanceBrightnessFactor = getDistanceBrightness(); 
+		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
+
+		if( p.p.timeFading )
+		{
+			float timeBrightnessFactor;                        		// Fade with time 
+			if(!p.p.viewer.isMoving())
 			{
-				float timeBrightnessFactor;                        		// Fade with time 
-				if(!p.p.viewer.isMoving())
+				if(p.p.showAllTimeSegments)
 				{
-					if(p.p.showAllTimeSegments)
-					{
-						if(p.p.getCluster(cluster).timeline.size() > 0)		// -- Check this elsewhere?
-							timeBrightnessFactor = getTimeBrightness();    
-						else
-						{
-							timeBrightnessFactor = 0.f;
-							if(p.p.p.debug.cluster || p.p.p.debug.image || p.p.p.debug.viewable)
-								p.p.display.message("Cluster: "+cluster+" has no timeline points!");
-						}
-						
-						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-					}
+					if(p.p.getCluster(cluster).timeline.size() > 0)		// -- Check this elsewhere?
+						timeBrightnessFactor = getTimeBrightness();    
 					else
 					{
-						if(p.p.viewer.getCurrentCluster() == cluster)
-						{
-							timeBrightnessFactor = getTimeBrightness();        
-							brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-						}
-						else														// Hide media outside current cluster
-						{
-							timeBrightnessFactor = 0.f;
-							brightness = 0.f;
-						}
+						timeBrightnessFactor = 0.f;
+						if(p.p.p.debug.cluster || p.p.p.debug.image || p.p.p.debug.viewable)
+							p.p.display.message("Cluster: "+cluster+" has no timeline points!");
 					}
+
+					brightness *= timeBrightnessFactor; 					// Fade brightness based on time
 				}
-			}
-
-			if( p.p.angleFading )
-			{
-				float imageAngle = getFacingAngle();
-				if(p.p.p.utilities.isNaN(imageAngle))
+				else
 				{
-					imageAngle = 0;				
-					visible = false;
-					disabled = true;
-				}
-
-				angleBrightnessFactor = getAngleBrightness(imageAngle);                 // Fade out as turns sideways or gets too far / close
-				brightness *= angleBrightnessFactor;
-			}
-
-			viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
-
-//			if (visible && !hidden && !disabled) 
-			if (!hidden && !disabled) 
-			{
-				if (viewingBrightness > 0)
-				{
-					if(image.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
+					if(p.p.viewer.getCurrentCluster() == cluster)
 					{
-						drawImage();          // Draw the image 
+						timeBrightnessFactor = getTimeBrightness();        
+						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
+					}
+					else														// Hide media outside current cluster
+					{
+						timeBrightnessFactor = 0.f;
+						brightness = 0.f;
 					}
 				}
-			} 
-			else
-			{      
-				p.p.p.noFill();                  // Hide image if it isn't visible
+			}
+		}
+
+		if( p.p.angleFading )
+		{
+			float imageAngle = getFacingAngle();
+			if(p.p.p.utilities.isNaN(imageAngle))
+			{
+				imageAngle = 0;				
+				visible = false;
+				disabled = true;
 			}
 
-//			if (visible && isSelected() && !disabled && p.p.p.debug.model)		// Draw image locations for debugging or map display
-//				drawLocation(centerSize);
-//			if (visible && !disabled && p.p.viewer.map3DMode)
-//				drawLocation(centerSize);
-			if(visible && p.p.showModel && !hidden && !disabled)
-				drawLocation(centerSize);
-//		}
+			angleBrightnessFactor = getAngleBrightness(imageAngle);                 // Fade out as turns sideways or gets too far / close
+			brightness *= angleBrightnessFactor;
+		}
+
+		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
+
+		if (!hidden && !disabled) 
+		{
+			if (viewingBrightness > 0)
+			{
+				if(image.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
+					drawImage();          // Draw the image 
+			}
+		} 
+		else
+		{      
+			p.p.p.noFill();                  // Hide image if it isn't visible
+		}
+
+		if(visible && p.p.showModel && !hidden && !disabled)
+			drawLocation(centerSize);
 	}
 
-	
 	private PImage applyMask(PImage source, PImage mask)
 	{
 		PImage result = p.p.p.createImage(640, 480, PApplet.RGB);
@@ -192,38 +181,18 @@ class WMV_Image extends WMV_Viewable
 		{
 			if(p.p.p.debug.image){
 				PApplet.println("Blur Mask Error:"+ex);
-				PApplet.println("mask.width:"+mask.width);
-				PApplet.println("mask.height:"+mask.height);
-				PApplet.println("main.imageID:"+getID());
-				PApplet.println("main.width:"+image.width);
-				PApplet.println("main.height:"+image.height);
+//				PApplet.println("mask.width:"+mask.width);
+//				PApplet.println("mask.height:"+mask.height);
+//				PApplet.println("main.imageID:"+getID());
+//				PApplet.println("main.width:"+image.width);
+//				PApplet.println("main.height:"+image.height);
 			}
 		}
 		
 		return result;
 	}
-
-//	PImage createMask(PImage mask) // Must be same size
-//	{
-//	   PImage result = p.p.createImage(mask.width, mask.height, PApplet.RGB);
-//	   mask.loadPixels();
-//
-//	   for(int i=0; i<result.pixels.length; i++)
-//	   {
-//	     float brightness;
-//	     p.p.colorMode(PApplet.HSB);
-//	     brightness = p.p.brightness(mask.pixels[i]);
-//	     p.p.colorMode(PApplet.RGB);
-//	     result.pixels[i] = p.p.color(0,0,PApplet.constrain(brightness, 0, 0.85f*255.f));    // Take the brightness of combined pixels and put into blue channel   
-//	   }
-//	   result.updatePixels();
-//	   p.p.colorMode(PApplet.HSB);
-//
-//	   return result;
-//	}
 	
 	/**
-	 * fadeIn()
 	 * Fade in image
 	 */
 	public void fadeIn()
@@ -236,7 +205,6 @@ class WMV_Image extends WMV_Viewable
 	}
 
 	/**
-	 * fadeOut()
 	 * Fade out image
 	 */
 	public void fadeOut()
@@ -387,8 +355,6 @@ class WMV_Image extends WMV_Viewable
 	private void drawImage()
 	{
 		p.p.p.noStroke(); 
-		p.p.p.rectMode(PApplet.CENTER);
-
 		if (isSelected())     // Draw outline
 		{
 			if(!p.p.viewer.selection && p.p.p.debug.field)
@@ -398,9 +364,14 @@ class WMV_Image extends WMV_Viewable
 			}
 		}
 
+		p.p.p.rectMode(PApplet.CENTER);
+		
 		p.p.p.pushMatrix();
 		p.p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
 		p.p.p.textureMode(PApplet.NORMAL);
+		
+		p.p.p.noFill();
+
 		if(p.p.blurEdges)
 			p.p.p.texture(blurred);
 		else
@@ -420,7 +391,7 @@ class WMV_Image extends WMV_Viewable
 				if(!p.p.alphaMode)
 					p.p.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
 				else
-					p.p.p.tint(255, viewingBrightness * 0.333f);          				
+					p.p.p.tint(255, viewingBrightness * 0.333f);    
 			}
 		}
 		else if(p.p.viewer.videoMode)
@@ -437,7 +408,6 @@ class WMV_Image extends WMV_Viewable
 			else
 			{
 				p.p.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));          				
-//				PApplet.println("viewingBrightness * p.p.alpha:"+(viewingBrightness * p.p.alpha));
 			}
 		}
 
@@ -448,11 +418,9 @@ class WMV_Image extends WMV_Viewable
 
 		p.p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
 		p.p.p.popMatrix();
-
-
+		
 		p.imagesSeen++;
 	}
-
 	/**
 	 * Calculate and return alpha value given camera to image angle
 	 * @param imageAngle 
@@ -472,27 +440,26 @@ class WMV_Image extends WMV_Viewable
 		return angleBrightness;
 	}
 
-	/**
-	 * outline()
-	 * Draw outline around selected image
-	 */
-	void outline()
-	{
-		p.p.p.stroke(100, 20, 250);
-		p.p.p.strokeWeight(outlineSize);
-
-		p.p.p.pushMatrix();
-		p.p.p.beginShape(PApplet.QUADS);    
-		p.p.p.noFill();
-
-		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
-		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
-		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
-		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
-
-		p.p.p.endShape(); 
-		p.p.p.popMatrix();
-	}
+//	/**
+//	 * Draw outline around image
+//	 */
+//	void outline()
+//	{
+//		p.p.p.stroke(100, 20, 250);
+//		p.p.p.strokeWeight(outlineSize);
+//
+//		p.p.p.pushMatrix();
+//		p.p.p.beginShape(PApplet.QUADS);    
+//		p.p.p.noFill();
+//
+//		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
+//		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
+//		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
+//		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
+//
+//		p.p.p.endShape(); 
+//		p.p.p.popMatrix();
+//	}
 	
 	/**
 	 * getViewingDistance()
@@ -1087,9 +1054,6 @@ class WMV_Image extends WMV_Viewable
 		setFocusDistance(origFocusDistance);
 	}
 	
-	/**	
-	 * Setup image rectangle geometry 
-	 */
 	private void initializeVertices()
 	{
 		float width = calculateImageWidth();										
@@ -1163,7 +1127,7 @@ class WMV_Image extends WMV_Viewable
 			}
 		}
 	}
-
+	
 	/**
 	 * Find image width from formula:
 	 * Image Width (m.) = Object Width on Sensor (mm.) / Focal Length (mm.) * Focus Distance (m.) 
@@ -1179,7 +1143,6 @@ class WMV_Image extends WMV_Viewable
 		return imgWidth;
 	}
 
-
 	 /**
 	  * Draw image capture location for debugging or map display
 	  */
@@ -1190,7 +1153,6 @@ class WMV_Image extends WMV_Viewable
 		 p.p.p.strokeWeight(2);
 		 p.p.p.line(location.x, location.y, location.z, centerVertex.x, centerVertex.y, centerVertex.z);
 	 }
-
 
 	 /**
 	  * @return Whether the vertices are null

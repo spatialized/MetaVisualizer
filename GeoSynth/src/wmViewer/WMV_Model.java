@@ -63,10 +63,6 @@ public class WMV_Model
 	/** Metadata **/
 	public float highLongitude = -1000000, lowLongitude = 1000000, highLatitude = -1000000, lowLatitude = 1000000,
 			highAltitude = -1000000, lowAltitude = 1000000;
-//	public float highPanoLongitude = -1000000, lowPanoLongitude = 1000000, highPanoLatitude = -1000000,
-//			lowPanoLatitude = 1000000, highPanoAltitude = -1000000, lowPanoAltitude = 1000000;
-//	public float highVideoLongitude = -1000000, lowVideoLongitude = 1000000, highVideoLatitude = -1000000,
-//			lowVideoLatitude = 1000000, highVideoAltitude = -1000000, lowVideoAltitude = 1000000;
 	float highTime = -1000000, lowTime = 1000000;
 	float highDate = -1000000, lowDate = 1000000;
 	

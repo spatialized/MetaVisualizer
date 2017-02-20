@@ -87,7 +87,7 @@ public class WMV_Field
 		videosSeen = 0;
 
 		p.p.hint(PApplet.ENABLE_DEPTH_TEST);					// Enable depth testing for drawing 3D graphics
-		p.p.background(0.f);								// Set background
+		p.p.background(0.f);									// Set background
 
 		for (int i = 0; i < images.size(); i++) 		// Update and display images
 		{
@@ -105,6 +105,7 @@ public class WMV_Field
 						m.update();  	// Update geometry + visibility
 					
 					m.draw(); 		// Draw image
+					
 					imagesVisible++;
 				}
 			}
@@ -160,6 +161,36 @@ public class WMV_Field
 			}
 		}
 		
+//		for (int i = 0; i < sounds.size(); i++)  		// Update and display videos
+//		{
+//			WMV_Sound s = sounds.get(i);
+//			if(!s.disabled)
+//			{
+//				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
+//				boolean nowVisible = (distance < vanishingPoint);
+//
+//				if ( s.isVisible() && !nowVisible )
+//				{
+////					s.fadeOut();
+//				}
+//				
+//				if (nowVisible || s.isFading())
+//				{
+////					s.update();  	// Update geometry + visibility
+//					s.draw(); 		// Display video
+////					soundsAudible++;
+//				}
+//				else
+//				{
+////					if(s.isFading() || s.isFadingVolume())
+////						s.update();  	// Update geometry + visibility
+////					
+////					if(v.isVisible())
+////						s.fadeOut();
+//				}
+//			}
+//		}
+
 		if(p.p.debug.model || p.viewer.map3DMode)
 		{
 			if(clusters.size()>0)
@@ -433,7 +464,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * clearSelectedMedia()
 	 * Deselects all media in field
 	 */
 	public void deselectAllMedia(boolean hide) 
@@ -451,7 +481,7 @@ public class WMV_Field
 			if(n.isSelected())
 			{
 				n.setSelected(false);
-//				if(hide) n.hidden = true;
+				if(hide) n.hidden = true;
 			}
 		}
 		for (WMV_Video v : videos)
@@ -459,7 +489,7 @@ public class WMV_Field
 			if(v.isSelected())
 			{
 				v.setSelected(false);
-//				if(hide) v.hidden = true;
+				if(hide) v.hidden = true;
 			}
 		}
 
@@ -467,7 +497,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * mediaAreFading()
 	 * @return Whether any media in the field are currently fading
 	 */
 	public boolean mediaAreFading()
@@ -1143,15 +1172,17 @@ public class WMV_Field
 	 */
 	public WMV_TimeSegment getTimeSegmentInCluster(int clusterID, int index)
 	{
-		WMV_TimeSegment t = clusters.get(clusterID).getTimeline().get(index);
+		WMV_TimeSegment t = null;
+		
+		if(clusterID < clusters.size() && index < clusters.get(clusterID).getTimeline().size())
+			t = clusters.get(clusterID).getTimeline().get(index);
 
 		if(t == null)
 			p.display.message("NULL time segment "+index+" returned by getTimeSegmentInCluster() clusterID:"+clusterID);
 		
 		if(clusterID != t.getClusterID())
-		{
 			PApplet.println("ERROR... getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+clusterID+" t.getClusterID():"+t.getClusterID());
-		}
+
 		return t;
 	}
 
@@ -1352,7 +1383,8 @@ public class WMV_Field
 
 		if (p.getCurrentField().clusters.size() > 0) 
 		{
-			for (WMV_Cluster c : p.getActiveClusters()) 
+//			for (WMV_Cluster c : p.getActiveClusters()) 
+			for(WMV_Cluster c : clusters)
 			{
 				float dist = PVector.dist(target, c.getLocation());
 				if (dist < smallest) 

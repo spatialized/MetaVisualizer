@@ -278,8 +278,8 @@ public class WMV_Input
 				p.blurEdges = option.isSelected();
 				break;
 			case "HideImages":
-				PApplet.println("option.isSelected():"+option.isSelected());
-				PApplet.println("p.getCurrentField().hideImages::"+p.getCurrentField().hideImages);
+//				PApplet.println("option.isSelected():"+option.isSelected());
+//				PApplet.println("p.getCurrentField().hideImages::"+p.getCurrentField().hideImages);
 				if(!option.isSelected() && p.getCurrentField().hideImages)
 					p.getCurrentField().showImages();
 				else if(option.isSelected() && !p.getCurrentField().hideImages)
@@ -478,12 +478,10 @@ public class WMV_Input
 				p.display.map2D.mapVideos = !p.display.map2D.mapVideos;
 
 			if (key == ']') {
-//				p.display.map2D.mapZoom *= 1.02f;
 				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 1.176f);
 			}
 
 			if (key == '[') {
-//				p.display.map2D.mapZoom *= 0.985f;
 				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 0.85f);
 			}
 
@@ -494,18 +492,18 @@ public class WMV_Input
 
 				if (keyCode == PApplet.RIGHT) 
 					p.viewer.rotateX(1);
-
+				
 				if (shiftKey && keyCode == PApplet.LEFT) 
-					p.display.map2D.mapLeftEdge -= 10.f;
+					p.display.map2D.mapScrollTransition( -50.f, 0.f );
 
 				if (shiftKey && keyCode == PApplet.RIGHT) 
-					p.display.map2D.mapLeftEdge += 10.f;
+					p.display.map2D.mapScrollTransition( 50.f, 0.f );
 
 				if (shiftKey && keyCode == PApplet.DOWN) 
-					p.display.map2D.mapTopEdge += 10.f;
+					p.display.map2D.mapScrollTransition( 0.f, 50.f );
 
 				if (shiftKey && keyCode == PApplet.UP) 
-					p.display.map2D.mapTopEdge -= 10.f;
+					p.display.map2D.mapScrollTransition( 0.f, -50.f );
 			}
 		}
 		else if(p.display.info || p.display.infoOverlay)		/* Info View */
@@ -772,12 +770,12 @@ public class WMV_Input
 				if (key == ')') {
 					float newAlpha = PApplet.constrain(p.alpha+15.f, 0.f, 255.f);
 					p.fadeAlpha(newAlpha);
-					PApplet.println("p.alpha goal:"+newAlpha);
+//					PApplet.println("p.alpha goal:"+newAlpha);
 				}
 
 				if (key == '(') {
 					float newAlpha = PApplet.constrain(p.alpha-15.f, 0.f, 255.f);
-					PApplet.println("p.alpha goal:"+newAlpha);
+//					PApplet.println("p.alpha goal:"+newAlpha);
 					p.fadeAlpha(newAlpha);
 				}
 
@@ -1091,6 +1089,21 @@ public class WMV_Input
 	}
 
 	/* Mouse */
+	void updateMouseSelection(int mouseX, int mouseY)
+	{
+//		mediaSelector
+		
+		if(p.p.frameCount - clickedRecentlyFrame > doubleClickSpeed && mouseClickedRecently)
+		{
+			mouseClickedRecently = false;
+		}
+		
+		if(p.p.frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
+		{
+//			PApplet.println("Held mouse...");
+		}
+	}
+	
 	void updateMouseNavigation(int mouseX, int mouseY)
 	{			
 		if(p.p.frameCount - clickedRecentlyFrame > doubleClickSpeed && mouseClickedRecently)
@@ -1102,7 +1115,7 @@ public class WMV_Input
 		
 		if(p.p.frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
 		{
-			PApplet.println("Held mouse...");
+//			PApplet.println("Held mouse...");
 			p.viewer.addPlaceToMemory();
 		}
 		
@@ -1200,24 +1213,25 @@ public class WMV_Input
 		mouseReleased = true;
 		releasedRecentlyFrame = p.p.frameCount;
 		
-		p.viewer.walkSlower();
-		p.viewer.lastMovementFrame = p.p.frameCount;
-
 		boolean doubleClick = false, switchedViews = false;
 
-		if(mouseClickedRecently)		// Double click
+		if(mouseClickedRecently)							// Double click
 		{
 			doubleClick = true;
 		}
 
-		if(doubleClick)			// Double clicked
+		if(p.viewer.mouseNavigation)
 		{
-			if(p.p.debug.viewer)
-				PApplet.println("Double click...");
-			p.viewer.moveToNearestCluster(true);
-//			p.viewer.moveToNextCluster(false, -1);
+			p.viewer.walkSlower();
+			p.viewer.lastMovementFrame = p.p.frameCount;
+			if(doubleClick)									
+				p.viewer.moveToNearestCluster(true);
 		}
-
+		
+		if(p.display.map)
+		{
+			p.display.map2D.handleMouseReleased(mouseX, mouseY);
+		}
 	}
 	
 	void handleMouseClicked(int mouseX, int mouseY)
@@ -1242,14 +1256,18 @@ public class WMV_Input
 //		p.display.map2D.largeMapXOffset
 //		p.display.map2D.largeMapYOffset
 		
-		PApplet.print("pmouseX:"+p.p.pmouseX);
-		PApplet.println(" pmouseY:"+p.p.pmouseY);
+//		PApplet.print("pmouseX:"+p.p.pmouseX);
+//		PApplet.println(" pmouseY:"+p.p.pmouseY);
 //		PApplet.print("mouseX:"+p.p.mouseX);
 //		PApplet.println(" mouseY:"+p.p.mouseY);
-		p.display.map2D.drawMousePointOnMap(new PVector(p.p.pmouseX, p.p.pmouseY, 0), 3, 
-				p.display.map2D.largeMapWidth, p.display.map2D.largeMapHeight, 255, 255, 255, 255);
-		p.display.map2D.drawMousePointOnMap(new PVector(p.p.mouseX, p.p.mouseY, 0), 6, 
-				p.display.map2D.largeMapWidth, p.display.map2D.largeMapHeight, 111, 255, 255, 255);
+		
+//		p.display.map2D.drawMousePointOnMap(new PVector(p.p.pmouseX, p.p.pmouseY, 0), 3, 
+//				p.display.map2D.largeMapWidth, p.display.map2D.largeMapHeight, 255, 255, 255, 255);
+
+//		PVector mousePoint = new PVector(p.p.mouseX, p.p.mouseY, 0);
+//		p.display.map2D.drawMousePointOnMap(mousePoint, 6, 
+//				p.display.map2D.largeMapWidth, p.display.map2D.largeMapHeight, 111, 255, 255, 255);
+		p.display.map2D.selectMouseClusterOnMap();
 	}
 
 }

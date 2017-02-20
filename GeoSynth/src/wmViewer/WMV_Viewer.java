@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import damkjer.ocd.Camera;
+import picking.Picker;
 import processing.core.PApplet;
 //import peasy.PeasyCam;
 //import processing.core.PApplet;
@@ -42,7 +43,7 @@ public class WMV_Viewer
 	/* Time */
 	public boolean dateNavigation = true;				// Navigate by date and time (true) or time only (false)
 	public int currentFieldDate = 0;					// Current date in field dateline
-	public int currentClusterDate = 0;			// Current date segment in cluster dateline
+	public int currentClusterDate = 0;				// Current date segment in cluster dateline
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
 	
@@ -948,7 +949,7 @@ public class WMV_Viewer
 		PApplet.println("Can't moveToPreviousTimeSegment... function disabled!");
 		if(!sameDate)
 		{
-			boolean found = false;
+//			boolean found = false;
 
 			currentFieldTimeSegment--;
 			if(currentFieldTimeSegment < 0) 		// Reached beginning of day
@@ -958,7 +959,7 @@ public class WMV_Viewer
 				{
 					currentFieldDate = p.getCurrentField().dateline.size()-1;		// Go to last date
 					currentFieldTimeSegment = p.getCurrentField().timeline.size()-1;		// Go to last time
-					found = true;
+//					found = true;
 				}
 				else
 				{
@@ -1423,8 +1424,12 @@ public class WMV_Viewer
 		movingToAttractor = false;
 	}
 	
+//	public void handleMouseSelection(int mouseX, int mouseY)
+//	{
+//		
+//	}
+	
 	/**
-	 * stopMoving()
 	 * Stop any current viewer movement
 	 */
 	public void stopMoving()
@@ -1446,7 +1451,6 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * getLocation()
 	 * @return Current camera location
 	 */
 	public PVector getLocation()
@@ -1479,7 +1483,6 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * turnTowardsSelected()
 	 * Turn towards the selected image
 	 */
 //	public void turnTowardsSelected(int selectedImage)
@@ -2710,7 +2713,7 @@ public class WMV_Viewer
 			if( mediaAreVisible( true ) )				// Check whether any images are visible and centered
 			{
 				if(p.p.debug.viewer)
-				p.display.message("Finished rotating to look, found image(s) ");
+					p.display.message("Finished rotating to look, found image(s) ");
 				stopAllTransitions();			// Also sets lookingForImages to false
 			}
 			else
@@ -2721,7 +2724,7 @@ public class WMV_Viewer
 				{
 					lookingRotationCount++;							// Record camera rotations while looking for images
 					if(p.p.debug.viewer)
-					p.display.message("Rotated to look "+lookingRotationCount+" times...");
+						p.display.message("Rotated to look "+lookingRotationCount+" times...");
 					lookingStartFrameCount = p.p.frameCount;		// Restart the count
 				}
 
@@ -2923,17 +2926,17 @@ public class WMV_Viewer
 
 	/**
 	 * Load and analyze GPS track file in response to user selection
-	 * @param selection Selected GPS track file
+	 * @param selectedFile Selected GPS track file
 	 */
-	public void loadGPSTrack(File selection) 
+	public void loadGPSTrack(File selectedFile) 
 	{
-		if (selection == null) 
+		if (selectedFile == null) 
 		{
 			PApplet.println("loadGPSTrack() window was closed or the user hit cancel.");
 		} 
 		else 
 		{
-			String input = selection.getPath();
+			String input = selectedFile.getPath();
 
 			if(p.p.debug.viewer)
 				p.display.message("User selected GPS Track: " + input);

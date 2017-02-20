@@ -81,8 +81,8 @@ public class WMV_MediaSegment
 				img.setVertBorderID(vertBorderID);
 				img.setBlurMask();
 
-				if(p.p.p.p.debug.image)
-					PApplet.println("Found image "+img.getID()+" borders horiz:"+horizBorderID+" vert:"+vertBorderID);
+//				if(p.p.p.p.debug.image)
+//					PApplet.println("Found image "+img.getID()+" borders horiz:"+horizBorderID+" vert:"+vertBorderID);
 			}
 		}
 	}

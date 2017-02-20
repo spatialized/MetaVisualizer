@@ -58,7 +58,8 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	public void draw()
 	{
-
+//		if(p.p.viewer.selection)
+//			p.p.viewer.addSelectableSound(getID());
 	}
 
 	/**
@@ -147,5 +148,25 @@ public class WMV_Sound extends WMV_Viewable
 	void calculateLocationFromGPSTrack(ArrayList<WMV_Waypoint> gpsTrack)
 	{
 		
+	}
+	
+	/**
+	 * @return How far the video is from the camera
+	 */
+	public float getHearingDistance()       // Find distance from camera to point in virtual space where photo appears           
+	{
+		PVector camLoc;
+
+//		if(p.p.orientationMode)
+//		{
+//			camLoc = p.p.viewer.getLocation();
+//		}
+//		else
+			camLoc = p.p.viewer.getLocation();
+		
+		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
+		float distance = PVector.dist(loc, camLoc);     
+
+		return distance;
 	}
 }

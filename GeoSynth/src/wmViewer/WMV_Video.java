@@ -86,7 +86,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		brightness = newBrightness;
 		
 		gpsLocation = newGPSLocation;
-//		setCaptureLocationPVector(0, 0, 0);
+
 		focusDistance = newFocusDistance;
 		origFocusDistance = focusDistance;
 		focalLength = newFocalLength;
@@ -108,103 +108,91 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	 */
 	void draw()
 	{
-//		if(!verticesAreNull())
-//		{
-			float distanceBrightness = 0.f; 					// Fade with distance
-			float angleBrightness;
-			
-			float brightness = fadingBrightness;					
+		float distanceBrightness = 0.f; 					// Fade with distance
+		float angleBrightness;
 
-			distanceBrightness = getDistanceBrightness(); 
-			brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
-//			p.p.display.message("brightness:"+brightness+" distanceBrightness:"+distanceBrightness+" id:"+getID());
+		float brightness = fadingBrightness;					
 
-			if( p.p.timeFading )
+		distanceBrightness = getDistanceBrightness(); 
+		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
+
+		if( p.p.timeFading )
+		{
+			float timeBrightnessFactor;                          // Fade with time 
+			if(!p.p.viewer.isMoving())
 			{
-				float timeBrightnessFactor;                          // Fade with time 
-				if(!p.p.viewer.isMoving())
+				if(p.p.showAllTimeSegments)
 				{
-					if(p.p.showAllTimeSegments)
-					{
-						if(p.p.getCluster(cluster).timeline.size() > 0)
-							timeBrightnessFactor = getTimeBrightness();    
-						else
-						{
-							timeBrightnessFactor = 0.f;
-							if(p.p.p.debug.cluster || p.p.p.debug.video || p.p.p.debug.viewable)
-								p.p.display.message("Video Cluster: "+cluster+" has no timeline points!");
-						}
-						
-						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-					}
+					if(p.p.getCluster(cluster).timeline.size() > 0)
+						timeBrightnessFactor = getTimeBrightness();    
 					else
 					{
-						if(p.p.viewer.getCurrentCluster() == cluster)
-						{
-							timeBrightnessFactor = getTimeBrightness();        
-							brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-						}
-						else														// Hide media outside current cluster
-						{
-							timeBrightnessFactor = 0.f;
-							brightness = 0.f;
-						}
+						timeBrightnessFactor = 0.f;
+						if(p.p.p.debug.cluster || p.p.p.debug.video || p.p.p.debug.viewable)
+							p.p.display.message("Video Cluster: "+cluster+" has no timeline points!");
+					}
+
+					brightness *= timeBrightnessFactor; 					// Fade brightness based on time
+				}
+				else
+				{
+					if(p.p.viewer.getCurrentCluster() == cluster)
+					{
+						timeBrightnessFactor = getTimeBrightness();        
+						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
+					}
+					else														// Hide media outside current cluster
+					{
+						timeBrightnessFactor = 0.f;
+						brightness = 0.f;
 					}
 				}
 			}
+		}
 
-			if(isClose && distanceBrightness == 0.f)							// Video recently moved out of range
+		if(isClose && distanceBrightness == 0.f)							// Video recently moved out of range
+		{
+			isClose = false;
+			fadeOut();
+		}
+
+		if(p.p.p.debug.video && p.p.p.debug.detailed && p.p.p.frameCount % 30 == 0)
+			p.p.display.message("Video brightness after distance:"+brightness);
+
+		if( p.p.angleFading )
+		{
+			float videoAngle = getFacingAngle();
+			if(p.p.p.utilities.isNaN(videoAngle))
 			{
-				isClose = false;
-				fadeOut();
+				//					if(p.p.p.debug.video)
+				//						p.p.display.message("Setting video #"+getID()+" videoAngle to 0 from :"+videoAngle);
+
+				videoAngle = 0;				
+				visible = false;
+				disabled = true;
 			}
 
-			if(p.p.p.debug.video && p.p.p.debug.detailed && p.p.p.frameCount % 30 == 0)
-				p.p.display.message("Video brightness after distance:"+brightness);
+			angleBrightness = getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
+			brightness *= angleBrightness;
+		}
 
-			if( p.p.angleFading )
+		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
+
+		//			if (visible && !hidden && !disabled && !p.p.viewer.map3DMode) 
+		if (!hidden && !disabled && !p.p.viewer.map3DMode) 
+		{
+			if (viewingBrightness > 0)
 			{
-				float videoAngle = getFacingAngle();
-				if(p.p.p.utilities.isNaN(videoAngle))
-				{
-//					if(p.p.p.debug.video)
-//						p.p.display.message("Setting video #"+getID()+" videoAngle to 0 from :"+videoAngle);
-
-					videoAngle = 0;				
-					visible = false;
-					disabled = true;
-				}
-
-				angleBrightness = getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
-				brightness *= angleBrightness;
-//				p.p.display.message("brightness:"+brightness+"  angleBrightnessFactor:"+angleBrightnessFactor+" id:"+getID());
-
-//				if(p.p.p.debug.video)
-//				{
-//					p.p.display.message("Setting video #"+getID()+" videoAngle to 0 from :"+videoAngle);
-//				}
+				drawVideo();          // Draw the video 
 			}
+		}
+		else
+		{      
+			p.p.p.noFill();                  // Hide video if it isn't visible
+		}
 
-			viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
-//			p.p.display.message("viewingBrightness:"+viewingBrightness+" visible:"+visible+" id:"+getID());
-
-//			if (visible && !hidden && !disabled && !p.p.viewer.map3DMode) 
-			if (!hidden && !disabled && !p.p.viewer.map3DMode) 
-			{
-				if (viewingBrightness > 0)
-				{
-//					p.p.display.message("drawVideo() #"+getID());
-					drawVideo();          // Draw the video 
-				}
-			}
-			else
-			{      
-				p.p.p.noFill();                  // Hide video if it isn't visible
-			}
-
-			if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.map3DMode))
-				drawLocation(centerSize);
-//		}
+		if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.map3DMode))
+			drawLocation(centerSize);
 	}
 
 	/**
@@ -645,7 +633,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * getViewingDistance()
 	 * @return How far the video is from the camera
 	 */
 	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           

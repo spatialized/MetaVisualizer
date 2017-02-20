@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.jogamp.newt.opengl.GLWindow;
 
+import picking.Picker;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
@@ -23,10 +24,10 @@ import toxi.math.ZoomLensInterpolation;
 public class WMV_World 
 {
 	/* System Status */
+	public boolean startedRunning = false;			// Program just started running
 	private boolean initialSetup = false;			// Performing initial setup 
 	private boolean creatingFields = false;			// Initializing media folders
 	private boolean fieldsCreated = false;			// Initialized media folders
-	private boolean startRunning = false;			// Program just started running
 	private boolean saveImage = false;
 	
 	/* Classes */
@@ -231,7 +232,7 @@ public class WMV_World
 	/**
 	 * Setup the 3D world
 	 */
-	public void doSetup()
+	public void setup()
 	{
 		float fieldProgressInc = 100.f;
 	
@@ -255,7 +256,8 @@ public class WMV_World
 		{
 			if(!fieldsCreated && !p.exit)
 			{
-				if(p.debug.field) PApplet.println("Initializing field:"+initializationField);
+//				if(p.debug.field) 
+					PApplet.println("Initializing field:"+initializationField);
 				WMV_Field f = getField(initializationField);
 
 				p.metadata.load(f);								// Import metadata for all media in field
@@ -272,7 +274,6 @@ public class WMV_World
 		
 		if (fieldsCreated && initialSetup && !p.running)
 		{
-			display.setupSidebar();									// Setup sidebar window
 			finishSetup();
 		}
 
@@ -300,21 +301,23 @@ public class WMV_World
 			getCurrentField().update();					// Update clusters in current field
 			getCurrentField().draw();					// Display media in current field
 		}
-		viewer.update();							// Update navigation
-		viewer.camera.feed();						// Send the 3D camera view to the screen
 		
+		viewer.update();							// Update navigation
+
+		viewer.camera.feed();						// Send the 3D camera view to the screen
+
 		/* 2D Display */
 		display.draw();								// Draw 2D display after 3D graphics
 		updateTime();								// Update time cycle
 		if(fadingAlpha)                      		// Fade alpha
 			updateFadingAlpha();
 
-		if(startRunning)							// If simulation just started running
+		if(startedRunning)							// If simulation just started running
 		{
 			viewer.moveToTimeSegmentInField(0, 0, true);	// Move to first time segment in field
 			
 			firstTeleport = true;
-			startRunning = false;
+			startedRunning = false;
 		}
 		
 		if(viewer.mouseNavigation)
@@ -439,15 +442,16 @@ public class WMV_World
 	void finishSetup()
 	{
 		PApplet.println("Finishing setup...");
-		setupProgress = 100;
-		
+		display.setupWindows();									// Setup sidebar window
 		display.map2D.initializeMaps();
 		
 		initialSetup = false;				
 		display.initialSetup = false;
 		
+		setupProgress = 100;
+
 		p.running = true;
-		startRunning = true;
+		startedRunning = true;
 	}
 	
 	/**
@@ -472,7 +476,7 @@ public class WMV_World
 		initialSetup = false;			
 		creatingFields = false;			
 		fieldsCreated = false;			
-		startRunning = false;			
+		startedRunning = false;			
 	}
 	
 	/**
@@ -533,7 +537,7 @@ public class WMV_World
 		viewer.clearAttractorCluster();
 
 		interactive = false;		// Stop interactive clustering mode
-		startRunning = true;				// Start GMViewer running
+		startedRunning = true;				// Start GMViewer running
 		p.running = true;	
 		
 		viewer.setCurrentCluster( viewer.getNearestCluster(false) );

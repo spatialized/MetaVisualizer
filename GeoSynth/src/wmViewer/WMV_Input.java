@@ -16,14 +16,14 @@ public class WMV_Input
 	public boolean wasTimeFading;
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
-	int mouseClickedX = 0, mouseClickedY = 0;
-	int mouseOffsetX = 0, mouseOffsetY = 0;
+	private int mouseClickedX = 0, mouseClickedY = 0;
+//	private int mouseOffsetX = 0, mouseOffsetY = 0;
 	
-	boolean mouseClickedRecently = false;
-	boolean mouseReleased = false;
-	int clickedRecentlyFrame = 1000000;
-	int releasedRecentlyFrame = 1000000;
-	int doubleClickSpeed = 10;
+	private boolean mouseClickedRecently = false;
+	private boolean mouseReleased = false;
+	private int clickedRecentlyFrame = 1000000;
+//	private int releasedRecentlyFrame = 1000000;
+	private int doubleClickSpeed = 10;
 
 	WMV_World p;
 
@@ -44,7 +44,6 @@ public class WMV_Input
 		{
 			p.defaultMediaLength = slider.getValueI();
 		}
-		
 //		  if (slider == sdr)  // The slider being configured?
 //	    println(sdr.getValueS() + "    " + event);    
 //	  if (slider == sdrEasing)
@@ -53,13 +52,10 @@ public class WMV_Input
 //	    sdr.setNbrTicks(slider.getValueI());    
 //	  else if (slider == sdrBack)
 //	    bgcol = slider.getValueI();
-
 	}
 
 	public void handleButtonEvent(GButton button, GEvent event) 
 	{ 
-		boolean state;
-
 		//		  PApplet.println("button.tagNo:"+button.tagNo);
 		//		  PApplet.println("button.tag:"+button.tag);
 
@@ -70,6 +66,8 @@ public class WMV_Input
 				p.display.resetDisplayModes();
 				break;
 			case "Map":
+				if(!p.display.initializedMaps)
+					p.display.map2D.initializeMaps();
 				p.display.resetDisplayModes();
 				p.display.map = true;
 				break;
@@ -89,13 +87,11 @@ public class WMV_Input
 			case "Restart":
 				p.p.restartWorldMediaViewer();
 				break;
-				
-			
 	
 			/* Navigation */
 			case "OpenNavigationWindow":
-				p.display.sidebarView = 1;
-				p.display.window.navigationWindow.setVisible(true);
+//				p.display.sidebarView = 1;
+				p.display.window.openNavigationWindow();
 				break;
 	
 			case "NearestCluster":
@@ -147,38 +143,41 @@ public class WMV_Input
 				break;
 				
 			case "CloseNavigationWindow":
-				p.display.sidebarView = 0;
+//				p.display.sidebarView = 0;
 				p.display.window.navigationWindow.setVisible(false);
 				break;
 	
 			case "OpenHelpWindow":
-				p.display.sidebarView = 2;
-				p.display.window.helpWindow.setVisible(true);
+//				p.display.sidebarView = 2;
+				p.display.window.openHelpWindow();
+//				p.display.window.helpWindow.setVisible(true);
 				break;
 				
 			case "CloseHelpWindow":
-				p.display.sidebarView = 0;
+//				p.display.sidebarView = 0;
 				p.display.window.helpWindow.setVisible(false);
 				break;
 				
 			case "OpenStatisticsWindow":
-				p.display.sidebarView = 1;
-				p.display.window.statisticsWindow.setVisible(true);
+//				p.display.sidebarView = 1;
+				p.display.window.openStatisticsWindow();
+//				p.display.window.statisticsWindow.setVisible(true);
 				break;
 				
 			case "CloseStatisticsWindow":
-				p.display.sidebarView = 0;
+//				p.display.sidebarView = 0;
 				p.display.window.statisticsWindow.setVisible(false);
 				break;
 
 				/* Graphics */
 			case "OpenGraphicsWindow":
-				p.display.sidebarView = 1;
-				p.display.window.graphicsWindow.setVisible(true);
+//				p.display.sidebarView = 1;
+				p.display.window.openGraphicsWindow();
+//				p.display.window.graphicsWindow.setVisible(true);
 				break;
 	
 			case "CloseGraphicsWindow":
-				p.display.sidebarView = 0;
+//				p.display.sidebarView = 0;
 				p.display.window.graphicsWindow.setVisible(false);
 				break;
 
@@ -200,12 +199,13 @@ public class WMV_Input
 			/* Selection */
 			case "SelectionMode":
 				p.viewer.selection = true;
-				p.display.sidebarView = 3;
-				p.display.window.selectionWindow.setVisible(true);
+//				p.display.sidebarView = 3;
+				p.display.window.openSelectionWindow();
+//				p.display.window.selectionWindow.setVisible(true);
 				break;
 				
 			case "ExitSelectionMode":
-				p.display.sidebarView = 0;
+//				p.display.sidebarView = 0;
 				p.viewer.selection = false;
 				p.display.window.selectionWindow.setVisible(false);
 				break;
@@ -352,6 +352,9 @@ public class WMV_Input
 		/* Display Modes */
 		if (!optionKey && key == '1') 
 		{
+			if(!p.display.initializedMaps)
+				p.display.map2D.initializeMaps();
+				
 			boolean state = p.display.map;
 			p.display.resetDisplayModes();
 			p.display.map = !state;
@@ -359,9 +362,12 @@ public class WMV_Input
 		
 		if (!optionKey && key == '!') 
 		{
-			boolean state = p.display.mapOverlay;
-			p.display.resetDisplayModes();
-			p.display.mapOverlay = !state;
+//			if(!p.display.initializedMaps)
+//				p.display.map2D.initializeMaps();
+//
+//			boolean state = p.display.mapOverlay;
+//			p.display.resetDisplayModes();
+//			p.display.mapOverlay = !state;
 		}
 		
 		if (!optionKey && key == '2') 
@@ -430,8 +436,8 @@ public class WMV_Input
 		if (key == '_')
 			p.showModel = !p.showModel;
 		
-		if (key == '+')
-			p.viewer.dateNavigation = !p.viewer.dateNavigation;
+//		if (key == '+')
+//			p.viewer.dateNavigation = !p.viewer.dateNavigation;
 		
 		/* Clustering */
 		if (key == 'r')
@@ -909,7 +915,7 @@ public class WMV_Input
 //						f.model.clustersNeedUpdate = true;
 						p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
 						p.getCurrentField().initializeClusters();			
-						p.display.map2D.initializeMaps();
+						p.display.map2D.initializeLargeMap();
 					}
 				}
 			}
@@ -926,7 +932,7 @@ public class WMV_Input
 //						f.model.clustersNeedUpdate = true;					// -- Temporary: will make minClusterDistance field specific...
 						p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
 						p.getCurrentField().initializeClusters();			
-						p.display.map2D.initializeMaps();
+						p.display.map2D.initializeLargeMap();
 					}
 				}
 			}
@@ -1204,16 +1210,16 @@ public class WMV_Input
 		}
 		else p.viewer.moveToNextCluster(false, -1);
 
-		mouseOffsetX = 0;
-		mouseOffsetY = 0;
+//		mouseOffsetX = 0;
+//		mouseOffsetY = 0;
 	}
 
 	void handleMouseReleased(int mouseX, int mouseY)
 	{
 		mouseReleased = true;
-		releasedRecentlyFrame = p.p.frameCount;
+//		releasedRecentlyFrame = p.p.frameCount;
 		
-		boolean doubleClick = false, switchedViews = false;
+		boolean doubleClick = false;
 
 		if(mouseClickedRecently)							// Double click
 		{
@@ -1243,8 +1249,8 @@ public class WMV_Input
 
 	void handleMouseDragged(int mouseX, int mouseY)
 	{
-		mouseOffsetX = mouseClickedX - mouseX;
-		mouseOffsetY = mouseClickedY - mouseY;
+//		mouseOffsetX = mouseClickedX - mouseX;
+//		mouseOffsetY = mouseClickedY - mouseY;
 
 		p.viewer.lastMovementFrame = p.p.frameCount;			// Turn faster if larger offset X or Y?
 	}

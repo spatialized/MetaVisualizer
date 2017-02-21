@@ -276,10 +276,8 @@ class WMV_Metadata
 				soundFilesFound = true;
 		}
 		
-//		if (p.debug.sound)
-		{
+		if (p.debug.sound)
 			PApplet.println("Sound Folder:" + soundFolder);
-		}
 	}
 	
 	/** 

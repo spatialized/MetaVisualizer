@@ -68,8 +68,6 @@ public class WMV_Map
 	{
 		p = parent;
 
-		itemSelector = new Picker(p.p.p);
-
 		largeMapXOffset = -p.p.p.width * 0.5f;
 		largeMapYOffset = -p.p.p.height * 0.5f;
 		largeMapMaxWidth = p.p.p.width * 0.95f;
@@ -109,7 +107,14 @@ public class WMV_Map
 
 	void initializeMaps()
 	{
+		itemSelector = new Picker(p.p.p);
 		initializeLargeMap();
+		p.initializedMaps = true;
+	}
+	
+	void reset()
+	{
+		
 	}
 	
 	/**
@@ -186,8 +191,15 @@ public class WMV_Map
 				{
 					if(!c.isEmpty())
 					{
-						if(!selectable) selectable = true;
-						addCluster( c.getLocation(), true, c.getID(), PApplet.sqrt(c.mediaPoints) * 0.2f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+						if(!p.p.interactive)							// If not in Interactive Clustering Mode
+						{
+							if(!selectable) selectable = true;
+							addCluster( c.getLocation(), true, c.getID(), PApplet.sqrt(c.mediaPoints) * 0.2f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+						}
+						else											// If in Interactive Clustering, no need to select clusters
+						{
+							addCluster( c.getLocation(), false, c.getID(), PApplet.sqrt(c.mediaPoints) * 0.2f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+						}
 					}
 				}
 				if(selectable)
@@ -363,7 +375,7 @@ public class WMV_Map
 		float ptSize = cameraPointSize;
 		
 //		float arrowSize = 60.f;
-		float arrowSize = p.p.getCurrentModel().fieldWidth / 200.f;
+		float arrowSize = p.p.getCurrentModel().fieldWidth;
 //		mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
 //		mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
 

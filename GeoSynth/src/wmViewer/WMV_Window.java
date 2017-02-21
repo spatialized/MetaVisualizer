@@ -19,6 +19,8 @@ public class WMV_Window {
 	private GLabel lblWMViewer, lblNavigation, lblGraphics, lblStatistics, lblHelp;				// Window headings
 	public boolean showWMVWindow = false, showNavigationWindow = false, showGraphicsWindow = false,
 				    showSelectionWindow = false, showStatisticsWindow = false, showHelpWindow = false;
+	public boolean setupNavigationWindow = false, setupGraphicsWindow = false, setupHelpWindow = false, 
+					setupSelectionWindow = false, setupStatisticsWindow = false;
 	//	private GSketchPad sketchPad;
 
 	/* Views Window */
@@ -81,15 +83,44 @@ public class WMV_Window {
 	WMV_Window( WMV_Display parent )
 	{
 		p = parent;
-
 		setupWMVWindow();
-		setupNavigationSidebar();
-		setupGraphicsSidebar();
-		setupHelpWindow();
-		setupStatisticsSidebar();
-		setupSelectionWindow();
 	}
 	
+	void openNavigationWindow()
+	{
+		if(!setupNavigationWindow)
+			setupNavigationWindow();
+		navigationWindow.setVisible(true);
+	}
+
+	void openGraphicsWindow()
+	{
+		if(!setupGraphicsWindow)
+			setupGraphicsWindow();
+		graphicsWindow.setVisible(true);
+	}
+
+	void openHelpWindow()
+	{
+		if(!setupHelpWindow)
+			setupHelpWindow();
+		helpWindow.setVisible(true);
+	}
+
+	void openStatisticsWindow()
+	{
+		if(!setupStatisticsWindow)
+			setupStatisticsWindow();
+		statisticsWindow.setVisible(true);
+	}
+
+	void openSelectionWindow()
+	{
+		if(!setupSelectionWindow)
+			setupSelectionWindow();
+		selectionWindow.setVisible(true);
+	}
+
 	void setupWMVWindow()
 	{
 		wmvWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, sidebarWidth, shortSidebarHeight, PApplet.JAVA2D);
@@ -178,7 +209,7 @@ public class WMV_Window {
 		btnControlView.setLocalColorScheme(5);
 	}
 	
-	void setupNavigationSidebar()
+	void setupNavigationWindow()
 	{
 		navigationWindow = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
 		navigationWindow.setVisible(false);
@@ -308,7 +339,7 @@ public class WMV_Window {
 	
 	
 	
-	void setupGraphicsSidebar()
+	void setupGraphicsWindow()
 	{
 		graphicsWindow = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
 		graphicsWindow.setVisible(false);
@@ -513,7 +544,7 @@ public class WMV_Window {
 		btnOutputFolder.setLocalColorScheme(5);
 	}
 	
-	void setupStatisticsSidebar()
+	void setupStatisticsWindow()
 	{
 		statisticsWindow = GWindow.getWindow(p.p.p, "Statistics", 10, 45, sidebarWidth, p.p.p.height, PApplet.JAVA2D);
 		statisticsWindow.setVisible(false);
@@ -1263,27 +1294,45 @@ public class WMV_Window {
 	void hideNavigationWindow()
 	{
 		showNavigationWindow = false;
-		navigationWindow.setVisible(false);
+		if(setupNavigationWindow)
+			navigationWindow.setVisible(false);
 	} 
 	void hideGraphicsWindow()
 	{
 		showGraphicsWindow = false;
-		graphicsWindow.setVisible(false);
+		if(setupGraphicsWindow)
+			graphicsWindow.setVisible(false);
 	}
 	void hideSelectionWindow()
 	{
 		showSelectionWindow = false;
-		selectionWindow.setVisible(false);
+		if(setupSelectionWindow)
+			selectionWindow.setVisible(false);
 	} 
 	void hideStatisticsWindow()
 	{
 		showStatisticsWindow = false;
-		statisticsWindow.setVisible(false);
+		if(setupStatisticsWindow)
+			statisticsWindow.setVisible(false);
 	} 
 	void hideHelpWindow()
 	{
 		showHelpWindow = false;
-		helpWindow.setVisible(false);
+		if(setupHelpWindow)
+			helpWindow.setVisible(false);
+	}
+	
+	/**
+	 * Hide all windows
+	 */
+	void hideWindows()
+	{
+		hideWMVWindow();
+		hideNavigationWindow();
+		hideGraphicsWindow();
+		hideSelectionWindow();
+		hideStatisticsWindow();
+		hideHelpWindow();
 	}
 }
 	

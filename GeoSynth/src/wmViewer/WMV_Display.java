@@ -1,20 +1,6 @@
 package wmViewer;
 import java.util.ArrayList;
-
-import com.jogamp.newt.event.KeyEvent;
-
-import g4p_controls.GButton;
-import g4p_controls.GCheckbox;
-import g4p_controls.GEvent;
-import g4p_controls.GOption;
-import g4p_controls.GSlider;
-import g4p_controls.GToggleControl;
-import g4p_controls.GValueControl;
-import g4p_controls.GWinData;
-//import damkjer.ocd.Camera;
 import processing.core.*;
-//import processing.data.FloatList;
-import toxi.math.ScaleMap;
 
 /***********************************
  * @author davidgordon
@@ -29,9 +15,10 @@ class WMV_Display
 	
 	/* Window Modes */
 	public boolean fullscreen = true;
+	public boolean initializedMaps = false;
 	
 	/* Sidebar Modes */
-	public int sidebarView = 0;					// Sidebar statistics view  0: Main  1:Statistics  2:Help  3:Selection
+//	public int sidebarView = 0;					// Sidebar statistics view  0: Main  1:Statistics  2:Help  3:Selection
 
 	/* Display Modes */
 	public boolean map = false;					// Display map 
@@ -77,13 +64,13 @@ class WMV_Display
 	float midLeftTextXOffset, midRightTextXOffset;
 	float clusterImageXOffset, clusterImageYOffset;
 	
-	float largeTextSize = 28.f;
-	float mediumTextSize = 22.f;
-	float smallTextSize = 18.f;
-	float linePadding = 10.f;
-	float lineWidth = smallTextSize + linePadding;			
-	float lineWidthWide = largeTextSize + linePadding;			
-	float lineWidthVeryWide = largeTextSize * 2.f;			
+	final float largeTextSize = 28.f;
+	final float mediumTextSize = 22.f;
+	final float smallTextSize = 18.f;
+	final float linePadding = 10.f;
+	final float lineWidth = smallTextSize + linePadding;			
+	final float lineWidthWide = largeTextSize + linePadding;			
+	final float lineWidthVeryWide = largeTextSize * 2.f;			
 
 	WMV_World p;
 
@@ -118,7 +105,7 @@ class WMV_Display
 		map2D = new WMV_Map(this);
 	}
 
-	void setupWindows()
+	void setupWMVWindow()
 	{
 		window = new WMV_Window(this);				// Setup and display interaction window
 	}
@@ -137,42 +124,48 @@ class WMV_Display
 		}
 		else
 		{
-			if(window.graphicsWindow.isVisible())
+			if(!p.p.basic)
 			{
-				if(p.timeFading)
+				if(window.setupGraphicsWindow)
 				{
-					if(p.timeMode == 0)			// Need to fix cluster date / time structures first!
+					if(window.graphicsWindow.isVisible())
 					{
-//						WMV_Cluster curCluster = p.getCurrentCluster();
-//						int firstTimeID = curCluster.getFirstTimeSegment();
-//						int dateCount = 1;
-//						
-//						if(curCluster.dateline != null)
-//							dateCount = curCluster.dateline.size();
-//						
-//						PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
-//						PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
-//						float fTime = (float) p.getCurrentCluster().currentTime / (float) p.getCurrentCluster().timeCycleLength;
-//						PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
-//						float fHour = fTime * 24.f;
-//						int hour = (int)(fHour);
-//						int min = PApplet.round((fHour - hour) * 60);
-//						window.lblCurrentTime.setText(hour+":"+min);
-//						PApplet.println("fHour:"+fHour+"  fHour - hour:"+(fHour - hour));
-//						PApplet.println("fTime:"+fTime+" Time = "+hour+":"+min);
-					}
-					else
-					{
-						float fTime = (float) p.currentTime / (float) p.timeCycleLength;
-//						PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
-						float fHour = fTime * 24.f;
-						int hour = (int)(fHour);
-						int min = PApplet.round((fHour - hour) * 60);
-						window.lblCurrentTime.setText((hour==0?"00":hour)+":"+(min==0?"00":min));
+						if(p.timeFading)
+						{
+							if(p.timeMode == 0)			// Need to fix cluster date / time structures first!
+							{
+//								WMV_Cluster curCluster = p.getCurrentCluster();
+//								int firstTimeID = curCluster.getFirstTimeSegment();
+//								int dateCount = 1;
+//
+//								if(curCluster.dateline != null)
+//									dateCount = curCluster.dateline.size();
+//
+//								PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
+//								PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
+//								float fTime = (float) p.getCurrentCluster().currentTime / (float) p.getCurrentCluster().timeCycleLength;
+//								PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
+//								float fHour = fTime * 24.f;
+//								int hour = (int)(fHour);
+//								int min = PApplet.round((fHour - hour) * 60);
+//								window.lblCurrentTime.setText(hour+":"+min);
+//								PApplet.println("fHour:"+fHour+"  fHour - hour:"+(fHour - hour));
+//								PApplet.println("fTime:"+fTime+" Time = "+hour+":"+min);
+							}
+							else
+							{
+								float fTime = (float) p.currentTime / (float) p.timeCycleLength;
+								//						PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
+								float fHour = fTime * 24.f;
+								int hour = (int)(fHour);
+								int min = PApplet.round((fHour - hour) * 60);
+								window.lblCurrentTime.setText((hour==0?"00":hour)+":"+(min==0?"00":min));
+							}
+						}
 					}
 				}
 			}
-			
+
 			if( map || control || info || about || cluster || p.interactive )
 			{
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
@@ -302,6 +295,75 @@ class WMV_Display
 			p.p.box(inc, inc*10.f, 1);    // Display 
 			p.p.popMatrix();
 		}
+	}
+	
+	void reset()
+	{
+		/* Window Modes */
+		fullscreen = true;
+		initializedMaps = false;
+		
+		/* Sidebar Modes */
+//		sidebarView = 0;					// Sidebar statistics view  0: Main  1:Statistics  2:Help  3:Selection
+
+		/* Display Modes */
+		map = false;					// Display map 
+		info = false;				// Display simulation info 
+		cluster = false;				// Display cluster statistics
+		control = false;				// Display controls only
+		about = false;				// Display about screen  -- need to implement
+		
+		mapOverlay = false;			// Overlay map on 3D view
+		infoOverlay = false;			// Overlay simulation info on 3D view
+		clusterOverlay = false;		// Display cluster statistics over 3D view
+		controlOverlay = false;		// Display controls over 3D view
+		
+		/* Debug */
+		drawForceVector = false;
+		
+		/* Status */
+//		initialSetup = true;
+		
+		/* Graphics */
+		drawGrid = false; 			// Draw 3D grid   			-- Unused
+
+		blendMode = 0;							// Alpha blending mode
+		numBlendModes = 10;						// Number of blending modes
+
+		/* Clusters */
+		displayCluster = 0;
+
+		/* Messages */
+		messageStartFrame = -1;
+		metadataStartFrame = -1;
+		startupMessageStartFrame = -1;
+		messageDuration = 60;
+		
+		hudDistance = p.hudDistance;
+		
+		messages = new ArrayList<String>();
+		metadata = new ArrayList<String>();
+		startupMessages = new ArrayList<String>();
+
+		centerTextXOffset = 0;
+		leftTextXOffset = -p.p.width / 2.f;
+		midLeftTextXOffset = -p.p.width / 3.f;
+		rightTextXOffset = p.p.width / 2.f;
+		midRightTextXOffset = p.p.width / 3.f;
+
+		topTextYOffset = -p.p.height / 1.5f;
+		clusterImageXOffset = -p.p.width/ 1.66f;
+		clusterImageYOffset = p.p.height / 3.75f;
+
+		userMessageXOffset = -p.p.width / 2.f;
+		userMessageYOffset = 0;
+
+		metadataYOffset = -p.p.height / 2.f;
+
+		startupMessageXOffset = p.p.width / 2;
+		startupMessageYOffset = -p.p.width / 3.f;
+		
+		map2D = new WMV_Map(this);
 	}
 
 	/**
@@ -1036,14 +1098,6 @@ class WMV_Display
 			return false;
 	}
 
-	/**
-	 * Draw Heads-Up Display of 2D Map and Logo
-	 */
-	void drawSmallMap()
-	{
-		
-	}
-	
 //	void setFullScreen(boolean newState)
 //	{
 //		if(newState && !fullscreen)			// Switch to Fullscreen

@@ -27,9 +27,12 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	/* System Status */
 	public boolean running = false;				// Is simulation running?
 	public boolean startup = true;				// Startup frame
+	public boolean reset = false;				// Was program just reset?
 	public boolean exit = false;				// System message to exit the program
 	public boolean selectedLibrary = false;		// Has user selected a library folder?
-	private int startedFrame = -1;
+	public boolean basic = false;				// Minimal mode with no windows
+	
+//	private int startedFrame = -1;
 	
 	/* Library */
 	WMV_Metadata metadata;						// Metadata handler class
@@ -58,14 +61,15 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void setup()
 	{
-		surface.setResizable(false);
-
 		world = new WMV_World(this);
 		metadata = new WMV_Metadata(this);
 		utilities = new WMV_Utilities(world);
 		debug = new WMV_Debug(this);		
 
 		world.initialize();
+		
+		if(debug.main)
+			PApplet.println("Finished setup...");
 	}
 
 	/** 
@@ -74,12 +78,17 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	public void draw() 
 	{		
 		if (startup)
-		{ 
-			world.display.showStartup();		/* Startup screen */
+		{
+			if(reset) reset();
+			else world.display.showStartup();		/* Startup screen */
 			startup = false;	
 		}
 		else if(!running)
+		{
+			noLoop();
 			world.setup();						/* Run setup */
+			loop();
+		}
 		else
 			world.run();						/* Run program */
 	}
@@ -93,6 +102,14 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
 //		size(1360, 940, processing.core.PConstants.P3D);		// MacBook Pro
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
+	}
+	
+	public void reset()
+	{
+		background(0.f);
+		if(!basic)
+			world.display.window.hideWindows();
+		world.reset();
 	}
 	
 	/**
@@ -118,15 +135,13 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	void restartWorldMediaViewer()
 	{
-		camera();
-		setup();
-		
-		startup = true;
 		running = false;				
-		exit = false;					
 		selectedLibrary = false;	
-		
-		world.reset();
+		reset = true;
+		startup = true;
+		exit = false;					
+		world.viewer.initialize(0,0,0);
+//		camera();
 	}
 	
 	/**

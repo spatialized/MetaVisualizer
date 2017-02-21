@@ -46,7 +46,6 @@ public class WMV_Field
 	private int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
 
 	/* Time */
-//	public final int numBins = 100; 							// Time precision
 	ArrayList<WMV_TimeSegment> timeline;						// List of date-independent time segments in this field
 	ArrayList<WMV_Date> dateline;								// List of dates in this field
 	ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field by date
@@ -97,7 +96,7 @@ public class WMV_Field
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
 				
 				if(!m.verticesAreNull() && (m.isFading() || m.fadingFocusDistance))
-					m.update();  	// Update geometry + visibility
+					m.update();  		// Update geometry + visibility
 
 				if (distance < vanishingPoint && distance > p.viewer.getNearClippingDistance() && !m.verticesAreNull()) 	// Visible	
 				{
@@ -105,12 +104,11 @@ public class WMV_Field
 						m.update();  	// Update geometry + visibility
 					
 					m.draw(); 		// Draw image
-					
 					imagesVisible++;
 				}
 			}
 		}
-
+		
 		for (int i = 0; i < panoramas.size(); i++)  	// Update and display panoramas
 		{
 			WMV_Panorama n = panoramas.get(i);
@@ -210,6 +208,9 @@ public class WMV_Field
 	 */
 	public void initialize(String library)
 	{
+		if(p.p.debug.main)
+			PApplet.println("Initializing field #"+fieldID);
+		
 		model.calculateFieldSize(); 		// Calculate bounds of photo GPS locations
 		model.analyzeMedia();				// Analyze media locations and times 
 		model.setup(); 						// Initialize field for first time 
@@ -380,7 +381,6 @@ public class WMV_Field
 	}
 
 	/**
-	 * blackoutMedia()
 	 * Immediately set all media brightness to zero
 	 */
 	public void blackoutMedia()
@@ -398,7 +398,6 @@ public class WMV_Field
 	}
 
 	/**
-	 * stopAllFading()
 	 * Stop the media in the field from fading
 	 */
 	public void stopAllFading()
@@ -413,7 +412,6 @@ public class WMV_Field
 	}
 
 	/**
-	 * stopAllMediaFading()
 	 * Stop all media from fading
 	 */
 	public void stopAllMediaFading()
@@ -754,21 +752,22 @@ public class WMV_Field
 			count++;
 		}
 		
-		int ct = 0;
-		for(WMV_Cluster c : clusterList)
-		{
-			PApplet.println("---->Cluster "+count+" images:"+c.images.size()+" panoramas:"+c.panoramas.size()+" videos:"+c.videos.size());
-			ct++;
-		}
+//		int ct = 0;
+//		for(WMV_Cluster c : clusterList)
+//		{
+//			PApplet.println("---->Cluster "+count+" images:"+c.images.size()+" panoramas:"+c.panoramas.size()+" videos:"+c.videos.size());
+//			ct++;
+//		}
+			
 		clusterList = mergeAdjacentClusters(clusterList, 2500.f);
 		PApplet.println("Detected "+clusterList.size()+" fields...");
 		
-		ct = 0;
-		for(WMV_Cluster c : clusterList)
-		{
-			PApplet.println("Cluster "+count+" images:"+c.images.size()+" panoramas:"+c.panoramas.size()+" videos:"+c.videos.size());
-			ct++;
-		}
+//		ct = 0;
+//		for(WMV_Cluster c : clusterList)
+//		{
+//			PApplet.println("Cluster "+count+" images:"+c.images.size()+" panoramas:"+c.panoramas.size()+" videos:"+c.videos.size());
+//			ct++;
+//		}
 	}
 	
 	/**
@@ -784,11 +783,12 @@ public class WMV_Field
 		IntList merged = new IntList();											// List of clusters already merged with neighbors
 		float firstMergePct = 0.2f;												// Fraction of clusters with most neighbors to merge first
 		
-		PApplet.println("Merging adjacent clusters... starting number:"+clusterList.size());
+		if(p.p.debug.cluster)
+			PApplet.println("Merging adjacent clusters... starting number:"+clusterList.size());
 
 		for( WMV_Cluster c : clusterList )					// Find distances of close neighbors to each cluster
 		{
-			PApplet.println("--> c.images.size():"+c.images.size()+" id:"+c.getID());
+//			PApplet.println("--> c.images.size():"+c.images.size()+" id:"+c.getID());
 			closeNeighbors[c.getID()] = new IntList();	// Initialize list for this cluster
 			for( WMV_Cluster d : clusterList )
 			{
@@ -866,7 +866,7 @@ public class WMV_Field
 
 		for( WMV_Cluster c : clusterList )					// Merge remaining clusters under minClusterDistance 
 		{
-			PApplet.println("c.images.size():"+c.images.size()+" id:"+c.getID());
+//			PApplet.println("`"+c.images.size()+" id:"+c.getID());
 			if(!merged.hasValue(c.getID()))
 			{
 				for( WMV_Cluster d : clusterList )

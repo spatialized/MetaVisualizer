@@ -181,10 +181,12 @@ public class WMV_World
 	 */
 	void initialize() 
 	{
+		if(p.debug.main)
+			PApplet.println("Initializing world...");
+		
 		/* Create main classes */
 		input = new WMV_Input(this);
-
-		viewer = new WMV_Viewer(this);	// Initialize navigation + viewer
+		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
 		display = new WMV_Display(this);		// Initialize displays
 
 		/* Initialize graphics and text parameters */
@@ -200,7 +202,7 @@ public class WMV_World
 
 		p.selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
-	
+
 	void run()
 	{
 		/* Viewing and navigating 3D environment */
@@ -247,47 +249,50 @@ public class WMV_World
 			if(fields.size() > 5) display.sendSetupMessage("This may take several minutes...");	// Show long startup time warning
 
 			display.draw();											
-			
+
+			if(!p.basic)
+				display.setupWMVWindow();									// Setup sidebar window
+		
 			fieldProgressInc = PApplet.round(100.f / fields.size());				// Amount to increment progress bar for each field
 			creatingFields = true;
 		}
 
-		if (p.selectedLibrary && initialSetup && creatingFields && !fieldsCreated)
+		if (p.selectedLibrary && initialSetup && creatingFields && !fieldsCreated)	// Initialize fields
 		{
 			if(!fieldsCreated && !p.exit)
 			{
-//				if(p.debug.field) 
-					PApplet.println("Initializing field:"+initializationField);
 				WMV_Field f = getField(initializationField);
 
 				p.metadata.load(f);								// Import metadata for all media in field
 				f.initialize(p.library.getLibraryFolder());		// Initialize field
 				
-				setupProgress += fieldProgressInc;		// Update progress bar
-				display.draw();							// Draw progress bar
+				setupProgress += fieldProgressInc;				// Update progress bar
+				display.draw();									// Draw progress bar
 			}
 			
 			initializationField++;
-			if( initializationField >= fields.size() )
+			if( initializationField >= fields.size() )			// Initialize each field until all are finished
+			{
 				fieldsCreated = true;
+			}
 		}
 		
 		if (fieldsCreated && initialSetup && !p.running)
 		{
+			if(p.debug.main)
+				PApplet.println("Finishing WMV_World setup()...");
+
 			finishSetup();
 		}
 
-		/* Once library folder is selected */
-		if(p.selectedLibrary && !initialSetup && !interactive && !p.running)
-			startInitialClustering();							// Start clustering 
+		if(p.selectedLibrary && !initialSetup && !interactive && !p.running)	/* Initial clustering once library is selected */
+			startInitialClustering();							
 		
-		/* Start interactive clustering */
-		if(startInteractive && !interactive && !p.running)
+		if(startInteractive && !interactive && !p.running)		/* Start interactive clustering */
 			startInteractiveClustering();						
 		
-		/* Running interactive clustering */
-		if(interactive && !startInteractive && !p.running)
-			runInteractiveClustering();							// Start interactive clustering mode
+		if(interactive && !startInteractive && !p.running)		/* Running interactive clustering */
+			runInteractiveClustering();							
 	}
 	
 	/**
@@ -295,20 +300,22 @@ public class WMV_World
 	 */
 	void runSimulation()
 	{
+//		PApplet.println("Run... startup:"+p.startup+" reset:"+p.reset+" initialSetup:"+initialSetup+" p.running:"+p.running+" fieldsCreated:"+fieldsCreated);
+
 		/* 3D Display */
-		if(!display.map && !display.info && !display.cluster && !display.control && !display.about)
+		if(!display.map && !display.info && !display.cluster && !display.control && !display.about)		
 		{
 			getCurrentField().update();					// Update clusters in current field
 			getCurrentField().draw();					// Display media in current field
 		}
 		
 		viewer.update();							// Update navigation
-
 		viewer.camera.feed();						// Send the 3D camera view to the screen
 
 		/* 2D Display */
 		display.draw();								// Draw 2D display after 3D graphics
 		updateTime();								// Update time cycle
+		
 		if(fadingAlpha)                      		// Fade alpha
 			updateFadingAlpha();
 
@@ -442,8 +449,8 @@ public class WMV_World
 	void finishSetup()
 	{
 		PApplet.println("Finishing setup...");
-		display.setupWindows();									// Setup sidebar window
-		display.map2D.initializeMaps();
+		
+//		display.map2D.initializeMaps();
 		
 		initialSetup = false;				
 		display.initialSetup = false;
@@ -473,10 +480,122 @@ public class WMV_World
 	{
 		initializationField = 0;				// Field to be initialized this frame
 		setupProgress = 0;						// Setup progress (0 to 100)
-		initialSetup = false;			
-		creatingFields = false;			
-		fieldsCreated = false;			
-		startedRunning = false;			
+		
+		startedRunning = false;			// Program just started running
+		initialSetup = false;			// Performing initial setup 
+		creatingFields = false;			// Initializing media folders
+		fieldsCreated = false;			// Initialized media folders
+		saveImage = false;
+
+		maxStitchingImages = 30;						// Maximum number of images to try to stitch
+		stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
+		persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
+
+		showUserPanoramas = true;			// Show panoramas stitched from user selected media
+		showStitchedPanoramas = true;		// Show panoramas stitched from media segments
+
+		/* Clustering Modes */
+		hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
+		interactive = false;					// In user clustering mode?
+		startInteractive = false;			// Start user clustering
+
+		/* Time */
+		timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
+		timeFading = false;					// Does time affect media brightness? 
+		paused = false;						// Time is paused
+
+		showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
+		showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
+
+		currentTime = 0;							// Time units since start of time cycle (day / month / year)
+		timeCycleLength = 250;					// Length of main time loop in frames
+		timeUnitLength = 1;						// How many frames between time increments
+		timeInc = timeCycleLength / 30.f;			
+
+		currentDate = 0;							// Date units since start of date cycle (day / month / year)
+		dateCycleLength = 500;					// Length of main date loop in frames
+		dateUnitLength = 1;						// How many frames between date increments
+		dateInc = dateCycleLength / 30.f;			
+
+		defaultMediaLength = 90;					// Default frame length of media in time cycle
+
+		/* Graphics */
+		hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
+
+		alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
+		alpha = 195.f;							// Transparency
+		beginFadingAlpha = false;
+		fadingAlpha = false;
+		fadingAlphaStartFrame = 0; 
+		fadingAlphaEndFrame = 0; 
+		fadingAlphaLength = 20;	
+
+		blurEdges = true;					// Blur image edges
+		drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
+		
+		/* Video */
+		assocVideoDistTolerance = 15.f;		// How far a photo can be taken from a video's location to become associated.
+		assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
+															// (GeoSynth assumes videographers will take a photo with Theodolite shortly before hitting record,
+															// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
+
+		initializationField = 0;				// Field to be initialized this frame
+		setupProgress = 0;						// Setup progress (0 to 100)
+		
+		/* Model */
+		orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
+		angleFading = true;					// Do photos fade out as the camera turns away from them?
+
+		defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
+		subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
+		panoramaFocusDistanceFactor = 0.9f;	// Scaling from defaultFocusDistance to panorama radius
+		videoFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to video focus distance
+
+		visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
+		centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
+		angleThinning = false;				// Thin images and videos of similar orientation
+		thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
+
+		altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
+		altitudeScalingFactor = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
+		
+		showModel = false;					// Activate Model Display 
+		showMediaToCluster = false;			// Draw line from each media point to cluster
+		showCaptureToMedia = false;			// Draw line from each media point to its capture location
+		showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
+
+		/* Clusters */
+		mergeClusters = true;				// Merge nearby clusters?
+		autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
+		kMeansClusteringEpsilon = 0.005f;		// If no clusters move farther than this threshold, stop cluster refinement
+		lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
+		
+		mediaPointMass = 0.05f;				// Mass contribution of each media point
+		clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
+		minClusterDistance = 4.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+		maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
+		maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
+
+		if(p.debug.main)
+			PApplet.println("Resetting world...");
+		
+		/* Create main classes */
+//		input.reset();
+		viewer.reset();			// Initialize navigation + viewer
+		display.reset();		// Initialize displays
+
+		/* Initialize graphics and text parameters */
+		p.colorMode(PConstants.HSB);
+		p.rectMode(PConstants.CENTER);
+		p.textAlign(PConstants.CENTER, PConstants.CENTER);
+
+		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
+		timeFadeMap.setMapFunction(circularEaseOut);
+
+		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
+		distanceFadeMap.setMapFunction(circularEaseIn);
+
+		p.selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
 	/**

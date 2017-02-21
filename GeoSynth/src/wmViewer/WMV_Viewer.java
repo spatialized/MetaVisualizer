@@ -13,7 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import damkjer.ocd.Camera;
-import picking.Picker;
+//import picking.Picker;
 import processing.core.PApplet;
 //import peasy.PeasyCam;
 //import processing.core.PApplet;
@@ -29,7 +29,7 @@ public class WMV_Viewer
 {
 	/* Camera */
 	Camera camera;									 				// Camera object
-	private boolean firstCamInitialization = true;					// Whether the camera has been initialized	
+//	private boolean firstCamInitialization = true;					// Whether the camera has been initialized	
 	private float fieldOfView = PApplet.PI * 0.375f;				// Field of view
 
 	private final float initFieldOfView = fieldOfView; 				// Initial field of view
@@ -41,7 +41,7 @@ public class WMV_Viewer
 	private float farViewingDistance = 12.f; 						// Far distance (m.) at which media start fading out
 
 	/* Time */
-	public boolean dateNavigation = true;				// Navigate by date and time (true) or time only (false)
+//	public boolean dateNavigation = true;				// Navigate by date and time (true) or time only (false)
 	public int currentFieldDate = 0;					// Current date in field dateline
 	public int currentClusterDate = 0;				// Current date segment in cluster dateline
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
@@ -225,11 +225,7 @@ public class WMV_Viewer
 		
 		fieldOfView = initFieldOfView;
 
-		if(firstCamInitialization)
-			firstCamInitialization = false;
-
 		selectionMaxDistance = p.defaultFocusDistance * selectionMaxDistanceFactor;
-		
 		clustersVisible = new IntList();
 	}
 
@@ -336,14 +332,9 @@ public class WMV_Viewer
 							}
 						}
 						
-//						clustersVisible.sort();
-//						largest = clustersVisible.get(clustersVisible.size()-1);
-						
 						if(cDist < largest)					// Remove largest and add new index
 						{
-//							PApplet.println("...... low:"+clustersVisible.get(0));
 							int res = clustersVisible.remove(largestIdx);
-//							PApplet.println("...... remove "+largestIdx+" is:"+res);
 							clustersVisible.append(i);
 						}
 					}
@@ -353,6 +344,8 @@ public class WMV_Viewer
 			}
 		}
 		
+//		PApplet.println("Updated viewer...");
+
 		/* Aim camera */
 //		if(movingToAttractor)
 //			camera.aim(attractorPoint.getLocation().x, attractorPoint.getLocation().y, attractorPoint.getLocation().z);
@@ -361,6 +354,144 @@ public class WMV_Viewer
 //			GMV_Cluster c = p.getCurrentCluster();
 //			camera.aim(c.getLocation().x, c.getLocation().y, c.getLocation().z);
 //		}
+	}
+	
+	public void reset()
+	{
+		/* Camera */
+		fieldOfView = PApplet.PI * 0.375f;				// Field of view
+
+		rotateIncrement = 3.1415f / 256.f;				// Rotation amount each frame when turning
+		zoomIncrement = 3.1415f / 32.f;					// Zoom amount each frame when zooming
+
+		nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
+		nearViewingDistance = nearClippingDistance * 2.f; // Near distance (m.) at which media start fading out
+		farViewingDistance = 12.f; 						// Far distance (m.) at which media start fading out
+
+		/* Time */
+		currentFieldDate = 0;					// Current date in field dateline
+		currentClusterDate = 0;				// Current date segment in cluster dateline
+		currentFieldTimeSegment = 0;				// Current time segment in field timeline
+		currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
+		
+		/* Memory */
+		movingToAttractor = false;			// Moving to attractor poanywhere in field
+		movingToCluster = false;			// Moving to cluster 
+		following = false;					// Is the camera currently navigating from memory?
+		
+		/* Clusters */
+		field = 0;								// Current field
+		maxVisibleClusters = 2;					// Maximum visible clusters in Orientation Mode
+		currentCluster = 0;						// Cluster currently in view
+		lastCluster = -1;						// Last cluster visited
+		attractorCluster = -1;					// Cluster attracting the camera
+		attractionStart = 0;
+		teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
+		clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
+
+		/* Sound */
+		audibleFarDistanceFadeLength = 40;
+		audibleFarDistanceDiv = (float) 1.5;
+		audibleFarDistanceTransition = false;
+
+		audibleNearDistanceFadeLength = 40;
+		audibleNearDistanceDiv = (float) 1.2; 
+		audibleNearDistanceTransition = false;
+
+		/* Interaction Modes */
+		mouseNavigation = false;			// Mouse navigation
+		map3DMode = false;				// 3D Map Mode
+		selection = false;				// Allows selection, increases transparency to make selected image(s) easier to see
+		autoNavigation = false;			// Attraction towards centers of clusters
+		lockToCluster = false;			// Automatically move viewer to nearest cluster when idle
+		multiSelection = false;			// User can select multiple images for stitching
+		segmentSelection = false;		// Select image segments at a time
+		videoMode = false;				// Highlights videos by dimming other media types	-- Unused
+		
+		/* Teleporting */
+		movementTeleport = false;		// Teleport when following navigation commands
+		teleporting = false;			// Transition where all images fade in or out
+		teleportToField = -1;				// What field ID to fade transition to	 (-1 remains in current field)
+		teleportWaitingCount = 0;			// How long has the viewer been waiting for media to fade out before teleport?
+		
+		/* Physics */
+		lastAttractorDistance = -1.f;
+		cameraMass = 0.33f;						// Camera mass for cluster attraction
+		velocityMin = 0.00005f;					// Threshold under which velocity counts as zero
+		velocityMax = 0.66f;						// Camera maximum velocity
+		accelerationMax = 0.15f;					// Camera maximum acceleration
+		accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
+		camDecelInc = 0.75f;						// Camera deceleration increment
+		camHaltInc = 0.01f;						// Camera fast deceleration increment
+		waiting = false;						// Whether the camera is waiting to move while following a path
+		pathWaitLength = 100;
+
+		/* Movement */
+		followMode = 0;					// 0: Timeline 1: GPS Track 2: Memory
+		walking = false;			// Whether viewer is walking
+		walkingAccelInc = 0.002f;		// Camera walking acceleration increment
+
+		slowing = false;			// Whether viewer is slowing 
+		slowingX = false;			// Slowing X movement
+		slowingY = false;			// Slowing Y movement
+		slowingZ = false;			// Slowing Z movement
+		halting = false;			// Viewer is halting
+		
+		movingX = false;			// Is viewer automatically moving in X dimension (side to side)?
+		movingY = false;			// Is viewer automatically moving in Y dimension (up or down)?
+		movingZ = false;			// Is viewer automatically moving in Z dimension (forward or backward)?
+		movingNearby = false;		// Moving to a powithin nearClusterDistance
+
+		/* Looking */
+		looking = false;				// Whether viewer is turning to look for images, since none are visible
+		lookingRotationCount = 0;		// Amount of times viewer has rotated looking for images
+
+		/* Turning */
+		turningX = false;			// Whether the viewer is turning (right or left)
+		turningY = false;			// Whether the viewer is turning (up or down)
+		
+		turnIncrement = PApplet.PI / 240.f;
+		
+		rotatingX = false;			// Whether the camera is rotating in X dimension (turning left or right)?
+		rotatingY = false;			// Whether the camera is rotating in Y dimension (turning up or down)?
+		rotatingZ = false;			// Whether the camera is rotating in Z dimension (rolling left or right)?
+
+		/* Interaction */
+		selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
+		lastMovementFrame = 500000; 
+		lastLookFrame = 500000;
+		clusterLockIdleFrames = 0;				// How long to wait after user input before auto navigation moves the camera?
+		lockToClusterWaitLength = 100;
+
+		/* GPS Tracks */
+		gpsTrackSelected = false;			// Has a GPS track been selected?
+		gpsTrackName = "";					// GPS track name
+
+		/* Zooming */
+		zooming = false;
+		zoomLength = 15;
+
+		location = new PVector(0,0,0);
+		velocity = new PVector(0,0,0);
+		acceleration = new PVector(0,0,0);
+		attraction = new PVector(0,0,0);
+		walkingVelocity = new PVector(0,0,0);
+		walkingAcceleration = new PVector(0,0,0);
+
+		fieldOfView = initFieldOfView; 		// Field of view
+
+		history = new ArrayList<WMV_Waypoint>();
+		gpsTrack = new ArrayList<WMV_Waypoint>();
+
+		memory = new ArrayList<WMV_Waypoint>();
+		path = new ArrayList<WMV_Waypoint>();
+		teleportGoal = new PVector(0, 0, 0);
+
+		field = 0;
+		currentCluster = 0;
+		clusterNearDistance = p.clusterCenterSize * clusterNearDistanceFactor;
+
+		initialize(0, 0, 0);
 	}
 
 	/**

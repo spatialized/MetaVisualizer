@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
 import toxi.math.ScaleMap;
-import picking.*;
+//import shapes3d.utils.*;
+//import shapes3d.animation.*;
+import shapes3d.*;
+
+//import picking.*;
 
 /***********************************
  * @author davidgordon
@@ -15,13 +19,17 @@ import picking.*;
 public class WMV_Map 
 {
 	/* Map Modes */
-	int mapMode = 1;							// 	1:  All   2: Clusters + Media   3: Clusters + Capture Locations  4: Capture Locations + Media
+	int mapMode = 5;							// 	1:  All   2: Clusters + Media   3: Clusters + Capture Locations  4: Capture Locations + Media
 												//	5:  Clusters Only   6: Media Only   7: Capture Locations Only
 
 	/* Interaction */
-	Picker itemSelector;
-	int selectedCluster = -1;
+//	public Picker itemSelector;
 
+//	private boolean initializeItemSelector = false;
+//	private boolean itemSelectorRecording = false;
+	private int selectedCluster = -1;
+	ArrayList<Ellipsoid> selectableClusters;
+	
 	/* Graphics */
 	public float mapZoom = 1.f;
 	public float mapLeftEdge = 0.f, mapTopEdge = 0.f;
@@ -86,7 +94,6 @@ public class WMV_Map
 		cameraPointSize = 0.004f * p.p.p.width;
 	}
 
-
 	void initializeLargeMap()
 	{
 		float fr = p.p.getCurrentField().model.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
@@ -102,19 +109,61 @@ public class WMV_Map
 			largeMapWidth = largeMapHeight * fr;
 		}
 		
-		p.p.p.sphereDetail(6);
+//		createSelectableClusters(largeMapWidth, largeMapHeight);
+//		p.p.p.sphereDetail(6);
 	}
 
 	void initializeMaps()
 	{
-		itemSelector = new Picker(p.p.p);
 		initializeLargeMap();
 		p.initializedMaps = true;
+//		initializeItemSelector = true;
 	}
 	
 	void reset()
 	{
 		
+	}
+	
+	void createSelectableClusters(float mapWidth, float mapHeight)
+	{
+		selectableClusters = new ArrayList<Ellipsoid>();
+		
+		for( WMV_Cluster c : p.p.getCurrentField().clusters )	
+		{
+			Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 6, 6);
+			ellipsoid.setRadius(PApplet.sqrt(c.mediaPoints));
+			ellipsoid.drawMode(S3D.SOLID);
+			ellipsoid.fill(p.p.p.color(55.f, 255.f, 255.f, 200.f));
+			
+			WMV_Model m = p.p.getCurrentField().model;
+			float mapLocX, mapLocY, mapLocZ;
+			mapLocX = PApplet.map( c.getLocation().x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+			mapLocY = PApplet.map( c.getLocation().z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+			mapLocZ = 0.f;
+			PVector mapLoc = new PVector(mapLocX, mapLocY, mapLocZ);
+
+			mapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
+			mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapZoom));
+			ellipsoid.moveTo(mapLoc.x, mapLoc.y, mapLoc.z);
+			ellipsoid.tagNo = c.getID();
+			
+			selectableClusters.add(ellipsoid);
+		}
+	}
+	
+	void drawSelectableClusters()
+	{
+		p.p.p.pushMatrix();
+		for(Ellipsoid e : selectableClusters)
+		{
+//			p.p.p.pushMatrix();
+//			p.p.p.translate(mapLeftEdge, mapTopEdge);
+//			p.p.p.translate(largeMapXOffset, largeMapYOffset, p.hudDistance * mapZoom);
+			e.draw();
+//			p.p.p.popMatrix();
+		}
+		p.p.p.popMatrix();
 	}
 	
 	/**
@@ -150,12 +199,15 @@ public class WMV_Map
 	{
 //		Map Modes  	1:  All   2: Clusters + Media   3: Clusters + Capture Locations  4: Capture Locations + Media
 //					5:  Clusters Only   6: Media Only   7: Capture Locations Only
+	
+		if(!zoomTransition)
+			createSelectableClusters(mapWidth, mapHeight);
 		
 		p.beginHUD();
 
 		/* Media */
 		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapImages && !p.p.getCurrentField().hideImages)
-			for ( WMV_Image i : p.p.getCurrentField().images )		// Draw images on 2D Map
+			for ( WMV_Image i : p.p.getCurrentField().images )			// Draw images on 2D Map
 				drawImageOnMap(i, mapWidth, mapHeight, false);
 
 		if((mapMode == 1 || mapMode == 2 || mapMode == 4 || mapMode == 6) && mapPanoramas && !p.p.getCurrentField().hidePanoramas)
@@ -167,7 +219,7 @@ public class WMV_Map
 				drawVideoOnMap(v, mapWidth, mapHeight, false);
 
 		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapImages && !p.p.getCurrentField().hideImages)
-			for ( WMV_Image i : p.p.getCurrentField().images )		// Draw image capture locations on 2D Map
+			for ( WMV_Image i : p.p.getCurrentField().images )			// Draw image capture locations on 2D Map
 				drawImageOnMap(i, mapWidth, mapHeight, true);
 
 		if((mapMode == 1 || mapMode == 3 || mapMode == 4 || mapMode == 7) && mapPanoramas && !p.p.getCurrentField().hidePanoramas)
@@ -178,9 +230,17 @@ public class WMV_Map
 			for (WMV_Video v : p.p.getCurrentField().videos)			// Draw video capture locations on 2D Map
 				drawVideoOnMap(v, mapWidth, mapHeight, true);
 
+//		if(!itemSelectorRecording)
+//		{
+//			itemSelector.pre();
+//			itemSelectorRecording = true;
+//		}
+
 		/* Clusters */
 		if((mapMode == 1 || mapMode == 2 || mapMode == 3 || mapMode == 5) && mapClusters)
 		{
+			if(!zoomTransition)
+				drawSelectableClusters();
 			for( WMV_Cluster c : p.p.getCurrentField().clusters )	
 			{
 				boolean selectable = false;
@@ -202,8 +262,6 @@ public class WMV_Map
 						}
 					}
 				}
-				if(selectable)
-					itemSelector.stop();
 			}
 		}
 		
@@ -231,7 +289,13 @@ public class WMV_Map
 //			if(p.p.p.debug.map)
 //				drawMapBorder(mapWidth, mapHeight);
 			
-			itemSelector.draw();
+
+//			itemSelector.draw();
+//			if(itemSelectorRecording)
+//			{
+//				p.p.p.endRecord();
+//				itemSelector.stop();
+//			}
 		}
 	}
 
@@ -484,20 +548,23 @@ public class WMV_Map
 			if(mapLocX < mapWidth && mapLocX > 0 && mapLocY < mapHeight && mapLocY > 0)
 			{
 				p.p.p.stroke(hue, saturation, brightness, transparency);
-				if(selectable)
-					itemSelector.start(id);
+				
+//				itemSelector.resume();
+//				if(selectable)
+//					itemSelector.start(id);
 
 				p.p.p.pushMatrix();
 
 				p.p.p.strokeWeight(pointSize);
 				p.p.p.translate(mapLeftEdge, mapTopEdge);
 				
-				if(selectable)
-				{
-					p.p.p.translate(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance * mapZoom);
-					p.p.p.sphere(pointSize);
-				}
-				else
+//				if(selectable)
+//				{
+//					p.p.p.translate(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance * mapZoom);
+////					p.p.p.rect(0, 0, 10, 10);
+//					p.p.p.sphere(pointSize);
+//				}
+//				else
 					p.p.p.point(largeMapXOffset + mapLocX, largeMapYOffset + mapLocY, p.hudDistance * mapZoom);
 
 				p.p.p.popMatrix();
@@ -528,11 +595,10 @@ public class WMV_Map
 		for(int i=0; i<iterations; i++)
 		{
 
-			if(selectable)
-				addPoint( point, true, id, size * largePointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
-			else
+//			if(selectable)
+//				addPoint( point, true, id, size * largePointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
+//			else
 				addPoint( point, false, id, size * largePointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
-
 
 			size-=sizeDiff;
 			alpha-=alphaDiff;
@@ -570,11 +636,19 @@ public class WMV_Map
 		else p.message("Map point is NaN!:"+point+" hue:"+hue);
 	}
 	
-	public void selectMouseClusterOnMap()
+	public void updateMapMouse()
 	{
 //		WMV_Cluster c = getNearestClusterToMouse(point);
-		int clusterID = itemSelector.get(p.p.p.mouseX, p.p.p.mouseY);
+//		int clusterID = itemSelector.get(p.p.p.mouseX, p.p.p.mouseY);
+		
+		Shape3D itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
 
+		int clusterID = -1;
+		if(itemSelected != null)
+			clusterID = itemSelected.tagNo;
+		
+//		PApplet.println("itemSelected clusterID:"+clusterID);
+		
 		if(clusterID >= 0 && clusterID < p.p.getCurrentField().clusters.size())
 		{
 			selectedCluster = clusterID;

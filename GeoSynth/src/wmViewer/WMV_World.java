@@ -3,13 +3,13 @@ package wmViewer;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.jogamp.newt.opengl.GLWindow;
+//import com.jogamp.newt.opengl.GLWindow;
 
-import picking.Picker;
+//import picking.Picker;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
-import processing.core.PSurface;
+//import processing.core.PSurface;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
 import toxi.math.LinearInterpolation;
@@ -188,7 +188,8 @@ public class WMV_World
 		input = new WMV_Input(this);
 		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
 		display = new WMV_Display(this);		// Initialize displays
-
+//		display.map2D.initializeItemSelector();
+		
 		/* Initialize graphics and text parameters */
 		p.colorMode(PConstants.HSB);
 		p.rectMode(PConstants.CENTER);
@@ -206,8 +207,12 @@ public class WMV_World
 	void run()
 	{
 		/* Viewing and navigating 3D environment */
-		if ( !initialSetup && !interactive && !p.exit ) 			
+		if ( !initialSetup && !interactive && !p.exit ) 
+		{
+//			if(p.frameCount % 10 == 0)
+//				PApplet.println("run "+p.frameCount);
 			runSimulation();										// Run current simulation
+		}
 		
 		if ( p.exit ) 									
 		{

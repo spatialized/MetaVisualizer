@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import processing.core.*;
+//import shapes3d.Box;
+//import shapes3d.*;
+//import shapes3d.S3D;
 
 /************************************
  * @author davidgordon
@@ -15,7 +18,8 @@ class WMV_Image extends WMV_Viewable
 	/* Graphics */
 	public PImage image, blurred;			// Image pixels
 	private PVector[] vertices;				// Vertex list
-
+//	private Box shape;						// Shape
+	
 	private int horizBorderID = -1;					// Blur horizBorderID   0: Left 1: Center 2: Right  3: Left+Right
 	private int vertBorderID = -1;					// Blur vertBorderID	0: Bottom 1: Center 2: Top  3: Top+Bottom
 

@@ -342,11 +342,13 @@ public class WMV_Input
 		
 		if (key == ' ') 
 		{
-// 			p.p.world.paused = !p.p.world.paused;
-			if(p.display.window.showWMVWindow)
-				p.display.window.hideWMVWindow();
-			else
-				p.display.window.showWMVWindow();
+			if(!p.p.basic)
+			{
+				if(p.display.window.showWMVWindow)
+					p.display.window.hideWMVWindow();
+				else
+					p.display.window.showWMVWindow();
+			}
 		}
 		
 		/* Display Modes */
@@ -1255,25 +1257,24 @@ public class WMV_Input
 		p.viewer.lastMovementFrame = p.p.frameCount;			// Turn faster if larger offset X or Y?
 	}
 	
-	void updateMapMouse()
-	{
-//		p.display.map2D.largeMapWidth
-//		p.display.map2D.largeMapHeight
-//		p.display.map2D.largeMapXOffset
-//		p.display.map2D.largeMapYOffset
-		
-//		PApplet.print("pmouseX:"+p.p.pmouseX);
-//		PApplet.println(" pmouseY:"+p.p.pmouseY);
-//		PApplet.print("mouseX:"+p.p.mouseX);
-//		PApplet.println(" mouseY:"+p.p.mouseY);
-		
-//		p.display.map2D.drawMousePointOnMap(new PVector(p.p.pmouseX, p.p.pmouseY, 0), 3, 
-//				p.display.map2D.largeMapWidth, p.display.map2D.largeMapHeight, 255, 255, 255, 255);
-
-//		PVector mousePoint = new PVector(p.p.mouseX, p.p.mouseY, 0);
-//		p.display.map2D.drawMousePointOnMap(mousePoint, 6, 
-//				p.display.map2D.largeMapWidth, p.display.map2D.largeMapHeight, 111, 255, 255, 255);
-		p.display.map2D.selectMouseClusterOnMap();
-	}
-
+//	void updateMapMouse()
+//	{
+////		p.display.map2D.largeMapWidth
+////		p.display.map2D.largeMapHeight
+////		p.display.map2D.largeMapXOffset
+////		p.display.map2D.largeMapYOffset
+//		
+////		PApplet.print("pmouseX:"+p.p.pmouseX);
+////		PApplet.println(" pmouseY:"+p.p.pmouseY);
+////		PApplet.print("mouseX:"+p.p.mouseX);
+////		PApplet.println(" mouseY:"+p.p.mouseY);
+//		
+////		p.display.map2D.drawMousePointOnMap(new PVector(p.p.pmouseX, p.p.pmouseY, 0), 3, 
+////				p.display.map2D.largeMapWidth, p.display.map2D.largeMapHeight, 255, 255, 255, 255);
+//
+////		PVector mousePoint = new PVector(p.p.mouseX, p.p.mouseY, 0);
+////		p.display.map2D.drawMousePointOnMap(mousePoint, 6, 
+////				p.display.map2D.largeMapWidth, p.display.map2D.largeMapHeight, 111, 255, 255, 255);
+//		p.display.map2D.selectMouseClusterOnMap();
+//	}
 }

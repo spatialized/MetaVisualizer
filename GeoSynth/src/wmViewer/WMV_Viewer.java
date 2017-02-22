@@ -3477,7 +3477,9 @@ public class WMV_Viewer
 			if(t.equals(p.getCurrentField().getTimeSegmentInCluster(p.getCurrentCluster().getID(), 0)))
 				currentFieldTimeSegment = t.getID();					
 		
-		currentFieldDate = p.getCurrentField().getDateInCluster(p.getCurrentCluster().getID(), 0).getID();
+		WMV_Date d = p.getCurrentField().getDateInCluster(p.getCurrentCluster().getID(), 0);
+		if(d != null) currentFieldDate = d.getID();
+		else PApplet.println("currentFieldDate would have been set to null..");
 	}
 
 	public void startMoveXTransition(int dir)

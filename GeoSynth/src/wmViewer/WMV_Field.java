@@ -1178,17 +1178,30 @@ public class WMV_Field
 			t = clusters.get(clusterID).getTimeline().get(index);
 
 		if(t == null)
+		{
 			p.display.message("NULL time segment "+index+" returned by getTimeSegmentInCluster() clusterID:"+clusterID);
-		
-		if(clusterID != t.getClusterID())
-			PApplet.println("ERROR... getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+clusterID+" t.getClusterID():"+t.getClusterID());
+		}
+		else if(clusterID != t.getClusterID())
+			PApplet.println("ERROR in getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+clusterID+" t.getClusterID():"+t.getClusterID());
 
 		return t;
 	}
 
 	public WMV_Date getDateInCluster(int clusterID, int index)
 	{
-		WMV_Date d = clusters.get(clusterID).dateline.get(index);
+		WMV_Date d = null;
+		
+		if(clusterID > 0 && clusterID < clusters.size())
+		{
+			if(index > 0 && index < clusters.get(clusterID).dateline.size())
+			{
+				d = clusters.get(clusterID).dateline.get(index);
+			}
+			else
+			{
+				PApplet.println("ERROR in getDateInCluster().. index over dateline.size()   clusterID:"+clusterID+" c.dateline.size():"+clusters.get(clusterID).dateline.size()+" index:"+index);
+			}
+		}
 
 		if(d == null)
 			p.display.message("Couldn't get date "+index+" in cluster "+clusterID);

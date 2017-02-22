@@ -6,13 +6,14 @@ import processing.core.PApplet;
 import processing.core.PMatrix3D;
 
 import processing.core.PVector;
+//import shapes3d.Shape3D;
 import toxi.math.ScaleMap;
 
 /***************************************
  * @author davidgordon
  * An object viewable in 3D virtual space
  */
-public abstract class WMV_Viewable 
+public abstract class WMV_Viewable
 {
 	/* General */
 	private int id;

@@ -179,7 +179,7 @@ class WMV_Display
 					if(map2D.scrollTransition)
 						map2D.updateMapScrollTransition();
 
-					p.input.updateMapMouse();
+					map2D.updateMapMouse();
 					
 //					drawTimelines();
 //					drawDatelines();

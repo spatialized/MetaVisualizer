@@ -30,7 +30,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	public boolean reset = false;				// Was program just reset?
 	public boolean exit = false;				// System message to exit the program
 	public boolean selectedLibrary = false;		// Has user selected a library folder?
-	public boolean basic = false;				// Minimal mode with no windows
+	public boolean basic = true;				// Minimal mode with no windows
 	
 //	private int startedFrame = -1;
 	
@@ -90,7 +90,9 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			loop();
 		}
 		else
+		{
 			world.run();						/* Run program */
+		}
 	}
 	
 	/**

@@ -246,7 +246,7 @@ public class WMV_World
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
 		if (p.selectedLibrary && initialSetup && !creatingFields && !p.running)
 		{
-			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder		Progress Bar: 10pts
+			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder	
 
 			display.sendSetupMessage(" ");	// Show startup message
 			display.sendSetupMessage("Creating "+fields.size()+" fields...");	// Show startup message
@@ -684,7 +684,25 @@ public class WMV_World
 
 //		PApplet.println("Created "+folders.size()+" fields from "+folders.size()+" media folders...");
 	}
-
+	
+	/**
+	 * -- TO DO!!
+	 * Create fields from detected k-means clusters in single media folder 
+	 * @param mediaFolder Folder containing the media
+	 */
+	public void createFieldsFromFolder(String mediaFolder)
+	{
+		fields = new ArrayList<WMV_Field>();			// Initialize fields array
+//		ArrayList<GMV_Cluster> clusters;		
+//		int count = 0;
+//		for(String s : clusters)
+//		{
+//			fields.add(new GMV_Field(this, s, count));
+//			count++;
+//		}
+//		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
+	}
+	
 	/**
 	 * Transition alpha from current to given value
 	 */
@@ -703,24 +721,6 @@ public class WMV_World
 		{
 			fadingAlpha = false;
 		}
-	}
-	
-	/**
-	 * -- TO DO!!
-	 * @param mediaFolder Folder containing the media
-	 * Create fields from single media folder using k-means clustering 
-	 */
-	public void createFieldsFromFolder(String mediaFolder)
-	{
-		fields = new ArrayList<WMV_Field>();			// Initialize fields array
-//		ArrayList<GMV_Cluster> clusters;		
-//		int count = 0;
-//		for(String s : clusters)
-//		{
-//			fields.add(new GMV_Field(this, s, count));
-//			count++;
-//		}
-//		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
 	}
 	
 	/**
@@ -791,7 +791,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return Current cluster
+	 * @return Attractor cluster
 	 */
 	public WMV_Cluster getAttractorCluster()
 	{
@@ -800,7 +800,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return All images in this field
+	 * @return All images in current field
 	 */
 	public ArrayList<WMV_Image> getFieldImages()
 	{
@@ -809,7 +809,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return All images in this field
+	 * @return All panoramas in field
 	 */
 	public ArrayList<WMV_Panorama> getFieldPanoramas()
 	{
@@ -818,7 +818,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return All videos in this field
+	 * @return All videos in current field
 	 */
 	public ArrayList<WMV_Video> getFieldVideos()
 	{

@@ -627,7 +627,6 @@ public class WMV_Field
 				addedPanoramas.append(panoramaID);								
 				addedVideos.append(videoID);								
 
-				/* Record media nearby added media*/
 				for(WMV_Image img : images)						// Check for images near the picked one
 				{
 					float dist = img.getCaptureDistanceFrom(images.get(imageID).getCaptureLocation());  // Get distance
@@ -642,8 +641,7 @@ public class WMV_Field
 						nearPanoramas.append(pano.getID());			// Add to the list of nearby picked images
 				}
 
-				/* Create the first cluster */
-				PVector clusterPoint = new PVector(0,0,0);
+				PVector clusterPoint = new PVector(0,0,0);				// Create first cluster 
 				if(images.size() > 0)
 				{
 					clusterPoint = new PVector(images.get(imageID).getCaptureLocation().x, images.get(imageID).getCaptureLocation().y, images.get(imageID).getCaptureLocation().z); // Choose random image location to start
@@ -696,12 +694,14 @@ public class WMV_Field
 			}
 		}	
 		
-		// Refine clusters 
+		/* Refine clusters */
 		int count = 0;
-		boolean moved = false;						// Has any cluster moved farther than epsilon?
+		boolean moved = false;									// Whether any cluster has moved farther than epsilon
 
 		ArrayList<WMV_Cluster> last = clusterList;
-		PApplet.println("--> Refining clusters...");
+		
+		if(p.p.debug.field)
+			PApplet.println("--> Refining clusters...");
 
 		while( count < refinement ) 							// Iterate to create the clusters
 		{		
@@ -712,10 +712,7 @@ public class WMV_Field
 			for (int i = 0; i < panoramas.size(); i++) 		// Find closest cluster for each image
 				panoramas.get(i).findAssociatedField(clusterList, maxClusterDistance);		// Set associated cluster
 			for (int i = 0; i < clusterList.size(); i++) 		// Find closest cluster for each image
-			{
 				clusterList.get(i).create();					// Assign clusters
-				PApplet.println(" clusterList.get(i).mediaPoints:"+clusterList.get(i).mediaPoints);
-			}
 
 			if(clusterList.size() == last.size())				// Check cluster movement
 			{
@@ -740,27 +737,24 @@ public class WMV_Field
 
 				if(!moved)
 				{
-					PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
+					if(p.p.debug.field)
+						PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
 					break;								// If all clusters moved less than epsilon, stop refinement
 				}
 			}
 			else
 			{
-				PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+clusterList.size()+" last.size():"+last.size());
+				if(p.p.debug.field)
+					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+clusterList.size()+" last.size():"+last.size());
 			}
 
 			count++;
 		}
-		
-//		int ct = 0;
-//		for(WMV_Cluster c : clusterList)
-//		{
-//			PApplet.println("---->Cluster "+count+" images:"+c.images.size()+" panoramas:"+c.panoramas.size()+" videos:"+c.videos.size());
-//			ct++;
-//		}
-			
+
 		clusterList = mergeAdjacentClusters(clusterList, 2500.f);
-		PApplet.println("Detected "+clusterList.size()+" fields...");
+
+//		if(p.p.debug.field)
+			PApplet.println("Detected "+clusterList.size()+" fields...");
 		
 //		ct = 0;
 //		for(WMV_Cluster c : clusterList)
@@ -1166,45 +1160,44 @@ public class WMV_Field
 
 	/**
 	 * Get ID of time segment <number> in field timeline matching given cluster ID 
-	 * @param clusterID Cluster to get time segment from
+	 * @param id Cluster to get time segment from
 	 * @param index Segment in cluster timeline to get
 	 * @return ID of time segment
 	 */
-	public WMV_TimeSegment getTimeSegmentInCluster(int clusterID, int index)
+	public WMV_TimeSegment getTimeSegmentInCluster(int id, int index)
 	{
 		WMV_TimeSegment t = null;
 		
-		if(clusterID < clusters.size() && index < clusters.get(clusterID).getTimeline().size())
-			t = clusters.get(clusterID).getTimeline().get(index);
+		if(id >= 0 && id < clusters.size())
+		{
+			if(clusters.get(id).getTimeline() != null)
+				if(index >= 0 && index < clusters.get(id).getTimeline().size())
+					t = clusters.get(id).getTimeline().get(index);
+		}
 
 		if(t == null)
 		{
-			p.display.message("NULL time segment "+index+" returned by getTimeSegmentInCluster() clusterID:"+clusterID);
+			p.display.message("NULL time segment "+index+" returned by getTimeSegmentInCluster() id:"+id+" index:"+index+" timeline size:"+clusters.get(id).getTimeline().size());
 		}
-		else if(clusterID != t.getClusterID())
-			PApplet.println("ERROR in getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+clusterID+" t.getClusterID():"+t.getClusterID());
+		else if(id != t.getClusterID())
+			PApplet.println("ERROR in getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+id+" t.getClusterID():"+t.getClusterID());
 
 		return t;
 	}
 
-	public WMV_Date getDateInCluster(int clusterID, int index)
+	public WMV_Date getDateInCluster(int id, int index)
 	{
 		WMV_Date d = null;
 		
-		if(clusterID > 0 && clusterID < clusters.size())
+		if(id >= 0 && id < clusters.size())
 		{
-			if(index > 0 && index < clusters.get(clusterID).dateline.size())
-			{
-				d = clusters.get(clusterID).dateline.get(index);
-			}
-			else
-			{
-				PApplet.println("ERROR in getDateInCluster().. index over dateline.size()   clusterID:"+clusterID+" c.dateline.size():"+clusters.get(clusterID).dateline.size()+" index:"+index);
-			}
+			if(clusters.get(id).dateline != null)
+				if(index >= 0 && index < clusters.get(id).dateline.size())
+					d = clusters.get(id).dateline.get(index);
 		}
 
 		if(d == null)
-			p.display.message("Couldn't get date "+index+" in cluster "+clusterID);
+			p.display.message("Couldn't get date "+index+" in cluster "+id);
 		
 		return d;
 	}

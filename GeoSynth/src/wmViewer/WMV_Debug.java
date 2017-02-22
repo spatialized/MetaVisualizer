@@ -10,7 +10,7 @@ public class WMV_Debug
 	/* General */
 	public boolean memory = false;				// Debug memory
 	public boolean detailed = false;			// Verbose debugging messages
-	public boolean print = false;				// Print all user messages
+	public boolean print = true;				// Print all user messages
 	
 	/* Classes */
 	public boolean main = false;					// Debug main WorldMediaViewer class

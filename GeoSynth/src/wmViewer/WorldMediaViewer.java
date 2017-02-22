@@ -30,9 +30,9 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	public boolean reset = false;				// Was program just reset?
 	public boolean exit = false;				// System message to exit the program
 	public boolean selectedLibrary = false;		// Has user selected a library folder?
-	public boolean basic = true;				// Minimal mode with no windows
-	
-//	private int startedFrame = -1;
+
+	/* System Modes */
+	public boolean basic = false;				// Minimal mode with no windows
 	
 	/* Library */
 	WMV_Metadata metadata;						// Metadata handler class

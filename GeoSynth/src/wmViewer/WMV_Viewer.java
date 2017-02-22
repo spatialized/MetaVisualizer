@@ -3467,17 +3467,29 @@ public class WMV_Viewer
 	
 	void setCurrentCluster(int newCluster)
 	{
-		p.getCurrentCluster().timeFading = false;
-		
+		WMV_Cluster c = p.getCurrentCluster();
+
+		c.timeFading = false;
 		lastCluster = currentCluster;
 		currentCluster = newCluster;
 		p.getCluster(currentCluster).timeFading = true;
 		
-		for(WMV_TimeSegment t : p.getCurrentField().timeline)			// Search field timeline for cluster time segment
-			if(t.equals(p.getCurrentField().getTimeSegmentInCluster(p.getCurrentCluster().getID(), 0)))
-				currentFieldTimeSegment = t.getID();					
+		WMV_Field f = p.getCurrentField();
 		
-		WMV_Date d = p.getCurrentField().getDateInCluster(p.getCurrentCluster().getID(), 0);
+		for(WMV_TimeSegment t : f.timeline)			// Search field timeline for cluster time segment
+		{
+			if(c.timeline != null)
+			{
+				if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))
+					currentFieldTimeSegment = t.getID();					
+			}
+			else
+			{
+				PApplet.println("Current Cluster timeline is NULL!:"+c.getID());
+			}
+		}
+		
+		WMV_Date d = f.getDateInCluster(c.getID(), 0);
 		if(d != null) currentFieldDate = d.getID();
 		else PApplet.println("currentFieldDate would have been set to null..");
 	}

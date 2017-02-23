@@ -90,7 +90,6 @@ public class WMV_Input
 	
 			/* Navigation */
 			case "OpenNavigationWindow":
-//				p.display.sidebarView = 1;
 				p.display.window.openNavigationWindow();
 				break;
 	
@@ -253,15 +252,31 @@ public class WMV_Input
 			/* Navigation */
 			case "FollowTimeline":
 				if(option.isSelected())
+				{
 					p.viewer.followMode = 0;
+					p.display.window.optGPSTrack.setSelected(false);
+					p.display.window.optMemory.setSelected(false);
+				}
 				break;
 	  		case "FollowGPSTrack":
 				if(option.isSelected())
+				{
 					p.viewer.followMode = 1;
+					PApplet.println("1 p.display.window.optTimeline.isSelected():"+p.display.window.optTimeline.isSelected());
+					PApplet.println("1 p.display.window.optMemory.isSelected():"+p.display.window.optMemory.isSelected());
+					p.display.window.optTimeline.setSelected(false);
+					p.display.window.optMemory.setSelected(false);
+					PApplet.println("2 p.display.window.optTimeline.isSelected():"+p.display.window.optTimeline.isSelected());
+					PApplet.println("2 p.display.window.optMemory.isSelected():"+p.display.window.optMemory.isSelected());
+				}
 				break;
 	  		case "FollowMemory":
 				if(option.isSelected())
+				{
 					p.viewer.followMode = 2;
+					p.display.window.optTimeline.setSelected(false);
+					p.display.window.optGPSTrack.setSelected(false);
+				}
 				break;
 			case "MovementTeleport":
 				p.viewer.movementTeleport = option.isSelected();
@@ -275,7 +290,7 @@ public class WMV_Input
 				p.timeFading = option.isSelected();
 				break;
 			case "FadeEdges":
-				p.blurEdges = option.isSelected();
+				p.fadeEdges = option.isSelected();
 				break;
 			case "HideImages":
 //				PApplet.println("option.isSelected():"+option.isSelected());
@@ -381,9 +396,9 @@ public class WMV_Input
 		
 		if (!optionKey && key == '@') 
 		{
-			boolean state = p.display.infoOverlay;
-			p.display.resetDisplayModes();
-			p.display.infoOverlay = !state;
+//			boolean state = p.display.infoOverlay;
+//			p.display.resetDisplayModes();
+//			p.display.infoOverlay = !state;
 		}
 
 		if (!optionKey && key == '3') 
@@ -395,9 +410,9 @@ public class WMV_Input
 		
 		if (!optionKey && key == '#') 
 		{
-			boolean state = p.display.clusterOverlay;
-			p.display.resetDisplayModes();
-			p.display.clusterOverlay = !state;
+//			boolean state = p.display.clusterOverlay;
+//			p.display.resetDisplayModes();
+//			p.display.clusterOverlay = !state;
 		}
 		
 		if (!optionKey && key == '4') 
@@ -409,9 +424,9 @@ public class WMV_Input
 		
 		if (!optionKey && key == '$') 
 		{
-			boolean state = p.display.controlOverlay;
-			p.display.resetDisplayModes();
-			p.display.controlOverlay = !state;
+//			boolean state = p.display.controlOverlay;
+//			p.display.resetDisplayModes();
+//			p.display.controlOverlay = !state;
 		}
 		
 		if (!optionKey && key == '5') 
@@ -436,15 +451,18 @@ public class WMV_Input
 		}
 		
 		if (key == '_')
-			p.showModel = !p.showModel;
+		{
+			boolean state = !p.showModel;
+			p.showModel = state;
+//			if(p.display.window.setupGraphicsWindow)
+//				p.display.window.chkbxShowModel.setSelected(state);
+		}
 		
-//		if (key == '+')
-//			p.viewer.dateNavigation = !p.viewer.dateNavigation;
+		if (key == '+')
+		{
+			
+		}
 		
-		/* Clustering */
-		if (key == 'r')
-			p.startInteractiveClustering();
-
 		if (key == 'C')
 			p.startInitialClustering();				// Re-run clustering on all fields
 		
@@ -453,6 +471,10 @@ public class WMV_Input
 		
 		if(p.display.map || p.display.mapOverlay)	/* 2D Map View */
 		{
+			/* Clustering */
+			if (key == 'r')
+				p.startInteractiveClustering();
+
 			// Option Key
 //			if (optionKey && key == '1') 
 //				p.display.map2D.mapMode = 1;
@@ -476,21 +498,21 @@ public class WMV_Input
 //				p.display.map2D.mapMode = 7;
 
 			// Option + Shift Keys
-			if (optionKey && key == '!') 
-				p.display.map2D.mapImages = !p.display.map2D.mapImages;
-
-			if (optionKey && key == '@') 
-				p.display.map2D.mapPanoramas = !p.display.map2D.mapPanoramas;
-
-			if (optionKey && key == '#') 
-				p.display.map2D.mapVideos = !p.display.map2D.mapVideos;
+//			if (optionKey && key == '!') 
+//				p.display.map2D.mapImages = !p.display.map2D.mapImages;
+//
+//			if (optionKey && key == '@') 
+//				p.display.map2D.mapPanoramas = !p.display.map2D.mapPanoramas;
+//
+//			if (optionKey && key == '#') 
+//				p.display.map2D.mapVideos = !p.display.map2D.mapVideos;
 
 			if (key == ']') {
-				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 1.176f);
+				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 0.85f);
 			}
 
 			if (key == '[') {
-				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 0.85f);
+				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 1.176f);
 			}
 
 			if (key == PApplet.CODED) 					
@@ -502,16 +524,16 @@ public class WMV_Input
 					p.viewer.rotateX(1);
 				
 				if (shiftKey && keyCode == PApplet.LEFT) 
-					p.display.map2D.mapScrollTransition( -50.f, 0.f );
+					p.display.map2D.mapScrollTransition( 100.f * p.display.map2D.mapZoom, 0.f );
 
 				if (shiftKey && keyCode == PApplet.RIGHT) 
-					p.display.map2D.mapScrollTransition( 50.f, 0.f );
+					p.display.map2D.mapScrollTransition( -100.f * p.display.map2D.mapZoom, 0.f );
 
 				if (shiftKey && keyCode == PApplet.DOWN) 
-					p.display.map2D.mapScrollTransition( 0.f, 50.f );
+					p.display.map2D.mapScrollTransition( 0.f, -100.f * p.display.map2D.mapZoom );
 
 				if (shiftKey && keyCode == PApplet.UP) 
-					p.display.map2D.mapScrollTransition( 0.f, -50.f );
+					p.display.map2D.mapScrollTransition( 0.f, 100.f * p.display.map2D.mapZoom );
 			}
 		}
 		else if(p.display.info || p.display.infoOverlay)		/* Info View */
@@ -576,7 +598,6 @@ public class WMV_Input
 			{
 				if(p.thinningAngle > PApplet.PI / 64.f)
 					p.thinningAngle -= PApplet.PI / 128.f;
-//				p.display.message("Set thinningAngle:"+p.thinningAngle);
 				p.getCurrentField().model.analyzeClusterMediaDirections();
 			}
 
@@ -584,7 +605,6 @@ public class WMV_Input
 			{
 				if(p.thinningAngle < p.visibleAngle - PApplet.PI / 128.f)
 					p.thinningAngle += PApplet.PI / 128.f;
-//				p.display.message("Set thinningAngle:"+p.thinningAngle);
 				p.getCurrentField().model.analyzeClusterMediaDirections();
 			}
 
@@ -607,7 +627,12 @@ public class WMV_Input
 				p.viewer.walkForward();
 
 			if (optionKey && key == 'm') 
-				p.showMetadata = !p.showMetadata;
+			{				
+				boolean state = !p.showMetadata;
+				p.showMetadata = state;
+				if(p.display.window.setupSelectionWindow)
+					p.display.window.chkbxShowMetadata.setSelected(state);
+			}
 
 			if (key == 'Q')
 				p.viewer.moveToNextCluster(false, -1);
@@ -630,7 +655,12 @@ public class WMV_Input
 				p.viewer.moveToRandomCluster(false);				// Jump (teleport) to random cluster
 
 			if (key == 'I')
-				p.orientationMode = !p.orientationMode;
+			{
+				boolean state = !p.orientationMode;
+				p.orientationMode = state;
+				if(p.display.window.setupGraphicsWindow)
+					p.display.window.chkbxOrientationMode.setSelected(state);
+			}
 
 			if (key == 'W') 
 				p.viewer.moveToNearestClusterAhead(false);
@@ -692,16 +722,40 @@ public class WMV_Input
 			
 			if (key == '~')
 				if(!p.viewer.isFollowing())
+				{
 					p.viewer.followMemory();
+					if(p.display.window.setupNavigationWindow)
+					{
+						p.display.window.optTimeline.setSelected(true);
+						p.display.window.optGPSTrack.setSelected(false);
+						p.display.window.optMemory.setSelected(false);
+					}
+				}
 
 			if (optionKey && key == 'g')
 				if(!p.viewer.isFollowing())
+				{
 					p.viewer.followGPSTrack();
+					if(p.display.window.setupNavigationWindow)
+					{
+						p.display.window.optTimeline.setSelected(false);
+						p.display.window.optGPSTrack.setSelected(true);
+						p.display.window.optMemory.setSelected(false);
+					}
+				}
 			
 			if (!optionKey && key == '>')
 			{
 				if(!p.viewer.isFollowing())
+				{
 					p.viewer.followTimeline(true, false);
+					if(p.display.window.setupNavigationWindow)
+					{
+						p.display.window.optTimeline.setSelected(false);
+						p.display.window.optGPSTrack.setSelected(false);
+						p.display.window.optMemory.setSelected(true);
+					}
+				}
 			}
 
 			if (key == 'u') 		// Teleport to nearest cluster with video
@@ -741,7 +795,14 @@ public class WMV_Input
 			if(!p.display.inDisplayView())							
 			{
 				if (optionKey && key == 'e')
-					p.blurEdges = !p.blurEdges;
+				{
+					boolean state = !p.fadeEdges;
+					p.fadeEdges = state;
+					if(p.display.window.setupGraphicsWindow)
+					{
+						p.display.window.chkbxFadeEdges.setSelected(state);
+					}
+				}
 
 				if (key == 'i')	
 				{
@@ -768,22 +829,30 @@ public class WMV_Input
 				}
 
 				if (key == 'P')
-					p.alphaMode = !p.alphaMode;
+				{
+					boolean state = !p.alphaMode;
+					p.alphaMode = state;
+					if(p.display.window.setupGraphicsWindow)
+						p.display.window.chkbxAlphaMode.setSelected(state);
+				}
 
 				if (!shiftKey && optionKey && key == ' ') 
 				{
-					p.timeFading = !p.timeFading;
+					boolean state = !p.timeFading;
+					p.timeFading = state;
+					if(p.display.window.setupGraphicsWindow)
+					{
+						p.display.window.chkbxTimeFading.setSelected(state);
+					}
 				}
 
 				if (key == ')') {
 					float newAlpha = PApplet.constrain(p.alpha+15.f, 0.f, 255.f);
 					p.fadeAlpha(newAlpha);
-//					PApplet.println("p.alpha goal:"+newAlpha);
 				}
 
 				if (key == '(') {
 					float newAlpha = PApplet.constrain(p.alpha-15.f, 0.f, 255.f);
-//					PApplet.println("p.alpha goal:"+newAlpha);
 					p.fadeAlpha(newAlpha);
 				}
 
@@ -848,12 +917,22 @@ public class WMV_Input
 				/* Graphics */
 				if (key == 'G')
 				{
-					p.angleFading = !p.angleFading;
+					boolean state = !p.angleFading;
+					p.angleFading = state;
+					if(p.display.window.setupGraphicsWindow)
+					{
+						p.display.window.chkbxAngleFading.setSelected(state);
+					}
 				}
 				
 				if (key == 'H')
 				{
-					p.angleThinning = !p.angleThinning;
+					boolean state = !p.angleThinning;
+					p.angleThinning = state;
+					if(p.display.window.setupGraphicsWindow)
+					{
+						p.display.window.chkbxAngleThinning.setSelected(state);
+					}
 				}
 
 				/* Output */

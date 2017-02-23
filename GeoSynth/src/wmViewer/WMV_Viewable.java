@@ -280,7 +280,7 @@ public abstract class WMV_Viewable
 		int fadeInEnd = 0;									// When image reaches full brightness
 		int fadeOutStart = 0;								// When image starts fading out
 		int fadeOutEnd = 0;									// When image finishes fading out
-		int fadeLength = fadeOutEnd - fadeOutStart;
+//		int fadeLength = fadeOutEnd - fadeOutStart;
 
 		boolean error = false;
 		float lower, upper;
@@ -289,20 +289,24 @@ public abstract class WMV_Viewable
 		
 		if(p.p.timeMode == 0)								// Time Mode: Cluster
 		{
-			WMV_Cluster c = p.p.getCluster(cluster);			// Get cluster for this media
-
-			curTime = c.currentTime;
-			if(c.dateline.size() == 1)
+			WMV_Cluster c = p.p.getCluster(cluster);		// Get cluster for this media
+			curTime = c.currentTime;						// Set image time from cluster
+			
+			if(c.dateline != null)
 			{
-				lower = c.timeline.get(0).getLower().getTime() / p.p.clusterTimePrecision;							// Get cluster timeline lower bound
-				upper = c.timeline.get(c.timeline.size()-1).getUpper().getTime() / p.p.clusterTimePrecision;			// Get cluster timeline upper bound
+				if(c.dateline.size() == 1)
+				{
+					lower = c.timeline.get(0).getLower().getTime() / p.p.clusterTimePrecision;						// Get cluster timeline lower bound
+					upper = c.timeline.get(c.timeline.size()-1).getUpper().getTime() / p.p.clusterTimePrecision;	// Get cluster timeline upper bound
+				}
+				else
+				{
+					lower = c.timelines.get(0).get(0).getLower().getTime() / p.p.clusterTimePrecision;							// Get cluster timeline lower bound
+					int lastIdx = c.timelines.size()-1;
+					upper = c.timelines.get(lastIdx).get(c.timelines.get(lastIdx).size()-1).getUpper().getTime() / p.p.clusterTimePrecision;			// Get cluster timeline upper bound
+				}
 			}
-			else
-			{
-				lower = c.timelines.get(0).get(0).getLower().getTime() / p.p.clusterTimePrecision;							// Get cluster timeline lower bound
-				int lastIdx = c.timelines.size()-1;
-				upper = c.timelines.get(lastIdx).get(c.timelines.get(lastIdx).size()-1).getUpper().getTime() / p.p.clusterTimePrecision;			// Get cluster timeline upper bound
-			}
+			else return 0.f;
 		}
 		else										// Time Mode: Field
 		{
@@ -311,7 +315,7 @@ public abstract class WMV_Viewable
 			upper = p.p.getCurrentField().timeline.get(p.p.getCurrentField().timeline.size()-1).getUpper().getTime() / p.p.clusterTimePrecision;		// Get cluster timeline upper bound
 		}
 		
-		float timelineLength = upper - lower;
+//		float timelineLength = upper - lower;
 //		PApplet.println(">>> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
 
 		if(lower == upper)				// Only one cluster segment

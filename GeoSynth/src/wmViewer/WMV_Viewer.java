@@ -56,7 +56,9 @@ public class WMV_Viewer
 	private PVector pathGoal;							// Next goal point for camera in navigating from memory
 	private boolean following = false;					// Is the camera currently navigating from memory?
 	private int pathLocationIdx;						// Index of current cluster in memory
-	
+	private boolean movingToTimeSegment = false;		// Moving / teleporting to target time segment
+	private int timeSegmentTarget = -1;								// Field time segment goal			
+
 	/* Clusters */
 	private int field = 0;								// Current field
 	public IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
@@ -639,7 +641,7 @@ public class WMV_Viewer
 			if(teleporting)	teleporting = false;
 			if(p.p.debug.viewer)
 				p.display.message("moveToNearestCluster... setting attractor to nearest:"+nearest);
-//			setCurrentCluster( nearest );
+
 			setAttractorCluster( nearest );
 		}
 	}
@@ -711,7 +713,7 @@ public class WMV_Viewer
 	 */
 	public void moveToNextCluster(boolean teleport, int mediaType) 
 	{
-		setCurrentCluster(currentCluster + 1);
+		setCurrentCluster(currentCluster + 1, -1);
 		int next = currentCluster;
 		int count = 0;
 		boolean found = false;
@@ -858,6 +860,9 @@ public class WMV_Viewer
 			}
 			else
 			{
+				movingToTimeSegment = true;								// Set time segment target
+				timeSegmentTarget = fieldTimeSegment;
+				
 				if(teleport)
 					teleportToCluster(clusterID, true);
 				else
@@ -921,7 +926,7 @@ public class WMV_Viewer
 				newField = p.getFieldCount() - 1;
 
 			teleportGoalCluster = 0;
-			setCurrentCluster( 0 );
+			setCurrentCluster( 0, -1 );
 
 			if(p.p.debug.viewer)
 				p.display.message("Moving to field: "+newField+" out of "+p.getFieldCount());
@@ -1521,7 +1526,6 @@ public class WMV_Viewer
 			p.display.message("Setting new attractor:"+newCluster+" old attractor:"+attractorCluster);
 
 		attractorCluster = newCluster;											// Set attractorCluster
-//		setCurrentCluster( newCluster );											// Set currentCluster
 		movingToCluster = true;													// Move to cluster
 		attractionStart = p.p.frameCount;
 		
@@ -1916,13 +1920,19 @@ public class WMV_Viewer
 				p.display.message("Moving to cluster... current:"+currentCluster+" attractor: "+attractorCluster+"...");
 			if(attractorCluster != -1)
 			{
-				setCurrentCluster( attractorCluster );
+				if(movingToTimeSegment)
+					setCurrentCluster( attractorCluster, timeSegmentTarget );
+				else
+					setCurrentCluster( attractorCluster, -1 );
+
 				attractorCluster = -1;
 				
 				p.getCurrentField().clearAllAttractors();	// Stop attracting when reached attractorCluster
 			}
 			else
-				setCurrentCluster( getNearestCluster(true) );
+			{
+				setCurrentCluster( getNearestCluster(true), -1 );
+			}
 			
 			if(p.p.debug.viewer)
 				p.display.message("Reached cluster... current:"+currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+currentFieldTimeSegment);
@@ -1931,7 +1941,7 @@ public class WMV_Viewer
 
 		if(movingToAttractor)		// Stop attracting when reached attractorPoint
 		{
-			setCurrentCluster( getNearestCluster(true) );		// Set currentCluster to nearest
+			setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
 			
 //			turnTowardsPoint(attractorPoint.getLocation());
 			p.getCurrentField().clearAllAttractors();
@@ -2285,7 +2295,11 @@ public class WMV_Viewer
 
 				if(teleportGoalCluster != -1)
 				{
-					setCurrentCluster( teleportGoalCluster );
+					if(movingToTimeSegment)
+						setCurrentCluster( teleportGoalCluster, timeSegmentTarget );
+					else
+						setCurrentCluster( teleportGoalCluster, -1 );
+					
 					teleportGoalCluster = -1;
 				}
 				
@@ -2303,13 +2317,13 @@ public class WMV_Viewer
 					else
 					{
 //						if(currentCluster == -1)
-						setCurrentCluster( getNearestCluster(true) );
+						setCurrentCluster( getNearestCluster(true), -1 );
 					}
 				}
 				if(movingToAttractor)
 				{
 					movingToAttractor = false;
-					setCurrentCluster( getNearestCluster(true) );		// Set currentCluster to nearest
+					setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
 
 //					if(p.p.debug.viewer) p.display.message("Reached attractor... turning towards image");
 //					if(attractorPoint != null)
@@ -3465,31 +3479,37 @@ public class WMV_Viewer
 		return clusterNearDistance;
 	}
 	
-	void setCurrentCluster(int newCluster)
+	void setCurrentCluster(int newCluster, int newFieldTimeSegment)
 	{
-		WMV_Cluster c = p.getCurrentCluster();
-
-		c.timeFading = false;
 		lastCluster = currentCluster;
+
+		WMV_Cluster c = p.getCurrentCluster();
+		c.timeFading = false;
+
 		currentCluster = newCluster;
-		p.getCluster(currentCluster).timeFading = true;
+		c = p.getCurrentCluster();
+		c.timeFading = true;
 		
 		p.display.map2D.setSelectedCluster(-1);
 		
 		WMV_Field f = p.getCurrentField();
-		
-		for(WMV_TimeSegment t : f.timeline)			// Search field timeline for cluster time segment
+		if(newFieldTimeSegment == -1)						// If == -1, search for time segment
 		{
-			if(c.timeline != null)
+			for(WMV_TimeSegment t : f.timeline)			// Search field timeline for cluster time segment
 			{
-				if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))
-					currentFieldTimeSegment = t.getID();					
-			}
-			else
-			{
-				PApplet.println("Current Cluster timeline is NULL!:"+c.getID());
+				if(c.timeline != null)
+				{
+					if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
+						currentFieldTimeSegment = t.getID();						// If match, set currentFieldTimeSegment
+				}
+				else
+				{
+					PApplet.println("Current Cluster timeline is NULL!:"+c.getID());
+				}
 			}
 		}
+		else
+			currentFieldTimeSegment = newFieldTimeSegment;					// Set currentFieldTimeSegment to given value
 		
 		WMV_Date d = f.getDateInCluster(c.getID(), 0);
 		if(d != null) currentFieldDate = d.getID();

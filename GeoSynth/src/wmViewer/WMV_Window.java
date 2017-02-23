@@ -42,31 +42,31 @@ public class WMV_Window {
 	private GButton btnFollowStart, btnFollowStop;	
 
 	/* Graphics Window */
-	private GLabel lblDisplayMode;
-	private GLabel lblGraphicsModes, lblTime, lblNavigationCommands, lblPathFollowing, lblModel, lblOutput;
+	public GLabel lblDisplayMode;
+	public GLabel lblGraphicsModes, lblTime, lblNavigationCommands, lblPathFollowing, lblModel, lblOutput;
 	public GLabel lblCurrentTime;
 	
-	private GCheckbox chkbxTimeFading;
-	private GToggleGroup tgFollow;	
-	private GOption optTimeline, optGPSTrack, optMemory;
-	private GCheckbox chkbxMovementTeleport, chkbxFollowTeleport;
+	public GCheckbox chkbxTimeFading;
+	public GToggleGroup tgFollow;	
+	public GOption optTimeline, optGPSTrack, optMemory;
+	public GCheckbox chkbxMovementTeleport, chkbxFollowTeleport;
 	
-	private GCheckbox chkbxFadeEdges;
-	private GCheckbox chkbxHideImages, chkbxHideVideos, chkbxHidePanoramas;
-	private GCheckbox chkbxAlphaMode;
-	private GCheckbox chkbxOrientationMode;
-	private GCheckbox chkbxAngleFading, chkbxAngleThinning;
+	public GCheckbox chkbxFadeEdges;
+	public GCheckbox chkbxHideImages, chkbxHideVideos, chkbxHidePanoramas;
+	public GCheckbox chkbxAlphaMode;
+	public GCheckbox chkbxOrientationMode;
+	public GCheckbox chkbxAngleFading, chkbxAngleThinning;
 
 	private GLabel lblMediaSize, lblAlpha, lblMediaLength;
-	private GSlider sdrAlpha;//, sdrMediaSize;
-	private GSlider sdrMediaLength;
+	public GSlider sdrAlpha;//, sdrMediaSize;
+	public GSlider sdrMediaLength;
 
 	private GLabel lblSubjectDistance;
 	private GButton btnSubjectDistanceUp, btnSubjectDistanceDown;
 
 	/* Selection Window */
 	private GLabel lblSelection, lblViewing;
-	private GCheckbox chkbxMultiSelection, chkbxSelectGroups, chkbxViewMetadata;
+	public GCheckbox chkbxMultiSelection, chkbxSelectGroups, chkbxShowMetadata;
 	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnExitSelectionMode;
 
 	/* Statistics Window */
@@ -337,8 +337,6 @@ public class WMV_Window {
 		}
 	}
 	
-	
-	
 	void setupGraphicsWindow()
 	{
 		graphicsWindow = GWindow.getWindow(p.p.p, windowTitle, 10, shortSidebarHeight, sidebarWidth, longSidebarHeight, PApplet.JAVA2D);
@@ -542,6 +540,8 @@ public class WMV_Window {
 		btnOutputFolder = new GButton(graphicsWindow, x+100, y, 120, 20, "Set Output Folder");
 		btnOutputFolder.tag = "OutputFolder";
 		btnOutputFolder.setLocalColorScheme(5);
+		
+		setupGraphicsWindow = true;
 	}
 	
 	void setupStatisticsWindow()
@@ -568,6 +568,8 @@ public class WMV_Window {
 		btnExitStatisticsMode.setLocalColorScheme(0);
 		
 		statisticsWindow.addKeyHandler(p.p.p, "statisticsSidebarKey");
+		
+		setupStatisticsWindow = true;
 	}
 
 	void setupSelectionWindow()
@@ -622,9 +624,9 @@ public class WMV_Window {
 		x = 100;
 		y += 30;
 		
-		chkbxViewMetadata = new GCheckbox(selectionWindow, x, y, 110, 20, "View Metadata");
-		chkbxViewMetadata.tag = "ViewMetadata";
-		chkbxViewMetadata.setLocalColorScheme(10);
+		chkbxShowMetadata = new GCheckbox(selectionWindow, x, y, 110, 20, "View Metadata");
+		chkbxShowMetadata.tag = "ViewMetadata";
+		chkbxShowMetadata.setLocalColorScheme(10);
 		
 		x = 50;
 		y += 40;
@@ -634,6 +636,8 @@ public class WMV_Window {
 		btnExitSelectionMode.setLocalColorScheme(0);
 		
 		selectionWindow.addKeyHandler(p.p.p, "selectionSidebarKey");
+		
+		setupSelectionWindow = true;
 	}
 
 	void setupHelpWindow()
@@ -661,6 +665,8 @@ public class WMV_Window {
 		btnExitHelpMode.setLocalColorScheme(0);
 		
 		helpWindow.addKeyHandler(p.p.p, "helpSidebarKey");
+		
+		setupHelpWindow = true;
 	}
 
 

@@ -376,7 +376,7 @@ class WMV_Image extends WMV_Viewable
 		
 		p.p.p.noFill();
 
-		if(p.p.blurEdges)
+		if(p.p.fadeEdges)
 			p.p.p.texture(blurred);
 		else
 			p.p.p.texture(image);        			// Apply the image to the face as a texture 

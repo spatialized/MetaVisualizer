@@ -2,7 +2,7 @@ package wmViewer;
 import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
-import processing.data.FloatList;
+//import processing.data.FloatList;
 import processing.data.IntList;
 
 /*********************************************
@@ -33,10 +33,9 @@ public class WMV_Cluster
 	
 	/* Time */
 	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
-	public boolean dateFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
+	public boolean dateFading = true;					// Does time affect photos' brightness? (true = yes; false = no)
 	public boolean paused = false;						// Time is paused
 
-	public boolean showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
@@ -44,10 +43,11 @@ public class WMV_Cluster
 	public int timeUnitLength = 1;						// How many frames between time increments
 	public float timeInc = timeCycleLength / 30.f;			
 
-	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
-	public int dateCycleLength = 500;					// Length of main date loop in frames
-	public int dateUnitLength = 1;						// How many frames between date increments
-	public float dateInc = dateCycleLength / 30.f;			
+	public int currentDate = 0;							// Current date in timeline	-- Need to implement!!
+	
+//	public int dateCycleLength = 500;					// Length of main date loop in frames
+//	public int dateUnitLength = 1;						// How many frames between date increments
+//	public float dateInc = dateCycleLength / 30.f;			
 
 	public int defaultMediaLength = 125;					// Default frame length of media in time cycle
 //	private FloatList clusterDates, clusterTimes;
@@ -110,8 +110,6 @@ public class WMV_Cluster
 		location = new PVector(_x, _y, _z);
 		id = _clusterID;
 
-//		dayLength = p.p.timeCycleLength; 						// Length of day in time units
-
 		images = new IntList();
 		panoramas = new IntList();
 		videos = new IntList();
@@ -120,32 +118,8 @@ public class WMV_Cluster
 		stitchedPanoramas = new ArrayList<WMV_Panorama>();
 		userPanoramas = new ArrayList<WMV_Panorama>();
 		mediaPoints = 0;
-		
-//		clusterDates = new FloatList();
-//		clusterDatesLowerBounds = new FloatList();
-//		clusterDatesUpperBounds = new FloatList();
-//
-//		clusterTimes = new FloatList();
-//		clusterTimesLowerBounds = new FloatList();
-//		clusterTimesUpperBounds = new FloatList();
-//
-//		fieldTimes = new FloatList();
-//		fieldTimesLowerBounds = new FloatList();
-//		fieldTimesUpperBounds = new FloatList();
-//
-//		fieldDates = new FloatList();
-//		fieldDatesLowerBounds = new FloatList();
-//		fieldDatesUpperBounds = new FloatList();
-		
-//		clusterTimesHistogram = new int[p.p.clusterTimePrecision];
-//		fieldTimesHistogram = new int[p.p.fieldTimePrecision];
-
-//		clusterDatesHistogram = new int[p.p.clusterTimePrecision];
-//		fieldDatesHistogram = new int[p.p.fieldTimePrecision];
 
 		timeline = new ArrayList<WMV_TimeSegment>();
-//		timeUnitLength = p.p.timeUnitLength;					// Length of time unit in frames  (e.g. 10 means every 10 frames)
-//		timeIncrement = p.p.timeInc;							// User time increment
 	}
 	
 	/**
@@ -1133,45 +1107,41 @@ public class WMV_Cluster
 		if(timeFading && !dateFading && p.p.p.frameCount % timeUnitLength == 0)
 		{
 			currentTime++;															// Increment cluster time
-//			PApplet.println("cluster id:"+getID()+" currentTime:"+currentTime);
 			if(currentTime > timeCycleLength)
 				currentTime = 0;
 
-			if(p.p.p.debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
-			{
-				if(p.p.getCurrentField().mediaAreActive())
-				{
-					if(p.p.p.debug.detailed)
-						PApplet.println("Media still active...");
-				}
-				else
-				{
-					currentTime = 0;
-					if(p.p.p.debug.detailed)
-						PApplet.println("Reached end of day at p.frameCount:"+p.p.p.frameCount);
-				}
-			}
+//			if(p.p.p.debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
+//			{
+//				if(p.p.getCurrentField().mediaAreActive())
+//				{
+//					if(p.p.p.debug.detailed)
+//						PApplet.println("Media still active...");
+//				}
+//				else
+//				{
+//					currentTime = 0;
+//					if(p.p.p.debug.detailed)
+//						PApplet.println("Reached end of day at p.frameCount:"+p.p.p.frameCount);
+//				}
+//			}
 		}
 		
-		if(dateFading && !timeFading && p.p.p.frameCount % dateUnitLength == 0)
+		if(timeFading && dateFading && p.p.p.frameCount % timeUnitLength == 0)
 		{
-			currentDate++;															// Increment cluster date
-
-			if(currentDate > dateCycleLength)
-				currentDate = 0;
-
-			if(p.p.p.debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
+			currentTime++;															// Increment cluster time
+			if(currentTime > timeCycleLength)
 			{
-				if(p.p.getCurrentField().mediaAreActive())
-				{
-					if(p.p.p.debug.detailed)
-						PApplet.println("Media still active...");
-				}
-				else
+				currentTime = 0;
+				currentDate++;															// Increment cluster date
+
+				if(p.p.p.debug.cluster || p.p.p.debug.time)
+					PApplet.println("Reached end of day at p.frameCount:"+p.p.p.frameCount);
+
+				if(currentDate > dateline.size())
 				{
 					currentDate = 0;
-					if(p.p.p.debug.detailed)
-						PApplet.println("Reached end of day at p.frameCount:"+p.p.p.frameCount);
+					if(p.p.p.debug.cluster || p.p.p.debug.time)
+						PApplet.println("Reached end of dateline at p.frameCount:"+p.p.p.frameCount);
 				}
 			}
 		}

@@ -107,9 +107,9 @@ public class WMV_Model
 			
 			if(validMedia > 1)
 			{
-			fieldWidth = p.p.p.utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
-			fieldLength = p.p.p.utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
-			fieldHeight = highAltitude - lowAltitude;					
+				fieldWidth = p.p.p.utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
+				fieldLength = p.p.p.utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
+				fieldHeight = highAltitude - lowAltitude;					
 			}
 			else
 			{

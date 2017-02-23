@@ -87,7 +87,7 @@ public class WMV_World
 	private int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
 	private float fadingAlphaStart, fadingAlphaTarget;
 
-	public boolean blurEdges = true;					// Blur image edges
+	public boolean fadeEdges = true;					// Blur image edges
 	public PImage blurMaskLeftTop, blurMaskLeftCenter, 	// Blur masks
 				  blurMaskLeftBottom, blurMaskLeftBoth;
 	public PImage blurMaskCenterTop, blurMaskCenterCenter, 	// Blur masks
@@ -375,29 +375,6 @@ public class WMV_World
 					}
 				}
 			}
-
-//			if(dateFading && !timeFading && p.frameCount % dateUnitLength == 0)
-//			{
-//				currentDate++;															// Increment field date
-//
-//				if(currentDate > dateCycleLength)
-//					currentDate = 0;
-//
-//				if(p.debug.field && currentDate > dateCycleLength + defaultMediaLength * 0.25f)
-//				{
-//					if(getCurrentField().mediaAreActive())
-//					{
-//						if(p.debug.detailed)
-//							PApplet.println("Media still active...");
-//					}
-//					else
-//					{
-//						currentDate = 0;
-//						if(p.debug.detailed)
-//							PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
-//					}
-//				}
-//			}
 		}
 	}
 	
@@ -535,7 +512,7 @@ public class WMV_World
 		fadingAlphaEndFrame = 0; 
 		fadingAlphaLength = 20;	
 
-		blurEdges = true;					// Blur image edges
+		fadeEdges = true;					// Blur image edges
 		drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 		
 		/* Video */
@@ -664,7 +641,7 @@ public class WMV_World
 		startedRunning = true;				// Start GMViewer running
 		p.running = true;	
 		
-		viewer.setCurrentCluster( viewer.getNearestCluster(false) );
+		viewer.setCurrentCluster( viewer.getNearestCluster(false), -1 );
 		getCurrentField().blackoutMedia();
 	}
 	

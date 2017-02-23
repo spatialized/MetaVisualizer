@@ -1321,11 +1321,23 @@ public class WMV_Field
 		return selected;
 	}
 	
+	/**
+	 * Display images in range
+	 */
 	public void showImages()
 	{
 		hideImages = false;
+		if(p.display.window.setupGraphicsWindow)
+		{
+//			PApplet.println("1 p.display.window.chkbxHideImages.isSelected()  "+p.display.window.chkbxHideImages.isSelected());
+			p.display.window.chkbxHideImages.setSelected(false);
+//			PApplet.println("2 p.display.window.chkbxHideImages.isSelected()  "+p.display.window.chkbxHideImages.isSelected());
+		}
 	}
 	
+	/**
+	 * Hide all images
+	 */
 	public void hideImages()
 	{
 		hideImages = true;
@@ -1337,11 +1349,23 @@ public class WMV_Field
 				i.fadeOut();
 			}
 		}
+
+		if(p.display.window.setupGraphicsWindow)
+		{
+//			PApplet.println("1 p.display.window.chkbxHideImages.isSelected()  "+p.display.window.chkbxHideImages.isSelected());
+			p.display.window.chkbxHideImages.setSelected(true);
+//			PApplet.println("2 p.display.window.chkbxHideImages.isSelected()  "+p.display.window.chkbxHideImages.isSelected());
+		}
 	}
 	
 	public void showPanoramas()
 	{
 		hidePanoramas = false;
+
+		if(p.display.window.setupGraphicsWindow)
+		{
+			p.display.window.chkbxHidePanoramas.setSelected(false);
+		}
 	}
 	
 	public void hidePanoramas()
@@ -1376,6 +1400,9 @@ public class WMV_Field
 				}
 			}
 		}
+		
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHidePanoramas.setSelected(true);
 	}
 	
 
@@ -1415,6 +1442,8 @@ public class WMV_Field
 	public void showVideos()
 	{
 		hideVideos = false;
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHideVideos.setSelected(false);
 	}
 	
 	public void hideVideos()
@@ -1428,6 +1457,9 @@ public class WMV_Field
 				v.fadeOut();
 			}
 		}
+		
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHideVideos.setSelected(true);
 	}
 	
 	public void addImageError()

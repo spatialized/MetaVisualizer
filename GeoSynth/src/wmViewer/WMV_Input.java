@@ -454,26 +454,26 @@ public class WMV_Input
 		if(p.display.map || p.display.mapOverlay)	/* 2D Map View */
 		{
 			// Option Key
-			if (optionKey && key == '1') 
-				p.display.map2D.mapMode = 1;
-
-			if (optionKey && key == '2') 
-				p.display.map2D.mapMode = 2;
-
-			if (optionKey && key == '3') 
-				p.display.map2D.mapMode = 3;
-
-			if (optionKey && key == '4') 
-				p.display.map2D.mapMode = 4;
-
-			if (optionKey && key == '5') 
-				p.display.map2D.mapMode = 5;
-
-			if (optionKey && key == '6') 
-				p.display.map2D.mapMode = 6;
-
-			if (optionKey && key == '7') 
-				p.display.map2D.mapMode = 7;
+//			if (optionKey && key == '1') 
+//				p.display.map2D.mapMode = 1;
+//
+//			if (optionKey && key == '2') 
+//				p.display.map2D.mapMode = 2;
+//
+//			if (optionKey && key == '3') 
+//				p.display.map2D.mapMode = 3;
+//
+//			if (optionKey && key == '4') 
+//				p.display.map2D.mapMode = 4;
+//
+//			if (optionKey && key == '5') 
+//				p.display.map2D.mapMode = 5;
+//
+//			if (optionKey && key == '6') 
+//				p.display.map2D.mapMode = 6;
+//
+//			if (optionKey && key == '7') 
+//				p.display.map2D.mapMode = 7;
 
 			// Option + Shift Keys
 			if (optionKey && key == '!') 

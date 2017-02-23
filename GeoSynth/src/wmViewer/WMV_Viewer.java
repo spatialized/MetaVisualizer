@@ -2302,8 +2302,8 @@ public class WMV_Viewer
 					}
 					else
 					{
-						if(currentCluster == -1)
-							setCurrentCluster( getNearestCluster(true) );
+//						if(currentCluster == -1)
+						setCurrentCluster( getNearestCluster(true) );
 					}
 				}
 				if(movingToAttractor)
@@ -3473,6 +3473,8 @@ public class WMV_Viewer
 		lastCluster = currentCluster;
 		currentCluster = newCluster;
 		p.getCluster(currentCluster).timeFading = true;
+		
+		p.display.map2D.setSelectedCluster(-1);
 		
 		WMV_Field f = p.getCurrentField();
 		

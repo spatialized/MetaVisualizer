@@ -444,6 +444,7 @@ public class WMV_World
 		PApplet.println("Finishing setup...");
 		
 //		display.map2D.initializeMaps();
+		display.window.setupWMVWindow();
 		
 		initialSetup = false;				
 		display.initialSetup = false;

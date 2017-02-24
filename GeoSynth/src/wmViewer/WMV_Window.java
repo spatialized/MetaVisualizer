@@ -92,7 +92,7 @@ public class WMV_Window {
 	WMV_Window( WMV_Display parent )
 	{
 		p = parent;
-		setupWMVWindow();
+//		setupWMVWindow();
 	}
 	
 	void openNavigationWindow()
@@ -271,26 +271,26 @@ public class WMV_Window {
 		lblTimeWindow.setTextAlign(GAlign.CENTER, null);
 		lblTimeWindow.setTextBold();
 
-		x = 120;
-		y += 25;
-
-		lblMediaLength = new GLabel(timeWindow, x, y, 80, 20, "Media Length");
-		lblMediaLength.setLocalColorScheme(10);
-
-		x = 105;
-		y += 105;
+		x = 200;
+		y += 30;
 
 		sdrMediaLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrMediaLength.setLocalColorScheme(7);
-		sdrMediaLength.setLimits(p.p.defaultMediaLength, 10.f, 250.f);
-		sdrMediaLength.setRotation(-PApplet.PI/2.f);
+		sdrMediaLength.setLimits(p.p.defaultMediaLength, 250.f, 10.f);
+		sdrMediaLength.setRotation(PApplet.PI/2.f);
 		sdrMediaLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrMediaLength.setEasing(0);
 		sdrMediaLength.setShowValue(true);
 		sdrMediaLength.tag = "MediaLength";
+		
+		x = 50;
+		y += 30;
+		
+		lblMediaLength = new GLabel(timeWindow, x, y, 80, 20, "Media Length");
+		lblMediaLength.setLocalColorScheme(10);
 
 		x = 100;
-		y += 30;
+		y += 60;
 		
 		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 100, 20, "Time Fading");
 		chkbxTimeFading.tag = "TimeFading";
@@ -531,7 +531,6 @@ public class WMV_Window {
 
 		sdrAlpha = new GSlider(graphicsWindow, x, y, 80, 80, 20);
 		sdrAlpha.setLocalColorScheme(7);
-//		sdrAlpha.setLimits(p.p.alpha, 0.f, 255.f);
 		sdrAlpha.setLimits(p.p.alpha, 255.f, 0.f);
 		sdrAlpha.setRotation(PApplet.PI/2.f);
 		sdrAlpha.setTextOrientation(G4P.ORIENT_LEFT);
@@ -543,7 +542,7 @@ public class WMV_Window {
 		sdrBrightness = new GSlider(graphicsWindow, x, y, 80, 80, 20);
 		sdrBrightness.setLocalColorScheme(7);
 		sdrBrightness.setLimits(p.p.viewer.userBrightness, 1.f, 0.f);
-		sdrBrightness.setValue(p.p.viewer.userBrightness);					// Not sure why this is needed, maybe a G4P bug
+		sdrBrightness.setValue(p.p.viewer.userBrightness);					// Not sure why this is needed, maybe a G4P bug?
 		sdrBrightness.setRotation(PApplet.PI/2.f);
 		sdrBrightness.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrBrightness.setEasing(0);
@@ -562,9 +561,9 @@ public class WMV_Window {
 		lblBrightness.setLocalColorScheme(10);
 
 		x = 0;
-		y += 135;
+		y += 65;
 
-		lblGraphicsModes = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "Modes");
+		lblGraphicsModes = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "GraphicsModes");
 		lblGraphicsModes.setLocalColorScheme(10);
 		lblGraphicsModes.setTextAlign(GAlign.CENTER, null);
 		lblGraphicsModes.setTextBold();
@@ -824,41 +823,41 @@ public class WMV_Window {
 	 * @param data the data for the GWindow being used
 	 */
 	public void timeWindowDraw(PApplet applet, GWinData data) {
-		float lineWidthVeryWide = 20f;
-//		float lineWidthWide = 15f;
-		float lineWidth = 15f;
-		
-		float mediumTextSize = 13.f;
-		float smallTextSize = 11.f;
+		if(p.p.p.running)
+		{
+			float lineWidthVeryWide = 20f;
+			//		float lineWidthWide = 15f;
+			float lineWidth = 15f;
 
-		float x = 10, y = 165;			
+			float mediumTextSize = 13.f;
+			float smallTextSize = 11.f;
 
-		applet.background(0);
-		applet.stroke(255);
-		applet.strokeWeight(1);
-		applet.fill(255, 255, 255);
-		
-		applet.textSize(mediumTextSize);
-		applet.text(" Time ", x, y += lineWidthVeryWide);
-		applet.textSize(smallTextSize);
-		applet.text(" Time Mode: "+ ((p.p.p.world.timeMode == 0) ? "Cluster" : "Field"), x, y += lineWidthVeryWide);
-		
-//		if(p.p.p.world.timeMode == 0)
+			float x = 10, y = 165;			
+			applet.background(0);
+			applet.stroke(255);
+			applet.strokeWeight(1);
+			applet.fill(255, 255, 255);
+
+			applet.textSize(smallTextSize);
+			applet.text(" Time Mode: "+ ((p.p.p.world.timeMode == 0) ? "Cluster" : "Field"), x, y += lineWidthVeryWide);
+
+			//		if(p.p.p.world.timeMode == 0)
 			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
-		applet.text(" Current Field Time Segment: "+ p.p.viewer.currentFieldTimeSegment, x, y += lineWidth);
-		applet.text(" Current Cluster Time Segment: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
-//		if(p.p.p.world.timeMode == 1)
+			applet.text(" Current Field Time Segment: "+ p.p.viewer.currentFieldTimeSegment, x, y += lineWidth);
+			applet.text(" Current Cluster Time Segment: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
+			//		if(p.p.p.world.timeMode == 1)
 			applet.text(" Current Cluster Time: "+ p.p.getCurrentCluster().currentTime, x, y += lineWidth);
-		applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().timeline.size(), x, y += lineWidth);
-		applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().dateline.size(), x, y += lineWidth);
+			applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().timeline.size(), x, y += lineWidth);
+			applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().dateline.size(), x, y += lineWidth);
 
-		WMV_Field f = p.p.getCurrentField();
-		if(f.timeline.size() > 0 && p.p.viewer.currentFieldTimeSegment >= 0 && p.p.viewer.currentFieldTimeSegment < f.timeline.size())
-			applet.text(" Upper: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getUpper().getTime()+
-					" Center:"+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getCenter().getTime()+
-					" Lower: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
-		applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
-		applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().dateline.size(), x, y += lineWidth);
+			WMV_Field f = p.p.getCurrentField();
+			if(f.timeline.size() > 0 && p.p.viewer.currentFieldTimeSegment >= 0 && p.p.viewer.currentFieldTimeSegment < f.timeline.size())
+				applet.text(" Upper: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getUpper().getTime()+
+						" Center:"+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getCenter().getTime()+
+						" Lower: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
+			applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
+			applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().dateline.size(), x, y += lineWidth);
+		}
 	}
 
 	/**

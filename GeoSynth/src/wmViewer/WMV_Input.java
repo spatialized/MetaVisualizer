@@ -508,11 +508,11 @@ public class WMV_Input
 //				p.display.map2D.mapVideos = !p.display.map2D.mapVideos;
 
 			if (key == ']') {
-				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 0.85f);
+				p.display.map2D.mapZoomTransition(p.display.map2D.mapDistance * 0.85f);
 			}
 
 			if (key == '[') {
-				p.display.map2D.mapZoomTransition(p.display.map2D.mapZoom * 1.176f);
+				p.display.map2D.mapZoomTransition(p.display.map2D.mapDistance * 1.176f);
 			}
 
 			if (key == PApplet.CODED) 					
@@ -524,16 +524,16 @@ public class WMV_Input
 					p.viewer.rotateX(1);
 				
 				if (shiftKey && keyCode == PApplet.LEFT) 
-					p.display.map2D.mapScrollTransition( 100.f * p.display.map2D.mapZoom, 0.f );
+					p.display.map2D.mapScrollTransition( 100.f * p.display.map2D.mapDistance, 0.f );
 
 				if (shiftKey && keyCode == PApplet.RIGHT) 
-					p.display.map2D.mapScrollTransition( -100.f * p.display.map2D.mapZoom, 0.f );
+					p.display.map2D.mapScrollTransition( -100.f * p.display.map2D.mapDistance, 0.f );
 
 				if (shiftKey && keyCode == PApplet.DOWN) 
-					p.display.map2D.mapScrollTransition( 0.f, -100.f * p.display.map2D.mapZoom );
+					p.display.map2D.mapScrollTransition( 0.f, -100.f * p.display.map2D.mapDistance );
 
 				if (shiftKey && keyCode == PApplet.UP) 
-					p.display.map2D.mapScrollTransition( 0.f, 100.f * p.display.map2D.mapZoom );
+					p.display.map2D.mapScrollTransition( 0.f, 100.f * p.display.map2D.mapDistance );
 			}
 		}
 		else if(p.display.info || p.display.infoOverlay)		/* Info View */
@@ -617,6 +617,17 @@ public class WMV_Input
 			if (!optionKey && key == 'd') 
 				p.viewer.startMoveXTransition(1);
 
+			if( key == 'l' )
+				p.viewer.moveToLastCluster(p.viewer.movementTeleport);
+
+			if( key == 't' )
+			{
+				boolean state = !p.viewer.movementTeleport;
+				p.viewer.movementTeleport = state;
+				if(p.display.window.setupNavigationWindow)
+					p.display.window.chkbxMovementTeleport.setSelected(state);
+			}
+
 			if (key == 'T') 
 				p.timeFading = !p.timeFading;
 
@@ -648,11 +659,11 @@ public class WMV_Input
 				p.paused = !p.paused;
 //				p.display.setFullScreen(!p.display.fullscreen);
 			}
-			if (key == 'J') 
-				p.viewer.moveToRandomCluster(true);					// Move to random cluster
+//			if (key == 'J') 
+//				p.viewer.moveToRandomCluster(p.viewer.movementTeleport);					// Move to random cluster
 
 			if (key == 'j') 
-				p.viewer.moveToRandomCluster(false);				// Jump (teleport) to random cluster
+				p.viewer.moveToRandomCluster(p.viewer.movementTeleport);				// Jump (teleport) to random cluster
 
 			if (key == 'I')
 			{
@@ -679,47 +690,18 @@ public class WMV_Input
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
 			}
 			
-			if(optionKey)
-			{
-//				if (key == 't') 
-//					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, true);
-//
-//				if (key == 'd') 
-//					p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, true);
-//
-//				if (key == 'T')
-//					p.viewer.moveToTimeInField(p.getCurrentField().fieldID, 0, false);
-//
-//				if (key == 'D') 
-//					p.viewer.moveToFirstTimeOnDate(p.getCurrentField().fieldID, 0, false);
+			if (key == 'n')						// Teleport to next time segment
+				p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport);
 
-				if (key == 'n')						// Teleport to next time segment
-					p.viewer.moveToNextTimeSegment(true, true);
+			if (key == 'b')						// Teleport to previous time segment
+				p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport);
 
-				if (key == 'b')						// Teleport to previous time segment
-					p.viewer.moveToPreviousTimeSegment(true, true);
+			if (key == 'N')						// Teleport to next time segment on same date
+				p.viewer.moveToNextTimeSegment(false, p.viewer.movementTeleport);
 
-				if (key == 'N')						// Teleport to next cluster time segment
-					p.viewer.moveToNextTimeSegment(false, true);
+			if (key == 'B')						// Teleport to previous time segment on same date
+				p.viewer.moveToPreviousTimeSegment(false, p.viewer.movementTeleport);
 
-				if (key == 'B')						// Teleport to previous cluster time segment
-					p.viewer.moveToPreviousTimeSegment(false, true);
-			}
-			else
-			{
-				if (key == 'n')						// Move to current time segment
-					p.viewer.moveToNextTimeSegment(true, false);
-
-				if (key == 'b')						// Move to current time segment
-					p.viewer.moveToPreviousTimeSegment(true, false);
-
-				if (key == 'N')						// Move to next cluster time segment
-					p.viewer.moveToNextTimeSegment(false, false);
-
-				if (key == 'B')						// Move to previous cluster time segment
-					p.viewer.moveToPreviousTimeSegment(false, false);
-			}
-			
 			if (key == '~')
 				if(!p.viewer.isFollowing())
 				{
@@ -1312,7 +1294,7 @@ public class WMV_Input
 			p.viewer.walkSlower();
 			p.viewer.lastMovementFrame = p.p.frameCount;
 			if(doubleClick)									
-				p.viewer.moveToNearestCluster(true);
+				p.viewer.moveToNearestCluster(p.viewer.movementTeleport);
 		}
 		
 		if(p.display.map)

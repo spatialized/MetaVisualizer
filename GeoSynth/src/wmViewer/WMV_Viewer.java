@@ -1044,7 +1044,6 @@ public class WMV_Viewer
 	 */
 	void moveToNextTimeSegment(boolean sameDate, boolean teleport)
 	{
-//		PApplet.println("Can't moveToNextTimeSegment... function disabled!");
 		if(!sameDate)
 		{
 			boolean found = false;

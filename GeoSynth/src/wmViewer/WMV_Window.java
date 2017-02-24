@@ -335,6 +335,8 @@ public class WMV_Window {
 			btnGoToNextField.tag = "NextField";
 			btnGoToNextField.setLocalColorScheme(5);
 		}
+		
+		setupNavigationWindow = true;
 	}
 	
 	void setupGraphicsWindow()

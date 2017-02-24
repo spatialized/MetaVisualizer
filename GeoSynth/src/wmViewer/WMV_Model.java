@@ -103,7 +103,6 @@ public class WMV_Model
 			validPanoramas = p.getPanoramaCount();
 			validVideos = p.getVideoCount();
 			validMedia = validImages + validPanoramas + validVideos;
-//			PApplet.println("Valid Media:"+validMedia+" images.size()"+p.images.size()+" videos.size()"+p.videos.size());
 			
 			if(validMedia > 1)
 			{
@@ -121,8 +120,8 @@ public class WMV_Model
 			fieldArea = fieldWidth * fieldLength;				// Use volume instead?
 			mediaDensity = validMedia / fieldArea;				// Media per sq. m.
 
-			//			float fieldVolume = fieldWidth * fieldLength * fieldHeight;		// --Another possibility
-			//			float fieldVolumeDensity = mediaNum / fieldVolume;
+//			float fieldVolume = fieldWidth * fieldLength * fieldHeight;		// --Another possibility
+//			float fieldVolumeDensity = mediaNum / fieldVolume;
 
 			/* Increase maxClusterDistance as mediaDensity decreases */
 			if(p.p.autoClusterDistances)
@@ -193,7 +192,6 @@ public class WMV_Model
 	}
 	
 	/** 
-	 * runInitialClustering()
 	 * Create clusters for all media in field at startup	
 	 */
 	void runInitialClustering() 					
@@ -658,7 +656,6 @@ public class WMV_Model
 	}
 
 	/**
-	 * calculateClustersByDepth()
 	 * @param topCluster Top cluster of dendrogram
 	 * Add to clustersByDepth list all dendrogram clusters at given depth 
 	 */

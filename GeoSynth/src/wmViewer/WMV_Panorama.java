@@ -25,9 +25,8 @@ public class WMV_Panorama extends WMV_Viewable
 	private float phi = 0.f;
 	
 	/* Panorama */
-//	float[] sphereX, sphereY, sphereZ;								// Sphere vertices
-	private PVector[] sphere;		
-	public int panoramaDetail = 50;  										// Sphere detail setting
+	private PVector[] sphere;	
+	public int resolution = 50;  										// Sphere detail setting
 	private float sinTable[];
 	private float cosTable[];
 	private float tablePrecision = 0.5f;
@@ -82,7 +81,7 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		if(requested && texture.width != 0)			// If requested image has loaded, initialize image 
 		{
-			initializeSphere(panoramaDetail);					
+			initializeSphere();					
 
 			requested = false;
 			p.p.requestedPanoramas--;
@@ -143,6 +142,7 @@ public class WMV_Panorama extends WMV_Viewable
 	public void draw()
 	{
 		float brightness = fadingBrightness;					
+		brightness *= p.p.viewer.userBrightness;
 
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
@@ -291,11 +291,11 @@ public class WMV_Panorama extends WMV_Viewable
 			}
 		}
 		
-		float iu = (float)(texture.width-1)/(panoramaDetail);
-		float iv = (float)(texture.height-1)/(panoramaDetail);
+		float iu = (float)(texture.width-1)/(resolution);
+		float iv = (float)(texture.height-1)/(resolution);
 		float u = 0, v = iv;
 
-		for (int i = 0; i < panoramaDetail; i++) 
+		for (int i = 0; i < resolution; i++) 
 		{
 			p.p.p.vertex(0, -r, 0,u,0);
 			p.p.p.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
@@ -308,15 +308,15 @@ public class WMV_Panorama extends WMV_Viewable
 
 		// Draw middle rings
 		int voff = 0;
-		for(int i = 2; i < panoramaDetail; i++) 
+		for(int i = 2; i < resolution; i++) 
 		{
 			v1 = v0 = voff;
-			voff += panoramaDetail;
+			voff += resolution;
 			v2 = voff;
 			u = 0;
 			p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
 			p.p.p.texture(texture);
-			for(int j = 0; j < panoramaDetail; j++) 			// Draw ring
+			for(int j = 0; j < resolution; j++) 			// Draw ring
 			{
 				p.p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
 				p.p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
@@ -336,7 +336,7 @@ public class WMV_Panorama extends WMV_Viewable
 		// Draw northern "cap"
 		p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
 		p.p.p.texture(texture);
-		for(int i = 0; i < panoramaDetail; i++) 
+		for(int i = 0; i < resolution; i++) 
 		{
 			v2 = voff + i;
 			p.p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
@@ -354,7 +354,7 @@ public class WMV_Panorama extends WMV_Viewable
 	/***
 	 * Initialize panorama geometry
 	 */
-	void initializeSphere(int resolution)
+	void initializeSphere()
 	{
 		sinTable = new float[tableLength];
 		cosTable = new float[tableLength];
@@ -406,12 +406,11 @@ public class WMV_Panorama extends WMV_Viewable
 		if( theta != 0.f )
 			sphere = rotateVertices(sphere, 360-theta, azimuthAxis); // Rotate around Z axis
 		
-		panoramaDetail = resolution;
+//		panoramaDetail = panoramaDetail;
 		initialized = true;
 	}
 
 	/**
-	 * loadMedia()
 	 * Request the image to be loaded from disk
 	 */
 	public void loadMedia()

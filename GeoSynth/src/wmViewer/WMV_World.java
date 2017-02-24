@@ -123,6 +123,7 @@ public class WMV_World
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
+	public final float altitudeScalingFactorInit = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
 	public float altitudeScalingFactor = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
 	
 	public boolean showModel = false;					// Activate Model Display 
@@ -381,48 +382,58 @@ public class WMV_World
 	/**
 	 * Load image masks
 	 */
-	public void loadImageMasks(String libFolder)
+	public boolean loadImageMasks(String libFolder)
 	{
 		String maskPath = libFolder + "masks/";
 		stitchingPath = libFolder + "stitched/";
 		File maskFolder = new File(maskPath);
 		String[] maskFolderList = maskFolder.list();
-		for(String mask : maskFolderList)
+		
+		if(maskFolder.list() == null)
 		{
-			if(mask.equals("blurMaskLeftTop.jpg"))
-				blurMaskLeftTop = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskLeftCenter.jpg"))
-				blurMaskLeftCenter = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskLeftBottom.jpg"))
-				blurMaskLeftBottom = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskLeftBoth.jpg"))
-				blurMaskLeftBoth = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskCenterTop.jpg"))
-				blurMaskCenterTop = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskCenterCenter.jpg"))
-				blurMaskCenterCenter = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskCenterBottom.jpg"))
-				blurMaskCenterBottom = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskCenterBoth.jpg"))
-				blurMaskCenterBoth = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskRightTop.jpg"))
-				blurMaskRightTop = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskRightCenter.jpg"))
-				blurMaskRightCenter = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskRightBottom.jpg"))
-				blurMaskRightBottom = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskRightBoth.jpg"))
-				blurMaskRightBoth = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskBothTop.jpg"))
-				blurMaskBothTop = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskBothCenter.jpg"))
-				blurMaskBothCenter = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskBothBottom.jpg"))
-				blurMaskBothBottom = p.loadImage(maskPath + mask);
-			if(mask.equals("blurMaskBothBoth.jpg"))
-				blurMaskBothBoth = p.loadImage(maskPath + mask);
-//			PApplet.println("maskPath + mask:"+(maskPath + mask));
+			return false;
 		}
+		else
+		{
+			for(String mask : maskFolderList)
+			{
+				if(mask.equals("blurMaskLeftTop.jpg"))
+					blurMaskLeftTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftCenter.jpg"))
+					blurMaskLeftCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBottom.jpg"))
+					blurMaskLeftBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBoth.jpg"))
+					blurMaskLeftBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterTop.jpg"))
+					blurMaskCenterTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterCenter.jpg"))
+					blurMaskCenterCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBottom.jpg"))
+					blurMaskCenterBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBoth.jpg"))
+					blurMaskCenterBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightTop.jpg"))
+					blurMaskRightTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightCenter.jpg"))
+					blurMaskRightCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBottom.jpg"))
+					blurMaskRightBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBoth.jpg"))
+					blurMaskRightBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothTop.jpg"))
+					blurMaskBothTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothCenter.jpg"))
+					blurMaskBothCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBottom.jpg"))
+					blurMaskBothBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBoth.jpg"))
+					blurMaskBothBoth = p.loadImage(maskPath + mask);
+				//			PApplet.println("maskPath + mask:"+(maskPath + mask));
+			}
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -576,8 +587,8 @@ public class WMV_World
 
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
-
-		p.selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
+		
+		p.selectFolderPrompt();
 	}
 	
 	/**

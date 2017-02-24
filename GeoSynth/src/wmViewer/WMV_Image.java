@@ -101,7 +101,8 @@ class WMV_Image extends WMV_Viewable
 		float angleBrightnessFactor;							// Fade with angle
 
 		float brightness = fadingBrightness;					
-
+		brightness *= p.p.viewer.userBrightness;
+		
 		distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 

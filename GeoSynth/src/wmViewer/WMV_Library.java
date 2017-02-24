@@ -29,7 +29,7 @@ public class WMV_Library
 	public void addFolder(String newFolder)
 	{
 		folders.add(newFolder);
-		PApplet.println("Added media folder "+newFolder+" to library");
+//		PApplet.println("Added media folder "+newFolder+" to library");
 	}
 	
 	public ArrayList<String> getFolders()

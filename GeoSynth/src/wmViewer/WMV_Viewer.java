@@ -39,7 +39,8 @@ public class WMV_Viewer
 	private float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
 	private float nearViewingDistance = nearClippingDistance * 2.f; // Near distance (m.) at which media start fading out
 	private float farViewingDistance = 12.f; 						// Far distance (m.) at which media start fading out
-
+	public float userBrightness = 1.f;
+	
 	/* Time */
 //	public boolean dateNavigation = true;				// Navigate by date and time (true) or time only (false)
 	public int currentFieldDate = 0;					// Current date in field dateline

@@ -273,6 +273,16 @@ public class WMV_Field
 			videos.get(i).calculateCaptureLocation();
 	}
 	
+	public void recalculateGeometries()
+	{
+		for (WMV_Image i : images)
+			i.calculateVertices();
+		for (WMV_Panorama p : panoramas)
+			p.initializeSphere();
+		for (WMV_Video v : videos)
+			v.calculateVertices();
+	}
+	
 	public void createClusters()
 	{
 		for(WMV_Cluster c : clusters)

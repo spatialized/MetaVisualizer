@@ -144,8 +144,12 @@ public class WMV_Map
 
 				WMV_Model m = p.p.getCurrentField().model;
 				float mapLocX, mapLocY, mapLocZ;
-				mapLocX = PApplet.map( c.getLocation().x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-				mapLocY = PApplet.map( c.getLocation().z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+				PVector point = c.getLocation();
+//				mapLocX = PApplet.map( c.getLocation().x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+//				mapLocY = PApplet.map( c.getLocation().z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+				mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+				mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
+
 				mapLocZ = 0.f;
 				
 				PVector mapLoc = new PVector(mapLocX, mapLocY, mapLocZ);
@@ -327,7 +331,9 @@ public class WMV_Map
 				{
 					/* Find map coordinates for point */
 					mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-					mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+					mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
+//					mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+//					mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
 
 					if(mapLocX < mapWidth && mapLocX > 0 && mapLocY < mapHeight && mapLocY > 0)
 					{
@@ -513,8 +519,6 @@ public class WMV_Map
 		
 //		float arrowSize = 60.f;
 		float arrowSize = p.p.getCurrentModel().fieldWidth;
-//		mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-//		mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
 
 		ScaleMap logMap;
 		logMap = new ScaleMap(6., arrowSize, 6., 60.);		/* Time fading interpolation */
@@ -644,7 +648,9 @@ public class WMV_Map
 		{
 			/* Find map coordinates for point */
 			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+			mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
+//			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+//			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
 
 			if(mapLocX < mapWidth && mapLocX > 0 && mapLocY < mapHeight && mapLocY > 0)
 			{

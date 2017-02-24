@@ -471,7 +471,7 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * Update viewingBrightnessFadeValue each frame
+	 * Update fadingBrightness each frame
 	 */
 	void updateFadingBrightness()
 	{

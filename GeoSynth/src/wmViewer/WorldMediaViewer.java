@@ -225,12 +225,17 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 					parentFilePath = parentFilePath + parts[i] + "/";
 			}
 
-			world.loadImageMasks(parentFilePath);
-			selectedFolder = true;
+			boolean success = world.loadImageMasks(parentFilePath);
+			selectedFolder = success;
 		}
 		
 		if(selectedFolder)
 			selectedLibrary = true;	// Library folder has been selected
+		else
+		{
+			selectedLibrary = false;				// Library in improper format if masks are missing
+			selectFolderPrompt();					// Retry folder prompt
+		}
 	}
 	
 
@@ -328,8 +333,18 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
-	
-	public void navigationSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+
+	public void timeWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if (keyCode == PApplet.LEFT) 
+			PApplet.println("LEFT");
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+	}
+
+	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if (keyCode == PApplet.LEFT) 
 			PApplet.println("LEFT");
@@ -339,7 +354,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
-	public void graphicsSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	public void graphicsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if (keyCode == PApplet.LEFT) 
 			PApplet.println("LEFT");
@@ -349,7 +364,17 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
-	public void selectionSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	public void modelWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if (keyCode == PApplet.LEFT) 
+			PApplet.println("LEFT");
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	public void selectionWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
@@ -357,7 +382,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
-	public void statisticsSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	public void statisticsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
@@ -365,12 +390,17 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
-	public void helpSidebarKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	public void selectFolderPrompt()
+	{
+		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
 	/**

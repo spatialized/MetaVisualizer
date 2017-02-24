@@ -542,7 +542,7 @@ public class WMV_Cluster
 				if(p.p.p.debug.panorama || p.p.p.debug.stitching)
 					PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
 
-				pano.initializeSphere(pano.panoramaDetail);
+				pano.initializeSphere();
 				
 				userPanoramas.add(pano);
 
@@ -602,7 +602,7 @@ public class WMV_Cluster
 						
 						if(pano != null)
 						{
-							pano.initializeSphere(pano.panoramaDetail);
+							pano.initializeSphere();
 							stitchedPanoramas.add(pano);
 
 							m.hide();

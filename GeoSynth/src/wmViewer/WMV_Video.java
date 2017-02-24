@@ -112,6 +112,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		float angleBrightness;
 
 		float brightness = fadingBrightness;					
+		brightness *= p.p.viewer.userBrightness;
 
 		distanceBrightness = getDistanceBrightness(); 
 		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera

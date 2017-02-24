@@ -39,11 +39,40 @@ public class WMV_Input
 		{
 			p.alpha = slider.getValueF();
 		}
+		
+		if (slider.tag == "Brightness") 
+		{
+			p.viewer.userBrightness = slider.getValueF();
+		}
 
 		if (slider.tag == "MediaLength") 
 		{
 			p.defaultMediaLength = slider.getValueI();
 		}
+		
+		if (slider.tag == "AltitudeScaling") 
+		{
+			p.altitudeScalingFactor = slider.getValueF();
+			PApplet.println("altitudeScalingFactor:"+p.altitudeScalingFactor);
+			p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+			p.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
+			p.getCurrentField().createClusters();				// Recalculate cluster locations
+		}
+
+//		if (!optionKey && key == ']') {
+//			float value = p.altitudeScalingFactor * 1.052f;
+//			p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
+//			p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+//			p.getCurrentField().createClusters();				// Recalculate cluster locations
+//		}
+//
+//		if (!optionKey && key == '[') {
+//			float value = p.altitudeScalingFactor *= 0.95f;
+//			p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
+//			p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+//			p.getCurrentField().createClusters();				// Recalculate cluster locations
+//		}
+		
 //		  if (slider == sdr)  // The slider being configured?
 //	    println(sdr.getValueS() + "    " + event);    
 //	  if (slider == sdrEasing)
@@ -91,6 +120,10 @@ public class WMV_Input
 			/* Navigation */
 			case "OpenNavigationWindow":
 				p.display.window.openNavigationWindow();
+				break;
+
+			case "CloseNavigationWindow":
+				p.display.window.navigationWindow.setVisible(false);
 				break;
 	
 			case "NearestCluster":
@@ -141,42 +174,40 @@ public class WMV_Input
 				p.getCurrentField().fadeObjectDistances(1.176f);
 				break;
 				
-			case "CloseNavigationWindow":
-//				p.display.sidebarView = 0;
-				p.display.window.navigationWindow.setVisible(false);
-				break;
-	
+				/* Help */
 			case "OpenHelpWindow":
-//				p.display.sidebarView = 2;
 				p.display.window.openHelpWindow();
-//				p.display.window.helpWindow.setVisible(true);
 				break;
 				
 			case "CloseHelpWindow":
-//				p.display.sidebarView = 0;
 				p.display.window.helpWindow.setVisible(false);
 				break;
 				
+				/* Statistics */
 			case "OpenStatisticsWindow":
-//				p.display.sidebarView = 1;
 				p.display.window.openStatisticsWindow();
 //				p.display.window.statisticsWindow.setVisible(true);
 				break;
 				
 			case "CloseStatisticsWindow":
-//				p.display.sidebarView = 0;
 				p.display.window.statisticsWindow.setVisible(false);
 				break;
 
+				/* Time */
+			case "OpenTimeWindow":
+				p.display.window.openTimeWindow();
+				break;
+				
+			case "CloseTimeWindow":
+				p.display.window.graphicsWindow.setVisible(false);
+				break;
+				
 				/* Graphics */
 			case "OpenGraphicsWindow":
-//				p.display.sidebarView = 1;
 				p.display.window.openGraphicsWindow();
-//				p.display.window.graphicsWindow.setVisible(true);
 				break;
-	
+				
 			case "CloseGraphicsWindow":
-//				p.display.sidebarView = 0;
 				p.display.window.graphicsWindow.setVisible(false);
 				break;
 
@@ -187,6 +218,15 @@ public class WMV_Input
 				p.viewer.startZoomTransition(1);
 				break;
 	
+				/* Model */
+			case "OpenModelWindow":
+				p.display.window.openModelWindow();
+				break;
+				
+			case "CloseModelWindow":
+				p.display.window.modelWindow.setVisible(false);
+				break;
+				
 			/* Time */
 			case "NextTime":
 				p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport);
@@ -472,8 +512,8 @@ public class WMV_Input
 		if(p.display.map || p.display.mapOverlay)	/* 2D Map View */
 		{
 			/* Clustering */
-			if (key == 'r')
-				p.startInteractiveClustering();
+//			if (key == 'r')
+//				p.startInteractiveClustering();
 
 			// Option Key
 //			if (optionKey && key == '1') 
@@ -638,7 +678,7 @@ public class WMV_Input
 				p.viewer.walkForward();
 
 			if (optionKey && key == 'm') 
-			{				
+			{
 				boolean state = !p.showMetadata;
 				p.showMetadata = state;
 				if(p.display.window.setupSelectionWindow)
@@ -681,6 +721,7 @@ public class WMV_Input
 				p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
+				p.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
 			}
 
 			if (!optionKey && key == '[') {
@@ -688,6 +729,7 @@ public class WMV_Input
 				p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
+				p.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
 			}
 			
 			if (key == 'n')						// Teleport to next time segment

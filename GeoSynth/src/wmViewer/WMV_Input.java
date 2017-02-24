@@ -1,5 +1,6 @@
 package wmViewer;
 import g4p_controls.GButton;
+import g4p_controls.GCheckbox;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
@@ -320,9 +321,12 @@ public class WMV_Input
 				break;
 			case "MovementTeleport":
 				p.viewer.movementTeleport = option.isSelected();
+				if(!p.viewer.movementTeleport)
+					p.viewer.stopFollowing();
 				break;
+				
 			case "FollowTeleport":
-//				p.timeFading = option.isSelected();
+				//--need to implement
 				break;
 				
 			/* Graphics */
@@ -363,6 +367,20 @@ public class WMV_Input
 				break;
 			case "AngleThinning":
 				p.angleThinning = option.isSelected();
+				break;
+				
+			/* Model */
+			case "ShowModel":
+				p.showModel = option.isSelected();
+				break;
+			case "MediaToCluster":
+				p.showMediaToCluster = option.isSelected();
+				break;
+			case "CaptureToMedia":
+				p.showCaptureToMedia = option.isSelected();
+				break;
+			case "CaptureToCluster":
+				p.showCaptureToCluster = option.isSelected();
 				break;
 				
 			/* Selection */
@@ -494,8 +512,8 @@ public class WMV_Input
 		{
 			boolean state = !p.showModel;
 			p.showModel = state;
-//			if(p.display.window.setupGraphicsWindow)
-//				p.display.window.chkbxShowModel.setSelected(state);
+			if(p.display.window.setupGraphicsWindow)
+				p.display.window.chkbxShowModel.setSelected(state);
 		}
 		
 		if (key == '+')

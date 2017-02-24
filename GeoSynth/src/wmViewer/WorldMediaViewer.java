@@ -326,8 +326,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	{
 //		PApplet.println("sidebarKey:"+keyevent.getKey());
 //		PApplet.println("sidebarKeyCode:"+keyevent.getKeyCode());
-		if (keyCode == PApplet.LEFT) 
-			PApplet.println("LEFT");
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
@@ -336,8 +334,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 
 	public void timeWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-		if (keyCode == PApplet.LEFT) 
-			PApplet.println("LEFT");
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
@@ -346,8 +342,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-		if (keyCode == PApplet.LEFT) 
-			PApplet.println("LEFT");
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
@@ -356,8 +350,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	
 	public void graphicsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-		if (keyCode == PApplet.LEFT) 
-			PApplet.println("LEFT");
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
@@ -366,8 +358,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	
 	public void modelWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-		if (keyCode == PApplet.LEFT) 
-			PApplet.println("LEFT");
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)

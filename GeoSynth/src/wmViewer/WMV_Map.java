@@ -340,7 +340,7 @@ public class WMV_Map
 						simpleClusters.stroke(mapClusterHue, 255.f, 255.f, 255.f);
 //						simpleClusters.strokeWeight(PApplet.sqrt(c.mediaPoints) * 0.85f);
 //						float sw = PApplet.sqrt(c.mediaPoints) * 0.7f;
-						float sw = PApplet.sqrt(c.mediaPoints) * 0.25f;
+						float sw = PApplet.sqrt(c.mediaPoints) * 0.5f;
 						sw *= mapDistance;
 						simpleClusters.strokeWeight(sw);
 

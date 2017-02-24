@@ -196,7 +196,6 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * drawLocation()
 	 * @param size Size to draw the video center
 	 * Draw the video center as a colored sphere
 	 */

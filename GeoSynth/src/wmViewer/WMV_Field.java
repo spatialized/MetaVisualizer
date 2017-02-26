@@ -275,8 +275,17 @@ public class WMV_Field
 	
 	public void recalculateGeometries()
 	{
+		int test = 0;
 		for (WMV_Image i : images)
+		{
 			i.calculateVertices();
+			if(i.isSelected())
+			{
+				PApplet.println("New y:"+i.getLocation().y);
+			}
+			test++;
+		}
+
 		for (WMV_Panorama p : panoramas)
 			p.initializeSphere();
 		for (WMV_Video v : videos)

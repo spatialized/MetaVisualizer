@@ -23,7 +23,6 @@ public class WMV_Input
 	private boolean mouseClickedRecently = false;
 	private boolean mouseReleased = false;
 	private int clickedRecentlyFrame = 1000000;
-//	private int releasedRecentlyFrame = 1000000;
 	private int doubleClickSpeed = 10;
 
 	WMV_World p;
@@ -33,55 +32,40 @@ public class WMV_Input
 		wasTimeFading = p.timeFading;
 	}
 
-
 	public void handleSliderEvent(GValueControl slider, GEvent event)
 	{
-		if (slider.tag == "Alpha") 
+		if(p.display.window.setupGraphicsWindow)
 		{
-			p.alpha = slider.getValueF();
+			if (slider.tag == "Alpha") 
+			{
+				p.alpha = slider.getValueF();
+			}
+
+			if (slider.tag == "Brightness") 
+			{
+				p.viewer.userBrightness = slider.getValueF();
+			}
 		}
 		
-		if (slider.tag == "Brightness") 
+		if(p.display.window.setupTimeWindow)
 		{
-			p.viewer.userBrightness = slider.getValueF();
-		}
-
-		if (slider.tag == "MediaLength") 
-		{
-			p.defaultMediaLength = slider.getValueI();
+			if (slider.tag == "MediaLength") 
+			{
+				p.defaultMediaLength = slider.getValueI();
+			}
 		}
 		
 		if (slider.tag == "AltitudeScaling") 
 		{
-			p.altitudeScalingFactor = slider.getValueF();
-			PApplet.println("altitudeScalingFactor:"+p.altitudeScalingFactor);
-			p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
-			p.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
-			p.getCurrentField().createClusters();				// Recalculate cluster locations
+			if(p.display.window.setupModelWindow)
+			{
+				p.altitudeScalingFactor = slider.getValueF();
+				PApplet.println("altitudeScalingFactor:"+p.altitudeScalingFactor);
+				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+				p.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
+				p.getCurrentField().createClusters();				// Recalculate cluster locations
+			}
 		}
-
-//		if (!optionKey && key == ']') {
-//			float value = p.altitudeScalingFactor * 1.052f;
-//			p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
-//			p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
-//			p.getCurrentField().createClusters();				// Recalculate cluster locations
-//		}
-//
-//		if (!optionKey && key == '[') {
-//			float value = p.altitudeScalingFactor *= 0.95f;
-//			p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
-//			p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
-//			p.getCurrentField().createClusters();				// Recalculate cluster locations
-//		}
-		
-//		  if (slider == sdr)  // The slider being configured?
-//	    println(sdr.getValueS() + "    " + event);    
-//	  if (slider == sdrEasing)
-//	    sdr.setEasing(slider.getValueF());    
-//	  else if (slider == sdrNbrTicks)
-//	    sdr.setNbrTicks(slider.getValueI());    
-//	  else if (slider == sdrBack)
-//	    bgcol = slider.getValueI();
 	}
 
 	public void handleButtonEvent(GButton button, GEvent event) 

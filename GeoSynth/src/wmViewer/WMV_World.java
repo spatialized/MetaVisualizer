@@ -123,8 +123,8 @@ public class WMV_World
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
-	public final float altitudeScalingFactorInit = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
-	public float altitudeScalingFactor = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
+	public float altitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
+	public final float altitudeScalingFactorInit = 0.33f;		
 	
 	public boolean showModel = false;					// Activate Model Display 
 	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster

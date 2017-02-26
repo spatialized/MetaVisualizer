@@ -273,19 +273,10 @@ public class WMV_Field
 			videos.get(i).calculateCaptureLocation();
 	}
 	
-	public void recalculateGeometries()
+	public void recalculateGeometries()			// -- Only do this for nearby clusters in large field??
 	{
-		int test = 0;
 		for (WMV_Image i : images)
-		{
 			i.calculateVertices();
-			if(i.isSelected())
-			{
-				PApplet.println("New y:"+i.getLocation().y);
-			}
-			test++;
-		}
-
 		for (WMV_Panorama p : panoramas)
 			p.initializeSphere();
 		for (WMV_Video v : videos)

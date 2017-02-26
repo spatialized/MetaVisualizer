@@ -60,7 +60,6 @@ public class WMV_Input
 			if(p.display.window.setupModelWindow)
 			{
 				p.altitudeScalingFactor = slider.getValueF();
-				PApplet.println("altitudeScalingFactor:"+p.altitudeScalingFactor);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
@@ -70,12 +69,9 @@ public class WMV_Input
 
 	public void handleButtonEvent(GButton button, GEvent event) 
 	{ 
-		//		  PApplet.println("button.tagNo:"+button.tagNo);
-		//		  PApplet.println("button.tag:"+button.tag);
-
 		switch(button.tag) 
 		{
-			/* Views + General */
+			/* General */
 			case "Scene":
 				p.display.resetDisplayModes();
 				break;

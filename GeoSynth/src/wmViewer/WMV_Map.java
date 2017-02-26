@@ -38,13 +38,18 @@ public class WMV_Map
 	private float mapMediaTransparency = 120.f;
 	private float minSaturation = 120.f, maxSaturation = 210.f;
 
+	private float fieldRatio;
+	
 	float largeMapWidth, largeMapHeight, largeMapMaxWidth, largeMapMaxHeight;
 	float largeMapXOffset, largeMapYOffset;
 	float largeMapZoomLevel = 1.f;
-	
+
+	float zoomMapLeftEdge = 0.f, zoomMapTopEdge = 0.f;
+	float zoomMapWidth, zoomMapHeight, zoomMapMaxWidth, zoomMapMaxHeight;
+	float zoomMapXOffset, zoomMapYOffset;
+
 	float smallMapWidth, smallMapHeight, smallMapMaxWidth, smallMapMaxHeight;
 	float smallMapXOffset, smallMapYOffset;
-	float logoXOffset, logoYOffset;
 
 	float smallPointSize;
 	float mediumPointSize;
@@ -77,9 +82,6 @@ public class WMV_Map
 		smallMapMaxWidth = p.p.p.width / 4.f;
 		smallMapMaxHeight = p.p.p.height / 4.f;
 
-		logoXOffset = p.p.p.width - p.p.p.width / 3.f;
-		logoYOffset = p.p.p.height / 2.5f;
-
 		smallPointSize = 0.0000022f * p.p.p.width;
 		mediumPointSize = 0.0000028f * p.p.p.width;
 		largePointSize = 0.0000032f * p.p.p.width;
@@ -89,21 +91,12 @@ public class WMV_Map
 
 	void initializeLargeMap()
 	{
-//		float fr = p.p.getCurrentField().model.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
+		fieldRatio = p.p.getCurrentField().model.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
 
 		largeMapWidth = largeMapMaxWidth;
 		largeMapHeight = largeMapMaxHeight;
 
-//		if(fr > 1)
-//		{
-//			largeMapWidth = largeMapMaxWidth;
-//			largeMapHeight = largeMapWidth / fr;
-//		}
-//		else
-//		{
-//			largeMapHeight = largeMapMaxHeight;
-//			largeMapWidth = largeMapHeight * fr;
-//		}
+		zoomToRectangle(0, 0, largeMapMaxWidth, largeMapMaxHeight);
 	}
 
 	void initializeMaps()
@@ -138,46 +131,36 @@ public class WMV_Map
 				ellipsoid.drawMode(S3D.SOLID);
 				ellipsoid.fill(p.p.p.color(105.f, 225.f, 200.f, mapMediaTransparency));
 				ellipsoid.fill(p.p.p.color(105.f, 225.f, 200.f, 255.f));
-//				ellipsoid.stroke(p.p.p.color(105.f, 225.f, 200.f, mapMediaTransparency));
-//				ellipsoid.fill(p.p.p.color(105.f, 225.f, 200.f, 180.f));
 				ellipsoid.strokeWeight(0.f);
 
 				WMV_Model m = p.p.getCurrentField().model;
 				float mapLocX, mapLocY, mapLocZ;
 				PVector point = c.getLocation();
-//				mapLocX = PApplet.map( c.getLocation().x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-//				mapLocY = PApplet.map( c.getLocation().z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
-				mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-				mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
-
+				if(fieldRatio >= 1.f)					//	Field ratio == fieldWidth / fieldLength;
+				{
+					mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+					mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
+				}
+				else
+				{
+					mapLocX = PApplet.map( point.x, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapWidth );		
+					mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+				}
 				mapLocZ = 0.f;
 				
 				PVector mapLoc = new PVector(mapLocX, mapLocY, mapLocZ);
 				
-				// -- Hide clusters out of view 
-				//	Check mapDistance < threshold given by fieldWidth / fieldLength -- also take mapLeftEdge / mapTopEdge into account
-//				float widthRatio = mapWidth / m.fieldWidth;
-//				float heightRatio = mapHeight / m.fieldHeight;
-//				float widthThreshold = 0.75f * widthRatio;
-//				float heightThreshold = 0.75f * heightRatio;
-				
-//				PApplet.print("widthRatio:"+widthRatio);
-//				PApplet.print(" heightRatio:"+heightRatio);
-//				PApplet.print(" widthThreshold:"+widthThreshold);
-//				PApplet.println(" heightThreshold:"+heightThreshold);
-//				PApplet.println("--> mapDistance:"+mapDistance);
-				
-//				if(mapDistance > widthThreshold || mapDistance > heightThreshold)
-//				{
+				if( mapLoc.x > 0 && mapLoc.x < zoomMapWidth && mapLoc.y > 0 && mapLoc.y < zoomMapHeight )	//-- Makes clusters unselectable!??
+				{
 					mapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
 					mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
 					ellipsoid.moveTo(mapLoc.x, mapLoc.y, mapLoc.z);
 					ellipsoid.tagNo = c.getID();
 					selectableClusters.add(ellipsoid);
-//				}
+				}
 //				else
 //				{
-//					PApplet.println("Hidden:"+c.getID());
+//					PApplet.println("hidden:"+mapLoc.x+" "+mapLoc.y+" "+mapLoc.z+" zoomMapWidth:"+zoomMapWidth+" zoomMapHeight:"+zoomMapHeight);
 //				}
 			}
 		}
@@ -330,10 +313,18 @@ public class WMV_Map
 				if(!p.p.p.utilities.isNaN(point.x) && !p.p.p.utilities.isNaN(point.y) && !p.p.p.utilities.isNaN(point.z))
 				{
 					/* Find map coordinates for point */
-					mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-					mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
+					if(fieldRatio >= 1.f)					//	Field ratio == fieldWidth / fieldLength;
+					{
+						mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+						mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
+					}
+					else
+					{
+						mapLocX = PApplet.map( point.x, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapWidth );		
+						mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+					}
 //					mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-//					mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+//					mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
 
 					if(mapLocX < mapWidth && mapLocX > 0 && mapLocY < mapHeight && mapLocY > 0)
 					{
@@ -518,7 +509,7 @@ public class WMV_Map
 		float ptSize = cameraPointSize;
 		
 //		float arrowSize = 60.f;
-		float arrowSize = p.p.getCurrentModel().fieldWidth;
+		float arrowSize = fieldRatio >= 1 ? p.p.getCurrentModel().fieldWidth : p.p.getCurrentModel().fieldLength;
 
 		ScaleMap logMap;
 		logMap = new ScaleMap(6., arrowSize, 6., 60.);		/* Time fading interpolation */
@@ -647,10 +638,18 @@ public class WMV_Map
 		if(!p.p.p.utilities.isNaN(point.x) && !p.p.p.utilities.isNaN(point.y) && !p.p.p.utilities.isNaN(point.z))
 		{
 			/* Find map coordinates for point */
-			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-			mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
+			if(fieldRatio >= 1.f)					//	Field ratio == fieldWidth / fieldLength;
+			{
+				mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
+				mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
+			}
+			else
+			{
+				mapLocX = PApplet.map( point.x, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapWidth );		
+				mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+			}
 //			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-//			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+//			mapLocY = PApplet.map( point.z, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight );
 
 			if(mapLocX < mapWidth && mapLocX > 0 && mapLocY < mapHeight && mapLocY > 0)
 			{
@@ -738,22 +737,6 @@ public class WMV_Map
 		selectedCluster = newCluster;
 	}
 	
-//	public WMV_Cluster getNearestClusterToMouse( PVector mousePoint )
-//	{
-//		WMV_Model m = p.p.getCurrentModel();
-//
-//		float sceneLocX = PApplet.map( mousePoint.x, 0, largeMapWidth, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth );		
-//		float sceneLocY = PApplet.map( mousePoint.z, 0, largeMapHeight, -0.5f * m.fieldLength, 0.5f*m.fieldLength );
-//		float sceneLocZ = 0.f;
-//		
-//		PVector target = new PVector(sceneLocX, sceneLocY, sceneLocZ);
-//		
-//		int clusterID = p.p.getCurrentField().getNearestClusterToPoint(target);
-//		WMV_Cluster cluster = p.p.getCluster(clusterID);
-//
-//		return cluster;
-//	}
-	
 	/**
 	 * Draw camera attraction force vector
 	 */
@@ -840,7 +823,25 @@ public class WMV_Map
 
 		mapDistance = newZoomLevel;
 	}
-	
+
+
+	/**
+	 * Zoom to rectangle in large map
+	 * @param boxXOffset X offset in large map of rectangle
+	 * @param boxYOffset Y offset in large map of rectangle
+	 * @param boxWidth Width of rectangle
+	 * @param boxHeight Height of rectangle
+	 */
+	void zoomToRectangle(float boxXOffset, float boxYOffset, float boxWidth, float boxHeight)	// -- Use clusters instead of absolute?
+	{
+		zoomMapXOffset = boxXOffset;
+		zoomMapYOffset = boxYOffset;
+		zoomMapWidth = boxWidth; 
+		zoomMapHeight = boxHeight;
+
+//		mapDistance = newZoomLevel;
+	}
+
 	/**
 	 * Transition map zoom from current to given value
 	 */

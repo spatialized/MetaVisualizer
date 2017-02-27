@@ -561,17 +561,29 @@ public class WMV_Input
 				if (keyCode == PApplet.RIGHT) 
 					p.viewer.rotateX(1);
 				
-				if (shiftKey && keyCode == PApplet.LEFT) 
+				if (!optionKey && shiftKey && keyCode == PApplet.LEFT) 
 					p.display.map2D.mapScrollTransition( 100.f * p.display.map2D.mapDistance, 0.f );
 
-				if (shiftKey && keyCode == PApplet.RIGHT) 
+				if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
 					p.display.map2D.mapScrollTransition( -100.f * p.display.map2D.mapDistance, 0.f );
 
-				if (shiftKey && keyCode == PApplet.DOWN) 
+				if (!optionKey && shiftKey && keyCode == PApplet.DOWN) 
 					p.display.map2D.mapScrollTransition( 0.f, -100.f * p.display.map2D.mapDistance );
 
-				if (shiftKey && keyCode == PApplet.UP) 
+				if (!optionKey && shiftKey && keyCode == PApplet.UP) 
 					p.display.map2D.mapScrollTransition( 0.f, 100.f * p.display.map2D.mapDistance );
+				
+				if (optionKey && shiftKey && keyCode == PApplet.LEFT) 
+					p.display.map2D.zoomRectangleScrollTransition( 100.f * p.display.map2D.mapDistance, 0.f );
+
+				if (optionKey && shiftKey && keyCode == PApplet.RIGHT) 
+					p.display.map2D.zoomRectangleScrollTransition( -100.f * p.display.map2D.mapDistance, 0.f );
+
+				if (optionKey && shiftKey && keyCode == PApplet.DOWN) 
+					p.display.map2D.zoomRectangleScrollTransition( 0.f, -100.f * p.display.map2D.mapDistance );
+
+				if (optionKey && shiftKey && keyCode == PApplet.UP) 
+					p.display.map2D.zoomRectangleScrollTransition( 0.f, 100.f * p.display.map2D.mapDistance );
 			}
 		}
 		else if(p.display.info || p.display.infoOverlay)		/* Info View */

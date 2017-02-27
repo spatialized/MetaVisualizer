@@ -1472,6 +1472,84 @@ public class WMV_Field
 			p.display.window.chkbxHideVideos.setSelected(true);
 	}
 	
+	public WMV_Cluster getEdgeClusterOnZAxis(boolean north)
+	{
+		WMV_Cluster result = null;
+		if(north)
+		{
+			float lowest = 100000.f;
+			int lowestIdx = -1;
+			
+			for(WMV_Cluster c : clusters)
+			{
+				if(c.getLocation().z < lowest && !c.isEmpty())
+				{
+					lowest = c.getLocation().z;
+					lowestIdx = c.getID();
+				}
+			}
+			
+			result = clusters.get(lowestIdx);
+			return result;
+		}
+		else
+		{
+			float highest = -100000.f;
+			int highestIdx = -1;
+			
+			for(WMV_Cluster c : clusters)
+			{
+				if(c.getLocation().z > highest && !c.isEmpty())
+				{
+					highest = c.getLocation().z;
+					highestIdx = c.getID();
+				}
+			}
+
+			result = clusters.get(highestIdx);
+			return result;
+		}
+	}
+	
+	public WMV_Cluster getEdgeClusterOnXAxis(boolean west)
+	{
+		WMV_Cluster result = null;
+		if(west)
+		{
+			float lowest = 100000.f;
+			int lowestIdx = -1;
+			
+			for(WMV_Cluster c : clusters)
+			{
+				if(c.getLocation().x < lowest && !c.isEmpty())
+				{
+					lowest = c.getLocation().x;
+					lowestIdx = c.getID();
+				}
+			}
+			
+			result = clusters.get(lowestIdx);
+			return result;
+		}
+		else
+		{
+			float highest = -100000.f;
+			int highestIdx = -1;
+			
+			for(WMV_Cluster c : clusters)
+			{
+				if(c.getLocation().x > highest && !c.isEmpty())
+				{
+					highest = c.getLocation().x;
+					highestIdx = c.getID();
+				}
+			}
+
+			result = clusters.get(highestIdx);
+			return result;
+		}
+	}
+	
 	public void addImageError()
 	{
 		imageErrors++;

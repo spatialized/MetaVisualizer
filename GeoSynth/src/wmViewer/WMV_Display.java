@@ -224,12 +224,10 @@ class WMV_Display
 				if(p.showMetadata && metadata.size() > 0 && p.viewer.selection)	
 					displayMetadata();
 
-				//			if(aboutOverlay)
-
-				if((map || mapOverlay) && drawForceVector)						// Draw force vector
-				{
-					map2D.drawForceVector();
-				}
+//				if((map || mapOverlay) && drawForceVector)						// Draw force vector
+//				{
+//					map2D.drawForceVector();
+//				}
 			}
 		}
 	}

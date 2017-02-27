@@ -1614,7 +1614,6 @@ public class WMV_Viewer
 		PVector gpsLoc = new PVector(newX, newY);
 
 		return gpsLoc;
-//		return new PVector(0,0,0);
 	}
 	
 	/**

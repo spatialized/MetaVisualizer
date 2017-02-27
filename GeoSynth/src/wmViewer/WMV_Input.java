@@ -813,6 +813,9 @@ public class WMV_Input
 			if (key == 'z') 
 				p.viewer.startZoomTransition(1);
 
+			if (key == 'Z')
+				p.display.map2D.zoomToRectangle(100, 50, p.display.map2D.largeMapWidth * 0.5f, p.display.map2D.largeMapHeight * 0.5f);
+			
 			/* 3D Controls Disabled in HUD View */
 			if(!p.display.inDisplayView())							
 			{
@@ -1011,11 +1014,9 @@ public class WMV_Input
 				if(!p.autoClusterDistances && p.minClusterDistance > 0.25f)
 				{
 					p.minClusterDistance -= 0.25f;
-//					PApplet.println("p.minClusterDistance:"+p.minClusterDistance);
 					for(WMV_Field f : p.getFields())
 					{
 						f.model.setMinClusterDistance(p.minClusterDistance);	
-//						f.model.clustersNeedUpdate = true;
 						p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
 						p.getCurrentField().initializeClusters();			
 						p.display.map2D.initializeLargeMap();
@@ -1032,7 +1033,6 @@ public class WMV_Input
 					for(WMV_Field f : p.getFields())
 					{
 						f.model.setMinClusterDistance(p.minClusterDistance);
-//						f.model.clustersNeedUpdate = true;					// -- Temporary: will make minClusterDistance field specific...
 						p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
 						p.getCurrentField().initializeClusters();			
 						p.display.map2D.initializeLargeMap();

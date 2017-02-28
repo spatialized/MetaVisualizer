@@ -1109,21 +1109,6 @@ public class WMV_Cluster
 			currentTime++;															// Increment cluster time
 			if(currentTime > timeCycleLength)
 				currentTime = 0;
-
-//			if(p.p.p.debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
-//			{
-//				if(p.p.getCurrentField().mediaAreActive())
-//				{
-//					if(p.p.p.debug.detailed)
-//						PApplet.println("Media still active...");
-//				}
-//				else
-//				{
-//					currentTime = 0;
-//					if(p.p.p.debug.detailed)
-//						PApplet.println("Reached end of day at p.frameCount:"+p.p.p.frameCount);
-//				}
-//			}
 		}
 		
 		if(timeFading && dateFading && p.p.p.frameCount % timeUnitLength == 0)
@@ -1137,11 +1122,18 @@ public class WMV_Cluster
 				if(p.p.p.debug.cluster || p.p.p.debug.time)
 					PApplet.println("Reached end of day at p.frameCount:"+p.p.p.frameCount);
 
-				if(currentDate > dateline.size())
+				if(dateline != null)
 				{
-					currentDate = 0;
-					if(p.p.p.debug.cluster || p.p.p.debug.time)
-						PApplet.println("Reached end of dateline at p.frameCount:"+p.p.p.frameCount);
+					if(currentDate > dateline.size())
+					{
+						currentDate = 0;
+						if(p.p.p.debug.cluster || p.p.p.debug.time)
+							PApplet.println("Reached end of dateline at p.frameCount:"+p.p.p.frameCount);
+					}
+				}
+				else if(p.p.p.debug.cluster || p.p.p.debug.time)
+				{
+					PApplet.println("dateline is NULL for cluster "+getID());
 				}
 			}
 		}

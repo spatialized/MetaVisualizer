@@ -178,7 +178,9 @@ class WMV_Display
 						map2D.updateMapZoomTransition();
 					if(map2D.scrollTransition)
 						map2D.updateMapScrollTransition();
-
+					if(map2D.zoomToRectangleTransition)
+						map2D.updateZoomToRectangleTransition();
+					
 					map2D.updateMapMouse();
 					
 //					drawTimelines();

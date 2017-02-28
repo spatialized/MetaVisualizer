@@ -27,7 +27,7 @@ public class WMV_Debug
 	public boolean sound = false;				// Debug WMV_Sound class
 	public boolean metadata = false;			// Debug WMV_Metadata class
 	public boolean stitching = false;			// Debug WMV_Stitcher class
-	public boolean map = true;
+	public boolean map = false;
 	
 	/* Memory */
 	boolean lowMemory = false;

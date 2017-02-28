@@ -513,38 +513,6 @@ public class WMV_Input
 //			if (key == 'r')
 //				p.startInteractiveClustering();
 
-			// Option Key
-//			if (optionKey && key == '1') 
-//				p.display.map2D.mapMode = 1;
-//
-//			if (optionKey && key == '2') 
-//				p.display.map2D.mapMode = 2;
-//
-//			if (optionKey && key == '3') 
-//				p.display.map2D.mapMode = 3;
-//
-//			if (optionKey && key == '4') 
-//				p.display.map2D.mapMode = 4;
-//
-//			if (optionKey && key == '5') 
-//				p.display.map2D.mapMode = 5;
-//
-//			if (optionKey && key == '6') 
-//				p.display.map2D.mapMode = 6;
-//
-//			if (optionKey && key == '7') 
-//				p.display.map2D.mapMode = 7;
-
-			// Option + Shift Keys
-//			if (optionKey && key == '!') 
-//				p.display.map2D.mapImages = !p.display.map2D.mapImages;
-//
-//			if (optionKey && key == '@') 
-//				p.display.map2D.mapPanoramas = !p.display.map2D.mapPanoramas;
-//
-//			if (optionKey && key == '#') 
-//				p.display.map2D.mapVideos = !p.display.map2D.mapVideos;
-
 			if (key == ']') {
 				p.display.map2D.mapZoomTransition(p.display.map2D.mapDistance * 0.85f);
 			}
@@ -562,28 +530,28 @@ public class WMV_Input
 					p.viewer.rotateX(1);
 				
 				if (!optionKey && shiftKey && keyCode == PApplet.LEFT) 
-					p.display.map2D.mapScrollTransition( 100.f * p.display.map2D.mapDistance, 0.f );
-
-				if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
 					p.display.map2D.mapScrollTransition( -100.f * p.display.map2D.mapDistance, 0.f );
 
+				if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
+					p.display.map2D.mapScrollTransition( 100.f * p.display.map2D.mapDistance, 0.f );
+
 				if (!optionKey && shiftKey && keyCode == PApplet.DOWN) 
-					p.display.map2D.mapScrollTransition( 0.f, -100.f * p.display.map2D.mapDistance );
+					p.display.map2D.mapScrollTransition( 0.f, 100.f * p.display.map2D.mapDistance );
 
 				if (!optionKey && shiftKey && keyCode == PApplet.UP) 
-					p.display.map2D.mapScrollTransition( 0.f, 100.f * p.display.map2D.mapDistance );
+					p.display.map2D.mapScrollTransition( 0.f, -100.f * p.display.map2D.mapDistance );
 				
 				if (optionKey && shiftKey && keyCode == PApplet.LEFT) 
-					p.display.map2D.zoomRectangleScrollTransition( 100.f * p.display.map2D.mapDistance, 0.f );
+					p.display.map2D.zoomRectangleScrollTransition( -150.f * p.display.map2D.mapDistance, 0.f );
 
 				if (optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-					p.display.map2D.zoomRectangleScrollTransition( -100.f * p.display.map2D.mapDistance, 0.f );
+					p.display.map2D.zoomRectangleScrollTransition( 150.f * p.display.map2D.mapDistance, 0.f );
 
 				if (optionKey && shiftKey && keyCode == PApplet.DOWN) 
-					p.display.map2D.zoomRectangleScrollTransition( 0.f, -100.f * p.display.map2D.mapDistance );
+					p.display.map2D.zoomRectangleScrollTransition( 0.f, 150.f * p.display.map2D.mapDistance );
 
 				if (optionKey && shiftKey && keyCode == PApplet.UP) 
-					p.display.map2D.zoomRectangleScrollTransition( 0.f, 100.f * p.display.map2D.mapDistance );
+					p.display.map2D.zoomRectangleScrollTransition( 0.f, -150.f * p.display.map2D.mapDistance );
 			}
 		}
 		else if(p.display.info || p.display.infoOverlay)		/* Info View */

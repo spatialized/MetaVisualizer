@@ -963,8 +963,8 @@ public class WMV_Model
 	}
 
 	/**
-	 * refineClusters()
 	 * Refine clusters over given iterations
+	 * @param epsilon Termination criterion, i.e. if all clusters moved less than epsilon after last iteration, stop refinement
 	 * @param iterations Number of iterations
 	 */	
 	void refineKMeansClusters(float epsilon, int iterations)
@@ -991,23 +991,17 @@ public class WMV_Model
 			{
 				for(WMV_Cluster c : p.clusters)
 				{
-//					int closestIdx = -1;
 					float closestDist = 10000.f;
 					
 					for(WMV_Cluster d : last)
 					{
 						float dist = c.getLocation().dist(d.getLocation());
 						if(dist < closestDist)
-						{
 							closestDist = dist;
-//							closestIdx = d.getID();
-						}
 					}
 					
 					if(closestDist > epsilon)
-					{
 						moved = true;
-					}
 				}
 				
 				if(!moved)
@@ -1148,7 +1142,6 @@ public class WMV_Model
 
 
 	/** 
-	 * createSingleClusters()
 	 * If any images are not associated, create a new cluster for each
 	 */	void createSingleClusters()
 	 {
@@ -1196,7 +1189,6 @@ public class WMV_Model
 	 }
 
 	 /** 
-	  * findVideoPlaceholders()
 	  * Find video placeholder images, i.e. images taken just before a video to indicate same location, orientation, elevation and rotation angles
 	  */	
 	 public void findVideoPlaceholders()
@@ -1266,7 +1258,6 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * createEmptyCluster()
 	  * @param location New cluster location
 	  * @param index New cluster ID
 	  * @return New empty cluster
@@ -1282,7 +1273,6 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * calculateFieldSize()
 	  * Analyze media to determine size of the virtual space
 	  */
 	 void calculateFieldSize() 
@@ -1368,7 +1358,6 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * analyzeMedia()
 	  * Analyze media capture times, find on which scales it operates, i.e. minute, day, month, year   (not implemented yet)
 	  */
 	 public void analyzeMedia() 
@@ -1509,7 +1498,6 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * lockMediaToClusters()
 	  * If image is within <threshold> from center of cluster along axes specified by mx, my and mz, 
 	  * fold the image location into the cluster location along those axes.
 	  */
@@ -1525,7 +1513,6 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * calculateAveragePoint()
 	  * @param points List of points to average
 	  * @return Average point 
 	  */
@@ -1542,7 +1529,6 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * getClusterAmount()
 	  * @return Number of clusters in field
 	  */
 	 public int getClusterAmount()
@@ -1550,24 +1536,26 @@ public class WMV_Model
 		 return p.clusters.size() - mergedClusters;
 	 }
 	 
-	// Minimum distance between clusters, i.e. closer than which clusters are merged
 	void setMinClusterDistance(float newMinClusterDistance)
 	{
-		minClusterDistance = newMinClusterDistance;
+		minClusterDistance = newMinClusterDistance;	
 	}
 	
-	// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
 	void setMaxClusterDistance(float newMaxClusterDistance)
 	{
-		maxClusterDistance = newMaxClusterDistance;
+		maxClusterDistance = newMaxClusterDistance;	
 	}
 	
+///--- TO DO!!
+	/**  
+	 * Export statistics on current field 
+	 */
 	void exportFieldInfo()
 	{
         BufferedWriter writer = null;
 
 		try {
-            //create a temporary file
+            // Create temp. file
             String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             File logFile = new File(timeLog);
 
@@ -1584,16 +1572,16 @@ public class WMV_Model
             try {
                 // Close the writer regardless of what happens...
                 writer.close();
-            } catch (Exception e) {
+            } 
+            catch (Exception e) {
             }
         }
 	}
 
-		/**
-		 * drawClustersAtDepth()
-		 * @param depth Depth at which to draw clusters
-		 * Draw the clusters at given depth
-		 */
+//		/**
+//		 * @param depth Depth at which to draw clusters
+//		 * Draw the clusters at given depth
+//		 */
 //		void drawClustersAtDepth( Cluster topCluster, int depth )
 //		{		 
 //			PApplet.println("Drawing clusters at depth level:"+depth);

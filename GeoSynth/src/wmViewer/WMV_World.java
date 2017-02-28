@@ -207,15 +207,14 @@ public class WMV_World
 
 	void run()
 	{
-		/* Viewing and navigating 3D environment */
-		if ( !initialSetup && !interactive && !p.exit ) 
+		if ( !initialSetup && !interactive && !p.exit ) 		/* Running the program */
 		{
-//			if(p.frameCount % 10 == 0)
-//				PApplet.println("run "+p.frameCount);
-			runSimulation();										// Run current simulation
+			draw3D();						// 3D Display
+			draw2D();						// 2D Display
+			// updateLeapMotion();			// Update Leap Motion 
 		}
 		
-		if ( p.exit ) 									
+		if ( p.exit ) 											/* Stopping the program */
 		{
 			if(p.debug.detailed)
 				PApplet.println("Exit command! about to quit...");
@@ -223,13 +222,13 @@ public class WMV_World
 			p.stopWorldMediaViewer();								//  Exit simulation
 		}
 		
-		if ( p.debug.memory && p.frameCount % memoryCheckFrequency == 0 )
+		if ( p.debug.memory && p.frameCount % memoryCheckFrequency == 0 )		/* Memory debugging */
 		{
 			p.debug.checkMemory();
 			p.debug.checkFrameRate();
 		}
 		
-		if(saveImage && outputFolderSelected)
+		if(saveImage && outputFolderSelected)		/* Image exporting */
 		{
 			p.saveFrame(outputFolder + "/" + getCurrentField().name + "-######.jpg");
 			saveImage = false;
@@ -238,7 +237,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * Setup the 3D world
+	 * Create each field and run initial clustering
 	 */
 	public void setup()
 	{
@@ -302,12 +301,10 @@ public class WMV_World
 	}
 	
 	/**
-	 * Run the current simulation
+	 * Update the current field in 3D and display to viewer
 	 */
-	void runSimulation()
+	void draw3D()
 	{
-//		PApplet.println("Run... startup:"+p.startup+" reset:"+p.reset+" initialSetup:"+initialSetup+" p.running:"+p.running+" fieldsCreated:"+fieldsCreated);
-
 		/* 3D Display */
 		if(!display.map && !display.info && !display.cluster && !display.control && !display.about)		
 		{
@@ -317,7 +314,10 @@ public class WMV_World
 		
 		viewer.update();							// Update navigation
 		viewer.camera.feed();						// Send the 3D camera view to the screen
+	}
 
+	void draw2D()
+	{
 		/* 2D Display */
 		display.draw();								// Draw 2D display after 3D graphics
 		updateTime();								// Update time cycle
@@ -335,10 +335,8 @@ public class WMV_World
 		
 		if(viewer.mouseNavigation)
 			input.updateMouseNavigation(p.mouseX, p.mouseY);
-		
-		// updateLeapMotion();						// Update Leap Motion 
 	}
-
+	
 	/** 
 	 * Update main time loop
 	 */
@@ -675,24 +673,6 @@ public class WMV_World
 	}
 	
 	/**
-	 * -- TO DO!!
-	 * Create fields from detected k-means clusters in single media folder 
-	 * @param mediaFolder Folder containing the media
-	 */
-	public void createFieldsFromFolder(String mediaFolder)
-	{
-		fields = new ArrayList<WMV_Field>();			// Initialize fields array
-//		ArrayList<GMV_Cluster> clusters;		
-//		int count = 0;
-//		for(String s : clusters)
-//		{
-//			fields.add(new GMV_Field(this, s, count));
-//			count++;
-//		}
-//		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
-	}
-	
-	/**
 	 * Transition alpha from current to given value
 	 */
 	void fadeAlpha(float target)
@@ -766,7 +746,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return Current cluster
+	 * @return The current cluster
 	 */
 	public WMV_Cluster getCurrentCluster()
 	{
@@ -780,7 +760,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return Attractor cluster
+	 * @return The current attractor cluster
 	 */
 	public WMV_Cluster getAttractorCluster()
 	{
@@ -839,11 +819,12 @@ public class WMV_World
 	}
 
 	/**
-	 * @return Requested cluster from current field
+	 * @param id Cluster ID
+	 * @return Specified cluster from current field
 	 */
-	WMV_Cluster getCluster(int theCluster)
+	WMV_Cluster getCluster(int id)
 	{
-		WMV_Cluster c = getCurrentField().clusters.get(theCluster);
+		WMV_Cluster c = getCurrentField().clusters.get(id);
 		return c;
 	}
 
@@ -892,7 +873,7 @@ public class WMV_World
 	}
 
 	/**
-	 * Save current view to disk
+	 * Save current screen view to disk
 	 */
 	public void saveImage() 
 	{
@@ -910,7 +891,8 @@ public class WMV_World
 	}
 
 	/**
-	 * @return Current field
+	 * @param fieldIndex Field ID 
+	 * @return The specified field 
 	 */
 	public WMV_Field getField(int fieldIndex)
 	{
@@ -918,5 +900,24 @@ public class WMV_World
 			return fields.get(fieldIndex);
 		else
 			return null;
+	}
+	
+
+	/**
+	 * -- TO DO!!
+	 * Create fields from detected k-means clusters in single media folder 
+	 * @param mediaFolder Folder containing the media
+	 */
+	public void createFieldsFromFolder(String mediaFolder)
+	{
+		fields = new ArrayList<WMV_Field>();			// Initialize fields array
+//		ArrayList<GMV_Cluster> clusters;		
+//		int count = 0;
+//		for(String s : clusters)
+//		{
+//			fields.add(new GMV_Field(this, s, count));
+//			count++;
+//		}
+//		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
 	}
 }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.data.IntList;
-//import processing.core.PVector;
 
 /**************************************************
  * @author davidgordon
@@ -159,7 +158,7 @@ public class WMV_Field
 			}
 		}
 		
-//		for (int i = 0; i < sounds.size(); i++)  		// Update and display videos
+//		for (int i = 0; i < sounds.size(); i++)  		// Update and display sounds
 //		{
 //			WMV_Sound s = sounds.get(i);
 //			if(!s.disabled)
@@ -273,7 +272,10 @@ public class WMV_Field
 			videos.get(i).calculateCaptureLocation();
 	}
 	
-	public void recalculateGeometries()			// -- Only do this for nearby clusters in large field??
+	/**
+	 * Recalculate vertices for all visual media in field
+	 */
+	public void recalculateGeometries()		
 	{
 		for (WMV_Image i : images)
 			i.calculateVertices();
@@ -440,7 +442,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * verifyField()
 	 * Check that all field parameters are ready before simulation starts
 	 */
 	void verifyField() {
@@ -472,7 +473,7 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Deselects all media in field
+	 * Deselect all media in field
 	 */
 	public void deselectAllMedia(boolean hide) 
 	{
@@ -533,7 +534,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * attractViewer()
 	 * Attract viewer to each of the attracting clusters
 	 */
 	public void attractViewer()
@@ -551,7 +551,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * getAttractingClusters()
 	 * @return List of attracting clusters
 	 */
 	public ArrayList<WMV_Cluster> getAttractingClusters()
@@ -570,8 +569,7 @@ public class WMV_Field
 	
 
 	/**
-	 * mediaAreActive()
-	 * @return Are any images or videos currently active?
+	 * @return Whether any images or videos are currently active
 	 */
 	boolean mediaAreActive()
 	{
@@ -599,7 +597,7 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Run k-means clustering to search for multiple fields
+	 * Detect multiple fields via k-means clustering 
 	 */
 	void detectMultipleFields()
 	{
@@ -765,13 +763,6 @@ public class WMV_Field
 
 //		if(p.p.debug.field)
 			PApplet.println("Detected "+clusterList.size()+" fields...");
-		
-//		ct = 0;
-//		for(WMV_Cluster c : clusterList)
-//		{
-//			PApplet.println("Cluster "+count+" images:"+c.images.size()+" panoramas:"+c.panoramas.size()+" videos:"+c.videos.size());
-//			ct++;
-//		}
 	}
 	
 	/**
@@ -845,32 +836,8 @@ public class WMV_Field
 			count++;
 		}		
 
-//		for( PVector v : mostNeighbors ) 					// For clusters with most close neighbors, absorb neighbors into cluster
-//		{
-//			if(p.p.debug.cluster && v.y > 0 && p.p.debug.detailed)
-//				PApplet.println("Merging cluster "+(int)v.x+" with "+(int)v.y+" neighbors...");
-//
-//			WMV_Cluster c = clusterList.get( (int)v.x );
-//			if(!merged.hasValue(c.getID()))
-//			{
-//				for(int i : closeNeighbors[c.getID()])
-//				{
-//					if(!absorbed.hasValue(i) && c.getID() != i) 		// If cluster i hasn't already been absorbed and isn't the same cluster
-//					{
-//						c.absorbCluster(clusterList.get(i));				// Absorb cluster
-//						absorbed.append(i);
-//
-//						merged.append(i);
-//						merged.append(c.getID());
-//						mergedClusters++;
-//					}
-//				}
-//			}
-//		}
-
 		for( WMV_Cluster c : clusterList )					// Merge remaining clusters under minClusterDistance 
 		{
-//			PApplet.println("`"+c.images.size()+" id:"+c.getID());
 			if(!merged.hasValue(c.getID()))
 			{
 				for( WMV_Cluster d : clusterList )
@@ -893,12 +860,6 @@ public class WMV_Field
 		}
 
 		PApplet.println("Merged Clusters..."+mergedClusters);
-		
-//		absorbed.sort();
-//		for(int i=absorbed.size()-1;i>=0;i--)
-//			clusterList.remove(absorbed.get(i));
-//
-//		PApplet.println("Removed Clusters..."+absorbed.size());
 		
 		ArrayList<WMV_Cluster> newList = new ArrayList<WMV_Cluster>();
 		
@@ -933,7 +894,6 @@ public class WMV_Field
 		}
 	}
 
-	
 	/**
 	 * Create date-independent timeline for this field from cluster timelines
 	 */
@@ -1046,7 +1006,7 @@ public class WMV_Field
 			}
 		}
 		
-		PApplet.println("Created "+timelines.size()+" date-specific timelines for field #"+fieldID);
+		if(p.p.debug.field) PApplet.println("Created "+timelines.size()+" date-specific timelines for field #"+fieldID);
 	}
 	
 	/**
@@ -1195,6 +1155,11 @@ public class WMV_Field
 		return t;
 	}
 
+	/**
+	 * @param id Cluster ID
+	 * @param index Date index
+	 * @return Date object specified by index
+	 */
 	public WMV_Date getDateInCluster(int id, int index)
 	{
 		WMV_Date d = null;
@@ -1320,6 +1285,9 @@ public class WMV_Field
 		}
 	}
 	
+	/**
+	 * @return List of IDs of currently selected images
+	 */
 	public IntList getSelectedImages()
 	{
 		IntList selected = new IntList();
@@ -1332,21 +1300,17 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Display images in range
+	 * Show any image in field if visible
 	 */
 	public void showImages()
 	{
 		hideImages = false;
 		if(p.display.window.setupGraphicsWindow)
-		{
-//			PApplet.println("1 p.display.window.chkbxHideImages.isSelected()  "+p.display.window.chkbxHideImages.isSelected());
 			p.display.window.chkbxHideImages.setSelected(false);
-//			PApplet.println("2 p.display.window.chkbxHideImages.isSelected()  "+p.display.window.chkbxHideImages.isSelected());
-		}
 	}
 	
 	/**
-	 * Hide all images
+	 * Hide all images in field
 	 */
 	public void hideImages()
 	{
@@ -1361,23 +1325,23 @@ public class WMV_Field
 		}
 
 		if(p.display.window.setupGraphicsWindow)
-		{
-//			PApplet.println("1 p.display.window.chkbxHideImages.isSelected()  "+p.display.window.chkbxHideImages.isSelected());
 			p.display.window.chkbxHideImages.setSelected(true);
-//			PApplet.println("2 p.display.window.chkbxHideImages.isSelected()  "+p.display.window.chkbxHideImages.isSelected());
-		}
 	}
 	
+	/** 
+	 * Show any panorama in field if visible
+	 */
 	public void showPanoramas()
 	{
 		hidePanoramas = false;
 
 		if(p.display.window.setupGraphicsWindow)
-		{
 			p.display.window.chkbxHidePanoramas.setSelected(false);
-		}
 	}
 	
+	/** 
+	 * Hide all panoramas in field
+	 */
 	public void hidePanoramas()
 	{
 		hidePanoramas = true;
@@ -1415,7 +1379,35 @@ public class WMV_Field
 			p.display.window.chkbxHidePanoramas.setSelected(true);
 	}
 	
-
+	/**
+	 * Show any video in field if visible
+	 */
+	public void showVideos()
+	{
+		hideVideos = false;
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHideVideos.setSelected(false);
+	}
+	
+	/**
+	 * Hide all videos in field
+	 */
+	public void hideVideos()
+	{
+		hideVideos = true;
+		for(WMV_Video v : videos)
+		{
+			if(v.visible)
+			{
+				if(v.isFading()) v.stopFading();
+				v.fadeOut();
+			}
+		}
+		
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHideVideos.setSelected(true);
+	}
+	
 	/**
 	 * @return Index of nearest cluster to camera, excluding the current cluster
 	 */
@@ -1448,30 +1440,12 @@ public class WMV_Field
 
 		return smallestIdx;
 	}
-
-	public void showVideos()
-	{
-		hideVideos = false;
-		if(p.display.window.setupGraphicsWindow)
-			p.display.window.chkbxHideVideos.setSelected(false);
-	}
 	
-	public void hideVideos()
-	{
-		hideVideos = true;
-		for(WMV_Video v : videos)
-		{
-			if(v.visible)
-			{
-				if(v.isFading()) v.stopFading();
-				v.fadeOut();
-			}
-		}
-		
-		if(p.display.window.setupGraphicsWindow)
-			p.display.window.chkbxHideVideos.setSelected(true);
-	}
-	
+	/**
+	 * Get cluster at either edge of field on Z axis (latitude)
+	 * @param north Whether to return cluster at North edge (true) or South edge (false)
+	 * @return Specified edge cluster
+	 */
 	public WMV_Cluster getEdgeClusterOnZAxis(boolean north)
 	{
 		WMV_Cluster result = null;
@@ -1511,6 +1485,11 @@ public class WMV_Field
 		}
 	}
 	
+	/**
+	 * Get cluster at either edge of field on X axis (longitude)
+	 * @param west Whether to return cluster at West edge (true) or East edge (false)
+	 * @return Specified edge cluster
+	 */
 	public WMV_Cluster getEdgeClusterOnXAxis(boolean west)
 	{
 		WMV_Cluster result = null;
@@ -1596,8 +1575,8 @@ public class WMV_Field
 	}
 
 	/**
+	 * Remove specified cluster
 	 * @param r Cluster to remove
-	 * Remove a cluster
 	 */
 	public void removeCluster(WMV_Cluster r)
 	{

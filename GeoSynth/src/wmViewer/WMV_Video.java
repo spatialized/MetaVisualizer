@@ -2,11 +2,15 @@ package wmViewer;
 
 import processing.video.*;
 
+import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Calendar;
 
 import processing.core.*;
 import processing.data.IntList;
+
+//import org.gstreamer.Bus.EOS;
+//import org.gstreamer.GstObject;
 
 /**************************************************
  * @author davidgordon
@@ -17,6 +21,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 {
 	/* Video */
 	Movie video;
+	PImage lastFrame;
+	
 	private final float defaultFrameRate = 29.98f;
 	private boolean videoLoaded = false;
 	private boolean videoPlaying = false;
@@ -165,9 +171,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			float videoAngle = getFacingAngle();
 			if(p.p.p.utilities.isNaN(videoAngle))
 			{
-				//					if(p.p.p.debug.video)
-				//						p.p.display.message("Setting video #"+getID()+" videoAngle to 0 from :"+videoAngle);
-
 				videoAngle = 0;				
 				visible = false;
 				disabled = true;
@@ -179,12 +182,12 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
 
-		//			if (visible && !hidden && !disabled && !p.p.viewer.map3DMode) 
 		if (!hidden && !disabled && !p.p.viewer.map3DMode) 
 		{
 			if (viewingBrightness > 0)
 			{
-				drawVideo();          // Draw the video 
+//				if ((1 < video.width) && (1 < video.height))
+					drawVideo();          // Draw the video 
 			}
 		}
 		else
@@ -540,7 +543,11 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		p.p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
 
 		p.p.p.textureMode(PApplet.IMAGE);
-		p.p.p.texture(video);
+		
+		if(lastFrame != null)
+			p.p.p.texture(lastFrame);
+		
+		lastFrame = new PImage(video.getImage());
 
 		if(p.p.viewer.selection)
 		{
@@ -586,7 +593,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * displayMetadata()
 	 * Draw the image metadata in Heads-Up Display
 	 */
 	public void displayMetadata()
@@ -1011,7 +1017,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * associateImagePlaceholder()
 	 * Associate image with given ID with this video
 	 * @param imageID 
 	 * @param newImageDist 
@@ -1021,6 +1026,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	public boolean associateImagePlaceholder(int imageID, float newImageDist, float newImageTimeDiff)
 	{
 		boolean success = false;
+		
 		if(!hasImagePlaceholder)
 			success = true;
 
@@ -1051,7 +1057,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * outline()
 	 * Draw outline around selected video
 	 */
 	private void outline()

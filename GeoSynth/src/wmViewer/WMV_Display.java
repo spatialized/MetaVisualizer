@@ -174,8 +174,6 @@ class WMV_Display
 				if(map)
 				{
 					map2D.drawLargeMap();
-					if(map2D.zoomTransition)                      		// Fade alpha
-						map2D.updateMapZoomTransition();
 					if(map2D.scrollTransition)
 						map2D.updateMapScrollTransition();
 					if(map2D.zoomToRectangleTransition)

@@ -49,21 +49,16 @@ public class WMV_Map
 	float zoomMapLeftEdge = 0.f, zoomMapTopEdge = 0.f;
 	float zoomMapWidth, zoomMapHeight, zoomMapMaxWidth, zoomMapMaxHeight;
 	float zoomMapXOffset, zoomMapYOffset;
+	float zoomMapDefaultWidth, zoomMapDefaultHeight;
 
-	float smallMapWidth, smallMapHeight, smallMapMaxWidth, smallMapMaxHeight;
-	float smallMapXOffset, smallMapYOffset;
-
+//	float smallMapWidth, smallMapHeight, smallMapMaxWidth, smallMapMaxHeight;
+//	float smallMapXOffset, smallMapYOffset;
+	
 	float smallPointSize;
 	float mediumPointSize;
 	float largePointSize;
 	float hugePointSize;
 	float cameraPointSize;
-
-	public boolean zoomTransition = false;
-	private int zoomTransitionStartFrame = 0, zoomTransitionEndFrame = 0, zoomTransitionLength = 14;	
-	private float zoomTransitionStart, zoomTransitionTarget;
-	private float zoomXOffsetStart = 0, zoomXOffsetTarget = 0;
-	private float zoomYOffsetStart = 0, zoomYOffsetTarget = 0;
 
 	public boolean scrollTransition = false;
 	private int scrollTransitionStartFrame = 0, scrollTransitionEndFrame = 0, scrollTransitionLength = 16;	
@@ -100,30 +95,34 @@ public class WMV_Map
 //		largeMapWidth = p.p.p.height * 0.95f;
 //		largeMapHeight = p.p.p.height * 0.95f;
 
-		smallMapMaxWidth = p.p.p.width / 4.f;
-		smallMapMaxHeight = p.p.p.height / 4.f;
-
 		smallPointSize = 0.0000022f * p.p.p.width;
 		mediumPointSize = 0.0000028f * p.p.p.width;
 		largePointSize = 0.0000032f * p.p.p.width;
 		hugePointSize = 0.0000039f * p.p.p.width;
 		cameraPointSize = 0.005f * p.p.p.width;
 	}
-
 	
 	void initializeLargeMap()
 	{
-		fieldRatio = p.p.getCurrentField().model.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
-		
+		WMV_Model m = p.p.getCurrentModel();
+		fieldRatio = m.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
+//		zoomMapDefaultWidth = m.fieldWidth / 10.f;										// Was 240.f
+//		zoomMapDefaultHeight = m.fieldWidth / 10.f * p.p.p.height / p.p.p.width;		// Was 180.f
+		zoomMapDefaultWidth = (float)Math.log10(m.fieldWidth) * 33.3f;										// Was 240.f
+		zoomMapDefaultHeight = (float)Math.log10(m.fieldWidth) * 33.3f * p.p.p.height / p.p.p.width;		// Was 180.f
+		PApplet.println("zoomMapDefaultWidth:"+zoomMapDefaultWidth);
+		PApplet.println("zoomMapDefaultHeight:"+zoomMapDefaultHeight);
 		if(fieldRatio >= 1.f)									
 		{
-			largeMapWidth = p.p.p.width * 0.95f;
+			largeMapWidth = p.p.p.width * 0.98f;
+//			largeMapWidth = p.p.p.width * 0.95f;
 			largeMapHeight = p.p.p.width / fieldRatio;
 		}
 		else
 		{
 			largeMapWidth = p.p.p.height * fieldRatio;
-			largeMapHeight = p.p.p.height * 0.95f;
+			largeMapHeight = p.p.p.height * 0.98f;
+//			largeMapHeight = p.p.p.height * 0.95f;
 		}
 
 		zoomToRectangle(0, 0, largeMapWidth, largeMapHeight);			// Start zoomed out on whole map
@@ -261,13 +260,13 @@ public class WMV_Map
 	 */
 	void drawMap(float mapWidth, float mapHeight, float mapXOffset, float mapYOffset)
 	{
-		if(!zoomTransition && !scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
+		if(!scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
 			createSelectableClusters(mapWidth, mapHeight);
 		
 		p.beginHUD();
 
 		/* Media */
-		if(!zoomTransition && !scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
+		if(!scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
 		{
 			if((mapImages && !p.p.getCurrentField().hideImages))
 				for ( WMV_Image i : p.p.getCurrentField().images )					// Draw image capture locations on 2D Map
@@ -285,7 +284,7 @@ public class WMV_Map
 		/* Clusters */
 		if(mapClusters)
 		{
-			if(!zoomTransition && !scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
+			if(!scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
 			{
 				drawSelectableClusters();
 
@@ -323,7 +322,7 @@ public class WMV_Map
 			}
 		}
 		
-		if(!zoomTransition && !scrollTransition && !zoomToRectangleTransition)
+		if(!scrollTransition && !zoomToRectangleTransition)
 		{
 			if(!p.p.interactive)													// While not in Clustering Mode
 			{
@@ -356,8 +355,6 @@ public class WMV_Map
 
 				if( pointIsVisible(point, false) )
 				{
-//					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f * mapDistance;
-//					float radius = PApplet.sqrt(c.mediaPoints) * mapDistance;
 					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f;
 					drawPoint( point, radius, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 				}
@@ -372,15 +369,9 @@ public class WMV_Map
 			PVector point = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
 			zoomMapLeftEdge = 0.f;
 			zoomMapTopEdge = 0.f;
-
-			zoomToRectangleTransition(point.x - 50.f, point.y - 50.f, 240.f, 180.f);	// -- Make sure not to zoom in too much on small fields!
-//			zoomToRectangleTransition(point.x - 50.f, point.y - 50.f, 100.f, 100.f);
-			
-//			WMV_Cluster c = p.p.getCurrentField().getEdgeClusterOnXAxis(true);
-//			PVector point = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
-//			p.p.p.translate(mapLeftEdge, mapTopEdge);
-//			p.p.p.translate(largeMapXOffset, largeMapYOffset);
-//			p.p.p.point(point.x, point.y, p.hudDistance * mapDistance);
+			zoomToRectangleTransition(point.x - zoomMapDefaultWidth/2, point.y - zoomMapDefaultHeight/2.f, zoomMapDefaultWidth, 
+									  zoomMapDefaultHeight);	
+			// -- Make sure not to zoom in too much on small fields!
 		}
 	}
 
@@ -688,11 +679,7 @@ public class WMV_Map
 	public void handleMouseReleased(int mouseX, int mouseY)
 	{
 		if(selectedCluster != -1)
-		{
-//			p.p.viewer.teleportToCluster(selectedCluster, true);
 			zoomInOnCluster(p.p.getCluster(selectedCluster));
-//			p.p.display.map = false;
-		}
 	}
 	
 	public int getSelectedClusterID()
@@ -708,73 +695,20 @@ public class WMV_Map
 	/**
 	 * Transition map zoom from current to given value
 	 */
-	void mapZoomTransition(float target)
+	void mapZoomTransition(float zoomFactor)
 	{
-		if(target != mapDistance)			// Check if already at target
-		{
-			zoomTransition = true;   
-			zoomTransitionStartFrame = p.p.p.frameCount;
-			zoomTransitionEndFrame = zoomTransitionStartFrame + zoomTransitionLength;
-			zoomTransitionStart = mapDistance;
-			zoomTransitionTarget = target;
-
-//			zoomXOffsetStart = 0;
-//			zoomXOffsetTarget = (largeMapWidth - largeMapWidth * mapDistance)/2;
-//			zoomYOffsetStart = 0;
-//			zoomYOffsetTarget = (largeMapHeight - largeMapHeight * mapDistance)/2;
-			zoomXOffsetStart = 0;
-			zoomXOffsetTarget = (zoomMapWidth - largeMapWidth * mapDistance)/2;
-			zoomYOffsetStart = 0;
-			zoomYOffsetTarget = (zoomMapHeight - largeMapHeight * mapDistance)/2;
-//			mapLeftEdge = (p.p.p.width - zoomMapWidth)/2 - zoomMapLeftEdge;
-//			mapTopEdge = (p.p.p.height - zoomMapHeight)/2 - zoomMapTopEdge;
-
-		}
-		else
-		{
-			zoomTransition = false;
-		}
+		zoomToRectangleTransition(0.f, 0.f, zoomMapWidth * zoomFactor, zoomMapHeight * zoomFactor);
 	}
 	
 	/**
-	 * Update map zoom level each frame
-	 */
-	void updateMapZoomTransition()
-	{
-		float newZoomLevel = 0.f;
-		float newZoomXOffset = 0.f;
-		float newZoomYOffset = 0.f;
-		
-		if (p.p.p.frameCount >= zoomTransitionEndFrame)
-		{
-			zoomTransition = false;
-			newZoomLevel = zoomTransitionTarget;
-			newZoomXOffset = zoomXOffsetTarget;
-			newZoomYOffset = zoomYOffsetTarget;
-//			zoomToRectangle( newZoomXOffset, newZoomYOffset, largeMapWidth * mapDistance, largeMapHeight * mapDistance);
-		} 
-		else
-		{
-			newZoomLevel = PApplet.map(p.p.p.frameCount, zoomTransitionStartFrame, zoomTransitionEndFrame, 
-					   	zoomTransitionStart, zoomTransitionTarget);  
-			newZoomXOffset = PApplet.map(p.p.p.frameCount, zoomTransitionStartFrame, zoomTransitionEndFrame, 
-						zoomXOffsetStart, zoomXOffsetTarget);  
-			newZoomYOffset = PApplet.map(p.p.p.frameCount, zoomTransitionStartFrame, zoomTransitionEndFrame, 
-						zoomYOffsetStart, zoomYOffsetTarget);  
-			zoomToRectangle( newZoomXOffset, newZoomYOffset, largeMapWidth * mapDistance, largeMapHeight * mapDistance);
-		}
-
-		mapDistance = newZoomLevel;
-	}
-
-	/**
-	 * Draw the map border
+	 * Draw map border
 	 * @param mapWidth
 	 * @param mapHeight
 	 */
 	void drawMapBorder(float mapWidth, float mapHeight)
 	{
-		p.p.p.stroke(133,255,255,255);
+		// Zoom map border
+		p.p.p.stroke(133,255,255,255);	
 		p.p.p.strokeWeight(1);
 		
 		p.p.p.pushMatrix();
@@ -786,7 +720,7 @@ public class WMV_Map
 		p.p.p.line(0.f, zoomMapHeight, p.hudDistance * mapDistance,  0.f, 0.f, p.hudDistance * mapDistance );
 		p.p.p.popMatrix();
 		
-		if(p.p.p.debug.map)
+		if(p.p.p.debug.map)		// Large map border
 		{
 			p.p.p.stroke(255,255,255,255);
 			p.p.p.strokeWeight(2);
@@ -846,9 +780,18 @@ public class WMV_Map
 		
 		if(p.p.p.debug.map)
 		{
+			PApplet.println("---> zoomToRectangle()...");
 			PApplet.println("Set mapLeftEdge:" + mapLeftEdge);
 			PApplet.println("Set mapTopEdge:" + mapTopEdge);
+			PApplet.println("Set mapDistance:" + mapDistance);
+			PApplet.println("Set zoomMapXOffset:" + zoomMapXOffset);
+			PApplet.println("Set zoomMapYOffset:" + zoomMapYOffset);
+			PApplet.println("Set zoomMapLeftEdge:" + zoomMapLeftEdge);
+			PApplet.println("Set zoomMapTopEdge:" + zoomMapTopEdge);
+			PApplet.println("Set zoomMapWidth:" + zoomMapWidth);
+			PApplet.println("Set zoomMapHeight:" + zoomMapHeight);
 		}
+//		mapZoomTransition();
 	}
 
 	/**
@@ -887,7 +830,7 @@ public class WMV_Map
 			mapTopEdgeTransitionTarget = (p.p.p.height - zoomMapHeightTransitionTarget)/2 - zoomMapTopEdge;
 
 			if(p.p.p.debug.map)
-				PApplet.println("Started fadeZoomToRectangle transition...");
+				PApplet.println("Started zoomToRectangleTransition transition...");
 		}
 	}
 	
@@ -957,6 +900,7 @@ public class WMV_Map
 			zoomMapYOffset = newZoomMapYOffset;
 		if(zoomMapWidth != newZoomMapWidth)
 			zoomMapWidth = newZoomMapWidth;
+		
 		if(zoomMapHeight != newZoomMapHeight)
 			zoomMapHeight = newZoomMapHeight;
 		if(mapDistance != newMapDistance)

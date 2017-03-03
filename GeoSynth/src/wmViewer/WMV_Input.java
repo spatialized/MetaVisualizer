@@ -516,6 +516,9 @@ public class WMV_Input
 				p.startInteractiveClustering();
 			}
 
+			if (key == 'z')
+				p.display.map2D.zoomInOnCluster(p.getCurrentCluster());
+
 			if (shiftKey && key == 'c')
 				p.startInitialClustering();				// Re-run clustering on all fields
 
@@ -806,18 +809,18 @@ public class WMV_Input
 			if (key == '=')
 				p.getCurrentField().fadeObjectDistances(1.176f);
 
-			if (key == 'q') 
-				p.viewer.startZoomTransition(-1);
-
-			if (key == 'z') 
-				p.viewer.startZoomTransition(1);
-
 			if (key == 'Z')
 				p.display.map2D.zoomToRectangle(100, 50, p.display.map2D.largeMapWidth * 0.5f, p.display.map2D.largeMapHeight * 0.5f);
 			
 			/* 3D Controls Disabled in HUD View */
 			if(!p.display.inDisplayView())							
 			{
+				if (key == 'q') 
+					p.viewer.startZoomTransition(-1);
+
+				if (key == 'z') 
+					p.viewer.startZoomTransition(1);
+
 				if (optionKey && key == 'e')
 				{
 					boolean state = !p.fadeEdges;

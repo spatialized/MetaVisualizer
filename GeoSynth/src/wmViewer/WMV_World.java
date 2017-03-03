@@ -249,7 +249,7 @@ public class WMV_World
 			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder	
 
 			display.sendSetupMessage(" ");	// Show startup message
-			display.sendSetupMessage("Creating "+fields.size()+" fields...");	// Show startup message
+			display.sendSetupMessage("Creating "+fields.size()+(fields.size()>1?" fields...":" field..."));	// Show startup message
 			
 			if(fields.size() > 5) display.sendSetupMessage("This may take several minutes...");	// Show long startup time warning
 
@@ -306,11 +306,10 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
+		getCurrentField().update();					// Update clusters in current field
+
 		if(!display.map && !display.info && !display.cluster && !display.control && !display.about)		
-		{
-			getCurrentField().update();					// Update clusters in current field
 			getCurrentField().draw();					// Display media in current field
-		}
 		
 		viewer.update();							// Update navigation
 		viewer.camera.feed();						// Send the 3D camera view to the screen

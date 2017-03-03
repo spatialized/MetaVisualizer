@@ -40,7 +40,7 @@ public class WMV_Map
 	private float mapMediaTransparency = 120.f;
 	private float maxSaturation = 210.f;
 
-	private float fieldRatio;
+	private float fieldAspectRatio;
 	
 	float largeMapWidth, largeMapHeight;
 	float largeMapXOffset, largeMapYOffset;
@@ -92,8 +92,6 @@ public class WMV_Map
 
 		largeMapXOffset = -p.p.p.width * 0.5f;
 		largeMapYOffset = -p.p.p.height * 0.5f;
-//		largeMapWidth = p.p.p.height * 0.95f;
-//		largeMapHeight = p.p.p.height * 0.95f;
 
 		smallPointSize = 0.0000022f * p.p.p.width;
 		mediumPointSize = 0.0000028f * p.p.p.width;
@@ -105,22 +103,19 @@ public class WMV_Map
 	void initializeLargeMap()
 	{
 		WMV_Model m = p.p.getCurrentModel();
-		fieldRatio = m.fieldAspectRatio;			//	Field ratio == fieldWidth / fieldLength;
-//		zoomMapDefaultWidth = m.fieldWidth / 10.f;										// Was 240.f
-//		zoomMapDefaultHeight = m.fieldWidth / 10.f * p.p.p.height / p.p.p.width;		// Was 180.f
+		fieldAspectRatio = m.fieldAspectRatio;						//	Field ratio == fieldWidth / fieldLength;
 		zoomMapDefaultWidth = (float)Math.log10(m.fieldWidth) * 33.3f;										// Was 240.f
 		zoomMapDefaultHeight = (float)Math.log10(m.fieldWidth) * 33.3f * p.p.p.height / p.p.p.width;		// Was 180.f
-		PApplet.println("zoomMapDefaultWidth:"+zoomMapDefaultWidth);
-		PApplet.println("zoomMapDefaultHeight:"+zoomMapDefaultHeight);
-		if(fieldRatio >= 1.f)									
+
+		if(fieldAspectRatio >= 1.f)									
 		{
 			largeMapWidth = p.p.p.width * 0.98f;
 //			largeMapWidth = p.p.p.width * 0.95f;
-			largeMapHeight = p.p.p.width / fieldRatio;
+			largeMapHeight = p.p.p.width / fieldAspectRatio;
 		}
 		else
 		{
-			largeMapWidth = p.p.p.height * fieldRatio;
+			largeMapWidth = p.p.p.height * fieldAspectRatio;
 			largeMapHeight = p.p.p.height * 0.98f;
 //			largeMapHeight = p.p.p.height * 0.95f;
 		}
@@ -185,14 +180,14 @@ public class WMV_Map
 		WMV_Model m = p.p.getCurrentField().model;
 		float mapLocX, mapLocY;
 
-		if(fieldRatio >= 1.f)					
+		if(fieldAspectRatio >= 1.f)					
 		{
 			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapWidth / fieldRatio );
+			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapWidth / fieldAspectRatio );
 		}
 		else
 		{
-			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight * fieldRatio );		
+			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight * fieldAspectRatio );		
 			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
 		}
 
@@ -504,7 +499,7 @@ public class WMV_Map
 			float ptSize = cameraPointSize;
 
 			//		float arrowSize = 60.f;
-			float arrowSize = fieldRatio >= 1 ? p.p.getCurrentModel().fieldWidth : p.p.getCurrentModel().fieldLength;
+			float arrowSize = fieldAspectRatio >= 1 ? p.p.getCurrentModel().fieldWidth : p.p.getCurrentModel().fieldLength;
 
 			ScaleMap logMap;
 			logMap = new ScaleMap(6., arrowSize, 6., 60.);		/* Time fading interpolation */

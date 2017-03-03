@@ -2649,23 +2649,23 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * Select image or video in front of camera and within selection angle.	-- Need to include panoramas too!
+	 * Act on the image or video in front of camera. In Selection Mode, selects or deselects the media file.
+	 * In Normal Mode, starts or stops a video, but has no effect on an image.
 	 */
-	public void selectFrontMedia(boolean select) 
+	public void chooseMediaInFront(boolean select) 
 	{
-		ArrayList<WMV_Image> possible = new ArrayList<WMV_Image>();
-
+		ArrayList<WMV_Image> possibleImages = new ArrayList<WMV_Image>();
 		for(WMV_Image i : p.getCurrentField().images)
 		{
 			if(i.getViewingDistance() <= selectionMaxDistance)
 				if(!i.disabled)
-					possible.add(i);
+					possibleImages.add(i);
 		}
 
-		float closestImageDist = 1000.f;
+		float closestImageDist = 100000.f;
 		int closestImageID = -1;
 
-		for(WMV_Image s : possible)
+		for(WMV_Image s : possibleImages)
 		{
 			if(!s.isBackFacing() && !s.isBehindCamera())					// If image is ahead and front facing
 			{
@@ -2680,7 +2680,6 @@ public class WMV_Viewer
 		}
 
 		ArrayList<WMV_Video> possibleVideos = new ArrayList<WMV_Video>();
-
 		for(WMV_Video v : p.getCurrentField().videos)
 		{
 			if(v.getViewingDistance() <= selectionMaxDistance)
@@ -2688,7 +2687,7 @@ public class WMV_Viewer
 					possibleVideos.add(v);
 		}
 
-		float closestVideoDist = 1000.f;
+		float closestVideoDist = 100000.f;
 		int closestVideoID = -1;
 
 		for(WMV_Video v : possibleVideos)
@@ -2705,56 +2704,71 @@ public class WMV_Viewer
 			}
 		}
 
-		int newSelected;
-		if(select && !multiSelection)
-			p.getCurrentField().deselectAllMedia(false);				// If selecting media, deselect all media unless in Multi Selection Mode
-	
-		if(closestImageDist < closestVideoDist && closestImageDist != 1000.f)
+		if(selection)						// In Selection Mode
 		{
-			newSelected = closestImageID;
-			if(p.p.debug.viewer) p.display.message("Selected image in front: "+newSelected);
-			
-			if(segmentSelection)											// Segment selection
+			int newSelected;
+			if(select && !multiSelection)
+				p.getCurrentField().deselectAllMedia(false);				// If selecting media, deselect all media unless in Multi Selection Mode
+
+			if(closestImageDist < closestVideoDist && closestImageDist != 100000.f)
 			{
-				int segmentID = -1;
-				WMV_Cluster c = p.getCluster( p.getCurrentField().images.get(newSelected).cluster );
-				for(WMV_MediaSegment m : c.segments)
+				newSelected = closestImageID;
+				if(p.p.debug.viewer) p.display.message("Selected image in front: "+newSelected);
+
+				if(segmentSelection)											// Segment selection
 				{
-					if(m.getImages().hasValue(newSelected))
+					int segmentID = -1;
+					WMV_Cluster c = p.getCluster( p.getCurrentField().images.get(newSelected).cluster );
+					for(WMV_MediaSegment m : c.segments)
 					{
-						segmentID = m.getID();
-						break;
+						if(m.getImages().hasValue(newSelected))
+						{
+							segmentID = m.getID();
+							break;
+						}
+					}
+
+					if(select && !multiSelection)
+						p.getCurrentField().deselectAllMedia(false);						// Deselect all media
+
+					if(segmentID != -1)
+					{
+						for(int i : c.segments.get(segmentID).getImages())				// Set all images in selected segment to new state
+							p.getCurrentField().images.get(i).setSelected(select);
 					}
 				}
-	
-				if(select && !multiSelection)
-					p.getCurrentField().deselectAllMedia(false);						// Deselect all media
-
-				if(segmentID != -1)
+				else												// Single image selection
 				{
-					for(int i : c.segments.get(segmentID).getImages())				// Set all images in selected segment to new state
-						p.getCurrentField().images.get(i).setSelected(select);
+					if(newSelected != -1)
+						p.getCurrentField().images.get(newSelected).setSelected(select);
 				}
 			}
-			else												// Single image selection
+			else if(closestVideoDist < closestImageDist && closestVideoDist != 100000.f)
 			{
+				newSelected = closestVideoID;
+				if(p.p.debug.viewer) 	p.display.message("Selected video in front: "+newSelected);
+
 				if(newSelected != -1)
-					p.getCurrentField().images.get(newSelected).setSelected(select);
+					p.getCurrentField().videos.get(newSelected).setSelected(select);
 			}
 		}
-		else if(closestVideoDist < closestImageDist && closestVideoDist != 1000.f)
+		else if(closestVideoDist != 100000.f)					// In Normal Mode
 		{
-			newSelected = closestVideoID;
-			if(p.p.debug.viewer) 	p.display.message("Selected video in front: "+newSelected);
+			WMV_Video v = p.getCurrentField().videos.get(closestVideoID);
+
+			if(!v.isPlaying())
+			{
+				if(!v.isLoaded()) v.loadMedia();
+				v.playVideo();
+			}
+			else
+				v.stopVideo();
 			
-//			if(select)
-//				p.getCurrentField().selectedVideo = newSelected;	
-			if(newSelected != -1)
-				p.getCurrentField().videos.get(newSelected).setSelected(select);
+			if(p.p.debug.viewer) 
+				p.display.message("Video is "+(v.isPlaying()?"playing":"not playing: ")+v.getID());
 		}
 	}
 	
-
 	/**
 	 * Turn camera side to side, at different elevation angles, until images in range become visible
 	 */

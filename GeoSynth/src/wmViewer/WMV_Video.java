@@ -2,7 +2,7 @@ package wmViewer;
 
 import processing.video.*;
 
-import java.awt.Image;
+//import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -24,8 +24,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	PImage lastFrame;
 	
 	private final float defaultFrameRate = 29.98f;
-	private boolean videoLoaded = false;
-	private boolean videoPlaying = false;
+	private boolean loaded = false;
+	private boolean playing = false;
 	private boolean soundFadedIn = false, soundFadedOut = false;
 	
 	/* Metadata */
@@ -185,10 +185,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		if (!hidden && !disabled && !p.p.viewer.map3DMode) 
 		{
 			if (viewingBrightness > 0)
-			{
-//				if ((1 < video.width) && (1 < video.height))
-					drawVideo();          // Draw the video 
-			}
+				if ((video.width > 1) && (video.height > 1))
+					displayVideo();          // Draw the video 
 		}
 		else
 		{      
@@ -330,7 +328,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			{
 				if(visibilitySetToTrue && !fading && !fadedOut && !p.hideVideos)	// If should be visible and already fading, fade in 
 				{
-					if(!videoLoaded) loadMedia();
+					if(!loaded) loadMedia();
 					fadeIn();											// Fade in
 				}
 			}
@@ -343,7 +341,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 
 				if(!visible && thinningVisibility && !fading && !fadedOut && !p.hideVideos) 
 				{
-					if(!videoLoaded) loadMedia();
+					if(!loaded) loadMedia();
 					fadeIn();
 				}
 			}
@@ -371,7 +369,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			{
 				if(p.p.p.debug.video)
 					p.p.display.message("Will fade sound in for video #"+getID());
-				fadeSoundIn();
+//				fadeSoundIn();
 				fadedIn = false;						
 			}
 
@@ -386,7 +384,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			if(soundFadedIn) soundFadedIn = false;
 			if(soundFadedOut) soundFadedOut = false;
 			
-			if(fadingVolume && videoLoaded)
+			if(fadingVolume && loaded)
 				updateFadingVolume();
 		}
 	}
@@ -464,24 +462,49 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			video = new Movie(p.p.p, filePath);
 			
 			setLength( video.duration() );				// Set video length (in seconds)
-
-			video.play();					// Start playing			
 			video.loop();					// Start loop
-			videoPlaying = true;
-			p.videosPlaying++;
-
+			video.pause();
+			playing = false;
+			
 			video.volume(0.f);
 			volume = 0.f;
-
+			
+//			if(p.videosPlaying == 0)
+//			{
+//				playVideo();
+//			}
+//			else
+//			{
+//				playing = false;
+//				video.volume(0.f);
+//				volume = 0.f;
+//			}
+			
 			if(p.p.p.debug.video)
 				p.p.display.message("Loading video file..."+filePath+" video.duration():"+video.duration());
 
 			calculateVertices(); 
-			videoLoaded = true;
+			loaded = true;
 			p.videosLoaded++;
 		}
 	}
 
+	/**
+	 * Start playing the video
+	 * @param pause 
+	 */
+	public void playVideo()
+	{
+		video.loop();					// Start loop
+
+		playing = true;
+		p.videosPlaying++;
+		video.volume(0.f);
+		volume = 0.f;
+		
+		fadeSoundIn();
+	}
+	
 	/**
 	 * Stop playing the video
 	 */
@@ -490,13 +513,13 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		if(p.p.p.debug.video) 
 			p.p.display.message("Stopping video file..."+getID());
 
-		video.noLoop();
+		video.pause();
+		
 //		if(video != null)
 //			video.stop();
 		
 		p.videosPlaying--;
-
-		videoPlaying = false;
+		playing = false;
 	}
 
 	/**
@@ -518,14 +541,14 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		if(video != null)
 			video.dispose();
 		
-		videoLoaded = false;
+		loaded = false;
 //		videoPlaying = false;
 	}
 
 	/**
 	 * Draw the video in virtual space
 	 */
-	private void drawVideo()
+	private void displayVideo()
 	{
 		p.p.p.rectMode(PApplet.CENTER);
 		p.p.p.noStroke(); 
@@ -541,12 +564,11 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 
 		p.p.p.pushMatrix();
 		p.p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
-
 		p.p.p.textureMode(PApplet.IMAGE);
-		
+
 		if(lastFrame != null)
 			p.p.p.texture(lastFrame);
-		
+
 		lastFrame = new PImage(video.getImage());
 
 		if(p.p.viewer.selection)
@@ -580,7 +602,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			else
 				p.p.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));          				
 		}
-		
+
 		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
 		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
 		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
@@ -1394,6 +1416,16 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	 public boolean isFadingVolume()
 	 {
 		 return fadingVolume;
+	 }
+	 
+	 public boolean isLoaded()
+	 {
+		 return loaded;
+	 }
+	 
+	 public boolean isPlaying()
+	 {
+		 return playing;
 	 }
 
 	 public void setFocusDistance(float newFocusDistance)

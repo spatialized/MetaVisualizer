@@ -231,11 +231,11 @@ public class WMV_Input
 				break;
 				
 			case "SelectFront":
-				p.viewer.selectFrontMedia(true);
+				p.viewer.chooseMediaInFront(true);
 				break;
 				
 			case "DeselectFront":
-				p.viewer.selectFrontMedia(false);	
+				p.viewer.chooseMediaInFront(false);	
 				break;
 					
 			case "DeselectAll":
@@ -911,10 +911,10 @@ public class WMV_Input
 
 				/* Selection */
 				if (!optionKey && key == 'x') 
-					p.viewer.selectFrontMedia(true);
+					p.viewer.chooseMediaInFront(true);
 
 				if (!optionKey && key == 'X')
-					p.viewer.selectFrontMedia(false);
+					p.viewer.chooseMediaInFront(false);
 				
 				if (key == 'S')
 				{

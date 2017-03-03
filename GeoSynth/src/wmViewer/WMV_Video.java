@@ -9,21 +9,17 @@ import java.util.Calendar;
 import processing.core.*;
 import processing.data.IntList;
 
-//import org.gstreamer.Bus.EOS;
-//import org.gstreamer.GstObject;
-
 /**************************************************
  * @author davidgordon
  * A rectangular video in 3D virtual space
  */
 
-class WMV_Video extends WMV_Viewable          		 // Represents a video in virtual space
+class WMV_Video extends WMV_Viewable          		// Represents a video in virtual space
 {
 	/* Video */
-	Movie video;
-	PImage lastFrame;
+	Movie video;									// Movie object
+	PImage frame;									// Frame to be displayed 
 	
-	private final float defaultFrameRate = 29.98f;
 	private boolean loaded = false;
 	private boolean playing = false;
 	private boolean soundFadedIn = false, soundFadedOut = false;
@@ -52,7 +48,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	
 	private float fadingFocusDistanceStartFrame = 0.f, fadingFocusDistanceEndFrame = 0.f;	// Fade focus distance and image size together
 	private float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
-	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
+//	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
 	private float fadingFocusDistanceLength = 30.f;
 
 	private boolean thinningVisibility = false;
@@ -565,10 +561,10 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		p.p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
 		p.p.p.textureMode(PApplet.IMAGE);
 
-		if(lastFrame != null)
-			p.p.p.texture(lastFrame);
+		if(frame != null)
+			p.p.p.texture(frame);
 
-		lastFrame = new PImage(video.getImage());
+		frame = new PImage(video.getImage());
 
 		if(p.p.viewer.selection)
 		{

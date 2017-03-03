@@ -59,7 +59,7 @@ public class WMV_World
 	public boolean startInteractive = false;			// Start user clustering
 
 	/* Time */
-	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
+	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field; 2 = single)
 	public boolean timeFading = false;					// Does time affect media brightness? 
 //	public boolean dateFading = false;					// Does date affect media brightness? 
 	public boolean paused = false;						// Time is paused

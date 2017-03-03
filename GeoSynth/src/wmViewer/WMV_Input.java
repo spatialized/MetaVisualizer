@@ -253,7 +253,7 @@ public class WMV_Input
 				/* Output */
 			case "ExportImage":
 				if(!p.outputFolderSelected) p.p.selectFolder("Select an output folder:", "outputFolderSelected");
-				p.saveImage();
+				p.saveToDisk();
 				break;
 			case "OutputFolder":
 				p.p.selectFolder("Select an output folder:", "outputFolderSelected");
@@ -969,7 +969,7 @@ public class WMV_Input
 				if (key == 'p') 	// Save image to disk
 				{	
 					if(!p.outputFolderSelected) p.p.selectFolder("Select an output folder:", "outputFolderSelected");
-					p.saveImage();
+						p.saveToDisk();
 				}
 
 				if (key == '&') 

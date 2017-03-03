@@ -505,6 +505,47 @@ public class WMV_Field
 		 p.display.clearMetadata();
 	}
 	
+	
+	/**
+	 * Return list of selected media IDs of given type
+	 * @param mediaType 0: image 1: panorama 2: video 3: sound
+	 */
+	public IntList getSelectedMedia(int mediaType) 
+	{
+		IntList selected = new IntList();
+		
+		for (WMV_Image i : images)
+		{
+			if(i.isSelected())
+			{
+				selected.append(i.getID());
+			}
+		}
+		for (WMV_Panorama n : panoramas)
+		{
+			if(n.isSelected())
+			{
+				selected.append(n.getID());
+			}
+		}
+		for (WMV_Video v : videos)
+		{
+			if(v.isSelected())
+			{
+				selected.append(v.getID());
+			}
+		}
+//		for (WMV_Sound s : sounds)
+//		{
+//			if(s.isSelected())
+//			{
+//				selected.append(s.getID());
+//			}
+//		}
+
+		return selected;
+	}
+	
 	/**
 	 * @return Whether any media in the field are currently fading
 	 */

@@ -63,6 +63,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	private int volumeFadingStartFrame = 0, volumeFadingEndFrame = 0;
 	private float volumeFadingStartVal = 0.f, volumeFadingTarget = 0.f;
 	private final int volumeFadingLength = 60;	// Fade volume over 30 frames
+	private boolean pauseAfterSoundFades = false;
 	
 	/* Navigation */
 	private boolean isClose = false;				// Is the viewer in visible range?
@@ -206,6 +207,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 //			if(!initFading)		
 				stopFading();
 
+		PApplet.println("fade video in:"+getID());
+		
 		fadeBrightness(1.f);					// Fade in
 	}
 
@@ -239,7 +242,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	/**
 	 * Fade out sound
 	 */
-	void fadeSoundOut()
+	void fadeSoundOut(boolean pause)
 	{
 		if(volume > 0.f)
 		{
@@ -248,6 +251,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			volumeFadingStartVal = volume; 
 			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = 0.f;
+			pauseAfterSoundFades = pause;
 		}
 	}
 	
@@ -367,8 +371,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 
 			if(fadedIn)		// Fade in sound once video has faded in
 			{
-				if(p.p.p.debug.video)
-					p.p.display.message("Will fade sound in for video #"+getID());
+//				if(p.p.p.debug.video)
+//					p.p.display.message("Will fade sound in for video #"+getID());
 //				fadeSoundIn();
 				fadedIn = false;						
 			}
@@ -377,7 +381,7 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			{
 				if(p.p.p.debug.video)
 					p.p.display.message("Will fade sound out for video #"+getID());
-				fadeSoundOut();
+				fadeSoundOut(false);			// Fade sound out and clear video once finished
 				fadedOut = false;						
 			}
 			
@@ -462,23 +466,14 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			video = new Movie(p.p.p, filePath);
 			
 			setLength( video.duration() );				// Set video length (in seconds)
-			video.loop();					// Start loop
+			
+			video.loop();								// Start loop
 			video.pause();
+			
 			playing = false;
 			
 			video.volume(0.f);
 			volume = 0.f;
-			
-//			if(p.videosPlaying == 0)
-//			{
-//				playVideo();
-//			}
-//			else
-//			{
-//				playing = false;
-//				video.volume(0.f);
-//				volume = 0.f;
-//			}
 			
 			if(p.p.p.debug.video)
 				p.p.display.message("Loading video file..."+filePath+" video.duration():"+video.duration());
@@ -513,7 +508,8 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		if(p.p.p.debug.video) 
 			p.p.display.message("Stopping video file..."+getID());
 
-		video.pause();
+//		video.pause();
+		fadeSoundOut(true);				// Fade sound out and pause video once finished
 		
 //		if(video != null)
 //			video.stop();
@@ -539,7 +535,10 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 		p.videosLoaded--;
 
 		if(video != null)
+		{
+			video.stop();
 			video.dispose();
+		}
 		
 		loaded = false;
 //		videoPlaying = false;
@@ -1100,7 +1099,6 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 	}
 
 	/**
-	 * updateFadingVolume()
 	 * Update volume fading 
 	 */
 	private void updateFadingVolume()
@@ -1120,8 +1118,10 @@ class WMV_Video extends WMV_Viewable          		 // Represents a video in virtua
 			{
 				soundFadedOut = true;
 			
-//				stopVideo();
-				clearVideo();
+				if(pauseAfterSoundFades)
+					video.pause();
+				else
+					clearVideo();
 			}
 		}
 	}

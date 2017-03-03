@@ -1,6 +1,11 @@
 package wmViewer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 //import com.jogamp.newt.opengl.GLWindow;
@@ -9,6 +14,7 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.data.IntList;
 //import processing.core.PSurface;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
@@ -230,9 +236,17 @@ public class WMV_World
 		
 		if(saveImage && outputFolderSelected)		/* Image exporting */
 		{
-			p.saveFrame(outputFolder + "/" + getCurrentField().name + "-######.jpg");
+			if(viewer.selection)
+			{
+				exportSelectedImages();
+				PApplet.println("Saved image(s) to "+outputFolder);
+			}
+			else
+			{
+				p.saveFrame(outputFolder + "/" + getCurrentField().name + "-######.jpg");
+				PApplet.println("Saved image: "+outputFolder + "/image" + "-######.jpg");
+			}
 			saveImage = false;
-			PApplet.println("Saved image:"+outputFolder + "/image" + "-######.jpg");
 		}
 	}
 	
@@ -874,11 +888,48 @@ public class WMV_World
 	/**
 	 * Save current screen view to disk
 	 */
-	public void saveImage() 
+	public void saveToDisk() 
 	{
 		if(p.debug.main)
 			PApplet.println("Will output image to disk.");
 		saveImage = true;
+	}
+	
+	public void exportSelectedImages()
+	{
+		IntList selected = getCurrentField().getSelectedMedia(0);
+		for(int i:selected)
+		{
+			InputStream is = null;
+			OutputStream os = null;
+			try {
+				File imgFilePath = new File(getCurrentField().images.get(i).getFilePath());
+				is = new FileInputStream(imgFilePath);
+				os = new FileOutputStream(new File(outputFolder + "/" + getCurrentField().images.get(i).getName()));
+				byte[] buffer = new byte[1024];
+				int length;
+				while ((length = is.read(buffer)) > 0) {
+					os.write(buffer, 0, length);
+				}
+			} 
+			catch(Throwable t)
+			{
+				PApplet.println("ERROR 1 in exportSelectedImages:"+t);
+			}
+			finally 
+			{
+				try 
+				{
+					is.close();
+					os.close(); 
+				} 
+				catch (IOException e) 
+				{
+					PApplet.println("ERROR 2 in exportSelectedImages:"+e);
+				}
+			}
+
+		}
 	}
 
 	/**

@@ -23,7 +23,7 @@ public class WMV_Debug
 	public boolean viewable = false;			// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
-	public boolean video = false;				// Debug WMV_Video class
+	public boolean video = true;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
 	public boolean metadata = false;			// Debug WMV_Metadata class
 	public boolean stitching = false;			// Debug WMV_Stitcher class

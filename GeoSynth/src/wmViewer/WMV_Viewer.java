@@ -244,6 +244,11 @@ public class WMV_Viewer
 
 		p.getCurrentField().getAttractingClusters().size();
 		
+		if(p.getTimeMode() == 2 && isMoving())
+			p.calculateTimeCycleLength();
+		if(p.timeCycleLength == -1 && p.p.frameCount % 10 == 0.f)
+			p.calculateTimeCycleLength();
+
 		if(lockToCluster && !walking)										// Update locking to nearest cluster 
 		{
 			if(p.getCurrentField().getAttractingClusters().size() > 0)		// If being attracted to a point
@@ -837,29 +842,56 @@ public class WMV_Viewer
 	/**
 	 * @param amount Number of nearest clusters to return
 	 * @param threshold If distance exceeds, will return less than <amount> nearest clusters
-	 * @return Indices of nearest clusters to camera, excluding the current one
+	 * @param inclCurrent Include the current cluster?
+	 * @return Indices of nearest clusters to camera			
 	 */
-	IntList getNearClusters(int amount, float threshold) 	// Returns the cluster nearest to the current camera position, excluding the current cluster
+	IntList getNearClusters(int amount, float threshold) 	// -- excluding the current cluster??
 	{
-		PVector cPos = getLocation();
+		PVector vPos = getLocation();
 		IntList nearList = new IntList();
 		FloatList distList = new FloatList();
-
-		for (WMV_Cluster c : p.getActiveClusters()) 	// Iterate through the clusters
+		ArrayList<WMV_Cluster> cl = new ArrayList<WMV_Cluster>(p.getActiveClusters());
+		ArrayList<WMV_Cluster> removeList = new ArrayList<WMV_Cluster>();
+		
+		if(amount == -1)				// No limit on number of clusters to search for
+			amount = cl.size();
+		
+		for (WMV_Cluster c : cl) 		// Fill the list with <amount> locations under <threshold> distance from viewer
 		{
-			float dist = PVector.dist(cPos, c.getLocation());			// Distance of cluster to check
-
-			if(nearList.size() < amount)			// Fill the list first
+			float dist = PVector.dist(vPos, c.getLocation());			// Distance from cluster to viewer
+			if(dist < threshold)
 			{
-				nearList.append(c.getID());
-				distList.append(dist);
+				if(nearList.size() < amount)
+				{
+					nearList.append(c.getID());
+					distList.append(dist);
+					removeList.add(c);
+				}
+				else break;
 			}
-			else									// Then compare new clusters to the list
+		}
+		
+		for(WMV_Cluster c : removeList)
+			cl.remove(c);
+
+		for (WMV_Cluster c : cl) 	// Test remaining clusters against list locations and update lists
+		{
+			float dist = PVector.dist(vPos, c.getLocation());			// Distance from cluster to viewer
+
+//			if(nearList.size() < amount)			// Fill the list first
+//			{
+//				nearList.append(c.getID());
+//				distList.append(dist);
+//			}
+//			else									// Then compare new clusters to the list
+//			{
+				
+			if(dist < threshold)
 			{
 				int count = 0;
 				int largestIdx = -1;
 				float largest = -1000.f;
-				
+
 				for(float f : distList)				// Find farthest distance in nearList to compare
 				{
 					if(f > largest)
@@ -869,8 +901,8 @@ public class WMV_Viewer
 					}
 					count++;
 				}
-				
-				float fcDist = PVector.dist(cPos, p.getCluster(largestIdx).getLocation());		// Distance of farthest cluster on nearList
+
+				float fcDist = PVector.dist(vPos, p.getCluster(largestIdx).getLocation());		// Distance of farthest cluster on nearList
 				if(dist < fcDist)
 				{
 					nearList.remove(largestIdx);
@@ -1727,7 +1759,6 @@ public class WMV_Viewer
 	}
 	
 	/***
-	 * updatePhysics()
 	 * Update physical model each frame
 	 */
 	public void updatePhysics()
@@ -2784,7 +2815,6 @@ public class WMV_Viewer
 	}	
 	
 	/**
-	 * updateLooking()
 	 * Update turning to look for images 
 	 */
 	private void updateLooking()
@@ -3367,7 +3397,7 @@ public class WMV_Viewer
 		return attractorCluster;
 	}
 
-	public int getCurrentCluster()
+	public int getCurrentClusterID()
 	{
 		return currentCluster;
 	}

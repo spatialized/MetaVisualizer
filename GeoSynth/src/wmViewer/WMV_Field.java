@@ -197,7 +197,7 @@ public class WMV_Field
 		if(p.showUserPanoramas || p.showStitchedPanoramas)
 		{
 			if(clusters.size()>0)
-				clusters.get(p.viewer.getCurrentCluster()).draw();		// Draw current cluster
+				clusters.get(p.viewer.getCurrentClusterID()).draw();		// Draw current cluster
 		}
 	}
 	
@@ -1245,7 +1245,7 @@ public class WMV_Field
 	public void showClusterCenters()
 	{
 		if(p.getCurrentCluster().getID() != -1)
-			clusters.get(p.viewer.getCurrentCluster()).drawCenter(255);		// Draw current cluster
+			clusters.get(p.viewer.getCurrentClusterID()).drawCenter(255);		// Draw current cluster
 		
 		if(p.viewer.getAttractorCluster() != -1)
 			clusters.get(p.viewer.getAttractorCluster()).drawCenter(50);	// Draw attractor cluster

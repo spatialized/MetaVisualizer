@@ -147,21 +147,9 @@ public class WMV_Panorama extends WMV_Viewable
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-//		if(fadingBrightness>0.f && fadingBrightness<1.f)
-//			PApplet.println("fadingBrightness:"+fadingBrightness);
+		if( p.p.timeFading && time != null && !p.p.viewer.isMoving() )
+			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 		
-		if(p.p.timeFading && time != null)
-		{
-			float timeBrightnessFactor = getTimeBrightness();        
-			brightness *= timeBrightnessFactor; 																			// Fade alpha based on time or date
-		}
-		
-//		if(p.p.dateFading && time != null)
-//		{
-//			float dateBrightnessFactor = getDateBrightness();        
-//			brightness *= dateBrightnessFactor; 																			// Fade alpha based on time or date
-//		}
-
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);	  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
 
 		if (visible && !hidden && !disabled) 

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.core.PVector;
 import processing.data.IntList;
 //import processing.core.PSurface;
 import toxi.math.CircularInterpolation;
@@ -59,16 +60,14 @@ public class WMV_World
 	public boolean startInteractive = false;			// Start user clustering
 
 	/* Time */
-	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field; 2 = single)
+	private int timeMode = 2;							// Time Mode (0 = cluster; 1 = field; 2 = single)
 	public boolean timeFading = false;					// Does time affect media brightness? 
-//	public boolean dateFading = false;					// Does date affect media brightness? 
 	public boolean paused = false;						// Time is paused
-
-	public boolean showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
-	public boolean showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
 	public int timeCycleLength = 250;					// Length of main time loop in frames
+	final public int defaultTimeCycleLength = 250;		// Default length of main time loop in frames
+	
 	public int timeUnitLength = 1;						// How many frames between time increments
 	public float timeInc = timeCycleLength / 30.f;			
 
@@ -453,6 +452,8 @@ public class WMV_World
 	void finishSetup()
 	{
 		PApplet.println("Finishing setup...");
+
+		calculateTimeCycleLength();
 		
 //		display.map2D.initializeMaps();
 		display.window.setupWMVWindow();
@@ -464,6 +465,7 @@ public class WMV_World
 
 		p.running = true;
 		startedRunning = true;
+		
 	}
 	
 	/**
@@ -508,9 +510,6 @@ public class WMV_World
 		timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
 		timeFading = false;					// Does time affect media brightness? 
 		paused = false;						// Time is paused
-
-		showAllDateSegments = true;			// Show all time segments (true) or show only current cluster (false)?
-		showAllTimeSegments = true;			// Show all time segments (true) or show only current cluster (false)?
 
 		currentTime = 0;							// Time units since start of time cycle (day / month / year)
 		timeCycleLength = 250;					// Length of main time loop in frames
@@ -764,9 +763,9 @@ public class WMV_World
 	public WMV_Cluster getCurrentCluster()
 	{
 		WMV_Cluster c;
-		if(viewer.getCurrentCluster() < getCurrentField().clusters.size())
+		if(viewer.getCurrentClusterID() < getCurrentField().clusters.size())
 		{
-			c = getCurrentField().clusters.get(viewer.getCurrentCluster());
+			c = getCurrentField().clusters.get(viewer.getCurrentClusterID());
 			return c;
 		}
 		else return null;
@@ -827,6 +826,23 @@ public class WMV_World
 		for(WMV_Cluster c : getCurrentField().clusters)
 			if(c.isActive() && !c.isEmpty())
 				clusters.add(c);
+		
+		return clusters;
+	}
+
+	/**
+	 * @return Active clusters in current field
+	 */
+	public ArrayList<WMV_Cluster> getVisibleClusters()
+	{
+		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
+
+		for(int i : viewer.getNearClusters(-1, defaultFocusDistance))
+		{
+			WMV_Cluster c = getCluster(i);
+			if(c.isActive() && !c.isEmpty())
+				clusters.add(c);
+		}
 		
 		return clusters;
 	}
@@ -969,5 +985,68 @@ public class WMV_World
 //			count++;
 //		}
 //		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
+	}
+	
+	public void calculateTimeCycleLength()
+	{
+		if(timeMode == 0 || timeMode == 1)
+		{
+			timeCycleLength = defaultTimeCycleLength;
+		}
+		else if(timeMode == 2)
+		{
+//			float highest = -100000.f;
+//			float lowest = 100000.f;
+			ArrayList<WMV_Cluster> cl = getVisibleClusters();
+			
+			for(WMV_Cluster c : cl)						// Time cycle length is flexible according to visible cluster media lengths
+			{
+				timeCycleLength += c.getImages().size() * defaultMediaLength;
+				timeCycleLength += c.getPanoramas().size() * defaultMediaLength;
+				for(WMV_Video v: c.getVideos())
+					timeCycleLength += v.getLength();
+//				for(WMV_Sound s: c.getSounds())
+//					timeCycleLength += s.getLength();
+			}
+			
+			// CREATE AND SORT CLUSTER / MULTI CLUSTER TIMELINE HERE
+			
+			if(cl.size() == 0)
+				timeCycleLength = -1;				// Flag for Viewer to keep calling this method until clusters are visible
+		}
+		else if(timeMode == 3)						// Time cycle length is flexible according to visible cluster timelines
+		{
+			float highest = -100000.f;
+			float lowest = 100000.f;
+			ArrayList<WMV_Cluster> cl = getVisibleClusters();
+			
+			for(WMV_Cluster c : cl)
+			{
+				float low = c.timeline.get(0).getLower().getTime();
+				if(low < lowest)
+					lowest = low;
+				float high = c.timeline.get(c.timeline.size()-1).getUpper().getTime();
+				if(high > highest)
+					highest = high;
+				PApplet.println(" c.timeline.size():"+c.timeline.size());
+			}
+			
+			float val = PApplet.map(highest - lowest, 0.f, 1.f, 0.f, defaultMediaLength);
+			if(cl.size() == 0)
+				timeCycleLength = -1;
+		}
+		PApplet.println("new timeCycleLength:"+timeCycleLength);
+	}
+	
+	public void setTimeMode(int newTimeMode)
+	{
+		timeMode = newTimeMode;
+		if(timeMode == 2)
+			calculateTimeCycleLength();
+	}
+	
+	public int getTimeMode()
+	{
+		return timeMode;
 	}
 }

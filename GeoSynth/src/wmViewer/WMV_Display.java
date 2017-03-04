@@ -132,7 +132,7 @@ class WMV_Display
 					{
 						if(p.timeFading)
 						{
-							if(p.timeMode == 0)			// Need to fix cluster date / time structures first!
+							if(p.getTimeMode() == 0)			// Need to fix cluster date / time structures first!
 							{
 //								WMV_Cluster curCluster = p.getCurrentCluster();
 //								int firstTimeID = curCluster.getFirstTimeSegment();
@@ -827,7 +827,7 @@ class WMV_Display
 		
 		WMV_Field f = p.getCurrentField();
 		
-		if(p.viewer.getCurrentCluster() >= 0)
+		if(p.viewer.getCurrentClusterID() >= 0)
 		{
 			WMV_Cluster c = p.getCurrentCluster();
 			float[] camTar = p.viewer.camera.target();
@@ -902,7 +902,7 @@ class WMV_Display
 					 PApplet.round(p.viewer.getLocation().z), xPos, yPos += lineWidthVeryWide, hudDistance);		
 			p.p.text(" GPS Longitude: "+p.viewer.getGPSLocation().x+" Latitude:"+p.viewer.getGPSLocation().y, xPos, yPos += lineWidth, hudDistance);		
 
-			p.p.text(" Current Cluster: "+p.viewer.getCurrentCluster(), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Current Cluster: "+p.viewer.getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text("   Media Points: "+c.mediaPoints, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Media Segments: "+p.getCurrentCluster().segments.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
@@ -945,11 +945,11 @@ class WMV_Display
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Time ", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
-			p.p.text(" Time Mode: "+ ((p.p.world.timeMode == 0) ? "Cluster" : "Field"), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Time Mode: "+ ((p.p.world.getTimeMode() == 0) ? "Cluster" : "Field"), xPos, yPos += lineWidthVeryWide, hudDistance);
 			
-			if(p.p.world.timeMode == 0)
+			if(p.p.world.getTimeMode() == 0)
 				p.p.text(" Current Field Time: "+ p.currentTime, xPos, yPos += lineWidth, hudDistance);
-			if(p.p.world.timeMode == 1)
+			if(p.p.world.getTimeMode() == 1)
 				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().currentTime, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().timeline.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Time Segment: "+ p.viewer.currentFieldTimeSegment, xPos, yPos += lineWidth, hudDistance);
@@ -976,7 +976,7 @@ class WMV_Display
 			}			
 		}
 		else
-			message("Can't display statistics: currentCluster == "+p.viewer.getCurrentCluster()+"!!!");
+			message("Can't display statistics: currentCluster == "+p.viewer.getCurrentClusterID()+"!!!");
 		
 		p.p.popMatrix();
 	}
@@ -1026,7 +1026,7 @@ class WMV_Display
 		p.p.text(" Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
 
 		WMV_Cluster cl = p.getCurrentCluster();
-		p.p.text(" Current Cluster ID: "+p.viewer.getCurrentCluster(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" Current Cluster ID: "+p.viewer.getCurrentClusterID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 		p.p.text("   Media Points: "+cl.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
 		

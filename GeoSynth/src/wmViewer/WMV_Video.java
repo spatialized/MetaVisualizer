@@ -104,6 +104,10 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		orientation = newOrientation;       // Vertical (90) or Horizontal (0)
 		phi = newElevation;            		// Pitch angle
 		rotation = newRotation;             // Rotation angle
+		
+		video = new Movie(p.p.p, filePath);
+		setLength( video.duration() );				// Set video length (in seconds)
+		video.dispose();
 	}  
 
 	/**
@@ -120,39 +124,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		distanceBrightness = getDistanceBrightness(); 
 		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
 
-		if( p.p.timeFading )
-		{
-			float timeBrightnessFactor;                          // Fade with time 
-			if(!p.p.viewer.isMoving())
-			{
-				if(p.p.showAllTimeSegments)
-				{
-					if(p.p.getCluster(cluster).timeline.size() > 0)
-						timeBrightnessFactor = getTimeBrightness();    
-					else
-					{
-						timeBrightnessFactor = 0.f;
-						if(p.p.p.debug.cluster || p.p.p.debug.video || p.p.p.debug.viewable)
-							p.p.display.message("Video Cluster: "+cluster+" has no timeline points!");
-					}
-
-					brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-				}
-				else
-				{
-					if(p.p.viewer.getCurrentCluster() == cluster)
-					{
-						timeBrightnessFactor = getTimeBrightness();        
-						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-					}
-					else														// Hide media outside current cluster
-					{
-						timeBrightnessFactor = 0.f;
-						brightness = 0.f;
-					}
-				}
-			}
-		}
+		if( p.p.timeFading && time != null && !p.p.viewer.isMoving() )
+			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 
 		if(isClose && distanceBrightness == 0.f)							// Video recently moved out of range
 		{
@@ -267,7 +240,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 			if(p.p.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
-				if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
+				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
 				for(int id : p.p.viewer.clustersVisible)
@@ -460,7 +433,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(!disabled)																	
 		{
 			video = new Movie(p.p.p, filePath);
-			
 			setLength( video.duration() );				// Set video length (in seconds)
 			
 			video.loop();								// Start loop
@@ -803,7 +775,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * setLength
 	 * @param newLength New video length
 	 */
 	void setLength(float newLength)
@@ -817,7 +788,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 }
 	 
 	/**
-	 * isFacingCamera()
 	 * @return Whether video is facing the camera
 	 */	
 	public boolean isFacingCamera()
@@ -827,7 +797,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * isBackFacing()
 	 * @return Is the camera behind the video?  
 	 */
 	public boolean isBackFacing()										

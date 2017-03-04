@@ -4,6 +4,7 @@ import processing.core.PApplet;
 import processing.core.PVector;
 //import processing.data.FloatList;
 import processing.data.IntList;
+import processing.video.Movie;
 
 /*********************************************
  * @author davidgordon
@@ -812,6 +813,12 @@ public class WMV_Cluster
 		}
 
 		return active;
+	}
+	
+	public int getMediaCount()
+	{
+		int count = images.size() + videos.size() + panoramas.size(); // + sounds.size();
+		return count;
 	}
 
 	/**

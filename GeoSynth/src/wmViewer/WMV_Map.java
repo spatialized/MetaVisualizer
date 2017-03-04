@@ -324,7 +324,7 @@ public class WMV_Map
 				if(p.p.viewer.getAttractorCluster() != -1 && p.p.viewer.getAttractorCluster() < p.p.getFieldClusters().size())
 					drawPoint( p.p.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 
-				if(p.p.viewer.getCurrentCluster() != -1 && p.p.viewer.getCurrentCluster() < p.p.getFieldClusters().size())
+				if(p.p.viewer.getCurrentClusterID() != -1 && p.p.viewer.getCurrentClusterID() < p.p.getFieldClusters().size())
 					drawPoint( p.p.getCurrentCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 
 				drawCameraOnMap(mapWidth, mapHeight);
@@ -650,7 +650,8 @@ public class WMV_Map
 		
 		if(itemSelected == null)
 		{
-			selectedCluster = -1;
+//			selectedCluster = -1;
+			selectedCluster = p.p.viewer.getCurrentClusterID();
 		}
 		else
 		{

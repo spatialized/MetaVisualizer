@@ -106,39 +106,8 @@ class WMV_Image extends WMV_Viewable
 		distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-		if( p.p.timeFading )
-		{
-			float timeBrightnessFactor;                        		// Fade with time 
-			if(!p.p.viewer.isMoving())
-			{
-				if(p.p.showAllTimeSegments)
-				{
-					if(p.p.getCluster(cluster).timeline.size() > 0)		// -- Check this elsewhere?
-						timeBrightnessFactor = getTimeBrightness();    
-					else
-					{
-						timeBrightnessFactor = 0.f;
-						if(p.p.p.debug.cluster || p.p.p.debug.image || p.p.p.debug.viewable)
-							p.p.display.message("Cluster: "+cluster+" has no timeline points!");
-					}
-
-					brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-				}
-				else
-				{
-					if(p.p.viewer.getCurrentCluster() == cluster)
-					{
-						timeBrightnessFactor = getTimeBrightness();        
-						brightness *= timeBrightnessFactor; 					// Fade brightness based on time
-					}
-					else														// Hide media outside current cluster
-					{
-						timeBrightnessFactor = 0.f;
-						brightness = 0.f;
-					}
-				}
-			}
-		}
+		if( p.p.timeFading && time != null && !p.p.viewer.isMoving() )
+			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 
 		if( p.p.angleFading )
 		{
@@ -251,7 +220,7 @@ class WMV_Image extends WMV_Viewable
 
 			if(p.p.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
-				if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
+				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
 				for(int id : p.p.viewer.clustersVisible)

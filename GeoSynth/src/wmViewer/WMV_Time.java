@@ -26,7 +26,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 		p = parent;
 		calendar = newCalendar;
 		id = newID;
-		mediaType = newMediaType;									// 0: image 1: panorama 2: video
+		mediaType = newMediaType;									// 0: image 1: panorama 2: video 3: sound
 		
 		year = newCalendar.get(Calendar.YEAR);
 		month = newCalendar.get(Calendar.MONTH);

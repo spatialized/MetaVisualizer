@@ -859,7 +859,7 @@ public class WMV_Window {
 			applet.fill(255, 255, 255);
 
 			applet.textSize(smallTextSize);
-			applet.text(" Time Mode: "+ ((p.p.p.world.timeMode == 0) ? "Cluster" : "Field"), x, y += lineWidthVeryWide);
+			applet.text(" Time Mode: "+ ((p.p.p.world.getTimeMode() == 0) ? "Cluster" : "Field"), x, y += lineWidthVeryWide);
 
 			//		if(p.p.p.world.timeMode == 0)
 			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
@@ -1106,7 +1106,7 @@ public class WMV_Window {
 
 			WMV_Field f = p.p.getCurrentField();
 
-			if(p.p.viewer.getCurrentCluster() >= 0)
+			if(p.p.viewer.getCurrentClusterID() >= 0)
 			{
 				WMV_Cluster c = p.p.getCurrentCluster();
 				float[] camTar = p.p.viewer.camera.target();
@@ -1175,7 +1175,7 @@ public class WMV_Window {
 						PApplet.round(p.p.viewer.getLocation().z), x, y += lineWidthVeryWide);		
 				applet.text(" GPS Longitude: "+p.p.viewer.getGPSLocation().x+" Latitude:"+p.p.viewer.getGPSLocation().y, x, y += lineWidth);		
 
-				applet.text(" Current Cluster: "+p.p.viewer.getCurrentCluster(), x, y += lineWidthVeryWide);
+				applet.text(" Current Cluster: "+p.p.viewer.getCurrentClusterID(), x, y += lineWidthVeryWide);
 				applet.text("   Media Points: "+c.mediaPoints, x, y += lineWidth);
 				applet.text("   Media Segments: "+p.p.getCurrentCluster().segments.size(), x, y += lineWidth);
 				applet.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.p.viewer.getLocation())), x, y += lineWidth);
@@ -1233,7 +1233,7 @@ public class WMV_Window {
 				}			
 			}
 			else
-				p.message("Can't display statistics: currentCluster == "+p.p.viewer.getCurrentCluster()+"!!!");
+				p.message("Can't display statistics: currentCluster == "+p.p.viewer.getCurrentClusterID()+"!!!");
 		}
 	}
 	

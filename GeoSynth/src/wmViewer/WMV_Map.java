@@ -261,20 +261,20 @@ public class WMV_Map
 		p.beginHUD();
 
 		/* Media */
-		if(!scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
-		{
-			if((mapImages && !p.p.getCurrentField().hideImages))
-				for ( WMV_Image i : p.p.getCurrentField().images )					// Draw image capture locations on 2D Map
-					drawImageOnMap(i, false, mapWidth, mapHeight, false);
-
-			if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
-				for ( WMV_Panorama n : p.p.getCurrentField().panoramas )			// Draw panorama capture locations on 2D Map
-					drawPanoramaOnMap(n, false, mapWidth, mapHeight, false);
-
-			if((mapVideos && !p.p.getCurrentField().hideVideos))
-				for (WMV_Video v : p.p.getCurrentField().videos)					// Draw video capture locations on 2D Map
-					drawVideoOnMap(v, false, mapWidth, mapHeight, false);
-		}
+//		if(!scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
+//		{
+//			if((mapImages && !p.p.getCurrentField().hideImages))
+//				for ( WMV_Image i : p.p.getCurrentField().images )					// Draw image capture locations on 2D Map
+//					drawImageOnMap(i, false, mapWidth, mapHeight, false);
+//
+//			if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
+//				for ( WMV_Panorama n : p.p.getCurrentField().panoramas )			// Draw panorama capture locations on 2D Map
+//					drawPanoramaOnMap(n, false, mapWidth, mapHeight, false);
+//
+//			if((mapVideos && !p.p.getCurrentField().hideVideos))
+//				for (WMV_Video v : p.p.getCurrentField().videos)					// Draw video capture locations on 2D Map
+//					drawVideoOnMap(v, false, mapWidth, mapHeight, false);
+//		}
 
 		/* Clusters */
 		if(mapClusters)
@@ -288,27 +288,15 @@ public class WMV_Map
 					WMV_Cluster c = p.p.getCluster(selectedCluster);
 					if(!c.isEmpty() && c.mediaPoints != 0)
 						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaPoints)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+					drawClusterMedia(c, mapWidth, mapHeight);
+				}
 
-					if((mapImages && !p.p.getCurrentField().hideImages))
-						for ( int i : c.images )									// Draw images on Map
-						{
-							WMV_Image img = p.p.getCurrentField().images.get(i);
-							drawImageOnMap(img, true, mapWidth, mapHeight, false);
-						}
-
-					if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
-						for ( int n : c.panoramas )									// Draw panoramas on Map
-						{
-							WMV_Panorama pano = p.p.getCurrentField().panoramas.get(n);
-							drawPanoramaOnMap(pano, true, mapWidth, mapHeight, false);
-						}
-
-					if((mapVideos && !p.p.getCurrentField().hideVideos))
-						for (int v : c.videos)										// Draw videos on Map
-						{
-							WMV_Video vid = p.p.getCurrentField().videos.get(v);
-							drawVideoOnMap(vid, true, mapWidth, mapHeight, false);
-						}
+				if(selectedCluster != p.p.viewer.getCurrentClusterID() && p.p.viewer.getCurrentClusterID() >= 0)
+				{
+					WMV_Cluster c = p.p.getCurrentCluster();
+					if(!c.isEmpty() && c.mediaPoints != 0)
+						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaPoints)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+					drawClusterMedia(c, mapWidth, mapHeight);
 				}
 			}
 			else
@@ -370,6 +358,29 @@ public class WMV_Map
 		}
 	}
 
+	void drawClusterMedia(WMV_Cluster c, float mapWidth, float mapHeight)
+	{
+		if((mapImages && !p.p.getCurrentField().hideImages))
+			for ( int i : c.images )									// Draw images on Map
+			{
+				WMV_Image img = p.p.getCurrentField().images.get(i);
+				drawImageOnMap(img, true, mapWidth, mapHeight, false);
+			}
+
+		if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
+			for ( int n : c.panoramas )									// Draw panoramas on Map
+			{
+				WMV_Panorama pano = p.p.getCurrentField().panoramas.get(n);
+				drawPanoramaOnMap(pano, true, mapWidth, mapHeight, false);
+			}
+
+		if((mapVideos && !p.p.getCurrentField().hideVideos))
+			for (int v : c.videos)										// Draw videos on Map
+			{
+				WMV_Video vid = p.p.getCurrentField().videos.get(v);
+				drawVideoOnMap(vid, true, mapWidth, mapHeight, false);
+			}
+	}
 	/**
 	 * @param image GMV_Image to draw
 	 * @param mapWidth Map width

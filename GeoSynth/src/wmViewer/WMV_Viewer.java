@@ -45,6 +45,11 @@ public class WMV_Viewer
 	public int currentClusterDate = 0;					// Current date segment in cluster dateline
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
+	public int currentMedia = -1;						// In Single Time Mode, media index currently visible
+	public int nextMediaStartFrame = 100000;				// In Single Time Mode, frame at which next media in timeline becomes current
+	public int currentMediaStartTime = 100000;				// In Single Time Mode, frame at which next media in timeline becomes current
+	public int nearbyClusterTimelineMediaCount = 0;
+	ArrayList<WMV_TimeSegment> nearbyClusterTimeline;	// Combined timeline of nearby (visible) clusters
 	
 	/* Memory */
 	private ArrayList<WMV_Waypoint> memory;				// Path for camera to take
@@ -206,7 +211,8 @@ public class WMV_Viewer
 		field = 0;
 		currentCluster = 0;
 		clusterNearDistance = p.clusterCenterSize * clusterNearDistanceFactor;
-
+		nearbyClusterTimeline = new ArrayList<WMV_TimeSegment>();
+		
 		initialize(0, 0, 0);
 	}
 
@@ -244,10 +250,10 @@ public class WMV_Viewer
 
 		p.getCurrentField().getAttractingClusters().size();
 		
-		if(p.getTimeMode() == 2 && isMoving())
-			p.calculateTimeCycleLength();
+		if(p.getTimeMode() == 2 && ( isMoving() || isFollowing() || isWalking() ))
+			p.createTimeCycle();
 		if(p.timeCycleLength == -1 && p.p.frameCount % 10 == 0.f)
-			p.calculateTimeCycleLength();
+			p.createTimeCycle();
 
 		if(lockToCluster && !walking)										// Update locking to nearest cluster 
 		{
@@ -1785,6 +1791,7 @@ public class WMV_Viewer
 				slowingY = false;
 				slowingZ = false;
 				walkingVelocity = new PVector(0,0,0);			// Clear walkingVelocity when reaches close to zero (below velocityMin)
+				walking = false;
 			}
 
 			if(PApplet.abs(walkingVelocity.mag()) == 0.f && (slowingX  || slowingY ||	slowingZ ) )
@@ -2937,6 +2944,69 @@ public class WMV_Viewer
 		return list;
 	}
 
+	void setNearbyClusterTimeline(ArrayList<WMV_TimeSegment> newTimeline)
+	{
+		nearbyClusterTimeline = newTimeline;
+		nearbyClusterTimelineMediaCount = 0;
+		
+		for(WMV_TimeSegment t : nearbyClusterTimeline)
+			nearbyClusterTimelineMediaCount += t.getTimeline().size();
+
+		PApplet.println("setNearbyClusterTimeline  nearbyClusterTimeline.size():"+nearbyClusterTimeline.size());
+	}
+
+	public void createNearbyClusterTimeline(ArrayList<WMV_Cluster> clusters)
+	{
+		ArrayList<WMV_TimeSegment> timeline = new ArrayList<WMV_TimeSegment>();
+		
+		if(p.p.debug.time)
+			PApplet.println(">>> Creating Viewer Timeline (Nearby Visible Clusters)... <<<");
+
+		for(WMV_Cluster c : clusters)											// Find all media cluster times
+			for(WMV_TimeSegment t : c.getTimeline())
+				timeline.add(t);
+
+		timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort time segments 
+		nearbyClusterTimeline = timeline;
+	
+		nearbyClusterTimelineMediaCount = 0;
+		
+		for(WMV_TimeSegment t : nearbyClusterTimeline)
+			nearbyClusterTimelineMediaCount += t.getTimeline().size();
+
+		PApplet.println("createNearbyClusterTimeline  nearbyClusterTimeline.size():"+nearbyClusterTimeline.size());
+	}
+
+	public WMV_Time getNearbyTimeByIndex(int timelineIndex)
+	{
+		WMV_Time time = null;
+		int timelineCt = 0, mediaCt = 0;
+		
+		for(WMV_TimeSegment t : nearbyClusterTimeline)
+		{
+			int nextSegmentStart = mediaCt + t.getTimeline().size();
+			if(timelineIndex < nextSegmentStart)
+			{
+				if(timelineCt < nearbyClusterTimeline.size())
+					time = nearbyClusterTimeline.get(timelineCt).getTimeline().get(timelineIndex - mediaCt);
+				else
+				{
+					PApplet.println("Searched for timelineIndex:"+ timelineIndex +" which was past end of timeline: "+(timelineCt-1));
+					break;
+				}
+			}
+			else
+			{
+				mediaCt += t.getTimeline().size();
+			}
+		}
+		
+//		int curMediaID = nearbyClusterTimeline.get(timelineIndex).get().getID();
+//		int curMediaType = nearbyClusterTimeline.get(timelineIndex).get().getMediaType();
+		return time;
+	}
+
+
 	/**
 	 * @return Image closest to directly in front of the camera
 	 */
@@ -3472,6 +3542,9 @@ public class WMV_Viewer
 		WMV_Date d = f.getDateInCluster(c.getID(), 0);
 		if(d != null) currentFieldDate = d.getID();
 		else PApplet.println("currentFieldDate would have been set to null..");
+		
+		if(p.getTimeMode() == 2)
+			p.createTimeCycle();
 	}
 
 	public void startMoveXTransition(int dir)

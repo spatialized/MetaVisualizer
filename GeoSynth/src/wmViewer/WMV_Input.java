@@ -568,6 +568,7 @@ public class WMV_Input
 				if(shiftKey)
 				{
 					p.viewer.teleportToCluster(p.display.map2D.getSelectedClusterID(), false);
+					p.viewer.setCurrentCluster(p.display.map2D.getSelectedClusterID(), -1);
 				}
 				else
 				{

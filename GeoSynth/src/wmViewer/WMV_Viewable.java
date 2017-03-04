@@ -38,7 +38,8 @@ public abstract class WMV_Viewable
 	WMV_Time time;
 	ScaleMap timeLogMap;
 	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
-
+	public boolean currentMedia;
+	
 	/* Interaction */
 	private boolean selected = false;
 
@@ -317,6 +318,7 @@ public abstract class WMV_Viewable
 				
 			case 2:
 				curTime = p.p.currentTime;
+//				cycleLength = p.p.defaultMediaLength;
 				break;
 		}
 		
@@ -410,47 +412,22 @@ public abstract class WMV_Viewable
 			{
 				PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength+"fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 			}
-
-			/* Set timeBrightness */
-			if(curTime <= cycleLength)
-			{
-				if(curTime < fadeInStart || curTime > fadeOutEnd)			// If before fade in or after fade out
-				{
-					if(active)							// If image was active
-						active = false;					// Set to inactive
-
-					timeBrightness = 0.f;			   					// Zero visibility
-				}
-				else if(curTime < fadeInEnd)						// During fade in
-				{
-					if(!active)							// If image was not active
-						active = true;
-
-					timeBrightness = PApplet.constrain(PApplet.map(curTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
-					if(selected && p.p.p.debug.time)
-						PApplet.println(" Fading In..."+id);
-				}
-				else if(curTime > fadeOutStart)					// During fade out
-				{
-					if(selected && p.p.p.debug.time)
-						PApplet.println(" Fading Out..."+id);
-					timeBrightness = PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f);    
-				}
-				else													// After fade in, before fade out
-				{
-					if(selected && p.p.p.debug.time && p.p.p.debug.detailed)
-						PApplet.println(" Full visibility...");				// Full visibility
-					timeBrightness = 1.f;								
-				}
-			}
-			else
-			{
-				if(active && curTime > fadeOutEnd)					// If image was active and has faded out
-					active = false;										// Set to inactive
-			}
 		}
 		else if(p.p.getTimeMode() == 2)
 		{
+			if(currentMedia)
+			{
+				fadeInStart = p.p.viewer.currentMediaStartTime;				// Frame media starts fading in
+				fadeInEnd = PApplet.round(fadeInStart + length / 4.f);		// Frame media reaches full brightness
+				fadeOutEnd = fadeInStart + p.p.defaultMediaLength;									// Frame media finishes fading out
+				fadeOutStart = PApplet.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
+//				PApplet.println("---> ID:"+getID()+" curTime:"+curTime+" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+			}
+			else
+			{
+				return 0.f;
+			}
+
 //			centerTime = cycleLength / 2.f;
 //
 //			if(selected && p.p.p.debug.time && p.p.p.debug.detailed)
@@ -467,10 +444,69 @@ public abstract class WMV_Viewable
 //			float pos = PApplet.map(curTime, start1, stop1, start2, stop2)
 		}
 		
+		/* Set timeBrightness */
+		if(curTime <= cycleLength)
+		{
+			if(curTime < fadeInStart || curTime > fadeOutEnd)			// If before fade in or after fade out
+			{
+//				PApplet.print("HERE1 ");
+				if(active)							// If image was active
+					active = false;					// Set to inactive
+
+				timeBrightness = 0.f;			   					// Zero visibility
+				
+				if(p.p.getTimeMode() == 2) 
+					if(currentMedia)
+						currentMedia = false;	// No longer the current media in Single Time Mode
+			}
+			else if(curTime < fadeInEnd)						// During fade in
+			{
+				if(!active)							// If image was not active
+					active = true;
+
+				timeBrightness = PApplet.constrain(PApplet.map(curTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
+				if(selected && p.p.p.debug.time)
+					PApplet.println(" Fading In..."+id);
+			}
+			else if(curTime > fadeOutStart)					// During fade out
+			{
+				if(selected && p.p.p.debug.time)
+					PApplet.println(" Fading Out..."+id);
+				timeBrightness = PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f); 
+				if(p.p.getTimeMode() == 2 && currentMedia)
+				{
+					if(fadeOutEnd - curTime == 1)
+					{
+						currentMedia = false;	// No longer the current media in Single Time Mode
+//						PApplet.println("1 currentMedia set to "+currentMedia+" for id:"+id);
+					}
+				}
+			}
+			else													// After fade in, before fade out
+			{
+				if(selected && p.p.p.debug.time && p.p.p.debug.detailed)
+					PApplet.println(" Full visibility...");				// Full visibility
+				timeBrightness = 1.f;								
+			}
+		}
+		else
+		{
+			if(curTime > fadeOutEnd)					// If image was active and has faded out
+			{
+				if(active) active = false;									// Set to inactive
+				if(p.p.getTimeMode() == 2) 
+				{
+					currentMedia = false;	// No longer the current media in Single Time Mode
+//					PApplet.println("3 currentMedia set to "+currentMedia+" for id:"+id);
+				}			
+			}
+		}
+//		PApplet.println("HERE3 "+" curTime:"+curTime+" fadeOutStart:"+fadeOutStart+" cycleLength:"+cycleLength);
+
 		timeBrightness = (float)timeLogMap.getMappedValueFor(timeBrightness);   		// Logarithmic scaling
 
 		if(selected && p.p.p.debug.time)
-			PApplet.println("timeBrightness"+timeBrightness);
+			PApplet.println("Media id:" + getID()+" timeBrightness"+timeBrightness);
 
 		if(!error)
 			return timeBrightness;

@@ -396,16 +396,12 @@ public abstract class WMV_Viewable
 			{
 				error = true;
 				PApplet.println("------Error: fadeOutStart after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
-				//			fadeOutStart = cycleLength-PApplet.round(length*0.25f);			// Adjust fadeOutStart
-				//			fadeOutEnd = cycleLength;		// Frame media finishes fading out
 			}
 
 			if(fadeOutEnd > cycleLength)
 			{
 				error = true;
 				PApplet.println("------Error: fadeOutEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
-				//			fadeOutStart = PApplet.round(cycleLength-length*0.25f);			// Adjust fadeOutStart
-				//			fadeOutEnd = cycleLength;		// Frame media finishes fading out
 			}
 
 			if(selected && p.p.p.debug.time)
@@ -421,27 +417,11 @@ public abstract class WMV_Viewable
 				fadeInEnd = PApplet.round(fadeInStart + length / 4.f);		// Frame media reaches full brightness
 				fadeOutEnd = fadeInStart + p.p.defaultMediaLength;									// Frame media finishes fading out
 				fadeOutStart = PApplet.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
-//				PApplet.println("---> ID:"+getID()+" curTime:"+curTime+" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 			}
 			else
 			{
 				return 0.f;
 			}
-
-//			centerTime = cycleLength / 2.f;
-//
-//			if(selected && p.p.p.debug.time && p.p.p.debug.detailed)
-//			{
-//				PApplet.println("Only one cluster time segment, full length:"+length);
-//				PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
-//			}
-//
-//			fadeInStart = 0;											// Frame media starts fading in
-//			fadeInEnd = PApplet.round(centerTime - length / 4.f);		// Frame media reaches full brightness
-//			fadeOutStart = PApplet.round(centerTime + length / 4.f);	// Frame media starts fading out
-//			fadeOutEnd = cycleLength;									// Frame media finishes fading out
-//
-//			float pos = PApplet.map(curTime, start1, stop1, start2, stop2)
 		}
 		
 		/* Set timeBrightness */
@@ -449,7 +429,6 @@ public abstract class WMV_Viewable
 		{
 			if(curTime < fadeInStart || curTime > fadeOutEnd)			// If before fade in or after fade out
 			{
-//				PApplet.print("HERE1 ");
 				if(active)							// If image was active
 					active = false;					// Set to inactive
 
@@ -478,7 +457,6 @@ public abstract class WMV_Viewable
 					if(fadeOutEnd - curTime == 1)
 					{
 						currentMedia = false;	// No longer the current media in Single Time Mode
-//						PApplet.println("1 currentMedia set to "+currentMedia+" for id:"+id);
 					}
 				}
 			}
@@ -497,11 +475,9 @@ public abstract class WMV_Viewable
 				if(p.p.getTimeMode() == 2) 
 				{
 					currentMedia = false;	// No longer the current media in Single Time Mode
-//					PApplet.println("3 currentMedia set to "+currentMedia+" for id:"+id);
 				}			
 			}
 		}
-//		PApplet.println("HERE3 "+" curTime:"+curTime+" fadeOutStart:"+fadeOutStart+" cycleLength:"+cycleLength);
 
 		timeBrightness = (float)timeLogMap.getMappedValueFor(timeBrightness);   		// Logarithmic scaling
 

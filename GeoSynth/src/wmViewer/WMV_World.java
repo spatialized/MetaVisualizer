@@ -216,6 +216,7 @@ public class WMV_World
 		{
 			draw3D();						// 3D Display
 			draw2D();						// 2D Display
+			updateTime();								// Update time cycle
 			// updateLeapMotion();			// Update Leap Motion 
 		}
 		
@@ -332,7 +333,6 @@ public class WMV_World
 	{
 		/* 2D Display */
 		display.draw();								// Draw 2D display after 3D graphics
-		updateTime();								// Update time cycle
 		
 		if(fadingAlpha)                      		// Fade alpha
 			updateFadingAlpha();
@@ -464,40 +464,47 @@ public class WMV_World
 		{
 			WMV_Time time = viewer.getNearbyTimeByIndex(timelineIndex);
 			
-			int curMediaID = time.getID();
-			int curMediaType = time.getMediaType();
-			PApplet.println(" curMediaID:"+curMediaID+" curMediaType:"+curMediaType);
-
-			switch(curMediaType)
+			if(time != null)
 			{
+				int curMediaID = time.getID();
+				int curMediaType = time.getMediaType();
+				PApplet.println("setSingleTimeModeCurrentMedia()... curMediaID:"+curMediaID+" curMediaType:"+curMediaType);
+
+				switch(curMediaType)
+				{
 				case 0:	
 					getCurrentField().images.get(curMediaID).currentMedia = true;
-					PApplet.println("Set to current image:"+getCurrentField().images.get(curMediaID).getID());
+//					PApplet.println("Set to current image:"+getCurrentField().images.get(curMediaID).getID());
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + defaultMediaLength;
 					break;
 				case 1:	
 					getCurrentField().panoramas.get(curMediaID).currentMedia = true;
-					PApplet.println("Set to current panorama:"+getCurrentField().images.get(curMediaID).getID());
+//					PApplet.println("Set to current panorama:"+getCurrentField().images.get(curMediaID).getID());
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + defaultMediaLength;
 					break;
 				case 2:	
 					getCurrentField().videos.get(curMediaID).currentMedia = true;
-					PApplet.println("Set to current video:"+getCurrentField().images.get(curMediaID).getID());
+//					PApplet.println("Set to current video:"+getCurrentField().images.get(curMediaID).getID());
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + PApplet.round( getCurrentField().videos.get(curMediaID).getLength() * 29.98f );
 					break;
-	//			case 3:	
-	//				getCurrentField().sounds.get(curMediaID).currentMedia = true;
-	//				viewer.nextMediaStartFrame = p.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
-	//				break;
+					//			case 3:	
+					//				getCurrentField().sounds.get(curMediaID).currentMedia = true;
+					//				viewer.nextMediaStartFrame = p.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
+					//				break;
+				}
+
+				//		int nextMediaID = viewer.nearbyClusterTimeline.get(0).timeline.get(1).getID();
+				//		int nextMediaType = viewer.nearbyClusterTimeline.get(0).timeline.get(1).getMediaType();
+
+//				PApplet.println("currentMediaStartFrame:"+viewer.currentMediaStartTime+"  nextMediaStartFrame:"+viewer.nextMediaStartFrame);
 			}
-
-		//		int nextMediaID = viewer.nearbyClusterTimeline.get(0).timeline.get(1).getID();
-		//		int nextMediaType = viewer.nearbyClusterTimeline.get(0).timeline.get(1).getMediaType();
-
-			PApplet.println("currentMediaStartFrame:"+viewer.currentMediaStartTime+"  nextMediaStartFrame:"+viewer.nextMediaStartFrame);
+			else
+			{
+				PApplet.println("setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timelineIndex);
+			}
 		}
 		else
 			PApplet.println("viewer.nearbyClusterTimeline.size() == 0!!");
@@ -625,7 +632,7 @@ public class WMV_World
 		startInteractive = false;			// Start user clustering
 
 		/* Time */
-		timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
+//		timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
 		timeFading = false;					// Does time affect media brightness? 
 		paused = false;						// Time is paused
 
@@ -1126,13 +1133,13 @@ public class WMV_World
 //					timeCycleLength += PApplet.round( s.getLength() * 29.98f );
 			}
 			
-			if(p.frameCount % 5 == 0)
-			{
+//			if(p.frameCount % 5 == 0)
+//			{
 				if(cl.size() == 1)
 					viewer.setNearbyClusterTimeline(cl.get(0).getTimeline());
 				else if(cl.size() > 1)
 					viewer.createNearbyClusterTimeline(cl);
-			}
+//			}
 				
 			if(cl.size() == 0)
 				timeCycleLength = -1;				// Flag for Viewer to keep calling this method until clusters are visible

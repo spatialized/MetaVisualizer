@@ -288,7 +288,11 @@ public class WMV_Map
 					WMV_Cluster c = p.p.getCluster(selectedCluster);
 					if(!c.isEmpty() && c.mediaPoints != 0)
 						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaPoints)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
-					drawClusterMedia(c, mapWidth, mapHeight);
+					
+					if(selectedCluster == p.p.viewer.getCurrentClusterID())
+						drawClusterMedia(c, mapWidth, mapHeight, false);
+					else
+						drawClusterMedia(c, mapWidth, mapHeight, true);
 				}
 
 				if(selectedCluster != p.p.viewer.getCurrentClusterID() && p.p.viewer.getCurrentClusterID() >= 0)
@@ -296,7 +300,7 @@ public class WMV_Map
 					WMV_Cluster c = p.p.getCurrentCluster();
 					if(!c.isEmpty() && c.mediaPoints != 0)
 						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaPoints)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
-					drawClusterMedia(c, mapWidth, mapHeight);
+					drawClusterMedia(c, mapWidth, mapHeight, false);
 				}
 			}
 			else
@@ -358,42 +362,43 @@ public class WMV_Map
 		}
 	}
 
-	void drawClusterMedia(WMV_Cluster c, float mapWidth, float mapHeight)
+	void drawClusterMedia(WMV_Cluster c, float mapWidth, float mapHeight, boolean ignoreTime)
 	{
 		if((mapImages && !p.p.getCurrentField().hideImages))
 			for ( int i : c.images )									// Draw images on Map
 			{
 				WMV_Image img = p.p.getCurrentField().images.get(i);
-				drawImageOnMap(img, true, mapWidth, mapHeight, false);
+				drawImageOnMap(img, ignoreTime, mapWidth, mapHeight, false);
 			}
 
 		if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
 			for ( int n : c.panoramas )									// Draw panoramas on Map
 			{
 				WMV_Panorama pano = p.p.getCurrentField().panoramas.get(n);
-				drawPanoramaOnMap(pano, true, mapWidth, mapHeight, false);
+				drawPanoramaOnMap(pano, ignoreTime, mapWidth, mapHeight, false);
 			}
 
 		if((mapVideos && !p.p.getCurrentField().hideVideos))
 			for (int v : c.videos)										// Draw videos on Map
 			{
 				WMV_Video vid = p.p.getCurrentField().videos.get(v);
-				drawVideoOnMap(vid, true, mapWidth, mapHeight, false);
+				drawVideoOnMap(vid, ignoreTime, mapWidth, mapHeight, false);
 			}
 	}
 	/**
-	 * @param image GMV_Image to draw
+	 * @param image Image to draw
+	 * @param ignoreTime Force image to display even when out of time
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
 	 * @param capture Draw capture location (true) or viewing location (false)
 	 * Draw image location on map of specified size
 	 */
-	void drawImageOnMap(WMV_Image image, boolean forceDisplay, float mapWidth, float mapHeight, boolean capture)
+	void drawImageOnMap(WMV_Image image, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
 	{
 		float pointSize = smallPointSize * mapWidth;
 		float saturation = maxSaturation;
 		float imageDistance = image.getViewingDistance();   // Get photo distance from current camera position
-		boolean visible = forceDisplay;
+		boolean visible = ignoreTime;
 		
 		if (imageDistance < p.p.viewer.getFarViewingDistance() && imageDistance > p.p.viewer.getNearClippingDistance())    // If image is in visible range
 			visible = true;                                              
@@ -401,7 +406,7 @@ public class WMV_Map
 		if(visible && image.location != null && !image.disabled && !image.hidden)
 		{
 			float alpha = 255.f;
-			if(!forceDisplay)
+			if(!ignoreTime && p.p.timeFading)
 				alpha = image.getTimeBrightness() * mapMediaTransparency;
 
 			if(alpha > 0.f)
@@ -416,17 +421,18 @@ public class WMV_Map
 	}
 
 	/**
-	 * @param panorama GMV_Panorama to draw
+	 * @param panorama Panorama to draw
+	 * @param ignoreTime Force panorama to display even when out of time
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
 	 * Draw image location on map of specified size
 	 */
-	void drawPanoramaOnMap(WMV_Panorama panorama, boolean forceDisplay, float mapWidth, float mapHeight, boolean capture)
+	void drawPanoramaOnMap(WMV_Panorama panorama, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
 	{
 		float pointSize = mediumPointSize * mapWidth;
 		float saturation = maxSaturation;
 		float panoramaDistance = panorama.getViewingDistance();   // Get photo distance from current camera position
-		boolean visible = forceDisplay;
+		boolean visible = ignoreTime;
 
 		if (panoramaDistance < p.p.viewer.getFarViewingDistance() && panoramaDistance > p.p.viewer.getNearClippingDistance())    // If panorama is in visible range
 			visible = true;                                              
@@ -434,7 +440,7 @@ public class WMV_Map
 		if(visible && panorama.location != null && !panorama.disabled && !panorama.hidden)
 		{
 			float alpha = 255.f;
-			if(!forceDisplay)
+			if(!ignoreTime && p.p.timeFading)
 				alpha = panorama.getTimeBrightness() * mapMediaTransparency;
 
 			if(alpha > 0.f)
@@ -449,17 +455,18 @@ public class WMV_Map
 	}
 
 	/**
-	 * @param video GMV_Video to draw
+	 * @param video Video to draw
+	 * @param ignoreTime Force video to display even when out of time
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
 	 * Draw image location on map of specified size
 	 */
-	void drawVideoOnMap(WMV_Video video, boolean forceDisplay, float mapWidth, float mapHeight, boolean capture)
+	void drawVideoOnMap(WMV_Video video, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
 	{
 		float pointSize = mediumPointSize * mapWidth;
 		float saturation = maxSaturation;
 		float videoDistance = video.getViewingDistance();   // Get photo distance from current camera position
-		boolean visible = forceDisplay;
+		boolean visible = ignoreTime;
 		
 		if (videoDistance < p.p.viewer.getFarViewingDistance() && videoDistance > p.p.viewer.getNearClippingDistance())    // If video is in visible range
 			visible = true;                                              
@@ -467,7 +474,7 @@ public class WMV_Map
 		if(visible && video.location != null && !video.disabled && !video.hidden)
 		{
 			float alpha = 255.f;
-			if(!forceDisplay)
+			if(!ignoreTime && p.p.timeFading)
 				alpha = video.getTimeBrightness() * mapMediaTransparency;
 
 			if(alpha > 0.f)

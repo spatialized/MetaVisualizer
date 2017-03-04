@@ -641,7 +641,7 @@ public class WMV_Viewer
 			}
 		}
 		
-		if(mediaType == 2)		// Video
+		if(mediaType == 2)				// Video
 		{
 			while(  !p.getCurrentField().clusters.get(next).video || 		// Increment nextCluster until different non-empty video cluster found
 					p.getCurrentField().clusters.get(next).isEmpty() || 
@@ -755,6 +755,7 @@ public class WMV_Viewer
 				else
 				{
 					camera.jump(c.getLocation().x, c.getLocation().y, c.getLocation().z);
+					setCurrentCluster(dest, -1);
 				}
 			}
 
@@ -1936,6 +1937,7 @@ public class WMV_Viewer
 	{
 		if(following && path.size() > 0)
 		{
+			setCurrentCluster( attractorCluster, -1 );
 			if(p.p.debug.viewer)
 				p.display.message("Reached path goal #"+pathLocationIdx+", will start waiting...");
 			startWaiting(pathWaitLength);
@@ -2315,6 +2317,9 @@ public class WMV_Viewer
 					teleportToField = -1;							// Reset target field
 				}
 
+				camera.jump(teleportGoal.x, teleportGoal.y, teleportGoal.z);			// Move the camera
+				teleporting = false;													// Change the system status
+				
 				if(p.p.debug.viewer)
 					p.display.message(" Teleported to x:"+teleportGoal.x+" y:"+teleportGoal.y+" z:"+teleportGoal.z);
 
@@ -2328,9 +2333,6 @@ public class WMV_Viewer
 					teleportGoalCluster = -1;
 				}
 				
-				camera.jump(teleportGoal.x, teleportGoal.y, teleportGoal.z);			// Move the camera
-				teleporting = false;													// Change the system status
-				
 				if(movingToCluster)
 				{
 					movingToCluster = false;
@@ -2341,7 +2343,6 @@ public class WMV_Viewer
 					}
 					else
 					{
-//						if(currentCluster == -1)
 						setCurrentCluster( getNearestCluster(true), -1 );
 					}
 				}
@@ -2355,7 +2356,6 @@ public class WMV_Viewer
 //						turnTowardsPoint(attractorPoint.getLocation());
 					
 					p.getCurrentField().clearAllAttractors();	// Clear current attractors
-//					setAttractorCluster(currentCluster);	
 				}
 			}
 			else
@@ -2988,7 +2988,14 @@ public class WMV_Viewer
 			if(timelineIndex < nextSegmentStart)
 			{
 				if(timelineCt < nearbyClusterTimeline.size())
-					time = nearbyClusterTimeline.get(timelineCt).getTimeline().get(timelineIndex - mediaCt);
+				{
+					if(nearbyClusterTimeline.get(timelineCt).getTimeline().size() > timelineIndex - mediaCt)
+						time = nearbyClusterTimeline.get(timelineCt).getTimeline().get(timelineIndex - mediaCt);
+					else
+					{
+						PApplet.println("timelineIndex - mediaCt > nearbyClusterTimeline.get(timelineCt).getTimeline().size()!!.. timelineIndex:"+timelineIndex+" mediaCt:"+mediaCt);
+					}
+				}
 				else
 				{
 					PApplet.println("Searched for timelineIndex:"+ timelineIndex +" which was past end of timeline: "+(timelineCt-1));
@@ -3518,7 +3525,7 @@ public class WMV_Viewer
 		c = p.getCurrentCluster();
 		c.timeFading = true;
 		
-		p.display.map2D.setSelectedCluster(-1);
+//		p.display.map2D.setSelectedCluster(-1);
 		
 		WMV_Field f = p.getCurrentField();
 		if(newFieldTimeSegment == -1)						// If == -1, search for time segment
@@ -3543,8 +3550,12 @@ public class WMV_Viewer
 		if(d != null) currentFieldDate = d.getID();
 		else PApplet.println("currentFieldDate would have been set to null..");
 		
-		if(p.getTimeMode() == 2)
+		if(p.getTimeMode() == 2 && !teleporting)
 			p.createTimeCycle();
+		else
+		{
+			PApplet.println("DIDNT CREATE TIME CYCLE!!!!!!");
+		}
 	}
 
 	public void startMoveXTransition(int dir)

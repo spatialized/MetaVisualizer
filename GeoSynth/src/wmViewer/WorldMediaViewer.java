@@ -80,7 +80,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 		if (startup)
 		{
 			if(reset) reset();
-			else world.display.showStartup();		/* Startup screen */
+			else world.display.showStartup();	/* Startup screen */
 			startup = false;	
 		}
 		else if(!running)
@@ -100,7 +100,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void settings() 
 	{
-//		size(1980, 1080, processing.core.PConstants.P3D);
+//		size(1980, 1080, processing.core.PConstants.P3D);		// 
 		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
 //		size(1360, 940, processing.core.PConstants.P3D);		// MacBook Pro
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large

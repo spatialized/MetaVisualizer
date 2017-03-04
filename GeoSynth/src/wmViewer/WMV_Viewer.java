@@ -3525,8 +3525,6 @@ public class WMV_Viewer
 		c = p.getCurrentCluster();
 		c.timeFading = true;
 		
-//		p.display.map2D.setSelectedCluster(-1);
-		
 		WMV_Field f = p.getCurrentField();
 		if(newFieldTimeSegment == -1)						// If == -1, search for time segment
 		{
@@ -3552,10 +3550,6 @@ public class WMV_Viewer
 		
 		if(p.getTimeMode() == 2 && !teleporting)
 			p.createTimeCycle();
-		else
-		{
-			PApplet.println("DIDNT CREATE TIME CYCLE!!!!!!");
-		}
 	}
 
 	public void startMoveXTransition(int dir)

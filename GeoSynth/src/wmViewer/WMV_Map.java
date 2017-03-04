@@ -24,7 +24,8 @@ public class WMV_Map
 	/* Graphics */
 	PGraphics simpleClusters;
 //	private boolean simpleClustersCreated = false;
-
+	private boolean selectableClustersCreated = false;
+	
 	public float mapDistance = 1.f;
 	public float mapLeftEdge = 0.f, mapTopEdge = 0.f;
 	
@@ -173,6 +174,8 @@ public class WMV_Map
 				}
 			}
 		}
+		
+		selectableClustersCreated = true;
 	}
 	
 	PVector getMapLocation(PVector point, float mapWidth, float mapHeight)
@@ -256,7 +259,10 @@ public class WMV_Map
 	void drawMap(float mapWidth, float mapHeight, float mapXOffset, float mapYOffset)
 	{
 		if(!scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
-			createSelectableClusters(mapWidth, mapHeight);
+		{
+			if(!selectableClustersCreated)
+				createSelectableClusters(mapWidth, mapHeight);
+		}
 		
 		p.beginHUD();
 
@@ -806,6 +812,8 @@ public class WMV_Map
 			PApplet.println("Set zoomMapHeight:" + zoomMapHeight);
 		}
 //		mapZoomTransition();
+		
+		selectableClustersCreated = false;
 	}
 
 	/**
@@ -825,7 +833,8 @@ public class WMV_Map
 			zoomToRectangleTransition = true;   
 			zoomToRectangleTransitionStartFrame = p.p.p.frameCount;
 			zoomToRectangleTransitionEndFrame = zoomToRectangleTransitionStartFrame + zoomToRectangleTransitionLength;
-
+			selectableClustersCreated = false;
+			
 			zoomMapXOffsetTransitionStart = zoomMapXOffset;
 			zoomMapXOffsetTransitionTarget = largeMapXOffset + zoomMapLeftEdge;
 			zoomMapYOffsetTransitionStart = zoomMapYOffset;
@@ -983,6 +992,7 @@ public class WMV_Map
 				scrollTransition = true;   
 				scrollTransitionStartFrame = p.p.p.frameCount;
 				scrollTransitionEndFrame = scrollTransitionStartFrame + scrollTransitionLength;
+				selectableClustersCreated = false;
 				
 				if(mapXOffset != 0 && mapYOffset != 0)
 				{

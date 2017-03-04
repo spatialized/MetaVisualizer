@@ -76,7 +76,7 @@ public class WMV_World
 	public int dateUnitLength = 1;						// How many frames between date increments
 	public float dateInc = dateCycleLength / 30.f;			
 
-	public int defaultMediaLength = 90;					// Default frame length of media in time cycle
+	public int defaultMediaLength = 50;					// Default frame length of media in time cycle
 
 	public final int clusterTimePrecision = 10000;		// Precision of timesHistogram (no. of bins)
 	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
@@ -391,7 +391,9 @@ public class WMV_World
 				if(timeFading && p.frameCount % timeUnitLength == 0)
 				{
 					currentTime++;
-//					PApplet.println("currentTime:"+currentTime);
+					
+					if(p.debug.time && p.debug.detailed)
+						PApplet.println("currentTime:"+currentTime);
 
 					if(currentTime >= viewer.nextMediaStartFrame)
 					{
@@ -424,41 +426,14 @@ public class WMV_World
 	void startSingleTimeModeCycle()
 	{
 		setSingleTimeModeCurrentMedia(0);
-		
-//		int curMediaID = viewer.nearbyClusterTimeline.get(0).getLower().getID();
-//		int curMediaType = viewer.nearbyClusterTimeline.get(0).getLower().getMediaType();
-//		
-//		switch(curMediaType)
-//		{
-//			case 0:	
-//				getCurrentField().images.get(curMediaID).currentMedia = true;
-//				PApplet.println("curMediaID:"+curMediaID+" curMediaType:"+curMediaType);
-//				viewer.nextMediaStartFrame = p.frameCount + defaultMediaLength;
-//				break;
-//			case 1:	
-//				getCurrentField().panoramas.get(curMediaID).currentMedia = true;
-//				viewer.nextMediaStartFrame = p.frameCount + defaultMediaLength;
-//				break;
-//			case 2:	
-//				getCurrentField().videos.get(curMediaID).currentMedia = true;
-//				viewer.nextMediaStartFrame = p.frameCount + PApplet.round( getCurrentField().videos.get(curMediaID).getLength() * 29.98f );
-//				break;
-//			case 3:	
-//				getCurrentField().sounds.get(curMediaID).currentMedia = true;
-//				viewer.nextMediaStartFrame = p.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
-//				break;
-//		}
-		
-//		int nextMediaID = viewer.nearbyClusterTimeline.get(0).timeline.get(1).getID();
-//		int nextMediaType = viewer.nearbyClusterTimeline.get(0).timeline.get(1).getMediaType();
-		
-//		PApplet.println("nextMediaStartFrame:"+viewer.nextMediaStartFrame);
 	}
 	
 	void setSingleTimeModeCurrentMedia(int timelineIndex)
 	{
 		viewer.currentMedia = timelineIndex;
-		PApplet.println("--> setSingleTimeModeCurrentMedia:"+viewer.currentMedia);
+		
+		if(p.debug.time && p.debug.detailed)
+			PApplet.println("viewer.currentMedia:"+viewer.currentMedia);
 		
 		if(viewer.nearbyClusterTimeline.size() > 0)
 		{
@@ -468,46 +443,37 @@ public class WMV_World
 			{
 				int curMediaID = time.getID();
 				int curMediaType = time.getMediaType();
-				PApplet.println("setSingleTimeModeCurrentMedia()... curMediaID:"+curMediaID+" curMediaType:"+curMediaType);
 
 				switch(curMediaType)
 				{
 				case 0:	
 					getCurrentField().images.get(curMediaID).currentMedia = true;
-//					PApplet.println("Set to current image:"+getCurrentField().images.get(curMediaID).getID());
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + defaultMediaLength;
 					break;
 				case 1:	
 					getCurrentField().panoramas.get(curMediaID).currentMedia = true;
-//					PApplet.println("Set to current panorama:"+getCurrentField().images.get(curMediaID).getID());
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + defaultMediaLength;
 					break;
 				case 2:	
 					getCurrentField().videos.get(curMediaID).currentMedia = true;
-//					PApplet.println("Set to current video:"+getCurrentField().images.get(curMediaID).getID());
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + PApplet.round( getCurrentField().videos.get(curMediaID).getLength() * 29.98f );
 					break;
-					//			case 3:	
-					//				getCurrentField().sounds.get(curMediaID).currentMedia = true;
-					//				viewer.nextMediaStartFrame = p.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
-					//				break;
+//				case 3:	
+//					getCurrentField().sounds.get(curMediaID).currentMedia = true;
+//					viewer.nextMediaStartFrame = p.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
+//					break;
 				}
-
-				//		int nextMediaID = viewer.nearbyClusterTimeline.get(0).timeline.get(1).getID();
-				//		int nextMediaType = viewer.nearbyClusterTimeline.get(0).timeline.get(1).getMediaType();
-
-//				PApplet.println("currentMediaStartFrame:"+viewer.currentMediaStartTime+"  nextMediaStartFrame:"+viewer.nextMediaStartFrame);
 			}
 			else
 			{
-				PApplet.println("setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timelineIndex);
+				PApplet.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timelineIndex);
 			}
 		}
 		else
-			PApplet.println("viewer.nearbyClusterTimeline.size() == 0!!");
+			PApplet.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
 
 	}
 	
@@ -561,7 +527,6 @@ public class WMV_World
 					blurMaskBothBottom = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskBothBoth.jpg"))
 					blurMaskBothBoth = p.loadImage(maskPath + mask);
-				//			PApplet.println("maskPath + mask:"+(maskPath + mask));
 			}
 		}
 		
@@ -575,12 +540,7 @@ public class WMV_World
 	{
 		PApplet.println("Finishing setup...");
 
-		createTimeCycle();
-		
-//		if(timeMode == 2)
-//			startSingleTimeModeCycle();
-		
-//		display.map2D.initializeMaps();
+//		createTimeCycle();
 		display.window.setupWMVWindow();
 		
 		initialSetup = false;				
@@ -1160,7 +1120,7 @@ public class WMV_World
 				float high = c.timeline.get(c.timeline.size()-1).getUpper().getTime();
 				if(high > highest)
 					highest = high;
-				PApplet.println(" c.timeline.size():"+c.timeline.size());
+//				PApplet.println(" c.timeline.size():"+c.timeline.size());
 			}
 			
 			float val = PApplet.map(highest - lowest, 0.f, 1.f, 0.f, defaultMediaLength);
@@ -1168,7 +1128,7 @@ public class WMV_World
 				timeCycleLength = -1;
 		}
 		
-		PApplet.println("new timeCycleLength:"+timeCycleLength);
+//		PApplet.println("new timeCycleLength:"+timeCycleLength);
 	}
 	
 	public void setTimeMode(int newTimeMode)

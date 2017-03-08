@@ -1,5 +1,9 @@
 package wmViewer;
+import java.awt.Font;
 import java.util.ArrayList;
+
+import g4p_controls.GAlign;
+import g4p_controls.GButton;
 import processing.core.*;
 
 /***********************************
@@ -35,8 +39,10 @@ class WMV_Display
 	/* Debug */
 	public boolean drawForceVector = false;
 	
-	/* Status */
+	/* Setup */
 	public boolean initialSetup = true;
+	GButton btnSelectLibrary;
+	PImage startupImage;
 	
 	/* Graphics */
 	float hudDistance;							// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
@@ -100,9 +106,11 @@ class WMV_Display
 		metadataYOffset = -p.p.height / 2.f;
 
 		startupMessageXOffset = p.p.width / 2;
-		startupMessageYOffset = -p.p.width / 3.f;
+		startupMessageYOffset = p.p.height * 1.2f;
 		
 		map2D = new WMV_Map(this);
+		
+		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
 
 	void setupWMVWindow()
@@ -120,7 +128,7 @@ class WMV_Display
 			p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 			p.p.background(0);																// Hide 3D view
 			displayStartupMessages();														// Draw startup messages
-			progressBar();
+//			progressBar();
 		}
 		else
 		{
@@ -359,7 +367,7 @@ class WMV_Display
 		metadataYOffset = -p.p.height / 2.f;
 
 		startupMessageXOffset = p.p.width / 2;
-		startupMessageYOffset = -p.p.width / 3.f;
+		startupMessageYOffset = p.p.height * 1.2f;
 		
 		map2D = new WMV_Map(this);
 	}
@@ -643,9 +651,9 @@ class WMV_Display
 	 */
 	public void showStartup()
 	{
-		sendSetupMessage("Welcome to WorldMediaViewer!");
-		sendSetupMessage(" ");
-		sendSetupMessage("Please select a library folder...");
+//		sendSetupMessage("Welcome to WorldMediaViewer!");
+//		sendSetupMessage(" ");
+//		sendSetupMessage("Please select a library folder...");
 		draw();								// Draw setup display
 	}
 	
@@ -672,17 +680,26 @@ class WMV_Display
 	 */
 	void displayStartupMessages()
 	{
-		float yPos = startupMessageYOffset - lineWidth;
+		float yPos = startupMessageYOffset;
 
 		beginHUD();
 		p.p.pushMatrix();
 		p.p.fill(0, 0, 255, 255);            								
 		p.p.textSize(largeTextSize * 1.5f);
-		
+
 		if(initialSetup)																// Showing setup startup messages
 		{
-			for(String s : startupMessages)
-				p.p.text(s, startupMessageXOffset, yPos += lineWidth * 1.5f, hudDistance);		// Use period character to draw a point
+			p.p.image(startupImage, p.p.width / 5.f, 0.f);
+			p.p.textSize(largeTextSize * 6.f);
+			p.p.text("WorldMediaViewer", p.p.width / 2.25f, yPos, hudDistance);
+			p.p.textSize(largeTextSize * 2.4f);
+			p.p.text("by David Gordon", p.p.width / 1.4f, yPos += lineWidthVeryWide * 3.f, hudDistance);
+			p.p.textSize(largeTextSize * 1.88f);
+			p.p.text("Press any key to begin...", p.p.width / 1.88f, yPos += lineWidthVeryWide * 3.f, hudDistance);
+
+//			p.p.textSize(largeTextSize * 1.5f);
+//			for(String s : startupMessages)
+//				p.p.text(s, startupMessageXOffset, yPos += lineWidthVeryWide * 3.5f, hudDistance);		// Use period character to draw a point
 		}
 		else
 			displayMessages();

@@ -208,7 +208,7 @@ public class WMV_World
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
 
-		p.selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
+//		p.selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 
 	void run()
@@ -258,6 +258,12 @@ public class WMV_World
 	{
 		float fieldProgressInc = 100.f;
 	
+		if (p.openLibraryDialog)
+		{
+			p.selectFolderPrompt();
+			p.openLibraryDialog = false;
+		}
+		
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
 		if (p.selectedLibrary && initialSetup && !creatingFields && !p.running)
 		{
@@ -692,7 +698,7 @@ public class WMV_World
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
 		
-		p.selectFolderPrompt();
+//		p.selectFolderPrompt();
 	}
 	
 	/**

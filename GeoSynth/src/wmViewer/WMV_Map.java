@@ -159,7 +159,9 @@ public class WMV_Map
 				if( pointIsVisible(mapLoc, true) )
 				{
 					Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 4, 4);
-					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f * mapDistance;
+//					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f * mapDistance;
+					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
+;
 
 					ellipsoid.setRadius(radius);
 					ellipsoid.drawMode(S3D.SOLID);
@@ -355,6 +357,7 @@ public class WMV_Map
 				if( pointIsVisible(point, false) )
 				{
 					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f;
+//					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f  / PApplet.sqrt(PApplet.sqrt(mapDistance));
 					drawPoint( point, radius, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 				}
 			}
@@ -632,7 +635,9 @@ public class WMV_Map
 		
 		for(int i=0; i<iterations; i++)
 		{
-			drawPoint( point, size * smallPointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
+			float ptSize = size * smallPointSize * mapWidth / PApplet.sqrt(PApplet.sqrt(mapDistance));
+			drawPoint( point, ptSize, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
+//			drawPoint( point, size * smallPointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
 
 			size-=sizeDiff;
 			alpha-=alphaDiff;
@@ -659,8 +664,8 @@ public class WMV_Map
 			if(mapLoc.x < mapWidth && mapLoc.x > 0 && mapLoc.y < mapHeight && mapLoc.y > 0)
 			{
 				p.p.p.stroke(hue, saturation, brightness, transparency);
-				p.p.p.strokeWeight(pointSize);
-
+//				p.p.p.strokeWeight(pointSize);
+				p.p.p.strokeWeight(pointSize / PApplet.sqrt(PApplet.sqrt(mapDistance)));
 				p.p.p.pushMatrix();
 				p.p.p.translate(mapLeftEdge, mapTopEdge);
 				p.p.p.point(largeMapXOffset + mapLoc.x, largeMapYOffset + mapLoc.y, p.hudDistance * mapDistance);

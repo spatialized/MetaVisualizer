@@ -714,36 +714,38 @@ public class WMV_Map
 								if(scl.id == clusterID)
 								{
 									if(!scl.location.equals(itemSelectedLoc))
-										//								if(scl.location != itemSelectedLoc)
 									{
-										PApplet.println("-------> scl.location != itemSelectedLoc!!!");
-										PApplet.println(" scl.id:"+scl.id+" itemSelected.tagNo:"+itemSelected.tagNo);
-										PApplet.println("  scl.location.x:"+scl.location.x+" y:"+scl.location.y+" z:"+scl.location.z+" selectableClusterIDs.hasValue(clusterID):"+selectableClusterIDs.hasValue(clusterID));
-										PApplet.println("   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
-										selectableClustersCreated = false;
+//										PApplet.println("-------> scl.location != itemSelectedLoc!!!");
+//										PApplet.println(" scl.id:"+scl.id+" itemSelected.tagNo:"+itemSelected.tagNo);
+//										PApplet.println("  scl.location.x:"+scl.location.x+" y:"+scl.location.y+" z:"+scl.location.z+" selectableClusterIDs.hasValue(clusterID):"+selectableClusterIDs.hasValue(clusterID));
+//										PApplet.println("   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
+
+										selectableClustersCreated = false;							// Fix potential bug in Shape3D library
 										selectedCluster = -1;
 										createSelectableClusters(largeMapWidth, largeMapHeight);
+										
 										for(SelectableClusterLocation sclTest : selectableClusterLocations)
 										{
 											if(sclTest.location.equals(itemSelectedLoc))
 											{
 												selectedCluster = sclTest.id;
 												if(p.p.p.debug.map) 
+												{
 													PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
+													WMV_Cluster c = p.p.getCluster(clusterID); 
+													PVector clusterMapLoc = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
+													clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
+													clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
+													PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
+												}
 											}
 										}
-										WMV_Cluster c = p.p.getCluster(clusterID); 
-										PVector clusterMapLoc = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
-										clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
-										clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
-										PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
 										
-										itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
-										PApplet.println("FIXED?");
-										PApplet.println("NEW  itemSelected.tagNo:"+itemSelected.tagNo);
+//										itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
+//										PApplet.println("FIXED?");
+//										PApplet.println("NEW  itemSelected.tagNo:"+itemSelected.tagNo);
 //										PApplet.println("NEW  scl.location.x:"+scl.location.x+" y:"+scl.location.y+" z:"+scl.location.z+" selectableClusterIDs.hasValue(clusterID):"+selectableClusterIDs.hasValue(clusterID));
-										PApplet.println("NEW   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
-										
+//										PApplet.println("NEW   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
 									}
 								}
 							}

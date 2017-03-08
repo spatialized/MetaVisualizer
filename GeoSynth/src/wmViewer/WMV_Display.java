@@ -105,8 +105,8 @@ class WMV_Display
 
 		metadataYOffset = -p.p.height / 2.f;
 
-		startupMessageXOffset = p.p.width / 2;
-		startupMessageYOffset = p.p.height * 1.2f;
+		startupMessageXOffset = p.p.width / 2.f;
+		startupMessageYOffset = -p.p.height /2.f;
 		
 		map2D = new WMV_Map(this);
 		
@@ -127,7 +127,7 @@ class WMV_Display
 		{
 			p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 			p.p.background(0);																// Hide 3D view
-			displayStartupMessages();														// Draw startup messages
+			displayStartup();														// Draw startup messages
 //			progressBar();
 		}
 		else
@@ -676,26 +676,39 @@ class WMV_Display
 	}
 	
 	/**
-	 * Display startup messages in queue
+	 * Display startup 
 	 */
-	void displayStartupMessages()
+	void displayStartup()
 	{
 		float yPos = startupMessageYOffset;
 
 		beginHUD();
 		p.p.pushMatrix();
-		p.p.fill(0, 0, 255, 255);            								
+		p.p.fill(0, 0, 245.f, 255.f);            								
 		p.p.textSize(largeTextSize * 1.5f);
 
 		if(initialSetup)																// Showing setup startup messages
 		{
-			p.p.image(startupImage, p.p.width / 5.f, 0.f);
 			p.p.textSize(largeTextSize * 6.f);
 			p.p.text("WorldMediaViewer", p.p.width / 2.25f, yPos, hudDistance);
-			p.p.textSize(largeTextSize * 2.4f);
-			p.p.text("by David Gordon", p.p.width / 1.4f, yPos += lineWidthVeryWide * 3.f, hudDistance);
-			p.p.textSize(largeTextSize * 1.88f);
-			p.p.text("Press any key to begin...", p.p.width / 1.88f, yPos += lineWidthVeryWide * 3.f, hudDistance);
+			p.p.textSize(largeTextSize * 1.66f);
+			p.p.text("Version 1.0", p.p.width / 1.23f, yPos += lineWidthVeryWide * 3.f, hudDistance);
+			p.p.textSize(largeTextSize * 1.5f);
+			p.p.text("Software by David Gordon", p.p.width / 1.33f, yPos += lineWidthVeryWide, hudDistance);
+
+			p.p.tint(200.f);
+			p.p.image(startupImage, p.p.width / 5.f, yPos += lineWidthVeryWide * 9.f);
+			p.p.tint(255.f);
+			p.p.textSize(largeTextSize * 2.1f);
+			if(!p.p.selectedLibrary)
+				p.p.text("Press any key to begin...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 7.f, hudDistance);
+			else
+				p.p.text("Loading media folder(s)...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 7.f, hudDistance);
+			p.p.textSize(largeTextSize * 1.33f);
+			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/worldmediaviewer", p.p.width / 2.f, yPos += lineWidthVeryWide * 13.f, hudDistance);
+
+//			p.p.textSize(smallTextSize * 2.f);
+//			p.p.text("Software by David Gordon", p.p.width * 1.6f, yPos += lineWidthVeryWide * 22.f, hudDistance);
 
 //			p.p.textSize(largeTextSize * 1.5f);
 //			for(String s : startupMessages)

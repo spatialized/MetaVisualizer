@@ -28,6 +28,7 @@ public class WMV_Map
 	private boolean selectableClustersCreated = false;
 	
 	public float mapDistance = 1.f;
+	private final float mapDistanceMin = 0.04f, mapDistanceMax = 1.2f;
 	public float mapLeftEdge = 0.f, mapTopEdge = 0.f;
 	
 	public boolean mapImages = true, mapPanoramas = true, mapVideos = true, mapClusters = true;
@@ -715,11 +716,6 @@ public class WMV_Map
 								{
 									if(!scl.location.equals(itemSelectedLoc))
 									{
-//										PApplet.println("-------> scl.location != itemSelectedLoc!!!");
-//										PApplet.println(" scl.id:"+scl.id+" itemSelected.tagNo:"+itemSelected.tagNo);
-//										PApplet.println("  scl.location.x:"+scl.location.x+" y:"+scl.location.y+" z:"+scl.location.z+" selectableClusterIDs.hasValue(clusterID):"+selectableClusterIDs.hasValue(clusterID));
-//										PApplet.println("   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
-
 										selectableClustersCreated = false;							// Fix potential bug in Shape3D library
 										selectedCluster = -1;
 										createSelectableClusters(largeMapWidth, largeMapHeight);
@@ -890,33 +886,36 @@ public class WMV_Map
 	{
 		if(!zoomToRectangleTransition)
 		{
-			zoomMapLeftEdge += rectXOffset;
-			zoomMapTopEdge += rectYOffset;
+			if(rectWidth / largeMapWidth > mapDistanceMin && rectWidth / largeMapWidth < mapDistanceMax )
+			{
+				zoomMapLeftEdge += rectXOffset;
+				zoomMapTopEdge += rectYOffset;
 
-			zoomToRectangleTransition = true;   
-			zoomToRectangleTransitionStartFrame = p.p.p.frameCount;
-			zoomToRectangleTransitionEndFrame = zoomToRectangleTransitionStartFrame + zoomToRectangleTransitionLength;
-			selectableClustersCreated = false;
-			
-			zoomMapXOffsetTransitionStart = zoomMapXOffset;
-			zoomMapXOffsetTransitionTarget = largeMapXOffset + zoomMapLeftEdge;
-			zoomMapYOffsetTransitionStart = zoomMapYOffset;
-			zoomMapYOffsetTransitionTarget = largeMapYOffset + zoomMapTopEdge;
-			
-			zoomMapWidthTransitionStart = zoomMapWidth;
-			zoomMapWidthTransitionTarget = rectWidth;
-			zoomMapHeightTransitionStart = zoomMapHeight;
-			zoomMapHeightTransitionTarget = rectHeight;
-			
-			mapDistanceTransitionStart = mapDistance;
-			mapDistanceTransitionTarget = zoomMapWidthTransitionTarget / largeMapWidth;
-			mapLeftEdgeTransitionStart = mapLeftEdge;
-			mapLeftEdgeTransitionTarget = (p.p.p.width - zoomMapWidthTransitionTarget)/2 - zoomMapLeftEdge;
-			mapTopEdgeTransitionStart = mapTopEdge;
-			mapTopEdgeTransitionTarget = (p.p.p.height - zoomMapHeightTransitionTarget)/2 - zoomMapTopEdge;
+				zoomToRectangleTransition = true;   
+				zoomToRectangleTransitionStartFrame = p.p.p.frameCount;
+				zoomToRectangleTransitionEndFrame = zoomToRectangleTransitionStartFrame + zoomToRectangleTransitionLength;
+				selectableClustersCreated = false;
 
-			if(p.p.p.debug.map)
-				PApplet.println("Started zoomToRectangleTransition transition...");
+				zoomMapXOffsetTransitionStart = zoomMapXOffset;
+				zoomMapXOffsetTransitionTarget = largeMapXOffset + zoomMapLeftEdge;
+				zoomMapYOffsetTransitionStart = zoomMapYOffset;
+				zoomMapYOffsetTransitionTarget = largeMapYOffset + zoomMapTopEdge;
+
+				zoomMapWidthTransitionStart = zoomMapWidth;
+				zoomMapWidthTransitionTarget = rectWidth;
+				zoomMapHeightTransitionStart = zoomMapHeight;
+				zoomMapHeightTransitionTarget = rectHeight;
+
+				mapDistanceTransitionStart = mapDistance;
+				mapDistanceTransitionTarget = zoomMapWidthTransitionTarget / largeMapWidth;
+				mapLeftEdgeTransitionStart = mapLeftEdge;
+				mapLeftEdgeTransitionTarget = (p.p.p.width - zoomMapWidthTransitionTarget)/2 - zoomMapLeftEdge;
+				mapTopEdgeTransitionStart = mapTopEdge;
+				mapTopEdgeTransitionTarget = (p.p.p.height - zoomMapHeightTransitionTarget)/2 - zoomMapTopEdge;
+
+				if(p.p.p.debug.map)
+					PApplet.println("Started zoomToRectangleTransition transition...");
+			}
 		}
 	}
 	

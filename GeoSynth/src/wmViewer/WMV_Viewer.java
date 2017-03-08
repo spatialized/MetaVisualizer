@@ -2,6 +2,7 @@ package wmViewer;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -2684,7 +2685,7 @@ public class WMV_Viewer
 	{
 		if(!teleporting && !walking && velocity.mag() == 0.f)		// Only record points when stationary
 		{
-			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation());
+			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation(), null);				// -- Calculate time instead of null!!
 			curWaypoint.setTarget(getOrientation());
 			curWaypoint.setID(currentCluster);						// Need to make sure camera is at current cluster!
 			
@@ -3254,19 +3255,19 @@ public class WMV_Viewer
 
 				/* Parse Node Date */
 				String dateTimeStr = timeVal.getTextContent(); 						// Ex string: 2016-05-01T23:55:33Z
-
+																					// <time>2017-02-05T23:31:23Z</time>
 				String[] parts = dateTimeStr.split("T");
 				String dateStr = parts[0];			
 				String timeStr = parts[1];
 
 				parts = dateStr.split("-");
-//				String yearStr, monthStr, dayStr;
-//				yearStr = parts[0];
-//				monthStr = parts[1];
-//				dayStr = parts[2];
-//				int year = Integer.parseInt(yearStr);
-//				int month = Integer.parseInt(monthStr);
-//				int day = Integer.parseInt(dayStr);
+				String yearStr, monthStr, dayStr;
+				yearStr = parts[0];
+				monthStr = parts[1];
+				dayStr = parts[2];
+				int year = Integer.parseInt(yearStr);
+				int month = Integer.parseInt(monthStr);
+				int day = Integer.parseInt(dayStr);
 
 				/* Parse Node Time */
 				parts = timeStr.split("Z");
@@ -3279,13 +3280,15 @@ public class WMV_Viewer
 				minuteStr = parts[1];
 				secondStr = parts[2];
 				int hour = Integer.parseInt(hourStr);
-//				int minute = Integer.parseInt(minuteStr);
-//				int second = Integer.parseInt(secondStr);
+				int minute = Integer.parseInt(minuteStr);
+				int second = Integer.parseInt(secondStr);
 				
-				hour = p.p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
+//				hour = p.p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
 
-
-//				PVector newLoc = new PVector(latitude,longitude,elevation);
+				Calendar utc = Calendar.getInstance();
+				utc.set(year, month, day, hour, minute, second);
+				WMV_Time utcTime = new WMV_Time( p, utc, count, 0 );
+				WMV_Time pacificTime = p.p.utilities.utcToPacificTime(utcTime);
 
 				float newX = 0.f, newZ = 0.f, newY = 0.f;
 
@@ -3293,14 +3296,13 @@ public class WMV_Viewer
 				{
 					if(p.getCurrentField().model.highLongitude != p.getCurrentField().model.lowLongitude && p.getCurrentField().model.highLatitude != p.getCurrentField().model.lowLatitude)
 					{
-						newX = PApplet.map(longitude, p.getCurrentField().model.lowLongitude, p.getCurrentField().model.highLongitude, -0.5f * p.getCurrentField().model.fieldWidth, 0.5f*p.getCurrentField().model.fieldWidth); 			// GPS longitude decreases from left to right
-						newY = PApplet.map(elevation, p.getCurrentField().model.lowAltitude, p.getCurrentField().model.highAltitude, 0.f, p.getCurrentField().model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
-						newZ = -PApplet.map(latitude, p.getCurrentField().model.lowLatitude, p.getCurrentField().model.highLatitude, -0.5f * p.getCurrentField().model.fieldLength, 0.5f*p.getCurrentField().model.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
-
-						if(p.p.world.altitudeScaling)	
-						{
-							newY *= p.p.world.altitudeScalingFactor;
-						}
+						WMV_Model m = p.getCurrentModel();
+						newX = PApplet.map(longitude, m.lowLongitude, m.highLongitude, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth); 			// GPS longitude decreases from left to right
+						newY = -PApplet.map(elevation, m.lowAltitude, m.highAltitude, 0.f, m.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
+						newZ = -PApplet.map(latitude, m.lowLatitude, m.highLatitude, -0.5f * m.fieldLength, 0.5f*m.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
+						
+						if(p.altitudeScaling)	
+							newY *= p.altitudeScalingFactor;
 					}
 					else
 					{
@@ -3308,29 +3310,27 @@ public class WMV_Viewer
 					}
 				}
 
-//				if(p.p.debug.viewer)
+				if(p.p.debug.viewer)
 				{
-					PApplet.print("latitude:"+latitude);
+					PApplet.print("--> latitude:"+latitude);
 					PApplet.print("  longitude:"+longitude);
 					PApplet.println("  elevation:"+elevation);
 					PApplet.print("newX:"+newX);
 					PApplet.print("  newY:"+newY);
 					PApplet.println("  newZ:"+newZ);
 
-//					PApplet.print("hour:"+hour);
-//					PApplet.print("  minute:"+minute);
-//					PApplet.print("  second:"+second);
-//					PApplet.print("  year:"+year);
-//					PApplet.print("  month:"+month);
-//					PApplet.println("  day:"+day);
+					PApplet.print("hour:"+hour);
+					PApplet.print("  minute:"+minute);
+					PApplet.print("  second:"+second);
+					PApplet.print("  year:"+year);
+					PApplet.print("  month:"+month);
+					PApplet.println("  day:"+day);
 				}
 
-//				captureLocation = new PVector(newX, newY, newZ);
-				
 				PVector newLoc = new PVector(newX, newY, newZ);
 
-				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc);		// GPS track node as a Waypoint
-				gpsTrack.add(wp);																									// Add Waypoint to gpsTrack
+				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc, pacificTime);		// GPS track node as a Waypoint
+				gpsTrack.add(wp);													// Add Waypoint to gpsTrack
 				
 				count++;
 			}

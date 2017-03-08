@@ -24,7 +24,7 @@ public class WMV_Debug
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
-	public boolean sound = false;				// Debug WMV_Sound class
+	public boolean sound = true;				// Debug WMV_Sound class
 	public boolean metadata = false;			// Debug WMV_Metadata class
 	public boolean stitching = false;			// Debug WMV_Stitcher class
 	public boolean map = false;

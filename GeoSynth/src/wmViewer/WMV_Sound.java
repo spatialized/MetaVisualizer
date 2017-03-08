@@ -16,6 +16,7 @@ public class WMV_Sound extends WMV_Viewable
 {
 //	SoundFile sound;
 	
+	private int id;
 	private Bead sound;
 	private float length;
 
@@ -34,15 +35,18 @@ public class WMV_Sound extends WMV_Viewable
 		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
 
 		p = parent;
-		filePath = newFilePath;
+//		id = newID;
 
+		filePath = newFilePath;
+		
 		gpsLocation = newGPSLocation;
 		
 //		Bead sound = new Bead();
 		
 		if(newCalendar != null)
 		{
-			time = new WMV_Time( p.p, newCalendar, getID(), 0 );
+			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), 3 );		
+			time = p.p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}
 		else
 			time = null;
@@ -145,9 +149,56 @@ public class WMV_Sound extends WMV_Viewable
 		}
 	}
 	
+	/**
+	 * Calculate sound location from GPS track waypoint closest to capture time
+	 * @param gpsTrack
+	 */
 	void calculateLocationFromGPSTrack(ArrayList<WMV_Waypoint> gpsTrack)
 	{
+		float closestDist = 1000000.f;
+		int closestIdx = -1;
+
+		for(WMV_Waypoint w : gpsTrack)
+		{
+			int sYear = time.getYear();
+			int sMonth = time.getMonth();
+			int sDay = time.getDay();
+			int sHour = time.getHour();
+			int sMinute = time.getMinute();
+			int sSecond = time.getSecond();
+
+			int wYear = w.getTime().getYear();
+			int wMonth = w.getTime().getMonth();
+			int wDay = w.getTime().getDay();
+			int wHour = w.getTime().getHour();
+			int wMinute = w.getTime().getMinute();
+			int wSecond = w.getTime().getSecond();
+			
+			if(wYear == sYear && wMonth == sMonth && wDay == sDay)			// On same day
+			{
+				int sTime = sHour * 60 + sMinute * 60 + sSecond;
+				int wTime = wHour * 60 + wMinute * 60 + wSecond;
+				
+				float timeDist = PApplet.abs(wTime - sTime);
+				if(timeDist <= closestDist)
+				{
+					closestDist = timeDist;
+					closestIdx = w.getID();
+				}
+			}
+		}
 		
+		if(closestIdx >= 0)
+		{
+			location = gpsTrack.get(closestIdx).getLocation();
+			if(p.p.p.debug.sound)
+			{
+				PApplet.println("Set sound location to waypoint "+closestIdx);
+				PApplet.println("location.x: "+location.x+" location.y:"+location.y+" location.z"+location.z);
+			}
+		}
+		else if(p.p.p.debug.sound)
+			PApplet.println("No gps nodes on same day!");
 	}
 	
 	/**

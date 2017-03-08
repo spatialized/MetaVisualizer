@@ -6,18 +6,19 @@ import processing.core.PVector;
  */
 
 public class WMV_Waypoint {
-	int id;					// ID (Cluster)
-	PVector location;		// Camera location
-	PVector target;			// Where camera is pointing
+	private int id;					// ID (Cluster)
+	private PVector location;		// Camera location
+	private PVector target;			// Where camera is pointing
+	private WMV_Time time;
 	
-	WMV_Waypoint(int newID, PVector newLocation) 
+	WMV_Waypoint(int newID, PVector newLocation, WMV_Time newTime) 
 	{
 		id = newID;
 		location = newLocation;
+		time = newTime;
 	}
 	
 	/**
-	 * getDistance()
 	 * @param cPoint Waypoint to compare
 	 * @return Distance between this and comparison point
 	 */
@@ -50,5 +51,10 @@ public class WMV_Waypoint {
 	public PVector getTarget()
 	{
 		return target;
+	}
+
+	public WMV_Time getTime()
+	{
+		return time;
 	}
 }  

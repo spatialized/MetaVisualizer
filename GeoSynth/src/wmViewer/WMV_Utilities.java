@@ -108,18 +108,50 @@ public class WMV_Utilities
 		return (float)d;
 	}
 
+//	/**
+//	 * @param hour UTC hour
+//	 * @return Corresponding hour in Pacific Time
+//	 */
+//	public int utcToPacificTime(int hour)
+//	{
+//		hour -= 8;
+//		if(hour < 0)
+//			hour+= 24;
+//		return hour;
+//	}
+	
 	/**
-	 * utcToPacificTime
 	 * @param hour UTC hour
 	 * @return Corresponding hour in Pacific Time
 	 */
-	public int utcToPacificTime(int hour)
+	public WMV_Time utcToPacificTime(WMV_Time time)
 	{
+		int year = time.getYear();
+		int day = time.getDay();
+		int month = time.getMonth();
+		int hour = time.getHour();
+
 		hour -= 8;
 		if(hour < 0)
-			hour+= 24;
-		return hour;
+		{
+			hour += 24;
+			day--;
+			if(day < 0)
+			{
+				month--;
+				if(month < 0) year--;
+			}			
+		}
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(year, month, day, hour, time.getMinute(), time.getSecond());
+		calendar.set(Calendar.MILLISECOND, time.getMillisecond());
+		
+		WMV_Time result = new WMV_Time( p, calendar, time.getID(), time.getMediaType() );
+
+		return result;
 	}
+
 
 	/**
 	 * Shrink images to 3D view format (640 pixels max width)

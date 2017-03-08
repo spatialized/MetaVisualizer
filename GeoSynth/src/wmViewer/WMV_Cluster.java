@@ -1603,7 +1603,7 @@ public class WMV_Cluster
 	 */
 	WMV_Waypoint getClusterAsWaypoint()
 	{
-		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation());
+		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), null);		// -- Calculate time instead of null!!
 		return result;
 	}
 

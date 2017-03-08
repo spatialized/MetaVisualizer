@@ -117,10 +117,16 @@ public class WMV_Input
 				p.viewer.moveToLastCluster(p.viewer.movementTeleport);
 				break;
 			case "NextField":
-				p.viewer.teleportToField(1);
+				if(p.display.map || p.display.mapOverlay)
+					p.viewer.teleportToField(1, false);
+				else
+					p.viewer.teleportToField(1, true);
 				break;
 			case "PreviousField":
-				p.viewer.teleportToField(-1);
+				if(p.display.map || p.display.mapOverlay)
+					p.viewer.teleportToField(-1, false);
+				else
+					p.viewer.teleportToField(-1, true);
 				break;
 			case "ImportGPSTrack":
 				p.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
@@ -504,6 +510,12 @@ public class WMV_Input
 		
 		if(p.display.map || p.display.mapOverlay)	/* 2D Map View */
 		{
+			if (key == '{')
+				p.viewer.teleportToField(-1, false);
+			
+			if (key == '}') 
+				p.viewer.teleportToField(1, false);
+
 			/* Clustering */
 			if (key == 'r')
 			{
@@ -568,7 +580,6 @@ public class WMV_Input
 				if(shiftKey)
 				{
 					p.viewer.teleportToCluster(p.display.map2D.getSelectedClusterID(), false);
-//					p.viewer.setCurrentCluster(p.display.map2D.getSelectedClusterID(), -1);
 				}
 				else
 				{
@@ -623,10 +634,6 @@ public class WMV_Input
 					}
 				}
 			}
-		}
-		else if(p.display.control || p.display.controlOverlay)		/* Controls View */
-		{
-
 		}
 		
 		if (!p.interactive)		
@@ -795,12 +802,6 @@ public class WMV_Input
 			if (key == 'M') 		// Go to nearest cluster with panorama
 				p.viewer.moveToNextCluster(false, 1);
 
-			if (key == '{')
-				p.viewer.teleportToField(-1);
-
-			if (key == '}') 
-				p.viewer.teleportToField(1);
-
 			if (key == 'E') 
 				p.viewer.moveToNearestCluster(false);
 
@@ -816,6 +817,12 @@ public class WMV_Input
 			/* 3D Controls Disabled in HUD View */
 			if(!p.display.inDisplayView())							
 			{
+				if (key == '{')
+					p.viewer.teleportToField(-1, true);
+				
+				if (key == '}') 
+					p.viewer.teleportToField(1, true);
+
 				if (key == 'q') 
 					p.viewer.startZoomTransition(-1);
 

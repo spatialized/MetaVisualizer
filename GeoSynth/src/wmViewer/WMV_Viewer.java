@@ -45,11 +45,13 @@ public class WMV_Viewer
 	public int currentClusterDate = 0;					// Current date segment in cluster dateline
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
+	
 	public int currentMedia = -1;						// In Single Time Mode, media index currently visible
-	public int nextMediaStartFrame = 100000;				// In Single Time Mode, frame at which next media in timeline becomes current
-	public int currentMediaStartTime = 100000;				// In Single Time Mode, frame at which next media in timeline becomes current
-	public int nearbyClusterTimelineMediaCount = 0;
+	public int nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
+	public int currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
+	public boolean lookAtCurrentMedia = false;			// In Single Time Mode, whether to turn and look at current media  -- bugs
 	ArrayList<WMV_TimeSegment> nearbyClusterTimeline;	// Combined timeline of nearby (visible) clusters
+	public int nearbyClusterTimelineMediaCount = 0;		// Media count in nearbyClusterTimeline
 	
 	/* Memory */
 	private ArrayList<WMV_Waypoint> memory;				// Path for camera to take
@@ -770,7 +772,7 @@ public class WMV_Viewer
 	 * Teleport to the field ID <inc> from current field
 	 * @param offset Field ID offset amount (0 stays in same field)
 	 */
-	public void teleportToField(int offset) 
+	public void teleportToField(int offset, boolean fade) 
 	{
 		if(offset != 0)
 		{
@@ -793,8 +795,18 @@ public class WMV_Viewer
 
 			if(p.getField(newField).clusters.size() > 0)			// Check whether field has clusters (is valid)
 			{
-				teleportGoal = new PVector(0,0,0);				// -- Change this!
-				startTeleport(newField);
+				if(fade)
+				{
+					teleportGoal = new PVector(0,0,0);					// -- Change this!
+					startTeleport(newField);
+				}
+				else
+				{
+					camera.jump(0,0,0);
+					setCurrentField(newField);				// Set new field
+					if(p.p.debug.viewer)
+						p.display.message(" Teleported to field "+teleportToField+"...");
+				}
 			}
 			else
 			{
@@ -1113,18 +1125,45 @@ public class WMV_Viewer
 		}
 	}
 
+
 	/**
-	 * turnTowardsPoint()
-	 * @param goalPoint Point to smoothly turn towards
+	 * Turn smoothly towards media
+	 * @param goal Point to smoothly turn towards
 	 */
-	public void turnTowardsPoint( PVector goalPoint ) 
+	public void lookAtMedia( int id, int mediaType ) 
+	{
+		PVector turnLoc = new PVector(0,0,0);
+		switch(mediaType)
+		{
+			case 0:			// Image
+				turnLoc = p.getCurrentField().images.get(id).getLocation();
+				break;
+			case 1:			// Video
+				turnLoc = p.getCurrentField().videos.get(id).getLocation();
+				break;
+			case 2:			// Panorama		(Turn towards "center"?)
+//				turnLoc = p.getCurrentField().images.get(id).getLocation();
+				break;
+			case 3:			// Sound
+//				turnLoc = p.getCurrentField().sounds.get(id).getLocation();
+				break;
+		}
+		
+		turnTowards(turnLoc);
+	}
+	
+	/**
+	 * Turn smoothly towards given point
+	 * @param goal Point to smoothly turn towards
+	 */
+	public void turnTowards( PVector goal ) 
 	{
 		PVector cameraPosition = getLocation();
 		PVector camOrientation = getOrientation();
 
-		PVector cameraToPoint = new PVector(  cameraPosition.x-goalPoint.x, 	//  Vector from the camera to the point      
-				cameraPosition.y-goalPoint.y, 
-				cameraPosition.z-goalPoint.z   );
+		PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
+				cameraPosition.y-goal.y, 
+				cameraPosition.z-goal.z   );
 		
 		camOrientation.normalize();
 		cameraToPoint.normalize();
@@ -1136,12 +1175,10 @@ public class WMV_Viewer
 		turnXToAngle(yaw, 0);		// Calculate which way to turn and start turning in X axis
 		turnYToAngle(pitch, 0);		// Calculate which way to turn and start turning in Y axis
 		
-		turnTargetPoint = goalPoint;
+		turnTargetPoint = goal;
 	}
 	
-	/**
-	 * getTurnInfo()
-	 * @param startAngle	Starting angle
+	/**	 * @param startAngle	Starting angle
 	 * @param targetAngle	Target angle
 	 * @return				PVector (direction, increment, length in frames): direction -> 1: clockwise and -1: counterclockwise
 	 * Calculates the direction, increment size and length of time it will take to turn from startingAngle to targetAngle
@@ -3536,9 +3573,7 @@ public class WMV_Viewer
 						currentFieldTimeSegment = t.getID();						// If match, set currentFieldTimeSegment
 				}
 				else
-				{
 					PApplet.println("Current Cluster timeline is NULL!:"+c.getID());
-				}
 			}
 		}
 		else

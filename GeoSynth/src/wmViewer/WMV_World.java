@@ -76,6 +76,7 @@ public class WMV_World
 	public int dateUnitLength = 1;						// How many frames between date increments
 	public float dateInc = dateCycleLength / 30.f;			
 
+	final public int initDefaultMediaLength = 50;		// Initial frame length of media in time cycle
 	public int defaultMediaLength = 50;					// Default frame length of media in time cycle
 
 	public final int clusterTimePrecision = 10000;		// Precision of timesHistogram (no. of bins)
@@ -446,20 +447,28 @@ public class WMV_World
 
 				switch(curMediaType)
 				{
-				case 0:	
-					getCurrentField().images.get(curMediaID).currentMedia = true;
+				case 0:
+					WMV_Image i = getCurrentField().images.get(curMediaID);
+					i.currentMedia = true;
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + defaultMediaLength;
+					if(viewer.lookAtCurrentMedia)
+						viewer.lookAtMedia(i.getID(), 0);
 					break;
-				case 1:	
-					getCurrentField().panoramas.get(curMediaID).currentMedia = true;
+				case 1:
+					WMV_Panorama n = getCurrentField().panoramas.get(curMediaID);
+					n.currentMedia = true;
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + defaultMediaLength;
+//					viewer.lookAtMedia(n.getID(), 1);
 					break;
 				case 2:	
-					getCurrentField().videos.get(curMediaID).currentMedia = true;
+					WMV_Video v = getCurrentField().videos.get(curMediaID);
+					v.currentMedia = true;
 					viewer.currentMediaStartTime = currentTime;
 					viewer.nextMediaStartFrame = currentTime + PApplet.round( getCurrentField().videos.get(curMediaID).getLength() * 29.98f );
+					if(viewer.lookAtCurrentMedia)
+						viewer.lookAtMedia(v.getID(), 2);
 					break;
 //				case 3:	
 //					getCurrentField().sounds.get(curMediaID).currentMedia = true;
@@ -474,7 +483,6 @@ public class WMV_World
 		}
 		else
 			PApplet.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
-
 	}
 	
 	/**
@@ -587,14 +595,14 @@ public class WMV_World
 		showStitchedPanoramas = true;		// Show panoramas stitched from media segments
 
 		/* Clustering Modes */
-		hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
+		hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
 		interactive = false;					// In user clustering mode?
-		startInteractive = false;			// Start user clustering
+		startInteractive = false;				// Start user clustering
 
 		/* Time */
 //		timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
-		timeFading = false;					// Does time affect media brightness? 
-		paused = false;						// Time is paused
+		timeFading = false;						// Does time affect media brightness? 
+		paused = false;							// Time is paused
 
 		currentTime = 0;							// Time units since start of time cycle (day / month / year)
 		timeCycleLength = 250;					// Length of main time loop in frames
@@ -606,12 +614,12 @@ public class WMV_World
 		dateUnitLength = 1;						// How many frames between date increments
 		dateInc = dateCycleLength / 30.f;			
 
-		defaultMediaLength = 90;					// Default frame length of media in time cycle
+		defaultMediaLength = initDefaultMediaLength;			// Default frame length of media in time cycle
 
 		/* Graphics */
 		hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
 
-		alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
+		alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
 		alpha = 195.f;							// Transparency
 		beginFadingAlpha = false;
 		fadingAlpha = false;
@@ -619,11 +627,11 @@ public class WMV_World
 		fadingAlphaEndFrame = 0; 
 		fadingAlphaLength = 20;	
 
-		fadeEdges = true;					// Blur image edges
-		drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
+		fadeEdges = true;						// Blur image edges
+		drawForceVector = true;					// Show attraction vector on map (mostly for debugging)
 		
 		/* Video */
-		assocVideoDistTolerance = 15.f;		// How far a photo can be taken from a video's location to become associated.
+		assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
 		assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 															// (GeoSynth assumes videographers will take a photo with Theodolite shortly before hitting record,
 															// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
@@ -633,33 +641,33 @@ public class WMV_World
 		
 		/* Model */
 		orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
-		angleFading = true;					// Do photos fade out as the camera turns away from them?
+		angleFading = true;						// Do photos fade out as the camera turns away from them?
 
 		defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 		subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
-		panoramaFocusDistanceFactor = 0.9f;	// Scaling from defaultFocusDistance to panorama radius
+		panoramaFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to panorama radius
 		videoFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to video focus distance
 
 		visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
-		centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
-		angleThinning = false;				// Thin images and videos of similar orientation
+		centeredAngle = visibleAngle / 2.f;		// At what angle is the image centered?
+		angleThinning = false;					// Thin images and videos of similar orientation
 		thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
-		altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
-		altitudeScalingFactor = 0.33f;		// Adjust altitude for ease of viewing	-- Work more on this...
+		altitudeScaling = true;					// Scale media height by altitude (m.) EXIF field 
+		altitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing	-- Work more on this...
 		
-		showModel = false;					// Activate Model Display 
-		showMediaToCluster = false;			// Draw line from each media point to cluster
-		showCaptureToMedia = false;			// Draw line from each media point to its capture location
-		showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
+		showModel = false;						// Activate Model Display 
+		showMediaToCluster = false;				// Draw line from each media point to cluster
+		showCaptureToMedia = false;				// Draw line from each media point to its capture location
+		showCaptureToCluster = false;			// Draw line from each media capture location to associated cluster
 
 		/* Clusters */
-		mergeClusters = true;				// Merge nearby clusters?
-		autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
+		mergeClusters = true;					// Merge nearby clusters?
+		autoClusterDistances = false;			// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
 		kMeansClusteringEpsilon = 0.005f;		// If no clusters move farther than this threshold, stop cluster refinement
 		lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 		
-		mediaPointMass = 0.05f;				// Mass contribution of each media point
+		mediaPointMass = 0.05f;					// Mass contribution of each media point
 		clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
 		minClusterDistance = 4.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
 		maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
@@ -702,8 +710,8 @@ public class WMV_World
 		display.sendSetupMessage("Starting WorldMediaViewer v1.0...");	// Show startup message
 		display.draw();											
 
-		p.running = false;				// Stop running
-		initialSetup = true;			// Start clustering mode
+		p.running = false;					// Stop running
+		initialSetup = true;				// Start clustering mode
 	}
 	
 	/**
@@ -744,7 +752,7 @@ public class WMV_World
 		
 		viewer.clearAttractorCluster();
 
-		interactive = false;		// Stop interactive clustering mode
+		interactive = false;				// Stop interactive clustering mode
 		startedRunning = true;				// Start GMViewer running
 		p.running = true;	
 		
@@ -765,8 +773,6 @@ public class WMV_World
 			fields.add(new WMV_Field(this, s, count));
 			count++;
 		}
-
-//		PApplet.println("Created "+folders.size()+" fields from "+folders.size()+" media folders...");
 	}
 	
 	/**
@@ -1093,13 +1099,10 @@ public class WMV_World
 //					timeCycleLength += PApplet.round( s.getLength() * 29.98f );
 			}
 			
-//			if(p.frameCount % 5 == 0)
-//			{
-				if(cl.size() == 1)
-					viewer.setNearbyClusterTimeline(cl.get(0).getTimeline());
-				else if(cl.size() > 1)
-					viewer.createNearbyClusterTimeline(cl);
-//			}
+			if(cl.size() == 1)
+				viewer.setNearbyClusterTimeline(cl.get(0).getTimeline());
+			else if(cl.size() > 1)
+				viewer.createNearbyClusterTimeline(cl);
 				
 			if(cl.size() == 0)
 				timeCycleLength = -1;				// Flag for Viewer to keep calling this method until clusters are visible
@@ -1120,15 +1123,12 @@ public class WMV_World
 				float high = c.timeline.get(c.timeline.size()-1).getUpper().getTime();
 				if(high > highest)
 					highest = high;
-//				PApplet.println(" c.timeline.size():"+c.timeline.size());
 			}
 			
 			float val = PApplet.map(highest - lowest, 0.f, 1.f, 0.f, defaultMediaLength);
 			if(cl.size() == 0)
 				timeCycleLength = -1;
 		}
-		
-//		PApplet.println("new timeCycleLength:"+timeCycleLength);
 	}
 	
 	public void setTimeMode(int newTimeMode)

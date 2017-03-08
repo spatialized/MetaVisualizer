@@ -19,8 +19,9 @@ public class WMV_Map
 	/* Interaction */
 	private int selectedCluster = -1;
 	ArrayList<Ellipsoid> selectableClusters;
-	IntList selectedClusterIDs;
-	
+	IntList selectableClusterIDs;
+	ArrayList<SelectableClusterLocation> selectableClusterLocations;
+
 	/* Graphics */
 	PGraphics simpleClusters;
 //	private boolean simpleClustersCreated = false;
@@ -147,7 +148,8 @@ public class WMV_Map
 	void createSelectableClusters(float mapWidth, float mapHeight)
 	{
 		selectableClusters = new ArrayList<Ellipsoid>();
-		selectedClusterIDs = new IntList();
+		selectableClusterIDs = new IntList();
+		selectableClusterLocations = new ArrayList<SelectableClusterLocation>();
 		
 		for( WMV_Cluster c : p.p.getCurrentField().clusters )	
 		{
@@ -168,9 +170,13 @@ public class WMV_Map
 					mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
 					mapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
 					ellipsoid.moveTo(mapLoc.x, mapLoc.y, mapLoc.z);
+					
+					SelectableClusterLocation scl = new SelectableClusterLocation(c.getID(), mapLoc);
+					
 					ellipsoid.tagNo = c.getID();
 					selectableClusters.add(ellipsoid);
-					selectedClusterIDs.append(c.getID());
+					selectableClusterIDs.append(c.getID());
+					selectableClusterLocations.add(scl);
 				}
 			}
 		}
@@ -325,7 +331,7 @@ public class WMV_Map
 				if(p.p.viewer.getCurrentClusterID() != -1 && p.p.viewer.getCurrentClusterID() < p.p.getFieldClusters().size())
 					drawPoint( p.p.getCurrentCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 
-				drawCameraOnMap(mapWidth, mapHeight);
+				drawViewer(mapWidth, mapHeight);
 			}
 
 			if(p.p.viewer.getGPSTrack().size() > 0)
@@ -512,7 +518,7 @@ public class WMV_Map
 	 * @param mapHeight Map height
 	 * Draw current viewer location and orientation on map of specified size
 	 */
-	void drawCameraOnMap(float mapWidth, float mapHeight)
+	void drawViewer(float mapWidth, float mapHeight)
 	{
 		PVector camLoc = p.p.viewer.getLocation();
 		if(pointIsVisible(camLoc, false))
@@ -522,28 +528,27 @@ public class WMV_Map
 			drawPoint( camLoc, cameraPointSize, mapWidth, mapHeight, mapCameraHue, 255.f, 255.f, mapMediaTransparency );
 			float ptSize = cameraPointSize;
 
-			//		float arrowSize = 60.f;
 			float arrowSize = fieldAspectRatio >= 1 ? p.p.getCurrentModel().fieldWidth : p.p.getCurrentModel().fieldLength;
+			arrowSize = PApplet.round(PApplet.map(arrowSize, 0.f, 2500.f, 0.f, 100.f) * PApplet.sqrt(mapDistance));
 
 			ScaleMap logMap;
 			logMap = new ScaleMap(6., arrowSize, 6., 60.);		/* Time fading interpolation */
 			logMap.setMapFunction(p.p.circularEaseOut);
 
 			/* Change viewer arrow based on fieldWidth -- should be fieldLength??  -- should depend on zoom level too! */
-			int arrowLength = 20;
+			int arrowPoints = 15;								/* Number of points in arrow */
 
 			logMap = new ScaleMap(0.f, 0.25f, 0.f, 0.25f);		/* Time fading interpolation */
 			logMap.setMapFunction(p.p.circularEaseOut);
 
-			float shrinkFactor = PApplet.map(arrowLength, 6.f, arrowSize, 0.f, 0.25f);
-			shrinkFactor = (float)logMap.getMappedValueFor(shrinkFactor);
-			shrinkFactor = 0.95f - (0.25f - shrinkFactor);		// Reverse mapping high to low
-
-			for(int i=1; i<arrowLength; i++)
+			float shrinkFactor = 0.88f;
+			float mapDistanceFactor = PApplet.map(mapDistance, 0.f, 1.f, 0.f, 0.25f);
+			
+			for(float i=1; i<arrowPoints; i++)
 			{
 				p.p.p.textSize(ptSize);
-				float x = i * cameraPointSize * 0.25f * (float)Math.cos( camYaw );
-				float y = i * cameraPointSize * 0.25f * (float)Math.sin( camYaw );
+				float x = i * cameraPointSize * mapDistanceFactor * (float)Math.cos( camYaw );
+				float y = i * cameraPointSize * mapDistanceFactor * (float)Math.sin( camYaw );
 
 				PVector arrowPoint = new PVector(camLoc.x + x, 0, camLoc.z + y);
 				drawPoint( arrowPoint, ptSize, mapWidth, mapHeight, mapCameraHue, 120.f, 255.f, 255.f );
@@ -674,25 +679,76 @@ public class WMV_Map
 		
 		if(itemSelected == null)
 		{
-//			selectedCluster = -1;
-			selectedCluster = p.p.viewer.getCurrentClusterID();
+			selectedCluster = -1;
+//			selectedCluster = p.p.viewer.getCurrentClusterID();
 		}
 		else
 		{
 			clusterID = itemSelected.tagNo;
 			
-			if(selectedClusterIDs.hasValue(clusterID))
-			{
-				if(clusterID >= 0 && clusterID < p.p.getCurrentField().clusters.size())
-				{
-					if(clusterID != selectedCluster)
+//				PApplet.println("Selected clusterID: "+clusterID+" itemSelected x:"+itemSelected.x()+" y:"+itemSelected.y()+" z:"+itemSelected.z());
+//				PApplet.print("selectableClusterIDs: ");
+//				for(int i:selectableClusterIDs)
+//					PApplet.print(" "+i);
+//				PApplet.println("");
+				
+//				if(selectableClusterIDs.hasValue(clusterID))
+//				{
+					if(clusterID >= 0 && clusterID < p.p.getCurrentField().clusters.size())
 					{
-						selectedCluster = clusterID;
-						if(p.p.p.debug.map) 
-							PApplet.println("Selected new cluster:"+selectedCluster);
+						if(clusterID != selectedCluster)
+						{
+							selectedCluster = clusterID;
+							
+							if(p.p.p.debug.map) 
+								PApplet.println("Selected new cluster:"+selectedCluster);
+
+							PVector itemSelectedLoc = new PVector(itemSelected.x(), itemSelected.y(), itemSelected.z());
+							for(SelectableClusterLocation scl : selectableClusterLocations)
+							{
+								if(scl.id == clusterID)
+								{
+									if(!scl.location.equals(itemSelectedLoc))
+										//								if(scl.location != itemSelectedLoc)
+									{
+										PApplet.println("-------> scl.location != itemSelectedLoc!!!");
+										PApplet.println(" scl.id:"+scl.id+" itemSelected.tagNo:"+itemSelected.tagNo);
+										PApplet.println("  scl.location.x:"+scl.location.x+" y:"+scl.location.y+" z:"+scl.location.z+" selectableClusterIDs.hasValue(clusterID):"+selectableClusterIDs.hasValue(clusterID));
+										PApplet.println("   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
+										selectableClustersCreated = false;
+										selectedCluster = -1;
+										createSelectableClusters(largeMapWidth, largeMapHeight);
+										for(SelectableClusterLocation sclTest : selectableClusterLocations)
+										{
+											if(sclTest.location.equals(itemSelectedLoc))
+											{
+												selectedCluster = sclTest.id;
+												if(p.p.p.debug.map) 
+													PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
+											}
+										}
+										WMV_Cluster c = p.p.getCluster(clusterID); 
+										PVector clusterMapLoc = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
+										clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
+										clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
+										PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
+										
+										itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
+										PApplet.println("FIXED?");
+										PApplet.println("NEW  itemSelected.tagNo:"+itemSelected.tagNo);
+//										PApplet.println("NEW  scl.location.x:"+scl.location.x+" y:"+scl.location.y+" z:"+scl.location.z+" selectableClusterIDs.hasValue(clusterID):"+selectableClusterIDs.hasValue(clusterID));
+										PApplet.println("NEW   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
+										
+									}
+								}
+							}
+						}
 					}
-				}
-			}
+//				}
+//			else
+//			{
+//				PApplet.println("Cluster "+clusterID+" not in selectableClusterIDs!");
+//			}
 		}
 	}
 	
@@ -877,6 +933,7 @@ public class WMV_Map
 			newMapDistance = mapDistanceTransitionTarget;
 			newMapLeftEdge = mapLeftEdgeTransitionTarget;
 			newMapTopEdge = mapTopEdgeTransitionTarget;
+			selectableClustersCreated = false;
 		} 
 		else
 		{
@@ -988,7 +1045,6 @@ public class WMV_Map
 		{
 			if(mapXOffset != 0 || mapYOffset != 0)					// Check if already at target
 			{
-//				beginScrollTransition = true;
 				scrollTransition = true;   
 				scrollTransitionStartFrame = p.p.p.frameCount;
 				scrollTransitionEndFrame = scrollTransitionStartFrame + scrollTransitionLength;
@@ -1195,4 +1251,16 @@ public class WMV_Map
 //		simpleClustersCreated = true;
 //	}
 	
+	private class SelectableClusterLocation
+	{
+		public int id;
+		public PVector location;
+		SelectableClusterLocation(int newID, PVector newLocation)
+		{
+			id = newID;
+			location = newLocation;
+		}
+	}
+
 }
+

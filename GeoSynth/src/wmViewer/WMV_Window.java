@@ -77,8 +77,8 @@ public class WMV_Window {
 
 	/* Selection Window */
 	private GLabel lblSelection;
-	public GCheckbox chkbxMultiSelection, chkbxSelectGroups, chkbxShowMetadata;
-	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnExitSelectionMode;
+	public GCheckbox chkbxSelectionMode, chkbxMultiSelection, chkbxSegmentSelection, chkbxShowMetadata;
+	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnCloseSelectionWindow, btnStitchPanorama;
 
 	/* Statistics Window */
 	private GButton btnExitStatisticsMode;
@@ -147,11 +147,12 @@ public class WMV_Window {
 	void setupWMVWindow()
 	{
 		wmvWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, shortWindowHeight, PApplet.JAVA2D);
-		wmvWindow.setVisible(true);
+//		wmvWindow.setVisible(true);
 		wmvWindow.addData(new WMV_WinData());
 		wmvWindow.addDrawHandler(this, "wmvWindowDraw");
 		wmvWindow.addMouseHandler(this, "wmvWindowMouse");
 		wmvWindow.addKeyHandler(p.p.p, "wmvWindowKey");
+		hideWMVWindow();
 		
 		int x = 0, y = 12;
 
@@ -197,12 +198,12 @@ public class WMV_Window {
 		btnStatisticsWindow.tag = "OpenStatisticsWindow";
 		btnStatisticsWindow.setLocalColorScheme(5);
 		
-		x = 80;
-		y += 30;
+		x = 90;
+		y += 25;
 
-		btnSelectionWindow = new GButton(wmvWindow, x, y, 150, 20, "Enter Selection Mode");
-		btnSelectionWindow.tag = "SelectionMode";
-		btnSelectionWindow.setLocalColorScheme(4);
+		btnSelectionWindow = new GButton(wmvWindow, x, y, 130, 20, "Selection");
+		btnSelectionWindow.tag = "OpenSelectionWindow";
+		btnSelectionWindow.setLocalColorScheme(5);
 
 		x = 80;
 		y += 30;
@@ -286,6 +287,7 @@ public class WMV_Window {
 		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 100, 20, "Time Fading");
 		chkbxTimeFading.tag = "TimeFading";
 		chkbxTimeFading.setLocalColorScheme(10);
+		chkbxTimeFading.setSelected(p.p.timeFading);
 
 		x = 40;
 		y += 30;
@@ -511,7 +513,7 @@ public class WMV_Window {
 	
 	void setupGraphicsWindow()
 	{
-		graphicsWindow = GWindow.getWindow(p.p.p, windowTitle, 10, shortWindowHeight, windowWidth, longWindowHeight, PApplet.JAVA2D);
+		graphicsWindow = GWindow.getWindow(p.p.p, windowTitle, 10, shortWindowHeight, windowWidth, longWindowHeight - 200, PApplet.JAVA2D);
 		graphicsWindow.setVisible(false);
 		graphicsWindow.addData(new WMV_WinData());
 		graphicsWindow.addDrawHandler(this, "graphicsWindowDraw");
@@ -581,7 +583,7 @@ public class WMV_Window {
 		lblGraphicsModes.setTextAlign(GAlign.CENTER, null);
 		lblGraphicsModes.setTextBold();
 
-		x = 85;
+		x = 95;
 		y += 25;
 		
 		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 115, 20, "Orientation Mode");
@@ -589,7 +591,7 @@ public class WMV_Window {
 		chkbxOrientationMode.setLocalColorScheme(10);
 		chkbxOrientationMode.setSelected(false);
 		
-		x = 50;
+		x = 60;
 		y += 25;
 
 		chkbxAlphaMode = new GCheckbox(graphicsWindow, x, y, 85, 20, "Alpha Mode");
@@ -602,7 +604,7 @@ public class WMV_Window {
 		chkbxAngleFading.setLocalColorScheme(10);
 		chkbxAngleFading.setSelected(true);
 
-		x = 50;
+		x = 60;
 		y += 25;
 
 		chkbxFadeEdges = new GCheckbox(graphicsWindow, x, y, 85, 20, "Fade Edges");
@@ -708,54 +710,70 @@ public class WMV_Window {
 		lblSelection.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblSelection.setTextBold();
 
-		x = 50;
+		x = 100;
 		y += 30;
 
-		btnSelectFront = new GButton(selectionWindow, x, y, 180, 20, "Select Media Ahead");
-		btnSelectFront.tag = "SelectFront";
-		btnSelectFront.setLocalColorScheme(5);
-
-		x = 50;
-		y += 30;
+		chkbxSelectionMode = new GCheckbox(selectionWindow, x, y, 110, 20, "Enable Selection");
+		chkbxSelectionMode.tag = "SelectionMode";
+		chkbxSelectionMode.setLocalColorScheme(10);
+		x = 105;
+		y += 25;
 		
-		btnDeselectFront = new GButton(selectionWindow, x, y, 180, 20, "Deselect Media Ahead");
-		btnDeselectFront.tag = "DeselectFront";
-		btnDeselectFront.setLocalColorScheme(5);
-
-		x = 50;
-		y += 30;
-
-		btnDeselectAll = new GButton(selectionWindow, x, y, 180, 20, "Deselect All Media");
-		btnDeselectAll.tag = "DeselectAll";
-		btnDeselectAll.setLocalColorScheme(5);
-
-		x = 20;
-		y += 40;
-		
-		chkbxMultiSelection = new GCheckbox(selectionWindow, x, y, 110, 20, "Multi-Selection");
+		chkbxMultiSelection = new GCheckbox(selectionWindow, x, y, 180, 20, "Select Multiple");
 		chkbxMultiSelection.tag = "MultiSelection";
 		chkbxMultiSelection.setLocalColorScheme(10);
 
-		chkbxSelectGroups = new GCheckbox(selectionWindow, x+=120, y, 125, 20, "Segment Selection");
-		chkbxSelectGroups.tag = "SegmentSelection";
-		chkbxSelectGroups.setLocalColorScheme(10);
+		x = 100;
+		y += 25;
+		
+		chkbxSegmentSelection = new GCheckbox(selectionWindow, x, y, 180, 20, "Select Segments");
+		chkbxSegmentSelection.tag = "SegmentSelection";
+		chkbxSegmentSelection.setLocalColorScheme(10);
 		
 		x = 100;
-		y += 30;
+		y += 25;
 		
 		chkbxShowMetadata = new GCheckbox(selectionWindow, x, y, 110, 20, "View Metadata");
 		chkbxShowMetadata.tag = "ViewMetadata";
 		chkbxShowMetadata.setLocalColorScheme(10);
 		
-		x = 50;
-		y += 40;
 		
-		btnExitSelectionMode = new GButton(selectionWindow, x, y, 180, 20, "Exit Selection Mode");
-		btnExitSelectionMode.tag = "ExitSelectionMode";
-		btnExitSelectionMode.setLocalColorScheme(0);
+		x = 100;
+		y += 30;
+		
+		btnSelectFront = new GButton(selectionWindow, x, y, 110, 20, "Select (x)");
+		btnSelectFront.tag = "SelectFront";
+		btnSelectFront.setLocalColorScheme(5);
+
+		x = 100;
+		y += 25;
+		
+		btnDeselectFront = new GButton(selectionWindow, x, y, 110, 20, "Deselect (x)");
+		btnDeselectFront.tag = "DeselectFront";
+		btnDeselectFront.setLocalColorScheme(5);
+
+		x = 95;
+		y += 25;
+
+		btnDeselectAll = new GButton(selectionWindow, x, y, 120, 20, "Deselect All...");
+		btnDeselectAll.tag = "DeselectAll";
+		btnDeselectAll.setLocalColorScheme(5);
+
+		x = 85;
+		y += 25;
+
+		btnStitchPanorama = new GButton(selectionWindow, x, y, 140, 20, "Stitch Selection (|)");
+		btnStitchPanorama.tag = "StitchPanorama";
+		btnStitchPanorama.setLocalColorScheme(7);
+		
+		x = 60;
+		y += 30;
+		
+		btnCloseSelectionWindow = new GButton(selectionWindow, x, y, 180, 20, "Close Window");
+		btnCloseSelectionWindow.tag = "CloseSelectionWindow";
+		btnCloseSelectionWindow.setLocalColorScheme(0);
 		
 		selectionWindow.addKeyHandler(p.p.p, "selectionWindowKey");
-		
 		setupSelectionWindow = true;
 	}
 
@@ -1499,6 +1517,7 @@ public class WMV_Window {
 		showWMVWindow = true;
 		wmvWindow.setVisible(true);
 	} 
+	
 	void showTimeWindow()
 	{
 		showTimeWindow = true;

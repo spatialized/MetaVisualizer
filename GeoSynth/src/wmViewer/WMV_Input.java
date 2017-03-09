@@ -223,19 +223,16 @@ public class WMV_Input
 				break;
 	
 			/* Selection */
-			case "SelectionMode":
-				p.viewer.selection = true;
-//				p.display.sidebarView = 3;
+			case "OpenSelectionWindow":
 				p.display.window.openSelectionWindow();
-//				p.display.window.selectionWindow.setVisible(true);
+				p.viewer.selection = true;
+				p.display.window.chkbxSelectionMode.setSelected(true);
 				break;
-				
-			case "ExitSelectionMode":
-//				p.display.sidebarView = 0;
-				p.viewer.selection = false;
+
+			case "CloseSelectionWindow":
 				p.display.window.selectionWindow.setVisible(false);
 				break;
-				
+
 			case "SelectFront":
 				p.viewer.chooseMediaInFront(true);
 				break;
@@ -247,7 +244,11 @@ public class WMV_Input
 			case "DeselectAll":
 				p.getCurrentField().deselectAllMedia(false);
 				break;
-							
+			
+			case "StitchPanorama":
+				p.getCurrentCluster().stitchImages();    			
+				break;
+				
 				/* Memory */
 			case "SaveLocation":
 				p.viewer.addPlaceToMemory();
@@ -368,6 +369,10 @@ public class WMV_Input
 				break;
 				
 			/* Selection */
+			case "SelectionMode":
+				p.viewer.selection = option.isSelected();
+				break;
+				
 			case "MultiSelection":
 				p.viewer.multiSelection = option.isSelected();
 				break;
@@ -683,7 +688,15 @@ public class WMV_Input
 				}
 
 				if (key == 'T') 
-					p.timeFading = !p.timeFading;
+				{
+					boolean state = !p.timeFading;
+					if(p.timeFading != state)
+					{
+						p.timeFading = state;
+						if(p.display.window.setupTimeWindow)
+							p.display.window.chkbxTimeFading.setSelected(state);
+					}
+				}
 
 				if (!optionKey && key == 's') 
 					p.viewer.startMoveZTransition(1);
@@ -910,6 +923,8 @@ public class WMV_Input
 					if (key == 'O') 
 					{
 						p.viewer.selection = !p.viewer.selection;
+						p.display.window.chkbxSelectionMode.setSelected(p.viewer.selection);
+
 						if(p.viewer.selection && p.viewer.multiSelection) p.viewer.multiSelection = false;
 						if(p.viewer.selection && p.viewer.segmentSelection) p.viewer.segmentSelection = false;
 					}

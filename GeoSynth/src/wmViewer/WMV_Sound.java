@@ -194,7 +194,7 @@ public class WMV_Sound extends WMV_Viewable
 			if(p.p.p.debug.sound)
 			{
 				PApplet.println("Set sound location to waypoint "+closestIdx);
-				PApplet.println("location.x: "+location.x+" location.y:"+location.y+" location.z"+location.z);
+				PApplet.println("location.x: "+location.x+" location.y:"+location.y+" location.z:"+location.z);
 			}
 		}
 		else if(p.p.p.debug.sound)

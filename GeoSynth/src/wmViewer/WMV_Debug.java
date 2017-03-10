@@ -14,9 +14,9 @@ public class WMV_Debug
 	
 	/* Classes */
 	public boolean main = false;				// Debug main WorldMediaViewer class
-	public boolean viewer = false;				// Debug WMV_Viewer class
+	public boolean viewer = true;				// Debug WMV_Viewer class
 	public boolean field = false;				// Debug WMV_Field class
-	public boolean time = true;
+	public boolean time = false;
 	public boolean model = false;				// Debug WMV_Model class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean display = false;				// Debug WMV_Display class

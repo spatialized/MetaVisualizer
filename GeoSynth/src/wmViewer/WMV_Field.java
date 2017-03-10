@@ -224,7 +224,8 @@ public class WMV_Field
 			p.display.message("Will run initial clustering for field #"+fieldID+"...");
 
 		model.runInitialClustering();		// Find media clusters
-
+//		model.findDuplicateClusterMedia();	// Find media in more than one cluster
+		
 		if(p.lockMediaToClusters)				// Center media capture locations at associated cluster locations
 			model.lockMediaToClusters();	
 

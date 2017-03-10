@@ -485,24 +485,40 @@ public class WMV_Model
 		}
 		
 		p.initializeClusters();					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
-
-// DEBUGGING
-//		int empty = 0;
-//		for( GMV_Cluster c : p.clusters )
-//		{
-//			if(c.mediaPoints <= 0)
-//			{
-////				c.emptyCluster();
-//				empty++;
-//			}
-//		}
-//		if(p.p.p.debug.cluster)
-//			PApplet.println("Empty clusters:"+empty);
-
 	}
 
+	void findDuplicateClusterMedia()
+	{
+		IntList images = new IntList();
+		int count = 0;
+		for(WMV_Cluster c : p.clusters)
+		{
+			for(int i : c.images)
+			{
+				if(images.hasValue(i))
+					count++;
+				else
+					images.append(i);
+			}
+		}
+		PApplet.println("Images in more than one cluster::"+count);
+		
+		IntList videos = new IntList();
+		count = 0;
+		for(WMV_Cluster c : p.clusters)
+		{
+			for(int v : c.videos)
+			{
+				if(videos.hasValue(v))
+					count++;
+				else
+					videos.append(v);
+			}
+		}
+		PApplet.println("Videos in more than one cluster:"+count);
+	}
+	
 	/**
-	 * getMediaInCluster()
 	 * @param top Dendrogram cluster to find associated media in
 	 * @param mediaType Media type, 0: image 1: panorama 2: video
 	 * @return List of cluster names of associated media 

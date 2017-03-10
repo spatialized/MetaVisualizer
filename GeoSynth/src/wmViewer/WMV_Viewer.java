@@ -94,7 +94,7 @@ public class WMV_Viewer
 	public boolean mouseNavigation = false;			// Mouse navigation
 	public boolean map3DMode = false;				// 3D Map Mode
 	public boolean selection = false;				// Allows selection, increases transparency to make selected image(s) easier to see
-	public boolean autoNavigation = false;			// Attraction towards centers of clusters
+	public boolean optimizeVisibility = true;		// Optimize visibility automatically
 	public boolean lockToCluster = false;			// Automatically move viewer to nearest cluster when idle
 	public boolean multiSelection = false;			// User can select multiple images for stitching
 	public boolean segmentSelection = false;		// Select image segments at a time
@@ -144,14 +144,8 @@ public class WMV_Viewer
 	private float moveZDirection;				// 1 (forward) or -1 (backward)
 	private boolean movingNearby = false;		// Moving to a point within nearClusterDistance
 
-	/* Looking */
-	private boolean looking = false;			// Whether viewer is turning to look for images, since none are visible
-	private int lookingStartFrameCount, lookingLength, lookingDirection;
-	private int lookingRotationCount = 0;		// Amount of times viewer has rotated looking for images
-	private float lookingStartAngle;			// Angle when looking started
-	
 	/* Turning */
-	public PVector turnTargetPoint;				// Point to turn towards
+	public PVector turningMediaGoal;			// Media item to turn towards
 	public boolean turningX = false;			// Whether the viewer is turning (right or left)
 	public boolean turningY = false;			// Whether the viewer is turning (up or down)
 	private PVector turningVelocity;			// Turning velocity in X direction
@@ -188,6 +182,7 @@ public class WMV_Viewer
 	private float rotateZDirection;				// Rotation direction in Z dimension
 
 	/* Interaction */
+	public int mediaDensityThreshold = 12;		// Number of images or videos counted as high density
 	private float selectionMaxDistance;					// Maximum distance user can select a photo
 	private float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
 	public int lastMovementFrame = 500000, lastLookFrame = 500000;
@@ -269,7 +264,7 @@ public class WMV_Viewer
 		if(teleporting) updateTeleporting();		/* Update teleporting */
 		updateMovement();							/* Update navigation */
 		if(turningX || turningY) updateTurning();	/* Update turning */
-		if(autoNavigation) updateLooking();			/* Update looking */
+//		if(autoNavigation) updateLooking();			/* Update looking */
 
 		p.getCurrentField().getAttractingClusters().size();
 		
@@ -1070,7 +1065,6 @@ public class WMV_Viewer
 				turnXDirection = turnDirection;
 			
 			turningXAccelInc = PApplet.map(turnInfo.y, 0.f, PApplet.PI * 2.f, turningAccelerationMin, turningAccelerationMax * 0.2f);
-			PApplet.println("turningXAccelInc:"+turningXAccelInc);
 			turnXStartFrame = p.p.frameCount;
 			turningX = true;
 		}
@@ -1095,8 +1089,6 @@ public class WMV_Viewer
 				turnYDirection = turnDirection;
 			
 			turningYAccelInc = PApplet.map(turnInfo.y, 0.f, PApplet.PI * 2.f, turningAccelerationMin, turningAccelerationMax * 0.2f);
-			PApplet.println("turningYAccelInc:"+turningYAccelInc);
-
 			turnYStartFrame = p.p.frameCount;
 			turningY = true;
 		}
@@ -1112,11 +1104,12 @@ public class WMV_Viewer
 		{
 			turnXStart = getXOrientation();
 			turnXTarget = turnXStart + angle;
+			
 			PVector turnInfo = getTurnInfo(turnXStart, turnXTarget, 0);
+			
 			turnXDirection = turnInfo.x;
-//			turnXIncrement = turnIncrement;
 			turnXStartFrame = p.p.frameCount;
-//			turnXTargetFrame = turnXStartFrame + (int)turnInfo.z;
+
 			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("turnXStartFrame:"+turnXStartFrame+" turnXTargetFrame:"+turnXTargetFrame+" turnXDirection:"+turnXDirection);
 			turningX = true;
@@ -1174,6 +1167,7 @@ public class WMV_Viewer
 				break;
 		}
 		
+		turningMediaGoal = new PVector(id, mediaType);
 		turnTowards(turnLoc);
 	}
 	
@@ -1203,7 +1197,7 @@ public class WMV_Viewer
 		turnXToAngle(yaw, 0);		// Calculate which way to turn and start turning in X axis
 		turnYToAngle(pitch, 0);		// Calculate which way to turn and start turning in Y axis
 		
-		turnTargetPoint = goal;
+//		turnTargetPoint = goal;
 	}
 	
 	/**	 
@@ -1268,6 +1262,13 @@ public class WMV_Viewer
 		}
 	}
 	
+	/**
+	 * Calculate distance needed to turn between two angles
+	 * @param startAngle Starting angle
+	 * @param targetAngle Target angle
+	 * @param direction Direction to turn (1: clockwise, 0: fastest, -1: counterclockwise)
+	 * @return Angular distance
+	 */
 	float getTurnDistance(float startAngle, float targetAngle, float direction)
 	{
 		float diffRight = -1.f;		// Difference when turning right (dir = 1)
@@ -1630,7 +1631,7 @@ public class WMV_Viewer
 		mouseNavigation = false;			// Mouse navigation
 		map3DMode = false;				// 3D Map Mode
 		selection = false;				// Allows selection, increases transparency to make selected image(s) easier to see
-		autoNavigation = false;			// Attraction towards centers of clusters
+		optimizeVisibility = true;		// Optimize visibility automatically
 		lockToCluster = false;			// Automatically move viewer to nearest cluster when idle
 		multiSelection = false;			// User can select multiple images for stitching
 		segmentSelection = false;		// Select image segments at a time
@@ -1671,8 +1672,8 @@ public class WMV_Viewer
 		movingNearby = false;		// Moving to a powithin nearClusterDistance
 
 		/* Looking */
-		looking = false;				// Whether viewer is turning to look for images, since none are visible
-		lookingRotationCount = 0;		// Amount of times viewer has rotated looking for images
+//		looking = false;				// Whether viewer is turning to look for images, since none are visible
+//		lookingRotationCount = 0;		// Amount of times viewer has rotated looking for images
 
 		/* Turning */
 		turningX = false;			// Whether the viewer is turning (right or left)
@@ -2014,7 +2015,47 @@ public class WMV_Viewer
 		}
 
 		if( turningX || turningY )
+		{
 			turn();
+		}
+		else														// Just stopped turning
+		{
+			if(optimizeVisibility && !p.getCurrentField().mediaAreFading())
+			{
+				if(turningMediaGoal != null)
+				{
+					if(!turningMediaGoal.equals(new PVector(-1.f, -1.f)))
+					{
+						float goalMediaBrightness = 0.f;
+						switch((int)turningMediaGoal.y)
+						{
+							case 0:
+								WMV_Image img = p.getCurrentField().images.get((int)turningMediaGoal.x);
+								goalMediaBrightness = img.viewingBrightness;
+								break;
+							case 1:
+								WMV_Panorama pano = p.getCurrentField().panoramas.get((int)turningMediaGoal.x);
+								goalMediaBrightness = pano.viewingBrightness;
+								break;
+							case 2:
+								WMV_Video vid = p.getCurrentField().videos.get((int)turningMediaGoal.x);
+								goalMediaBrightness =  vid.viewingBrightness;
+								break;
+						}
+						
+//						PApplet.println("keepMediaVisible... goalMediaBrightness:"+goalMediaBrightness);
+						if(goalMediaBrightness == 0.f && p.angleFading)
+						{
+							if(p.p.debug.viewer)
+								p.display.message("Set angle fading to false...");
+							p.angleFading = false;
+						}
+						
+						turningMediaGoal = new PVector(-1.f, -1.f);
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -2391,8 +2432,8 @@ public class WMV_Viewer
 	 */
 	private void updateMovement() 
 	{		
-		if (	rotatingX || rotatingY || rotatingZ || movingX || movingY || movingZ 
-				|| zooming || turningX || turningY || waiting || zooming    )
+		if (	rotatingX || rotatingY || rotatingZ || movingX || movingY || movingZ || zooming || 
+				turningX || turningY || waiting || zooming || movingToCluster || movingToAttractor  )
 		{
 			/* Rotate X Transition */
 			if (rotatingX) {
@@ -2463,70 +2504,114 @@ public class WMV_Viewer
 				else 
 					zooming = false;
 			}
-
-//			/* Turn Y Transition */
-//			if (turningY) {
-//				if (p.p.frameCount <= turnYTargetFrame) 
-//				{
-//					camera.tilt(turnYIncrement * turnYDirection);
-//					lastLookFrame = p.p.frameCount;
-//				}
-//				else
-//				{
-//					turningY = false;
-//
-//					if(!turningX)
-//					{
-//						if(turnTargetPoint != null)
-//							camera.aim(turnTargetPoint.x, turnTargetPoint.y, turnTargetPoint.z);
-//					}
-//				}
-//			}
-//
-//			/* Turn X Transition */
-//			if (turningX) {
-//				if (p.p.frameCount <= turnXTargetFrame) 
-//				{
-//					camera.pan(turnXIncrement * turnXDirection);
-//					lastLookFrame = p.p.frameCount;
-//				}
-//				else
-//				{
-//					p.display.message("Reached turn X goal! X Orientation: "+getXOrientation());
-//					turningX = false;
-//
-//					if(!turningY)
-//					{
-//						if(turnTargetPoint != null)
-//							camera.aim(turnTargetPoint.x, turnTargetPoint.y, turnTargetPoint.z);
-//
-////						if(follow)
-////						{
-////							p.display.message("Reached memory target X orientation: "+getXOrientation());
-////							startWaiting(memoryObserveLength);
-////						}
-//					}
-//				}
-//			}
-
-//			/* Turn Z Transition */
-//			if (turnZTransition) 
-//			{
-//				cam.roll(rotateIncrement * rotateZDirection);
-//				lastLookFrame = p.p.frameCount;
-//			}
 		}
 		else										// If no transitions
 		{
-			if(autoNavigation && !looking)		// If not currently looking for images
+			if(p.p.frameCount % 60 == 0 && optimizeVisibility)		// If not currently turning
 			{
-				if( !mediaAreVisible(false) )		// Check whether any images are currently visible anywhere in front of camera
+				if( !mediaAreVisible(false, 1) )	// Check whether any images are currently visible anywhere in front of camera
 				{
-					p.display.message("No images visible! will look around...");
-					lookForImages();			// Look for images around the camera
+					if(p.p.debug.viewer)
+						p.display.message("No images visible! will look at nearest image...");
+					lookAtNearestMedia();			// Look for images around the camera
+				}
+				else if(p.getCurrentField().imagesVisible + p.getCurrentField().videosVisible >= mediaDensityThreshold)
+				{
+					if( mediaAreVisible(false, mediaDensityThreshold) && !p.angleFading )
+					{
+						if(p.p.debug.viewer)
+							p.display.message("Over "+mediaDensityThreshold+" media visible... Set angle fading to true...");
+						p.angleFading = true;
+					}
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Find and look at nearest media to current viewer orientation
+	 */
+	void lookAtNearestMedia()
+	{
+		float closestDist = 100000.f;
+		int closestID = -1;
+		int closestMediaType = -1;
+		
+		for(int i:p.getCurrentCluster().images)
+		{
+			WMV_Image img = p.getCurrentField().images.get(i);
+			PVector cameraPosition = getLocation();
+			PVector camOrientation = getOrientation();
+			PVector goal = img.getLocation();
+			
+			PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
+					cameraPosition.y-goal.y, 
+					cameraPosition.z-goal.z   );
+			
+			camOrientation.normalize();
+			cameraToPoint.normalize();
+
+			float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
+			float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
+			float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
+			
+//			turnXToAngle(yaw, 0);		// Calculate which way to turn and start turning in X axis
+//			turnYToAngle(pitch, 0);		// Calculate which way to turn and start turning in Y axis
+		
+			float xStart = getXOrientation();
+			float xTarget = yaw;
+			PVector turnXInfo = getTurnInfo(xStart, xTarget, 0);
+			float yStart = getXOrientation();
+			float yTarget = pitch;
+			PVector turnYInfo = getTurnInfo(yStart, yTarget, 0);
+			
+			float turnDist = turnXInfo.y + turnYInfo.y;
+			if(turnDist < closestDist)
+			{
+				closestDist = turnDist;
+				closestID = img.getID();
+				closestMediaType = 0;
+			}
+		}
+		
+		for(int i:p.getCurrentCluster().videos)
+		{
+			WMV_Video vid = p.getCurrentField().videos.get(i);
+			PVector cameraPosition = getLocation();
+			PVector camOrientation = getOrientation();
+			PVector goal = vid.getLocation();
+			
+			PVector cameraToPoint = new PVector(  cameraPosition.x-goal.x, 	//  Vector from the camera to the point      
+					cameraPosition.y-goal.y, 
+					cameraPosition.z-goal.z   );
+			
+			camOrientation.normalize();
+			cameraToPoint.normalize();
+
+			float yaw = (float) Math.atan2(cameraToPoint.x, cameraToPoint.z);
+			float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
+			float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
+			
+//			turnXToAngle(yaw, 0);		// Calculate which way to turn and start turning in X axis
+//			turnYToAngle(pitch, 0);		// Calculate which way to turn and start turning in Y axis
+		
+			float xStart = getXOrientation();
+			float xTarget = yaw;
+			PVector turnXInfo = getTurnInfo(xStart, xTarget, 0);
+			float yStart = getXOrientation();
+			float yTarget = pitch;
+			PVector turnYInfo = getTurnInfo(yStart, yTarget, 0);
+			
+			float turnDist = turnXInfo.y + turnYInfo.y;
+			if(turnDist < closestDist)
+			{
+				closestDist = turnDist;
+				closestID = vid.getID();
+				closestMediaType = 2;
+			}
+		}
+		
+		lookAtMedia(closestID, closestMediaType);
 	}
 	
 	public void zoomCamera(float zoom)
@@ -2651,8 +2736,8 @@ public class WMV_Viewer
 
 		if(waiting)
 			waiting = false;
-		if(looking)
-			looking = false;
+//		if(looking)
+//			looking = false;
 		if(teleporting)
 			teleporting = false;
 	}
@@ -2796,10 +2881,16 @@ public class WMV_Viewer
 	
 	/**
 	 * @param front Restrict to media in front
+	 * @threshold Minimum number of media to for method to return true
 	 * @return Whether any media are visible and in front of camera
 	 */
-	public boolean mediaAreVisible( boolean front )
+	public boolean mediaAreVisible( boolean front, int threshold )
 	{
+		IntList nearClusters = getNearClusters(10, farViewingDistance + p.defaultFocusDistance); 	
+
+		if(nearClusters.size() == 0)
+			return false;
+		
 		boolean imagesVisible = false;
 		ArrayList<WMV_Image> closeImages = new ArrayList<WMV_Image>();		// List of images in range
 		boolean panoramasVisible = false;
@@ -2809,22 +2900,56 @@ public class WMV_Viewer
 		
 		float result;
 		
-		for( WMV_Image i : p.getFieldImages() )
+		for(int clusterID : nearClusters)
 		{
-			if(i.getViewingDistance() < farViewingDistance + i.getFocusDistance() 
-					&& i.getViewingDistance() > nearClippingDistance * 2.f )		// Find images in range
+			WMV_Cluster cluster = p.getCluster(clusterID);
+			for( int id : cluster.images )
 			{
-				if(!i.disabled)
-					closeImages.add(i);							
+				WMV_Image i = p.getCurrentField().images.get(id);
+				if(i.getViewingDistance() < farViewingDistance + i.getFocusDistance() 
+				&& i.getViewingDistance() > nearClippingDistance * 2.f )		// Find images in range
+				{
+					if(!i.disabled)
+						closeImages.add(i);							
+				}
+			}
+
+			for( int id : cluster.panoramas )
+			{
+				WMV_Panorama n = p.getCurrentField().panoramas.get(id);
+				if(n.getViewingDistance() < farViewingDistance + p.defaultFocusDistance 
+						&& n.getViewingDistance() > nearClippingDistance * 2.f )		// Find images in range
+				{
+					if(!n.disabled)
+						closePanoramas.add(n);							
+				}
+			}
+
+			for( int id : cluster.videos )
+			{
+				WMV_Video v = p.getCurrentField().videos.get(id);
+				if(v.getViewingDistance() <= farViewingDistance + v.getFocusDistance()
+				&& v.getViewingDistance() > nearClippingDistance * 2.f )		// Find videos in range
+				{
+					if(!v.disabled)
+						closeVideos.add(v);							
+				}
 			}
 		}
+		
+		if(closePanoramas.size() > 0)
+		{
+			panoramasVisible = true;
+			return true;
+		}
 
+		int visImages = 0;
 		for( WMV_Image i : closeImages )
 		{
 			if(!i.isBackFacing() && !i.isBehindCamera())			// If image is ahead and front facing
 			{
 				result = PApplet.abs(i.getFacingAngle());			// Get angle at which it faces camera
-				
+
 				if(front)										// Look for centered or only visible image?
 				{
 					if(result < p.centeredAngle)					// Find closest to camera orientation
@@ -2832,66 +2957,59 @@ public class WMV_Viewer
 						if(p.p.debug.viewer && p.p.debug.detailed)
 							p.display.message("Image:"+i.getID()+" result:"+result+" is less than centeredAngle:"+p.centeredAngle);
 						imagesVisible = true;
-						break;
+						visImages++;
+						if(visImages >= threshold)
+							break;
 					}
 				}
 				else
 				{
-					if(result < p.visibleAngle)						// Find closest to camera orientation
+					if(result < p.visibleAngle * 0.66f)						// Find closest to camera orientation
 					{
 						imagesVisible = true;
-						break;
+						visImages++;
+						if(visImages >= threshold)
+							break;
 					}
 				}
 			}
 		}
-
-		for( WMV_Panorama n : p.getFieldPanoramas() )
-		{
-			if(n.getViewingDistance() < farViewingDistance + p.defaultFocusDistance 
-					&& n.getViewingDistance() > nearClippingDistance * 2.f )		// Find images in range
-			{
-				if(!n.disabled)
-					closePanoramas.add(n);							
-			}
-		}
-
-		for( WMV_Video v : p.getFieldVideos() )
-		{
-			if(v.getViewingDistance() <= farViewingDistance + v.getFocusDistance()
-					&& v.getViewingDistance() > nearClippingDistance * 2.f )		// Find videos in range
-			{
-				if(!v.disabled)
-					closeVideos.add(v);							
-			}
-		}
-
+		
+		int visVideos = 0;
 		for(WMV_Video v : closeVideos)
 		{
 			if(!v.isBackFacing() && !v.isBehindCamera())			// If video is ahead and front facing
 			{
 				result = PApplet.abs(v.getFacingAngle());			// Get angle at which it faces camera
 
-				if(front)										// Look for centered or only visible image?
+				if(front)											// Look for centered or only visible image?
 				{
 					if(result < p.centeredAngle)					// Find closest to camera orientation
 					{
-						imagesVisible = true;
+						videosVisible = true;
+						visVideos++;
+						if(visVideos + visImages >= threshold)
+							break;
 						break;
 					}
 				}
 				else
 				{
-					if(result < p.visibleAngle)						// Find closest to camera orientation
+					if(result < p.visibleAngle * 0.66f)						// Find closest to camera orientation
 					{
 						videosVisible = true;
-						break;
+						visVideos++;
+						if(visVideos + visImages >= threshold)
+							break;
 					}
 				}
 			}
 		}
 		
-		return imagesVisible || panoramasVisible || videosVisible;
+		if(threshold == 1)
+			return imagesVisible || panoramasVisible || videosVisible;
+		else
+			return (visImages + visVideos) >= threshold;
 	}
 		
 	/**
@@ -3064,52 +3182,52 @@ public class WMV_Viewer
 	/**
 	 * Turn camera side to side, at different elevation angles, until images in range become visible
 	 */
-	public void lookForImages()
-	{
-		stopAllTransitions();										// Stop all current transitions
-		lookingStartAngle = getOrientation().x;
-		lookingStartFrameCount = p.p.frameCount;
-		lookingDirection = Math.round(p.p.random(1)) == 1 ? 1 : -1;		// Choose random direction to look
-		lookingLength = PApplet.round(2.f*PApplet.PI / rotateIncrement);
-		turnXToAngle(lookingStartAngle, lookingDirection);
-		looking = true;
-	}	
+//	public void lookForImages()
+//	{
+//		stopAllTransitions();										// Stop all current transitions
+//		lookingStartAngle = getOrientation().x;
+//		lookingStartFrameCount = p.p.frameCount;
+//		lookingDirection = Math.round(p.p.random(1)) == 1 ? 1 : -1;		// Choose random direction to look
+//		lookingLength = PApplet.round(2.f*PApplet.PI / rotateIncrement);
+//		turnXToAngle(lookingStartAngle, lookingDirection);
+//		looking = true;
+//	}	
 	
 	/**
 	 * Update turning to look for images 
 	 */
-	private void updateLooking()
-	{
-		if(looking)	// If looking for images
-		{
-			if( mediaAreVisible( true ) )				// Check whether any images are visible and centered
-			{
-				if(p.p.debug.viewer)
-					p.display.message("Finished rotating to look, found image(s) ");
-				stopAllTransitions();			// Also sets lookingForImages to false
-			}
-			else
-			{
-				lastLookFrame = p.p.frameCount;
-
-				if ( p.p.frameCount - lookingStartFrameCount > lookingLength )
-				{
-					lookingRotationCount++;							// Record camera rotations while looking for images
-					if(p.p.debug.viewer)
-						p.display.message("Rotated to look "+lookingRotationCount+" times...");
-					lookingStartFrameCount = p.p.frameCount;		// Restart the count
-				}
-
-				if (lookingRotationCount > 2) 
-				{
-					if(p.p.debug.viewer)
-						p.display.message("Couldn't see any images. Moving to next nearest cluster...");
-					stopAllTransitions();							// Sets lookingForImages and all transitions to false
-					moveToNearestCluster(false);
-				}
-			}
-		}
-	}
+//	private void updateLooking()
+//	{
+//		if(looking)	// If looking for images
+//		{
+//			if( mediaAreVisible( true ) )				// Check whether any images are visible and centered
+//			{
+//				if(p.p.debug.viewer)
+//					p.display.message("Finished rotating to look, found image(s) ");
+//				stopAllTransitions();			// Also sets lookingForImages to false
+//			}
+//			else
+//			{
+//				lastLookFrame = p.p.frameCount;
+//
+//				if ( p.p.frameCount - lookingStartFrameCount > lookingLength )
+//				{
+//					lookingRotationCount++;							// Record camera rotations while looking for images
+//					if(p.p.debug.viewer)
+//						p.display.message("Rotated to look "+lookingRotationCount+" times...");
+//					lookingStartFrameCount = p.p.frameCount;		// Restart the count
+//				}
+//
+//				if (lookingRotationCount > 2) 
+//				{
+//					if(p.p.debug.viewer)
+//						p.display.message("Couldn't see any images. Moving to next nearest cluster...");
+//					stopAllTransitions();							// Sets lookingForImages and all transitions to false
+//					moveToNearestCluster(false);
+//				}
+//			}
+//		}
+//	}
 
 	/**
 	 * Get list of closest clusters

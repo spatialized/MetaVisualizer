@@ -681,14 +681,16 @@ public class WMV_Input
 
 				if( key == 'L' )
 				{
-					IntList selected = p.getCurrentField().getSelectedImages();
-					int imageID = -1;
-					if(selected.size() == 1)
-						imageID = selected.get(0);
-					if(imageID != -1)
-					{
-						p.viewer.lookAtMedia(imageID, 0);
-					}
+//					IntList selected = p.getCurrentField().getSelectedImages();
+//					int imageID = -1;
+//					if(selected.size() == 1)
+//						imageID = selected.get(0);
+//					if(imageID != -1)
+//					{
+//						p.viewer.lookAtMedia(imageID, 0);
+//					}
+					
+					p.viewer.lookAtNearestMedia();
 				}
 				if( key == 't' )
 				{

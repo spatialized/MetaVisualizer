@@ -261,7 +261,7 @@ class WMV_Image extends WMV_Viewable
 					visible = false;
 			}
 			
-			if(isFading())									// Update brightness while fading
+			if(isFading())										// Update brightness while fading
 			{
 				if(fadingBrightness == 0.f)
 					visible = false;

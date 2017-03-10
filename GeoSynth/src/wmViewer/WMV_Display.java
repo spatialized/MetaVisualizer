@@ -42,7 +42,7 @@ class WMV_Display
 	/* Setup */
 	public boolean initialSetup = true;
 	GButton btnSelectLibrary;
-	PImage startupImage;
+//	PImage startupImage;
 	
 	/* Graphics */
 	float hudDistance;							// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
@@ -110,7 +110,7 @@ class WMV_Display
 		
 		map2D = new WMV_Map(this);
 		
-		startupImage = p.p.loadImage("res/WMV_Title.jpg");
+//		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
 
 	void setupWMVWindow()
@@ -515,8 +515,6 @@ class WMV_Display
 		p.p.textSize(smallTextSize);
 		p.p.text(" g    Load GPS Track from File", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.text(" OPTION + g    Follow GPS Track", xPos, yPos += lineWidth, hudDistance);
-//		p.p.text(" y	  Navigate Memorized Places", xPos, yPos += lineWidth, hudDistance);
-//		p.p.text(" Y    Clear Memory", xPos, yPos += lineWidth, hudDistance);
 
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
@@ -530,12 +528,6 @@ class WMV_Display
 		p.p.textSize(smallTextSize);
 		p.p.text(" o    Set Image Output Folder", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.text(" p    Save Screen Image to Disk", xPos, yPos += lineWidth, hudDistance);
-	
-//		p.p.text(" F    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
-//		p.p.text(" 2 1 Camera Speed + / - ", dispLocX, textYPos += lineWidth * 2, hudDistance);
-//		p.p.text(" 4 3 Background Brightness + / - ", dispLocX, textYPos += lineWidth, hudDistance);
-//		p.p.text(" k j  Altitude Scale Factor  + / - ", dispLocX, textYPos += lineWidth, hudDistance);
-//		p.p.text(" _ + Cluster Minimum Points - / +      ", dispLocX, textYPos += lineWidth, hudDistance);
 
 		p.p.popMatrix();
 	}
@@ -620,22 +612,18 @@ class WMV_Display
 	 */
 	void displayMetadata()
 	{
-//		if( !(p.viewer.lastMovementFrame == p.p.frameCount) )				// As long as the user doesn't move, display metadata
-		{
-			float yPos = metadataYOffset - lineWidth;
-			
-			beginHUD();
-			p.p.pushMatrix();
-			
-			p.p.fill(0, 0, 255, 255);                     // White text
-			p.p.textSize(mediumTextSize);
+		float yPos = metadataYOffset - lineWidth;
 
-			for(String s : metadata)
-			{
-				p.p.text(s, leftTextXOffset, yPos += lineWidth, hudDistance);				// Use period character to draw a point
-			}
-			p.p.popMatrix();
-		}
+		beginHUD();
+		p.p.pushMatrix();
+
+		p.p.fill(0, 0, 255, 255);                     // White text
+		p.p.textSize(mediumTextSize);
+
+		for(String s : metadata)
+			p.p.text(s, leftTextXOffset, yPos += lineWidth, hudDistance);				// Use period character to draw a point
+
+		p.p.popMatrix();
 	}
 	
 	/**
@@ -651,9 +639,6 @@ class WMV_Display
 	 */
 	public void showStartup()
 	{
-//		sendSetupMessage("Welcome to WorldMediaViewer!");
-//		sendSetupMessage(" ");
-//		sendSetupMessage("Please select a library folder...");
 		draw();								// Draw setup display
 	}
 	
@@ -696,26 +681,18 @@ class WMV_Display
 			p.p.textSize(largeTextSize * 1.5f);
 			p.p.text("Software by David Gordon", p.p.width / 1.33f, yPos += lineWidthVeryWide, hudDistance);
 
-			p.p.tint(200.f);
-			p.p.image(startupImage, p.p.width / 5.f, yPos += lineWidthVeryWide * 9.f);
-			p.p.tint(255.f);
 			p.p.textSize(largeTextSize * 2.1f);
 			if(!p.p.selectedLibrary)
-				p.p.text("Press any key to begin...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 7.f, hudDistance);
+				p.p.text("Press any key to begin...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 10.f, hudDistance);
 			else
-				p.p.text("Loading media folder(s)...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 7.f, hudDistance);
+				p.p.text("Loading media folder(s)...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 10.f, hudDistance);
 			p.p.textSize(largeTextSize * 1.33f);
-			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/worldmediaviewer", p.p.width / 2.f, yPos += lineWidthVeryWide * 13.f, hudDistance);
-
-//			p.p.textSize(smallTextSize * 2.f);
-//			p.p.text("Software by David Gordon", p.p.width * 1.6f, yPos += lineWidthVeryWide * 22.f, hudDistance);
-
-//			p.p.textSize(largeTextSize * 1.5f);
-//			for(String s : startupMessages)
-//				p.p.text(s, startupMessageXOffset, yPos += lineWidthVeryWide * 3.5f, hudDistance);		// Use period character to draw a point
+			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/worldmediaviewer", p.p.width / 2.1f, yPos += lineWidthVeryWide * 16.f, hudDistance);
 		}
 		else
+		{
 			displayMessages();
+		}
 
 		p.p.popMatrix();
 	}

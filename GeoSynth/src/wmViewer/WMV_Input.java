@@ -5,6 +5,7 @@ import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import processing.core.*;
+import processing.data.IntList;
 
 /**************************************
  * WMV_Input
@@ -173,7 +174,6 @@ public class WMV_Input
 				/* Statistics */
 			case "OpenStatisticsWindow":
 				p.display.window.openStatisticsWindow();
-//				p.display.window.statisticsWindow.setVisible(true);
 				break;
 				
 			case "CloseStatisticsWindow":
@@ -679,6 +679,17 @@ public class WMV_Input
 				if( key == 'l' )
 					p.viewer.moveToLastCluster(p.viewer.movementTeleport);
 
+				if( key == 'L' )
+				{
+					IntList selected = p.getCurrentField().getSelectedImages();
+					int imageID = -1;
+					if(selected.size() == 1)
+						imageID = selected.get(0);
+					if(imageID != -1)
+					{
+						p.viewer.lookAtMedia(imageID, 0);
+					}
+				}
 				if( key == 't' )
 				{
 					boolean state = !p.viewer.movementTeleport;
@@ -923,10 +934,21 @@ public class WMV_Input
 					if (key == 'O') 
 					{
 						p.viewer.selection = !p.viewer.selection;
-						p.display.window.chkbxSelectionMode.setSelected(p.viewer.selection);
+						if(p.display.window.setupSelectionWindow)
+							p.display.window.chkbxSelectionMode.setSelected(p.viewer.selection);
 
-						if(p.viewer.selection && p.viewer.multiSelection) p.viewer.multiSelection = false;
-						if(p.viewer.selection && p.viewer.segmentSelection) p.viewer.segmentSelection = false;
+						if(p.viewer.selection && p.viewer.multiSelection)
+						{
+							p.viewer.multiSelection = false;
+							if(p.display.window.setupSelectionWindow)
+								p.display.window.chkbxMultiSelection.setSelected(false);
+						}
+						if(p.viewer.selection && p.viewer.segmentSelection) 
+						{
+							p.viewer.segmentSelection = false;
+							if(p.display.window.setupSelectionWindow)
+								p.display.window.chkbxSegmentSelection.setSelected(false);
+						}
 					}
 
 					if (optionKey && key == 'x')

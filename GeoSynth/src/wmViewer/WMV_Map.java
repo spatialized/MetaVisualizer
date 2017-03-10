@@ -385,6 +385,18 @@ public class WMV_Map
 			{
 				WMV_Image img = p.p.getCurrentField().images.get(i);
 				drawImageOnMap(img, ignoreTime, mapWidth, mapHeight, false);
+				if(p.p.showModel)
+				{
+//					drawLine(c.getLocation(), img.getLocation(), 60.f, 160.f, 255.f, mapWidth, mapHeight);
+					if(p.p.showMediaToCluster)
+						drawLine(c.getLocation(), img.getLocation(), 40.f, 155.f, 200.f, mapWidth, mapHeight);
+
+					if(p.p.showCaptureToMedia)
+						drawLine(img.getLocation(), img.getCaptureLocation(), 160.f, 100.f, 255.f, mapWidth, mapHeight);
+
+					if(p.p.showCaptureToCluster)
+						drawLine(c.getLocation(), img.getCaptureLocation(), 100.f, 55.f, 255.f, mapWidth, mapHeight);
+				}
 			}
 
 		if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
@@ -399,8 +411,42 @@ public class WMV_Map
 			{
 				WMV_Video vid = p.p.getCurrentField().videos.get(v);
 				drawVideoOnMap(vid, ignoreTime, mapWidth, mapHeight, false);
+				if(p.p.showModel)
+				{
+					if(p.p.showMediaToCluster)
+						drawLine(c.getLocation(), vid.getLocation(), 140.f, 155.f, 200.f, mapWidth, mapHeight);
+
+					if(p.p.showCaptureToMedia)
+						drawLine(vid.getLocation(), vid.getCaptureLocation(), 50.f, 100.f, 255.f, mapWidth, mapHeight);
+
+					if(p.p.showCaptureToCluster)
+						drawLine(c.getLocation(), vid.getCaptureLocation(), 190.f, 55.f, 255.f, mapWidth, mapHeight);
+				}
 			}
 	}
+	
+	void drawLine(PVector point1, PVector point2, float hue, float saturation, float brightness, float mapWidth, float mapHeight)
+	{
+		PVector mapLoc1 = getMapLocation(point1, mapWidth, mapHeight);
+		PVector mapLoc2 = getMapLocation(point2, mapWidth, mapHeight);
+
+		if( (mapLoc1.x < mapWidth && mapLoc1.x > 0 && mapLoc1.y < mapHeight && mapLoc1.y > 0) ||
+				(mapLoc2.x < mapWidth && mapLoc2.x > 0 && mapLoc2.y < mapHeight && mapLoc2.y > 0) )
+		{
+			p.p.p.stroke(hue, saturation, brightness, 255.f);
+//			p.p.p.stroke(hue, saturation, brightness, mapMediaTransparency);
+//			p.p.p.strokeWeight(pointSize);
+			float pointSize = smallPointSize * 0.1f * mapWidth / PApplet.sqrt(PApplet.sqrt(mapDistance));
+			p.p.p.strokeWeight(pointSize);
+			PApplet.println("point size:"+pointSize);
+			p.p.p.pushMatrix();
+			p.p.p.translate(mapLeftEdge, mapTopEdge);
+			p.p.p.line( largeMapXOffset + mapLoc1.x, largeMapYOffset + mapLoc1.y, p.hudDistance * mapDistance,
+					    largeMapXOffset + mapLoc2.x, largeMapYOffset + mapLoc2.y, p.hudDistance * mapDistance );
+			p.p.p.popMatrix();
+		}
+	}
+	
 	/**
 	 * @param image Image to draw
 	 * @param ignoreTime Force image to display even when out of time
@@ -427,6 +473,7 @@ public class WMV_Map
 
 			if(alpha > 0.f)
 			{
+				if(image.isSelected()) pointSize *= 5.f;
 				if(capture)
 					drawPoint( image.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapImageCaptureHue, saturation, 255.f, mapMediaTransparency );
 				else
@@ -461,7 +508,7 @@ public class WMV_Map
 
 			if(alpha > 0.f)
 			{
-
+				if(panorama.isSelected()) pointSize *= 5.f;
 				if(capture)
 					drawPoint( panorama.getCaptureLocation(),  pointSize, mapWidth, mapHeight, mapPanoramaCaptureHue, saturation, 255.f, mapMediaTransparency );
 				else
@@ -495,6 +542,7 @@ public class WMV_Map
 
 			if(alpha > 0.f)
 			{
+				if(video.isSelected()) pointSize *= 5.f;
 				if(capture)
 					drawPoint( video.getCaptureLocation(), pointSize, mapWidth, mapHeight, mapVideoCaptureHue, saturation, 255.f, mapMediaTransparency );
 				else

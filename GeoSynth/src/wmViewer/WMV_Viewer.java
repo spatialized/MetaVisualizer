@@ -156,14 +156,15 @@ public class WMV_Viewer
 	public boolean turningY = false;			// Whether the viewer is turning (up or down)
 	private PVector turningVelocity;			// Turning velocity in X direction
 	private PVector turningAcceleration;		// Turning acceleration in X direction
-	private float turningAccelInc = 0.0008f;
+	private float turningXAccelInc = 0.0001f;
+	private float turningYAccelInc = 0.0001f;
 
 	final private float turningVelocityMin = 0.00005f;					// Threshold under which velocity counts as zero
-	final private float turningVelocityMax = 0.2f;						// Camera maximum velocity
-	final private float turningAccelerationMax = 0.075f;					// Camera maximum acceleration
-	final private float turningAccelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
-	final private float turningDecelInc = 0.4f;						// Camera deceleration increment
-	final private float turningHaltInc = 0.01f;						// Camera fast deceleration increment
+	final private float turningVelocityMax = 0.08f;						// Camera maximum velocity
+	final private float turningAccelerationMax = 0.008f;					// Camera maximum acceleration
+	final private float turningAccelerationMin = 0.000005f;				// Threshold under which acceleration counts as zero
+	final private float turningDecelInc = 0.45f;						// Camera deceleration increment
+	final private float turningHaltInc = 0.0033f;						// Camera fast deceleration increment
 	private boolean turnSlowingX = false;				// Slowing turn in X direction
 	private boolean turnSlowingY = false;				// Slowing turn in Y direction
 	private boolean turnHaltingX = false;				// Slowing turn in X direction
@@ -176,8 +177,8 @@ public class WMV_Viewer
 	public float turnYDirection, turnYTarget,
 				  turnYStart, turnYIncrement;
 //	public float turnIncrement = PApplet.PI / 240.f;
-	final private float turningNearDistance = PApplet.PI / 16.f;
-	final private float turningCenterSize = PApplet.PI / 48.f;
+	final private float turningNearDistance = PApplet.PI / 12.f;
+	final private float turningCenterSize = PApplet.PI / 54.f;
 	
 	private boolean rotatingX = false;			// Whether the camera is rotating in X dimension (turning left or right)?
 	private boolean rotatingY = false;			// Whether the camera is rotating in Y dimension (turning up or down)?
@@ -1067,11 +1068,10 @@ public class WMV_Viewer
 				turnXDirection = turnInfo.x;
 			else
 				turnXDirection = turnDirection;
-				
-//			turnXIncrement = turnIncrement;
-			turnXStartFrame = p.p.frameCount;
-//			turnXTargetFrame = turnXStartFrame + (int)turnInfo.z;
 			
+			turningXAccelInc = PApplet.map(turnInfo.y, 0.f, PApplet.PI * 2.f, turningAccelerationMin, turningAccelerationMax * 0.2f);
+			PApplet.println("turningXAccelInc:"+turningXAccelInc);
+			turnXStartFrame = p.p.frameCount;
 			turningX = true;
 		}
 	}
@@ -1094,9 +1094,10 @@ public class WMV_Viewer
 			else
 				turnYDirection = turnDirection;
 			
-//			turnYIncrement = turnIncrement;
+			turningYAccelInc = PApplet.map(turnInfo.y, 0.f, PApplet.PI * 2.f, turningAccelerationMin, turningAccelerationMax * 0.2f);
+			PApplet.println("turningYAccelInc:"+turningYAccelInc);
+
 			turnYStartFrame = p.p.frameCount;
-//			turnYTargetFrame = turnYStartFrame + (int)turnInfo.z;
 			turningY = true;
 		}
 	}
@@ -1214,11 +1215,15 @@ public class WMV_Viewer
 	PVector getTurnInfo(float startAngle, float targetAngle, int direction)
 	{
 		PVector result;
-		float inc = PApplet.PI / 240.f;				// -- Obsolete
-		int len = 0;
+		float length = 0;
 		
 		float diffRight = -1.f;		// Difference when turning right (dir = 1)
 		float diffLeft = -1.f;		// Difference when turning left (dir = -1)
+
+		if(targetAngle < 0.f)
+			targetAngle += PApplet.PI * 2.f;
+		if(startAngle < 0.f)
+			startAngle += PApplet.PI * 2.f;
 
 		if(targetAngle > startAngle)									// Clockwise
 		{
@@ -1240,25 +1245,25 @@ public class WMV_Viewer
 		{
 			if(diffRight <= diffLeft)
 			{
-				len = PApplet.round(diffRight / inc);		// Frames until target reached
-				result = new PVector(-1, inc, len);
+				length = diffRight;		// Frames until target reached
+				result = new PVector(-1, length);
 				return result;								// Return 1 for clockwise 
 			}
 			else
 			{
-				len = PApplet.round(diffLeft / inc);		// Frames until target reached
-				result = new PVector(1, inc, len);
+				length = diffLeft;		// Frames until target reached
+				result = new PVector(1, length);
 				return result;								// Return -1 for counterclockwise 
 			}
 		}
 		else												// Full rotation
 		{
 			if(direction == 1)								// Turn left
-				len = PApplet.round(diffLeft / inc);
+				length = diffLeft;
 			else if(direction == -1)						// Turn right
-				len = PApplet.round(diffRight / inc);
+				length = diffRight;
 			
-			result = new PVector(direction, inc, len);		// Return direction, increment value and transition frame length 
+			result = new PVector(direction, length);		// Return direction, increment value and transition frame length 
 			return result;
 		}
 	}
@@ -1268,6 +1273,11 @@ public class WMV_Viewer
 		float diffRight = -1.f;		// Difference when turning right (dir = 1)
 		float diffLeft = -1.f;		// Difference when turning left (dir = -1)
 		float length = 0.f;
+		
+		if(targetAngle < 0.f)
+			targetAngle += PApplet.PI * 2.f;
+		if(startAngle < 0.f)
+			startAngle += PApplet.PI * 2.f;
 		
 		if(targetAngle > startAngle)									// Clockwise
 		{
@@ -1868,19 +1878,15 @@ public class WMV_Viewer
 	 */
 	void updateTurning()
 	{
-		PApplet.println("---> turningX:"+turningX+" turningY:"+turningY+" turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
-
-		// Turn X Transition
-		if (turningX && !turnSlowingX) 
+		if (turningX && !turnSlowingX) 		// Turn X Transition
 		{
-			turningAcceleration.x += turningAccelInc * turnXDirection;
+			turningAcceleration.x += turningXAccelInc * turnXDirection;
 			lastMovementFrame = p.p.frameCount;
 		}
 
-		// Turn Y Transition
-		if (turningY && !turnSlowingY) 
+		if (turningY && !turnSlowingY) 		// Turn Y Transition
 		{
-			turningAcceleration.y += turningAccelInc * turnYDirection;
+			turningAcceleration.y += turningYAccelInc * turnYDirection;
 			lastMovementFrame = p.p.frameCount;
 		}
 
@@ -1902,7 +1908,6 @@ public class WMV_Viewer
 			turningAcceleration.x *= turningHaltInc;
 		}
 		
-//		PApplet.println("---> turningX:"+turningX+" turningY:"+turningY+" turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
 		if(turnHaltingY)
 		{
 			turningVelocity.y *= turningHaltInc;
@@ -1943,8 +1948,7 @@ public class WMV_Viewer
 				turningX = false;
 				turnSlowingX = false;
 				turnHaltingX = false;
-				turningVelocity.x = 0.f;			// Clear turningVelocity when reaches close to zero (below velocityMin)
-				PApplet.println("Reached turning X goal orientation...");
+				turningVelocity.x = 0.f;			// Clear turningVelocity.x when close to zero (below velocityMin)
 			}
 
 			if(PApplet.abs( turningVelocity.mag()) > 0.f && PApplet.abs(turningVelocity.y) < turningVelocityMin 
@@ -1953,8 +1957,7 @@ public class WMV_Viewer
 				turningY = false;
 				turnSlowingY = false;
 				turnHaltingY = false;
-				turningVelocity.y = 0.f;			// Clear turningVelocity when reaches close to zero (below velocityMin)
-				PApplet.println("Reached turning Y goal orientation...");
+				turningVelocity.y = 0.f;			// Clear turningVelocity.y when close to zero (below velocityMin)
 			}
 
 			if(PApplet.abs(turningVelocity.x) == 0.f && turnSlowingX )
@@ -1973,7 +1976,6 @@ public class WMV_Viewer
 		if(turningX)
 		{
 			float xTurnDistance = getTurnDistance(getXOrientation(), turnXTarget, turnXDirection);
-			PApplet.println("abs(xTurnDistance):"+PApplet.abs(xTurnDistance)+" turningNearDistance:"+turningNearDistance);
 			if(PApplet.abs(xTurnDistance) < turningNearDistance) // && !turningNearby)
 			{
 				if(PApplet.abs(xTurnDistance) > turningCenterSize)
@@ -1994,7 +1996,6 @@ public class WMV_Viewer
 		if(turningY)
 		{
 			float yTurnDistance = getTurnDistance(getYOrientation(), turnYTarget, turnYDirection);
-			PApplet.println("abs(yTurnDistance):"+PApplet.abs(yTurnDistance)+" turningNearDistance:"+turningNearDistance);
 			if(PApplet.abs(yTurnDistance) < turningNearDistance * 0.5f) // && !turningNearby)
 			{
 				if(PApplet.abs(yTurnDistance) > turningCenterSize * 0.5f)
@@ -2013,11 +2014,7 @@ public class WMV_Viewer
 		}
 
 		if( turningX || turningY )
-		{
-//			PApplet.println("--> turningAcceleration.x:"+turningAcceleration.x+" turningAcceleration.y:"+turningAcceleration.y);
-//			PApplet.println("turningVelocity.x:"+turningVelocity.x+" turningVelocity.y:"+turningVelocity.y);
 			turn();
-		}
 	}
 	
 	/**

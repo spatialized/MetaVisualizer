@@ -55,10 +55,10 @@ public class WMV_MediaSegment
 				float xDir = img.getDirection();
 				float yDir = img.getElevation();
 
-				if(xDir - left < p.p.p.stitchingMinAngle)
+				if(xDir - left < p.p.p.settings.stitchingMinAngle)
 					horizBorderID = 0;				// Left
 
-				if(right - xDir < p.p.p.stitchingMinAngle)
+				if(right - xDir < p.p.p.settings.stitchingMinAngle)
 				{
 					if(horizBorderID == 0)
 						horizBorderID = 3;			// Left+Right
@@ -66,10 +66,10 @@ public class WMV_MediaSegment
 						horizBorderID = 2;			// Right
 				}
 
-				if(yDir - top < p.p.p.stitchingMinAngle)
+				if(yDir - top < p.p.p.settings.stitchingMinAngle)
 					vertBorderID = 0;				// Top
 
-				if(bottom - yDir < p.p.p.stitchingMinAngle)
+				if(bottom - yDir < p.p.p.settings.stitchingMinAngle)
 				{
 					if(vertBorderID == 0)
 						vertBorderID = 3;			// Top+Bottom

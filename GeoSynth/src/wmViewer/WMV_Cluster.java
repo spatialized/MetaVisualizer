@@ -4,7 +4,7 @@ import processing.core.PApplet;
 import processing.core.PVector;
 //import processing.data.FloatList;
 import processing.data.IntList;
-import processing.video.Movie;
+//import processing.video.Movie;
 
 /*********************************************
  * @author davidgordon
@@ -191,11 +191,11 @@ public class WMV_Cluster
 						if(p.images.get(m).getID() != img.getID())		// Don't compare image to itself
 						{
 							if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
-								PApplet.println("Comparing image:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.stitchingMinAngle);
+								PApplet.println("Comparing image:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.settings.stitchingMinAngle);
 							
-							if(PApplet.abs(img.getDirection() - p.images.get(m).getDirection()) < p.p.stitchingMinAngle)
+							if(PApplet.abs(img.getDirection() - p.images.get(m).getDirection()) < p.p.settings.stitchingMinAngle)
 							{
-								if(PApplet.abs(img.getElevation() - p.images.get(m).getElevation()) < p.p.stitchingMinAngle)
+								if(PApplet.abs(img.getElevation() - p.images.get(m).getElevation()) < p.p.settings.stitchingMinAngle)
 								{
 									float direction = img.getDirection();
 									float elevation = img.getElevation();
@@ -501,7 +501,7 @@ public class WMV_Cluster
 
 	void draw()
 	{
-		if(p.p.showUserPanoramas)
+		if(p.p.settings.showUserPanoramas)
 		{
 			for(WMV_Panorama p : userPanoramas)
 			{
@@ -510,7 +510,7 @@ public class WMV_Cluster
 			}
 		}
 
-		if(p.p.showStitchedPanoramas)
+		if(p.p.settings.showStitchedPanoramas)
 		{
 			for(WMV_Panorama p : stitchedPanoramas)
 			{
@@ -525,7 +525,7 @@ public class WMV_Cluster
 	 */
 	public void stitchImages()
 	{
-		if(p.p.viewer.multiSelection || p.p.viewer.segmentSelection)
+		if(p.p.viewer.settings.multiSelection || p.p.viewer.settings.segmentSelection)
 		{
 			IntList valid = new IntList();
 			for( int i : p.getSelectedImages() )
@@ -580,7 +580,7 @@ public class WMV_Cluster
 					
 					if(p.p.p.debug.stitching && p.p.p.debug.detailed) p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
 					
-					if(p.p.angleThinning)				// Remove invisible images
+					if(p.p.viewer.settings.angleThinning)				// Remove invisible images
 					{
 						IntList remove = new IntList();
 						
@@ -636,7 +636,7 @@ public class WMV_Cluster
 	{
 //		if(p.p.p.debug.cluster || p.p.p.debug.model)
 //			PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
-		float thinningAngle = p.p.thinningAngle;									// Angle to thin images and videos by
+		float thinningAngle = p.p.viewer.settings.thinningAngle;									// Angle to thin images and videos by
 		int numPerimeterPts = PApplet.round(PApplet.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
 		int[] perimeterPoints = new int[numPerimeterPts];					// Points to compare each cluster image/video to
 		float[] perimeterDistances = new float[numPerimeterPts];			// Distances of images associated with each point
@@ -867,13 +867,13 @@ public class WMV_Cluster
 		
 		if(distance > p.p.viewer.getClusterNearDistance())
 		{
-			strength = (clusterGravity * mass * p.p.viewer.cameraMass) / (distance * distance);	// Calculate strength
+			strength = (clusterGravity * mass * p.p.viewer.settings.cameraMass) / (distance * distance);	// Calculate strength
 		}
 		else				// Reduce strength of attraction at close distance
 		{
 			float diff = p.p.viewer.getClusterNearDistance() - distance;
 			float factor = 0.5f - PApplet.map(diff, 0.f, p.p.viewer.getClusterNearDistance(), 0.f, 0.5f);
-			strength = (clusterGravity * mass * p.p.viewer.cameraMass) / (distance * distance) * factor;
+			strength = (clusterGravity * mass * p.p.viewer.settings.cameraMass) / (distance * distance) * factor;
 		}
 		
 		force.mult(strength);
@@ -1039,7 +1039,7 @@ public class WMV_Cluster
 
 			if(mediaTimes.size() > 0)
 			{
-				ArrayList<WMV_TimeSegment> newTimeline = calculateTimeSegments(mediaTimes, p.p.clusterTimePrecision);
+				ArrayList<WMV_TimeSegment> newTimeline = calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision);
 
 				if(newTimeline != null) 
 					newTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
@@ -1073,7 +1073,7 @@ public class WMV_Cluster
 
 		if(mediaTimes.size() > 0)
 		{
-			timeline = calculateTimeSegments(mediaTimes, p.p.clusterTimePrecision);	// Get relative (cluster) time segments
+			timeline = calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision);	// Get relative (cluster) time segments
 			if(timeline != null)
 				timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
 			

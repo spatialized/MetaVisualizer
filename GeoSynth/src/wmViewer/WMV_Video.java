@@ -123,7 +123,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		float angleBrightness;
 
 		float brightness = fadingBrightness;					
-		brightness *= p.p.viewer.userBrightness;
+		brightness *= p.p.viewer.settings.userBrightness;
 
 		distanceBrightness = getDistanceBrightness(); 
 		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
@@ -140,7 +140,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(p.p.p.debug.video && p.p.p.debug.detailed && p.p.p.frameCount % 30 == 0)
 			p.p.display.message("Video brightness after distance:"+brightness);
 
-		if( p.p.angleFading )
+		if( p.p.viewer.settings.angleFading )
 		{
 			float videoAngle = getFacingAngle();
 			if(p.p.p.utilities.isNaN(videoAngle))
@@ -156,7 +156,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
 
-		if (!hidden && !disabled && !p.p.viewer.map3DMode) 
+		if (!hidden && !disabled && !p.p.viewer.settings.map3DMode) 
 		{
 			if (viewingBrightness > 0)
 				if ((video.width > 1) && (video.height > 1))
@@ -167,7 +167,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			p.p.p.noFill();                  // Hide video if it isn't visible
 		}
 
-		if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.map3DMode))
+		if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.settings.map3DMode))
 			drawLocation(centerSize);
 	}
 
@@ -202,13 +202,13 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	void fadeSoundIn()
 	{
-		if(volume < p.p.videoMaxVolume)
+		if(volume < p.p.settings.videoMaxVolume)
 		{
 			fadingVolume = true;
 			volumeFadingStartFrame = p.p.p.frameCount; 
 			volumeFadingStartVal = volume; 
 			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
-			volumeFadingTarget = p.p.videoMaxVolume;
+			volumeFadingTarget = p.p.settings.videoMaxVolume;
 		}
 	}
 	
@@ -242,7 +242,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			/* Check Visibility */			
 			visible = false;
 
-			if(p.p.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+			if(p.p.viewer.settings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
 				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
@@ -255,7 +255,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			}
 			else 
 			{
-				if(p.p.angleFading)
+				if(p.p.viewer.settings.angleFading)
 					visible = isFacingCamera();		
 				else 
 					visible = true;     										 		
@@ -301,7 +301,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 					visibilitySetToFalse = true;
 			}
 			
-			if(!p.p.angleThinning)										// Check Angle Thinning Mode
+			if(!p.p.viewer.settings.angleThinning)										// Check Angle Thinning Mode
 			{
 				if(visibilitySetToTrue && !fading && !fadedOut && !p.hideVideos)	// If should be visible and already fading, fade in 
 				{
@@ -381,7 +381,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		if(vertices.length == 0) disabled = true;
 		
-		if(p.p.orientationMode)	
+		if(p.p.viewer.settings.orientationMode)	
 			vertices = translateVertices(vertices, p.p.viewer.getLocation());
 		else
 			vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
@@ -389,7 +389,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		disp = getDisplacementVector();
 		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 
-		if(p.p.orientationMode)
+		if(p.p.viewer.settings.orientationMode)
 			location = p.p.viewer.getLocation();
 		else
 			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
@@ -419,7 +419,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 	public PVector getLocation()
 	{
-		if(p.p.orientationMode)
+		if(p.p.viewer.settings.orientationMode)
 		{
 			PVector result = new PVector(location.x, location.y, location.z);
 			result.add(getDisplacementVector());
@@ -526,7 +526,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		if(isSelected())
 		{
-			if (!p.p.viewer.selection && p.p.p.debug.field)     // Draw outline
+			if (!p.p.viewer.settings.selection && p.p.p.debug.field)     // Draw outline
 			{
 				p.p.p.stroke(19, 200, 150);
 				p.p.p.strokeWeight(outlineSize);
@@ -542,7 +542,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		frame = new PImage(video.getImage());
 
-		if(p.p.viewer.selection)
+		if(p.p.viewer.settings.selection)
 		{
 			if(isSelected())
 			{
@@ -559,7 +559,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 					p.p.p.tint(255, viewingBrightness * 0.333f);          				
 			}
 		}
-		else if(p.p.viewer.videoMode)
+		else if(p.p.viewer.settings.videoMode)
 		{
 			if(!p.p.alphaMode)
 				p.p.p.tint(viewingBrightness, 255);          				
@@ -796,7 +796,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */	
 	public boolean isFacingCamera()
 	{
-		return PApplet.abs(getAngleToCamera()) > p.p.visibleAngle;     			// If the result is positive, then it is facing the camera.
+		return PApplet.abs(getAngleToCamera()) > p.p.viewer.settings.visibleAngle;     			// If the result is positive, then it is facing the camera.
 //		return PApplet.abs(getAngleToCamera()) > p.p.defaultVisibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 
@@ -952,7 +952,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				PVector imgLocation = p.images.get(i).getCaptureLocation();
 				float curDist = PVector.dist(getCaptureLocation(), imgLocation);
 
-				if(curDist < p.p.assocVideoDistTolerance)		// and very close in space,
+				if(curDist < p.p.settings.assocVideoDistTolerance)		// and very close in space,
 				{
 					candidates.append(i);												// Add to candidates list
 				}
@@ -965,14 +965,14 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(candidates.size() == 0)
 		{
 			if(p.p.p.debug.video)
-				PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+p.p.assocVideoDistTolerance+"!");
+				PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+p.p.settings.assocVideoDistTolerance+"!");
 		}
 		
 		for( int i : candidates )							// Compare distances of the candidates
 		{
 			float timeDiff = time.getTime() - p.images.get(i).time.getTime();
 
-			if( timeDiff > 0.f && timeDiff < p.p.assocVideoTimeTolerance )			// If in very close succession with an image
+			if( timeDiff > 0.f && timeDiff < p.p.settings.assocVideoTimeTolerance )			// If in very close succession with an image
 			{
 				if(timeDiff < closestDist)
 				{
@@ -1167,12 +1167,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		float angleBrightness = 0.f;
 
-		if(videoAngle > p.p.visibleAngle)
+		if(videoAngle > p.p.viewer.settings.visibleAngle)
 			angleBrightness = 0.f;
-		else if (videoAngle < p.p.visibleAngle * 0.66f)
+		else if (videoAngle < p.p.viewer.settings.visibleAngle * 0.66f)
 			angleBrightness = 1.f;
 		else
-			angleBrightness = PApplet.constrain((1.f-PApplet.map(videoAngle, p.p.visibleAngle * 0.66f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
+			angleBrightness = PApplet.constrain((1.f-PApplet.map(videoAngle, p.p.viewer.settings.visibleAngle * 0.66f, p.p.viewer.settings.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
 
 		return angleBrightness;
 	}

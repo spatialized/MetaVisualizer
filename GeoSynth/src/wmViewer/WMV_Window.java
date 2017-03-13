@@ -268,7 +268,7 @@ public class WMV_Window {
 
 		sdrMediaLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrMediaLength.setLocalColorScheme(7);
-		sdrMediaLength.setLimits(p.p.defaultMediaLength, 250.f, 10.f);
+		sdrMediaLength.setLimits(p.p.settings.defaultMediaLength, 250.f, 10.f);
 		sdrMediaLength.setRotation(PApplet.PI/2.f);
 		sdrMediaLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrMediaLength.setEasing(0);
@@ -556,8 +556,8 @@ public class WMV_Window {
 		x += 140;
 		sdrBrightness = new GSlider(graphicsWindow, x, y, 80, 80, 20);
 		sdrBrightness.setLocalColorScheme(7);
-		sdrBrightness.setLimits(p.p.viewer.userBrightness, 1.f, 0.f);
-		sdrBrightness.setValue(p.p.viewer.userBrightness);					// Not sure why this is needed, maybe a G4P bug?
+		sdrBrightness.setLimits(p.p.viewer.settings.userBrightness, 1.f, 0.f);
+		sdrBrightness.setValue(p.p.viewer.settings.userBrightness);					// Not sure why this is needed, maybe a G4P bug?
 		sdrBrightness.setRotation(PApplet.PI/2.f);
 		sdrBrightness.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrBrightness.setEasing(0);
@@ -1134,7 +1134,7 @@ public class WMV_Window {
 				applet.textSize(mediumTextSize);
 				applet.text(" Program Modes ", x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
-				applet.text(" Orientation Mode: "+p.p.orientationMode, x, y += lineWidthVeryWide);
+				applet.text(" Orientation Mode: "+p.p.viewer.settings.orientationMode, x, y += lineWidthVeryWide);
 				applet.text(" Alpha Mode:"+p.p.alphaMode, x, y += lineWidth);
 				applet.text(" Time Fading: "+ p.p.timeFading, x, y += lineWidth);
 				applet.text(" Altitude Scaling: "+p.p.altitudeScaling, x, y += lineWidth);
@@ -1144,11 +1144,11 @@ public class WMV_Window {
 				applet.text(" Graphics ", x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
 				applet.text(" Alpha:"+p.p.alpha, x, y += lineWidthVeryWide);
-				applet.text(" Default Media Length:"+p.p.defaultMediaLength, x, y += lineWidth);
-				applet.text(" Media Angle Fading: "+p.p.angleFading, x, y += lineWidth);
-				applet.text(" Media Angle Thinning: "+p.p.angleThinning, x, y += lineWidth);
-				if(p.p.angleThinning)
-					applet.text(" Media Thinning Angle:"+p.p.thinningAngle, x, y += lineWidth);
+				applet.text(" Default Media Length:"+p.p.settings.defaultMediaLength, x, y += lineWidth);
+				applet.text(" Media Angle Fading: "+p.p.viewer.settings.angleFading, x, y += lineWidth);
+				applet.text(" Media Angle Thinning: "+p.p.viewer.settings.angleThinning, x, y += lineWidth);
+				if(p.p.viewer.settings.angleThinning)
+					applet.text(" Media Thinning Angle:"+p.p.viewer.settings.thinningAngle, x, y += lineWidth);
 				applet.text(" Image Size Factor:"+p.p.subjectSizeRatio, x, y += lineWidth);
 				applet.text(" Subject Distance (m.):"+p.p.defaultFocusDistance, x, y += lineWidth);
 				//			applet.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth);
@@ -1169,7 +1169,7 @@ public class WMV_Window {
 				applet.text(" Panoramas Visible: "+f.panoramasVisible, x, y += lineWidth);
 				applet.text(" Videos Visible: "+f.videosVisible, x, y += lineWidth);
 				applet.text(" Videos Playing: "+f.videosPlaying, x, y += lineWidth);
-				if(p.p.orientationMode)
+				if(p.p.viewer.settings.orientationMode)
 					applet.text(" Clusters Visible: "+p.p.viewer.clustersVisible+"  (Orientation Mode)", x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);

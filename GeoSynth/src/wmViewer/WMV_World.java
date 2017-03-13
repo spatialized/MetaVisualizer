@@ -8,15 +8,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-//import com.jogamp.newt.opengl.GLWindow;
-
-//import picking.Picker;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
-import processing.core.PVector;
 import processing.data.IntList;
-//import processing.core.PSurface;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
 import toxi.math.LinearInterpolation;
@@ -36,23 +31,20 @@ public class WMV_World
 	private boolean creatingFields = false;			// Initializing media folders
 	private boolean fieldsCreated = false;			// Initialized media folders
 	private boolean saveImage = false;
+	private int initializationField = 0;				// Field to be initialized this frame
+	public int setupProgress = 0;						// Setup progress (0 to 100)
 	
 	/* Classes */
-	WMV_Input input;				// Handles input
-	WMV_Display display;			// Handles heads up display
-	WMV_Viewer viewer;				// Handles viewer location
+	WMV_WorldSettings settings;	// World settings
+	WMV_Input input;					// Handles input
+	WMV_Display display;				// Handles heads up display
+	WMV_Viewer viewer;					// Handles viewer location
 	
 	/* Media */
 	private ArrayList<WMV_Field> fields;				// List of fields, i.e. large geographical areas for 3D display
 	
 	/* Stitching */
 	String stitchingPath;
-	int maxStitchingImages = 30;						// Maximum number of images to try to stitch
-	float stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
-	public boolean persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
-
-	public boolean showUserPanoramas = true;			// Show panoramas stitched from user selected media
-	public boolean showStitchedPanoramas = true;		// Show panoramas stitched from media segments
 
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
@@ -65,24 +57,7 @@ public class WMV_World
 	public boolean paused = false;						// Time is paused
 
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
-	public int timeCycleLength = 250;					// Length of main time loop in frames
-	final public int defaultTimeCycleLength = 250;		// Default length of main time loop in frames
-	
-	public int timeUnitLength = 1;						// How many frames between time increments
-	public float timeInc = timeCycleLength / 30.f;			
-
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
-	public int dateCycleLength = 500;					// Length of main date loop in frames
-	public int dateUnitLength = 1;						// How many frames between date increments
-	public float dateInc = dateCycleLength / 30.f;			
-
-	final public int initDefaultMediaLength = 50;		// Initial frame length of media in time cycle
-	public int defaultMediaLength = 50;					// Default frame length of media in time cycle
-
-	public final int clusterTimePrecision = 10000;		// Precision of timesHistogram (no. of bins)
-	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
-	public final int fieldTimePrecision = 10000;		// Precision of timesHistogram (no. of bins) -- Obsolete
-	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins) -- Obsolete
 
 	/* Graphics */
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
@@ -103,30 +78,12 @@ public class WMV_World
 	public PImage blurMaskBothTop, blurMaskBothCenter, 	// Blur masks
 	  blurMaskBothBottom, blurMaskBothBoth;
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
-	
-	/* Video */
-	final float videoMaxVolume = 0.9f;
-	public float assocVideoDistTolerance = 15.f;		// How far a photo can be taken from a video's location to become associated.
-	public float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
-														// (GeoSynth assumes videographers will take a photo with Theodolite shortly before hitting record,
-														// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
 
-	private int initializationField = 0;				// Field to be initialized this frame
-	public int setupProgress = 0;						// Setup progress (0 to 100)
-	
 	/* Model */
-	public boolean orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
-	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
-
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public float panoramaFocusDistanceFactor = 0.9f;	// Scaling from defaultFocusDistance to panorama radius
 	public float videoFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to video focus distance
-
-	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
-	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
-	public boolean angleThinning = false;				// Thin images and videos of similar orientation
-	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
 	public float altitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
@@ -152,8 +109,8 @@ public class WMV_World
 	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
-	/* Viewer */
-	public boolean firstTeleport = false;
+//	/* Viewer */
+//	public boolean firstTeleport = false;
 
 	/* Metadata */
 	public boolean showMetadata = false;
@@ -163,18 +120,18 @@ public class WMV_World
 	public int memoryCheckFrequency = 50;
 	public int minFrameRate = 10;	
 
-	/* File System */
-	public String outputFolder;
-	public boolean outputFolderSelected = false;
-	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk
-	public int requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk	
-
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
 	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
 	InterpolateStrategy circularEaseIn = new CircularInterpolation(true);		// Steepest ascent toward end value
 	InterpolateStrategy zoomLens = new ZoomLensInterpolation();
 	InterpolateStrategy linear = new LinearInterpolation();
+	
+	/* File System */
+	public String outputFolder;
+	public boolean outputFolderSelected = false;
+	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk
+	public int requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk	
 
 	WorldMediaViewer p;
 	
@@ -192,10 +149,10 @@ public class WMV_World
 			PApplet.println("Initializing world...");
 		
 		/* Create main classes */
+		settings = new WMV_WorldSettings(this);
 		input = new WMV_Input(this);
 		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
 		display = new WMV_Display(this);		// Initialize displays
-//		display.map2D.initializeItemSelector();
 		
 		/* Initialize graphics and text parameters */
 		p.colorMode(PConstants.HSB);
@@ -207,8 +164,6 @@ public class WMV_World
 
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
-
-//		p.selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 
 	void run()
@@ -237,7 +192,7 @@ public class WMV_World
 		
 		if(saveImage && outputFolderSelected)		/* Image exporting */
 		{
-			if(viewer.selection)
+			if(viewer.settings.selection)
 			{
 				exportSelectedImages();
 				PApplet.println("Saved image(s) to "+outputFolder);
@@ -330,7 +285,7 @@ public class WMV_World
 		getCurrentField().update();					// Update clusters in current field
 
 		if(!display.map && !display.info && !display.cluster && !display.control && !display.about)		
-			getCurrentField().draw();					// Display media in current field
+			getCurrentField().draw();				// Display media in current field
 		
 		viewer.update();							// Update navigation
 		viewer.camera.feed();						// Send the 3D camera view to the screen
@@ -347,12 +302,10 @@ public class WMV_World
 		if(startedRunning)							// If simulation just started running
 		{
 			viewer.moveToTimeSegmentInField(0, 0, true);	// Move to first time segment in field
-			
-			firstTeleport = true;
 			startedRunning = false;
 		}
 		
-		if(viewer.mouseNavigation)
+		if(viewer.settings.mouseNavigation)
 			input.updateMouseNavigation(p.mouseX, p.mouseY);
 	}
 	
@@ -370,14 +323,14 @@ public class WMV_World
 				break;
 			
 			case 1:													// Field Time Mode
-				if(timeFading && p.frameCount % timeUnitLength == 0)
+				if(timeFading && p.frameCount % settings.timeUnitLength == 0)
 				{
 					currentTime++;
 	
-					if(currentTime > timeCycleLength)
+					if(currentTime > settings.timeCycleLength)
 						currentTime = 0;
 	
-					if(p.debug.field && currentTime > timeCycleLength + defaultMediaLength * 0.25f)
+					if(p.debug.field && currentTime > settings.timeCycleLength + settings.defaultMediaLength * 0.25f)
 					{
 						if(getCurrentField().mediaAreActive())
 						{
@@ -395,7 +348,7 @@ public class WMV_World
 				break;
 
 			case 2:													// Single Time Mode
-				if(timeFading && p.frameCount % timeUnitLength == 0)
+				if(timeFading && p.frameCount % settings.timeUnitLength == 0)
 				{
 					currentTime++;
 					
@@ -410,14 +363,14 @@ public class WMV_World
 						}
 						else
 						{
-							PApplet.println("Reached end of last media with "+(timeCycleLength - currentTime)+ " frames to go...");
+							PApplet.println("Reached end of last media with "+(settings.timeCycleLength - currentTime)+ " frames to go...");
 //							PApplet.println("  viewer.currentMedia "+viewer.currentMedia+ " viewer.nearbyClusterTimelineMediaCount:"+viewer.nearbyClusterTimelineMediaCount);
 							currentTime = 0;
 							startSingleTimeModeCycle();
 						}
 					}
 					
-					if(currentTime > timeCycleLength)
+					if(currentTime > settings.timeCycleLength)
 					{
 						currentTime = 0;
 						startSingleTimeModeCycle();
@@ -457,7 +410,7 @@ public class WMV_World
 					WMV_Image i = getCurrentField().images.get(curMediaID);
 					i.currentMedia = true;
 					viewer.currentMediaStartTime = currentTime;
-					viewer.nextMediaStartFrame = currentTime + defaultMediaLength;
+					viewer.nextMediaStartFrame = currentTime + settings.defaultMediaLength;
 					if(viewer.lookAtCurrentMedia)
 						viewer.lookAtMedia(i.getID(), 0);
 					break;
@@ -465,7 +418,7 @@ public class WMV_World
 					WMV_Panorama n = getCurrentField().panoramas.get(curMediaID);
 					n.currentMedia = true;
 					viewer.currentMediaStartTime = currentTime;
-					viewer.nextMediaStartFrame = currentTime + defaultMediaLength;
+					viewer.nextMediaStartFrame = currentTime + settings.defaultMediaLength;
 //					viewer.lookAtMedia(n.getID(), 1);
 					break;
 				case 2:	
@@ -593,12 +546,13 @@ public class WMV_World
 		fieldsCreated = false;			// Initialized media folders
 		saveImage = false;
 
-		maxStitchingImages = 30;						// Maximum number of images to try to stitch
-		stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
-		persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
-
-		showUserPanoramas = true;			// Show panoramas stitched from user selected media
-		showStitchedPanoramas = true;		// Show panoramas stitched from media segments
+		settings.reset();
+//		maxStitchingImages = 30;						// Maximum number of images to try to stitch
+//		stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
+//		persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
+//
+//		showUserPanoramas = true;			// Show panoramas stitched from user selected media
+//		showStitchedPanoramas = true;		// Show panoramas stitched from media segments
 
 		/* Clustering Modes */
 		hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
@@ -611,16 +565,16 @@ public class WMV_World
 		paused = false;							// Time is paused
 
 		currentTime = 0;							// Time units since start of time cycle (day / month / year)
-		timeCycleLength = 250;					// Length of main time loop in frames
-		timeUnitLength = 1;						// How many frames between time increments
-		timeInc = timeCycleLength / 30.f;			
+//		settings.timeCycleLength = 250;					// Length of main time loop in frames
+//		timeUnitLength = 1;						// How many frames between time increments
+//		settings.timeInc = settings.timeCycleLength / 30.f;			
 
 		currentDate = 0;							// Date units since start of date cycle (day / month / year)
-		dateCycleLength = 500;					// Length of main date loop in frames
-		dateUnitLength = 1;						// How many frames between date increments
-		dateInc = dateCycleLength / 30.f;			
-
-		defaultMediaLength = initDefaultMediaLength;			// Default frame length of media in time cycle
+//		dateCycleLength = 500;					// Length of main date loop in frames
+//		dateUnitLength = 1;						// How many frames between date increments
+//		dateInc = dateCycleLength / 30.f;			
+//
+//		settings.defaultMediaLength = initsettings.defaultMediaLength;			// Default frame length of media in time cycle
 
 		/* Graphics */
 		hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
@@ -637,28 +591,24 @@ public class WMV_World
 		drawForceVector = true;					// Show attraction vector on map (mostly for debugging)
 		
 		/* Video */
-		assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
-		assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
-															// (GeoSynth assumes videographers will take a photo with Theodolite shortly before hitting record,
-															// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
-
 		initializationField = 0;				// Field to be initialized this frame
 		setupProgress = 0;						// Setup progress (0 to 100)
 		
-		/* Model */
-		orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
-		angleFading = true;						// Do photos fade out as the camera turns away from them?
+		/* Viewer */
+//		orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
+//		angleFading = true;						// Do photos fade out as the camera turns away from them?
+//
+//		visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
+//		centeredAngle = visibleAngle / 2.f;		// At what angle is the image centered?
+//		angleThinning = false;					// Thin images and videos of similar orientation
+//		thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
+		/* Model */
 		defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 		subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 		panoramaFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to panorama radius
 		videoFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to video focus distance
-
-		visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
-		centeredAngle = visibleAngle / 2.f;		// At what angle is the image centered?
-		angleThinning = false;					// Thin images and videos of similar orientation
-		thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
-
+		
 		altitudeScaling = true;					// Scale media height by altitude (m.) EXIF field 
 		altitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing	-- Work more on this...
 		
@@ -683,7 +633,6 @@ public class WMV_World
 			PApplet.println("Resetting world...");
 		
 		/* Create main classes */
-//		input.reset();
 		viewer.reset();			// Initialize navigation + viewer
 		display.reset();		// Initialize displays
 
@@ -860,7 +809,7 @@ public class WMV_World
 	public WMV_Cluster getCurrentCluster()
 	{
 		WMV_Cluster c;
-		if(viewer.getCurrentClusterID() < getCurrentField().clusters.size())
+		if(viewer.getCurrentClusterID() > 0 && viewer.getCurrentClusterID() < getCurrentField().clusters.size())
 		{
 			c = getCurrentField().clusters.get(viewer.getCurrentClusterID());
 			return c;
@@ -959,7 +908,7 @@ public class WMV_World
 	 */
 	void decrementTime()
 	{
-		currentTime -= timeInc;
+		currentTime -= settings.timeInc;
 		if (currentTime < 0)
 			currentTime = 0;
 	}
@@ -969,9 +918,9 @@ public class WMV_World
 	 */
 	void incrementTime()
 	{
-		currentTime += timeInc;
-		if (currentTime > timeCycleLength)
-			currentTime = timeCycleLength - 200;
+		currentTime += settings.timeInc;
+		if (currentTime > settings.timeCycleLength)
+			currentTime = settings.timeCycleLength - 200;
 	}
 	
 	/**
@@ -979,10 +928,10 @@ public class WMV_World
 	 */
 	void decrementCycleLength()
 	{
-		if(timeCycleLength - 20 > 40.f)
+		if(settings.timeCycleLength - 20 > 40.f)
 		{
-			timeCycleLength -= 20.f;
-			timeInc = timeCycleLength / 30.f;			
+			settings.timeCycleLength -= 20.f;
+			settings.timeInc = settings.timeCycleLength / 30.f;			
 		}
 	}
 	
@@ -991,10 +940,10 @@ public class WMV_World
 	 */
 	void incrementCycleLength()
 	{
-		if(timeCycleLength + 20 > 1000.f)
+		if(settings.timeCycleLength + 20 > 1000.f)
 		{
-			timeCycleLength += 20.f;
-			timeInc = timeCycleLength / 30.f;			
+			settings.timeCycleLength += 20.f;
+			settings.timeInc = settings.timeCycleLength / 30.f;			
 		}
 	}
 
@@ -1088,21 +1037,21 @@ public class WMV_World
 	{
 		if(timeMode == 0 || timeMode == 1)
 		{
-			timeCycleLength = defaultTimeCycleLength;
+			settings.timeCycleLength = settings.defaultTimeCycleLength;
 		}
 		else if(timeMode == 2)
 		{
 			ArrayList<WMV_Cluster> cl = getVisibleClusters();
-			timeCycleLength = 0;
+			settings.timeCycleLength = 0;
 			
 			for(WMV_Cluster c : cl)						// Time cycle length is flexible according to visible cluster media lengths
 			{
-				timeCycleLength += c.getImages().size() * defaultMediaLength;
-				timeCycleLength += c.getPanoramas().size() * defaultMediaLength;
+				settings.timeCycleLength += c.getImages().size() * settings.defaultMediaLength;
+				settings.timeCycleLength += c.getPanoramas().size() * settings.defaultMediaLength;
 				for(WMV_Video v: c.getVideos())
-					timeCycleLength += PApplet.round( v.getLength() * 29.98f );
+					settings.timeCycleLength += PApplet.round( v.getLength() * 29.98f );
 //				for(WMV_Sound s: c.getSounds())
-//					timeCycleLength += PApplet.round( s.getLength() * 29.98f );
+//					settings.timeCycleLength += PApplet.round( s.getLength() * 29.98f );
 			}
 			
 			if(cl.size() == 1)
@@ -1111,7 +1060,7 @@ public class WMV_World
 				viewer.createNearbyClusterTimeline(cl);
 				
 			if(cl.size() == 0)
-				timeCycleLength = -1;				// Flag for Viewer to keep calling this method until clusters are visible
+				settings.timeCycleLength = -1;				// Flag for Viewer to keep calling this method until clusters are visible
 			else
 				startSingleTimeModeCycle();
 		}
@@ -1131,9 +1080,9 @@ public class WMV_World
 					highest = high;
 			}
 			
-			float val = PApplet.map(highest - lowest, 0.f, 1.f, 0.f, defaultMediaLength);
+			float val = PApplet.map(highest - lowest, 0.f, 1.f, 0.f, settings.defaultMediaLength);
 			if(cl.size() == 0)
-				timeCycleLength = -1;
+				settings.timeCycleLength = -1;
 		}
 	}
 	

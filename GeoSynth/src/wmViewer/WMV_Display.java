@@ -162,7 +162,7 @@ class WMV_Display
 							}
 							else
 							{
-								float fTime = (float) p.currentTime / (float) p.timeCycleLength;
+								float fTime = (float) p.currentTime / (float) p.settings.timeCycleLength;
 								//						PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
 								float fHour = fTime * 24.f;
 								int hour = (int)(fHour);
@@ -229,7 +229,7 @@ class WMV_Display
 				if(messages.size() > 0)
 					displayMessages();
 
-				if(p.showMetadata && metadata.size() > 0 && p.viewer.selection)	
+				if(p.showMetadata && metadata.size() > 0 && p.viewer.settings.selection)	
 					displayMetadata();
 
 //				if((map || mapOverlay) && drawForceVector)						// Draw force vector
@@ -848,7 +848,7 @@ class WMV_Display
 			
 			p.p.text(" Program Modes ", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
-			p.p.text(" Orientation Mode: "+p.orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Orientation Mode: "+p.viewer.settings.orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Alpha Mode:"+p.alphaMode, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Time Fading: "+ p.timeFading, xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
@@ -859,11 +859,11 @@ class WMV_Display
 			p.p.text(" Graphics ", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
 			p.p.text(" Alpha:"+p.alpha, xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" Default Media Length:"+p.defaultMediaLength, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Media Angle Fading: "+p.angleFading, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Media Angle Thinning: "+p.angleThinning, xPos, yPos += lineWidth, hudDistance);
-			if(p.angleThinning)
-				p.p.text(" Media Thinning Angle:"+p.thinningAngle, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Default Media Length:"+p.settings.defaultMediaLength, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Media Angle Fading: "+p.viewer.settings.angleFading, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Media Angle Thinning: "+p.viewer.settings.angleThinning, xPos, yPos += lineWidth, hudDistance);
+			if(p.viewer.settings.angleThinning)
+				p.p.text(" Media Thinning Angle:"+p.viewer.settings.thinningAngle, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Subject Distance (m.):"+p.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
@@ -885,7 +885,7 @@ class WMV_Display
 			p.p.text(" Panoramas Visible: "+f.panoramasVisible, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Videos Visible: "+f.videosVisible, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Videos Playing: "+f.videosPlaying, xPos, yPos += lineWidth, hudDistance);
-			if(p.orientationMode)
+			if(p.viewer.settings.orientationMode)
 				p.p.text(" Clusters Visible: "+p.viewer.clustersVisible+"  (Orientation Mode)", xPos, yPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);

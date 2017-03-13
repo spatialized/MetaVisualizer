@@ -124,13 +124,13 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	void fadeSoundIn()
 	{
-		if(volume < p.p.videoMaxVolume)
+		if(volume < p.p.settings.videoMaxVolume)
 		{
 			fadingVolume = true;
 			volumeFadingStartFrame = p.p.p.frameCount; 
 			volumeFadingStartVal = volume; 
 			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
-			volumeFadingTarget = p.p.videoMaxVolume;
+			volumeFadingTarget = p.p.settings.videoMaxVolume;
 		}
 	}
 	

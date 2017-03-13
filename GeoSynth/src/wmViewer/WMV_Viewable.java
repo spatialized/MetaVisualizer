@@ -270,11 +270,11 @@ public abstract class WMV_Viewable
 	 */
 	float getTimeBrightness()												
 	{
-		int cycleLength = p.p.timeCycleLength;				// Length of main time loop
+		int cycleLength = p.p.settings.timeCycleLength;				// Length of main time loop
 		float centerTime = -1;								// Midpoint of visibility for this media 		
 		float timeBrightness = 0.f;
 
-		float length = p.p.defaultMediaLength;				// Start with default length
+		float length = p.p.settings.defaultMediaLength;				// Start with default length
 
 		int fadeInStart = 0;								// When image starts fading in
 		int fadeInEnd = 0;									// When image reaches full brightness
@@ -332,7 +332,7 @@ public abstract class WMV_Viewable
 			if(lower == upper)						// Only one cluster segment
 			{
 				centerTime = cycleLength / 2.f;
-				length = p.p.timeCycleLength;		// -- Should depend on cluster it belongs to 
+				length = p.p.settings.timeCycleLength;		// -- Should depend on cluster it belongs to 
 
 				if(selected && p.p.p.debug.time && p.p.p.debug.detailed)
 				{
@@ -415,7 +415,7 @@ public abstract class WMV_Viewable
 			{
 				fadeInStart = p.p.viewer.currentMediaStartTime;				// Frame media starts fading in
 				fadeInEnd = PApplet.round(fadeInStart + length / 4.f);		// Frame media reaches full brightness
-				fadeOutEnd = fadeInStart + p.p.defaultMediaLength;									// Frame media finishes fading out
+				fadeOutEnd = fadeInStart + p.p.settings.defaultMediaLength;									// Frame media finishes fading out
 				fadeOutStart = PApplet.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
 			}
 			else

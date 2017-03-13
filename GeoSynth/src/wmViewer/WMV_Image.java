@@ -105,7 +105,7 @@ class WMV_Image extends WMV_Viewable
 		float angleBrightnessFactor;							// Fade with angle
 
 		float brightness = fadingBrightness;					
-		brightness *= p.p.viewer.userBrightness;
+		brightness *= p.p.viewer.settings.userBrightness;
 		
 		distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
@@ -113,7 +113,7 @@ class WMV_Image extends WMV_Viewable
 		if( p.p.timeFading && time != null && !p.p.viewer.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 
-		if( p.p.angleFading )
+		if( p.p.viewer.settings.angleFading )
 		{
 			float imageAngle = getFacingAngle();
 			if(p.p.p.utilities.isNaN(imageAngle))
@@ -133,7 +133,7 @@ class WMV_Image extends WMV_Viewable
 		{
 			if (viewingBrightness > 0)
 			{
-				if(image.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
+				if(image.width > 0 && !p.p.viewer.settings.map3DMode)		// If image has been loaded
 					drawImage();          // Draw the image 
 			}
 		} 
@@ -222,7 +222,7 @@ class WMV_Image extends WMV_Viewable
 //			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
 			visible = false;
 
-			if(p.p.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
+			if(p.p.viewer.settings.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
 				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
@@ -235,7 +235,7 @@ class WMV_Image extends WMV_Viewable
 			}
 			else 
 			{
-				if(p.p.angleFading)
+				if(p.p.viewer.settings.angleFading)
 					visible = isFacingCamera();		
 				else 
 					visible = true;     										 		
@@ -281,7 +281,7 @@ class WMV_Image extends WMV_Viewable
 					visibilitySetToFalse = true;
 			}
 			
-			if(!p.p.angleThinning)
+			if(!p.p.viewer.settings.angleThinning)
 			{
 				if(visibilitySetToTrue && !fading && !fadedOut && !p.hideImages && fadingBrightness == 0.f)			// Fade in
 					fadeIn();
@@ -335,7 +335,7 @@ class WMV_Image extends WMV_Viewable
 		p.p.p.noStroke(); 
 		if (isSelected())     // Draw outline
 		{
-			if(!p.p.viewer.selection && p.p.p.debug.field)
+			if(!p.p.viewer.settings.selection && p.p.p.debug.field)
 			{
 				p.p.p.stroke(155, 146, 255, 255);
 				p.p.p.strokeWeight(outlineSize);
@@ -355,7 +355,7 @@ class WMV_Image extends WMV_Viewable
 		else
 			p.p.p.texture(image);        			// Apply the image to the face as a texture 
 
-		if(p.p.viewer.selection)
+		if(p.p.viewer.settings.selection)
 		{
 			if(isSelected())
 			{
@@ -372,7 +372,7 @@ class WMV_Image extends WMV_Viewable
 					p.p.p.tint(255, viewingBrightness * 0.333f);    
 			}
 		}
-		else if(p.p.viewer.videoMode)
+		else if(p.p.viewer.settings.videoMode)
 		{
 			if(!p.p.alphaMode)
 				p.p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
@@ -408,12 +408,12 @@ class WMV_Image extends WMV_Viewable
 	{
 		float angleBrightness = 0.f;
 
-		if(imageAngle > p.p.visibleAngle)
+		if(imageAngle > p.p.viewer.settings.visibleAngle)
 			angleBrightness = 0.f;
-		else if (imageAngle < p.p.visibleAngle * 0.66f)
+		else if (imageAngle < p.p.viewer.settings.visibleAngle * 0.66f)
 			angleBrightness = 1.f;
 		else
-			angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, p.p.visibleAngle * 0.66f, p.p.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
+			angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, p.p.viewer.settings.visibleAngle * 0.66f, p.p.viewer.settings.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
 
 		return angleBrightness;
 	}
@@ -517,7 +517,7 @@ class WMV_Image extends WMV_Viewable
 
 		if(vertices.length == 0) disabled = true;
 		
-		if(p.p.orientationMode)	
+		if(p.p.viewer.settings.orientationMode)	
 			vertices = translateVertices(vertices, p.p.viewer.getLocation());
 		else
 			vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
@@ -525,7 +525,7 @@ class WMV_Image extends WMV_Viewable
 		disp = getDisplacementVector();
 		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 
-		if(p.p.orientationMode)
+		if(p.p.viewer.settings.orientationMode)
 			location = p.p.viewer.getLocation();
 		else
 			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
@@ -555,7 +555,7 @@ class WMV_Image extends WMV_Viewable
 
 	public PVector getLocation()
 	{
-		if(p.p.orientationMode)
+		if(p.p.viewer.settings.orientationMode)
 		{
 			PVector result = new PVector(location.x, location.y, location.z);
 			result.add(getDisplacementVector());
@@ -688,7 +688,7 @@ class WMV_Image extends WMV_Viewable
 	 */	
 	public boolean isFacingCamera()
 	{
-		return PApplet.abs(getAngleToCamera()) > p.p.visibleAngle;     			// If the result is positive, then it is facing the camera.
+		return PApplet.abs(getAngleToCamera()) > p.p.viewer.settings.visibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 	
 	/**

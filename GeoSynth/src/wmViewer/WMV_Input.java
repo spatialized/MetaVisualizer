@@ -44,7 +44,7 @@ public class WMV_Input
 
 			if (slider.tag == "Brightness") 
 			{
-				p.viewer.userBrightness = slider.getValueF();
+				p.viewer.settings.userBrightness = slider.getValueF();
 			}
 		}
 		
@@ -52,7 +52,7 @@ public class WMV_Input
 		{
 			if (slider.tag == "MediaLength") 
 			{
-				p.defaultMediaLength = slider.getValueI();
+				p.settings.defaultMediaLength = slider.getValueI();
 			}
 		}
 		
@@ -225,7 +225,7 @@ public class WMV_Input
 			/* Selection */
 			case "OpenSelectionWindow":
 				p.display.window.openSelectionWindow();
-				p.viewer.selection = true;
+				p.viewer.settings.selection = true;
 				p.display.window.chkbxSelectionMode.setSelected(true);
 				break;
 
@@ -345,13 +345,13 @@ public class WMV_Input
 				p.alphaMode = option.isSelected();
 				break;
 			case "OrientationMode":
-				p.orientationMode = !p.orientationMode;
+				p.viewer.settings.orientationMode = !p.viewer.settings.orientationMode;
 				break;
 			case "AngleFading":
-				p.angleFading = option.isSelected();
+				p.viewer.settings.angleFading = option.isSelected();
 				break;
 			case "AngleThinning":
-				p.angleThinning = option.isSelected();
+				p.viewer.settings.angleThinning = option.isSelected();
 				break;
 				
 			/* Model */
@@ -370,15 +370,15 @@ public class WMV_Input
 				
 			/* Selection */
 			case "SelectionMode":
-				p.viewer.selection = option.isSelected();
+				p.viewer.settings.selection = option.isSelected();
 				break;
 				
 			case "MultiSelection":
-				p.viewer.multiSelection = option.isSelected();
+				p.viewer.settings.multiSelection = option.isSelected();
 				break;
 					
 			case "SegmentSelection":
-				p.viewer.segmentSelection = option.isSelected();
+				p.viewer.settings.segmentSelection = option.isSelected();
 				break;
 				
 			case "ViewMetadata":
@@ -493,14 +493,14 @@ public class WMV_Input
 
 			if (!optionKey && key == '8') 
 			{
-				if(p.viewer.maxVisibleClusters > 1)
-					p.viewer.maxVisibleClusters--;		// Draw line from each media capture location to associated cluster
+				if(p.viewer.settings.maxVisibleClusters > 1)
+					p.viewer.settings.maxVisibleClusters--;		// Draw line from each media capture location to associated cluster
 			}
 
 			if (!optionKey && key == '9') 
 			{
-				if(p.viewer.maxVisibleClusters < 9)
-					p.viewer.maxVisibleClusters++;		// Draw line from each media capture location to associated cluster
+				if(p.viewer.settings.maxVisibleClusters < 9)
+					p.viewer.settings.maxVisibleClusters++;		// Draw line from each media capture location to associated cluster
 			}
 
 			if (key == '_')
@@ -655,15 +655,15 @@ public class WMV_Input
 
 				if (optionKey && key == '[')
 				{
-					if(p.thinningAngle > PApplet.PI / 64.f)
-						p.thinningAngle -= PApplet.PI / 128.f;
+					if(p.viewer.settings.thinningAngle > PApplet.PI / 64.f)
+						p.viewer.settings.thinningAngle -= PApplet.PI / 128.f;
 					p.getCurrentField().model.analyzeClusterMediaDirections();
 				}
 
 				if (optionKey && key == ']')
 				{
-					if(p.thinningAngle < p.visibleAngle - PApplet.PI / 128.f)
-						p.thinningAngle += PApplet.PI / 128.f;
+					if(p.viewer.settings.thinningAngle < p.viewer.settings.visibleAngle - PApplet.PI / 128.f)
+						p.viewer.settings.thinningAngle += PApplet.PI / 128.f;
 					p.getCurrentField().model.analyzeClusterMediaDirections();
 				}
 
@@ -747,8 +747,8 @@ public class WMV_Input
 
 				if (key == 'I')
 				{
-					boolean state = !p.orientationMode;
-					p.orientationMode = state;
+					boolean state = !p.viewer.settings.orientationMode;
+					p.viewer.settings.orientationMode = state;
 					if(p.display.window.setupGraphicsWindow)
 						p.display.window.chkbxOrientationMode.setSelected(state);
 				}
@@ -925,29 +925,29 @@ public class WMV_Input
 
 					if (key == ':')
 					{
-						p.showUserPanoramas = !p.showUserPanoramas;
+						p.settings.showUserPanoramas = !p.settings.showUserPanoramas;
 					}
 
 					if (key == ';')
 					{
-						p.showStitchedPanoramas = !p.showStitchedPanoramas;
+						p.settings.showStitchedPanoramas = !p.settings.showStitchedPanoramas;
 					}
 
 					if (key == 'O') 
 					{
-						p.viewer.selection = !p.viewer.selection;
+						p.viewer.settings.selection = !p.viewer.settings.selection;
 						if(p.display.window.setupSelectionWindow)
-							p.display.window.chkbxSelectionMode.setSelected(p.viewer.selection);
+							p.display.window.chkbxSelectionMode.setSelected(p.viewer.settings.selection);
 
-						if(p.viewer.selection && p.viewer.multiSelection)
+						if(p.viewer.settings.selection && p.viewer.settings.multiSelection)
 						{
-							p.viewer.multiSelection = false;
+							p.viewer.settings.multiSelection = false;
 							if(p.display.window.setupSelectionWindow)
 								p.display.window.chkbxMultiSelection.setSelected(false);
 						}
-						if(p.viewer.selection && p.viewer.segmentSelection) 
+						if(p.viewer.settings.selection && p.viewer.settings.segmentSelection) 
 						{
-							p.viewer.segmentSelection = false;
+							p.viewer.settings.segmentSelection = false;
 							if(p.display.window.setupSelectionWindow)
 								p.display.window.chkbxSegmentSelection.setSelected(false);
 						}
@@ -957,10 +957,10 @@ public class WMV_Input
 						p.getCurrentField().deselectAllMedia(false);
 
 					if (optionKey && key == '-')
-						p.visibleAngle -= 3.1415f / 128.f; 
+						p.viewer.settings.visibleAngle -= 3.1415f / 128.f; 
 
 					if (optionKey && key == '=')
-						p.visibleAngle += 3.1415f / 128.f; 
+						p.viewer.settings.visibleAngle += 3.1415f / 128.f; 
 
 					/* Selection */
 					if (!optionKey && key == 'x') 
@@ -971,16 +971,16 @@ public class WMV_Input
 
 					if (key == 'S')
 					{
-						p.viewer.multiSelection = !p.viewer.multiSelection;
-						if(p.viewer.multiSelection && !p.viewer.selection)
-							p.viewer.selection = true;
+						p.viewer.settings.multiSelection = !p.viewer.settings.multiSelection;
+						if(p.viewer.settings.multiSelection && !p.viewer.settings.selection)
+							p.viewer.settings.selection = true;
 					}
 
 					if (optionKey && key == 's')
 					{
-						p.viewer.segmentSelection = !p.viewer.segmentSelection;
-						if(p.viewer.segmentSelection && !p.viewer.selection)
-							p.viewer.selection = true;
+						p.viewer.settings.segmentSelection = !p.viewer.settings.segmentSelection;
+						if(p.viewer.settings.segmentSelection && !p.viewer.settings.selection)
+							p.viewer.settings.selection = true;
 					}
 
 					/* GPS */
@@ -997,8 +997,8 @@ public class WMV_Input
 					/* Graphics */
 					if (key == 'G')
 					{
-						boolean state = !p.angleFading;
-						p.angleFading = state;
+						boolean state = !p.viewer.settings.angleFading;
+						p.viewer.settings.angleFading = state;
 						if(p.display.window.setupGraphicsWindow)
 						{
 							p.display.window.chkbxAngleFading.setSelected(state);
@@ -1007,8 +1007,8 @@ public class WMV_Input
 
 					if (key == 'H')
 					{
-						boolean state = !p.angleThinning;
-						p.angleThinning = state;
+						boolean state = !p.viewer.settings.angleThinning;
+						p.viewer.settings.angleThinning = state;
 						if(p.display.window.setupGraphicsWindow)
 						{
 							p.display.window.chkbxAngleThinning.setSelected(state);
@@ -1027,14 +1027,14 @@ public class WMV_Input
 
 					if (key == '&') 
 					{
-						if(p.p.world.defaultMediaLength > 10)
-							p.p.world.defaultMediaLength -= 10;
+						if(p.p.world.settings.defaultMediaLength > 10)
+							p.p.world.settings.defaultMediaLength -= 10;
 					}
 
 					if (key == '*') 			// Look for images when none are visible
 					{
-						if(p.p.world.defaultMediaLength < 990)
-							p.p.world.defaultMediaLength += 10;
+						if(p.p.world.settings.defaultMediaLength < 990)
+							p.p.world.settings.defaultMediaLength += 10;
 					}
 				}
 			}
@@ -1354,7 +1354,7 @@ public class WMV_Input
 		boolean doubleClick = false, switchedViews = false;
 
 //			PApplet.println("MousePressed!");
-		if(!p.orientationMode && p.viewer.lastMovementFrame > 5)
+		if(!p.viewer.settings.orientationMode && p.viewer.lastMovementFrame > 5)
 		{
 			if(mouseX > p.p.width * 0.25 && mouseX < p.p.width * 0.75 && mouseY < p.p.height * 0.75 && mouseY > p.p.height * 0.25)
 			{
@@ -1385,7 +1385,7 @@ public class WMV_Input
 			doubleClick = true;
 		}
 
-		if(p.viewer.mouseNavigation)
+		if(p.viewer.settings.mouseNavigation)
 		{
 			p.viewer.walkSlower();
 			p.viewer.lastMovementFrame = p.p.frameCount;

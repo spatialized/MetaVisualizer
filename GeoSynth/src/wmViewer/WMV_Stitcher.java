@@ -86,7 +86,7 @@ public class WMV_Stitcher
 		boolean reduce = false;								// Reduce images to try to force stitching
 		int count = 0;
 		
-		while(imageList.size() > p.maxStitchingImages)		// Remove images above maximum number
+		while(imageList.size() > p.settings.maxStitchingImages)		// Remove images above maximum number
 			imageList.remove(imageList.size()-1);			
 
 		String[] images = getImageNames(imageList);				
@@ -129,7 +129,7 @@ public class WMV_Stitcher
 						if(p.p.debug.stitching) p.display.message("Error #" + status + " couldn't stitch panorama...");
 						if(status == 3)				// Error estimating camera parameters
 						{
-							if(p.persistentStitching) reduce = true;
+							if(p.settings.persistentStitching) reduce = true;
 							else end = true;
 						}
 						else

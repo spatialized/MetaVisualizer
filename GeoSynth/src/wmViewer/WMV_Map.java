@@ -313,9 +313,12 @@ public class WMV_Map
 				if(selectedCluster != p.p.viewer.getCurrentClusterID() && p.p.viewer.getCurrentClusterID() >= 0)
 				{
 					WMV_Cluster c = p.p.getCurrentCluster();
-					if(!c.isEmpty() && c.mediaPoints != 0)
-						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaPoints)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
-					drawClusterMedia(c, mapWidth, mapHeight, false);
+					if(c != null)
+					{
+						if(!c.isEmpty() && c.mediaPoints != 0)
+							highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaPoints)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+						drawClusterMedia(c, mapWidth, mapHeight, false);
+					}
 				}
 			}
 			else
@@ -331,9 +334,13 @@ public class WMV_Map
 				if(p.p.viewer.getAttractorCluster() != -1 && p.p.viewer.getAttractorCluster() < p.p.getFieldClusters().size())
 					drawPoint( p.p.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
 
-				if(p.p.viewer.getCurrentClusterID() != -1 && p.p.viewer.getCurrentClusterID() < p.p.getFieldClusters().size())
-					drawPoint( p.p.getCurrentCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
-
+				WMV_Cluster c = p.p.getCurrentCluster();
+				if(c != null)
+				{
+					if(p.p.viewer.getCurrentClusterID() != -1 && p.p.viewer.getCurrentClusterID() < p.p.getFieldClusters().size())
+						drawPoint( c.getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mapMediaTransparency );
+				}
+				
 				drawViewer(mapWidth, mapHeight);
 			}
 

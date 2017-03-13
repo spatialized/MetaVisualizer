@@ -97,7 +97,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if(texture.width > 0 && !disabled)			
 		{
-			if(p.p.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+			if(p.p.viewer.settings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
 				for(int id : p.p.viewer.clustersVisible)
 				{
@@ -117,7 +117,8 @@ public class WMV_Panorama extends WMV_Viewable
 
 			if(visible && !fading && !fadedOut && !p.hidePanoramas && fadingBrightness == 0.f)					// Fade in
 			{
-				PApplet.println("fadeIn()...pano id:"+getID());
+				if(p.p.p.debug.panorama)
+					PApplet.println("fadeIn()...pano id:"+getID());
 				fadeIn();
 			}
 
@@ -146,7 +147,7 @@ public class WMV_Panorama extends WMV_Viewable
 	public void draw()
 	{
 		float brightness = fadingBrightness;					
-		brightness *= p.p.viewer.userBrightness;
+		brightness *= p.p.viewer.settings.userBrightness;
 
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
@@ -160,7 +161,7 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			if (viewingBrightness > 0)
 			{
-				if(texture.width > 0 && !p.p.viewer.map3DMode)		// If image has been loaded
+				if(texture.width > 0 && !p.p.viewer.settings.map3DMode)		// If image has been loaded
 				{
 					drawPanorama();
 				}
@@ -173,7 +174,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if (visible && isSelected() && !disabled && p.p.p.debug.model)		// Draw panorama location for debugging or map display
 			drawLocation(centerSize);
-		if (visible && !disabled && p.p.viewer.map3DMode)
+		if (visible && !disabled && p.p.viewer.settings.map3DMode)
 			drawLocation(centerSize);
 	}
 
@@ -251,7 +252,7 @@ public class WMV_Panorama extends WMV_Viewable
 //		PApplet.println("p.p.alphaMode:"+p.p.alphaMode);
 
 		/* Set the panorama brightness */		
-		if(p.p.viewer.selection)					// Viewer in selection mode
+		if(p.p.viewer.settings.selection)					// Viewer in selection mode
 		{
 			if(isSelected())
 			{
@@ -412,7 +413,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if(!p.p.p.debug.lowMemory)			// Check enough memory available
 		{
-			if(p.p.orientationMode)
+			if(p.p.viewer.settings.orientationMode)
 				location = p.p.viewer.getLocation();
 			else
 				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
@@ -468,7 +469,7 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		PVector camLoc;
 
-		if(p.p.orientationMode)
+		if(p.p.viewer.settings.orientationMode)
 			camLoc = p.p.viewer.getLocation();
 		else
 			camLoc = p.p.viewer.getLocation();

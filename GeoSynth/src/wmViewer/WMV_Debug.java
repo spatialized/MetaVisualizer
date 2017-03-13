@@ -13,10 +13,10 @@ public class WMV_Debug
 	public boolean print = true;				// Print all user messages
 	
 	/* Classes */
-	public boolean main = false;				// Debug main WorldMediaViewer class
-	public boolean viewer = true;				// Debug WMV_Viewer class
+	public boolean main = false;				// Debug WorldMediaViewer class
+	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean field = false;				// Debug WMV_Field class
-	public boolean time = false;
+	public boolean time = false;				// Debug WMV_Time class
 	public boolean model = false;				// Debug WMV_Model class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean display = false;				// Debug WMV_Display class
@@ -27,7 +27,7 @@ public class WMV_Debug
 	public boolean sound = true;				// Debug WMV_Sound class
 	public boolean metadata = false;			// Debug WMV_Metadata class
 	public boolean stitching = false;			// Debug WMV_Stitcher class
-	public boolean map = false;
+	public boolean map = false;					// Debug WMV_Map class
 	
 	/* Memory */
 	boolean lowMemory = false;

@@ -188,13 +188,13 @@ public class WMV_Field
 //			}
 //		}
 
-		if(p.p.debug.model || p.viewer.map3DMode)
+		if(p.p.debug.model || p.viewer.settings.map3DMode)
 		{
 			if(clusters.size()>0)
 				showClusterCenters();									// Display field cluster centers (media capture locations) 	
 		}
 		
-		if(p.showUserPanoramas || p.showStitchedPanoramas)
+		if(p.settings.showUserPanoramas || p.settings.showStitchedPanoramas)
 		{
 			if(clusters.size()>0)
 				clusters.get(p.viewer.getCurrentClusterID()).draw();		// Draw current cluster
@@ -1023,7 +1023,7 @@ public class WMV_Field
 
 					if(clusterMediaTimes.size() > 0)
 					{
-						ArrayList<WMV_TimeSegment> clusterTimeline = calculateTimeSegments(clusterMediaTimes, c.getID(), p.clusterTimePrecision);
+						ArrayList<WMV_TimeSegment> clusterTimeline = calculateTimeSegments(clusterMediaTimes, c.getID(), p.settings.clusterTimePrecision);
 						for(WMV_TimeSegment ts : clusterTimeline)
 							dateTimeline.add(ts);
 					}

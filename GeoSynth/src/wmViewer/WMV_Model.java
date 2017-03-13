@@ -82,12 +82,12 @@ public class WMV_Model
 	WMV_Model(WMV_Field parent)
 	{
 		p = parent;
+		
 		clustersByDepth = new IntList();
 		clusteringRandomSeed = (long) p.p.p.random(1000.f);
 	}
 
 	/**
-	 * setup()
 	 * Initialize virtual space based on media GPS capture locations
 	 */
 	void setup()		 // Initialize field 

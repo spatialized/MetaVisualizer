@@ -564,7 +564,7 @@ public class WMV_Viewer
 					if(count > 3) break;
 				}
 
-				if(p.getCurrentField().clusters.get(next).mediaPoints != 0)
+				if(p.getCurrentField().clusters.get(next).mediaCount != 0)
 					PApplet.println("Error: Cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 
@@ -596,7 +596,7 @@ public class WMV_Viewer
 					}
 				}
 				
-				if(p.getCurrentField().clusters.get(next).isEmpty() && p.getCurrentField().clusters.get(next).mediaPoints != 0)		// Testing
+				if(p.getCurrentField().clusters.get(next).isEmpty() && p.getCurrentField().clusters.get(next).mediaCount != 0)		// Testing
 					PApplet.println("Error: Panorama cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 			
@@ -633,7 +633,7 @@ public class WMV_Viewer
 					}
 				}
 				
-				if(p.getCurrentField().clusters.get(next).isEmpty() && p.getCurrentField().clusters.get(next).mediaPoints != 0)		// Testing
+				if(p.getCurrentField().clusters.get(next).isEmpty() && p.getCurrentField().clusters.get(next).mediaCount != 0)		// Testing
 					PApplet.println("Error: Video cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 			

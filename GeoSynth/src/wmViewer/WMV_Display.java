@@ -57,7 +57,8 @@ class WMV_Display
 	float leftTextXOffset, rightTextXOffset, metadataYOffset, startupMessageYOffset;
 	float midLeftTextXOffset, midRightTextXOffset;
 	float clusterImageXOffset, clusterImageYOffset;
-	
+
+	final float veryLargeTextSize = 32.f;
 	final float largeTextSize = 28.f;
 	final float mediumTextSize = 22.f;
 	final float smallTextSize = 18.f;
@@ -84,7 +85,7 @@ class WMV_Display
 		rightTextXOffset = p.p.width / 2.f;
 		midRightTextXOffset = p.p.width / 3.f;
 
-		topTextYOffset = -p.p.height / 1.5f;
+		topTextYOffset = -p.p.height / 1.6f;
 		clusterImageXOffset = -p.p.width/ 1.66f;
 		clusterImageYOffset = p.p.height / 3.75f;
 
@@ -150,12 +151,12 @@ class WMV_Display
 							}
 							else
 							{
-								float fTime = (float) p.currentTime / (float) p.settings.timeCycleLength;
-								//						PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
-								float fHour = fTime * 24.f;
-								int hour = (int)(fHour);
-								int min = PApplet.round((fHour - hour) * 60);
-								window.lblCurrentTime.setText((hour==0?"00":hour)+":"+(min==0?"00":min));
+								/* Time display in Time Window */
+//								float fTime = (float) p.currentTime / (float) p.settings.timeCycleLength;
+//								float fHour = fTime * 24.f;
+//								int hour = (int)(fHour);
+//								int min = PApplet.round((fHour - hour) * 60);
+//								window.lblCurrentTime.setText((hour==0?"00":hour)+":"+(min==0?"00":min));
 							}
 						}
 					}
@@ -877,7 +878,7 @@ class WMV_Display
 			p.p.text(" GPS Longitude: "+p.viewer.getGPSLocation().x+" Latitude:"+p.viewer.getGPSLocation().y, xPos, yPos += lineWidth, hudDistance);		
 
 			p.p.text(" Current Cluster: "+p.viewer.getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text("   Media Points: "+c.mediaPoints, xPos, yPos += lineWidth, hudDistance);
+			p.p.text("   Media Points: "+c.mediaCount, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Media Segments: "+p.getCurrentCluster().segments.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), xPos, yPos += lineWidth, hudDistance);
@@ -885,7 +886,7 @@ class WMV_Display
 			if(p.viewer.getAttractorCluster() != -1)
 			{
 				p.p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Destination Media Points: "+p.getCluster(p.viewer.getAttractorCluster()).mediaPoints, xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Destination Media Points: "+p.getCluster(p.viewer.getAttractorCluster()).mediaCount, xPos, yPos += lineWidth, hudDistance);
 				p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
 			}
 
@@ -971,39 +972,51 @@ class WMV_Display
 
 		p.p.fill(0, 0, 255, 255);
 
+		p.p.textSize(veryLargeTextSize);
+		p.p.text(""+p.getCurrentField().name, textXPos, textYPos, hudDistance);
+//		p.p.text(" Cluster View", textXPos, textYPos, hudDistance);
+
+		p.p.textSize(largeTextSize);
+		WMV_Cluster cl = p.getCurrentCluster();
+		p.p.text(" Cluster #"+ c.getID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(mediumTextSize);
-		p.p.text(""+p.getCurrentField().name+ " Media Clusters", textXPos, textYPos, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", textXPos, textYPos += lineWidth, hudDistance);
-		if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Minimum Distance: "+p.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Maximum Distance: "+p.maxClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Population Factor: "+f.model.clusterPopulationFactor, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" ID: "+ c.getID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" Location: "+ c.getLocation(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Media Points: "+ c.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Media Segments: "+ c.segments.size(), textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Media Count: "+ c.mediaCount, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		if(c.images.size() > 0)
+			p.p.text("     Images: "+ c.images.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		if(c.panoramas.size() > 0)
+			p.p.text("     Panoramas: "+ c.panoramas.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		if(c.videos.size() > 0)
+			p.p.text("     Videos: "+ c.videos.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+//		if(c.sounds.size() > 0)
+//			p.p.text("     Sounds: "+ c.sounds.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+//		p.p.text("     Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
+//		p.p.text("     Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);
+//		p.p.text("     Empty: "+ c.isEmpty(), textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Location: "+ c.getLocation(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Media Segments: "+ c.segments.size(), textXPos, textYPos += lineWidth, hudDistance);
 		
 		if(c.timeline.size() > 0)
 			p.p.text(" Timeline Segments: "+ c.timeline.size(), textXPos, textYPos += lineWidthWide, hudDistance);
 		if(c.dateline != null)
 			if(c.dateline.size() > 0)
 				p.p.text(" Dateline Segments: "+ c.dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Empty: "+ c.isEmpty(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
 
-		WMV_Cluster cl = p.getCurrentCluster();
+		p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
+
 		p.p.text(" Current Cluster ID: "+p.viewer.getCurrentClusterID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-		p.p.text("   Media Points: "+cl.mediaPoints, textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Media Count: "+cl.mediaCount, textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
-		
+
+		p.p.text(" Field Cluster Count:"+(f.clusters.size()-f.model.mergedClusters), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.p.text("   Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", textXPos, textYPos += lineWidth, hudDistance);
+		if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Minimum Distance: "+p.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Maximum Distance: "+p.maxClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Population Factor: "+f.model.clusterPopulationFactor, textXPos, textYPos += lineWidth, hudDistance);
+
 		if(p.viewer.getAttractorCluster() != -1)
 		{
 			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), textXPos, textYPos += lineWidth, hudDistance);
@@ -1073,31 +1086,27 @@ class WMV_Display
 	
 	public void setDisplayView(int newDisplayView)
 	{
-//		PApplet.println("newDisplayView:"+newDisplayView);
 		switch(newDisplayView)
 		{
 			case 0:	
 				displayView = 0;
-//				PApplet.println("window.optSceneView before:"+window.optSceneView.isSelected());
 				window.optSceneView.setSelected(true);
 				window.optMapView.setSelected(false);
 				window.optClusterView.setSelected(false);
-//				PApplet.println("window.optSceneView after:"+window.optSceneView.isSelected());
 				break;
 			case 1:	
 				displayView = 1;
 				if(!initializedMaps) map2D.initializeMaps();
-//				PApplet.println("window.optMapView before:"+window.optMapView.isSelected());
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(true);
 				window.optClusterView.setSelected(false);
-//				PApplet.println("window.optMapView after:"+window.optMapView.isSelected());
 				break;
 			case 2:	
 				displayView = 2;
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(false);
 				window.optClusterView.setSelected(true);
+				displayCluster = p.viewer.getCurrentClusterID();
 				break;
 		}
 	}

@@ -70,7 +70,7 @@ public class WMV_Cluster
 	private int numSegments = 0;						// Number of segments of the cluster
 	
 	/* Media */
-	public float mediaPoints;			// No. of points (photos) associated with this cluster
+	public int mediaCount;			// No. of media associated with this cluster
 	public IntList images;			// Images associated with this cluster
 	public IntList panoramas;			// Panoramas associated with this cluster
 	public IntList videos;			// Videos associated with this cluster
@@ -118,7 +118,7 @@ public class WMV_Cluster
 		
 		stitchedPanoramas = new ArrayList<WMV_Panorama>();
 		userPanoramas = new ArrayList<WMV_Panorama>();
-		mediaPoints = 0;
+		mediaCount = 0;
 
 		timeline = new ArrayList<WMV_TimeSegment>();
 	}
@@ -321,7 +321,7 @@ public class WMV_Cluster
 		if(!images.hasValue(newImage.getID()))
 		{
 			images.append(newImage.getID());
-			mediaPoints++;
+			mediaCount++;
 //			clusterMass = mediaPoints * p.p.mediaPointMass;	
 		}
 	}
@@ -337,7 +337,7 @@ public class WMV_Cluster
 		if(!panoramas.hasValue(newPanorama.getID()))
 		{
 			panoramas.append(newPanorama.getID());
-			mediaPoints++;
+			mediaCount++;
 //			clusterMass = mediaPoints * 25.f * p.p.mediaPointMass;			
 		}
 	}
@@ -351,7 +351,7 @@ public class WMV_Cluster
 		if(!videos.hasValue(newVideo.getID()))
 		{
 			videos.append(newVideo.getID());
-			mediaPoints++;
+			mediaCount++;
 //			clusterMass = mediaPoints * p.p.mediaPointMass;		
 		}
 	}
@@ -364,7 +364,7 @@ public class WMV_Cluster
 		images = new IntList();
 		panoramas = new IntList();
 		videos = new IntList();
-		mediaPoints = 0;
+		mediaCount = 0;
 		active = false;
 		empty = true;
 	}
@@ -374,7 +374,7 @@ public class WMV_Cluster
 	 */
 	void create() 						
 	{			
-		mediaPoints = 0;
+		mediaCount = 0;
 
 		PVector newLocation = new PVector((float)0.0, (float)0.0, (float)0.0);
 		empty();
@@ -390,7 +390,7 @@ public class WMV_Cluster
 				if(!images.hasValue(curImg.getID()))
 				{
 					images.append(curImg.getID());
-					mediaPoints++;
+					mediaCount++;
 				}
 			}
 		}
@@ -412,7 +412,7 @@ public class WMV_Cluster
 					}
 
 					panoramas.append(curPano.getID());
-					mediaPoints++;
+					mediaCount++;
 				}
 			}
 		}
@@ -428,15 +428,15 @@ public class WMV_Cluster
 				if(!videos.hasValue(curVid.getID()))
 				{
 					videos.append(curVid.getID());
-					mediaPoints++;
+					mediaCount++;
 				}
 			}
 		}
 
 		/* Divide by number of associated points */
-		if (mediaPoints > 0) 				
+		if (mediaCount > 0) 				
 		{
-			newLocation.div(mediaPoints);
+			newLocation.div(mediaCount);
 			location = newLocation;
 
 //			clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
@@ -475,7 +475,7 @@ public class WMV_Cluster
 			break;
 		}
 		
-		mediaPoints = 1;
+		mediaCount = 1;
 //		clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
 
 		active = true;
@@ -944,7 +944,7 @@ public class WMV_Cluster
 		cluster.images = new IntList();
 		cluster.panoramas = new IntList();
 		cluster.videos = new IntList();
-		cluster.mediaPoints = 0;
+		cluster.mediaCount = 0;
 		cluster.active = false;
 		cluster.empty = true;
 	}
@@ -1208,7 +1208,7 @@ public class WMV_Cluster
 		{
 			if(p.p.p.debug.cluster || p.p.p.debug.time)
 			{
-				PApplet.println("Cluster #"+getID()+" has no dateline but has "+mediaPoints+" media points!!");
+				PApplet.println("Cluster #"+getID()+" has no dateline but has "+mediaCount+" media points!!");
 			}
 			return null;
 		}
@@ -1511,7 +1511,7 @@ public class WMV_Cluster
 		else
 		{
 			if(p.p.p.debug.time)
-				PApplet.println("cluster:"+getID()+" getTimeSegments() == null but has mediaPoints:"+mediaPoints);
+				PApplet.println("cluster:"+getID()+" getTimeSegments() == null but has mediaPoints:"+mediaCount);
 			return null;		
 		}
 	}

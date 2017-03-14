@@ -1249,17 +1249,17 @@ public class WMV_Model
 		 for( int i : images )
 		 {
 			 gmvc.addImage(p.images.get(i));
-			 gmvc.mediaPoints++;
+			 gmvc.mediaCount++;
 		 }
 		 for( int n : panoramas )
 		 {
 			 gmvc.addPanorama(p.panoramas.get(n));
-			 gmvc.mediaPoints++;
+			 gmvc.mediaCount++;
 		 }
 		 for( int v : videos )
 		 {
 			 gmvc.addVideo(p.videos.get(v));
-			 gmvc.mediaPoints++;
+			 gmvc.mediaCount++;
 		 }
 
 		 /* Check whether the cluster is a single media cluster */

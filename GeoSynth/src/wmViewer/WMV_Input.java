@@ -1,4 +1,6 @@
 package wmViewer;
+import java.awt.Toolkit;
+
 import g4p_controls.GButton;
 import g4p_controls.GCheckbox;
 import g4p_controls.GEvent;
@@ -18,6 +20,9 @@ public class WMV_Input
 	public boolean wasTimeFading;
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
+	public boolean commandKey = false;
+	final public int COMMAND_KEY = 157;
+	
 	private int mouseClickedX = 0, mouseClickedY = 0;
 //	private int mouseOffsetX = 0, mouseOffsetY = 0;
 	
@@ -72,29 +77,6 @@ public class WMV_Input
 	{ 
 		switch(button.tag) 
 		{
-			/* General */
-//			case "Scene":
-//				p.display.resetDisplayModes();
-//				break;
-//			case "Map":
-//				if(!p.display.initializedMaps)
-//					p.display.map2D.initializeMaps();
-//				p.display.resetDisplayModes();
-//				p.display.map = true;
-//				break;
-//			case "Info":
-//				p.display.resetDisplayModes();
-//				p.display.info = true;
-//				break;
-//			case "Cluster":
-//				p.display.resetDisplayModes();
-//				p.display.cluster = true;
-//				break;
-//			case "Control":
-//				p.display.resetDisplayModes();
-//				p.display.control = true;
-//				break;
-	
 			case "Restart":
 				p.p.restartWorldMediaViewer();
 				break;
@@ -105,7 +87,8 @@ public class WMV_Input
 				break;
 
 			case "CloseNavigationWindow":
-				p.display.window.navigationWindow.setVisible(false);
+				p.display.window.hideNavigationWindow();
+//				p.display.window.navigationWindow.setVisible(false);
 				break;
 	
 			case "NearestCluster":
@@ -168,7 +151,8 @@ public class WMV_Input
 				break;
 				
 			case "CloseHelpWindow":
-				p.display.window.helpWindow.setVisible(false);
+				p.display.window.hideHelpWindow();
+//				p.display.window.helpWindow.setVisible(false);
 				break;
 				
 				/* Memory */
@@ -177,7 +161,8 @@ public class WMV_Input
 				break;
 				
 			case "CloseMemoryWindow":
-				p.display.window.memoryWindow.setVisible(false);
+				p.display.window.hideMemoryWindow();
+//				p.display.window.memoryWindow.setVisible(false);
 				break;
 				
 				/* Statistics */
@@ -186,7 +171,8 @@ public class WMV_Input
 				break;
 				
 			case "CloseStatisticsWindow":
-				p.display.window.statisticsWindow.setVisible(false);
+				p.display.window.hideStatisticsWindow();
+//				p.display.window.statisticsWindow.setVisible(false);
 				break;
 
 				/* Time */
@@ -195,7 +181,8 @@ public class WMV_Input
 				break;
 				
 			case "CloseTimeWindow":
-				p.display.window.graphicsWindow.setVisible(false);
+				p.display.window.hideTimeWindow();
+//				p.display.window.graphicsWindow.setVisible(false);
 				break;
 				
 				/* Graphics */
@@ -204,7 +191,8 @@ public class WMV_Input
 				break;
 				
 			case "CloseGraphicsWindow":
-				p.display.window.graphicsWindow.setVisible(false);
+				p.display.window.hideGraphicsWindow();
+//				p.display.window.graphicsWindow.setVisible(false);
 				break;
 
 			case "ZoomIn":
@@ -451,81 +439,35 @@ public class WMV_Input
 			}
 
 			/* Display Modes */
-			if (!optionKey && key == '1') 
+			if (!optionKey && !commandKey && key == '1') 
 			{
 				if(!p.display.initializedMaps)
 					p.display.map2D.initializeMaps();
 
-//				boolean state = p.display.map;
-//				p.display.resetDisplayModes();
-//				p.display.map = !state;
-				
 				p.display.setDisplayView(0);
-//				p.display.displayView = 1;
 			}
 
-			if (!optionKey && key == '!') 
-			{
-				//			if(!p.display.initializedMaps)
-				//				p.display.map2D.initializeMaps();
-				//
-				//			boolean state = p.display.mapOverlay;
-				//			p.display.resetDisplayModes();
-				//			p.display.mapOverlay = !state;
-			}
-
-			if (!optionKey && key == '2') 
-			{
-//				boolean state = p.display.info;
-//				p.display.resetDisplayModes();
-//				p.display.info = !state;
-				PApplet.println("key setDisplayView(1)...");
+			if (!optionKey && !commandKey && key == '2') 
 				p.display.setDisplayView(1);
-			}
 
-			if (!optionKey && key == '@') 
-			{
-				//			boolean state = p.display.infoOverlay;
-				//			p.display.resetDisplayModes();
-				//			p.display.infoOverlay = !state;
-			}
-
-			if (!optionKey && key == '3') 
-			{
-//				boolean state = p.display.cluster;
-//				p.display.resetDisplayModes();
-//				p.display.cluster = !state;
+			if (!optionKey && !commandKey && key == '3') 
 				p.display.setDisplayView(2);
-			}
 
-			if (!optionKey && key == '#') 
+			if (!optionKey && shiftKey && key == '4') 
 			{
-				//			boolean state = p.display.clusterOverlay;
-				//			p.display.resetDisplayModes();
-				//			p.display.clusterOverlay = !state;
+				boolean state = !p.showModel;
+				p.showModel = state;
+				if(p.display.window.setupGraphicsWindow)
+					p.display.window.chkbxShowModel.setSelected(state);
 			}
 
-			if (!optionKey && key == '4') 
-			{
-//				boolean state = p.display.control;
-//				p.display.resetDisplayModes();
-//				p.display.control = !state;
-			}
-
-			if (!optionKey && key == '$') 
-			{
-				//			boolean state = p.display.controlOverlay;
-				//			p.display.resetDisplayModes();
-				//			p.display.controlOverlay = !state;
-			}
-
-			if (!optionKey && key == '5') 
+			if (!optionKey && shiftKey && key == '5') 
 				p.showMediaToCluster = !p.showMediaToCluster;			// Draw line from each media point to cluster
 
-			if (!optionKey && key == '6') 
+			if (!optionKey && shiftKey && key == '6') 
 				p.showCaptureToMedia = !p.showCaptureToMedia;			// Draw line from each media point to its capture location
 
-			if (!optionKey && key == '7') 
+			if (!optionKey && shiftKey && key == '7') 
 				p.showCaptureToCluster = !p.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
 			if (!optionKey && key == '8') 
@@ -540,12 +482,68 @@ public class WMV_Input
 					p.viewer.settings.maxVisibleClusters++;		// Draw line from each media capture location to associated cluster
 			}
 
-			if (key == '_')
+			if (!optionKey && commandKey && key == '1') 
 			{
-				boolean state = !p.showModel;
-				p.showModel = state;
-				if(p.display.window.setupGraphicsWindow)
-					p.display.window.chkbxShowModel.setSelected(state);
+				if(!p.display.window.showNavigationWindow)
+					p.display.window.openNavigationWindow();
+				else
+					p.display.window.hideNavigationWindow();
+			}
+
+			if (!optionKey && commandKey && key == '2') 
+			{
+				if(!p.display.window.showTimeWindow)
+					p.display.window.openTimeWindow();
+				else
+					p.display.window.hideTimeWindow();
+			}
+
+			if (!optionKey && commandKey && key == '3') 
+			{
+				if(!p.display.window.showGraphicsWindow)
+					p.display.window.openGraphicsWindow();
+				else
+					p.display.window.hideGraphicsWindow();
+			}
+
+			if (!optionKey && commandKey && key == '4') 
+			{
+				if(!p.display.window.showModelWindow)
+					p.display.window.openModelWindow();
+				else
+					p.display.window.hideModelWindow();
+			}
+
+			if (!optionKey && commandKey && key == '5') 
+			{
+				if(!p.display.window.showMemoryWindow)
+					p.display.window.openMemoryWindow();
+				else
+					p.display.window.hideMemoryWindow();
+			}
+
+			if (!optionKey && commandKey && key == '6') 
+			{
+				if(!p.display.window.showSelectionWindow)
+					p.display.window.openSelectionWindow();
+				else
+					p.display.window.hideSelectionWindow();
+			}
+
+			if (!optionKey && commandKey && key == '7') 
+			{
+				if(!p.display.window.showStatisticsWindow)
+					p.display.window.openStatisticsWindow();
+				else
+					p.display.window.hideStatisticsWindow();
+			}
+			
+			if (!optionKey && commandKey && key == '8') 
+			{
+				if(!p.display.window.showHelpWindow)
+					p.display.window.openHelpWindow();
+				else
+					p.display.window.hideHelpWindow();
 			}
 
 			if (key == '+')
@@ -861,13 +859,16 @@ public class WMV_Input
 				if (key == 'U') 		// Go to nearest cluster with video
 					p.viewer.moveToNextCluster(false, 2);
 
-				if (key == 'm') 		// Teleport to nearest cluster with panorama
-					p.viewer.moveToNextCluster(true, 1);
+//				if (key == 'm') 		// Teleport to nearest cluster with panorama
+//					p.viewer.moveToNextCluster(true, 1);
+//
+//				if (key == 'M') 		// Go to nearest cluster with panorama
+//					p.viewer.moveToNextCluster(false, 1);
 
-				if (key == 'M') 		// Go to nearest cluster with panorama
-					p.viewer.moveToNextCluster(false, 1);
+				if (key == 'm') 
+					p.viewer.moveToNearestCluster(true);
 
-				if (key == 'E') 
+				if (key == 'M') 
 					p.viewer.moveToNearestCluster(false);
 
 				if (key == '-') 
@@ -1245,6 +1246,9 @@ public class WMV_Input
 
 				if (keyCode == PApplet.ALT) 
 					optionKey = true;
+				
+				if (keyCode == COMMAND_KEY) 
+					commandKey = true;
 			}
 		}
 	}
@@ -1269,8 +1273,9 @@ public class WMV_Input
 		if (key == 'c') 
 			p.viewer.stopMoveYTransition();
 
-		/* Arrow and Shift Keys */
-		if (key == PApplet.CODED) {
+		/* Coded Keys */
+		if (key == PApplet.CODED) 
+		{
 			if (keyCode == PApplet.LEFT) 
 				p.viewer.stopRotateXTransition();
 			if (keyCode == PApplet.RIGHT) 
@@ -1283,6 +1288,8 @@ public class WMV_Input
 				shiftKey = false;
 			if (keyCode == PApplet.ALT) 
 				optionKey = false;
+			if (keyCode == COMMAND_KEY)
+				commandKey = false;
 		}
 	}
 

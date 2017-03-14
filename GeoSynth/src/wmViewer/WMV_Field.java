@@ -299,7 +299,7 @@ public class WMV_Field
 	{
 		for( WMV_Cluster c : clusters )
 		{
-			if(c.mediaPoints <= 0)
+			if(c.mediaCount <= 0)
 			{
 				c.empty();
 				

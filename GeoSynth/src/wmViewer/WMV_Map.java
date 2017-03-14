@@ -155,14 +155,14 @@ public class WMV_Map
 		
 		for( WMV_Cluster c : p.p.getCurrentField().clusters )	
 		{
-			if(!c.isEmpty() && c.mediaPoints != 0)
+			if(!c.isEmpty() && c.mediaCount != 0)
 			{
 				PVector mapLoc = getMapLocation(c.getLocation(), mapWidth, mapHeight);
 				if( pointIsVisible(mapLoc, true) )
 				{
 					Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 4, 4);
 //					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f * mapDistance;
-					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
+					float radius = PApplet.sqrt(c.mediaCount) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
 ;
 
 					ellipsoid.setRadius(radius);
@@ -302,8 +302,8 @@ public class WMV_Map
 				if(selectedCluster >= 0)
 				{
 					WMV_Cluster c = p.p.getCluster(selectedCluster);
-					if(!c.isEmpty() && c.mediaPoints != 0)
-						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaPoints)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+					if(!c.isEmpty() && c.mediaCount != 0)
+						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 					
 					if(selectedCluster == p.p.viewer.getCurrentClusterID())
 						drawClusterMedia(c, mapWidth, mapHeight, false);
@@ -316,8 +316,8 @@ public class WMV_Map
 					WMV_Cluster c = p.p.getCurrentCluster();
 					if(c != null)
 					{
-						if(!c.isEmpty() && c.mediaPoints != 0)
-							highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaPoints)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
+						if(!c.isEmpty() && c.mediaCount != 0)
+							highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 						drawClusterMedia(c, mapWidth, mapHeight, false);
 					}
 				}
@@ -359,13 +359,13 @@ public class WMV_Map
 	{
 		for( WMV_Cluster c : p.p.getCurrentField().clusters )	
 		{
-			if(!c.isEmpty() && c.mediaPoints > 5)
+			if(!c.isEmpty() && c.mediaCount > 5)
 			{
 				PVector point = c.getLocation();
 
 				if( pointIsVisible(point, false) )
 				{
-					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f;
+					float radius = PApplet.sqrt(c.mediaCount) * 0.7f;
 //					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f  / PApplet.sqrt(PApplet.sqrt(mapDistance));
 					drawPoint( point, radius, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mapMediaTransparency );
 				}
@@ -375,7 +375,7 @@ public class WMV_Map
 
 	void zoomInOnCluster(WMV_Cluster c)
 	{
-		if(!c.isEmpty() && c.mediaPoints > 0)
+		if(!c.isEmpty() && c.mediaCount > 0)
 		{
 			PVector point = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
 			zoomMapLeftEdge = 0.f;

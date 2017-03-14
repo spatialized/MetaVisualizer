@@ -21,20 +21,8 @@ class WMV_Display
 	public boolean fullscreen = true;
 	public boolean initializedMaps = false;
 	
-	/* Sidebar Modes */
-//	public int sidebarView = 0;					// Sidebar statistics view  0: Main  1:Statistics  2:Help  3:Selection
-
 	/* Display Modes */
-	public boolean map = false;					// Display map 
-	public boolean info = false;				// Display simulation info 
-	public boolean cluster = false;				// Display cluster statistics
-	public boolean control = false;				// Display controls only
-	public boolean about = false;				// Display about screen  -- need to implement
-	
-	public boolean mapOverlay = false;			// Overlay map on 3D view
-	public boolean infoOverlay = false;			// Overlay simulation info on 3D view
-	public boolean clusterOverlay = false;		// Display cluster statistics over 3D view
-	public boolean controlOverlay = false;		// Display controls over 3D view
+	public int displayView = 0;					// 0: Scene 1: Map 2: Cluster
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -174,12 +162,12 @@ class WMV_Display
 				}
 			}
 
-			if( map || control || info || about || cluster || p.interactive )
+			if( displayView != 0 || p.interactive )
 			{
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 				p.p.background(0.f);																// Hide 3D view
 
-				if(map)
+				if(displayView == 1)
 				{
 					map2D.drawLargeMap();
 					if(map2D.scrollTransition)
@@ -188,43 +176,21 @@ class WMV_Display
 						map2D.updateZoomToRectangleTransition();
 					
 					map2D.updateMapMouse();
-					
 //					drawTimelines();
 //					drawDatelines();
 				}
 
-				if(info)
-					displayInfo();
-
-				if(cluster)
-					displayClusterInfo();
-
-				if(control)
-					displayControls();
+				if(displayView == 2)
+					displayCluster();
 
 				if(p.interactive)
 				{
 					displayInteractiveClustering();
 				}
 			}
-			else if( mapOverlay || controlOverlay || infoOverlay || clusterOverlay || messages.size() > 0 || metadata.size() > 0 )
+			else if( messages.size() > 0 || metadata.size() > 0 )
 			{
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-
-				if(mapOverlay)
-				{
-					map2D.drawLargeMap();
-//					drawTimelines();
-				}
-
-				if(infoOverlay)
-					displayInfo();
-
-				if(clusterOverlay)
-					displayClusterInfo();				
-
-				if(controlOverlay)
-					displayControls();
 
 				if(messages.size() > 0)
 					displayMessages();
@@ -232,7 +198,7 @@ class WMV_Display
 				if(p.showMetadata && metadata.size() > 0 && p.viewer.settings.selection)	
 					displayMetadata();
 
-//				if((map || mapOverlay) && drawForceVector)						// Draw force vector
+//				if((displayMode == 1) && drawForceVector)						// Draw force vector
 //				{
 //					map2D.drawForceVector();
 //				}
@@ -312,17 +278,18 @@ class WMV_Display
 		/* Sidebar Modes */
 //		sidebarView = 0;					// Sidebar statistics view  0: Main  1:Statistics  2:Help  3:Selection
 
-		/* Display Modes */
-		map = false;					// Display map 
-		info = false;				// Display simulation info 
-		cluster = false;				// Display cluster statistics
-		control = false;				// Display controls only
-		about = false;				// Display about screen  -- need to implement
+		/* Display Mode */
+		displayView = 0;
+//		map = false;					// Display map 
+//		info = false;				// Display simulation info 
+//		cluster = false;				// Display cluster statistics
+//		control = false;				// Display controls only
+//		about = false;				// Display about screen  -- need to implement
 		
-		mapOverlay = false;			// Overlay map on 3D view
-		infoOverlay = false;			// Overlay simulation info on 3D view
-		clusterOverlay = false;		// Display cluster statistics over 3D view
-		controlOverlay = false;		// Display controls over 3D view
+//		mapOverlay = false;			// Overlay map on 3D view
+//		infoOverlay = false;			// Overlay simulation info on 3D view
+//		clusterOverlay = false;		// Display cluster statistics over 3D view
+//		controlOverlay = false;		// Display controls over 3D view
 		
 		/* Debug */
 		drawForceVector = false;
@@ -710,14 +677,15 @@ class WMV_Display
 	 */
 	void resetDisplayModes()
 	{
-		map = false;
-		mapOverlay = false;
-		control = false;
-		controlOverlay = false;
-		cluster = false;
-		clusterOverlay = false;
-		info = false;
-		infoOverlay = false;
+		displayView = 0;
+//		map = false;
+//		mapOverlay = false;
+//		control = false;
+//		controlOverlay = false;
+//		cluster = false;
+//		clusterOverlay = false;
+//		info = false;
+//		infoOverlay = false;
 		
 		clearMessages();
 		clearMetadata();
@@ -991,7 +959,7 @@ class WMV_Display
 	/**
 	 * Draw cluster statistics display
 	 */
-	void displayClusterInfo()
+	void displayCluster()
 	{
 		beginHUD();
 		p.p.pushMatrix();
@@ -1064,7 +1032,7 @@ class WMV_Display
 		p.p.strokeWeight(15);
 		p.p.fill(0, 0, 255, 255);
 
-		beginHUD();
+//		beginHUD();
 		for(WMV_Image i : cluster.getImages())
 		{
 			p.p.pushMatrix();
@@ -1073,6 +1041,7 @@ class WMV_Display
 			float width = 90.f;
 			float height = width * origHeight / origWidth;
 			
+//			beginHUD();
 			p.p.translate(imgXPos, imgYPos, hudDistance);
 			p.p.tint(255);
 			
@@ -1097,10 +1066,41 @@ class WMV_Display
 	
 	public boolean inDisplayView()
 	{
-		if( map || control || info || about || cluster || p.interactive || mapOverlay || controlOverlay || infoOverlay || clusterOverlay )
+		if( displayView != 0 )
 			return true;
 		else 
 			return false;
+	}
+	
+	public void setDisplayView(int newDisplayView)
+	{
+//		PApplet.println("newDisplayView:"+newDisplayView);
+		switch(newDisplayView)
+		{
+			case 0:	
+				displayView = 0;
+//				PApplet.println("window.optSceneView before:"+window.optSceneView.isSelected());
+				window.optSceneView.setSelected(true);
+				window.optMapView.setSelected(false);
+				window.optClusterView.setSelected(false);
+//				PApplet.println("window.optSceneView after:"+window.optSceneView.isSelected());
+				break;
+			case 1:	
+				displayView = 1;
+				if(!initializedMaps) map2D.initializeMaps();
+//				PApplet.println("window.optMapView before:"+window.optMapView.isSelected());
+				window.optSceneView.setSelected(false);
+				window.optMapView.setSelected(true);
+				window.optClusterView.setSelected(false);
+//				PApplet.println("window.optMapView after:"+window.optMapView.isSelected());
+				break;
+			case 2:	
+				displayView = 2;
+				window.optSceneView.setSelected(false);
+				window.optMapView.setSelected(false);
+				window.optClusterView.setSelected(true);
+				break;
+		}
 	}
 
 //	void setFullScreen(boolean newState)

@@ -104,7 +104,7 @@ public class WMV_World
 	public float mediaPointMass = 0.05f;				// Mass contribution of each media point
 	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
 	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
-	public float minClusterDistance = 4.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+	public float minClusterDistance = 1.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
 	public float maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
 	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
@@ -284,7 +284,7 @@ public class WMV_World
 		/* 3D Display */
 		getCurrentField().update();					// Update clusters in current field
 
-		if(!display.map && !display.info && !display.cluster && !display.control && !display.about)		
+		if(display.displayView == 0)		
 			getCurrentField().draw();				// Display media in current field
 		
 		viewer.update();							// Update navigation
@@ -1086,11 +1086,38 @@ public class WMV_World
 		}
 	}
 	
+	/**
+	 * Set Time Mode
+	 * @param newTimeMode New time mode (0: Cluster, 1:Field, 2: Media)
+	 */
 	public void setTimeMode(int newTimeMode)
 	{
 		timeMode = newTimeMode;
+		
 		if(timeMode == 2)
 			createTimeCycle();
+		
+		if(display.window.setupTimeWindow)
+		{
+			switch(timeMode)
+			{
+				case 0:
+					display.window.optClusterTimeMode.setSelected(true);
+					display.window.optFieldTimeMode.setSelected(false);
+					display.window.optMediaTimeMode.setSelected(false);
+					break;
+				case 1:
+					display.window.optClusterTimeMode.setSelected(false);
+					display.window.optFieldTimeMode.setSelected(true);
+					display.window.optMediaTimeMode.setSelected(false);
+					break;
+				case 2:
+					display.window.optClusterTimeMode.setSelected(false);
+					display.window.optFieldTimeMode.setSelected(false);
+					display.window.optMediaTimeMode.setSelected(true);
+					break;
+			}		
+		}
 	}
 	
 	public int getTimeMode()

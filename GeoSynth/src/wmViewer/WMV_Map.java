@@ -128,6 +128,7 @@ public class WMV_Map
 
 	void initializeMaps()
 	{
+		PApplet.println("initializeMaps()");
 		initializeLargeMap();
 		p.initializedMaps = true;
 	}
@@ -658,8 +659,7 @@ public class WMV_Map
 	 */
 	void drawGMVClusters()
 	{		 
-		if(  !p.initialSetup && !p.mapOverlay && !p.controlOverlay && !p.info 
-				&& p.messages.size() < 0 && p.metadata.size() < 0	 )
+		if(  !p.initialSetup && p.messages.size() < 0 && p.metadata.size() < 0	 )
 		{
 			p.p.p.hint(PApplet.DISABLE_DEPTH_TEST);						// Disable depth testing for drawing HUD
 		}

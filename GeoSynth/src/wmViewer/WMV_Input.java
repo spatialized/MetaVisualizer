@@ -73,27 +73,27 @@ public class WMV_Input
 		switch(button.tag) 
 		{
 			/* General */
-			case "Scene":
-				p.display.resetDisplayModes();
-				break;
-			case "Map":
-				if(!p.display.initializedMaps)
-					p.display.map2D.initializeMaps();
-				p.display.resetDisplayModes();
-				p.display.map = true;
-				break;
-			case "Info":
-				p.display.resetDisplayModes();
-				p.display.info = true;
-				break;
-			case "Cluster":
-				p.display.resetDisplayModes();
-				p.display.cluster = true;
-				break;
-			case "Control":
-				p.display.resetDisplayModes();
-				p.display.control = true;
-				break;
+//			case "Scene":
+//				p.display.resetDisplayModes();
+//				break;
+//			case "Map":
+//				if(!p.display.initializedMaps)
+//					p.display.map2D.initializeMaps();
+//				p.display.resetDisplayModes();
+//				p.display.map = true;
+//				break;
+//			case "Info":
+//				p.display.resetDisplayModes();
+//				p.display.info = true;
+//				break;
+//			case "Cluster":
+//				p.display.resetDisplayModes();
+//				p.display.cluster = true;
+//				break;
+//			case "Control":
+//				p.display.resetDisplayModes();
+//				p.display.control = true;
+//				break;
 	
 			case "Restart":
 				p.p.restartWorldMediaViewer();
@@ -118,13 +118,13 @@ public class WMV_Input
 				p.viewer.moveToLastCluster(p.viewer.movementTeleport);
 				break;
 			case "NextField":
-				if(p.display.map || p.display.mapOverlay)
+				if(p.display.displayView == 1)
 					p.viewer.teleportToField(1, false);
 				else
 					p.viewer.teleportToField(1, true);
 				break;
 			case "PreviousField":
-				if(p.display.map || p.display.mapOverlay)
+				if(p.display.displayView == 1)
 					p.viewer.teleportToField(-1, false);
 				else
 					p.viewer.teleportToField(-1, true);
@@ -277,6 +277,18 @@ public class WMV_Input
 	{
 		switch (option.tag)
 		{
+			/* Views */
+			case "SceneView":
+				p.display.setDisplayView(0);
+				break;
+			case "MapView":
+				PApplet.println("toggle setDisplayView(1)...");
+				p.display.setDisplayView(1);
+				break;
+			case "ClusterView":
+				p.display.setDisplayView(2);
+				break;
+				
 			/* Navigation */
 			case "FollowTimeline":
 				if(option.isSelected())
@@ -316,6 +328,16 @@ public class WMV_Input
 				//--need to implement
 				break;
 				
+			/* Time */
+			case "ClusterTimeMode":
+				p.setTimeMode(0);
+				break;
+			case "FieldTimeMode":
+				p.setTimeMode(1);
+				break;
+			case "MediaTimeMode":
+				p.setTimeMode(2);
+				break;
 			/* Graphics */
 			case "TimeFading":
 				p.timeFading = option.isSelected();
@@ -425,9 +447,12 @@ public class WMV_Input
 				if(!p.display.initializedMaps)
 					p.display.map2D.initializeMaps();
 
-				boolean state = p.display.map;
-				p.display.resetDisplayModes();
-				p.display.map = !state;
+//				boolean state = p.display.map;
+//				p.display.resetDisplayModes();
+//				p.display.map = !state;
+				
+				p.display.setDisplayView(0);
+//				p.display.displayView = 1;
 			}
 
 			if (!optionKey && key == '!') 
@@ -442,9 +467,11 @@ public class WMV_Input
 
 			if (!optionKey && key == '2') 
 			{
-				boolean state = p.display.info;
-				p.display.resetDisplayModes();
-				p.display.info = !state;
+//				boolean state = p.display.info;
+//				p.display.resetDisplayModes();
+//				p.display.info = !state;
+				PApplet.println("key setDisplayView(1)...");
+				p.display.setDisplayView(1);
 			}
 
 			if (!optionKey && key == '@') 
@@ -456,9 +483,10 @@ public class WMV_Input
 
 			if (!optionKey && key == '3') 
 			{
-				boolean state = p.display.cluster;
-				p.display.resetDisplayModes();
-				p.display.cluster = !state;
+//				boolean state = p.display.cluster;
+//				p.display.resetDisplayModes();
+//				p.display.cluster = !state;
+				p.display.setDisplayView(2);
 			}
 
 			if (!optionKey && key == '#') 
@@ -470,9 +498,9 @@ public class WMV_Input
 
 			if (!optionKey && key == '4') 
 			{
-				boolean state = p.display.control;
-				p.display.resetDisplayModes();
-				p.display.control = !state;
+//				boolean state = p.display.control;
+//				p.display.resetDisplayModes();
+//				p.display.control = !state;
 			}
 
 			if (!optionKey && key == '$') 
@@ -519,7 +547,7 @@ public class WMV_Input
 			if (key == 'R')
 				p.p.restartWorldMediaViewer();
 
-			if(p.display.map || p.display.mapOverlay)	/* 2D Map View */
+			if(p.display.displayView == 1)	/* 2D Map View */
 			{
 				if (key == '{')
 					p.viewer.teleportToField(-1, false);
@@ -595,15 +623,11 @@ public class WMV_Input
 					else
 					{
 						p.viewer.teleportToCluster(p.display.map2D.getSelectedClusterID(), true);
-						p.display.map = false;
+						p.display.displayView = 0;
 					}
 				}
 			}
-			else if(p.display.info || p.display.infoOverlay)		/* Info View */
-			{
-
-			}
-			else if(p.display.cluster || p.display.clusterOverlay)		/* Cluster View */
+			else if(p.display.displayView == 2)		/* Cluster View */
 			{
 				if (key == PApplet.CODED) 					
 				{
@@ -1393,7 +1417,7 @@ public class WMV_Input
 				p.viewer.moveToNearestCluster(p.viewer.movementTeleport);
 		}
 		
-		if(p.display.map)
+		if(p.display.displayView == 1)
 		{
 			p.display.map2D.handleMouseReleased(mouseX, mouseY);
 		}

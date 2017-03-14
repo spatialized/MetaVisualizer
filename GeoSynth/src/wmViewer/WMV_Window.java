@@ -29,6 +29,8 @@ public class WMV_Window {
 	private GButton btnSceneView, btnMapView, btnClusterView, btnInfoView, btnControlView;		
 	private GButton btnLoadMediaLibrary;
 	private GLabel lblSpaceBar;
+	public GToggleGroup tgDisplayView;	
+	public GOption optSceneView, optMapView, optClusterView;
 	
 	/* Time Window */
 	private GLabel lblTimeWindow;
@@ -36,6 +38,8 @@ public class WMV_Window {
 	public GLabel lblCurrentTime, lblTime;
 	public GCheckbox chkbxTimeFading;
 	public GSlider sdrMediaLength;
+	public GToggleGroup tgTimeMode;	
+	public GOption optClusterTimeMode, optFieldTimeMode, optMediaTimeMode;
 
 	/* Navigation Window */
 	private GButton btnImportGPSTrack;
@@ -219,23 +223,49 @@ public class WMV_Window {
 		btnHelpWindow.tag = "OpenHelpWindow";
 		btnHelpWindow.setLocalColorScheme(5);
 
-		x = 75;
+		x = 30;
 		y = wmvWindow.height - 50;
-		btnSceneView = new GButton(wmvWindow, x, y, 55, 20, "Scene");			/* Display Mode Buttons */
-		btnSceneView.tag = "Scene";
-		btnSceneView.setLocalColorScheme(5);
-		btnMapView = new GButton(wmvWindow, x+=55, y, 55, 20, "Map");
-		btnMapView.tag = "Map";
-		btnMapView.setLocalColorScheme(5);
-//		btnInfoView = new GButton(wmvWindow, x+=55, y, 55, 20, "Info");
-//		btnInfoView.tag = "Info";
-//		btnInfoView.setLocalColorScheme(5);
-		btnClusterView = new GButton(wmvWindow, x+=55, y, 55, 20, "Cluster");
-		btnClusterView.tag = "Cluster";
-		btnClusterView.setLocalColorScheme(5);
-//		btnControlView = new GButton(wmvWindow, x+=55, y, 55, 20, "Control");
-//		btnControlView.tag = "Control";
-//		btnControlView.setLocalColorScheme(5);
+//		btnSceneView = new GButton(wmvWindow, x, y, 55, 20, "Scene");			/* Display Mode Buttons */
+//		btnSceneView.tag = "Scene";
+//		btnSceneView.setLocalColorScheme(5);
+//		btnMapView = new GButton(wmvWindow, x+=55, y, 55, 20, "Map");
+//		btnMapView.tag = "Map";
+//		btnMapView.setLocalColorScheme(5);
+//		btnClusterView = new GButton(wmvWindow, x+=55, y, 55, 20, "Cluster");
+//		btnClusterView.tag = "Cluster";
+//		btnClusterView.setLocalColorScheme(5);
+		
+		optSceneView = new GOption(wmvWindow, x, y, 90, 20, "Scene");
+		optSceneView.setLocalColorScheme(10);
+		optSceneView.tag = "SceneView";
+		optMapView = new GOption(wmvWindow, x+=90, y, 90, 20, "Map");
+		optMapView.setLocalColorScheme(10);
+		optMapView.tag = "MapView";
+		optClusterView = new GOption(wmvWindow, x+=90, y, 90, 20, "Cluster");
+		optClusterView.setLocalColorScheme(10);
+		optClusterView.tag = "ClusterView";
+
+		switch(p.displayView)
+		{
+			case 0:
+				optSceneView.setSelected(true);
+				optMapView.setSelected(false);
+				optClusterView.setSelected(false);
+				break;
+			case 1:
+				optSceneView.setSelected(false);
+				optMapView.setSelected(true);
+				optClusterView.setSelected(false);
+				break;
+			case 2:
+				optSceneView.setSelected(false);
+				optMapView.setSelected(false);
+				optClusterView.setSelected(true);
+				break;
+		}
+		
+		tgDisplayView = new GToggleGroup();
+		tgDisplayView.addControls(optSceneView, optMapView, optClusterView);
 		
 		x = 0;
 		y = wmvWindow.height - 25;
@@ -248,7 +278,7 @@ public class WMV_Window {
 	
 	void setupTimeWindow()
 	{
-		timeWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, shortWindowHeight, PApplet.JAVA2D);
+		timeWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, longWindowHeight, PApplet.JAVA2D);
 		timeWindow.setVisible(true);
 		timeWindow.addData(new WMV_WinData());
 		timeWindow.addDrawHandler(this, "timeWindowDraw");
@@ -274,12 +304,47 @@ public class WMV_Window {
 		sdrMediaLength.setEasing(0);
 		sdrMediaLength.setShowValue(true);
 		sdrMediaLength.tag = "MediaLength";
-		
+
 		x = 50;
 		y += 30;
 		
 		lblMediaLength = new GLabel(timeWindow, x, y, 80, 20, "Media Length");
 		lblMediaLength.setLocalColorScheme(10);
+
+		x = 30;
+		y += 90;
+		
+		optClusterTimeMode = new GOption(timeWindow, x, y, 90, 20, "Cluster");
+		optClusterTimeMode.setLocalColorScheme(10);
+		optClusterTimeMode.tag = "ClusterTimeMode ";
+		optFieldTimeMode = new GOption(timeWindow, x+=90, y, 90, 20, "Field");
+		optFieldTimeMode.setLocalColorScheme(10);
+		optFieldTimeMode.tag = "FieldTimeMode";
+		optMediaTimeMode = new GOption(timeWindow, x+=90, y, 90, 20, "Media");
+		optMediaTimeMode.setLocalColorScheme(10);
+		optMediaTimeMode.tag = "MediaTimeMode";
+
+		switch(p.p.getTimeMode())
+		{
+			case 0:
+				optClusterTimeMode.setSelected(true);
+				optFieldTimeMode.setSelected(false);
+				optMediaTimeMode.setSelected(false);
+				break;
+			case 1:
+				optClusterTimeMode.setSelected(false);
+				optFieldTimeMode.setSelected(true);
+				optMediaTimeMode.setSelected(false);
+				break;
+			case 2:
+				optClusterTimeMode.setSelected(false);
+				optFieldTimeMode.setSelected(false);
+				optMediaTimeMode.setSelected(true);
+				break;
+		}
+		
+		tgTimeMode = new GToggleGroup();
+		tgTimeMode.addControls(optClusterTimeMode, optFieldTimeMode, optMediaTimeMode);
 
 		x = 100;
 		y += 60;
@@ -870,7 +935,7 @@ public class WMV_Window {
 //			float mediumTextSize = 13.f;
 			float smallTextSize = 11.f;
 
-			float x = 10, y = 165;			
+			float x = 10, y = 260;			
 			applet.background(0);
 			applet.stroke(255);
 			applet.strokeWeight(1);
@@ -918,7 +983,7 @@ public class WMV_Window {
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
 			data2.done = true;
-			PApplet.println("Mouse released:"+data.toString());
+//			PApplet.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			data2.ex = applet.mouseX;

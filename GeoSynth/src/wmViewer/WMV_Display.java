@@ -179,8 +179,7 @@ class WMV_Display
 //					drawTimelines();
 //					drawDatelines();
 				}
-
-				if(displayView == 2)
+				else if(displayView == 2)
 					displayCluster();
 
 				if(p.interactive)

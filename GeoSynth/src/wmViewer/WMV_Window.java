@@ -12,21 +12,22 @@ public class WMV_Window {
 	WMV_Display p;
 	
 	private int windowWidth = 310, longWindowHeight = 600;
-	private int shortWindowHeight = windowWidth;
+	private int shortWindowHeight = 340;
 	
 	/* Windows */
-	public GWindow wmvWindow, timeWindow, navigationWindow, graphicsWindow, modelWindow, selectionWindow, statisticsWindow, helpWindow;
-	private GLabel lblWMViewer, lblNavigation, lblGraphics, lblStatistics, lblHelp;				// Window headings
+	public GWindow wmvWindow, timeWindow, navigationWindow, graphicsWindow, modelWindow, selectionWindow, statisticsWindow, helpWindow,
+				   memoryWindow;
+	private GLabel lblWMViewer, lblNavigation, lblGraphics, lblStatistics, lblHelp, lblMemory;				// Window headings
 	public boolean showWMVWindow = false, showNavigationWindow = false, showTimeWindow = false, showGraphicsWindow = false, showModelWindow = false,
-				    showSelectionWindow = false, showStatisticsWindow = false, showHelpWindow = false;
+				    showSelectionWindow = false, showStatisticsWindow = false, showHelpWindow = false, showMemoryWindow = false;
 	public boolean setupTimeWindow = false, setupNavigationWindow = false, setupGraphicsWindow = false, setupModelWindow = false, setupHelpWindow = false, 
-					setupSelectionWindow = false, setupStatisticsWindow = false;
+					setupSelectionWindow = false, setupStatisticsWindow = false, setupMemoryWindow = false;
 	//	private GSketchPad sketchPad;
 
 	/* Views Window */
-	private GButton btnNavigationWindow, btnTimeWindow, btnGraphicsWindow, btnModelWindow;										
-	private GButton btnSelectionWindow, btnStatisticsWindow, btnHelpWindow;
-	private GButton btnSceneView, btnMapView, btnClusterView, btnInfoView, btnControlView;		
+	private GButton btnNavigationWindow, btnTimeWindow, btnGraphicsWindow, btnModelWindow, btnSelectionWindow,
+				    btnStatisticsWindow, btnHelpWindow, btnMemoryWindow;
+//	private GButton btnSceneView, btnMapView, btnClusterView, btnInfoView, btnControlView;		
 	private GButton btnLoadMediaLibrary;
 	private GLabel lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
@@ -85,10 +86,13 @@ public class WMV_Window {
 	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnCloseSelectionWindow, btnStitchPanorama;
 
 	/* Statistics Window */
-	private GButton btnExitStatisticsMode;
+	private GButton btnCloseStatisticsWindow;
 
 	/* Help Window */
-	private GButton btnExitHelpMode;
+	private GButton btnCloseHelpWindow;
+	
+	/* Help Window */
+	private GButton btnCloseMemoryWindow;
 	
 //	private GDropList textH, textV, iconH, iconV, iconP;
 	
@@ -134,6 +138,13 @@ public class WMV_Window {
 		helpWindow.setVisible(true);
 	}
 
+	void openMemoryWindow()
+	{
+		if(!setupMemoryWindow)
+			setupMemoryWindow();
+		memoryWindow.setVisible(true);
+	}
+
 	void openStatisticsWindow()
 	{
 		if(!setupStatisticsWindow)
@@ -171,41 +182,48 @@ public class WMV_Window {
 		x = 90;
 		y += 25;
 
-		btnNavigationWindow = new GButton(wmvWindow, x, y, 130, 20, "Navigation");
+		btnNavigationWindow = new GButton(wmvWindow, x, y, 120, 20, "Navigation");
 		btnNavigationWindow.tag = "OpenNavigationWindow";
 		btnNavigationWindow.setLocalColorScheme(5);
 		
 		x = 90;
 		y += 25;
-		btnTimeWindow = new GButton(wmvWindow, x, y, 130, 20, "Time");
+		btnTimeWindow = new GButton(wmvWindow, x, y, 120, 20, "Time");
 		btnTimeWindow.tag = "OpenTimeWindow";
 		btnTimeWindow.setLocalColorScheme(5);
 
 		x = 90;
 		y += 25;
 
-		btnGraphicsWindow = new GButton(wmvWindow, x, y, 130, 20, "Graphics");
+		btnGraphicsWindow = new GButton(wmvWindow, x, y, 120, 20, "Graphics");
 		btnGraphicsWindow.tag = "OpenGraphicsWindow";
 		btnGraphicsWindow.setLocalColorScheme(5);
 		
 		x = 90;
 		y += 25;
 		
-		btnModelWindow = new GButton(wmvWindow, x, y, 130, 20, "Model");
+		btnModelWindow = new GButton(wmvWindow, x, y, 120, 20, "Model");
 		btnModelWindow.tag = "OpenModelWindow";
 		btnModelWindow.setLocalColorScheme(5);
 
 		x = 90;
 		y += 25;
 
-		btnStatisticsWindow = new GButton(wmvWindow, x, y, 130, 20, "Show Statistics");
+		btnStatisticsWindow = new GButton(wmvWindow, x, y, 120, 20, "Statistics");
 		btnStatisticsWindow.tag = "OpenStatisticsWindow";
 		btnStatisticsWindow.setLocalColorScheme(5);
 		
 		x = 90;
 		y += 25;
 
-		btnSelectionWindow = new GButton(wmvWindow, x, y, 130, 20, "Selection");
+		btnMemoryWindow = new GButton(wmvWindow, x, y, 120, 20, "Memory");
+		btnMemoryWindow.tag = "OpenMemoryWindow";
+		btnMemoryWindow.setLocalColorScheme(5);
+		
+		x = 90;
+		y += 25;
+
+		btnSelectionWindow = new GButton(wmvWindow, x, y, 120, 20, "Selection");
 		btnSelectionWindow.tag = "OpenSelectionWindow";
 		btnSelectionWindow.setLocalColorScheme(5);
 
@@ -298,7 +316,8 @@ public class WMV_Window {
 
 		sdrMediaLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrMediaLength.setLocalColorScheme(7);
-		sdrMediaLength.setLimits(p.p.settings.defaultMediaLength, 250.f, 10.f);
+		sdrMediaLength.setLimits(0.f, 250.f, 10.f);
+		sdrMediaLength.setValue(p.p.settings.defaultMediaLength);
 		sdrMediaLength.setRotation(PApplet.PI/2.f);
 		sdrMediaLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrMediaLength.setEasing(0);
@@ -749,9 +768,9 @@ public class WMV_Window {
 		x = 40;
 		y = p.p.p.height - 40;
 		
-		btnExitStatisticsMode = new GButton(statisticsWindow, x, y, 180, 20, "Close Window");
-		btnExitStatisticsMode.tag = "CloseStatisticsWindow";
-		btnExitStatisticsMode.setLocalColorScheme(0);
+		btnCloseStatisticsWindow = new GButton(statisticsWindow, x, y, 180, 20, "Close Window");
+		btnCloseStatisticsWindow.tag = "CloseStatisticsWindow";
+		btnCloseStatisticsWindow.setLocalColorScheme(0);
 		
 		statisticsWindow.addKeyHandler(p.p.p, "statisticsWindowKey");
 		
@@ -862,13 +881,42 @@ public class WMV_Window {
 		x = 40;
 		y = p.p.p.height - 40;
 		
-		btnExitHelpMode = new GButton(helpWindow, x, y, 180, 20, "Close Window");
-		btnExitHelpMode.tag = "CloseHelpWindow";
-		btnExitHelpMode.setLocalColorScheme(0);
+		btnCloseHelpWindow = new GButton(helpWindow, x, y, 180, 20, "Close Window");
+		btnCloseHelpWindow.tag = "CloseHelpWindow";
+		btnCloseHelpWindow.setLocalColorScheme(0);
 		
 		helpWindow.addKeyHandler(p.p.p, "helpWindowKey");
 		
 		setupHelpWindow = true;
+	}
+	
+	void setupMemoryWindow()
+	{
+		memoryWindow = GWindow.getWindow(p.p.p, "Memory", 10, 45, windowWidth, shortWindowHeight, PApplet.JAVA2D);
+		memoryWindow.setVisible(false);
+		memoryWindow.addData(new WMV_WinData());
+		memoryWindow.addDrawHandler(this, "memoryWindowDraw");
+		memoryWindow.addMouseHandler(this, "memoryWindowMouse");
+		
+		int x = 0, y = 10;
+
+		/* Selection Window */
+		lblMemory = new GLabel(memoryWindow, x, y, memoryWindow.width, 20, "Memory");
+		lblMemory.setLocalColorScheme(10);
+		lblMemory.setTextAlign(GAlign.CENTER, null);
+		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblMemory.setTextBold();
+
+		x = 40;
+		y = p.p.p.height - 40;
+		
+		btnCloseMemoryWindow = new GButton(memoryWindow, x, y, 180, 20, "Close Window");
+		btnCloseMemoryWindow.tag = "CloseMemoryWindow";
+		btnCloseMemoryWindow.setLocalColorScheme(0);
+		
+		memoryWindow.addKeyHandler(p.p.p, "memoryWindowKey");
+		
+		setupMemoryWindow = true;
 	}
 
 
@@ -1534,11 +1582,11 @@ public class WMV_Window {
 //		applet.text(" Y    Clear Memory", xPos, yPos += lineWidth);
 
 		applet.textSize(mediumTextSize);
-		applet.text(" Memory", xPos, yPos += lineWidthVeryWide);
-		applet.textSize(smallTextSize);
-		applet.text(" `    Save Current View to Memory", xPos, yPos += lineWidthVeryWide);
-		applet.text(" ~    Follow Memory Path", xPos, yPos += lineWidth);
-		applet.text(" Y    Clear Memory", xPos, yPos += lineWidth);
+//		applet.text(" Memory", xPos, yPos += lineWidthVeryWide);
+//		applet.textSize(smallTextSize);
+//		applet.text(" `    Save Current View to Memory", xPos, yPos += lineWidthVeryWide);
+//		applet.text(" ~    Follow Memory Path", xPos, yPos += lineWidth);
+//		applet.text(" Y    Clear Memory", xPos, yPos += lineWidth);
 
 		applet.textSize(mediumTextSize);
 		applet.text(" Output", xPos, yPos += lineWidthVeryWide);
@@ -1554,6 +1602,81 @@ public class WMV_Window {
 	 * @param event the mouse event
 	 */
 	public void helpWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
+		WMV_WinData wmvWinData = (WMV_WinData)data;
+		switch(event.getAction()) {
+
+		case MouseEvent.PRESS:
+			wmvWinData.sx = wmvWinData.ex = applet.mouseX;
+			wmvWinData.sy = wmvWinData.ey = applet.mouseY;
+			wmvWinData.done = false;
+//			PApplet.println("Mouse pressed");
+			break;
+		case MouseEvent.RELEASE:
+			wmvWinData.ex = applet.mouseX;
+			wmvWinData.ey = applet.mouseY;
+			wmvWinData.done = true;
+//			PApplet.println("Mouse released:"+data.toString());
+			break;
+		case MouseEvent.DRAG:
+			wmvWinData.ex = applet.mouseX;
+			wmvWinData.ey = applet.mouseY;
+//			PApplet.println("Mouse dragged");
+			break;
+		}
+	}
+	
+	/**
+	 * Handles drawing to the Memory Window 
+	 * @param applet the main PApplet object
+	 * @param data the data for the GWindow being used
+	 */
+	public void memoryWindowDraw(PApplet applet, GWinData data) 
+	{
+		applet.background(0,0,0);
+		applet.stroke(255);
+		applet.strokeWeight(1);
+		applet.fill(255, 255, 255);
+		
+		float lineWidthVeryWide = 17f;
+		float lineWidthWide = 15f;
+		float lineWidth = 13f;
+		
+		float xPos = 10;
+		float yPos = 50;			// Starting vertical position
+
+		float largeTextSize = 15.f;
+		float mediumTextSize = 13.f;
+		float smallTextSize = 11.f;
+
+		applet.fill(255, 255, 255, 255);                        
+		
+		applet.textSize(largeTextSize);
+		applet.text("Memory", xPos, yPos);
+
+		yPos += lineWidthWide;
+
+		applet.textSize(smallTextSize);
+		applet.text("Points in Memory:"+p.p.viewer.getMemoryPath().size(), xPos, yPos += lineWidthVeryWide);
+		
+		yPos += lineWidthWide * 2.f;
+
+		//		applet.textSize(mediumTextSize);
+//		applet.text(" Memory", xPos, yPos += lineWidthVeryWide);
+		applet.textSize(largeTextSize);
+		applet.text(" Keyboard Controls ", xPos, yPos);
+		applet.textSize(smallTextSize);
+		applet.text(" `    Save Current View to Memory", xPos, yPos += lineWidthVeryWide);
+		applet.text(" ~    Follow Memory Path", xPos, yPos += lineWidth);
+		applet.text(" Y    Clear Memory", xPos, yPos += lineWidth);
+	}
+
+	/**
+	 * Handles mouse events for Memory Window 
+	 * @param applet the main PApplet object
+	 * @param data the data for the GWindow being used
+	 * @param event the mouse event
+	 */
+	public void memoryWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
 		WMV_WinData wmvWinData = (WMV_WinData)data;
 		switch(event.getAction()) {
 
@@ -1625,6 +1748,12 @@ public class WMV_Window {
 		if(setupHelpWindow)
 			helpWindow.setVisible(true);
 	}
+	void showMemoryWindow()
+	{
+		showMemoryWindow = false;
+		if(setupMemoryWindow)
+			memoryWindow.setVisible(true);
+	}
 	void hideWMVWindow()
 	{
 		showWMVWindow = false;
@@ -1666,7 +1795,12 @@ public class WMV_Window {
 		if(setupHelpWindow)
 			helpWindow.setVisible(false);
 	}
-	
+	void hideMemoryWindow()
+	{
+		showMemoryWindow = false;
+		if(setupMemoryWindow)
+			memoryWindow.setVisible(false);
+	}	
 	/**
 	 * Hide all windows
 	 */

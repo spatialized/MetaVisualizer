@@ -171,6 +171,15 @@ public class WMV_Input
 				p.display.window.helpWindow.setVisible(false);
 				break;
 				
+				/* Memory */
+			case "OpenMemoryWindow":
+				p.display.window.openMemoryWindow();
+				break;
+				
+			case "CloseMemoryWindow":
+				p.display.window.memoryWindow.setVisible(false);
+				break;
+				
 				/* Statistics */
 			case "OpenStatisticsWindow":
 				p.display.window.openStatisticsWindow();

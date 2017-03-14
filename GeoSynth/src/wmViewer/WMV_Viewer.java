@@ -3738,6 +3738,11 @@ public class WMV_Viewer
 		return field;
 	}
 
+	public ArrayList<WMV_Waypoint> getMemoryPath()
+	{
+		return memory;
+	}
+
 	public ArrayList<WMV_Waypoint> getPath()
 	{
 		return path;

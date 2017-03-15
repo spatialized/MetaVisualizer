@@ -3840,7 +3840,7 @@ public class WMV_Viewer
 				c.timeFading = false;
 			
 			if(p.p.debug.viewer)
-				PApplet.println("Set new cluster to: "+newCluster);
+				PApplet.println("Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment);
 
 			currentCluster = newCluster;
 			c = p.getCurrentCluster();
@@ -3866,6 +3866,7 @@ public class WMV_Viewer
 				else
 				{
 					currentFieldTimeSegment = newFieldTimeSegment;					// Set currentFieldTimeSegment to given value
+					movingToTimeSegment = false;
 				}
 
 				WMV_Date d = f.getDateInCluster(c.getID(), 0);
@@ -3874,6 +3875,11 @@ public class WMV_Viewer
 
 				if(p.getTimeMode() == 2 && !teleporting)
 					p.createTimeCycle();
+			}
+			else
+			{
+				if(p.p.debug.viewer)
+					PApplet.println("New current cluster is null!");
 			}
 		}
 	}

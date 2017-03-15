@@ -184,7 +184,6 @@ public class WMV_Window {
 	{
 		if(!setupSelectionWindow)
 			setupSelectionWindow();
-//		selectionWindow.setVisible(true);
 		showSelectionWindow();
 	}
 
@@ -192,8 +191,6 @@ public class WMV_Window {
 	{
 		if(!setupHelpWindow)
 			setupHelpWindow();
-//		helpWindow.setVisible(true);
-//		showHelpWindow = true;
 		showHelpWindow();
 	}
 
@@ -824,14 +821,14 @@ public class WMV_Window {
 		x = 100;
 		y += 30;
 
-		chkbxShowModel = new GCheckbox(modelWindow, x, y, 120, 20, "Show Model  (⇧4)");
+		chkbxShowModel = new GCheckbox(modelWindow, x, y, 120, 20, "Show Model  (4)");
 		chkbxShowModel.tag = "ShowModel";
 		chkbxShowModel.setLocalColorScheme(10);
 		
 		x = 115;
 		y += 30;
 		
-		chkbxMediaToCluster = new GCheckbox(modelWindow, x, y, 150, 20, "Media to Cluster  (⇧5)");
+		chkbxMediaToCluster = new GCheckbox(modelWindow, x, y, 150, 20, "Media to Cluster  (5)");
 		chkbxMediaToCluster.tag = "MediaToCluster";
 		chkbxMediaToCluster.setLocalColorScheme(10);
 		chkbxMediaToCluster.setSelected(false);
@@ -839,7 +836,7 @@ public class WMV_Window {
 		x = 115;
 		y += 25;
 
-		chkbxCaptureToMedia = new GCheckbox(modelWindow, x, y, 150, 20, "Capture to Media  (⇧6)");
+		chkbxCaptureToMedia = new GCheckbox(modelWindow, x, y, 150, 20, "Capture to Media  (6)");
 		chkbxCaptureToMedia.tag = "CaptureToMedia";
 		chkbxCaptureToMedia.setLocalColorScheme(10);
 		chkbxCaptureToMedia.setSelected(false);
@@ -847,7 +844,7 @@ public class WMV_Window {
 		x = 115;
 		y += 25;
 
-		chkbxCaptureToCluster = new GCheckbox(modelWindow, x, y, 170, 20, "Capture to Cluster  (⇧7)");
+		chkbxCaptureToCluster = new GCheckbox(modelWindow, x, y, 170, 20, "Capture to Cluster  (7)");
 		chkbxCaptureToCluster.tag = "CaptureToCluster";
 		chkbxCaptureToCluster.setLocalColorScheme(10);
 		chkbxCaptureToCluster.setSelected(false);

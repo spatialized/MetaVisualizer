@@ -299,12 +299,12 @@ public class WMV_Input
 				if(option.isSelected())
 				{
 					p.viewer.followMode = 1;
-					PApplet.println("1 p.display.window.optTimeline.isSelected():"+p.display.window.optTimeline.isSelected());
-					PApplet.println("1 p.display.window.optMemory.isSelected():"+p.display.window.optMemory.isSelected());
+//					PApplet.println("1 p.display.window.optTimeline.isSelected():"+p.display.window.optTimeline.isSelected());
+//					PApplet.println("1 p.display.window.optMemory.isSelected():"+p.display.window.optMemory.isSelected());
 					p.display.window.optTimeline.setSelected(false);
 					p.display.window.optMemory.setSelected(false);
-					PApplet.println("2 p.display.window.optTimeline.isSelected():"+p.display.window.optTimeline.isSelected());
-					PApplet.println("2 p.display.window.optMemory.isSelected():"+p.display.window.optMemory.isSelected());
+//					PApplet.println("2 p.display.window.optTimeline.isSelected():"+p.display.window.optTimeline.isSelected());
+//					PApplet.println("2 p.display.window.optMemory.isSelected():"+p.display.window.optMemory.isSelected());
 				}
 				break;
 	  		case "FollowMemory":
@@ -454,7 +454,7 @@ public class WMV_Input
 			if (!optionKey && !commandKey && key == '3') 
 				p.display.setDisplayView(2);
 
-			if (!optionKey && shiftKey && key == '4') 
+			if (!optionKey && key == '4') 
 			{
 				boolean state = !p.showModel;
 				p.showModel = state;
@@ -462,13 +462,13 @@ public class WMV_Input
 					p.display.window.chkbxShowModel.setSelected(state);
 			}
 
-			if (!optionKey && shiftKey && key == '5') 
+			if (!optionKey && key == '5') 
 				p.showMediaToCluster = !p.showMediaToCluster;			// Draw line from each media point to cluster
 
-			if (!optionKey && shiftKey && key == '6') 
+			if (!optionKey && key == '6') 
 				p.showCaptureToMedia = !p.showCaptureToMedia;			// Draw line from each media point to its capture location
 
-			if (!optionKey && shiftKey && key == '7') 
+			if (!optionKey && key == '7') 
 				p.showCaptureToCluster = !p.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
 			if (!optionKey && key == '8') 
@@ -483,8 +483,6 @@ public class WMV_Input
 					p.viewer.settings.maxVisibleClusters++;		// Draw line from each media capture location to associated cluster
 			}
 
-			if(key == '1')
-				PApplet.println("key == '1'.... commandKey:" + commandKey);
 			if (!optionKey && commandKey && key == '1') 
 			{
 				if(!p.display.window.showNavigationWindow)

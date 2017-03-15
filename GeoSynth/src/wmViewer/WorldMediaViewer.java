@@ -325,8 +325,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	
 	public void wmvWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-//		PApplet.println("sidebarKey:"+keyevent.getKey());
-//		PApplet.println("sidebarKeyCode:"+keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
@@ -343,6 +341,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
+		PApplet.println("navigationWindowKey");
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
@@ -350,6 +349,14 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	}
 	
 	public void graphicsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	public void memoryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());

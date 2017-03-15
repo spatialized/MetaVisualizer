@@ -65,7 +65,9 @@ public class WMV_Input
 		{
 			if(p.display.window.setupModelWindow)
 			{
-				p.altitudeScalingFactor = slider.getValueF();
+//				PApplet.println("altitudeScalingFactor before:"+p.altitudeScalingFactor);
+				p.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
+//				PApplet.println("altitudeScalingFactor after:"+p.altitudeScalingFactor);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
@@ -88,7 +90,6 @@ public class WMV_Input
 
 			case "CloseNavigationWindow":
 				p.display.window.hideNavigationWindow();
-//				p.display.window.navigationWindow.setVisible(false);
 				break;
 	
 			case "NearestCluster":
@@ -279,7 +280,6 @@ public class WMV_Input
 				p.display.setDisplayView(0);
 				break;
 			case "MapView":
-				PApplet.println("toggle setDisplayView(1)...");
 				p.display.setDisplayView(1);
 				break;
 			case "ClusterView":
@@ -412,6 +412,7 @@ public class WMV_Input
 	 */
 	void handleKeyPressed(char key, int keyCode)
 	{
+//		PApplet.println("handleKeyPressed keyCode: "+keyCode + " on frame:"+p.p.frameCount);
 		if (!p.p.running)
 		{
 			p.p.openLibraryDialog = true;
@@ -482,6 +483,8 @@ public class WMV_Input
 					p.viewer.settings.maxVisibleClusters++;		// Draw line from each media capture location to associated cluster
 			}
 
+			if(key == '1')
+				PApplet.println("key == '1'.... commandKey:" + commandKey);
 			if (!optionKey && commandKey && key == '1') 
 			{
 				if(!p.display.window.showNavigationWindow)
@@ -1248,17 +1251,21 @@ public class WMV_Input
 					optionKey = true;
 				
 				if (keyCode == COMMAND_KEY) 
+				{
 					commandKey = true;
+					PApplet.println("+ commandKey set to "+commandKey + " on frame:"+p.p.frameCount);
+				}
 			}
 		}
 	}
 	
 	/**
-	 * handleKeyReleased()
 	 * Respond to user key releases
 	 */
 	void handleKeyReleased(char key, int keyCode)
 	{
+//		PApplet.println("handleKeyReleased keyCode: "+keyCode + " on frame:"+p.p.frameCount);
+
 		/* Navigation */
 		if (key == 'a') 
 			p.viewer.stopMoveXTransition();
@@ -1289,7 +1296,10 @@ public class WMV_Input
 			if (keyCode == PApplet.ALT) 
 				optionKey = false;
 			if (keyCode == COMMAND_KEY)
+			{
 				commandKey = false;
+//				PApplet.println("commandKey set to "+commandKey + " on frame:"+p.p.frameCount);
+			}
 		}
 	}
 

@@ -44,7 +44,7 @@ public abstract class WMV_Viewable
 	private boolean selected = false;
 
 	/* Graphics */
-	public float aspectRatio = (float) 0.666;	// Aspect ratio of image or texture
+	public float aspectRatio = 0.666f;	// Aspect ratio of image or texture
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);

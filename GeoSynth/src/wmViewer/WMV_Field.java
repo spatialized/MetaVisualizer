@@ -215,7 +215,7 @@ public class WMV_Field
 		model.setup(); 						// Initialize field for first time 
 
 		calculateMediaLocations(); 			// Set location of each photo in simulation
-		detectMultipleFields();			// Run clustering on capture locations to detect multiple fields
+		detectMultipleFields();				// Run clustering on capture locations to detect multiple fields
 		
 		findImagePlaceHolders();			// Find image place holders for videos
 		calculateMediaVertices();			// Calculate all image vertices
@@ -239,6 +239,10 @@ public class WMV_Field
 		
 		if(p.p.debug.main)
 			p.display.message("Finished initializing field #"+fieldID+"..."+name);
+
+		// TEST
+//		calculateMediaLocations(); 			// Set location of each photo in simulation
+//		recalculateGeometries();
 	}
 	
 	/**
@@ -365,14 +369,10 @@ public class WMV_Field
 		if(p.p.debug.field) 	PApplet.println("Calculating media vertices...");
 		
 		for (int i = 0; i < images.size(); i++) 
-		{
 			images.get(i).calculateVertices();
-		}
 		
 		for (int i = 0; i < videos.size(); i++) 
-		{
 			videos.get(i).calculateVertices();
-		}
 	}
 
 	/**

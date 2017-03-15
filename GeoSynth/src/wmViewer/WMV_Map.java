@@ -112,15 +112,15 @@ public class WMV_Map
 
 		if(fieldAspectRatio >= 1.f)									
 		{
-			largeMapWidth = p.p.p.width * 0.98f;
-//			largeMapWidth = p.p.p.width * 0.95f;
+//			largeMapWidth = p.p.p.width * 0.98f;
+			largeMapWidth = p.p.p.width * 0.95f;
 			largeMapHeight = p.p.p.width / fieldAspectRatio;
 		}
 		else
 		{
 			largeMapWidth = p.p.p.height * fieldAspectRatio;
-			largeMapHeight = p.p.p.height * 0.98f;
-//			largeMapHeight = p.p.p.height * 0.95f;
+//			largeMapHeight = p.p.p.height * 0.98f;
+			largeMapHeight = p.p.p.height * 0.95f;
 		}
 
 		zoomToRectangle(0, 0, largeMapWidth, largeMapHeight);			// Start zoomed out on whole map
@@ -128,7 +128,6 @@ public class WMV_Map
 
 	void initializeMaps()
 	{
-		PApplet.println("initializeMaps()");
 		initializeLargeMap();
 		p.initializedMaps = true;
 	}
@@ -246,7 +245,8 @@ public class WMV_Map
 		p.beginHUD();											
 		
 		p.p.p.fill(55, 0, 255, 255);
-		p.p.p.textSize(p.largeTextSize);
+//		p.p.p.textSize(p.largeTextSize);
+		p.p.p.textSize(p.veryLargeTextSize);
 		float textXPos = p.centerTextXOffset;
 		float textYPos = p.topTextYOffset;
 

@@ -17,7 +17,7 @@ class WMV_Image extends WMV_Viewable
 {
 	/* Graphics */
 	public PImage image, blurred;			// Image pixels
-	private PVector[] vertices;				// Vertex list
+	public PVector[] vertices;				// Vertex list
 //	private Box shape;						// Shape
 	
 	private int horizBorderID = -1;					// Blur horizBorderID   0: Left 1: Center 2: Right  3: Left+Right
@@ -93,6 +93,7 @@ class WMV_Image extends WMV_Viewable
 		else
 			time = null;
 
+		aspectRatio = getAspectRatio();
 //		blurMask = p.p.blurMaskAll;
 	}  
 
@@ -984,10 +985,10 @@ class WMV_Image extends WMV_Viewable
 	{
 		float ratio = 0;
 
-		ratio = (float)(image.height)/(float)(image.width);
-
-		if (ratio > 1.)
-			ratio = 0.666f;
+//		ratio = (float)(image.height)/(float)(image.width);
+		ratio = (float)imageHeight / (float)imageWidth;
+//		if (ratio > 1.)
+//			ratio = 0.666f;
 
 		return ratio;
 	}
@@ -1041,6 +1042,13 @@ class WMV_Image extends WMV_Viewable
 		float right = width * 0.5f;
 		float top = -height * 0.5f;
 		float bottom = height * 0.5f;
+
+//		PApplet.println("---> ID:"+getID());
+//		PApplet.println("aspectRatio:"+aspectRatio);
+//		PApplet.println("left:"+left);
+//		PApplet.println("right:"+right);
+//		PApplet.println("top:"+top);
+//		PApplet.println("bottom:"+bottom);
 
 		vertices = new PVector[4]; 
 

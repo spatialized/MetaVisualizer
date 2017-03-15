@@ -86,6 +86,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		
 		videoWidth = newVideoWidth;
 		videoHeight = newVideoHeight;
+		aspectRatio = getAspectRatio();							
+
 		brightness = newBrightness;
 		
 		gpsLocation = newGPSLocation;
@@ -112,6 +114,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		video = new Movie(p.p.p, filePath);
 		setLength( video.duration() );				// Set video length (in seconds)
 		video.dispose();
+		
 	}  
 
 	/**
@@ -1096,7 +1099,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * lineToCaptureLocation()
 	 * Draw capture location for the image
 	 */
 	void lineToCaptureLocation()
@@ -1108,7 +1110,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * getAspectRatio()
 	 * @return Aspect ratio of the video
 	 */
 	float getAspectRatio()
@@ -1118,14 +1119,13 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 //		ratio = (float)(video.height)/(float)(video.width);
 		ratio = (float) origVideoHeight / (float) origVideoWidth;
 				
-		if (ratio > 1.)
-			ratio = 0.666f;
+//		if (ratio > 1.)
+//			ratio = 0.666f;
 
 		return ratio;
 	}
 
 	/**
-	 * verticesAreNull()
 	 * @return Whether the vertices are null
 	 */
 	public boolean verticesAreNull()
@@ -1137,7 +1137,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * getAverageColor()
 	 * @return Average pixel color for this frame
 	 */
 	PVector getAverageColor() 

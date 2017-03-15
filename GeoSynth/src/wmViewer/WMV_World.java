@@ -104,8 +104,8 @@ public class WMV_World
 	public float mediaPointMass = 0.05f;				// Mass contribution of each media point
 	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
 	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
-	public float minClusterDistance = 1.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-	public float maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
+	public float minClusterDistance = 2.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+	public float maxClusterDistance = 10.f;				// Maximum distance between cluster center and media
 	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
@@ -505,10 +505,13 @@ public class WMV_World
 	 */
 	void finishSetup()
 	{
-		PApplet.println("Finishing setup...");
+		if(p.debug.main)
+			PApplet.println("Finishing setup...");
 
-//		createTimeCycle();
 		display.window.setupWMVWindow();
+		
+		// TEST
+//		getCurrentField().recalculateGeometries();
 		
 		initialSetup = false;				
 		display.initialSetup = false;
@@ -625,7 +628,7 @@ public class WMV_World
 		
 		mediaPointMass = 0.05f;					// Mass contribution of each media point
 		clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
-		minClusterDistance = 4.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+		minClusterDistance = 2.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
 		maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
 		maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 

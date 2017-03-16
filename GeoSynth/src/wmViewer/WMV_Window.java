@@ -1194,20 +1194,27 @@ public class WMV_Window {
 			switch(mode)
 			{
 				case 0:
-					applet.text(" Time Mode: Cluster", x, y += lineWidthVeryWide);
+//					applet.text(" Time Mode: Cluster", x, y += lineWidthVeryWide);
 					if(f.timeline.size() > 0 && p.p.viewer.currentFieldTimeSegment >= 0 && p.p.viewer.currentFieldTimeSegment < f.timeline.size())
+					{
 						applet.text(" Upper: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getUpper().getTime()+
 								" Center:"+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getCenter().getTime()+
-								" Lower: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
-					applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
+								" Lower: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidthVeryWide);
+						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidthWide);
+					}
+					else
+					{
+						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidthVeryWide);
+					}
 					applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().dateline.size(), x, y += lineWidth);
+					
 					break;
 				case 1:
-					applet.text(" Time Mode: Field", x, y += lineWidthVeryWide);
+//					applet.text(" Time Mode: Field", x, y += lineWidthVeryWide);
 					break;
 				case 2:
-					applet.text(" Time Mode: Media", x, y += lineWidthVeryWide);
-					applet.text(" Current Media: "+ p.p.viewer.currentMedia, x, y += lineWidth);
+//					applet.text(" Time Mode: Media", x, y += lineWidthVeryWide);
+					applet.text(" Current Media: "+ p.p.viewer.currentMedia, x, y += lineWidth);		// -- Not very meaningful.. should show media index / type
 					break;
 //				case 3:
 //					applet.text(" Time Mode: Flexible"), x, y += lineWidthVeryWide);

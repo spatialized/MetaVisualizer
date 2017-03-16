@@ -83,6 +83,24 @@ public class WMV_Utilities
 			return dist1;
 	}
 
+	/**
+	 * Get GPS location for a given point in a field
+	 * @param f Given field 
+	 * @param loc Given point
+	 * @return GPS location for given point
+	 */
+	public PVector getGPSLocation(WMV_Field f, PVector loc)			// -- Working??
+	{
+		WMV_Model m = f.model;
+		
+		float newX = PApplet.map( loc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
+		float newY = PApplet.map( loc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+
+		PVector gpsLoc = new PVector(newX, newY);
+
+		return gpsLoc;
+	}
+
 	/** 
 	 * Get (approximate) distance between two GPS points in meters 
 	 * @param startLatitude Latitude of first point

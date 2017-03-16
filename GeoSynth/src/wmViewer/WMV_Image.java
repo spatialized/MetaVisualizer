@@ -373,13 +373,13 @@ class WMV_Image extends WMV_Viewable
 					p.p.p.tint(255, viewingBrightness * 0.333f);    
 			}
 		}
-		else if(p.p.viewer.settings.videoMode)
-		{
-			if(!p.p.alphaMode)
-				p.p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
-			else
-				p.p.p.tint(255, viewingBrightness * 0.333f);          				
-		}
+//		else if(p.p.viewer.settings.videoMode)
+//		{
+//			if(!p.p.alphaMode)
+//				p.p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
+//			else
+//				p.p.p.tint(255, viewingBrightness * 0.333f);          				
+//		}
 		else
 		{
 			if(!p.p.alphaMode)

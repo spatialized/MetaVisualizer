@@ -558,13 +558,13 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 					p.p.p.tint(255, viewingBrightness * 0.333f);          				
 			}
 		}
-		else if(p.p.viewer.settings.videoMode)
-		{
-			if(!p.p.alphaMode)
-				p.p.p.tint(viewingBrightness, 255);          				
-			else
-				p.p.p.tint(255, viewingBrightness);          				
-		}
+//		else if(p.p.viewer.settings.videoMode)
+//		{
+//			if(!p.p.alphaMode)
+//				p.p.p.tint(viewingBrightness, 255);          				
+//			else
+//				p.p.p.tint(255, viewingBrightness);          				
+//		}
 		else
 		{
 			if(!p.p.alphaMode)

@@ -459,7 +459,7 @@ public class WMV_Input
 			if (!optionKey && !commandKey && key == '3') 
 				p.display.setDisplayView(2);
 
-			if (!optionKey && !commandKey  && key == '4') 
+			if (!optionKey && !commandKey  && key == '4')
 			{
 				boolean state = !p.showModel;
 				p.showModel = state;
@@ -565,6 +565,9 @@ public class WMV_Input
 
 			if(p.display.displayView == 1)	/* 2D Map View */
 			{
+				if( key == '+' )
+					p.display.satelliteMap = !p.display.satelliteMap;
+
 				if (key == '{')
 					p.viewer.teleportToField(-1, false);
 
@@ -1142,32 +1145,6 @@ public class WMV_Input
 			/* Arrow and Shift Keys */
 			if (key == PApplet.CODED) 					
 			{
-				/* Navigation */
-				if (keyCode == PApplet.LEFT) 
-					p.viewer.rotateX(-1);
-
-				if (keyCode == PApplet.RIGHT) 
-					p.viewer.rotateX(1);
-
-				if (keyCode == PApplet.UP) 
-					p.viewer.rotateY(-1);
-
-				if (keyCode == PApplet.DOWN) 
-					p.viewer.rotateY(1);
-
-				/* Time */
-				if (shiftKey && keyCode == PApplet.UP) 
-					p.incrementTime();
-
-				if (shiftKey && keyCode == PApplet.DOWN) 
-					p.decrementTime();
-
-				if (shiftKey && keyCode == PApplet.LEFT) 
-					p.decrementCycleLength();
-
-				if (shiftKey && keyCode == PApplet.RIGHT) 
-					p.incrementCycleLength();
-
 				if(p.display.inDisplayView())
 				{
 					if(p.interactive)			/* Interactive Clustering */
@@ -1247,6 +1224,34 @@ public class WMV_Input
 							}
 						}
 					}
+				}
+				else
+				{
+					/* Navigation */
+					if (keyCode == PApplet.LEFT) 
+						p.viewer.rotateX(-1);
+
+					if (keyCode == PApplet.RIGHT) 
+						p.viewer.rotateX(1);
+
+					if (keyCode == PApplet.UP) 
+						p.viewer.rotateY(-1);
+
+					if (keyCode == PApplet.DOWN) 
+						p.viewer.rotateY(1);
+
+					/* Time */
+					if (shiftKey && keyCode == PApplet.UP) 
+						p.incrementTime();
+
+					if (shiftKey && keyCode == PApplet.DOWN) 
+						p.decrementTime();
+
+					if (shiftKey && keyCode == PApplet.LEFT) 
+						p.decrementCycleLength();
+
+					if (shiftKey && keyCode == PApplet.RIGHT) 
+						p.incrementCycleLength();
 				}
 
 				if (keyCode == PApplet.SHIFT) {

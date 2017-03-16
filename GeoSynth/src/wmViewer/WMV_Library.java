@@ -7,7 +7,7 @@ import processing.core.PApplet;
 /**************
  * @author davidgordon
  * A media library in the expected format:
- * 1. Subfolders containing media should be: "small_images", "small_videos", "panoramas"
+ * 1. Subfolders containing media should be: "small_images", "small_videos", "panoramas," and "sounds"
  * 2. Media should be: images <= 640px wide / videos <= 720px / panoramas full size
  */
 public class WMV_Library 

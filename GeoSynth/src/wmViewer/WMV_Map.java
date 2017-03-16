@@ -9,6 +9,21 @@ import processing.data.IntList;
 import toxi.math.ScaleMap;
 import shapes3d.*;
 
+import de.fhpotsdam.unfolding.UnfoldingMap;
+import de.fhpotsdam.unfolding.data.MarkerFactory;
+import de.fhpotsdam.unfolding.events.EventDispatcher;
+import de.fhpotsdam.unfolding.events.PanMapEvent;
+import de.fhpotsdam.unfolding.geo.Location;
+import de.fhpotsdam.unfolding.interactions.MouseHandler;
+import de.fhpotsdam.unfolding.marker.Marker;
+import de.fhpotsdam.unfolding.marker.MarkerManager;
+import de.fhpotsdam.unfolding.marker.SimplePointMarker;
+import de.fhpotsdam.unfolding.providers.Microsoft;
+import de.fhpotsdam.unfolding.providers.AbstractMapProvider;
+import de.fhpotsdam.unfolding.utils.DebugDisplay;
+import de.fhpotsdam.unfolding.utils.MapUtils;
+import de.fhpotsdam.unfolding.utils.ScreenPosition;
+
 /***********************************
  * @author davidgordon
  * Class for displaying interactive 2D map of media-based virtual environment
@@ -16,6 +31,12 @@ import shapes3d.*;
 
 public class WMV_Map 
 {
+	/* Unfolding Maps */
+	UnfoldingMap map;
+	Location mapCenter;
+	EventDispatcher eventDispatcher;
+	MarkerManager<Marker> markerManager;
+
 	/* Interaction */
 	private int selectedCluster = -1;
 	ArrayList<Ellipsoid> selectableClusters;
@@ -124,18 +145,61 @@ public class WMV_Map
 		}
 
 		zoomToRectangle(0, 0, largeMapWidth, largeMapHeight);			// Start zoomed out on whole map
+
+		initializeSatelliteMap();
 	}
 
-	void initializeMaps()
+	public void initializeMaps()
 	{
 		initializeLargeMap();
 		p.initializedMaps = true;
 	}
 	
+	public void initializeSatelliteMap()
+	{
+		map = new UnfoldingMap(p.p.p, "Satellite Map", 0, 0, p.p.p.width, p.p.p.height, true, false, new Microsoft.AerialProvider());
+
+		PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), new PVector(0,0,0));
+		mapCenter = new Location(gpsLoc.y, gpsLoc.x);
+				
+		map.zoomAndPanTo(16, mapCenter);
+		map.setZoomRange(2, 20);
+		map.setTweening(true);
+
+		eventDispatcher = new EventDispatcher();
+
+		// Add mouse interaction to map
+		MouseHandler mouseHandler = new MouseHandler(p.p.p, map);
+		eventDispatcher.addBroadcaster(mouseHandler);
+
+		eventDispatcher.register(map, "pan", map.getId());
+		eventDispatcher.register(map, "zoom", map.getId());
+
+		createPointMarkers();
+	}
+	
+	public void createPointMarkers()
+	{
+		markerManager = new MarkerManager<Marker>();
+
+		for( WMV_Cluster c : p.p.getCurrentField().clusters )	
+		{
+			if(!c.isEmpty() && c.mediaCount != 0)
+			{
+				PVector mapLoc = c.getLocation();
+				PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), mapLoc);
+				markerManager.addMarker(new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x)));
+			}
+		}
+
+		map.addMarkerManager(markerManager);
+		markerManager.enableDrawing();
+	}
+	
 	/**
 	 * Reset the map to initial state
 	 */
-	void reset()
+	public void reset()
 	{
 		resetMapZoom(false);
 		initializeMaps();
@@ -146,7 +210,7 @@ public class WMV_Map
 	 * @param mapWidth
 	 * @param mapHeight
 	 */
-	void createSelectableClusters(float mapWidth, float mapHeight)
+	public void createSelectableClusters(float mapWidth, float mapHeight)
 	{
 		selectableClusters = new ArrayList<Ellipsoid>();
 		selectableClusterIDs = new IntList();
@@ -162,7 +226,6 @@ public class WMV_Map
 					Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 4, 4);
 //					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f * mapDistance;
 					float radius = PApplet.sqrt(c.mediaCount) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
-;
 
 					ellipsoid.setRadius(radius);
 					ellipsoid.drawMode(S3D.SOLID);
@@ -239,25 +302,47 @@ public class WMV_Map
 	/**
 	 * Draw large map
 	 */
-	void drawLargeMap()
+	void drawLargeMap(boolean showMap)
 	{
-		p.p.p.pushMatrix();
-		p.beginHUD();											
-		
-		p.p.p.fill(55, 0, 255, 255);
-//		p.p.p.textSize(p.largeTextSize);
-		p.p.p.textSize(p.veryLargeTextSize);
-		float textXPos = p.centerTextXOffset;
-		float textYPos = p.topTextYOffset;
+		if(!showMap)
+		{
+			p.p.p.pushMatrix();
+			p.beginHUD();											
 
-		if(p.p.interactive)
-			p.p.p.text("Interactive "+(p.p.hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, p.hudDistance);
+			p.p.p.fill(55, 0, 255, 255);
+			p.p.p.textSize(p.veryLargeTextSize);
+			float textXPos = p.centerTextXOffset;
+			float textYPos = p.topTextYOffset;
+
+			if(p.p.interactive)
+				p.p.p.text("Interactive "+(p.p.hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, p.hudDistance);
+			else
+				p.p.p.text(p.p.getCurrentField().name, textXPos, textYPos, p.hudDistance);
+
+			p.p.p.popMatrix();
+
+			drawMap(largeMapWidth, largeMapHeight, largeMapXOffset, largeMapYOffset);
+		}
 		else
-			p.p.p.text(p.p.getCurrentField().name, textXPos, textYPos, p.hudDistance);
+		{
+			float camInitFov = p.p.viewer.getInitFieldOfView();
+			p.p.p.camera();
+//			p.p.p.translate(map.getWidth() * 0.5f, map.getHeight() * 0.5f, 0);
+//			p.p.p.perspective(camInitFov, (float)p.p.p.width/(float)p.p.p.height, p.p.viewer.getNearClippingDistance(), 10000);
+			
+//			PVector t = new PVector(p.p.viewer.camera.position()[0], p.p.viewer.camera.position()[1], p.p.viewer.camera.position()[2]);
+//			p.p.p.translate(t.x, t.y, t.z);
+//			p.p.p.translate(0, 0, -p.hudDistance * 0.75f);
+//			p.p.p.rotateY(p.p.viewer.camera.attitude()[0]);
+//			p.p.p.rotateX(-p.p.viewer.camera.attitude()[1]);
+//			p.p.p.rotateZ(p.p.viewer.camera.attitude()[2]);
+//			PApplet.println("map.width:"+map.getWidth()+" map.height:"+map.getHeight());
 
-		p.p.p.popMatrix();
-		
-		drawMap(largeMapWidth, largeMapHeight, largeMapXOffset, largeMapYOffset);
+//			p.p.p.pushMatrix();
+			p.p.p.tint(255.f, 255.f);
+			map.draw();
+//			p.p.p.popMatrix();
+		}
 	}
 	
 	/**

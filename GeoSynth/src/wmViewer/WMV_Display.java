@@ -23,6 +23,7 @@ class WMV_Display
 	
 	/* Display Modes */
 	public int displayView = 0;					// 0: Scene 1: Map 2: Cluster
+	public boolean satelliteMap = true;
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -170,7 +171,7 @@ class WMV_Display
 
 				if(displayView == 1)
 				{
-					map2D.drawLargeMap();
+					map2D.drawLargeMap(satelliteMap);
 					if(map2D.scrollTransition)
 						map2D.updateMapScrollTransition();
 					if(map2D.zoomToRectangleTransition)
@@ -212,7 +213,7 @@ class WMV_Display
 	 */
 	void displayInteractiveClustering()
 	{
-		map2D.drawLargeMap();
+		map2D.drawLargeMap(false);
 		if(messages.size() > 0) displayMessages();
 	}
 

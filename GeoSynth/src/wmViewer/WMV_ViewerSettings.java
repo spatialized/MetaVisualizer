@@ -53,14 +53,14 @@ public class WMV_ViewerSettings
 	public float turningYAccelInc = 0.0001f;
 
 	/* Interaction Modes */
-	public boolean mouseNavigation = false;				// Mouse navigation
-	public boolean map3DMode = false;					// 3D Map Mode
 	public boolean selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see
-	public boolean optimizeVisibility = true;			// Optimize visibility automatically
+	public boolean optimizeVisibility = true;			// Optimize visibility automatically by turning towards media / changing graphics modes
 	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
 	public boolean multiSelection = false;				// User can select multiple images for stitching
 	public boolean segmentSelection = false;			// Select image segments at a time
-	public boolean videoMode = false;					// Highlights videos by dimming other media types	-- Unused
+	public boolean mouseNavigation = false;				// Mouse navigation
+	public boolean map3DMode = false;					// 3D Map Mode
+//	public boolean videoMode = false;					// Highlights videos by dimming other media types	-- Unused
 
 	/* Interaction */
 	public int mediaDensityThreshold = 12;				// Number of images or videos counted as high density
@@ -118,14 +118,14 @@ public class WMV_ViewerSettings
 		turningYAccelInc = 0.0001f;
 
 		/* Interaction Modes */
-		mouseNavigation = false;			// Mouse navigation
-		map3DMode = false;					// 3D Map Mode
 		selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see
 		optimizeVisibility = true;			// Optimize visibility automatically
 		lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
 		multiSelection = false;				// User can select multiple images for stitching
 		segmentSelection = false;			// Select image segments at a time
-		videoMode = false;					// Highlights videos by dimming other media types	-- Unused
+		mouseNavigation = false;			// Mouse navigation
+		map3DMode = false;					// 3D Map Mode		-- Unused
+//		videoMode = false;					// Highlights videos by dimming other media types	-- Unused
 
 		/* Interaction */
 		selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance

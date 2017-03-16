@@ -85,7 +85,7 @@ public class WMV_Input
 		switch(button.tag) 
 		{
 			case "Restart":
-				p.p.restartWorldMediaViewer();
+				p.p.restart();
 				break;
 	
 			/* Navigation */
@@ -418,7 +418,7 @@ public class WMV_Input
 	void handleKeyPressed(char key, int keyCode)
 	{
 //		PApplet.println("handleKeyPressed keyCode: "+keyCode + " on frame:"+p.p.frameCount);
-		if (!p.p.state.running)
+		if (!p.p.state.running && !p.p.state.selectedLibrary)
 		{
 			p.p.state.openLibraryDialog = true;
 		}
@@ -494,6 +494,7 @@ public class WMV_Input
 					p.display.window.openNavigationWindow();
 				else
 					p.display.window.hideNavigationWindow();
+				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '2') 
@@ -502,6 +503,7 @@ public class WMV_Input
 					p.display.window.openTimeWindow();
 				else
 					p.display.window.hideTimeWindow();
+				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '3') 
@@ -510,6 +512,7 @@ public class WMV_Input
 					p.display.window.openGraphicsWindow();
 				else
 					p.display.window.hideGraphicsWindow();
+				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '4') 
@@ -518,6 +521,7 @@ public class WMV_Input
 					p.display.window.openModelWindow();
 				else
 					p.display.window.hideModelWindow();
+				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '5') 
@@ -526,6 +530,7 @@ public class WMV_Input
 					p.display.window.openMemoryWindow();
 				else
 					p.display.window.hideMemoryWindow();
+				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '6') 
@@ -534,6 +539,7 @@ public class WMV_Input
 					p.display.window.openSelectionWindow();
 				else
 					p.display.window.hideSelectionWindow();
+				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '7') 
@@ -542,6 +548,7 @@ public class WMV_Input
 					p.display.window.openStatisticsWindow();
 				else
 					p.display.window.hideStatisticsWindow();
+				commandKey = false;
 			}
 			
 			if (!optionKey && commandKey && key == '8') 
@@ -550,15 +557,11 @@ public class WMV_Input
 					p.display.window.openHelpWindow();
 				else
 					p.display.window.hideHelpWindow();
-			}
-
-			if (key == '+')
-			{
-
+				commandKey = false;
 			}
 
 			if (key == 'R')
-				p.p.restartWorldMediaViewer();
+				p.p.restart();
 
 			if(p.display.displayView == 1)	/* 2D Map View */
 			{

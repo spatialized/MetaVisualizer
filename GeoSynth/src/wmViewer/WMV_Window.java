@@ -96,7 +96,7 @@ public class WMV_Window {
 	int memoryWindowHeight;
 	
 	/* Selection Window */
-	private GLabel lblSelection;
+	private GLabel lblSelection, lblSelectionOptions;
 	public GCheckbox chkbxSelectionMode, chkbxMultiSelection, chkbxSegmentSelection, chkbxShowMetadata;
 	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnStitchPanorama;
 	public GLabel lblCommand6;
@@ -122,6 +122,7 @@ public class WMV_Window {
 		graphicsWindowHeight = longWindowHeight;
 		modelWindowHeight = shortWindowHeight + 100;
 		memoryWindowHeight = shortWindowHeight;
+		selectionWindowHeight = shortWindowHeight;
 		statisticsWindowHeight = longWindowHeight;
 		helpWindowHeight = longWindowHeight;
 	}
@@ -504,16 +505,16 @@ public class WMV_Window {
 		lblTimeSettings.setTextAlign(GAlign.CENTER, null);
 		lblTimeSettings.setTextBold();
 
-		x = 90;
+		x = 100;
 		y += 30;
 		
-		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 120, 20, "Time Fading  ⇧T");
+		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, 20, "Time Fading  ⇧T");
 		chkbxTimeFading.tag = "TimeFading";
 		chkbxTimeFading.setLocalColorScheme(10);
 		chkbxTimeFading.setSelected(p.p.timeFading);
 
 		x = 150;
-		y += 30;
+		y += 35;
 
 		sdrMediaLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrMediaLength.setLocalColorScheme(7);
@@ -894,13 +895,6 @@ public class WMV_Window {
 		chkbxCaptureToCluster.setLocalColorScheme(10);
 		chkbxCaptureToCluster.setSelected(false);
 
-//		x = 40;
-//		y = modelWindowHeight - 40;
-//		
-//		btnCloseModelWindow = new GButton(modelWindow, x, y, 180, 20, "Close Window");
-//		btnCloseModelWindow.tag = "CloseModelWindow";
-//		btnCloseModelWindow.setLocalColorScheme(0);
-
 		x = 0;
 		y = modelWindowHeight - 25;
 		lblCommand4 = new GLabel(modelWindow, x, y, modelWindow.width, 20);						/* Display Mode Label */
@@ -924,19 +918,11 @@ public class WMV_Window {
 		
 		int x = 0, y = 10;
 
-		/* Selection Window */
 		lblMemory = new GLabel(memoryWindow, x, y, memoryWindow.width, 20, "Memory");
 		lblMemory.setLocalColorScheme(10);
 		lblMemory.setTextAlign(GAlign.CENTER, null);
 		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		lblMemory.setTextBold();
-
-//		x = 40;
-//		y = memoryWindowHeight - 40;
-//		
-//		btnCloseMemoryWindow = new GButton(memoryWindow, x, y, 180, 20, "Close Window");
-//		btnCloseMemoryWindow.tag = "CloseMemoryWindow";
-//		btnCloseMemoryWindow.setLocalColorScheme(0);
 
 		x = 0;
 		y = memoryWindowHeight - 25;
@@ -960,52 +946,31 @@ public class WMV_Window {
 		
 		int x = 0, y = 10;
 
-		/* Selection Window */
 		lblSelection = new GLabel(selectionWindow, x, y, selectionWindow.width, 20, "Selection");
 		lblSelection.setLocalColorScheme(10);
 		lblSelection.setTextAlign(GAlign.CENTER, null);
 		lblSelection.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		lblSelection.setTextBold();
 
-		x = 100;
+		x = 120;
 		y += 30;
 
-		chkbxSelectionMode = new GCheckbox(selectionWindow, x, y, 110, 20, "Enable Selection");
+		chkbxSelectionMode = new GCheckbox(selectionWindow, x, y, 90, 20, "Enable");
 		chkbxSelectionMode.tag = "SelectionMode";
+		chkbxSelectionMode.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		chkbxSelectionMode.setLocalColorScheme(10);
-		x = 105;
-		y += 25;
-		
-		chkbxMultiSelection = new GCheckbox(selectionWindow, x, y, 180, 20, "Select Multiple");
-		chkbxMultiSelection.tag = "MultiSelection";
-		chkbxMultiSelection.setLocalColorScheme(10);
-
-		x = 100;
-		y += 25;
-		
-		chkbxSegmentSelection = new GCheckbox(selectionWindow, x, y, 180, 20, "Select Segments");
-		chkbxSegmentSelection.tag = "SegmentSelection";
-		chkbxSegmentSelection.setLocalColorScheme(10);
 		
 		x = 100;
-		y += 25;
-		
-		chkbxShowMetadata = new GCheckbox(selectionWindow, x, y, 110, 20, "View Metadata");
-		chkbxShowMetadata.tag = "ViewMetadata";
-		chkbxShowMetadata.setLocalColorScheme(10);
-		
-		
-		x = 100;
-		y += 30;
+		y += 35;
 		
 		btnSelectFront = new GButton(selectionWindow, x, y, 110, 20, "Select (x)");
 		btnSelectFront.tag = "SelectFront";
 		btnSelectFront.setLocalColorScheme(5);
 
 		x = 100;
-		y += 25;
+		y += 30;
 		
-		btnDeselectFront = new GButton(selectionWindow, x, y, 110, 20, "Deselect (x)");
+		btnDeselectFront = new GButton(selectionWindow, x, y, 110, 20, "Deselect (X)");
 		btnDeselectFront.tag = "DeselectFront";
 		btnDeselectFront.setLocalColorScheme(5);
 
@@ -1016,10 +981,40 @@ public class WMV_Window {
 		btnDeselectAll.tag = "DeselectAll";
 		btnDeselectAll.setLocalColorScheme(5);
 
+		x = 0;
+		y += 30;
+
+		lblSelectionOptions = new GLabel(selectionWindow, x, y, selectionWindow.width, 20, "Options");
+		lblSelectionOptions.setLocalColorScheme(10);
+		lblSelectionOptions.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblSelectionOptions.setTextAlign(GAlign.CENTER, null);
+		lblSelectionOptions.setTextBold();
+
+		x = 95;
+		y += 25;
+		
+		chkbxMultiSelection = new GCheckbox(selectionWindow, x, y, 180, 20, "Allow Multiple");
+		chkbxMultiSelection.tag = "MultiSelection";
+		chkbxMultiSelection.setLocalColorScheme(10);
+
+		x = 95;
+		y += 25;
+		
+		chkbxSegmentSelection = new GCheckbox(selectionWindow, x, y, 180, 20, "Select Groups");
+		chkbxSegmentSelection.tag = "SegmentSelection";
+		chkbxSegmentSelection.setLocalColorScheme(10);
+		
+		x = 95;
+		y += 25;
+		
+		chkbxShowMetadata = new GCheckbox(selectionWindow, x, y, 110, 20, "View Metadata");
+		chkbxShowMetadata.tag = "ViewMetadata";
+		chkbxShowMetadata.setLocalColorScheme(10);
+
 		x = 85;
 		y += 25;
 
-		btnStitchPanorama = new GButton(selectionWindow, x, y, 140, 20, "Stitch Selection  (|)");
+		btnStitchPanorama = new GButton(selectionWindow, x, y, 140, 20, "Stitch Selection  (⇧\\)");
 		btnStitchPanorama.tag = "StitchPanorama";
 		btnStitchPanorama.setLocalColorScheme(7);
 		
@@ -1186,24 +1181,43 @@ public class WMV_Window {
 			applet.fill(255, 255, 255);
 
 			applet.textSize(smallTextSize);
-			applet.text(" Time Mode: "+ ((p.p.p.world.getTimeMode() == 0) ? "Cluster" : "Field"), x, y += lineWidthVeryWide);
-
-			//		if(p.p.p.world.timeMode == 0)
-			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
-			applet.text(" Current Field Time Segment: "+ p.p.viewer.currentFieldTimeSegment, x, y += lineWidth);
-			applet.text(" Current Cluster Time Segment: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
-			//		if(p.p.p.world.timeMode == 1)
-			applet.text(" Current Cluster Time: "+ p.p.getCurrentCluster().currentTime, x, y += lineWidth);
-			applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().timeline.size(), x, y += lineWidth);
-			applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().dateline.size(), x, y += lineWidth);
+			
+			int mode = p.p.p.world.getTimeMode();
+			if( mode == 0 || mode == 1 )
+			{
+				int curTime = (mode == 0) ? p.p.getCurrentCluster().currentTime : p.p.currentTime;
+				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
+			}
 
 			WMV_Field f = p.p.getCurrentField();
-			if(f.timeline.size() > 0 && p.p.viewer.currentFieldTimeSegment >= 0 && p.p.viewer.currentFieldTimeSegment < f.timeline.size())
-				applet.text(" Upper: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getUpper().getTime()+
-						" Center:"+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getCenter().getTime()+
-						" Lower: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
-			applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
-			applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().dateline.size(), x, y += lineWidth);
+
+			switch(mode)
+			{
+				case 0:
+					applet.text(" Time Mode: Cluster", x, y += lineWidthVeryWide);
+					if(f.timeline.size() > 0 && p.p.viewer.currentFieldTimeSegment >= 0 && p.p.viewer.currentFieldTimeSegment < f.timeline.size())
+						applet.text(" Upper: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getUpper().getTime()+
+								" Center:"+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getCenter().getTime()+
+								" Lower: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
+					applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
+					applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().dateline.size(), x, y += lineWidth);
+					break;
+				case 1:
+					applet.text(" Time Mode: Field", x, y += lineWidthVeryWide);
+					break;
+				case 2:
+					applet.text(" Time Mode: Media", x, y += lineWidthVeryWide);
+					applet.text(" Current Media: "+ p.p.viewer.currentMedia, x, y += lineWidth);
+					break;
+//				case 3:
+//					applet.text(" Time Mode: Flexible"), x, y += lineWidthVeryWide);
+//					break;
+			}
+			
+//			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
+			applet.text(" Current Field Time Segment: "+ p.p.viewer.currentFieldTimeSegment, x, y += lineWidthVeryWide);
+			applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().timeline.size(), x, y += lineWidth);
+			applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().dateline.size(), x, y += lineWidth);
 		}
 	}
 

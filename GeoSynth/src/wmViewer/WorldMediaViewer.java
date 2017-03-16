@@ -130,7 +130,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	/**
 	 * Restart the program
 	 */
-	void restartWorldMediaViewer()
+	void restart()
 	{
 		state.reset();
 		world.viewer.initialize(0,0,0);

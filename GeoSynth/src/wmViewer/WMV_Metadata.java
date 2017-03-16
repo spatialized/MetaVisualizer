@@ -54,7 +54,7 @@ class WMV_Metadata
 	public File exifToolFile;										// File for ExifTool executable
 
 	WMV_Utilities u;												// Utility class
-	WMV_Field f;													// Parent field
+	WMV_Field f;													// Field to load metadata into
 	WorldMediaViewer p;
 	
 	WMV_Metadata(WorldMediaViewer parent)
@@ -64,34 +64,59 @@ class WMV_Metadata
 	}
 
 	/**
-	 * Load metadata for the field
+	 * Load metadata from a folder into a field 
 	 */
-	public void load(WMV_Field field)
+	public void load(WMV_Field field, String mediaFolder, boolean formatted)
 	{
-		library = p.library.getLibraryFolder();
+		if(formatted)				// mediaFolder is a correctly formatted library
+		{
+			library = mediaFolder;
 
-		f = field;
-		String fieldPath = f.name;
-		
-		loadImageFolders(library, fieldPath); 	// Load image file names
-		loadVideoFolder(library, fieldPath); 	// Load video file names
-		loadSoundFolder(library, fieldPath); 	// Load video file names
+			f = field;
+			String fieldPath = f.name;
 
-		iCount = 0; 
-		pCount = 0;
-		vCount = 0;
+			loadImageFolders(library, fieldPath); 	// Load image file names
+			loadVideoFolder(library, fieldPath); 	// Load video file names
+			loadSoundFolder(library, fieldPath); 	// Load video file names
 
-		if(imageFilesFound || smallImageFilesFound)
-			loadImageMetadata(imageFiles);						// Load image metadata 
+			iCount = 0; 
+			pCount = 0;
+			vCount = 0;
 
-		if(panoramaFilesFound)									// Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
-			loadImageMetadata(panoramaFiles);
+			if(imageFilesFound || smallImageFilesFound)
+				loadImageMetadata(imageFiles);						// Load image metadata 
 
-		if(videoFilesFound)										// Load video metadata 
-			loadVideoMetadata(videoFiles);	
+			if(panoramaFilesFound)									// Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
+				loadImageMetadata(panoramaFiles);
 
-		if(soundFilesFound)										// Load video metadata 
-			loadSounds(soundFiles);	
+			if(videoFilesFound)										// Load video metadata 
+				loadVideoMetadata(videoFiles);	
+
+			if(soundFilesFound)										// Load video metadata 
+				loadSounds(soundFiles);	
+		}
+		else						// mediaFolder is an ordinary folder of media
+		{
+			f = field;
+			
+			// -- GO THROUGH SUBFOLDERS, CHECK FILE EXTENSIONS AND CREATE ARRAYS HERE
+
+			iCount = 0; 
+			pCount = 0;
+			vCount = 0;
+
+			if(imageFiles != null)
+				loadImageMetadata(imageFiles);							// Load image metadata 
+
+			if(panoramaFiles != null)									// Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
+				loadImageMetadata(panoramaFiles);
+
+			if(videoFiles != null)										// Load video metadata 
+				loadVideoMetadata(videoFiles);	
+
+			if(soundFiles != null)										// Load sounds (no metadata)
+				loadSounds(soundFiles);	
+		}
 	}
 	
 	/**

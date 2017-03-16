@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.core.PVector;
 import processing.data.IntList;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
@@ -105,7 +106,7 @@ public class WMV_World
 	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
 	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
 	public float minClusterDistance = 2.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-	public float maxClusterDistance = 10.f;				// Maximum distance between cluster center and media
+	public float maxClusterDistance = 12.f;				// Maximum distance between cluster center and media
 	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
@@ -168,7 +169,7 @@ public class WMV_World
 
 	void run()
 	{
-		if ( !initialSetup && !interactive && !p.exit ) 		/* Running the program */
+		if ( !initialSetup && !interactive && !p.state.exit ) 		/* Running the program */
 		{
 			draw3D();						// 3D Display
 			draw2D();						// 2D Display
@@ -176,7 +177,7 @@ public class WMV_World
 			// updateLeapMotion();			// Update Leap Motion 
 		}
 		
-		if ( p.exit ) 											/* Stopping the program */
+		if ( p.state.exit ) 											/* Stopping the program */
 		{
 			if(p.debug.detailed)
 				PApplet.println("Exit command! about to quit...");
@@ -213,14 +214,14 @@ public class WMV_World
 	{
 		float fieldProgressInc = 100.f;
 	
-		if (p.openLibraryDialog)
+		if (p.state.openLibraryDialog)
 		{
 			p.selectFolderPrompt();
-			p.openLibraryDialog = false;
+			p.state.openLibraryDialog = false;
 		}
 		
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
-		if (p.selectedLibrary && initialSetup && !creatingFields && !p.running)
+		if (p.state.selectedLibrary && initialSetup && !creatingFields && !p.state.running)
 		{
 			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder	
 
@@ -238,13 +239,13 @@ public class WMV_World
 			creatingFields = true;
 		}
 
-		if (p.selectedLibrary && initialSetup && creatingFields && !fieldsCreated)	// Initialize fields
+		if (p.state.selectedLibrary && initialSetup && creatingFields && !fieldsCreated)	// Initialize fields
 		{
-			if(!fieldsCreated && !p.exit)
+			if(!fieldsCreated && !p.state.exit)
 			{
 				WMV_Field f = getField(initializationField);
 
-				p.metadata.load(f);								// Import metadata for all media in field
+				p.metadata.load(f, p.library.getLibraryFolder(), true);								// Import metadata for all media in field
 				f.initialize(p.library.getLibraryFolder());		// Initialize field
 				
 				setupProgress += fieldProgressInc;				// Update progress bar
@@ -258,7 +259,7 @@ public class WMV_World
 			}
 		}
 		
-		if (fieldsCreated && initialSetup && !p.running)
+		if (fieldsCreated && initialSetup && !p.state.running)
 		{
 			if(p.debug.main)
 				PApplet.println("Finishing WMV_World setup()...");
@@ -266,13 +267,13 @@ public class WMV_World
 			finishSetup();
 		}
 
-		if(p.selectedLibrary && !initialSetup && !interactive && !p.running)	/* Initial clustering once library is selected */
+		if(p.state.selectedLibrary && !initialSetup && !interactive && !p.state.running)	/* Initial clustering once library is selected */
 			startInitialClustering();							
 		
-		if(startInteractive && !interactive && !p.running)		/* Start interactive clustering */
+		if(startInteractive && !interactive && !p.state.running)		/* Start interactive clustering */
 			startInteractiveClustering();						
 		
-		if(interactive && !startInteractive && !p.running)		/* Running interactive clustering */
+		if(interactive && !startInteractive && !p.state.running)		/* Running interactive clustering */
 			runInteractiveClustering();							
 	}
 	
@@ -444,19 +445,75 @@ public class WMV_World
 			PApplet.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
 	}
 	
+//	/**
+//	 * Load image masks
+//	 */
+//	public boolean loadImageMasks(String libFolder)
+//	{
+//		String maskPath = libFolder + "masks/";
+////		stitchingPath = libFolder + "stitched/";
+//		File maskFolder = new File(maskPath);
+//		String[] maskFolderList = maskFolder.list();
+//		
+//		if(maskFolder.list() == null)
+//		{
+//			return false;
+//		}
+//		else
+//		{
+//			for(String mask : maskFolderList)
+//			{
+//				if(mask.equals("blurMaskLeftTop.jpg"))
+//					blurMaskLeftTop = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskLeftCenter.jpg"))
+//					blurMaskLeftCenter = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskLeftBottom.jpg"))
+//					blurMaskLeftBottom = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskLeftBoth.jpg"))
+//					blurMaskLeftBoth = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskCenterTop.jpg"))
+//					blurMaskCenterTop = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskCenterCenter.jpg"))
+//					blurMaskCenterCenter = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskCenterBottom.jpg"))
+//					blurMaskCenterBottom = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskCenterBoth.jpg"))
+//					blurMaskCenterBoth = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskRightTop.jpg"))
+//					blurMaskRightTop = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskRightCenter.jpg"))
+//					blurMaskRightCenter = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskRightBottom.jpg"))
+//					blurMaskRightBottom = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskRightBoth.jpg"))
+//					blurMaskRightBoth = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskBothTop.jpg"))
+//					blurMaskBothTop = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskBothCenter.jpg"))
+//					blurMaskBothCenter = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskBothBottom.jpg"))
+//					blurMaskBothBottom = p.loadImage(maskPath + mask);
+//				if(mask.equals("blurMaskBothBoth.jpg"))
+//					blurMaskBothBoth = p.loadImage(maskPath + mask);
+//			}
+//		}
+//		
+//		return true;
+//	}
+	
+	
 	/**
 	 * Load image masks
 	 */
-	public boolean loadImageMasks(String libFolder)
+	public void loadImageMasks()
 	{
-		String maskPath = libFolder + "masks/";
-		stitchingPath = libFolder + "stitched/";
+		String maskPath = "masks/";
 		File maskFolder = new File(maskPath);
 		String[] maskFolderList = maskFolder.list();
 		
 		if(maskFolder.list() == null)
 		{
-			return false;
+			PApplet.println("Masks folder is empty!");
 		}
 		else
 		{
@@ -496,8 +553,6 @@ public class WMV_World
 					blurMaskBothBoth = p.loadImage(maskPath + mask);
 			}
 		}
-		
-		return true;
 	}
 	
 	/**
@@ -518,7 +573,7 @@ public class WMV_World
 		
 		setupProgress = 100;
 
-		p.running = true;
+		p.state.running = true;
 		startedRunning = true;
 		
 	}
@@ -563,21 +618,11 @@ public class WMV_World
 		startInteractive = false;				// Start user clustering
 
 		/* Time */
-//		timeMode = 0;							// Time Mode (0 = cluster; 1 = field)
 		timeFading = false;						// Does time affect media brightness? 
 		paused = false;							// Time is paused
 
-		currentTime = 0;							// Time units since start of time cycle (day / month / year)
-//		settings.timeCycleLength = 250;					// Length of main time loop in frames
-//		timeUnitLength = 1;						// How many frames between time increments
-//		settings.timeInc = settings.timeCycleLength / 30.f;			
-
-		currentDate = 0;							// Date units since start of date cycle (day / month / year)
-//		dateCycleLength = 500;					// Length of main date loop in frames
-//		dateUnitLength = 1;						// How many frames between date increments
-//		dateInc = dateCycleLength / 30.f;			
-//
-//		settings.defaultMediaLength = initsettings.defaultMediaLength;			// Default frame length of media in time cycle
+		currentTime = 0;						// Time units since start of time cycle (day / month / year)
+		currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
 
 		/* Graphics */
 		hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
@@ -596,15 +641,6 @@ public class WMV_World
 		/* Video */
 		initializationField = 0;				// Field to be initialized this frame
 		setupProgress = 0;						// Setup progress (0 to 100)
-		
-		/* Viewer */
-//		orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
-//		angleFading = true;						// Do photos fade out as the camera turns away from them?
-//
-//		visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
-//		centeredAngle = visibleAngle / 2.f;		// At what angle is the image centered?
-//		angleThinning = false;					// Thin images and videos of similar orientation
-//		thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 
 		/* Model */
 		defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
@@ -668,7 +704,7 @@ public class WMV_World
 		display.sendSetupMessage("Starting WorldMediaViewer v1.0...");	// Show startup message
 		display.draw();											
 
-		p.running = false;					// Stop running
+		p.state.running = false;					// Stop running
 		initialSetup = true;				// Start clustering mode
 	}
 	
@@ -679,7 +715,7 @@ public class WMV_World
 	{
 		p.background(0.f);					// Clear screen
 		
-		p.running = false;					// Stop running simulation
+		p.state.running = false;					// Stop running simulation
 		interactive = true;					// Start interactive clustering mode
 		startInteractive = false;			// Have started
 		
@@ -712,7 +748,7 @@ public class WMV_World
 
 		interactive = false;				// Stop interactive clustering mode
 		startedRunning = true;				// Start GMViewer running
-		p.running = true;	
+		p.state.running = true;	
 		
 		viewer.setCurrentCluster( viewer.getNearestCluster(false), -1 );
 		getCurrentField().blackoutMedia();
@@ -886,7 +922,8 @@ public class WMV_World
 	{
 		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
 
-		for(int i : viewer.getNearClusters(-1, defaultFocusDistance))
+//		for(int i : viewer.getNearClusters(-1, defaultFocusDistance))
+		for(int i : viewer.getNearClusters(-1, maxClusterDistance))
 		{
 			WMV_Cluster c = getCluster(i);
 			if(c.isActive() && !c.isEmpty())
@@ -1016,16 +1053,18 @@ public class WMV_World
 		else
 			return null;
 	}
-	
 
 	/**
-	 * -- TO DO!!
-	 * Create fields from detected k-means clusters in single media folder 
+	 * Import media and create new library by detecting fields using k-means clustering
 	 * @param mediaFolder Folder containing the media
 	 */
-	public void createFieldsFromFolder(String mediaFolder)
+	public void createLibrary(String mediaFolder)
 	{
 		fields = new ArrayList<WMV_Field>();			// Initialize fields array
+		
+//		WMV_Field largeField = createLargeFieldFromFolder(mediaFolder);
+//		fields = divideField(largeField, 3000.f, 15000.f);			
+		
 //		ArrayList<GMV_Cluster> clusters;		
 //		int count = 0;
 //		for(String s : clusters)
@@ -1034,6 +1073,208 @@ public class WMV_World
 //			count++;
 //		}
 //		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
+	}
+	
+	/**
+	 * Detect and return multiple fields via k-means clustering 
+	 * @param f Field to divide
+	 * @return List of created fields
+	 */
+	ArrayList<WMV_Field> divideField(WMV_Field f, float minFieldDistance, float maxFieldDistance)
+	{
+		ArrayList<WMV_Cluster> fieldClusters = new ArrayList<WMV_Cluster>();			// Clear current cluster list
+
+		/* Estimate number of clusters */
+		int numFields = 10; 								// Estimate number of clusters 
+		float epsilon = kMeansClusteringEpsilon;
+		int refinement = 60;
+				
+		/* K-means Clustering */
+		IntList addedImages = new IntList();			// Images already added to clusters; should include all images at end
+		IntList nearImages = new IntList();			// Images nearby added media 
+
+		IntList addedPanoramas = new IntList();		// Panoramas already added to clusters; should include all panoramas at end
+		IntList nearPanoramas = new IntList();		// Panoramas nearby added media 
+
+		IntList addedVideos = new IntList();			// Videos already added to clusters; should include all videos at end
+		IntList nearVideos = new IntList();			// Videos nearby added media 
+
+		for (int i = 0; i < numFields; i++) 		// Iterate through the clusters
+		{
+			int imageID, panoramaID, videoID;			
+
+			if(i == 0)			
+			{
+				long clusteringRandomSeed = (long) p.random(1000.f);
+				p.randomSeed(clusteringRandomSeed);
+				imageID = (int) p.random(f.images.size());  			// Random image ID for setting cluster's start location				
+				panoramaID = (int) p.random(f.panoramas.size());  		// Random panorama ID for setting cluster's start location				
+				videoID = (int) p.random(f.videos.size());  			// Random video ID for setting cluster's start location				
+				addedImages.append(imageID);								
+				addedPanoramas.append(panoramaID);								
+				addedVideos.append(videoID);								
+
+				for(WMV_Image img : f.images)						// Check for images near the picked one
+				{
+					float dist = img.getCaptureDistanceFrom(f.images.get(imageID).getCaptureLocation());  // Get distance
+					if(dist < minFieldDistance)
+						nearImages.append(img.getID());				// Record images nearby picked image
+				}
+
+				for(WMV_Panorama pano : f.panoramas)				// Check for panoramas near the picked one 
+				{
+					float dist = pano.getCaptureDistanceFrom(f.panoramas.get(panoramaID).getCaptureLocation());  // Get distance
+					if(dist < minFieldDistance)
+						nearPanoramas.append(pano.getID());			// Add to the list of nearby picked images
+				}
+
+				for(WMV_Video vid : f.videos)				// Check for panoramas near the picked one 
+				{
+					float dist = vid.getCaptureDistanceFrom(f.videos.get(videoID).getCaptureLocation());  // Get distance
+					if(dist < minFieldDistance)
+						nearVideos.append(vid.getID());			// Add to the list of nearby picked images
+				}
+
+				PVector clusterPoint = new PVector(0,0,0);				// Create first cluster 
+				if(f.images.size() > 0)
+				{
+					PVector imgLoc = f.images.get(imageID).getCaptureLocation();
+					clusterPoint = new PVector(imgLoc.x, imgLoc.y, imgLoc.z); // Choose random image location to start
+					fieldClusters.add(new WMV_Cluster(f, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+					i++;
+				}
+				else if(f.panoramas.size() > 0)
+				{
+					PVector panoLoc = f.panoramas.get(panoramaID).getCaptureLocation();
+					clusterPoint = new PVector(panoLoc.x, panoLoc.y, panoLoc.z); // Choose random panorama location to start
+					fieldClusters.add(new WMV_Cluster(f, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+					i++;
+				}
+				else if(f.videos.size() > 0)
+				{
+					PVector vidLoc = f.videos.get(videoID).getCaptureLocation();
+					clusterPoint = new PVector(vidLoc.x, vidLoc.y, vidLoc.z); // Choose random video location to start
+					fieldClusters.add(new WMV_Cluster(f, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+					i++;
+				}
+			}
+			else											// Find a random media (image, panorama or video) location for new cluster
+			{
+				int mediaID = (int) p.random(f.images.size() + f.panoramas.size() + f.videos.size());
+				PVector clusterPoint = new PVector(0,0,0);
+
+				if( mediaID < f.images.size() )				// If image, compare to already picked images
+				{
+					imageID = (int) p.random(f.images.size());  						
+					while(addedImages.hasValue(imageID) && nearImages.hasValue(imageID))
+						imageID = (int) p.random(f.images.size());  						
+
+					addedImages.append(imageID);
+					
+					PVector imgLoc = f.images.get(imageID).getCaptureLocation();
+					clusterPoint = new PVector(imgLoc.x, imgLoc.y, imgLoc.z); // Choose random image location to start
+				}
+				else if( mediaID < f.images.size() + f.panoramas.size() )		// If panorama, compare to already picked panoramas
+				{
+					panoramaID = (int) p.random(f.panoramas.size());  						
+					while(addedPanoramas.hasValue(panoramaID) && nearPanoramas.hasValue(panoramaID))
+						panoramaID = (int) p.random(f.panoramas.size());  						
+
+					addedPanoramas.append(panoramaID);
+					
+					PVector panoLoc = f.panoramas.get(panoramaID).getCaptureLocation();
+					clusterPoint = new PVector(panoLoc.x, panoLoc.y, panoLoc.z); // Choose random image location to start
+				}
+				else if( mediaID < f.images.size() + f.panoramas.size() + f.videos.size() )		// If video, compare to already picked videos
+				{
+					videoID = (int) p.random(f.videos.size());  						
+					while(addedImages.hasValue(videoID) && nearImages.hasValue(videoID))
+						videoID = (int) p.random(f.videos.size());  						
+
+					addedVideos.append(videoID);
+					
+					PVector vidLoc = f.videos.get(videoID).getCaptureLocation();
+					clusterPoint = new PVector(vidLoc.x, vidLoc.y, vidLoc.z); // Choose random image location to start
+				}
+
+				fieldClusters.add(new WMV_Cluster(f, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+			}
+		}	
+		
+		/* Refine fields */
+		int count = 0;
+		boolean moved = false;									// Whether any cluster has moved farther than epsilon
+
+		ArrayList<WMV_Cluster> last = fieldClusters;
+		
+		if(p.debug.field)
+			PApplet.println("--> Refining fields...");
+
+		while( count < refinement ) 							// Iterate to create the clusters
+		{		
+			for (int i = 0; i < f.images.size(); i++) 			// Find closest cluster for each image
+				f.images.get(i).findAssociatedCluster(fieldClusters, maxFieldDistance);		// Set associated cluster
+			for (int i = 0; i < f.panoramas.size(); i++) 		// Find closest cluster for each image
+				f.panoramas.get(i).findAssociatedCluster(fieldClusters, maxFieldDistance);		// Set associated cluster
+			for (int i = 0; i < f.videos.size(); i++) 		// Find closest cluster for each panorama
+				f.videos.get(i).findAssociatedCluster(fieldClusters, maxFieldDistance);		// Set associated cluster
+			for (int i = 0; i < fieldClusters.size(); i++) 		// Find closest cluster for each video
+				fieldClusters.get(i).create();					// Assign clusters
+
+			if(fieldClusters.size() == last.size())				// Check cluster movement
+			{
+				for(WMV_Cluster c : fieldClusters)
+				{
+					float closestDist = 10000.f;
+
+					for(WMV_Cluster d : last)
+					{
+						float dist = c.getLocation().dist(d.getLocation());
+						if(dist < closestDist)
+						{
+							closestDist = dist;
+						}
+					}
+
+					if(closestDist > epsilon)
+					{
+						moved = true;
+					}
+				}
+
+				if(!moved)
+				{
+					if(p.debug.field)
+						PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
+					break;								// If all clusters moved less than epsilon, stop refinement
+				}
+			}
+			else
+			{
+				if(p.debug.field)
+					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+fieldClusters.size()+" last.size():"+last.size());
+			}
+
+			count++;
+		}
+
+		fieldClusters = f.mergeAdjacentClusters(fieldClusters, 2500.f);
+
+//		if(p.p.debug.field)
+		PApplet.println("Detected "+fieldClusters.size()+" fields...");
+
+//		ArrayList<WMV_Field> result = new ArrayList<WMV_Field>();
+//		count = 0;
+//		for(WMV_Cluster c : fieldClusters)
+//		{
+//			WMV_Field field = new WMV_Field(this, null, c, count);
+//			count++;
+//			result.add(field);
+//		}
+//		
+//		return result;
+		
+		return null;
 	}
 	
 	public void createTimeCycle()

@@ -593,8 +593,8 @@ class WMV_Image extends WMV_Viewable
 	}
 
 	/**
-	 * @return Whether associated cluster was successfully found
-	 * Set nearest cluster to the capture location to be the associated cluster
+	 * @return Whether associated cluster in associated field was successfully found
+	 * Search associated field for nearest cluster and associate with this image
 	 */	
 	public boolean findAssociatedCluster(float maxClusterDistance)    				 // Associate cluster that is closest to photo
 	{
@@ -632,9 +632,9 @@ class WMV_Image extends WMV_Viewable
 
 	/**
 	 * @return Whether associated field was successfully found
-	 * Set nearest cluster to the capture location to be the associated cluster
+	 * Search given list of clusters and associated with this image
 	 */	
-	public boolean findAssociatedField(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
 	{
 		int closestClusterIndex = 0;
 		float closestDistance = 100000;
@@ -653,7 +653,7 @@ class WMV_Image extends WMV_Viewable
 
 		if(closestDistance < maxClusterDistance)
 		{
-			cluster = closestClusterIndex;
+			cluster = closestClusterIndex;		// Associate image with cluster
 		}
 		else
 		{
@@ -665,7 +665,7 @@ class WMV_Image extends WMV_Viewable
 		else
 			return false;
 	}
-	
+
 	/**
 	 * Set thinning visibility of image
 	 * @param state New visibility

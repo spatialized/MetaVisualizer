@@ -34,18 +34,6 @@ public class WMV_Window {
 	public GOption optSceneView, optMapView, optClusterView;
 	int wmvWindowHeight;
 
-	/* Time Window */
-	private GLabel lblTimeWindow, lblTimeSettings, lblTimeMode;
-	private GLabel lblMediaLength;
-//	public GLabel lblCurrentTime;
-	public GLabel lblTime;
-	public GCheckbox chkbxTimeFading;
-	public GSlider sdrMediaLength;
-	public GToggleGroup tgTimeMode;	
-	public GOption optClusterTimeMode, optFieldTimeMode, optMediaTimeMode;
-//	public GButton btnCloseTimeWindow;
-	int timeWindowHeight;
-
 	/* Navigation Window */
 	private GLabel lblClusterNavigation, lblMemoryCommands, lblPathNavigation;
 	private GButton btnImportGPSTrack;
@@ -58,8 +46,20 @@ public class WMV_Window {
 	private GButton btnMoveToNearestCluster;
 	private GButton btnGoToPreviousField, btnGoToNextField;
 	private GButton btnFollowStart, btnFollowStop;	
-//	public GButton btnCloseNavigationWindow;
+	public GLabel lblCommand1;
 	int navigationWindowHeight;
+	
+	/* Time Window */
+	private GLabel lblTimeWindow, lblTimeSettings, lblTimeMode;
+	private GLabel lblMediaLength, lblTimeCycleLength;
+//	public GLabel lblCurrentTime;
+	public GLabel lblTime;
+	public GCheckbox chkbxTimeFading;
+	public GSlider sdrMediaLength, sdrTimeCycleLength;
+	public GToggleGroup tgTimeMode;	
+	public GOption optClusterTimeMode, optFieldTimeMode, optMediaTimeMode;
+	public GLabel lblCommand2;
+	int timeWindowHeight;
 
 	/* Graphics Window */
 //	public GLabel lblDisplayMode;
@@ -81,35 +81,34 @@ public class WMV_Window {
 
 	private GLabel lblSubjectDistance;
 	private GButton btnSubjectDistanceUp, btnSubjectDistanceDown;
-//	public GButton btnCloseGraphicsWindow;
+	public GLabel lblCommand3;
 	int graphicsWindowHeight;
 
 	/* Model Window */
 	private GLabel lblModelWindow, lblAltitudeScaling, lblModelSettings, lblModelDisplay;
 	public GCheckbox chkbxShowModel, chkbxMediaToCluster, chkbxCaptureToMedia, chkbxCaptureToCluster;
 	public GSlider sdrAltitudeScaling;
-//	public GButton btnCloseModelWindow;
+	public GLabel lblCommand4;
 	int modelWindowHeight;
+	
+	/* Memory Window */
+	public GLabel lblCommand5;
+	int memoryWindowHeight;
 	
 	/* Selection Window */
 	private GLabel lblSelection;
 	public GCheckbox chkbxSelectionMode, chkbxMultiSelection, chkbxSegmentSelection, chkbxShowMetadata;
 	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnStitchPanorama;
-//	public GButton btnCloseSelectionWindow;
+	public GLabel lblCommand6;
 	int selectionWindowHeight;
 
 	/* Statistics Window */
-//	private GButton btnCloseStatisticsWindow;
+	public GLabel lblCommand7;
 	int statisticsWindowHeight;
-
-	/* Memory Window */
-//	private GButton btnCloseMemoryWindow;
-	int memoryWindowHeight;
 
 	/* Help Window */
 	int helpWindowHeight;
-
-//	private GButton btnCloseHelpWindow;
+	public GLabel lblCommand8;
 	
 	String windowTitle = " ";
 
@@ -120,8 +119,8 @@ public class WMV_Window {
 		wmvWindowHeight = shortWindowHeight;
 		navigationWindowHeight = shortWindowHeight + 200;
 		timeWindowHeight = longWindowHeight;
-		graphicsWindowHeight = longWindowHeight - 100;
-		modelWindowHeight = shortWindowHeight;
+		graphicsWindowHeight = longWindowHeight;
+		modelWindowHeight = shortWindowHeight + 100;
 		memoryWindowHeight = shortWindowHeight;
 		statisticsWindowHeight = longWindowHeight;
 		helpWindowHeight = longWindowHeight;
@@ -214,16 +213,16 @@ public class WMV_Window {
 		lblWMViewer.setTextAlign(GAlign.CENTER, null);
 		lblWMViewer.setTextBold();
 
-		x = 30;
+		x = 20;
 		y += 30;
 		
-		optSceneView = new GOption(wmvWindow, x, y, 90, 20, "Scene");
+		optSceneView = new GOption(wmvWindow, x, y, 90, 20, "Scene  (1)");
 		optSceneView.setLocalColorScheme(10);
 		optSceneView.tag = "SceneView";
-		optMapView = new GOption(wmvWindow, x+=90, y, 90, 20, "Map");
+		optMapView = new GOption(wmvWindow, x+=100, y, 90, 20, "Map  (2)");
 		optMapView.setLocalColorScheme(10);
 		optMapView.tag = "MapView";
-		optClusterView = new GOption(wmvWindow, x+=90, y, 90, 20, "Cluster");
+		optClusterView = new GOption(wmvWindow, x+=100, y, 100, 20, "Cluster  (3)");
 		optClusterView.setLocalColorScheme(10);
 		optClusterView.tag = "ClusterView";
 
@@ -468,6 +467,14 @@ public class WMV_Window {
 //		btnCloseNavigationWindow.tag = "CloseNavigationWindow";
 //		btnCloseNavigationWindow.setLocalColorScheme(0);
 		
+		x = 0;
+		y = navigationWindowHeight - 25;
+		lblCommand1 = new GLabel(navigationWindow, x, y, navigationWindow.width, 20);						/* Display Mode Label */
+		lblCommand1.setText("Press ⌘1 to show / hide");
+		lblCommand1.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		lblCommand1.setLocalColorScheme(10);
+		lblCommand1.setTextAlign(GAlign.CENTER, null);
+
 		setupNavigationWindow = true;
 	}
 
@@ -505,7 +512,7 @@ public class WMV_Window {
 		chkbxTimeFading.setLocalColorScheme(10);
 		chkbxTimeFading.setSelected(p.p.timeFading);
 
-		x = 200;
+		x = 150;
 		y += 30;
 
 		sdrMediaLength = new GSlider(timeWindow, x, y, 80, 80, 20);
@@ -518,11 +525,27 @@ public class WMV_Window {
 		sdrMediaLength.setShowValue(true);
 		sdrMediaLength.tag = "MediaLength";
 
-		x = 50;
+		x = 280;
+		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 80, 80, 20);
+		sdrTimeCycleLength.setLocalColorScheme(7);
+		sdrTimeCycleLength.setLimits(0.f, 5000.f, 10.f);
+		sdrTimeCycleLength.setValue(p.p.settings.timeCycleLength);
+		sdrTimeCycleLength.setRotation(PApplet.PI/2.f);
+		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_LEFT);
+		sdrTimeCycleLength.setEasing(0);
+		sdrTimeCycleLength.setShowValue(true);
+		sdrTimeCycleLength.tag = "TimeCycleLength";
+
+		x = 20;
 		y += 30;
 		
-		lblMediaLength = new GLabel(timeWindow, x, y, 80, 20, "Media Length");
+		lblMediaLength = new GLabel(timeWindow, x, y, 100, 20, "Media Length");
 		lblMediaLength.setLocalColorScheme(10);
+
+		x = 150;
+		
+		lblTimeCycleLength = new GLabel(timeWindow, x, y, 120, 20, "Cycle Length");
+		lblTimeCycleLength.setLocalColorScheme(10);
 
 		x = 0;
 		y += 90;
@@ -536,15 +559,15 @@ public class WMV_Window {
 		x = 30;
 		y += 30;
 		
-		optClusterTimeMode = new GOption(timeWindow, x, y, 90, 20, "Cluster");
+		optMediaTimeMode = new GOption(timeWindow, x, y, 90, 20, "Media");
+		optMediaTimeMode.setLocalColorScheme(10);
+		optMediaTimeMode.tag = "MediaTimeMode";
+		optClusterTimeMode = new GOption(timeWindow, x+=90, y, 90, 20, "Cluster");
 		optClusterTimeMode.setLocalColorScheme(10);
-		optClusterTimeMode.tag = "ClusterTimeMode ";
+		optClusterTimeMode.tag = "ClusterTimeMode";
 		optFieldTimeMode = new GOption(timeWindow, x+=90, y, 90, 20, "Field");
 		optFieldTimeMode.setLocalColorScheme(10);
 		optFieldTimeMode.tag = "FieldTimeMode";
-		optMediaTimeMode = new GOption(timeWindow, x+=90, y, 90, 20, "Media");
-		optMediaTimeMode.setLocalColorScheme(10);
-		optMediaTimeMode.tag = "MediaTimeMode";
 
 		switch(p.p.getTimeMode())
 		{
@@ -582,7 +605,15 @@ public class WMV_Window {
 //		btnCloseTimeWindow = new GButton(timeWindow, x, y, 180, 20, "Close Window");
 //		btnCloseTimeWindow.tag = "CloseTimeWindow";
 //		btnCloseTimeWindow.setLocalColorScheme(0);
-		
+
+		x = 0;
+		y = timeWindowHeight - 25;
+		lblCommand2 = new GLabel(timeWindow, x, y, timeWindow.width, 20);						/* Display Mode Label */
+		lblCommand2.setText("Press ⌘2 to show / hide");
+		lblCommand2.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		lblCommand2.setLocalColorScheme(10);
+		lblCommand2.setTextAlign(GAlign.CENTER, null);
+
 		setupTimeWindow = true;
 	}
 	
@@ -660,15 +691,15 @@ public class WMV_Window {
 		lblGraphicsModes.setTextAlign(GAlign.CENTER, null);
 		lblGraphicsModes.setTextBold();
 
-		x = 95;
+		x = 80;
 		y += 25;
 		
-		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 115, 20, "Orientation Mode");
+		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 160, 20, "Orientation Mode (BETA)");
 		chkbxOrientationMode.tag = "OrientationMode";
 		chkbxOrientationMode.setLocalColorScheme(10);
 		chkbxOrientationMode.setSelected(false);
 		
-		x = 60;
+		x = 80;
 		y += 25;
 
 		chkbxAlphaMode = new GCheckbox(graphicsWindow, x, y, 85, 20, "Alpha Mode");
@@ -676,12 +707,15 @@ public class WMV_Window {
 		chkbxAlphaMode.setLocalColorScheme(10);
 		chkbxAlphaMode.setSelected(true);
 
-		chkbxAngleFading = new GCheckbox(graphicsWindow, x += 90, y, 100, 20, "Angle Fading");
+		x = 80;
+		y += 25;
+
+		chkbxAngleFading = new GCheckbox(graphicsWindow, x, y, 100, 20, "Angle Fading");
 		chkbxAngleFading.tag = "AngleFading";
 		chkbxAngleFading.setLocalColorScheme(10);
 		chkbxAngleFading.setSelected(true);
 
-		x = 60;
+		x = 80;
 		y += 25;
 
 		chkbxFadeEdges = new GCheckbox(graphicsWindow, x, y, 85, 20, "Fade Edges");
@@ -689,7 +723,10 @@ public class WMV_Window {
 		chkbxFadeEdges.setLocalColorScheme(10);
 		chkbxFadeEdges.setSelected(true);
 
-		chkbxAngleThinning = new GCheckbox(graphicsWindow, x += 90, y, 100, 20, "Angle Thinning");
+		x = 80;
+		y += 25;
+
+		chkbxAngleThinning = new GCheckbox(graphicsWindow, x, y, 100, 20, "Angle Thinning");
 		chkbxAngleThinning.tag = "AngleThinning";
 		chkbxAngleThinning.setLocalColorScheme(10);
 		chkbxAngleThinning.setSelected(false);
@@ -746,6 +783,14 @@ public class WMV_Window {
 //		btnCloseGraphicsWindow.tag = "CloseGraphicsWindow";
 //		btnCloseGraphicsWindow.setLocalColorScheme(0);
 		
+		x = 0;
+		y = graphicsWindowHeight - 25;
+		lblCommand3 = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20);						/* Display Mode Label */
+		lblCommand3.setText("Press ⌘3 to show / hide");
+		lblCommand3.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		lblCommand3.setLocalColorScheme(10);
+		lblCommand3.setTextAlign(GAlign.CENTER, null);
+
 		setupGraphicsWindow = true;
 	}
 	
@@ -856,6 +901,14 @@ public class WMV_Window {
 //		btnCloseModelWindow.tag = "CloseModelWindow";
 //		btnCloseModelWindow.setLocalColorScheme(0);
 
+		x = 0;
+		y = modelWindowHeight - 25;
+		lblCommand4 = new GLabel(modelWindow, x, y, modelWindow.width, 20);						/* Display Mode Label */
+		lblCommand4.setText("Press ⌘4 to show / hide");
+		lblCommand4.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		lblCommand4.setLocalColorScheme(10);
+		lblCommand4.setTextAlign(GAlign.CENTER, null);
+
 		setupModelWindow = true;
 	}
 
@@ -866,6 +919,7 @@ public class WMV_Window {
 		memoryWindow.addData(new WMV_WinData());
 		memoryWindow.addDrawHandler(this, "memoryWindowDraw");
 		memoryWindow.addMouseHandler(this, "memoryWindowMouse");
+		memoryWindow.addKeyHandler(p.p.p, "memoryWindowKey");
 		memoryWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 10;
@@ -883,8 +937,14 @@ public class WMV_Window {
 //		btnCloseMemoryWindow = new GButton(memoryWindow, x, y, 180, 20, "Close Window");
 //		btnCloseMemoryWindow.tag = "CloseMemoryWindow";
 //		btnCloseMemoryWindow.setLocalColorScheme(0);
-		
-		memoryWindow.addKeyHandler(p.p.p, "memoryWindowKey");
+
+		x = 0;
+		y = memoryWindowHeight - 25;
+		lblCommand5 = new GLabel(memoryWindow, x, y, memoryWindow.width, 20);						/* Display Mode Label */
+		lblCommand5.setText("Press ⌘5 to show / hide");
+		lblCommand5.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		lblCommand5.setLocalColorScheme(10);
+		lblCommand5.setTextAlign(GAlign.CENTER, null);
 		
 		setupMemoryWindow = true;
 	}
@@ -970,6 +1030,14 @@ public class WMV_Window {
 //		btnCloseSelectionWindow.tag = "CloseSelectionWindow";
 //		btnCloseSelectionWindow.setLocalColorScheme(0);
 		
+		x = 0;
+		y = selectionWindowHeight - 25;
+		lblCommand6 = new GLabel(selectionWindow, x, y, selectionWindow.width, 20);						/* Display Mode Label */
+		lblCommand6.setText("Press ⌘6 to show / hide");
+		lblCommand6.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		lblCommand6.setLocalColorScheme(10);
+		lblCommand6.setTextAlign(GAlign.CENTER, null);
+		
 		selectionWindow.addKeyHandler(p.p.p, "selectionWindowKey");
 		setupSelectionWindow = true;
 	}
@@ -998,6 +1066,14 @@ public class WMV_Window {
 //		btnCloseStatisticsWindow = new GButton(statisticsWindow, x, y, 180, 20, "Close Window");
 //		btnCloseStatisticsWindow.tag = "CloseStatisticsWindow";
 //		btnCloseStatisticsWindow.setLocalColorScheme(0);
+
+		x = 0;
+		y = statisticsWindowHeight - 25;
+		lblCommand7 = new GLabel(statisticsWindow, x, y, statisticsWindow.width, 20);						/* Display Mode Label */
+		lblCommand7.setText("Press ⌘7 to show / hide");
+		lblCommand7.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		lblCommand7.setLocalColorScheme(10);
+		lblCommand7.setTextAlign(GAlign.CENTER, null);
 		
 		statisticsWindow.addKeyHandler(p.p.p, "statisticsWindowKey");
 		
@@ -1011,6 +1087,7 @@ public class WMV_Window {
 		helpWindow.addData(new WMV_WinData());
 		helpWindow.addDrawHandler(this, "helpWindowDraw");
 		helpWindow.addMouseHandler(this, "helpWindowMouse");
+		helpWindow.addKeyHandler(p.p.p, "helpWindowKey");
 		
 		int x = 0, y = 10;
 
@@ -1027,8 +1104,14 @@ public class WMV_Window {
 //		btnCloseHelpWindow = new GButton(helpWindow, x, y, 180, 20, "Close Window");
 //		btnCloseHelpWindow.tag = "CloseHelpWindow";
 //		btnCloseHelpWindow.setLocalColorScheme(0);
-		
-		helpWindow.addKeyHandler(p.p.p, "helpWindowKey");
+
+		x = 0;
+		y = helpWindowHeight - 25;
+		lblCommand8 = new GLabel(helpWindow, x, y, helpWindow.width, 20);						/* Display Mode Label */
+		lblCommand8.setText("Press ⌘8 to show / hide");
+		lblCommand8.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		lblCommand8.setLocalColorScheme(10);
+		lblCommand8.setTextAlign(GAlign.CENTER, null);
 		
 		setupHelpWindow = true;
 	}
@@ -1087,7 +1170,7 @@ public class WMV_Window {
 	 * @param data the data for the GWindow being used
 	 */
 	public void timeWindowDraw(PApplet applet, GWinData data) {
-		if(p.p.p.running)
+		if(p.p.p.state.running)
 		{
 			float lineWidthVeryWide = 20f;
 			float lineWidthWide = 15f;
@@ -1330,7 +1413,7 @@ public class WMV_Window {
 	 */
 	public void statisticsWindowDraw(PApplet applet, GWinData data) 
 	{
-		if(p.p.p.running)
+		if(p.p.p.state.running)
 		{
 			applet.background(10, 5, 50);
 			applet.stroke(255);

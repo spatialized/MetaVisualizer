@@ -483,7 +483,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 	/**
 	 * @return Whether associated cluster was successfully found
-	 * Set nearest cluster to the capture location to be the associated cluster
+	 * Search associated field for nearest cluster and associate with this panorama
 	 */	
 	public boolean findAssociatedCluster(float maxClusterDistance)    				 // Associate cluster that is closest to photo
 	{
@@ -504,7 +504,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if(closestDistance < maxClusterDistance)
 		{
-			cluster = closestClusterIndex;
+			cluster = closestClusterIndex;		// Associate panorama with cluster
 		}
 		else
 		{
@@ -519,10 +519,10 @@ public class WMV_Panorama extends WMV_Viewable
 	}
 	
 	/**
-	 * @return Whether associated field was successfully found
-	 * Set nearest cluster to the capture location to be the associated cluster
+	 * @return Whether associated cluster was successfully found
+	 * Search given list of clusters and associate with this panorama
 	 */	
-	public boolean findAssociatedField(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
 	{
 		int closestClusterIndex = 0;
 		float closestDistance = 100000;

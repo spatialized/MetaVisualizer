@@ -180,11 +180,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	public void fadeIn()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-//			if(!initFading)		
-				stopFading();
+			stopFading();
 
-		PApplet.println("fade video in:"+getID());
-		
 		fadeBrightness(1.f);					// Fade in
 	}
 
@@ -194,8 +191,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	public void fadeOut()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-//			if(!initFading)			
-				stopFading();
+			stopFading();
 
 		fadeBrightness(0.f);					// Fade out
 	}
@@ -1262,7 +1258,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * Set nearest cluster to the capture location to be the associated cluster
+	 * Search associated field for nearest cluster and associate with this video
 	 * @return Whether associated cluster was successfully found
 	 */	
 	public boolean findAssociatedCluster(float maxClusterDistance)    				 // Associate cluster that is closest to photo
@@ -1283,7 +1279,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		}
 
 		if(closestDistance < maxClusterDistance)
-			cluster = closestClusterIndex;
+		{
+			cluster = closestClusterIndex;			// Associate cluster with this video
+		}
 		else
 		{
 			cluster = -1;						// Create a new single image cluster here!
@@ -1297,10 +1295,10 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 	
 	/**
+	 * Search given list of clusters and associated with this video
 	 * @return Whether associated field was successfully found
-	 * Set nearest cluster to the capture location to be the associated cluster
 	 */	
-	public boolean findAssociatedField(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
 	{
 		int closestClusterIndex = 0;
 		float closestDistance = 100000;

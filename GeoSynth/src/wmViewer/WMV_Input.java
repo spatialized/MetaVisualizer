@@ -59,6 +59,11 @@ public class WMV_Input
 			{
 				p.settings.defaultMediaLength = slider.getValueI();
 			}
+			
+			if (slider.tag == "TimeCycleLength") 
+			{
+				p.settings.timeCycleLength = slider.getValueI();
+			}
 		}
 		
 		if (slider.tag == "AltitudeScaling") 
@@ -413,9 +418,9 @@ public class WMV_Input
 	void handleKeyPressed(char key, int keyCode)
 	{
 //		PApplet.println("handleKeyPressed keyCode: "+keyCode + " on frame:"+p.p.frameCount);
-		if (!p.p.running)
+		if (!p.p.state.running)
 		{
-			p.p.openLibraryDialog = true;
+			p.p.state.openLibraryDialog = true;
 		}
 		else
 		{
@@ -454,33 +459,33 @@ public class WMV_Input
 			if (!optionKey && !commandKey && key == '3') 
 				p.display.setDisplayView(2);
 
-			if (!optionKey && key == '4') 
+			if (!optionKey && !commandKey  && key == '4') 
 			{
 				boolean state = !p.showModel;
 				p.showModel = state;
-				if(p.display.window.setupGraphicsWindow)
+				if(p.display.window.setupModelWindow)
 					p.display.window.chkbxShowModel.setSelected(state);
 			}
 
-			if (!optionKey && key == '5') 
+			if (!optionKey && !commandKey  && key == '5') 
 				p.showMediaToCluster = !p.showMediaToCluster;			// Draw line from each media point to cluster
 
-			if (!optionKey && key == '6') 
+			if (!optionKey && !commandKey  && key == '6') 
 				p.showCaptureToMedia = !p.showCaptureToMedia;			// Draw line from each media point to its capture location
 
-			if (!optionKey && key == '7') 
+			if (!optionKey && !commandKey  && key == '7') 
 				p.showCaptureToCluster = !p.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
-			if (!optionKey && key == '8') 
+			if (!optionKey && !commandKey  && key == '8') 
 			{
 				if(p.viewer.settings.maxVisibleClusters > 1)
-					p.viewer.settings.maxVisibleClusters--;		// Draw line from each media capture location to associated cluster
+					p.viewer.settings.maxVisibleClusters--;		
 			}
 
-			if (!optionKey && key == '9') 
+			if (!optionKey && !commandKey  && key == '9') 
 			{
 				if(p.viewer.settings.maxVisibleClusters < 9)
-					p.viewer.settings.maxVisibleClusters++;		// Draw line from each media capture location to associated cluster
+					p.viewer.settings.maxVisibleClusters++;		
 			}
 
 			if (!optionKey && commandKey && key == '1') 

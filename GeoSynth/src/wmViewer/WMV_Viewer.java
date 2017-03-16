@@ -954,11 +954,8 @@ public class WMV_Viewer
 	 */
 	void moveToPreviousTimeSegment(boolean currentDate, boolean teleport)
 	{
-		PApplet.println("Can't moveToPreviousTimeSegment... function disabled!");
 		if(!currentDate)
 		{
-//			boolean found = false;
-
 			currentFieldTimeSegment--;
 			if(currentFieldTimeSegment < 0) 		// Reached beginning of day
 			{
@@ -967,7 +964,6 @@ public class WMV_Viewer
 				{
 					currentFieldDate = p.getCurrentField().dateline.size()-1;		// Go to last date
 					currentFieldTimeSegment = p.getCurrentField().timeline.size()-1;		// Go to last time
-//					found = true;
 				}
 				else
 				{

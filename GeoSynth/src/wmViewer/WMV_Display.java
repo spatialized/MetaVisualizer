@@ -649,7 +649,7 @@ class WMV_Display
 			p.p.text("Software by David Gordon", p.p.width / 1.33f, yPos += lineWidthVeryWide, hudDistance);
 
 			p.p.textSize(largeTextSize * 2.1f);
-			if(!p.p.selectedLibrary)
+			if(!p.p.state.selectedLibrary)
 				p.p.text("Press any key to begin...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 10.f, hudDistance);
 			else
 				p.p.text("Loading media folder(s)...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 10.f, hudDistance);

@@ -4,7 +4,7 @@ import processing.core.PApplet;
 
 /*********************************
  * @author davidgordon
- * Camera graphics and physics model settings
+ * Viewer movement and graphics settings
  */
 public class WMV_ViewerSettings 
 {

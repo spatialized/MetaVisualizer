@@ -25,12 +25,7 @@ import processing.video.Movie;
 public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 {
 	/* System Status */
-	public boolean running = false;				// Is simulation running?
-	public boolean startup = true;				// Startup frame
-	public boolean reset = false;				// Was program just reset?
-	public boolean exit = false;				// System message to exit the program
-	public boolean selectedLibrary = false;		// Has user selected a library folder?
-	public boolean openLibraryDialog = false;
+	public WMV_SystemState state = new WMV_SystemState();
 	
 	/* System Modes */
 	public boolean basic = false;				// Minimal mode with no windows
@@ -78,13 +73,13 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void draw() 
 	{		
-		if (startup)
+		if (state.startup)
 		{
-			if(reset) reset();
+			if(state.reset) reset();
 			else world.display.showStartup();	/* Startup screen */
-			startup = false;	
+			state.startup = false;	
 		}
-		else if(!running)
+		else if(!state.running)
 		{
 //			noLoop();
 			world.setup();						/* Run setup */
@@ -110,8 +105,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	public void reset()
 	{
 		background(0.f);
-		if(!basic)
-			world.display.window.hideWindows();
+		world.display.window.hideWindows();
 		world.reset();
 	}
 	
@@ -138,13 +132,8 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	void restartWorldMediaViewer()
 	{
-		running = false;				
-		selectedLibrary = false;	
-		reset = true;
-		startup = true;
-		exit = false;					
+		state.reset();
 		world.viewer.initialize(0,0,0);
-//		camera();
 	}
 	
 	/**
@@ -226,15 +215,18 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 					parentFilePath = parentFilePath + parts[i] + "/";
 			}
 
-			boolean success = world.loadImageMasks(parentFilePath);
-			selectedFolder = success;
+			world.stitchingPath = parentFilePath + "stitched/";					// -- Move this to library!
+//			boolean success = world.loadImageMasks(parentFilePath);
+			world.loadImageMasks();					
+			
+			selectedFolder = true;
 		}
 		
 		if(selectedFolder)
-			selectedLibrary = true;	// Library folder has been selected
+			state.selectedLibrary = true;	// Library folder has been selected
 		else
 		{
-			selectedLibrary = false;				// Library in improper format if masks are missing
+			state.selectedLibrary = false;				// Library in improper format if masks are missing
 			selectFolderPrompt();					// Retry folder prompt
 		}
 	}
@@ -264,12 +256,19 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	}
 	
 	/* Input Handling */
+	
+	/**
+	 * Called when mouse is pressed
+	 */
 	public void mousePressed()
 	{
 //		if(world.viewer.mouseNavigation)
 //			world.input.handleMousePressed(mouseX, mouseY);
 	}
 
+	/**
+	 * Called when mouse is released
+	 */
 	public void mouseReleased() {
 //		if(world.viewer.mouseNavigation)
 //			world.input.handleMouseReleased(mouseX, mouseY);
@@ -277,11 +276,17 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			world.input.handleMouseReleased(mouseX, mouseY);
 	}
 	
+	/**
+	 * Called when mouse is clicked
+	 */
 	public void mouseClicked() {
 //		if(world.viewer.mouseNavigation)
 //			world.input.handleMouseClicked(mouseX, mouseY);
 	}
 	
+	/**
+	 * Called when mouse is dragged
+	 */
 	public void mouseDragged() {
 //		if(world.mouseNavigation)
 //		{
@@ -341,7 +346,6 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-		PApplet.println("navigationWindowKey");
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)

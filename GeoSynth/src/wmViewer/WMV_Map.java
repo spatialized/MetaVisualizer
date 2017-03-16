@@ -1,6 +1,7 @@
 package wmViewer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PGraphics;
@@ -36,7 +37,8 @@ public class WMV_Map
 	Location mapCenter;
 	EventDispatcher eventDispatcher;
 	MarkerManager<Marker> markerManager;
-
+	SimplePointMarker viewerMarker;
+	
 	/* Interaction */
 	private int selectedCluster = -1;
 	ArrayList<Ellipsoid> selectableClusters;
@@ -157,13 +159,13 @@ public class WMV_Map
 	
 	public void initializeSatelliteMap()
 	{
-		map = new UnfoldingMap(p.p.p, "Satellite Map", 0, 0, p.p.p.width, p.p.p.height, true, false, new Microsoft.AerialProvider());
+		map = new UnfoldingMap(p.p.p, "Satellite", 0, 0, p.p.p.width, p.p.p.height, true, false, new Microsoft.AerialProvider());
 
 		PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), new PVector(0,0,0));
 		mapCenter = new Location(gpsLoc.y, gpsLoc.x);
-				
+
 		map.zoomAndPanTo(16, mapCenter);
-		map.setZoomRange(2, 20);
+		map.setZoomRange(2, 19);
 		map.setTweening(true);
 
 		eventDispatcher = new EventDispatcher();
@@ -176,6 +178,12 @@ public class WMV_Map
 		eventDispatcher.register(map, "zoom", map.getId());
 
 		createPointMarkers();
+		
+		PVector vLoc = p.p.viewer.getGPSLocation();
+		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
+		viewerMarker.setId("viewer");
+		viewerMarker.setDiameter(20.f);
+		viewerMarker.setColor(p.p.p.color(0, 0, 255, 255));
 	}
 	
 	public void createPointMarkers()
@@ -188,12 +196,41 @@ public class WMV_Map
 			{
 				PVector mapLoc = c.getLocation();
 				PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), mapLoc);
-				markerManager.addMarker(new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x)));
+				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
+				marker.setId(String.valueOf(c.getID()));
+				marker.setColor(p.p.p.color(90, 225, 225, 155));
+				marker.setHighlightColor(p.p.p.color(170, 255, 255, 255));
+				marker.setStrokeWeight(0);
+				marker.setDiameter(PApplet.sqrt(c.mediaCount) * 3.f);
+				markerManager.addMarker(marker);
 			}
 		}
 
 		map.addMarkerManager(markerManager);
 		markerManager.enableDrawing();
+	}
+	
+	public void handleMouseMovedX(int mouseX, int mouseY)
+	{
+		for (Marker m : map.getMarkers()) 
+			m.setSelected(false);
+
+		List<Marker> markers = map.getHitMarkers(mouseX, mouseY);
+//		Marker marker = map.getFirstHitMarker(mouseX, mouseY);		// Select hit marker
+		
+//		for(Marker m : markers)
+//		{
+//			
+//		}
+		if(markers.size() > 0)
+		{
+			Marker marker = markers.get(0);
+
+			if (marker != null) 
+				marker.setSelected(true);
+		}
+
+		// -- Use getHitMarkers(x, y) to allow multiple selection.
 	}
 	
 	/**
@@ -325,23 +362,20 @@ public class WMV_Map
 		}
 		else
 		{
-			float camInitFov = p.p.viewer.getInitFieldOfView();
-			p.p.p.camera();
-//			p.p.p.translate(map.getWidth() * 0.5f, map.getHeight() * 0.5f, 0);
-//			p.p.p.perspective(camInitFov, (float)p.p.p.width/(float)p.p.p.height, p.p.viewer.getNearClippingDistance(), 10000);
-			
-//			PVector t = new PVector(p.p.viewer.camera.position()[0], p.p.viewer.camera.position()[1], p.p.viewer.camera.position()[2]);
-//			p.p.p.translate(t.x, t.y, t.z);
-//			p.p.p.translate(0, 0, -p.hudDistance * 0.75f);
-//			p.p.p.rotateY(p.p.viewer.camera.attitude()[0]);
-//			p.p.p.rotateX(-p.p.viewer.camera.attitude()[1]);
-//			p.p.p.rotateZ(p.p.viewer.camera.attitude()[2]);
-//			PApplet.println("map.width:"+map.getWidth()+" map.height:"+map.getHeight());
-
-//			p.p.p.pushMatrix();
+//			markerManager.removeMarker(viewerMarker);
+			PVector vLoc = p.p.viewer.getGPSLocation();
+			Location gpsLoc = new Location(vLoc.y, vLoc.x);
+			viewerMarker.setLocation(gpsLoc);
+			markerManager.addMarker(viewerMarker);
+//			p.p.p.camera();
+//			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*30.0f / 180.0f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
+			//WORKS
+//			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*34.0f / 180.0f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
+			//REFINED
+//			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*33.75f / 180.0f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
+			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*0.1875f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
 			p.p.p.tint(255.f, 255.f);
 			map.draw();
-//			p.p.p.popMatrix();
 		}
 	}
 	
@@ -819,6 +853,34 @@ public class WMV_Map
 	
 	public void updateMapMouse()
 	{
+		if(p.satelliteMap)
+		{
+			for (Marker m : map.getMarkers()) 
+				m.setSelected(false);
+
+			Marker marker = map.getFirstHitMarker(p.p.p.mouseX, p.p.p.mouseY);		// Select hit marker
+			if (marker != null) 
+			{
+			marker.setSelected(true);
+
+			String mID = marker.getId();
+//			PApplet.println("selected marker:"+mID);
+			if(!mID.equals("viewer"))
+				selectedCluster = Integer.parseInt(mID);
+			}
+			
+//			List<Marker> markers = map.getHitMarkers(p.p.p.mouseX, p.p.p.mouseY);
+//			if(markers.size() > 0)
+//			{
+//				Marker marker = markers.get(0);
+//
+//				if (marker != null) 
+//					marker.setSelected(true);
+//			}
+			// -- Use getHitMarkers(x, y) to allow multiple selection.
+		}
+		else
+		{
 		Shape3D itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
 
 		int clusterID = -1;
@@ -831,74 +893,94 @@ public class WMV_Map
 		else
 		{
 			clusterID = itemSelected.tagNo;
-			
-//				PApplet.println("Selected clusterID: "+clusterID+" itemSelected x:"+itemSelected.x()+" y:"+itemSelected.y()+" z:"+itemSelected.z());
-//				PApplet.print("selectableClusterIDs: ");
-//				for(int i:selectableClusterIDs)
-//					PApplet.print(" "+i);
-//				PApplet.println("");
-				
-//				if(selectableClusterIDs.hasValue(clusterID))
-//				{
-					if(clusterID >= 0 && clusterID < p.p.getCurrentField().clusters.size())
-					{
-						if(clusterID != selectedCluster)
-						{
-							selectedCluster = clusterID;
-							
-							if(p.p.p.debug.map) 
-								PApplet.println("Selected new cluster:"+selectedCluster);
 
-							PVector itemSelectedLoc = new PVector(itemSelected.x(), itemSelected.y(), itemSelected.z());
-							for(SelectableClusterLocation scl : selectableClusterLocations)
+			//				PApplet.println("Selected clusterID: "+clusterID+" itemSelected x:"+itemSelected.x()+" y:"+itemSelected.y()+" z:"+itemSelected.z());
+			//				PApplet.print("selectableClusterIDs: ");
+			//				for(int i:selectableClusterIDs)
+			//					PApplet.print(" "+i);
+			//				PApplet.println("");
+
+			//				if(selectableClusterIDs.hasValue(clusterID))
+			//				{
+			if(clusterID >= 0 && clusterID < p.p.getCurrentField().clusters.size())
+			{
+				if(clusterID != selectedCluster)
+				{
+					selectedCluster = clusterID;
+
+					if(p.p.p.debug.map) 
+						PApplet.println("Selected new cluster:"+selectedCluster);
+
+					PVector itemSelectedLoc = new PVector(itemSelected.x(), itemSelected.y(), itemSelected.z());
+					for(SelectableClusterLocation scl : selectableClusterLocations)
+					{
+						if(scl.id == clusterID)
+						{
+							if(!scl.location.equals(itemSelectedLoc))
 							{
-								if(scl.id == clusterID)
+								selectableClustersCreated = false;							// Fix potential bug in Shape3D library
+								selectedCluster = -1;
+								createSelectableClusters(largeMapWidth, largeMapHeight);
+
+								for(SelectableClusterLocation sclTest : selectableClusterLocations)
 								{
-									if(!scl.location.equals(itemSelectedLoc))
+									if(sclTest.location.equals(itemSelectedLoc))
 									{
-										selectableClustersCreated = false;							// Fix potential bug in Shape3D library
-										selectedCluster = -1;
-										createSelectableClusters(largeMapWidth, largeMapHeight);
-										
-										for(SelectableClusterLocation sclTest : selectableClusterLocations)
+										selectedCluster = sclTest.id;
+										if(p.p.p.debug.map) 
 										{
-											if(sclTest.location.equals(itemSelectedLoc))
-											{
-												selectedCluster = sclTest.id;
-												if(p.p.p.debug.map) 
-												{
-													PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
-													WMV_Cluster c = p.p.getCluster(clusterID); 
-													PVector clusterMapLoc = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
-													clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
-													clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
-													PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
-												}
-											}
+											PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
+											WMV_Cluster c = p.p.getCluster(clusterID); 
+											PVector clusterMapLoc = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
+											clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
+											clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
+											PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
 										}
-										
-//										itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
-//										PApplet.println("FIXED?");
-//										PApplet.println("NEW  itemSelected.tagNo:"+itemSelected.tagNo);
-//										PApplet.println("NEW  scl.location.x:"+scl.location.x+" y:"+scl.location.y+" z:"+scl.location.z+" selectableClusterIDs.hasValue(clusterID):"+selectableClusterIDs.hasValue(clusterID));
-//										PApplet.println("NEW   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
 									}
 								}
+
+								//										itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
+								//										PApplet.println("FIXED?");
+								//										PApplet.println("NEW  itemSelected.tagNo:"+itemSelected.tagNo);
+								//										PApplet.println("NEW  scl.location.x:"+scl.location.x+" y:"+scl.location.y+" z:"+scl.location.z+" selectableClusterIDs.hasValue(clusterID):"+selectableClusterIDs.hasValue(clusterID));
+								//										PApplet.println("NEW   itemSelectedLoc.x:"+itemSelectedLoc.x+" y:"+itemSelectedLoc.y+" z:"+itemSelectedLoc.z);
 							}
 						}
 					}
-//				}
-//			else
-//			{
-//				PApplet.println("Cluster "+clusterID+" not in selectableClusterIDs!");
-//			}
+				}
+			}
+			//				}
+			//			else
+			//			{
+			//				PApplet.println("Cluster "+clusterID+" not in selectableClusterIDs!");
+			//			}
+		}
 		}
 	}
 	
 	public void handleMouseReleased(int mouseX, int mouseY)
 	{
-		if(selectedCluster != -1)
-			zoomInOnCluster(p.p.getCluster(selectedCluster));
+		if(p.satelliteMap)
+		{
+			if(selectedCluster >= 0 && selectedCluster < p.p.getCurrentField().clusters.size())
+			{
+				if(p.p.input.shiftKey)
+				{
+					p.p.viewer.teleportToCluster(selectedCluster, false);
+				}
+				else
+				{
+					p.p.viewer.teleportToCluster(selectedCluster, true);
+					p.displayView = 0;
+				}
+
+			}
+		}
+		else
+		{
+			if(selectedCluster != -1)
+				zoomInOnCluster(p.p.getCluster(selectedCluster));
+		}
 	}
 	
 	public int getSelectedClusterID()

@@ -256,6 +256,12 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	}
 	
 	/* Input Handling */
+	public void mouseMoved()
+	{
+//		if(world.display.displayView == 1)
+//			if(world.display.satelliteMap)
+//				world.display.map2D.handleMouseMoved(mouseX, mouseY);
+	}
 	
 	/**
 	 * Called when mouse is pressed

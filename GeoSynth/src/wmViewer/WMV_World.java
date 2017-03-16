@@ -289,7 +289,8 @@ public class WMV_World
 			getCurrentField().draw();				// Display media in current field
 		
 		viewer.update();							// Update navigation
-		viewer.camera.feed();						// Send the 3D camera view to the screen
+		if(display.displayView == 0 || (display.displayView == 1 && !display.satelliteMap))		
+			viewer.camera.feed();						// Send the 3D camera view to the screen
 	}
 
 	void draw2D()

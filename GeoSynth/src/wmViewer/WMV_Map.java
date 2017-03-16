@@ -875,14 +875,18 @@ public class WMV_Map
 			Marker marker = map.getFirstHitMarker(p.p.p.mouseX, p.p.p.mouseY);		// Select hit marker
 			if (marker != null) 
 			{
-			marker.setSelected(true);
+				marker.setSelected(true);
 
-			String mID = marker.getId();
-//			PApplet.println("selected marker:"+mID);
-			if(!mID.equals("viewer"))
-				selectedCluster = Integer.parseInt(mID);
+				String mID = marker.getId();
+
+				if(!mID.equals("viewer"))
+					selectedCluster = Integer.parseInt(mID);
 			}
-			
+			else
+			{
+				selectedCluster = p.p.viewer.getCurrentClusterID();
+			}
+			// -- Use getHitMarkers(x, y) to allow multiple selection.
 //			List<Marker> markers = map.getHitMarkers(p.p.p.mouseX, p.p.p.mouseY);
 //			if(markers.size() > 0)
 //			{
@@ -891,7 +895,6 @@ public class WMV_Map
 //				if (marker != null) 
 //					marker.setSelected(true);
 //			}
-			// -- Use getHitMarkers(x, y) to allow multiple selection.
 		}
 		else
 		{
@@ -989,7 +992,7 @@ public class WMV_Map
 					{
 						p.p.viewer.teleportToCluster(selectedCluster, true);
 						p.displayView = 0;
-						PApplet.println("teleportToCluster... selectedCluster:"+selectedCluster+" frameCount:"+p.p.p.frameCount);
+						PApplet.println("teleportToCluster... selectedCluster:"+selectedCluster+" currentCluster:"+p.p.viewer.getCurrentClusterID()+" frameCount:"+p.p.p.frameCount);
 					}
 				}
 			}

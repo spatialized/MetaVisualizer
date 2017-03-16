@@ -268,14 +268,20 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	public void mousePressed()
 	{
+//		PApplet.println("pressed");
 //		if(world.viewer.mouseNavigation)
 //			world.input.handleMousePressed(mouseX, mouseY);
+		if(world.display.satelliteMap)
+		{
+			world.display.map2D.mousePressedFrame = frameCount;
+		}
 	}
 
 	/**
 	 * Called when mouse is released
 	 */
 	public void mouseReleased() {
+//		PApplet.println("released");
 //		if(world.viewer.mouseNavigation)
 //			world.input.handleMouseReleased(mouseX, mouseY);
 		if(world.display.displayView == 1)
@@ -286,6 +292,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 * Called when mouse is clicked
 	 */
 	public void mouseClicked() {
+//		PApplet.println("clicked");
 //		if(world.viewer.mouseNavigation)
 //			world.input.handleMouseClicked(mouseX, mouseY);
 	}
@@ -294,6 +301,11 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 * Called when mouse is dragged
 	 */
 	public void mouseDragged() {
+		if(world.display.satelliteMap)
+		{
+			world.display.map2D.mouseDraggedFrame = frameCount;
+		}
+//		PApplet.println("dragged");
 //		if(world.mouseNavigation)
 //		{
 //			if(world.display.inDisplayView())

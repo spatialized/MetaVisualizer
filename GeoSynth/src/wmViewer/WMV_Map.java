@@ -38,6 +38,8 @@ public class WMV_Map
 	EventDispatcher eventDispatcher;
 	MarkerManager<Marker> markerManager;
 	SimplePointMarker viewerMarker;
+	int mousePressedFrame = -1;
+	int mouseDraggedFrame = -1;
 	
 	/* Interaction */
 	private int selectedCluster = -1;
@@ -365,15 +367,27 @@ public class WMV_Map
 //			markerManager.removeMarker(viewerMarker);
 			PVector vLoc = p.p.viewer.getGPSLocation();
 			Location gpsLoc = new Location(vLoc.y, vLoc.x);
-			viewerMarker.setLocation(gpsLoc);
-			markerManager.addMarker(viewerMarker);
-//			p.p.p.camera();
-//			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*30.0f / 180.0f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
-			//WORKS
+			if(gpsLoc != null)
+			{
+				viewerMarker.setLocation(gpsLoc);
+				markerManager.addMarker(viewerMarker);
+			}
 //			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*34.0f / 180.0f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
 			//REFINED
 //			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*33.75f / 180.0f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
-			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*0.1875f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
+//			PApplet.println("PApplet.tan(PApplet.PI*0.1875f):"+(PApplet.tan(PApplet.PI*0.1875f)));
+//			PApplet.println("(p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*0.1875f):"+((p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*0.1875f)));
+
+			float fov = PApplet.PI/3.0f;
+			float cameraZ = (p.p.p.height/2.0f) / PApplet.tan(fov/2.0f);
+			p.p.p.perspective(fov, (float)(p.p.p.width)/(float)(p.p.p.height), cameraZ/10.0f, cameraZ*10.0f);
+
+//			p.p.p.perspective();
+			// REFINED WORKS:
+//			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*0.1875f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
+			
+			// TEST
+			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*30.0f / 180.0f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);
 			p.p.p.tint(255.f, 255.f);
 			map.draw();
 		}
@@ -960,20 +974,24 @@ public class WMV_Map
 	
 	public void handleMouseReleased(int mouseX, int mouseY)
 	{
-		if(p.satelliteMap)
+//		PApplet.println("handleMouseReleased..."+p.p.p.frameCount);
+		if(p.satelliteMap && (mousePressedFrame > mouseDraggedFrame))
 		{
-			if(selectedCluster >= 0 && selectedCluster < p.p.getCurrentField().clusters.size())
+			if(selectedCluster != p.p.viewer.getCurrentClusterID())
 			{
-				if(p.p.input.shiftKey)
+				if(selectedCluster >= 0 && selectedCluster < p.p.getCurrentField().clusters.size())
 				{
-					p.p.viewer.teleportToCluster(selectedCluster, false);
+					if(p.p.input.shiftKey)
+					{
+						p.p.viewer.teleportToCluster(selectedCluster, false);
+					}
+					else
+					{
+						p.p.viewer.teleportToCluster(selectedCluster, true);
+						p.displayView = 0;
+						PApplet.println("teleportToCluster... selectedCluster:"+selectedCluster+" frameCount:"+p.p.p.frameCount);
+					}
 				}
-				else
-				{
-					p.p.viewer.teleportToCluster(selectedCluster, true);
-					p.displayView = 0;
-				}
-
 			}
 		}
 		else

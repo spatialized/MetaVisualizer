@@ -173,7 +173,7 @@ public class WMV_World
 		{
 			draw3D();						// 3D Display
 			draw2D();						// 2D Display
-			updateTime();								// Update time cycle
+			updateTime();					// Update time cycle
 			// updateLeapMotion();			// Update Leap Motion 
 		}
 		
@@ -289,7 +289,7 @@ public class WMV_World
 			getCurrentField().draw();				// Display media in current field
 		
 		viewer.update();							// Update navigation
-		if(display.displayView == 0 || (display.displayView == 1 && !display.satelliteMap))		
+		if(display.displayView == 0 || (display.displayView == 1 && !display.satelliteMap) || display.displayView == 2)		
 			viewer.camera.feed();						// Send the 3D camera view to the screen
 	}
 

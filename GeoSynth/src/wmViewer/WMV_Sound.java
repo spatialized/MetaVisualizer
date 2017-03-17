@@ -158,15 +158,15 @@ public class WMV_Sound extends WMV_Viewable
 		float closestDist = 1000000.f;
 		int closestIdx = -1;
 
+		int sYear = time.getYear();
+		int sMonth = time.getMonth();
+		int sDay = time.getDay();
+		int sHour = time.getHour();
+		int sMinute = time.getMinute();
+		int sSecond = time.getSecond();
+
 		for(WMV_Waypoint w : gpsTrack)
 		{
-			int sYear = time.getYear();
-			int sMonth = time.getMonth();
-			int sDay = time.getDay();
-			int sHour = time.getHour();
-			int sMinute = time.getMinute();
-			int sSecond = time.getSecond();
-
 			int wYear = w.getTime().getYear();
 			int wMonth = w.getTime().getMonth();
 			int wDay = w.getTime().getDay();
@@ -193,8 +193,10 @@ public class WMV_Sound extends WMV_Viewable
 			location = gpsTrack.get(closestIdx).getLocation();
 			if(p.p.p.debug.sound)
 			{
-				PApplet.println("Set sound location to waypoint "+closestIdx);
+				PApplet.println("Set sound #"+getID()+" location to waypoint "+closestIdx+" W hour:"+gpsTrack.get(closestIdx).getTime().getHour()+" W min:"+gpsTrack.get(closestIdx).getTime().getMinute());
+				PApplet.println("S hour:"+sHour+" S min:"+sMinute);
 				PApplet.println("location.x: "+location.x+" location.y:"+location.y+" location.z:"+location.z);
+				PApplet.println("timeDist: "+closestDist);
 			}
 		}
 		else if(p.p.p.debug.sound)

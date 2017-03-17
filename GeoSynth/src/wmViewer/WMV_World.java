@@ -95,7 +95,7 @@ public class WMV_World
 	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
 	public boolean showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
 
-	/* Clusters */
+	/* Clusters */  
 	public boolean mergeClusters = true;				// Merge nearby clusters?
 	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
 	public float kMeansClusteringEpsilon = 0.005f;		// If no clusters move farther than this threshold, stop cluster refinement
@@ -105,8 +105,8 @@ public class WMV_World
 	public float mediaPointMass = 0.05f;				// Mass contribution of each media point
 	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
 	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
-	public float minClusterDistance = 2.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-	public float maxClusterDistance = 12.f;				// Maximum distance between cluster center and media
+	public float minClusterDistance = 3.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+	public float maxClusterDistance = 11.f;				// Maximum distance between cluster center and media
 	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 

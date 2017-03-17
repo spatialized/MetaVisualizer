@@ -40,6 +40,7 @@ public class WMV_Map
 	SimplePointMarker viewerMarker;
 	int mousePressedFrame = -1;
 	int mouseDraggedFrame = -1;
+	private int clusterZoomLevel = 18;
 	
 	/* Interaction */
 	private int selectedCluster = -1;
@@ -506,17 +507,45 @@ public class WMV_Map
 		}
 	}
 
-	void zoomInOnCluster(WMV_Cluster c)
+	void zoomToCluster(WMV_Cluster c)
 	{
 		if(!c.isEmpty() && c.mediaCount > 0)
 		{
-			PVector point = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
-			zoomMapLeftEdge = 0.f;
-			zoomMapTopEdge = 0.f;
-			zoomToRectangleTransition(point.x - zoomMapDefaultWidth/2, point.y - zoomMapDefaultHeight/2.f, zoomMapDefaultWidth, 
-									  zoomMapDefaultHeight);	
+			if(p.satelliteMap)
+			{
+				PVector mapLoc = c.getLocation();
+				PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), mapLoc);
+				
+				map.zoomAndPanTo(clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
+			}
+			else
+			{
+				PVector point = getMapLocation(c.getLocation(), largeMapWidth, largeMapHeight);
+				zoomMapLeftEdge = 0.f;
+				zoomMapTopEdge = 0.f;
+				zoomToRectangleTransition(point.x - zoomMapDefaultWidth/2, point.y - zoomMapDefaultHeight/2.f, zoomMapDefaultWidth, 
+										  zoomMapDefaultHeight);	
 			// -- Make sure not to zoom in too much on small fields!
+			}
 		}
+	}
+	
+	public void zoomIn()
+	{
+		if (p.satelliteMap) 
+			map.zoomIn();
+		else
+			mapZoomTransition(0.85f);
+
+	}
+	
+	public void zoomOut()
+	{
+		if (p.satelliteMap) 
+			map.zoomOut();
+		else
+			mapZoomTransition(1.176f);
+		
 	}
 
 	void drawClusterMedia(WMV_Cluster c, float mapWidth, float mapHeight, boolean ignoreTime)
@@ -1000,7 +1029,7 @@ public class WMV_Map
 		else
 		{
 			if(selectedCluster != -1)
-				zoomInOnCluster(p.p.getCluster(selectedCluster));
+				zoomToCluster(p.p.getCluster(selectedCluster));
 		}
 	}
 	

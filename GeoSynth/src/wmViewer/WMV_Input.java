@@ -587,17 +587,19 @@ public class WMV_Input
 				}
 
 				if (key == 'z')
-					p.display.map2D.zoomInOnCluster(p.getCurrentCluster());
+					p.display.map2D.zoomToCluster(p.getCurrentCluster());
 
 				if (shiftKey && key == 'c')
 					p.startInitialClustering();				// Re-run clustering on all fields
 
 				if (key == ']') {
-					p.display.map2D.mapZoomTransition(0.85f);
+//					p.display.map2D.mapZoomTransition(0.85f);
+					p.display.map2D.zoomIn();
 				}
 
 				if (key == '[') {
-					p.display.map2D.mapZoomTransition(1.176f);
+					p.display.map2D.zoomOut();
+//					p.display.map2D.mapZoomTransition(1.176f);
 				}
 
 				if (key == PApplet.CODED) 					
@@ -889,8 +891,8 @@ public class WMV_Input
 				if (key == '=')
 					p.getCurrentField().fadeObjectDistances(1.176f);
 
-				if (key == 'Z')
-					p.display.map2D.zoomToRectangle(100, 50, p.display.map2D.largeMapWidth * 0.5f, p.display.map2D.largeMapHeight * 0.5f);
+//				if (key == 'Z')
+//					p.display.map2D.zoomToRectangle(100, 50, p.display.map2D.largeMapWidth * 0.5f, p.display.map2D.largeMapHeight * 0.5f);
 
 				/* 3D Controls Disabled in HUD View */
 				if(!p.display.inDisplayView())							

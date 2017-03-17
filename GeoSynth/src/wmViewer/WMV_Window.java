@@ -123,7 +123,7 @@ public class WMV_Window {
 		modelWindowHeight = shortWindowHeight + 100;
 		memoryWindowHeight = shortWindowHeight;
 		selectionWindowHeight = shortWindowHeight;
-		statisticsWindowHeight = longWindowHeight;
+		statisticsWindowHeight = longWindowHeight + 100;
 		helpWindowHeight = longWindowHeight;
 	}
 	
@@ -530,6 +530,7 @@ public class WMV_Window {
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(7);
 		sdrTimeCycleLength.setLimits(0.f, 5000.f, 10.f);
+		PApplet.println("p.p.settings.timeCycleLength:"+p.p.settings.timeCycleLength);		// -- ??
 		sdrTimeCycleLength.setValue(p.p.settings.timeCycleLength);
 		sdrTimeCycleLength.setRotation(PApplet.PI/2.f);
 		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_LEFT);

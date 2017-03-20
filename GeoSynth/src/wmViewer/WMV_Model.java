@@ -126,14 +126,14 @@ public class WMV_Model
 			/* Increase maxClusterDistance as mediaDensity decreases */
 			if(p.p.autoClusterDistances)
 			{
-				maxClusterDistance = p.p.maxClusterDistanceConstant / mediaDensity;
-				if(maxClusterDistance > minClusterDistance * p.p.maxClusterDistanceFactor)
-					maxClusterDistance = minClusterDistance * p.p.maxClusterDistanceFactor;
+				maxClusterDistance = p.p.settings.maxClusterDistanceConstant / mediaDensity;
+				if(maxClusterDistance > minClusterDistance * p.p.settings.maxClusterDistanceFactor)
+					maxClusterDistance = minClusterDistance * p.p.settings.maxClusterDistanceFactor;
 			}
 			else
 			{
-				setMinClusterDistance(p.p.minClusterDistance); 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-				setMaxClusterDistance(p.p.maxClusterDistance);				// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
+				setMinClusterDistance(p.p.settings.minClusterDistance); 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+				setMaxClusterDistance(p.p.settings.maxClusterDistance);				// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
 			}
 
 			//			for(GMV_Image i : p.images)						
@@ -217,7 +217,7 @@ public class WMV_Model
 		}
 		else										// If using k-means clustering
 		{
-			runKMeansClustering( p.p.kMeansClusteringEpsilon, clusterRefinement, clusterPopulationFactor );	// Get initial clusters using K-Means method
+			runKMeansClustering( p.p.settings.kMeansClusteringEpsilon, clusterRefinement, clusterPopulationFactor );	// Get initial clusters using K-Means method
 		}
 
 		if(p.p.p.debug.cluster || p.p.p.debug.model)
@@ -262,8 +262,8 @@ public class WMV_Model
 			{
 				p.p.display.message("");
 				p.p.display.message("Cluster Merging:");
-				p.p.display.message("  Minimum Cluster Distance:"+p.p.minClusterDistance);
-				p.p.display.message("  Maximum Cluster Distance:"+p.p.maxClusterDistance);
+				p.p.display.message("  Minimum Cluster Distance:"+p.p.settings.minClusterDistance);
+				p.p.display.message("  Maximum Cluster Distance:"+p.p.settings.maxClusterDistance);
 			}
 			p.p.display.message(" ");
 			p.p.display.displayClusteringInfo();
@@ -586,16 +586,13 @@ public class WMV_Model
 
 						if(p.p.p.debug.cluster && p.p.p.debug.detailed)
 						{
-//							PApplet.print("  Cluster "+cluster.getName()+" has "+children.size()+" children at depth "+depthCount);
-//							PApplet.println("  Added to next depth, array size:"+nextDepth.size()+"...");
+							PApplet.print("  Cluster "+cluster.getName()+" has "+children.size()+" children at depth "+depthCount);
+							PApplet.println("  Added to next depth, array size:"+nextDepth.size()+"...");
 						}
 					}
 
 					if(children.size() == 0 || (children == null))															
 					{
-//						if(p.p.p.debug.cluster && p.p.p.debug.detailed)
-//							PApplet.println("  Cluster "+cluster.getName()+" has no children...");
-
 						String name = cluster.getName();								// Otherwise, save the result if appropriate
 						int mediaIdx = Integer.parseInt(name);
 
@@ -643,7 +640,6 @@ public class WMV_Model
 	}
 
 	/**
-	 * getDendrogramClusters()
 	 * @param Dendrogram depth level
 	 * @return List of dendrogram clusters at given depth level
 	 */
@@ -680,8 +676,7 @@ public class WMV_Model
 		ArrayList<Cluster> clusters = (ArrayList<Cluster>) topCluster.getChildren();	// Dendrogram clusters
 		int depthCount = 0;
 
-		if(p.p.p.debug.cluster)
-			PApplet.println("Counting clusters at all depth levels...");
+		if(p.p.p.debug.cluster) PApplet.println("Counting clusters at all depth levels...");
 		clustersByDepth.append(1);					// Add top cluster to clustersByDepth list
 
 		if(clusters.size() > 0)
@@ -707,8 +702,7 @@ public class WMV_Model
 
 				clustersByDepth.append(clusters.size());							// Record cluster number at depthCount
 
-				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
-					PApplet.println("Found "+clusters.size()+" clusters at depth:"+depthCount);
+				if(p.p.p.debug.cluster && p.p.p.debug.detailed) PApplet.println("Found "+clusters.size()+" clusters at depth:"+depthCount);
 
 				deepest = !( children.size() > 0 );								// At deepest level when list of chidren is empty
 
@@ -724,7 +718,6 @@ public class WMV_Model
 	}
 
 	/**
-	 * buildDendrogram()
 	 * Calculate hieararchical clustering dendrogram for all media in field
 	 */
 	void buildDendrogram()

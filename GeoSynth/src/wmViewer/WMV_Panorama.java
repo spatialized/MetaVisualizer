@@ -74,7 +74,7 @@ public class WMV_Panorama extends WMV_Viewable
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		
 //		radius = p.p.defaultFocusDistance * 0.75f;
-		radius = p.p.defaultFocusDistance * p.p.panoramaFocusDistanceFactor;
+		radius = p.p.settings.defaultFocusDistance * p.p.settings.panoramaFocusDistanceFactor;
 		origRadius = radius;
 	}  
 
@@ -440,11 +440,11 @@ public class WMV_Panorama extends WMV_Viewable
 
 		float distVisibility = 1.f;
 
-		if(viewDist > radius-p.p.clusterCenterSize*3.f)
+		if(viewDist > radius-p.p.settings.clusterCenterSize*3.f)
 		{
 			float vanishingPoint = radius;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-p.p.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-p.p.settings.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
 //			if(distVisibility!=0&&distVisibility!=1)

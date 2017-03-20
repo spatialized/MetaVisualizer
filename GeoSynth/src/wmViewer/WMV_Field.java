@@ -112,7 +112,7 @@ public class WMV_Field
 
 	public void draw() 				// Draw currently visible media
 	{			
-		float vanishingPoint = p.viewer.getFarViewingDistance() + p.defaultFocusDistance;	// Distance where transparency reaches zero
+		float vanishingPoint = p.viewer.getFarViewingDistance() + p.settings.defaultFocusDistance;	// Distance where transparency reaches zero
 		
 		imagesVisible = 0;
 		imagesSeen = 0;
@@ -626,7 +626,7 @@ public class WMV_Field
 		else if(p.viewer.isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
 		{
 			for( WMV_Cluster c : getAttractingClusters() )
-				if(c.getClusterDistance() > p.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
+				if(c.getClusterDistance() > p.settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
 					c.attractViewer();
 		}
 	}
@@ -641,7 +641,7 @@ public class WMV_Field
 		{
 			if(c.isAttractor())										
 			{
-				if(c.getClusterDistance() > p.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
+				if(c.getClusterDistance() > p.settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
 					cList.add(c);
 			}
 		}

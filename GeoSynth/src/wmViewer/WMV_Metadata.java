@@ -458,7 +458,7 @@ class WMV_Metadata
 
 			float fDirection = 0, fElevation = 0, fRotation = 0,
 					fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
-			float fFocusDistance = f.p.defaultFocusDistance;									// Focus distance currently NOT used
+			float fFocusDistance = f.p.settings.defaultFocusDistance;									// Focus distance currently NOT used
 			int iWidth = -1, iHeight = -1;
 			int iCameraModel = 0;
 			float fBrightness = -1.f;
@@ -827,7 +827,7 @@ class WMV_Metadata
 
 			Calendar calendarTime = null;			// Calendar date and time
 
-			float fFocusDistance = f.p.defaultFocusDistance;									// Focus distance currently NOT used
+			float fFocusDistance = f.p.settings.defaultFocusDistance;									// Focus distance currently NOT used
 			int iWidth = -1, iHeight = -1;
 			float fBrightness = -1.f;
 			PVector pLoc = new PVector(0, 0, 0);

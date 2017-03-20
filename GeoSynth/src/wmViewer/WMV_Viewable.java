@@ -89,9 +89,6 @@ public abstract class WMV_Viewable
 
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(p.p.circularEaseOut);
-
-		//		if(p.p.timeFading || p.p.dateFading)
-		//			initFading = false;			/* No need for initial fade in during Time Fading Mode */
 	}  
 
 	abstract void draw();
@@ -542,12 +539,10 @@ public abstract class WMV_Viewable
 			{
 				newX = PApplet.map(gpsLocation.x, p.model.lowLongitude, p.model.highLongitude, -0.5f * p.model.fieldWidth, 0.5f*p.model.fieldWidth); 			// GPS longitude decreases from left to right
 				newY = -PApplet.map(gpsLocation.y, p.model.lowAltitude, p.model.highAltitude, 0.f, p.model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
-//				newZ = -PApplet.map(gpsLocation.z, p.model.lowLatitude, p.model.highLatitude, -0.5f * p.model.fieldLength, 0.5f*p.model.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
-//				newZ = PApplet.map(gpsLocation.z, p.model.lowLatitude, p.model.highLatitude, -0.5f * p.model.fieldLength, 0.5f*p.model.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
 				newZ = PApplet.map(gpsLocation.z, p.model.lowLatitude, p.model.highLatitude, 0.5f*p.model.fieldLength, -0.5f * p.model.fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
 				
-				if(p.p.altitudeScaling)	
-					newY *= p.p.altitudeScalingFactor;
+				if(p.p.settings.altitudeScaling)	
+					newY *= p.p.settings.altitudeScalingFactor;
 			}
 			else
 			{

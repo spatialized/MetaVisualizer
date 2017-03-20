@@ -71,7 +71,7 @@ public class WMV_Input
 			if(p.display.window.setupModelWindow)
 			{
 //				PApplet.println("altitudeScalingFactor before:"+p.altitudeScalingFactor);
-				p.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
+				p.settings.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
 //				PApplet.println("altitudeScalingFactor after:"+p.altitudeScalingFactor);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
@@ -290,6 +290,9 @@ public class WMV_Input
 			case "ClusterView":
 				p.display.setDisplayView(2);
 				break;
+			case "TimelineView":
+				p.display.setDisplayView(3);
+				break;
 				
 			/* Navigation */
 			case "FollowTimeline":
@@ -460,6 +463,9 @@ public class WMV_Input
 				p.display.setDisplayView(2);
 
 			if (!optionKey && !commandKey  && key == '4')
+				p.display.setDisplayView(3);
+
+			if (!optionKey && !commandKey  && key == '5')
 			{
 				boolean state = !p.showModel;
 				p.showModel = state;
@@ -467,26 +473,26 @@ public class WMV_Input
 					p.display.window.chkbxShowModel.setSelected(state);
 			}
 
-			if (!optionKey && !commandKey  && key == '5') 
+			if (!optionKey && !commandKey  && key == '6') 
 				p.showMediaToCluster = !p.showMediaToCluster;			// Draw line from each media point to cluster
 
-			if (!optionKey && !commandKey  && key == '6') 
+			if (!optionKey && !commandKey  && key == '7') 
 				p.showCaptureToMedia = !p.showCaptureToMedia;			// Draw line from each media point to its capture location
 
-			if (!optionKey && !commandKey  && key == '7') 
+			if (!optionKey && !commandKey  && key == '8') 
 				p.showCaptureToCluster = !p.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
-			if (!optionKey && !commandKey  && key == '8') 
-			{
-				if(p.viewer.settings.maxVisibleClusters > 1)
-					p.viewer.settings.maxVisibleClusters--;		
-			}
-
-			if (!optionKey && !commandKey  && key == '9') 
-			{
-				if(p.viewer.settings.maxVisibleClusters < 9)
-					p.viewer.settings.maxVisibleClusters++;		
-			}
+//			if (!optionKey && !commandKey  && key == '8') 
+//			{
+//				if(p.viewer.settings.maxVisibleClusters > 1)
+//					p.viewer.settings.maxVisibleClusters--;		
+//			}
+//
+//			if (!optionKey && !commandKey  && key == '9') 
+//			{
+//				if(p.viewer.settings.maxVisibleClusters < 9)
+//					p.viewer.settings.maxVisibleClusters++;		
+//			}
 
 			if (!optionKey && commandKey && key == '1') 
 			{
@@ -802,16 +808,16 @@ public class WMV_Input
 					p.viewer.moveToNearestClusterAhead(false);
 
 				if (!optionKey && key == ']') {
-					float value = p.altitudeScalingFactor * 1.052f;
-					p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
+					float value = p.settings.altitudeScalingFactor * 1.052f;
+					p.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
 					p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 					p.getCurrentField().createClusters();				// Recalculate cluster locations
 					p.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
 				}
 
 				if (!optionKey && key == '[') {
-					float value = p.altitudeScalingFactor *= 0.95f;
-					p.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
+					float value = p.settings.altitudeScalingFactor *= 0.95f;
+					p.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
 					p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 					p.getCurrentField().createClusters();				// Recalculate cluster locations
 					p.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
@@ -1107,38 +1113,38 @@ public class WMV_Input
 					{
 						p.hierarchical = false;
 						WMV_Model m = p.getCurrentField().model;
-						m.runKMeansClustering(p.kMeansClusteringEpsilon, m.clusterRefinement, m.clusterPopulationFactor);
+						m.runKMeansClustering(p.settings.kMeansClusteringEpsilon, m.clusterRefinement, m.clusterPopulationFactor);
 						p.getCurrentField().createTimeline();					// Create field timeline
 					}
 				}
 
 				if (key == '[') 	
 				{
-					if(!p.autoClusterDistances && p.minClusterDistance > 0.25f)
+					if(!p.autoClusterDistances && p.settings.minClusterDistance > 0.25f)
 					{
-						p.minClusterDistance -= 0.25f;
+						p.settings.minClusterDistance -= 0.25f;
 						for(WMV_Field f : p.getFields())
 						{
-							f.model.setMinClusterDistance(p.minClusterDistance);	
-							p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
+							f.model.setMinClusterDistance(p.settings.minClusterDistance);	
+							p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
 							p.getCurrentField().initializeClusters();			
-							p.display.map2D.initializeLargeMap();
+							p.display.map2D.initializeMaps();
 						}
 					}
 				}
 
 				if (key == ']') 	
 				{
-					if(!p.autoClusterDistances && p.minClusterDistance < p.maxClusterDistance - 2.f)
+					if(!p.autoClusterDistances && p.settings.minClusterDistance < p.settings.maxClusterDistance - 2.f)
 					{
-						p.minClusterDistance += 0.25f;
+						p.settings.minClusterDistance += 0.25f;
 						//					PApplet.println("p.minClusterDistance:"+p.minClusterDistance);
 						for(WMV_Field f : p.getFields())
 						{
-							f.model.setMinClusterDistance(p.minClusterDistance);
-							p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
+							f.model.setMinClusterDistance(p.settings.minClusterDistance);
+							p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
 							p.getCurrentField().initializeClusters();			
-							p.display.map2D.initializeLargeMap();
+							p.display.map2D.initializeMaps();
 						}
 					}
 				}
@@ -1176,7 +1182,7 @@ public class WMV_Input
 
 								if(p.getCurrentField().model.clusterRefinement >= p.getCurrentField().model.minClusterRefinement)
 								{
-									p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
+									p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
 									p.getCurrentField().initializeClusters();			
 									p.display.map2D.initializeMaps();
 								}
@@ -1190,7 +1196,7 @@ public class WMV_Input
 
 								if(p.getCurrentField().model.clusterRefinement <= p.getCurrentField().model.maxClusterRefinement)
 								{
-									p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
+									p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
 									p.getCurrentField().initializeClusters();			
 									p.display.map2D.initializeMaps();
 								}
@@ -1204,7 +1210,7 @@ public class WMV_Input
 
 								if(p.getCurrentField().model.clusterPopulationFactor >= p.getCurrentField().model.minPopulationFactor)
 								{
-									p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
+									p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
 									p.getCurrentField().initializeClusters();			
 									p.display.map2D.initializeMaps();
 								}
@@ -1218,7 +1224,7 @@ public class WMV_Input
 
 								if(p.getCurrentField().model.clusterPopulationFactor <= p.getCurrentField().model.maxPopulationFactor)
 								{
-									p.getCurrentField().model.runKMeansClustering( p.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
+									p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
 									p.getCurrentField().initializeClusters();			
 									p.display.map2D.initializeMaps();
 								}
@@ -1414,7 +1420,7 @@ public class WMV_Input
 
 	void handleMousePressed(int mouseX, int mouseY)
 	{
-		boolean doubleClick = false, switchedViews = false;
+//		boolean doubleClick = false, switchedViews = false;
 
 //			PApplet.println("MousePressed!");
 		if(!p.viewer.settings.orientationMode && p.viewer.lastMovementFrame > 5)

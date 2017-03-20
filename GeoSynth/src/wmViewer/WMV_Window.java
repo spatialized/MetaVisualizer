@@ -217,13 +217,13 @@ public class WMV_Window {
 		x = 20;
 		y += 30;
 		
-		optSceneView = new GOption(wmvWindow, x, y, 90, 20, "Scene  (1)");
+		optSceneView = new GOption(wmvWindow, x, y, 90, 20, "World  (1)");
 		optSceneView.setLocalColorScheme(10);
 		optSceneView.tag = "SceneView";
 		optMapView = new GOption(wmvWindow, x+=100, y, 90, 20, "Map  (2)");
 		optMapView.setLocalColorScheme(10);
 		optMapView.tag = "MapView";
-		optClusterView = new GOption(wmvWindow, x+=100, y, 100, 20, "Cluster  (3)");
+		optClusterView = new GOption(wmvWindow, x+=100, y, 100, 20, "Info  (3)");
 		optClusterView.setLocalColorScheme(10);
 		optClusterView.tag = "ClusterView";
 
@@ -829,7 +829,7 @@ public class WMV_Window {
 		sdrAltitudeScaling = new GSlider(modelWindow, x, y, 80, 80, 20);
 		sdrAltitudeScaling.setLocalColorScheme(7);
 		sdrAltitudeScaling.setLimits(0.f, 1.f, 0.f);
-		sdrAltitudeScaling.setValue(p.p.altitudeScalingFactor);											// -- Shouldn't be needed! Calls handler
+		sdrAltitudeScaling.setValue(p.p.settings.altitudeScalingFactor);											// -- Shouldn't be needed! Calls handler
 		sdrAltitudeScaling.setRotation(PApplet.PI/2.f);
 		sdrAltitudeScaling.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrAltitudeScaling.setEasing(0);
@@ -868,14 +868,14 @@ public class WMV_Window {
 		x = 100;
 		y += 30;
 
-		chkbxShowModel = new GCheckbox(modelWindow, x, y, 120, 20, "Show Model  (4)");
+		chkbxShowModel = new GCheckbox(modelWindow, x, y, 120, 20, "Show Model  (5)");
 		chkbxShowModel.tag = "ShowModel";
 		chkbxShowModel.setLocalColorScheme(10);
 		
 		x = 115;
 		y += 30;
 		
-		chkbxMediaToCluster = new GCheckbox(modelWindow, x, y, 150, 20, "Media to Cluster  (5)");
+		chkbxMediaToCluster = new GCheckbox(modelWindow, x, y, 150, 20, "Media to Cluster  (6)");
 		chkbxMediaToCluster.tag = "MediaToCluster";
 		chkbxMediaToCluster.setLocalColorScheme(10);
 		chkbxMediaToCluster.setSelected(false);
@@ -883,7 +883,7 @@ public class WMV_Window {
 		x = 115;
 		y += 25;
 
-		chkbxCaptureToMedia = new GCheckbox(modelWindow, x, y, 150, 20, "Capture to Media  (6)");
+		chkbxCaptureToMedia = new GCheckbox(modelWindow, x, y, 150, 20, "Capture to Media  (7)");
 		chkbxCaptureToMedia.tag = "CaptureToMedia";
 		chkbxCaptureToMedia.setLocalColorScheme(10);
 		chkbxCaptureToMedia.setSelected(false);
@@ -891,7 +891,7 @@ public class WMV_Window {
 		x = 115;
 		y += 25;
 
-		chkbxCaptureToCluster = new GCheckbox(modelWindow, x, y, 170, 20, "Capture to Cluster  (7)");
+		chkbxCaptureToCluster = new GCheckbox(modelWindow, x, y, 170, 20, "Capture to Cluster  (8)");
 		chkbxCaptureToCluster.tag = "CaptureToCluster";
 		chkbxCaptureToCluster.setLocalColorScheme(10);
 		chkbxCaptureToCluster.setSelected(false);
@@ -1509,10 +1509,10 @@ public class WMV_Window {
 
 				applet.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), x, y += lineWidthVeryWide);
 				applet.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", x, y += lineWidth);
-				applet.text(" Minimum Distance: "+p.p.minClusterDistance, x, y += lineWidth);
-				applet.text(" Maximum Distance: "+p.p.maxClusterDistance, x, y += lineWidth);
-				if(p.p.altitudeScaling)
-					applet.text(" Altitude Scaling Factor: "+p.p.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
+				applet.text(" Minimum Distance: "+p.p.settings.minClusterDistance, x, y += lineWidth);
+				applet.text(" Maximum Distance: "+p.p.settings.maxClusterDistance, x, y += lineWidth);
+				if(p.p.settings.altitudeScaling)
+					applet.text(" Altitude Scaling Factor: "+p.p.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
 				applet.text(" Clustering Method : "+ ( p.p.hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
 				applet.text(" Population Factor: "+f.model.clusterPopulationFactor, x, y += lineWidth);
 				if(p.p.hierarchical) applet.text(" Current Cluster Depth: "+f.model.clusterDepth, x, y += lineWidth);

@@ -103,6 +103,12 @@ public class WMV_Time implements Comparable<WMV_Time>
 	{
 		return time;
 	}
+
+	public PVector getTimeAsPVector()
+	{
+		PVector t = new PVector(hour, minute, second);
+		return t;
+	}
 	
 	public float getDayLength()
 	{

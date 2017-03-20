@@ -405,7 +405,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	{
 		float r;				  				 // Viewing sphere radius
 		if(focusDistance == -1.f)
-			r = p.p.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
+			r = p.p.settings.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -650,7 +650,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		float r;
 
 		if(focusDistance == -1.f)
-			r = p.p.defaultFocusDistance;						// Use default if no focus distance in metadata					      
+			r = p.p.settings.defaultFocusDistance;						// Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -1237,7 +1237,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	private float getVideoWidthMeters()
 	{
 		// 	Image Size = Sensor Width * Focus Distance / Focal Length 
-		float result = sensorSize * p.p.subjectSizeRatio * focusDistance / focalLength;
+		float result = sensorSize * p.p.settings.subjectSizeRatio * focusDistance / focalLength;
 		return result;
 	}
 

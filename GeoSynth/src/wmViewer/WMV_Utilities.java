@@ -52,6 +52,15 @@ public class WMV_Utilities
 		return value;
 	}
 	
+	public float getTimePVectorSeconds(PVector time)
+	{
+		float result = time.z;
+		result += time.y * 60.f;
+		result += time.x * 60.f * 60.f;
+		return result;
+//		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
+	}
+
 	/**
 	 * Get distance in radians between two angles
 	 * @param theta1 First angle

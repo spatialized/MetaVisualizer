@@ -80,7 +80,7 @@ public class WMV_ViewerSettings
 	public void initialize()
 	{
 		fieldOfView = initFieldOfView; 		
-		selectionMaxDistance = v.p.defaultFocusDistance * selectionMaxDistanceFactor;
+		selectionMaxDistance = v.p.settings.defaultFocusDistance * selectionMaxDistanceFactor;
 	}
 	
 	public void reset()

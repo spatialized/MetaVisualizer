@@ -494,7 +494,7 @@ public class WMV_Cluster
 			p.p.p.fill(hue,255,255);
 			p.p.p.stroke(255-hue,255,255);
 			p.p.p.translate(location.x, location.y, location.z);
-			p.p.p.sphere(p.p.clusterCenterSize);
+			p.p.p.sphere(p.p.settings.clusterCenterSize);
 			p.p.p.popMatrix();
 		}
 	}
@@ -857,7 +857,7 @@ public class WMV_Cluster
 		force.normalize();
 		
 		float mass, dist = getClusterDistance();
-		if( dist > p.p.clusterFarDistance )
+		if( dist > p.p.settings.clusterFarDistance )
 			mass = clusterMass * farMassFactor * PApplet.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
 		else
 			mass = clusterMass;

@@ -1,8 +1,8 @@
 package wmViewer;
-import java.awt.Font;
+//import java.awt.Font;
 import java.util.ArrayList;
 
-import g4p_controls.GAlign;
+//import g4p_controls.GAlign;
 import g4p_controls.GButton;
 import processing.core.*;
 
@@ -14,7 +14,7 @@ import processing.core.*;
 class WMV_Display
 {
 	/* Classes */
-	public WMV_Window window;					// Main interaction window
+	public WMV_Window window;							// Main interaction window
 	public WMV_Map map2D;
 	
 	/* Window Modes */
@@ -22,7 +22,7 @@ class WMV_Display
 	public boolean initializedMaps = false;
 	
 	/* Display Modes */
-	public int displayView = 0;					// 0: Scene 1: Map 2: Cluster
+	public int displayView = 0;							// 0: Scene  1: Map  2: Cluster  3: Timeline
 	public boolean satelliteMap = true;
 	
 	/* Debug */
@@ -34,8 +34,8 @@ class WMV_Display
 //	PImage startupImage;
 	
 	/* Graphics */
-	float hudDistance;							// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
-	public boolean drawGrid = false; 			// Draw 3D grid   			-- Unused
+	float hudDistance;									// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
+	public boolean drawGrid = false; 					// Draw 3D grid   			-- Unused
 
 	public int blendMode = 0;							// Alpha blending mode
 	public int numBlendModes = 10;						// Number of blending modes
@@ -44,9 +44,10 @@ class WMV_Display
 	public int displayCluster = 0;
 
 	/* Messages */
-	ArrayList<String> messages;						// Messages to display on screen
-	ArrayList<String> metadata;						// Messages to display on screen
-	ArrayList<String> startupMessages;						// Messages to display on screen
+	ArrayList<String> messages;							// Messages to display on screen
+	ArrayList<String> metadata;							// Metadata messages to display on screen
+	ArrayList<String> startupMessages;					// Messages to display on screen
+
 	int messageStartFrame = -1;
 	int metadataStartFrame = -1;
 	int startupMessageStartFrame = -1;
@@ -169,25 +170,23 @@ class WMV_Display
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 				p.p.background(0.f);																// Hide 3D view
 
-				if(displayView == 1)
+				switch(displayView)
 				{
-					map2D.drawLargeMap(satelliteMap);
-					if(map2D.scrollTransition)
-						map2D.updateMapScrollTransition();
-					if(map2D.zoomToRectangleTransition)
-						map2D.updateZoomToRectangleTransition();
-					
+				case 1:
+					map2D.drawMainMap(!satelliteMap);
+					if(map2D.scrollTransition) map2D.updateMapScrollTransition();
+					if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition();
+					if(p.interactive) displayInteractiveClustering();
 					map2D.updateMapMouse();
-//					drawTimelines();
-//					drawDatelines();
-				}
-				else if(displayView == 2)
+					break;
+				case 2:
 					displayCluster();
-
-				if(p.interactive)
-				{
-					displayInteractiveClustering();
+					break;
+				case 3:
+					drawTimeView();
+					break;
 				}
+
 			}
 			else if( messages.size() > 0 || metadata.size() > 0 )
 			{
@@ -207,13 +206,112 @@ class WMV_Display
 		}
 	}
 
+	public void drawTimeView()
+	{
+		beginHUD();
+		p.p.pushMatrix();
+		
+		float xPos = centerTextXOffset;
+		float yPos = topTextYOffset;			// Starting vertical position
+		float timelineLength = p.p.width * 1.2f;
+		
+		WMV_Field f = p.getCurrentField();
+		WMV_Cluster c = p.getCurrentCluster();
+
+		p.p.fill(0, 0, 255, 255);
+
+		p.p.textSize(veryLargeTextSize);
+		p.p.text(""+p.getCurrentField().name, xPos, yPos, hudDistance);
+//		p.p.text(" Time View", textXPos, textYPos += lineWidthVeryWide, hudDistance);
+
+		p.p.textSize(largeTextSize);
+		p.p.text(" Field #"+ f.fieldID, xPos, yPos += lineWidthVeryWide, hudDistance);
+		if(f.timeline.size() > 0)
+			p.p.text(" Timeline Segments: "+ f.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+		if(f.dateline != null)
+			if(f.dateline.size() > 0)
+				p.p.text(" Dates: "+ f.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+
+		p.p.textSize(largeTextSize);
+		p.p.text(" Cluster #"+ c.getID(), xPos, yPos += lineWidthVeryWide, hudDistance);
+		if(c.timeline.size() > 0)
+			p.p.text(" Timeline Segments: "+ c.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+		if(c.dateline != null)
+			if(c.dateline.size() > 0)
+				p.p.text(" Dates: "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+
+		p.p.popMatrix();
+		
+		xPos = clusterImageXOffset;		// Starting horizontal position
+		drawFieldTimeline(f.timeline, xPos, yPos += lineWidthVeryWide, timelineLength);
+//		drawClusterDateline(f.timelines, f.dateline, xPos, yPos += lineWidthVeryWide);
+		
+		// Cluster Timeline
+//		drawClusterTimeline(c.timeline, xPos, yPos += lineWidthVeryWide, timelineLength);
+//		drawClusterDateline(c.timelines, c.dateline, xPos, yPos += lineWidthVeryWide);
+	}
+	
+	private void drawFieldTimeline(ArrayList<WMV_TimeSegment> timeline, float xPos, float yPos, float timelineLength)
+	{
+		int count = 0;
+	
+		p.p.tint(255);
+		p.p.stroke(0, 0, 255, 255);
+		p.p.strokeWeight(3.f);
+		p.p.fill(0, 0, 255, 255);
+		p.p.line(xPos, yPos, hudDistance, xPos + timelineLength, yPos, hudDistance);
+		
+		for(WMV_TimeSegment t : timeline)
+		{
+			drawTimelineSegment(t, xPos, yPos, timelineLength);
+			count++;
+		}
+	}
+	
+	private void drawTimelineSegment(WMV_TimeSegment t, float timelineLeftEdge, float timelineTopEdge, float timelineLength)
+	{
+		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
+		PVector centerTime = t.getCenter().getTimeAsPVector();			
+		PVector upperTime = t.getUpper().getTimeAsPVector();			
+		float lower = p.p.utilities.getTimePVectorSeconds(lowerTime);
+		float center = p.p.utilities.getTimePVectorSeconds(centerTime);
+		float upper = p.p.utilities.getTimePVectorSeconds(upperTime);
+		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		
+		ArrayList<WMV_Time> tsTimeline = t.getTimeline();				// Get timeline for this time segment
+		ArrayList<PVector> times = new ArrayList<PVector>();
+		for(WMV_Time ti : tsTimeline) times.add(ti.getTimeAsPVector());
+
+		float xOffset = PApplet.map(lower, 0.f, day, 0.f, timelineLength);
+		
+		p.p.pushMatrix();
+		p.p.stroke(60, 255, 255);
+		p.p.strokeWeight(1.f);
+		p.p.translate(timelineLeftEdge + xOffset, timelineTopEdge, hudDistance);
+		p.p.line(0.f, -5.f, 0.f, 0.f, 5.f, 0.f);
+		p.p.popMatrix();
+		xOffset = PApplet.map(center, 0.f, day, 0.f, timelineLength);
+		
+		p.p.pushMatrix();
+		p.p.stroke(120, 255, 255);
+		p.p.translate(timelineLeftEdge + xOffset, timelineTopEdge, hudDistance);
+		p.p.line(0.f, -15.f, 0.f, 0.f, 15.f, 0.f);
+		p.p.popMatrix();
+		xOffset = PApplet.map(upper, 0.f, day, 0.f, timelineLength);
+		
+		p.p.pushMatrix();
+		p.p.stroke(180, 255, 255);
+		p.p.translate(timelineLeftEdge + xOffset, timelineTopEdge, hudDistance);
+		p.p.line(0.f, -5.f, 0.f, 0.f, 5.f, 0.f);
+		p.p.popMatrix();
+	}
 
 	/**
 	 * Draw Interactive Clustering screen
 	 */
 	void displayInteractiveClustering()
 	{
-		map2D.drawLargeMap(false);
+		map2D.drawMainMap(false);
 		if(messages.size() > 0) displayMessages();
 	}
 
@@ -821,7 +919,7 @@ class WMV_Display
 			p.p.text(" Alpha Mode:"+p.alphaMode, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Time Fading: "+ p.timeFading, xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Altitude Scaling: "+p.altitudeScaling, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Altitude Scaling: "+p.settings.altitudeScaling, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Lock Media to Clusters:"+p.lockMediaToClusters, xPos, yPos += lineWidth, hudDistance);
 		
 			p.p.textSize(mediumTextSize);
@@ -833,8 +931,8 @@ class WMV_Display
 			p.p.text(" Media Angle Thinning: "+p.viewer.settings.angleThinning, xPos, yPos += lineWidth, hudDistance);
 			if(p.viewer.settings.angleThinning)
 				p.p.text(" Media Thinning Angle:"+p.viewer.settings.thinningAngle, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Subject Distance (m.):"+p.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Image Size Factor:"+p.settings.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Subject Distance (m.):"+p.settings.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
 
 			xPos = centerTextXOffset;
@@ -863,10 +961,10 @@ class WMV_Display
 			
 			p.p.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Minimum Distance: "+p.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Maximum Distance: "+p.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
-			if(p.altitudeScaling)
-				p.p.text(" Altitude Scaling Factor: "+p.altitudeScalingFactor+"  (Altitude Scaling)", xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
+			if(p.settings.altitudeScaling)
+				p.p.text(" Altitude Scaling Factor: "+p.settings.altitudeScalingFactor+"  (Altitude Scaling)", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Clustering Method : "+ ( p.hierarchical ? "Hierarchical" : "K-Means" ), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Population Factor: "+f.model.clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
 			if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, xPos, yPos += lineWidth, hudDistance);
@@ -1014,8 +1112,8 @@ class WMV_Display
 		p.p.text(" Field Cluster Count:"+(f.clusters.size()-f.model.mergedClusters), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 		p.p.text("   Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", textXPos, textYPos += lineWidth, hudDistance);
 		if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Minimum Distance: "+p.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Maximum Distance: "+p.maxClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text("   Population Factor: "+f.model.clusterPopulationFactor, textXPos, textYPos += lineWidth, hudDistance);
 
 		if(p.viewer.getAttractorCluster() != -1)
@@ -1045,7 +1143,6 @@ class WMV_Display
 		p.p.strokeWeight(15);
 		p.p.fill(0, 0, 255, 255);
 
-//		beginHUD();
 		for(WMV_Image i : cluster.getImages())
 		{
 			p.p.pushMatrix();
@@ -1054,7 +1151,6 @@ class WMV_Display
 			float width = 90.f;
 			float height = width * origHeight / origWidth;
 			
-//			beginHUD();
 			p.p.translate(imgXPos, imgYPos, hudDistance);
 			p.p.tint(255);
 			
@@ -1108,6 +1204,12 @@ class WMV_Display
 				window.optMapView.setSelected(false);
 				window.optClusterView.setSelected(true);
 				displayCluster = p.viewer.getCurrentClusterID();
+				break;
+			case 3:	
+				displayView = 3;
+//				window.optSceneView.setSelected(false);
+//				window.optMapView.setSelected(false);
+//				window.optClusterView.setSelected(true);
 				break;
 		}
 	}

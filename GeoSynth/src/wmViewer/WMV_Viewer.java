@@ -185,7 +185,7 @@ public class WMV_Viewer
 
 		field = 0;
 		currentCluster = 0;
-		clusterNearDistance = p.clusterCenterSize * clusterNearDistanceFactor;
+		clusterNearDistance = p.settings.clusterCenterSize * clusterNearDistanceFactor;
 		nearbyClusterTimeline = new ArrayList<WMV_TimeSegment>();
 		
 		initialize(0, 0, 0);
@@ -241,7 +241,7 @@ public class WMV_Viewer
 				{
 					int nearest = getNearestCluster(true);					// Get nearest cluster location, including current cluster
 					WMV_Cluster c = p.getCluster(nearest);
-					if(c.getClusterDistance() > p.clusterCenterSize * 2.f)	// If the nearest cluster is farther than threshold distance
+					if(c.getClusterDistance() > p.settings.clusterCenterSize * 2.f)	// If the nearest cluster is farther than threshold distance
 						moveToCluster(c.getID(), false);					// Move to nearest cluster
 				}
 			}
@@ -680,7 +680,7 @@ public class WMV_Viewer
 		if(f.timeline.size()>0)
 		{
 			int clusterID = f.timeline.get(fieldTimeSegment).getClusterID();
-			if(clusterID == currentCluster && p.getCluster(clusterID).getClusterDistance() < p.clusterCenterSize)	// Moving to different time in same cluster
+			if(clusterID == currentCluster && p.getCluster(clusterID).getClusterDistance() < p.settings.clusterCenterSize)	// Moving to different time in same cluster
 			{
 				currentFieldTimeSegment = fieldTimeSegment;
 				if(p.p.debug.viewer && p.p.debug.detailed)
@@ -1412,7 +1412,7 @@ public class WMV_Viewer
 	 */
 	public void moveToNextClusterAlongHistoryVector()
 	{
-		IntList closest = getNearClusters(20, p.defaultFocusDistance * 4.f);		// Find 20 near clusters 	- Set number based on cluster density?
+		IntList closest = getNearClusters(20, p.settings.defaultFocusDistance * 4.f);		// Find 20 near clusters 	- Set number based on cluster density?
 		ArrayList<WMV_Cluster> clusterList = clustersAreInList(closest, 10);		// Are the clusters within the last 10 waypoints in history?
 		PVector hv = getHistoryVector();											// Get vector for direction of camera movement
 
@@ -1484,7 +1484,7 @@ public class WMV_Viewer
 		
 		if(p.getCurrentField().clusters.get(attractorCluster).getClusterDistance() < clusterNearDistance)
 		{
-			if(p.getCurrentField().clusters.get(attractorCluster).getClusterDistance() > p.clusterCenterSize)
+			if(p.getCurrentField().clusters.get(attractorCluster).getClusterDistance() > p.settings.clusterCenterSize)
 			{
 //				p.display.message("Moving nearby...");
 				movingNearby = true;
@@ -1650,7 +1650,7 @@ public class WMV_Viewer
 
 		field = 0;
 		currentCluster = 0;
-		clusterNearDistance = p.clusterCenterSize * clusterNearDistanceFactor;
+		clusterNearDistance = p.settings.clusterCenterSize * clusterNearDistanceFactor;
 
 		initialize(0, 0, 0);
 	}
@@ -1679,7 +1679,6 @@ public class WMV_Viewer
 		WMV_Model m = p.getCurrentField().model;
 		
 		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
-//		float newY = -PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.lowLatitude, m.highLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
 		float newY = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
 
 		PVector gpsLoc = new PVector(newX, newY);
@@ -2084,7 +2083,7 @@ public class WMV_Viewer
 					}
 				}
 
-				if(curAttractor.getClusterDistance() < p.clusterCenterSize)
+				if(curAttractor.getClusterDistance() < p.settings.clusterCenterSize)
 				{
 					if(PApplet.abs(velocity.mag()) > settings.velocityMin)					/* Slow down at attractor center */
 					{
@@ -2293,7 +2292,7 @@ public class WMV_Viewer
 	{
 		PVector camOrientation = getOrientationVector();
 
-		IntList nearClusters = getNearClusters(20, p.defaultFocusDistance * 4.f);	// Find 20 nearest clusters -- Change based on density?
+		IntList nearClusters = getNearClusters(20, p.settings.defaultFocusDistance * 4.f);	// Find 20 nearest clusters -- Change based on density?
 		IntList frontClusters = new IntList();
 		
 		for (int i : nearClusters) 							// Iterate through the clusters
@@ -2790,7 +2789,7 @@ public class WMV_Viewer
 		attractorPoint = new WMV_Cluster(p.getCurrentField(), 0, newPoint.x, newPoint.y, newPoint.z);
 		attractorPoint.setEmpty(false);
 		attractorPoint.setAttractor(true);
-		attractorPoint.setMass(p.mediaPointMass * 25.f);
+		attractorPoint.setMass(p.settings.mediaPointMass * 25.f);
 		attractionStart = p.p.frameCount;
 	}
 	
@@ -2812,7 +2811,7 @@ public class WMV_Viewer
 	 */
 	public boolean mediaAreVisible( boolean front, int threshold )
 	{
-		IntList nearClusters = getNearClusters(10, settings.farViewingDistance + p.defaultFocusDistance); 	
+		IntList nearClusters = getNearClusters(10, settings.farViewingDistance + p.settings.defaultFocusDistance); 	
 
 		if(nearClusters.size() == 0)
 			return false;
@@ -2843,7 +2842,7 @@ public class WMV_Viewer
 			for( int id : cluster.panoramas )
 			{
 				WMV_Panorama n = p.getCurrentField().panoramas.get(id);
-				if(n.getViewingDistance() < settings.farViewingDistance + p.defaultFocusDistance 
+				if(n.getViewingDistance() < settings.farViewingDistance + p.settings.defaultFocusDistance 
 						&& n.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
 					if(!n.disabled)
@@ -3570,8 +3569,8 @@ public class WMV_Viewer
 						newY = -PApplet.map(elevation, m.lowAltitude, m.highAltitude, 0.f, m.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
 						newZ = -PApplet.map(latitude, m.lowLatitude, m.highLatitude, -0.5f * m.fieldLength, 0.5f*m.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
 						
-						if(p.altitudeScaling)	
-							newY *= p.altitudeScalingFactor;
+						if(p.settings.altitudeScaling)	
+							newY *= p.settings.altitudeScalingFactor;
 					}
 					else
 					{

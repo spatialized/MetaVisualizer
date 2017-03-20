@@ -457,7 +457,7 @@ class WMV_Image extends WMV_Viewable
 		float r;
 
 		if(focusDistance == -1.f)
-			r = p.p.defaultFocusDistance;						// Use default if no focus distance in metadata					      
+			r = p.p.settings.defaultFocusDistance;						// Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -543,7 +543,7 @@ class WMV_Image extends WMV_Viewable
 	{
 		float r;				  				 // Viewing sphere radius
 		if(focusDistance == -1.f)
-			r = p.p.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
+			r = p.p.settings.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -1123,7 +1123,7 @@ class WMV_Image extends WMV_Viewable
 	{
 //		float subjectSizeRatio = subjectPixelWidth / originalImageWidth;		// --More accurate
 
-		float objectWidthOnSensor = sensorSize * p.p.subjectSizeRatio;			// 29 * 0.18 == 5.22
+		float objectWidthOnSensor = sensorSize * p.p.settings.subjectSizeRatio;			// 29 * 0.18 == 5.22
 		float imgWidth = objectWidthOnSensor * focusDistance / focalLength;		// 5.22 * 9 / 4.2 == 11.19	Actual: 11.320482
 
 		return imgWidth;

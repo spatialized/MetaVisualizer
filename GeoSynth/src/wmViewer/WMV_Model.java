@@ -218,6 +218,7 @@ public class WMV_Model
 		else										// If using k-means clustering
 		{
 			runKMeansClustering( p.p.settings.kMeansClusteringEpsilon, clusterRefinement, clusterPopulationFactor );	// Get initial clusters using K-Means method
+			p.clusters = cleanupClusters(p.clusters);
 		}
 
 		if(p.p.p.debug.cluster || p.p.p.debug.model)
@@ -451,6 +452,39 @@ public class WMV_Model
 
 		PApplet.println("Got "+gmvClusters.size()+" clusters at depth "+depth+" from "+imageCount+" images, "+panoramaCount+" panoramas and "+videoCount+ "videos...");
 		return gmvClusters;
+	}
+	
+	public ArrayList<WMV_Cluster> cleanupClusters(ArrayList<WMV_Cluster> clusters)
+	{
+		ArrayList<WMV_Cluster> result = new ArrayList<WMV_Cluster>();
+		int count = 0;
+		
+//		PApplet.println("Clusters size before:"+clusters.size());
+		for(WMV_Cluster c : clusters)
+		{
+			if(!c.isEmpty() && c.mediaCount > 0)
+			{
+				int oldID = c.getID();
+				c.setID(count);
+				result.add(c);
+				for(WMV_Image i : p.images)
+					if(i.cluster == oldID)
+						i.setAssociatedCluster(count);
+				for(WMV_Panorama n : p.panoramas)
+					if(n.cluster == oldID)
+						n.setAssociatedCluster(count);
+				for(WMV_Video v : p.videos)
+					if(v.cluster == oldID)
+						v.setAssociatedCluster(count);
+				for(WMV_Sound s : p.sounds)
+					if(s.cluster == oldID)
+						s.setAssociatedCluster(count);
+				count ++;
+			}
+		}	
+//		PApplet.println("Clusters size after:"+result. fsize());
+		
+		return result;
 	}
 
 	/**

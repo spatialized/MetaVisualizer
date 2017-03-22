@@ -1583,6 +1583,12 @@ public class WMV_Cluster
 	{
 		return clusterMass;
 	}
+	
+	public void setID(int newID)
+	{
+		id = newID;
+	}
+	
 	public int getID()
 	{
 		return id;

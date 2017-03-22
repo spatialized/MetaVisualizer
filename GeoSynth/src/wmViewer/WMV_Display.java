@@ -323,7 +323,7 @@ class WMV_Display
 
 			if(xOffset > 0.f && xOffset2 < timelineScreenSize)
 			{
-				p.p.stroke(120, 255, 255);
+				p.p.stroke(120, 255, 255, 255);
 				p.p.pushMatrix();
 				p.p.strokeWeight(1.f);
 				p.p.translate(timelineLeftEdge, timelineTopEdge, hudDistance);
@@ -333,7 +333,8 @@ class WMV_Display
 //				{
 //					PApplet.println("??: xOffset:"+xOffset+" lowerSeconds:"+lowerSeconds+" xOffset2:"+xOffset2+" upperSeconds:"+upperSeconds+" cluster:"+t.getClusterID());
 //				}
-				for(float pos = xOffset; pos < xOffset2; pos += 2.5f)					// Shading
+				p.p.stroke(120, 255, 255, 100);
+				for(float pos = xOffset; pos < xOffset2; pos += 1.f)					// Shading
 					p.p.line(pos, -15.f, 0.f, pos, 15.f, 0.f);
 
 				p.p.line(xOffset2, -15.f, 0.f, xOffset2, 15.f, 0.f);

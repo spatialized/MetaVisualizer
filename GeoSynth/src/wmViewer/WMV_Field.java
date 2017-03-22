@@ -845,7 +845,8 @@ public class WMV_Field
 				for(WMV_Date d : c.getDateline())							// Iterate through cluster dateline
 				{
 					WMV_Date nd = new WMV_Date(d);							// Use copy constructor to create copy
-					dateline.add( nd );										// Add segment to field dateline
+					if(!dateline.contains(nd))
+						dateline.add( nd );										// Add segment to field dateline
 				}
 			}
 		}

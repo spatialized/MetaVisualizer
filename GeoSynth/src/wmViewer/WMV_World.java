@@ -80,16 +80,6 @@ public class WMV_World
 	  blurMaskBothBottom, blurMaskBothBoth;
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
-	/* Model */
-//	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-//	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
-//	public float panoramaFocusDistanceFactor = 1.1f;	// Scaling from defaultFocusDistance to panorama radius
-//	public float videoFocusDistanceFactor = 0.8f;		// Scaling from defaultFocusDistance to video focus distance
-//
-//	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
-//	public float altitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
-//	public final float altitudeScalingFactorInit = 0.33f;		
-	
 	public boolean showModel = false;					// Activate Model Display 
 	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
 	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
@@ -99,19 +89,6 @@ public class WMV_World
 	public boolean mergeClusters = true;				// Merge nearby clusters?
 	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
 	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
-	
-//	public float kMeansClusteringEpsilon = 0.005f;		// If no clusters move farther than this threshold, stop cluster refinement
-//	public final float clusterCenterSize = 1.f;			// Size of cluster center, where autoNavigation stops
-//	public float mediaPointMass = 0.05f;				// Mass contribution of each media point
-//	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
-//	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
-//	public float minClusterDistance = 3.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-//	public float maxClusterDistance = 11.f;				// Maximum distance between cluster center and media
-//	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
-//	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
-
-//	/* Viewer */
-//	public boolean firstTeleport = false;
 
 	/* Metadata */
 	public boolean showMetadata = false;
@@ -274,7 +251,9 @@ public class WMV_World
 			startInteractiveClustering();						
 		
 		if(interactive && !startInteractive && !p.state.running)		/* Running interactive clustering */
-			runInteractiveClustering();							
+			runInteractiveClustering();	
+		
+		// -- Move viewer to first cluster??!!
 	}
 	
 	/**
@@ -606,12 +585,6 @@ public class WMV_World
 		saveImage = false;
 
 		settings.reset();
-//		maxStitchingImages = 30;						// Maximum number of images to try to stitch
-//		stitchingMinAngle = 30.f;						// Angle in degrees that determines media segments for stitching 
-//		persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
-//
-//		showUserPanoramas = true;			// Show panoramas stitched from user selected media
-//		showStitchedPanoramas = true;		// Show panoramas stitched from media segments
 
 		/* Clustering Modes */
 		hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
@@ -642,15 +615,6 @@ public class WMV_World
 		/* Video */
 		initializationField = 0;				// Field to be initialized this frame
 		setupProgress = 0;						// Setup progress (0 to 100)
-
-		/* Model */
-//		defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-//		subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
-//		panoramaFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to panorama radius
-//		videoFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to video focus distance
-//		
-//		altitudeScaling = true;					// Scale media height by altitude (m.) EXIF field 
-//		altitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing	-- Work more on this...
 		
 		showModel = false;						// Activate Model Display 
 		showMediaToCluster = false;				// Draw line from each media point to cluster
@@ -661,13 +625,6 @@ public class WMV_World
 		mergeClusters = true;					// Merge nearby clusters?
 		autoClusterDistances = false;			// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
 		lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
-		
-//		kMeansClusteringEpsilon = 0.005f;		// If no clusters move farther than this threshold, stop cluster refinement
-//		mediaPointMass = 0.05f;					// Mass contribution of each media point
-//		clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
-//		minClusterDistance = 2.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-//		maxClusterDistance = 10.f;				// Maximum distance between cluster and media, i.e. farther than which single media clusters are created
-//		maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
 		if(p.debug.main)
 			PApplet.println("Resetting world...");
@@ -705,7 +662,7 @@ public class WMV_World
 		display.sendSetupMessage("Starting WorldMediaViewer v1.0...");	// Show startup message
 		display.draw();											
 
-		p.state.running = false;					// Stop running
+		p.state.running = false;			// Stop running
 		initialSetup = true;				// Start clustering mode
 	}
 	

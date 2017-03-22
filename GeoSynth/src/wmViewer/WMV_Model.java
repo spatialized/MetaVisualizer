@@ -1404,8 +1404,8 @@ public class WMV_Model
 			 if (v.time.getDate().getDaysSince1980() < lowVideoDate)
 				 lowVideoDate = v.time.getDate().getDaysSince1980();
 
-			 if (v.time.getDayLength() > longestVideoDayLength)		// Calculate longest video day length
-				 longestVideoDayLength = v.time.getDayLength();
+//			 if (v.time.getDayLength() > longestVideoDayLength)		// Calculate longest video day length
+//				 longestVideoDayLength = v.time.getDayLength();
 		 }
 
 		 for (WMV_Image i : p.images) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
@@ -1434,8 +1434,8 @@ public class WMV_Model
 			 if (i.time.getDate().getDaysSince1980() < lowImageDate)
 				 lowImageDate = i.time.getDate().getDaysSince1980();
 
-			 if (i.time.getDayLength() > longestImageDayLength)		// Calculate longest day length
-				 longestImageDayLength = i.time.getDayLength();
+//			 if (i.time.getDayLength() > longestImageDayLength)		// Calculate longest day length
+//				 longestImageDayLength = i.time.getDayLength();
 		 }
 
 		 for (WMV_Panorama i : p.panoramas) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
@@ -1464,8 +1464,8 @@ public class WMV_Model
 			 if (i.time.getDate().getDaysSince1980() < lowPanoDate)
 				 lowPanoDate = i.time.getDate().getDaysSince1980();
 
-			 if (i.time.getDayLength() > longestPanoDayLength)		// Calculate longest day length
-				 longestPanoDayLength = i.time.getDayLength();
+//			 if (i.time.getDayLength() > longestPanoDayLength)		// Calculate longest day length
+//				 longestPanoDayLength = i.time.getDayLength();
 		 }
 
 		 lowTime = lowImageTime;

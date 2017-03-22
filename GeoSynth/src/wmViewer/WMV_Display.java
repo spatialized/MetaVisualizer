@@ -53,6 +53,9 @@ class WMV_Display
 	int startupMessageStartFrame = -1;
 	int messageDuration = 60;
 	
+	/* Timeline */
+	float timelineScreenSize, timelineStart = 0.f, timelineEnd = 0.f;
+
 	/* Text */
 	float centerTextXOffset, topTextYOffset;
 	float userMessageXOffset, userMessageYOffset, startupMessageXOffset;
@@ -98,7 +101,11 @@ class WMV_Display
 
 		startupMessageXOffset = p.p.width / 2.f;
 		startupMessageYOffset = -p.p.height /2.f;
-		
+
+		timelineScreenSize = p.p.width * 1.2f;
+		timelineStart = 0.f;
+		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+				
 		map2D = new WMV_Map(this);
 		
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
@@ -213,7 +220,6 @@ class WMV_Display
 		
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
-		float timelineLength = p.p.width * 1.2f;
 		
 		WMV_Field f = p.getCurrentField();
 		WMV_Cluster c = p.getCurrentCluster();
@@ -232,18 +238,20 @@ class WMV_Display
 			if(f.dateline.size() > 0)
 				p.p.text(" Dates: "+ f.dateline.size(), xPos, yPos += lineWidth, hudDistance);
 
-		p.p.textSize(largeTextSize);
-		p.p.text(" Cluster #"+ c.getID(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		if(c.timeline.size() > 0)
-			p.p.text(" Timeline Segments: "+ c.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
-		if(c.dateline != null)
-			if(c.dateline.size() > 0)
-				p.p.text(" Dates: "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
-
+		if(c != null)
+		{
+			p.p.textSize(largeTextSize);
+			p.p.text(" Cluster #"+ c.getID(), xPos, yPos += lineWidthVeryWide, hudDistance);
+			if(c.timeline.size() > 0)
+				p.p.text(" Timeline Segments: "+ c.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+			if(c.dateline != null)
+				if(c.dateline.size() > 0)
+					p.p.text(" Dates: "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+		}
 		p.p.popMatrix();
 		
 		xPos = clusterImageXOffset;		// Starting horizontal position
-		drawFieldTimeline(f.timeline, xPos, yPos += lineWidthVeryWide, timelineLength);
+		drawFieldTimeline(xPos, yPos += lineWidthVeryWide);
 //		drawClusterDateline(f.timelines, f.dateline, xPos, yPos += lineWidthVeryWide);
 		
 		// Cluster Timeline
@@ -251,61 +259,130 @@ class WMV_Display
 //		drawClusterDateline(c.timelines, c.dateline, xPos, yPos += lineWidthVeryWide);
 	}
 	
-	private void drawFieldTimeline(ArrayList<WMV_TimeSegment> timeline, float xPos, float yPos, float timelineLength)
+	private void drawFieldTimeline(float xPos, float yPos)
 	{
-		int count = 0;
-	
+//		int count = 0;
+		WMV_Field f = p.getCurrentField();
+			
 		p.p.tint(255);
 		p.p.stroke(0, 0, 255, 255);
 		p.p.strokeWeight(3.f);
 		p.p.fill(0, 0, 255, 255);
-		p.p.line(xPos, yPos, hudDistance, xPos + timelineLength, yPos, hudDistance);
+		p.p.line(xPos, yPos, hudDistance, xPos + timelineScreenSize, yPos, hudDistance);
 		
-		for(WMV_TimeSegment t : timeline)
+		if(f.dateline.size() == 1)
 		{
-			drawTimelineSegment(t, xPos, yPos, timelineLength);
-			count++;
+			for(WMV_TimeSegment t : f.timeline)
+			{
+				drawTimelineSegment(t, xPos, yPos);
+//				count++;
+			}
+		}
+		else if(f.dateline.size() > 1)
+		{
+			for(ArrayList<WMV_TimeSegment> ts : f.timelines)
+			{
+				for(WMV_TimeSegment t:ts)
+				{
+					drawTimelineSegment(t, xPos, yPos);
+//					count++;
+				}
+			}
 		}
 	}
 	
-	private void drawTimelineSegment(WMV_TimeSegment t, float timelineLeftEdge, float timelineTopEdge, float timelineLength)
+	private void drawTimelineSegment(WMV_TimeSegment t, float timelineLeftEdge, float timelineTopEdge)
 	{
 		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
-		PVector centerTime = t.getCenter().getTimeAsPVector();			
 		PVector upperTime = t.getUpper().getTimeAsPVector();			
-		float lower = p.p.utilities.getTimePVectorSeconds(lowerTime);
-		float center = p.p.utilities.getTimePVectorSeconds(centerTime);
-		float upper = p.p.utilities.getTimePVectorSeconds(upperTime);
-		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
-		
-		ArrayList<WMV_Time> tsTimeline = t.getTimeline();				// Get timeline for this time segment
-		ArrayList<PVector> times = new ArrayList<PVector>();
-		for(WMV_Time ti : tsTimeline) times.add(ti.getTimeAsPVector());
+		PVector centerTime = t.getCenter().getTimeAsPVector();			
 
-		float xOffset = PApplet.map(lower, 0.f, day, 0.f, timelineLength);
+		float lowerSeconds = p.p.utilities.getTimePVectorSeconds(lowerTime);
+		float centerSeconds = p.p.utilities.getTimePVectorSeconds(centerTime);
+		float upperSeconds = p.p.utilities.getTimePVectorSeconds(upperTime);
+//		float daySeconds = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
 		
-		p.p.pushMatrix();
-		p.p.stroke(60, 255, 255);
-		p.p.strokeWeight(1.f);
-		p.p.translate(timelineLeftEdge + xOffset, timelineTopEdge, hudDistance);
-		p.p.line(0.f, -5.f, 0.f, 0.f, 5.f, 0.f);
-		p.p.popMatrix();
-		xOffset = PApplet.map(center, 0.f, day, 0.f, timelineLength);
-		
-		p.p.pushMatrix();
-		p.p.stroke(120, 255, 255);
-		p.p.translate(timelineLeftEdge + xOffset, timelineTopEdge, hudDistance);
-		p.p.line(0.f, -15.f, 0.f, 0.f, 15.f, 0.f);
-		p.p.popMatrix();
-		xOffset = PApplet.map(upper, 0.f, day, 0.f, timelineLength);
-		
-		p.p.pushMatrix();
-		p.p.stroke(180, 255, 255);
-		p.p.translate(timelineLeftEdge + xOffset, timelineTopEdge, hudDistance);
-		p.p.line(0.f, -5.f, 0.f, 0.f, 5.f, 0.f);
-		p.p.popMatrix();
+		if(PApplet.abs(upperSeconds - lowerSeconds) > 1000.f)
+		{
+			PApplet.println("Possible ERROR: very long time segment for cluster:"+t.getClusterID()+ " result:"+PApplet.abs(upperSeconds - lowerSeconds));
+			PApplet.println(": lowerSeconds:"+lowerSeconds+" centerSeconds:"+centerSeconds+" upperSeconds:"+upperSeconds);
+		}
+//		else
+//		{
+			ArrayList<WMV_Time> tsTimeline = t.getTimeline();				// Get timeline for this time segment
+			ArrayList<PVector> times = new ArrayList<PVector>();
+			for(WMV_Time ti : tsTimeline) times.add(ti.getTimeAsPVector());
+
+			//		timelineZoom
+			//		timelineStart		-- in seconds since beginning of day
+
+			//		float visiblePortion = daySeconds * timelineZoom;						// Visible portion of day in timeline
+
+			float xOffset = PApplet.map(lowerSeconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
+			float xOffset2 = PApplet.map(upperSeconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
+
+			if(xOffset > 0.f && xOffset2 < timelineScreenSize)
+			{
+				p.p.stroke(120, 255, 255);
+				p.p.pushMatrix();
+				p.p.strokeWeight(1.f);
+				p.p.translate(timelineLeftEdge, timelineTopEdge, hudDistance);
+				p.p.line(xOffset, -15.f, 0.f, xOffset, 15.f, 0.f);
+
+//				if(xOffset2 - xOffset > 100.f)
+//				{
+//					PApplet.println("??: xOffset:"+xOffset+" lowerSeconds:"+lowerSeconds+" xOffset2:"+xOffset2+" upperSeconds:"+upperSeconds+" cluster:"+t.getClusterID());
+//				}
+				for(float pos = xOffset; pos < xOffset2; pos += 2.5f)					// Shading
+					p.p.line(pos, -15.f, 0.f, pos, 15.f, 0.f);
+
+				p.p.line(xOffset2, -15.f, 0.f, xOffset2, 15.f, 0.f);
+
+				p.p.line(xOffset, -15.f, 0.f, xOffset2, -15.f, 0.f);
+				p.p.line(xOffset, 15.f, 0.f, xOffset2, 15.f, 0.f);
+				p.p.popMatrix();
+			}
+//		}
 	}
 
+	public void zoomTimelineToFit()
+	{
+		WMV_Field f = p.getCurrentField();
+		float first = f.timeline.get(0).getLower().getTime();
+		float last = f.timeline.get(f.timeline.size()-1).getUpper().getTime();
+		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		
+		first *= day;
+		last *= day;
+		timelineStart = first - 10.f;
+		timelineEnd = last + 10.f;
+		PApplet.println("timelineStart:"+timelineStart+" timelineEnd:"+timelineEnd);
+	}
+	
+	public void zoom(float amount)
+	{
+//		float result = p.display.timelineZoom * 1.052f;
+		float length = timelineEnd - timelineStart;
+		float newLength = length * amount;
+		float result = timelineStart + newLength;
+		
+		if(result < p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0)))
+			timelineEnd = result;
+	}
+	
+	public void scroll(float amount)
+	{
+		float newStart = timelineStart + amount;
+		float newEnd = timelineEnd + amount;
+		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		
+		if(newStart > 0.f && newEnd < day)
+		{
+			timelineStart = newStart;
+			timelineEnd = newEnd;
+		}
+	}
+	
 	/**
 	 * Draw Interactive Clustering screen
 	 */
@@ -401,6 +478,10 @@ class WMV_Display
 
 		blendMode = 0;							// Alpha blending mode
 		numBlendModes = 10;						// Number of blending modes
+
+		/* Timeline */
+		timelineStart = 0.f;
+		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
 		/* Clusters */
 		displayCluster = 0;
@@ -1097,10 +1178,13 @@ class WMV_Display
 		p.p.text("   Media Segments: "+ c.segments.size(), textXPos, textYPos += lineWidth, hudDistance);
 		
 		if(c.timeline.size() > 0)
+		{
 			p.p.text(" Timeline Segments: "+ c.timeline.size(), textXPos, textYPos += lineWidthWide, hudDistance);
+			p.p.text(" Timeline Length (sec.): "+ p.p.utilities.getTimelineLength(c.timeline), textXPos, textYPos += lineWidth, hudDistance);
+		}
 		if(c.dateline != null)
 			if(c.dateline.size() > 0)
-				p.p.text(" Dateline Segments: "+ c.dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
+				p.p.text(" Timeline Dates: "+ c.dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
 
 		p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text("   User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);

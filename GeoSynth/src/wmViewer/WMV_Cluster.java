@@ -92,7 +92,7 @@ public class WMV_Cluster
 		  highPanoramaDate = -1000000, lowPanoramaDate = 1000000,
 	 	  highVideoDate = -1000000, lowVideoDate = 1000000;
 	
-	private float longestImageDayLength = -1000000, longestPanoramaDayLength = -1000000, longestVideoDayLength = -1000000;	
+//	private float longestImageDayLength = -1000000, longestPanoramaDayLength = -1000000, longestVideoDayLength = -1000000;	
 
 	/* Interaction */
 //	public float timeIncrement;				// User time increment
@@ -1039,7 +1039,7 @@ public class WMV_Cluster
 
 			if(mediaTimes.size() > 0)
 			{
-				ArrayList<WMV_TimeSegment> newTimeline = calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision);
+				ArrayList<WMV_TimeSegment> newTimeline = p.p.p.utilities.calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision, getID());
 
 				if(newTimeline != null) 
 					newTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
@@ -1073,7 +1073,7 @@ public class WMV_Cluster
 
 		if(mediaTimes.size() > 0)
 		{
-			timeline = calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision);	// Get relative (cluster) time segments
+			timeline = p.p.p.utilities.calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
 			if(timeline != null)
 				timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
 			
@@ -1279,7 +1279,7 @@ public class WMV_Cluster
 
 		for (WMV_Image i : cImages) 			// Iterate over cluster images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			float fDayLength = i.time.getDayLength();
+//			float fDayLength = i.time.getDayLength();
 
 			if (initImageTime) 	// Calculate most recent and oldest image time
 			{		
@@ -1305,14 +1305,14 @@ public class WMV_Cluster
 			if (i.time.getDate().getDaysSince1980() < lowImageDate)
 				lowImageDate = i.time.getDate().getDaysSince1980();
 
-			if (fDayLength > longestDayLength)		// Calculate longest day length
-				longestDayLength = fDayLength;
+//			if (fDayLength > longestDayLength)		// Calculate longest day length
+//				longestDayLength = fDayLength;
 		}
 		
 		
 		for (WMV_Panorama n : cPanoramas) 			// Iterate over cluster panoramas to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			float fDayLength = n.time.getDayLength();
+//			float fDayLength = n.time.getDayLength();
 
 			if (initPanoramaTime) 		// Calculate most recent and oldest panorama time
 			{		
@@ -1338,13 +1338,13 @@ public class WMV_Cluster
 			if (n.time.getDate().getDaysSince1980() < lowPanoramaDate)
 				lowPanoramaDate = n.time.getDate().getDaysSince1980();
 
-			if (fDayLength > longestPanoramaDayLength)		// Calculate longest panorama day length
-				longestPanoramaDayLength = fDayLength;
+//			if (fDayLength > longestPanoramaDayLength)		// Calculate longest panorama day length
+//				longestPanoramaDayLength = fDayLength;
 		}
 		
 		for (WMV_Video v : cVideos) 			// Iterate over cluster videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			float fDayLength = v.time.getDayLength();
+//			float fDayLength = v.time.getDayLength();
 
 			if (initVideoTime) 		// Calculate most recent and oldest video time
 			{		
@@ -1370,8 +1370,8 @@ public class WMV_Cluster
 			if (v.time.getDate().getDaysSince1980() < lowVideoDate)
 				lowVideoDate = v.time.getDate().getDaysSince1980();
 
-			if (fDayLength > longestVideoDayLength)		// Calculate longest video day length
-				longestVideoDayLength = fDayLength;
+//			if (fDayLength > longestVideoDayLength)		// Calculate longest video day length
+//				longestVideoDayLength = fDayLength;
 		}
 
 		lowTime = lowImageTime;
@@ -1421,99 +1421,6 @@ public class WMV_Cluster
 		System.out.println("Cluster "+id+" High Longitude:" + highLongitude);
 		System.out.println("Cluster "+id+" Low Longitude:" + lowLongitude);
 		System.out.println(" ");
-	}
-	
-	/**
-	 * Find cluster time segments from given media's capture times
-	 * @param times List of times
-	 * @param timePrecision Number of histogram bins
-	 * @return Time segments
-	 */
-	ArrayList<WMV_TimeSegment> calculateTimeSegments(ArrayList<WMV_Time> mediaTimes, int timePrecision)				// -- clusterTimelineMinPoints!!								
-	{
-		mediaTimes.sort(WMV_Time.WMV_SimulationTimeComparator);			// Sort media by simulation time (normalized 0. to 1.)
-
-		if(mediaTimes.size() > 0)
-		{
-			ArrayList<WMV_TimeSegment> segments = new ArrayList<WMV_TimeSegment>();
-			
-			int count = 0, curLowerCount = 0;
-			WMV_Time curLower, curUpper, last;
-
-			curLower = mediaTimes.get(0);
-			curUpper = mediaTimes.get(0);
-			last = mediaTimes.get(0);
-
-			for(WMV_Time t : mediaTimes)
-			{
-				if(t.getTime() != last.getTime())
-				{
-					if(t.getTime() - last.getTime() < timePrecision)		// If moved by less than precision amount since last time, extend segment 
-					{
-						curUpper = t;
-					}
-					else
-					{
-						WMV_Time center;
-						if(curUpper.getTime() == curLower.getTime())
-							center = curUpper;								// If upper and lower are same, set center to that value
-						else
-						{
-							int middle = (count-curLowerCount)/2;			// Find center
-							if ((count-curLowerCount)%2 == 1) 
-							    center = mediaTimes.get(middle);			// Median if even #
-							else
-							   center = mediaTimes.get(middle-1);			// Use lower of center pair if odd #
-						}
-
-						if(p.p.p.debug.time && p.p.p.debug.detailed)
-							PApplet.println("Cluster #"+getID()+"... Creating time segment... center:"+(center)+" curUpper:"+(curUpper)+" curLower:"+(curLower));
-
-						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
-						for(int i=curLowerCount; i<=count; i++)
-							tl.add(mediaTimes.get(i));
-						
-						segments.add(new WMV_TimeSegment(-1, getID(), center, curUpper, curLower, tl));	// Add time segment
-						
-//						tsID++;
-						curLower = t;
-						curUpper = t;
-						curLowerCount = count + 1;
-					}
-				}
-				
-				count++;
-			}
-			
-			if(curLowerCount == 0)
-			{
-				WMV_Time center;
-				if(curUpper.getTime() == curLower.getTime())
-					center = curUpper;								// If upper and lower are same, set center to that value
-				else
-				{
-					int middle = (count-curLowerCount)/2;			// Find center
-					if ((count-curLowerCount)%2 == 1) 
-					    center = mediaTimes.get(middle);			// Median if even #
-					else
-					   center = mediaTimes.get(middle-1);			// Use lower of center pair if odd #
-				}
-
-				ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
-				for(int i=0; i<mediaTimes.size(); i++)
-					tl.add(mediaTimes.get(i));
-				
-				segments.add(new WMV_TimeSegment(-1, getID(), center, curUpper, curLower, tl));
-			}
-			
-			return segments;			// Return cluster list
-		}
-		else
-		{
-			if(p.p.p.debug.time)
-				PApplet.println("cluster:"+getID()+" getTimeSegments() == null but has mediaPoints:"+mediaCount);
-			return null;		
-		}
 	}
 	
 	/**
@@ -1610,6 +1517,11 @@ public class WMV_Cluster
 	public ArrayList<WMV_TimeSegment> getTimeline()
 	{
 		return timeline;
+	}
+
+	public ArrayList<ArrayList<WMV_TimeSegment>> getTimelines()
+	{
+		return timelines;
 	}
 
 	public ArrayList<WMV_Date> getDateline()

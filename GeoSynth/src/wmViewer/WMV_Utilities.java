@@ -52,13 +52,17 @@ public class WMV_Utilities
 		return value;
 	}
 	
+	/**
+	 * Get value in seconds of time PVector
+	 * @param time PVector of the format (hour, minute, second)
+	 * @return Number of seconds
+	 */
 	public float getTimePVectorSeconds(PVector time)
 	{
 		float result = time.z;
 		result += time.y * 60.f;
 		result += time.x * 60.f * 60.f;
 		return result;
-//		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
 	}
 
 	/**
@@ -447,7 +451,142 @@ public class WMV_Utilities
 
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
 	}
+	
+	/**
+	 * Find cluster time segments from given media's capture times
+	 * @param times List of times
+	 * @param timePrecision Number of histogram bins
+	 * @return Time segments
+	 */
+	ArrayList<WMV_TimeSegment> calculateTimeSegments(ArrayList<WMV_Time> mediaTimes, float timePrecision, int clusterID)				// -- clusterTimelineMinPoints!!								
+	
+	{
+		mediaTimes.sort(WMV_Time.WMV_SimulationTimeComparator);			// Sort media by simulation time (normalized 0. to 1.)
 
+		if(mediaTimes.size() > 0)
+		{
+			ArrayList<WMV_TimeSegment> segments = new ArrayList<WMV_TimeSegment>();
+			
+			int count = 0, startCount = 0;
+			WMV_Time curLower, curUpper, last;
+
+			curLower = mediaTimes.get(0);
+			curUpper = mediaTimes.get(0);
+			last = mediaTimes.get(0);
+
+			for(WMV_Time t : mediaTimes)									// Multiple time segments for cluster
+			{
+				if(t.getTime() != last.getTime())
+				{
+					if(t.getTime() - last.getTime() < timePrecision)		// If moved by less than precision amount since last time, extend segment 
+					{
+						curUpper = t;										// Move curUpper to new value
+						last = t;
+//						PApplet.print("Extending segment...");
+					}
+					else
+					{
+						WMV_Time center;
+						if(count == startCount)
+						{
+							curLower = t;
+							curUpper = t;
+							center = t;
+						}
+						else
+						{
+							if(curUpper.getTime() == curLower.getTime())
+							{
+								center = curUpper;								// If upper and lower are same, set center to that value
+							}
+							else
+							{
+								int middle = (count-startCount)/2;				// Find center
+								if ((count-startCount)%2 == 1) 
+									center = mediaTimes.get(middle);			// Median if even #
+								else
+									center = mediaTimes.get(middle-1);			// Use lower of center pair if odd #
+							}
+						}
+						
+						if(p.p.debug.time && p.p.debug.detailed)
+							PApplet.println("Cluster #"+clusterID+"... Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+						if(curUpper.getTime() - curLower.getTime() > 0.001f)
+						{
+							PApplet.println("---> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+							PApplet.println("t.getTime():"+t.getTime()+" last:"+last.getTime()+" t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
+						}
+						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+						for(int i=startCount; i<=count; i++)
+						{
+							tl.add(mediaTimes.get(i));
+//							PApplet.println("Added media time...");
+						}
+						
+						segments.add(new WMV_TimeSegment(-1, clusterID, center, curUpper, curLower, tl));	// Add time segment
+						
+//						tsID++;
+						curLower = t;
+						curUpper = t;
+						last = t;
+						startCount = count + 1;
+					}
+				}
+//				else 
+//					PApplet.println("Same as last...");
+				
+				count++;
+//				PApplet.println("count:"+count);
+			}
+			
+			if(startCount == 0)									// Single time segment for cluster
+			{
+				WMV_Time center;
+				if(curUpper.getTime() == curLower.getTime())
+					center = curUpper;							// If upper and lower are same, set center to that value
+				else
+				{
+					int middle = (count-startCount)/2;			// Find center
+					if ((count-startCount)%2 == 1) 
+					    center = mediaTimes.get(middle);			// Median if even #
+					else
+					   center = mediaTimes.get(middle-1);			// Use lower of center pair if odd #
+				}
+
+				ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+				for(int i=0; i<mediaTimes.size(); i++)
+					tl.add(mediaTimes.get(i));
+
+//				PApplet.println("Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+
+				if(curUpper.getTime() - curLower.getTime() > 0.001f)
+				{
+					PApplet.println("-> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+//					PApplet.println("t.getTime():"+t.getTime()+" last:"+last.getTime());
+//					PApplet.println("t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
+				}
+				
+				segments.add(new WMV_TimeSegment(-1, clusterID, center, curUpper, curLower, tl));
+			}
+			
+			return segments;			// Return cluster list
+		}
+		else
+		{
+//			if(p.p.p.debug.time)
+//				PApplet.println("cluster:"+id+" getTimeSegments() == null but has mediaPoints:"+mediaCount);
+			return null;		
+		}
+	}
+	
+
+	public float getTimelineLength(ArrayList<WMV_TimeSegment> timeline)
+	{
+		float start = timeline.get(0).getLower().getTime();
+		float end = timeline.get(timeline.size()-1).getUpper().getTime();
+		float length = (end - start) * getTimePVectorSeconds(new PVector(24,0,0));
+		return length;
+	}
 	
 	/**
 	 * angleToCompass

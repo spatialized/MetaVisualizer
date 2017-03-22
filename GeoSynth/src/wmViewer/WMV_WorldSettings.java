@@ -42,10 +42,10 @@ public class WMV_WorldSettings
 	final public int initDefaultMediaLength = 50;		// Initial frame length of media in time cycle
 	public int defaultMediaLength = 50;					// Default frame length of media in time cycle
 
-	public final int clusterTimePrecision = 10000;		// Precision of timesHistogram (no. of bins)
-	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
-	public final int fieldTimePrecision = 10000;		// Precision of timesHistogram (no. of bins) -- Obsolete
-	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins) -- Obsolete
+	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
+//	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
+//	public final int fieldTimePrecision = 10000;		// Precision of timesHistogram (no. of bins) -- Obsolete
+//	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins) -- Obsolete
 
 	/* Video */
 	public final float videoMaxVolume = 0.9f;

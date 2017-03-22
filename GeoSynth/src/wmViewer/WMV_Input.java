@@ -697,6 +697,33 @@ public class WMV_Input
 					}
 				}
 			}
+			else if(p.display.displayView == 3)					/* Time View */
+			{
+				if (key == 'z')									// Timeline zoom to fit
+				{
+					p.display.zoomTimelineToFit();
+				}
+				if (key == PApplet.CODED) 					
+				{
+					if (keyCode == PApplet.UP) 					// Timeline zoom in 
+						p.display.zoom(0.95f);
+					
+					if (keyCode == PApplet.DOWN) 				// Timeline zoom out
+					{
+						p.display.zoom(1.052f);
+					}
+
+					if (keyCode == PApplet.LEFT)  				// Timeline scroll left
+					{
+						p.display.scroll(-600.f);
+					}
+
+					if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
+					{
+						p.display.scroll(600.f);
+					}
+				}
+			}
 
 			if (!p.interactive)		
 			{
@@ -731,18 +758,8 @@ public class WMV_Input
 					p.viewer.moveToLastCluster(p.viewer.movementTeleport);
 
 				if( key == 'L' )
-				{
-//					IntList selected = p.getCurrentField().getSelectedImages();
-//					int imageID = -1;
-//					if(selected.size() == 1)
-//						imageID = selected.get(0);
-//					if(imageID != -1)
-//					{
-//						p.viewer.lookAtMedia(imageID, 0);
-//					}
-					
 					p.viewer.lookAtNearestMedia();
-				}
+
 				if( key == 't' )
 				{
 					boolean state = !p.viewer.movementTeleport;

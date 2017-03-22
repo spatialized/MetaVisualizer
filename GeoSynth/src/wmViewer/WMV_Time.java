@@ -15,7 +15,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 {
 	private int id, mediaType;
 	private int year, month, day, hour, minute, second, millisecond;
-	private float dayLength;
+//	private float dayLength;
 	private float time;
 	private Calendar calendar;
 	
@@ -93,26 +93,30 @@ public class WMV_Time implements Comparable<WMV_Time>
 		return date;
 	}
 
+	/**
+	 * @return Date associated with this time as a PVector in format (month, day, year)
+	 */
 	public PVector getDateAsPVector()
 	{
 		PVector date = new PVector(month, day, year);
 		return date;
 	}
 
+	/**
+	 * @return Time as a normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day
+	 */
 	public float getTime()
 	{
 		return time;
 	}
 
+	/**
+	 * @return Date associated with this time as a PVector in format (hour, minute, second)
+	 */
 	public PVector getTimeAsPVector()
 	{
 		PVector t = new PVector(hour, minute, second);
 		return t;
-	}
-	
-	public float getDayLength()
-	{
-		return dayLength;
 	}
 	
 	/**
@@ -139,19 +143,13 @@ public class WMV_Time implements Comparable<WMV_Time>
 		}
 	};
 	
-//	public static Comparator<WMV_Time> GMV_TimeLowerBoundComparator = new Comparator<WMV_Time>() 
+
+	/**
+	 * @return Day length associated with this time (unused)
+	 */
+//	public float getDayLength()
 //	{
-//		public int compare(WMV_Time t1, WMV_Time t2) 
-//		{
-//
-//			float time1 = t1.getLower();
-//			float time2 = t2.getLower();
-//
-//			lower1 *= 1000000.f;
-//			lower2 *= 1000000.f;
-//			
-//			return (int)(lower1 - lower2);
-//		}
-//	};
+//		return dayLength;
+//	}
 }
 

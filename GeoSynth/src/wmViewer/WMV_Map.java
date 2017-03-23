@@ -387,16 +387,6 @@ public class WMV_Map
 //				}
 			}
 			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
 			float fov = PApplet.PI/3.0f;
 			float cameraZ = (p.p.p.height/2.0f) / PApplet.tan(fov/2.0f);
 			p.p.p.perspective(fov, (float)(p.p.p.width)/(float)(p.p.p.height), cameraZ/10.0f, cameraZ*10.0f);

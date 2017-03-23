@@ -315,36 +315,40 @@ class WMV_Metadata
 		
 		/* -- Should calculate time / date at least here */
 		
-		for(File file : soundFiles)
+		if(files != null)
 		{
-			String fPath = file.getPath();
-			Path path = FileSystems.getDefault().getPath(fPath);
-			
-			if(!file.getName().equals(".DS_Store"))
+			for(File file : files)
 			{
-				try
-				{
-					PApplet.println("Loading sound:"+fPath);
+				String fPath = file.getPath();
+				Path path = FileSystems.getDefault().getPath(fPath);
 
-					BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-					FileTime creationTime = attr.creationTime();
-					PApplet.println("file: "+file.getName()+" creationTime: "+creationTime);
-					
-					Calendar soundTime = getCalendarFromTimeStamp(creationTime);
-					PApplet.println("soundTime.getTime():"+soundTime.getTime());
-					PApplet.println("sounds == null? "+(f.sounds==null));
-					
-					f.sounds.add(new WMV_Sound ( f, count, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime) );
-				}
-				catch(Throwable t)
+				if(!file.getName().equals(".DS_Store"))
 				{
-					PApplet.println("Throwable in loadSounds()... "+t);
+					try
+					{
+						PApplet.println("Loading sound:"+fPath);
+
+						BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
+						FileTime creationTime = attr.creationTime();
+						PApplet.println("file: "+file.getName()+" creationTime: "+creationTime);
+
+						Calendar soundTime = getCalendarFromTimeStamp(creationTime);
+						PApplet.println("soundTime.getTime():"+soundTime.getTime());
+						PApplet.println("sounds == null? "+(f.sounds==null));
+
+						f.sounds.add(new WMV_Sound ( f, count, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime) );
+					}
+					catch(Throwable t)
+					{
+						PApplet.println("Throwable in loadSounds()... "+t);
+					}
 				}
+				count++;
 			}
-			count++;
+
+			return true;
 		}
-		
-		return true;
+		else return false;
 	}
 	
 	private Calendar getCalendarFromTimeStamp(FileTime creationTime)

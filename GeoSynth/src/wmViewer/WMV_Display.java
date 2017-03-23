@@ -5,6 +5,11 @@ import java.util.ArrayList;
 //import g4p_controls.GAlign;
 import g4p_controls.GButton;
 import processing.core.*;
+import processing.data.IntList;
+import shapes3d.Box;
+import shapes3d.Ellipsoid;
+import shapes3d.S3D;
+//import wmViewer.WMV_Map.SelectableClusterLocation;
 
 /***********************************
  * @author davidgordon
@@ -54,8 +59,13 @@ class WMV_Display
 	int messageDuration = 60;
 	
 	/* Timeline */
-	float timelineScreenSize, timelineStart = 0.f, timelineEnd = 0.f;
-
+	float timelineScreenSize, timelineHeight = 50.f, timelineStart = 0.f, timelineEnd = 0.f;
+	private ArrayList<Box> selectableTimes;
+	private IntList selectableTimeIDs;
+	private ArrayList<SelectableTime> selectableTimeLocations;
+	private boolean selectableTimesCreated = false, updateTimeline = true;
+	private float timelineXOffset = 0.f, timelineYOffset = 0.f;
+	
 	/* Text */
 	float centerTextXOffset, topTextYOffset;
 	float userMessageXOffset, userMessageYOffset, startupMessageXOffset;
@@ -105,7 +115,8 @@ class WMV_Display
 		timelineScreenSize = p.p.width * 1.2f;
 		timelineStart = 0.f;
 		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
-				
+		timelineXOffset = -p.p.width/ 1.66f;
+		
 		map2D = new WMV_Map(this);
 		
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
@@ -213,6 +224,9 @@ class WMV_Display
 		}
 	}
 
+	/**
+	 * Draw Time View in main window
+	 */
 	public void drawTimeView()
 	{
 		beginHUD();
@@ -228,7 +242,6 @@ class WMV_Display
 
 		p.p.textSize(veryLargeTextSize);
 		p.p.text(""+p.getCurrentField().name, xPos, yPos, hudDistance);
-//		p.p.text(" Time View", textXPos, textYPos += lineWidthVeryWide, hudDistance);
 
 		p.p.textSize(largeTextSize);
 		p.p.text(" Field #"+ f.fieldID, xPos, yPos += lineWidthVeryWide, hudDistance);
@@ -250,48 +263,189 @@ class WMV_Display
 		}
 		p.p.popMatrix();
 		
-		xPos = clusterImageXOffset;		// Starting horizontal position
-		drawFieldTimeline(xPos, yPos += lineWidthVeryWide);
+		if(updateTimeline) 
+			updateFieldTimeline();
+		
+//		yPos += lineWidthVeryWide * 2.f;
+//		timelineYOffset = yPos;
+		drawFieldTimeline();
+		
+		if(selectableTimesCreated) drawSelectableTimes();
+		else updateTimeline = true;
+		
 //		drawClusterDateline(f.timelines, f.dateline, xPos, yPos += lineWidthVeryWide);
+		
 		
 		// Cluster Timeline
 //		drawClusterTimeline(c.timeline, xPos, yPos += lineWidthVeryWide, timelineLength);
 //		drawClusterDateline(c.timelines, c.dateline, xPos, yPos += lineWidthVeryWide);
 	}
 	
-	private void drawFieldTimeline(float xPos, float yPos)
+	/**
+	 * Create and draw selectable clusters using Shapes3D library
+	 */
+	void drawSelectableTimes()
 	{
-//		int count = 0;
+		p.p.pushMatrix();
+		
+		for(Box b : selectableTimes)
+			if(b != null) 
+				b.draw();
+
+		p.p.popMatrix();
+	}
+	
+	private void updateFieldTimeline()
+	{
+		createSelectableTimes();
+	}
+	
+	private void createSelectableTimes()
+	{
 		WMV_Field f = p.getCurrentField();
-			
-		p.p.tint(255);
-		p.p.stroke(0, 0, 255, 255);
-		p.p.strokeWeight(3.f);
-		p.p.fill(0, 0, 255, 255);
-		p.p.line(xPos, yPos, hudDistance, xPos + timelineScreenSize, yPos, hudDistance);
+		selectableTimes = new ArrayList<Box>();
+		selectableTimeIDs = new IntList();
+		selectableTimeLocations = new ArrayList<SelectableTime>();
+		float xPos = timelineXOffset;
+		float yPos = timelineYOffset;
 		
 		if(f.dateline.size() == 1)
 		{
+			int count = 0;
 			for(WMV_TimeSegment t : f.timeline)
 			{
-				drawTimelineSegment(t, xPos, yPos);
-//				count++;
+				SelectableTime scl = getSelectableTime(t, xPos, yPos, count);
+				if(scl != null)
+				{
+					selectableTimes.add(scl.getRectangle());
+					selectableTimeIDs.append(count);
+					selectableTimeLocations.add(scl);
+					count++;
+				}
 			}
 		}
 		else if(f.dateline.size() > 1)
 		{
+			int count = 0;
 			for(ArrayList<WMV_TimeSegment> ts : f.timelines)
 			{
 				for(WMV_TimeSegment t:ts)
 				{
-					drawTimelineSegment(t, xPos, yPos);
-//					count++;
+					SelectableTime scl = getSelectableTime(t, xPos, yPos, count);
+					if(scl != null)
+					{
+						selectableTimes.add(scl.getRectangle());
+						selectableTimeIDs.append(count);
+						selectableTimeLocations.add(scl);
+						count++;
+					}
+				}
+			}
+		}
+
+
+		selectableTimesCreated = true;
+	}
+
+	private SelectableTime getSelectableTime(WMV_TimeSegment t, float timelineLeftEdge, float timelineTopEdge, int id)
+	{
+		
+		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
+		PVector upperTime = t.getUpper().getTimeAsPVector();			
+//		PVector centerTime = t.getCenter().getTimeAsPVector();			
+
+		float lowerSeconds = p.p.utilities.getTimePVectorSeconds(lowerTime);
+		float upperSeconds = p.p.utilities.getTimePVectorSeconds(upperTime);
+//		float centerSeconds = p.p.utilities.getTimePVectorSeconds(centerTime);
+
+		float xOffset = PApplet.map(lowerSeconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
+		float xOffset2 = PApplet.map(upperSeconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
+
+		if(xOffset > 0.f && xOffset2 < timelineScreenSize)
+		{
+			PVector loc = new PVector(timelineLeftEdge + xOffset, timelineTopEdge, hudDistance);
+			Box rectangle = new Box(p.p, xOffset2 - xOffset, timelineHeight, 1.f);
+			rectangle.drawMode(S3D.WIRE);
+			rectangle.strokeWeight(1.5f);
+			rectangle.stroke(p.p.color(105.f, 225.f, 200.f, 255.f));
+
+			rectangle.moveTo(loc.x + rectangle.getWidth() * 0.5f, loc.y, loc.z);
+			rectangle.tagNo = id;
+			SelectableTime scl = new SelectableTime(id, t.getClusterID(), loc, rectangle);		// int newID, int newClusterID, PVector newLocation, Box newRectangle
+//			return rectangle;
+			return scl;
+		}
+		else return null;
+	}	
+
+	private void drawFieldTimeline()
+	{
+		WMV_Field f = p.getCurrentField();
+			
+		p.p.tint(255);
+		p.p.stroke(0.f, 0.f, 255.f, 255.f);
+		p.p.strokeWeight(3.f);
+		p.p.fill(0.f, 0.f, 255.f, 255.f);
+		p.p.line(timelineXOffset, timelineYOffset, hudDistance, timelineXOffset + timelineScreenSize, timelineYOffset, hudDistance);
+
+		String startTime, endTime;
+		
+		int hour = PApplet.round(timelineStart) / 3600;
+		int minute = (PApplet.round(timelineStart) % 3600) / 60;
+		int second = (PApplet.round(timelineStart) % 3600) % 60;
+
+		String strHour = String.valueOf(hour);
+		String strMinute = String.valueOf(minute);
+		if(minute < 10) strMinute = "0"+strMinute;
+		String strSecond = String.valueOf(second);
+		if(second < 10) strSecond = "0"+strSecond;
+		startTime = strHour + ":" + strMinute + ":" + strSecond;
+
+		hour = PApplet.round(timelineEnd) / 3600;
+		minute = (PApplet.round(timelineEnd) % 3600) / 60;
+		second = (PApplet.round(timelineEnd) % 3600) % 60;
+		endTime = String.valueOf(hour) + ":" + String.valueOf(minute) + ":" + String.valueOf(second);
+		strHour = String.valueOf(hour);
+		strMinute = String.valueOf(minute);
+		if(minute < 10) strMinute = "0"+strMinute;
+		strSecond = String.valueOf(second);
+		if(second < 10) strSecond = "0"+strSecond;
+//		PApplet.println("endTime:"+startTime+" hour:"+hour+" minute:"+minute+" second:"+second);
+		
+		p.p.textSize(20.f);
+		p.p.text(startTime, timelineXOffset, timelineYOffset - 50.f, hudDistance);
+		p.p.text(endTime, timelineXOffset + timelineScreenSize - 30.f, timelineYOffset - 50.f, hudDistance);
+	
+		if(f.dateline.size() == 1)
+		{
+			int count = 0;
+			for(WMV_TimeSegment t : f.timeline)
+			{
+				drawTimelineSegment(t, timelineXOffset, timelineYOffset, count);
+				count++;
+			}
+		}
+		else if(f.dateline.size() > 1)
+		{
+			int count = 0;
+			for(ArrayList<WMV_TimeSegment> ts : f.timelines)
+			{
+				for(WMV_TimeSegment t:ts)
+				{
+					drawTimelineSegment(t, timelineXOffset, timelineYOffset, count);
+					count++;
 				}
 			}
 		}
 	}
 	
-	private void drawTimelineSegment(WMV_TimeSegment t, float timelineLeftEdge, float timelineTopEdge)
+	/**
+	 * Draw time segment on timeline
+	 * @param t
+	 * @param timelineLeftEdge
+	 * @param timelineTopEdge
+	 */
+	private void drawTimelineSegment(WMV_TimeSegment t, float timelineLeftEdge, float timelineTopEdge, int id)
 	{
 		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
 		PVector upperTime = t.getUpper().getTimeAsPVector();			
@@ -302,48 +456,56 @@ class WMV_Display
 		float upperSeconds = p.p.utilities.getTimePVectorSeconds(upperTime);
 //		float daySeconds = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
 		
-		if(PApplet.abs(upperSeconds - lowerSeconds) > 1000.f)
-		{
-			PApplet.println("Possible ERROR: very long time segment for cluster:"+t.getClusterID()+ " result:"+PApplet.abs(upperSeconds - lowerSeconds));
-			PApplet.println(": lowerSeconds:"+lowerSeconds+" centerSeconds:"+centerSeconds+" upperSeconds:"+upperSeconds);
-		}
-//		else
+//		if(PApplet.abs(upperSeconds - lowerSeconds) > 1000.f)
 //		{
-			ArrayList<WMV_Time> tsTimeline = t.getTimeline();				// Get timeline for this time segment
-			ArrayList<PVector> times = new ArrayList<PVector>();
-			for(WMV_Time ti : tsTimeline) times.add(ti.getTimeAsPVector());
-
-			//		timelineZoom
-			//		timelineStart		-- in seconds since beginning of day
-
-			//		float visiblePortion = daySeconds * timelineZoom;						// Visible portion of day in timeline
-
-			float xOffset = PApplet.map(lowerSeconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
-			float xOffset2 = PApplet.map(upperSeconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
-
-			if(xOffset > 0.f && xOffset2 < timelineScreenSize)
-			{
-				p.p.stroke(120, 255, 255, 255);
-				p.p.pushMatrix();
-				p.p.strokeWeight(1.f);
-				p.p.translate(timelineLeftEdge, timelineTopEdge, hudDistance);
-				p.p.line(xOffset, -15.f, 0.f, xOffset, 15.f, 0.f);
-
-//				if(xOffset2 - xOffset > 100.f)
-//				{
-//					PApplet.println("??: xOffset:"+xOffset+" lowerSeconds:"+lowerSeconds+" xOffset2:"+xOffset2+" upperSeconds:"+upperSeconds+" cluster:"+t.getClusterID());
-//				}
-				p.p.stroke(120, 255, 255, 100);
-				for(float pos = xOffset; pos < xOffset2; pos += 1.f)					// Shading
-					p.p.line(pos, -15.f, 0.f, pos, 15.f, 0.f);
-
-				p.p.line(xOffset2, -15.f, 0.f, xOffset2, 15.f, 0.f);
-
-				p.p.line(xOffset, -15.f, 0.f, xOffset2, -15.f, 0.f);
-				p.p.line(xOffset, 15.f, 0.f, xOffset2, 15.f, 0.f);
-				p.p.popMatrix();
-			}
+//			PApplet.println("Possible ERROR: very long time segment for cluster:"+t.getClusterID()+ " result:"+PApplet.abs(upperSeconds - lowerSeconds));
+//			PApplet.println(": lowerSeconds:"+lowerSeconds+" centerSeconds:"+centerSeconds+" upperSeconds:"+upperSeconds);
 //		}
+
+		ArrayList<WMV_Time> tsTimeline = t.getTimeline();				// Get timeline for this time segment
+		ArrayList<PVector> times = new ArrayList<PVector>();
+		for(WMV_Time ti : tsTimeline) times.add(ti.getTimeAsPVector());
+
+		float xOffset = PApplet.map(lowerSeconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
+		float xOffset2 = PApplet.map(upperSeconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
+
+		if(xOffset > 0.f && xOffset2 < timelineScreenSize)
+		{
+			p.p.pushMatrix();
+			p.p.translate(timelineLeftEdge, timelineTopEdge, hudDistance);
+			p.p.stroke(140.f, 185.f, 255.f, 155.f);
+			p.p.strokeWeight(1.f);
+
+			for(PVector time : times)
+			{
+				float seconds = p.p.utilities.getTimePVectorSeconds(time);
+				float xOff = PApplet.map(seconds, timelineStart, timelineEnd, 0.f, timelineScreenSize);
+				p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
+			}
+			
+//			p.p.stroke(0, 0, 255, 255);												// White rectangle around time segment
+//			p.p.strokeWeight(2.f);
+//			p.p.line(xOffset, -timelineHeight, 0.f, xOffset, timelineHeight, 0.f);			
+//			p.p.line(xOffset2, -timelineHeight, 0.f, xOffset2, timelineHeight, 0.f);
+//			p.p.line(xOffset, -timelineHeight, 0.f, xOffset2, -timelineHeight, 0.f);
+//			p.p.line(xOffset, timelineHeight, 0.f, xOffset2, timelineHeight, 0.f);
+
+			p.p.popMatrix();
+			
+//			PVector loc = new PVector(timelineLeftEdge + xOffset, timelineTopEdge + timelineHeight / 2.f, hudDistance);
+//			Box rectangle = new Box(p.p, loc.x, loc.y, loc.z);
+////			rectangle.drawMode(S3D.WIRE);
+//			rectangle.drawMode(S3D.SOLID);
+//			rectangle.fill(p.p.color(105.f, 225.f, 200.f, 255.f));
+//			rectangle.strokeWeight(0.f);
+////			rectangle.moveTo(loc.x, loc.y, loc.z);
+//
+//			SelectableClusterLocation scl = new SelectableClusterLocation(id, t.getClusterID(), loc);
+//			rectangle.tagNo = id;
+//			selectableTimes.add(rectangle);
+//			selectableTimeIDs.append(id);
+//			selectableTimeLocations.add(scl);
+		}
 	}
 
 	public void zoomTimelineToFit()
@@ -357,7 +519,7 @@ class WMV_Display
 		last *= day;
 		timelineStart = first - 10.f;
 		timelineEnd = last + 10.f;
-		PApplet.println("timelineStart:"+timelineStart+" timelineEnd:"+timelineEnd);
+//		PApplet.println("timelineStart:"+timelineStart+" timelineEnd:"+timelineEnd);
 	}
 	
 	public void zoom(float amount)
@@ -369,6 +531,8 @@ class WMV_Display
 		
 		if(result < p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0)))
 			timelineEnd = result;
+		
+		updateTimeline = true;
 	}
 	
 	public void scroll(float amount)
@@ -382,6 +546,8 @@ class WMV_Display
 			timelineStart = newStart;
 			timelineEnd = newEnd;
 		}
+
+		updateTimeline = true;
 	}
 	
 	/**
@@ -483,6 +649,16 @@ class WMV_Display
 		/* Timeline */
 		timelineStart = 0.f;
 		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		timelineXOffset = -p.p.width/ 1.66f;
+		timelineYOffset = -p.p.height/ 1.66f;
+		timelineHeight = 25.f; 
+		timelineStart = 0.f; 
+		timelineEnd = 0.f;
+		selectableTimes = new ArrayList<Box>();
+		selectableTimeIDs = new IntList();
+		selectableTimeLocations = new ArrayList<SelectableTime>();
+		selectableTimesCreated = false;
+		updateTimeline = true;
 
 		/* Clusters */
 		displayCluster = 0;
@@ -1187,13 +1363,16 @@ class WMV_Display
 			if(c.dateline.size() > 0)
 				p.p.text(" Timeline Dates: "+ c.dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
 
-		p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
+		if(p.getCurrentCluster() != null)
+		{
+			p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text("   User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
 
-		p.p.text(" Current Cluster ID: "+p.viewer.getCurrentClusterID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-		p.p.text("   Media Count: "+cl.mediaCount, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
-
+			p.p.text(" Current Cluster ID: "+p.viewer.getCurrentClusterID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text("   Media Count: "+cl.mediaCount, textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
+		}
+		
 		p.p.text(" Field Cluster Count:"+(f.clusters.size()-f.model.mergedClusters), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 		p.p.text("   Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", textXPos, textYPos += lineWidth, hudDistance);
 		if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, textXPos, textYPos += lineWidth, hudDistance);
@@ -1299,6 +1478,41 @@ class WMV_Display
 		}
 	}
 
+	private class SelectableTime
+	{
+		private Box rectangle;
+		private int id, clusterID;
+		private PVector location;
+		
+		SelectableTime(int newID, int newClusterID, PVector newLocation, Box newRectangle)
+		{
+			id = newID;
+			clusterID = newClusterID;
+			location = newLocation;
+			rectangle = newRectangle;
+		}
+		
+		public int getID()
+		{
+			return id;
+		}
+		
+		public int getClusterID()
+		{
+			return clusterID;
+		}
+		
+		public PVector getLocation()
+		{
+			return location;
+		}
+		
+		public Box getRectangle()
+		{
+			return rectangle;	
+		}
+	}
+	
 //	void setFullScreen(boolean newState)
 //	{
 //		if(newState && !fullscreen)			// Switch to Fullscreen

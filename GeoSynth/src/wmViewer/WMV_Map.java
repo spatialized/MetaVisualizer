@@ -38,9 +38,8 @@ public class WMV_Map
 	private MarkerManager<Marker> markerManager;
 	private SimplePointMarker viewerMarker;
 	private int clusterZoomLevel = 18;
-	private IntList imageMarkers, panoramaMarkers, videoMarkers;
-	
-	final private int panoramaIndexOffset = 1000000, videoIndexOffset = 2000000;
+//	private IntList imageMarkers, panoramaMarkers, videoMarkers;
+//	final private int panoramaIndexOffset = 1000000, videoIndexOffset = 2000000;
 	
 	/* Interaction */
 	private int selectedCluster = -1;
@@ -153,9 +152,9 @@ public class WMV_Map
 		PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), new PVector(0,0,0));
 		mapCenter = new Location(gpsLoc.y, gpsLoc.x);
 		
-		imageMarkers = new IntList();
-		panoramaMarkers = new IntList();
-		videoMarkers = new IntList();
+//		imageMarkers = new IntList();
+//		panoramaMarkers = new IntList();
+//		videoMarkers = new IntList();
 		
 		map.zoomAndPanTo(16, mapCenter);
 		map.setZoomRange(2, 19);
@@ -1637,6 +1636,5 @@ public class WMV_Map
 			location = newLocation;
 		}
 	}
-
 }
 

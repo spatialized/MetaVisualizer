@@ -45,9 +45,9 @@ public class WMV_Field
 	private int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
 
 	/* Time */
-	ArrayList<WMV_TimeSegment> timeline;						// List of date-independent time segments in this field
-	ArrayList<WMV_Date> dateline;								// List of dates in this field
-	ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field by date
+	ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
+	ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
+	ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
 
 	WMV_World p;
 	

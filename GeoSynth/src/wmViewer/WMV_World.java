@@ -275,12 +275,11 @@ public class WMV_World
 	void draw2D()
 	{
 		/* 2D Display */
-		display.draw();								// Draw 2D display after 3D graphics
+		display.draw();										// Draw 2D display after 3D graphics
 		
-		if(fadingAlpha)                      		// Fade alpha
-			updateFadingAlpha();
+		if(fadingAlpha) updateFadingAlpha();				// Fade alpha
 
-		if(startedRunning)							// If simulation just started running
+		if(startedRunning)									// If simulation just started running
 		{
 			viewer.moveToTimeSegmentInField(0, 0, true);	// Move to first time segment in field
 			startedRunning = false;

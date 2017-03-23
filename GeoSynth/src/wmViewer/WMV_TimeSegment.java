@@ -30,11 +30,19 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	}
 	
 	/** 
-	 * @param newID New time cluster ID
+	 * @param newID New time segment ID
 	 */
 	public void setID(int newID)
 	{
 		id = newID;
+	}
+	
+	/** 
+	 * @param newID New cluster ID
+	 */
+	public void setClusterID(int newClusterID)
+	{
+		clusterID = newClusterID;
 	}
 
 	/** 

@@ -389,8 +389,8 @@ public class WMV_Model
 
 			if(isMedia)
 			{
-//				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
-//					PApplet.println("Cluster "+cluster.getName()+" is a media file..."+name);
+				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
+					PApplet.println("Cluster "+cluster.getName()+" is a media file..."+name);
 
 				mediaIdx = Integer.parseInt(name);
 
@@ -439,8 +439,8 @@ public class WMV_Model
 
 				location = calculateAveragePoint(mediaPoints);					// Calculate cluster location from average of media points
 
-//				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
-//					PApplet.println("Calculated Average Point: "+location);
+				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
+					PApplet.println("Calculated Average Point: "+location);
 			}
 
 			imageCount += images.size();
@@ -454,19 +454,24 @@ public class WMV_Model
 		return gmvClusters;
 	}
 	
+	/**
+	 * Remove empty clusters
+	 * @param clusters Cluster list
+	 * @return Cleaned up cluster list
+	 */
 	public ArrayList<WMV_Cluster> cleanupClusters(ArrayList<WMV_Cluster> clusters)
 	{
 		ArrayList<WMV_Cluster> result = new ArrayList<WMV_Cluster>();
 		int count = 0;
-		
-//		PApplet.println("Clusters size before:"+clusters.size());
+		int before = clusters.size();
+
 		for(WMV_Cluster c : clusters)
 		{
 			if(!c.isEmpty() && c.mediaCount > 0)
 			{
 				int oldID = c.getID();
 				c.setID(count);
-				result.add(c);
+				
 				for(WMV_Image i : p.images)
 					if(i.cluster == oldID)
 						i.setAssociatedCluster(count);
@@ -479,10 +484,23 @@ public class WMV_Model
 				for(WMV_Sound s : p.sounds)
 					if(s.cluster == oldID)
 						s.setAssociatedCluster(count);
+				
+				for(WMV_TimeSegment t:c.timeline)
+					if(t.getClusterID() != count)
+						t.setClusterID(count);
+
+				for(ArrayList<WMV_TimeSegment> timeline:c.timelines)
+					for(WMV_TimeSegment t:timeline)
+						if(t.getClusterID() != count)
+							t.setClusterID(count);
+				
+				result.add(c);
 				count ++;
 			}
 		}	
-//		PApplet.println("Clusters size after:"+result. fsize());
+		
+		int removed = before - result.size();
+		if(p.p.p.debug.model) PApplet.println("cleanupClusters()... Removed "+removed+" clusters from field #"+p.fieldID);
 		
 		return result;
 	}

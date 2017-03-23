@@ -2,13 +2,16 @@ package wmViewer;
 //import java.awt.Font;
 import java.util.ArrayList;
 
+import de.fhpotsdam.unfolding.marker.Marker;
 //import g4p_controls.GAlign;
 import g4p_controls.GButton;
 import processing.core.*;
 import processing.data.IntList;
 import shapes3d.Box;
-import shapes3d.Ellipsoid;
+//import shapes3d.Ellipsoid;
 import shapes3d.S3D;
+//import wmViewer.WMV_Map.SelectableClusterLocation;
+import shapes3d.Shape3D;
 //import wmViewer.WMV_Map.SelectableClusterLocation;
 
 /***********************************
@@ -59,12 +62,13 @@ class WMV_Display
 	int messageDuration = 60;
 	
 	/* Timeline */
-	float timelineScreenSize, timelineHeight = 50.f, timelineStart = 0.f, timelineEnd = 0.f;
+	float timelineScreenSize, timelineHeight = 80.f, timelineStart = 0.f, timelineEnd = 0.f;
 	private ArrayList<Box> selectableTimes;
 	private IntList selectableTimeIDs;
 	private ArrayList<SelectableTime> selectableTimeLocations;
 	private boolean selectableTimesCreated = false, updateTimeline = true;
 	private float timelineXOffset = 0.f, timelineYOffset = 0.f;
+	private int selectedSegment = -1, selectedCluster = -1;
 	
 	/* Text */
 	float centerTextXOffset, topTextYOffset;
@@ -269,6 +273,7 @@ class WMV_Display
 //		yPos += lineWidthVeryWide * 2.f;
 //		timelineYOffset = yPos;
 		drawFieldTimeline();
+		updateTimelineMouse();
 		
 		if(selectableTimesCreated) drawSelectableTimes();
 		else updateTimeline = true;
@@ -317,6 +322,12 @@ class WMV_Display
 				SelectableTime scl = getSelectableTime(t, xPos, yPos, count);
 				if(scl != null)
 				{
+					if(scl.getID() == selectedSegment)
+					{
+						scl.getRectangle().strokeWeight(3.f);
+						scl.getRectangle().stroke(p.p.color(15.f, 245.f, 255.f, 255.f));
+					}
+					
 					selectableTimes.add(scl.getRectangle());
 					selectableTimeIDs.append(count);
 					selectableTimeLocations.add(scl);
@@ -334,6 +345,12 @@ class WMV_Display
 					SelectableTime scl = getSelectableTime(t, xPos, yPos, count);
 					if(scl != null)
 					{
+						if(scl.getID() == selectedSegment)
+						{
+							scl.getRectangle().strokeWeight(3.f);
+							scl.getRectangle().stroke(p.p.color(15.f, 245.f, 255.f, 255.f));
+						}
+
 						selectableTimes.add(scl.getRectangle());
 						selectableTimeIDs.append(count);
 						selectableTimeLocations.add(scl);
@@ -342,7 +359,6 @@ class WMV_Display
 				}
 			}
 		}
-
 
 		selectableTimesCreated = true;
 	}
@@ -367,12 +383,11 @@ class WMV_Display
 			Box rectangle = new Box(p.p, xOffset2 - xOffset, timelineHeight, 1.f);
 			rectangle.drawMode(S3D.WIRE);
 			rectangle.strokeWeight(1.5f);
-			rectangle.stroke(p.p.color(105.f, 225.f, 200.f, 255.f));
+			rectangle.stroke(p.p.color(145.f, 215.f, 255.f, 255.f));
 
 			rectangle.moveTo(loc.x + rectangle.getWidth() * 0.5f, loc.y, loc.z);
 			rectangle.tagNo = id;
 			SelectableTime scl = new SelectableTime(id, t.getClusterID(), loc, rectangle);		// int newID, int newClusterID, PVector newLocation, Box newRectangle
-//			return rectangle;
 			return scl;
 		}
 		else return null;
@@ -410,11 +425,10 @@ class WMV_Display
 		if(minute < 10) strMinute = "0"+strMinute;
 		strSecond = String.valueOf(second);
 		if(second < 10) strSecond = "0"+strSecond;
-//		PApplet.println("endTime:"+startTime+" hour:"+hour+" minute:"+minute+" second:"+second);
 		
 		p.p.textSize(20.f);
-		p.p.text(startTime, timelineXOffset, timelineYOffset - 50.f, hudDistance);
-		p.p.text(endTime, timelineXOffset + timelineScreenSize - 30.f, timelineYOffset - 50.f, hudDistance);
+		p.p.text(startTime, timelineXOffset, timelineYOffset - 80.f, hudDistance);
+		p.p.text(endTime, timelineXOffset + timelineScreenSize - 80.f, timelineYOffset - 50.f, hudDistance);
 	
 		if(f.dateline.size() == 1)
 		{
@@ -491,23 +505,77 @@ class WMV_Display
 //			p.p.line(xOffset, timelineHeight, 0.f, xOffset2, timelineHeight, 0.f);
 
 			p.p.popMatrix();
-			
-//			PVector loc = new PVector(timelineLeftEdge + xOffset, timelineTopEdge + timelineHeight / 2.f, hudDistance);
-//			Box rectangle = new Box(p.p, loc.x, loc.y, loc.z);
-////			rectangle.drawMode(S3D.WIRE);
-//			rectangle.drawMode(S3D.SOLID);
-//			rectangle.fill(p.p.color(105.f, 225.f, 200.f, 255.f));
-//			rectangle.strokeWeight(0.f);
-////			rectangle.moveTo(loc.x, loc.y, loc.z);
-//
-//			SelectableClusterLocation scl = new SelectableClusterLocation(id, t.getClusterID(), loc);
-//			rectangle.tagNo = id;
-//			selectableTimes.add(rectangle);
-//			selectableTimeIDs.append(id);
-//			selectableTimeLocations.add(scl);
 		}
 	}
 
+	public void updateTimelineMouse()
+	{
+			Shape3D itemSelected = Shape3D.pickShape(p.p, p.p.mouseX, p.p.mouseY);
+
+			int id = -1;
+			
+			if(itemSelected == null)
+			{
+				if(selectedSegment != -1)
+				{
+					selectedSegment = -1;
+					updateTimeline = true;
+				}
+			}
+			else
+			{
+				id = itemSelected.tagNo;
+				if(id >= 0 && id < p.getCurrentField().clusters.size())
+				{
+					if(id != selectedSegment)
+					{
+						selectedSegment = id;
+
+						if(p.p.debug.time) 
+							PApplet.println("Selected time segment:"+selectedSegment);
+
+						for(SelectableTime scl : selectableTimeLocations)
+						{
+							if(scl.getID() == id)
+								selectedCluster = scl.getClusterID();
+						}
+						
+						updateTimeline = true;
+							
+//						PVector itemSelectedLoc = new PVector(itemSelected.x(), itemSelected.y(), itemSelected.z());
+//						for(SelectableClusterLocation scl : selectableClusterLocations)
+//						{
+//							if(scl.id == clusterID)
+//							{
+//								if(!scl.location.equals(itemSelectedLoc))
+//								{
+//									selectableClustersCreated = false;							// Fix potential bug in Shape3D library
+//									selectedCluster = -1;
+//									createSelectableClusters(curMapWidth, curMapHeight);
+//
+////									for(SelectableClusterLocation sclTest : selectableClusterLocations)
+////									{
+////										if(sclTest.location.equals(itemSelectedLoc))
+////										{
+////											selectedCluster = sclTest.id;				// -- Needed?
+////											{
+////												PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
+////												WMV_Cluster c = p.p.getCluster(clusterID); 
+////												PVector clusterMapLoc = getMapLocation(c.getLocation(), curMapWidth, curMapHeight);
+////												clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
+////												clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
+////												PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
+////											}
+////										}
+////									}
+//								}
+//							}
+//						}
+					}
+				}
+			}
+	}
+	
 	public void zoomTimelineToFit()
 	{
 		WMV_Field f = p.getCurrentField();
@@ -550,6 +618,20 @@ class WMV_Display
 		updateTimeline = true;
 	}
 	
+	public void handleMouseReleased(float mouseX, float mouseY)
+	{
+//		PApplet.println("Display handleMouseReleased");
+		updateTimelineMouse();
+		if(selectedSegment != -1)
+		{
+			if(selectedCluster != -1)
+			{
+				p.viewer.teleportToCluster(selectedCluster, true);
+				p.display.setDisplayView(0);
+			}
+		}
+	}
+
 	/**
 	 * Draw Interactive Clustering screen
 	 */

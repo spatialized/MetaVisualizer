@@ -1483,6 +1483,10 @@ public class WMV_Input
 		{
 			p.display.map2D.handleMouseReleased(mouseX, mouseY);
 		}
+		else if(p.display.displayView == 3)
+		{
+			p.display.handleMouseReleased(mouseX, mouseY);
+		}
 	}
 	
 	void handleMouseClicked(int mouseX, int mouseY)

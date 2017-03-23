@@ -286,6 +286,8 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 //			world.input.handleMouseReleased(mouseX, mouseY);
 		if(world.display.displayView == 1)
 			world.input.handleMouseReleased(mouseX, mouseY);
+		else if(world.display.displayView == 3)
+			world.input.handleMouseReleased(mouseX, mouseY);
 	}
 	
 	/**

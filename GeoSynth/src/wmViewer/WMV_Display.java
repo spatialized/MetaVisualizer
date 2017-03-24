@@ -56,6 +56,7 @@ class WMV_Display
 	float timelineStart = 0.f, timelineEnd = 0.f;
 	float datelineStart = 0.f, datelineEnd = 0.f;
 	int displayDate = -1;
+	private final float timeTextSize = 44.f;
 	
 	private ArrayList<SelectableTime> selectableTimes;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;		// Selectable dates on dateline
@@ -291,29 +292,45 @@ class WMV_Display
 
 		if(p.viewer.currentFieldTimeSegment >= 0)
 		{
-			WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.currentFieldTimeSegment);
-			currentSelectableTime = getSelectableTimeIDFromTimeSegment(t);
+//			WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.currentFieldTimeSegment);
+			WMV_TimeSegment t = p.getCurrentField().getCurrentFieldTimeSegment(displayDate);
+//			PApplet.println(""+p.p.frameCount+": currentFieldTimeSegment:"+p.viewer.currentFieldTimeSegment);
+			if(t != null)
+				currentSelectableTime = getSelectableTimeIDFromTimeSegment(t);
+			else
+				currentSelectableTime = -1;
+			
+//			if(currentSelectableTime != -1)
+//				PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
 		}
 	}
 	
 	private int getSelectableTimeIDFromTimeSegment(WMV_TimeSegment t)
 	{
 		for(SelectableTime st : selectableTimes)
+		{
 			if(t.getID() == st.getTimeSegmentID())
+			{
+//				PApplet.println("Found time segment by ID..."+t.getID());
+
 				if(t.getClusterID() == st.getClusterID())
 					return st.getID();
-
+//				else
+//					PApplet.println("t.getClusterID():"+t.getClusterID()+" != st.getClusterID():"+st.getClusterID());
+			}
+		}
+//		PApplet.println("-- NO selectable time found!! --");
 		return -1;
 	}
 	
-	private int getSelectableDateIDFromDate(WMV_Date d)
-	{
-		for(SelectableDate sd : selectableDates)
-			if(d.getID() == sd.getDateID())
-				return sd.getID();
-
-		return -1;
-	}
+//	private int getSelectableDateIDFromDate(WMV_Date d)
+//	{
+//		for(SelectableDate sd : selectableDates)
+//			if(d.getID() == sd.getDateID())
+//				return sd.getID();
+//
+//		return -1;
+//	}
 
 	private void createDateline()
 	{
@@ -524,7 +541,7 @@ class WMV_Display
 		if(second < 10) strSecond = "0"+strSecond;
 		endTime = strHour + ":" + strMinute + ":" + strSecond;
 		
-		p.p.textSize(20.f);
+		p.p.textSize(timeTextSize);
 		p.p.text(startTime, timelineXOffset, timelineYOffset - 80.f, hudDistance);
 		p.p.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - 80.f, hudDistance);
 	

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.data.IntList;
+//import wmViewer.WMV_Display.SelectableTime;
 
 /**************************************************
  * @author davidgordon
@@ -1147,6 +1148,48 @@ public class WMV_Field
 //		if(p.viewer.getCurrentCluster() != -1)
 //			clusters.get(p.viewer.getCurrentCluster()).drawStitchedPanoramas();		// Draw current cluster
 //	}
+	
+	public WMV_TimeSegment getCurrentFieldTimeSegment(int date)
+	{
+		int goal = p.viewer.currentFieldTimeSegment;
+		if(dateline.size() == 1)
+		{
+			return timeline.get(goal);
+		}
+		else if(dateline.size() > 1)
+		{
+			WMV_TimeSegment goalTS = timeline.get(goal);
+			if(date == -1)
+			{
+				for(ArrayList<WMV_TimeSegment> ts : timelines)
+				{
+					for(WMV_TimeSegment t:ts)
+					{
+//						if(t.getID()==goalTS.getID())
+							if(t.getClusterID()==goalTS.getClusterID())
+								return t;
+					}
+				}
+			}
+			else
+			{
+				if(date < timelines.size())
+				{
+					ArrayList<WMV_TimeSegment> ts = timelines.get(date);
+//					int count = 0;
+
+					for(WMV_TimeSegment t:ts)
+					{
+//						if(t.getID()==goalTS.getID())
+							if(t.getClusterID()==goalTS.getClusterID())
+								return t;
+					}
+				}
+			}
+		}
+//		PApplet.println("NOT FOUND");
+		return null;
+	}
 
 	/**
 	 * Change all clusters to non-attractors

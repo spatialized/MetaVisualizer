@@ -1,5 +1,6 @@
 package wmViewer;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 
 import processing.core.PApplet;
@@ -68,8 +69,10 @@ public abstract class WMV_Viewable
 
 	WMV_Field p;								// Parent field
 
+//	WMV_Viewable ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+//			int newCameraModel, float newBrightness, Calendar newCalendar )
 	WMV_Viewable ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-			int newCameraModel, float newBrightness, Calendar newCalendar )
+			int newCameraModel, float newBrightness, ZonedDateTime newDateTime )
 	{
 		p = parent;
 

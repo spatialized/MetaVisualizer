@@ -2,11 +2,11 @@ package wmViewer;
 //import java.awt.Font;
 import java.util.ArrayList;
 
-import de.fhpotsdam.unfolding.marker.Marker;
+//import de.fhpotsdam.unfolding.marker.Marker;
 //import g4p_controls.GAlign;
 import g4p_controls.GButton;
 import processing.core.*;
-import processing.data.IntList;
+//import processing.data.IntList;
 //import shapes3d.Box;
 //import shapes3d.Ellipsoid;
 //import shapes3d.S3D;
@@ -65,7 +65,8 @@ class WMV_Display
 	float timelineScreenSize, timelineHeight = 80.f;
 	float timelineStart = 0.f, timelineEnd = 0.f;
 	float datelineStart = 0.f, datelineEnd = 0.f;
-
+	int displayDate = -1;
+	
 	private ArrayList<SelectableTime> selectableTimes;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;		// Selectable dates on dateline
 
@@ -124,9 +125,6 @@ class WMV_Display
 		timelineScreenSize = p.p.width * 2.2f;
 		timelineStart = 0.f;
 		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
-
-//		datelineStart = 0.f;												// Dateline starts at 1980
-		datelineEnd = p.p.utilities.getCurrentDateInDaysSince1980() + 2.f;		// Dateline ends after current date
 
 		timelineXOffset = -p.p.width/ 1.66f;
 		timelineYOffset = -p.p.height/ 2.f;
@@ -261,23 +259,25 @@ class WMV_Display
 		p.p.textSize(veryLargeTextSize);
 		p.p.text(""+p.getCurrentField().name, xPos, yPos, hudDistance);
 
-		p.p.textSize(largeTextSize);
+		p.p.textSize(mediumTextSize);
 		p.p.text(" Field #"+ f.fieldID, xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" Total Media: "+ f.getMediaCount(), xPos, yPos += lineWidthWide, hudDistance);
 		if(f.timeline.size() > 0)
-			p.p.text(" Timeline Segments: "+ f.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+			p.p.text(" Time Segments: "+ f.timeline.size(), xPos, yPos += lineWidth, hudDistance);
 		if(f.dateline != null)
 			if(f.dateline.size() > 0)
 				p.p.text(" Dates: "+ f.dateline.size(), xPos, yPos += lineWidth, hudDistance);
 
 		if(c != null)
 		{
-			p.p.textSize(largeTextSize);
-			p.p.text(" Cluster #"+ c.getID(), xPos, yPos += lineWidthVeryWide, hudDistance);
-			if(c.timeline.size() > 0)
-				p.p.text(" Timeline Segments: "+ c.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
-			if(c.dateline != null)
-				if(c.dateline.size() > 0)
-					p.p.text(" Dates: "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+			p.p.textSize(mediumTextSize);
+			p.p.text(" Current Cluster:"+ c.getID(), xPos, yPos += lineWidthWide, hudDistance);
+			p.p.text(" Current Field Time Segment:"+ p.viewer.currentFieldTimeSegment, xPos, yPos += lineWidth, hudDistance);
+//			if(c.timeline.size() > 0)
+//				p.p.text(" Timeline Segments: "+ c.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+//			if(c.dateline != null)
+//				if(c.dateline.size() > 0)
+//					p.p.text(" Dates: "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
 		}
 		p.p.popMatrix();
 		
@@ -328,19 +328,27 @@ class WMV_Display
 	private void createDateline()
 	{
 		WMV_Field f = p.getCurrentField();
+		
 		if(f.dateline.size() > 0)
 		{
 			WMV_Date first = f.dateline.get(0);
-			int day = first.getDay();
-			int month = first.getMonth();
-			int year = first.getYear();
-			datelineStart = p.p.utilities.getDaysSince1980(day, month, year) - 1.f;
+			float padding = 1.f;
+			int firstDay = first.getDay();
+			int firstMonth = first.getMonth();
+			int firstYear = first.getYear();
 
-			if(p.p.debug.time)
-			{
-				PApplet.println("First date... month:"+month+" day:"+day+" year:"+year);
-				PApplet.println("  --> datelineStart:"+datelineStart);
-			}
+			WMV_Date last = f.dateline.get(f.dateline.size()-1);
+			int lastDay = last.getDay();
+			int lastMonth = last.getMonth();
+			int lastYear = last.getYear();
+			
+			if(f.dateline.size() == 2)
+				padding = p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) - p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear);
+			else if(f.dateline.size() > 2)
+				padding = p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) - p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear) * 0.33f;
+			
+			datelineStart = p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear) - padding;
+			datelineEnd = p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) + padding;
 		}
 		
 		createSelectableDates();
@@ -367,16 +375,37 @@ class WMV_Display
 		}
 		else if(f.dateline.size() > 1)
 		{
-			int count = 0;
-			for(ArrayList<WMV_TimeSegment> ts : f.timelines)
+			if(displayDate == -1)
 			{
-				for(WMV_TimeSegment t:ts)
+				int count = 0;
+				for(ArrayList<WMV_TimeSegment> ts : f.timelines)
 				{
-					SelectableTime st = getSelectableTime(t, count);
-					if(st != null)
+					for(WMV_TimeSegment t:ts)
 					{
-						selectableTimes.add(st);
-						count++;
+						SelectableTime st = getSelectableTime(t, count);
+						if(st != null)
+						{
+							selectableTimes.add(st);
+							count++;
+						}
+					}
+				}
+			}
+			else
+			{
+				if(displayDate < f.timelines.size())
+				{
+					ArrayList<WMV_TimeSegment> ts = f.timelines.get(displayDate);
+					int count = 0;
+					
+					for(WMV_TimeSegment t:ts)
+					{
+						SelectableTime st = getSelectableTime(t, count);
+						if(st != null)
+						{
+							selectableTimes.add(st);
+							count++;
+						}
 					}
 				}
 			}
@@ -516,13 +545,33 @@ class WMV_Display
 		}
 		else if(f.dateline.size() > 1)
 		{
-			int count = 0;
-			for(ArrayList<WMV_TimeSegment> ts : f.timelines)
+			if(displayDate == -1)
 			{
-				for(WMV_TimeSegment t:ts)
+				int count = 0;
+				for(ArrayList<WMV_TimeSegment> ts : f.timelines)
 				{
-					drawTimelineSegment(t, count);
-					count++;
+					for(WMV_TimeSegment t:ts)
+					{
+						drawTimelineSegment(t, count);
+						count++;
+					}
+				}
+			}
+			else
+			{
+				if(displayDate < f.timelines.size())
+				{
+					ArrayList<WMV_TimeSegment> ts = f.timelines.get(displayDate);
+					int count = 0;
+					for(WMV_TimeSegment t:ts)
+					{
+						drawTimelineSegment(t, count);
+						count++;
+					}
+				}
+				else
+				{
+					PApplet.println("--> displayDate > timelines.size()   displayDate:"+displayDate+" f.timelines.size():"+f.timelines.size());
 				}
 			}
 		}
@@ -581,20 +630,20 @@ class WMV_Display
 
 		if(xOffset > datelineXOffset && xOffset < datelineXOffset + timelineScreenSize)
 		{
-			p.p.pushMatrix();
-//			p.p.translate(0.f, timelineYOffset, hudDistance);
-			p.p.fill(120.f, 165.f, 245.f, 255.f);
-//			p.p.stroke(120.f, 165.f, 245.f, 255.f);
+//			p.p.pushMatrix();
 			p.p.strokeWeight(0.f);
 
-			p.p.translate(xOffset, datelineYOffset, hudDistance);
+			p.p.fill(120.f, 165.f, 245.f, 155.f);
+//			p.p.translate(xOffset, datelineYOffset, hudDistance);
 //			p.p.sphereDetail(6);
-			p.p.sphere(25.f);
-			
-//			p.p.point(xOffset, datelineYOffset, hudDistance);
-//			p.p.point(0.f, 0.f, 0.f);
-			PApplet.println("--> Date id:"+id+" month:"+month+" day:"+day+" year:"+year+"   xOffset:"+xOffset+" datelineYOffset:"+datelineYOffset+" datelineStart:"+datelineStart+" datelineEnd:"+datelineEnd);
+//			p.p.sphere(25.f);
+//			p.p.popMatrix();
 
+			p.p.pushMatrix();
+			p.p.stroke(120.f, 165.f, 245.f, 155.f);
+			p.p.strokeWeight(25.f);
+			p.p.point(xOffset, datelineYOffset, hudDistance);
+//			PApplet.println("--> Date id:"+id+" month:"+month+" day:"+day+" year:"+year+"   xOffset:"+xOffset+" datelineYOffset:"+datelineYOffset+" datelineStart:"+datelineStart+" datelineEnd:"+datelineEnd);
 			p.p.popMatrix();
 		}
 		else
@@ -733,7 +782,7 @@ class WMV_Display
 			{
 				selectedDate = dateSelected.getID();				// Set to selected
 //				selectedCluster = timeSelected.getClusterID();
-
+						
 				if(p.p.debug.time) PApplet.println("Selected date:"+selectedDate);
 				updateTimeline = true;				// Update timeline to show selected segment
 			}
@@ -807,6 +856,12 @@ class WMV_Display
 				else
 					p.viewer.teleportToCluster(selectedCluster, false);
 			}
+		}
+		
+		if(selectedDate != -1)
+		{
+			displayDate = selectedDate;
+			updateTimeline = true;
 		}
 	}
 
@@ -907,16 +962,31 @@ class WMV_Display
 		numBlendModes = 10;						// Number of blending modes
 
 		/* Timeline */
+
+		timelineHeight = 80.f;
+		displayDate = -1;
+		
+		selectedTime = -1; 
+		selectedCluster = -1;
+		currentSelectableTime = -1;
+		selectedDate = -1; 
+		currentSelectableDate = -1;
+
+		timelineScreenSize = p.p.width * 2.2f;
 		timelineStart = 0.f;
 		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		datelineStart = 0.f;
+		datelineEnd = 0.f;
+
 		timelineXOffset = -p.p.width/ 1.66f;
 		timelineYOffset = -p.p.height/ 2.f;
-		timelineHeight = 25.f; 
-		timelineStart = 0.f; 
-		timelineEnd = 0.f;
-//		selectableTimeRectangles = new ArrayList<Box>();
-//		selectableTimeIDs = new IntList();
+		timelineYOffset = 0.f;
+		datelineXOffset = timelineXOffset;
+		datelineYOffset = p.p.height * 0.2f;
+
 		selectableTimes = new ArrayList<SelectableTime>();
+		selectableDates = new ArrayList<SelectableDate>();
+
 		selectableTimesCreated = false;
 		datelineCreated = false;
 		updateTimeline = true;
@@ -1261,25 +1331,24 @@ class WMV_Display
 
 		if(initialSetup)																// Showing setup startup messages
 		{
-			p.p.textSize(largeTextSize * 6.f);
-			p.p.text("WorldMediaViewer", p.p.width / 2.25f, yPos, hudDistance);
-			p.p.textSize(largeTextSize * 1.66f);
-			p.p.text("Version 1.0", p.p.width / 1.23f, yPos += lineWidthVeryWide * 3.f, hudDistance);
-			p.p.textSize(largeTextSize * 1.5f);
-			p.p.text("Software by David Gordon", p.p.width / 1.33f, yPos += lineWidthVeryWide, hudDistance);
-
-			p.p.textSize(largeTextSize * 2.1f);
+			p.p.textSize(largeTextSize * 3.f);
+			p.p.text("WorldMediaViewer", p.p.width / 2.25f, yPos += lineWidthVeryWide, hudDistance);
+			p.p.textSize(largeTextSize * 1.f);
+			p.p.text("Version 1.0", p.p.width / 1.265f, yPos += lineWidthVeryWide * 2.f, hudDistance);
+			p.p.textSize(largeTextSize * 1.f);
+			p.p.text("Software by David Gordon", p.p.width / 1.48f, yPos += lineWidthVeryWide, hudDistance);
+			p.p.textSize(largeTextSize * 1.2f);
+			
 			if(!p.p.state.selectedLibrary)
-				p.p.text("Press any key to begin...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 10.f, hudDistance);
+				p.p.text("Press any key to begin...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 			else
-				p.p.text("Loading media folder(s)...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 10.f, hudDistance);
-			p.p.textSize(largeTextSize * 1.33f);
+				p.p.text("Loading media folder(s)...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+			
+			p.p.textSize(largeTextSize * 1.2f);
 			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/worldmediaviewer", p.p.width / 2.1f, yPos += lineWidthVeryWide * 16.f, hudDistance);
 		}
 		else
-		{
 			displayMessages();
-		}
 
 		p.p.popMatrix();
 	}
@@ -1298,15 +1367,6 @@ class WMV_Display
 	void resetDisplayModes()
 	{
 		displayView = 0;
-//		map = false;
-//		mapOverlay = false;
-//		control = false;
-//		controlOverlay = false;
-//		cluster = false;
-//		clusterOverlay = false;
-//		info = false;
-//		infoOverlay = false;
-		
 		clearMessages();
 		clearMetadata();
 	}
@@ -1465,14 +1525,18 @@ class WMV_Display
 			p.p.text(" Name: "+f.name, xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" ID: "+(p.viewer.getField()+1)+" out of "+p.getFieldCount()+" Total Fields", xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Width (m.): "+f.model.fieldWidth+" Length (m.): "+f.model.fieldLength+" Height (m.): "+f.model.fieldHeight, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Total Media: "+f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
 			p.p.text(" Total Images: "+f.getImageCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
 			p.p.text(" Total Panoramas: "+f.getPanoramaCount(), xPos, yPos += lineWidth, hudDistance);			// Doesn't check for dataMissing!!
 			p.p.text(" Total Videos: "+f.getVideoCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
+			p.p.text(" Total Sounds: "+f.getSoundCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
 			p.p.text(" Media Density per sq. m.: "+f.model.mediaDensity, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Images Visible: "+f.imagesVisible, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Panoramas Visible: "+f.panoramasVisible, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Videos Visible: "+f.videosVisible, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Videos Playing: "+f.videosPlaying, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Sounds Audible: "+f.soundsAudible, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Sounds Playing: "+f.soundsPlaying, xPos, yPos += lineWidth, hudDistance);
 			if(p.viewer.settings.orientationMode)
 				p.p.text(" Clusters Visible: "+p.viewer.clustersVisible+"  (Orientation Mode)", xPos, yPos += lineWidth, hudDistance);
 
@@ -1785,6 +1849,7 @@ class WMV_Display
 			p.p.strokeWeight(3.f);
 
 			p.p.pushMatrix();
+			
 			p.p.line(leftEdge, topEdge, hudDistance, leftEdge, bottomEdge, hudDistance);	
 			p.p.line(rightEdge, topEdge, hudDistance, rightEdge, bottomEdge, hudDistance);			
 			p.p.line(leftEdge, topEdge, hudDistance, rightEdge, topEdge, hudDistance);			
@@ -1825,17 +1890,22 @@ class WMV_Display
 		
 		public void draw(float hue, float saturation, float brightness)
 		{
-			p.p.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-//			p.p.sphereDetail(6);
-			p.p.strokeWeight(0.f);
 			p.p.pushMatrix();
 			
-			p.p.translate(location.x, location.y, location.z);
-			p.p.sphere(25.f);
+			p.p.stroke(hue, saturation, brightness, 255.f);
+			p.p.strokeWeight(25.f);
+			p.p.point(location.x, location.y, location.z);
+
 			p.p.popMatrix();
 		}
 	}
 
+	public void showAllDates()
+	{
+		displayDate = -1;
+		updateTimeline = true;
+	}
+	
 //	void setFullScreen(boolean newState)
 //	{
 //		if(newState && !fullscreen)			// Switch to Fullscreen

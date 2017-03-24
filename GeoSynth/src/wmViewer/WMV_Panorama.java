@@ -1,5 +1,6 @@
 package wmViewer;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -35,10 +36,10 @@ public class WMV_Panorama extends WMV_Viewable
 	public float origRadius;
 	
 	WMV_Panorama ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, Calendar newCalendar, 
+			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, 
 			PVector newLocation, PImage newTexture )
 	{
-		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
+		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
 		p = parent;
 
@@ -61,10 +62,10 @@ public class WMV_Panorama extends WMV_Viewable
 		gpsLocation = newGPSLocation;
 		cameraModel = newCameraModel;
 
-		if(newCalendar != null)
+		if(newDateTime != null)
 		{
 //			time = new WMV_Time( p.p, newCalendar, getID(), 1 );
-			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), cluster, 1 );
+			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 1 );
 			time = p.p.p.utilities.utcToPacificTime(utcTime);									// Convert from UTC Time
 		}
 		else

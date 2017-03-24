@@ -707,6 +707,10 @@ public class WMV_Input
 				{
 					p.display.zoomTimelineToFit();
 				}
+				if (key == 'a')									// Timeline zoom to fit
+				{
+					p.display.showAllDates();
+				}
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.UP) 					// Timeline zoom in 

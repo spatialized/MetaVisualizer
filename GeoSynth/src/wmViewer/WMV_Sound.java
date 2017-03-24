@@ -1,5 +1,6 @@
 package wmViewer;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -30,9 +31,9 @@ public class WMV_Sound extends WMV_Viewable
 	WMV_Field p;					// Parent field
 
 	WMV_Sound ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, 
-			float newBrightness, Calendar newCalendar )
+			float newBrightness, ZonedDateTime newDateTime )
 	{
-		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
+		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
 		p = parent;
 //		id = newID;
@@ -43,9 +44,9 @@ public class WMV_Sound extends WMV_Viewable
 		
 //		Bead sound = new Bead();
 		
-		if(newCalendar != null)
+		if(newDateTime != null)
 		{
-			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), cluster, 3 );		
+			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 3 );		
 			time = p.p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}
 		else

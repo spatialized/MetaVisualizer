@@ -1,5 +1,6 @@
 package wmViewer;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -19,23 +20,32 @@ public class WMV_Date implements Comparable<WMV_Date>
 	private WMV_World p;
 	private int id;
 	
-	public WMV_Date(WMV_World parent, int newID, Calendar newCalendar)
+	ZonedDateTime dateTime;
+	
+//	public WMV_Date(WMV_World parent, int newID, Calendar newCalendar)
+	public WMV_Date(WMV_World parent, int newID, ZonedDateTime newDateTime)
 	{
 		p = parent;
 		id = newID;
 		
-		year = newCalendar.get(Calendar.YEAR);
-		month = newCalendar.get(Calendar.MONTH);
+		dateTime = newDateTime;
+		
+//		year = newCalendar.get(Calendar.YEAR);
+//		month = newCalendar.get(Calendar.MONTH);
+		
+		year = dateTime.getYear();
+		month = dateTime.getMonthValue();
 		
 		if(month == 0)
 		{
 //			PApplet.println("Corrected Month == 0... year:"+newCalendar.get(Calendar.YEAR)+" month:"+newCalendar.get(Calendar.MONTH)+" day:"+newCalendar.get(Calendar.DAY_OF_MONTH));
 			year --;
 			month = 12;
-//			PApplet.println("year:"+year+" month:"+month);
+			PApplet.println("Corrected Month... year:"+year+" month:"+month);
 		}
 		
-		day = newCalendar.get(Calendar.DAY_OF_MONTH);
+//		day = newCalendar.get(Calendar.DAY_OF_MONTH);
+		day = dateTime.getDayOfMonth();
 		date = new PVector (month, day, year);
 		
 		calculateDaysSince1980();

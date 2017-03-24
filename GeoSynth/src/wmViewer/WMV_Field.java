@@ -48,7 +48,8 @@ public class WMV_Field
 	ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
 	ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
 	ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
-
+	String timeZone = "America/Los_Angeles";					// Current time zone
+	
 	WMV_World p;
 	
 	/* -- Debug -- */	
@@ -871,27 +872,34 @@ public class WMV_Field
 		for(WMV_Date d : dateline)			// For each date on dateline
 		{
 			ArrayList<WMV_TimeSegment> dateTimeline = new ArrayList<WMV_TimeSegment>();		// List of times to add to date-specific timeline for field
-
 			for(WMV_Cluster c : clusters)
 			{
 				ArrayList<WMV_Time> clusterMediaTimes = new ArrayList<WMV_Time>();		// List of times to add to date-specific timeline for field
-
 				if(!c.isEmpty())
 				{
 					for(WMV_Date cd : c.dateline)									// Search for date within cluster dateline
 					{
-						if(d.equals(cd))											// Compare dates
+						if(d.getDate().equals(cd.getDate()))											// Compare dates
 						{
-							if(c.timelines.size() > d.getID())
+							for(WMV_TimeSegment t : c.timelines.get(cd.getID()))		// Go through date-specific timeline for cluster
 							{
-								for(WMV_TimeSegment t : c.timelines.get(d.getID()))		// Go through date-specific timeline for cluster
+								for(WMV_Time time : t.getTimeline())				// Add all times to list
 								{
-									for(WMV_Time time : t.getTimeline())				// Add all times to list
-									{
-										clusterMediaTimes.add(time);
-									}
+									clusterMediaTimes.add(time);
 								}
 							}
+							
+							/* Old Method */
+//							if(c.timelines.size() > d.getID())
+//							{
+//								for(WMV_TimeSegment t : c.timelines.get(d.getID()))		// Go through date-specific timeline for cluster
+//								{
+//									for(WMV_Time time : t.getTimeline())				// Add all times to list
+//									{
+//										clusterMediaTimes.add(time);
+//									}
+//								}
+//							}
 						}
 					}
 
@@ -1488,6 +1496,17 @@ public class WMV_Field
 	public int getVideoCount()
 	{
 		return videos.size() - videoErrors;
+	}
+
+	public int getSoundCount()
+	{
+//		return sounds.size() - soundErrors;
+		return sounds.size();
+	}
+
+	public int getMediaCount()
+	{
+		return getImageCount() + getPanoramaCount() + getVideoCount() + getSoundCount();
 	}
 
 	/**

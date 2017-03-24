@@ -73,21 +73,11 @@ public class WMV_Utilities
 
 	public int getCurrentDateInDaysSince1980()
 	{
-		ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
+		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(p.getCurrentField().timeZone));
 		int year = now.getYear();
 		int month = now.getMonthValue();
 		int day = now.getDayOfMonth();
-		
-		Calendar calendar = Calendar.getInstance();
-//		int year = calendar.get(Calendar.YEAR);
-//		int month = calendar.get(Calendar.MONTH);
-//		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		int days = getDaysSince1980(day, month, year);
-		
-//		if(p.p.debug.time)
-//		PApplet.println("--------days:"+days+" day:"+day+" month"+month+" year:"+year);
-
-		return days;
+		return getDaysSince1980(day, month, year);
 	}
 	
 	/** 
@@ -96,28 +86,15 @@ public class WMV_Utilities
 	public int getDaysSince1980(int day, int month, int year)
 	{
 		ZonedDateTime date1980 = ZonedDateTime.parse("1980-01-01T00:00:00+00:00[America/Los_Angeles]");
-//		PApplet.println("getDaysSince1980 day:"+day+" month:"+month);
-		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of("America/Los_Angeles"));
+		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(p.getCurrentField().timeZone));
 		Duration duration = Duration.between(date1980, date);
 		
-		if(p.p.debug.time)
-		{
-			System.out.println("Days: " + (int)duration.toDays());
-			System.out.println("  ISO-8601: " + duration);
-		}		
-		
-		/* Old method */
-//		int daysInMonth = 0, daysCount = 0;
-//		for (int i = 1; i < month; i++) 				// Find number of days in prior months
+//		if(p.p.debug.time)
 //		{
-//			daysInMonth = p.p.utilities.getDaysInMonth(i, year);		// Get days in month
-//			daysCount += daysInMonth;
-//		}
-//
-//		int startYear = 1980;							
-//		int days = (year - startYear) * 365 + daysCount + day; 	
-//		return days;
-		
+//			System.out.println("Days: " + (int)duration.toDays());
+//			System.out.println("  ISO-8601: " + duration);
+//		}		
+
 		return (int)duration.toDays();
 	}
 	
@@ -218,23 +195,26 @@ public class WMV_Utilities
 		int month = time.getMonth();
 		int hour = time.getHour();
 
-		hour -= 8;
-		if(hour < 0)
-		{
-			hour += 24;
-			day--;
-			if(day < 0)
-			{
-				month--;
-				if(month < 0) year--;
-			}			
-		}
+		ZonedDateTime utcDateTime = ZonedDateTime.of(year, month, day, hour, time.getMinute(), time.getSecond(), time.getMillisecond(), ZoneId.of("UTC"));
+		ZonedDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
 		
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(year, month, day, hour, time.getMinute(), time.getSecond());
-		calendar.set(Calendar.MILLISECOND, time.getMillisecond());
+//		hour -= 8;
+//		if(hour < 0)
+//		{
+//			hour += 24;
+//			day--;
+//			if(day < 0)
+//			{
+//				month--;
+//				if(month < 0) year--;
+//			}			
+//		}
+
+//		Calendar calendar = Calendar.getInstance();
+//		calendar.set(year, month, day, hour, time.getMinute(), time.getSecond());
+//		calendar.set(Calendar.MILLISECOND, time.getMillisecond());
 		
-		WMV_Time result = new WMV_Time( p, calendar, time.getID(), time.getClusterID(), time.getMediaType() );
+		WMV_Time result = new WMV_Time( p, localDateTime, time.getID(), time.getClusterID(), time.getMediaType() );
 		return result;
 	}
 
@@ -466,7 +446,8 @@ public class WMV_Utilities
 	 * @return PVector containing (date, time, dayLength)
 	 * Calculate date, time and dayLength for given Calendar date
 	 */
-	public float getSimulationTime(Calendar c) 	
+//	public float getSimulationTime(Calendar c) 	
+	public float getSimulationTime(ZonedDateTime c) 	
 	{		
 		Location location = new Location("39.9522222", "-75.1641667");
 		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, "America/Los_Angeles");
@@ -482,9 +463,12 @@ public class WMV_Utilities
 //		cYear = c.get(Calendar.YEAR);
 //		cMonth = c.get(Calendar.MONTH);
 //		cDay = c.get(Calendar.DAY_OF_MONTH);
-		cHour = c.get(Calendar.HOUR_OF_DAY); // Adjust for New York time
-		cMin = c.get(Calendar.MINUTE);
-		cSec = c.get(Calendar.SECOND);
+		cHour = c.getHour();
+		cMin = c.getMinute();
+		cSec = c.getSecond();
+//		cHour = c.get(Calendar.HOUR_OF_DAY); // Adjust for New York time
+//		cMin = c.get(Calendar.MINUTE);
+//		cSec = c.get(Calendar.SECOND);
 
 		float cTime = cHour * 60 + cMin + cSec/60.f;
 		float time = PApplet.map(cTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		

@@ -15,6 +15,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashSet;
@@ -332,9 +334,9 @@ class WMV_Metadata
 						FileTime creationTime = attr.creationTime();
 						PApplet.println("file: "+file.getName()+" creationTime: "+creationTime);
 
-						Calendar soundTime = getCalendarFromTimeStamp(creationTime);
-						PApplet.println("soundTime.getTime():"+soundTime.getTime());
-						PApplet.println("sounds == null? "+(f.sounds==null));
+						ZonedDateTime soundTime = getCalendarFromTimeStamp(creationTime);
+//						PApplet.println("soundTime.getTime():"+soundTime.getTime());
+//						PApplet.println("sounds == null? "+(f.sounds==null));
 
 						f.sounds.add(new WMV_Sound ( f, count, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime) );
 					}
@@ -351,7 +353,7 @@ class WMV_Metadata
 		else return false;
 	}
 	
-	private Calendar getCalendarFromTimeStamp(FileTime creationTime)
+	private ZonedDateTime getCalendarFromTimeStamp(FileTime creationTime)
 	{
 		String tsStr = creationTime.toString();
 //		PApplet.println("tsStr:"+tsStr);
@@ -384,12 +386,13 @@ class WMV_Metadata
 //		PApplet.println("strMinute:"+Integer.parseInt(strMinute));
 //		PApplet.println("strSecond:"+Integer.parseInt(strSecond));
 
-		Calendar time = Calendar.getInstance();
-		
-		time.set(Integer.parseInt(strYear), Integer.parseInt(strMonth), Integer.parseInt(strDay), 
-				 Integer.parseInt(strHour), Integer.parseInt(strMinute), Integer.parseInt(strSecond));
-		
-		return time;
+//		Calendar time = Calendar.getInstance();
+//		time.set(Integer.parseInt(strYear), Integer.parseInt(strMonth), Integer.parseInt(strDay), 
+//				 Integer.parseInt(strHour), Integer.parseInt(strMinute), Integer.parseInt(strSecond));
+		ZonedDateTime utc = ZonedDateTime.of( Integer.parseInt(strYear), Integer.parseInt(strMonth), Integer.parseInt(strDay), 
+				 							  Integer.parseInt(strHour), Integer.parseInt(strMinute), Integer.parseInt(strSecond), 0, ZoneId.of("UTC") );
+
+		return utc;
 	}
 
 
@@ -458,8 +461,9 @@ class WMV_Metadata
 			boolean panorama = false;
 			boolean dataMissing = false, brightnessMissing = false, descriptionMissing = false;
 
-			Calendar calendarTime = null;			// Calendar date and time			
-
+//			Calendar calendarTime = null;			// Calendar date and time			
+			ZonedDateTime calendarTime = null;
+			
 			float fDirection = 0, fElevation = 0, fRotation = 0,
 					fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
 			float fFocusDistance = f.p.settings.defaultFocusDistance;									// Focus distance currently NOT used
@@ -829,7 +833,8 @@ class WMV_Metadata
 
 			name = videoFiles[currentMedia].getName();
 
-			Calendar calendarTime = null;			// Calendar date and time
+//			Calendar calendarTime = null;			// Calendar date and time
+			ZonedDateTime calendarTime = null;			// Calendar date and time
 
 			float fFocusDistance = f.p.settings.defaultFocusDistance;									// Focus distance currently NOT used
 			int iWidth = -1, iHeight = -1;
@@ -1264,7 +1269,7 @@ class WMV_Metadata
 		return 1000;
 	}
 
-	public Calendar parseDateTime(String input) 
+	public ZonedDateTime parseDateTime(String input) 
 	{		
 		String[] parts = input.split("-");
 		input = parts[1];
@@ -1279,13 +1284,13 @@ class WMV_Metadata
 		int day = Integer.valueOf(parts[0]);
 		int hour = Integer.valueOf(parts[1]);
 
-		Calendar c = Calendar.getInstance();
-		c.set(year, month, day, hour, min, sec);
-
-		return c;
+//		Calendar c = Calendar.getInstance();
+//		c.set(year, month, day, hour, min, sec);
+		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
+		return utc;
 	}
 
-	public Calendar parseVideoDateTime(String input) 
+	public ZonedDateTime parseVideoDateTime(String input) 
 	{		
 		String[] parts = input.split(":");
 
@@ -1302,13 +1307,13 @@ class WMV_Metadata
 		parts = secStr.split("-");
 		int sec = Integer.valueOf(parts[0]);
 
-		Calendar c = Calendar.getInstance();
-		c.set(year, month, day, hour, min, sec);
-
-		return c;
+//		Calendar c = Calendar.getInstance();
+//		c.set(year, month, day, hour, min, sec);
+		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
+		return utc;
 	}
 
-//	public float parseSoundDateTime(String input) 
+//	public ZonedDateTime parseSoundDateTime(String input) 
 //	{
 //		String[] parts = input.split(":");
 //
@@ -1324,10 +1329,10 @@ class WMV_Metadata
 //		Calendar c = Calendar.getInstance();
 //		c.set(year, month, day, hour, min, sec);
 //
-//		PVector result = p.p.p.utilities.calculateDateTime(c); // Returns float between 0. and 1. for sunrise/sunset adjusted time
-//		float time = result.y;
-//
-//		return time;
+//	Calendar c = Calendar.getInstance();
+//	c.set(year, month, day, hour, min, sec);
+//	ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
+//	return utc;
 //	}
 	
 //	public int convertKeywordToElevation(String keyword) {

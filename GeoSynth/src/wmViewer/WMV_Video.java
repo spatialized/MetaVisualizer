@@ -2,6 +2,7 @@ package wmViewer;
 
 import processing.video.*;
 
+import java.time.ZonedDateTime;
 //import java.awt.Image;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -70,9 +71,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 	WMV_Video ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, int newCameraModel, int newVideoWidth, 
-			int newVideoHeight, float newBrightness, Calendar newCalendar )
+			int newVideoHeight, float newBrightness, ZonedDateTime newDateTime )
 	{
-		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newCalendar);
+		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
 		p = parent;
 //		name = newName;
@@ -97,10 +98,10 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		focalLength = newFocalLength;
 		cameraModel = newCameraModel;
 
-		if(newCalendar != null)
+		if(newDateTime != null)
 		{
 //			time = new WMV_Time( p.p, newCalendar, getID(), 2 );
-			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), cluster, 2 );		
+			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 2 );		
 			time = p.p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}
 		else

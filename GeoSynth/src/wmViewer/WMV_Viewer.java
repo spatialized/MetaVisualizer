@@ -1,6 +1,8 @@
 package wmViewer;
 
 import java.io.File;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -3553,10 +3555,13 @@ public class WMV_Viewer
 				
 //				hour = p.p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
 
-				Calendar utc = Calendar.getInstance();
-				utc.set(year, month, day, hour, minute, second);
+//				Calendar utc = Calendar.getInstance();
+//				ZonedDateTime utc = new ZonedDateTime;
+				ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("UTC"));
+
+//				utc.set(year, month, day, hour, minute, second);
 				WMV_Time utcTime = new WMV_Time( p, utc, count, -1, 0 );
-				WMV_Time pacificTime = p.p.utilities.utcToPacificTime(utcTime);
+//				WMV_Time pacificTime = p.p.utilities.utcToPacificTime(utcTime);
 
 				float newX = 0.f, newZ = 0.f, newY = 0.f;
 
@@ -3597,12 +3602,13 @@ public class WMV_Viewer
 
 				PVector newLoc = new PVector(newX, newY, newZ);
 
-				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc, pacificTime);		// GPS track node as a Waypoint
+				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc, utcTime);			// GPS track node as a Waypoint
 				gpsTrack.add(wp);													// Add Waypoint to gpsTrack
 				
 				count++;
 			}
-			PApplet.println("Added "+count+" nodes to gpsTrack...");
+			if(p.p.debug.viewer)
+				PApplet.println("Added "+count+" nodes to gpsTrack...");
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

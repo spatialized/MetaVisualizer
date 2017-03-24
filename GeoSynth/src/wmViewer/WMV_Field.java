@@ -1151,23 +1151,26 @@ public class WMV_Field
 	
 	public WMV_TimeSegment getCurrentFieldTimeSegment(int date)
 	{
-		int goal = p.viewer.currentFieldTimeSegment;
+		return getFieldTimeSegmentFromID( p.viewer.currentFieldTimeSegment, date );
+	}
+
+	public WMV_TimeSegment getFieldTimeSegmentFromID(int id, int date)
+	{
 		if(dateline.size() == 1)
 		{
-			return timeline.get(goal);
+			return timeline.get(id);
 		}
 		else if(dateline.size() > 1)
 		{
-			WMV_TimeSegment goalTS = timeline.get(goal);
+			WMV_TimeSegment goalTS = timeline.get(id);
 			if(date == -1)
 			{
 				for(ArrayList<WMV_TimeSegment> ts : timelines)
 				{
 					for(WMV_TimeSegment t:ts)
 					{
-//						if(t.getID()==goalTS.getID())
-							if(t.getClusterID()==goalTS.getClusterID())
-								return t;
+						if(t.getClusterID()==goalTS.getClusterID())
+							return t;
 					}
 				}
 			}
@@ -1176,19 +1179,49 @@ public class WMV_Field
 				if(date < timelines.size())
 				{
 					ArrayList<WMV_TimeSegment> ts = timelines.get(date);
-//					int count = 0;
 
 					for(WMV_TimeSegment t:ts)
 					{
-//						if(t.getID()==goalTS.getID())
-							if(t.getClusterID()==goalTS.getClusterID())
-								return t;
+						if(t.getClusterID()==goalTS.getClusterID())
+							return t;
 					}
 				}
 			}
 		}
-//		PApplet.println("NOT FOUND");
+
 		return null;
+	}
+
+
+	public int getFieldTimeSegmentID(WMV_TimeSegment goal)
+	{
+		if(dateline.size() == 1)
+		{
+			return goal.getID();
+		}
+		else if(dateline.size() > 1)
+		{
+//			WMV_TimeSegment goalTS = timeline.get(goal.getID());
+//			for(ArrayList<WMV_TimeSegment> ts : timelines)
+//			{
+//				for(WMV_TimeSegment t:ts)
+//				{
+//					if(t.getClusterID()==goalTS.getClusterID())
+//						return t.getID();
+//				}
+//			}
+			
+			for(WMV_TimeSegment t : timeline)
+			{
+				if(goal.getClusterID() == t.getClusterID())
+				{
+					if(goal.getLower() == t.getLower() && goal.getUpper() == t.getUpper() && goal.timeline.size() == t.timeline.size())
+						return t.getID();
+				}
+			}
+		}
+
+		return -1;
 	}
 
 	/**

@@ -462,7 +462,7 @@ public class WMV_Viewer
 
 		if(teleport)
 		{
-			teleportToCluster(nearest, true);
+			teleportToCluster(nearest, true, -1);
 		}
 		else
 		{
@@ -489,7 +489,7 @@ public class WMV_Viewer
 
 			if(teleport)							
 			{
-				teleportToCluster(ahead, true);
+				teleportToCluster(ahead, true, -1);
 			}
 			else
 			{
@@ -656,7 +656,7 @@ public class WMV_Viewer
 		{
 			if(teleport)		/* Teleport or move */
 			{
-				teleportToCluster(next, true);
+				teleportToCluster(next, true, -1);
 			}
 			else
 			{
@@ -694,7 +694,7 @@ public class WMV_Viewer
 				timeSegmentTarget = fieldTimeSegment;
 				
 				if(teleport)
-					teleportToCluster(clusterID, true);
+					teleportToCluster(clusterID, true, -1);
 				else
 					setAttractorCluster(clusterID);
 			}
@@ -706,7 +706,7 @@ public class WMV_Viewer
 	 * @param dest Destination cluster ID
 	 * @param fade Fade (true) or jump (false)?
 	 */
-	public void teleportToCluster( int dest, boolean fade ) 
+	public void teleportToCluster( int dest, boolean fade, int fieldTimeSegment ) 
 	{
 		if(dest >= 0 && dest < p.getFieldClusters().size())
 		{
@@ -729,12 +729,13 @@ public class WMV_Viewer
 				else
 				{
 					camera.jump(c.getLocation().x, c.getLocation().y, c.getLocation().z);
-					setCurrentCluster(dest, -1);
+					setCurrentCluster(dest, fieldTimeSegment);
 				}
 			}
 
 		}
-		else if(p.p.debug.cluster || p.p.debug.field || p.p.debug.viewer)
+		else 
+//			if(p.p.debug.cluster || p.p.debug.field || p.p.debug.viewer)
 		{
 			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().clusters.size());
 		}
@@ -1381,7 +1382,7 @@ public class WMV_Viewer
 		if(found)
 		{
 			if(teleport)
-				teleportToCluster(p.getCurrentField().clusters.get(nextCluster).getID(), true);
+				teleportToCluster(p.getCurrentField().clusters.get(nextCluster).getID(), true, -1);
 			else
 				setAttractorCluster(p.getCurrentField().clusters.get(nextCluster).getID());
 		}
@@ -1442,7 +1443,7 @@ public class WMV_Viewer
 				goal = (int) p.p.random(p.getCurrentField().clusters.size());
 			}
 
-			teleportToCluster(goal, true);
+			teleportToCluster(goal, true, -1);
 		}
 		else
 		{
@@ -3832,20 +3833,19 @@ public class WMV_Viewer
 	
 	void setCurrentCluster(int newCluster, int newFieldTimeSegment)
 	{
-		if(newCluster > 0 && newCluster < p.getCurrentField().clusters.size())
+		if(newCluster >= 0 && newCluster < p.getCurrentField().clusters.size())
 		{
 			lastCluster = currentCluster;
-
 			WMV_Cluster c = p.getCurrentCluster();
 
 			if(c != null)
 				c.timeFading = false;
 			
-			if(p.p.debug.viewer)
-				PApplet.println("Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment);
 
 			currentCluster = newCluster;
 			c = p.getCurrentCluster();
+			if(p.p.debug.viewer)
+				PApplet.println("Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment);
 			
 			if(c != null)
 			{

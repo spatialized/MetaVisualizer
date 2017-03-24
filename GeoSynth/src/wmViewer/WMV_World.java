@@ -808,7 +808,7 @@ public class WMV_World
 	public WMV_Cluster getCurrentCluster()
 	{
 		WMV_Cluster c;
-		if(viewer.getCurrentClusterID() > 0 && viewer.getCurrentClusterID() < getCurrentField().clusters.size())
+		if(viewer.getCurrentClusterID() >= 0 && viewer.getCurrentClusterID() < getCurrentField().clusters.size())
 		{
 			c = getCurrentField().clusters.get(viewer.getCurrentClusterID());
 			return c;

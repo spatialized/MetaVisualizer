@@ -1098,11 +1098,11 @@ public class WMV_Map
 					{
 						if(p.p.input.shiftKey)
 						{
-							p.p.viewer.teleportToCluster(selectedCluster, false);
+							p.p.viewer.teleportToCluster(selectedCluster, false, -1);
 						}
 						else
 						{
-							p.p.viewer.teleportToCluster(selectedCluster, true);
+							p.p.viewer.teleportToCluster(selectedCluster, true, -1);
 							p.displayView = 0;
 //							PApplet.println("teleportToCluster... selectedCluster:"+selectedCluster+" currentCluster:"+p.p.viewer.getCurrentClusterID()+" frameCount:"+p.p.p.frameCount);
 						}

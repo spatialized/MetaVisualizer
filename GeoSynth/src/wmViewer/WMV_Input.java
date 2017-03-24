@@ -645,11 +645,11 @@ public class WMV_Input
 				{
 					if(shiftKey)
 					{
-						p.viewer.teleportToCluster(p.display.map2D.getSelectedClusterID(), false);
+						p.viewer.teleportToCluster(p.display.map2D.getSelectedClusterID(), false, -1);
 					}
 					else
 					{
-						p.viewer.teleportToCluster(p.display.map2D.getSelectedClusterID(), true);
+						p.viewer.teleportToCluster(p.display.map2D.getSelectedClusterID(), true, -1);
 						p.display.displayView = 0;
 					}
 				}

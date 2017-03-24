@@ -292,15 +292,15 @@ class WMV_Display
 
 		if(p.viewer.currentFieldTimeSegment >= 0)
 		{
-//			WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.currentFieldTimeSegment);
 			WMV_TimeSegment t = p.getCurrentField().getCurrentFieldTimeSegment(displayDate);
-//			PApplet.println(""+p.p.frameCount+": currentFieldTimeSegment:"+p.viewer.currentFieldTimeSegment);
+			
+			int last = currentSelectableTime;
 			if(t != null)
 				currentSelectableTime = getSelectableTimeIDFromTimeSegment(t);
 			else
 				currentSelectableTime = -1;
 			
-//			if(currentSelectableTime != -1)
+//			if(currentSelectableTime != last && currentSelectableTime != -1)
 //				PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
 		}
 	}
@@ -315,8 +315,8 @@ class WMV_Display
 
 				if(t.getClusterID() == st.getClusterID())
 					return st.getID();
-//				else
-//					PApplet.println("t.getClusterID():"+t.getClusterID()+" != st.getClusterID():"+st.getClusterID());
+				else
+					PApplet.println("t.getClusterID():"+t.getClusterID()+" != st.getClusterID():"+st.getClusterID());
 			}
 		}
 //		PApplet.println("-- NO selectable time found!! --");
@@ -779,7 +779,8 @@ class WMV_Display
 				selectedTime = timeSelected.getID();				// Set to selected
 				selectedCluster = timeSelected.getClusterID();
 
-				if(p.p.debug.time) PApplet.println("Selected time segment:"+selectedTime);
+//				if(p.p.debug.time)
+//					PApplet.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
 				updateTimeline = true;				// Update timeline to show selected segment
 			}
 			else
@@ -794,7 +795,8 @@ class WMV_Display
 				selectedDate = dateSelected.getID();				// Set to selected
 //				selectedCluster = timeSelected.getClusterID();
 						
-				if(p.p.debug.time) PApplet.println("Selected date:"+selectedDate);
+//				if(p.p.debug.time) 
+//					PApplet.println("Selected date:"+selectedDate);
 				updateTimeline = true;				// Update timeline to show selected segment
 			}
 			else
@@ -855,19 +857,23 @@ class WMV_Display
 	
 	public void handleMouseReleased(float mouseX, float mouseY)
 	{
-//		PApplet.println("Display handleMouseReleased");
 		updateTimelineMouse();
 		if(selectedTime != -1)
 		{
 			if(selectedCluster != -1)
 			{
+				PApplet.println("will teleport to selectedCluster:"+selectedCluster+" selectedTime:"+selectedTime+" new field time segment:"+selectableTimes.get(selectedTime).getID());
 				if(!p.input.shiftKey)
 				{
-					p.viewer.teleportToCluster(selectedCluster, true);
+//					p.viewer.teleportToCluster(selectedCluster, true, -1); // selectableTimes.get(selectedTime).getID());
+					p.viewer.teleportToCluster(selectedCluster, true, selectableTimes.get(selectedTime).getTimeSegmentID());
 					p.display.setDisplayView(0);
 				}
 				else
-					p.viewer.teleportToCluster(selectedCluster, false);
+				{
+//					p.viewer.teleportToCluster(selectedCluster, false, -1); //selectableTimes.get(selectedTime).getID());
+					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).getTimeSegmentID());
+				}
 			}
 		}
 		

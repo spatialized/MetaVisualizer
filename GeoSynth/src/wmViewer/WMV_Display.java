@@ -1,18 +1,8 @@
 package wmViewer;
-//import java.awt.Font;
 import java.util.ArrayList;
 
-//import de.fhpotsdam.unfolding.marker.Marker;
-//import g4p_controls.GAlign;
 import g4p_controls.GButton;
 import processing.core.*;
-//import processing.data.IntList;
-//import shapes3d.Box;
-//import shapes3d.Ellipsoid;
-//import shapes3d.S3D;
-//import wmViewer.WMV_Map.SelectableClusterLocation;
-//import shapes3d.Shape3D;
-//import wmViewer.WMV_Map.SelectableClusterLocation;
 
 /***********************************
  * @author davidgordon
@@ -345,14 +335,18 @@ class WMV_Display
 			if(f.dateline.size() == 2)
 				padding = p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) - p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear);
 			else if(f.dateline.size() > 2)
-				padding = p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) - p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear) * 0.33f;
+				padding = (p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) - p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear)) * 0.33f;
 			
 			datelineStart = p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear) - padding;
 			datelineEnd = p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) + padding;
+			
+			createSelectableDates();
+			datelineCreated = true;
 		}
-		
-		createSelectableDates();
-		datelineCreated = true;
+		else
+		{
+			PApplet.println("ERROR no dateline in field!!");
+		}
 	}
 	
 	private void createSelectableTimes()
@@ -786,6 +780,8 @@ class WMV_Display
 				if(p.p.debug.time) PApplet.println("Selected date:"+selectedDate);
 				updateTimeline = true;				// Update timeline to show selected segment
 			}
+			else
+				selectedDate = -1;
 		}
 	}
 	
@@ -1006,23 +1002,23 @@ class WMV_Display
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
-		centerTextXOffset = 0;
-		leftTextXOffset = -p.p.width / 2.f;
-		midLeftTextXOffset = -p.p.width / 3.f;
-		rightTextXOffset = p.p.width / 2.f;
-		midRightTextXOffset = p.p.width / 3.f;
+		centerTextXOffset = p.p.width / 2.f;
+		leftTextXOffset = 0.f;
+		midLeftTextXOffset = p.p.width / 3.f;
+		rightTextXOffset = 0.f;
+		midRightTextXOffset = p.p.width / 1.5f;
 
-		topTextYOffset = -p.p.height / 1.5f;
+		topTextYOffset = -p.p.height / 1.6f;
 		clusterImageXOffset = -p.p.width/ 1.66f;
-		clusterImageYOffset = p.p.height / 3.75f;
+		clusterImageYOffset = p.p.height / 2.f;
 
 		userMessageXOffset = -p.p.width / 2.f;
 		userMessageYOffset = 0;
 
 		metadataYOffset = -p.p.height / 2.f;
 
-		startupMessageXOffset = p.p.width / 2;
-		startupMessageYOffset = p.p.height * 1.2f;
+		startupMessageXOffset = p.p.width / 2.f;
+		startupMessageYOffset = -p.p.height /2.f;
 		
 		map2D = new WMV_Map(this);
 	}
@@ -1032,16 +1028,21 @@ class WMV_Display
 	 */
 	void startHUD()
 	{
+		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.settings.nearClippingDistance, 10000.f);;
 		p.p.camera();
-
-//		float camInitFov = p.viewer.getInitFieldOfView();
-//		p.p.perspective(camInitFov, (float)p.p.width/(float)p.p.height, p.viewer.getNearClippingDistance(), 10000);
-
-//		PVector t = new PVector(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
-//		p.p.translate(t.x, t.y, t.z);
-//		p.p.rotateY(p.viewer.camera.attitude()[0]);
-//		p.p.rotateX(-p.viewer.camera.attitude()[1]);
-//		p.p.rotateZ(p.viewer.camera.attitude()[2]);
+	}
+	
+	/**
+	 * Initialize 2D drawing 
+	 */
+	void start3DHUD()
+	{
+		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.getNearClippingDistance(), 10000);
+		PVector t = new PVector(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
+		p.p.translate(t.x, t.y, t.z);
+		p.p.rotateY(p.viewer.camera.attitude()[0]);
+		p.p.rotateX(-p.viewer.camera.attitude()[1]);
+		p.p.rotateZ(p.viewer.camera.attitude()[2]);
 	}
 
 	/**
@@ -1228,7 +1229,7 @@ class WMV_Display
 	{
 		float yPos = userMessageYOffset - lineWidth;
 
-		startHUD();
+		start3DHUD();
 		p.p.pushMatrix();
 		p.p.fill(0, 0, 255, 255);            								
 		p.p.textSize(smallTextSize);
@@ -1903,6 +1904,7 @@ class WMV_Display
 	public void showAllDates()
 	{
 		displayDate = -1;
+		selectedDate = -1;
 		updateTimeline = true;
 	}
 	

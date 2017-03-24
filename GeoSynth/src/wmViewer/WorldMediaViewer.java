@@ -281,7 +281,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 * Called when mouse is released
 	 */
 	public void mouseReleased() {
-		PApplet.println("released mouseX:"+mouseX+" mouseY:"+mouseY);
+//		PApplet.println("released mouseX:"+mouseX+" mouseY:"+mouseY);
 //		if(world.viewer.mouseNavigation)
 //			world.input.handleMouseReleased(mouseX, mouseY);
 		if(world.display.displayView == 1)

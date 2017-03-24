@@ -676,8 +676,8 @@ public class WMV_Viewer
 	{
 		WMV_Field f = p.getField(fieldID);
 
-//		if(p.p.debug.viewer && p.p.debug.detailed)
-			p.display.message("moveToTimeInField:"+f.timeline.get(fieldTimeSegment).getID()+" f.timeline.size():"+f.timeline.size());
+		if(p.p.debug.viewer && p.p.debug.detailed)
+			p.display.message("moveToTimeSegmentInField:"+f.timeline.get(fieldTimeSegment).getID()+" f.timeline.size():"+f.timeline.size());
 
 		if(f.timeline.size()>0)
 		{

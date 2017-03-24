@@ -15,7 +15,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	
 	private WMV_Time center;			// Center time 	 	  -- Mean or median??
 	private WMV_Time lower, upper;		// Upper and lower bounds of cluster
-	private int id, clusterID;			// Cluster ID
+	private int id, clusterID;			// Time segment ID and cluster ID
 	ArrayList<WMV_Time> timeline;
 	
 	WMV_TimeSegment(int newID, int newClusterID, WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower, ArrayList<WMV_Time> newTimeline)

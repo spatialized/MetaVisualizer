@@ -344,9 +344,6 @@ public class WMV_Map
 				markerManager.addMarker(viewerMarker);
 			}
 
-			
-			
-			
 			/* Clusters */
 			if(mapClusters)
 			{
@@ -386,9 +383,10 @@ public class WMV_Map
 //				}
 			}
 			
-			float fov = PApplet.PI/3.0f;
-			float cameraZ = (p.p.p.height/2.0f) / PApplet.tan(fov/2.0f);
-			p.p.p.perspective(fov, (float)(p.p.p.width)/(float)(p.p.p.height), cameraZ/10.0f, cameraZ*10.0f);
+//			float fov = PApplet.PI/3.0f;
+//			float cameraZ = (p.p.p.height/2.0f) / PApplet.tan(fov/2.0f);
+//			p.p.p.perspective(fov, (float)(p.p.p.width)/(float)(p.p.p.height), cameraZ/10.0f, cameraZ*10.0f);
+			p.p.p.perspective();
 
 //			p.p.p.camera(p.p.p.width/2.0f, p.p.p.height/2.0f, (p.p.p.height/2.0f) / PApplet.tan(PApplet.PI*0.1875f), p.p.p.width/2.0f, p.p.p.height/2.0f, 0, 0, 1, 0);			// Works with OCD 
 			

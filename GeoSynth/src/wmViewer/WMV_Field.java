@@ -1034,7 +1034,7 @@ public class WMV_Field
 
 		for(WMV_TimeSegment t : timeline)
 		{
-			WMV_Waypoint w = clusters.get(t.getID()).getClusterAsWaypoint();
+			WMV_Waypoint w = clusters.get(t.getClusterID()).getClusterAsWaypoint();
 			timelinePath.add(w);
 		}
 		

@@ -8,7 +8,7 @@ import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.data.IntList;
 import toxi.math.ScaleMap;
-import shapes3d.*;
+//import shapes3d.*;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.data.MarkerFactory;
@@ -43,7 +43,7 @@ public class WMV_Map
 	
 	/* Interaction */
 	private int selectedCluster = -1;
-	private ArrayList<Ellipsoid> selectableClusters;
+//	private ArrayList<Ellipsoid> selectableClusters;
 	private IntList selectableClusterIDs;
 	private ArrayList<SelectableClusterLocation> selectableClusterLocations;
 	int mousePressedFrame = -1;
@@ -237,13 +237,13 @@ public class WMV_Map
 	}
 	
 	/**
-	 * Create selectable circle representing each cluster
+	 * Create selectable circle representing each cluster		// -- BROKEN
 	 * @param mapWidth
 	 * @param mapHeight
 	 */
 	public void createSelectableClusters(float mapWidth, float mapHeight)
 	{
-		selectableClusters = new ArrayList<Ellipsoid>();
+//		selectableClusters = new ArrayList<Ellipsoid>();
 		selectableClusterIDs = new IntList();
 		selectableClusterLocations = new ArrayList<SelectableClusterLocation>();
 		
@@ -254,24 +254,23 @@ public class WMV_Map
 				PVector mapLoc = getMapLocation(c.getLocation(), mapWidth, mapHeight);
 				if( pointIsVisible(mapLoc, true) )
 				{
-					Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 4, 4);
-//					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f * mapDistance;
+//					Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 4, 4);
 					float radius = PApplet.sqrt(c.mediaCount) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
 
-					ellipsoid.setRadius(radius);
-					ellipsoid.drawMode(S3D.SOLID);
-					ellipsoid.fill(p.p.p.color(105.f, 225.f, 200.f, mediaTransparency));
-					ellipsoid.fill(p.p.p.color(105.f, 225.f, 200.f, 255.f));
-					ellipsoid.strokeWeight(0.f);
+//					ellipsoid.setRadius(radius);
+//					ellipsoid.drawMode(S3D.SOLID);
+//					ellipsoid.fill(p.p.p.color(105.f, 225.f, 200.f, mediaTransparency));
+//					ellipsoid.fill(p.p.p.color(105.f, 225.f, 200.f, 255.f));
+//					ellipsoid.strokeWeight(0.f);
 
 					mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
 					mapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
-					ellipsoid.moveTo(mapLoc.x, mapLoc.y, mapLoc.z);
+//					ellipsoid.moveTo(mapLoc.x, mapLoc.y, mapLoc.z);
 					
 					SelectableClusterLocation scl = new SelectableClusterLocation(c.getID(), mapLoc);
 					
-					ellipsoid.tagNo = c.getID();
-					selectableClusters.add(ellipsoid);
+//					ellipsoid.tagNo = c.getID();
+//					selectableClusters.add(ellipsoid);
 					selectableClusterIDs.append(c.getID());
 					selectableClusterLocations.add(scl);
 				}
@@ -305,10 +304,10 @@ public class WMV_Map
 	 */
 	void drawSelectableClusters()
 	{
-		p.p.p.pushMatrix();
-		for(Ellipsoid e : selectableClusters)
-			e.draw();
-		p.p.p.popMatrix();
+//		p.p.p.pushMatrix();
+//		for(Ellipsoid e : selectableClusters)
+//			e.draw();
+//		p.p.p.popMatrix();
 	}
 	
 	/**
@@ -319,7 +318,7 @@ public class WMV_Map
 		if(mediaOnly)							// Draw media map markers only (offline)
 		{
 			p.p.p.pushMatrix();
-			p.beginHUD();											
+			p.startHUD();											
 
 			p.p.p.fill(55, 0, 255, 255);
 			p.p.p.textSize(p.veryLargeTextSize);
@@ -414,7 +413,7 @@ public class WMV_Map
 				createSelectableClusters(mapWidth, mapHeight);
 		}
 		
-		p.beginHUD();
+		p.startHUD();
 
 		/* Media */
 //		if(!scrollTransition && !zoomToRectangleTransition && !p.p.interactive)
@@ -1034,58 +1033,58 @@ public class WMV_Map
 		}
 		else
 		{
-			Shape3D itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
+//			Shape3D itemSelected = Shape3D.pickShape(p.p.p, p.p.p.mouseX, p.p.p.mouseY);
 
-			int clusterID = -1;
-
-			if(itemSelected == null)
-			{
-				selectedCluster = -1;
-			}
-			else
-			{
-				clusterID = itemSelected.tagNo;
-				if(clusterID >= 0 && clusterID < p.p.getCurrentField().clusters.size())
-				{
-					if(clusterID != selectedCluster)
-					{
-						selectedCluster = clusterID;
-
-						if(p.p.p.debug.map) 
-							PApplet.println("Selected new cluster:"+selectedCluster);
-
-						PVector itemSelectedLoc = new PVector(itemSelected.x(), itemSelected.y(), itemSelected.z());
-						for(SelectableClusterLocation scl : selectableClusterLocations)
-						{
-							if(scl.id == clusterID)
-							{
-								if(!scl.location.equals(itemSelectedLoc))
-								{
-									selectableClustersCreated = false;							// Fix potential bug in Shape3D library
-									selectedCluster = -1;
-									createSelectableClusters(curMapWidth, curMapHeight);
-
-//									for(SelectableClusterLocation sclTest : selectableClusterLocations)
-//									{
-//										if(sclTest.location.equals(itemSelectedLoc))
-//										{
-//											selectedCluster = sclTest.id;				// -- Needed?
-//											{
-//												PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
-//												WMV_Cluster c = p.p.getCluster(clusterID); 
-//												PVector clusterMapLoc = getMapLocation(c.getLocation(), curMapWidth, curMapHeight);
-//												clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
-//												clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
-//												PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
-//											}
-//										}
-//									}
-								}
-							}
-						}
-					}
-				}
-			}
+//			int clusterID = -1;
+//
+//			if(itemSelected == null)
+//			{
+//				selectedCluster = -1;
+//			}
+//			else
+//			{
+//				clusterID = itemSelected.tagNo;
+//				if(clusterID >= 0 && clusterID < p.p.getCurrentField().clusters.size())
+//				{
+//					if(clusterID != selectedCluster)
+//					{
+//						selectedCluster = clusterID;
+//
+//						if(p.p.p.debug.map) 
+//							PApplet.println("Selected new cluster:"+selectedCluster);
+//
+//						PVector itemSelectedLoc = new PVector(itemSelected.x(), itemSelected.y(), itemSelected.z());
+//						for(SelectableClusterLocation scl : selectableClusterLocations)
+//						{
+//							if(scl.id == clusterID)
+//							{
+//								if(!scl.location.equals(itemSelectedLoc))
+//								{
+//									selectableClustersCreated = false;							// Fix potential bug in Shape3D library
+//									selectedCluster = -1;
+//									createSelectableClusters(curMapWidth, curMapHeight);
+//
+////									for(SelectableClusterLocation sclTest : selectableClusterLocations)
+////									{
+////										if(sclTest.location.equals(itemSelectedLoc))
+////										{
+////											selectedCluster = sclTest.id;				// -- Needed?
+////											{
+////												PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
+////												WMV_Cluster c = p.p.getCluster(clusterID); 
+////												PVector clusterMapLoc = getMapLocation(c.getLocation(), curMapWidth, curMapHeight);
+////												clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
+////												clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
+////												PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
+////											}
+////										}
+////									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
 		}
 	}
 	

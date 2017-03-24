@@ -13,7 +13,7 @@ import processing.core.PVector;
  */
 public class WMV_Time implements Comparable<WMV_Time>
 {
-	private int id, mediaType;
+	private int id, clusterID, mediaType;
 	private int year, month, day, hour, minute, second, millisecond;
 //	private float dayLength;
 	private float time;
@@ -21,11 +21,13 @@ public class WMV_Time implements Comparable<WMV_Time>
 	
 	private WMV_World p;
 	
-	WMV_Time(WMV_World parent, Calendar newCalendar, int newID, int newMediaType)
+	WMV_Time(WMV_World parent, Calendar newCalendar, int newID, int newClusterID, int newMediaType)
 	{
 		p = parent;
 		calendar = newCalendar;
 		id = newID;
+		clusterID = newClusterID;
+		
 		mediaType = newMediaType;									// 0: image 1: panorama 2: video 3: sound
 		
 		year = newCalendar.get(Calendar.YEAR);
@@ -77,6 +79,11 @@ public class WMV_Time implements Comparable<WMV_Time>
 	public int getID()
 	{
 		return id;
+	}
+	
+	public int getClusterID()
+	{
+		return clusterID;
 	}
 	
 	public int getMediaType()

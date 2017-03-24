@@ -3555,7 +3555,7 @@ public class WMV_Viewer
 
 				Calendar utc = Calendar.getInstance();
 				utc.set(year, month, day, hour, minute, second);
-				WMV_Time utcTime = new WMV_Time( p, utc, count, 0 );
+				WMV_Time utcTime = new WMV_Time( p, utc, count, -1, 0 );
 				WMV_Time pacificTime = p.p.utilities.utcToPacificTime(utcTime);
 
 				float newX = 0.f, newZ = 0.f, newY = 0.f;

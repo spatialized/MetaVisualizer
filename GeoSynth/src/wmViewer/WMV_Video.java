@@ -100,7 +100,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(newCalendar != null)
 		{
 //			time = new WMV_Time( p.p, newCalendar, getID(), 2 );
-			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), 2 );		
+			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), cluster, 2 );		
 			time = p.p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}
 		else

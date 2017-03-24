@@ -87,7 +87,7 @@ class WMV_Image extends WMV_Viewable
 		if(newCalendar != null)
 		{
 //			time = new WMV_Time( p.p, newCalendar, getID(), 0 );
-			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), 0 );		
+			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), cluster, 0 );		
 			time = p.p.p.utilities.utcToPacificTime(utcTime);								// Convert from UTC Time
 		}
 		else

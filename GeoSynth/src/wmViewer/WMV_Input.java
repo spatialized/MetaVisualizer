@@ -699,6 +699,10 @@ public class WMV_Input
 			}
 			else if(p.display.displayView == 3)					/* Time View */
 			{
+				if (key == 'r')									// Zoom out to whole timeline
+				{
+					p.display.resetZoom();
+				}
 				if (key == 'z')									// Timeline zoom to fit
 				{
 					p.display.zoomTimelineToFit();

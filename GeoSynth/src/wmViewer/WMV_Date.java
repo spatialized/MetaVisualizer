@@ -23,9 +23,18 @@ public class WMV_Date implements Comparable<WMV_Date>
 	{
 		p = parent;
 		id = newID;
-
+		
 		year = newCalendar.get(Calendar.YEAR);
 		month = newCalendar.get(Calendar.MONTH);
+		
+		if(month == 0)
+		{
+//			PApplet.println("Corrected Month == 0... year:"+newCalendar.get(Calendar.YEAR)+" month:"+newCalendar.get(Calendar.MONTH)+" day:"+newCalendar.get(Calendar.DAY_OF_MONTH));
+			year --;
+			month = 12;
+//			PApplet.println("year:"+year+" month:"+month);
+		}
+		
 		day = newCalendar.get(Calendar.DAY_OF_MONTH);
 		date = new PVector (month, day, year);
 		
@@ -84,15 +93,9 @@ public class WMV_Date implements Comparable<WMV_Date>
 	 **/
 	private void calculateDaysSince1980()
 	{
-		int daysInMonth = 0, daysCount = 0;
-		for (int i = 1; i < month; i++) 				// Find number of days in prior months
-		{
-			daysInMonth = p.p.utilities.getDaysInMonth(i, year);		// Get days in month
-			daysCount += daysInMonth;
-		}
-
-		int startYear = 1980;							
-		days = (year - startYear) * 365 + daysCount + day; 		
+		days = p.p.utilities.getDaysSince1980(day, month, year);
+//		if(days > 13569)
+//			PApplet.println("days:"+days+" day:"+day+" month"+month+" year:"+year);
 	}
 
 	/**
@@ -181,6 +184,11 @@ public class WMV_Date implements Comparable<WMV_Date>
 	    public int hashCode() {
 	        return Objects.hash(days, day, month, year);
 	    }
+
+//		public int getClusterID() {
+//			// TODO Auto-generated method stub
+//			return 0;
+//		}
 	    
 //	@Override
 //    public int hashCode() {

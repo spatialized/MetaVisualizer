@@ -45,7 +45,7 @@ public class WMV_Sound extends WMV_Viewable
 		
 		if(newCalendar != null)
 		{
-			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), 3 );		
+			WMV_Time utcTime = new WMV_Time( p.p, newCalendar, getID(), cluster, 3 );		
 			time = p.p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}
 		else

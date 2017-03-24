@@ -1,7 +1,13 @@
 package wmViewer;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Scanner;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
@@ -65,6 +71,56 @@ public class WMV_Utilities
 		return result;
 	}
 
+	public int getCurrentDateInDaysSince1980()
+	{
+		ZonedDateTime now = ZonedDateTime.now(ZoneId.of("America/Los_Angeles"));
+		int year = now.getYear();
+		int month = now.getMonthValue();
+		int day = now.getDayOfMonth();
+		
+		Calendar calendar = Calendar.getInstance();
+//		int year = calendar.get(Calendar.YEAR);
+//		int month = calendar.get(Calendar.MONTH);
+//		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int days = getDaysSince1980(day, month, year);
+		
+//		if(p.p.debug.time)
+//		PApplet.println("--------days:"+days+" day:"+day+" month"+month+" year:"+year);
+
+		return days;
+	}
+	
+	/** 
+	 * Calculate date as # of days from 1980 
+	 **/
+	public int getDaysSince1980(int day, int month, int year)
+	{
+		ZonedDateTime date1980 = ZonedDateTime.parse("1980-01-01T00:00:00+00:00[America/Los_Angeles]");
+//		PApplet.println("getDaysSince1980 day:"+day+" month:"+month);
+		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of("America/Los_Angeles"));
+		Duration duration = Duration.between(date1980, date);
+		
+		if(p.p.debug.time)
+		{
+			System.out.println("Days: " + (int)duration.toDays());
+			System.out.println("  ISO-8601: " + duration);
+		}		
+		
+		/* Old method */
+//		int daysInMonth = 0, daysCount = 0;
+//		for (int i = 1; i < month; i++) 				// Find number of days in prior months
+//		{
+//			daysInMonth = p.p.utilities.getDaysInMonth(i, year);		// Get days in month
+//			daysCount += daysInMonth;
+//		}
+//
+//		int startYear = 1980;							
+//		int days = (year - startYear) * 365 + daysCount + day; 	
+//		return days;
+		
+		return (int)duration.toDays();
+	}
+	
 	/**
 	 * Get distance in radians between two angles
 	 * @param theta1 First angle
@@ -178,8 +234,7 @@ public class WMV_Utilities
 		calendar.set(year, month, day, hour, time.getMinute(), time.getSecond());
 		calendar.set(Calendar.MILLISECOND, time.getMillisecond());
 		
-		WMV_Time result = new WMV_Time( p, calendar, time.getID(), time.getMediaType() );
-
+		WMV_Time result = new WMV_Time( p, calendar, time.getID(), time.getClusterID(), time.getMediaType() );
 		return result;
 	}
 

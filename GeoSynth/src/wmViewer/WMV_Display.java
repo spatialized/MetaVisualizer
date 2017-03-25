@@ -104,7 +104,7 @@ class WMV_Display
 
 		topTextYOffset = -p.p.height / 1.6f;
 		clusterImageXOffset = -p.p.width/ 1.66f;
-		clusterImageYOffset = p.p.height / 2.f;
+		clusterImageYOffset = p.p.height;
 
 		userMessageXOffset = -p.p.width / 2.f;
 		userMessageYOffset = 0;
@@ -258,7 +258,7 @@ class WMV_Display
 			if(f.dateline.size() > 0)
 			{
 				int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
-				p.p.text(" Current Field Date: "+ fieldDate+" of "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidthWide, hudDistance);
+				p.p.text(" Current Field Date: "+ (fieldDate+1)+" of "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidthWide, hudDistance);
 				if(displayDate == -1)
 					p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment()+"  of "+ p.getCurrentField().timeline.size() +" in Main Timeline", xPos, yPos += lineWidth, hudDistance);
 				else
@@ -280,9 +280,9 @@ class WMV_Display
 				if(c.dateline.size() > 0)
 				{
 					int clusterDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
-					p.p.text(" Current Cluster Date: "+ clusterDate +" of "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+					p.p.text(" Current Cluster Date: "+ (clusterDate+1) +" of "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
 					if(displayDate == -1)
-						p.p.text(" Current Cluster Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.timeline.size() +" in Main Cluster Timeline", xPos, yPos += lineWidth, hudDistance);
+						p.p.text(" Current Cluster Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.timeline.size() +" in Cluster Main Timeline", xPos, yPos += lineWidth, hudDistance);
 					else
 					{
 						if(c.timelines.size() > clusterDate)
@@ -1804,7 +1804,7 @@ class WMV_Display
 			
 			imgXPos += width * 1.5f;
 
-			if(count % 14 == 0)
+			if(count % 28 == 0)
 			{
 				imgXPos = clusterImageXOffset;
 				imgYPos += height * 1.5f;

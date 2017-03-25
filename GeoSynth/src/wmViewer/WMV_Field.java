@@ -901,10 +901,20 @@ public class WMV_Field
 //					t.setID(count);
 					t.setFieldDateID(ct);
 					t.setFieldTimelinesID(count);
+
+					for(WMV_TimeSegment fieldTime : timeline)		 
+					{
+						if(t.getClusterID() == fieldTime.getClusterID() && t.getFieldTimelineID() == fieldTime.getFieldTimelineID())
+						{
+							fieldTime.setFieldDateID(ct);
+							fieldTime.setFieldTimelinesID(count);
+						}
+					}
+					
 					count++;
 				}
 				timelines.add( newTimeline );		// Calculate and add timeline to list
-				PApplet.println("Added timeline #"+ct+" for field #"+fieldID+" with "+newTimeline.size()+" segments...");
+//				PApplet.println("Added timeline #"+ct+" for field #"+fieldID+" with "+newTimeline.size()+" segments...");
 			}
 			else
 				PApplet.println("No timeline #"+ct+" for field #"+fieldID);

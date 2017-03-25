@@ -146,7 +146,7 @@ class WMV_Image extends WMV_Viewable
 		}
 
 		if(visible && p.p.showModel && !hidden && !disabled)
-			drawLocation(centerSize);
+			drawLocation();
 	}
 
 	private PImage applyMask(PImage source, PImage mask)
@@ -173,6 +173,65 @@ class WMV_Image extends WMV_Viewable
 		return result;
 	}
 	
+	/**
+	 * @param size Size to draw the video center
+	 * Draw the video center as a colored sphere
+	 */
+	void drawLocation()
+	{
+		/* Draw frame */
+		p.p.p.pushMatrix();
+//		p.p.p.translate(location.x, location.y, location.z);
+
+		p.p.p.stroke(0.f, 0.f, 255.f, 155.f);
+		p.p.p.strokeWeight(2.f);
+		
+		p.p.p.line(vertices[0].x, vertices[0].y, vertices[0].z, vertices[1].x, vertices[1].y, vertices[1].z);
+		p.p.p.line(vertices[1].x, vertices[1].y, vertices[1].z, vertices[2].x, vertices[2].y, vertices[2].z);
+		p.p.p.line(vertices[2].x, vertices[2].y, vertices[2].z, vertices[3].x, vertices[3].y, vertices[3].z);
+		p.p.p.line(vertices[3].x, vertices[3].y, vertices[3].z, vertices[0].x, vertices[0].y, vertices[0].z);
+		
+		PVector c = p.p.getCluster(cluster).getLocation();
+		PVector loc = location;
+		PVector cl = getCaptureLocation();
+		p.p.p.popMatrix();
+		
+		/* Point only */
+//		p.p.p.pushMatrix();
+//		p.p.p.translate(location.x, location.y, location.z);
+//
+//		p.p.p.fill(150, 0, 255, 150);
+//		p.p.p.sphere(size);
+//		PVector c = p.p.getCluster(cluster).getLocation();
+//		PVector loc = location;
+//		PVector cl = getCaptureLocation();
+//		p.p.p.popMatrix();
+
+		p.p.p.pushMatrix();
+		if(p.p.showMediaToCluster)
+		{
+			p.p.p.strokeWeight(5.f);
+			p.p.p.stroke(40, 155, 255, 180);
+			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+		}
+
+		if(p.p.showCaptureToMedia)
+		{
+			p.p.p.strokeWeight(2.f);
+			p.p.p.stroke(160, 100, 255, 120);
+			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+		}
+
+		if(p.p.showCaptureToCluster)
+		{
+			p.p.p.strokeWeight(3.f);
+			p.p.p.stroke(100, 55, 255, 180);
+			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+		}
+
+		p.p.p.popMatrix();
+	}
+
 	/**
 	 * Fade in image
 	 */

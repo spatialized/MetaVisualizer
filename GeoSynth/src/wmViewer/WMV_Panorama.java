@@ -175,11 +175,52 @@ public class WMV_Panorama extends WMV_Viewable
 		}
 
 		if (visible && isSelected() && !disabled && p.p.p.debug.model)		// Draw panorama location for debugging or map display
-			drawLocation(centerSize);
+			drawLocation();
 		if (visible && !disabled && p.p.viewer.settings.map3DMode)
-			drawLocation(centerSize);
+			drawLocation();
 	}
 
+	/**
+	 * @param size Size to draw the panorama center
+	 * Draw the video center as a colored sphere
+	 */
+	void drawLocation()
+	{
+		p.p.p.pushMatrix();
+		p.p.p.translate(location.x, location.y, location.z);
+
+		p.p.p.fill(150, 0, 255, 150);
+		p.p.p.sphere(centerSize);
+		PVector c = p.p.getCluster(cluster).getLocation();
+		PVector loc = location;
+		PVector cl = getCaptureLocation();
+		p.p.p.popMatrix();
+
+		p.p.p.pushMatrix();
+		if(p.p.showMediaToCluster)
+		{
+			p.p.p.strokeWeight(5.f);
+			p.p.p.stroke(40, 155, 255, 180);
+			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+		}
+
+		if(p.p.showCaptureToMedia)
+		{
+			p.p.p.strokeWeight(2.f);
+			p.p.p.stroke(160, 100, 255, 120);
+			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+		}
+
+		if(p.p.showCaptureToCluster)
+		{
+			p.p.p.strokeWeight(3.f);
+			p.p.p.stroke(100, 55, 255, 180);
+			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+		}
+
+		p.p.p.popMatrix();
+	}
+	
 	/**
 	 * Fade in panorama
 	 */

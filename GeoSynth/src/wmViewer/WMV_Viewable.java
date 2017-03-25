@@ -97,7 +97,8 @@ public abstract class WMV_Viewable
 	abstract void draw();
 	abstract void displayMetadata();
 	abstract void loadMedia();
-
+	abstract void drawLocation();
+	
 	/**
 	 * Set clusterDate for this media based on media times in associated cluster
 	 */
@@ -196,46 +197,46 @@ public abstract class WMV_Viewable
 		//			initFading = false;
 	}
 
-	/**
-	 * @param size Size to draw the video center
-	 * Draw the video center as a colored sphere
-	 */
-	void drawLocation(float size)
-	{
-		p.p.p.pushMatrix();
-		p.p.p.translate(location.x, location.y, location.z);
-
-		p.p.p.fill(150, 0, 255, 150);
-		p.p.p.sphere(size);
-		PVector c = p.p.getCluster(cluster).getLocation();
-		PVector loc = location;
-		PVector cl = getCaptureLocation();
-		p.p.p.popMatrix();
-
-		p.p.p.pushMatrix();
-		if(p.p.showMediaToCluster)
-		{
-			p.p.p.strokeWeight(5.f);
-			p.p.p.stroke(40, 155, 255, 180);
-			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
-		}
-
-		if(p.p.showCaptureToMedia)
-		{
-			p.p.p.strokeWeight(2.f);
-			p.p.p.stroke(160, 100, 255, 120);
-			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
-		}
-
-		if(p.p.showCaptureToCluster)
-		{
-			p.p.p.strokeWeight(3.f);
-			p.p.p.stroke(100, 55, 255, 180);
-			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
-		}
-
-		p.p.p.popMatrix();
-	}
+//	/**
+//	 * @param size Size to draw the video center
+//	 * Draw the video center as a colored sphere
+//	 */
+//	void drawLocation(float size)
+//	{
+//		p.p.p.pushMatrix();
+//		p.p.p.translate(location.x, location.y, location.z);
+//
+//		p.p.p.fill(150, 0, 255, 150);
+//		p.p.p.sphere(size);
+//		PVector c = p.p.getCluster(cluster).getLocation();
+//		PVector loc = location;
+//		PVector cl = getCaptureLocation();
+//		p.p.p.popMatrix();
+//
+//		p.p.p.pushMatrix();
+//		if(p.p.showMediaToCluster)
+//		{
+//			p.p.p.strokeWeight(5.f);
+//			p.p.p.stroke(40, 155, 255, 180);
+//			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+//		}
+//
+//		if(p.p.showCaptureToMedia)
+//		{
+//			p.p.p.strokeWeight(2.f);
+//			p.p.p.stroke(160, 100, 255, 120);
+//			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+//		}
+//
+//		if(p.p.showCaptureToCluster)
+//		{
+//			p.p.p.strokeWeight(3.f);
+//			p.p.p.stroke(100, 55, 255, 180);
+//			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+//		}
+//
+//		p.p.p.popMatrix();
+//	}
 
 	/**
 	 * @return Distance from the image capture location to the camera

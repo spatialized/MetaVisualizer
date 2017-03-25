@@ -915,7 +915,7 @@ public class WMV_Viewer
 	 */
 	void moveToNextTimeSegment(boolean currentDate, boolean teleport, boolean fade)
 	{
-		if(!currentDate)
+		if(currentDate)
 		{
 			int newValue = currentFieldTimelinesSegment+1;
 			if(newValue >= p.getCurrentField().timelines.get(currentFieldDate).size()) 		// Reached end of day
@@ -958,7 +958,7 @@ public class WMV_Viewer
 	 */
 	void moveToPreviousTimeSegment(boolean currentDate, boolean teleport, boolean fade)
 	{
-		if(!currentDate)
+		if(currentDate)
 		{
 			int newValue = currentFieldTimelinesSegment-1;
 			if(newValue < 0) 															// Reached beginning of day

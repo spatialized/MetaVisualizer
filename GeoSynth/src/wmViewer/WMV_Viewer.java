@@ -35,10 +35,12 @@ public class WMV_Viewer
 	WMV_ViewerSettings settings;						// Viewer settings
 
 	/* Time */
+	private int currentFieldTimeSegment = 0;			// Current time segment in field timeline
+	private int currentFieldTimelinesSegment = 0;		// Current time segment in field timelines
 	public int currentFieldDate = 0;					// Current date in field dateline
-	public int currentClusterDate = 0;					// Current date segment in cluster dateline
-	private int currentTimeSegment = 0;				// Current time segment in field timeline
 	public int currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
+	public int currentClusterTimelinesSegment = 0;		// Current time segment in cluster timelines
+	public int currentClusterDate = 0;					// Current date segment in cluster dateline
 	
 	public int currentMedia = -1;						// In Single Time Mode, media index currently visible
 	public int nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
@@ -684,7 +686,7 @@ public class WMV_Viewer
 			int clusterID = f.timeline.get(fieldTimeSegment).getClusterID();
 			if(clusterID == currentCluster && p.getCluster(clusterID).getClusterDistance() < p.settings.clusterCenterSize)	// Moving to different time in same cluster
 			{
-				setCurrentTimeSegment(fieldTimeSegment);
+				setCurrentFieldTimeSegment(fieldTimeSegment);
 //				currentTimeSegment = fieldTimeSegment;
 				if(p.p.debug.viewer && p.p.debug.detailed)
 					p.display.message("Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
@@ -735,11 +737,8 @@ public class WMV_Viewer
 			}
 
 		}
-		else 
-//			if(p.p.debug.cluster || p.p.debug.field || p.p.debug.viewer)
-		{
+		else if(p.p.debug.cluster || p.p.debug.field || p.p.debug.viewer)
 			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().clusters.size());
-		}
 	}
 
 	/**
@@ -918,44 +917,38 @@ public class WMV_Viewer
 	{
 		if(!currentDate)
 		{
-			boolean found = false;
-//			currentTimeSegment++;
-			setCurrentTimeSegment(currentTimeSegment+1);
-			while(!found)
+			int newValue = currentFieldTimelinesSegment+1;
+			if(newValue >= p.getCurrentField().timelines.get(currentFieldDate).size()) 		// Reached end of day
 			{
-				if(currentTimeSegment >= p.getCurrentField().timeline.size()) 		// Reached end of day
+				if(p.p.debug.viewer) PApplet.println("Reached end of day...");
+				currentFieldDate++;
+				if(currentFieldDate >= p.getCurrentField().dateline.size()) 
 				{
-					PApplet.println("Reached end of day...");
-					currentFieldDate++;
-					if(currentFieldDate >= p.getCurrentField().dateline.size()) 
-					{
-						PApplet.println("Reached end of year...");
-						currentFieldDate = 0;
-						setCurrentTimeSegment(0);									// Return to first segment
-//						currentTimeSegment = 0;
-						found = true;
-					}
-					else
-					{
-						PApplet.println("Looking in next date:"+currentFieldDate);
-						setCurrentTimeSegment(0);									// Start at first segment
-//						currentTimeSegment = 0;		
+					if(p.p.debug.viewer) PApplet.println("Reached end of year...");
+					currentFieldDate = 0;
+					setCurrentFieldTimelinesSegment(0);									// Return to first segment
 				}
+				else
+				{
+					if(p.p.debug.viewer) PApplet.println("Moved to next date: "+currentFieldDate);
+					setCurrentFieldTimelinesSegment(0);									// Start at first segment
 				}
+			}
+			else
+			{
+				setCurrentFieldTimelinesSegment(newValue);
 			}
 		}
 		else
 		{
-//			currentTimeSegment++;
-			setCurrentTimeSegment(currentTimeSegment+1);
-			if(currentTimeSegment >= p.getCurrentField().timeline.size())
+			setCurrentFieldTimeSegment(currentFieldTimeSegment+1);
+			if(currentFieldTimeSegment >= p.getCurrentField().timeline.size())
 			{
-				setCurrentTimeSegment(0);									// Return to first segment
-//				currentTimeSegment = 0;
+				setCurrentFieldTimeSegment(0);									// Return to first segment
 			}
 		}
 
-		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentTimeSegment, teleport, fade);
+		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport, fade);
 	}
 	
 	/**
@@ -967,36 +960,35 @@ public class WMV_Viewer
 	{
 		if(!currentDate)
 		{
-//			currentTimeSegment--;
-			setCurrentTimeSegment(currentTimeSegment-1);
-			if(currentTimeSegment < 0) 		// Reached beginning of day
+			int newValue = currentFieldTimelinesSegment-1;
+			if(newValue < 0) 															// Reached beginning of day
 			{
 				currentFieldDate--;
 				if(currentFieldDate < 0) 
 				{
 					currentFieldDate = p.getCurrentField().dateline.size()-1;			// Go to last date
-					setCurrentTimeSegment(p.getCurrentField().timeline.size()-1);		// Go to last segment
-//					currentTimeSegment = p.getCurrentField().timeline.size()-1;		
+					setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1);		// Go to last segment
 				}
 				else
 				{
-//					currentTimeSegment = p.getCurrentField().timeline.size()-1;		
-					setCurrentTimeSegment(p.getCurrentField().timeline.size()-1);		// Start at last segment
+					setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1);		// Start at last segment
 				}
-			}			
+			}	
+			else
+			{
+				setCurrentFieldTimelinesSegment(newValue);
+			}
 		}
 		else
 		{
-//			currentTimeSegment--;
-			setCurrentTimeSegment(currentTimeSegment-1);
-			if(currentTimeSegment < 0)
+			setCurrentFieldTimeSegment(currentFieldTimeSegment-1);
+			if(currentFieldTimeSegment < 0)
 			{
-//				currentTimeSegment = p.getCurrentField().timeline.size()-1;
-				setCurrentTimeSegment(p.getCurrentField().timeline.size()-1);
+				setCurrentFieldTimeSegment(p.getCurrentField().timeline.size()-1);
 			}
 		}
 
-		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentTimeSegment, teleport, fade);
+		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport, fade);
 	}
 
 	/**
@@ -1561,7 +1553,7 @@ public class WMV_Viewer
 		/* Time */
 		currentFieldDate = 0;					// Current date in field dateline
 		currentClusterDate = 0;				// Current date segment in cluster dateline
-		currentTimeSegment = 0;				// Current time segment in field timeline
+		currentFieldTimeSegment = 0;				// Current time segment in field timeline
 		currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
 		
 		/* Memory */
@@ -2190,7 +2182,7 @@ public class WMV_Viewer
 			}
 			
 			if(p.p.debug.viewer)
-				p.display.message("Reached cluster... current:"+currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+currentTimeSegment);
+				p.display.message("Reached cluster... current:"+currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+currentFieldTimeSegment);
 			movingToCluster = false;
 		}
 
@@ -3875,8 +3867,7 @@ public class WMV_Viewer
 						{
 							if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
 							{
-								PApplet.println("SETTING TO FIRST TIME SEGMENT IN CLUSTER #"+c.getID()+" TO:"+t.getFieldTimelineID());
-								setCurrentTimeSegment(t.getFieldTimelineID());
+								setCurrentFieldTimeSegment(t.getFieldTimelineID());
 //								currentTimeSegment = t.getFieldTimelineID();						// If match, set currentFieldTimeSegment
 							}
 						}
@@ -3886,8 +3877,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					PApplet.println("NEW TIME SEGMENT ASSIGNED:"+newFieldTimeSegment);
-					setCurrentTimeSegment(newFieldTimeSegment);
+					setCurrentFieldTimeSegment(newFieldTimeSegment);
 //					currentTimeSegment = newFieldTimeSegment;					// Set currentFieldTimeSegment to given value
 					movingToTimeSegment = false;
 				}
@@ -3907,15 +3897,26 @@ public class WMV_Viewer
 		}
 	}
 
-	public void setCurrentTimeSegment( int newCurrentTimeSegment )
+	public void setCurrentFieldTimeSegment( int newCurrentFieldTimeSegment )
 	{
-		currentTimeSegment = newCurrentTimeSegment;
+		currentFieldTimeSegment = newCurrentFieldTimeSegment;
 		p.display.updateCurrentSelectableTime = true;
 	}
-	
-	public int getCurrentTimeSegment()
+
+	public void setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment )
 	{
-		return currentTimeSegment;
+		currentFieldTimelinesSegment = newCurrentFieldTimelinesSegment;
+		int fieldTimelineID = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimelinesSegment).getFieldTimelineID();
+		setCurrentFieldTimeSegment(fieldTimelineID);
+//		p.display.updateCurrentSelectableTime = true;
+	}
+	
+	/**
+	 * @return Current field time segment
+	 */
+	public int getCurrentFieldTimeSegment()
+	{
+		return currentFieldTimeSegment;
 	}
 	
 	public void startMoveXTransition(int dir)

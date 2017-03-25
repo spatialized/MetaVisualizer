@@ -252,24 +252,44 @@ class WMV_Display
 		p.p.text(""+p.getCurrentField().name, xPos, yPos, hudDistance);
 
 		p.p.textSize(mediumTextSize);
-		p.p.text(" Field #"+ f.fieldID, xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" Total Media: "+ f.getMediaCount(), xPos, yPos += lineWidthWide, hudDistance);
-		if(f.timeline.size() > 0)
-			p.p.text(" Time Segments: "+ f.timeline.size(), xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" Field #"+ f.fieldID+"  of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" Number of Clusters: "+ f.clusters.size(), xPos, yPos += lineWidthWide, hudDistance);
+		p.p.text(" Number of Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
+		
 		if(f.dateline != null)
+		{
 			if(f.dateline.size() > 0)
-				p.p.text(" Dates: "+ f.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+			{
+				int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
+				p.p.text(" Current Field Date: "+ fieldDate+" of "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidthWide, hudDistance);
+				if(displayDate == -1)
+					p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment()+"  of "+ p.getCurrentField().timeline.size() +" in Main Timeline", xPos, yPos += lineWidth, hudDistance);
+				else
+					p.p.text(" Current Field Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelinesID()+"  of "+ p.getCurrentField().timelines.get(fieldDate).size() + " in Timeline #"+fieldDate, xPos, yPos += lineWidth, hudDistance);
+			}
+		}
+
+		p.p.text(" Displaying Date: "+ (displayDate == -1 ? "All" : displayDate), xPos, yPos += lineWidth, hudDistance);
 
 		if(c != null)
 		{
 			p.p.textSize(mediumTextSize);
-			p.p.text(" Current Cluster:"+ c.getID(), xPos, yPos += lineWidthWide, hudDistance);
-			p.p.text(" Current Time Segment:"+ p.viewer.getCurrentTimeSegment(), xPos, yPos += lineWidth, hudDistance);
-//			if(c.timeline.size() > 0)
-//				p.p.text(" Timeline Segments: "+ c.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
-//			if(c.dateline != null)
-//				if(c.dateline.size() > 0)
-//					p.p.text(" Dates: "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+			yPos = timelineYOffset + timelineHeight * 2.f + lineWidthVeryWide;
+			
+			p.p.text(" Current Cluster: "+ c.getID()+" of "+ f.clusters.size(), xPos, yPos, hudDistance);
+
+			if(c.dateline != null)
+			{
+				if(c.dateline.size() > 0)
+				{
+					int clusterDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
+					p.p.text(" Current Cluster Date: "+ clusterDate +" of "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+					if(displayDate == -1)
+						p.p.text(" Current Cluster Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.timeline.size() +" in Main Cluster Timeline", xPos, yPos += lineWidth, hudDistance);
+					else
+						p.p.text(" Current Cluster Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelinesID()+"  of "+ c.timelines.get(clusterDate).size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
+				}
+			}
 		}
 		p.p.popMatrix();
 		
@@ -295,20 +315,17 @@ class WMV_Display
 
 		if(updateCurrentSelectableTime)
 		{
-			if(p.viewer.getCurrentTimeSegment() >= 0)
+			if(p.viewer.getCurrentFieldTimeSegment() >= 0)
 			{
-//				WMV_TimeSegment t = p.getCurrentField().getCurrentFieldTimeSegment(displayDate);
-				WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.getCurrentTimeSegment());		// TESTING
+				WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment());		// TESTING
 
-//				int last = currentSelectableTime;
 				if(t != null)
 					currentSelectableTime = getSelectableTimeIDOfTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
 				else
 					currentSelectableTime = -1;
 
-//				if(currentSelectableTime != last && currentSelectableTime != -1)
-				if(currentSelectableTime != -1)
-					PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
+//				if(currentSelectableTime != -1)
+//					PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
 
 				updateCurrentSelectableTime = false;
 			}
@@ -316,18 +333,21 @@ class WMV_Display
 		}
 	}
 	
+	/** 
+	 * Get associated selectable time segment ID for given time segment
+	 * @param t Given time segment
+	 * @return Selectable time associated
+	 */
 	private int getSelectableTimeIDOfTimeSegment(WMV_TimeSegment t)
 	{
 		for(SelectableTimeSegment st : selectableTimes)
 		{
-//			if(t.equals( st.segment ))
 			if( t.getClusterID() == st.segment.getClusterID() && t.getClusterDateID() == st.segment.getClusterDateID() &&
 				t.getClusterTimelineID() == st.segment.getClusterTimelineID() && t.getFieldTimelineID() == st.segment.getFieldTimelineID() )
 			{
 				return st.getID();
 			}
 		}
-//		PApplet.println("-- NO selectable time found!! --");
 		return -1;
 	}
 
@@ -887,7 +907,12 @@ class WMV_Display
 		if(selectedDate != -1)
 		{
 			displayDate = selectedDate;
+			currentSelectableDate = displayDate;
 			updateTimeline = true;
+		}
+		else
+		{
+//			currentSelectableDate = displayDate;
 		}
 	}
 
@@ -1643,11 +1668,11 @@ class WMV_Display
 			if(p.p.world.getTimeMode() == 1)
 				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().currentTime, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().timeline.size(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Current Time Segment: "+ p.viewer.getCurrentTimeSegment(), xPos, yPos += lineWidth, hudDistance);
-			if(f.timeline.size() > 0 && p.viewer.getCurrentTimeSegment() >= 0 && p.viewer.getCurrentTimeSegment() < f.timeline.size())
-				p.p.text(" Upper: "+f.timeline.get(p.viewer.getCurrentTimeSegment()).getUpper().getTime()
-						+" Center:"+f.timeline.get(p.viewer.getCurrentTimeSegment()).getCenter().getTime()+
-						" Lower: "+f.timeline.get(p.viewer.getCurrentTimeSegment()).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Current Time Segment: "+ p.viewer.getCurrentFieldTimeSegment(), xPos, yPos += lineWidth, hudDistance);
+			if(f.timeline.size() > 0 && p.viewer.getCurrentFieldTimeSegment() >= 0 && p.viewer.getCurrentFieldTimeSegment() < f.timeline.size())
+				p.p.text(" Upper: "+f.timeline.get(p.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()
+						+" Center:"+f.timeline.get(p.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
+						" Lower: "+f.timeline.get(p.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Cluster Timeline Segments: "+ p.getCurrentCluster().timeline.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Field Dateline Segments: "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.textSize(mediumTextSize);

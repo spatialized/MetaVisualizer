@@ -850,7 +850,7 @@ public class WMV_Input
 
 				if (key == 'n')						// Teleport to next time segment on same date
 				{
-					if(p.display.displayView == 1)
+					if(p.display.displayView == 0)
 						p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport, true);
 					else
 						p.viewer.moveToNextTimeSegment(true, true, false);
@@ -858,7 +858,7 @@ public class WMV_Input
 
 				if (key == 'b')						// Teleport to previous time segment on same date
 				{
-					if(p.display.displayView == 1)
+					if(p.display.displayView == 0)
 						p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport, true);
 					else
 						p.viewer.moveToPreviousTimeSegment(true, true, false);
@@ -866,7 +866,7 @@ public class WMV_Input
 
 				if (key == 'N')						// Teleport to next time segment on any date
 				{
-					if(p.display.displayView == 1)
+					if(p.display.displayView == 0)
 						p.viewer.moveToNextTimeSegment(false, p.viewer.movementTeleport, true);
 					else
 						p.viewer.moveToNextTimeSegment(false, true, false);
@@ -874,7 +874,7 @@ public class WMV_Input
 
 				if (key == 'B')						// Teleport to previous time segment on any date
 				{
-					if(p.display.displayView == 1)
+					if(p.display.displayView == 0)
 						p.viewer.moveToPreviousTimeSegment(false, p.viewer.movementTeleport, true);
 					else
 						p.viewer.moveToPreviousTimeSegment(false, true, false);

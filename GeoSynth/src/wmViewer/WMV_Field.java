@@ -1099,7 +1099,7 @@ public class WMV_Field
 	
 	public WMV_TimeSegment getCurrentFieldTimeSegment(int date)
 	{
-		return timeline.get(p.viewer.getCurrentTimeSegment());
+		return timeline.get(p.viewer.getCurrentFieldTimeSegment());
 //		return getFieldTimeSegmentFromID( p.viewer.currentTimeSegment, date );
 	}
 

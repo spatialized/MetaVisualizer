@@ -1196,11 +1196,11 @@ public class WMV_Window {
 			{
 				case 0:
 //					applet.text(" Time Mode: Cluster", x, y += lineWidthVeryWide);
-					if(f.timeline.size() > 0 && p.p.viewer.getCurrentTimeSegment() >= 0 && p.p.viewer.getCurrentTimeSegment() < f.timeline.size())
+					if(f.timeline.size() > 0 && p.p.viewer.getCurrentFieldTimeSegment() >= 0 && p.p.viewer.getCurrentFieldTimeSegment() < f.timeline.size())
 					{
-						applet.text(" Upper: "+f.timeline.get(p.p.viewer.getCurrentTimeSegment()).getUpper().getTime()+
-								" Center:"+f.timeline.get(p.p.viewer.getCurrentTimeSegment()).getCenter().getTime()+
-								" Lower: "+f.timeline.get(p.p.viewer.getCurrentTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
+						applet.text(" Upper: "+f.timeline.get(p.p.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()+
+								" Center:"+f.timeline.get(p.p.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
+								" Lower: "+f.timeline.get(p.p.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
 						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidthWide);
 					}
 					else
@@ -1223,7 +1223,7 @@ public class WMV_Window {
 			}
 			
 //			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
-			applet.text(" Current Field Time Segment: "+ p.p.viewer.getCurrentTimeSegment(), x, y += lineWidthVeryWide);
+			applet.text(" Current Field Time Segment: "+ p.p.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
 			applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().timeline.size(), x, y += lineWidth);
 			applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().dateline.size(), x, y += lineWidth);
 		}

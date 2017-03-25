@@ -562,7 +562,7 @@ public class WMV_Utilities
 //							PApplet.println("Added media time...");
 						}
 						
-						segments.add(new WMV_TimeSegment(-1, clusterID, center, curUpper, curLower, tl));	// Add time segment
+						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));	// Add time segment
 						
 //						tsID++;
 						curLower = t;
@@ -605,7 +605,7 @@ public class WMV_Utilities
 //					PApplet.println("t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
 				}
 				
-				segments.add(new WMV_TimeSegment(-1, clusterID, center, curUpper, curLower, tl));
+				segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));
 			}
 			
 			return segments;			// Return cluster list

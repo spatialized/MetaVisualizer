@@ -15,13 +15,33 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	
 	private WMV_Time center;			// Center time 	 	  -- Mean or median??
 	private WMV_Time lower, upper;		// Upper and lower bounds of cluster
-	private int id, clusterID;			// Time segment ID and cluster ID
+	
+//	private int id, clusterID;			// Time segment ID and cluster ID
+	private int clusterID;			// Time segment ID and cluster ID
+	private int clusterTimelineID;		// ID of segment on cluster single day timeline
+	private int clusterTimelinesID;		// ID within cluster date-specific timelines
+	private int clusterDateID;			// Cluster date-specific timeline for this segment
+	private int fieldTimelineID;		// ID of segment on field single day timeline
+	private int fieldTimelinesID;		// ID within field date-specific timelines
+	private int fieldDateID;			// Field date-specific timeline for this segment
+	
 	ArrayList<WMV_Time> timeline;
 	
-	WMV_TimeSegment(int newID, int newClusterID, WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower, ArrayList<WMV_Time> newTimeline)
+	WMV_TimeSegment( int newClusterID, int newClusterTimelineID, int newClusterTimelinesID, int newClusterDateID, 
+					 int newFieldTimelineID, int newFieldTimelinesID, int newFieldDateID,
+					 WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower, ArrayList<WMV_Time> newTimeline )
 	{
-		id = newID;
+//		id = newID;
 		clusterID = newClusterID;
+		
+		clusterTimelineID = newClusterTimelineID;				
+		clusterTimelinesID = newClusterTimelinesID;
+		clusterDateID = newClusterDateID;						
+		
+		fieldTimelineID = newFieldTimelineID;				
+		fieldTimelinesID = newFieldTimelinesID;
+		fieldDateID = newFieldDateID;						
+		
 		center = newCenter;
 		upper = newUpper;
 		lower = newLower;
@@ -32,10 +52,10 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	/** 
 	 * @param newID New time segment ID
 	 */
-	public void setID(int newID)
-	{
-		id = newID;
-	}
+//	public void setID(int newID)
+//	{
+//		id = newID;
+//	}
 	
 	/** 
 	 * @param newID New cluster ID
@@ -43,6 +63,54 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	public void setClusterID(int newClusterID)
 	{
 		clusterID = newClusterID;
+	}
+
+	/** 
+	 * @param newID New cluster timeline ID
+	 */
+	public void setClusterTimelineID(int newClusterTimelineID)
+	{
+		clusterTimelineID = newClusterTimelineID;
+	}
+
+	/** 
+	 * @param newID New cluster timelines ID
+	 */
+	public void setClusterTimelinesID(int newClusterTimelinesID)
+	{
+		clusterTimelinesID = newClusterTimelinesID;
+	}
+
+	/** 
+	 * @param newID New cluster date ID
+	 */
+	public void setClusterDateID(int newClusterDateID)
+	{
+		clusterDateID = newClusterDateID;
+	}
+
+	/** 
+	 * @param newID New field timeline ID
+	 */
+	public void setFieldTimelineID(int newFieldTimelineID)
+	{
+		fieldTimelineID = newFieldTimelineID;
+	}
+
+	/** 
+	 * @param newID New field timelines ID
+	 */
+	public void setFieldTimelinesID(int newFieldTimelinesID)
+	{
+		fieldTimelinesID = newFieldTimelinesID;
+	}
+
+	/** 
+	 * @param newID New field date ID
+	 */
+	public void setFieldDateID(int newFieldDateID)
+	{
+		fieldDateID = newFieldDateID;
 	}
 
 	/** 
@@ -72,10 +140,10 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	/** 
 	 * @return Time segment ID
 	 */
-	public int getID()
-	{
-		return id;
-	}
+//	public int getID()
+//	{
+//		return id;
+//	}
 
 	/** 
 	 * @return Time segment ID
@@ -92,7 +160,37 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	{
 		return clusterID;
 	}
-	
+
+	public int getClusterTimelineID()
+	{
+		return clusterTimelineID;
+	}
+
+	public int getClusterTimelinesID()
+	{
+		return clusterTimelinesID;
+	}
+
+	public int getClusterDateID()
+	{
+		return clusterDateID;
+	}
+
+	public int getFieldTimelineID()
+	{
+		return fieldTimelineID;
+	}
+
+	public int getFieldTimelinesID()
+	{
+		return fieldTimelinesID;
+	}
+
+	public int getFieldDateID()
+	{
+		return fieldDateID;
+	}
+
 	/** 
 	 * @return Center time 
 	 */
@@ -116,6 +214,15 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	{
 		return lower;
 	}
+	
+//	/**
+//	 * @return Date associated with this time				// -- Need to implement for cases crossing between two dates
+//	 */
+//	public WMV_Date getDate()
+//	{
+//		WMV_Date date = new WMV_Date(p, -1, dateTime);
+//		return date;
+//	}
 
 	/**
 	 * compareTo()

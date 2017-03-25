@@ -58,7 +58,7 @@ class WMV_Display
 	int displayDate = -1;
 	private final float timeTextSize = 44.f;
 	
-	private ArrayList<SelectableTime> selectableTimes;		// Selectable time segments on timeline
+	private ArrayList<SelectableTimeSegment> selectableTimes;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;		// Selectable dates on dateline
 
 	private boolean selectableTimesCreated = false, datelineCreated = false, updateTimeline = true;
@@ -263,7 +263,7 @@ class WMV_Display
 		{
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Current Cluster:"+ c.getID(), xPos, yPos += lineWidthWide, hudDistance);
-			p.p.text(" Current Field Time Segment:"+ p.viewer.currentFieldTimeSegment, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Current Time Segment:"+ p.viewer.currentTimeSegment, xPos, yPos += lineWidth, hudDistance);
 //			if(c.timeline.size() > 0)
 //				p.p.text(" Timeline Segments: "+ c.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
 //			if(c.dateline != null)
@@ -290,36 +290,50 @@ class WMV_Display
 			updateTimeline = false;
 		}
 
-		if(p.viewer.currentFieldTimeSegment >= 0)
+		if(p.viewer.currentTimeSegment >= 0)
 		{
-			WMV_TimeSegment t = p.getCurrentField().getCurrentFieldTimeSegment(displayDate);
+//			WMV_TimeSegment t = p.getCurrentField().getCurrentFieldTimeSegment(displayDate);
+			WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.currentTimeSegment);		// TESTING
 			
 			int last = currentSelectableTime;
 			if(t != null)
-				currentSelectableTime = getSelectableTimeIDFromTimeSegment(t);
+				currentSelectableTime = getSelectableTimeIDFromTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
 			else
 				currentSelectableTime = -1;
 			
-//			if(currentSelectableTime != last && currentSelectableTime != -1)
-//				PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
+			if(currentSelectableTime != last && currentSelectableTime != -1)
+				PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
 		}
 	}
 	
 	private int getSelectableTimeIDFromTimeSegment(WMV_TimeSegment t)
 	{
-		for(SelectableTime st : selectableTimes)
+		for(SelectableTimeSegment st : selectableTimes)
 		{
-			if(t.getID() == st.getTimeSegmentID())
+//			if(t.equals( st.segment ))
+			if( t.getClusterID() == st.segment.getClusterID() && t.getClusterDateID() == st.segment.getClusterDateID() &&
+				t.getClusterTimelineID() == st.segment.getClusterTimelineID() && t.getFieldTimelineID() == st.segment.getFieldTimelineID() )
 			{
-//				PApplet.println("Found time segment by ID..."+t.getID());
-
-				if(t.getClusterID() == st.getClusterID())
-					return st.getID();
-				else
-					PApplet.println("t.getClusterID():"+t.getClusterID()+" != st.getClusterID():"+st.getClusterID());
+				return st.getID();
 			}
+			
+			/* Old method */
+//			if(t.getClusterID() == st.getClusterID())
+//			{
+//				PApplet.println("-> Found time segment by cluster ID... "+t.getClusterID()+" st.getClusterID():"+st.getClusterID());
+//				if(t.getUpper().getTimeAsPVector().equals(st.segment.getUpper().getTimeAsPVector()) && t.getLower().getTimeAsPVector().equals(st.segment.getLower().getTimeAsPVector()))
+//				{
+//					PApplet.println("   FOUND match: "+t.getUpper().getTimeAsPVector()+" vs "+st.segment.getUpper().getTimeAsPVector());
+//					return st.getID();																	// Found the time segment
+//				}
+
+//				if(t.getID() == st.getTimeSegmentID())
+//					return st.getID();
+//				else 
+//					PApplet.println("t.getID():"+t.getID()+" != st.getTimeSegmentID():"+st.getTimeSegmentID());
+//			}
 		}
-//		PApplet.println("-- NO selectable time found!! --");
+		PApplet.println("-- NO selectable time found!! --");
 		return -1;
 	}
 	
@@ -369,14 +383,14 @@ class WMV_Display
 	private void createSelectableTimes()
 	{
 		WMV_Field f = p.getCurrentField();
-		selectableTimes = new ArrayList<SelectableTime>();
+		selectableTimes = new ArrayList<SelectableTimeSegment>();
 		
 		if(f.dateline.size() == 1)
 		{
 			int count = 0;
 			for(WMV_TimeSegment t : f.timeline)
 			{
-				SelectableTime st = getSelectableTime(t, count);
+				SelectableTimeSegment st = getSelectableTime(t, count);
 				if(st != null)
 				{
 					selectableTimes.add(st);
@@ -393,7 +407,7 @@ class WMV_Display
 				{
 					for(WMV_TimeSegment t:ts)
 					{
-						SelectableTime st = getSelectableTime(t, count);
+						SelectableTimeSegment st = getSelectableTime(t, count);
 						if(st != null)
 						{
 							selectableTimes.add(st);
@@ -411,7 +425,7 @@ class WMV_Display
 					
 					for(WMV_TimeSegment t:ts)
 					{
-						SelectableTime st = getSelectableTime(t, count);
+						SelectableTimeSegment st = getSelectableTime(t, count);
 						if(st != null)
 						{
 							selectableTimes.add(st);
@@ -458,7 +472,7 @@ class WMV_Display
 	 * @param id Time segment id
 	 * @return SelectableTime object
 	 */
-	private SelectableTime getSelectableTime(WMV_TimeSegment t, int id)
+	private SelectableTimeSegment getSelectableTime(WMV_TimeSegment t, int id)
 	{
 		float lowerSeconds = p.p.utilities.getTimePVectorSeconds(t.getLower().getTimeAsPVector());
 		float upperSeconds = p.p.utilities.getTimePVectorSeconds(t.getUpper().getTimeAsPVector());
@@ -480,7 +494,7 @@ class WMV_Display
 			rectBottomEdge = timelineYOffset + timelineHeight * 0.5f;
 			
 			loc.x += (xOffset2 - xOffset) * 0.5f;
-			SelectableTime st = new SelectableTime(id, t.getID(), t.getClusterID(), loc, rectLeftEdge, rectRightEdge, rectTopEdge, rectBottomEdge);		// int newID, int newClusterID, PVector newLocation, Box newRectangle
+			SelectableTimeSegment st = new SelectableTimeSegment(id, t.getFieldTimelineID(), t.getClusterID(), t, loc, rectLeftEdge, rectRightEdge, rectTopEdge, rectBottomEdge);		// int newID, int newClusterID, PVector newLocation, Box newRectangle
 			return st;
 		}
 		else return null;
@@ -742,9 +756,9 @@ class WMV_Display
 	 * @param mouseScreenLoc Mouse 3D location
 	 * @return Selected time segment
 	 */
-	private SelectableTime getSelectedTimeSegment(PVector mouseLoc)
+	private SelectableTimeSegment getSelectedTimeSegment(PVector mouseLoc)
 	{
-		for(SelectableTime st : selectableTimes)
+		for(SelectableTimeSegment st : selectableTimes)
 			if( mouseLoc.x > st.leftEdge && mouseLoc.x < st.rightEdge && 
 				mouseLoc.y > st.topEdge && mouseLoc.y < st.bottomEdge )
 				return st;
@@ -773,7 +787,7 @@ class WMV_Display
 		PVector mouseLoc = getMouse3DLocation(p.p.mouseX, p.p.mouseY);
 		if(selectableTimes != null)
 		{
-			SelectableTime timeSelected = getSelectedTimeSegment(mouseLoc);
+			SelectableTimeSegment timeSelected = getSelectedTimeSegment(mouseLoc);
 			if(timeSelected != null)
 			{
 				selectedTime = timeSelected.getID();				// Set to selected
@@ -862,17 +876,22 @@ class WMV_Display
 		{
 			if(selectedCluster != -1)
 			{
-				PApplet.println("will teleport to selectedCluster:"+selectedCluster+" selectedTime:"+selectedTime+" new field time segment:"+selectableTimes.get(selectedTime).getID());
+				PApplet.println("Will teleport to selectedCluster:"+selectedCluster+" selectedTime:"+selectedTime+" new field time segment:"+selectableTimes.get(selectedTime).getID());
+				PApplet.println(" selectedCluster:"+selectedCluster+" should == selectableTimes.get(selectedTime).getClusterID():"+selectableTimes.get(selectedTime).getClusterID());
+				
 				if(!p.input.shiftKey)
 				{
-//					p.viewer.teleportToCluster(selectedCluster, true, -1); // selectableTimes.get(selectedTime).getID());
-					p.viewer.teleportToCluster(selectedCluster, true, selectableTimes.get(selectedTime).getTimeSegmentID());
+					p.viewer.teleportToCluster(selectedCluster, true, -1); 
+//					p.viewer.teleportToCluster(selectedCluster, true, selectableTimes.get(selectedTime).getTimeSegmentID());
 					p.display.setDisplayView(0);
 				}
 				else
 				{
-//					p.viewer.teleportToCluster(selectedCluster, false, -1); //selectableTimes.get(selectedTime).getID());
-					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).getTimeSegmentID());
+//					p.viewer.teleportToCluster(selectedCluster, false, -1); 
+//					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).getTimeSegmentID());
+//					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).segment.getClusterTimelineID());
+					
+					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).segment.getFieldTimelineID());
 				}
 			}
 		}
@@ -1003,7 +1022,7 @@ class WMV_Display
 		datelineXOffset = timelineXOffset;
 		datelineYOffset = p.p.height * 0.2f;
 
-		selectableTimes = new ArrayList<SelectableTime>();
+		selectableTimes = new ArrayList<SelectableTimeSegment>();
 		selectableDates = new ArrayList<SelectableDate>();
 
 		selectableTimesCreated = false;
@@ -1635,11 +1654,11 @@ class WMV_Display
 			if(p.p.world.getTimeMode() == 1)
 				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().currentTime, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().timeline.size(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Current Field Time Segment: "+ p.viewer.currentFieldTimeSegment, xPos, yPos += lineWidth, hudDistance);
-			if(f.timeline.size() > 0 && p.viewer.currentFieldTimeSegment >= 0 && p.viewer.currentFieldTimeSegment < f.timeline.size())
-				p.p.text(" Upper: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getUpper().getTime()
-						+" Center:"+f.timeline.get(p.viewer.currentFieldTimeSegment).getCenter().getTime()+
-						" Lower: "+f.timeline.get(p.viewer.currentFieldTimeSegment).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Current Time Segment: "+ p.viewer.currentTimeSegment, xPos, yPos += lineWidth, hudDistance);
+			if(f.timeline.size() > 0 && p.viewer.currentTimeSegment >= 0 && p.viewer.currentTimeSegment < f.timeline.size())
+				p.p.text(" Upper: "+f.timeline.get(p.viewer.currentTimeSegment).getUpper().getTime()
+						+" Center:"+f.timeline.get(p.viewer.currentTimeSegment).getCenter().getTime()+
+						" Lower: "+f.timeline.get(p.viewer.currentTimeSegment).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Cluster Timeline Segments: "+ p.getCurrentCluster().timeline.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Field Dateline Segments: "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.textSize(mediumTextSize);
@@ -1829,17 +1848,20 @@ class WMV_Display
 		}
 	}
 
-	private class SelectableTime
+	private class SelectableTimeSegment
 	{
-		private int id, timeSegmentID, clusterID;
+		private int id, fieldTimelineID, clusterID;
 		private PVector location;
 		public float leftEdge, rightEdge, topEdge, bottomEdge;
-
-		SelectableTime(int newID, int newTimeSegmentID, int newClusterID, PVector newLocation, float newLeftEdge, float newRightEdge, float newTopEdge, float newBottomEdge)
+		WMV_TimeSegment segment;
+		
+		SelectableTimeSegment(int newID, int newFieldTimelineID, int newClusterID, WMV_TimeSegment newSegment, PVector newLocation, float newLeftEdge, float newRightEdge, float newTopEdge, float newBottomEdge)
 		{
 			id = newID;
-			timeSegmentID = newTimeSegmentID;
+			fieldTimelineID = newFieldTimelineID;
 			clusterID = newClusterID;
+			segment = newSegment;
+			
 			location = newLocation;
 			leftEdge = newLeftEdge;
 			rightEdge = newRightEdge;
@@ -1854,7 +1876,7 @@ class WMV_Display
 		
 		public int getTimeSegmentID()
 		{
-			return timeSegmentID;
+			return fieldTimelineID;
 		}
 		
 		public int getClusterID()

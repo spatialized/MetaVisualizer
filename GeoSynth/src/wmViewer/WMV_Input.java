@@ -711,6 +711,14 @@ public class WMV_Input
 				{
 					p.display.showAllDates();
 				}
+				if (key == PApplet.ENTER)
+				{
+					if(p.display.getCurrentSelectableTime() >= 0)
+					{
+						p.viewer.teleportToCluster(p.display.getSelectedCluster(), true, -1); 
+						p.display.setDisplayView(0);
+					}
+				}
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.UP) 					// Timeline zoom in 

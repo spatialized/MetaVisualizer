@@ -889,15 +889,10 @@ class WMV_Display
 				if(!p.input.shiftKey)
 				{
 					p.viewer.teleportToCluster(selectedCluster, true, -1); 
-//					p.viewer.teleportToCluster(selectedCluster, true, selectableTimes.get(selectedTime).getTimeSegmentID());
 					p.display.setDisplayView(0);
 				}
 				else
 				{
-//					p.viewer.teleportToCluster(selectedCluster, false, -1); 
-//					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).getTimeSegmentID());
-//					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).segment.getClusterTimelineID());
-					
 					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).segment.getFieldTimelineID());
 				}
 			}
@@ -1965,6 +1960,16 @@ class WMV_Display
 		selectedDate = -1;
 		currentSelectableDate = -1;
 		updateTimeline = true;
+	}
+	
+	public int getSelectedCluster()
+	{
+		return selectedCluster;	
+	}
+	
+	public int getCurrentSelectableTime()
+	{
+		return currentSelectableTime;
 	}
 	
 //	void setFullScreen(boolean newState)

@@ -44,8 +44,8 @@ public class WMV_ViewerSettings
 
 	/* Turning */
 	final public float turningVelocityMin = 0.00005f;					// Threshold under which velocity counts as zero
-	final public float turningVelocityMax = 0.08f;						// Camera maximum velocity
-	final public float turningAccelerationMax = 0.008f;					// Camera maximum acceleration
+	final public float turningVelocityMax = 0.05f;						// Camera maximum velocity
+	final public float turningAccelerationMax = 0.005f;					// Camera maximum acceleration
 	final public float turningAccelerationMin = 0.000005f;				// Threshold under which acceleration counts as zero
 	final public float turningDecelInc = 0.45f;						// Camera deceleration increment
 	final public float turningHaltInc = 0.0033f;						// Camera fast deceleration increment

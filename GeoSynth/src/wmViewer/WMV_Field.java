@@ -47,7 +47,7 @@ public class WMV_Field
 	ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
 	ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
 	ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
-	String timeZone = "America/Los_Angeles";					// Current time zone
+	String timeZoneID = "America/Los_Angeles";					// Current time zone
 	
 	WMV_World p;
 	
@@ -271,9 +271,21 @@ public class WMV_Field
 		if(p.p.debug.main)
 			p.display.message("Creating timeline and dateline for field #"+fieldID+"...");
 
+		if( p.settings.getTimeZonesFromGoogle )		// Get time zone for field from Google Time Zone API
+		{
+			if(images.size() > 0)					
+				timeZoneID = p.p.utilities.getCurrentTimeZoneID(images.get(0).getGPSLocation().z, images.get(0).getGPSLocation().x);
+			else if(panoramas.size() > 0)
+				timeZoneID = p.p.utilities.getCurrentTimeZoneID(panoramas.get(0).getGPSLocation().z, panoramas.get(0).getGPSLocation().x);
+			else if(videos.size() > 0)
+				timeZoneID = p.p.utilities.getCurrentTimeZoneID(videos.get(0).getGPSLocation().z, videos.get(0).getGPSLocation().x);
+			else if(sounds.size() > 0)
+				timeZoneID = p.p.utilities.getCurrentTimeZoneID(sounds.get(0).getGPSLocation().z, sounds.get(0).getGPSLocation().x);
+		}
+
 		createTimeline();								// Create date-independent timeline for field
 		createDateline();								// Create field dateline
-		createTimelines();							// Create date-specific timelines for field
+		createTimelines();								// Create date-specific timelines for field
 		model.analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 		
 		if(p.p.debug.main)

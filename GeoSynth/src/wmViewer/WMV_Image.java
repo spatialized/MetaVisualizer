@@ -87,8 +87,10 @@ class WMV_Image extends WMV_Viewable
 
 		if(newDateTime != null)
 		{
-			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 0 );		
-			time = p.p.p.utilities.utcToPacificTime(utcTime);								// Convert from UTC Time
+			time = new WMV_Time( p.p, newDateTime, getID(), cluster, 0 );		
+//			time = p.p.p.utilities.utcToPacificTime(utcTime);								// Convert from UTC Time
+//			PApplet.println("Image: "+getName()+" utcTime, hour:"+utcTime.getHour()+"  min:"+utcTime.getMinute()+" sec:"+utcTime.getSecond());
+//			PApplet.println("     : "+getName()+" pacificTime, hour:"+time.getHour()+"  min:"+time.getMinute()+" sec:"+time.getSecond());
 		}
 		else
 			time = null;
@@ -894,7 +896,11 @@ class WMV_Image extends WMV_Viewable
 		String strX = "Location X: "+PApplet.str(getCaptureLocation().z);
 		String strY = " Y: "+PApplet.str(getCaptureLocation().x);
 		String strZ = " Z: "+PApplet.str(getCaptureLocation().y);
-		
+
+		String strDate = "Date: "+PApplet.str(time.getMonth()) + PApplet.str(time.getDay()) + PApplet.str(time.getYear());
+		String strTime = "Time: "+PApplet.str(time.getHour()) + ":" + (time.getMinute() >= 10 ? PApplet.str(time.getMinute()) : "0"+PApplet.str(time.getMinute())) + ":" + 
+				 (time.getSecond() >= 10 ? PApplet.str(time.getSecond()) : "0"+PApplet.str(time.getSecond()));
+
 		String strLatitude = "GPS Latitude: "+PApplet.str(gpsLocation.z);
 		String strLongitude = " Longitude: "+PApplet.str(gpsLocation.x);
 		String strAltitude = "Altitude: "+PApplet.str(gpsLocation.y);
@@ -910,10 +916,16 @@ class WMV_Image extends WMV_Viewable
 		p.p.display.metadata(strTitleImage);
 		p.p.display.metadata(strTitleImage2);
 		p.p.display.metadata("");
+		
 		p.p.display.metadata(strID);
 		p.p.display.metadata(strCluster);
 		p.p.display.metadata(strName);
 		p.p.display.metadata(strX + strY + strZ);
+		p.p.display.metadata("");
+
+		p.p.display.metadata(strDate);
+		p.p.display.metadata(strTime);
+		p.p.display.metadata("");
 
 		p.p.display.metadata(strLatitude + strLongitude);
 		p.p.display.metadata(strAltitude);

@@ -29,6 +29,7 @@ public class WMV_WorldSettings
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
 	/* Time */
+	public boolean getTimeZonesFromGoogle = false;		// Get time zone for each field center from Google Time Zone API
 	public int timeCycleLength = 250;					// Length of main time loop in frames
 	final public int defaultTimeCycleLength = 250;		// Default length of main time loop in frames
 	

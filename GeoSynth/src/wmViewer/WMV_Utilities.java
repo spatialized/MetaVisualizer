@@ -1,5 +1,12 @@
 package wmViewer;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -9,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Scanner;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
@@ -73,7 +83,7 @@ public class WMV_Utilities
 
 	public int getCurrentDateInDaysSince1980()
 	{
-		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(p.getCurrentField().timeZone));
+		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(p.getCurrentField().timeZoneID));
 		int year = now.getYear();
 		int month = now.getMonthValue();
 		int day = now.getDayOfMonth();
@@ -86,7 +96,7 @@ public class WMV_Utilities
 	public int getDaysSince1980(int day, int month, int year)
 	{
 		ZonedDateTime date1980 = ZonedDateTime.parse("1980-01-01T00:00:00+00:00[America/Los_Angeles]");
-		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(p.getCurrentField().timeZone));
+		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(p.getCurrentField().timeZoneID));
 		Duration duration = Duration.between(date1980, date);
 		
 //		if(p.p.debug.time)
@@ -876,6 +886,57 @@ public class WMV_Utilities
 		time = PApplet.map(sunriseTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
 
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
+	}
+
+	public String getCurrentTimeZoneID(float latitude, float longitude)
+	{
+		JSONObject json;
+		String start = "https://maps.googleapis.com/maps/api/timezone/json?location=";
+		String end = "&timestamp=1331161200&key=AIzaSyBXrzfHmo4t8hhrTX1lVgXwfbuThSokjNY";
+		String url = start+String.valueOf(latitude)+","+String.valueOf(longitude)+end;
+//		String url = "https://maps.googleapis.com/maps/api/timezone/json?location=37.77492950,-122.41941550&timestamp=1331161200&key=AIzaSyBXrzfHmo4t8hhrTX1lVgXwfbuThSokjNY";
+		try
+		{
+			json = readJsonFromUrl(url);
+		}
+		catch(Throwable t)
+		{
+			PApplet.println("Error reading JSON from Google Time Zone API: "+t);
+			return null;
+		}
+
+		if (json!=null)
+		{
+			String timeZoneID= ((String)json.get("timeZoneId"));
+			return timeZoneID;
+		} 
+		else
+			return null;
+	}
+	
+	public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException 
+	{
+
+		InputStream is = new URL(url).openStream();
+		try {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			String jsonText = readAll(rd);
+			JSONObject json = new JSONObject(jsonText);
+			return json;
+		} 
+		finally {
+			is.close();
+		}
+	}
+	
+	private static String readAll(Reader rd) throws IOException 
+	{
+		StringBuilder sb = new StringBuilder();
+		int cp;
+		while ((cp = rd.read()) != -1) {
+			sb.append((char) cp);
+		}
+		return sb.toString();
 	}
 
 	//	public float calculateAverageDistance(float[] distances) 

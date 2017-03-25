@@ -1286,8 +1286,22 @@ class WMV_Metadata
 
 //		Calendar c = Calendar.getInstance();
 //		c.set(year, month, day, hour, min, sec);
-		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
-		return utc;
+//		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
+		
+		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+		
+//		year = utc.getYear();
+//		month = utc.getMonthValue();
+//		day = utc.getDayOfMonth();
+//		hour = utc.getHour();
+//		PApplet.println("IMAGE utc year:"+year+" month:"+month+" day:"+day+" hour:"+hour);
+//		year = pac.getYear();
+//		month = pac.getMonthValue();
+//		day = pac.getDayOfMonth();
+//		hour = pac.getHour();
+//		PApplet.println("vs. pac year:"+year+" month:"+month+" day:"+day+" hour:"+hour);
+
+		return pac;
 	}
 
 	public ZonedDateTime parseVideoDateTime(String input) 
@@ -1309,8 +1323,20 @@ class WMV_Metadata
 
 //		Calendar c = Calendar.getInstance();
 //		c.set(year, month, day, hour, min, sec);
-		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
-		return utc;
+//		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
+		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+//		year = utc.getYear();
+//		month = utc.getMonthValue();
+//		day = utc.getDayOfMonth();
+//		hour = utc.getHour();
+//		PApplet.println("VIDEO utc year:"+year+" month:"+month+" day:"+day+" hour:"+hour);
+//		year = pac.getYear();
+//		month = pac.getMonthValue();
+//		day = pac.getDayOfMonth();
+//		hour = pac.getHour();
+//		PApplet.println("vs. pac year:"+year+" month:"+month+" day:"+day+" hour:"+hour);
+
+		return pac;
 	}
 
 //	public ZonedDateTime parseSoundDateTime(String input) 

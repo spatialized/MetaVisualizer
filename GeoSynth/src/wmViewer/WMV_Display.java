@@ -166,7 +166,6 @@ class WMV_Display
 //									dateCount = curCluster.dateline.size();
 //
 //								PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
-//								PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
 //								float fTime = (float) p.getCurrentCluster().currentTime / (float) p.getCurrentCluster().timeCycleLength;
 //								PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
 //								float fHour = fTime * 24.f;
@@ -225,9 +224,7 @@ class WMV_Display
 					displayMetadata();
 
 //				if((displayMode == 1) && drawForceVector)						// Draw force vector
-//				{
 //					map2D.drawForceVector();
-//				}
 			}
 		}
 	}
@@ -287,7 +284,12 @@ class WMV_Display
 					if(displayDate == -1)
 						p.p.text(" Current Cluster Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.timeline.size() +" in Main Cluster Timeline", xPos, yPos += lineWidth, hudDistance);
 					else
-						p.p.text(" Current Cluster Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelinesID()+"  of "+ c.timelines.get(clusterDate).size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
+					{
+						if(c.timelines.size() > clusterDate)
+							p.p.text(" Current Cluster Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelinesID()+"  of "+ c.timelines.get(clusterDate).size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
+						else
+							p.p.text(" ERROR: No Cluster Timeline for Current Cluster Date ("+clusterDate+")", xPos, yPos += lineWidth, hudDistance);
+					}
 				}
 			}
 		}
@@ -296,9 +298,6 @@ class WMV_Display
 		drawFieldDateline();
 		drawFieldTimeline();
 		updateTimelineMouse();
-		
-//		if(!selectableTimesCreated) drawSelectableTimes();
-//		else updateFieldTimeline();
 	}
 	
 	/**
@@ -1328,7 +1327,7 @@ class WMV_Display
 	{
 		float yPos = metadataYOffset - lineWidth;
 
-		startHUD();
+		start3DHUD();
 		p.p.pushMatrix();
 
 		p.p.fill(0, 0, 255, 255);                     // White text
@@ -1964,6 +1963,7 @@ class WMV_Display
 	{
 		displayDate = -1;
 		selectedDate = -1;
+		currentSelectableDate = -1;
 		updateTimeline = true;
 	}
 	

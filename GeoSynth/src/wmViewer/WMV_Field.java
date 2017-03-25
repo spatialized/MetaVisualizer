@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.data.IntList;
-//import wmViewer.WMV_Display.SelectableTime;
 
 /**************************************************
  * @author davidgordon
- * Class representing media in a large geographical area
+ * Geographical area of spatially clustered media viewable as a navigable environment, 2D map or timeline
  */
-
 public class WMV_Field 
 {
 	/* General */
@@ -1101,93 +1099,93 @@ public class WMV_Field
 	
 	public WMV_TimeSegment getCurrentFieldTimeSegment(int date)
 	{
-		return timeline.get(p.viewer.currentTimeSegment);
+		return timeline.get(p.viewer.getCurrentTimeSegment());
 //		return getFieldTimeSegmentFromID( p.viewer.currentTimeSegment, date );
 	}
 
-	public WMV_TimeSegment getFieldTimeSegmentFromID(int id, int date)
-	{
+//	public WMV_TimeSegment getFieldTimeSegmentFromID(int id, int date)
+//	{
+////		if(dateline.size() == 1)
+////			return timeline.get(id);
+////		else if(dateline.size() > 1)
+////		{
+////			if(date == -1)
+////			{
+////				for(ArrayList<WMV_TimeSegment> ts : timelines)
+////					for(WMV_TimeSegment t:ts)
+////						if(t.getID()==id)
+////							if(t.getClusterID()==timeline.get(id).getClusterID())
+////								return t;
+////			}
+////			else
+////			{
+////				for(WMV_TimeSegment t:timelines.get(date))
+////					if(t.getID()==id)
+////						if(t.getClusterID()==timeline.get(id).getClusterID())				// Check same cluster 
+////							return t;
+////			}
+////		}		
+////		return null;
+//		
+//		/* Old method */
 //		if(dateline.size() == 1)
-//			return timeline.get(id);
-//		else if(dateline.size() > 1)
 //		{
+//			return timeline.get(id);
+//		}
+//		else if(dateline.size() > 1)							// Find field time segment on date specific timeline(s)
+//		{
+//			WMV_TimeSegment goalTS = timeline.get(id);
+////			PApplet.println("New goalTS...");
 //			if(date == -1)
 //			{
 //				for(ArrayList<WMV_TimeSegment> ts : timelines)
+//				{
 //					for(WMV_TimeSegment t:ts)
-//						if(t.getID()==id)
-//							if(t.getClusterID()==timeline.get(id).getClusterID())
-//								return t;
+//					{
+//						if(t.getClusterID()==goalTS.getClusterID())												// Same cluster
+//						{
+////							PApplet.print(" any date same cluster:"+t.getClusterID());
+//							if(t.getUpper().getTimeAsPVector().equals(goalTS.getUpper().getTimeAsPVector()) && t.getLower().getTimeAsPVector().equals(goalTS.getLower().getTimeAsPVector()))
+//							{
+////								PApplet.println("   FOUND match: "+t.getUpper().getTimeAsPVector()+" vs "+goalTS.getUpper().getTimeAsPVector());
+//								return t;																	// Found the time segment
+//							}
+////							else
+////							{
+////								PApplet.print("   but no match: "+t.getUpper().getTimeAsPVector()+" vs "+goalTS.getUpper().getTimeAsPVector());
+////								PApplet.println(" ... : "+t.getLower().getTimeAsPVector()+" vs "+goalTS.getLower().getTimeAsPVector());
+////							}
+//						}
+//					}
+//				}
 //			}
 //			else
 //			{
-//				for(WMV_TimeSegment t:timelines.get(date))
-//					if(t.getID()==id)
-//						if(t.getClusterID()==timeline.get(id).getClusterID())				// Check same cluster 
-//							return t;
-//			}
-//		}		
-//		return null;
-		
-		/* Old method */
-		if(dateline.size() == 1)
-		{
-			return timeline.get(id);
-		}
-		else if(dateline.size() > 1)							// Find field time segment on date specific timeline(s)
-		{
-			WMV_TimeSegment goalTS = timeline.get(id);
-//			PApplet.println("New goalTS...");
-			if(date == -1)
-			{
-				for(ArrayList<WMV_TimeSegment> ts : timelines)
-				{
-					for(WMV_TimeSegment t:ts)
-					{
-						if(t.getClusterID()==goalTS.getClusterID())												// Same cluster
-						{
-//							PApplet.print(" any date same cluster:"+t.getClusterID());
-							if(t.getUpper().getTimeAsPVector().equals(goalTS.getUpper().getTimeAsPVector()) && t.getLower().getTimeAsPVector().equals(goalTS.getLower().getTimeAsPVector()))
-							{
-//								PApplet.println("   FOUND match: "+t.getUpper().getTimeAsPVector()+" vs "+goalTS.getUpper().getTimeAsPVector());
-								return t;																	// Found the time segment
-							}
+//				if(date < timelines.size())
+//				{
+//					ArrayList<WMV_TimeSegment> ts = timelines.get(date);
+//
+//					for(WMV_TimeSegment t:ts)
+//					{
+//						if(t.getClusterID()==goalTS.getClusterID())												// Same cluster
+//						{
+//							PApplet.println(" on date  t.getClusterID()==goalTS.getClusterID():"+t.getClusterID());
+//							if(t.getUpper().getTimeAsPVector() == goalTS.getUpper().getTimeAsPVector() && t.getLower().getTimeAsPVector() == goalTS.getLower().getTimeAsPVector())
+//								return t;																	// Found the time segment
 //							else
 //							{
 //								PApplet.print("   but no match: "+t.getUpper().getTimeAsPVector()+" vs "+goalTS.getUpper().getTimeAsPVector());
 //								PApplet.println(" ... : "+t.getLower().getTimeAsPVector()+" vs "+goalTS.getLower().getTimeAsPVector());
 //							}
-						}
-					}
-				}
-			}
-			else
-			{
-				if(date < timelines.size())
-				{
-					ArrayList<WMV_TimeSegment> ts = timelines.get(date);
-
-					for(WMV_TimeSegment t:ts)
-					{
-						if(t.getClusterID()==goalTS.getClusterID())												// Same cluster
-						{
-							PApplet.println(" on date  t.getClusterID()==goalTS.getClusterID():"+t.getClusterID());
-							if(t.getUpper().getTimeAsPVector() == goalTS.getUpper().getTimeAsPVector() && t.getLower().getTimeAsPVector() == goalTS.getLower().getTimeAsPVector())
-								return t;																	// Found the time segment
-							else
-							{
-								PApplet.print("   but no match: "+t.getUpper().getTimeAsPVector()+" vs "+goalTS.getUpper().getTimeAsPVector());
-								PApplet.println(" ... : "+t.getLower().getTimeAsPVector()+" vs "+goalTS.getLower().getTimeAsPVector());
-							}
-						}
-					}
-				}
-			}
-		}
-		PApplet.println("FAILED...");
-
-		return null;
-	}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		PApplet.println("FAILED...");
+//
+//		return null;
+//	}
 
 
 	public int getFieldTimeSegmentID(WMV_TimeSegment goal)

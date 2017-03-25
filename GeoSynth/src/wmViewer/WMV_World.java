@@ -284,7 +284,7 @@ public class WMV_World
 
 		if(startedRunning)									// If simulation just started running
 		{
-			viewer.moveToTimeSegmentInField(0, 0, true);	// Move to first time segment in field
+			viewer.moveToTimeSegmentInField(0, 0, true, true);	// Move to first time segment in field
 			startedRunning = false;
 		}
 		

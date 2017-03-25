@@ -219,10 +219,10 @@ public class WMV_Input
 				
 			/* Time */
 			case "NextTime":
-				p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport);
+				p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport, true);
 				break;
 			case "PreviousTime":
-				p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport);
+				p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport, true);
 				break;
 	
 			/* Selection */
@@ -848,17 +848,37 @@ public class WMV_Input
 					p.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
 				}
 
-				if (key == 'n')						// Teleport to next time segment
-					p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport);
+				if (key == 'n')						// Teleport to next time segment on same date
+				{
+					if(p.display.displayView == 1)
+						p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport, true);
+					else
+						p.viewer.moveToNextTimeSegment(true, true, false);
+				}
 
-				if (key == 'b')						// Teleport to previous time segment
-					p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport);
+				if (key == 'b')						// Teleport to previous time segment on same date
+				{
+					if(p.display.displayView == 1)
+						p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport, true);
+					else
+						p.viewer.moveToPreviousTimeSegment(true, true, false);
+				}
 
-				if (key == 'N')						// Teleport to next time segment on same date
-					p.viewer.moveToNextTimeSegment(false, p.viewer.movementTeleport);
+				if (key == 'N')						// Teleport to next time segment on any date
+				{
+					if(p.display.displayView == 1)
+						p.viewer.moveToNextTimeSegment(false, p.viewer.movementTeleport, true);
+					else
+						p.viewer.moveToNextTimeSegment(false, true, false);
+				}
 
-				if (key == 'B')						// Teleport to previous time segment on same date
-					p.viewer.moveToPreviousTimeSegment(false, p.viewer.movementTeleport);
+				if (key == 'B')						// Teleport to previous time segment on any date
+				{
+					if(p.display.displayView == 1)
+						p.viewer.moveToPreviousTimeSegment(false, p.viewer.movementTeleport, true);
+					else
+						p.viewer.moveToPreviousTimeSegment(false, true, false);
+				}
 
 				if (key == '~')
 					if(!p.viewer.isFollowing())

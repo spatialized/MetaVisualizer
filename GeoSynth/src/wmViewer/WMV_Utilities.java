@@ -86,18 +86,37 @@ public class WMV_Utilities
 		return PApplet.round(value / 3600.f) * 3600;
 	}
 
+	/**
+	 * Round given value in seconds to nearest value given by interval parameter
+	 * @param value Value to round
+	 * @param interval Number of seconds to round to
+	 * @return Rounded value
+	 */
 	public int roundSecondsToInterval(float value, float interval)
 	{
 		return PApplet.round(PApplet.round(value / interval) * interval);
 	}
 	
-	public String secondsToTime( float seconds, boolean showSeconds )
+	public String secondsToTime( float seconds, boolean showSeconds, boolean military )
 	{
 		int hour = PApplet.round(seconds) / 3600;
 		int minute = (PApplet.round(seconds) % 3600) / 60;
 		int second = (PApplet.round(seconds) % 3600) % 60;
+		boolean pm = false;
+		
+		if(!military) 
+		{
+			if(hour == 0) hour = 12;
+			
+			if(hour > 12)
+			{
+				hour -= 12;
+				pm = true;
+			}
+		}
 
 		String strHour = String.valueOf(hour);
+		
 		String strMinute = String.valueOf(minute);
 		if(minute < 10) strMinute = "0"+strMinute;
 		
@@ -105,13 +124,24 @@ public class WMV_Utilities
 		{
 			String strSecond = String.valueOf(second);
 			if(second < 10) strSecond = "0"+strSecond;
-			return strHour + ":" + strMinute + ":" + strSecond;
+			
+			if(military)
+				return strHour + ":" + strMinute + ":" + strSecond;
+			else
+				return strHour + ":" + strMinute + ":" + strSecond + (pm ? " pm" : " am");
 		}
 		else				
-			return strHour + ":" + strMinute;
-
+		{
+			if(military)
+				return strHour + ":" + strMinute;
+			else
+				return  strHour + ":" + strMinute + (pm ? " pm" : " am");
+		}
 	}
 	
+	/**
+	 * @return Current date in days since Jan 1, 1980
+	 */
 	public int getCurrentDateInDaysSince1980()
 	{
 		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(p.getCurrentField().timeZoneID));
@@ -121,9 +151,13 @@ public class WMV_Utilities
 		return getDaysSince1980(day, month, year);
 	}
 	
-	/** 
-	 * Calculate date as # of days from 1980 
-	 **/
+	/**
+	 * Get specified date as number of days from Jan 1, 1980
+	 * @param day Day
+	 * @param month Month
+	 * @param year Year
+	 * @return Number of days 
+	 */
 	public int getDaysSince1980(int day, int month, int year)
 	{
 		ZonedDateTime date1980 = ZonedDateTime.parse("1980-01-01T00:00:00+00:00[America/Los_Angeles]");
@@ -213,18 +247,6 @@ public class WMV_Utilities
 		return (float)d;
 	}
 
-//	/**
-//	 * @param hour UTC hour
-//	 * @return Corresponding hour in Pacific Time
-//	 */
-//	public int utcToPacificTime(int hour)
-//	{
-//		hour -= 8;
-//		if(hour < 0)
-//			hour+= 24;
-//		return hour;
-//	}
-	
 	/**
 	 * @param hour UTC hour
 	 * @return Corresponding hour in Pacific Time
@@ -239,26 +261,9 @@ public class WMV_Utilities
 		ZonedDateTime utcDateTime = ZonedDateTime.of(year, month, day, hour, time.getMinute(), time.getSecond(), time.getMillisecond(), ZoneId.of("UTC"));
 		ZonedDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
 		
-//		hour -= 8;
-//		if(hour < 0)
-//		{
-//			hour += 24;
-//			day--;
-//			if(day < 0)
-//			{
-//				month--;
-//				if(month < 0) year--;
-//			}			
-//		}
-
-//		Calendar calendar = Calendar.getInstance();
-//		calendar.set(year, month, day, hour, time.getMinute(), time.getSecond());
-//		calendar.set(Calendar.MILLISECOND, time.getMillisecond());
-		
 		WMV_Time result = new WMV_Time( p, localDateTime, time.getID(), time.getClusterID(), time.getMediaType() );
 		return result;
 	}
-
 
 	/**
 	 * Shrink images to 3D view format (640 pixels max width)
@@ -426,7 +431,6 @@ public class WMV_Utilities
 	}
 
 	/** 
-	 * getDaysInMonth()
 	 * @param month Month
 	 * @param year Year
 	 * @return Number of days in given month of given year
@@ -482,7 +486,6 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * calculateDateTime()
 	 * @param c Calendar date
 	 * @return PVector containing (date, time, dayLength)
 	 * Calculate date, time and dayLength for given Calendar date

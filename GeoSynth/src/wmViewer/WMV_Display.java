@@ -513,7 +513,6 @@ class WMV_Display
 					timelineStartTransitionTarget = newStart;
 					timelineEndTransitionStart = timelineEnd;
 					timelineEndTransitionTarget = newEnd;
-					
 //					PApplet.println("timelineStartTransitionStart:"+timelineStartTransitionStart+" timelineStartTransitionTarget:"+timelineStartTransitionTarget);
 //					PApplet.println("timelineEndTransitionStart:"+timelineEndTransitionStart+" timelineEndTransitionTarget:"+timelineEndTransitionTarget);
 				}
@@ -522,19 +521,16 @@ class WMV_Display
 					timelineStartTransitionStart = timelineStart;
 					timelineStartTransitionTarget = newStart;
 					timelineEndTransitionTarget = timelineEnd;
-//					PApplet.println("timelineStartTransitionStart:"+timelineStartTransitionStart+" timelineStartTransitionTarget:"+timelineStartTransitionTarget);
 				}
 				else if(timelineStart == newStart && timelineEnd != newEnd)
 				{
 					timelineStartTransitionTarget = timelineStart;
 					timelineEndTransitionStart = timelineEnd;
 					timelineEndTransitionTarget = newEnd;
-//					PApplet.println("timelineEndTransitionStart:"+timelineEndTransitionStart+" timelineEndTransitionTarget:"+timelineEndTransitionTarget);
 				}
 			}
 			else
 			{
-//				PApplet.println("Setting timelineTransition to false");
 				timelineTransition = false;
 			}
 		}
@@ -573,18 +569,12 @@ class WMV_Display
 			timelineStart = newStart;
 		if(timelineEnd != newEnd)
 			timelineEnd = newEnd;
-//		PApplet.println("Finished timelineTransition... timelineStart:"+timelineStart+" timelineEnd:"+timelineEnd);
 
 		if(timelineScrolling)
 			scroll(transitionScrollDirection);
 
 		if(timelineZooming)
-		{
-			PApplet.println("timelineZooming is true");
 			zoom(transitionZoomDirection, true);
-		}
-		else
-			PApplet.println("timelineZooming is false");
 
 		if(p.p.debug.time || p.p.debug.display)
 		{
@@ -603,7 +593,6 @@ class WMV_Display
 	{
 		float lowerSeconds = p.p.utilities.getTimePVectorSeconds(t.getLower().getTimeAsPVector());
 		float upperSeconds = p.p.utilities.getTimePVectorSeconds(t.getUpper().getTimeAsPVector());
-//		float centerSeconds = p.p.utilities.getTimePVectorSeconds(t.getCenter().getTimeAsPVector());
 
 		float xOffset = PApplet.map(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
 		float xOffset2 = PApplet.map(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
@@ -658,13 +647,10 @@ class WMV_Display
 		p.p.fill(0.f, 0.f, 255.f, 255.f);
 		p.p.line(timelineXOffset, timelineYOffset, hudDistance, timelineXOffset + timelineScreenSize, timelineYOffset, hudDistance);
 		
-		String startTime = p.p.utilities.secondsToTime(timelineStart, false);
-		String endTime = p.p.utilities.secondsToTime(timelineEnd, false);
+		String startTime = p.p.utilities.secondsToTime(timelineStart, false, false);
+		String endTime = p.p.utilities.secondsToTime(timelineEnd, false, false);
 		
 		p.p.textSize(timeTextSize);
-		p.p.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
-		p.p.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
-	
 		float firstHour = p.p.utilities.roundSecondsToHour(timelineStart);
 		if(firstHour == (int)(timelineStart / 3600.f) * 3600.f) firstHour += 3600.f;
 		float lastHour = p.p.utilities.roundSecondsToHour(timelineEnd);
@@ -673,14 +659,31 @@ class WMV_Display
 		float timeLength = timelineEnd - timelineStart;
 		float timeToScreenRatio = timelineScreenSize / timeLength;
 		
-		float xOffset = timelineXOffset + (firstHour - timelineStart) * timeToScreenRatio - 20.f;
-		for( float pos = firstHour ; pos <= lastHour ; pos += 3600.f )
-		{
-			String time = p.p.utilities.secondsToTime(pos, false);
-			p.p.text(time, xOffset - 20.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
-			xOffset += 3600.f * timeToScreenRatio;
-		}
 		
+		if(lastHour / 3600.f - firstHour / 3600.f <= 16.f)
+		{
+			float xOffset = timelineXOffset + (firstHour - timelineStart) * timeToScreenRatio - 20.f;
+			p.p.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+			p.p.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+		
+			for( float pos = firstHour ; pos <= lastHour ; pos += 3600.f )
+			{
+				String time = p.p.utilities.secondsToTime(pos, false, false);
+				p.p.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+				xOffset += 3600.f * timeToScreenRatio;
+			}
+		}
+		else
+		{
+			float xOffset = timelineXOffset;
+			for( float pos = firstHour - 3600.f ; pos <= lastHour ; pos += 7200.f )
+			{
+				String time = p.p.utilities.secondsToTime(pos, false, false);
+				p.p.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+				xOffset += 7200.f * timeToScreenRatio;
+			}
+		}
+
 		if(f.dateline.size() == 1)
 		{
 			int count = 0;

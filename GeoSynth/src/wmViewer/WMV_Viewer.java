@@ -912,6 +912,7 @@ public class WMV_Viewer
 	 * Move to cluster corresponding to one time segment later on timeline
 	 * @param currentDate Whether to look only at time segments on current date
 	 * @param teleport Whether to teleport or move
+	 * @param fade Whether to fade or jump when teleporting
 	 */
 	void moveToNextTimeSegment(boolean currentDate, boolean teleport, boolean fade)
 	{
@@ -920,17 +921,17 @@ public class WMV_Viewer
 			int newValue = currentFieldTimelinesSegment+1;
 			if(newValue >= p.getCurrentField().timelines.get(currentFieldDate).size()) 		// Reached end of day
 			{
-				if(p.p.debug.viewer) PApplet.println("Reached end of day...");
+				if(p.p.debug.viewer) p.display.message("Reached end of day...");
 				currentFieldDate++;
 				if(currentFieldDate >= p.getCurrentField().dateline.size()) 
 				{
-					if(p.p.debug.viewer) PApplet.println("Reached end of year...");
+					if(p.p.debug.viewer) p.display.message("Reached end of year...");
 					currentFieldDate = 0;
 					setCurrentFieldTimelinesSegment(0);									// Return to first segment
 				}
 				else
 				{
-					if(p.p.debug.viewer) PApplet.println("Moved to next date: "+currentFieldDate);
+					if(p.p.debug.viewer) p.display.message("Moved to next date: "+currentFieldDate);
 					setCurrentFieldTimelinesSegment(0);									// Start at first segment
 				}
 			}
@@ -3882,9 +3883,9 @@ public class WMV_Viewer
 					movingToTimeSegment = false;
 				}
 
-				WMV_Date d = f.getDateInCluster(c.getID(), 0);
-				if(d != null) currentFieldDate = d.getID();
-				else PApplet.println("currentFieldDate would have been set to null..");
+//				WMV_Date d = f.getDateInCluster(c.getID(), 0);
+//				if(d != null) currentFieldDate = d.getID();
+//				else PApplet.println("currentFieldDate would have been set to null..");
 
 				if(p.getTimeMode() == 2 && !teleporting)
 					p.createTimeCycle();
@@ -3901,10 +3902,14 @@ public class WMV_Viewer
 	{
 		currentFieldTimeSegment = newCurrentFieldTimeSegment;
 		p.display.updateCurrentSelectableTime = true;
+		if(p.p.debug.viewer)
+			p.display.message("Set newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment);
 	}
 
 	public void setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment )
 	{
+		if(p.p.debug.viewer)
+			p.display.message("Set newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
 		currentFieldTimelinesSegment = newCurrentFieldTimelinesSegment;
 		int fieldTimelineID = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimelinesSegment).getFieldTimelineID();
 		setCurrentFieldTimeSegment(fieldTimelineID);

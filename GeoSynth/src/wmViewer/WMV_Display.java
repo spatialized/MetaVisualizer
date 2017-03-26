@@ -266,7 +266,7 @@ class WMV_Display
 			}
 		}
 
-		p.p.text(" Displaying Date: "+ (displayDate == -1 ? "All" : displayDate), xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" Displaying Date: "+ (displayDate == -1 ? "All" : (displayDate+1)), xPos, yPos += lineWidth, hudDistance);
 
 		if(c != null)
 		{

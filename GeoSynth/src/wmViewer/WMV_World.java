@@ -248,7 +248,10 @@ public class WMV_World
 			startInitialClustering();							
 		
 		if(startInteractive && !interactive && !p.state.running)		/* Start interactive clustering */
+		{
+			PApplet.println("Will start interactive clustering...");
 			startInteractiveClustering();						
+		}
 		
 		if(interactive && !startInteractive && !p.state.running)		/* Running interactive clustering */
 			runInteractiveClustering();	
@@ -661,7 +664,7 @@ public class WMV_World
 			display.sendSetupMessage(" ");
 		}
 		
-		display.sendSetupMessage("Starting WorldMediaViewer v1.0...");	// Show startup message
+		display.sendSetupMessage("Starting MultimediaLocator v0.9...");	// Show startup message
 		display.draw();											
 
 		p.state.running = false;			// Stop running

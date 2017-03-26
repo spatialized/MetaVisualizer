@@ -701,11 +701,11 @@ public class WMV_Input
 			{
 				if (key == 'r')									// Zoom out to whole timeline
 				{
-					p.display.resetZoom();
+					p.display.resetZoom(true);
 				}
 				if (key == 'z')									// Timeline zoom to fit
 				{
-					p.display.zoomTimelineToFit();
+					p.display.zoomTimelineToFit(true);
 				}
 				if (key == 'a')									// Timeline zoom to fit
 				{
@@ -721,23 +721,33 @@ public class WMV_Input
 				}
 				if (key == PApplet.CODED) 					
 				{
+//					if (keyCode == PApplet.UP) 					// Timeline zoom in 
+//						p.display.zoom(0.95f, true);
+//					
+//					if (keyCode == PApplet.DOWN) 				// Timeline zoom out
+//						p.display.zoom(1.052f, true);
+
 					if (keyCode == PApplet.UP) 					// Timeline zoom in 
-						p.display.zoom(0.95f);
+						p.display.zoom(-1, true);
 					
 					if (keyCode == PApplet.DOWN) 				// Timeline zoom out
-					{
-						p.display.zoom(1.052f);
-					}
+						p.display.zoom(1, true);
 
-					if (keyCode == PApplet.LEFT)  				// Timeline scroll left
-					{
-						p.display.scroll(-600.f);
-					}
+					if (keyCode == PApplet.LEFT)  				// Start timeline scrolling left
+						p.display.scroll(-1);
+					
+					if (keyCode == PApplet.RIGHT)  				// Start timeline scrolling right
+						p.display.scroll(1);
 
-					if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
-					{
-						p.display.scroll(600.f);
-					}
+//					if (keyCode == PApplet.LEFT)  				// Timeline scroll left
+//					{
+//						p.display.scroll(-600.f);
+//					}
+//
+//					if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
+//					{
+//						p.display.scroll(600.f);
+//					}
 				}
 			}
 
@@ -1355,14 +1365,34 @@ public class WMV_Input
 		/* Coded Keys */
 		if (key == PApplet.CODED) 
 		{
-			if (keyCode == PApplet.LEFT) 
-				p.viewer.stopRotateXTransition();
-			if (keyCode == PApplet.RIGHT) 
-				p.viewer.stopRotateXTransition();
-			if (keyCode == PApplet.UP) 
-				p.viewer.stopRotateYTransition();
-			if (keyCode == PApplet.DOWN) 
-				p.viewer.stopRotateYTransition();
+			if(p.display.displayView == 0)
+			{
+				if (keyCode == PApplet.LEFT) 
+					p.viewer.stopRotateXTransition();
+				if (keyCode == PApplet.RIGHT) 
+					p.viewer.stopRotateXTransition();
+				if (keyCode == PApplet.UP) 
+					p.viewer.stopRotateYTransition();
+				if (keyCode == PApplet.DOWN) 
+					p.viewer.stopRotateYTransition();
+			}
+			else if(p.display.displayView == 3)
+			{
+				if (keyCode == PApplet.UP)  				// Timeline scroll left
+					p.display.stopZooming();
+				if (keyCode == PApplet.DOWN)  				// Timeline scroll right
+					p.display.stopZooming();
+				if (keyCode == PApplet.LEFT)  				// Timeline scroll left
+					p.display.stopScrolling();
+				if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
+					p.display.stopScrolling();
+
+//				if (keyCode == PApplet.LEFT)  				// Timeline scroll left
+//					p.display.scroll(5.f, -1);
+//				if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
+//					p.display.scroll(5.f, 1);
+			}
+			
 			if (keyCode == PApplet.SHIFT) 
 				shiftKey = false;
 			if (keyCode == PApplet.ALT) 

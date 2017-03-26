@@ -192,7 +192,8 @@ public class WMV_Map
 				PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), mapLoc);
 				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
 				marker.setId(String.valueOf(c.getID()));
-				marker.setColor(p.p.p.color(90, 225, 225, 155));
+//				marker.setColor(p.p.p.color(90, 225, 225, 155));
+				marker.setColor(p.p.p.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
 				marker.setHighlightColor(p.p.p.color(170, 255, 255, 255));
 				marker.setStrokeWeight(0);
 				marker.setDiameter(PApplet.sqrt(c.mediaCount) * 3.f);
@@ -1443,7 +1444,7 @@ public class WMV_Map
 	/**
 	 * Update map zoom level each frame
 	 */
-	void updateMapScrollTransition()
+	public void updateMapScrollTransition()
 	{
 		float newMapX = mapLeftEdge;
 		float newMapY = mapTopEdge;

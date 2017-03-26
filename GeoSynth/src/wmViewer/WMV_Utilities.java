@@ -111,8 +111,10 @@ public class WMV_Utilities
 			if(hour > 12)
 			{
 				hour -= 12;
-				pm = true;
+				if(hour < 12) pm = true;
 			}
+			else if(hour == 12)
+				pm = true;
 		}
 
 		String strHour = String.valueOf(hour);

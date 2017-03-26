@@ -278,7 +278,7 @@ class WMV_Display
 			}
 		}
 
-		p.p.text(" Displaying Date: "+ (displayDate == -1 ? "All" : (displayDate+1)), xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" Displaying Date: "+ (displayDate == -1 ? "All" : (displayDate+1)), xPos, yPos += lineWidth, hudDistance);
 
 		if(c != null)
 		{
@@ -671,13 +671,11 @@ class WMV_Display
 				xOffset += 3600.f * timeToScreenRatio;
 			}
 			
-//			PApplet.println("1.. (firstHour - timelineStart) * timeToScreenRatio - 20.f:"+((firstHour - timelineStart) * timeToScreenRatio - 20.f));
-			if( (firstHour - timelineStart) * timeToScreenRatio - 20.f > 100.f)
+			if( (firstHour - timelineStart) * timeToScreenRatio - 20.f > 200.f)
 				p.p.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 			
-			xOffset -= 3600.f;
-//			PApplet.println("2.. timelineXOffset + timelineScreenSize - 40.f - xOffset:"+(timelineXOffset + timelineScreenSize - 40.f - xOffset));
-			if(timelineXOffset + timelineScreenSize - 40.f - xOffset > 100.f)
+			xOffset -= 3600.f * timeToScreenRatio;
+			if(timelineXOffset + timelineScreenSize - 40.f - xOffset > 200.f)
 				p.p.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 		}
 		else
@@ -1131,15 +1129,15 @@ class WMV_Display
 		{
 			if(selectedCluster != -1)
 			{
-				if(!p.input.shiftKey)
-				{
-					p.viewer.teleportToCluster(selectedCluster, true, -1); 
-					p.display.setDisplayView(0);
-				}
-				else
-				{
+//				if(p.input.shiftKey)
+//				{
+//					p.viewer.teleportToCluster(selectedCluster, true, selectableTimes.get(selectedTime).segment.getFieldTimelineID()); 
+//					p.display.setDisplayView(0);
+//				}
+//				else
+//				{
 					p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).segment.getFieldTimelineID());
-				}
+//				}
 			}
 		}
 		
@@ -1306,7 +1304,7 @@ class WMV_Display
 
 		topTextYOffset = -p.p.height / 1.6f;
 		clusterImageXOffset = -p.p.width/ 1.66f;
-		clusterImageYOffset = p.p.height / 2.f;
+		clusterImageYOffset = p.p.height / 2.5f;
 
 		userMessageXOffset = -p.p.width / 2.f;
 		userMessageYOffset = 0;

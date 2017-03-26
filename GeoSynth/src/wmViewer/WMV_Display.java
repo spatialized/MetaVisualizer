@@ -262,19 +262,19 @@ class WMV_Display
 
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Field #"+ f.fieldID+"  of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" Number of Clusters: "+ f.clusters.size(), xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" Number of Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" Clusters: "+ f.clusters.size()+"  Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" Time Zone: "+ f.timeZoneID, xPos, yPos += lineWidth, hudDistance);
 		
 		if(f.dateline != null)
 		{
 			if(f.dateline.size() > 0)
 			{
 				int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
-				p.p.text(" Current Field Date: "+ (fieldDate+1)+" of "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidthWide, hudDistance);
 				if(displayDate == -1)
-					p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment()+"  of "+ p.getCurrentField().timeline.size() +" in Main Timeline", xPos, yPos += lineWidth, hudDistance);
+					p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment()+"  of "+ p.getCurrentField().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
 				else
-					p.p.text(" Current Field Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelinesID()+"  of "+ p.getCurrentField().timelines.get(fieldDate).size() + " in Timeline #"+fieldDate, xPos, yPos += lineWidth, hudDistance);
+					p.p.text(" Current Field Time Segment: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelinesID()+"  of "+ p.getCurrentField().timelines.get(fieldDate).size() + " in Timeline #"+fieldDate, xPos, yPos += lineWidthWide, hudDistance);
+				p.p.text("   Field Time Segment Date: "+ (fieldDate+1)+" of "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidthWide, hudDistance);
 			}
 		}
 
@@ -283,8 +283,8 @@ class WMV_Display
 		if(c != null)
 		{
 			p.p.textSize(mediumTextSize);
-			yPos = timelineYOffset + timelineHeight * 2.f + lineWidthVeryWide;
 			
+			yPos = timelineYOffset + timelineHeight * 4.f;
 			p.p.text(" Current Cluster: "+ c.getID()+" of "+ f.clusters.size(), xPos, yPos, hudDistance);
 
 			if(c.dateline != null)
@@ -659,19 +659,26 @@ class WMV_Display
 		float timeLength = timelineEnd - timelineStart;
 		float timeToScreenRatio = timelineScreenSize / timeLength;
 		
-		
 		if(lastHour / 3600.f - firstHour / 3600.f <= 16.f)
 		{
 			float xOffset = timelineXOffset + (firstHour - timelineStart) * timeToScreenRatio - 20.f;
-			p.p.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
-			p.p.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
-		
-			for( float pos = firstHour ; pos <= lastHour ; pos += 3600.f )
+			
+			float pos;
+			for( pos = firstHour ; pos <= lastHour ; pos += 3600.f )
 			{
 				String time = p.p.utilities.secondsToTime(pos, false, false);
 				p.p.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 				xOffset += 3600.f * timeToScreenRatio;
 			}
+			
+//			PApplet.println("1.. (firstHour - timelineStart) * timeToScreenRatio - 20.f:"+((firstHour - timelineStart) * timeToScreenRatio - 20.f));
+			if( (firstHour - timelineStart) * timeToScreenRatio - 20.f > 100.f)
+				p.p.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+			
+			xOffset -= 3600.f;
+//			PApplet.println("2.. timelineXOffset + timelineScreenSize - 40.f - xOffset:"+(timelineXOffset + timelineScreenSize - 40.f - xOffset));
+			if(timelineXOffset + timelineScreenSize - 40.f - xOffset > 100.f)
+				p.p.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 		}
 		else
 		{

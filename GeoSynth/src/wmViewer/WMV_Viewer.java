@@ -3888,7 +3888,7 @@ public class WMV_Viewer
 //				else PApplet.println("currentFieldDate would have been set to null..");
 
 				if(p.getTimeMode() == 2 && !teleporting)
-					p.createTimeCycle();
+					p.createTimeCycle();								// Update time cycle for new cluster
 			}
 			else
 			{

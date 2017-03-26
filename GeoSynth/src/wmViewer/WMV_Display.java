@@ -119,10 +119,10 @@ class WMV_Display
 		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
 		timelineXOffset = -p.p.width/ 1.66f;
-		timelineYOffset = -p.p.height/ 2.f;
+		timelineYOffset = -p.p.height / 3.f;
 		timelineYOffset = 0.f;
 		datelineXOffset = timelineXOffset;
-		datelineYOffset = p.p.height * 0.2f;
+		datelineYOffset = p.p.height * 0.33f;
 		
 		map2D = new WMV_Map(this);
 		
@@ -539,33 +539,32 @@ class WMV_Display
 		p.p.strokeWeight(3.f);
 		p.p.fill(0.f, 0.f, 255.f, 255.f);
 		p.p.line(timelineXOffset, timelineYOffset, hudDistance, timelineXOffset + timelineScreenSize, timelineYOffset, hudDistance);
-
-		String startTime, endTime;
-		int hour = PApplet.round(timelineStart) / 3600;
-		int minute = (PApplet.round(timelineStart) % 3600) / 60;
-		int second = (PApplet.round(timelineStart) % 3600) % 60;
-
-		String strHour = String.valueOf(hour);
-		String strMinute = String.valueOf(minute);
-		if(minute < 10) strMinute = "0"+strMinute;
-		String strSecond = String.valueOf(second);
-		if(second < 10) strSecond = "0"+strSecond;
-		startTime = strHour + ":" + strMinute + ":" + strSecond;
-
-		hour = PApplet.round(timelineEnd) / 3600;
-		minute = (PApplet.round(timelineEnd) % 3600) / 60;
-		second = (PApplet.round(timelineEnd) % 3600) % 60;
-		strHour = String.valueOf(hour);
-		strMinute = String.valueOf(minute);
-		if(minute < 10) strMinute = "0"+strMinute;
-		strSecond = String.valueOf(second);
-		if(second < 10) strSecond = "0"+strSecond;
-		endTime = strHour + ":" + strMinute + ":" + strSecond;
+		
+		String startTime = p.p.utilities.secondsToTime(timelineStart, false);
+		String endTime = p.p.utilities.secondsToTime(timelineEnd, false);
 		
 		p.p.textSize(timeTextSize);
-		p.p.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 30.f, hudDistance);
-		p.p.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 30.f, hudDistance);
+		p.p.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+		p.p.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 	
+		float firstHour = p.p.utilities.roundSecondsToHour(timelineStart);
+		if(firstHour == (int)(timelineStart / 3600.f) * 3600.f) firstHour += 3600.f;
+		float lastHour = p.p.utilities.roundSecondsToHour(timelineEnd);
+		if(lastHour == (int)(timelineEnd / 3600.f + 1.f) * 3600.f) lastHour -= 3600.f;
+		
+//		float screenLength = timelineScreenSize - timelineXOffset;
+		float timeLength = timelineEnd - timelineStart;
+		float timeToScreenRatio = timelineScreenSize / timeLength;
+		
+		float xOffset = timelineXOffset + (firstHour - timelineStart) * timeToScreenRatio - 20.f;
+		for( float pos = firstHour ; pos <= lastHour ; pos += 3600.f )
+		{
+			String time = p.p.utilities.secondsToTime(pos, false);
+			p.p.text(time, xOffset - 20.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+//			xOffset = timelineXOffset + (pos - timelineStart) * timeToScreenRatio - 20.f;
+			xOffset += 3600.f * timeToScreenRatio;
+		}
+		
 		if(f.dateline.size() == 1)
 		{
 			int count = 0;
@@ -601,10 +600,10 @@ class WMV_Display
 						count++;
 					}
 				}
-				else
-				{
-					PApplet.println("--> displayDate > timelines.size()   displayDate:"+displayDate+" f.timelines.size():"+f.timelines.size());
-				}
+//				else
+//				{
+//					PApplet.println("--> displayDate > timelines.size()   displayDate:"+displayDate+" f.timelines.size():"+f.timelines.size());
+//				}
 			}
 		}
 		
@@ -828,17 +827,24 @@ class WMV_Display
 	public void zoomTimelineToFit()
 	{
 		WMV_Field f = p.getCurrentField();
-		float first = f.timeline.get(0).getLower().getTime();
-		float last = f.timeline.get(f.timeline.size()-1).getUpper().getTime();
-		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
 		
-		first *= day;
+		float first = f.timeline.get(0).getLower().getTime();						// First field media time, normalized
+		float last = f.timeline.get(f.timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
+		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+
+		first *= day;					// Convert from normalized value to seconds
 		last *= day;
-		timelineStart = first - 10.f;
-		timelineEnd = last + 10.f;
+		
+		timelineStart = p.p.utilities.roundSecondsToHour(first);		// Round down to nearest hour
+		if(timelineStart > first) timelineStart -= 3600;
+		if(timelineStart < 0.f) timelineStart = 0.f;
+		timelineEnd = p.p.utilities.roundSecondsToHour(last);			// Round up to nearest hour
+		if(timelineEnd < last) timelineEnd += 3600;
+		if(timelineEnd > day) timelineEnd = day;
+		
+//		PApplet.println("--> first:"+first+" last:"+last+" timelineStart:"+timelineStart+" timelineEnd:"+timelineEnd);
 		
 		updateTimeline = true;
-//		PApplet.println("timelineStart:"+timelineStart+" timelineEnd:"+timelineEnd);
 	}
 	
 	public void resetZoom()
@@ -856,9 +862,24 @@ class WMV_Display
 		float result = timelineStart + newLength;
 		
 		if(result < p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0)))
-			timelineEnd = result;
-		
-		updateTimeline = true;
+		{
+			WMV_Field f = p.getCurrentField();
+			float last = f.timeline.get(f.timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
+			float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+			
+			if(length - newLength > 300.f)
+			{
+				timelineEnd = p.p.utilities.roundSecondsToInterval(result, 600.f);		// Round up to nearest 10 min.
+				if(timelineEnd < last) timelineEnd += 600;
+			}
+			else						
+				timelineEnd = result;													// Changing length less than 5 min., no rounding								
+
+			if(timelineEnd > day) timelineEnd = day;
+
+			PApplet.println("length:"+length+" newLength:"+newLength+" timelineEnd:"+timelineEnd);
+			updateTimeline = true;
+		}
 	}
 	
 	public void scroll(float amount)
@@ -883,8 +904,8 @@ class WMV_Display
 		{
 			if(selectedCluster != -1)
 			{
-				PApplet.println("Will teleport to selectedCluster:"+selectedCluster+" selectedTime:"+selectedTime+" new field time segment:"+selectableTimes.get(selectedTime).getID());
-				PApplet.println(" selectedCluster:"+selectedCluster+" should == selectableTimes.get(selectedTime).getClusterID():"+selectableTimes.get(selectedTime).getClusterID());
+//				PApplet.println("Will teleport to selectedCluster:"+selectedCluster+" selectedTime:"+selectedTime+" new field time segment:"+selectableTimes.get(selectedTime).getID());
+//				PApplet.println(" selectedCluster:"+selectedCluster+" should == selectableTimes.get(selectedTime).getClusterID():"+selectableTimes.get(selectedTime).getClusterID());
 				
 				if(!p.input.shiftKey)
 				{

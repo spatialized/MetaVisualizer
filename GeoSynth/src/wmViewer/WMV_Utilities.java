@@ -81,6 +81,37 @@ public class WMV_Utilities
 		return result;
 	}
 
+	public int roundSecondsToHour(float value)
+	{
+		return PApplet.round(value / 3600.f) * 3600;
+	}
+
+	public int roundSecondsToInterval(float value, float interval)
+	{
+		return PApplet.round(PApplet.round(value / interval) * interval);
+	}
+	
+	public String secondsToTime( float seconds, boolean showSeconds )
+	{
+		int hour = PApplet.round(seconds) / 3600;
+		int minute = (PApplet.round(seconds) % 3600) / 60;
+		int second = (PApplet.round(seconds) % 3600) % 60;
+
+		String strHour = String.valueOf(hour);
+		String strMinute = String.valueOf(minute);
+		if(minute < 10) strMinute = "0"+strMinute;
+		
+		if(showSeconds)
+		{
+			String strSecond = String.valueOf(second);
+			if(second < 10) strSecond = "0"+strSecond;
+			return strHour + ":" + strMinute + ":" + strSecond;
+		}
+		else				
+			return strHour + ":" + strMinute;
+
+	}
+	
 	public int getCurrentDateInDaysSince1980()
 	{
 		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(p.getCurrentField().timeZoneID));

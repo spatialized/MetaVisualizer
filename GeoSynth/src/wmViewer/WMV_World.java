@@ -808,10 +808,10 @@ public class WMV_World
 	 */
 	public WMV_Cluster getCurrentCluster()
 	{
-		WMV_Cluster c;
-		if(viewer.getCurrentClusterID() >= 0 && viewer.getCurrentClusterID() < getCurrentField().clusters.size())
+		int cluster = viewer.getCurrentClusterID();
+		if(cluster >= 0 && cluster < getCurrentField().clusters.size())
 		{
-			c = getCurrentField().clusters.get(viewer.getCurrentClusterID());
+			WMV_Cluster c = getCurrentField().clusters.get(cluster);
 			return c;
 		}
 		else return null;
@@ -822,8 +822,13 @@ public class WMV_World
 	 */
 	public WMV_Cluster getAttractorCluster()
 	{
-		WMV_Cluster c = getCurrentField().clusters.get(viewer.getAttractorCluster());
-		return c;
+		int attractor = viewer.getAttractorCluster();
+		if(attractor >= 0 && attractor < getCurrentField().clusters.size())
+		{
+			WMV_Cluster c = getCurrentField().clusters.get(attractor);
+			return c;
+		}
+		else return null;
 	}
 	
 	/**

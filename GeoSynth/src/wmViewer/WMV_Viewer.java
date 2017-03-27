@@ -118,7 +118,9 @@ public class WMV_Viewer
 	private boolean movingNearby = false;		// Moving to a point within nearClusterDistance
 
 	private boolean waiting = false;						// Whether the camera is waiting to move while following a path
-	private int pathWaitStartFrame, pathWaitLength = 100;
+	private int pathWaitStartFrame;
+//	public int pathWaitLength = 50;
+//	public final int initPathWaitLength = 50;
 
 	/* Graphics */
 //	public int firstOrientationModeFrame = 0;
@@ -284,9 +286,17 @@ public class WMV_Viewer
 
 		for(WMV_Cluster c : p.getCurrentField().clusters)
 		{
-			if(!c.isEmpty())
-				if(c.getLocation().dist(location) < settings.farViewingDistance)
+			if(settings.orientationModeForceVisible)
+			{
+				if(!c.isEmpty())
 					clustersVisible.append(c.getID());
+			}
+			else
+			{
+				if(!c.isEmpty())
+					if(c.getLocation().dist(location) < settings.farViewingDistance)
+						clustersVisible.append(c.getID());
+			}
 		}
 
 		if(clustersVisible.size() > settings.maxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
@@ -296,7 +306,7 @@ public class WMV_Viewer
 
 			for(int i=0; i<allClusters.size(); i++)
 			{
-				if(clustersVisible.size() < settings.maxVisibleClusters)
+				if(clustersVisible.size() < (settings.orientationModeForceVisible ? settings.minVisibleClusters : settings.maxVisibleClusters))
 				{
 					clustersVisible.append(i);
 				}
@@ -1615,7 +1625,6 @@ public class WMV_Viewer
 		movingNearby = false;		// Moving to a powithin nearClusterDistance
 
 		waiting = false;						// Whether the camera is waiting to move while following a path
-		pathWaitLength = 100;
 		
 		/* Looking */
 //		looking = false;				// Whether viewer is turning to look for images, since none are visible
@@ -2039,12 +2048,17 @@ public class WMV_Viewer
 			
 			if(halting)
 			{
-				float attractionMult = settings.camHaltInc-PApplet.map(attraction.mag(), 0.f, 1.f, 0.f, settings.camHaltInc);
-				float accelerationMult = settings.camHaltInc-PApplet.map(acceleration.mag(), 0.f, 1.f, 0.f, settings.camHaltInc);
-				float velocityMult = settings.camHaltInc-PApplet.map(velocity.mag(), 0.f, 1.f, 0.f, settings.camHaltInc);
-				attraction.mult(attractionMult);
-				acceleration.mult(accelerationMult);							// Decrease acceleration
-				velocity.mult(velocityMult);								// Decrease velocity
+//				float attractionMult = settings.camHaltInc-PApplet.map(attraction.mag(), 0.f, 1.f, 0.f, settings.camHaltInc);
+//				float accelerationMult = settings.camHaltInc-PApplet.map(acceleration.mag(), 0.f, 1.f, 0.f, settings.camHaltInc);
+//				float velocityMult = settings.camHaltInc-PApplet.map(velocity.mag(), 0.f, 1.f, 0.f, settings.camHaltInc);
+//				attraction.mult(attractionMult);
+//				acceleration.mult(accelerationMult);							// Decrease acceleration
+//				velocity.mult(velocityMult);								// Decrease velocity
+				
+				attraction.mult(settings.camHaltInc);
+//				acceleration.mult(settings.camHaltInc);							// Decrease acceleration
+				acceleration = new PVector(0,0,0);
+				velocity.mult(settings.camHaltInc);								// Decrease velocity
 			}
 
 			if(PApplet.abs(acceleration.mag()) > 0.f)					// Add acceleration to velocity
@@ -2067,8 +2081,8 @@ public class WMV_Viewer
 			
 			if( (movingToAttractor || following) && attractorPoint != null )
 			{
-//				if(p.p.debug.viewer && p.p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
-//					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
+				if(p.p.debug.viewer && p.p.frameCount - attractionStart > 120)					/* If not slowing and attraction force exists */
+					p.display.message("Attraction taking a while... slowing:"+slowing+" halting:"+halting+" attraction.mag():"+attraction.mag()+" acceleration.mag():"+acceleration.mag());
 
 				curAttractor = attractorPoint;
 				attractorFound = true;
@@ -2082,7 +2096,6 @@ public class WMV_Viewer
 			if(attractorFound && !waiting)					
 			{
 				boolean reachedAttractor = false;				
-
 				if(curAttractor.getClusterDistance() < clusterNearDistance && !movingNearby)
 				{
 					if(PApplet.abs(velocity.mag()) > settings.velocityMin)					/* Slow down at attractor center */
@@ -2110,14 +2123,9 @@ public class WMV_Viewer
 					handleReachedAttractor();
 			}
 
-			if(settings.orientationMode)
+			location.add(velocity);				// Add velocity to location
+			if(!settings.orientationMode)
 			{
-				location.add(velocity);		// Add velocity to location
-//				jumpTo(location);			// Jump to new location
-			}
-			else 
-			{
-				location.add(velocity);			// Add velocity to location
 				jumpTo(location);				// Move camera
 				location = getLocation();		// Update viewer location to precise camera location
 			}
@@ -2155,7 +2163,7 @@ public class WMV_Viewer
 			setCurrentCluster( attractorCluster, -1 );
 			if(p.p.debug.viewer)
 				p.display.message("Reached path goal #"+pathLocationIdx+", will start waiting...");
-			startWaiting(pathWaitLength);
+			startWaiting();
 		}
 
 		if(movingToCluster)		
@@ -2262,16 +2270,31 @@ public class WMV_Viewer
 	
 	private void slow()
 	{
-		if(p.p.debug.viewer)
-			p.display.message("Slowing...");
+
+		if(p.p.debug.viewer && p.p.debug.detailed)
+		{
+			WMV_Cluster curAttractor = p.getAttractorCluster();
+//			WMV_Cluster curAttractor = p.getCurrentField().clusters.get(attractorCluster);
+			if(curAttractor != null)
+				p.display.message("Slowing... curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
+			else
+				p.display.message("Slowing... no attractor");
+		}
 		
 		slowing = true;										// Slowing when close to attractor
 	}
 
 	private void halt()
 	{
-		if(p.p.debug.viewer)
-			p.display.message("Halting...");
+		if(p.p.debug.viewer && p.p.debug.detailed)
+		{
+			WMV_Cluster curAttractor = p.getAttractorCluster();
+//			WMV_Cluster curAttractor = p.getCurrentField().clusters.get(attractorCluster);
+			if(curAttractor != null)
+				p.display.message("Halting...  curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
+			else
+				p.display.message("Halting... no attractor");
+		}
 		
 		slowing = false;
 		halting = true;										// Slowing when close to attractor
@@ -2376,45 +2399,8 @@ public class WMV_Viewer
 				lastLookFrame = p.p.frameCount;
 			}
 			
-			if(following && waiting)				// If revisiting places in memory and currently waiting
-			{				
-				if(p.p.frameCount > pathWaitStartFrame + pathWaitLength )
-				{
-					waiting = false;
-					if(p.p.debug.viewer)
-						p.display.message("Finished waiting...");
-
-					pathLocationIdx++;
-					if(pathLocationIdx < path.size())
-					{
-						pathGoal = path.get(pathLocationIdx).getLocation();
-//						p.display.message("New pathGoal:"+pathGoal);
-						
-						if(pathLocationIdx >= 1)
-						{
-							if(pathGoal != path.get(pathLocationIdx-1).getLocation())
-							{
-								setAttractorPoint(pathGoal);
-//								p.display.message("Moving to next attraction point..."+attractorPoint.getLocation());
-							}
-							else
-							{
-//								p.display.message("Same attraction point!");
-//								turnTowardsPoint(memory.get(revisitPoint).target);			// Turn towards memory target view
-							}
-						}
-					}
-					else
-					{
-						if(p.p.debug.viewer)
-						{
-							p.display.message("Reached end of path... ");
-							p.display.message(" ");
-						}
-						stopFollowing();
-					}
-				}
-			}
+			if(following && waiting)				// Update following a path
+				updateFollowing();
 
 			/* Zoom Transition */
 			if (zooming) 
@@ -2446,6 +2432,86 @@ public class WMV_Viewer
 						settings.angleFading = true;
 					}
 				}
+			}
+		}
+	}
+	
+	private void updateFollowing()
+	{
+		if(p.p.frameCount > pathWaitStartFrame + settings.pathWaitLength )
+		{
+			waiting = false;
+			if(p.p.debug.viewer)
+				p.display.message("Finished waiting...");
+
+			
+//			if(settings.orientationModeConstantWaitLength)
+//			{
+//				pathLocationIdx++;
+//				PVector lastGoal = new PVector(pathGoal.x, pathGoal.y, pathGoal.z);
+//				pathGoal = path.get(pathLocationIdx).getLocation();
+//				
+//				while(lastGoal == pathGoal)
+//				{
+//					PApplet.println("Ignored pathLocationIdx #"+pathLocationIdx+" at same location as previous...");
+//					pathLocationIdx++;
+//					lastGoal = new PVector(pathGoal.x, pathGoal.y, pathGoal.z);
+//					pathGoal = path.get(pathLocationIdx).getLocation();
+//				}
+//			}
+//			else
+//			{
+				pathLocationIdx++;
+//			}
+			
+			if(pathLocationIdx < path.size())
+			{
+				pathGoal = path.get(pathLocationIdx).getLocation();
+				if(p.p.debug.viewer)
+					p.display.message("--> updateFollowing()... Next path location:"+pathGoal);
+				
+				if(pathLocationIdx >= 1)
+				{
+					if(pathGoal != path.get(pathLocationIdx-1).getLocation())
+					{
+						if(p.p.debug.viewer)
+							p.display.message("Will move to next attraction point..."+attractorPoint.getLocation());
+						setAttractorPoint(pathGoal);
+					}
+					else
+					{
+						if(p.p.debug.viewer)
+							p.display.message("Same attraction point!");
+						
+						if(settings.orientationModeConstantWaitLength)
+						{
+							if(p.p.debug.viewer)
+								p.display.message("Ignoring pathLocationIdx #"+pathLocationIdx+" at same location as previous...");
+							
+							pathLocationIdx++;
+							pathGoal = path.get(pathLocationIdx).getLocation();
+							
+							while(pathGoal == path.get(pathLocationIdx-1).getLocation())
+							{
+								if(p.p.debug.viewer)
+									p.display.message(" Also ignoring pathLocationIdx #"+pathLocationIdx+" at same location as previous...");
+								pathLocationIdx++;
+								pathGoal = path.get(pathLocationIdx).getLocation();
+							}
+						}
+						
+//						turnTowardsPoint(memory.get(revisitPoint).target);			// Turn towards memory target view
+					}
+				}
+			}
+			else
+			{
+				if(p.p.debug.viewer)
+				{
+					p.display.message("Reached end of path... ");
+					p.display.message(" ");
+				}
+				stopFollowing();
 			}
 		}
 	}
@@ -2773,11 +2839,10 @@ public class WMV_Viewer
 	 * Wait for specified time until moving to next memory point
 	 * @param length Length of time to wait
 	 */
-	private void startWaiting(int length)	
+	private void startWaiting()	
 	{
 		waiting = true;
 		pathWaitStartFrame = p.p.frameCount;
-		pathWaitLength = length;
 	}
 	
 	/**

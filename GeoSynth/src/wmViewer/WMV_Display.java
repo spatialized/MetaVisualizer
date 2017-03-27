@@ -116,7 +116,7 @@ class WMV_Display
 
 		topTextYOffset = -p.p.height / 1.6f;
 		clusterImageXOffset = -p.p.width/ 1.66f;
-		clusterImageYOffset = p.p.height * 1.5f;
+		clusterImageYOffset = p.p.height * 1.33f;
 
 		userMessageXOffset = -p.p.width / 2.f;
 		userMessageYOffset = 0;
@@ -793,10 +793,10 @@ class WMV_Display
 			p.p.point(xOffset, datelineYOffset, hudDistance);
 			p.p.popMatrix();
 		}
-		else
-		{
-			PApplet.println("-----> Date out of view! date:"+date+" datelineStart:"+datelineStart+" datelineEnd:"+datelineEnd);
-		}
+//		else
+//		{
+//			PApplet.println("-----> Date out of view! date:"+date+" datelineStart:"+datelineStart+" datelineEnd:"+datelineEnd);
+//		}
 	}
 	
 	/**
@@ -831,7 +831,8 @@ class WMV_Display
 			{
 				float seconds = p.p.utilities.getTimePVectorSeconds(time);
 				float xOff = PApplet.map(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
-				p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
+				if(xOff > timelineXOffset && xOff < timelineXOffset + timelineScreenSize)
+					p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
 			}
 
 //			p.p.stroke(90, 215, 255, 255);									// Green rectangle around time segment
@@ -1995,8 +1996,8 @@ class WMV_Display
 			p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
 		}
 		
-		p.p.text(" Field Cluster Count:"+(f.clusters.size()-f.model.mergedClusters), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-		p.p.text("   Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text(" Field Cluster Count:"+(f.clusters.size()), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.p.text("   Merged: "+f.model.mergedClusters+" out of "+(f.model.mergedClusters+f.clusters.size())+" Total", textXPos, textYPos += lineWidth, hudDistance);
 		if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, textXPos, textYPos += lineWidth, hudDistance);

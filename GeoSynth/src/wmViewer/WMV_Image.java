@@ -18,7 +18,7 @@ class WMV_Image extends WMV_Viewable
 {
 	/* Graphics */
 	public PImage image, blurred;			// Image pixels
-	public PVector[] vertices;				// Vertex list
+	public PVector[] vertices, sVertices;	// Vertex list
 //	private Box shape;						// Shape
 	
 	private int horizBorderID = -1;					// Blur horizBorderID   0: Left 1: Center 2: Right  3: Left+Right
@@ -70,6 +70,7 @@ class WMV_Image extends WMV_Viewable
 		imageHeight = newHeight;
 		
 		vertices = new PVector[4]; 
+		sVertices = new PVector[4]; 
 
 		gpsLocation = newGPSLocation;
 		focusDistance = newFocusDistance;
@@ -137,7 +138,7 @@ class WMV_Image extends WMV_Viewable
 			if (viewingBrightness > 0)
 			{
 				if(image.width > 0 && !p.p.viewer.settings.map3DMode)		// If image has been loaded
-					drawImage();          // Draw the image 
+					displayImage();          // Draw the image 
 			}
 		} 
 		else
@@ -160,13 +161,14 @@ class WMV_Image extends WMV_Viewable
 		}
 		catch(RuntimeException ex)
 		{
-			if(p.p.p.debug.image){
-				PApplet.println("Blur Mask Error:"+ex);
-//				PApplet.println("mask.width:"+mask.width);
-//				PApplet.println("mask.height:"+mask.height);
-//				PApplet.println("main.imageID:"+getID());
-//				PApplet.println("main.width:"+image.width);
-//				PApplet.println("main.height:"+image.height);
+			if(p.p.p.debug.image || p.p.p.debug.main)
+			{
+				PApplet.println("ERROR with Blur Mask... "+ex+" horizBorderID:"+horizBorderID+" vertBorderID:"+vertBorderID);
+//				PApplet.println(" mask.width:"+mask.width);
+//				PApplet.println(" mask.height:"+mask.height);
+//				PApplet.println(" main.imageID:"+getID());
+//				PApplet.println(" main.width:"+image.width);
+//				PApplet.println(" main.height:"+image.height);
 			}
 		}
 		
@@ -181,9 +183,9 @@ class WMV_Image extends WMV_Viewable
 	{
 		/* Draw frame */
 		p.p.p.pushMatrix();
-//		p.p.p.translate(location.x, location.y, location.z);
-
-		p.p.p.stroke(0.f, 0.f, 255.f, 155.f);
+		
+//		p.p.p.stroke(0.f, 0.f, 255.f, 155.f);	 
+		p.p.p.stroke(0.f, 0.f, 255.f, viewingBrightness);	 
 		p.p.p.strokeWeight(2.f);
 		
 		p.p.p.line(vertices[0].x, vertices[0].y, vertices[0].z, vertices[1].x, vertices[1].y, vertices[1].z);
@@ -196,7 +198,7 @@ class WMV_Image extends WMV_Viewable
 		PVector cl = getCaptureLocation();
 		p.p.p.popMatrix();
 		
-		/* Point only */
+		/* Point at center only */
 //		p.p.p.pushMatrix();
 //		p.p.p.translate(location.x, location.y, location.z);
 //
@@ -238,8 +240,7 @@ class WMV_Image extends WMV_Viewable
 	public void fadeIn()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-//			if(!initFading)		
-				stopFading();
+			stopFading();
 
 		fadeBrightness(1.f);					// Fade in
 	}
@@ -250,8 +251,7 @@ class WMV_Image extends WMV_Viewable
 	public void fadeOut()
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-//			if(!initFading)			
-				stopFading();
+			stopFading();
 
 		fadeBrightness(0.f);					// Fade out
 	}
@@ -275,17 +275,19 @@ class WMV_Image extends WMV_Viewable
 			p.p.requestedImages--;
 		}
 
-		if(image.width > 0 && !hidden && !disabled)			
+		if(image.width > 0 && !hidden && !disabled)				// Image has been loaded and isn't hidden or disabled
 		{
 			boolean wasVisible = visible;
 			boolean visibilitySetToTrue = false;
 			boolean visibilitySetToFalse = false;
 
-//			visible = getAngleVisibility();						// Check if image should be visible from current viewer position
 			visible = false;
 
 			if(p.p.viewer.settings.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
+//				if(p.p.viewer.firstOrientationModeFrame == p.p.p.frameCount)
+//					wasVisible = false;
+				
 				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
@@ -306,14 +308,14 @@ class WMV_Image extends WMV_Viewable
 			if(visible)
 			{
 				float imageAngle = getFacingAngle();			// Check if image is visible at current angle facing viewer
-				
+
 				if(!p.p.p.utilities.isNaN(imageAngle))
 					visible = (getAngleBrightness(imageAngle) > 0.f);
 
 				if(!fading && p.hideImages)
 					visible = false;
 
-				if(visible)
+				if(visible && !p.p.viewer.settings.orientationMode)
 					visible = (getDistanceBrightness() > 0.f);
 
 				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
@@ -354,13 +356,11 @@ class WMV_Image extends WMV_Viewable
 				{
 					fadeOut();
 				}
-				
+
 				if(!visible && thinningVisibility && !fading && !p.hideImages) 
 				{
 					if(!fadedOut)					// Fade in if didn't just finish fading out this frame
-					{
 						fadeIn();
-					}
 				}
 			}
 
@@ -371,10 +371,24 @@ class WMV_Image extends WMV_Viewable
 
 			if(fadedOut) fadedOut = false;
 		}
-		else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
+		else
 		{
-			loadMedia(); 					// Request image pixels from disk
+			if(p.p.viewer.settings.orientationMode)
+			{
+				for(int id : p.p.viewer.clustersVisible)
+					if(cluster == id  && !requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+						loadMedia();
+			}
+			else 
+			if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
+			{
+				loadMedia(); 					// Request image pixels from disk
+			}
 		}
+		
+//		if(getCaptureDistance() >= p.p.viewer.getFarViewingDistance())
+//		if(p.p.viewer.settings.orientationMode && visible)
+//			PApplet.println("Img "+getID()+" visible? "+visible+"...getCaptureDistance():"+getCaptureDistance()+" p.p.viewer.getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getFarViewingDistance():"+p.p.viewer.getFarViewingDistance());
 		
 		if(isFading())                       // Fade in and out with time
 		{
@@ -392,7 +406,7 @@ class WMV_Image extends WMV_Viewable
 	/** 
 	 * Draw the image
 	 */
-	private void drawImage()
+	private void displayImage()
 	{
 		p.p.p.noStroke(); 
 		if (isSelected())     // Draw outline
@@ -434,13 +448,6 @@ class WMV_Image extends WMV_Viewable
 					p.p.p.tint(255, viewingBrightness * 0.333f);    
 			}
 		}
-//		else if(p.p.viewer.settings.videoMode)
-//		{
-//			if(!p.p.alphaMode)
-//				p.p.p.tint(viewingBrightness * 0.66f, 255);          // Set the image transparency					
-//			else
-//				p.p.p.tint(255, viewingBrightness * 0.333f);          				
-//		}
 		else
 		{
 			if(!p.p.alphaMode)
@@ -451,11 +458,21 @@ class WMV_Image extends WMV_Viewable
 			}
 		}
 
-		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);            // UPPER LEFT      
-		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);            // UPPER RIGHT           
-		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1);			// LOWER RIGHT        
-		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);            // LOWER LEFT
-
+		if(p.p.viewer.settings.orientationMode)
+		{
+			p.p.p.vertex(sVertices[0].x, sVertices[0].y, sVertices[0].z, 0, 0);         // UPPER LEFT      
+			p.p.p.vertex(sVertices[1].x, sVertices[1].y, sVertices[1].z, 1, 0);         // UPPER RIGHT           
+			p.p.p.vertex(sVertices[2].x, sVertices[2].y, sVertices[2].z, 1, 1);			// LOWER RIGHT        
+			p.p.p.vertex(sVertices[3].x, sVertices[3].y, sVertices[3].z, 0, 1);         // LOWER LEFT
+		}
+		else
+		{
+			p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);            // UPPER LEFT      
+			p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);            // UPPER RIGHT           
+			p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1);			// LOWER RIGHT        
+			p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);            // LOWER LEFT
+		}
+		
 		p.p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
 		p.p.p.popMatrix();
 		
@@ -480,27 +497,6 @@ class WMV_Image extends WMV_Viewable
 		return angleBrightness;
 	}
 
-//	/**
-//	 * Draw outline around image
-//	 */
-//	void outline()
-//	{
-//		p.p.p.stroke(100, 20, 250);
-//		p.p.p.strokeWeight(outlineSize);
-//
-//		p.p.p.pushMatrix();
-//		p.p.p.beginShape(PApplet.QUADS);    
-//		p.p.p.noFill();
-//
-//		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
-//		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
-//		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
-//		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
-//
-//		p.p.p.endShape(); 
-//		p.p.p.popMatrix();
-//	}
-	
 	/**
 	 * getViewingDistance()
 	 * @return How far the image is from the camera
@@ -569,35 +565,28 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void calculateVertices()									
 	{
-		initializeVertices();					// Initialize vertices
-
-		if (phi != 0.)
-			vertices = rotateVertices(vertices, -phi, verticalAxis);        	 // Rotate around X axis
-
-		if (theta != 0.)
-			vertices = rotateVertices(vertices, 360-theta, azimuthAxis);         // Rotate around Z axis
+		vertices = initializeVertices();					// Initialize vertices
+		sVertices = initializeVertices();	
+		
+		if (phi != 0.) vertices = rotateVertices(vertices, -phi, verticalAxis);        	 // Rotate around X axis
+		if (theta != 0.) vertices = rotateVertices(vertices, 360-theta, azimuthAxis);    // Rotate around Z axis
+		if (phi != 0.) sVertices = rotateVertices(sVertices, -phi, verticalAxis);        	 // Rotate around X axis
+		if (theta != 0.) sVertices = rotateVertices(sVertices, 360-theta, azimuthAxis);    // Rotate around Z axis
 
 		if(vertices.length == 0) disabled = true;
+		if(sVertices.length == 0) disabled = true;
 		
-		if(p.p.viewer.settings.orientationMode)	
-			vertices = translateVertices(vertices, p.p.viewer.getLocation());
-		else
-			vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
+		vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
 
 		disp = getDisplacementVector();
 		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
-
-		if(p.p.viewer.settings.orientationMode)
-			location = p.p.viewer.getLocation();
-		else
-			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
-
+		sVertices = translateVertices(sVertices, disp);
+		
+		location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
 		location.add(disp);     													 
 
 		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
-		{
 			location = new PVector (0, 0, 0);
-		}
 	}
 	
 	public PVector getDisplacementVector()
@@ -632,15 +621,15 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void loadMedia()
 	{
-		if(!p.p.p.debug.lowMemory)			// Check enough memory available
+//		if(p.p.viewer.settings.orientationMode || p.p.p.debug.image || p.p.p.debug.viewable)
+//			PApplet.println("Img "+getID()+" loadMedia()...");
+		
+		if( p.imagesVisible < p.maxVisiblePhotos && !hidden && !disabled)
 		{
-			if( p.imagesVisible < p.maxVisiblePhotos && !hidden && !disabled)
-			{
-				calculateVertices();
-				image = p.p.p.requestImage(filePath);
-				requested = true;
-				p.p.requestedImages++;
-			}
+			calculateVertices();
+			image = p.p.p.requestImage(filePath);
+			requested = true;
+			p.p.requestedImages++;
 		}
 	}
 
@@ -1104,7 +1093,7 @@ class WMV_Image extends WMV_Viewable
 		setFocusDistance(origFocusDistance);
 	}
 	
-	private void initializeVertices()
+	private PVector[] initializeVertices()
 	{
 		float width = calculateImageWidth();										
 		float height = width * aspectRatio;		
@@ -1114,44 +1103,37 @@ class WMV_Image extends WMV_Viewable
 		float top = -height * 0.5f;
 		float bottom = height * 0.5f;
 
-//		PApplet.println("---> ID:"+getID());
-//		PApplet.println("aspectRatio:"+aspectRatio);
-//		PApplet.println("left:"+left);
-//		PApplet.println("right:"+right);
-//		PApplet.println("top:"+top);
-//		PApplet.println("bottom:"+bottom);
-
-		vertices = new PVector[4]; 
+		PVector[] verts = new PVector[4]; 
 
 		if(cameraModel == 1)      			// If it is an iPhone Image
 		{
 			if (orientation == 90) 		 	// Vertical Image
 			{
-				vertices[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
-				vertices[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
-				vertices[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				vertices[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
+				verts[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
+				verts[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
 			}
 			else if (orientation == 0)    	// Horizontal Image
 			{
-				vertices[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
-				vertices[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
-				vertices[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				vertices[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
+				verts[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
+				verts[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
 			}
 			else if (orientation == 180)    // Upside Down (Horizontal) Image
 			{
-				vertices[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				vertices[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
-				vertices[2] = new PVector( left, top, 0 );     			// UPPER LEFT  
-				vertices[3] = new PVector( right, top, 0 );      		// UPPER RIGHT 
+				verts[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
+				verts[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[2] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[3] = new PVector( right, top, 0 );      		// UPPER RIGHT 
 			}
 			else  if (orientation == 270)    // Upside Down (Vertical) Image
 			{
-				vertices[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				vertices[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
-				vertices[2] = new PVector( left, top, 0 );     			// UPPER LEFT  
-				vertices[3] = new PVector( right, top, 0 );      		// UPPER RIGHT 
+				verts[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
+				verts[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[2] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[3] = new PVector( right, top, 0 );      		// UPPER RIGHT 
 			}
 		}
 		else
@@ -1164,10 +1146,10 @@ class WMV_Image extends WMV_Viewable
 					imageHeight = image.width;
 				}
 
-				vertices[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
-				vertices[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
-				vertices[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				vertices[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
+				verts[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
+				verts[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
 			}
 			else if (orientation == 180 || orientation == 270)    		// Upside Down (Horizontal or Vertical) Image
 			{
@@ -1177,12 +1159,14 @@ class WMV_Image extends WMV_Viewable
 					imageHeight = image.width;
 				}
 
-				vertices[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				vertices[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
-				vertices[2] = new PVector( left, top, 0 );    			// UPPER LEFT  
-				vertices[3] = new PVector( right, top, 0 );      		// UPPER RIGHT
+				verts[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
+				verts[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[2] = new PVector( left, top, 0 );    			// UPPER LEFT  
+				verts[3] = new PVector( right, top, 0 );      		// UPPER RIGHT
 			}
 		}
+		
+		return verts;
 	}
 	
 	/**

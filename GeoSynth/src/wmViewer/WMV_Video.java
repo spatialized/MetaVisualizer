@@ -41,7 +41,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 	/* Graphics */
 	private float videoWidth = 0, videoHeight = 0;			// Video width and height
-	PVector[] vertices;
+	PVector[] vertices, sVertices;
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
@@ -79,6 +79,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 //		name = newName;
 		
 		vertices = new PVector[4]; 
+		sVertices = new PVector[4]; 
 
 		filePath = newFilePath;
 
@@ -184,9 +185,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	{
 		/* Draw frame */
 		p.p.p.pushMatrix();
-//		p.p.p.translate(location.x, location.y, location.z);
 
-		p.p.p.stroke(0.f, 0.f, 255.f, 155.f);
+//		p.p.p.stroke(0.f, 0.f, 255.f, 155.f);	 
+		p.p.p.stroke(0.f, 0.f, 255.f, viewingBrightness);	 
 		p.p.p.strokeWeight(2.f);
 		
 		p.p.p.line(vertices[0].x, vertices[0].y, vertices[0].z, vertices[1].x, vertices[1].y, vertices[1].z);
@@ -331,7 +332,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				if(!fading && p.hideVideos)
 					visible = false;
 					
-				if(visible)
+				if(visible && !p.p.viewer.settings.orientationMode)
 					visible = (getDistanceBrightness() > 0.f);
 
 				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
@@ -431,35 +432,34 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public void calculateVertices()									
 	{
-		initializeVertices();					// Initialize vertices
+		vertices = initializeVertices();					// Initialize vertices
+		sVertices = initializeVertices();					// Initialize vertices
 
-		if (phi != 0.)
-			vertices = rotateVertices(vertices, -phi, verticalAxis);        	 // Rotate around X axis
-
-		if (theta != 0.)
-			vertices = rotateVertices(vertices, 360-theta, azimuthAxis);         // Rotate around Z axis
+		if (phi != 0.) vertices = rotateVertices(vertices, -phi, verticalAxis);        	 // Rotate around X axis
+		if (theta != 0.) vertices = rotateVertices(vertices, 360-theta, azimuthAxis);         // Rotate around Z axis
+		if (phi != 0.) sVertices = rotateVertices(sVertices, -phi, verticalAxis);        	 // Rotate around X axis
+		if (theta != 0.) sVertices = rotateVertices(sVertices, 360-theta, azimuthAxis);         // Rotate around Z axis
 
 		if(vertices.length == 0) disabled = true;
+		if(sVertices.length == 0) disabled = true;
 		
-		if(p.p.viewer.settings.orientationMode)	
-			vertices = translateVertices(vertices, p.p.viewer.getLocation());
-		else
+//		if(p.p.viewer.settings.orientationMode)	
+//			vertices = translateVertices(vertices, p.p.viewer.getLocation());
+//		else
 			vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
 
 		disp = getDisplacementVector();
 		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 
-		if(p.p.viewer.settings.orientationMode)
-			location = p.p.viewer.getLocation();
-		else
+//		if(p.p.viewer.settings.orientationMode)
+//			location = p.p.viewer.getLocation();
+//		else
 			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
 
 		location.add(disp);     													 
 
 		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
-		{
 			location = new PVector (0, 0, 0);
-		}
 	}
 	
 	public PVector getDisplacementVector()
@@ -634,11 +634,20 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				p.p.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));          				
 		}
 
-		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
-		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
-		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
-		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, origVideoHeight);           // LOWER LEFT
-
+		if(p.p.viewer.settings.orientationMode)
+		{
+			p.p.p.vertex(sVertices[0].x, sVertices[0].y, sVertices[0].z, 0, 0);           // UPPER LEFT      
+			p.p.p.vertex(sVertices[1].x, sVertices[1].y, sVertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
+			p.p.p.vertex(sVertices[2].x, sVertices[2].y, sVertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
+			p.p.p.vertex(sVertices[3].x, sVertices[3].y, sVertices[3].z, 0, origVideoHeight);           // LOWER LEFT
+		}
+		else
+		{
+			p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
+			p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
+			p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
+			p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, origVideoHeight);           // LOWER LEFT
+		}
 		p.p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
 		p.p.p.popMatrix();
 
@@ -707,15 +716,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc;
-
-//		if(p.p.orientationMode)
-//		{
-//			camLoc = p.p.viewer.getLocation();
-//		}
-//		else
-			camLoc = p.p.viewer.getLocation();
-		
+		PVector camLoc = p.p.viewer.getLocation();
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
 		float r;
@@ -1287,7 +1288,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	/**	
 	 * Setup video rectangle geometry 
 	 */
-	private void initializeVertices()
+	private PVector[] initializeVertices()
 	{
 		float width = getVideoWidthMeters();
 		float height = getVideoWidthMeters() * aspectRatio;
@@ -1297,12 +1298,14 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		float top = -height * 0.5f;
 		float bottom = height * 0.5f;
 		
-		vertices = new PVector[4]; 
+		PVector[] verts = new PVector[4]; 
 
-		vertices[0] = new PVector( left, top, 0 );     // UPPER LEFT  
-		vertices[1] = new PVector( right, top, 0 );      // UPPER RIGHT 
-		vertices[2] = new PVector( right, bottom, 0 );       // LOWER RIGHT
-		vertices[3] = new PVector( left, bottom, 0 );      // LOWER LEFT
+		verts[0] = new PVector( left, top, 0 );    	  // UPPER LEFT  
+		verts[1] = new PVector( right, top, 0 );      // UPPER RIGHT 
+		verts[2] = new PVector( right, bottom, 0 );   // LOWER RIGHT
+		verts[3] = new PVector( left, bottom, 0 );    // LOWER LEFT
+		
+		return verts;
 	}
 	
 	private float getVideoWidthMeters()

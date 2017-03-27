@@ -633,7 +633,10 @@ public class WMV_Field
 	{
 		if(p.viewer.isMovingToAttractor())
 		{
-			p.viewer.attractorPoint.attractViewer();		// Attract the camera to the memory navigation goal
+			if(p.viewer.attractorPoint != null)
+				p.viewer.attractorPoint.attractViewer();		// Attract the camera to the memory navigation goal
+			else 
+				PApplet.println("p.viewer.attractorPoint == NULL!!");
 		}
 		else if(p.viewer.isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
 		{

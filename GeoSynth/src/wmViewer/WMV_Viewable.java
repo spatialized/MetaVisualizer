@@ -138,22 +138,6 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * @return Image date in virtual time
-	 */
-	//	float calculateDate()
-	//	{
-	//		float minDate = ((GMV_Cluster)p.clusters.get(cluster)).lowImageDate;
-	//		float maxDate = ((GMV_Cluster)p.clusters.get(cluster)).highImageDate;
-	//		float d = PApplet.abs(p.p.fields.get(p.p.viewer.curField).curTime - PApplet.map(time.date, minDate, maxDate, 0.f, p.p.fields.get(p.p.viewer.curField).dayLength));   
-	//
-	//		if(minDate == maxDate) 
-	//			return p.p.fields.get(p.p.viewer.curField).dayLength;
-	//		else
-	//			return d;
-	//	}
-
-
-	/**
 	 * Transition alpha from current to given value
 	 */
 	void fadeBrightness(float target)
@@ -183,8 +167,8 @@ public abstract class WMV_Viewable
 	 */
 	public void stopFading()
 	{
-		if(p.p.p.debug.viewable)
-			PApplet.println("Stop fading for media:"+id);
+//		if(p.p.p.debug.viewable)
+//			PApplet.println("Stop fading for media:"+id);
 
 		fadingEndFrame = p.p.p.frameCount;
 		fadingStart = fadingBrightness;

@@ -11,6 +11,9 @@ public class WMV_Window {
 
 	WMV_Display p;
 	
+	private boolean delay = true;
+	private int delayAmount = 200;
+	
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
 	
@@ -208,6 +211,8 @@ public class WMV_Window {
 
 		x = 0;
 
+		if(delay) p.p.p.delay(delayAmount);
+		
 		lblWMViewer = new GLabel(wmvWindow, x, y, wmvWindow.width, 20, "Main Menu");
 		lblWMViewer.setLocalColorScheme(10);
 		lblWMViewer.setFont(new Font("Monospaced", Font.PLAIN, 16));
@@ -217,6 +222,8 @@ public class WMV_Window {
 		x = 20;
 		y += 30;
 		
+		if(delay) p.p.p.delay(delayAmount);
+
 		optSceneView = new GOption(wmvWindow, x, y, 90, 20, "World  (1)");
 		optSceneView.setLocalColorScheme(10);
 		optSceneView.tag = "SceneView";
@@ -251,13 +258,15 @@ public class WMV_Window {
 	
 		x = 65;
 		y += 30;
-		
+		if(delay) p.p.p.delay(delayAmount);
+
 		btnLoadMediaLibrary = new GButton(wmvWindow, x, y, 180, 20, "Load Media Library  ⇧R");
 		btnLoadMediaLibrary.tag = "Restart";
 		btnLoadMediaLibrary.setLocalColorScheme(7);
 
 		x = 90;
 		y += 30;
+//		if(delay) p.p.p.delay(delayAmount);
 
 		btnNavigationWindow = new GButton(wmvWindow, x, y, 125, 20, "Navigation  ⌘1");
 		btnNavigationWindow.tag = "OpenNavigationWindow";
@@ -330,6 +339,7 @@ public class WMV_Window {
 		navigationWindow.addKeyHandler(p.p.p, "navigationWindowKey");
 		
 		int x = 0, y = 12;
+		if(delay) p.p.p.delay(delayAmount);
 
 		lblNavigationWindow = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Navigation");
 		lblNavigationWindow.setLocalColorScheme(10);
@@ -339,6 +349,7 @@ public class WMV_Window {
 
 		x = 0;
 		y += 30;
+		if(delay) p.p.p.delay(delayAmount);
 
 		lblClusterNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Cluster Navigation");
 		lblClusterNavigation.setLocalColorScheme(10);
@@ -348,6 +359,7 @@ public class WMV_Window {
 
 		x = 120;
 		y += 30;
+		if(delay) p.p.p.delay(delayAmount);
 		
 		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 70, 20, "Teleport");
 		chkbxMovementTeleport.tag = "MovementTeleport";
@@ -355,6 +367,7 @@ public class WMV_Window {
 
 		x = 40;
 		y += 25;
+		if(delay) p.p.p.delay(delayAmount);
 
 		btnMoveToNearestCluster = new GButton(navigationWindow, x, y, 100, 20, "Nearest  (m)");
 		btnMoveToNearestCluster.tag = "NearestCluster";
@@ -365,6 +378,7 @@ public class WMV_Window {
 
 		x = 30;
 		y += 25;
+		if(delay) p.p.p.delay(delayAmount);
 
 		btnPreviousTimeSegment = new GButton(navigationWindow, x, y, 120, 20, "Previous Time  (b)");
 		btnPreviousTimeSegment.tag = "PreviousTime";
@@ -375,6 +389,7 @@ public class WMV_Window {
 		
 		x = 25;
 		y += 25;
+		if(delay) p.p.p.delay(delayAmount);
 		
 		btnJumpToRandomCluster = new GButton(navigationWindow, x+75, y, 110, 20, "Random  (j)");
 		btnJumpToRandomCluster.tag = "RandomCluster";
@@ -382,6 +397,8 @@ public class WMV_Window {
 		
 		x = 0;
 		y += 30;
+		if(delay) p.p.p.delay(delayAmount);
+
 		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Path Navigation");
 		lblPathNavigation.setLocalColorScheme(10);
 		lblPathNavigation.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -390,6 +407,7 @@ public class WMV_Window {
 
 		x = 120;
 		y += 25;
+		if(delay) p.p.p.delay(delayAmount);
 
 		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 80, 20, "Teleport");
 		chkbxFollowTeleport.tag = "FollowTeleport";
@@ -397,7 +415,8 @@ public class WMV_Window {
 
 		x = 15;
 		y += 25;
-		
+		if(delay) p.p.p.delay(delayAmount);
+	
 		optTimeline = new GOption(navigationWindow, x, y, 90, 20, "Timeline");
 		optTimeline.setLocalColorScheme(10);
 		optTimeline.tag = "FollowTimeline";
@@ -414,6 +433,7 @@ public class WMV_Window {
 
 		x = 95;
 		y += 25;
+		if(delay) p.p.p.delay(delayAmount);
 
 		btnFollowStart = new GButton(navigationWindow, x, y, 60, 20, "Start");
 		btnFollowStart.tag = "FollowStart";
@@ -425,6 +445,7 @@ public class WMV_Window {
 		
 		x = 80;
 		y += 30;
+//		if(delay) p.p.p.delay(delayAmount);
 
 		btnImportGPSTrack = new GButton(navigationWindow, x, y, 140, 20, "Import GPS Track  (g)");
 		btnImportGPSTrack.tag = "ImportGPSTrack";
@@ -432,6 +453,8 @@ public class WMV_Window {
 
 		x = 0;
 		y += 30;
+//		if(delay) p.p.p.delay(delayAmount);
+
 		lblMemoryCommands = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Memory");
 		lblMemoryCommands.setLocalColorScheme(10);
 		lblMemoryCommands.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -440,6 +463,7 @@ public class WMV_Window {
 
 		x = 45;
 		y += 30;
+//		if(delay) p.p.p.delay(delayAmount);
 		
 		btnSaveLocation = new GButton(navigationWindow, x, y, 110, 20, "Save Location  (`)");
 		btnSaveLocation.tag = "SaveLocation";
@@ -452,6 +476,8 @@ public class WMV_Window {
 		{
 			x = 40;
 			y += 30;
+//			if(delay) p.p.p.delay(delayAmount);
+			
 			btnGoToPreviousField = new GButton(navigationWindow, x, y, 120, 20, "Previous Field  ⇧[");
 			btnGoToPreviousField.tag = "PreviousField";
 			btnGoToPreviousField.setLocalColorScheme(5);
@@ -470,6 +496,8 @@ public class WMV_Window {
 		
 		x = 0;
 		y = navigationWindowHeight - 25;
+//		if(delay) p.p.p.delay(delayAmount);
+
 		lblCommand1 = new GLabel(navigationWindow, x, y, navigationWindow.width, 20);						/* Display Mode Label */
 		lblCommand1.setText("Press ⌘1 to show / hide");
 		lblCommand1.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -490,6 +518,7 @@ public class WMV_Window {
 		timeWindow.setActionOnClose(GWindow.KEEP_OPEN);
 
 		int x = 0, y = 12;
+		if(delay) p.p.p.delay(delayAmount);
 
 		lblTimeWindow = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time");
 		lblTimeWindow.setLocalColorScheme(10);
@@ -498,6 +527,7 @@ public class WMV_Window {
 		lblTimeWindow.setTextBold();
 
 		y += 30;
+//		if(delay) p.p.p.delay(delayAmount);
 
 		lblTimeSettings = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time Settings");
 		lblTimeSettings.setLocalColorScheme(10);
@@ -507,6 +537,7 @@ public class WMV_Window {
 
 		x = 100;
 		y += 30;
+//		if(delay) p.p.p.delay(delayAmount);
 		
 		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, 20, "Time Fading  ⇧T");
 		chkbxTimeFading.tag = "TimeFading";
@@ -515,6 +546,7 @@ public class WMV_Window {
 
 		x = 150;
 		y += 35;
+//		if(delay) p.p.p.delay(delayAmount);
 
 		sdrMediaLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrMediaLength.setLocalColorScheme(7);
@@ -527,6 +559,8 @@ public class WMV_Window {
 		sdrMediaLength.tag = "MediaLength";
 
 		x = 280;
+//		if(delay) p.p.p.delay(delayAmount);
+		
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(7);
 		sdrTimeCycleLength.setLimits(0.f, 5000.f, 10.f);
@@ -540,17 +574,20 @@ public class WMV_Window {
 
 		x = 20;
 		y += 30;
+//		if(delay) p.p.p.delay(delayAmount);
 		
 		lblMediaLength = new GLabel(timeWindow, x, y, 100, 20, "Media Length");
 		lblMediaLength.setLocalColorScheme(10);
 
 		x = 150;
+//		if(delay) p.p.p.delay(delayAmount);
 		
 		lblTimeCycleLength = new GLabel(timeWindow, x, y, 120, 20, "Cycle Length");
 		lblTimeCycleLength.setLocalColorScheme(10);
 
 		x = 0;
 		y += 90;
+//		if(delay) p.p.p.delay(delayAmount);
 
 		lblTimeMode = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time Mode");
 		lblTimeMode.setLocalColorScheme(10);
@@ -560,6 +597,7 @@ public class WMV_Window {
 
 		x = 30;
 		y += 30;
+//		if(delay) p.p.p.delay(delayAmount);
 		
 		optMediaTimeMode = new GOption(timeWindow, x, y, 90, 20, "Media");
 		optMediaTimeMode.setLocalColorScheme(10);
@@ -595,6 +633,7 @@ public class WMV_Window {
 
 		x = 40;
 		y += 30;
+		if(delay) p.p.p.delay(delayAmount);
 
 //		lblCurrentTime = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Current Time  -:-- am");
 //		lblCurrentTime.setLocalColorScheme(10);
@@ -630,6 +669,7 @@ public class WMV_Window {
 		graphicsWindow.setActionOnClose(GWindow.KEEP_OPEN);
 	
 		int x = 0, y = 12;
+		if(delay) p.p.p.delay(delayAmount);
 
 		lblGraphics = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "Graphics");
 		lblGraphics.setLocalColorScheme(10);
@@ -639,6 +679,7 @@ public class WMV_Window {
 
 		x = 80;
 		y += 30;
+		if(delay) p.p.p.delay(delayAmount);
 		
 		btnZoomOut = new GButton(graphicsWindow, x, y, 40, 20, "Out");
 		btnZoomOut.tag = "ZoomOut";
@@ -652,6 +693,7 @@ public class WMV_Window {
 
 		x = 140;
 		y += 30;
+		if(delay) p.p.p.delay(delayAmount);
 
 		sdrAlpha = new GSlider(graphicsWindow, x, y, 80, 80, 20);
 		sdrAlpha.setLocalColorScheme(7);
@@ -808,6 +850,7 @@ public class WMV_Window {
 		modelWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 12;
+		if(delay) p.p.p.delay(delayAmount);
 
 		lblModelWindow = new GLabel(modelWindow, x, y, modelWindow.width, 20, "Model");
 		lblModelWindow.setLocalColorScheme(10);
@@ -946,6 +989,7 @@ public class WMV_Window {
 		selectionWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 10;
+		if(delay) p.p.p.delay(delayAmount);
 
 		lblSelection = new GLabel(selectionWindow, x, y, selectionWindow.width, 20, "Selection");
 		lblSelection.setLocalColorScheme(10);
@@ -1049,6 +1093,7 @@ public class WMV_Window {
 		statisticsWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 10;
+		if(delay) p.p.p.delay(delayAmount);
 
 		lblStatistics = new GLabel(statisticsWindow, x, y, statisticsWindow.width, 20, "Statistics");
 		lblStatistics.setLocalColorScheme(10);
@@ -1086,6 +1131,7 @@ public class WMV_Window {
 		helpWindow.addKeyHandler(p.p.p, "helpWindowKey");
 		
 		int x = 0, y = 10;
+		if(delay) p.p.p.delay(delayAmount);
 
 		/* Selection Window */
 		lblHelp = new GLabel(helpWindow, x, y, helpWindow.width, 20, "Help");

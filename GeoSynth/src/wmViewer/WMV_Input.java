@@ -372,7 +372,8 @@ public class WMV_Input
 				p.alphaMode = option.isSelected();
 				break;
 			case "OrientationMode":
-				p.viewer.settings.orientationMode = !p.viewer.settings.orientationMode;
+//				p.viewer.settings.orientationMode = !p.viewer.settings.orientationMode;
+				p.viewer.setOrientationMode( !p.viewer.settings.orientationMode );
 				break;
 			case "AngleFading":
 				p.viewer.settings.angleFading = option.isSelected();
@@ -841,10 +842,10 @@ public class WMV_Input
 
 				if (key == 'I')
 				{
-					boolean state = !p.viewer.settings.orientationMode;
-					p.viewer.settings.orientationMode = state;
-					if(p.display.window.setupGraphicsWindow)
-						p.display.window.chkbxOrientationMode.setSelected(state);
+					p.viewer.setOrientationMode( !p.viewer.settings.orientationMode );
+//					p.viewer.settings.orientationMode = state;
+//					if(p.display.window.setupGraphicsWindow)
+//						p.display.window.chkbxOrientationMode.setSelected(state);
 				}
 
 				if (key == 'W') 

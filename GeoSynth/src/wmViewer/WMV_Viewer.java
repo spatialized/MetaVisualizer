@@ -2400,12 +2400,11 @@ public class WMV_Viewer
 		if(turningVelocity.x != 0.f)
 		{
 			camera.pan(turningVelocity.x);
-//			PApplet.println("turningVelocity.x:"+turningVelocity.x);
 		}
 		if(turningVelocity.y != 0.f)
 		{
-			camera.tilt(turningVelocity.y);
-//			PApplet.println("turningVelocity.y:"+turningVelocity.y);
+			if(camera.attitude()[1] + turningVelocity.y < PApplet.PI * 0.5f && camera.attitude()[1] + turningVelocity.y > -PApplet.PI * 0.5f)	// Avoid gimbal lock
+				camera.tilt(turningVelocity.y);
 		}
 	}
 	

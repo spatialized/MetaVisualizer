@@ -19,6 +19,7 @@ public class WMV_Debug
 	public boolean time = false;				// Debug WMV_Time class
 	public boolean model = false;				// Debug WMV_Model class
 	public boolean cluster = false;				// Debug WMV_Cluster class
+	public boolean path = false;				// Debug WMV_Viewer class
 	public boolean display = false;				// Debug WMV_Display class
 	public boolean viewable = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class

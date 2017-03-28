@@ -1252,15 +1252,13 @@ public class WMV_Field
 	{
 		if(p.p.debug.viewer && p.p.debug.detailed)
 			PApplet.println("Clearing all attractors...");
-		
+
 		if(p.viewer.getAttractorCluster() != -1)
-		{
 			p.viewer.clearAttractorCluster();
 
-			for(WMV_Cluster c : clusters)
-				if(c.isAttractor())
-					c.setAttractor(false);
-		}
+		for(WMV_Cluster c : clusters)
+			if(c.isAttractor())
+				c.setAttractor(false);
 	}
 	
 	/**

@@ -38,7 +38,7 @@ public class WMV_ViewerSettings
 	public float velocityMax = 0.66f;						// Camera maximum velocity
 	public float accelerationMax = 0.15f;					// Camera maximum acceleration
 	public float accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
-	public float camDecelInc = 0.75f;						// Camera deceleration increment
+	public float camDecelInc = 0.66f;						// Camera deceleration increment
 	public float camHaltInc = 0.0033f;						// Camera fast deceleration increment
 
 	/* Movement */
@@ -62,7 +62,7 @@ public class WMV_ViewerSettings
 	/* Interaction Modes */
 	public boolean selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean optimizeVisibility = true;			// Optimize visibility automatically by turning towards media / changing graphics modes
-	public boolean lockToCluster = true;				// Automatically move viewer to nearest cluster when idle
+	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
 	public boolean multiSelection = false;				// User can select multiple images for stitching
 	public boolean segmentSelection = false;			// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
@@ -119,8 +119,8 @@ public class WMV_ViewerSettings
 		velocityMax = 0.66f;					// Camera maximum velocity
 		accelerationMax = 0.15f;				// Camera maximum acceleration
 		accelerationMin = 0.00001f;				// Threshold under which acceleration counts as zero
-		camDecelInc = 0.75f;					// Camera deceleration increment
-		camHaltInc = 0.01f;						// Camera fast deceleration increment
+		camDecelInc = 0.66f;					// Camera deceleration increment
+		camHaltInc = 0.0033f;						// Camera fast deceleration increment
 		walkingAccelInc = 0.002f;				// Camera walking acceleration increment
 
 		/* Movement */

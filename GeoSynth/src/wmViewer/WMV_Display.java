@@ -333,13 +333,22 @@ class WMV_Display
 			{
 				WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment());		// TESTING
 
+				int previous = currentSelectableTime;
+				
 				if(t != null)
 					currentSelectableTime = getSelectableTimeIDOfTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
 				else
 					currentSelectableTime = -1;
 
+				if(currentSelectableTime != previous)						// If changed field segment
+				{
+					int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();		// Update date displayed
+					setCurrentSelectableDate(fieldDate);
+				}
+
 //				if(currentSelectableTime != -1)
-					PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
+//					PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
+//				int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
 
 				updateCurrentSelectableTime = false;
 			}
@@ -1127,18 +1136,19 @@ class WMV_Display
 	{
 		updateTimelineMouse();
 		
-		PApplet.println("selectedTime:"+ selectedTime+ " selectedCluster:"+selectedCluster);
-		
 		if(selectedTime != -1)
 			if(selectedCluster != -1)
 				p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).segment.getFieldTimelineID());
 
 		if(selectedDate != -1)
-		{
-			displayDate = selectedDate;
-			currentSelectableDate = displayDate;
-			updateTimeline = true;
-		}
+			setCurrentSelectableDate(selectedDate);
+	}
+
+	private void setCurrentSelectableDate(int newSelectableDate)
+	{
+		displayDate = newSelectableDate;
+		currentSelectableDate = newSelectableDate;
+		updateTimeline = true;
 	}
 
 	/**

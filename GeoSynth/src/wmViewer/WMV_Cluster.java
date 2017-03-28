@@ -835,8 +835,17 @@ public class WMV_Cluster
 	 */
 	void attractViewer()
 	{
-		if(isAttractor && !empty)												// Attractor clusters do not need to be active, but attract while empty
-			p.p.viewer.attraction.add( getAttractionForce() );		// Add attraction force to camera 
+		if(isAttractor)												// Attractor clusters do not need to be active, but attract while empty
+		{
+			if(!empty)
+			{
+				PVector force = getAttractionForce();
+//				PApplet.println("Cluster #"+getID()+"... Adding attraction force:"+force);
+				p.p.viewer.attraction.add( force );		// Add attraction force to camera 
+			}
+			else 
+				PApplet.println("Empty Attractor: "+getID());
+		}
 	}
 
 	/**
@@ -857,6 +866,7 @@ public class WMV_Cluster
 		force.normalize();
 		
 		float mass, dist = getClusterDistance();
+//		PApplet.println("getAttractionForce, Cluster #"+getID()+"... getClusterDistance:"+PVector.dist(location, p.p.viewer.getLocation()));
 		if( dist > p.p.settings.clusterFarDistance )
 			mass = clusterMass * farMassFactor * PApplet.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
 		else
@@ -1581,8 +1591,9 @@ public class WMV_Cluster
 	public void setAttractor(boolean state)
 	{
 		isAttractor = state;
-		if(p.p.p.debug.viewer && isAttractor())
-			p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
+//		if(p.p.p.debug.viewer)
+//		if(isAttractor())
+//			p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
 	}
 	
 	public void setSingle(boolean state)

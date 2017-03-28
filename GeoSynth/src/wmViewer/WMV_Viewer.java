@@ -4033,7 +4033,6 @@ public class WMV_Viewer
 			if(c != null)
 				c.timeFading = false;
 			
-
 			currentCluster = newCluster;
 			c = p.getCurrentCluster();
 			if(p.p.debug.viewer) PApplet.println("Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment);
@@ -4082,6 +4081,7 @@ public class WMV_Viewer
 		currentFieldTimeSegment = newCurrentFieldTimeSegment;
 		p.display.updateCurrentSelectableTime = true;
 		boolean success = true;
+		p.display.message("Setting newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment);
 		
 		if(updateTimelinesSegment)
 		{
@@ -4103,7 +4103,8 @@ public class WMV_Viewer
 	 */
 	public boolean setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment, boolean updateTimelineSegment )
 	{
-		if(p.p.debug.viewer) p.display.message("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
+//		if(p.p.debug.viewer) 
+			p.display.message("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
 		currentFieldTimelinesSegment = newCurrentFieldTimelinesSegment;
 		p.display.updateCurrentSelectableTime = true;
 

@@ -56,7 +56,7 @@ class WMV_Display
 	float timelineStart = 0.f, timelineEnd = 0.f;
 	float datelineStart = 0.f, datelineEnd = 0.f;
 	int displayDate = -1;
-	public boolean updateCurrentSelectableTime = true;
+	public boolean updateCurrentSelectableTime = true, updateCurrentSelectableDate = true;
 	private final float timeTextSize = 44.f;
 	
 	private ArrayList<SelectableTimeSegment> selectableTimes;		// Selectable time segments on timeline
@@ -336,7 +336,6 @@ class WMV_Display
 			if(p.viewer.getCurrentFieldTimeSegment() >= 0)
 			{
 				WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment());		// TESTING
-
 				int previous = currentSelectableTime;
 				
 				if(t != null)
@@ -344,17 +343,20 @@ class WMV_Display
 				else
 					currentSelectableTime = -1;
 
-				if(currentSelectableTime != previous && currentSelectableDate > -1)						// If changed field segment and displaying a single date
+				if(updateCurrentSelectableDate)
 				{
-					int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();		// Update date displayed
-					setCurrentSelectableDate(fieldDate);
+					if(currentSelectableTime != previous && currentSelectableDate > -1)						// If changed field segment and displaying a single date
+					{
+						int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();		// Update date displayed
+						setCurrentSelectableDate(fieldDate);
+					}
 				}
 
-//				if(currentSelectableTime != -1)
-//					PApplet.println(""+p.p.frameCount+": set currentSelectableTime to:"+currentSelectableTime);
-//				int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
+				if(currentSelectableTime != -1)
+					PApplet.println("Set currentSelectableTime to:"+currentSelectableTime);
 
 				updateCurrentSelectableTime = false;
+				updateCurrentSelectableDate = false;
 			}
 			else PApplet.println("updateCurrentSelectableTime... No current time segment!");
 		}
@@ -745,7 +747,11 @@ class WMV_Display
 			if(selectedTime != -1 && selectableTimes.size() > 0 && selectedTime < selectableTimes.size())
 				selectableTimes.get(selectedTime).draw(40.f, 255.f, 255.f);
 			if(currentSelectableTime != -1 && selectableTimes.size() > 0 && currentSelectableTime < selectableTimes.size())
-				selectableTimes.get(currentSelectableTime).draw(0.f, 0.f, 255.f);
+				if(displayDate == -1 || selectableTimes.get(currentSelectableTime).segment.getFieldDateID() == displayDate)
+				{
+//					PApplet.println("currentSelectableTime:"+currentSelectableTime+" displayDate:"+displayDate+" selectable date:"+selectableTimes.get(currentSelectableTime).segment.getFieldDateID());
+					selectableTimes.get(currentSelectableTime).draw(0.f, 0.f, 255.f);
+				}
 		}
 	}
 
@@ -1127,7 +1133,6 @@ class WMV_Display
 		timelineZooming = false;
 		updateTimeline = true;
 		transitionScrollIncrement = initTransitionScrollIncrement * getZoomLevel();
-//		PApplet.println("stopZooming()... new Scroll Increment:"+transitionScrollIncrement+" getZoomLevel():"+getZoomLevel());
 	}
 	
 	public void stopScrolling()
@@ -1145,13 +1150,17 @@ class WMV_Display
 				p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).segment.getFieldTimelineID());
 
 		if(selectedDate != -1)
+		{
 			setCurrentSelectableDate(selectedDate);
+		}
 	}
 
 	private void setCurrentSelectableDate(int newSelectableDate)
 	{
 		displayDate = newSelectableDate;
 		currentSelectableDate = newSelectableDate;
+		updateCurrentSelectableTime = true;
+		updateCurrentSelectableDate = false;
 		updateTimeline = true;
 	}
 
@@ -1255,7 +1264,8 @@ class WMV_Display
 		datelineStart = 0.f;
 		datelineEnd = 0.f;
 		updateCurrentSelectableTime = true;
-
+		updateCurrentSelectableDate = true;
+		
 		timelineXOffset = -p.p.width/ 1.66f;
 		timelineYOffset = -p.p.height/ 2.f;
 		timelineYOffset = 0.f;

@@ -27,7 +27,6 @@ public class WMV_Field
 	
 	/* Visibility */
 	float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
-	int alphaTransitionLength = 15, teleportLength = 60;
 	public boolean hideImages = false;						// Hide images
 	public boolean hidePanoramas = false;					// Hide panoramas
 	public boolean hideVideos = false;						// Hide videos

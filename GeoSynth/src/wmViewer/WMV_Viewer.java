@@ -438,7 +438,7 @@ public class WMV_Viewer
 		}
 		else
 		{
-			if(teleporting)	teleporting = false;
+//			if(teleporting)	teleporting = false;
 			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("moveToCaptureLocation... setting attractor point:"+newLocation);
 			setAttractorPoint(newLocation);
@@ -460,7 +460,7 @@ public class WMV_Viewer
 		}
 		else
 		{
-			if(teleporting)	teleporting = false;
+//			if(teleporting)	teleporting = false;
 			if(p.p.debug.viewer)
 				p.display.message("Moving to nearest cluster... setting attractor:"+newCluster);
 			setAttractorCluster( newCluster );
@@ -478,17 +478,22 @@ public class WMV_Viewer
 		if (p.p.debug.viewer)
 			p.display.message("Moving to nearest cluster... "+nearest+" from current:"+currentCluster);
 
-		if(teleport)
+		if(settings.teleportToFarClusters && !teleport)
 		{
-			teleportToCluster(nearest, true, -1);
+			if( PVector.dist(p.getCluster(nearest).getLocation(), p.viewer.getLocation()) > settings.farClusterTeleportDistance )
+				teleportToCluster(nearest, true, -1);
+			else
+				setAttractorCluster( nearest );
 		}
 		else
 		{
-			if(teleporting)	teleporting = false;
-			if(p.p.debug.viewer)
-				p.display.message("moveToNearestCluster... setting attractor to nearest:"+nearest);
-
-			setAttractorCluster( nearest );
+			if(teleport)
+				teleportToCluster(nearest, true, -1);
+			else
+			{
+//				if(teleporting)	teleporting = false;
+				setAttractorCluster( nearest );
+			}
 		}
 	}
 	
@@ -505,16 +510,24 @@ public class WMV_Viewer
 			if (p.p.debug.viewer)
 				p.display.message("moveToNearestClusterAhead goal:"+ahead);
 
-			if(teleport)							
+			if(settings.teleportToFarClusters && !teleport)
 			{
-				teleportToCluster(ahead, true, -1);
+				if( PVector.dist(p.getCluster(ahead).getLocation(), p.viewer.getLocation()) > settings.farClusterTeleportDistance )
+					teleportToCluster(ahead, true, -1);
+				else
+					setAttractorCluster( ahead );
 			}
 			else
 			{
-				if(teleporting)	teleporting = false;
-				if(p.p.debug.viewer)
-					p.display.message("moveToNearestClusterAhead... setting currentCluster and attractor to same:"+currentCluster);
-				setAttractorCluster(currentCluster);
+				if(teleport)							
+				{
+					teleportToCluster(ahead, true, -1);
+				}
+				else
+				{
+//					if(teleporting)	teleporting = false;
+					setAttractorCluster(ahead);
+				}
 			}
 		}
 		else
@@ -703,7 +716,6 @@ public class WMV_Viewer
 			if(clusterID == currentCluster && p.getCluster(clusterID).getClusterDistance() < p.settings.clusterCenterSize)	// Moving to different time in same cluster
 			{
 				setCurrentFieldTimeSegment(fieldTimeSegment);
-//				currentTimeSegment = fieldTimeSegment;
 				if(p.p.debug.viewer && p.p.debug.detailed)
 					p.display.message("Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 			}
@@ -712,10 +724,20 @@ public class WMV_Viewer
 				movingToTimeSegment = true;								// Set time segment target
 				timeSegmentTarget = fieldTimeSegment;
 				
-				if(teleport)
-					teleportToCluster(clusterID, fade, fieldTimeSegment);
+				if(settings.teleportToFarClusters && !teleport)
+				{
+					if( PVector.dist(p.getCluster(clusterID).getLocation(), p.viewer.getLocation()) > settings.farClusterTeleportDistance )
+						teleportToCluster(clusterID, fade, fieldTimeSegment);
+					else
+						setAttractorCluster(clusterID);
+				}
 				else
-					setAttractorCluster(clusterID);
+				{
+					if(teleport)
+						teleportToCluster(clusterID, fade, fieldTimeSegment);
+					else
+						setAttractorCluster(clusterID);
+				}
 			}
 		}
 	}
@@ -1414,10 +1436,20 @@ public class WMV_Viewer
 
 		if(found)
 		{
-			if(teleport)
-				teleportToCluster(p.getCurrentField().clusters.get(nextCluster).getID(), true, -1);
+			if(settings.teleportToFarClusters && !teleport)
+			{
+				if( PVector.dist(p.getCluster(nextCluster).getLocation(), p.viewer.getLocation()) > settings.farClusterTeleportDistance )
+					teleportToCluster(nextCluster, true, -1);
+				else
+					setAttractorCluster(nextCluster);
+			}
 			else
-				setAttractorCluster(p.getCurrentField().clusters.get(nextCluster).getID());
+			{
+				if(teleport)
+					teleportToCluster(p.getCurrentField().clusters.get(nextCluster).getID(), true, -1);
+				else
+					setAttractorCluster(p.getCurrentField().clusters.get(nextCluster).getID());
+			}
 		}
 	}
 	
@@ -1468,19 +1500,22 @@ public class WMV_Viewer
 			rand = (int) p.p.random(p.getCurrentField().clusters.size());
 		}
 
-		if(teleport)
-		{
-			int goal = rand;
-			while(p.getCurrentField().clusters.get(goal).isEmpty() || goal == currentCluster)
-			{
-				goal = (int) p.p.random(p.getCurrentField().clusters.size());
-			}
+		while(p.getCurrentField().clusters.get(rand).isEmpty() || rand == currentCluster)
+			rand = (int) p.p.random(p.getCurrentField().clusters.size());
 
-			teleportToCluster(goal, true, -1);
+		if(settings.teleportToFarClusters && !teleport)
+		{
+			if( PVector.dist(p.getCluster(rand).getLocation(), p.viewer.getLocation()) > settings.farClusterTeleportDistance )
+				teleportToCluster(rand, true, -1);
+			else
+				setAttractorCluster( rand );
 		}
 		else
 		{
-			setAttractorCluster( rand );
+			if(teleport)
+				teleportToCluster(rand, true, -1);
+			else
+				setAttractorCluster( rand );
 		}
 	}
 
@@ -1501,8 +1536,9 @@ public class WMV_Viewer
 	 */
 	public void setAttractorCluster(int newCluster)
 	{
+		stopAllTransitions();
 		stopMoving();									// -- Improve by slowing down instead and then starting
-		p.getCurrentField().clearAllAttractors();
+//		p.getCurrentField().clearAllAttractors();
 		
 		if(p.p.debug.viewer)
 			p.display.message("Setting new attractor:"+newCluster+" old attractor:"+attractorCluster);
@@ -1565,8 +1601,46 @@ public class WMV_Viewer
 		halting = false;
 		movingToAttractor = false;
 		movingToCluster = false;
+		
+//		teleporting = false;
 	}
 	
+	
+	/** 
+	 * Stop all currently running transitions
+	 */
+	public void stopAllTransitions()
+	{
+		if(rotatingX) 
+			rotatingX = false;
+		if(rotatingY)
+			rotatingY = false;
+		if(rotatingZ) 
+			rotatingZ = false; 
+		if(movingX) 
+			movingX = false;
+		if(movingY)
+			movingY = false;
+		if(movingZ)
+			movingZ = false;
+		if(movingToCluster) 
+			movingToCluster = false;
+		if(turningX)
+			turningX = false;
+		if(turningY) 
+			turningY = false;
+		if(zooming)
+			zooming = false;
+
+		if(waiting)
+			waiting = false;
+//		if(looking)
+//			looking = false;
+		if(teleporting)
+			teleporting = false;
+		
+		p.getCurrentField().clearAllAttractors();
+	}
 	/**
 	 * Reset the viewer to initial state
 	 */
@@ -2150,8 +2224,9 @@ public class WMV_Viewer
 			{
 				if(p.p.debug.viewer && attractionStart - p.p.frameCount > 20)
 				{
-					p.display.message("Getting farther from attractor: will stop moving...");
+					p.display.message("---> Getting farther from attractor: will stop moving...");
 					stopMoving();												// Stop
+					stopAllTransitions();
 				}
 			}
 
@@ -2450,7 +2525,7 @@ public class WMV_Viewer
 	
 	private void updateFollowing()
 	{
-		if(p.p.frameCount > pathWaitStartFrame + settings.pathWaitLength )
+		if(p.p.frameCount > pathWaitStartFrame + settings.teleportLength + settings.pathWaitLength )
 		{
 			waiting = false;
 			if(p.p.debug.viewer) p.display.message("Finished waiting...");
@@ -2612,11 +2687,11 @@ public class WMV_Viewer
 	 */
 	private void updateTeleporting()
 	{
-		if(p.p.frameCount >= teleportStart + p.getCurrentField().teleportLength)		// If the teleport has finished
+		if(p.p.frameCount >= teleportStart + settings.teleportLength)		// If the teleport has finished
 		{
 			if(p.p.debug.viewer) p.display.message(" Reached teleport goal...");
 
-			if(teleportWaitingCount > p.getCurrentField().teleportLength * 2.f)
+			if(teleportWaitingCount > settings.teleportLength * 2.f)
 			{
 				if(p.p.debug.viewer) p.display.message(" Exceeded teleport wait time. Stopping all media...");
 				p.getCurrentField().stopAllMediaFading();
@@ -2681,42 +2756,6 @@ public class WMV_Viewer
 					PApplet.println("Waiting to finish teleport... "+teleportWaitingCount);
 			}
 		}
-	}
-	
-	/** 
-	 * Stop all currently running transitions
-	 */
-	public void stopAllTransitions()
-	{
-		if(rotatingX) 
-			rotatingX = false;
-		if(rotatingY)
-			rotatingY = false;
-		if(rotatingZ) 
-			rotatingZ = false; 
-		if(movingX) 
-			movingX = false;
-		if(movingY)
-			movingY = false;
-		if(movingZ)
-			movingZ = false;
-		if(movingToCluster) 
-			movingToCluster = false;
-		if(turningX)
-			turningX = false;
-		if(turningY) 
-			turningY = false;
-		if(zooming)
-			zooming = false;
-
-		p.getCurrentField().clearAllAttractors();
-
-		if(waiting)
-			waiting = false;
-//		if(looking)
-//			looking = false;
-		if(teleporting)
-			teleporting = false;
 	}
 	
 	/**
@@ -2839,8 +2878,9 @@ public class WMV_Viewer
 	 */
 	private void setAttractorPoint(PVector newPoint)
 	{
+		stopAllTransitions();
 		stopMoving();									// -- Improve by slowing down instead and then starting
-		p.getCurrentField().clearAllAttractors();
+//		p.getCurrentField().clearAllAttractors();
 		movingToAttractor = true;
 		attractorPoint = new WMV_Cluster(p.getCurrentField(), 0, newPoint.x, newPoint.y, newPoint.z);
 		attractorPoint.setEmpty(false);
@@ -2854,8 +2894,9 @@ public class WMV_Viewer
 	 */
 	private void clearAttractorPoint()
 	{
+		stopAllTransitions();
 		stopMoving();									// -- Improve by slowing down instead and then starting
-		p.getCurrentField().clearAllAttractors();
+//		p.getCurrentField().clearAllAttractors();
 		movingToAttractor = false;
 		attractorPoint.setAttractor(false);
 	}
@@ -3626,11 +3667,9 @@ public class WMV_Viewer
 				
 //				hour = p.p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
 
-//				Calendar utc = Calendar.getInstance();
 //				ZonedDateTime utc = new ZonedDateTime;
 				ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("UTC"));
 
-//				utc.set(year, month, day, hour, minute, second);
 				WMV_Time utcTime = new WMV_Time( p, utc, count, -1, 0 );
 //				WMV_Time pacificTime = p.p.utilities.utcToPacificTime(utcTime);
 

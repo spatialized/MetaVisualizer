@@ -1,6 +1,7 @@
 package wmViewer;
 
 import processing.core.PApplet;
+import processing.core.PVector;
 
 /*********************************
  * @author davidgordon
@@ -28,7 +29,8 @@ public class WMV_ViewerSettings
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
-
+	public int alphaTransitionLength = 15;
+	
 	/* Physics */
 	public float lastAttractorDistance = -1.f;
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction
@@ -43,6 +45,9 @@ public class WMV_ViewerSettings
 	public float walkingAccelInc = 0.002f;				// Camera walking acceleration increment
 	public final int initPathWaitLength = 60;
 	public int pathWaitLength = initPathWaitLength;
+	public int teleportLength = 30;
+	public boolean teleportToFarClusters = true;
+	public float farClusterTeleportDistance = 300.f;
 
 	/* Turning */
 	final public float turningVelocityMin = 0.00005f;					// Threshold under which velocity counts as zero
@@ -57,12 +62,11 @@ public class WMV_ViewerSettings
 	/* Interaction Modes */
 	public boolean selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean optimizeVisibility = true;			// Optimize visibility automatically by turning towards media / changing graphics modes
-	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
+	public boolean lockToCluster = true;				// Automatically move viewer to nearest cluster when idle
 	public boolean multiSelection = false;				// User can select multiple images for stitching
 	public boolean segmentSelection = false;			// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
 	public boolean map3DMode = false;					// 3D Map Mode
-//	public boolean videoMode = false;					// Highlights videos by dimming other media types	-- Unused
 
 	/* Interaction */
 	public int mediaDensityThreshold = 12;				// Number of images or videos counted as high density
@@ -71,10 +75,10 @@ public class WMV_ViewerSettings
 	public int lockToClusterWaitLength = 100;
 
 	/* Clusters */
-	public int maxVisibleClusters = 6;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
-	public int minVisibleClusters = 2;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
-	public float orientationModeClusterViewingDistance = nearViewingDistance;	// Distance clusters become visible in Orientation Mode
-	public boolean orientationModeForceVisible = true;	// Force min visible clusters
+	public int maxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
+	public int minVisibleClusters = 1;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
+	public float orientationModeClusterViewingDistance = nearClippingDistance;	// Distance clusters become visible in Orientation Mode
+	public boolean orientationModeForceVisible = false;	// Force min visible clusters
 	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
 	
 	public WMV_ViewerSettings(WMV_Viewer parent)
@@ -102,11 +106,11 @@ public class WMV_ViewerSettings
 		/* Graphics */
 		orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
 		angleFading = true;						// Do photos fade out as the camera turns away from them?
-
 		visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
 		centeredAngle = visibleAngle / 2.f;		// At what angle is the image centered?
 		angleThinning = false;					// Thin images and videos of similar orientation
 		thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
+		alphaTransitionLength = 15;
 
 		/* Physics */
 		lastAttractorDistance = -1.f;
@@ -118,6 +122,13 @@ public class WMV_ViewerSettings
 		camDecelInc = 0.75f;					// Camera deceleration increment
 		camHaltInc = 0.01f;						// Camera fast deceleration increment
 		walkingAccelInc = 0.002f;				// Camera walking acceleration increment
+
+		/* Movement */
+		teleportLength = 30;
+		walkingAccelInc = 0.002f;				// Camera walking acceleration increment
+		pathWaitLength = initPathWaitLength;
+		teleportToFarClusters = true;
+		farClusterTeleportDistance = 2000.f;
 
 		/* Turning */
 		turningXAccelInc = 0.0001f;

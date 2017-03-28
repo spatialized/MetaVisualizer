@@ -149,7 +149,7 @@ public abstract class WMV_Viewable
 			fadingStart = fadingBrightness;
 			fadingTarget = target;
 			fadingStartFrame = p.p.p.frameCount;
-			fadingEndFrame = fadingStartFrame + p.teleportLength;
+			fadingEndFrame = fadingStartFrame + p.p.viewer.settings.teleportLength;
 
 			if(target > fadingBrightness)
 				isFadingIn = true;
@@ -485,7 +485,7 @@ public abstract class WMV_Viewable
 		if(beginFading)
 		{
 			fadingStartFrame = p.p.p.frameCount;					
-			fadingEndFrame = p.p.p.frameCount + p.teleportLength;	
+			fadingEndFrame = p.p.p.frameCount + p.p.viewer.settings.teleportLength;	
 			beginFading = false;
 		}
 
@@ -494,7 +494,6 @@ public abstract class WMV_Viewable
 			fading = false;
 			newFadeValue = fadingTarget;
 
-			//			if(initFading) initFading = false;
 			if(isFadingOut)
 			{
 				isFadingOut = false;

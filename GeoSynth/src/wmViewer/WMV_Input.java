@@ -450,15 +450,14 @@ public class WMV_Input
 
 			/* Display Modes */
 			if (!optionKey && !commandKey && key == '1') 
-			{
-				if(!p.display.initializedMaps)
-					p.display.map2D.initializeMaps();
-
 				p.display.setDisplayView(0);
-			}
 
 			if (!optionKey && !commandKey && key == '2') 
+			{
+//				if(!p.display.initializedMaps)
+//					p.display.map2D.initializeMaps();
 				p.display.setDisplayView(1);
+			}
 
 			if (!optionKey && !commandKey && key == '3') 
 				p.display.setDisplayView(2);

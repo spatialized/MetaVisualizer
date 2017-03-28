@@ -741,7 +741,7 @@ public class WMV_Window {
 		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 160, 20, "Orientation Mode (BETA)");
 		chkbxOrientationMode.tag = "OrientationMode";
 		chkbxOrientationMode.setLocalColorScheme(10);
-		chkbxOrientationMode.setSelected(false);
+		chkbxOrientationMode.setSelected(p.p.viewer.settings.orientationMode);
 		
 		x = 80;
 		y += 25;

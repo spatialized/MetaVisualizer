@@ -341,8 +341,12 @@ public class WMV_Map
 			Location gpsLoc = new Location(vLoc.y, vLoc.x);
 			if(gpsLoc != null)
 			{
-				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-				markerManager.addMarker(viewerMarker);
+				if(viewerMarker != null)
+				{
+					viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
+					markerManager.addMarker(viewerMarker);
+				}
+				else PApplet.println("viewerMarker == null!");
 			}
 
 			/* Clusters */

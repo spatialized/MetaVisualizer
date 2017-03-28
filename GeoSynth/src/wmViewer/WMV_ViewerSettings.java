@@ -41,8 +41,8 @@ public class WMV_ViewerSettings
 
 	/* Movement */
 	public float walkingAccelInc = 0.002f;				// Camera walking acceleration increment
-	public int pathWaitLength = 30;
-	public final int initPathWaitLength = 30;
+	public final int initPathWaitLength = 60;
+	public int pathWaitLength = initPathWaitLength;
 
 	/* Turning */
 	final public float turningVelocityMin = 0.00005f;					// Threshold under which velocity counts as zero
@@ -72,9 +72,11 @@ public class WMV_ViewerSettings
 
 	/* Clusters */
 	public int maxVisibleClusters = 6;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
-	public int minVisibleClusters = 1;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
+	public int minVisibleClusters = 2;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
+	public float orientationModeClusterViewingDistance = nearViewingDistance;	// Distance clusters become visible in Orientation Mode
 	public boolean orientationModeForceVisible = true;	// Force min visible clusters
 	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
+	
 	public WMV_ViewerSettings(WMV_Viewer parent)
 	{
 		v = parent;

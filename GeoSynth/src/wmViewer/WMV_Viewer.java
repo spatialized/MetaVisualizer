@@ -294,7 +294,7 @@ public class WMV_Viewer
 			else
 			{
 				if(!c.isEmpty())
-					if(c.getLocation().dist(location) < settings.farViewingDistance)
+					if(c.getLocation().dist(location) < settings.orientationModeClusterViewingDistance)
 						clustersVisible.append(c.getID());
 			}
 		}
@@ -408,7 +408,7 @@ public class WMV_Viewer
 		if(newField < p.getFieldCount())
 			field = newField;
 
-		p.display.map2D.initializeMaps();
+//		p.display.map2D.initializeMaps();
 
 		if(p.p.debug.field || p.p.debug.viewer)		
 			p.display.message("Set new field:"+field);
@@ -735,7 +735,8 @@ public class WMV_Viewer
 			{
 				teleportGoalCluster = dest;
 				teleportGoal = c.getLocation();
-				location = teleportGoal;
+				setLocation( teleportGoal );
+				setCurrentCluster(dest, fieldTimeSegment);
 			}
 			else
 			{
@@ -747,7 +748,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					camera.jump(c.getLocation().x, c.getLocation().y, c.getLocation().z);
+					setLocation( c.getLocation() );
 					setCurrentCluster(dest, fieldTimeSegment);
 				}
 			}
@@ -757,6 +758,19 @@ public class WMV_Viewer
 			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().clusters.size());
 	}
 
+	public void setLocation(PVector newLocation)
+	{
+		if(settings.orientationMode)
+		{
+			location = new PVector(newLocation.x, newLocation.y, newLocation.z);
+		}
+		else
+		{
+			camera.jump(newLocation.x, newLocation.y, newLocation.z);
+			location = getLocation();										// Update to precise camera location
+		}
+	}
+	
 	/**
 	 * Teleport to the field ID <inc> from current field
 	 * @param offset Field ID offset amount (0 stays in same field)
@@ -791,7 +805,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					camera.jump(0,0,0);
+					setLocation(new PVector(0,0,0));
 					setCurrentField(newField);				// Set new field
 					if(p.p.debug.viewer)
 						p.display.message(" Teleported to field "+teleportToField+"...");
@@ -1466,7 +1480,6 @@ public class WMV_Viewer
 		}
 		else
 		{
-//			setCurrentCluster( rand );
 			setAttractorCluster( rand );
 		}
 	}
@@ -2126,8 +2139,7 @@ public class WMV_Viewer
 			location.add(velocity);				// Add velocity to location
 			if(!settings.orientationMode)
 			{
-				jumpTo(location);				// Move camera
-				location = getLocation();		// Update viewer location to precise camera location
+				setLocation(location);			// Move camera
 			}
 		}
 
@@ -2441,65 +2453,42 @@ public class WMV_Viewer
 		if(p.p.frameCount > pathWaitStartFrame + settings.pathWaitLength )
 		{
 			waiting = false;
-			if(p.p.debug.viewer)
-				p.display.message("Finished waiting...");
+			if(p.p.debug.viewer) p.display.message("Finished waiting...");
 
-			
-//			if(settings.orientationModeConstantWaitLength)
-//			{
-//				pathLocationIdx++;
-//				PVector lastGoal = new PVector(pathGoal.x, pathGoal.y, pathGoal.z);
-//				pathGoal = path.get(pathLocationIdx).getLocation();
-//				
-//				while(lastGoal == pathGoal)
-//				{
-//					PApplet.println("Ignored pathLocationIdx #"+pathLocationIdx+" at same location as previous...");
-//					pathLocationIdx++;
-//					lastGoal = new PVector(pathGoal.x, pathGoal.y, pathGoal.z);
-//					pathGoal = path.get(pathLocationIdx).getLocation();
-//				}
-//			}
-//			else
-//			{
-				pathLocationIdx++;
-//			}
+			pathLocationIdx++;
 			
 			if(pathLocationIdx < path.size())
 			{
 				pathGoal = path.get(pathLocationIdx).getLocation();
-				if(p.p.debug.viewer)
-					p.display.message("--> updateFollowing()... Next path location:"+pathGoal);
+				if(p.p.debug.viewer) p.display.message("--> updateFollowing()... Next path location:"+pathGoal);
 				
 				if(pathLocationIdx >= 1)
 				{
 					if(pathGoal != path.get(pathLocationIdx-1).getLocation())
 					{
-						if(p.p.debug.viewer)
-							p.display.message("Will move to next attraction point..."+attractorPoint.getLocation());
+						if(p.p.debug.viewer) p.display.message("Will move to next attraction point..."+attractorPoint.getLocation());
 						setAttractorPoint(pathGoal);
 					}
 					else
 					{
-						if(p.p.debug.viewer)
-							p.display.message("Same attraction point!");
+						if(p.p.debug.viewer) p.display.message("Same attraction point!");
 						
 						if(settings.orientationModeConstantWaitLength)
 						{
-							if(p.p.debug.viewer)
-								p.display.message("Ignoring pathLocationIdx #"+pathLocationIdx+" at same location as previous...");
+							if(p.p.debug.viewer) p.display.message("Ignoring pathLocationIdx #"+pathLocationIdx+" at same location as previous...");
 							
 							pathLocationIdx++;
 							pathGoal = path.get(pathLocationIdx).getLocation();
 							
 							while(pathGoal == path.get(pathLocationIdx-1).getLocation())
 							{
-								if(p.p.debug.viewer)
-									p.display.message(" Also ignoring pathLocationIdx #"+pathLocationIdx+" at same location as previous...");
+								if(p.p.debug.viewer) p.display.message(" Also ignoring pathLocationIdx #"+pathLocationIdx+" at same location as previous...");
 								pathLocationIdx++;
 								pathGoal = path.get(pathLocationIdx).getLocation();
 							}
 						}
 						
+						if(p.p.debug.viewer) p.display.message("--> Final path location:"+pathGoal);
 //						turnTowardsPoint(memory.get(revisitPoint).target);			// Turn towards memory target view
 					}
 				}
@@ -2645,8 +2634,8 @@ public class WMV_Viewer
 					teleportToField = -1;							// Reset target field
 				}
 
-				camera.jump(teleportGoal.x, teleportGoal.y, teleportGoal.z);			// Move the camera
-				teleporting = false;													// Change the system status
+				setLocation(teleportGoal);				// Move the camera
+				teleporting = false;					// Change the system status
 				
 				if(p.p.debug.viewer) p.display.message(" Teleported to x:"+teleportGoal.x+" y:"+teleportGoal.y+" z:"+teleportGoal.z);
 
@@ -2875,18 +2864,7 @@ public class WMV_Viewer
 	{
 		if(state)
 		{
-//			float saveX = p.viewer.getXOrientation();
-//			float saveY = p.viewer.getYOrientation();
-//			
-//			PApplet.println("Angle X: "+p.viewer.getXOrientation()+" before");
-//			PApplet.println("Angle Y: "+p.viewer.getYOrientation()+" before");
 			camera.jump(0, 0, 0);
-//			PApplet.println("Angle X: "+p.viewer.getXOrientation()+" after");
-//			PApplet.println("Angle Y: "+p.viewer.getYOrientation()+" after");
-//			camera.pan(-saveX);
-//			camera.tilt(-saveY);
-//			PApplet.println("Angle X: "+p.viewer.getXOrientation()+" adjusted");
-//			PApplet.println("Angle Y: "+p.viewer.getYOrientation()+" adjusted");
 		}
 		else
 		{
@@ -3828,6 +3806,11 @@ public class WMV_Viewer
 			return false;
 	}
 	
+	public boolean isTeleporting()
+	{
+		return teleporting;
+	}
+	
 	public int getField()
 	{
 		return field;
@@ -3936,8 +3919,7 @@ public class WMV_Viewer
 
 			currentCluster = newCluster;
 			c = p.getCurrentCluster();
-			if(p.p.debug.viewer)
-				PApplet.println("Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment);
+			if(p.p.debug.viewer) PApplet.println("Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment);
 			
 			if(c != null)
 			{
@@ -3953,51 +3935,48 @@ public class WMV_Viewer
 							if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
 							{
 								setCurrentFieldTimeSegment(t.getFieldTimelineID());
-//								currentTimeSegment = t.getFieldTimelineID();						// If match, set currentFieldTimeSegment
 							}
 						}
-						else
-							PApplet.println("Current Cluster timeline is NULL!:"+c.getID());
+						else PApplet.println("Current Cluster timeline is NULL!:"+c.getID());
 					}
 				}
 				else
 				{
 					setCurrentFieldTimeSegment(newFieldTimeSegment);
-//					currentTimeSegment = newFieldTimeSegment;					// Set currentFieldTimeSegment to given value
 					movingToTimeSegment = false;
 				}
-
-//				WMV_Date d = f.getDateInCluster(c.getID(), 0);
-//				if(d != null) currentFieldDate = d.getID();
-//				else PApplet.println("currentFieldDate would have been set to null..");
 
 				if(p.getTimeMode() == 2 && !teleporting)
 					p.createTimeCycle();								// Update time cycle for new cluster
 			}
 			else
 			{
-				if(p.p.debug.viewer)
-					PApplet.println("New current cluster is null!");
+				if(p.p.debug.viewer) PApplet.println("New current cluster is null!");
 			}
 		}
 	}
 
+	/**
+	 * Set current field timeline segment, i.e. index of current time segment in main field timeline
+	 * @param newCurrentFieldTimeSegment
+	 */
 	public void setCurrentFieldTimeSegment( int newCurrentFieldTimeSegment )
 	{
 		currentFieldTimeSegment = newCurrentFieldTimeSegment;
 		p.display.updateCurrentSelectableTime = true;
-		if(p.p.debug.viewer)
-			p.display.message("Set newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment);
+		if(p.p.debug.viewer) p.display.message("Set newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment);
 	}
 
+	/**
+	 * Set current field timelines segment, i.e. index of current time segment in date-specific field timelines 
+	 * @param newCurrentFieldTimelinesSegment
+	 */
 	public void setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment )
 	{
-		if(p.p.debug.viewer)
-			p.display.message("Set newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
+		if(p.p.debug.viewer) p.display.message("Set newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
 		currentFieldTimelinesSegment = newCurrentFieldTimelinesSegment;
 		int fieldTimelineID = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimelinesSegment).getFieldTimelineID();
 		setCurrentFieldTimeSegment(fieldTimelineID);
-//		p.display.updateCurrentSelectableTime = true;
 	}
 	
 	/**
@@ -4066,15 +4045,15 @@ public class WMV_Viewer
 		zooming = true;
 	}
 	
-	/***
-	 * jump()
-	 * @param dest   Destination to jump to
-	 * Jump to a point
-	 */
-	public void jumpTo(PVector dest)
-	{
-		camera.jump(dest.x, dest.y, dest.z);					
-	}
+//	/***
+//	 * jump()
+//	 * @param dest   Destination to jump to
+//	 * Jump to a point
+//	 */
+//	public void jumpTo(PVector dest)
+//	{
+//		camera.jump(dest.x, dest.y, dest.z);					
+//	}
 
 //	/**
 //	 * jumpAndPointAtTarget()

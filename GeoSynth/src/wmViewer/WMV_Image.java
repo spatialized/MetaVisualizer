@@ -132,7 +132,21 @@ class WMV_Image extends WMV_Viewable
 		}
 
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
-
+//		if(p.p.viewer.settings.orientationMode)
+//		{
+//			if(viewingBrightness > 0.f)
+//			{
+//				if(!p.p.viewer.isMoving() && !p.p.viewer.isTeleporting() && p.p.getCurrentCluster().getID() != cluster)
+//				{
+//					float dist = PApplet.abs( PVector.dist(p.p.getCurrentCluster().getLocation(), p.p.getCluster(cluster).getLocation()) );
+//					float clusterDistanceFactor = PApplet.constrain(PApplet.map(dist, 0.f, p.p.viewer.settings.farViewingDistance, 1.f, 0.f), 0.f, 1.f);
+//					PApplet.print("Old viewingBrightness:"+viewingBrightness);
+//					viewingBrightness *= clusterDistanceFactor;
+//					PApplet.println(" new viewingBrightness:"+viewingBrightness+"  clusterDistanceFactor:"+clusterDistanceFactor+" dist:"+dist+" p.p.viewer.settings.farViewingDistance:"+p.p.viewer.settings.farViewingDistance);
+//				}
+//			}
+//		}
+		
 		if (!hidden && !disabled) 
 		{
 			if (viewingBrightness > 0)
@@ -565,19 +579,32 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void calculateVertices()									
 	{
-		vertices = initializeVertices();					// Initialize vertices
-		sVertices = initializeVertices();	
+		vertices = initializeVertices();					// Initialize Normal Mode vertices
+		sVertices = initializeVertices();					// Initialize Orientation Mode (static) vertices
 		
 		if (phi != 0.) vertices = rotateVertices(vertices, -phi, verticalAxis);        	 // Rotate around X axis
 		if (theta != 0.) vertices = rotateVertices(vertices, 360-theta, azimuthAxis);    // Rotate around Z axis
-		if (phi != 0.) sVertices = rotateVertices(sVertices, -phi, verticalAxis);        	 // Rotate around X axis
+		
+		if (phi != 0.) sVertices = rotateVertices(sVertices, -phi, verticalAxis);        // Rotate around X axis
 		if (theta != 0.) sVertices = rotateVertices(sVertices, 360-theta, azimuthAxis);    // Rotate around Z axis
-
+		
 		if(vertices.length == 0) disabled = true;
 		if(sVertices.length == 0) disabled = true;
 		
-		vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
+		vertices = translateVertices(vertices, getCaptureLocation());               // Move image to photo capture location   
 
+//		if(p.p.viewer.settings.orientationMode)		// Adjust static vertices to where they would be visible given currentCluster is at origin
+//		{
+//			WMV_Cluster c = p.p.getCurrentCluster();
+//			if(c != null && c.getID() != cluster)
+//			{
+//				PVector clusterLoc = c.getLocation();					// Orientation mode origin
+//				PVector captureLoc = getCaptureLocation();
+//				PVector clusterDisp = new PVector(captureLoc.x - clusterLoc.x, captureLoc.y - clusterLoc.y, captureLoc.z - clusterLoc.z);
+//				sVertices = translateVertices(sVertices, clusterDisp);
+//			}
+//		}
+		
 		disp = getDisplacementVector();
 		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 		sVertices = translateVertices(sVertices, disp);

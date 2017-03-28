@@ -146,6 +146,13 @@ public class WMV_World
 
 	void run()
 	{
+		if(startedRunning)											// If simulation just started running
+		{
+			viewer.moveToFirstTimeSegment(false);
+//			viewer.moveToTimeSegmentInField(0, 0, true, true);		// Move to first time segment in field
+			startedRunning = false;
+		}
+		
 		if ( !initialSetup && !interactive && !p.state.exit ) 		/* Running the program */
 		{
 			draw3D();						// 3D Display
@@ -283,12 +290,6 @@ public class WMV_World
 		
 		if(fadingAlpha) updateFadingAlpha();				// Fade alpha
 
-		if(startedRunning)									// If simulation just started running
-		{
-			viewer.moveToTimeSegmentInField(0, 0, true, true);	// Move to first time segment in field
-			startedRunning = false;
-		}
-		
 		if(viewer.settings.mouseNavigation)
 			input.updateMouseNavigation(p.mouseX, p.mouseY);
 	}

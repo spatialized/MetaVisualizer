@@ -306,10 +306,11 @@ public class WMV_Cluster
 		if(numSegments > 0)
 		{
 			if(p.p.p.debug.cluster || p.p.p.debug.model)
-				PApplet.println(" Created "+numSegments+" segments...");
+				PApplet.println(" Created "+numSegments+" media segments...");
 
 		}
-		else PApplet.println(" No segments added... cluster "+getID()+" has no images!");
+		else if(p.p.p.debug.cluster) 
+			PApplet.println(" No media segments added... cluster "+getID()+" has no images!");
 	}
 
 	/**

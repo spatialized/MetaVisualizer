@@ -722,7 +722,7 @@ public class WMV_Viewer
 			int clusterID = f.timeline.get(fieldTimeSegment).getClusterID();
 			if(clusterID == currentCluster && p.getCluster(clusterID).getClusterDistance() < p.settings.clusterCenterSize)	// Moving to different time in same cluster
 			{
-				setCurrentFieldTimeSegment(fieldTimeSegment);
+				boolean success = setCurrentFieldTimeSegment(fieldTimeSegment, true);
 				if(p.p.debug.viewer && p.p.debug.detailed)
 					p.display.message("Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 			}
@@ -986,22 +986,28 @@ public class WMV_Viewer
 				{
 					if(p.p.debug.viewer) p.display.message("Reached end of year...");
 					currentFieldDate = 0;
-					setCurrentFieldTimelinesSegment(0);									// Return to first segment
+					setCurrentFieldTimelinesSegment(0, true);									// Return to first segment
 				}
 				else
 				{
+					while(p.getCurrentField().timelines.get(currentFieldDate).size() == 0)		// Go to next non-empty date
+					{
+						currentFieldDate++;
+						if(currentFieldDate >= p.getCurrentField().dateline.size())
+							currentFieldDate = 0;
+					}
 					if(p.p.debug.viewer) p.display.message("Moved to next date: "+currentFieldDate);
-					setCurrentFieldTimelinesSegment(0);									// Start at first segment
+					setCurrentFieldTimelinesSegment(0, true);									// Start at first segment
 				}
 			}
 			else
-				setCurrentFieldTimelinesSegment(newValue);
+				setCurrentFieldTimelinesSegment(newValue, true);
 		}
 		else
 		{
-			setCurrentFieldTimeSegment(currentFieldTimeSegment+1);
+			boolean success = setCurrentFieldTimeSegment(currentFieldTimeSegment+1, true);
 			if(currentFieldTimeSegment >= p.getCurrentField().timeline.size())
-				setCurrentFieldTimeSegment(0);									// Return to first segment
+				success = setCurrentFieldTimeSegment(0, true);									// Return to first segment
 		}
 
 		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport, fade);
@@ -1023,23 +1029,23 @@ public class WMV_Viewer
 				if(currentFieldDate < 0) 
 				{
 					currentFieldDate = p.getCurrentField().dateline.size()-1;			// Go to last date
-					setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1);		// Go to last segment
+					boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1, true);		// Go to last segment
 				}
 				else
 				{
-					setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1);		// Start at last segment
+					boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1, true);		// Start at last segment
 				}
 			}	
 			else
 			{
-				setCurrentFieldTimelinesSegment(newValue);
+				boolean success = setCurrentFieldTimelinesSegment(newValue, true);
 			}
 		}
 		else
 		{
-			setCurrentFieldTimeSegment(currentFieldTimeSegment-1);
+			boolean success = setCurrentFieldTimeSegment(currentFieldTimeSegment-1, true);
 			if(currentFieldTimeSegment < 0)
-				setCurrentFieldTimeSegment(p.getCurrentField().timeline.size()-1);
+				success = setCurrentFieldTimeSegment(p.getCurrentField().timeline.size()-1, true);
 		}
 
 		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport, fade);
@@ -1996,22 +2002,30 @@ public class WMV_Viewer
 
 			turningVelocity.add(turningAcceleration);							// Add acceleration to velocity
 
+			if(camera.attitude()[1] + turningVelocity.y >= PApplet.PI * 0.5f || camera.attitude()[1] - turningVelocity.y <= -PApplet.PI * 0.5f)	// Avoid gimbal lock
+			{
+				turningVelocity.y = 0.f;
+				turningAcceleration.y = 0.f;
+			}
+			
 			if(PApplet.abs( turningVelocity.mag()) > 0.f && PApplet.abs(turningVelocity.x) < settings.turningVelocityMin 
 							&& (turnSlowingX || turnHaltingX) )
 			{
-				turningX = false;
-				turnSlowingX = false;
-				turnHaltingX = false;
-				turningVelocity.x = 0.f;			// Clear turningVelocity.x when close to zero (below settings.velocityMin)
+				stopTurningX();
+//				turningX = false;
+//				turnSlowingX = false;
+//				turnHaltingX = false;
+//				turningVelocity.x = 0.f;			// Clear turningVelocity.x when close to zero (below settings.velocityMin)
 			}
 
 			if(PApplet.abs( turningVelocity.mag()) > 0.f && PApplet.abs(turningVelocity.y) < settings.turningVelocityMin 
 							&& (turnSlowingY || turnHaltingY) )
 			{
-				turningY = false;
-				turnSlowingY = false;
-				turnHaltingY = false;
-				turningVelocity.y = 0.f;			// Clear turningVelocity.y when close to zero (below settings.velocityMin)
+				stopTurningY();
+//				turningY = false;
+//				turnSlowingY = false;
+//				turnHaltingY = false;
+//				turningVelocity.y = 0.f;			// Clear turningVelocity.y when close to zero (below settings.velocityMin)
 			}
 
 			if(PApplet.abs(turningVelocity.x) == 0.f && turnSlowingX )
@@ -2109,6 +2123,22 @@ public class WMV_Viewer
 				}
 			}
 		}
+	}
+	
+	public void stopTurningX()
+	{
+		turningY = false;
+		turnSlowingY = false;
+		turnHaltingY = false;
+		turningVelocity.y = 0.f;			
+	}
+	
+	public void stopTurningY()
+	{
+		turningY = false;
+		turnSlowingY = false;
+		turnHaltingY = false;
+		turningVelocity.y = 0.f;			
 	}
 	
 	/**
@@ -2403,8 +2433,10 @@ public class WMV_Viewer
 		}
 		if(turningVelocity.y != 0.f)
 		{
-			if(camera.attitude()[1] + turningVelocity.y < PApplet.PI * 0.5f && camera.attitude()[1] + turningVelocity.y > -PApplet.PI * 0.5f)	// Avoid gimbal lock
+//			if(camera.attitude()[1] + turningVelocity.y < PApplet.PI * 0.5f || camera.attitude()[1] - turningVelocity.y > -PApplet.PI * 0.5f)	// Avoid gimbal lock
 				camera.tilt(turningVelocity.y);
+//			else
+//				stopTurningY();
 		}
 	}
 	
@@ -2414,10 +2446,8 @@ public class WMV_Viewer
 		{
 			WMV_Cluster curAttractor = p.getAttractorCluster();
 //			WMV_Cluster curAttractor = p.getCurrentField().clusters.get(attractorCluster);
-			if(curAttractor != null)
-				p.display.message("Slowing... curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
-			else
-				p.display.message("Slowing... no attractor");
+			if(curAttractor != null) p.display.message("Slowing... curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
+			else p.display.message("Slowing... no attractor");
 		}
 		
 		slowing = true;										// Slowing when close to attractor
@@ -2429,10 +2459,8 @@ public class WMV_Viewer
 		{
 			WMV_Cluster curAttractor = p.getAttractorCluster();
 //			WMV_Cluster curAttractor = p.getCurrentField().clusters.get(attractorCluster);
-			if(curAttractor != null)
-				p.display.message("Halting...  curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
-			else
-				p.display.message("Halting... no attractor");
+			if(curAttractor != null) p.display.message("Halting...  curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
+			else p.display.message("Halting... no attractor");
 		}
 		
 		slowing = false;
@@ -2663,9 +2691,6 @@ public class WMV_Viewer
 				float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
 				float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
 
-				//			turnXToAngle(yaw, 0);		// Calculate which way to turn and start turning in X axis
-				//			turnYToAngle(pitch, 0);		// Calculate which way to turn and start turning in Y axis
-
 				float xStart = getXOrientation();
 				float xTarget = yaw;
 				PVector turnXInfo = getTurnInfo(xStart, xTarget, 0);
@@ -2718,8 +2743,10 @@ public class WMV_Viewer
 					closestMediaType = 2;
 				}
 			}
-
-			lookAtMedia(closestID, closestMediaType);
+			
+//			if(c.panorama)
+			if(c.panoramas.size() == 0)
+				lookAtMedia(closestID, closestMediaType);				// Look at media with the smallest turn distance
 		}
 	}
 	
@@ -4024,7 +4051,7 @@ public class WMV_Viewer
 						{
 							if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
 							{
-								setCurrentFieldTimeSegment(t.getFieldTimelineID());
+								boolean success = setCurrentFieldTimeSegment(t.getFieldTimelineID(), true);
 							}
 						}
 						else PApplet.println("Current Cluster timeline is NULL!:"+c.getID());
@@ -4032,7 +4059,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					setCurrentFieldTimeSegment(newFieldTimeSegment);
+					boolean success = setCurrentFieldTimeSegment(newFieldTimeSegment, true);
 					movingToTimeSegment = false;
 				}
 
@@ -4047,26 +4074,92 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Set current field timeline segment, i.e. index of current time segment in main field timeline
+	 * Set current field timeline segment with option to adjust currentFieldTimelinesSegment
 	 * @param newCurrentFieldTimeSegment
 	 */
-	public void setCurrentFieldTimeSegment( int newCurrentFieldTimeSegment )
+	public boolean setCurrentFieldTimeSegment( int newCurrentFieldTimeSegment, boolean updateTimelinesSegment )
 	{
 		currentFieldTimeSegment = newCurrentFieldTimeSegment;
 		p.display.updateCurrentSelectableTime = true;
-		if(p.p.debug.viewer) p.display.message("Set newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment);
+		boolean success = true;
+		
+		if(updateTimelinesSegment)
+		{
+			int newFieldDate = p.getCurrentField().timeline.get(currentFieldTimeSegment).getFieldDateID();
+			int newFieldTimelinesSegment = p.getCurrentField().timeline.get(currentFieldTimeSegment).getFieldTimelinesID();
+			success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false);
+		}
+		
+		if(currentFieldTimeSegment > 0 && currentFieldTimeSegment < p.getCurrentField().timeline.size())
+			return success;
+		else
+			return false;
 	}
 
 	/**
-	 * Set current field timelines segment, i.e. index of current time segment in date-specific field timelines 
+	 * Set current field timelines segment with option to adjust currentFieldTimelineSegment
 	 * @param newCurrentFieldTimelinesSegment
+	 * @return True if succeeded
 	 */
-	public void setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment )
+	public boolean setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment, boolean updateTimelineSegment )
 	{
-		if(p.p.debug.viewer) p.display.message("Set newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
+		if(p.p.debug.viewer) p.display.message("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
 		currentFieldTimelinesSegment = newCurrentFieldTimelinesSegment;
-		int fieldTimelineID = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimelinesSegment).getFieldTimelineID();
-		setCurrentFieldTimeSegment(fieldTimelineID);
+		p.display.updateCurrentSelectableTime = true;
+
+		if(currentFieldDate < p.getCurrentField().timelines.size())
+		{
+			if(p.getCurrentField().timelines.get(currentFieldDate).size() > 0 && currentFieldTimelinesSegment < p.getCurrentField().timelines.get(currentFieldDate).size())
+			{
+				if(updateTimelineSegment)
+				{
+					int fieldTimelineID = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimelinesSegment).getFieldTimelineID();
+					boolean success = setCurrentFieldTimeSegment(fieldTimelineID, false);
+					return success;
+				}
+				else return true;
+			}
+			else return false;
+		}
+		else return false;
+	}
+	
+	public boolean setCurrentTimeSegmentAndDate(int newCurrentFieldTimelinesSegment, int newDate, boolean updateTimelineSegment)
+	{
+//		PApplet.println("setCurrentTimeSegmentAndDate("+newCurrentFieldTimelinesSegment+", "+newDate+", "+updateTimelineSegment+")...");
+		currentFieldDate = newDate;
+		boolean success = setCurrentFieldTimelinesSegment( newCurrentFieldTimelinesSegment, updateTimelineSegment );
+		return success;
+	}
+	
+	public boolean moveToFirstTimeSegment(boolean ignoreDate)
+	{
+		int newDate = 0;
+		if(ignoreDate)
+		{
+			moveToTimeSegmentInField(p.getCurrentField().fieldID, 0, true, true);		// Move to first time segment in field
+			return true;
+		}		
+		else
+		{
+			int count = 0;
+			boolean success = false;
+			while(!success)
+			{
+				success = setCurrentTimeSegmentAndDate(0, newDate, true);
+				newDate++;
+				count++;
+				if(count > p.getCurrentField().dateline.size()) break;
+			}
+			if(success)
+			{
+				int curFieldTimeSegment = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimelinesSegment).getFieldTimelineID();
+				moveToTimeSegmentInField(p.getCurrentField().fieldID, curFieldTimeSegment, true, true);		// Move to first time segment in field
+			}
+			else PApplet.println("ERROR: COULDN'T MOVE TO FIRST TIME SEGMENT");
+			
+			return success;
+		}
 	}
 	
 	/**

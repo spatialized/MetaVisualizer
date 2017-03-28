@@ -910,16 +910,21 @@ public class WMV_Field
 						{
 							fieldTime.setFieldDateID(ct);
 							fieldTime.setFieldTimelinesID(count);
+//							PApplet.println("Correcting fieldTime for cluster #:"+fieldTime.getClusterID()+" ct:"+ct+" count:"+count
+//											+" newTimeline size:"+newTimeline.size());	
 						}
 					}
 					
 					count++;
 				}
 				timelines.add( newTimeline );		// Calculate and add timeline to list
-//				PApplet.println("Added timeline #"+ct+" for field #"+fieldID+" with "+newTimeline.size()+" segments...");
+				PApplet.println("Added timeline #"+ct+" for field #"+fieldID+" with "+newTimeline.size()+" segments...");
 			}
 			else
-				PApplet.println("No timeline #"+ct+" for field #"+fieldID);
+			{
+				timelines.add( newTimeline );		// Add empty timeline to preserve indexing 
+				PApplet.println("Added EMPTY timeline #"+ct+" for field #"+fieldID);
+			}
 			
 			ct++;
 		}

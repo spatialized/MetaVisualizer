@@ -91,24 +91,6 @@ public class WMV_Field
 		dateline = new ArrayList<WMV_Date>();
 	}
 
-//	WMV_Field( WMV_World parent, String newMediaFolder, ArrayList<WMV_Cluster> newClusters, int newFieldID )
-//	{
-//		p = parent;
-//		name = newMediaFolder;
-//		fieldID = newFieldID;
-//
-//		model = new WMV_Model(this);
-//		clusters = new ArrayList<WMV_Cluster>();
-//		
-//		images = new ArrayList<WMV_Image>();
-//		panoramas = new ArrayList<WMV_Panorama>();
-//		videos = new ArrayList<WMV_Video>();		
-//		sounds = new ArrayList<WMV_Sound>();		
-//
-//		timeline = new ArrayList<WMV_TimeSegment>();
-//		dateline = new ArrayList<WMV_Date>();
-//	}
-
 	public void draw() 				// Draw currently visible media
 	{			
 		float vanishingPoint = p.viewer.getFarViewingDistance() + p.settings.defaultFocusDistance;	// Distance where transparency reaches zero
@@ -122,9 +104,8 @@ public class WMV_Field
 		p.p.hint(PApplet.ENABLE_DEPTH_TEST);					// Enable depth testing for drawing 3D graphics
 		p.p.background(0.f);									// Set background
 
-		for (int i = 0; i < images.size(); i++) 		// Update and display images
+		for (WMV_Image m : images) 		// Update and display images
 		{
-			WMV_Image m = images.get(i);
 			if(!m.disabled)
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
@@ -143,9 +124,8 @@ public class WMV_Field
 			}
 		}
 		
-		for (int i = 0; i < panoramas.size(); i++)  	// Update and display panoramas
+		for (WMV_Panorama n : panoramas)  	// Update and display panoramas
 		{
-			WMV_Panorama n = panoramas.get(i);
 			if(!n.disabled)
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
@@ -163,9 +143,8 @@ public class WMV_Field
 			}
 		}
 
-		for (int i = 0; i < videos.size(); i++)  		// Update and display videos
+		for (WMV_Video v : videos)  		// Update and display videos
 		{
-			WMV_Video v = videos.get(i);
 			if(!v.disabled)
 			{
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
@@ -193,9 +172,8 @@ public class WMV_Field
 			}
 		}
 		
-//		for (int i = 0; i < sounds.size(); i++)  		// Update and display sounds
+//		for (WMV_Sound s : sounds)  		// Update and display sounds
 //		{
-//			WMV_Sound s = sounds.get(i);
 //			if(!s.disabled)
 //			{
 //				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location

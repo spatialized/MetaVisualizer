@@ -31,7 +31,7 @@ import processing.data.IntList;
 public class WMV_Viewer 
 {
 	/* Camera */
-	Camera camera;									 	// Camera object
+	private Camera camera;									 	// Camera object
 	WMV_ViewerSettings settings;						// Viewer settings
 
 	/* Time */
@@ -221,6 +221,8 @@ public class WMV_Viewer
 	 */
 	void update()
 	{
+		PApplet.println("viewer.update()... Frame #"+p.p.frameCount+" getXOrientation():"+getXOrientation()+" getYOrientation():"+getYOrientation());
+		
 		if(!settings.orientationMode)
 			location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
 
@@ -269,7 +271,7 @@ public class WMV_Viewer
 		}
 		
 		if(settings.orientationMode) updateOrientationMode();
-		
+
 		/* Aim camera */
 //		if(movingToAttractor)
 //			camera.aim(attractorPoint.getLocation().x, attractorPoint.getLocation().y, attractorPoint.getLocation().z);
@@ -278,6 +280,11 @@ public class WMV_Viewer
 //			GMV_Cluster c = p.getCurrentCluster();
 //			camera.aim(c.getLocation().x, c.getLocation().y, c.getLocation().z);
 //		}
+	}
+	
+	public void draw()
+	{
+		camera.feed();						// Send the 3D camera view to the screen
 	}
 	
 	private void updateOrientationMode()
@@ -760,28 +767,17 @@ public class WMV_Viewer
 		{
 			WMV_Cluster c = p.getCurrentField().clusters.get(dest);
 
-//			if(settings.orientationMode)		// -- check this
-//			{
-//				PApplet.println("teleportToCluster in orientation mode...");
-//				teleportGoalCluster = dest;
-//				teleportGoal = c.getLocation();
-//				startTeleport(-1);
-//			}
-//			else
-//			{
-				if(fade)
-				{
-					teleportGoalCluster = dest;
-					teleportGoal = c.getLocation();
-					startTeleport(-1);
-				}
-				else
-				{
-					setLocation( c.getLocation() );
-					setCurrentCluster(dest, fieldTimeSegment);
-				}
-//			}
-
+			if(fade)
+			{
+				teleportGoalCluster = dest;
+				teleportGoal = c.getLocation();
+				startTeleport(-1);
+			}
+			else
+			{
+				setLocation( c.getLocation() );
+				setCurrentCluster(dest, fieldTimeSegment);
+			}
 		}
 		else if(p.p.debug.cluster || p.p.debug.field || p.p.debug.viewer)
 			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().clusters.size());
@@ -790,9 +786,7 @@ public class WMV_Viewer
 	public void setLocation(PVector newLocation)
 	{
 		if(settings.orientationMode)
-		{
 			location = new PVector(newLocation.x, newLocation.y, newLocation.z);
-		}
 		else
 		{
 			camera.jump(newLocation.x, newLocation.y, newLocation.z);
@@ -1862,7 +1856,7 @@ public class WMV_Viewer
 	 */
 	public PVector getOrientation()
 	{
-		orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update location
+		orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update orientation
 		return orientation;
 	}
 
@@ -1871,7 +1865,7 @@ public class WMV_Viewer
 	 */
 	public float getXOrientation()
 	{
-		orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update location
+		orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update X orientation
 		return orientation.x;
 	}
 
@@ -1880,7 +1874,7 @@ public class WMV_Viewer
 	 */
 	public float getYOrientation()
 	{
-		orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update location
+		orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update Y orientation
 		return orientation.y;
 	}
 
@@ -1889,7 +1883,7 @@ public class WMV_Viewer
 	 */
 	public float getZOrientation()
 	{
-		orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update location
+		orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update Z orientation
 		return orientation.z;
 	}
 	
@@ -1973,7 +1967,9 @@ public class WMV_Viewer
 			turningVelocity.y *= settings.turningHaltInc;
 			turningAcceleration.y *= settings.turningHaltInc;
 		}
-	
+
+		PApplet.println("updateTurning()... turningX:"+ turningX+" turningY:"+turningY+"  turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
+
 		if(PApplet.abs(turningVelocity.mag()) > 0.f || PApplet.abs(turningAcceleration.mag()) > 0.f)				/* Walking if walkingVelocity or walkingAcceleration > 0 */
 		{
 			if(!turningX)
@@ -2012,20 +2008,12 @@ public class WMV_Viewer
 							&& (turnSlowingX || turnHaltingX) )
 			{
 				stopTurningX();
-//				turningX = false;
-//				turnSlowingX = false;
-//				turnHaltingX = false;
-//				turningVelocity.x = 0.f;			// Clear turningVelocity.x when close to zero (below settings.velocityMin)
 			}
 
 			if(PApplet.abs( turningVelocity.mag()) > 0.f && PApplet.abs(turningVelocity.y) < settings.turningVelocityMin 
 							&& (turnSlowingY || turnHaltingY) )
 			{
 				stopTurningY();
-//				turningY = false;
-//				turnSlowingY = false;
-//				turnHaltingY = false;
-//				turningVelocity.y = 0.f;			// Clear turningVelocity.y when close to zero (below settings.velocityMin)
 			}
 
 			if(PApplet.abs(turningVelocity.x) == 0.f && turnSlowingX )
@@ -2044,6 +2032,7 @@ public class WMV_Viewer
 		if(turningX)
 		{
 			float xTurnDistance = getTurnDistance(getXOrientation(), turnXTarget, turnXDirection);
+			PApplet.println("xTurnDistance:"+xTurnDistance);
 			if(PApplet.abs(xTurnDistance) < turningNearDistance) // && !turningNearby)
 			{
 				if(PApplet.abs(xTurnDistance) > turningCenterSize)
@@ -2064,6 +2053,7 @@ public class WMV_Viewer
 		if(turningY)
 		{
 			float yTurnDistance = getTurnDistance(getYOrientation(), turnYTarget, turnYDirection);
+			PApplet.println("yTurnDistance:"+yTurnDistance);
 			if(PApplet.abs(yTurnDistance) < turningNearDistance * 0.5f) // && !turningNearby)
 			{
 				if(PApplet.abs(yTurnDistance) > turningCenterSize * 0.5f)
@@ -2258,15 +2248,11 @@ public class WMV_Viewer
 			{
 				if(!waiting)
 				{
-					boolean reachedAttractor = false;				
+					boolean reachedAttractor = false;
+					
 					if(curAttractor.getClusterDistance() < clusterNearDistance && !movingNearby)
-					{
-//						PApplet.println("curAttractor:"+curAttractor.getID()+" dist:"+curAttractor.getClusterDistance()+" under near dist: "+clusterNearDistance);
 						if(PApplet.abs(velocity.mag()) > settings.velocityMin)					/* Slow down at attractor center */
-						{
 							if(!slowing) slow();
-						}
-					}
 
 					if(curAttractor.getClusterDistance() < p.settings.clusterCenterSize)
 					{
@@ -2286,18 +2272,15 @@ public class WMV_Viewer
 					if(reachedAttractor) 
 						handleReachedAttractor();
 				}
-//				else
-//				{
-//					if(p.p.debug.viewer)
-//						PApplet.println("Waiting...");
-//				}
+				else
+				{
+					if(p.p.debug.viewer && p.p.debug.detailed)
+						PApplet.println("Waiting...");
+				}
 			}
 
 			location.add(velocity);				// Add velocity to location
-			if(!settings.orientationMode)
-			{
-				setLocation(location);			// Move camera
-			}
+			setLocation(location);				// Move camera
 		}
 
 		if(attractorCluster != -1)
@@ -2408,9 +2391,7 @@ public class WMV_Viewer
 	private void walk()
 	{
 		if(settings.orientationMode)					// Add relativeVelocity to staticLocation
-		{
 			location.add(walkingVelocity);	
-		}
 		else 								// Move the camera
 		{
 			if(walkingVelocity.x != 0.f)
@@ -2429,14 +2410,13 @@ public class WMV_Viewer
 	{
 		if(turningVelocity.x != 0.f)
 		{
+			PApplet.println("camera.pan..."+turningVelocity.x);
 			camera.pan(turningVelocity.x);
 		}
 		if(turningVelocity.y != 0.f)
 		{
-//			if(camera.attitude()[1] + turningVelocity.y < PApplet.PI * 0.5f || camera.attitude()[1] - turningVelocity.y > -PApplet.PI * 0.5f)	// Avoid gimbal lock
-				camera.tilt(turningVelocity.y);
-//			else
-//				stopTurningY();
+			PApplet.println("camera.tilt..."+turningVelocity.y);
+			camera.tilt(turningVelocity.y);
 		}
 	}
 	
@@ -2725,9 +2705,6 @@ public class WMV_Viewer
 				float adj = (float) Math.sqrt(Math.pow(cameraToPoint.x, 2) + Math.pow(cameraToPoint.z, 2)); 
 				float pitch = -((float) Math.atan2(adj, cameraToPoint.y) - 0.5f * PApplet.PI);
 
-				//			turnXToAngle(yaw, 0);		// Calculate which way to turn and start turning in X axis
-				//			turnYToAngle(pitch, 0);		// Calculate which way to turn and start turning in Y axis
-
 				float xStart = getXOrientation();
 				float xTarget = yaw;
 				PVector turnXInfo = getTurnInfo(xStart, xTarget, 0);
@@ -2986,9 +2963,35 @@ public class WMV_Viewer
 	public void setOrientationMode( boolean state )
 	{
 		if(state)
+		{
+//			camera.jump(0, 0, 0);
+			
+			PVector saveAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+			PApplet.println("jump to origin  saveAttitude.x:"+saveAttitude.x+" saveAttitude.y:"+saveAttitude.y+" saveAttitude.z:"+saveAttitude.z);
 			camera.jump(0, 0, 0);
+			PVector newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+			PApplet.println("After jump newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
+			camera.pan(saveAttitude.x - newAttitude.x);
+			camera.tilt(saveAttitude.y - newAttitude.y);
+			newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+			PApplet.println("After camera.pan/tilt newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
+		}
 		else
+		{
+//			camera.jump(location.x, location.y, location.z);
+
+		
+			PVector saveAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+			PApplet.println("jump back   saveAttitude.x:"+saveAttitude.x+" saveAttitude.y:"+saveAttitude.y+" saveAttitude.z:"+saveAttitude.z);
 			camera.jump(location.x, location.y, location.z);
+			PVector newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+			PApplet.println("After jump newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
+			camera.pan(saveAttitude.x - newAttitude.x);
+			camera.tilt(saveAttitude.y - newAttitude.y);
+			newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+			PApplet.println("After camera.pan/tilt newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
+
+		}
 		
 		settings.orientationMode = state;
 		
@@ -4077,6 +4080,19 @@ public class WMV_Viewer
 	}
 	
 	/**
+	 * Initialize 2D drawing 
+	 */
+	void start3DHUD()
+	{
+		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.getNearClippingDistance(), 10000);
+		PVector t = new PVector(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
+		p.p.translate(t.x, t.y, t.z);
+		p.p.rotateY(p.viewer.camera.attitude()[0]);
+		p.p.rotateX(-p.viewer.camera.attitude()[1]);
+		p.p.rotateZ(p.viewer.camera.attitude()[2]);
+	}
+
+	/**
 	 * @return Whether the viewer is teleporting
 	 */
 	public boolean isTeleporting()
@@ -4204,7 +4220,7 @@ public class WMV_Viewer
 	 */
 	public float getFieldOfView()
 	{
-		return settings.fieldOfView;
+		return settings.fieldOfView = camera.fov();
 	}
 	
 	/**

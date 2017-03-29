@@ -280,11 +280,7 @@ class WMV_Image extends WMV_Viewable
 			calculateVertices();  					// Update geometry		
 			
 			aspectRatio = getAspectRatio();
-//			averageColor = getAverageColor();
-//			averageBrightness = getAverageBrightness();
-			
 			blurred = applyMask(image, blurMask);				// Apply blur mask once image has loaded
-
 			requested = false;
 			p.p.requestedImages--;
 		}
@@ -299,17 +295,12 @@ class WMV_Image extends WMV_Viewable
 
 			if(p.p.viewer.settings.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
-//				if(p.p.viewer.firstOrientationModeFrame == p.p.p.frameCount)
-//					wasVisible = false;
-				
 				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
 				for(int id : p.p.viewer.clustersVisible)
-				{
 					if(cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						visible = true;
-				}
 			}
 			else 
 			{
@@ -379,9 +370,7 @@ class WMV_Image extends WMV_Viewable
 			}
 
 			if(visibilitySetToFalse)
-			{
 				fadeOut();
-			}
 
 			if(fadedOut) fadedOut = false;
 		}
@@ -393,28 +382,15 @@ class WMV_Image extends WMV_Viewable
 					if(cluster == id  && !requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						loadMedia();
 			}
-			else 
-			if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
-			{
+			else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
 				loadMedia(); 					// Request image pixels from disk
-			}
 		}
-		
-//		if(getCaptureDistance() >= p.p.viewer.getFarViewingDistance())
-//		if(p.p.viewer.settings.orientationMode && visible)
-//			PApplet.println("Img "+getID()+" visible? "+visible+"...getCaptureDistance():"+getCaptureDistance()+" p.p.viewer.getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getFarViewingDistance():"+p.p.viewer.getFarViewingDistance());
 		
 		if(isFading())                       // Fade in and out with time
-		{
 			updateFadingBrightness();
-		}
 		
 		if(fadingFocusDistance)
-		{
 			updateFadingFocusDistance();
-		}
-//		else
-//			calculateVertices();  			// Update image parameters
 	}
 
 	/** 
@@ -592,24 +568,12 @@ class WMV_Image extends WMV_Viewable
 		if(sVertices.length == 0) disabled = true;
 		
 		vertices = translateVertices(vertices, getCaptureLocation());               // Move image to photo capture location   
-
-//		if(p.p.viewer.settings.orientationMode)		// Adjust static vertices to where they would be visible given currentCluster is at origin
-//		{
-//			WMV_Cluster c = p.p.getCurrentCluster();
-//			if(c != null && c.getID() != cluster)
-//			{
-//				PVector clusterLoc = c.getLocation();					// Orientation mode origin
-//				PVector captureLoc = getCaptureLocation();
-//				PVector clusterDisp = new PVector(captureLoc.x - clusterLoc.x, captureLoc.y - clusterLoc.y, captureLoc.z - clusterLoc.z);
-//				sVertices = translateVertices(sVertices, clusterDisp);
-//			}
-//		}
 		
 		disp = getDisplacementVector();
 		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 		sVertices = translateVertices(sVertices, disp);
 		
-		location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
+		location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 		location.add(disp);     													 
 
 		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))

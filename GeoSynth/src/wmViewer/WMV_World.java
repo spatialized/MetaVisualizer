@@ -188,6 +188,7 @@ public class WMV_World
 			}
 			saveImage = false;
 		}
+		PApplet.println("Last run() on Frame #"+p.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
 	}
 	
 	/**
@@ -279,7 +280,7 @@ public class WMV_World
 		viewer.update();							// Update navigation
 		if(display.displayView == 0)	
 			if(p.state.running)
-				viewer.camera.feed();						// Send the 3D camera view to the screen
+				viewer.draw();						// Send the 3D camera view to the screen
 	}
 
 	void draw2D()

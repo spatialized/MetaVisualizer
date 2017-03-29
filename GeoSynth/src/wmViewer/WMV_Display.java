@@ -1304,19 +1304,6 @@ class WMV_Display
 		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.settings.nearClippingDistance, 10000.f);;
 		p.p.camera();
 	}
-	
-	/**
-	 * Initialize 2D drawing 
-	 */
-	void start3DHUD()
-	{
-		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.getNearClippingDistance(), 10000);
-		PVector t = new PVector(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
-		p.p.translate(t.x, t.y, t.z);
-		p.p.rotateY(p.viewer.camera.attitude()[0]);
-		p.p.rotateX(-p.viewer.camera.attitude()[1]);
-		p.p.rotateZ(p.viewer.camera.attitude()[2]);
-	}
 
 	/**
 	 * Display the main key commands on screen
@@ -1502,7 +1489,7 @@ class WMV_Display
 	{
 		float yPos = userMessageYOffset - lineWidth;
 
-		start3DHUD();
+		p.viewer.start3DHUD();
 		p.p.pushMatrix();
 		p.p.fill(0, 0, 255, 255);            								
 		p.p.textSize(smallTextSize);
@@ -1545,7 +1532,7 @@ class WMV_Display
 	{
 		float yPos = metadataYOffset - lineWidth;
 
-		start3DHUD();
+		p.viewer.start3DHUD();
 		p.p.pushMatrix();
 
 		p.p.fill(0, 0, 255, 255);                     // White text
@@ -1759,7 +1746,7 @@ class WMV_Display
 		if(p.viewer.getCurrentClusterID() >= 0)
 		{
 			WMV_Cluster c = p.getCurrentCluster();
-			float[] camTar = p.viewer.camera.target();
+//			float[] camTar = p.viewer.camera.target();
 
 			p.p.fill(0, 0, 255, 255);
 			p.p.textSize(largeTextSize);
@@ -1862,15 +1849,15 @@ class WMV_Display
 			{
 				p.p.text(" Debug: X Orientation (Yaw):" + p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Y Orientation (Pitch):" + p.viewer.getYOrientation(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Target Point x:" + camTar[0] + ", y:" + camTar[1] + ", z:" + camTar[2], xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Debug: Target Point x:" + camTar[0] + ", y:" + camTar[1] + ", z:" + camTar[2], xPos, yPos += lineWidth, hudDistance);
 			}
 			else
 			{
 				p.p.text(" Compass Direction:" + p.p.utilities.angleToCompass(p.viewer.getXOrientation())+" Angle: "+p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Vertical Direction:" + PApplet.degrees(p.viewer.getYOrientation()), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Zoom:"+p.viewer.camera.fov(), xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Zoom:"+p.viewer.getFieldOfView(), xPos, yPos += lineWidth, hudDistance);
 			}
-			p.p.text(" Field of View:"+p.viewer.camera.fov(), xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Field of View:"+p.viewer.getFieldOfView(), xPos, yPos += lineWidth, hudDistance);
 
 			xPos = midRightTextXOffset;
 			yPos = topTextYOffset;			// Starting vertical position

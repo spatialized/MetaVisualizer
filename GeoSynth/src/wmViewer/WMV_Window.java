@@ -1503,7 +1503,7 @@ public class WMV_Window {
 			if(p.p.viewer.getCurrentClusterID() >= 0)
 			{
 				WMV_Cluster c = p.p.getCurrentCluster();
-				float[] camTar = p.p.viewer.camera.target();
+//				float[] camTar = p.p.viewer.camera.target();
 
 				applet.fill(185, 215, 255, 255);					// Set text color
 
@@ -1597,15 +1597,15 @@ public class WMV_Window {
 				{
 					applet.text(" Debug: X Orientation (Yaw):" + p.p.viewer.getXOrientation(), x, y += lineWidth);
 					applet.text(" Debug: Y Orientation (Pitch):" + p.p.viewer.getYOrientation(), x, y += lineWidth);
-					applet.text(" Debug: Target Point x:" + camTar[0] + ", y:" + camTar[1] + ", z:" + camTar[2], x, y += lineWidth);
+//					applet.text(" Debug: Target Point x:" + camTar[0] + ", y:" + camTar[1] + ", z:" + camTar[2], x, y += lineWidth);
 				}
 				else
 				{
 					applet.text(" Compass Direction:" + p.p.p.utilities.angleToCompass(p.p.viewer.getXOrientation())+" Angle: "+p.p.viewer.getXOrientation(), x, y += lineWidth);
 					applet.text(" Vertical Direction:" + PApplet.degrees(p.p.viewer.getYOrientation()), x, y += lineWidth);
-					applet.text(" Zoom:"+p.p.viewer.camera.fov(), x, y += lineWidth);
+					applet.text(" Zoom:"+p.p.viewer.getFieldOfView(), x, y += lineWidth);
 				}
-				applet.text(" Field of View:"+p.p.viewer.camera.fov(), x, y += lineWidth);
+				applet.text(" Field of View:"+p.p.viewer.getFieldOfView(), x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
 				applet.text(" Output ", x, y += lineWidthVeryWide);

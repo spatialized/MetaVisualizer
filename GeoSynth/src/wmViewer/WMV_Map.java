@@ -981,20 +981,9 @@ public class WMV_Map
 				ScreenPosition screenPos = map.getScreenPosition(mapPoint);
 				p.p.p.stroke(hue, saturation, brightness, transparency);
 				p.p.p.strokeWeight(pointSize / PApplet.sqrt(PApplet.sqrt(mapDistance)));
-//				PApplet.println("screenPos.x:"+screenPos.x+" screenPos.y:"+screenPos.y+" screenPos.z:"+screenPos.z);
 				
 				p.p.p.pushMatrix();
-//				p.p.p.translate(screenPos.x, screenPos.y, screenPos.z);
-//				p.p.p.point(0,0,0);
 				p.p.p.point(screenPos.x, screenPos.y, screenPos.z);
-
-				// TEST
-//				p.p.p.stroke(0.f, saturation, brightness, transparency);
-//				p.p.p.strokeWeight(10.f);
-//				p.p.p.translate(screenPos.x, screenPos.y, p.hudDistance);
-//				p.p.p.point(0,0,0);
-//				p.p.p.point(screenPos.x, screenPos.y, 0);
-//				p.p.p.point(screenPos.x, screenPos.y, screenPos.z);
 				p.p.p.popMatrix();
 			}
 			else

@@ -69,7 +69,7 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	}
 
 	/** 
-	 * Main program loop called every frame
+	 * Main draw loop called every frame
 	 */
 	public void draw() 
 	{		
@@ -80,15 +80,9 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 			state.startup = false;	
 		}
 		else if(!state.running)
-		{
-//			noLoop();
 			world.setup();						/* Run setup */
-//			loop();
-		}
 		else
-		{
 			world.run();						/* Run program */
-		}
 	}
 	
 	/**

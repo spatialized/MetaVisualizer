@@ -221,7 +221,7 @@ public class WMV_Viewer
 	 */
 	void update()
 	{
-		PApplet.println("viewer.update()... Frame #"+p.p.frameCount+" getXOrientation():"+getXOrientation()+" getYOrientation():"+getYOrientation());
+//		PApplet.println("viewer.update()... Frame #"+p.p.frameCount+" getXOrientation():"+getXOrientation()+" getYOrientation():"+getYOrientation());
 		
 		if(!settings.orientationMode)
 			location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
@@ -763,6 +763,7 @@ public class WMV_Viewer
 	 */
 	public void teleportToCluster( int dest, boolean fade, int fieldTimeSegment ) 
 	{
+//		PApplet.println("teleportToCluster() dest:"+dest);
 		if(dest >= 0 && dest < p.getFieldClusters().size())
 		{
 			WMV_Cluster c = p.getCurrentField().clusters.get(dest);
@@ -972,30 +973,40 @@ public class WMV_Viewer
 		if(currentDate)
 		{
 			int newValue = currentFieldTimeSegmentOnDate+1;
-			if(newValue >= p.getCurrentField().timelines.get(currentFieldDate).size()) 		// Reached end of day
+			if(currentFieldDate >= p.getCurrentField().timelines.size())
 			{
-				if(p.p.debug.viewer) p.display.message("Reached end of day...");
-				currentFieldDate++;
-				if(currentFieldDate >= p.getCurrentField().dateline.size()) 
-				{
-					if(p.p.debug.viewer) p.display.message("Reached end of year...");
-					currentFieldDate = 0;
-					setCurrentFieldTimelinesSegment(0, true);									// Return to first segment
-				}
-				else
-				{
-					while(p.getCurrentField().timelines.get(currentFieldDate).size() == 0)		// Go to next non-empty date
-					{
-						currentFieldDate++;
-						if(currentFieldDate >= p.getCurrentField().dateline.size())
-							currentFieldDate = 0;
-					}
-					if(p.p.debug.viewer) p.display.message("Moved to next date: "+currentFieldDate);
-					setCurrentFieldTimelinesSegment(0, true);									// Start at first segment
-				}
+				currentFieldDate = 0;
+				currentFieldTimeSegmentOnDate = 0;
+				PApplet.println("--> Current field date reset! currentFieldDate was greater than timelines.size(): "
+						+p.getCurrentField().timelines.size()+"  dateline.size(): "+p.getCurrentField().dateline.size());
 			}
 			else
-				setCurrentFieldTimelinesSegment(newValue, true);
+			{
+				if(newValue >= p.getCurrentField().timelines.get(currentFieldDate).size()) 		// Reached end of day
+				{
+					if(p.p.debug.viewer) p.display.message("Reached end of day...");
+					currentFieldDate++;
+					if(currentFieldDate >= p.getCurrentField().dateline.size()) 
+					{
+						if(p.p.debug.viewer) p.display.message("Reached end of year...");
+						currentFieldDate = 0;
+						setCurrentFieldTimelinesSegment(0, true);									// Return to first segment
+					}
+					else
+					{
+						while(p.getCurrentField().timelines.get(currentFieldDate).size() == 0)		// Go to next non-empty date
+						{
+							currentFieldDate++;
+							if(currentFieldDate >= p.getCurrentField().dateline.size())
+								currentFieldDate = 0;
+						}
+						if(p.p.debug.viewer) p.display.message("Moved to next date: "+currentFieldDate);
+						setCurrentFieldTimelinesSegment(0, true);									// Start at first segment
+					}
+				}
+				else
+					setCurrentFieldTimelinesSegment(newValue, true);
+			}
 		}
 		else
 		{
@@ -1017,22 +1028,32 @@ public class WMV_Viewer
 		if(currentDate)
 		{
 			int newValue = currentFieldTimeSegmentOnDate-1;
-			if(newValue < 0) 															// Reached beginning of day
+			if(currentFieldDate >= p.getCurrentField().timelines.size())
 			{
-				currentFieldDate--;
-				if(currentFieldDate < 0) 
-				{
-					currentFieldDate = p.getCurrentField().dateline.size()-1;			// Go to last date
-					boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1, true);		// Go to last segment
-				}
-				else
-				{
-					boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1, true);		// Start at last segment
-				}
-			}	
+				currentFieldDate = 0;
+				currentFieldTimeSegmentOnDate = 0;
+				PApplet.println("--> Current field date reset!... was greater than timelines.size(): "
+								+p.getCurrentField().timelines.size()+"  dateline.size(): "+p.getCurrentField().dateline.size());
+			}
 			else
 			{
-				boolean success = setCurrentFieldTimelinesSegment(newValue, true);
+				if(newValue < 0) 															// Reached beginning of day
+				{
+					currentFieldDate--;
+					if(currentFieldDate < 0) 
+					{
+						currentFieldDate = p.getCurrentField().dateline.size()-1;			// Go to last date
+						boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1, true);		// Go to last segment
+					}
+					else
+					{
+						boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1, true);		// Start at last segment
+					}
+				}	
+				else
+				{
+					boolean success = setCurrentFieldTimelinesSegment(newValue, true);
+				}
 			}
 		}
 		else
@@ -1052,7 +1073,8 @@ public class WMV_Viewer
 	public void startTeleport(int newField) 
 	{
 		p.getCurrentField().fadeOutMedia();
-		
+//		PApplet.println("startTeleport()...");
+
 		teleporting = true;
 		teleportStart = p.p.frameCount;
 		teleportWaitingCount = 0;
@@ -1968,7 +1990,7 @@ public class WMV_Viewer
 			turningAcceleration.y *= settings.turningHaltInc;
 		}
 
-		PApplet.println("updateTurning()... turningX:"+ turningX+" turningY:"+turningY+"  turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
+		PApplet.println("updateTurning()... turningVelocity.mag():"+turningVelocity.mag()+" turningVelocity.mag()) > 0.f:"+(turningVelocity.mag() > 0.f)+"  turningX:"+ turningX+" turningY:"+turningY+"  turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
 
 		if(PApplet.abs(turningVelocity.mag()) > 0.f || PApplet.abs(turningAcceleration.mag()) > 0.f)				/* Walking if walkingVelocity or walkingAcceleration > 0 */
 		{
@@ -2005,16 +2027,14 @@ public class WMV_Viewer
 			}
 			
 			if(PApplet.abs( turningVelocity.mag()) > 0.f && PApplet.abs(turningVelocity.x) < settings.turningVelocityMin 
-							&& (turnSlowingX || turnHaltingX) )
-			{
+					&& (turnSlowingX || turnHaltingX) )
+//			if( PApplet.abs(turningVelocity.x) < settings.turningVelocityMin )
 				stopTurningX();
-			}
 
 			if(PApplet.abs( turningVelocity.mag()) > 0.f && PApplet.abs(turningVelocity.y) < settings.turningVelocityMin 
 							&& (turnSlowingY || turnHaltingY) )
-			{
+//			if( PApplet.abs(turningVelocity.y) < settings.turningVelocityMin )
 				stopTurningY();
-			}
 
 			if(PApplet.abs(turningVelocity.x) == 0.f && turnSlowingX )
 				turnSlowingX = false;
@@ -2032,7 +2052,7 @@ public class WMV_Viewer
 		if(turningX)
 		{
 			float xTurnDistance = getTurnDistance(getXOrientation(), turnXTarget, turnXDirection);
-			PApplet.println("xTurnDistance:"+xTurnDistance);
+//			PApplet.println("xTurnDistance:"+xTurnDistance);
 			if(PApplet.abs(xTurnDistance) < turningNearDistance) // && !turningNearby)
 			{
 				if(PApplet.abs(xTurnDistance) > turningCenterSize)
@@ -2117,10 +2137,10 @@ public class WMV_Viewer
 	
 	public void stopTurningX()
 	{
-		turningY = false;
-		turnSlowingY = false;
-		turnHaltingY = false;
-		turningVelocity.y = 0.f;			
+		turningX = false;
+		turnSlowingX = false;
+		turnHaltingX = false;
+		turningVelocity.x = 0.f;			
 	}
 	
 	public void stopTurningY()
@@ -2954,9 +2974,7 @@ public class WMV_Viewer
 	 */
 	private void clearAttractorPoint()
 	{
-//		p.getCurrentField().clearAllAttractors();
 		movingToAttractor = false;
-//		attractorPoint.setAttractor(false);
 		attractorPoint = null;
 	}
 	
@@ -2966,31 +2984,38 @@ public class WMV_Viewer
 		{
 //			camera.jump(0, 0, 0);
 			
-			PVector saveAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
-			PApplet.println("jump to origin  saveAttitude.x:"+saveAttitude.x+" saveAttitude.y:"+saveAttitude.y+" saveAttitude.z:"+saveAttitude.z);
+			PVector target = new PVector(camera.target()[0], camera.target()[1], camera.target()[2]);
+			PApplet.println("Jump to origin, target.x:"+target.x+" target.y:"+target.y+" target.z:"+target.z);
 			camera.jump(0, 0, 0);
-			PVector newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
-			PApplet.println("After jump newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
-			camera.pan(saveAttitude.x - newAttitude.x);
-			camera.tilt(saveAttitude.y - newAttitude.y);
-			newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
-			PApplet.println("After camera.pan/tilt newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
+			PApplet.println("After jump target.x:"+target.x+" target.y:"+target.y+" target.z:"+target.z);
+			
+			target = new PVector(target.x - getLocation().x, target.y - getLocation().y, target.z - getLocation().z);
+			camera.aim(target.x, target.y, target.z);
+			target = new PVector(camera.target()[0], camera.target()[1], camera.target()[2]);
+			PApplet.println("After camera.aim target.x:"+target.x+" target.y:"+target.y+" target.z:"+target.z);
+			
+//			PVector saveAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+//			PApplet.println("jump to origin  saveAttitude.x:"+saveAttitude.x+" saveAttitude.y:"+saveAttitude.y+" saveAttitude.z:"+saveAttitude.z);
+//			camera.jump(0, 0, 0);
+//			PVector newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+//			PApplet.println("After jump newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
+//			camera.pan(saveAttitude.x - newAttitude.x);
+//			camera.tilt(saveAttitude.y - newAttitude.y);
+//			newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+//			PApplet.println("After camera.pan/tilt newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
 		}
 		else
 		{
-//			camera.jump(location.x, location.y, location.z);
-
-		
-			PVector saveAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
-			PApplet.println("jump back   saveAttitude.x:"+saveAttitude.x+" saveAttitude.y:"+saveAttitude.y+" saveAttitude.z:"+saveAttitude.z);
 			camera.jump(location.x, location.y, location.z);
-			PVector newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
-			PApplet.println("After jump newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
-			camera.pan(saveAttitude.x - newAttitude.x);
-			camera.tilt(saveAttitude.y - newAttitude.y);
-			newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
-			PApplet.println("After camera.pan/tilt newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
-
+//			PVector saveAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+//			PApplet.println("jump back   saveAttitude.x:"+saveAttitude.x+" saveAttitude.y:"+saveAttitude.y+" saveAttitude.z:"+saveAttitude.z);
+//			camera.jump(location.x, location.y, location.z);
+//			PVector newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+//			PApplet.println("After jump newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
+//			camera.pan(saveAttitude.x - newAttitude.x);
+//			camera.tilt(saveAttitude.y - newAttitude.y);
+//			newAttitude = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);
+//			PApplet.println("After camera.pan/tilt newAttitude.x:"+newAttitude.x+" newAttitude.y:"+newAttitude.y+" newAttitude.z:"+newAttitude.z);
 		}
 		
 		settings.orientationMode = state;
@@ -3976,7 +4001,7 @@ public class WMV_Viewer
 			success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false);
 		}
 		
-		if(currentFieldTimeSegment > 0 && currentFieldTimeSegment < p.getCurrentField().timeline.size())
+		if(currentFieldTimeSegment >= 0 && currentFieldTimeSegment < p.getCurrentField().timeline.size())
 			return success;
 		else
 			return false;
@@ -3990,8 +4015,11 @@ public class WMV_Viewer
 	 */
 	public boolean setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment, boolean updateTimelineSegment )
 	{
-		if(p.p.debug.viewer) 
-			p.display.message("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
+//		if(p.getCurrentField().timelines != null)
+//			p.display.message("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate+" p.getCurrentField().timelines.get(currentFieldDate).size():"+p.getCurrentField().timelines.get(currentFieldDate).size());
+//		else
+//			p.display.message("p.getCurrentField().timelines == null!!!");
+			
 		currentFieldTimeSegmentOnDate = newCurrentFieldTimelinesSegment;
 		p.display.updateCurrentSelectableTime = true;
 
@@ -4007,9 +4035,11 @@ public class WMV_Viewer
 				}
 				else return true;
 			}
-			else return false;
+			else
+				return false;
 		}
-		else return false;
+		else 
+			return false;
 	}
 
 	/**
@@ -4023,6 +4053,7 @@ public class WMV_Viewer
 	{
 		currentFieldDate = newDate;
 		boolean success = setCurrentFieldTimelinesSegment( newCurrentFieldTimelinesSegment, updateTimelineSegment );
+//		PApplet.println("setCurrentTimeSegmentAndDate... newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success);
 		return success;
 	}
 	
@@ -4048,7 +4079,8 @@ public class WMV_Viewer
 				success = setCurrentTimeSegmentAndDate(0, newDate, true);
 				newDate++;
 				count++;
-				if(count > p.getCurrentField().dateline.size()) break;
+				if(count > p.getCurrentField().dateline.size()) 
+					break;
 			}
 			if(success)
 			{

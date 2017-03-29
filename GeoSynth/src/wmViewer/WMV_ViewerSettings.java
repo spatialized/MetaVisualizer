@@ -61,7 +61,7 @@ public class WMV_ViewerSettings
 
 	/* Interaction Modes */
 	public boolean selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see
-	public boolean optimizeVisibility = true;			// Optimize visibility automatically by turning towards media / changing graphics modes
+	public boolean optimizeVisibility = false;			// Optimize visibility automatically by turning towards media / changing graphics modes
 	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
 	public boolean multiSelection = false;				// User can select multiple images for stitching
 	public boolean segmentSelection = false;			// Select image segments at a time

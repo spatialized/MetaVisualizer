@@ -188,7 +188,7 @@ public class WMV_World
 			}
 			saveImage = false;
 		}
-		PApplet.println("Last run() on Frame #"+p.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
+//		PApplet.println("Last run() on Frame #"+p.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
 	}
 	
 	/**

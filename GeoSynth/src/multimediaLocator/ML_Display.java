@@ -241,7 +241,7 @@ class ML_Display
 //					p.p.text(" Clusters: "+ f.clusters.size()+"  Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
 					int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
 					p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().timeline.size() +" in Main Timeline", xPos, yPos += lineWidth, hudDistance);
+					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
 					p.p.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidth, hudDistance);
 					p.p.text("   Date-Specific ID: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
 							+" of "+ p.getCurrentField().timelines.get(fieldDate).size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
@@ -550,7 +550,7 @@ class ML_Display
 		if(timelineZooming)
 			zoom(transitionZoomDirection, true);
 
-		if(p.p.debug.time || p.p.debug.display)
+		if(p.p.debug.time)
 		{
 			PApplet.print("Updated timelineStart:"+timelineStart);
 			PApplet.println(" timelineEnd:"+timelineEnd);

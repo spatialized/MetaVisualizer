@@ -337,6 +337,7 @@ public class ML_Window {
 		navigationWindow.addDrawHandler(this, "navigationWindowDraw");
 		navigationWindow.addMouseHandler(this, "navigationWindowMouse");
 		navigationWindow.addKeyHandler(p.p.p, "navigationWindowKey");
+		navigationWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 12;
 		if(delay) p.p.p.delay(delayAmount);

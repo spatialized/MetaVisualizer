@@ -25,7 +25,7 @@ import processing.video.Movie;
 public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet class
 {
 	/* System Status */
-	public WMV_SystemState state = new WMV_SystemState();
+	public ML_SystemState state = new ML_SystemState();
 	
 	/* System Modes */
 	public boolean basic = false;				// Minimal mode with no windows

@@ -5,7 +5,7 @@ package multimediaLocator;
  * @author davidgordon
  *
  */
-public class WMV_SystemState 
+public class ML_SystemState 
 {
 	public boolean running = false;				// Whether simulation is running
 	public boolean startup = true;				// Startup frame
@@ -14,7 +14,7 @@ public class WMV_SystemState
 	public boolean selectedLibrary = false;		// Whether user has selected a library folder
 	public boolean openLibraryDialog = false;	// Whether library dialog should open
 
-	WMV_SystemState(){}
+	ML_SystemState(){}
 	
 	public void reset()
 	{

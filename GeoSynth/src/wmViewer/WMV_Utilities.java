@@ -97,11 +97,67 @@ public class WMV_Utilities
 		return PApplet.round(PApplet.round(value / interval) * interval);
 	}
 	
-	public String secondsToTime( float seconds, boolean showSeconds, boolean military )
+	public String getDateAsString(WMV_Date date)
+	{
+		int year = date.getYear();
+		int month = date.getMonth();
+		int day = date.getDay();
+		String monthStr = "";
+		
+		switch(month)
+		{
+			case 1:
+				monthStr = "January";
+				break;
+			case 2:
+				monthStr = "February";
+				break;
+			case 3:
+				monthStr = "March";
+				break;
+			case 4:
+				monthStr = "April";
+				break;
+			case 5:
+				monthStr = "May";
+				break;
+			case 6:
+				monthStr = "June";
+				break;
+			case 7:
+				monthStr = "July";
+				break;
+			case 8:
+				monthStr = "August";
+				break;
+			case 9:
+				monthStr = "September";
+				break;
+			case 10:
+				monthStr = "October";
+				break;
+			case 11:
+				monthStr = "November";
+				break;
+			case 12:
+				monthStr = "December";
+				break;
+		}
+		
+		String result = monthStr+" "+String.valueOf(day)+", "+String.valueOf(year);
+		return result;
+	}
+
+	public String secondsToTimeAsString( float seconds, boolean showSeconds, boolean military )
 	{
 		int hour = PApplet.round(seconds) / 3600;
 		int minute = (PApplet.round(seconds) % 3600) / 60;
 		int second = (PApplet.round(seconds) % 3600) % 60;
+		return getTimeAsString(hour, minute, second, showSeconds, military);
+	}
+	
+	public String getTimeAsString( int hour, int minute, int second, boolean showSeconds, boolean military )
+	{
 		boolean pm = false;
 		
 		if(!military) 

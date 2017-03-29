@@ -36,7 +36,7 @@ public class WMV_Viewer
 
 	/* Time */
 	private int currentFieldTimeSegment = 0;			// Current time segment in field timeline
-	private int currentFieldTimelinesSegment = 0;		// Current time segment in field timelines
+	private int currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
 	public int currentFieldDate = 0;					// Current date in field dateline
 	public int currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
 	public int currentClusterTimelinesSegment = 0;		// Current time segment in cluster timelines
@@ -977,7 +977,7 @@ public class WMV_Viewer
 	{
 		if(currentDate)
 		{
-			int newValue = currentFieldTimelinesSegment+1;
+			int newValue = currentFieldTimeSegmentOnDate+1;
 			if(newValue >= p.getCurrentField().timelines.get(currentFieldDate).size()) 		// Reached end of day
 			{
 				if(p.p.debug.viewer) p.display.message("Reached end of day...");
@@ -1022,7 +1022,7 @@ public class WMV_Viewer
 	{
 		if(currentDate)
 		{
-			int newValue = currentFieldTimelinesSegment-1;
+			int newValue = currentFieldTimeSegmentOnDate-1;
 			if(newValue < 0) 															// Reached beginning of day
 			{
 				currentFieldDate--;
@@ -3904,124 +3904,6 @@ public class WMV_Viewer
 		return found;
 	}
 	
-	public void setFarViewingDistance( float newFarViewingDistance)
-	{
-		settings.farViewingDistance = newFarViewingDistance;
-	}
-
-	public void setNearClippingDistance( float newNearClippingDistance)
-	{
-		settings.nearClippingDistance = newNearClippingDistance;
-		settings.nearViewingDistance = settings.nearClippingDistance * 2.f;
-	}
-	
-	public boolean isMoving()
-	{
-		if(movingToCluster || movingToAttractor)
-			return true;
-		else
-			return false;
-	}
-	
-	public boolean isTeleporting()
-	{
-		return teleporting;
-	}
-	
-	public int getField()
-	{
-		return field;
-	}
-
-	public ArrayList<WMV_Waypoint> getMemoryPath()
-	{
-		return memory;
-	}
-
-	public ArrayList<WMV_Waypoint> getPath()
-	{
-		return path;
-	}
-
-	public ArrayList<WMV_Waypoint> getGPSTrack()
-	{
-		return gpsTrack;
-	}
-
-	public boolean isMovingToAttractor()
-	{
-		return movingToAttractor;
-	}
-
-	public boolean isMovingToCluster()
-	{
-		return movingToCluster;
-	}
-	
-	public boolean isFollowing()
-	{
-		return following;
-	}
-
-	public boolean isWalking()
-	{
-		return walking;
-	}
-
-	public boolean isSlowing()
-	{
-		return slowing;
-	}
-
-	public boolean isHalting()
-	{
-		return halting;
-	}
-	
-	public int getAttractorCluster()
-	{
-		return attractorCluster;
-	}
-
-	public int getCurrentClusterID()
-	{
-		return currentCluster;
-	}
-
-	public int getLastCluster()
-	{
-		return lastCluster;
-	}
-	
-	public float getFieldOfView()
-	{
-		return settings.fieldOfView;
-	}
-	
-	public float getInitFieldOfView()
-	{
-		return settings.initFieldOfView;
-	}
-	
-	public float getNearClippingDistance()
-	{
-		return settings.nearClippingDistance;
-	}
-	
-	public float getFarViewingDistance()
-	{
-		return settings.farViewingDistance;
-	}
-	
-	public float getNearViewingDistance()
-	{
-		return settings.nearViewingDistance;
-	}
-	
-	public float getClusterNearDistance()
-	{
-		return clusterNearDistance;
-	}
 	
 	void setCurrentCluster(int newCluster, int newFieldTimeSegment)
 	{
@@ -4081,12 +3963,13 @@ public class WMV_Viewer
 		currentFieldTimeSegment = newCurrentFieldTimeSegment;
 		p.display.updateCurrentSelectableTime = true;
 		boolean success = true;
-		p.display.message("Setting newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment);
+		if(p.p.debug.viewer)
+			p.display.message("Setting newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment);
 		
 		if(updateTimelinesSegment)
 		{
 			int newFieldDate = p.getCurrentField().timeline.get(currentFieldTimeSegment).getFieldDateID();
-			int newFieldTimelinesSegment = p.getCurrentField().timeline.get(currentFieldTimeSegment).getFieldTimelinesID();
+			int newFieldTimelinesSegment = p.getCurrentField().timeline.get(currentFieldTimeSegment).getFieldTimelineIDOnDate();
 			success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false);
 		}
 		
@@ -4099,22 +3982,23 @@ public class WMV_Viewer
 	/**
 	 * Set current field timelines segment with option to adjust currentFieldTimelineSegment
 	 * @param newCurrentFieldTimelinesSegment
+	 * @param updateTimelineSegment Whether to update the current field time segment in date-specific timeline as well
 	 * @return True if succeeded
 	 */
 	public boolean setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment, boolean updateTimelineSegment )
 	{
-//		if(p.p.debug.viewer) 
+		if(p.p.debug.viewer) 
 			p.display.message("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate);
-		currentFieldTimelinesSegment = newCurrentFieldTimelinesSegment;
+		currentFieldTimeSegmentOnDate = newCurrentFieldTimelinesSegment;
 		p.display.updateCurrentSelectableTime = true;
 
 		if(currentFieldDate < p.getCurrentField().timelines.size())
 		{
-			if(p.getCurrentField().timelines.get(currentFieldDate).size() > 0 && currentFieldTimelinesSegment < p.getCurrentField().timelines.get(currentFieldDate).size())
+			if(p.getCurrentField().timelines.get(currentFieldDate).size() > 0 && currentFieldTimeSegmentOnDate < p.getCurrentField().timelines.get(currentFieldDate).size())
 			{
 				if(updateTimelineSegment)
 				{
-					int fieldTimelineID = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimelinesSegment).getFieldTimelineID();
+					int fieldTimelineID = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
 					boolean success = setCurrentFieldTimeSegment(fieldTimelineID, false);
 					return success;
 				}
@@ -4124,15 +4008,26 @@ public class WMV_Viewer
 		}
 		else return false;
 	}
-	
+
+	/**
+	 * Set current time segment on specified field date
+	 * @param newCurrentFieldTimelinesSegment Index of current field time segment in associated timelines array
+	 * @param newDate Dateline index of new date
+	 * @param updateTimelineSegment Whether to update the current field time segment in main timeline as well
+	 * @return
+	 */
 	public boolean setCurrentTimeSegmentAndDate(int newCurrentFieldTimelinesSegment, int newDate, boolean updateTimelineSegment)
 	{
-//		PApplet.println("setCurrentTimeSegmentAndDate("+newCurrentFieldTimelinesSegment+", "+newDate+", "+updateTimelineSegment+")...");
 		currentFieldDate = newDate;
 		boolean success = setCurrentFieldTimelinesSegment( newCurrentFieldTimelinesSegment, updateTimelineSegment );
 		return success;
 	}
 	
+	/**
+	 * Move to first time segment in field
+	 * @param ignoreDate Move to first time segment regardless of date
+	 * @return Whether succeeded
+	 */
 	public boolean moveToFirstTimeSegment(boolean ignoreDate)
 	{
 		int newDate = 0;
@@ -4154,21 +4049,218 @@ public class WMV_Viewer
 			}
 			if(success)
 			{
-				int curFieldTimeSegment = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimelinesSegment).getFieldTimelineID();
+				int curFieldTimeSegment = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
 				moveToTimeSegmentInField(p.getCurrentField().fieldID, curFieldTimeSegment, true, true);		// Move to first time segment in field
 			}
-			else PApplet.println("ERROR: COULDN'T MOVE TO FIRST TIME SEGMENT");
-			
+			else PApplet.println("Couldn't move to first time segment...");
 			return success;
 		}
 	}
 	
 	/**
-	 * @return Current field time segment
+	 * Set far viewing distance
+	 * @param newFarViewingDistance New far viewing distance
+	 */
+	public void setFarViewingDistance( float newFarViewingDistance)
+	{
+		settings.farViewingDistance = newFarViewingDistance;
+	}
+
+	/**
+	 * Set near clipping distance
+	 * @param newFarViewingDistance New near clipping distance
+	 */
+	public void setNearClippingDistance( float newNearClippingDistance)
+	{
+		settings.nearClippingDistance = newNearClippingDistance;
+		settings.nearViewingDistance = settings.nearClippingDistance * 2.f;
+	}
+	
+	/**
+	 * @return Whether the viewer is teleporting
+	 */
+	public boolean isTeleporting()
+	{
+		return teleporting;
+	}
+	
+	/**
+	 * @return Whether the viewer is moving to a cluster or attractor
+	 */
+	public boolean isMoving()
+	{
+		if(movingToCluster || movingToAttractor)
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * @return Whether the viewer is moving to an attractor
+	 */
+	public boolean isMovingToAttractor()
+	{
+		return movingToAttractor;
+	}
+
+	/**
+	 * @return Whether the viewer is moving to a cluster
+	 */
+	public boolean isMovingToCluster()
+	{
+		return movingToCluster;
+	}
+
+	/**
+	 * @return Current field ID
+	 */
+	public int getField()
+	{
+		return field;
+	}
+
+	/**
+	 * @return List of waypoints representing memory path
+	 */
+	public ArrayList<WMV_Waypoint> getMemoryPath()
+	{
+		return memory;
+	}
+
+	/**
+	 * @return List of waypoints representing current path being followed
+	 */
+	public ArrayList<WMV_Waypoint> getPath()
+	{
+		return path;
+	}
+
+	/**
+	 * @return List of waypoints representing current GPS track path
+	 */
+	public ArrayList<WMV_Waypoint> getGPSTrack()
+	{
+		return gpsTrack;
+	}
+	
+	/**
+	 * @return Whether the viewer is following a path
+	 */
+	public boolean isFollowing()
+	{
+		return following;
+	}
+
+	/**
+	 * @return Whether the viewer is walking
+	 */
+	public boolean isWalking()
+	{
+		return walking;
+	}
+
+	/**
+	 * @return Whether the viewer is slowing
+	 */
+	public boolean isSlowing()
+	{
+		return slowing;
+	}
+
+	/**
+	 * @return Whether the viewer is halting
+	 */
+	public boolean isHalting()
+	{
+		return halting;
+	}
+	
+	/**
+	 * @return Index of current attractor cluster
+	 */
+	public int getAttractorCluster()
+	{
+		return attractorCluster;
+	}
+
+	/**
+	 * @return Index of current cluster
+	 */
+	public int getCurrentClusterID()
+	{
+		return currentCluster;
+	}
+
+	/**
+	 * @return Index of last cluster
+	 */
+	public int getLastCluster()
+	{
+		return lastCluster;
+	}
+	
+	/**
+	 * @return Current field of view
+	 */
+	public float getFieldOfView()
+	{
+		return settings.fieldOfView;
+	}
+	
+	/**
+	 * @return Initial field of view
+	 */
+	public float getInitFieldOfView()
+	{
+		return settings.initFieldOfView;
+	}
+	
+	/**
+	 * @return Current near viewing distance
+	 */
+	public float getNearViewingDistance()
+	{
+		return settings.nearViewingDistance;
+	}
+
+	/**
+	 * @return Current near clipping distance
+	 */
+	public float getNearClippingDistance()
+	{
+		return settings.nearClippingDistance;
+	}
+	
+	/**
+	 * @return Current far viewing distance
+	 */
+	public float getFarViewingDistance()
+	{
+		return settings.farViewingDistance;
+	}
+
+	/**
+	 * @return Current distance at which a cluster is considered nearby
+	 */
+	public float getClusterNearDistance()
+	{
+		return clusterNearDistance;
+	}
+
+	/**
+	 * @return Current field time segment, i.e. index of current time segment in timeline
 	 */
 	public int getCurrentFieldTimeSegment()
 	{
 		return currentFieldTimeSegment;
+	}
+
+	/**
+	 * @return Current field timeline segment on date, i.e. index of current time segment in date-specific timeline 
+	 */
+	public int getCurrentFieldTimeSegmentOnDate()
+	{
+		return currentFieldTimeSegmentOnDate;
 	}
 	
 	public void startMoveXTransition(int dir)

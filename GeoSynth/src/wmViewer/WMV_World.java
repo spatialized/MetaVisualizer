@@ -149,7 +149,6 @@ public class WMV_World
 		if(startedRunning)											// If simulation just started running
 		{
 			viewer.moveToFirstTimeSegment(false);
-//			viewer.moveToTimeSegmentInField(0, 0, true, true);		// Move to first time segment in field
 			startedRunning = false;
 		}
 		
@@ -157,7 +156,7 @@ public class WMV_World
 		{
 			draw3D();						// 3D Display
 			draw2D();						// 2D Display
-			updateTime();					// Update time cycle
+			if(!paused) updateTime();		// Update time cycle
 			// updateLeapMotion();			// Update Leap Motion 
 		}
 		

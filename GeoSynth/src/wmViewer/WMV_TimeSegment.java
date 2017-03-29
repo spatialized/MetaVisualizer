@@ -16,14 +16,13 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	private WMV_Time center;			// Center time 	 	  -- Mean or median??
 	private WMV_Time lower, upper;		// Upper and lower bounds of cluster
 	
-//	private int id, clusterID;			// Time segment ID and cluster ID
 	private int clusterID;			// Time segment ID and cluster ID
 	private int clusterTimelineID;		// ID of segment on cluster single day timeline
-	private int clusterTimelinesID;		// ID within cluster date-specific timelines
+	private int clusterTimelineIDOnDate;		// ID within cluster date-specific timelines
 	private int clusterDateID;			// Cluster date-specific timeline for this segment
 	private int fieldTimelineID;		// ID of segment on field single day timeline
-	private int fieldTimelinesID;		// ID within field date-specific timelines
 	private int fieldDateID;			// Field date-specific timeline for this segment
+	private int fieldTimelineIDOnDate;		// ID within field date-specific timelines
 	
 	ArrayList<WMV_Time> timeline;
 	
@@ -35,11 +34,11 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		clusterID = newClusterID;
 		
 		clusterTimelineID = newClusterTimelineID;				
-		clusterTimelinesID = newClusterTimelinesID;
+		clusterTimelineIDOnDate = newClusterTimelinesID;
 		clusterDateID = newClusterDateID;						
 		
 		fieldTimelineID = newFieldTimelineID;				
-		fieldTimelinesID = newFieldTimelinesID;
+		fieldTimelineIDOnDate = newFieldTimelinesID;
 		fieldDateID = newFieldDateID;						
 		
 		center = newCenter;
@@ -78,7 +77,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	 */
 	public void setClusterTimelinesID(int newClusterTimelinesID)
 	{
-		clusterTimelinesID = newClusterTimelinesID;
+		clusterTimelineIDOnDate = newClusterTimelinesID;
 	}
 
 	/** 
@@ -102,7 +101,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	 */
 	public void setFieldTimelinesID(int newFieldTimelinesID)
 	{
-		fieldTimelinesID = newFieldTimelinesID;
+		fieldTimelineIDOnDate = newFieldTimelinesID;
 	}
 
 	/** 
@@ -158,14 +157,14 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		return clusterTimelineID;
 	}
 
-	public int getClusterTimelinesID()
-	{
-		return clusterTimelinesID;
-	}
-
 	public int getClusterDateID()
 	{
 		return clusterDateID;
+	}
+	
+	public int getClusterTimelineIDOnDate()
+	{
+		return clusterTimelineIDOnDate;
 	}
 
 	public int getFieldTimelineID()
@@ -173,14 +172,14 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		return fieldTimelineID;
 	}
 
-	public int getFieldTimelinesID()
-	{
-		return fieldTimelinesID;
-	}
-
 	public int getFieldDateID()
 	{
 		return fieldDateID;
+	}
+	
+	public int getFieldTimelineIDOnDate()
+	{
+		return fieldTimelineIDOnDate;
 	}
 
 	/** 
@@ -215,6 +214,87 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 //		WMV_Date date = new WMV_Date(p, -1, dateTime);
 //		return date;
 //	}
+	
+	public String getTimespanAsString( boolean showSeconds, boolean military )
+	{
+		int lowerHour = getLower().getHour();
+		int lowerMinute = getLower().getMinute();
+		int lowerSecond = getLower().getSecond();
+		int upperHour = getUpper().getHour();
+		int upperMinute = getUpper().getMinute();
+		int upperSecond = getUpper().getSecond();
+		String strLower = "", strUpper = "";
+
+		if((lowerHour <= 11 && upperHour <= 11) || (lowerHour >= 12 && upperHour >= 12))	// Either both am or both pm
+		{
+			strLower = getTimeAsString(lowerHour, lowerMinute, lowerSecond, showSeconds, military, false);
+			strUpper = getTimeAsString(upperHour, upperMinute, upperSecond, showSeconds, military, true);
+		}
+		else																// Spans am to pm boundary
+		{
+			strLower = getTimeAsString(lowerHour, lowerMinute, lowerSecond, showSeconds, military, true);
+			strUpper = getTimeAsString(upperHour, upperMinute, upperSecond, showSeconds, military, true);
+		}
+		
+//		strLower = getTimeAsString(lowerHour, lowerMinute, lowerSecond, showSeconds, military);
+//		strUpper = getTimeAsString(upperHour, upperMinute, upperSecond, showSeconds, military);
+
+		if(lowerHour == upperHour && lowerMinute == upperMinute && !showSeconds)
+			return strLower;
+		else 
+			return strLower + "-" + strUpper;
+	}
+	
+	private String getTimeAsString( int hour, int minute, int second, boolean showSeconds, boolean military, boolean showAmPm )
+	{
+		boolean pm = false;
+		
+		if(!military) 
+		{
+			if(hour == 0) hour = 12;
+			
+			if(hour > 12)
+			{
+				hour -= 12;
+				if(hour < 12) pm = true;
+			}
+			else if(hour == 12)
+				pm = true;
+		}
+
+		String strHour = String.valueOf(hour);
+		
+		String strMinute = String.valueOf(minute);
+		if(minute < 10) strMinute = "0"+strMinute;
+		
+		if(showSeconds)
+		{
+			String strSecond = String.valueOf(second);
+			if(second < 10) strSecond = "0"+strSecond;
+			
+			if(military)
+				return strHour + ":" + strMinute + ":" + strSecond;
+			else
+			{
+				if(showAmPm)
+					return strHour + ":" + strMinute + ":" + strSecond + (pm ? " pm" : " am");
+				else
+					return strHour + ":" + strMinute + ":" + strSecond;
+			}
+		}
+		else				
+		{
+			if(military)
+				return strHour + ":" + strMinute;
+			else
+			{
+				if(showAmPm)
+					return strHour + ":" + strMinute + (pm ? " pm" : " am");
+				else
+					return strHour + ":" + strMinute;
+			}
+		}
+	}
 
 	/**
 	 * compareTo()

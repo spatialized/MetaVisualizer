@@ -828,24 +828,14 @@ public class WMV_Input
 				if (key == 'c') 									// Move DOWN
 					p.viewer.startMoveYTransition(1);
 
-				if (key == 'A') 								
-				{
+				if (key == 'p') 								
 					p.paused = !p.paused;
-					//				p.display.setFullScreen(!p.display.fullscreen);
-				}
-				//			if (key == 'J') 
-				//				p.viewer.moveToRandomCluster(p.viewer.movementTeleport);					// Move to random cluster
 
 				if (key == 'j') 
 					p.viewer.moveToRandomCluster(p.viewer.movementTeleport);				// Jump (teleport) to random cluster
 
 				if (key == 'I')
-				{
 					p.viewer.setOrientationMode( !p.viewer.settings.orientationMode );
-//					p.viewer.settings.orientationMode = state;
-//					if(p.display.window.setupGraphicsWindow)
-//						p.display.window.chkbxOrientationMode.setSelected(state);
-				}
 
 				if (key == 'W') 
 					p.viewer.moveToNearestClusterAhead(false);
@@ -1050,7 +1040,7 @@ public class WMV_Input
 						p.settings.showStitchedPanoramas = !p.settings.showStitchedPanoramas;
 					}
 
-					if (key == 'O') 
+					if (key == 'A') 
 					{
 						p.viewer.settings.selection = !p.viewer.settings.selection;
 						if(p.display.window.setupSelectionWindow)
@@ -1133,10 +1123,10 @@ public class WMV_Input
 					}
 
 					/* Output */
-					if (key == 'o') 
+					if (key == 'O') 
 						p.p.selectFolder("Select an output folder:", "outputFolderSelected");
 
-					if (key == 'p') 	// Save image to disk
+					if (key == 'o') 	// Save image to disk
 					{	
 						if(!p.outputFolderSelected) p.p.selectFolder("Select an output folder:", "outputFolderSelected");
 						p.saveToDisk();

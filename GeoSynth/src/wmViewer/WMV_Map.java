@@ -1101,16 +1101,15 @@ public class WMV_Map
 				{
 					if(selectedCluster >= 0 && selectedCluster < p.p.getCurrentField().clusters.size())
 					{
-						if(p.p.input.shiftKey)
-						{
+//						if(p.p.input.shiftKey)
+//						{
 							p.p.viewer.teleportToCluster(selectedCluster, false, -1);
-						}
-						else
-						{
-							p.p.viewer.teleportToCluster(selectedCluster, true, -1);
-							p.displayView = 0;
-//							PApplet.println("teleportToCluster... selectedCluster:"+selectedCluster+" currentCluster:"+p.p.viewer.getCurrentClusterID()+" frameCount:"+p.p.p.frameCount);
-						}
+//						}
+//						else
+//						{
+//							p.p.viewer.teleportToCluster(selectedCluster, true, -1);
+//							p.displayView = 0;
+//						}
 					}
 				}
 			}

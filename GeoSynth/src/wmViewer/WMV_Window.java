@@ -737,14 +737,6 @@ public class WMV_Window {
 
 		x = 80;
 		y += 25;
-		
-		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 160, 20, "Orientation Mode (BETA)");
-		chkbxOrientationMode.tag = "OrientationMode";
-		chkbxOrientationMode.setLocalColorScheme(10);
-		chkbxOrientationMode.setSelected(p.p.viewer.settings.orientationMode);
-		
-		x = 80;
-		y += 25;
 
 		chkbxAlphaMode = new GCheckbox(graphicsWindow, x, y, 85, 20, "Alpha Mode");
 		chkbxAlphaMode.tag = "AlphaMode";
@@ -775,6 +767,14 @@ public class WMV_Window {
 		chkbxAngleThinning.setLocalColorScheme(10);
 		chkbxAngleThinning.setSelected(false);
 
+		x = 80;
+		y += 25;
+		
+		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 160, 20, "Orientation Mode (BETA)");
+		chkbxOrientationMode.tag = "OrientationMode";
+		chkbxOrientationMode.setLocalColorScheme(10);
+		chkbxOrientationMode.setSelected(p.p.viewer.settings.orientationMode);
+		
 		x = 0;
 		y += 40;
 

@@ -1225,7 +1225,7 @@ public class WMV_Field
 		}
 		else if(dateline.size() > 1)
 		{
-			return goal.getFieldTimelinesID();
+			return goal.getFieldTimelineIDOnDate();
 			
 //			WMV_TimeSegment goalTS = timeline.get(goal.getID());
 //			for(ArrayList<WMV_TimeSegment> ts : timelines)

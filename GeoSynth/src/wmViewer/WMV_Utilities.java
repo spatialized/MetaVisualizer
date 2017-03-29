@@ -34,13 +34,13 @@ import processing.core.PVector;
 
 public class WMV_Utilities 
 {
-	WMV_Stitcher stitcher;
+	ML_Stitcher stitcher;
 	WMV_World p;
 	
 	WMV_Utilities(WMV_World parent)
 	{
 		p = parent;
-		stitcher = new WMV_Stitcher(p);
+		stitcher = new ML_Stitcher(p);
 	}
 	
 	/**

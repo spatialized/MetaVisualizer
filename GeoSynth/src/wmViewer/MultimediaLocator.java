@@ -32,7 +32,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	
 	/* Library */
 	WMV_Metadata metadata;						// Metadata handler class
-	WMV_Library library;						// WMViewer Media Library
+	ML_Library library;						// WMViewer Media Library
 
 	/* World */
 	WMV_World world;							// The 3D World
@@ -172,7 +172,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			if (debug.metadata)
 				PApplet.println("User selected library folder: " + input);
 
-			library = new WMV_Library(input);
+			library = new ML_Library(input);
 
 			String[] parts = input.split("/");
 			
@@ -188,7 +188,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 					libFilePath = libFilePath + parts[i] + "/";
 				}
 
-				library = new WMV_Library(libFilePath);
+				library = new ML_Library(libFilePath);
 				library.addFolder(parts[parts.length-1]);
 				
 				selectedFolder = true;

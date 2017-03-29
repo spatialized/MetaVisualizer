@@ -38,7 +38,7 @@ public class WMV_World
 	/* Classes */
 	WMV_WorldSettings settings;	// World settings
 	WMV_Input input;					// Handles input
-	WMV_Display display;				// Handles heads up display
+	ML_Display display;				// Handles heads up display
 	WMV_Viewer viewer;					// Handles viewer location
 	
 	/* Media */
@@ -111,9 +111,9 @@ public class WMV_World
 	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk
 	public int requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk	
 
-	WorldMediaViewer p;
+	MultimediaLocator p;
 	
-	WMV_World(WorldMediaViewer parent)
+	WMV_World(MultimediaLocator parent)
 	{
 		p = parent;
 	}
@@ -130,7 +130,7 @@ public class WMV_World
 		settings = new WMV_WorldSettings(this);
 		input = new WMV_Input(this);
 		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
-		display = new WMV_Display(this);		// Initialize displays
+		display = new ML_Display(this);		// Initialize displays
 		
 		/* Initialize graphics and text parameters */
 		p.colorMode(PConstants.HSB);

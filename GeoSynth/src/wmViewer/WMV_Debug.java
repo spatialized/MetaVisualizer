@@ -40,9 +40,9 @@ public class WMV_Debug
 	long allocatedMemory;
 	long approxUsableFreeMemory;
 	
-	WorldMediaViewer p;
+	MultimediaLocator p;
 	
-	WMV_Debug (WorldMediaViewer parent)
+	WMV_Debug (MultimediaLocator parent)
 	{
 		p = parent;
 	}

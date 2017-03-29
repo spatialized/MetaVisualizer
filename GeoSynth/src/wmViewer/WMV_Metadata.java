@@ -57,9 +57,9 @@ class WMV_Metadata
 
 	WMV_Utilities u;												// Utility class
 	WMV_Field f;													// Field to load metadata into
-	WorldMediaViewer p;
+	MultimediaLocator p;
 	
-	WMV_Metadata(WorldMediaViewer parent)
+	WMV_Metadata(MultimediaLocator parent)
 	{
 		p = parent;
 		exifToolFile = new File("/usr/local/bin/exiftool");						// Initialize metadata extraction class	

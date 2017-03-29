@@ -99,9 +99,9 @@ public class WMV_Map
 	
 	PVector mapVectorOrigin, mapVectorVector;
 
-	WMV_Display p;
+	ML_Display p;
 
-	WMV_Map(WMV_Display parent)
+	WMV_Map(ML_Display parent)
 	{
 		p = parent;
 
@@ -339,7 +339,7 @@ public class WMV_Map
 		}
 		else									// Draw satellite map 
 		{
-			PApplet.println("Set viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
+//			PApplet.println("Set viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
 			PVector vLoc = p.p.viewer.getGPSLocation();
 			Location gpsLoc = new Location(vLoc.y, vLoc.x);
 			if(gpsLoc != null)

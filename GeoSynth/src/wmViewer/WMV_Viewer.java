@@ -2000,7 +2000,7 @@ public class WMV_Viewer
 			turningAcceleration.y *= settings.turningHaltInc;
 		}
 
-		PApplet.println("updateTurning()... turningVelocity.mag():"+turningVelocity.mag()+" turningVelocity.mag()) > 0.f:"+(turningVelocity.mag() > 0.f)+"  turningX:"+ turningX+" turningY:"+turningY+"  turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
+//		PApplet.println("updateTurning()... turningVelocity.mag():"+turningVelocity.mag()+" turningVelocity.mag()) > 0.f:"+(turningVelocity.mag() > 0.f)+"  turningX:"+ turningX+" turningY:"+turningY+"  turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
 
 		if(PApplet.abs(turningVelocity.mag()) > 0.f || PApplet.abs(turningAcceleration.mag()) > 0.f)				/* Walking if walkingVelocity or walkingAcceleration > 0 */
 		{
@@ -2083,7 +2083,7 @@ public class WMV_Viewer
 		if(turningY)
 		{
 			float yTurnDistance = getTurnDistance(getYOrientation(), turnYTarget, turnYDirection);
-			PApplet.println("yTurnDistance:"+yTurnDistance);
+//			PApplet.println("yTurnDistance:"+yTurnDistance);
 			if(PApplet.abs(yTurnDistance) < turningNearDistance * 0.5f) // && !turningNearby)
 			{
 				if(PApplet.abs(yTurnDistance) > turningCenterSize * 0.5f)
@@ -2439,15 +2439,9 @@ public class WMV_Viewer
 	private void turn()
 	{
 		if(turningVelocity.x != 0.f)
-		{
-			PApplet.println("camera.pan..."+turningVelocity.x);
 			camera.pan(turningVelocity.x);
-		}
 		if(turningVelocity.y != 0.f)
-		{
-			PApplet.println("camera.tilt..."+turningVelocity.y);
 			camera.tilt(turningVelocity.y);
-		}
 	}
 	
 	/**
@@ -2458,7 +2452,6 @@ public class WMV_Viewer
 		if(p.p.debug.viewer && p.p.debug.detailed)
 		{
 			WMV_Cluster curAttractor = p.getAttractorCluster();
-//			WMV_Cluster curAttractor = p.getCurrentField().clusters.get(attractorCluster);
 			if(curAttractor != null) p.display.message("Slowing... curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
 			else p.display.message("Slowing... no attractor");
 		}

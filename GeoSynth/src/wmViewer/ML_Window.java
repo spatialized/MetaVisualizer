@@ -7,9 +7,9 @@ import processing.core.PApplet;
 import processing.core.PVector;
 import processing.event.MouseEvent;
 
-public class WMV_Window {
+public class ML_Window {
 
-	WMV_Display p;
+	ML_Display p;
 	
 	private boolean delay = true;
 	private int delayAmount = 250;
@@ -112,7 +112,7 @@ public class WMV_Window {
 	
 	String windowTitle = " ";
 
-	WMV_Window( WMV_Display parent )
+	ML_Window( ML_Display parent )
 	{
 		p = parent;
 
@@ -1990,7 +1990,6 @@ public class WMV_Window {
 			navigationWindow.setVisible(true);
 		if(showWMVWindow)
 			hideWMVWindow();
-		PApplet.println("showNavigationWindow()... showNavigationWindow:"+showNavigationWindow);
 	} 
 	void showTimeWindow()
 	{

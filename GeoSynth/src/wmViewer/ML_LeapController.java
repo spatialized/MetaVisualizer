@@ -1,6 +1,6 @@
 package wmViewer;
 
-public class WMV_LeapController {
+public class ML_LeapController {
 
 	//
 	// void updateLeapMotion() {

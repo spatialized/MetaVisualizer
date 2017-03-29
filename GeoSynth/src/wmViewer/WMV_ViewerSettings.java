@@ -51,7 +51,7 @@ public class WMV_ViewerSettings
 	public int pathWaitLength = initPathWaitLength;			// Time to wait once reached path location before moving to next
 	public int teleportLength = 30;							// Teleport transition length 
 	public boolean teleportToFarClusters = true;			// Automatically teleport to far clusters
-	public float farClusterTeleportDistance = 300.f;		// Distance at which cluster is considered far
+	public float farClusterTeleportDistance = 240.f;		// Distance at which cluster is considered far
 
 	/* Turning */
 	final public float turningVelocityMin = 0.00005f;			// Threshold under which velocity counts as zero

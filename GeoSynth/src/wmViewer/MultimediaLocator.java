@@ -22,7 +22,7 @@ import g4p_controls.GWinData;
 import processing.core.*;
 import processing.video.Movie;
 
-public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
+public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet class
 {
 	/* System Status */
 	public WMV_SystemState state = new WMV_SystemState();
@@ -48,8 +48,9 @@ public class WorldMediaViewer extends PApplet 	// WMViewer extends PApplet class
 	 */
 	static public void main(String[] args) 
 	{
-		PApplet.main("wmViewer.WorldMediaViewer");									// Open in window
-//		PApplet.main(new String[] { "--present", "wmViewer.WorldMediaViewer" });	// Open in fullscreen mode
+//		PApplet.main("wmViewer.WorldMediaViewer");									// Open in window
+		PApplet.main("wmViewer.MultimediaLocator");									// Open in window
+//		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open in fullscreen mode
 	}
 	
 	/** 

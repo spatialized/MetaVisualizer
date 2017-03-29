@@ -9,10 +9,10 @@ import processing.core.*;
  * Class for displaying 2D text and graphics
  */
 
-class WMV_Display
+class ML_Display
 {
 	/* Classes */
-	public WMV_Window window;							// Main interaction window
+	public ML_Window window;							// Main interaction window
 	public WMV_Map map2D;
 	
 	/* Window Modes */
@@ -98,7 +98,7 @@ class WMV_Display
 
 	WMV_World p;
 
-	WMV_Display(WMV_World parent)
+	ML_Display(WMV_World parent)
 	{
 		p = parent;
 		
@@ -143,7 +143,7 @@ class WMV_Display
 
 	void setupWMVWindow()
 	{
-		window = new WMV_Window(this);				// Setup and display interaction window
+		window = new ML_Window(this);				// Setup and display interaction window
 	}
 
 	/**

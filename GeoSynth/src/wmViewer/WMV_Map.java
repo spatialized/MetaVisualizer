@@ -172,6 +172,7 @@ public class WMV_Map
 
 		createPointMarkers();
 		
+		PApplet.println("viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
 		PVector vLoc = p.p.viewer.getGPSLocation();
 		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
 		viewerMarker.setId("viewer");
@@ -338,6 +339,7 @@ public class WMV_Map
 		}
 		else									// Draw satellite map 
 		{
+			PApplet.println("Set viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
 			PVector vLoc = p.p.viewer.getGPSLocation();
 			Location gpsLoc = new Location(vLoc.y, vLoc.x);
 			if(gpsLoc != null)

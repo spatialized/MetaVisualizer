@@ -2,12 +2,12 @@ package wmViewer;
 import java.awt.Toolkit;
 
 import g4p_controls.GButton;
-import g4p_controls.GCheckbox;
+//import g4p_controls.GCheckbox;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import processing.core.*;
-import processing.data.IntList;
+//import processing.data.IntList;
 
 /**************************************
  * WMV_Input
@@ -330,7 +330,7 @@ public class WMV_Input
 				break;
 				
 			case "FollowTeleport":
-				//--need to implement
+				p.viewer.followTeleport = option.isSelected();
 				break;
 				
 			/* Time */

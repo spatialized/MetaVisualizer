@@ -896,12 +896,12 @@ public class WMV_Field
 					count++;
 				}
 				timelines.add( newTimeline );		// Calculate and add timeline to list
-				PApplet.println("Added timeline #"+ct+" for field #"+fieldID+" with "+newTimeline.size()+" segments...");
+//				PApplet.println("Added timeline #"+ct+" for field #"+fieldID+" with "+newTimeline.size()+" segments...");
 			}
 			else
 			{
 				timelines.add( newTimeline );		// Add empty timeline to preserve indexing 
-				PApplet.println("Added EMPTY timeline #"+ct+" for field #"+fieldID);
+//				PApplet.println("Added EMPTY timeline #"+ct+" for field #"+fieldID);
 			}
 			
 			ct++;

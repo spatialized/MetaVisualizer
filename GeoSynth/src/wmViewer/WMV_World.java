@@ -209,8 +209,11 @@ public class WMV_World
 		{
 			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder	
 
-			display.sendSetupMessage(" ");	// Show startup message
-			display.sendSetupMessage("Creating "+fields.size()+(fields.size()>1?" fields...":" field..."));	// Show startup message
+			if(p.debug.main)
+			{
+				display.sendSetupMessage(" ");	// Show startup message
+				display.sendSetupMessage("Creating "+fields.size()+(fields.size()>1?" fields...":" field..."));	// Show startup message
+			}
 			
 			if(fields.size() > 5) display.sendSetupMessage("This may take several minutes...");	// Show long startup time warning
 

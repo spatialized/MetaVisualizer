@@ -650,12 +650,15 @@ public class WMV_Utilities
 							}
 						}
 						
-						if(p.p.debug.time && p.p.debug.detailed)
-							PApplet.println("Cluster #"+clusterID+"... Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-						if(curUpper.getTime() - curLower.getTime() > 0.001f)
+						if(p.p.debug.time)
 						{
-							PApplet.println("---> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-							PApplet.println("t.getTime():"+t.getTime()+" last:"+last.getTime()+" t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
+							if(p.p.debug.detailed) PApplet.println("Cluster #"+clusterID+"... Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+
+							if(curUpper.getTime() - curLower.getTime() > 0.001f)
+							{
+								PApplet.println("---> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+								PApplet.println("t.getTime():"+t.getTime()+" last:"+last.getTime()+" t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
+							}
 						}
 						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
 						for(int i=startCount; i<=count; i++)

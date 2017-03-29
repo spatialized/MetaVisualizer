@@ -176,9 +176,6 @@ public abstract class WMV_Viewable
 
 		if(isFadingOut) isFadingOut = false;
 		if(isFadingIn) isFadingIn = false;
-
-		//		if(initFading)
-		//			initFading = false;
 	}
 
 //	/**
@@ -190,6 +187,7 @@ public abstract class WMV_Viewable
 //		p.p.p.pushMatrix();
 //		p.p.p.translate(location.x, location.y, location.z);
 //
+//		/* Draw center */
 //		p.p.p.fill(150, 0, 255, 150);
 //		p.p.p.sphere(size);
 //		PVector c = p.p.getCluster(cluster).getLocation();

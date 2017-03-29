@@ -2624,10 +2624,11 @@ public class WMV_Viewer
 	 */
 	private void updateFollowing()
 	{
-		if(p.p.frameCount > pathWaitStartFrame + settings.teleportLength + settings.pathWaitLength )
+		int waitLength = settings.pathWaitLength;
+		if(p.p.frameCount > pathWaitStartFrame + waitLength )
 		{
 			waiting = false;
-			if(p.p.debug.path) p.display.message("Finished waiting...");
+//			if(p.p.debug.path) p.display.message("Finished waiting...");
 
 			pathLocationIdx++;
 			
@@ -2642,7 +2643,15 @@ public class WMV_Viewer
 					{
 						if(p.p.debug.path) p.display.message("Will "+(followTeleport?"teleport":"move") +" to next attraction point..."+pathGoal);
 						if(followTeleport)
-							teleportToPoint(pathGoal, true);
+						{
+							if(!p.getCurrentField().mediaAreFading())
+								teleportToPoint(pathGoal, true);
+							else
+							{
+								startWaiting();
+//								waiting = true;
+							}
+						}
 						else
 							setAttractorPoint(pathGoal);
 					}
@@ -2665,9 +2674,17 @@ public class WMV_Viewer
 							}
 						}
 						
-						if(p.p.debug.path) p.display.message("--> Final path location:"+pathGoal);
+						if(p.p.debug.path) p.display.message("--> Chose new path location:"+pathGoal);
 						if(followTeleport)
-							teleportToPoint(pathGoal, true);
+						{
+							if(!p.getCurrentField().mediaAreFading())
+								teleportToPoint(pathGoal, true);
+							else
+							{
+								startWaiting();
+//								waiting = true;
+							}
+						}
 						else
 							setAttractorPoint(pathGoal);
 //						turnTowardsPoint(memory.get(revisitPoint).target);			// Turn towards memory target view
@@ -2684,6 +2701,10 @@ public class WMV_Viewer
 				stopFollowing();
 			}
 		}
+		
+		if(waiting == false && p.p.debug.path) 
+			p.display.message("Finished waiting...");
+
 	}
 	
 	/**
@@ -3345,7 +3366,7 @@ public class WMV_Viewer
 		{
 			WMV_Video v = p.getCurrentField().videos.get(closestVideoID);
 
-			if(!v.isPlaying())
+			if(!v.isPlaying())									// Play video by choosing it
 			{
 				if(!v.isLoaded()) v.loadMedia();
 				v.playVideo();
@@ -3358,56 +3379,6 @@ public class WMV_Viewer
 		}
 	}
 	
-	/**
-	 * Turn camera side to side, at different elevation angles, until images in range become visible
-	 */
-//	public void lookForImages()
-//	{
-//		stopAllTransitions();										// Stop all current transitions
-//		lookingStartAngle = getOrientation().x;
-//		lookingStartFrameCount = p.p.frameCount;
-//		lookingDirection = Math.round(p.p.random(1)) == 1 ? 1 : -1;		// Choose random direction to look
-//		lookingLength = PApplet.round(2.f*PApplet.PI / rotateIncrement);
-//		turnXToAngle(lookingStartAngle, lookingDirection);
-//		looking = true;
-//	}	
-	
-	/**
-	 * Update turning to look for images 
-	 */
-//	private void updateLooking()
-//	{
-//		if(looking)	// If looking for images
-//		{
-//			if( mediaAreVisible( true ) )				// Check whether any images are visible and centered
-//			{
-//				if(p.p.debug.viewer)
-//					p.display.message("Finished rotating to look, found image(s) ");
-//				stopAllTransitions();			// Also sets lookingForImages to false
-//			}
-//			else
-//			{
-//				lastLookFrame = p.p.frameCount;
-//
-//				if ( p.p.frameCount - lookingStartFrameCount > lookingLength )
-//				{
-//					lookingRotationCount++;							// Record camera rotations while looking for images
-//					if(p.p.debug.viewer)
-//						p.display.message("Rotated to look "+lookingRotationCount+" times...");
-//					lookingStartFrameCount = p.p.frameCount;		// Restart the count
-//				}
-//
-//				if (lookingRotationCount > 2) 
-//				{
-//					if(p.p.debug.viewer)
-//						p.display.message("Couldn't see any images. Moving to next nearest cluster...");
-//					stopAllTransitions();							// Sets lookingForImages and all transitions to false
-//					moveToNearestCluster(false);
-//				}
-//			}
-//		}
-//	}
-
 	/**
 	 * Get list of closest clusters
 	 * @param n Number of closest clusters to return

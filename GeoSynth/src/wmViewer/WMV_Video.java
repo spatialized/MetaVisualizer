@@ -290,7 +290,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 	
 	/**
-=	 * Update geometry + visibility 
+=	 * Update video geometry and visibility 
 	 */
 	void update()
 	{
@@ -300,7 +300,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			boolean visibilitySetToTrue = false;
 			boolean visibilitySetToFalse = false;
 			
-			/* Check Visibility */			
 			visible = false;
 
 			if(p.p.viewer.settings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
@@ -373,9 +372,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			else													// If in Angle Thinning Mode
 			{
 				if(visible && !thinningVisibility && !fading)
-				{
 					fadeOut();
-				}
 
 				if(!visible && thinningVisibility && !fading && !fadedOut && !p.hideVideos) 
 				{
@@ -385,29 +382,17 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			}
 			
 			if(visibilitySetToFalse)
-			{
 				fadeOut();
-			}
 
 			if(isFading())									// Update brightness while fading
-			{
 				updateFadingBrightness();
-			}
 
 			if(fadingFocusDistance)
-			{
 				updateFadingFocusDistance();
-			}
-//			else if(visible)
-//			{
-//				calculateVertices();  						// Update video vertices
-//			}
 
 			if(fadedIn)		// Fade in sound once video has faded in
 			{
-//				if(p.p.p.debug.video)
-//					p.p.display.message("Will fade sound in for video #"+getID());
-//				fadeSoundIn();
+				if(isPlaying()) fadeSoundIn();
 				fadedIn = false;						
 			}
 
@@ -500,9 +485,14 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			setLength( video.duration() );				// Set video length (in seconds)
 			
 			video.loop();								// Start loop
-			video.pause();
-			
-			playing = false;
+
+			if(p.p.viewer.settings.autoPlayVideos)
+			{
+				if(p.videosPlaying < p.p.viewer.settings.autoPlayMaxVideoCount)
+					playVideo();
+			}
+			else
+				pauseVideo();
 			
 			video.volume(0.f);
 			volume = 0.f;
@@ -550,6 +540,15 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		playing = false;
 	}
 
+	/**
+	 * Pause the video
+	 */
+	public void pauseVideo()
+	{
+		video.pause();
+		playing = false;
+	}
+	
 	/**
 	 * Stop playing and clear the video
 	 */

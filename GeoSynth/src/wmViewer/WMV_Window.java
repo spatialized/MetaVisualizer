@@ -12,7 +12,7 @@ public class WMV_Window {
 	WMV_Display p;
 	
 	private boolean delay = true;
-	private int delayAmount = 200;
+	private int delayAmount = 250;
 	
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
@@ -255,7 +255,7 @@ public class WMV_Window {
 	
 		x = 65;
 		y += 30;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 
 		btnLoadMediaLibrary = new GButton(wmvWindow, x, y, 180, 20, "Load Media Library  ⇧R");
 		btnLoadMediaLibrary.tag = "Restart";

@@ -31,6 +31,10 @@ public class WMV_ViewerSettings
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
 	
+	/* Video */
+	public boolean autoPlayVideos = true;				// Automatically play videos near viewer
+	public int autoPlayMaxVideoCount = 2;				// Maximum videos to auto play simultaneously
+	
 	/* Physics */
 	public float lastAttractorDistance = -1.f;
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction
@@ -73,7 +77,7 @@ public class WMV_ViewerSettings
 	public float selectionMaxDistance;					// Maximum distance user can select a photo
 	public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
 	public int lockToClusterWaitLength = 100;
-
+	
 	/* Clusters */
 	public int maxVisibleClusters = 4;							// Maximum visible clusters in Orientation Mode		
 	public int minVisibleClusters = 1;							// Maximum visible clusters in Orientation Mode	

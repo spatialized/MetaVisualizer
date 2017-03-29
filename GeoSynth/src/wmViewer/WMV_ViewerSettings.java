@@ -42,22 +42,22 @@ public class WMV_ViewerSettings
 	public float camHaltInc = 0.0033f;						// Camera fast deceleration increment
 
 	/* Movement */
-	public float walkingAccelInc = 0.002f;				// Camera walking acceleration increment
-	public final int initPathWaitLength = 60;
-	public int pathWaitLength = initPathWaitLength;
-	public int teleportLength = 30;
-	public boolean teleportToFarClusters = true;
-	public float farClusterTeleportDistance = 300.f;
+	public float walkingAccelInc = 0.002f;					// Camera walking acceleration increment
+	public final int initPathWaitLength = 60;				// Initial pathWaitLength
+	public int pathWaitLength = initPathWaitLength;			// Time to wait once reached path location before moving to next
+	public int teleportLength = 30;							// Teleport transition length 
+	public boolean teleportToFarClusters = true;			// Automatically teleport to far clusters
+	public float farClusterTeleportDistance = 300.f;		// Distance at which cluster is considered far
 
 	/* Turning */
-	final public float turningVelocityMin = 0.00005f;					// Threshold under which velocity counts as zero
-	final public float turningVelocityMax = 0.05f;						// Camera maximum velocity
-	final public float turningAccelerationMax = 0.005f;					// Camera maximum acceleration
-	final public float turningAccelerationMin = 0.000005f;				// Threshold under which acceleration counts as zero
-	final public float turningDecelInc = 0.45f;						// Camera deceleration increment
-	final public float turningHaltInc = 0.0033f;						// Camera fast deceleration increment
-	public float turningXAccelInc = 0.0001f;
-	public float turningYAccelInc = 0.0001f;
+	final public float turningVelocityMin = 0.00005f;			// Threshold under which velocity counts as zero
+	final public float turningVelocityMax = 0.05f;				// Camera maximum velocity
+	final public float turningAccelerationMax = 0.005f;			// Camera maximum acceleration
+	final public float turningAccelerationMin = 0.000005f;		// Threshold under which acceleration counts as zero
+	final public float turningDecelInc = 0.45f;					// Camera deceleration increment
+	final public float turningHaltInc = 0.0033f;				// Camera fast deceleration increment
+	public float turningXAccelInc = 0.0001f;					// Turning X axis acceleration increment
+	public float turningYAccelInc = 0.0001f;					// Turning Y axis acceleration increment
 
 	/* Interaction Modes */
 	public boolean selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see
@@ -75,10 +75,10 @@ public class WMV_ViewerSettings
 	public int lockToClusterWaitLength = 100;
 
 	/* Clusters */
-	public int maxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
-	public int minVisibleClusters = 1;					// Maximum visible clusters in Orientation Mode		-- Normal Mode too!?
+	public int maxVisibleClusters = 4;							// Maximum visible clusters in Orientation Mode		
+	public int minVisibleClusters = 1;							// Maximum visible clusters in Orientation Mode	
 	public float orientationModeClusterViewingDistance = nearClippingDistance;	// Distance clusters become visible in Orientation Mode
-	public boolean orientationModeForceVisible = false;	// Force min visible clusters
+	public boolean orientationModeForceVisible = false;			// Force <minimum visible clusters> to be seen, even if out of range
 	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
 	
 	public WMV_ViewerSettings(WMV_Viewer parent)

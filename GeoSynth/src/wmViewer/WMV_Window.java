@@ -25,12 +25,10 @@ public class WMV_Window {
 				    showSelectionWindow = false, showStatisticsWindow = false, showHelpWindow = false, showMemoryWindow = false;
 	public boolean setupTimeWindow = false, setupNavigationWindow = false, setupGraphicsWindow = false, setupModelWindow = false, setupHelpWindow = false, 
 					setupSelectionWindow = false, setupStatisticsWindow = false, setupMemoryWindow = false;
-	//	private GSketchPad sketchPad;
 
 	/* Main Menu */
 	private GButton btnNavigationWindow, btnTimeWindow, btnGraphicsWindow, btnModelWindow, btnSelectionWindow,
 				    btnStatisticsWindow, btnHelpWindow, btnMemoryWindow;
-//	private GButton btnSceneView, btnMapView, btnClusterView, btnInfoView, btnControlView;		
 	private GButton btnLoadMediaLibrary;
 	private GLabel lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
@@ -38,12 +36,13 @@ public class WMV_Window {
 	int wmvWindowHeight;
 
 	/* Navigation Window */
-	private GLabel lblClusterNavigation, lblMemoryCommands, lblPathNavigation;
+	private GLabel lblClusterNavigation, lblMemoryCommands, lblPathNavigation, lblTeleportLength, lblPathWaitLength;
 	private GButton btnImportGPSTrack;
 	private GButton btnSaveLocation, btnClearMemory;
 	private GButton btnJumpToRandomCluster;
 	private GButton btnZoomIn, btnZoomOut;
 	private GButton btnSaveImage, btnOutputFolder;
+	public GSlider sdrTeleportLength, sdrPathWaitLength;
 
 	private GButton btnNextTimeSegment, btnPreviousTimeSegment;
 	private GButton btnMoveToNearestCluster;
@@ -65,13 +64,11 @@ public class WMV_Window {
 	int timeWindowHeight;
 
 	/* Graphics Window */
-//	public GLabel lblDisplayMode;
 	public GLabel lblGraphicsModes, lblOutput, lblZoom;
 	
 	public GToggleGroup tgFollow;	
 	public GOption optTimeline, optGPSTrack, optMemory;
 	public GCheckbox chkbxMovementTeleport, chkbxFollowTeleport;
-	
 	public GCheckbox chkbxFadeEdges;
 	private GLabel lblHideMedia;
 	public GCheckbox chkbxHideImages, chkbxHideVideos, chkbxHidePanoramas;
@@ -120,7 +117,7 @@ public class WMV_Window {
 		p = parent;
 
 		wmvWindowHeight = shortWindowHeight;
-		navigationWindowHeight = shortWindowHeight + 200;
+		navigationWindowHeight = longWindowHeight;
 		timeWindowHeight = longWindowHeight;
 		graphicsWindowHeight = longWindowHeight;
 		modelWindowHeight = shortWindowHeight + 100;
@@ -329,6 +326,9 @@ public class WMV_Window {
 		lblSpaceBar.setTextAlign(GAlign.CENTER, null);
 	}
 	
+	/**
+	 * Setup the Navigation Window
+	 */
 	void setupNavigationWindow()
 	{
 		navigationWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, navigationWindowHeight, PApplet.JAVA2D);
@@ -349,7 +349,7 @@ public class WMV_Window {
 
 		x = 0;
 		y += 30;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 
 		lblClusterNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Cluster Navigation");
 		lblClusterNavigation.setLocalColorScheme(10);
@@ -359,7 +359,7 @@ public class WMV_Window {
 
 		x = 120;
 		y += 30;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 		
 		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 70, 20, "Teleport");
 		chkbxMovementTeleport.tag = "MovementTeleport";
@@ -367,7 +367,7 @@ public class WMV_Window {
 
 		x = 40;
 		y += 25;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 
 		btnMoveToNearestCluster = new GButton(navigationWindow, x, y, 100, 20, "Nearest  (m)");
 		btnMoveToNearestCluster.tag = "NearestCluster";
@@ -378,7 +378,7 @@ public class WMV_Window {
 
 		x = 30;
 		y += 25;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 
 		btnPreviousTimeSegment = new GButton(navigationWindow, x, y, 120, 20, "Previous Time  (b)");
 		btnPreviousTimeSegment.tag = "PreviousTime";
@@ -389,7 +389,7 @@ public class WMV_Window {
 		
 		x = 25;
 		y += 25;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 		
 		btnJumpToRandomCluster = new GButton(navigationWindow, x+75, y, 110, 20, "Random  (j)");
 		btnJumpToRandomCluster.tag = "RandomCluster";
@@ -397,7 +397,7 @@ public class WMV_Window {
 		
 		x = 0;
 		y += 30;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 
 		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Path Navigation");
 		lblPathNavigation.setLocalColorScheme(10);
@@ -407,7 +407,7 @@ public class WMV_Window {
 
 		x = 120;
 		y += 25;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 
 		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 80, 20, "Teleport");
 		chkbxFollowTeleport.tag = "FollowTeleport";
@@ -415,7 +415,7 @@ public class WMV_Window {
 
 		x = 15;
 		y += 25;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 	
 		optTimeline = new GOption(navigationWindow, x, y, 90, 20, "Timeline");
 		optTimeline.setLocalColorScheme(10);
@@ -433,7 +433,7 @@ public class WMV_Window {
 
 		x = 95;
 		y += 25;
-		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) p.p.p.delay(delayAmount);
 
 		btnFollowStart = new GButton(navigationWindow, x, y, 60, 20, "Start");
 		btnFollowStart.tag = "FollowStart";
@@ -442,14 +442,50 @@ public class WMV_Window {
 		btnFollowStop = new GButton(navigationWindow, x+=60, y, 60, 20, "Stop");
 		btnFollowStop.tag = "FollowStop";
 		btnFollowStop.setLocalColorScheme(0);
-		
-		x = 80;
+
+		x = 160;
 		y += 30;
+
+		sdrTeleportLength = new GSlider(navigationWindow, x, y, 80, 80, 20);
+		sdrTeleportLength.setLocalColorScheme(7);
+		sdrTeleportLength.setLimits(0.f, 300.f, 10.f);
+		sdrTeleportLength.setValue(p.p.viewer.settings.teleportLength);
+		sdrTeleportLength.setRotation(PApplet.PI/2.f);
+		sdrTeleportLength.setTextOrientation(G4P.ORIENT_LEFT);
+		sdrTeleportLength.setEasing(0);
+		sdrTeleportLength.setShowValue(true);
+		sdrTeleportLength.tag = "TeleportLength";
+
+		x = 280;
+
+		sdrPathWaitLength = new GSlider(navigationWindow, x, y, 80, 80, 20);
+		sdrPathWaitLength.setLocalColorScheme(7);
+		sdrPathWaitLength.setLimits(0.f, 600.f, 30.f);
+		sdrPathWaitLength.setValue(p.p.viewer.settings.pathWaitLength);
+		sdrPathWaitLength.setRotation(PApplet.PI/2.f);
+		sdrPathWaitLength.setTextOrientation(G4P.ORIENT_LEFT);
+		sdrPathWaitLength.setEasing(0);
+		sdrPathWaitLength.setShowValue(true);
+		sdrPathWaitLength.tag = "PathWaitLength";
+		
+		x = 20;
+		y += 30;
+		
+		lblTeleportLength = new GLabel(navigationWindow, x, y, 100, 20, "Teleport Time");
+		lblTeleportLength.setLocalColorScheme(10);
+
+		x = 165;
+		
+		lblPathWaitLength = new GLabel(navigationWindow, x, y, 100, 20, "Wait Time");
+		lblPathWaitLength.setLocalColorScheme(10);
+
+		x = 80;
+		y += 65;
 //		if(delay) p.p.p.delay(delayAmount);
 
 		btnImportGPSTrack = new GButton(navigationWindow, x, y, 140, 20, "Import GPS Track  (g)");
 		btnImportGPSTrack.tag = "ImportGPSTrack";
-		btnImportGPSTrack.setLocalColorScheme(5);		
+		btnImportGPSTrack.setLocalColorScheme(7);		
 
 		x = 0;
 		y += 30;
@@ -486,13 +522,6 @@ public class WMV_Window {
 			btnGoToNextField.tag = "NextField";
 			btnGoToNextField.setLocalColorScheme(5);
 		}
-
-//		x = 40;
-//		y = navigationWindowHeight - 40;
-//		
-//		btnCloseNavigationWindow = new GButton(navigationWindow, x, y, 180, 20, "Close Window");
-//		btnCloseNavigationWindow.tag = "CloseNavigationWindow";
-//		btnCloseNavigationWindow.setLocalColorScheme(0);
 		
 		x = 0;
 		y = navigationWindowHeight - 25;
@@ -507,6 +536,9 @@ public class WMV_Window {
 		setupNavigationWindow = true;
 	}
 
+	/**
+	 * Setup the Time Window
+	 */
 	void setupTimeWindow()
 	{
 		timeWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, timeWindowHeight, PApplet.JAVA2D);
@@ -658,6 +690,9 @@ public class WMV_Window {
 		setupTimeWindow = true;
 	}
 	
+	/**
+	 * Setup the Graphics Window
+	 */
 	void setupGraphicsWindow()
 	{
 		graphicsWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, graphicsWindowHeight, PApplet.JAVA2D);
@@ -820,13 +855,6 @@ public class WMV_Window {
 		btnOutputFolder.tag = "OutputFolder";
 		btnOutputFolder.setLocalColorScheme(5);
 		
-//		x = 40;
-//		y = graphicsWindowHeight - 40;
-//		
-//		btnCloseGraphicsWindow = new GButton(graphicsWindow, x, y, 180, 20, "Close Window");
-//		btnCloseGraphicsWindow.tag = "CloseGraphicsWindow";
-//		btnCloseGraphicsWindow.setLocalColorScheme(0);
-		
 		x = 0;
 		y = graphicsWindowHeight - 25;
 		lblCommand3 = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20);						/* Display Mode Label */
@@ -838,7 +866,9 @@ public class WMV_Window {
 		setupGraphicsWindow = true;
 	}
 	
-
+	/**
+	 * Setup the Model Window
+	 */
 	void setupModelWindow()
 	{
 		modelWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, modelWindowHeight, PApplet.JAVA2D);
@@ -950,6 +980,9 @@ public class WMV_Window {
 		setupModelWindow = true;
 	}
 
+	/**
+	 * Setup the Memory Window
+	 */
 	void setupMemoryWindow()
 	{
 		memoryWindow = GWindow.getWindow(p.p.p, "Memory", 10, 45, windowWidth, memoryWindowHeight, PApplet.JAVA2D);
@@ -979,6 +1012,9 @@ public class WMV_Window {
 		setupMemoryWindow = true;
 	}
 
+	/**
+	 * Setup the Selection Window
+	 */
 	void setupSelectionWindow()
 	{
 		selectionWindow = GWindow.getWindow(p.p.p, "Selection Mode", 10, 45, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
@@ -1063,13 +1099,6 @@ public class WMV_Window {
 		btnStitchPanorama.tag = "StitchPanorama";
 		btnStitchPanorama.setLocalColorScheme(7);
 		
-//		x = 40;
-//		y = selectionWindowHeight - 40;
-//		
-//		btnCloseSelectionWindow = new GButton(selectionWindow, x, y, 180, 20, "Close Window");
-//		btnCloseSelectionWindow.tag = "CloseSelectionWindow";
-//		btnCloseSelectionWindow.setLocalColorScheme(0);
-		
 		x = 0;
 		y = selectionWindowHeight - 25;
 		lblCommand6 = new GLabel(selectionWindow, x, y, selectionWindow.width, 20);						/* Display Mode Label */
@@ -1082,7 +1111,9 @@ public class WMV_Window {
 		setupSelectionWindow = true;
 	}
 
-
+	/**
+	 * Setup the Statistics Window
+	 */
 	void setupStatisticsWindow()
 	{
 		statisticsWindow = GWindow.getWindow(p.p.p, "Statistics", 10, 45, windowWidth * 2, statisticsWindowHeight, PApplet.JAVA2D);
@@ -1101,13 +1132,6 @@ public class WMV_Window {
 		lblStatistics.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblStatistics.setTextBold();
 
-//		x = 40;
-//		y = statisticsWindowHeight - 40;
-//		
-//		btnCloseStatisticsWindow = new GButton(statisticsWindow, x, y, 180, 20, "Close Window");
-//		btnCloseStatisticsWindow.tag = "CloseStatisticsWindow";
-//		btnCloseStatisticsWindow.setLocalColorScheme(0);
-
 		x = 0;
 		y = statisticsWindowHeight - 25;
 		lblCommand7 = new GLabel(statisticsWindow, x, y, statisticsWindow.width, 20);						/* Display Mode Label */
@@ -1121,6 +1145,9 @@ public class WMV_Window {
 		setupStatisticsWindow = true;
 	}
 	
+	/**
+	 * Setup the Help Window
+	 */
 	void setupHelpWindow()
 	{
 		helpWindow = GWindow.getWindow(p.p.p, "Help", 10, 45, windowWidth, helpWindowHeight, PApplet.JAVA2D);
@@ -1140,13 +1167,6 @@ public class WMV_Window {
 		lblHelp.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		lblHelp.setTextBold();
 
-//		x = 40;
-//		y = helpWindowHeight - 40;
-//		
-//		btnCloseHelpWindow = new GButton(helpWindow, x, y, 180, 20, "Close Window");
-//		btnCloseHelpWindow.tag = "CloseHelpWindow";
-//		btnCloseHelpWindow.setLocalColorScheme(0);
-
 		x = 0;
 		y = helpWindowHeight - 25;
 		lblCommand8 = new GLabel(helpWindow, x, y, helpWindow.width, 20);						/* Display Mode Label */
@@ -1159,24 +1179,19 @@ public class WMV_Window {
 	}
 	
 	/**
-	 * Handles drawing to the windows PApplet area
+	 * Handles drawing to the WMV Window
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 */
 	public void wmvWindowDraw(PApplet applet, GWinData data) {
-//		applet.background(10, 5, 50);
 		applet.background(0);
 		applet.stroke(255);
 		applet.strokeWeight(1);
 		applet.fill(0, 0, 255);
-
-//		int yPos = window.height - 60;
-//		applet.text("WorldMediaViewer v1.0", window.width / 2 - 10, yPos);
-//		applet.text("David Gordon", window.width / 2 - 10, yPos += 20);
 	}
 
 	/**
-	 * Handles mouse events for ALL GWindow objects
+	 * Handles mouse events for all GWindow objects
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 * @param event the mouse event

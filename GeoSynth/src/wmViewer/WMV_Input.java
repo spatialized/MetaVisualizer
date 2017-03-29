@@ -1,5 +1,5 @@
 package wmViewer;
-import java.awt.Toolkit;
+//import java.awt.Toolkit;
 
 import g4p_controls.GButton;
 //import g4p_controls.GCheckbox;
@@ -23,13 +23,13 @@ public class WMV_Input
 	public boolean commandKey = false;
 	final public int COMMAND_KEY = 157;
 	
-	private int mouseClickedX = 0, mouseClickedY = 0;
-//	private int mouseOffsetX = 0, mouseOffsetY = 0;
-	
 	private boolean mouseClickedRecently = false;
 	private boolean mouseReleased = false;
 	private int clickedRecentlyFrame = 1000000;
 	private int doubleClickSpeed = 10;
+
+//	private int mouseClickedX = 0, mouseClickedY = 0;
+//	private int mouseOffsetX = 0, mouseOffsetY = 0;
 
 	WMV_World p;
 
@@ -40,19 +40,17 @@ public class WMV_Input
 
 	public void handleSliderEvent(GValueControl slider, GEvent event)
 	{
-		if(p.display.window.setupGraphicsWindow)
+		if(p.display.window.setupNavigationWindow)
 		{
-			if (slider.tag == "Alpha") 
+			if (slider.tag == "TeleportLength")
 			{
-				p.alpha = slider.getValueF();
+				p.viewer.settings.teleportLength = slider.getValueI();
 			}
-
-			if (slider.tag == "Brightness") 
+			if (slider.tag == "PathWaitLength")
 			{
-				p.viewer.settings.userBrightness = slider.getValueF();
+				p.viewer.settings.pathWaitLength = slider.getValueI();
 			}
 		}
-		
 		if(p.display.window.setupTimeWindow)
 		{
 			if (slider.tag == "MediaLength") 
@@ -66,13 +64,24 @@ public class WMV_Input
 			}
 		}
 		
+		if(p.display.window.setupGraphicsWindow)
+		{
+			if (slider.tag == "Alpha") 
+			{
+				p.alpha = slider.getValueF();
+			}
+			
+			if (slider.tag == "Brightness") 
+			{
+				p.viewer.settings.userBrightness = slider.getValueF();
+			}
+		}
+		
 		if (slider.tag == "AltitudeScaling") 
 		{
 			if(p.display.window.setupModelWindow)
 			{
-//				PApplet.println("altitudeScalingFactor before:"+p.altitudeScalingFactor);
 				p.settings.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
-//				PApplet.println("altitudeScalingFactor after:"+p.altitudeScalingFactor);
 				p.getCurrentField().calculateMediaLocations();		// Recalculate media locations
 				p.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
 				p.getCurrentField().createClusters();				// Recalculate cluster locations
@@ -1504,8 +1513,8 @@ public class WMV_Input
 			}
 			else
 			{
-				mouseClickedX = mouseX;
-				mouseClickedY = mouseY;
+//				mouseClickedX = mouseX;
+//				mouseClickedY = mouseY;
 			}
 			p.viewer.lastMovementFrame = p.p.frameCount;
 		}

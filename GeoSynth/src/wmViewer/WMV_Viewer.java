@@ -2793,11 +2793,11 @@ public class WMV_Viewer
 		{
 			if(p.p.debug.viewer) p.display.message(" Reached teleport goal...");
 
-			if(teleportWaitingCount > settings.teleportLength * 2.f)
-			{
-				if(p.p.debug.viewer) p.display.message(" Exceeded teleport wait time. Stopping all media...");
-				p.getCurrentField().stopAllMediaFading();
-			}
+//			if(teleportWaitingCount > settings.teleportLength * 2.f)
+//			{
+//				if(p.p.debug.viewer) p.display.message(" Exceeded teleport wait time. Stopping all media...");
+//				p.getCurrentField().stopAllMediaFading();
+//			}
 			
 			if( !p.getCurrentField().mediaAreFading() )			// Once no more images are fading
 			{

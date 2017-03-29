@@ -160,47 +160,6 @@ class WMV_Display
 		}
 		else
 		{
-			if(!p.p.basic)
-			{
-				if(window.setupGraphicsWindow)
-				{
-					if(window.graphicsWindow.isVisible())
-					{
-						if(p.timeFading)
-						{
-							if(p.getTimeMode() == 0)			// Need to fix cluster date / time structures first!
-							{
-//								WMV_Cluster curCluster = p.getCurrentCluster();
-//								int firstTimeID = curCluster.getFirstTimeSegment();
-//								int dateCount = 1;
-//
-//								if(curCluster.dateline != null)
-//									dateCount = curCluster.dateline.size();
-//
-//								PApplet.println("curCluster.lowDate:"+curCluster.lowDate+" curCluster.highDate:"+curCluster.highDate);
-//								float fTime = (float) p.getCurrentCluster().currentTime / (float) p.getCurrentCluster().timeCycleLength;
-//								PApplet.println("p.getCurrentCluster().currentTime:"+p.getCurrentCluster().currentTime+" p.getCurrentCluster().timeCycleLength: "+p.getCurrentCluster().timeCycleLength);
-//								float fHour = fTime * 24.f;
-//								int hour = (int)(fHour);
-//								int min = PApplet.round((fHour - hour) * 60);
-//								window.lblCurrentTime.setText(hour+":"+min);
-//								PApplet.println("fHour:"+fHour+"  fHour - hour:"+(fHour - hour));
-//								PApplet.println("fTime:"+fTime+" Time = "+hour+":"+min);
-							}
-							else
-							{
-								/* Time display in Time Window */
-//								float fTime = (float) p.currentTime / (float) p.settings.timeCycleLength;
-//								float fHour = fTime * 24.f;
-//								int hour = (int)(fHour);
-//								int min = PApplet.round((fHour - hour) * 60);
-//								window.lblCurrentTime.setText((hour==0?"00":hour)+":"+(min==0?"00":min));
-							}
-						}
-					}
-				}
-			}
-
 			if( displayView != 0 || p.interactive )
 			{
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
@@ -646,7 +605,7 @@ class WMV_Display
 		{
 			float radius = 25.f;
 			PVector loc = new PVector(xOffset, datelineYOffset, hudDistance);
-			SelectableDate st = new SelectableDate(id, d.getID(), loc, radius, d);		// int newID, int newClusterID, PVector newLocation, Box newRectangle
+			SelectableDate st = new SelectableDate(id, loc, radius, d);		// int newID, int newClusterID, PVector newLocation, Box newRectangle
 			return st;
 		}
 		else return null;
@@ -1021,7 +980,6 @@ class WMV_Display
 		float length = timelineEnd - timelineStart;
 		float newLength;
 		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
-		
 		
 		if(transitionZoomDirection == -1)
 			newLength = length * transitionZoomInIncrement;
@@ -2147,20 +2105,20 @@ class WMV_Display
 			return id;
 		}
 		
-		public int getTimeSegmentID()
-		{
-			return fieldTimelineID;
-		}
+//		public int getTimeSegmentID()
+//		{
+//			return fieldTimelineID;
+//		}
 		
 		public int getClusterID()
 		{
 			return clusterID;
 		}
 		
-		public PVector getLocation()
-		{
-			return location;
-		}
+//		public PVector getLocation()
+//		{
+//			return location;
+//		}
 		
 		public void draw(float hue, float saturation, float brightness, boolean preview)
 		{
@@ -2179,7 +2137,11 @@ class WMV_Display
 				p.p.textSize(smallTextSize);
 				String strTimespan = segment.getTimespanAsString(false, false);
 				String strPreview = String.valueOf( segment.timeline.size() ) + " media, "+strTimespan;
-				p.p.text(strPreview, (rightEdge+leftEdge)/2.f - 50.f, bottomEdge + 25.f, hudDistance);
+
+				float length = timelineEnd - timelineStart;
+				float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+				float xOffset = -35.f * PApplet.map(length, 0.f, day, 0.2f, 1.f);
+				p.p.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, hudDistance);
 			}
 			p.p.popMatrix();
 		}
@@ -2187,15 +2149,15 @@ class WMV_Display
 
 	private class SelectableDate
 	{
-		private int id, dateID, clusterID;
+		private int id;
 		private PVector location;
 		public float radius;
 		WMV_Date date;
 
-		SelectableDate(int newID, int newDateID, PVector newLocation, float newRadius, WMV_Date newDate)
+		SelectableDate(int newID, PVector newLocation, float newRadius, WMV_Date newDate)
 		{
 			id = newID;
-			dateID = newDateID;
+//			dateID = newDateID;
 			location = newLocation;
 			radius = newRadius;
 			date = newDate;
@@ -2206,10 +2168,10 @@ class WMV_Display
 			return id;
 		}
 		
-		public int getDateID()
-		{
-			return dateID;
-		}
+//		public int getDateID()
+//		{
+//			return dateID;
+//		}
 		
 		public PVector getLocation()
 		{

@@ -477,7 +477,7 @@ class WMV_Metadata
 			String camera_model = null, description = null;
 			String keyword = null;
 
-			PVector pLoc = new PVector(0, 0, 0);
+			PVector pGPSLoc = new PVector(0, 0, 0);
 			String pFilePath = "";
 
 			File file = null;				
@@ -730,7 +730,7 @@ class WMV_Metadata
 
 					if (f.p.p.utilities.isNaN(xCoord) || f.p.p.utilities.isNaN(yCoord) || f.p.p.utilities.isNaN(zCoord)) 
 					{
-						pLoc = new PVector(0, 0, 0);
+						pGPSLoc = new PVector(0, 0, 0);
 						if(!dataMissing)
 						{
 							if(panorama) f.addPanoramaError();
@@ -738,7 +738,7 @@ class WMV_Metadata
 							dataMissing = true;
 						}						
 					}
-					pLoc = new PVector(xCoord, yCoord, zCoord);
+					pGPSLoc = new PVector(xCoord, yCoord, zCoord);
 				} 
 				catch (RuntimeException ex) 
 				{
@@ -777,17 +777,17 @@ class WMV_Metadata
 			/* Add this 3D media object to field based on given metadata */
 			try 
 			{
-				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f))
+				if(!(pGPSLoc.x == 0.f && pGPSLoc.y == 0.f && pGPSLoc.z == 0.f))
 				{
 					if(panorama && !dataMissing)
 					{
-						f.panoramas.add( new WMV_Panorama( f, pCount, name, pFilePath, pLoc, fDirection, 0.f, iCameraModel, 	// Ignore elevation
+						f.panoramas.add( new WMV_Panorama( f, pCount, name, pFilePath, pGPSLoc, fDirection, 0.f, iCameraModel, 	// Ignore elevation
 								iWidth, iHeight, fBrightness, calendarTime, null, null ) );
 						pCount++;
 					}
 					else if(!dataMissing)
 					{
-						f.images.add( new WMV_Image(f, iCount, name, pFilePath, pLoc, fDirection, fFocalLength, fOrientation, fElevation, 
+						f.images.add( new WMV_Image(f, iCount, name, pFilePath, pGPSLoc, fDirection, fFocalLength, fOrientation, fElevation, 
 								fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, calendarTime ) );
 						iCount++;
 					}

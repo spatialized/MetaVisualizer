@@ -31,7 +31,7 @@ public abstract class WMV_Viewable
 	public boolean fadingFocusDistance = false, beginFadingObjectDistance = false;			// Fading distance of object in image?
 
 	/* Metadata */
-	public PVector gpsLocation;            		// Location in original GPS coords
+	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
 	public int cameraModel;                 	// Camera model
 	public float brightness;
 

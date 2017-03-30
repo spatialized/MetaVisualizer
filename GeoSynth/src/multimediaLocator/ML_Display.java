@@ -309,8 +309,16 @@ class ML_Display
 				if(t != null)
 				{
 					currentSelectableTimeID = getSelectableTimeIDOfTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
-					currentSelectableTime = selectableTimes.get(currentSelectableTimeID);
-					currentSelectableTimeFTSID = currentSelectableTime.segment.getFieldTimelineID();						// Set current selectable time (white rectangle) from current field time segment
+					if(currentSelectableTimeID != -1)
+					{
+						currentSelectableTime = selectableTimes.get(currentSelectableTimeID);
+						currentSelectableTimeFTSID = currentSelectableTime.segment.getFieldTimelineID();						// Set current selectable time (white rectangle) from current field time segment
+					}
+					else
+					{
+						currentSelectableTimeFTSID = -1;
+						currentSelectableTime = null;
+					}
 				}
 				else
 				{
@@ -736,7 +744,7 @@ class ML_Display
 
 			/* Draw current time segment */
 //			if(currentSelectableTimeFTSID == currentSelectableTime.segment.getFieldTimelineID())
-			if(currentSelectableTimeID < selectableTimes.size())
+			if(currentSelectableTimeID >= 0 && currentSelectableTimeID < selectableTimes.size())
 			{
 				if(currentSelectableTimeFTSID == selectableTimes.get(currentSelectableTimeID).segment.getFieldTimelineID())
 				{
@@ -1052,13 +1060,6 @@ class ML_Display
 			if(newTimelineEnd < last) newTimelineEnd += 600;
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
-//			float newTimelineStart = p.p.utilities.roundSecondsToHour(first);		// Round down to nearest hour
-//			if(newTimelineStart > first) newTimelineStart -= 3600;
-//			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
-//			float newTimelineEnd = p.p.utilities.roundSecondsToHour(last);			// Round up to nearest hour
-//			if(newTimelineEnd < last) newTimelineEnd += 3600;
-//			if(newTimelineEnd > day) newTimelineEnd = day;
-
 			if(fade)
 			{
 				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength);
@@ -1084,12 +1085,19 @@ class ML_Display
 			first *= day;					// Convert from normalized value to seconds
 			last *= day;
 
-			float newTimelineStart = p.p.utilities.roundSecondsToHour(first);		// Round down to nearest hour
-			if(newTimelineStart > first) newTimelineStart -= 3600;
+			float newTimelineStart = p.p.utilities.roundSecondsToInterval(first, 1800.f);		// Round down to nearest hour
+			if(newTimelineStart > first) newTimelineStart -= 1800;
 			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
-			float newTimelineEnd = p.p.utilities.roundSecondsToHour(last);			// Round up to nearest hour
-			if(newTimelineEnd < last) newTimelineEnd += 3600;
+			float newTimelineEnd = p.p.utilities.roundSecondsToInterval(last, 1800.f);			// Round up to nearest hour
+			if(newTimelineEnd < last) newTimelineEnd += 1800;
 			if(newTimelineEnd > day) newTimelineEnd = day;
+
+//			float newTimelineStart = p.p.utilities.roundSecondsToHour(first);		// Round down to nearest hour
+//			if(newTimelineStart > first) newTimelineStart -= 3600;
+//			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
+//			float newTimelineEnd = p.p.utilities.roundSecondsToHour(last);			// Round up to nearest hour
+//			if(newTimelineEnd < last) newTimelineEnd += 3600;
+//			if(newTimelineEnd > day) newTimelineEnd = day;
 
 			if(fade)
 			{

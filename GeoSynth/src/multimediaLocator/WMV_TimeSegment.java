@@ -25,6 +25,10 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	private int fieldTimelineIDOnDate;		// ID within field date-specific timelines
 	
 	ArrayList<WMV_Time> timeline;
+	private boolean hasImage;
+	private boolean hasPanorama;
+	private boolean hasVideo;
+	private boolean hasSound;
 	
 	WMV_TimeSegment( int newClusterID, int newClusterTimelineID, int newClusterTimelinesID, int newClusterDateID, 
 					 int newFieldTimelineID, int newFieldTimelinesID, int newFieldDateID,
@@ -46,6 +50,29 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		lower = newLower;
 		
 		timeline = newTimeline;
+		analyzeMediaTypes();
+	}
+
+	/**
+	 * Analyze media types in time segment
+	 */
+	private void analyzeMediaTypes()
+	{
+		for( WMV_Time t : timeline )
+		{
+			if(!hasImage)
+				if(t.getMediaType() == 0)
+					hasImage = true;
+			if(!hasPanorama)
+				if(t.getMediaType() == 1)
+					hasPanorama = true;
+			if(!hasVideo)
+				if(t.getMediaType() == 2)
+					hasVideo = true;
+			if(!hasSound)
+				if(t.getMediaType() == 3)
+					hasSound = true;
+		}
 	}
 	
 	/** 
@@ -180,6 +207,26 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	public int getFieldTimelineIDOnDate()
 	{
 		return fieldTimelineIDOnDate;
+	}
+
+	public boolean hasImage()
+	{
+		return hasImage;
+	}
+
+	public boolean hasPanorama()
+	{
+		return hasPanorama;
+	}
+
+	public boolean hasVideo()
+	{
+		return hasVideo;
+	}
+
+	public boolean hasSound()
+	{
+		return hasSound;
 	}
 
 	/** 

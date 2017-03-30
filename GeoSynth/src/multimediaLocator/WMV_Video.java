@@ -69,11 +69,11 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	private boolean hasImagePlaceholder = false;
 	private int imagePlaceholder = -1;
 
-	WMV_Video ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
+	WMV_Video ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, int newCameraModel, int newVideoWidth, 
 			int newVideoHeight, float newBrightness, ZonedDateTime newDateTime )
 	{
-		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
+		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
 		p = parent;
 //		name = newName;
@@ -173,15 +173,18 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			p.p.p.noFill();                  // Hide video if it isn't visible
 		}
 
-		if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.settings.map3DMode))
-			drawLocation();
+		if(visible && p.p.showModel && !hidden && !disabled)
+			displayModel();
+
+//		if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.settings.map3DMode))
+//			displayModel();
 	}
 
 	/**
 	 * @param size Size to draw the video center
 	 * Draw the video center as a colored sphere
 	 */
-	void drawLocation()
+	void displayModel()
 	{
 		/* Draw frame */
 		p.p.p.pushMatrix();
@@ -214,25 +217,24 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		p.p.p.pushMatrix();
 		if(p.p.showMediaToCluster)
 		{
-			p.p.p.strokeWeight(5.f);
-			p.p.p.stroke(40, 155, 255, 180);
+			p.p.p.strokeWeight(3.f);
+			p.p.p.stroke(150, 135, 255, viewingBrightness);
 			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(p.p.showCaptureToMedia)
 		{
-			p.p.p.strokeWeight(2.f);
-			p.p.p.stroke(160, 100, 255, 120);
+			p.p.p.strokeWeight(3.f);
+			p.p.p.stroke(160, 100, 255, viewingBrightness);
 			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(p.p.showCaptureToCluster)
 		{
 			p.p.p.strokeWeight(3.f);
-			p.p.p.stroke(100, 55, 255, 180);
+			p.p.p.stroke(120, 55, 255, viewingBrightness);
 			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
-
 		p.p.p.popMatrix();
 	}
 
@@ -1116,26 +1118,26 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		return success;
 	}
 
-	/**
-	 * Draw outline around selected video
-	 */
-	private void outline()
-	{
-		p.p.p.stroke(100, 20, 250);
-		p.p.p.strokeWeight(outlineSize);
-
-		p.p.p.pushMatrix();
-		p.p.p.beginShape(PApplet.QUADS);    
-		p.p.p.noFill();
-
-		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
-		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
-		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
-		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
-
-		p.p.p.endShape(); 
-		p.p.p.popMatrix();
-	}
+//	/**
+//	 * Draw outline around selected video
+//	 */
+//	private void outline()
+//	{
+//		p.p.p.stroke(100, 20, 250);
+//		p.p.p.strokeWeight(outlineSize);
+//
+//		p.p.p.pushMatrix();
+//		p.p.p.beginShape(PApplet.QUADS);    
+//		p.p.p.noFill();
+//
+//		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
+//		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
+//		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
+//		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
+//
+//		p.p.p.endShape(); 
+//		p.p.p.popMatrix();
+//	}
 
 	/**
 	 * Update volume fading 
@@ -1165,16 +1167,16 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		}
 	}
 
-	/**
-	 * Draw capture location for the image
-	 */
-	void lineToCaptureLocation()
-	{
-		PVector centerVertex = calcCenterVertex();
-		p.p.p.stroke(150, 150, 255, 255);
-		p.p.p.strokeWeight(2);
-		p.p.p.line(location.x, location.y, location.z, centerVertex.x, centerVertex.y, centerVertex.z);
-	}
+//	/**
+//	 * Draw capture location for the image
+//	 */
+//	void lineToCaptureLocation()
+//	{
+//		PVector centerVertex = calcCenterVertex();
+//		p.p.p.stroke(150, 150, 255, 255);
+//		p.p.p.strokeWeight(2);
+//		p.p.p.line(location.x, location.y, location.z, centerVertex.x, centerVertex.y, centerVertex.z);
+//	}
 
 	/**
 	 * @return Aspect ratio of the video

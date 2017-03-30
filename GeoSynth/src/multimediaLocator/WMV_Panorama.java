@@ -35,11 +35,11 @@ public class WMV_Panorama extends WMV_Viewable
 	public float radius;
 	public float origRadius;
 	
-	WMV_Panorama ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+	WMV_Panorama ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, 
 			PVector newLocation, PImage newTexture )
 	{
-		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
+		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
 		p = parent;
 
@@ -174,50 +174,25 @@ public class WMV_Panorama extends WMV_Viewable
 			p.p.p.noFill();                  // Hide image if it isn't visible
 		}
 
-		if (visible && isSelected() && !disabled && p.p.p.debug.model)		// Draw panorama location for debugging or map display
-			drawLocation();
-		if (visible && !disabled && p.p.viewer.settings.map3DMode)
-			drawLocation();
+		if(visible && p.p.showModel && !hidden && !disabled)
+			displayModel();
+
+//		if (visible && isSelected() && !disabled && p.p.p.debug.model)		// Draw panorama location for debugging or map display
+//			displayModel();
+//		if (visible && !disabled && p.p.viewer.settings.map3DMode)
+//			displayModel();
 	}
 
 	/**
-	 * @param size Size to draw the panorama center
-	 * Draw the video center as a colored sphere
+	 * Draw the panorama sphere
 	 */
-	void drawLocation()
+	void displayModel()
 	{
 		p.p.p.pushMatrix();
 		p.p.p.translate(location.x, location.y, location.z);
 
-		p.p.p.fill(150, 0, 255, 150);
-		p.p.p.sphere(centerSize);
-		PVector c = p.p.getCluster(cluster).getLocation();
-		PVector loc = location;
-		PVector cl = getCaptureLocation();
-		p.p.p.popMatrix();
-
-		p.p.p.pushMatrix();
-		if(p.p.showMediaToCluster)
-		{
-			p.p.p.strokeWeight(5.f);
-			p.p.p.stroke(40, 155, 255, 180);
-			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
-		}
-
-		if(p.p.showCaptureToMedia)
-		{
-			p.p.p.strokeWeight(2.f);
-			p.p.p.stroke(160, 100, 255, 120);
-			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
-		}
-
-		if(p.p.showCaptureToCluster)
-		{
-			p.p.p.strokeWeight(3.f);
-			p.p.p.stroke(100, 55, 255, 180);
-			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
-		}
-
+		p.p.p.fill(215, 135, 255, viewingBrightness);
+		p.p.p.sphere(radius);								// -- Testing
 		p.p.p.popMatrix();
 	}
 	

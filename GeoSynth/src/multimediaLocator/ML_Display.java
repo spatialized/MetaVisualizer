@@ -61,11 +61,13 @@ class ML_Display
 	
 	private ArrayList<SelectableTimeSegment> selectableTimes;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;		// Selectable dates on dateline
-
+	private float minSegmentSeconds = 15.f;
+	
 	private boolean timelineCreated = false, datelineCreated = false, updateTimeline = true;
 	private float timelineXOffset = 0.f, timelineYOffset = 0.f;
 	private float datelineXOffset = 0.f, datelineYOffset = 0.f;
-	private int selectedTime = -1, selectedCluster = -1, currentSelectableTime = -1;
+	private SelectableTimeSegment currentSelectableTime;
+	private int selectedTime = -1, selectedCluster = -1, currentSelectableTimeID = -1, currentSelectableTimeFTSID = -1;
 	private int selectedDate = -1, currentSelectableDate = -1;
 		
 	private boolean timelineTransition = false, timelineZooming = false, timelineScrolling = false;   
@@ -79,6 +81,11 @@ class ML_Display
 	public float transitionScrollIncrement = 1750.f;
 	public final float initTransitionScrollIncrement = 1750.f;	// Seconds to scroll per frame
 	public float transitionZoomInIncrement = 0.95f, transitionZoomOutIncrement = 1.052f;	
+
+	private float imageHue = 140.f;
+	private float panoramaHue = 190.f;
+	private float videoHue = 100.f;
+	private float soundHue = 40.f;
 
 	/* Text */
 	float centerTextXOffset, topTextYOffset;
@@ -137,7 +144,9 @@ class ML_Display
 		datelineYOffset = p.p.height * 0.266f;
 		
 		map2D = new WMV_Map(this);
-		
+		currentSelectableTime = null;
+		currentSelectableTimeID = -1;
+		currentSelectableTimeFTSID = -1;
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
 
@@ -271,7 +280,7 @@ class ML_Display
 		p.p.popMatrix();
 		
 		if(datelineCreated) drawFieldDateline();
-		if(timelineCreated) drawFieldTimeline();
+		if(timelineCreated) displayFieldTimeline();
 		updateTimelineMouse();
 	}
 	
@@ -295,16 +304,24 @@ class ML_Display
 			if(p.viewer.getCurrentFieldTimeSegment() >= 0)
 			{
 				WMV_TimeSegment t = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment());		// TESTING
-				int previous = currentSelectableTime;
+				int previous = currentSelectableTimeID;
 				
 				if(t != null)
-					currentSelectableTime = getSelectableTimeIDOfTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
+				{
+					currentSelectableTimeID = getSelectableTimeIDOfTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
+					currentSelectableTime = selectableTimes.get(currentSelectableTimeID);
+					currentSelectableTimeFTSID = currentSelectableTime.segment.getFieldTimelineID();						// Set current selectable time (white rectangle) from current field time segment
+				}
 				else
-					currentSelectableTime = -1;
+				{
+					currentSelectableTimeID = -1;
+					currentSelectableTimeFTSID = -1;
+					currentSelectableTime = null;
+				}
 
 				if(updateCurrentSelectableDate)
 				{
-					if(currentSelectableTime != previous && currentSelectableDate > -1)						// If changed field segment and displaying a single date
+					if(currentSelectableTimeID != previous && currentSelectableDate > -1)						// If changed field segment and displaying a single date
 					{
 						int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();		// Update date displayed
 						setCurrentSelectableDate(fieldDate);
@@ -524,6 +541,7 @@ class ML_Display
 			newEnd = timelineEndTransitionTarget;
 			timelineTransition = false;
 			updateTimeline = true;
+			transitionScrollIncrement = initTransitionScrollIncrement * getZoomLevel();
 		} 
 		else
 		{
@@ -568,6 +586,12 @@ class ML_Display
 		float lowerSeconds = p.p.utilities.getTimePVectorSeconds(t.getLower().getTimeAsPVector());
 		float upperSeconds = p.p.utilities.getTimePVectorSeconds(t.getUpper().getTimeAsPVector());
 
+		if(upperSeconds == lowerSeconds)
+		{
+			lowerSeconds -= minSegmentSeconds * 0.5f;
+			upperSeconds += minSegmentSeconds * 0.5f;
+		}
+		
 		float xOffset = PApplet.map(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
 		float xOffset2 = PApplet.map(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
  
@@ -614,7 +638,7 @@ class ML_Display
 	/**
 	 * Draw the field timeline
 	 */
-	private void drawFieldTimeline()
+	private void displayFieldTimeline()
 	{
 		WMV_Field f = p.getCurrentField();
 			
@@ -706,19 +730,29 @@ class ML_Display
 		
 		if(!timelineTransition)
 		{
+			/* Draw selected time segment */
 			if(selectedTime != -1 && selectableTimes.size() > 0 && selectedTime < selectableTimes.size())
-			{
 				selectableTimes.get(selectedTime).draw(40.f, 255.f, 255.f, true);
-			}
-			if(currentSelectableTime != -1 && selectableTimes.size() > 0 && currentSelectableTime < selectableTimes.size())
+
+			/* Draw current time segment */
+//			if(currentSelectableTimeFTSID == currentSelectableTime.segment.getFieldTimelineID())
+			if(currentSelectableTimeID < selectableTimes.size())
 			{
-				if(displayDate == -1 || selectableTimes.get(currentSelectableTime).segment.getFieldDateID() == displayDate)
+				if(currentSelectableTimeFTSID == selectableTimes.get(currentSelectableTimeID).segment.getFieldTimelineID())
 				{
-					if(selectedTime == -1)
-						selectableTimes.get(currentSelectableTime).draw(0.f, 0.f, 255.f, true);
-					else
-						selectableTimes.get(currentSelectableTime).draw(0.f, 0.f, 255.f, false);
+//					PApplet.println("currentSelectableTimeFTSID: "+currentSelectableTimeFTSID);
+					if(currentSelectableTimeID != -1 && selectableTimes.size() > 0 && currentSelectableTimeID < selectableTimes.size())
+					{
+						if(displayDate == -1 || selectableTimes.get(currentSelectableTimeID).segment.getFieldDateID() == displayDate)
+						{
+							if(selectedTime == -1)
+								selectableTimes.get(currentSelectableTimeID).draw(0.f, 0.f, 255.f, true);
+							else
+								selectableTimes.get(currentSelectableTimeID).draw(0.f, 0.f, 255.f, false);
+						}
+					}
 				}
+//				else updateCurrentSelectableTime = true;
 			}
 		}
 	}
@@ -791,7 +825,13 @@ class ML_Display
 
 		float lowerSeconds = p.p.utilities.getTimePVectorSeconds(lowerTime);
 		float upperSeconds = p.p.utilities.getTimePVectorSeconds(upperTime);
-		
+//		boolean instant = (upperSeconds == lowerSeconds);
+		if(upperSeconds == lowerSeconds)
+		{
+			lowerSeconds -= minSegmentSeconds * 0.5f;
+			upperSeconds += minSegmentSeconds * 0.5f;
+		}
+
 		ArrayList<WMV_Time> tsTimeline = t.getTimeline();				// Get timeline for this time segment
 		ArrayList<PVector> times = new ArrayList<PVector>();
 		for(WMV_Time ti : tsTimeline) times.add(ti.getTimeAsPVector());
@@ -803,7 +843,8 @@ class ML_Display
 		{
 			p.p.pushMatrix();
 			p.p.translate(0.f, timelineYOffset, hudDistance);
-			p.p.stroke(140.f, 185.f, 255.f, 155.f);
+//			p.p.stroke(140.f, 185.f, 255.f, 155.f);
+			p.p.stroke(imageHue, 185.f, 255.f, 155.f);
 			p.p.strokeWeight(1.f);
 
 			for(PVector time : times)
@@ -814,18 +855,54 @@ class ML_Display
 					p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
 			}
 
-			p.p.stroke(100.f, 165.f, 215.f, 225.f);					// Green rectangle around time segment, same as default map markers' color
+			/* Set hue according to media type */
+			float firstHue = imageHue;
+			float secondHue = imageHue;
+			
+			if(t.hasVideo())
+				firstHue = videoHue;
+
+			if(t.hasSound())
+			{
+				if(firstHue == videoHue)
+					secondHue = soundHue;
+				else
+					firstHue = soundHue;
+			}
+			
+			if(t.hasPanorama())
+			{
+				if(firstHue == soundHue)
+					secondHue = panoramaHue;
+				else if(firstHue == videoHue)
+				{
+					if(secondHue == imageHue)
+						secondHue = panoramaHue;
+				}
+				else
+					firstHue = panoramaHue;
+			}
+			
+			if(!t.hasImage())
+			{
+				float defaultHue = 0.f;
+				if(firstHue == imageHue)
+					PApplet.println("ERROR: firstHue still imageHue but segment has no image!");
+				else
+					defaultHue = firstHue;
+				if(secondHue == imageHue)
+					secondHue = defaultHue;
+			}
+			
 			p.p.strokeWeight(2.f);
 
+			/* Draw rectangle around time segment */
+			p.p.stroke(firstHue, 165.f, 215.f, 225.f);					
 			p.p.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset, timelineHeight * 0.5f, 0.f);			
+			p.p.line(xOffset, timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
+			p.p.stroke(secondHue, 165.f, 215.f, 225.f);					
 			p.p.line(xOffset2, -timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
 			p.p.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset2, -timelineHeight * 0.5f, 0.f);
-			p.p.line(xOffset, timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
-			
-//			p.p.textSize(smallTextSize);
-//			String strTimespan = t.getTimespanAsString(false, false);
-//			String strPreview = String.valueOf( t.timeline.size() ) + " media"+" ("+strTimespan+")";
-//			p.p.text(strPreview, xOffset, timelineHeight * 0.5f + 25.f, 0.f);
 			
 			p.p.popMatrix();
 		}
@@ -916,7 +993,7 @@ class ML_Display
 		}
 	}
 	
-	public void zoomTimelineToFit(boolean fade)
+	public void zoomToTimeline(boolean fade)
 	{
 		WMV_Field f = p.getCurrentField();
 		
@@ -942,6 +1019,87 @@ class ML_Display
 		{
 			timelineStart = newTimelineStart;
 			timelineEnd = newTimelineEnd;
+		}
+	}
+	
+	public void zoomToCurrentTimeSegment(boolean fade)
+	{
+		if(currentSelectableTimeID >= 0)
+		{
+			float first = selectableTimes.get(currentSelectableTimeID).segment.getLower().getTime();
+			float last = selectableTimes.get(currentSelectableTimeID).segment.getUpper().getTime();
+			float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+
+	//		float first = f.timeline.get(0).getLower().getTime();						// First field media time, normalized
+	//		float last = f.timeline.get(f.timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
+	//		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+
+			first *= day;					// Convert from normalized value to seconds
+			last *= day;
+
+			/**
+			 * Round given value in seconds to nearest value given by interval parameter
+			 * @param value Value to round
+			 * @param interval Number of seconds to round to
+			 * @return Rounded value
+			 */
+//			public int roundSecondsToInterval(float value, float interval)
+
+			float newTimelineStart = p.p.utilities.roundSecondsToInterval(first, 600.f);		// Round down to nearest hour
+			if(newTimelineStart > first) newTimelineStart -= 600;
+			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
+			float newTimelineEnd = p.p.utilities.roundSecondsToInterval(last, 600.f);			// Round up to nearest hour
+			if(newTimelineEnd < last) newTimelineEnd += 600;
+			if(newTimelineEnd > day) newTimelineEnd = day;
+
+//			float newTimelineStart = p.p.utilities.roundSecondsToHour(first);		// Round down to nearest hour
+//			if(newTimelineStart > first) newTimelineStart -= 3600;
+//			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
+//			float newTimelineEnd = p.p.utilities.roundSecondsToHour(last);			// Round up to nearest hour
+//			if(newTimelineEnd < last) newTimelineEnd += 3600;
+//			if(newTimelineEnd > day) newTimelineEnd = day;
+
+			if(fade)
+			{
+				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength);
+			}
+			else
+			{
+				timelineStart = newTimelineStart;
+				timelineEnd = newTimelineEnd;
+			}
+		}
+	}
+	
+	public void zoomToCurrentDate(boolean fade)
+	{
+		if(currentSelectableDate >= 0)
+		{
+			WMV_Field f = p.getCurrentField();
+			int curDate = selectableDates.get(currentSelectableDate).getID();
+			float first = f.timelines.get(curDate).get(0).getLower().getTime();
+			float last = f.timelines.get(curDate).get(f.timelines.get(curDate).size()-1).getUpper().getTime();
+			float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+
+			first *= day;					// Convert from normalized value to seconds
+			last *= day;
+
+			float newTimelineStart = p.p.utilities.roundSecondsToHour(first);		// Round down to nearest hour
+			if(newTimelineStart > first) newTimelineStart -= 3600;
+			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
+			float newTimelineEnd = p.p.utilities.roundSecondsToHour(last);			// Round up to nearest hour
+			if(newTimelineEnd < last) newTimelineEnd += 3600;
+			if(newTimelineEnd > day) newTimelineEnd = day;
+
+			if(fade)
+			{
+				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength);
+			}
+			else
+			{
+				timelineStart = newTimelineStart;
+				timelineEnd = newTimelineEnd;
+			}
 		}
 	}
 	
@@ -1217,7 +1375,8 @@ class ML_Display
 		
 		selectedTime = -1; 
 		selectedCluster = -1;
-		currentSelectableTime = -1;
+		currentSelectableTimeID = -1;
+		currentSelectableTime = null;
 		selectedDate = -1; 
 		currentSelectableDate = -1;
 
@@ -1594,10 +1753,10 @@ class ML_Display
 		{
 			p.p.textSize(largeTextSize * 3.f);
 			p.p.text("MultimediaLocator", p.p.width / 2.25f, yPos += lineWidthVeryWide, hudDistance);
-			p.p.textSize(largeTextSize * 1.f);
-			p.p.text("Version 0.9", p.p.width / 1.265f, yPos += lineWidthVeryWide * 2.f, hudDistance);
-			p.p.textSize(largeTextSize * 1.f);
-			p.p.text("Software by David Gordon", p.p.width / 1.48f, yPos += lineWidthVeryWide, hudDistance);
+			p.p.textSize(mediumTextSize * 1.4f);
+			p.p.text("v0.9", p.p.width / 1.075f, yPos += lineWidth, hudDistance);
+			p.p.textSize(largeTextSize * 0.88f);
+			p.p.text("Entoptic Software", p.p.width / 1.2f, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(largeTextSize * 1.2f);
 			
 			if(!p.p.state.selectedLibrary)
@@ -2201,7 +2360,7 @@ class ML_Display
 	
 	public int getCurrentSelectableTime()
 	{
-		return currentSelectableTime;
+		return currentSelectableTimeID;
 	}
 	
 //	void setFullScreen(boolean newState)

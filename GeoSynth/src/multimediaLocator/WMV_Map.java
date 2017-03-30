@@ -70,6 +70,7 @@ public class WMV_Map
 	private float imageHue = 150.f, imageCaptureHue = 90.f;
 	private float panoramaHue = 190.f, panoramaCaptureHue = 220.f;
 	private float videoHue = 40.f, videoCaptureHue = 70.f;
+	private float soundHue = 40.f;
 	private float cameraHue = 140.f;
 
 	private float mediaTransparency = 120.f;
@@ -749,9 +750,9 @@ public class WMV_Map
 				if(alpha > 0.f)
 				{
 					if(panorama.isSelected()) pointSize *= 5.f;
-					if(capture)
-						drawPoint( panorama.getCaptureLocation(),  pointSize, mapWidth, mapHeight, panoramaCaptureHue, saturation, 255.f, mediaTransparency );
-					else
+//					if(capture)
+//						drawPoint( panorama.getCaptureLocation(),  pointSize, mapWidth, mapHeight, panoramaCaptureHue, saturation, 255.f, mediaTransparency );
+//					else
 						drawPoint( panorama.getLocation(),  pointSize, mapWidth, mapHeight, panoramaHue, saturation, 255.f, mediaTransparency );
 				}
 			}

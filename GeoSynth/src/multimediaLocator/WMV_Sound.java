@@ -30,10 +30,10 @@ public class WMV_Sound extends WMV_Viewable
 	
 	WMV_Field p;					// Parent field
 
-	WMV_Sound ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, 
-			float newBrightness, ZonedDateTime newDateTime )
+	WMV_Sound ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+				int newCameraModel, float newBrightness, ZonedDateTime newDateTime )
 	{
-		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
+		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
 		p = parent;
 //		id = newID;
@@ -83,39 +83,39 @@ public class WMV_Sound extends WMV_Viewable
 	 * @param size Size to draw the sound center
 	 * Draw the video center as a colored sphere
 	 */
-	void drawLocation()
+	void displayModel()
 	{
 		p.p.p.pushMatrix();
 		p.p.p.translate(location.x, location.y, location.z);
 
-		p.p.p.fill(150, 0, 255, 150);
+		p.p.p.fill(30, 0, 255, 150);
 		p.p.p.sphere(centerSize);
-		PVector c = p.p.getCluster(cluster).getLocation();
-		PVector loc = location;
-		PVector cl = getCaptureLocation();
+//		PVector c = p.p.getCluster(cluster).getLocation();
+//		PVector loc = location;
+//		PVector cl = getCaptureLocation();
 		p.p.p.popMatrix();
 
-		p.p.p.pushMatrix();
-		if(p.p.showMediaToCluster)
-		{
-			p.p.p.strokeWeight(5.f);
-			p.p.p.stroke(40, 155, 255, 180);
-			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
-		}
-
-		if(p.p.showCaptureToMedia)
-		{
-			p.p.p.strokeWeight(2.f);
-			p.p.p.stroke(160, 100, 255, 120);
-			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
-		}
-
-		if(p.p.showCaptureToCluster)
-		{
-			p.p.p.strokeWeight(3.f);
-			p.p.p.stroke(100, 55, 255, 180);
-			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
-		}
+//		p.p.p.pushMatrix();
+//		if(p.p.showMediaToCluster)
+//		{
+//			p.p.p.strokeWeight(5.f);
+//			p.p.p.stroke(40, 155, 255, 180);
+//			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+//		}
+//
+//		if(p.p.showCaptureToMedia)
+//		{
+//			p.p.p.strokeWeight(2.f);
+//			p.p.p.stroke(160, 100, 255, 120);
+//			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+//		}
+//
+//		if(p.p.showCaptureToCluster)
+//		{
+//			p.p.p.strokeWeight(3.f);
+//			p.p.p.stroke(100, 55, 255, 180);
+//			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+//		}
 
 		p.p.p.popMatrix();
 	}

@@ -338,7 +338,7 @@ class WMV_Metadata
 //						PApplet.println("soundTime.getTime():"+soundTime.getTime());
 //						PApplet.println("sounds == null? "+(f.sounds==null));
 
-						f.sounds.add(new WMV_Sound ( f, count, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime) );
+						f.sounds.add(new WMV_Sound ( f, count, 3, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime) );
 					}
 					catch(Throwable t)
 					{
@@ -781,13 +781,13 @@ class WMV_Metadata
 				{
 					if(panorama && !dataMissing)
 					{
-						f.panoramas.add( new WMV_Panorama( f, pCount, name, pFilePath, pGPSLoc, fDirection, 0.f, iCameraModel, 	// Ignore elevation
+						f.panoramas.add( new WMV_Panorama( f, pCount, 1, name, pFilePath, pGPSLoc, fDirection, 0.f, iCameraModel, 	// Ignore elevation
 								iWidth, iHeight, fBrightness, calendarTime, null, null ) );
 						pCount++;
 					}
 					else if(!dataMissing)
 					{
-						f.images.add( new WMV_Image(f, iCount, name, pFilePath, pGPSLoc, fDirection, fFocalLength, fOrientation, fElevation, 
+						f.images.add( new WMV_Image(f, iCount, 0, name, pFilePath, pGPSLoc, fDirection, fFocalLength, fOrientation, fElevation, 
 								fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, calendarTime ) );
 						iCount++;
 					}
@@ -937,7 +937,7 @@ class WMV_Metadata
 			{
 				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f ) && hasVideo && !dataMissing)
 				{
-					f.videos.add( new WMV_Video(f, vCount, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
+					f.videos.add( new WMV_Video(f, vCount, 2, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
 								   				-1, iWidth, iHeight, fBrightness, calendarTime) );
 					vCount++;
 				}

@@ -37,7 +37,7 @@ public class WMV_World
 	
 	/* Classes */
 	WMV_WorldSettings settings;	// World settings
-	WMV_Input input;					// Handles input
+	ML_Input input;					// Handles input
 	ML_Display display;				// Handles heads up display
 	WMV_Viewer viewer;					// Handles viewer location
 	
@@ -128,7 +128,7 @@ public class WMV_World
 		
 		/* Create main classes */
 		settings = new WMV_WorldSettings(this);
-		input = new WMV_Input(this);
+		input = new ML_Input(this);
 		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
 		display = new ML_Display(this);		// Initialize displays
 		

@@ -236,7 +236,7 @@ public class ML_Stitcher
 			
 			float panoElevation = segment.getCenterElevation();
 			
-			WMV_Panorama pano = new WMV_Panorama( p.getCurrentField(), segment.getID(), "_stitched_"+Integer.toString(segment.getID()), 
+			WMV_Panorama pano = new WMV_Panorama( p.getCurrentField(), segment.getID(), 1, "_stitched_"+Integer.toString(segment.getID()), 
 					"", null, panoDirection, panoElevation, -1, result.width, result.height, 
 					1.f, null, p.getCluster(clusterID).getLocation(), result );
 		

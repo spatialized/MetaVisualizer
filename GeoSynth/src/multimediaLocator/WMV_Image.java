@@ -56,11 +56,11 @@ class WMV_Image extends WMV_Viewable
 
 	WMV_Field p;					// Parent field
 
-	WMV_Image ( WMV_Field parent, int newID, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
+	WMV_Image ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
 			int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime )
 	{
-		super(parent, newID, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
+		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
 		p = parent;
 		filePath = newFilePath;
@@ -85,7 +85,7 @@ class WMV_Image extends WMV_Viewable
 
 		focalLength = newFocalLength;
 		cameraModel = newCameraModel;
-
+		
 		if(newDateTime != null)
 		{
 			time = new WMV_Time( p.p, newDateTime, getID(), cluster, 0 );		
@@ -161,7 +161,7 @@ class WMV_Image extends WMV_Viewable
 		}
 
 		if(visible && p.p.showModel && !hidden && !disabled)
-			drawLocation();
+			displayModel();
 	}
 
 	private PImage applyMask(PImage source, PImage mask)
@@ -193,12 +193,11 @@ class WMV_Image extends WMV_Viewable
 	 * @param size Size to draw the video center
 	 * Draw the video center as a colored sphere
 	 */
-	void drawLocation()
+	void displayModel()
 	{
 		/* Draw frame */
 		p.p.p.pushMatrix();
 		
-//		p.p.p.stroke(0.f, 0.f, 255.f, 155.f);	 
 		p.p.p.stroke(0.f, 0.f, 255.f, viewingBrightness);	 
 		p.p.p.strokeWeight(2.f);
 		
@@ -211,40 +210,28 @@ class WMV_Image extends WMV_Viewable
 		PVector loc = location;
 		PVector cl = getCaptureLocation();
 		p.p.p.popMatrix();
-		
-		/* Point at center only */
-//		p.p.p.pushMatrix();
-//		p.p.p.translate(location.x, location.y, location.z);
-//
-//		p.p.p.fill(150, 0, 255, 150);
-//		p.p.p.sphere(size);
-//		PVector c = p.p.getCluster(cluster).getLocation();
-//		PVector loc = location;
-//		PVector cl = getCaptureLocation();
-//		p.p.p.popMatrix();
 
 		p.p.p.pushMatrix();
 		if(p.p.showMediaToCluster)
 		{
-			p.p.p.strokeWeight(5.f);
-			p.p.p.stroke(40, 155, 255, 180);
+			p.p.p.strokeWeight(3.f);
+			p.p.p.stroke(80, 135, 255, viewingBrightness);
 			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(p.p.showCaptureToMedia)
 		{
-			p.p.p.strokeWeight(2.f);
-			p.p.p.stroke(160, 100, 255, 120);
+			p.p.p.strokeWeight(3.f);
+			p.p.p.stroke(160, 100, 255, viewingBrightness);
 			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(p.p.showCaptureToCluster)
 		{
 			p.p.p.strokeWeight(3.f);
-			p.p.p.stroke(100, 55, 255, 180);
+			p.p.p.stroke(120, 55, 255, viewingBrightness);
 			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
-
 		p.p.p.popMatrix();
 	}
 

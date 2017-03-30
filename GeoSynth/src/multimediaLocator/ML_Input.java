@@ -1,5 +1,4 @@
 package multimediaLocator;
-//import java.awt.Toolkit;
 
 import g4p_controls.GButton;
 //import g4p_controls.GCheckbox;
@@ -7,15 +6,13 @@ import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import processing.core.*;
-//import processing.data.IntList;
 
 /**************************************
- * WMV_Input
  * @author davidgordon
  * Methods for responding to user input from keyboard or mouse
  */
 
-public class WMV_Input
+public class ML_Input
 {
 	public boolean wasTimeFading;
 	public boolean shiftKey = false;
@@ -33,7 +30,7 @@ public class WMV_Input
 
 	WMV_World p;
 
-	WMV_Input(WMV_World parent) {
+	ML_Input(WMV_World parent) {
 		p = parent;
 		wasTimeFading = p.timeFading;
 	}
@@ -167,7 +164,6 @@ public class WMV_Input
 				
 			case "CloseHelpWindow":
 				p.display.window.hideHelpWindow();
-//				p.display.window.helpWindow.setVisible(false);
 				break;
 				
 				/* Memory */
@@ -177,7 +173,6 @@ public class WMV_Input
 				
 			case "CloseMemoryWindow":
 				p.display.window.hideMemoryWindow();
-//				p.display.window.memoryWindow.setVisible(false);
 				break;
 				
 				/* Statistics */
@@ -187,7 +182,6 @@ public class WMV_Input
 				
 			case "CloseStatisticsWindow":
 				p.display.window.hideStatisticsWindow();
-//				p.display.window.statisticsWindow.setVisible(false);
 				break;
 
 				/* Time */
@@ -197,7 +191,6 @@ public class WMV_Input
 				
 			case "CloseTimeWindow":
 				p.display.window.hideTimeWindow();
-//				p.display.window.graphicsWindow.setVisible(false);
 				break;
 				
 				/* Graphics */
@@ -207,7 +200,6 @@ public class WMV_Input
 				
 			case "CloseGraphicsWindow":
 				p.display.window.hideGraphicsWindow();
-//				p.display.window.graphicsWindow.setVisible(false);
 				break;
 
 			case "ZoomIn":
@@ -709,17 +701,20 @@ public class WMV_Input
 			else if(p.display.displayView == 3)					/* Time View */
 			{
 				if (key == 'r')									// Zoom out to whole timeline
-				{
 					p.display.resetZoom(true);
-				}
-				if (key == 'z')									// Timeline zoom to fit
-				{
-					p.display.zoomTimelineToFit(true);
-				}
+
+				if (key == 'z')									// Zoom to fit timeline
+					p.display.zoomToTimeline(true);
+
+				if (key == 't')									// Zoom to fit current time segment
+					p.display.zoomToCurrentTimeSegment(true);
+
+				if (key == 'd')									// Zoom to fit current time segment
+					p.display.zoomToCurrentDate(true);
+
 				if (key == 'a')									// Timeline zoom to fit
-				{
 					p.display.showAllDates();
-				}
+
 				if (key == PApplet.ENTER)
 				{
 					if(p.display.getCurrentSelectableTime() >= 0)

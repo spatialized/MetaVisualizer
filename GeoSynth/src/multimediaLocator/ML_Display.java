@@ -122,7 +122,7 @@ class ML_Display
 		midRightTextXOffset = p.p.width / 1.5f;
 
 		topTextYOffset = -p.p.height / 1.6f;
-		clusterImageXOffset = -p.p.width/ 1.66f;
+		clusterImageXOffset = -p.p.width/ 1.75f;
 		clusterImageYOffset = p.p.height * 1.33f;
 
 		userMessageXOffset = -p.p.width / 2.f;
@@ -238,7 +238,7 @@ class ML_Display
 
 		yPos = timelineYOffset + timelineHeight * 4.f;
 
-		if(p.p.debug.display)
+		if(p.p.debug.field || p.p.debug.main)
 		{
 			if(f.dateline != null)
 			{
@@ -1449,7 +1449,7 @@ class ML_Display
 		midRightTextXOffset = p.p.width / 1.5f;
 
 		topTextYOffset = -p.p.height / 1.6f;
-		clusterImageXOffset = -p.p.width/ 1.66f;
+		clusterImageXOffset = -p.p.width/ 1.9f;
 		clusterImageYOffset = p.p.height / 2.5f;
 
 		userMessageXOffset = -p.p.width / 2.f;
@@ -2076,8 +2076,8 @@ class ML_Display
 		startHUD();
 		p.p.pushMatrix();
 		
-		float textXPos = centerTextXOffset;
-		float textYPos = topTextYOffset;			// Starting vertical position
+		float xPos = centerTextXOffset;
+		float yPos = topTextYOffset;			// Starting vertical position
 		
 		WMV_Field f = p.getCurrentField();
 		WMV_Cluster c = p.getCluster(displayCluster);	// Get the cluster to display info about
@@ -2085,65 +2085,106 @@ class ML_Display
 		p.p.fill(0, 0, 255, 255);
 
 		p.p.textSize(veryLargeTextSize);
-		p.p.text(""+p.getCurrentField().name, textXPos, textYPos, hudDistance);
+		p.p.text(""+p.getCurrentField().name, xPos, yPos, hudDistance);
 //		p.p.text(" Cluster View", textXPos, textYPos, hudDistance);
 
 		p.p.textSize(largeTextSize);
 		WMV_Cluster cl = p.getCurrentCluster();
-		p.p.text(" Cluster #"+ c.getID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.p.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(mediumTextSize);
-		p.p.text("   Media Count: "+ c.mediaCount, textXPos, textYPos += lineWidthVeryWide, hudDistance);
+		p.p.text("   Media Count: "+ c.mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
 		if(c.images.size() > 0)
-			p.p.text("     Images: "+ c.images.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text("     Images: "+ c.images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 		if(c.panoramas.size() > 0)
-			p.p.text("     Panoramas: "+ c.panoramas.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text("     Panoramas: "+ c.panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 		if(c.videos.size() > 0)
-			p.p.text("     Videos: "+ c.videos.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+			p.p.text("     Videos: "+ c.videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 //		if(c.sounds.size() > 0)
 //			p.p.text("     Sounds: "+ c.sounds.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 //		p.p.text("     Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
 //		p.p.text("     Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);
 //		p.p.text("     Empty: "+ c.isEmpty(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Location: "+ c.getLocation(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-		p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text(" ", textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Media Segments: "+ c.segments.size(), textXPos, textYPos += lineWidth, hudDistance);
+		p.p.text("   Location: "+ c.getLocation(), xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
+		p.p.text(" ", xPos, yPos += lineWidth, hudDistance);
+		p.p.text("   Media Segments: "+ c.segments.size(), xPos, yPos += lineWidth, hudDistance);
 		
 		if(c.timeline.size() > 0)
 		{
-			p.p.text(" Timeline Segments: "+ c.timeline.size(), textXPos, textYPos += lineWidthWide, hudDistance);
-			p.p.text(" Timeline Length (sec.): "+ p.p.utilities.getTimelineLength(c.timeline), textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Timeline Segments: "+ c.timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+			p.p.text(" Timeline Length (sec.): "+ p.p.utilities.getTimelineLength(c.timeline), xPos, yPos += lineWidth, hudDistance);
 		}
 		if(c.dateline != null)
 			if(c.dateline.size() > 0)
-				p.p.text(" Timeline Dates: "+ c.dateline.size(), textXPos, textYPos += lineWidth, hudDistance);
+				p.p.text(" Timeline Dates: "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
 
 		if(p.getCurrentCluster() != null)
 		{
-			p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
-			p.p.text("   User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), xPos, yPos += lineWidth, hudDistance);
+			p.p.text("   User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), xPos, yPos += lineWidth, hudDistance);
 
-			p.p.text(" Current Cluster ID: "+p.viewer.getCurrentClusterID(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-			p.p.text("   Media Count: "+cl.mediaCount, textXPos, textYPos += lineWidth, hudDistance);
-			p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), textXPos, textYPos += lineWidth, hudDistance);
+//			p.p.text(" Current Cluster ID: "+p.viewer.getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.text("   Media Count: "+cl.mediaCount, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
 		}
 		
-		p.p.text(" Field Cluster Count:"+(f.clusters.size()), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-		p.p.text("   Merged: "+f.model.mergedClusters+" out of "+(f.model.mergedClusters+f.clusters.size())+" Total", textXPos, textYPos += lineWidth, hudDistance);
-		if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Population Factor: "+f.model.clusterPopulationFactor, textXPos, textYPos += lineWidth, hudDistance);
-
+		if(p.p.debug.field || p.p.debug.main)
+		{
+			if(c != null)
+			{
+				p.p.textSize(largeTextSize);
+				p.p.text(" Current Cluster #"+ c.getID()+" of "+ f.clusters.size(), xPos, yPos += lineWidthWide, hudDistance);
+				p.p.textSize(mediumTextSize);
+				if(c.dateline != null)
+				{
+					if(c.dateline.size() > 0)
+					{
+						int clusterDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
+						p.p.text(" Current Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
+						p.p.text("   ID: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.timeline.size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+						p.p.text("   Date: "+ (clusterDate+1) +" of "+ c.dateline.size(), xPos, yPos += lineWidth, hudDistance);
+						if(c.timelines.size() > clusterDate)
+							p.p.text("  Date-Specific ID: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.timelines.get(clusterDate).size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
+						else
+							p.p.text("ERROR: No Cluster Timeline for Current Cluster Date ("+clusterDate+")", xPos, yPos += lineWidth, hudDistance);
+					}
+				}
+			}		
+			
+			p.p.text(" Field Cluster Count:"+(f.clusters.size()), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text("   Merged: "+f.model.mergedClusters+" out of "+(f.model.mergedClusters+f.clusters.size())+" Total", xPos, yPos += lineWidth, hudDistance);
+			if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.model.clusterDepth, xPos, yPos += lineWidth, hudDistance);
+			p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
+			p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
+			p.p.text("   Population Factor: "+f.model.clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
+			
+			if(f.dateline != null)
+			{
+				p.p.textSize(largeTextSize);
+				p.p.text(" Current Field #"+ f.fieldID+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				p.p.textSize(mediumTextSize);
+				if(f.dateline.size() > 0)
+				{
+//					p.p.text(" Clusters: "+ f.clusters.size()+"  Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
+					int fieldDate = p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
+					p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
+					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+					p.p.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().dateline.size(), xPos, yPos += lineWidth, hudDistance);
+					p.p.text("   Date-Specific ID: "+ p.getCurrentField().timeline.get(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
+							+" of "+ p.getCurrentField().timelines.get(fieldDate).size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
+				}
+			}
+		}
+		
 		if(p.viewer.getAttractorCluster() != -1)
 		{
-			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), textXPos, textYPos += lineWidth, hudDistance);
-			p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), textXPos, textYPos += lineWidth, hudDistance);
+			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
+			p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
 			if(p.p.debug.viewer) 
 			{
-				p.p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), textXPos, textYPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Current Acceleration:"+(p.viewer.isWalking() ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), textXPos, textYPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Current Velocity:"+ (p.viewer.isWalking() ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , textXPos, textYPos += lineWidth, hudDistance);
+				p.p.text(" Debug: Current Attraction:"+p.viewer.attraction.mag(), xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Debug: Current Acceleration:"+(p.viewer.isWalking() ? p.viewer.walkingAcceleration.mag() : p.viewer.acceleration.mag()), xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Debug: Current Velocity:"+ (p.viewer.isWalking() ? p.viewer.walkingVelocity.mag() : p.viewer.velocity.mag()) , xPos, yPos += lineWidth, hudDistance);
 			}
 		}
 
@@ -2152,6 +2193,10 @@ class ML_Display
 		drawClusterImages(c);
 	}
 
+	/**
+	 * Draw thumbnails in grid of images in cluster
+	 * @param cluster Cluster to preview
+	 */
 	private void drawClusterImages(WMV_Cluster cluster)
 	{
 		int count = 1;
@@ -2167,7 +2212,7 @@ class ML_Display
 			p.p.pushMatrix();
 			float origWidth = i.getWidth();
 			float origHeight = i.getHeight();
-			float width = 90.f;
+			float width = 120.f;
 			float height = width * origHeight / origWidth;
 			
 			p.p.translate(imgXPos, imgYPos, hudDistance);
@@ -2181,7 +2226,7 @@ class ML_Display
 			
 			imgXPos += width * 1.5f;
 
-			if(count % 28 == 0)
+			if(count % 20 == 0)
 			{
 				imgXPos = clusterImageXOffset;
 				imgYPos += height * 1.5f;

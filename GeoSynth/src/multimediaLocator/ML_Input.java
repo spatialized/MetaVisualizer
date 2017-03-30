@@ -657,6 +657,11 @@ public class ML_Input
 			}
 			else if(p.display.displayView == 2)		/* Cluster View */
 			{
+				if (key == 'c')
+				{
+					p.display.displayCluster = p.viewer.getCurrentClusterID();
+				}
+				
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.LEFT) 
@@ -1543,6 +1548,10 @@ public class ML_Input
 		{
 			p.display.map2D.handleMouseReleased(mouseX, mouseY);
 		}
+//		else if(p.display.displayView == 2)
+//		{
+//			p.display.handleMouseReleased(mouseX, mouseY);
+//		}
 		else if(p.display.displayView == 3)
 		{
 			p.display.handleMouseReleased(mouseX, mouseY);

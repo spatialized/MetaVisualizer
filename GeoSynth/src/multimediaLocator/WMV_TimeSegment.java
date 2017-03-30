@@ -58,6 +58,11 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	 */
 	private void analyzeMediaTypes()
 	{
+		hasImage = false;
+		hasPanorama = false;
+		hasVideo = false;
+		hasSound = false;
+		
 		for( WMV_Time t : timeline )
 		{
 			if(!hasImage)

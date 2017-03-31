@@ -236,8 +236,8 @@ public class WMV_Field
 		model.runInitialClustering();		// Find media clusters
 //		model.findDuplicateClusterMedia();	// Find media in more than one cluster
 		
-//		if(p.lockMediaToClusters)				// Center media capture locations at associated cluster locations
-		model.lockMediaToClusters();	
+		if(lockMediaToClusters)				// Center media capture locations at associated cluster locations
+			model.lockMediaToClusters();	
 
 		if(p.p.debug.main)
 			p.display.message("Creating timeline and dateline for field #"+id+"...");

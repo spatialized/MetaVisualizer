@@ -20,6 +20,7 @@ public abstract class WMV_Viewable
 {
 	/* Classes */
 	public WMV_WorldSettings worldSettings;
+	public WMV_WorldState worldState;
 	public WMV_ViewerSettings viewerSettings;	// Update world settings
 	public WMV_ViewerState viewerState;	// Update world settings
 	public ML_DebugSettings debugSettings;	// Update world settings
@@ -103,10 +104,6 @@ public abstract class WMV_Viewable
 
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(circularEaseOut);
-		
-//		worldSettings = newWorldSettings;
-//		viewerSettings = newViewerSettings;
-//		debugSettings = newDebugSettings;
 	}  
 
 	abstract void loadMedia(MultimediaLocator ml);
@@ -114,10 +111,11 @@ public abstract class WMV_Viewable
 	abstract void displayModel(WMV_World world);
 	abstract void displayMetadata(WMV_World world);
 
-	public void updateSettings( WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState,
-								ML_DebugSettings newDebugSettings )
+	public void updateSettings( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
+								WMV_ViewerState newViewerState, ML_DebugSettings newDebugSettings )
 	{
 		worldSettings = newWorldSettings;
+		worldState = newWorldState;
 		viewerSettings = newViewerSettings;
 		viewerState = newViewerState;
 		debugSettings = newDebugSettings;
@@ -126,11 +124,11 @@ public abstract class WMV_Viewable
 	/**
 	 * Set clusterDate for this media based on media times in associated cluster
 	 */
-	void setClusterDate()
+	void setClusterDate(WMV_Cluster c)
 	{
 		if(cluster != -1)
 		{
-			WMV_Cluster c = p.getClusters().get(cluster);
+//			WMV_Cluster c = p.getClusters().get(cluster);
 			if(c.lowImageDate == c.highImageDate)
 			{
 				clusterDate = c.lowImageDate;
@@ -145,19 +143,15 @@ public abstract class WMV_Viewable
 	/**
 	 * Set clusterTime for this image based on media times in associated cluster
 	 */
-	void setClusterTime()
+	void setClusterTime( WMV_Cluster c )
 	{
 		if(cluster != -1)
 		{
-			WMV_Cluster c = p.getClusters().get(cluster);
+//			WMV_Cluster c = p.getClusters().get(cluster);
 			if(c.lowImageTime == c.highImageTime)
-			{
 				clusterTime = c.lowImageTime;
-			}
 			else
-			{
 				clusterTime = PApplet.map(time.getTime(), c.lowImageTime, c.highImageTime, 0.f, 1.f);			// -- Use dayLength?
-			}
 		}
 	}
 
@@ -246,7 +240,7 @@ public abstract class WMV_Viewable
 		
 		int curTime = 0;
 		
-		switch(p.p.getTimeMode())
+		switch(worldState.getTimeMode())
 		{
 			case 0:
 				WMV_Cluster c = p.p.getCurrentField().getCluster(cluster);		// Get cluster for this media
@@ -271,18 +265,18 @@ public abstract class WMV_Viewable
 			break;
 		
 			case 1:												// Time Mode: Field
-				curTime = p.p.currentTime;
+				curTime = worldState.currentTime;
 				lower = p.p.getCurrentField().getTimeline().get(0).getLower().getTime();		// Check division					// Get cluster timeline lower bound
 				upper = p.p.getCurrentField().getTimeline().get(p.p.getCurrentField().getTimeline().size()-1).getUpper().getTime();		// Get cluster timeline upper bound
 				break;
 				
 			case 2:
-				curTime = p.p.currentTime;
+				curTime = worldState.currentTime;
 //				cycleLength = p.p.defaultMediaLength;
 				break;
 		}
 		
-		if(p.p.getTimeMode() == 0 || p.p.getTimeMode() == 1)
+		if(worldState.getTimeMode() == 0 || worldState.getTimeMode() == 1)
 		{
 			float timelineLength = upper - lower;
 
@@ -373,7 +367,7 @@ public abstract class WMV_Viewable
 				PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength+"fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 			}
 		}
-		else if(p.p.getTimeMode() == 2)
+		else if(worldState.getTimeMode() == 2)
 		{
 			if(currentMedia)
 			{
@@ -398,7 +392,7 @@ public abstract class WMV_Viewable
 
 				timeBrightness = 0.f;			   					// Zero visibility
 				
-				if(p.p.getTimeMode() == 2) 
+				if(worldState.getTimeMode() == 2) 
 					if(currentMedia)
 						currentMedia = false;	// No longer the current media in Single Time Mode
 			}
@@ -418,7 +412,7 @@ public abstract class WMV_Viewable
 				if(getMediaType() == 1)
 					PApplet.println(" Fading Out..."+id);
 				timeBrightness = PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f); 
-				if(p.p.getTimeMode() == 2 && currentMedia)
+				if(worldState.getTimeMode() == 2 && currentMedia)
 				{
 					if(fadeOutEnd - curTime == 1)
 					{
@@ -439,7 +433,7 @@ public abstract class WMV_Viewable
 			if(curTime > fadeOutEnd)					// If image was active and has faded out
 			{
 				if(active) active = false;									// Set to inactive
-				if(p.p.getTimeMode() == 2) 
+				if(worldState.getTimeMode() == 2) 
 				{
 					currentMedia = false;	// No longer the current media in Single Time Mode
 				}			

@@ -158,7 +158,7 @@ public class ML_Stitcher
 			else
 				fileName = p.getCurrentField().getName()+"_"+clusterID+"_stitched_"+(stitchNum++)+".jpg";
 			
-			filePath = p.stitchingPath+fileName;
+			filePath = p.getState().stitchingPath+fileName;
 
 			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, panorama);
 			if(p.p.debug.stitching) p.p.display.message(p, "Panorama stitching successful, output to file: " + fileName);
@@ -223,7 +223,7 @@ public class ML_Stitcher
 				else
 					fileName = p.getCurrentField().getName()+"_"+clusterID+"_stitched_"+stitchNum+"_borders.jpg";
 
-				filePath = p.stitchingPath+fileName;
+				filePath = p.getState().stitchingPath+fileName;
 
 				if(p.p.debug.stitching) p.p.display.message(p, "Debugging: output panorama with borders to file: " + fileName);
 				

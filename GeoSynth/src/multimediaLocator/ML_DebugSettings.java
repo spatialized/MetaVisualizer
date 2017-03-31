@@ -49,7 +49,7 @@ public class ML_DebugSettings
 	
 	public void checkFrameRate()
 	{
-		if(p.frameRate < p.world.minFrameRate)
+		if(p.frameRate < p.world.getState().minFrameRate)
 		{
 			if(!performanceSlow)
 				performanceSlow = true;
@@ -90,9 +90,9 @@ public class ML_DebugSettings
 			  System.out.println("Approx. usable free memory (bytes): " + approxUsableFreeMemory);
 		  }
 		  
-		  if(approxUsableFreeMemory < p.world.minAvailableMemory && !lowMemory)
+		  if(approxUsableFreeMemory < p.world.getState().minAvailableMemory && !lowMemory)
 			  lowMemory = true;
-		  if(approxUsableFreeMemory > p.world.minAvailableMemory && lowMemory)
+		  if(approxUsableFreeMemory > p.world.getState().minAvailableMemory && lowMemory)
 			  lowMemory = false;
 		  
 		  /* Other possible memory tests: */

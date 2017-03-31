@@ -173,7 +173,7 @@ class ML_Display
 		}
 		else
 		{
-			if( displayView != 0 || p.interactive )
+			if( displayView != 0 || p.getState().interactive )
 			{
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 				p.p.background(0.f);																// Hide 3D view
@@ -184,7 +184,7 @@ class ML_Display
 					map2D.drawMainMap(p, !satelliteMap);
 					if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
 					if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
-					if(p.interactive) displayInteractiveClustering(p);
+					if(p.getState().interactive) displayInteractiveClustering(p);
 					map2D.updateMapMouse(p);
 					break;
 				case 2:
@@ -204,7 +204,7 @@ class ML_Display
 				if(messages.size() > 0)
 					displayMessages(p);
 
-				if(p.showMetadata && metadata.size() > 0 && p.viewer.getSettings().selection)	
+				if(p.getState().showMetadata && metadata.size() > 0 && p.viewer.getSettings().selection)	
 					displayMetadata(p);
 
 //				if((displayMode == 1) && drawForceVector)						// Draw force vector
@@ -1335,7 +1335,7 @@ class ML_Display
 //		message("Interactive Clustering Mode: "+(p.hierarchical ?"Hierarchical Clustering":"K-Means Clustering"));
 //		message(" ");
 		
-		if(p.hierarchical)
+		if(p.getState().hierarchical)
 		{
 //			message("Hierarchical Clustering");
 			message(p, " ");
@@ -1647,7 +1647,7 @@ class ML_Display
 	 */
 	void message(WMV_World p, String message)
 	{
-		if(p.interactive)
+		if(p.getState().interactive)
 		{
 			messages.add(message);
 			while(messages.size() > 16)
@@ -1685,7 +1685,7 @@ class ML_Display
 		p.p.fill(0, 0, 255, 255);            								
 		p.p.textSize(smallTextSize);
 
-		if(p.interactive)
+		if(p.getState().interactive)
 		{
 			for(String s : messages)
 				p.p.text(s, userMessageXOffset, yPos += lineWidth, hudDistance);		// Use period character to draw a point
@@ -1949,16 +1949,16 @@ class ML_Display
 			p.p.text(" Program Modes ", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
 			p.p.text(" Orientation Mode: "+p.viewer.getSettings().orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" Alpha Mode:"+p.alphaMode, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Time Fading: "+ p.timeFading, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Alpha Mode:"+p.getState().alphaMode, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Time Fading: "+ p.getState().timeFading, xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Altitude Scaling: "+p.settings.altitudeScaling, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Lock Media to Clusters:"+p.lockMediaToClusters, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Lock Media to Clusters:"+p.getState().lockMediaToClusters, xPos, yPos += lineWidth, hudDistance);
 		
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Graphics ", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
-			p.p.text(" Alpha:"+p.alpha, xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Alpha:"+p.getState().alpha, xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Default Media Length:"+p.settings.defaultMediaLength, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Media Angle Fading: "+p.viewer.getSettings().angleFading, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Media Angle Thinning: "+p.viewer.getSettings().angleThinning, xPos, yPos += lineWidth, hudDistance);
@@ -2007,9 +2007,9 @@ class ML_Display
 			p.p.text(" Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			if(p.settings.altitudeScaling)
 				p.p.text(" Altitude Scaling Factor: "+p.settings.altitudeScalingFactor+"  (Altitude Scaling)", xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" Clustering Method : "+ ( p.hierarchical ? "Hierarchical" : "K-Means" ), xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Clustering Method : "+ ( p.getState().hierarchical ? "Hierarchical" : "K-Means" ), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Population Factor: "+f.getModel().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
-			if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.getModel().clusterDepth, xPos, yPos += lineWidth, hudDistance);
+			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getModel().clusterDepth, xPos, yPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Viewer ", xPos, yPos += lineWidthVeryWide, hudDistance);
@@ -2061,11 +2061,11 @@ class ML_Display
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Time ", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
-			p.p.text(" Time Mode: "+ ((p.p.world.getTimeMode() == 0) ? "Cluster" : "Field"), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Time Mode: "+ ((p.p.world.getState().getTimeMode() == 0) ? "Cluster" : "Field"), xPos, yPos += lineWidthVeryWide, hudDistance);
 			
-			if(p.p.world.getTimeMode() == 0)
-				p.p.text(" Current Field Time: "+ p.currentTime, xPos, yPos += lineWidth, hudDistance);
-			if(p.p.world.getTimeMode() == 1)
+			if(p.p.world.getState().getTimeMode() == 0)
+				p.p.text(" Current Field Time: "+ p.getState().currentTime, xPos, yPos += lineWidth, hudDistance);
+			if(p.p.world.getState().getTimeMode() == 1)
 				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().currentTime, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().getTimeline().size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment(), xPos, yPos += lineWidth, hudDistance);
@@ -2182,7 +2182,7 @@ class ML_Display
 			
 			p.p.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text("   Merged: "+f.getModel().mergedClusters+" out of "+(f.getModel().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
-			if(p.hierarchical) p.p.text(" Current Cluster Depth: "+f.getModel().clusterDepth, xPos, yPos += lineWidth, hudDistance);
+			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getModel().clusterDepth, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Population Factor: "+f.getModel().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);

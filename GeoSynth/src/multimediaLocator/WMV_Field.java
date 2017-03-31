@@ -44,6 +44,7 @@ public class WMV_Field
 
 	WMV_World p;
 	WMV_WorldSettings worldSettings;
+	WMV_WorldState worldState;
 	WMV_ViewerSettings viewerSettings;	// Update world settings
 	WMV_ViewerState viewerState;	// Update world settings
 	ML_DebugSettings debugSettings;	// Update world settings
@@ -53,7 +54,7 @@ public class WMV_Field
 	private int disassociatedPanoramas = 0;
 	private int disassociatedVideos = 0;
 
-	WMV_Field( WMV_World parent, WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
+	WMV_Field( WMV_World parent, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
 			   ML_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
 	{
 		p = parent;
@@ -61,6 +62,7 @@ public class WMV_Field
 		frameCount = p.p.frameCount;
 		
 		worldSettings = newWorldSettings;
+		worldState = newWorldState;
 		viewerSettings = newViewerSettings;
 		viewerState = newViewerState;
 		debugSettings = newDebugSettings;
@@ -96,7 +98,7 @@ public class WMV_Field
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
 				
-				m.updateSettings(worldSettings, viewerSettings, viewerState, debugSettings);
+				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(!m.verticesAreNull() && (m.isFading() || m.fadingFocusDistance))
 					m.update();  		// Update geometry + visibility
 
@@ -117,7 +119,7 @@ public class WMV_Field
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
 
-				n.updateSettings(worldSettings, viewerSettings, viewerState, debugSettings);
+				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
 					n.update();  	// Update geometry + visibility
@@ -138,7 +140,7 @@ public class WMV_Field
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
 				boolean nowVisible = (distance < vanishingPoint);
 
-				v.updateSettings(worldSettings, viewerSettings, viewerState, debugSettings);
+				v.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if ( v.isVisible() && !nowVisible )
 					v.fadeOut();
 				
@@ -260,11 +262,12 @@ public class WMV_Field
 	/**
 	 * Update field variables each frame
 	 */
-	public void update( WMV_WorldSettings currentWorldSettings, WMV_ViewerSettings currentViewerSettings, WMV_ViewerState currentViewerState,
-						int currentFrameCount)
+	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
+						WMV_ViewerState currentViewerState, int currentFrameCount)
 	{
 		frameCount = currentFrameCount;
 		worldSettings = currentWorldSettings;	// Update world settings
+		worldState = currentWorldState;	// Update world settings
 		viewerSettings = currentViewerSettings;	// Update viewer settings
 		viewerState = currentViewerState;		// Update viewer state
 //		debugSettings = currentDebugSettings;	// Update debug settings (unused)
@@ -364,20 +367,20 @@ public class WMV_Field
 			{
 				for(WMV_Image i : c.getImages())
 				{
-					i.setClusterTime();
-					i.setClusterDate();
+					i.setClusterTime(c);
+					i.setClusterDate(c);
 				}
 
 				for(WMV_Panorama n : c.getPanoramas())
 				{
-					n.setClusterTime();
-					n.setClusterDate();
+					n.setClusterTime(c);
+					n.setClusterDate(c);
 				}
 
 				for(WMV_Video v : c.getVideos())
 				{
-					v.setClusterTime();
-					v.setClusterDate();
+					v.setClusterTime(c);
+					v.setClusterDate(c);
 				}
 
 				c.findMediaSegments();

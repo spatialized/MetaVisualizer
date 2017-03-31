@@ -579,7 +579,7 @@ public class ML_Window {
 		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, 20, "Time Fading  ⇧T");
 		chkbxTimeFading.tag = "TimeFading";
 		chkbxTimeFading.setLocalColorScheme(10);
-		chkbxTimeFading.setSelected(world.timeFading);
+		chkbxTimeFading.setSelected(world.getState().timeFading);
 
 		x = 150;
 		y += 35;
@@ -646,7 +646,7 @@ public class ML_Window {
 		optFieldTimeMode.setLocalColorScheme(10);
 		optFieldTimeMode.tag = "FieldTimeMode";
 
-		switch(world.getTimeMode())
+		switch(world.getState().getTimeMode())
 		{
 			case 0:
 				optClusterTimeMode.setSelected(true);
@@ -737,7 +737,7 @@ public class ML_Window {
 
 		sdrAlpha = new GSlider(graphicsWindow, x, y, 80, 80, 20);
 		sdrAlpha.setLocalColorScheme(7);
-		sdrAlpha.setLimits(world.alpha, 255.f, 0.f);
+		sdrAlpha.setLimits(world.getState().alpha, 255.f, 0.f);
 		sdrAlpha.setRotation(PApplet.PI/2.f);
 		sdrAlpha.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrAlpha.setEasing(0);
@@ -1249,10 +1249,10 @@ public class ML_Window {
 
 			applet.textSize(smallTextSize);
 			
-			int mode = world.p.world.getTimeMode();
+			int mode = world.p.world.getState().getTimeMode();
 			if( mode == 0 || mode == 1 )
 			{
-				int curTime = (mode == 0) ? world.getCurrentCluster().currentTime : world.currentTime;
+				int curTime = (mode == 0) ? world.getCurrentCluster().currentTime : world.getState().currentTime;
 				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
 			}
 
@@ -1582,9 +1582,9 @@ public class ML_Window {
 				applet.text(" Maximum Distance: "+world.settings.maxClusterDistance, x, y += lineWidth);
 				if(world.settings.altitudeScaling)
 					applet.text(" Altitude Scaling Factor: "+world.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
-				applet.text(" Clustering Method : "+ ( world.hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
+				applet.text(" Clustering Method : "+ ( world.getState().hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
 				applet.text(" Population Factor: "+f.getModel().clusterPopulationFactor, x, y += lineWidth);
-				if(world.hierarchical) applet.text(" Current Cluster Depth: "+f.getModel().clusterDepth, x, y += lineWidth);
+				if(world.getState().hierarchical) applet.text(" Current Cluster Depth: "+f.getModel().clusterDepth, x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
 				applet.text(" Viewer ", x, y += lineWidthVeryWide);

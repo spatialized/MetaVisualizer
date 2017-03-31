@@ -26,51 +26,14 @@ import toxi.math.ZoomLensInterpolation;
 
 public class WMV_World 
 {
-	/* System Status */
-	private boolean startedRunning = false;			// Program just started running
-	private boolean initialSetup = false;			// Performing initial setup 
-	private boolean creatingFields = false;			// Initializing media folders
-	private boolean fieldsCreated = false;			// Initialized media folders
-	private boolean saveImage = false;
-	private int initializationField = 0;				// Field to be initialized this frame
-	private int setupProgress = 0;						// Setup progress (0 to 100)
-	
 	/* Classes */
 	ML_Input input;					// Handles input
-//	ML_Display display;				// Handles heads up display
 	WMV_Utilities utilities;
 	WMV_WorldSettings settings;		// World settings
+	WMV_WorldState state;			// World state
 	WMV_Viewer viewer;				// Handles viewer location
-	
-	/* Media */
-	private ArrayList<WMV_Field> fields;				// List of fields, i.e. large geographical areas for 3D display
-	
-	/* Stitching */
-	String stitchingPath;
-
-	/* Clustering Modes */
-	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
-	public boolean interactive = false;					// In user clustering mode?
-	public boolean startInteractive = false;			// Start user clustering
-
-	/* Time */
-	private int timeMode = 2;							// Time Mode (0 = cluster; 1 = field; 2 = single)
-	public boolean timeFading = false;					// Does time affect media brightness? 
-	public boolean paused = false;						// Time is paused
-
-	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
-	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
 
 	/* Graphics */
-	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete soon?
-
-	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
-	public float alpha = 195.f;							// Transparency
-	private boolean beginFadingAlpha = false, fadingAlpha = false;
-	private int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
-	private float fadingAlphaStart, fadingAlphaTarget;
-
-	public boolean fadeEdges = true;					// Blur image edges
 	public PImage blurMaskLeftTop, blurMaskLeftCenter, 	// Blur masks
 				  blurMaskLeftBottom, blurMaskLeftBoth;
 	public PImage blurMaskCenterTop, blurMaskCenterCenter, 	// Blur masks
@@ -81,23 +44,62 @@ public class WMV_World
 	  blurMaskBothBottom, blurMaskBothBoth;
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
-	public boolean showModel = false;					// Activate Model Display 
-	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
-	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
-	public boolean showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
-
-	/* Clusters */  
-	public boolean mergeClusters = true;				// Merge nearby clusters?
-	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
-	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
-
-	/* Metadata */
-	public boolean showMetadata = false;
+	/* Media */
+	private ArrayList<WMV_Field> fields;				// List of fields, i.e. large geographical areas for 3D display
 	
-	/* Memory */
-	public int minAvailableMemory = 50000000;			// Minimum available memory
-	public int memoryCheckFrequency = 50;
-	public int minFrameRate = 10;	
+//	/* System Status */
+//	private boolean state.startedRunning = false;			// Program just started running
+//	private boolean state.initialSetup = false;			// Performing initial setup 
+//	private boolean state.creatingFields = false;			// Initializing media folders
+//	private boolean state.fieldsCreated = false;			// Initialized media folders
+//	private boolean saveImage = false;
+//	private int initializationField = 0;				// Field to be initialized this frame
+//	private int setupProgress = 0;						// Setup progress (0 to 100)
+//	
+//	/* Stitching */
+//	String stitchingPath;
+//
+//	/* Clustering Modes */
+//	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
+//	public boolean interactive = false;					// In user clustering mode?
+//	public boolean startInteractive = false;			// Start user clustering
+//
+//	/* Time */
+//	private int timeMode = 2;							// Time Mode (0 = cluster; 1 = field; 2 = single)
+//	public boolean timeFading = false;					// Does time affect media brightness? 
+//	public boolean paused = false;						// Time is paused
+//
+//	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
+//	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
+//
+//	/* Graphics */
+//	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete soon?
+//
+//	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
+//	public float alpha = 195.f;							// Transparency
+//	private boolean beginFadingAlpha = false, fadingAlpha = false;
+//	private int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
+//	private float fadingAlphaStart, fadingAlphaTarget;
+//
+//	public boolean fadeEdges = true;					// Blur image edges
+//
+//	public boolean showModel = false;					// Activate Model Display 
+//	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
+//	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
+//	public boolean showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
+//
+//	/* Clusters */  
+//	public boolean mergeClusters = true;				// Merge nearby clusters?
+//	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
+//	public boolean state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
+//
+//	/* Metadata */
+//	public boolean showMetadata = false;
+//	
+//	/* Memory */
+//	public int minAvailableMemory = 50000000;			// Minimum available memory
+//	public int memoryCheckFrequency = 50;
+//	public int minFrameRate = 10;	
 
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
@@ -127,6 +129,7 @@ public class WMV_World
 	{
 		/* Create main classes */
 		settings = new WMV_WorldSettings();
+		state = new WMV_WorldState();
 		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
 //		input = new ML_Input(this);
 //		display = new ML_Display(this, p.width, p.height, hudDistance);		// Initialize displays
@@ -140,17 +143,17 @@ public class WMV_World
 
 	void run()
 	{
-		if(startedRunning)											// If simulation just started running
+		if(state.startedRunning)											// If simulation just started running
 		{
 			viewer.moveToFirstTimeSegment(false);
-			startedRunning = false;
+			state.startedRunning = false;
 		}
 		
-		if ( !initialSetup && !interactive && !p.state.exit ) 		/* Running the program */
+		if ( !state.initialSetup && !state.interactive && !p.state.exit ) 		/* Running the program */
 		{
 			draw3D();						// 3D Display
 			draw2D();						// 2D Display
-			if(!paused) updateTime();		// Update time cycle
+			if(!state.paused) updateTime();		// Update time cycle
 			// updateLeapMotion();			// Update Leap Motion 
 		}
 		
@@ -162,13 +165,13 @@ public class WMV_World
 			p.stopWorldMediaViewer();								//  Exit simulation
 		}
 		
-		if ( p.debug.memory && p.frameCount % memoryCheckFrequency == 0 )		/* Memory debugging */
+		if ( p.debug.memory && p.frameCount % state.memoryCheckFrequency == 0 )		/* Memory debugging */
 		{
 			p.debug.checkMemory();
 			p.debug.checkFrameRate();
 		}
 		
-		if(saveImage && outputFolderSelected)		/* Image exporting */
+		if(state.saveImage && outputFolderSelected)		/* Image exporting */
 		{
 			if(viewer.getSettings().selection)
 			{
@@ -180,7 +183,7 @@ public class WMV_World
 				p.saveFrame(outputFolder + "/" + getCurrentField().getName() + "-######.jpg");
 				PApplet.println("Saved image: "+outputFolder + "/image" + "-######.jpg");
 			}
-			saveImage = false;
+			state.saveImage = false;
 		}
 //		PApplet.println("Last run() on Frame #"+p.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
 	}
@@ -199,7 +202,7 @@ public class WMV_World
 		}
 		
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
-		if (p.state.selectedLibrary && initialSetup && !creatingFields && !p.state.running)
+		if (p.state.selectedLibrary && state.initialSetup && !state.creatingFields && !p.state.running)
 		{
 			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder	
 
@@ -217,30 +220,30 @@ public class WMV_World
 				p.display.setupWMVWindow(this);									// Setup sidebar window
 		
 			fieldProgressInc = PApplet.round(100.f / fields.size());				// Amount to increment progress bar for each field
-			creatingFields = true;
+			state.creatingFields = true;
 		}
 
-		if (p.state.selectedLibrary && initialSetup && creatingFields && !fieldsCreated)	// Initialize fields
+		if (p.state.selectedLibrary && state.initialSetup && state.creatingFields && !state.fieldsCreated)	// Initialize fields
 		{
-			if(!fieldsCreated && !p.state.exit)
+			if(!state.fieldsCreated && !p.state.exit)
 			{
-				WMV_Field f = getField(initializationField);
+				WMV_Field f = getField(state.initializationField);
 
 				p.metadata.load(f, p.library.getLibraryFolder(), true);								// Import metadata for all media in field
-				f.initialize(p.library.getLibraryFolder(), lockMediaToClusters);		// 			Initialize field
+				f.initialize(p.library.getLibraryFolder(), state.lockMediaToClusters);		// 			Initialize field
 				
-				setupProgress += fieldProgressInc;				// Update progress bar
+				state.setupProgress += fieldProgressInc;				// Update progress bar
 				p.display.draw(this);									// Draw progress bar
 			}
 			
-			initializationField++;
-			if( initializationField >= fields.size() )			// Initialize each field until all are finished
+			state.initializationField++;
+			if( state.initializationField >= fields.size() )			// Initialize each field until all are finished
 			{
-				fieldsCreated = true;
+				state.fieldsCreated = true;
 			}
 		}
 		
-		if (fieldsCreated && initialSetup && !p.state.running)
+		if (state.fieldsCreated && state.initialSetup && !p.state.running)
 		{
 			if(p.debug.main)
 				PApplet.println("Finishing WMV_World setup()...");
@@ -248,16 +251,16 @@ public class WMV_World
 			finishSetup();
 		}
 
-		if(p.state.selectedLibrary && !initialSetup && !interactive && !p.state.running)	/* Initial clustering once library is selected */
+		if(p.state.selectedLibrary && !state.initialSetup && !state.interactive && !p.state.running)	/* Initial clustering once library is selected */
 			startInitialClustering();							
 		
-		if(startInteractive && !interactive && !p.state.running)		/* Start interactive clustering */
+		if(state.startInteractive && !state.interactive && !p.state.running)		/* Start interactive clustering */
 		{
 			PApplet.println("Will start interactive clustering...");
 			startInteractiveClustering();						
 		}
 		
-		if(interactive && !startInteractive && !p.state.running)		/* Running interactive clustering */
+		if(state.interactive && !state.startInteractive && !p.state.running)		/* Running interactive clustering */
 			runInteractiveClustering();	
 		
 		// -- Move viewer to first cluster??!!
@@ -269,7 +272,7 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
-		getCurrentField().update(settings, viewer.getSettings(), viewer.getState(), p.frameCount);				// Update clusters in current field
+		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState(), p.frameCount);				// Update clusters in current field
 		attractViewer();						// Attract the viewer
 		
 		if(p.display.displayView == 0)
@@ -297,7 +300,7 @@ public class WMV_World
 		/* 2D Display */
 		p.display.draw(this);										// Draw 2D display after 3D graphics
 		
-		if(fadingAlpha) updateFadingAlpha();				// Fade alpha
+		if(state.fadingAlpha) updateFadingAlpha();				// Fade alpha
 
 		if(viewer.getSettings().mouseNavigation)
 			input.updateMouseNavigation(viewer, p.mouseX, p.mouseY, p.frameCount);
@@ -328,7 +331,7 @@ public class WMV_World
 	 */
 	void updateTime()
 	{
-		switch(timeMode)
+		switch(state.timeMode)
 		{
 			case 0:													// Cluster Time Mode
 				for(WMV_Cluster c : getCurrentField().getClusters())
@@ -337,14 +340,14 @@ public class WMV_World
 				break;
 			
 			case 1:													// Field Time Mode
-				if(timeFading && p.frameCount % settings.timeUnitLength == 0)
+				if(state.timeFading && p.frameCount % settings.timeUnitLength == 0)
 				{
-					currentTime++;
+					state.currentTime++;
 	
-					if(currentTime > settings.timeCycleLength)
-						currentTime = 0;
+					if(state.currentTime > settings.timeCycleLength)
+						state.currentTime = 0;
 	
-					if(p.debug.field && currentTime > settings.timeCycleLength + settings.defaultMediaLength * 0.25f)
+					if(p.debug.field && state.currentTime > settings.timeCycleLength + settings.defaultMediaLength * 0.25f)
 					{
 						if(getCurrentField().mediaAreActive())
 						{
@@ -353,7 +356,7 @@ public class WMV_World
 						}
 						else
 						{
-							currentTime = 0;
+							state.currentTime = 0;
 							if(p.debug.detailed)
 								PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
 						}
@@ -362,14 +365,14 @@ public class WMV_World
 				break;
 
 			case 2:													// Single Time Mode
-				if(timeFading && p.frameCount % settings.timeUnitLength == 0)
+				if(state.timeFading && p.frameCount % settings.timeUnitLength == 0)
 				{
-					currentTime++;
+					state.currentTime++;
 					
 					if(p.debug.time && p.debug.detailed)
-						PApplet.println("currentTime:"+currentTime);
+						PApplet.println("currentTime:"+state.currentTime);
 
-					if(currentTime >= viewer.getNextMediaStartTime())
+					if(state.currentTime >= viewer.getNextMediaStartTime())
 					{
 						if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
 						{
@@ -377,16 +380,16 @@ public class WMV_World
 						}
 						else
 						{
-							PApplet.println("Reached end of last media with "+(settings.timeCycleLength - currentTime)+ " frames to go...");
+							PApplet.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
 //							PApplet.println("  viewer.currentMedia "+viewer.currentMedia+ " viewer.nearbyClusterTimelineMediaCount:"+viewer.nearbyClusterTimelineMediaCount);
-							currentTime = 0;
+							state.currentTime = 0;
 							startSingleTimeModeCycle();
 						}
 					}
 					
-					if(currentTime > settings.timeCycleLength)
+					if(state.currentTime > settings.timeCycleLength)
 					{
-						currentTime = 0;
+						state.currentTime = 0;
 						startSingleTimeModeCycle();
 					}
 				}
@@ -423,23 +426,23 @@ public class WMV_World
 				case 0:
 					WMV_Image i = getCurrentField().getImage(curMediaID);
 					i.currentMedia = true;
-					viewer.setCurrentMediaStartTime(currentTime);
-					viewer.setNextMediaStartTime(currentTime + settings.defaultMediaLength);
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
 					if(viewer.lookAtCurrentMedia())
 						viewer.lookAtMedia(i.getID(), 0);
 					break;
 				case 1:
 					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
 					n.currentMedia = true;
-					viewer.setCurrentMediaStartTime(currentTime);
-					viewer.setNextMediaStartTime(currentTime + settings.defaultMediaLength);
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
 //					viewer.lookAtMedia(n.getID(), 1);
 					break;
 				case 2:	
 					WMV_Video v = getCurrentField().getVideo(curMediaID);
 					v.currentMedia = true;
-					viewer.setCurrentMediaStartTime(currentTime);
-					viewer.setNextMediaStartTime(currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
 					if(viewer.lookAtCurrentMedia())
 						viewer.lookAtMedia(v.getID(), 2);
 					break;
@@ -581,11 +584,11 @@ public class WMV_World
 		// NEW
 		WMV_Field f = getCurrentField();
 		for(WMV_Image img : f.getImages())
-			img.updateSettings(settings, viewer.getSettings(), viewer.getState(), p.debug);
+			img.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debug);
 		for(WMV_Panorama pano : f.getPanoramas())
-			pano.updateSettings(settings, viewer.getSettings(), viewer.getState(), p.debug);
+			pano.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debug);
 		for(WMV_Video vid : f.getVideos())
-			vid.updateSettings(settings, viewer.getSettings(), viewer.getState(), p.debug);
+			vid.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debug);
 //		for(WMV_Sound snd : f.getSounds())
 //			img.updateSettings(settings, viewer.getSettings(), p.debug);
 		
@@ -593,13 +596,13 @@ public class WMV_World
 //		p.library.saveFieldData(getCurrentField());		// Testing
 //		p.exit();	
 		
-		initialSetup = false;				
+		state.initialSetup = false;				
 		p.display.initialSetup = false;
 		
-		setupProgress = 100;
+		state.setupProgress = 100;
 
 		p.state.running = true;
-		startedRunning = true;
+		state.startedRunning = true;
 		
 	}
 	
@@ -620,56 +623,53 @@ public class WMV_World
 	 */
 	void reset()
 	{
-		initializationField = 0;				// Field to be initialized this frame
-		setupProgress = 0;						// Setup progress (0 to 100)
+		state.initializationField = 0;				// Field to be initialized this frame
+		state.setupProgress = 0;						// Setup progress (0 to 100)
 		
-		startedRunning = false;			// Program just started running
-		initialSetup = false;			// Performing initial setup 
-		creatingFields = false;			// Initializing media folders
-		fieldsCreated = false;			// Initialized media folders
-		saveImage = false;
+		state.startedRunning = false;			// Program just started running
+		state.initialSetup = false;			// Performing initial setup 
+		state.creatingFields = false;			// Initializing media folders
+		state.fieldsCreated = false;			// Initialized media folders
+		state.saveImage = false;
 
 		settings.reset();
 
 		/* Clustering Modes */
-		hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
-		interactive = false;					// In user clustering mode?
-		startInteractive = false;				// Start user clustering
+		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
+		state.interactive = false;					// In user clustering mode?
+		state.startInteractive = false;				// Start user clustering
 
 		/* Time */
-		timeFading = false;						// Does time affect media brightness? 
-		paused = false;							// Time is paused
+		state.timeFading = false;						// Does time affect media brightness? 
+		state.paused = false;							// Time is paused
 
-		currentTime = 0;						// Time units since start of time cycle (day / month / year)
-		currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
+		state.currentTime = 0;						// Time units since start of time cycle (day / month / year)
+		state.currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
 
 		/* Graphics */
-		hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
+		state.hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
 
-		alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
-		alpha = 195.f;							// Transparency
-		beginFadingAlpha = false;
-		fadingAlpha = false;
-		fadingAlphaStartFrame = 0; 
-		fadingAlphaEndFrame = 0; 
-		fadingAlphaLength = 20;	
+		state.alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
+		state.alpha = 195.f;							// Transparency
+		state.beginFadingAlpha = false;
+		state.fadingAlpha = false;
+		state.fadingAlphaStartFrame = 0; 
+		state.fadingAlphaEndFrame = 0; 
+		state.fadingAlphaLength = 20;	
 
-		fadeEdges = true;						// Blur image edges
+		state.fadeEdges = true;						// Blur image edges
 		drawForceVector = true;					// Show attraction vector on map (mostly for debugging)
 		
 		/* Video */
-		initializationField = 0;				// Field to be initialized this frame
-		setupProgress = 0;						// Setup progress (0 to 100)
-		
-		showModel = false;						// Activate Model Display 
-		showMediaToCluster = false;				// Draw line from each media point to cluster
-		showCaptureToMedia = false;				// Draw line from each media point to its capture location
-		showCaptureToCluster = false;			// Draw line from each media capture location to associated cluster
+		state.showModel = false;						// Activate Model Display 
+		state.showMediaToCluster = false;				// Draw line from each media point to cluster
+		state.showCaptureToMedia = false;				// Draw line from each media point to its capture location
+		state.showCaptureToCluster = false;			// Draw line from each media capture location to associated cluster
 
 		/* Clusters */
-		mergeClusters = true;					// Merge nearby clusters?
-		autoClusterDistances = false;			// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
-		lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
+		state.mergeClusters = true;					// Merge nearby clusters?
+		state.autoClusterDistances = false;			// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
+		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 
 		if(p.debug.main)
 			PApplet.println("Resetting world...");
@@ -708,7 +708,7 @@ public class WMV_World
 		p.display.draw(this);											
 
 		p.state.running = false;			// Stop running
-		initialSetup = true;				// Start clustering mode
+		state.initialSetup = true;				// Start clustering mode
 	}
 	
 	/**
@@ -719,8 +719,8 @@ public class WMV_World
 		p.background(0.f);					// Clear screen
 		
 		p.state.running = false;					// Stop running simulation
-		interactive = true;					// Start interactive clustering mode
-		startInteractive = false;			// Have started
+		state.interactive = true;					// Start interactive clustering mode
+		state.startInteractive = false;			// Have started
 		
 //		p.display.initializeSmallMap();
 		p.display.map2D.initializeMaps(this);
@@ -749,8 +749,8 @@ public class WMV_World
 		
 		viewer.clearAttractorCluster();
 
-		interactive = false;				// Stop interactive clustering mode
-		startedRunning = true;				// Start GMViewer running
+		state.interactive = false;				// Stop interactive clustering mode
+		state.startedRunning = true;				// Start GMViewer running
 		p.state.running = true;	
 		
 		viewer.setCurrentCluster( viewer.getNearestCluster(false), -1 );
@@ -767,7 +767,7 @@ public class WMV_World
 		
 		for(String s : folders)
 		{
-			fields.add(new WMV_Field(this, settings, viewer.getSettings(), viewer.getState(), p.debug, s, count));
+			fields.add(new WMV_Field(this, settings, state, viewer.getSettings(), viewer.getState(), p.debug, s, count));
 			count++;
 		}
 	}
@@ -777,18 +777,18 @@ public class WMV_World
 	 */
 	void fadeAlpha(float target)
 	{
-		if(target != alpha)			// Check if already at target
+		if(target != state.alpha)			// Check if already at target
 		{
-			beginFadingAlpha = true;
-			fadingAlpha = true;   
-			fadingAlphaStart = alpha;
-			fadingAlphaTarget = target;
-			fadingAlphaStartFrame = p.frameCount;
-			fadingAlphaEndFrame = fadingAlphaStartFrame + fadingAlphaLength;
+			state.beginFadingAlpha = true;
+			state.fadingAlpha = true;   
+			state.fadingAlphaStart = state.alpha;
+			state.fadingAlphaTarget = target;
+			state.fadingAlphaStartFrame = p.frameCount;
+			state.fadingAlphaEndFrame = state.fadingAlphaStartFrame + state.fadingAlphaLength;
 		}
 		else
 		{
-			fadingAlpha = false;
+			state.fadingAlpha = false;
 		}
 	}
 	
@@ -799,26 +799,31 @@ public class WMV_World
 	{
 		float newAlphaFadeValue = 0.f;
 
-		if(beginFadingAlpha)
+		if(state.beginFadingAlpha)
 		{
-			fadingAlphaStartFrame = p.frameCount;					
-			fadingAlphaEndFrame = p.frameCount + fadingAlphaLength;	
-			beginFadingAlpha = false;
+			state.fadingAlphaStartFrame = p.frameCount;					
+			state.fadingAlphaEndFrame = p.frameCount + state.fadingAlphaLength;	
+			state.beginFadingAlpha = false;
 		}
 
-		if (p.frameCount >= fadingAlphaEndFrame)
+		if (p.frameCount >= state.fadingAlphaEndFrame)
 		{
-			fadingAlpha = false;
-			newAlphaFadeValue = fadingAlphaTarget;
+			state.fadingAlpha = false;
+			newAlphaFadeValue = state.fadingAlphaTarget;
 		} 
 		else
 		{
-			newAlphaFadeValue = PApplet.map(p.frameCount, fadingAlphaStartFrame, fadingAlphaEndFrame, fadingAlphaStart, fadingAlphaTarget);      // Fade with distance from current time
+			newAlphaFadeValue = PApplet.map(p.frameCount, state.fadingAlphaStartFrame, state.fadingAlphaEndFrame, state.fadingAlphaStart, state.fadingAlphaTarget);      // Fade with distance from current time
 		}
 
-		alpha = newAlphaFadeValue;
+		state.alpha = newAlphaFadeValue;
 	}
 
+	public WMV_WorldState getState()
+	{
+		return state;
+	}
+	
 	/**
 	 * @return Current field
 	 */
@@ -956,9 +961,9 @@ public class WMV_World
 	 */
 	void decrementTime()
 	{
-		currentTime -= settings.timeInc;
-		if (currentTime < 0)
-			currentTime = 0;
+		state.currentTime -= settings.timeInc;
+		if (state.currentTime < 0)
+			state.currentTime = 0;
 	}
 	
 	/**
@@ -966,9 +971,9 @@ public class WMV_World
 	 */
 	void incrementTime()
 	{
-		currentTime += settings.timeInc;
-		if (currentTime > settings.timeCycleLength)
-			currentTime = settings.timeCycleLength - 200;
+		state.currentTime += settings.timeInc;
+		if (state.currentTime > settings.timeCycleLength)
+			state.currentTime = settings.timeCycleLength - 200;
 	}
 	
 	/**
@@ -1002,7 +1007,7 @@ public class WMV_World
 	{
 		if(p.debug.main)
 			PApplet.println("Will output image to disk.");
-		saveImage = true;
+		state.saveImage = true;
 	}
 	
 	public void exportSelectedImages()
@@ -1085,11 +1090,11 @@ public class WMV_World
 	
 	public void createTimeCycle()
 	{
-		if(timeMode == 0 || timeMode == 1)
+		if(state.timeMode == 0 || state.timeMode == 1)
 		{
 			settings.timeCycleLength = settings.defaultTimeCycleLength;
 		}
-		else if(timeMode == 2)
+		else if(state.timeMode == 2)
 		{
 			ArrayList<WMV_Cluster> cl = getVisibleClusters();
 			settings.timeCycleLength = 0;
@@ -1114,7 +1119,7 @@ public class WMV_World
 			else
 				startSingleTimeModeCycle();
 		}
-		else if(timeMode == 3)						// Time cycle length is flexible according to visible cluster timelines
+		else if(state.timeMode == 3)						// Time cycle length is flexible according to visible cluster timelines
 		{
 			float highest = -100000.f;
 			float lowest = 100000.f;
@@ -1142,14 +1147,14 @@ public class WMV_World
 	 */
 	public void setTimeMode(int newTimeMode)
 	{
-		timeMode = newTimeMode;
+		state.timeMode = newTimeMode;
 		
-		if(timeMode == 2)
+		if(state.timeMode == 2)
 			createTimeCycle();
 		
 		if(p.display.window.setupTimeWindow)
 		{
-			switch(timeMode)
+			switch(state.timeMode)
 			{
 				case 0:
 					p.display.window.optClusterTimeMode.setSelected(true);
@@ -1168,11 +1173,6 @@ public class WMV_World
 					break;
 			}		
 		}
-	}
-	
-	public int getTimeMode()
-	{
-		return timeMode;
 	}
 	
 	/**

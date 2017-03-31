@@ -300,8 +300,8 @@ public class ML_Map
 			float textXPos = p.centerTextXOffset;
 			float textYPos = p.topTextYOffset;
 
-			if(world.interactive)
-				world.p.text("Interactive "+(world.hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, hudDistance);
+			if(world.getState().interactive)
+				world.p.text("Interactive "+(world.getState().hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, hudDistance);
 			else
 				world.p.text(world.getCurrentField().getName(), textXPos, textYPos, hudDistance);
 
@@ -365,7 +365,7 @@ public class ML_Map
 	 */
 	private void drawMap(WMV_World world, float mapWidth, float mapHeight, float mapXOffset, float mapYOffset)
 	{
-		if(!scrollTransition && !zoomToRectangleTransition && !world.interactive)
+		if(!scrollTransition && !zoomToRectangleTransition && !world.getState().interactive)
 		{
 			if(!selectableClustersCreated)
 				createSelectableClusters(world, mapWidth, mapHeight);
@@ -392,7 +392,7 @@ public class ML_Map
 		/* Clusters */
 		if(mapMedia)
 		{
-			if(!scrollTransition && !zoomToRectangleTransition && !world.interactive)
+			if(!scrollTransition && !zoomToRectangleTransition && !world.getState().interactive)
 			{
 //				drawSelectableClusters();
 
@@ -427,7 +427,7 @@ public class ML_Map
 		
 		if(!scrollTransition && !zoomToRectangleTransition)
 		{
-			if(!world.interactive)													// While not in Clustering Mode
+			if(!world.getState().interactive)													// While not in Clustering Mode
 			{
 				if(world.viewer.getAttractorCluster() != -1 && world.viewer.getAttractorCluster() < world.getFieldClusters().size())
 					drawPoint( world, world.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
@@ -555,16 +555,16 @@ public class ML_Map
 			{
 				WMV_Image img = world.getCurrentField().getImage(i);
 				drawImageOnMap(world, img, ignoreTime, mapWidth, mapHeight, false);
-				if(world.showModel)
+				if(world.getState().showModel)
 				{
 //					drawLine(c.getLocation(), img.getLocation(), 60.f, 160.f, 255.f, mapWidth, mapHeight);
-					if(world.showMediaToCluster)
+					if(world.getState().showMediaToCluster)
 						drawLine(world, c.getLocation(), img.getLocation(), 40.f, 155.f, 200.f, mapWidth, mapHeight);
 
-					if(world.showCaptureToMedia)
+					if(world.getState().showCaptureToMedia)
 						drawLine(world, img.getLocation(), img.getCaptureLocation(), 160.f, 100.f, 255.f, mapWidth, mapHeight);
 
-					if(world.showCaptureToCluster)
+					if(world.getState().showCaptureToCluster)
 						drawLine(world, c.getLocation(), img.getCaptureLocation(), 100.f, 55.f, 255.f, mapWidth, mapHeight);
 				}
 			}
@@ -581,15 +581,15 @@ public class ML_Map
 			{
 				WMV_Video vid = world.getCurrentField().getVideo(v);
 				drawVideoOnMap(world, vid, ignoreTime, mapWidth, mapHeight, false);
-				if(world.showModel)
+				if(world.getState().showModel)
 				{
-					if(world.showMediaToCluster)
+					if(world.getState().showMediaToCluster)
 						drawLine(world, c.getLocation(), vid.getLocation(), 140.f, 155.f, 200.f, mapWidth, mapHeight);
 
-					if(world.showCaptureToMedia)
+					if(world.getState().showCaptureToMedia)
 						drawLine(world, vid.getLocation(), vid.getCaptureLocation(), 50.f, 100.f, 255.f, mapWidth, mapHeight);
 
-					if(world.showCaptureToCluster)
+					if(world.getState().showCaptureToCluster)
 						drawLine(world, c.getLocation(), vid.getCaptureLocation(), 190.f, 55.f, 255.f, mapWidth, mapHeight);
 				}
 			}
@@ -675,7 +675,7 @@ public class ML_Map
 			if(visible && image.location != null && !image.disabled && !image.hidden)
 			{
 				float alpha = 255.f;
-				if(!ignoreTime && world.timeFading)
+				if(!ignoreTime && world.getState().timeFading)
 					alpha = image.getTimeBrightness() * mediaTransparency;
 
 				if(alpha > 0.f)
@@ -726,7 +726,7 @@ public class ML_Map
 			if(visible && panorama.location != null && !panorama.disabled && !panorama.hidden)
 			{
 				float alpha = 255.f;
-				if(!ignoreTime && world.timeFading)
+				if(!ignoreTime && world.getState().timeFading)
 					alpha = panorama.getTimeBrightness() * mediaTransparency;
 
 				if(alpha > 0.f)
@@ -777,7 +777,7 @@ public class ML_Map
 			if(visible && video.location != null && !video.disabled && !video.hidden)
 			{
 				float alpha = 255.f;
-				if(!ignoreTime && world.timeFading)
+				if(!ignoreTime && world.getState().timeFading)
 					alpha = video.getTimeBrightness() * mediaTransparency;
 
 				if(alpha > 0.f)

@@ -224,7 +224,7 @@ public class WMV_Viewer
 
 		p.getCurrentField().getAttractingClusters().size();
 		
-		if(p.getTimeMode() == 2 && ( isMoving() || isFollowing() || isWalking() ))
+		if(p.getState().getTimeMode() == 2 && ( isMoving() || isFollowing() || isWalking() ))
 			p.createTimeCycle();
 		if(p.settings.timeCycleLength == -1 && p.p.frameCount % 10 == 0.f)
 			p.createTimeCycle();
@@ -4066,7 +4066,7 @@ public class WMV_Viewer
 					state.movingToTimeSegment = false;
 				}
 
-				if(p.getTimeMode() == 2 && !state.teleporting)
+				if(p.getState().getTimeMode() == 2 && !state.teleporting)
 					p.createTimeCycle();								// Update time cycle for new cluster
 			}
 			else

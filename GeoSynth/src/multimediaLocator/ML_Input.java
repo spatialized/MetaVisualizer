@@ -65,7 +65,7 @@ public class ML_Input
 		{
 			if (slider.tag == "Alpha") 
 			{
-				world.alpha = slider.getValueF();
+				world.getState().alpha = slider.getValueF();
 			}
 			
 			if (slider.tag == "Brightness") 
@@ -348,10 +348,10 @@ public class ML_Input
 				break;
 			/* Graphics */
 			case "TimeFading":
-				world.timeFading = option.isSelected();
+				world.getState().timeFading = option.isSelected();
 				break;
 			case "FadeEdges":
-				world.fadeEdges = option.isSelected();
+				world.getState().fadeEdges = option.isSelected();
 				break;
 			case "HideImages":
 				if(!option.isSelected() && world.viewer.getSettings().hideImages)
@@ -372,7 +372,7 @@ public class ML_Input
 					world.viewer.hidePanoramas();
 				break;
 			case "AlphaMode":
-				world.alphaMode = option.isSelected();
+				world.getState().alphaMode = option.isSelected();
 				break;
 			case "OrientationMode":
 				world.viewer.setOrientationMode( !world.viewer.getSettings().orientationMode );
@@ -386,16 +386,16 @@ public class ML_Input
 				
 			/* Model */
 			case "ShowModel":
-				world.showModel = option.isSelected();
+				world.getState().showModel = option.isSelected();
 				break;
 			case "MediaToCluster":
-				world.showMediaToCluster = option.isSelected();
+				world.getState().showMediaToCluster = option.isSelected();
 				break;
 			case "CaptureToMedia":
-				world.showCaptureToMedia = option.isSelected();
+				world.getState().showCaptureToMedia = option.isSelected();
 				break;
 			case "CaptureToCluster":
-				world.showCaptureToCluster = option.isSelected();
+				world.getState().showCaptureToCluster = option.isSelected();
 				break;
 				
 			/* Selection */
@@ -412,7 +412,7 @@ public class ML_Input
 				break;
 				
 			case "ViewMetadata":
-				world.showMetadata = option.isSelected();
+				world.getState().showMetadata = option.isSelected();
 				break;
 		}
 	}
@@ -432,7 +432,7 @@ public class ML_Input
 			/* General */
 			if (key == ' ') 
 			{
-				if(world.interactive)
+				if(world.getState().interactive)
 				{
 					world.finishInteractiveClustering();			// Restart simulation after interative clustering
 				}
@@ -464,20 +464,20 @@ public class ML_Input
 
 			if (!optionKey && !commandKey  && key == '5')
 			{
-				boolean state = !world.showModel;
-				world.showModel = state;
+				boolean state = !world.getState().showModel;
+				world.getState().showModel = state;
 				if(world.p.display.window.setupModelWindow)
 					world.p.display.window.chkbxShowModel.setSelected(state);
 			}
 
 			if (!optionKey && !commandKey  && key == '6') 
-				world.showMediaToCluster = !world.showMediaToCluster;			// Draw line from each media point to cluster
+				world.getState().showMediaToCluster = !world.getState().showMediaToCluster;			// Draw line from each media point to cluster
 
 			if (!optionKey && !commandKey  && key == '7') 
-				world.showCaptureToMedia = !world.showCaptureToMedia;			// Draw line from each media point to its capture location
+				world.getState().showCaptureToMedia = !world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
 
 			if (!optionKey && !commandKey  && key == '8') 
-				world.showCaptureToCluster = !world.showCaptureToCluster;		// Draw line from each media capture location to associated cluster
+				world.getState().showCaptureToCluster = !world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
 			if (!optionKey && commandKey && key == '1') 
 			{
@@ -724,7 +724,7 @@ public class ML_Input
 				}
 			}
 
-			if (!world.interactive)		
+			if (!world.getState().interactive)		
 			{
 				/* 3D View Controls */
 				if (key == '|')
@@ -772,10 +772,10 @@ public class ML_Input
 
 				if (key == 'T') 
 				{
-					boolean state = !world.timeFading;
-					if(world.timeFading != state)
+					boolean state = !world.getState().timeFading;
+					if(world.getState().timeFading != state)
 					{
-						world.timeFading = state;
+						world.getState().timeFading = state;
 						if(world.p.display.window.setupTimeWindow)
 							world.p.display.window.chkbxTimeFading.setSelected(state);
 					}
@@ -789,8 +789,8 @@ public class ML_Input
 
 				if (optionKey && key == 'm') 
 				{
-					boolean state = !world.showMetadata;
-					world.showMetadata = state;
+					boolean state = !world.getState().showMetadata;
+					world.getState().showMetadata = state;
 					if(world.p.display.window.setupSelectionWindow)
 						world.p.display.window.chkbxShowMetadata.setSelected(state);
 				}
@@ -805,7 +805,7 @@ public class ML_Input
 					world.viewer.startMoveYTransition(1);
 
 				if (key == 'p') 								
-					world.paused = !world.paused;
+					world.getState().paused = !world.getState().paused;
 
 				if (key == 'j') 
 					world.viewer.moveToRandomCluster(world.viewer.getMovementTeleport());				// Jump (teleport) to random cluster
@@ -940,8 +940,8 @@ public class ML_Input
 
 					if (optionKey && key == 'e')
 					{
-						boolean state = !world.fadeEdges;
-						world.fadeEdges = state;
+						boolean state = !world.getState().fadeEdges;
+						world.getState().fadeEdges = state;
 						if(world.p.display.window.setupGraphicsWindow)
 						{
 							world.p.display.window.chkbxFadeEdges.setSelected(state);
@@ -974,16 +974,16 @@ public class ML_Input
 
 					if (key == 'P')
 					{
-						boolean state = !world.alphaMode;
-						world.alphaMode = state;
+						boolean state = !world.getState().alphaMode;
+						world.getState().alphaMode = state;
 						if(world.p.display.window.setupGraphicsWindow)
 							world.p.display.window.chkbxAlphaMode.setSelected(state);
 					}
 
 					if (!shiftKey && optionKey && key == ' ') 
 					{
-						boolean state = !world.timeFading;
-						world.timeFading = state;
+						boolean state = !world.getState().timeFading;
+						world.getState().timeFading = state;
 						if(world.p.display.window.setupGraphicsWindow)
 						{
 							world.p.display.window.chkbxTimeFading.setSelected(state);
@@ -991,12 +991,12 @@ public class ML_Input
 					}
 
 					if (key == ')') {
-						float newAlpha = PApplet.constrain(world.alpha+15.f, 0.f, 255.f);
+						float newAlpha = PApplet.constrain(world.getState().alpha+15.f, 0.f, 255.f);
 						world.fadeAlpha(newAlpha);
 					}
 
 					if (key == '(') {
-						float newAlpha = PApplet.constrain(world.alpha-15.f, 0.f, 255.f);
+						float newAlpha = PApplet.constrain(world.getState().alpha-15.f, 0.f, 255.f);
 						world.fadeAlpha(newAlpha);
 					}
 
@@ -1115,9 +1115,9 @@ public class ML_Input
 			{
 				if (!optionKey && key == 'h')
 				{
-					if(!world.hierarchical)
+					if(!world.getState().hierarchical)
 					{
-						world.hierarchical = true;
+						world.getState().hierarchical = true;
 						if(!world.getCurrentField().getModel().dendrogramCreated)
 							world.getCurrentField().getModel().runHierarchicalClustering();
 						world.getCurrentField().getModel().setDendrogramDepth(world.getCurrentField().getModel().clusterDepth);				// Initialize clusters 
@@ -1128,9 +1128,9 @@ public class ML_Input
 
 				if (!optionKey && key == 'k')
 				{
-					if(world.hierarchical)
+					if(world.getState().hierarchical)
 					{
-						world.hierarchical = false;
+						world.getState().hierarchical = false;
 						WMV_Model m = world.getCurrentField().getModel();
 						m.runKMeansClustering(world.settings.kMeansClusteringEpsilon, m.clusterRefinement, m.clusterPopulationFactor);
 						world.getCurrentField().createTimeline();					// Create field timeline
@@ -1139,14 +1139,14 @@ public class ML_Input
 
 				if (key == '[') 	
 				{
-					if(!world.autoClusterDistances && world.settings.minClusterDistance > 0.25f)
+					if(!world.getState().autoClusterDistances && world.settings.minClusterDistance > 0.25f)
 					{
 						world.settings.minClusterDistance -= 0.25f;
 						for(WMV_Field f : world.getFields())
 						{
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);	
 							world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
-							world.getCurrentField().initializeClusters(world.mergeClusters);			
+							world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 							world.p.display.map2D.initializeMaps(world);
 						}
 					}
@@ -1154,7 +1154,7 @@ public class ML_Input
 
 				if (key == ']') 	
 				{
-					if(!world.autoClusterDistances && world.settings.minClusterDistance < world.settings.maxClusterDistance - 2.f)
+					if(!world.getState().autoClusterDistances && world.settings.minClusterDistance < world.settings.maxClusterDistance - 2.f)
 					{
 						world.settings.minClusterDistance += 0.25f;
 						//					PApplet.println("world.minClusterDistance:"+world.minClusterDistance);
@@ -1162,7 +1162,7 @@ public class ML_Input
 						{
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);
 							world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
-							world.getCurrentField().initializeClusters(world.mergeClusters);			
+							world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 							world.p.display.map2D.initializeMaps(world);
 						}
 					}
@@ -1174,9 +1174,9 @@ public class ML_Input
 			{
 				if(world.p.display.inDisplayView())
 				{
-					if(world.interactive)			/* Interactive Clustering */
+					if(world.getState().interactive)			/* Interactive Clustering */
 					{
-						if(world.hierarchical)
+						if(world.getState().hierarchical)
 						{
 							if (keyCode == PApplet.UP) 
 							{
@@ -1202,7 +1202,7 @@ public class ML_Input
 								if(world.getCurrentField().getModel().clusterRefinement >= world.getCurrentField().getModel().minClusterRefinement)
 								{
 									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
-									world.getCurrentField().initializeClusters(world.mergeClusters);			
+									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
 								else world.getCurrentField().getModel().clusterRefinement += 10;
@@ -1216,7 +1216,7 @@ public class ML_Input
 								if(world.getCurrentField().getModel().clusterRefinement <= world.getCurrentField().getModel().maxClusterRefinement)
 								{
 									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
-									world.getCurrentField().initializeClusters(world.mergeClusters);			
+									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
 								else world.getCurrentField().getModel().clusterRefinement -= 10;
@@ -1230,7 +1230,7 @@ public class ML_Input
 								if(world.getCurrentField().getModel().clusterPopulationFactor >= world.getCurrentField().getModel().minPopulationFactor)
 								{
 									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
-									world.getCurrentField().initializeClusters(world.mergeClusters);			
+									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
 								else world.getCurrentField().getModel().clusterPopulationFactor += 1.f;
@@ -1244,7 +1244,7 @@ public class ML_Input
 								if(world.getCurrentField().getModel().clusterPopulationFactor <= world.getCurrentField().getModel().maxPopulationFactor)
 								{
 									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
-									world.getCurrentField().initializeClusters(world.mergeClusters);			
+									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
 								else world.getCurrentField().getModel().clusterPopulationFactor -= 1.f;

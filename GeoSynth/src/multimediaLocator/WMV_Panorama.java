@@ -165,7 +165,7 @@ public class WMV_Panorama extends WMV_Viewable
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-		if( world.timeFading && time != null && !world.viewer.isMoving() )
+		if( worldState.timeFading && time != null && !world.viewer.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 		
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);	  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
@@ -185,7 +185,7 @@ public class WMV_Panorama extends WMV_Viewable
 			world.p.noFill();                  // Hide image if it isn't visible
 		}
 
-		if(visible && world.showModel && !hidden && !disabled)
+		if(visible && worldState.showModel && !hidden && !disabled)
 			displayModel(world);
 
 //		if (visible && isSelected() && !disabled && p.debugSettings.model)		// Draw panorama location for debugging or map display
@@ -250,14 +250,14 @@ public class WMV_Panorama extends WMV_Viewable
 			if(isSelected())
 			{
 //				PApplet.println("selected viewingBrightness:"+viewingBrightness);
-				if(!world.alphaMode)
+				if(!worldState.alphaMode)
 					world.p.tint(viewingBrightness, 255);          				
 				else
 					world.p.tint(255, viewingBrightness);          				
 			}
 			else
 			{
-				if(!world.alphaMode)
+				if(!worldState.alphaMode)
 					world.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
 				else
 					world.p.tint(255, viewingBrightness * 0.33f);          				
@@ -265,14 +265,14 @@ public class WMV_Panorama extends WMV_Viewable
 		}
 		else
 		{
-			if(!world.alphaMode)
+			if(!worldState.alphaMode)
 			{
 				world.p.tint(viewingBrightness, 255);          				
 			}
 			else
 			{
 //				PApplet.println("alphaMode viewingBrightness:"+viewingBrightness+" final alpha:"+PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));
-				world.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));          				
+				world.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, worldState.alpha));          				
 			}
 		}
 		

@@ -124,7 +124,7 @@ public class WMV_Model
 			mediaDensity = validMedia / fieldArea;				// Media per sq. m.
 
 			/* Increase maxClusterDistance as mediaDensity decreases */
-			if(p.p.autoClusterDistances)
+			if(p.worldState.autoClusterDistances)
 			{
 				maxClusterDistance = p.p.settings.maxClusterDistanceConstant / mediaDensity;
 				if(maxClusterDistance > minClusterDistance * p.p.settings.maxClusterDistanceFactor)
@@ -201,9 +201,9 @@ public class WMV_Model
 		validMedia = validImages + validPanoramas + validVideos;				
 
 		if(validMedia < 20)
-			p.p.hierarchical = true;
+			p.worldState.hierarchical = true;
 		
-		if(p.p.hierarchical)						// If using hierarchical clustering
+		if(p.worldState.hierarchical)						// If using hierarchical clustering
 		{
 			runHierarchicalClustering();			// Create dendrogram
 			setDendrogramDepth( clusterDepth );		// Set initial dendrogram depth and initialize clusters
@@ -252,7 +252,7 @@ public class WMV_Model
 			p.p.p.display.message(p.p, " ");
 			p.p.p.display.message(p.p, "  Iterations:"+refinement);
 			p.p.p.display.message(p.p, "  Population Factor:"+populationFactor);
-			if(p.p.mergeClusters)
+			if(p.worldState.mergeClusters)
 			{
 				p.p.p.display.message(p.p, "");
 				p.p.p.display.message(p.p, "Cluster Merging:");
@@ -285,7 +285,7 @@ public class WMV_Model
 			refineKMeansClusters(epsilon, refinement);	// Refine clusters over many iterations
 			createSingleClusters();						// Create clusters for single media points
 			
-			p.initializeClusters(p.p.mergeClusters);						// Initialize clusters (merge, etc.)
+			p.initializeClusters(p.worldState.mergeClusters);						// Initialize clusters (merge, etc.)
 
 			if(p.getClusters().size() > 0)					// Calculate capture times for each cluster
 				findVideoPlaceholders();
@@ -529,7 +529,7 @@ public class WMV_Model
 			p.p.p.display.message(p.p, "Found "+p.getClusters().size()+" clusters...");
 		}
 		
-		p.initializeClusters(p.p.mergeClusters);					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
+		p.initializeClusters(p.worldState.mergeClusters);					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
 	}
 
 	void findDuplicateClusterMedia()

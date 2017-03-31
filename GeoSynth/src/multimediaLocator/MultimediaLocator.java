@@ -65,7 +65,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(debug.main) PApplet.println("Initializing world...");
 		world.initialize();
 		input = new ML_Input(width, height);
-		display = new ML_Display(width, height, world.hudDistance);			// Initialize displays
+		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
 
 		/* Initialize graphics and text parameters */
 		colorMode(PConstants.HSB);
@@ -219,7 +219,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 					parentFilePath = parentFilePath + parts[i] + "/";
 			}
 
-			world.stitchingPath = parentFilePath + "stitched/";					// -- Move this to library!
+			world.getState().stitchingPath = parentFilePath + "stitched/";					// -- Move this to library!
 //			boolean success = world.loadImageMasks(parentFilePath);
 			world.loadImageMasks();					
 			

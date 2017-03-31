@@ -119,7 +119,7 @@ class WMV_Image extends WMV_Viewable
 		distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-		if( world.timeFading && time != null && !world.viewer.isMoving() )
+		if( worldState.timeFading && time != null && !world.viewer.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 
 		if( viewerSettings.angleFading )
@@ -151,7 +151,7 @@ class WMV_Image extends WMV_Viewable
 			world.p.noFill();                  // Hide image if it isn't visible
 		}
 
-		if(visible && world.showModel && !hidden && !disabled)
+		if(visible && worldState.showModel && !hidden && !disabled)
 			displayModel(world);
 	}
 
@@ -203,21 +203,21 @@ class WMV_Image extends WMV_Viewable
 		world.p.popMatrix();
 
 		world.p.pushMatrix();
-		if(world.showMediaToCluster)
+		if(worldState.showMediaToCluster)
 		{
 			world.p.strokeWeight(3.f);
 			world.p.stroke(80, 135, 255, viewingBrightness);
 			world.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
-		if(world.showCaptureToMedia)
+		if(worldState.showCaptureToMedia)
 		{
 			world.p.strokeWeight(3.f);
 			world.p.stroke(160, 100, 255, viewingBrightness);
 			world.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
-		if(world.showCaptureToCluster)
+		if(worldState.showCaptureToCluster)
 		{
 			world.p.strokeWeight(3.f);
 			world.p.stroke(120, 55, 255, viewingBrightness);
@@ -394,7 +394,7 @@ class WMV_Image extends WMV_Viewable
 		
 		world.p.noFill();
 
-		if(world.fadeEdges)
+		if(worldState.fadeEdges)
 			world.p.texture(blurred);
 		else
 			world.p.texture(image);        			// Apply the image to the face as a texture 
@@ -403,14 +403,14 @@ class WMV_Image extends WMV_Viewable
 		{
 			if(isSelected())
 			{
-				if(!world.alphaMode)
+				if(!worldState.alphaMode)
 					world.p.tint(viewingBrightness, 255);          				
 				else
 					world.p.tint(255, viewingBrightness);          				
 			}
 			else
 			{
-				if(!world.alphaMode)
+				if(!worldState.alphaMode)
 					world.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
 				else
 					world.p.tint(255, viewingBrightness * 0.333f);    
@@ -418,11 +418,11 @@ class WMV_Image extends WMV_Viewable
 		}
 		else
 		{
-			if(!world.alphaMode)
+			if(!worldState.alphaMode)
 				world.p.tint(viewingBrightness, 255);          				
 			else
 			{
-				world.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));          				
+				world.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, worldState.alpha));          				
 			}
 		}
 

@@ -29,7 +29,7 @@ import de.fhpotsdam.unfolding.utils.ScreenPosition;
  * @author davidgordon
  * Class for displaying interactive 2D map of media-based virtual environment
  */
-public class WMV_Map 
+public class ML_Map 
 {
 	/* Map */
 	private UnfoldingMap map;
@@ -102,7 +102,7 @@ public class WMV_Map
 
 	ML_Display p;
 
-	WMV_Map(ML_Display parent)
+	ML_Map(ML_Display parent)
 	{
 		p = parent;
 

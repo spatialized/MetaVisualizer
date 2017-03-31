@@ -13,7 +13,7 @@ class ML_Display
 {
 	/* Classes */
 	public ML_Window window;							// Main interaction window
-	public WMV_Map map2D;
+	public ML_Map map2D;
 	
 	/* Window Modes */
 	public boolean fullscreen = true;
@@ -143,7 +143,7 @@ class ML_Display
 		datelineXOffset = timelineXOffset;
 		datelineYOffset = p.p.height * 0.266f;
 		
-		map2D = new WMV_Map(this);
+		map2D = new ML_Map(this);
 		currentSelectableTime = null;
 		currentSelectableTimeID = -1;
 		currentSelectableTimeFTSID = -1;
@@ -200,7 +200,7 @@ class ML_Display
 				if(messages.size() > 0)
 					displayMessages();
 
-				if(p.showMetadata && metadata.size() > 0 && p.viewer.settings.selection)	
+				if(p.showMetadata && metadata.size() > 0 && p.viewer.getSettings().selection)	
 					displayMetadata();
 
 //				if((displayMode == 1) && drawForceVector)						// Draw force vector
@@ -243,7 +243,7 @@ class ML_Display
 			if(f.getDateline() != null)
 			{
 				p.p.textSize(largeTextSize);
-				p.p.text(" Current Field #"+ f.fieldID+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				p.p.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				p.p.textSize(mediumTextSize);
 				if(f.getDateline().size() > 0)
 				{
@@ -1360,24 +1360,24 @@ class ML_Display
 	 */
 	void progressBar()
 	{
-		int length = 100;	// total length
-		int pos = p.setupProgress;	//current position
-
-		startHUD();
-		for(int i=0; i<pos; i++)
-		{
-			p.p.pushMatrix();
-			
-			p.p.fill(140, 100, 255);
-			float xPos = PApplet.map(i, 0, length, 0, p.p.width * 1.f);
-			float inc = PApplet.map(2, 0, length, 0, p.p.width * 1.f) - PApplet.map(1, 0, length, 0, p.p.width*1.f);
-			int x = -p.p.width/2 + (int)xPos;
-			int y = -p.p.height/2+p.p.height/2;
-
-			p.p.translate(x, y, hudDistance);
-			p.p.box(inc, inc*10.f, 1);    // Display 
-			p.p.popMatrix();
-		}
+//		int length = 100;	// total length
+//		int pos = p.setupProgress;	//current position
+//
+//		startHUD();
+//		for(int i=0; i<pos; i++)
+//		{
+//			p.p.pushMatrix();
+//			
+//			p.p.fill(140, 100, 255);
+//			float xPos = PApplet.map(i, 0, length, 0, p.p.width * 1.f);
+//			float inc = PApplet.map(2, 0, length, 0, p.p.width * 1.f) - PApplet.map(1, 0, length, 0, p.p.width*1.f);
+//			int x = -p.p.width/2 + (int)xPos;
+//			int y = -p.p.height/2+p.p.height/2;
+//
+//			p.p.translate(x, y, hudDistance);
+//			p.p.box(inc, inc*10.f, 1);    // Display 
+//			p.p.popMatrix();
+//		}
 	}
 	
 	void reset()
@@ -1485,7 +1485,7 @@ class ML_Display
 		startupMessageXOffset = p.p.width / 2.f;
 		startupMessageYOffset = -p.p.height /2.f;
 		
-		map2D = new WMV_Map(this);
+		map2D = new ML_Map(this);
 	}
 
 	/**
@@ -1493,7 +1493,7 @@ class ML_Display
 	 */
 	void startHUD()
 	{
-		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.settings.nearClippingDistance, 10000.f);;
+		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.getSettings().nearClippingDistance, 10000.f);;
 		p.p.camera();
 	}
 
@@ -1949,7 +1949,7 @@ class ML_Display
 			
 			p.p.text(" Program Modes ", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
-			p.p.text(" Orientation Mode: "+p.viewer.settings.orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Orientation Mode: "+p.viewer.getSettings().orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Alpha Mode:"+p.alphaMode, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Time Fading: "+ p.timeFading, xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
@@ -1961,10 +1961,10 @@ class ML_Display
 			p.p.textSize(smallTextSize);
 			p.p.text(" Alpha:"+p.alpha, xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Default Media Length:"+p.settings.defaultMediaLength, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Media Angle Fading: "+p.viewer.settings.angleFading, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Media Angle Thinning: "+p.viewer.settings.angleThinning, xPos, yPos += lineWidth, hudDistance);
-			if(p.viewer.settings.angleThinning)
-				p.p.text(" Media Thinning Angle:"+p.viewer.settings.thinningAngle, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Media Angle Fading: "+p.viewer.getSettings().angleFading, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Media Angle Thinning: "+p.viewer.getSettings().angleThinning, xPos, yPos += lineWidth, hudDistance);
+			if(p.viewer.getSettings().angleThinning)
+				p.p.text(" Media Thinning Angle:"+p.viewer.getSettings().thinningAngle, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Image Size Factor:"+p.settings.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Subject Distance (m.):"+p.settings.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
@@ -1995,7 +1995,7 @@ class ML_Display
 //			p.p.text(" Sounds Audible: "+f.getSoundsAudible(), xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Sounds Playing: "+f.getSoundsPlaying(), xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Sounds Loaded: "+f.getSoundsLoaded(), xPos, yPos += lineWidth, hudDistance);
-			if(p.viewer.settings.orientationMode)
+			if(p.viewer.getSettings().orientationMode)
 				p.p.text(" Clusters Visible: "+p.viewer.getClustersVisible()+"  (Orientation Mode)", xPos, yPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
@@ -2191,7 +2191,7 @@ class ML_Display
 			if(f.getDateline() != null)
 			{
 				p.p.textSize(largeTextSize);
-				p.p.text(" Current Field #"+ f.fieldID+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				p.p.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				p.p.textSize(mediumTextSize);
 				if(f.getDateline().size() > 0)
 				{

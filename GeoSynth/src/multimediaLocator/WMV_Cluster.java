@@ -46,24 +46,11 @@ public class WMV_Cluster
 
 	public int currentDate = 0;							// Current date in timeline	-- Need to implement!!
 	
-//	public int dateCycleLength = 500;					// Length of main date loop in frames
-//	public int dateUnitLength = 1;						// How many frames between date increments
-//	public float dateInc = dateCycleLength / 30.f;			
-
 	public int defaultMediaLength = 125;					// Default frame length of media in time cycle
-//	private FloatList clusterDates, clusterTimes;
-//	private FloatList clusterDatesLowerBounds, clusterTimesLowerBounds;	// Obsolete
-//	private FloatList clusterDatesUpperBounds, clusterTimesUpperBounds;	// Obsolete
-//	private FloatList fieldDates, fieldTimes;	// Obsolete
-//	private FloatList fieldDatesLowerBounds, fieldTimesLowerBounds;	// Obsolete
-//	private FloatList fieldDatesUpperBounds, fieldTimesUpperBounds;	// Obsolete
-
 	
-//	int[] clusterTimesHistogram, fieldTimesHistogram;			// Histogram of media times relative to cluster	/ field
 	private ArrayList<WMV_Date> dateline;								// Capture dates for this cluster
 	private ArrayList<WMV_TimeSegment> timeline;						// Date-independent capture times for this cluster
 	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;	
-//	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
 
 	/* Segmentation */
 	public ArrayList<WMV_MediaSegment> segments;		// List of arrays corresponding to each segment of images
@@ -77,12 +64,6 @@ public class WMV_Cluster
 	
 	private float highLongitude, lowLongitude, highLatitude, lowLatitude, 		// - NEED TO CALCULATE!	
 			  	 highAltitude, lowAltitude;		
-//	private float highImageLongitude = -1000000, lowImageLongitude = 1000000, highImageLatitude = -1000000, lowImageLatitude = 1000000,		// - NEED TO CALCULATE!
-//			highImageAltitude = -1000000, lowImageAltitude = 1000000;
-//	private float highPanoramaLongitude = -1000000, lowPanoramaLongitude = 1000000, highPanoramaLatitude = -1000000,		// - NEED TO CALCULATE!
-//			lowPanoramaLatitude = 1000000, highPanoramaAltitude = -1000000, lowPanoramaAltitude = 1000000;
-//	private float highVideoLongitude = -1000000, lowVideoLongitude = 1000000, highVideoLatitude = -1000000,		// - NEED TO CALCULATE!
-//			lowVideoLatitude = 1000000, highVideoAltitude = -1000000, lowVideoAltitude = 1000000;
 	
 	public float highTime, lowTime, highDate, lowDate;
 	public float highImageTime = -1000000, lowImageTime = 1000000, 
@@ -93,9 +74,6 @@ public class WMV_Cluster
 	 	  highVideoDate = -1000000, lowVideoDate = 1000000;
 	
 //	private float longestImageDayLength = -1000000, longestPanoramaDayLength = -1000000, longestVideoDayLength = -1000000;	
-
-	/* Interaction */
-//	public float timeIncrement;				// User time increment
 
 	/* Video */
 	boolean video = false;
@@ -526,7 +504,7 @@ public class WMV_Cluster
 	 */
 	public void stitchImages()
 	{
-		if(p.p.viewer.settings.multiSelection || p.p.viewer.settings.segmentSelection)
+		if(p.p.viewer.getSettings().multiSelection || p.p.viewer.getSettings().segmentSelection)
 		{
 			IntList valid = new IntList();
 			for( int i : p.getSelectedImages() )
@@ -581,7 +559,7 @@ public class WMV_Cluster
 					
 					if(p.p.p.debug.stitching && p.p.p.debug.detailed) p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
 					
-					if(p.p.viewer.settings.angleThinning)				// Remove invisible images
+					if(p.p.viewer.getSettings().angleThinning)				// Remove invisible images
 					{
 						IntList remove = new IntList();
 						
@@ -637,7 +615,7 @@ public class WMV_Cluster
 	{
 //		if(p.p.p.debug.cluster || p.p.p.debug.model)
 //			PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
-		float thinningAngle = p.p.viewer.settings.thinningAngle;									// Angle to thin images and videos by
+		float thinningAngle = p.p.viewer.getSettings().thinningAngle;									// Angle to thin images and videos by
 		int numPerimeterPts = PApplet.round(PApplet.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
 		int[] perimeterPoints = new int[numPerimeterPts];					// Points to compare each cluster image/video to
 		float[] perimeterDistances = new float[numPerimeterPts];			// Distances of images associated with each point
@@ -879,13 +857,13 @@ public class WMV_Cluster
 		
 		if(distance > p.p.viewer.getClusterNearDistance())
 		{
-			strength = (clusterGravity * mass * p.p.viewer.settings.cameraMass) / (distance * distance);	// Calculate strength
+			strength = (clusterGravity * mass * p.p.viewer.getSettings().cameraMass) / (distance * distance);	// Calculate strength
 		}
 		else				// Reduce strength of attraction at close distance
 		{
 			float diff = p.p.viewer.getClusterNearDistance() - distance;
 			float factor = 0.5f - PApplet.map(diff, 0.f, p.p.viewer.getClusterNearDistance(), 0.f, 0.5f);
-			strength = (clusterGravity * mass * p.p.viewer.settings.cameraMass) / (distance * distance) * factor;
+			strength = (clusterGravity * mass * p.p.viewer.getSettings().cameraMass) / (distance * distance) * factor;
 		}
 		
 		force.mult(strength);

@@ -49,7 +49,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	
 	private float fadingFocusDistanceStartFrame = 0.f, fadingFocusDistanceEndFrame = 0.f;	// Fade focus distance and image size together
 	private float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
-//	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
 	private float fadingFocusDistanceLength = 30.f;
 
 	private boolean thinningVisibility = false;

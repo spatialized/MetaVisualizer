@@ -41,11 +41,11 @@ public class ML_Input
 		{
 			if (slider.tag == "TeleportLength")
 			{
-				p.viewer.settings.teleportLength = slider.getValueI();
+				p.viewer.getSettings().teleportLength = slider.getValueI();
 			}
 			if (slider.tag == "PathWaitLength")
 			{
-				p.viewer.settings.pathWaitLength = slider.getValueI();
+				p.viewer.getSettings().pathWaitLength = slider.getValueI();
 			}
 		}
 		if(p.display.window.setupTimeWindow)
@@ -70,7 +70,7 @@ public class ML_Input
 			
 			if (slider.tag == "Brightness") 
 			{
-				p.viewer.settings.userBrightness = slider.getValueF();
+				p.viewer.getSettings().userBrightness = slider.getValueF();
 			}
 		}
 		
@@ -352,29 +352,29 @@ public class ML_Input
 				p.fadeEdges = option.isSelected();
 				break;
 			case "HideImages":
-				if(!option.isSelected() && p.viewer.settings.hideImages)
-					p.getCurrentField().showImages();
-				else if(option.isSelected() && !p.viewer.settings.hideImages)
-					p.getCurrentField().hideImages();
+				if(!option.isSelected() && p.viewer.getSettings().hideImages)
+					p.viewer.showImages();
+				else if(option.isSelected() && !p.viewer.getSettings().hideImages)
+					p.viewer.hideImages();
 				break;
 			case "HideVideos":
-				if(!option.isSelected() && p.viewer.settings.hideVideos)
-					p.getCurrentField().showVideos();
-				else if(option.isSelected() && !p.viewer.settings.hideVideos)
-					p.getCurrentField().hideVideos();
+				if(!option.isSelected() && p.viewer.getSettings().hideVideos)
+					p.viewer.showVideos();
+				else if(option.isSelected() && !p.viewer.getSettings().hideVideos)
+					p.viewer.hideVideos();
 				break;
 			case "HidePanoramas":
-				if(!option.isSelected() && p.viewer.settings.hidePanoramas)
-					p.getCurrentField().showPanoramas();
-				else if(option.isSelected() && !p.viewer.settings.hidePanoramas)
-					p.getCurrentField().hidePanoramas();
+				if(!option.isSelected() && p.viewer.getSettings().hidePanoramas)
+					p.viewer.showPanoramas();
+				else if(option.isSelected() && !p.viewer.getSettings().hidePanoramas)
+					p.viewer.hidePanoramas();
 				break;
 			case "AlphaMode":
 				p.alphaMode = option.isSelected();
 				break;
 			case "OrientationMode":
 //				p.viewer.settings.orientationMode = !p.viewer.settings.orientationMode;
-				p.viewer.setOrientationMode( !p.viewer.settings.orientationMode );
+				p.viewer.setOrientationMode( !p.viewer.getSettings().orientationMode );
 				break;
 			case "AngleFading":
 				p.viewer.settings.angleFading = option.isSelected();
@@ -768,14 +768,14 @@ public class ML_Input
 
 				if (optionKey && key == '[')
 				{
-					if(p.viewer.settings.thinningAngle > PApplet.PI / 64.f)
-						p.viewer.settings.thinningAngle -= PApplet.PI / 128.f;
+					if(p.viewer.getSettings().thinningAngle > PApplet.PI / 64.f)
+						p.viewer.getSettings().thinningAngle -= PApplet.PI / 128.f;
 					p.getCurrentField().getModel().analyzeClusterMediaDirections();
 				}
 
 				if (optionKey && key == ']')
 				{
-					if(p.viewer.settings.thinningAngle < p.viewer.settings.visibleAngle - PApplet.PI / 128.f)
+					if(p.viewer.getSettings().thinningAngle < p.viewer.getSettings().visibleAngle - PApplet.PI / 128.f)
 						p.viewer.settings.thinningAngle += PApplet.PI / 128.f;
 					p.getCurrentField().getModel().analyzeClusterMediaDirections();
 				}
@@ -844,7 +844,7 @@ public class ML_Input
 					p.viewer.moveToRandomCluster(p.viewer.getMovementTeleport());				// Jump (teleport) to random cluster
 
 				if (key == 'I')
-					p.viewer.setOrientationMode( !p.viewer.settings.orientationMode );
+					p.viewer.setOrientationMode( !p.viewer.getSettings().orientationMode );
 
 				if (key == 'W') 
 					p.viewer.moveToNearestClusterAhead(false);
@@ -983,26 +983,26 @@ public class ML_Input
 
 					if (key == 'i')	
 					{
-						if(p.viewer.settings.hideImages)
-							p.getCurrentField().showImages();
+						if(p.viewer.getSettings().hideImages)
+							p.viewer.showImages();
 						else
-							p.getCurrentField().hideImages();
+							p.viewer.hideImages();
 					}
 
 					if (key == 'h')	
 					{
-						if(p.viewer.settings.hidePanoramas)
-							p.getCurrentField().showPanoramas();
+						if(p.viewer.getSettings().hidePanoramas)
+							p.viewer.showPanoramas();
 						else
-							p.getCurrentField().hidePanoramas();
+							p.viewer.hidePanoramas();
 					}
 
 					if (key == 'v')	
 					{
-						if(p.viewer.settings.hideVideos)
-							p.getCurrentField().showVideos();
+						if(p.viewer.getSettings().hideVideos)
+							p.viewer.showVideos();
 						else
-							p.getCurrentField().hideVideos();
+							p.viewer.hideVideos();
 					}
 
 					if (key == 'P')
@@ -1047,15 +1047,15 @@ public class ML_Input
 					{
 						p.viewer.settings.selection = !p.viewer.settings.selection;
 						if(p.display.window.setupSelectionWindow)
-							p.display.window.chkbxSelectionMode.setSelected(p.viewer.settings.selection);
+							p.display.window.chkbxSelectionMode.setSelected(p.viewer.getSettings().selection);
 
-						if(p.viewer.settings.selection && p.viewer.settings.multiSelection)
+						if(p.viewer.getSettings().selection && p.viewer.getSettings().multiSelection)
 						{
 							p.viewer.settings.multiSelection = false;
 							if(p.display.window.setupSelectionWindow)
 								p.display.window.chkbxMultiSelection.setSelected(false);
 						}
-						if(p.viewer.settings.selection && p.viewer.settings.segmentSelection) 
+						if(p.viewer.getSettings().selection && p.viewer.getSettings().segmentSelection) 
 						{
 							p.viewer.settings.segmentSelection = false;
 							if(p.display.window.setupSelectionWindow)
@@ -1082,14 +1082,14 @@ public class ML_Input
 					if (key == 'S')
 					{
 						p.viewer.settings.multiSelection = !p.viewer.settings.multiSelection;
-						if(p.viewer.settings.multiSelection && !p.viewer.settings.selection)
+						if(p.viewer.getSettings().multiSelection && !p.viewer.getSettings().selection)
 							p.viewer.settings.selection = true;
 					}
 
 					if (optionKey && key == 's')
 					{
 						p.viewer.settings.segmentSelection = !p.viewer.settings.segmentSelection;
-						if(p.viewer.settings.segmentSelection && !p.viewer.settings.selection)
+						if(p.viewer.getSettings().segmentSelection && !p.viewer.getSettings().selection)
 							p.viewer.settings.selection = true;
 					}
 
@@ -1183,7 +1183,7 @@ public class ML_Input
 						{
 							f.getModel().setMinClusterDistance(p.settings.minClusterDistance);	
 							p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().getModel().clusterRefinement, p.getCurrentField().getModel().clusterPopulationFactor );
-							p.getCurrentField().initializeClusters();			
+							p.getCurrentField().initializeClusters(p.mergeClusters);			
 							p.display.map2D.initializeMaps();
 						}
 					}
@@ -1199,7 +1199,7 @@ public class ML_Input
 						{
 							f.getModel().setMinClusterDistance(p.settings.minClusterDistance);
 							p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().getModel().clusterRefinement, p.getCurrentField().getModel().clusterPopulationFactor );
-							p.getCurrentField().initializeClusters();			
+							p.getCurrentField().initializeClusters(p.mergeClusters);			
 							p.display.map2D.initializeMaps();
 						}
 					}
@@ -1239,7 +1239,7 @@ public class ML_Input
 								if(p.getCurrentField().getModel().clusterRefinement >= p.getCurrentField().getModel().minClusterRefinement)
 								{
 									p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().getModel().clusterRefinement, populationFactor );
-									p.getCurrentField().initializeClusters();			
+									p.getCurrentField().initializeClusters(p.mergeClusters);			
 									p.display.map2D.initializeMaps();
 								}
 								else p.getCurrentField().getModel().clusterRefinement += 10;
@@ -1253,7 +1253,7 @@ public class ML_Input
 								if(p.getCurrentField().getModel().clusterRefinement <= p.getCurrentField().getModel().maxClusterRefinement)
 								{
 									p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().getModel().clusterRefinement, populationFactor );
-									p.getCurrentField().initializeClusters();			
+									p.getCurrentField().initializeClusters(p.mergeClusters);			
 									p.display.map2D.initializeMaps();
 								}
 								else p.getCurrentField().getModel().clusterRefinement -= 10;
@@ -1267,7 +1267,7 @@ public class ML_Input
 								if(p.getCurrentField().getModel().clusterPopulationFactor >= p.getCurrentField().getModel().minPopulationFactor)
 								{
 									p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().getModel().clusterPopulationFactor );
-									p.getCurrentField().initializeClusters();			
+									p.getCurrentField().initializeClusters(p.mergeClusters);			
 									p.display.map2D.initializeMaps();
 								}
 								else p.getCurrentField().getModel().clusterPopulationFactor += 1.f;
@@ -1281,7 +1281,7 @@ public class ML_Input
 								if(p.getCurrentField().getModel().clusterPopulationFactor <= p.getCurrentField().getModel().maxPopulationFactor)
 								{
 									p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().getModel().clusterPopulationFactor );
-									p.getCurrentField().initializeClusters();			
+									p.getCurrentField().initializeClusters(p.mergeClusters);			
 									p.display.map2D.initializeMaps();
 								}
 								else p.getCurrentField().getModel().clusterPopulationFactor -= 1.f;
@@ -1462,7 +1462,7 @@ public class ML_Input
 	{
 //		boolean doubleClick = false, switchedViews = false;
 //			PApplet.println("MousePressed!");
-		if(!p.viewer.settings.orientationMode && p.viewer.lastMovementFrame > 5)
+		if(!p.viewer.getSettings().orientationMode && p.viewer.lastMovementFrame > 5)
 		{
 			if(mouseX > p.p.width * 0.25 && mouseX < p.p.width * 0.75 && mouseY < p.p.height * 0.75 && mouseY > p.p.height * 0.25)
 			{
@@ -1493,7 +1493,7 @@ public class ML_Input
 			doubleClick = true;
 		}
 
-		if(p.viewer.settings.mouseNavigation)
+		if(p.viewer.getSettings().mouseNavigation)
 		{
 			p.viewer.walkSlower();
 			p.viewer.lastMovementFrame = p.p.frameCount;

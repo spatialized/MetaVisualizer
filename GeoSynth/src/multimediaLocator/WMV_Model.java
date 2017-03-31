@@ -1,4 +1,5 @@
 package multimediaLocator;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -95,7 +96,7 @@ public class WMV_Model
 			float midLongitude = (highLongitude - lowLongitude) / 2.f;
 			float midLatitude = (highLatitude - lowLatitude) / 2.f;
 
-			if(p.p.p.debug.field) PApplet.println("Initializing model for field #"+p.fieldID+"...");
+			if(p.p.p.debug.field) PApplet.println("Initializing model for field #"+p.getID()+"...");
 
 			validImages = p.getImageCount();
 			validPanoramas = p.getPanoramaCount();
@@ -287,7 +288,7 @@ public class WMV_Model
 			refineKMeansClusters(epsilon, refinement);	// Refine clusters over many iterations
 			createSingleClusters();						// Create clusters for single media points
 			
-			p.initializeClusters();						// Initialize clusters (merge, etc.)
+			p.initializeClusters(p.p.mergeClusters);						// Initialize clusters (merge, etc.)
 
 			if(p.getClusters().size() > 0)					// Calculate capture times for each cluster
 				findVideoPlaceholders();
@@ -495,7 +496,7 @@ public class WMV_Model
 		}	
 		
 		int removed = before - result.size();
-		if(p.p.p.debug.model) PApplet.println("cleanupClusters()... Removed "+removed+" clusters from field #"+p.fieldID);
+		if(p.p.p.debug.model) PApplet.println("cleanupClusters()... Removed "+removed+" clusters from field #"+p.getID());
 		
 		return result;
 	}
@@ -531,7 +532,7 @@ public class WMV_Model
 			p.p.display.message("Found "+p.getClusters().size()+" clusters...");
 		}
 		
-		p.initializeClusters();					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
+		p.initializeClusters(p.p.mergeClusters);					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
 	}
 
 	void findDuplicateClusterMedia()

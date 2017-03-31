@@ -28,7 +28,7 @@ public class WMV_Viewer
 {
 	/* Camera */
 	private Camera camera;									 	// Camera object
-	WMV_ViewerSettings settings;						// Viewer settings
+	public WMV_ViewerSettings settings;						// Viewer settings
 
 	/* Time */
 	private int currentFieldTimeSegment = 0;			// Current time segment in field timeline
@@ -199,11 +199,8 @@ public class WMV_Viewer
 	 */
 	void update()
 	{
-//		PApplet.println("viewer.update()... Frame #"+p.p.frameCount+" getXOrientation():"+getXOrientation()+" getYOrientation():"+getYOrientation());
-		
 		if(!settings.orientationMode)
 			location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
-//		else if(p.p.debug.viewer)
 		
 		updateWalking();							/* Update walking */
 		updatePhysics();							/* Update physics */
@@ -827,6 +824,122 @@ public class WMV_Viewer
 			}
 		}
 	}
+	
+	/**
+	 * Show any image in field if visible
+	 */
+	public void showImages()
+	{
+		settings.hideImages = false;
+		p.showImages();
+//		if(p.display.window.setupGraphicsWindow)
+//			p.display.window.chkbxHideImages.setSelected(false);
+	}
+	
+	/**
+	 * Hide all images in field
+	 */
+	public void hideImages()
+	{
+		settings.hideImages = true;
+		p.hideImages();
+//		for(WMV_Image i : images)
+//		{
+//			if(i.visible)
+//			{
+//				if(i.isFading()) i.stopFading();
+//				i.fadeOut();
+//			}
+//		}
+//
+//		if(p.display.window.setupGraphicsWindow)
+//			p.display.window.chkbxHideImages.setSelected(true);
+	}
+	
+	/** 
+	 * Show any panorama in field if visible
+	 */
+	public void showPanoramas()
+	{
+		settings.hidePanoramas = false;
+		p.showPanoramas();
+
+//		if(p.display.window.setupGraphicsWindow)
+//			p.display.window.chkbxHidePanoramas.setSelected(false);
+	}
+	
+	/** 
+	 * Hide all panoramas in field
+	 */
+	public void hidePanoramas()
+	{
+		settings.hidePanoramas = true;
+		p.hidePanoramas();
+//		for(WMV_Panorama n : panoramas)
+//		{
+//			if(n.visible)
+//			{
+//				if(n.isFading()) n.stopFading();
+//				n.fadeOut();
+//			}
+//		}
+//		
+//		for(WMV_Cluster c : clusters)
+//		{
+//			if(c.stitchedPanoramas.size() > 0)
+//			{
+//				for(WMV_Panorama n : c.stitchedPanoramas)
+//				{
+//					if(n.isFading()) n.stopFading();
+//					n.fadeOut();
+//				}
+//			}
+//			
+//			if(c.userPanoramas.size() > 0)
+//			{
+//				for(WMV_Panorama n : c.userPanoramas)
+//				{
+//					if(n.isFading()) n.stopFading();
+//					n.fadeOut();
+//				}
+//			}
+//		}
+//		
+//		if(p.display.window.setupGraphicsWindow)
+//			p.display.window.chkbxHidePanoramas.setSelected(true);
+	}
+	
+	/**
+	 * Show any video in field if visible
+	 */
+	public void showVideos()
+	{
+		settings.hideVideos = false;
+		p.showVideos();
+//		if(p.display.window.setupGraphicsWindow)
+//			p.display.window.chkbxHideVideos.setSelected(false);
+	}
+	
+	/**
+	 * Hide all videos in field
+	 */
+	public void hideVideos()
+	{
+		settings.hideVideos = true;
+		p.hideVideos();
+//		for(WMV_Video v : videos)
+//		{
+//			if(v.visible)
+//			{
+//				if(v.isFading()) v.stopFading();
+//				v.fadeOut();
+//			}
+//		}
+//		
+//		if(p.display.window.setupGraphicsWindow)
+//			p.display.window.chkbxHideVideos.setSelected(true);
+	}
+
 
 	/**
 	 * @param inclCurrent Whether to include the current cluster in search
@@ -1000,7 +1113,7 @@ public class WMV_Viewer
 				success = setCurrentFieldTimeSegment(0, true);									// Return to first segment
 		}
 
-		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport, fade);
+		moveToTimeSegmentInField(p.getCurrentField().getID(), currentFieldTimeSegment, teleport, fade);
 	}
 	
 	/**
@@ -1048,7 +1161,7 @@ public class WMV_Viewer
 				success = setCurrentFieldTimeSegment(p.getCurrentField().getTimeline().size()-1, true);
 		}
 
-		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport, fade);
+		moveToTimeSegmentInField(p.getCurrentField().getID(), currentFieldTimeSegment, teleport, fade);
 	}
 
 	/**
@@ -1424,7 +1537,7 @@ public class WMV_Viewer
 	{
 		int nextCluster;
 		
-		nextCluster = p.viewer.currentCluster + 1;
+		nextCluster = currentCluster + 1;
 		if(nextCluster >= p.getCurrentField().getClusters().size())
 			nextCluster = 0;
 		int count = 0;
@@ -4036,7 +4149,7 @@ public class WMV_Viewer
 		int newDate = 0;
 		if(ignoreDate)
 		{
-			moveToTimeSegmentInField(p.getCurrentField().fieldID, 0, true, true);		// Move to first time segment in field
+			moveToTimeSegmentInField(p.getCurrentField().getID(), 0, true, true);		// Move to first time segment in field
 			return true;
 		}		
 		else
@@ -4055,7 +4168,7 @@ public class WMV_Viewer
 			{
 				int curFieldTimeSegment = p.getCurrentField().getTimeSegmentOnDate(currentFieldTimeSegmentOnDate, currentFieldDate).getFieldTimelineID();
 //				int curFieldTimeSegment = p.getCurrentField().getTimelines().get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
-				moveToTimeSegmentInField(p.getCurrentField().fieldID, curFieldTimeSegment, true, true);		// Move to first time segment in field
+				moveToTimeSegmentInField(p.getCurrentField().getID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
 			}
 			else PApplet.println("Couldn't move to first time segment...");
 			return success;
@@ -4086,12 +4199,12 @@ public class WMV_Viewer
 	 */
 	void start3DHUD()
 	{
-		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.getNearClippingDistance(), 10000);
-		PVector t = new PVector(p.viewer.camera.position()[0], p.viewer.camera.position()[1], p.viewer.camera.position()[2]);
+		p.p.perspective(getInitFieldOfView(), (float)p.p.width/(float)p.p.height, getNearClippingDistance(), 10000);
+		PVector t = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);
 		p.p.translate(t.x, t.y, t.z);
-		p.p.rotateY(p.viewer.camera.attitude()[0]);
-		p.p.rotateX(-p.viewer.camera.attitude()[1]);
-		p.p.rotateZ(p.viewer.camera.attitude()[2]);
+		p.p.rotateY(camera.attitude()[0]);
+		p.p.rotateX(-camera.attitude()[1]);
+		p.p.rotateZ(camera.attitude()[2]);
 	}
 
 	/**
@@ -4135,6 +4248,11 @@ public class WMV_Viewer
 	public int getField()
 	{
 		return field;
+	}
+	
+	public WMV_ViewerSettings getSettings()
+	{
+		return settings;
 	}
 
 	/**

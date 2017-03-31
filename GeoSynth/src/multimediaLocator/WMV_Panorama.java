@@ -672,4 +672,14 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		return imageHeight;
 	}
+	
+	public float getRadius()
+	{
+		return radius;
+	}
+	
+	public float getOrigRadius()
+	{
+		return origRadius;
+	}
 }

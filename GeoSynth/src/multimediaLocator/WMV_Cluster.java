@@ -8,7 +8,7 @@ import processing.data.IntList;
 
 /*********************************************
  * @author davidgordon
- * Class representing a group of media files forming a spatial unit
+ * A spatial cluster, or, group of media files forming a spatial unit
  */
 
 public class WMV_Cluster 

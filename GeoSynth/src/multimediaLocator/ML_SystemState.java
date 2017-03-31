@@ -1,8 +1,8 @@
 package multimediaLocator;
 
 /**
- * Represents the current system state 
  * @author davidgordon
+ * The current system state 
  *
  */
 public class ML_SystemState 

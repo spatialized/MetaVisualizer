@@ -1,5 +1,5 @@
 /********************************************************************************
-* WorldMediaViewer v1.0.0
+* MultimediaLocator v0.9.0
 * @author davidgordon
 * 
 * A program for displaying large multimedia collections as 3D immersive 
@@ -8,7 +8,7 @@
 
 /************************************
 * @author davidgordon 
-* WMViewer main app class
+* MultimediaLocator main app class
 */
 
 package multimediaLocator;

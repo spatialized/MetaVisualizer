@@ -21,7 +21,7 @@ import toxi.math.ZoomLensInterpolation;
 
 /********************************************
  * @author davidgordon
- * Class representing a world, with a viewer and fields to be displayed
+ * The 3D world, including the virtual viewer and multimedia environment(s) to be displayed
  */
 
 public class WMV_World 

@@ -9,7 +9,7 @@ import processing.core.*;
 
 /**************************************
  * @author davidgordon
- * Methods for responding to user input from keyboard or mouse
+ * Class to respond to user input from keyboard or mouse
  */
 
 public class ML_Input

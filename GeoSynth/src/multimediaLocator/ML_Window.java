@@ -7,6 +7,11 @@ import processing.core.PApplet;
 import processing.core.PVector;
 import processing.event.MouseEvent;
 
+/**
+ * Class for handling secondary windows
+ * @author davidgordon
+ *
+ */
 public class ML_Window {
 
 	ML_Display p;

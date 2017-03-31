@@ -21,8 +21,8 @@ import processing.data.FloatList;
 import processing.data.IntList;
 
 /*********************************
+ * The virtual viewer, with methods for navigating and interacting with 3D multimedia-based environments
  * @author davidgordon
- * A virtual camera for navigating and interacting with multimedia in 3D environments
  */
 public class WMV_Viewer 
 {

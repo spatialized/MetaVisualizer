@@ -1,7 +1,12 @@
 package multimediaLocator;
 
-public class WMV_WorldState {
-	
+/**
+ * @author davidgordon
+ * The current world state
+ *
+ */
+public class WMV_WorldState 
+{
 	/* System Status */
 	public boolean startedRunning = false;			// Program just started running
 	public boolean initialSetup = false;			// Performing initial setup 

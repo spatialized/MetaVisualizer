@@ -2,7 +2,8 @@ package multimediaLocator;
 import processing.core.PVector;
 
 /*****************************
- *  Describes a waypoint in a user defined (camera) navigation path
+ *  @author davidgordon
+ *  A waypoint in a user defined (camera) navigation path
  */
 
 public class WMV_Waypoint {

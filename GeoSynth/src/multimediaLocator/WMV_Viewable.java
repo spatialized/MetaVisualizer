@@ -15,7 +15,7 @@ import toxi.math.ScaleMap;
 
 /***************************************
  * @author davidgordon
- * An object viewable in 3D virtual space
+ * An object viewable in 3D space
  */
 public abstract class WMV_Viewable
 {

@@ -3,13 +3,11 @@ package multimediaLocator;
 import java.io.*;
 import java.util.List;
 
-/*********************************************
-* @author davidgordon 
-* Based on package com.devdaily.system;  
-* Runs given system command as List of Strings
-* @param command The command you want to run.
-*/
-
+/**
+ * @author davidgordon
+ * Runs a system command given as a List of Strings. Based on package com.devdaily.system;  
+ *
+ */
 public class WMV_Command
 {
   private List<String> command;

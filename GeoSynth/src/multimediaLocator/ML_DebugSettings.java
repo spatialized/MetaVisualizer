@@ -2,7 +2,7 @@ package multimediaLocator;
 
 /******************************
  * @author David Gordon
- * Debug settings 
+ * Debug settings for MultimediaLocator
  */
 
 public class ML_DebugSettings 

@@ -6,7 +6,7 @@ import processing.core.*;
 
 /***********************************
  * @author davidgordon
- * Class for displaying 2D text and graphics
+ * Methods for displaying 2D text / graphics
  */
 
 class ML_Display

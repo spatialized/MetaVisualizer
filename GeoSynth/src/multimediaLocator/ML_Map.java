@@ -27,7 +27,7 @@ import de.fhpotsdam.unfolding.utils.ScreenPosition;
 
 /***********************************
  * @author davidgordon
- * Class for displaying interactive 2D map of media-based virtual environment
+ * Methods for displaying interactive 2D maps of 3D environments
  */
 public class ML_Map 
 {

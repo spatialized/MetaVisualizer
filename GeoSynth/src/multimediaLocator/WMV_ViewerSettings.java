@@ -5,7 +5,7 @@ import processing.core.PVector;
 
 /*********************************
  * @author davidgordon
- * Viewer movement and graphics settings
+ * The current viewer settings
  */
 public class WMV_ViewerSettings 
 {

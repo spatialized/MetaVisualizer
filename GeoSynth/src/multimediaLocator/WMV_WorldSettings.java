@@ -1,7 +1,7 @@
 package multimediaLocator;
 
 /**
- * Settings for the virtual world
+ * Settings of the 3D world
  * @author davidgordon
  */
 public class WMV_WorldSettings 

@@ -12,9 +12,7 @@ import processing.core.PApplet;
 
 /**************
  * @author davidgordon
- * A media library in the expected format:
- * - Subfolders containing media should be: "small_images", "small_videos", "panoramas," and "sounds"
- * - Media should be: images <= 640px wide / videos <= 720px / panoramas full size
+ * The multimedia media library
  */
 public class ML_Library 
 {

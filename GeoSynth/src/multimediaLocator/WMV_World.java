@@ -553,7 +553,8 @@ public class WMV_World
 		display.window.setupWMVWindow();
 		
 		// TEST
-//		getCurrentField().recalculateGeometries();
+//		p.library.saveFieldData(getCurrentField());		// Testing
+//		p.exit();	
 		
 		initialSetup = false;				
 		display.initialSetup = false;

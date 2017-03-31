@@ -48,9 +48,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	static public void main(String[] args) 
 	{
-//		PApplet.main("wmViewer.WorldMediaViewer");									// Open in window
-		PApplet.main("multimediaLocator.MultimediaLocator");									// Open in window
-//		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open in fullscreen mode
+		PApplet.main("multimediaLocator.MultimediaLocator");						// Open PApplet in window
+//		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
 	}
 	
 	/** 
@@ -81,7 +80,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			state.startup = false;	
 		}
 		else if(!state.running)
-			world.setup();						/* Run setup */
+		{
+			world.setup();						/* Run setup  n.b. called several times on different frames */
+		}
 		else
 			world.run();						/* Run program */
 	}

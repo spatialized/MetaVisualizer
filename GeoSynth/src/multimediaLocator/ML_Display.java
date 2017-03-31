@@ -855,13 +855,39 @@ class ML_Display
 			p.p.stroke(imageHue, 185.f, 255.f, 155.f);
 			p.p.strokeWeight(1.f);
 
-			for(PVector time : times)
+			for(WMV_Time ti : tsTimeline)
 			{
+				PVector time = ti.getTimeAsPVector();
 				float seconds = p.p.utilities.getTimePVectorSeconds(time);
 				float xOff = PApplet.map(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
 				if(xOff > timelineXOffset && xOff < timelineXOffset + timelineScreenSize)
+				{
+					switch(ti.getMediaType())
+					{
+						case 0:
+							p.p.stroke(imageHue, 165.f, 215.f, 225.f);					
+							break;
+						case 1:
+							p.p.stroke(panoramaHue, 165.f, 215.f, 225.f);					
+							break;
+						case 2:
+							p.p.stroke(videoHue, 165.f, 215.f, 225.f);					
+							break;
+						case 3:
+							p.p.stroke(soundHue, 165.f, 215.f, 225.f);					
+							break;
+					}
 					p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
+				}
 			}
+
+//			for(PVector time : times)
+//			{
+//				float seconds = p.p.utilities.getTimePVectorSeconds(time);
+//				float xOff = PApplet.map(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+//				if(xOff > timelineXOffset && xOff < timelineXOffset + timelineScreenSize)
+//					p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
+//			}
 
 			/* Set hue according to media type */
 			float firstHue = imageHue;
@@ -2092,13 +2118,13 @@ class ML_Display
 		WMV_Cluster cl = p.getCurrentCluster();
 		p.p.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(mediumTextSize);
-		p.p.text("   Media Count: "+ c.mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
 		if(c.images.size() > 0)
-			p.p.text("     Images: "+ c.images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text("   Images: "+ c.images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 		if(c.panoramas.size() > 0)
-			p.p.text("     Panoramas: "+ c.panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text("   Panoramas: "+ c.panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 		if(c.videos.size() > 0)
-			p.p.text("     Videos: "+ c.videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text("   Videos: "+ c.videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text("   Total Count: "+ c.mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
 //		if(c.sounds.size() > 0)
 //			p.p.text("     Sounds: "+ c.sounds.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 //		p.p.text("     Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
@@ -2235,6 +2261,8 @@ class ML_Display
 			p.p.popMatrix();
 			count++;
 		}
+		
+//		for(WMV_Viewable v : cluster.)
 	}
 	
 	public boolean inDisplayView()

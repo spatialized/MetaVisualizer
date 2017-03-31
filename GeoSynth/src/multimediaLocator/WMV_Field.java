@@ -33,7 +33,6 @@ public class WMV_Field
 
 	/* Data */
 	WMV_Model model;										// Dimensions and properties of current virtual space
-
 	public ArrayList<WMV_Image> images; 					// All images in this field
 	public ArrayList<WMV_Panorama> panoramas; 				// All panoramas in this field
 	public ArrayList<WMV_Video> videos; 					// All videos in this field

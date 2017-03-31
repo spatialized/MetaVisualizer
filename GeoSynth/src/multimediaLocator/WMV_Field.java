@@ -15,44 +15,35 @@ public class WMV_Field
 	public int fieldID;
 
 	/* File System */
-	String name;
+	private String name;
 
 	/* Graphics */
-	public final int maxVisiblePhotos = 50;					// Maximum visible images at one time
-	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
-	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
-	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
-	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas and currently seen
-	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;
-	
-	/* Visibility */
-	float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
-	public boolean hideImages = false;						// Hide images
-	public boolean hidePanoramas = false;					// Hide panoramas
-	public boolean hideVideos = false;						// Hide videos
+	private int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
+	private int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas and currently seen
+	private int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;
 
 	/* Data */
-	WMV_Model model;										// Dimensions and properties of current virtual space
-	public ArrayList<WMV_Image> images; 					// All images in this field
-	public ArrayList<WMV_Panorama> panoramas; 				// All panoramas in this field
-	public ArrayList<WMV_Video> videos; 					// All videos in this field
-	public ArrayList<WMV_Sound> sounds; 					// All videos in this field
-	public ArrayList<WMV_Cluster> clusters;					// Spatial groupings of media in the Image3D and Video3D arrays
+	private WMV_Model model;										// Dimensions and properties of current virtual space
+	private ArrayList<WMV_Image> images; 					// All images in this field
+	private ArrayList<WMV_Panorama> panoramas; 				// All panoramas in this field
+	private ArrayList<WMV_Video> videos; 					// All videos in this field
+	private ArrayList<WMV_Sound> sounds; 					// All videos in this field
+	private ArrayList<WMV_Cluster> clusters;					// Spatial groupings of media in the Image3D and Video3D arrays
 
 	private int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
 
 	/* Time */
-	ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
-	ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
-	ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
-	String timeZoneID = "America/Los_Angeles";					// Current time zone
+	private ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
+	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
+	private ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
+	private String timeZoneID = "America/Los_Angeles";					// Current time zone
 	
 	WMV_World p;
 	
 	/* -- Debug -- */	
-	public int disassociatedImages = 0;						// Images not associated with a cluster -- Still needed?
-	public int disassociatedPanoramas = 0;
-	public int disassociatedVideos = 0;
+	private int disassociatedImages = 0;						// Images not associated with a cluster -- Still needed?
+	private int disassociatedPanoramas = 0;
+	private int disassociatedVideos = 0;
 
 	WMV_Field(WMV_World parent, String newMediaFolder, int newFieldID)
 	{
@@ -609,8 +600,8 @@ public class WMV_Field
 	{
 		if(p.viewer.isMovingToAttractor())
 		{
-			if(p.viewer.attractorPoint != null)
-				p.viewer.attractorPoint.attractViewer();		// Attract the camera to the memory navigation goal
+			if(p.viewer.getAttractorPoint() != null)
+				p.viewer.getAttractorPoint().attractViewer();		// Attract the camera to the memory navigation goal
 			else 
 				PApplet.println("p.viewer.attractorPoint == NULL!!");
 		}
@@ -1045,9 +1036,9 @@ public class WMV_Field
 		
 		if(id >= 0 && id < clusters.size())
 		{
-			if(clusters.get(id).dateline != null)
-				if(index >= 0 && index < clusters.get(id).dateline.size())
-					d = clusters.get(id).dateline.get(index);
+			if(clusters.get(id).getDateline() != null)
+				if(index >= 0 && index < clusters.get(id).getDateline().size())
+					d = clusters.get(id).getDateline().get(index);
 		}
 
 		if(d == null)
@@ -1305,7 +1296,7 @@ public class WMV_Field
 	 */
 	public void showImages()
 	{
-		hideImages = false;
+		p.viewer.settings.hideImages = false;
 		if(p.display.window.setupGraphicsWindow)
 			p.display.window.chkbxHideImages.setSelected(false);
 	}
@@ -1315,7 +1306,7 @@ public class WMV_Field
 	 */
 	public void hideImages()
 	{
-		hideImages = true;
+		p.viewer.settings.hideImages = true;
 		for(WMV_Image i : images)
 		{
 			if(i.visible)
@@ -1334,7 +1325,7 @@ public class WMV_Field
 	 */
 	public void showPanoramas()
 	{
-		hidePanoramas = false;
+		p.viewer.settings.hidePanoramas = false;
 
 		if(p.display.window.setupGraphicsWindow)
 			p.display.window.chkbxHidePanoramas.setSelected(false);
@@ -1345,7 +1336,7 @@ public class WMV_Field
 	 */
 	public void hidePanoramas()
 	{
-		hidePanoramas = true;
+		p.viewer.settings.hidePanoramas = true;
 		for(WMV_Panorama n : panoramas)
 		{
 			if(n.visible)
@@ -1385,7 +1376,7 @@ public class WMV_Field
 	 */
 	public void showVideos()
 	{
-		hideVideos = false;
+		p.viewer.settings.hideVideos = false;
 		if(p.display.window.setupGraphicsWindow)
 			p.display.window.chkbxHideVideos.setSelected(false);
 	}
@@ -1395,7 +1386,7 @@ public class WMV_Field
 	 */
 	public void hideVideos()
 	{
-		hideVideos = true;
+		p.viewer.settings.hideVideos = true;
 		for(WMV_Video v : videos)
 		{
 			if(v.visible)
@@ -1530,6 +1521,144 @@ public class WMV_Field
 		}
 	}
 	
+	public ArrayList<WMV_TimeSegment> getTimeline()
+	{
+		return timeline;
+	}
+	
+	public ArrayList<ArrayList<WMV_TimeSegment>> getTimelines()
+	{
+		return timelines;
+	}
+	
+	public ArrayList<WMV_Date> getDateline()
+	{
+		return dateline;
+	}
+	
+	public WMV_TimeSegment getTimeSegment(int idx)
+	{
+		return timeline.get(idx);
+	}
+	
+	public WMV_TimeSegment getTimeSegmentOnDate(int tsIdx, int dateIdx)
+	{
+		return timelines.get(dateIdx).get(tsIdx);
+	}
+	
+	public WMV_Date getDate(int idx)
+	{
+		return dateline.get(idx);
+	}
+	
+	public String getTimeZoneID()
+	{
+		return timeZoneID;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName(String newName)
+	{
+		name = newName;
+	}
+	
+	/**
+	 * @return Model of this field
+	 */
+	public WMV_Model getModel()
+	{
+		return model;
+	}
+
+	public ArrayList<WMV_Cluster> getClusters()
+	{
+		return clusters;
+	}
+	
+	public WMV_Cluster getCluster(int id)
+	{
+		WMV_Cluster c = clusters.get(id);
+		return c;
+	}
+
+	public WMV_Image getImage(int id)
+	{
+		WMV_Image img = images.get(id);
+		return img;
+	}
+	
+	public ArrayList<WMV_Image> getImages()
+	{
+		return images;
+	}
+
+	public WMV_Panorama getPanorama(int id)
+	{
+		WMV_Panorama pano = panoramas.get(id);
+		return pano;
+	}
+	
+	public ArrayList<WMV_Panorama> getPanoramas()
+	{
+		return panoramas;
+	}
+
+	public WMV_Video getVideo(int id)
+	{
+		WMV_Video vid = videos.get(id);
+		return vid;
+	}
+	
+	public ArrayList<WMV_Video> getVideos()
+	{
+		return videos;
+	}
+	
+	public WMV_Sound getSound(int id)
+	{
+		WMV_Sound snd = sounds.get(id);
+		return snd;
+	}
+	
+	public ArrayList<WMV_Sound> getSounds()
+	{
+		return sounds;
+	}
+
+	public void setClusters(ArrayList<WMV_Cluster> newClusters)
+	{
+		clusters = newClusters;
+	}
+	
+	public void addCluster(WMV_Cluster cluster)
+	{
+		clusters.add(cluster);
+	}
+	
+	public void addImage(WMV_Image image)
+	{
+		images.add(image);
+	}
+
+	public void addPanorama(WMV_Panorama panorama)
+	{
+		panoramas.add(panorama);
+	}
+
+	public void addVideo(WMV_Video video)
+	{
+		videos.add(video);
+	}
+
+	public void addSound(WMV_Sound sound)
+	{
+		sounds.add(sound);
+	}
+	
 	public void addImageError()
 	{
 		imageErrors++;
@@ -1586,6 +1715,120 @@ public class WMV_Field
 		return getImageCount() + getPanoramaCount() + getVideoCount() + getSoundCount();
 	}
 
+//	private int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
+//	private int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas and currently seen
+//	private int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;
+
+	public int getImagesVisible()
+	{
+		return imagesVisible;
+	}
+	
+	public int getPanoramasVisible()
+	{
+		return panoramasVisible;
+	}
+	
+	public int getVideosVisible()
+	{
+		return videosVisible;
+	}
+
+	public void setImagesVisible(int newValue)
+	{
+		imagesVisible = newValue;
+	}
+	
+	public void setPanoramasVisible(int newValue)
+	{
+		panoramasVisible = newValue;
+	}
+	
+	public void setVideosVisible(int newValue)
+	{
+		videosVisible = newValue;
+	}
+
+	public int getImagesSeen()
+	{
+		return imagesSeen;
+	}
+	
+	public int getPanoramasSeen()
+	{
+		return panoramasSeen;
+	}
+	
+	public int getVideosPlaying()
+	{
+		return videosPlaying;
+	}
+	
+	public int getVideosSeen()
+	{
+		return videosSeen;
+	}
+
+	public int getVideosLoaded()
+	{
+		return videosLoaded;
+	}
+	
+	public void setImagesSeen(int newValue)
+	{
+		imagesSeen = newValue;
+	}
+	
+	public void setPanoramasSeen(int newValue)
+	{
+		panoramasSeen = newValue;
+	}
+	
+	public void setVideosPlaying(int newValue)
+	{
+		videosPlaying = newValue;
+	}
+	
+	public void setVideosSeen(int newValue)
+	{
+		videosSeen = newValue;
+	}
+
+	public void setVideosLoaded(int newValue)
+	{
+		videosLoaded = newValue;
+	}
+	
+	public int getDisassociatedImages()
+	{
+		return disassociatedImages;
+	}
+
+	public int getDisassociatedPanoramas()
+	{
+		return disassociatedPanoramas;
+	}
+
+	public int getDisassociatedVideos()
+	{
+		return disassociatedVideos;
+	}
+
+	public void setDisassociatedImages(int newValue)
+	{
+		disassociatedImages = newValue;
+	}
+
+	public void setDisassociatedPanoramas(int newValue)
+	{
+		disassociatedPanoramas = newValue;
+	}
+
+	public void setDisassociatedVideos(int newValue)
+	{
+		disassociatedVideos = newValue;
+	}
+	
 	/**
 	 * Remove specified cluster
 	 * @param r Cluster to remove

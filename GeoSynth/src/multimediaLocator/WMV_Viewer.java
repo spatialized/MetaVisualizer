@@ -4,7 +4,6 @@ import java.io.File;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-//import java.util.Calendar;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -16,10 +15,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import damkjer.ocd.Camera;
-//import picking.Picker;
 import processing.core.PApplet;
-//import peasy.PeasyCam;
-//import processing.core.PApplet;
 import processing.core.PVector;
 import processing.data.FloatList;
 import processing.data.IntList;
@@ -37,17 +33,14 @@ public class WMV_Viewer
 	/* Time */
 	private int currentFieldTimeSegment = 0;			// Current time segment in field timeline
 	private int currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
-	public int currentFieldDate = 0;					// Current date in field dateline
-	public int currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
-	public int currentClusterTimelinesSegment = 0;		// Current time segment in cluster timelines
-	public int currentClusterDate = 0;					// Current date segment in cluster dateline
+	private int currentFieldDate = 0;					// Current date in field dateline
 	
-	public int currentMedia = -1;						// In Single Time Mode, media index currently visible
-	public int nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
-	public int currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
-	public boolean lookAtCurrentMedia = false;			// In Single Time Mode, whether to turn and look at current media  -- bugs
-	ArrayList<WMV_TimeSegment> nearbyClusterTimeline;	// Combined timeline of nearby (visible) clusters
-	public int nearbyClusterTimelineMediaCount = 0;		// Media count in nearbyClusterTimeline
+	private int currentMedia = -1;						// In Single Time Mode, media index currently visible
+	private int currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
+	private int nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
+	private boolean lookAtCurrentMedia = false;			// In Single Time Mode, whether to turn and look at current media  -- bugs
+	private ArrayList<WMV_TimeSegment> nearbyClusterTimeline;	// Combined timeline of nearby (visible) clusters
+	private int nearbyClusterTimelineMediaCount = 0;	// Number of media in nearbyClusterTimeline
 	
 	/* Memory */
 	private ArrayList<WMV_Waypoint> memory;				// Path for camera to take
@@ -63,31 +56,20 @@ public class WMV_Viewer
 
 	/* Clusters */
 	private int field = 0;								// Current field
-	public IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
+	private IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
 	private int currentCluster = 0;						// Cluster currently in view
 	private int lastCluster = -1;						// Last cluster visited
 
-	WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
+	private WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
 	private int attractorCluster = -1;					// Cluster attracting the camera
 	private int attractionStart = 0;
 	private int teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
 	private float clusterNearDistance;					// Distance from cluster center to slow down to prevent missing the target
 	private float clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
-
-	/* Sound */
-	float audibleFarDistanceMin, audibleFarDistanceMax;
-	float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal, audibleFarDistanceDestVal;
-	float audibleFarDistanceDiv = (float) 1.5;
-	boolean audibleFarDistanceTransition = false;
-
-	float audibleNearDistanceMin, audibleNearDistanceMax;
-	float audibleNearDistanceFadeStart, audibleNearDistanceFadeLength = 40, audibleNearDistanceStartVal, audibleNearDistanceDestVal;
-	float audibleNearDistanceDiv = (float) 1.2; 
-	boolean audibleNearDistanceTransition = false;
 	
 	/* Teleporting */
-	public boolean movementTeleport = false;		// Teleport when following navigation commands
-	public boolean followTeleport = false;		// Teleport when following navigation commands
+	private boolean movementTeleport = false;		// Teleport when following navigation commands
+	private boolean followTeleport = false;		// Teleport when following navigation commands
 	private PVector teleportGoal;					// Coordinates of teleport goal
 	private boolean teleporting = false;			// Transition where all images fade in or out
 	private int teleportStart;						// Frame that fade transition started
@@ -96,13 +78,13 @@ public class WMV_Viewer
 	
 	/* Physics */
 	private PVector location, orientation;					// Location of the camera in virtual space
-	public PVector velocity, acceleration, attraction;      // Physics model parameters
+	private PVector velocity, acceleration, attraction;      // Physics model parameters
 
 	/* Movement */
-	public int followMode = 0;					// 0: Timeline 1: GPS Track 2: Memory
+	private int followMode = 0;					// 0: Timeline 1: GPS Track 2: Memory
 	private boolean walking = false;			// Whether viewer is walking
-	public PVector walkingVelocity;
-	public PVector walkingAcceleration;			// Physics parameters applied relative to camera direction
+	private PVector walkingVelocity;
+	private PVector walkingAcceleration;			// Physics parameters applied relative to camera direction
 
 	private boolean slowing = false;			// Whether viewer is slowing 
 	private boolean slowingX = false;			// Slowing X movement
@@ -120,28 +102,23 @@ public class WMV_Viewer
 
 	private boolean waiting = false;						// Whether the camera is waiting to move while following a path
 	private int pathWaitStartFrame;
-//	public int pathWaitLength = 50;
-//	public final int initPathWaitLength = 50;
-
-	/* Graphics */
-//	public int firstOrientationModeFrame = 0;
 	
 	/* Turning */
 	private PVector turningVelocity;			// Turning velocity in X direction
 	private PVector turningAcceleration;		// Turning acceleration in X direction
-	public PVector turningMediaGoal;			// Media item to turn towards
-	public boolean turningX = false;			// Whether the viewer is turning (right or left)
-	public boolean turningY = false;			// Whether the viewer is turning (up or down)
+	private PVector turningMediaGoal;			// Media item to turn towards
+	private boolean turningX = false;			// Whether the viewer is turning (right or left)
+	private boolean turningY = false;			// Whether the viewer is turning (up or down)
 	private boolean turnSlowingX = false;				// Slowing turn in X direction
 	private boolean turnSlowingY = false;				// Slowing turn in Y direction
 	private boolean turnHaltingX = false;				// Slowing turn in X direction
 	private boolean turnHaltingY = false;				// Slowing turn in Y direction
 
-	public int turnXStartFrame, turnYStartFrame, 
+	private int turnXStartFrame, turnYStartFrame, 
 				turnXTargetFrame, turnYTargetFrame;
-	public float turnXDirection, turnXTarget, 
+	private float turnXDirection, turnXTarget, 
 				  turnXStart, turnXIncrement;
-	public float turnYDirection, turnYTarget,
+	private float turnYDirection, turnYTarget,
 				  turnYStart, turnYIncrement;
 
 	final private float turningNearDistance = PApplet.PI / 12.f;
@@ -254,7 +231,7 @@ public class WMV_Viewer
 				if(clusterLockIdleFrames > settings.lockToClusterWaitLength)			// If after wait length, lock to nearest cluster
 				{
 					int nearest = getNearestCluster(true);					// Get nearest cluster location, including current cluster
-					WMV_Cluster c = p.getCluster(nearest);
+					WMV_Cluster c = p.getCurrentField().getCluster(nearest);
 					if(c.getClusterDistance() > p.settings.clusterCenterSize * 2.f)	// If the nearest cluster is farther than threshold distance
 						moveToCluster(c.getID(), false);					// Move to nearest cluster
 				}
@@ -293,7 +270,7 @@ public class WMV_Viewer
 	{
 		clustersVisible = new IntList();
 
-		for(WMV_Cluster c : p.getCurrentField().clusters)
+		for(WMV_Cluster c : p.getCurrentField().getClusters())
 		{
 			if(settings.orientationModeForceVisible)
 			{
@@ -321,7 +298,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					WMV_Cluster c = p.getCurrentField().clusters.get(i);
+					WMV_Cluster c = p.getCurrentField().getCluster(i);
 					float cDist = c.getLocation().dist(location);
 					float largest = -10000;
 					int largestIdx = -1;
@@ -329,7 +306,7 @@ public class WMV_Viewer
 
 					for(int n : clustersVisible)		// Find farthest
 					{
-						WMV_Cluster v = p.getCurrentField().clusters.get(n);
+						WMV_Cluster v = p.getCurrentField().getCluster(n);
 						float vDist = v.getLocation().dist(location);
 						if(vDist > largest)
 						{
@@ -465,7 +442,7 @@ public class WMV_Viewer
 		if(teleport)
 		{
 			teleportGoalCluster = newCluster;
-			PVector newLocation = ((WMV_Cluster) p.getCurrentField().clusters.get(newCluster)).getLocation();
+			PVector newLocation = ((WMV_Cluster) p.getCurrentField().getCluster(newCluster)).getLocation();
 			teleportToPoint(newLocation, true);
 		}
 		else
@@ -490,7 +467,7 @@ public class WMV_Viewer
 
 		if(settings.teleportToFarClusters && !teleport)
 		{
-			if( PVector.dist(p.getCluster(nearest).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
+			if( PVector.dist(p.getCurrentField().getCluster(nearest).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
 				teleportToCluster(nearest, true, -1);
 			else
 				setAttractorCluster( nearest );
@@ -519,7 +496,7 @@ public class WMV_Viewer
 
 			if(settings.teleportToFarClusters && !teleport)
 			{
-				if( PVector.dist(p.getCluster(ahead).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
+				if( PVector.dist(p.getCurrentField().getCluster(ahead).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
 					teleportToCluster(ahead, true, -1);
 				else
 					setAttractorCluster( ahead );
@@ -553,7 +530,7 @@ public class WMV_Viewer
 			if(settings.teleportToFarClusters && !teleport)
 			{
 				teleportGoalCluster = lastCluster;
-				PVector newLocation = ((WMV_Cluster) p.getCurrentField().clusters.get(lastCluster)).getLocation();
+				PVector newLocation = ((WMV_Cluster) p.getCurrentField().getCluster(lastCluster)).getLocation();
 				if( PVector.dist(newLocation, getLocation()) > settings.farClusterTeleportDistance )
 				{
 					teleportToPoint(newLocation, true);
@@ -569,7 +546,7 @@ public class WMV_Viewer
 				if(teleport)
 				{
 					teleportGoalCluster = lastCluster;
-					PVector newLocation = ((WMV_Cluster) p.getCurrentField().clusters.get(lastCluster)).getLocation();
+					PVector newLocation = ((WMV_Cluster) p.getCurrentField().getCluster(lastCluster)).getLocation();
 					teleportToPoint(newLocation, true);
 				}
 				else
@@ -593,7 +570,7 @@ public class WMV_Viewer
 		int count = 0;
 		boolean found = false;
 		
-		if (next >= p.getCurrentField().clusters.size())
+		if (next >= p.getCurrentField().getClusters().size())
 			next = 0;
 		
 		if(p.p.debug.viewer)
@@ -602,11 +579,11 @@ public class WMV_Viewer
 		/* Find goal cluster */
 		if(mediaType == -1)	// Any media
 		{
-			while( p.getCurrentField().clusters.get(next).isEmpty() || next == currentCluster )		// Increment nextCluster until different non-empty cluster found
+			while( p.getCurrentField().getCluster(next).isEmpty() || next == currentCluster )		// Increment nextCluster until different non-empty cluster found
 			{
 				next++;
 
-				if (next >= p.getCurrentField().clusters.size())
+				if (next >= p.getCurrentField().getClusters().size())
 				{
 					next = 0;
 					count++;
@@ -614,7 +591,7 @@ public class WMV_Viewer
 					if(count > 3) break;
 				}
 
-				if(p.getCurrentField().clusters.get(next).mediaCount != 0)
+				if(p.getCurrentField().getCluster(next).mediaCount != 0)
 					PApplet.println("Error: Cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 
@@ -627,13 +604,13 @@ public class WMV_Viewer
 
 		if(mediaType == 1)		// Panorama
 		{
-			while(  !p.getCurrentField().clusters.get(next).panorama || 		// Increment nextCluster until different non-empty panorama cluster found
-					p.getCurrentField().clusters.get(next).isEmpty() || 
+			while(  !p.getCurrentField().getCluster(next).panorama || 		// Increment nextCluster until different non-empty panorama cluster found
+					p.getCurrentField().getCluster(next).isEmpty() || 
 					next == currentCluster )
 			{
 				next++;
 
-				if(next >= p.getCurrentField().clusters.size())
+				if(next >= p.getCurrentField().getClusters().size())
 				{
 					next = 0;
 					count++;
@@ -646,7 +623,7 @@ public class WMV_Viewer
 					}
 				}
 				
-				if(p.getCurrentField().clusters.get(next).isEmpty() && p.getCurrentField().clusters.get(next).mediaCount != 0)		// Testing
+				if(p.getCurrentField().getCluster(next).isEmpty() && p.getCurrentField().getCluster(next).mediaCount != 0)		// Testing
 					PApplet.println("Error: Panorama cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 			
@@ -665,13 +642,13 @@ public class WMV_Viewer
 		
 		if(mediaType == 2)				// Video
 		{
-			while(  !p.getCurrentField().clusters.get(next).video || 		// Increment nextCluster until different non-empty video cluster found
-					p.getCurrentField().clusters.get(next).isEmpty() || 
+			while(  !p.getCurrentField().getCluster(next).video || 		// Increment nextCluster until different non-empty video cluster found
+					p.getCurrentField().getCluster(next).isEmpty() || 
 					next == currentCluster )
 			{
 				next++;
 
-				if(next >= p.getCurrentField().clusters.size())
+				if(next >= p.getCurrentField().getClusters().size())
 				{
 					next = 0;
 					count++;
@@ -683,7 +660,7 @@ public class WMV_Viewer
 					}
 				}
 				
-				if(p.getCurrentField().clusters.get(next).isEmpty() && p.getCurrentField().clusters.get(next).mediaCount != 0)		// Testing
+				if(p.getCurrentField().getCluster(next).isEmpty() && p.getCurrentField().getCluster(next).mediaCount != 0)		// Testing
 					PApplet.println("Error: Video cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 			
@@ -725,12 +702,12 @@ public class WMV_Viewer
 		WMV_Field f = p.getField(fieldID);
 
 		if(p.p.debug.viewer && p.p.debug.detailed)
-			p.display.message("moveToTimeSegmentInField:"+f.timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.timeline.size():"+f.timeline.size());
+			p.display.message("moveToTimeSegmentInField:"+f.getTimeline().get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().size());
 
-		if(f.timeline.size()>0)
+		if(f.getTimeline().size()>0)
 		{
-			int clusterID = f.timeline.get(fieldTimeSegment).getClusterID();
-			if(clusterID == currentCluster && p.getCluster(clusterID).getClusterDistance() < p.settings.clusterCenterSize)	// Moving to different time in same cluster
+			int clusterID = f.getTimeline().get(fieldTimeSegment).getClusterID();
+			if(clusterID == currentCluster && p.getCurrentField().getCluster(clusterID).getClusterDistance() < p.settings.clusterCenterSize)	// Moving to different time in same cluster
 			{
 				boolean success = setCurrentFieldTimeSegment(fieldTimeSegment, true);
 				if(p.p.debug.viewer && p.p.debug.detailed)
@@ -743,7 +720,7 @@ public class WMV_Viewer
 				
 				if(settings.teleportToFarClusters && !teleport)
 				{
-					if( PVector.dist(p.getCluster(clusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
+					if( PVector.dist(p.getCurrentField().getCluster(clusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
 						teleportToCluster(clusterID, fade, fieldTimeSegment);
 					else
 						setAttractorCluster(clusterID);
@@ -769,7 +746,7 @@ public class WMV_Viewer
 //		PApplet.println("teleportToCluster() dest:"+dest);
 		if(dest >= 0 && dest < p.getFieldClusters().size())
 		{
-			WMV_Cluster c = p.getCurrentField().clusters.get(dest);
+			WMV_Cluster c = p.getCurrentField().getCluster(dest);
 
 			if(fade)
 			{
@@ -784,7 +761,7 @@ public class WMV_Viewer
 			}
 		}
 		else if(p.p.debug.cluster || p.p.debug.field || p.p.debug.viewer)
-			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().clusters.size());
+			PApplet.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().getClusters().size());
 	}
 
 	public void setLocation(PVector newLocation)
@@ -826,9 +803,9 @@ public class WMV_Viewer
 			if(p.p.debug.viewer)
 				p.display.message("Moving to field: "+newField+" out of "+p.getFieldCount());
 			if(p.p.debug.viewer)
-				p.display.message("... at cluster: "+currentCluster+" out of "+p.getField(newField).clusters.size());
+				p.display.message("... at cluster: "+currentCluster+" out of "+p.getField(newField).getClusters().size());
 
-			if(p.getField(newField).clusters.size() > 0)			// Check whether field has clusters (is valid)
+			if(p.getField(newField).getClusters().size() > 0)			// Check whether field has clusters (is valid)
 			{
 				if(fade)
 				{
@@ -861,7 +838,7 @@ public class WMV_Viewer
 		float smallest = 100000.f;
 		int smallestIdx = 0;
 
-		if (p.getCurrentField().clusters.size() > 0) 
+		if (p.getCurrentField().getClusters().size() > 0) 
 		{
 			for (WMV_Cluster c : p.getActiveClusters()) 
 			{
@@ -956,7 +933,7 @@ public class WMV_Viewer
 					count++;
 				}
 
-				float fcDist = PVector.dist(vPos, p.getCluster(largestIdx).getLocation());		// Distance of farthest cluster on nearList
+				float fcDist = PVector.dist(vPos, p.getCurrentField().getCluster(largestIdx).getLocation());		// Distance of farthest cluster on nearList
 				if(dist < fcDist)
 				{
 					nearList.remove(largestIdx);
@@ -981,20 +958,20 @@ public class WMV_Viewer
 		if(currentDate)
 		{
 			int newValue = currentFieldTimeSegmentOnDate+1;
-			if(currentFieldDate >= p.getCurrentField().timelines.size())
+			if(currentFieldDate >= p.getCurrentField().getTimelines().size())
 			{
 				currentFieldDate = 0;
 				currentFieldTimeSegmentOnDate = 0;
 				PApplet.println("--> Current field date reset! currentFieldDate was greater than timelines.size(): "
-						+p.getCurrentField().timelines.size()+"  dateline.size(): "+p.getCurrentField().dateline.size());
+						+p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size());
 			}
 			else
 			{
-				if(newValue >= p.getCurrentField().timelines.get(currentFieldDate).size()) 		// Reached end of day
+				if(newValue >= p.getCurrentField().getTimelines().get(currentFieldDate).size()) 		// Reached end of day
 				{
 					if(p.p.debug.viewer) p.display.message("Reached end of day...");
 					currentFieldDate++;
-					if(currentFieldDate >= p.getCurrentField().dateline.size()) 
+					if(currentFieldDate >= p.getCurrentField().getDateline().size()) 
 					{
 						if(p.p.debug.viewer) p.display.message("Reached end of year...");
 						currentFieldDate = 0;
@@ -1002,10 +979,10 @@ public class WMV_Viewer
 					}
 					else
 					{
-						while(p.getCurrentField().timelines.get(currentFieldDate).size() == 0)		// Go to next non-empty date
+						while(p.getCurrentField().getTimelines().get(currentFieldDate).size() == 0)		// Go to next non-empty date
 						{
 							currentFieldDate++;
-							if(currentFieldDate >= p.getCurrentField().dateline.size())
+							if(currentFieldDate >= p.getCurrentField().getDateline().size())
 								currentFieldDate = 0;
 						}
 						if(p.p.debug.viewer) p.display.message("Moved to next date: "+currentFieldDate);
@@ -1019,7 +996,7 @@ public class WMV_Viewer
 		else
 		{
 			boolean success = setCurrentFieldTimeSegment(currentFieldTimeSegment+1, true);
-			if(currentFieldTimeSegment >= p.getCurrentField().timeline.size())
+			if(currentFieldTimeSegment >= p.getCurrentField().getTimeline().size())
 				success = setCurrentFieldTimeSegment(0, true);									// Return to first segment
 		}
 
@@ -1036,12 +1013,12 @@ public class WMV_Viewer
 		if(currentDate)
 		{
 			int newValue = currentFieldTimeSegmentOnDate-1;
-			if(currentFieldDate >= p.getCurrentField().timelines.size())
+			if(currentFieldDate >= p.getCurrentField().getTimelines().size())
 			{
 				currentFieldDate = 0;
 				currentFieldTimeSegmentOnDate = 0;
 				PApplet.println("--> Current field date reset!... was greater than timelines.size(): "
-								+p.getCurrentField().timelines.size()+"  dateline.size(): "+p.getCurrentField().dateline.size());
+								+p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size());
 			}
 			else
 			{
@@ -1050,12 +1027,12 @@ public class WMV_Viewer
 					currentFieldDate--;
 					if(currentFieldDate < 0) 
 					{
-						currentFieldDate = p.getCurrentField().dateline.size()-1;			// Go to last date
-						boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1, true);		// Go to last segment
+						currentFieldDate = p.getCurrentField().getDateline().size()-1;			// Go to last date
+						boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().getTimelines().get(currentFieldDate).size()-1, true);		// Go to last segment
 					}
 					else
 					{
-						boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().timelines.get(currentFieldDate).size()-1, true);		// Start at last segment
+						boolean success = setCurrentFieldTimelinesSegment(p.getCurrentField().getTimelines().get(currentFieldDate).size()-1, true);		// Start at last segment
 					}
 				}	
 				else
@@ -1068,7 +1045,7 @@ public class WMV_Viewer
 		{
 			boolean success = setCurrentFieldTimeSegment(currentFieldTimeSegment-1, true);
 			if(currentFieldTimeSegment < 0)
-				success = setCurrentFieldTimeSegment(p.getCurrentField().timeline.size()-1, true);
+				success = setCurrentFieldTimeSegment(p.getCurrentField().getTimeline().size()-1, true);
 		}
 
 		moveToTimeSegmentInField(p.getCurrentField().fieldID, currentFieldTimeSegment, teleport, fade);
@@ -1198,13 +1175,13 @@ public class WMV_Viewer
 		switch(mediaType)
 		{
 			case 0:			// Image
-				turnLoc = p.getCurrentField().images.get(id).getLocation();
+				turnLoc = p.getCurrentField().getImage(id).getLocation();
 				break;
 			case 1:			// Panorama		-- Turn towards "center"?
-//				turnLoc = p.getCurrentField().images.get(id).getLocation();
+//				turnLoc = p.getCurrentField().getImage(id).getLocation();
 				break;
 			case 2:			// Video
-				turnLoc = p.getCurrentField().videos.get(id).getLocation();
+				turnLoc = p.getCurrentField().getVideo(id).getLocation();
 				break;
 			case 3:			// Sound
 //				turnLoc = p.getCurrentField().sounds.get(id).getLocation();
@@ -1418,7 +1395,7 @@ public class WMV_Viewer
 		for (int i = 0; i < clustersAlongVector.size(); i++) 		// Compare distances of clusters in front
 		{
 			PVector cPos = getLocation();
-			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().clusters.get(i);
+			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().getCluster(i);
 			if(p.p.debug.viewer && p.p.debug.detailed)
 				p.display.message("Checking Centered Cluster... "+c.getID());
 		
@@ -1448,31 +1425,31 @@ public class WMV_Viewer
 		int nextCluster;
 		
 		nextCluster = p.viewer.currentCluster + 1;
-		if(nextCluster >= p.getCurrentField().clusters.size())
+		if(nextCluster >= p.getCurrentField().getClusters().size())
 			nextCluster = 0;
 		int count = 0;
 		boolean found = false;
-		while(p.getCluster(nextCluster).timeline.size() < 2)
+		while(p.getCurrentField().getCluster(nextCluster).getTimeline().size() < 2)
 		{
 			nextCluster++;
 			count++;
-			if(nextCluster >= p.getCurrentField().clusters.size())
+			if(nextCluster >= p.getCurrentField().getClusters().size())
 				nextCluster = 0;
-			if(count >= p.getCurrentField().clusters.size())
+			if(count >= p.getCurrentField().getClusters().size())
 				break;
 		}
 
-		if(count < p.getCurrentField().clusters.size())
+		if(count < p.getCurrentField().getClusters().size())
 			found = true;
 
 		if(p.p.debug.viewer && p.p.debug.detailed)
-			p.display.message("moveToClusterWith2OrMoreTimes... setting attractor:"+p.getCurrentField().timeline.get(nextCluster).getFieldTimelineID());
+			p.display.message("moveToClusterWith2OrMoreTimes... setting attractor:"+p.getCurrentField().getTimeline().get(nextCluster).getFieldTimelineID());
 
 		if(found)
 		{
 			if(settings.teleportToFarClusters && !teleport)
 			{
-				if( PVector.dist(p.getCluster(nextCluster).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
+				if( PVector.dist(p.getCurrentField().getCluster(nextCluster).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
 					teleportToCluster(nextCluster, true, -1);
 				else
 					setAttractorCluster(nextCluster);
@@ -1480,9 +1457,9 @@ public class WMV_Viewer
 			else
 			{
 				if(teleport)
-					teleportToCluster(p.getCurrentField().clusters.get(nextCluster).getID(), true, -1);
+					teleportToCluster(p.getCurrentField().getCluster(nextCluster).getID(), true, -1);
 				else
-					setAttractorCluster(p.getCurrentField().clusters.get(nextCluster).getID());
+					setAttractorCluster(p.getCurrentField().getCluster(nextCluster).getID());
 			}
 		}
 	}
@@ -1505,8 +1482,8 @@ public class WMV_Viewer
 //		}
 //		
 //		if(p.p.debug.viewer && p.p.debug.detailed)
-//			p.display.message("moveToNearestClusterInFuture... setting attractor:"+p.getCurrentField().timeline.get(nextTimeCluster).getID());
-//		setAttractorCluster(p.getCurrentField().timeline.get(nextTimeCluster).getID());
+//			p.display.message("moveToNearestClusterInFuture... setting attractor:"+p.getCurrentField().getTimeline().get(nextTimeCluster).getID());
+//		setAttractorCluster(p.getCurrentField().getTimeline().get(nextTimeCluster).getID());
 	}
 
 	/**
@@ -1528,18 +1505,18 @@ public class WMV_Viewer
 	 */
 	public void moveToRandomCluster(boolean teleport)
 	{
-		int rand = (int) p.p.random(p.getCurrentField().clusters.size());
-		while(p.getCurrentField().clusters.get(rand).isEmpty())
+		int rand = (int) p.p.random(p.getCurrentField().getClusters().size());
+		while(p.getCurrentField().getCluster(rand).isEmpty())
 		{
-			rand = (int) p.p.random(p.getCurrentField().clusters.size());
+			rand = (int) p.p.random(p.getCurrentField().getClusters().size());
 		}
 
-		while(p.getCurrentField().clusters.get(rand).isEmpty() || rand == currentCluster)
-			rand = (int) p.p.random(p.getCurrentField().clusters.size());
+		while(p.getCurrentField().getCluster(rand).isEmpty() || rand == currentCluster)
+			rand = (int) p.p.random(p.getCurrentField().getClusters().size());
 
 		if(settings.teleportToFarClusters && !teleport)
 		{
-			if( PVector.dist(p.getCluster(rand).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
+			if( PVector.dist(p.getCurrentField().getCluster(rand).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
 				teleportToCluster(rand, true, -1);
 			else
 				setAttractorCluster( rand );
@@ -1583,14 +1560,14 @@ public class WMV_Viewer
 		movingToCluster = true;													// Move to cluster
 		attractionStart = p.p.frameCount;
 		
-		for(WMV_Cluster c : p.getCurrentField().clusters)
+		for(WMV_Cluster c : p.getCurrentField().getClusters())
 			c.setAttractor(false);
 
-		p.getCurrentField().clusters.get(attractorCluster).setAttractor(true);
+		p.getCurrentField().getCluster(attractorCluster).setAttractor(true);
 		
-		if(p.getCurrentField().clusters.get(attractorCluster).getClusterDistance() < clusterNearDistance)
+		if(p.getCurrentField().getCluster(attractorCluster).getClusterDistance() < clusterNearDistance)
 		{
-			if(p.getCurrentField().clusters.get(attractorCluster).getClusterDistance() > p.settings.clusterCenterSize)
+			if(p.getCurrentField().getCluster(attractorCluster).getClusterDistance() > p.settings.clusterCenterSize)
 			{
 				if(p.p.debug.viewer) p.display.message("Moving nearby...");
 				movingNearby = true;
@@ -1724,9 +1701,10 @@ public class WMV_Viewer
 
 		/* Time */
 		currentFieldDate = 0;					// Current date in field dateline
-		currentClusterDate = 0;				// Current date segment in cluster dateline
 		currentFieldTimeSegment = 0;				// Current time segment in field timeline
-		currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
+//		currentClusterDate = 0;				// Current date segment in cluster dateline
+//		currentClusterTimeSegment = 0;			// Current time segment in cluster timeline
+//		currentClusterTimelinesSegment = 0;			// Current time segment in cluster date-specific timeline
 		
 		/* Memory */
 		movingToAttractor = false;			// Moving to attractor poanywhere in field
@@ -1742,15 +1720,6 @@ public class WMV_Viewer
 		attractionStart = 0;
 		teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
 		clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
-
-		/* Sound */
-		audibleFarDistanceFadeLength = 40;
-		audibleFarDistanceDiv = (float) 1.5;
-		audibleFarDistanceTransition = false;
-
-		audibleNearDistanceFadeLength = 40;
-		audibleNearDistanceDiv = (float) 1.2; 
-		audibleNearDistanceTransition = false;
 		
 		/* Teleporting */
 		movementTeleport = false;		// Teleport when following navigation commands
@@ -1852,7 +1821,7 @@ public class WMV_Viewer
 //		else
 //			vLoc = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);			// Update location
 		
-		WMV_Model m = p.getCurrentField().model;
+		WMV_Model m = p.getCurrentField().getModel();
 		
 		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
 		float newY = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
@@ -1862,25 +1831,30 @@ public class WMV_Viewer
 		return gpsLoc;
 	}
 	
-	public float getVelocity()
+	public PVector getVelocity()
 	{
 		if(walking)
-			return walkingVelocity.mag();
+			return walkingVelocity;
 		else
-			return velocity.mag();
+			return velocity;
 	}
 
-	public float getAcceleration()
+	public PVector getAcceleration()
 	{
 		if(walking)
-			return walkingAcceleration.mag();
+			return walkingAcceleration;
 		else
-			return acceleration.mag();
+			return acceleration;
+	}
+
+	public void attract(PVector force)
+	{
+		attraction.add( force );		// Add attraction force to camera 
 	}
 	
-	public float getAttraction()
+	public PVector getAttraction()
 	{
-		return attraction.mag();
+		return attraction;
 	}
 	
 	/**
@@ -2117,15 +2091,15 @@ public class WMV_Viewer
 						switch((int)turningMediaGoal.y)
 						{
 							case 0:
-								WMV_Image img = p.getCurrentField().images.get((int)turningMediaGoal.x);
+								WMV_Image img = p.getCurrentField().getImage((int)turningMediaGoal.x);
 								goalMediaBrightness = img.viewingBrightness;
 								break;
 							case 1:
-								WMV_Panorama pano = p.getCurrentField().panoramas.get((int)turningMediaGoal.x);
+								WMV_Panorama pano = p.getCurrentField().getPanorama((int)turningMediaGoal.x);
 								goalMediaBrightness = pano.viewingBrightness;
 								break;
 							case 2:
-								WMV_Video vid = p.getCurrentField().videos.get((int)turningMediaGoal.x);
+								WMV_Video vid = p.getCurrentField().getVideo((int)turningMediaGoal.x);
 								goalMediaBrightness =  vid.viewingBrightness;
 								break;
 						}
@@ -2315,7 +2289,7 @@ public class WMV_Viewer
 
 		if(attractorCluster != -1)
 		{
-			float curAttractorDistance = PVector.dist( p.getCurrentField().clusters.get(attractorCluster).getLocation(), getLocation() );
+			float curAttractorDistance = PVector.dist( p.getCurrentField().getCluster(attractorCluster).getLocation(), getLocation() );
 			if(curAttractorDistance > settings.lastAttractorDistance && !slowing)	// If the camera is getting farther than attractor
 			{
 				if(p.p.debug.viewer && attractionStart - p.p.frameCount > 20)
@@ -2327,7 +2301,7 @@ public class WMV_Viewer
 			}
 
 			/* Record last attractor distance */
-			settings.lastAttractorDistance = PVector.dist(p.getCurrentField().clusters.get(attractorCluster).getLocation(), getLocation());
+			settings.lastAttractorDistance = PVector.dist(p.getCurrentField().getCluster(attractorCluster).getLocation(), getLocation());
 		}
 
 		/* Reset acceleration each frame */
@@ -2467,7 +2441,7 @@ public class WMV_Viewer
 		if(p.p.debug.viewer && p.p.debug.detailed)
 		{
 			WMV_Cluster curAttractor = p.getAttractorCluster();
-//			WMV_Cluster curAttractor = p.getCurrentField().clusters.get(attractorCluster);
+//			WMV_Cluster curAttractor = p.getCurrentField().getCluster(attractorCluster);
 			if(curAttractor != null) p.display.message("Halting...  curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
 			else p.display.message("Halting... no attractor");
 		}
@@ -2503,7 +2477,7 @@ public class WMV_Viewer
 		
 		for (int i : nearClusters) 							// Iterate through the clusters
 		{
-			WMV_Cluster c = p.getCurrentField().clusters.get(i);
+			WMV_Cluster c = p.getCurrentField().getCluster(i);
 			PVector clusterVector = getVectorToCluster(c);
 			PVector crossVector = new PVector();
 			PVector.cross(camOrientation, clusterVector, crossVector);		// Cross vector gives angle between camera and image
@@ -2525,7 +2499,7 @@ public class WMV_Viewer
 
 		for (int i = 0; i < frontClusters.size(); i++) 		// Compare distances of clusters in front
 		{
-			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().clusters.get(i);
+			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().getCluster(i);
 			if(p.p.debug.cluster || p.p.debug.viewer)
 				p.display.message("Checking Centered Cluster... "+c.getID());
 		
@@ -2599,7 +2573,8 @@ public class WMV_Viewer
 						p.display.message("No images visible! will look at nearest image...");
 					lookAtNearestMedia();			// Look for images around the camera
 				}
-				else if(p.getCurrentField().imagesVisible + p.getCurrentField().videosVisible >= settings.mediaDensityThreshold)
+				else if(p.getCurrentField().getImagesVisible() + p.getCurrentField().getPanoramasVisible()
+						+ p.getCurrentField().getVideosVisible() >= settings.mediaDensityThreshold)				// -- Update this!
 				{
 					if( mediaAreVisible(false, settings.mediaDensityThreshold) && !settings.angleFading )
 					{
@@ -2715,7 +2690,7 @@ public class WMV_Viewer
 		{
 			for(int i:c.images)
 			{
-				WMV_Image img = p.getCurrentField().images.get(i);
+				WMV_Image img = p.getCurrentField().getImage(i);
 				PVector cameraPosition = getLocation();
 				PVector camOrientation = getOrientation();
 				PVector goal = img.getLocation();
@@ -2749,7 +2724,7 @@ public class WMV_Viewer
 
 			for(int i:c.videos)
 			{
-				WMV_Video vid = p.getCurrentField().videos.get(i);
+				WMV_Video vid = p.getCurrentField().getVideo(i);
 				PVector cameraPosition = getLocation();
 				PVector camOrientation = getOrientation();
 				PVector goal = vid.getLocation();
@@ -3095,10 +3070,10 @@ public class WMV_Viewer
 		
 		for(int clusterID : nearClusters)
 		{
-			WMV_Cluster cluster = p.getCluster(clusterID);
+			WMV_Cluster cluster = p.getCurrentField().getCluster(clusterID);
 			for( int id : cluster.images )
 			{
-				WMV_Image i = p.getCurrentField().images.get(id);
+				WMV_Image i = p.getCurrentField().getImage(id);
 				if(i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() 
 				&& i.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
@@ -3109,7 +3084,7 @@ public class WMV_Viewer
 
 			for( int id : cluster.panoramas )
 			{
-				WMV_Panorama n = p.getCurrentField().panoramas.get(id);
+				WMV_Panorama n = p.getCurrentField().getPanorama(id);
 				if(n.getViewingDistance() < settings.farViewingDistance + p.settings.defaultFocusDistance 
 						&& n.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
@@ -3120,7 +3095,7 @@ public class WMV_Viewer
 
 			for( int id : cluster.videos )
 			{
-				WMV_Video v = p.getCurrentField().videos.get(id);
+				WMV_Video v = p.getCurrentField().getVideo(id);
 				if(v.getViewingDistance() <= settings.farViewingDistance + v.getFocusDistance()
 				&& v.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
 				{
@@ -3258,7 +3233,7 @@ public class WMV_Viewer
 	public void chooseMediaInFront(boolean select) 
 	{
 		ArrayList<WMV_Image> possibleImages = new ArrayList<WMV_Image>();
-		for(WMV_Image i : p.getCurrentField().images)
+		for(WMV_Image i : p.getCurrentField().getImages())
 		{
 			if(i.getViewingDistance() <= settings.selectionMaxDistance)
 				if(!i.disabled)
@@ -3283,7 +3258,7 @@ public class WMV_Viewer
 		}
 
 		ArrayList<WMV_Video> possibleVideos = new ArrayList<WMV_Video>();
-		for(WMV_Video v : p.getCurrentField().videos)
+		for(WMV_Video v : p.getCurrentField().getVideos())
 		{
 			if(v.getViewingDistance() <= settings.selectionMaxDistance)
 				if(!v.disabled)
@@ -3321,7 +3296,7 @@ public class WMV_Viewer
 				if(settings.segmentSelection)											// Segment selection
 				{
 					int segmentID = -1;
-					WMV_Cluster c = p.getCluster( p.getCurrentField().images.get(newSelected).cluster );
+					WMV_Cluster c = p.getCurrentField().getCluster( p.getCurrentField().getImage(newSelected).cluster );
 					for(WMV_MediaSegment m : c.segments)
 					{
 						if(m.getImages().hasValue(newSelected))
@@ -3337,13 +3312,13 @@ public class WMV_Viewer
 					if(segmentID != -1)
 					{
 						for(int i : c.segments.get(segmentID).getImages())				// Set all images in selected segment to new state
-							p.getCurrentField().images.get(i).setSelected(select);
+							p.getCurrentField().getImage(i).setSelected(select);
 					}
 				}
 				else												// Single image selection
 				{
 					if(newSelected != -1)
-						p.getCurrentField().images.get(newSelected).setSelected(select);
+						p.getCurrentField().getImage(newSelected).setSelected(select);
 				}
 			}
 			else if(closestVideoDist < closestImageDist && closestVideoDist != 100000.f)
@@ -3352,12 +3327,12 @@ public class WMV_Viewer
 				if(p.p.debug.viewer) 	p.display.message("Selected video in front: "+newSelected);
 
 				if(newSelected != -1)
-					p.getCurrentField().videos.get(newSelected).setSelected(select);
+					p.getCurrentField().getVideo(newSelected).setSelected(select);
 			}
 		}
 		else if(closestVideoDist != 100000.f)					// In Normal Mode
 		{
-			WMV_Video v = p.getCurrentField().videos.get(closestVideoID);
+			WMV_Video v = p.getCurrentField().getVideo(closestVideoID);
 
 			if(!v.isPlaying())									// Play video by choosing it
 			{
@@ -3389,7 +3364,7 @@ public class WMV_Viewer
 			int highestIdx = -1;		// farthest cluster ID in list
 			float highestDist = 0.f;		
 
-			for(WMV_Cluster c : p.getCurrentField().clusters)
+			for(WMV_Cluster c : p.getCurrentField().getClusters())
 			{
 				if(!c.isEmpty())
 				{
@@ -3420,7 +3395,7 @@ public class WMV_Viewer
 					{
 						for(int i : list)				// Sort the list lowest to highest
 						{
-							float checkDist = PVector.dist(p.getCurrentField().clusters.get(i).getLocation(), location);
+							float checkDist = PVector.dist(p.getCurrentField().getCluster(i).getLocation(), location);
 							if(checkDist < leastDist)
 							{
 								leastDist = checkDist;
@@ -3547,9 +3522,9 @@ public class WMV_Viewer
 
 		WMV_Field f = p.getCurrentField();
 
-		for (int i = 0; i < f.images.size(); i++) {
-			if (f.images.get(i).visible) {
-				float imageAngle = f.images.get(i).getFacingAngle();
+		for (int i = 0; i < f.getImages().size(); i++) {
+			if (f.getImage(i).visible) {
+				float imageAngle = f.getImage(i).getFacingAngle();
 				if (imageAngle < smallest) {
 					smallest = imageAngle;
 					smallestIdx = i;
@@ -3568,9 +3543,9 @@ public class WMV_Viewer
 		int smallestIdx = 0;
 		WMV_Field f = p.getCurrentField();
 
-		for (int i = 0; i < f.images.size(); i++) {
-			if (f.images.get(i).visible) {
-				float imageDist = f.images.get(i).getViewingDistance();
+		for (int i = 0; i < f.getImages().size(); i++) {
+			if (f.getImage(i).visible) {
+				float imageDist = f.getImage(i).getViewingDistance();
 				if (imageDist < smallest && imageDist > settings.nearClippingDistance) {
 					smallest = imageDist;
 					smallestIdx = i;
@@ -3590,9 +3565,9 @@ public class WMV_Viewer
 
 		WMV_Field f = p.getCurrentField();
 
-		for (int i = 0; i < f.videos.size(); i++) {
-			if (f.videos.get(i).visible) {
-				float videoAngle = f.videos.get(i).getFacingAngle();
+		for (int i = 0; i < f.getVideos().size(); i++) {
+			if (f.getVideo(i).visible) {
+				float videoAngle = f.getVideo(i).getFacingAngle();
 				if (videoAngle < smallest) {
 					smallest = videoAngle;
 					smallestIdx = i;
@@ -3611,9 +3586,9 @@ public class WMV_Viewer
 		int smallestIdx = 0;
 		WMV_Field f = p.getCurrentField();
 
-		for (int i = 0; i < f.videos.size(); i++) {
-			if (f.videos.get(i).visible) {
-				float videoDist = f.videos.get(i).getViewingDistance();
+		for (int i = 0; i < f.getVideos().size(); i++) {
+			if (f.getVideo(i).visible) {
+				float videoDist = f.getVideo(i).getViewingDistance();
 				if (videoDist < smallest && videoDist > settings.nearClippingDistance) {
 					smallest = videoDist;
 					smallestIdx = i;
@@ -3779,22 +3754,18 @@ public class WMV_Viewer
 
 				float newX = 0.f, newZ = 0.f, newY = 0.f;
 
-				if(p.getCurrentField().model.highLongitude != -1000000 && p.getCurrentField().model.lowLongitude != 1000000 && p.getCurrentField().model.highLatitude != -1000000 && p.getCurrentField().model.lowLatitude != 1000000 && p.getCurrentField().model.highAltitude != -1000000 && p.getCurrentField().model.lowAltitude != 1000000)
+				WMV_Model m = p.getCurrentField().getModel();
+				if(m.highLongitude != -1000000 && m.lowLongitude != 1000000 && m.highLatitude != -1000000 && m.lowLatitude != 1000000 && m.highAltitude != -1000000 && m.lowAltitude != 1000000)
 				{
-					if(p.getCurrentField().model.highLongitude != p.getCurrentField().model.lowLongitude && p.getCurrentField().model.highLatitude != p.getCurrentField().model.lowLatitude)
+					if(m.highLongitude != m.lowLongitude && m.highLatitude != m.lowLatitude)
 					{
-						WMV_Model m = p.getCurrentModel();
 						newX = PApplet.map(longitude, m.lowLongitude, m.highLongitude, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth); 			// GPS longitude decreases from left to right
 						newY = -PApplet.map(elevation, m.lowAltitude, m.highAltitude, 0.f, m.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
 						newZ = -PApplet.map(latitude, m.lowLatitude, m.highLatitude, -0.5f * m.fieldLength, 0.5f*m.fieldLength); 			// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
-						
-						if(p.settings.altitudeScaling)	
-							newY *= p.settings.altitudeScalingFactor;
+						if(p.settings.altitudeScaling)	newY *= p.settings.altitudeScalingFactor;
 					}
 					else
-					{
 						newX = newY = newZ = 0.f;
-					}
 				}
 
 				if(p.p.debug.viewer)
@@ -3831,7 +3802,7 @@ public class WMV_Viewer
 	
 	void getSoundLocationsFromGPSTrack()
 	{
-		for(WMV_Sound s : p.getCurrentField().sounds)
+		for(WMV_Sound s : p.getCurrentField().getSounds())
 		{
 			s.calculateLocationFromGPSTrack(gpsTrack);
 		}
@@ -3920,9 +3891,9 @@ public class WMV_Viewer
 				PApplet.println("i:"+i);
 				WMV_Waypoint w = history.get(i);
 				
-				if(p.getCurrentField().clusters.get(cPoint).getLocation() == w.getLocation())
+				if(p.getCurrentField().getCluster(cPoint).getLocation() == w.getLocation())
 				{
-					found.add(p.getCurrentField().clusters.get(cPoint));
+					found.add(p.getCurrentField().getCluster(cPoint));
 				}
 			}
 		}
@@ -3933,7 +3904,7 @@ public class WMV_Viewer
 	
 	void setCurrentCluster(int newCluster, int newFieldTimeSegment)
 	{
-		if(newCluster >= 0 && newCluster < p.getCurrentField().clusters.size())
+		if(newCluster >= 0 && newCluster < p.getCurrentField().getClusters().size())
 		{
 			lastCluster = currentCluster;
 			WMV_Cluster c = p.getCurrentCluster();
@@ -3952,9 +3923,9 @@ public class WMV_Viewer
 				WMV_Field f = p.getCurrentField();
 				if(newFieldTimeSegment == -1)						// If == -1, search for time segment
 				{
-					for(WMV_TimeSegment t : f.timeline)			// Search field timeline for cluster time segment
+					for(WMV_TimeSegment t : f.getTimeline())			// Search field timeline for cluster time segment
 					{
-						if(c.timeline != null)
+						if(c.getTimeline() != null)
 						{
 							if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
 							{
@@ -3994,12 +3965,12 @@ public class WMV_Viewer
 		
 		if(updateTimelinesSegment)
 		{
-			int newFieldDate = p.getCurrentField().timeline.get(currentFieldTimeSegment).getFieldDateID();
-			int newFieldTimelinesSegment = p.getCurrentField().timeline.get(currentFieldTimeSegment).getFieldTimelineIDOnDate();
+			int newFieldDate = p.getCurrentField().getTimeline().get(currentFieldTimeSegment).getFieldDateID();
+			int newFieldTimelinesSegment = p.getCurrentField().getTimeline().get(currentFieldTimeSegment).getFieldTimelineIDOnDate();
 			success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false);
 		}
 		
-		if(currentFieldTimeSegment >= 0 && currentFieldTimeSegment < p.getCurrentField().timeline.size())
+		if(currentFieldTimeSegment >= 0 && currentFieldTimeSegment < p.getCurrentField().getTimeline().size())
 			return success;
 		else
 			return false;
@@ -4013,21 +3984,21 @@ public class WMV_Viewer
 	 */
 	public boolean setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment, boolean updateTimelineSegment )
 	{
-//		if(p.getCurrentField().timelines != null)
-//			p.display.message("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate+" p.getCurrentField().timelines.get(currentFieldDate).size():"+p.getCurrentField().timelines.get(currentFieldDate).size()+" getLocation():"+getLocation());
+//		if(p.getCurrentField().getTimelines() != null)
+//			p.display.message("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate+" p.getCurrentField().getTimelines().get(currentFieldDate).size():"+p.getCurrentField().getTimelines().get(currentFieldDate).size()+" getLocation():"+getLocation());
 //		else
-//			p.display.message("p.getCurrentField().timelines == null!!!");
+//			p.display.message("p.getCurrentField().getTimelines() == null!!!");
 			
 		currentFieldTimeSegmentOnDate = newCurrentFieldTimelinesSegment;
 		p.display.updateCurrentSelectableTime = true;
 
-		if(currentFieldDate < p.getCurrentField().timelines.size())
+		if(currentFieldDate < p.getCurrentField().getTimelines().size())
 		{
-			if(p.getCurrentField().timelines.get(currentFieldDate).size() > 0 && currentFieldTimeSegmentOnDate < p.getCurrentField().timelines.get(currentFieldDate).size())
+			if(p.getCurrentField().getTimelines().get(currentFieldDate).size() > 0 && currentFieldTimeSegmentOnDate < p.getCurrentField().getTimelines().get(currentFieldDate).size())
 			{
 				if(updateTimelineSegment)
 				{
-					int fieldTimelineID = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
+					int fieldTimelineID = p.getCurrentField().getTimelines().get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
 					boolean success = setCurrentFieldTimeSegment(fieldTimelineID, false);
 					return success;
 				}
@@ -4077,12 +4048,13 @@ public class WMV_Viewer
 				success = setCurrentTimeSegmentAndDate(0, newDate, true);
 				newDate++;
 				count++;
-				if(count > p.getCurrentField().dateline.size()) 
+				if(count > p.getCurrentField().getDateline().size()) 
 					break;
 			}
 			if(success)
 			{
-				int curFieldTimeSegment = p.getCurrentField().timelines.get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
+				int curFieldTimeSegment = p.getCurrentField().getTimeSegmentOnDate(currentFieldTimeSegmentOnDate, currentFieldDate).getFieldTimelineID();
+//				int curFieldTimeSegment = p.getCurrentField().getTimelines().get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
 				moveToTimeSegmentInField(p.getCurrentField().fieldID, curFieldTimeSegment, true, true);		// Move to first time segment in field
 			}
 			else PApplet.println("Couldn't move to first time segment...");
@@ -4213,12 +4185,77 @@ public class WMV_Viewer
 		return slowing;
 	}
 
+	public void setTurningX(boolean newTurningX)
+	{
+		turningX = newTurningX;
+	}
+	
+	public void setTurningY(boolean newTurningY)
+	{
+		turningY = newTurningY;
+	}
+
+	public boolean turningX()
+	{
+		return turningX;
+	}
+	
+	public boolean turningY()
+	{
+		return turningY;
+	}
+	
 	/**
 	 * @return Whether the viewer is halting
 	 */
 	public boolean isHalting()
 	{
 		return halting;
+	}
+
+	public int getCurrentMedia()
+	{
+		return currentMedia;
+	}
+	
+	public void setCurrentMedia( int newCurrentMedia )
+	{
+		currentMedia = newCurrentMedia;
+	}
+	
+	public int getCurrentMediaStartTime()
+	{
+		return currentMediaStartTime;
+	}
+	
+	public void setCurrentMediaStartTime(int newCurrentMediaStartTime)
+	{
+		currentMediaStartTime = newCurrentMediaStartTime;
+	}
+	
+	public int getNextMediaStartTime()
+	{
+		return nextMediaStartFrame;
+	}
+	
+	public boolean lookAtCurrentMedia()
+	{
+		return lookAtCurrentMedia;
+	}
+	
+	public void setNextMediaStartTime(int newNextMediaStartFrame)
+	{
+		nextMediaStartFrame = newNextMediaStartFrame;
+	}
+	
+	public ArrayList<WMV_TimeSegment>getNearbyClusterTimeline()
+	{
+		return nearbyClusterTimeline;
+	}
+	
+	public int getNearbyClusterTimelineMediaCount()
+	{
+		return nearbyClusterTimelineMediaCount;
 	}
 	
 	/**
@@ -4229,6 +4266,11 @@ public class WMV_Viewer
 		return attractorCluster;
 	}
 
+	public WMV_Cluster getAttractorPoint()
+	{
+		return attractorPoint;
+	}
+	
 	/**
 	 * @return Index of current cluster
 	 */
@@ -4237,12 +4279,47 @@ public class WMV_Viewer
 		return currentCluster;
 	}
 
+	public IntList getClustersVisible()
+	{
+		return clustersVisible;
+	}
+	
 	/**
 	 * @return Index of last cluster
 	 */
 	public int getLastCluster()
 	{
 		return lastCluster;
+	}
+	
+	public boolean getMovementTeleport()
+	{
+		return movementTeleport;
+	}
+
+	public boolean getFollowTeleport()
+	{
+		return followTeleport;
+	}
+
+	public void setMovementTeleport(boolean newMovementTeleport)
+	{
+		movementTeleport = newMovementTeleport;
+	}
+
+	public void setFollowTeleport(boolean newFollowTeleport)
+	{
+		followTeleport = newFollowTeleport;
+	}
+	
+	public int getFollowMode()
+	{	
+		return followMode;
+	}
+	
+	public void setFollowMode(int newFollowMode)
+	{
+		followMode = newFollowMode;
 	}
 	
 	/**
@@ -4366,6 +4443,12 @@ public class WMV_Viewer
 		zoomDirection = dir;
 		zooming = true;
 	}
+	
+//	private PVector velocity, acceleration, attraction;      // Physics model parameters
+//	public PVector getVelocity()
+//	{
+//		return velocity;
+//	}
 	
 //	/***
 //	 * jump()

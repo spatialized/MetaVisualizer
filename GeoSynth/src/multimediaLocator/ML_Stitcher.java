@@ -154,9 +154,9 @@ public class ML_Stitcher
 			String fileName = "";
 			
 			if(segmentID != -1)
-				fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched.jpg";
+				fileName = p.getCurrentField().getName()+"_"+clusterID+"_"+segmentID+"_stitched.jpg";
 			else
-				fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+(stitchNum++)+".jpg";
+				fileName = p.getCurrentField().getName()+"_"+clusterID+"_stitched_"+(stitchNum++)+".jpg";
 			
 			filePath = p.stitchingPath+fileName;
 
@@ -189,7 +189,7 @@ public class ML_Stitcher
 
 				for(int index : selected)
 				{
-					WMV_Image i = p.getCurrentField().images.get(index);
+					WMV_Image i = p.getCurrentField().getImage(index);
 					if(i.getDirection() < left)
 						left = i.getDirection();
 					if(i.getDirection() > right)
@@ -203,12 +203,12 @@ public class ML_Stitcher
 				float centerDirection = (right + left) / 2.f;
 				float centerElevation = (upper + lower) / 2.f;
 
-				segment = new WMV_MediaSegment( p.getCluster(clusterID), -1, selected, null, left, right, centerDirection,
+				segment = new WMV_MediaSegment( p.getCurrentField().getCluster(clusterID), -1, selected, null, left, right, centerDirection,
 						lower, upper, centerElevation);
 			}
 			else
 			{
-				segment = p.getCluster(clusterID).getMediaSegment(segmentID);
+				segment = p.getCurrentField().getCluster(clusterID).getMediaSegment(segmentID);
 			}
 
 			PImage result = addImageBorders(iplImage, clusterID, segment);
@@ -219,9 +219,9 @@ public class ML_Stitcher
 				String fileName = "";
 
 				if(segmentID != -1)
-					fileName = p.getCurrentField().name+"_"+clusterID+"_"+segmentID+"_stitched_borders.jpg";
+					fileName = p.getCurrentField().getName()+"_"+clusterID+"_"+segmentID+"_stitched_borders.jpg";
 				else
-					fileName = p.getCurrentField().name+"_"+clusterID+"_stitched_"+stitchNum+"_borders.jpg";
+					fileName = p.getCurrentField().getName()+"_"+clusterID+"_stitched_"+stitchNum+"_borders.jpg";
 
 				filePath = p.stitchingPath+fileName;
 
@@ -238,7 +238,7 @@ public class ML_Stitcher
 			
 			WMV_Panorama pano = new WMV_Panorama( p.getCurrentField(), segment.getID(), 1, "_stitched_"+Integer.toString(segment.getID()), 
 					"", null, panoDirection, panoElevation, -1, result.width, result.height, 
-					1.f, null, p.getCluster(clusterID).getLocation(), result );
+					1.f, null, p.getCurrentField().getCluster(clusterID).getLocation(), result );
 		
 			if(p.p.debug.stitching)
 			{
@@ -292,7 +292,7 @@ public class ML_Stitcher
 		int count = 0;
 		for(int i:imageList)
 		{
-			images[count] = p.getCurrentField().images.get(i).getFilePath();
+			images[count] = p.getCurrentField().getImage(i).getFilePath();
 			count++;
 		}
 		

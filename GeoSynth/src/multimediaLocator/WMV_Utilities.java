@@ -202,7 +202,7 @@ public class WMV_Utilities
 	 */
 	public int getCurrentDateInDaysSince1980()
 	{
-		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(p.getCurrentField().timeZoneID));
+		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(p.getCurrentField().getTimeZoneID()));
 		int year = now.getYear();
 		int month = now.getMonthValue();
 		int day = now.getDayOfMonth();
@@ -219,7 +219,7 @@ public class WMV_Utilities
 	public int getDaysSince1980(int day, int month, int year)
 	{
 		ZonedDateTime date1980 = ZonedDateTime.parse("1980-01-01T00:00:00+00:00[America/Los_Angeles]");
-		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(p.getCurrentField().timeZoneID));
+		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(p.getCurrentField().getTimeZoneID()));
 		Duration duration = Duration.between(date1980, date);
 		
 //		if(p.p.debug.time)
@@ -270,7 +270,7 @@ public class WMV_Utilities
 	 */
 	public PVector getGPSLocation(WMV_Field f, PVector loc)			// -- Working??
 	{
-		WMV_Model m = f.model;
+		WMV_Model m = f.getModel();
 		
 		float newX = PApplet.map( loc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
 		float newY = PApplet.map( loc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space

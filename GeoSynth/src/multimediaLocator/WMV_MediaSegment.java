@@ -51,7 +51,7 @@ public class WMV_MediaSegment
 				int horizBorderID = 1;					// horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
 				int vertBorderID = 1;					// vertBorderID		0: Top  1: Center  2: Bottom  3: Top+Bottom
 
-				WMV_Image img = p.p.images.get(i);
+				WMV_Image img = p.p.getImage(i);
 				float xDir = img.getDirection();
 				float yDir = img.getElevation();
 
@@ -95,7 +95,7 @@ public class WMV_MediaSegment
 	public void hide()
 	{
 		for(int i:images)				// Set images in segment to hidden
-			p.p.images.get(i).hidden = true;
+			p.p.getImage(i).hidden = true;
 
 		hidden = true;
 	}
@@ -103,7 +103,7 @@ public class WMV_MediaSegment
 	public void show()
 	{
 		for(int i:images)				// Set images in segment to hidden
-			p.p.images.get(i).hidden = false;
+			p.p.getImage(i).hidden = false;
 
 		hidden = false;
 	}

@@ -1258,18 +1258,18 @@ public class ML_Window {
 			{
 				case 0:
 //					applet.text(" Time Mode: Cluster", x, y += lineWidthVeryWide);
-					if(f.timeline.size() > 0 && p.p.viewer.getCurrentFieldTimeSegment() >= 0 && p.p.viewer.getCurrentFieldTimeSegment() < f.timeline.size())
+					if(f.getTimeline().size() > 0 && p.p.viewer.getCurrentFieldTimeSegment() >= 0 && p.p.viewer.getCurrentFieldTimeSegment() < f.getTimeline().size())
 					{
-						applet.text(" Upper: "+f.timeline.get(p.p.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()+
-								" Center:"+f.timeline.get(p.p.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
-								" Lower: "+f.timeline.get(p.p.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
-						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidthWide);
+						applet.text(" Upper: "+f.getTimeSegment(p.p.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()+
+								" Center:"+f.getTimeSegment(p.p.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
+								" Lower: "+f.getTimeSegment(p.p.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
+						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().getTimeline().size(), x, y += lineWidthWide);
 					}
 					else
 					{
-						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidthVeryWide);
+						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().getTimeline().size(), x, y += lineWidthVeryWide);
 					}
-					applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().dateline.size(), x, y += lineWidth);
+					applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().getDateline().size(), x, y += lineWidth);
 					
 					break;
 				case 1:
@@ -1277,7 +1277,7 @@ public class ML_Window {
 					break;
 				case 2:
 //					applet.text(" Time Mode: Media", x, y += lineWidthVeryWide);
-					applet.text(" Current Media: "+ p.p.viewer.currentMedia, x, y += lineWidth);		// -- Not very meaningful.. should show media index / type
+					applet.text(" Current Media: "+ p.p.viewer.getCurrentMedia(), x, y += lineWidth);		// -- Not very meaningful.. should show media index / type
 					break;
 //				case 3:
 //					applet.text(" Time Mode: Flexible"), x, y += lineWidthVeryWide);
@@ -1286,8 +1286,8 @@ public class ML_Window {
 			
 //			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
 			applet.text(" Current Field Time Segment: "+ p.p.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
-			applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().timeline.size(), x, y += lineWidth);
-			applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().dateline.size(), x, y += lineWidth);
+			applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().getTimeline().size(), x, y += lineWidth);
+			applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().getDateline().size(), x, y += lineWidth);
 		}
 	}
 
@@ -1445,19 +1445,19 @@ public class ML_Window {
 ////		if(p.p.p.world.timeMode == 0)
 //			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
 //		applet.text(" Current Field Time Segment: "+ p.p.viewer.currentFieldTimeSegment, x, y += lineWidth);
-//		applet.text(" Current Cluster Time Segment: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
+//		applet.text(" Current Cluster Time Segment: "+ p.p.getCurrentCluster().getTimeline().size(), x, y += lineWidth);
 ////		if(p.p.p.world.timeMode == 1)
 //			applet.text(" Current Cluster Time: "+ p.p.getCurrentCluster().currentTime, x, y += lineWidth);
-//		applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().timeline.size(), x, y += lineWidth);
-//		applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().dateline.size(), x, y += lineWidth);
+//		applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().getTimeline().size(), x, y += lineWidth);
+//		applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().getDateline().size(), x, y += lineWidth);
 //
 //		WMV_Field f = p.p.getCurrentField();
-//		if(f.timeline.size() > 0 && p.p.viewer.currentFieldTimeSegment >= 0 && p.p.viewer.currentFieldTimeSegment < f.timeline.size())
-//			applet.text(" Upper: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getUpper().getTime()+
-//					" Center:"+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getCenter().getTime()+
-//					" Lower: "+f.timeline.get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
-//		applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().timeline.size(), x, y += lineWidth);
-//		applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().dateline.size(), x, y += lineWidth);
+//		if(f.getTimeline().size() > 0 && p.p.viewer.currentFieldTimeSegment >= 0 && p.p.viewer.currentFieldTimeSegment < f.getTimeline().size())
+//			applet.text(" Upper: "+f.getTimeline().get(p.p.viewer.currentFieldTimeSegment).getUpper().getTime()+
+//					" Center:"+f.getTimeline().get(p.p.viewer.currentFieldTimeSegment).getCenter().getTime()+
+//					" Lower: "+f.getTimeline().get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
+//		applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().getTimeline().size(), x, y += lineWidth);
+//		applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().getDateline().size(), x, y += lineWidth);
 	}
 
 	/**
@@ -1546,22 +1546,25 @@ public class ML_Window {
 
 				applet.textSize(mediumTextSize);
 //				applet.text(" Field", x, y += lineWidthVeryWide);
-				applet.text(" Field: "+f.name, x, y += lineWidthVeryWide);
+				applet.text(" Field: "+f.getName(), x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
 				applet.text(" ID: "+(p.p.viewer.getField()+1)+" out of "+p.p.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
-				applet.text(" Width: "+f.model.fieldWidth+" Length: "+f.model.fieldLength+" Height: "+f.model.fieldHeight, x, y += lineWidth);
+				applet.text(" Width: "+f.getModel().fieldWidth+" Length: "+f.getModel().fieldLength+" Height: "+f.getModel().fieldHeight, x, y += lineWidth);
 				applet.text(" Image Count: "+f.getImageCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 				applet.text(" Panorama Count: "+f.getPanoramaCount(), x, y += lineWidth);			// Doesn't check for dataMissing!!
 				applet.text(" Video Count: "+f.getVideoCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 //				applet.text(" Sound Count: "+f.getSoundCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
-				applet.text(" Media Density (per sq. m.): "+f.model.mediaDensity, x, y += lineWidth);
+				applet.text(" Media Density (per sq. m.): "+f.getModel().mediaDensity, x, y += lineWidth);
 				
 //				applet.text(" Clusters Visible: "+p.p.viewer.clustersVisible+"  (Orientation Mode)", x, y += lineWidth);
 				
-				applet.text(" Images Visible: "+f.imagesVisible, x, y += lineWidth);
-				applet.text(" Panoramas Visible: "+f.panoramasVisible, x, y += lineWidth);
-				applet.text(" Videos Visible: "+f.videosVisible, x, y += lineWidth);
-				applet.text("   Currently Playing: "+f.videosPlaying, x, y += lineWidth);
+				applet.text(" Images Visible: "+f.getImagesVisible(), x, y += lineWidth);
+				applet.text("   Images Seen: "+f.getImagesSeen(), x, y += lineWidth);
+				applet.text(" Panoramas Visible: "+f.getPanoramasVisible(), x, y += lineWidth);
+				applet.text("   Panoramas Seen: "+f.getPanoramasSeen(), x, y += lineWidth);
+				applet.text(" Videos Visible: "+f.getVideosVisible(), x, y += lineWidth);
+				applet.text("   Videos Seen: "+f.getVideosSeen(), x, y += lineWidth);
+				applet.text("   Currently Playing: "+f.getVideosPlaying(), x, y += lineWidth);
 //				applet.text(" Sounds Audible: "+f.soundsAudible, x, y += lineWidth);
 //				applet.text("   Currently Playing: "+f.soundsPlaying, x, y += lineWidth);
 
@@ -1569,15 +1572,15 @@ public class ML_Window {
 				applet.text(" Model ", x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
 
-				applet.text(" Clusters:"+(f.clusters.size()-f.model.mergedClusters), x, y += lineWidthVeryWide);
-				applet.text(" Merged: "+f.model.mergedClusters+" out of "+f.clusters.size()+" Total", x, y += lineWidth);
+				applet.text(" Clusters:"+(f.getClusters().size()-f.getModel().mergedClusters), x, y += lineWidthVeryWide);
+				applet.text(" Merged: "+f.getModel().mergedClusters+" out of "+f.getClusters().size()+" Total", x, y += lineWidth);
 				applet.text(" Minimum Distance: "+p.p.settings.minClusterDistance, x, y += lineWidth);
 				applet.text(" Maximum Distance: "+p.p.settings.maxClusterDistance, x, y += lineWidth);
 				if(p.p.settings.altitudeScaling)
 					applet.text(" Altitude Scaling Factor: "+p.p.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
 				applet.text(" Clustering Method : "+ ( p.p.hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
-				applet.text(" Population Factor: "+f.model.clusterPopulationFactor, x, y += lineWidth);
-				if(p.p.hierarchical) applet.text(" Current Cluster Depth: "+f.model.clusterDepth, x, y += lineWidth);
+				applet.text(" Population Factor: "+f.getModel().clusterPopulationFactor, x, y += lineWidth);
+				if(p.p.hierarchical) applet.text(" Current Cluster Depth: "+f.getModel().clusterDepth, x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
 				applet.text(" Viewer ", x, y += lineWidthVeryWide);
@@ -1595,15 +1598,15 @@ public class ML_Window {
 				if(p.p.viewer.getAttractorCluster() != -1)
 				{
 					applet.text(" Destination Cluster : "+p.p.viewer.getAttractorCluster(), x, y += lineWidth);
-					applet.text(" Destination Media Points: "+p.p.getCluster(p.p.viewer.getAttractorCluster()).mediaCount, x, y += lineWidth);
-					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.clusters.get(p.p.viewer.getAttractorCluster()).getLocation(), p.p.viewer.getLocation() )), x, y += lineWidth);
+					applet.text(" Destination Media Points: "+p.p.getCurrentField().getCluster(p.p.viewer.getAttractorCluster()).mediaCount, x, y += lineWidth);
+					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getCluster(p.p.viewer.getAttractorCluster()).getLocation(), p.p.viewer.getLocation() )), x, y += lineWidth);
 				}
 
 				if(p.p.p.debug.viewer) 
 				{
-					applet.text(" Debug: Current Attraction: "+p.p.viewer.attraction.mag(), x, y += lineWidth);
-					applet.text(" Debug: Current Acceleration: "+(p.p.viewer.isWalking() ? p.p.viewer.walkingAcceleration.mag() : p.p.viewer.acceleration.mag()), x, y += lineWidth);
-					applet.text(" Debug: Current Velocity: "+ (p.p.viewer.isWalking() ? p.p.viewer.walkingVelocity.mag() : p.p.viewer.velocity.mag()) , x, y += lineWidth);
+					applet.text(" Debug: Current Attraction: "+p.p.viewer.getAttraction().mag(), x, y += lineWidth);
+					applet.text(" Debug: Current Acceleration: "+p.p.viewer.getAcceleration().mag(), x, y += lineWidth);
+					applet.text(" Debug: Current Velocity: "+ p.p.viewer.getVelocity().mag() , x, y += lineWidth);
 					applet.text(" Debug: Moving? " + p.p.viewer.isMoving(), x, y += lineWidth);
 					applet.text(" Debug: Slowing? " + p.p.viewer.isSlowing(), x, y += lineWidth);
 					applet.text(" Debug: Halting? " + p.p.viewer.isHalting(), x, y += lineWidth);

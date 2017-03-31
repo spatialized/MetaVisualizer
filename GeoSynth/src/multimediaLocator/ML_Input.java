@@ -104,13 +104,13 @@ public class ML_Input
 				break;
 	
 			case "NearestCluster":
-				p.viewer.moveToNearestCluster(p.viewer.movementTeleport);
+				p.viewer.moveToNearestCluster(p.viewer.getMovementTeleport());
 				break;
 			case "RandomCluster":
-				p.viewer.moveToRandomCluster(p.viewer.movementTeleport);
+				p.viewer.moveToRandomCluster(p.viewer.getMovementTeleport());
 				break;
 			case "LastCluster":
-				p.viewer.moveToLastCluster(p.viewer.movementTeleport);
+				p.viewer.moveToLastCluster(p.viewer.getMovementTeleport());
 				break;
 			case "NextField":
 				if(p.display.displayView == 1)
@@ -131,7 +131,7 @@ public class ML_Input
 			case "FollowStart":
 				if(!p.viewer.isFollowing())
 				{
-					switch(p.viewer.followMode)
+					switch(p.viewer.getFollowMode())
 					{
 					case 0:
 						p.viewer.followTimeline(true, false);
@@ -220,10 +220,10 @@ public class ML_Input
 				
 			/* Time */
 			case "NextTime":
-				p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport, true);
+				p.viewer.moveToNextTimeSegment(true, p.viewer.getMovementTeleport(), true);
 				break;
 			case "PreviousTime":
-				p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport, true);
+				p.viewer.moveToPreviousTimeSegment(true, p.viewer.getMovementTeleport(), true);
 				break;
 	
 			/* Selection */
@@ -299,7 +299,7 @@ public class ML_Input
 			case "FollowTimeline":
 				if(option.isSelected())
 				{
-					p.viewer.followMode = 0;
+					p.viewer.setFollowMode( 0 );
 					p.display.window.optGPSTrack.setSelected(false);
 					p.display.window.optMemory.setSelected(false);
 				}
@@ -307,7 +307,7 @@ public class ML_Input
 	  		case "FollowGPSTrack":
 				if(option.isSelected())
 				{
-					p.viewer.followMode = 1;
+					p.viewer.setFollowMode( 1 );
 //					PApplet.println("1 p.display.window.optTimeline.isSelected():"+p.display.window.optTimeline.isSelected());
 //					PApplet.println("1 p.display.window.optMemory.isSelected():"+p.display.window.optMemory.isSelected());
 					p.display.window.optTimeline.setSelected(false);
@@ -319,19 +319,19 @@ public class ML_Input
 	  		case "FollowMemory":
 				if(option.isSelected())
 				{
-					p.viewer.followMode = 2;
+					p.viewer.setFollowMode( 2 );
 					p.display.window.optTimeline.setSelected(false);
 					p.display.window.optGPSTrack.setSelected(false);
 				}
 				break;
 			case "MovementTeleport":
-				p.viewer.movementTeleport = option.isSelected();
-				if(!p.viewer.movementTeleport)
+				p.viewer.setMovementTeleport( option.isSelected() );
+				if(!p.viewer.getMovementTeleport())
 					p.viewer.stopFollowing();
 				break;
 				
 			case "FollowTeleport":
-				p.viewer.followTeleport = option.isSelected();
+				p.viewer.setFollowTeleport( option.isSelected() );
 				break;
 				
 			/* Time */
@@ -352,21 +352,21 @@ public class ML_Input
 				p.fadeEdges = option.isSelected();
 				break;
 			case "HideImages":
-				if(!option.isSelected() && p.getCurrentField().hideImages)
+				if(!option.isSelected() && p.viewer.settings.hideImages)
 					p.getCurrentField().showImages();
-				else if(option.isSelected() && !p.getCurrentField().hideImages)
+				else if(option.isSelected() && !p.viewer.settings.hideImages)
 					p.getCurrentField().hideImages();
 				break;
 			case "HideVideos":
-				if(!option.isSelected() && p.getCurrentField().hideVideos)
+				if(!option.isSelected() && p.viewer.settings.hideVideos)
 					p.getCurrentField().showVideos();
-				else if(option.isSelected() && !p.getCurrentField().hideVideos)
+				else if(option.isSelected() && !p.viewer.settings.hideVideos)
 					p.getCurrentField().hideVideos();
 				break;
 			case "HidePanoramas":
-				if(!option.isSelected() && p.getCurrentField().hidePanoramas)
+				if(!option.isSelected() && p.viewer.settings.hidePanoramas)
 					p.getCurrentField().showPanoramas();
-				else if(option.isSelected() && !p.getCurrentField().hidePanoramas)
+				else if(option.isSelected() && !p.viewer.settings.hidePanoramas)
 					p.getCurrentField().hidePanoramas();
 				break;
 			case "AlphaMode":
@@ -671,7 +671,7 @@ public class ML_Input
 							p.display.displayCluster = p.getFieldClusters().size() - 1;
 
 						int count = 0;
-						while(p.getCluster(p.display.displayCluster).isEmpty())
+						while(p.getCurrentField().getCluster(p.display.displayCluster).isEmpty())
 						{
 							p.display.displayCluster--;
 							count++;
@@ -690,7 +690,7 @@ public class ML_Input
 							p.display.displayCluster = 0;
 
 						int count = 0;
-						while(p.getCluster(p.display.displayCluster).isEmpty())
+						while(p.getCurrentField().getCluster(p.display.displayCluster).isEmpty())
 						{
 							p.display.displayCluster++;
 							count++;
@@ -770,14 +770,14 @@ public class ML_Input
 				{
 					if(p.viewer.settings.thinningAngle > PApplet.PI / 64.f)
 						p.viewer.settings.thinningAngle -= PApplet.PI / 128.f;
-					p.getCurrentField().model.analyzeClusterMediaDirections();
+					p.getCurrentField().getModel().analyzeClusterMediaDirections();
 				}
 
 				if (optionKey && key == ']')
 				{
 					if(p.viewer.settings.thinningAngle < p.viewer.settings.visibleAngle - PApplet.PI / 128.f)
 						p.viewer.settings.thinningAngle += PApplet.PI / 128.f;
-					p.getCurrentField().model.analyzeClusterMediaDirections();
+					p.getCurrentField().getModel().analyzeClusterMediaDirections();
 				}
 
 				if (optionKey && key == '\\')
@@ -790,15 +790,15 @@ public class ML_Input
 					p.viewer.startMoveXTransition(1);
 
 				if( key == 'l' )
-					p.viewer.moveToLastCluster(p.viewer.movementTeleport);
+					p.viewer.moveToLastCluster(p.viewer.getMovementTeleport());
 
 				if( key == 'L' )
 					p.viewer.lookAtNearestMedia();
 
 				if( key == 't' )
 				{
-					boolean state = !p.viewer.movementTeleport;
-					p.viewer.movementTeleport = state;
+					boolean state = !p.viewer.getMovementTeleport();
+					p.viewer.setMovementTeleport( state );
 					if(p.display.window.setupNavigationWindow)
 						p.display.window.chkbxMovementTeleport.setSelected(state);
 				}
@@ -841,7 +841,7 @@ public class ML_Input
 					p.paused = !p.paused;
 
 				if (key == 'j') 
-					p.viewer.moveToRandomCluster(p.viewer.movementTeleport);				// Jump (teleport) to random cluster
+					p.viewer.moveToRandomCluster(p.viewer.getMovementTeleport());				// Jump (teleport) to random cluster
 
 				if (key == 'I')
 					p.viewer.setOrientationMode( !p.viewer.settings.orientationMode );
@@ -868,7 +868,7 @@ public class ML_Input
 				if (key == 'n')						// Teleport to next time segment on same date
 				{
 					if(p.display.displayView == 0)
-						p.viewer.moveToNextTimeSegment(true, p.viewer.movementTeleport, true);
+						p.viewer.moveToNextTimeSegment(true, p.viewer.getMovementTeleport(), true);
 					else
 						p.viewer.moveToNextTimeSegment(true, true, false);
 				}
@@ -876,7 +876,7 @@ public class ML_Input
 				if (key == 'b')						// Teleport to previous time segment on same date
 				{
 					if(p.display.displayView == 0)
-						p.viewer.moveToPreviousTimeSegment(true, p.viewer.movementTeleport, true);
+						p.viewer.moveToPreviousTimeSegment(true, p.viewer.getMovementTeleport(), true);
 					else
 						p.viewer.moveToPreviousTimeSegment(true, true, false);
 				}
@@ -884,7 +884,7 @@ public class ML_Input
 				if (key == 'N')						// Teleport to next time segment on any date
 				{
 					if(p.display.displayView == 0)
-						p.viewer.moveToNextTimeSegment(false, p.viewer.movementTeleport, true);
+						p.viewer.moveToNextTimeSegment(false, p.viewer.getMovementTeleport(), true);
 					else
 						p.viewer.moveToNextTimeSegment(false, true, false);
 				}
@@ -892,7 +892,7 @@ public class ML_Input
 				if (key == 'B')						// Teleport to previous time segment on any date
 				{
 					if(p.display.displayView == 0)
-						p.viewer.moveToPreviousTimeSegment(false, p.viewer.movementTeleport, true);
+						p.viewer.moveToPreviousTimeSegment(false, p.viewer.getMovementTeleport(), true);
 					else
 						p.viewer.moveToPreviousTimeSegment(false, true, false);
 				}
@@ -941,12 +941,6 @@ public class ML_Input
 				if (key == 'U') 		// Go to nearest cluster with video
 					p.viewer.moveToNextCluster(false, 2);
 
-//				if (key == 'm') 		// Teleport to nearest cluster with panorama
-//					p.viewer.moveToNextCluster(true, 1);
-//
-//				if (key == 'M') 		// Go to nearest cluster with panorama
-//					p.viewer.moveToNextCluster(false, 1);
-
 				if (key == 'm') 
 					p.viewer.moveToNearestCluster(true);
 
@@ -989,7 +983,7 @@ public class ML_Input
 
 					if (key == 'i')	
 					{
-						if(p.getCurrentField().hideImages)
+						if(p.viewer.settings.hideImages)
 							p.getCurrentField().showImages();
 						else
 							p.getCurrentField().hideImages();
@@ -997,7 +991,7 @@ public class ML_Input
 
 					if (key == 'h')	
 					{
-						if(p.getCurrentField().hidePanoramas)
+						if(p.viewer.settings.hidePanoramas)
 							p.getCurrentField().showPanoramas();
 						else
 							p.getCurrentField().hidePanoramas();
@@ -1005,7 +999,7 @@ public class ML_Input
 
 					if (key == 'v')	
 					{
-						if(p.getCurrentField().hideVideos)
+						if(p.viewer.settings.hideVideos)
 							p.getCurrentField().showVideos();
 						else
 							p.getCurrentField().hideVideos();
@@ -1161,9 +1155,9 @@ public class ML_Input
 					if(!p.hierarchical)
 					{
 						p.hierarchical = true;
-						if(!p.getCurrentField().model.dendrogramCreated)
-							p.getCurrentField().model.runHierarchicalClustering();
-						p.getCurrentField().model.setDendrogramDepth(p.getCurrentField().model.clusterDepth);				// Initialize clusters 
+						if(!p.getCurrentField().getModel().dendrogramCreated)
+							p.getCurrentField().getModel().runHierarchicalClustering();
+						p.getCurrentField().getModel().setDendrogramDepth(p.getCurrentField().getModel().clusterDepth);				// Initialize clusters 
 						p.getCurrentField().createTimeline();					// Create field timeline
 					}
 
@@ -1174,7 +1168,7 @@ public class ML_Input
 					if(p.hierarchical)
 					{
 						p.hierarchical = false;
-						WMV_Model m = p.getCurrentField().model;
+						WMV_Model m = p.getCurrentField().getModel();
 						m.runKMeansClustering(p.settings.kMeansClusteringEpsilon, m.clusterRefinement, m.clusterPopulationFactor);
 						p.getCurrentField().createTimeline();					// Create field timeline
 					}
@@ -1187,8 +1181,8 @@ public class ML_Input
 						p.settings.minClusterDistance -= 0.25f;
 						for(WMV_Field f : p.getFields())
 						{
-							f.model.setMinClusterDistance(p.settings.minClusterDistance);	
-							p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
+							f.getModel().setMinClusterDistance(p.settings.minClusterDistance);	
+							p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().getModel().clusterRefinement, p.getCurrentField().getModel().clusterPopulationFactor );
 							p.getCurrentField().initializeClusters();			
 							p.display.map2D.initializeMaps();
 						}
@@ -1203,8 +1197,8 @@ public class ML_Input
 						//					PApplet.println("p.minClusterDistance:"+p.minClusterDistance);
 						for(WMV_Field f : p.getFields())
 						{
-							f.model.setMinClusterDistance(p.settings.minClusterDistance);
-							p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, p.getCurrentField().model.clusterPopulationFactor );
+							f.getModel().setMinClusterDistance(p.settings.minClusterDistance);
+							p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().getModel().clusterRefinement, p.getCurrentField().getModel().clusterPopulationFactor );
 							p.getCurrentField().initializeClusters();			
 							p.display.map2D.initializeMaps();
 						}
@@ -1223,74 +1217,74 @@ public class ML_Input
 						{
 							if (keyCode == PApplet.UP) 
 							{
-								int clusterDepth = p.getCurrentField().model.clusterDepth + 1;
-								if(clusterDepth <= p.getCurrentField().model.deepestLevel)
-									p.getCurrentField().model.setDendrogramDepth( clusterDepth );
+								int clusterDepth = p.getCurrentField().getModel().clusterDepth + 1;
+								if(clusterDepth <= p.getCurrentField().getModel().deepestLevel)
+									p.getCurrentField().getModel().setDendrogramDepth( clusterDepth );
 							}
 
 							if (keyCode == PApplet.DOWN) 
 							{
-								int clusterDepth = p.getCurrentField().model.clusterDepth - 1;
-								if(clusterDepth >= p.getCurrentField().model.minClusterDepth)
-									p.getCurrentField().model.setDendrogramDepth( clusterDepth );
+								int clusterDepth = p.getCurrentField().getModel().clusterDepth - 1;
+								if(clusterDepth >= p.getCurrentField().getModel().minClusterDepth)
+									p.getCurrentField().getModel().setDendrogramDepth( clusterDepth );
 							}
 						}
 						else
 						{
 							if (keyCode == PApplet.LEFT) 		
 							{
-								p.getCurrentField().model.clusterRefinement -= 10;
-								float populationFactor = p.getCurrentField().model.clusterPopulationFactor;
+								p.getCurrentField().getModel().clusterRefinement -= 10;
+								float populationFactor = p.getCurrentField().getModel().clusterPopulationFactor;
 
-								if(p.getCurrentField().model.clusterRefinement >= p.getCurrentField().model.minClusterRefinement)
+								if(p.getCurrentField().getModel().clusterRefinement >= p.getCurrentField().getModel().minClusterRefinement)
 								{
-									p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
+									p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().getModel().clusterRefinement, populationFactor );
 									p.getCurrentField().initializeClusters();			
 									p.display.map2D.initializeMaps();
 								}
-								else p.getCurrentField().model.clusterRefinement += 10;
+								else p.getCurrentField().getModel().clusterRefinement += 10;
 							}
 
 							if (keyCode == PApplet.RIGHT) 	
 							{
-								p.getCurrentField().model.clusterRefinement += 10;
-								float populationFactor = p.getCurrentField().model.clusterPopulationFactor;
+								p.getCurrentField().getModel().clusterRefinement += 10;
+								float populationFactor = p.getCurrentField().getModel().clusterPopulationFactor;
 
-								if(p.getCurrentField().model.clusterRefinement <= p.getCurrentField().model.maxClusterRefinement)
+								if(p.getCurrentField().getModel().clusterRefinement <= p.getCurrentField().getModel().maxClusterRefinement)
 								{
-									p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().model.clusterRefinement, populationFactor );
+									p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, p.getCurrentField().getModel().clusterRefinement, populationFactor );
 									p.getCurrentField().initializeClusters();			
 									p.display.map2D.initializeMaps();
 								}
-								else p.getCurrentField().model.clusterRefinement -= 10;
+								else p.getCurrentField().getModel().clusterRefinement -= 10;
 							}
 
 							if (keyCode == PApplet.DOWN) 		
 							{
-								int refinementAmount = p.getCurrentField().model.clusterRefinement;
-								p.getCurrentField().model.clusterPopulationFactor -= 1.f;
+								int refinementAmount = p.getCurrentField().getModel().clusterRefinement;
+								p.getCurrentField().getModel().clusterPopulationFactor -= 1.f;
 
-								if(p.getCurrentField().model.clusterPopulationFactor >= p.getCurrentField().model.minPopulationFactor)
+								if(p.getCurrentField().getModel().clusterPopulationFactor >= p.getCurrentField().getModel().minPopulationFactor)
 								{
-									p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
+									p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().getModel().clusterPopulationFactor );
 									p.getCurrentField().initializeClusters();			
 									p.display.map2D.initializeMaps();
 								}
-								else p.getCurrentField().model.clusterPopulationFactor += 1.f;
+								else p.getCurrentField().getModel().clusterPopulationFactor += 1.f;
 							}
 
 							if (keyCode == PApplet.UP) 	
 							{
-								int refinementAmount = p.getCurrentField().model.clusterRefinement;
-								p.getCurrentField().model.clusterPopulationFactor += 1.f;
+								int refinementAmount = p.getCurrentField().getModel().clusterRefinement;
+								p.getCurrentField().getModel().clusterPopulationFactor += 1.f;
 
-								if(p.getCurrentField().model.clusterPopulationFactor <= p.getCurrentField().model.maxPopulationFactor)
+								if(p.getCurrentField().getModel().clusterPopulationFactor <= p.getCurrentField().getModel().maxPopulationFactor)
 								{
-									p.getCurrentField().model.runKMeansClustering( p.settings.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().model.clusterPopulationFactor );
+									p.getCurrentField().getModel().runKMeansClustering( p.settings.kMeansClusteringEpsilon, refinementAmount, p.getCurrentField().getModel().clusterPopulationFactor );
 									p.getCurrentField().initializeClusters();			
 									p.display.map2D.initializeMaps();
 								}
-								else p.getCurrentField().model.clusterPopulationFactor -= 1.f;
+								else p.getCurrentField().getModel().clusterPopulationFactor -= 1.f;
 							}
 						}
 					}
@@ -1439,71 +1433,34 @@ public class ML_Input
 			
 		if (mouseX < p.p.width * 0.25 && mouseX > -1) 
 		{
-//			PApplet.println("LEFT p.viewer.getXOrientation():"+p.viewer.getXOrientation());
-			if(!p.viewer.turningX)
-			{
+			if(!p.viewer.turningX())
 				p.viewer.turnXToAngle(PApplet.radians(5.f), -1);
-//				p.viewer.turnXStartFrame = p.p.frameCount;
-//				p.viewer.turnXDirection = -1;
-//				p.viewer.turnXTarget = p.viewer.getXOrientation() - PApplet.radians(15.f);
-//				p.viewer.turnXTargetFrame = p.viewer.turnXStartFrame + 30;
-//				p.viewer.turningX = true;
-//				p.viewer.lastMovementFrame = p.p.frameCount;
-			}
 		}
 		else if (mouseX > p.p.width * 0.75 && mouseX < p.p.width + 1) 
 		{
-			if(!p.viewer.turningX)
-			{
+			if(!p.viewer.turningX())
 				p.viewer.turnXToAngle(PApplet.radians(5.f), 1);
-
-//				p.viewer.turnXStartFrame = p.p.frameCount;
-//				p.viewer.turnXDirection = 1;
-//				p.viewer.turnXTarget = p.viewer.getXOrientation() + PApplet.radians(15.f);
-//				p.viewer.turnXTargetFrame = p.viewer.turnXStartFrame + 30;
-//				p.viewer.turningX = true;
-//				p.viewer.lastMovementFrame = p.p.frameCount;
-			}
 		}
 		else if (mouseY < p.p.height * 0.25 && mouseY > -1) 
 		{
-			if(!p.viewer.turningY)
-			{
+			if(!p.viewer.turningY())
 				p.viewer.turnYToAngle(PApplet.radians(5.f), -1);
-
-//				p.viewer.turnYStartFrame = p.p.frameCount;
-//				p.viewer.turnYDirection = -1;
-//				p.viewer.turnYTarget = p.viewer.getYOrientation() - PApplet.radians(15.f);
-//				p.viewer.turnYTargetFrame = p.viewer.turnYStartFrame + 30;
-//				p.viewer.turningY = true;
-//				p.viewer.lastMovementFrame = p.p.frameCount;
-			}
 		}
 		else if (mouseY > p.p.height * 0.75 && mouseY < p.p.height + 1) 
 		{
-			if(!p.viewer.turningY)
-			{
+			if(!p.viewer.turningY())
 				p.viewer.turnYToAngle(PApplet.radians(5.f), 1);
-
-//				p.viewer.turnYStartFrame = p.p.frameCount;
-//				p.viewer.turnYDirection = 1;
-//				p.viewer.turnYTarget = p.viewer.getYOrientation() + PApplet.radians(15.f);
-//				p.viewer.turnYTargetFrame = p.viewer.turnYStartFrame + 30;
-//				p.viewer.turningY = true;
-//				p.viewer.lastMovementFrame = p.p.frameCount;
-			}
 		}
 		else
 		{
-				if(p.viewer.turningX) p.viewer.turningX = false;
-				if(p.viewer.turningY) p.viewer.turningY = false;
+			if(p.viewer.turningX()) p.viewer.setTurningX( false );
+			if(p.viewer.turningY()) p.viewer.setTurningY( false );
 		}
 	}
 
 	void handleMousePressed(int mouseX, int mouseY)
 	{
 //		boolean doubleClick = false, switchedViews = false;
-
 //			PApplet.println("MousePressed!");
 		if(!p.viewer.settings.orientationMode && p.viewer.lastMovementFrame > 5)
 		{
@@ -1541,7 +1498,7 @@ public class ML_Input
 			p.viewer.walkSlower();
 			p.viewer.lastMovementFrame = p.p.frameCount;
 			if(doubleClick)									
-				p.viewer.moveToNearestCluster(p.viewer.movementTeleport);
+				p.viewer.moveToNearestCluster(p.viewer.getMovementTeleport());
 		}
 		
 		if(p.display.displayView == 1)

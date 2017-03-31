@@ -138,7 +138,7 @@ class WMV_Image extends WMV_Viewable
 //			{
 //				if(!p.p.viewer.isMoving() && !p.p.viewer.isTeleporting() && p.p.getCurrentCluster().getID() != cluster)
 //				{
-//					float dist = PApplet.abs( PVector.dist(p.p.getCurrentCluster().getLocation(), p.p.getCluster(cluster).getLocation()) );
+//					float dist = PApplet.abs( PVector.dist(p.p.getCurrentCluster().getLocation(), p.p.getCurrentField().getCluster(cluster).getLocation()) );
 //					float clusterDistanceFactor = PApplet.constrain(PApplet.map(dist, 0.f, p.p.viewer.settings.farViewingDistance, 1.f, 0.f), 0.f, 1.f);
 //					PApplet.print("Old viewingBrightness:"+viewingBrightness);
 //					viewingBrightness *= clusterDistanceFactor;
@@ -206,7 +206,7 @@ class WMV_Image extends WMV_Viewable
 		p.p.p.line(vertices[2].x, vertices[2].y, vertices[2].z, vertices[3].x, vertices[3].y, vertices[3].z);
 		p.p.p.line(vertices[3].x, vertices[3].y, vertices[3].z, vertices[0].x, vertices[0].y, vertices[0].z);
 		
-		PVector c = p.p.getCluster(cluster).getLocation();
+		PVector c = p.p.getCurrentField().getCluster(cluster).getLocation();
 		PVector loc = location;
 		PVector cl = getCaptureLocation();
 		p.p.p.popMatrix();
@@ -285,7 +285,7 @@ class WMV_Image extends WMV_Viewable
 				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
-				for(int id : p.p.viewer.clustersVisible)
+				for(int id : p.p.viewer.getClustersVisible())
 					if(cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						visible = true;
 			}
@@ -304,7 +304,7 @@ class WMV_Image extends WMV_Viewable
 				if(!p.p.p.utilities.isNaN(imageAngle))
 					visible = (getAngleBrightness(imageAngle) > 0.f);
 
-				if(!fading && p.hideImages)
+				if(!fading && p.p.viewer.settings.hideImages)
 					visible = false;
 
 				if(visible && !p.p.viewer.settings.orientationMode)
@@ -339,7 +339,7 @@ class WMV_Image extends WMV_Viewable
 			
 			if(!p.p.viewer.settings.angleThinning)
 			{
-				if(visibilitySetToTrue && !fading && !fadedOut && !p.hideImages && fadingBrightness == 0.f)			// Fade in
+				if(visibilitySetToTrue && !fading && !fadedOut && !p.p.viewer.settings.hideImages && fadingBrightness == 0.f)			// Fade in
 					fadeIn();
 			}
 			else
@@ -349,7 +349,7 @@ class WMV_Image extends WMV_Viewable
 					fadeOut();
 				}
 
-				if(!visible && thinningVisibility && !fading && !p.hideImages) 
+				if(!visible && thinningVisibility && !fading && !p.p.viewer.settings.hideImages) 
 				{
 					if(!fadedOut)					// Fade in if didn't just finish fading out this frame
 						fadeIn();
@@ -365,7 +365,7 @@ class WMV_Image extends WMV_Viewable
 		{
 			if(p.p.viewer.settings.orientationMode)
 			{
-				for(int id : p.p.viewer.clustersVisible)
+				for(int id : p.p.viewer.getClustersVisible())
 					if(cluster == id  && !requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						loadMedia();
 			}
@@ -453,7 +453,8 @@ class WMV_Image extends WMV_Viewable
 		p.p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
 		p.p.p.popMatrix();
 		
-		p.imagesSeen++;
+//		p.imagesSeen++;
+		p.setImagesSeen(p.getImagesSeen() + 1);
 	}
 	/**
 	 * Calculate and return alpha value given camera to image angle
@@ -599,10 +600,8 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void loadMedia()
 	{
-//		if(p.p.viewer.settings.orientationMode || p.p.p.debug.image || p.p.p.debug.viewable)
-//			PApplet.println("Img "+getID()+" loadMedia()...");
-		
-		if( p.imagesVisible < p.maxVisiblePhotos && !hidden && !disabled)
+//		if( p.imagesVisible < p.p.viewer.settings.maxVisiblePhotos && !hidden && !disabled)
+		if( !hidden && !disabled )
 		{
 			calculateVertices();
 			image = p.p.p.requestImage(filePath);
@@ -629,9 +628,9 @@ class WMV_Image extends WMV_Viewable
 		int closestClusterIndex = 0;
 		float closestDistance = 100000;
 
-		for (int i = 0; i < p.clusters.size(); i++) 
+		for (int i = 0; i < p.getClusters().size(); i++) 
 		{     
-			WMV_Cluster curCluster = (WMV_Cluster) p.clusters.get(i);
+			WMV_Cluster curCluster = (WMV_Cluster) p.getClusters().get(i);
 			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
 			if (distanceCheck < closestDistance)
@@ -648,7 +647,8 @@ class WMV_Image extends WMV_Viewable
 		else
 		{
 			cluster = -1;						// Create a new single image cluster here!
-			p.disassociatedImages++;
+//			p.disassociatedImages++;
+			p.setDisassociatedImages(p.getDisassociatedImages() + 1);
 		}
 
 		if(cluster != -1)

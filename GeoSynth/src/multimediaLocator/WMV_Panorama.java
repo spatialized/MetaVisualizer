@@ -101,7 +101,7 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			if(p.p.viewer.settings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
-				for(int id : p.p.viewer.clustersVisible)
+				for(int id : p.p.viewer.getClustersVisible())
 				{
 					if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						visible = true;
@@ -114,10 +114,10 @@ public class WMV_Panorama extends WMV_Viewable
 			
 			visible = (getDistanceBrightness() > 0.f);
 
-			if(!fading && p.hidePanoramas)
+			if(!fading && p.p.viewer.settings.hidePanoramas)
 				visible = false;
 
-			if(visible && !fading && !fadedOut && !p.hidePanoramas && fadingBrightness == 0.f)					// Fade in
+			if(visible && !fading && !fadedOut && !p.p.viewer.settings.hidePanoramas && fadingBrightness == 0.f)					// Fade in
 			{
 				if(p.p.p.debug.panorama)
 					PApplet.println("fadeIn()...pano id:"+getID());
@@ -508,9 +508,9 @@ public class WMV_Panorama extends WMV_Viewable
 		int closestClusterIndex = 0;
 		float closestDistance = 100000;
 
-		for (int i = 0; i < p.clusters.size(); i++) 
+		for (int i = 0; i < p.getClusters().size(); i++) 
 		{     
-			WMV_Cluster curCluster = (WMV_Cluster) p.clusters.get(i);
+			WMV_Cluster curCluster = (WMV_Cluster) p.getClusters().get(i);
 			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
 			if (distanceCheck < closestDistance)
@@ -527,7 +527,8 @@ public class WMV_Panorama extends WMV_Viewable
 		else
 		{
 			cluster = -1;						// Create a new single image cluster here!
-			p.disassociatedPanoramas++;
+			p.setDisassociatedPanoramas(p.getDisassociatedPanoramas() + 1);
+//			p.disassociatedPanoramas++;
 		}
 
 		if(cluster != -1)

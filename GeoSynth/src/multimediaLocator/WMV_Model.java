@@ -63,22 +63,20 @@ public class WMV_Model
 	/** Metadata **/
 	public float highLongitude = -1000000, lowLongitude = 1000000, highLatitude = -1000000, lowLatitude = 1000000,
 			highAltitude = -1000000, lowAltitude = 1000000;
-	float highTime = -1000000, lowTime = 1000000;
-	float highDate = -1000000, lowDate = 1000000;
-	
-	float highImageTime = -1000000, lowImageTime = 1000000;
-	float highImageDate = -1000000, lowImageDate = 1000000;
-	float highPanoTime = -1000000, lowPanoTime = 1000000;
-	float highPanoDate = -1000000, lowPanoDate = 1000000;
-	float highVideoTime = -1000000, lowVideoTime = 1000000;
-	float highVideoDate = -1000000, lowVideoDate = 1000000;
-	float longestImageDayLength = -1000000, longestPanoDayLength = -1000000, longestVideoDayLength = -1000000;	
+	private float highTime = -1000000, lowTime = 1000000;
+	private float highDate = -1000000, lowDate = 1000000;
+	private float highImageTime = -1000000, lowImageTime = 1000000;
+	private float highImageDate = -1000000, lowImageDate = 1000000;
+	private float highPanoTime = -1000000, lowPanoTime = 1000000;
+	private float highPanoDate = -1000000, lowPanoDate = 1000000;
+	private float highVideoTime = -1000000, lowVideoTime = 1000000;
+	private float highVideoDate = -1000000, lowVideoDate = 1000000;
+	private float longestImageDayLength = -1000000, longestPanoDayLength = -1000000, longestVideoDayLength = -1000000;	
 
 	/*** Misc. ***/
 	public int minFrameRate = 15;
 
 	WMV_Field p;
-
 	WMV_Model(WMV_Field parent)
 	{
 		p = parent;
@@ -92,7 +90,7 @@ public class WMV_Model
 	 */
 	void setup()		 // Initialize field 
 	{
-		if (p.images.size() > 0 || p.panoramas.size() > 0 || p.videos.size() > 0)
+		if (p.getImages().size() > 0 || p.getPanoramas().size() > 0 || p.getVideos().size() > 0)
 		{
 			float midLongitude = (highLongitude - lowLongitude) / 2.f;
 			float midLatitude = (highLatitude - lowLatitude) / 2.f;
@@ -119,9 +117,6 @@ public class WMV_Model
 			
 			fieldArea = fieldWidth * fieldLength;				// Use volume instead?
 			mediaDensity = validMedia / fieldArea;				// Media per sq. m.
-
-//			float fieldVolume = fieldWidth * fieldLength * fieldHeight;		// --Another possibility
-//			float fieldVolumeDensity = mediaNum / fieldVolume;
 
 			/* Increase maxClusterDistance as mediaDensity decreases */
 			if(p.p.autoClusterDistances)
@@ -179,14 +174,14 @@ public class WMV_Model
 			if(p.p.p.debug.field) 
 			{
 				PApplet.println("No images loaded! Couldn't initialize field...");
-				PApplet.println("p.panoramas.size():"+p.panoramas.size());
+				PApplet.println("p.getPanoramas().size():"+p.getPanoramas().size());
 			}
 		}
 	}
 
 	public void analyzeClusterMediaDirections()
 	{
-		for(WMV_Cluster c : p.clusters)
+		for(WMV_Cluster c : p.getClusters())
 			if(!c.isEmpty())
 				c.analyzeMediaDirections();
 	}
@@ -197,7 +192,7 @@ public class WMV_Model
 	void runInitialClustering() 					
 	{
 		if(p.p.p.debug.cluster || p.p.p.debug.model)
-			PApplet.println("Running initial clustering for field: "+p.name);
+			PApplet.println("Running initial clustering for field: "+p.getName());
 
 		clustersByDepth = new IntList();
 
@@ -218,13 +213,13 @@ public class WMV_Model
 		else										// If using k-means clustering
 		{
 			runKMeansClustering( p.p.settings.kMeansClusteringEpsilon, clusterRefinement, clusterPopulationFactor );	// Get initial clusters using K-Means method
-			p.clusters = cleanupClusters(p.clusters);
+			p.setClusters( cleanupClusters(p.getClusters()) );
 		}
 
 		if(p.p.p.debug.cluster || p.p.p.debug.model)
 			p.p.display.message("Created "+getClusterAmount()+" clusters...");
 		
-		for(WMV_Cluster c : p.clusters)
+		for(WMV_Cluster c : p.getClusters())
 		{
 			if(p.p.p.debug.model && !c.isEmpty())
 				PApplet.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
@@ -249,7 +244,7 @@ public class WMV_Model
 	 */
 	public void runKMeansClustering(float epsilon, int refinement, float populationFactor)
 	{
-		p.clusters = new ArrayList<WMV_Cluster>();			// Clear current cluster list
+		p.setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
 
 		/* Display Status */
 		if(!p.p.display.initialSetup)
@@ -278,7 +273,7 @@ public class WMV_Model
 		if(p.p.p.debug.cluster && p.p.display.initialSetup)
 			PApplet.println("Creating "+numClusters+" initial clusters based on "+validMedia+" valid media...");
 
-		boolean test = false;
+//		boolean test = false;
 //		if(numClusters - validMedia > 10000)
 //		{
 //			test = true;;
@@ -294,12 +289,12 @@ public class WMV_Model
 			
 			p.initializeClusters();						// Initialize clusters (merge, etc.)
 
-			if(p.clusters.size() > 0)					// Calculate capture times for each cluster
+			if(p.getClusters().size() > 0)					// Calculate capture times for each cluster
 				findVideoPlaceholders();
 		}
 		else
 		{
-			if (p.images.size() == 0 && p.panoramas.size() == 0 && p.videos.size() == 0) 		// If there are 0 media
+			if (p.getImages().size() == 0 && p.getPanoramas().size() == 0 && p.getVideos().size() == 0) 		// If there are 0 media
 			{
 				p.p.display.message("No media loaded!  Can't run k-means clustering... Will exit.");
 				p.p.p.exit();
@@ -396,19 +391,19 @@ public class WMV_Model
 
 				if( mediaIdx < indexPanoramaOffset )
 				{
-					WMV_Image i = p.images.get(mediaIdx);
+					WMV_Image i = p.getImage(mediaIdx);
 					location = i.getCaptureLocation();
 					images.append(i.getID());
 				}
 				else if( mediaIdx < indexVideoOffset )
 				{
-					WMV_Panorama n = p.panoramas.get(mediaIdx - indexPanoramaOffset);
+					WMV_Panorama n = p.getPanoramas().get(mediaIdx - indexPanoramaOffset);
 					location = n.getCaptureLocation();
 					panoramas.append(n.getID());
 				}
 				else
 				{
-					WMV_Video v = p.videos.get(mediaIdx - indexVideoOffset);
+					WMV_Video v = p.getVideo(mediaIdx - indexVideoOffset);
 					location = v.getCaptureLocation();
 					videos.append(v.getID());
 				}
@@ -424,17 +419,17 @@ public class WMV_Model
 				if(images.size() > 1)
 				{
 					for(int i : images)
-						mediaPoints.add(p.images.get(i).getCaptureLocation());
+						mediaPoints.add(p.getImage(i).getCaptureLocation());
 				}
 				if(panoramas.size() > 1)
 				{
 					for(int i : images)
-						mediaPoints.add(p.images.get(i).getCaptureLocation());
+						mediaPoints.add(p.getImage(i).getCaptureLocation());
 				}
 				if(videos.size() > 1)
 				{
 					for(int v : videos)
-						mediaPoints.add(p.videos.get(v).getCaptureLocation());
+						mediaPoints.add(p.getVideo(v).getCaptureLocation());
 				}
 
 				location = calculateAveragePoint(mediaPoints);					// Calculate cluster location from average of media points
@@ -472,24 +467,24 @@ public class WMV_Model
 				int oldID = c.getID();
 				c.setID(count);
 				
-				for(WMV_Image i : p.images)
+				for(WMV_Image i : p.getImages())
 					if(i.cluster == oldID)
 						i.setAssociatedCluster(count);
-				for(WMV_Panorama n : p.panoramas)
+				for(WMV_Panorama n : p.getPanoramas())
 					if(n.cluster == oldID)
 						n.setAssociatedCluster(count);
-				for(WMV_Video v : p.videos)
+				for(WMV_Video v : p.getVideos())
 					if(v.cluster == oldID)
 						v.setAssociatedCluster(count);
-				for(WMV_Sound s : p.sounds)
+				for(WMV_Sound s : p.getSounds())
 					if(s.cluster == oldID)
 						s.setAssociatedCluster(count);
 				
-				for(WMV_TimeSegment t:c.timeline)
+				for(WMV_TimeSegment t:c.getTimeline())
 					if(t.getClusterID() != count)
 						t.setClusterID(count);
 
-				for(ArrayList<WMV_TimeSegment> timeline:c.timelines)
+				for(ArrayList<WMV_TimeSegment> timeline:c.getTimelines())
 					for(WMV_TimeSegment t:timeline)
 						if(t.getClusterID() != count)
 							t.setClusterID(count);
@@ -512,16 +507,16 @@ public class WMV_Model
 	void setDendrogramDepth(int depth)
 	{
 		clusterDepth = depth;
-		p.clusters = createClustersFromDendrogram( depth );	// Get clusters at defaultClusterDepth	 -- Set this based on media density
+		p.setClusters( createClustersFromDendrogram( depth ) );	// Get clusters at defaultClusterDepth	 -- Set this based on media density
 
-		for (int i = 0; i < p.images.size(); i++) 			// Find closest cluster for each image
-			p.images.get(i).findAssociatedCluster(maxClusterDistance);
-		for (int i = 0; i < p.panoramas.size(); i++) 			// Find closest cluster for each image
-			p.panoramas.get(i).findAssociatedCluster(maxClusterDistance);
-		for (int i = 0; i < p.videos.size(); i++) 			// Find closest cluster for each video
-			p.videos.get(i).findAssociatedCluster(maxClusterDistance);
+		for (int i = 0; i < p.getImages().size(); i++) 			// Find closest cluster for each image
+			p.getImage(i).findAssociatedCluster(maxClusterDistance);
+		for (int i = 0; i < p.getPanoramas().size(); i++) 			// Find closest cluster for each image
+			p.getPanorama(i).findAssociatedCluster(maxClusterDistance);
+		for (int i = 0; i < p.getVideos().size(); i++) 			// Find closest cluster for each video
+			p.getVideo(i).findAssociatedCluster(maxClusterDistance);
 
-		if(p.clusters.size() > 0)							// Find image place holders
+		if(p.getClusters().size() > 0)							// Find image place holders
 			findVideoPlaceholders();
 
 		if(!p.p.display.initialSetup)
@@ -533,7 +528,7 @@ public class WMV_Model
 			p.p.display.message("Cluster Depth:"+clusterDepth);
 			p.p.display.message(" ");
 			p.p.display.displayClusteringInfo();
-			p.p.display.message("Found "+p.clusters.size()+" clusters...");
+			p.p.display.message("Found "+p.getClusters().size()+" clusters...");
 		}
 		
 		p.initializeClusters();					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
@@ -543,7 +538,7 @@ public class WMV_Model
 	{
 		IntList images = new IntList();
 		int count = 0;
-		for(WMV_Cluster c : p.clusters)
+		for(WMV_Cluster c : p.getClusters())
 		{
 			for(int i : c.images)
 			{
@@ -557,7 +552,7 @@ public class WMV_Model
 		
 		IntList videos = new IntList();
 		count = 0;
-		for(WMV_Cluster c : p.clusters)
+		for(WMV_Cluster c : p.getClusters())
 		{
 			for(int v : c.videos)
 			{
@@ -775,22 +770,22 @@ public class WMV_Model
 	void buildDendrogram()
 	{
 		int namesIdx = 0, distIdx = 0;
-		indexPanoramaOffset = p.images.size();
-		indexVideoOffset = indexPanoramaOffset + p.panoramas.size();
+		indexPanoramaOffset = p.getImages().size();
+		indexVideoOffset = indexPanoramaOffset + p.getPanoramas().size();
 
-		int size = p.images.size() + p.videos.size();
+		int size = p.getImages().size() + p.getVideos().size();
 		names = new String[size];
 		distances = new double[size][size];		
 
 		PApplet.println("Creating dendrogram...");
 
 		/* Calculate distances between each image and all other media */
-		for(WMV_Image i : p.images)		
+		for(WMV_Image i : p.getImages())		
 		{
 			namesIdx = i.getID();
 			names[namesIdx] = Integer.toString(namesIdx);
 
-			for(WMV_Image j : p.images)
+			for(WMV_Image j : p.getImages())
 			{
 				if(i != j)				// Don't compare image with itself
 				{
@@ -799,13 +794,13 @@ public class WMV_Model
 				}
 			}
 
-			for(WMV_Panorama n : p.panoramas)
+			for(WMV_Panorama n : p.getPanoramas())
 			{
 				distIdx = n.getID() + indexPanoramaOffset;
 				distances[namesIdx][distIdx] = PVector.dist(i.getCaptureLocation(), n.getCaptureLocation());
 			}
 
-			for(WMV_Video v : p.videos)
+			for(WMV_Video v : p.getVideos())
 			{
 				distIdx = v.getID() + indexVideoOffset;
 				distances[namesIdx][distIdx] = PVector.dist(i.getCaptureLocation(), v.getCaptureLocation());
@@ -813,18 +808,18 @@ public class WMV_Model
 		}
 
 		/* Calculate distances between each panorama and all other media */
-		for(WMV_Panorama n : p.panoramas)		
+		for(WMV_Panorama n : p.getPanoramas())		
 		{
 			namesIdx = n.getID() + indexPanoramaOffset;
 			names[namesIdx] = Integer.toString(namesIdx);
 
-			for(WMV_Image i : p.images)
+			for(WMV_Image i : p.getImages())
 			{
 				distIdx = i.getID();
 				distances[namesIdx][distIdx] = PVector.dist(n.getCaptureLocation(), i.getCaptureLocation());
 			}
 
-			for(WMV_Panorama o : p.panoramas)
+			for(WMV_Panorama o : p.getPanoramas())
 			{
 				if(n != o)				// Don't compare panorama with itself
 				{
@@ -833,7 +828,7 @@ public class WMV_Model
 				}
 			}
 
-			for(WMV_Video v : p.videos)
+			for(WMV_Video v : p.getVideos())
 			{
 				distIdx = v.getID() + indexVideoOffset;
 				distances[namesIdx][distIdx] = PVector.dist(n.getCaptureLocation(), v.getCaptureLocation());
@@ -841,24 +836,24 @@ public class WMV_Model
 		}
 
 		/* Calculate distances between each video and all other media */
-		for(WMV_Video v : p.videos)		
+		for(WMV_Video v : p.getVideos())		
 		{
 			namesIdx = v.getID() + indexVideoOffset;
 			names[namesIdx] = Integer.toString(namesIdx);
 
-			for(WMV_Image i : p.images)
+			for(WMV_Image i : p.getImages())
 			{
 				distIdx = i.getID();
 				distances[namesIdx][distIdx] = PVector.dist(v.getCaptureLocation(), i.getCaptureLocation());
 			}
 
-			for(WMV_Panorama n : p.panoramas)
+			for(WMV_Panorama n : p.getPanoramas())
 			{
 				distIdx = n.getID() + indexPanoramaOffset;
 				distances[namesIdx][distIdx] = PVector.dist(v.getCaptureLocation(), n.getCaptureLocation());
 			}
 
-			for(WMV_Video u : p.videos)
+			for(WMV_Video u : p.getVideos())
 			{
 				if(v != u)				// Don't compare video with itself
 				{
@@ -927,53 +922,53 @@ public class WMV_Model
 			if(i == 0)			
 			{
 				p.p.p.randomSeed(clusteringRandomSeed);
-				imageID = (int) p.p.p.random(p.images.size());  			// Random image ID for setting cluster's start location				
-				panoramaID = (int) p.p.p.random(p.panoramas.size());  		// Random panorama ID for setting cluster's start location				
-				videoID = (int) p.p.p.random(p.videos.size());  			// Random video ID for setting cluster's start location				
+				imageID = (int) p.p.p.random(p.getImages().size());  			// Random image ID for setting cluster's start location				
+				panoramaID = (int) p.p.p.random(p.getPanoramas().size());  		// Random panorama ID for setting cluster's start location				
+				videoID = (int) p.p.p.random(p.getVideos().size());  			// Random video ID for setting cluster's start location				
 				addedImages.append(imageID);								
 				addedPanoramas.append(panoramaID);								
 				addedVideos.append(videoID);								
 
 				/* Record media nearby added media*/
-				for(WMV_Image img : p.images)						// Check for images near the picked one
+				for(WMV_Image img : p.getImages())						// Check for images near the picked one
 				{
-					float dist = img.getCaptureDistanceFrom(p.images.get(imageID).getCaptureLocation());  // Get distance
+					float dist = img.getCaptureDistanceFrom(p.getImage(imageID).getCaptureLocation());  // Get distance
 					if(dist < minClusterDistance)
 						nearImages.append(img.getID());				// Record images nearby picked image
 				}
 
-				for(WMV_Panorama pano : p.panoramas)				// Check for panoramas near the picked one 
+				for(WMV_Panorama pano : p.getPanoramas())				// Check for panoramas near the picked one 
 				{
-					float dist = pano.getCaptureDistanceFrom(p.panoramas.get(panoramaID).getCaptureLocation());  // Get distance
+					float dist = pano.getCaptureDistanceFrom(p.getPanoramas().get(panoramaID).getCaptureLocation());  // Get distance
 					if(dist < minClusterDistance)
 						nearPanoramas.append(pano.getID());			// Add to the list of nearby picked images
 				}
 
-				for(WMV_Video vid : p.videos)						// Check for videos near the picked one
+				for(WMV_Video vid : p.getVideos())						// Check for videos near the picked one
 				{
-					float dist = vid.getCaptureDistanceFrom(p.videos.get(videoID).getCaptureLocation());  // Get distance
+					float dist = vid.getCaptureDistanceFrom(p.getVideo(videoID).getCaptureLocation());  // Get distance
 					if(dist < minClusterDistance)
 						nearVideos.append(vid.getID());				// Add to the list of nearby picked images
 				}
 
 				/* Create the cluster */
 				PVector clusterPoint = new PVector(0,0,0);
-				if(p.images.size() > 0)
+				if(p.getImages().size() > 0)
 				{
-					clusterPoint = new PVector(p.images.get(imageID).getCaptureLocation().x, p.images.get(imageID).getCaptureLocation().y, p.images.get(imageID).getCaptureLocation().z); // Choose random image location to start
-					p.clusters.add(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+					clusterPoint = new PVector(p.getImage(imageID).getCaptureLocation().x, p.getImage(imageID).getCaptureLocation().y, p.getImage(imageID).getCaptureLocation().z); // Choose random image location to start
+					p.addCluster(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
 					i++;
 				}
-				if(p.panoramas.size() > 0)
+				if(p.getPanoramas().size() > 0)
 				{
-					clusterPoint = new PVector(p.panoramas.get(panoramaID).getCaptureLocation().x, p.panoramas.get(panoramaID).getCaptureLocation().y, p.panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
-					p.clusters.add(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+					clusterPoint = new PVector(p.getPanoramas().get(panoramaID).getCaptureLocation().x, p.getPanoramas().get(panoramaID).getCaptureLocation().y, p.getPanoramas().get(panoramaID).getCaptureLocation().z); // Choose random image location to start
+					p.addCluster(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
 					i++;
 				}
-				if(p.videos.size() > 0)
+				if(p.getVideos().size() > 0)
 				{
-					clusterPoint = new PVector(p.videos.get(videoID).getCaptureLocation().x, p.videos.get(videoID).getCaptureLocation().y, p.videos.get(videoID).getCaptureLocation().z); // Choose random image location to start
-					p.clusters.add(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+					clusterPoint = new PVector(p.getVideo(videoID).getCaptureLocation().x, p.getVideo(videoID).getCaptureLocation().y, p.getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
+					p.addCluster(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
 					i++;
 				}
 
@@ -984,41 +979,41 @@ public class WMV_Model
 			}
 			else															// Find a random media (image, panorama or video) location for new cluster
 			{
-				int mediaID = (int) p.p.p.random(p.images.size() + p.panoramas.size() + p.videos.size());
+				int mediaID = (int) p.p.p.random(p.getImages().size() + p.getPanoramas().size() + p.getVideos().size());
 				PVector clusterPoint = new PVector(0,0,0);
 
-				if( mediaID < p.images.size() )				// If image, compare to already picked images
+				if( mediaID < p.getImages().size() )				// If image, compare to already picked images
 				{
-					imageID = (int) p.p.p.random(p.images.size());  						
+					imageID = (int) p.p.p.random(p.getImages().size());  						
 					while(addedImages.hasValue(imageID) && nearImages.hasValue(imageID))
-						imageID = (int) p.p.p.random(p.images.size());  						
+						imageID = (int) p.p.p.random(p.getImages().size());  						
 
 					addedImages.append(imageID);
 
-					clusterPoint = new PVector(p.images.get(imageID).getCaptureLocation().x, p.images.get(imageID).getCaptureLocation().y, p.images.get(imageID).getCaptureLocation().z); // Choose random image location to start
+					clusterPoint = new PVector(p.getImage(imageID).getCaptureLocation().x, p.getImage(imageID).getCaptureLocation().y, p.getImage(imageID).getCaptureLocation().z); // Choose random image location to start
 				}
-				else if( mediaID < p.images.size() + p.panoramas.size() )		// If panorama, compare to already picked panoramas
+				else if( mediaID < p.getImages().size() + p.getPanoramas().size() )		// If panorama, compare to already picked panoramas
 				{
-					panoramaID = (int) p.p.p.random(p.panoramas.size());  						
+					panoramaID = (int) p.p.p.random(p.getPanoramas().size());  						
 					while(addedPanoramas.hasValue(panoramaID) && nearPanoramas.hasValue(panoramaID))
-						panoramaID = (int) p.p.p.random(p.panoramas.size());  						
+						panoramaID = (int) p.p.p.random(p.getPanoramas().size());  						
 
 					addedPanoramas.append(panoramaID);
 
-					clusterPoint = new PVector(p.panoramas.get(panoramaID).getCaptureLocation().x, p.panoramas.get(panoramaID).getCaptureLocation().y, p.panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
+					clusterPoint = new PVector(p.getPanoramas().get(panoramaID).getCaptureLocation().x, p.getPanoramas().get(panoramaID).getCaptureLocation().y, p.getPanoramas().get(panoramaID).getCaptureLocation().z); // Choose random image location to start
 				}
-				else if( mediaID < p.images.size() + p.panoramas.size() + p.videos.size() )		// If video, compare to already picked videos
+				else if( mediaID < p.getImages().size() + p.getPanoramas().size() + p.getVideos().size() )		// If video, compare to already picked videos
 				{
-					videoID = (int) p.p.p.random(p.videos.size());  						
+					videoID = (int) p.p.p.random(p.getVideos().size());  						
 					while(addedImages.hasValue(videoID) && nearImages.hasValue(videoID))
-						videoID = (int) p.p.p.random(p.videos.size());  						
+						videoID = (int) p.p.p.random(p.getVideos().size());  						
 
 					addedVideos.append(videoID);
 
-					clusterPoint = new PVector(p.videos.get(videoID).getCaptureLocation().x, p.videos.get(videoID).getCaptureLocation().y, p.videos.get(videoID).getCaptureLocation().z); // Choose random image location to start
+					clusterPoint = new PVector(p.getVideo(videoID).getCaptureLocation().x, p.getVideo(videoID).getCaptureLocation().y, p.getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
 				}
 
-				p.clusters.add(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
+				p.addCluster(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
 			}
 		}	
 	}
@@ -1033,24 +1028,24 @@ public class WMV_Model
 		int count = 0;
 		boolean moved = false;						// Has any cluster moved farther than epsilon?
 		
-		ArrayList<WMV_Cluster> last = p.clusters;
+		ArrayList<WMV_Cluster> last = p.getClusters();
 		if(p.p.p.debug.cluster || p.p.p.debug.model)
 			PApplet.println("--> Refining clusters...");
 		
 		while( count < iterations ) 							// Iterate to create the clusters
 		{		
-			for (int i = 0; i < p.images.size(); i++) 			// Find closest cluster for each image
-				p.images.get(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
-			for (int i = 0; i < p.panoramas.size(); i++) 		// Find closest cluster for each image
-				p.panoramas.get(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
-			for (int i = 0; i < p.videos.size(); i++) 			// Find closest cluster for each image
-				p.videos.get(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
-			for (int i = 0; i < p.clusters.size(); i++) 		// Find closest cluster for each image
-				p.clusters.get(i).create();						// Assign clusters
+			for (int i = 0; i < p.getImages().size(); i++) 			// Find closest cluster for each image
+				p.getImage(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
+			for (int i = 0; i < p.getPanoramas().size(); i++) 		// Find closest cluster for each image
+				p.getPanorama(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
+			for (int i = 0; i < p.getVideos().size(); i++) 			// Find closest cluster for each image
+				p.getVideo(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
+			for (int i = 0; i < p.getClusters().size(); i++) 		// Find closest cluster for each image
+				p.getCluster(i).create();						// Assign clusters
 
-			if(p.clusters.size() == last.size())				// Check cluster movement
+			if(p.getClusters().size() == last.size())				// Check cluster movement
 			{
-				for(WMV_Cluster c : p.clusters)
+				for(WMV_Cluster c : p.getClusters())
 				{
 					float closestDist = 10000.f;
 					
@@ -1075,7 +1070,7 @@ public class WMV_Model
 			else
 			{
 				if(p.p.p.debug.cluster || p.p.p.debug.model)
-					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+p.clusters.size()+" last.size():"+last.size());
+					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+p.getClusters().size()+" last.size():"+last.size());
 			}
 			
 			count++;
@@ -1089,7 +1084,7 @@ public class WMV_Model
 	{
 		mergedClusters = 0;			// Reset mergedClusters count
 
-		IntList[] closeNeighbors = new IntList[ p.clusters.size() ];			// List array of closest neighbor distances for each cluster 
+		IntList[] closeNeighbors = new IntList[ p.getClusters().size() ];			// List array of closest neighbor distances for each cluster 
 		ArrayList<PVector> mostNeighbors = new ArrayList<PVector>();			// List of clusters with most neighbors and number of neighbors as PVector(id, neighborCount)
 		IntList absorbed = new IntList();										// List of clusters absorbed into other clusters
 		IntList merged = new IntList();											// List of clusters already merged with neighbors
@@ -1097,10 +1092,10 @@ public class WMV_Model
 		
 		if((p.p.p.debug.cluster || p.p.p.debug.model ) && p.p.p.debug.detailed) PApplet.println("Merging adjacent clusters... ");
 
-		for( WMV_Cluster c : p.clusters )					// Find distances of close neighbors to each cluster
+		for( WMV_Cluster c : p.getClusters() )					// Find distances of close neighbors to each cluster
 		{
 			closeNeighbors[c.getID()] = new IntList();	// Initialize list for this cluster
-			for( WMV_Cluster d : p.clusters )
+			for( WMV_Cluster d : p.getClusters() )
 			{
 				float dist = PVector.dist(c.getLocation(), d.getLocation());			// Get distance between clusters
 				//				  PApplet.println("c.location:"+c.location+" d.location:"+d.location+" dist:"+dist+" min:"+minClusterDistance);
@@ -1113,9 +1108,9 @@ public class WMV_Model
 		}
 
 		int count = 0;
-		for( WMV_Cluster c : p.clusters )					// Find distances of close neighbors for each cluster
+		for( WMV_Cluster c : p.getClusters() )					// Find distances of close neighbors for each cluster
 		{
-			if(count < p.clusters.size() * firstMergePct )		// Fill array with initial clusters 
+			if(count < p.getClusters().size() * firstMergePct )		// Fill array with initial clusters 
 			{
 				mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
 			}
@@ -1156,14 +1151,14 @@ public class WMV_Model
 			if(p.p.p.debug.cluster && v.y > 0 && p.p.p.debug.detailed)
 				PApplet.println("Merging cluster "+(int)v.x+" with "+(int)v.y+" neighbors...");
 
-			WMV_Cluster c = p.clusters.get( (int)v.x );
+			WMV_Cluster c = p.getCluster( (int)v.x );
 			if(!merged.hasValue(c.getID()))
 			{
 				for(int i : closeNeighbors[c.getID()])
 				{
 					if(!absorbed.hasValue(i) && c.getID() != i) 		// If cluster i hasn't already been absorbed and isn't the same cluster
 					{
-						c.absorbCluster(p.clusters.get(i));				// Absorb cluster
+						c.absorbCluster(p.getCluster(i));				// Absorb cluster
 						absorbed.append(i);
 
 						merged.append(i);
@@ -1174,11 +1169,11 @@ public class WMV_Model
 			}
 		}
 
-		for( WMV_Cluster c : p.clusters )					// Merge remaining clusters under minClusterDistance 
+		for( WMV_Cluster c : p.getClusters() )					// Merge remaining clusters under minClusterDistance 
 		{
 			if(!merged.hasValue(c.getID()))
 			{
-				for( WMV_Cluster d : p.clusters )
+				for( WMV_Cluster d : p.getClusters() )
 				{
 					if( !absorbed.hasValue(d.getID()) && !merged.hasValue(d.getID()) && c.getID() != d.getID() ) 	// If is different cluster and hasn't already been absorbed or merged
 					{
@@ -1206,41 +1201,41 @@ public class WMV_Model
 	 * If any images are not associated, create a new cluster for each
 	 */	void createSingleClusters()
 	 {
-		 int newClusterID = p.clusters.size();	// Start adding clusters at end of current list 
+		 int newClusterID = p.getClusters().size();	// Start adding clusters at end of current list 
 		 int initial = newClusterID;
 
-		 for (WMV_Image i : p.images) 			// Find closest cluster for each image
+		 for (WMV_Image i : p.getImages()) 			// Find closest cluster for each image
 		 {
 			 if(i.cluster == -1)				// Create cluster for each single image
 			 {
-				 p.clusters.add(new WMV_Cluster(p, newClusterID, i.getCaptureLocation().x, i.getCaptureLocation().y, i.getCaptureLocation().z));
+				 p.addCluster(new WMV_Cluster(p, newClusterID, i.getCaptureLocation().x, i.getCaptureLocation().y, i.getCaptureLocation().z));
 				 i.setAssociatedCluster(newClusterID);
 
-				 p.clusters.get(newClusterID).createSingle(i.getID(), 0);
+				 p.getCluster(newClusterID).createSingle(i.getID(), 0);
 				 newClusterID++;
 			 }
 		 }
 
-		 for (WMV_Panorama n : p.panoramas) 						// Find closest cluster for each image
+		 for (WMV_Panorama n : p.getPanoramas()) 						// Find closest cluster for each image
 		 {
 			 if(n.cluster == -1)				// Create cluster for each single image
 			 {
-				 p.clusters.add(new WMV_Cluster(p, newClusterID, n.getCaptureLocation().x, n.getCaptureLocation().y, n.getCaptureLocation().z));
+				 p.addCluster(new WMV_Cluster(p, newClusterID, n.getCaptureLocation().x, n.getCaptureLocation().y, n.getCaptureLocation().z));
 				 n.setAssociatedCluster(newClusterID);
 
-				 p.clusters.get(newClusterID).createSingle(n.getID(), 1);
+				 p.getCluster(newClusterID).createSingle(n.getID(), 1);
 				 newClusterID++;
 			 }
 		 }
 
-		 for (WMV_Video v : p.videos) 						// Find closest cluster for each image
+		 for (WMV_Video v : p.getVideos()) 						// Find closest cluster for each image
 		 {
 			 if(v.cluster == -1)				// Create cluster for each single image
 			 {
-				 p.clusters.add(new WMV_Cluster(p, newClusterID, v.getCaptureLocation().x, v.getCaptureLocation().y, v.getCaptureLocation().z));
+				 p.addCluster(new WMV_Cluster(p, newClusterID, v.getCaptureLocation().x, v.getCaptureLocation().y, v.getCaptureLocation().z));
 				 v.setAssociatedCluster(newClusterID);
 
-				 p.clusters.get(newClusterID).createSingle(v.getID(), 2);
+				 p.getCluster(newClusterID).createSingle(v.getID(), 2);
 				 newClusterID++;
 			 }
 		 }
@@ -1254,24 +1249,24 @@ public class WMV_Model
 	  */	
 	 public void findVideoPlaceholders()
 	 {
-		 for (int i = 0; i < p.videos.size(); i++) 		
+		 for (int i = 0; i < p.getVideos().size(); i++) 		
 		 {
-			 WMV_Video v = p.videos.get(i);
+			 WMV_Video v = p.getVideo(i);
 			 if(!v.disabled)
 			 {
 				 int id = v.getImagePlaceholder();				// Find associated image with each video
 
 				 if(id != -1)
 				 {
-					 v.cluster = p.images.get(id).cluster;	// Set video cluster to cluster of associated image
-					 p.clusters.get(v.cluster).video = true;	// Set cluster video property to true
+					 v.cluster = p.getImage(id).cluster;	// Set video cluster to cluster of associated image
+					 p.getCluster(v.cluster).video = true;	// Set cluster video property to true
 					 if(p.p.p.debug.video)
-						 PApplet.println("Image placeholder for video: "+i+" is:"+id+" p.clusters.get(v.cluster).video:"+p.clusters.get(v.cluster).video);
+						 PApplet.println("Image placeholder for video: "+i+" is:"+id+" p.getCluster(v.cluster).video:"+p.getCluster(v.cluster).video);
 				 }
 				 else
 				 {
 					 if(p.p.p.debug.video)
-						 PApplet.println("No image placeholder found for video: "+i+" p.clusters.get(v.cluster).video:"+p.clusters.get(v.cluster).video);
+						 PApplet.println("No image placeholder found for video: "+i+" p.getCluster(v.cluster).video:"+p.getCluster(v.cluster).video);
 					 v.disabled = true;
 				 }
 			 }
@@ -1293,17 +1288,17 @@ public class WMV_Model
 		 /* Add media to cluster */
 		 for( int i : images )
 		 {
-			 gmvc.addImage(p.images.get(i));
+			 gmvc.addImage(p.getImage(i));
 			 gmvc.mediaCount++;
 		 }
 		 for( int n : panoramas )
 		 {
-			 gmvc.addPanorama(p.panoramas.get(n));
+			 gmvc.addPanorama(p.getPanoramas().get(n));
 			 gmvc.mediaCount++;
 		 }
 		 for( int v : videos )
 		 {
-			 gmvc.addVideo(p.videos.get(v));
+			 gmvc.addVideo(p.getVideo(v));
 			 gmvc.mediaCount++;
 		 }
 
@@ -1342,7 +1337,7 @@ public class WMV_Model
 
 		 boolean init = true;	
 
-		 for (WMV_Image i : p.images) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Image i : p.getImages()) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (init) 	// Initialize high and low longitude
 			 {	
@@ -1375,7 +1370,7 @@ public class WMV_Model
 				 lowLatitude = i.gpsLocation.z;
 		 }
 
-		 for (WMV_Panorama n : p.panoramas) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Panorama n : p.getPanoramas()) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (n.gpsLocation.x > highLongitude)
 				 highLongitude = n.gpsLocation.x;
@@ -1391,7 +1386,7 @@ public class WMV_Model
 				 lowLatitude = n.gpsLocation.z;
 		 }
 
-		 for (WMV_Video v : p.videos) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Video v : p.getVideos()) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (v.gpsLocation.x > highLongitude)
 				 highLongitude = v.gpsLocation.x;
@@ -1430,7 +1425,7 @@ public class WMV_Model
 
 		 if(p.p.p.debug.field) PApplet.println("Analyzing media in field...");
 
-		 for ( WMV_Video v : p.videos ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for ( WMV_Video v : p.getVideos() ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (initVideoTime) 		// Calculate most recent and oldest video time
 			 {		
@@ -1460,7 +1455,7 @@ public class WMV_Model
 //				 longestVideoDayLength = v.time.getDayLength();
 		 }
 
-		 for (WMV_Image i : p.images) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Image i : p.getImages()) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (initImageTime) 	// Calculate most recent and oldest image time
 			 {		
@@ -1490,7 +1485,7 @@ public class WMV_Model
 //				 longestImageDayLength = i.time.getDayLength();
 		 }
 
-		 for (WMV_Panorama i : p.panoramas) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Panorama i : p.getPanoramas()) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (initPanoTime) 	// Calculate most recent and oldest Pano time
 			 {		
@@ -1565,12 +1560,12 @@ public class WMV_Model
 	 public void lockMediaToClusters()
 	 {
 		 if(p.p.p.debug.field || p.p.p.debug.model) PApplet.println("lockMediaToClusters(): Moving media... ");
-		 for (int i = 0; i < p.images.size(); i++) 
-			 p.images.get(i).adjustCaptureLocation();		
-		 for (int i = 0; i < p.panoramas.size(); i++) 
-			 p.panoramas.get(i).adjustCaptureLocation();		
-		 for (int i = 0; i < p.videos.size(); i++) 
-			 p.videos.get(i).adjustCaptureLocation();		
+		 for (int i = 0; i < p.getImages().size(); i++) 
+			 p.getImage(i).adjustCaptureLocation();		
+		 for (int i = 0; i < p.getPanoramas().size(); i++) 
+			 p.getPanorama(i).adjustCaptureLocation();		
+		 for (int i = 0; i < p.getVideos().size(); i++) 
+			 p.getVideo(i).adjustCaptureLocation();		
 	 }
 
 	 /**
@@ -1594,7 +1589,7 @@ public class WMV_Model
 	  */
 	 public int getClusterAmount()
 	 {
-		 return p.clusters.size() - mergedClusters;
+		 return p.getClusters().size() - mergedClusters;
 	 }
 	 
 	void setMinClusterDistance(float newMinClusterDistance)
@@ -1624,7 +1619,7 @@ public class WMV_Model
             System.out.println(logFile.getCanonicalPath());
 
             writer = new BufferedWriter(new FileWriter(logFile));
-            writer.write("Field: "+p.name);
+            writer.write("Field: "+p.getName());
         } 
 		catch (Exception e) {
             e.printStackTrace();
@@ -1670,12 +1665,12 @@ public class WMV_Model
 //	
 //				if(mediaIdx < indexPanoramaOffset)
 //				{
-//					location = p.images.get(mediaIdx).getCaptureLocation();
+//					location = p.getImage(mediaIdx).getCaptureLocation();
 //				}
 //				else if(mediaIdx < indexVideoOffset)
 //				{
 //					mediaIdx -= indexPanoramaOffset; 
-//					location = p.panoramas.get(mediaIdx).getCaptureLocation();
+//					location = p.getPanoramas().get(mediaIdx).getCaptureLocation();
 //				}
 //				else
 //				{

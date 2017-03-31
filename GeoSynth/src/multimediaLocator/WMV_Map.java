@@ -187,7 +187,7 @@ public class WMV_Map
 	public void createPointMarkers()
 	{
 		markerManager = new MarkerManager<Marker>();
-		for( WMV_Cluster c : p.p.getCurrentField().clusters )	
+		for( WMV_Cluster c : p.p.getCurrentField().getClusters() )	
 		{
 			if(!c.isEmpty() && c.mediaCount != 0)
 			{
@@ -251,7 +251,7 @@ public class WMV_Map
 		selectableClusterIDs = new IntList();
 		selectableClusterLocations = new ArrayList<SelectableClusterLocation>();
 		
-		for( WMV_Cluster c : p.p.getCurrentField().clusters )	
+		for( WMV_Cluster c : p.p.getCurrentField().getClusters() )	
 		{
 			if(!c.isEmpty() && c.mediaCount != 0)
 			{
@@ -286,7 +286,7 @@ public class WMV_Map
 	
 	PVector getMapLocation(PVector point, float mapWidth, float mapHeight)
 	{
-		WMV_Model m = p.p.getCurrentField().model;
+		WMV_Model m = p.p.getCurrentField().getModel();
 		float mapLocX, mapLocY;
 
 		if(fieldAspectRatio >= 1.f)					
@@ -321,7 +321,7 @@ public class WMV_Map
 			if(p.p.interactive)
 				p.p.p.text("Interactive "+(p.p.hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, p.hudDistance);
 			else
-				p.p.p.text(p.p.getCurrentField().name, textXPos, textYPos, p.hudDistance);
+				p.p.p.text(p.p.getCurrentField().getName(), textXPos, textYPos, p.hudDistance);
 
 			p.p.p.popMatrix();
 
@@ -358,7 +358,7 @@ public class WMV_Map
 
 		if(selectedCluster >= 0)
 		{
-			WMV_Cluster c = p.p.getCluster(selectedCluster);
+			WMV_Cluster c = p.p.getCurrentField().getCluster(selectedCluster);
 
 			if(selectedCluster == p.p.viewer.getCurrentClusterID())
 				drawClusterMedia(c, mapWidth, mapHeight, false);
@@ -416,7 +416,7 @@ public class WMV_Map
 
 				if(selectedCluster >= 0)
 				{
-					WMV_Cluster c = p.p.getCluster(selectedCluster);
+					WMV_Cluster c = p.p.getCurrentField().getCluster(selectedCluster);
 					if(!c.isEmpty() && c.mediaCount != 0)
 						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
 					
@@ -477,7 +477,7 @@ public class WMV_Map
 	 */
 	void drawSimpleClusters(float mapWidth, float mapHeight)
 	{
-		for( WMV_Cluster c : p.p.getCurrentField().clusters )	
+		for( WMV_Cluster c : p.p.getCurrentField().getClusters() )	
 		{
 			if(!c.isEmpty() && c.mediaCount > 5)
 			{
@@ -568,10 +568,10 @@ public class WMV_Map
 	 */
 	void drawClusterMedia(WMV_Cluster c, float mapWidth, float mapHeight, boolean ignoreTime)
 	{
-		if((mapImages && !p.p.getCurrentField().hideImages))
+		if((mapImages && !p.p.viewer.settings.hideImages))
 			for ( int i : c.images )									// Draw images on Map
 			{
-				WMV_Image img = p.p.getCurrentField().images.get(i);
+				WMV_Image img = p.p.getCurrentField().getImage(i);
 				drawImageOnMap(img, ignoreTime, mapWidth, mapHeight, false);
 				if(p.p.showModel)
 				{
@@ -587,17 +587,17 @@ public class WMV_Map
 				}
 			}
 
-		if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
+		if((mapPanoramas && !p.p.viewer.settings.hidePanoramas))
 			for ( int n : c.panoramas )									// Draw panoramas on Map
 			{
-				WMV_Panorama pano = p.p.getCurrentField().panoramas.get(n);
+				WMV_Panorama pano = p.p.getCurrentField().getPanorama(n);
 				drawPanoramaOnMap(pano, ignoreTime, mapWidth, mapHeight, false);
 			}
 
-		if((mapVideos && !p.p.getCurrentField().hideVideos))
+		if((mapVideos && !p.p.viewer.settings.hideVideos))
 			for (int v : c.videos)										// Draw videos on Map
 			{
-				WMV_Video vid = p.p.getCurrentField().videos.get(v);
+				WMV_Video vid = p.p.getCurrentField().getVideo(v);
 				drawVideoOnMap(vid, ignoreTime, mapWidth, mapHeight, false);
 				if(p.p.showModel)
 				{
@@ -915,7 +915,7 @@ public class WMV_Map
 			p.p.p.hint(PApplet.DISABLE_DEPTH_TEST);						// Disable depth testing for drawing HUD
 		}
 
-		for( WMV_Cluster c : p.p.getCurrentField().clusters )								// For all clusters at current depth
+		for( WMV_Cluster c : p.p.getCurrentField().getClusters() )								// For all clusters at current depth
 		{
 			drawPoint( c.getLocation(), 5.f, curMapWidth, curMapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
 		}
@@ -1067,7 +1067,7 @@ public class WMV_Map
 ////											selectedCluster = sclTest.id;				// -- Needed?
 ////											{
 ////												PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
-////												WMV_Cluster c = p.p.getCluster(clusterID); 
+////												WMV_Cluster c = p.p.getCurrentField().getCluster(clusterID); 
 ////												PVector clusterMapLoc = getMapLocation(c.getLocation(), curMapWidth, curMapHeight);
 ////												clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
 ////												clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
@@ -1092,7 +1092,7 @@ public class WMV_Map
 			{
 				if(selectedCluster != p.p.viewer.getCurrentClusterID())
 				{
-					if(selectedCluster >= 0 && selectedCluster < p.p.getCurrentField().clusters.size())
+					if(selectedCluster >= 0 && selectedCluster < p.p.getCurrentField().getClusters().size())
 					{
 //						if(p.p.input.shiftKey)
 //						{
@@ -1109,7 +1109,7 @@ public class WMV_Map
 			else 				// If mouse was most recently pressed, rather than dragged
 			{
 				if(selectedCluster != -1)
-					zoomToCluster(p.p.getCluster(selectedCluster));
+					zoomToCluster(p.p.getCurrentField().getCluster(selectedCluster));
 			}
 		}		
 	}

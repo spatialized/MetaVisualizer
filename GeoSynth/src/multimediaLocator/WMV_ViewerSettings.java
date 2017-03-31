@@ -30,7 +30,16 @@ public class WMV_ViewerSettings
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
+//	public final int maxVisiblePhotos = 50;					// Maximum visible images at one time
+//	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
+//	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
 	
+	/* Visibility */
+	public float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
+	public boolean hideImages = false;						// Hide images
+	public boolean hidePanoramas = false;					// Hide panoramas
+	public boolean hideVideos = false;						// Hide videos
+
 	/* Video */
 	public boolean autoPlayVideos = true;				// Automatically play videos near viewer
 	public int autoPlayMaxVideoCount = 2;				// Maximum videos to auto play simultaneously
@@ -84,7 +93,18 @@ public class WMV_ViewerSettings
 	public float orientationModeClusterViewingDistance = nearClippingDistance;	// Distance clusters become visible in Orientation Mode
 	public boolean orientationModeForceVisible = false;			// Force <minimum visible clusters> to be seen, even if out of range
 	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
-	
+
+	/* Sound */
+	private float audibleFarDistanceMin, audibleFarDistanceMax;
+	private float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal, audibleFarDistanceDestVal;
+	private float audibleFarDistanceDiv = (float) 1.5;
+	private boolean audibleFarDistanceTransition = false;
+
+	private float audibleNearDistanceMin, audibleNearDistanceMax;
+	private float audibleNearDistanceFadeStart, audibleNearDistanceFadeLength = 40, audibleNearDistanceStartVal, audibleNearDistanceDestVal;
+	private float audibleNearDistanceDiv = (float) 1.2; 
+	private boolean audibleNearDistanceTransition = false;
+
 	public WMV_ViewerSettings(WMV_Viewer parent)
 	{
 		v = parent;
@@ -154,5 +174,14 @@ public class WMV_ViewerSettings
 	
 		/* Clusters */
 		maxVisibleClusters = 2;					// Maximum visible clusters in Orientation Mode
+		
+		/* Sound */
+		audibleFarDistanceFadeLength = 40;
+		audibleFarDistanceDiv = (float) 1.5;
+		audibleFarDistanceTransition = false;
+
+		audibleNearDistanceFadeLength = 40;
+		audibleNearDistanceDiv = (float) 1.2; 
+		audibleNearDistanceTransition = false;
 	}
 }

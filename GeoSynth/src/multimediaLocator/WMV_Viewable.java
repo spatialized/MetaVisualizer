@@ -107,7 +107,7 @@ public abstract class WMV_Viewable
 	{
 		if(cluster != -1)
 		{
-			WMV_Cluster c = p.clusters.get(cluster);
+			WMV_Cluster c = p.getClusters().get(cluster);
 			if(c.lowImageDate == c.highImageDate)
 			{
 				clusterDate = c.lowImageDate;
@@ -126,7 +126,7 @@ public abstract class WMV_Viewable
 	{
 		if(cluster != -1)
 		{
-			WMV_Cluster c = p.clusters.get(cluster);
+			WMV_Cluster c = p.getClusters().get(cluster);
 			if(c.lowImageTime == c.highImageTime)
 			{
 				clusterTime = c.lowImageTime;
@@ -270,22 +270,22 @@ public abstract class WMV_Viewable
 		switch(p.p.getTimeMode())
 		{
 			case 0:
-				WMV_Cluster c = p.p.getCluster(cluster);		// Get cluster for this media
+				WMV_Cluster c = p.p.getCurrentField().getCluster(cluster);		// Get cluster for this media
 				curTime = c.currentTime;						// Set image time from cluster
 				
-				if(c.dateline != null)
+				if(c.getDateline() != null)
 				{
-					if(c.dateline.size() == 1)
+					if(c.getDateline().size() == 1)
 					{
 						// -- Time bug happens here -- should get all nearby clusters, not just current + check if current is closeby!
-						lower = c.timeline.get(0).getLower().getTime();						// Get cluster timeline lower bound
-						upper = c.timeline.get(c.timeline.size()-1).getUpper().getTime();	// Get cluster timeline upper bound
+						lower = c.getTimeline().get(0).getLower().getTime();						// Get cluster timeline lower bound
+						upper = c.getTimeline().get(c.getTimeline().size()-1).getUpper().getTime();	// Get cluster timeline upper bound
 					}
 					else
 					{
-						lower = c.timelines.get(0).get(0).getLower().getTime();							// Get cluster timeline lower bound
-						int lastIdx = c.timelines.size()-1;
-						upper = c.timelines.get(lastIdx).get(c.timelines.get(lastIdx).size()-1).getUpper().getTime();			// Get cluster timeline upper bound
+						lower = c.getTimelines().get(0).get(0).getLower().getTime();							// Get cluster timeline lower bound
+						int lastIdx = c.getTimelines().size()-1;
+						upper = c.getTimelines().get(lastIdx).get(c.getTimelines().get(lastIdx).size()-1).getUpper().getTime();			// Get cluster timeline upper bound
 					}
 				}
 				else return 0.f;
@@ -293,8 +293,8 @@ public abstract class WMV_Viewable
 		
 			case 1:												// Time Mode: Field
 				curTime = p.p.currentTime;
-				lower = p.p.getCurrentField().timeline.get(0).getLower().getTime();		// Check division					// Get cluster timeline lower bound
-				upper = p.p.getCurrentField().timeline.get(p.p.getCurrentField().timeline.size()-1).getUpper().getTime();		// Get cluster timeline upper bound
+				lower = p.p.getCurrentField().getTimeline().get(0).getLower().getTime();		// Check division					// Get cluster timeline lower bound
+				upper = p.p.getCurrentField().getTimeline().get(p.p.getCurrentField().getTimeline().size()-1).getUpper().getTime();		// Get cluster timeline upper bound
 				break;
 				
 			case 2:
@@ -373,7 +373,7 @@ public abstract class WMV_Viewable
 				error = true;
 				PApplet.println("------Error: fadeInEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
 				PApplet.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-				PApplet.println("-----cluster:"+cluster+" currentCluster:"+p.p.getCurrentCluster().getID()+" curClusterTimeSegment:"+p.p.viewer.currentClusterTimeSegment+" media type:"+getMediaType());
+				PApplet.println("-----cluster:"+cluster+" currentCluster:"+p.p.getCurrentCluster().getID()+" media type:"+getMediaType());
 			}
 
 			if(fadeOutStart > cycleLength)
@@ -398,7 +398,7 @@ public abstract class WMV_Viewable
 		{
 			if(currentMedia)
 			{
-				fadeInStart = p.p.viewer.currentMediaStartTime;				// Frame media starts fading in
+				fadeInStart = p.p.viewer.getCurrentMediaStartTime();				// Frame media starts fading in
 				fadeInEnd = PApplet.round(fadeInStart + length / 4.f);		// Frame media reaches full brightness
 				fadeOutEnd = fadeInStart + p.p.settings.defaultMediaLength;									// Frame media finishes fading out
 				fadeOutStart = PApplet.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
@@ -522,14 +522,15 @@ public abstract class WMV_Viewable
 	void calculateCaptureLocation()                                  
 	{
 		float newX = 0.f, newZ = 0.f, newY = 0.f;
-
-		if(p.model.highLongitude != -1000000 && p.model.lowLongitude != 1000000 && p.model.highLatitude != -1000000 && p.model.lowLatitude != 1000000 && p.model.highAltitude != -1000000 && p.model.lowAltitude != 1000000)
+		WMV_Model model = p.getModel();
+		
+		if(model.highLongitude != -1000000 && model.lowLongitude != 1000000 && model.highLatitude != -1000000 && model.lowLatitude != 1000000 && model.highAltitude != -1000000 && model.lowAltitude != 1000000)
 		{
-			if(p.model.highLongitude != p.model.lowLongitude && p.model.highLatitude != p.model.lowLatitude)
+			if(model.highLongitude != model.lowLongitude && model.highLatitude != model.lowLatitude)
 			{
-				newX = PApplet.map(gpsLocation.x, p.model.lowLongitude, p.model.highLongitude, -0.5f * p.model.fieldWidth, 0.5f*p.model.fieldWidth); 			// GPS longitude decreases from left to right
-				newY = -PApplet.map(gpsLocation.y, p.model.lowAltitude, p.model.highAltitude, 0.f, p.model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
-				newZ = PApplet.map(gpsLocation.z, p.model.lowLatitude, p.model.highLatitude, 0.5f*p.model.fieldLength, -0.5f * p.model.fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+				newX = PApplet.map(gpsLocation.x, model.lowLongitude, model.highLongitude, -0.5f * model.fieldWidth, 0.5f*model.fieldWidth); 			// GPS longitude decreases from left to right
+				newY = -PApplet.map(gpsLocation.y, model.lowAltitude, model.highAltitude, 0.f, model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
+				newZ = PApplet.map(gpsLocation.z, model.lowLatitude, model.highLatitude, 0.5f*model.fieldLength, -0.5f * model.fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
 				
 				if(p.p.settings.altitudeScaling)	
 					newY *= p.p.settings.altitudeScalingFactor;
@@ -568,7 +569,7 @@ public abstract class WMV_Viewable
 	{
 		if(cluster != -1)
 		{
-			captureLocation = p.clusters.get(cluster).getLocation();
+			captureLocation = p.getCluster(cluster).getLocation();
 		}
 		else
 		{

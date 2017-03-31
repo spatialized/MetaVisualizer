@@ -60,9 +60,9 @@ public class WMV_Cluster
 
 	
 //	int[] clusterTimesHistogram, fieldTimesHistogram;			// Histogram of media times relative to cluster	/ field
-	ArrayList<WMV_Date> dateline;								// Capture dates for this cluster
-	ArrayList<WMV_TimeSegment> timeline;						// Date-independent capture times for this cluster
-	ArrayList<ArrayList<WMV_TimeSegment>> timelines;	
+	private ArrayList<WMV_Date> dateline;								// Capture dates for this cluster
+	private ArrayList<WMV_TimeSegment> timeline;						// Date-independent capture times for this cluster
+	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;	
 //	public float timelineAngle = PApplet.PI/2.f; 	// (Not implemented yet) Span of each timeline, i.e. when showing different timelines per orientation
 
 	/* Segmentation */
@@ -142,13 +142,13 @@ public class WMV_Cluster
 			IntList curImages = new IntList();
 			curImages.append(allImages.get(0));
 			
-			float left = p.images.get(allImages.get(0)).getDirection();
-			float right = p.images.get(allImages.get(0)).getDirection();
-			float centerDirection = p.images.get(allImages.get(0)).getDirection();
+			float left = p.getImages().get(allImages.get(0)).getDirection();
+			float right = p.getImages().get(allImages.get(0)).getDirection();
+			float centerDirection = p.getImages().get(allImages.get(0)).getDirection();
 
-			float bottom = p.images.get(allImages.get(0)).getElevation();
-			float top = p.images.get(allImages.get(0)).getElevation();
-			float centerElevation = p.images.get(allImages.get(0)).getElevation();
+			float bottom = p.getImages().get(allImages.get(0)).getElevation();
+			float top = p.getImages().get(allImages.get(0)).getElevation();
+			float centerElevation = p.getImages().get(allImages.get(0)).getElevation();
 
 			segments.add( new WMV_MediaSegment( this, 0, curImages, null, right, left, centerDirection, 
 												top, bottom, centerElevation) );
@@ -173,7 +173,7 @@ public class WMV_Cluster
 			int count = 0;
 			for(int i : allImages)							// Search for images at least stitchingMinAngle from each image
 			{
-				WMV_Image img = p.images.get(i);
+				WMV_Image img = p.getImage(i);
 			
 				if(curImages.size() == 0)
 				{
@@ -188,14 +188,14 @@ public class WMV_Cluster
 					while(!found && idx < curImages.size())
 					{
 						int m = curImages.get(idx);
-						if(p.images.get(m).getID() != img.getID())		// Don't compare image to itself
+						if(p.getImage(m).getID() != img.getID())		// Don't compare image to itself
 						{
 							if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
-								PApplet.println("Comparing image:"+img.getDirection()+" to m: "+p.images.get(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.settings.stitchingMinAngle);
+								PApplet.println("Comparing image:"+img.getDirection()+" to m: "+p.getImage(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.settings.stitchingMinAngle);
 							
-							if(PApplet.abs(img.getDirection() - p.images.get(m).getDirection()) < p.p.settings.stitchingMinAngle)
+							if(PApplet.abs(img.getDirection() - p.getImage(m).getDirection()) < p.p.settings.stitchingMinAngle)
 							{
-								if(PApplet.abs(img.getElevation() - p.images.get(m).getElevation()) < p.p.settings.stitchingMinAngle)
+								if(PApplet.abs(img.getElevation() - p.getImage(m).getElevation()) < p.p.settings.stitchingMinAngle)
 								{
 									float direction = img.getDirection();
 									float elevation = img.getElevation();
@@ -244,13 +244,13 @@ public class WMV_Cluster
 	
 			if(curImages.size() == 1)			// Only one image
 			{
-				left = p.images.get(curImages.get(0)).getDirection();
-				right = p.images.get(curImages.get(0)).getDirection();
-				centerDirection = p.images.get(curImages.get(0)).getDirection();
+				left = p.getImage(curImages.get(0)).getDirection();
+				right = p.getImage(curImages.get(0)).getDirection();
+				centerDirection = p.getImage(curImages.get(0)).getDirection();
 				
-				bottom = p.images.get(allImages.get(0)).getElevation();
-				top = p.images.get(allImages.get(0)).getElevation();
-				centerElevation = p.images.get(allImages.get(0)).getElevation();
+				bottom = p.getImage(allImages.get(0)).getElevation();
+				top = p.getImage(allImages.get(0)).getElevation();
+				centerElevation = p.getImage(allImages.get(0)).getElevation();
 				
 				left = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
 				right = p.p.p.utilities.constrainWrap(right, 0.f, 360.f);
@@ -291,7 +291,7 @@ public class WMV_Cluster
 		
 		for(int i : panoramas)
 		{
-			float left = p.p.p.utilities.constrainWrap(p.panoramas.get(i).getDirection(), 0.f, 360.f);
+			float left = p.p.p.utilities.constrainWrap(p.getPanorama(i).getDirection(), 0.f, 360.f);
 			float right = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
 			float centerDirection = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
 			float bottom = -90.f;
@@ -381,9 +381,9 @@ public class WMV_Cluster
 		empty();
 				
 		/* Find images associated with this cluster ID */
-		for (int i = 0; i < p.images.size(); i++) 
+		for (int i = 0; i < p.getImages().size(); i++) 
 		{
-			WMV_Image curImg = (WMV_Image) p.images.get(i);
+			WMV_Image curImg = (WMV_Image) p.getImage(i);
 
 			if (curImg.cluster == id) 			// If the image is assigned to this cluster
 			{
@@ -397,9 +397,9 @@ public class WMV_Cluster
 		}
 
 		/* Find panoramas associated with this cluster ID */
-		for (int i = 0; i < p.panoramas.size(); i++) 
+		for (int i = 0; i < p.getPanoramas().size(); i++) 
 		{
-			WMV_Panorama curPano = (WMV_Panorama) p.panoramas.get(i);
+			WMV_Panorama curPano = (WMV_Panorama) p.getPanorama(i);
 
 			if (curPano.cluster == id) 			// If the image is assigned to this cluster
 			{
@@ -419,9 +419,9 @@ public class WMV_Cluster
 		}
 
 		/* Find videos associated with this cluster ID */
-		for (int i = 0; i < p.videos.size(); i++) 
+		for (int i = 0; i < p.getVideos().size(); i++) 
 		{
-			WMV_Video curVid = (WMV_Video) p.videos.get(i);
+			WMV_Video curVid = (WMV_Video) p.getVideo(i);
 
 			if (curVid.cluster == id) 				// If the image is assigned to this cluster
 			{
@@ -531,7 +531,7 @@ public class WMV_Cluster
 			IntList valid = new IntList();
 			for( int i : p.getSelectedImages() )
 			{
-				if(p.images.get(i).isVisible())
+				if(p.getImage(i).isVisible())
 					valid.append(i);
 			}
 
@@ -575,7 +575,7 @@ public class WMV_Cluster
 					IntList valid = new IntList();
 					for( int i : m.getImages() )
 					{
-						if(p.images.get(i).isVisible())
+						if(p.getImage(i).isVisible())
 							valid.append(i);
 					}
 					
@@ -588,7 +588,7 @@ public class WMV_Cluster
 						int count = 0;
 						for(int v:valid)
 						{
-							if(!p.images.get(v).getThinningVisibility())
+							if(!p.getImage(v).getThinningVisibility())
 								remove.append(count);
 							count++;
 						}
@@ -641,14 +641,14 @@ public class WMV_Cluster
 		int numPerimeterPts = PApplet.round(PApplet.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
 		int[] perimeterPoints = new int[numPerimeterPts];					// Points to compare each cluster image/video to
 		float[] perimeterDistances = new float[numPerimeterPts];			// Distances of images associated with each point
-		int videoIdxOffset = p.images.size();
+		int videoIdxOffset = p.getImages().size();
 		
 		for(int i=0; i<numPerimeterPts; i++)
 			perimeterPoints[i] = -1;										// Start with empty perimeter point
 
 		for(int idx : images)
 		{
-			WMV_Image m = p.images.get(idx);
+			WMV_Image m = p.getImage(idx);
 			float imgAngle = PApplet.radians(m.theta);
 			m.setThinningVisibility(false);
 
@@ -676,7 +676,7 @@ public class WMV_Cluster
 		
 		for(int idx : videos)
 		{
-			WMV_Video v = p.videos.get(idx);
+			WMV_Video v = p.getVideo(idx);
 			float vidAngle = PApplet.radians(v.theta);
 			v.setThinningVisibility(false);
 
@@ -709,12 +709,12 @@ public class WMV_Cluster
 				if(idx < videoIdxOffset)
 				{
 //					PApplet.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
-					p.images.get(idx).setThinningVisibility(true);
+					p.getImage(idx).setThinningVisibility(true);
 				}
 				else
 				{
 //					PApplet.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
-					p.videos.get(idx-videoIdxOffset).setThinningVisibility(true);
+					p.getVideo(idx-videoIdxOffset).setThinningVisibility(true);
 				}
 			}
 		}
@@ -745,7 +745,7 @@ public class WMV_Cluster
 		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
 		for(int i : images)
 		{
-			cImages.add(p.images.get(i));
+			cImages.add(p.getImage(i));
 		}
 		return cImages;
 	}
@@ -758,7 +758,7 @@ public class WMV_Cluster
 		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
 		for(int i : panoramas)
 		{
-			cPanoramas.add(p.panoramas.get(i));
+			cPanoramas.add(p.getPanorama(i));
 		}
 		return cPanoramas;
 	}
@@ -771,7 +771,7 @@ public class WMV_Cluster
 		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
 		for(int i : videos)
 		{
-			cVideos.add(p.videos.get(i));
+			cVideos.add(p.getVideo(i));
 		}
 		return cVideos;
 	}
@@ -787,7 +787,7 @@ public class WMV_Cluster
 		{
 			for(int imgIdx : images)
 			{
-				WMV_Image i = p.images.get(imgIdx);
+				WMV_Image i = p.getImage(imgIdx);
 				if(i.isActive())
 					active = true;
 			}
@@ -797,7 +797,7 @@ public class WMV_Cluster
 		{
 			for(int panoIdx : panoramas)
 			{
-				WMV_Panorama n = p.panoramas.get(panoIdx);
+				WMV_Panorama n = p.getPanorama(panoIdx);
 				if(n.isActive())
 					active = true;
 			}
@@ -807,7 +807,7 @@ public class WMV_Cluster
 		{
 			for(int vidIdx : videos)
 			{
-				WMV_Video v = p.videos.get(vidIdx);
+				WMV_Video v = p.getVideo(vidIdx);
 				if(v.isActive())
 					active = true;
 			}
@@ -842,7 +842,8 @@ public class WMV_Cluster
 			{
 				PVector force = getAttractionForce();
 //				PApplet.println("Cluster #"+getID()+"... Adding attraction force:"+force);
-				p.p.viewer.attraction.add( force );		// Add attraction force to camera 
+//				p.p.viewer.attraction.add( force );		// Add attraction force to camera 
+				p.p.viewer.attract( force );		// Add attraction force to camera 
 			}
 			else 
 				PApplet.println("Empty Attractor: "+getID());
@@ -916,9 +917,9 @@ public class WMV_Cluster
 			PApplet.println("Merging cluster "+getID()+" with "+cluster.getID());
 
 		/* Find images associated with cluster */
-		for (int i = 0; i < p.images.size(); i++) 
+		for (int i = 0; i < p.getImages().size(); i++) 
 		{
-			WMV_Image curImg = p.images.get(i);
+			WMV_Image curImg = p.getImage(i);
 
 			if (curImg.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
@@ -928,9 +929,9 @@ public class WMV_Cluster
 		}
 
 		/* Find panoramas associated with cluster */
-		for (int i = 0; i < p.panoramas.size(); i++) 
+		for (int i = 0; i < p.getPanoramas().size(); i++) 
 		{
-			WMV_Panorama curPano = p.panoramas.get(i);
+			WMV_Panorama curPano = p.getPanorama(i);
 
 			if (curPano.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
@@ -940,9 +941,9 @@ public class WMV_Cluster
 		}
 
 		/* Find videos associated with cluster */
-		for (int i = 0; i < p.videos.size(); i++) 
+		for (int i = 0; i < p.getVideos().size(); i++) 
 		{
-			WMV_Video curVid = p.videos.get(i);
+			WMV_Video curVid = p.getVideo(i);
 
 			if (curVid.cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
@@ -982,21 +983,21 @@ public class WMV_Cluster
 		/* Get times of all media of all types in this cluster */
 		for(int i : images)
 		{
-			WMV_Date date = p.images.get(i).time.getDate();
+			WMV_Date date = p.getImage(i).time.getDate();
 			if(!dateline.contains(date)) 				// Add date if doesn't exist
 				dateline.add( date );
 		}
 
 		for(int n : panoramas)
 		{
-			WMV_Date date = p.panoramas.get(n).time.getDate();
+			WMV_Date date = p.getPanorama(n).time.getDate();
 			if(!dateline.contains(date)) 
 				dateline.add( date );
 		}
 
 		for(int v : videos) 
 		{
-			WMV_Date date = p.videos.get(v).time.getDate();
+			WMV_Date date = p.getVideo(v).time.getDate();
 			if(!dateline.contains(date)) 
 				dateline.add( date );
 		}
@@ -1026,11 +1027,11 @@ public class WMV_Cluster
 		
 		/* Get times of all media of all types in this cluster */
 		for(int i : images)
-			mediaTimes.add( p.images.get(i).time );
+			mediaTimes.add( p.getImage(i).time );
 		for(int n : panoramas) 
-			mediaTimes.add( p.panoramas.get(n).time );
+			mediaTimes.add( p.getPanorama(n).time );
 		for(int v : videos)
-			mediaTimes.add( p.videos.get(v).time );
+			mediaTimes.add( p.getVideo(v).time );
 
 		if(mediaTimes.size() > 0)
 		{
@@ -1082,26 +1083,26 @@ public class WMV_Cluster
 
 //			for(int i : images)
 //			{
-//				WMV_Image img = p.images.get(i);
+//				WMV_Image img = p.getImage(i);
 //				if((img.getDate()).equals(d))
 //					mediaTimes.add( img.time );
 //			}
 //			
 //			for(int n : panoramas) 
 //			{
-//				WMV_Panorama pano = p.panoramas.get(n);
+//				WMV_Panorama pano = p.getPanorama(n);
 //				if(pano.getDate().equals(d))
 //					mediaTimes.add( pano.time );
 //			}
 //			for(int v : videos)
 //			{
-//				WMV_Video vid = p.videos.get(v);
+//				WMV_Video vid = p.getVideo(v);
 //				if(vid.getDate().equals(d))
 //					mediaTimes.add( vid.time );
 //			}
 //			for(int s : sounds)
 //			{
-//				WMV_Sound snd = p.sounds.get(s);
+//				WMV_Sound snd = p.getSound(s);
 //				if(snd.getDate().equals(d))
 //					mediaTimes.add( snd.time );
 //			}
@@ -1318,11 +1319,11 @@ public class WMV_Cluster
 		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
 		
 		for(int i : images)
-			cImages.add(p.images.get(i));
+			cImages.add(p.getImage(i));
 		for(int i : panoramas)
-			cPanoramas.add(p.panoramas.get(i));
+			cPanoramas.add(p.getPanorama(i));
 		for(int i : videos)
-			cVideos.add(p.videos.get(i));
+			cVideos.add(p.getVideo(i));
 
 		for (WMV_Image i : cImages) 			// Iterate over cluster images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
@@ -1479,7 +1480,7 @@ public class WMV_Cluster
 
 		for (int img : images) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			WMV_Image i = p.images.get(img);
+			WMV_Image i = p.getImage(img);
 			PVector gpsLocation = i.getGPSLocation();
 			
 			if (init) 	
@@ -1515,7 +1516,7 @@ public class WMV_Cluster
 
 		for (int pano : panoramas) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			WMV_Panorama n = p.panoramas.get(pano);
+			WMV_Panorama n = p.getPanorama(pano);
 			PVector gpsLocation = n.getGPSLocation();
 
 			if (gpsLocation.x > highLongitude)
@@ -1534,7 +1535,7 @@ public class WMV_Cluster
 		
 		for (int vid : videos) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
-			WMV_Video v = p.videos.get(vid);
+			WMV_Video v = p.getVideo(vid);
 			PVector gpsLocation = v.getGPSLocation();
 			
 			if (gpsLocation.x > highLongitude)
@@ -1561,6 +1562,26 @@ public class WMV_Cluster
 		return result;
 	}
 
+	public IntList getImageIDs()
+	{
+		return images;
+	}
+
+	public IntList getPanoramaIDs()
+	{
+		return panoramas;
+	}
+
+	public IntList getVideoIDs()
+	{
+		return videos;
+	}
+	
+//	public IntList getSounds()
+//	{
+//		return sounds;
+//	}
+	
 	public ArrayList<WMV_TimeSegment> getTimeline()
 	{
 		return timeline;

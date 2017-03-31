@@ -1,6 +1,7 @@
 package multimediaLocator;
 
 import processing.core.*;
+import processing.video.Movie;
 
 import org.homeunix.thecave.moss.util.image.ExifToolWrapper;
 import com.drew.imaging.jpeg.JpegMetadataReader;
@@ -60,8 +61,9 @@ class WMV_Metadata
 	WMV_Utilities u;												// Utility class
 	ML_DebugSettings debugSettings;
 	
-	WMV_Metadata(ML_DebugSettings newDebugSettings)
+	WMV_Metadata( MultimediaLocator parent, ML_DebugSettings newDebugSettings )
 	{
+		p = parent;
 		u = new WMV_Utilities();
 		debugSettings = newDebugSettings;
 		exifToolFile = new File("/usr/local/bin/exiftool");						// Initialize metadata extraction class	
@@ -284,11 +286,6 @@ class WMV_Metadata
 			if(videoFiles != null && videoFiles.length > 0)
 				videoFilesFound = true;
 		}
-		
-//		if (p.p.debug.metadata)
-//		{
-//			PApplet.println("Video Folder:" + videoFolder);
-//		}
 	}
 
 	/**
@@ -344,7 +341,7 @@ class WMV_Metadata
 //						PApplet.println("soundTime.getTime():"+soundTime.getTime());
 //						PApplet.println("sounds == null? "+(f.sounds==null));
 
-						f.addSound( new WMV_Sound ( f, count, 3, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime) );
+						f.addSound( new WMV_Sound ( f, count, 3, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime, f.getTimeZoneID()) );
 					}
 					catch(Throwable t)
 					{
@@ -779,15 +776,16 @@ class WMV_Metadata
 				{
 					if(panorama && !dataMissing)
 					{
+						PImage pImg = p.createImage(0,0,processing.core.PConstants.RGB);
 						f.addPanorama( new WMV_Panorama( f, pCount, 1, name, pFilePath, pGPSLoc, fDirection, 0.f, iCameraModel, 	// Ignore elevation
-								iWidth, iHeight, fBrightness, calendarTime, null, null ) );
+								iWidth, iHeight, fBrightness, calendarTime, f.getTimeZoneID(), null, pImg ) );
 						pCount++;
 					}
 					else if(!dataMissing)
 					{
-//						PImage pImg = p.createImage(0, 0, processing.core.PConstants.RGB);
-						f.addImage( new WMV_Image(f, iCount, 0, name, pFilePath, pGPSLoc, fDirection, fFocalLength, fOrientation, fElevation, 
-								fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, calendarTime ) );
+						PImage pImg = p.createImage(0, 0, processing.core.PConstants.RGB);
+						f.addImage( new WMV_Image(f, iCount, pImg, 0, name, pFilePath, pGPSLoc, fDirection, fFocalLength, fOrientation, fElevation, 
+								fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, calendarTime, f.getTimeZoneID() ) );
 						iCount++;
 					}
 				}
@@ -939,8 +937,10 @@ class WMV_Metadata
 			{
 				if(!(pLoc.x == 0.f && pLoc.y == 0.f && pLoc.z == 0.f ) && hasVideo && !dataMissing)
 				{
-					f.addVideo( new WMV_Video(f, vCount, 2, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
-			   				-1, iWidth, iHeight, fBrightness, calendarTime) );
+					Movie pMov = new Movie(p, pFilePath);
+
+					f.addVideo( new WMV_Video(f, vCount, pMov, 2, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
+			   				-1, iWidth, iHeight, fBrightness, calendarTime, f.getTimeZoneID()) );
 					vCount++;
 				}
 				else if(debugSettings.metadata || debugSettings.video)

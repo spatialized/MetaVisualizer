@@ -50,16 +50,15 @@ class WMV_Image extends WMV_Viewable
 	private boolean isVideoPlaceHolder = false;
 	private int assocVideoID = -1;
 
-	WMV_Image ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
+	WMV_Image ( WMV_Field parent, int newID, PImage newImage, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
-			int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime ) 
+			int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone ) 
 	{
-		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
+		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
 		filePath = newFilePath;
 
-		image = p.p.p.createImage(0, 0, processing.core.PConstants.RGB);		// Create empty image
-//		image = newImage;		// Create empty image
+		image = newImage;														// Empty image
 		imageWidth = newWidth;
 		imageHeight = newHeight;
 		
@@ -83,17 +82,11 @@ class WMV_Image extends WMV_Viewable
 		cameraModel = newCameraModel;
 		
 		if(newDateTime != null)
-		{
-			time = new WMV_Time( newDateTime, getID(), cluster, 0, p.getTimeZoneID() );		
-//			time = p.p.utilities.utcToPacificTime(utcTime);								// Convert from UTC Time
-//			PApplet.println("Image: "+getName()+" utcTime, hour:"+utcTime.getHour()+"  min:"+utcTime.getMinute()+" sec:"+utcTime.getSecond());
-//			PApplet.println("     : "+getName()+" pacificTime, hour:"+time.getHour()+"  min:"+time.getMinute()+" sec:"+time.getSecond());
-		}
+			time = new WMV_Time( newDateTime, getID(), cluster, 0, newTimeZone );		
 		else
 			time = null;
 
 		aspectRatio = getAspectRatio();
-//		blurMask = p.p.blurMaskAll;
 	}  
 
 	/**
@@ -101,6 +94,8 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void draw(WMV_World world)
 	{
+		if(showMetadata) displayMetadata(world);
+
 		float distanceBrightnessFactor; 						// Fade with distance
 		float angleBrightnessFactor;							// Fade with angle
 
@@ -110,19 +105,12 @@ class WMV_Image extends WMV_Viewable
 		distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-		if( worldState.timeFading && time != null && !world.viewer.isMoving() )
+		if( worldState.timeFading && time != null && !viewerState.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 
 		if( viewerSettings.angleFading )
 		{
-			float imageAngle = getFacingAngle(world.viewer.getOrientationVector());
-			if(p.utilities.isNaN(imageAngle))
-			{
-				imageAngle = 0;				
-				visible = false;
-				disabled = true;
-			}
-
+			float imageAngle = getFacingAngle(viewerState.getOrientationVector());
 			angleBrightnessFactor = getAngleBrightness(imageAngle);                 // Fade out as turns sideways or gets too far / close
 			brightness *= angleBrightnessFactor;
 		}
@@ -146,9 +134,9 @@ class WMV_Image extends WMV_Viewable
 			displayModel(world);
 	}
 
-	private PImage applyMask(PImage source, PImage mask)
+	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
 	{
-		PImage result = p.p.p.createImage(640, 480, PApplet.RGB);
+		PImage result = ml.createImage(640, 480, PApplet.RGB);
 		
 		try
 		{
@@ -157,7 +145,7 @@ class WMV_Image extends WMV_Viewable
 		}
 		catch(RuntimeException ex)
 		{
-			if(p.debugSettings.image || p.debugSettings.main)
+			if(debugSettings.image || debugSettings.main)
 			{
 				PApplet.println("ERROR with Blur Mask... "+ex+" horizBorderID:"+horizBorderID+" vertBorderID:"+vertBorderID);
 //				PApplet.println(" mask.width:"+mask.width);
@@ -242,16 +230,16 @@ class WMV_Image extends WMV_Viewable
 	/**
 =	 * Update image geometry + visibility
 	 */
-	public void update()
+	public void update(MultimediaLocator ml, WMV_Utilities utilities)
 	{
 		if(requested && image.width != 0)			// If requested image has loaded, initialize image 
 		{
 			calculateVertices();  					// Update geometry		
 			
 			aspectRatio = getAspectRatio();
-			blurred = applyMask(image, blurMask);				// Apply blur mask once image has loaded
+			blurred = applyMask(ml, image, blurMask);				// Apply blur mask once image has loaded
 			requested = false;
-			p.p.requestedImages--;
+//			p.p.requestedImages--;
 		}
 
 		if(image.width > 0 && !hidden && !disabled)				// Image has been loaded and isn't hidden or disabled
@@ -267,7 +255,7 @@ class WMV_Image extends WMV_Viewable
 				if(cluster == viewerState.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
-				for(int id : p.p.viewer.getClustersVisible())
+				for(int id : viewerState.getClustersVisible())
 					if(cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						visible = true;
 			}
@@ -281,9 +269,9 @@ class WMV_Image extends WMV_Viewable
 			
 			if(visible)
 			{
-				float imageAngle = getFacingAngle(p.p.viewer.getOrientationVector());			// Check if image is visible at current angle facing viewer
+				float imageAngle = getFacingAngle(viewerState.getOrientationVector());			// Check if image is visible at current angle facing viewer
 
-				if(!p.utilities.isNaN(imageAngle))
+				if(!utilities.isNaN(imageAngle))
 					visible = (getAngleBrightness(imageAngle) > 0.f);
 
 				if(!fading && viewerSettings.hideImages)
@@ -295,7 +283,7 @@ class WMV_Image extends WMV_Viewable
 				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 					visible = false;
 
-				if(isBackFacing(viewerState.getLocation()) || isBehindCamera(viewerState.getLocation(), p.p.viewer.getOrientationVector()))
+				if(isBackFacing(viewerState.getLocation()) || isBehindCamera(viewerState.getLocation(), viewerState.getOrientationVector()))
 					visible = false;
 			}
 			
@@ -347,12 +335,12 @@ class WMV_Image extends WMV_Viewable
 		{
 			if(viewerSettings.orientationMode)
 			{
-				for(int id : p.p.viewer.getClustersVisible())
+				for(int id : viewerState.getClustersVisible())
 					if(cluster == id  && !requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-						loadMedia(p.p.p);
+						loadMedia(ml);
 			}
 			else if(getCaptureDistance() < viewerSettings.getFarViewingDistance() && !requested)
-				loadMedia(p.p.p); 					// Request image pixels from disk
+				loadMedia(ml); 					// Request image pixels from disk
 		}
 		
 		if(isFading())                       // Fade in and out with time
@@ -370,7 +358,7 @@ class WMV_Image extends WMV_Viewable
 		world.p.noStroke(); 
 		if (isSelected())     // Draw outline
 		{
-			if(!viewerSettings.selection && p.debugSettings.field)
+			if(!viewerSettings.selection && debugSettings.field)
 			{
 				world.p.stroke(155, 146, 255, 255);
 				world.p.strokeWeight(outlineSize);
@@ -463,7 +451,7 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc = p.p.viewer.getLocation();
+		PVector camLoc = viewerState.getLocation();
 		float distance;
 
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
@@ -541,9 +529,6 @@ class WMV_Image extends WMV_Viewable
 		
 		location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 		location.add(disp);     													 
-
-		if (p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x))
-			location = new PVector (0, 0, 0);
 	}
 	
 	public PVector getDisplacementVector()
@@ -578,13 +563,12 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-//		if( p.imagesVisible < viewerSettings.maxVisiblePhotos && !hidden && !disabled)
 		if( !hidden && !disabled )
 		{
 			calculateVertices();
 			image = ml.requestImage(filePath);
 			requested = true;
-			p.p.requestedImages++;
+//			p.p.requestedImages++;
 		}
 	}
 
@@ -596,45 +580,6 @@ class WMV_Image extends WMV_Viewable
 		float distance = PVector.dist(location, point);     
 		return distance;
 	}
-
-	/**
-	 * @return Whether associated cluster in associated field was successfully found
-	 * Search associated field for nearest cluster and associate with this image
-	 */	
-	public boolean findAssociatedCluster(float maxClusterDistance)    				 // Associate cluster that is closest to photo
-	{
-		int closestClusterIndex = 0;
-		float closestDistance = 100000;
-
-		for (int i = 0; i < p.getClusters().size(); i++) 
-		{     
-			WMV_Cluster curCluster = (WMV_Cluster) p.getClusters().get(i);
-			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-
-			if (distanceCheck < closestDistance)
-			{
-				closestClusterIndex = i;
-				closestDistance = distanceCheck;
-			}
-		}
-
-		if(closestDistance < maxClusterDistance)
-		{
-			cluster = closestClusterIndex;
-		}
-		else
-		{
-			cluster = -1;						// Create a new single image cluster here!
-//			p.disassociatedImages++;
-			p.setDisassociatedImages(p.getDisassociatedImages() + 1);
-		}
-
-		if(cluster != -1)
-			return true;
-		else
-			return false;
-	}
-	
 
 	/**
 	 * @return Whether associated field was successfully found
@@ -731,7 +676,6 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public float getFacingAngle(PVector camOrientation)
 	{
-//		PVector camOrientation = p.p.viewer.getOrientationVector();
 		PVector faceNormal = getFaceNormal();
 
 		PVector crossVector = new PVector();
@@ -742,12 +686,10 @@ class WMV_Image extends WMV_Viewable
 	}
 
 	/**
-	 * @return Is the camera behind the image?  
+	 * @return Whether the camera is behind the image
 	 */
 	public boolean isBackFacing(PVector camLoc)										
 	{
-//		PVector camLoc = p.p.viewer.getLocation();
-
 		float captureToCam = getCaptureLocation().dist(camLoc);  	// Find distance from capture location to camera
 		float camToImage = location.dist(camLoc);  					// Find distance from camera to image
 
@@ -759,7 +701,6 @@ class WMV_Image extends WMV_Viewable
 	}
 
 	/**
-	 * Is the image behind the camera?  
 	 * @return Whether image is behind camera
 	 */
 	public boolean isBehindCamera(PVector camLocation, PVector camOrientation)										
@@ -936,7 +877,7 @@ class WMV_Image extends WMV_Viewable
 		world.p.display.metadata(world, strRotation);
 		world.p.display.metadata(world, strFocusDistance);
 
-		if(p.debugSettings.image)
+		if(debugSettings.image)
 		{
 			world.p.display.metadata(world, strTitleDebug);
 			world.p.display.metadata(world, strBrightness);
@@ -988,8 +929,7 @@ class WMV_Image extends WMV_Viewable
 		isVideoPlaceHolder = true;
 		assocVideoID = videoID;
 		hidden = true;
-		if(p.debugSettings.video)
-			PApplet.println("Image "+getID()+" is now associated with video "+videoID);
+//		if(debugSettings.video) PApplet.println("Image "+getID()+" is now associated with video "+videoID);
 	}
 
 	/**
@@ -1150,15 +1090,14 @@ class WMV_Image extends WMV_Viewable
 	 }
 
 	 /**
-	  * setGPSLocation()
 	  * @param newGPSLocation New GPS location
 	  * Set the current GPS location
 	  */
-	 public void setGPSLocation(PVector newGPSLocation) 
-	 {
-		 gpsLocation = newGPSLocation;
-		 calculateCaptureLocation();
-	 }
+//	 public void setGPSLocation(PVector newGPSLocation) 
+//	 {
+//		 gpsLocation = newGPSLocation;
+//		 calculateCaptureLocation();
+//	 }
 	 
 	 public void setBlurMask()
 	 {

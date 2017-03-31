@@ -1975,7 +1975,7 @@ class ML_Display
 			p.p.text(" Field", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
 			p.p.text(" Name: "+f.getName(), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" ID: "+(p.viewer.getField()+1)+" out of "+p.getFieldCount()+" Total Fields", xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" ID: "+(p.viewer.getState().getField()+1)+" out of "+p.getFieldCount()+" Total Fields", xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Width (m.): "+f.getModel().fieldWidth+" Length (m.): "+f.getModel().fieldLength+" Height (m.): "+f.getModel().fieldHeight, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Total Media: "+f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
 			p.p.text(" Total Images: "+f.getImageCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
@@ -1995,7 +1995,7 @@ class ML_Display
 //			p.p.text(" Sounds Playing: "+f.getSoundsPlaying(), xPos, yPos += lineWidth, hudDistance);
 //			p.p.text(" Sounds Loaded: "+f.getSoundsLoaded(), xPos, yPos += lineWidth, hudDistance);
 			if(p.viewer.getSettings().orientationMode)
-				p.p.text(" Clusters Visible: "+p.viewer.getClustersVisible()+"  (Orientation Mode)", xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Clusters Visible: "+p.viewer.getState().getClustersVisible()+"  (Orientation Mode)", xPos, yPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Model ", xPos, yPos += lineWidthVeryWide, hudDistance);
@@ -2036,7 +2036,7 @@ class ML_Display
 				p.p.text(" Debug: Current Attraction: "+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Current Acceleration: "+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Current Velocity: "+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Moving? " + p.viewer.isMoving(), xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Debug: Moving? " + p.viewer.getState().isMoving(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Slowing? " + p.viewer.isSlowing(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Halting? " + p.viewer.isHalting(), xPos, yPos += lineWidth, hudDistance);
 			}

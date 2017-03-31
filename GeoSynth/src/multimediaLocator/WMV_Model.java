@@ -508,11 +508,11 @@ public class WMV_Model
 		p.setClusters( createClustersFromDendrogram( depth ) );	// Get clusters at defaultClusterDepth	 -- Set this based on media density
 
 		for (int i = 0; i < p.getImages().size(); i++) 			// Find closest cluster for each image
-			p.getImage(i).findAssociatedCluster(maxClusterDistance);
+			p.getImage(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);
 		for (int i = 0; i < p.getPanoramas().size(); i++) 			// Find closest cluster for each image
-			p.getPanorama(i).findAssociatedCluster(maxClusterDistance);
+			p.getPanorama(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);
 		for (int i = 0; i < p.getVideos().size(); i++) 			// Find closest cluster for each video
-			p.getVideo(i).findAssociatedCluster(maxClusterDistance);
+			p.getVideo(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);
 
 		if(p.getClusters().size() > 0)							// Find image place holders
 			findVideoPlaceholders();
@@ -1033,11 +1033,11 @@ public class WMV_Model
 		while( count < iterations ) 							// Iterate to create the clusters
 		{		
 			for (int i = 0; i < p.getImages().size(); i++) 			// Find closest cluster for each image
-				p.getImage(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
+				p.getImage(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);		// Set associated cluster
 			for (int i = 0; i < p.getPanoramas().size(); i++) 		// Find closest cluster for each image
-				p.getPanorama(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
+				p.getPanorama(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);		// Set associated cluster
 			for (int i = 0; i < p.getVideos().size(); i++) 			// Find closest cluster for each image
-				p.getVideo(i).findAssociatedCluster(maxClusterDistance);		// Set associated cluster
+				p.getVideo(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);		// Set associated cluster
 			for (int i = 0; i < p.getClusters().size(); i++) 		// Find closest cluster for each image
 				p.getCluster(i).create();						// Assign clusters
 

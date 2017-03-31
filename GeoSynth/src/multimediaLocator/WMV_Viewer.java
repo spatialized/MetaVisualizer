@@ -32,7 +32,7 @@ public class WMV_Viewer
 	private WMV_ViewerState state;						// Viewer settings
 
 	/* Graphics */
-	public IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
+//	public IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
 
 	/* Memory */
 	public ArrayList<WMV_Waypoint> memory;				// Path for camera to take
@@ -41,116 +41,8 @@ public class WMV_Viewer
 //	/* Time */
 	public ArrayList<WMV_TimeSegment> nearbyClusterTimeline;	// Combined timeline of nearby (visible) clusters
 
-//	private int currentFieldTimeSegment = 0;			// Current time segment in field timeline
-//	private int currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
-//	private int currentFieldDate = 0;					// Current date in field dateline
-//	
-//	private int currentMedia = -1;						// In Single Time Mode, media index currently visible
-//	private int currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
-//	private int nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
-//	private boolean lookAtCurrentMedia = false;			// In Single Time Mode, whether to turn and look at current media  -- bugs
-//	private ArrayList<WMV_TimeSegment> nearbyClusterTimeline;	// Combined timeline of nearby (visible) clusters
-//	private int nearbyClusterTimelineMediaCount = 0;	// Number of media in nearbyClusterTimeline
-//	
 	/* Path Navigation */
 	public WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
-
-//	private ArrayList<WMV_Waypoint> memory;				// Path for camera to take
-//	private ArrayList<WMV_Waypoint> path; 				// Record of camera path
-//	
-//	private boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
-//	private boolean movingToCluster = false;			// Moving to cluster 
-//	private PVector pathGoal;							// Next goal point for camera in navigating from memory
-//	private boolean following = false;					// Is the camera currently navigating from memory?
-//	private int pathLocationIdx;						// Index of current cluster in memory
-//	private boolean movingToTimeSegment = false;		// Moving / teleporting to target time segment
-//	private int timeSegmentTarget = -1;					// Field time segment goal			
-//
-//	/* Clusters */
-//	private int field = 0;								// Current field
-//	private IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
-//	private int currentCluster = 0;						// Cluster currently in view
-//	private int lastCluster = -1;						// Last cluster visited
-//
-//	private WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
-//	private int attractorCluster = -1;					// Cluster attracting the camera
-//	private int attractionStart = 0;
-//	private int teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
-//	private float clusterNearDistance;					// Distance from cluster center to slow down to prevent missing the target
-//	private float clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
-//	
-//	/* Teleporting */
-//	private boolean movementTeleport = false;		// Teleport when following navigation commands
-//	private boolean followTeleport = false;		// Teleport when following navigation commands
-//	private PVector teleportGoal;					// Coordinates of teleport goal
-//	private boolean teleporting = false;			// Transition where all images fade in or out
-//	private int teleportStart;						// Frame that fade transition started
-//	private int teleportToField = -1;				// What field ID to fade transition to	 (-1 remains in current field)
-//	private int teleportWaitingCount = 0;			// How long has the viewer been waiting for media to fade out before teleport?
-//	
-//	/* Physics */
-//	private PVector location, orientation;					// Location of the camera in virtual space
-//	private PVector velocity, acceleration, attraction;      // Physics model parameters
-//
-//	/* Movement */
-//	private int followMode = 0;					// 0: Timeline 1: GPS Track 2: Memory
-//	private boolean walking = false;			// Whether viewer is walking
-//	private PVector walkingVelocity;
-//	private PVector walkingAcceleration;			// Physics parameters applied relative to camera direction
-//
-//	private boolean slowing = false;			// Whether viewer is slowing 
-//	private boolean slowingX = false;			// Slowing X movement
-//	private boolean slowingY = false;			// Slowing Y movement
-//	private boolean slowingZ = false;			// Slowing Z movement
-//	private boolean halting = false;			// Viewer is halting
-//	
-//	private boolean movingX = false;			// Is viewer automatically moving in X dimension (side to side)?
-//	private boolean movingY = false;			// Is viewer automatically moving in Y dimension (up or down)?
-//	private boolean movingZ = false;			// Is viewer automatically moving in Z dimension (forward or backward)?
-//	private float moveXDirection;				// 1 (right)   or -1 (left)
-//	private float moveYDirection;				// 1 (down)    or -1 (up)
-//	private float state.moveZDirection;				// 1 (forward) or -1 (backward)
-//	private boolean movingNearby = false;		// Moving to a point within nearClusterDistance
-//
-//	private boolean waiting = false;						// Whether the camera is waiting to move while following a path
-//	private int state.pathWaitStartFrame;
-//	
-//	/* Turning */
-//	private PVector turningVelocity;			// Turning velocity in X direction
-//	private PVector turningAcceleration;		// Turning acceleration in X direction
-//	private PVector turningMediaGoal;			// Media item to turn towards
-//	private boolean turningX = false;			// Whether the viewer is turning (right or left)
-//	private boolean turningY = false;			// Whether the viewer is turning (up or down)
-//	private boolean turnSlowingX = false;				// Slowing turn in X direction
-//	private boolean turnSlowingY = false;				// Slowing turn in Y direction
-//	private boolean turnHaltingX = false;				// Slowing turn in X direction
-//	private boolean turnHaltingY = false;				// Slowing turn in Y direction
-//
-//	private int turnXStartFrame, turnYStartFrame, 
-//				turnXTargetFrame, turnYTargetFrame;
-//	private float turnXDirection, turnXTarget, 
-//				  turnXStart, turnXIncrement;
-//	private float turnYDirection, turnYTarget,
-//				  turnYStart, turnYIncrement;
-//
-//	final private float turningNearDistance = PApplet.PI / 12.f;
-//	final private float turningCenterSize = PApplet.PI / 54.f;
-//	
-//	private boolean rotatingX = false;			// Whether the camera is rotating in X dimension (turning left or right)?
-//	private boolean rotatingY = false;			// Whether the camera is rotating in Y dimension (turning up or down)?
-//	private boolean rotatingZ = false;			// Whether the camera is rotating in Z dimension (rolling left or right)?
-//	private float rotateXDirection;				// Rotation direction in X dimension
-//	private float rotateYDirection;				// Rotation direction in Y dimension
-//	private float rotateZDirection;				// Rotation direction in Z dimension
-//
-//	/* Interaction */
-//	public int lastMovementFrame = 500000, lastLookFrame = 500000;
-//	private int clusterLockIdleFrames = 0;				// How long to wait after user input before auto navigation moves the camera?
-//	
-//	/* Zooming */
-//	private boolean zooming = false;
-//	private float zoomStart, zoomDirection;
-//	private int zoomLength = 15;
 
 	/* GPS Tracks */
 	private File gpsTrackFile;							// GPS track file
@@ -160,34 +52,20 @@ public class WMV_Viewer
 	private String gpsTrackName = "";					// GPS track name
 
 	WMV_World p;
-
 	public WMV_Viewer(WMV_World parent)
 	{
 		p = parent;
 		settings = new WMV_ViewerSettings();
 		state = new WMV_ViewerState();
-		
-		state.location = new PVector(0,0,0);
-		state.velocity = new PVector(0,0,0);
-		state.acceleration = new PVector(0,0,0);
-		state.attraction = new PVector(0,0,0);
-		state.walkingVelocity = new PVector(0,0,0);
-		state.walkingAcceleration = new PVector(0,0,0);
-		state.turningVelocity = new PVector(0,0,0);
-		state.turningAcceleration = new PVector(0,0,0);
+		state.clusterNearDistance = p.settings.clusterCenterSize * state.clusterNearDistanceFactor;
 
 		history = new ArrayList<WMV_Waypoint>();
 		gpsTrack = new ArrayList<WMV_Waypoint>();
 
 		memory = new ArrayList<WMV_Waypoint>();
 		path = new ArrayList<WMV_Waypoint>();
-		state.teleportGoal = new PVector(0, 0, 0);
 
-		state.field = 0;
-		state.currentCluster = 0;
-		state.clusterNearDistance = p.settings.clusterCenterSize * state.clusterNearDistanceFactor;
 		nearbyClusterTimeline = new ArrayList<WMV_TimeSegment>();
-		
 		initialize(0, 0, 0);
 	}
 
@@ -202,16 +80,22 @@ public class WMV_Viewer
 		camera = new Camera( p.p, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
 		state.location = new PVector(x, y, z);
 		state.teleportGoal = new PVector(x, y, z);
-		
 		settings.initialize();
-		clustersVisible = new IntList();
+		state.clustersVisible = new IntList();
 	}
 
+	void updateState()
+	{
+		setOrientationVector();
+	}
+	
 	/*** 
 	 * Update viewer movement and interaction each frame
 	 */
 	void update()
 	{
+		updateState();
+		
 		if(!settings.orientationMode)
 			state.location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
 		
@@ -224,7 +108,7 @@ public class WMV_Viewer
 
 		p.getCurrentField().getAttractingClusters().size();
 		
-		if(p.getState().getTimeMode() == 2 && ( isMoving() || isFollowing() || isWalking() ))
+		if(p.getState().getTimeMode() == 2 && ( getState().isMoving() || isFollowing() || isWalking() ))
 			p.createTimeCycle();
 		if(p.settings.timeCycleLength == -1 && p.p.frameCount % 10 == 0.f)
 			p.createTimeCycle();
@@ -278,33 +162,33 @@ public class WMV_Viewer
 	
 	private void updateOrientationMode()
 	{
-		clustersVisible = new IntList();
+		state.clustersVisible = new IntList();
 
 		for(WMV_Cluster c : p.getCurrentField().getClusters())
 		{
 			if(settings.orientationModeForceVisible)
 			{
 				if(!c.isEmpty())
-					clustersVisible.append(c.getID());
+					state.clustersVisible.append(c.getID());
 			}
 			else
 			{
 				if(!c.isEmpty())
 					if(c.getLocation().dist(state.location) < settings.orientationModeClusterViewingDistance)
-						clustersVisible.append(c.getID());
+						state.clustersVisible.append(c.getID());
 			}
 		}
 
-		if(clustersVisible.size() > settings.maxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
+		if(state.clustersVisible.size() > settings.maxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
 		{
-			IntList allClusters = clustersVisible;
-			clustersVisible = new IntList();
+			IntList allClusters = state.clustersVisible;
+			state.clustersVisible = new IntList();
 
 			for(int i=0; i<allClusters.size(); i++)
 			{
-				if(clustersVisible.size() < (settings.orientationModeForceVisible ? settings.minVisibleClusters : settings.maxVisibleClusters))
+				if(state.clustersVisible.size() < (settings.orientationModeForceVisible ? settings.minVisibleClusters : settings.maxVisibleClusters))
 				{
-					clustersVisible.append(i);
+					state.clustersVisible.append(i);
 				}
 				else
 				{
@@ -314,7 +198,7 @@ public class WMV_Viewer
 					int largestIdx = -1;
 					int count = 0;
 
-					for(int n : clustersVisible)		// Find farthest
+					for(int n : state.clustersVisible)		// Find farthest
 					{
 						WMV_Cluster v = p.getCurrentField().getCluster(n);
 						float vDist = v.getLocation().dist(state.location);
@@ -329,8 +213,8 @@ public class WMV_Viewer
 
 					if(cDist < largest)					// Remove farthest and add new index
 					{
-						clustersVisible.remove(largestIdx);
-						clustersVisible.append(i);
+						state.clustersVisible.remove(largestIdx);
+						state.clustersVisible.append(i);
 					}
 				}
 			}
@@ -2019,10 +1903,7 @@ public class WMV_Viewer
 		return state.orientation.z;
 	}
 	
-	/**
-	 * @return Current camera orientation as a directional unit vector
-	 */
-	public PVector getOrientationVector()
+	public void setOrientationVector()
 	{
 		float[] cAtt = camera.attitude();			// Get camera attitude (orientation)
 		float pitch = cAtt[1], yaw = cAtt[0];
@@ -2036,7 +1917,7 @@ public class WMV_Viewer
 		PVector camOrientation = new PVector (-cosPitch * sinYaw, sinPitch, -cosPitch * cosYaw);	
 		camOrientation.normalize();
 		
-		return camOrientation;
+		state.orientationVector = camOrientation;
 	}
 	
 	/**
@@ -2596,7 +2477,7 @@ public class WMV_Viewer
 	 */
 	private int getClusterAhead() 					// Returns the visible cluster closest to the camera
 	{
-		PVector camOrientation = getOrientationVector();
+		PVector camOrientation = state.getOrientationVector();
 
 		IntList nearClusters = getNearClusters(20, p.settings.defaultFocusDistance * 4.f);	// Find 20 nearest clusters -- Change based on density?
 		IntList frontClusters = new IntList();
@@ -3240,9 +3121,9 @@ public class WMV_Viewer
 		int visImages = 0;
 		for( WMV_Image i : closeImages )
 		{
-			if(!i.isBackFacing(getLocation()) && !i.isBehindCamera(getLocation(), getOrientationVector()))			// If image is ahead and front facing
+			if(!i.isBackFacing(getLocation()) && !i.isBehindCamera(getLocation(), state.getOrientationVector()))			// If image is ahead and front facing
 			{
-				result = PApplet.abs(i.getFacingAngle(getOrientationVector()));			// Get angle at which it faces camera
+				result = PApplet.abs(i.getFacingAngle(state.getOrientationVector()));			// Get angle at which it faces camera
 
 				if(front)										// Look for centered or only visible image?
 				{
@@ -3272,9 +3153,9 @@ public class WMV_Viewer
 		int visVideos = 0;
 		for(WMV_Video v : closeVideos)
 		{
-			if(!v.isBackFacing(getLocation()) && !v.isBehindCamera(getLocation(), getOrientationVector()))			// If video is ahead and front facing
+			if(!v.isBackFacing(getLocation()) && !v.isBehindCamera(getLocation(), state.getOrientationVector()))			// If video is ahead and front facing
 			{
-				result = PApplet.abs(v.getFacingAngle(getOrientationVector()));			// Get angle at which it faces camera
+				result = PApplet.abs(v.getFacingAngle(state.getOrientationVector()));			// Get angle at which it faces camera
 
 				if(front)											// Look for centered or only visible image?
 				{
@@ -3371,9 +3252,9 @@ public class WMV_Viewer
 
 		for(WMV_Image s : possibleImages)
 		{
-			if(!s.isBackFacing(getLocation()) && !s.isBehindCamera(getLocation(), getOrientationVector()))					// If image is ahead and front facing
+			if(!s.isBackFacing(getLocation()) && !s.isBehindCamera(getLocation(), state.getOrientationVector()))					// If image is ahead and front facing
 			{
-				float result = PApplet.abs(s.getFacingAngle(getOrientationVector()));				// Get angle at which it faces camera
+				float result = PApplet.abs(s.getFacingAngle(state.getOrientationVector()));				// Get angle at which it faces camera
 
 				if(result < closestImageDist)										// Find closest to camera orientation
 				{
@@ -3396,9 +3277,9 @@ public class WMV_Viewer
 
 		for(WMV_Video v : possibleVideos)
 		{
-			if(!v.isBackFacing(getLocation()) && !v.isBehindCamera(getLocation(), getOrientationVector()))					// If image is ahead and front facing
+			if(!v.isBackFacing(getLocation()) && !v.isBehindCamera(getLocation(), state.getOrientationVector()))					// If image is ahead and front facing
 			{
-				float result = PApplet.abs(v.getFacingAngle(getOrientationVector()));				// Get angle at which it faces camera
+				float result = PApplet.abs(v.getFacingAngle(state.getOrientationVector()));				// Get angle at which it faces camera
 
 				if(result < closestVideoDist)								// Find closest to camera orientation
 				{
@@ -3650,7 +3531,7 @@ public class WMV_Viewer
 
 		for (int i = 0; i < f.getImages().size(); i++) {
 			if (f.getImage(i).visible) {
-				float imageAngle = f.getImage(i).getFacingAngle(getOrientationVector());
+				float imageAngle = f.getImage(i).getFacingAngle(state.getOrientationVector());
 				if (imageAngle < smallest) {
 					smallest = imageAngle;
 					smallestIdx = i;
@@ -3693,7 +3574,7 @@ public class WMV_Viewer
 
 		for (int i = 0; i < f.getVideos().size(); i++) {
 			if (f.getVideo(i).visible) {
-				float videoAngle = f.getVideo(i).getFacingAngle(getOrientationVector());
+				float videoAngle = f.getVideo(i).getFacingAngle(state.getOrientationVector());
 				if (videoAngle < smallest) {
 					smallest = videoAngle;
 					smallestIdx = i;
@@ -4218,49 +4099,6 @@ public class WMV_Viewer
 		p.p.rotateX(-camera.attitude()[1]);
 		p.p.rotateZ(camera.attitude()[2]);
 	}
-
-	/**
-	 * @return Whether the viewer is teleporting
-	 */
-	public boolean isTeleporting()
-	{
-		return state.teleporting;
-	}
-	
-	/**
-	 * @return Whether the viewer is moving to a cluster or attractor
-	 */
-	public boolean isMoving()
-	{
-		if(state.movingToCluster || state.movingToAttractor)
-			return true;
-		else
-			return false;
-	}
-
-	/**
-	 * @return Whether the viewer is moving to an attractor
-	 */
-	public boolean isMovingToAttractor()
-	{
-		return state.movingToAttractor;
-	}
-
-	/**
-	 * @return Whether the viewer is moving to a cluster
-	 */
-	public boolean isMovingToCluster()
-	{
-		return state.movingToCluster;
-	}
-
-	/**
-	 * @return Current field ID
-	 */
-	public int getField()
-	{
-		return state.field;
-	}
 	
 	public WMV_ViewerState getState()
 	{
@@ -4406,11 +4244,6 @@ public class WMV_Viewer
 		return attractorPoint;
 	}
 
-	public IntList getClustersVisible()
-	{
-		return clustersVisible;
-	}
-	
 	/**
 	 * @return Index of last cluster
 	 */

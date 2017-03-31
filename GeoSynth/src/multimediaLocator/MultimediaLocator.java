@@ -59,7 +59,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	{
 		world = new WMV_World(this);
 		debug = new ML_DebugSettings(this);		
-		metadata = new WMV_Metadata(debug);
+		metadata = new WMV_Metadata(this, debug);
 		stitcher = new ML_Stitcher(world);
 
 		if(debug.main) PApplet.println("Initializing world...");

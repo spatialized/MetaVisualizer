@@ -73,11 +73,11 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	private boolean hasImagePlaceholder = false;
 	private int imagePlaceholder = -1;
 
-	WMV_Video ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
+	WMV_Video ( WMV_Field parent, int newID, Movie newVideo, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, int newCameraModel, int newVideoWidth, 
-			int newVideoHeight, float newBrightness, ZonedDateTime newDateTime )
+			int newVideoHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
 	{
-		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
+		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
 		vertices = new PVector[4]; 
 		sVertices = new PVector[4]; 
@@ -101,7 +101,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		cameraModel = newCameraModel;
 
 		if(newDateTime != null)
-			time = new WMV_Time( newDateTime, getID(), cluster, 2, p.getTimeZoneID() );		
+			time = new WMV_Time( newDateTime, getID(), cluster, 2, newTimeZone );		
 		else
 			time = null;
 
@@ -110,7 +110,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		phi = newElevation;            		// Pitch angle
 		rotation = newRotation;             // Rotation angle
 		
-		video = new Movie(p.p.p, filePath);
+//		video = new Movie(p.p.p, filePath);
+		video = newVideo;
 		setLength( video.duration() );				// Set video length (in seconds)
 		video.dispose();
 		
@@ -121,6 +122,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	void draw(WMV_World world)
 	{
+		if(showMetadata) displayMetadata(world);
+
 		float distanceBrightness = 0.f; 					// Fade with distance
 		float angleBrightness;
 
@@ -130,7 +133,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		distanceBrightness = getDistanceBrightness(); 
 		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
 
-		if( worldState.timeFading && time != null && !world.viewer.isMoving() )
+		if( worldState.timeFading && time != null && !viewerState.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 
 		if(isClose && distanceBrightness == 0.f)							// Video recently moved out of range
@@ -139,12 +142,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			fadeOut();
 		}
 
-		if(p.debugSettings.video && p.debugSettings.detailed && worldState.frameCount % 30 == 0)
-			world.p.display.message(world, "Video brightness after distance:"+brightness);
-
 		if( viewerSettings.angleFading )
 		{
-			float videoAngle = getFacingAngle(world.viewer.getOrientationVector());
+			float videoAngle = getFacingAngle(viewerState.getOrientationVector());
 			if(p.utilities.isNaN(videoAngle))
 			{
 				videoAngle = 0;				
@@ -294,7 +294,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	/**
 =	 * Update video geometry and visibility 
 	 */
-	void update()
+	void update(WMV_Utilities utilities)
 	{
 		if(!disabled)			
 		{
@@ -309,7 +309,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				if(cluster == viewerState.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
-				for(int id : p.p.viewer.getClustersVisible())
+				for(int id : viewerState.getClustersVisible())
 				{
 					if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						visible = true;
@@ -325,9 +325,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 			if(visible)
 			{
-				float videoAngle = getFacingAngle(p.p.viewer.getOrientationVector());				
+				float videoAngle = getFacingAngle(viewerState.getOrientationVector());				
 
-				if(!p.utilities.isNaN(videoAngle))
+				if(!utilities.isNaN(videoAngle))
 					visible = (getAngleBrightness(videoAngle) > 0.f);	 // Check if video is visible at current angle facing viewer
 
 				if(!fading && viewerSettings.hideVideos)
@@ -339,7 +339,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 					visible = false;
 
-				if(isBackFacing(viewerState.getLocation()) || isBehindCamera(viewerState.getLocation(), p.p.viewer.getOrientationVector()))
+				if(isBackFacing(viewerState.getLocation()) || isBehindCamera(viewerState.getLocation(), viewerState.getOrientationVector()))
 					visible = false;
 			}
 			
@@ -400,7 +400,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 			if(fadedOut) 
 			{
-				if(p.debugSettings.video)
+				if(debugSettings.video)
 					p.p.p.display.message(p.p, "Will fade sound out for video #"+getID());
 				fadeSoundOut(false);			// Fade sound out and clear video once finished
 				fadedOut = false;						
@@ -444,9 +444,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
 
 		location.add(disp);     													 
-
-		if (p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x))
-			location = new PVector (0, 0, 0);
 	}
 	
 	public PVector getDisplacementVector()
@@ -499,8 +496,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			video.volume(0.f);
 			volume = 0.f;
 			
-			if(p.debugSettings.video)
-				ml.display.message(p.p, "Loading video file..."+filePath+" video.duration():"+video.duration());
+//			if(debugSettings.video)
+//				ml.display.message(p.p, "Loading video file..."+filePath+" video.duration():"+video.duration());
 
 			calculateVertices(); 
 			loaded = true;
@@ -531,7 +528,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public void stopVideo()
 	{
-		if(p.debugSettings.video) 
+		if(debugSettings.video) 
 			p.p.p.display.message(p.p, "Stopping video file..."+getID());
 
 //		video.pause();
@@ -559,7 +556,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public void clearVideo()
 	{
-		if(p.debugSettings.video) 
+		if(debugSettings.video) 
 			p.p.p.display.message(p.p, "Stopping and clearing video file..."+getID());
 
 //		if(video.playing)
@@ -592,7 +589,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		if(isSelected())
 		{
-			if (!viewerSettings.selection && p.debugSettings.field)     // Draw outline
+			if (!viewerSettings.selection && debugSettings.field)     // Draw outline
 			{
 				world.p.stroke(19, 200, 150);
 				world.p.strokeWeight(outlineSize);
@@ -710,7 +707,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		world.p.display.metadata(world, strElevation);
 		world.p.display.metadata(world, strRotation);
 
-		if(p.debugSettings.video)
+		if(debugSettings.video)
 		{
 			world.p.display.metadata(world, strTitleDebug);
 			world.p.display.metadata(world, strBrightness);
@@ -771,7 +768,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			distVisibility = PApplet.constrain(PApplet.map(viewDist, viewerSettings.getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
 		}
 
-//		if(p.debugSettings.video)
+//		if(debugSettings.video)
 //		{
 //			p.p.p.display.message("video #"+getID()+"  distVisibility:"+distVisibility);
 //		}
@@ -1016,7 +1013,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 	
 	/**
-	 * findPlaceholder()
 	 * Find image taken immediately before this video was captured to serve as placeholder, determining elevation and rotation angles
 	 */
 	public void findPlaceholder()
@@ -1040,8 +1036,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		
 		if(candidates.size() == 0)
 		{
-			if(p.debugSettings.video)
-				PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+assocVideoDistTolerance+"!");
+			PApplet.println("  Video "+getID()+" has no candidates under distance tolerance:"+assocVideoDistTolerance+"!");
 		}
 		
 		for( int i : candidates )							// Compare distances of the candidates
@@ -1060,15 +1055,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		
 		if(closestIdx != -1)
 		{
-			if(p.debugSettings.video || p.debugSettings.metadata)
-				PApplet.println("Found image placeholder:"+p.getImage(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+p.getImage(closestIdx).getID()+" closestIdx:"+closestIdx);
+			PApplet.println("--> Found image placeholder:"+p.getImage(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+p.getImage(closestIdx).getID()+" closestIdx:"+closestIdx);
 			boolean success = associateImagePlaceholder(p.getImage(closestIdx).getID(), closestDist, PApplet.abs(time.getTime() - p.getImage(closestIdx).time.getTime()));
 			
 			if(success)
 			{
-				if(p.debugSettings.video || p.debugSettings.metadata)
-					PApplet.println("Set placeholder image id:"+p.getImage(closestIdx).getID());
-			
+				PApplet.println("---> Set placeholder image id:"+p.getImage(closestIdx).getID());
 				p.getImage(closestIdx).associateVideo(getID());
 			}
 		}
@@ -1301,44 +1293,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		return b;
 	}
 
-	/**
-	 * Search associated field for nearest cluster and associate with this video
-	 * @return Whether associated cluster was successfully found
-	 */	
-	public boolean findAssociatedCluster(float maxClusterDistance)    				 // Associate cluster that is closest to photo
-	{
-		int closestClusterIndex = 0;
-		float closestDistance = 100000;
-
-		for (int i = 0; i < p.getClusters().size(); i++) 
-		{     
-			WMV_Cluster curCluster = (WMV_Cluster) p.getClusters().get(i);
-			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-
-			if (distanceCheck < closestDistance)
-			{
-				closestClusterIndex = i;
-				closestDistance = distanceCheck;
-			}
-		}
-
-		if(closestDistance < maxClusterDistance)
-		{
-			cluster = closestClusterIndex;			// Associate cluster with this video
-		}
-		else
-		{
-			cluster = -1;						// Create a new single image cluster here!
-//			p.disassociatedVideos++;
-			p.setDisassociatedVideos(p.getDisassociatedVideos() + 1);
-		}
-
-		if(cluster != -1)
-			return true;
-		else
-			return false;
-	}
-	
 	/**
 	 * Search given list of clusters and associated with this video
 	 * @return Whether associated field was successfully found

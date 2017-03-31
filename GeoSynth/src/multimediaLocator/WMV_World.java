@@ -111,8 +111,8 @@ public class WMV_World
 	/* File System */
 	public String outputFolder;
 	public boolean outputFolderSelected = false;
-	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk
-	public int requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk	
+//	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk
+//	public int requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk	
 
 	MultimediaLocator p;
 	
@@ -317,14 +317,14 @@ public class WMV_World
 	 */
 	public void attractViewer()
 	{
-		if(viewer.isMovingToAttractor())
+		if(viewer.getState().isMovingToAttractor())
 		{
 			if(viewer.getAttractorPoint() != null)
 				viewer.getAttractorPoint().attractViewer();		// Attract the camera to the memory navigation goal
 			else 
 				PApplet.println("viewer.attractorPoint == NULL!!");
 		}
-		else if(viewer.isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
+		else if(viewer.getState().isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
 		{
 			for( WMV_Cluster c : getCurrentField().getAttractingClusters() )
 				if(c.getClusterDistance() > settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
@@ -835,7 +835,7 @@ public class WMV_World
 	 */
 	public WMV_Field getCurrentField()
 	{
-		WMV_Field f = fields.get(viewer.getField());
+		WMV_Field f = fields.get(viewer.getState().getField());
 		return f;
 	}
 	
@@ -1148,7 +1148,6 @@ public class WMV_World
 	}
 	
 	/**
-	 * Set Time Mode
 	 * @param newTimeMode New time mode (0: Cluster, 1:Field, 2: Media)
 	 */
 	public void setTimeMode(int newTimeMode)

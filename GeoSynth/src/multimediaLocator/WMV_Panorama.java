@@ -2,7 +2,7 @@ package multimediaLocator;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
+//import java.util.Calendar;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -43,14 +43,14 @@ public class WMV_Panorama extends WMV_Viewable
 	public float origRadius;
 	
 	WMV_Panorama ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, 
+			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone,
 			PVector newLocation, PImage newTexture )
 	{
-		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
+		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
-		if(newTexture == null)
-			texture = p.p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
-		else
+//		if(newTexture == null)
+//			texture = p.p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
+//		else
 			texture = newTexture;
 
 		imageWidth = newWidth;
@@ -62,18 +62,13 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			location = newLocation;
 			captureLocation = newLocation;
-			if (p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x))
-			{
-				location = new PVector (0, 0, 0);
-				captureLocation = newLocation;
-			}
 		}
 		
 		gpsLocation = newGPSLocation;
 		cameraModel = newCameraModel;
 
 		if(newDateTime != null)
-			time = new WMV_Time( newDateTime, getID(), cluster, 1, p.getTimeZoneID() );
+			time = new WMV_Time( newDateTime, getID(), cluster, 1, newTimeZone );
 		else
 			time = null;
 
@@ -94,7 +89,7 @@ public class WMV_Panorama extends WMV_Viewable
 			initializeSphere();					
 
 			requested = false;
-			p.p.requestedPanoramas--;
+//			p.p.requestedPanoramas--;
 		}
 
 		if(getCaptureDistance() < viewerSettings.getFarViewingDistance() && !requested)
@@ -105,7 +100,7 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			if(viewerSettings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
-				for(int id : p.p.viewer.getClustersVisible())
+				for(int id : viewerState.getClustersVisible())
 				{
 					if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						visible = true;
@@ -123,7 +118,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 			if(visible && !fading && !fadedOut && !viewerSettings.hidePanoramas && fadingBrightness == 0.f)					// Fade in
 			{
-				if(p.debugSettings.panorama)
+				if(debugSettings.panorama)
 					PApplet.println("fadeIn()...pano id:"+getID());
 				fadeIn();
 			}
@@ -133,8 +128,8 @@ public class WMV_Panorama extends WMV_Viewable
 		
 		if(isFading())                       // Fade in and out with time
 		{
-			if(p.debugSettings.panorama && p.debugSettings.detailed)
-				p.p.p.display.message(p.p, "Panorama fading... id: "+getID());
+//			if(debugSettings.panorama && debugSettings.detailed)
+//				p.p.p.display.message(p.p, "Panorama fading... id: "+getID());
 			updateFadingBrightness();
 
 			if(fadingBrightness == 0.f)
@@ -152,13 +147,15 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void draw(WMV_World world)
 	{
+		if(showMetadata) displayMetadata(world);
+
 		float brightness = fadingBrightness;					
 		brightness *= viewerSettings.userBrightness;
 
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-		if( worldState.timeFading && time != null && !world.viewer.isMoving() )
+		if( worldState.timeFading && time != null && !viewerState.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 		
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);	  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
@@ -181,7 +178,7 @@ public class WMV_Panorama extends WMV_Viewable
 		if(visible && worldState.showModel && !hidden && !disabled)
 			displayModel(world);
 
-//		if (visible && isSelected() && !disabled && p.debugSettings.model)		// Draw panorama location for debugging or map display
+//		if (visible && isSelected() && !disabled && debugSettings.model)		// Draw panorama location for debugging or map display
 //			displayModel();
 //		if (visible && !disabled && viewerSettings.map3DMode)
 //			displayModel();
@@ -393,10 +390,10 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-//		if(p.debugSettings.panorama && p.debugSettings.detailed)
+//		if(debugSettings.panorama && debugSettings.detailed)
 //			p.p.p.display.message(p.p, "Requesting panorama file:"+getName());
 //
-//		if(!p.debugSettings.lowMemory)			// Check enough memory available
+//		if(!debugSettings.lowMemory)			// Check enough memory available
 //		{
 		
 //			if(viewerSettings.orientationMode)
@@ -412,7 +409,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 			texture = ml.requestImage(filePath);
 			requested = true;
-			p.p.requestedPanoramas++;
+//			p.p.requestedPanoramas++;
 //		}
 	}
 
@@ -456,44 +453,6 @@ public class WMV_Panorama extends WMV_Viewable
 		distance = PVector.dist(getCaptureLocation(), camLoc);
 
 		return distance;
-	}
-
-	/**
-	 * @return Whether associated cluster was successfully found
-	 * Search associated field for nearest cluster and associate with this panorama
-	 */	
-	public boolean findAssociatedCluster(float maxClusterDistance)    				 // Associate cluster that is closest to photo
-	{
-		int closestClusterIndex = 0;
-		float closestDistance = 100000;
-
-		for (int i = 0; i < p.getClusters().size(); i++) 
-		{     
-			WMV_Cluster curCluster = (WMV_Cluster) p.getClusters().get(i);
-			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-
-			if (distanceCheck < closestDistance)
-			{
-				closestClusterIndex = i;
-				closestDistance = distanceCheck;
-			}
-		}
-
-		if(closestDistance < maxClusterDistance)
-		{
-			cluster = closestClusterIndex;		// Associate panorama with cluster
-		}
-		else
-		{
-			cluster = -1;						// Create a new single image cluster here!
-			p.setDisassociatedPanoramas(p.getDisassociatedPanoramas() + 1);
-//			p.disassociatedPanoramas++;
-		}
-
-		if(cluster != -1)
-			return true;
-		else
-			return false;
 	}
 	
 	/**
@@ -579,7 +538,7 @@ public class WMV_Panorama extends WMV_Viewable
 		world.p.display.metadata(world, strTheta);
 		world.p.display.metadata(world, strElevation);
 
-		if(p.debugSettings.panorama)
+		if(debugSettings.panorama)
 		{
 			world.p.display.metadata(world, strTitleDebug);
 			world.p.display.metadata(world, strBrightness);
@@ -606,11 +565,11 @@ public class WMV_Panorama extends WMV_Viewable
 	 * @param newGPSLocation New GPS location
 	 * Set the current GPS location
 	 */
-	void setGPSLocation(PVector newGPSLocation) 
-	{
-		gpsLocation = newGPSLocation;
-		calculateCaptureLocation();
-	}
+//	void setGPSLocation(PVector newGPSLocation) 
+//	{
+//		gpsLocation = newGPSLocation;
+//		calculateCaptureLocation();
+//	}
 
 	public PVector getLocation()
 	{

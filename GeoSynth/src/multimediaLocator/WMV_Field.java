@@ -101,14 +101,14 @@ public class WMV_Field
 				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(!m.verticesAreNull() && (m.isFading() || m.fadingFocusDistance))
 				{
-					m.updateTimeBrightness(clusters.get(m.getCluster()));
-					m.update();  		// Update geometry + visibility
+					m.updateTimeBrightness(clusters.get(m.getCluster()), timeline, utilities);
+					m.update(p.p, utilities);  		// Update geometry + visibility
 				}
 
 				if (distance < vanishingPoint && distance > viewerSettings.nearClippingDistance && !m.verticesAreNull()) 	// Visible	
 				{
 					if(!m.fadingFocusDistance && !m.isFading()) 
-						m.update();  	// Update geometry + visibility
+						m.update(p.p, utilities);  	// Update geometry + visibility
 					
 					m.draw(p); 		// Draw image
 					imagesVisible++;
@@ -125,7 +125,7 @@ public class WMV_Field
 				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
-					n.updateTimeBrightness(clusters.get(n.getCluster()));
+					n.updateTimeBrightness(clusters.get(n.getCluster()), timeline, utilities);
 					n.update();  	// Update geometry + visibility
 					n.draw(p); 		// Display panorama
 					panoramasVisible++;
@@ -150,15 +150,15 @@ public class WMV_Field
 				
 				if (nowVisible || v.isFading())
 				{
-					v.updateTimeBrightness(clusters.get(v.getCluster()));
-					v.update();  	// Update geometry + visibility
+					v.updateTimeBrightness(clusters.get(v.getCluster()), timeline, utilities);
+					v.update(utilities);  	// Update geometry + visibility
 					v.draw(p); 		// Display video
 					videosVisible++;
 				}
 				else
 				{
 					if(v.isFading() || v.isFadingVolume())
-						v.update();  	// Update geometry + visibility
+						v.update(utilities);  	// Update geometry + visibility
 					
 					if(v.isVisible())
 						v.fadeOut();
@@ -181,7 +181,7 @@ public class WMV_Field
 //				
 //				if (nowVisible || s.isFading())
 //				{
-//					s.updateTimeBrightness(clusters.get(s.getCluster()));
+//					s.updateTimeBrightness(clusters.get(s.getCluster()), timeline);
 ////					s.update();  	// Update geometry + visibility
 //					s.draw(); 		// Display video
 ////					soundsAudible++;
@@ -303,11 +303,11 @@ public class WMV_Field
 		if(debugSettings.field) PApplet.println("Calculating image locations...");
 
 		for (int i = 0; i < images.size(); i++)
-			images.get(i).calculateCaptureLocation();
+			images.get(i).calculateCaptureLocation(model);
 		for (int i = 0; i < panoramas.size(); i++)
-			panoramas.get(i).calculateCaptureLocation();
+			panoramas.get(i).calculateCaptureLocation(model);
 		for (int i = 0; i < videos.size(); i++)
-			videos.get(i).calculateCaptureLocation();
+			videos.get(i).calculateCaptureLocation(model);
 	}
 	
 	/**
@@ -634,12 +634,14 @@ public class WMV_Field
 	 public void lockMediaToClusters()
 	 {
 //		 if(debugSettings.field || debugSettings.model) PApplet.println("lockMediaToClusters(): Moving media... ");
-		 for (int i = 0; i < getImages().size(); i++) 
-			 getImage(i).adjustCaptureLocation();		
-		 for (int i = 0; i < getPanoramas().size(); i++) 
-			 getPanorama(i).adjustCaptureLocation();		
-		 for (int i = 0; i < getVideos().size(); i++) 
-			 getVideo(i).adjustCaptureLocation();		
+		 for (WMV_Image i : getImages()) 
+			 i.adjustCaptureLocation(getCluster(i.getCluster()));		
+		 for (WMV_Panorama n : getPanoramas()) 
+			 n.adjustCaptureLocation(getCluster(n.getCluster()));		
+		 for (WMV_Video v : getVideos()) 
+			 v.adjustCaptureLocation(getCluster(v.getCluster()));		
+//		 for (WMV_Sound s : getSounds()) 
+//			 s.adjustCaptureLocation(getCluster(s.getCluster()));		
 	 }
 
 	/**

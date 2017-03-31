@@ -1552,7 +1552,7 @@ public class ML_Window {
 //				applet.text(" Field", x, y += lineWidthVeryWide);
 				applet.text(" Field: "+f.getName(), x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
-				applet.text(" ID: "+(world.viewer.getField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
+				applet.text(" ID: "+(world.viewer.getState().getField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
 				applet.text(" Width: "+f.getModel().fieldWidth+" Length: "+f.getModel().fieldLength+" Height: "+f.getModel().fieldHeight, x, y += lineWidth);
 				applet.text(" Image Count: "+f.getImageCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 				applet.text(" Panorama Count: "+f.getPanoramaCount(), x, y += lineWidth);			// Doesn't check for dataMissing!!
@@ -1611,7 +1611,7 @@ public class ML_Window {
 					applet.text(" Debug: Current Attraction: "+world.viewer.getAttraction().mag(), x, y += lineWidth);
 					applet.text(" Debug: Current Acceleration: "+world.viewer.getAcceleration().mag(), x, y += lineWidth);
 					applet.text(" Debug: Current Velocity: "+ world.viewer.getVelocity().mag() , x, y += lineWidth);
-					applet.text(" Debug: Moving? " + world.viewer.isMoving(), x, y += lineWidth);
+					applet.text(" Debug: Moving? " + world.viewer.getState().isMoving(), x, y += lineWidth);
 					applet.text(" Debug: Slowing? " + world.viewer.isSlowing(), x, y += lineWidth);
 					applet.text(" Debug: Halting? " + world.viewer.isHalting(), x, y += lineWidth);
 				}

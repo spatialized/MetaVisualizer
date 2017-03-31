@@ -36,9 +36,9 @@ public class WMV_Sound extends WMV_Viewable
 //	WMV_Field p;					// Parent field
 
 	WMV_Sound ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-				int newCameraModel, float newBrightness, ZonedDateTime newDateTime )
+				int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
 	{
-		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
+		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
 //		p = parent;
 //		id = newID;
@@ -49,14 +49,13 @@ public class WMV_Sound extends WMV_Viewable
 		
 
 		filePath = newFilePath;
-		
 		gpsLocation = newGPSLocation;
 		
 //		Bead sound = new Bead();
 		
 		if(newDateTime != null)
 		{
-			time = new WMV_Time( newDateTime, getID(), cluster, 3, p.getTimeZoneID() );		
+			time = new WMV_Time( newDateTime, getID(), cluster, 3, newTimeZone );		
 //			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 3 );		
 //			time = p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}
@@ -74,6 +73,7 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	public void draw(WMV_World world)
 	{
+		if(showMetadata) displayMetadata(world);
 //		if(p.p.viewer.selection)
 //			p.p.viewer.addSelectableSound(getID());
 	}

@@ -42,11 +42,11 @@ public class WMV_Panorama extends WMV_Viewable
 	public float radius;
 	public float origRadius;
 	
-	WMV_Panorama ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+	WMV_Panorama ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone,
 			PVector newLocation, PImage newTexture )
 	{
-		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
+		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
 //		if(newTexture == null)
 //			texture = p.p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
@@ -82,7 +82,7 @@ public class WMV_Panorama extends WMV_Viewable
 	/**
 =	 * Update main variables
 	 */
-	public void update()
+	public void update(MultimediaLocator ml)
 	{
 		if(requested && texture.width != 0)			// If requested image has loaded, initialize image 
 		{
@@ -94,7 +94,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if(getCaptureDistance() < viewerSettings.getFarViewingDistance() && !requested)
 			if(!initialized)
-				loadMedia(p.p.p); 
+				loadMedia(ml); 
 
 		if(texture.width > 0 && !disabled)			
 		{

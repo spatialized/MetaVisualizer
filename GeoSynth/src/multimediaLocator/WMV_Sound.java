@@ -2,7 +2,7 @@ package multimediaLocator;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
+//import java.util.Calendar;
 
 import beads.*;
 import processing.core.PApplet;
@@ -33,12 +33,10 @@ public class WMV_Sound extends WMV_Viewable
 	private float volumeFadingStartVal = 0.f, volumeFadingTarget = 0.f;
 	private final int volumeFadingLength = 60;	// Fade volume over 30 frames
 	
-//	WMV_Field p;					// Parent field
-
-	WMV_Sound ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+	WMV_Sound ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 				int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
 	{
-		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
+		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
 //		p = parent;
 //		id = newID;
@@ -187,13 +185,13 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	void fadeSoundIn()
 	{
-		if(volume < p.p.settings.videoMaxVolume)
+		if(volume < worldSettings.videoMaxVolume)
 		{
 			fadingVolume = true;
 			volumeFadingStartFrame = worldState.frameCount; 
 			volumeFadingStartVal = volume; 
 			volumeFadingEndFrame = worldState.frameCount + volumeFadingLength;		// Fade volume over 30 frames
-			volumeFadingTarget = p.p.settings.videoMaxVolume;
+			volumeFadingTarget = worldSettings.videoMaxVolume;
 		}
 	}
 	
@@ -254,7 +252,7 @@ public class WMV_Sound extends WMV_Viewable
 		if(closestIdx >= 0)
 		{
 			location = gpsTrack.get(closestIdx).getLocation();
-			if(p.p.p.debug.sound)
+//			if(p.p.p.debug.sound)
 			{
 				PApplet.println("Set sound #"+getID()+" location to waypoint "+closestIdx+" W hour:"+gpsTrack.get(closestIdx).getTime().getHour()+" W min:"+gpsTrack.get(closestIdx).getTime().getMinute());
 				PApplet.println("S hour:"+sHour+" S min:"+sMinute);
@@ -262,7 +260,8 @@ public class WMV_Sound extends WMV_Viewable
 				PApplet.println("timeDist: "+closestDist);
 			}
 		}
-		else if(p.p.p.debug.sound)
+		else 
+//			if(p.p.p.debug.sound)
 			PApplet.println("No gps nodes on same day!");
 	}
 	
@@ -278,7 +277,7 @@ public class WMV_Sound extends WMV_Viewable
 //			camLoc = p.p.viewer.getLocation();
 //		}
 //		else
-			camLoc = p.p.viewer.getLocation();
+			camLoc = viewerState.getLocation();
 		
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 		float distance = PVector.dist(loc, camLoc);     

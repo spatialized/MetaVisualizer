@@ -286,7 +286,9 @@ public class WMV_Model
 			createSingleClusters();						// Create clusters for single media points
 			
 			p.initializeClusters(p.worldState.mergeClusters);						// Initialize clusters (merge, etc.)
-
+			
+			p.setBlurMasks();
+			
 			if(p.getClusters().size() > 0)					// Calculate capture times for each cluster
 				findVideoPlaceholders();
 		}

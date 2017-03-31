@@ -2,6 +2,7 @@ package multimediaLocator;
 
 import java.util.ArrayList;
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.IntList;
 
@@ -126,13 +127,13 @@ public class WMV_Field
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
 					n.updateTimeBrightness(clusters.get(n.getCluster()), timeline, utilities);
-					n.update();  	// Update geometry + visibility
+					n.update(p.p);  	// Update geometry + visibility
 					n.draw(p); 		// Display panorama
 					panoramasVisible++;
 				}
 				else if(n.isFading())
 				{
-					n.update();  	// Update geometry + visibility
+					n.update(p.p);  	// Update geometry + visibility
 				}
 			}
 		}
@@ -151,14 +152,14 @@ public class WMV_Field
 				if (nowVisible || v.isFading())
 				{
 					v.updateTimeBrightness(clusters.get(v.getCluster()), timeline, utilities);
-					v.update(utilities);  	// Update geometry + visibility
+					v.update(p.p, utilities);  	// Update geometry + visibility
 					v.draw(p); 		// Display video
 					videosVisible++;
 				}
 				else
 				{
 					if(v.isFading() || v.isFadingVolume())
-						v.update(utilities);  	// Update geometry + visibility
+						v.update(p.p, utilities);  	// Update geometry + visibility
 					
 					if(v.isVisible())
 						v.fadeOut();
@@ -292,7 +293,7 @@ public class WMV_Field
 	void findImagePlaceHolders()
 	{
 		for(WMV_Video v : videos)
-			v.findPlaceholder();
+			v.findPlaceholder(images);
 	}
 
 	/**
@@ -394,6 +395,73 @@ public class WMV_Field
 		}
 	}
 
+	public void setBlurMasks()
+	{
+		for(WMV_Image image : getImages())
+		{
+			int bmID = image.blurMaskID;
+			switch(bmID)
+			{
+			case 0:
+				setImageBlurMask(image, p.blurMaskLeftTop);
+				break;
+			case 1:
+				setImageBlurMask(image, p.blurMaskLeftCenter);
+				break;
+			case 2:
+				setImageBlurMask(image, p.blurMaskLeftBottom);
+				break;
+			case 3:
+				setImageBlurMask(image, p.blurMaskLeftBoth);
+				break;
+			
+			case 4:
+				setImageBlurMask(image, p.blurMaskCenterTop);
+				break;
+			case 5:
+				setImageBlurMask(image, p.blurMaskCenterCenter);
+				break;
+			case 6:
+				setImageBlurMask(image, p.blurMaskCenterBottom);
+				break;
+			case 7:
+				setImageBlurMask(image, p.blurMaskCenterBoth);
+				break;
+		
+			case 8:
+				setImageBlurMask(image, p.blurMaskRightTop);
+				break;
+			case 9:
+				setImageBlurMask(image, p.blurMaskRightCenter);
+				break;
+			case 10:
+				setImageBlurMask(image, p.blurMaskRightBottom);
+				break;
+			case 11:
+				setImageBlurMask(image, p.blurMaskRightBoth);
+				break;
+		
+			case 12:
+				setImageBlurMask(image, p.blurMaskBothTop);
+				break;
+			case 13:
+				setImageBlurMask(image, p.blurMaskBothCenter);
+				break;
+			case 14:
+				setImageBlurMask(image, p.blurMaskBothBottom);
+				break;
+			case 15:
+				setImageBlurMask(image, p.blurMaskBothBoth);
+				break;
+			}
+		}
+	}
+	
+	void setImageBlurMask(WMV_Image image, PImage blurMask)
+	{
+		image.setBlurMask(blurMask);
+	}
+	
 	/**
 	 * Calculate vertices for all images and videos in the field
 	 */

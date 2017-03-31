@@ -79,7 +79,8 @@ public class WMV_MediaSegment
 
 				img.setHorizBorderID(horizBorderID);
 				img.setVertBorderID(vertBorderID);
-				img.setBlurMask();
+				img.setBlurMaskID();
+//				img.setBlurMask();
 
 //				if(p.p.p.p.debug.image)
 //					PApplet.println("Found image "+img.getID()+" borders horiz:"+horizBorderID+" vert:"+vertBorderID);

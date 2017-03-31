@@ -461,30 +461,13 @@ public class WMV_Cluster
 		empty = false;
 	}
 
-	/**
-	 * Draw the cluster center
-	 * @param hue 
-	 */
-//	void drawCenter(int hue)
-//	{
-//		if(!empty)
-//		{
-//			p.p.p.pushMatrix();
-//			p.p.p.fill(hue,255,255);
-//			p.p.p.stroke(255-hue,255,255);
-//			p.p.p.translate(location.x, location.y, location.z);
-//			p.p.p.sphere(p.worldSettings.clusterCenterSize);
-//			p.p.p.popMatrix();
-//		}
-//	}
-
 	void draw(WMV_World world)
 	{
 		if(p.worldSettings.showUserPanoramas)
 		{
 			for(WMV_Panorama p : userPanoramas)
 			{
-				p.update();
+				p.update(world.p);
 				p.draw(world);
 			}
 		}
@@ -493,7 +476,7 @@ public class WMV_Cluster
 		{
 			for(WMV_Panorama p : stitchedPanoramas)
 			{
-				p.update();
+				p.update(world.p);
 				p.draw(world);
 			}
 		}

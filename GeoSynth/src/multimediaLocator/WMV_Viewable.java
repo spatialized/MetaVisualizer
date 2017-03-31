@@ -82,13 +82,13 @@ public abstract class WMV_Viewable
 	public boolean hidden = false;				// Hidden from view											-- Needed?
 	public boolean requested = false;			// Indicates a recent request to load media from disk
 
-	WMV_Field p;								// Parent field
+//	WMV_Field p;								// Parent field
 	String timeZone;
 	
-	WMV_Viewable ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+	WMV_Viewable ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
 	{
-		p = parent;
+//		p = parent;
 
 		name = newName;
 		id = newID; 

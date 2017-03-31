@@ -16,12 +16,12 @@ class WMV_Image extends WMV_Viewable
 	/* Graphics */
 	public PImage image, blurred;			// Image pixels
 	public PVector[] vertices, sVertices;	// Vertex list
-//	private Box shape;						// Shape
 	
 	private int horizBorderID = -1;					// Blur horizBorderID   0: Left 1: Center 2: Right  3: Left+Right
 	private int vertBorderID = -1;					// Blur vertBorderID	0: Bottom 1: Center 2: Top  3: Top+Bottom
 
 	private PImage blurMask;
+	public int blurMaskID;
 	private float outlineSize = 10.f;		// Size of the outline around a selected image
 
 	private PVector disp = new PVector(0, 0, 0);   // Displacement from capture location
@@ -50,11 +50,11 @@ class WMV_Image extends WMV_Viewable
 	private boolean isVideoPlaceHolder = false;
 	private int assocVideoID = -1;
 
-	WMV_Image ( WMV_Field parent, int newID, PImage newImage, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
+	WMV_Image ( int newID, PImage newImage, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
 			int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone ) 
 	{
-		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
+		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
 		filePath = newFilePath;
 
@@ -424,7 +424,7 @@ class WMV_Image extends WMV_Viewable
 		world.p.popMatrix();
 		
 //		p.imagesSeen++;
-		p.setImagesSeen(p.getImagesSeen() + 1);
+//		p.setImagesSeen(p.getImagesSeen() + 1);
 	}
 	/**
 	 * Calculate and return alpha value given camera to image angle
@@ -1089,37 +1089,30 @@ class WMV_Image extends WMV_Viewable
 			 return true;
 	 }
 
-	 /**
-	  * @param newGPSLocation New GPS location
-	  * Set the current GPS location
-	  */
-//	 public void setGPSLocation(PVector newGPSLocation) 
-//	 {
-//		 gpsLocation = newGPSLocation;
-//		 calculateCaptureLocation();
-//	 }
-	 
-	 public void setBlurMask()
+	 public void setBlurMaskID()
 	 {
 		 // horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
 		 // vertBorderID	 0: Top  1: Center  2: Bottom  3: Top+Bottom
-		 
 		 if(horizBorderID == 0)
 		 {
 			 switch(vertBorderID)
 			 {
 			 case 0:
-				 blurMask = p.p.blurMaskLeftTop;
+//				 blurMask = p.p.blurMaskLeftTop;
+				 blurMaskID = 0;
 				 break;
 			 case 1:
-				 blurMask = p.p.blurMaskLeftCenter;
+//				 blurMask = p.p.blurMaskLeftCenter;
+				 blurMaskID = 1;
 				 break;
 			 case 2:
-				 blurMask = p.p.blurMaskLeftBottom;
+//				 blurMask = p.p.blurMaskLeftBottom;
+				 blurMaskID = 2;
 				 break;
 			 case 3:
 			 default:
-				 blurMask = p.p.blurMaskLeftBoth;
+//				 blurMask = p.p.blurMaskLeftBoth;
+				 blurMaskID = 3;
 				 break;
 			 }
 		 }
@@ -1128,17 +1121,21 @@ class WMV_Image extends WMV_Viewable
 			 switch(vertBorderID)
 			 {
 			 case 0:
-				 blurMask = p.p.blurMaskCenterTop;
+//				 blurMask = p.p.blurMaskCenterTop;
+				 blurMaskID = 4;
 				 break;
 			 case 1:
-				 blurMask = p.p.blurMaskCenterCenter;
+//				 blurMask = p.p.blurMaskCenterCenter;
+				 blurMaskID = 5;
 				 break;
 			 case 2:
-				 blurMask = p.p.blurMaskCenterBottom;
+//				 blurMask = p.p.blurMaskCenterBottom;
+				 blurMaskID = 6;
 				 break;
 			 case 3:
 			 default:
-				 blurMask = p.p.blurMaskCenterBoth;
+//				 blurMask = p.p.blurMaskCenterBoth;
+				 blurMaskID = 7;
 				 break;
 			 }
 		 }
@@ -1147,17 +1144,21 @@ class WMV_Image extends WMV_Viewable
 			 switch(vertBorderID)
 			 {
 			 case 0:
-				 blurMask = p.p.blurMaskRightTop;
+//				 blurMask = p.p.blurMaskRightTop;
+				 blurMaskID = 8;
 				 break;
 			 case 1:
-				 blurMask = p.p.blurMaskRightCenter;
+//				 blurMask = p.p.blurMaskRightCenter;
+				 blurMaskID = 9;
 				 break;
 			 case 2:
-				 blurMask = p.p.blurMaskRightBottom;
+//				 blurMask = p.p.blurMaskRightBottom;
+				 blurMaskID = 10;
 				 break;
 			 case 3:
 			 default:
-				 blurMask = p.p.blurMaskRightBoth;
+//				 blurMask = p.p.blurMaskRightBoth;
+				 blurMaskID = 11;
 				 break;
 			 }
 		 }
@@ -1166,20 +1167,29 @@ class WMV_Image extends WMV_Viewable
 			 switch(vertBorderID)
 			 {
 			 case 0:
-				 blurMask = p.p.blurMaskBothTop;
+//				 blurMask = p.p.blurMaskBothTop;
+				 blurMaskID = 12;
 				 break;
 			 case 1:
-				 blurMask = p.p.blurMaskBothCenter;
+//				 blurMask = p.p.blurMaskBothCenter;
+				 blurMaskID = 13;
 				 break;
 			 case 2:
-				 blurMask = p.p.blurMaskBothBottom;
+//				 blurMask = p.p.blurMaskBothBottom;
+				 blurMaskID = 14;
 				 break;
 			 case 3:
 			 default:
-				 blurMask = p.p.blurMaskBothBoth;
+//				 blurMask = p.p.blurMaskBothBoth;
+				 blurMaskID = 15;
 				 break;
 			 }
 		 }
+	 }
+	 
+	 public void setBlurMask(PImage newBlurMask)
+	 {
+		 blurMask = newBlurMask;
 	 }
 	 
 	 public float getDirection()

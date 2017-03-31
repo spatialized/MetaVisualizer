@@ -341,7 +341,7 @@ class WMV_Metadata
 //						PApplet.println("soundTime.getTime():"+soundTime.getTime());
 //						PApplet.println("sounds == null? "+(f.sounds==null));
 
-						f.addSound( new WMV_Sound ( f, count, 3, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime, f.getTimeZoneID()) );
+						f.addSound( new WMV_Sound (count, 3, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime, f.getTimeZoneID()) );
 					}
 					catch(Throwable t)
 					{
@@ -777,14 +777,14 @@ class WMV_Metadata
 					if(panorama && !dataMissing)
 					{
 						PImage pImg = p.createImage(0,0,processing.core.PConstants.RGB);
-						f.addPanorama( new WMV_Panorama( f, pCount, 1, name, pFilePath, pGPSLoc, fDirection, 0.f, iCameraModel, 	// Ignore elevation
+						f.addPanorama( new WMV_Panorama(pCount, 1, name, pFilePath, pGPSLoc, fDirection, 0.f, iCameraModel, 	// Ignore elevation
 								iWidth, iHeight, fBrightness, calendarTime, f.getTimeZoneID(), null, pImg ) );
 						pCount++;
 					}
 					else if(!dataMissing)
 					{
 						PImage pImg = p.createImage(0, 0, processing.core.PConstants.RGB);
-						f.addImage( new WMV_Image(f, iCount, pImg, 0, name, pFilePath, pGPSLoc, fDirection, fFocalLength, fOrientation, fElevation, 
+						f.addImage( new WMV_Image(iCount, pImg, 0, name, pFilePath, pGPSLoc, fDirection, fFocalLength, fOrientation, fElevation, 
 								fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, calendarTime, f.getTimeZoneID() ) );
 						iCount++;
 					}
@@ -939,7 +939,7 @@ class WMV_Metadata
 				{
 					Movie pMov = new Movie(p, pFilePath);
 
-					f.addVideo( new WMV_Video(f, vCount, pMov, 2, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
+					f.addVideo( new WMV_Video(vCount, pMov, 2, name, pFilePath, pLoc, -1, -1, -1, -1, -1, fFocusDistance, 
 			   				-1, iWidth, iHeight, fBrightness, calendarTime, f.getTimeZoneID()) );
 					vCount++;
 				}

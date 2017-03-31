@@ -45,8 +45,8 @@ public class WMV_WorldSettings
 
 	/* Video */
 	public final float videoMaxVolume = 0.9f;
-	public float assocVideoDistTolerance = 15.f;		// How far a photo can be taken from a video's location to become associated.
-	public float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
+	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
+	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 														// (WMV assumes videographers will take a photo with Theodolite shortly before hitting record,
 														// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
 
@@ -87,8 +87,8 @@ public class WMV_WorldSettings
 		defaultMediaLength = initDefaultMediaLength;			// Default frame length of media in time cycle
 
 		/* Video */
-		assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
-		assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
+//		assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
+//		assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 
 		/* Stitching */
 		maxStitchingImages = 30;				// Maximum number of images to try to stitch

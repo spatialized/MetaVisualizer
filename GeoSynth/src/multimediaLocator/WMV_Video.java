@@ -17,11 +17,6 @@ import processing.data.IntList;
 
 class WMV_Video extends WMV_Viewable          		// Represents a video in virtual space
 {
-//	/* Classes */
-//	WMV_WorldSettings worldSettings;
-//	WMV_ViewerSettings viewerSettings;	// Update world settings
-//	ML_DebugSettings debugSettings;	// Update world settings
-
 	/* Video */
 	Movie video;									// Movie object
 	PImage frame;									// Frame to be displayed 
@@ -45,10 +40,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	private float subjectSizeRatio = 0.18f;			// Subject portion of video plane (used in scaling from focus distance to imageSize)
 	private PVector disp = new PVector(0, 0, 0);    	// Displacement from capture location
 	private float length;
+	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
+	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 
 	/* Graphics */
-	private float videoWidth = 0, videoHeight = 0;			// Video width and height
 	PVector[] vertices, sVertices;
+	private float videoWidth = 0, videoHeight = 0;			// Video width and height
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
@@ -81,9 +78,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			int newVideoHeight, float newBrightness, ZonedDateTime newDateTime )
 	{
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
-
-//		p = parent;
-//		name = newName;
 
 		vertices = new PVector[4]; 
 		sVertices = new PVector[4]; 
@@ -145,7 +139,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			fadeOut();
 		}
 
-		if(p.debugSettings.video && p.debugSettings.detailed && p.frameCount % 30 == 0)
+		if(p.debugSettings.video && p.debugSettings.detailed && worldState.frameCount % 30 == 0)
 			world.p.display.message(world, "Video brightness after distance:"+brightness);
 
 		if( viewerSettings.angleFading )
@@ -267,9 +261,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(volume < worldSettings.videoMaxVolume)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.frameCount; 
+			volumeFadingStartFrame = worldState.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = worldState.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = worldSettings.videoMaxVolume;
 		}
 	}
@@ -282,9 +276,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(volume > 0.f)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.frameCount; 
+			volumeFadingStartFrame = worldState.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = worldState.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = 0.f;
 			pauseAfterSoundFades = pause;
 		}
@@ -1036,10 +1030,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				PVector imgLocation = p.getImage(i).getCaptureLocation();
 				float curDist = PVector.dist(getCaptureLocation(), imgLocation);
 
-				if(curDist < worldSettings.assocVideoDistTolerance)		// and very close in space,
-				{
+				if(curDist < assocVideoDistTolerance)		// and very close in space,
 					candidates.append(i);												// Add to candidates list
-				}
 			}
 		}
 		
@@ -1049,14 +1041,14 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(candidates.size() == 0)
 		{
 			if(p.debugSettings.video)
-				PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+worldSettings.assocVideoDistTolerance+"!");
+				PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+assocVideoDistTolerance+"!");
 		}
 		
 		for( int i : candidates )							// Compare distances of the candidates
 		{
 			float timeDiff = time.getTime() - p.getImage(i).time.getTime();
 
-			if( timeDiff > 0.f && timeDiff < worldSettings.assocVideoTimeTolerance )			// If in very close succession with an image
+			if( timeDiff > 0.f && timeDiff < assocVideoTimeTolerance )			// If in very close succession with an image
 			{
 				if(timeDiff < closestDist)
 				{
@@ -1135,9 +1127,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	private void updateFadingVolume()
 	{
-		if(fadingVolume && p.frameCount < volumeFadingEndFrame)	// Still fading
+		if(fadingVolume && worldState.frameCount < volumeFadingEndFrame)	// Still fading
 		{
-			volume = PApplet.map(p.frameCount, volumeFadingStartFrame, volumeFadingEndFrame, volumeFadingStartVal, volumeFadingTarget);
+			volume = PApplet.map(worldState.frameCount, volumeFadingStartFrame, volumeFadingEndFrame, volumeFadingStartVal, volumeFadingTarget);
 			video.volume(volume);
 		}
 		else								// Reached target
@@ -1229,8 +1221,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	public void fadeFocusDistance(float target)
 	{
 		fadingFocusDistance = true;
-		fadingFocusDistanceStartFrame = p.frameCount;					
-		fadingFocusDistanceEndFrame = p.frameCount + fadingFocusDistanceLength;	
+		fadingFocusDistanceStartFrame = worldState.frameCount;					
+		fadingFocusDistanceEndFrame = worldState.frameCount + fadingFocusDistanceLength;	
 		fadingFocusDistanceStart = focusDistance;
 		fadingFocusDistanceTarget = target;
 	}
@@ -1242,14 +1234,14 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	{
 		float newFocusDistance = 0.f;
 
-		if (p.frameCount >= fadingFocusDistanceEndFrame)
+		if (worldState.frameCount >= fadingFocusDistanceEndFrame)
 		{
 			fadingFocusDistance = false;
 			newFocusDistance = fadingFocusDistanceTarget;
 		} 
 		else
 		{
-			newFocusDistance = PApplet.map( p.frameCount, fadingFocusDistanceStartFrame, fadingFocusDistanceEndFrame, 
+			newFocusDistance = PApplet.map( worldState.frameCount, fadingFocusDistanceStartFrame, fadingFocusDistanceEndFrame, 
 											fadingFocusDistanceStart, fadingFocusDistanceTarget);      // Fade with distance from current time
 		}
 

@@ -100,7 +100,10 @@ public class WMV_Field
 				
 				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(!m.verticesAreNull() && (m.isFading() || m.fadingFocusDistance))
+				{
+					m.updateTimeBrightness(clusters.get(m.getCluster()));
 					m.update();  		// Update geometry + visibility
+				}
 
 				if (distance < vanishingPoint && distance > viewerSettings.nearClippingDistance && !m.verticesAreNull()) 	// Visible	
 				{
@@ -122,6 +125,7 @@ public class WMV_Field
 				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
+					n.updateTimeBrightness(clusters.get(n.getCluster()));
 					n.update();  	// Update geometry + visibility
 					n.draw(p); 		// Display panorama
 					panoramasVisible++;
@@ -146,6 +150,7 @@ public class WMV_Field
 				
 				if (nowVisible || v.isFading())
 				{
+					v.updateTimeBrightness(clusters.get(v.getCluster()));
 					v.update();  	// Update geometry + visibility
 					v.draw(p); 		// Display video
 					videosVisible++;
@@ -176,6 +181,7 @@ public class WMV_Field
 //				
 //				if (nowVisible || s.isFading())
 //				{
+//					s.updateTimeBrightness(clusters.get(s.getCluster()));
 ////					s.update();  	// Update geometry + visibility
 //					s.draw(); 		// Display video
 ////					soundsAudible++;

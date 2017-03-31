@@ -48,13 +48,6 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
-//		p = parent;
-
-//		worldSettings = newWorldSettings;
-//		viewerSettings = newViewerSettings;
-//		debugSettings = newDebugSettings;
-		
-
 		if(newTexture == null)
 			texture = p.p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
 		else

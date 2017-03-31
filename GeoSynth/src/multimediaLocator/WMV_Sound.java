@@ -190,9 +190,9 @@ public class WMV_Sound extends WMV_Viewable
 		if(volume < p.p.settings.videoMaxVolume)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.frameCount; 
+			volumeFadingStartFrame = worldState.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = worldState.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = p.p.settings.videoMaxVolume;
 		}
 	}
@@ -205,9 +205,9 @@ public class WMV_Sound extends WMV_Viewable
 		if(volume > 0.f)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.frameCount; 
+			volumeFadingStartFrame = worldState.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = worldState.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = 0.f;
 		}
 	}

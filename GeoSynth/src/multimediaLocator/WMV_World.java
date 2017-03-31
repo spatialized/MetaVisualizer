@@ -151,6 +151,7 @@ public class WMV_World
 		
 		if ( !state.initialSetup && !state.interactive && !p.state.exit ) 		/* Running the program */
 		{
+			updateState();
 			draw3D();						// 3D Display
 			draw2D();						// 2D Display
 			if(!state.paused) updateTime();		// Update time cycle
@@ -264,6 +265,11 @@ public class WMV_World
 			runInteractiveClustering();	
 		
 		// -- Move viewer to first cluster??!!
+	}
+	
+	void updateState()
+	{
+		state.frameCount = p.frameCount;
 	}
 	
 	/**

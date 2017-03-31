@@ -895,8 +895,6 @@ class WMV_Metadata
 				}
 
 				/* Parse video GPS coordinates */
-				PApplet.println("HERE");
-
 				try {
 					float xCoord, yCoord, zCoord;
 					xCoord = Float.valueOf(longitude);				// Flip sign of longitude?

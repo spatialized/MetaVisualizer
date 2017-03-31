@@ -5,9 +5,6 @@ import java.util.ArrayList;
 //import java.util.Calendar;
 
 import processing.core.*;
-//import shapes3d.Box;
-//import shapes3d.*;
-//import shapes3d.S3D;
 
 /************************************
  * @author davidgordon
@@ -30,33 +27,28 @@ class WMV_Image extends WMV_Viewable
 	private PVector disp = new PVector(0, 0, 0);   // Displacement from capture location
 	private float fadingFocusDistanceStartFrame = 0.f, fadingFocusDistanceEndFrame = 0.f;	// Fade focus distance and image size together
 	private float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
-//	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
 	private float fadingFocusDistanceLength = 30.f;
+//	private float fadingImageSizeFactorStart = 0.f, fadingImageSizeFactorTarget = 0.f;	
 	
 	private boolean thinningVisibility = false;
 
 	/* Metadata */
-	private float imageWidth, imageHeight;	// Image width and height
-	private float phi;			        	// Image Elevation (in Degrees N)
-	private float orientation;              // Landscape = 0, Portrait = 90, Upside Down Landscape = 180, Upside Down Portrait = 270
-	private float rotation;				    // Elevation angle and Z-axis rotation
-	private float focalLength = 0; 			// Zoom Level 
-	private float focusDistance; 	 		// Image viewing distance (or estimated object distance, if given in metadata)
+	private float imageWidth, imageHeight;				// Image width and height
+	private float phi;			        				// Image Elevation (in Degrees N)
+	private float orientation;              			// Landscape = 0, Portrait = 90, Upside Down Landscape = 180, Upside Down Portrait = 270
+	private float rotation;				    			// Elevation angle and Z-axis rotation
+	private float focalLength = 0; 						// Zoom Level 
 	private float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-	private float origFocusDistance; 	 	// Original image viewing distance
+	private float focusDistance; 	 					// Image viewing distance (or estimated object distance, if given in metadata)
+	private float origFocusDistance; 	 				// Original image viewing distance
 	
-	private float sensorSize;				// Approx. size of sensor in mm.
-	private float subjectSizeRatio = 0.18f;		// Subject portion of image plane (used in scaling from focus distance to imageSize)
+	private float sensorSize;							// Approx. size of sensor in mm.
+	private float subjectSizeRatio = 0.18f;				// Subject portion of image plane (used in scaling from focus distance to imageSize)
 //	private float brightness;
 	
 	/* Video Association */
 	private boolean isVideoPlaceHolder = false;
 	private int assocVideoID = -1;
-
-//	private PVector averageColor;
-//	private float averageBrightness;
-
-//	WMV_Field p;					// Parent field
 
 	WMV_Image ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
@@ -64,7 +56,6 @@ class WMV_Image extends WMV_Viewable
 	{
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
-//		p = parent;
 		filePath = newFilePath;
 
 		image = p.p.p.createImage(0, 0, processing.core.PConstants.RGB);		// Create empty image
@@ -247,7 +238,7 @@ class WMV_Image extends WMV_Viewable
 
 		fadeBrightness(0.f);					// Fade out
 	}
-
+	
 	/**
 =	 * Update image geometry + visibility
 	 */
@@ -1023,8 +1014,8 @@ class WMV_Image extends WMV_Viewable
 	public void fadeFocusDistance(float target)
 	{
 		fadingFocusDistance = true;
-		fadingFocusDistanceStartFrame = p.frameCount;					
-		fadingFocusDistanceEndFrame = p.frameCount + fadingFocusDistanceLength;	
+		fadingFocusDistanceStartFrame = worldState.frameCount;					
+		fadingFocusDistanceEndFrame = worldState.frameCount + fadingFocusDistanceLength;	
 		fadingFocusDistanceStart = focusDistance;
 		fadingFocusDistanceTarget = target;
 	}
@@ -1036,14 +1027,14 @@ class WMV_Image extends WMV_Viewable
 	{
 		float newFocusDistance = 0.f;
 
-		if (p.frameCount >= fadingFocusDistanceEndFrame)
+		if (worldState.frameCount >= fadingFocusDistanceEndFrame)
 		{
 			fadingFocusDistance = false;
 			newFocusDistance = fadingFocusDistanceTarget;
 		} 
 		else
 		{
-			newFocusDistance = PApplet.map( p.frameCount, fadingFocusDistanceStartFrame, fadingFocusDistanceEndFrame, 
+			newFocusDistance = PApplet.map( worldState.frameCount, fadingFocusDistanceStartFrame, fadingFocusDistanceEndFrame, 
 											fadingFocusDistanceStart, fadingFocusDistanceTarget);      // Fade with distance from current time
 		}
 

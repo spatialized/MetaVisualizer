@@ -16,11 +16,6 @@ import processing.core.*;
 
 class WMV_Image extends WMV_Viewable						 
 {
-//	/* Classes */
-//	WMV_WorldSettings worldSettings;
-//	WMV_ViewerSettings viewerSettings;	// Update world settings
-//	ML_DebugSettings debugSettings;	// Update world settings
-
 	/* Graphics */
 	public PImage image, blurred;			// Image pixels
 	public PVector[] vertices, sVertices;	// Vertex list
@@ -61,7 +56,7 @@ class WMV_Image extends WMV_Viewable
 //	private PVector averageColor;
 //	private float averageBrightness;
 
-	WMV_Field p;					// Parent field
+//	WMV_Field p;					// Parent field
 
 	WMV_Image ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
@@ -69,7 +64,7 @@ class WMV_Image extends WMV_Viewable
 	{
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
-		p = parent;
+//		p = parent;
 		filePath = newFilePath;
 
 		image = p.p.p.createImage(0, 0, processing.core.PConstants.RGB);		// Create empty image
@@ -253,13 +248,6 @@ class WMV_Image extends WMV_Viewable
 		fadeBrightness(0.f);					// Fade out
 	}
 
-	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
-	{
-		worldSettings = newWorldSettings;
-		viewerSettings = newViewerSettings;
-		debugSettings = newDebugSettings;
-	}
-
 	/**
 =	 * Update image geometry + visibility
 	 */
@@ -285,7 +273,7 @@ class WMV_Image extends WMV_Viewable
 
 			if(viewerSettings.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
-				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
+				if(cluster == viewerState.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
 				for(int id : p.p.viewer.getClustersVisible())
@@ -295,7 +283,7 @@ class WMV_Image extends WMV_Viewable
 			else 
 			{
 				if(viewerSettings.angleFading)
-					visible = isFacingCamera(p.p.viewer.getLocation());		
+					visible = isFacingCamera(viewerState.getLocation());		
 				else 
 					visible = true;     										 		
 			}
@@ -316,7 +304,7 @@ class WMV_Image extends WMV_Viewable
 				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 					visible = false;
 
-				if(isBackFacing(p.p.viewer.getLocation()) || isBehindCamera(p.p.viewer.getLocation(), p.p.viewer.getOrientationVector()))
+				if(isBackFacing(viewerState.getLocation()) || isBehindCamera(viewerState.getLocation(), p.p.viewer.getOrientationVector()))
 					visible = false;
 			}
 			
@@ -372,7 +360,7 @@ class WMV_Image extends WMV_Viewable
 					if(cluster == id  && !requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						loadMedia(p.p.p);
 			}
-			else if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
+			else if(getCaptureDistance() < viewerSettings.getFarViewingDistance() && !requested)
 				loadMedia(p.p.p); 					// Request image pixels from disk
 		}
 		
@@ -515,8 +503,8 @@ class WMV_Image extends WMV_Viewable
 	public float getDistanceBrightness()									
 	{
 		float viewDist = getViewingDistance();
-		float farViewingDistance = p.p.viewer.getFarViewingDistance();
-		float nearViewingDistance = p.p.viewer.getNearViewingDistance();
+		float farViewingDistance = viewerSettings.getFarViewingDistance();
+		float nearViewingDistance = viewerSettings.getNearViewingDistance();
 		
 		float distVisibility = 1.f;
 
@@ -525,13 +513,13 @@ class WMV_Image extends WMV_Viewable
 			float vanishingPoint = farViewingDistance + focusDistance;	// Distance where transparency reaches zero
 //			float vanishingPoint = farViewingDistance + p.p.defaultFocusDistance;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, p.p.viewer.getFarViewingDistance(), vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, viewerSettings.getFarViewingDistance(), vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
 		}
 		else if(viewDist < nearViewingDistance)								
 		{
-			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), p.p.viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
+			distVisibility = PApplet.constrain(PApplet.map(viewDist, viewerSettings.getNearClippingDistance(), viewerSettings.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
 		}
 
 		return distVisibility;
@@ -773,7 +761,7 @@ class WMV_Image extends WMV_Viewable
 		float camToImage = location.dist(camLoc);  					// Find distance from camera to image
 
 //		if(captureToCam > camToImage + p.p.viewer.getNearClippingDistance())								// If captureToCam > camToPhoto, then back of the image is facing the camera
-		if(captureToCam > camToImage + p.p.viewer.getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
+		if(captureToCam > camToImage + viewerSettings.getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
 			return true;
 		else
 			return false; 

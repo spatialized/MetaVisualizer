@@ -454,7 +454,7 @@ public class ML_Window {
 		sdrTeleportLength = new GSlider(navigationWindow, x, y, 80, 80, 20);
 		sdrTeleportLength.setLocalColorScheme(7);
 		sdrTeleportLength.setLimits(0.f, 300.f, 10.f);
-		sdrTeleportLength.setValue(world.viewer.settings.teleportLength);
+		sdrTeleportLength.setValue(world.viewer.getSettings().teleportLength);
 		sdrTeleportLength.setRotation(PApplet.PI/2.f);
 		sdrTeleportLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrTeleportLength.setEasing(0);
@@ -466,7 +466,7 @@ public class ML_Window {
 		sdrPathWaitLength = new GSlider(navigationWindow, x, y, 80, 80, 20);
 		sdrPathWaitLength.setLocalColorScheme(7);
 		sdrPathWaitLength.setLimits(0.f, 600.f, 30.f);
-		sdrPathWaitLength.setValue(world.viewer.settings.pathWaitLength);
+		sdrPathWaitLength.setValue(world.viewer.getSettings().pathWaitLength);
 		sdrPathWaitLength.setRotation(PApplet.PI/2.f);
 		sdrPathWaitLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrPathWaitLength.setEasing(0);
@@ -747,8 +747,8 @@ public class ML_Window {
 		x += 140;
 		sdrBrightness = new GSlider(graphicsWindow, x, y, 80, 80, 20);
 		sdrBrightness.setLocalColorScheme(7);
-		sdrBrightness.setLimits(world.viewer.settings.userBrightness, 1.f, 0.f);
-		sdrBrightness.setValue(world.viewer.settings.userBrightness);					// Not sure why this is needed, maybe a G4P bug?
+		sdrBrightness.setLimits(world.viewer.getSettings().userBrightness, 1.f, 0.f);
+		sdrBrightness.setValue(world.viewer.getSettings().userBrightness);					// Not sure why this is needed, maybe a G4P bug?
 		sdrBrightness.setRotation(PApplet.PI/2.f);
 		sdrBrightness.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrBrightness.setEasing(0);
@@ -813,7 +813,7 @@ public class ML_Window {
 		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 160, 20, "Orientation Mode (BETA)");
 		chkbxOrientationMode.tag = "OrientationMode";
 		chkbxOrientationMode.setLocalColorScheme(10);
-		chkbxOrientationMode.setSelected(world.viewer.settings.orientationMode);
+		chkbxOrientationMode.setSelected(world.viewer.getSettings().orientationMode);
 		
 		x = 0;
 		y += 40;
@@ -1520,7 +1520,7 @@ public class ML_Window {
 
 			WMV_Field f = world.getCurrentField();
 
-			if(world.viewer.getCurrentClusterID() >= 0)
+			if(world.viewer.getState().getCurrentClusterID() >= 0)
 			{
 				WMV_Cluster c = world.getCurrentCluster();
 //				float[] camTar = world.viewer.camera.target();
@@ -1593,7 +1593,7 @@ public class ML_Window {
 						PApplet.round(world.viewer.getLocation().z), x, y += lineWidthVeryWide);		
 				applet.text(" GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidth);		
 
-				applet.text(" Current Cluster: "+world.viewer.getCurrentClusterID(), x, y += lineWidthVeryWide);
+				applet.text(" Current Cluster: "+world.viewer.getState().getCurrentClusterID(), x, y += lineWidthVeryWide);
 				applet.text("   Media Points: "+c.mediaCount, x, y += lineWidth);
 				applet.text("   Media Segments: "+world.getCurrentCluster().segments.size(), x, y += lineWidth);
 				applet.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), world.viewer.getLocation())), x, y += lineWidth);
@@ -1651,7 +1651,7 @@ public class ML_Window {
 				}			
 			}
 			else
-				p.message(world, "Can't display statistics: currentCluster == "+world.viewer.getCurrentClusterID()+"!!!");
+				p.message(world, "Can't display statistics: currentCluster == "+world.viewer.getState().getCurrentClusterID()+"!!!");
 		}
 	}
 	

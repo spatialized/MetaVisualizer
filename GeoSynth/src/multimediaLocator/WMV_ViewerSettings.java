@@ -9,7 +9,7 @@ import processing.core.PVector;
  */
 public class WMV_ViewerSettings 
 {
-	WMV_Viewer v;
+//	WMV_Viewer v;
 	
 	/* Camera */
 	public final float initFieldOfView = PApplet.PI * 0.375f;	// Camera field of view
@@ -23,6 +23,7 @@ public class WMV_ViewerSettings
 	public float userBrightness = 1.f;
 
 	/* Graphics */
+	public final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public boolean orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
@@ -34,7 +35,6 @@ public class WMV_ViewerSettings
 //	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
 //	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
 	
-	/* Visibility */
 	public float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
 	public boolean hideImages = false;						// Hide images
 	public boolean hidePanoramas = false;					// Hide panoramas
@@ -105,16 +105,12 @@ public class WMV_ViewerSettings
 	private float audibleNearDistanceDiv = (float) 1.2; 
 	private boolean audibleNearDistanceTransition = false;
 
-	public WMV_ViewerSettings(WMV_Viewer parent)
-	{
-		v = parent;
-		fieldOfView = initFieldOfView; 		
-	}
+	public WMV_ViewerSettings(){}
 	
 	public void initialize()
 	{
 		fieldOfView = initFieldOfView; 		
-		selectionMaxDistance = v.p.settings.defaultFocusDistance * selectionMaxDistanceFactor;
+		selectionMaxDistance = defaultFocusDistance * selectionMaxDistanceFactor;
 	}
 	
 	public void reset()
@@ -183,5 +179,29 @@ public class WMV_ViewerSettings
 		audibleNearDistanceFadeLength = 40;
 		audibleNearDistanceDiv = (float) 1.2; 
 		audibleNearDistanceTransition = false;
+	}
+	
+	/**
+	 * @return Current near viewing distance
+	 */
+	public float getNearViewingDistance()
+	{
+		return nearViewingDistance;
+	}
+
+	/**
+	 * @return Current near clipping distance
+	 */
+	public float getNearClippingDistance()
+	{
+		return nearClippingDistance;
+	}
+	
+	/**
+	 * @return Current far viewing distance
+	 */
+	public float getFarViewingDistance()
+	{
+		return farViewingDistance;
 	}
 }

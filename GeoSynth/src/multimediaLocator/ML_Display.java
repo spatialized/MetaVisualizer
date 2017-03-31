@@ -1934,7 +1934,7 @@ class ML_Display
 		
 		WMV_Field f = p.getCurrentField();
 		
-		if(p.viewer.getCurrentClusterID() >= 0)
+		if(p.viewer.getState().getCurrentClusterID() >= 0)
 		{
 			WMV_Cluster c = p.getCurrentCluster();
 //			float[] camTar = p.viewer.camera.target();
@@ -2018,7 +2018,7 @@ class ML_Display
 					 PApplet.round(p.viewer.getLocation().z), xPos, yPos += lineWidthVeryWide, hudDistance);		
 			p.p.text(" GPS Longitude: "+p.viewer.getGPSLocation().x+" Latitude:"+p.viewer.getGPSLocation().y, xPos, yPos += lineWidth, hudDistance);		
 
-			p.p.text(" Current Cluster: "+p.viewer.getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Current Cluster: "+p.viewer.getState().getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text("   Media Points: "+c.mediaCount, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Media Segments: "+p.getCurrentCluster().segments.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
@@ -2092,7 +2092,7 @@ class ML_Display
 			}			
 		}
 		else
-			message(p, "Can't display statistics: currentCluster == "+p.viewer.getCurrentClusterID()+"!!!");
+			message(p, "Can't display statistics: currentCluster == "+p.viewer.getState().getCurrentClusterID()+"!!!");
 		
 		p.p.popMatrix();
 	}
@@ -2298,7 +2298,7 @@ class ML_Display
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(false);
 				window.optClusterView.setSelected(true);
-				displayCluster = p.viewer.getCurrentClusterID();
+				displayCluster = p.viewer.getState().getCurrentClusterID();
 				break;
 			case 3:	
 				displayView = 3;

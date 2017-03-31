@@ -22,6 +22,7 @@ public class WMV_Panorama extends WMV_Viewable
 	/* Graphics */
 	public PImage texture;								// Texture image pixels
 	private boolean initialized;
+	public final float panoramaFocusDistanceFactor = 1.1f;	// Scaling from defaultFocusDistance to panorama radius
 	
 	/* EXIF Metadata */
 	private float imageWidth, imageHeight;		// Width and height
@@ -47,7 +48,7 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
-		p = parent;
+//		p = parent;
 
 //		worldSettings = newWorldSettings;
 //		viewerSettings = newViewerSettings;
@@ -86,18 +87,9 @@ public class WMV_Panorama extends WMV_Viewable
 		theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		
-//		radius = worldSettings.defaultFocusDistance * worldSettings.panoramaFocusDistanceFactor;
-//		origRadius = radius;
-	}  
-
-	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
-	{
-		worldSettings = newWorldSettings;
-		viewerSettings = newViewerSettings;
-		debugSettings = newDebugSettings;
-		radius = defaultFocusDistance * worldSettings.panoramaFocusDistanceFactor;
+		radius = defaultFocusDistance * panoramaFocusDistanceFactor;
 		origRadius = radius;
-	}
+	}  
 
 	/**
 =	 * Update main variables
@@ -112,7 +104,7 @@ public class WMV_Panorama extends WMV_Viewable
 			p.p.requestedPanoramas--;
 		}
 
-		if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
+		if(getCaptureDistance() < viewerSettings.getFarViewingDistance() && !requested)
 			if(!initialized)
 				loadMedia(p.p.p); 
 
@@ -438,7 +430,7 @@ public class WMV_Panorama extends WMV_Viewable
 	public float getDistanceBrightness()									
 	{
 		float viewDist = getViewingDistance();
-		float farViewingDistance = p.p.viewer.getFarViewingDistance();
+		float farViewingDistance = viewerSettings.getFarViewingDistance();
 
 		float distVisibility = 1.f;
 
@@ -462,9 +454,9 @@ public class WMV_Panorama extends WMV_Viewable
 		PVector camLoc;
 
 		if(viewerSettings.orientationMode)
-			camLoc = p.p.viewer.getLocation();
+			camLoc = viewerState.getLocation();
 		else
-			camLoc = p.p.viewer.getLocation();
+			camLoc = viewerState.getLocation();
 
 		float distance;
 

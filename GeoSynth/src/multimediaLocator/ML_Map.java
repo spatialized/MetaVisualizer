@@ -1,28 +1,28 @@
 package multimediaLocator;
 
 import java.util.ArrayList;
-import java.util.List;
+//import java.util.List;
 
 import processing.core.PApplet;
-import processing.core.PGraphics;
+//import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.data.IntList;
 import toxi.math.ScaleMap;
 //import shapes3d.*;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
-import de.fhpotsdam.unfolding.data.MarkerFactory;
+//import de.fhpotsdam.unfolding.data.MarkerFactory;
 import de.fhpotsdam.unfolding.events.EventDispatcher;
-import de.fhpotsdam.unfolding.events.PanMapEvent;
+//import de.fhpotsdam.unfolding.events.PanMapEvent;
 import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.interactions.MouseHandler;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MarkerManager;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.providers.Microsoft;
-import de.fhpotsdam.unfolding.providers.AbstractMapProvider;
-import de.fhpotsdam.unfolding.utils.DebugDisplay;
-import de.fhpotsdam.unfolding.utils.MapUtils;
+//import de.fhpotsdam.unfolding.providers.AbstractMapProvider;
+//import de.fhpotsdam.unfolding.utils.DebugDisplay;
+//import de.fhpotsdam.unfolding.utils.MapUtils;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
 
 /***********************************
@@ -342,13 +342,13 @@ public class ML_Map
 		{
 			WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
 
-			if(selectedCluster == world.viewer.getCurrentClusterID())
+			if(selectedCluster == world.viewer.getState().getCurrentClusterID())
 				drawClusterMedia(world, c, mapWidth, mapHeight, false);
 			else
 				drawClusterMedia(world, c, mapWidth, mapHeight, true);
 		}
 
-		if(selectedCluster != world.viewer.getCurrentClusterID() && world.viewer.getCurrentClusterID() >= 0)
+		if(selectedCluster != world.viewer.getState().getCurrentClusterID() && world.viewer.getState().getCurrentClusterID() >= 0)
 		{
 			WMV_Cluster c = world.getCurrentCluster();
 			if(c != null)
@@ -402,13 +402,13 @@ public class ML_Map
 //					if(!c.isEmpty() && c.mediaCount != 0)
 //						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
 					
-					if(selectedCluster == world.viewer.getCurrentClusterID())
+					if(selectedCluster == world.viewer.getState().getCurrentClusterID())
 						drawClusterMedia(world, c, mapWidth, mapHeight, false);
 					else
 						drawClusterMedia(world, c, mapWidth, mapHeight, true);
 				}
 
-				if(selectedCluster != world.viewer.getCurrentClusterID() && world.viewer.getCurrentClusterID() >= 0)
+				if(selectedCluster != world.viewer.getState().getCurrentClusterID() && world.viewer.getState().getCurrentClusterID() >= 0)
 				{
 					WMV_Cluster c = world.getCurrentCluster();
 					if(c != null)
@@ -435,7 +435,7 @@ public class ML_Map
 				WMV_Cluster c = world.getCurrentCluster();
 				if(c != null)
 				{
-					if(world.viewer.getCurrentClusterID() != -1 && world.viewer.getCurrentClusterID() < world.getFieldClusters().size())
+					if(world.viewer.getState().getCurrentClusterID() != -1 && world.viewer.getState().getCurrentClusterID() < world.getFieldClusters().size())
 						drawPoint( world, c.getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
 				}
 				
@@ -550,7 +550,7 @@ public class ML_Map
 	 */
 	void drawClusterMedia(WMV_World world, WMV_Cluster c, float mapWidth, float mapHeight, boolean ignoreTime)
 	{
-		if((mapImages && !world.viewer.settings.hideImages))
+		if((mapImages && !world.viewer.getSettings().hideImages))
 			for ( int i : c.images )									// Draw images on Map
 			{
 				WMV_Image img = world.getCurrentField().getImage(i);
@@ -569,14 +569,14 @@ public class ML_Map
 				}
 			}
 
-		if((mapPanoramas && !world.viewer.settings.hidePanoramas))
+		if((mapPanoramas && !world.viewer.getSettings().hidePanoramas))
 			for ( int n : c.panoramas )									// Draw panoramas on Map
 			{
 				WMV_Panorama pano = world.getCurrentField().getPanorama(n);
 				drawPanoramaOnMap(world, pano, ignoreTime, mapWidth, mapHeight, false);
 			}
 
-		if((mapVideos && !world.viewer.settings.hideVideos))
+		if((mapVideos && !world.viewer.getSettings().hideVideos))
 			for (int v : c.videos)										// Draw videos on Map
 			{
 				WMV_Video vid = world.getCurrentField().getVideo(v);
@@ -669,7 +669,7 @@ public class ML_Map
 			float imageDistance = image.getViewingDistance();   // Get photo distance from current camera position
 			boolean visible = ignoreTime;
 
-			if (imageDistance < world.viewer.getFarViewingDistance() && imageDistance > world.viewer.getNearClippingDistance())    // If image is in visible range
+			if (imageDistance < world.viewer.getSettings().getFarViewingDistance() && imageDistance > world.viewer.getSettings().getNearClippingDistance())    // If image is in visible range
 				visible = true;                                              
 
 			if(visible && image.location != null && !image.disabled && !image.hidden)
@@ -720,7 +720,7 @@ public class ML_Map
 			float panoramaDistance = panorama.getViewingDistance();   // Get photo distance from current camera position
 			boolean visible = ignoreTime;
 
-			if (panoramaDistance < world.viewer.getFarViewingDistance() && panoramaDistance > world.viewer.getNearClippingDistance())    // If panorama is in visible range
+			if (panoramaDistance < world.viewer.getSettings().getFarViewingDistance() && panoramaDistance > world.viewer.getSettings().getNearClippingDistance())    // If panorama is in visible range
 				visible = true;                                              
 
 			if(visible && panorama.location != null && !panorama.disabled && !panorama.hidden)
@@ -771,7 +771,7 @@ public class ML_Map
 			float videoDistance = video.getViewingDistance();   // Get photo distance from current camera position
 			boolean visible = ignoreTime;
 
-			if (videoDistance < world.viewer.getFarViewingDistance() && videoDistance > world.viewer.getNearClippingDistance())    // If video is in visible range
+			if (videoDistance < world.viewer.getSettings().getFarViewingDistance() && videoDistance > world.viewer.getSettings().getNearClippingDistance())    // If video is in visible range
 				visible = true;                                              
 
 			if(visible && video.location != null && !video.disabled && !video.hidden)
@@ -997,7 +997,7 @@ public class ML_Map
 			}
 			else
 			{
-				selectedCluster = world.viewer.getCurrentClusterID();
+				selectedCluster = world.viewer.getState().getCurrentClusterID();
 			}
 		}
 	}
@@ -1008,7 +1008,7 @@ public class ML_Map
 		{
 			if(p.satelliteMap)				// If mouse was most recently pressed, rather than dragged
 			{
-				if(selectedCluster != world.viewer.getCurrentClusterID())
+				if(selectedCluster != world.viewer.getState().getCurrentClusterID())
 				{
 					if(selectedCluster >= 0 && selectedCluster < world.getCurrentField().getClusters().size())
 					{

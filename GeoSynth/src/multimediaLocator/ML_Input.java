@@ -639,7 +639,7 @@ public class ML_Input
 			{
 				if (key == 'c')
 				{
-					world.p.display.displayCluster = world.viewer.getCurrentClusterID();
+					world.p.display.displayCluster = world.viewer.getState().getCurrentClusterID();
 				}
 				
 				if (key == PApplet.CODED) 					
@@ -1425,7 +1425,7 @@ public class ML_Input
 	{
 //		boolean doubleClick = false, switchedViews = false;
 //			PApplet.println("MousePressed!");
-		if(!viewer.getSettings().orientationMode && viewer.lastMovementFrame > 5)
+		if(!viewer.getSettings().orientationMode && viewer.getState().lastMovementFrame > 5)
 		{
 			if(mouseX > screenWidth * 0.25 && mouseX < screenWidth * 0.75 && mouseY < screenHeight * 0.75 && mouseY > screenHeight * 0.25)
 			{
@@ -1436,7 +1436,7 @@ public class ML_Input
 //				mouseClickedX = mouseX;
 //				mouseClickedY = mouseY;
 			}
-			viewer.lastMovementFrame = frameCount;
+			viewer.getState().lastMovementFrame = frameCount;
 		}
 		else viewer.moveToNextCluster(false, -1);
 
@@ -1459,7 +1459,7 @@ public class ML_Input
 		if(world.viewer.getSettings().mouseNavigation)
 		{
 			world.viewer.walkSlower();
-			world.viewer.lastMovementFrame = frameCount;
+			world.viewer.getState().lastMovementFrame = frameCount;
 			if(doubleClick)									
 				world.viewer.moveToNearestCluster(world.viewer.getMovementTeleport());
 		}

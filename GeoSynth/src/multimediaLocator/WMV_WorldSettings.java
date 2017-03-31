@@ -6,13 +6,11 @@ package multimediaLocator;
  */
 public class WMV_WorldSettings 
 {
-	WMV_World w;
-
 	/* Model */
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
-	public float panoramaFocusDistanceFactor = 1.1f;	// Scaling from defaultFocusDistance to panorama radius
-	public float videoFocusDistanceFactor = 0.8f;		// Scaling from defaultFocusDistance to video focus distance
+	public final float panoramaFocusDistanceFactor = 1.1f;	// Scaling from defaultFocusDistance to panorama radius
+	public final float videoFocusDistanceFactor = 0.8f;		// Scaling from defaultFocusDistance to video focus distance
 
 	public boolean altitudeScaling = true;				// Scale media height by altitude (m.) EXIF field 
 	public float altitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
@@ -44,9 +42,6 @@ public class WMV_WorldSettings
 	public int defaultMediaLength = 50;					// Default frame length of media in time cycle
 
 	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
-//	public final int clusterDatePrecision = 1000;		// Precision of datesHistogram (no. of bins)
-//	public final int fieldTimePrecision = 10000;		// Precision of timesHistogram (no. of bins) -- Obsolete
-//	public final int fieldDatePrecision = 1000;			// Precision of timesHistogram (no. of bins) -- Obsolete
 
 	/* Video */
 	public final float videoMaxVolume = 0.9f;
@@ -62,18 +57,13 @@ public class WMV_WorldSettings
 	public boolean showUserPanoramas = true;			// Show panoramas stitched from user selected media
 	public boolean showStitchedPanoramas = true;		// Show panoramas stitched from media segments
 
-	WMV_WorldSettings(WMV_World parent)
-	{
-		w = parent;
-	}
+	WMV_WorldSettings(){}
 	
 	public void reset()
 	{
 		/* Model */
 		defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 		subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
-		panoramaFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to panorama radius
-		videoFocusDistanceFactor = 0.9f;		// Scaling from defaultFocusDistance to video focus distance
 		
 		altitudeScaling = true;					// Scale media height by altitude (m.) EXIF field 
 		altitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing	-- Work more on this...

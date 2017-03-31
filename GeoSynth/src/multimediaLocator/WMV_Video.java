@@ -5,7 +5,7 @@ import processing.video.*;
 import java.time.ZonedDateTime;
 //import java.awt.Image;
 import java.util.ArrayList;
-import java.util.Calendar;
+//import java.util.Calendar;
 
 import processing.core.*;
 import processing.data.IntList;
@@ -53,6 +53,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float outlineSize = 10.f;
+	private final float videoFocusDistanceFactor = 0.8f;		// Scaling from defaultFocusDistance to video focus distance
 	
 	private float fadingFocusDistanceStartFrame = 0.f, fadingFocusDistanceEndFrame = 0.f;	// Fade focus distance and image size together
 	private float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
@@ -81,7 +82,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	{
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
-		p = parent;
+//		p = parent;
 //		name = newName;
 
 		vertices = new PVector[4]; 
@@ -289,12 +290,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		}
 	}
 
-	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
-	{
-		worldSettings = newWorldSettings;
-		viewerSettings = newViewerSettings;
-		debugSettings = newDebugSettings;
-	}
+//	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
+//	{
+//		worldSettings = newWorldSettings;
+//		viewerSettings = newViewerSettings;
+//		debugSettings = newDebugSettings;
+//	}
 
 	/**
 =	 * Update video geometry and visibility 
@@ -311,7 +312,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 			if(viewerSettings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
-				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
+				if(cluster == viewerState.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
 
 				for(int id : p.p.viewer.getClustersVisible())
@@ -323,7 +324,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			else 
 			{
 				if(viewerSettings.angleFading)
-					visible = isFacingCamera(p.p.viewer.getLocation());		
+					visible = isFacingCamera(viewerState.getLocation());		
 				else 
 					visible = true;     										 		
 			}
@@ -344,7 +345,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 					visible = false;
 
-				if(isBackFacing(p.p.viewer.getLocation()) || isBehindCamera(p.p.viewer.getLocation(), p.p.viewer.getOrientationVector()))
+				if(isBackFacing(viewerState.getLocation()) || isBehindCamera(viewerState.getLocation(), p.p.viewer.getOrientationVector()))
 					visible = false;
 			}
 			
@@ -728,7 +729,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc = p.p.viewer.getLocation();
+		PVector camLoc = viewerState.getLocation();
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
 		float r;
@@ -759,8 +760,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		float viewDist = getViewingDistance();
 		float distVisibility = 1.f;
 
-		float farViewingDistance = p.p.viewer.getFarViewingDistance();
-		float nearViewingDistance = p.p.viewer.getNearViewingDistance();
+		float farViewingDistance = viewerSettings.getFarViewingDistance();
+		float nearViewingDistance = viewerSettings.getNearViewingDistance();
 		
 		if(viewDist > farViewingDistance)
 		{
@@ -773,7 +774,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		}
 		else if(viewDist < nearViewingDistance) 													// Near distance at which transparency reaches zero
 		{
-			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
+			distVisibility = PApplet.constrain(PApplet.map(viewDist, viewerSettings.getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
 		}
 
 //		if(p.debugSettings.video)
@@ -897,7 +898,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		float camToVideo = location.dist(cameraPosition);  		// Find distance from camera to image
 
 //		if(captureToCam > camToVideo + p.p.viewer.getNearClippingDistance())			// If captureToCam > camToVideo, then back of video is facing the camera
-		if(captureToCam > camToVideo + p.p.viewer.getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
+		if(captureToCam > camToVideo + viewerSettings.getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
 			return true;
 		else
 			return false; 

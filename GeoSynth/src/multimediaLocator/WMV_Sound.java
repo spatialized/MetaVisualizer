@@ -33,14 +33,14 @@ public class WMV_Sound extends WMV_Viewable
 	private float volumeFadingStartVal = 0.f, volumeFadingTarget = 0.f;
 	private final int volumeFadingLength = 60;	// Fade volume over 30 frames
 	
-	WMV_Field p;					// Parent field
+//	WMV_Field p;					// Parent field
 
 	WMV_Sound ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 				int newCameraModel, float newBrightness, ZonedDateTime newDateTime )
 	{
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
-		p = parent;
+//		p = parent;
 //		id = newID;
 
 //		worldSettings = newWorldSettings;
@@ -76,13 +76,6 @@ public class WMV_Sound extends WMV_Viewable
 	{
 //		if(p.p.viewer.selection)
 //			p.p.viewer.addSelectableSound(getID());
-	}
-
-	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
-	{
-		worldSettings = newWorldSettings;
-		viewerSettings = newViewerSettings;
-		debugSettings = newDebugSettings;
 	}
 
 	/**

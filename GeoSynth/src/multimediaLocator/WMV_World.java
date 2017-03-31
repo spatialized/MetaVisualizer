@@ -126,7 +126,7 @@ public class WMV_World
 	void initialize() 
 	{
 		/* Create main classes */
-		settings = new WMV_WorldSettings(this);
+		settings = new WMV_WorldSettings();
 		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
 //		input = new ML_Input(this);
 //		display = new ML_Display(this, p.width, p.height, hudDistance);		// Initialize displays
@@ -269,7 +269,7 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
-		getCurrentField().update(settings, viewer.getSettings(), p.frameCount);				// Update clusters in current field
+		getCurrentField().update(settings, viewer.getSettings(), viewer.getState(), p.frameCount);				// Update clusters in current field
 		attractViewer();						// Attract the viewer
 		
 		if(p.display.displayView == 0)
@@ -281,7 +281,7 @@ public class WMV_World
 			{
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
 				if(clusters.size()>0)
-					clusters.get(viewer.getCurrentClusterID()).draw(this);		// Draw current cluster
+					clusters.get(viewer.getState().getCurrentClusterID()).draw(this);		// Draw current cluster
 			}
 
 		}
@@ -581,11 +581,11 @@ public class WMV_World
 		// NEW
 		WMV_Field f = getCurrentField();
 		for(WMV_Image img : f.getImages())
-			img.updateSettings(settings, viewer.getSettings(), p.debug);
+			img.updateSettings(settings, viewer.getSettings(), viewer.getState(), p.debug);
 		for(WMV_Panorama pano : f.getPanoramas())
-			pano.updateSettings(settings, viewer.getSettings(), p.debug);
+			pano.updateSettings(settings, viewer.getSettings(), viewer.getState(), p.debug);
 		for(WMV_Video vid : f.getVideos())
-			vid.updateSettings(settings, viewer.getSettings(), p.debug);
+			vid.updateSettings(settings, viewer.getSettings(), viewer.getState(), p.debug);
 //		for(WMV_Sound snd : f.getSounds())
 //			img.updateSettings(settings, viewer.getSettings(), p.debug);
 		
@@ -767,7 +767,7 @@ public class WMV_World
 		
 		for(String s : folders)
 		{
-			fields.add(new WMV_Field(this, settings, viewer.getSettings(), p.debug, s, count));
+			fields.add(new WMV_Field(this, settings, viewer.getSettings(), viewer.getState(), p.debug, s, count));
 			count++;
 		}
 	}
@@ -850,7 +850,7 @@ public class WMV_World
 	 */
 	public WMV_Cluster getCurrentCluster()
 	{
-		int cluster = viewer.getCurrentClusterID();
+		int cluster = viewer.getState().getCurrentClusterID();
 		if(cluster >= 0 && cluster < getCurrentField().getClusters().size())
 		{
 			WMV_Cluster c = getCurrentField().getCluster(cluster);

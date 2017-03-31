@@ -82,7 +82,7 @@ public class WMV_Cluster
 	public boolean panorama = false;					// Cluster has panorama files?
 	IntList valid;										// List of images that are good stitching candidates
 		
-	WMV_Field p;
+	WMV_Field p;										// Parent field
 
 	WMV_Cluster(WMV_Field parent, int _clusterID, float _x, float _y, float _z) {
 		p = parent;
@@ -131,7 +131,7 @@ public class WMV_Cluster
 			segments.add( new WMV_MediaSegment( this, 0, curImages, null, right, left, centerDirection, 
 												top, bottom, centerElevation) );
 
-			if(p.p.p.debug.cluster || p.p.p.debug.model)
+			if(p.debugSettings.cluster || p.debugSettings.model)
 				PApplet.println("Added media segment in cluster: "+getID()+" with single image...");
 
 			done = true;
@@ -145,7 +145,7 @@ public class WMV_Cluster
 
 			IntList added = new IntList();			// Images added to current segment 
 
-			if(p.p.p.debug.cluster || p.p.p.debug.model)
+			if(p.debugSettings.cluster || p.debugSettings.model)
 				PApplet.println("Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
 
 			int count = 0;
@@ -168,12 +168,12 @@ public class WMV_Cluster
 						int m = curImages.get(idx);
 						if(p.getImage(m).getID() != img.getID())		// Don't compare image to itself
 						{
-							if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
-								PApplet.println("Comparing image:"+img.getDirection()+" to m: "+p.getImage(m).getDirection() + " p.p.stitchingMinAngle:"+p.p.settings.stitchingMinAngle);
+//							if((p.debugSettings.cluster || p.debugSettings.model) && p.debugSettings.detailed)
+//								PApplet.println("Comparing image:"+img.getDirection()+" to m: "+p.getImage(m).getDirection() + " p.p.stitchingMinAngle:"+p.worldSettings.stitchingMinAngle);
 							
-							if(PApplet.abs(img.getDirection() - p.getImage(m).getDirection()) < p.p.settings.stitchingMinAngle)
+							if(PApplet.abs(img.getDirection() - p.getImage(m).getDirection()) < p.worldSettings.stitchingMinAngle)
 							{
-								if(PApplet.abs(img.getElevation() - p.getImage(m).getElevation()) < p.p.settings.stitchingMinAngle)
+								if(PApplet.abs(img.getElevation() - p.getImage(m).getElevation()) < p.worldSettings.stitchingMinAngle)
 								{
 									float direction = img.getDirection();
 									float elevation = img.getElevation();
@@ -186,7 +186,7 @@ public class WMV_Cluster
 									if(elevation < bottom) bottom = elevation;
 									if(elevation > top) top = elevation;
 
-									if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
+									if((p.debugSettings.cluster || p.debugSettings.model) && p.debugSettings.detailed)
 										PApplet.println("Added image:"+img.getID()+" to segment...");
 
 									if(!curImages.hasValue(img.getID()))
@@ -215,7 +215,7 @@ public class WMV_Cluster
 			added.sort();
 			for(int i=added.size()-1; i>=0; i--)
 			{
-				if((p.p.p.debug.cluster || p.p.p.debug.model) && p.p.p.debug.detailed)
+				if((p.debugSettings.cluster || p.debugSettings.model) && p.debugSettings.detailed)
 					PApplet.println("Removing image ID:"+allImages.get(added.get(i)));
 				allImages.remove(added.get(i));		// Remove images added to curSegment
 			}
@@ -261,7 +261,7 @@ public class WMV_Cluster
 			segments.add( new WMV_MediaSegment( this, segments.size(), curImages, null, left, right, centerDirection, bottom, 
 					      top, centerElevation) );
 
-			if((p.p.p.debug.cluster || p.p.p.debug.model))
+			if((p.debugSettings.cluster || p.debugSettings.model))
 				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
 			
 			done = (allImages.size() == 1 || allImages.size() == 0);
@@ -283,11 +283,11 @@ public class WMV_Cluster
 		numSegments = segments.size();						// Number of media segments in the cluster
 		if(numSegments > 0)
 		{
-			if(p.p.p.debug.cluster || p.p.p.debug.model)
+			if(p.debugSettings.cluster || p.debugSettings.model)
 				PApplet.println(" Created "+numSegments+" media segments...");
 
 		}
-		else if(p.p.p.debug.cluster) 
+		else if(p.debugSettings.cluster) 
 			PApplet.println(" No media segments added... cluster "+getID()+" has no images!");
 	}
 
@@ -384,7 +384,7 @@ public class WMV_Cluster
 				newLocation.add(curPano.getCaptureLocation());		// Move cluster towards the image
 				if(!panoramas.hasValue(curPano.getID()))
 				{
-					if(p.p.p.debug.panorama)
+					if(p.debugSettings.panorama)
 					{
 						PApplet.println("Adding panorama "+curPano.getID()+" to cluster:"+getID());
 						PApplet.println("associatedPanoramas.size(): "+panoramas.size());
@@ -465,36 +465,36 @@ public class WMV_Cluster
 	 * Draw the cluster center
 	 * @param hue 
 	 */
-	void drawCenter(int hue)
-	{
-		if(!empty)
-		{
-			p.p.p.pushMatrix();
-			p.p.p.fill(hue,255,255);
-			p.p.p.stroke(255-hue,255,255);
-			p.p.p.translate(location.x, location.y, location.z);
-			p.p.p.sphere(p.p.settings.clusterCenterSize);
-			p.p.p.popMatrix();
-		}
-	}
+//	void drawCenter(int hue)
+//	{
+//		if(!empty)
+//		{
+//			p.p.p.pushMatrix();
+//			p.p.p.fill(hue,255,255);
+//			p.p.p.stroke(255-hue,255,255);
+//			p.p.p.translate(location.x, location.y, location.z);
+//			p.p.p.sphere(p.worldSettings.clusterCenterSize);
+//			p.p.p.popMatrix();
+//		}
+//	}
 
-	void draw()
+	void draw(WMV_World world)
 	{
-		if(p.p.settings.showUserPanoramas)
+		if(p.worldSettings.showUserPanoramas)
 		{
 			for(WMV_Panorama p : userPanoramas)
 			{
 				p.update();
-				p.draw(p.p.p);
+				p.draw(world);
 			}
 		}
 
-		if(p.p.settings.showStitchedPanoramas)
+		if(p.worldSettings.showStitchedPanoramas)
 		{
 			for(WMV_Panorama p : stitchedPanoramas)
 			{
 				p.update();
-				p.draw(p.p.p);
+				p.draw(world);
 			}
 		}
 	}
@@ -502,9 +502,9 @@ public class WMV_Cluster
 	/**
 	 * Stitch images based on current selection: if nothing selected, attempt to stitch all media segments in cluster
 	 */
-	public void stitchImages()
+	public void stitchImages(ML_Stitcher stitcher, String libraryFolder)
 	{
-		if(p.p.viewer.getSettings().multiSelection || p.p.viewer.getSettings().segmentSelection)
+		if(p.viewerSettings.multiSelection || p.viewerSettings.segmentSelection)
 		{
 			IntList valid = new IntList();
 			for( int i : p.getSelectedImages() )
@@ -513,13 +513,14 @@ public class WMV_Cluster
 					valid.append(i);
 			}
 
-//			if(p.p.p.debug.stitching) p.p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
+//			if(p.debugSettings.stitching) p.p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-			WMV_Panorama pano = p.p.p.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
+//			WMV_Panorama pano = p.p.p.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
+			WMV_Panorama pano = stitcher.stitch(libraryFolder, valid, getID(), -1, p.getSelectedImages());
 
 			if(pano != null)
 			{
-				if(p.p.p.debug.panorama || p.p.p.debug.stitching)
+				if(p.debugSettings.panorama || p.debugSettings.stitching)
 					PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
 
 				pano.initializeSphere();
@@ -544,7 +545,7 @@ public class WMV_Cluster
 		}
 		else
 		{
-//			if(p.p.p.debug.stitching) p.p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
+//			if(p.debugSettings.stitching) p.p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
 
 			for(WMV_MediaSegment m : segments)			// Stitch panorama for each media segment
 			{
@@ -557,7 +558,7 @@ public class WMV_Cluster
 							valid.append(i);
 					}
 					
-//					if(p.p.p.debug.stitching && p.p.p.debug.detailed) p.p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
+//					if(p.debugSettings.stitching && p.debugSettings.detailed) p.p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
 					
 					if(p.p.viewer.getSettings().angleThinning)				// Remove invisible images
 					{
@@ -578,7 +579,8 @@ public class WMV_Cluster
 					
 					if(valid.size() > 1)
 					{					
-						WMV_Panorama pano = p.p.p.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
+//						WMV_Panorama pano = p.p.p.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
+						WMV_Panorama pano = stitcher.stitch(libraryFolder, valid, getID(), m.getID(), null);
 						
 						if(pano != null)
 						{
@@ -613,7 +615,7 @@ public class WMV_Cluster
 	 */
 	public void analyzeMediaDirections()
 	{
-//		if(p.p.p.debug.cluster || p.p.p.debug.model)
+//		if(p.debugSettings.cluster || p.debugSettings.model)
 //			PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
 		float thinningAngle = p.p.viewer.getSettings().thinningAngle;									// Angle to thin images and videos by
 		int numPerimeterPts = PApplet.round(PApplet.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
@@ -847,7 +849,7 @@ public class WMV_Cluster
 		
 		float mass, dist = getClusterDistance();
 //		PApplet.println("getAttractionForce, Cluster #"+getID()+"... getClusterDistance:"+PVector.dist(location, p.p.viewer.getLocation()));
-		if( dist > p.p.settings.clusterFarDistance )
+		if( dist > p.worldSettings.clusterFarDistance )
 			mass = clusterMass * farMassFactor * PApplet.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
 		else
 			mass = clusterMass;
@@ -891,7 +893,7 @@ public class WMV_Cluster
 	 */
 	void absorbCluster(WMV_Cluster cluster)
 	{
-		if(p.p.p.debug.cluster)
+		if(p.debugSettings.cluster)
 			PApplet.println("Merging cluster "+getID()+" with "+cluster.getID());
 
 		/* Find images associated with cluster */
@@ -1013,7 +1015,7 @@ public class WMV_Cluster
 
 		if(mediaTimes.size() > 0)
 		{
-			timeline = p.utilities.calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
+			timeline = p.utilities.calculateTimeSegments(mediaTimes, p.worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
 			if(timeline != null)
 				timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
 			
@@ -1087,7 +1089,7 @@ public class WMV_Cluster
 
 //			if(mediaTimes.size() > 0)
 //			{
-//				ArrayList<WMV_TimeSegment> newTimeline = p.utilities.calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision, getID());
+//				ArrayList<WMV_TimeSegment> newTimeline = p.utilities.calculateTimeSegments(mediaTimes, p.worldSettings.clusterTimePrecision, getID());
 //
 //				if(newTimeline != null) 
 //					newTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
@@ -1137,14 +1139,14 @@ public class WMV_Cluster
 	 */
 	void updateTime()
 	{
-		if(timeFading && !dateFading && p.p.p.frameCount % timeUnitLength == 0)
+		if(timeFading && !dateFading && p.frameCount % timeUnitLength == 0)
 		{
 			currentTime++;															// Increment cluster time
 			if(currentTime > timeCycleLength)
 				currentTime = 0;
 		}
 		
-		if(timeFading && dateFading && p.p.p.frameCount % timeUnitLength == 0)
+		if(timeFading && dateFading && p.frameCount % timeUnitLength == 0)
 		{
 			currentTime++;															// Increment cluster time
 			if(currentTime > timeCycleLength)
@@ -1152,19 +1154,19 @@ public class WMV_Cluster
 				currentTime = 0;
 				currentDate++;															// Increment cluster date
 
-				if(p.p.p.debug.cluster || p.p.p.debug.time)
-					PApplet.println("Reached end of day at p.frameCount:"+p.p.p.frameCount);
+				if(p.debugSettings.cluster || p.debugSettings.time)
+					PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
 
 				if(dateline != null)
 				{
 					if(currentDate > dateline.size())
 					{
 						currentDate = 0;
-						if(p.p.p.debug.cluster || p.p.p.debug.time)
-							PApplet.println("Reached end of dateline at p.frameCount:"+p.p.p.frameCount);
+						if(p.debugSettings.cluster || p.debugSettings.time)
+							PApplet.println("Reached end of dateline at p.frameCount:"+p.frameCount);
 					}
 				}
-				else if(p.p.p.debug.cluster || p.p.p.debug.time)
+				else if(p.debugSettings.cluster || p.debugSettings.time)
 				{
 					PApplet.println("dateline is NULL for cluster "+getID());
 				}
@@ -1225,14 +1227,14 @@ public class WMV_Cluster
 			}
 			else
 			{
-//				if(p.p.p.debug.cluster || p.p.p.debug.time)
+//				if(p.debugSettings.cluster || p.debugSettings.time)
 //					PApplet.println("Date doesn't exist in cluster #"+getID()+"... "+date);
 				return null;
 			}
 		}
 		else 
 		{
-			if(p.p.p.debug.cluster || p.p.p.debug.time)
+			if(p.debugSettings.cluster || p.debugSettings.time)
 			{
 				PApplet.println("Cluster #"+getID()+" has no dateline but has "+mediaCount+" media points!!");
 			}
@@ -1289,7 +1291,7 @@ public class WMV_Cluster
 		boolean initImageTime = true, initPanoramaTime = true, initVideoTime = true, 
 				initImageDate = true, initPanoramaDate = true, initVideoDate = true;	
 
-//		if(p.p.p.debug.cluster && (images.size() != 0 || panoramas.size() != 0 || videos.size() != 0))
+//		if(p.debugSettings.cluster && (images.size() != 0 || panoramas.size() != 0 || videos.size() != 0))
 //			PApplet.println("Analyzing media times in cluster "+id+" ..." + " associatedImages.size():"+images.size()+" associatedPanoramas:"+panoramas.size()+" associatedVideos:"+videos.size());
 			
 		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
@@ -1591,7 +1593,7 @@ public class WMV_Cluster
 	public void setAttractor(boolean state)
 	{
 		isAttractor = state;
-//		if(p.p.p.debug.viewer)
+//		if(p.debugSettings.viewer)
 //		if(isAttractor())
 //			p.p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
 	}

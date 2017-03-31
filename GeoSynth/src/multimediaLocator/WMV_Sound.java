@@ -15,6 +15,11 @@ import processing.core.PVector;
 
 public class WMV_Sound extends WMV_Viewable						 
 {
+//	/* Classes */
+//	WMV_WorldSettings worldSettings;
+//	WMV_ViewerSettings viewerSettings;	// Update world settings
+//	ML_DebugSettings debugSettings;	// Update world settings
+
 //	SoundFile sound;
 	
 	private int id;
@@ -37,6 +42,11 @@ public class WMV_Sound extends WMV_Viewable
 
 		p = parent;
 //		id = newID;
+
+//		worldSettings = newWorldSettings;
+//		viewerSettings = newViewerSettings;
+//		debugSettings = newDebugSettings;
+		
 
 		filePath = newFilePath;
 		
@@ -66,6 +76,13 @@ public class WMV_Sound extends WMV_Viewable
 	{
 //		if(p.p.viewer.selection)
 //			p.p.viewer.addSelectableSound(getID());
+	}
+
+	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
+	{
+		worldSettings = newWorldSettings;
+		viewerSettings = newViewerSettings;
+		debugSettings = newDebugSettings;
 	}
 
 	/**

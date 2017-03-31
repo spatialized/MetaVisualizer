@@ -256,7 +256,7 @@ public class ML_Input
 				break;
 			
 			case "StitchPanorama":
-				world.getCurrentCluster().stitchImages();    			
+				world.getCurrentCluster().stitchImages(world.p.stitcher, world.p.library.getLibraryFolder());    			
 				break;
 				
 				/* Memory */
@@ -728,7 +728,8 @@ public class ML_Input
 			{
 				/* 3D View Controls */
 				if (key == '|')
-					world.getCurrentCluster().stitchImages();    			
+					world.getCurrentCluster().stitchImages(world.p.stitcher, world.p.library.getLibraryFolder());    			
+//					world.getCurrentCluster().stitchImages();    			
 
 				if (optionKey && key == '[')
 				{
@@ -746,7 +747,8 @@ public class ML_Input
 				}
 
 				if (optionKey && key == '\\')
-					world.getCurrentField().stitchAllClusters();		// Teleport to cluster with > 1 times
+					world.getCurrentField().stitchAllClusters(world.p.stitcher, world.p.library.getLibraryFolder());		// Teleport to cluster with > 1 times
+//					world.getCurrentField().stitchAllClusters();		// Teleport to cluster with > 1 times
 
 				if (!optionKey && key == 'a') 
 					world.viewer.startMoveXTransition(-1);

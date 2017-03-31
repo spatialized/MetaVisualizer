@@ -16,6 +16,11 @@ import toxi.math.ScaleMap;
  */
 public abstract class WMV_Viewable
 {
+	/* Classes */
+	WMV_WorldSettings worldSettings;
+	WMV_ViewerSettings viewerSettings;	// Update world settings
+	ML_DebugSettings debugSettings;	// Update world settings
+
 	/* General */
 	private int id;
 	private int mediaType;							/* Media Types  0: image 1: panorama 2: video 3: sound */
@@ -93,6 +98,10 @@ public abstract class WMV_Viewable
 
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(p.p.circularEaseOut);
+		
+//		worldSettings = newWorldSettings;
+//		viewerSettings = newViewerSettings;
+//		debugSettings = newDebugSettings;
 	}  
 
 	abstract void loadMedia(MultimediaLocator ml);

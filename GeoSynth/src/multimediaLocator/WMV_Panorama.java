@@ -14,6 +14,11 @@ import processing.core.PVector;
  */
 public class WMV_Panorama extends WMV_Viewable 
 {
+//	/* Classes */
+//	WMV_WorldSettings worldSettings;
+//	WMV_ViewerSettings viewerSettings;	// Update world settings
+//	ML_DebugSettings debugSettings;	// Update world settings
+
 	/* Graphics */
 	public PImage texture;								// Texture image pixels
 	private boolean initialized;
@@ -32,6 +37,7 @@ public class WMV_Panorama extends WMV_Viewable
 	private float cosTable[];
 	private float tablePrecision = 0.5f;
 	private int tableLength = (int)(360.0f / tablePrecision);
+	private float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float radius;
 	public float origRadius;
 	
@@ -42,6 +48,11 @@ public class WMV_Panorama extends WMV_Viewable
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
 		p = parent;
+
+//		worldSettings = newWorldSettings;
+//		viewerSettings = newViewerSettings;
+//		debugSettings = newDebugSettings;
+		
 
 		if(newTexture == null)
 			texture = p.p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
@@ -75,9 +86,18 @@ public class WMV_Panorama extends WMV_Viewable
 		theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		
-		radius = p.worldSettings.defaultFocusDistance * p.worldSettings.panoramaFocusDistanceFactor;
-		origRadius = radius;
+//		radius = worldSettings.defaultFocusDistance * worldSettings.panoramaFocusDistanceFactor;
+//		origRadius = radius;
 	}  
+
+	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
+	{
+		worldSettings = newWorldSettings;
+		viewerSettings = newViewerSettings;
+		debugSettings = newDebugSettings;
+		radius = defaultFocusDistance * worldSettings.panoramaFocusDistanceFactor;
+		origRadius = radius;
+	}
 
 	/**
 =	 * Update main variables
@@ -98,7 +118,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if(texture.width > 0 && !disabled)			
 		{
-			if(p.viewerSettings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+			if(viewerSettings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
 				for(int id : p.p.viewer.getClustersVisible())
 				{
@@ -113,10 +133,10 @@ public class WMV_Panorama extends WMV_Viewable
 			
 			visible = (getDistanceBrightness() > 0.f);
 
-			if(!fading && p.viewerSettings.hidePanoramas)
+			if(!fading && viewerSettings.hidePanoramas)
 				visible = false;
 
-			if(visible && !fading && !fadedOut && !p.viewerSettings.hidePanoramas && fadingBrightness == 0.f)					// Fade in
+			if(visible && !fading && !fadedOut && !viewerSettings.hidePanoramas && fadingBrightness == 0.f)					// Fade in
 			{
 				if(p.debugSettings.panorama)
 					PApplet.println("fadeIn()...pano id:"+getID());
@@ -148,7 +168,7 @@ public class WMV_Panorama extends WMV_Viewable
 	public void draw(WMV_World world)
 	{
 		float brightness = fadingBrightness;					
-		brightness *= p.viewerSettings.userBrightness;
+		brightness *= viewerSettings.userBrightness;
 
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
@@ -162,7 +182,7 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			if (viewingBrightness > 0)
 			{
-				if(texture.width > 0 && !p.viewerSettings.map3DMode)		// If image has been loaded
+				if(texture.width > 0 && !viewerSettings.map3DMode)		// If image has been loaded
 				{
 					drawPanorama(world);
 				}
@@ -178,7 +198,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 //		if (visible && isSelected() && !disabled && p.debugSettings.model)		// Draw panorama location for debugging or map display
 //			displayModel();
-//		if (visible && !disabled && p.viewerSettings.map3DMode)
+//		if (visible && !disabled && viewerSettings.map3DMode)
 //			displayModel();
 	}
 
@@ -189,7 +209,6 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		world.p.pushMatrix();
 		world.p.translate(location.x, location.y, location.z);
-
 		world.p.fill(215, 135, 255, viewingBrightness);
 		world.p.sphere(radius);								// -- Testing
 		world.p.popMatrix();
@@ -202,7 +221,6 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
 				stopFading();
-//		PApplet.println("fadeBrightness(1.f)...pano id:"+getID()+" fadingBrightness now:"+fadingBrightness);
 
 		fadeBrightness(1.f);					// Fade in
 	}
@@ -215,37 +233,7 @@ public class WMV_Panorama extends WMV_Viewable
 		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
 				stopFading();
 
-//		PApplet.println("fadeBrightness(0.f)...pano id:"+getID()+" fadingBrightness now:"+fadingBrightness);
 		fadeBrightness(0.f);					// Fade out
-	}
-
-	/**
-	 * Calculate and return viewing brightness given viewer distance 
-	 * @param brightness 
-	 * @return Viewing brightness of the panorama
-	 */
-//	public float getViewingBrightness(float brightness)
-//	{
-//		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
-//		return brightness;
-//	}
-
-	/**
-	 * Select or unselect this panorama
-	 * @param selection New selection
-	 */
-	public void setSelected(boolean selection)
-	{
-		//		 selected = selection;
-		//		 p.selectedPanorama = id;
-		//		 
-		//		 if(selection)
-		//		 {
-		//			 if(p.debugSettings.viewer && p.debugSettings.detailed)
-		//				 p.p.p.display.sendMessage("Selected image:"+id);
-		//			 
-		//			 displayMetadata();
-		//		 }
 	}
 
 	/**
@@ -256,8 +244,7 @@ public class WMV_Panorama extends WMV_Viewable
 		world.p.pushMatrix();
 		world.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
 
-		float r = radius;				// Testing this
-//		float r = world.defaultFocusDistance;				// Testing this
+		float r = radius;				
 		int v0,v1,v2;
 
 		world.p.textureMode(PApplet.IMAGE);
@@ -265,11 +252,8 @@ public class WMV_Panorama extends WMV_Viewable
 		world.p.beginShape(PApplet.TRIANGLE_STRIP);
 		world.p.texture(texture);
 
-//		PApplet.println("drawPanorama  world.viewer.selection:"+world.viewer.selection);
-//		PApplet.println("world.alphaMode:"+world.alphaMode);
-
 		/* Set the panorama brightness */		
-		if(p.viewerSettings.selection)					// Viewer in selection mode
+		if(viewerSettings.selection)					// Viewer in selection mode
 		{
 			if(isSelected())
 			{
@@ -291,7 +275,6 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			if(!world.alphaMode)
 			{
-//				PApplet.println("!alphaMode viewingBrightness:"+viewingBrightness);
 				world.p.tint(viewingBrightness, 255);          				
 			}
 			else
@@ -343,7 +326,7 @@ public class WMV_Panorama extends WMV_Viewable
 		}
 		u = 0;
 
-		// Draw northern "cap"
+		// Draw northern cap
 		world.p.beginShape(PApplet.TRIANGLE_STRIP);
 		world.p.texture(texture);
 		for(int i = 0; i < resolution; i++) 
@@ -431,7 +414,7 @@ public class WMV_Panorama extends WMV_Viewable
 //		if(!p.debugSettings.lowMemory)			// Check enough memory available
 //		{
 		
-//			if(p.viewerSettings.orientationMode)
+//			if(viewerSettings.orientationMode)
 //				location = p.p.viewer.getLocation();
 //			else
 //				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
@@ -459,11 +442,11 @@ public class WMV_Panorama extends WMV_Viewable
 
 		float distVisibility = 1.f;
 
-		if(viewDist > radius-p.worldSettings.clusterCenterSize*3.f)
+		if(viewDist > radius-worldSettings.clusterCenterSize*3.f)
 		{
 			float vanishingPoint = radius;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-p.worldSettings.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-worldSettings.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
 		}
@@ -478,7 +461,7 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		PVector camLoc;
 
-		if(p.viewerSettings.orientationMode)
+		if(viewerSettings.orientationMode)
 			camLoc = p.p.viewer.getLocation();
 		else
 			camLoc = p.p.viewer.getLocation();

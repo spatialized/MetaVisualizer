@@ -2,7 +2,7 @@ package multimediaLocator;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
+//import java.util.Calendar;
 
 import processing.core.*;
 //import shapes3d.Box;
@@ -16,6 +16,11 @@ import processing.core.*;
 
 class WMV_Image extends WMV_Viewable						 
 {
+//	/* Classes */
+//	WMV_WorldSettings worldSettings;
+//	WMV_ViewerSettings viewerSettings;	// Update world settings
+//	ML_DebugSettings debugSettings;	// Update world settings
+
 	/* Graphics */
 	public PImage image, blurred;			// Image pixels
 	public PVector[] vertices, sVertices;	// Vertex list
@@ -42,9 +47,11 @@ class WMV_Image extends WMV_Viewable
 	private float rotation;				    // Elevation angle and Z-axis rotation
 	private float focalLength = 0; 			// Zoom Level 
 	private float focusDistance; 	 		// Image viewing distance (or estimated object distance, if given in metadata)
+	private float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	private float origFocusDistance; 	 	// Original image viewing distance
 	
 	private float sensorSize;				// Approx. size of sensor in mm.
+	private float subjectSizeRatio = 0.18f;		// Subject portion of image plane (used in scaling from focus distance to imageSize)
 //	private float brightness;
 	
 	/* Video Association */
@@ -58,7 +65,7 @@ class WMV_Image extends WMV_Viewable
 
 	WMV_Image ( WMV_Field parent, int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
 			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
-			int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime )
+			int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime ) 
 	{
 		super(parent, newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime);
 
@@ -66,13 +73,14 @@ class WMV_Image extends WMV_Viewable
 		filePath = newFilePath;
 
 		image = p.p.p.createImage(0, 0, processing.core.PConstants.RGB);		// Create empty image
+//		image = newImage;		// Create empty image
 		imageWidth = newWidth;
 		imageHeight = newHeight;
 		
 		vertices = new PVector[4]; 
 		sVertices = new PVector[4]; 
 
-		if(newFocusDistance == -1.f) focusDistance = p.worldSettings.defaultFocusDistance;
+		if(newFocusDistance == -1.f) focusDistance = defaultFocusDistance;
 		else focusDistance = newFocusDistance;
 
 		gpsLocation = newGPSLocation;
@@ -111,7 +119,7 @@ class WMV_Image extends WMV_Viewable
 		float angleBrightnessFactor;							// Fade with angle
 
 		float brightness = fadingBrightness;					
-		brightness *= p.viewerSettings.userBrightness;
+		brightness *= viewerSettings.userBrightness;
 		
 		distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
@@ -119,7 +127,7 @@ class WMV_Image extends WMV_Viewable
 		if( world.timeFading && time != null && !world.viewer.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 
-		if( p.viewerSettings.angleFading )
+		if( viewerSettings.angleFading )
 		{
 			float imageAngle = getFacingAngle(world.viewer.getOrientationVector());
 			if(p.utilities.isNaN(imageAngle))
@@ -139,8 +147,8 @@ class WMV_Image extends WMV_Viewable
 		{
 			if (viewingBrightness > 0)
 			{
-				if(image.width > 0 && !p.viewerSettings.map3DMode)		// If image has been loaded
-					displayImage(p.p);          // Draw the image 
+				if(image.width > 0 && !viewerSettings.map3DMode)		// If image has been loaded
+					displayImage(world);          // Draw the image 
 			}
 		} 
 		else
@@ -245,6 +253,13 @@ class WMV_Image extends WMV_Viewable
 		fadeBrightness(0.f);					// Fade out
 	}
 
+	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
+	{
+		worldSettings = newWorldSettings;
+		viewerSettings = newViewerSettings;
+		debugSettings = newDebugSettings;
+	}
+
 	/**
 =	 * Update image geometry + visibility
 	 */
@@ -268,7 +283,7 @@ class WMV_Image extends WMV_Viewable
 
 			visible = false;
 
-			if(p.viewerSettings.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
+			if(viewerSettings.orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
 				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
@@ -279,7 +294,7 @@ class WMV_Image extends WMV_Viewable
 			}
 			else 
 			{
-				if(p.viewerSettings.angleFading)
+				if(viewerSettings.angleFading)
 					visible = isFacingCamera(p.p.viewer.getLocation());		
 				else 
 					visible = true;     										 		
@@ -292,10 +307,10 @@ class WMV_Image extends WMV_Viewable
 				if(!p.utilities.isNaN(imageAngle))
 					visible = (getAngleBrightness(imageAngle) > 0.f);
 
-				if(!fading && p.viewerSettings.hideImages)
+				if(!fading && viewerSettings.hideImages)
 					visible = false;
 
-				if(visible && !p.viewerSettings.orientationMode)
+				if(visible && !viewerSettings.orientationMode)
 					visible = (getDistanceBrightness() > 0.f);
 
 				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
@@ -325,9 +340,9 @@ class WMV_Image extends WMV_Viewable
 					visibilitySetToFalse = true;
 			}
 			
-			if(!p.viewerSettings.angleThinning)
+			if(!viewerSettings.angleThinning)
 			{
-				if(visibilitySetToTrue && !fading && !fadedOut && !p.viewerSettings.hideImages && fadingBrightness == 0.f)			// Fade in
+				if(visibilitySetToTrue && !fading && !fadedOut && !viewerSettings.hideImages && fadingBrightness == 0.f)			// Fade in
 					fadeIn();
 			}
 			else
@@ -337,7 +352,7 @@ class WMV_Image extends WMV_Viewable
 					fadeOut();
 				}
 
-				if(!visible && thinningVisibility && !fading && !p.viewerSettings.hideImages) 
+				if(!visible && thinningVisibility && !fading && !viewerSettings.hideImages) 
 				{
 					if(!fadedOut)					// Fade in if didn't just finish fading out this frame
 						fadeIn();
@@ -351,7 +366,7 @@ class WMV_Image extends WMV_Viewable
 		}
 		else
 		{
-			if(p.viewerSettings.orientationMode)
+			if(viewerSettings.orientationMode)
 			{
 				for(int id : p.p.viewer.getClustersVisible())
 					if(cluster == id  && !requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
@@ -376,7 +391,7 @@ class WMV_Image extends WMV_Viewable
 		world.p.noStroke(); 
 		if (isSelected())     // Draw outline
 		{
-			if(!p.viewerSettings.selection && p.debugSettings.field)
+			if(!viewerSettings.selection && p.debugSettings.field)
 			{
 				world.p.stroke(155, 146, 255, 255);
 				world.p.strokeWeight(outlineSize);
@@ -396,7 +411,7 @@ class WMV_Image extends WMV_Viewable
 		else
 			world.p.texture(image);        			// Apply the image to the face as a texture 
 
-		if(p.viewerSettings.selection)
+		if(viewerSettings.selection)
 		{
 			if(isSelected())
 			{
@@ -423,7 +438,7 @@ class WMV_Image extends WMV_Viewable
 			}
 		}
 
-		if(p.viewerSettings.orientationMode)
+		if(viewerSettings.orientationMode)
 		{
 			world.p.vertex(sVertices[0].x, sVertices[0].y, sVertices[0].z, 0, 0);         // UPPER LEFT      
 			world.p.vertex(sVertices[1].x, sVertices[1].y, sVertices[1].z, 1, 0);         // UPPER RIGHT           
@@ -453,12 +468,12 @@ class WMV_Image extends WMV_Viewable
 	{
 		float angleBrightness = 0.f;
 
-		if(imageAngle > p.viewerSettings.visibleAngle)
+		if(imageAngle > viewerSettings.visibleAngle)
 			angleBrightness = 0.f;
-		else if (imageAngle < p.viewerSettings.visibleAngle * 0.66f)
+		else if (imageAngle < viewerSettings.visibleAngle * 0.66f)
 			angleBrightness = 1.f;
 		else
-			angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, p.viewerSettings.visibleAngle * 0.66f, p.viewerSettings.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
+			angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, viewerSettings.visibleAngle * 0.66f, viewerSettings.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
 
 		return angleBrightness;
 	}
@@ -469,10 +484,7 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc;
-
-		camLoc = p.p.viewer.getLocation();
-
+		PVector camLoc = p.p.viewer.getLocation();
 		float distance;
 
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
@@ -480,7 +492,7 @@ class WMV_Image extends WMV_Viewable
 		float r;
 
 		if(focusDistance == -1.f)
-			r = p.worldSettings.defaultFocusDistance;						// Use default if no focus distance in metadata					      
+			r = defaultFocusDistance;						// Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -497,7 +509,6 @@ class WMV_Image extends WMV_Viewable
 	}
 
 	/** 
-	 * getDistanceBrightness()
 	 * @return Distance visibility multiplier between 0. and 1.
 	 * Find image transparency due to distance (fades away in distance and as camera gets close)
 	 */
@@ -560,7 +571,7 @@ class WMV_Image extends WMV_Viewable
 	{
 		float r;				  				 // Viewing sphere radius
 		if(focusDistance == -1.f)
-			r = p.worldSettings.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
+			r = defaultFocusDistance;		 // Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -573,7 +584,7 @@ class WMV_Image extends WMV_Viewable
 
 	public PVector getLocation()
 	{
-		if(p.viewerSettings.orientationMode)
+		if(viewerSettings.orientationMode)
 		{
 			PVector result = new PVector(location.x, location.y, location.z);
 			result.add(getDisplacementVector());
@@ -588,7 +599,7 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-//		if( p.imagesVisible < p.viewerSettings.maxVisiblePhotos && !hidden && !disabled)
+//		if( p.imagesVisible < viewerSettings.maxVisiblePhotos && !hidden && !disabled)
 		if( !hidden && !disabled )
 		{
 			calculateVertices();
@@ -705,7 +716,7 @@ class WMV_Image extends WMV_Viewable
 	 */	
 	public boolean isFacingCamera(PVector cameraPosition)
 	{
-		return PApplet.abs(getAngleToCamera(cameraPosition)) > p.viewerSettings.visibleAngle;     			// If the result is positive, then it is facing the camera.
+		return PApplet.abs(getAngleToCamera(cameraPosition)) > viewerSettings.visibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 	
 	/**
@@ -774,8 +785,6 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public boolean isBehindCamera(PVector camLocation, PVector camOrientation)										
 	{
-//		PVector camLocation = p.p.viewer.getLocation();
-//		PVector camOrientation = p.p.viewer.getOrientationVector();
 		PVector centerVertex = calcCenterVertex();
 
 		PVector camToImage = new PVector(  camLocation.x-centerVertex.x, 	//  Vector from the camera to the face.      
@@ -976,20 +985,20 @@ class WMV_Image extends WMV_Viewable
 		return new PVector(r, g, b);
 	}
 
-	/**
-	 * @return Average brightness across all pixels
-	 */		
-	private float getAverageBrightness() 
-	{
-		image.loadPixels();
-		int b = 0;
-		for (int i=0; i<image.pixels.length; i++) {
-			float cur = p.p.p.brightness(image.pixels[i]);
-			b += cur;
-		}
-		b /= image.pixels.length;
-		return b;
-	}
+//	/**
+//	 * @return Average brightness across all pixels
+//	 */		
+//	private float getAverageBrightness() 
+//	{
+//		image.loadPixels();
+//		int b = 0;
+//		for (int i=0; i<image.pixels.length; i++) {
+//			float cur = p.p.p.brightness(image.pixels[i]);
+//			b += cur;
+//		}
+//		b /= image.pixels.length;
+//		return b;
+//	}
 
 	/**
 	 * Associate this image with given video ID  
@@ -1144,7 +1153,7 @@ class WMV_Image extends WMV_Viewable
 	{
 //		float subjectSizeRatio = subjectPixelWidth / originalImageWidth;		// --More accurate
 
-		float objectWidthOnSensor = sensorSize * p.worldSettings.subjectSizeRatio;			// 29 * 0.18 == 5.22
+		float objectWidthOnSensor = sensorSize * subjectSizeRatio;			// 29 * 0.18 == 5.22
 		float imgWidth = objectWidthOnSensor * focusDistance / focalLength;		// 5.22 * 9 / 4.2 == 11.19	Actual: 11.320482
 
 		return imgWidth;

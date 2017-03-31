@@ -94,6 +94,7 @@ public class WMV_Field
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
 				
+				m.updateSettings(worldSettings, viewerSettings, debugSettings);
 				if(!m.verticesAreNull() && (m.isFading() || m.fadingFocusDistance))
 					m.update();  		// Update geometry + visibility
 
@@ -114,6 +115,7 @@ public class WMV_Field
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
 
+				n.updateSettings(worldSettings, viewerSettings, debugSettings);
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
 					n.update();  	// Update geometry + visibility
@@ -134,10 +136,9 @@ public class WMV_Field
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
 				boolean nowVisible = (distance < vanishingPoint);
 
+				v.updateSettings(worldSettings, viewerSettings, debugSettings);
 				if ( v.isVisible() && !nowVisible )
-				{
 					v.fadeOut();
-				}
 				
 				if (nowVisible || v.isFading())
 				{
@@ -163,6 +164,7 @@ public class WMV_Field
 //				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
 //				boolean nowVisible = (distance < vanishingPoint);
 //
+//				s.updateSettings(worldSettings, viewerSettings, debugSettings);
 //				if ( s.isVisible() && !nowVisible )
 //				{
 ////					s.fadeOut();
@@ -970,10 +972,10 @@ public class WMV_Field
 	/**
 	 * Try stitching panoramas for all clusters in field
 	 */
-	public void stitchAllClusters()
+	public void stitchAllClusters(ML_Stitcher stitcher, String libraryFolder)
 	{
 		for(WMV_Cluster c : clusters)
-			c.stitchImages();
+			c.stitchImages(stitcher, libraryFolder);
 	}
 	
 	/**
@@ -991,7 +993,7 @@ public class WMV_Field
 		int refinement = 60;
 				
 		/* K-means Clustering */
-		IntList addedImages = new IntList();			// Images already added to clusters; should include all images at end
+		IntList addedImages = new IntList();		// Images already added to clusters; should include all images at end
 		IntList nearImages = new IntList();			// Images nearby added media 
 
 		IntList addedPanoramas = new IntList();		// Panoramas already added to clusters; should include all panoramas at end

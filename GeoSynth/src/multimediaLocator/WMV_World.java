@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
-import processing.core.PVector;
+//import processing.core.PVector;
 import processing.data.IntList;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
@@ -36,9 +36,10 @@ public class WMV_World
 	private int setupProgress = 0;						// Setup progress (0 to 100)
 	
 	/* Classes */
-	WMV_WorldSettings settings;		// World settings
 	ML_Input input;					// Handles input
 	ML_Display display;				// Handles heads up display
+	WMV_Utilities utilities;
+	WMV_WorldSettings settings;		// World settings
 	WMV_Viewer viewer;				// Handles viewer location
 	
 	/* Media */
@@ -116,6 +117,7 @@ public class WMV_World
 	WMV_World(MultimediaLocator parent)
 	{
 		p = parent;
+		utilities = new WMV_Utilities();
 	}
 	
 	/**
@@ -123,20 +125,12 @@ public class WMV_World
 	 */
 	void initialize() 
 	{
-		if(p.debug.main)
-			PApplet.println("Initializing world...");
-		
 		/* Create main classes */
 		settings = new WMV_WorldSettings(this);
-		input = new ML_Input(this);
 		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
-		display = new ML_Display(this);		// Initialize displays
+//		input = new ML_Input(this);
+		display = new ML_Display(this, p.width, p.height, hudDistance);		// Initialize displays
 		
-		/* Initialize graphics and text parameters */
-		p.colorMode(PConstants.HSB);
-		p.rectMode(PConstants.CENTER);
-		p.textAlign(PConstants.CENTER, PConstants.CENTER);
-
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
 		timeFadeMap.setMapFunction(circularEaseOut);
 
@@ -275,10 +269,23 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
+//		getCurrentField().update(settings, viewer.getSettings(), p.debug);					// Update clusters in current field
 		getCurrentField().update(settings, viewer.getSettings());					// Update clusters in current field
+		attractViewer();						// Attract the viewer
+		
+		if(display.displayView == 0)
+		{
+			p.hint(PApplet.ENABLE_DEPTH_TEST);					// Enable depth testing for drawing 3D graphics
+			p.background(0.f);									// Set background
+			getCurrentField().display();						// Display media in current field
+			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
+			{
+				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
+				if(clusters.size()>0)
+					clusters.get(viewer.getCurrentClusterID()).draw();		// Draw current cluster
+			}
 
-		if(display.displayView == 0)		
-			getCurrentField().draw();				// Display media in current field
+		}
 		
 		viewer.update();							// Update navigation
 		if(display.displayView == 0)	
@@ -294,9 +301,29 @@ public class WMV_World
 		if(fadingAlpha) updateFadingAlpha();				// Fade alpha
 
 		if(viewer.getSettings().mouseNavigation)
-			input.updateMouseNavigation(p.mouseX, p.mouseY);
+			input.updateMouseNavigation(viewer, p.mouseX, p.mouseY, p.frameCount);
 	}
-	
+
+	/**
+	 * Attract viewer to each of the attracting clusters
+	 */
+	public void attractViewer()
+	{
+		if(viewer.isMovingToAttractor())
+		{
+			if(viewer.getAttractorPoint() != null)
+				viewer.getAttractorPoint().attractViewer();		// Attract the camera to the memory navigation goal
+			else 
+				PApplet.println("viewer.attractorPoint == NULL!!");
+		}
+		else if(viewer.isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
+		{
+			for( WMV_Cluster c : getCurrentField().getAttractingClusters() )
+				if(c.getClusterDistance() > settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
+					c.attractViewer();
+		}
+	}
+
 	/** 
 	 * Update main time loop
 	 */
@@ -730,7 +757,7 @@ public class WMV_World
 		
 		for(String s : folders)
 		{
-			fields.add(new WMV_Field(this, settings, s, count));
+			fields.add(new WMV_Field(this, settings, viewer.getSettings(), p.debug, s, count));
 			count++;
 		}
 	}
@@ -1238,5 +1265,48 @@ public class WMV_World
 		
 		if(display.window.setupGraphicsWindow)
 			display.window.chkbxHideVideos.setSelected(true);
+	}
+	
+	/**
+	 * Deselect all media in field
+	 */
+	public void deselectAllMedia(boolean hide) 
+	{
+		getCurrentField().deselectAllMedia(hide);
+		display.clearMetadata();
+	}
+
+	/**
+	 * Change all clusters to non-attractors
+	 */
+	public void clearAllAttractors()
+	{
+		if(p.debug.viewer && p.debug.detailed)
+			PApplet.println("Clearing all attractors...");
+
+		if(viewer.getAttractorCluster() != -1)
+			viewer.clearAttractorCluster();
+
+		getCurrentField().clearAllAttractors();
+	}
+	
+	
+	/**
+	 * @param dist Grid spacing
+	 */
+	public void drawGrid(float dist) 
+	{
+		for (float y = 0; y < getCurrentModel().fieldHeight / 2; y += dist) {
+			for (float x = 0; x < getCurrentModel().fieldWidth / 2; x += dist) {
+				for (float z = 0; z < getCurrentModel().fieldLength / 2; z += dist) {
+					p.stroke(50, 150, 250);
+					p.strokeWeight(1);
+					p.pushMatrix();
+					p.translate(x, y, z);
+					p.box(2);
+					p.popMatrix();
+				}
+			}
+		}
 	}
 }

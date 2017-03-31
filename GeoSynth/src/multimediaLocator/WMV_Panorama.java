@@ -63,12 +63,7 @@ public class WMV_Panorama extends WMV_Viewable
 		cameraModel = newCameraModel;
 
 		if(newDateTime != null)
-		{
-			time = new WMV_Time( p.p, newDateTime, getID(), cluster, 1 );
-//			time = new WMV_Time( p.p, newCalendar, getID(), 1 );
-//			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 1 );
-//			time = p.p.p.utilities.utcToPacificTime(utcTime);									// Convert from UTC Time
-		}
+			time = new WMV_Time( newDateTime, getID(), cluster, 1, p.getTimeZoneID() );
 		else
 			time = null;
 
@@ -436,7 +431,7 @@ public class WMV_Panorama extends WMV_Viewable
 			else
 				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
-			if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
+			if (p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x))
 			{
 				location = new PVector (0, 0, 0);
 			}

@@ -330,7 +330,7 @@ public abstract class WMV_Viewable
 			}
 			else
 			{
-				float mediaTime = p.p.p.utilities.round(time.getTime(), 4);		// Get time of this media file
+				float mediaTime = p.p.utilities.round(time.getTime(), 4);		// Get time of this media file
 				centerTime = PApplet.round(PApplet.map( mediaTime, lower, upper, length, cycleLength - length) );	// Calculate center time in cluster timeline
 
 				fadeInStart = PApplet.round(centerTime - length / 2.f);		// Frame media starts fading in
@@ -364,7 +364,7 @@ public abstract class WMV_Viewable
 				error = true;
 				PApplet.println("Error: fadeInStart after day end!!");
 				PApplet.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength+" media type:"+getMediaType());
-				PApplet.println(" p.p.p.utilities.round(time.getTime(), 4):"+p.p.p.utilities.round(time.getTime(), 4)+" lower:"+lower+" upper:"+upper);
+				PApplet.println(" p.p.p.utilities.round(time.getTime(), 4):"+p.p.utilities.round(time.getTime(), 4)+" lower:"+lower+" upper:"+upper);
 				PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 			}
 

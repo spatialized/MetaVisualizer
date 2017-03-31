@@ -178,8 +178,8 @@ public class WMV_Cluster
 									float direction = img.getDirection();
 									float elevation = img.getElevation();
 									
-									direction = p.p.p.utilities.constrainWrap(direction, 0.f, 360.f);
-									elevation = p.p.p.utilities.constrainWrap(elevation, -90.f, 90.f);
+									direction = p.utilities.constrainWrap(direction, 0.f, 360.f);
+									elevation = p.utilities.constrainWrap(elevation, -90.f, 90.f);
 									
 									if(direction < left) left = direction;
 									if(direction > right) right = direction;
@@ -230,12 +230,12 @@ public class WMV_Cluster
 				top = p.getImage(allImages.get(0)).getElevation();
 				centerElevation = p.getImage(allImages.get(0)).getElevation();
 				
-				left = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
-				right = p.p.p.utilities.constrainWrap(right, 0.f, 360.f);
-				centerDirection = p.p.p.utilities.constrainWrap(centerDirection, 0.f, 360.f);
-				bottom = p.p.p.utilities.constrainWrap(bottom, -90.f, 90.f);
-				top = p.p.p.utilities.constrainWrap(top, -90.f, 90.f);
-				centerElevation = p.p.p.utilities.constrainWrap(centerElevation, -90.f, 90.f);
+				left = p.utilities.constrainWrap(left, 0.f, 360.f);
+				right = p.utilities.constrainWrap(right, 0.f, 360.f);
+				centerDirection = p.utilities.constrainWrap(centerDirection, 0.f, 360.f);
+				bottom = p.utilities.constrainWrap(bottom, -90.f, 90.f);
+				top = p.utilities.constrainWrap(top, -90.f, 90.f);
+				centerElevation = p.utilities.constrainWrap(centerElevation, -90.f, 90.f);
 				
 //				if(left < 0.f)
 //					left += 360.f;
@@ -269,9 +269,9 @@ public class WMV_Cluster
 		
 		for(int i : panoramas)
 		{
-			float left = p.p.p.utilities.constrainWrap(p.getPanorama(i).getDirection(), 0.f, 360.f);
-			float right = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
-			float centerDirection = p.p.p.utilities.constrainWrap(left, 0.f, 360.f);
+			float left = p.utilities.constrainWrap(p.getPanorama(i).getDirection(), 0.f, 360.f);
+			float right = p.utilities.constrainWrap(left, 0.f, 360.f);
+			float centerDirection = p.utilities.constrainWrap(left, 0.f, 360.f);
 			float bottom = -90.f;
 			float top = 90.f;
 			float centerElevation = 0.f;
@@ -515,7 +515,7 @@ public class WMV_Cluster
 
 			if(p.p.p.debug.stitching) p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
-			WMV_Panorama pano = p.p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
+			WMV_Panorama pano = p.p.p.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
 
 			if(pano != null)
 			{
@@ -538,7 +538,7 @@ public class WMV_Cluster
 //				else
 //				{
 ////					userPanoramas.set(0, pano);
-//					userPanoramas.set(0, p.p.p.utilities.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
+//					userPanoramas.set(0, p.utilities.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
 //				}
 			}
 		}
@@ -578,7 +578,7 @@ public class WMV_Cluster
 					
 					if(valid.size() > 1)
 					{					
-						WMV_Panorama pano = p.p.p.utilities.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
+						WMV_Panorama pano = p.p.p.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), m.getID(), null);
 						
 						if(pano != null)
 						{
@@ -599,7 +599,7 @@ public class WMV_Cluster
 //							else
 //							{
 ////								stitchedPanoramas.set(0, pano);
-//								stitchedPanoramas.set(0, p.p.p.utilities.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
+//								stitchedPanoramas.set(0, p.utilities.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
 //							}
 						}
 					}
@@ -636,12 +636,12 @@ public class WMV_Cluster
 				if(perimeterPoints[i] == -1)
 				{
 					perimeterPoints[i] = idx;
-					perimeterDistances[i] = p.p.p.utilities.getAngularDistance(imgAngle, ppAngle);
+					perimeterDistances[i] = p.utilities.getAngularDistance(imgAngle, ppAngle);
 				}
 				else										
 				{
 					/* Compare image angular distance from point to current closest */
-					float imgDist = p.p.p.utilities.getAngularDistance(imgAngle, ppAngle);		
+					float imgDist = p.utilities.getAngularDistance(imgAngle, ppAngle);		
 					
 					if(imgDist < perimeterDistances[i])
 					{
@@ -664,12 +664,12 @@ public class WMV_Cluster
 				if(perimeterPoints[i] == -1)
 				{
 					perimeterPoints[i] = idx;
-					perimeterDistances[i] = p.p.p.utilities.getAngularDistance(vidAngle, ppAngle);
+					perimeterDistances[i] = p.utilities.getAngularDistance(vidAngle, ppAngle);
 				}
 				else											
 				{
 					/* Compare image angular distance from point to current closest */
-					float vidDist = p.p.p.utilities.getAngularDistance(vidAngle, ppAngle);		
+					float vidDist = p.utilities.getAngularDistance(vidAngle, ppAngle);		
 					if(vidDist < perimeterDistances[i])
 					{
 						perimeterPoints[i] = v.getID() + videoIdxOffset;
@@ -1013,7 +1013,7 @@ public class WMV_Cluster
 
 		if(mediaTimes.size() > 0)
 		{
-			timeline = p.p.p.utilities.calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
+			timeline = p.utilities.calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
 			if(timeline != null)
 				timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
 			
@@ -1087,7 +1087,7 @@ public class WMV_Cluster
 
 //			if(mediaTimes.size() > 0)
 //			{
-//				ArrayList<WMV_TimeSegment> newTimeline = p.p.p.utilities.calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision, getID());
+//				ArrayList<WMV_TimeSegment> newTimeline = p.utilities.calculateTimeSegments(mediaTimes, p.p.settings.clusterTimePrecision, getID());
 //
 //				if(newTimeline != null) 
 //					newTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  

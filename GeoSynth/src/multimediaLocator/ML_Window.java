@@ -1620,7 +1620,7 @@ public class ML_Window {
 				}
 				else
 				{
-					applet.text(" Compass Direction:" + p.p.p.utilities.angleToCompass(p.p.viewer.getXOrientation())+" Angle: "+p.p.viewer.getXOrientation(), x, y += lineWidth);
+					applet.text(" Compass Direction:" + p.utilities.angleToCompass(p.p.viewer.getXOrientation())+" Angle: "+p.p.viewer.getXOrientation(), x, y += lineWidth);
 					applet.text(" Vertical Direction:" + PApplet.degrees(p.p.viewer.getYOrientation()), x, y += lineWidth);
 					applet.text(" Zoom:"+p.p.viewer.getFieldOfView(), x, y += lineWidth);
 				}

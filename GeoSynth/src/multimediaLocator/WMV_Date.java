@@ -20,34 +20,30 @@ public class WMV_Date implements Comparable<WMV_Date>
 	private WMV_World p;
 	private int id;
 	
+	WMV_Utilities utilities;
 	ZonedDateTime dateTime;
+	String timeZoneID;
 	
-//	public WMV_Date(WMV_World parent, int newID, Calendar newCalendar)
-	public WMV_Date(WMV_World parent, int newID, ZonedDateTime newDateTime)
+	public WMV_Date(int newID, ZonedDateTime newDateTime, String newTimeZoneID)
 	{
-		p = parent;
+		utilities = new WMV_Utilities();
 		id = newID;
+		timeZoneID = newTimeZoneID;
 		
 		dateTime = newDateTime;
-		
-//		year = newCalendar.get(Calendar.YEAR);
-//		month = newCalendar.get(Calendar.MONTH);
 		
 		year = dateTime.getYear();
 		month = dateTime.getMonthValue();
 		
 		if(month == 0)
 		{
-//			PApplet.println("Corrected Month == 0... year:"+newCalendar.get(Calendar.YEAR)+" month:"+newCalendar.get(Calendar.MONTH)+" day:"+newCalendar.get(Calendar.DAY_OF_MONTH));
 			year --;
 			month = 12;
-			PApplet.println("Corrected Month... year:"+year+" month:"+month);
+//			PApplet.println("Corrected Month... year:"+year+" month:"+month);
 		}
 		
-//		day = newCalendar.get(Calendar.DAY_OF_MONTH);
 		day = dateTime.getDayOfMonth();
 		date = new PVector (month, day, year);
-		
 		calculateDaysSince1980();
 	}
 
@@ -103,11 +99,13 @@ public class WMV_Date implements Comparable<WMV_Date>
 	 **/
 	private void calculateDaysSince1980()
 	{
-		days = p.p.utilities.getDaysSince1980(day, month, year);
-//		if(days > 13569)
-//			PApplet.println("days:"+days+" day:"+day+" month"+month+" year:"+year);
+		days = utilities.getDaysSince1980(timeZoneID, day, month, year);
 	}
 
+	/**
+	 * Get date as a string in format "January 1, 2000"
+	 * @return Date string
+	 */
 	public String getDateAsString()
 	{
 		int year = getYear();

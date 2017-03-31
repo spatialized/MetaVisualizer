@@ -34,14 +34,7 @@ import processing.core.PVector;
 
 public class WMV_Utilities 
 {
-	ML_Stitcher stitcher;
-	WMV_World p;
-	
-	WMV_Utilities(WMV_World parent)
-	{
-		p = parent;
-		stitcher = new ML_Stitcher(p);
-	}
+	WMV_Utilities(){}
 	
 	/**
 	 * Round to nearest <n> decimal places
@@ -200,13 +193,13 @@ public class WMV_Utilities
 	/**
 	 * @return Current date in days since Jan 1, 1980
 	 */
-	public int getCurrentDateInDaysSince1980()
+	public int getCurrentDateInDaysSince1980(String timeZoneID)
 	{
-		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(p.getCurrentField().getTimeZoneID()));
+		ZonedDateTime now = ZonedDateTime.now(ZoneId.of(timeZoneID));
 		int year = now.getYear();
 		int month = now.getMonthValue();
 		int day = now.getDayOfMonth();
-		return getDaysSince1980(day, month, year);
+		return getDaysSince1980(timeZoneID, day, month, year);
 	}
 	
 	/**
@@ -216,10 +209,10 @@ public class WMV_Utilities
 	 * @param year Year
 	 * @return Number of days 
 	 */
-	public int getDaysSince1980(int day, int month, int year)
+	public int getDaysSince1980(String timeZoneID, int day, int month, int year)
 	{
 		ZonedDateTime date1980 = ZonedDateTime.parse("1980-01-01T00:00:00+00:00[America/Los_Angeles]");
-		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(p.getCurrentField().getTimeZoneID()));
+		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(timeZoneID));
 		Duration duration = Duration.between(date1980, date);
 		
 //		if(p.p.debug.time)
@@ -319,7 +312,7 @@ public class WMV_Utilities
 		ZonedDateTime utcDateTime = ZonedDateTime.of(year, month, day, hour, time.getMinute(), time.getSecond(), time.getMillisecond(), ZoneId.of("UTC"));
 		ZonedDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
 		
-		WMV_Time result = new WMV_Time( p, localDateTime, time.getID(), time.getClusterID(), time.getMediaType() );
+		WMV_Time result = new WMV_Time( localDateTime, time.getID(), time.getClusterID(), time.getMediaType(), "America/Los_Angeles" );
 		return result;
 	}
 
@@ -457,7 +450,6 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * isNaN()
 	 * @param x Float to check
 	 * @return Whether the variable is NaN
 	 */
@@ -470,7 +462,6 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * isInteger
 	 * @param s String to check
 	 * @param radix Maximum number of digits
 	 * @return If the string is an integer
@@ -650,16 +641,16 @@ public class WMV_Utilities
 							}
 						}
 						
-						if(p.p.debug.time)
-						{
-							if(p.p.debug.detailed) PApplet.println("Cluster #"+clusterID+"... Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-
-							if(curUpper.getTime() - curLower.getTime() > 0.001f)
-							{
-								PApplet.println("---> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-								PApplet.println("t.getTime():"+t.getTime()+" last:"+last.getTime()+" t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
-							}
-						}
+//						if(p.p.debug.time)
+//						{
+//							if(p.p.debug.detailed) PApplet.println("Cluster #"+clusterID+"... Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+//
+//							if(curUpper.getTime() - curLower.getTime() > 0.001f)
+//							{
+//								PApplet.println("---> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+//								PApplet.println("t.getTime():"+t.getTime()+" last:"+last.getTime()+" t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
+//							}
+//						}
 						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
 						for(int i=startCount; i<=count; i++)
 						{

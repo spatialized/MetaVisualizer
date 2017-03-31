@@ -32,16 +32,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	
 	/* Library */
 	WMV_Metadata metadata;						// Metadata handler class
-	ML_Library library;						// WMViewer Media Library
+	ML_Library library;							// WMViewer Media Library
+	ML_Stitcher stitcher;
+	ML_Input input;					// Handles input
+	ML_Display display;				// Handles heads up display
 
 	/* World */
 	WMV_World world;							// The 3D World
 
-	/* Utilities */
-	WMV_Utilities utilities;					// Utility methods
-
 	/* Debugging */
-	WMV_Debug debug;							// Handles debugging functions
+	ML_DebugSettings debug;						// Handles debugging functions
 
 	/** 
 	 * Load the PApplet either in a window of specified size or in fullscreen
@@ -58,12 +58,20 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void setup()
 	{
 		world = new WMV_World(this);
-		metadata = new WMV_Metadata(this);
-		utilities = new WMV_Utilities(world);
-		debug = new WMV_Debug(this);		
+		debug = new ML_DebugSettings(this);		
+		metadata = new WMV_Metadata(debug);
+		stitcher = new ML_Stitcher(world);
 
+		if(debug.main) PApplet.println("Initializing world...");
 		world.initialize();
-		
+		input = new ML_Input(width, height);
+//		display = new ML_Display(world, width, height, world.hudDistance);			// Initialize displays
+
+		/* Initialize graphics and text parameters */
+		colorMode(PConstants.HSB);
+		rectMode(PConstants.CENTER);
+		textAlign(PConstants.CENTER, PConstants.CENTER);
+
 		if(debug.main)
 			PApplet.println("Finished setup...");
 	}
@@ -266,7 +274,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	{
 //		PApplet.println("pressed");
 //		if(world.viewer.mouseNavigation)
-//			world.input.handleMousePressed(mouseX, mouseY);
+//			input.handleMousePressed(mouseX, mouseY);
 		if(world.display.satelliteMap)
 		{
 			world.display.map2D.mousePressedFrame = frameCount;
@@ -279,11 +287,11 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void mouseReleased() {
 //		PApplet.println("released mouseX:"+mouseX+" mouseY:"+mouseY);
 //		if(world.viewer.mouseNavigation)
-//			world.input.handleMouseReleased(mouseX, mouseY);
+//			input.handleMouseReleased(mouseX, mouseY);
 		if(world.display.displayView == 1)
-			world.input.handleMouseReleased(mouseX, mouseY);
+			input.handleMouseReleased(world.viewer, world.display, mouseX, mouseY, frameCount);
 		else if(world.display.displayView == 3)
-			world.input.handleMouseReleased(mouseX, mouseY);
+			input.handleMouseReleased(world.viewer, world.display, mouseX, mouseY, frameCount);
 	}
 	
 	/**
@@ -292,7 +300,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void mouseClicked() {
 //		PApplet.println("clicked");
 //		if(world.viewer.mouseNavigation)
-//			world.input.handleMouseClicked(mouseX, mouseY);
+//			input.handleMouseClicked(mouseX, mouseY);
 	}
 	
 	/**
@@ -310,22 +318,22 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //			{
 //				PApplet.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
 //				PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY);
-//				world.input.handleMouseDragged(pmouseX, pmouseY);
+//				input.handleMouseDragged(pmouseX, pmouseY);
 //			}
 //		}
 	}
 
 	public void handleButtonEvents(GButton button, GEvent event) { 
-		world.input.handleButtonEvent(button, event);
+		input.handleButtonEvent(world, world.display, button, event);
 	}
 	
 	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
-		world.input.handleToggleControlEvent(option, event);
+		input.handleToggleControlEvent(world, world.display, option, event);
 	}
 	
 	public void handleSliderEvents(GValueControl slider, GEvent event) 
 	{ 
-		world.input.handleSliderEvent(slider, event);
+		input.handleSliderEvent(world, world.display, slider, event);
 	}
 
 	/**
@@ -333,7 +341,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	public void keyPressed() 
 	{
-		world.input.handleKeyPressed(key, keyCode);
+		input.handleKeyPressed(world, key, keyCode);
 	}
 
 	/**
@@ -341,79 +349,79 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	public void keyReleased() 
 	{
-		world.input.handleKeyReleased(key, keyCode);
+		input.handleKeyReleased(world.viewer, world.display, key, keyCode);
 	}
 	
 	public void wmvWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
 	public void timeWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void graphicsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void memoryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void modelWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void selectionWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void statisticsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			world.input.handleKeyPressed(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			world.input.handleKeyReleased(keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void selectFolderPrompt()

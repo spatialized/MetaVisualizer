@@ -2,10 +2,10 @@ package multimediaLocator;
 
 /******************************
  * @author David Gordon
- * Debug settings
+ * Debug settings 
  */
 
-public class WMV_Debug 
+public class ML_DebugSettings 
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
@@ -21,7 +21,7 @@ public class WMV_Debug
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean path = false;				// Debug WMV_Viewer class
 	public boolean display = true;				// Debug WMV_Display class
-	public boolean viewable = false;				// Debug WMV_Viewable class
+	public boolean viewable = false;			// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
@@ -31,18 +31,18 @@ public class WMV_Debug
 	public boolean map = false;					// Debug WMV_Map class
 	
 	/* Memory */
-	boolean lowMemory = false;
-	boolean performanceSlow = false;
-	int availableProcessors;
-	long freeMemory;
-	long maxMemory;
-	long totalMemory;
-	long allocatedMemory;
-	long approxUsableFreeMemory;
+	public boolean lowMemory = false;
+	public boolean performanceSlow = false;
+	public int availableProcessors;
+	public long freeMemory;
+	public long maxMemory;
+	public long totalMemory;
+	public long allocatedMemory;
+	public long approxUsableFreeMemory;
 	
 	MultimediaLocator p;
 	
-	WMV_Debug (MultimediaLocator parent)
+	ML_DebugSettings (MultimediaLocator parent)
 	{
 		p = parent;
 	}

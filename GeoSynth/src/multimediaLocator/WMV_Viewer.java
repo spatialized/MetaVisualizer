@@ -3399,7 +3399,7 @@ public class WMV_Viewer
 		{
 			int newSelected;
 			if(select && !settings.multiSelection)
-				p.getCurrentField().deselectAllMedia(false);				// If selecting media, deselect all media unless in Multi Selection Mode
+				p.deselectAllMedia(false);				// If selecting media, deselect all media unless in Multi Selection Mode
 
 			if(closestImageDist < closestVideoDist && closestImageDist != 100000.f)
 			{
@@ -3420,7 +3420,7 @@ public class WMV_Viewer
 					}
 
 					if(select && !settings.multiSelection)
-						p.getCurrentField().deselectAllMedia(false);						// Deselect all media
+						p.deselectAllMedia(false);						// Deselect all media
 
 					if(segmentID != -1)
 					{
@@ -3857,13 +3857,12 @@ public class WMV_Viewer
 				int minute = Integer.parseInt(minuteStr);
 				int second = Integer.parseInt(secondStr);
 				
-//				hour = p.p.utilities.utcToPacificTime(hour);						// Convert from UTC Time
+				// Should be:
+//				ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("UTC"));
+//				WMV_Time utcTime = new WMV_Time( utc, count, -1, 0, p.getCurrentField().getTimeZoneID() );
 
-//				ZonedDateTime utc = new ZonedDateTime;
-				ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("UTC"));
-
-				WMV_Time utcTime = new WMV_Time( p, utc, count, -1, 0 );
-//				WMV_Time pacificTime = p.p.utilities.utcToPacificTime(utcTime);
+				ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("America/Los_Angeles"));
+				WMV_Time pacTime = new WMV_Time( pac, count, -1, 0, p.getCurrentField().getTimeZoneID() );
 
 				float newX = 0.f, newZ = 0.f, newY = 0.f;
 
@@ -3900,7 +3899,7 @@ public class WMV_Viewer
 
 				PVector newLoc = new PVector(newX, newY, newZ);
 
-				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc, utcTime);			// GPS track node as a Waypoint
+				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc, pacTime);			// GPS track node as a Waypoint
 				gpsTrack.add(wp);													// Add Waypoint to gpsTrack
 				
 				count++;
@@ -4425,6 +4424,36 @@ public class WMV_Viewer
 		movementTeleport = newMovementTeleport;
 	}
 
+	public boolean getSelection()
+	{
+		return settings.selection;
+	}
+
+	public void setSelection(boolean newSelection)
+	{
+		settings.selection = newSelection;
+	}
+
+	public boolean getSegmentSelection()
+	{
+		return settings.segmentSelection;
+	}
+
+	public void setSegmentSelection(boolean newSegmentSelection)
+	{
+		settings.segmentSelection = newSegmentSelection;
+	}
+
+	public boolean getMultiSelection()
+	{
+		return settings.multiSelection;
+	}
+
+	public void setMultiSelection(boolean newMultiSelection)
+	{
+		settings.multiSelection = newMultiSelection;
+	}
+
 	public void setFollowTeleport(boolean newFollowTeleport)
 	{
 		followTeleport = newFollowTeleport;
@@ -4438,6 +4467,61 @@ public class WMV_Viewer
 	public void setFollowMode(int newFollowMode)
 	{
 		followMode = newFollowMode;
+	}
+	
+	public void setTeleportLength( int newValue )
+	{
+		settings.teleportLength = newValue;
+	}
+	
+	public void setPathWaitLength( int newValue )
+	{
+		settings.pathWaitLength = newValue;
+	}
+	
+	public float getVisibleAngle()
+	{
+		return settings.visibleAngle;
+	}
+	
+	public void setVisibleAngle(float newValue)
+	{
+		settings.visibleAngle = newValue;
+	}
+	
+	public boolean getAngleFading()
+	{
+		return settings.angleFading;
+	}
+	
+	public void setAngleFading(boolean newAngleFading)
+	{
+		settings.angleFading = newAngleFading;
+	}
+	
+	public float getThinningAngle()
+	{
+		return settings.thinningAngle;
+	}
+	
+	public void setThinningAngle(float newValue)
+	{
+		settings.thinningAngle = newValue;
+	}
+	
+	public boolean getAngleThinning()
+	{
+		return settings.angleThinning;
+	}
+	
+	public void setAngleThinning(boolean newAngleThinning)
+	{
+		settings.angleThinning = newAngleThinning;
+	}
+	
+	public void setUserBrightness( float newValue )
+	{
+		settings.userBrightness = newValue;
 	}
 	
 	/**

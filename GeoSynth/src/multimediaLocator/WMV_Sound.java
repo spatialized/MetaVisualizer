@@ -46,7 +46,7 @@ public class WMV_Sound extends WMV_Viewable
 		
 		if(newDateTime != null)
 		{
-			time = new WMV_Time( p.p, newDateTime, getID(), cluster, 3 );		
+			time = new WMV_Time( newDateTime, getID(), cluster, 3, p.getTimeZoneID() );		
 //			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 3 );		
 //			time = p.p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}

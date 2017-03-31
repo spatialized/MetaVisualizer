@@ -32,12 +32,14 @@ class ML_Display
 //	PImage startupImage;
 	
 	/* Graphics */
-	float hudDistance;									// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
 	public boolean drawGrid = false; 					// Draw 3D grid   			-- Unused
 
 	public int blendMode = 0;							// Alpha blending mode
 	public int numBlendModes = 10;						// Number of blending modes
-
+	private float hudDistance;									// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
+	private int screenWidth = -1;
+	private int screenHeight = -1;
+	
 	/* Clusters */
 	public int displayCluster = 0;
 
@@ -63,7 +65,7 @@ class ML_Display
 	private ArrayList<SelectableDate> selectableDates;		// Selectable dates on dateline
 	private float minSegmentSeconds = 15.f;
 	
-	private boolean timelineCreated = false, datelineCreated = false, updateTimeline = true;
+	private boolean fieldTimelineCreated = false, fieldDatelineCreated = false, updateFieldTimeline = true;
 	private float timelineXOffset = 0.f, timelineYOffset = 0.f;
 	private float datelineXOffset = 0.f, datelineYOffset = 0.f;
 	private SelectableTimeSegment currentSelectableTime;
@@ -103,47 +105,53 @@ class ML_Display
 	final float lineWidthWide = largeTextSize + linePadding;			
 	final float lineWidthVeryWide = largeTextSize * 2.f;			
 
+	/* Utilities */
+	WMV_Utilities utilities;					// Utility methods
 	WMV_World p;
 
-	ML_Display(WMV_World parent)
+	ML_Display(WMV_World parent, int newScreenWidth, int newScreenHeight, float newHUDDistance)
 	{
 		p = parent;
 		
-		hudDistance = p.hudDistance;
+		screenWidth = newScreenWidth;
+		screenHeight = newScreenHeight;
+		
+		utilities = new WMV_Utilities();
+		hudDistance = newHUDDistance;
 		
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
-		centerTextXOffset = p.p.width / 2.f;
+		centerTextXOffset = screenWidth / 2.f;
 		leftTextXOffset = 0.f;
-		midLeftTextXOffset = p.p.width / 3.f;
+		midLeftTextXOffset = screenWidth / 3.f;
 		rightTextXOffset = 0.f;
-		midRightTextXOffset = p.p.width / 1.5f;
+		midRightTextXOffset = screenWidth / 1.5f;
 
-		topTextYOffset = -p.p.height / 1.6f;
-		clusterImageXOffset = -p.p.width/ 1.75f;
-		clusterImageYOffset = p.p.height * 1.33f;
+		topTextYOffset = -screenHeight / 1.6f;
+		clusterImageXOffset = -screenWidth/ 1.75f;
+		clusterImageYOffset = screenHeight * 1.33f;
 
-		userMessageXOffset = -p.p.width / 2.f;
+		userMessageXOffset = -screenWidth / 2.f;
 		userMessageYOffset = 0;
 
-		metadataYOffset = -p.p.height / 2.f;
+		metadataYOffset = -screenHeight / 2.f;
 
-		startupMessageXOffset = p.p.width / 2.f;
-		startupMessageYOffset = -p.p.height /2.f;
+		startupMessageXOffset = screenWidth / 2.f;
+		startupMessageYOffset = -screenHeight /2.f;
 
-		timelineScreenSize = p.p.width * 2.2f;
+		timelineScreenSize = screenWidth * 2.2f;
 		timelineStart = 0.f;
-		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
-		timelineXOffset = -p.p.width/ 1.66f;
-		timelineYOffset = -p.p.height / 3.f;
+		timelineXOffset = -screenWidth/ 1.66f;
+		timelineYOffset = -screenHeight / 3.f;
 		timelineYOffset = 0.f;
 		datelineXOffset = timelineXOffset;
-		datelineYOffset = p.p.height * 0.266f;
+		datelineYOffset = screenHeight * 0.266f;
 		
-		map2D = new ML_Map(this);
+		map2D = new ML_Map(this, screenWidth, screenHeight, hudDistance);
 		currentSelectableTime = null;
 		currentSelectableTimeID = -1;
 		currentSelectableTimeFTSID = -1;
@@ -230,7 +238,7 @@ class ML_Display
 
 		p.p.textSize(largeTextSize);
 		String strDisplayDate = "Showing All Dates";
-		if(displayDate != -1) strDisplayDate = p.p.utilities.getDateAsString(p.getCurrentField().getDate(displayDate));
+		if(displayDate != -1) strDisplayDate = utilities.getDateAsString(p.getCurrentField().getDate(displayDate));
 		p.p.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistance);
 		
 		p.p.textSize(mediumTextSize);
@@ -279,8 +287,8 @@ class ML_Display
 		}
 		p.p.popMatrix();
 		
-		if(datelineCreated) drawFieldDateline();
-		if(timelineCreated) displayFieldTimeline();
+		if(fieldDatelineCreated) displayFieldDateline();
+		if(fieldTimelineCreated) displayFieldTimeline();
 		updateTimelineMouse();
 	}
 	
@@ -289,13 +297,16 @@ class ML_Display
 	 */
 	private void updateFieldTimeline()
 	{
-		if(!datelineCreated || !timelineCreated || updateTimeline)
+		if(timelineTransition)
+			updateTimelineTransition();
+
+		if(!fieldDatelineCreated || !fieldTimelineCreated || updateFieldTimeline)
 		{
 			if(!timelineTransition)
 			{
-				createDateline();
-				createTimeline();
-				updateTimeline = false;
+				createFieldDateline();
+				createFieldTimeline();
+				updateFieldTimeline = false;
 			}
 		}
 
@@ -303,12 +314,12 @@ class ML_Display
 		{
 			if(p.viewer.getCurrentFieldTimeSegment() >= 0)
 			{
-				WMV_TimeSegment t = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment());		// TESTING
+				WMV_TimeSegment t = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment());		
 				int previous = currentSelectableTimeID;
 				
 				if(t != null)
 				{
-					currentSelectableTimeID = getSelectableTimeIDOfTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
+					currentSelectableTimeID = getSelectableTimeIDOfFieldTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
 					if(currentSelectableTimeID != -1)
 					{
 						currentSelectableTime = selectableTimes.get(currentSelectableTimeID);
@@ -336,25 +347,20 @@ class ML_Display
 					}
 				}
 
-//				if(currentSelectableTime != -1)
-//					PApplet.println("Set currentSelectableTime to:"+currentSelectableTime);
-
 				updateCurrentSelectableTime = false;
 				updateCurrentSelectableDate = false;
 			}
-			else PApplet.println("updateCurrentSelectableTime... No current time segment!");
+//			else 
+//				PApplet.println("updateCurrentSelectableTime... No current time segment!");
 		}
-		
-		if(timelineTransition)
-			updateTimelineTransition();
 	}
 	
 	/** 
 	 * Get associated selectable time segment ID for given time segment
 	 * @param t Given time segment
-	 * @return Selectable time associated
+	 * @return Selectable time ID associated with given time segment
 	 */
-	private int getSelectableTimeIDOfTimeSegment(WMV_TimeSegment t)
+	private int getSelectableTimeIDOfFieldTimeSegment(WMV_TimeSegment t)
 	{
 		for(SelectableTimeSegment st : selectableTimes)
 		{
@@ -368,9 +374,9 @@ class ML_Display
 	}
 
 	/**
-	 * Initialize dateline
+	 * Create field dateline
 	 */
-	private void createDateline()
+	private void createFieldDateline()
 	{
 		WMV_Field f = p.getCurrentField();
 		
@@ -388,15 +394,15 @@ class ML_Display
 			int lastYear = last.getYear();
 			
 			if(f.getDateline().size() == 2)
-				padding = p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) - p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear);
+				padding = utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), lastDay, lastMonth, lastYear) - utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), firstDay, firstMonth, firstYear);
 			else if(f.getDateline().size() > 2)
-				padding = (p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) - p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear)) * 0.33f;
+				padding = (utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), lastDay, lastMonth, lastYear) - utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), firstDay, firstMonth, firstYear)) * 0.33f;
 			
-			datelineStart = p.p.utilities.getDaysSince1980(firstDay, firstMonth, firstYear) - padding;
-			datelineEnd = p.p.utilities.getDaysSince1980(lastDay, lastMonth, lastYear) + padding;
+			datelineStart = utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), firstDay, firstMonth, firstYear) - padding;
+			datelineEnd = utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), lastDay, lastMonth, lastYear) + padding;
 			
-			createSelectableDates();
-			datelineCreated = true;
+			createFieldSelectableDates();
+			fieldDatelineCreated = true;
 		}
 		else
 		{
@@ -404,7 +410,10 @@ class ML_Display
 		}
 	}
 	
-	private void createTimeline()
+	/**
+	 * Create field timeline
+	 */
+	private void createFieldTimeline()
 	{
 		WMV_Field f = p.getCurrentField();
 		selectableTimes = new ArrayList<SelectableTimeSegment>();
@@ -460,10 +469,10 @@ class ML_Display
 			}
 		}
 		
-		timelineCreated = true;
+		fieldTimelineCreated = true;
 	}
 
-	private void createSelectableDates()
+	private void createFieldSelectableDates()
 	{
 		WMV_Field f = p.getCurrentField();
 		selectableDates = new ArrayList<SelectableDate>();
@@ -547,7 +556,8 @@ class ML_Display
 			newStart = timelineStartTransitionTarget;
 			newEnd = timelineEndTransitionTarget;
 			timelineTransition = false;
-			updateTimeline = true;
+			updateFieldTimeline = true;
+			updateCurrentSelectableTime = true;
 			transitionScrollIncrement = initTransitionScrollIncrement * getZoomLevel();
 		} 
 		else
@@ -590,8 +600,8 @@ class ML_Display
 	 */
 	private SelectableTimeSegment getSelectableTime(WMV_TimeSegment t, int id)
 	{
-		float lowerSeconds = p.p.utilities.getTimePVectorSeconds(t.getLower().getTimeAsPVector());
-		float upperSeconds = p.p.utilities.getTimePVectorSeconds(t.getUpper().getTimeAsPVector());
+		float lowerSeconds = utilities.getTimePVectorSeconds(t.getLower().getTimeAsPVector());
+		float upperSeconds = utilities.getTimePVectorSeconds(t.getUpper().getTimeAsPVector());
 
 		if(upperSeconds == lowerSeconds)
 		{
@@ -655,13 +665,13 @@ class ML_Display
 		p.p.fill(0.f, 0.f, 255.f, 255.f);
 		p.p.line(timelineXOffset, timelineYOffset, hudDistance, timelineXOffset + timelineScreenSize, timelineYOffset, hudDistance);
 		
-		String startTime = p.p.utilities.secondsToTimeAsString(timelineStart, false, false);
-		String endTime = p.p.utilities.secondsToTimeAsString(timelineEnd, false, false);
+		String startTime = utilities.secondsToTimeAsString(timelineStart, false, false);
+		String endTime = utilities.secondsToTimeAsString(timelineEnd, false, false);
 		
 		p.p.textSize(timeTextSize);
-		float firstHour = p.p.utilities.roundSecondsToHour(timelineStart);
+		float firstHour = utilities.roundSecondsToHour(timelineStart);
 		if(firstHour == (int)(timelineStart / 3600.f) * 3600.f) firstHour += 3600.f;
-		float lastHour = p.p.utilities.roundSecondsToHour(timelineEnd);
+		float lastHour = utilities.roundSecondsToHour(timelineEnd);
 		if(lastHour == (int)(timelineEnd / 3600.f + 1.f) * 3600.f) lastHour -= 3600.f;
 		
 		float timeLength = timelineEnd - timelineStart;
@@ -674,7 +684,7 @@ class ML_Display
 			float pos;
 			for( pos = firstHour ; pos <= lastHour ; pos += 3600.f )
 			{
-				String time = p.p.utilities.secondsToTimeAsString(pos, false, false);
+				String time = utilities.secondsToTimeAsString(pos, false, false);
 				p.p.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 				xOffset += 3600.f * timeToScreenRatio;
 			}
@@ -691,7 +701,7 @@ class ML_Display
 			float xOffset = timelineXOffset;
 			for( float pos = firstHour - 3600.f ; pos <= lastHour ; pos += 7200.f )
 			{
-				String time = p.p.utilities.secondsToTimeAsString(pos, false, false);
+				String time = utilities.secondsToTimeAsString(pos, false, false);
 				p.p.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 				xOffset += 7200.f * timeToScreenRatio;
 			}
@@ -764,7 +774,7 @@ class ML_Display
 		}
 	}
 
-	private void drawFieldDateline()
+	private void displayFieldDateline()
 	{
 		WMV_Field f = p.getCurrentField();
 			
@@ -830,8 +840,8 @@ class ML_Display
 		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
 		PVector upperTime = t.getUpper().getTimeAsPVector();			
 
-		float lowerSeconds = p.p.utilities.getTimePVectorSeconds(lowerTime);
-		float upperSeconds = p.p.utilities.getTimePVectorSeconds(upperTime);
+		float lowerSeconds = utilities.getTimePVectorSeconds(lowerTime);
+		float upperSeconds = utilities.getTimePVectorSeconds(upperTime);
 //		boolean instant = (upperSeconds == lowerSeconds);
 		if(upperSeconds == lowerSeconds)
 		{
@@ -857,7 +867,7 @@ class ML_Display
 			for(WMV_Time ti : tsTimeline)
 			{
 				PVector time = ti.getTimeAsPVector();
-				float seconds = p.p.utilities.getTimePVectorSeconds(time);
+				float seconds = utilities.getTimePVectorSeconds(time);
 				float xOff = PApplet.map(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
 				if(xOff > timelineXOffset && xOff < timelineXOffset + timelineScreenSize)
 				{
@@ -882,7 +892,7 @@ class ML_Display
 
 //			for(PVector time : times)
 //			{
-//				float seconds = p.p.utilities.getTimePVectorSeconds(time);
+//				float seconds = utilities.getTimePVectorSeconds(time);
 //				float xOff = PApplet.map(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
 //				if(xOff > timelineXOffset && xOff < timelineXOffset + timelineScreenSize)
 //					p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
@@ -954,7 +964,7 @@ class ML_Display
 		p.p.stroke(255, 255, 255);
 		p.p.strokeWeight(4.f);
 		
-		PVector result = new PVector(mouseX * wFactor - p.p.width * 0.775f, mouseY * hFactor - p.p.height * 0.775f, hudDistance);
+		PVector result = new PVector(mouseX * wFactor - screenWidth * 0.775f, mouseY * hFactor - screenHeight * 0.775f, hudDistance);
 //		p.p.point(result.x, result.y, result.z);		// Show mouse location for debugging
 		return result;
 	}
@@ -1003,7 +1013,7 @@ class ML_Display
 
 				if(p.p.debug.time)
 					PApplet.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
-				updateTimeline = true;				// Update timeline to show selected segment
+				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
 			else
 				selectedTime = -1;
@@ -1019,7 +1029,7 @@ class ML_Display
 				if(p.p.debug.time) 
 					PApplet.println("Selected date:"+selectedDate);
 
-				updateTimeline = true;				// Update timeline to show selected segment
+				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
 			else
 				selectedDate = -1;
@@ -1032,15 +1042,15 @@ class ML_Display
 		
 		float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
 		float last = f.getTimeSegment(f.getTimeline().size()-1).getUpper().getTime();		// Last field media time, normalized
-		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 		first *= day;					// Convert from normalized value to seconds
 		last *= day;
 		
-		float newTimelineStart = p.p.utilities.roundSecondsToHour(first);		// Round down to nearest hour
+		float newTimelineStart = utilities.roundSecondsToHour(first);		// Round down to nearest hour
 		if(newTimelineStart > first) newTimelineStart -= 3600;
 		if(newTimelineStart < 0.f) newTimelineStart = 0.f;
-		float newTimelineEnd = p.p.utilities.roundSecondsToHour(last);			// Round up to nearest hour
+		float newTimelineEnd = utilities.roundSecondsToHour(last);			// Round up to nearest hour
 		if(newTimelineEnd < last) newTimelineEnd += 3600;
 		if(newTimelineEnd > day) newTimelineEnd = day;
 
@@ -1061,11 +1071,11 @@ class ML_Display
 		{
 			float first = selectableTimes.get(currentSelectableTimeID).segment.getLower().getTime();
 			float last = selectableTimes.get(currentSelectableTimeID).segment.getUpper().getTime();
-			float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 	//		float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
 	//		float last = f.getTimeSegment(f.getTimeline().size()-1).getUpper().getTime();		// Last field media time, normalized
-	//		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+	//		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			first *= day;					// Convert from normalized value to seconds
 			last *= day;
@@ -1078,10 +1088,10 @@ class ML_Display
 			 */
 //			public int roundSecondsToInterval(float value, float interval)
 
-			float newTimelineStart = p.p.utilities.roundSecondsToInterval(first, 600.f);		// Round down to nearest hour
+			float newTimelineStart = utilities.roundSecondsToInterval(first, 600.f);		// Round down to nearest hour
 			if(newTimelineStart > first) newTimelineStart -= 600;
 			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
-			float newTimelineEnd = p.p.utilities.roundSecondsToInterval(last, 600.f);			// Round up to nearest hour
+			float newTimelineEnd = utilities.roundSecondsToInterval(last, 600.f);			// Round up to nearest hour
 			if(newTimelineEnd < last) newTimelineEnd += 600;
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
@@ -1105,22 +1115,22 @@ class ML_Display
 			int curDate = selectableDates.get(currentSelectableDate).getID();
 			float first = f.getTimelines().get(curDate).get(0).getLower().getTime();
 			float last = f.getTimelines().get(curDate).get(f.getTimelines().get(curDate).size()-1).getUpper().getTime();
-			float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			first *= day;					// Convert from normalized value to seconds
 			last *= day;
 
-			float newTimelineStart = p.p.utilities.roundSecondsToInterval(first, 1800.f);		// Round down to nearest hour
+			float newTimelineStart = utilities.roundSecondsToInterval(first, 1800.f);		// Round down to nearest hour
 			if(newTimelineStart > first) newTimelineStart -= 1800;
 			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
-			float newTimelineEnd = p.p.utilities.roundSecondsToInterval(last, 1800.f);			// Round up to nearest hour
+			float newTimelineEnd = utilities.roundSecondsToInterval(last, 1800.f);			// Round up to nearest hour
 			if(newTimelineEnd < last) newTimelineEnd += 1800;
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
-//			float newTimelineStart = p.p.utilities.roundSecondsToHour(first);		// Round down to nearest hour
+//			float newTimelineStart = utilities.roundSecondsToHour(first);		// Round down to nearest hour
 //			if(newTimelineStart > first) newTimelineStart -= 3600;
 //			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
-//			float newTimelineEnd = p.p.utilities.roundSecondsToHour(last);			// Round up to nearest hour
+//			float newTimelineEnd = utilities.roundSecondsToHour(last);			// Round up to nearest hour
 //			if(newTimelineEnd < last) newTimelineEnd += 3600;
 //			if(newTimelineEnd > day) newTimelineEnd = day;
 
@@ -1139,7 +1149,7 @@ class ML_Display
 	public void resetZoom(boolean fade)
 	{
 		float newTimelineStart = 0.f;
-		float newTimelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		float newTimelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 		
 		if(fade)
 		{
@@ -1154,7 +1164,7 @@ class ML_Display
 	
 	public float getZoomLevel()
 	{
-		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 		float result = (timelineEnd - timelineStart) / day;
 		return result;
 	}
@@ -1170,7 +1180,7 @@ class ML_Display
 		transitionZoomDirection = direction;
 		float length = timelineEnd - timelineStart;
 		float newLength;
-		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 		
 		if(transitionZoomDirection == -1)
 			newLength = length * transitionZoomInIncrement;
@@ -1215,9 +1225,9 @@ class ML_Display
 			{
 				if(length - newLength > 300.f)
 				{
-					newTimelineStart = p.p.utilities.roundSecondsToInterval(newTimelineStart, 600.f);		// Round up to nearest 10 min.
+					newTimelineStart = utilities.roundSecondsToInterval(newTimelineStart, 600.f);		// Round up to nearest 10 min.
 					if(newTimelineStart > first) newTimelineStart -= 600;
-					newTimelineEnd = p.p.utilities.roundSecondsToInterval(newTimelineEnd, 600.f);		// Round up to nearest 10 min.
+					newTimelineEnd = utilities.roundSecondsToInterval(newTimelineEnd, 600.f);		// Round up to nearest 10 min.
 					if(newTimelineEnd < last) newTimelineEnd += 600;
 				}
 			}
@@ -1240,16 +1250,16 @@ class ML_Display
 		float newLength = length * amount;
 		float result = timelineStart + newLength;
 		
-		if(result < p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0)))
+		if(result < utilities.getTimePVectorSeconds(new PVector(24,0,0)))
 		{
 			WMV_Field f = p.getCurrentField();
 			float last = f.getTimeSegment(f.getTimeline().size()-1).getUpper().getTime();		// Last field media time, normalized
-			float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			float newTimelineEnd;
 			if(length - newLength > 300.f)
 			{
-				newTimelineEnd = p.p.utilities.roundSecondsToInterval(result, 600.f);		// Round up to nearest 10 min.
+				newTimelineEnd = utilities.roundSecondsToInterval(result, 600.f);		// Round up to nearest 10 min.
 				if(newTimelineEnd < last) newTimelineEnd += 600;
 			}
 			else						
@@ -1273,7 +1283,7 @@ class ML_Display
 		transitionScrollDirection = direction;
 		float newStart = timelineStart + transitionScrollIncrement * transitionScrollDirection;
 		float newEnd = timelineEnd + transitionScrollIncrement * transitionScrollDirection;		
-		float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 		
 		if(newStart > 0.f && newEnd < day)
 		{
@@ -1285,14 +1295,14 @@ class ML_Display
 	public void stopZooming()
 	{
 		timelineZooming = false;
-		updateTimeline = true;
+		updateFieldTimeline = true;
 		transitionScrollIncrement = initTransitionScrollIncrement * getZoomLevel();
 	}
 	
 	public void stopScrolling()
 	{
 		timelineScrolling = false;
-		updateTimeline = true;
+		updateFieldTimeline = true;
 	}
 	
 	public void handleMouseReleased(float mouseX, float mouseY)
@@ -1315,7 +1325,7 @@ class ML_Display
 		currentSelectableDate = newSelectableDate;
 		updateCurrentSelectableTime = true;
 		updateCurrentSelectableDate = false;
-		updateTimeline = true;
+		updateFieldTimeline = true;
 	}
 
 	/**
@@ -1369,10 +1379,10 @@ class ML_Display
 //			p.p.pushMatrix();
 //			
 //			p.p.fill(140, 100, 255);
-//			float xPos = PApplet.map(i, 0, length, 0, p.p.width * 1.f);
-//			float inc = PApplet.map(2, 0, length, 0, p.p.width * 1.f) - PApplet.map(1, 0, length, 0, p.p.width*1.f);
-//			int x = -p.p.width/2 + (int)xPos;
-//			int y = -p.p.height/2+p.p.height/2;
+//			float xPos = PApplet.map(i, 0, length, 0, screenWidth * 1.f);
+//			float inc = PApplet.map(2, 0, length, 0, screenWidth * 1.f) - PApplet.map(1, 0, length, 0, screenWidth*1.f);
+//			int x = -screenWidth/2 + (int)xPos;
+//			int y = -screenHeight/2+screenHeight/2;
 //
 //			p.p.translate(x, y, hudDistance);
 //			p.p.box(inc, inc*10.f, 1);    // Display 
@@ -1413,26 +1423,26 @@ class ML_Display
 		selectedDate = -1; 
 		currentSelectableDate = -1;
 
-		timelineScreenSize = p.p.width * 2.2f;
+		timelineScreenSize = screenWidth * 2.2f;
 		timelineStart = 0.f;
-		timelineEnd = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 		datelineStart = 0.f;
 		datelineEnd = 0.f;
 		updateCurrentSelectableTime = true;
 		updateCurrentSelectableDate = true;
 		
-		timelineXOffset = -p.p.width/ 1.66f;
-		timelineYOffset = -p.p.height/ 2.f;
+		timelineXOffset = -screenWidth/ 1.66f;
+		timelineYOffset = -screenHeight/ 2.f;
 		timelineYOffset = 0.f;
 		datelineXOffset = timelineXOffset;
-		datelineYOffset = p.p.height * 0.2f;
+		datelineYOffset = screenHeight * 0.2f;
 
 		selectableTimes = new ArrayList<SelectableTimeSegment>();
 		selectableDates = new ArrayList<SelectableDate>();
 
-		timelineCreated = false;
-		datelineCreated = false;
-		updateTimeline = true;
+		fieldTimelineCreated = false;
+		fieldDatelineCreated = false;
+		updateFieldTimeline = true;
 
 		timelineTransition = false; 
 		timelineZooming = false; 
@@ -1467,25 +1477,25 @@ class ML_Display
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
-		centerTextXOffset = p.p.width / 2.f;
+		centerTextXOffset = screenWidth / 2.f;
 		leftTextXOffset = 0.f;
-		midLeftTextXOffset = p.p.width / 3.f;
+		midLeftTextXOffset = screenWidth / 3.f;
 		rightTextXOffset = 0.f;
-		midRightTextXOffset = p.p.width / 1.5f;
+		midRightTextXOffset = screenWidth / 1.5f;
 
-		topTextYOffset = -p.p.height / 1.6f;
-		clusterImageXOffset = -p.p.width/ 1.9f;
-		clusterImageYOffset = p.p.height / 2.5f;
+		topTextYOffset = -screenHeight / 1.6f;
+		clusterImageXOffset = -screenWidth/ 1.9f;
+		clusterImageYOffset = screenHeight / 2.5f;
 
-		userMessageXOffset = -p.p.width / 2.f;
+		userMessageXOffset = -screenWidth / 2.f;
 		userMessageYOffset = 0;
 
-		metadataYOffset = -p.p.height / 2.f;
+		metadataYOffset = -screenHeight / 2.f;
 
-		startupMessageXOffset = p.p.width / 2.f;
-		startupMessageYOffset = -p.p.height /2.f;
+		startupMessageXOffset = screenWidth / 2.f;
+		startupMessageYOffset = -screenHeight /2.f;
 		
-		map2D = new ML_Map(this);
+		map2D = new ML_Map(this, screenWidth, screenHeight, hudDistance);
 	}
 
 	/**
@@ -1493,7 +1503,7 @@ class ML_Display
 	 */
 	void startHUD()
 	{
-		p.p.perspective(p.viewer.getInitFieldOfView(), (float)p.p.width/(float)p.p.height, p.viewer.getSettings().nearClippingDistance, 10000.f);;
+		p.p.perspective(p.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
 		p.p.camera();
 	}
 
@@ -1532,7 +1542,6 @@ class ML_Display
 		p.p.textSize(smallTextSize);
 		p.p.text(" T    Time Fading On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.text(" D    Date Fading On/Off", xPos, yPos += lineWidth, hudDistance);
-//		p.p.text(" Z    Toggle Time Fading Mode (Field/Cluster)", textXPos, textYPos += lineWidth, hudDistance);
 		p.p.text(" space Pause On/Off   ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" &/*  Default Media Length - / +", xPos, yPos += lineWidth, hudDistance);
 		p.p.text(" SHIFT + Lt/Rt   Cycle Length - / +", xPos, yPos += lineWidth, hudDistance);
@@ -1785,20 +1794,20 @@ class ML_Display
 		if(initialSetup)																// Showing setup startup messages
 		{
 			p.p.textSize(largeTextSize * 3.f);
-			p.p.text("MultimediaLocator", p.p.width / 2.25f, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text("MultimediaLocator", screenWidth / 2.25f, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(mediumTextSize * 1.4f);
-			p.p.text("v0.9", p.p.width / 1.075f, yPos += lineWidth, hudDistance);
+			p.p.text("v0.9", screenWidth / 1.075f, yPos += lineWidth, hudDistance);
 			p.p.textSize(largeTextSize * 0.88f);
-			p.p.text("Entoptic Software", p.p.width / 1.2f, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text("Entoptic Software", screenWidth / 1.2f, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(largeTextSize * 1.2f);
 			
 			if(!p.p.state.selectedLibrary)
-				p.p.text("Press any key to begin...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				p.p.text("Press any key to begin...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 			else
-				p.p.text("Loading media folder(s)...", p.p.width / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 			
 			p.p.textSize(largeTextSize * 1.2f);
-			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", p.p.width / 2.1f, yPos += lineWidthVeryWide * 6.f, hudDistance);
+			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.1f, yPos += lineWidthVeryWide * 6.f, hudDistance);
 		}
 		else
 			displayMessages();
@@ -2050,7 +2059,7 @@ class ML_Display
 			}
 			else
 			{
-				p.p.text(" Compass Direction:" + p.p.utilities.angleToCompass(p.viewer.getXOrientation())+" Angle: "+p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Compass Direction:" + utilities.angleToCompass(p.viewer.getXOrientation())+" Angle: "+p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Vertical Direction:" + PApplet.degrees(p.viewer.getYOrientation()), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Zoom:"+p.viewer.getFieldOfView(), xPos, yPos += lineWidth, hudDistance);
 			}
@@ -2142,7 +2151,7 @@ class ML_Display
 		if(c.getTimeline().size() > 0)
 		{
 			p.p.text(" Timeline Segments: "+ c.getTimeline().size(), xPos, yPos += lineWidthWide, hudDistance);
-			p.p.text(" Timeline Length (sec.): "+ p.p.utilities.getTimelineLength(c.getTimeline()), xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline()), xPos, yPos += lineWidth, hudDistance);
 		}
 		if(c.getDateline() != null)
 			if(c.getDateline().size() > 0)
@@ -2370,7 +2379,7 @@ class ML_Display
 				String strPreview = String.valueOf( segment.getTimeline().size() ) + " media, "+strTimespan;
 
 				float length = timelineEnd - timelineStart;
-				float day = p.p.utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+				float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 				float xOffset = -35.f * PApplet.map(length, 0.f, day, 0.2f, 1.f);
 				p.p.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, hudDistance);
 			}
@@ -2435,7 +2444,7 @@ class ML_Display
 		displayDate = -1;
 		selectedDate = -1;
 		currentSelectableDate = -1;
-		updateTimeline = true;
+		updateFieldTimeline = true;
 	}
 	
 	public int getSelectedCluster()

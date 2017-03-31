@@ -77,11 +77,15 @@ public class WMV_Model
 	/*** Misc. ***/
 	public int minFrameRate = 15;
 
+	/* Utilities */
+	WMV_Utilities utilities;					// Utility methods
+
 	WMV_Field p;
 	WMV_Model(WMV_Field parent)
 	{
 		p = parent;
-		
+		utilities = new WMV_Utilities();					// Utility methods
+
 		clustersByDepth = new IntList();
 		clusteringRandomSeed = (long) p.p.p.random(1000.f);
 	}
@@ -105,8 +109,8 @@ public class WMV_Model
 			
 			if(validMedia > 1)
 			{
-				fieldWidth = p.p.p.utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
-				fieldLength = p.p.p.utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
+				fieldWidth = utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
+				fieldLength = utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
 				fieldHeight = highAltitude - lowAltitude;					
 			}
 			else
@@ -180,13 +184,6 @@ public class WMV_Model
 		}
 	}
 
-	public void analyzeClusterMediaDirections()
-	{
-		for(WMV_Cluster c : p.getClusters())
-			if(!c.isEmpty())
-				c.analyzeMediaDirections();
-	}
-	
 	/** 
 	 * Create clusters for all media in field at startup	
 	 */
@@ -360,7 +357,7 @@ public class WMV_Model
 
 			if ( parts.length == 1 )					// If '#' isn't in the name, must be a media file
 			{
-				if(!p.p.p.utilities.isInteger(parts[0], 10))
+				if(!utilities.isInteger(parts[0], 10))
 				{
 					if(p.p.p.debug.cluster)
 						PApplet.println("Media name error! "+name);
@@ -369,7 +366,7 @@ public class WMV_Model
 			}
 			else if( parts.length == 2 )				
 			{
-				if(!p.p.p.utilities.isInteger(parts[1], 10))
+				if(!utilities.isInteger(parts[1], 10))
 				{
 					if(p.p.p.debug.cluster)
 						PApplet.println("Cluster name error! "+name);
@@ -870,7 +867,7 @@ public class WMV_Model
 			for( int j = 0; i<size; i++)
 			{
 				double d = distances[i][j];
-				if(p.p.p.utilities.isNaN(d))
+				if(utilities.isNaN(d))
 				{
 					PApplet.println("Not a number:"+d);
 					error = true;
@@ -1555,21 +1552,6 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * If image is within <threshold> from center of cluster along axes specified by mx, my and mz, 
-	  * fold the image location into the cluster location along those axes.
-	  */
-	 public void lockMediaToClusters()
-	 {
-		 if(p.p.p.debug.field || p.p.p.debug.model) PApplet.println("lockMediaToClusters(): Moving media... ");
-		 for (int i = 0; i < p.getImages().size(); i++) 
-			 p.getImage(i).adjustCaptureLocation();		
-		 for (int i = 0; i < p.getPanoramas().size(); i++) 
-			 p.getPanorama(i).adjustCaptureLocation();		
-		 for (int i = 0; i < p.getVideos().size(); i++) 
-			 p.getVideo(i).adjustCaptureLocation();		
-	 }
-
-	 /**
 	  * @param points List of points to average
 	  * @return Average point 
 	  */
@@ -1593,12 +1575,12 @@ public class WMV_Model
 		 return p.getClusters().size() - mergedClusters;
 	 }
 	 
-	void setMinClusterDistance(float newMinClusterDistance)
+	public void setMinClusterDistance(float newMinClusterDistance)
 	{
 		minClusterDistance = newMinClusterDistance;	
 	}
 	
-	void setMaxClusterDistance(float newMaxClusterDistance)
+	public void setMaxClusterDistance(float newMaxClusterDistance)
 	{
 		maxClusterDistance = newMaxClusterDistance;	
 	}
@@ -1607,12 +1589,12 @@ public class WMV_Model
 	/**  
 	 * Export statistics on current field 
 	 */
-	void exportFieldInfo()
+	public void exportFieldInfo()
 	{
         BufferedWriter writer = null;
 
 		try {
-            // Create temp. file
+            // Create temp file
             String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
             File logFile = new File(timeLog);
 

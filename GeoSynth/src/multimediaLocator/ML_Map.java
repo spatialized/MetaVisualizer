@@ -41,6 +41,11 @@ public class ML_Map
 //	private IntList imageMarkers, panoramaMarkers, videoMarkers;
 //	final private int panoramaIndexOffset = 1000000, videoIndexOffset = 2000000;
 	
+	/* Graphics */
+	private float hudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
+	private int screenWidth = -1;
+	private int screenHeight = -1;
+	
 	/* Interaction */
 	private int selectedCluster = -1;
 //	private ArrayList<Ellipsoid> selectableClusters;
@@ -100,20 +105,26 @@ public class ML_Map
 	
 	PVector mapVectorOrigin, mapVectorVector;
 
+	WMV_Utilities utilities;
 	ML_Display p;
 
-	ML_Map(ML_Display parent)
+	ML_Map(ML_Display parent, int newScreenWidth, int newScreenHeight, float newHUDDistance)
 	{
 		p = parent;
+		screenWidth = newScreenWidth;
+		screenHeight = newScreenHeight;
+		hudDistance = newHUDDistance;
+		
+		utilities = new WMV_Utilities();
+		
+		largeMapXOffset = -screenWidth * 0.5f;
+		largeMapYOffset = -screenHeight * 0.5f;
 
-		largeMapXOffset = -p.p.p.width * 0.5f;
-		largeMapYOffset = -p.p.p.height * 0.5f;
-
-		smallPointSize = 0.0000022f * p.p.p.width;
-		mediumPointSize = 0.0000028f * p.p.p.width;
-		largePointSize = 0.0000032f * p.p.p.width;
-		hugePointSize = 0.0000039f * p.p.p.width;
-		cameraPointSize = 0.005f * p.p.p.width;
+		smallPointSize = 0.0000022f * screenWidth;
+		mediumPointSize = 0.0000028f * screenWidth;
+		largePointSize = 0.0000032f * screenWidth;
+		hugePointSize = 0.0000039f * screenWidth;
+		cameraPointSize = 0.005f * screenWidth;
 	}
 
 	/**
@@ -124,17 +135,17 @@ public class ML_Map
 		WMV_Model m = p.p.getCurrentModel();
 		fieldAspectRatio = m.fieldAspectRatio;						//	Field ratio == fieldWidth / fieldLength;
 		zoomMapDefaultWidth = (float)Math.log10(m.fieldWidth) * 33.3f;										// Was 240.f
-		zoomMapDefaultHeight = (float)Math.log10(m.fieldWidth) * 33.3f * p.p.p.height / p.p.p.width;		// Was 180.f
+		zoomMapDefaultHeight = (float)Math.log10(m.fieldWidth) * 33.3f * screenHeight / screenWidth;		// Was 180.f
 
 		if(fieldAspectRatio >= 1.f)									
 		{
-			curMapWidth = p.p.p.width * 0.95f;
-			curMapHeight = p.p.p.width / fieldAspectRatio;
+			curMapWidth = screenWidth * 0.95f;
+			curMapHeight = screenWidth / fieldAspectRatio;
 		}
 		else
 		{
-			curMapWidth = p.p.p.height * fieldAspectRatio;
-			curMapHeight = p.p.p.height * 0.95f;
+			curMapWidth = screenHeight * fieldAspectRatio;
+			curMapHeight = screenHeight * 0.95f;
 		}
 
 		zoomToRectangle(0, 0, curMapWidth, curMapHeight);			// Start zoomed out on whole map
@@ -148,9 +159,9 @@ public class ML_Map
 	 */
 	public void initializeSatelliteMap()
 	{
-		map = new UnfoldingMap(p.p.p, "Satellite", 0, 0, p.p.p.width, p.p.p.height, true, false, new Microsoft.AerialProvider());
+		map = new UnfoldingMap(p.p.p, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 
-		PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), new PVector(0,0,0));
+		PVector gpsLoc = utilities.getGPSLocation(p.p.getCurrentField(), new PVector(0,0,0));
 		mapCenter = new Location(gpsLoc.y, gpsLoc.x);
 		
 //		imageMarkers = new IntList();
@@ -173,7 +184,7 @@ public class ML_Map
 
 		createPointMarkers();
 		
-		PApplet.println("viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
+//		PApplet.println("viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
 		PVector vLoc = p.p.viewer.getGPSLocation();
 		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
 		viewerMarker.setId("viewer");
@@ -192,7 +203,7 @@ public class ML_Map
 			if(!c.isEmpty() && c.mediaCount != 0)
 			{
 				PVector mapLoc = c.getLocation();
-				PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), mapLoc);
+				PVector gpsLoc = utilities.getGPSLocation(p.p.getCurrentField(), mapLoc);
 				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
 				marker.setId(String.valueOf(c.getID()));
 //				marker.setColor(p.p.p.color(90, 225, 225, 155));
@@ -207,29 +218,6 @@ public class ML_Map
 		map.addMarkerManager(markerManager);
 		markerManager.enableDrawing();
 	}
-	
-//	public void handleMouseMoved(int mouseX, int mouseY)
-//	{
-//		for (Marker m : map.getMarkers()) 
-//			m.setSelected(false);
-//
-//		List<Marker> markers = map.getHitMarkers(mouseX, mouseY);
-////		Marker marker = map.getFirstHitMarker(mouseX, mouseY);		// Select hit marker
-//		
-////		for(Marker m : markers)
-////		{
-////			
-////		}
-//		if(markers.size() > 0)
-//		{
-//			Marker marker = markers.get(0);
-//
-//			if (marker != null) 
-//				marker.setSelected(true);
-//		}
-//
-//		// -- Use getHitMarkers(x, y) to allow multiple selection.
-//	}
 	
 	/**
 	 * Reset the map to initial state
@@ -267,7 +255,7 @@ public class ML_Map
 //					ellipsoid.fill(p.p.p.color(105.f, 225.f, 200.f, 255.f));
 //					ellipsoid.strokeWeight(0.f);
 
-					mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
+					mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, hudDistance * mapDistance));
 					mapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
 //					ellipsoid.moveTo(mapLoc.x, mapLoc.y, mapLoc.z);
 					
@@ -319,9 +307,9 @@ public class ML_Map
 			float textYPos = p.topTextYOffset;
 
 			if(p.p.interactive)
-				p.p.p.text("Interactive "+(p.p.hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, p.hudDistance);
+				p.p.p.text("Interactive "+(p.p.hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, hudDistance);
 			else
-				p.p.p.text(p.p.getCurrentField().getName(), textXPos, textYPos, p.hudDistance);
+				p.p.p.text(p.p.getCurrentField().getName(), textXPos, textYPos, hudDistance);
 
 			p.p.p.popMatrix();
 
@@ -504,7 +492,7 @@ public class ML_Map
 			if(p.satelliteMap)
 			{
 				PVector mapLoc = c.getLocation();
-				PVector gpsLoc = p.p.p.utilities.getGPSLocation(p.p.getCurrentField(), mapLoc);
+				PVector gpsLoc = utilities.getGPSLocation(p.p.getCurrentField(), mapLoc);
 				
 				map.zoomAndPanTo(clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
 			}
@@ -642,8 +630,8 @@ public class ML_Map
 				p.p.p.stroke(hue, saturation, brightness, 255.f);
 				p.p.p.pushMatrix();
 				p.p.p.translate(mapLeftEdge, mapTopEdge);
-				p.p.p.line( largeMapXOffset + mapLoc1.x, largeMapYOffset + mapLoc1.y, p.hudDistance * mapDistance,
-						largeMapXOffset + mapLoc2.x, largeMapYOffset + mapLoc2.y, p.hudDistance * mapDistance );
+				p.p.p.line( largeMapXOffset + mapLoc1.x, largeMapYOffset + mapLoc1.y, hudDistance * mapDistance,
+						largeMapXOffset + mapLoc2.x, largeMapYOffset + mapLoc2.y, hudDistance * mapDistance );
 				p.p.p.popMatrix();
 			}
 		}
@@ -964,7 +952,7 @@ public class ML_Map
 	 */
 	public void drawPoint( PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
 	{
-		if(!p.p.p.utilities.isNaN(point.x) && !p.p.p.utilities.isNaN(point.y) && !p.p.p.utilities.isNaN(point.z))
+		if(!utilities.isNaN(point.x) && !utilities.isNaN(point.y) && !utilities.isNaN(point.z))
 		{
 			if(p.satelliteMap)
 			{
@@ -987,7 +975,7 @@ public class ML_Map
 					p.p.p.strokeWeight(pointSize / PApplet.sqrt(PApplet.sqrt(mapDistance)));
 					p.p.p.pushMatrix();
 					p.p.p.translate(mapLeftEdge, mapTopEdge);
-					p.p.p.point(largeMapXOffset + mapLoc.x, largeMapYOffset + mapLoc.y, p.hudDistance * mapDistance);
+					p.p.p.point(largeMapXOffset + mapLoc.x, largeMapYOffset + mapLoc.y, hudDistance * mapDistance);
 					p.p.p.popMatrix();
 				}
 			}
@@ -1069,7 +1057,7 @@ public class ML_Map
 ////												PApplet.println("sclTest.id "+sclTest.id+" location equals itemSelectedLoc");
 ////												WMV_Cluster c = p.p.getCurrentField().getCluster(clusterID); 
 ////												PVector clusterMapLoc = getMapLocation(c.getLocation(), curMapWidth, curMapHeight);
-////												clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, p.hudDistance * mapDistance));
+////												clusterMapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, hudDistance * mapDistance));
 ////												clusterMapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
 ////												PApplet.println("TEST: cluster map x:"+clusterMapLoc.x+" y:"+clusterMapLoc.y+" z:"+clusterMapLoc.z);
 ////											}
@@ -1146,10 +1134,10 @@ public class ML_Map
 		p.p.p.pushMatrix();
 		p.p.p.translate(mapLeftEdge, mapTopEdge);
 		p.p.p.translate(zoomMapXOffset, zoomMapYOffset);
-		p.p.p.line(0.f, 0.f, p.hudDistance * mapDistance, zoomMapWidth, 0.f, p.hudDistance * mapDistance );
-		p.p.p.line(zoomMapWidth, 0, p.hudDistance * mapDistance, zoomMapWidth, zoomMapHeight, p.hudDistance * mapDistance );
-		p.p.p.line(zoomMapWidth, zoomMapHeight, p.hudDistance * mapDistance, 0.f, zoomMapHeight, p.hudDistance * mapDistance );
-		p.p.p.line(0.f, zoomMapHeight, p.hudDistance * mapDistance,  0.f, 0.f, p.hudDistance * mapDistance );
+		p.p.p.line(0.f, 0.f, hudDistance * mapDistance, zoomMapWidth, 0.f, hudDistance * mapDistance );
+		p.p.p.line(zoomMapWidth, 0, hudDistance * mapDistance, zoomMapWidth, zoomMapHeight, hudDistance * mapDistance );
+		p.p.p.line(zoomMapWidth, zoomMapHeight, hudDistance * mapDistance, 0.f, zoomMapHeight, hudDistance * mapDistance );
+		p.p.p.line(0.f, zoomMapHeight, hudDistance * mapDistance,  0.f, 0.f, hudDistance * mapDistance );
 		p.p.p.popMatrix();
 		
 		if(p.p.p.debug.map)		// Large map border
@@ -1159,10 +1147,10 @@ public class ML_Map
 			p.p.p.pushMatrix();
 			p.p.p.translate(mapLeftEdge, mapTopEdge);
 			p.p.p.translate(largeMapXOffset, largeMapYOffset);
-			p.p.p.line(0.f, 0.f, p.hudDistance * mapDistance, mapWidth, 0.f, p.hudDistance * mapDistance );
-			p.p.p.line(mapWidth, 0, p.hudDistance * mapDistance,  mapWidth, mapHeight, p.hudDistance * mapDistance );
-			p.p.p.line(mapWidth, mapHeight, p.hudDistance * mapDistance,  0.f, mapHeight, p.hudDistance * mapDistance );
-			p.p.p.line(0.f, mapHeight, p.hudDistance * mapDistance,  0.f, 0.f, p.hudDistance * mapDistance );
+			p.p.p.line(0.f, 0.f, hudDistance * mapDistance, mapWidth, 0.f, hudDistance * mapDistance );
+			p.p.p.line(mapWidth, 0, hudDistance * mapDistance,  mapWidth, mapHeight, hudDistance * mapDistance );
+			p.p.p.line(mapWidth, mapHeight, hudDistance * mapDistance,  0.f, mapHeight, hudDistance * mapDistance );
+			p.p.p.line(0.f, mapHeight, hudDistance * mapDistance,  0.f, 0.f, hudDistance * mapDistance );
 			p.p.p.popMatrix();
 		}
 		
@@ -1175,7 +1163,7 @@ public class ML_Map
 			PVector point = getMapLocation(c.getLocation(), curMapWidth, curMapHeight);
 			p.p.p.translate(mapLeftEdge, mapTopEdge);
 			p.p.p.translate(largeMapXOffset, largeMapYOffset);
-			p.p.p.point(point.x, point.y, p.hudDistance * mapDistance);
+			p.p.p.point(point.x, point.y, hudDistance * mapDistance);
 			p.p.p.popMatrix();
 
 			p.p.p.pushMatrix();
@@ -1185,7 +1173,7 @@ public class ML_Map
 			point = getMapLocation(c.getLocation(), curMapWidth, curMapHeight);
 			p.p.p.translate(mapLeftEdge, mapTopEdge);
 			p.p.p.translate(largeMapXOffset, largeMapYOffset);
-			p.p.p.point(point.x, point.y, p.hudDistance * mapDistance);
+			p.p.p.point(point.x, point.y, hudDistance * mapDistance);
 			p.p.p.popMatrix();
 		}
 	}
@@ -1207,8 +1195,8 @@ public class ML_Map
 		zoomMapHeight = rectHeight;
 
 		mapDistance = zoomMapWidth / curMapWidth;
-		mapLeftEdge = (p.p.p.width - zoomMapWidth)/2 - zoomMapLeftEdge;
-		mapTopEdge = (p.p.p.height - zoomMapHeight)/2 - zoomMapTopEdge;
+		mapLeftEdge = (screenWidth - zoomMapWidth)/2 - zoomMapLeftEdge;
+		mapTopEdge = (screenHeight - zoomMapHeight)/2 - zoomMapTopEdge;
 		
 		if(p.p.p.debug.map)
 		{
@@ -1262,9 +1250,9 @@ public class ML_Map
 				mapDistanceTransitionStart = mapDistance;
 				mapDistanceTransitionTarget = zoomMapWidthTransitionTarget / curMapWidth;
 				mapLeftEdgeTransitionStart = mapLeftEdge;
-				mapLeftEdgeTransitionTarget = (p.p.p.width - zoomMapWidthTransitionTarget)/2 - zoomMapLeftEdge;
+				mapLeftEdgeTransitionTarget = (screenWidth - zoomMapWidthTransitionTarget)/2 - zoomMapLeftEdge;
 				mapTopEdgeTransitionStart = mapTopEdge;
-				mapTopEdgeTransitionTarget = (p.p.p.height - zoomMapHeightTransitionTarget)/2 - zoomMapTopEdge;
+				mapTopEdgeTransitionTarget = (screenHeight - zoomMapHeightTransitionTarget)/2 - zoomMapTopEdge;
 
 				if(p.p.p.debug.map)
 					PApplet.println("Started zoomToRectangleTransition transition...");
@@ -1506,7 +1494,7 @@ public class ML_Map
 	 */
 	public void drawMousePointOnMap( PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
 	{		
-		if(!p.p.p.utilities.isNaN(point.x) && !p.p.p.utilities.isNaN(point.y) && !p.p.p.utilities.isNaN(point.z))
+		if(!utilities.isNaN(point.x) && !utilities.isNaN(point.y) && !utilities.isNaN(point.z))
 		{
 			if(point.x < mapWidth && point.x > 0 && point.y < mapHeight && point.y > 0)
 			{
@@ -1515,13 +1503,23 @@ public class ML_Map
 
 				p.p.p.strokeWeight(pointSize);
 				p.p.p.translate(mapLeftEdge, mapTopEdge);
-				p.p.p.point(largeMapXOffset + point.x, largeMapYOffset + point.y, p.hudDistance);
-//				p.p.p.point(largeMapXOffset + point.x, largeMapYOffset + point.y, p.hudDistance * mapZoom);
+				p.p.p.point(largeMapXOffset + point.x, largeMapYOffset + point.y, hudDistance);
 				
 				p.p.p.popMatrix();
 			}
 		}
 		else p.message("Map point is NaN!:"+point+" hue:"+hue);
+	}
+	
+	private class SelectableClusterLocation
+	{
+		public int id;
+		public PVector location;
+		SelectableClusterLocation(int newID, PVector newLocation)
+		{
+			id = newID;
+			location = newLocation;
+		}
 	}
 	
 //	/**
@@ -1587,7 +1585,7 @@ public class ML_Map
 //			{
 //				PVector point = c.getLocation();
 //				
-//				if(!p.p.p.utilities.isNaN(point.x) && !p.p.p.utilities.isNaN(point.y) && !p.p.p.utilities.isNaN(point.z))
+//				if(!utilities.isNaN(point.x) && !utilities.isNaN(point.y) && !utilities.isNaN(point.z))
 //				{
 //					PVector mapLoc = getMapLocation(point, mapWidth, mapHeight);
 //
@@ -1610,15 +1608,29 @@ public class ML_Map
 //		simpleClustersCreated = true;
 //	}
 	
-	private class SelectableClusterLocation
-	{
-		public int id;
-		public PVector location;
-		SelectableClusterLocation(int newID, PVector newLocation)
-		{
-			id = newID;
-			location = newLocation;
-		}
-	}
+
+//	public void handleMouseMoved(int mouseX, int mouseY)
+//	{
+//		for (Marker m : map.getMarkers()) 
+//			m.setSelected(false);
+//
+//		List<Marker> markers = map.getHitMarkers(mouseX, mouseY);
+////		Marker marker = map.getFirstHitMarker(mouseX, mouseY);		// Select hit marker
+//		
+////		for(Marker m : markers)
+////		{
+////			
+////		}
+//		if(markers.size() > 0)
+//		{
+//			Marker marker = markers.get(0);
+//
+//			if (marker != null) 
+//				marker.setSelected(true);
+//		}
+//
+//		// -- Use getHitMarkers(x, y) to allow multiple selection.
+//	}
+	
 }
 

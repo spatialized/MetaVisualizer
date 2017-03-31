@@ -72,12 +72,14 @@ class WMV_Image extends WMV_Viewable
 		vertices = new PVector[4]; 
 		sVertices = new PVector[4]; 
 
+		if(newFocusDistance == -1.f) focusDistance = p.p.settings.defaultFocusDistance;
+		else focusDistance = newFocusDistance;
+
 		gpsLocation = newGPSLocation;
-		focusDistance = newFocusDistance;
 		origFocusDistance = focusDistance;
 		sensorSize = newSensorSize;
 		brightness = newBrightness;
-		
+
 		theta = newTheta;              		// GPS Orientation (Yaw angle)
 		phi = newElevation;            		// Pitch angle
 		rotation = newRotation;             // Rotation angle
@@ -88,7 +90,7 @@ class WMV_Image extends WMV_Viewable
 		
 		if(newDateTime != null)
 		{
-			time = new WMV_Time( p.p, newDateTime, getID(), cluster, 0 );		
+			time = new WMV_Time( newDateTime, getID(), cluster, 0, p.getTimeZoneID() );		
 //			time = p.p.p.utilities.utcToPacificTime(utcTime);								// Convert from UTC Time
 //			PApplet.println("Image: "+getName()+" utcTime, hour:"+utcTime.getHour()+"  min:"+utcTime.getMinute()+" sec:"+utcTime.getSecond());
 //			PApplet.println("     : "+getName()+" pacificTime, hour:"+time.getHour()+"  min:"+time.getMinute()+" sec:"+time.getSecond());
@@ -120,7 +122,7 @@ class WMV_Image extends WMV_Viewable
 		if( p.p.viewer.settings.angleFading )
 		{
 			float imageAngle = getFacingAngle();
-			if(p.p.p.utilities.isNaN(imageAngle))
+			if(p.p.utilities.isNaN(imageAngle))
 			{
 				imageAngle = 0;				
 				visible = false;
@@ -301,7 +303,7 @@ class WMV_Image extends WMV_Viewable
 			{
 				float imageAngle = getFacingAngle();			// Check if image is visible at current angle facing viewer
 
-				if(!p.p.p.utilities.isNaN(imageAngle))
+				if(!p.p.utilities.isNaN(imageAngle))
 					visible = (getAngleBrightness(imageAngle) > 0.f);
 
 				if(!fading && p.p.viewer.settings.hideImages)
@@ -564,7 +566,7 @@ class WMV_Image extends WMV_Viewable
 		location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 		location.add(disp);     													 
 
-		if (p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x) || p.p.p.utilities.isNaN(location.x))
+		if (p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x))
 			location = new PVector (0, 0, 0);
 	}
 	

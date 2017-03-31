@@ -22,20 +22,23 @@ public class WMV_Time implements Comparable<WMV_Time>
 	private float time;
 	
 	private WMV_World p;
-	
+	private WMV_Utilities utilities;
 	ZonedDateTime dateTime;
+	String timeZoneID;
+	
 //	ZonedDateTime date = ZonedDateTime.of(year, month, day, hour, time.getMinute(), time.getSecond(), time.getMillisecond(), ZoneId.of("America/Los_Angeles"));
 
 //	WMV_Time(WMV_World parent, Calendar newCalendar, int newID, int newClusterID, int newMediaType)
-	WMV_Time(WMV_World parent, ZonedDateTime newDateTime, int newID, int newClusterID, int newMediaType)
+	WMV_Time(ZonedDateTime newDateTime, int newID, int newClusterID, int newMediaType, String newTimeZoneID)
 	{
-		p = parent;
-//		calendar = newCalendar;
+//		p = parent;
+		utilities = new WMV_Utilities();
 		dateTime = newDateTime;
 		
 		id = newID;
 		clusterID = newClusterID;
 		mediaType = newMediaType;									
+		timeZoneID = newTimeZoneID;
 		
 		year = dateTime.getYear();
 		month = dateTime.getMonthValue();
@@ -54,7 +57,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 //		millisecond = newCalendar.get(Calendar.MILLISECOND);		// Check this!!
 	
 //		time = p.p.utilities.getSimulationTime( newCalendar ); 		// Get normalized capture time (0. to 1. for 0:00 to 24:00)
-		time = p.p.utilities.getSimulationTime( dateTime ); 		// Get normalized capture time (0. to 1. for 0:00 to 24:00)
+		time = utilities.getSimulationTime( dateTime ); 		// Get normalized capture time (0. to 1. for 0:00 to 24:00)
 	}
 	
 	public int getYear()
@@ -112,7 +115,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 	 */
 	public WMV_Date getDate()
 	{
-		WMV_Date date = new WMV_Date(p, -1, dateTime);
+		WMV_Date date = new WMV_Date(-1, dateTime, timeZoneID);
 		return date;
 	}
 

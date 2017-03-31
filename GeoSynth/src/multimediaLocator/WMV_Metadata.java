@@ -55,13 +55,15 @@ class WMV_Metadata
 	int iCount = 0, pCount = 0, vCount = 0;							// Media count by type 
 	public File exifToolFile;										// File for ExifTool executable
 
-	WMV_Utilities u;												// Utility class
-	WMV_Field f;													// Field to load metadata into
 	MultimediaLocator p;
+	WMV_Field f;													// Field to load metadata into
+	WMV_Utilities u;												// Utility class
+	ML_DebugSettings debugSettings;
 	
-	WMV_Metadata(MultimediaLocator parent)
+	WMV_Metadata(ML_DebugSettings newDebugSettings)
 	{
-		p = parent;
+		u = new WMV_Utilities();
+		debugSettings = newDebugSettings;
 		exifToolFile = new File("/usr/local/bin/exiftool");						// Initialize metadata extraction class	
 	}
 
@@ -85,8 +87,17 @@ class WMV_Metadata
 			pCount = 0;
 			vCount = 0;
 
-			if(imageFilesFound || smallImageFilesFound)
-				loadImageMetadata(imageFiles);						// Load image metadata 
+			PApplet.println("smallImageFilesFound:"+smallImageFilesFound);
+			PApplet.println("imageFilesFound:"+imageFilesFound);
+			PApplet.println("panoramaFilesFound:"+panoramaFilesFound);
+			PApplet.println("videoFilesFound:"+videoFilesFound);
+			PApplet.println("soundFilesFound:"+soundFilesFound);
+
+//			if(imageFilesFound)
+//				loadImageMetadata(imageFiles);						// Load image metadata 
+			
+			if(smallImageFilesFound)
+				loadImageMetadata(smallImageFiles);						// Load image metadata 
 
 			if(panoramaFilesFound)									// Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
 				loadImageMetadata(panoramaFiles);
@@ -126,9 +137,12 @@ class WMV_Metadata
 	 */
 	public void loadImageFolders(String library, String fieldPath) 		
 	{
-		smallImageFolder = library + "/" + fieldPath + "/small_images/";	/* Check for small_images folder */
-		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
-		panoramaFolder = library + "/" + fieldPath + "/panoramas/";			/* Check for panoramas folder */
+		smallImageFolder = library + fieldPath + "/small_images/";	/* Check for small_images folder */
+		imageFolder = library + fieldPath + "/images/";				/* Check for images folder */
+		panoramaFolder = library + fieldPath + "/panoramas/";			/* Check for panoramas folder */
+//		smallImageFolder = library + "/" + fieldPath + "/small_images/";	/* Check for small_images folder */
+//		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
+//		panoramaFolder = library + "/" + fieldPath + "/panoramas/";			/* Check for panoramas folder */
 
 		smallImageFolderFile = new File(smallImageFolder);
 		imageFolderFile = new File(imageFolder);
@@ -138,9 +152,9 @@ class WMV_Metadata
 		imageFolderFound = (imageFolderFile.exists() && imageFolderFile.isDirectory());	
 		panoramaFolderFound = (panoramaFolderFile.exists() && panoramaFolderFile.isDirectory());
 		
-//		PApplet.println("smallImageFolderFound:"+smallImageFolderFound);
-//		PApplet.println("imageFolderFound:"+imageFolderFound);
-//		PApplet.println("panoramaFolderFound:"+panoramaFolderFound);
+		PApplet.println("smallImageFolderFound:"+smallImageFolderFound);
+		PApplet.println("imageFolderFound:"+imageFolderFound);
+		PApplet.println("panoramaFolderFound:"+panoramaFolderFound);
 
 		smallImageFiles = null;
 		imageFiles = null;
@@ -158,7 +172,7 @@ class WMV_Metadata
 			smallImageFiles = smallImageFolderFile.listFiles();
 
 			if(smallImageFiles != null && smallImageFiles.length > 0)
-					smallImageFilesFound = true;
+				smallImageFilesFound = true;
 			
 			if(smallImageFilesFound)
 			{
@@ -166,25 +180,22 @@ class WMV_Metadata
 				{
 					File f = smallImageFiles[0];
 					String check = f.getName();
-//					PApplet.println("DSStore?"+check);
 					if(check.equals(".DS_Store"))
 						smallImageFilesFound = false;			/* Only found .DS_Store, ignore it */
 				}
 				
-				if(smallImageFilesFound && f.p.p.debug.metadata) 
+				if(smallImageFilesFound && debugSettings.metadata) 
 					PApplet.println("Files found in small_images folder, will use instead of shrinking large images...");
 
-				imageFolder = smallImageFolder;					// Set imageFolder to small_images
-				imageFolderFile = new File(imageFolder);
-				imageFiles = imageFolderFile.listFiles();
+//				imageFolder = smallImageFolder;					// Set imageFolder to small_images
+//				imageFolderFile = new File(imageFolder);
+//				imageFiles = imageFolderFile.listFiles();
 			}
 		}
 		else if(imageFolderFound || panoramaFolderFound)		// If no small images, look for original images and panoramas
 		{
-			if(f.p.p.debug.metadata) 	
-			{
+			if(debugSettings.metadata) 	
 				PApplet.println("No small_images folder... ");
-			}
 
 			if(imageFolderFound)			// Check for image files
 			{
@@ -215,27 +226,22 @@ class WMV_Metadata
 					PApplet.println("Throwable t while creating small_images directory:"+t);
 				}
 			}
-			
-//			if(panoramaFilesFound && !imageFilesFound)
-//			{
-//				imageFolder = panoramaFolder;
-//				imageFolderFile = new File(panoramaFolder);
-//				imageFiles = panoramaFolderFile.listFiles();
-//			}
 		}
 			
 		// If images exist but no small images are found
 		if(imageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
 		{
 			imageFolder = library + "/" + fieldPath + "/images/";					// Original size
-			boolean success = f.p.p.utilities.shrinkImages(imageFolder, smallImageFolder);		
+			boolean success = u.shrinkImages(imageFolder, smallImageFolder);		
 			if(success)
 			{
-				if(f.p.p.debug.metadata) 	PApplet.println("Shrink images successful...");
+//				if(debugSettings.metadata) 
+					PApplet.println("Shrink images successful...");
 			}
 			else
 			{
-				if(f.p.p.debug.metadata) 	PApplet.println("Shrink images failed...");
+//				if(debugSettings.metadata) 
+					PApplet.println("Shrink images failed...");
 			}
 
 			imageFolder = smallImageFolder;					// Set imageFolder to small_images
@@ -243,7 +249,7 @@ class WMV_Metadata
 			imageFiles = imageFolderFile.listFiles();
 		}
 
-		if(f.p.p.debug.metadata) 	
+//		if(debugSettings.metadata) 	
 		{
 			if(smallImageFilesFound)
 				PApplet.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
@@ -303,7 +309,7 @@ class WMV_Metadata
 				soundFilesFound = true;
 		}
 		
-		if (p.debug.sound)
+		if (debugSettings.sound)
 			PApplet.println("Sound Folder:" + soundFolder);
 	}
 	
@@ -442,31 +448,19 @@ class WMV_Metadata
 		else 
 			return false;
 		
-//		PApplet.println("fileCount:"+fileCount);
-		boolean imagesExist = true;
-
-		if (imageFiles == null)					// Check if any images exist
-			imagesExist = false;
-
 		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
 		{
 			String name = "";
-//			boolean hasImage = true;
-
-//			if (!imagesExist || imageFiles.length <= currentMedia)		// Check if this image exists
-//				hasImage = false;
-
 			name = files[currentMedia].getName();
 
 			boolean panorama = false;
 			boolean dataMissing = false, brightnessMissing = false, descriptionMissing = false;
 
-//			Calendar calendarTime = null;			// Calendar date and time			
 			ZonedDateTime calendarTime = null;
 			
 			float fDirection = 0, fElevation = 0, fRotation = 0,
 					fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
-			float fFocusDistance = f.p.settings.defaultFocusDistance;									// Focus distance currently NOT used
+			float fFocusDistance = -1.f;										
 			int iWidth = -1, iHeight = -1;
 			int iCameraModel = 0;
 			float fBrightness = -1.f;
@@ -485,7 +479,7 @@ class WMV_Metadata
 
 			file = files[currentMedia];				// Get current file from array
 
-			if(f.p.p.debug.metadata && f.p.p.debug.detailed)
+			if(debugSettings.metadata && debugSettings.detailed)
 				PApplet.println("Loading image: "+name);
 
 			try {
@@ -509,7 +503,7 @@ class WMV_Metadata
 						if (tag.getTagName().equals("Software")) // Software
 						{
 							software = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Software..." + software);
 
 							if(software.equals("[Exif IFD0] Software - Occipital 360 Panorama"))
@@ -526,7 +520,7 @@ class WMV_Metadata
 						if (tag.getTagName().equals("Model")) // Model
 						{
 							camera_model = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Camera Model..." + camera_model);
 
 							try
@@ -564,51 +558,51 @@ class WMV_Metadata
 						if (tag.getTagName().equals("Orientation")) // Orientation
 						{
 							orientation = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Orientation..." + orientation);
 						}
 						if (tag.getTagName().equals("Date/Time Original")) // Orientation
 						{
 							dateTime = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found DateTimeOriginal..." + dateTime);
 						}
 						if (tag.getTagName().equals("GPS Latitude")) // Latitude
 						{
 							latitude = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Latitude..." + latitude);
 						}
 						if (tag.getTagName().equals("GPS Longitude")) // Longitude
 						{
 							longitude = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Longitude..." + longitude);
 						}
 						if (tag.getTagName().equals("GPS Altitude")) // Altitude
 						{
 							altitude = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Altitude..." + altitude);
 						}
 						if (tag.getTagName().equals("Focal Length")) // Focal Length
 						{
 							focalLength = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Focal Length..." + focalLength);
 						}
 
 						if (tag.getTagName().equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
 						{
 							focalLength35 = tagString;
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Focal Length 35mm Equivalent..." + focalLength);
 						}
 						if (tag.getTagName().equals("GPS Img Direction")) // Image Direction
 						{
 							direction = tagString;
 							
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								if(panorama)
 									PApplet.println("Found Panorama Direction..." + direction);
 						}
@@ -631,13 +625,13 @@ class WMV_Metadata
 							{
 								descriptionMissing = true;
 
-								if(f.p.p.debug.metadata)
+								if(debugSettings.metadata)
 								{
 									PApplet.println("Not a Theodolite image...");
 								}
 							}
 
-							if (f.p.p.debug.metadata && f.p.p.debug.detailed)
+							if (debugSettings.metadata && debugSettings.detailed)
 								PApplet.println("Found Description..." + description);
 						}
 						if (tag.getTagName().equals("AFPointsUsed")) // Orientation
@@ -728,7 +722,10 @@ class WMV_Metadata
 					yCoord = parseAltitude(altitude);
 					zCoord = parseLatitude(latitude);
 
-					if (f.p.p.utilities.isNaN(xCoord) || f.p.p.utilities.isNaN(yCoord) || f.p.p.utilities.isNaN(zCoord)) 
+//					PApplet.println("xCoord:"+xCoord+ " u.isNaN(xCoord):"+u.isNaN(xCoord));
+//					PApplet.println("yCoord:"+yCoord+ " u.isNaN(yCoord):"+u.isNaN(yCoord));
+//					PApplet.println("zCoord:"+zCoord+ " u.isNaN(zCoord):"+u.isNaN(zCoord));
+					if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
 					{
 						pGPSLoc = new PVector(0, 0, 0);
 						if(!dataMissing)
@@ -738,11 +735,12 @@ class WMV_Metadata
 							dataMissing = true;
 						}						
 					}
+//					PApplet.println("pGPSLoc.x:"+pGPSLoc.x+ " pGPSLoc.y:"+pGPSLoc.y+" pGPSLoc.z:"+pGPSLoc.z);
 					pGPSLoc = new PVector(xCoord, yCoord, zCoord);
 				} 
 				catch (RuntimeException ex) 
 				{
-					if (f.p.p.debug.metadata)
+					if (debugSettings.metadata)
 						PApplet.println("Error reading image location:" + name + "  " + ex);
 
 					if(!dataMissing)
@@ -761,7 +759,7 @@ class WMV_Metadata
 						PApplet.println("Panorama fDirection is null!");
 				} 
 				catch (RuntimeException ex) {
-					if (f.p.p.debug.metadata)
+					if (debugSettings.metadata)
 						PApplet.println("Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
 					if(!panorama)
 					{
@@ -796,7 +794,7 @@ class WMV_Metadata
 					PApplet.println("Excluded "+(panorama?"panorama:":"image:")+name);
 			}
 			catch (RuntimeException ex) {
-				if (f.p.p.debug.metadata)
+				if (debugSettings.metadata)
 					PApplet.println("Could not add image! Error: "+ex);
 			}
 		}
@@ -851,7 +849,7 @@ class WMV_Metadata
 
 			file = files[currentMedia];				// Get current file from array
 
-			if(f.p.p.debug.metadata && f.p.p.debug.detailed)
+			if(debugSettings.metadata && debugSettings.detailed)
 				PApplet.println("Loading video: "+name);
 
 
@@ -876,7 +874,7 @@ class WMV_Metadata
 				sWidth = videoMetadata.get("ImageWidth");
 				sHeight= videoMetadata.get("ImageHeight");
 
-				if(f.p.p.debug.metadata && f.p.p.debug.video && f.p.p.debug.detailed)
+				if(debugSettings.metadata && debugSettings.video && debugSettings.detailed)
 				{
 					PApplet.println("Video latitude:"+latitude);
 					PApplet.println("  longitude:"+longitude);
@@ -896,13 +894,17 @@ class WMV_Metadata
 				}
 
 				/* Parse video GPS coordinates */
+				PApplet.println("HERE");
+
 				try {
 					float xCoord, yCoord, zCoord;
 					xCoord = Float.valueOf(longitude);				// Flip sign of longitude?
 					yCoord = Float.valueOf(altitude);
 					zCoord = Float.valueOf(latitude);				// Flip sign of latitude?
+//					PApplet.println("xCoord:"+xCoord+" yCoord:"+yCoord+" zCoord:"+zCoord);
 
-					if (f.p.p.utilities.isNaN(xCoord) || f.p.p.utilities.isNaN(yCoord) || f.p.p.utilities.isNaN(zCoord)) {
+					if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
+					{
 						pLoc = new PVector(0, 0, 0);
 						if(!dataMissing)
 						{
@@ -910,11 +912,12 @@ class WMV_Metadata
 							dataMissing = true;
 						}
 					}
+//					PApplet.println("pLoc.x:"+pLoc.x+" pLoc.y:"+pLoc.y+" pLoc.z:"+pLoc.z);
 					pLoc = new PVector(xCoord, yCoord, zCoord);
 				} 
 				catch (RuntimeException ex) 
 				{
-					if (f.p.p.debug.metadata)
+					if (debugSettings.metadata)
 						PApplet.println("Error reading video location:" + name + "  " + ex);
 					dataMissing = true;
 				}
@@ -941,12 +944,12 @@ class WMV_Metadata
 								   				-1, iWidth, iHeight, fBrightness, calendarTime) );
 					vCount++;
 				}
-				else if(f.p.p.debug.metadata || f.p.p.debug.video)
+				else if(debugSettings.metadata || debugSettings.video)
 					PApplet.println("Excluded video:"+name);
 
 			}
 			catch (Throwable t) {
-				if (f.p.p.debug.metadata)
+				if (debugSettings.metadata)
 				{
 					PApplet.println("Throwable while adding video to ArrayList: "+t);
 					PApplet.println("   pFilePath:" + pFilePath);
@@ -1211,9 +1214,7 @@ class WMV_Metadata
 
 	public float ConvertDMSToDDLongitude(float degrees, float minutes, float seconds) {
 		float dd;
-
 		dd = degrees - minutes/60.f - seconds/(60.f*60.f);
-
 		return dd;
 	}
 
@@ -1229,7 +1230,7 @@ class WMV_Metadata
 				parts[i] = parts[i].substring(1);
 			}
 			afPoints[i] = parseAFPoint(parts[i]);
-			if (f.p.p.debug.metadata)
+			if (debugSettings.metadata)
 				PApplet.println("afPoints[i]:" + afPoints[i]);
 		}
 
@@ -1262,7 +1263,7 @@ class WMV_Metadata
 		else if (afPoint.equals("Far Right"))
 			return 10;
 
-		if (f.p.p.debug.metadata) {
+		if (debugSettings.metadata) {
 			PApplet.println("Not a valid afPoint: " + afPoint);
 		}
 
@@ -1284,10 +1285,7 @@ class WMV_Metadata
 		int day = Integer.valueOf(parts[0]);
 		int hour = Integer.valueOf(parts[1]);
 
-//		Calendar c = Calendar.getInstance();
-//		c.set(year, month, day, hour, min, sec);
 //		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
-		
 		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
 		
 //		year = utc.getYear();

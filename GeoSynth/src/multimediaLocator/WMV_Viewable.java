@@ -95,10 +95,10 @@ public abstract class WMV_Viewable
 		timeLogMap.setMapFunction(p.p.circularEaseOut);
 	}  
 
-	abstract void draw();
-	abstract void displayMetadata();
-	abstract void loadMedia();
-	abstract void displayModel();
+	abstract void loadMedia(MultimediaLocator ml);
+	abstract void draw(WMV_World world);
+	abstract void displayModel(WMV_World world);
+	abstract void displayMetadata(WMV_World world);
 	
 	/**
 	 * Set clusterDate for this media based on media times in associated cluster
@@ -556,9 +556,9 @@ public abstract class WMV_Viewable
 		if(selection)
 		{
 			if(p.p.p.debug.viewer && p.p.p.debug.detailed)
-				p.p.display.message("Selected image:"+id);
+				p.p.p.display.message(p.p, "Selected image:"+id);
 
-			displayMetadata();
+			displayMetadata(p.p);
 		}
 	}
 

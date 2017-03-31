@@ -485,7 +485,7 @@ public class WMV_Cluster
 			for(WMV_Panorama p : userPanoramas)
 			{
 				p.update();
-				p.draw();
+				p.draw(p.p.p);
 			}
 		}
 
@@ -494,7 +494,7 @@ public class WMV_Cluster
 			for(WMV_Panorama p : stitchedPanoramas)
 			{
 				p.update();
-				p.draw();
+				p.draw(p.p.p);
 			}
 		}
 	}
@@ -513,7 +513,7 @@ public class WMV_Cluster
 					valid.append(i);
 			}
 
-			if(p.p.p.debug.stitching) p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
+//			if(p.p.p.debug.stitching) p.p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
 			
 			WMV_Panorama pano = p.p.p.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
 
@@ -544,7 +544,7 @@ public class WMV_Cluster
 		}
 		else
 		{
-			if(p.p.p.debug.stitching) p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
+//			if(p.p.p.debug.stitching) p.p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
 
 			for(WMV_MediaSegment m : segments)			// Stitch panorama for each media segment
 			{
@@ -557,7 +557,7 @@ public class WMV_Cluster
 							valid.append(i);
 					}
 					
-					if(p.p.p.debug.stitching && p.p.p.debug.detailed) p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
+//					if(p.p.p.debug.stitching && p.p.p.debug.detailed) p.p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
 					
 					if(p.p.viewer.getSettings().angleThinning)				// Remove invisible images
 					{
@@ -869,7 +869,7 @@ public class WMV_Cluster
 		force.mult(strength);
 		
 		if(p.p.drawForceVector)
-			p.p.display.map2D.drawForceVector(force);
+			p.p.p.display.map2D.drawForceVector(force);
 		
 		return force; 								// Return force to be applied
 	}
@@ -1593,7 +1593,7 @@ public class WMV_Cluster
 		isAttractor = state;
 //		if(p.p.p.debug.viewer)
 //		if(isAttractor())
-//			p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
+//			p.p.p.display.message("Set cluster isAttractor to true:"+getID()+" attraction force mag:"+getAttractionForce().mag());
 	}
 	
 	public void setSingle(boolean state)

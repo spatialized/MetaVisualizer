@@ -65,7 +65,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(debug.main) PApplet.println("Initializing world...");
 		world.initialize();
 		input = new ML_Input(width, height);
-//		display = new ML_Display(world, width, height, world.hudDistance);			// Initialize displays
+		display = new ML_Display(width, height, world.hudDistance);			// Initialize displays
 
 		/* Initialize graphics and text parameters */
 		colorMode(PConstants.HSB);
@@ -84,7 +84,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if (state.startup)
 		{
 			if(state.reset) reset();
-			else world.display.showStartup();	/* Startup screen */
+			else display.showStartup(world);	/* Startup screen */
 			state.startup = false;	
 		}
 		else if(!state.running)
@@ -109,7 +109,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void reset()
 	{
 		background(0.f);
-		world.display.window.hideWindows();
+		display.window.hideWindows();
 		world.reset();
 	}
 	
@@ -262,9 +262,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	/* Input Handling */
 	public void mouseMoved()
 	{
-//		if(world.display.displayView == 1)
-//			if(world.display.satelliteMap)
-//				world.display.map2D.handleMouseMoved(mouseX, mouseY);
+//		if(display.displayView == 1)
+//			if(display.satelliteMap)
+//				display.map2D.handleMouseMoved(mouseX, mouseY);
 	}
 	
 	/**
@@ -275,9 +275,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //		PApplet.println("pressed");
 //		if(world.viewer.mouseNavigation)
 //			input.handleMousePressed(mouseX, mouseY);
-		if(world.display.satelliteMap)
+		if(display.satelliteMap)
 		{
-			world.display.map2D.mousePressedFrame = frameCount;
+			display.map2D.mousePressedFrame = frameCount;
 		}
 	}
 
@@ -288,10 +288,10 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //		PApplet.println("released mouseX:"+mouseX+" mouseY:"+mouseY);
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseReleased(mouseX, mouseY);
-		if(world.display.displayView == 1)
-			input.handleMouseReleased(world.viewer, world.display, mouseX, mouseY, frameCount);
-		else if(world.display.displayView == 3)
-			input.handleMouseReleased(world.viewer, world.display, mouseX, mouseY, frameCount);
+		if(display.displayView == 1)
+			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
+		else if(display.displayView == 3)
+			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 	}
 	
 	/**
@@ -307,14 +307,14 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 * Called when mouse is dragged
 	 */
 	public void mouseDragged() {
-		if(world.display.satelliteMap)
+		if(display.satelliteMap)
 		{
-			world.display.map2D.mouseDraggedFrame = frameCount;
+			display.map2D.mouseDraggedFrame = frameCount;
 		}
 //		PApplet.println("dragged");
 //		if(world.mouseNavigation)
 //		{
-//			if(world.display.inDisplayView())
+//			if(display.inDisplayView())
 //			{
 //				PApplet.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
 //				PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY);
@@ -324,16 +324,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 
 	public void handleButtonEvents(GButton button, GEvent event) { 
-		input.handleButtonEvent(world, world.display, button, event);
+		input.handleButtonEvent(world, display, button, event);
 	}
 	
 	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
-		input.handleToggleControlEvent(world, world.display, option, event);
+		input.handleToggleControlEvent(world, display, option, event);
 	}
 	
 	public void handleSliderEvents(GValueControl slider, GEvent event) 
 	{ 
-		input.handleSliderEvent(world, world.display, slider, event);
+		input.handleSliderEvent(world, display, slider, event);
 	}
 
 	/**
@@ -349,7 +349,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	public void keyReleased() 
 	{
-		input.handleKeyReleased(world.viewer, world.display, key, keyCode);
+		input.handleKeyReleased(world.viewer, display, key, keyCode);
 	}
 	
 	public void wmvWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -357,7 +357,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
 	public void timeWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -365,7 +365,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -373,7 +373,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void graphicsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -381,7 +381,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void memoryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -389,7 +389,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void modelWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -397,7 +397,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void selectionWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -405,7 +405,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void statisticsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -413,7 +413,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
@@ -421,7 +421,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, world.display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	public void selectFolderPrompt()

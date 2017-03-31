@@ -56,7 +56,7 @@ public class ML_DebugSettings
 			
 			if(performanceSlow && memory)
 			{
-				p.world.display.message("Performance slow...");
+				p.display.message(p.world, "Performance slow...");
 			}
 		}
 		else

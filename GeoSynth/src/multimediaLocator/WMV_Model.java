@@ -100,7 +100,7 @@ public class WMV_Model
 			float midLongitude = (highLongitude - lowLongitude) / 2.f;
 			float midLatitude = (highLatitude - lowLatitude) / 2.f;
 
-			if(p.p.p.debug.field) PApplet.println("Initializing model for field #"+p.getID()+"...");
+			if(p.debugSettings.field) PApplet.println("Initializing model for field #"+p.getID()+"...");
 
 			validImages = p.getImageCount();
 			validPanoramas = p.getPanoramaCount();
@@ -143,7 +143,7 @@ public class WMV_Model
 			//			for(GMV_Video v : p.videos)						
 			//				v.maxClusterDistance = max;
 
-			if(p.p.p.debug.cluster)
+			if(p.debugSettings.cluster)
 				PApplet.println("------> Set maxClusterDistance:"+maxClusterDistance);
 
 			if(highLongitude == -1000000 || lowLongitude == 1000000 || highLatitude == -1000000 || lowLatitude == 1000000)	// If field dimensions aren't initialized
@@ -162,7 +162,7 @@ public class WMV_Model
 
 			fieldAspectRatio = fieldWidth / fieldLength;
 
-			if (p.p.p.debug.model)
+			if (p.debugSettings.model)
 			{
 				PApplet.print("Field Width:"+fieldWidth);
 				PApplet.print(" Field Length:"+fieldLength);
@@ -176,7 +176,7 @@ public class WMV_Model
 		}
 		else 
 		{
-			if(p.p.p.debug.field) 
+			if(p.debugSettings.field) 
 			{
 				PApplet.println("No images loaded! Couldn't initialize field...");
 				PApplet.println("p.getPanoramas().size():"+p.getPanoramas().size());
@@ -189,7 +189,7 @@ public class WMV_Model
 	 */
 	void runInitialClustering() 					
 	{
-		if(p.p.p.debug.cluster || p.p.p.debug.model)
+		if(p.debugSettings.cluster || p.debugSettings.model)
 			PApplet.println("Running initial clustering for field: "+p.getName());
 
 		clustersByDepth = new IntList();
@@ -214,12 +214,12 @@ public class WMV_Model
 			p.setClusters( cleanupClusters(p.getClusters()) );
 		}
 
-		if(p.p.p.debug.cluster || p.p.p.debug.model)
-			p.p.display.message("Created "+getClusterAmount()+" clusters...");
+		if(p.debugSettings.cluster || p.debugSettings.model)
+			p.p.p.display.message(p.p, "Created "+getClusterAmount()+" clusters...");
 		
 		for(WMV_Cluster c : p.getClusters())
 		{
-			if(p.p.p.debug.model && !c.isEmpty())
+			if(p.debugSettings.model && !c.isEmpty())
 				PApplet.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
 		}
 	}
@@ -245,22 +245,22 @@ public class WMV_Model
 		p.setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
 
 		/* Display Status */
-		if(!p.p.display.initialSetup)
+		if(!p.p.p.display.initialSetup)
 		{
-			p.p.display.clearMessages();
-			p.p.display.message("Running K-Means Clustering...");
-			p.p.display.message(" ");
-			p.p.display.message("  Iterations:"+refinement);
-			p.p.display.message("  Population Factor:"+populationFactor);
+			p.p.p.display.clearMessages();
+			p.p.p.display.message(p.p, "Running K-Means Clustering...");
+			p.p.p.display.message(p.p, " ");
+			p.p.p.display.message(p.p, "  Iterations:"+refinement);
+			p.p.p.display.message(p.p, "  Population Factor:"+populationFactor);
 			if(p.p.mergeClusters)
 			{
-				p.p.display.message("");
-				p.p.display.message("Cluster Merging:");
-				p.p.display.message("  Minimum Cluster Distance:"+p.p.settings.minClusterDistance);
-				p.p.display.message("  Maximum Cluster Distance:"+p.p.settings.maxClusterDistance);
+				p.p.p.display.message(p.p, "");
+				p.p.p.display.message(p.p, "Cluster Merging:");
+				p.p.p.display.message(p.p, "  Minimum Cluster Distance:"+p.p.settings.minClusterDistance);
+				p.p.p.display.message(p.p, "  Maximum Cluster Distance:"+p.p.settings.maxClusterDistance);
 			}
-			p.p.display.message(" ");
-			p.p.display.displayClusteringInfo();
+			p.p.p.display.message(p.p, " ");
+			p.p.p.display.displayClusteringInfo(p.p);
 		}
 		
 //		if(mediaDensity < XXX)			// ---Split into fields here
@@ -268,7 +268,7 @@ public class WMV_Model
 		/* Estimate number of clusters */
 		int numClusters = PApplet.round( (1.f / PApplet.sqrt(mediaDensity)) * populationFactor ); 	// Calculate numClusters from media density
 
-		if(p.p.p.debug.cluster && p.p.display.initialSetup)
+		if(p.debugSettings.cluster && p.p.p.display.initialSetup)
 			PApplet.println("Creating "+numClusters+" initial clusters based on "+validMedia+" valid media...");
 
 //		boolean test = false;
@@ -294,20 +294,20 @@ public class WMV_Model
 		{
 			if (p.getImages().size() == 0 && p.getPanoramas().size() == 0 && p.getVideos().size() == 0) 		// If there are 0 media
 			{
-				p.p.display.message("No media loaded!  Can't run k-means clustering... Will exit.");
+				p.p.p.display.message(p.p, "No media loaded!  Can't run k-means clustering... Will exit.");
 				p.p.p.exit();
 			}
 			else
 			{
-				if(p.p.p.debug.cluster)
-					p.p.display.message("Single media point scene...");
+				if(p.debugSettings.cluster)
+					p.p.p.display.message(p.p, "Single media point scene...");
 			}
 		}
 		
-		if(!p.p.display.initialSetup)
+		if(!p.p.p.display.initialSetup)
 		{
-			p.p.display.message(" ");
-			p.p.display.message("Created "+numClusters+" Clusters...");
+			p.p.p.display.message(p.p, " ");
+			p.p.p.display.message(p.p, "Created "+numClusters+" Clusters...");
 		}
 	}
 	
@@ -324,7 +324,7 @@ public class WMV_Model
 		int panoramaCount = 0;
 		int videoCount = 0;
 
-		if(p.p.p.debug.cluster)
+		if(p.debugSettings.cluster)
 			PApplet.println("--- Getting GMV_Clusters at depth "+depth+" ---");
 
 		if(dendrogramTop != null)
@@ -338,7 +338,7 @@ public class WMV_Model
 		}
 		else
 		{
-			if(p.p.p.debug.cluster)
+			if(p.debugSettings.cluster)
 				PApplet.println("Top cluster is null!");
 			p.p.p.exit();
 		}
@@ -359,7 +359,7 @@ public class WMV_Model
 			{
 				if(!utilities.isInteger(parts[0], 10))
 				{
-					if(p.p.p.debug.cluster)
+					if(p.debugSettings.cluster)
 						PApplet.println("Media name error! "+name);
 				}
 				else isMedia = true;
@@ -368,13 +368,13 @@ public class WMV_Model
 			{
 				if(!utilities.isInteger(parts[1], 10))
 				{
-					if(p.p.p.debug.cluster)
+					if(p.debugSettings.cluster)
 						PApplet.println("Cluster name error! "+name);
 				}
 			}
 			else
 			{
-				if(p.p.p.debug.cluster)
+				if(p.debugSettings.cluster)
 					PApplet.println("Media or cluster name error! "+name);
 			}
 
@@ -382,7 +382,7 @@ public class WMV_Model
 
 			if(isMedia)
 			{
-				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
+				if(p.debugSettings.cluster && p.debugSettings.detailed)
 					PApplet.println("Cluster "+cluster.getName()+" is a media file..."+name);
 
 				mediaIdx = Integer.parseInt(name);
@@ -432,7 +432,7 @@ public class WMV_Model
 
 				location = calculateAveragePoint(mediaPoints);					// Calculate cluster location from average of media points
 
-				if(p.p.p.debug.cluster && p.p.p.debug.detailed)
+				if(p.debugSettings.cluster && p.debugSettings.detailed)
 					PApplet.println("Calculated Average Point: "+location);
 			}
 
@@ -493,7 +493,7 @@ public class WMV_Model
 		}	
 		
 		int removed = before - result.size();
-		if(p.p.p.debug.model) PApplet.println("cleanupClusters()... Removed "+removed+" clusters from field #"+p.getID());
+		if(p.debugSettings.model) PApplet.println("cleanupClusters()... Removed "+removed+" clusters from field #"+p.getID());
 		
 		return result;
 	}
@@ -517,16 +517,16 @@ public class WMV_Model
 		if(p.getClusters().size() > 0)							// Find image place holders
 			findVideoPlaceholders();
 
-		if(!p.p.display.initialSetup)
+		if(!p.p.p.display.initialSetup)
 		{
 			/* Display Status */
-			p.p.display.clearMessages();
-			p.p.display.message("Hierarchical Clustering Mode");
-			p.p.display.message(" ");
-			p.p.display.message("Cluster Depth:"+clusterDepth);
-			p.p.display.message(" ");
-			p.p.display.displayClusteringInfo();
-			p.p.display.message("Found "+p.getClusters().size()+" clusters...");
+			p.p.p.display.clearMessages();
+			p.p.p.display.message(p.p, "Hierarchical Clustering Mode");
+			p.p.p.display.message(p.p, " ");
+			p.p.p.display.message(p.p, "Cluster Depth:"+clusterDepth);
+			p.p.p.display.message(p.p, " ");
+			p.p.p.display.displayClusteringInfo(p.p);
+			p.p.p.display.message(p.p, "Found "+p.getClusters().size()+" clusters...");
 		}
 		
 		p.initializeClusters(p.p.mergeClusters);					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
@@ -580,7 +580,7 @@ public class WMV_Model
 			String name = top.getName();										// Otherwise, save the result if appropriate
 			int mediaIdx = Integer.parseInt(name);
 
-			if(p.p.p.debug.cluster)
+			if(p.debugSettings.cluster)
 				PApplet.println("No children in cluster "+name+" ... Already a media file!");
 
 			if(mediaIdx < indexPanoramaOffset)
@@ -613,7 +613,7 @@ public class WMV_Model
 			boolean deepest = false;
 			depthCount++;														// Move to next dendrogram level
 
-			if(p.p.p.debug.cluster && p.p.p.debug.detailed)
+			if(p.debugSettings.cluster && p.debugSettings.detailed)
 				PApplet.println("Searching for media in cluster: "+top.getName()+"...");
 
 			while(!deepest)														// Until the deepest level
@@ -629,7 +629,7 @@ public class WMV_Model
 						for( Cluster c : children )								// Add to nextDepth clusters
 							nextDepth.add(c);
 
-						if(p.p.p.debug.cluster && p.p.p.debug.detailed)
+						if(p.debugSettings.cluster && p.debugSettings.detailed)
 						{
 							PApplet.print("  Cluster "+cluster.getName()+" has "+children.size()+" children at depth "+depthCount);
 							PApplet.println("  Added to next depth, array size:"+nextDepth.size()+"...");
@@ -678,7 +678,7 @@ public class WMV_Model
 			}
 		}
 
-		if(p.p.p.debug.cluster && p.p.p.debug.detailed && mediaCount > 0)
+		if(p.debugSettings.cluster && p.debugSettings.detailed && mediaCount > 0)
 			PApplet.println( "Found "+mediaCount+" media at depth "+depthCount+" result.size():"+result.size() );
 
 		return result;
@@ -706,7 +706,7 @@ public class WMV_Model
 			clusters = nextDepth;										// Move to next depth
 		}	
 
-		if(p.p.p.debug.cluster) 
+		if(p.debugSettings.cluster) 
 			PApplet.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
 
 		return clusters;
@@ -721,7 +721,7 @@ public class WMV_Model
 		ArrayList<Cluster> clusters = (ArrayList<Cluster>) topCluster.getChildren();	// Dendrogram clusters
 		int depthCount = 0;
 
-		if(p.p.p.debug.cluster) PApplet.println("Counting clusters at all depth levels...");
+		if(p.debugSettings.cluster) PApplet.println("Counting clusters at all depth levels...");
 		clustersByDepth.append(1);					// Add top cluster to clustersByDepth list
 
 		if(clusters.size() > 0)
@@ -747,7 +747,7 @@ public class WMV_Model
 
 				clustersByDepth.append(clusters.size());							// Record cluster number at depthCount
 
-				if(p.p.p.debug.cluster && p.p.p.debug.detailed) PApplet.println("Found "+clusters.size()+" clusters at depth:"+depthCount);
+				if(p.debugSettings.cluster && p.debugSettings.detailed) PApplet.println("Found "+clusters.size()+" clusters at depth:"+depthCount);
 
 				deepest = !( children.size() > 0 );								// At deepest level when list of chidren is empty
 
@@ -972,7 +972,7 @@ public class WMV_Model
 
 				if(i > 0)
 					i--;
-				else if(p.p.p.debug.model)
+				else if(p.debugSettings.model)
 					PApplet.println("Error in initClusters()... No media!!");
 			}
 			else															// Find a random media (image, panorama or video) location for new cluster
@@ -1027,7 +1027,7 @@ public class WMV_Model
 		boolean moved = false;						// Has any cluster moved farther than epsilon?
 		
 		ArrayList<WMV_Cluster> last = p.getClusters();
-		if(p.p.p.debug.cluster || p.p.p.debug.model)
+		if(p.debugSettings.cluster || p.debugSettings.model)
 			PApplet.println("--> Refining clusters...");
 		
 		while( count < iterations ) 							// Iterate to create the clusters
@@ -1060,14 +1060,14 @@ public class WMV_Model
 				
 				if(!moved)
 				{
-					if(p.p.p.debug.cluster || p.p.p.debug.model)
+					if(p.debugSettings.cluster || p.debugSettings.model)
 						PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
 					break;								// If all clusters moved less than epsilon, stop refinement
 				}
 			}
 			else
 			{
-				if(p.p.p.debug.cluster || p.p.p.debug.model)
+				if(p.debugSettings.cluster || p.debugSettings.model)
 					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+p.getClusters().size()+" last.size():"+last.size());
 			}
 			
@@ -1088,7 +1088,7 @@ public class WMV_Model
 		IntList merged = new IntList();											// List of clusters already merged with neighbors
 		float firstMergePct = 0.2f;												// Fraction of clusters with most neighbors to merge first
 		
-		if((p.p.p.debug.cluster || p.p.p.debug.model ) && p.p.p.debug.detailed) PApplet.println("Merging adjacent clusters... ");
+		if((p.debugSettings.cluster || p.debugSettings.model ) && p.debugSettings.detailed) PApplet.println("Merging adjacent clusters... ");
 
 		for( WMV_Cluster c : p.getClusters() )					// Find distances of close neighbors to each cluster
 		{
@@ -1146,7 +1146,7 @@ public class WMV_Model
 
 		for( PVector v : mostNeighbors ) 					// For clusters with most close neighbors, absorb neighbors into cluster
 		{
-			if(p.p.p.debug.cluster && v.y > 0 && p.p.p.debug.detailed)
+			if(p.debugSettings.cluster && v.y > 0 && p.debugSettings.detailed)
 				PApplet.println("Merging cluster "+(int)v.x+" with "+(int)v.y+" neighbors...");
 
 			WMV_Cluster c = p.getCluster( (int)v.x );
@@ -1190,7 +1190,7 @@ public class WMV_Model
 			}
 		}
 
-		if(p.p.p.debug.cluster)
+		if(p.debugSettings.cluster)
 			PApplet.println("Merged Clusters "+mergedClusters);
 	}
 
@@ -1238,7 +1238,7 @@ public class WMV_Model
 			 }
 		 }
 
-		 if(p.p.p.debug.cluster)
+		 if(p.debugSettings.cluster)
 			 PApplet.println("Created "+(newClusterID-initial)+" clusters from single images...");
 	 }
 
@@ -1258,12 +1258,12 @@ public class WMV_Model
 				 {
 					 v.cluster = p.getImage(id).cluster;	// Set video cluster to cluster of associated image
 					 p.getCluster(v.cluster).video = true;	// Set cluster video property to true
-					 if(p.p.p.debug.video)
+					 if(p.debugSettings.video)
 						 PApplet.println("Image placeholder for video: "+i+" is:"+id+" p.getCluster(v.cluster).video:"+p.getCluster(v.cluster).video);
 				 }
 				 else
 				 {
-					 if(p.p.p.debug.video)
+					 if(p.debugSettings.video)
 						 PApplet.println("No image placeholder found for video: "+i+" p.getCluster(v.cluster).video:"+p.getCluster(v.cluster).video);
 					 v.disabled = true;
 				 }
@@ -1331,7 +1331,7 @@ public class WMV_Model
 	  */
 	 void calculateFieldSize() 
 	 {
-		 if(p.p.p.debug.field) PApplet.println("Calculating field dimensions...");
+		 if(p.debugSettings.field) PApplet.println("Calculating field dimensions...");
 
 		 boolean init = true;	
 
@@ -1400,7 +1400,7 @@ public class WMV_Model
 				 lowLatitude = v.gpsLocation.z;
 		 }
 
-		 if (p.p.p.debug.model) 							// Display results for debugging
+		 if (p.debugSettings.model) 							// Display results for debugging
 		 {
 			 System.out.println("High Longitude:" + highLongitude);
 			 System.out.println("High Latitude:" + highLatitude);
@@ -1421,7 +1421,7 @@ public class WMV_Model
 		 boolean initPanoTime = true, initPanoDate = true;	
 		 boolean initVideoTime = true, initVideoDate = true;	
 
-		 if(p.p.p.debug.field) PApplet.println("Analyzing media in field...");
+		 if(p.debugSettings.field) PApplet.println("Analyzing media in field...");
 
 		 for ( WMV_Video v : p.getVideos() ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
@@ -1537,7 +1537,7 @@ public class WMV_Model
 		 if (highVideoDate > highDate)
 			 highDate = highVideoDate;
 
-		 if (p.p.p.debug.metadata) 							// Display results for debugging
+		 if (p.debugSettings.metadata) 							// Display results for debugging
 		 {
 			 System.out.println("High Image Time:" + highImageTime);
 			 System.out.println("High Image Date:" + highImageDate);
@@ -1661,10 +1661,10 @@ public class WMV_Model
 //					location = p.videos.get(mediaIdx).getCaptureLocation();
 //				}
 //	
-//				p.p.display.message("Drawing point:");
-//				p.p.display.drawMapPoint(location, 20.f, p.p.display.largeMapWidth, p.p.display.largeMapHeight, p.p.display.mapClusterHue, 255, 255, p.p.display.mapClusterHue);
+//				p.p.p.display.message("Drawing point:");
+//				p.p.p.display.drawMapPoint(location, 20.f, p.p.p.display.largeMapWidth, p.p.p.display.largeMapHeight, p.p.p.display.mapClusterHue, 255, 255, p.p.p.display.mapClusterHue);
 //			}
-//			if(p.p.p.debug.cluster) 
+//			if(p.debugSettings.cluster) 
 //				PApplet.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
 //		}
 

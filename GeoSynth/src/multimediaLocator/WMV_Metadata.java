@@ -87,11 +87,11 @@ class WMV_Metadata
 			pCount = 0;
 			vCount = 0;
 
-			PApplet.println("smallImageFilesFound:"+smallImageFilesFound);
-			PApplet.println("imageFilesFound:"+imageFilesFound);
-			PApplet.println("panoramaFilesFound:"+panoramaFilesFound);
-			PApplet.println("videoFilesFound:"+videoFilesFound);
-			PApplet.println("soundFilesFound:"+soundFilesFound);
+//			PApplet.println("smallImageFilesFound:"+smallImageFilesFound);
+//			PApplet.println("imageFilesFound:"+imageFilesFound);
+//			PApplet.println("panoramaFilesFound:"+panoramaFilesFound);
+//			PApplet.println("videoFilesFound:"+videoFilesFound);
+//			PApplet.println("soundFilesFound:"+soundFilesFound);
 
 //			if(imageFilesFound)
 //				loadImageMetadata(imageFiles);						// Load image metadata 

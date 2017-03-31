@@ -57,6 +57,11 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			location = newLocation;
 			captureLocation = newLocation;
+			if (p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x))
+			{
+				location = new PVector (0, 0, 0);
+				captureLocation = newLocation;
+			}
 		}
 		
 		gpsLocation = newGPSLocation;
@@ -70,8 +75,7 @@ public class WMV_Panorama extends WMV_Viewable
 		theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		
-//		radius = p.p.defaultFocusDistance * 0.75f;
-		radius = p.p.settings.defaultFocusDistance * p.p.settings.panoramaFocusDistanceFactor;
+		radius = p.worldSettings.defaultFocusDistance * p.worldSettings.panoramaFocusDistanceFactor;
 		origRadius = radius;
 	}  
 
@@ -90,11 +94,11 @@ public class WMV_Panorama extends WMV_Viewable
 
 		if(getCaptureDistance() < p.p.viewer.getFarViewingDistance() && !requested)
 			if(!initialized)
-				loadMedia(); 
+				loadMedia(p.p.p); 
 
 		if(texture.width > 0 && !disabled)			
 		{
-			if(p.p.viewer.settings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+			if(p.viewerSettings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
 				for(int id : p.p.viewer.getClustersVisible())
 				{
@@ -109,12 +113,12 @@ public class WMV_Panorama extends WMV_Viewable
 			
 			visible = (getDistanceBrightness() > 0.f);
 
-			if(!fading && p.p.viewer.settings.hidePanoramas)
+			if(!fading && p.viewerSettings.hidePanoramas)
 				visible = false;
 
-			if(visible && !fading && !fadedOut && !p.p.viewer.settings.hidePanoramas && fadingBrightness == 0.f)					// Fade in
+			if(visible && !fading && !fadedOut && !p.viewerSettings.hidePanoramas && fadingBrightness == 0.f)					// Fade in
 			{
-				if(p.p.p.debug.panorama)
+				if(p.debugSettings.panorama)
 					PApplet.println("fadeIn()...pano id:"+getID());
 				fadeIn();
 			}
@@ -124,8 +128,8 @@ public class WMV_Panorama extends WMV_Viewable
 		
 		if(isFading())                       // Fade in and out with time
 		{
-			if(p.p.p.debug.panorama && p.p.p.debug.detailed)
-				p.p.display.message("Panorama fading... id: "+getID());
+			if(p.debugSettings.panorama && p.debugSettings.detailed)
+				p.p.p.display.message(p.p, "Panorama fading... id: "+getID());
 			updateFadingBrightness();
 
 			if(fadingBrightness == 0.f)
@@ -141,15 +145,15 @@ public class WMV_Panorama extends WMV_Viewable
 	/**
 	 * Display the image or spherical panorama in virtual space
 	 */
-	public void draw()
+	public void draw(WMV_World world)
 	{
 		float brightness = fadingBrightness;					
-		brightness *= p.p.viewer.settings.userBrightness;
+		brightness *= p.viewerSettings.userBrightness;
 
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-		if( p.p.timeFading && time != null && !p.p.viewer.isMoving() )
+		if( world.timeFading && time != null && !world.viewer.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 		
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);	  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
@@ -158,37 +162,37 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			if (viewingBrightness > 0)
 			{
-				if(texture.width > 0 && !p.p.viewer.settings.map3DMode)		// If image has been loaded
+				if(texture.width > 0 && !p.viewerSettings.map3DMode)		// If image has been loaded
 				{
-					drawPanorama();
+					drawPanorama(world);
 				}
 			}
 		} 
 		else
 		{      
-			p.p.p.noFill();                  // Hide image if it isn't visible
+			world.p.noFill();                  // Hide image if it isn't visible
 		}
 
-		if(visible && p.p.showModel && !hidden && !disabled)
-			displayModel();
+		if(visible && world.showModel && !hidden && !disabled)
+			displayModel(world);
 
-//		if (visible && isSelected() && !disabled && p.p.p.debug.model)		// Draw panorama location for debugging or map display
+//		if (visible && isSelected() && !disabled && p.debugSettings.model)		// Draw panorama location for debugging or map display
 //			displayModel();
-//		if (visible && !disabled && p.p.viewer.settings.map3DMode)
+//		if (visible && !disabled && p.viewerSettings.map3DMode)
 //			displayModel();
 	}
 
 	/**
 	 * Draw the panorama sphere
 	 */
-	void displayModel()
+	void displayModel(WMV_World world)
 	{
-		p.p.p.pushMatrix();
-		p.p.p.translate(location.x, location.y, location.z);
+		world.p.pushMatrix();
+		world.p.translate(location.x, location.y, location.z);
 
-		p.p.p.fill(215, 135, 255, viewingBrightness);
-		p.p.p.sphere(radius);								// -- Testing
-		p.p.p.popMatrix();
+		world.p.fill(215, 135, 255, viewingBrightness);
+		world.p.sphere(radius);								// -- Testing
+		world.p.popMatrix();
 	}
 	
 	/**
@@ -237,8 +241,8 @@ public class WMV_Panorama extends WMV_Viewable
 		//		 
 		//		 if(selection)
 		//		 {
-		//			 if(p.p.p.debug.viewer && p.p.p.debug.detailed)
-		//				 p.p.display.sendMessage("Selected image:"+id);
+		//			 if(p.debugSettings.viewer && p.debugSettings.detailed)
+		//				 p.p.p.display.sendMessage("Selected image:"+id);
 		//			 
 		//			 displayMetadata();
 		//		 }
@@ -247,53 +251,53 @@ public class WMV_Panorama extends WMV_Viewable
 	/**
 	 * Draw the panorama
 	 */
-	private void drawPanorama() 
+	private void drawPanorama(WMV_World world) 
 	{
-		p.p.p.pushMatrix();
-		p.p.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
+		world.p.pushMatrix();
+		world.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
 
 		float r = radius;				// Testing this
-//		float r = p.p.defaultFocusDistance;				// Testing this
+//		float r = world.defaultFocusDistance;				// Testing this
 		int v0,v1,v2;
 
-		p.p.p.textureMode(PApplet.IMAGE);
-		p.p.p.noStroke();
-		p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
-		p.p.p.texture(texture);
+		world.p.textureMode(PApplet.IMAGE);
+		world.p.noStroke();
+		world.p.beginShape(PApplet.TRIANGLE_STRIP);
+		world.p.texture(texture);
 
-//		PApplet.println("drawPanorama  p.p.viewer.selection:"+p.p.viewer.selection);
-//		PApplet.println("p.p.alphaMode:"+p.p.alphaMode);
+//		PApplet.println("drawPanorama  world.viewer.selection:"+world.viewer.selection);
+//		PApplet.println("world.alphaMode:"+world.alphaMode);
 
 		/* Set the panorama brightness */		
-		if(p.p.viewer.settings.selection)					// Viewer in selection mode
+		if(p.viewerSettings.selection)					// Viewer in selection mode
 		{
 			if(isSelected())
 			{
 //				PApplet.println("selected viewingBrightness:"+viewingBrightness);
-				if(!p.p.alphaMode)
-					p.p.p.tint(viewingBrightness, 255);          				
+				if(!world.alphaMode)
+					world.p.tint(viewingBrightness, 255);          				
 				else
-					p.p.p.tint(255, viewingBrightness);          				
+					world.p.tint(255, viewingBrightness);          				
 			}
 			else
 			{
-				if(!p.p.alphaMode)
-					p.p.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
+				if(!world.alphaMode)
+					world.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
 				else
-					p.p.p.tint(255, viewingBrightness * 0.33f);          				
+					world.p.tint(255, viewingBrightness * 0.33f);          				
 			}
 		}
 		else
 		{
-			if(!p.p.alphaMode)
+			if(!world.alphaMode)
 			{
 //				PApplet.println("!alphaMode viewingBrightness:"+viewingBrightness);
-				p.p.p.tint(viewingBrightness, 255);          				
+				world.p.tint(viewingBrightness, 255);          				
 			}
 			else
 			{
-//				PApplet.println("alphaMode viewingBrightness:"+viewingBrightness+" final alpha:"+PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));
-				p.p.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));          				
+//				PApplet.println("alphaMode viewingBrightness:"+viewingBrightness+" final alpha:"+PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));
+				world.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));          				
 			}
 		}
 		
@@ -303,14 +307,14 @@ public class WMV_Panorama extends WMV_Viewable
 
 		for (int i = 0; i < resolution; i++) 
 		{
-			p.p.p.vertex(0, -r, 0,u,0);
-			p.p.p.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
+			world.p.vertex(0, -r, 0,u,0);
+			world.p.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
 			u += iu;
 		}
 
-		p.p.p.vertex(0, -r, 0, u, 0);
-		p.p.p.vertex(sphere[0].x * r, sphere[0].y * r, sphere[0].z * r, u, v);
-		p.p.p.endShape();   
+		world.p.vertex(0, -r, 0, u, 0);
+		world.p.vertex(sphere[0].x * r, sphere[0].y * r, sphere[0].z * r, u, v);
+		world.p.endShape();   
 
 		// Draw middle rings
 		int voff = 0;
@@ -320,41 +324,41 @@ public class WMV_Panorama extends WMV_Viewable
 			voff += resolution;
 			v2 = voff;
 			u = 0;
-			p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
-			p.p.p.texture(texture);
+			world.p.beginShape(PApplet.TRIANGLE_STRIP);
+			world.p.texture(texture);
 			for(int j = 0; j < resolution; j++) 			// Draw ring
 			{
-				p.p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
-				p.p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
+				world.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
+				world.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
 				u += iu;
 			}
 
 			// Close ring
 			v1 = v0;
 			v2 = voff;
-			p.p.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1].z * r, u, v);
-			p.p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v + iv);
-			p.p.p.endShape();
+			world.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1].z * r, u, v);
+			world.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v + iv);
+			world.p.endShape();
 			v += iv;
 		}
 		u = 0;
 
 		// Draw northern "cap"
-		p.p.p.beginShape(PApplet.TRIANGLE_STRIP);
-		p.p.p.texture(texture);
+		world.p.beginShape(PApplet.TRIANGLE_STRIP);
+		world.p.texture(texture);
 		for(int i = 0; i < resolution; i++) 
 		{
 			v2 = voff + i;
-			p.p.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
-			p.p.p.vertex(0, r, 0, u, v + iv);    
+			world.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
+			world.p.vertex(0, r, 0, u, v + iv);    
 			u += iu;
 		}
 
-		p.p.p.vertex(sphere[voff].x * r, sphere[voff].y * r, sphere[voff].z * r, u, v);
-		p.p.p.endShape();
+		world.p.vertex(sphere[voff].x * r, sphere[voff].y * r, sphere[voff].z * r, u, v);
+		world.p.endShape();
 
-		p.p.p.popMatrix();
-		p.p.p.textureMode(PApplet.NORMAL);
+		world.p.popMatrix();
+		world.p.textureMode(PApplet.NORMAL);
 	}
 
 	/***
@@ -419,27 +423,29 @@ public class WMV_Panorama extends WMV_Viewable
 	/**
 	 * Request the image to be loaded from disk
 	 */
-	public void loadMedia()
+	public void loadMedia(MultimediaLocator ml)
 	{
-		if(p.p.p.debug.panorama && p.p.p.debug.detailed)
-			p.p.display.message("Requesting panorama file:"+getName());
+//		if(p.debugSettings.panorama && p.debugSettings.detailed)
+//			p.p.p.display.message(p.p, "Requesting panorama file:"+getName());
+//
+//		if(!p.debugSettings.lowMemory)			// Check enough memory available
+//		{
+		
+//			if(p.viewerSettings.orientationMode)
+//				location = p.p.viewer.getLocation();
+//			else
+//				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
-		if(!p.p.p.debug.lowMemory)			// Check enough memory available
-		{
-			if(p.p.viewer.settings.orientationMode)
-				location = p.p.viewer.getLocation();
-			else
-				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
+//		location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
+//			if (p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x))
+//			{
+//				location = new PVector (0, 0, 0);
+//			}
 
-			if (p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x))
-			{
-				location = new PVector (0, 0, 0);
-			}
-
-			texture = p.p.p.requestImage(filePath);
+			texture = ml.requestImage(filePath);
 			requested = true;
 			p.p.requestedPanoramas++;
-		}
+//		}
 	}
 
 	/** 
@@ -453,25 +459,15 @@ public class WMV_Panorama extends WMV_Viewable
 
 		float distVisibility = 1.f;
 
-		if(viewDist > radius-p.p.settings.clusterCenterSize*3.f)
+		if(viewDist > radius-p.worldSettings.clusterCenterSize*3.f)
 		{
 			float vanishingPoint = radius;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-p.p.settings.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-p.worldSettings.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
-//			if(distVisibility!=0&&distVisibility!=1)
-//				PApplet.println("viewDist:+"+viewDist+" vanishingPoint:"+vanishingPoint+" distVisibility:"+distVisibility);
 		}
-		//		else if(viewDist < nearViewingDistance)								
-		//		{
-		//			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), p.p.viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
-		////			if(isSelected())
-		//				PApplet.println("Panorama ID:"+getID()+" dist:"+viewDist+" distVisibility:"+distVisibility+" near:"+p.p.viewer.getNearClippingDistance()+" far:"+p.p.viewer.getNearViewingDistance());
-		//		}
 
-		//		PApplet.println("captureLocation.x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y+" captureLocation.z:"+captureLocation.z);
-		//		PApplet.println("viewer.x:"+p.p.viewer.getLocation().x+" viewer.y:"+p.p.viewer.getLocation().y+" viewer.z:"+p.p.viewer.getLocation().z);
 		return distVisibility;
 	}
 
@@ -482,7 +478,7 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		PVector camLoc;
 
-		if(p.p.viewer.settings.orientationMode)
+		if(p.viewerSettings.orientationMode)
 			camLoc = p.p.viewer.getLocation();
 		else
 			camLoc = p.p.viewer.getLocation();
@@ -571,7 +567,7 @@ public class WMV_Panorama extends WMV_Viewable
 	/**
 	 * Draw the panorama metadata in Heads-Up Display
 	 */
-	public void displayMetadata()
+	public void displayMetadata(WMV_World world)
 	{
 		String strTitleImage = "Panorama";
 		String strTitleImage2 = "-----";
@@ -596,30 +592,30 @@ public class WMV_Panorama extends WMV_Viewable
 		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
 		String strBrightnessFading = "brightnessFadingValue: "+PApplet.str(fadingBrightness);
 		
-		p.p.display.metadata(strTitleImage);
-		p.p.display.metadata(strTitleImage2);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strTitleImage);
+		world.p.display.metadata(world, strTitleImage2);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strID);
-		p.p.display.metadata(strCluster);
-		p.p.display.metadata(strName);
-		p.p.display.metadata(strX + strY + strZ);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strID);
+		world.p.display.metadata(world, strCluster);
+		world.p.display.metadata(world, strName);
+		world.p.display.metadata(world, strX + strY + strZ);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strDate);
-		p.p.display.metadata(strTime);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strDate);
+		world.p.display.metadata(world, strTime);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strLatitude + strLongitude);
-		p.p.display.metadata(strAltitude);
-		p.p.display.metadata(strTheta);
-		p.p.display.metadata(strElevation);
+		world.p.display.metadata(world, strLatitude + strLongitude);
+		world.p.display.metadata(world, strAltitude);
+		world.p.display.metadata(world, strTheta);
+		world.p.display.metadata(world, strElevation);
 
-		if(p.p.p.debug.panorama)
+		if(p.debugSettings.panorama)
 		{
-			p.p.display.metadata(strTitleDebug);
-			p.p.display.metadata(strBrightness);
-			p.p.display.metadata(strBrightnessFading);
+			world.p.display.metadata(world, strTitleDebug);
+			world.p.display.metadata(world, strBrightness);
+			world.p.display.metadata(world, strBrightnessFading);
 		}
 	}
 

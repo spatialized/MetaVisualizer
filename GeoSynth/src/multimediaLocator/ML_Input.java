@@ -289,16 +289,16 @@ public class ML_Input
 		{
 			/* Views */
 			case "SceneView":
-				display.setDisplayView(0);
+				display.setDisplayView(world, 0);
 				break;
 			case "MapView":
-				display.setDisplayView(1);
+				display.setDisplayView(world, 1);
 				break;
 			case "ClusterView":
-				display.setDisplayView(2);
+				display.setDisplayView(world, 2);
 				break;
 			case "TimelineView":
-				display.setDisplayView(3);
+				display.setDisplayView(world, 3);
 				break;
 				
 			/* Navigation */
@@ -442,32 +442,32 @@ public class ML_Input
 			{
 				if(!world.p.basic)
 				{
-					if(world.display.window.showWMVWindow)
-						world.display.window.hideWMVWindow();
+					if(world.p.display.window.showWMVWindow)
+						world.p.display.window.hideWMVWindow();
 					else
-						world.display.window.showWMVWindow();
+						world.p.display.window.showWMVWindow();
 				}
 			}
 
 			/* Display Modes */
 			if (!optionKey && !commandKey && key == '1') 
-				world.display.setDisplayView(0);
+				world.p.display.setDisplayView(world, 0);
 
 			if (!optionKey && !commandKey && key == '2') 
-				world.display.setDisplayView(1);
+				world.p.display.setDisplayView(world, 1);
 
 			if (!optionKey && !commandKey && key == '3') 
-				world.display.setDisplayView(2);
+				world.p.display.setDisplayView(world, 2);
 
 			if (!optionKey && !commandKey  && key == '4')
-				world.display.setDisplayView(3);
+				world.p.display.setDisplayView(world, 3);
 
 			if (!optionKey && !commandKey  && key == '5')
 			{
 				boolean state = !world.showModel;
 				world.showModel = state;
-				if(world.display.window.setupModelWindow)
-					world.display.window.chkbxShowModel.setSelected(state);
+				if(world.p.display.window.setupModelWindow)
+					world.p.display.window.chkbxShowModel.setSelected(state);
 			}
 
 			if (!optionKey && !commandKey  && key == '6') 
@@ -481,83 +481,83 @@ public class ML_Input
 
 			if (!optionKey && commandKey && key == '1') 
 			{
-				if(!world.display.window.showNavigationWindow)
-					world.display.window.openNavigationWindow();
+				if(!world.p.display.window.showNavigationWindow)
+					world.p.display.window.openNavigationWindow();
 				else
-					world.display.window.hideNavigationWindow();
+					world.p.display.window.hideNavigationWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '2') 
 			{
-				if(!world.display.window.showTimeWindow)
-					world.display.window.openTimeWindow();
+				if(!world.p.display.window.showTimeWindow)
+					world.p.display.window.openTimeWindow();
 				else
-					world.display.window.hideTimeWindow();
+					world.p.display.window.hideTimeWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '3') 
 			{
-				if(!world.display.window.showGraphicsWindow)
-					world.display.window.openGraphicsWindow();
+				if(!world.p.display.window.showGraphicsWindow)
+					world.p.display.window.openGraphicsWindow();
 				else
-					world.display.window.hideGraphicsWindow();
+					world.p.display.window.hideGraphicsWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '4') 
 			{
-				if(!world.display.window.showModelWindow)
-					world.display.window.openModelWindow();
+				if(!world.p.display.window.showModelWindow)
+					world.p.display.window.openModelWindow();
 				else
-					world.display.window.hideModelWindow();
+					world.p.display.window.hideModelWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '5') 
 			{
-				if(!world.display.window.showMemoryWindow)
-					world.display.window.openMemoryWindow();
+				if(!world.p.display.window.showMemoryWindow)
+					world.p.display.window.openMemoryWindow();
 				else
-					world.display.window.hideMemoryWindow();
+					world.p.display.window.hideMemoryWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '6') 
 			{
-				if(!world.display.window.showSelectionWindow)
-					world.display.window.openSelectionWindow();
+				if(!world.p.display.window.showSelectionWindow)
+					world.p.display.window.openSelectionWindow();
 				else
-					world.display.window.hideSelectionWindow();
+					world.p.display.window.hideSelectionWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '7') 
 			{
-				if(!world.display.window.showStatisticsWindow)
-					world.display.window.openStatisticsWindow();
+				if(!world.p.display.window.showStatisticsWindow)
+					world.p.display.window.openStatisticsWindow();
 				else
-					world.display.window.hideStatisticsWindow();
+					world.p.display.window.hideStatisticsWindow();
 				commandKey = false;
 			}
 			
 			if (!optionKey && commandKey && key == '8') 
 			{
-				if(!world.display.window.showHelpWindow)
-					world.display.window.openHelpWindow();
+				if(!world.p.display.window.showHelpWindow)
+					world.p.display.window.openHelpWindow();
 				else
-					world.display.window.hideHelpWindow();
+					world.p.display.window.hideHelpWindow();
 				commandKey = false;
 			}
 
 			if (key == 'R')
 				world.p.restart();
 
-			if(world.display.displayView == 1)	/* 2D Map View */
+			if(world.p.display.displayView == 1)	/* 2D Map View */
 			{
 				if( key == '+' )
-					world.display.satelliteMap = !world.display.satelliteMap;
+					world.p.display.satelliteMap = !world.p.display.satelliteMap;
 
 				if (key == '{')
 					world.viewer.teleportToField(-1, false);
@@ -568,26 +568,26 @@ public class ML_Input
 				/* Clustering */
 				if (key == 'r')
 				{
-					world.display.map2D.resetMapZoom(true);
+					world.p.display.map2D.resetMapZoom(world, true);
 				}
 
 				if (key == 'c')
 				{
-					world.display.map2D.resetMapZoom(true);
+					world.p.display.map2D.resetMapZoom(world, true);
 					world.startInteractiveClustering();
 				}
 
 				if (key == 'z')
-					world.display.map2D.zoomToCluster(world.getCurrentCluster());
+					world.p.display.map2D.zoomToCluster(world, world.getCurrentCluster());
 
 				if (shiftKey && key == 'c')
 					world.startInitialClustering();				// Re-run clustering on all fields
 
 				if (key == ']') 
-					world.display.map2D.zoomIn();
+					world.p.display.map2D.zoomIn(world);
 
 				if (key == '[') 
-					world.display.map2D.zoomOut();
+					world.p.display.map2D.zoomOut(world);
 
 				if (key == PApplet.CODED) 					
 				{
@@ -598,65 +598,65 @@ public class ML_Input
 						world.viewer.rotateX(1);
 
 					if (optionKey && shiftKey && keyCode == PApplet.LEFT) 
-						world.display.map2D.mapScrollTransition( 150.f * world.display.map2D.mapDistance, 0.f );
+						world.p.display.map2D.mapScrollTransition( world, 150.f * world.p.display.map2D.mapDistance, 0.f );
 
 					if (optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-						world.display.map2D.mapScrollTransition( -150.f * world.display.map2D.mapDistance, 0.f );
+						world.p.display.map2D.mapScrollTransition( world, -150.f * world.p.display.map2D.mapDistance, 0.f );
 
 					if (optionKey && shiftKey && keyCode == PApplet.DOWN) 
-						world.display.map2D.mapScrollTransition( 0.f, -150.f * world.display.map2D.mapDistance );
+						world.p.display.map2D.mapScrollTransition( world, 0.f, -150.f * world.p.display.map2D.mapDistance );
 
 					if (optionKey && shiftKey && keyCode == PApplet.UP) 
-						world.display.map2D.mapScrollTransition( 0.f, 150.f * world.display.map2D.mapDistance );
+						world.p.display.map2D.mapScrollTransition( world, 0.f, 150.f * world.p.display.map2D.mapDistance );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.LEFT) 
-						world.display.map2D.zoomRectangleScrollTransition( -400.f * world.display.map2D.mapDistance, 0.f );
+						world.p.display.map2D.zoomRectangleScrollTransition( world, -400.f * world.p.display.map2D.mapDistance, 0.f );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-						world.display.map2D.zoomRectangleScrollTransition( 400.f * world.display.map2D.mapDistance, 0.f );
+						world.p.display.map2D.zoomRectangleScrollTransition( world, 400.f * world.p.display.map2D.mapDistance, 0.f );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.DOWN) 
-						world.display.map2D.zoomRectangleScrollTransition( 0.f, 400.f * world.display.map2D.mapDistance );
+						world.p.display.map2D.zoomRectangleScrollTransition( world, 0.f, 400.f * world.p.display.map2D.mapDistance );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.UP) 
-						world.display.map2D.zoomRectangleScrollTransition( 0.f, -400.f * world.display.map2D.mapDistance );
+						world.p.display.map2D.zoomRectangleScrollTransition( world, 0.f, -400.f * world.p.display.map2D.mapDistance );
 				}
 
 				if(key == PApplet.ENTER)
 				{
 					if(shiftKey)
 					{
-						world.viewer.teleportToCluster(world.display.map2D.getSelectedClusterID(), false, -1);
+						world.viewer.teleportToCluster(world.p.display.map2D.getSelectedClusterID(), false, -1);
 					}
 					else
 					{
-						world.viewer.teleportToCluster(world.display.map2D.getSelectedClusterID(), true, -1);
-						world.display.displayView = 0;
+						world.viewer.teleportToCluster(world.p.display.map2D.getSelectedClusterID(), true, -1);
+						world.p.display.displayView = 0;
 					}
 				}
 			}
-			else if(world.display.displayView == 2)		/* Cluster View */
+			else if(world.p.display.displayView == 2)		/* Cluster View */
 			{
 				if (key == 'c')
 				{
-					world.display.displayCluster = world.viewer.getCurrentClusterID();
+					world.p.display.displayCluster = world.viewer.getCurrentClusterID();
 				}
 				
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.LEFT) 
 					{
-						world.display.displayCluster--;
-						if(world.display.displayCluster < 0)
-							world.display.displayCluster = world.getFieldClusters().size() - 1;
+						world.p.display.displayCluster--;
+						if(world.p.display.displayCluster < 0)
+							world.p.display.displayCluster = world.getFieldClusters().size() - 1;
 
 						int count = 0;
-						while(world.getCurrentField().getCluster(world.display.displayCluster).isEmpty())
+						while(world.getCurrentField().getCluster(world.p.display.displayCluster).isEmpty())
 						{
-							world.display.displayCluster--;
+							world.p.display.displayCluster--;
 							count++;
-							if(world.display.displayCluster < 0)
-								world.display.displayCluster = world.getFieldClusters().size() - 1;
+							if(world.p.display.displayCluster < 0)
+								world.p.display.displayCluster = world.getFieldClusters().size() - 1;
 
 							if(count > world.getFieldClusters().size())
 								break;
@@ -665,17 +665,17 @@ public class ML_Input
 
 					if (keyCode == PApplet.RIGHT) 
 					{
-						world.display.displayCluster++;
-						if( world.display.displayCluster >= world.getFieldClusters().size())
-							world.display.displayCluster = 0;
+						world.p.display.displayCluster++;
+						if( world.p.display.displayCluster >= world.getFieldClusters().size())
+							world.p.display.displayCluster = 0;
 
 						int count = 0;
-						while(world.getCurrentField().getCluster(world.display.displayCluster).isEmpty())
+						while(world.getCurrentField().getCluster(world.p.display.displayCluster).isEmpty())
 						{
-							world.display.displayCluster++;
+							world.p.display.displayCluster++;
 							count++;
-							if( world.display.displayCluster >= world.getFieldClusters().size())
-								world.display.displayCluster = 0;
+							if( world.p.display.displayCluster >= world.getFieldClusters().size())
+								world.p.display.displayCluster = 0;
 
 							if(count > world.getFieldClusters().size())
 								break;
@@ -683,44 +683,44 @@ public class ML_Input
 					}
 				}
 			}
-			else if(world.display.displayView == 3)					/* Time View */
+			else if(world.p.display.displayView == 3)					/* Time View */
 			{
 				if (key == 'r')									// Zoom out to whole timeline
-					world.display.resetZoom(true);
+					world.p.display.resetZoom(world, true);
 
 				if (key == 'z')									// Zoom to fit timeline
-					world.display.zoomToTimeline(true);
+					world.p.display.zoomToTimeline(world, true);
 
 				if (key == 't')									// Zoom to fit current time segment
-					world.display.zoomToCurrentTimeSegment(true);
+					world.p.display.zoomToCurrentTimeSegment(world, true);
 
 				if (key == 'd')									// Zoom to fit current time segment
-					world.display.zoomToCurrentDate(true);
+					world.p.display.zoomToCurrentDate(world, true);
 
 				if (key == 'a')									// Timeline zoom to fit
-					world.display.showAllDates();
+					world.p.display.showAllDates();
 
 				if (key == PApplet.ENTER)
 				{
-					if(world.display.getCurrentSelectableTime() >= 0)
+					if(world.p.display.getCurrentSelectableTime() >= 0)
 					{
-						world.viewer.teleportToCluster(world.display.getSelectedCluster(), true, -1); 
-						world.display.setDisplayView(0);
+						world.viewer.teleportToCluster(world.p.display.getSelectedCluster(), true, -1); 
+						world.p.display.setDisplayView(world, 0);
 					}
 				}
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.UP) 					// Timeline zoom in 
-						world.display.zoom(-1, true);
+						world.p.display.zoom(world, -1, true);
 					
 					if (keyCode == PApplet.DOWN) 				// Timeline zoom out
-						world.display.zoom(1, true);
+						world.p.display.zoom(world, 1, true);
 
 					if (keyCode == PApplet.LEFT)  				// Start timeline scrolling left
-						world.display.scroll(-1);
+						world.p.display.scroll(world, -1);
 					
 					if (keyCode == PApplet.RIGHT)  				// Start timeline scrolling right
-						world.display.scroll(1);
+						world.p.display.scroll(world, 1);
 				}
 			}
 
@@ -764,8 +764,8 @@ public class ML_Input
 				{
 					boolean state = !world.viewer.getMovementTeleport();
 					world.viewer.setMovementTeleport( state );
-					if(world.display.window.setupNavigationWindow)
-						world.display.window.chkbxMovementTeleport.setSelected(state);
+					if(world.p.display.window.setupNavigationWindow)
+						world.p.display.window.chkbxMovementTeleport.setSelected(state);
 				}
 
 				if (key == 'T') 
@@ -774,8 +774,8 @@ public class ML_Input
 					if(world.timeFading != state)
 					{
 						world.timeFading = state;
-						if(world.display.window.setupTimeWindow)
-							world.display.window.chkbxTimeFading.setSelected(state);
+						if(world.p.display.window.setupTimeWindow)
+							world.p.display.window.chkbxTimeFading.setSelected(state);
 					}
 				}
 
@@ -789,8 +789,8 @@ public class ML_Input
 				{
 					boolean state = !world.showMetadata;
 					world.showMetadata = state;
-					if(world.display.window.setupSelectionWindow)
-						world.display.window.chkbxShowMetadata.setSelected(state);
+					if(world.p.display.window.setupSelectionWindow)
+						world.p.display.window.chkbxShowMetadata.setSelected(state);
 				}
 
 				if (key == 'Q')
@@ -832,7 +832,7 @@ public class ML_Input
 
 				if (key == 'n')						// Teleport to next time segment on same date
 				{
-					if(world.display.displayView == 0)
+					if(world.p.display.displayView == 0)
 						world.viewer.moveToNextTimeSegment(true, world.viewer.getMovementTeleport(), true);
 					else
 						world.viewer.moveToNextTimeSegment(true, true, false);
@@ -840,7 +840,7 @@ public class ML_Input
 
 				if (key == 'b')						// Teleport to previous time segment on same date
 				{
-					if(world.display.displayView == 0)
+					if(world.p.display.displayView == 0)
 						world.viewer.moveToPreviousTimeSegment(true, world.viewer.getMovementTeleport(), true);
 					else
 						world.viewer.moveToPreviousTimeSegment(true, true, false);
@@ -848,7 +848,7 @@ public class ML_Input
 
 				if (key == 'N')						// Teleport to next time segment on any date
 				{
-					if(world.display.displayView == 0)
+					if(world.p.display.displayView == 0)
 						world.viewer.moveToNextTimeSegment(false, world.viewer.getMovementTeleport(), true);
 					else
 						world.viewer.moveToNextTimeSegment(false, true, false);
@@ -856,7 +856,7 @@ public class ML_Input
 
 				if (key == 'B')						// Teleport to previous time segment on any date
 				{
-					if(world.display.displayView == 0)
+					if(world.p.display.displayView == 0)
 						world.viewer.moveToPreviousTimeSegment(false, world.viewer.getMovementTeleport(), true);
 					else
 						world.viewer.moveToPreviousTimeSegment(false, true, false);
@@ -866,11 +866,11 @@ public class ML_Input
 					if(!world.viewer.isFollowing())
 					{
 						world.viewer.followMemory();
-						if(world.display.window.setupNavigationWindow)
+						if(world.p.display.window.setupNavigationWindow)
 						{
-							world.display.window.optTimeline.setSelected(true);
-							world.display.window.optGPSTrack.setSelected(false);
-							world.display.window.optMemory.setSelected(false);
+							world.p.display.window.optTimeline.setSelected(true);
+							world.p.display.window.optGPSTrack.setSelected(false);
+							world.p.display.window.optMemory.setSelected(false);
 						}
 					}
 
@@ -878,11 +878,11 @@ public class ML_Input
 					if(!world.viewer.isFollowing())
 					{
 						world.viewer.followGPSTrack();
-						if(world.display.window.setupNavigationWindow)
+						if(world.p.display.window.setupNavigationWindow)
 						{
-							world.display.window.optTimeline.setSelected(false);
-							world.display.window.optGPSTrack.setSelected(true);
-							world.display.window.optMemory.setSelected(false);
+							world.p.display.window.optTimeline.setSelected(false);
+							world.p.display.window.optGPSTrack.setSelected(true);
+							world.p.display.window.optMemory.setSelected(false);
 						}
 					}
 
@@ -891,11 +891,11 @@ public class ML_Input
 					if(!world.viewer.isFollowing())
 					{
 						world.viewer.followTimeline(true, false);
-						if(world.display.window.setupNavigationWindow)
+						if(world.p.display.window.setupNavigationWindow)
 						{
-							world.display.window.optTimeline.setSelected(false);
-							world.display.window.optGPSTrack.setSelected(false);
-							world.display.window.optMemory.setSelected(true);
+							world.p.display.window.optTimeline.setSelected(false);
+							world.p.display.window.optGPSTrack.setSelected(false);
+							world.p.display.window.optMemory.setSelected(true);
 						}
 					}
 				}
@@ -919,10 +919,10 @@ public class ML_Input
 					world.getCurrentField().fadeObjectDistances(1.176f);
 
 //				if (key == 'Z')
-//					world.display.map2D.zoomToRectangle(100, 50, world.display.map2D.largeMapWidth * 0.5f, world.display.map2D.largeMapHeight * 0.5f);
+//					world.p.display.map2D.zoomToRectangle(100, 50, world.p.display.map2D.largeMapWidth * 0.5f, world.p.display.map2D.largeMapHeight * 0.5f);
 
 				/* 3D Controls Disabled in HUD View */
-				if(!world.display.inDisplayView())							
+				if(!world.p.display.inDisplayView())							
 				{
 					if (key == '{')
 						world.viewer.teleportToField(-1, true);
@@ -940,9 +940,9 @@ public class ML_Input
 					{
 						boolean state = !world.fadeEdges;
 						world.fadeEdges = state;
-						if(world.display.window.setupGraphicsWindow)
+						if(world.p.display.window.setupGraphicsWindow)
 						{
-							world.display.window.chkbxFadeEdges.setSelected(state);
+							world.p.display.window.chkbxFadeEdges.setSelected(state);
 						}
 					}
 
@@ -974,17 +974,17 @@ public class ML_Input
 					{
 						boolean state = !world.alphaMode;
 						world.alphaMode = state;
-						if(world.display.window.setupGraphicsWindow)
-							world.display.window.chkbxAlphaMode.setSelected(state);
+						if(world.p.display.window.setupGraphicsWindow)
+							world.p.display.window.chkbxAlphaMode.setSelected(state);
 					}
 
 					if (!shiftKey && optionKey && key == ' ') 
 					{
 						boolean state = !world.timeFading;
 						world.timeFading = state;
-						if(world.display.window.setupGraphicsWindow)
+						if(world.p.display.window.setupGraphicsWindow)
 						{
-							world.display.window.chkbxTimeFading.setSelected(state);
+							world.p.display.window.chkbxTimeFading.setSelected(state);
 						}
 					}
 
@@ -1011,20 +1011,20 @@ public class ML_Input
 					if (key == 'A') 
 					{
 						world.viewer.setSelection( !world.viewer.getSelection() );
-						if(world.display.window.setupSelectionWindow)
-							world.display.window.chkbxSelectionMode.setSelected(world.viewer.getSettings().selection);
+						if(world.p.display.window.setupSelectionWindow)
+							world.p.display.window.chkbxSelectionMode.setSelected(world.viewer.getSettings().selection);
 
 						if(world.viewer.getSelection() && world.viewer.getMultiSelection())
 						{
 							world.viewer.setMultiSelection( false );
-							if(world.display.window.setupSelectionWindow)
-								world.display.window.chkbxMultiSelection.setSelected( false );
+							if(world.p.display.window.setupSelectionWindow)
+								world.p.display.window.chkbxMultiSelection.setSelected( false );
 						}
 						if(world.viewer.getSelection() && world.viewer.getSegmentSelection()) 
 						{
 							world.viewer.setSegmentSelection( false );
-							if(world.display.window.setupSelectionWindow)
-								world.display.window.chkbxSegmentSelection.setSelected( false );
+							if(world.p.display.window.setupSelectionWindow)
+								world.p.display.window.chkbxSegmentSelection.setSelected( false );
 						}
 					}
 
@@ -1074,16 +1074,16 @@ public class ML_Input
 					{
 						boolean state = !world.viewer.getAngleFading();
 						world.viewer.setAngleFading( state );
-						if(world.display.window.setupGraphicsWindow)
-							world.display.window.chkbxAngleFading.setSelected(state);
+						if(world.p.display.window.setupGraphicsWindow)
+							world.p.display.window.chkbxAngleFading.setSelected(state);
 					}
 
 					if (key == 'H')
 					{
 						boolean state = !world.viewer.getAngleThinning();
 						world.viewer.setAngleThinning( state );
-						if(world.display.window.setupGraphicsWindow)
-							world.display.window.chkbxAngleThinning.setSelected(state);
+						if(world.p.display.window.setupGraphicsWindow)
+							world.p.display.window.chkbxAngleThinning.setSelected(state);
 					}
 
 					/* Output */
@@ -1145,7 +1145,7 @@ public class ML_Input
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);	
 							world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
 							world.getCurrentField().initializeClusters(world.mergeClusters);			
-							world.display.map2D.initializeMaps();
+							world.p.display.map2D.initializeMaps(world);
 						}
 					}
 				}
@@ -1161,7 +1161,7 @@ public class ML_Input
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);
 							world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
 							world.getCurrentField().initializeClusters(world.mergeClusters);			
-							world.display.map2D.initializeMaps();
+							world.p.display.map2D.initializeMaps(world);
 						}
 					}
 				}
@@ -1170,7 +1170,7 @@ public class ML_Input
 			/* Arrow and Shift Keys */
 			if (key == PApplet.CODED) 					
 			{
-				if(world.display.inDisplayView())
+				if(world.p.display.inDisplayView())
 				{
 					if(world.interactive)			/* Interactive Clustering */
 					{
@@ -1201,7 +1201,7 @@ public class ML_Input
 								{
 									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
 									world.getCurrentField().initializeClusters(world.mergeClusters);			
-									world.display.map2D.initializeMaps();
+									world.p.display.map2D.initializeMaps(world);
 								}
 								else world.getCurrentField().getModel().clusterRefinement += 10;
 							}
@@ -1215,7 +1215,7 @@ public class ML_Input
 								{
 									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
 									world.getCurrentField().initializeClusters(world.mergeClusters);			
-									world.display.map2D.initializeMaps();
+									world.p.display.map2D.initializeMaps(world);
 								}
 								else world.getCurrentField().getModel().clusterRefinement -= 10;
 							}
@@ -1229,7 +1229,7 @@ public class ML_Input
 								{
 									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
 									world.getCurrentField().initializeClusters(world.mergeClusters);			
-									world.display.map2D.initializeMaps();
+									world.p.display.map2D.initializeMaps(world);
 								}
 								else world.getCurrentField().getModel().clusterPopulationFactor += 1.f;
 							}
@@ -1243,7 +1243,7 @@ public class ML_Input
 								{
 									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
 									world.getCurrentField().initializeClusters(world.mergeClusters);			
-									world.display.map2D.initializeMaps();
+									world.p.display.map2D.initializeMaps(world);
 								}
 								else world.getCurrentField().getModel().clusterPopulationFactor -= 1.f;
 							}
@@ -1442,7 +1442,7 @@ public class ML_Input
 //		mouseOffsetY = 0;
 	}
 
-	void handleMouseReleased(WMV_Viewer viewer, ML_Display display, int mouseX, int mouseY, int frameCount)
+	void handleMouseReleased(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
 	{
 		mouseReleased = true;
 //		releasedRecentlyFrame = frameCount;
@@ -1454,17 +1454,17 @@ public class ML_Input
 			doubleClick = true;
 		}
 
-		if(viewer.getSettings().mouseNavigation)
+		if(world.viewer.getSettings().mouseNavigation)
 		{
-			viewer.walkSlower();
-			viewer.lastMovementFrame = frameCount;
+			world.viewer.walkSlower();
+			world.viewer.lastMovementFrame = frameCount;
 			if(doubleClick)									
-				viewer.moveToNearestCluster(viewer.getMovementTeleport());
+				world.viewer.moveToNearestCluster(world.viewer.getMovementTeleport());
 		}
 		
 		if(display.displayView == 1)
 		{
-			display.map2D.handleMouseReleased(mouseX, mouseY);
+			display.map2D.handleMouseReleased(world, mouseX, mouseY);
 		}
 //		else if(display.displayView == 2)
 //		{
@@ -1472,7 +1472,7 @@ public class ML_Input
 //		}
 		else if(display.displayView == 3)
 		{
-			display.handleMouseReleased(mouseX, mouseY);
+			display.handleMouseReleased(world, mouseX, mouseY);
 		}
 	}
 	

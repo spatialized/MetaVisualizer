@@ -10,6 +10,7 @@ import processing.event.MouseEvent;
 public class ML_Window {
 
 	ML_Display p;
+	WMV_Utilities utilities;
 	
 	private boolean delay = true;
 	private int delayAmount = 250;
@@ -111,11 +112,14 @@ public class ML_Window {
 	public GLabel lblCommand8;
 	
 	String windowTitle = " ";
-
-	ML_Window( ML_Display parent )
+	WMV_World world;
+	
+	ML_Window( WMV_World newWorld, ML_Display parent )
 	{
 		p = parent;
-
+		world = newWorld;
+		utilities = new WMV_Utilities();
+		
 		wmvWindowHeight = shortWindowHeight;
 		navigationWindowHeight = longWindowHeight;
 		timeWindowHeight = longWindowHeight;
@@ -196,11 +200,11 @@ public class ML_Window {
 
 	void setupWMVWindow()
 	{
-		wmvWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, wmvWindowHeight, PApplet.JAVA2D);
+		wmvWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, wmvWindowHeight, PApplet.JAVA2D);
 		wmvWindow.addData(new WMV_WinData());
 		wmvWindow.addDrawHandler(this, "wmvWindowDraw");
 		wmvWindow.addMouseHandler(this, "wmvWindowMouse");
-		wmvWindow.addKeyHandler(p.p.p, "wmvWindowKey");
+		wmvWindow.addKeyHandler(world.p, "wmvWindowKey");
 		wmvWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		hideWMVWindow();
 		
@@ -208,7 +212,7 @@ public class ML_Window {
 
 		x = 0;
 
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 		
 		lblWMViewer = new GLabel(wmvWindow, x, y, wmvWindow.width, 20, "Main Menu");
 		lblWMViewer.setLocalColorScheme(10);
@@ -219,7 +223,7 @@ public class ML_Window {
 		x = 20;
 		y += 30;
 		
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		optSceneView = new GOption(wmvWindow, x, y, 90, 20, "World  (1)");
 		optSceneView.setLocalColorScheme(10);
@@ -255,7 +259,7 @@ public class ML_Window {
 	
 		x = 65;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		btnLoadMediaLibrary = new GButton(wmvWindow, x, y, 180, 20, "Load Media Library  ⇧R");
 		btnLoadMediaLibrary.tag = "Restart";
@@ -263,7 +267,7 @@ public class ML_Window {
 
 		x = 90;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		btnNavigationWindow = new GButton(wmvWindow, x, y, 125, 20, "Navigation  ⌘1");
 		btnNavigationWindow.tag = "OpenNavigationWindow";
@@ -331,16 +335,16 @@ public class ML_Window {
 	 */
 	void setupNavigationWindow()
 	{
-		navigationWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, navigationWindowHeight, PApplet.JAVA2D);
+		navigationWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, navigationWindowHeight, PApplet.JAVA2D);
 		navigationWindow.setVisible(false);
 		navigationWindow.addData(new WMV_WinData());
 		navigationWindow.addDrawHandler(this, "navigationWindowDraw");
 		navigationWindow.addMouseHandler(this, "navigationWindowMouse");
-		navigationWindow.addKeyHandler(p.p.p, "navigationWindowKey");
+		navigationWindow.addKeyHandler(world.p, "navigationWindowKey");
 		navigationWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 12;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		lblNavigationWindow = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Navigation");
 		lblNavigationWindow.setLocalColorScheme(10);
@@ -350,7 +354,7 @@ public class ML_Window {
 
 		x = 0;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		lblClusterNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Cluster Navigation");
 		lblClusterNavigation.setLocalColorScheme(10);
@@ -360,7 +364,7 @@ public class ML_Window {
 
 		x = 120;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 70, 20, "Teleport");
 		chkbxMovementTeleport.tag = "MovementTeleport";
@@ -368,7 +372,7 @@ public class ML_Window {
 
 		x = 40;
 		y += 25;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		btnMoveToNearestCluster = new GButton(navigationWindow, x, y, 100, 20, "Nearest  (m)");
 		btnMoveToNearestCluster.tag = "NearestCluster";
@@ -379,7 +383,7 @@ public class ML_Window {
 
 		x = 30;
 		y += 25;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		btnPreviousTimeSegment = new GButton(navigationWindow, x, y, 120, 20, "Previous Time  (b)");
 		btnPreviousTimeSegment.tag = "PreviousTime";
@@ -390,7 +394,7 @@ public class ML_Window {
 		
 		x = 25;
 		y += 25;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		btnJumpToRandomCluster = new GButton(navigationWindow, x+75, y, 110, 20, "Random  (j)");
 		btnJumpToRandomCluster.tag = "RandomCluster";
@@ -398,7 +402,7 @@ public class ML_Window {
 		
 		x = 0;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Path Navigation");
 		lblPathNavigation.setLocalColorScheme(10);
@@ -408,7 +412,7 @@ public class ML_Window {
 
 		x = 120;
 		y += 25;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 80, 20, "Teleport");
 		chkbxFollowTeleport.tag = "FollowTeleport";
@@ -416,7 +420,7 @@ public class ML_Window {
 
 		x = 15;
 		y += 25;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 	
 		optTimeline = new GOption(navigationWindow, x, y, 90, 20, "Timeline");
 		optTimeline.setLocalColorScheme(10);
@@ -434,7 +438,7 @@ public class ML_Window {
 
 		x = 95;
 		y += 25;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		btnFollowStart = new GButton(navigationWindow, x, y, 60, 20, "Start");
 		btnFollowStart.tag = "FollowStart";
@@ -450,7 +454,7 @@ public class ML_Window {
 		sdrTeleportLength = new GSlider(navigationWindow, x, y, 80, 80, 20);
 		sdrTeleportLength.setLocalColorScheme(7);
 		sdrTeleportLength.setLimits(0.f, 300.f, 10.f);
-		sdrTeleportLength.setValue(p.p.viewer.settings.teleportLength);
+		sdrTeleportLength.setValue(world.viewer.settings.teleportLength);
 		sdrTeleportLength.setRotation(PApplet.PI/2.f);
 		sdrTeleportLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrTeleportLength.setEasing(0);
@@ -462,7 +466,7 @@ public class ML_Window {
 		sdrPathWaitLength = new GSlider(navigationWindow, x, y, 80, 80, 20);
 		sdrPathWaitLength.setLocalColorScheme(7);
 		sdrPathWaitLength.setLimits(0.f, 600.f, 30.f);
-		sdrPathWaitLength.setValue(p.p.viewer.settings.pathWaitLength);
+		sdrPathWaitLength.setValue(world.viewer.settings.pathWaitLength);
 		sdrPathWaitLength.setRotation(PApplet.PI/2.f);
 		sdrPathWaitLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrPathWaitLength.setEasing(0);
@@ -482,7 +486,7 @@ public class ML_Window {
 
 		x = 80;
 		y += 65;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		btnImportGPSTrack = new GButton(navigationWindow, x, y, 140, 20, "Import GPS Track  (g)");
 		btnImportGPSTrack.tag = "ImportGPSTrack";
@@ -490,7 +494,7 @@ public class ML_Window {
 
 		x = 0;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		lblMemoryCommands = new GLabel(navigationWindow, x, y, navigationWindow.width, 20, "Memory");
 		lblMemoryCommands.setLocalColorScheme(10);
@@ -500,7 +504,7 @@ public class ML_Window {
 
 		x = 45;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		btnSaveLocation = new GButton(navigationWindow, x, y, 110, 20, "Save Location  (`)");
 		btnSaveLocation.tag = "SaveLocation";
@@ -509,11 +513,11 @@ public class ML_Window {
 		btnClearMemory.tag = "ClearMemory";
 		btnClearMemory.setLocalColorScheme(0);
 
-		if(p.p.getFields() != null)
+		if(world.getFields() != null)
 		{
 			x = 40;
 			y += 30;
-//			if(delay) p.p.p.delay(delayAmount);
+//			if(delay) world.p.delay(delayAmount);
 			
 			btnGoToPreviousField = new GButton(navigationWindow, x, y, 120, 20, "Previous Field  ⇧[");
 			btnGoToPreviousField.tag = "PreviousField";
@@ -526,7 +530,7 @@ public class ML_Window {
 		
 		x = 0;
 		y = navigationWindowHeight - 25;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		lblCommand1 = new GLabel(navigationWindow, x, y, navigationWindow.width, 20);						/* Display Mode Label */
 		lblCommand1.setText("Press ⌘1 to show / hide");
@@ -542,16 +546,16 @@ public class ML_Window {
 	 */
 	void setupTimeWindow()
 	{
-		timeWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, timeWindowHeight, PApplet.JAVA2D);
+		timeWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, timeWindowHeight, PApplet.JAVA2D);
 		timeWindow.setVisible(true);
 		timeWindow.addData(new WMV_WinData());
 		timeWindow.addDrawHandler(this, "timeWindowDraw");
 		timeWindow.addMouseHandler(this, "timeWindowMouse");
-		timeWindow.addKeyHandler(p.p.p, "timeWindowKey");
+		timeWindow.addKeyHandler(world.p, "timeWindowKey");
 		timeWindow.setActionOnClose(GWindow.KEEP_OPEN);
 
 		int x = 0, y = 12;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		lblTimeWindow = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time");
 		lblTimeWindow.setLocalColorScheme(10);
@@ -560,7 +564,7 @@ public class ML_Window {
 		lblTimeWindow.setTextBold();
 
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		lblTimeSettings = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time Settings");
 		lblTimeSettings.setLocalColorScheme(10);
@@ -570,21 +574,21 @@ public class ML_Window {
 
 		x = 100;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, 20, "Time Fading  ⇧T");
 		chkbxTimeFading.tag = "TimeFading";
 		chkbxTimeFading.setLocalColorScheme(10);
-		chkbxTimeFading.setSelected(p.p.timeFading);
+		chkbxTimeFading.setSelected(world.timeFading);
 
 		x = 150;
 		y += 35;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		sdrMediaLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrMediaLength.setLocalColorScheme(7);
 		sdrMediaLength.setLimits(0.f, 250.f, 10.f);
-		sdrMediaLength.setValue(p.p.settings.defaultMediaLength);
+		sdrMediaLength.setValue(world.settings.defaultMediaLength);
 		sdrMediaLength.setRotation(PApplet.PI/2.f);
 		sdrMediaLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrMediaLength.setEasing(0);
@@ -592,13 +596,13 @@ public class ML_Window {
 		sdrMediaLength.tag = "MediaLength";
 
 		x = 280;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(7);
 		sdrTimeCycleLength.setLimits(0.f, 5000.f, 10.f);
-		PApplet.println("p.p.settings.timeCycleLength:"+p.p.settings.timeCycleLength);		// -- ??
-		sdrTimeCycleLength.setValue(p.p.settings.timeCycleLength);
+		PApplet.println("world.settings.timeCycleLength:"+world.settings.timeCycleLength);		// -- ??
+		sdrTimeCycleLength.setValue(world.settings.timeCycleLength);
 		sdrTimeCycleLength.setRotation(PApplet.PI/2.f);
 		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrTimeCycleLength.setEasing(0);
@@ -607,20 +611,20 @@ public class ML_Window {
 
 		x = 20;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		lblMediaLength = new GLabel(timeWindow, x, y, 100, 20, "Media Length");
 		lblMediaLength.setLocalColorScheme(10);
 
 		x = 150;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		lblTimeCycleLength = new GLabel(timeWindow, x, y, 120, 20, "Cycle Length");
 		lblTimeCycleLength.setLocalColorScheme(10);
 
 		x = 0;
 		y += 90;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 
 		lblTimeMode = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time Mode");
 		lblTimeMode.setLocalColorScheme(10);
@@ -630,7 +634,7 @@ public class ML_Window {
 
 		x = 30;
 		y += 30;
-//		if(delay) p.p.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		optMediaTimeMode = new GOption(timeWindow, x, y, 90, 20, "Media");
 		optMediaTimeMode.setLocalColorScheme(10);
@@ -642,7 +646,7 @@ public class ML_Window {
 		optFieldTimeMode.setLocalColorScheme(10);
 		optFieldTimeMode.tag = "FieldTimeMode";
 
-		switch(p.p.getTimeMode())
+		switch(world.getTimeMode())
 		{
 			case 0:
 				optClusterTimeMode.setSelected(true);
@@ -666,7 +670,7 @@ public class ML_Window {
 
 		x = 40;
 		y += 30;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 //		lblCurrentTime = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Current Time  -:-- am");
 //		lblCurrentTime.setLocalColorScheme(10);
@@ -696,16 +700,16 @@ public class ML_Window {
 	 */
 	void setupGraphicsWindow()
 	{
-		graphicsWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, graphicsWindowHeight, PApplet.JAVA2D);
+		graphicsWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, graphicsWindowHeight, PApplet.JAVA2D);
 		graphicsWindow.setVisible(false);
 		graphicsWindow.addData(new WMV_WinData());
 		graphicsWindow.addDrawHandler(this, "graphicsWindowDraw");
 		graphicsWindow.addMouseHandler(this, "graphicsWindowMouse");
-		graphicsWindow.addKeyHandler(p.p.p, "graphicsWindowKey");
+		graphicsWindow.addKeyHandler(world.p, "graphicsWindowKey");
 		graphicsWindow.setActionOnClose(GWindow.KEEP_OPEN);
 	
 		int x = 0, y = 12;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		lblGraphics = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20, "Graphics");
 		lblGraphics.setLocalColorScheme(10);
@@ -715,7 +719,7 @@ public class ML_Window {
 
 		x = 80;
 		y += 30;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 		
 		btnZoomOut = new GButton(graphicsWindow, x, y, 40, 20, "Out");
 		btnZoomOut.tag = "ZoomOut";
@@ -729,11 +733,11 @@ public class ML_Window {
 
 		x = 140;
 		y += 30;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		sdrAlpha = new GSlider(graphicsWindow, x, y, 80, 80, 20);
 		sdrAlpha.setLocalColorScheme(7);
-		sdrAlpha.setLimits(p.p.alpha, 255.f, 0.f);
+		sdrAlpha.setLimits(world.alpha, 255.f, 0.f);
 		sdrAlpha.setRotation(PApplet.PI/2.f);
 		sdrAlpha.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrAlpha.setEasing(0);
@@ -743,8 +747,8 @@ public class ML_Window {
 		x += 140;
 		sdrBrightness = new GSlider(graphicsWindow, x, y, 80, 80, 20);
 		sdrBrightness.setLocalColorScheme(7);
-		sdrBrightness.setLimits(p.p.viewer.settings.userBrightness, 1.f, 0.f);
-		sdrBrightness.setValue(p.p.viewer.settings.userBrightness);					// Not sure why this is needed, maybe a G4P bug?
+		sdrBrightness.setLimits(world.viewer.settings.userBrightness, 1.f, 0.f);
+		sdrBrightness.setValue(world.viewer.settings.userBrightness);					// Not sure why this is needed, maybe a G4P bug?
 		sdrBrightness.setRotation(PApplet.PI/2.f);
 		sdrBrightness.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrBrightness.setEasing(0);
@@ -809,7 +813,7 @@ public class ML_Window {
 		chkbxOrientationMode = new GCheckbox(graphicsWindow, x, y, 160, 20, "Orientation Mode (BETA)");
 		chkbxOrientationMode.tag = "OrientationMode";
 		chkbxOrientationMode.setLocalColorScheme(10);
-		chkbxOrientationMode.setSelected(p.p.viewer.settings.orientationMode);
+		chkbxOrientationMode.setSelected(world.viewer.settings.orientationMode);
 		
 		x = 0;
 		y += 40;
@@ -872,16 +876,16 @@ public class ML_Window {
 	 */
 	void setupModelWindow()
 	{
-		modelWindow = GWindow.getWindow(p.p.p, windowTitle, 10, 45, windowWidth, modelWindowHeight, PApplet.JAVA2D);
+		modelWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, modelWindowHeight, PApplet.JAVA2D);
 		modelWindow.setVisible(true);
 		modelWindow.addData(new WMV_WinData());
 		modelWindow.addDrawHandler(this, "modelWindowDraw");
 		modelWindow.addMouseHandler(this, "modelWindowMouse");
-		modelWindow.addKeyHandler(p.p.p, "modelWindowKey");
+		modelWindow.addKeyHandler(world.p, "modelWindowKey");
 		modelWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 12;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		lblModelWindow = new GLabel(modelWindow, x, y, modelWindow.width, 20, "Model");
 		lblModelWindow.setLocalColorScheme(10);
@@ -903,7 +907,7 @@ public class ML_Window {
 		sdrAltitudeScaling = new GSlider(modelWindow, x, y, 80, 80, 20);
 		sdrAltitudeScaling.setLocalColorScheme(7);
 		sdrAltitudeScaling.setLimits(0.f, 1.f, 0.f);
-		sdrAltitudeScaling.setValue(p.p.settings.altitudeScalingFactor);											// -- Shouldn't be needed! Calls handler
+		sdrAltitudeScaling.setValue(world.settings.altitudeScalingFactor);											// -- Shouldn't be needed! Calls handler
 		sdrAltitudeScaling.setRotation(PApplet.PI/2.f);
 		sdrAltitudeScaling.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrAltitudeScaling.setEasing(0);
@@ -986,12 +990,12 @@ public class ML_Window {
 	 */
 	void setupMemoryWindow()
 	{
-		memoryWindow = GWindow.getWindow(p.p.p, "Memory", 10, 45, windowWidth, memoryWindowHeight, PApplet.JAVA2D);
+		memoryWindow = GWindow.getWindow(world.p, "Memory", 10, 45, windowWidth, memoryWindowHeight, PApplet.JAVA2D);
 		memoryWindow.setVisible(false);
 		memoryWindow.addData(new WMV_WinData());
 		memoryWindow.addDrawHandler(this, "memoryWindowDraw");
 		memoryWindow.addMouseHandler(this, "memoryWindowMouse");
-		memoryWindow.addKeyHandler(p.p.p, "memoryWindowKey");
+		memoryWindow.addKeyHandler(world.p, "memoryWindowKey");
 		memoryWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 10;
@@ -1018,7 +1022,7 @@ public class ML_Window {
 	 */
 	void setupSelectionWindow()
 	{
-		selectionWindow = GWindow.getWindow(p.p.p, "Selection Mode", 10, 45, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
+		selectionWindow = GWindow.getWindow(world.p, "Selection Mode", 10, 45, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
 		selectionWindow.setVisible(false);
 		selectionWindow.addData(new WMV_WinData());
 		selectionWindow.addDrawHandler(this, "selectionWindowDraw");
@@ -1026,7 +1030,7 @@ public class ML_Window {
 		selectionWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 10;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		lblSelection = new GLabel(selectionWindow, x, y, selectionWindow.width, 20, "Selection");
 		lblSelection.setLocalColorScheme(10);
@@ -1108,7 +1112,7 @@ public class ML_Window {
 		lblCommand6.setLocalColorScheme(10);
 		lblCommand6.setTextAlign(GAlign.CENTER, null);
 		
-		selectionWindow.addKeyHandler(p.p.p, "selectionWindowKey");
+		selectionWindow.addKeyHandler(world.p, "selectionWindowKey");
 		setupSelectionWindow = true;
 	}
 
@@ -1117,7 +1121,7 @@ public class ML_Window {
 	 */
 	void setupStatisticsWindow()
 	{
-		statisticsWindow = GWindow.getWindow(p.p.p, "Statistics", 10, 45, windowWidth * 2, statisticsWindowHeight, PApplet.JAVA2D);
+		statisticsWindow = GWindow.getWindow(world.p, "Statistics", 10, 45, windowWidth * 2, statisticsWindowHeight, PApplet.JAVA2D);
 		statisticsWindow.setVisible(false);
 		statisticsWindow.addData(new WMV_WinData());
 		statisticsWindow.addDrawHandler(this, "statisticsWindowDraw");
@@ -1125,7 +1129,7 @@ public class ML_Window {
 		statisticsWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = 10;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		lblStatistics = new GLabel(statisticsWindow, x, y, statisticsWindow.width, 20, "Statistics");
 		lblStatistics.setLocalColorScheme(10);
@@ -1141,7 +1145,7 @@ public class ML_Window {
 		lblCommand7.setLocalColorScheme(10);
 		lblCommand7.setTextAlign(GAlign.CENTER, null);
 		
-		statisticsWindow.addKeyHandler(p.p.p, "statisticsWindowKey");
+		statisticsWindow.addKeyHandler(world.p, "statisticsWindowKey");
 		
 		setupStatisticsWindow = true;
 	}
@@ -1151,15 +1155,15 @@ public class ML_Window {
 	 */
 	void setupHelpWindow()
 	{
-		helpWindow = GWindow.getWindow(p.p.p, "Help", 10, 45, windowWidth, helpWindowHeight, PApplet.JAVA2D);
+		helpWindow = GWindow.getWindow(world.p, "Help", 10, 45, windowWidth, helpWindowHeight, PApplet.JAVA2D);
 		helpWindow.setVisible(false);
 		helpWindow.addData(new WMV_WinData());
 		helpWindow.addDrawHandler(this, "helpWindowDraw");
 		helpWindow.addMouseHandler(this, "helpWindowMouse");
-		helpWindow.addKeyHandler(p.p.p, "helpWindowKey");
+		helpWindow.addKeyHandler(world.p, "helpWindowKey");
 		
 		int x = 0, y = 10;
-		if(delay) p.p.p.delay(delayAmount);
+		if(delay) world.p.delay(delayAmount);
 
 		/* Selection Window */
 		lblHelp = new GLabel(helpWindow, x, y, helpWindow.width, 20, "Help");
@@ -1228,7 +1232,7 @@ public class ML_Window {
 	 * @param data the data for the GWindow being used
 	 */
 	public void timeWindowDraw(PApplet applet, GWinData data) {
-		if(p.p.p.state.running)
+		if(world.p.state.running)
 		{
 			float lineWidthVeryWide = 20f;
 			float lineWidthWide = 15f;
@@ -1245,31 +1249,31 @@ public class ML_Window {
 
 			applet.textSize(smallTextSize);
 			
-			int mode = p.p.p.world.getTimeMode();
+			int mode = world.p.world.getTimeMode();
 			if( mode == 0 || mode == 1 )
 			{
-				int curTime = (mode == 0) ? p.p.getCurrentCluster().currentTime : p.p.currentTime;
+				int curTime = (mode == 0) ? world.getCurrentCluster().currentTime : world.currentTime;
 				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
 			}
 
-			WMV_Field f = p.p.getCurrentField();
+			WMV_Field f = world.getCurrentField();
 
 			switch(mode)
 			{
 				case 0:
 //					applet.text(" Time Mode: Cluster", x, y += lineWidthVeryWide);
-					if(f.getTimeline().size() > 0 && p.p.viewer.getCurrentFieldTimeSegment() >= 0 && p.p.viewer.getCurrentFieldTimeSegment() < f.getTimeline().size())
+					if(f.getTimeline().size() > 0 && world.viewer.getCurrentFieldTimeSegment() >= 0 && world.viewer.getCurrentFieldTimeSegment() < f.getTimeline().size())
 					{
-						applet.text(" Upper: "+f.getTimeSegment(p.p.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()+
-								" Center:"+f.getTimeSegment(p.p.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
-								" Lower: "+f.getTimeSegment(p.p.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
-						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().getTimeline().size(), x, y += lineWidthWide);
+						applet.text(" Upper: "+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()+
+								" Center:"+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
+								" Lower: "+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
+						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().size(), x, y += lineWidthWide);
 					}
 					else
 					{
-						applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().getTimeline().size(), x, y += lineWidthVeryWide);
+						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().size(), x, y += lineWidthVeryWide);
 					}
-					applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().getDateline().size(), x, y += lineWidth);
+					applet.text(" Current Cluster Dateline Size: "+ world.getCurrentCluster().getDateline().size(), x, y += lineWidth);
 					
 					break;
 				case 1:
@@ -1277,17 +1281,17 @@ public class ML_Window {
 					break;
 				case 2:
 //					applet.text(" Time Mode: Media", x, y += lineWidthVeryWide);
-					applet.text(" Current Media: "+ p.p.viewer.getCurrentMedia(), x, y += lineWidth);		// -- Not very meaningful.. should show media index / type
+					applet.text(" Current Media: "+ world.viewer.getCurrentMedia(), x, y += lineWidth);		// -- Not very meaningful.. should show media index / type
 					break;
 //				case 3:
 //					applet.text(" Time Mode: Flexible"), x, y += lineWidthVeryWide);
 //					break;
 			}
 			
-//			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
-			applet.text(" Current Field Time Segment: "+ p.p.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
-			applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().getTimeline().size(), x, y += lineWidth);
-			applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().getDateline().size(), x, y += lineWidth);
+//			applet.text(" Current Field Time: "+ world.currentTime, x, y += lineWidth);
+			applet.text(" Current Field Time Segment: "+ world.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
+			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().size(), x, y += lineWidth);
+			applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
 		}
 	}
 
@@ -1440,24 +1444,24 @@ public class ML_Window {
 //		applet.textSize(mediumTextSize);
 //		applet.text(" Time ", x, y += lineWidthVeryWide);
 //		applet.textSize(smallTextSize);
-//		applet.text(" Time Mode: "+ ((p.p.p.world.timeMode == 0) ? "Cluster" : "Field"), x, y += lineWidthVeryWide);
+//		applet.text(" Time Mode: "+ ((world.p.world.timeMode == 0) ? "Cluster" : "Field"), x, y += lineWidthVeryWide);
 //		
-////		if(p.p.p.world.timeMode == 0)
-//			applet.text(" Current Field Time: "+ p.p.currentTime, x, y += lineWidth);
-//		applet.text(" Current Field Time Segment: "+ p.p.viewer.currentFieldTimeSegment, x, y += lineWidth);
-//		applet.text(" Current Cluster Time Segment: "+ p.p.getCurrentCluster().getTimeline().size(), x, y += lineWidth);
-////		if(p.p.p.world.timeMode == 1)
-//			applet.text(" Current Cluster Time: "+ p.p.getCurrentCluster().currentTime, x, y += lineWidth);
-//		applet.text(" Current Field Timeline Size: "+ p.p.getCurrentField().getTimeline().size(), x, y += lineWidth);
-//		applet.text(" Current Field Dateline Size: "+ p.p.getCurrentField().getDateline().size(), x, y += lineWidth);
+////		if(world.p.world.timeMode == 0)
+//			applet.text(" Current Field Time: "+ world.currentTime, x, y += lineWidth);
+//		applet.text(" Current Field Time Segment: "+ world.viewer.currentFieldTimeSegment, x, y += lineWidth);
+//		applet.text(" Current Cluster Time Segment: "+ world.getCurrentCluster().getTimeline().size(), x, y += lineWidth);
+////		if(world.p.world.timeMode == 1)
+//			applet.text(" Current Cluster Time: "+ world.getCurrentCluster().currentTime, x, y += lineWidth);
+//		applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().size(), x, y += lineWidth);
+//		applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
 //
-//		WMV_Field f = p.p.getCurrentField();
-//		if(f.getTimeline().size() > 0 && p.p.viewer.currentFieldTimeSegment >= 0 && p.p.viewer.currentFieldTimeSegment < f.getTimeline().size())
-//			applet.text(" Upper: "+f.getTimeline().get(p.p.viewer.currentFieldTimeSegment).getUpper().getTime()+
-//					" Center:"+f.getTimeline().get(p.p.viewer.currentFieldTimeSegment).getCenter().getTime()+
-//					" Lower: "+f.getTimeline().get(p.p.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
-//		applet.text(" Current Cluster Timeline Size: "+ p.p.getCurrentCluster().getTimeline().size(), x, y += lineWidth);
-//		applet.text(" Current Cluster Dateline Size: "+ p.p.getCurrentCluster().getDateline().size(), x, y += lineWidth);
+//		WMV_Field f = world.getCurrentField();
+//		if(f.getTimeline().size() > 0 && world.viewer.currentFieldTimeSegment >= 0 && world.viewer.currentFieldTimeSegment < f.getTimeline().size())
+//			applet.text(" Upper: "+f.getTimeline().get(world.viewer.currentFieldTimeSegment).getUpper().getTime()+
+//					" Center:"+f.getTimeline().get(world.viewer.currentFieldTimeSegment).getCenter().getTime()+
+//					" Lower: "+f.getTimeline().get(world.viewer.currentFieldTimeSegment).getLower().getTime(), x, y += lineWidth);
+//		applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().size(), x, y += lineWidth);
+//		applet.text(" Current Cluster Dateline Size: "+ world.getCurrentCluster().getDateline().size(), x, y += lineWidth);
 	}
 
 	/**
@@ -1497,7 +1501,7 @@ public class ML_Window {
 	 */
 	public void statisticsWindowDraw(PApplet applet, GWinData data) 
 	{
-		if(p.p.p.state.running)
+		if(world.p.state.running)
 		{
 			applet.background(10, 5, 50);
 			applet.stroke(255);
@@ -1514,41 +1518,41 @@ public class ML_Window {
 			float mediumTextSize = 16.f;
 			float smallTextSize = 14.f;
 
-			WMV_Field f = p.p.getCurrentField();
+			WMV_Field f = world.getCurrentField();
 
-			if(p.p.viewer.getCurrentClusterID() >= 0)
+			if(world.viewer.getCurrentClusterID() >= 0)
 			{
-				WMV_Cluster c = p.p.getCurrentCluster();
-//				float[] camTar = p.p.viewer.camera.target();
+				WMV_Cluster c = world.getCurrentCluster();
+//				float[] camTar = world.viewer.camera.target();
 
 				applet.fill(185, 215, 255, 255);					// Set text color
 
 //				applet.textSize(mediumTextSize);
 //				applet.text(" Program Modes ", x, y += lineWidthVeryWide);
 //				applet.textSize(smallTextSize);
-//				applet.text(" Orientation Mode: "+p.p.viewer.settings.orientationMode, x, y += lineWidthVeryWide);
-//				applet.text(" Alpha Mode:"+p.p.alphaMode, x, y += lineWidth);
-//				applet.text(" Time Fading: "+ p.p.timeFading, x, y += lineWidth);
-//				applet.text(" Altitude Scaling: "+p.p.altitudeScaling, x, y += lineWidth);
-//				applet.text(" Lock Media to Clusters:"+p.p.lockMediaToClusters, x, y += lineWidth);
+//				applet.text(" Orientation Mode: "+world.viewer.settings.orientationMode, x, y += lineWidthVeryWide);
+//				applet.text(" Alpha Mode:"+world.alphaMode, x, y += lineWidth);
+//				applet.text(" Time Fading: "+ world.timeFading, x, y += lineWidth);
+//				applet.text(" Altitude Scaling: "+world.altitudeScaling, x, y += lineWidth);
+//				applet.text(" Lock Media to Clusters:"+world.lockMediaToClusters, x, y += lineWidth);
 
 //				applet.textSize(mediumTextSize);
 //				applet.text(" Graphics ", x, y += lineWidthVeryWide);
 //				applet.textSize(smallTextSize);
-//				applet.text(" Alpha:"+p.p.alpha, x, y += lineWidthVeryWide);
-//				applet.text(" Default Media Length:"+p.p.settings.defaultMediaLength, x, y += lineWidth);
-//				applet.text(" Media Angle Fading: "+p.p.viewer.settings.angleFading, x, y += lineWidth);
-//				applet.text(" Media Angle Thinning: "+p.p.viewer.settings.angleThinning, x, y += lineWidth);
-//				if(p.p.viewer.settings.angleThinning)
-//					applet.text(" Media Thinning Angle:"+p.p.viewer.settings.thinningAngle, x, y += lineWidth);
-//				applet.text(" Image Size Factor:"+p.p.subjectSizeRatio, x, y += lineWidth);
-//				applet.text(" Subject Distance (m.):"+p.p.defaultFocusDistance, x, y += lineWidth);
+//				applet.text(" Alpha:"+world.alpha, x, y += lineWidthVeryWide);
+//				applet.text(" Default Media Length:"+world.settings.defaultMediaLength, x, y += lineWidth);
+//				applet.text(" Media Angle Fading: "+world.viewer.settings.angleFading, x, y += lineWidth);
+//				applet.text(" Media Angle Thinning: "+world.viewer.settings.angleThinning, x, y += lineWidth);
+//				if(world.viewer.settings.angleThinning)
+//					applet.text(" Media Thinning Angle:"+world.viewer.settings.thinningAngle, x, y += lineWidth);
+//				applet.text(" Image Size Factor:"+world.subjectSizeRatio, x, y += lineWidth);
+//				applet.text(" Subject Distance (m.):"+world.defaultFocusDistance, x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
 //				applet.text(" Field", x, y += lineWidthVeryWide);
 				applet.text(" Field: "+f.getName(), x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
-				applet.text(" ID: "+(p.p.viewer.getField()+1)+" out of "+p.p.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
+				applet.text(" ID: "+(world.viewer.getField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
 				applet.text(" Width: "+f.getModel().fieldWidth+" Length: "+f.getModel().fieldLength+" Height: "+f.getModel().fieldHeight, x, y += lineWidth);
 				applet.text(" Image Count: "+f.getImageCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 				applet.text(" Panorama Count: "+f.getPanoramaCount(), x, y += lineWidth);			// Doesn't check for dataMissing!!
@@ -1556,7 +1560,7 @@ public class ML_Window {
 //				applet.text(" Sound Count: "+f.getSoundCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 				applet.text(" Media Density (per sq. m.): "+f.getModel().mediaDensity, x, y += lineWidth);
 				
-//				applet.text(" Clusters Visible: "+p.p.viewer.clustersVisible+"  (Orientation Mode)", x, y += lineWidth);
+//				applet.text(" Clusters Visible: "+world.viewer.clustersVisible+"  (Orientation Mode)", x, y += lineWidth);
 				
 				applet.text(" Images Visible: "+f.getImagesVisible(), x, y += lineWidth);
 				applet.text("   Images Seen: "+f.getImagesSeen(), x, y += lineWidth);
@@ -1574,80 +1578,80 @@ public class ML_Window {
 
 				applet.text(" Clusters:"+(f.getClusters().size()-f.getModel().mergedClusters), x, y += lineWidthVeryWide);
 				applet.text(" Merged: "+f.getModel().mergedClusters+" out of "+f.getClusters().size()+" Total", x, y += lineWidth);
-				applet.text(" Minimum Distance: "+p.p.settings.minClusterDistance, x, y += lineWidth);
-				applet.text(" Maximum Distance: "+p.p.settings.maxClusterDistance, x, y += lineWidth);
-				if(p.p.settings.altitudeScaling)
-					applet.text(" Altitude Scaling Factor: "+p.p.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
-				applet.text(" Clustering Method : "+ ( p.p.hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
+				applet.text(" Minimum Distance: "+world.settings.minClusterDistance, x, y += lineWidth);
+				applet.text(" Maximum Distance: "+world.settings.maxClusterDistance, x, y += lineWidth);
+				if(world.settings.altitudeScaling)
+					applet.text(" Altitude Scaling Factor: "+world.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
+				applet.text(" Clustering Method : "+ ( world.hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
 				applet.text(" Population Factor: "+f.getModel().clusterPopulationFactor, x, y += lineWidth);
-				if(p.p.hierarchical) applet.text(" Current Cluster Depth: "+f.getModel().clusterDepth, x, y += lineWidth);
+				if(world.hierarchical) applet.text(" Current Cluster Depth: "+f.getModel().clusterDepth, x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
 				applet.text(" Viewer ", x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
-				applet.text(" Location, x: "+PApplet.round(p.p.viewer.getLocation().x)+" y:"+PApplet.round(p.p.viewer.getLocation().y)+" z:"+
-						PApplet.round(p.p.viewer.getLocation().z), x, y += lineWidthVeryWide);		
-				applet.text(" GPS Longitude: "+p.p.viewer.getGPSLocation().x+" Latitude:"+p.p.viewer.getGPSLocation().y, x, y += lineWidth);		
+				applet.text(" Location, x: "+PApplet.round(world.viewer.getLocation().x)+" y:"+PApplet.round(world.viewer.getLocation().y)+" z:"+
+						PApplet.round(world.viewer.getLocation().z), x, y += lineWidthVeryWide);		
+				applet.text(" GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidth);		
 
-				applet.text(" Current Cluster: "+p.p.viewer.getCurrentClusterID(), x, y += lineWidthVeryWide);
+				applet.text(" Current Cluster: "+world.viewer.getCurrentClusterID(), x, y += lineWidthVeryWide);
 				applet.text("   Media Points: "+c.mediaCount, x, y += lineWidth);
-				applet.text("   Media Segments: "+p.p.getCurrentCluster().segments.size(), x, y += lineWidth);
-				applet.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.p.viewer.getLocation())), x, y += lineWidth);
-				applet.text("   Auto Stitched Panoramas: "+p.p.getCurrentCluster().stitchedPanoramas.size(), x, y += lineWidth);
-				applet.text("   User Stitched Panoramas: "+p.p.getCurrentCluster().userPanoramas.size(), x, y += lineWidth);
-				if(p.p.viewer.getAttractorCluster() != -1)
+				applet.text("   Media Segments: "+world.getCurrentCluster().segments.size(), x, y += lineWidth);
+				applet.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), world.viewer.getLocation())), x, y += lineWidth);
+				applet.text("   Auto Stitched Panoramas: "+world.getCurrentCluster().stitchedPanoramas.size(), x, y += lineWidth);
+				applet.text("   User Stitched Panoramas: "+world.getCurrentCluster().userPanoramas.size(), x, y += lineWidth);
+				if(world.viewer.getAttractorCluster() != -1)
 				{
-					applet.text(" Destination Cluster : "+p.p.viewer.getAttractorCluster(), x, y += lineWidth);
-					applet.text(" Destination Media Points: "+p.p.getCurrentField().getCluster(p.p.viewer.getAttractorCluster()).mediaCount, x, y += lineWidth);
-					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getCluster(p.p.viewer.getAttractorCluster()).getLocation(), p.p.viewer.getLocation() )), x, y += lineWidth);
+					applet.text(" Destination Cluster : "+world.viewer.getAttractorCluster(), x, y += lineWidth);
+					applet.text(" Destination Media Points: "+world.getCurrentField().getCluster(world.viewer.getAttractorCluster()).mediaCount, x, y += lineWidth);
+					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getCluster(world.viewer.getAttractorCluster()).getLocation(), world.viewer.getLocation() )), x, y += lineWidth);
 				}
 
-				if(p.p.p.debug.viewer) 
+				if(world.p.debug.viewer) 
 				{
-					applet.text(" Debug: Current Attraction: "+p.p.viewer.getAttraction().mag(), x, y += lineWidth);
-					applet.text(" Debug: Current Acceleration: "+p.p.viewer.getAcceleration().mag(), x, y += lineWidth);
-					applet.text(" Debug: Current Velocity: "+ p.p.viewer.getVelocity().mag() , x, y += lineWidth);
-					applet.text(" Debug: Moving? " + p.p.viewer.isMoving(), x, y += lineWidth);
-					applet.text(" Debug: Slowing? " + p.p.viewer.isSlowing(), x, y += lineWidth);
-					applet.text(" Debug: Halting? " + p.p.viewer.isHalting(), x, y += lineWidth);
+					applet.text(" Debug: Current Attraction: "+world.viewer.getAttraction().mag(), x, y += lineWidth);
+					applet.text(" Debug: Current Acceleration: "+world.viewer.getAcceleration().mag(), x, y += lineWidth);
+					applet.text(" Debug: Current Velocity: "+ world.viewer.getVelocity().mag() , x, y += lineWidth);
+					applet.text(" Debug: Moving? " + world.viewer.isMoving(), x, y += lineWidth);
+					applet.text(" Debug: Slowing? " + world.viewer.isSlowing(), x, y += lineWidth);
+					applet.text(" Debug: Halting? " + world.viewer.isHalting(), x, y += lineWidth);
 				}
 
-				if(p.p.p.debug.viewer)
+				if(world.p.debug.viewer)
 				{
-					applet.text(" Debug: X Orientation (Yaw):" + p.p.viewer.getXOrientation(), x, y += lineWidth);
-					applet.text(" Debug: Y Orientation (Pitch):" + p.p.viewer.getYOrientation(), x, y += lineWidth);
+					applet.text(" Debug: X Orientation (Yaw):" + world.viewer.getXOrientation(), x, y += lineWidth);
+					applet.text(" Debug: Y Orientation (Pitch):" + world.viewer.getYOrientation(), x, y += lineWidth);
 //					applet.text(" Debug: Target Point x:" + camTar[0] + ", y:" + camTar[1] + ", z:" + camTar[2], x, y += lineWidth);
 				}
 				else
 				{
-					applet.text(" Compass Direction:" + p.utilities.angleToCompass(p.p.viewer.getXOrientation())+" Angle: "+p.p.viewer.getXOrientation(), x, y += lineWidth);
-					applet.text(" Vertical Direction:" + PApplet.degrees(p.p.viewer.getYOrientation()), x, y += lineWidth);
-					applet.text(" Zoom:"+p.p.viewer.getFieldOfView(), x, y += lineWidth);
+					applet.text(" Compass Direction:" + utilities.angleToCompass(world.viewer.getXOrientation())+" Angle: "+world.viewer.getXOrientation(), x, y += lineWidth);
+					applet.text(" Vertical Direction:" + PApplet.degrees(world.viewer.getYOrientation()), x, y += lineWidth);
+					applet.text(" Zoom:"+world.viewer.getFieldOfView(), x, y += lineWidth);
 				}
-				applet.text(" Field of View:"+p.p.viewer.getFieldOfView(), x, y += lineWidth);
+				applet.text(" Field of View:"+world.viewer.getFieldOfView(), x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
 				applet.text(" Output ", x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
-				applet.text(" Image Output Folder:"+p.p.outputFolder, x, y += lineWidthVeryWide);
-				applet.text(" Library Folder:"+p.p.p.library.getLibraryFolder(), x, y += lineWidth);
+				applet.text(" Image Output Folder:"+world.outputFolder, x, y += lineWidthVeryWide);
+				applet.text(" Library Folder:"+world.p.library.getLibraryFolder(), x, y += lineWidth);
 
-				if(p.p.p.debug.memory)
+				if(world.p.debug.memory)
 				{
-					if(p.p.p.debug.detailed)
+					if(world.p.debug.detailed)
 					{
-						applet.text("Total memory (bytes): " + p.p.p.debug.totalMemory, x, y += lineWidth);
-						applet.text("Available processors (cores): "+p.p.p.debug.availableProcessors, x, y += lineWidth);
-						applet.text("Maximum memory (bytes): " +  (p.p.p.debug.maxMemory == Long.MAX_VALUE ? "no limit" : p.p.p.debug.maxMemory), x, y += lineWidth); 
-						applet.text("Total memory (bytes): " + p.p.p.debug.totalMemory, x, y += lineWidth);
-						applet.text("Allocated memory (bytes): " + p.p.p.debug.allocatedMemory, x, y += lineWidth);
+						applet.text("Total memory (bytes): " + world.p.debug.totalMemory, x, y += lineWidth);
+						applet.text("Available processors (cores): "+world.p.debug.availableProcessors, x, y += lineWidth);
+						applet.text("Maximum memory (bytes): " +  (world.p.debug.maxMemory == Long.MAX_VALUE ? "no limit" : world.p.debug.maxMemory), x, y += lineWidth); 
+						applet.text("Total memory (bytes): " + world.p.debug.totalMemory, x, y += lineWidth);
+						applet.text("Allocated memory (bytes): " + world.p.debug.allocatedMemory, x, y += lineWidth);
 					}
-					applet.text("Free memory (bytes): "+p.p.p.debug.freeMemory, x, y += lineWidth);
-					applet.text("Approx. usable free memory (bytes): " + p.p.p.debug.approxUsableFreeMemory, x, y += lineWidth);
+					applet.text("Free memory (bytes): "+world.p.debug.freeMemory, x, y += lineWidth);
+					applet.text("Approx. usable free memory (bytes): " + world.p.debug.approxUsableFreeMemory, x, y += lineWidth);
 				}			
 			}
 			else
-				p.message("Can't display statistics: currentCluster == "+p.p.viewer.getCurrentClusterID()+"!!!");
+				p.message(world, "Can't display statistics: currentCluster == "+world.viewer.getCurrentClusterID()+"!!!");
 		}
 	}
 	
@@ -1937,7 +1941,7 @@ public class ML_Window {
 		yPos += lineWidthWide;
 
 		applet.textSize(smallTextSize);
-		applet.text("Points in Memory:"+p.p.viewer.getMemoryPath().size(), xPos, yPos += lineWidthVeryWide);
+		applet.text("Points in Memory:"+world.viewer.getMemoryPath().size(), xPos, yPos += lineWidthVeryWide);
 		
 		yPos += lineWidthWide * 2.f;
 

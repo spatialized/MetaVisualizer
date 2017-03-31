@@ -91,7 +91,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		gpsLocation = newGPSLocation;
 		brightness = newBrightness;
 
-		if(newFocusDistance == -1.f) focusDistance = p.p.settings.defaultFocusDistance;
+		if(newFocusDistance == -1.f) focusDistance = p.worldSettings.defaultFocusDistance;
 		else focusDistance = newFocusDistance;
 
 		origFocusDistance = focusDistance;
@@ -117,18 +117,18 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	/**
 	 * Display the video in virtual space
 	 */
-	void draw()
+	void draw(WMV_World world)
 	{
 		float distanceBrightness = 0.f; 					// Fade with distance
 		float angleBrightness;
 
 		float brightness = fadingBrightness;					
-		brightness *= p.p.viewer.settings.userBrightness;
+		brightness *= p.viewerSettings.userBrightness;
 
 		distanceBrightness = getDistanceBrightness(); 
 		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
 
-		if( p.p.timeFading && time != null && !p.p.viewer.isMoving() )
+		if( world.timeFading && time != null && !world.viewer.isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 
 		if(isClose && distanceBrightness == 0.f)							// Video recently moved out of range
@@ -137,13 +137,13 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			fadeOut();
 		}
 
-		if(p.p.p.debug.video && p.p.p.debug.detailed && p.p.p.frameCount % 30 == 0)
-			p.p.display.message("Video brightness after distance:"+brightness);
+		if(p.debugSettings.video && p.debugSettings.detailed && p.frameCount % 30 == 0)
+			world.p.display.message(world, "Video brightness after distance:"+brightness);
 
-		if( p.p.viewer.settings.angleFading )
+		if( p.viewerSettings.angleFading )
 		{
-			float videoAngle = getFacingAngle();
-			if(p.p.utilities.isNaN(videoAngle))
+			float videoAngle = getFacingAngle(world.viewer.getOrientationVector());
+			if(p.utilities.isNaN(videoAngle))
 			{
 				videoAngle = 0;				
 				visible = false;
@@ -156,80 +156,77 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);				// Scale to setting for alpha range
 
-		if (!hidden && !disabled && !p.p.viewer.settings.map3DMode) 
+		if (!hidden && !disabled && !p.viewerSettings.map3DMode) 
 		{
 			if (viewingBrightness > 0)
 				if ((video.width > 1) && (video.height > 1))
-					displayVideo();          // Draw the video 
+					displayVideo(world);          // Draw the video 
 		}
 		else
 		{      
-			p.p.p.noFill();                  // Hide video if it isn't visible
+			world.p.noFill();                  // Hide video if it isn't visible
 		}
 
-		if(visible && p.p.showModel && !hidden && !disabled)
-			displayModel();
-
-//		if (visible && !disabled && (p.p.p.debug.model || p.p.viewer.settings.map3DMode))
-//			displayModel();
+		if(visible && world.showModel && !hidden && !disabled)
+			displayModel(world);
 	}
 
 	/**
 	 * @param size Size to draw the video center
 	 * Draw the video center as a colored sphere
 	 */
-	void displayModel()
+	void displayModel(WMV_World world)
 	{
 		/* Draw frame */
-		p.p.p.pushMatrix();
+		world.p.pushMatrix();
 
-//		p.p.p.stroke(0.f, 0.f, 255.f, 155.f);	 
-		p.p.p.stroke(0.f, 0.f, 255.f, viewingBrightness);	 
-		p.p.p.strokeWeight(2.f);
+//		world.p.stroke(0.f, 0.f, 255.f, 155.f);	 
+		world.p.stroke(0.f, 0.f, 255.f, viewingBrightness);	 
+		world.p.strokeWeight(2.f);
 		
-		p.p.p.line(vertices[0].x, vertices[0].y, vertices[0].z, vertices[1].x, vertices[1].y, vertices[1].z);
-		p.p.p.line(vertices[1].x, vertices[1].y, vertices[1].z, vertices[2].x, vertices[2].y, vertices[2].z);
-		p.p.p.line(vertices[2].x, vertices[2].y, vertices[2].z, vertices[3].x, vertices[3].y, vertices[3].z);
-		p.p.p.line(vertices[3].x, vertices[3].y, vertices[3].z, vertices[0].x, vertices[0].y, vertices[0].z);
+		world.p.line(vertices[0].x, vertices[0].y, vertices[0].z, vertices[1].x, vertices[1].y, vertices[1].z);
+		world.p.line(vertices[1].x, vertices[1].y, vertices[1].z, vertices[2].x, vertices[2].y, vertices[2].z);
+		world.p.line(vertices[2].x, vertices[2].y, vertices[2].z, vertices[3].x, vertices[3].y, vertices[3].z);
+		world.p.line(vertices[3].x, vertices[3].y, vertices[3].z, vertices[0].x, vertices[0].y, vertices[0].z);
 		
-		PVector c = p.p.getCurrentField().getCluster(cluster).getLocation();
+		PVector c = world.getCurrentField().getCluster(cluster).getLocation();
 		PVector loc = location;
 		PVector cl = getCaptureLocation();
-		p.p.p.popMatrix();
+		world.p.popMatrix();
 		
 		/* Point only */
-//		p.p.p.pushMatrix();
-//		p.p.p.translate(location.x, location.y, location.z);
+//		world.p.pushMatrix();
+//		world.p.translate(location.x, location.y, location.z);
 //
-//		p.p.p.fill(150, 0, 255, 150);
-//		p.p.p.sphere(centerSize);
-//		PVector c = p.p.getCluster(cluster).getLocation();
+//		world.p.fill(150, 0, 255, 150);
+//		world.p.sphere(centerSize);
+//		PVector c = world.getCluster(cluster).getLocation();
 //		PVector loc = location;
 //		PVector cl = getCaptureLocation();
-//		p.p.p.popMatrix();
+//		world.p.popMatrix();
 
-		p.p.p.pushMatrix();
-		if(p.p.showMediaToCluster)
+		world.p.pushMatrix();
+		if(world.showMediaToCluster)
 		{
-			p.p.p.strokeWeight(3.f);
-			p.p.p.stroke(150, 135, 255, viewingBrightness);
-			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+			world.p.strokeWeight(3.f);
+			world.p.stroke(150, 135, 255, viewingBrightness);
+			world.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
-		if(p.p.showCaptureToMedia)
+		if(world.showCaptureToMedia)
 		{
-			p.p.p.strokeWeight(3.f);
-			p.p.p.stroke(160, 100, 255, viewingBrightness);
-			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+			world.p.strokeWeight(3.f);
+			world.p.stroke(160, 100, 255, viewingBrightness);
+			world.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
-		if(p.p.showCaptureToCluster)
+		if(world.showCaptureToCluster)
 		{
-			p.p.p.strokeWeight(3.f);
-			p.p.p.stroke(120, 55, 255, viewingBrightness);
-			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+			world.p.strokeWeight(3.f);
+			world.p.stroke(120, 55, 255, viewingBrightness);
+			world.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
-		p.p.p.popMatrix();
+		world.p.popMatrix();
 	}
 
 	/**
@@ -259,13 +256,13 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	void fadeSoundIn()
 	{
-		if(volume < p.p.settings.videoMaxVolume)
+		if(volume < p.worldSettings.videoMaxVolume)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.p.p.frameCount; 
+			volumeFadingStartFrame = p.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
-			volumeFadingTarget = p.p.settings.videoMaxVolume;
+			volumeFadingEndFrame = p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingTarget = p.worldSettings.videoMaxVolume;
 		}
 	}
 	
@@ -277,9 +274,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(volume > 0.f)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.p.p.frameCount; 
+			volumeFadingStartFrame = p.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = 0.f;
 			pauseAfterSoundFades = pause;
 		}
@@ -298,7 +295,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			
 			visible = false;
 
-			if(p.p.viewer.settings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+			if(p.viewerSettings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 			{
 				if(cluster == p.p.viewer.getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					visible = true;
@@ -311,29 +308,29 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			}
 			else 
 			{
-				if(p.p.viewer.settings.angleFading)
-					visible = isFacingCamera();		
+				if(p.viewerSettings.angleFading)
+					visible = isFacingCamera(p.p.viewer.getLocation());		
 				else 
 					visible = true;     										 		
 			}
 
 			if(visible)
 			{
-				float videoAngle = getFacingAngle();				
+				float videoAngle = getFacingAngle(p.p.viewer.getOrientationVector());				
 
-				if(!p.p.utilities.isNaN(videoAngle))
+				if(!p.utilities.isNaN(videoAngle))
 					visible = (getAngleBrightness(videoAngle) > 0.f);	 // Check if video is visible at current angle facing viewer
 
-				if(!fading && p.p.viewer.settings.hideVideos)
+				if(!fading && p.viewerSettings.hideVideos)
 					visible = false;
 					
-				if(visible && !p.p.viewer.settings.orientationMode)
+				if(visible && !p.viewerSettings.orientationMode)
 					visible = (getDistanceBrightness() > 0.f);
 
 				if(orientation != 0 && orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 					visible = false;
 
-				if(isBackFacing() || isBehindCamera())
+				if(isBackFacing(p.p.viewer.getLocation()) || isBehindCamera(p.p.viewer.getLocation(), p.p.viewer.getOrientationVector()))
 					visible = false;
 			}
 			
@@ -357,11 +354,11 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 					visibilitySetToFalse = true;
 			}
 			
-			if(!p.p.viewer.settings.angleThinning)										// Check Angle Thinning Mode
+			if(!p.viewerSettings.angleThinning)										// Check Angle Thinning Mode
 			{
-				if(visibilitySetToTrue && !fading && !fadedOut && !p.p.viewer.settings.hideVideos)	// If should be visible and already fading, fade in 
+				if(visibilitySetToTrue && !fading && !fadedOut && !p.viewerSettings.hideVideos)	// If should be visible and already fading, fade in 
 				{
-					if(!loaded) loadMedia();
+					if(!loaded) loadMedia(p.p.p);
 					fadeIn();											// Fade in
 				}
 			}
@@ -370,9 +367,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				if(visible && !thinningVisibility && !fading)
 					fadeOut();
 
-				if(!visible && thinningVisibility && !fading && !fadedOut && !p.p.viewer.settings.hideVideos) 
+				if(!visible && thinningVisibility && !fading && !fadedOut && !p.viewerSettings.hideVideos) 
 				{
-					if(!loaded) loadMedia();
+					if(!loaded) loadMedia(p.p.p);
 					fadeIn();
 				}
 			}
@@ -394,8 +391,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 			if(fadedOut) 
 			{
-				if(p.p.p.debug.video)
-					p.p.display.message("Will fade sound out for video #"+getID());
+				if(p.debugSettings.video)
+					p.p.p.display.message(p.p, "Will fade sound out for video #"+getID());
 				fadeSoundOut(false);			// Fade sound out and clear video once finished
 				fadedOut = false;						
 			}
@@ -424,7 +421,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(vertices.length == 0) disabled = true;
 		if(sVertices.length == 0) disabled = true;
 		
-//		if(p.p.viewer.settings.orientationMode)	
+//		if(p.viewerSettings.orientationMode)	
 //			vertices = translateVertices(vertices, p.p.viewer.getLocation());
 //		else
 			vertices = translateVertices(vertices, getCaptureLocation());                       // Move image to photo capture location   
@@ -432,14 +429,14 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		disp = getDisplacementVector();
 		vertices = translateVertices(vertices, disp);          // Translate image vertices from capture to viewing location
 
-//		if(p.p.viewer.settings.orientationMode)
+//		if(p.viewerSettings.orientationMode)
 //			location = p.p.viewer.getLocation();
 //		else
 			location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// Location in Path Mode
 
 		location.add(disp);     													 
 
-		if (p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x) || p.p.utilities.isNaN(location.x))
+		if (p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x))
 			location = new PVector (0, 0, 0);
 	}
 	
@@ -447,7 +444,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	{
 		float r;				  				 // Viewing sphere radius
 		if(focusDistance == -1.f)
-			r = p.p.settings.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
+			r = p.worldSettings.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -460,7 +457,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 	public PVector getLocation()
 	{
-		if(p.p.viewer.settings.orientationMode)
+		if(p.viewerSettings.orientationMode)
 		{
 			PVector result = new PVector(location.x, location.y, location.z);
 			result.add(getDisplacementVector());
@@ -473,18 +470,18 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	/**
 	 * Load the video file from disk
 	 */
-	public void loadMedia()
+	public void loadMedia(MultimediaLocator ml)
 	{
 		if(!disabled)																	
 		{
-			video = new Movie(p.p.p, filePath);
+			video = new Movie(ml, filePath);
 			setLength( video.duration() );				// Set video length (in seconds)
 			
 			video.loop();								// Start loop
 
-			if(p.p.viewer.settings.autoPlayVideos)
+			if(p.viewerSettings.autoPlayVideos)
 			{
-				if(p.getVideosPlaying() < p.p.viewer.settings.autoPlayMaxVideoCount)
+				if(p.getVideosPlaying() < p.viewerSettings.autoPlayMaxVideoCount)
 					playVideo();
 			}
 			else
@@ -493,8 +490,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			video.volume(0.f);
 			volume = 0.f;
 			
-			if(p.p.p.debug.video)
-				p.p.display.message("Loading video file..."+filePath+" video.duration():"+video.duration());
+			if(p.debugSettings.video)
+				ml.display.message(p.p, "Loading video file..."+filePath+" video.duration():"+video.duration());
 
 			calculateVertices(); 
 			loaded = true;
@@ -525,8 +522,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public void stopVideo()
 	{
-		if(p.p.p.debug.video) 
-			p.p.display.message("Stopping video file..."+getID());
+		if(p.debugSettings.video) 
+			p.p.p.display.message(p.p, "Stopping video file..."+getID());
 
 //		video.pause();
 		fadeSoundOut(true);				// Fade sound out and pause video once finished
@@ -553,8 +550,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public void clearVideo()
 	{
-		if(p.p.p.debug.video) 
-			p.p.display.message("Stopping and clearing video file..."+getID());
+		if(p.debugSettings.video) 
+			p.p.p.display.message(p.p, "Stopping and clearing video file..."+getID());
 
 //		if(video.playing)
 //		video.noLoop();
@@ -579,77 +576,77 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	/**
 	 * Draw the video in virtual space
 	 */
-	private void displayVideo()
+	private void displayVideo(WMV_World world)
 	{
-		p.p.p.rectMode(PApplet.CENTER);
-		p.p.p.noStroke(); 
+		world.p.rectMode(PApplet.CENTER);
+		world.p.noStroke(); 
 
 		if(isSelected())
 		{
-			if (!p.p.viewer.settings.selection && p.p.p.debug.field)     // Draw outline
+			if (!p.viewerSettings.selection && p.debugSettings.field)     // Draw outline
 			{
-				p.p.p.stroke(19, 200, 150);
-				p.p.p.strokeWeight(outlineSize);
+				world.p.stroke(19, 200, 150);
+				world.p.strokeWeight(outlineSize);
 			}
 		}
 
-		p.p.p.pushMatrix();
-		p.p.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
-		p.p.p.textureMode(PApplet.IMAGE);
+		world.p.pushMatrix();
+		world.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
+		world.p.textureMode(PApplet.IMAGE);
 
 		if(frame != null)
-			p.p.p.texture(frame);
+			world.p.texture(frame);
 
 		frame = new PImage(video.getImage());
 
-		if(p.p.viewer.settings.selection)
+		if(p.viewerSettings.selection)
 		{
 			if(isSelected())
 			{
-				if(!p.p.alphaMode)
-					p.p.p.tint(viewingBrightness, 255);          				
+				if(!world.alphaMode)
+					world.p.tint(viewingBrightness, 255);          				
 				else
-					p.p.p.tint(255, viewingBrightness);          				
+					world.p.tint(255, viewingBrightness);          				
 			}
 			else
 			{
-				if(!p.p.alphaMode)
-					p.p.p.tint(viewingBrightness * 0.333f, 255);          // Set the image transparency					
+				if(!world.alphaMode)
+					world.p.tint(viewingBrightness * 0.333f, 255);          // Set the image transparency					
 				else
-					p.p.p.tint(255, viewingBrightness * 0.333f);          				
+					world.p.tint(255, viewingBrightness * 0.333f);          				
 			}
 		}
-//		else if(p.p.viewer.settings.videoMode)
+//		else if(p.viewerSettings.videoMode)
 //		{
-//			if(!p.p.alphaMode)
-//				p.p.p.tint(viewingBrightness, 255);          				
+//			if(!world.alphaMode)
+//				world.p.tint(viewingBrightness, 255);          				
 //			else
-//				p.p.p.tint(255, viewingBrightness);          				
+//				world.p.tint(255, viewingBrightness);          				
 //		}
 		else
 		{
-			if(!p.p.alphaMode)
-				p.p.p.tint(viewingBrightness, 255);          				
+			if(!world.alphaMode)
+				world.p.tint(viewingBrightness, 255);          				
 			else
-				p.p.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, p.p.alpha));          				
+				world.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));          				
 		}
 
-		if(p.p.viewer.settings.orientationMode)
+		if(p.viewerSettings.orientationMode)
 		{
-			p.p.p.vertex(sVertices[0].x, sVertices[0].y, sVertices[0].z, 0, 0);           // UPPER LEFT      
-			p.p.p.vertex(sVertices[1].x, sVertices[1].y, sVertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
-			p.p.p.vertex(sVertices[2].x, sVertices[2].y, sVertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
-			p.p.p.vertex(sVertices[3].x, sVertices[3].y, sVertices[3].z, 0, origVideoHeight);           // LOWER LEFT
+			world.p.vertex(sVertices[0].x, sVertices[0].y, sVertices[0].z, 0, 0);           // UPPER LEFT      
+			world.p.vertex(sVertices[1].x, sVertices[1].y, sVertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
+			world.p.vertex(sVertices[2].x, sVertices[2].y, sVertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
+			world.p.vertex(sVertices[3].x, sVertices[3].y, sVertices[3].z, 0, origVideoHeight);           // LOWER LEFT
 		}
 		else
 		{
-			p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
-			p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
-			p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
-			p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, origVideoHeight);           // LOWER LEFT
+			world.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);           // UPPER LEFT      
+			world.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, origVideoWidth, 0);           // UPPER RIGHT           
+			world.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, origVideoWidth, origVideoHeight); 		// LOWER RIGHT        
+			world.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, origVideoHeight);           // LOWER LEFT
 		}
-		p.p.p.endShape(PApplet.CLOSE);       // End the shape containing the image
-		p.p.p.popMatrix();
+		world.p.endShape(PApplet.CLOSE);       // End the shape containing the image
+		world.p.popMatrix();
 
 //		p.videosSeen++;
 		p.setVideosSeen(p.getVideosSeen() + 1);
@@ -658,7 +655,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	/**
 	 * Draw the image metadata in Heads-Up Display
 	 */
-	public void displayMetadata()
+	public void displayMetadata(WMV_World world)
 	{
 		String strTitleVideo = "Video";
 		String strTitleVideo2 = "-----";
@@ -684,31 +681,31 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
 		String strBrightnessFading = "brightnessFadingValue: "+PApplet.str(fadingBrightness);
 		
-		p.p.display.metadata(strTitleVideo);
-		p.p.display.metadata(strTitleVideo2);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strTitleVideo);
+		world.p.display.metadata(world, strTitleVideo2);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strID);
-		p.p.display.metadata(strCluster);
-		p.p.display.metadata(strName);
-		p.p.display.metadata(strX + strY + strZ);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strID);
+		world.p.display.metadata(world, strCluster);
+		world.p.display.metadata(world, strName);
+		world.p.display.metadata(world, strX + strY + strZ);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strDate);
-		p.p.display.metadata(strTime);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strDate);
+		world.p.display.metadata(world, strTime);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strLatitude + strLongitude);
-		p.p.display.metadata(strAltitude);
-		p.p.display.metadata(strTheta);
-		p.p.display.metadata(strElevation);
-		p.p.display.metadata(strRotation);
+		world.p.display.metadata(world, strLatitude + strLongitude);
+		world.p.display.metadata(world, strAltitude);
+		world.p.display.metadata(world, strTheta);
+		world.p.display.metadata(world, strElevation);
+		world.p.display.metadata(world, strRotation);
 
-		if(p.p.p.debug.video)
+		if(p.debugSettings.video)
 		{
-			p.p.display.metadata(strTitleDebug);
-			p.p.display.metadata(strBrightness);
-			p.p.display.metadata(strBrightnessFading);
+			world.p.display.metadata(world, strTitleDebug);
+			world.p.display.metadata(world, strBrightness);
+			world.p.display.metadata(world, strBrightnessFading);
 		}	
 	}
 
@@ -723,7 +720,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		float r;
 
 		if(focusDistance == -1.f)
-			r = p.p.settings.defaultFocusDistance;						// Use default if no focus distance in metadata					      
+			r = p.worldSettings.defaultFocusDistance;						// Use default if no focus distance in metadata					      
 		else
 			r = focusDistance;							
 
@@ -765,9 +762,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			distVisibility = PApplet.constrain(PApplet.map(viewDist, p.p.viewer.getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
 		}
 
-//		if(p.p.p.debug.video)
+//		if(p.debugSettings.video)
 //		{
-//			p.p.display.message("video #"+getID()+"  distVisibility:"+distVisibility);
+//			p.p.p.display.message("video #"+getID()+"  distVisibility:"+distVisibility);
 //		}
 		return distVisibility;
 	}
@@ -858,6 +855,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		length = newLength;
 	}
 
+	/**
+	 * @return Video length
+	 */
 	 public float getLength()
 	 {
 		 return length;
@@ -866,21 +866,21 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	/**
 	 * @return Whether video is facing the camera
 	 */	
-	public boolean isFacingCamera()
+	public boolean isFacingCamera(PVector cameraPosition)
 	{
-		return PApplet.abs(getAngleToCamera()) > p.p.viewer.settings.visibleAngle;     			// If the result is positive, then it is facing the camera.
+		return PApplet.abs(getAngleToCamera()) > p.viewerSettings.visibleAngle;     			// If the result is positive, then it is facing the camera.
 //		return PApplet.abs(getAngleToCamera()) > p.p.defaultVisibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 
 	/**
 	 * @return Is the camera behind the video?  
 	 */
-	public boolean isBackFacing()										
+	public boolean isBackFacing(PVector cameraPosition)										
 	{
-		PVector camLoc = p.p.viewer.getLocation();
+//		PVector cameraPosition = p.p.viewer.getLocation();
 
-		float captureToCam = getCaptureLocation().dist(camLoc);  	// Find distance from capture location to camera
-		float camToVideo = location.dist(camLoc);  		// Find distance from camera to image
+		float captureToCam = getCaptureLocation().dist(cameraPosition);  	// Find distance from capture location to camera
+		float camToVideo = location.dist(cameraPosition);  		// Find distance from camera to image
 
 //		if(captureToCam > camToVideo + p.p.viewer.getNearClippingDistance())			// If captureToCam > camToVideo, then back of video is facing the camera
 		if(captureToCam > camToVideo + p.p.viewer.getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
@@ -890,12 +890,11 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * getFacingAngle()
 	 * @return Angle between the video and direction the camera is facing
 	 */
-	public float getFacingAngle()
+	public float getFacingAngle(PVector camOrientation)
 	{
-		PVector camOrientation = p.p.viewer.getOrientationVector();
+//		PVector camOrientation = p.p.viewer.getOrientationVector();
 		PVector faceNormal = getFaceNormal();
 
 		PVector crossVector = new PVector();
@@ -906,13 +905,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * isBehindCamera()
 	 * @return Whether video is behind camera
 	 */
-	boolean isBehindCamera()										
+	boolean isBehindCamera(PVector camLocation, PVector camOrientation)										
 	{
-		PVector camLocation = p.p.viewer.getLocation();
-		PVector camOrientation = p.p.viewer.getOrientationVector();
+//		PVector camLocation = p.p.viewer.getLocation();
+//		PVector camOrientation = p.p.viewer.getOrientationVector();
 		PVector centerVertex = calcCenterVertex();
 
 		PVector camToVideo = new PVector(  camLocation.x-centerVertex.x, 	//  Vector from the camera to the face.      
@@ -930,7 +928,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * calcCenterVertex()
 	 * @return Center vertex of video rectangle
 	 */
 	public PVector calcCenterVertex()
@@ -1024,7 +1021,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				PVector imgLocation = p.getImage(i).getCaptureLocation();
 				float curDist = PVector.dist(getCaptureLocation(), imgLocation);
 
-				if(curDist < p.p.settings.assocVideoDistTolerance)		// and very close in space,
+				if(curDist < p.worldSettings.assocVideoDistTolerance)		// and very close in space,
 				{
 					candidates.append(i);												// Add to candidates list
 				}
@@ -1036,15 +1033,15 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		
 		if(candidates.size() == 0)
 		{
-			if(p.p.p.debug.video)
-				PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+p.p.settings.assocVideoDistTolerance+"!");
+			if(p.debugSettings.video)
+				PApplet.println("Video "+getID()+" has no candidates under distance tolerance:"+p.worldSettings.assocVideoDistTolerance+"!");
 		}
 		
 		for( int i : candidates )							// Compare distances of the candidates
 		{
 			float timeDiff = time.getTime() - p.getImage(i).time.getTime();
 
-			if( timeDiff > 0.f && timeDiff < p.p.settings.assocVideoTimeTolerance )			// If in very close succession with an image
+			if( timeDiff > 0.f && timeDiff < p.worldSettings.assocVideoTimeTolerance )			// If in very close succession with an image
 			{
 				if(timeDiff < closestDist)
 				{
@@ -1056,13 +1053,13 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		
 		if(closestIdx != -1)
 		{
-			if(p.p.p.debug.video || p.p.p.debug.metadata)
+			if(p.debugSettings.video || p.debugSettings.metadata)
 				PApplet.println("Found image placeholder:"+p.getImage(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+p.getImage(closestIdx).getID()+" closestIdx:"+closestIdx);
 			boolean success = associateImagePlaceholder(p.getImage(closestIdx).getID(), closestDist, PApplet.abs(time.getTime() - p.getImage(closestIdx).time.getTime()));
 			
 			if(success)
 			{
-				if(p.p.p.debug.video || p.p.p.debug.metadata)
+				if(p.debugSettings.video || p.debugSettings.metadata)
 					PApplet.println("Set placeholder image id:"+p.getImage(closestIdx).getID());
 			
 				p.getImage(closestIdx).associateVideo(getID());
@@ -1118,35 +1115,14 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		return success;
 	}
 
-//	/**
-//	 * Draw outline around selected video
-//	 */
-//	private void outline()
-//	{
-//		p.p.p.stroke(100, 20, 250);
-//		p.p.p.strokeWeight(outlineSize);
-//
-//		p.p.p.pushMatrix();
-//		p.p.p.beginShape(PApplet.QUADS);    
-//		p.p.p.noFill();
-//
-//		p.p.p.vertex(vertices[0].x, vertices[0].y, vertices[0].z, 0, 0);        // UPPER LEFT      
-//		p.p.p.vertex(vertices[1].x, vertices[1].y, vertices[1].z, 1, 0);        // UPPER RIGHT           
-//		p.p.p.vertex(vertices[2].x, vertices[2].y, vertices[2].z, 1, 1); 		// LOWER RIGHT        
-//		p.p.p.vertex(vertices[3].x, vertices[3].y, vertices[3].z, 0, 1);        // LOWER LEFT
-//
-//		p.p.p.endShape(); 
-//		p.p.p.popMatrix();
-//	}
-
 	/**
 	 * Update volume fading 
 	 */
 	private void updateFadingVolume()
 	{
-		if(fadingVolume && p.p.p.frameCount < volumeFadingEndFrame)	// Still fading
+		if(fadingVolume && p.frameCount < volumeFadingEndFrame)	// Still fading
 		{
-			volume = PApplet.map(p.p.p.frameCount, volumeFadingStartFrame, volumeFadingEndFrame, volumeFadingStartVal, volumeFadingTarget);
+			volume = PApplet.map(p.frameCount, volumeFadingStartFrame, volumeFadingEndFrame, volumeFadingStartVal, volumeFadingTarget);
 			video.volume(volume);
 		}
 		else								// Reached target
@@ -1167,17 +1143,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		}
 	}
 
-//	/**
-//	 * Draw capture location for the image
-//	 */
-//	void lineToCaptureLocation()
-//	{
-//		PVector centerVertex = calcCenterVertex();
-//		p.p.p.stroke(150, 150, 255, 255);
-//		p.p.p.strokeWeight(2);
-//		p.p.p.line(location.x, location.y, location.z, centerVertex.x, centerVertex.y, centerVertex.z);
-//	}
-
 	/**
 	 * @return Aspect ratio of the video
 	 */
@@ -1187,9 +1152,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 //		ratio = (float)(video.height)/(float)(video.width);
 		ratio = (float) origVideoHeight / (float) origVideoWidth;
-				
-//		if (ratio > 1.)
-//			ratio = 0.666f;
 
 		return ratio;
 	}
@@ -1235,12 +1197,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		float angleBrightness = 0.f;
 
-		if(videoAngle > p.p.viewer.settings.visibleAngle)
+		if(videoAngle > p.viewerSettings.visibleAngle)
 			angleBrightness = 0.f;
-		else if (videoAngle < p.p.viewer.settings.visibleAngle * 0.66f)
+		else if (videoAngle < p.viewerSettings.visibleAngle * 0.66f)
 			angleBrightness = 1.f;
 		else
-			angleBrightness = PApplet.constrain((1.f-PApplet.map(videoAngle, p.p.viewer.settings.visibleAngle * 0.66f, p.p.viewer.settings.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
+			angleBrightness = PApplet.constrain((1.f-PApplet.map(videoAngle, p.viewerSettings.visibleAngle * 0.66f, p.viewerSettings.visibleAngle, 0.f, 1.f)), 0.f, 1.f);
 
 		return angleBrightness;
 	}
@@ -1252,8 +1214,8 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	public void fadeFocusDistance(float target)
 	{
 		fadingFocusDistance = true;
-		fadingFocusDistanceStartFrame = p.p.p.frameCount;					
-		fadingFocusDistanceEndFrame = p.p.p.frameCount + fadingFocusDistanceLength;	
+		fadingFocusDistanceStartFrame = p.frameCount;					
+		fadingFocusDistanceEndFrame = p.frameCount + fadingFocusDistanceLength;	
 		fadingFocusDistanceStart = focusDistance;
 		fadingFocusDistanceTarget = target;
 	}
@@ -1265,14 +1227,14 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	{
 		float newFocusDistance = 0.f;
 
-		if (p.p.p.frameCount >= fadingFocusDistanceEndFrame)
+		if (p.frameCount >= fadingFocusDistanceEndFrame)
 		{
 			fadingFocusDistance = false;
 			newFocusDistance = fadingFocusDistanceTarget;
 		} 
 		else
 		{
-			newFocusDistance = PApplet.map( p.p.p.frameCount, fadingFocusDistanceStartFrame, fadingFocusDistanceEndFrame, 
+			newFocusDistance = PApplet.map( p.frameCount, fadingFocusDistanceStartFrame, fadingFocusDistanceEndFrame, 
 											fadingFocusDistanceStart, fadingFocusDistanceTarget);      // Fade with distance from current time
 		}
 
@@ -1312,7 +1274,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	private float getVideoWidthMeters()
 	{
 		// 	Image Size = Sensor Width * Focus Distance / Focal Length 
-		float result = sensorSize * p.p.settings.subjectSizeRatio * focusDistance / focalLength;
+		float result = sensorSize * p.worldSettings.subjectSizeRatio * focusDistance / focalLength;
 		return result;
 	}
 

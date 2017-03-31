@@ -48,7 +48,7 @@ public class WMV_Sound extends WMV_Viewable
 		{
 			time = new WMV_Time( newDateTime, getID(), cluster, 3, p.getTimeZoneID() );		
 //			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 3 );		
-//			time = p.p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
+//			time = p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}
 		else
 			time = null;
@@ -62,7 +62,7 @@ public class WMV_Sound extends WMV_Viewable
 	/**
 	 * Display the image in virtual space
 	 */
-	public void draw()
+	public void draw(WMV_World world)
 	{
 //		if(p.p.viewer.selection)
 //			p.p.viewer.addSelectableSound(getID());
@@ -71,7 +71,7 @@ public class WMV_Sound extends WMV_Viewable
 	/**
 	 * Load the sound from disk
 	 */
-	public void loadMedia()
+	public void loadMedia(MultimediaLocator ml)
 	{
 //			if( p.soundsAudible < p.maxAudibleSounds && !hidden && !disabled)
 //			{
@@ -83,47 +83,47 @@ public class WMV_Sound extends WMV_Viewable
 	 * @param size Size to draw the sound center
 	 * Draw the video center as a colored sphere
 	 */
-	void displayModel()
+	void displayModel(WMV_World world)
 	{
-		p.p.p.pushMatrix();
-		p.p.p.translate(location.x, location.y, location.z);
+		world.p.pushMatrix();
+		world.p.translate(location.x, location.y, location.z);
 
-		p.p.p.fill(30, 0, 255, 150);
-		p.p.p.sphere(centerSize);
-//		PVector c = p.p.getCluster(cluster).getLocation();
+		world.p.fill(30, 0, 255, 150);
+		world.p.sphere(centerSize);
+//		PVector c = world.getCluster(cluster).getLocation();
 //		PVector loc = location;
 //		PVector cl = getCaptureLocation();
-		p.p.p.popMatrix();
+		world.p.popMatrix();
 
-//		p.p.p.pushMatrix();
-//		if(p.p.showMediaToCluster)
+//		world.p.pushMatrix();
+//		if(world.showMediaToCluster)
 //		{
-//			p.p.p.strokeWeight(5.f);
-//			p.p.p.stroke(40, 155, 255, 180);
-//			p.p.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+//			world.p.strokeWeight(5.f);
+//			world.p.stroke(40, 155, 255, 180);
+//			world.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 //		}
 //
-//		if(p.p.showCaptureToMedia)
+//		if(world.showCaptureToMedia)
 //		{
-//			p.p.p.strokeWeight(2.f);
-//			p.p.p.stroke(160, 100, 255, 120);
-//			p.p.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+//			world.p.strokeWeight(2.f);
+//			world.p.stroke(160, 100, 255, 120);
+//			world.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 //		}
 //
-//		if(p.p.showCaptureToCluster)
+//		if(world.showCaptureToCluster)
 //		{
-//			p.p.p.strokeWeight(3.f);
-//			p.p.p.stroke(100, 55, 255, 180);
-//			p.p.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+//			world.p.strokeWeight(3.f);
+//			world.p.stroke(100, 55, 255, 180);
+//			world.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 //		}
 
-		p.p.p.popMatrix();
+		world.p.popMatrix();
 	}
 
 	/**
 	 * Draw the image metadata in Heads-Up Display
 	 */
-	public void displayMetadata()
+	public void displayMetadata(WMV_World world)
 	{
 		String strTitleImage = "Sound";
 		String strTitleImage2 = "-----";
@@ -147,28 +147,28 @@ public class WMV_Sound extends WMV_Viewable
 		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
 		String strBrightnessFading = "brightnessFadingValue: "+PApplet.str(fadingBrightness);
 		
-		p.p.display.metadata(strTitleImage);
-		p.p.display.metadata(strTitleImage2);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strTitleImage);
+		world.p.display.metadata(world, strTitleImage2);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strID);
-		p.p.display.metadata(strCluster);
-		p.p.display.metadata(strName);
-		p.p.display.metadata(strX + strY + strZ);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strID);
+		world.p.display.metadata(world, strCluster);
+		world.p.display.metadata(world, strName);
+		world.p.display.metadata(world, strX + strY + strZ);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strDate);
-		p.p.display.metadata(strTime);
-		p.p.display.metadata("");
+		world.p.display.metadata(world, strDate);
+		world.p.display.metadata(world, strTime);
+		world.p.display.metadata(world, "");
 
-		p.p.display.metadata(strLatitude + strLongitude);
-		p.p.display.metadata(strAltitude);
+		world.p.display.metadata(world, strLatitude + strLongitude);
+		world.p.display.metadata(world, strAltitude);
 
-		if(p.p.p.debug.sound)
+		if(world.p.debug.sound)
 		{
-			p.p.display.metadata(strTitleDebug);
-			p.p.display.metadata(strBrightness);
-			p.p.display.metadata(strBrightnessFading);
+			world.p.display.metadata(world, strTitleDebug);
+			world.p.display.metadata(world, strBrightness);
+			world.p.display.metadata(world, strBrightnessFading);
 		}
 	}
 	
@@ -180,9 +180,9 @@ public class WMV_Sound extends WMV_Viewable
 		if(volume < p.p.settings.videoMaxVolume)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.p.p.frameCount; 
+			volumeFadingStartFrame = p.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = p.p.settings.videoMaxVolume;
 		}
 	}
@@ -195,9 +195,9 @@ public class WMV_Sound extends WMV_Viewable
 		if(volume > 0.f)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = p.p.p.frameCount; 
+			volumeFadingStartFrame = p.frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = p.p.p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = p.frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = 0.f;
 		}
 	}

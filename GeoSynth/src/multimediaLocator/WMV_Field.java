@@ -33,6 +33,7 @@ public class WMV_Field
 	private int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
 
 	/* Time */
+	public int frameCount = 0;
 	private ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
 	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
 	private ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
@@ -56,6 +57,7 @@ public class WMV_Field
 	{
 		p = parent;
 		utilities = new WMV_Utilities();
+		frameCount = p.p.frameCount;
 		
 		worldSettings = newWorldSettings;
 		viewerSettings = newViewerSettings;
@@ -76,7 +78,7 @@ public class WMV_Field
 		dateline = new ArrayList<WMV_Date>();
 	}
 
-	public void display() 				// Draw currently visible media
+	public void display(WMV_World p) 				// Draw currently visible media
 	{
 		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;	// Distance where transparency reaches zero
 		
@@ -100,7 +102,7 @@ public class WMV_Field
 					if(!m.fadingFocusDistance && !m.isFading()) 
 						m.update();  	// Update geometry + visibility
 					
-					m.draw(); 		// Draw image
+					m.draw(p); 		// Draw image
 					imagesVisible++;
 				}
 			}
@@ -115,7 +117,7 @@ public class WMV_Field
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
 					n.update();  	// Update geometry + visibility
-					n.draw(); 		// Display panorama
+					n.draw(p); 		// Display panorama
 					panoramasVisible++;
 				}
 				else if(n.isFading())
@@ -140,7 +142,7 @@ public class WMV_Field
 				if (nowVisible || v.isFading())
 				{
 					v.update();  	// Update geometry + visibility
-					v.draw(); 		// Display video
+					v.draw(p); 		// Display video
 					videosVisible++;
 				}
 				else
@@ -254,9 +256,9 @@ public class WMV_Field
 	/**
 	 * Update field variables each frame
 	 */
-//	public void update(WMV_WorldSettings currentWorldSettings, WMV_ViewerSettings currentViewerSettings, ML_DebugSettings currentDebugSettings)
-	public void update(WMV_WorldSettings currentWorldSettings, WMV_ViewerSettings currentViewerSettings)
+	public void update(WMV_WorldSettings currentWorldSettings, WMV_ViewerSettings currentViewerSettings, int currentFrameCount)
 	{
+		frameCount = currentFrameCount;
 		worldSettings = currentWorldSettings;	// Update world settings
 		viewerSettings = currentViewerSettings;	// Update world settings
 //		debugSettings = currentDebugSettings;	// Update world settings
@@ -979,7 +981,7 @@ public class WMV_Field
 	 * @param f Field to divide
 	 * @return List of created fields
 	 */
-	ArrayList<WMV_Field> divideField(float minFieldDistance, float maxFieldDistance)
+	ArrayList<WMV_Field> divideField(WMV_World world, float minFieldDistance, float maxFieldDistance)
 	{
 		ArrayList<WMV_Cluster> fieldClusters = new ArrayList<WMV_Cluster>();			// Clear current cluster list
 
@@ -1004,11 +1006,11 @@ public class WMV_Field
 
 			if(i == 0)			
 			{
-				long clusteringRandomSeed = (long) p.p.random(1000.f);
-				p.p.randomSeed(clusteringRandomSeed);
-				imageID = (int) p.p.random(getImages().size());  			// Random image ID for setting cluster's start location				
-				panoramaID = (int) p.p.random(getPanoramas().size());  		// Random panorama ID for setting cluster's start location				
-				videoID = (int) p.p.random(getVideos().size());  			// Random video ID for setting cluster's start location				
+				long clusteringRandomSeed = (long) world.p.random(1000.f);
+				world.p.randomSeed(clusteringRandomSeed);
+				imageID = (int) world.p.random(getImages().size());  			// Random image ID for setting cluster's start location				
+				panoramaID = (int) world.p.random(getPanoramas().size());  		// Random panorama ID for setting cluster's start location				
+				videoID = (int) world.p.random(getVideos().size());  			// Random video ID for setting cluster's start location				
 				addedImages.append(imageID);								
 				addedPanoramas.append(panoramaID);								
 				addedVideos.append(videoID);								
@@ -1059,14 +1061,14 @@ public class WMV_Field
 			}
 			else											// Find a random media (image, panorama or video) location for new cluster
 			{
-				int mediaID = (int) p.p.random(getImages().size() + getPanoramas().size() + getVideos().size());
+				int mediaID = (int) world.p.random(getImages().size() + getPanoramas().size() + getVideos().size());
 				PVector clusterPoint = new PVector(0,0,0);
 
 				if( mediaID < getImages().size() )				// If image, compare to already picked images
 				{
-					imageID = (int) p.p.random(getImages().size());  						
+					imageID = (int) world.p.random(getImages().size());  						
 					while(addedImages.hasValue(imageID) && nearImages.hasValue(imageID))
-						imageID = (int) p.p.random(getImages().size());  						
+						imageID = (int) world.p.random(getImages().size());  						
 
 					addedImages.append(imageID);
 					
@@ -1075,9 +1077,9 @@ public class WMV_Field
 				}
 				else if( mediaID < getImages().size() + getPanoramas().size() )		// If panorama, compare to already picked panoramas
 				{
-					panoramaID = (int) p.p.random(getPanoramas().size());  						
+					panoramaID = (int) world.p.random(getPanoramas().size());  						
 					while(addedPanoramas.hasValue(panoramaID) && nearPanoramas.hasValue(panoramaID))
-						panoramaID = (int) p.p.random(getPanoramas().size());  						
+						panoramaID = (int) world.p.random(getPanoramas().size());  						
 
 					addedPanoramas.append(panoramaID);
 					
@@ -1086,9 +1088,9 @@ public class WMV_Field
 				}
 				else if( mediaID < getImages().size() + getPanoramas().size() + getVideos().size() )		// If video, compare to already picked videos
 				{
-					videoID = (int) p.p.random(getVideos().size());  						
+					videoID = (int) world.p.random(getVideos().size());  						
 					while(addedImages.hasValue(videoID) && nearImages.hasValue(videoID))
-						videoID = (int) p.p.random(getVideos().size());  						
+						videoID = (int) world.p.random(getVideos().size());  						
 
 					addedVideos.append(videoID);
 					

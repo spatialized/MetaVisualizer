@@ -37,7 +37,7 @@ public class WMV_World
 	
 	/* Classes */
 	ML_Input input;					// Handles input
-	ML_Display display;				// Handles heads up display
+//	ML_Display display;				// Handles heads up display
 	WMV_Utilities utilities;
 	WMV_WorldSettings settings;		// World settings
 	WMV_Viewer viewer;				// Handles viewer location
@@ -129,7 +129,7 @@ public class WMV_World
 		settings = new WMV_WorldSettings(this);
 		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
 //		input = new ML_Input(this);
-		display = new ML_Display(this, p.width, p.height, hudDistance);		// Initialize displays
+//		display = new ML_Display(this, p.width, p.height, hudDistance);		// Initialize displays
 		
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
 		timeFadeMap.setMapFunction(circularEaseOut);
@@ -205,16 +205,16 @@ public class WMV_World
 
 			if(p.debug.main)
 			{
-				display.sendSetupMessage(" ");	// Show startup message
-				display.sendSetupMessage("Creating "+fields.size()+(fields.size()>1?" fields...":" field..."));	// Show startup message
+				p.display.sendSetupMessage(this, " ");	// Show startup message
+				p.display.sendSetupMessage(this, "Creating "+fields.size()+(fields.size()>1?" fields...":" field..."));	// Show startup message
 			}
 			
-			if(fields.size() > 5) display.sendSetupMessage("This may take several minutes...");	// Show long startup time warning
+			if(fields.size() > 5) p.display.sendSetupMessage(this, "This may take several minutes...");	// Show long startup time warning
 
-			display.draw();											
+			p.display.draw(this);											
 
 			if(!p.basic)
-				display.setupWMVWindow();									// Setup sidebar window
+				p.display.setupWMVWindow(this);									// Setup sidebar window
 		
 			fieldProgressInc = PApplet.round(100.f / fields.size());				// Amount to increment progress bar for each field
 			creatingFields = true;
@@ -230,7 +230,7 @@ public class WMV_World
 				f.initialize(p.library.getLibraryFolder(), lockMediaToClusters);		// 			Initialize field
 				
 				setupProgress += fieldProgressInc;				// Update progress bar
-				display.draw();									// Draw progress bar
+				p.display.draw(this);									// Draw progress bar
 			}
 			
 			initializationField++;
@@ -269,15 +269,14 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
-//		getCurrentField().update(settings, viewer.getSettings(), p.debug);					// Update clusters in current field
-		getCurrentField().update(settings, viewer.getSettings());					// Update clusters in current field
+		getCurrentField().update(settings, viewer.getSettings(), p.frameCount);				// Update clusters in current field
 		attractViewer();						// Attract the viewer
 		
-		if(display.displayView == 0)
+		if(p.display.displayView == 0)
 		{
 			p.hint(PApplet.ENABLE_DEPTH_TEST);					// Enable depth testing for drawing 3D graphics
 			p.background(0.f);									// Set background
-			getCurrentField().display();						// Display media in current field
+			getCurrentField().display(this);					// Display media in current field
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
@@ -288,7 +287,7 @@ public class WMV_World
 		}
 		
 		viewer.update();							// Update navigation
-		if(display.displayView == 0)	
+		if(p.display.displayView == 0)	
 			if(p.state.running)
 				viewer.draw();						// Send the 3D camera view to the screen
 	}
@@ -296,7 +295,7 @@ public class WMV_World
 	void draw2D()
 	{
 		/* 2D Display */
-		display.draw();										// Draw 2D display after 3D graphics
+		p.display.draw(this);										// Draw 2D display after 3D graphics
 		
 		if(fadingAlpha) updateFadingAlpha();				// Fade alpha
 
@@ -577,14 +576,14 @@ public class WMV_World
 		if(p.debug.main)
 			PApplet.println("Finishing setup...");
 
-		display.window.setupWMVWindow();
+		p.display.window.setupWMVWindow();
 		
 		// TEST
 //		p.library.saveFieldData(getCurrentField());		// Testing
 //		p.exit();	
 		
 		initialSetup = false;				
-		display.initialSetup = false;
+		p.display.initialSetup = false;
 		
 		setupProgress = 100;
 
@@ -666,7 +665,7 @@ public class WMV_World
 		
 		/* Create main classes */
 		viewer.reset();			// Initialize navigation + viewer
-		display.reset();		// Initialize displays
+		p.display.reset();		// Initialize displays
 
 		/* Initialize graphics and text parameters */
 		p.colorMode(PConstants.HSB);
@@ -687,15 +686,15 @@ public class WMV_World
 	 */
 	public void startInitialClustering()
 	{
-		display.startupMessages = new ArrayList<String>();	// Clear startup messages
+		p.display.startupMessages = new ArrayList<String>();	// Clear startup messages
 		if(p.debug.metadata)
 		{
-			display.sendSetupMessage("Library folder: "+p.library.getLibraryFolder());	// Show library folder name
-			display.sendSetupMessage(" ");
+			p.display.sendSetupMessage(this, "Library folder: "+p.library.getLibraryFolder());	// Show library folder name
+			p.display.sendSetupMessage(this, " ");
 		}
 		
-		display.sendSetupMessage("Starting MultimediaLocator v0.9...");	// Show startup message
-		display.draw();											
+		p.display.sendSetupMessage(this, "Starting MultimediaLocator v0.9...");	// Show startup message
+		p.display.draw(this);											
 
 		p.state.running = false;			// Stop running
 		initialSetup = true;				// Start clustering mode
@@ -712,11 +711,11 @@ public class WMV_World
 		interactive = true;					// Start interactive clustering mode
 		startInteractive = false;			// Have started
 		
-//		display.initializeSmallMap();
-		display.map2D.initializeMaps();
+//		p.display.initializeSmallMap();
+		p.display.map2D.initializeMaps(this);
 		
-		display.resetDisplayModes();		// Clear messages
-		display.displayClusteringInfo();
+		p.display.resetDisplayModes();		// Clear messages
+		p.display.displayClusteringInfo(this);
 		
 		getCurrentField().blackoutMedia();	// Blackout all media
 	}
@@ -727,7 +726,7 @@ public class WMV_World
 	public void runInteractiveClustering()
 	{
 		p.background(0.f);					// Clear screen
-		display.draw();						// Draw text		
+		p.display.draw(this);						// Draw text		
 	}
 	
 	/**
@@ -1137,24 +1136,24 @@ public class WMV_World
 		if(timeMode == 2)
 			createTimeCycle();
 		
-		if(display.window.setupTimeWindow)
+		if(p.display.window.setupTimeWindow)
 		{
 			switch(timeMode)
 			{
 				case 0:
-					display.window.optClusterTimeMode.setSelected(true);
-					display.window.optFieldTimeMode.setSelected(false);
-					display.window.optMediaTimeMode.setSelected(false);
+					p.display.window.optClusterTimeMode.setSelected(true);
+					p.display.window.optFieldTimeMode.setSelected(false);
+					p.display.window.optMediaTimeMode.setSelected(false);
 					break;
 				case 1:
-					display.window.optClusterTimeMode.setSelected(false);
-					display.window.optFieldTimeMode.setSelected(true);
-					display.window.optMediaTimeMode.setSelected(false);
+					p.display.window.optClusterTimeMode.setSelected(false);
+					p.display.window.optFieldTimeMode.setSelected(true);
+					p.display.window.optMediaTimeMode.setSelected(false);
 					break;
 				case 2:
-					display.window.optClusterTimeMode.setSelected(false);
-					display.window.optFieldTimeMode.setSelected(false);
-					display.window.optMediaTimeMode.setSelected(true);
+					p.display.window.optClusterTimeMode.setSelected(false);
+					p.display.window.optFieldTimeMode.setSelected(false);
+					p.display.window.optMediaTimeMode.setSelected(true);
 					break;
 			}		
 		}
@@ -1170,8 +1169,8 @@ public class WMV_World
 	 */
 	public void showImages()
 	{
-		if(display.window.setupGraphicsWindow)
-			display.window.chkbxHideImages.setSelected(false);
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHideImages.setSelected(false);
 	}
 	
 	/**
@@ -1188,8 +1187,8 @@ public class WMV_World
 			}
 		}
 
-		if(display.window.setupGraphicsWindow)
-			display.window.chkbxHideImages.setSelected(true);
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHideImages.setSelected(true);
 	}
 	
 	/** 
@@ -1197,8 +1196,8 @@ public class WMV_World
 	 */
 	public void showPanoramas()
 	{
-		if(display.window.setupGraphicsWindow)
-			display.window.chkbxHidePanoramas.setSelected(false);
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHidePanoramas.setSelected(false);
 	}
 	
 	/** 
@@ -1236,8 +1235,8 @@ public class WMV_World
 			}
 		}
 		
-		if(display.window.setupGraphicsWindow)
-			display.window.chkbxHidePanoramas.setSelected(true);
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHidePanoramas.setSelected(true);
 	}
 	
 	/**
@@ -1245,8 +1244,8 @@ public class WMV_World
 	 */
 	public void showVideos()
 	{
-		if(display.window.setupGraphicsWindow)
-			display.window.chkbxHideVideos.setSelected(false);
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHideVideos.setSelected(false);
 	}
 	
 	/**
@@ -1263,8 +1262,8 @@ public class WMV_World
 			}
 		}
 		
-		if(display.window.setupGraphicsWindow)
-			display.window.chkbxHideVideos.setSelected(true);
+		if(p.display.window.setupGraphicsWindow)
+			p.display.window.chkbxHideVideos.setSelected(true);
 	}
 	
 	/**
@@ -1273,7 +1272,7 @@ public class WMV_World
 	public void deselectAllMedia(boolean hide) 
 	{
 		getCurrentField().deselectAllMedia(hide);
-		display.clearMetadata();
+		p.display.clearMetadata();
 	}
 
 	/**

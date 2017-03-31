@@ -14,7 +14,8 @@ class ML_Display
 	/* Classes */
 	public ML_Window window;							// Main interaction window
 	public ML_Map map2D;
-	
+	private WMV_Utilities utilities;					// Utility methods
+
 	/* Window Modes */
 	public boolean fullscreen = true;
 	public boolean initializedMaps = false;
@@ -35,8 +36,8 @@ class ML_Display
 	public boolean drawGrid = false; 					// Draw 3D grid   			-- Unused
 
 	public int blendMode = 0;							// Alpha blending mode
-	public int numBlendModes = 10;						// Number of blending modes
-	private float hudDistance;									// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
+	private int numBlendModes = 10;						// Number of blending modes
+	private float hudDistance, initHudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
 	private int screenWidth = -1;
 	private int screenHeight = -1;
 	
@@ -105,19 +106,14 @@ class ML_Display
 	final float lineWidthWide = largeTextSize + linePadding;			
 	final float lineWidthVeryWide = largeTextSize * 2.f;			
 
-	/* Utilities */
-	WMV_Utilities utilities;					// Utility methods
-	WMV_World p;
-
-	ML_Display(WMV_World parent, int newScreenWidth, int newScreenHeight, float newHUDDistance)
+	ML_Display(int newScreenWidth, int newScreenHeight, float newHUDDistance)
 	{
-		p = parent;
-		
 		screenWidth = newScreenWidth;
 		screenHeight = newScreenHeight;
 		
 		utilities = new WMV_Utilities();
 		hudDistance = newHUDDistance;
+		initHudDistance = newHUDDistance;
 		
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
@@ -158,21 +154,21 @@ class ML_Display
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
 
-	void setupWMVWindow()
+	void setupWMVWindow(WMV_World world)
 	{
-		window = new ML_Window(this);				// Setup and display interaction window
+		window = new ML_Window(world, this);				// Setup and display interaction window
 	}
 
 	/**
 	 * Draw Heads-Up Display elements: messages, interactive map, field statistics, metadata.
 	 */
-	void draw()
+	void draw(WMV_World p)
 	{
 		if(initialSetup)
 		{
 			p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 			p.p.background(0);																// Hide 3D view
-			displayStartup();														// Draw startup messages
+			displayStartup(p);														// Draw startup messages
 //			progressBar();
 		}
 		else
@@ -185,18 +181,18 @@ class ML_Display
 				switch(displayView)
 				{
 				case 1:
-					map2D.drawMainMap(!satelliteMap);
-					if(map2D.scrollTransition) map2D.updateMapScrollTransition();
-					if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition();
-					if(p.interactive) displayInteractiveClustering();
-					map2D.updateMapMouse();
+					map2D.drawMainMap(p, !satelliteMap);
+					if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
+					if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
+					if(p.interactive) displayInteractiveClustering(p);
+					map2D.updateMapMouse(p);
 					break;
 				case 2:
-					displayCluster();
+					displayCluster(p);
 					break;
 				case 3:
-					displayTimeView();
-					updateFieldTimeline();
+					displayTimeView(p);
+					updateFieldTimeline(p);
 					break;
 				}
 
@@ -206,10 +202,10 @@ class ML_Display
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 
 				if(messages.size() > 0)
-					displayMessages();
+					displayMessages(p);
 
 				if(p.showMetadata && metadata.size() > 0 && p.viewer.getSettings().selection)	
-					displayMetadata();
+					displayMetadata(p);
 
 //				if((displayMode == 1) && drawForceVector)						// Draw force vector
 //					map2D.drawForceVector();
@@ -220,9 +216,9 @@ class ML_Display
 	/**
 	 * Display Time View in main window
 	 */
-	public void displayTimeView()
+	public void displayTimeView(WMV_World p)
 	{
-		startHUD();
+		startHUD(p);
 		p.p.pushMatrix();
 		
 		float xPos = centerTextXOffset;
@@ -287,25 +283,25 @@ class ML_Display
 		}
 		p.p.popMatrix();
 		
-		if(fieldDatelineCreated) displayFieldDateline();
-		if(fieldTimelineCreated) displayFieldTimeline();
-		updateTimelineMouse();
+		if(fieldDatelineCreated) displayFieldDateline(p);
+		if(fieldTimelineCreated) displayFieldTimeline(p);
+		updateTimelineMouse(p);
 	}
 	
 	/**
 	 * Update field timeline every frame
 	 */
-	private void updateFieldTimeline()
+	private void updateFieldTimeline(WMV_World p)
 	{
 		if(timelineTransition)
-			updateTimelineTransition();
+			updateTimelineTransition(p);
 
 		if(!fieldDatelineCreated || !fieldTimelineCreated || updateFieldTimeline)
 		{
 			if(!timelineTransition)
 			{
-				createFieldDateline();
-				createFieldTimeline();
+				createFieldDateline(p);
+				createFieldTimeline(p);
 				updateFieldTimeline = false;
 			}
 		}
@@ -376,7 +372,7 @@ class ML_Display
 	/**
 	 * Create field dateline
 	 */
-	private void createFieldDateline()
+	private void createFieldDateline(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
 		
@@ -401,7 +397,7 @@ class ML_Display
 			datelineStart = utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), firstDay, firstMonth, firstYear) - padding;
 			datelineEnd = utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), lastDay, lastMonth, lastYear) + padding;
 			
-			createFieldSelectableDates();
+			createFieldSelectableDates(p);
 			fieldDatelineCreated = true;
 		}
 		else
@@ -413,7 +409,7 @@ class ML_Display
 	/**
 	 * Create field timeline
 	 */
-	private void createFieldTimeline()
+	private void createFieldTimeline(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
 		selectableTimes = new ArrayList<SelectableTimeSegment>();
@@ -472,7 +468,7 @@ class ML_Display
 		fieldTimelineCreated = true;
 	}
 
-	private void createFieldSelectableDates()
+	private void createFieldSelectableDates(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
 		selectableDates = new ArrayList<SelectableDate>();
@@ -501,7 +497,7 @@ class ML_Display
 	/**
 	 * Transition map zoom from current to given value
 	 */
-	void timelineTransition(float newStart, float newEnd, int transitionLength)
+	void timelineTransition(float newStart, float newEnd, int transitionLength, int frameCount)
 	{
 		timelineTransitionLength = transitionLength;
 
@@ -510,7 +506,7 @@ class ML_Display
 			if(timelineStart != newStart || timelineEnd != newEnd)					// Check if already at target
 			{
 				timelineTransition = true;   
-				timelineTransitionStartFrame = p.p.frameCount;
+				timelineTransitionStartFrame = frameCount;
 				timelineTransitionEndFrame = timelineTransitionStartFrame + timelineTransitionLength;
 //				timelineCreated = false;
 				
@@ -546,7 +542,7 @@ class ML_Display
 	/**
 	 * Update map zoom level each frame
 	 */
-	void updateTimelineTransition()
+	void updateTimelineTransition(WMV_World p)
 	{
 		float newStart = timelineStart;
 		float newEnd = timelineEnd;
@@ -580,16 +576,10 @@ class ML_Display
 			timelineEnd = newEnd;
 
 		if(timelineScrolling)
-			scroll(transitionScrollDirection);
+			scroll(p, transitionScrollDirection);
 
 		if(timelineZooming)
-			zoom(transitionZoomDirection, true);
-
-		if(p.p.debug.time)
-		{
-			PApplet.print("Updated timelineStart:"+timelineStart);
-			PApplet.println(" timelineEnd:"+timelineEnd);
-		}
+			zoom(p, transitionZoomDirection, true);
 	}
 
 	/**
@@ -655,7 +645,7 @@ class ML_Display
 	/**
 	 * Draw the field timeline
 	 */
-	private void displayFieldTimeline()
+	private void displayFieldTimeline(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
 			
@@ -712,7 +702,7 @@ class ML_Display
 			int count = 0;
 			for(WMV_TimeSegment t : f.getTimeline())
 			{
-				drawTimeSegment(t, count);
+				drawTimeSegment(p, t, count);
 				count++;
 			}
 		}
@@ -725,7 +715,7 @@ class ML_Display
 				{
 					for(WMV_TimeSegment t:ts)
 					{
-						drawTimeSegment(t, count);
+						drawTimeSegment(p, t, count);
 						count++;
 					}
 				}
@@ -738,7 +728,7 @@ class ML_Display
 					int count = 0;
 					for(WMV_TimeSegment t:ts)
 					{
-						drawTimeSegment(t, count);
+						drawTimeSegment(p, t, count);
 						count++;
 					}
 				}
@@ -749,7 +739,7 @@ class ML_Display
 		{
 			/* Draw selected time segment */
 			if(selectedTime != -1 && selectableTimes.size() > 0 && selectedTime < selectableTimes.size())
-				selectableTimes.get(selectedTime).draw(40.f, 255.f, 255.f, true);
+				selectableTimes.get(selectedTime).draw(p, 40.f, 255.f, 255.f, true);
 
 			/* Draw current time segment */
 //			if(currentSelectableTimeFTSID == currentSelectableTime.segment.getFieldTimelineID())
@@ -763,9 +753,9 @@ class ML_Display
 						if(displayDate == -1 || selectableTimes.get(currentSelectableTimeID).segment.getFieldDateID() == displayDate)
 						{
 							if(selectedTime == -1)
-								selectableTimes.get(currentSelectableTimeID).draw(0.f, 0.f, 255.f, true);
+								selectableTimes.get(currentSelectableTimeID).draw(p, 0.f, 0.f, 255.f, true);
 							else
-								selectableTimes.get(currentSelectableTimeID).draw(0.f, 0.f, 255.f, false);
+								selectableTimes.get(currentSelectableTimeID).draw(p, 0.f, 0.f, 255.f, false);
 						}
 					}
 				}
@@ -774,7 +764,7 @@ class ML_Display
 		}
 	}
 
-	private void displayFieldDateline()
+	private void displayFieldDateline(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
 			
@@ -786,22 +776,22 @@ class ML_Display
 	
 		if(f.getDateline().size() == 1)
 		{
-			drawDate(f.getDate(0), 0);
+			drawDate(p, f.getDate(0), 0);
 		}
 		else if(f.getDateline().size() > 1)
 		{
 			int count = 0;
 			for(WMV_Date d : f.getDateline())
 			{
-				drawDate(d, count);
+				drawDate(p, d, count);
 				count++;
 			}
 		}
 		
 		if(selectedDate != -1 && selectableDates.size() > 0 && selectedDate < selectableDates.size())
-			selectableDates.get(selectedDate).draw(40.f, 255.f, 255.f, true);
+			selectableDates.get(selectedDate).draw(p, 40.f, 255.f, 255.f, true);
 		if(currentSelectableDate != -1 && selectableDates.size() > 0 && currentSelectableDate < selectableDates.size())
-			selectableDates.get(currentSelectableDate).draw(0.f, 0.f, 255.f, false);
+			selectableDates.get(currentSelectableDate).draw(p, 0.f, 0.f, 255.f, false);
 	}
 
 	/**
@@ -810,7 +800,7 @@ class ML_Display
 	 * @param timelineLeftEdge
 	 * @param timelineTopEdge
 	 */
-	private void drawDate(WMV_Date d, int id)
+	private void drawDate(WMV_World p, WMV_Date d, int id)
 	{
 		float date = d.getDaysSince1980();
 		float xOffset = PApplet.map(date, datelineStart, datelineEnd, datelineXOffset, datelineXOffset + timelineScreenSize);
@@ -835,7 +825,7 @@ class ML_Display
 	 * @param timelineLeftEdge
 	 * @param timelineTopEdge
 	 */
-	private void drawTimeSegment(WMV_TimeSegment t, int id)
+	private void drawTimeSegment(WMV_World p, WMV_TimeSegment t, int id)
 	{
 		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
 		PVector upperTime = t.getUpper().getTimeAsPVector();			
@@ -961,8 +951,8 @@ class ML_Display
 	{
 		float wFactor = 2.55f;
 		float hFactor = 2.55f;
-		p.p.stroke(255, 255, 255);
-		p.p.strokeWeight(4.f);
+//		p.p.stroke(255, 255, 255);
+//		p.p.strokeWeight(4.f);
 		
 		PVector result = new PVector(mouseX * wFactor - screenWidth * 0.775f, mouseY * hFactor - screenHeight * 0.775f, hudDistance);
 //		p.p.point(result.x, result.y, result.z);		// Show mouse location for debugging
@@ -1000,7 +990,7 @@ class ML_Display
 		return null;
 	}
 
-	public void updateTimelineMouse()
+	public void updateTimelineMouse(WMV_World p)
 	{
 		PVector mouseLoc = getMouse3DLocation(p.p.mouseX, p.p.mouseY);
 		if(selectableTimes != null)
@@ -1036,7 +1026,7 @@ class ML_Display
 		}
 	}
 	
-	public void zoomToTimeline(boolean fade)
+	public void zoomToTimeline(WMV_World p, boolean fade)
 	{
 		WMV_Field f = p.getCurrentField();
 		
@@ -1056,7 +1046,7 @@ class ML_Display
 
 		if(fade)
 		{
-			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength);
+			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 		}
 		else
 		{
@@ -1065,7 +1055,7 @@ class ML_Display
 		}
 	}
 	
-	public void zoomToCurrentTimeSegment(boolean fade)
+	public void zoomToCurrentTimeSegment(WMV_World p, boolean fade)
 	{
 		if(currentSelectableTimeID >= 0)
 		{
@@ -1097,7 +1087,7 @@ class ML_Display
 
 			if(fade)
 			{
-				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength);
+				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 			}
 			else
 			{
@@ -1107,7 +1097,7 @@ class ML_Display
 		}
 	}
 	
-	public void zoomToCurrentDate(boolean fade)
+	public void zoomToCurrentDate(WMV_World p, boolean fade)
 	{
 		if(currentSelectableDate >= 0)
 		{
@@ -1136,7 +1126,7 @@ class ML_Display
 
 			if(fade)
 			{
-				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength);
+				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 			}
 			else
 			{
@@ -1146,14 +1136,14 @@ class ML_Display
 		}
 	}
 	
-	public void resetZoom(boolean fade)
+	public void resetZoom(WMV_World p, boolean fade)
 	{
 		float newTimelineStart = 0.f;
 		float newTimelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 		
 		if(fade)
 		{
-			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength);
+			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 		}
 		else
 		{
@@ -1174,7 +1164,7 @@ class ML_Display
 	 * @param direction -1: In  1: Out
 	 * @param fade Whether to use transition animation
 	 */
-	public void zoom(int direction, boolean fade)
+	public void zoom(WMV_World p, int direction, boolean fade)
 	{
 		boolean zoom = true;
 		transitionZoomDirection = direction;
@@ -1236,7 +1226,7 @@ class ML_Display
 
 			if(fade)
 			{
-				timelineTransition(timelineStart, newTimelineEnd, 10);
+				timelineTransition(timelineStart, newTimelineEnd, 10, p.p.frameCount);
 				timelineZooming = true;
 			}
 			else
@@ -1244,7 +1234,7 @@ class ML_Display
 		}
 	}
 	
-	public void zoomByAmount(float amount, boolean fade)
+	public void zoomByAmount(WMV_World p, float amount, boolean fade)
 	{
 		float length = timelineEnd - timelineStart;
 		float newLength = length * amount;
@@ -1268,7 +1258,7 @@ class ML_Display
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
 			if(fade)
-				timelineTransition(timelineStart, newTimelineEnd, initTimelineTransitionLength);
+				timelineTransition(timelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 			else
 				timelineEnd = newTimelineEnd;
 		}
@@ -1278,7 +1268,7 @@ class ML_Display
 	 * Start scrolling timeline in specified direction
 	 * @param direction Left: -1 or Right: 1
 	 */
-	public void scroll(int direction)
+	public void scroll(WMV_World p, int direction)
 	{
 		transitionScrollDirection = direction;
 		float newStart = timelineStart + transitionScrollIncrement * transitionScrollDirection;
@@ -1288,7 +1278,7 @@ class ML_Display
 		if(newStart > 0.f && newEnd < day)
 		{
 			timelineScrolling = true;
-			timelineTransition(newStart, newEnd, 10);			
+			timelineTransition(newStart, newEnd, 10, p.p.frameCount);			
 		}
 	}
 	
@@ -1305,9 +1295,9 @@ class ML_Display
 		updateFieldTimeline = true;
 	}
 	
-	public void handleMouseReleased(float mouseX, float mouseY)
+	public void handleMouseReleased(WMV_World p, float mouseX, float mouseY)
 	{
-		updateTimelineMouse();
+		updateTimelineMouse(p);
 		
 		if(selectedTime != -1)
 			if(selectedCluster != -1)
@@ -1331,16 +1321,16 @@ class ML_Display
 	/**
 	 * Draw Interactive Clustering screen
 	 */
-	void displayInteractiveClustering()
+	void displayInteractiveClustering(WMV_World p)
 	{
-		map2D.drawMainMap(false);
-		if(messages.size() > 0) displayMessages();
+		map2D.drawMainMap(p, false);
+		if(messages.size() > 0) displayMessages(p);
 	}
 
 	/**
 	 * Draw Interactive Clustering footer text
 	 */
-	void displayClusteringInfo()
+	void displayClusteringInfo(WMV_World p)
 	{
 //		message("Interactive Clustering Mode: "+(p.hierarchical ?"Hierarchical Clustering":"K-Means Clustering"));
 //		message(" ");
@@ -1348,21 +1338,21 @@ class ML_Display
 		if(p.hierarchical)
 		{
 //			message("Hierarchical Clustering");
-			message(" ");
-			message("Use arrow keys UP and DOWN to change clustering depth... ");
-			message("Use [ and ] to change Minimum Cluster Distance... ");
+			message(p, " ");
+			message(p, "Use arrow keys UP and DOWN to change clustering depth... ");
+			message(p, "Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		else
 		{
 //			message("K-Means Clustering");
-			message(" ");
-			message("Use arrow keys LEFT and RIGHT to change Iterations... ");
-			message("Use arrow keys UP and DOWN to change Population Factor... ");
-			message("Use [ and ] to change Minimum Cluster Distance... ");
+			message(p, " ");
+			message(p, "Use arrow keys LEFT and RIGHT to change Iterations... ");
+			message(p, "Use arrow keys UP and DOWN to change Population Factor... ");
+			message(p, "Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		
-		message(" ");
-		message("Press <spacebar> to restart 3D viewer...");
+		message(p, " ");
+		message(p, "Press <spacebar> to restart 3D viewer...");
 	}
 
 	/**
@@ -1471,7 +1461,7 @@ class ML_Display
 		startupMessageStartFrame = -1;
 		messageDuration = 60;
 		
-		hudDistance = p.hudDistance;
+		hudDistance = initHudDistance;
 		
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
@@ -1501,7 +1491,7 @@ class ML_Display
 	/**
 	 * Initialize 2D drawing 
 	 */
-	void startHUD()
+	void startHUD(WMV_World p)
 	{
 		p.p.perspective(p.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
 		p.p.camera();
@@ -1510,9 +1500,9 @@ class ML_Display
 	/**
 	 * Display the main key commands on screen
 	 */
-	void displayControls()
+	void displayControls(WMV_World p)
 	{
-		startHUD();
+		startHUD(p);
 		p.p.pushMatrix();
 		
 		float xPos = centerTextXOffset;
@@ -1655,7 +1645,7 @@ class ML_Display
 	 * Add message to queue
 	 * @param message Message to send
 	 */
-	void message(String message)
+	void message(WMV_World p, String message)
 	{
 		if(p.interactive)
 		{
@@ -1686,7 +1676,7 @@ class ML_Display
 	/**
 	 * Display current messages
 	 */
-	void displayMessages()
+	void displayMessages(WMV_World p)
 	{
 		float yPos = userMessageYOffset - lineWidth;
 
@@ -1717,7 +1707,7 @@ class ML_Display
 	 * Add a metadata message (single line) to the display queue
 	 * @param message Line of metadata 
 	 */
-	void metadata(String message)
+	void metadata(WMV_World p, String message)
 	{
 		metadataStartFrame = p.p.frameCount;		
 		metadata.add(message);
@@ -1729,7 +1719,7 @@ class ML_Display
 	/**
 	 * Draw current metadata messages to the screen
 	 */
-	void displayMetadata()
+	void displayMetadata(WMV_World p)
 	{
 		float yPos = metadataYOffset - lineWidth;
 
@@ -1756,16 +1746,16 @@ class ML_Display
 	/**
 	 * Show startup screen
 	 */
-	public void showStartup()
+	public void showStartup(WMV_World p)
 	{
-		draw();								// Draw setup display
+		draw(p);								// Draw setup display
 	}
 	
 	/**
 	 * @param message Message to be sent
 	 * Add startup message to display queue
 	 */
-	void sendSetupMessage(String message)
+	void sendSetupMessage(WMV_World p, String message)
 	{
 		if(initialSetup)																
 		{
@@ -1782,11 +1772,11 @@ class ML_Display
 	/**
 	 * Display startup 
 	 */
-	void displayStartup()
+	void displayStartup(WMV_World p)
 	{
 		float yPos = startupMessageYOffset;
 
-		startHUD();
+		startHUD(p);
 		p.p.pushMatrix();
 		p.p.fill(0, 0, 245.f, 255.f);            								
 		p.p.textSize(largeTextSize * 1.5f);
@@ -1810,7 +1800,7 @@ class ML_Display
 			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.1f, yPos += lineWidthVeryWide * 6.f, hudDistance);
 		}
 		else
-			displayMessages();
+			displayMessages(p);
 
 		p.p.popMatrix();
 	}
@@ -1837,7 +1827,7 @@ class ML_Display
 	  * Increment blendMode by given amount and call setBlendMode()
 	  * @param inc Increment to blendMode number
 	  */
-	public void changeBlendMode(int inc) 
+	public void changeBlendMode(WMV_World p, int inc) 
 	{
 		if(inc > 0)
 		{
@@ -1857,14 +1847,14 @@ class ML_Display
 		}
 
 		if(inc != 0)
-			setBlendMode(blendMode);
+			setBlendMode(p, blendMode);
 	}
 
 	/**
 	 * Change effect of image alpha channel on blending
 	 * @param blendMode
 	 */
-	public void setBlendMode(int blendMode) {
+	public void setBlendMode(WMV_World p, int blendMode) {
 		switch (blendMode) {
 		case 0:
 			p.p.blendMode(PApplet.BLEND);
@@ -1934,9 +1924,9 @@ class ML_Display
 	/**
 	 * Show statistics of the current simulation
 	 */
-	void displayInfo()
+	void displayInfo(WMV_World p)
 	{
-		startHUD();
+		startHUD(p);
 		p.p.pushMatrix();
 		
 		float xPos = centerTextXOffset;
@@ -2102,7 +2092,7 @@ class ML_Display
 			}			
 		}
 		else
-			message("Can't display statistics: currentCluster == "+p.viewer.getCurrentClusterID()+"!!!");
+			message(p, "Can't display statistics: currentCluster == "+p.viewer.getCurrentClusterID()+"!!!");
 		
 		p.p.popMatrix();
 	}
@@ -2110,9 +2100,9 @@ class ML_Display
 	/**
 	 * Draw cluster statistics display
 	 */
-	void displayCluster()
+	void displayCluster(WMV_World p)
 	{
-		startHUD();
+		startHUD(p);
 		p.p.pushMatrix();
 		
 		float xPos = centerTextXOffset;
@@ -2229,14 +2219,14 @@ class ML_Display
 
 		p.p.popMatrix();
 		
-		drawClusterImages(c);
+		drawClusterImages(p, c);
 	}
 
 	/**
 	 * Draw thumbnails in grid of images in cluster
 	 * @param cluster Cluster to preview
 	 */
-	private void drawClusterImages(WMV_Cluster cluster)
+	private void drawClusterImages(WMV_World p, WMV_Cluster cluster)
 	{
 		int count = 1;
 		float imgXPos = clusterImageXOffset;
@@ -2286,7 +2276,7 @@ class ML_Display
 			return false;
 	}
 	
-	public void setDisplayView(int newDisplayView)
+	public void setDisplayView(WMV_World p, int newDisplayView)
 	{
 		switch(newDisplayView)
 		{
@@ -2298,7 +2288,7 @@ class ML_Display
 				break;
 			case 1:	
 				displayView = 1;
-				if(!initializedMaps) map2D.initializeMaps();
+				if(!initializedMaps) map2D.initializeMaps(p);
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(true);
 				window.optClusterView.setSelected(false);
@@ -2360,7 +2350,7 @@ class ML_Display
 //			return location;
 //		}
 		
-		public void draw(float hue, float saturation, float brightness, boolean preview)
+		public void draw(WMV_World p, float hue, float saturation, float brightness, boolean preview)
 		{
 			p.p.stroke(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
 			p.p.strokeWeight(3.f);
@@ -2418,7 +2408,7 @@ class ML_Display
 			return location;
 		}
 		
-		public void draw(float hue, float saturation, float brightness, boolean preview)
+		public void draw(WMV_World p, float hue, float saturation, float brightness, boolean preview)
 		{
 			p.p.pushMatrix();
 			

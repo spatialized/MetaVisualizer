@@ -1,5 +1,7 @@
 package multimediaLocator;
 
+import java.util.ArrayList;
+
 import processing.core.PApplet;
 import processing.data.IntList;
 
@@ -16,7 +18,9 @@ public class WMV_MediaSegment
 	private float left, right, centerDirection;		// Upper and lower bounds for direction (in degrees)
 	private float bottom, top, centerElevation;		// Upper and lower bounds (in degrees)
 	private boolean hidden;
-	
+
+	private final float defaultStitchingMinAngle = 30.f;				// Angle in degrees that determines media segments for stitching 
+
 	WMV_Cluster p;
 	
 	WMV_MediaSegment( WMV_Cluster parent, int newID, IntList newImages, IntList newVideos, float newLower, float newUpper, 
@@ -36,13 +40,13 @@ public class WMV_MediaSegment
 		top = newUpperElevation;
 		centerElevation = newCenterElevation;
 
-		findBorders();			// Find media at borders
+//		findBorders();			// Find media at borders
 	}
 	
 	/**
 	 * Associate each media item with a center or edge (left, right, bottom or top) position
 	 */
-	private void findBorders()
+	public void findBorders(ArrayList<WMV_Image> imageList)
 	{
 		if(images != null)
 		{
@@ -51,14 +55,18 @@ public class WMV_MediaSegment
 				int horizBorderID = 1;					// horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
 				int vertBorderID = 1;					// vertBorderID		0: Top  1: Center  2: Bottom  3: Top+Bottom
 
-				WMV_Image img = p.p.getImage(i);
+				WMV_Image img = imageList.get(i);
 				float xDir = img.getDirection();
 				float yDir = img.getElevation();
 
-				if(xDir - left < p.p.p.settings.stitchingMinAngle)
+				float stitchingMinAngle = defaultStitchingMinAngle;				// Angle in degrees that determines media segments for stitching 
+				if(p.worldSettings != null)
+					stitchingMinAngle = p.worldSettings.stitchingMinAngle;
+				
+				if(xDir - left < stitchingMinAngle)
 					horizBorderID = 0;				// Left
 
-				if(right - xDir < p.p.p.settings.stitchingMinAngle)
+				if(right - xDir < stitchingMinAngle)
 				{
 					if(horizBorderID == 0)
 						horizBorderID = 3;			// Left+Right
@@ -66,10 +74,10 @@ public class WMV_MediaSegment
 						horizBorderID = 2;			// Right
 				}
 
-				if(yDir - top < p.p.p.settings.stitchingMinAngle)
+				if(yDir - top < stitchingMinAngle)
 					vertBorderID = 0;				// Top
 
-				if(bottom - yDir < p.p.p.settings.stitchingMinAngle)
+				if(bottom - yDir < stitchingMinAngle)
 				{
 					if(vertBorderID == 0)
 						vertBorderID = 3;			// Top+Bottom
@@ -93,18 +101,20 @@ public class WMV_MediaSegment
 		return hidden;
 	}
 	
-	public void hide()
+	public void hide(ArrayList<WMV_Image> imageList)
 	{
-		for(int i:images)				// Set images in segment to hidden
-			p.p.getImage(i).hidden = true;
+		for(WMV_Image image : imageList)				// Set images in segment to hidden
+			if(images.hasValue(image.getID()))
+				image.hidden = true;
 
 		hidden = true;
 	}
 	
-	public void show()
+	public void show(ArrayList<WMV_Image> imageList)
 	{
-		for(int i:images)				// Set images in segment to hidden
-			p.p.getImage(i).hidden = false;
+		for(WMV_Image image : imageList)				// Set images in segment to hidden
+			if(images.hasValue(image.getID()))
+				image.hidden = false;
 
 		hidden = false;
 	}

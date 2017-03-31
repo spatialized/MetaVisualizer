@@ -429,8 +429,8 @@ public class ML_Map
 		{
 			if(!world.getState().interactive)													// While not in Clustering Mode
 			{
-				if(world.viewer.getAttractorCluster() != -1 && world.viewer.getAttractorCluster() < world.getFieldClusters().size())
-					drawPoint( world, world.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
+				if(world.viewer.getAttractorClusterID() != -1 && world.viewer.getAttractorClusterID() < world.getFieldClusters().size())
+					drawPoint( world, world.viewer.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
 
 				WMV_Cluster c = world.getCurrentCluster();
 				if(c != null)
@@ -974,8 +974,8 @@ public class ML_Map
 				}
 			}
 		}
-		else if(world.p.debug.map) 
-			p.message(world, "Map point is NaN!:"+point+" hue:"+hue);
+//		else if(world.p.debug.map) 
+//			p.message(worldSettings, "Map point is NaN!:"+point+" hue:"+hue);
 	}
 	
 	public void updateMapMouse(WMV_World world)
@@ -1430,7 +1430,7 @@ public class ML_Map
 				world.p.popMatrix();
 			}
 		}
-		else p.message(world, "Map point is NaN!:"+point+" hue:"+hue);
+//		else p.message(worldSettings, "Map point is NaN!:"+point+" hue:"+hue);
 	}
 	
 	private class SelectableClusterLocation

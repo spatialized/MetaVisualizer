@@ -170,10 +170,10 @@ public class WMV_Panorama extends WMV_Viewable
 				}
 			}
 		} 
-		else
-		{      
-			world.p.noFill();                  // Hide image if it isn't visible
-		}
+//		else
+//		{      
+//			world.p.noFill();                  // Hide image if it isn't visible
+//		}
 
 		if(visible && worldState.showModel && !hidden && !disabled)
 			displayModel(world);
@@ -456,8 +456,8 @@ public class WMV_Panorama extends WMV_Viewable
 	}
 	
 	/**
-	 * @return Whether associated cluster was successfully found
-	 * Search given list of clusters and associate with this panorama
+	 * Search given list of clusters and associated with this image
+	 * @return Whether associated field was successfully found
 	 */	
 	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
 	{
@@ -466,7 +466,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 		for (int i = 0; i < clusterList.size(); i++) 
 		{     
-			WMV_Cluster curCluster = (WMV_Cluster) clusterList.get(i);
+			WMV_Cluster curCluster = clusterList.get(i);
 			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
 			if (distanceCheck < closestDistance)
@@ -477,13 +477,9 @@ public class WMV_Panorama extends WMV_Viewable
 		}
 
 		if(closestDistance < maxClusterDistance)
-		{
-			cluster = closestClusterIndex;
-		}
+			cluster = closestClusterIndex;		// Associate image with cluster
 		else
-		{
 			cluster = -1;						// Create a new single image cluster here!
-		}
 
 		if(cluster != -1)
 			return true;

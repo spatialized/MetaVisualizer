@@ -126,9 +126,7 @@ class WMV_Image extends WMV_Viewable
 			}
 		} 
 		else
-		{      
 			world.p.noFill();                  // Hide image if it isn't visible
-		}
 
 		if(visible && worldState.showModel && !hidden && !disabled)
 			displayModel(world);
@@ -582,8 +580,8 @@ class WMV_Image extends WMV_Viewable
 	}
 
 	/**
-	 * @return Whether associated field was successfully found
 	 * Search given list of clusters and associated with this image
+	 * @return Whether associated field was successfully found
 	 */	
 	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
 	{
@@ -592,7 +590,7 @@ class WMV_Image extends WMV_Viewable
 
 		for (int i = 0; i < clusterList.size(); i++) 
 		{     
-			WMV_Cluster curCluster = (WMV_Cluster) clusterList.get(i);
+			WMV_Cluster curCluster = clusterList.get(i);
 			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
 			if (distanceCheck < closestDistance)
@@ -603,13 +601,9 @@ class WMV_Image extends WMV_Viewable
 		}
 
 		if(closestDistance < maxClusterDistance)
-		{
 			cluster = closestClusterIndex;		// Associate image with cluster
-		}
 		else
-		{
 			cluster = -1;						// Create a new single image cluster here!
-		}
 
 		if(cluster != -1)
 			return true;
@@ -679,6 +673,7 @@ class WMV_Image extends WMV_Viewable
 		PVector faceNormal = getFaceNormal();
 
 		PVector crossVector = new PVector();
+		if(camOrientation == null) PApplet.println("camOrientation == NULL..."+getID());
 		PVector.cross(camOrientation, faceNormal, crossVector);				// Cross vector gives angle between camera and image
 
 		float result = crossVector.mag();

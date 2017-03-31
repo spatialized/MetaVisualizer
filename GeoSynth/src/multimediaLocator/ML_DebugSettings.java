@@ -15,14 +15,14 @@ public class ML_DebugSettings
 	/* Classes */
 	public boolean main = false;				// Debug WorldMediaViewer class
 	public boolean viewer = false;				// Debug WMV_Viewer class
-	public boolean field = true;				// Debug WMV_Field class
+	public boolean field = false;				// Debug WMV_Field class
 	public boolean time = false;				// Debug WMV_Time class
 	public boolean model = false;				// Debug WMV_Model class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean path = false;				// Debug WMV_Viewer class
 	public boolean display = true;				// Debug WMV_Display class
 	public boolean viewable = false;			// Debug WMV_Viewable class
-	public boolean image = true;				// Debug WMV_Image class
+	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
 	public boolean sound = true;				// Debug WMV_Sound class
@@ -56,7 +56,7 @@ public class ML_DebugSettings
 			
 			if(performanceSlow && memory)
 			{
-				p.display.message(p.world, "Performance slow...");
+				p.display.message(p.world.state, "Performance slow...");
 			}
 		}
 		else

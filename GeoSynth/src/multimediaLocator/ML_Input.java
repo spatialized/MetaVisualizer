@@ -256,7 +256,7 @@ public class ML_Input
 				break;
 			
 			case "StitchPanorama":
-				world.getCurrentCluster().stitchImages(world.p.stitcher, world.p.library.getLibraryFolder());    			
+				world.getCurrentCluster().stitchImages(world.p.stitcher, world.p.library.getLibraryFolder(), world.getCurrentField().getSelectedImages());    			
 				break;
 				
 				/* Memory */
@@ -728,7 +728,7 @@ public class ML_Input
 			{
 				/* 3D View Controls */
 				if (key == '|')
-					world.getCurrentCluster().stitchImages(world.p.stitcher, world.p.library.getLibraryFolder());    			
+					world.getCurrentCluster().stitchImages(world.p.stitcher, world.p.library.getLibraryFolder(), world.getCurrentField().getSelectedImages());    			
 //					world.getCurrentCluster().stitchImages();    			
 
 				if (optionKey && key == '[')
@@ -1118,9 +1118,9 @@ public class ML_Input
 					if(!world.getState().hierarchical)
 					{
 						world.getState().hierarchical = true;
-						if(!world.getCurrentField().getModel().dendrogramCreated)
-							world.getCurrentField().getModel().runHierarchicalClustering();
-						world.getCurrentField().getModel().setDendrogramDepth(world.getCurrentField().getModel().clusterDepth);				// Initialize clusters 
+						if(!world.getCurrentField().dendrogramCreated)
+							world.getCurrentField().runHierarchicalClustering();
+						world.getCurrentField().setDendrogramDepth(world.getCurrentField().clusterDepth);				// Initialize clusters 
 						world.getCurrentField().createTimeline();					// Create field timeline
 					}
 
@@ -1131,8 +1131,8 @@ public class ML_Input
 					if(world.getState().hierarchical)
 					{
 						world.getState().hierarchical = false;
-						WMV_Model m = world.getCurrentField().getModel();
-						m.runKMeansClustering(world.settings.kMeansClusteringEpsilon, m.clusterRefinement, m.clusterPopulationFactor);
+						WMV_Field f = world.getCurrentField();
+						f.runKMeansClustering(world.settings.kMeansClusteringEpsilon, f.getModel().clusterRefinement, f.getModel().clusterPopulationFactor);
 						world.getCurrentField().createTimeline();					// Create field timeline
 					}
 				}
@@ -1145,7 +1145,7 @@ public class ML_Input
 						for(WMV_Field f : world.getFields())
 						{
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);	
-							world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
+							world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
 							world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 							world.p.display.map2D.initializeMaps(world);
 						}
@@ -1161,7 +1161,7 @@ public class ML_Input
 						for(WMV_Field f : world.getFields())
 						{
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);
-							world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
+							world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
 							world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 							world.p.display.map2D.initializeMaps(world);
 						}
@@ -1180,16 +1180,16 @@ public class ML_Input
 						{
 							if (keyCode == PApplet.UP) 
 							{
-								int clusterDepth = world.getCurrentField().getModel().clusterDepth + 1;
-								if(clusterDepth <= world.getCurrentField().getModel().deepestLevel)
-									world.getCurrentField().getModel().setDendrogramDepth( clusterDepth );
+								int clusterDepth = world.getCurrentField().clusterDepth + 1;
+								if(clusterDepth <= world.getCurrentField().deepestLevel)
+									world.getCurrentField().setDendrogramDepth( clusterDepth );
 							}
 
 							if (keyCode == PApplet.DOWN) 
 							{
-								int clusterDepth = world.getCurrentField().getModel().clusterDepth - 1;
-								if(clusterDepth >= world.getCurrentField().getModel().minClusterDepth)
-									world.getCurrentField().getModel().setDendrogramDepth( clusterDepth );
+								int clusterDepth = world.getCurrentField().clusterDepth - 1;
+								if(clusterDepth >= world.getCurrentField().minClusterDepth)
+									world.getCurrentField().setDendrogramDepth( clusterDepth );
 							}
 						}
 						else
@@ -1201,7 +1201,7 @@ public class ML_Input
 
 								if(world.getCurrentField().getModel().clusterRefinement >= world.getCurrentField().getModel().minClusterRefinement)
 								{
-									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
+									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
 									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
@@ -1215,7 +1215,7 @@ public class ML_Input
 
 								if(world.getCurrentField().getModel().clusterRefinement <= world.getCurrentField().getModel().maxClusterRefinement)
 								{
-									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
+									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
 									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
@@ -1229,7 +1229,7 @@ public class ML_Input
 
 								if(world.getCurrentField().getModel().clusterPopulationFactor >= world.getCurrentField().getModel().minPopulationFactor)
 								{
-									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
+									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
 									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
@@ -1243,7 +1243,7 @@ public class ML_Input
 
 								if(world.getCurrentField().getModel().clusterPopulationFactor <= world.getCurrentField().getModel().maxPopulationFactor)
 								{
-									world.getCurrentField().getModel().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
+									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
 									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}

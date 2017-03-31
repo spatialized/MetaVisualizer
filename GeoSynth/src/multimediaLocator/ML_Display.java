@@ -126,7 +126,7 @@ class ML_Display
 		midRightTextXOffset = screenWidth / 1.5f;
 
 		topTextYOffset = -screenHeight / 1.6f;
-		clusterImageXOffset = -screenWidth/ 1.75f;
+		clusterImageXOffset = -screenWidth/ 1.85f;
 		clusterImageYOffset = screenHeight * 1.33f;
 
 		userMessageXOffset = -screenWidth / 2.f;
@@ -1330,29 +1330,29 @@ class ML_Display
 	/**
 	 * Draw Interactive Clustering footer text
 	 */
-	void displayClusteringInfo(WMV_World p)
+	void displayClusteringInfo(WMV_WorldState worldState)
 	{
 //		message("Interactive Clustering Mode: "+(p.hierarchical ?"Hierarchical Clustering":"K-Means Clustering"));
 //		message(" ");
 		
-		if(p.getState().hierarchical)
+		if(worldState.hierarchical)
 		{
 //			message("Hierarchical Clustering");
-			message(p, " ");
-			message(p, "Use arrow keys UP and DOWN to change clustering depth... ");
-			message(p, "Use [ and ] to change Minimum Cluster Distance... ");
+			message(worldState, " ");
+			message(worldState, "Use arrow keys UP and DOWN to change clustering depth... ");
+			message(worldState, "Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		else
 		{
 //			message("K-Means Clustering");
-			message(p, " ");
-			message(p, "Use arrow keys LEFT and RIGHT to change Iterations... ");
-			message(p, "Use arrow keys UP and DOWN to change Population Factor... ");
-			message(p, "Use [ and ] to change Minimum Cluster Distance... ");
+			message(worldState, " ");
+			message(worldState, "Use arrow keys LEFT and RIGHT to change Iterations... ");
+			message(worldState, "Use arrow keys UP and DOWN to change Population Factor... ");
+			message(worldState, "Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		
-		message(p, " ");
-		message(p, "Press <spacebar> to restart 3D viewer...");
+		message(worldState, " ");
+		message(worldState, "Press <spacebar> to restart 3D viewer...");
 	}
 
 	/**
@@ -1645,9 +1645,9 @@ class ML_Display
 	 * Add message to queue
 	 * @param message Message to send
 	 */
-	void message(WMV_World p, String message)
+	void message(WMV_WorldState worldState, String message)
 	{
-		if(p.getState().interactive)
+		if(worldState.interactive)
 		{
 			messages.add(message);
 			while(messages.size() > 16)
@@ -1655,14 +1655,14 @@ class ML_Display
 		}
 		else
 		{
-			messageStartFrame = p.p.frameCount;		
+			messageStartFrame = worldState.frameCount;		
 			messages.add(message);
 			while(messages.size() > 16)
 				messages.remove(0);
 		}
 
-		if(p.p.debug.print)
-			PApplet.println(message);
+//		if(p.p.debug.print)
+//			PApplet.println(message);
 	}
 	
 	/**
@@ -2009,7 +2009,7 @@ class ML_Display
 				p.p.text(" Altitude Scaling Factor: "+p.settings.altitudeScalingFactor+"  (Altitude Scaling)", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Clustering Method : "+ ( p.getState().hierarchical ? "Hierarchical" : "K-Means" ), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Population Factor: "+f.getModel().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
-			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getModel().clusterDepth, xPos, yPos += lineWidth, hudDistance);
+			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.clusterDepth, xPos, yPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Viewer ", xPos, yPos += lineWidthVeryWide, hudDistance);
@@ -2024,11 +2024,11 @@ class ML_Display
 			p.p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   User Stitched Panoramas: "+p.getCurrentCluster().userPanoramas.size(), xPos, yPos += lineWidth, hudDistance);
-			if(p.viewer.getAttractorCluster() != -1)
+			if(p.viewer.getAttractorClusterID() != -1)
 			{
 				p.p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Destination Media Points: "+p.getCurrentField().getCluster(p.viewer.getAttractorCluster()).mediaCount, xPos, yPos += lineWidth, hudDistance);
-				p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Destination Media Points: "+p.getCurrentField().getCluster(p.viewer.getAttractorClusterID()).mediaCount, xPos, yPos += lineWidth, hudDistance);
+				p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
 			}
 
 			if(p.p.debug.viewer) 
@@ -2091,8 +2091,6 @@ class ML_Display
 				p.p.text("Approx. usable free memory (bytes): " + p.p.debug.approxUsableFreeMemory, xPos, yPos += lineWidth, hudDistance);
 			}			
 		}
-		else
-			message(p, "Can't display statistics: currentCluster == "+p.viewer.getState().getCurrentClusterID()+"!!!");
 		
 		p.p.popMatrix();
 	}
@@ -2182,7 +2180,7 @@ class ML_Display
 			
 			p.p.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text("   Merged: "+f.getModel().mergedClusters+" out of "+(f.getModel().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
-			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getModel().clusterDepth, xPos, yPos += lineWidth, hudDistance);
+			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.clusterDepth, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Population Factor: "+f.getModel().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
@@ -2205,10 +2203,10 @@ class ML_Display
 			}
 		}
 		
-		if(p.viewer.getAttractorCluster() != -1)
+		if(p.viewer.getAttractorClusterID() != -1)
 		{
 			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorCluster()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
+			p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
 			if(p.p.debug.viewer) 
 			{
 				p.p.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
@@ -2219,14 +2217,14 @@ class ML_Display
 
 		p.p.popMatrix();
 		
-		drawClusterImages(p, c);
+		drawClusterImages(p, c.getImages(p.getCurrentField().getImages()));
 	}
 
 	/**
 	 * Draw thumbnails in grid of images in cluster
 	 * @param cluster Cluster to preview
 	 */
-	private void drawClusterImages(WMV_World p, WMV_Cluster cluster)
+	private void drawClusterImages(WMV_World p, ArrayList<WMV_Image> clusterImages)
 	{
 		int count = 1;
 		float imgXPos = clusterImageXOffset;
@@ -2236,7 +2234,7 @@ class ML_Display
 		p.p.strokeWeight(15);
 		p.p.fill(0, 0, 255, 255);
 
-		for(WMV_Image i : cluster.getImages())
+		for(WMV_Image i : clusterImages)
 		{
 			p.p.pushMatrix();
 			float origWidth = i.getWidth();

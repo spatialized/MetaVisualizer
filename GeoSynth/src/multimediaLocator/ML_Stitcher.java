@@ -126,7 +126,7 @@ public class ML_Stitcher
 					}
 					else
 					{
-						if(p.p.debug.stitching) p.p.display.message(p, "Error #" + status + " couldn't stitch panorama...");
+						if(p.p.debug.stitching) p.p.display.message(p.state, "Error #" + status + " couldn't stitch panorama...");
 						if(status == 3)				// Error estimating camera parameters
 						{
 							if(p.settings.persistentStitching) reduce = true;
@@ -141,7 +141,7 @@ public class ML_Stitcher
 				}
 				else
 				{
-					if(p.p.debug.stitching) p.p.display.message(p, "Couldn't stitch panorama... No images!");
+					if(p.p.debug.stitching) p.p.display.message(p.state, "Couldn't stitch panorama... No images!");
 					break;
 				}
 			}
@@ -161,7 +161,7 @@ public class ML_Stitcher
 			filePath = p.getState().stitchingPath+fileName;
 
 			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, panorama);
-			if(p.p.debug.stitching) p.p.display.message(p, "Panorama stitching successful, output to file: " + fileName);
+			if(p.p.debug.stitching) p.p.display.message(p.state, "Panorama stitching successful, output to file: " + fileName);
 
 			iplImage = new IplImage(panorama);
 			PApplet.println("panorama.toString():"+panorama.toString());
@@ -225,7 +225,7 @@ public class ML_Stitcher
 
 				filePath = p.getState().stitchingPath+fileName;
 
-				if(p.p.debug.stitching) p.p.display.message(p, "Debugging: output panorama with borders to file: " + fileName);
+				if(p.p.debug.stitching) p.p.display.message(p.state, "Debugging: output panorama with borders to file: " + fileName);
 				
 				result.save(filePath);
 			}

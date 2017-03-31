@@ -1584,7 +1584,7 @@ public class ML_Window {
 					applet.text(" Altitude Scaling Factor: "+world.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
 				applet.text(" Clustering Method : "+ ( world.getState().hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
 				applet.text(" Population Factor: "+f.getModel().clusterPopulationFactor, x, y += lineWidth);
-				if(world.getState().hierarchical) applet.text(" Current Cluster Depth: "+f.getModel().clusterDepth, x, y += lineWidth);
+				if(world.getState().hierarchical) applet.text(" Current Cluster Depth: "+f.clusterDepth, x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
 				applet.text(" Viewer ", x, y += lineWidthVeryWide);
@@ -1599,11 +1599,11 @@ public class ML_Window {
 				applet.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), world.viewer.getLocation())), x, y += lineWidth);
 				applet.text("   Auto Stitched Panoramas: "+world.getCurrentCluster().stitchedPanoramas.size(), x, y += lineWidth);
 				applet.text("   User Stitched Panoramas: "+world.getCurrentCluster().userPanoramas.size(), x, y += lineWidth);
-				if(world.viewer.getAttractorCluster() != -1)
+				if(world.viewer.getAttractorClusterID() != -1)
 				{
 					applet.text(" Destination Cluster : "+world.viewer.getAttractorCluster(), x, y += lineWidth);
-					applet.text(" Destination Media Points: "+world.getCurrentField().getCluster(world.viewer.getAttractorCluster()).mediaCount, x, y += lineWidth);
-					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getCluster(world.viewer.getAttractorCluster()).getLocation(), world.viewer.getLocation() )), x, y += lineWidth);
+					applet.text(" Destination Media Points: "+world.getCurrentField().getCluster(world.viewer.getAttractorClusterID()).mediaCount, x, y += lineWidth);
+					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getCluster(world.viewer.getAttractorClusterID()).getLocation(), world.viewer.getLocation() )), x, y += lineWidth);
 				}
 
 				if(world.p.debug.viewer) 
@@ -1650,8 +1650,8 @@ public class ML_Window {
 					applet.text("Approx. usable free memory (bytes): " + world.p.debug.approxUsableFreeMemory, x, y += lineWidth);
 				}			
 			}
-			else
-				p.message(world, "Can't display statistics: currentCluster == "+world.viewer.getState().getCurrentClusterID()+"!!!");
+//			else
+//				p.message(worldSettings, "Can't display statistics: currentCluster == "+world.viewer.getState().getCurrentClusterID()+"!!!");
 		}
 	}
 	

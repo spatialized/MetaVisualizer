@@ -165,9 +165,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 					displayVideo(world);          // Draw the video 
 		}
 		else
-		{      
 			world.p.noFill();                  // Hide video if it isn't visible
-		}
 
 		if(visible && worldState.showModel && !hidden && !disabled)
 			displayModel(world);
@@ -1294,7 +1292,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 //	}
 
 	/**
-	 * Search given list of clusters and associated with this video
+	 * Search given list of clusters and associated with this image
 	 * @return Whether associated field was successfully found
 	 */	
 	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
@@ -1304,7 +1302,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		for (int i = 0; i < clusterList.size(); i++) 
 		{     
-			WMV_Cluster curCluster = (WMV_Cluster) clusterList.get(i);
+			WMV_Cluster curCluster = clusterList.get(i);
 			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
 
 			if (distanceCheck < closestDistance)
@@ -1315,13 +1313,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		}
 
 		if(closestDistance < maxClusterDistance)
-		{
-			cluster = closestClusterIndex;
-		}
+			cluster = closestClusterIndex;		// Associate image with cluster
 		else
-		{
 			cluster = -1;						// Create a new single image cluster here!
-		}
 
 		if(cluster != -1)
 			return true;

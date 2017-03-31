@@ -833,7 +833,7 @@ class WMV_Metadata
 //			Calendar calendarTime = null;			// Calendar date and time
 			ZonedDateTime calendarTime = null;			// Calendar date and time
 
-			float fFocusDistance = f.p.settings.defaultFocusDistance;									// Focus distance currently NOT used
+			float fFocusDistance = p.world.settings.defaultFocusDistance;									// Focus distance currently NOT used
 			int iWidth = -1, iHeight = -1;
 			float fBrightness = -1.f;
 			PVector pLoc = new PVector(0, 0, 0);

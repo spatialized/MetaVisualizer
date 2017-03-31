@@ -123,16 +123,14 @@ public class WMV_World
 	}
 	
 	/**
-	 * Set up the main classes and variables
+	 * Set up main classes and variables involving the world and viewer 
 	 */
 	void initialize() 
 	{
 		/* Create main classes */
 		settings = new WMV_WorldSettings();
 		state = new WMV_WorldState();
-		viewer = new WMV_Viewer(this);			// Initialize navigation + viewer
-//		input = new ML_Input(this);
-//		display = new ML_Display(this, p.width, p.height, hudDistance);		// Initialize displays
+		viewer = new WMV_Viewer(this, settings, state, p.debug);			// Initialize navigation + viewer
 		
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
 		timeFadeMap.setMapFunction(circularEaseOut);
@@ -145,6 +143,8 @@ public class WMV_World
 	{
 		if(state.startedRunning)											// If simulation just started running
 		{
+			viewer.enterField(fields.get(0));							// Update navigation
+			viewer.update(settings, state);							// Update navigation
 			viewer.moveToFirstTimeSegment(false);
 			state.startedRunning = false;
 		}
@@ -230,8 +230,9 @@ public class WMV_World
 			{
 				WMV_Field f = getField(state.initializationField);
 
-				p.metadata.load(f, p.library.getLibraryFolder(), true);								// Import metadata for all media in field
-				f.initialize(p.library.getLibraryFolder(), state.lockMediaToClusters);		// 			Initialize field
+				p.metadata.load(f, p.library.getLibraryFolder(), true);											// Import metadata for all media in field
+				state.hierarchical = f.initialize(p.library.getLibraryFolder(), state.lockMediaToClusters);		// Initialize field
+				setBlurMasks();
 				
 				state.setupProgress += fieldProgressInc;				// Update progress bar
 				p.display.draw(this);									// Draw progress bar
@@ -278,7 +279,7 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
-		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState(), p.frameCount);				// Update clusters in current field
+		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
 		attractViewer();						// Attract the viewer
 		
 		if(p.display.displayView == 0)
@@ -295,7 +296,7 @@ public class WMV_World
 
 		}
 		
-		viewer.update();							// Update navigation
+		viewer.update(settings, state);							// Update navigation
 		if(p.display.displayView == 0)	
 			if(p.state.running)
 				viewer.draw();						// Send the 3D camera view to the screen
@@ -320,7 +321,7 @@ public class WMV_World
 		if(viewer.getState().isMovingToAttractor())
 		{
 			if(viewer.getAttractorPoint() != null)
-				viewer.getAttractorPoint().attractViewer();		// Attract the camera to the memory navigation goal
+				viewer.getAttractorPoint().attractViewer(viewer);		// Attract the camera to the memory navigation goal
 			else 
 				PApplet.println("viewer.attractorPoint == NULL!!");
 		}
@@ -328,7 +329,7 @@ public class WMV_World
 		{
 			for( WMV_Cluster c : getCurrentField().getAttractingClusters() )
 				if(c.getClusterDistance() > settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
-					c.attractViewer();
+					c.attractViewer(viewer);
 		}
 	}
 
@@ -732,7 +733,7 @@ public class WMV_World
 		p.display.map2D.initializeMaps(this);
 		
 		p.display.resetDisplayModes();		// Clear messages
-		p.display.displayClusteringInfo(this);
+		p.display.displayClusteringInfo(state);
 		
 		getCurrentField().blackoutMedia();	// Blackout all media
 	}
@@ -773,7 +774,7 @@ public class WMV_World
 		
 		for(String s : folders)
 		{
-			fields.add(new WMV_Field(this, settings, state, viewer.getSettings(), viewer.getState(), p.debug, s, count));
+			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debug, s, count));
 			count++;
 		}
 	}
@@ -873,16 +874,16 @@ public class WMV_World
 	/**
 	 * @return The current attractor cluster
 	 */
-	public WMV_Cluster getAttractorCluster()
-	{
-		int attractor = viewer.getAttractorCluster();
-		if(attractor >= 0 && attractor < getCurrentField().getClusters().size())
-		{
-			WMV_Cluster c = getCurrentField().getCluster(attractor);
-			return c;
-		}
-		else return null;
-	}
+//	public WMV_Cluster getAttractorCluster()
+//	{
+//		int attractor = viewer.getAttractorCluster();
+//		if(attractor >= 0 && attractor < getCurrentField().getClusters().size())
+//		{
+//			WMV_Cluster c = getCurrentField().getCluster(attractor);
+//			return c;
+//		}
+//		else return null;
+//	}
 	
 	/**
 	 * @return All images in current field
@@ -1094,6 +1095,9 @@ public class WMV_World
 //		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
 	}
 	
+	/**
+	 * Determine and set the length of the Main Time Cycle
+	 */
 	public void createTimeCycle()
 	{
 		if(state.timeMode == 0 || state.timeMode == 1)
@@ -1105,13 +1109,14 @@ public class WMV_World
 			ArrayList<WMV_Cluster> cl = getVisibleClusters();
 			settings.timeCycleLength = 0;
 			
-			for(WMV_Cluster c : cl)						// Time cycle length is flexible according to visible cluster media lengths
+			/* Time cycle length is flexible according to visible cluster media lengths */
+			for(WMV_Cluster c : cl)
 			{
-				settings.timeCycleLength += c.getImages().size() * settings.defaultMediaLength;
-				settings.timeCycleLength += c.getPanoramas().size() * settings.defaultMediaLength;
-				for(WMV_Video v: c.getVideos())
+				settings.timeCycleLength += c.getImages( getCurrentField().getImages() ).size() * settings.defaultMediaLength;
+				settings.timeCycleLength += c.getPanoramas( getCurrentField().getPanoramas() ).size() * settings.defaultMediaLength;
+				for(WMV_Video v: c.getVideos( getCurrentField().getVideos()) )
 					settings.timeCycleLength += PApplet.round( v.getLength() * 29.98f );
-//				for(WMV_Sound s: c.getSounds())
+//				for(WMV_Sound s: c.getSounds( getCurrentField().getSounds() )
 //					settings.timeCycleLength += PApplet.round( s.getLength() * 29.98f );
 			}
 			
@@ -1125,7 +1130,7 @@ public class WMV_World
 			else
 				startSingleTimeModeCycle();
 		}
-		else if(state.timeMode == 3)						// Time cycle length is flexible according to visible cluster timelines
+		else if(state.timeMode == 3)						/* Time cycle length is flexible according to visible cluster timelines */
 		{
 			float highest = -100000.f;
 			float lowest = 100000.f;
@@ -1299,7 +1304,7 @@ public class WMV_World
 		if(p.debug.viewer && p.debug.detailed)
 			PApplet.println("Clearing all attractors...");
 
-		if(viewer.getAttractorCluster() != -1)
+		if(viewer.getAttractorClusterID() != -1)
 			viewer.clearAttractorCluster();
 
 		getCurrentField().clearAllAttractors();
@@ -1321,6 +1326,69 @@ public class WMV_World
 					p.box(2);
 					p.popMatrix();
 				}
+			}
+		}
+	}
+	
+	public void setBlurMasks()
+	{
+		WMV_Field f = getCurrentField();
+		for(WMV_Image image : f.getImages())
+		{
+			int bmID = image.blurMaskID;
+			switch(bmID)
+			{
+			case 0:
+				f.setImageBlurMask(image, blurMaskLeftTop);
+				break;
+			case 1:
+				f.setImageBlurMask(image, blurMaskLeftCenter);
+				break;
+			case 2:
+				f.setImageBlurMask(image, blurMaskLeftBottom);
+				break;
+			case 3:
+				f.setImageBlurMask(image, blurMaskLeftBoth);
+				break;
+			
+			case 4:
+				f.setImageBlurMask(image, blurMaskCenterTop);
+				break;
+			case 5:
+				f.setImageBlurMask(image, blurMaskCenterCenter);
+				break;
+			case 6:
+				f.setImageBlurMask(image, blurMaskCenterBottom);
+				break;
+			case 7:
+				f.setImageBlurMask(image, blurMaskCenterBoth);
+				break;
+		
+			case 8:
+				f.setImageBlurMask(image, blurMaskRightTop);
+				break;
+			case 9:
+				f.setImageBlurMask(image, blurMaskRightCenter);
+				break;
+			case 10:
+				f.setImageBlurMask(image, blurMaskRightBottom);
+				break;
+			case 11:
+				f.setImageBlurMask(image, blurMaskRightBoth);
+				break;
+		
+			case 12:
+				f.setImageBlurMask(image, blurMaskBothTop);
+				break;
+			case 13:
+				f.setImageBlurMask(image, blurMaskBothCenter);
+				break;
+			case 14:
+				f.setImageBlurMask(image, blurMaskBothBottom);
+				break;
+			case 15:
+				f.setImageBlurMask(image, blurMaskBothBoth);
+				break;
 			}
 		}
 	}

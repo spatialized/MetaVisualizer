@@ -38,14 +38,6 @@ public class WMV_Sound extends WMV_Viewable
 	{
 		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
-//		p = parent;
-//		id = newID;
-
-//		worldSettings = newWorldSettings;
-//		viewerSettings = newViewerSettings;
-//		debugSettings = newDebugSettings;
-		
-
 		filePath = newFilePath;
 		gpsLocation = newGPSLocation;
 		
@@ -54,16 +46,9 @@ public class WMV_Sound extends WMV_Viewable
 		if(newDateTime != null)
 		{
 			time = new WMV_Time( newDateTime, getID(), cluster, 3, newTimeZone );		
-//			WMV_Time utcTime = new WMV_Time( p.p, newDateTime, getID(), cluster, 3 );		
-//			time = p.p.utilities.utcToPacificTime(utcTime);						// Convert from UTC Time
 		}
 		else
 			time = null;
-
-//		theta = newTheta;              		// GPS Orientation (Yaw angle)
-//		phi = newElevation;            		// Pitch angle
-//		rotation = newRotation;             // Rotation angle
-//		orientation = newOrientation;       // Vertical (90) or Horizontal (0)
 	}  
 
 	/**
@@ -72,8 +57,6 @@ public class WMV_Sound extends WMV_Viewable
 	public void draw(WMV_World world)
 	{
 		if(showMetadata) displayMetadata(world);
-//		if(p.p.viewer.selection)
-//			p.p.viewer.addSelectableSound(getID());
 	}
 
 	/**
@@ -81,10 +64,10 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-//			if( p.soundsAudible < p.maxAudibleSounds && !hidden && !disabled)
-//			{
-//				sound = ;
-//			}
+//		if( p.soundsAudible < p.maxAudibleSounds && !hidden && !disabled)
+//		{
+//			sound = ;
+//		}
 	}
 
 	/**
@@ -94,36 +77,10 @@ public class WMV_Sound extends WMV_Viewable
 	void displayModel(WMV_World world)
 	{
 		world.p.pushMatrix();
-		world.p.translate(location.x, location.y, location.z);
-
+		
 		world.p.fill(30, 0, 255, 150);
+		world.p.translate(location.x, location.y, location.z);
 		world.p.sphere(centerSize);
-//		PVector c = world.getCluster(cluster).getLocation();
-//		PVector loc = location;
-//		PVector cl = getCaptureLocation();
-		world.p.popMatrix();
-
-//		world.p.pushMatrix();
-//		if(world.showMediaToCluster)
-//		{
-//			world.p.strokeWeight(5.f);
-//			world.p.stroke(40, 155, 255, 180);
-//			world.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
-//		}
-//
-//		if(world.showCaptureToMedia)
-//		{
-//			world.p.strokeWeight(2.f);
-//			world.p.stroke(160, 100, 255, 120);
-//			world.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
-//		}
-//
-//		if(world.showCaptureToCluster)
-//		{
-//			world.p.strokeWeight(3.f);
-//			world.p.stroke(100, 55, 255, 180);
-//			world.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
-//		}
 
 		world.p.popMatrix();
 	}
@@ -180,6 +137,38 @@ public class WMV_Sound extends WMV_Viewable
 		}
 	}
 	
+	/**
+	 * Search given list of clusters and associated with this image
+	 * @return Whether associated field was successfully found
+	 */	
+	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+	{
+		int closestClusterIndex = 0;
+		float closestDistance = 100000;
+
+		for (int i = 0; i < clusterList.size(); i++) 
+		{     
+			WMV_Cluster curCluster = clusterList.get(i);
+			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
+
+			if (distanceCheck < closestDistance)
+			{
+				closestClusterIndex = i;
+				closestDistance = distanceCheck;
+			}
+		}
+
+		if(closestDistance < maxClusterDistance)
+			cluster = closestClusterIndex;		// Associate image with cluster
+		else
+			cluster = -1;						// Create a new single image cluster here!
+
+		if(cluster != -1)
+			return true;
+		else
+			return false;
+	}
+
 	/**
 	 * Fade in sound
 	 */
@@ -252,7 +241,7 @@ public class WMV_Sound extends WMV_Viewable
 		if(closestIdx >= 0)
 		{
 			location = gpsTrack.get(closestIdx).getLocation();
-//			if(p.p.p.debug.sound)
+			if(debugSettings.sound)
 			{
 				PApplet.println("Set sound #"+getID()+" location to waypoint "+closestIdx+" W hour:"+gpsTrack.get(closestIdx).getTime().getHour()+" W min:"+gpsTrack.get(closestIdx).getTime().getMinute());
 				PApplet.println("S hour:"+sHour+" S min:"+sMinute);
@@ -261,8 +250,8 @@ public class WMV_Sound extends WMV_Viewable
 			}
 		}
 		else 
-//			if(p.p.p.debug.sound)
-			PApplet.println("No gps nodes on same day!");
+			if(debugSettings.sound)
+				PApplet.println("No gps nodes on same day!");
 	}
 	
 	/**
@@ -270,14 +259,7 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	public float getHearingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc;
-
-//		if(p.p.orientationMode)
-//		{
-//			camLoc = p.p.viewer.getLocation();
-//		}
-//		else
-			camLoc = viewerState.getLocation();
+		PVector camLoc = viewerState.getLocation();
 		
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 		float distance = PVector.dist(loc, camLoc);     

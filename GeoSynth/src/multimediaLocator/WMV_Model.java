@@ -23,6 +23,14 @@ import processing.data.IntList;
 
 public class WMV_Model
 {
+	/* Classes */
+	ML_DebugSettings debugSettings;	// Update world settings
+	WMV_WorldSettings worldSettings;
+	WMV_WorldState worldState;
+	WMV_ViewerSettings viewerSettings;	// Update world settings
+	WMV_ViewerState viewerState;	// Update world settings
+	WMV_Utilities utilities;					// Utility methods
+
 	/* Field */
 	public float fieldWidth; 			// Width (X) of GPS photo area (real world)
 	public float fieldHeight; 			// Height (Y) of GPS photo area (real world)
@@ -48,20 +56,7 @@ public class WMV_Model
 	public long clusteringRandomSeed = (long)0.f;
 	public boolean clustersNeedUpdate = false;				// --NEED TO IMPLEMENT
 	
-	/* Hierarchical Clustering */
-	private Cluster dendrogramTop;							// Top cluster of the dendrogram
-	public boolean dendrogramCreated = false;				// Dendrogram has been created
-	private String[] names;									// Media names
-	private double[][] distances;
-	private int indexPanoramaOffset, indexVideoOffset;		// Start of panoramas / videos in names and distances arrays
-
-	public int deepestLevel = -1;	
-	public int defaultClusterDepth = 8;						// How deep in the dendrogram to look for media?	-- Set based on deepestLevel?
-	public int minClusterDepth = 2;
-	public int clusterDepth = defaultClusterDepth;			// How deep in the dendrogram to look for media?
-	private IntList clustersByDepth;						// Number of clusters at each dendrogram depth
-
-	/** Metadata **/
+	/* Metadata */
 	public float highLongitude = -1000000, lowLongitude = 1000000, highLatitude = -1000000, lowLatitude = 1000000,
 			highAltitude = -1000000, lowAltitude = 1000000;
 	private float highTime = -1000000, lowTime = 1000000;
@@ -74,471 +69,34 @@ public class WMV_Model
 	private float highVideoDate = -1000000, lowVideoDate = 1000000;
 	private float longestImageDayLength = -1000000, longestPanoDayLength = -1000000, longestVideoDayLength = -1000000;	
 
-	/*** Misc. ***/
+	/* Time */
 	public int minFrameRate = 15;
+	public int frameCount = 0;
 
-	/* Utilities */
-	WMV_Utilities utilities;					// Utility methods
-
-	WMV_Field p;
-	WMV_Model(WMV_Field parent)
+	WMV_Model(WMV_WorldSettings newWorldSettings, ML_DebugSettings newDebugSettings)
 	{
-		p = parent;
+		worldSettings = newWorldSettings;
+		debugSettings = newDebugSettings;
+
 		utilities = new WMV_Utilities();					// Utility methods
 
-		clustersByDepth = new IntList();
-		clusteringRandomSeed = (long) p.p.p.random(1000.f);
+		clusteringRandomSeed = System.currentTimeMillis();
 	}
 
-	/**
-	 * Initialize virtual space based on media GPS capture locations
-	 */
-	void setup()		 // Initialize field 
+	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
+						WMV_ViewerState currentViewerState )
 	{
-		if (p.getImages().size() > 0 || p.getPanoramas().size() > 0 || p.getVideos().size() > 0)
-		{
-			float midLongitude = (highLongitude - lowLongitude) / 2.f;
-			float midLatitude = (highLatitude - lowLatitude) / 2.f;
-
-			if(p.debugSettings.field) PApplet.println("Initializing model for field #"+p.getID()+"...");
-
-			validImages = p.getImageCount();
-			validPanoramas = p.getPanoramaCount();
-			validVideos = p.getVideoCount();
-			validMedia = validImages + validPanoramas + validVideos;
-			
-			if(validMedia > 1)
-			{
-				fieldWidth = utilities.gpsToMeters(midLatitude, highLongitude, midLatitude, lowLongitude);
-				fieldLength = utilities.gpsToMeters(highLatitude, midLongitude, lowLatitude, midLongitude);
-				fieldHeight = highAltitude - lowAltitude;					
-			}
-			else
-			{
-				fieldWidth = 1000.f;
-				fieldLength = 1000.f;
-				fieldHeight = 1000.f;
-			}
-			
-			fieldArea = fieldWidth * fieldLength;				// Use volume instead?
-			mediaDensity = validMedia / fieldArea;				// Media per sq. m.
-
-			/* Increase maxClusterDistance as mediaDensity decreases */
-			if(p.worldState.autoClusterDistances)
-			{
-				maxClusterDistance = p.p.settings.maxClusterDistanceConstant / mediaDensity;
-				if(maxClusterDistance > minClusterDistance * p.p.settings.maxClusterDistanceFactor)
-					maxClusterDistance = minClusterDistance * p.p.settings.maxClusterDistanceFactor;
-			}
-			else
-			{
-				setMinClusterDistance(p.p.settings.minClusterDistance); 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-				setMaxClusterDistance(p.p.settings.maxClusterDistance);				// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
-			}
-
-			//			for(GMV_Image i : p.images)						
-			//				i.maxClusterDistance = max;
-			//			for(GMV_Panorama n : p.panoramas)				
-			//				n.maxClusterDistance = max;
-			//			for(GMV_Video v : p.videos)						
-			//				v.maxClusterDistance = max;
-
-			if(p.debugSettings.cluster)
-				PApplet.println("------> Set maxClusterDistance:"+maxClusterDistance);
-
-			if(highLongitude == -1000000 || lowLongitude == 1000000 || highLatitude == -1000000 || lowLatitude == 1000000)	// If field dimensions aren't initialized
-			{
-				fieldWidth = 1000.f;
-				fieldLength = 1000.f;
-				fieldHeight = 50.f;						// Altitude already in meters
-			}
-
-			if(p.getImageCount() == 1)
-			{
-				fieldWidth = 1000.f;
-				fieldLength = 1000.f;
-				fieldHeight = 50.f;						// Altitude already in meters
-			}
-
-			fieldAspectRatio = fieldWidth / fieldLength;
-
-			if (p.debugSettings.model)
-			{
-				PApplet.print("Field Width:"+fieldWidth);
-				PApplet.print(" Field Length:"+fieldLength);
-				PApplet.println(" Field Height:"+fieldHeight);	
-				PApplet.println("Field Area:"+fieldArea);
-
-				PApplet.println("Media Density:"+mediaDensity);
-				//				PApplet.println("Cluster Density:"+clusterDensity);
-				//				PApplet.println("Old Number of Clusters:"+((int) (p.numImages * 1/24.f)));
-			}
-		}
-		else 
-		{
-			if(p.debugSettings.field) 
-			{
-				PApplet.println("No images loaded! Couldn't initialize field...");
-				PApplet.println("p.getPanoramas().size():"+p.getPanoramas().size());
-			}
-		}
+		worldSettings = currentWorldSettings;	// Update world settings
+		worldState = currentWorldState;	// Update world settings
+		viewerSettings = currentViewerSettings;	// Update viewer settings
+		viewerState = currentViewerState;		// Update viewer state
 	}
 
-	/** 
-	 * Create clusters for all media in field at startup	
-	 */
-	void runInitialClustering() 					
-	{
-		if(p.debugSettings.cluster || p.debugSettings.model)
-			PApplet.println("Running initial clustering for field: "+p.getName());
-
-		clustersByDepth = new IntList();
-
-		/* Calculate number of valid media points */
-		validImages = p.getImageCount();
-		validPanoramas = p.getPanoramaCount();
-		validVideos = p.getVideoCount();
-		validMedia = validImages + validPanoramas + validVideos;				
-
-		if(validMedia < 20)
-			p.worldState.hierarchical = true;
-		
-		if(p.worldState.hierarchical)						// If using hierarchical clustering
-		{
-			runHierarchicalClustering();			// Create dendrogram
-			setDendrogramDepth( clusterDepth );		// Set initial dendrogram depth and initialize clusters
-		}
-		else										// If using k-means clustering
-		{
-			runKMeansClustering( p.p.settings.kMeansClusteringEpsilon, clusterRefinement, clusterPopulationFactor );	// Get initial clusters using K-Means method
-			p.setClusters( cleanupClusters(p.getClusters()) );
-		}
-
-		if(p.debugSettings.cluster || p.debugSettings.model)
-			p.p.p.display.message(p.p, "Created "+getClusterAmount()+" clusters...");
-		
-		for(WMV_Cluster c : p.getClusters())
-		{
-			if(p.debugSettings.model && !c.isEmpty())
-				PApplet.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
-		}
-	}
-	
-	/**
-	 * Build the dendrogram and calculate clusters at each depth
-	 */
-	public void runHierarchicalClustering()
-	{
-		buildDendrogram();								// Build dendrogram 
-		calculateClustersByDepth( dendrogramTop );		// Calculate number of clusters in dendrogram at each depth
-		dendrogramCreated = true;
-	}
-
-	/**
-	 * Run k-means clustering on media in field to find capture locations
-	 * @param epsilon Minimum cluster movement 
-	 * @param refinement Number of iterations to refine clusters
-	 * @param populationFactor Cluster population factor
-	 */
-	public void runKMeansClustering(float epsilon, int refinement, float populationFactor)
-	{
-		p.setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
-
-		/* Display Status */
-		if(!p.p.p.display.initialSetup)
-		{
-			p.p.p.display.clearMessages();
-			p.p.p.display.message(p.p, "Running K-Means Clustering...");
-			p.p.p.display.message(p.p, " ");
-			p.p.p.display.message(p.p, "  Iterations:"+refinement);
-			p.p.p.display.message(p.p, "  Population Factor:"+populationFactor);
-			if(p.worldState.mergeClusters)
-			{
-				p.p.p.display.message(p.p, "");
-				p.p.p.display.message(p.p, "Cluster Merging:");
-				p.p.p.display.message(p.p, "  Minimum Cluster Distance:"+p.p.settings.minClusterDistance);
-				p.p.p.display.message(p.p, "  Maximum Cluster Distance:"+p.p.settings.maxClusterDistance);
-			}
-			p.p.p.display.message(p.p, " ");
-			p.p.p.display.displayClusteringInfo(p.p);
-		}
-		
-//		if(mediaDensity < XXX)			// ---Split into fields here
-
-		/* Estimate number of clusters */
-		int numClusters = PApplet.round( (1.f / PApplet.sqrt(mediaDensity)) * populationFactor ); 	// Calculate numClusters from media density
-
-		if(p.debugSettings.cluster && p.p.p.display.initialSetup)
-			PApplet.println("Creating "+numClusters+" initial clusters based on "+validMedia+" valid media...");
-
-//		boolean test = false;
-//		if(numClusters - validMedia > 10000)
-//		{
-//			test = true;;
-//			numClusters = validMedia;
-//		}
-		
-		/* K-means Clustering */
-		if (validMedia > 1) 							// If there are more than 1 media point
-		{
-			initializeKMeansClusters(numClusters);		// Create initial clusters at random image locations	
-			refineKMeansClusters(epsilon, refinement);	// Refine clusters over many iterations
-			createSingleClusters();						// Create clusters for single media points
-			
-			p.initializeClusters(p.worldState.mergeClusters);						// Initialize clusters (merge, etc.)
-			
-			p.setBlurMasks();
-			
-			if(p.getClusters().size() > 0)					// Calculate capture times for each cluster
-				findVideoPlaceholders();
-		}
-		else
-		{
-			if (p.getImages().size() == 0 && p.getPanoramas().size() == 0 && p.getVideos().size() == 0) 		// If there are 0 media
-			{
-				p.p.p.display.message(p.p, "No media loaded!  Can't run k-means clustering... Will exit.");
-				p.p.p.exit();
-			}
-			else
-			{
-				if(p.debugSettings.cluster)
-					p.p.p.display.message(p.p, "Single media point scene...");
-			}
-		}
-		
-		if(!p.p.p.display.initialSetup)
-		{
-			p.p.p.display.message(p.p, " ");
-			p.p.p.display.message(p.p, "Created "+numClusters+" Clusters...");
-		}
-	}
-	
-	/**
-	 * @param depth Dendrogram depth level
-	 * @return clusters GMV_Cluster list at given depth level based on dendrogram
-	 */
-	ArrayList<WMV_Cluster> createClustersFromDendrogram( int depth )
-	{
-		ArrayList<WMV_Cluster> gmvClusters = new ArrayList<WMV_Cluster>();	// GMV_Cluster list
-		ArrayList<Cluster> clusters = new ArrayList<Cluster>();
-		
-		int imageCount = 0;
-		int panoramaCount = 0;
-		int videoCount = 0;
-
-		if(p.debugSettings.cluster)
-			PApplet.println("--- Getting GMV_Clusters at depth "+depth+" ---");
-
-		if(dendrogramTop != null)
-		{
-			for(int d=0; d<depth; d++)
-			{
-				ArrayList<Cluster> dClusters = getDendrogramClusters( dendrogramTop, d );	// Get clusters in dendrogram up to given depth
-				for(Cluster c : dClusters)
-					clusters.add(c);
-			}
-		}
-		else
-		{
-			if(p.debugSettings.cluster)
-				PApplet.println("Top cluster is null!");
-			p.p.p.exit();
-		}
-
-		for( Cluster cluster : clusters )				// For each cluster at given depth
-		{
-			String name = cluster.getName();			// Otherwise, save the result if appropriate
-			int mediaIdx = -1;
-
-			String[] parts = name.split("#");			// Assume name in format "clstr#XX"
-			boolean isMedia = false;
-
-			IntList images = new IntList();
-			IntList panoramas = new IntList();
-			IntList videos = new IntList();
-
-			if ( parts.length == 1 )					// If '#' isn't in the name, must be a media file
-			{
-				if(!utilities.isInteger(parts[0], 10))
-				{
-					if(p.debugSettings.cluster)
-						PApplet.println("Media name error! "+name);
-				}
-				else isMedia = true;
-			}
-			else if( parts.length == 2 )				
-			{
-				if(!utilities.isInteger(parts[1], 10))
-				{
-					if(p.debugSettings.cluster)
-						PApplet.println("Cluster name error! "+name);
-				}
-			}
-			else
-			{
-				if(p.debugSettings.cluster)
-					PApplet.println("Media or cluster name error! "+name);
-			}
-
-			PVector location;
-
-			if(isMedia)
-			{
-				if(p.debugSettings.cluster && p.debugSettings.detailed)
-					PApplet.println("Cluster "+cluster.getName()+" is a media file..."+name);
-
-				mediaIdx = Integer.parseInt(name);
-
-				if( mediaIdx < indexPanoramaOffset )
-				{
-					WMV_Image i = p.getImage(mediaIdx);
-					location = i.getCaptureLocation();
-					images.append(i.getID());
-				}
-				else if( mediaIdx < indexVideoOffset )
-				{
-					WMV_Panorama n = p.getPanoramas().get(mediaIdx - indexPanoramaOffset);
-					location = n.getCaptureLocation();
-					panoramas.append(n.getID());
-				}
-				else
-				{
-					WMV_Video v = p.getVideo(mediaIdx - indexVideoOffset);
-					location = v.getCaptureLocation();
-					videos.append(v.getID());
-				}
-			}
-			else
-			{
-				ArrayList<PVector> mediaPoints = new ArrayList<PVector>();
-
-				images = getMediaInCluster(cluster, 0);
-				panoramas = getMediaInCluster(cluster, 1);
-				videos = getMediaInCluster(cluster, 2);
-
-				if(images.size() > 1)
-				{
-					for(int i : images)
-						mediaPoints.add(p.getImage(i).getCaptureLocation());
-				}
-				if(panoramas.size() > 1)
-				{
-					for(int i : images)
-						mediaPoints.add(p.getImage(i).getCaptureLocation());
-				}
-				if(videos.size() > 1)
-				{
-					for(int v : videos)
-						mediaPoints.add(p.getVideo(v).getCaptureLocation());
-				}
-
-				location = calculateAveragePoint(mediaPoints);					// Calculate cluster location from average of media points
-
-				if(p.debugSettings.cluster && p.debugSettings.detailed)
-					PApplet.println("Calculated Average Point: "+location);
-			}
-
-			imageCount += images.size();
-			panoramaCount += panoramas.size();
-			videoCount += videos.size();
-
-			gmvClusters.add( createCluster( gmvClusters.size(), location, images, panoramas, videos ) );
-		}
-
-		PApplet.println("Got "+gmvClusters.size()+" clusters at depth "+depth+" from "+imageCount+" images, "+panoramaCount+" panoramas and "+videoCount+ "videos...");
-		return gmvClusters;
-	}
-	
-	/**
-	 * Remove empty clusters
-	 * @param clusters Cluster list
-	 * @return Cleaned up cluster list
-	 */
-	public ArrayList<WMV_Cluster> cleanupClusters(ArrayList<WMV_Cluster> clusters)
-	{
-		ArrayList<WMV_Cluster> result = new ArrayList<WMV_Cluster>();
-		int count = 0;
-		int before = clusters.size();
-
-		for(WMV_Cluster c : clusters)
-		{
-			if(!c.isEmpty() && c.mediaCount > 0)
-			{
-				int oldID = c.getID();
-				c.setID(count);
-				
-				for(WMV_Image i : p.getImages())
-					if(i.cluster == oldID)
-						i.setAssociatedCluster(count);
-				for(WMV_Panorama n : p.getPanoramas())
-					if(n.cluster == oldID)
-						n.setAssociatedCluster(count);
-				for(WMV_Video v : p.getVideos())
-					if(v.cluster == oldID)
-						v.setAssociatedCluster(count);
-				for(WMV_Sound s : p.getSounds())
-					if(s.cluster == oldID)
-						s.setAssociatedCluster(count);
-				
-				for(WMV_TimeSegment t:c.getTimeline())
-					if(t.getClusterID() != count)
-						t.setClusterID(count);
-
-				for(ArrayList<WMV_TimeSegment> timeline:c.getTimelines())
-					for(WMV_TimeSegment t:timeline)
-						if(t.getClusterID() != count)
-							t.setClusterID(count);
-				
-				result.add(c);
-				count ++;
-			}
-		}	
-		
-		int removed = before - result.size();
-		if(p.debugSettings.model) PApplet.println("cleanupClusters()... Removed "+removed+" clusters from field #"+p.getID());
-		
-		return result;
-	}
-
-	/**
-	 * setDendrogramDepth()
-	 * @param depth New cluster depth
-	 */
-	void setDendrogramDepth(int depth)
-	{
-		clusterDepth = depth;
-		p.setClusters( createClustersFromDendrogram( depth ) );	// Get clusters at defaultClusterDepth	 -- Set this based on media density
-
-		for (int i = 0; i < p.getImages().size(); i++) 			// Find closest cluster for each image
-			p.getImage(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);
-		for (int i = 0; i < p.getPanoramas().size(); i++) 			// Find closest cluster for each image
-			p.getPanorama(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);
-		for (int i = 0; i < p.getVideos().size(); i++) 			// Find closest cluster for each video
-			p.getVideo(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);
-
-		if(p.getClusters().size() > 0)							// Find image place holders
-			findVideoPlaceholders();
-
-		if(!p.p.p.display.initialSetup)
-		{
-			/* Display Status */
-			p.p.p.display.clearMessages();
-			p.p.p.display.message(p.p, "Hierarchical Clustering Mode");
-			p.p.p.display.message(p.p, " ");
-			p.p.p.display.message(p.p, "Cluster Depth:"+clusterDepth);
-			p.p.p.display.message(p.p, " ");
-			p.p.p.display.displayClusteringInfo(p.p);
-			p.p.p.display.message(p.p, "Found "+p.getClusters().size()+" clusters...");
-		}
-		
-		p.initializeClusters(p.worldState.mergeClusters);					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
-	}
-
-	void findDuplicateClusterMedia()
+	void findDuplicateClusterMedia(ArrayList<WMV_Cluster> clusters)
 	{
 		IntList images = new IntList();
 		int count = 0;
-		for(WMV_Cluster c : p.getClusters())
+		for(WMV_Cluster c : clusters)
 		{
 			for(int i : c.images)
 			{
@@ -552,7 +110,7 @@ public class WMV_Model
 		
 		IntList videos = new IntList();
 		count = 0;
-		for(WMV_Cluster c : p.getClusters())
+		for(WMV_Cluster c : clusters)
 		{
 			for(int v : c.videos)
 			{
@@ -565,127 +123,6 @@ public class WMV_Model
 		PApplet.println("Videos in more than one cluster:"+count);
 	}
 	
-	/**
-	 * @param top Dendrogram cluster to find associated media in
-	 * @param mediaType Media type, 0: image 1: panorama 2: video
-	 * @return List of cluster names of associated media 
-	 */
-	public IntList getMediaInCluster( Cluster top, int mediaType )
-	{
-		ArrayList<Cluster> clusters = (ArrayList<Cluster>) top.getChildren();	// Get clusters in topCluster
-		int mediaCount = 0;														// Number of images successfully found
-		int depthCount = 0;														// Depth reached from top cluster
-		IntList result = new IntList();
-
-		if((clusters.size() == 0) || clusters == null)							// If the top cluster has no children, it is a media file														
-		{
-			String name = top.getName();										// Otherwise, save the result if appropriate
-			int mediaIdx = Integer.parseInt(name);
-
-			if(p.debugSettings.cluster)
-				PApplet.println("No children in cluster "+name+" ... Already a media file!");
-
-			if(mediaIdx < indexPanoramaOffset)
-			{
-				if(mediaType == 0)
-				{
-					result.append(mediaIdx);
-					mediaCount++;
-				}
-			}
-			else if(mediaIdx < indexVideoOffset)
-			{
-				if(mediaType == 1)
-				{
-					result.append(mediaIdx - indexPanoramaOffset);
-					mediaCount++;
-				}
-			}
-			else
-			{
-				if(mediaType == 2)
-				{
-					result.append(mediaIdx - indexVideoOffset);
-					mediaCount++;
-				}
-			}
-		}
-		else if(clusters.size() > 0)											 // Otherwise, it is a cluster of media files
-		{
-			boolean deepest = false;
-			depthCount++;														// Move to next dendrogram level
-
-			if(p.debugSettings.cluster && p.debugSettings.detailed)
-				PApplet.println("Searching for media in cluster: "+top.getName()+"...");
-
-			while(!deepest)														// Until the deepest level
-			{
-				ArrayList<Cluster> children = new ArrayList<Cluster>();			// List of children
-				ArrayList<Cluster> nextDepth = new ArrayList<Cluster>();		// List of clusters at next depth level
-
-				for( Cluster cluster : clusters )								
-				{
-					children = (ArrayList<Cluster>) cluster.getChildren();		// For each cluster, look for its children 
-					if(children.size() > 0)										// If there are children
-					{
-						for( Cluster c : children )								// Add to nextDepth clusters
-							nextDepth.add(c);
-
-						if(p.debugSettings.cluster && p.debugSettings.detailed)
-						{
-							PApplet.print("  Cluster "+cluster.getName()+" has "+children.size()+" children at depth "+depthCount);
-							PApplet.println("  Added to next depth, array size:"+nextDepth.size()+"...");
-						}
-					}
-
-					if(children.size() == 0 || (children == null))															
-					{
-						String name = cluster.getName();								// Otherwise, save the result if appropriate
-						int mediaIdx = Integer.parseInt(name);
-
-						if(mediaIdx < indexPanoramaOffset)
-						{
-							if(mediaType == 0)
-							{
-								result.append(mediaIdx);
-								mediaCount++;
-							}
-						}
-						else if(mediaIdx < indexVideoOffset)
-						{
-							if(mediaType == 1)
-							{
-								result.append(mediaIdx - indexPanoramaOffset);
-								mediaCount++;
-							}
-						}
-						else
-						{
-							if(mediaType == 2)
-							{
-								result.append(mediaIdx - indexVideoOffset);
-								mediaCount++;
-							}
-						}
-					}
-				}
-
-				deepest = !( children.size() > 0 );	// At deepest level when current list is empty
-
-				if(!deepest)
-				{
-					clusters = children;						// Move down one depth level 
-					depthCount++;
-				}
-			}
-		}
-
-		if(p.debugSettings.cluster && p.debugSettings.detailed && mediaCount > 0)
-			PApplet.println( "Found "+mediaCount+" media at depth "+depthCount+" result.size():"+result.size() );
-
-		return result;
-	}
-
 	/**
 	 * @param Dendrogram depth level
 	 * @return List of dendrogram clusters at given depth level
@@ -708,636 +145,22 @@ public class WMV_Model
 			clusters = nextDepth;										// Move to next depth
 		}	
 
-		if(p.debugSettings.cluster) 
+		if(debugSettings.cluster) 
 			PApplet.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
 
 		return clusters;
 	}
 
-	/**
-	 * @param topCluster Top cluster of dendrogram
-	 * Add to clustersByDepth list all dendrogram clusters at given depth 
-	 */
-	public void calculateClustersByDepth( Cluster topCluster )
-	{
-		ArrayList<Cluster> clusters = (ArrayList<Cluster>) topCluster.getChildren();	// Dendrogram clusters
-		int depthCount = 0;
-
-		if(p.debugSettings.cluster) PApplet.println("Counting clusters at all depth levels...");
-		clustersByDepth.append(1);					// Add top cluster to clustersByDepth list
-
-		if(clusters.size() > 0)
-		{
-			boolean deepest = false;
-			depthCount++;															// Otherwise, we have moved deeper by one generation
-
-			while(!deepest)														// Until the deepest level
-			{
-				ArrayList<Cluster> children = new ArrayList<Cluster>();			// List of children
-				ArrayList<Cluster> nextDepth = new ArrayList<Cluster>();			// List of clusters at next depth level
-
-				for( Cluster cluster : clusters )								
-				{
-					children = (ArrayList<Cluster>) cluster.getChildren();		// For each cluster, look for its children 
-
-					if(children.size() > 0)										// If children exist
-					{
-						for( Cluster c : children )								// Add them to nextDepth clusters
-							nextDepth.add(c);
-					}
-				}
-
-				clustersByDepth.append(clusters.size());							// Record cluster number at depthCount
-
-				if(p.debugSettings.cluster && p.debugSettings.detailed) PApplet.println("Found "+clusters.size()+" clusters at depth:"+depthCount);
-
-				deepest = !( children.size() > 0 );								// At deepest level when list of chidren is empty
-
-				if(!deepest)
-				{
-					clusters = children;											// Move down one depth level 
-					depthCount++;
-				}
-			}
-		}
-
-		deepestLevel = depthCount;
-	}
-
-	/**
-	 * Calculate hieararchical clustering dendrogram for all media in field
-	 */
-	void buildDendrogram()
-	{
-		int namesIdx = 0, distIdx = 0;
-		indexPanoramaOffset = p.getImages().size();
-		indexVideoOffset = indexPanoramaOffset + p.getPanoramas().size();
-
-		int size = p.getImages().size() + p.getVideos().size();
-		names = new String[size];
-		distances = new double[size][size];		
-
-		PApplet.println("Creating dendrogram...");
-
-		/* Calculate distances between each image and all other media */
-		for(WMV_Image i : p.getImages())		
-		{
-			namesIdx = i.getID();
-			names[namesIdx] = Integer.toString(namesIdx);
-
-			for(WMV_Image j : p.getImages())
-			{
-				if(i != j)				// Don't compare image with itself
-				{
-					distIdx = j.getID();
-					distances[namesIdx][distIdx] = PVector.dist(i.getCaptureLocation(), j.getCaptureLocation());
-				}
-			}
-
-			for(WMV_Panorama n : p.getPanoramas())
-			{
-				distIdx = n.getID() + indexPanoramaOffset;
-				distances[namesIdx][distIdx] = PVector.dist(i.getCaptureLocation(), n.getCaptureLocation());
-			}
-
-			for(WMV_Video v : p.getVideos())
-			{
-				distIdx = v.getID() + indexVideoOffset;
-				distances[namesIdx][distIdx] = PVector.dist(i.getCaptureLocation(), v.getCaptureLocation());
-			}
-		}
-
-		/* Calculate distances between each panorama and all other media */
-		for(WMV_Panorama n : p.getPanoramas())		
-		{
-			namesIdx = n.getID() + indexPanoramaOffset;
-			names[namesIdx] = Integer.toString(namesIdx);
-
-			for(WMV_Image i : p.getImages())
-			{
-				distIdx = i.getID();
-				distances[namesIdx][distIdx] = PVector.dist(n.getCaptureLocation(), i.getCaptureLocation());
-			}
-
-			for(WMV_Panorama o : p.getPanoramas())
-			{
-				if(n != o)				// Don't compare panorama with itself
-				{
-					distIdx = n.getID() + indexPanoramaOffset;
-					distances[namesIdx][distIdx] = PVector.dist(n.getCaptureLocation(), n.getCaptureLocation());
-				}
-			}
-
-			for(WMV_Video v : p.getVideos())
-			{
-				distIdx = v.getID() + indexVideoOffset;
-				distances[namesIdx][distIdx] = PVector.dist(n.getCaptureLocation(), v.getCaptureLocation());
-			}
-		}
-
-		/* Calculate distances between each video and all other media */
-		for(WMV_Video v : p.getVideos())		
-		{
-			namesIdx = v.getID() + indexVideoOffset;
-			names[namesIdx] = Integer.toString(namesIdx);
-
-			for(WMV_Image i : p.getImages())
-			{
-				distIdx = i.getID();
-				distances[namesIdx][distIdx] = PVector.dist(v.getCaptureLocation(), i.getCaptureLocation());
-			}
-
-			for(WMV_Panorama n : p.getPanoramas())
-			{
-				distIdx = n.getID() + indexPanoramaOffset;
-				distances[namesIdx][distIdx] = PVector.dist(v.getCaptureLocation(), n.getCaptureLocation());
-			}
-
-			for(WMV_Video u : p.getVideos())
-			{
-				if(v != u)				// Don't compare video with itself
-				{
-					distIdx = u.getID() + indexVideoOffset;
-					distances[namesIdx][distIdx] = PVector.dist(v.getCaptureLocation(), u.getCaptureLocation());
-				}
-			}
-		}
-
-		boolean error = false;
-		for( int i = 0; i<size; i++)
-		{
-			for( int j = 0; i<size; i++)
-			{
-				double d = distances[i][j];
-				if(utilities.isNaN(d))
-				{
-					PApplet.println("Not a number:"+d);
-					error = true;
-				}
-			}
-		}
-		for( int i = 0; i<size; i++)
-		{
-			String s = names[i];
-			if(s == null)
-			{
-				PApplet.println("String is null:"+s);
-				error = true;
-			}
-		}
-
-		if(!error)
-		{
-			try {
-				ClusteringAlgorithm clusteringAlgorithm = new DefaultClusteringAlgorithm();
-				PApplet.println("Performing hierarchical clustering...");
-				dendrogramTop = clusteringAlgorithm.performClustering(distances, names, new AverageLinkageStrategy());
-			}
-			catch(Throwable t)
-			{
-				PApplet.println("Error while performing clustering... "+t);
-			}
-		}
-	}
-
-	/** 
-	 * initializeKMeansClusters()
-	 * Create initial clusters at random image locations	 			-- Need to: record random seed, account for associated videos
-	 */	
-	void initializeKMeansClusters( int numClusters )
-	{
-		IntList addedImages = new IntList();			// Images already added to clusters; should include all images at end
-		IntList nearImages = new IntList();			// Images nearby added media 
-
-		IntList addedPanoramas = new IntList();		// Panoramas already added to clusters; should include all panoramas at end
-		IntList nearPanoramas = new IntList();		// Panoramas nearby added media 
-
-		IntList addedVideos = new IntList();			// Videos already added to clusters; should include all videos at end
-		IntList nearVideos = new IntList();			// Videos nearby added media 
-
-		for (int i = 0; i < numClusters; i++) 		// Iterate through the clusters
-		{
-			int imageID, panoramaID, videoID;			
-
-			if(i == 0)			
-			{
-				p.p.p.randomSeed(clusteringRandomSeed);
-				imageID = (int) p.p.p.random(p.getImages().size());  			// Random image ID for setting cluster's start location				
-				panoramaID = (int) p.p.p.random(p.getPanoramas().size());  		// Random panorama ID for setting cluster's start location				
-				videoID = (int) p.p.p.random(p.getVideos().size());  			// Random video ID for setting cluster's start location				
-				addedImages.append(imageID);								
-				addedPanoramas.append(panoramaID);								
-				addedVideos.append(videoID);								
-
-				/* Record media nearby added media*/
-				for(WMV_Image img : p.getImages())						// Check for images near the picked one
-				{
-					float dist = img.getCaptureDistanceFrom(p.getImage(imageID).getCaptureLocation());  // Get distance
-					if(dist < minClusterDistance)
-						nearImages.append(img.getID());				// Record images nearby picked image
-				}
-
-				for(WMV_Panorama pano : p.getPanoramas())				// Check for panoramas near the picked one 
-				{
-					float dist = pano.getCaptureDistanceFrom(p.getPanoramas().get(panoramaID).getCaptureLocation());  // Get distance
-					if(dist < minClusterDistance)
-						nearPanoramas.append(pano.getID());			// Add to the list of nearby picked images
-				}
-
-				for(WMV_Video vid : p.getVideos())						// Check for videos near the picked one
-				{
-					float dist = vid.getCaptureDistanceFrom(p.getVideo(videoID).getCaptureLocation());  // Get distance
-					if(dist < minClusterDistance)
-						nearVideos.append(vid.getID());				// Add to the list of nearby picked images
-				}
-
-				/* Create the cluster */
-				PVector clusterPoint = new PVector(0,0,0);
-				if(p.getImages().size() > 0)
-				{
-					clusterPoint = new PVector(p.getImage(imageID).getCaptureLocation().x, p.getImage(imageID).getCaptureLocation().y, p.getImage(imageID).getCaptureLocation().z); // Choose random image location to start
-					p.addCluster(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
-					i++;
-				}
-				if(p.getPanoramas().size() > 0)
-				{
-					clusterPoint = new PVector(p.getPanoramas().get(panoramaID).getCaptureLocation().x, p.getPanoramas().get(panoramaID).getCaptureLocation().y, p.getPanoramas().get(panoramaID).getCaptureLocation().z); // Choose random image location to start
-					p.addCluster(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
-					i++;
-				}
-				if(p.getVideos().size() > 0)
-				{
-					clusterPoint = new PVector(p.getVideo(videoID).getCaptureLocation().x, p.getVideo(videoID).getCaptureLocation().y, p.getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
-					p.addCluster(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
-					i++;
-				}
-
-				if(i > 0)
-					i--;
-				else if(p.debugSettings.model)
-					PApplet.println("Error in initClusters()... No media!!");
-			}
-			else															// Find a random media (image, panorama or video) location for new cluster
-			{
-				int mediaID = (int) p.p.p.random(p.getImages().size() + p.getPanoramas().size() + p.getVideos().size());
-				PVector clusterPoint = new PVector(0,0,0);
-
-				if( mediaID < p.getImages().size() )				// If image, compare to already picked images
-				{
-					imageID = (int) p.p.p.random(p.getImages().size());  						
-					while(addedImages.hasValue(imageID) && nearImages.hasValue(imageID))
-						imageID = (int) p.p.p.random(p.getImages().size());  						
-
-					addedImages.append(imageID);
-
-					clusterPoint = new PVector(p.getImage(imageID).getCaptureLocation().x, p.getImage(imageID).getCaptureLocation().y, p.getImage(imageID).getCaptureLocation().z); // Choose random image location to start
-				}
-				else if( mediaID < p.getImages().size() + p.getPanoramas().size() )		// If panorama, compare to already picked panoramas
-				{
-					panoramaID = (int) p.p.p.random(p.getPanoramas().size());  						
-					while(addedPanoramas.hasValue(panoramaID) && nearPanoramas.hasValue(panoramaID))
-						panoramaID = (int) p.p.p.random(p.getPanoramas().size());  						
-
-					addedPanoramas.append(panoramaID);
-
-					clusterPoint = new PVector(p.getPanoramas().get(panoramaID).getCaptureLocation().x, p.getPanoramas().get(panoramaID).getCaptureLocation().y, p.getPanoramas().get(panoramaID).getCaptureLocation().z); // Choose random image location to start
-				}
-				else if( mediaID < p.getImages().size() + p.getPanoramas().size() + p.getVideos().size() )		// If video, compare to already picked videos
-				{
-					videoID = (int) p.p.p.random(p.getVideos().size());  						
-					while(addedImages.hasValue(videoID) && nearImages.hasValue(videoID))
-						videoID = (int) p.p.p.random(p.getVideos().size());  						
-
-					addedVideos.append(videoID);
-
-					clusterPoint = new PVector(p.getVideo(videoID).getCaptureLocation().x, p.getVideo(videoID).getCaptureLocation().y, p.getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
-				}
-
-				p.addCluster(new WMV_Cluster(p, i, clusterPoint.x, clusterPoint.y, clusterPoint.z));
-			}
-		}	
-	}
-
-	/**
-	 * Refine clusters over given iterations
-	 * @param epsilon Termination criterion, i.e. if all clusters moved less than epsilon after last iteration, stop refinement
-	 * @param iterations Number of iterations
-	 */	
-	void refineKMeansClusters(float epsilon, int iterations)
-	{
-		int count = 0;
-		boolean moved = false;						// Has any cluster moved farther than epsilon?
-		
-		ArrayList<WMV_Cluster> last = p.getClusters();
-		if(p.debugSettings.cluster || p.debugSettings.model)
-			PApplet.println("--> Refining clusters...");
-		
-		while( count < iterations ) 							// Iterate to create the clusters
-		{		
-			for (int i = 0; i < p.getImages().size(); i++) 			// Find closest cluster for each image
-				p.getImage(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);		// Set associated cluster
-			for (int i = 0; i < p.getPanoramas().size(); i++) 		// Find closest cluster for each image
-				p.getPanorama(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);		// Set associated cluster
-			for (int i = 0; i < p.getVideos().size(); i++) 			// Find closest cluster for each image
-				p.getVideo(i).findAssociatedCluster(p.getClusters(), maxClusterDistance);		// Set associated cluster
-			for (int i = 0; i < p.getClusters().size(); i++) 		// Find closest cluster for each image
-				p.getCluster(i).create();						// Assign clusters
-
-			if(p.getClusters().size() == last.size())				// Check cluster movement
-			{
-				for(WMV_Cluster c : p.getClusters())
-				{
-					float closestDist = 10000.f;
-					
-					for(WMV_Cluster d : last)
-					{
-						float dist = c.getLocation().dist(d.getLocation());
-						if(dist < closestDist)
-							closestDist = dist;
-					}
-					
-					if(closestDist > epsilon)
-						moved = true;
-				}
-				
-				if(!moved)
-				{
-					if(p.debugSettings.cluster || p.debugSettings.model)
-						PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
-					break;								// If all clusters moved less than epsilon, stop refinement
-				}
-			}
-			else
-			{
-				if(p.debugSettings.cluster || p.debugSettings.model)
-					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+p.getClusters().size()+" last.size():"+last.size());
-			}
-			
-			count++;
-		}
-	}
-
-	/**
-	 * Merge together clusters with closest neighbor below minClusterDistance threshold
-	 */
-	void mergeAdjacentClusters()
-	{
-		mergedClusters = 0;			// Reset mergedClusters count
-
-		IntList[] closeNeighbors = new IntList[ p.getClusters().size() ];			// List array of closest neighbor distances for each cluster 
-		ArrayList<PVector> mostNeighbors = new ArrayList<PVector>();			// List of clusters with most neighbors and number of neighbors as PVector(id, neighborCount)
-		IntList absorbed = new IntList();										// List of clusters absorbed into other clusters
-		IntList merged = new IntList();											// List of clusters already merged with neighbors
-		float firstMergePct = 0.2f;												// Fraction of clusters with most neighbors to merge first
-		
-		if((p.debugSettings.cluster || p.debugSettings.model ) && p.debugSettings.detailed) PApplet.println("Merging adjacent clusters... ");
-
-		for( WMV_Cluster c : p.getClusters() )					// Find distances of close neighbors to each cluster
-		{
-			closeNeighbors[c.getID()] = new IntList();	// Initialize list for this cluster
-			for( WMV_Cluster d : p.getClusters() )
-			{
-				float dist = PVector.dist(c.getLocation(), d.getLocation());			// Get distance between clusters
-				//				  PApplet.println("c.location:"+c.location+" d.location:"+d.location+" dist:"+dist+" min:"+minClusterDistance);
-
-				if(dist < minClusterDistance)								// If less than minimum distance
-				{
-					closeNeighbors[c.getID()].append(d.getID());		// Add d to closest clusters to c
-				}
-			}
-		}
-
-		int count = 0;
-		for( WMV_Cluster c : p.getClusters() )					// Find distances of close neighbors for each cluster
-		{
-			if(count < p.getClusters().size() * firstMergePct )		// Fill array with initial clusters 
-			{
-				mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
-			}
-			else
-			{
-				boolean larger = false;
-				for(PVector v : mostNeighbors)
-				{
-					float numCloseNeighbors = closeNeighbors[c.getID()].size();
-					if( v.y > numCloseNeighbors ) larger = true;					// 
-				}
-
-				if(larger)
-				{
-					int smallestIdx = -1;							// Index in mostNeighbors array of cluster with smallest distance
-					float smallest = 10000.f;						// Smallest distance
-
-					for(int i = 0; i<mostNeighbors.size(); i++)			// Find smallest to remove
-					{
-						PVector v = mostNeighbors.get(i);
-
-						if(v.y < smallest)
-						{
-							smallestIdx = i;
-							smallest = v.y;
-						}
-					}
-					mostNeighbors.remove( smallestIdx );
-					mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
-				}
-			}
-
-			count++;
-		}		
-
-		for( PVector v : mostNeighbors ) 					// For clusters with most close neighbors, absorb neighbors into cluster
-		{
-			if(p.debugSettings.cluster && v.y > 0 && p.debugSettings.detailed)
-				PApplet.println("Merging cluster "+(int)v.x+" with "+(int)v.y+" neighbors...");
-
-			WMV_Cluster c = p.getCluster( (int)v.x );
-			if(!merged.hasValue(c.getID()))
-			{
-				for(int i : closeNeighbors[c.getID()])
-				{
-					if(!absorbed.hasValue(i) && c.getID() != i) 		// If cluster i hasn't already been absorbed and isn't the same cluster
-					{
-						c.absorbCluster(p.getCluster(i));				// Absorb cluster
-						absorbed.append(i);
-
-						merged.append(i);
-						merged.append(c.getID());
-						mergedClusters++;
-					}
-				}
-			}
-		}
-
-		for( WMV_Cluster c : p.getClusters() )					// Merge remaining clusters under minClusterDistance 
-		{
-			if(!merged.hasValue(c.getID()))
-			{
-				for( WMV_Cluster d : p.getClusters() )
-				{
-					if( !absorbed.hasValue(d.getID()) && !merged.hasValue(d.getID()) && c.getID() != d.getID() ) 	// If is different cluster and hasn't already been absorbed or merged
-					{
-						float dist = PVector.dist(c.getLocation(), d.getLocation());			// Get distance between clusters
-						if(dist < minClusterDistance)
-						{
-							c.absorbCluster(d);
-							absorbed.append(d.getID());
-
-							merged.append(c.getID());
-							merged.append(d.getID());
-							mergedClusters++;
-						}
-					}
-				}
-			}
-		}
-
-		if(p.debugSettings.cluster)
-			PApplet.println("Merged Clusters "+mergedClusters);
-	}
-
-
-	/** 
-	 * If any images are not associated, create a new cluster for each
-	 */	void createSingleClusters()
-	 {
-		 int newClusterID = p.getClusters().size();	// Start adding clusters at end of current list 
-		 int initial = newClusterID;
-
-		 for (WMV_Image i : p.getImages()) 			// Find closest cluster for each image
-		 {
-			 if(i.cluster == -1)				// Create cluster for each single image
-			 {
-				 p.addCluster(new WMV_Cluster(p, newClusterID, i.getCaptureLocation().x, i.getCaptureLocation().y, i.getCaptureLocation().z));
-				 i.setAssociatedCluster(newClusterID);
-
-				 p.getCluster(newClusterID).createSingle(i.getID(), 0);
-				 newClusterID++;
-			 }
-		 }
-
-		 for (WMV_Panorama n : p.getPanoramas()) 						// Find closest cluster for each image
-		 {
-			 if(n.cluster == -1)				// Create cluster for each single image
-			 {
-				 p.addCluster(new WMV_Cluster(p, newClusterID, n.getCaptureLocation().x, n.getCaptureLocation().y, n.getCaptureLocation().z));
-				 n.setAssociatedCluster(newClusterID);
-
-				 p.getCluster(newClusterID).createSingle(n.getID(), 1);
-				 newClusterID++;
-			 }
-		 }
-
-		 for (WMV_Video v : p.getVideos()) 						// Find closest cluster for each image
-		 {
-			 if(v.cluster == -1)				// Create cluster for each single image
-			 {
-				 p.addCluster(new WMV_Cluster(p, newClusterID, v.getCaptureLocation().x, v.getCaptureLocation().y, v.getCaptureLocation().z));
-				 v.setAssociatedCluster(newClusterID);
-
-				 p.getCluster(newClusterID).createSingle(v.getID(), 2);
-				 newClusterID++;
-			 }
-		 }
-
-		 if(p.debugSettings.cluster)
-			 PApplet.println("Created "+(newClusterID-initial)+" clusters from single images...");
-	 }
-
-	 /** 
-	  * Find video placeholder images, i.e. images taken just before a video to indicate same location, orientation, elevation and rotation angles
-	  */	
-	 public void findVideoPlaceholders()
-	 {
-		 for (int i = 0; i < p.getVideos().size(); i++) 		
-		 {
-			 WMV_Video v = p.getVideo(i);
-			 if(!v.disabled)
-			 {
-				 int id = v.getImagePlaceholder();				// Find associated image with each video
-
-				 if(id != -1)
-				 {
-					 v.cluster = p.getImage(id).cluster;	// Set video cluster to cluster of associated image
-					 p.getCluster(v.cluster).video = true;	// Set cluster video property to true
-					 if(p.debugSettings.video)
-						 PApplet.println("Image placeholder for video: "+i+" is:"+id+" p.getCluster(v.cluster).video:"+p.getCluster(v.cluster).video);
-				 }
-				 else
-				 {
-					 if(p.debugSettings.video)
-						 PApplet.println("No image placeholder found for video: "+i+" p.getCluster(v.cluster).video:"+p.getCluster(v.cluster).video);
-					 v.disabled = true;
-				 }
-			 }
-		 }
-	 }
-
-	 /**
-	  * @param index New clusterID
-	  * @param location Location
-	  * @param images GMV_Image list
-	  * @param panoramas GMV_Panorama list
-	  * @param videos GMV_Video list
-	  * @return New cluster with given media
-	  */
-	 public WMV_Cluster createCluster( int index, PVector location, IntList images, IntList panoramas, IntList videos )
-	 {
-		 WMV_Cluster gmvc = new WMV_Cluster(p, index, location.x, location.y, location.z);
-
-		 /* Add media to cluster */
-		 for( int i : images )
-		 {
-			 gmvc.addImage(p.getImage(i));
-			 gmvc.mediaCount++;
-		 }
-		 for( int n : panoramas )
-		 {
-			 gmvc.addPanorama(p.getPanoramas().get(n));
-			 gmvc.mediaCount++;
-		 }
-		 for( int v : videos )
-		 {
-			 gmvc.addVideo(p.getVideo(v));
-			 gmvc.mediaCount++;
-		 }
-
-		 /* Check whether the cluster is a single media cluster */
-		 if( images.size() == 1 && panoramas.size() == 0 && videos.size() == 0 )
-			 gmvc.setSingle(true);
-		 if( images.size() == 1 && panoramas.size() == 0 && videos.size() == 0 )
-			 gmvc.setSingle(true);
-		 if( images.size() == 0 && panoramas.size() == 0 && videos.size() == 1 )
-			 gmvc.setSingle(true);
-
-		 return gmvc;
-	 }
-
-	 /**
-	  * @param location New cluster location
-	  * @param index New cluster ID
-	  * @return New empty cluster
-	  */
-	 public WMV_Cluster createEmptyCluster( PVector location, int index )
-	 {
-		 if(location != null)
-		 {
-			 WMV_Cluster gmvc = new WMV_Cluster(p, index, location.x, location.y, location.z);
-			 return gmvc;
-		 }
-		 return null;
-	 }
-
 	 /**
 	  * Analyze media to determine size of the virtual space
 	  */
-	 void calculateFieldSize() 
+	 void calculateFieldSize(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos) 
 	 {
-		 if(p.debugSettings.field) PApplet.println("Calculating field dimensions...");
+		 if(debugSettings.field) PApplet.println("Calculating field dimensions...");
 
 		 boolean init = true;	
 
-		 for (WMV_Image i : p.getImages()) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Image i : images) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (init) 	// Initialize high and low longitude
 			 {	
@@ -1370,7 +193,7 @@ public class WMV_Model
 				 lowLatitude = i.gpsLocation.z;
 		 }
 
-		 for (WMV_Panorama n : p.getPanoramas()) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Panorama n : panoramas) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (n.gpsLocation.x > highLongitude)
 				 highLongitude = n.gpsLocation.x;
@@ -1386,7 +209,7 @@ public class WMV_Model
 				 lowLatitude = n.gpsLocation.z;
 		 }
 
-		 for (WMV_Video v : p.getVideos()) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Video v : videos) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (v.gpsLocation.x > highLongitude)
 				 highLongitude = v.gpsLocation.x;
@@ -1402,7 +225,7 @@ public class WMV_Model
 				 lowLatitude = v.gpsLocation.z;
 		 }
 
-		 if (p.debugSettings.model) 							// Display results for debugging
+		 if (debugSettings.model) 							// Display results for debugging
 		 {
 			 System.out.println("High Longitude:" + highLongitude);
 			 System.out.println("High Latitude:" + highLatitude);
@@ -1414,18 +237,18 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * Analyze media capture times, find on which scales it operates, i.e. minute, day, month, year   (not implemented yet)
+	  * Analyze media locations and capture times; calculate farthest media and time / date limits
 	  */
-	 public void analyzeMedia() 
+	 public void analyzeMedia(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos) 
 	 {
 		 float longestImageDayLength = (float) -1.;			// Length of the longest day
 		 boolean initImageTime = true, initImageDate = true;
 		 boolean initPanoTime = true, initPanoDate = true;	
 		 boolean initVideoTime = true, initVideoDate = true;	
 
-		 if(p.debugSettings.field) PApplet.println("Analyzing media in field...");
+		 if(debugSettings.field) PApplet.println("Analyzing media in field...");
 
-		 for ( WMV_Video v : p.getVideos() ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for ( WMV_Video v : videos ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (initVideoTime) 		// Calculate most recent and oldest video time
 			 {		
@@ -1455,7 +278,7 @@ public class WMV_Model
 //				 longestVideoDayLength = v.time.getDayLength();
 		 }
 
-		 for (WMV_Image i : p.getImages()) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Image i : images) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (initImageTime) 	// Calculate most recent and oldest image time
 			 {		
@@ -1485,31 +308,31 @@ public class WMV_Model
 //				 longestImageDayLength = i.time.getDayLength();
 		 }
 
-		 for (WMV_Panorama i : p.getPanoramas()) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Panorama n : panoramas) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
 			 if (initPanoTime) 	// Calculate most recent and oldest Pano time
 			 {		
-				 highPanoTime = i.time.getTime();
-				 lowPanoTime = i.time.getTime();
+				 highPanoTime = n.time.getTime();
+				 lowPanoTime = n.time.getTime();
 				 initPanoTime = false;
 			 }
 
 			 if (initPanoDate)  	// Calculate most recent and oldest Pano date
 			 {	
-				 highPanoDate = i.time.getDate().getDaysSince1980();
-				 lowPanoDate = i.time.getDate().getDaysSince1980();
+				 highPanoDate = n.time.getDate().getDaysSince1980();
+				 lowPanoDate = n.time.getDate().getDaysSince1980();
 				 initPanoDate = false;
 			 }
 
-			 if (i.time.getTime() > highPanoTime)
-				 highPanoTime = i.time.getTime();
-			 if (i.time.getTime() < lowPanoTime)
-				 lowPanoTime = i.time.getTime();
+			 if (n.time.getTime() > highPanoTime)
+				 highPanoTime = n.time.getTime();
+			 if (n.time.getTime() < lowPanoTime)
+				 lowPanoTime = n.time.getTime();
 
-			 if (i.time.getDate().getDaysSince1980() > highPanoDate)
-				 highPanoDate = i.time.getDate().getDaysSince1980();
-			 if (i.time.getDate().getDaysSince1980() < lowPanoDate)
-				 lowPanoDate = i.time.getDate().getDaysSince1980();
+			 if (n.time.getDate().getDaysSince1980() > highPanoDate)
+				 highPanoDate = n.time.getDate().getDaysSince1980();
+			 if (n.time.getDate().getDaysSince1980() < lowPanoDate)
+				 lowPanoDate = n.time.getDate().getDaysSince1980();
 
 //			 if (i.time.getDayLength() > longestPanoDayLength)		// Calculate longest day length
 //				 longestPanoDayLength = i.time.getDayLength();
@@ -1539,7 +362,7 @@ public class WMV_Model
 		 if (highVideoDate > highDate)
 			 highDate = highVideoDate;
 
-		 if (p.debugSettings.metadata) 							// Display results for debugging
+		 if (debugSettings.metadata) 							// Display results for debugging
 		 {
 			 System.out.println("High Image Time:" + highImageTime);
 			 System.out.println("High Image Date:" + highImageDate);
@@ -1572,9 +395,9 @@ public class WMV_Model
 	 /**
 	  * @return Number of clusters in field
 	  */
-	 public int getClusterAmount()
+	 public int getClusterAmount(ArrayList<WMV_Cluster> clusters)
 	 {
-		 return p.getClusters().size() - mergedClusters;
+		 return clusters.size() - mergedClusters;
 	 }
 	 
 	public void setMinClusterDistance(float newMinClusterDistance)
@@ -1586,88 +409,4 @@ public class WMV_Model
 	{
 		maxClusterDistance = newMaxClusterDistance;	
 	}
-	
-///--- TO DO!!
-	/**  
-	 * Export statistics on current field 
-	 */
-	public void exportFieldInfo()
-	{
-        BufferedWriter writer = null;
-
-		try {
-            // Create temp file
-            String timeLog = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-            File logFile = new File(timeLog);
-
-            // This will output the full path where the file will be written to...
-            System.out.println(logFile.getCanonicalPath());
-
-            writer = new BufferedWriter(new FileWriter(logFile));
-            writer.write("Field: "+p.getName());
-        } 
-		catch (Exception e) {
-            e.printStackTrace();
-        }
-		finally {
-            try {
-                // Close the writer regardless of what happens...
-                writer.close();
-            } 
-            catch (Exception e) {
-            }
-        }
-	}
-
-//		/**
-//		 * @param depth Depth at which to draw clusters
-//		 * Draw the clusters at given depth
-//		 */
-//		void drawClustersAtDepth( Cluster topCluster, int depth )
-//		{		 
-//			PApplet.println("Drawing clusters at depth level:"+depth);
-//			ArrayList<Cluster> clusters = (ArrayList<Cluster>) topCluster.getChildren();	// Dendrogram clusters
-//	
-//			for( int i = 0; i<depth; i++ )								// For each level up to given depth
-//			{
-//				ArrayList<Cluster> nextDepth = new ArrayList<Cluster>();	// List of clusters at this depth
-//	
-//				for( Cluster c : clusters )								// For all clusters at current depth
-//				{
-//					ArrayList<Cluster> children = (ArrayList<Cluster>) c.getChildren();
-//					for(Cluster d : children)								// Save children to nextDepth list
-//						nextDepth.add(d);										
-//				}
-//	
-//				clusters = nextDepth;										// Move to next depth
-//			}	
-//	
-//			for( Cluster c : clusters )
-//			{
-//				String name = c.getName();								// Otherwise, save the result if appropriate
-//				int mediaIdx = Integer.parseInt(name);
-//				PVector location;
-//	
-//				if(mediaIdx < indexPanoramaOffset)
-//				{
-//					location = p.getImage(mediaIdx).getCaptureLocation();
-//				}
-//				else if(mediaIdx < indexVideoOffset)
-//				{
-//					mediaIdx -= indexPanoramaOffset; 
-//					location = p.getPanoramas().get(mediaIdx).getCaptureLocation();
-//				}
-//				else
-//				{
-//					mediaIdx -= indexVideoOffset; 
-//					location = p.videos.get(mediaIdx).getCaptureLocation();
-//				}
-//	
-//				p.p.p.display.message("Drawing point:");
-//				p.p.p.display.drawMapPoint(location, 20.f, p.p.p.display.largeMapWidth, p.p.p.display.largeMapHeight, p.p.p.display.mapClusterHue, 255, 255, p.p.p.display.mapClusterHue);
-//			}
-//			if(p.debugSettings.cluster) 
-//				PApplet.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
-//		}
-
 }

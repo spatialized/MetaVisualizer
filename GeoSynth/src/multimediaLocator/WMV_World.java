@@ -565,13 +565,15 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Save the current world and viewer states to file
+	 */
 	void saveWorldState()
 	{
-		// Testing
 		p.library.saveWorldSettings(settings, p.library.getLibraryFolder()+"ml_library_worldSettings.json");
-		p.library.saveWorldState(state, p.library.getLibraryFolder()+"ml_library_worldSettings.json");
-		p.library.saveViewerSettings(viewer.getSettings(), p.library.getLibraryFolder()+"ml_library_worldSettings.json");
-		p.library.saveViewerState(viewer.getState(), p.library.getLibraryFolder()+"ml_library_worldSettings.json");
+		p.library.saveWorldState(state, p.library.getLibraryFolder()+"ml_library_worldState.json");
+		p.library.saveViewerSettings(viewer.getSettings(), p.library.getLibraryFolder()+"ml_library_viewerSettings.json");
+		p.library.saveViewerState(viewer.getState(), p.library.getLibraryFolder()+"ml_library_viewerState.json");
 	}
 	
 	/**

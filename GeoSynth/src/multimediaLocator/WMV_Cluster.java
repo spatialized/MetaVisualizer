@@ -883,36 +883,44 @@ public class WMV_Cluster
 	 */
 	public PVector getAttractionForce() 
 	{
-		PVector force = PVector.sub(location, viewerState.getLocation());
-		float distance = force.mag();
-		force.normalize();
+		PVector force = new PVector(0,0,0);
 		
-		float mass, dist = getClusterDistance();
-//		PApplet.println("getAttractionForce, Cluster #"+getID()+"... getClusterDistance:"+PVector.dist(location, p.p.viewer.getLocation()));
-		if( dist > worldSettings.clusterFarDistance )
-			mass = clusterMass * farMassFactor * PApplet.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
+		if(location == null || viewerState == null)
+			PApplet.println("ERROR 1 getAttractionForce() id:"+getID()+" location == null? "+(location == null)+" viewerState == null? "+(viewerState == null));
+		else if(viewerState.getLocation() == null)
+			PApplet.println("ERROR 2 getAttractionForce() id:"+getID()+" viewerState.getLocation() == null!");
 		else
-			mass = clusterMass;
-		
-//		PApplet.println("PApplet.sqrt(distance):"+PApplet.sqrt(distance));
-		float strength;
-		
-		if(distance > viewerState.getClusterNearDistance())
 		{
-			strength = (clusterGravity * mass * viewerSettings.cameraMass) / (distance * distance);	// Calculate strength
-		}
-		else				// Reduce strength of attraction at close distance
-		{
-			float diff = viewerState.getClusterNearDistance() - distance;
-			float factor = 0.5f - PApplet.map(diff, 0.f, viewerState.getClusterNearDistance(), 0.f, 0.5f);
-			strength = (clusterGravity * mass * viewerSettings.cameraMass) / (distance * distance) * factor;
-		}
-		
-		force.mult(strength);
+			force = PVector.sub(location, viewerState.getLocation());
+			float distance = force.mag();
+			force.normalize();
+
+			float mass, dist = getClusterDistance();
+			//		PApplet.println("getAttractionForce, Cluster #"+getID()+"... getClusterDistance:"+PVector.dist(location, p.p.viewer.getLocation()));
+			if( dist > worldSettings.clusterFarDistance )
+				mass = clusterMass * farMassFactor * PApplet.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
+			else
+				mass = clusterMass;
+
+			//		PApplet.println("PApplet.sqrt(distance):"+PApplet.sqrt(distance));
+			float strength;
+
+			if(distance > viewerState.getClusterNearDistance())
+			{
+				strength = (clusterGravity * mass * viewerSettings.cameraMass) / (distance * distance);	// Calculate strength
+			}
+			else				// Reduce strength of attraction at close distance
+			{
+				float diff = viewerState.getClusterNearDistance() - distance;
+				float factor = 0.5f - PApplet.map(diff, 0.f, viewerState.getClusterNearDistance(), 0.f, 0.5f);
+				strength = (clusterGravity * mass * viewerSettings.cameraMass) / (distance * distance) * factor;
+			}
+
+			force.mult(strength);
 		
 //		if(p.p.drawForceVector)
 //			p.p.p.display.map2D.drawForceVector(force);
-		
+		}
 		return force; 								// Return force to be applied
 	}
 

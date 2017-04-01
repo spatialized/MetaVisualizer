@@ -105,6 +105,87 @@ public class ML_Library
 		    PApplet.println("Throwable t:"+t);
 		  }
 	}
+	
+	public void saveWorldSettings(WMV_WorldSettings settings, String newFilePath)		// Testing
+	{
+		  String filePath = newFilePath;
 
+		  final ObjectMapper mapper = JsonFactory.create();
+		  final File file;
+		  try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+		    file = new File(filePath);
+		    mapper.writeValue(file, settings);    // Write staff object to file
+
+//		    Staff newStaff = mapper.readValue(file, Staff.class);
+		    WMV_WorldSettings newSettings = mapper.readValue(file, WMV_WorldSettings.class);
+		    PApplet.println("Equal", newSettings.equals(settings));      // Not working ??
+		  }
+		  catch (Throwable t)
+		  {
+		    PApplet.println("Throwable t:"+t);
+		  }
+	}
+	
+	public void saveWorldState(WMV_WorldState state, String newFilePath)		// Testing
+	{
+		  String filePath = newFilePath;
+
+		  final ObjectMapper mapper = JsonFactory.create();
+		  final File file;
+		  try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+		    file = new File(filePath);
+		    mapper.writeValue(file, state);    // Write staff object to file
+
+		    WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
+		    PApplet.println("Equal", newState.equals(state));      // Not working ??
+		  }
+		  catch (Throwable t)
+		  {
+		    PApplet.println("Throwable t:"+t);
+		  }
+	}
+	
+	public void saveViewerSettings(WMV_ViewerSettings settings, String newFilePath)		// Testing
+	{
+		  String filePath = newFilePath;
+
+		  final ObjectMapper mapper = JsonFactory.create();
+		  final File file;
+		  try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+		    file = new File(filePath);
+		    mapper.writeValue(file, settings);    // Write staff object to file
+
+		    WMV_ViewerSettings newSettings = mapper.readValue(file, WMV_ViewerSettings.class);
+		    PApplet.println("Equal", newSettings.equals(settings));      // Not working ??
+		  }
+		  catch (Throwable t)
+		  {
+		    PApplet.println("Throwable t:"+t);
+		  }
+	}
+	
+	public void saveViewerState(WMV_ViewerState state, String newFilePath)		// Testing
+	{
+		  String filePath = newFilePath;
+
+		  final ObjectMapper mapper = JsonFactory.create();
+		  final File file;
+		  try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+		    file = new File(filePath);
+		    mapper.writeValue(file, state);    // Write staff object to file
+
+		    WMV_ViewerState newState = mapper.readValue(file, WMV_ViewerState.class);
+		    PApplet.println("Equal", newState.equals(state));
+//		    puts("They are equal", newState.equals(state));      // Not working ??
+		  }
+		  catch (Throwable t)
+		  {
+		    PApplet.println("Throwable t:"+t);
+		  }
+	}
 
 }

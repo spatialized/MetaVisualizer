@@ -762,6 +762,9 @@ public class ML_Input
 				if( key == 'L' )
 					world.viewer.lookAtNearestMedia();
 
+				if( key == '/' )
+					world.saveWorldState();
+
 				if( key == 't' )
 				{
 					boolean state = !world.viewer.getMovementTeleport();

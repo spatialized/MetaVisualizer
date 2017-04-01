@@ -543,11 +543,6 @@ public class WMV_World
 //		for(WMV_Sound snd : f.getSounds())
 //			img.updateSettings(settings, viewer.getSettings(), p.debug);
 		
-		// TEST
-//		p.library.saveFieldData(getCurrentField());		// Testing
-//		p.library.saveTestImageData(getCurrentField().getImages().get(0), "imageOutputTest.json");		// Testing
-//		p.exit();	
-		
 		state.initialSetup = false;				
 		p.display.initialSetup = false;
 		
@@ -570,6 +565,15 @@ public class WMV_World
 		}
 	}
 
+	void saveWorldState()
+	{
+		// Testing
+		p.library.saveWorldSettings(settings, p.library.getLibraryFolder()+"ml_library_worldSettings.json");
+		p.library.saveWorldState(state, p.library.getLibraryFolder()+"ml_library_worldSettings.json");
+		p.library.saveViewerSettings(viewer.getSettings(), p.library.getLibraryFolder()+"ml_library_worldSettings.json");
+		p.library.saveViewerState(viewer.getState(), p.library.getLibraryFolder()+"ml_library_worldSettings.json");
+	}
+	
 	/**
 	 * Reset variables
 	 */

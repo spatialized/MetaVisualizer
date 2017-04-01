@@ -182,7 +182,7 @@ public class WMV_Field
 
 			model.fieldAspectRatio = model.lowLongitude / model.fieldLength;
 
-			if (debugSettings.model)
+			if (debugSettings.field)
 			{
 				PApplet.print("Field Width:"+model.lowLongitude);
 				PApplet.print(" Field Length:"+model.fieldLength);
@@ -322,7 +322,7 @@ public class WMV_Field
 //			}
 //		}
 
-//		if(debugSettings.model || viewerSettings.map3DMode)
+//		if(debugSettings.field || viewerSettings.map3DMode)
 //		{
 //			if(clusters.size()>0)
 //				showClusterCenters();									// Display field cluster centers (media capture locations) 	
@@ -647,7 +647,7 @@ public class WMV_Field
 		 IntList merged = new IntList();											// List of clusters already merged with neighbors
 		 float firstMergePct = 0.2f;												// Fraction of clusters with most neighbors to merge first
 
-		 if((debugSettings.cluster || debugSettings.model ) && debugSettings.detailed) PApplet.println("Merging adjacent clusters... ");
+		 if((debugSettings.cluster || debugSettings.field ) && debugSettings.detailed) PApplet.println("Merging adjacent clusters... ");
 
 		 for( WMV_Cluster c : getClusters() )					// Find distances of close neighbors to each cluster
 		 {
@@ -800,7 +800,7 @@ public class WMV_Field
 		 }	
 
 		 int removed = before - result.size();
-		 if(debugSettings.model) PApplet.println("cleanupClusters()... Removed "+removed+" clusters from field #"+getID());
+		 if(debugSettings.field) PApplet.println("cleanupClusters()... Removed "+removed+" clusters from field #"+getID());
 
 		 return result;
 	 }
@@ -992,7 +992,7 @@ public class WMV_Field
 
 		if (model.fieldWidth <= 0 && clusters.size() > 1)
 		{
-			if(debugSettings.model)
+			if(debugSettings.field)
 			PApplet.println("Field size <= 0! Exiting...");
 			exit = true;			
 		}
@@ -1140,7 +1140,7 @@ public class WMV_Field
 	  */
 	 public void lockMediaToClusters()
 	 {
-//		 if(debugSettings.field || debugSettings.model) PApplet.println("lockMediaToClusters(): Moving media... ");
+//		 if(debugSettings.field || debugSettings.field) PApplet.println("lockMediaToClusters(): Moving media... ");
 		 for (WMV_Image i : images) 
 			 i.adjustCaptureLocation(getCluster(i.getAssociatedCluster()));		
 		 for (WMV_Panorama n : panoramas) 
@@ -1184,7 +1184,7 @@ public class WMV_Field
 	 */
 	void runInitialClustering(boolean hierarchical) 					
 	{
-		if(debugSettings.cluster || debugSettings.model)
+		if(debugSettings.cluster || debugSettings.field)
 			PApplet.println("Running initial clustering for field: "+getName());
 
 		clustersByDepth = new IntList();
@@ -1209,12 +1209,12 @@ public class WMV_Field
 			setClusters( cleanupClusters( getClusters() ) );
 		}
 
-//		if(debugSettings.cluster || debugSettings.model)
+//		if(debugSettings.cluster || debugSettings.field)
 //			p.p.p.display.message(p.p, "Created "+getClusterAmount()+" clusters...");
 		
 //		for(WMV_Cluster c : p.getClusters())
 //		{
-//			if(debugSettings.model && !c.isEmpty())
+//			if(debugSettings.field && !c.isEmpty())
 //				PApplet.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
 //		}
 	}
@@ -1375,7 +1375,7 @@ public class WMV_Field
 
 				if(i > 0)
 					i--;
-				else if(debugSettings.model)
+				else if(debugSettings.field)
 					PApplet.println("Error in initClusters()... No media!!");
 			}
 			else															// Find a random media (image, panorama or video) location for new cluster
@@ -1430,7 +1430,7 @@ public class WMV_Field
 		boolean moved = false;						// Has any cluster moved farther than epsilon?
 		
 		ArrayList<WMV_Cluster> last = getClusters();
-//		if(debugSettings.cluster || debugSettings.model)
+//		if(debugSettings.cluster || debugSettings.field)
 			PApplet.println("--> Refining clusters... epsilon:"+epsilon+" iterations:"+iterations);
 		
 		while( count < iterations ) 							// Iterate to create the clusters
@@ -1463,14 +1463,14 @@ public class WMV_Field
 				
 				if(!moved)
 				{
-//					if(debugSettings.cluster || debugSettings.model)
+					if(debugSettings.cluster || debugSettings.field)
 						PApplet.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
 					break;								// If all clusters moved less than epsilon, stop refinement
 				}
 			}
 			else
 			{
-//				if(debugSettings.cluster || debugSettings.model)
+				if(debugSettings.cluster || debugSettings.field)
 					PApplet.println(" New clusters found... will keep refining clusters... clusters.size():"+getClusters().size()+" last.size():"+last.size());
 			}
 			

@@ -137,7 +137,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	void restart()
 	{
 		state.reset();
-		world.viewer.initialize(0,0,0);
+		world.viewer.initialize(0,0,0, world.NEWTEST);
 	}
 	
 	/**

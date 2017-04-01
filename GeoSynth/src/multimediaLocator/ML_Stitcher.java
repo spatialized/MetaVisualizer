@@ -1,14 +1,15 @@
 package multimediaLocator;
 
-import java.awt.Graphics;
+//import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.awt.image.WritableRaster;
+//import java.awt.image.WritableRaster;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.List;
+//import java.util.Calendar;
 
 import javax.imageio.*;
 
@@ -19,14 +20,14 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PImage;
-import processing.core.PVector;
+//import processing.core.PVector;
 import processing.data.IntList;
 
-import org.bytedeco.javacpp.*;
+//import org.bytedeco.javacpp.*;
 import org.bytedeco.javacpp.opencv_core.*;
-import org.bytedeco.javacpp.opencv_imgproc.*;
-import org.bytedeco.javacpp.opencv_imgcodecs.*;
-import org.bytedeco.javacpp.opencv_highgui.*;
+//import org.bytedeco.javacpp.opencv_imgproc.*;
+//import org.bytedeco.javacpp.opencv_imgcodecs.*;
+//import org.bytedeco.javacpp.opencv_highgui.*;
 
 import static org.bytedeco.javacpp.opencv_core.Mat;
 import static org.bytedeco.javacpp.opencv_core.MatVector;
@@ -77,7 +78,8 @@ public class ML_Stitcher
 	 * Stitch a 360 degree panorama or panorama segment from images
 	 * @param library
 	 */
-	public WMV_Panorama stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
+	public WMV_Panorama stitch(String library, List<Integer> imageList, int clusterID, int segmentID, List<Integer> selected)
+//	public WMV_Panorama stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
 	{
 		Mat panorama = new Mat();							// Panoramic image result
 		IplImage iplImage = null;
@@ -285,7 +287,8 @@ public class ML_Stitcher
 	 * @param imageList List of image IDs
 	 * @return Array of image names
 	 */
-	private String[] getImageNames(IntList imageList)
+//	private String[] getImageNames(IntList imageList)
+	private String[] getImageNames(List<Integer> imageList)
 	{
 		String[] images = new String[imageList.size()];
 		

@@ -3,6 +3,7 @@ package multimediaLocator;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
+import java.util.List;
 import processing.data.IntList;
 
 /***************
@@ -12,8 +13,10 @@ import processing.data.IntList;
 public class WMV_MediaSegment 
 {
 	private int id;
-	IntList images;					// Images in segment
-//	IntList videos;					// Videos in segment
+	List<Integer> images;					// Images in segment
+//	List<Integer> videos;					// Images in segment
+//	IntList images;							// Images in segment
+//	IntList videos;							// Videos in segment
 	
 	private float left, right, centerDirection;		// Upper and lower bounds for direction (in degrees)
 	private float bottom, top, centerElevation;		// Upper and lower bounds (in degrees)
@@ -23,8 +26,10 @@ public class WMV_MediaSegment
 
 	WMV_Cluster p;
 	
-	WMV_MediaSegment( WMV_Cluster parent, int newID, IntList newImages, IntList newVideos, float newLower, float newUpper, 
-					  float newCenter, float newLowerElevation, float newUpperElevation, float newCenterElevation)
+	WMV_MediaSegment( WMV_Cluster parent, int newID, List<Integer> newImages, List<Integer> newVideos, float newLower, float newUpper, 
+			  float newCenter, float newLowerElevation, float newUpperElevation, float newCenterElevation)
+//	WMV_MediaSegment( WMV_Cluster parent, int newID, IntList newImages, List<Integer> newVideos, float newLower, float newUpper, 
+//			  float newCenter, float newLowerElevation, float newUpperElevation, float newCenterElevation)
 	{
 		p = parent;
 		id = newID;
@@ -104,8 +109,11 @@ public class WMV_MediaSegment
 	public void hide(ArrayList<WMV_Image> imageList)
 	{
 		for(WMV_Image image : imageList)				// Set images in segment to hidden
-			if(images.hasValue(image.getID()))
+			if(images.contains(image.getID()))
 				image.hidden = true;
+//		for(WMV_Image image : imageList)				// Set images in segment to hidden
+//			if(images.hasValue(image.getID()))
+//				image.hidden = true;
 
 		hidden = true;
 	}
@@ -113,8 +121,11 @@ public class WMV_MediaSegment
 	public void show(ArrayList<WMV_Image> imageList)
 	{
 		for(WMV_Image image : imageList)				// Set images in segment to hidden
-			if(images.hasValue(image.getID()))
+			if(images.contains(image.getID()))
 				image.hidden = false;
+//		for(WMV_Image image : imageList)				// Set images in segment to hidden
+//			if(images.hasValue(image.getID()))
+//				image.hidden = false;
 
 		hidden = false;
 	}
@@ -124,10 +135,15 @@ public class WMV_MediaSegment
 		return id;
 	}
 
-	public IntList getImages()
+	public List<Integer> getImages()
 	{
 		return images;
 	}
+
+//	public IntList getImages()
+//	{
+//		return images;
+//	}
 
 	public float getRight()
 	{

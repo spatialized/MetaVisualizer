@@ -1,7 +1,7 @@
 package multimediaLocator;
 
 import processing.core.PApplet;
-import processing.core.PVector;
+import processing.core.PImage;
 
 /*********************************
  * @author davidgordon
@@ -10,7 +10,9 @@ import processing.core.PVector;
 public class WMV_ViewerSettings 
 {
 //	WMV_Viewer v;
-	
+//	IntList TESTINTLIST= new IntList();
+	public PImage IMAGETEST;
+
 	/* Camera */
 	public final float initFieldOfView = PApplet.PI * 0.375f;	// Camera field of view
 	public float fieldOfView = initFieldOfView; 				// Initial camera field of view
@@ -95,22 +97,23 @@ public class WMV_ViewerSettings
 	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
 
 	/* Sound */
-	private float audibleFarDistanceMin, audibleFarDistanceMax;
-	private float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal, audibleFarDistanceDestVal;
-	private float audibleFarDistanceDiv = (float) 1.5;
-	private boolean audibleFarDistanceTransition = false;
-
-	private float audibleNearDistanceMin, audibleNearDistanceMax;
-	private float audibleNearDistanceFadeStart, audibleNearDistanceFadeLength = 40, audibleNearDistanceStartVal, audibleNearDistanceDestVal;
-	private float audibleNearDistanceDiv = (float) 1.2; 
-	private boolean audibleNearDistanceTransition = false;
+//	private float audibleFarDistanceMin, audibleFarDistanceMax;
+//	private float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal, audibleFarDistanceDestVal;
+//	private float audibleFarDistanceDiv = (float) 1.5;
+//	private boolean audibleFarDistanceTransition = false;
+//
+//	private float audibleNearDistanceMin, audibleNearDistanceMax;
+//	private float audibleNearDistanceFadeStart, audibleNearDistanceFadeLength = 40, audibleNearDistanceStartVal, audibleNearDistanceDestVal;
+//	private float audibleNearDistanceDiv = (float) 1.2; 
+//	private boolean audibleNearDistanceTransition = false;
 
 	public WMV_ViewerSettings(){}
 	
-	public void initialize()
+	public void initialize(PImage NEWTEST)
 	{
 		fieldOfView = initFieldOfView; 		
 		selectionMaxDistance = defaultFocusDistance * selectionMaxDistanceFactor;
+		IMAGETEST = NEWTEST;
 	}
 	
 	public void reset()
@@ -171,14 +174,18 @@ public class WMV_ViewerSettings
 		/* Clusters */
 		maxVisibleClusters = 2;					// Maximum visible clusters in Orientation Mode
 		
+//		TESTINTLIST.append(1);
+//		TESTINTLIST.append(3);
+//		TESTINTLIST.append(2);
+		
 		/* Sound */
-		audibleFarDistanceFadeLength = 40;
-		audibleFarDistanceDiv = (float) 1.5;
-		audibleFarDistanceTransition = false;
-
-		audibleNearDistanceFadeLength = 40;
-		audibleNearDistanceDiv = (float) 1.2; 
-		audibleNearDistanceTransition = false;
+//		audibleFarDistanceFadeLength = 40;
+//		audibleFarDistanceDiv = (float) 1.5;
+//		audibleFarDistanceTransition = false;
+//
+//		audibleNearDistanceFadeLength = 40;
+//		audibleNearDistanceDiv = (float) 1.2; 
+//		audibleNearDistanceTransition = false;
 	}
 	
 	/**

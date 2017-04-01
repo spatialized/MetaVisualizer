@@ -225,7 +225,7 @@ public class WMV_Model
 				 lowLatitude = v.gpsLocation.z;
 		 }
 
-		 if (debugSettings.model) 							// Display results for debugging
+		 if (debugSettings.field) 							// Display results for debugging
 		 {
 			 System.out.println("High Longitude:" + highLongitude);
 			 System.out.println("High Latitude:" + highLatitude);

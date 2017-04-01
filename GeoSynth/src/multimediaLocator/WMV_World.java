@@ -26,6 +26,8 @@ import toxi.math.ZoomLensInterpolation;
 
 public class WMV_World 
 {
+	public PImage NEWTEST;
+	
 	/* Classes */
 	ML_Input input;					// Handles input
 	WMV_Utilities utilities;
@@ -36,11 +38,11 @@ public class WMV_World
 	/* Graphics */
 	public PImage blurMaskLeftTop, blurMaskLeftCenter, 	// Blur masks
 				  blurMaskLeftBottom, blurMaskLeftBoth;
-	public PImage blurMaskCenterTop, blurMaskCenterCenter, 	// Blur masks
+	public PImage blurMaskCenterTop, blurMaskCenterCenter, 	
 	  blurMaskCenterBottom, blurMaskCenterBoth;
 	public PImage blurMaskRightTop, blurMaskRightCenter, 	// Blur masks
 	  blurMaskRightBottom, blurMaskRightBoth;
-	public PImage blurMaskBothTop, blurMaskBothCenter, 	// Blur masks
+	public PImage blurMaskBothTop, blurMaskBothCenter, 	
 	  blurMaskBothBottom, blurMaskBothBoth;
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
@@ -64,6 +66,8 @@ public class WMV_World
 	{
 		p = parent;
 		utilities = new WMV_Utilities();
+		
+		NEWTEST = p.createImage(66, 66, PApplet.RGB);
 	}
 	
 	/**

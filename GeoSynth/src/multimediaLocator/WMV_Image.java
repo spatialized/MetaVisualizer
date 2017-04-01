@@ -90,6 +90,14 @@ class WMV_Image extends WMV_Viewable
 	}  
 
 	/**
+	 * Register this image for drawing by the world object (?)
+	 */
+	public void registerForDrawing()
+	{
+		
+	}
+	
+	/**
 	 * Display the image in virtual space
 	 */
 	public void draw(WMV_World world)

@@ -21,7 +21,7 @@ import toxi.math.ZoomLensInterpolation;
 
 /********************************************
  * @author davidgordon
- * The 3D world, including the virtual viewer and multimedia environment(s) to be displayed
+ * The virtual world comprised of a viewer and one or more navigable multimedia environments
  */
 
 public class WMV_World 
@@ -47,60 +47,6 @@ public class WMV_World
 	/* Media */
 	private ArrayList<WMV_Field> fields;				// List of fields, i.e. large geographical areas for 3D display
 	
-//	/* System Status */
-//	private boolean state.startedRunning = false;			// Program just started running
-//	private boolean state.initialSetup = false;			// Performing initial setup 
-//	private boolean state.creatingFields = false;			// Initializing media folders
-//	private boolean state.fieldsCreated = false;			// Initialized media folders
-//	private boolean saveImage = false;
-//	private int initializationField = 0;				// Field to be initialized this frame
-//	private int setupProgress = 0;						// Setup progress (0 to 100)
-//	
-//	/* Stitching */
-//	String stitchingPath;
-//
-//	/* Clustering Modes */
-//	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
-//	public boolean interactive = false;					// In user clustering mode?
-//	public boolean startInteractive = false;			// Start user clustering
-//
-//	/* Time */
-//	private int timeMode = 2;							// Time Mode (0 = cluster; 1 = field; 2 = single)
-//	public boolean timeFading = false;					// Does time affect media brightness? 
-//	public boolean paused = false;						// Time is paused
-//
-//	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
-//	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
-//
-//	/* Graphics */
-//	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete soon?
-//
-//	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
-//	public float alpha = 195.f;							// Transparency
-//	private boolean beginFadingAlpha = false, fadingAlpha = false;
-//	private int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
-//	private float fadingAlphaStart, fadingAlphaTarget;
-//
-//	public boolean fadeEdges = true;					// Blur image edges
-//
-//	public boolean showModel = false;					// Activate Model Display 
-//	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
-//	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
-//	public boolean showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
-//
-//	/* Clusters */  
-//	public boolean mergeClusters = true;				// Merge nearby clusters?
-//	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
-//	public boolean state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
-//
-//	/* Metadata */
-//	public boolean showMetadata = false;
-//	
-//	/* Memory */
-//	public int minAvailableMemory = 50000000;			// Minimum available memory
-//	public int memoryCheckFrequency = 50;
-//	public int minFrameRate = 10;	
-
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
 	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
@@ -111,8 +57,6 @@ public class WMV_World
 	/* File System */
 	public String outputFolder;
 	public boolean outputFolderSelected = false;
-//	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk
-//	public int requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk	
 
 	MultimediaLocator p;
 	
@@ -601,6 +545,7 @@ public class WMV_World
 		
 		// TEST
 //		p.library.saveFieldData(getCurrentField());		// Testing
+//		p.library.saveTestImageData(getCurrentField().getImages().get(0), "imageOutputTest.json");		// Testing
 //		p.exit();	
 		
 		state.initialSetup = false;				

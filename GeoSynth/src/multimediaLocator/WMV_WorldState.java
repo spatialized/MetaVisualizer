@@ -62,6 +62,10 @@ public class WMV_WorldState
 	public int memoryCheckFrequency = 50;
 	public int minFrameRate = 10;	
 
+	/* Media */
+//	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk
+//	public int requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk	
+
 	WMV_WorldState(){}
 	
 	public int getTimeMode()

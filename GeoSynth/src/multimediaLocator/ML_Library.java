@@ -59,7 +59,6 @@ public class ML_Library
 //		ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
 //		String timeZoneID = "America/Los_Angeles";					// Current time zone
 		
-		
 		  String filePath = "fieldOutputTest.json";
 
 		  final ObjectMapper mapper = JsonFactory.create();
@@ -84,5 +83,28 @@ public class ML_Library
 		  //}
 
 	}
+	
+	public void saveTestImageData(WMV_Image image, String newFilePath)		// Testing
+	{
+		  String filePath = newFilePath;
+
+		  final ObjectMapper mapper = JsonFactory.create();
+		  final File file;
+		  try {
+		    file = File.createTempFile("json", "temp.json");    // Use temp file
+//		    file = new File(filePath);
+		    mapper.writeValue(file, image);    // Write staff object to file
+
+//		    Staff newStaff = mapper.readValue(file, Staff.class);
+		    WMV_Image newImage = mapper.readValue(file, WMV_Image.class);
+		    puts("They are equal", newImage.equals(image));      // Not working ??
+		    //println("They are equal", newStaff.equals(staff));
+		  }
+		  catch (Throwable t)
+		  {
+		    PApplet.println("Throwable t:"+t);
+		  }
+	}
+
 
 }

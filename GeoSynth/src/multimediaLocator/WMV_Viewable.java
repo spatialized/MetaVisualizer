@@ -660,7 +660,7 @@ public abstract class WMV_Viewable
 		return selected;
 	}
 
-	public int getCluster()
+	public int getAssociatedCluster()
 	{
 		return cluster;
 	}

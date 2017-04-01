@@ -90,12 +90,9 @@ public class WMV_Cluster
 	public boolean panorama = false;					// Cluster has panorama files?
 	IntList valid;										// List of images that are good stitching candidates
 		
-//	WMV_Field p;										// Parent field
-
 	WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
 				 ML_DebugSettings newDebugSettings, int _clusterID, float _x, float _y, float _z) 
 	{
-//		p = parent;
 		location = new PVector(_x, _y, _z);
 		id = _clusterID;
 

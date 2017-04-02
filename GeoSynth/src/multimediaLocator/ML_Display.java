@@ -1,6 +1,5 @@
 package multimediaLocator;
 import java.util.ArrayList;
-
 import g4p_controls.GButton;
 import processing.core.*;
 
@@ -508,7 +507,6 @@ class ML_Display
 				timelineTransition = true;   
 				timelineTransitionStartFrame = frameCount;
 				timelineTransitionEndFrame = timelineTransitionStartFrame + timelineTransitionLength;
-//				timelineCreated = false;
 				
 				if(timelineStart != newStart && timelineEnd != newEnd)
 				{
@@ -516,8 +514,6 @@ class ML_Display
 					timelineStartTransitionTarget = newStart;
 					timelineEndTransitionStart = timelineEnd;
 					timelineEndTransitionTarget = newEnd;
-//					System.out.println("timelineStartTransitionStart:"+timelineStartTransitionStart+" timelineStartTransitionTarget:"+timelineStartTransitionTarget);
-//					System.out.println("timelineEndTransitionStart:"+timelineEndTransitionStart+" timelineEndTransitionTarget:"+timelineEndTransitionTarget);
 				}
 				else if(timelineStart != newStart && timelineEnd == newEnd)
 				{
@@ -1976,13 +1972,13 @@ class ML_Display
 			p.p.textSize(smallTextSize);
 			p.p.text(" Name: "+f.getName(), xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" ID: "+(p.viewer.getState().getField()+1)+" out of "+p.getFieldCount()+" Total Fields", xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Width (m.): "+f.getModel().fieldWidth+" Length (m.): "+f.getModel().fieldLength+" Height (m.): "+f.getModel().fieldHeight, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Width (m.): "+f.getModel().getState().fieldWidth+" Length (m.): "+f.getModel().getState().fieldLength+" Height (m.): "+f.getModel().getState().fieldHeight, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Total Media: "+f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
 			p.p.text(" Total Images: "+f.getImageCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
 			p.p.text(" Total Panoramas: "+f.getPanoramaCount(), xPos, yPos += lineWidth, hudDistance);			// Doesn't check for dataMissing!!
 			p.p.text(" Total Videos: "+f.getVideoCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
 			p.p.text(" Total Sounds: "+f.getSoundCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-			p.p.text(" Media Density per sq. m.: "+f.getModel().mediaDensity, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Media Density per sq. m.: "+f.getModel().getState().mediaDensity, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Images Visible: "+f.getImagesVisible(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Images Seen: "+f.getImagesSeen(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Panoramas Visible: "+f.getPanoramasVisible(), xPos, yPos += lineWidth, hudDistance);
@@ -2001,14 +1997,14 @@ class ML_Display
 			p.p.text(" Model ", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(smallTextSize);
 			
-			p.p.text(" Clusters:"+(f.getClusters().size()-f.getModel().mergedClusters), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" Merged: "+f.getModel().mergedClusters+" out of "+f.getClusters().size()+" Total", xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Clusters:"+(f.getClusters().size()-f.getModel().getState().mergedClusters), xPos, yPos += lineWidthVeryWide, hudDistance);
+			p.p.text(" Merged: "+f.getModel().getState().mergedClusters+" out of "+f.getClusters().size()+" Total", xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			if(p.settings.altitudeScaling)
 				p.p.text(" Altitude Scaling Factor: "+p.settings.altitudeScalingFactor+"  (Altitude Scaling)", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Clustering Method : "+ ( p.getState().hierarchical ? "Hierarchical" : "K-Means" ), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Population Factor: "+f.getModel().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
 			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
@@ -2179,11 +2175,11 @@ class ML_Display
 			}		
 			
 			p.p.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text("   Merged: "+f.getModel().mergedClusters+" out of "+(f.getModel().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
+			p.p.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
 			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
-			p.p.text("   Population Factor: "+f.getModel().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
+			p.p.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
 			
 			if(f.getDateline() != null)
 			{

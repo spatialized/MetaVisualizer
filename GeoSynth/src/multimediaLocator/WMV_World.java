@@ -116,7 +116,7 @@ public class WMV_World
 			p.stopWorldMediaViewer();								//  Exit simulation
 		}
 		
-		if ( p.debug.memory && p.frameCount % state.memoryCheckFrequency == 0 )		/* Memory debugging */
+		if ( p.debug.memory && state.frameCount % state.memoryCheckFrequency == 0 )		/* Memory debugging */
 		{
 			p.debug.checkMemory();
 			p.debug.checkFrameRate();
@@ -136,7 +136,7 @@ public class WMV_World
 			}
 			state.saveImage = false;
 		}
-//		System.out.println("Last run() on Frame #"+p.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
+//		System.out.println("Last run() on Frame #"+state.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
 	}
 	
 	/**
@@ -214,8 +214,6 @@ public class WMV_World
 		
 		if(state.interactive && !state.startInteractive && !p.state.running)		/* Running interactive clustering */
 			runInteractiveClustering();	
-		
-		// -- Move viewer to first cluster??!!
 	}
 	
 	void updateState()
@@ -299,10 +297,9 @@ public class WMV_World
 				break;
 			
 			case 1:													// Field Time Mode
-				if(state.timeFading && p.frameCount % settings.timeUnitLength == 0)
+				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
 				{
 					state.currentTime++;
-	
 					if(state.currentTime > settings.timeCycleLength)
 						state.currentTime = 0;
 	
@@ -317,17 +314,16 @@ public class WMV_World
 						{
 							state.currentTime = 0;
 							if(p.debug.detailed)
-								System.out.println("Reached end of day at p.frameCount:"+p.frameCount);
+								System.out.println("Reached end of day at state.frameCount:"+state.frameCount);
 						}
 					}
 				}
 				break;
 
 			case 2:													// Single Time Mode
-				if(state.timeFading && p.frameCount % settings.timeUnitLength == 0)
+				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
 				{
 					state.currentTime++;
-					
 					if(p.debug.time && p.debug.detailed)
 						System.out.println("currentTime:"+state.currentTime);
 
@@ -340,7 +336,6 @@ public class WMV_World
 						else
 						{
 							System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
-//							System.out.println("  viewer.currentMedia "+viewer.currentMedia+ " viewer.nearbyClusterTimelineMediaCount:"+viewer.nearbyClusterTimelineMediaCount);
 							state.currentTime = 0;
 							startSingleTimeModeCycle();
 						}
@@ -407,7 +402,7 @@ public class WMV_World
 					break;
 //				case 3:	
 //					getCurrentField().sounds.get(curMediaID).currentMedia = true;
-//					viewer.nextMediaStartFrame = p.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
+//					viewer.nextMediaStartFrame = state.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
 //					break;
 				}
 			}
@@ -771,7 +766,7 @@ public class WMV_World
 			state.fadingAlpha = true;   
 			state.fadingAlphaStart = state.alpha;
 			state.fadingAlphaTarget = target;
-			state.fadingAlphaStartFrame = p.frameCount;
+			state.fadingAlphaStartFrame = state.frameCount;
 			state.fadingAlphaEndFrame = state.fadingAlphaStartFrame + state.fadingAlphaLength;
 		}
 		else
@@ -789,19 +784,19 @@ public class WMV_World
 
 		if(state.beginFadingAlpha)
 		{
-			state.fadingAlphaStartFrame = p.frameCount;					
-			state.fadingAlphaEndFrame = p.frameCount + state.fadingAlphaLength;	
+			state.fadingAlphaStartFrame = state.frameCount;					
+			state.fadingAlphaEndFrame = state.frameCount + state.fadingAlphaLength;	
 			state.beginFadingAlpha = false;
 		}
 
-		if (p.frameCount >= state.fadingAlphaEndFrame)
+		if (state.frameCount >= state.fadingAlphaEndFrame)
 		{
 			state.fadingAlpha = false;
 			newAlphaFadeValue = state.fadingAlphaTarget;
 		} 
 		else
 		{
-			newAlphaFadeValue = PApplet.map(p.frameCount, state.fadingAlphaStartFrame, state.fadingAlphaEndFrame, state.fadingAlphaStart, state.fadingAlphaTarget);      // Fade with distance from current time
+			newAlphaFadeValue = PApplet.map(state.frameCount, state.fadingAlphaStartFrame, state.fadingAlphaEndFrame, state.fadingAlphaStart, state.fadingAlphaTarget);      // Fade with distance from current time
 		}
 
 		state.alpha = newAlphaFadeValue;
@@ -1302,9 +1297,10 @@ public class WMV_World
 	 */
 	public void drawGrid(float dist) 
 	{
-		for (float y = 0; y < getCurrentModel().fieldHeight / 2; y += dist) {
-			for (float x = 0; x < getCurrentModel().fieldWidth / 2; x += dist) {
-				for (float z = 0; z < getCurrentModel().fieldLength / 2; z += dist) {
+		WMV_ModelState m = getCurrentModel().getState();
+		for (float y = 0; y < m.fieldHeight / 2; y += dist) {
+			for (float x = 0; x < m.fieldWidth / 2; x += dist) {
+				for (float z = 0; z < m.fieldLength / 2; z += dist) {
 					p.stroke(50, 150, 250);
 					p.strokeWeight(1);
 					p.pushMatrix();

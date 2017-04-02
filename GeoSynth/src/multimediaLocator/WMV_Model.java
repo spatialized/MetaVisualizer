@@ -14,63 +14,64 @@ import processing.core.PVector;
 public class WMV_Model
 {
 	/* General */
-	ML_DebugSettings debugSettings;	// Update world settings
-	WMV_WorldSettings worldSettings;
-	WMV_WorldState worldState;
-	WMV_ViewerSettings viewerSettings;	// Update world settings
-	WMV_ViewerState viewerState;	// Update world settings
-	WMV_Utilities utilities;					// Utility methods
+	WMV_WorldSettings worldSettings;	// World settings
+	WMV_WorldState worldState;			// World state
+	WMV_ViewerSettings viewerSettings;	// Viewer settings
+	WMV_ViewerState viewerState;		// Viewer state
+	ML_DebugSettings debugSettings;		// Debug settings
+	WMV_ModelState state;
+	WMV_Utilities utilities;			// Utility methods
 
-	/* Field */
-	public float fieldWidth; 			// Width (X) of GPS photo area (real world)
-	public float fieldHeight; 			// Height (Y) of GPS photo area (real world)
-	public float fieldLength; 			// Length (Z) of GPS photo area	
-	public float fieldArea;				// Field width * height
-	public float fieldAspectRatio = 1; 	// Aspect ratio
-
-	/* Media */
-	public int validImages, validPanoramas, validVideos;	// Number of valid images / number of valid videos
-	public int validMedia;									// Total valid media count
-	public float mediaDensity;								// Number of images as a function of field area
-
-	/* Clustering */
-	public int mergedClusters = 0;							// Number of merged clusters
-	public float minClusterDistance; 						// Minimum distance between clusters, i.e. closer than which clusters are merged
-	public float maxClusterDistance;						// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
-
-	/* K-Means Clustering */
-	public float clusterPopulationFactor = 10.f;					// Scaling from media spread (1/mediaDensity) to numClusters
-	public float minPopulationFactor = 1.f, maxPopulationFactor = 30.f;	// Minimum and maximum values of populationFactor
-	public int clusterRefinement = 60;								// Number of iterations used to refine clusters
-	public int minClusterRefinement = 20, maxClusterRefinement = 300;	// Minimum and maximum values of clusterRefinement
-	public long clusteringRandomSeed = (long)0.f;
-	public boolean clustersNeedUpdate = false;				// --NEED TO IMPLEMENT
-	
-	/* Metadata */
-	public float highLongitude = -1000000, lowLongitude = 1000000, highLatitude = -1000000, lowLatitude = 1000000,
-			highAltitude = -1000000, lowAltitude = 1000000;
-	private float highTime = -1000000, lowTime = 1000000;
-	private float highDate = -1000000, lowDate = 1000000;
-	private float highImageTime = -1000000, lowImageTime = 1000000;
-	private float highImageDate = -1000000, lowImageDate = 1000000;
-	private float highPanoTime = -1000000, lowPanoTime = 1000000;
-	private float highPanoDate = -1000000, lowPanoDate = 1000000;
-	private float highVideoTime = -1000000, lowVideoTime = 1000000;
-	private float highVideoDate = -1000000, lowVideoDate = 1000000;
-	private float longestImageDayLength = -1000000, longestPanoDayLength = -1000000, longestVideoDayLength = -1000000;	
-
-	/* Time */
-	public int minFrameRate = 15;
-	public int frameCount = 0;
+//	/* Field */
+//	public float fieldWidth; 			// Width (X) of GPS photo area (real world)
+//	public float fieldHeight; 			// Height (Y) of GPS photo area (real world)
+//	public float fieldLength; 			// Length (Z) of GPS photo area	
+//	public float fieldArea;				// Field width * height
+//	public float fieldAspectRatio = 1; 	// Aspect ratio
+//
+//	/* Clustering */
+//	public int mergedClusters = 0;							// Number of merged clusters
+//	public float minClusterDistance; 						// Minimum distance between clusters, i.e. closer than which clusters are merged
+//	public float maxClusterDistance;						// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
+//
+//	public float clusterPopulationFactor = 10.f;						// Scaling from media spread (1/mediaDensity) to numClusters
+//	public float minPopulationFactor = 1.f, maxPopulationFactor = 30.f;	// Minimum and maximum values of populationFactor
+//	public int clusterRefinement = 60;									// Number of iterations used to refine clusters
+//	public int minClusterRefinement = 20, maxClusterRefinement = 300;	// Minimum and maximum values of clusterRefinement
+//	public long state.clusteringRandomSeed = (long)0.f;
+//	public boolean clustersNeedUpdate = false;				// --NEED TO IMPLEMENT
+//	
+//	/* Media */
+//	public int validImages, validPanoramas, validVideos;	// Number of valid images / number of valid videos
+//	public int validMedia;									// Total valid media count
+//	public float mediaDensity;								// Number of images as a function of field area
+//
+//	/* Metadata */
+//	public float state.highLongitude = -1000000, state.lowLongitude = 1000000, state.highLatitude = -1000000, state.lowLatitude = 1000000,
+//			state.highAltitude = -1000000, state.lowAltitude = 1000000;
+//	private float highTime = -1000000, lowTime = 1000000;
+//	private float highDate = -1000000, lowDate = 1000000;
+//	private float state.highImageTime = -1000000, lowImageTime = 1000000;
+//	private float highImageDate = -1000000, lowImageDate = 1000000;
+//	private float highPanoTime = -1000000, lowPanoTime = 1000000;
+//	private float highPanoDate = -1000000, lowPanoDate = 1000000;
+//	private float state.highVideoTime = -1000000, lowVideoTime = 1000000;
+//	private float highVideoDate = -1000000, lowVideoDate = 1000000;
+//	private float longestImageDayLength = -1000000, longestPanoDayLength = -1000000, longestVideoDayLength = -1000000;	
+//
+//	/* Time */
+//	public int minFrameRate = 15;
+//	public int frameCount = 0;
 
 	WMV_Model(WMV_WorldSettings newWorldSettings, ML_DebugSettings newDebugSettings)
 	{
+		state = new WMV_ModelState();
 		worldSettings = newWorldSettings;
 		debugSettings = newDebugSettings;
 
 		utilities = new WMV_Utilities();					// Utility methods
 
-		clusteringRandomSeed = System.currentTimeMillis();
+		state.clusteringRandomSeed = System.currentTimeMillis();
 	}
 
 	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
@@ -150,75 +151,75 @@ public class WMV_Model
 		 {
 			 if (init) 	// Initialize high and low longitude
 			 {	
-				 highLongitude = i.getMediaState().gpsLocation.x;
-				 lowLongitude = i.getMediaState().gpsLocation.x;
+				 state.highLongitude = i.getMediaState().gpsLocation.x;
+				 state.lowLongitude = i.getMediaState().gpsLocation.x;
 			 }
 			 if (init) 	// Initialize high and low latitude
 			 {	
-				 highLatitude = i.getMediaState().gpsLocation.z;
-				 lowLatitude = i.getMediaState().gpsLocation.z;
+				 state.highLatitude = i.getMediaState().gpsLocation.z;
+				 state.lowLatitude = i.getMediaState().gpsLocation.z;
 			 }
 			 if (init) 	// Initialize high and low altitude
 			 {		
-				 highAltitude = i.getMediaState().gpsLocation.y;
-				 lowAltitude = i.getMediaState().gpsLocation.y;
+				 state.highAltitude = i.getMediaState().gpsLocation.y;
+				 state.lowAltitude = i.getMediaState().gpsLocation.y;
 				 init = false;
 			 }
 
-			 if (i.getMediaState().gpsLocation.x > highLongitude)
-				 highLongitude = i.getMediaState().gpsLocation.x;
-			 if (i.getMediaState().gpsLocation.x < lowLongitude)
-				 lowLongitude = i.getMediaState().gpsLocation.x;
-			 if (i.getMediaState().gpsLocation.y > highAltitude)
-				 highAltitude = i.getMediaState().gpsLocation.y;
-			 if (i.getMediaState().gpsLocation.y < lowAltitude)
-				 lowAltitude = i.getMediaState().gpsLocation.y;
-			 if (i.getMediaState().gpsLocation.z > highLatitude)
-				 highLatitude = i.getMediaState().gpsLocation.z;
-			 if (i.getMediaState().gpsLocation.z < lowLatitude)
-				 lowLatitude = i.getMediaState().gpsLocation.z;
+			 if (i.getMediaState().gpsLocation.x > state.highLongitude)
+				 state.highLongitude = i.getMediaState().gpsLocation.x;
+			 if (i.getMediaState().gpsLocation.x < state.lowLongitude)
+				 state.lowLongitude = i.getMediaState().gpsLocation.x;
+			 if (i.getMediaState().gpsLocation.y > state.highAltitude)
+				 state.highAltitude = i.getMediaState().gpsLocation.y;
+			 if (i.getMediaState().gpsLocation.y < state.lowAltitude)
+				 state.lowAltitude = i.getMediaState().gpsLocation.y;
+			 if (i.getMediaState().gpsLocation.z > state.highLatitude)
+				 state.highLatitude = i.getMediaState().gpsLocation.z;
+			 if (i.getMediaState().gpsLocation.z < state.lowLatitude)
+				 state.lowLatitude = i.getMediaState().gpsLocation.z;
 		 }
 
 		 for (WMV_Panorama n : panoramas) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
-			 if (n.getMediaState().gpsLocation.x > highLongitude)
-				 highLongitude = n.getMediaState().gpsLocation.x;
-			 if (n.getMediaState().gpsLocation.x < lowLongitude)
-				 lowLongitude = n.getMediaState().gpsLocation.x;
-			 if (n.getMediaState().gpsLocation.y > highAltitude)
-				 highAltitude = n.getMediaState().gpsLocation.y;
-			 if (n.getMediaState().gpsLocation.y < lowAltitude)
-				 lowAltitude = n.getMediaState().gpsLocation.y;
-			 if (n.getMediaState().gpsLocation.z > highLatitude)
-				 highLatitude = n.getMediaState().gpsLocation.z;
-			 if (n.getMediaState().gpsLocation.z < lowLatitude)
-				 lowLatitude = n.getMediaState().gpsLocation.z;
+			 if (n.getMediaState().gpsLocation.x > state.highLongitude)
+				 state.highLongitude = n.getMediaState().gpsLocation.x;
+			 if (n.getMediaState().gpsLocation.x < state.lowLongitude)
+				 state.lowLongitude = n.getMediaState().gpsLocation.x;
+			 if (n.getMediaState().gpsLocation.y > state.highAltitude)
+				 state.highAltitude = n.getMediaState().gpsLocation.y;
+			 if (n.getMediaState().gpsLocation.y < state.lowAltitude)
+				 state.lowAltitude = n.getMediaState().gpsLocation.y;
+			 if (n.getMediaState().gpsLocation.z > state.highLatitude)
+				 state.highLatitude = n.getMediaState().gpsLocation.z;
+			 if (n.getMediaState().gpsLocation.z < state.lowLatitude)
+				 state.lowLatitude = n.getMediaState().gpsLocation.z;
 		 }
 
 		 for (WMV_Video v : videos) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
-			 if (v.getMediaState().gpsLocation.x > highLongitude)
-				 highLongitude = v.getMediaState().gpsLocation.x;
-			 if (v.getMediaState().gpsLocation.x < lowLongitude)
-				 lowLongitude = v.getMediaState().gpsLocation.x;
-			 if (v.getMediaState().gpsLocation.y > highAltitude)
-				 highAltitude = v.getMediaState().gpsLocation.y;
-			 if (v.getMediaState().gpsLocation.y < lowAltitude)
-				 lowAltitude = v.getMediaState().gpsLocation.y;
-			 if (v.getMediaState().gpsLocation.z > highLatitude)
-				 highLatitude = v.getMediaState().gpsLocation.z;
-			 if (v.getMediaState().gpsLocation.z < lowLatitude)
-				 lowLatitude = v.getMediaState().gpsLocation.z;
+			 if (v.getMediaState().gpsLocation.x > state.highLongitude)
+				 state.highLongitude = v.getMediaState().gpsLocation.x;
+			 if (v.getMediaState().gpsLocation.x < state.lowLongitude)
+				 state.lowLongitude = v.getMediaState().gpsLocation.x;
+			 if (v.getMediaState().gpsLocation.y > state.highAltitude)
+				 state.highAltitude = v.getMediaState().gpsLocation.y;
+			 if (v.getMediaState().gpsLocation.y < state.lowAltitude)
+				 state.lowAltitude = v.getMediaState().gpsLocation.y;
+			 if (v.getMediaState().gpsLocation.z > state.highLatitude)
+				 state.highLatitude = v.getMediaState().gpsLocation.z;
+			 if (v.getMediaState().gpsLocation.z < state.lowLatitude)
+				 state.lowLatitude = v.getMediaState().gpsLocation.z;
 		 }
 
 		 if (debugSettings.field) 							// Display results for debugging
 		 {
-			 System.out.println("High Longitude:" + highLongitude);
-			 System.out.println("High Latitude:" + highLatitude);
-			 System.out.println("High Altitude:" + highAltitude);
-			 System.out.println("Low Longitude:" + lowLongitude);
-			 System.out.println("Low Latitude:" + lowLatitude);
-			 System.out.println("Low Altitude:" + lowAltitude);
+			 System.out.println("High Longitude:" + state.highLongitude);
+			 System.out.println("High Latitude:" + state.highLatitude);
+			 System.out.println("High Altitude:" + state.highAltitude);
+			 System.out.println("Low Longitude:" + state.lowLongitude);
+			 System.out.println("Low Latitude:" + state.lowLatitude);
+			 System.out.println("Low Altitude:" + state.lowAltitude);
 		 }
 	 }
 
@@ -238,27 +239,27 @@ public class WMV_Model
 		 {
 			 if (initVideoTime) 		// Calculate most recent and oldest video time
 			 {		
-				 highVideoTime = v.time.getTime();
-				 lowVideoTime = v.time.getTime();
+				 state.highVideoTime = v.time.getTime();
+				 state.lowVideoTime = v.time.getTime();
 				 initVideoTime = false;
 			 }
 
 			 if (initVideoDate) 		// Calculate most recent and oldest image date
 			 {		
-				 highVideoDate = v.time.getDate().getDaysSince1980();
-				 lowVideoDate = v.time.getDate().getDaysSince1980();
+				 state.highVideoDate = v.time.getDate().getDaysSince1980();
+				 state.lowVideoDate = v.time.getDate().getDaysSince1980();
 				 initVideoDate = false;
 			 }
 
-			 if (v.time.getTime() > highVideoTime)
-				 highVideoTime = v.time.getTime();
-			 if (v.time.getTime() < lowVideoTime)
-				 lowVideoTime = v.time.getTime();
+			 if (v.time.getTime() > state.highVideoTime)
+				 state.highVideoTime = v.time.getTime();
+			 if (v.time.getTime() < state.lowVideoTime)
+				 state.lowVideoTime = v.time.getTime();
 
-			 if (v.time.getDate().getDaysSince1980() > highVideoDate)
-				 highVideoDate = v.time.getDate().getDaysSince1980();
-			 if (v.time.getDate().getDaysSince1980() < lowVideoDate)
-				 lowVideoDate = v.time.getDate().getDaysSince1980();
+			 if (v.time.getDate().getDaysSince1980() > state.highVideoDate)
+				 state.highVideoDate = v.time.getDate().getDaysSince1980();
+			 if (v.time.getDate().getDaysSince1980() < state.lowVideoDate)
+				 state.lowVideoDate = v.time.getDate().getDaysSince1980();
 
 //			 if (v.time.getDayLength() > longestVideoDayLength)		// Calculate longest video day length
 //				 longestVideoDayLength = v.time.getDayLength();
@@ -268,27 +269,27 @@ public class WMV_Model
 		 {
 			 if (initImageTime) 	// Calculate most recent and oldest image time
 			 {		
-				 highImageTime = i.time.getTime();
-				 lowImageTime = i.time.getTime();
+				 state.highImageTime = i.time.getTime();
+				 state.lowImageTime = i.time.getTime();
 				 initImageTime = false;
 			 }
 
 			 if (initImageDate)  	// Calculate most recent and oldest image date
 			 {	
-				 highImageDate = i.time.getDate().getDaysSince1980();
-				 lowImageDate = i.time.getDate().getDaysSince1980();
+				 state.highImageDate = i.time.getDate().getDaysSince1980();
+				 state.lowImageDate = i.time.getDate().getDaysSince1980();
 				 initImageDate = false;
 			 }
 
-			 if (i.time.getTime() > highImageTime)
-				 highImageTime = i.time.getTime();
-			 if (i.time.getTime() < lowImageTime)
-				 lowImageTime = i.time.getTime();
+			 if (i.time.getTime() > state.highImageTime)
+				 state.highImageTime = i.time.getTime();
+			 if (i.time.getTime() < state.lowImageTime)
+				 state.lowImageTime = i.time.getTime();
 
-			 if (i.time.getDate().getDaysSince1980() > highImageDate)
-				 highImageDate = i.time.getDate().getDaysSince1980();
-			 if (i.time.getDate().getDaysSince1980() < lowImageDate)
-				 lowImageDate = i.time.getDate().getDaysSince1980();
+			 if (i.time.getDate().getDaysSince1980() > state.highImageDate)
+				 state.highImageDate = i.time.getDate().getDaysSince1980();
+			 if (i.time.getDate().getDaysSince1980() < state.lowImageDate)
+				 state.lowImageDate = i.time.getDate().getDaysSince1980();
 
 //			 if (i.time.getDayLength() > longestImageDayLength)		// Calculate longest day length
 //				 longestImageDayLength = i.time.getDayLength();
@@ -298,67 +299,67 @@ public class WMV_Model
 		 {
 			 if (initPanoTime) 	// Calculate most recent and oldest Pano time
 			 {		
-				 highPanoTime = n.time.getTime();
-				 lowPanoTime = n.time.getTime();
+				 state.highPanoTime = n.time.getTime();
+				 state.lowPanoTime = n.time.getTime();
 				 initPanoTime = false;
 			 }
 
 			 if (initPanoDate)  	// Calculate most recent and oldest Pano date
 			 {	
-				 highPanoDate = n.time.getDate().getDaysSince1980();
-				 lowPanoDate = n.time.getDate().getDaysSince1980();
+				 state.highPanoDate = n.time.getDate().getDaysSince1980();
+				 state.lowPanoDate = n.time.getDate().getDaysSince1980();
 				 initPanoDate = false;
 			 }
 
-			 if (n.time.getTime() > highPanoTime)
-				 highPanoTime = n.time.getTime();
-			 if (n.time.getTime() < lowPanoTime)
-				 lowPanoTime = n.time.getTime();
+			 if (n.time.getTime() > state.highPanoTime)
+				 state.highPanoTime = n.time.getTime();
+			 if (n.time.getTime() < state.lowPanoTime)
+				 state.lowPanoTime = n.time.getTime();
 
-			 if (n.time.getDate().getDaysSince1980() > highPanoDate)
-				 highPanoDate = n.time.getDate().getDaysSince1980();
-			 if (n.time.getDate().getDaysSince1980() < lowPanoDate)
-				 lowPanoDate = n.time.getDate().getDaysSince1980();
+			 if (n.time.getDate().getDaysSince1980() > state.highPanoDate)
+				 state.highPanoDate = n.time.getDate().getDaysSince1980();
+			 if (n.time.getDate().getDaysSince1980() < state.lowPanoDate)
+				 state.lowPanoDate = n.time.getDate().getDaysSince1980();
 
 //			 if (i.time.getDayLength() > longestPanoDayLength)		// Calculate longest day length
 //				 longestPanoDayLength = i.time.getDayLength();
 		 }
 
-		 lowTime = lowImageTime;
-		 if (lowPanoTime < lowTime)
-			 lowTime = lowPanoTime;
-		 if (lowVideoTime < lowTime)
-			 lowTime = lowVideoTime;
+		 state.lowTime = state.lowImageTime;
+		 if (state.lowPanoTime < state.lowTime)
+			 state.lowTime = state.lowPanoTime;
+		 if (state.lowVideoTime < state.lowTime)
+			 state.lowTime = state.lowVideoTime;
 
-		 highTime = highImageTime;
-		 if (highPanoTime > highTime)
-			 highTime = highPanoTime;
-		 if (highVideoTime > highTime)
-			 highTime = highVideoTime;
+		 state.highTime = state.highImageTime;
+		 if (state.highPanoTime > state.highTime)
+			 state.highTime = state.highPanoTime;
+		 if (state.highVideoTime > state.highTime)
+			 state.highTime = state.highVideoTime;
 
-		 lowDate = lowImageDate;
-		 if (lowPanoDate < lowDate)
-			 lowDate = lowPanoDate;
-		 if (lowVideoDate < lowDate)
-			 lowDate = lowVideoDate;
+		 state.lowDate = state.lowImageDate;
+		 if (state.lowPanoDate < state.lowDate)
+			 state.lowDate = state.lowPanoDate;
+		 if (state.lowVideoDate < state.lowDate)
+			 state.lowDate = state.lowVideoDate;
 
-		 highDate = highImageDate;
-		 if (highPanoDate > highDate)
-			 highDate = highPanoDate;
-		 if (highVideoDate > highDate)
-			 highDate = highVideoDate;
+		 state.highDate = state.highImageDate;
+		 if (state.highPanoDate > state.highDate)
+			 state.highDate = state.highPanoDate;
+		 if (state.highVideoDate > state.highDate)
+			 state.highDate = state.highVideoDate;
 
 		 if (debugSettings.metadata) 							// Display results for debugging
 		 {
-			 System.out.println("High Image Time:" + highImageTime);
-			 System.out.println("High Image Date:" + highImageDate);
-			 System.out.println("High Panorama Time:" + highPanoTime);
-			 System.out.println("High Panorama Date:" + highPanoDate);
-			 System.out.println("High Video Time:" + highVideoTime);
-			 System.out.println("High Video Date:" + highVideoDate);
+			 System.out.println("High Image Time:" + state.highImageTime);
+			 System.out.println("High Image Date:" + state.highImageDate);
+			 System.out.println("High Panorama Time:" + state.highPanoTime);
+			 System.out.println("High Panorama Date:" + state.highPanoDate);
+			 System.out.println("High Video Time:" + state.highVideoTime);
+			 System.out.println("High Video Date:" + state.highVideoDate);
 			 System.out.println("Longest Image Day Length:" + longestImageDayLength);
-			 System.out.println("Longest Panorama Day Length:" + longestPanoDayLength);
-			 System.out.println("Longest Video Day Length:" + longestVideoDayLength);
+			 System.out.println("Longest Panorama Day Length:" + state.longestPanoDayLength);
+			 System.out.println("Longest Video Day Length:" + state.longestVideoDayLength);
 		 }
 	 }
 
@@ -378,21 +379,18 @@ public class WMV_Model
 		 return result;
 	 }
 
-	 /**
-	  * @return Number of clusters in field
-	  */
-	 public int getClusterAmount(ArrayList<WMV_Cluster> clusters)
-	 {
-		 return clusters.size() - mergedClusters;
-	 }
-	 
 	public void setMinClusterDistance(float newMinClusterDistance)
 	{
-		minClusterDistance = newMinClusterDistance;	
+		state.minClusterDistance = newMinClusterDistance;	
 	}
 	
 	public void setMaxClusterDistance(float newMaxClusterDistance)
 	{
-		maxClusterDistance = newMaxClusterDistance;	
+		state.maxClusterDistance = newMaxClusterDistance;	
+	}
+	
+	public WMV_ModelState getState()
+	{
+		return state;
 	}
 }

@@ -5,7 +5,6 @@ import java.util.List;
 
 //import processing.core.PApplet;
 import processing.core.PVector;
-//import processing.data.IntList;
 
 /**
  * @author davidgordon

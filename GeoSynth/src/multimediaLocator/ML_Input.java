@@ -1147,7 +1147,7 @@ public class ML_Input
 					{
 						world.getState().hierarchical = false;
 						WMV_Field f = world.getCurrentField();
-						f.runKMeansClustering(world.settings.kMeansClusteringEpsilon, f.getModel().clusterRefinement, f.getModel().clusterPopulationFactor);
+						f.runKMeansClustering(world.settings.kMeansClusteringEpsilon, f.getModel().getState().clusterRefinement, f.getModel().getState().clusterPopulationFactor);
 						world.getCurrentField().createTimeline();					// Create field timeline
 					}
 				}
@@ -1160,7 +1160,7 @@ public class ML_Input
 						for(WMV_Field f : world.getFields())
 						{
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);	
-							world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
+							world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().getState().clusterRefinement, world.getCurrentField().getModel().getState().clusterPopulationFactor );
 							world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 							world.p.display.map2D.initializeMaps(world);
 						}
@@ -1176,7 +1176,7 @@ public class ML_Input
 						for(WMV_Field f : world.getFields())
 						{
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);
-							world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, world.getCurrentField().getModel().clusterPopulationFactor );
+							world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().getState().clusterRefinement, world.getCurrentField().getModel().getState().clusterPopulationFactor );
 							world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 							world.p.display.map2D.initializeMaps(world);
 						}
@@ -1211,58 +1211,58 @@ public class ML_Input
 						{
 							if (keyCode == PApplet.LEFT) 		
 							{
-								world.getCurrentField().getModel().clusterRefinement -= 10;
-								float populationFactor = world.getCurrentField().getModel().clusterPopulationFactor;
+								world.getCurrentField().getModel().state.clusterRefinement -= 10;
+								float populationFactor = world.getCurrentField().getModel().state.clusterPopulationFactor;
 
-								if(world.getCurrentField().getModel().clusterRefinement >= world.getCurrentField().getModel().minClusterRefinement)
+								if(world.getCurrentField().getModel().state.clusterRefinement >= world.getCurrentField().getModel().state.minClusterRefinement)
 								{
-									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
+									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
 									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
-								else world.getCurrentField().getModel().clusterRefinement += 10;
+								else world.getCurrentField().getModel().state.clusterRefinement += 10;
 							}
 
 							if (keyCode == PApplet.RIGHT) 	
 							{
-								world.getCurrentField().getModel().clusterRefinement += 10;
-								float populationFactor = world.getCurrentField().getModel().clusterPopulationFactor;
+								world.getCurrentField().getModel().state.clusterRefinement += 10;
+								float populationFactor = world.getCurrentField().getModel().state.clusterPopulationFactor;
 
-								if(world.getCurrentField().getModel().clusterRefinement <= world.getCurrentField().getModel().maxClusterRefinement)
+								if(world.getCurrentField().getModel().state.clusterRefinement <= world.getCurrentField().getModel().state.maxClusterRefinement)
 								{
-									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().clusterRefinement, populationFactor );
+									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
 									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
-								else world.getCurrentField().getModel().clusterRefinement -= 10;
+								else world.getCurrentField().getModel().state.clusterRefinement -= 10;
 							}
 
 							if (keyCode == PApplet.DOWN) 		
 							{
-								int refinementAmount = world.getCurrentField().getModel().clusterRefinement;
-								world.getCurrentField().getModel().clusterPopulationFactor -= 1.f;
+								int refinementAmount = world.getCurrentField().getModel().state.clusterRefinement;
+								world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
 
-								if(world.getCurrentField().getModel().clusterPopulationFactor >= world.getCurrentField().getModel().minPopulationFactor)
+								if(world.getCurrentField().getModel().state.clusterPopulationFactor >= world.getCurrentField().getModel().state.minPopulationFactor)
 								{
-									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
+									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().state.clusterPopulationFactor );
 									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
-								else world.getCurrentField().getModel().clusterPopulationFactor += 1.f;
+								else world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
 							}
 
 							if (keyCode == PApplet.UP) 	
 							{
-								int refinementAmount = world.getCurrentField().getModel().clusterRefinement;
-								world.getCurrentField().getModel().clusterPopulationFactor += 1.f;
+								int refinementAmount = world.getCurrentField().getModel().state.clusterRefinement;
+								world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
 
-								if(world.getCurrentField().getModel().clusterPopulationFactor <= world.getCurrentField().getModel().maxPopulationFactor)
+								if(world.getCurrentField().getModel().state.clusterPopulationFactor <= world.getCurrentField().getModel().state.maxPopulationFactor)
 								{
-									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().clusterPopulationFactor );
+									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().state.clusterPopulationFactor );
 									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
 									world.p.display.map2D.initializeMaps(world);
 								}
-								else world.getCurrentField().getModel().clusterPopulationFactor -= 1.f;
+								else world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
 							}
 						}
 					}

@@ -185,7 +185,6 @@ public abstract class WMV_Viewable
 				{
 					if(c.getDateline().size() == 1)
 					{
-						// -- Time bug happens here -- should get all nearby clusters, not just current + check if current is closeby!
 						lower = c.getTimeline().get(0).getLower().getTime();						// Get cluster timeline lower bound
 						upper = c.getTimeline().get(c.getTimeline().size()-1).getUpper().getTime();	// Get cluster timeline upper bound
 					}
@@ -214,7 +213,7 @@ public abstract class WMV_Viewable
 		{
 			float timelineLength = upper - lower;
 
-			if(getMediaType() == 1)
+			if(debugSettings.panorama && getMediaType() == 1)
 				System.out.println("--> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
 
 			if(lower == upper)						// Only one cluster segment
@@ -222,7 +221,7 @@ public abstract class WMV_Viewable
 				centerTime = cycleLength / 2.f;
 				length = worldSettings.timeCycleLength;		// -- Should depend on cluster it belongs to 
 
-				if(getMediaType() == 1)
+				if(debugSettings.panorama && getMediaType() == 1)
 				{
 					System.out.println("Only one cluster time segment, full length:"+length);
 					System.out.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
@@ -243,7 +242,7 @@ public abstract class WMV_Viewable
 				fadeOutStart = Math.round(centerTime + length / 4.f);	// Frame media starts fading out
 				fadeOutEnd = Math.round(centerTime + length / 2.f);		// Frame media finishes fading out
 
-				if(getMediaType() == 1)
+				if(debugSettings.panorama && getMediaType() == 1)
 				{
 					System.out.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength);
 					System.out.println(" lower:"+lower+" upper:"+upper);
@@ -433,13 +432,13 @@ public abstract class WMV_Viewable
 	{
 		float newX = 0.f, newZ = 0.f, newY = 0.f;
 		
-		if(model.highLongitude != -1000000 && model.lowLongitude != 1000000 && model.highLatitude != -1000000 && model.lowLatitude != 1000000 && model.highAltitude != -1000000 && model.lowAltitude != 1000000)
+		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000)
 		{
-			if(model.highLongitude != model.lowLongitude && model.highLatitude != model.lowLatitude)
+			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
 			{
-				newX = PApplet.map(mState.gpsLocation.x, model.lowLongitude, model.highLongitude, -0.5f * model.fieldWidth, 0.5f*model.fieldWidth); 			// GPS longitude decreases from left to right
-				newY = -PApplet.map(mState.gpsLocation.y, model.lowAltitude, model.highAltitude, 0.f, model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
-				newZ = PApplet.map(mState.gpsLocation.z, model.lowLatitude, model.highLatitude, 0.5f*model.fieldLength, -0.5f * model.fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+				newX = PApplet.map(mState.gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f*model.getState().fieldWidth); 			// GPS longitude decreases from left to right
+				newY = -PApplet.map(mState.gpsLocation.y, model.getState().lowAltitude, model.getState().highAltitude, 0.f, model.getState().fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
+				newZ = PApplet.map(mState.gpsLocation.z, model.getState().lowLatitude, model.getState().highLatitude, 0.5f*model.getState().fieldLength, -0.5f * model.getState().fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
 				
 				if(worldSettings != null)
 				{

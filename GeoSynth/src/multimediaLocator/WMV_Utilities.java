@@ -261,8 +261,8 @@ public class WMV_Utilities
 	{
 		WMV_Model m = f.getModel();
 		
-		float newX = PApplet.map( loc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
-		float newY = PApplet.map( loc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+		float newX = PApplet.map( loc.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, m.getState().lowLongitude, m.getState().highLongitude ); 			// GPS longitude decreases from left to right
+		float newY = PApplet.map( loc.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, m.getState().highLatitude, m.getState().lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
 
 		PVector gpsLoc = new PVector(newX, newY);
 

@@ -74,6 +74,8 @@ class WMV_Image extends WMV_Viewable
 		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade iBrightness based on time
 
+//		System.out.println("Image #"+getID()+" currentTime:"+getWorldState().currentTime+" getTimeBrightness():"+getTimeBrightness());
+		
 		if( getViewerSettings().angleFading )
 		{
 			if( isSelected() )
@@ -89,7 +91,6 @@ class WMV_Image extends WMV_Viewable
 		{
 			if (getViewingBrightness() > 0)
 			{
-//				if(image.width > 0 && !getViewerSettings().map3DMode)		// If image has been loaded
 				if(image.width > 0)		// If image has been loaded
 					displayImage(world);          // Draw the image 
 			}

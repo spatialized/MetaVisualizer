@@ -128,9 +128,9 @@ public class ML_Map
 	public void initializeMaps(WMV_World world)
 	{
 		WMV_Model m = world.getCurrentModel();
-		fieldAspectRatio = m.fieldAspectRatio;						//	Field ratio == fieldWidth / fieldLength;
-		zoomMapDefaultWidth = (float)Math.log10(m.fieldWidth) * 33.3f;										// Was 240.f
-		zoomMapDefaultHeight = (float)Math.log10(m.fieldWidth) * 33.3f * screenHeight / screenWidth;		// Was 180.f
+		fieldAspectRatio = m.getState().fieldAspectRatio;						//	Field ratio == fieldWidth / fieldLength;
+		zoomMapDefaultWidth = (float)Math.log10(m.getState().fieldWidth) * 33.3f;										// Was 240.f
+		zoomMapDefaultHeight = (float)Math.log10(m.getState().fieldWidth) * 33.3f * screenHeight / screenWidth;		// Was 180.f
 
 		if(fieldAspectRatio >= 1.f)									
 		{
@@ -269,13 +269,13 @@ public class ML_Map
 
 		if(fieldAspectRatio >= 1.f)					
 		{
-			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapWidth );		
-			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapWidth / fieldAspectRatio );
+			mapLocX = PApplet.map( point.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, 0, mapWidth );		
+			mapLocY = PApplet.map( point.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, 0, mapWidth / fieldAspectRatio );
 		}
 		else
 		{
-			mapLocX = PApplet.map( point.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, 0, mapHeight * fieldAspectRatio );		
-			mapLocY = PApplet.map( point.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, 0, mapHeight );
+			mapLocX = PApplet.map( point.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, 0, mapHeight * fieldAspectRatio );		
+			mapLocY = PApplet.map( point.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, 0, mapHeight );
 		}
 
 		return new PVector(mapLocX, mapLocY, 0.f);
@@ -818,7 +818,7 @@ public class ML_Map
 			drawPoint( world, camLoc, cameraPointSize, mapWidth, mapHeight, cameraHue, 255.f, 255.f, mediaTransparency );
 			float ptSize = cameraPointSize;
 
-			float arrowSize = fieldAspectRatio >= 1 ? world.getCurrentModel().fieldWidth : world.getCurrentModel().fieldLength;
+			float arrowSize = fieldAspectRatio >= 1 ? world.getCurrentModel().getState().fieldWidth : world.getCurrentModel().getState().fieldLength;
 			arrowSize = PApplet.round(PApplet.map(arrowSize, 0.f, 2500.f, 0.f, 100.f) * PApplet.sqrt(mapDistance));
 
 			ScaleMap logMap;

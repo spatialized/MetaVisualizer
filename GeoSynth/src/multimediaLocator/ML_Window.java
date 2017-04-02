@@ -1558,12 +1558,12 @@ public class ML_Window {
 				applet.text(" Field: "+f.getName(), x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
 				applet.text(" ID: "+(world.viewer.getState().getField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
-				applet.text(" Width: "+f.getModel().fieldWidth+" Length: "+f.getModel().fieldLength+" Height: "+f.getModel().fieldHeight, x, y += lineWidth);
+				applet.text(" Width: "+f.getModel().getState().fieldWidth+" Length: "+f.getModel().getState().fieldLength+" Height: "+f.getModel().getState().fieldHeight, x, y += lineWidth);
 				applet.text(" Image Count: "+f.getImageCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 				applet.text(" Panorama Count: "+f.getPanoramaCount(), x, y += lineWidth);			// Doesn't check for dataMissing!!
 				applet.text(" Video Count: "+f.getVideoCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 //				applet.text(" Sound Count: "+f.getSoundCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
-				applet.text(" Media Density (per sq. m.): "+f.getModel().mediaDensity, x, y += lineWidth);
+				applet.text(" Media Density (per sq. m.): "+f.getModel().getState().mediaDensity, x, y += lineWidth);
 				
 //				applet.text(" Clusters Visible: "+world.viewer.clustersVisible+"  (Orientation Mode)", x, y += lineWidth);
 				
@@ -1581,14 +1581,14 @@ public class ML_Window {
 				applet.text(" Model ", x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
 
-				applet.text(" Clusters:"+(f.getClusters().size()-f.getModel().mergedClusters), x, y += lineWidthVeryWide);
-				applet.text(" Merged: "+f.getModel().mergedClusters+" out of "+f.getClusters().size()+" Total", x, y += lineWidth);
+				applet.text(" Clusters:"+(f.getClusters().size()-f.getModel().getState().mergedClusters), x, y += lineWidthVeryWide);
+				applet.text(" Merged: "+f.getModel().getState().mergedClusters+" out of "+f.getClusters().size()+" Total", x, y += lineWidth);
 				applet.text(" Minimum Distance: "+world.settings.minClusterDistance, x, y += lineWidth);
 				applet.text(" Maximum Distance: "+world.settings.maxClusterDistance, x, y += lineWidth);
 				if(world.settings.altitudeScaling)
 					applet.text(" Altitude Scaling Factor: "+world.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
 				applet.text(" Clustering Method : "+ ( world.getState().hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
-				applet.text(" Population Factor: "+f.getModel().clusterPopulationFactor, x, y += lineWidth);
+				applet.text(" Population Factor: "+f.getModel().getState().clusterPopulationFactor, x, y += lineWidth);
 				if(world.getState().hierarchical) applet.text(" Current Cluster Depth: "+f.getState().clusterDepth, x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);

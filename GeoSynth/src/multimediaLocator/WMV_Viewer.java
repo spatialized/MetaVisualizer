@@ -1827,7 +1827,7 @@ public class WMV_Viewer
 //		else
 //			vLoc = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);			// Update location
 		
-		WMV_Model m = currentField.getModel();
+		WMV_ModelState m = currentField.getModel().getState();
 		
 		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
 		float newY = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
@@ -3771,7 +3771,7 @@ public class WMV_Viewer
 
 				float newX = 0.f, newZ = 0.f, newY = 0.f;
 
-				WMV_Model m = currentField.getModel();
+				WMV_ModelState m = currentField.getModel().getState();
 				if(m.highLongitude != -1000000 && m.lowLongitude != 1000000 && m.highLatitude != -1000000 && m.lowLatitude != 1000000 && m.highAltitude != -1000000 && m.lowAltitude != 1000000)
 				{
 					if(m.highLongitude != m.lowLongitude && m.highLatitude != m.lowLatitude)

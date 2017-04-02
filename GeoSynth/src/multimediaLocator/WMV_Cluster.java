@@ -389,24 +389,23 @@ public class WMV_Cluster
 	{
 		switch(mediaType)
 		{
-		case 0:
-			state.images = new ArrayList<Integer>();
-			state.images.add(mediaID);
-			break;
-		case 1:
-			state.panoramas = new ArrayList<Integer>();
-			state.panoramas.add(mediaID);
-			break;
-		case 2:
-			state.videos = new ArrayList<Integer>();
-			state.videos.add(mediaID);
-			break;
-		default:
-			break;
+			case 0:
+				state.images = new ArrayList<Integer>();
+				state.images.add(mediaID);
+				break;
+			case 1:
+				state.panoramas = new ArrayList<Integer>();
+				state.panoramas.add(mediaID);
+				break;
+			case 2:
+				state.videos = new ArrayList<Integer>();
+				state.videos.add(mediaID);
+				break;
+			default:
+				break;
 		}
 		
 		state.mediaCount = 1;
-//		state.clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
 
 		state.active = true;
 		state.empty = false;
@@ -885,7 +884,7 @@ public class WMV_Cluster
 	 */
 	void absorbCluster(WMV_Cluster cluster, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
 	{
-		if(debugSettings.cluster)
+//		if(debugSettings.cluster)
 			System.out.println("Merging cluster "+getID()+" with "+cluster.getID());
 
 		/* Find images associated with cluster */
@@ -925,15 +924,13 @@ public class WMV_Cluster
 		}
 
 		/* Empty merged cluster */
-		cluster.state.images = new ArrayList<Integer>();
-		cluster.state.panoramas = new ArrayList<Integer>();
-		cluster.state.videos = new ArrayList<Integer>();
-//		cluster.images = new IntList();
-//		cluster.panoramas = new IntList();
-//		cluster.videos = new IntList();
-		cluster.state.mediaCount = 0;
-		cluster.state.active = false;
-		cluster.state.empty = true;
+		cluster.empty();
+//		cluster.state.images = new ArrayList<Integer>();
+//		cluster.state.panoramas = new ArrayList<Integer>();
+//		cluster.state.videos = new ArrayList<Integer>();
+//		cluster.state.mediaCount = 0;
+//		cluster.state.active = false;
+//		cluster.state.empty = true;
 	}
 	
 	/**
@@ -1526,11 +1523,6 @@ public class WMV_Cluster
 	{
 		return state.videos;
 	}
-	
-//	public int getMediaCount()
-//	{
-//		return state.mediaCount;
-//	}
 	
 	public ArrayList<WMV_TimeSegment> getTimeline()
 	{

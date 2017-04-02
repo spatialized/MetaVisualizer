@@ -28,10 +28,9 @@ class WMV_Image extends WMV_Viewable
 		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
 		state = new WMV_ImageState();
-//		vState.vState.filePath = newFilePath;
 
-		image = newImage;														// Empty image
-//		vState.gpsLocation = newGPSLocation;
+		if(newImage != null) image = newImage;														// Empty image
+		
 		state.imageWidth = newWidth;
 		state.imageHeight = newHeight;
 		
@@ -43,15 +42,11 @@ class WMV_Image extends WMV_Viewable
 		state.origFocusDistance = state.focusDistance;
 
 		state.sensorSize = newSensorSize;
-//		vState.brightness = newBrightness;
-
-//		vState.theta = newTheta;              		// GPS Orientation (Yaw angle)
 		state.phi = newElevation;            		// Pitch angle
 		state.rotation = newRotation;             // Rotation angle
 		state.orientation = newOrientation;       // Vertical (90) or Horizontal (0)
 
 		state.focalLength = newFocalLength;
-//		vState.cameraModel = newCameraModel;
 		
 		if(newDateTime != null)
 			time = new WMV_Time( newDateTime, getID(), getViewableState().cluster, 0, newTimeZone );		
@@ -60,6 +55,40 @@ class WMV_Image extends WMV_Viewable
 
 		setAspectRatio( calculateAspectRatio() );
 	}  
+
+//	WMV_Image ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
+//			float newOrientation, float newElevation, float newRotation, float newFocusDistance, float newSensorSize, int newCameraModel, 
+//			int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone ) 
+//	{
+//		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
+//
+//		state = new WMV_ImageState();
+//
+////		image = newImage;														// Empty image
+//		state.imageWidth = newWidth;
+//		state.imageHeight = newHeight;
+//		
+//		state.vertices = new PVector[4]; 
+//		state.vertices = new PVector[4]; 
+//
+//		if(newFocusDistance == -1.f) state.focusDistance = state.defaultFocusDistance;
+//		else state.focusDistance = newFocusDistance;
+//		state.origFocusDistance = state.focusDistance;
+//
+//		state.sensorSize = newSensorSize;
+//		state.phi = newElevation;            		// Pitch angle
+//		state.rotation = newRotation;             // Rotation angle
+//		state.orientation = newOrientation;       // Vertical (90) or Horizontal (0)
+//
+//		state.focalLength = newFocalLength;
+//		
+//		if(newDateTime != null)
+//			time = new WMV_Time( newDateTime, getID(), getViewableState().cluster, 0, newTimeZone );		
+//		else
+//			time = null;
+//
+//		setAspectRatio( calculateAspectRatio() );
+//	}  
 
 	/**
 	 * Register this image for drawing by the world object (?)
@@ -1156,6 +1185,16 @@ class WMV_Image extends WMV_Viewable
 		 }
 	 }
 	 
+	 public WMV_ImageState getState()
+	 {
+		 return state;
+	 }
+	 
+	 public void captureState()
+	 {
+		 state.setViewableState(vState);
+	 }
+	 
 	 public void setBlurMask(PImage newBlurMask)
 	 {
 		 blurMask = newBlurMask;
@@ -1176,12 +1215,12 @@ class WMV_Image extends WMV_Viewable
 		 return state.rotation;
 	 }
 
-	 public float getWidth()
+	 public int getWidth()
 	 {
 		 return state.imageWidth;
 	 }
 
-	 public float getHeight()
+	 public int getHeight()
 	 {
 		 return state.imageHeight;
 	 }
@@ -1253,11 +1292,6 @@ class WMV_Image extends WMV_Viewable
 	 public void setBlurMaskID(int newBlurMaskID)
 	 {
 		 state.blurMaskID = newBlurMaskID;
-	 }
-	 
-	 public WMV_ImageState getState()
-	 {
-		 return state;
 	 }
 	 
 //	 private PImage getDesaturated(PImage in, float amt) 

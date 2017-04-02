@@ -671,7 +671,7 @@ public class ML_Map
 			if (imageDistance < world.viewer.getSettings().getFarViewingDistance() && imageDistance > world.viewer.getSettings().getNearClippingDistance())    // If image is in visible range
 				visible = true;                                              
 
-			if(visible && image.getState().location != null && !image.getViewableState().disabled && !image.getViewableState().hidden)
+			if(visible && image.getViewableState().location != null && !image.getViewableState().disabled && !image.getViewableState().hidden)
 			{
 				float alpha = 255.f;
 				if(!ignoreTime && world.getState().timeFading)

@@ -1,5 +1,7 @@
 package multimediaLocator;
 
+import java.time.ZonedDateTime;
+
 import processing.core.PVector;
 
 /**
@@ -9,60 +11,7 @@ import processing.core.PVector;
  */
 public class WMV_ImageState 
 {
-	
-	/* ---from Viewable--- */
-	/* Status Modes */
-	public boolean visible = false;				// Media is currently visible and will be drawn
-	public boolean active = false;				// True when the image has faded in and isn't fading out	-- Needed?
-	public boolean disabled = false;			// Disabled due to errors or user and will not be drawn
-	public boolean hidden = false;				// Hidden from view											-- Needed?
-	public boolean requested = false;			// Indicates a recent request to load media from disk
-
-	/* General */
-	public int id;
-	public int mediaType;							/* Media Types  0: image 1: panorama 2: video 3: sound */
-	public String name = "";
-	public String filePath = "";
-
-	WMV_Time time;
-	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
-	public boolean currentMedia;
-	public float timeBrightness = 0.f;
-	
-	/* Model */
-	public PVector captureLocation;				// Media capture location in simulation – EXIF GPS coords scaled to fieldSize.
-	public PVector location;        			// Media location in simulation 
-	public int cluster = -1;				 			// Cluster it belongs to	
-	public float theta = 0;                			// Media Orientation (in Degrees N)
-	public boolean fadingFocusDistance = false, beginFadingObjectDistance = false;			// Fading distance of object in image?
-	public final float defaultAltitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
-
-	/* Metadata */
-	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
-	public int cameraModel;                 	// Camera model
-	public boolean showMetadata = false;		// Show metadata
-	public float brightness;
-	
-	/* Interaction */
-	private boolean selected = false;
-
-	/* Graphics */
-	public float aspectRatio = 0.666f;	// Aspect ratio of image or texture
-	public PVector azimuthAxis = new PVector(0, 1, 0);
-	public PVector verticalAxis = new PVector(1, 0, 0);
-	public PVector rotationAxis = new PVector(0, 0, 1);
-	public float centerSize = 0.05f;
-
-	/* Transparency */
-	public float viewingBrightness = 0;			// Final image brightness (or alpha in useAlphaFading mode) 
-	public boolean isFadingIn = false, isFadingOut = false;
-	public float fadingBrightness;							// Media transparency due to fading in / out
-	public boolean beginFading = false, fading = false;		
-	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
-	public boolean fadedOut = false;			// Recently faded out
-	public boolean fadedIn = false;
-
-	/* ---from Image--- */
+	public WMV_ViewableState vState;
 	public int blurMaskID;
 	
 	public PVector[] vertices, sVertices;	// Vertex list
@@ -79,7 +28,7 @@ public class WMV_ImageState
 	public boolean thinningVisibility = false;
 
 	/* Metadata */
-	public float imageWidth, imageHeight;				// Image width and height
+	public int imageWidth, imageHeight;				// Image width and height
 	public float phi;			        				// Image Elevation (in Degrees N)
 	public float orientation;              			// Landscape = 0, Portrait = 90, Upside Down Landscape = 180, Upside Down Portrait = 270
 	public float rotation;				    			// Elevation angle and Z-axis rotation
@@ -94,8 +43,14 @@ public class WMV_ImageState
 	/* Video Association */
 	public boolean isVideoPlaceHolder = false;
 	public int assocVideoID = -1;
-
-
 	
-	WMV_ImageState(){}
+	WMV_ImageState()
+	{
+		vState = new WMV_ViewableState();
+	}
+	
+	void setViewableState(WMV_ViewableState newState)
+	{
+		vState = newState;
+	}
 }

@@ -1040,7 +1040,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		{
 			state.hasImagePlaceholder = true;
 			state.imagePlaceholder = i.getID();
-//			WMV_Image i = p.getImage(state.imagePlaceholder);
 			
 			/* Set video parameters from image placeholder metadata */
 //			setCameraModel( i.getCameraModel() );
@@ -1052,7 +1051,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			state.rotation = i.getRotation();             
 			state.sensorSize = i.getSensorSize();
 			
-//			vState.aspectRatio = calculateAspectRatio();								// Set aspect ratio from original height / width		
 			setAspectRatio( calculateAspectRatio() );
 			state.videoWidth = i.getWidth();									
 			state.videoHeight = (int) (i.getWidth() * getAspectRatio());	
@@ -1263,6 +1261,11 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		return state;
 	}
 	
+	 public void captureState()
+	 {
+		 state.setViewableState(vState);
+	 }
+	 
 	/**
 	 * @return Image placeholder for this video
 	 */

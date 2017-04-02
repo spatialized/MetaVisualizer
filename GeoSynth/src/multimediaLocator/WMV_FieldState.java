@@ -46,7 +46,6 @@ public class WMV_FieldState
 	private ArrayList<WMV_ImageState> images; 					// All images in this field
 	private ArrayList<WMV_PanoramaState> panoramas; 			// All panoramas in this field
 	private ArrayList<WMV_VideoState> videos; 					// All videos in this field
-//	private ArrayList<WMV_SoundState> sounds; 					// All sounds in this field
 	
 	WMV_FieldState()
 	{

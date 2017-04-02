@@ -54,7 +54,7 @@ public class ML_Library
 
 			//		    Staff newStaff = mapper.readValue(file, Staff.class);
 			WMV_Image newImage = mapper.readValue(file, WMV_Image.class);
-			puts("They are equal", newImage.equals(image));      // Not working ??
+			puts("WMV_Images are equal: ", newImage.equals(image));      // Not working ??
 			//println("They are equal", newStaff.equals(staff));
 		}
 		catch (Throwable t)
@@ -76,7 +76,7 @@ public class ML_Library
 
 			//		    Staff newStaff = mapper.readValue(file, Staff.class);
 			WMV_WorldSettings newSettings = mapper.readValue(file, WMV_WorldSettings.class);
-			System.out.println("Equal"+ newSettings.equals(settings));      // Not working ??
+			System.out.println("WorldSettings are equal:"+ newSettings.equals(settings));      // Not working ??
 		}
 		catch (Throwable t)
 		{
@@ -96,7 +96,7 @@ public class ML_Library
 			mapper.writeValue(file, state);    // Write staff object to file
 
 			WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
-			System.out.println("Equal"+ newState.equals(state));      // Not working ??
+			System.out.println("WorldStates are equal:"+ newState.equals(state));      // Not working ??
 		}
 		catch (Throwable t)
 		{
@@ -115,7 +115,7 @@ public class ML_Library
 			mapper.writeValue(file, settings);    // Write staff object to file
 
 			WMV_ViewerSettings newSettings = mapper.readValue(file, WMV_ViewerSettings.class);
-			System.out.println("Equal"+ newSettings.equals(settings));      // Not working ??
+			System.out.println("ViewerSettings are equal:"+ newSettings.equals(settings));      // Not working ??
 		}
 		catch (Throwable t)
 		{
@@ -134,11 +134,51 @@ public class ML_Library
 			mapper.writeValue(file, state);    // Write staff object to file
 
 			WMV_ViewerState newState = mapper.readValue(file, WMV_ViewerState.class);
+			System.out.println("ViewerStates are equal:"+ newState.equals(state));      // Not working ??
 		}
 		catch (Throwable t)
 		{
 			System.out.println("saveViewerState Throwable t:"+t);
 		}
+	}
+
+	public WMV_WorldSettings loadWorldSettings(String newFilePath)		// Testing
+	{
+		String filePath = newFilePath;
+
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+			file = new File(filePath);
+			WMV_WorldSettings newState = mapper.readValue(file, WMV_WorldSettings.class);
+			return newState;
+		}
+		catch (Throwable t)
+		{
+			System.out.println("loadWorldSettings Throwable t:"+t);
+		}
+		return null;
+	}
+
+	public WMV_WorldState loadWorldState(String newFilePath)		// Testing
+	{
+		String filePath = newFilePath;
+
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			file = new File(filePath);
+			//		    mapper.writeValue(file, state);    // Write staff object to file
+
+			WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
+			return newState;
+		}
+		catch (Throwable t)
+		{
+			System.out.println("loadWorldState Throwable t:"+t);
+		}
+		return null;
 	}
 
 	public WMV_ViewerSettings loadViewerSettings(String newFilePath)		// Testing
@@ -201,27 +241,6 @@ public class ML_Library
 		}
 	}
 
-//	public void saveField(WMV_FieldState f)
-//	{
-//		String filePath = "fieldOutputTest.json";
-//
-//		final ObjectMapper mapper = JsonFactory.create();
-//		final File file;
-//		try {
-////			file = File.createTempFile("json", "temp.json");    // Use temp file
-//			file = new File(filePath);
-//			mapper.writeValue(file, f);    // Write staff object to file
-//
-//			WMV_FieldState newFieldState = mapper.readValue(file, WMV_FieldState.class);
-//			puts("saveField... Field states are equal", newFieldState.equals(f));      // Not working ??
-//			//println("They are equal", newStaff.equals(staff));
-//		}
-//		catch (Throwable t)
-//		{
-//			System.out.println("saveFieldData Throwable t:"+t);
-//		}
-//	}
-
 	public void saveFieldData(WMV_Field f, String newFilePath)
 	{
 		f.captureFieldState();
@@ -242,5 +261,26 @@ public class ML_Library
 		{
 			System.out.println("saveFieldData Throwable t:"+t);
 		}
+	}
+	
+	public WMV_FieldState loadFieldState(String newFilePath)		// Testing
+	{
+		String filePath = newFilePath;
+
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			file = new File(filePath);
+			//		    mapper.writeValue(file, state);    // Write staff object to file
+
+			WMV_FieldState newState = mapper.readValue(file, WMV_FieldState.class);
+			return newState;
+		}
+		catch (Throwable t)
+		{
+			System.out.println("loadViewerState Throwable t:"+t);
+		}
+		return null;
 	}
 }

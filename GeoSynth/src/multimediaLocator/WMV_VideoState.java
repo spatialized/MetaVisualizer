@@ -7,7 +7,9 @@ import processing.core.PVector;
  * @author davidgordon
  *
  */
-public class WMV_VideoState {
+public class WMV_VideoState 
+{
+	public WMV_ViewableState vState;
 	
 	public boolean loaded = false;
 	public boolean playing = false;
@@ -33,7 +35,7 @@ public class WMV_VideoState {
 
 	/* Graphics */
 	PVector[] vertices, sVertices;
-	public float videoWidth = 0, videoHeight = 0;			// Video width and height
+	public int videoWidth = 0, videoHeight = 0;			// Video width and height
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
@@ -63,5 +65,13 @@ public class WMV_VideoState {
 	public int imagePlaceholder = -1;
 
 	
-	WMV_VideoState(){}
+	WMV_VideoState()
+	{
+		vState = new WMV_ViewableState();
+	}
+	
+	void setViewableState(WMV_ViewableState newState)
+	{
+		vState = newState;
+	}
 }

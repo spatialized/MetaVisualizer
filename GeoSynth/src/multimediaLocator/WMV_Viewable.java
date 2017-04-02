@@ -26,12 +26,10 @@ public abstract class WMV_Viewable
 	public WMV_ViewableState vState;
 	
 	/* Time */
-	ScaleMap timeLogMap;
-	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
-	WMV_Time time;
+	private ScaleMap timeLogMap;
+	private InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
+	public WMV_Time time;
 
-	String timeZone;
-	
 	WMV_Viewable ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
 	{
@@ -51,10 +49,12 @@ public abstract class WMV_Viewable
 		vState.fadingBrightness = 0.f;			
 		vState.fadingStart = 0.f;
 
+		vState.dateTime = newDateTime;
+
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(circularEaseOut);
 		
-		timeZone = newTimeZone;
+		vState.timeZone = newTimeZone;
 	}  
 
 	abstract void loadMedia(MultimediaLocator ml);

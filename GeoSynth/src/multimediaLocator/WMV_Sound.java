@@ -266,4 +266,11 @@ public class WMV_Sound extends WMV_Viewable
 
 		return distance;
 	}
+	
+//	 public void captureState()
+//	 {
+//		 state.setViewableState(vState);
+//	 }
+//	 
+
 }

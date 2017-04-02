@@ -521,6 +521,12 @@ public class WMV_Panorama extends WMV_Viewable
 		return state;
 	}
 	
+	 public void captureState()
+	 {
+		 state.setViewableState(vState);
+	 }
+	 
+	
 	public void setDirection( float newTheta )
 	{
 		setTheta(newTheta);

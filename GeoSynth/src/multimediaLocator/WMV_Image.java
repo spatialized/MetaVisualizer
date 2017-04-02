@@ -445,9 +445,9 @@ class WMV_Image extends WMV_Viewable
 		float zDisp = r * (float)Math.cos(PApplet.radians(360-getTheta())) * (float)Math.sin(PApplet.radians(90-state.phi));  
 		float yDisp = r * (float)Math.cos(PApplet.radians(90-state.phi)); 
 
-		state.disp = new PVector(-xDisp, -yDisp, -zDisp);
+		state.displacement = new PVector(-xDisp, -yDisp, -zDisp);
 
-		loc.add(state.disp);
+		loc.add(state.displacement);
 		distance = PVector.dist(loc, camLoc);     
 
 		return distance;
@@ -501,12 +501,13 @@ class WMV_Image extends WMV_Viewable
 		
 		state.vertices = translateVertices(state.vertices, getCaptureLocation());               // Move image to photo capture location   
 		
-		state.disp = getDisplacementVector();
-		state.vertices = translateVertices(state.vertices, state.disp);          // Translate image state.vertices from capture to viewing location
-		state.vertices = translateVertices(state.vertices, state.disp);
+		state.displacement = getDisplacementVector();
+		state.vertices = translateVertices(state.vertices, state.displacement);          // Translate image state.vertices from capture to viewing location
+		state.vertices = translateVertices(state.vertices, state.displacement);
 		
 		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
-		vState.location.add(state.disp);     													 
+		moveLocation(state.displacement);     													 
+//		vState.location.add(state.disp);     													 
 	}
 	
 	public PVector getDisplacementVector()

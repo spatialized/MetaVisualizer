@@ -13,28 +13,18 @@ import processing.core.PVector;
  */
 public class WMV_Panorama extends WMV_Viewable 
 {
+	/* Classes */
+	private WMV_PanoramaState state;
+	
 	/* Graphics */
 	public PImage texture;								// Texture image pixels
 	private boolean initialized;
-	public final float panoramaFocusDistanceFactor = 1.1f;	// Scaling from defaultFocusDistance to panorama radius
-	
-	/* EXIF Metadata */
-	private float imageWidth, imageHeight;		// Width and height
-//	public int origWidth, origHeight;			// Original width and height
 
-	/* Derived Metadata */
-	private float phi = 0.f;
-	
-	/* Panorama */
-	private PVector[] sphere;	
-	public int resolution = 50;  										// Sphere detail setting
+	public PVector[] sphere;	
+	private final float tablePrecision = 0.5f;
+	private final int tableLength = (int)(360.0f / tablePrecision);
 	private float sinTable[];
 	private float cosTable[];
-	private float tablePrecision = 0.5f;
-	private int tableLength = (int)(360.0f / tablePrecision);
-	private float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-	public float radius;
-	public float origRadius;
 	
 	WMV_Panorama ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone,
@@ -42,12 +32,11 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
+		state = new WMV_PanoramaState();
+
 		texture = newTexture;
-
-		imageWidth = newWidth;
-		imageHeight = newHeight;
-
-//		vState.filePath = newFilePath;
+		state.imageWidth = newWidth;
+		state.imageHeight = newHeight;
 
 		if(newLocation != null)
 		{
@@ -55,19 +44,14 @@ public class WMV_Panorama extends WMV_Viewable
 			setCaptureLocation(newLocation);
 		}
 		
-//		vState.gpsLocation = newGPSLocation;
-//		vState.cameraModel = newCameraModel;
-
 		if(newDateTime != null)
 			time = new WMV_Time( newDateTime, getID(), getClusterID(), 1, newTimeZone );
 		else
 			time = null;
 
-//		vState.theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
-		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
-		
-		radius = defaultFocusDistance * panoramaFocusDistanceFactor;
-		origRadius = radius;
+		state.phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
+		state.radius = state.defaultFocusDistance * state.initFocusDistanceFactor;
+		state.origRadius = state.radius;
 	}  
 
 	/**
@@ -78,7 +62,6 @@ public class WMV_Panorama extends WMV_Viewable
 		if(getViewableState().requested && texture.width != 0)			// If requested image has loaded, initialize image 
 		{
 			initializeSphere();					
-
 			setRequested(false);
 //			p.p.vState.requestedPanoramas--;
 		}
@@ -183,7 +166,7 @@ public class WMV_Panorama extends WMV_Viewable
 		world.p.pushMatrix();
 		world.p.translate(getLocation().x, getLocation().y, getLocation().z);
 		world.p.fill(215, 135, 255, getViewingBrightness());
-		world.p.sphere(radius);								// -- Testing
+		world.p.sphere(state.radius);								// -- Testing
 		world.p.popMatrix();
 	}
 	
@@ -217,7 +200,7 @@ public class WMV_Panorama extends WMV_Viewable
 		world.p.pushMatrix();
 		world.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
 
-		float r = radius;				
+		float r = state.radius;				
 		int v0,v1,v2;
 
 		world.p.textureMode(PApplet.IMAGE);
@@ -257,11 +240,11 @@ public class WMV_Panorama extends WMV_Viewable
 			}
 		}
 		
-		float iu = (float)(texture.width-1)/(resolution);
-		float iv = (float)(texture.height-1)/(resolution);
+		float iu = (float)(texture.width-1)/(state.resolution);
+		float iv = (float)(texture.height-1)/(state.resolution);
 		float u = 0, v = iv;
 
-		for (int i = 0; i < resolution; i++) 
+		for (int i = 0; i < state.resolution; i++) 
 		{
 			world.p.vertex(0, -r, 0,u,0);
 			world.p.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
@@ -274,15 +257,15 @@ public class WMV_Panorama extends WMV_Viewable
 
 		// Draw middle rings
 		int voff = 0;
-		for(int i = 2; i < resolution; i++) 
+		for(int i = 2; i < state.resolution; i++) 
 		{
 			v1 = v0 = voff;
-			voff += resolution;
+			voff += state.resolution;
 			v2 = voff;
 			u = 0;
 			world.p.beginShape(PApplet.TRIANGLE_STRIP);
 			world.p.texture(texture);
-			for(int j = 0; j < resolution; j++) 			// Draw ring
+			for(int j = 0; j < state.resolution; j++) 			// Draw ring
 			{
 				world.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
 				world.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
@@ -302,7 +285,7 @@ public class WMV_Panorama extends WMV_Viewable
 		// Draw northern cap
 		world.p.beginShape(PApplet.TRIANGLE_STRIP);
 		world.p.texture(texture);
-		for(int i = 0; i < resolution; i++) 
+		for(int i = 0; i < state.resolution; i++) 
 		{
 			v2 = voff + i;
 			world.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
@@ -330,31 +313,31 @@ public class WMV_Panorama extends WMV_Viewable
 			cosTable[i] = (float) Math.cos(i * PApplet.DEG_TO_RAD * tablePrecision);
 		}
 
-		float delta = (float)tableLength/resolution;
-		float[] cx = new float[resolution];
-		float[] cz = new float[resolution];
+		float delta = (float)tableLength/state.resolution;
+		float[] cx = new float[state.resolution];
+		float[] cz = new float[state.resolution];
 
-		for (int i = 0; i < resolution; i++) 		// Calc unit circle in XZ plane
+		for (int i = 0; i < state.resolution; i++) 		// Calc unit circle in XZ plane
 		{
 			cx[i] = -cosTable[(int) (i*delta) % tableLength];
 			cz[i] = sinTable[(int) (i*delta) % tableLength];
 		}
 
-		int vertCount = resolution * (resolution-1) + 2;			// Computing vertexlist, starting at south pole
+		int vertCount = state.resolution * (state.resolution-1) + 2;			// Computing vertexlist, starting at south pole
 		int currVert = 0;
 
 		sphere = new PVector[vertCount];			// Initialize sphere vertices array
 
-		float angle_step = (tableLength*0.5f)/resolution;
+		float angle_step = (tableLength*0.5f)/state.resolution;
 		float angle = angle_step;
 
 		// Step along Y axis
-		for (int i = 1; i < resolution; i++) 
+		for (int i = 1; i < state.resolution; i++) 
 		{
 			float curRadius = sinTable[(int) angle % tableLength];
 			float currY = -cosTable[(int) angle % tableLength];
 
-			for (int j = resolution-1; j >= 0; j--) 
+			for (int j = state.resolution-1; j >= 0; j--) 
 				sphere[currVert++] = new PVector(cx[j] * curRadius, currY, cz[j] * curRadius);
 
 			angle += angle_step;
@@ -363,11 +346,11 @@ public class WMV_Panorama extends WMV_Viewable
 		sphere[currVert++] = new PVector(0,0,0);
 		sphere[currVert++] = new PVector(0,0,0);
 		
-//		if (phi != 0.f)
-//		sphere = rotateVertices(sphere, -phi, verticalAxis);         // Rotate around X axis
+//		if (state.phi != 0.f)
+//		sphere = rotateVertices(sphere, -state.phi, verticalAxis);         // Rotate around X axis
 		
-		if (phi != 0.f)
-			sphere = rotateVertices(sphere, -phi, getViewableState().rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
+		if (state.phi != 0.f)
+			sphere = rotateVertices(sphere, -state.phi, getViewableState().rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
 
 		if( getTheta() != 0.f )
 			sphere = rotateVertices(sphere, 360-getTheta(), getViewableState().azimuthAxis); // Rotate around Z axis
@@ -415,9 +398,9 @@ public class WMV_Panorama extends WMV_Viewable
 
 		float distVisibility = 1.f;
 
-		if(viewDist > radius-getWorldSettings().clusterCenterSize*3.f)
+		if(viewDist > state.radius-getWorldSettings().clusterCenterSize*3.f)
 		{
-			float vanishingPoint = radius;	// Distance where transparency reaches zero
+			float vanishingPoint = state.radius;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
 				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-getWorldSettings().clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
@@ -500,7 +483,7 @@ public class WMV_Panorama extends WMV_Viewable
 		String strLongitude = " Longitude: "+String.valueOf(getGPSLocation().x);
 		String strAltitude = "Altitude: "+String.valueOf(getGPSLocation().y);
 		String strTheta = "Direction: "+String.valueOf(getTheta());
-		String strElevation = "Vertical Angle: "+String.valueOf(phi);
+		String strElevation = "Vertical Angle: "+String.valueOf(state.phi);
 
 		String strTitleDebug = "--- Debugging ---";
 		String strBrightness = "brightness: "+String.valueOf(getViewingBrightness());
@@ -533,6 +516,11 @@ public class WMV_Panorama extends WMV_Viewable
 		}
 	}
 
+	public WMV_PanoramaState getState()
+	{
+		return state;
+	}
+	
 	public void setDirection( float newTheta )
 	{
 		setTheta(newTheta);
@@ -540,12 +528,12 @@ public class WMV_Panorama extends WMV_Viewable
 
 	void resetRadius()
 	{
-		setRadius(origRadius);
+		setRadius(state.origRadius);
 	}
 
 	void setRadius(float newRadius)
 	{
-		radius = newRadius;
+		state.radius = newRadius;
 	}
 	
 	/**
@@ -570,21 +558,21 @@ public class WMV_Panorama extends WMV_Viewable
 
 	public float getWidth()
 	{
-		return imageWidth;
+		return state.imageWidth;
 	}
 
 	public float getHeight()
 	{
-		return imageHeight;
+		return state.imageHeight;
 	}
 	
 	public float getRadius()
 	{
-		return radius;
+		return state.radius;
 	}
 	
 	public float getOrigRadius()
 	{
-		return origRadius;
+		return state.origRadius;
 	}
 }

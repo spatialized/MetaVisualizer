@@ -35,7 +35,6 @@ public abstract class WMV_Viewable
 	WMV_Viewable ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
 	{
-//		p = parent;
 		vState = new WMV_ViewableState();
 		vState.name = newName;
 		vState.id = newID; 
@@ -338,26 +337,24 @@ public abstract class WMV_Viewable
 					vState.active = true;
 
 				vState.timeBrightness = PApplet.constrain(PApplet.map(curTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
-				if(getMediaType() == 1)
-					System.out.println(" Fading In..."+vState.id);
+				if(debugSettings.panorama && getMediaType() == 1)
+					System.out.println(" Panorama Fading In..."+vState.id);
 			}
 			else if(curTime > fadeOutStart)					// During fade out
 			{
-				if(getMediaType() == 1)
-					System.out.println(" Fading Out..."+vState.id);
+				if(debugSettings.panorama && getMediaType() == 1)
+					System.out.println(" Panorama Fading Out..."+vState.id);
 				vState.timeBrightness = PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f); 
 				if(worldState.getTimeMode() == 2 && vState.isCurrentMedia)
 				{
 					if(fadeOutEnd - curTime == 1)
-					{
 						vState.isCurrentMedia = false;	// No longer the current media in Single Time Mode
-					}
 				}
 			}
 			else													// After fade in, before fade out
 			{
-				if(getMediaType() == 1)
-					System.out.println(" Full visibility...");				// Full visibility
+				if(debugSettings.panorama && getMediaType() == 1)
+					System.out.println(" Panorama Full visibility...");				// Full visibility
 				vState.timeBrightness = 1.f;								
 			}
 		}
@@ -648,6 +645,11 @@ public abstract class WMV_Viewable
 	public void setLocation(PVector newLocation)
 	{
 		vState.location = newLocation;
+	}
+	
+	public void moveLocation(PVector disp)
+	{
+		vState.location.add(disp);     													 
 	}
 	
 	public PVector getLocation()

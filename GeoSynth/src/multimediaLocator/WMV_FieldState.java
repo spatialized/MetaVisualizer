@@ -7,7 +7,8 @@ import java.util.List;
  * @author davidgordon
  *
  */
-public class WMV_FieldState {
+public class WMV_FieldState 
+{
 	/* General */
 	public int id;						// Field ID
 	public String name;				// Field Name

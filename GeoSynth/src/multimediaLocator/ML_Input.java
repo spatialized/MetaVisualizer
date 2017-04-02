@@ -917,6 +917,12 @@ public class ML_Input
 				if (key == 'U') 		// Go to nearest cluster with video
 					world.viewer.moveToNextCluster(false, 2);
 
+				if (shiftKey && key == 'u') 		// Teleport to nearest cluster with panorama
+					world.viewer.moveToNextCluster(true, 1);
+
+				if (shiftKey && key == 'U') 		// Go to nearest cluster with panorama
+					world.viewer.moveToNextCluster(false, 1);
+
 				if (key == 'm') 
 					world.viewer.moveToNearestCluster(true);
 

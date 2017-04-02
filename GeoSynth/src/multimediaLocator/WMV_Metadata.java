@@ -155,9 +155,9 @@ class WMV_Metadata
 		imageFolderFound = (imageFolderFile.exists() && imageFolderFile.isDirectory());	
 		panoramaFolderFound = (panoramaFolderFile.exists() && panoramaFolderFile.isDirectory());
 		
-		System.out.println("smallImageFolderFound:"+smallImageFolderFound);
-		System.out.println("imageFolderFound:"+imageFolderFound);
-		System.out.println("panoramaFolderFound:"+panoramaFolderFound);
+//		System.out.println("smallImageFolderFound:"+smallImageFolderFound);
+//		System.out.println("imageFolderFound:"+imageFolderFound);
+//		System.out.println("panoramaFolderFound:"+panoramaFolderFound);
 
 		smallImageFiles = null;
 		imageFiles = null;
@@ -252,7 +252,7 @@ class WMV_Metadata
 			imageFiles = imageFolderFile.listFiles();
 		}
 
-//		if(debugSettings.metadata) 	
+		if(debugSettings.metadata) 	
 		{
 			if(smallImageFilesFound)
 				System.out.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);

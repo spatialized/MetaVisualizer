@@ -310,8 +310,7 @@ public class WMV_Field
 	 */
 	public boolean initialize(String library, boolean lockMediaToClusters)
 	{
-		if(debugSettings.main) 
-			System.out.println("Initializing field #"+state.id);
+		if(debugSettings.main) System.out.println("Initializing field #"+state.id);
 		
 		model.calculateFieldSize(images, panoramas, videos); 		// Calculate bounds of photo GPS locations
 		model.analyzeMedia(images, panoramas, videos);				// Analyze media locations and times 
@@ -330,7 +329,7 @@ public class WMV_Field
 		findImagePlaceHolders();				// Find image place holders for videos
 		calculateMediaVertices();				// Calculate all image vertices
 
-		if(debugSettings.main) System.out.println("Will run initial clustering for field #"+state.id+"...");
+		if(debugSettings.field) System.out.println("Will run initial clustering for field #"+state.id+"...");
 
 		runInitialClustering(hierarchical);		// Find media clusters
 //		model.findDuplicateClusterMedia();		// Find media in more than one cluster
@@ -338,7 +337,7 @@ public class WMV_Field
 		if(lockMediaToClusters)					// Center media capture locations at associated cluster locations
 			lockMediaToClusters();	
 
-		if(debugSettings.main) System.out.println("Creating timeline and dateline for field #"+state.id+"...");
+		if(debugSettings.field) System.out.println("Creating timeline and dateline for field #"+state.id+"...");
 
 		if( worldSettings.getTimeZonesFromGoogle )		// Get time zone for field from Google Time Zone API
 		{
@@ -357,7 +356,7 @@ public class WMV_Field
 		createTimelines();								// Create date-specific timelines for field
 		analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 		
-		if(debugSettings.main) System.out.println("Finished initializing field #"+state.id+"..."+state.name);
+		if(debugSettings.field) System.out.println("Finished initializing field #"+state.id+"..."+state.name);
 
 		return hierarchical;
 	}
@@ -369,7 +368,7 @@ public class WMV_Field
 						WMV_ViewerState currentViewerState)
 	{
 		worldSettings = currentWorldSettings;	// Update world settings
-		worldState = currentWorldState;	// Update world settings
+		worldState = currentWorldState;			// Update world state
 		viewerSettings = currentViewerSettings;	// Update viewer settings
 		viewerState = currentViewerState;		// Update viewer state
 		
@@ -1135,35 +1134,29 @@ public class WMV_Field
 	 */
 	public void runKMeansClustering(float epsilon, int refinement, float populationFactor)
 	{
-		System.out.println("Running Initial K Means clustering... epsilon:"+epsilon+" refinement:"+refinement+" populationFactor:"+populationFactor);
-		setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
-
-		/* Display Status */
-//		if(!display.initialSetup)
-//		{
-//			display.clearMessages();
-//			display.message(p.p, "Running K-Means Clustering...");
-//			display.message(p.p, " ");
-//			display.message(p.p, "  Iterations:"+refinement);
-//			display.message(p.p, "  Population Factor:"+populationFactor);
-//			if(p.worldState.mergeClusters)
-//			{
-//				display.message(p.p, "");
-//				display.message(p.p, "Cluster Merging:");
-//				display.message(p.p, "  Minimum Cluster Distance:"+p.p.settings.minClusterDistance);
-//				display.message(p.p, "  Maximum Cluster Distance:"+p.p.settings.maxClusterDistance);
-//			}
-//			display.message(p.p, " ");
+		if(debugSettings.field)
+		{
+			System.out.println("Running K-Means Clustering...");
+			System.out.println(" ");
+			System.out.println("  Iterations:"+refinement);
+			System.out.println("  Population Factor:"+populationFactor);
+			if(worldState.mergeClusters)
+			{
+				System.out.println("");
+				System.out.println("Cluster Merging:");
+				System.out.println("  Minimum Cluster Distance:"+worldSettings.minClusterDistance);
+				System.out.println("  Maximum Cluster Distance:"+worldSettings.maxClusterDistance);
+			}
+			System.out.println(" ");
 //			display.displayClusteringInfo(p.p);
-//		}
-		
-//		if(mediaDensity < XXX)			// ---Split into fields here
+		}
+		setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
 
 		/* Estimate number of clusters */
 		int numClusters = Math.round( (1.f / (float)Math.sqrt(model.getState().mediaDensity)) * populationFactor ); 	// Calculate numClusters from media density
 
-//		if(debugSettings.cluster && display.initialSetup)
-//			System.out.println("Creating "+numClusters+" initial clusters based on "+model.validMedia+" valid media...");
+		if(debugSettings.field)
+			System.out.println("Creating "+numClusters+" clusters based on "+model.getState().validMedia+" valid media...");
 		
 		/* K-means Clustering */
 		if (model.getState().validMedia > 1) 							// If there are more than 1 media point

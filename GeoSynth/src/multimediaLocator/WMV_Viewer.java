@@ -109,7 +109,6 @@ public class WMV_Viewer
 	public void loadViewerSettings(WMV_ViewerSettings newSettings)
 	{
 		settings = newSettings;
-//		update(worldSettings, worldState);
 	}
 
 	public void enterField(WMV_Field newField)
@@ -122,6 +121,9 @@ public class WMV_Viewer
 		worldSettings = newWorldSettings;
 		worldState = newWorldState;
 		setOrientation();
+		
+		if(attractorPoint != null) 
+			attractorPoint.update(worldSettings, worldState, settings, state);
 	}
 	
 	/*** 
@@ -141,7 +143,7 @@ public class WMV_Viewer
 
 		currentField.getAttractingClusters().size();
 		
-		if(worldState.getTimeMode() == 2 && ( getState().isMoving() || isFollowing() || isWalking() ))
+		if(worldState.getTimeMode() == 2 && ( isMoving() || isFollowing() || isWalking() ))
 			p.createTimeCycle();
 		if(worldSettings.timeCycleLength == -1 && worldState.frameCount % 10 == 0.f)
 			p.createTimeCycle();
@@ -667,25 +669,27 @@ public class WMV_Viewer
 	 */
 	public void teleportToCluster( int dest, boolean fade, int fieldTimeSegment ) 
 	{
-//		System.out.println("teleportToCluster() dest:"+dest);
-		if(dest >= 0 && dest < currentField.getClusters().size())
+		if(!isTeleporting() && !isMoving())
 		{
-			WMV_Cluster c = currentField.getCluster(dest);
+			if(dest >= 0 && dest < currentField.getClusters().size())
+			{
+				WMV_Cluster c = currentField.getCluster(dest);
 
-			if(fade)
-			{
-				state.teleportGoalCluster = dest;
-				state.teleportGoal = c.getLocation();
-				startTeleport(-1);
+				if(fade)
+				{
+					state.teleportGoalCluster = dest;
+					state.teleportGoal = c.getLocation();
+					startTeleport(-1);
+				}
+				else
+				{
+					setLocation( c.getLocation() );
+					setCurrentCluster(dest, fieldTimeSegment);
+				}
 			}
-			else
-			{
-				setLocation( c.getLocation() );
-				setCurrentCluster(dest, fieldTimeSegment);
-			}
+			else if(debugSettings.cluster || debugSettings.field || debugSettings.viewer)
+				System.out.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+currentField.getClusters().size());
 		}
-		else if(debugSettings.cluster || debugSettings.field || debugSettings.viewer)
-			System.out.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+currentField.getClusters().size());
 	}
 
 	public void setLocation(PVector newLocation)
@@ -2489,7 +2493,7 @@ public class WMV_Viewer
 	 */
 	private int getClusterAhead() 					// Returns the visible cluster closest to the camera
 	{
-		PVector camOrientation = state.getOrientationVector();
+		PVector camOrientation = getOrientationVector();
 
 		IntList nearClusters = getNearClusters(20, worldSettings.defaultFocusDistance * 4.f);	// Find 20 nearest clusters -- Change based on density?
 		IntList frontClusters = new IntList();
@@ -3131,9 +3135,9 @@ public class WMV_Viewer
 		int visImages = 0;
 		for( WMV_Image i : closeImages )
 		{
-			if(!i.isBackFacing(getLocation()) && !i.isBehindCamera(getLocation(), state.getOrientationVector()))			// If image is ahead and front facing
+			if(!i.isBackFacing(getLocation()) && !i.isBehindCamera(getLocation(), getOrientationVector()))			// If image is ahead and front facing
 			{
-				result = Math.abs(i.getFacingAngle(state.getOrientationVector()));			// Get angle at which it faces camera
+				result = Math.abs(i.getFacingAngle(getOrientationVector()));			// Get angle at which it faces camera
 
 				if(front)										// Look for centered or only visible image?
 				{
@@ -3163,9 +3167,9 @@ public class WMV_Viewer
 		int visVideos = 0;
 		for(WMV_Video v : closeVideos)
 		{
-			if(!v.isBackFacing(getLocation()) && !v.isBehindCamera(getLocation(), state.getOrientationVector()))			// If video is ahead and front facing
+			if(!v.isBackFacing(getLocation()) && !v.isBehindCamera(getLocation(), getOrientationVector()))			// If video is ahead and front facing
 			{
-				result = Math.abs(v.getFacingAngle(state.getOrientationVector()));			// Get angle at which it faces camera
+				result = Math.abs(v.getFacingAngle(getOrientationVector()));			// Get angle at which it faces camera
 
 				if(front)											// Look for centered or only visible image?
 				{
@@ -3262,9 +3266,9 @@ public class WMV_Viewer
 
 		for(WMV_Image s : possibleImages)
 		{
-			if(!s.isBackFacing(getLocation()) && !s.isBehindCamera(getLocation(), state.getOrientationVector()))					// If image is ahead and front facing
+			if(!s.isBackFacing(getLocation()) && !s.isBehindCamera(getLocation(), getOrientationVector()))					// If image is ahead and front facing
 			{
-				float result = Math.abs(s.getFacingAngle(state.getOrientationVector()));				// Get angle at which it faces camera
+				float result = Math.abs(s.getFacingAngle(getOrientationVector()));				// Get angle at which it faces camera
 
 				if(result < closestImageDist)										// Find closest to camera orientation
 				{
@@ -3287,9 +3291,9 @@ public class WMV_Viewer
 
 		for(WMV_Video v : possibleVideos)
 		{
-			if(!v.isBackFacing(getLocation()) && !v.isBehindCamera(getLocation(), state.getOrientationVector()))					// If image is ahead and front facing
+			if(!v.isBackFacing(getLocation()) && !v.isBehindCamera(getLocation(), getOrientationVector()))					// If image is ahead and front facing
 			{
-				float result = Math.abs(v.getFacingAngle(state.getOrientationVector()));				// Get angle at which it faces camera
+				float result = Math.abs(v.getFacingAngle(getOrientationVector()));				// Get angle at which it faces camera
 
 				if(result < closestVideoDist)								// Find closest to camera orientation
 				{
@@ -3542,7 +3546,7 @@ public class WMV_Viewer
 
 		for (int i = 0; i < f.getImages().size(); i++) {
 			if (f.getImage(i).getMediaState().visible) {
-				float imageAngle = f.getImage(i).getFacingAngle(state.getOrientationVector());
+				float imageAngle = f.getImage(i).getFacingAngle(getOrientationVector());
 				if (imageAngle < smallest) {
 					smallest = imageAngle;
 					smallestIdx = i;
@@ -3585,7 +3589,7 @@ public class WMV_Viewer
 
 		for (int i = 0; i < f.getVideos().size(); i++) {
 			if (f.getVideo(i).getMediaState().visible) {
-				float videoAngle = f.getVideo(i).getFacingAngle(state.getOrientationVector());
+				float videoAngle = f.getVideo(i).getFacingAngle(getOrientationVector());
 				if (videoAngle < smallest) {
 					smallest = videoAngle;
 					smallestIdx = i;
@@ -4101,7 +4105,7 @@ public class WMV_Viewer
 	 */
 	void start3DHUD()
 	{
-		p.p.perspective(getInitFieldOfView(), (float)p.p.width/(float)p.p.height, settings.getNearClippingDistance(), 10000);
+		p.p.perspective(getInitFieldOfView(), (float)p.p.width/(float)p.p.height, getNearClippingDistance(), 10000);
 		PVector t = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);
 		p.p.translate(t.x, t.y, t.z);
 		p.p.rotateY(camera.attitude()[0]);
@@ -4379,7 +4383,31 @@ public class WMV_Viewer
 	{
 		return settings.angleThinning;
 	}
+
+	/**
+	 * @return Current near viewing distance
+	 */
+	public float getNearViewingDistance()
+	{
+		return settings.nearViewingDistance;
+	}
+
+	/**
+	 * @return Current near clipping distance
+	 */
+	public float getNearClippingDistance()
+	{
+		return settings.nearClippingDistance;
+	}
 	
+	/**
+	 * @return Current far viewing distance
+	 */
+	public float getFarViewingDistance()
+	{
+		return settings.farViewingDistance;
+	}
+
 	public void setAngleThinning(boolean newAngleThinning)
 	{
 		settings.angleThinning = newAngleThinning;
@@ -4480,6 +4508,78 @@ public class WMV_Viewer
 		state.zooming = true;
 	}
 	
+	/**
+	 * @return Current camera orientation as a directional unit vector
+	 */
+	public PVector getOrientationVector()
+	{
+		return state.orientationVector;
+	}
+	
+	/**
+	 * @return Index of current cluster
+	 */
+	public int getCurrentClusterID()
+	{
+		return state.currentCluster;
+	}
+	
+	/**
+	 * @return Whether the viewer is teleporting
+	 */
+	public boolean isTeleporting()
+	{
+		return state.teleporting;
+	}
+	
+	/**
+	 * @return Whether the viewer is moving to a cluster or attractor
+	 */
+	public boolean isMoving()
+	{
+		if(state.movingToCluster || state.movingToAttractor)
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * @return Whether the viewer is moving to an attractor
+	 */
+	public boolean isMovingToAttractor()
+	{
+		return state.movingToAttractor;
+	}
+
+	/**
+	 * @return Whether the viewer is moving to a cluster
+	 */
+	public boolean isMovingToCluster()
+	{
+		return state.movingToCluster;
+	}
+
+	/**
+	 * @return Current field ID
+	 */
+	public int getField()
+	{
+		return state.field;
+	}
+	
+	public List<Integer> getClustersVisible()
+	{
+		return state.clustersVisible;
+	}
+	
+	/**
+	 * @return Current distance at which a cluster is considered nearby
+	 */
+	public float getClusterNearDistance()
+	{
+		return state.clusterNearDistance;
+	}
+
 //	private PVector velocity, acceleration, attraction;      // Physics model parameters
 //	public PVector getVelocity()
 //	{

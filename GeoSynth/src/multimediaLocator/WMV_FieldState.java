@@ -12,9 +12,6 @@ public class WMV_FieldState {
 	public int id;						// Field ID
 	public String name;				// Field Name
 	
-	/* Model */
-//	public WMV_Model model;										// Dimensions and properties of current virtual space
-
 	/* Time */
 	public String timeZoneID = "America/Los_Angeles";					// Current time zone
 

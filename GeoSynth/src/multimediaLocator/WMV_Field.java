@@ -44,12 +44,12 @@ public class WMV_Field
 	private ArrayList<WMV_Panorama> panoramas; 				// All panoramas in this field
 	private ArrayList<WMV_Video> videos; 					// All videos in this field
 	private ArrayList<WMV_Sound> sounds; 					// All videos in this field
-	private ArrayList<WMV_Cluster> clusters;					// Spatial groupings of media in the Image3D and Video3D arrays
+	private ArrayList<WMV_Cluster> clusters;				// Clusters (spatial groupings) of media 
 
 	/* Hierarchical Clustering */
 	private Cluster dendrogramTop;							// Top cluster of the dendrogram
 	private String[] names;									// Media names
-	private double[][] distances;
+	private double[][] distances;							// Media distances
 
 	WMV_Field( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
 			   ML_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
@@ -245,10 +245,17 @@ public class WMV_Field
 				
 				if (nowVisible || v.isFading())
 				{
-					v.updateTimeBrightness(clusters.get(v.getAssociatedCluster()), timeline, utilities);
-					v.update(p.p, utilities);  	// Update geometry + visibility
-					v.draw(p); 		// Display video
-					state.videosVisible++;
+					if(v.getAssociatedCluster() > clusters.size())
+					{
+						System.out.println("v id#"+v.getID()+" .getAssociatedCluster() > clusters.size():"+"v.getAssociatedCluster():"+v.getAssociatedCluster() +"clusters.size():" +clusters.size());
+					}
+					else
+					{
+						v.updateTimeBrightness(clusters.get(v.getAssociatedCluster()), timeline, utilities);
+						v.update(p.p, utilities);  	// Update geometry + visibility
+						v.draw(p); 		// Display video
+						state.videosVisible++;
+					}
 				}
 				else
 				{
@@ -292,12 +299,6 @@ public class WMV_Field
 //			}
 //		}
 
-//		if(debugSettings.field || viewerSettings.map3DMode)
-//		{
-//			if(clusters.size()>0)
-//				showClusterCenters();									// Display field cluster centers (media capture locations) 	
-//		}
-		
 //		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
 //		{
 //			if(clusters.size()>0)
@@ -804,68 +805,6 @@ public class WMV_Field
 			 }
 		 }
 	 }
-
-//	public void setBlurMasks()
-//	{
-//		for(WMV_Image image : getImages())
-//		{
-//			int bmID = image.blurMaskID;
-//			switch(bmID)
-//			{
-//			case 0:
-//				setImageBlurMask(image, p.blurMaskLeftTop);
-//				break;
-//			case 1:
-//				setImageBlurMask(image, p.blurMaskLeftCenter);
-//				break;
-//			case 2:
-//				setImageBlurMask(image, p.blurMaskLeftBottom);
-//				break;
-//			case 3:
-//				setImageBlurMask(image, p.blurMaskLeftBoth);
-//				break;
-//			
-//			case 4:
-//				setImageBlurMask(image, p.blurMaskCenterTop);
-//				break;
-//			case 5:
-//				setImageBlurMask(image, p.blurMaskCenterCenter);
-//				break;
-//			case 6:
-//				setImageBlurMask(image, p.blurMaskCenterBottom);
-//				break;
-//			case 7:
-//				setImageBlurMask(image, p.blurMaskCenterBoth);
-//				break;
-//		
-//			case 8:
-//				setImageBlurMask(image, p.blurMaskRightTop);
-//				break;
-//			case 9:
-//				setImageBlurMask(image, p.blurMaskRightCenter);
-//				break;
-//			case 10:
-//				setImageBlurMask(image, p.blurMaskRightBottom);
-//				break;
-//			case 11:
-//				setImageBlurMask(image, p.blurMaskRightBoth);
-//				break;
-//		
-//			case 12:
-//				setImageBlurMask(image, p.blurMaskBothTop);
-//				break;
-//			case 13:
-//				setImageBlurMask(image, p.blurMaskBothCenter);
-//				break;
-//			case 14:
-//				setImageBlurMask(image, p.blurMaskBothBottom);
-//				break;
-//			case 15:
-//				setImageBlurMask(image, p.blurMaskBothBoth);
-//				break;
-//			}
-//		}
-//	}
 	
 	void setImageBlurMask(WMV_Image image, PImage blurMask)
 	{

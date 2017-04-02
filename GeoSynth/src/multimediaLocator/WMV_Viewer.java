@@ -47,11 +47,11 @@ public class WMV_Viewer
 	public WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
 
 	/* GPS Tracks */
-	private File gpsTrackFile;							// GPS track file
+//	private File gpsTrackFile;							// GPS track file
+//	private String gpsTrackName = "";					// GPS track name
+//	private boolean gpsTrackSelected = false;			// Has a GPS track been selected?
 	private ArrayList<WMV_Waypoint> history;			// Stores a GPS track in virtual coordinates
 	private ArrayList<WMV_Waypoint> gpsTrack;			// Stores a GPS track in virtual coordinates
-	private boolean gpsTrackSelected = false;			// Has a GPS track been selected?
-	private String gpsTrackName = "";					// GPS track name
 	
 	WMV_Field currentField;
 	WMV_World p;
@@ -96,12 +96,24 @@ public class WMV_Viewer
 	
 	public void loadViewerState(WMV_ViewerState newState)
 	{
+//		System.out.print("Before loadViewerState... state.location.x:"+state.location.x);
+//		System.out.print(" state.location.y:"+state.location.y);
+//		System.out.println(" state.location.z:"+state.location.z);
+//		System.out.println(" getLocation():"+getLocation());
 		state = newState;
+//		System.out.print("After loadViewerState... state.location.x:"+state.location.x);
+//		System.out.print(" state.location.y:"+state.location.y);
+//		System.out.println(" state.location.z:"+state.location.z);
+		setLocation(state.location);					// Update the camera
+		setTarget(state.target);					// Update the camera
+//		System.out.println(" getLocation():"+getLocation());
+//		setOrientation(state.orientation);					// Update the camera
 	}
 	
 	public void loadViewerSettings(WMV_ViewerSettings newSettings)
 	{
 		settings = newSettings;
+//		update(worldSettings, worldState);
 	}
 
 	public void enterField(WMV_Field newField)
@@ -113,7 +125,7 @@ public class WMV_Viewer
 	{
 		worldSettings = newWorldSettings;
 		worldState = newWorldState;
-		setOrientationVector();
+		setOrientation();
 	}
 	
 	/*** 
@@ -346,7 +358,6 @@ public class WMV_Viewer
 		}
 		else
 		{
-//			if(teleporting)	teleporting = false;
 			if(debugSettings.viewer && debugSettings.detailed)
 				System.out.println("moveToCaptureLocation... setting attractor point:"+newLocation);
 			setAttractorPoint(newLocation);
@@ -368,9 +379,7 @@ public class WMV_Viewer
 		}
 		else
 		{
-//			if(teleporting)	teleporting = false;
-			if(debugSettings.viewer)
-				System.out.println("Moving to cluster... setting attractor:"+newCluster);
+			if(debugSettings.viewer) System.out.println("Moving to cluster... setting attractor:"+newCluster);
 			setAttractorCluster( newCluster );
 		}
 	}
@@ -688,16 +697,11 @@ public class WMV_Viewer
 	public void setLocation(PVector newLocation)
 	{
 		if(settings.orientationMode)
-		{
-//			System.out.println("setLocation() getLocation() before:"+getLocation());
 			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
-//			System.out.println("setLocation() getLocation() after:"+getLocation());
-		}
 		else
 		{
 			camera.jump(newLocation.x, newLocation.y, newLocation.z);
 			state.location = getLocation();										// Update to precise camera location
-//			System.out.println("setLocation() jumped to:"+getLocation());
 		}
 	}
 	
@@ -756,8 +760,6 @@ public class WMV_Viewer
 	{
 		settings.hideImages = false;
 		p.showImages();
-//		if(p.p.display.window.setupGraphicsWindow)
-//			p.p.display.window.chkbxHideImages.setSelected(false);
 	}
 	
 	/**
@@ -767,17 +769,6 @@ public class WMV_Viewer
 	{
 		settings.hideImages = true;
 		p.hideImages();
-//		for(WMV_Image i : images)
-//		{
-//			if(i.visible)
-//			{
-//				if(i.isFading()) i.stopFading();
-//				i.fadeOut();
-//			}
-//		}
-//
-//		if(p.p.display.window.setupGraphicsWindow)
-//			p.p.display.window.chkbxHideImages.setSelected(true);
 	}
 	
 	/** 
@@ -1799,8 +1790,8 @@ public class WMV_Viewer
 		state.clusterLockIdleFrames = 0;				// How long to wait after user input before auto navigation moves the camera?
 
 		/* GPS Tracks */
-		gpsTrackSelected = false;			// Has a GPS track been selected?
-		gpsTrackName = "";					// GPS track name
+		state.gpsTrackSelected = false;			// Has a GPS track been selected?
+		state.gpsTrackName = "";					// GPS track name
 
 		/* Zooming */
 		state.zooming = false;
@@ -1926,7 +1917,10 @@ public class WMV_Viewer
 		return state.orientation.z;
 	}
 	
-	public void setOrientationVector()
+	/**
+	 * Set the current viewer orientation from the OCD camera state
+	 */
+	public void setOrientation()
 	{
 		float[] cAtt = camera.attitude();			// Get camera attitude (orientation)
 		float pitch = cAtt[1], yaw = cAtt[0];
@@ -1941,6 +1935,20 @@ public class WMV_Viewer
 		camOrientation.normalize();
 		
 		state.orientationVector = camOrientation;
+		if(state.target == null)
+			PApplet.println("Setting state.target:"+state.target);
+		state.target = getTarget();
+	}
+	
+	public void setTarget(PVector newTarget)
+	{
+		if(newTarget != null)
+			camera.aim(newTarget.x, newTarget.y, newTarget.z);
+	}
+	
+	public PVector getTarget()
+	{
+		return new PVector(camera.target()[0], camera.target()[1], camera.target()[2]);	
 	}
 	
 	/**
@@ -3633,7 +3641,7 @@ public class WMV_Viewer
 	 */
 	public void importGPSTrack()
 	{
-		gpsTrackSelected = false;
+		state.gpsTrackSelected = false;
 		p.p.selectInput("Select a GPS Track:", "gpsTrackSelected");
 	}
 
@@ -3654,23 +3662,23 @@ public class WMV_Viewer
 			if(debugSettings.viewer)
 				System.out.println("User selected GPS Track: " + input);
 
-			gpsTrackName = input;
+			state.gpsTrackName = input;
 			
 			try
 			{
-				String[] parts = gpsTrackName.split("/");
+				String[] parts = state.gpsTrackName.split("/");
 				String fileName = parts[parts.length-1];
 				
 				parts = fileName.split("\\.");
 
 				if(parts[parts.length-1].equals("gpx"))				// Check that it's a GPX file
 				{
-					gpsTrackFile = new File(gpsTrackName);
-					gpsTrackSelected = true;
+					state.gpsTrackFile = new File(state.gpsTrackName);
+					state.gpsTrackSelected = true;
 				}
 				else
 				{
-					gpsTrackSelected = false;
+					state.gpsTrackSelected = false;
 					System.out.println("Bad GPS Track.. doesn't end in .GPX!:"+input);
 				}
 			}
@@ -3680,7 +3688,7 @@ public class WMV_Viewer
 			}
 		}
 
-		if(gpsTrackSelected)
+		if(state.gpsTrackSelected)
 		{
 			analyzeGPSTrack();
 			getSoundLocationsFromGPSTrack();
@@ -3695,12 +3703,12 @@ public class WMV_Viewer
 		try {
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(gpsTrackFile);
+			Document doc = dBuilder.parse(state.gpsTrackFile);
 
 			//http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 			doc.getDocumentElement().normalize();
 
-			System.out.println("\nAnalyzing GPS Track:"+gpsTrackName);
+			System.out.println("\nAnalyzing GPS Track:"+state.gpsTrackName);
 			System.out.println("Root Node:" + doc.getDocumentElement().getNodeName());
 			System.out.println("----");
 
@@ -3956,16 +3964,14 @@ public class WMV_Viewer
 						if(c.getTimeline() != null)
 						{
 							if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
-							{
-								boolean success = setCurrentFieldTimeSegment(t.getFieldTimelineID(), true);
-							}
+								setCurrentFieldTimeSegment(t.getFieldTimelineID(), true);
 						}
 						else System.out.println("Current Cluster timeline is NULL!:"+c.getID());
 					}
 				}
 				else
 				{
-					boolean success = setCurrentFieldTimeSegment(newFieldTimeSegment, true);
+					setCurrentFieldTimeSegment(newFieldTimeSegment, true);
 					state.movingToTimeSegment = false;
 				}
 

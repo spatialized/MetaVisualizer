@@ -1,5 +1,6 @@
 package multimediaLocator;
 
+import java.io.File;
 import java.util.List;
 
 //import processing.core.PApplet;
@@ -55,8 +56,12 @@ public class WMV_ViewerState
 	public int teleportWaitingCount = 0;			// How long has the viewer been waiting for media to fade out before teleport?
 	
 	/* Physics */
-	public PVector location, orientation;					// Location of the camera in virtual space
-	public PVector velocity, acceleration, attraction;      // Physics model parameters
+	public PVector location;		// Viewer location in virtual space
+	public PVector orientation;		// Viewer orientation 
+	public PVector target;			// Viewer target point
+	public PVector velocity;		// Viewer velocity
+	public PVector acceleration;	// Viewer acceleration
+	public PVector attraction;      // Physics model parameters
 	public PVector orientationVector;
 	
 	/* Movement */
@@ -118,6 +123,11 @@ public class WMV_ViewerState
 	public boolean zooming = false;
 	public float zoomStart, zoomDirection;
 	public int zoomLength = 15;
+
+	/* GPS Tracks */
+	public File gpsTrackFile;							// GPS track file
+	public String gpsTrackName = "";					// GPS track name
+	public boolean gpsTrackSelected = false;			// Has a GPS track been selected?
 
 	WMV_ViewerState()
 	{

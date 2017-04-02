@@ -85,14 +85,11 @@ public class WMV_Model
 	void findDuplicateClusterMedia(ArrayList<WMV_Cluster> clusters)
 	{
 		List<Integer> images = new ArrayList<Integer>();
-//		IntList images = new IntList();
 		int count = 0;
 		for(WMV_Cluster c : clusters)
 		{
 			for(int i : c.images)
 			{
-//				if(images.hasValue(i)) count++;
-//				else images.append(i);
 				if(images.contains(i)) count++;
 				else images.add(i);
 			}
@@ -100,7 +97,6 @@ public class WMV_Model
 		System.out.println("Images in more than one cluster::"+count);
 		
 		List<Integer> videos = new ArrayList<Integer>();
-//		IntList videos = new IntList();
 		count = 0;
 		for(WMV_Cluster c : clusters)
 		{

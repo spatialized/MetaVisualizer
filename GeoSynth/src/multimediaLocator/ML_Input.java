@@ -765,6 +765,12 @@ public class ML_Input
 				if( key == '/' )
 					world.saveWorldState();
 
+				if( key == '?' )
+					world.loadViewerState();
+
+//				if( key == '?' )
+//					world.loadViewerSettings();
+
 				if( key == 't' )
 				{
 					boolean state = !world.viewer.getMovementTeleport();

@@ -577,19 +577,33 @@ public class WMV_World
 	{
 		p.library.saveWorldSettings(settings, p.library.getLibraryFolder()+"ml_library_worldSettings.json");
 		p.library.saveWorldState(state, p.library.getLibraryFolder()+"ml_library_worldState.json");
+		System.out.println("viewer.target == null"+(viewer.getState().target == null));
+		if(viewer.getState().target != null)
+			System.out.println("viewer.target:"+viewer.getState().target);
+		
 		p.library.saveViewerSettings(viewer.getSettings(), p.library.getLibraryFolder()+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), p.library.getLibraryFolder()+"ml_library_viewerState.json");
 		p.library.saveFieldState(getCurrentField().getState(), p.library.getLibraryFolder()+"ml_library_fieldState.json");
 	}
 
+	public void loadWorldSettings(WMV_WorldSettings newSettings)
+	{
+		settings = newSettings;
+	}
+	
 	public void loadWorldState(WMV_WorldState newState)
 	{
 		state = newState;
 	}
 	
-	public void loadWorldSettings(WMV_WorldSettings newSettings)
+	public void loadViewerSettings()
 	{
-		settings = newSettings;
+		viewer.loadViewerSettings(p.library.loadViewerSettings(p.library.getLibraryFolder()+"ml_library_viewerSettings.json"));
+	}
+
+	public void loadViewerState()
+	{
+		viewer.loadViewerState(p.library.loadViewerState(p.library.getLibraryFolder()+"ml_library_viewerState.json"));
 	}
 
 	/**

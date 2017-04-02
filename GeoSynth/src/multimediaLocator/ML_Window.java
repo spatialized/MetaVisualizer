@@ -606,7 +606,7 @@ public class ML_Window {
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(7);
 		sdrTimeCycleLength.setLimits(0.f, 5000.f, 10.f);
-		PApplet.println("world.settings.timeCycleLength:"+world.settings.timeCycleLength);		// -- ??
+		System.out.println("world.settings.timeCycleLength:"+world.settings.timeCycleLength);		// -- ??
 		sdrTimeCycleLength.setValue(world.settings.timeCycleLength);
 		sdrTimeCycleLength.setRotation(PApplet.PI/2.f);
 		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_LEFT);
@@ -1214,18 +1214,18 @@ public class ML_Window {
 			data2.sx = data2.ex = applet.mouseX;
 			data2.sy = data2.ey = applet.mouseY;
 			data2.done = false;
-//			PApplet.println("Mouse pressed");
+//			System.out.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
 			data2.done = true;
-//			PApplet.println("Mouse released:"+data.toString());
+//			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
-//			PApplet.println("Mouse dragged");
+//			System.out.println("Mouse dragged");
 			break;
 		}
 	}
@@ -1314,18 +1314,18 @@ public class ML_Window {
 			data2.sx = data2.ex = applet.mouseX;
 			data2.sy = data2.ey = applet.mouseY;
 			data2.done = false;
-//			PApplet.println("Mouse pressed");
+//			System.out.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
 			data2.done = true;
-//			PApplet.println("Mouse released:"+data.toString());
+//			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
-//			PApplet.println("Mouse dragged");
+//			System.out.println("Mouse dragged");
 			break;
 		}
 	}
@@ -1362,18 +1362,18 @@ public class ML_Window {
 			data2.sx = data2.ex = applet.mouseX;
 			data2.sy = data2.ey = applet.mouseY;
 			data2.done = false;
-//			PApplet.println("Mouse pressed");
+//			System.out.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
 			data2.done = true;
-			PApplet.println("Mouse released:"+data.toString());
+			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
-//			PApplet.println("Mouse dragged");
+//			System.out.println("Mouse dragged");
 			break;
 		}
 	}
@@ -1410,18 +1410,18 @@ public class ML_Window {
 			data2.sx = data2.ex = applet.mouseX;
 			data2.sy = data2.ey = applet.mouseY;
 			data2.done = false;
-//			PApplet.println("Mouse pressed");
+//			System.out.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
 			data2.done = true;
-			PApplet.println("Mouse released:"+data.toString());
+			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
-//			PApplet.println("Mouse dragged");
+//			System.out.println("Mouse dragged");
 			break;
 		}
 	}
@@ -1483,18 +1483,18 @@ public class ML_Window {
 			data2.sx = data2.ex = applet.mouseX;
 			data2.sy = data2.ey = applet.mouseY;
 			data2.done = false;
-//			PApplet.println("Mouse pressed");
+//			System.out.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
 			data2.done = true;
-			PApplet.println("Mouse released:"+data.toString());
+			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
-//			PApplet.println("Mouse dragged");
+//			System.out.println("Mouse dragged");
 			break;
 		}
 	}
@@ -1589,7 +1589,7 @@ public class ML_Window {
 					applet.text(" Altitude Scaling Factor: "+world.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
 				applet.text(" Clustering Method : "+ ( world.getState().hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
 				applet.text(" Population Factor: "+f.getModel().clusterPopulationFactor, x, y += lineWidth);
-				if(world.getState().hierarchical) applet.text(" Current Cluster Depth: "+f.clusterDepth, x, y += lineWidth);
+				if(world.getState().hierarchical) applet.text(" Current Cluster Depth: "+f.getState().clusterDepth, x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
 				applet.text(" Viewer ", x, y += lineWidthVeryWide);
@@ -1713,18 +1713,18 @@ public class ML_Window {
 			wmvWinData.sx = wmvWinData.ex = applet.mouseX;
 			wmvWinData.sy = wmvWinData.ey = applet.mouseY;
 			wmvWinData.done = false;
-//			PApplet.println("Mouse pressed");
+//			System.out.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			wmvWinData.ex = applet.mouseX;
 			wmvWinData.ey = applet.mouseY;
 			wmvWinData.done = true;
-//			PApplet.println("Mouse released:"+data.toString());
+//			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			wmvWinData.ex = applet.mouseX;
 			wmvWinData.ey = applet.mouseY;
-//			PApplet.println("Mouse dragged");
+//			System.out.println("Mouse dragged");
 			break;
 		}
 	}
@@ -1899,18 +1899,18 @@ public class ML_Window {
 			wmvWinData.sx = wmvWinData.ex = applet.mouseX;
 			wmvWinData.sy = wmvWinData.ey = applet.mouseY;
 			wmvWinData.done = false;
-//			PApplet.println("Mouse pressed");
+//			System.out.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			wmvWinData.ex = applet.mouseX;
 			wmvWinData.ey = applet.mouseY;
 			wmvWinData.done = true;
-//			PApplet.println("Mouse released:"+data.toString());
+//			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			wmvWinData.ex = applet.mouseX;
 			wmvWinData.ey = applet.mouseY;
-//			PApplet.println("Mouse dragged");
+//			System.out.println("Mouse dragged");
 			break;
 		}
 	}
@@ -1974,18 +1974,18 @@ public class ML_Window {
 			wmvWinData.sx = wmvWinData.ex = applet.mouseX;
 			wmvWinData.sy = wmvWinData.ey = applet.mouseY;
 			wmvWinData.done = false;
-//			PApplet.println("Mouse pressed");
+//			System.out.println("Mouse pressed");
 			break;
 		case MouseEvent.RELEASE:
 			wmvWinData.ex = applet.mouseX;
 			wmvWinData.ey = applet.mouseY;
 			wmvWinData.done = true;
-//			PApplet.println("Mouse released:"+data.toString());
+//			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			wmvWinData.ex = applet.mouseX;
 			wmvWinData.ey = applet.mouseY;
-//			PApplet.println("Mouse dragged");
+//			System.out.println("Mouse dragged");
 			break;
 		}
 	}
@@ -2068,7 +2068,6 @@ public class ML_Window {
 		showNavigationWindow = false;
 		if(setupNavigationWindow)
 			navigationWindow.setVisible(false);
-//		PApplet.println("hideNavigationWindow()... showNavigationWindow:"+showNavigationWindow);
 	} 
 	void hideTimeWindow()
 	{

@@ -3,11 +3,12 @@ package multimediaLocator;
 import processing.video.*;
 
 import java.time.ZonedDateTime;
-//import java.awt.Image;
 import java.util.ArrayList;
-//import java.util.Calendar;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
+
 import processing.data.IntList;
 
 /**************************************************
@@ -452,9 +453,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		else
 			r = focusDistance;							
 
-		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi)); 
-		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi));  
-		float yDisp = r * PApplet.cos(PApplet.radians(90-phi)); 
+		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-theta)) * (float)Math.sin((float)Math.toRadians(90-phi)); 
+		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-theta)) * (float)Math.sin((float)Math.toRadians(90-phi));  
+		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-phi)); 
+//		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi)); 
+//		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi));  
+//		float yDisp = r * PApplet.cos(PApplet.radians(90-phi)); 
 
 		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
 	}
@@ -664,26 +668,26 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		String strTitleVideo = "Video";
 		String strTitleVideo2 = "-----";
 		String strName = "Name: "+getName();
-		String strID = "ID: "+PApplet.str(getID());
-		String strCluster = "Cluster: "+PApplet.str(cluster);
-		String strX = "Location X: "+PApplet.str(getCaptureLocation().z);
-		String strY = " Y: "+PApplet.str(getCaptureLocation().x);
-		String strZ = " Z: "+PApplet.str(getCaptureLocation().y);
+		String strID = "ID: "+String.valueOf(getID());
+		String strCluster = "Cluster: "+String.valueOf(cluster);
+		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
+		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
+		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);
 
-		String strDate = "Date: "+PApplet.str(time.getMonth()) + PApplet.str(time.getDay()) + PApplet.str(time.getYear());
-		String strTime = "Time: "+PApplet.str(time.getHour()) + ":" + (time.getMinute() >= 10 ? PApplet.str(time.getMinute()) : "0"+PApplet.str(time.getMinute())) + ":" + 
-				 (time.getSecond() >= 10 ? PApplet.str(time.getSecond()) : "0"+PApplet.str(time.getSecond()));
+		String strDate = "Date: "+String.valueOf(time.getMonth()) + String.valueOf(time.getDay()) + String.valueOf(time.getYear());
+		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
+				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
-		String strLatitude = "GPS Latitude: "+PApplet.str(gpsLocation.z);
-		String strLongitude = " Longitude: "+PApplet.str(gpsLocation.x);
-		String strAltitude = "Altitude: "+PApplet.str(gpsLocation.y);
-		String strTheta = "Direction: "+PApplet.str(theta);
-		String strElevation = "Vertical Angle: "+PApplet.str(phi);
-		String strRotation = "Rotation: "+PApplet.str(rotation);
+		String strLatitude = "GPS Latitude: "+String.valueOf(gpsLocation.z);
+		String strLongitude = " Longitude: "+String.valueOf(gpsLocation.x);
+		String strAltitude = "Altitude: "+String.valueOf(gpsLocation.y);
+		String strTheta = "Direction: "+String.valueOf(theta);
+		String strElevation = "Vertical Angle: "+String.valueOf(phi);
+		String strRotation = "Rotation: "+String.valueOf(rotation);
 
 		String strTitleDebug = "--- Debugging ---";
-		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
-		String strBrightnessFading = "brightnessFadingValue: "+PApplet.str(fadingBrightness);
+		String strBrightness = "brightness: "+String.valueOf(viewingBrightness);
+		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(fadingBrightness);
 		
 		world.p.display.metadata(world, strTitleVideo);
 		world.p.display.metadata(world, strTitleVideo2);
@@ -728,9 +732,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		else
 			r = focusDistance;							
 
-		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi)); 
-		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi));  
-		float yDisp = r * PApplet.cos(PApplet.radians(90-phi)); 
+		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-theta)) * (float)Math.sin((float)Math.toRadians(90-phi)); 
+		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-theta)) * (float)Math.sin((float)Math.toRadians(90-phi));  
+		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-phi)); 
+//		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi)); 
+//		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi));  
+//		float yDisp = r * PApplet.cos(PApplet.radians(90-phi)); 
 
 		disp = new PVector(-xDisp, -yDisp, -zDisp);
 
@@ -1034,7 +1041,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		
 		if(candidates.size() == 0)
 		{
-			PApplet.println("  Video "+getID()+" has no candidates under distance tolerance:"+assocVideoDistTolerance+"!");
+			System.out.println("  Video "+getID()+" has no candidates under distance tolerance:"+assocVideoDistTolerance+"!");
 		}
 		
 		for( int i : candidates )							// Compare distances of the candidates
@@ -1053,19 +1060,19 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		
 		if(closestIdx != -1)
 		{
-			PApplet.println("--> Found image placeholder:"+images.get(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+images.get(closestIdx).getID()+" closestIdx:"+closestIdx);
+			System.out.println("--> Found image placeholder:"+images.get(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+images.get(closestIdx).getID()+" closestIdx:"+closestIdx);
 			boolean success = associateImagePlaceholder(images.get(closestIdx), closestDist, PApplet.abs(time.getTime() - images.get(closestIdx).time.getTime()));
 			
 			if(success)
 			{
-				PApplet.println("---> Set placeholder image id:"+images.get(closestIdx).getID());
+				System.out.println("---> Set placeholder image id:"+images.get(closestIdx).getID());
 				images.get(closestIdx).associateVideo(getID());
 			}
 		}
 		
 		if(!hasImagePlaceholder)
 		{
-			PApplet.println("No image placeholder found for video:"+getID()+", will set to disabled...");
+			System.out.println("No image placeholder found for video:"+getID()+", will set to disabled...");
 			disabled = true;
 			hidden = true;
 //			p.numVideos--;

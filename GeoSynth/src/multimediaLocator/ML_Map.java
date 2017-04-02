@@ -4,7 +4,6 @@ import java.util.ArrayList;
 //import java.util.List;
 
 import processing.core.PApplet;
-//import processing.core.PGraphics;
 import processing.core.PVector;
 import processing.data.IntList;
 import toxi.math.ScaleMap;
@@ -184,7 +183,7 @@ public class ML_Map
 
 		createPointMarkers(p);
 		
-//		PApplet.println("viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
+//		System.out.println("viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
 		PVector vLoc = p.viewer.getGPSLocation();
 		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
 		viewerMarker.setId("viewer");
@@ -210,7 +209,7 @@ public class ML_Map
 				marker.setColor(world.p.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
 				marker.setHighlightColor(world.p.color(170, 255, 255, 255));
 				marker.setStrokeWeight(0);
-				marker.setDiameter(PApplet.sqrt(c.mediaCount) * 3.f);
+				marker.setDiameter((float)Math.sqrt(c.mediaCount) * 3.f);
 				markerManager.addMarker(marker);
 			}
 		}
@@ -247,7 +246,7 @@ public class ML_Map
 				if( pointIsVisible(world, mapLoc, true) )
 				{
 //					Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 4, 4);
-					float radius = PApplet.sqrt(c.mediaCount) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
+					float radius = (float)Math.sqrt(c.mediaCount) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
 
 					mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, hudDistance * mapDistance));
 					mapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
@@ -320,7 +319,7 @@ public class ML_Map
 					viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
 					markerManager.addMarker(viewerMarker);
 				}
-				else PApplet.println("viewerMarker == null!");
+				else System.out.println("viewerMarker == null!");
 			}
 
 			world.p.perspective();
@@ -619,7 +618,7 @@ public class ML_Map
 			if( (mapLoc1.x < mapWidth && mapLoc1.x > 0 && mapLoc1.y < mapHeight && mapLoc1.y > 0) ||
 					(mapLoc2.x < mapWidth && mapLoc2.x > 0 && mapLoc2.y < mapHeight && mapLoc2.y > 0) )
 			{
-				float pointSize = smallPointSize * 0.1f * mapWidth / PApplet.sqrt(PApplet.sqrt(mapDistance));
+				float pointSize = smallPointSize * 0.1f * mapWidth / (float)Math.sqrt(Math.sqrt(mapDistance));
 				world.p.strokeWeight(pointSize);
 				world.p.stroke(hue, saturation, brightness, 255.f);
 				world.p.pushMatrix();
@@ -860,7 +859,7 @@ public class ML_Map
 	 */
 	void drawPathOnMap(WMV_World world, ArrayList<WMV_Waypoint> path, float mapWidth, float mapHeight)
 	{
-//		PApplet.println("drawPathOnMap..."+path.size());
+//		System.out.println("drawPathOnMap..."+path.size());
 		float pointSize = smallPointSize * mapWidth;
 		
 		float saturation = maxSaturation;                                              
@@ -868,7 +867,7 @@ public class ML_Map
 		for(WMV_Waypoint w : path)
 		{
 			drawPoint( world, w.getLocation(), pointSize * 4.f, mapWidth, mapHeight, 30, saturation, 255.f, mediaTransparency );
-//			PApplet.println("Path ---> location.x:"+w.getLocation().x+" y:"+w.getLocation().y);
+//			System.out.println("Path ---> location.x:"+w.getLocation().x+" y:"+w.getLocation().y);
 		}
 	}
 
@@ -1122,16 +1121,16 @@ public class ML_Map
 		
 //		if(p.p.p.debug.map)
 //		{
-//			PApplet.println("---> zoomToRectangle()...");
-//			PApplet.println("Set mapLeftEdge:" + mapLeftEdge);
-//			PApplet.println("Set mapTopEdge:" + mapTopEdge);
-//			PApplet.println("Set mapDistance:" + mapDistance);
-//			PApplet.println("Set zoomMapXOffset:" + zoomMapXOffset);
-//			PApplet.println("Set zoomMapYOffset:" + zoomMapYOffset);
-//			PApplet.println("Set zoomMapLeftEdge:" + zoomMapLeftEdge);
-//			PApplet.println("Set zoomMapTopEdge:" + zoomMapTopEdge);
-//			PApplet.println("Set zoomMapWidth:" + zoomMapWidth);
-//			PApplet.println("Set zoomMapHeight:" + zoomMapHeight);
+//			System.out.println("---> zoomToRectangle()...");
+//			System.out.println("Set mapLeftEdge:" + mapLeftEdge);
+//			System.out.println("Set mapTopEdge:" + mapTopEdge);
+//			System.out.println("Set mapDistance:" + mapDistance);
+//			System.out.println("Set zoomMapXOffset:" + zoomMapXOffset);
+//			System.out.println("Set zoomMapYOffset:" + zoomMapYOffset);
+//			System.out.println("Set zoomMapLeftEdge:" + zoomMapLeftEdge);
+//			System.out.println("Set zoomMapTopEdge:" + zoomMapTopEdge);
+//			System.out.println("Set zoomMapWidth:" + zoomMapWidth);
+//			System.out.println("Set zoomMapHeight:" + zoomMapHeight);
 //		}
 //		mapZoomTransition();
 		
@@ -1177,7 +1176,7 @@ public class ML_Map
 				mapTopEdgeTransitionTarget = (screenHeight - zoomMapHeightTransitionTarget)/2 - zoomMapTopEdge;
 
 				if(world.p.debug.map)
-					PApplet.println("Started zoomToRectangleTransition transition...");
+					System.out.println("Started zoomToRectangleTransition transition...");
 			}
 		}
 	}
@@ -1382,8 +1381,8 @@ public class ML_Map
 		
 		if(world.p.debug.map)
 		{
-			PApplet.println("Updated mapLeftEdge:"+mapLeftEdge);
-			PApplet.println("Updated mapTopEdge:"+mapTopEdge);
+			System.out.println("Updated mapLeftEdge:"+mapLeftEdge);
+			System.out.println("Updated mapTopEdge:"+mapTopEdge);
 		}
 	}
 
@@ -1514,7 +1513,7 @@ public class ML_Map
 //					if(mapLoc.x < mapWidth && mapLoc.x > 0 && mapLoc.y < mapHeight && mapLoc.y > 0)
 //					{
 //						simpleClusters.stroke(mapClusterHue, 255.f, 255.f, 255.f);
-//						float sw = PApplet.sqrt(c.mediaPoints) * 0.5f;
+//						float sw = (float)Math.sqrt(c.mediaPoints) * 0.5f;
 //						sw *= mapDistance;
 //						simpleClusters.strokeWeight(sw);
 //

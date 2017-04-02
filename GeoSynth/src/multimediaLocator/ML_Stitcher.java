@@ -115,7 +115,7 @@ public class ML_Stitcher
 
 				if(!imgs.isNull())
 				{
-					if(p.p.debug.stitching) PApplet.println("Attempting to stitch "+imgs.size()+" images...");
+					if(p.p.debug.stitching) System.out.println("Attempting to stitch "+imgs.size()+" images...");
 
 					Mat pano = new Mat();
 					int status = stitcher.stitch(imgs, pano);
@@ -166,11 +166,11 @@ public class ML_Stitcher
 			if(p.p.debug.stitching) p.p.display.message(p.state, "Panorama stitching successful, output to file: " + fileName);
 
 			iplImage = new IplImage(panorama);
-			PApplet.println("panorama.toString():"+panorama.toString());
-			PApplet.println("panorama.depth():"+panorama.depth());
-			PApplet.println("panorama.channels():"+panorama.channels());
-			PApplet.println("iplImage.toString():"+iplImage.toString());
-			PApplet.println("iplImage.depth():"+iplImage.depth());
+			System.out.println("panorama.toString():"+panorama.toString());
+			System.out.println("panorama.depth():"+panorama.depth());
+			System.out.println("panorama.channels():"+panorama.channels());
+			System.out.println("iplImage.toString():"+iplImage.toString());
+			System.out.println("iplImage.depth():"+iplImage.depth());
 		}
 		
 		panorama.close();
@@ -179,7 +179,7 @@ public class ML_Stitcher
 		{
 			WMV_MediaSegment segment;			// Segment of the panorama
 
-			PApplet.println("Calculating user selection borders...");
+			System.out.println("Calculating user selection borders...");
 
 			/* Calculate user selection borders */
 			if(segmentID == -1)
@@ -244,8 +244,8 @@ public class ML_Stitcher
 		
 			if(p.p.debug.stitching)
 			{
-				PApplet.println("Final Width:"+result.width+" Height:"+result.height);
-				PApplet.println("Final Aspect Ratio:"+((float)result.width/(float)result.height));
+				System.out.println("Final Width:"+result.width+" Height:"+result.height);
+				System.out.println("Final Aspect Ratio:"+((float)result.width/(float)result.height));
 			}
 			return pano;
 		}
@@ -268,14 +268,14 @@ public class ML_Stitcher
 			if( img.empty())
 			{
 				if(p.p.debug.stitching)
-					PApplet.println("Image "+i+" is empty...");
+					System.out.println("Image "+i+" is empty...");
 			}
 			else
 			{
 				imgs.resize(imgs.size() + 1);
 				imgs.put(imgs.size() - 1, img);
 				if(p.p.debug.stitching)
-					PApplet.println("Added image to stitching list: "+images[i]);
+					System.out.println("Added image to stitching list: "+images[i]);
 			}
 		}
 		
@@ -323,9 +323,9 @@ public class ML_Stitcher
 		
 		if(p.p.debug.stitching)
 		{
-			PApplet.println("--> addImageBorders()...");
-			PApplet.println(" width():"+src.width()+" height:"+src.height()+" aspect:"+aspect);
-			PApplet.println(" sLeft:"+sLeft+" sRight:"+sRight+" sBottom:"+sBottom+" sTop:"+sTop);
+			System.out.println("--> addImageBorders()...");
+			System.out.println(" width():"+src.width()+" height:"+src.height()+" aspect:"+aspect);
+			System.out.println(" sLeft:"+sLeft+" sRight:"+sRight+" sBottom:"+sBottom+" sTop:"+sTop);
 		}
 		float top = sTop + imgVertCoverage * 0.5f;
 		float bottom = sBottom - imgVertCoverage * 0.5f;
@@ -333,12 +333,12 @@ public class ML_Stitcher
 		float right = sRight + imgHorizCoverage * 0.5f;
 		
 		if(p.p.debug.stitching)
-			PApplet.println(" top:"+top+" bottom:"+bottom+" left:"+left+" right:"+right);
+			System.out.println(" top:"+top+" bottom:"+bottom+" left:"+left+" right:"+right);
 
 		float xCoverage = PApplet.constrain(right - left, 0.f, 360.f);			// -- Check if constrain works
 		float yCoverage = PApplet.constrain(top - bottom, 0.f, 180.f);
 		if(p.p.debug.stitching)
-			PApplet.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
+			System.out.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
 
 		float fullWidth, fullHeight;
 		
@@ -367,7 +367,7 @@ public class ML_Stitcher
 		float yDiff = fullHeight - src.height();
 		
 		if(p.p.debug.stitching)
-			PApplet.println(" fullWidth:"+fullWidth+" fullHeight:"+fullHeight+" xDiff:"+xDiff+" yDiff:"+yDiff);
+			System.out.println(" fullWidth:"+fullWidth+" fullHeight:"+fullHeight+" xDiff:"+xDiff+" yDiff:"+yDiff);
 		
 		int topBorder = PApplet.abs(PApplet.round(yDiff / 2.f));
 		int bottomBorder = PApplet.abs(PApplet.round(yDiff / 2.f));
@@ -377,13 +377,13 @@ public class ML_Stitcher
 		boolean error = false;
 
 		if(p.p.debug.stitching)
-			PApplet.println(" topBorder:"+topBorder+" bottomBorder:"+bottomBorder+" leftBorder:"+leftBorder+" rightBorder:"+rightBorder);
+			System.out.println(" topBorder:"+topBorder+" bottomBorder:"+bottomBorder+" leftBorder:"+leftBorder+" rightBorder:"+rightBorder);
 
 		Mat image = new Mat( src );
 		if (image.empty()) 
 		{
 			if(p.p.debug.stitching)
-				PApplet.println(" Error reading image...");
+				System.out.println(" Error reading image...");
 			error = true;
 		}
 		
@@ -416,7 +416,7 @@ public class ML_Stitcher
 	 */
 	public WMV_Panorama combinePanoramas(WMV_Panorama first, WMV_Panorama second)
 	{
-		PApplet.println("Combining panoramas...");
+		System.out.println("Combining panoramas...");
 		Mat blended = linearBlend(  new Mat(pImageToIplImage(first.texture)), new Mat(pImageToIplImage(second.texture)));
 		PImage newTexture = iplImageToPImage( new IplImage(blended) );
 		WMV_Panorama newPano = first;
@@ -436,7 +436,7 @@ public class ML_Stitcher
 		
 		if (image1.empty() || image2.empty()) 
 		{
-			PApplet.println("Blending Error... one or both images are NULL!");
+			System.out.println("Blending Error... one or both images are NULL!");
 			System.exit(0);
 		}
 		

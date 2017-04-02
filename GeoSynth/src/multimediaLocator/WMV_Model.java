@@ -1,20 +1,10 @@
 package multimediaLocator;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.List;
 
 import com.apporiented.algorithm.clustering.*;
-//import com.apporiented.algorithm.clustering.ClusteringAlgorithm;
-
-//import java.util.List;
-
-import processing.core.PApplet;
 import processing.core.PVector;
-import processing.data.IntList;
 
 /******************
  * @author davidgordon
@@ -94,33 +84,33 @@ public class WMV_Model
 
 	void findDuplicateClusterMedia(ArrayList<WMV_Cluster> clusters)
 	{
-		IntList images = new IntList();
+		List<Integer> images = new ArrayList<Integer>();
+//		IntList images = new IntList();
 		int count = 0;
 		for(WMV_Cluster c : clusters)
 		{
 			for(int i : c.images)
 			{
-				if(images.hasValue(i))
-					count++;
-				else
-					images.append(i);
+//				if(images.hasValue(i)) count++;
+//				else images.append(i);
+				if(images.contains(i)) count++;
+				else images.add(i);
 			}
 		}
-		PApplet.println("Images in more than one cluster::"+count);
+		System.out.println("Images in more than one cluster::"+count);
 		
-		IntList videos = new IntList();
+		List<Integer> videos = new ArrayList<Integer>();
+//		IntList videos = new IntList();
 		count = 0;
 		for(WMV_Cluster c : clusters)
 		{
 			for(int v : c.videos)
 			{
-				if(videos.hasValue(v))
-					count++;
-				else
-					videos.append(v);
+				if(videos.contains(v)) count++;
+				else videos.add(v);
 			}
 		}
-		PApplet.println("Videos in more than one cluster:"+count);
+		System.out.println("Videos in more than one cluster:"+count);
 	}
 	
 	/**
@@ -146,7 +136,7 @@ public class WMV_Model
 		}	
 
 		if(debugSettings.cluster) 
-			PApplet.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
+			System.out.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
 
 		return clusters;
 	}
@@ -156,7 +146,7 @@ public class WMV_Model
 	  */
 	 void calculateFieldSize(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos) 
 	 {
-		 if(debugSettings.field) PApplet.println("Calculating field dimensions...");
+		 if(debugSettings.field) System.out.println("Calculating field dimensions...");
 
 		 boolean init = true;	
 
@@ -246,7 +236,7 @@ public class WMV_Model
 		 boolean initPanoTime = true, initPanoDate = true;	
 		 boolean initVideoTime = true, initVideoDate = true;	
 
-		 if(debugSettings.field) PApplet.println("Analyzing media in field...");
+		 if(debugSettings.field) System.out.println("Analyzing media in field...");
 
 		 for ( WMV_Video v : videos ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {

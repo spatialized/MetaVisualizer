@@ -1,8 +1,10 @@
 package multimediaLocator;
 
+import java.util.List;
+
 //import processing.core.PApplet;
 import processing.core.PVector;
-import processing.data.IntList;
+//import processing.data.IntList;
 
 /**
  * @author davidgordon
@@ -21,7 +23,7 @@ public class WMV_ViewerState
 	public boolean lookAtCurrentMedia = false;			// In Single Time Mode, whether to turn and look at current media  -- bugs
 	public int nearbyClusterTimelineMediaCount = 0;	// Number of media in nearbyClusterTimeline
 	
-	/* Path Navigation */
+	/* Navigation */
 	public boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
 	public boolean movingToCluster = false;			// Moving to cluster 
 	public PVector pathGoal;							// Next goal point for camera in navigating from memory
@@ -31,7 +33,8 @@ public class WMV_ViewerState
 	public int timeSegmentTarget = -1;					// Field time segment goal			
 
 	/* Clusters */
-	public IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
+	public List<Integer> clustersVisible;						// Clusters visible to camera in Orientation Mode
+//	public IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
 	public int field = 0;								// Current field
 	public int currentCluster = 0;						// Cluster currently in view
 	public int lastCluster = -1;						// Last cluster visited
@@ -201,10 +204,14 @@ public class WMV_ViewerState
 		return field;
 	}
 	
-	public IntList getClustersVisible()
+	public List<Integer> getClustersVisible()
 	{
 		return clustersVisible;
 	}
+//	public IntList getClustersVisible()
+//	{
+//		return clustersVisible;
+//	}
 	
 	
 	/**

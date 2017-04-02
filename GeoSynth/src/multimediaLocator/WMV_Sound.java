@@ -93,24 +93,24 @@ public class WMV_Sound extends WMV_Viewable
 		String strTitleImage = "Sound";
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
-		String strID = "ID: "+PApplet.str(getID());
-		String strCluster = "Cluster: "+PApplet.str(cluster);
-		String strX = "Location X: "+PApplet.str(getCaptureLocation().z);
-		String strY = " Y: "+PApplet.str(getCaptureLocation().x);
-		String strZ = " Z: "+PApplet.str(getCaptureLocation().y);
+		String strID = "ID: "+String.valueOf(getID());
+		String strCluster = "Cluster: "+String.valueOf(cluster);
+		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
+		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
+		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);
 	
-		String strDate = "Date: "+PApplet.str(time.getMonth()) + PApplet.str(time.getDay()) + PApplet.str(time.getYear());
-		String strTime = "Time: "+PApplet.str(time.getHour()) + ":" + (time.getMinute() >= 10 ? PApplet.str(time.getMinute()) : "0"+PApplet.str(time.getMinute())) + ":" + 
-				 (time.getSecond() >= 10 ? PApplet.str(time.getSecond()) : "0"+PApplet.str(time.getSecond()));
+		String strDate = "Date: "+String.valueOf(time.getMonth()) + String.valueOf(time.getDay()) + String.valueOf(time.getYear());
+		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
+				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
-		String strLatitude = "GPS Latitude: "+PApplet.str(gpsLocation.z);
-		String strLongitude = " Longitude: "+PApplet.str(gpsLocation.x);
-		String strAltitude = "Altitude: "+PApplet.str(gpsLocation.y);
-//		String strTheta = "Direction: "+PApplet.str(theta);
+		String strLatitude = "GPS Latitude: "+String.valueOf(gpsLocation.z);
+		String strLongitude = " Longitude: "+String.valueOf(gpsLocation.x);
+		String strAltitude = "Altitude: "+String.valueOf(gpsLocation.y);
+//		String strTheta = "Direction: "+String.valueOf(theta);
 
 		String strTitleDebug = "--- Debugging ---";
-		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
-		String strBrightnessFading = "brightnessFadingValue: "+PApplet.str(fadingBrightness);
+		String strBrightness = "brightness: "+String.valueOf(viewingBrightness);
+		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(fadingBrightness);
 		
 		world.p.display.metadata(world, strTitleImage);
 		world.p.display.metadata(world, strTitleImage2);
@@ -229,7 +229,7 @@ public class WMV_Sound extends WMV_Viewable
 				int sTime = sHour * 60 + sMinute * 60 + sSecond;
 				int wTime = wHour * 60 + wMinute * 60 + wSecond;
 				
-				float timeDist = PApplet.abs(wTime - sTime);
+				float timeDist = Math.abs(wTime - sTime);
 				if(timeDist <= closestDist)
 				{
 					closestDist = timeDist;
@@ -243,15 +243,15 @@ public class WMV_Sound extends WMV_Viewable
 			location = gpsTrack.get(closestIdx).getLocation();
 			if(debugSettings.sound)
 			{
-				PApplet.println("Set sound #"+getID()+" location to waypoint "+closestIdx+" W hour:"+gpsTrack.get(closestIdx).getTime().getHour()+" W min:"+gpsTrack.get(closestIdx).getTime().getMinute());
-				PApplet.println("S hour:"+sHour+" S min:"+sMinute);
-				PApplet.println("location.x: "+location.x+" location.y:"+location.y+" location.z:"+location.z);
-				PApplet.println("timeDist: "+closestDist);
+				System.out.println("Set sound #"+getID()+" location to waypoint "+closestIdx+" W hour:"+gpsTrack.get(closestIdx).getTime().getHour()+" W min:"+gpsTrack.get(closestIdx).getTime().getMinute());
+				System.out.println("S hour:"+sHour+" S min:"+sMinute);
+				System.out.println("location.x: "+location.x+" location.y:"+location.y+" location.z:"+location.z);
+				System.out.println("timeDist: "+closestDist);
 			}
 		}
 		else 
 			if(debugSettings.sound)
-				PApplet.println("No gps nodes on same day!");
+				System.out.println("No gps nodes on same day!");
 	}
 	
 	/**

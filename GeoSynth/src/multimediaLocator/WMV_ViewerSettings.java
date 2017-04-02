@@ -1,7 +1,7 @@
 package multimediaLocator;
 
-import processing.core.PApplet;
-import processing.core.PImage;
+//import processing.core.PImage;
+//import processing.core.PVector;
 
 /*********************************
  * @author davidgordon
@@ -10,11 +10,12 @@ import processing.core.PImage;
 public class WMV_ViewerSettings 
 {
 //	WMV_Viewer v;
-//	IntList TESTINTLIST= new IntList();
-	public PImage IMAGETEST;
+//	public PImage IMAGETEST;
+//	public PVector PVECTORTEST = new PVector(0.f, 1.f, 2.f);
+//	public PVector PVECTORTEST2 = new PVector(0.1f, 1.1f, 2.1f);
 
 	/* Camera */
-	public final float initFieldOfView = PApplet.PI * 0.375f;	// Camera field of view
+	public final float initFieldOfView = (float)Math.PI * 0.375f;	// Camera field of view
 	public float fieldOfView = initFieldOfView; 				// Initial camera field of view
 	public float rotateIncrement = 3.1415f / 256.f;				// Rotation amount per frame when turning
 	public float zoomIncrement = 3.1415f / 32.f;				// Zoom amount per frame when zooming
@@ -28,10 +29,10 @@ public class WMV_ViewerSettings
 	public final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public boolean orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
-	public float visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
+	public float visibleAngle = (float)Math.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
-	public float thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
+	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
 //	public final int maxVisiblePhotos = 50;					// Maximum visible images at one time
 //	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
@@ -109,11 +110,12 @@ public class WMV_ViewerSettings
 
 	public WMV_ViewerSettings(){}
 	
-	public void initialize(PImage NEWTEST)
+//	public void initialize(PImage NEWTEST)
+	public void initialize()
 	{
 		fieldOfView = initFieldOfView; 		
 		selectionMaxDistance = defaultFocusDistance * selectionMaxDistanceFactor;
-		IMAGETEST = NEWTEST;
+//		IMAGETEST = NEWTEST;
 	}
 	
 	public void reset()
@@ -129,10 +131,10 @@ public class WMV_ViewerSettings
 		/* Graphics */
 		orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
 		angleFading = true;						// Do photos fade out as the camera turns away from them?
-		visibleAngle = PApplet.PI / 3.33f;		// Angle within which images and videos become visible
+		visibleAngle = (float)Math.PI / 3.33f;		// Angle within which images and videos become visible
 		centeredAngle = visibleAngle / 2.f;		// At what angle is the image centered?
 		angleThinning = false;					// Thin images and videos of similar orientation
-		thinningAngle = PApplet.PI / 6.f;		// Angle to thin images and videos within
+		thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 		alphaTransitionLength = 15;
 
 		/* Physics */

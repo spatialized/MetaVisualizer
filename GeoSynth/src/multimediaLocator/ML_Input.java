@@ -5,7 +5,7 @@ import g4p_controls.GButton;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
-import processing.core.*;
+import processing.core.PApplet;
 
 /**************************************
  * @author davidgordon
@@ -1121,9 +1121,9 @@ public class ML_Input
 					if(!world.getState().hierarchical)
 					{
 						world.getState().hierarchical = true;
-						if(!world.getCurrentField().dendrogramCreated)
+						if(!world.getCurrentField().getState().dendrogramCreated)
 							world.getCurrentField().runHierarchicalClustering();
-						world.getCurrentField().setDendrogramDepth(world.getCurrentField().clusterDepth);				// Initialize clusters 
+						world.getCurrentField().setDendrogramDepth(world.getCurrentField().getState().clusterDepth);				// Initialize clusters 
 						world.getCurrentField().createTimeline();					// Create field timeline
 					}
 
@@ -1160,7 +1160,7 @@ public class ML_Input
 					if(!world.getState().autoClusterDistances && world.settings.minClusterDistance < world.settings.maxClusterDistance - 2.f)
 					{
 						world.settings.minClusterDistance += 0.25f;
-						//					PApplet.println("world.minClusterDistance:"+world.minClusterDistance);
+						//					System.out.println("world.minClusterDistance:"+world.minClusterDistance);
 						for(WMV_Field f : world.getFields())
 						{
 							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);
@@ -1183,15 +1183,15 @@ public class ML_Input
 						{
 							if (keyCode == PApplet.UP) 
 							{
-								int clusterDepth = world.getCurrentField().clusterDepth + 1;
-								if(clusterDepth <= world.getCurrentField().deepestLevel)
+								int clusterDepth = world.getCurrentField().getState().clusterDepth + 1;
+								if(clusterDepth <= world.getCurrentField().getState().deepestLevel)
 									world.getCurrentField().setDendrogramDepth( clusterDepth );
 							}
 
 							if (keyCode == PApplet.DOWN) 
 							{
-								int clusterDepth = world.getCurrentField().clusterDepth - 1;
-								if(clusterDepth >= world.getCurrentField().minClusterDepth)
+								int clusterDepth = world.getCurrentField().getState().clusterDepth - 1;
+								if(clusterDepth >= world.getCurrentField().getState().minClusterDepth)
 									world.getCurrentField().setDendrogramDepth( clusterDepth );
 							}
 						}
@@ -1294,7 +1294,7 @@ public class ML_Input
 				if (keyCode == COMMAND_KEY) 
 				{
 					commandKey = true;
-//					PApplet.println("+ commandKey set to "+commandKey + " on frame:"+frameCount);
+//					System.out.println("+ commandKey set to "+commandKey + " on frame:"+frameCount);
 				}
 			}
 		}
@@ -1305,7 +1305,7 @@ public class ML_Input
 	 */
 	void handleKeyReleased(WMV_Viewer viewer, ML_Display display, char key, int keyCode)
 	{
-//		PApplet.println("handleKeyReleased keyCode: "+keyCode + " on frame:"+frameCount);
+//		System.out.println("handleKeyReleased keyCode: "+keyCode + " on frame:"+frameCount);
 
 		/* Navigation */
 		if (key == 'a') 
@@ -1359,7 +1359,7 @@ public class ML_Input
 			if (keyCode == COMMAND_KEY)
 			{
 				commandKey = false;
-//				PApplet.println("commandKey set to "+commandKey + " on frame:"+frameCount);
+//				System.out.println("commandKey set to "+commandKey + " on frame:"+frameCount);
 			}
 		}
 	}
@@ -1376,7 +1376,7 @@ public class ML_Input
 		
 		if(frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
 		{
-//			PApplet.println("Held mouse...");
+//			System.out.println("Held mouse...");
 		}
 	}
 	
@@ -1386,16 +1386,16 @@ public class ML_Input
 		{
 			mouseClickedRecently = false;
 //			mouseReleasedRecently = false;
-	//			PApplet.println("SET CLICKED RECENTLY TO FALSE");
+	//			System.out.println("SET CLICKED RECENTLY TO FALSE");
 		}
 		
 		if(frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
 		{
-//			PApplet.println("Held mouse...");
+//			System.out.println("Held mouse...");
 			viewer.addPlaceToMemory();
 		}
 		
-//		PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY+" screenWidth * 0.25:"+(screenWidth * 0.25));
+//		System.out.println("mouseX:"+mouseX+" mouseY:"+mouseY+" screenWidth * 0.25:"+(screenWidth * 0.25));
 			
 		if (mouseX < screenWidth * 0.25 && mouseX > -1) 
 		{
@@ -1427,7 +1427,7 @@ public class ML_Input
 	void handleMousePressed(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
 	{
 //		boolean doubleClick = false, switchedViews = false;
-//			PApplet.println("MousePressed!");
+//			System.out.println("MousePressed!");
 		if(!viewer.getSettings().orientationMode && viewer.getState().lastMovementFrame > 5)
 		{
 			if(mouseX > screenWidth * 0.25 && mouseX < screenWidth * 0.75 && mouseY < screenHeight * 0.75 && mouseY > screenHeight * 0.25)

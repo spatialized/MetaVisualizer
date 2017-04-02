@@ -5,7 +5,6 @@ import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PVector;
-import processing.data.IntList;
 
 /*********************************************
  * @author davidgordon
@@ -67,13 +66,13 @@ public class WMV_Cluster
 	
 	/* Media */
 	public int mediaCount;			// No. of media associated with this cluster
-//	public List<Integer> images = new ArrayList<Integer>();
-//	public List<Integer> panoramas = new ArrayList<Integer>();
-//	public List<Integer> videos = new ArrayList<Integer>();
+	public List<Integer> images = new ArrayList<Integer>();
+	public List<Integer> panoramas = new ArrayList<Integer>();
+	public List<Integer> videos = new ArrayList<Integer>();
 	
-	IntList images;			// Images associated with this cluster
-	IntList panoramas;			// Panoramas associated with this cluster
-	IntList videos;			// Videos associated with this cluster
+//	IntList images;			// Images associated with this cluster
+//	IntList panoramas;			// Panoramas associated with this cluster
+//	IntList videos;			// Videos associated with this cluster
 	
 	private float highLongitude, lowLongitude, highLatitude, lowLatitude, 		// - NEED TO CALCULATE!	
 			  	 highAltitude, lowAltitude;		
@@ -93,8 +92,8 @@ public class WMV_Cluster
 	
 	/* Panorama */
 	public boolean panorama = false;					// Cluster has panorama files?
-//	List<Integer> valid;										// List of images that are good stitching candidates
-	IntList valid;
+	List<Integer> valid;										// List of images that are good stitching candidates
+//	IntList valid;
 		
 	WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
 				 ML_DebugSettings newDebugSettings, int _clusterID, float _x, float _y, float _z) 
@@ -109,13 +108,13 @@ public class WMV_Cluster
 		viewerSettings = newViewerSettings;	// Update viewer settings
 		debugSettings = newDebugSettings;
 		
-//		images = new ArrayList<Integer>();
-//		panoramas = new ArrayList<Integer>();
-//		videos = new ArrayList<Integer>();
+		images = new ArrayList<Integer>();
+		panoramas = new ArrayList<Integer>();
+		videos = new ArrayList<Integer>();
 
-		images = new IntList();
-		panoramas = new IntList();
-		videos = new IntList();
+//		images = new IntList();
+//		panoramas = new IntList();
+//		videos = new IntList();
 		
 		segments = new ArrayList<WMV_MediaSegment>();
 		
@@ -132,34 +131,17 @@ public class WMV_Cluster
 	void findMediaSegments(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
 	{
 		List<Integer> allImages = new ArrayList<Integer>();
-		List<Integer> allImagesTest = new ArrayList<Integer>();
 		for(int i:images)
 			allImages.add(i);
-		for(int i:images)
-			allImagesTest.add(i);
-		
-//		IntList allImages = new IntList();
-//		for(int i:images)
-//			allImages.append(i);
-		
-//		PApplet.println("allImagesTest.size():"+allImagesTest.size());
-//		PApplet.println("allImages.size():"+allImages.size());
 		
 		boolean done = false;
 		
-		if(allImages.size() == 0)
-			done = true;					// Do nothing if no images
-//		if(allImagesTest.size() == 0)
-//			done = true;					// Do nothing if no images
+		if(allImages.size() == 0) done = true;					// Do nothing if no images
 		
 		if(allImages.size() == 1)
 		{
-			List<Integer> curImagesTest0 = new ArrayList<Integer>();
-			curImagesTest0.add(allImages.get(0));
-//			IntList curImages = new IntList();
-//			curImages.append(allImages.get(0));
-			PApplet.println("curImagesTest0.size():"+curImagesTest0.size());
-//			PApplet.println("curImages.size():"+curImages.size());
+			List<Integer> curImageList = new ArrayList<Integer>();
+			curImageList.add(allImages.get(0));
 			
 			float left = imageList.get(allImages.get(0)).getDirection();
 			float right = imageList.get(allImages.get(0)).getDirection();
@@ -169,12 +151,12 @@ public class WMV_Cluster
 			float top = imageList.get(allImages.get(0)).getElevation();
 			float centerElevation = imageList.get(allImages.get(0)).getElevation();
 
-			WMV_MediaSegment newSegment = new WMV_MediaSegment( this, 0, curImagesTest0, null, right, left, centerDirection, top, bottom, centerElevation);
+			WMV_MediaSegment newSegment = new WMV_MediaSegment( this, 0, curImageList, null, right, left, centerDirection, top, bottom, centerElevation);
 			newSegment.findBorders(imageList);
 			segments.add( newSegment );
 
 			if(debugSettings.cluster || debugSettings.field)
-				PApplet.println("Added media segment in cluster: "+getID()+" with single image...");
+				System.out.println("Added media segment in cluster: "+getID()+" with single image...");
 
 			done = true;
 		}
@@ -182,32 +164,24 @@ public class WMV_Cluster
 		while(!done)
 		{
 			List<Integer> curImages = new ArrayList<Integer>();
-//			IntList curImages = new IntList();
 
 			float left = 360.f, right = 0.f, centerDirection;		// Left and right bounds (in degrees) of segment 
 			float bottom = 100.f, top = -100.f, centerElevation;	// Top and bottom bounds (in degrees) of segment 
 
-			List<Integer> addedTest = new ArrayList<Integer>();		// Images added to current segment 
-			IntList added = new IntList();							// Images added to current segment 
+			List<Integer> added = new ArrayList<Integer>();		// Images added to current segment 
 
 			if(debugSettings.cluster || debugSettings.field)
-				PApplet.println("Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
+				System.out.println("Finding media segments in cluster: "+getID()+" images.size():"+images.size()+" allImages.size():"+allImages.size());
 
 			int count = 0;
 			for(int i : allImages)									// Search for images at least stitchingMinAngle from each image
 			{
 				WMV_Image img = imageList.get(i);
-//				PApplet.println("int i:"+i);
-//				PApplet.println("int iTest:"+allImagesTest.get(count));
 				
 				if(curImages.size() == 0)
 				{
 					curImages.add(img.getID());			// Add first image	
-					addedTest.add(count);					// Remove added image from list
-					added.append(count);					// Remove added image from list
-					PApplet.println("curImages.add("+img.getID()+")");
-					PApplet.println("addedTest.add("+count+")");
-					PApplet.println("added.append("+count+")");
+					added.add(count);					// Remove added image from list
 				}
 				else 
 				{
@@ -220,11 +194,11 @@ public class WMV_Cluster
 						if(imageList.get(m).getID() != img.getID())		// Don't compare image to itself
 						{
 							if(debugSettings.cluster && debugSettings.detailed)
-								PApplet.println("Comparing image:"+img.getDirection()+" to m: "+imageList.get(m).getDirection() + " stitchingMinAngle:"+worldSettings.stitchingMinAngle);
+								System.out.println("Comparing image:"+img.getDirection()+" to m: "+imageList.get(m).getDirection() + " stitchingMinAngle:"+worldSettings.stitchingMinAngle);
 							
-							if(PApplet.abs(img.getDirection() - imageList.get(m).getDirection()) < worldSettings.stitchingMinAngle)
+							if(Math.abs(img.getDirection() - imageList.get(m).getDirection()) < worldSettings.stitchingMinAngle)
 							{
-								if(PApplet.abs(img.getElevation() - imageList.get(m).getElevation()) < worldSettings.stitchingMinAngle)
+								if(Math.abs(img.getElevation() - imageList.get(m).getElevation()) < worldSettings.stitchingMinAngle)
 								{
 									float direction = img.getDirection();
 									float elevation = img.getElevation();
@@ -238,21 +212,13 @@ public class WMV_Cluster
 									if(elevation > top) top = elevation;
 
 									if(debugSettings.cluster || debugSettings.field)
-										PApplet.println("Added image:"+img.getID()+" to segment...");
+										System.out.println("Added image:"+img.getID()+" to segment...");
 
 									if(!curImages.contains(img.getID()))
 										curImages.add(img.getID());		// -- Add video too?
 									
-									PApplet.println("curImages.size():"+curImages.size());
-									
-									if(!addedTest.contains(count))
-										addedTest.add(count);				// Remove added image from list
-
-//									if(!curImages.hasValue(img.getID()))
-//										curImages.append(img.getID());		// -- Add video too?
-
-									if(!added.hasValue(count))
-										added.append(count);				// Remove added image from list
+									if(!added.contains(count))
+										added.add(count);				// Remove added image from list
 
 									found = true;
 								}
@@ -260,12 +226,8 @@ public class WMV_Cluster
 						}
 						else if(allImages.size() == 1)			// Add last image
 						{
-							PApplet.println("allImages.size() == 1? "+(allImages.size() == 1));
-							PApplet.println("allImagesTest.size() == 1? "+(allImagesTest.size() == 1));
 							curImages.add(img.getID());		// -- Add video too?
-							addedTest.add(count);				// Remove added image from list
-//							curImages.append(img.getID());		// -- Add video too?
-//							added.append(count);				// Remove added image from list
+							added.add(count);				// Remove added image from list
 						}
 						
 						idx++;
@@ -275,23 +237,13 @@ public class WMV_Cluster
 				count++;
 			}
 			
-			Collections.sort(addedTest);
-			added.sort();
-
-			/* DOESN'NT WORK */
-			for(int i=addedTest.size()-1; i>=0; i--)
-			{
-//				if((debugSettings.cluster || debugSettings.field) && debugSettings.detailed)
-					PApplet.println("Removing image ID from TEST:"+allImagesTest.get(addedTest.get(i)));
-				allImagesTest.remove(addedTest.get(i));					// Remove images added to curSegment
-			}
-
-			/* WORKS */
+			Collections.sort(added);
+			
 			for(int i=added.size()-1; i>=0; i--)
 			{
-//				if((debugSettings.cluster || debugSettings.field) && debugSettings.detailed)
-					PApplet.println("Removing image ID from REAL:"+allImages.get(added.get(i)));
-				allImages.remove(added.get(i));					// Remove images added to curSegment
+				int removed = allImages.remove(i);			// Remove images added to curSegment	-- NOT WORKING
+				if(debugSettings.cluster && debugSettings.detailed)
+					System.out.println("Removed image ID "+removed+" from allImages");
 			}
 
 			if(curImages.size() == 1)			// Only one image
@@ -299,9 +251,6 @@ public class WMV_Cluster
 				left = imageList.get(curImages.get(0)).getDirection();
 				right = imageList.get(curImages.get(0)).getDirection();
 				centerDirection = imageList.get(curImages.get(0)).getDirection();
-//				left = imageList.get(curImages.get(0)).getDirection();
-//				right = imageList.get(curImages.get(0)).getDirection();
-//				centerDirection = imageList.get(curImages.get(0)).getDirection();
 				
 				bottom = imageList.get(allImages.get(0)).getElevation();
 				top = imageList.get(allImages.get(0)).getElevation();
@@ -340,21 +289,20 @@ public class WMV_Cluster
 			segments.add( newSegment );
 
 			if((debugSettings.cluster || debugSettings.field))
-				PApplet.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
+				System.out.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
 			
 			done = (allImages.size() == 1 || allImages.size() == 0);
-			PApplet.println("----> done?:  allImagesTest.size():"+allImages.size());
 		}
 
 		numSegments = segments.size();						// Number of media segments in the cluster
 		if(numSegments > 0)
 		{
 			if(debugSettings.cluster || debugSettings.field)
-				PApplet.println(" Created "+numSegments+" media segments...");
+				System.out.println(" Created "+numSegments+" media segments...");
 
 		}
 		else if(debugSettings.cluster) 
-			PApplet.println(" No media segments added... cluster "+getID()+" has no images!");
+			System.out.println(" No media segments added... cluster "+getID()+" has no images!");
 	}
 
 	/**
@@ -363,14 +311,9 @@ public class WMV_Cluster
 	 */
 	void addImage(WMV_Image newImage)
 	{
-//		if(!images.contains(newImage.getID()))
-//		{
-//			images.add(newImage.getID());
-//			mediaCount++;
-//		}
-		if(!images.hasValue(newImage.getID()))
+		if(!images.contains(newImage.getID()))
 		{
-			images.append(newImage.getID());
+			images.add(newImage.getID());
 			mediaCount++;
 		}
 	}
@@ -383,14 +326,9 @@ public class WMV_Cluster
 	{
 		if(!panorama) panorama = true;
 		
-//		if(!panoramas.contains(newPanorama.getID()))
-//		{
-//			panoramas.add(newPanorama.getID());
-//			mediaCount++;
-//		}
-		if(!panoramas.hasValue(newPanorama.getID()))
+		if(!panoramas.contains(newPanorama.getID()))
 		{
-			panoramas.append(newPanorama.getID());
+			panoramas.add(newPanorama.getID());
 			mediaCount++;
 		}
 	}
@@ -401,14 +339,9 @@ public class WMV_Cluster
 	 */
 	void addVideo(WMV_Video newVideo)
 	{
-//		if(!videos.contains(newVideo.getID()))
-//		{
-//			videos.add(newVideo.getID());
-//			mediaCount++;
-//		}
-		if(!videos.hasValue(newVideo.getID()))
+		if(!videos.contains(newVideo.getID()))
 		{
-			videos.append(newVideo.getID());
+			videos.add(newVideo.getID());
 			mediaCount++;
 		}
 	}
@@ -418,12 +351,9 @@ public class WMV_Cluster
 	 */
 	void empty()
 	{
-//		images = new ArrayList<Integer>();
-//		panoramas = new ArrayList<Integer>();
-//		videos = new ArrayList<Integer>();
-		images = new IntList();
-		panoramas = new IntList();
-		videos = new IntList();
+		images = new ArrayList<Integer>();
+		panoramas = new ArrayList<Integer>();
+		videos = new ArrayList<Integer>();
 		mediaCount = 0;
 		active = false;
 		empty = true;
@@ -447,16 +377,16 @@ public class WMV_Cluster
 			if (curImg.cluster == id) 			// If the image is assigned to this cluster
 			{
 				newLocation.add(curImg.getCaptureLocation());		// Move cluster towards the image
-//				if(!images.contains(curImg.getID()))
-//				{
-//					images.add(curImg.getID());
-//					mediaCount++;
-//				}
-				if(!images.hasValue(curImg.getID()))
+				if(!images.contains(curImg.getID()))
 				{
-					images.append(curImg.getID());
+					images.add(curImg.getID());
 					mediaCount++;
 				}
+//				if(!images.hasValue(curImg.getID()))
+//				{
+//					images.append(curImg.getID());
+//					mediaCount++;
+//				}
 			}
 		}
 
@@ -468,16 +398,16 @@ public class WMV_Cluster
 			if (curPano.cluster == id) 			// If the image is assigned to this cluster
 			{
 				newLocation.add(curPano.getCaptureLocation());		// Move cluster towards the image
-//				if(!panoramas.contains(curPano.getID()))
-//				{
-//					panoramas.add(curPano.getID());
-//					mediaCount++;
-//				}
-				if(!panoramas.hasValue(curPano.getID()))
+				if(!panoramas.contains(curPano.getID()))
 				{
-					panoramas.append(curPano.getID());
+					panoramas.add(curPano.getID());
 					mediaCount++;
 				}
+//				if(!panoramas.hasValue(curPano.getID()))
+//				{
+//					panoramas.append(curPano.getID());
+//					mediaCount++;
+//				}
 			}
 		}
 
@@ -489,16 +419,16 @@ public class WMV_Cluster
 			if (curVid.cluster == id) 				// If the image is assigned to this cluster
 			{
 				newLocation.add(curVid.getCaptureLocation());	// Move cluster towards the image
-//				if(!videos.contains(curVid.getID()))
-//				{
-//					videos.add(curVid.getID());
-//					mediaCount++;
-//				}
-				if(!videos.hasValue(curVid.getID()))
+				if(!videos.contains(curVid.getID()))
 				{
-					videos.append(curVid.getID());
+					videos.add(curVid.getID());
 					mediaCount++;
 				}
+//				if(!videos.hasValue(curVid.getID()))
+//				{
+//					videos.append(curVid.getID());
+//					mediaCount++;
+//				}
 			}
 		}
 
@@ -529,22 +459,22 @@ public class WMV_Cluster
 		switch(mediaType)
 		{
 		case 0:
-//			images = new ArrayList<Integer>();
-//			images.add(mediaID);
-			images = new IntList();
-			images.append(mediaID);
+			images = new ArrayList<Integer>();
+			images.add(mediaID);
+//			images = new IntList();
+//			images.append(mediaID);
 			break;
 		case 1:
-//			panoramas = new ArrayList<Integer>();
-//			panoramas.add(mediaID);
-			panoramas = new IntList();
-			panoramas.append(mediaID);
+			panoramas = new ArrayList<Integer>();
+			panoramas.add(mediaID);
+//			panoramas = new IntList();
+//			panoramas.append(mediaID);
 			break;
 		case 2:
-//			videos = new ArrayList<Integer>();
-//			videos.add(mediaID);
-			videos = new IntList();
-			videos.append(mediaID);
+			videos = new ArrayList<Integer>();
+			videos.add(mediaID);
+//			videos = new IntList();
+//			videos.append(mediaID);
 			break;
 		default:
 			break;
@@ -615,7 +545,7 @@ public class WMV_Cluster
 			if(pano != null)
 			{
 				if(debugSettings.panorama || debugSettings.stitching)
-					PApplet.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
+					System.out.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
 
 				pano.initializeSphere();
 				
@@ -669,22 +599,22 @@ public class WMV_Cluster
 					
 					if(viewerSettings.angleThinning)				// Remove invisible images
 					{
-//						List<Integer> remove = new ArrayList<Integer>();
-						IntList remove = new IntList();
+						List<Integer> remove = new ArrayList<Integer>();		// Not needed
+//						IntList remove = new IntList();
 						
 						int count = 0;
 						for(WMV_Image v:validImages)
 						{
-//							if(!v.getThinningVisibility())
-//								remove.add(count);
 							if(!v.getThinningVisibility())
-								remove.append(count);
+								remove.add(count);
+//							if(!v.getThinningVisibility())
+//								remove.append(count);
 							count++;
 						}
 
 //						remove.sort();	-- ??
 						for(int i=remove.size()-1; i>=0; i--)
-							validImages.remove(remove.get(i));	
+							validImages.remove(i);	
 
 //						int count = 0;
 //						for(int v:valid)
@@ -746,9 +676,9 @@ public class WMV_Cluster
 	public void analyzeMediaDirections(ArrayList<WMV_Image> imageList, ArrayList<WMV_Video> videoList)
 	{
 		if(debugSettings.cluster || debugSettings.field)
-			PApplet.println("analyzeAngles()... cluster images.size():"+images.size());
+			System.out.println("analyzeAngles()... cluster images.size():"+images.size());
 		float thinningAngle = viewerSettings.thinningAngle;									// Angle to thin images and videos by
-		int numPerimeterPts = PApplet.round(PApplet.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
+		int numPerimeterPts = Math.round((float)Math.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
 		int[] perimeterPoints = new int[numPerimeterPts];					// Points to compare each cluster image/video to
 		float[] perimeterDistances = new float[numPerimeterPts];			// Distances of images associated with each point
 		int videoIdxOffset = imageList.size();
@@ -759,12 +689,12 @@ public class WMV_Cluster
 		for(int idx : images)
 		{
 			WMV_Image m = imageList.get(idx);
-			float imgAngle = PApplet.radians(m.theta);
+			float imgAngle = (float)Math.toRadians(m.theta);
 			m.setThinningVisibility(false);
 
 			for(int i=0; i<numPerimeterPts; i++)
 			{
-				float ppAngle = i * (PApplet.PI * 2.f / numPerimeterPts);	// Angle of perimeter point i
+				float ppAngle = i * ((float)Math.PI * 2.f / numPerimeterPts);	// Angle of perimeter point i
 				if(perimeterPoints[i] == -1)
 				{
 					perimeterPoints[i] = idx;
@@ -787,12 +717,12 @@ public class WMV_Cluster
 		for(int idx : videos)
 		{
 			WMV_Video v = videoList.get(idx);
-			float vidAngle = PApplet.radians(v.theta);
+			float vidAngle = (float)Math.toRadians(v.theta);
 			v.setThinningVisibility(false);
 
 			for(int i=0; i<numPerimeterPts; i++)
 			{
-				float ppAngle = i * (PApplet.PI * 2.f / numPerimeterPts);					// Angle of perimeter point i
+				float ppAngle = i * ((float)Math.PI * 2.f / numPerimeterPts);					// Angle of perimeter point i
 				if(perimeterPoints[i] == -1)
 				{
 					perimeterPoints[i] = idx;
@@ -818,12 +748,12 @@ public class WMV_Cluster
 			{
 				if(idx < videoIdxOffset)
 				{
-//					PApplet.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
+//					System.out.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
 					imageList.get(idx).setThinningVisibility(true);
 				}
 				else
 				{
-//					PApplet.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
+//					System.out.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
 					videoList.get(idx-videoIdxOffset).setThinningVisibility(true);
 				}
 			}
@@ -951,12 +881,12 @@ public class WMV_Cluster
 			if(!empty)
 			{
 				PVector force = getAttractionForce();
-//				PApplet.println("Cluster #"+getID()+"... Adding attraction force:"+force);
+//				System.out.println("Cluster #"+getID()+"... Adding attraction force:"+force);
 //				p.p.viewer.attraction.add( force );		// Add attraction force to camera 
 				viewer.attract( force );		// Add attraction force to camera 
 			}
 			else 
-				PApplet.println("Empty Attractor: "+getID());
+				System.out.println("Empty Attractor: "+getID());
 		}
 	}
 
@@ -969,7 +899,7 @@ public class WMV_Cluster
 			return PVector.dist(location, viewerState.getLocation());
 		else
 		{
-			PApplet.println("getClusterDistance().. viewerState == NULL!!");
+			System.out.println("getClusterDistance().. viewerState == NULL!!");
 			return 0.f;
 		}
 	}
@@ -982,9 +912,9 @@ public class WMV_Cluster
 		PVector force = new PVector(0,0,0);
 		
 		if(location == null || viewerState == null)
-			PApplet.println("ERROR 1 getAttractionForce() id:"+getID()+" location == null? "+(location == null)+" viewerState == null? "+(viewerState == null));
+			System.out.println("ERROR 1 getAttractionForce() id:"+getID()+" location == null? "+(location == null)+" viewerState == null? "+(viewerState == null));
 		else if(viewerState.getLocation() == null)
-			PApplet.println("ERROR 2 getAttractionForce() id:"+getID()+" viewerState.getLocation() == null!");
+			System.out.println("ERROR 2 getAttractionForce() id:"+getID()+" viewerState.getLocation() == null!");
 		else
 		{
 			force = PVector.sub(location, viewerState.getLocation());
@@ -992,9 +922,9 @@ public class WMV_Cluster
 			force.normalize();
 
 			float mass, dist = getClusterDistance();
-//			PApplet.println("getAttractionForce, Cluster #"+getID()+"... getClusterDistance:"+PVector.dist(location, p.p.viewer.getLocation()));
+//			System.out.println("getAttractionForce, Cluster #"+getID()+"... getClusterDistance:"+PVector.dist(location, p.p.viewer.getLocation()));
 			if( dist > worldSettings.clusterFarDistance )
-				mass = clusterMass * farMassFactor * PApplet.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
+				mass = clusterMass * farMassFactor * (float)Math.sqrt(distance);	// Increase mass with distance to ensure minimum acceleration
 			else
 				mass = clusterMass;
 
@@ -1037,7 +967,7 @@ public class WMV_Cluster
 	void absorbCluster(WMV_Cluster cluster, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
 	{
 		if(debugSettings.cluster)
-			PApplet.println("Merging cluster "+getID()+" with "+cluster.getID());
+			System.out.println("Merging cluster "+getID()+" with "+cluster.getID());
 
 		/* Find images associated with cluster */
 		for (int i = 0; i < imageList.size(); i++) 
@@ -1076,12 +1006,12 @@ public class WMV_Cluster
 		}
 
 		/* Empty merged cluster */
-//		cluster.images = new ArrayList<Integer>();
-//		cluster.panoramas = new ArrayList<Integer>();
-//		cluster.videos = new ArrayList<Integer>();
-		cluster.images = new IntList();
-		cluster.panoramas = new IntList();
-		cluster.videos = new IntList();
+		cluster.images = new ArrayList<Integer>();
+		cluster.panoramas = new ArrayList<Integer>();
+		cluster.videos = new ArrayList<Integer>();
+//		cluster.images = new IntList();
+//		cluster.panoramas = new IntList();
+//		cluster.videos = new IntList();
 		cluster.mediaCount = 0;
 		cluster.active = false;
 		cluster.empty = true;
@@ -1139,7 +1069,7 @@ public class WMV_Cluster
 
 		if(dateline.size() == 0)
 		{
-			PApplet.println("-------> Cluster "+getID()+" dateline has no points! "+getID()+" images.size():"+images.size()+" dateline.size():"+dateline.size());
+			System.out.println("-------> Cluster "+getID()+" dateline has no points! "+getID()+" images.size():"+images.size()+" dateline.size():"+dateline.size());
 			empty();
 		}
 	}
@@ -1178,19 +1108,19 @@ public class WMV_Cluster
 		{
 			if(timeline.size() == 0)
 			{
-				PApplet.println("Cluster #"+getID()+" timeline has no points!  images.size():"+images.size()+" panoramas.size():"+panoramas.size()+" videos.size():"+videos.size());
+				System.out.println("Cluster #"+getID()+" timeline has no points!  images.size():"+images.size()+" panoramas.size():"+panoramas.size()+" videos.size():"+videos.size());
 				empty();
 			}
 		}
 		else
 		{
-			PApplet.println("Cluster #"+getID()+" timeline is NULL!  images.size():"+images.size()+" panoramas.size():"+panoramas.size()+" videos.size():"+videos.size());
+			System.out.println("Cluster #"+getID()+" timeline is NULL!  images.size():"+images.size()+" panoramas.size():"+panoramas.size()+" videos.size():"+videos.size());
 			empty();
 		}
 
 		if(timeline.size() == 0)
 		{
-			PApplet.println("Cluster timeline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
+			System.out.println("Cluster timeline has no points! "+getID()+" images.size():"+images.size()+" panoramas.size():"+panoramas.size());
 			empty();
 		}
 	}
@@ -1227,7 +1157,7 @@ public class WMV_Cluster
 				timelines.add( newTimeline );		// Calculate and add timeline to list
 
 				if(debugSettings.cluster)
-					PApplet.println("Added timeline #"+count+" for cluster #"+getID()+" with "+newTimeline.size()+" points...");
+					System.out.println("Added timeline #"+count+" for cluster #"+getID()+" with "+newTimeline.size()+" points...");
 			}
 			
 			ct++;
@@ -1255,7 +1185,7 @@ public class WMV_Cluster
 				currentDate++;															// Increment cluster date
 
 				if(debugSettings.cluster || debugSettings.time)
-					PApplet.println("Reached end of day at p.frameCount:"+worldState.frameCount);
+					System.out.println("Reached end of day at p.frameCount:"+worldState.frameCount);
 
 				if(dateline != null)
 				{
@@ -1263,12 +1193,12 @@ public class WMV_Cluster
 					{
 						currentDate = 0;
 						if(debugSettings.cluster || debugSettings.time)
-							PApplet.println("Reached end of dateline at p.frameCount:"+worldState.frameCount);
+							System.out.println("Reached end of dateline at p.frameCount:"+worldState.frameCount);
 					}
 				}
 				else if(debugSettings.cluster || debugSettings.time)
 				{
-					PApplet.println("dateline is NULL for cluster "+getID());
+					System.out.println("dateline is NULL for cluster "+getID());
 				}
 			}
 		}
@@ -1288,7 +1218,7 @@ public class WMV_Cluster
 					if(d == date)										// If cluster has date,
 					{
 						found = true;												// destination cluster has been found
-						//					PApplet.println("found cluster with date... "+id+" curTimeSegment:"+curTimeSegment+" date:"+date);
+						//					System.out.println("found cluster with date... "+id+" curTimeSegment:"+curTimeSegment+" date:"+date);
 					}
 					else
 						timelineID++;
@@ -1306,7 +1236,7 @@ public class WMV_Cluster
 					}
 					catch(NullPointerException e)
 					{
-						PApplet.println("No timeline found! ... dateline.size():"+dateline.size()+" timelineID:"+timelineID+" ... cluster id:"+getID());
+						System.out.println("No timeline found! ... dateline.size():"+dateline.size()+" timelineID:"+timelineID+" ... cluster id:"+getID());
 						result = null;
 					}
 				}
@@ -1318,7 +1248,7 @@ public class WMV_Cluster
 					}
 					catch(NullPointerException e)
 					{
-						PApplet.println("No timeline found!... cluster id:"+getID());
+						System.out.println("No timeline found!... cluster id:"+getID());
 						result = null;
 					}
 				}
@@ -1328,7 +1258,7 @@ public class WMV_Cluster
 			else
 			{
 //				if(debugSettings.cluster || debugSettings.time)
-//					PApplet.println("Date doesn't exist in cluster #"+getID()+"... "+date);
+//					System.out.println("Date doesn't exist in cluster #"+getID()+"... "+date);
 				return null;
 			}
 		}
@@ -1336,7 +1266,7 @@ public class WMV_Cluster
 		{
 			if(debugSettings.cluster || debugSettings.time)
 			{
-				PApplet.println("Cluster #"+getID()+" has no dateline but has "+mediaCount+" media points!!");
+				System.out.println("Cluster #"+getID()+" has no dateline but has "+mediaCount+" media points!!");
 			}
 			return null;
 		}
@@ -1371,13 +1301,13 @@ public class WMV_Cluster
 			}
 			else
 			{
-				PApplet.println("Date doesn't exist in cluster #"+getID()+"... "+date.getDate());
+				System.out.println("Date doesn't exist in cluster #"+getID()+"... "+date.getDate());
 				return null;
 			}
 		}
 		else 
 		{
-			PApplet.println("Cluster #"+getID()+" has no dateline... ");
+			System.out.println("Cluster #"+getID()+" has no dateline... ");
 			return null;
 		}
 	}
@@ -1392,7 +1322,7 @@ public class WMV_Cluster
 				initImageDate = true, initPanoramaDate = true, initVideoDate = true;	
 
 //		if(debugSettings.cluster && (images.size() != 0 || panoramas.size() != 0 || videos.size() != 0))
-//			PApplet.println("Analyzing media times in cluster "+id+" ..." + " associatedImages.size():"+images.size()+" associatedPanoramas:"+panoramas.size()+" associatedVideos:"+videos.size());
+//			System.out.println("Analyzing media times in cluster "+id+" ..." + " associatedImages.size():"+images.size()+" associatedPanoramas:"+panoramas.size()+" associatedVideos:"+videos.size());
 			
 		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
 		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
@@ -1642,40 +1572,40 @@ public class WMV_Cluster
 		return result;
 	}
 
-//	public List<Integer> getImageIDs()
-//	{
-//		return images;
-//	}
-//
-//	public List<Integer> getPanoramaIDs()
-//	{
-//		return panoramas;
-//	}
-//
-//	public List<Integer> getVideoIDs()
-//	{
-//		return videos;
-//	}
+	public List<Integer> getImageIDs()
+	{
+		return images;
+	}
+
+	public List<Integer> getPanoramaIDs()
+	{
+		return panoramas;
+	}
+
+	public List<Integer> getVideoIDs()
+	{
+		return videos;
+	}
 	
 //	public List<Integer> getSounds()
 //	{
 //		return sounds;
 //	}
 
-	public IntList getImageIDs()
-	{
-		return images;
-	}
-
-	public IntList getPanoramaIDs()
-	{
-		return panoramas;
-	}
-
-	public IntList getVideoIDs()
-	{
-		return videos;
-	}
+//	public IntList getImageIDs()
+//	{
+//		return images;
+//	}
+//
+//	public IntList getPanoramaIDs()
+//	{
+//		return panoramas;
+//	}
+//
+//	public IntList getVideoIDs()
+//	{
+//		return videos;
+//	}
 	
 //	public List<Integer> getSounds()
 //	{

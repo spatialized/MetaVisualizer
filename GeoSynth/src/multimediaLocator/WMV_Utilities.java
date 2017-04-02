@@ -241,13 +241,13 @@ public class WMV_Utilities
 		if (theta2 > PApplet.PI * 2.f)
 			theta2 -= PApplet.PI * 2.f;
 
-		float dist1 = PApplet.abs(theta1-theta2);
+		float dist1 = Math.abs(theta1-theta2);
 		float dist2;
 
 		if (theta1 > theta2)
-			dist2   = PApplet.abs(theta1 - PApplet.PI*2.f-theta2);
+			dist2   = Math.abs(theta1 - PApplet.PI*2.f-theta2);
 		else
-			dist2   = PApplet.abs(theta2 - PApplet.PI*2.f-theta1);
+			dist2   = Math.abs(theta2 - PApplet.PI*2.f-theta1);
 
 		if (dist1 > dist2)
 			return dist2;
@@ -324,7 +324,7 @@ public class WMV_Utilities
 	 */
 	public boolean shrinkImages(String largeImages, String destination)
 	{
-		PApplet.println("Shrinking images:"+largeImages+" to:"+destination+"...");
+		System.out.println("Shrinking images:"+largeImages+" to:"+destination+"...");
 		WMV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		ArrayList<String> files = new ArrayList<String>();
@@ -350,7 +350,7 @@ public class WMV_Utilities
 		}
 		catch(Throwable t)
 		{
-			PApplet.println("Throwable t while getting largeImage file list:"+t);
+			System.out.println("Throwable t while getting largeImage file list:"+t);
 			return false;
 		}
 		
@@ -360,7 +360,7 @@ public class WMV_Utilities
 		command.add("-a");
 		command.add(largeImages + ".");
 		command.add(destination);
-//		PApplet.println("Copying command:"+command.toString());
+//		System.out.println("Copying command:"+command.toString());
 		
 		commandExecutor = new WMV_Command("", command);
 		try {
@@ -369,11 +369,11 @@ public class WMV_Utilities
 //			StringBuilder stdout = commandExecutor.getStandardOutputFromCommand();
 //			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
 
-//			PApplet.println("... copying result ..."+result);
+//			System.out.println("... copying result ..."+result);
 		}
 		catch(Throwable t)
 		{
-			PApplet.println("Throwable t while copying files:"+t);
+			System.out.println("Throwable t while copying files:"+t);
 			return false;
 		}
 		
@@ -394,27 +394,27 @@ public class WMV_Utilities
 		}
 		catch(Throwable t)
 		{
-			PApplet.println("Throwable t while getting small_images file list for shrinking:"+t);
+			System.out.println("Throwable t while getting small_images file list for shrinking:"+t);
 			return false;
 		}
 
-//		PApplet.println("files.size():"+files.size());
+//		System.out.println("files.size():"+files.size());
 
 		/* Shrink files in new directory */
 		for (String fileName : files)					// -- Do in one command??
 		{
 			boolean isJpeg = false;
-//			PApplet.println("fileName:"+fileName);
+//			System.out.println("fileName:"+fileName);
 
 			if(fileName != null && !fileName.equals(""))
 			{
 				String[] parts = fileName.split("\\.");
 
-//				PApplet.println("parts.length:"+parts.length);
+//				System.out.println("parts.length:"+parts.length);
 				if(parts.length > 0)
 				{
-//					PApplet.println("parts[0]:"+parts[0]);
-//					PApplet.println("parts[length-1]:"+parts[parts.length-1]);
+//					System.out.println("parts[0]:"+parts[0]);
+//					System.out.println("parts[length-1]:"+parts[parts.length-1]);
 					if(parts[parts.length-1].equals("jpg") || parts[parts.length-1].equals("JPG"))
 						isJpeg = true;
 				}
@@ -427,7 +427,7 @@ public class WMV_Utilities
 					command.add("-Z");
 					command.add("640");
 					command.add(fileName);
-//					PApplet.println("destination:"+destination +" command:"+command);
+//					System.out.println("destination:"+destination +" command:"+command);
 					commandExecutor = new WMV_Command(destination, command);
 
 					try {
@@ -439,7 +439,7 @@ public class WMV_Utilities
 					}
 					catch(Throwable t)
 					{
-						PApplet.println("Throwable t:"+t);
+						System.out.println("Throwable t:"+t);
 						return false;
 					}
 				}
@@ -643,19 +643,19 @@ public class WMV_Utilities
 						
 //						if(p.p.debug.time)
 //						{
-//							if(p.p.debug.detailed) PApplet.println("Cluster #"+clusterID+"... Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+//							if(p.p.debug.detailed) System.out.println("Cluster #"+clusterID+"... Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
 //
 //							if(curUpper.getTime() - curLower.getTime() > 0.001f)
 //							{
-//								PApplet.println("---> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-//								PApplet.println("t.getTime():"+t.getTime()+" last:"+last.getTime()+" t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
+//								System.out.println("---> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+//								System.out.println("t.getTime():"+t.getTime()+" last:"+last.getTime()+" t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
 //							}
 //						}
 						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
 						for(int i=startCount; i<=count; i++)
 						{
 							tl.add(mediaTimes.get(i));
-//							PApplet.println("Added media time...");
+//							System.out.println("Added media time...");
 						}
 						
 						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));	// Add time segment
@@ -668,10 +668,10 @@ public class WMV_Utilities
 					}
 				}
 //				else 
-//					PApplet.println("Same as last...");
+//					System.out.println("Same as last...");
 				
 				count++;
-//				PApplet.println("count:"+count);
+//				System.out.println("count:"+count);
 			}
 			
 			if(startCount == 0)									// Single time segment for cluster
@@ -692,13 +692,13 @@ public class WMV_Utilities
 				for(int i=0; i<mediaTimes.size(); i++)
 					tl.add(mediaTimes.get(i));
 
-//				PApplet.println("Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+//				System.out.println("Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
 
 				if(curUpper.getTime() - curLower.getTime() > 0.001f)
 				{
-					PApplet.println("-> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-//					PApplet.println("t.getTime():"+t.getTime()+" last:"+last.getTime());
-//					PApplet.println("t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
+					System.out.println("-> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
+//					System.out.println("t.getTime():"+t.getTime()+" last:"+last.getTime());
+//					System.out.println("t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
 				}
 				
 				segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));
@@ -709,7 +709,7 @@ public class WMV_Utilities
 		else
 		{
 //			if(p.p.p.debug.time)
-//				PApplet.println("cluster:"+id+" getTimeSegments() == null but has mediaPoints:"+mediaCount);
+//				System.out.println("cluster:"+id+" getTimeSegments() == null but has mediaPoints:"+mediaCount);
 			return null;		
 		}
 	}
@@ -794,12 +794,12 @@ public class WMV_Utilities
 		ssMin = ss.get(Calendar.MINUTE); 
 		ssSec = ss.get(Calendar.SECOND); 
 
-		PApplet.println("---> ssHour:"+ssHour);
+		System.out.println("---> ssHour:"+ssHour);
 
 		if (cHour > ssHour) 
 		{
 			float ssDiff = (cHour * 60 + cMin + cSec/60.f) - (ssHour * 60 + ssMin + ssSec/60.f);
-			PApplet.println("ssDiff:"+ssDiff);
+			System.out.println("ssDiff:"+ssDiff);
 
 			//			if (ssDiff > p.minutesPastSunset) {
 			//				if (p.p.debug.debugExif)
@@ -808,37 +808,37 @@ public class WMV_Utilities
 			//				p.minutesPastSunset = ssDiff;
 			//
 			//				if (p.p.debug.debugExif)
-			//					PApplet.println("  to:" + p.minutesPastSunset);
+			//					System.out.println("  to:" + p.minutesPastSunset);
 			//			}
 		}
 
 		if (cHour < srHour) 
 		{
 			float srDiff = (srHour * 60 + srMin + srSec/60.f) - (cHour * 60 + cMin + cSec/60.f);
-			PApplet.println("srDiff:"+srDiff);
+			System.out.println("srDiff:"+srDiff);
 			//			if (srDiff > p.minutesBeforeSunrise) 
 			//			{
 			//				PApplet.print("Adjusted Sunrise Length from:" + p.sunriseLength);
 			//				p.minutesBeforeSunrise = srDiff;
-			//				PApplet.println("  to:" + p.sunriseLength);
+			//				System.out.println("  to:" + p.sunriseLength);
 			//			}
 		}
 
 		if (cHour > ssHour) 
 		{
-			PApplet.println("Difference in Sunset Time (min.): " + ((cHour * 60 + cMin + cSec/60.f) - (ssHour * 60 + ssMin + ssSec/60.f)));
+			System.out.println("Difference in Sunset Time (min.): " + ((cHour * 60 + cMin + cSec/60.f) - (ssHour * 60 + ssMin + ssSec/60.f)));
 			PApplet.print("Hour:" + cHour);
-			PApplet.println(" Min:" + cMin);
+			System.out.println(" Min:" + cMin);
 			PApplet.print("Sunset Hour:" + ssHour);
-			PApplet.println(" Sunset Min:" + ssMin);
+			System.out.println(" Sunset Min:" + ssMin);
 		}
 		//
 		//		if (cHour < srHour && p.p.debug.debugExif && p.p.debug.debugDetail) {
-		//			PApplet.println("Difference in Sunrise Time (min.): " + ((srHour * 60 + srMin + srSec/60.f) - (cHour * 60 + cMin + cSec/60.f)));
+		//			System.out.println("Difference in Sunrise Time (min.): " + ((srHour * 60 + srMin + srSec/60.f) - (cHour * 60 + cMin + cSec/60.f)));
 		//			PApplet.print("Hour:" + cHour);
-		//			PApplet.println(" Min:" + cMin);
+		//			System.out.println(" Min:" + cMin);
 		//			PApplet.print("Sunrise Hour:" + srHour);
-		//			PApplet.println(" Sunrise Min:" + srMin);
+		//			System.out.println(" Sunrise Min:" + srMin);
 		//		}
 
 		float sunriseTime = srHour * 60 + srMin + srSec/60.f;		
@@ -904,12 +904,12 @@ public class WMV_Utilities
 		ssMin = ss.get(Calendar.MINUTE); 
 		ssSec = ss.get(Calendar.SECOND); 
 
-		PApplet.println("---> ssHour:"+ssHour);
+		System.out.println("---> ssHour:"+ssHour);
 
 		if (cHour > ssHour) 
 		{
 			float ssDiff = (cHour * 60 + cMin + cSec/60.f) - (ssHour * 60 + ssMin + ssSec/60.f);
-			//			PApplet.println("ssDiff:"+ssDiff);
+			//			System.out.println("ssDiff:"+ssDiff);
 
 			//			if (ssDiff > p.minutesPastSunset) {
 			//				if (p.p.debug.debugExif)
@@ -918,28 +918,28 @@ public class WMV_Utilities
 			//				p.minutesPastSunset = ssDiff;
 			//
 			//				if (p.p.debug.debugExif)
-			//					PApplet.println("  to:" + p.minutesPastSunset);
+			//					System.out.println("  to:" + p.minutesPastSunset);
 			//			}
 		}
 
 		if (cHour < srHour) 
 		{
 			float srDiff = (srHour * 60 + srMin + srSec/60.f) - (cHour * 60 + cMin + cSec/60.f);
-			PApplet.println("srDiff:"+srDiff);
+			System.out.println("srDiff:"+srDiff);
 			//			if (srDiff > p.minutesBeforeSunrise) 
 			//			{
 			//				PApplet.print("Adjusted Sunrise Length from:" + p.sunriseLength);
 			//				p.minutesBeforeSunrise = srDiff;
-			//				PApplet.println("  to:" + p.sunriseLength);
+			//				System.out.println("  to:" + p.sunriseLength);
 			//			}
 		}
 
 		if (cHour < srHour) {
-			PApplet.println("Difference in Sunrise Time (min.): " + ((srHour * 60 + srMin + srSec/60.f) - (cHour * 60 + cMin + cSec/60.f)));
+			System.out.println("Difference in Sunrise Time (min.): " + ((srHour * 60 + srMin + srSec/60.f) - (cHour * 60 + cMin + cSec/60.f)));
 			PApplet.print("Hour:" + cHour);
-			PApplet.println(" Min:" + cMin);
+			System.out.println(" Min:" + cMin);
 			PApplet.print("Sunrise Hour:" + srHour);
-			PApplet.println(" Sunrise Min:" + srMin);
+			System.out.println(" Sunrise Min:" + srMin);
 		}
 
 		float sunriseTime = srHour * 60 + srMin + srSec/60.f;		
@@ -987,7 +987,7 @@ public class WMV_Utilities
 		}
 		catch(Throwable t)
 		{
-			PApplet.println("Error reading JSON from Google Time Zone API: "+t);
+			System.out.println("Error reading JSON from Google Time Zone API: "+t);
 			return null;
 		}
 

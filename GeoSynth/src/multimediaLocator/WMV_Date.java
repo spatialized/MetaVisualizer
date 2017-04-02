@@ -1,12 +1,9 @@
 package multimediaLocator;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Objects;
 
-import processing.core.PApplet;
 import processing.core.PVector;
 
 /******************************************
@@ -39,7 +36,7 @@ public class WMV_Date implements Comparable<WMV_Date>
 		{
 			year --;
 			month = 12;
-//			PApplet.println("Corrected Month... year:"+year+" month:"+month);
+//			System.out.println("Corrected Month... year:"+year+" month:"+month);
 		}
 		
 		day = dateTime.getDayOfMonth();

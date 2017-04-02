@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PConstants;
@@ -109,7 +110,7 @@ public class WMV_World
 		if ( p.state.exit ) 											/* Stopping the program */
 		{
 			if(p.debug.detailed)
-				PApplet.println("Exit command! about to quit...");
+				System.out.println("Exit command! about to quit...");
 			
 			p.stopWorldMediaViewer();								//  Exit simulation
 		}
@@ -125,16 +126,16 @@ public class WMV_World
 			if(viewer.getSettings().selection)
 			{
 				exportSelectedImages();
-				PApplet.println("Saved image(s) to "+outputFolder);
+				System.out.println("Saved image(s) to "+outputFolder);
 			}
 			else
 			{
 				p.saveFrame(outputFolder + "/" + getCurrentField().getName() + "-######.jpg");
-				PApplet.println("Saved image: "+outputFolder + "/image" + "-######.jpg");
+				System.out.println("Saved image: "+outputFolder + "/image" + "-######.jpg");
 			}
 			state.saveImage = false;
 		}
-//		PApplet.println("Last run() on Frame #"+p.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
+//		System.out.println("Last run() on Frame #"+p.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
 	}
 	
 	/**
@@ -196,7 +197,7 @@ public class WMV_World
 		if (state.fieldsCreated && state.initialSetup && !p.state.running)
 		{
 			if(p.debug.main)
-				PApplet.println("Finishing WMV_World setup()...");
+				System.out.println("Finishing WMV_World setup()...");
 
 			finishSetup();
 		}
@@ -206,7 +207,7 @@ public class WMV_World
 		
 		if(state.startInteractive && !state.interactive && !p.state.running)		/* Start interactive clustering */
 		{
-			PApplet.println("Will start interactive clustering...");
+			System.out.println("Will start interactive clustering...");
 			startInteractiveClustering();						
 		}
 		
@@ -271,7 +272,7 @@ public class WMV_World
 			if(viewer.getAttractorPoint() != null)
 				viewer.getAttractorPoint().attractViewer(viewer);		// Attract the camera to the memory navigation goal
 			else 
-				PApplet.println("viewer.attractorPoint == NULL!!");
+				System.out.println("viewer.attractorPoint == NULL!!");
 		}
 		else if(viewer.getState().isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
 		{
@@ -307,13 +308,13 @@ public class WMV_World
 						if(getCurrentField().mediaAreActive())
 						{
 							if(p.debug.detailed)
-								PApplet.println("Media still active...");
+								System.out.println("Media still active...");
 						}
 						else
 						{
 							state.currentTime = 0;
 							if(p.debug.detailed)
-								PApplet.println("Reached end of day at p.frameCount:"+p.frameCount);
+								System.out.println("Reached end of day at p.frameCount:"+p.frameCount);
 						}
 					}
 				}
@@ -325,7 +326,7 @@ public class WMV_World
 					state.currentTime++;
 					
 					if(p.debug.time && p.debug.detailed)
-						PApplet.println("currentTime:"+state.currentTime);
+						System.out.println("currentTime:"+state.currentTime);
 
 					if(state.currentTime >= viewer.getNextMediaStartTime())
 					{
@@ -335,8 +336,8 @@ public class WMV_World
 						}
 						else
 						{
-							PApplet.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
-//							PApplet.println("  viewer.currentMedia "+viewer.currentMedia+ " viewer.nearbyClusterTimelineMediaCount:"+viewer.nearbyClusterTimelineMediaCount);
+							System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
+//							System.out.println("  viewer.currentMedia "+viewer.currentMedia+ " viewer.nearbyClusterTimelineMediaCount:"+viewer.nearbyClusterTimelineMediaCount);
 							state.currentTime = 0;
 							startSingleTimeModeCycle();
 						}
@@ -365,7 +366,7 @@ public class WMV_World
 		viewer.setCurrentMedia( timelineIndex );
 		
 		if(p.debug.time && p.debug.detailed)
-			PApplet.println("viewer.currentMedia:"+viewer.getCurrentMedia());
+			System.out.println("viewer.currentMedia:"+viewer.getCurrentMedia());
 		
 		if(viewer.getNearbyClusterTimeline().size() > 0)
 		{
@@ -409,11 +410,11 @@ public class WMV_World
 			}
 			else
 			{
-				PApplet.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timelineIndex);
+				System.out.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timelineIndex);
 			}
 		}
 		else
-			PApplet.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
+			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
 	}
 	
 //	/**
@@ -484,7 +485,7 @@ public class WMV_World
 		
 		if(maskFolder.list() == null)
 		{
-			PApplet.println("Masks folder is empty!");
+			System.out.println("Masks folder is empty!");
 		}
 		else
 		{
@@ -532,7 +533,7 @@ public class WMV_World
 	void finishSetup()
 	{
 		if(p.debug.main)
-			PApplet.println("Finishing setup...");
+			System.out.println("Finishing setup...");
 
 		p.display.window.setupWMVWindow();
 		
@@ -578,8 +579,19 @@ public class WMV_World
 		p.library.saveWorldState(state, p.library.getLibraryFolder()+"ml_library_worldState.json");
 		p.library.saveViewerSettings(viewer.getSettings(), p.library.getLibraryFolder()+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), p.library.getLibraryFolder()+"ml_library_viewerState.json");
+		p.library.saveFieldState(getCurrentField().getState(), p.library.getLibraryFolder()+"ml_library_fieldState.json");
+	}
+
+	public void loadWorldState(WMV_WorldState newState)
+	{
+		state = newState;
 	}
 	
+	public void loadWorldSettings(WMV_WorldSettings newSettings)
+	{
+		settings = newSettings;
+	}
+
 	/**
 	 * Reset variables
 	 */
@@ -634,7 +646,7 @@ public class WMV_World
 		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 
 		if(p.debug.main)
-			PApplet.println("Resetting world...");
+			System.out.println("Resetting world...");
 		
 		/* Create main classes */
 		viewer.reset();			// Initialize navigation + viewer
@@ -968,13 +980,13 @@ public class WMV_World
 	public void saveToDisk() 
 	{
 		if(p.debug.main)
-			PApplet.println("Will output image to disk.");
+			System.out.println("Will output image to disk.");
 		state.saveImage = true;
 	}
 	
 	public void exportSelectedImages()
 	{
-		IntList selected = getCurrentField().getSelectedMedia(0);
+		List<Integer> selected = getCurrentField().getSelectedMedia(0);
 		for(int i:selected)
 		{
 			InputStream is = null;
@@ -991,7 +1003,7 @@ public class WMV_World
 			} 
 			catch(Throwable t)
 			{
-				PApplet.println("ERROR 1 in exportSelectedImages:"+t);
+				System.out.println("ERROR 1 in exportSelectedImages:"+t);
 			}
 			finally 
 			{
@@ -1002,7 +1014,7 @@ public class WMV_World
 				} 
 				catch (IOException e) 
 				{
-					PApplet.println("ERROR 2 in exportSelectedImages:"+e);
+					System.out.println("ERROR 2 in exportSelectedImages:"+e);
 				}
 			}
 
@@ -1047,7 +1059,7 @@ public class WMV_World
 //			fields.add(new GMV_Field(this, s, count));
 //			count++;
 //		}
-//		PApplet.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
+//		System.out.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
 	}
 	
 	/**
@@ -1257,7 +1269,7 @@ public class WMV_World
 	public void clearAllAttractors()
 	{
 		if(p.debug.viewer && p.debug.detailed)
-			PApplet.println("Clearing all attractors...");
+			System.out.println("Clearing all attractors...");
 
 		if(viewer.getAttractorClusterID() != -1)
 			viewer.clearAttractorCluster();

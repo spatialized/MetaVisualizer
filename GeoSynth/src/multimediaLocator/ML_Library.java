@@ -33,7 +33,7 @@ public class ML_Library
 	public void addFolder(String newFolder)
 	{
 		folders.add(newFolder);
-		PApplet.println("Added media folder "+newFolder+" to library");
+		System.out.println("Added media folder "+newFolder+" to library");
 	}
 	
 	public ArrayList<String> getFolders()
@@ -75,7 +75,7 @@ public class ML_Library
 		  }
 		  catch (Throwable t)
 		  {
-		    PApplet.println("Throwable t:"+t);
+		    System.out.println("Throwable t:"+t);
 		  }
 		  //catch (IOException e)    // thrown by createTempFile
 		  //{
@@ -102,7 +102,7 @@ public class ML_Library
 		  }
 		  catch (Throwable t)
 		  {
-		    PApplet.println("Throwable t:"+t);
+		    System.out.println("Throwable t:"+t);
 		  }
 	}
 	
@@ -119,11 +119,11 @@ public class ML_Library
 
 //		    Staff newStaff = mapper.readValue(file, Staff.class);
 		    WMV_WorldSettings newSettings = mapper.readValue(file, WMV_WorldSettings.class);
-		    PApplet.println("Equal", newSettings.equals(settings));      // Not working ??
+		    System.out.println("Equal"+ newSettings.equals(settings));      // Not working ??
 		  }
 		  catch (Throwable t)
 		  {
-		    PApplet.println("Throwable t:"+t);
+		    System.out.println("Throwable t:"+t);
 		  }
 	}
 	
@@ -139,11 +139,11 @@ public class ML_Library
 		    mapper.writeValue(file, state);    // Write staff object to file
 
 		    WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
-		    PApplet.println("Equal", newState.equals(state));      // Not working ??
+		    System.out.println("Equal"+ newState.equals(state));      // Not working ??
 		  }
 		  catch (Throwable t)
 		  {
-		    PApplet.println("Throwable t:"+t);
+		    System.out.println("Throwable t:"+t);
 		  }
 	}
 	
@@ -159,11 +159,11 @@ public class ML_Library
 		    mapper.writeValue(file, settings);    // Write staff object to file
 
 		    WMV_ViewerSettings newSettings = mapper.readValue(file, WMV_ViewerSettings.class);
-		    PApplet.println("Equal", newSettings.equals(settings));      // Not working ??
+		    System.out.println("Equal"+ newSettings.equals(settings));      // Not working ??
 		  }
 		  catch (Throwable t)
 		  {
-		    PApplet.println("Throwable t:"+t);
+		    System.out.println("Throwable t:"+t);
 		  }
 	}
 	
@@ -179,12 +179,33 @@ public class ML_Library
 		    mapper.writeValue(file, state);    // Write staff object to file
 
 		    WMV_ViewerState newState = mapper.readValue(file, WMV_ViewerState.class);
-		    PApplet.println("Equal", newState.equals(state));
+		    System.out.println("Equal"+ newState.equals(state));
 //		    puts("They are equal", newState.equals(state));      // Not working ??
 		  }
 		  catch (Throwable t)
 		  {
-		    PApplet.println("Throwable t:"+t);
+		    System.out.println("Throwable t:"+t);
+		  }
+	}
+
+	public void saveFieldState(WMV_FieldState state, String newFilePath)		// Testing
+	{
+		  String filePath = newFilePath;
+
+		  final ObjectMapper mapper = JsonFactory.create();
+		  final File file;
+		  try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+		    file = new File(filePath);
+		    mapper.writeValue(file, state);    // Write staff object to file
+
+		    WMV_FieldState newState = mapper.readValue(file, WMV_FieldState.class);
+		    System.out.println("Equal"+ newState.equals(state));
+//		    puts("They are equal", newState.equals(state));      // Not working ??
+		  }
+		  catch (Throwable t)
+		  {
+		    System.out.println("Throwable t:"+t);
 		  }
 	}
 

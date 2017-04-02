@@ -2,9 +2,10 @@ package multimediaLocator;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-//import java.util.Calendar;
 
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PImage;
+import processing.core.PVector;
 
 /************************************
  * @author davidgordon
@@ -66,9 +67,9 @@ class WMV_Image extends WMV_Viewable
 
 		if(newFocusDistance == -1.f) focusDistance = defaultFocusDistance;
 		else focusDistance = newFocusDistance;
+		origFocusDistance = focusDistance;
 
 		gpsLocation = newGPSLocation;
-		origFocusDistance = focusDistance;
 		sensorSize = newSensorSize;
 		brightness = newBrightness;
 
@@ -152,12 +153,12 @@ class WMV_Image extends WMV_Viewable
 		{
 			if(debugSettings.image || debugSettings.main)
 			{
-				PApplet.println("ERROR with Blur Mask... "+ex+" horizBorderID:"+horizBorderID+" vertBorderID:"+vertBorderID);
-//				PApplet.println(" mask.width:"+mask.width);
-//				PApplet.println(" mask.height:"+mask.height);
-//				PApplet.println(" main.imageID:"+getID());
-//				PApplet.println(" main.width:"+image.width);
-//				PApplet.println(" main.height:"+image.height);
+				System.out.println("ERROR with Blur Mask... "+ex+" horizBorderID:"+horizBorderID+" vertBorderID:"+vertBorderID);
+//				System.out.println(" mask.width:"+mask.width);
+//				System.out.println(" mask.height:"+mask.height);
+//				System.out.println(" main.imageID:"+getID());
+//				System.out.println(" main.width:"+image.width);
+//				System.out.println(" main.height:"+image.height);
 			}
 		}
 		
@@ -468,9 +469,9 @@ class WMV_Image extends WMV_Viewable
 		else
 			r = focusDistance;							
 
-		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi)); 
-		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi));  
-		float yDisp = r * PApplet.cos(PApplet.radians(90-phi)); 
+		float xDisp = r * (float)Math.sin(PApplet.radians(360-theta)) * (float)Math.sin(PApplet.radians(90-phi)); 
+		float zDisp = r * (float)Math.cos(PApplet.radians(360-theta)) * (float)Math.sin(PApplet.radians(90-phi));  
+		float yDisp = r * (float)Math.cos(PApplet.radians(90-phi)); 
 
 		disp = new PVector(-xDisp, -yDisp, -zDisp);
 
@@ -544,9 +545,9 @@ class WMV_Image extends WMV_Viewable
 		else
 			r = focusDistance;							
 
-		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi)); 
-		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-phi));  
-		float yDisp = r * PApplet.cos(PApplet.radians(90-phi)); 
+		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-theta)) * (float)Math.sin((float)Math.toRadians(90-phi)); 
+		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-theta)) * (float)Math.sin((float)Math.toRadians(90-phi));  
+		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-phi)); 
 
 		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
 	}
@@ -641,7 +642,7 @@ class WMV_Image extends WMV_Viewable
 	 */	
 	public boolean isFacingCamera(PVector cameraPosition)
 	{
-		return PApplet.abs(getAngleToCamera(cameraPosition)) > viewerSettings.visibleAngle;     			// If the result is positive, then it is facing the camera.
+		return Math.abs(getAngleToCamera(cameraPosition)) > viewerSettings.visibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 	
 	/**
@@ -680,7 +681,7 @@ class WMV_Image extends WMV_Viewable
 		PVector faceNormal = getFaceNormal();
 
 		PVector crossVector = new PVector();
-		if(camOrientation == null) PApplet.println("camOrientation == NULL..."+getID());
+		if(camOrientation == null) System.out.println("camOrientation == NULL..."+getID());
 		PVector.cross(camOrientation, faceNormal, crossVector);				// Cross vector gives angle between camera and image
 
 		float result = crossVector.mag();
@@ -836,27 +837,27 @@ class WMV_Image extends WMV_Viewable
 		String strTitleImage = "Image";
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
-		String strID = "ID: "+PApplet.str(getID());
-		String strCluster = "Cluster: "+PApplet.str(cluster);
-		String strX = "Location X: "+PApplet.str(getCaptureLocation().z);
-		String strY = " Y: "+PApplet.str(getCaptureLocation().x);
-		String strZ = " Z: "+PApplet.str(getCaptureLocation().y);
+		String strID = "ID: "+String.valueOf(getID());
+		String strCluster = "Cluster: "+String.valueOf(cluster);
+		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
+		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
+		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);
 
-		String strDate = "Date: "+PApplet.str(time.getMonth()) + PApplet.str(time.getDay()) + PApplet.str(time.getYear());
-		String strTime = "Time: "+PApplet.str(time.getHour()) + ":" + (time.getMinute() >= 10 ? PApplet.str(time.getMinute()) : "0"+PApplet.str(time.getMinute())) + ":" + 
-				 (time.getSecond() >= 10 ? PApplet.str(time.getSecond()) : "0"+PApplet.str(time.getSecond()));
+		String strDate = "Date: "+String.valueOf(time.getMonth()) + String.valueOf(time.getDay()) + String.valueOf(time.getYear());
+		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
+				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
-		String strLatitude = "GPS Latitude: "+PApplet.str(gpsLocation.z);
-		String strLongitude = " Longitude: "+PApplet.str(gpsLocation.x);
-		String strAltitude = "Altitude: "+PApplet.str(gpsLocation.y);
-		String strTheta = "Direction: "+PApplet.str(theta);
-		String strElevation = "Vertical Angle: "+PApplet.str(phi);
-		String strRotation = "Rotation: "+PApplet.str(rotation);
-		String strFocusDistance = "Focus Distance: "+PApplet.str(focusDistance);
+		String strLatitude = "GPS Latitude: "+String.valueOf(gpsLocation.z);
+		String strLongitude = " Longitude: "+String.valueOf(gpsLocation.x);
+		String strAltitude = "Altitude: "+String.valueOf(gpsLocation.y);
+		String strTheta = "Direction: "+String.valueOf(theta);
+		String strElevation = "Vertical Angle: "+String.valueOf(phi);
+		String strRotation = "Rotation: "+String.valueOf(rotation);
+		String strFocusDistance = "Focus Distance: "+String.valueOf(focusDistance);
 
 		String strTitleDebug = "--- Debugging ---";
-		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
-		String strBrightnessFading = "brightnessFadingValue: "+PApplet.str(fadingBrightness);
+		String strBrightness = "brightness: "+String.valueOf(viewingBrightness);
+		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(fadingBrightness);
 		
 		world.p.display.metadata(world, strTitleImage);
 		world.p.display.metadata(world, strTitleImage2);
@@ -931,7 +932,7 @@ class WMV_Image extends WMV_Viewable
 		isVideoPlaceHolder = true;
 		assocVideoID = videoID;
 		hidden = true;
-//		if(debugSettings.video) PApplet.println("Image "+getID()+" is now associated with video "+videoID);
+//		if(debugSettings.video) System.out.println("Image "+getID()+" is now associated with video "+videoID);
 	}
 
 	/**

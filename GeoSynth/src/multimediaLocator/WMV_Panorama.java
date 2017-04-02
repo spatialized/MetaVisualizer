@@ -2,7 +2,6 @@ package multimediaLocator;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
-//import java.util.Calendar;
 
 import processing.core.PApplet;
 import processing.core.PImage;
@@ -14,11 +13,6 @@ import processing.core.PVector;
  */
 public class WMV_Panorama extends WMV_Viewable 
 {
-//	/* Classes */
-//	WMV_WorldSettings worldSettings;
-//	WMV_ViewerSettings viewerSettings;	// Update world settings
-//	ML_DebugSettings debugSettings;	// Update world settings
-
 	/* Graphics */
 	public PImage texture;								// Texture image pixels
 	private boolean initialized;
@@ -48,10 +42,7 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
-//		if(newTexture == null)
-//			texture = p.p.p.createImage(0,0,processing.core.PConstants.RGB);		// Create empty image
-//		else
-			texture = newTexture;
+		texture = newTexture;
 
 		imageWidth = newWidth;
 		imageHeight = newHeight;
@@ -119,7 +110,7 @@ public class WMV_Panorama extends WMV_Viewable
 			if(visible && !fading && !fadedOut && !viewerSettings.hidePanoramas && fadingBrightness == 0.f)					// Fade in
 			{
 				if(debugSettings.panorama)
-					PApplet.println("fadeIn()...pano id:"+getID());
+					System.out.println("fadeIn()...pano id:"+getID());
 				fadeIn();
 			}
 
@@ -239,7 +230,7 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			if(isSelected())
 			{
-//				PApplet.println("selected viewingBrightness:"+viewingBrightness);
+//				System.out.println("selected viewingBrightness:"+viewingBrightness);
 				if(!worldState.alphaMode)
 					world.p.tint(viewingBrightness, 255);          				
 				else
@@ -261,7 +252,7 @@ public class WMV_Panorama extends WMV_Viewable
 			}
 			else
 			{
-//				PApplet.println("alphaMode viewingBrightness:"+viewingBrightness+" final alpha:"+PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));
+//				System.out.println("alphaMode viewingBrightness:"+viewingBrightness+" final alpha:"+PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));
 				world.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, worldState.alpha));          				
 			}
 		}
@@ -495,25 +486,25 @@ public class WMV_Panorama extends WMV_Viewable
 		String strTitleImage = "Panorama";
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
-		String strID = "ID: "+PApplet.str(getID());
-		String strCluster = "Cluster: "+PApplet.str(cluster);
-		String strX = "Location X: "+PApplet.str(getCaptureLocation().z);
-		String strY = " Y: "+PApplet.str(getCaptureLocation().x);
-		String strZ = " Z: "+PApplet.str(getCaptureLocation().y);
+		String strID = "ID: "+String.valueOf(getID());
+		String strCluster = "Cluster: "+String.valueOf(cluster);
+		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
+		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
+		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);
 
-		String strDate = "Date: "+PApplet.str(time.getMonth()) + PApplet.str(time.getDay()) + PApplet.str(time.getYear());
-		String strTime = "Time: "+PApplet.str(time.getHour()) + ":" + (time.getMinute() >= 10 ? PApplet.str(time.getMinute()) : "0"+PApplet.str(time.getMinute())) + ":" + 
-				 (time.getSecond() >= 10 ? PApplet.str(time.getSecond()) : "0"+PApplet.str(time.getSecond()));
+		String strDate = "Date: "+String.valueOf(time.getMonth()) + String.valueOf(time.getDay()) + String.valueOf(time.getYear());
+		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
+				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
-		String strLatitude = "GPS Latitude: "+PApplet.str(gpsLocation.z);
-		String strLongitude = " Longitude: "+PApplet.str(gpsLocation.x);
-		String strAltitude = "Altitude: "+PApplet.str(gpsLocation.y);
-		String strTheta = "Direction: "+PApplet.str(theta);
-		String strElevation = "Vertical Angle: "+PApplet.str(phi);
+		String strLatitude = "GPS Latitude: "+String.valueOf(gpsLocation.z);
+		String strLongitude = " Longitude: "+String.valueOf(gpsLocation.x);
+		String strAltitude = "Altitude: "+String.valueOf(gpsLocation.y);
+		String strTheta = "Direction: "+String.valueOf(theta);
+		String strElevation = "Vertical Angle: "+String.valueOf(phi);
 
 		String strTitleDebug = "--- Debugging ---";
-		String strBrightness = "brightness: "+PApplet.str(viewingBrightness);
-		String strBrightnessFading = "brightnessFadingValue: "+PApplet.str(fadingBrightness);
+		String strBrightness = "brightness: "+String.valueOf(viewingBrightness);
+		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(fadingBrightness);
 		
 		world.p.display.metadata(world, strTitleImage);
 		world.p.display.metadata(world, strTitleImage2);

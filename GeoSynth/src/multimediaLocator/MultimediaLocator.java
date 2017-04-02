@@ -62,7 +62,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		metadata = new WMV_Metadata(this, debug);
 		stitcher = new ML_Stitcher(world);
 
-		if(debug.main) PApplet.println("Initializing world...");
+		if(debug.main) System.out.println("Initializing world...");
 		world.initialize();
 		input = new ML_Input(width, height);
 		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
@@ -73,7 +73,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		textAlign(PConstants.CENTER, PConstants.CENTER);
 
 		if(debug.main)
-			PApplet.println("Finished setup...");
+			System.out.println("Finished setup...");
 	}
 
 	/** 
@@ -127,7 +127,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	void stopWorldMediaViewer() 
 	{
-		PApplet.println("Exiting WorldMediaViewer 1.0.0...");
+		System.out.println("Exiting WorldMediaViewer 1.0.0...");
 		exit();
 	}
 
@@ -172,14 +172,14 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		boolean selectedFolder = false;
 		
 		if (selection == null) {
-			PApplet.println("Window was closed or the user hit cancel.");
+			System.out.println("Window was closed or the user hit cancel.");
 		} 
 		else 
 		{
 			String input = selection.getPath();
 
 			if (debug.metadata)
-				PApplet.println("User selected library folder: " + input);
+				System.out.println("User selected library folder: " + input);
 
 			library = new ML_Library(input);
 
@@ -272,7 +272,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	public void mousePressed()
 	{
-//		PApplet.println("pressed");
+//		System.out.println("pressed");
 //		if(world.viewer.mouseNavigation)
 //			input.handleMousePressed(mouseX, mouseY);
 		if(display.satelliteMap)
@@ -285,7 +285,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 * Called when mouse is released
 	 */
 	public void mouseReleased() {
-//		PApplet.println("released mouseX:"+mouseX+" mouseY:"+mouseY);
+//		System.out.println("released mouseX:"+mouseX+" mouseY:"+mouseY);
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseReleased(mouseX, mouseY);
 		if(display.displayView == 1)
@@ -298,7 +298,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 * Called when mouse is clicked
 	 */
 	public void mouseClicked() {
-//		PApplet.println("clicked");
+//		System.out.println("clicked");
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseClicked(mouseX, mouseY);
 	}
@@ -311,13 +311,13 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			display.map2D.mouseDraggedFrame = frameCount;
 		}
-//		PApplet.println("dragged");
+//		System.out.println("dragged");
 //		if(world.mouseNavigation)
 //		{
 //			if(display.inDisplayView())
 //			{
-//				PApplet.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
-//				PApplet.println("mouseX:"+mouseX+" mouseY:"+mouseY);
+//				System.out.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
+//				System.out.println("mouseX:"+mouseX+" mouseY:"+mouseY);
 //				input.handleMouseDragged(pmouseX, pmouseY);
 //			}
 //		}

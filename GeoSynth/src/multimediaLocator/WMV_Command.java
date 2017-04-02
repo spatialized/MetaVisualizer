@@ -11,7 +11,7 @@ import java.util.List;
 public class WMV_Command
 {
   private List<String> command;
-  private String adminPassword;
+//  private String adminPassword;
   private WMV_Thread inputStreamHandler;
   private WMV_Thread errorStreamHandler;
   private String directory;
@@ -23,7 +23,7 @@ public class WMV_Command
     directory = newDirectory;
     if (command==null) throw new NullPointerException("The command is required.");
     this.command = command;
-    this.adminPassword = null;
+//    this.adminPassword = null;
   }
 
   public int execute() throws IOException, InterruptedException

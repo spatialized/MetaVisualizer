@@ -347,7 +347,7 @@ class ML_Display
 				updateCurrentSelectableDate = false;
 			}
 //			else 
-//				PApplet.println("updateCurrentSelectableTime... No current time segment!");
+//				System.out.println("updateCurrentSelectableTime... No current time segment!");
 		}
 	}
 	
@@ -402,7 +402,7 @@ class ML_Display
 		}
 		else
 		{
-			PApplet.println("ERROR no dateline in field!!");
+			System.out.println("ERROR no dateline in field!!");
 		}
 	}
 	
@@ -516,8 +516,8 @@ class ML_Display
 					timelineStartTransitionTarget = newStart;
 					timelineEndTransitionStart = timelineEnd;
 					timelineEndTransitionTarget = newEnd;
-//					PApplet.println("timelineStartTransitionStart:"+timelineStartTransitionStart+" timelineStartTransitionTarget:"+timelineStartTransitionTarget);
-//					PApplet.println("timelineEndTransitionStart:"+timelineEndTransitionStart+" timelineEndTransitionTarget:"+timelineEndTransitionTarget);
+//					System.out.println("timelineStartTransitionStart:"+timelineStartTransitionStart+" timelineStartTransitionTarget:"+timelineStartTransitionTarget);
+//					System.out.println("timelineEndTransitionStart:"+timelineEndTransitionStart+" timelineEndTransitionTarget:"+timelineEndTransitionTarget);
 				}
 				else if(timelineStart != newStart && timelineEnd == newEnd)
 				{
@@ -747,7 +747,7 @@ class ML_Display
 			{
 				if(currentSelectableTimeFTSID == selectableTimes.get(currentSelectableTimeID).segment.getFieldTimelineID())
 				{
-//					PApplet.println("currentSelectableTimeFTSID: "+currentSelectableTimeFTSID);
+//					System.out.println("currentSelectableTimeFTSID: "+currentSelectableTimeFTSID);
 					if(currentSelectableTimeID != -1 && selectableTimes.size() > 0 && currentSelectableTimeID < selectableTimes.size())
 					{
 						if(displayDate == -1 || selectableTimes.get(currentSelectableTimeID).segment.getFieldDateID() == displayDate)
@@ -920,7 +920,7 @@ class ML_Display
 			{
 				float defaultHue = 0.f;
 				if(firstHue == imageHue)
-					PApplet.println("ERROR: firstHue still imageHue but segment has no image!");
+					System.out.println("ERROR: firstHue still imageHue but segment has no image!");
 				else
 					defaultHue = firstHue;
 				if(secondHue == imageHue)
@@ -1002,7 +1002,7 @@ class ML_Display
 				selectedCluster = timeSelected.getClusterID();
 
 				if(p.p.debug.time)
-					PApplet.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
+					System.out.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
 				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
 			else
@@ -1017,7 +1017,7 @@ class ML_Display
 				selectedDate = dateSelected.getID();				// Set to selected
 						
 				if(p.p.debug.time) 
-					PApplet.println("Selected date:"+selectedDate);
+					System.out.println("Selected date:"+selectedDate);
 
 				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
@@ -1662,7 +1662,7 @@ class ML_Display
 		}
 
 //		if(p.p.debug.print)
-//			PApplet.println(message);
+//			System.out.println(message);
 	}
 	
 	/**
@@ -1765,7 +1765,7 @@ class ML_Display
 				startupMessages.remove(0);
 
 			if(p.p.debug.print)
-				PApplet.println(message);
+				System.out.println(message);
 		}
 	}
 	
@@ -1918,7 +1918,7 @@ class ML_Display
 		}
 
 		if (p.p.debug.field)
-			PApplet.println("blendMode:" + blendMode);
+			System.out.println("blendMode:" + blendMode);
 	}
 	
 	/**
@@ -2009,7 +2009,7 @@ class ML_Display
 				p.p.text(" Altitude Scaling Factor: "+p.settings.altitudeScalingFactor+"  (Altitude Scaling)", xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text(" Clustering Method : "+ ( p.getState().hierarchical ? "Hierarchical" : "K-Means" ), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Population Factor: "+f.getModel().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
-			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.clusterDepth, xPos, yPos += lineWidth, hudDistance);
+			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
 
 			p.p.textSize(mediumTextSize);
 			p.p.text(" Viewer ", xPos, yPos += lineWidthVeryWide, hudDistance);
@@ -2180,7 +2180,7 @@ class ML_Display
 			
 			p.p.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
 			p.p.text("   Merged: "+f.getModel().mergedClusters+" out of "+(f.getModel().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
-			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.clusterDepth, xPos, yPos += lineWidth, hudDistance);
+			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Population Factor: "+f.getModel().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);

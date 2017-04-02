@@ -1,16 +1,14 @@
 package multimediaLocator;
 
 import java.time.ZonedDateTime;
-//import java.util.Calendar;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
 import processing.core.PMatrix3D;
-
 import processing.core.PVector;
+
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
-//import shapes3d.Shape3D;
 import toxi.math.ScaleMap;
 
 /***************************************
@@ -25,6 +23,13 @@ public abstract class WMV_Viewable
 	public WMV_ViewerSettings viewerSettings;	// Update world settings
 	public WMV_ViewerState viewerState;	// Update world settings
 	public ML_DebugSettings debugSettings;	// Update world settings
+
+	/* Status Modes */
+	public boolean visible = false;				// Media is currently visible and will be drawn
+	public boolean active = false;				// True when the image has faded in and isn't fading out	-- Needed?
+	public boolean disabled = false;			// Disabled due to errors or user and will not be drawn
+	public boolean hidden = false;				// Hidden from view											-- Needed?
+	public boolean requested = false;			// Indicates a recent request to load media from disk
 
 	/* General */
 	private int id;
@@ -74,13 +79,6 @@ public abstract class WMV_Viewable
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
 	public boolean fadedOut = false;			// Recently faded out
 	public boolean fadedIn = false;
-
-	/* Status Modes */
-	public boolean visible = false;				// Media is currently visible and will be drawn
-	public boolean active = false;				// True when the image has faded in and isn't fading out	-- Needed?
-	public boolean disabled = false;			// Disabled due to errors or user and will not be drawn
-	public boolean hidden = false;				// Hidden from view											-- Needed?
-	public boolean requested = false;			// Indicates a recent request to load media from disk
 
 //	WMV_Field p;								// Parent field
 	String timeZone;
@@ -136,13 +134,9 @@ public abstract class WMV_Viewable
 		{
 //			WMV_Cluster c = p.getClusters().get(cluster);
 			if(c.lowImageDate == c.highImageDate)
-			{
 				clusterDate = c.lowImageDate;
-			}
 			else
-			{
 				clusterDate = PApplet.map(time.getDate().getDaysSince1980(), c.lowImageDate, c.highImageDate, 0.f, 1.f);			// -- Use dateLength?
-			}
 		}
 	}
 
@@ -191,7 +185,7 @@ public abstract class WMV_Viewable
 	public void stopFading()
 	{
 //		if(debugSettings.viewable)
-//			PApplet.println("Stop fading for media:"+id);
+//			System.out.println("Stop fading for media:"+id);
 
 		fadingEndFrame = worldState.frameCount;
 		fadingStart = fadingBrightness;
@@ -280,7 +274,7 @@ public abstract class WMV_Viewable
 			float timelineLength = upper - lower;
 
 			if(getMediaType() == 1)
-				PApplet.println("--> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
+				System.out.println("--> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
 
 			if(lower == upper)						// Only one cluster segment
 			{
@@ -289,30 +283,30 @@ public abstract class WMV_Viewable
 
 				if(getMediaType() == 1)
 				{
-					PApplet.println("Only one cluster time segment, full length:"+length);
-					PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
+					System.out.println("Only one cluster time segment, full length:"+length);
+					System.out.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
 				}
 
 				fadeInStart = 0;											// Frame media starts fading in
-				fadeInEnd = PApplet.round(centerTime - length / 4.f);		// Frame media reaches full brightness
-				fadeOutStart = PApplet.round(centerTime + length / 4.f);	// Frame media starts fading out
+				fadeInEnd = Math.round(centerTime - length / 4.f);		// Frame media reaches full brightness
+				fadeOutStart = Math.round(centerTime + length / 4.f);	// Frame media starts fading out
 				fadeOutEnd = cycleLength;									// Frame media finishes fading out
 			}
 			else
 			{
 				float mediaTime = utilities.round(time.getTime(), 4);		// Get time of this media file
-				centerTime = PApplet.round(PApplet.map( mediaTime, lower, upper, length, cycleLength - length) );	// Calculate center time in cluster timeline
+				centerTime = Math.round(PApplet.map( mediaTime, lower, upper, length, cycleLength - length) );	// Calculate center time in cluster timeline
 
-				fadeInStart = PApplet.round(centerTime - length / 2.f);		// Frame media starts fading in
-				fadeInEnd = PApplet.round(centerTime - length / 4.f);		// Frame media reaches full brightness
-				fadeOutStart = PApplet.round(centerTime + length / 4.f);	// Frame media starts fading out
-				fadeOutEnd = PApplet.round(centerTime + length / 2.f);		// Frame media finishes fading out
+				fadeInStart = Math.round(centerTime - length / 2.f);		// Frame media starts fading in
+				fadeInEnd = Math.round(centerTime - length / 4.f);		// Frame media reaches full brightness
+				fadeOutStart = Math.round(centerTime + length / 4.f);	// Frame media starts fading out
+				fadeOutEnd = Math.round(centerTime + length / 2.f);		// Frame media finishes fading out
 
 				if(getMediaType() == 1)
 				{
-					PApplet.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength);
-					PApplet.println(" lower:"+lower+" upper:"+upper);
-					PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+					System.out.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength);
+					System.out.println(" lower:"+lower+" upper:"+upper);
+					System.out.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 				}
 			}	
 
@@ -320,45 +314,45 @@ public abstract class WMV_Viewable
 			if(fadeInStart < 0)
 			{
 				error = true;
-				PApplet.println(">>> Error: fadeInStart before day start!!");
-				PApplet.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength+" getMediaType():"+getMediaType());
-				PApplet.println(" lower:"+lower+" upper:"+upper);
-				PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+				System.out.println(">>> Error: fadeInStart before day start!!");
+				System.out.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength+" getMediaType():"+getMediaType());
+				System.out.println(" lower:"+lower+" upper:"+upper);
+				System.out.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 			}
 
 			if(fadeInStart > cycleLength)
 			{
 				error = true;
-				PApplet.println("Error: fadeInStart after day end!!");
-				PApplet.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength+" media type:"+getMediaType());
-				PApplet.println(" utilities.round(time.getTime(), 4):"+utilities.round(time.getTime(), 4)+" lower:"+lower+" upper:"+upper);
-				PApplet.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+				System.out.println("Error: fadeInStart after day end!!");
+				System.out.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength+" media type:"+getMediaType());
+				System.out.println(" utilities.round(time.getTime(), 4):"+utilities.round(time.getTime(), 4)+" lower:"+lower+" upper:"+upper);
+				System.out.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 			}
 
 			if(fadeInEnd > cycleLength)
 			{
 				error = true;
-				PApplet.println("------Error: fadeInEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
-				PApplet.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-				PApplet.println("-----cluster:"+cluster+" media type:"+getMediaType());
+				System.out.println("------Error: fadeInEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
+				System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+				System.out.println("-----cluster:"+cluster+" media type:"+getMediaType());
 			}
 
 			if(fadeOutStart > cycleLength)
 			{
 				error = true;
-				PApplet.println("------Error: fadeOutStart after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
+				System.out.println("------Error: fadeOutStart after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
 			}
 
 			if(fadeOutEnd > cycleLength)
 			{
 				error = true;
-				PApplet.println("------Error: fadeOutEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength+" media type:"+getMediaType());
+				System.out.println("------Error: fadeOutEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength+" media type:"+getMediaType());
 			}
 
 //			if(selected && debugSettings.time)
 			if(getMediaType() == 1)
 			{
-				PApplet.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength+"fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+				System.out.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength+"fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 			}
 		}
 		else if(worldState.getTimeMode() == 2)
@@ -366,9 +360,9 @@ public abstract class WMV_Viewable
 			if(currentMedia)
 			{
 				fadeInStart = viewerState.getCurrentMediaStartTime();				// Frame media starts fading in
-				fadeInEnd = PApplet.round(fadeInStart + length / 4.f);		// Frame media reaches full brightness
+				fadeInEnd = Math.round(fadeInStart + length / 4.f);		// Frame media reaches full brightness
 				fadeOutEnd = fadeInStart + worldSettings.defaultMediaLength;									// Frame media finishes fading out
-				fadeOutStart = PApplet.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
+				fadeOutStart = Math.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
 			}
 			else
 			{
@@ -397,12 +391,12 @@ public abstract class WMV_Viewable
 
 				timeBrightness = PApplet.constrain(PApplet.map(curTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
 				if(getMediaType() == 1)
-					PApplet.println(" Fading In..."+id);
+					System.out.println(" Fading In..."+id);
 			}
 			else if(curTime > fadeOutStart)					// During fade out
 			{
 				if(getMediaType() == 1)
-					PApplet.println(" Fading Out..."+id);
+					System.out.println(" Fading Out..."+id);
 				timeBrightness = PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f); 
 				if(worldState.getTimeMode() == 2 && currentMedia)
 				{
@@ -415,7 +409,7 @@ public abstract class WMV_Viewable
 			else													// After fade in, before fade out
 			{
 				if(getMediaType() == 1)
-					PApplet.println(" Full visibility...");				// Full visibility
+					System.out.println(" Full visibility...");				// Full visibility
 				timeBrightness = 1.f;								
 			}
 		}
@@ -434,7 +428,7 @@ public abstract class WMV_Viewable
 		timeBrightness = (float)timeLogMap.getMappedValueFor(timeBrightness);   		// Logarithmic scaling
 
 		if(selected && debugSettings.time)
-			PApplet.println("Media id:" + getID()+" timeBrightness"+timeBrightness);
+			System.out.println("Media id:" + getID()+" timeBrightness"+timeBrightness);
 
 		if(error)
 			timeBrightness = 0.f;
@@ -686,11 +680,11 @@ public abstract class WMV_Viewable
 				if(verts[i]!=null)
 					clone[i] = PVector.add(verts[i], new PVector());
 				else
-					PApplet.println("verts["+i+"] is null!!");
+					System.out.println("verts["+i+"] is null!!");
 			}
 
 			PMatrix3D rMat = new PMatrix3D();
-			rMat.rotate(PApplet.radians(angle), axis.x, axis.y, axis.z);
+			rMat.rotate((float)Math.toRadians(angle), axis.x, axis.y, axis.z);
 
 			for (int i = 0; i < vl; i++)
 				dst[i] = new PVector();
@@ -699,7 +693,7 @@ public abstract class WMV_Viewable
 		}
 		catch(NullPointerException e)
 		{
-			PApplet.println("NullPointerException: "+e);
+			System.out.println("NullPointerException: "+e);
 			failed = true;
 		}
 		if(!failed)
@@ -708,7 +702,7 @@ public abstract class WMV_Viewable
 		}
 		else
 		{
-			PApplet.println("Failed rotating vertices!");
+			System.out.println("Failed rotating vertices!");
 			return new PVector[0];
 		}
 	}

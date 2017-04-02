@@ -3,13 +3,13 @@ package multimediaLocator;
 import processing.core.PVector;
 
 /**
- * State of a video in 3D space
+ * Type-specific parameters of a video in a field
  * @author davidgordon
  *
  */
 public class WMV_VideoState 
 {
-	public WMV_ViewableState vState;
+	public WMV_MediaState vState;
 	
 	public boolean loaded = false;
 	public boolean playing = false;
@@ -67,10 +67,10 @@ public class WMV_VideoState
 	
 	WMV_VideoState()
 	{
-		vState = new WMV_ViewableState();
+		vState = new WMV_MediaState();
 	}
 	
-	void setViewableState(WMV_ViewableState newState)
+	void setViewableState(WMV_MediaState newState)
 	{
 		vState = newState;
 	}

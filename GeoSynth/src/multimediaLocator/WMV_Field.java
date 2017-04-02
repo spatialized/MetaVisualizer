@@ -22,7 +22,7 @@ import processing.video.Movie;
 
 /**************************************************
  * @author davidgordon
- * Basic large geographical unit in simulation
+ * Basic geographical unit in simulation
  */
 public class WMV_Field 
 {

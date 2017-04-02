@@ -13,7 +13,7 @@ import processing.core.PVector;
 
 public class WMV_Model
 {
-	/* Classes */
+	/* General */
 	ML_DebugSettings debugSettings;	// Update world settings
 	WMV_WorldSettings worldSettings;
 	WMV_WorldState worldState;

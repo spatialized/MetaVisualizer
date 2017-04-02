@@ -9,7 +9,7 @@ import processing.core.PVector;
 
 /************************************
  * @author davidgordon
- * Rectangular image in 3D virtual space
+ * A rectangular image in 3D virtual space
  */
 
 class WMV_Image extends WMV_Viewable						 
@@ -1160,7 +1160,7 @@ class WMV_Image extends WMV_Viewable
 
 	 public void captureState()
 	 {
-		 state.setViewableState(vState);
+		 state.setViewableState( getViewableState() );
 	 }
 	 
 	 public void setBlurMask(PImage newBlurMask)

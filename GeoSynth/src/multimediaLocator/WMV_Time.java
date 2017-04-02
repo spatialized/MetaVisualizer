@@ -11,7 +11,7 @@ import processing.core.PVector;
 
 /******************************************
  * @author davidgordon
- * Time of day when a media file was captured
+ * Time a media file was captured
  */
 public class WMV_Time implements Comparable<WMV_Time>
 {

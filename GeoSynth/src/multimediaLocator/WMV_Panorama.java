@@ -528,7 +528,7 @@ public class WMV_Panorama extends WMV_Viewable
 	
 	 public void captureState()
 	 {
-		 state.setViewableState(vState);
+		 state.setViewableState( getViewableState() );
 	 }
 	 
 	
@@ -546,21 +546,6 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		state.radius = newRadius;
 	}
-	
-	/**
-	 * @param newGPSLocation New GPS vState.location
-	 * Set the current GPS vState.location
-	 */
-//	void setGPSLocation(PVector newGPSLocation) 
-//	{
-//		vState.gpsLocation = newGPSLocation;
-//		calculateCaptureLocation();
-//	}
-
-//	public PVector getLocation()
-//	{
-//		return getViewableState().location;
-//	}
 	
 	public float getDirection()
 	{

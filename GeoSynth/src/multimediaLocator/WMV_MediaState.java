@@ -1,10 +1,15 @@
 package multimediaLocator;
 
 import java.time.ZonedDateTime;
-
 import processing.core.PVector;
 
-public class WMV_ViewableState {
+/**
+ * General state parameters of a media object of any type in a field
+ * @author davidgordon
+ *
+ */
+public class WMV_MediaState 
+{
 	/* Status Modes */
 	public boolean visible = false;				// Media is currently visible and will be drawn
 	public boolean active = false;				// True when the image has faded in and isn't fading out	-- Needed?
@@ -59,5 +64,5 @@ public class WMV_ViewableState {
 	public boolean fadedOut = false;			// Recently faded out
 	public boolean fadedIn = false;
 	
-	WMV_ViewableState(){}
+	WMV_MediaState(){}
 }

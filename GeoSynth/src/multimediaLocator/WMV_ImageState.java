@@ -1,17 +1,15 @@
 package multimediaLocator;
 
-import java.time.ZonedDateTime;
-
 import processing.core.PVector;
 
 /**
- * State of an image in 3D space
+ * Media type-specific parameters of an image in a field
  * @author davidgordon
  *
  */
 public class WMV_ImageState 
 {
-	public WMV_ViewableState vState;
+	public WMV_MediaState vState;
 	public int blurMaskID;
 	
 	public PVector[] vertices, sVertices;	// Vertex list
@@ -46,10 +44,10 @@ public class WMV_ImageState
 	
 	WMV_ImageState()
 	{
-		vState = new WMV_ViewableState();
+		vState = new WMV_MediaState();
 	}
 	
-	void setViewableState(WMV_ViewableState newState)
+	void setViewableState(WMV_MediaState newState)
 	{
 		vState = newState;
 	}

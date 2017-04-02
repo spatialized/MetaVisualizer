@@ -18,7 +18,7 @@ import processing.data.IntList;
 
 class WMV_Video extends WMV_Viewable          		// Represents a video in virtual space
 {
-	/* Classes */
+	/* General */
 	public WMV_VideoState state;
 
 	/* Video */
@@ -92,12 +92,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if( getViewerSettings().angleFading )
 		{
 			float videoAngle = getFacingAngle(getViewerState().getOrientationVector());
-//			if(p.utilities.isNaN(videoAngle))
-//			{
-//				videoAngle = 0;				
-//				visible = false;
-//				disabled = true;
-//			}
 
 			angleBrightness = getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
 			brightness *= angleBrightness;
@@ -345,8 +339,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 			if(hasFadedOut()) 
 			{
-//				if(getDebugSettings().video)
-//					p.p.p.display.message(p.p, "Will fade sound out for video #"+getID());
 				fadeSoundOut(false);			// Fade sound out and clear video once finished
 				setFadedOut(false);						
 			}
@@ -1266,7 +1258,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	
 	 public void captureState()
 	 {
-		 state.setViewableState(vState);
+		 state.setViewableState( getViewableState() );
 	 }
 	 
 	/**

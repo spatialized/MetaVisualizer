@@ -2,7 +2,7 @@ package multimediaLocator;
 
 /*********************************
  * @author davidgordon
- * The current viewer settings
+ * Current settings of the virtual viewer
  */
 public class WMV_ViewerSettings 
 {

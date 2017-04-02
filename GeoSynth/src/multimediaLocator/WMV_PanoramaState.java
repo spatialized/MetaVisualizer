@@ -1,8 +1,13 @@
 package multimediaLocator;
 
+/**
+ * Media type-specific parameters of a panorama in a field
+ * @author davidgordon
+ *
+ */
 public class WMV_PanoramaState 
 {
-	public WMV_ViewableState vState;
+	public WMV_MediaState vState;
 
 	public final float initFocusDistanceFactor = 1.1f;	// Scaling from defaultFocusDistance to panorama radius
 	
@@ -20,10 +25,10 @@ public class WMV_PanoramaState
 
 	WMV_PanoramaState()
 	{
-		vState = new WMV_ViewableState();
+		vState = new WMV_MediaState();
 	}
 	
-	void setViewableState(WMV_ViewableState newState)
+	void setViewableState(WMV_MediaState newState)
 	{
 		vState = newState;
 	}

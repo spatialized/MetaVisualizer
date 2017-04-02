@@ -521,7 +521,7 @@ public class WMV_Viewer
 					if(count > 3) break;
 				}
 
-				if(currentField.getCluster(next).mediaCount != 0)
+				if(currentField.getCluster(next).getState().mediaCount != 0)
 					System.out.println("Error: Cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 
@@ -534,7 +534,7 @@ public class WMV_Viewer
 
 		if(mediaType == 1)		// Panorama
 		{
-			while(  !currentField.getCluster(next).panorama || 		// Increment nextCluster until different non-empty panorama cluster found
+			while(  !currentField.getCluster(next).getState().hasPanorama || 		// Increment nextCluster until different non-empty panorama cluster found
 					currentField.getCluster(next).isEmpty() || 
 					next == state.currentCluster )
 			{
@@ -553,7 +553,7 @@ public class WMV_Viewer
 					}
 				}
 				
-				if(currentField.getCluster(next).isEmpty() && currentField.getCluster(next).mediaCount != 0)		// Testing
+				if(currentField.getCluster(next).isEmpty() && currentField.getCluster(next).getState().mediaCount != 0)		// Testing
 					System.out.println("Error: Panorama cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 			
@@ -572,7 +572,7 @@ public class WMV_Viewer
 		
 		if(mediaType == 2)				// Video
 		{
-			while(  !currentField.getCluster(next).video || 		// Increment nextCluster until different non-empty video cluster found
+			while(  !currentField.getCluster(next).getState().hasVideo || 		// Increment nextCluster until different non-empty video cluster found
 					currentField.getCluster(next).isEmpty() || 
 					next == state.currentCluster )
 			{
@@ -590,7 +590,7 @@ public class WMV_Viewer
 					}
 				}
 				
-				if(currentField.getCluster(next).isEmpty() && currentField.getCluster(next).mediaCount != 0)		// Testing
+				if(currentField.getCluster(next).isEmpty() && currentField.getCluster(next).getState().mediaCount != 0)		// Testing
 					System.out.println("Error: Video cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 			
@@ -2724,7 +2724,7 @@ public class WMV_Viewer
 		
 		if(c != null)
 		{
-			for(int i:c.images)
+			for(int i:c.getState().images)
 			{
 				WMV_Image img = currentField.getImage(i);
 				PVector cameraPosition = getLocation();
@@ -2758,7 +2758,7 @@ public class WMV_Viewer
 				}
 			}
 
-			for(int i:c.videos)
+			for(int i:c.getState().videos)
 			{
 				WMV_Video vid = currentField.getVideo(i);
 				PVector cameraPosition = getLocation();
@@ -2793,7 +2793,7 @@ public class WMV_Viewer
 			}
 			
 //			if(c.panorama)
-			if(c.panoramas.size() == 0)
+			if(c.getState().panoramas.size() == 0)
 				lookAtMedia(closestID, closestMediaType);				// Look at media with the smallest turn distance
 		}
 	}
@@ -3105,7 +3105,7 @@ public class WMV_Viewer
 		for(int clusterID : nearClusters)
 		{
 			WMV_Cluster cluster = currentField.getCluster(clusterID);
-			for( int id : cluster.images )
+			for( int id : cluster.getState().images )
 			{
 				WMV_Image i = currentField.getImage(id);
 				if(i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() 
@@ -3116,7 +3116,7 @@ public class WMV_Viewer
 				}
 			}
 
-			for( int id : cluster.panoramas )
+			for( int id : cluster.getState().panoramas )
 			{
 				WMV_Panorama n = currentField.getPanorama(id);
 				if(n.getViewingDistance() < settings.farViewingDistance + worldSettings.defaultFocusDistance 
@@ -3127,7 +3127,7 @@ public class WMV_Viewer
 				}
 			}
 
-			for( int id : cluster.videos )
+			for( int id : cluster.getState().videos )
 			{
 				WMV_Video v = currentField.getVideo(id);
 				if(v.getViewingDistance() <= settings.farViewingDistance + v.getFocusDistance()
@@ -3944,7 +3944,7 @@ public class WMV_Viewer
 			WMV_Cluster c = p.getCurrentCluster();
 
 			if(c != null)
-				c.timeFading = false;
+				c.getState().timeFading = false;
 			
 			state.currentCluster = newCluster;
 			c = p.getCurrentCluster();
@@ -3952,7 +3952,7 @@ public class WMV_Viewer
 			
 			if(c != null)
 			{
-				c.timeFading = true;
+				c.getState().timeFading = true;
 
 				WMV_Field f = currentField;
 				if(newFieldTimeSegment == -1)						// If == -1, search for time segment

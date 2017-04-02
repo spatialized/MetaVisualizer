@@ -1227,22 +1227,6 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	}
 
 	/**
-	 * getAverageBrightness()
-	 * @return Average pixel brightness for this frame
-	 */
-//	private float getAverageBrightness() 
-//	{
-//		video.loadPixels();
-//		int b = 0;
-//		for (int i=0; i<video.pixels.length; i++) {
-//			float cur = p.p.p.brightness(video.pixels[i]);
-//			b += cur;
-//		}
-//		b /= video.pixels.length;
-//		return b;
-//	}
-
-	/**
 	 * Search given list of clusters and associated with this image
 	 * @return Whether associated field was successfully found
 	 */	
@@ -1274,8 +1258,12 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			return false;
 	}
 
+	public WMV_VideoState getState()
+	{
+		return state;
+	}
+	
 	/**
-	 * getImagePlaceholder
 	 * @return Image placeholder for this video
 	 */
 	public int getImagePlaceholder()

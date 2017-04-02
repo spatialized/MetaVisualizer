@@ -291,7 +291,7 @@ public class WMV_World
 		{
 			case 0:													// Cluster Time Mode
 				for(WMV_Cluster c : getCurrentField().getClusters())
-					if(c.timeFading)
+					if(c.getState().timeFading)
 						c.updateTime();
 				break;
 			
@@ -577,13 +577,10 @@ public class WMV_World
 	{
 		p.library.saveWorldSettings(settings, p.library.getLibraryFolder()+"ml_library_worldSettings.json");
 		p.library.saveWorldState(state, p.library.getLibraryFolder()+"ml_library_worldState.json");
-//		System.out.println("viewer.target == null"+(viewer.getState().target == null));
-//		if(viewer.getState().target != null)
-//			System.out.println("viewer.target:"+viewer.getState().target);
-		
 		p.library.saveViewerSettings(viewer.getSettings(), p.library.getLibraryFolder()+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), p.library.getLibraryFolder()+"ml_library_viewerState.json");
-		p.library.saveFieldState(getCurrentField().getState(), p.library.getLibraryFolder()+"ml_library_fieldState.json");
+		p.library.saveFieldData(getCurrentField(), p.library.getLibraryFolder()+"ml_library_fieldState.json");
+//		p.library.saveFieldState(getCurrentField().getState(), p.library.getLibraryFolder()+"ml_library_fieldState.json");
 	}
 
 	public void loadWorldSettings(WMV_WorldSettings newSettings)
@@ -805,6 +802,11 @@ public class WMV_World
 		}
 
 		state.alpha = newAlphaFadeValue;
+	}
+	
+	public WMV_WorldSettings getSettings()
+	{
+		return settings;
 	}
 
 	public WMV_WorldState getState()

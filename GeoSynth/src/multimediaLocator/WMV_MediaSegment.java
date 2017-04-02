@@ -17,14 +17,14 @@ public class WMV_MediaSegment
 	private float bottom, top, centerElevation;		// Upper and lower bounds (in degrees)
 	private boolean hidden;
 
-	private final float defaultStitchingMinAngle = 30.f;				// Angle in degrees that determines media segments for stitching 
-
-	WMV_Cluster p;
+	private float stitchingMinAngle;
 	
-	WMV_MediaSegment( WMV_Cluster parent, int newID, List<Integer> newImages, List<Integer> newVideos, float newLower, float newUpper, 
-			  float newCenter, float newLowerElevation, float newUpperElevation, float newCenterElevation)
+//	WMV_Cluster p;
+	
+	WMV_MediaSegment( int newID, List<Integer> newImages, List<Integer> newVideos, float newLower, float newUpper, float newCenter,
+					  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
 	{
-		p = parent;
+//		p = parent;
 		id = newID;
 		
 		images = newImages;
@@ -37,6 +37,8 @@ public class WMV_MediaSegment
 		bottom = newLowerElevation;
 		top = newUpperElevation;
 		centerElevation = newCenterElevation;
+		
+		stitchingMinAngle = newStitchingMinAngle;
 	}
 	
 	/**
@@ -55,10 +57,6 @@ public class WMV_MediaSegment
 				float xDir = img.getDirection();
 				float yDir = img.getElevation();
 
-				float stitchingMinAngle = defaultStitchingMinAngle;				// Angle in degrees that determines media segments for stitching 
-				if(p.worldSettings != null)
-					stitchingMinAngle = p.worldSettings.stitchingMinAngle;
-				
 				if(xDir - left < stitchingMinAngle)
 					horizBorderID = 0;				// Left
 

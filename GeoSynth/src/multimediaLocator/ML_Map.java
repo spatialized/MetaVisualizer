@@ -199,7 +199,7 @@ public class ML_Map
 		markerManager = new MarkerManager<Marker>();
 		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
 		{
-			if(!c.isEmpty() && c.mediaCount != 0)
+			if(!c.isEmpty() && c.getState().mediaCount != 0)
 			{
 				PVector mapLoc = c.getLocation();
 				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
@@ -209,7 +209,7 @@ public class ML_Map
 				marker.setColor(world.p.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
 				marker.setHighlightColor(world.p.color(170, 255, 255, 255));
 				marker.setStrokeWeight(0);
-				marker.setDiameter((float)Math.sqrt(c.mediaCount) * 3.f);
+				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
 				markerManager.addMarker(marker);
 			}
 		}
@@ -240,7 +240,7 @@ public class ML_Map
 		
 		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
 		{
-			if(!c.isEmpty() && c.mediaCount != 0)
+			if(!c.isEmpty() && c.getState().mediaCount != 0)
 			{
 				PVector mapLoc = getMapLocation(world, c.getLocation(), mapWidth, mapHeight);
 				if( pointIsVisible(world, mapLoc, true) )
@@ -460,13 +460,13 @@ public class ML_Map
 	{
 		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
 		{
-			if(!c.isEmpty() && c.mediaCount > 5)
+			if(!c.isEmpty() && c.getState().mediaCount > 5)
 			{
 				PVector point = c.getLocation();
 
 				if( pointIsVisible(world, point, false) )
 				{
-					float radius = PApplet.sqrt(c.mediaCount) * 0.7f;
+					float radius = PApplet.sqrt(c.getState().mediaCount) * 0.7f;
 //					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f  / PApplet.sqrt(PApplet.sqrt(mapDistance));
 					drawPoint(world, point, radius, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
 				}
@@ -480,7 +480,7 @@ public class ML_Map
 	 */
 	void zoomToCluster(WMV_World world, WMV_Cluster c)
 	{
-		if(!c.isEmpty() && c.mediaCount > 0)
+		if(!c.isEmpty() && c.getState().mediaCount > 0)
 		{
 			if(p.satelliteMap)
 			{
@@ -550,7 +550,7 @@ public class ML_Map
 	void drawClusterMedia(WMV_World world, WMV_Cluster c, float mapWidth, float mapHeight, boolean ignoreTime)
 	{
 		if((mapImages && !world.viewer.getSettings().hideImages))
-			for ( int i : c.images )									// Draw images on Map
+			for ( int i : c.getState().images )									// Draw images on Map
 			{
 				WMV_Image img = world.getCurrentField().getImage(i);
 				drawImageOnMap(world, img, ignoreTime, mapWidth, mapHeight, false);
@@ -569,14 +569,14 @@ public class ML_Map
 			}
 
 		if((mapPanoramas && !world.viewer.getSettings().hidePanoramas))
-			for ( int n : c.panoramas )									// Draw panoramas on Map
+			for ( int n : c.getState().panoramas )									// Draw panoramas on Map
 			{
 				WMV_Panorama pano = world.getCurrentField().getPanorama(n);
 				drawPanoramaOnMap(world, pano, ignoreTime, mapWidth, mapHeight, false);
 			}
 
 		if((mapVideos && !world.viewer.getSettings().hideVideos))
-			for (int v : c.videos)										// Draw videos on Map
+			for (int v : c.getState().videos)										// Draw videos on Map
 			{
 				WMV_Video vid = world.getCurrentField().getVideo(v);
 				drawVideoOnMap(world, vid, ignoreTime, mapWidth, mapHeight, false);

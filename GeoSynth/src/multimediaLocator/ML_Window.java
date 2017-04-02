@@ -1257,7 +1257,7 @@ public class ML_Window {
 			int mode = world.p.world.getState().getTimeMode();
 			if( mode == 0 || mode == 1 )
 			{
-				int curTime = (mode == 0) ? world.getCurrentCluster().currentTime : world.getState().currentTime;
+				int curTime = (mode == 0) ? world.getCurrentCluster().getState().currentTime : world.getState().currentTime;
 				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
 			}
 
@@ -1599,7 +1599,7 @@ public class ML_Window {
 				applet.text(" GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidth);		
 
 				applet.text(" Current Cluster: "+world.viewer.getState().getCurrentClusterID(), x, y += lineWidthVeryWide);
-				applet.text("   Media Points: "+c.mediaCount, x, y += lineWidth);
+				applet.text("   Media Points: "+c.getState().mediaCount, x, y += lineWidth);
 				applet.text("   Media Segments: "+world.getCurrentCluster().segments.size(), x, y += lineWidth);
 				applet.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), world.viewer.getLocation())), x, y += lineWidth);
 				applet.text("   Auto Stitched Panoramas: "+world.getCurrentCluster().stitchedPanoramas.size(), x, y += lineWidth);
@@ -1607,7 +1607,7 @@ public class ML_Window {
 				if(world.viewer.getAttractorClusterID() != -1)
 				{
 					applet.text(" Destination Cluster : "+world.viewer.getAttractorCluster(), x, y += lineWidth);
-					applet.text(" Destination Media Points: "+world.getCurrentField().getCluster(world.viewer.getAttractorClusterID()).mediaCount, x, y += lineWidth);
+					applet.text(" Destination Media Points: "+world.getCurrentField().getCluster(world.viewer.getAttractorClusterID()).getState().mediaCount, x, y += lineWidth);
 					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getCluster(world.viewer.getAttractorClusterID()).getLocation(), world.viewer.getLocation() )), x, y += lineWidth);
 				}
 

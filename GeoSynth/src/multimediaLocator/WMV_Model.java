@@ -88,7 +88,7 @@ public class WMV_Model
 		int count = 0;
 		for(WMV_Cluster c : clusters)
 		{
-			for(int i : c.images)
+			for(int i : c.getState().images)
 			{
 				if(images.contains(i)) count++;
 				else images.add(i);
@@ -100,7 +100,7 @@ public class WMV_Model
 		count = 0;
 		for(WMV_Cluster c : clusters)
 		{
-			for(int v : c.videos)
+			for(int v : c.getState().videos)
 			{
 				if(videos.contains(v)) count++;
 				else videos.add(v);

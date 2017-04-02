@@ -73,31 +73,30 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * Set state.clusterDate for this media based on media times in associated cluster
+	 * Set clusterDate for this media based on media times in associated cluster
 	 */
 	void setClusterDate(WMV_Cluster c)
 	{
 		if(vState.cluster != -1)
 		{
-//			WMV_Cluster c = p.getClusters().get(cluster);
-			if(c.lowImageDate == c.highImageDate)
-				vState.clusterDate = c.lowImageDate;
+			if(c.getState().lowImageDate == c.getState().highImageDate)
+				vState.clusterDate = c.getState().lowImageDate;
 			else
-				vState.clusterDate = PApplet.map(time.getDate().getDaysSince1980(), c.lowImageDate, c.highImageDate, 0.f, 1.f);			// -- Use dateLength?
+				vState.clusterDate = PApplet.map(time.getDate().getDaysSince1980(), c.getState().lowImageDate, c.getState().highImageDate, 0.f, 1.f);			// -- Use dateLength?
 		}
 	}
 
 	/**
-	 * Set state.clusterTime for this image based on media times in associated cluster
+	 * Set clusterTime for this image based on media times in associated cluster
 	 */
 	void setClusterTime( WMV_Cluster c )
 	{
 		if(vState.cluster != -1)
 		{
-			if(c.lowImageTime == c.highImageTime)
-				vState.clusterTime = c.lowImageTime;
+			if(c.getState().lowImageTime == c.getState().highImageTime)
+				vState.clusterTime = c.getState().lowImageTime;
 			else
-				vState.clusterTime = PApplet.map(time.getTime(), c.lowImageTime, c.highImageTime, 0.f, 1.f);			// -- Use dayLength?
+				vState.clusterTime = PApplet.map(time.getTime(), c.getState().lowImageTime, c.getState().highImageTime, 0.f, 1.f);			// -- Use dayLength?
 		}
 	}
 
@@ -127,13 +126,10 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * Stop fading in / out video
+	 * Stop fading in or out
 	 */
 	public void stopFading()
 	{
-//		if(debugSettings.viewable)
-//			System.out.println("Stop fading for media:"+id);
-
 		vState.fadingEndFrame = worldState.frameCount;
 		vState.fadingStart = vState.fadingBrightness;
 		vState.fading = false;
@@ -147,9 +143,7 @@ public abstract class WMV_Viewable
 	 */
 	float getCaptureDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc;
-
-		camLoc = viewerState.getLocation();
+		PVector camLoc = viewerState.getLocation();
 		float distance = PVector.dist(vState.captureLocation, camLoc);     
 		return distance;
 	}
@@ -168,7 +162,7 @@ public abstract class WMV_Viewable
 	{
 		int cycleLength = worldSettings.timeCycleLength;				// Length of main time loop
 		float centerTime = -1;								// Midpoint of visibility for this media 		
-		vState.timeBrightness = 0.f;
+		setTimeBrightness(0.f);
 
 		float length = worldSettings.defaultMediaLength;				// Start with default length
 
@@ -185,7 +179,7 @@ public abstract class WMV_Viewable
 		switch(worldState.getTimeMode())
 		{
 			case 0:
-				curTime = c.currentTime;						// Set image time from cluster
+				curTime = c.getState().currentTime;						// Set image time from cluster
 				
 				if(c.getDateline() != null)
 				{
@@ -202,7 +196,7 @@ public abstract class WMV_Viewable
 						upper = c.getTimelines().get(lastIdx).get(c.getTimelines().get(lastIdx).size()-1).getUpper().getTime();			// Get cluster timeline upper bound
 					}
 				}
-				else vState.timeBrightness = 0.f;
+				else setTimeBrightness(0.f);
 			break;
 		
 			case 1:												// Time Mode: Field
@@ -313,7 +307,7 @@ public abstract class WMV_Viewable
 			}
 			else
 			{
-				vState.timeBrightness = 0.f;
+				setTimeBrightness(0.f);
 			}
 		}
 		
@@ -325,7 +319,7 @@ public abstract class WMV_Viewable
 				if(vState.active)							// If image was vState.active
 					vState.active = false;					// Set to invState.active
 
-				vState.timeBrightness = 0.f;			   					// Zero visibility
+				setTimeBrightness(0.f);			   					// Zero visibility
 				
 				if(worldState.getTimeMode() == 2) 
 					if(vState.isCurrentMedia)
@@ -336,7 +330,7 @@ public abstract class WMV_Viewable
 				if(!vState.active)							// If image was not vState.active
 					vState.active = true;
 
-				vState.timeBrightness = PApplet.constrain(PApplet.map(curTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
+				setTimeBrightness( PApplet.constrain(PApplet.map(curTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f) );   
 				if(debugSettings.panorama && getMediaType() == 1)
 					System.out.println(" Panorama Fading In..."+vState.id);
 			}
@@ -344,7 +338,7 @@ public abstract class WMV_Viewable
 			{
 				if(debugSettings.panorama && getMediaType() == 1)
 					System.out.println(" Panorama Fading Out..."+vState.id);
-				vState.timeBrightness = PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f); 
+				setTimeBrightness( PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f) ); 
 				if(worldState.getTimeMode() == 2 && vState.isCurrentMedia)
 				{
 					if(fadeOutEnd - curTime == 1)
@@ -370,22 +364,29 @@ public abstract class WMV_Viewable
 			}
 		}
 
-		vState.timeBrightness = (float)timeLogMap.getMappedValueFor(vState.timeBrightness);   		// Logarithmic scaling
+		setTimeBrightness( (float)timeLogMap.getMappedValueFor(vState.timeBrightness) );   		// Logarithmic scaling
 
-		if(vState.selected && debugSettings.time)
+		if(isSelected() && debugSettings.time)
 			System.out.println("Media id:" + getID()+" state.timeBrightness"+vState.timeBrightness);
 
 		if(error)
-			vState.timeBrightness = 0.f;
+			setTimeBrightness( 0.f );
 	}
 
 	/**
 	 * @return Time state.brightness factor between 0. and 1.
-	 * Calculate media state.brightness based on time (fades in and out around capture time)
 	 */
 	public float getTimeBrightness()												
 	{
 		return vState.timeBrightness;
+	}
+
+	/**
+	 * Set time brightness
+	 */
+	public void setTimeBrightness(float newTimeBrightness)												
+	{
+		vState.timeBrightness = newTimeBrightness;
 	}
 	
 	/**

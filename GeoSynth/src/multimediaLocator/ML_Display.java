@@ -2019,7 +2019,7 @@ class ML_Display
 			p.p.text(" GPS Longitude: "+p.viewer.getGPSLocation().x+" Latitude:"+p.viewer.getGPSLocation().y, xPos, yPos += lineWidth, hudDistance);		
 
 			p.p.text(" Current Cluster: "+p.viewer.getState().getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text("   Media Points: "+c.mediaCount, xPos, yPos += lineWidth, hudDistance);
+			p.p.text("   Media Points: "+c.getState().mediaCount, xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Media Segments: "+p.getCurrentCluster().segments.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitchedPanoramas.size(), xPos, yPos += lineWidth, hudDistance);
@@ -2027,7 +2027,7 @@ class ML_Display
 			if(p.viewer.getAttractorClusterID() != -1)
 			{
 				p.p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Destination Media Points: "+p.getCurrentField().getCluster(p.viewer.getAttractorClusterID()).mediaCount, xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Destination Media Points: "+p.getCurrentField().getCluster(p.viewer.getAttractorClusterID()).getState().mediaCount, xPos, yPos += lineWidth, hudDistance);
 				p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
 			}
 
@@ -2066,7 +2066,7 @@ class ML_Display
 			if(p.p.world.getState().getTimeMode() == 0)
 				p.p.text(" Current Field Time: "+ p.getState().currentTime, xPos, yPos += lineWidth, hudDistance);
 			if(p.p.world.getState().getTimeMode() == 1)
-				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().currentTime, xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().getState().currentTime, xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().getTimeline().size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment(), xPos, yPos += lineWidth, hudDistance);
 			if(f.getTimeline().size() > 0 && p.viewer.getCurrentFieldTimeSegment() >= 0 && p.viewer.getCurrentFieldTimeSegment() < f.getTimeline().size())
@@ -2119,13 +2119,13 @@ class ML_Display
 		WMV_Cluster cl = p.getCurrentCluster();
 		p.p.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistance);
 		p.p.textSize(mediumTextSize);
-		if(c.images.size() > 0)
-			p.p.text("   Images: "+ c.images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		if(c.panoramas.size() > 0)
-			p.p.text("   Panoramas: "+ c.panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		if(c.videos.size() > 0)
-			p.p.text("   Videos: "+ c.videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text("   Total Count: "+ c.mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
+		if(c.getState().images.size() > 0)
+			p.p.text("   Images: "+ c.getState().images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+		if(c.getState().panoramas.size() > 0)
+			p.p.text("   Panoramas: "+ c.getState().panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+		if(c.getState().videos.size() > 0)
+			p.p.text("   Videos: "+ c.getState().videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+		p.p.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
 //		if(c.sounds.size() > 0)
 //			p.p.text("     Sounds: "+ c.sounds.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
 //		p.p.text("     Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);

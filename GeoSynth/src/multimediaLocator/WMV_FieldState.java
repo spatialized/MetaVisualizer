@@ -1,5 +1,6 @@
 package multimediaLocator;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -40,5 +41,52 @@ public class WMV_FieldState
 	public int disassociatedPanoramas = 0;
 	public int disassociatedVideos = 0;
 
-	WMV_FieldState(){}
+	/* Data */
+	private ArrayList<WMV_ClusterState> clusters;				// Clusters (spatial groupings) of media 
+	private ArrayList<WMV_ImageState> images; 					// All images in this field
+	private ArrayList<WMV_PanoramaState> panoramas; 			// All panoramas in this field
+	private ArrayList<WMV_VideoState> videos; 					// All videos in this field
+//	private ArrayList<WMV_SoundState> sounds; 					// All sounds in this field
+	
+	WMV_FieldState()
+	{
+		clusters = new ArrayList<WMV_ClusterState>();
+		images = new ArrayList<WMV_ImageState>();
+		panoramas = new ArrayList<WMV_PanoramaState>();
+		videos = new ArrayList<WMV_VideoState>();
+	}
+	
+	public void setFieldData(ArrayList<WMV_ClusterState> newClusters, ArrayList<WMV_ImageState> newImages, ArrayList<WMV_PanoramaState> newPanoramas,
+			ArrayList<WMV_VideoState> newVideos)
+	{
+		clusters = newClusters;
+		images = newImages;
+		panoramas = newPanoramas;
+		videos = newVideos;
+	}
+	
+	public void setClusters(ArrayList<WMV_ClusterState> newClusters)
+	{
+		clusters = newClusters;
+	}
+
+	public void setImages(ArrayList<WMV_ImageState> newImages)
+	{
+		images = newImages;
+	}
+
+	public void setPanoramas(ArrayList<WMV_PanoramaState> newPanoramas)
+	{
+		panoramas = newPanoramas;
+	}
+
+	public void setVideos(ArrayList<WMV_VideoState> newVideos)
+	{
+		videos = newVideos;
+	}
+
+//	public void setSounds(ArrayList<WMV_ImageState> newImages)
+//	{
+//		images = newImages;
+//	}
 }

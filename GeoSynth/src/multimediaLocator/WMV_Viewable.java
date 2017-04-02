@@ -18,91 +18,39 @@ import toxi.math.ScaleMap;
 public abstract class WMV_Viewable
 {
 	/* Classes */
-	public WMV_WorldSettings worldSettings;
-	public WMV_WorldState worldState;
-	public WMV_ViewerSettings viewerSettings;	// Update world settings
-	public WMV_ViewerState viewerState;	// Update world settings
-	public ML_DebugSettings debugSettings;	// Update world settings
-
-	/* Status Modes */
-	public boolean visible = false;				// Media is currently visible and will be drawn
-	public boolean active = false;				// True when the image has faded in and isn't fading out	-- Needed?
-	public boolean disabled = false;			// Disabled due to errors or user and will not be drawn
-	public boolean hidden = false;				// Hidden from view											-- Needed?
-	public boolean requested = false;			// Indicates a recent request to load media from disk
-
-	/* General */
-	private int id;
-	private int mediaType;							/* Media Types  0: image 1: panorama 2: video 3: sound */
-
-	/* File System */
-	private String name = "";
-	public String filePath = "";
-
-	/* Model */
-	public PVector captureLocation;				// Media capture location in simulation – EXIF GPS coords scaled to fieldSize.
-	public PVector location;        			// Media location in simulation 
-	int cluster = -1;				 			// Cluster it belongs to	
-	float theta = 0;                			// Media Orientation (in Degrees N)
-	public boolean fadingFocusDistance = false, beginFadingObjectDistance = false;			// Fading distance of object in image?
-	public final float defaultAltitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
-
-	/* Metadata */
-	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
-	public int cameraModel;                 	// Camera model
-	public boolean showMetadata = false;		// Show metadata
-	public float brightness;
+	private WMV_WorldSettings worldSettings;
+	private WMV_WorldState worldState;
+	private WMV_ViewerSettings viewerSettings;	// Update world settings
+	private WMV_ViewerState viewerState;	// Update world settings
+	private ML_DebugSettings debugSettings;	// Update world settings
+	public WMV_ViewableState vState;
 	
 	/* Time */
-	WMV_Time time;
 	ScaleMap timeLogMap;
 	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
-	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
-	public boolean currentMedia;
-	public float timeBrightness = 0.f;
-	
-	/* Interaction */
-	private boolean selected = false;
+	WMV_Time time;
 
-	/* Graphics */
-	public float aspectRatio = 0.666f;	// Aspect ratio of image or texture
-	public PVector azimuthAxis = new PVector(0, 1, 0);
-	public PVector verticalAxis = new PVector(1, 0, 0);
-	public PVector rotationAxis = new PVector(0, 0, 1);
-	public float centerSize = 0.05f;
-
-	/* Transparency */
-	public float viewingBrightness = 0;			// Final image brightness (or alpha in useAlphaFading mode) 
-	public boolean isFadingIn = false, isFadingOut = false;
-	public float fadingBrightness;							// Media transparency due to fading in / out
-	public boolean beginFading = false, fading = false;		
-	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
-	public boolean fadedOut = false;			// Recently faded out
-	public boolean fadedIn = false;
-
-//	WMV_Field p;								// Parent field
 	String timeZone;
 	
 	WMV_Viewable ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 			int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
 	{
 //		p = parent;
+		vState = new WMV_ViewableState();
+		vState.name = newName;
+		vState.id = newID; 
+		vState.mediaType = newMediaType;
+		vState.filePath = newFilePath;
 
-		name = newName;
-		id = newID; 
-		mediaType = newMediaType;
-		
-		filePath = newFilePath;
+		vState.gpsLocation = newGPSLocation;
+		vState.captureLocation = new PVector(0, 0, 0);
 
-		gpsLocation = newGPSLocation;
-		captureLocation = new PVector(0, 0, 0);
+		vState.cameraModel = newCameraModel;
+		vState.theta = newTheta;              
+		vState.brightness = newBrightness;
 
-		cameraModel = newCameraModel;
-		theta = newTheta;              
-		brightness = newBrightness;
-
-		fadingBrightness = 0.f;			
-		fadingStart = 0.f;
+		vState.fadingBrightness = 0.f;			
+		vState.fadingStart = 0.f;
 
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(circularEaseOut);
@@ -126,31 +74,31 @@ public abstract class WMV_Viewable
 	}
 
 	/**
-	 * Set clusterDate for this media based on media times in associated cluster
+	 * Set state.clusterDate for this media based on media times in associated cluster
 	 */
 	void setClusterDate(WMV_Cluster c)
 	{
-		if(cluster != -1)
+		if(vState.cluster != -1)
 		{
 //			WMV_Cluster c = p.getClusters().get(cluster);
 			if(c.lowImageDate == c.highImageDate)
-				clusterDate = c.lowImageDate;
+				vState.clusterDate = c.lowImageDate;
 			else
-				clusterDate = PApplet.map(time.getDate().getDaysSince1980(), c.lowImageDate, c.highImageDate, 0.f, 1.f);			// -- Use dateLength?
+				vState.clusterDate = PApplet.map(time.getDate().getDaysSince1980(), c.lowImageDate, c.highImageDate, 0.f, 1.f);			// -- Use dateLength?
 		}
 	}
 
 	/**
-	 * Set clusterTime for this image based on media times in associated cluster
+	 * Set state.clusterTime for this image based on media times in associated cluster
 	 */
 	void setClusterTime( WMV_Cluster c )
 	{
-		if(cluster != -1)
+		if(vState.cluster != -1)
 		{
 			if(c.lowImageTime == c.highImageTime)
-				clusterTime = c.lowImageTime;
+				vState.clusterTime = c.lowImageTime;
 			else
-				clusterTime = PApplet.map(time.getTime(), c.lowImageTime, c.highImageTime, 0.f, 1.f);			// -- Use dayLength?
+				vState.clusterTime = PApplet.map(time.getTime(), c.lowImageTime, c.highImageTime, 0.f, 1.f);			// -- Use dayLength?
 		}
 	}
 
@@ -159,23 +107,23 @@ public abstract class WMV_Viewable
 	 */
 	void fadeBrightness(float target)
 	{
-		if(target != fadingBrightness)			// Check if already at target
+		if(target != vState.fadingBrightness)			// Check if already at target
 		{
-			beginFading = true;
-			fading = true;   
-			fadingStart = fadingBrightness;
-			fadingTarget = target;
-			fadingStartFrame = worldState.frameCount;
-			fadingEndFrame = fadingStartFrame + viewerSettings.teleportLength;
+			vState.beginFading = true;
+			vState.fading = true;   
+			vState.fadingStart = vState.fadingBrightness;
+			vState.fadingTarget = target;
+			vState.fadingStartFrame = worldState.frameCount;
+			vState.fadingEndFrame = vState.fadingStartFrame + viewerSettings.teleportLength;
 
-			if(target > fadingBrightness)
-				isFadingIn = true;
+			if(target > vState.fadingBrightness)
+				vState.isFadingIn = true;
 			else
-				isFadingOut = true;
+				vState.isFadingOut = true;
 		}
 		else
 		{
-			fading = false;
+			vState.fading = false;
 		}
 	}
 
@@ -187,33 +135,33 @@ public abstract class WMV_Viewable
 //		if(debugSettings.viewable)
 //			System.out.println("Stop fading for media:"+id);
 
-		fadingEndFrame = worldState.frameCount;
-		fadingStart = fadingBrightness;
-		fading = false;
+		vState.fadingEndFrame = worldState.frameCount;
+		vState.fadingStart = vState.fadingBrightness;
+		vState.fading = false;
 
-		if(isFadingOut) isFadingOut = false;
-		if(isFadingIn) isFadingIn = false;
+		if(vState.isFadingOut) vState.isFadingOut = false;
+		if(vState.isFadingIn) vState.isFadingIn = false;
 	}
 
 	/**
-	 * @return Distance from the image capture location to the camera
+	 * @return Distance from the image capture state.location to the camera
 	 */
 	float getCaptureDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
 		PVector camLoc;
 
 		camLoc = viewerState.getLocation();
-		float distance = PVector.dist(captureLocation, camLoc);     
+		float distance = PVector.dist(vState.captureLocation, camLoc);     
 		return distance;
 	}
 
 
 	/**
-	 * @return How far the image capture location is from a point
+	 * @return How far the image capture state.location is from a point
 	 */
 	float getCaptureDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
 	{
-		float distance = PVector.dist(captureLocation, point);     
+		float distance = PVector.dist(vState.captureLocation, point);     
 		return distance;
 	}
 
@@ -221,12 +169,12 @@ public abstract class WMV_Viewable
 	{
 		int cycleLength = worldSettings.timeCycleLength;				// Length of main time loop
 		float centerTime = -1;								// Midpoint of visibility for this media 		
-		timeBrightness = 0.f;
+		vState.timeBrightness = 0.f;
 
 		float length = worldSettings.defaultMediaLength;				// Start with default length
 
 		int fadeInStart = 0;								// When image starts fading in
-		int fadeInEnd = 0;									// When image reaches full brightness
+		int fadeInEnd = 0;									// When image reaches full state.brightness
 		int fadeOutStart = 0;								// When image starts fading out
 		int fadeOutEnd = 0;									// When image finishes fading out
 
@@ -255,7 +203,7 @@ public abstract class WMV_Viewable
 						upper = c.getTimelines().get(lastIdx).get(c.getTimelines().get(lastIdx).size()-1).getUpper().getTime();			// Get cluster timeline upper bound
 					}
 				}
-				else timeBrightness = 0.f;
+				else vState.timeBrightness = 0.f;
 			break;
 		
 			case 1:												// Time Mode: Field
@@ -288,7 +236,7 @@ public abstract class WMV_Viewable
 				}
 
 				fadeInStart = 0;											// Frame media starts fading in
-				fadeInEnd = Math.round(centerTime - length / 4.f);		// Frame media reaches full brightness
+				fadeInEnd = Math.round(centerTime - length / 4.f);		// Frame media reaches full state.brightness
 				fadeOutStart = Math.round(centerTime + length / 4.f);	// Frame media starts fading out
 				fadeOutEnd = cycleLength;									// Frame media finishes fading out
 			}
@@ -298,7 +246,7 @@ public abstract class WMV_Viewable
 				centerTime = Math.round(PApplet.map( mediaTime, lower, upper, length, cycleLength - length) );	// Calculate center time in cluster timeline
 
 				fadeInStart = Math.round(centerTime - length / 2.f);		// Frame media starts fading in
-				fadeInEnd = Math.round(centerTime - length / 4.f);		// Frame media reaches full brightness
+				fadeInEnd = Math.round(centerTime - length / 4.f);		// Frame media reaches full state.brightness
 				fadeOutStart = Math.round(centerTime + length / 4.f);	// Frame media starts fading out
 				fadeOutEnd = Math.round(centerTime + length / 2.f);		// Frame media finishes fading out
 
@@ -334,7 +282,7 @@ public abstract class WMV_Viewable
 				error = true;
 				System.out.println("------Error: fadeInEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
 				System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-				System.out.println("-----cluster:"+cluster+" media type:"+getMediaType());
+				System.out.println("-----cluster:"+vState.cluster+" media type:"+getMediaType());
 			}
 
 			if(fadeOutStart > cycleLength)
@@ -357,52 +305,52 @@ public abstract class WMV_Viewable
 		}
 		else if(worldState.getTimeMode() == 2)
 		{
-			if(currentMedia)
+			if(vState.isCurrentMedia)
 			{
 				fadeInStart = viewerState.getCurrentMediaStartTime();				// Frame media starts fading in
-				fadeInEnd = Math.round(fadeInStart + length / 4.f);		// Frame media reaches full brightness
+				fadeInEnd = Math.round(fadeInStart + length / 4.f);		// Frame media reaches full state.brightness
 				fadeOutEnd = fadeInStart + worldSettings.defaultMediaLength;									// Frame media finishes fading out
 				fadeOutStart = Math.round(fadeOutEnd - length / 4.f);	// Frame media starts fading out
 			}
 			else
 			{
-				timeBrightness = 0.f;
+				vState.timeBrightness = 0.f;
 			}
 		}
 		
-		/* Set timeBrightness */
+		/* Set state.timeBrightness */
 		if(curTime <= cycleLength)
 		{
 			if(curTime < fadeInStart || curTime > fadeOutEnd)			// If before fade in or after fade out
 			{
-				if(active)							// If image was active
-					active = false;					// Set to inactive
+				if(vState.active)							// If image was vState.active
+					vState.active = false;					// Set to invState.active
 
-				timeBrightness = 0.f;			   					// Zero visibility
+				vState.timeBrightness = 0.f;			   					// Zero visibility
 				
 				if(worldState.getTimeMode() == 2) 
-					if(currentMedia)
-						currentMedia = false;	// No longer the current media in Single Time Mode
+					if(vState.isCurrentMedia)
+						vState.isCurrentMedia = false;	// No longer the current media in Single Time Mode
 			}
 			else if(curTime < fadeInEnd)						// During fade in
 			{
-				if(!active)							// If image was not active
-					active = true;
+				if(!vState.active)							// If image was not vState.active
+					vState.active = true;
 
-				timeBrightness = PApplet.constrain(PApplet.map(curTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
+				vState.timeBrightness = PApplet.constrain(PApplet.map(curTime, fadeInStart, fadeInEnd, 0.f, 1.f), 0.f, 1.f);   
 				if(getMediaType() == 1)
-					System.out.println(" Fading In..."+id);
+					System.out.println(" Fading In..."+vState.id);
 			}
 			else if(curTime > fadeOutStart)					// During fade out
 			{
 				if(getMediaType() == 1)
-					System.out.println(" Fading Out..."+id);
-				timeBrightness = PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f); 
-				if(worldState.getTimeMode() == 2 && currentMedia)
+					System.out.println(" Fading Out..."+vState.id);
+				vState.timeBrightness = PApplet.constrain(1.f - PApplet.map(curTime, fadeOutStart, fadeOutEnd, 0.f, 1.f), 0.f, 1.f); 
+				if(worldState.getTimeMode() == 2 && vState.isCurrentMedia)
 				{
 					if(fadeOutEnd - curTime == 1)
 					{
-						currentMedia = false;	// No longer the current media in Single Time Mode
+						vState.isCurrentMedia = false;	// No longer the current media in Single Time Mode
 					}
 				}
 			}
@@ -410,79 +358,79 @@ public abstract class WMV_Viewable
 			{
 				if(getMediaType() == 1)
 					System.out.println(" Full visibility...");				// Full visibility
-				timeBrightness = 1.f;								
+				vState.timeBrightness = 1.f;								
 			}
 		}
 		else
 		{
-			if(curTime > fadeOutEnd)					// If image was active and has faded out
+			if(curTime > fadeOutEnd)					// If image was vState.active and has faded out
 			{
-				if(active) active = false;									// Set to inactive
+				if(vState.active) vState.active = false;									// Set to invState.active
 				if(worldState.getTimeMode() == 2) 
 				{
-					currentMedia = false;	// No longer the current media in Single Time Mode
+					vState.isCurrentMedia = false;	// No longer the current media in Single Time Mode
 				}			
 			}
 		}
 
-		timeBrightness = (float)timeLogMap.getMappedValueFor(timeBrightness);   		// Logarithmic scaling
+		vState.timeBrightness = (float)timeLogMap.getMappedValueFor(vState.timeBrightness);   		// Logarithmic scaling
 
-		if(selected && debugSettings.time)
-			System.out.println("Media id:" + getID()+" timeBrightness"+timeBrightness);
+		if(vState.selected && debugSettings.time)
+			System.out.println("Media id:" + getID()+" state.timeBrightness"+vState.timeBrightness);
 
 		if(error)
-			timeBrightness = 0.f;
+			vState.timeBrightness = 0.f;
 	}
 
 	/**
-	 * @return Time brightness factor between 0. and 1.
-	 * Calculate media brightness based on time (fades in and out around capture time)
+	 * @return Time state.brightness factor between 0. and 1.
+	 * Calculate media state.brightness based on time (fades in and out around capture time)
 	 */
 	public float getTimeBrightness()												
 	{
-		return timeBrightness;
+		return vState.timeBrightness;
 	}
 	
 	/**
-	 * Update fadingBrightness each frame
+	 * Update state.fadingBrightness each frame
 	 */
 	void updateFadingBrightness()
 	{
 		float newFadeValue = 0.f;
 
-		if(beginFading)
+		if(vState.beginFading)
 		{
-			fadingStartFrame = worldState.frameCount;					
-			fadingEndFrame = worldState.frameCount + viewerSettings.teleportLength;	
-			beginFading = false;
+			vState.fadingStartFrame = worldState.frameCount;					
+			vState.fadingEndFrame = worldState.frameCount + viewerSettings.teleportLength;	
+			vState.beginFading = false;
 		}
 
-		if (worldState.frameCount >= fadingEndFrame)
+		if (worldState.frameCount >= vState.fadingEndFrame)
 		{
-			fading = false;
-			newFadeValue = fadingTarget;
+			vState.fading = false;
+			newFadeValue = vState.fadingTarget;
 
-			if(isFadingOut)
+			if(vState.isFadingOut)
 			{
-				isFadingOut = false;
-				fadedOut = true;
+				vState.isFadingOut = false;
+				vState.fadedOut = true;
 			}
-			if(isFadingIn)
+			if(vState.isFadingIn)
 			{
-				isFadingIn = false;
-				fadedIn = true;
+				vState.isFadingIn = false;
+				vState.fadedIn = true;
 			}
 		} 
 		else
 		{
-			newFadeValue = PApplet.map(worldState.frameCount, fadingStartFrame, fadingEndFrame, fadingStart, fadingTarget);      // Fade with distance from current time
+			newFadeValue = PApplet.map(worldState.frameCount, vState.fadingStartFrame, vState.fadingEndFrame, vState.fadingStart, vState.fadingTarget);      // Fade with distance from current time
 		}
 
-		fadingBrightness = newFadeValue;
+		vState.fadingBrightness = newFadeValue;
 	}
 
 	/**
-	 * Calculate media capture location in virtual space based on GPS location
+	 * Calculate media capture state.location in virtual space based on GPS state.location
 	 */
 	void calculateCaptureLocation(WMV_Model model)                                  
 	{
@@ -492,9 +440,9 @@ public abstract class WMV_Viewable
 		{
 			if(model.highLongitude != model.lowLongitude && model.highLatitude != model.lowLatitude)
 			{
-				newX = PApplet.map(gpsLocation.x, model.lowLongitude, model.highLongitude, -0.5f * model.fieldWidth, 0.5f*model.fieldWidth); 			// GPS longitude decreases from left to right
-				newY = -PApplet.map(gpsLocation.y, model.lowAltitude, model.highAltitude, 0.f, model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
-				newZ = PApplet.map(gpsLocation.z, model.lowLatitude, model.highLatitude, 0.5f*model.fieldLength, -0.5f * model.fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+				newX = PApplet.map(vState.gpsLocation.x, model.lowLongitude, model.highLongitude, -0.5f * model.fieldWidth, 0.5f*model.fieldWidth); 			// GPS longitude decreases from left to right
+				newY = -PApplet.map(vState.gpsLocation.y, model.lowAltitude, model.highAltitude, 0.f, model.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
+				newZ = PApplet.map(vState.gpsLocation.z, model.lowLatitude, model.highLatitude, 0.5f*model.fieldLength, -0.5f * model.fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
 				
 				if(worldSettings != null)
 				{
@@ -502,7 +450,7 @@ public abstract class WMV_Viewable
 						newY *= worldSettings.altitudeScalingFactor;
 				}
 				else
-					newY *= defaultAltitudeScalingFactor;
+					newY *= vState.defaultAltitudeScalingFactor;
 			}
 			else
 			{
@@ -510,59 +458,52 @@ public abstract class WMV_Viewable
 			}
 		}
 
-		captureLocation = new PVector(newX, newY, newZ);
-	}
-
-
-	/**
-	 * Select or unselect this image
-	 * @param selection New selection
-	 */
-	public void setSelected(boolean selection)
-	{
-		selected = selection;
-		if(selection) showMetadata = selection;
+		vState.captureLocation = new PVector(newX, newY, newZ);
 	}
 
 	/**
-	 * Move the capture location to the associated cluster location
+	 * Move the capture state.location to the associated cluster state.location
 	 */
 	public void adjustCaptureLocation(WMV_Cluster mediaCluster)
 	{
-		if(cluster != -1)
-			captureLocation = mediaCluster.getLocation();
+		if(vState.cluster != -1)
+			vState.captureLocation = mediaCluster.getLocation();
 		else
-			disabled = true;
+			vState.disabled = true;
 	}
 
 	/**
 	 * @param newCluster New associated cluster
-	 * Set nearest cluster to the capture location to be the associated cluster
+	 * Set nearest cluster to the capture state.location to be the associated cluster
 	 */	
 	void setAssociatedCluster(int newCluster)    				 // Associate cluster that is closest to photo
 	{
-		cluster = newCluster;
+		vState.cluster = newCluster;
 	}
 
 	void setID(int newID)
 	{
-		id = newID;
+		vState.id = newID;
 	}
 
+	void setVisible(boolean newState)
+	{
+		vState.visible = newState;
+	}
 	/**
 	 * @return Whether the media is visible
 	 */
 	public boolean isVisible()
 	{
-		return visible;
+		return vState.visible;
 	}
-
+	
 	/**
-	 * @return Whether the media is active at the current time
+	 * @return Whether the media is vState.active at the current time
 	 */
 	public boolean isActive()
 	{
-		return active;
+		return vState.active;
 	}
 
 	/**
@@ -570,38 +511,78 @@ public abstract class WMV_Viewable
 	 */
 	public boolean isFading()
 	{
-		if(disabled || hidden)
+		if(vState.disabled || vState.hidden)
 			return false;
 
-		if(fading)
+		if(vState.fading)
 			return true;
-		else if(isFadingIn)
+		else if(vState.isFadingIn)
 			return true;
-		else if(isFadingOut)
+		else if(vState.isFadingOut)
 			return true;
 		else
 			return false;
 	}
 
-	/**
-	 * @return Whether the media is disabled
-	 */
-	public boolean isDisabled()
+	public void setFadedIn(boolean newState)
 	{
-		return disabled;
+		vState.fadedIn = newState;
+	}
+
+	public void setFadedOut(boolean newState)
+	{
+		vState.fadedOut = newState;
+	}
+	
+	public boolean isFadingIn()
+	{
+		return vState.isFadingIn;
+	}
+
+	public boolean hasFadedIn()
+	{
+		return vState.fadedIn;
+	}
+
+	public boolean isFadingOut()
+	{
+		return vState.isFadingOut;
+	}
+
+	public boolean hasFadedOut()
+	{
+		return vState.fadedOut;
+	}
+
+	public void setDisabled(boolean newState)
+	{
+		vState.disabled = newState;
 	}
 
 	/**
-	 * @return Whether the media is hidden
+	 * @return Whether the media is vState.disabled
+	 */
+	public boolean isDisabled()
+	{
+		return vState.disabled;
+	}
+
+	public void setHidden(boolean newState)
+	{
+		vState.hidden = newState;
+	}
+
+	/**
+	 * @return Whether the media is vState.hidden
 	 */
 	public boolean isHidden()
 	{
-		return hidden;
+		return vState.hidden;
 	}
 
 	public int getID()
 	{
-		return id;
+		return vState.id;
 	}
 
 	public float getTime()
@@ -616,47 +597,137 @@ public abstract class WMV_Viewable
 
 	public String getName()
 	{
-		return name;
+		return vState.name;
 	}
 
 	public String getFilePath()
 	{
-		return filePath;
+		return vState.filePath;
 	}
 	
+	public void setAspectRatio(float newAspectRatio)
+	{
+		vState.aspectRatio = newAspectRatio;
+	}
+	
+	public float getAspectRatio()
+	{
+		return vState.aspectRatio;
+	}
+	
+	public void setRequested(boolean newState)
+	{
+		vState.requested = newState;
+	}
+	
+	public boolean isRequested()
+	{
+		return vState.requested;
+	}
+	
+	public void setClusterID(int newCluster)
+	{
+		vState.cluster = newCluster;
+	}
+	
+	public int getClusterID()
+	{
+		return vState.cluster;
+	}
+
+	public void setTheta(float newTheta)
+	{
+		vState.theta = newTheta;
+	}
+	
+	public float getTheta()
+	{
+		return vState.theta;
+	}
+
 	public void setLocation(PVector newLocation)
 	{
-		location = newLocation;
+		vState.location = newLocation;
+	}
+	
+	public PVector getLocation()
+	{
+		return vState.location;
+	}
+	
+	public void setCaptureLocation(PVector newCaptureLocation)
+	{
+		vState.captureLocation = newCaptureLocation;
 	}
 
 	public PVector getCaptureLocation()
 	{
-		return captureLocation;
+		return vState.captureLocation;
 	}
 
 	public PVector getGPSLocation()
 	{
-		return gpsLocation;
+		return vState.gpsLocation;
+	}
+
+	public void setCameraModel(int newCameraModel)
+	{
+		vState.cameraModel = newCameraModel;
 	}
 
 	public int getCameraModel()
 	{
-		return cameraModel;
+		return vState.cameraModel;
+	}
+
+	public void setFadingFocusDistance(boolean newState)
+	{
+		vState.fadingFocusDistance = newState;
+	}
+	
+	public boolean isFadingFocusDistance()
+	{
+		return vState.fadingFocusDistance;
+	}
+
+	public void setViewingBrightness(float newViewingBrightness)
+	{
+		vState.viewingBrightness = newViewingBrightness;
+	}
+
+	public float getViewingBrightness()
+	{
+		return vState.viewingBrightness;
+	}
+
+	public float getFadingBrightness()
+	{
+		return vState.fadingBrightness;
 	}
 
 	public float getBrightness()
 	{
-		return brightness;
+		return vState.brightness;
+	}
+
+	/**
+	 * Select or deselect this image
+	 * @param selection Whether to select or deselect
+	 */
+	public void setSelected(boolean selection)
+	{
+		vState.selected = selection;
+		if(selection) vState.showMetadata = selection;
 	}
 
 	public boolean isSelected()
 	{
-		return selected;
+		return vState.selected;
 	}
 
 	public int getAssociatedCluster()
 	{
-		return cluster;
+		return vState.cluster;
 	}
 
 	/**
@@ -736,11 +807,48 @@ public abstract class WMV_Viewable
 	
 	public void setMediaType(int newMediaType)
 	{
-		mediaType = newMediaType;
+		vState.mediaType = newMediaType;
 	}
 	
 	public int getMediaType()
 	{
-		return mediaType;
+		return vState.mediaType;
 	}
+	
+	public WMV_ViewableState getViewableState()
+	{
+		return vState;
+	}
+	
+	public WMV_WorldSettings getWorldSettings()
+	{
+		return worldSettings;
+	}
+	
+	public WMV_WorldState getWorldState()
+	{
+		return worldState;
+	}
+	
+	public WMV_ViewerSettings getViewerSettings()
+	{
+		return viewerSettings;
+	}
+	
+	public WMV_ViewerState getViewerState()
+	{
+		return viewerState;
+	}
+	
+	public ML_DebugSettings getDebugSettings()
+	{
+		return debugSettings;
+	}
+	
+//	public WMV_WorldSettings worldSettings;
+//	public WMV_WorldState worldState;
+//	public WMV_ViewerSettings viewerSettings;	// Update world settings
+//	public WMV_ViewerState viewerState;	// Update world settings
+//	public ML_DebugSettings debugSettings;	// Update world settings
+
 }

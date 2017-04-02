@@ -38,14 +38,14 @@ public class WMV_Sound extends WMV_Viewable
 	{
 		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
-		filePath = newFilePath;
-		gpsLocation = newGPSLocation;
+//		filePath = newFilePath;
+		getViewableState().gpsLocation = newGPSLocation;
 		
 //		Bead sound = new Bead();
 		
 		if(newDateTime != null)
 		{
-			time = new WMV_Time( newDateTime, getID(), cluster, 3, newTimeZone );		
+			time = new WMV_Time( newDateTime, getID(), getViewableState().cluster, 3, newTimeZone );		
 		}
 		else
 			time = null;
@@ -56,7 +56,7 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	public void draw(WMV_World world)
 	{
-		if(showMetadata) displayMetadata(world);
+		if(getViewableState().showMetadata) displayMetadata(world);
 	}
 
 	/**
@@ -79,8 +79,8 @@ public class WMV_Sound extends WMV_Viewable
 		world.p.pushMatrix();
 		
 		world.p.fill(30, 0, 255, 150);
-		world.p.translate(location.x, location.y, location.z);
-		world.p.sphere(centerSize);
+		world.p.translate(getViewableState().location.x, getViewableState().location.y, getViewableState().location.z);
+		world.p.sphere(getViewableState().centerSize);
 
 		world.p.popMatrix();
 	}
@@ -94,7 +94,7 @@ public class WMV_Sound extends WMV_Viewable
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
-		String strCluster = "Cluster: "+String.valueOf(cluster);
+		String strCluster = "Cluster: "+String.valueOf(getViewableState().cluster);
 		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
 		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
 		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);
@@ -103,14 +103,14 @@ public class WMV_Sound extends WMV_Viewable
 		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
 				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
-		String strLatitude = "GPS Latitude: "+String.valueOf(gpsLocation.z);
-		String strLongitude = " Longitude: "+String.valueOf(gpsLocation.x);
-		String strAltitude = "Altitude: "+String.valueOf(gpsLocation.y);
+		String strLatitude = "GPS Latitude: "+String.valueOf(getViewableState().gpsLocation.z);
+		String strLongitude = " Longitude: "+String.valueOf(getViewableState().gpsLocation.x);
+		String strAltitude = "Altitude: "+String.valueOf(getViewableState().gpsLocation.y);
 //		String strTheta = "Direction: "+String.valueOf(theta);
 
 		String strTitleDebug = "--- Debugging ---";
-		String strBrightness = "brightness: "+String.valueOf(viewingBrightness);
-		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(fadingBrightness);
+		String strBrightness = "brightness: "+String.valueOf(getViewableState().viewingBrightness);
+		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getViewableState().fadingBrightness);
 		
 		world.p.display.metadata(world, strTitleImage);
 		world.p.display.metadata(world, strTitleImage2);
@@ -159,11 +159,11 @@ public class WMV_Sound extends WMV_Viewable
 		}
 
 		if(closestDistance < maxClusterDistance)
-			cluster = closestClusterIndex;		// Associate image with cluster
+			setClusterID(closestClusterIndex);		// Associate image with cluster
 		else
-			cluster = -1;						// Create a new single image cluster here!
+			setClusterID(-1);						// Create a new single image cluster here!
 
-		if(cluster != -1)
+		if(getClusterID() != -1)
 			return true;
 		else
 			return false;
@@ -174,13 +174,13 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	void fadeSoundIn()
 	{
-		if(volume < worldSettings.videoMaxVolume)
+		if(volume < getWorldSettings().videoMaxVolume)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = worldState.frameCount; 
+			volumeFadingStartFrame = getWorldState().frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = worldState.frameCount + volumeFadingLength;		// Fade volume over 30 frames
-			volumeFadingTarget = worldSettings.videoMaxVolume;
+			volumeFadingEndFrame = getWorldState().frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingTarget = getWorldSettings().videoMaxVolume;
 		}
 	}
 	
@@ -192,9 +192,9 @@ public class WMV_Sound extends WMV_Viewable
 		if(volume > 0.f)
 		{
 			fadingVolume = true;
-			volumeFadingStartFrame = worldState.frameCount; 
+			volumeFadingStartFrame = getWorldState().frameCount; 
 			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = worldState.frameCount + volumeFadingLength;		// Fade volume over 30 frames
+			volumeFadingEndFrame = getWorldState().frameCount + volumeFadingLength;		// Fade volume over 30 frames
 			volumeFadingTarget = 0.f;
 		}
 	}
@@ -240,17 +240,17 @@ public class WMV_Sound extends WMV_Viewable
 		
 		if(closestIdx >= 0)
 		{
-			location = gpsTrack.get(closestIdx).getLocation();
-			if(debugSettings.sound)
+			setLocation( gpsTrack.get(closestIdx).getLocation() );
+			if(getDebugSettings().sound)
 			{
 				System.out.println("Set sound #"+getID()+" location to waypoint "+closestIdx+" W hour:"+gpsTrack.get(closestIdx).getTime().getHour()+" W min:"+gpsTrack.get(closestIdx).getTime().getMinute());
 				System.out.println("S hour:"+sHour+" S min:"+sMinute);
-				System.out.println("location.x: "+location.x+" location.y:"+location.y+" location.z:"+location.z);
+				System.out.println("location.x: "+getLocation().x+" location.y:"+getLocation().y+" location.z:"+getLocation().z);
 				System.out.println("timeDist: "+closestDist);
 			}
 		}
 		else 
-			if(debugSettings.sound)
+			if(getDebugSettings().sound)
 				System.out.println("No gps nodes on same day!");
 	}
 	
@@ -259,7 +259,7 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	public float getHearingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc = viewerState.getLocation();
+		PVector camLoc = getViewerState().getLocation();
 		
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 		float distance = PVector.dist(loc, camLoc);     

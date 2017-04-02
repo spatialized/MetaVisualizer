@@ -381,7 +381,7 @@ public class WMV_World
 				{
 				case 0:
 					WMV_Image i = getCurrentField().getImage(curMediaID);
-					i.currentMedia = true;
+					i.getViewableState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
 					if(viewer.lookAtCurrentMedia())
@@ -389,14 +389,14 @@ public class WMV_World
 					break;
 				case 1:
 					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
-					n.currentMedia = true;
+					n.getViewableState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
 //					viewer.lookAtMedia(n.getID(), 1);
 					break;
 				case 2:	
 					WMV_Video v = getCurrentField().getVideo(curMediaID);
-					v.currentMedia = true;
+					v.getViewableState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
 					if(viewer.lookAtCurrentMedia())
@@ -577,9 +577,9 @@ public class WMV_World
 	{
 		p.library.saveWorldSettings(settings, p.library.getLibraryFolder()+"ml_library_worldSettings.json");
 		p.library.saveWorldState(state, p.library.getLibraryFolder()+"ml_library_worldState.json");
-		System.out.println("viewer.target == null"+(viewer.getState().target == null));
-		if(viewer.getState().target != null)
-			System.out.println("viewer.target:"+viewer.getState().target);
+//		System.out.println("viewer.target == null"+(viewer.getState().target == null));
+//		if(viewer.getState().target != null)
+//			System.out.println("viewer.target:"+viewer.getState().target);
 		
 		p.library.saveViewerSettings(viewer.getSettings(), p.library.getLibraryFolder()+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), p.library.getLibraryFolder()+"ml_library_viewerState.json");
@@ -1127,7 +1127,7 @@ public class WMV_World
 					highest = high;
 			}
 			
-			float val = PApplet.map(highest - lowest, 0.f, 1.f, 0.f, settings.defaultMediaLength);
+//			float val = PApplet.map(highest - lowest, 0.f, 1.f, 0.f, settings.defaultMediaLength);
 			if(cl.size() == 0)
 				settings.timeCycleLength = -1;
 		}
@@ -1182,7 +1182,7 @@ public class WMV_World
 	{
 		for(WMV_Image i : getCurrentField().getImages())
 		{
-			if(i.visible)
+			if(i.getViewableState().visible)
 			{
 				if(i.isFading()) i.stopFading();
 				i.fadeOut();
@@ -1209,7 +1209,7 @@ public class WMV_World
 	{
 		for(WMV_Panorama n : getCurrentField().getPanoramas())
 		{
-			if(n.visible)
+			if(n.getViewableState().visible)
 			{
 				if(n.isFading()) n.stopFading();
 				n.fadeOut();
@@ -1257,7 +1257,7 @@ public class WMV_World
 	{
 		for(WMV_Video v : getCurrentField().getVideos())
 		{
-			if(v.visible)
+			if(v.getViewableState().visible)
 			{
 				if(v.isFading()) v.stopFading();
 				v.fadeOut();
@@ -1316,7 +1316,7 @@ public class WMV_World
 		WMV_Field f = getCurrentField();
 		for(WMV_Image image : f.getImages())
 		{
-			int bmID = image.blurMaskID;
+			int bmID = image.getState().blurMaskID;
 			switch(bmID)
 			{
 			case 0:

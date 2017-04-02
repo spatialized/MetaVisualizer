@@ -47,23 +47,23 @@ public class WMV_Panorama extends WMV_Viewable
 		imageWidth = newWidth;
 		imageHeight = newHeight;
 
-		filePath = newFilePath;
+//		vState.filePath = newFilePath;
 
 		if(newLocation != null)
 		{
-			location = newLocation;
-			captureLocation = newLocation;
+			setLocation(newLocation);
+			setCaptureLocation(newLocation);
 		}
 		
-		gpsLocation = newGPSLocation;
-		cameraModel = newCameraModel;
+//		vState.gpsLocation = newGPSLocation;
+//		vState.cameraModel = newCameraModel;
 
 		if(newDateTime != null)
-			time = new WMV_Time( newDateTime, getID(), cluster, 1, newTimeZone );
+			time = new WMV_Time( newDateTime, getID(), getClusterID(), 1, newTimeZone );
 		else
 			time = null;
 
-		theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
+//		vState.theta = newTheta;              										// Orientation (Yaw angle) calculated from images 
 		phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
 		
 		radius = defaultFocusDistance * panoramaFocusDistanceFactor;
@@ -75,56 +75,56 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void update(MultimediaLocator ml)
 	{
-		if(requested && texture.width != 0)			// If requested image has loaded, initialize image 
+		if(getViewableState().requested && texture.width != 0)			// If requested image has loaded, initialize image 
 		{
 			initializeSphere();					
 
-			requested = false;
-//			p.p.requestedPanoramas--;
+			setRequested(false);
+//			p.p.vState.requestedPanoramas--;
 		}
 
-		if(getCaptureDistance() < viewerSettings.getFarViewingDistance() && !requested)
+		if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getViewableState().requested)
 			if(!initialized)
 				loadMedia(ml); 
 
-		if(texture.width > 0 && !disabled)			
+		if(texture.width > 0 && !isDisabled())			
 		{
-			if(viewerSettings.orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+			if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
 			{
-				for(int id : viewerState.getClustersVisible())
+				for(int id : getViewerState().getClustersVisible())
 				{
-					if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-						visible = true;
+					if(getViewableState().cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+						setVisible(true);
 				}
 			}
 			else 
 			{
-				visible = true;     										 		
+				setVisible(true);     										 		
 			}
 			
-			visible = (getDistanceBrightness() > 0.f);
+			setVisible(getDistanceBrightness() > 0.f);
 
-			if(!fading && viewerSettings.hidePanoramas)
-				visible = false;
+			if(!isFading() && getViewerSettings().hidePanoramas)
+				setVisible(false);
 
-			if(visible && !fading && !fadedOut && !viewerSettings.hidePanoramas && fadingBrightness == 0.f)					// Fade in
+			if(isVisible() && !isFading() && !hasFadedOut() && !getViewerSettings().hidePanoramas && getFadingBrightness() == 0.f)					// Fade in
 			{
-				if(debugSettings.panorama)
+				if(getDebugSettings().panorama)
 					System.out.println("fadeIn()...pano id:"+getID());
 				fadeIn();
 			}
 
-			if(fadedOut) fadedOut = false;
+			if(hasFadedOut()) setFadedOut(false);
 		}
 		
 		if(isFading())                       // Fade in and out with time
 		{
-//			if(debugSettings.panorama && debugSettings.detailed)
+//			if(getDebugSettings().panorama && getDebugSettings().detailed)
 //				p.p.p.display.message(p.p, "Panorama fading... id: "+getID());
 			updateFadingBrightness();
 
-			if(fadingBrightness == 0.f)
-				visible = false;
+			if(getFadingBrightness() == 0.f)
+				setVisible(false);
 		}
 
 		//		if(fadingObjectDistance)
@@ -138,24 +138,24 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void draw(WMV_World world)
 	{
-		if(showMetadata) displayMetadata(world);
+		if(getViewableState().showMetadata) displayMetadata(world);
 
-		float brightness = fadingBrightness;					
-		brightness *= viewerSettings.userBrightness;
+		float brightness = getFadingBrightness();					
+		brightness *= getViewerSettings().userBrightness;
 
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
-		if( worldState.timeFading && time != null && !viewerState.isMoving() )
+		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
 		
-		viewingBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f);	  // Fade panoramas with distance  -- CHANGE THIS / UNNECESSARY?
+		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
 
-		if (visible && !hidden && !disabled) 
+		if (isVisible() && !isHidden() && !isDisabled()) 
 		{
-			if (viewingBrightness > 0)
+			if (getViewingBrightness() > 0)
 			{
-				if(texture.width > 0 && !viewerSettings.map3DMode)		// If image has been loaded
+				if(texture.width > 0 && !getViewerSettings().map3DMode)		// If image has been loaded
 				{
 					drawPanorama(world);
 				}
@@ -166,12 +166,12 @@ public class WMV_Panorama extends WMV_Viewable
 //			world.p.noFill();                  // Hide image if it isn't visible
 //		}
 
-		if(visible && worldState.showModel && !hidden && !disabled)
+		if(isVisible() && getWorldState().showModel && !isHidden() && !isDisabled())
 			displayModel(world);
 
-//		if (visible && isSelected() && !disabled && debugSettings.model)		// Draw panorama location for debugging or map display
+//		if (isVisible() && isSelected() && !isDisabled() && getDebugSettings().model)		// Draw panorama vState.location for debugging or map display
 //			displayModel();
-//		if (visible && !disabled && viewerSettings.map3DMode)
+//		if (isVisible() && !isDisabled() && getViewerSettings().map3DMode)
 //			displayModel();
 	}
 
@@ -181,8 +181,8 @@ public class WMV_Panorama extends WMV_Viewable
 	void displayModel(WMV_World world)
 	{
 		world.p.pushMatrix();
-		world.p.translate(location.x, location.y, location.z);
-		world.p.fill(215, 135, 255, viewingBrightness);
+		world.p.translate(getLocation().x, getLocation().y, getLocation().z);
+		world.p.fill(215, 135, 255, getViewingBrightness());
 		world.p.sphere(radius);								// -- Testing
 		world.p.popMatrix();
 	}
@@ -192,8 +192,8 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void fadeIn()
 	{
-		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
-				stopFading();
+		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
+			stopFading();
 
 		fadeBrightness(1.f);					// Fade in
 	}
@@ -203,7 +203,7 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void fadeOut()
 	{
-		if(fading || isFadingIn || isFadingOut)		// If already fading, stop at current value
+		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
 				stopFading();
 
 		fadeBrightness(0.f);					// Fade out
@@ -226,34 +226,34 @@ public class WMV_Panorama extends WMV_Viewable
 		world.p.texture(texture);
 
 		/* Set the panorama brightness */		
-		if(viewerSettings.selection)					// Viewer in selection mode
+		if(getViewerSettings().selection)					// Viewer in selection mode
 		{
 			if(isSelected())
 			{
-//				System.out.println("selected viewingBrightness:"+viewingBrightness);
-				if(!worldState.alphaMode)
-					world.p.tint(viewingBrightness, 255);          				
+//				System.out.println("selected getViewingBrightness():"+getViewingBrightness());
+				if(!getWorldState().alphaMode)
+					world.p.tint(getViewingBrightness(), 255);          				
 				else
-					world.p.tint(255, viewingBrightness);          				
+					world.p.tint(255, getViewingBrightness());          				
 			}
 			else
 			{
-				if(!worldState.alphaMode)
-					world.p.tint(viewingBrightness * 0.4f, 255);          // Set the image transparency					
+				if(!getWorldState().alphaMode)
+					world.p.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
 				else
-					world.p.tint(255, viewingBrightness * 0.33f);          				
+					world.p.tint(255, getViewingBrightness() * 0.33f);          				
 			}
 		}
 		else
 		{
-			if(!worldState.alphaMode)
+			if(!getWorldState().alphaMode)
 			{
-				world.p.tint(viewingBrightness, 255);          				
+				world.p.tint(getViewingBrightness(), 255);          				
 			}
 			else
 			{
-//				System.out.println("alphaMode viewingBrightness:"+viewingBrightness+" final alpha:"+PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, world.alpha));
-				world.p.tint(255, PApplet.map(viewingBrightness, 0.f, 255.f, 0.f, worldState.alpha));          				
+//				System.out.println("alphaMode getViewingBrightness():"+getViewingBrightness()+" final alpha:"+PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, world.alpha));
+				world.p.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 			}
 		}
 		
@@ -367,10 +367,10 @@ public class WMV_Panorama extends WMV_Viewable
 //		sphere = rotateVertices(sphere, -phi, verticalAxis);         // Rotate around X axis
 		
 		if (phi != 0.f)
-			sphere = rotateVertices(sphere, -phi, rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
+			sphere = rotateVertices(sphere, -phi, getViewableState().rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
 
-		if( theta != 0.f )
-			sphere = rotateVertices(sphere, 360-theta, azimuthAxis); // Rotate around Z axis
+		if( getTheta() != 0.f )
+			sphere = rotateVertices(sphere, 360-getTheta(), getViewableState().azimuthAxis); // Rotate around Z axis
 		
 //		panoramaDetail = panoramaDetail;
 		initialized = true;
@@ -381,26 +381,26 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-//		if(debugSettings.panorama && debugSettings.detailed)
+//		if(getDebugSettings().panorama && getDebugSettings().detailed)
 //			p.p.p.display.message(p.p, "Requesting panorama file:"+getName());
 //
-//		if(!debugSettings.lowMemory)			// Check enough memory available
+//		if(!getDebugSettings().lowMemory)			// Check enough memory available
 //		{
 		
-//			if(viewerSettings.orientationMode)
-//				location = p.p.viewer.getLocation();
+//			if(getViewerSettings().orientationMode)
+//				vState.location = p.p.viewer.getLocation();
 //			else
-//				location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
+//				vState.location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
-//		location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
-//			if (p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x) || p.utilities.isNaN(location.x))
+//		vState.location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
+//			if (p.utilities.isNaN(vState.location.x) || p.utilities.isNaN(vState.location.x) || p.utilities.isNaN(vState.location.x))
 //			{
-//				location = new PVector (0, 0, 0);
+//				vState.location = new PVector (0, 0, 0);
 //			}
 
-			texture = ml.requestImage(filePath);
-			requested = true;
-//			p.p.requestedPanoramas++;
+			texture = ml.requestImage(getFilePath());
+			setRequested(true);
+//			p.p.vState.requestedPanoramas++;
 //		}
 	}
 
@@ -411,15 +411,15 @@ public class WMV_Panorama extends WMV_Viewable
 	public float getDistanceBrightness()									
 	{
 		float viewDist = getViewingDistance();
-		float farViewingDistance = viewerSettings.getFarViewingDistance();
+//		float farViewingDistance = getViewerSettings().getFarViewingDistance();
 
 		float distVisibility = 1.f;
 
-		if(viewDist > radius-worldSettings.clusterCenterSize*3.f)
+		if(viewDist > radius-getWorldSettings().clusterCenterSize*3.f)
 		{
 			float vanishingPoint = radius;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-worldSettings.clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-getWorldSettings().clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
 		}
@@ -434,10 +434,10 @@ public class WMV_Panorama extends WMV_Viewable
 	{
 		PVector camLoc;
 
-		if(viewerSettings.orientationMode)
-			camLoc = viewerState.getLocation();
+		if(getViewerSettings().orientationMode)
+			camLoc = getViewerState().getLocation();
 		else
-			camLoc = viewerState.getLocation();
+			camLoc = getViewerState().getLocation();
 
 		float distance;
 
@@ -468,11 +468,11 @@ public class WMV_Panorama extends WMV_Viewable
 		}
 
 		if(closestDistance < maxClusterDistance)
-			cluster = closestClusterIndex;		// Associate image with cluster
+			setClusterID(closestClusterIndex);		// Associate image with cluster
 		else
-			cluster = -1;						// Create a new single image cluster here!
+			setClusterID(-1);						// Create a new single image cluster here!
 
-		if(cluster != -1)
+		if(getClusterID() != -1)
 			return true;
 		else
 			return false;
@@ -487,7 +487,7 @@ public class WMV_Panorama extends WMV_Viewable
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
-		String strCluster = "Cluster: "+String.valueOf(cluster);
+		String strCluster = "Cluster: "+String.valueOf(getClusterID());
 		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
 		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
 		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);
@@ -496,15 +496,15 @@ public class WMV_Panorama extends WMV_Viewable
 		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
 				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
-		String strLatitude = "GPS Latitude: "+String.valueOf(gpsLocation.z);
-		String strLongitude = " Longitude: "+String.valueOf(gpsLocation.x);
-		String strAltitude = "Altitude: "+String.valueOf(gpsLocation.y);
-		String strTheta = "Direction: "+String.valueOf(theta);
+		String strLatitude = "GPS Latitude: "+String.valueOf(getGPSLocation().z);
+		String strLongitude = " Longitude: "+String.valueOf(getGPSLocation().x);
+		String strAltitude = "Altitude: "+String.valueOf(getGPSLocation().y);
+		String strTheta = "Direction: "+String.valueOf(getTheta());
 		String strElevation = "Vertical Angle: "+String.valueOf(phi);
 
 		String strTitleDebug = "--- Debugging ---";
-		String strBrightness = "brightness: "+String.valueOf(viewingBrightness);
-		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(fadingBrightness);
+		String strBrightness = "brightness: "+String.valueOf(getViewingBrightness());
+		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getFadingBrightness());
 		
 		world.p.display.metadata(world, strTitleImage);
 		world.p.display.metadata(world, strTitleImage2);
@@ -525,7 +525,7 @@ public class WMV_Panorama extends WMV_Viewable
 		world.p.display.metadata(world, strTheta);
 		world.p.display.metadata(world, strElevation);
 
-		if(debugSettings.panorama)
+		if(getDebugSettings().panorama)
 		{
 			world.p.display.metadata(world, strTitleDebug);
 			world.p.display.metadata(world, strBrightness);
@@ -535,7 +535,7 @@ public class WMV_Panorama extends WMV_Viewable
 
 	public void setDirection( float newTheta )
 	{
-		theta = newTheta;
+		setTheta(newTheta);
 	}
 
 	void resetRadius()
@@ -549,23 +549,23 @@ public class WMV_Panorama extends WMV_Viewable
 	}
 	
 	/**
-	 * @param newGPSLocation New GPS location
-	 * Set the current GPS location
+	 * @param newGPSLocation New GPS vState.location
+	 * Set the current GPS vState.location
 	 */
 //	void setGPSLocation(PVector newGPSLocation) 
 //	{
-//		gpsLocation = newGPSLocation;
+//		vState.gpsLocation = newGPSLocation;
 //		calculateCaptureLocation();
 //	}
 
-	public PVector getLocation()
-	{
-		return location;
-	}
+//	public PVector getLocation()
+//	{
+//		return getViewableState().location;
+//	}
 	
 	public float getDirection()
 	{
-		return theta;
+		return getViewableState().theta;
 	}
 
 	public float getWidth()

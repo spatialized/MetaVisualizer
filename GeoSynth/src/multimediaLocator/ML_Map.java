@@ -246,7 +246,7 @@ public class ML_Map
 				if( pointIsVisible(world, mapLoc, true) )
 				{
 //					Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 4, 4);
-					float radius = (float)Math.sqrt(c.mediaCount) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
+//					float radius = (float)Math.sqrt(c.mediaCount) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
 
 					mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, hudDistance * mapDistance));
 					mapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
@@ -671,7 +671,7 @@ public class ML_Map
 			if (imageDistance < world.viewer.getSettings().getFarViewingDistance() && imageDistance > world.viewer.getSettings().getNearClippingDistance())    // If image is in visible range
 				visible = true;                                              
 
-			if(visible && image.location != null && !image.disabled && !image.hidden)
+			if(visible && image.getState().location != null && !image.getViewableState().disabled && !image.getViewableState().hidden)
 			{
 				float alpha = 255.f;
 				if(!ignoreTime && world.getState().timeFading)
@@ -722,7 +722,7 @@ public class ML_Map
 			if (panoramaDistance < world.viewer.getSettings().getFarViewingDistance() && panoramaDistance > world.viewer.getSettings().getNearClippingDistance())    // If panorama is in visible range
 				visible = true;                                              
 
-			if(visible && panorama.location != null && !panorama.disabled && !panorama.hidden)
+			if(visible && panorama.getViewableState().location != null && !panorama.getViewableState().disabled && !panorama.getViewableState().hidden)
 			{
 				float alpha = 255.f;
 				if(!ignoreTime && world.getState().timeFading)
@@ -773,7 +773,7 @@ public class ML_Map
 			if (videoDistance < world.viewer.getSettings().getFarViewingDistance() && videoDistance > world.viewer.getSettings().getNearClippingDistance())    // If video is in visible range
 				visible = true;                                              
 
-			if(visible && video.location != null && !video.disabled && !video.hidden)
+			if(visible && video.getViewableState().location != null && !video.getViewableState().disabled && !video.getViewableState().hidden)
 			{
 				float alpha = 255.f;
 				if(!ignoreTime && world.getState().timeFading)

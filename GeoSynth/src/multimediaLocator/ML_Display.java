@@ -2247,7 +2247,7 @@ class ML_Display
 			
 			if(count < 60)
 			{
-				PImage image = p.p.loadImage(i.filePath);
+				PImage image = p.p.loadImage(i.getFilePath());
 				p.p.image(image, 0, 0, width, height);
 			}
 			

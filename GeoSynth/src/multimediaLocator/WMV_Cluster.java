@@ -374,7 +374,7 @@ public class WMV_Cluster
 		{
 			WMV_Image curImg = imageList.get(i);
 
-			if (curImg.cluster == id) 			// If the image is assigned to this cluster
+			if (curImg.getViewableState().cluster == id) 			// If the image is assigned to this cluster
 			{
 				newLocation.add(curImg.getCaptureLocation());		// Move cluster towards the image
 				if(!images.contains(curImg.getID()))
@@ -395,7 +395,7 @@ public class WMV_Cluster
 		{
 			WMV_Panorama curPano = panoramaList.get(i);
 
-			if (curPano.cluster == id) 			// If the image is assigned to this cluster
+			if (curPano.getViewableState().cluster == id) 			// If the image is assigned to this cluster
 			{
 				newLocation.add(curPano.getCaptureLocation());		// Move cluster towards the image
 				if(!panoramas.contains(curPano.getID()))
@@ -416,7 +416,7 @@ public class WMV_Cluster
 		{
 			WMV_Video curVid = videoList.get(i);
 
-			if (curVid.cluster == id) 				// If the image is assigned to this cluster
+			if (curVid.getViewableState().cluster == id) 				// If the image is assigned to this cluster
 			{
 				newLocation.add(curVid.getCaptureLocation());	// Move cluster towards the image
 				if(!videos.contains(curVid.getID()))
@@ -689,7 +689,7 @@ public class WMV_Cluster
 		for(int idx : images)
 		{
 			WMV_Image m = imageList.get(idx);
-			float imgAngle = (float)Math.toRadians(m.theta);
+			float imgAngle = (float)Math.toRadians(m.getViewableState().theta);
 			m.setThinningVisibility(false);
 
 			for(int i=0; i<numPerimeterPts; i++)
@@ -717,7 +717,7 @@ public class WMV_Cluster
 		for(int idx : videos)
 		{
 			WMV_Video v = videoList.get(idx);
-			float vidAngle = (float)Math.toRadians(v.theta);
+			float vidAngle = (float)Math.toRadians(v.getViewableState().theta);
 			v.setThinningVisibility(false);
 
 			for(int i=0; i<numPerimeterPts; i++)
@@ -974,9 +974,9 @@ public class WMV_Cluster
 		{
 			WMV_Image curImg = imageList.get(i);
 
-			if (curImg.cluster == cluster.getID()) 				// If the image is assigned to this cluster
+			if (curImg.getViewableState().cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-				curImg.cluster = id;
+				curImg.getViewableState().cluster = id;
 				addImage(curImg);
 			}
 		}
@@ -986,9 +986,9 @@ public class WMV_Cluster
 		{
 			WMV_Panorama curPano = panoramaList.get(i);
 
-			if (curPano.cluster == cluster.getID()) 				// If the image is assigned to this cluster
+			if (curPano.getViewableState().cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-				curPano.cluster = id;
+				curPano.getViewableState().cluster = id;
 				addPanorama(curPano);
 			}
 		}
@@ -998,9 +998,9 @@ public class WMV_Cluster
 		{
 			WMV_Video curVid = videoList.get(i);
 
-			if (curVid.cluster == cluster.getID()) 				// If the image is assigned to this cluster
+			if (curVid.getViewableState().cluster == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-				curVid.cluster = id;
+				curVid.getViewableState().cluster = id;
 				addVideo(curVid);
 			}
 		}

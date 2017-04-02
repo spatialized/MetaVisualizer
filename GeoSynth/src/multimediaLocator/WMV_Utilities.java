@@ -7,14 +7,11 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Scanner;
 
 import org.json.JSONException;
@@ -24,7 +21,6 @@ import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 
 import processing.core.PApplet;
-import processing.core.PImage;
 import processing.core.PVector;
 
 /******************
@@ -41,9 +37,9 @@ public class WMV_Utilities
 	 */
 	float round(float val, int n)
 	{
-		val *= PApplet.pow(10.f, n);
-		val = PApplet.round(val);
-		val /= PApplet.pow(10.f, n);
+		val *= Math.pow(10.f, n);
+		val = Math.round(val);
+		val /= Math.pow(10.f, n);
 		return val;
 	}
 	
@@ -76,7 +72,7 @@ public class WMV_Utilities
 
 	public int roundSecondsToHour(float value)
 	{
-		return PApplet.round(value / 3600.f) * 3600;
+		return Math.round(value / 3600.f) * 3600;
 	}
 
 	/**
@@ -87,7 +83,7 @@ public class WMV_Utilities
 	 */
 	public int roundSecondsToInterval(float value, float interval)
 	{
-		return PApplet.round(PApplet.round(value / interval) * interval);
+		return Math.round(Math.round(value / interval) * interval);
 	}
 	
 	public String getDateAsString(WMV_Date date)
@@ -143,9 +139,9 @@ public class WMV_Utilities
 
 	public String secondsToTimeAsString( float seconds, boolean showSeconds, boolean military )
 	{
-		int hour = PApplet.round(seconds) / 3600;
-		int minute = (PApplet.round(seconds) % 3600) / 60;
-		int second = (PApplet.round(seconds) % 3600) % 60;
+		int hour = Math.round(seconds) / 3600;
+		int minute = (Math.round(seconds) % 3600) / 60;
+		int second = (Math.round(seconds) % 3600) % 60;
 		return getTimeAsString(hour, minute, second, showSeconds, military);
 	}
 	
@@ -535,56 +531,6 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * @param c Calendar date
-	 * @return PVector containing (date, time, dayLength)
-	 * Calculate date, time and dayLength for given Calendar date
-	 */
-//	public float getSimulationTime(Calendar c) 	
-	public float getSimulationTime(ZonedDateTime c) 	
-	{		
-		Location location = new Location("39.9522222", "-75.1641667");
-		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, "America/Los_Angeles");
-
-//		Calendar sr = calculator.getOfficialSunriseCalendarForDate(c);		// Get sunrise time
-//		Calendar ss = calculator.getOfficialSunsetCalendarForDate(c);		// Get sunset time
-
-		/* Adjust for sunset time */
-		int cHour, cMin, cSec;
-//		int srHour, srMin, srSec, ssHour, ssMin, ssSec;
-//		int cDay, cMonth, cYear;
-
-//		cYear = c.get(Calendar.YEAR);
-//		cMonth = c.get(Calendar.MONTH);
-//		cDay = c.get(Calendar.DAY_OF_MONTH);
-		cHour = c.getHour();
-		cMin = c.getMinute();
-		cSec = c.getSecond();
-//		cHour = c.get(Calendar.HOUR_OF_DAY); // Adjust for New York time
-//		cMin = c.get(Calendar.MINUTE);
-//		cSec = c.get(Calendar.SECOND);
-
-		float cTime = cHour * 60 + cMin + cSec/60.f;
-		float time = PApplet.map(cTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
-
-//		int daysInMonth = 0, daysCount = 0;
-
-//		for (int i = 1; i < cMonth; i++) 				// Find number of days in prior months
-//		{
-//			daysInMonth = getDaysInMonth(i, cYear);		// Get days in month
-//			daysCount += daysInMonth;
-//		}
-
-		//		int startYear = 2013;							
-		//		int date = (year - startYear) * 365 + daysCount + day; 		
-//		float date = daysCount + cDay; 						// Days since Jan. 1st							//	 NOTE:	need to account for leap years!		
-
-		//		int endDate = 5000;																					
-//		date = PApplet.constrain(PApplet.map(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
-
-		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
-	}
-	
-	/**
 	 * Find cluster time segments from given media's capture times
 	 * @param times List of times
 	 * @param timePrecision Number of histogram bins
@@ -730,7 +676,7 @@ public class WMV_Utilities
 	 */
 	String angleToCompass(float radians)
 	{
-		float angle = PApplet.degrees(radians);
+		float angle = (float)Math.toDegrees(radians);
 		float sweep = 360.f/8.f;
 
 		angle += sweep*0.5f;
@@ -867,7 +813,6 @@ public class WMV_Utilities
 
 		//		int endDate = 5000;																					
 		date = PApplet.constrain(PApplet.map(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
-
 		time = PApplet.map(sunsetTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
 
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes

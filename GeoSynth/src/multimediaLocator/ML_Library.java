@@ -169,7 +169,6 @@ public class ML_Library
 	public void saveViewerState(WMV_ViewerState state, String newFilePath)		// Testing
 	{
 		  String filePath = newFilePath;
-		  System.out.println("saveViewerState newFilePath:"+newFilePath);
 
 		  final ObjectMapper mapper = JsonFactory.create();
 		  final File file;
@@ -178,16 +177,6 @@ public class ML_Library
 		    mapper.writeValue(file, state);    // Write staff object to file
 		    
 		    WMV_ViewerState newState = mapper.readValue(file, WMV_ViewerState.class);
-//			if(newState.location == null) 
-//				System.out.println("newState.location == NULL");
-//			else
-//				System.out.println("newState.location:"+newState.location);
-//			if(newState.target != null)
-//				System.out.println("newState.target:"+newState.target);
-//			else
-//				System.out.println("newState.target == NULL");
-				
-//			System.out.println("Equal"+ newState.equals(state));
 		  }
 		  catch (Throwable t)
 		  {

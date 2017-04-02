@@ -150,65 +150,65 @@ public class WMV_Model
 		 {
 			 if (init) 	// Initialize high and low longitude
 			 {	
-				 highLongitude = i.gpsLocation.x;
-				 lowLongitude = i.gpsLocation.x;
+				 highLongitude = i.getViewableState().gpsLocation.x;
+				 lowLongitude = i.getViewableState().gpsLocation.x;
 			 }
 			 if (init) 	// Initialize high and low latitude
 			 {	
-				 highLatitude = i.gpsLocation.z;
-				 lowLatitude = i.gpsLocation.z;
+				 highLatitude = i.getViewableState().gpsLocation.z;
+				 lowLatitude = i.getViewableState().gpsLocation.z;
 			 }
 			 if (init) 	// Initialize high and low altitude
 			 {		
-				 highAltitude = i.gpsLocation.y;
-				 lowAltitude = i.gpsLocation.y;
+				 highAltitude = i.getViewableState().gpsLocation.y;
+				 lowAltitude = i.getViewableState().gpsLocation.y;
 				 init = false;
 			 }
 
-			 if (i.gpsLocation.x > highLongitude)
-				 highLongitude = i.gpsLocation.x;
-			 if (i.gpsLocation.x < lowLongitude)
-				 lowLongitude = i.gpsLocation.x;
-			 if (i.gpsLocation.y > highAltitude)
-				 highAltitude = i.gpsLocation.y;
-			 if (i.gpsLocation.y < lowAltitude)
-				 lowAltitude = i.gpsLocation.y;
-			 if (i.gpsLocation.z > highLatitude)
-				 highLatitude = i.gpsLocation.z;
-			 if (i.gpsLocation.z < lowLatitude)
-				 lowLatitude = i.gpsLocation.z;
+			 if (i.getViewableState().gpsLocation.x > highLongitude)
+				 highLongitude = i.getViewableState().gpsLocation.x;
+			 if (i.getViewableState().gpsLocation.x < lowLongitude)
+				 lowLongitude = i.getViewableState().gpsLocation.x;
+			 if (i.getViewableState().gpsLocation.y > highAltitude)
+				 highAltitude = i.getViewableState().gpsLocation.y;
+			 if (i.getViewableState().gpsLocation.y < lowAltitude)
+				 lowAltitude = i.getViewableState().gpsLocation.y;
+			 if (i.getViewableState().gpsLocation.z > highLatitude)
+				 highLatitude = i.getViewableState().gpsLocation.z;
+			 if (i.getViewableState().gpsLocation.z < lowLatitude)
+				 lowLatitude = i.getViewableState().gpsLocation.z;
 		 }
 
 		 for (WMV_Panorama n : panoramas) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
-			 if (n.gpsLocation.x > highLongitude)
-				 highLongitude = n.gpsLocation.x;
-			 if (n.gpsLocation.x < lowLongitude)
-				 lowLongitude = n.gpsLocation.x;
-			 if (n.gpsLocation.y > highAltitude)
-				 highAltitude = n.gpsLocation.y;
-			 if (n.gpsLocation.y < lowAltitude)
-				 lowAltitude = n.gpsLocation.y;
-			 if (n.gpsLocation.z > highLatitude)
-				 highLatitude = n.gpsLocation.z;
-			 if (n.gpsLocation.z < lowLatitude)
-				 lowLatitude = n.gpsLocation.z;
+			 if (n.getViewableState().gpsLocation.x > highLongitude)
+				 highLongitude = n.getViewableState().gpsLocation.x;
+			 if (n.getViewableState().gpsLocation.x < lowLongitude)
+				 lowLongitude = n.getViewableState().gpsLocation.x;
+			 if (n.getViewableState().gpsLocation.y > highAltitude)
+				 highAltitude = n.getViewableState().gpsLocation.y;
+			 if (n.getViewableState().gpsLocation.y < lowAltitude)
+				 lowAltitude = n.getViewableState().gpsLocation.y;
+			 if (n.getViewableState().gpsLocation.z > highLatitude)
+				 highLatitude = n.getViewableState().gpsLocation.z;
+			 if (n.getViewableState().gpsLocation.z < lowLatitude)
+				 lowLatitude = n.getViewableState().gpsLocation.z;
 		 }
 
 		 for (WMV_Video v : videos) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {
-			 if (v.gpsLocation.x > highLongitude)
-				 highLongitude = v.gpsLocation.x;
-			 if (v.gpsLocation.x < lowLongitude)
-				 lowLongitude = v.gpsLocation.x;
-			 if (v.gpsLocation.y > highAltitude)
-				 highAltitude = v.gpsLocation.y;
-			 if (v.gpsLocation.y < lowAltitude)
-				 lowAltitude = v.gpsLocation.y;
-			 if (v.gpsLocation.z > highLatitude)
-				 highLatitude = v.gpsLocation.z;
-			 if (v.gpsLocation.z < lowLatitude)
-				 lowLatitude = v.gpsLocation.z;
+			 if (v.getViewableState().gpsLocation.x > highLongitude)
+				 highLongitude = v.getViewableState().gpsLocation.x;
+			 if (v.getViewableState().gpsLocation.x < lowLongitude)
+				 lowLongitude = v.getViewableState().gpsLocation.x;
+			 if (v.getViewableState().gpsLocation.y > highAltitude)
+				 highAltitude = v.getViewableState().gpsLocation.y;
+			 if (v.getViewableState().gpsLocation.y < lowAltitude)
+				 lowAltitude = v.getViewableState().gpsLocation.y;
+			 if (v.getViewableState().gpsLocation.z > highLatitude)
+				 highLatitude = v.getViewableState().gpsLocation.z;
+			 if (v.getViewableState().gpsLocation.z < lowLatitude)
+				 lowLatitude = v.getViewableState().gpsLocation.z;
 		 }
 
 		 if (debugSettings.field) 							// Display results for debugging

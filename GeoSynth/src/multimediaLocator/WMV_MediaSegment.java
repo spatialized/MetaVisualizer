@@ -101,7 +101,7 @@ public class WMV_MediaSegment
 	{
 		for(WMV_Image image : imageList)				// Set images in segment to hidden
 			if(images.contains(image.getID()))
-				image.hidden = true;
+				image.setHidden(true);
 
 		hidden = true;
 	}
@@ -110,7 +110,7 @@ public class WMV_MediaSegment
 	{
 		for(WMV_Image image : imageList)				// Set images in segment to hidden
 			if(images.contains(image.getID()))
-				image.hidden = false;
+				image.setHidden(false);
 
 		hidden = false;
 	}

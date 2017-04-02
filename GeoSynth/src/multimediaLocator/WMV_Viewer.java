@@ -639,7 +639,7 @@ public class WMV_Viewer
 			int clusterID = f.getTimeline().get(fieldTimeSegment).getClusterID();
 			if(clusterID == state.currentCluster && currentField.getCluster(clusterID).getClusterDistance() < worldSettings.clusterCenterSize)	// Moving to different time in same cluster
 			{
-				boolean success = setCurrentFieldTimeSegment(fieldTimeSegment, true);
+				setCurrentFieldTimeSegment(fieldTimeSegment, true);
 				if(debugSettings.viewer && debugSettings.detailed)
 					System.out.println("Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 			}
@@ -1023,9 +1023,9 @@ public class WMV_Viewer
 		}
 		else
 		{
-			boolean success = setCurrentFieldTimeSegment(state.currentFieldTimeSegment+1, true);
+			setCurrentFieldTimeSegment(state.currentFieldTimeSegment+1, true);
 			if(state.currentFieldTimeSegment >= currentField.getTimeline().size())
-				success = setCurrentFieldTimeSegment(0, true);									// Return to first segment
+				setCurrentFieldTimeSegment(0, true);									// Return to first segment
 		}
 
 		moveToTimeSegmentInField(currentField.getID(), state.currentFieldTimeSegment, teleport, fade);
@@ -1056,24 +1056,24 @@ public class WMV_Viewer
 					if(state.currentFieldDate < 0) 
 					{
 						state.currentFieldDate = currentField.getDateline().size()-1;			// Go to last date
-						boolean success = setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).size()-1, true);		// Go to last segment
+						setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).size()-1, true);		// Go to last segment
 					}
 					else
 					{
-						boolean success = setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).size()-1, true);		// Start at last segment
+						setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).size()-1, true);		// Start at last segment
 					}
 				}	
 				else
 				{
-					boolean success = setCurrentFieldTimelinesSegment(newValue, true);
+					setCurrentFieldTimelinesSegment(newValue, true);
 				}
 			}
 		}
 		else
 		{
-			boolean success = setCurrentFieldTimeSegment(state.currentFieldTimeSegment-1, true);
+			setCurrentFieldTimeSegment(state.currentFieldTimeSegment-1, true);
 			if(state.currentFieldTimeSegment < 0)
-				success = setCurrentFieldTimeSegment(currentField.getTimeline().size()-1, true);
+				setCurrentFieldTimeSegment(currentField.getTimeline().size()-1, true);
 		}
 
 		moveToTimeSegmentInField(currentField.getID(), state.currentFieldTimeSegment, teleport, fade);
@@ -1935,8 +1935,6 @@ public class WMV_Viewer
 		camOrientation.normalize();
 		
 		state.orientationVector = camOrientation;
-		if(state.target == null)
-			PApplet.println("Setting state.target:"+state.target);
 		state.target = getTarget();
 	}
 	
@@ -2130,15 +2128,15 @@ public class WMV_Viewer
 						{
 							case 0:
 								WMV_Image img = currentField.getImage((int)state.turningMediaGoal.x);
-								goalMediaBrightness = img.viewingBrightness;
+								goalMediaBrightness = img.getViewingBrightness();
 								break;
 							case 1:
 								WMV_Panorama pano = currentField.getPanorama((int)state.turningMediaGoal.x);
-								goalMediaBrightness = pano.viewingBrightness;
+								goalMediaBrightness = pano.getViewingBrightness();
 								break;
 							case 2:
 								WMV_Video vid = currentField.getVideo((int)state.turningMediaGoal.x);
-								goalMediaBrightness =  vid.viewingBrightness;
+								goalMediaBrightness =  vid.getViewingBrightness();
 								break;
 						}
 						
@@ -3113,7 +3111,7 @@ public class WMV_Viewer
 				if(i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() 
 				&& i.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
-					if(!i.disabled)
+					if(!i.getViewableState().disabled)
 						closeImages.add(i);							
 				}
 			}
@@ -3124,7 +3122,7 @@ public class WMV_Viewer
 				if(n.getViewingDistance() < settings.farViewingDistance + worldSettings.defaultFocusDistance 
 						&& n.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
-					if(!n.disabled)
+					if(!n.getViewableState().disabled)
 						closePanoramas.add(n);							
 				}
 			}
@@ -3135,7 +3133,7 @@ public class WMV_Viewer
 				if(v.getViewingDistance() <= settings.farViewingDistance + v.getFocusDistance()
 				&& v.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
 				{
-					if(!v.disabled)
+					if(!v.getViewableState().disabled)
 						closeVideos.add(v);							
 				}
 			}
@@ -3272,7 +3270,7 @@ public class WMV_Viewer
 		for(WMV_Image i : currentField.getImages())
 		{
 			if(i.getViewingDistance() <= settings.selectionMaxDistance)
-				if(!i.disabled)
+				if(!i.getViewableState().disabled)
 					possibleImages.add(i);
 		}
 
@@ -3297,7 +3295,7 @@ public class WMV_Viewer
 		for(WMV_Video v : currentField.getVideos())
 		{
 			if(v.getViewingDistance() <= settings.selectionMaxDistance)
-				if(!v.disabled)
+				if(!v.getViewableState().disabled)
 					possibleVideos.add(v);
 		}
 
@@ -3332,7 +3330,7 @@ public class WMV_Viewer
 				if(settings.segmentSelection)											// Segment selection
 				{
 					int segmentID = -1;
-					WMV_Cluster c = currentField.getCluster( currentField.getImage(newSelected).cluster );
+					WMV_Cluster c = currentField.getCluster( currentField.getImage(newSelected).getClusterID() );
 					for(WMV_MediaSegment m : c.segments)
 					{
 //						if(m.getImages().hasValue(newSelected))
@@ -3560,7 +3558,7 @@ public class WMV_Viewer
 		WMV_Field f = currentField;
 
 		for (int i = 0; i < f.getImages().size(); i++) {
-			if (f.getImage(i).visible) {
+			if (f.getImage(i).getViewableState().visible) {
 				float imageAngle = f.getImage(i).getFacingAngle(state.getOrientationVector());
 				if (imageAngle < smallest) {
 					smallest = imageAngle;
@@ -3581,7 +3579,7 @@ public class WMV_Viewer
 		WMV_Field f = currentField;
 
 		for (int i = 0; i < f.getImages().size(); i++) {
-			if (f.getImage(i).visible) {
+			if (f.getImage(i).getViewableState().visible) {
 				float imageDist = f.getImage(i).getViewingDistance();
 				if (imageDist < smallest && imageDist > settings.nearClippingDistance) {
 					smallest = imageDist;
@@ -3603,7 +3601,7 @@ public class WMV_Viewer
 		WMV_Field f = currentField;
 
 		for (int i = 0; i < f.getVideos().size(); i++) {
-			if (f.getVideo(i).visible) {
+			if (f.getVideo(i).getViewableState().visible) {
 				float videoAngle = f.getVideo(i).getFacingAngle(state.getOrientationVector());
 				if (videoAngle < smallest) {
 					smallest = videoAngle;
@@ -3624,7 +3622,7 @@ public class WMV_Viewer
 		WMV_Field f = currentField;
 
 		for (int i = 0; i < f.getVideos().size(); i++) {
-			if (f.getVideo(i).visible) {
+			if (f.getVideo(i).getViewableState().visible) {
 				float videoDist = f.getVideo(i).getViewingDistance();
 				if (videoDist < smallest && videoDist > settings.nearClippingDistance) {
 					smallest = videoDist;

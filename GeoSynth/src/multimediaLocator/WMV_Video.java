@@ -105,7 +105,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 
 		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
 
-		if (!getViewableState().hidden && !getViewableState().disabled && !getViewerSettings().map3DMode) 
+		if (!isHidden() && !isDisabled()) 
 		{
 			if (getViewingBrightness() > 0)
 				if ((video.width > 1) && (video.height > 1))
@@ -114,7 +114,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		else
 			world.p.noFill();                  // Hide video if it isn't visible
 
-		if(getViewableState().visible && getWorldState().showModel && !getViewableState().hidden && !getViewableState().disabled)
+		if(getViewableState().visible && getWorldState().showModel && !isHidden() && !!isDisabled())
 			displayModel(world);
 	}
 
@@ -375,17 +375,15 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		if(state.vertices.length == 0) setDisabled(true);
 		if(state.sVertices.length == 0) setDisabled(true);
 		
-//		if(getViewerSettings().orientationMode)	
-//			state.vertices = translateVertices(vertices, p.p.viewer.getLocation());
+//		if(getViewerSettings().orientationMode)	state.vertices = translateVertices(vertices, p.p.viewer.getLocation());
 //		else
-			state.vertices = translateVertices(state.vertices, getCaptureLocation());                       // Move image to photo capture location   
+		state.vertices = translateVertices(state.vertices, getCaptureLocation());                       // Move image to photo capture location   
 
-			state.disp = getDisplacementVector();
+		state.disp = getDisplacementVector();
 		state.vertices = translateVertices(state.vertices, state.disp);          // Translate image vertices from capture to viewing location
 
 		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );	// Location in Path Mode
-		moveLocation(state.disp);
-//		vState.location.add(disp);     													 
+		addVectorToLocation(state.disp);
 	}
 	
 	public PVector getDisplacementVector()

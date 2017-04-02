@@ -1,19 +1,11 @@
 package multimediaLocator;
 
-//import processing.core.PImage;
-//import processing.core.PVector;
-
 /*********************************
  * @author davidgordon
  * The current viewer settings
  */
 public class WMV_ViewerSettings 
 {
-//	WMV_Viewer v;
-//	public PImage IMAGETEST;
-//	public PVector PVECTORTEST = new PVector(0.f, 1.f, 2.f);
-//	public PVector PVECTORTEST2 = new PVector(0.1f, 1.1f, 2.1f);
-
 	/* Camera */
 	public final float initFieldOfView = (float)Math.PI * 0.375f;	// Camera field of view
 	public float fieldOfView = initFieldOfView; 				// Initial camera field of view
@@ -34,7 +26,7 @@ public class WMV_ViewerSettings
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
-//	public final int maxVisiblePhotos = 50;					// Maximum visible images at one time
+//	public final int maxVisibleImages = 50;					// Maximum visible images at one time
 //	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
 //	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
 	
@@ -82,7 +74,7 @@ public class WMV_ViewerSettings
 	public boolean multiSelection = false;				// User can select multiple images for stitching
 	public boolean segmentSelection = false;			// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
-	public boolean map3DMode = false;					// 3D Map Mode
+//	public boolean map3DMode = false;					// 3D Map Mode
 
 	/* Interaction */
 	public int mediaDensityThreshold = 12;				// Number of images or videos counted as high density
@@ -166,7 +158,7 @@ public class WMV_ViewerSettings
 		multiSelection = false;				// User can select multiple images for stitching
 		segmentSelection = false;			// Select image segments at a time
 		mouseNavigation = false;			// Mouse navigation
-		map3DMode = false;					// 3D Map Mode		-- Unused
+//		map3DMode = false;					// 3D Map Mode		-- Unused
 //		videoMode = false;					// Highlights videos by dimming other media types	-- Unused
 
 		/* Interaction */
@@ -174,8 +166,9 @@ public class WMV_ViewerSettings
 		lockToClusterWaitLength = 100;
 	
 		/* Clusters */
-		maxVisibleClusters = 2;					// Maximum visible clusters in Orientation Mode
-		
+		maxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode
+		minVisibleClusters = 1;							// Maximum visible clusters in Orientation Mode	
+
 //		TESTINTLIST.append(1);
 //		TESTINTLIST.append(3);
 //		TESTINTLIST.append(2);

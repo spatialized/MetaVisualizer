@@ -188,10 +188,11 @@ public class WMV_Field
 				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(!m.verticesAreNull() && (m.isFading() || m.getViewableState().fadingFocusDistance))
 				{
-					if(m.getAssociatedCluster() > clusters.size())
-						System.out.println("Error in Field.display()... updateTimeBrightness: image id:"+m.getID()+" .getAssociatedCluster() ("+m.getAssociatedCluster()+") > clusters.size():"+clusters.size()+"!!");
-					else
-						m.updateTimeBrightness(getCluster(m.getAssociatedCluster()), timeline, utilities);
+					if(worldState.timeFading)
+					{
+						if(m.getAssociatedCluster() > clusters.size()) System.out.println("Error in Field.display()... updateTimeBrightness: image id:"+m.getID()+" .getAssociatedCluster() ("+m.getAssociatedCluster()+") > clusters.size():"+clusters.size()+"!!");
+						else m.updateTimeBrightness(getCluster(m.getAssociatedCluster()), timeline, utilities);
+					}
 					m.update(p.p, utilities);  		// Update geometry + visibility
 				}
 
@@ -215,7 +216,11 @@ public class WMV_Field
 				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
-					n.updateTimeBrightness(clusters.get(n.getAssociatedCluster()), timeline, utilities);
+					if(worldState.timeFading)
+					{
+						if(n.getAssociatedCluster() > clusters.size()) System.out.println("Error in Field.display()... updateTimeBrightness: image id:"+n.getID()+" .getAssociatedCluster() ("+n.getAssociatedCluster()+") > clusters.size():"+clusters.size()+"!!");
+						else n.updateTimeBrightness(clusters.get(n.getAssociatedCluster()), timeline, utilities);
+					}
 					n.update(p.p);  	// Update geometry + visibility
 					n.draw(p); 		// Display panorama
 					state.panoramasVisible++;

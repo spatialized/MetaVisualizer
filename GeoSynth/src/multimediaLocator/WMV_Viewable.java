@@ -648,7 +648,7 @@ public abstract class WMV_Viewable
 		vState.location = newLocation;
 	}
 	
-	public void moveLocation(PVector disp)
+	public void addVectorToLocation(PVector disp)
 	{
 		vState.location.add(disp);     													 
 	}

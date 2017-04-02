@@ -600,7 +600,7 @@ public class WMV_Cluster
 	 */
 	public void analyzeMediaDirections(ArrayList<WMV_Image> imageList, ArrayList<WMV_Video> videoList)
 	{
-		if(debugSettings.cluster || debugSettings.field)
+		if(debugSettings.cluster && debugSettings.detailed)
 			System.out.println("analyzeAngles()... cluster images.size():"+state.images.size());
 		float thinningAngle = viewerSettings.thinningAngle;									// Angle to thin images and videos by
 		int numPerimeterPts = Math.round((float)Math.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible

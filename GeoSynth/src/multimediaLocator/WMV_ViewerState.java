@@ -14,7 +14,7 @@ import processing.core.PVector;
 public class WMV_ViewerState 
 {
 	/* Time */
-	public int currentFieldTimeSegment = 0;			// Current time segment in field timeline
+	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
 	public int currentFieldDate = 0;					// Current date in field dateline
 	
@@ -22,20 +22,19 @@ public class WMV_ViewerState
 	public int currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
 	public int nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
 	public boolean lookAtCurrentMedia = false;			// In Single Time Mode, whether to turn and look at current media  -- bugs
-	public int nearbyClusterTimelineMediaCount = 0;	// Number of media in nearbyClusterTimeline
+	public int nearbyClusterTimelineMediaCount = 0;		// Number of media in nearbyClusterTimeline
 	
 	/* Navigation */
 	public boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
-	public boolean movingToCluster = false;			// Moving to cluster 
+	public boolean movingToCluster = false;				// Moving to cluster 
 	public PVector pathGoal;							// Next goal point for camera in navigating from memory
 	public boolean following = false;					// Is the camera currently navigating from memory?
-	public int pathLocationIdx;						// Index of current cluster in memory
-	public boolean movingToTimeSegment = false;		// Moving / teleporting to target time segment
+	public int pathLocationIdx;							// Index of current cluster in memory
+	public boolean movingToTimeSegment = false;			// Moving / teleporting to target time segment
 	public int timeSegmentTarget = -1;					// Field time segment goal			
 
 	/* Clusters */
 	public List<Integer> clustersVisible;						// Clusters visible to camera in Orientation Mode
-//	public IntList clustersVisible;						// Clusters visible to camera in Orientation Mode
 	public int field = 0;								// Current field
 	public int currentCluster = 0;						// Cluster currently in view
 	public int lastCluster = -1;						// Last cluster visited
@@ -218,11 +217,6 @@ public class WMV_ViewerState
 	{
 		return clustersVisible;
 	}
-//	public IntList getClustersVisible()
-//	{
-//		return clustersVisible;
-//	}
-	
 	
 	/**
 	 * @return Current distance at which a cluster is considered nearby

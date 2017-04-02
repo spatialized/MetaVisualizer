@@ -138,7 +138,7 @@ public class WMV_Panorama extends WMV_Viewable
 		{
 			if (getViewingBrightness() > 0)
 			{
-				if(texture.width > 0 && !getViewerSettings().map3DMode)		// If image has been loaded
+				if(texture.width > 0)		// If image has been loaded
 				{
 					drawPanorama(world);
 				}

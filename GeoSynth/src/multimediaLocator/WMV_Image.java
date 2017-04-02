@@ -9,7 +9,7 @@ import processing.core.PVector;
 
 /************************************
  * @author davidgordon
- * A rectangular image in 3D virtual space
+ * Rectangular image in 3D virtual space
  */
 
 class WMV_Image extends WMV_Viewable						 
@@ -35,7 +35,7 @@ class WMV_Image extends WMV_Viewable
 		state.imageHeight = newHeight;
 		
 		state.vertices = new PVector[4]; 
-		state.vertices = new PVector[4]; 
+		state.sVertices = new PVector[4]; 
 
 		if(newFocusDistance == -1.f) state.focusDistance = state.defaultFocusDistance;
 		else state.focusDistance = newFocusDistance;
@@ -63,32 +63,31 @@ class WMV_Image extends WMV_Viewable
 	{
 		if(getViewableState().showMetadata) displayMetadata(world);
 
-		float distanceBrightnessFactor; 						// Fade with distance
 		float angleBrightnessFactor;							// Fade with angle
-
-		float iBrightness = getFadingBrightness();					
-		iBrightness *= getViewerSettings().userBrightness;
+		float brightness = getFadingBrightness();					
+		brightness *= getViewerSettings().userBrightness;
 		
-		distanceBrightnessFactor = getDistanceBrightness(); 
-		iBrightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+		float distanceBrightnessFactor = getDistanceBrightness(); 
+		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
 
 		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
-			iBrightness *= getTimeBrightness(); 					// Fade iBrightness based on time
+			brightness *= getTimeBrightness(); 					// Fade iBrightness based on time
 
 		if( getViewerSettings().angleFading )
 		{
 			float imageAngle = getFacingAngle(getViewerState().getOrientationVector());
 			angleBrightnessFactor = getAngleBrightness(imageAngle);                 // Fade out as turns sideways or gets too far / close
-			iBrightness *= angleBrightnessFactor;
+			brightness *= angleBrightnessFactor;
 		}
 
-		setViewingBrightness( PApplet.map(iBrightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
+		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
 		
 		if (!isHidden() && !isDisabled()) 
 		{
 			if (getViewingBrightness() > 0)
 			{
-				if(image.width > 0 && !getViewerSettings().map3DMode)		// If image has been loaded
+//				if(image.width > 0 && !getViewerSettings().map3DMode)		// If image has been loaded
+				if(image.width > 0)		// If image has been loaded
 					displayImage(world);          // Draw the image 
 			}
 		} 
@@ -111,14 +110,7 @@ class WMV_Image extends WMV_Viewable
 		catch(RuntimeException ex)
 		{
 			if(getDebugSettings().image || getDebugSettings().main)
-			{
 				System.out.println("ERROR with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
-//				System.out.println(" mask.width:"+mask.width);
-//				System.out.println(" mask.height:"+mask.height);
-//				System.out.println(" main.imageID:"+getID());
-//				System.out.println(" main.width:"+image.width);
-//				System.out.println(" main.height:"+image.height);
-			}
 		}
 		
 		return result;
@@ -372,10 +364,10 @@ class WMV_Image extends WMV_Viewable
 
 		if(getViewerSettings().orientationMode)
 		{
-			world.p.vertex(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, 0, 0);         // UPPER LEFT      
-			world.p.vertex(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, 1, 0);         // UPPER RIGHT           
-			world.p.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, 1, 1);			// LOWER RIGHT        
-			world.p.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, 1);         // LOWER LEFT
+			world.p.vertex(state.sVertices[0].x, state.sVertices[0].y, state.sVertices[0].z, 0, 0);         // UPPER LEFT      
+			world.p.vertex(state.sVertices[1].x, state.sVertices[1].y, state.sVertices[1].z, 1, 0);         // UPPER RIGHT           
+			world.p.vertex(state.sVertices[2].x, state.sVertices[2].y, state.sVertices[2].z, 1, 1);			// LOWER RIGHT        
+			world.p.vertex(state.sVertices[3].x, state.sVertices[3].y, state.sVertices[3].z, 0, 1);         // LOWER LEFT
 		}
 		else
 		{
@@ -475,26 +467,39 @@ class WMV_Image extends WMV_Viewable
 	public void calculateVertices()									
 	{
 		state.vertices = initializeVertices();					// Initialize Normal Mode state.vertices
-		state.vertices = initializeVertices();					// Initialize Orientation Mode (static) state.vertices
+		state.sVertices = initializeVertices();					// Initialize Orientation Mode (static) state.vertices
 		
 		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, getViewableState().verticalAxis);        	 // Rotate around X axis
 		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
 		
-		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, getViewableState().verticalAxis);        // Rotate around X axis
-		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
+		if (state.phi != 0.) state.sVertices = rotateVertices(state.sVertices, -state.phi, getViewableState().verticalAxis);        // Rotate around X axis
+		if (getTheta() != 0.) state.sVertices = rotateVertices(state.sVertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
 		
 		if(state.vertices.length == 0) setDisabled(true);
-		if(state.vertices.length == 0) setDisabled(true);
+		if(state.sVertices.length == 0) setDisabled(true);
 		
 		state.vertices = translateVertices(state.vertices, getCaptureLocation());               // Move image to photo capture location   
-		
+
 		state.displacement = getDisplacementVector();
 		state.vertices = translateVertices(state.vertices, state.displacement);          // Translate image state.vertices from capture to viewing location
-		state.vertices = translateVertices(state.vertices, state.displacement);
+		state.sVertices = translateVertices(state.sVertices, state.displacement);          // Translate image state.vertices from capture to viewing location
+
+//		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, getViewableState().verticalAxis);        	 // Rotate around X axis
+//		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
+//		
+//		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, getViewableState().verticalAxis);        // Rotate around X axis
+//		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
+//		
+//		if(state.vertices.length == 0) setDisabled(true);
+//		if(state.vertices.length == 0) setDisabled(true);
+//		
+//		state.vertices = translateVertices(state.vertices, getCaptureLocation());               // Move image to photo capture location   
+//		
+//		state.displacement = getDisplacementVector();
+//		state.vertices = translateVertices(state.vertices, state.displacement);          // Translate image state.vertices from capture to viewing location
 		
 		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
-		moveLocation(state.displacement);     													 
-//		vState.location.add(state.disp);     													 
+		addVectorToLocation(state.displacement);     													 
 	}
 	
 	public PVector getDisplacementVector()

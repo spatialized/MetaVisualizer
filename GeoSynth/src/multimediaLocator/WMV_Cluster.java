@@ -884,7 +884,7 @@ public class WMV_Cluster
 	 */
 	void absorbCluster(WMV_Cluster cluster, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
 	{
-//		if(debugSettings.cluster)
+		if(debugSettings.cluster)
 			System.out.println("Merging cluster "+getID()+" with "+cluster.getID());
 
 		/* Find images associated with cluster */

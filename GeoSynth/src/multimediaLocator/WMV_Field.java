@@ -767,7 +767,7 @@ public class WMV_Field
 		 }	
 
 		 int removed = before - result.size();
-//		 if(debugSettings.field) 
+		 if(debugSettings.field) 
 			 System.out.println("cleanupClusters()... Removed "+removed+" clusters from field #"+getID());
 
 		 return result;
@@ -1168,7 +1168,8 @@ public class WMV_Field
 		/* K-means Clustering */
 		if (model.getState().validMedia > 1) 							// If there are more than 1 media point
 		{
-			System.out.println("Running k-means clustering... model.validMedia:"+model.getState().validMedia);
+			if(debugSettings.field)
+				System.out.println("Running k-means clustering... model.validMedia:"+model.getState().validMedia);
 			initializeKMeansClusters(numClusters);		// Create initial clusters at random image locations	
 			refineKMeansClusters(epsilon, refinement);	// Refine clusters over many iterations
 			createSingleClusters();						// Create clusters for single media points
@@ -1192,7 +1193,6 @@ public class WMV_Field
 	 */	
 	void initializeKMeansClusters( int numClusters )
 	{
-		System.out.println("initializeKMeansClusters...");
 		Random rng = new Random(System.currentTimeMillis());
 		
 		List<Integer> addedImages = new ArrayList<Integer>();			// Images already added to clusters; should include all images at end

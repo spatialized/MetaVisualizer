@@ -14,12 +14,12 @@ import processing.core.PVector;
 public class WMV_Cluster 
 {
 	/* Classes */
-	private ML_DebugSettings debugSettings;		// Update debug settings
-	private WMV_WorldSettings worldSettings;	// Update world settings
-	private WMV_WorldState worldState;			// Update world state
-	private WMV_ViewerSettings viewerSettings;	// Update viewer settings
-	private WMV_ViewerState viewerState;		// Update viewer state
-	private WMV_Utilities utilities;					// Utility methods
+	private ML_DebugSettings debugSettings;		// Debug settings
+	private WMV_WorldSettings worldSettings;	// World settings
+	private WMV_WorldState worldState;			// World state
+	private WMV_ViewerSettings viewerSettings;	// Viewer settings
+	private WMV_ViewerState viewerState;		// Viewer state
+	private WMV_Utilities utilities;			// Utility methods
 	private WMV_ClusterState state;		// Update viewer state
 
 	/* Time */
@@ -35,19 +35,19 @@ public class WMV_Cluster
 	public ArrayList<WMV_MediaSegment> segments;		// List of arrays corresponding to each segment of images
 
 	WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
-				 ML_DebugSettings newDebugSettings, int _clusterID, float _x, float _y, float _z) 
+				 ML_DebugSettings newDebugSettings, int _clusterID, float newX, float newY, float newZ) 
 	{
 		state = new WMV_ClusterState();
 		
-		state.location = new PVector(_x, _y, _z);
+		state.location = new PVector(newX, newY, newZ);
 		state.id = _clusterID;
 
 		utilities = new WMV_Utilities();
 
-		worldSettings = newWorldSettings;	// Update world settings
-		worldState = newWorldState;	// Update world settings
-		viewerSettings = newViewerSettings;	// Update viewer settings
-		debugSettings = newDebugSettings;
+		if(newWorldSettings != null) worldSettings = newWorldSettings;	// Update world settings
+		if(newWorldState != null) worldState = newWorldState;	// Update world settings
+		if(newViewerSettings != null) viewerSettings = newViewerSettings;	// Update viewer settings
+		if(newDebugSettings != null) debugSettings = newDebugSettings;
 		
 		state.images = new ArrayList<Integer>();
 		state.panoramas = new ArrayList<Integer>();
@@ -1482,6 +1482,11 @@ public class WMV_Cluster
 		}
 	}
 	
+	public void setState( WMV_ClusterState newClusterState )
+	{
+		state = newClusterState;
+	}
+
 	public WMV_ClusterState getState()
 	{
 		return state;

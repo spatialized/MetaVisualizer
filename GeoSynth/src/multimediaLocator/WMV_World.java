@@ -92,8 +92,9 @@ public class WMV_World
 	{
 		if(state.startedRunning)											// If simulation just started running
 		{
-			viewer.enterField(fields.get(0));							// Update navigation
-			viewer.update(settings, state);							// Update navigation
+			viewer.enterField(fields.get(0));								// Update navigation
+			viewer.updateState(settings, state);
+			viewer.update();												// Update navigation
 			viewer.moveToFirstTimeSegment(false);
 			state.startedRunning = false;
 		}
@@ -245,7 +246,7 @@ public class WMV_World
 
 		}
 		
-		viewer.update(settings, state);							// Update navigation
+		viewer.update();							// Update navigation
 		if(p.display.displayView == 0)	
 			if(p.state.running)
 				viewer.draw();						// Send the 3D camera view to the screen
@@ -1312,6 +1313,65 @@ public class WMV_World
 			}
 		}
 	}
+
+	public void setBlurMask(WMV_Image image, int blurMaskID)
+	{
+		WMV_Field f = getCurrentField();
+		switch(blurMaskID)
+		{
+		case 0:
+			f.setImageBlurMask(image, blurMaskLeftTop);
+			break;
+		case 1:
+			f.setImageBlurMask(image, blurMaskLeftCenter);
+			break;
+		case 2:
+			f.setImageBlurMask(image, blurMaskLeftBottom);
+			break;
+		case 3:
+			f.setImageBlurMask(image, blurMaskLeftBoth);
+			break;
+		
+		case 4:
+			f.setImageBlurMask(image, blurMaskCenterTop);
+			break;
+		case 5:
+			f.setImageBlurMask(image, blurMaskCenterCenter);
+			break;
+		case 6:
+			f.setImageBlurMask(image, blurMaskCenterBottom);
+			break;
+		case 7:
+			f.setImageBlurMask(image, blurMaskCenterBoth);
+			break;
+	
+		case 8:
+			f.setImageBlurMask(image, blurMaskRightTop);
+			break;
+		case 9:
+			f.setImageBlurMask(image, blurMaskRightCenter);
+			break;
+		case 10:
+			f.setImageBlurMask(image, blurMaskRightBottom);
+			break;
+		case 11:
+			f.setImageBlurMask(image, blurMaskRightBoth);
+			break;
+	
+		case 12:
+			f.setImageBlurMask(image, blurMaskBothTop);
+			break;
+		case 13:
+			f.setImageBlurMask(image, blurMaskBothCenter);
+			break;
+		case 14:
+			f.setImageBlurMask(image, blurMaskBothBottom);
+			break;
+		case 15:
+			f.setImageBlurMask(image, blurMaskBothBoth);
+			break;
+		}
+	}
 	
 	public void setBlurMasks()
 	{
@@ -1319,60 +1379,7 @@ public class WMV_World
 		for(WMV_Image image : f.getImages())
 		{
 			int bmID = image.getState().blurMaskID;
-			switch(bmID)
-			{
-			case 0:
-				f.setImageBlurMask(image, blurMaskLeftTop);
-				break;
-			case 1:
-				f.setImageBlurMask(image, blurMaskLeftCenter);
-				break;
-			case 2:
-				f.setImageBlurMask(image, blurMaskLeftBottom);
-				break;
-			case 3:
-				f.setImageBlurMask(image, blurMaskLeftBoth);
-				break;
-			
-			case 4:
-				f.setImageBlurMask(image, blurMaskCenterTop);
-				break;
-			case 5:
-				f.setImageBlurMask(image, blurMaskCenterCenter);
-				break;
-			case 6:
-				f.setImageBlurMask(image, blurMaskCenterBottom);
-				break;
-			case 7:
-				f.setImageBlurMask(image, blurMaskCenterBoth);
-				break;
-		
-			case 8:
-				f.setImageBlurMask(image, blurMaskRightTop);
-				break;
-			case 9:
-				f.setImageBlurMask(image, blurMaskRightCenter);
-				break;
-			case 10:
-				f.setImageBlurMask(image, blurMaskRightBottom);
-				break;
-			case 11:
-				f.setImageBlurMask(image, blurMaskRightBoth);
-				break;
-		
-			case 12:
-				f.setImageBlurMask(image, blurMaskBothTop);
-				break;
-			case 13:
-				f.setImageBlurMask(image, blurMaskBothCenter);
-				break;
-			case 14:
-				f.setImageBlurMask(image, blurMaskBothBottom);
-				break;
-			case 15:
-				f.setImageBlurMask(image, blurMaskBothBoth);
-				break;
-			}
+			setBlurMask(image, bmID);
 		}
 	}
 }

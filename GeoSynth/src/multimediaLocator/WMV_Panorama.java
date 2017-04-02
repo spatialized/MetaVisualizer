@@ -516,6 +516,11 @@ public class WMV_Panorama extends WMV_Viewable
 		}
 	}
 
+	public void setState(WMV_PanoramaState newState)
+	{
+		state = newState;
+	}
+	
 	public WMV_PanoramaState getState()
 	{
 		return state;

@@ -42,10 +42,10 @@ public class WMV_FieldState
 	public int disassociatedVideos = 0;
 
 	/* Data */
-	private ArrayList<WMV_ClusterState> clusters;				// Clusters (spatial groupings) of media 
-	private ArrayList<WMV_ImageState> images; 					// All images in this field
-	private ArrayList<WMV_PanoramaState> panoramas; 			// All panoramas in this field
-	private ArrayList<WMV_VideoState> videos; 					// All videos in this field
+	public ArrayList<WMV_ClusterState> clusters;			// Clusters (spatial groupings) of media 
+	public ArrayList<WMV_ImageState> images; 				// All images in this field
+	public ArrayList<WMV_PanoramaState> panoramas; 			// All panoramas in this field
+	public ArrayList<WMV_VideoState> videos; 				// All videos in this field
 	
 	WMV_FieldState()
 	{

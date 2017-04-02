@@ -2638,6 +2638,21 @@ public class WMV_Field
 		state.setFieldData(clusterStates, imageStates, panoramaStates, videoStates);
 	}
 	
+	public WMV_Cluster getClusterFromClusterState(WMV_ClusterState clusterState)
+	{
+//		WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
+//				 ML_DebugSettings newDebugSettings, int _clusterID, float _x, float _y, float _z) 
+
+		WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, debugSettings, clusterState.id, 
+												  clusterState.location.x, clusterState.location.y, clusterState.location.z);
+		
+		newCluster.setState( clusterState );
+		
+		// DO ADDITIONAL WORK HERE 
+		
+		return newCluster;
+	}
+	
 	public WMV_Image getImageFromImageState(WMV_ImageState imageState)
 	{
 		WMV_Image newImage = new WMV_Image( imageState.vState.id, null, imageState.vState.mediaType, imageState.vState.name, imageState.vState.filePath,
@@ -2645,6 +2660,8 @@ public class WMV_Field
 											imageState.phi, imageState.rotation, imageState.focusDistance, imageState.sensorSize,
 											imageState.vState.cameraModel, imageState.imageWidth, imageState.imageHeight, imageState.vState.brightness,
 											imageState.vState.dateTime, imageState.vState.timeZone);
+
+		newImage.setState( imageState );
 
 		// DO ADDITIONAL WORK HERE 
 		
@@ -2656,6 +2673,8 @@ public class WMV_Field
 		WMV_Panorama newPanorama = new WMV_Panorama( panoState.vState.id, panoState.vState.mediaType, panoState.vState.name, panoState.vState.filePath,
 									panoState.vState.gpsLocation, panoState.vState.theta, panoState.phi, panoState.vState.cameraModel, panoState.imageWidth, 
 									panoState.imageHeight, panoState.vState.brightness, panoState.vState.dateTime, panoState.vState.timeZone, panoState.vState.location, null);
+
+		newPanorama.setState( panoState );
 
 		// DO ADDITIONAL WORK HERE 
 
@@ -2669,14 +2688,16 @@ public class WMV_Field
 								videoState.focusDistance, videoState.vState.cameraModel, videoState.videoWidth, videoState.videoHeight, videoState.vState.brightness, 
 								videoState.vState.dateTime, videoState.vState.timeZone );
 
+		newVideo.setState( videoState );
+
 		// DO ADDITIONAL WORK HERE 
 		
 		return newVideo;
 	}
 	
-//	public WMV_Image getSoundFromSoundState(WMV_ImageState)
+//	public WMV_Image getSoundFromSoundState(WMV_SoundState)
 //	{
-//		
+//		newSound.setState( soundState );
 //		return null;
 //	}
 	

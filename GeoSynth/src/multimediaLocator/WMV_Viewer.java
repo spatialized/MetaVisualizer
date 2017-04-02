@@ -131,10 +131,8 @@ public class WMV_Viewer
 	/*** 
 	 * Update viewer movement and interaction each frame
 	 */
-	void update(WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState)
+	void update()
 	{
-		updateState(currentWorldSettings, currentWorldState);
-		
 		if(!settings.orientationMode)
 			state.location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
 		

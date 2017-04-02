@@ -1256,6 +1256,11 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			return false;
 	}
 
+	 public void setState(WMV_VideoState newState)
+	 {
+		 state = newState;
+	 }
+	 
 	public WMV_VideoState getState()
 	{
 		return state;

@@ -59,5 +59,4 @@ public class WMV_ClusterState
 	 	  highVideoDate = -1000000, lowVideoDate = 1000000;
 
 	WMV_ClusterState(){}
-	
 }

@@ -181,12 +181,12 @@ public class WMV_Field
 
 		for (WMV_Image m : images) 		// Update and display images
 		{
-			if(!m.getViewableState().disabled)
+			if(!m.getMediaState().disabled)
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
 				
 				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
-				if(!m.verticesAreNull() && (m.isFading() || m.getViewableState().fadingFocusDistance))
+				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
 				{
 					if(worldState.timeFading)
 					{
@@ -198,7 +198,7 @@ public class WMV_Field
 
 				if (distance < vanishingPoint && distance > viewerSettings.nearClippingDistance && !m.verticesAreNull()) 	// Visible	
 				{
-					if(!m.getViewableState().fadingFocusDistance && !m.isFading()) 
+					if(!m.getMediaState().fadingFocusDistance && !m.isFading()) 
 						m.update(p.p, utilities);  	// Update geometry + visibility
 					
 					m.draw(p); 		// Draw image
@@ -209,7 +209,7 @@ public class WMV_Field
 		
 		for (WMV_Panorama n : panoramas)  	// Update and display panoramas
 		{
-			if(!n.getViewableState().disabled)
+			if(!n.getMediaState().disabled)
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
 
@@ -234,7 +234,7 @@ public class WMV_Field
 
 		for (WMV_Video v : videos)  		// Update and display videos
 		{
-			if(!v.getViewableState().disabled)
+			if(!v.getMediaState().disabled)
 			{
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
 				boolean nowVisible = (distance < vanishingPoint);
@@ -552,7 +552,7 @@ public class WMV_Field
 
 		 for (WMV_Image i : images) 			// Find closest cluster for each image
 		 {
-			 if(i.getViewableState().cluster == -1)				// Create cluster for each single image
+			 if(i.getMediaState().cluster == -1)				// Create cluster for each single image
 			 {
 				 addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, i.getCaptureLocation().x, i.getCaptureLocation().y, i.getCaptureLocation().z));
 				 i.setAssociatedCluster(newClusterID);
@@ -563,7 +563,7 @@ public class WMV_Field
 
 		 for (WMV_Panorama n : panoramas) 						// Find closest cluster for each image
 		 {
-			 if(n.getViewableState().cluster == -1)				// Create cluster for each single image
+			 if(n.getMediaState().cluster == -1)				// Create cluster for each single image
 			 {
 				 addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, n.getCaptureLocation().x, n.getCaptureLocation().y, n.getCaptureLocation().z));
 				 n.setAssociatedCluster(newClusterID);
@@ -575,7 +575,7 @@ public class WMV_Field
 
 		 for (WMV_Video v : videos) 						// Find closest cluster for each image
 		 {
-			 if(v.getViewableState().cluster == -1)				// Create cluster for each single image
+			 if(v.getMediaState().cluster == -1)				// Create cluster for each single image
 			 {
 				 addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, v.getCaptureLocation().x, v.getCaptureLocation().y, v.getCaptureLocation().z));
 				 v.setAssociatedCluster(newClusterID);
@@ -743,16 +743,16 @@ public class WMV_Field
 				 c.setID(count);
 
 				 for(WMV_Image i : images)
-					 if(i.getViewableState().cluster == oldID)
+					 if(i.getMediaState().cluster == oldID)
 						 i.setAssociatedCluster(count);
 				 for(WMV_Panorama n : panoramas)
-					 if(n.getViewableState().cluster == oldID)
+					 if(n.getMediaState().cluster == oldID)
 						 n.setAssociatedCluster(count);
 				 for(WMV_Video v : videos)
-					 if(v.getViewableState().cluster == oldID)
+					 if(v.getMediaState().cluster == oldID)
 						 v.setAssociatedCluster(count);
 				 for(WMV_Sound s : getSounds())
-					 if(s.getViewableState().cluster == oldID)
+					 if(s.getMediaState().cluster == oldID)
 						 s.setAssociatedCluster(count);
 
 				 for(WMV_TimeSegment t:c.getTimeline())
@@ -783,21 +783,21 @@ public class WMV_Field
 		 for (int i = 0; i < videos.size(); i++) 		
 		 {
 			 WMV_Video v = getVideo(i);
-			 if(!v.getViewableState().disabled)
+			 if(!v.getMediaState().disabled)
 			 {
 				 int id = v.getImagePlaceholder();				// Find associated image with each video
 
 				 if(id != -1)
 				 {
-					 v.getViewableState().cluster = getImage(id).getViewableState().cluster;	// Set video cluster to cluster of associated image
-					 getCluster(v.getViewableState().cluster).getState().hasVideo = true;	// Set cluster video property to true
+					 v.getMediaState().cluster = getImage(id).getMediaState().cluster;	// Set video cluster to cluster of associated image
+					 getCluster(v.getMediaState().cluster).getState().hasVideo = true;	// Set cluster video property to true
 					 if(debugSettings.video)
-						 System.out.println("Image placeholder for video: "+i+" is:"+id+" getCluster(v.cluster).video:"+getCluster(v.getViewableState().cluster).getState().hasVideo);
+						 System.out.println("Image placeholder for video: "+i+" is:"+id+" getCluster(v.cluster).video:"+getCluster(v.getMediaState().cluster).getState().hasVideo);
 				 }
 				 else
 				 {
 					 if(debugSettings.video)
-						 System.out.println("No image placeholder found for video: "+i+" getCluster(v.cluster).video:"+getCluster(v.getViewableState().cluster).getState().hasVideo);
+						 System.out.println("No image placeholder found for video: "+i+" getCluster(v.cluster).video:"+getCluster(v.getMediaState().cluster).getState().hasVideo);
 					 v.setDisabled(true);
 				 }
 			 }
@@ -849,13 +849,13 @@ public class WMV_Field
 		if(debugSettings.field) System.out.println("Fading out media...");
 
 		for (WMV_Image i : images)
-			i.getViewableState().fadingBrightness = 0;
+			i.getMediaState().fadingBrightness = 0;
 		
 		for (WMV_Panorama n : panoramas) 
-			n.getViewableState().fadingBrightness = 0;
+			n.getMediaState().fadingBrightness = 0;
 
 		for (WMV_Video v : videos) 
-			v.getViewableState().fadingBrightness = 0;
+			v.getMediaState().fadingBrightness = 0;
 	}
 
 	/**
@@ -1006,17 +1006,17 @@ public class WMV_Field
 		boolean fading = false;
 		
 		for(WMV_Image i : images)
-			if(i.isFading() && !i.getViewableState().disabled)
+			if(i.isFading() && !i.getMediaState().disabled)
 				fading = true;
 
 		if(!fading)
 			for(WMV_Panorama n : panoramas)
-				if(n.isFading() && !n.getViewableState().disabled)
+				if(n.isFading() && !n.getMediaState().disabled)
 					fading = true;
 
 		if(!fading)
 			for(WMV_Video v : videos)
-				if(v.isFading() && !v.getViewableState().disabled)
+				if(v.isFading() && !v.getMediaState().disabled)
 					fading = true;
 
 //		if(debugSettings.viewable || debugSettings.field)

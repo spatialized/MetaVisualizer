@@ -221,6 +221,8 @@ public class WMV_World
 	void updateState()
 	{
 		state.frameCount = p.frameCount;
+		viewer.updateState(settings, state);
+		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
 	}
 	
 	/**
@@ -229,7 +231,7 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
-		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
+//		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
 		attractViewer();						// Attract the viewer
 		
 		if(p.display.displayView == 0)
@@ -382,7 +384,7 @@ public class WMV_World
 				{
 				case 0:
 					WMV_Image i = getCurrentField().getImage(curMediaID);
-					i.getViewableState().isCurrentMedia = true;
+					i.getMediaState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
 					if(viewer.lookAtCurrentMedia())
@@ -390,14 +392,14 @@ public class WMV_World
 					break;
 				case 1:
 					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
-					n.getViewableState().isCurrentMedia = true;
+					n.getMediaState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
 //					viewer.lookAtMedia(n.getID(), 1);
 					break;
 				case 2:	
 					WMV_Video v = getCurrentField().getVideo(curMediaID);
-					v.getViewableState().isCurrentMedia = true;
+					v.getMediaState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
 					if(viewer.lookAtCurrentMedia())
@@ -1185,7 +1187,7 @@ public class WMV_World
 	{
 		for(WMV_Image i : getCurrentField().getImages())
 		{
-			if(i.getViewableState().visible)
+			if(i.getMediaState().visible)
 			{
 				if(i.isFading()) i.stopFading();
 				i.fadeOut();
@@ -1212,7 +1214,7 @@ public class WMV_World
 	{
 		for(WMV_Panorama n : getCurrentField().getPanoramas())
 		{
-			if(n.getViewableState().visible)
+			if(n.getMediaState().visible)
 			{
 				if(n.isFading()) n.stopFading();
 				n.fadeOut();
@@ -1260,7 +1262,7 @@ public class WMV_World
 	{
 		for(WMV_Video v : getCurrentField().getVideos())
 		{
-			if(v.getViewableState().visible)
+			if(v.getMediaState().visible)
 			{
 				if(v.isFading()) v.stopFading();
 				v.fadeOut();

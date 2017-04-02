@@ -37,8 +37,6 @@ public class ML_Map
 	private MarkerManager<Marker> markerManager;
 	private SimplePointMarker viewerMarker;
 	private int clusterZoomLevel = 18;
-//	private IntList imageMarkers, panoramaMarkers, videoMarkers;
-//	final private int panoramaIndexOffset = 1000000, videoIndexOffset = 2000000;
 	
 	/* Graphics */
 	private float hudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
@@ -47,7 +45,6 @@ public class ML_Map
 	
 	/* Interaction */
 	private int selectedCluster = -1;
-//	private ArrayList<Ellipsoid> selectableClusters;
 	private IntList selectableClusterIDs;
 	private ArrayList<SelectableClusterLocation> selectableClusterLocations;
 	int mousePressedFrame = -1;
@@ -59,7 +56,6 @@ public class ML_Map
 
 	private float curMapWidth, curMapHeight;							// Obsolete soon
 	private float largeMapXOffset, largeMapYOffset;						// Obsolete soon
-//	private float largeMapZoomLevel = 1.f;								// Obsolete soon
 
 	/* Clusters */
 	private boolean selectableClustersCreated = false;
@@ -168,8 +164,9 @@ public class ML_Map
 //		videoMarkers = new IntList();
 		
 		map.zoomAndPanTo(16, mapCenter);
-//		map.setZoomRange(2, 19);
-		map.setZoomRange(2, 21);
+		map.setTweening(true);
+		map.setZoomRange(2, 19);
+//		map.setZoomRange(2, 21);
 		map.setTweening(true);
 
 		eventDispatcher = new EventDispatcher();
@@ -671,7 +668,7 @@ public class ML_Map
 			if (imageDistance < world.viewer.getSettings().getFarViewingDistance() && imageDistance > world.viewer.getSettings().getNearClippingDistance())    // If image is in visible range
 				visible = true;                                              
 
-			if(visible && image.getViewableState().location != null && !image.getViewableState().disabled && !image.getViewableState().hidden)
+			if(visible && image.getMediaState().location != null && !image.getMediaState().disabled && !image.getMediaState().hidden)
 			{
 				float alpha = 255.f;
 				if(!ignoreTime && world.getState().timeFading)
@@ -722,7 +719,7 @@ public class ML_Map
 			if (panoramaDistance < world.viewer.getSettings().getFarViewingDistance() && panoramaDistance > world.viewer.getSettings().getNearClippingDistance())    // If panorama is in visible range
 				visible = true;                                              
 
-			if(visible && panorama.getViewableState().location != null && !panorama.getViewableState().disabled && !panorama.getViewableState().hidden)
+			if(visible && panorama.getMediaState().location != null && !panorama.getMediaState().disabled && !panorama.getMediaState().hidden)
 			{
 				float alpha = 255.f;
 				if(!ignoreTime && world.getState().timeFading)
@@ -773,7 +770,7 @@ public class ML_Map
 			if (videoDistance < world.viewer.getSettings().getFarViewingDistance() && videoDistance > world.viewer.getSettings().getNearClippingDistance())    // If video is in visible range
 				visible = true;                                              
 
-			if(visible && video.getViewableState().location != null && !video.getViewableState().disabled && !video.getViewableState().hidden)
+			if(visible && video.getMediaState().location != null && !video.getMediaState().disabled && !video.getMediaState().hidden)
 			{
 				float alpha = 255.f;
 				if(!ignoreTime && world.getState().timeFading)

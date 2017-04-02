@@ -59,14 +59,14 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void update(MultimediaLocator ml)
 	{
-		if(getViewableState().requested && texture.width != 0)			// If requested image has loaded, initialize image 
+		if(getMediaState().requested && texture.width != 0)			// If requested image has loaded, initialize image 
 		{
 			initializeSphere();					
 			setRequested(false);
 //			p.p.vState.requestedPanoramas--;
 		}
 
-		if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getViewableState().requested)
+		if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
 			if(!initialized)
 				loadMedia(ml); 
 
@@ -76,7 +76,7 @@ public class WMV_Panorama extends WMV_Viewable
 			{
 				for(int id : getViewerState().getClustersVisible())
 				{
-					if(getViewableState().cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+					if(getMediaState().cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						setVisible(true);
 				}
 			}
@@ -121,7 +121,7 @@ public class WMV_Panorama extends WMV_Viewable
 	 */
 	public void draw(WMV_World world)
 	{
-		if(getViewableState().showMetadata) displayMetadata(world);
+		if(getMediaState().showMetadata) displayMetadata(world);
 
 		float brightness = getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
@@ -350,10 +350,10 @@ public class WMV_Panorama extends WMV_Viewable
 //		sphere = rotateVertices(sphere, -state.phi, verticalAxis);         // Rotate around X axis
 		
 		if (state.phi != 0.f)
-			sphere = rotateVertices(sphere, -state.phi, getViewableState().rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
+			sphere = rotateVertices(sphere, -state.phi, getMediaState().rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
 
 		if( getTheta() != 0.f )
-			sphere = rotateVertices(sphere, 360-getTheta(), getViewableState().azimuthAxis); // Rotate around Z axis
+			sphere = rotateVertices(sphere, 360-getTheta(), getMediaState().azimuthAxis); // Rotate around Z axis
 		
 //		panoramaDetail = panoramaDetail;
 		initialized = true;
@@ -528,7 +528,7 @@ public class WMV_Panorama extends WMV_Viewable
 	
 	 public void captureState()
 	 {
-		 state.setViewableState( getViewableState() );
+		 state.setViewableState( getMediaState() );
 	 }
 	 
 	
@@ -549,7 +549,7 @@ public class WMV_Panorama extends WMV_Viewable
 	
 	public float getDirection()
 	{
-		return getViewableState().theta;
+		return getMediaState().theta;
 	}
 
 	public float getWidth()

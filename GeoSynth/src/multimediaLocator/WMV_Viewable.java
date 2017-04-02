@@ -757,7 +757,7 @@ public abstract class WMV_Viewable
 			}
 
 			PMatrix3D rMat = new PMatrix3D();
-			rMat.rotate((float)Math.toRadians(angle), axis.x, axis.y, axis.z);
+			rMat.rotate(PApplet.radians(angle), axis.x, axis.y, axis.z);
 
 			for (int i = 0; i < vl; i++)
 				dst[i] = new PVector();
@@ -817,7 +817,7 @@ public abstract class WMV_Viewable
 		return mState.mediaType;
 	}
 	
-	public WMV_MediaState getViewableState()
+	public WMV_MediaState getMediaState()
 	{
 		return mState;
 	}
@@ -846,11 +846,4 @@ public abstract class WMV_Viewable
 	{
 		return debugSettings;
 	}
-	
-//	public WMV_WorldSettings worldSettings;
-//	public WMV_WorldState worldState;
-//	public WMV_ViewerSettings viewerSettings;	// Update world settings
-//	public WMV_ViewerState viewerState;	// Update world settings
-//	public ML_DebugSettings debugSettings;	// Update world settings
-
 }

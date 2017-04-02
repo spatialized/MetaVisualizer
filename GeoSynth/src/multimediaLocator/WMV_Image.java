@@ -49,7 +49,7 @@ class WMV_Image extends WMV_Viewable
 		state.focalLength = newFocalLength;
 		
 		if(newDateTime != null)
-			time = new WMV_Time( newDateTime, getID(), getViewableState().cluster, 0, newTimeZone );		
+			time = new WMV_Time( newDateTime, getID(), getMediaState().cluster, 0, newTimeZone );		
 		else
 			time = null;
 
@@ -61,7 +61,8 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void draw(WMV_World world)
 	{
-		if(getViewableState().showMetadata) displayMetadata(world);
+		if(getMediaState().showMetadata) 
+			displayMetadata(world);
 
 		float angleBrightnessFactor;							// Fade with angle
 		float brightness = getFadingBrightness();					
@@ -75,6 +76,8 @@ class WMV_Image extends WMV_Viewable
 
 		if( getViewerSettings().angleFading )
 		{
+			if( isSelected() )
+				PApplet.println("Debugging: getViewerState().getOrientationVector():"+getViewerState().getOrientationVector());
 			float imageAngle = getFacingAngle(getViewerState().getOrientationVector());
 			angleBrightnessFactor = getAngleBrightness(imageAngle);                 // Fade out as turns sideways or gets too far / close
 			brightness *= angleBrightnessFactor;
@@ -94,7 +97,7 @@ class WMV_Image extends WMV_Viewable
 		else
 			world.p.noFill();                  // Hide image if it isn't vState.visible
 
-		if(getViewableState().visible && getWorldState().showModel && !isHidden() && !isDisabled())
+		if(getMediaState().visible && getWorldState().showModel && !isHidden() && !isDisabled())
 			displayModel(world);
 	}
 
@@ -125,7 +128,7 @@ class WMV_Image extends WMV_Viewable
 		/* Draw frame */
 		world.p.pushMatrix();
 		
-		world.p.stroke(0.f, 0.f, 255.f, getViewableState().viewingBrightness);	 
+		world.p.stroke(0.f, 0.f, 255.f, getMediaState().viewingBrightness);	 
 		world.p.strokeWeight(2.f);
 		
 		world.p.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
@@ -133,8 +136,8 @@ class WMV_Image extends WMV_Viewable
 		world.p.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
 		world.p.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
 		
-		PVector c = world.getCurrentField().getCluster(getViewableState().cluster).getLocation();
-		PVector loc = getViewableState().location;
+		PVector c = world.getCurrentField().getCluster(getMediaState().cluster).getLocation();
+		PVector loc = getMediaState().location;
 		PVector cl = getCaptureLocation();
 		world.p.popMatrix();
 
@@ -142,21 +145,21 @@ class WMV_Image extends WMV_Viewable
 		if(getWorldState().showMediaToCluster)
 		{
 			world.p.strokeWeight(3.f);
-			world.p.stroke(80, 135, 255, getViewableState().viewingBrightness);
+			world.p.stroke(80, 135, 255, getMediaState().viewingBrightness);
 			world.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToMedia)
 		{
 			world.p.strokeWeight(3.f);
-			world.p.stroke(160, 100, 255, getViewableState().viewingBrightness);
+			world.p.stroke(160, 100, 255, getMediaState().viewingBrightness);
 			world.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToCluster)
 		{
 			world.p.strokeWeight(3.f);
-			world.p.stroke(120, 55, 255, getViewableState().viewingBrightness);
+			world.p.stroke(120, 55, 255, getMediaState().viewingBrightness);
 			world.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
 		world.p.popMatrix();
@@ -167,7 +170,7 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void fadeIn()
 	{
-		if(getViewableState().fading || getViewableState().isFadingIn || getViewableState().isFadingOut)		// If already fading, stop at current value
+		if(getMediaState().fading || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
 			stopFading();
 
 		fadeBrightness(1.f);					// Fade in
@@ -178,7 +181,7 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void fadeOut()
 	{
-		if(getViewableState().fading || getViewableState().isFadingIn || getViewableState().isFadingOut)		// If already fading, stop at current value
+		if(getMediaState().fading || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
 			stopFading();
 
 		fadeBrightness(0.f);					// Fade out
@@ -189,7 +192,7 @@ class WMV_Image extends WMV_Viewable
 	 */
 	public void update(MultimediaLocator ml, WMV_Utilities utilities)
 	{
-		if(getViewableState().requested && image.width != 0)			// If vState.requested image has loaded, initialize image 
+		if(getMediaState().requested && image.width != 0)			// If vState.requested image has loaded, initialize image 
 		{
 			calculateVertices();  					// Update geometry		
 			
@@ -201,7 +204,7 @@ class WMV_Image extends WMV_Viewable
 
 		if(image.width > 0 && !isHidden() && !isDisabled())				// Image has been loaded and isn't vState.hidden or vState.disabled
 		{
-			boolean wasVisible = getViewableState().visible;
+			boolean wasVisible = getMediaState().visible;
 			boolean visibilitySetToTrue = false;
 			boolean visibilitySetToFalse = false;
 
@@ -209,11 +212,11 @@ class WMV_Image extends WMV_Viewable
 
 			if(getViewerSettings().orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
-				if(getViewableState().cluster == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is vState.visible
+				if(getMediaState().cluster == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is vState.visible
 					setVisible(true);
 
 				for(int id : getViewerState().getClustersVisible())
-					if(getViewableState().cluster == id)			// If this photo's cluster is on next closest list, it is vState.visible	-- CHANGE THIS??!!
+					if(getMediaState().cluster == id)			// If this photo's cluster is on next closest list, it is vState.visible	-- CHANGE THIS??!!
 						setVisible(true);
 			}
 			else 
@@ -234,7 +237,7 @@ class WMV_Image extends WMV_Viewable
 				if(!isFading() && getViewerSettings().hideImages)
 					setVisible(false);
 
-				if(getViewableState().visible && !getViewerSettings().orientationMode)
+				if(getMediaState().visible && !getViewerSettings().orientationMode)
 					setVisible(getDistanceBrightness() > 0.f);
 
 				if(state.orientation != 0 && state.orientation != 90)          	// Hide state.orientations of 180 or 270 (avoid upside down images)
@@ -246,7 +249,7 @@ class WMV_Image extends WMV_Viewable
 			
 			if(isFading())										// Update vState.brightness while fading
 			{
-				if(getViewableState().fadingBrightness == 0.f)
+				if(getMediaState().fadingBrightness == 0.f)
 					setVisible(false);
 			}
 			else 
@@ -254,13 +257,13 @@ class WMV_Image extends WMV_Viewable
 				if(!wasVisible && isVisible())
 					visibilitySetToTrue = true;
 
-				if(getViewableState().fadingBrightness == 0.f && isVisible())
+				if(getMediaState().fadingBrightness == 0.f && isVisible())
 					visibilitySetToTrue = true;
 
 				if(wasVisible && !isVisible())
 					visibilitySetToFalse = true;
 
-				if(getViewableState().fadingBrightness > 0.f && !isVisible())
+				if(getMediaState().fadingBrightness > 0.f && !isVisible())
 					visibilitySetToFalse = true;
 			}
 			
@@ -271,7 +274,7 @@ class WMV_Image extends WMV_Viewable
 			}
 			else
 			{
-				if(getViewableState().visible && !state.thinningVisibility && !isFading())
+				if(getMediaState().visible && !state.thinningVisibility && !isFading())
 				{
 					fadeOut();
 				}
@@ -286,24 +289,24 @@ class WMV_Image extends WMV_Viewable
 			if(visibilitySetToFalse)
 				fadeOut();
 
-			if(getViewableState().fadedOut) setFadedOut(false);
+			if(getMediaState().fadedOut) setFadedOut(false);
 		}
 		else
 		{
 			if(getViewerSettings().orientationMode)
 			{
 				for(int id : getViewerState().getClustersVisible())
-					if(getViewableState().cluster == id  && !getViewableState().requested)			// If this photo's cluster is on next closest list, it is vState.visible	-- CHANGE THIS??!!
+					if(getMediaState().cluster == id  && !getMediaState().requested)			// If this photo's cluster is on next closest list, it is vState.visible	-- CHANGE THIS??!!
 						loadMedia(ml);
 			}
-			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getViewableState().requested)
+			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
 				loadMedia(ml); 					// Request image pixels from disk
 		}
 		
 		if(isFading())                       // Fade in and out with time
 			updateFadingBrightness();
 		
-		if(getViewableState().fadingFocusDistance)
+		if(getMediaState().fadingFocusDistance)
 			updateFadingFocusDistance();
 	}
 
@@ -469,11 +472,11 @@ class WMV_Image extends WMV_Viewable
 		state.vertices = initializeVertices();					// Initialize Normal Mode state.vertices
 		state.sVertices = initializeVertices();					// Initialize Orientation Mode (static) state.vertices
 		
-		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, getViewableState().verticalAxis);        	 // Rotate around X axis
-		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
+		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, getMediaState().verticalAxis);        	 // Rotate around X axis
+		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getMediaState().azimuthAxis);    // Rotate around Z axis
 		
-		if (state.phi != 0.) state.sVertices = rotateVertices(state.sVertices, -state.phi, getViewableState().verticalAxis);        // Rotate around X axis
-		if (getTheta() != 0.) state.sVertices = rotateVertices(state.sVertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
+		if (state.phi != 0.) state.sVertices = rotateVertices(state.sVertices, -state.phi, getMediaState().verticalAxis);        // Rotate around X axis
+		if (getTheta() != 0.) state.sVertices = rotateVertices(state.sVertices, 360-getTheta(), getMediaState().azimuthAxis);    // Rotate around Z axis
 		
 		if(state.vertices.length == 0) setDisabled(true);
 		if(state.sVertices.length == 0) setDisabled(true);
@@ -484,20 +487,6 @@ class WMV_Image extends WMV_Viewable
 		state.vertices = translateVertices(state.vertices, state.displacement);          // Translate image state.vertices from capture to viewing location
 		state.sVertices = translateVertices(state.sVertices, state.displacement);          // Translate image state.vertices from capture to viewing location
 
-//		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, getViewableState().verticalAxis);        	 // Rotate around X axis
-//		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
-//		
-//		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, getViewableState().verticalAxis);        // Rotate around X axis
-//		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getViewableState().azimuthAxis);    // Rotate around Z axis
-//		
-//		if(state.vertices.length == 0) setDisabled(true);
-//		if(state.vertices.length == 0) setDisabled(true);
-//		
-//		state.vertices = translateVertices(state.vertices, getCaptureLocation());               // Move image to photo capture location   
-//		
-//		state.displacement = getDisplacementVector();
-//		state.vertices = translateVertices(state.vertices, state.displacement);          // Translate image state.vertices from capture to viewing location
-		
 		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
 		addVectorToLocation(state.displacement);     													 
 	}
@@ -571,7 +560,7 @@ class WMV_Image extends WMV_Viewable
 		else
 			setClusterID(-1);						// Create a new single image cluster here!
 
-		if(getViewableState().cluster != -1)
+		if(getMediaState().cluster != -1)
 			return true;
 		else
 			return false;
@@ -693,7 +682,7 @@ class WMV_Image extends WMV_Viewable
 		PVector result = new PVector(0,0,0);
 
 		// If iPhone image:
-		if(getViewableState().cameraModel == 1)
+		if(getMediaState().cameraModel == 1)
 		{
 			if (state.orientation == 90)  // Vertical Image
 			{
@@ -739,7 +728,7 @@ class WMV_Image extends WMV_Viewable
 		vertex2 = new PVector(0,0,0);
 		vertex3 = new PVector(0,0,0);
 
-		if(getViewableState().cameraModel == 1)
+		if(getMediaState().cameraModel == 1)
 		{
 			if (state.orientation == 90)  // Vertical Image
 			{
@@ -951,7 +940,7 @@ class WMV_Image extends WMV_Viewable
 	private PVector[] initializeVertices()
 	{
 		float width = calculateImageWidth();										
-		float height = width * getViewableState().aspectRatio;		
+		float height = width * getMediaState().aspectRatio;		
 
 		float left = -width * 0.5f;						
 		float right = width * 0.5f;
@@ -960,7 +949,7 @@ class WMV_Image extends WMV_Viewable
 
 		PVector[] verts = new PVector[4]; 
 
-		if(getViewableState().cameraModel == 1)      			// If it is an iPhone Image
+		if(getMediaState().cameraModel == 1)      			// If it is an iPhone Image
 		{
 			if (state.orientation == 90) 		 	// Vertical Image
 			{
@@ -1160,7 +1149,7 @@ class WMV_Image extends WMV_Viewable
 
 	 public void captureState()
 	 {
-		 state.setViewableState( getViewableState() );
+		 state.setViewableState( getMediaState() );
 	 }
 	 
 	 public void setBlurMask(PImage newBlurMask)
@@ -1170,7 +1159,7 @@ class WMV_Image extends WMV_Viewable
 	 
 	 public float getDirection()
 	 {
-		 return getViewableState().theta;
+		 return getMediaState().theta;
 	 }
 
 	 public float getVerticalAngle()

@@ -47,9 +47,6 @@ public class WMV_Viewer
 	public WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
 
 	/* GPS Tracks */
-//	private File gpsTrackFile;							// GPS track file
-//	private String gpsTrackName = "";					// GPS track name
-//	private boolean gpsTrackSelected = false;			// Has a GPS track been selected?
 	private ArrayList<WMV_Waypoint> history;			// Stores a GPS track in virtual coordinates
 	private ArrayList<WMV_Waypoint> gpsTrack;			// Stores a GPS track in virtual coordinates
 	
@@ -58,7 +55,6 @@ public class WMV_Viewer
 	public WMV_Viewer(WMV_World parent, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, ML_DebugSettings newDebugSettings)
 	{
 		p = parent;
-//		currentField = newCurrentField;
 		
 		worldSettings = newWorldSettings;
 		worldState = newWorldState;
@@ -840,19 +836,7 @@ public class WMV_Viewer
 	{
 		settings.hideVideos = true;
 		p.hideVideos();
-//		for(WMV_Video v : videos)
-//		{
-//			if(v.visible)
-//			{
-//				if(v.isFading()) v.stopFading();
-//				v.fadeOut();
-//			}
-//		}
-//		
-//		if(p.p.display.window.setupGraphicsWindow)
-//			p.p.display.window.chkbxHideVideos.setSelected(true);
 	}
-
 
 	/**
 	 * @param inclCurrent Whether to include the current cluster in search
@@ -1933,6 +1917,7 @@ public class WMV_Viewer
 		camOrientation.normalize();
 		
 		state.orientationVector = camOrientation;
+//		PApplet.println("REAL state.orientationVector:"+state.orientationVector);
 		state.target = getTarget();
 	}
 	
@@ -3109,7 +3094,7 @@ public class WMV_Viewer
 				if(i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() 
 				&& i.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
-					if(!i.getViewableState().disabled)
+					if(!i.getMediaState().disabled)
 						closeImages.add(i);							
 				}
 			}
@@ -3120,7 +3105,7 @@ public class WMV_Viewer
 				if(n.getViewingDistance() < settings.farViewingDistance + worldSettings.defaultFocusDistance 
 						&& n.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
-					if(!n.getViewableState().disabled)
+					if(!n.getMediaState().disabled)
 						closePanoramas.add(n);							
 				}
 			}
@@ -3131,7 +3116,7 @@ public class WMV_Viewer
 				if(v.getViewingDistance() <= settings.farViewingDistance + v.getFocusDistance()
 				&& v.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
 				{
-					if(!v.getViewableState().disabled)
+					if(!v.getMediaState().disabled)
 						closeVideos.add(v);							
 				}
 			}
@@ -3268,7 +3253,7 @@ public class WMV_Viewer
 		for(WMV_Image i : currentField.getImages())
 		{
 			if(i.getViewingDistance() <= settings.selectionMaxDistance)
-				if(!i.getViewableState().disabled)
+				if(!i.getMediaState().disabled)
 					possibleImages.add(i);
 		}
 
@@ -3293,7 +3278,7 @@ public class WMV_Viewer
 		for(WMV_Video v : currentField.getVideos())
 		{
 			if(v.getViewingDistance() <= settings.selectionMaxDistance)
-				if(!v.getViewableState().disabled)
+				if(!v.getMediaState().disabled)
 					possibleVideos.add(v);
 		}
 
@@ -3556,7 +3541,7 @@ public class WMV_Viewer
 		WMV_Field f = currentField;
 
 		for (int i = 0; i < f.getImages().size(); i++) {
-			if (f.getImage(i).getViewableState().visible) {
+			if (f.getImage(i).getMediaState().visible) {
 				float imageAngle = f.getImage(i).getFacingAngle(state.getOrientationVector());
 				if (imageAngle < smallest) {
 					smallest = imageAngle;
@@ -3577,7 +3562,7 @@ public class WMV_Viewer
 		WMV_Field f = currentField;
 
 		for (int i = 0; i < f.getImages().size(); i++) {
-			if (f.getImage(i).getViewableState().visible) {
+			if (f.getImage(i).getMediaState().visible) {
 				float imageDist = f.getImage(i).getViewingDistance();
 				if (imageDist < smallest && imageDist > settings.nearClippingDistance) {
 					smallest = imageDist;
@@ -3599,7 +3584,7 @@ public class WMV_Viewer
 		WMV_Field f = currentField;
 
 		for (int i = 0; i < f.getVideos().size(); i++) {
-			if (f.getVideo(i).getViewableState().visible) {
+			if (f.getVideo(i).getMediaState().visible) {
 				float videoAngle = f.getVideo(i).getFacingAngle(state.getOrientationVector());
 				if (videoAngle < smallest) {
 					smallest = videoAngle;
@@ -3620,7 +3605,7 @@ public class WMV_Viewer
 		WMV_Field f = currentField;
 
 		for (int i = 0; i < f.getVideos().size(); i++) {
-			if (f.getVideo(i).getViewableState().visible) {
+			if (f.getVideo(i).getMediaState().visible) {
 				float videoDist = f.getVideo(i).getViewingDistance();
 				if (videoDist < smallest && videoDist > settings.nearClippingDistance) {
 					smallest = videoDist;

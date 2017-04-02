@@ -39,13 +39,13 @@ public class WMV_Sound extends WMV_Viewable
 		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
 
 //		filePath = newFilePath;
-		getViewableState().gpsLocation = newGPSLocation;
+		getMediaState().gpsLocation = newGPSLocation;
 		
 //		Bead sound = new Bead();
 		
 		if(newDateTime != null)
 		{
-			time = new WMV_Time( newDateTime, getID(), getViewableState().cluster, 3, newTimeZone );		
+			time = new WMV_Time( newDateTime, getID(), getMediaState().cluster, 3, newTimeZone );		
 		}
 		else
 			time = null;
@@ -56,7 +56,7 @@ public class WMV_Sound extends WMV_Viewable
 	 */
 	public void draw(WMV_World world)
 	{
-		if(getViewableState().showMetadata) displayMetadata(world);
+		if(getMediaState().showMetadata) displayMetadata(world);
 	}
 
 	/**
@@ -79,8 +79,8 @@ public class WMV_Sound extends WMV_Viewable
 		world.p.pushMatrix();
 		
 		world.p.fill(30, 0, 255, 150);
-		world.p.translate(getViewableState().location.x, getViewableState().location.y, getViewableState().location.z);
-		world.p.sphere(getViewableState().centerSize);
+		world.p.translate(getMediaState().location.x, getMediaState().location.y, getMediaState().location.z);
+		world.p.sphere(getMediaState().centerSize);
 
 		world.p.popMatrix();
 	}
@@ -94,7 +94,7 @@ public class WMV_Sound extends WMV_Viewable
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
-		String strCluster = "Cluster: "+String.valueOf(getViewableState().cluster);
+		String strCluster = "Cluster: "+String.valueOf(getMediaState().cluster);
 		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
 		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
 		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);
@@ -103,14 +103,14 @@ public class WMV_Sound extends WMV_Viewable
 		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
 				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
-		String strLatitude = "GPS Latitude: "+String.valueOf(getViewableState().gpsLocation.z);
-		String strLongitude = " Longitude: "+String.valueOf(getViewableState().gpsLocation.x);
-		String strAltitude = "Altitude: "+String.valueOf(getViewableState().gpsLocation.y);
+		String strLatitude = "GPS Latitude: "+String.valueOf(getMediaState().gpsLocation.z);
+		String strLongitude = " Longitude: "+String.valueOf(getMediaState().gpsLocation.x);
+		String strAltitude = "Altitude: "+String.valueOf(getMediaState().gpsLocation.y);
 //		String strTheta = "Direction: "+String.valueOf(theta);
 
 		String strTitleDebug = "--- Debugging ---";
-		String strBrightness = "brightness: "+String.valueOf(getViewableState().viewingBrightness);
-		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getViewableState().fadingBrightness);
+		String strBrightness = "brightness: "+String.valueOf(getMediaState().viewingBrightness);
+		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getMediaState().fadingBrightness);
 		
 		world.p.display.metadata(world, strTitleImage);
 		world.p.display.metadata(world, strTitleImage2);

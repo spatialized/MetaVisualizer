@@ -69,7 +69,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	void draw(WMV_World world)
 	{
-		if(getViewableState().showMetadata) displayMetadata(world);
+		if(getMediaState().showMetadata) displayMetadata(world);
 
 		float distanceBrightness = 0.f; 					// Fade with distance
 		float angleBrightness;
@@ -108,7 +108,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 		else
 			world.p.noFill();                  // Hide video if it isn't visible
 
-		if(getViewableState().visible && getWorldState().showModel && !isHidden() && !!isDisabled())
+		if(getMediaState().visible && getWorldState().showModel && !isHidden() && !!isDisabled())
 			displayModel(world);
 	}
 
@@ -175,7 +175,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public void fadeIn()
 	{
-		if(isFading() || getViewableState().isFadingIn || getViewableState().isFadingOut)		// If already fading, stop at current value
+		if(isFading() || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
 			stopFading();
 
 		fadeBrightness(1.f);					// Fade in
@@ -186,7 +186,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public void fadeOut()
 	{
-		if(isFading() || getViewableState().isFadingIn || getViewableState().isFadingOut)		// If already fading, stop at current value
+		if(isFading() || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
 			stopFading();
 
 		fadeBrightness(0.f);					// Fade out
@@ -235,9 +235,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	void update(MultimediaLocator ml, WMV_Utilities utilities)
 	{
-		if(!getViewableState().disabled)			
+		if(!getMediaState().disabled)			
 		{
-			boolean wasVisible = getViewableState().visible;
+			boolean wasVisible = getMediaState().visible;
 			boolean visibilitySetToTrue = false;
 			boolean visibilitySetToFalse = false;
 			
@@ -262,7 +262,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 					setVisible(true);     										 		
 			}
 
-			if(getViewableState().visible)
+			if(getMediaState().visible)
 			{
 				float videoAngle = getFacingAngle(getViewerState().getOrientationVector());				
 
@@ -272,7 +272,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 				if(!isFading() && getViewerSettings().hideVideos)
 					setVisible(false);
 					
-				if(getViewableState().visible && !getViewerSettings().orientationMode)
+				if(getMediaState().visible && !getViewerSettings().orientationMode)
 					setVisible(getDistanceBrightness() > 0.f);
 
 				if(state.orientation != 0 && state.orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
@@ -289,16 +289,16 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			}
 			else 
 			{
-				if(!wasVisible && getViewableState().visible)
+				if(!wasVisible && getMediaState().visible)
 					visibilitySetToTrue = true;
 
-				if(getFadingBrightness() == 0.f && getViewableState().visible)
+				if(getFadingBrightness() == 0.f && getMediaState().visible)
 					visibilitySetToTrue = true;
 
-				if(wasVisible && !getViewableState().visible)
+				if(wasVisible && !getMediaState().visible)
 					visibilitySetToFalse = true;
 
-				if(getFadingBrightness() > 0.f && !getViewableState().visible)
+				if(getFadingBrightness() > 0.f && !getMediaState().visible)
 					visibilitySetToFalse = true;
 			}
 			
@@ -312,10 +312,10 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 			}
 			else													// If in Angle Thinning Mode
 			{
-				if(getViewableState().visible && !state.thinningVisibility && !isFading())
+				if(getMediaState().visible && !state.thinningVisibility && !isFading())
 					fadeOut();
 
-				if(!getViewableState().visible && state.thinningVisibility && !isFading() && !hasFadedOut() && !getViewerSettings().hideVideos) 
+				if(!getMediaState().visible && state.thinningVisibility && !isFading() && !hasFadedOut() && !getViewerSettings().hideVideos) 
 				{
 					if(!state.loaded) loadMedia(ml);
 					fadeIn();
@@ -413,9 +413,9 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-		if(!getViewableState().disabled)																	
+		if(!getMediaState().disabled)																	
 		{
-			video = new Movie(ml, getViewableState().filePath);
+			video = new Movie(ml, getMediaState().filePath);
 			setLength( video.duration() );				// Set video length (in seconds)
 			
 			video.loop();								// Start loop
@@ -1258,7 +1258,7 @@ class WMV_Video extends WMV_Viewable          		// Represents a video in virtual
 	
 	 public void captureState()
 	 {
-		 state.setViewableState( getViewableState() );
+		 state.setViewableState( getMediaState() );
 	 }
 	 
 	/**

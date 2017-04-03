@@ -12,8 +12,6 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
-//import processing.core.PVector;
-import processing.data.IntList;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
 import toxi.math.LinearInterpolation;
@@ -27,14 +25,13 @@ import toxi.math.ZoomLensInterpolation;
 
 public class WMV_World 
 {
-	public PImage NEWTEST;
-	
 	/* Classes */
-	ML_Input input;					// Handles input
-	WMV_Utilities utilities;
-	WMV_WorldSettings settings;		// World settings
-	WMV_WorldState state;			// World state
-	WMV_Viewer viewer;				// Handles viewer location
+	ML_Input input;								// Handles input
+	WMV_WorldSettings settings;					// World settings
+	WMV_WorldState state;						// World state
+	WMV_Utilities utilities;					// Utilities
+	WMV_Viewer viewer;							// Virtual Viewer
+	private ArrayList<WMV_Field> fields;		// Geographical areas containing media for simulation
 
 	/* Graphics */
 	public PImage blurMaskLeftTop, blurMaskLeftCenter, 	// Blur masks
@@ -47,8 +44,6 @@ public class WMV_World
 	  blurMaskBothBottom, blurMaskBothBoth;
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
-	/* Media */
-	private ArrayList<WMV_Field> fields;				// List of fields, i.e. large geographical areas for 3D display
 	
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
@@ -67,8 +62,6 @@ public class WMV_World
 	{
 		p = parent;
 		utilities = new WMV_Utilities();
-		
-		NEWTEST = p.createImage(66, 66, PApplet.RGB);
 	}
 	
 	/**
@@ -569,16 +562,22 @@ public class WMV_World
 	}
 
 	/**
-	 * Save the current world and viewer states to file
+	 * Save the current world, field and viewer states and settings to file
 	 */
-	void saveWorldState()
+	void saveSimulationState()
 	{
-		p.library.saveWorldSettings(settings, p.library.getLibraryFolder()+"ml_library_worldSettings.json");
-		p.library.saveWorldState(state, p.library.getLibraryFolder()+"ml_library_worldState.json");
-		p.library.saveViewerSettings(viewer.getSettings(), p.library.getLibraryFolder()+"ml_library_viewerSettings.json");
-		p.library.saveViewerState(viewer.getState(), p.library.getLibraryFolder()+"ml_library_viewerState.json");
-		p.library.saveFieldData(getCurrentField(), p.library.getLibraryFolder()+"ml_library_fieldState.json");
-//		p.library.saveFieldState(getCurrentField().getState(), p.library.getLibraryFolder()+"ml_library_fieldState.json");
+//		String folderPath = p.library.getLibraryFolder();
+		String folderPath = p.library.getLibraryFolder() + getCurrentField().getName() + "/data/";
+		File directory = new File(folderPath);
+		if(!directory.exists()) directory.mkdir();			// Create directory if doesn't exist
+		
+		PApplet.println("Saving Simulation Data to:"+folderPath);
+		p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
+		p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
+		p.library.saveViewerSettings(viewer.getSettings(), folderPath+"ml_library_viewerSettings.json");
+		p.library.saveViewerState(viewer.getState(), folderPath+"ml_library_viewerState.json");
+		p.library.saveFieldData(getCurrentField(), folderPath+"ml_library_fieldState.json");
+//		p.library.saveFieldState(getCurrentField().getState(), folderPath+"ml_library_fieldState.json");
 	}
 
 	public void loadWorldSettings(WMV_WorldSettings newSettings)

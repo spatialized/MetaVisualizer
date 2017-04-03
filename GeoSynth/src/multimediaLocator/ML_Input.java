@@ -763,7 +763,7 @@ public class ML_Input
 					world.viewer.lookAtNearestMedia();
 
 				if( key == '/' )
-					world.saveWorldState();
+					world.saveSimulationState();
 
 				if( key == '?' )
 					world.loadViewerState();

@@ -1116,14 +1116,14 @@ public class WMV_Field
 //			setClusters( cleanupClusters() );
 		}
 
-//		if(debugSettings.cluster || debugSettings.field)
-//			p.p.p.display.message(p.p, "Created "+getClusterAmount()+" clusters...");
+		if(debugSettings.cluster || debugSettings.field)
+			System.out.println( "Created "+clusters.size()+" clusters...");
 		
-//		for(WMV_Cluster c : p.getClusters())
-//		{
-//			if(debugSettings.field && !c.isEmpty())
-//				System.out.println("Cluster #"+c.getID()+" has "+c.images.size()+" media points...");
-//		}
+		for(WMV_Cluster c : clusters)
+		{
+			if(debugSettings.field && !c.isEmpty())
+				System.out.println("Cluster #"+c.getID()+" has "+c.getState().images.size()+" media points...");
+		}
 	}
 
 	/**

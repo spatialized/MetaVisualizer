@@ -134,8 +134,8 @@ public abstract class WMV_Viewable
 		mState.fadingStart = mState.fadingBrightness;
 		mState.fading = false;
 
-		if(mState.isFadingOut) mState.isFadingOut = false;
-		if(mState.isFadingIn) mState.isFadingIn = false;
+		if(isFadingOut()) mState.isFadingOut = false;
+		if(isFadingIn()) mState.isFadingIn = false;
 	}
 
 	/**
@@ -404,17 +404,27 @@ public abstract class WMV_Viewable
 		if (worldState.frameCount >= mState.fadingEndFrame)
 		{
 			mState.fading = false;
-			newFadeValue = mState.fadingTarget;
-
-			if(mState.isFadingOut)
+			if(isFadingIn())
 			{
-				mState.isFadingOut = false;
-				mState.fadedOut = true;
+				if(mState.fadingTarget == 1.f)
+				{
+					newFadeValue = mState.fadingTarget;
+					mState.isFadingIn = false;
+					mState.fadedIn = true;
+				}
+				else
+					System.out.println("Fading in but target == "+mState.fadingTarget);
 			}
-			if(mState.isFadingIn)
+			else if(isFadingOut())
 			{
-				mState.isFadingIn = false;
-				mState.fadedIn = true;
+				if(mState.fadingTarget == 0.f)
+				{
+					newFadeValue = mState.fadingTarget;
+					mState.isFadingOut = false;
+					mState.fadedOut = true;
+				}
+				else
+					System.out.println("Fading out but target == "+mState.fadingTarget);
 			}
 		} 
 		else

@@ -20,7 +20,7 @@ import processing.core.PApplet;
 import processing.core.PVector;
 import processing.data.FloatList;
 import processing.data.IntList;
-import processing.core.PImage;
+//import processing.core.PImage;
 
 /*********************************
  * The virtual viewer, with methods for navigating and interacting with 3D multimedia-based environments
@@ -71,7 +71,7 @@ public class WMV_Viewer
 		path = new ArrayList<WMV_Waypoint>();
 
 		nearbyClusterTimeline = new ArrayList<WMV_TimeSegment>();
-		initialize(0, 0, 0, parent.NEWTEST);
+		initialize(0, 0, 0);
 	}
 
 	/** 
@@ -80,12 +80,11 @@ public class WMV_Viewer
 	 * @param y Initial Y coordinate
 	 * @param z Initial Z coordinate
 	 */
-	public void initialize(float x, float y, float z, PImage IMAGETEST)
+	public void initialize(float x, float y, float z)
 	{
 		camera = new Camera( p.p, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
 		state.location = new PVector(x, y, z);
 		state.teleportGoal = new PVector(x, y, z);
-//		settings.initialize(IMAGETEST);
 		settings.initialize();
 		state.clustersVisible = new ArrayList<Integer>();
 	}
@@ -329,7 +328,7 @@ public class WMV_Viewer
 		if(debugSettings.field || debugSettings.viewer)		
 			System.out.println("Set new field:"+state.field);
 
-		initialize(0,0,0, p.NEWTEST);							// Initialize camera
+		initialize(0,0,0);							// Initialize camera
 
 		if(debugSettings.field || debugSettings.viewer)		
 			System.out.println("Moving (teleporting) to nearest cluster:"+state.field);
@@ -1801,7 +1800,7 @@ public class WMV_Viewer
 		state.currentCluster = 0;
 		state.clusterNearDistance = worldSettings.clusterCenterSize * state.clusterNearDistanceFactor;
 
-		initialize(0, 0, 0, p.NEWTEST);
+		initialize(0, 0, 0);
 	}
 
 	/**
@@ -2793,7 +2792,7 @@ public class WMV_Viewer
 
 	public void resetCamera()
 	{
-		initialize( getLocation().x,getLocation().y,getLocation().z, p.NEWTEST );							// Initialize camera
+		initialize( getLocation().x,getLocation().y,getLocation().z );							// Initialize camera
 	}
 	
 	/**

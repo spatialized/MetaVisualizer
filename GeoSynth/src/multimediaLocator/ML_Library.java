@@ -49,13 +49,10 @@ public class ML_Library
 		final File file;
 		try {
 			file = File.createTempFile("json", "temp.json");    // Use temp file
-			//		    file = new File(filePath);
 			mapper.writeValue(file, image);    // Write staff object to file
 
-			//		    Staff newStaff = mapper.readValue(file, Staff.class);
 			WMV_Image newImage = mapper.readValue(file, WMV_Image.class);
 			puts("WMV_Images are equal: ", newImage.equals(image));      // Not working ??
-			//println("They are equal", newStaff.equals(staff));
 		}
 		catch (Throwable t)
 		{
@@ -63,7 +60,7 @@ public class ML_Library
 		}
 	}
 
-	public void saveWorldSettings(WMV_WorldSettings settings, String newFilePath)		// Testing
+	public void saveWorldSettings(WMV_WorldSettings settings, String newFilePath)		
 	{
 		String filePath = newFilePath;
 
@@ -76,7 +73,7 @@ public class ML_Library
 
 			//		    Staff newStaff = mapper.readValue(file, Staff.class);
 			WMV_WorldSettings newSettings = mapper.readValue(file, WMV_WorldSettings.class);
-			System.out.println("WorldSettings are equal:"+ newSettings.equals(settings));      // Not working ??
+			System.out.println("WorldSettings are equal:"+ newSettings.equals(settings)); 
 		}
 		catch (Throwable t)
 		{
@@ -84,7 +81,7 @@ public class ML_Library
 		}
 	}
 
-	public void saveWorldState(WMV_WorldState state, String newFilePath)		// Testing
+	public void saveWorldState(WMV_WorldState state, String newFilePath)		
 	{
 		String filePath = newFilePath;
 
@@ -96,7 +93,7 @@ public class ML_Library
 			mapper.writeValue(file, state);    // Write staff object to file
 
 			WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
-			System.out.println("WorldStates are equal:"+ newState.equals(state));      // Not working ??
+			System.out.println("WorldStates are equal:"+ newState.equals(state));      
 		}
 		catch (Throwable t)
 		{
@@ -104,7 +101,7 @@ public class ML_Library
 		}
 	}
 
-	public void saveViewerSettings(WMV_ViewerSettings settings, String newFilePath)		// Testing
+	public void saveViewerSettings(WMV_ViewerSettings settings, String newFilePath)		
 	{
 		String filePath = newFilePath;
 

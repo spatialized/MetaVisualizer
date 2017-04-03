@@ -2,7 +2,7 @@
 * MultimediaLocator v0.9.0
 * @author davidgordon
 * 
-* Software for displaying large multimedia collections as immersive virtual
+* Software for displaying large multimedia collections as navigable virtual
 * environments based on spatial, temporal and orientation metadata. 
 *********************************************************************************/
 

@@ -13,7 +13,7 @@ import toxi.math.ScaleMap;
 
 /***************************************
  * @author davidgordon
- * An object viewable in 3D space
+ * A media object viewable in 3D space
  */
 public abstract class WMV_Media
 {

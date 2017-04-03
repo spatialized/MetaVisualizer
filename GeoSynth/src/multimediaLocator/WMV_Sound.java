@@ -13,7 +13,7 @@ import processing.core.PVector;
  * Represents a sound in 3D virtual space
  */
 
-public class WMV_Sound extends WMV_Viewable						 
+public class WMV_Sound extends WMV_Media						 
 {
 //	/* Classes */
 //	WMV_WorldSettings worldSettings;

@@ -11,7 +11,7 @@ import processing.core.PVector;
  * @author davidgordon
  * A 360-degree panorama in 3D virtual space
  */
-public class WMV_Panorama extends WMV_Viewable 
+public class WMV_Panorama extends WMV_Media 
 {
 	/* Classes */
 	private WMV_PanoramaState state;

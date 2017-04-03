@@ -24,7 +24,7 @@ public class WMV_MediaState
 	public String filePath = "";
 
 	/* Time */
-	ZonedDateTime dateTime;
+	public ZonedDateTime dateTime;
 	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
 	public boolean isCurrentMedia;
 	public float timeBrightness = 0.f;

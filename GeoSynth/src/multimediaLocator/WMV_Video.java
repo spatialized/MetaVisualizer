@@ -16,7 +16,7 @@ import processing.data.IntList;
  * A rectangular video in 3D virtual space
  */
 
-class WMV_Video extends WMV_Viewable          		// Represents a video in virtual space
+class WMV_Video extends WMV_Media          		// Represents a video in virtual space
 {
 	/* General */
 	public WMV_VideoState state;

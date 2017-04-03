@@ -12,7 +12,7 @@ import processing.core.PVector;
  * A rectangular image in 3D virtual space
  */
 
-class WMV_Image extends WMV_Viewable						 
+class WMV_Image extends WMV_Media						 
 {
 	/* Classes */
 	private WMV_ImageState state;

@@ -56,9 +56,9 @@ public class WMV_Field
 			   ML_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
 	{
 		worldSettings = newWorldSettings;
-		worldState = newWorldState;
-		viewerSettings = newViewerSettings;
-		viewerState = newViewerState;
+		if(newWorldState != null) worldState = newWorldState;
+		if(newViewerSettings != null) viewerSettings = newViewerSettings;
+		if(newViewerState != null) viewerState = newViewerState;
 		debugSettings = newDebugSettings;
 
 		state = new WMV_FieldState();
@@ -2610,8 +2610,49 @@ public class WMV_Field
 		
 		state.setFieldData(clusterStates, imageStates, panoramaStates, videoStates);
 	}
+
 	
-	public WMV_Cluster getClusterFromClusterState(WMV_ClusterState clusterState)
+	/**
+	 * Set the current field state from file
+	 */
+	public void setState( WMV_FieldState newFieldState )
+	{
+//		state.reset();
+		state = newFieldState;
+		
+		ArrayList<WMV_ClusterState> clusterStates = newFieldState.clusters;
+		ArrayList<WMV_ImageState> imageStates = newFieldState.images; 				
+		ArrayList<WMV_PanoramaState> panoramaStates = newFieldState.panoramas; 			
+		ArrayList<WMV_VideoState> videoStates = newFieldState.videos; 				
+		
+		for(WMV_ClusterState cs : clusterStates)
+		{
+			WMV_Cluster newCluster = getClusterFromClusterState(cs);
+			addCluster(newCluster);
+		}
+		for(WMV_ImageState is : imageStates)
+		{
+			WMV_Image newImage = getImageFromImageState(is);
+			addImage(newImage);
+		}
+		for(WMV_PanoramaState ps : panoramaStates)
+		{
+			WMV_Panorama newPanorama = getPanoramaFromPanoramaState(ps);
+			addPanorama(newPanorama);
+		}
+		for(WMV_VideoState vs : videoStates)
+		{
+			WMV_Video newVideo = getVideoFromVideoState(vs);
+			addVideo(newVideo);
+		}
+
+		clusterStates = new ArrayList<WMV_ClusterState>();
+		imageStates = new ArrayList<WMV_ImageState>(); 				
+		panoramaStates = new ArrayList<WMV_PanoramaState>(); 			
+		videoStates = new ArrayList<WMV_VideoState>(); 				
+	}
+
+	private WMV_Cluster getClusterFromClusterState(WMV_ClusterState clusterState)
 	{
 //		WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
 //				 ML_DebugSettings newDebugSettings, int _clusterID, float _x, float _y, float _z) 
@@ -2626,7 +2667,7 @@ public class WMV_Field
 		return newCluster;
 	}
 	
-	public WMV_Image getImageFromImageState(WMV_ImageState imageState)
+	private WMV_Image getImageFromImageState(WMV_ImageState imageState)
 	{
 		WMV_Image newImage = new WMV_Image( imageState.vState.id, null, imageState.vState.mediaType, imageState.vState.name, imageState.vState.filePath,
 											imageState.vState.gpsLocation, imageState.vState.theta, imageState.focalLength, imageState.orientation,
@@ -2641,7 +2682,7 @@ public class WMV_Field
 		return newImage;
 	}
 	
-	public WMV_Panorama getPanoramaFromPanoramaState(WMV_PanoramaState panoState)
+	private WMV_Panorama getPanoramaFromPanoramaState(WMV_PanoramaState panoState)
 	{
 		WMV_Panorama newPanorama = new WMV_Panorama( panoState.vState.id, panoState.vState.mediaType, panoState.vState.name, panoState.vState.filePath,
 									panoState.vState.gpsLocation, panoState.vState.theta, panoState.phi, panoState.vState.cameraModel, panoState.imageWidth, 
@@ -2654,7 +2695,7 @@ public class WMV_Field
 		return newPanorama;
 	}
 	
-	public WMV_Video getVideoFromVideoState(WMV_VideoState videoState)
+	private WMV_Video getVideoFromVideoState(WMV_VideoState videoState)			 // --  NULL error
 	{
 		WMV_Video newVideo = new WMV_Video( videoState.vState.id, null, videoState.vState.mediaType, videoState.vState.name, videoState.vState.filePath,
 								videoState.vState.gpsLocation, videoState.vState.theta, videoState.focalLength, videoState.phi, videoState.orientation, videoState.rotation, 

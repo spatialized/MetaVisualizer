@@ -81,56 +81,66 @@ public class WMV_World
 		distanceFadeMap.setMapFunction(circularEaseIn);
 	}
 
-	void run()
+	void enter(int fieldIdx)
 	{
-		if(state.startedRunning)											// If simulation just started running
-		{
-			viewer.enterField(fields.get(0));								// Update navigation
-			viewer.updateState(settings, state);
-			viewer.update();												// Update navigation
-			viewer.moveToFirstTimeSegment(false);
-			state.startedRunning = false;
-		}
-		
-		if ( !state.initialSetup && !state.interactive && !p.state.exit ) 		/* Running the program */
-		{
-			updateState();
-			draw3D();						// 3D Display
-			draw2D();						// 2D Display
-			if(!state.paused) updateTime();		// Update time cycle
-			// updateLeapMotion();			// Update Leap Motion 
-		}
-		
-		if ( p.state.exit ) 											/* Stopping the program */
-		{
-			if(p.debug.detailed)
-				System.out.println("Exit command! about to quit...");
-			
-			p.stopWorldMediaViewer();								//  Exit simulation
-		}
-		
-		if ( p.debug.memory && state.frameCount % state.memoryCheckFrequency == 0 )		/* Memory debugging */
-		{
-			p.debug.checkMemory();
-			p.debug.checkFrameRate();
-		}
-		
-		if(state.saveImage && outputFolderSelected)		/* Image exporting */
-		{
-			if(viewer.getSettings().selection)
-			{
-				exportSelectedImages();
-				System.out.println("Saved image(s) to "+outputFolder);
-			}
-			else
-			{
-				p.saveFrame(outputFolder + "/" + getCurrentField().getName() + "-######.jpg");
-				System.out.println("Saved image: "+outputFolder + "/image" + "-######.jpg");
-			}
-			state.saveImage = false;
-		}
-//		System.out.println("Last run() on Frame #"+state.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
+		viewer.enterField( getField(fieldIdx) );								// Update navigation
+		viewer.updateState(settings, state);
+		viewer.update();												// Update navigation
+		viewer.moveToFirstTimeSegment(false);
 	}
+
+//	void run()
+//	{
+//		if(p.debug.main) System.out.println("run()... startedRunning? "+p.state.startedRunning+" p.state.initialSetup? "+p.state.initialSetup);
+//
+//		if(p.state.startedRunning)											// If simulation just started running
+//		{
+//			viewer.enterField(fields.get(0));								// Update navigation
+//			viewer.updateState(settings, state);
+//			viewer.update();												// Update navigation
+//			viewer.moveToFirstTimeSegment(false);
+//			p.state.startedRunning = false;
+//		}
+//		
+//		if ( !p.state.initialSetup && !state.interactive && !p.state.exit ) 		/* Running the program */
+//		{
+//			updateState();
+//			draw3D();						// 3D Display
+//			draw2D();						// 2D Display
+//			if(!state.paused) updateTime();		// Update time cycle
+//			// updateLeapMotion();			// Update Leap Motion 
+//		}
+//		
+//		if ( p.state.exit ) 											/* Stopping the program */
+//		{
+//			if(p.debug.detailed)
+//				System.out.println("Exit command! about to quit...");
+//			
+//			p.stopWorldMediaViewer();								//  Exit simulation
+//		}
+//		
+//		if ( p.debug.memory && state.frameCount % state.memoryCheckFrequency == 0 )		/* Memory debugging */
+//		{
+//			p.debug.checkMemory();
+//			p.debug.checkFrameRate();
+//		}
+//		
+//		if(p.state.saveImage && outputFolderSelected)		/* Image exporting */
+//		{
+//			if(viewer.getSettings().selection)
+//			{
+//				exportSelectedImages();
+//				System.out.println("Saved image(s) to "+outputFolder);
+//			}
+//			else
+//			{
+//				p.saveFrame(outputFolder + "/" + getCurrentField().getName() + "-######.jpg");
+//				System.out.println("Saved image: "+outputFolder + "/image" + "-######.jpg");
+//			}
+//			p.state.saveImage = false;
+//		}
+////		System.out.println("Last run() on Frame #"+state.frameCount+" getXOrientation():"+viewer.getXOrientation()+" getYOrientation():"+viewer.getYOrientation());
+//	}
 	
 	/**
 	 * Create each field and run initial clustering
@@ -146,7 +156,7 @@ public class WMV_World
 		}
 		
 		/* Create and initialize fields from folders, perform initial clustering, finish setup */
-		if (p.state.selectedLibrary && state.initialSetup && !state.creatingFields && !p.state.running)
+		if (p.state.selectedLibrary && p.state.initialSetup && !p.state.initializingFields && !p.state.running)
 		{
 			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder	
 
@@ -164,31 +174,38 @@ public class WMV_World
 				p.display.setupWMVWindow(this);									// Setup sidebar window
 		
 			fieldProgressInc = PApplet.round(100.f / fields.size());				// Amount to increment progress bar for each field
-			state.creatingFields = true;
+			p.state.initializingFields = true;
 		}
 
-		if (p.state.selectedLibrary && state.initialSetup && state.creatingFields && !state.fieldsCreated)	// Initialize fields
+		if (p.state.selectedLibrary && p.state.initialSetup && p.state.initializingFields && !p.state.fieldsInitialized)	// Initialize fields
 		{
-			if(!state.fieldsCreated && !p.state.exit)
+			if(!p.state.fieldsInitialized && !p.state.exit)
 			{
-				WMV_Field f = getField(state.initializationField);
+				WMV_Field f = getField(p.state.initializationField);
 
-				p.metadata.load(f, p.library.getLibraryFolder(), true);											// Import metadata for all media in field
-				state.hierarchical = f.initialize(p.library.getLibraryFolder(), state.lockMediaToClusters);		// Initialize field
+				WMV_SimulationState result = p.metadata.load(f, p.library.getLibraryFolder(), true);											// Import metadata for all media in field
+				if(result == null)
+					state.hierarchical = f.initialize(p.library.getLibraryFolder(), state.lockMediaToClusters);		// Initialize field
+				else
+				{
+					System.out.println("Valid SimulationState loaded...");
+					boolean success = loadSimulationState(result, getCurrentField());
+					if(!success) p.exit();
+				}
 				setBlurMasks();
 				
-				state.setupProgress += fieldProgressInc;				// Update progress bar
+				p.state.setupProgress += fieldProgressInc;				// Update progress bar
 				p.display.draw(this);									// Draw progress bar
 			}
 			
-			state.initializationField++;
-			if( state.initializationField >= fields.size() )			// Initialize each field until all are finished
+			p.state.initializationField++;
+			if( p.state.initializationField >= fields.size() )			// Initialize each field until all are finished
 			{
-				state.fieldsCreated = true;
+				p.state.fieldsInitialized = true;
 			}
 		}
 		
-		if (state.fieldsCreated && state.initialSetup && !p.state.running)
+		if (p.state.fieldsInitialized && p.state.initialSetup && !p.state.running)
 		{
 			if(p.debug.main)
 				System.out.println("Finishing WMV_World setup()...");
@@ -196,7 +213,7 @@ public class WMV_World
 			finishSetup();
 		}
 
-		if(p.state.selectedLibrary && !state.initialSetup && !state.interactive && !p.state.running)	/* Initial clustering once library is selected */
+		if(p.state.selectedLibrary && !p.state.initialSetup && !state.interactive && !p.state.running)	/* Initial clustering once library is selected */
 			startInitialClustering();							
 		
 		if(state.startInteractive && !state.interactive && !p.state.running)		/* Start interactive clustering */
@@ -356,9 +373,6 @@ public class WMV_World
 	{
 		viewer.setCurrentMedia( timelineIndex );
 		
-		if(p.debug.time && p.debug.detailed)
-			System.out.println("viewer.currentMedia:"+viewer.getCurrentMedia());
-		
 		if(viewer.getNearbyClusterTimeline().size() > 0)
 		{
 			WMV_Time time = viewer.getNearbyTimeByIndex(timelineIndex);
@@ -408,125 +422,15 @@ public class WMV_World
 			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
 	}
 	
-//	/**
-//	 * Load image masks
-//	 */
-//	public boolean loadImageMasks(String libFolder)
-//	{
-//		String maskPath = libFolder + "masks/";
-////		stitchingPath = libFolder + "stitched/";
-//		File maskFolder = new File(maskPath);
-//		String[] maskFolderList = maskFolder.list();
-//		
-//		if(maskFolder.list() == null)
-//		{
-//			return false;
-//		}
-//		else
-//		{
-//			for(String mask : maskFolderList)
-//			{
-//				if(mask.equals("blurMaskLeftTop.jpg"))
-//					blurMaskLeftTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskLeftCenter.jpg"))
-//					blurMaskLeftCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskLeftBottom.jpg"))
-//					blurMaskLeftBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskLeftBoth.jpg"))
-//					blurMaskLeftBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskCenterTop.jpg"))
-//					blurMaskCenterTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskCenterCenter.jpg"))
-//					blurMaskCenterCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskCenterBottom.jpg"))
-//					blurMaskCenterBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskCenterBoth.jpg"))
-//					blurMaskCenterBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskRightTop.jpg"))
-//					blurMaskRightTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskRightCenter.jpg"))
-//					blurMaskRightCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskRightBottom.jpg"))
-//					blurMaskRightBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskRightBoth.jpg"))
-//					blurMaskRightBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskBothTop.jpg"))
-//					blurMaskBothTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskBothCenter.jpg"))
-//					blurMaskBothCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskBothBottom.jpg"))
-//					blurMaskBothBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskBothBoth.jpg"))
-//					blurMaskBothBoth = p.loadImage(maskPath + mask);
-//			}
-//		}
-//		
-//		return true;
-//	}
-	
-	
-	/**
-	 * Load image masks
-	 */
-	public void loadImageMasks()
-	{
-		String maskPath = "masks/";
-		File maskFolder = new File(maskPath);
-		String[] maskFolderList = maskFolder.list();
-		
-		if(maskFolder.list() == null)
-		{
-			System.out.println("Masks folder is empty!");
-		}
-		else
-		{
-			for(String mask : maskFolderList)
-			{
-				if(mask.equals("blurMaskLeftTop.jpg"))
-					blurMaskLeftTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftCenter.jpg"))
-					blurMaskLeftCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftBottom.jpg"))
-					blurMaskLeftBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftBoth.jpg"))
-					blurMaskLeftBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterTop.jpg"))
-					blurMaskCenterTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterCenter.jpg"))
-					blurMaskCenterCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterBottom.jpg"))
-					blurMaskCenterBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterBoth.jpg"))
-					blurMaskCenterBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightTop.jpg"))
-					blurMaskRightTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightCenter.jpg"))
-					blurMaskRightCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightBottom.jpg"))
-					blurMaskRightBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightBoth.jpg"))
-					blurMaskRightBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothTop.jpg"))
-					blurMaskBothTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothCenter.jpg"))
-					blurMaskBothCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothBottom.jpg"))
-					blurMaskBothBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothBoth.jpg"))
-					blurMaskBothBoth = p.loadImage(maskPath + mask);
-			}
-		}
-	}
-	
 	/**
 	 * Finish the setup process
 	 */
 	void finishSetup()
 	{
-		if(p.debug.main)
-			System.out.println("Finishing setup...");
+		if(p.debug.main) System.out.println("Finishing setup...");
 
 		p.display.window.setupWMVWindow();
+		if(p.debug.main) System.out.println("Finished setting up WMV Window...");
 		
 		// NEW
 		WMV_Field f = getCurrentField();
@@ -538,15 +442,16 @@ public class WMV_World
 			vid.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debug);
 //		for(WMV_Sound snd : f.getSounds())
 //			img.updateSettings(settings, viewer.getSettings(), p.debug);
-		
-		state.initialSetup = false;				
+
+		if(p.debug.main) System.out.println("Finished setting initial media settings...");
+
+		p.state.initialSetup = false;				
 		p.display.initialSetup = false;
 		
-		state.setupProgress = 100;
+		p.state.setupProgress = 100;
 
 		p.state.running = true;
-		state.startedRunning = true;
-		
+		p.state.startedRunning = true;
 	}
 	
 	/**
@@ -566,54 +471,82 @@ public class WMV_World
 	 */
 	void saveSimulationState()
 	{
-//		String folderPath = p.library.getLibraryFolder();
-		String folderPath = p.library.getLibraryFolder() + getCurrentField().getName() + "/data/";
+		String folderPath = getDataFolder();
 		File directory = new File(folderPath);
 		if(!directory.exists()) directory.mkdir();			// Create directory if doesn't exist
 		
-		PApplet.println("Saving Simulation Data to:"+folderPath);
+		PApplet.println("Saving Simulation State to: "+folderPath);
 		p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
 		p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
 		p.library.saveViewerSettings(viewer.getSettings(), folderPath+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), folderPath+"ml_library_viewerState.json");
-		p.library.saveFieldData(getCurrentField(), folderPath+"ml_library_fieldState.json");
-//		p.library.saveFieldState(getCurrentField().getState(), folderPath+"ml_library_fieldState.json");
+		p.library.saveFieldState(getCurrentField(), folderPath+"ml_library_fieldState.json");
 	}
 
-	public void loadWorldSettings(WMV_WorldSettings newSettings)
+	/**
+	 * Save the current world, field and viewer states and settings to file
+	 */
+	private boolean loadSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
 	{
-		settings = newSettings;
+		PApplet.println("Loading Simulation State... ");
+
+		loadState();
+		loadSettings();
+		loadViewerState();
+		loadViewerSettings();
+		
+		String fieldName = curField.getName();
+		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
+		WMV_Field newField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debug, "", 0);
+		newField.setName(fieldName);
+		
+		fields.add(newField);
+		loadFieldState(fields.get(0));
+		
+		return false;
 	}
-	
-	public void loadWorldState(WMV_WorldState newState)
+
+	public void loadFieldState(WMV_Field field)
 	{
-		state = newState;
+		field.setState(p.library.loadFieldState(getDataFolder()+"ml_library_fieldState.json"));
 	}
-	
+
+	public void loadSettings()
+	{
+		setSettings(p.library.loadWorldSettings(getDataFolder()+"ml_library_worldSettings.json"));
+	}
+
+	public void loadState()
+	{
+		setState(p.library.loadWorldState(getDataFolder()+"ml_library_worldState.json"));
+	}
+
 	public void loadViewerSettings()
 	{
-		viewer.loadViewerSettings(p.library.loadViewerSettings(p.library.getLibraryFolder()+"ml_library_viewerSettings.json"));
+		viewer.setSettings(p.library.loadViewerSettings(getDataFolder()+"ml_library_viewerSettings.json"));
 	}
 
 	public void loadViewerState()
 	{
-		viewer.loadViewerState(p.library.loadViewerState(p.library.getLibraryFolder()+"ml_library_viewerState.json"));
+		viewer.setState(p.library.loadViewerState(getDataFolder()+"ml_library_viewerState.json"));
 	}
 
 	/**
 	 * Reset variables
 	 */
-	void reset()
+	void reset(boolean system)
 	{
-		state.initializationField = 0;				// Field to be initialized this frame
-		state.setupProgress = 0;						// Setup progress (0 to 100)
+		if(system)
+		{
+			p.state.initializationField = 0;				// Field to be initialized this frame
+			p.state.setupProgress = 0;						// Setup progress (0 to 100)
+			p.state.startedRunning = false;			// Program just started running
+			p.state.initialSetup = false;			// Performing initial setup 
+			p.state.initializingFields = false;			// Initializing media folders
+			p.state.fieldsInitialized = false;			// Initialized media folders
+			p.state.save = false;
+		}
 		
-		state.startedRunning = false;			// Program just started running
-		state.initialSetup = false;			// Performing initial setup 
-		state.creatingFields = false;			// Initializing media folders
-		state.fieldsCreated = false;			// Initialized media folders
-		state.saveImage = false;
-
 		settings.reset();
 
 		/* Clustering Modes */
@@ -622,17 +555,17 @@ public class WMV_World
 		state.startInteractive = false;				// Start user clustering
 
 		/* Time */
-		state.timeFading = false;						// Does time affect media brightness? 
-		state.paused = false;							// Time is paused
+		state.timeFading = false;					// Does time affect media brightness? 
+		state.paused = false;						// Time is paused
 
 		state.currentTime = 0;						// Time units since start of time cycle (day / month / year)
 		state.currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
 
 		/* Graphics */
-		state.hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera
+		state.hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera
 
 		state.alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
-		state.alpha = 195.f;							// Transparency
+		state.alpha = 195.f;						// Transparency
 		state.beginFadingAlpha = false;
 		state.fadingAlpha = false;
 		state.fadingAlphaStartFrame = 0; 
@@ -640,12 +573,12 @@ public class WMV_World
 		state.fadingAlphaLength = 20;	
 
 		state.fadeEdges = true;						// Blur image edges
-		drawForceVector = true;					// Show attraction vector on map (mostly for debugging)
+		drawForceVector = true;						// Show attraction vector on map (mostly for debugging)
 		
 		/* Video */
-		state.showModel = false;						// Activate Model Display 
-		state.showMediaToCluster = false;				// Draw line from each media point to cluster
-		state.showCaptureToMedia = false;				// Draw line from each media point to its capture location
+		state.showModel = false;					// Display model 
+		state.showMediaToCluster = false;			// Draw line from each media point to cluster
+		state.showCaptureToMedia = false;			// Draw line from each media point to its capture location
 		state.showCaptureToCluster = false;			// Draw line from each media capture location to associated cluster
 
 		/* Clusters */
@@ -690,7 +623,7 @@ public class WMV_World
 		p.display.draw(this);											
 
 		p.state.running = false;			// Stop running
-		state.initialSetup = true;				// Start clustering mode
+		p.state.initialSetup = true;				// Start clustering mode
 	}
 	
 	/**
@@ -732,7 +665,7 @@ public class WMV_World
 		viewer.clearAttractorCluster();
 
 		state.interactive = false;				// Stop interactive clustering mode
-		state.startedRunning = true;				// Start GMViewer running
+		p.state.startedRunning = true;				// Start GMViewer running
 		p.state.running = true;	
 		
 		viewer.setCurrentCluster( viewer.getNearestCluster(false), -1 );
@@ -852,20 +785,6 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return The current attractor cluster
-	 */
-//	public WMV_Cluster getAttractorCluster()
-//	{
-//		int attractor = viewer.getAttractorCluster();
-//		if(attractor >= 0 && attractor < getCurrentField().getClusters().size())
-//		{
-//			WMV_Cluster c = getCurrentField().getCluster(attractor);
-//			return c;
-//		}
-//		else return null;
-//	}
-	
-	/**
 	 * @return All images in current field
 	 */
 	public ArrayList<WMV_Image> getFieldImages()
@@ -933,16 +852,6 @@ public class WMV_World
 		return clusters;
 	}
 
-//	/**
-//	 * @param id Cluster ID
-//	 * @return Specified cluster from current field
-//	 */
-//	WMV_Cluster getCluster(int id)
-//	{
-//		WMV_Cluster c = getCurrentField().clusters.get(id);
-//		return c;
-//	}
-
 	/**
 	 * Manually move back in time
 	 */
@@ -994,7 +903,7 @@ public class WMV_World
 	{
 		if(p.debug.main)
 			System.out.println("Will output image to disk.");
-		state.saveImage = true;
+		p.state.save = true;
 	}
 	
 	public void exportSelectedImages()
@@ -1378,5 +1287,73 @@ public class WMV_World
 			int bmID = image.getState().blurMaskID;
 			setBlurMask(image, bmID);
 		}
+	}
+
+	/**
+	 * Load image masks
+	 */
+	public void loadImageMasks()
+	{
+		String maskPath = "masks/";
+		File maskFolder = new File(maskPath);
+		String[] maskFolderList = maskFolder.list();
+		
+		if(maskFolder.list() == null)
+		{
+			System.out.println("Masks folder is empty!");
+		}
+		else
+		{
+			for(String mask : maskFolderList)
+			{
+				if(mask.equals("blurMaskLeftTop.jpg"))
+					blurMaskLeftTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftCenter.jpg"))
+					blurMaskLeftCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBottom.jpg"))
+					blurMaskLeftBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBoth.jpg"))
+					blurMaskLeftBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterTop.jpg"))
+					blurMaskCenterTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterCenter.jpg"))
+					blurMaskCenterCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBottom.jpg"))
+					blurMaskCenterBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBoth.jpg"))
+					blurMaskCenterBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightTop.jpg"))
+					blurMaskRightTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightCenter.jpg"))
+					blurMaskRightCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBottom.jpg"))
+					blurMaskRightBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBoth.jpg"))
+					blurMaskRightBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothTop.jpg"))
+					blurMaskBothTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothCenter.jpg"))
+					blurMaskBothCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBottom.jpg"))
+					blurMaskBothBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBoth.jpg"))
+					blurMaskBothBoth = p.loadImage(maskPath + mask);
+			}
+		}
+	}
+	
+	public String getDataFolder()
+	{
+		return p.library.getLibraryFolder() + getCurrentField().getName() + "/data/";
+	}
+	
+	public void setSettings(WMV_WorldSettings newSettings)
+	{
+		settings = newSettings;
+	}
+	
+	public void setState(WMV_WorldState newState)
+	{
+		state = newState;
 	}
 }

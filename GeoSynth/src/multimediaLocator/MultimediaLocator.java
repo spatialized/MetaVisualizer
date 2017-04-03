@@ -91,8 +91,45 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			world.setup();						/* Run setup  n.b. called several times on different frames */
 		}
-		else
-			world.run();						/* Run program */
+		else run();						/* Run program */
+	}
+	
+	/**
+	 * Run program each frame
+	 */
+	void run()
+	{
+		if(state.startedRunning)										// If simulation just started running
+		{
+			world.enter(0);												// Enter world at field 0
+			state.startedRunning = false;
+		}
+		
+		if ( !state.initialSetup && !world.state.interactive && !state.exit ) 		/* Running the program */
+		{
+			world.updateState();
+			world.draw3D();						// 3D Display
+			world.draw2D();						// 2D Display
+			if(!world.state.paused) world.updateTime();		// Update time cycle
+			// updateLeapMotion();			// Update Leap Motion 
+		}
+		
+		if ( state.exit ) 											/* Stopping the program */
+		{
+			if(debug.detailed)
+				System.out.println("Exit command! about to quit...");
+			
+			stopMultimediaLocator();								//  Exit simulation
+		}
+		
+		if ( debug.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
+		{
+			debug.checkMemory();
+			debug.checkFrameRate();
+		}
+		
+		if(state.save && world.outputFolderSelected)		/* Image exporting */
+			save();
 	}
 	
 	/**
@@ -110,9 +147,24 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	{
 		background(0.f);
 		display.window.hideWindows();
-		world.reset();
+		world.reset(true);
 	}
 	
+	public void save()
+	{
+		if(world.viewer.getSettings().selection)
+		{
+			world.exportSelectedImages();
+			System.out.println("Saved image(s) to "+world.outputFolder);
+		}
+		else
+		{
+			saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
+			System.out.println("Saved image: "+world.outputFolder + "/image" + "-######.jpg");
+		}
+		state.save = false;
+	}
+
 	/**
 	 * Open library folder when folder has been selected
 	 * @param selection File object for selected folder
@@ -125,7 +177,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	/**
 	 * Stop the program
 	 */
-	void stopWorldMediaViewer() 
+	void stopMultimediaLocator() 
 	{
 		System.out.println("Exiting WorldMediaViewer 1.0.0...");
 		exit();

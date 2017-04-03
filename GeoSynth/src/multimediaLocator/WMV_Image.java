@@ -1040,10 +1040,10 @@ class WMV_Image extends WMV_Viewable
 			 return true;
 	 }
 
+	 // state.horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
+	 // state.vertBorderID	 0: Top  1: Center  2: Bottom  3: Top+Bottom
 	 public void setBlurMaskID()
 	 {
-		 // state.horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
-		 // state.vertBorderID	 0: Top  1: Center  2: Bottom  3: Top+Bottom
 		 if(state.horizBorderID == 0)
 		 {
 			 switch(state.vertBorderID)

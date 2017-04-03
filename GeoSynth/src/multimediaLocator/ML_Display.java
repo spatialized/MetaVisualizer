@@ -29,10 +29,10 @@ class ML_Display
 	/* Setup */
 	public boolean initialSetup = true;
 	GButton btnSelectLibrary;
-//	PImage startupImage;
 	
 	/* Graphics */
 	public boolean drawGrid = false; 					// Draw 3D grid   			-- Unused
+//	PImage startupImage;
 
 	public int blendMode = 0;							// Alpha blending mode
 	private int numBlendModes = 10;						// Number of blending modes

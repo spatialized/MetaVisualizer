@@ -55,6 +55,46 @@ public class WMV_FieldState
 		videos = new ArrayList<WMV_VideoState>();
 	}
 	
+	public void reset()
+	{
+		/* General */
+		id = -1;						// Field ID
+		name = "";				// Field Name
+		
+		/* Time */
+		timeZoneID = "America/Los_Angeles";					// Current time zone
+
+		/* Data */
+		imageErrors = 0; videoErrors = 0; panoramaErrors = 0;	// Metadata loading errors per media type
+		indexPanoramaOffset = -1; indexVideoOffset = -1;		// Start of panoramas / videos in names and distances arrays
+
+		/* Clusters */
+		deepestLevel = -1;	
+		defaultClusterDepth = 8;						// How deep in the dendrogram to look for media?	-- Set based on deepestLevel?
+		minClusterDepth = 2;							// Minimum cluster depth
+		clusterDepth = defaultClusterDepth;				// Current cluster depth
+		clustersByDepth = new ArrayList<Integer>();		// Number of clusters at each dendrogram depth
+		
+		/* Hierarchical Clustering */
+		dendrogramCreated = false;						// Dendrogram has been created
+
+		/* Graphics */
+		imagesVisible = 0; imagesSeen = 0;				// Number of visible photos and currently seen
+		panoramasVisible = 0; panoramasSeen = 0;		// Number of visible panoramas and currently seen
+		videosVisible = 0; videosLoaded = 0; videosPlaying = 0; videosSeen = 0;
+		
+		/* -- Debug -- */	
+		disassociatedImages = 0;						// Images not associated with a cluster -- Still needed?
+		disassociatedPanoramas = 0;
+		disassociatedVideos = 0;
+
+		/* Data */
+		clusters = new ArrayList<WMV_ClusterState>();			// Clusters (spatial groupings) of media 
+		images = new ArrayList<WMV_ImageState>(); 				// All images in this field
+		panoramas = new ArrayList<WMV_PanoramaState>(); 		// All panoramas in this field
+		videos = new ArrayList<WMV_VideoState>(); 				// All videos in this field
+	}
+	
 	public void setFieldData(ArrayList<WMV_ClusterState> newClusters, ArrayList<WMV_ImageState> newImages, ArrayList<WMV_PanoramaState> newPanoramas,
 			ArrayList<WMV_VideoState> newVideos)
 	{

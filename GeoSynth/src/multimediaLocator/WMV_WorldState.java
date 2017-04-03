@@ -7,25 +7,13 @@ package multimediaLocator;
  */
 public class WMV_WorldState 
 {
-	/* System Status */
-	public boolean startedRunning = false;			// Program just started running
-	public boolean initialSetup = false;			// Performing initial setup 
-	public boolean creatingFields = false;			// Initializing media folders
-	public boolean fieldsCreated = false;			// Initialized media folders
-	public boolean saveImage = false;
-	public int initializationField = 0;				// Field to be initialized this frame
-	public int setupProgress = 0;					// Setup progress (0 to 100)
-	public int frameCount = 0;						// Frame count
-	
-	/* Stitching */
-	String stitchingPath;
-
 	/* Clustering Modes */
 	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
 	public boolean interactive = false;					// In user clustering mode?
 	public boolean startInteractive = false;			// Start user clustering
 
 	/* Time */
+	public int frameCount = 0;						// Frame count
 	public int timeMode = 2;							// Time Mode (0 = cluster; 1 = field; 2 = single)
 	public boolean timeFading = false;					// Does time affect media brightness? 
 	public boolean paused = false;						// Time is paused
@@ -61,6 +49,9 @@ public class WMV_WorldState
 	public int minAvailableMemory = 50000000;			// Minimum available memory
 	public int memoryCheckFrequency = 50;
 	public int minFrameRate = 10;	
+
+	/* Stitching */
+	String stitchingPath;
 
 	/* Media */
 //	public int requestedImages = 0;						// Count of images currently requested to be loaded from disk

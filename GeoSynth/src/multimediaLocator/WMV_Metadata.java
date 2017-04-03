@@ -36,24 +36,29 @@ class WMV_Metadata
 	public String panoramaFolder = "";
 	public String videoFolder = "", smallVideoFolder = "";				// File path for media folders
 	public String soundFolder = "";
+	public String dataFolder = "";
 	
 	public File imageFolderFile = null, smallImageFolderFile = null, panoramaFolderFile = null, // Folders containing the media 
-				videoFolderFile = null, soundFolderFile = null;	
+				videoFolderFile = null, soundFolderFile = null, dataFolderFile = null;
 	
 	public boolean imageFolderFound = false, smallImageFolderFound = false;
 	public boolean panoramaFolderFound = false;
 	public boolean videoFolderFound = false; 	
 	public boolean soundFolderFound = false; 	
+	public boolean dataFolderFound = false; 	
 	
 	public File[] smallImageFiles = null, imageFiles = null, panoramaFiles = null, // Temp arrays to store media files
-				  videoFiles = null, soundFiles = null;								
+				  videoFiles = null, soundFiles = null, dataFiles = null;								
 
 	public boolean smallImageFilesFound = false;
 	public boolean imageFilesFound = false;
 	public boolean panoramaFilesFound = false;
 	public boolean videoFilesFound = false;
 	public boolean soundFilesFound = false;
-	
+	private boolean dataFilesValidFormat = false, dataFolderValid = false;
+
+	private final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
+
 	int iCount = 0, pCount = 0, vCount = 0;							// Media count by type 
 	public File exifToolFile;										// File for ExifTool executable
 
@@ -73,7 +78,7 @@ class WMV_Metadata
 	/**
 	 * Load metadata from a folder into a field 
 	 */
-	public void load(WMV_Field field, String mediaFolder, boolean formatted)
+	public WMV_SimulationState load(WMV_Field field, String mediaFolder, boolean formatted)
 	{
 		if(formatted)				// mediaFolder is a correctly formatted library
 		{
@@ -82,34 +87,45 @@ class WMV_Metadata
 			f = field;
 			String fieldPath = f.getName();
 
-			loadImageFolders(library, fieldPath); 	// Load image file names
+			loadImageFolders(library, fieldPath); 	// Load image and panorama file names
 			loadVideoFolder(library, fieldPath); 	// Load video file names
-			loadSoundFolder(library, fieldPath); 	// Load video file names
-
-			iCount = 0; 
-			pCount = 0;
-			vCount = 0;
-
-//			System.out.println("smallImageFilesFound:"+smallImageFilesFound);
-//			System.out.println("imageFilesFound:"+imageFilesFound);
-//			System.out.println("panoramaFilesFound:"+panoramaFilesFound);
-//			System.out.println("videoFilesFound:"+videoFilesFound);
-//			System.out.println("soundFilesFound:"+soundFilesFound);
-
-//			if(imageFilesFound)
-//				loadImageMetadata(imageFiles);						// Load image metadata 
+			loadSoundFolder(library, fieldPath); 	// Load sound file names
+			loadDataFolder(library, fieldPath);		// Load media data from disk
 			
-			if(smallImageFilesFound)
-				loadImageMetadata(smallImageFiles);						// Load image metadata 
+			if(dataFilesValidFormat)
+			{
+				WMV_FieldState newFieldState = p.library.loadFieldState(dataFiles[0].getAbsolutePath());
+				WMV_ViewerSettings newViewerSettings = p.library.loadViewerSettings(dataFiles[1].getAbsolutePath());
+				WMV_ViewerState newViewerState = p.library.loadViewerState(dataFiles[2].getAbsolutePath());
+				WMV_WorldSettings newWorldSettings = p.library.loadWorldSettings(dataFiles[3].getAbsolutePath());
+				WMV_WorldState newWorldState = p.library.loadWorldState(dataFiles[4].getAbsolutePath());
+				
+				WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
+									newViewerState, newWorldSettings, newWorldState );
+				
+				return newSimulationState;
+			}
+			else
+			{
+				iCount = 0; 
+				pCount = 0;
+				vCount = 0;
 
-			if(panoramaFilesFound)									// Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
-				loadImageMetadata(panoramaFiles);
-
-			if(videoFilesFound)										// Load video metadata 
-				loadVideoMetadata(videoFiles);	
-
-			if(soundFilesFound)										// Load video metadata 
-				loadSounds(soundFiles);	
+//				if(imageFilesFound)
+//					loadImageMetadata(imageFiles);						// Load image metadata 
+			
+				if(smallImageFilesFound)
+					loadImageMetadata(smallImageFiles);						// Load image metadata 
+	
+				if(panoramaFilesFound)									// Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
+					loadImageMetadata(panoramaFiles);
+	
+				if(videoFilesFound)										// Load video metadata 
+					loadVideoMetadata(videoFiles);	
+	
+				if(soundFilesFound)										// Load video metadata 
+					loadSounds(soundFiles);	
+			}
 		}
 		else						// mediaFolder is an ordinary folder of media
 		{
@@ -133,6 +149,8 @@ class WMV_Metadata
 			if(soundFiles != null)										// Load sounds (no metadata)
 				loadSounds(soundFiles);	
 		}
+		
+		return null;
 	}
 	
 	/**
@@ -309,6 +327,48 @@ class WMV_Metadata
 		
 		if (debugSettings.sound)
 			System.out.println("Sound Folder:" + soundFolder);
+	}
+	
+	/**
+	 * Load metadata for folder of videos
+	 */
+	public void loadDataFolder(String library, String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	{
+		dataFolder = library + fieldPath + "/data/";		// Max width 720 pixels  -- Check this!
+//		dataFolder = library + "/" + fieldPath + "/data/";		// Max width 720 pixels  -- Check this!
+
+		dataFolderFile = new File(dataFolder);
+		dataFolderFound = (dataFolderFile.exists() && dataFolderFile.isDirectory());	
+		dataFiles = null;
+
+		System.out.println("dataFolderFound? " + (dataFolderFound)); 
+//		System.out.println("dataFolderFile.isDirectory()? " + (dataFolderFile.isDirectory())); 
+//		System.out.println("dataFolderFile.exists()? " + (dataFolderFile.exists())); 
+//		System.out.println("dataFiles != null? " + (dataFiles != null)); 
+		if(dataFolderFound)				// Check for sound files
+		{
+			dataFiles = dataFolderFile.listFiles();
+			if(dataFiles != null && dataFiles.length > 0)
+			{
+				System.out.println("dataFiles[0].getName(): " + (dataFiles[0].getName())); 
+				System.out.println("dataFiles[1].getName(): " + (dataFiles[1].getName())); 
+				System.out.println("dataFiles[2].getName(): " + (dataFiles[2].getName())); 
+				System.out.println("dataFiles[3].getName(): " + (dataFiles[3].getName())); 
+				System.out.println("dataFiles[4].getName(): " + (dataFiles[4].getName())); 
+				if( dataFiles[0].getName().equals("ml_library_fieldState.json") &&
+					dataFiles[1].getName().equals("ml_library_viewerSettings.json") &&
+					dataFiles[2].getName().equals("ml_library_viewerState.json") &&
+					dataFiles[3].getName().equals("ml_library_worldSettings.json") &&
+					dataFiles[4].getName().equals("ml_library_worldState.json")    )
+				dataFilesValidFormat = true;
+			}
+		}
+		
+		if (debugSettings.data)
+		{
+			System.out.println("Data Folder:" + dataFolder); 
+			System.out.println("dataFilesValidFormat? "+dataFilesValidFormat);
+		}
 	}
 	
 	/** 
@@ -834,7 +894,7 @@ class WMV_Metadata
 //			Calendar calendarTime = null;			// Calendar date and time
 			ZonedDateTime calendarTime = null;			// Calendar date and time
 
-			float fFocusDistance = p.world.settings.defaultFocusDistance;									// Focus distance currently NOT used
+			float fFocusDistance = defaultFocusDistance;									// Focus distance currently NOT used
 			int iWidth = -1, iHeight = -1;
 			float fBrightness = -1.f;
 			PVector pLoc = new PVector(0, 0, 0);

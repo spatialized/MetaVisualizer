@@ -1095,13 +1095,13 @@ public class ML_Input
 							world.p.display.window.chkbxAngleFading.setSelected(state);
 					}
 
-					if (key == 'H')
-					{
-						boolean state = !world.viewer.getAngleThinning();
-						world.viewer.setAngleThinning( state );
-						if(world.p.display.window.setupGraphicsWindow)
-							world.p.display.window.chkbxAngleThinning.setSelected(state);
-					}
+//					if (key == 'H')
+//					{
+//						boolean state = !world.viewer.getAngleThinning();
+//						world.viewer.setAngleThinning( state );
+//						if(world.p.display.window.setupGraphicsWindow)
+//							world.p.display.window.chkbxAngleThinning.setSelected(state);
+//					}
 
 					/* Output */
 					if (key == 'O') 

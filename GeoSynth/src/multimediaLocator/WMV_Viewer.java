@@ -89,23 +89,14 @@ public class WMV_Viewer
 		state.clustersVisible = new ArrayList<Integer>();
 	}
 	
-	public void loadViewerState(WMV_ViewerState newState)
+	public void setState(WMV_ViewerState newState)
 	{
-//		System.out.print("Before loadViewerState... state.location.x:"+state.location.x);
-//		System.out.print(" state.location.y:"+state.location.y);
-//		System.out.println(" state.location.z:"+state.location.z);
-//		System.out.println(" getLocation():"+getLocation());
 		state = newState;
-//		System.out.print("After loadViewerState... state.location.x:"+state.location.x);
-//		System.out.print(" state.location.y:"+state.location.y);
-//		System.out.println(" state.location.z:"+state.location.z);
-		setLocation(state.location);					// Update the camera
-		setTarget(state.target);					// Update the camera
-//		System.out.println(" getLocation():"+getLocation());
-//		setOrientation(state.orientation);					// Update the camera
+		setLocation(state.location);				// Update the camera location
+		setTarget(state.target);					// Update the camera target
 	}
 	
-	public void loadViewerSettings(WMV_ViewerSettings newSettings)
+	public void setSettings(WMV_ViewerSettings newSettings)
 	{
 		settings = newSettings;
 	}

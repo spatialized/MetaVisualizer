@@ -9,25 +9,30 @@ public class ML_DebugSettings
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
-	public boolean detailed = false;			// Verbose debugging messages
+	public boolean detailed = true;			// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	
-	/* Classes */
+	/* Data */
 	public boolean main = true;				// Debug WorldMediaViewer class
+	public boolean data = true;				// Debug WorldMediaViewer class
+	public boolean metadata = true;			// Debug WMV_Metadata class
+
+	/* Display */
 	public boolean viewer = false;				// Debug WMV_Viewer class
-	public boolean field = false;				// Debug WMV_Field class
-	public boolean time = false;				// Debug WMV_Time class
-	public boolean cluster = false;				// Debug WMV_Cluster class
+	public boolean field = true;				// Debug WMV_Field class
+	public boolean time = true;				// Debug WMV_Time class
+	public boolean cluster = true;				// Debug WMV_Cluster class
 	public boolean path = false;				// Debug WMV_Viewer class
 	public boolean display = false;				// Debug WMV_Display class
-	public boolean viewable = false;			// Debug WMV_Viewable class
+	public boolean viewable = true;			// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
-	public boolean metadata = false;			// Debug WMV_Metadata class
-	public boolean stitching = false;			// Debug WMV_Stitcher class
 	public boolean map = false;					// Debug WMV_Map class
+
+	/* Other */
+	public boolean stitching = false;			// Debug WMV_Stitcher class
 	
 	/* Memory */
 	public boolean lowMemory = false;

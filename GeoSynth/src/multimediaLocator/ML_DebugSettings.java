@@ -18,14 +18,14 @@ public class ML_DebugSettings
 	public boolean metadata = true;			// Debug WMV_Metadata class
 
 	/* Display */
-	public boolean viewer = false;				// Debug WMV_Viewer class
+	public boolean viewer = true;				// Debug WMV_Viewer class
 	public boolean field = true;				// Debug WMV_Field class
 	public boolean time = true;				// Debug WMV_Time class
 	public boolean cluster = true;				// Debug WMV_Cluster class
 	public boolean path = false;				// Debug WMV_Viewer class
 	public boolean display = false;				// Debug WMV_Display class
 	public boolean viewable = true;			// Debug WMV_Viewable class
-	public boolean image = false;				// Debug WMV_Image class
+	public boolean image = true;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class

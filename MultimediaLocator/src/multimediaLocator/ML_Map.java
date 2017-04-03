@@ -444,7 +444,7 @@ public class ML_Map
 //			drawOriginOnMap(mapWidth, mapHeight);
 		}
 
-		if(world.p.debug.map)
+		if(world.p.debugSettings.map)
 			drawMapBorder(world, mapWidth, mapHeight);
 	}
 	
@@ -1058,7 +1058,7 @@ public class ML_Map
 		world.p.line(0.f, zoomMapHeight, hudDistance * mapDistance,  0.f, 0.f, hudDistance * mapDistance );
 		world.p.popMatrix();
 		
-		if(world.p.debug.map)		// Large map border
+		if(world.p.debugSettings.map)		// Large map border
 		{
 			world.p.stroke(255,255,255,255);
 			world.p.strokeWeight(2);
@@ -1072,7 +1072,7 @@ public class ML_Map
 			world.p.popMatrix();
 		}
 		
-		if(world.p.debug.map && world.p.debug.detailed)
+		if(world.p.debugSettings.map && world.p.debugSettings.detailed)
 		{
 			world.p.pushMatrix();
 			world.p.stroke(0,255,255,255);
@@ -1172,7 +1172,7 @@ public class ML_Map
 				mapTopEdgeTransitionStart = mapTopEdge;
 				mapTopEdgeTransitionTarget = (screenHeight - zoomMapHeightTransitionTarget)/2 - zoomMapTopEdge;
 
-				if(world.p.debug.map)
+				if(world.p.debugSettings.map)
 					System.out.println("Started zoomToRectangleTransition transition...");
 			}
 		}
@@ -1376,7 +1376,7 @@ public class ML_Map
 		if(mapTopEdge != newMapY)
 			mapTopEdge = newMapY;
 		
-		if(world.p.debug.map)
+		if(world.p.debugSettings.map)
 		{
 			System.out.println("Updated mapLeftEdge:"+mapLeftEdge);
 			System.out.println("Updated mapTopEdge:"+mapTopEdge);

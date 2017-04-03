@@ -30,18 +30,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	/* System Modes */
 	public boolean basic = false;				// Minimal mode with no windows
 	
-	/* Library */
-	WMV_Metadata metadata;						// Metadata handler class
-	ML_Library library;							// WMViewer Media Library
-	ML_Stitcher stitcher;
-	ML_Input input;					// Handles input
-	ML_Display display;				// Handles heads up display
-
-	/* World */
+	/* Classes */
+	ML_Library library;							// Multimedia library
+	ML_Input input;								// Mouse and keyboard input
+	ML_Stitcher stitcher;						// Panoramic stitching
+	ML_Display display;							// Displaying 2D graphics and text
 	WMV_World world;							// The 3D World
+	WMV_Metadata metadata;						// Metadata reading and writing
 
 	/* Debugging */
-	ML_DebugSettings debug;						// Handles debugging functions
+	ML_DebugSettings debugSettings;						// Handles debugging functions
 
 	/** 
 	 * Load the PApplet either in a window of specified size or in fullscreen
@@ -58,11 +56,11 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void setup()
 	{
 		world = new WMV_World(this);
-		debug = new ML_DebugSettings(this);		
-		metadata = new WMV_Metadata(this, debug);
+		debugSettings = new ML_DebugSettings(this);		
+		metadata = new WMV_Metadata(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
 
-		if(debug.main) System.out.println("Initializing world...");
+		if(debugSettings.main) System.out.println("Initializing world...");
 		world.initialize();
 		input = new ML_Input(width, height);
 		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
@@ -72,7 +70,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		rectMode(PConstants.CENTER);
 		textAlign(PConstants.CENTER, PConstants.CENTER);
 
-		if(debug.main)
+		if(debugSettings.main)
 			System.out.println("Finished setup...");
 	}
 
@@ -116,16 +114,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		
 		if ( state.exit ) 											/* Stopping the program */
 		{
-			if(debug.detailed)
+			if(debugSettings.detailed)
 				System.out.println("Exit command! about to quit...");
 			
 			stopMultimediaLocator();								//  Exit simulation
 		}
 		
-		if ( debug.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
+		if ( debugSettings.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
 		{
-			debug.checkMemory();
-			debug.checkFrameRate();
+			debugSettings.checkMemory();
+			debugSettings.checkFrameRate();
 		}
 		
 		if(state.save && world.outputFolderSelected)		/* Image exporting */
@@ -200,14 +198,14 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	{
 		if (selection == null) 
 		{
-			if (debug.main)
+			if (debugSettings.main)
 				println("Window was closed or the user hit cancel.");
 		} 
 		else 
 		{
 			String input = selection.getPath();
 
-			if (debug.main)
+			if (debugSettings.main)
 				println("----> User selected output folder: " + input);
 
 			world.outputFolder = input;
@@ -230,7 +228,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			String input = selection.getPath();
 
-			if (debug.metadata)
+			if (debugSettings.metadata)
 				System.out.println("User selected library folder: " + input);
 
 			library = new ML_Library(input);
@@ -301,12 +299,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 		catch(NullPointerException npe)
 		{
-			if(debug.video)
+			if(debugSettings.video)
 				println("movieEvent() NullPointerException:"+npe);
 		}
 		catch(Throwable t)
 		{
-			if(debug.video)
+			if(debugSettings.video)
 				println("movieEvent() Throwable:"+t);
 		}
 	}

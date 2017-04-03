@@ -1611,7 +1611,7 @@ public class ML_Window {
 					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getCluster(world.viewer.getAttractorClusterID()).getLocation(), world.viewer.getLocation() )), x, y += lineWidth);
 				}
 
-				if(world.p.debug.viewer) 
+				if(world.p.debugSettings.viewer) 
 				{
 					applet.text(" Debug: Current Attraction: "+world.viewer.getAttraction().mag(), x, y += lineWidth);
 					applet.text(" Debug: Current Acceleration: "+world.viewer.getAcceleration().mag(), x, y += lineWidth);
@@ -1621,7 +1621,7 @@ public class ML_Window {
 					applet.text(" Debug: Halting? " + world.viewer.isHalting(), x, y += lineWidth);
 				}
 
-				if(world.p.debug.viewer)
+				if(world.p.debugSettings.viewer)
 				{
 					applet.text(" Debug: X Orientation (Yaw):" + world.viewer.getXOrientation(), x, y += lineWidth);
 					applet.text(" Debug: Y Orientation (Pitch):" + world.viewer.getYOrientation(), x, y += lineWidth);
@@ -1641,18 +1641,18 @@ public class ML_Window {
 				applet.text(" Image Output Folder:"+world.outputFolder, x, y += lineWidthVeryWide);
 				applet.text(" Library Folder:"+world.p.library.getLibraryFolder(), x, y += lineWidth);
 
-				if(world.p.debug.memory)
+				if(world.p.debugSettings.memory)
 				{
-					if(world.p.debug.detailed)
+					if(world.p.debugSettings.detailed)
 					{
-						applet.text("Total memory (bytes): " + world.p.debug.totalMemory, x, y += lineWidth);
-						applet.text("Available processors (cores): "+world.p.debug.availableProcessors, x, y += lineWidth);
-						applet.text("Maximum memory (bytes): " +  (world.p.debug.maxMemory == Long.MAX_VALUE ? "no limit" : world.p.debug.maxMemory), x, y += lineWidth); 
-						applet.text("Total memory (bytes): " + world.p.debug.totalMemory, x, y += lineWidth);
-						applet.text("Allocated memory (bytes): " + world.p.debug.allocatedMemory, x, y += lineWidth);
+						applet.text("Total memory (bytes): " + world.p.debugSettings.totalMemory, x, y += lineWidth);
+						applet.text("Available processors (cores): "+world.p.debugSettings.availableProcessors, x, y += lineWidth);
+						applet.text("Maximum memory (bytes): " +  (world.p.debugSettings.maxMemory == Long.MAX_VALUE ? "no limit" : world.p.debugSettings.maxMemory), x, y += lineWidth); 
+						applet.text("Total memory (bytes): " + world.p.debugSettings.totalMemory, x, y += lineWidth);
+						applet.text("Allocated memory (bytes): " + world.p.debugSettings.allocatedMemory, x, y += lineWidth);
 					}
-					applet.text("Free memory (bytes): "+world.p.debug.freeMemory, x, y += lineWidth);
-					applet.text("Approx. usable free memory (bytes): " + world.p.debug.approxUsableFreeMemory, x, y += lineWidth);
+					applet.text("Free memory (bytes): "+world.p.debugSettings.freeMemory, x, y += lineWidth);
+					applet.text("Approx. usable free memory (bytes): " + world.p.debugSettings.approxUsableFreeMemory, x, y += lineWidth);
 				}			
 			}
 //			else

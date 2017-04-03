@@ -115,7 +115,7 @@ public class ML_Stitcher
 
 				if(!imgs.isNull())
 				{
-					if(p.p.debug.stitching) System.out.println("Attempting to stitch "+imgs.size()+" images...");
+					if(p.p.debugSettings.stitching) System.out.println("Attempting to stitch "+imgs.size()+" images...");
 
 					Mat pano = new Mat();
 					int status = stitcher.stitch(imgs, pano);
@@ -128,7 +128,7 @@ public class ML_Stitcher
 					}
 					else
 					{
-						if(p.p.debug.stitching) p.p.display.message(p.state, "Error #" + status + " couldn't stitch panorama...");
+						if(p.p.debugSettings.stitching) p.p.display.message(p.state, "Error #" + status + " couldn't stitch panorama...");
 						if(status == 3)				// Error estimating camera parameters
 						{
 							if(p.settings.persistentStitching) reduce = true;
@@ -143,7 +143,7 @@ public class ML_Stitcher
 				}
 				else
 				{
-					if(p.p.debug.stitching) p.p.display.message(p.state, "Couldn't stitch panorama... No images!");
+					if(p.p.debugSettings.stitching) p.p.display.message(p.state, "Couldn't stitch panorama... No images!");
 					break;
 				}
 			}
@@ -163,7 +163,7 @@ public class ML_Stitcher
 			filePath = p.getState().stitchingPath+fileName;
 
 			org.bytedeco.javacpp.opencv_imgcodecs.imwrite(filePath, panorama);
-			if(p.p.debug.stitching) p.p.display.message(p.state, "Panorama stitching successful, output to file: " + fileName);
+			if(p.p.debugSettings.stitching) p.p.display.message(p.state, "Panorama stitching successful, output to file: " + fileName);
 
 			iplImage = new IplImage(panorama);
 			System.out.println("panorama.toString():"+panorama.toString());
@@ -214,7 +214,7 @@ public class ML_Stitcher
 
 			PImage result = addImageBorders(iplImage, clusterID, segment);
 			
-			if(p.p.debug.stitching)	// TESTING
+			if(p.p.debugSettings.stitching)	// TESTING
 			{	
 				String filePath = "";
 				String fileName = "";
@@ -226,7 +226,7 @@ public class ML_Stitcher
 
 				filePath = p.getState().stitchingPath+fileName;
 
-				if(p.p.debug.stitching) p.p.display.message(p.state, "Debugging: output panorama with borders to file: " + fileName);
+				if(p.p.debugSettings.stitching) p.p.display.message(p.state, "Debugging: output panorama with borders to file: " + fileName);
 				
 				result.save(filePath);
 			}
@@ -241,7 +241,7 @@ public class ML_Stitcher
 					"", null, panoDirection, panoElevation, -1, result.width, result.height, 1.f, null, p.getCurrentField().getTimeZoneID(), 
 					p.getCurrentField().getCluster(clusterID).getLocation(), result );
 		
-			if(p.p.debug.stitching)
+			if(p.p.debugSettings.stitching)
 			{
 				System.out.println("Final Width:"+result.width+" Height:"+result.height);
 				System.out.println("Final Aspect Ratio:"+((float)result.width/(float)result.height));
@@ -266,14 +266,14 @@ public class ML_Stitcher
 
 			if( img.empty())
 			{
-				if(p.p.debug.stitching)
+				if(p.p.debugSettings.stitching)
 					System.out.println("Image "+i+" is empty...");
 			}
 			else
 			{
 				imgs.resize(imgs.size() + 1);
 				imgs.put(imgs.size() - 1, img);
-				if(p.p.debug.stitching)
+				if(p.p.debugSettings.stitching)
 					System.out.println("Added image to stitching list: "+images[i]);
 			}
 		}
@@ -320,7 +320,7 @@ public class ML_Stitcher
 		
 		float aspect = (float)src.width() / (float)src.height();
 		
-		if(p.p.debug.stitching)
+		if(p.p.debugSettings.stitching)
 		{
 			System.out.println("--> addImageBorders()...");
 			System.out.println(" width():"+src.width()+" height:"+src.height()+" aspect:"+aspect);
@@ -331,12 +331,12 @@ public class ML_Stitcher
 		float left = sLeft - imgHorizCoverage * 0.5f;
 		float right = sRight + imgHorizCoverage * 0.5f;
 		
-		if(p.p.debug.stitching)
+		if(p.p.debugSettings.stitching)
 			System.out.println(" top:"+top+" bottom:"+bottom+" left:"+left+" right:"+right);
 
 		float xCoverage = PApplet.constrain(right - left, 0.f, 360.f);			// -- Check if constrain works
 		float yCoverage = PApplet.constrain(top - bottom, 0.f, 180.f);
-		if(p.p.debug.stitching)
+		if(p.p.debugSettings.stitching)
 			System.out.println(" xCoverage:"+xCoverage+" yCoverage:"+yCoverage);
 
 		float fullWidth, fullHeight;
@@ -365,7 +365,7 @@ public class ML_Stitcher
 		float xDiff = fullWidth - src.width();
 		float yDiff = fullHeight - src.height();
 		
-		if(p.p.debug.stitching)
+		if(p.p.debugSettings.stitching)
 			System.out.println(" fullWidth:"+fullWidth+" fullHeight:"+fullHeight+" xDiff:"+xDiff+" yDiff:"+yDiff);
 		
 		int topBorder = PApplet.abs(PApplet.round(yDiff / 2.f));
@@ -375,13 +375,13 @@ public class ML_Stitcher
 		
 		boolean error = false;
 
-		if(p.p.debug.stitching)
+		if(p.p.debugSettings.stitching)
 			System.out.println(" topBorder:"+topBorder+" bottomBorder:"+bottomBorder+" leftBorder:"+leftBorder+" rightBorder:"+rightBorder);
 
 		Mat image = new Mat( src );
 		if (image.empty()) 
 		{
-			if(p.p.debug.stitching)
+			if(p.p.debugSettings.stitching)
 				System.out.println(" Error reading image...");
 			error = true;
 		}

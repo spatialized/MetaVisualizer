@@ -241,7 +241,7 @@ class ML_Display
 
 		yPos = timelineYOffset + timelineHeight * 4.f;
 
-		if(p.p.debug.field || p.p.debug.main)
+		if(p.p.debugSettings.field || p.p.debugSettings.main)
 		{
 			if(f.getDateline() != null)
 			{
@@ -997,7 +997,7 @@ class ML_Display
 				selectedTime = timeSelected.getID();				// Set to selected
 				selectedCluster = timeSelected.getClusterID();
 
-				if(p.p.debug.time)
+				if(p.p.debugSettings.time)
 					System.out.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
 				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
@@ -1012,7 +1012,7 @@ class ML_Display
 			{
 				selectedDate = dateSelected.getID();				// Set to selected
 						
-				if(p.p.debug.time) 
+				if(p.p.debugSettings.time) 
 					System.out.println("Selected date:"+selectedDate);
 
 				updateFieldTimeline = true;				// Update timeline to show selected segment
@@ -1760,7 +1760,7 @@ class ML_Display
 			while(startupMessages.size() > 16)
 				startupMessages.remove(0);
 
-			if(p.p.debug.print)
+			if(p.p.debugSettings.print)
 				System.out.println(message);
 		}
 	}
@@ -1913,7 +1913,7 @@ class ML_Display
 			break;
 		}
 
-		if (p.p.debug.field)
+		if (p.p.debugSettings.field)
 			System.out.println("blendMode:" + blendMode);
 	}
 	
@@ -2027,7 +2027,7 @@ class ML_Display
 				p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
 			}
 
-			if(p.p.debug.viewer) 
+			if(p.p.debugSettings.viewer) 
 			{
 				p.p.text(" Debug: Current Attraction: "+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Current Acceleration: "+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);
@@ -2037,7 +2037,7 @@ class ML_Display
 				p.p.text(" Debug: Halting? " + p.viewer.isHalting(), xPos, yPos += lineWidth, hudDistance);
 			}
 
-			if(p.p.debug.viewer)
+			if(p.p.debugSettings.viewer)
 			{
 				p.p.text(" Debug: X Orientation (Yaw):" + p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Y Orientation (Pitch):" + p.viewer.getYOrientation(), xPos, yPos += lineWidth, hudDistance);
@@ -2073,18 +2073,18 @@ class ML_Display
 			p.p.text(" Field Dateline Segments: "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.textSize(mediumTextSize);
 
-			if(p.p.debug.memory)
+			if(p.p.debugSettings.memory)
 			{
-				if(p.p.debug.detailed)
+				if(p.p.debugSettings.detailed)
 				{
-					p.p.text("Total memory (bytes): " + p.p.debug.totalMemory, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("Available processors (cores): "+p.p.debug.availableProcessors, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("Maximum memory (bytes): " +  (p.p.debug.maxMemory == Long.MAX_VALUE ? "no limit" : p.p.debug.maxMemory), xPos, yPos += lineWidth, hudDistance); 
-					p.p.text("Total memory (bytes): " + p.p.debug.totalMemory, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("Allocated memory (bytes): " + p.p.debug.allocatedMemory, xPos, yPos += lineWidth, hudDistance);
+					p.p.text("Total memory (bytes): " + p.p.debugSettings.totalMemory, xPos, yPos += lineWidth, hudDistance);
+					p.p.text("Available processors (cores): "+p.p.debugSettings.availableProcessors, xPos, yPos += lineWidth, hudDistance);
+					p.p.text("Maximum memory (bytes): " +  (p.p.debugSettings.maxMemory == Long.MAX_VALUE ? "no limit" : p.p.debugSettings.maxMemory), xPos, yPos += lineWidth, hudDistance); 
+					p.p.text("Total memory (bytes): " + p.p.debugSettings.totalMemory, xPos, yPos += lineWidth, hudDistance);
+					p.p.text("Allocated memory (bytes): " + p.p.debugSettings.allocatedMemory, xPos, yPos += lineWidth, hudDistance);
 				}
-				p.p.text("Free memory (bytes): "+p.p.debug.freeMemory, xPos, yPos += lineWidth, hudDistance);
-				p.p.text("Approx. usable free memory (bytes): " + p.p.debug.approxUsableFreeMemory, xPos, yPos += lineWidth, hudDistance);
+				p.p.text("Free memory (bytes): "+p.p.debugSettings.freeMemory, xPos, yPos += lineWidth, hudDistance);
+				p.p.text("Approx. usable free memory (bytes): " + p.p.debugSettings.approxUsableFreeMemory, xPos, yPos += lineWidth, hudDistance);
 			}			
 		}
 		
@@ -2151,7 +2151,7 @@ class ML_Display
 //			p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
 		}
 		
-		if(p.p.debug.field || p.p.debug.main)
+		if(p.p.debugSettings.field || p.p.debugSettings.main)
 		{
 			if(c != null)
 			{
@@ -2203,7 +2203,7 @@ class ML_Display
 		{
 			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
-			if(p.p.debug.viewer) 
+			if(p.p.debugSettings.viewer) 
 			{
 				p.p.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);

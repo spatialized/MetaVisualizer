@@ -129,7 +129,7 @@ public class WMV_Sound extends WMV_Media
 		world.p.display.metadata(world, strLatitude + strLongitude);
 		world.p.display.metadata(world, strAltitude);
 
-		if(world.p.debug.sound)
+		if(world.p.debugSettings.sound)
 		{
 			world.p.display.metadata(world, strTitleDebug);
 			world.p.display.metadata(world, strBrightness);

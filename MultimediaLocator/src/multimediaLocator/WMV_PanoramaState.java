@@ -7,16 +7,14 @@ package multimediaLocator;
  */
 public class WMV_PanoramaState 
 {
+	/* Classes */
 	public WMV_MediaState vState;
+	private WMV_PanoramaMetadata metadata;
 
-	public final float initFocusDistanceFactor = 1.1f;	// Scaling from defaultFocusDistance to panorama radius
-	
-	/* Metadata */
-	public int imageWidth, imageHeight;		// Width and height
+	/* Model */
+	public final float initFocusDistanceFactor = 1.1f;	// Initial scaling from defaultFocusDistance to panorama radius
+	public float phi = 0.f;             				// Elevation (Pitch angle) for stitched panoramas 
 
-	/* Derived Metadata */
-	public float phi = 0.f;
-	
 	/* Graphics */
 	public float radius;
 	public float origRadius;
@@ -28,8 +26,14 @@ public class WMV_PanoramaState
 		vState = new WMV_MediaState();
 	}
 	
-	void setViewableState(WMV_MediaState newState)
+	void setMediaState(WMV_MediaState newState, WMV_PanoramaMetadata newMetadata)
 	{
 		vState = newState;
+		metadata = newMetadata;
+	}
+	
+	public WMV_PanoramaMetadata getMetadata()
+	{
+		return metadata;
 	}
 }

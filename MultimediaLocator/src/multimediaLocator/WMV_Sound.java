@@ -36,7 +36,7 @@ public class WMV_Sound extends WMV_Media
 	WMV_Sound ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
 				int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
 	{
-		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
+		super(newID, newMediaType, null);
 
 //		filePath = newFilePath;
 		getMediaState().gpsLocation = newGPSLocation;

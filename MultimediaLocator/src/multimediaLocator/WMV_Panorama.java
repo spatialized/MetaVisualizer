@@ -1,6 +1,5 @@
 package multimediaLocator;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
@@ -15,7 +14,8 @@ public class WMV_Panorama extends WMV_Media
 {
 	/* Classes */
 	private WMV_PanoramaState state;
-	
+	private WMV_PanoramaMetadata metadata;
+
 	/* Graphics */
 	public PImage texture;								// Texture image pixels
 	private boolean initialized;
@@ -26,17 +26,15 @@ public class WMV_Panorama extends WMV_Media
 	private float sinTable[];
 	private float cosTable[];
 	
-	WMV_Panorama ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-			float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone,
-			PVector newLocation, PImage newTexture )
+	WMV_Panorama ( int newID, int newMediaType, float newElevation, PVector newLocation, PImage newTexture, WMV_MediaMetadata newMediaMetadata, 
+			WMV_PanoramaMetadata newPanoramaMetadata )
 	{
-		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
+		super(newID, newMediaType, newMediaMetadata);
 
+		metadata = newPanoramaMetadata;
 		state = new WMV_PanoramaState();
 
 		texture = newTexture;
-		state.imageWidth = newWidth;
-		state.imageHeight = newHeight;
 
 		if(newLocation != null)
 		{
@@ -44,12 +42,12 @@ public class WMV_Panorama extends WMV_Media
 			setCaptureLocation(newLocation);
 		}
 		
-		if(newDateTime != null)
-			time = new WMV_Time( newDateTime, getID(), getClusterID(), 1, newTimeZone );
+		if(getMediaMetadata().dateTime != null)
+			time = new WMV_Time( getMediaMetadata().dateTime, getID(), getClusterID(), 1, getMediaMetadata().timeZone );
 		else
 			time = null;
 
-		state.phi = newElevation;              									// Elevation (Pitch angle) calculated from images 
+		state.phi = newElevation;              									// Elevation (Pitch angle) for stitched panoramas  	
 		state.radius = state.defaultFocusDistance * state.initFocusDistanceFactor;
 		state.origRadius = state.radius;
 	}  
@@ -102,8 +100,6 @@ public class WMV_Panorama extends WMV_Media
 		
 		if(isFading())                       // Fade in and out with time
 		{
-//			if(getDebugSettings().panorama && getDebugSettings().detailed)
-//				p.p.p.display.message(p.p, "Panorama fading... id: "+getID());
 			updateFadingBrightness();
 
 			if(getFadingBrightness() == 0.f)
@@ -528,10 +524,15 @@ public class WMV_Panorama extends WMV_Media
 	
 	 public void captureState()
 	 {
-		 state.setViewableState( getMediaState() );
+		 setMediaMetadata();
+		 state.setMediaState( getMediaState(), metadata );
 	 }
 	 
-	
+	 public WMV_PanoramaMetadata getMetadata()
+	 {
+		 return metadata;
+	 }
+
 	public void setDirection( float newTheta )
 	{
 		setTheta(newTheta);
@@ -549,17 +550,17 @@ public class WMV_Panorama extends WMV_Media
 	
 	public float getDirection()
 	{
-		return getMediaState().theta;
+		return metadata.theta;
 	}
 
 	public float getWidth()
 	{
-		return state.imageWidth;
+		return metadata.imageWidth;
 	}
 
 	public float getHeight()
 	{
-		return state.imageHeight;
+		return metadata.imageHeight;
 	}
 	
 	public float getRadius()
@@ -571,4 +572,34 @@ public class WMV_Panorama extends WMV_Media
 	{
 		return state.origRadius;
 	}
+	
+	public void setCameraModel(int newCameraModel)
+	{
+		metadata.cameraModel = newCameraModel;
+	}
+
+	public int getCameraModel()
+	{
+		return metadata.cameraModel;
+	}
+	
+	 public void setBrightness(float newBrightness)
+	 {
+		 metadata.brightness = newBrightness;
+	 }
+	 
+	 public float getBrightness()
+	 {
+		 return metadata.brightness;
+	 }
+	
+	 public void setTheta(float newTheta)
+	 {
+		 metadata.theta = newTheta;
+	 }
+
+	 public float getTheta()
+	 {
+		 return metadata.theta;
+	 }
 }

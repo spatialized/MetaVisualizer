@@ -611,7 +611,7 @@ public class WMV_Cluster
 		for(int idx : state.images)
 		{
 			WMV_Image m = imageList.get(idx);
-			float imgAngle = (float)Math.toRadians(m.getMediaState().theta);
+			float imgAngle = (float)Math.toRadians(m.getMetadata().theta);
 			m.setThinningVisibility(false);
 
 			for(int i=0; i<numPerimeterPts; i++)
@@ -639,7 +639,7 @@ public class WMV_Cluster
 		for(int idx : state.videos)
 		{
 			WMV_Video v = videoList.get(idx);
-			float vidAngle = (float)Math.toRadians(v.getMediaState().theta);
+			float vidAngle = (float)Math.toRadians(v.metadata.theta);
 			v.setThinningVisibility(false);
 
 			for(int i=0; i<numPerimeterPts; i++)

@@ -20,6 +20,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PImage;
+import processing.core.PVector;
 //import processing.core.PVector;
 import processing.data.IntList;
 
@@ -237,9 +238,18 @@ public class ML_Stitcher
 			
 			float panoElevation = segment.getCenterElevation();
 			
-			WMV_Panorama pano = new WMV_Panorama( segment.getID(), 1, "_stitched_"+Integer.toString(segment.getID()), 
-					"", null, panoDirection, panoElevation, -1, result.width, result.height, 1.f, null, p.getCurrentField().getTimeZoneID(), 
-					p.getCurrentField().getCluster(clusterID).getLocation(), result );
+			
+//			WMV_Panorama ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
+//					float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone,
+//					PVector newLocation, PImage newTexture, String[] newKeywords )
+
+//			WMV_Panorama ( int newID, int newMediaType, float newElevation, PVector newLocation, PImage newTexture, WMV_MediaMetadata newMediaMetadata, 
+//					WMV_PanoramaMetadata newPanoramaMetadata )
+			WMV_MediaMetadata mMetadata = new WMV_MediaMetadata("_stitched_"+Integer.toString(segment.getID()), "", null, null, ""); 
+			WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(panoDirection, -1, result.width, result.height, 1.f, null); 
+
+			WMV_Panorama pano = new WMV_Panorama( segment.getID(), 1, panoElevation, p.getCurrentField().getCluster(clusterID).getLocation(), 
+					result, mMetadata, pMetadata );
 		
 			if(p.p.debugSettings.stitching)
 			{

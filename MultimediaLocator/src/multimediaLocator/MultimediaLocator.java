@@ -27,9 +27,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
 	
-	/* System Modes */
-	public boolean basic = false;				// Minimal mode with no windows
-	
 	/* Classes */
 	ML_Library library;							// Multimedia library
 	ML_Input input;								// Mouse / keyboard input
@@ -39,25 +36,38 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	WMV_Metadata metadata;						// Metadata reading and writing
 	ML_DebugSettings debugSettings;				// Debug settings
 	
+	/* Debug Modes */
+	public boolean basic = false;				// Minimal mode with no windows
+	
+	/* Memory */
+	public boolean lowMemory = false;
+	public boolean performanceSlow = false;
+	public int availableProcessors;
+	public long freeMemory;
+	public long maxMemory;
+	public long totalMemory;
+	public long allocatedMemory;
+	public long approxUsableFreeMemory;
+
 	/** 
 	 * MultimediaLocator initial setup called once at launch
 	 */
 	public void setup()
 	{
+		debugSettings = new ML_DebugSettings();		
+		if(debugSettings.main) System.out.println("Starting MultimediaLocator initial setup...");
+
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
 		textAlign(PConstants.CENTER, PConstants.CENTER);
 		
-		input = new ML_Input(width, height);
-		debugSettings = new ML_DebugSettings(this);		
-	
 		world = new WMV_World(this);
 		world.initialize();
+		
+		input = new ML_Input(width, height);
 		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
-
 		metadata = new WMV_Metadata(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
-
 		if(debugSettings.main) System.out.println("MultimediaLocator initial setup complete...");
 	}
 
@@ -70,13 +80,18 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			if(state.reset) reset();
 			else display.showStartup(world);	/* Startup screen */
+			
 			state.startup = false;	
 		}
 		else if(!state.running)
 		{
-			initialize();						/* Run setup  n.b. called several times on different frames */
+			if (state.openLibraryDialog)
+				selectFolderPrompt();
+			else
+				initialize();						/* Run world initialization */
 		}
-		else run();						/* Run program */
+		else 
+			run();								/* Run program */
 	}
 	
 	/**
@@ -96,21 +111,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			world.draw3D();						// 3D Display
 			world.draw2D();						// 2D Display
 			if(!world.state.paused) world.updateTime();		// Update time cycle
-			// updateLeapMotion();			// Update Leap Motion 
+// 			input.updateLeapMotion();			// Update Leap Motion 
 		}
 		
 		if ( state.exit ) 											/* Stopping the program */
-		{
-			if(debugSettings.detailed)
-				System.out.println("Exit command! about to quit...");
-			
-			stopMultimediaLocator();								//  Exit simulation
-		}
+			exitMultimediaLocator();								//  Exit simulation
 		
 		if ( debugSettings.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
 		{
-			debugSettings.checkMemory();
-			debugSettings.checkFrameRate();
+			checkMemory();
+			checkFrameRate();
 		}
 		
 		if(state.save && world.outputFolderSelected)		/* Image exporting */
@@ -122,9 +132,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	public void settings() 
 	{
-//		size(1980, 1080, processing.core.PConstants.P3D);		// 
 		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
-//		size(1360, 940, processing.core.PConstants.P3D);		// MacBook Pro
+//		size(1980, 1080, processing.core.PConstants.P3D);		// 
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
 	}
 	
@@ -134,8 +143,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void initialize()
 	{
 		/* Library Folder */
-		if (state.openLibraryDialog)
-			selectFolderPrompt();
+//		if (state.openLibraryDialog)
+//			selectFolderPrompt();
 		
 		/* World Initialization */
 		if (state.selectedLibrary && state.initialSetup && !state.initializingFields && !state.running)
@@ -254,7 +263,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	/**
 	 * Stop the program
 	 */
-	void stopMultimediaLocator() 
+	void exitMultimediaLocator() 
 	{
 		System.out.println("Exiting MultimediaLocator 0.9.0...");
 		exit();
@@ -566,6 +575,70 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void gpsTrackSelected(File selection)
 	{
 		world.viewer.loadGPSTrack(selection);
+	}
+	
+	public void checkMemory()
+	{
+		  availableProcessors = Runtime.getRuntime().availableProcessors();		/* Total number of processors or cores available to the JVM */
+		  freeMemory = Runtime.getRuntime().freeMemory();		  /* Total amount of free memory available to the JVM */
+		  maxMemory = Runtime.getRuntime().maxMemory();		  /* Maximum amount of memory the JVM will attempt to use */
+		  totalMemory = Runtime.getRuntime().totalMemory();		  /* Total memory currently in use by the JVM */
+		  allocatedMemory = (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
+		  approxUsableFreeMemory = Runtime.getRuntime().maxMemory() - allocatedMemory;
+
+		  if(debugSettings.memory)
+		  {
+			  if(debugSettings.detailed)
+			  {
+				  System.out.println("Total memory (bytes): " + totalMemory);
+				  System.out.println("Available processors (cores): "+availableProcessors);
+				  System.out.println("Maximum memory (bytes): " +  (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory)); 
+				  System.out.println("Total memory (bytes): " + totalMemory);
+				  System.out.println("Allocated memory (bytes): " + allocatedMemory);
+			  }
+			  System.out.println("Free memory (bytes): "+freeMemory);
+			  System.out.println("Approx. usable free memory (bytes): " + approxUsableFreeMemory);
+		  }
+		  
+		  if(approxUsableFreeMemory < world.getState().minAvailableMemory && !lowMemory)
+			  lowMemory = true;
+		  if(approxUsableFreeMemory > world.getState().minAvailableMemory && lowMemory)
+			  lowMemory = false;
+		  
+		  /* Other possible memory tests: */
+//		  MemoryMXBean memBean = ManagementFactory.getMemoryMXBean();
+//		  MemoryUsage heap = memBean.getHeapMemoryUsage();
+//		  MemoryUsage nonheap = memBean.getNonHeapMemoryUsage();
+		  
+		  /* Get a list of all filesystem roots on this system */
+//		  File[] roots = File.listRoots();
+
+		  /* For each filesystem root, print some info */
+//		  for (File root : roots) {
+//		    System.out.println("File system root: " + root.getAbsolutePath());
+//		    System.out.println("Total space (bytes): " + root.getTotalSpace());
+//		    System.out.println("Free space (bytes): " + root.getFreeSpace());
+//		    System.out.println("Usable space (bytes): " + root.getUsableSpace());
+//		  }
+	}
+
+	public void checkFrameRate()
+	{
+		if(frameRate < world.getState().minFrameRate)
+		{
+			if(!performanceSlow)
+				performanceSlow = true;
+			
+			if(performanceSlow && debugSettings.memory)
+			{
+				display.message(world.state, "Performance slow...");
+			}
+		}
+		else
+		{
+			if(performanceSlow)
+				performanceSlow = false;
+		}
 	}
 	
 	/** 

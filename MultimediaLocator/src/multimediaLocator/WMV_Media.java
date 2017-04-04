@@ -24,37 +24,34 @@ public abstract class WMV_Media
 	private WMV_ViewerState viewerState;	// Update world settings
 	private ML_DebugSettings debugSettings;	// Update world settings
 	private WMV_MediaState mState;
+	private WMV_MediaMetadata mMetadata;
 	
 	/* Time */
 	private ScaleMap timeLogMap;
 	private InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
 	public WMV_Time time;
 
-	WMV_Media ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-			int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
+	WMV_Media ( int newID, int newMediaType, WMV_MediaMetadata newMetadata )
 	{
+		mMetadata = newMetadata;
+		
 		mState = new WMV_MediaState();
-		mState.name = newName;
+
+		mState.name = mMetadata.name;						// -- Temporary
+		mState.filePath = mMetadata.filePath;
+		mState.dateTime = mMetadata.dateTime;
+		mState.timeZone = mMetadata.timeZone;
+		mState.gpsLocation = mMetadata.gpsLocation;
+	
 		mState.id = newID; 
 		mState.mediaType = newMediaType;
-		mState.filePath = newFilePath;
-
-		mState.gpsLocation = newGPSLocation;
 		mState.captureLocation = new PVector(0, 0, 0);
-
-		mState.cameraModel = newCameraModel;
-		mState.theta = newTheta;              
-		mState.brightness = newBrightness;
 
 		mState.fadingBrightness = 0.f;			
 		mState.fadingStart = 0.f;
 
-		mState.dateTime = newDateTime;
-
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(circularEaseOut);
-		
-		mState.timeZone = newTimeZone;
 	}  
 
 	abstract void loadMedia(MultimediaLocator ml);
@@ -641,16 +638,6 @@ public abstract class WMV_Media
 		return mState.cluster;
 	}
 
-	public void setTheta(float newTheta)
-	{
-		mState.theta = newTheta;
-	}
-	
-	public float getTheta()
-	{
-		return mState.theta;
-	}
-
 	public void setLocation(PVector newLocation)
 	{
 		mState.location = newLocation;
@@ -681,16 +668,6 @@ public abstract class WMV_Media
 		return mState.gpsLocation;
 	}
 
-	public void setCameraModel(int newCameraModel)
-	{
-		mState.cameraModel = newCameraModel;
-	}
-
-	public int getCameraModel()
-	{
-		return mState.cameraModel;
-	}
-
 	public void setFadingFocusDistance(boolean newState)
 	{
 		mState.fadingFocusDistance = newState;
@@ -714,11 +691,6 @@ public abstract class WMV_Media
 	public float getFadingBrightness()
 	{
 		return mState.fadingBrightness;
-	}
-
-	public float getBrightness()
-	{
-		return mState.brightness;
 	}
 
 	/**
@@ -829,6 +801,16 @@ public abstract class WMV_Media
 	public WMV_MediaState getMediaState()
 	{
 		return mState;
+	}
+	
+	public void setMediaMetadata()
+	{
+		mState.mMetadata = mMetadata;
+	}
+
+	public WMV_MediaMetadata getMediaMetadata()
+	{
+		return mMetadata;
 	}
 	
 	public WMV_WorldSettings getWorldSettings()

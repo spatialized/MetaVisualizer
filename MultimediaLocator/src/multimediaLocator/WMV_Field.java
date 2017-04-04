@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -17,6 +18,7 @@ import com.apporiented.algorithm.clustering.DefaultClusteringAlgorithm;
 import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.IntList;
+//import processing.video.Movie;
 import processing.video.Movie;
 
 /**************************************************
@@ -2660,42 +2662,30 @@ public class WMV_Field
 	
 	private WMV_Image getImageFromImageState(WMV_ImageState imageState)
 	{
-		WMV_Image newImage = new WMV_Image( imageState.vState.id, null, imageState.vState.mediaType, imageState.vState.name, imageState.vState.filePath,
-											imageState.vState.gpsLocation, imageState.vState.theta, imageState.focalLength, imageState.orientation,
-											imageState.phi, imageState.rotation, imageState.focusDistance, imageState.sensorSize,
-											imageState.vState.cameraModel, imageState.imageWidth, imageState.imageHeight, imageState.vState.brightness,
-											imageState.vState.dateTime, imageState.vState.timeZone);
+		WMV_Image newImage = new WMV_Image( imageState.vState.id, null, imageState.vState.mediaType, imageState.vState.mMetadata, 
+				imageState.getMetadata());
 
 		newImage.setState( imageState );
-
-		// DO ADDITIONAL WORK HERE 
 		
 		return newImage;
 	}
 	
 	private WMV_Panorama getPanoramaFromPanoramaState(WMV_PanoramaState panoState)
 	{
-		WMV_Panorama newPanorama = new WMV_Panorama( panoState.vState.id, panoState.vState.mediaType, panoState.vState.name, panoState.vState.filePath,
-									panoState.vState.gpsLocation, panoState.vState.theta, panoState.phi, panoState.vState.cameraModel, panoState.imageWidth, 
-									panoState.imageHeight, panoState.vState.brightness, panoState.vState.dateTime, panoState.vState.timeZone, panoState.vState.location, null);
+		WMV_Panorama newPanorama = new WMV_Panorama( panoState.vState.id, panoState.vState.mediaType, panoState.phi, panoState.vState.location, null, 
+				panoState.vState.mMetadata, panoState.getMetadata() );
 
 		newPanorama.setState( panoState );
-
-		// DO ADDITIONAL WORK HERE 
 
 		return newPanorama;
 	}
 	
 	private WMV_Video getVideoFromVideoState(WMV_VideoState videoState)			 // --  NULL error
 	{
-		WMV_Video newVideo = new WMV_Video( videoState.vState.id, null, videoState.vState.mediaType, videoState.vState.name, videoState.vState.filePath,
-								videoState.vState.gpsLocation, videoState.vState.theta, videoState.focalLength, videoState.phi, videoState.orientation, videoState.rotation, 
-								videoState.focusDistance, videoState.vState.cameraModel, videoState.videoWidth, videoState.videoHeight, videoState.vState.brightness, 
-								videoState.vState.dateTime, videoState.vState.timeZone );
+		WMV_Video newVideo = new WMV_Video( videoState.vState.id, null, videoState.vState.mediaType, videoState.vState.mMetadata, 
+				videoState.getMetadata() );
 
 		newVideo.setState( videoState );
-
-		// DO ADDITIONAL WORK HERE 
 		
 		return newVideo;
 	}

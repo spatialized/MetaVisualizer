@@ -2,7 +2,7 @@ package multimediaLocator;
 
 import processing.video.*;
 
-import java.time.ZonedDateTime;
+//import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
@@ -20,44 +20,33 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 {
 	/* General */
 	public WMV_VideoState state;
+	public WMV_VideoMetadata metadata;
 
 	/* Video */
 	Movie video;									// Movie object
 	PImage frame;									// Frame to be displayed 
 	
-	WMV_Video ( int newID, Movie newVideo, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, float newFocalLength, 
-			float newOrientation, float newElevation, float newRotation, float newFocusDistance, int newCameraModel, int newVideoWidth, 
-			int newVideoHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
+	WMV_Video ( int newID, Movie newVideo, int newMediaType, WMV_MediaMetadata newMediaMetadata, WMV_VideoMetadata newVideoMetadata )
 	{
-		super(newID, newMediaType, newName, newFilePath, newGPSLocation, newTheta, newCameraModel, newBrightness, newDateTime, newTimeZone);
+		super(newID, newMediaType, newMediaMetadata);
 
+		metadata = newVideoMetadata;
 		state = new WMV_VideoState();
 		
 		state.vertices = new PVector[4]; 
 		state.sVertices = new PVector[4]; 
 
-		state.origVideoWidth = newVideoWidth;
-		state.origVideoHeight = newVideoHeight;
-		
-		state.videoWidth = newVideoWidth;
-		state.videoHeight = newVideoHeight;
+		state.origVideoWidth = metadata.videoWidth;
+		state.origVideoHeight = metadata.videoHeight;
 
-		if(newFocusDistance == -1.f) state.focusDistance = state.defaultFocusDistance;
-		else state.focusDistance = newFocusDistance;
+		metadata.focusDistance = state.defaultFocusDistance;
+		state.origFocusDistance = metadata.focusDistance;
 
-		state.origFocusDistance = state.focusDistance;
-		state.focalLength = newFocalLength;
-
-		if(newDateTime != null)
-			time = new WMV_Time( newDateTime, getID(), getClusterID(), 2, newTimeZone );		
+		if(getMediaMetadata().dateTime != null)
+			time = new WMV_Time( getMediaMetadata().dateTime, getID(), getClusterID(), 2, getMediaMetadata().timeZone );		
 		else
 			time = null;
-
-		state.orientation = newOrientation;       // Vertical (90) or Horizontal (0)
-		state.phi = newElevation;            		// Pitch angle
-		state.rotation = newRotation;             // Rotation angle
 		
-//		video = new Movie(p.p.p, filePath);
 		video = newVideo;
 		setLength( video.duration() );				// Set video length (in seconds)
 		video.dispose();
@@ -223,13 +212,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 	}
 
-//	public void updateSettings(WMV_WorldSettings newWorldSettings, WMV_ViewerSettings newViewerSettings, ML_DebugSettings newDebugSettings)
-//	{
-//		worldSettings = newWorldSettings;
-//		viewerSettings = newViewerSettings;
-//		debugSettings = newDebugSettings;
-//	}
-
 	/**
 =	 * Update video geometry and visibility 
 	 */
@@ -275,7 +257,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				if(getMediaState().visible && !getViewerSettings().orientationMode)
 					setVisible(getDistanceBrightness() > 0.f);
 
-				if(state.orientation != 0 && state.orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
+				if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 					setVisible(false);
 
 				if(isBackFacing(getViewerState().getLocation()) || isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
@@ -359,9 +341,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		state.vertices = initializeVertices();					// Initialize vertices
 		state.sVertices = initializeVertices();					// Initialize vertices
 
-		if (state.phi != 0.) state.vertices = rotateVertices(state.vertices, -state.phi, state.verticalAxis);        	 // Rotate around X axis
+		if (metadata.phi != 0.) state.vertices = rotateVertices(state.vertices, -metadata.phi, state.verticalAxis);        	 // Rotate around X axis
 		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), state.azimuthAxis);         // Rotate around Z axis
-		if (state.phi != 0.) state.sVertices = rotateVertices(state.sVertices, -state.phi, state.verticalAxis);        	 // Rotate around X axis
+		if (metadata.phi != 0.) state.sVertices = rotateVertices(state.sVertices, -metadata.phi, state.verticalAxis);        	 // Rotate around X axis
 		if (getTheta() != 0.) state.sVertices = rotateVertices(state.sVertices, 360-getTheta(), state.azimuthAxis);         // Rotate around Z axis
 
 		if(state.vertices.length == 0) setDisabled(true);
@@ -381,17 +363,17 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	public PVector getDisplacementVector()
 	{
 		float r;				  				 // Viewing sphere radius
-		if(state.focusDistance == -1.f)
+		if(metadata.focusDistance == -1.f)
 			r = state.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
 		else
-			r = state.focusDistance;							
+			r = metadata.focusDistance;							
 
-		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-state.phi)); 
-		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-state.phi));  
-		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-state.phi)); 
-//		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-state.phi)); 
-//		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-state.phi));  
-//		float yDisp = r * PApplet.cos(PApplet.radians(90-state.phi)); 
+		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi)); 
+		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi));  
+		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-metadata.phi)); 
+//		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-metadata.phi)); 
+//		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-metadata.phi));  
+//		float yDisp = r * PApplet.cos(PApplet.radians(90-metadata.phi)); 
 
 		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
 	}
@@ -463,9 +445,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	public void stopVideo()
 	{
-//		if(getDebugSettings().video) 
-//			p.p.p.display.message(p.p, "Stopping video file..."+getID());
-
 //		video.pause();
 		fadeSoundOut(true);				// Fade sound out and pause video once finished
 		
@@ -491,9 +470,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	public void clearVideo()
 	{
-//		if(getDebugSettings().video) 
-//			p.p.p.display.message(p.p, "Stopping and clearing video file..."+getID());
-
 //		if(video.state.playing)
 //		video.noLoop();
 //		if(video != null)
@@ -615,8 +591,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		String strLongitude = " Longitude: "+String.valueOf(getGPSLocation().x);
 		String strAltitude = "Altitude: "+String.valueOf(getGPSLocation().y);
 		String strTheta = "Direction: "+String.valueOf(getTheta());
-		String strElevation = "Vertical Angle: "+String.valueOf(state.phi);
-		String strRotation = "Rotation: "+String.valueOf(state.rotation);
+		String strElevation = "Vertical Angle: "+String.valueOf(metadata.phi);
+		String strRotation = "Rotation: "+String.valueOf(metadata.rotation);
 
 		String strTitleDebug = "--- Debugging ---";
 		String strBrightness = "brightness: "+String.valueOf(getViewingBrightness());
@@ -660,17 +636,17 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		float r;
 
-		if(state.focusDistance == -1.f)
+		if(metadata.focusDistance == -1.f)
 			r = state.defaultFocusDistance;						// Use default if no focus distance in metadata					      
 		else
-			r = state.focusDistance;							
+			r = metadata.focusDistance;							
 
-		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-state.phi)); 
-		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-state.phi));  
-		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-state.phi)); 
-//		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-state.phi)); 
-//		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-state.phi));  
-//		float yDisp = r * PApplet.cos(PApplet.radians(90-state.phi)); 
+		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi)); 
+		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi));  
+		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-metadata.phi)); 
+//		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-metadata.phi)); 
+//		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-metadata.phi));  
+//		float yDisp = r * PApplet.cos(PApplet.radians(90-metadata.phi)); 
 
 		state.disp = new PVector(-xDisp, -yDisp, -zDisp);
 
@@ -694,7 +670,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		
 		if(viewDist > farViewingDistance)
 		{
-			float vanishingPoint = farViewingDistance + state.focusDistance;	// Distance where transparency reaches zero
+			float vanishingPoint = farViewingDistance + metadata.focusDistance;	// Distance where transparency reaches zero
 //			float vanishingPoint = farViewingDistance + p.p.state.defaultFocusDistance;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
 				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, farViewingDistance, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
@@ -792,22 +768,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	/**
-	 * @param newLength New video length
-	 */
-	void setLength(float newLength)
-	{
-		state.length = newLength;
-	}
-
-	/**
-	 * @return Video length
-	 */
-	 public float getLength()
-	 {
-		 return state.length;
-	 }
-	 
-	/**
 	 * @return Whether video is facing the camera
 	 */	
 	public boolean isFacingCamera(PVector cameraPosition)
@@ -904,25 +864,25 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		if(getCameraModel() == 1)
 		{
-			if (state.orientation == 90)  // Vertical Image
+			if (metadata.orientation == 90)  // Vertical Image
 			{
 				vertex1 = state.vertices[3];
 				vertex2 = state.vertices[0];
 				vertex3 = state.vertices[1];
 			}
-			else if (state.orientation == 0)    // Horizontal Image
+			else if (metadata.orientation == 0)    // Horizontal Image
 			{
 				vertex1 = state.vertices[0];
 				vertex2 = state.vertices[1];
 				vertex3 = state.vertices[2];
 			}
-			else if (state.orientation == 180)    // Upside Down (Horizontal) Image
+			else if (metadata.orientation == 180)    // Upside Down (Horizontal) Image
 			{
 				vertex1 = state.vertices[2];
 				vertex2 = state.vertices[3];
 				vertex3 = state.vertices[0];
 			}
-			else  if (state.orientation == 270)    // Upside Down (Vertical) Image
+			else  if (metadata.orientation == 270)    // Upside Down (Vertical) Image
 			{
 				vertex1 = state.vertices[1];
 				vertex2 = state.vertices[2];
@@ -1032,18 +992,23 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			state.imagePlaceholder = i.getID();
 			
 			/* Set video parameters from image placeholder metadata */
-//			setCameraModel( i.getCameraModel() );
-			state.focusDistance = i.getFocusDistance();		    
-			state.focalLength = i.getFocalLength();
-			state.orientation = i.getOrientation();       
+			metadata.videoWidth = i.getWidth();								// -- Correct?							
+//			metadata.videoWidth = i.getWidth();									
+			metadata.videoHeight = (int) (i.getWidth() * getAspectRatio());	// -- Correct?
+//			metadata.videoHeight = (int) (i.getWidth() * getAspectRatio());	
+
+			metadata.focusDistance = i.getFocusDistance();		    
+			metadata.focalLength = i.getFocalLength();		// -- n.b. Editing metadata here
 			setTheta(i.getDirection());  
-			state.phi = i.getVerticalAngle();            		
-			state.rotation = i.getRotation();             
-			state.sensorSize = i.getSensorSize();
-			
+			metadata.orientation = i.getOrientation();       
+			metadata.orientation = i.getOrientation();       
+			metadata.phi = i.getVerticalAngle();            		
+			metadata.phi = i.getVerticalAngle();            		
+			metadata.rotation = i.getRotation();             
+			metadata.rotation = i.getRotation();             
+
+			setSensorSize( i.getSensorSize() );
 			setAspectRatio( calculateAspectRatio() );
-			state.videoWidth = i.getWidth();									
-			state.videoHeight = (int) (i.getWidth() * getAspectRatio());	
 			
 			calculateVertices();
 		}
@@ -1152,7 +1117,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		setFadingFocusDistance(true);
 		state.fadingFocusDistanceStartFrame = getWorldState().frameCount;					
 		state.fadingFocusDistanceEndFrame = getWorldState().frameCount + state.fadingFocusDistanceLength;	
-		state.fadingFocusDistanceStart = state.focusDistance;
+		state.fadingFocusDistanceStart = metadata.focusDistance;
 		state.fadingFocusDistanceTarget = target;
 	}
 	
@@ -1210,7 +1175,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	private float getVideoWidthMeters()
 	{
 		// 	Image Size = Sensor Width * Focus Distance / Focal Length 
-		float result = state.sensorSize * state.subjectSizeRatio * state.focusDistance / state.focalLength;
+		float result = metadata.sensorSize * state.subjectSizeRatio * metadata.focusDistance / metadata.focalLength;
 		return result;
 	}
 
@@ -1255,10 +1220,16 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		return state;
 	}
+	 
+	public WMV_VideoMetadata getMetadata()
+	{
+		return metadata;
+	}
 	
 	 public void captureState()
 	 {
-		 state.setViewableState( getMediaState() );
+		 setMediaMetadata();
+		 state.setMediaState( getMediaState(), metadata );
 	 }
 	 
 	/**
@@ -1276,44 +1247,86 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 	 public float getVerticalAngle()
 	 {
-		 return state.phi;
+		 return metadata.phi;
 	 }
 	 
 	 public float getRotation()
 	 {
-		 return state.rotation;
+		 return metadata.rotation;
 	 }
 	 
 	 public float getWidth()
 	 {
-		 return state.videoWidth;
+		 return metadata.videoWidth;
 	 }
 
 	 public float getHeight()
 	 {
-		 return state.videoHeight;
+		 return metadata.videoHeight;
 	 }
 	 
 	 public float getFocusDistance()
 	 {
-		 return state.focusDistance;
+		 return metadata.focusDistance;
 	 }
 
 	 public float getFocalLength()
 	 {
-		 return state.focalLength;
+		 return metadata.focalLength;
 	 }
 	 
 	 public void setSensorSize(float newSensorSize)
 	 {
-		 state.sensorSize = newSensorSize;
+		 metadata.sensorSize = newSensorSize;
 	 }
 
 	 public float getSensorSize()
 	 {
 		 return state.sensorSize;
 	 }
+	
+	 /**
+	  * @param newLength New video length
+	  */
+	 void setLength(float newLength)
+	 {
+		 state.length = newLength;
+	 }
+
+	 /**
+	  * @return Video length
+	  */
+	 public float getLength()
+	 {
+		 return state.length;
+	 }
+
+	 public void setTheta(float newTheta)
+	 {
+		 metadata.theta = newTheta;
+	 }
+
+	 public float getTheta()
+	 {
+		 return metadata.theta;
+	 }
+
+	 public void setCameraModel(int newCameraModel)
+	 {
+		 state.cameraModel = newCameraModel;
+		 metadata.cameraModel = newCameraModel;
+	 }
+
+	 public int getCameraModel()
+	 {
+		 return state.cameraModel;
+	 }
 	 
+	 public float getBrightness()
+	 {
+		 return state.brightness;
+	 }
+
 	 public boolean isFadingVolume()
 	 {
 		 return state.fadingVolume;
@@ -1331,11 +1344,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 	 public void setFocusDistance(float newFocusDistance)
 	 {
-		 state.focusDistance = newFocusDistance;
+		 metadata.focusDistance = newFocusDistance;
 	 }
 
 	 public void setFocalLength(float newFocalLength)
 	 {
-		 state.focalLength = newFocalLength;
+		 metadata.focalLength = newFocalLength;
 	 }
 }

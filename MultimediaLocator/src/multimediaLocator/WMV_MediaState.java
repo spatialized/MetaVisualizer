@@ -24,26 +24,27 @@ public class WMV_MediaState
 	public String filePath = "";
 
 	/* Time */
-	public ZonedDateTime dateTime;
 	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
 	public boolean isCurrentMedia;
-	public float timeBrightness = 0.f;
-	public String timeZone;
+	public ZonedDateTime dateTime;				// Media date and time
+	public String timeZone;						// Media time zone
+	public float timeBrightness = 0.f;			// Current brightness due to time
 	
 	/* Model */
 	public PVector captureLocation;				// Media capture location in simulation – EXIF GPS coords scaled to fieldSize.
 	public PVector location;        			// Media location in simulation 
-	public int cluster = -1;				 			// Cluster it belongs to	
-	public float theta = 0;                			// Media Orientation (in Degrees N)
+	public int cluster = -1;				 	// Cluster it belongs to	
+//	public float theta = 0;                		// Media Orientation (in Degrees N)
 	public boolean fadingFocusDistance = false;
 	public boolean beginFadingObjectDistance = false;			// Fading distance of object in image?
 	public final float defaultAltitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
 
 	/* Metadata */
-	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
-	public int cameraModel;                 	// Camera model
+	public WMV_MediaMetadata mMetadata;
 	public boolean showMetadata = false;		// Show metadata
-	public float brightness;
+	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
+//	public int cameraModel;                 	// Camera model
+//	public float brightness;
 	
 	/* Interaction */
 	public boolean selected = false;

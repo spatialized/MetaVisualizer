@@ -151,15 +151,22 @@ public class WMV_Utilities
 		
 		if(!military) 
 		{
-			if(hour == 0) hour = 12;
-			
-			if(hour > 12)
+			if(hour == 0 && minute == 0) 
 			{
-				hour -= 12;
-				if(hour < 12) pm = true;
+				hour = 12;
+				pm = false;
 			}
-			else if(hour == 12)
-				pm = true;
+			else
+			{
+				if(hour == 0) hour = 12;
+
+				if(hour > 12)
+				{
+					hour -= 12;
+					if(hour < 12) pm = true;
+				}
+				else if(hour == 12) pm = true;
+			}
 		}
 
 		String strHour = String.valueOf(hour);

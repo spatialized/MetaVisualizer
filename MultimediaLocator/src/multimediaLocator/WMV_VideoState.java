@@ -10,32 +10,34 @@ import processing.core.PVector;
 public class WMV_VideoState 
 {
 	public WMV_MediaState vState;
-	
+	private WMV_VideoMetadata metadata;
+
 	public boolean loaded = false;
 	public boolean playing = false;
 	public boolean soundFadedIn = false, soundFadedOut = false;
 	
-	/* Metadata */
-	int origVideoWidth = 0, origVideoHeight = 0;
-	PVector averageColor;
-	float averageBrightness;
+	public int cameraModel;                 	// Camera model
+	public float brightness;
 
-	public float orientation;              		// Landscape = 0, Portrait = 90, Upside Down Landscape = 180, Upside Down Portrait = 270
-	public float phi, rotation;       				// Elevation angle and Z-axis rotation
-	public float focalLength = 0; 					// Zoom Level 
-	public float focusDistance; 	 		 		// Video viewing distance
+	/* Metadata */
+	public int origVideoWidth = 0, origVideoHeight = 0;
+	public PVector averageColor;
+	public float averageBrightness;
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float origFocusDistance; 	 		 		// Original video viewing distance
 	public float sensorSize;
 	public float subjectSizeRatio = 0.18f;			// Subject portion of video plane (used in scaling from focus distance to imageSize)
+	
+	/* Model*/
 	public PVector disp = new PVector(0, 0, 0);    	// Displacement from capture location
+	
+	/* Time */
 	public float length;
 	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
 	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 
 	/* Graphics */
 	PVector[] vertices, sVertices;
-	public int videoWidth = 0, videoHeight = 0;			// Video width and height
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
@@ -63,15 +65,20 @@ public class WMV_VideoState
 	/* Placeholder Image */
 	public boolean hasImagePlaceholder = false;
 	public int imagePlaceholder = -1;
-
 	
 	WMV_VideoState()
 	{
 		vState = new WMV_MediaState();
 	}
 	
-	void setViewableState(WMV_MediaState newState)
+	void setMediaState(WMV_MediaState newState, WMV_VideoMetadata newMetadata)
 	{
 		vState = newState;
+		metadata = newMetadata;
+	}
+	
+	public WMV_VideoMetadata getMetadata()
+	{
+		return metadata;
 	}
 }

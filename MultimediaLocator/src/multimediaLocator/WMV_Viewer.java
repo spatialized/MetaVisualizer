@@ -766,9 +766,6 @@ public class WMV_Viewer
 	{
 		settings.hidePanoramas = false;
 		p.showPanoramas();
-
-//		if(p.p.display.window.setupGraphicsWindow)
-//			p.p.display.window.chkbxHidePanoramas.setSelected(false);
 	}
 	
 	/** 
@@ -778,49 +775,15 @@ public class WMV_Viewer
 	{
 		settings.hidePanoramas = true;
 		p.hidePanoramas();
-//		for(WMV_Panorama n : panoramas)
-//		{
-//			if(n.visible)
-//			{
-//				if(n.isFading()) n.stopFading();
-//				n.fadeOut();
-//			}
-//		}
-//		
-//		for(WMV_Cluster c : clusters)
-//		{
-//			if(c.stitchedPanoramas.size() > 0)
-//			{
-//				for(WMV_Panorama n : c.stitchedPanoramas)
-//				{
-//					if(n.isFading()) n.stopFading();
-//					n.fadeOut();
-//				}
-//			}
-//			
-//			if(c.userPanoramas.size() > 0)
-//			{
-//				for(WMV_Panorama n : c.userPanoramas)
-//				{
-//					if(n.isFading()) n.stopFading();
-//					n.fadeOut();
-//				}
-//			}
-//		}
-//		
-//		if(p.p.display.window.setupGraphicsWindow)
-//			p.p.display.window.chkbxHidePanoramas.setSelected(true);
 	}
 	
 	/**
-	 * Show any video in field if visible
+	 * Show any video in field at viewing distance
 	 */
 	public void showVideos()
 	{
 		settings.hideVideos = false;
 		p.showVideos();
-//		if(p.p.display.window.setupGraphicsWindow)
-//			p.p.display.window.chkbxHideVideos.setSelected(false);
 	}
 	
 	/**

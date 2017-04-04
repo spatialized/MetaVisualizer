@@ -5,12 +5,17 @@ import java.util.List;
 
 import processing.core.PVector;
 
+/**
+ * Current cluster state
+ * @author davidgordon
+ *
+ */
 public class WMV_ClusterState 
 {
 	/* General */
 	public int id;						// Cluster ID
 	public PVector location;			// Cluster center location
-	public boolean active = false; 	// Currently active
+	public boolean active = false; 		// Currently active
 	public boolean empty = false;		// Currently empty
 	public boolean single = false;		// Only one media point in cluster?
 	
@@ -30,11 +35,8 @@ public class WMV_ClusterState
 	public float timeInc = timeCycleLength / 30.f;			
 	public int defaultMediaLength = 125;					// Default frame length of media in time cycle
 	
-	/* Interaction */
-	public boolean selected = false;
-
 	/* Physics */
-	public boolean isAttractor;				// Whether cluster is attracting viewer
+	public boolean isAttractor;					// Whether cluster is attracting viewer
 	public float clusterGravity = 0.1333f;		// Cluster gravitational pull
 	public float clusterMass = 1.5f;			// Cluster mass		-- No longer tied to value of mediaPoints
 	public float farMassFactor = 8.f;			// How much more mass to give distant attractors to speed up navigation?
@@ -43,10 +45,14 @@ public class WMV_ClusterState
 	public List<Integer> images = new ArrayList<Integer>();
 	public List<Integer> panoramas = new ArrayList<Integer>();
 	public List<Integer> videos = new ArrayList<Integer>();
-	public int mediaCount;			// No. of media associated with this cluster
+	public int mediaCount;								// No. of media associated with this cluster
 	public boolean hasPanorama = false;					// Cluster has panorama files?
 	boolean hasVideo = false;
 	
+	/* Interaction */
+	public boolean selected = false;
+
+	/* Dimensions */
 	public float highLongitude, lowLongitude, highLatitude, lowLatitude, 		// - NEED TO CALCULATE!	
 			  	 highAltitude, lowAltitude;		
 	

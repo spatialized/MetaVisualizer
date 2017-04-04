@@ -8,7 +8,7 @@ import processing.core.PVector;
 
 /******************************************
  * @author davidgordon
- * Date when a group of media files were captured and associated timeline
+ * Date a group of media files were captured
  */
 public class WMV_Date implements Comparable<WMV_Date>
 {

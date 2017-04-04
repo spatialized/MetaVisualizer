@@ -1,7 +1,12 @@
 package multimediaLocator;
 
-public class WMV_SimulationState {
-
+/**
+ * Current simulation state
+ * @author davidgordon
+ * 
+ */
+public class WMV_SimulationState 
+{
 	public WMV_FieldState fieldState;
 	public WMV_ViewerSettings viewerSettings;
 	public WMV_ViewerState viewerState;

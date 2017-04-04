@@ -19,7 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -361,24 +363,27 @@ class WMV_Metadata
 		{
 			for(File file : files)
 			{
-				String fPath = file.getPath();
-				Path path = FileSystems.getDefault().getPath(fPath);
+				String sName = "";
+				sName = file.getName();
+
+				String sFilePath = file.getPath();
+				Path path = FileSystems.getDefault().getPath(sFilePath);
 
 				if(!file.getName().equals(".DS_Store"))
 				{
 					try
 					{
-						System.out.println("Loading sound:"+fPath);
+						System.out.println("Loading sound:"+sFilePath);
 
 						BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 						FileTime creationTime = attr.creationTime();
-						System.out.println("file: "+file.getName()+" creationTime: "+creationTime);
-
+						if(p.debugSettings.sound || p.debugSettings.metadata)
+							System.out.println("file: "+file.getName()+" creationTime: "+creationTime);
 						ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
-//						System.out.println("soundTime.getTime():"+soundTime.getTime());
-//						System.out.println("sounds == null? "+(f.sounds==null));
 
-						f.addSound( new WMV_Sound (count, 3, file.getName(), file.getPath(), new PVector(0,0,0), 0.f, -1, -1.f, soundTime, f.getTimeZoneID()) );
+						WMV_SoundMetadata sMetadata = new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, 
+								p.world.getCurrentField().getTimeZoneID() );
+						f.addSound( new WMV_Sound (count, 3, sMetadata) );
 					}
 					catch(Throwable t)
 					{
@@ -397,26 +402,32 @@ class WMV_Metadata
 	{
 		String tsStr = creationTime.toString();
 
-		String[] parts = tsStr.split("T");
-		String strDate = parts[0];
-		String strTime = parts[1];
+		/* Old Method */
+//		String[] parts = tsStr.split("T");
+//		String strDate = parts[0];
+//		String strTime = parts[1];
+//
+//		parts = strDate.split("-");
+//		String strYear = parts[0];
+//		String strMonth = parts[1];
+//		String strDay = parts[2];
+//	
+//		parts = strTime.split("Z");
+//		parts = parts[0].split(":");
+//		
+//		String strHour = parts[0];
+//		String strMinute = parts[1];
+//		String strSecond = parts[2];
+//
+//
+//		ZonedDateTime utc = ZonedDateTime.of( Integer.parseInt(strYear), Integer.parseInt(strMonth), Integer.parseInt(strDay), 
+//				 							  Integer.parseInt(strHour), Integer.parseInt(strMinute), Integer.parseInt(strSecond), 0, ZoneId.of("UTC") );
+//		return utc;
 
-		parts = strDate.split("-");
-		String strYear = parts[0];
-		String strMonth = parts[1];
-		String strDay = parts[2];
-	
-		parts = strTime.split("Z");
-		parts = parts[0].split(":");
-		
-		String strHour = parts[0];
-		String strMinute = parts[1];
-		String strSecond = parts[2];
+		Instant creationInstant = creationTime.toInstant();
+		ZonedDateTime mediaTime = creationInstant.atZone(ZoneId.of(p.world.getCurrentField().getTimeZoneID()));
 
-		ZonedDateTime utc = ZonedDateTime.of( Integer.parseInt(strYear), Integer.parseInt(strMonth), Integer.parseInt(strDay), 
-				 							  Integer.parseInt(strHour), Integer.parseInt(strMinute), Integer.parseInt(strSecond), 0, ZoneId.of("UTC") );
-
-		return utc;
+		return mediaTime;
 	}
 
 
@@ -785,22 +796,27 @@ class WMV_Metadata
 				{
 					if(panorama && !dataMissing)
 					{
-						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
+//						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
+						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID(), fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
+//						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
+//						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
 
 						PImage pImg = p.createImage(0,0,processing.core.PConstants.RGB);
 
-						f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, mMetadata, pMetadata) );
+						f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
 						pCount++;
 					}
 					else if(!dataMissing)
 					{
-						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
+//						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
+						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID(), fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
 								fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
+//						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
+//						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
+//								fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
 						
 						PImage pImg = p.createImage(0, 0, processing.core.PConstants.RGB);
-						f.addImage( new WMV_Image(iCount, pImg, 0, mMetadata, iMetadata ) );
+						f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata ) );
 						iCount++;
 					}
 				}
@@ -950,11 +966,14 @@ class WMV_Metadata
 				{
 					Movie pMov = new Movie(p, sFilePath);
 
-					WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-					WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(-1, -1, -1, -1, -1, -1, iWidth, iHeight, 
-							fBrightness, keywords);
+//					WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
+//					WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
+//					WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(-1, -1, -1, -1, -1, -1, iWidth, iHeight, 
+//							fBrightness, keywords);
 
-					f.addVideo( new WMV_Video(vCount, pMov, 2, mMetadata, vMetadata) );
+					WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID(), 
+							-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords);
+					f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
 					vCount++;
 				}
 				else if(debugSettings.metadata || debugSettings.video)

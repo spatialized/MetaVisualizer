@@ -1,11 +1,15 @@
 package multimediaLocator;
 
+import java.time.ZonedDateTime;
+
+import processing.core.PVector;
+
 /**
  * Rectangular image metadata
  * @author davidgordon
  *
  */
-public class WMV_ImageMetadata 
+public class WMV_ImageMetadata extends WMV_MediaMetadata
 {
 	public int cameraModel;                 	// Camera model
 	public float brightness;
@@ -21,10 +25,12 @@ public class WMV_ImageMetadata
 
 	public String[] keywords;
 	
-	WMV_ImageMetadata( float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, 
-			float newFocusDistance, float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, 
-			String[] newKeywords )
+	WMV_ImageMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone,
+			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
+			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords )
 	{
+		super(newName, newFilePath, newGPSLocation, newDateTime, newTimeZone);
+		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
 		orientation = newOrientation;

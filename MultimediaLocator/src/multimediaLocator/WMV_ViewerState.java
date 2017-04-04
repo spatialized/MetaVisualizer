@@ -8,7 +8,7 @@ import processing.core.PVector;
 
 /**
  * @author davidgordon
- * The current viewer state
+ * Current viewer state
  */
 public class WMV_ViewerState 
 {

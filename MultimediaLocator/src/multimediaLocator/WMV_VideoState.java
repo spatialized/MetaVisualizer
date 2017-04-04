@@ -7,17 +7,11 @@ import processing.core.PVector;
  * @author davidgordon
  *
  */
-public class WMV_VideoState 
+public class WMV_VideoState
 {
-	public WMV_MediaState vState;
+	/* Classes */
+	public WMV_MediaState mState;
 	private WMV_VideoMetadata metadata;
-
-	public boolean loaded = false;
-	public boolean playing = false;
-	public boolean soundFadedIn = false, soundFadedOut = false;
-	
-	public int cameraModel;                 	// Camera model
-	public float brightness;
 
 	/* Metadata */
 	public int origVideoWidth = 0, origVideoHeight = 0;
@@ -27,12 +21,19 @@ public class WMV_VideoState
 	public float origFocusDistance; 	 		 		// Original video viewing distance
 	public float sensorSize;
 	public float subjectSizeRatio = 0.18f;			// Subject portion of video plane (used in scaling from focus distance to imageSize)
+	public int cameraModel;                 	// Camera model
+	public float brightness;
+	public float length;
+	
+	/* Playback */
+	public boolean loaded = false;
+	public boolean playing = false;
+	public boolean soundFadedIn = false, soundFadedOut = false;
 	
 	/* Model*/
 	public PVector disp = new PVector(0, 0, 0);    	// Displacement from capture location
 	
 	/* Time */
-	public float length;
 	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
 	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 
@@ -68,12 +69,12 @@ public class WMV_VideoState
 	
 	WMV_VideoState()
 	{
-		vState = new WMV_MediaState();
+		mState = new WMV_MediaState();
 	}
 	
 	void setMediaState(WMV_MediaState newState, WMV_VideoMetadata newMetadata)
 	{
-		vState = newState;
+		mState = newState;
 		metadata = newMetadata;
 	}
 	

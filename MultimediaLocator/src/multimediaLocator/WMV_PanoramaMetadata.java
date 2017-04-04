@@ -1,11 +1,15 @@
 package multimediaLocator;
 
+import java.time.ZonedDateTime;
+
+import processing.core.PVector;
+
 /**
  * 360-degree panorama metadata
  * @author davidgordon
  *
  */
-public class WMV_PanoramaMetadata 
+public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 {
 	public int cameraModel;                 	// Camera model
 	public float brightness;
@@ -15,9 +19,11 @@ public class WMV_PanoramaMetadata
 
 	public String[] keywords;
 	
-	WMV_PanoramaMetadata(float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, 
-			String[] newKeywords)
+	WMV_PanoramaMetadata(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone, 
+			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords)
 	{
+		super(newName, newFilePath, newGPSLocation, newDateTime, newTimeZone);
+		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
 

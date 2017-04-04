@@ -5,10 +5,10 @@ package multimediaLocator;
  * @author davidgordon
  *
  */
-public class WMV_PanoramaState 
+public class WMV_PanoramaState extends WMV_MediaState
 {
 	/* Classes */
-	public WMV_MediaState vState;
+	public WMV_MediaState mState;
 	private WMV_PanoramaMetadata metadata;
 
 	/* Model */
@@ -23,12 +23,12 @@ public class WMV_PanoramaState
 
 	WMV_PanoramaState()
 	{
-		vState = new WMV_MediaState();
+		mState = new WMV_MediaState();
 	}
 	
 	void setMediaState(WMV_MediaState newState, WMV_PanoramaMetadata newMetadata)
 	{
-		vState = newState;
+		mState = newState;
 		metadata = newMetadata;
 	}
 	

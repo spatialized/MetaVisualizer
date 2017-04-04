@@ -9,7 +9,7 @@ import processing.core.PApplet;
 
 /**************************************
  * @author davidgordon
- * Class to respond to user input from keyboard or mouse
+ * Class for responding to user input from keyboard or mouse
  */
 
 public class ML_Input

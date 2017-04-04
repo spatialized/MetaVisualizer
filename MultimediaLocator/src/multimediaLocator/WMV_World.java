@@ -971,18 +971,9 @@ public class WMV_World
 		
 		for(WMV_Cluster c : getCurrentField().getClusters())
 		{
-			if(c.stitchedPanoramas.size() > 0)
+			if(c.stitched.size() > 0)
 			{
-				for(WMV_Panorama n : c.stitchedPanoramas)
-				{
-					if(n.isFading()) n.stopFading();
-					n.fadeOut();
-				}
-			}
-			
-			if(c.userPanoramas.size() > 0)
-			{
-				for(WMV_Panorama n : c.userPanoramas)
+				for(WMV_Panorama n : c.stitched)
 				{
 					if(n.isFading()) n.stopFading();
 					n.fadeOut();

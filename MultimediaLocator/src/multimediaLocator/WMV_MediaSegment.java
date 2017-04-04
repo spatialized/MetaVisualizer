@@ -5,7 +5,7 @@ import java.util.List;
 
 /***************
  * @author davidgordon
- * Segment of images and/or videos overlapping without any gaps
+ * Segment of images or videos overlapping without any gaps
  */
 public class WMV_MediaSegment 
 {
@@ -19,12 +19,9 @@ public class WMV_MediaSegment
 
 	private float stitchingMinAngle;
 	
-//	WMV_Cluster p;
-	
 	WMV_MediaSegment( int newID, List<Integer> newImages, List<Integer> newVideos, float newLower, float newUpper, float newCenter,
 					  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
 	{
-//		p = parent;
 		id = newID;
 		
 		images = newImages;

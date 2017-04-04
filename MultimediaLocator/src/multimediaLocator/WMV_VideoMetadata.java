@@ -1,11 +1,15 @@
 package multimediaLocator;
 
+import java.time.ZonedDateTime;
+
+import processing.core.PVector;
+
 /**
  * Video metadata
  * @author davidgordon
  *
  */
-public class WMV_VideoMetadata 
+public class WMV_VideoMetadata extends WMV_MediaMetadata 
 {
 	public int cameraModel;                 	// Camera model
 	public float brightness;
@@ -21,9 +25,12 @@ public class WMV_VideoMetadata
 
 	public String[] keywords;
 
-	WMV_VideoMetadata( float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, 
-			int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] sKeywords )
+	WMV_VideoMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone, 
+			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, int newCameraModel, 
+			int newWidth, int newHeight, float newBrightness, String[] sKeywords )
 	{
+		super(newName, newFilePath, newGPSLocation, newDateTime, newTimeZone);
+
 		videoWidth = newWidth;
 		videoHeight = newHeight;
 		orientation = newOrientation;

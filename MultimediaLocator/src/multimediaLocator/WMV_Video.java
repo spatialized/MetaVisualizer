@@ -26,9 +26,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	Movie video;									// Movie object
 	PImage frame;									// Frame to be displayed 
 	
-	WMV_Video ( int newID, Movie newVideo, int newMediaType, WMV_MediaMetadata newMediaMetadata, WMV_VideoMetadata newVideoMetadata )
+	WMV_Video ( int newID, Movie newVideo, int newType, WMV_VideoMetadata newVideoMetadata )
 	{
-		super(newID, newMediaType, newMediaMetadata);
+		super( newID, newType, newVideoMetadata.name, newVideoMetadata.filePath, newVideoMetadata.dateTime, newVideoMetadata.timeZone, 
+			   newVideoMetadata.gpsLocation );
 
 		metadata = newVideoMetadata;
 		state = new WMV_VideoState();
@@ -42,8 +43,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		metadata.focusDistance = state.defaultFocusDistance;
 		state.origFocusDistance = metadata.focusDistance;
 
-		if(getMediaMetadata().dateTime != null)
-			time = new WMV_Time( getMediaMetadata().dateTime, getID(), getClusterID(), 2, getMediaMetadata().timeZone );		
+		if(metadata.dateTime != null)
+			time = new WMV_Time( metadata.dateTime, getID(), getClusterID(), 2, metadata.timeZone );		
 		else
 			time = null;
 		
@@ -1152,7 +1153,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	
 	 public void captureState()
 	 {
-		 setMediaMetadata();
+//		 setMediaMetadata();
 		 state.setMediaState( getMediaState(), metadata );
 	 }
 	 

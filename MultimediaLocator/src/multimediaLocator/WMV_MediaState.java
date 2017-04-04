@@ -34,21 +34,14 @@ public class WMV_MediaState
 	public PVector captureLocation;				// Media capture location in simulation – EXIF GPS coords scaled to fieldSize.
 	public PVector location;        			// Media location in simulation 
 	public int cluster = -1;				 	// Cluster it belongs to	
-//	public float theta = 0;                		// Media Orientation (in Degrees N)
 	public boolean fadingFocusDistance = false;
 	public boolean beginFadingObjectDistance = false;			// Fading distance of object in image?
 	public final float defaultAltitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
 
 	/* Metadata */
-	public WMV_MediaMetadata mMetadata;
 	public boolean showMetadata = false;		// Show metadata
 	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
-//	public int cameraModel;                 	// Camera model
-//	public float brightness;
 	
-	/* Interaction */
-	public boolean selected = false;
-
 	/* Graphics */
 	public float aspectRatio = 0.666f;	// Aspect ratio of image or texture
 	public PVector azimuthAxis = new PVector(0, 1, 0);
@@ -64,6 +57,9 @@ public class WMV_MediaState
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
 	public boolean fadedOut = false;			// Recently faded out
 	public boolean fadedIn = false;
+	
+	/* Interaction */
+	public boolean selected = false;
 	
 	WMV_MediaState(){}
 }

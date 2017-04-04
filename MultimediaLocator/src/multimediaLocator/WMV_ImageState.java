@@ -10,7 +10,7 @@ import processing.core.PVector;
 public class WMV_ImageState 
 {
 	/* Classes */
-	public WMV_MediaState vState;
+	public WMV_MediaState mState;
 	public WMV_ImageMetadata metadata;
 
 	/* Graphics */
@@ -41,12 +41,12 @@ public class WMV_ImageState
 	WMV_ImageState(WMV_ImageMetadata newMetadata)
 	{
 		metadata = newMetadata;
-		vState = new WMV_MediaState();
+		mState = new WMV_MediaState();
 	}
 	
 	void setMediaState(WMV_MediaState newState, WMV_ImageMetadata newMetadata)
 	{
-		vState = newState;
+		mState = newState;
 		metadata = newMetadata;
 	}
 	

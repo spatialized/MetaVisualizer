@@ -5,15 +5,16 @@ package multimediaLocator;
  * @author davidgordon
  *
  */
-public class WMV_SoundState {
-	private WMV_MediaState vState;
-	WMV_SoundState()
-	{
-		vState = new WMV_MediaState();
-	}
-	
-	void setViewableState(WMV_MediaState newState)
-	{
-		vState = newState;
-	}
+public class WMV_SoundState extends WMV_MediaState
+{
+//	private WMV_MediaState mState;
+//	WMV_SoundState()
+//	{
+//		mState = new WMV_MediaState();
+//	}
+//	
+//	void setViewableState(WMV_MediaState newState)
+//	{
+//		mState = newState;
+//	}
 }

@@ -2659,8 +2659,7 @@ public class WMV_Field
 	
 	private WMV_Image getImageFromImageState(WMV_ImageState imageState)
 	{
-		WMV_Image newImage = new WMV_Image( imageState.vState.id, null, imageState.vState.mediaType, imageState.vState.mMetadata, 
-				imageState.getMetadata());
+		WMV_Image newImage = new WMV_Image( imageState.mState.id, null, imageState.mState.mediaType, imageState.getMetadata());
 
 		newImage.setState( imageState );
 		
@@ -2669,8 +2668,8 @@ public class WMV_Field
 	
 	private WMV_Panorama getPanoramaFromPanoramaState(WMV_PanoramaState panoState)
 	{
-		WMV_Panorama newPanorama = new WMV_Panorama( panoState.vState.id, panoState.vState.mediaType, panoState.phi, panoState.vState.location, null, 
-				panoState.vState.mMetadata, panoState.getMetadata() );
+		WMV_Panorama newPanorama = new WMV_Panorama( panoState.mState.id, panoState.mState.mediaType, panoState.phi, panoState.mState.location, null, 
+				panoState.getMetadata() );
 
 		newPanorama.setState( panoState );
 
@@ -2679,8 +2678,7 @@ public class WMV_Field
 	
 	private WMV_Video getVideoFromVideoState(WMV_VideoState videoState)			 // --  NULL error
 	{
-		WMV_Video newVideo = new WMV_Video( videoState.vState.id, null, videoState.vState.mediaType, videoState.vState.mMetadata, 
-				videoState.getMetadata() );
+		WMV_Video newVideo = new WMV_Video( videoState.mState.id, null, videoState.mState.mediaType, videoState.getMetadata() );
 
 		newVideo.setState( videoState );
 		

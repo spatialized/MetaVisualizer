@@ -1,4 +1,5 @@
 package multimediaLocator;
+import java.time.ZonedDateTime;
 //
 //import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -24,24 +25,22 @@ public abstract class WMV_Media
 	private WMV_ViewerState viewerState;	// Update world settings
 	private ML_DebugSettings debugSettings;	// Update world settings
 	private WMV_MediaState mState;
-	private WMV_MediaMetadata mMetadata;
 	
 	/* Time */
 	private ScaleMap timeLogMap;
 	private InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
 	public WMV_Time time;
 
-	WMV_Media ( int newID, int newMediaType, WMV_MediaMetadata newMetadata )
+	WMV_Media ( int newID, int newMediaType, String newName, String newFilePath, ZonedDateTime newDateTime, String newTimeZone,
+				PVector newGPSLocation )
 	{
-		mMetadata = newMetadata;
-		
 		mState = new WMV_MediaState();
 
-		mState.name = mMetadata.name;						// -- Temporary
-		mState.filePath = mMetadata.filePath;
-		mState.dateTime = mMetadata.dateTime;
-		mState.timeZone = mMetadata.timeZone;
-		mState.gpsLocation = mMetadata.gpsLocation;
+		mState.name = newName;						// -- Temporary
+		mState.filePath = newFilePath;
+		mState.dateTime = newDateTime;
+		mState.timeZone = newTimeZone;
+		mState.gpsLocation = newGPSLocation;
 	
 		mState.id = newID; 
 		mState.mediaType = newMediaType;
@@ -803,15 +802,15 @@ public abstract class WMV_Media
 		return mState;
 	}
 	
-	public void setMediaMetadata()
-	{
-		mState.mMetadata = mMetadata;
-	}
+//	public void setMediaMetadata()
+//	{
+//		mState.mMetadata = mMetadata;
+//	}
 
-	public WMV_MediaMetadata getMediaMetadata()
-	{
-		return mMetadata;
-	}
+//	public WMV_MediaMetadata getMediaMetadata()
+//	{
+//		return mMetadata;
+//	}
 	
 	public WMV_WorldSettings getWorldSettings()
 	{

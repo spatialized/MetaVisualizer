@@ -1368,7 +1368,7 @@ public class ML_Window {
 			data2.ex = applet.mouseX;
 			data2.ey = applet.mouseY;
 			data2.done = true;
-			System.out.println("Mouse released:"+data.toString());
+//			System.out.println("Mouse released:"+data.toString());
 			break;
 		case MouseEvent.DRAG:
 			data2.ex = applet.mouseX;
@@ -1384,15 +1384,10 @@ public class ML_Window {
 	 * @param data the data for the GWindow being used
 	 */
 	public void graphicsWindowDraw(PApplet applet, GWinData data) {
-//		applet.background(10, 5, 50);
 		applet.background(0);
 		applet.stroke(255);
 		applet.strokeWeight(1);
 		applet.fill(0, 0, 255);
-
-//		int yPos = window.height - 60;
-//		applet.text("WorldMediaViewer v1.0", window.width / 2 - 10, yPos);
-//		applet.text("David Gordon", window.width / 2 - 10, yPos += 20);
 	}
 
 
@@ -1602,8 +1597,8 @@ public class ML_Window {
 				applet.text("   Media Points: "+c.getState().mediaCount, x, y += lineWidth);
 				applet.text("   Media Segments: "+world.getCurrentCluster().segments.size(), x, y += lineWidth);
 				applet.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), world.viewer.getLocation())), x, y += lineWidth);
-				applet.text("   Auto Stitched Panoramas: "+world.getCurrentCluster().stitchedPanoramas.size(), x, y += lineWidth);
-				applet.text("   User Stitched Panoramas: "+world.getCurrentCluster().userPanoramas.size(), x, y += lineWidth);
+//				applet.text("   Auto Stitched Panoramas: "+world.getCurrentCluster().stitched360.size(), x, y += lineWidth);
+				applet.text("   Stitched Panoramas: "+world.getCurrentCluster().stitched.size(), x, y += lineWidth);
 				if(world.viewer.getAttractorClusterID() != -1)
 				{
 					applet.text(" Destination Cluster : "+world.viewer.getAttractorCluster(), x, y += lineWidth);

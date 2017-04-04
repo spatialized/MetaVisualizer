@@ -19,19 +19,20 @@ public class WMV_Cluster
 	private WMV_ViewerSettings viewerSettings;	// Viewer settings
 	private WMV_ViewerState viewerState;		// Viewer state
 	private WMV_Utilities utilities;			// Utility methods
-	private WMV_ClusterState state;		// Update viewer state
+	private WMV_ClusterState state;				// Cluster state
 
 	/* Time */
-	private ArrayList<WMV_Date> dateline;								// Capture dates for this cluster
-	private ArrayList<WMV_TimeSegment> timeline;						// Date-independent capture times for this cluster
+	private ArrayList<WMV_Date> dateline;						// Capture dates for this cluster
+	private ArrayList<WMV_TimeSegment> timeline;				// Date-independent capture times for this cluster
 	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;	
 
 	/* Panoramic Stitching */
-	ArrayList<WMV_Panorama> stitchedPanoramas, userPanoramas;
-	List<Integer> valid;										// List of images that are good stitching candidates
+//	ArrayList<WMV_Panorama> stitched360;					// Stitched panoramas with full coverage
+	ArrayList<WMV_Panorama> stitched;				// Stitched panoramas
+	List<Integer> valid;									// List of images that are good stitching candidates
 
 	/* Segmentation */
-	public ArrayList<WMV_MediaSegment> segments;		// List of arrays corresponding to each segment of images
+	public ArrayList<WMV_MediaSegment> segments;			// List of overlapping segments of images or videos
 
 	WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
 				 ML_DebugSettings newDebugSettings, int _clusterID, float newX, float newY, float newZ) 
@@ -53,8 +54,8 @@ public class WMV_Cluster
 		state.videos = new ArrayList<Integer>();
 		segments = new ArrayList<WMV_MediaSegment>();
 		
-		stitchedPanoramas = new ArrayList<WMV_Panorama>();
-		userPanoramas = new ArrayList<WMV_Panorama>();
+//		stitched360 = new ArrayList<WMV_Panorama>();
+		stitched = new ArrayList<WMV_Panorama>();
 
 		timeline = new ArrayList<WMV_TimeSegment>();
 		state.mediaCount = 0;
@@ -414,21 +415,21 @@ public class WMV_Cluster
 	{
 		if(worldSettings.showUserPanoramas)
 		{
-			for(WMV_Panorama n : userPanoramas)
+			for(WMV_Panorama n : stitched)
 			{
 				n.update(ml);
 				n.display(ml);
 			}
 		}
 
-		if(worldSettings.showStitchedPanoramas)
-		{
-			for(WMV_Panorama n : stitchedPanoramas)
-			{
-				n.update(ml);
-				n.display(ml);
-			}
-		}
+//		if(worldSettings.showStitchedPanoramas)
+//		{
+//			for(WMV_Panorama n : stitched360)
+//			{
+//				n.update(ml);
+//				n.display(ml);
+//			}
+//		}
 	}
 	
 	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
@@ -449,20 +450,13 @@ public class WMV_Cluster
 		{
 			List<Integer> allSelected = new ArrayList<Integer>();
 			List<Integer> visible = new ArrayList<Integer>();
-//			IntList allSelected = new IntList();
-//			IntList visible = new IntList();
 
 			for( WMV_Image image : selectedImages )
 			{
 				allSelected.add(image.getID());
 				if(image.isVisible()) visible.add(image.getID());
-//				allSelected.append(image.getID());
-//				if(image.isVisible()) visible.append(image.getID());
 			}
 
-//			if(debugSettings.stitching) p.p.p.display.message("Stitching panorama out of "+valid.size()+" selected images from cluster #"+getID());
-			
-//			WMV_Panorama pano = p.p.p.stitcher.stitch(p.p.p.library.getLibraryFolder(), valid, getID(), -1, p.getSelectedImages());
 			WMV_Panorama pano = stitcher.stitch(libraryFolder, visible, getID(), -1, allSelected);
 
 			if(pano != null)
@@ -471,94 +465,43 @@ public class WMV_Cluster
 					System.out.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
 
 				pano.initializeSphere();
-				
-				userPanoramas.add(pano);
-
-//				p.p.viewer.selection = false;
-//				p.p.viewer.multiSelection = false;
-//				p.p.viewer.segmentSelection = false;
-				
-//				p.deselectAllMedia(true);		// Deselect and hide all currently selected media 
-
-//				if(userPanoramas.size() == 0)
-//				{
-//					userPanoramas.add(pano);
-//				}
-//				else
-//				{
-////					userPanoramas.set(0, pano);
-//					userPanoramas.set(0, utilities.stitcher.combinePanoramas(userPanoramas.get(0), pano));	
-//				}
+				stitched.add(pano);
 			}
 		}
 		else
 		{
-//			if(debugSettings.stitching) p.p.p.display.message("Stitching "+segments.size()+" panoramas from media segments of cluster #"+getID());
-
 			for(WMV_MediaSegment m : segments)			// Stitch panorama for each media segment
 			{
 				if(m.getImages().size() > 1)
 				{
-//					List<Integer> valid = new ArrayList<Integer>();
-//					for( int i : m.getImages() )
-//					{
-//						if(p.getImage(i).isVisible())
-//							valid.add(i);
-//					}
-
-					ArrayList<WMV_Image> validImages = new ArrayList<WMV_Image>();	
 					ArrayList<WMV_Image> wholeSegment = new ArrayList<WMV_Image>();	
-//					List<Integer> whole = new ArrayList<Integer>();									// Whole segment
-//					List<Integer> valid = new ArrayList<Integer>();									// Visible portion
+					ArrayList<WMV_Image> validImages = new ArrayList<WMV_Image>();	
 					for( WMV_Image image : selectedImages )
 					{
 						wholeSegment.add(image);
 						if(image.isVisible()) validImages.add(image);
-//						whole.add(image.getID());
-//						if(image.isVisible()) valid.add(image.getID());
 					}
 
-//					if(debugSettings.stitching && debugSettings.detailed) p.p.p.display.message(" Found "+valid.size()+" media in media segment #"+m.getID());
-					
 					if(viewerSettings.angleThinning)				// Remove invisible images
 					{
 						List<Integer> remove = new ArrayList<Integer>();		// Not needed
-//						IntList remove = new IntList();
 						
 						int count = 0;
 						for(WMV_Image v:validImages)
 						{
 							if(!v.getThinningVisibility())
 								remove.add(count);
-//							if(!v.getThinningVisibility())
-//								remove.append(count);
 							count++;
 						}
 
-//						remove.sort();	-- ??
 						for(int i=remove.size()-1; i>=0; i--)
 							validImages.remove(i);	
-
-//						int count = 0;
-//						for(int v:valid)
-//						{
-//							if(!p.getImage(v).getThinningVisibility())
-//								remove.add(count);
-//							count++;
-//						}
-//
-//						remove.sort();
-//						for(int i=remove.size()-1; i>=0; i--)
-//							valid.remove(remove.get(i));	
 					}
 					
 					List<Integer> valid = new ArrayList<Integer>();
-//					IntList valid = new IntList();
 					
 					for(WMV_Image img : validImages) 
 						valid.add(img.getID());
-//					for(WMV_Image img : validImages) 
-//						valid.append(img.getID());
 					
 					if(valid.size() > 1)
 					{					
@@ -567,25 +510,7 @@ public class WMV_Cluster
 						if(pano != null)
 						{
 							pano.initializeSphere();
-							stitchedPanoramas.add(pano);
-
-//							m.hide();
-
-//							p.p.viewer.selection = false;
-//							p.p.viewer.multiSelection = false;
-//							p.p.viewer.segmentSelection = false;
-							
-//							p.deselectAllMedia(false);
-
-//							if(stitchedPanoramas.size() == 0)
-//							{
-//								stitchedPanoramas.add(pano);
-//							}
-//							else
-//							{
-////								stitchedPanoramas.set(0, pano);
-//								stitchedPanoramas.set(0, utilities.stitcher.combinePanoramas(stitchedPanoramas.get(0), pano)); -- To finish
-//							}
+							stitched.add(pano);
 						}
 					}
 				}
@@ -668,15 +593,9 @@ public class WMV_Cluster
 			if(idx != -1)
 			{
 				if(idx < videoIdxOffset)
-				{
-//					System.out.println("Thinning visibility true for image:"+idx+" i:"+i+" dist:"+perimeterDistances[i]);
 					imageList.get(idx).setThinningVisibility(true);
-				}
 				else
-				{
-//					System.out.println("Thinning visibility true for video:"+(idx-videoIdxOffset)+" i:"+i);
 					videoList.get(idx-videoIdxOffset).setThinningVisibility(true);
-				}
 			}
 		}
 	}

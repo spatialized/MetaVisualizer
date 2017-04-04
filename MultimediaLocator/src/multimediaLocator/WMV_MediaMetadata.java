@@ -9,7 +9,7 @@ import processing.core.PVector;
  * @author davidgordon
  *
  */
-public class WMV_MediaMetadata 
+public abstract class WMV_MediaMetadata 
 {
 	public String name;
 	public String filePath;

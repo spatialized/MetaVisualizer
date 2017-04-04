@@ -22,9 +22,10 @@ class WMV_Image extends WMV_Media
 	private PImage blurred;			// Image pixels
 	private PImage blurMask;
 
-	WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_MediaMetadata newMediaMetadata, WMV_ImageMetadata newImageMetadata ) 
+	WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata ) 
 	{
-		super(newID, newMediaType, newMediaMetadata);
+		super( newID, newMediaType, newImageMetadata.name, newImageMetadata.filePath, newImageMetadata.dateTime, newImageMetadata.timeZone, 
+			   newImageMetadata.gpsLocation );
 
 		metadata = newImageMetadata;
 		state = new WMV_ImageState(metadata);
@@ -36,8 +37,8 @@ class WMV_Image extends WMV_Media
 		
 		state.origFocusDistance = metadata.focusDistance;
 
-		if(getMediaMetadata().dateTime != null)
-			time = new WMV_Time( getMediaMetadata().dateTime, getID(), getMediaState().cluster, 0, getMediaMetadata().timeZone );		
+		if(metadata.dateTime != null)
+			time = new WMV_Time( metadata.dateTime, getID(), getMediaState().cluster, 0, metadata.timeZone );		
 		else
 			time = null;
 
@@ -1128,7 +1129,6 @@ class WMV_Image extends WMV_Media
 
 	 public void captureState()
 	 {
-		 setMediaMetadata();
 		 state.setMediaState( getMediaState(), metadata );
 	 }
 	 

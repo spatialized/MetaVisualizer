@@ -8,8 +8,6 @@ import org.boon.json.ObjectMapper;
 
 import static org.boon.Boon.puts;
 
-import processing.core.PApplet;
-
 /**************
  * @author davidgordon
  * The multimedia library
@@ -120,27 +118,6 @@ public class ML_Library
 		}
 	}
 
-//	public void saveFieldState(WMV_FieldState state, String newFilePath)		// Testing
-//	{
-//		String filePath = newFilePath;
-//
-//		final ObjectMapper mapper = JsonFactory.create();
-//		final File file;
-//		try {
-//			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
-//			file = new File(filePath);
-//			mapper.writeValue(file, state);    // Write staff object to file
-//
-//			WMV_FieldState newState = mapper.readValue(file, WMV_FieldState.class);
-//			System.out.println("Equal"+ newState.equals(state));
-//			//		    puts("They are equal", newState.equals(state));      // Not working ??
-//		}
-//		catch (Throwable t)
-//		{
-//			System.out.println("Throwable t:"+t);
-//		}
-//	}
-
 	public void saveFieldState(WMV_Field f, String newFilePath)
 	{
 		f.captureFieldState();
@@ -155,7 +132,6 @@ public class ML_Library
 
 			WMV_FieldState newFieldState = mapper.readValue(file, WMV_FieldState.class);
 			puts("saveFieldData... Field states are equal", newFieldState.equals(f));      // Not working ??
-			//println("They are equal", newStaff.equals(staff));
 		}
 		catch (Throwable t)
 		{
@@ -189,10 +165,7 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
-			//		    mapper.writeValue(file, state);    // Write staff object to file
-
 			WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
 			return newState;
 		}
@@ -228,10 +201,7 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
-			//		    mapper.writeValue(file, state);    // Write staff object to file
-
 			WMV_ViewerState newState = mapper.readValue(file, WMV_ViewerState.class);
 			return newState;
 		}
@@ -249,9 +219,9 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
-			//		    mapper.writeValue(file, state);    // Write staff object to file
+//		    mapper.writeValue(file, state);    // Write staff object to file
 
 			WMV_FieldState newState = mapper.readValue(file, WMV_FieldState.class);
 			return newState;

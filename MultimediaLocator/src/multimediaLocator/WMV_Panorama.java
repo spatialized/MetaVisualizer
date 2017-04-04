@@ -26,12 +26,12 @@ public class WMV_Panorama extends WMV_Media
 	private float sinTable[];
 	private float cosTable[];
 	
-	WMV_Panorama ( int newID, int newMediaType, float newElevation, PVector newLocation, PImage newTexture, WMV_MediaMetadata newMediaMetadata, 
-			WMV_PanoramaMetadata newPanoramaMetadata )
+	WMV_Panorama ( int newID, int newType, float newElevation, PVector newLocation, PImage newTexture, WMV_PanoramaMetadata newPanoMetadata )
 	{
-		super(newID, newMediaType, newMediaMetadata);
+		super( newID, newType, newPanoMetadata.name, newPanoMetadata.filePath, newPanoMetadata.dateTime, newPanoMetadata.timeZone, 
+			   newPanoMetadata.gpsLocation );
 
-		metadata = newPanoramaMetadata;
+		metadata = newPanoMetadata;
 		state = new WMV_PanoramaState();
 
 		texture = newTexture;
@@ -42,8 +42,8 @@ public class WMV_Panorama extends WMV_Media
 			setCaptureLocation(newLocation);
 		}
 		
-		if(getMediaMetadata().dateTime != null)
-			time = new WMV_Time( getMediaMetadata().dateTime, getID(), getClusterID(), 1, getMediaMetadata().timeZone );
+		if(metadata.dateTime != null)
+			time = new WMV_Time( metadata.dateTime, getID(), getClusterID(), 1, metadata.timeZone );
 		else
 			time = null;
 
@@ -492,7 +492,7 @@ public class WMV_Panorama extends WMV_Media
 	
 	 public void captureState()
 	 {
-		 setMediaMetadata();
+//		 setMediaMetadata();
 		 state.setMediaState( getMediaState(), metadata );
 	 }
 	 

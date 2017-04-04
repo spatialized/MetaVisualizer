@@ -3,7 +3,7 @@ import processing.core.PVector;
 
 /*****************************
  *  @author davidgordon
- *  A waypoint in a user defined (camera) navigation path
+ *  Waypoint in virtual path navigable by viewer
  */
 
 public class WMV_Waypoint {

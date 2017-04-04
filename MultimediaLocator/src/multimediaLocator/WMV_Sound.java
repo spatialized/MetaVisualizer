@@ -19,7 +19,7 @@ public class WMV_Sound extends WMV_Media
 //	WMV_WorldSettings worldSettings;
 //	WMV_ViewerSettings viewerSettings;	// Update world settings
 //	ML_DebugSettings debugSettings;	// Update world settings
-
+	WMV_SoundMetadata metadata;
 //	SoundFile sound;
 	
 	private int id;
@@ -33,19 +33,20 @@ public class WMV_Sound extends WMV_Media
 	private float volumeFadingStartVal = 0.f, volumeFadingTarget = 0.f;
 	private final int volumeFadingLength = 60;	// Fade volume over 30 frames
 	
-	WMV_Sound ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-				int newCameraModel, float newBrightness, ZonedDateTime newDateTime, String newTimeZone )
+	WMV_Sound ( int newID, int newType, WMV_SoundMetadata newSoundMetadata )
 	{
-		super(newID, newMediaType, null);
+		super( newID, newType, newSoundMetadata.name, newSoundMetadata.filePath, newSoundMetadata.dateTime, newSoundMetadata.timeZone, 
+				newSoundMetadata.gpsLocation );
 
+		metadata = newSoundMetadata;
 //		filePath = newFilePath;
-		getMediaState().gpsLocation = newGPSLocation;
+		getMediaState().gpsLocation = metadata.gpsLocation;
 		
 //		Bead sound = new Bead();
 		
-		if(newDateTime != null)
+		if(metadata.dateTime != null)
 		{
-			time = new WMV_Time( newDateTime, getID(), getMediaState().cluster, 3, newTimeZone );		
+			time = new WMV_Time( metadata.dateTime, getID(), getMediaState().cluster, 3, metadata.timeZone );		
 		}
 		else
 			time = null;

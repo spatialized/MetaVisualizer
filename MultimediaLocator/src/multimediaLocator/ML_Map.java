@@ -296,7 +296,7 @@ public class ML_Map
 			float textXPos = p.centerTextXOffset;
 			float textYPos = p.topTextYOffset;
 
-			if(world.getState().interactive)
+			if(world.p.state.interactive)
 				world.p.text("Interactive "+(world.getState().hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, hudDistance);
 			else
 				world.p.text(world.getCurrentField().getName(), textXPos, textYPos, hudDistance);
@@ -361,7 +361,7 @@ public class ML_Map
 	 */
 	private void drawMap(WMV_World world, float mapWidth, float mapHeight, float mapXOffset, float mapYOffset)
 	{
-		if(!scrollTransition && !zoomToRectangleTransition && !world.getState().interactive)
+		if(!scrollTransition && !zoomToRectangleTransition && !world.p.state.interactive)
 		{
 			if(!selectableClustersCreated)
 				createSelectableClusters(world, mapWidth, mapHeight);
@@ -388,7 +388,7 @@ public class ML_Map
 		/* Clusters */
 		if(mapMedia)
 		{
-			if(!scrollTransition && !zoomToRectangleTransition && !world.getState().interactive)
+			if(!scrollTransition && !zoomToRectangleTransition && !world.p.state.interactive)
 			{
 //				drawSelectableClusters();
 
@@ -423,7 +423,7 @@ public class ML_Map
 		
 		if(!scrollTransition && !zoomToRectangleTransition)
 		{
-			if(!world.getState().interactive)													// While not in Clustering Mode
+			if(!world.p.state.interactive)													// While not in Clustering Mode
 			{
 				if(world.viewer.getAttractorClusterID() != -1 && world.viewer.getAttractorClusterID() < world.getFieldClusters().size())
 					drawPoint( world, world.viewer.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );

@@ -13,6 +13,7 @@
 
 package multimediaLocator;
 import java.io.*;
+import java.util.ArrayList;
 
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
@@ -78,17 +79,15 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	{		
 		if (state.startup)
 		{
-			if(state.reset) reset();
+			if(state.reset) restartMultimediaLocator();
 			else display.showStartup(world);	/* Startup screen */
 			
 			state.startup = false;	
 		}
 		else if(!state.running)
 		{
-			if (state.openLibraryDialog)
-				selectFolderPrompt();
-			else
-				initialize();						/* Run world initialization */
+			if (state.chooseLibrary) librarySelectionDialog();
+			else if(state.selectedLibrary) initialize();					/* Initialize world */
 		}
 		else 
 			run();								/* Run program */
@@ -105,7 +104,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			state.startedRunning = false;
 		}
 		
-		if ( !state.initialSetup && !world.state.interactive && !state.exit ) 		/* Running the program */
+		if ( !state.initialSetup && !state.interactive && !state.exit ) 		/* Running the program */
 		{
 			world.updateState();
 			world.draw3D();						// 3D Display
@@ -123,8 +122,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			checkFrameRate();
 		}
 		
-		if(state.save && world.outputFolderSelected)		/* Image exporting */
-			save();
+		if(state.export && world.outputFolderSelected)		/* Image exporting */
+			export();
 	}
 	
 	/**
@@ -138,33 +137,93 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 	
 	/**
-	 * Create each field and run initial clustering
+	 * Initialize MultimediaLocator. If necessary, create fields, then run spatial clustering
 	 */
 	public void initialize()
 	{
-		/* Library Folder */
-//		if (state.openLibraryDialog)
-//			selectFolderPrompt();
-		
-		/* World Initialization */
-		if (state.selectedLibrary && state.initialSetup && !state.initializingFields && !state.running)
-			createFields();
+		if(state.initialSetup)
+		{
+			if( !state.fieldsInitialized )
+			{
+				if (!state.initializingFields) createFields();
+				else initializeNextField();
+			}
+			else finishInitialization();
+		}
+		else
+		{
+			if(state.interactive)					/* Run interactive clustering */
+			{
+				if(state.startInteractive && !state.interactive) startInteractiveClustering();						
+				if(state.interactive && !state.startInteractive) runInteractiveClustering();	
+			}
+			else startInitialClustering();			/* Run initial clustering */  	// -- Sets initialSetup to true	
+		}
+	}
 
-		if (state.selectedLibrary && state.initialSetup && state.initializingFields && !state.fieldsInitialized)	// Initialize fields
-			initializeFields();
+	
+	/**
+	 * Start initial clustering process
+	 */
+	public void startInitialClustering()
+	{
+		display.startupMessages = new ArrayList<String>();	// Clear startup messages
+		if(debugSettings.metadata)
+		{
+			display.sendSetupMessage(world, "Library folder: "+library.getLibraryFolder());	// Show library folder name
+			display.sendSetupMessage(world, " ");
+		}
 		
-		if (state.fieldsInitialized && state.initialSetup && !state.running)
-			finishInitialization();
+		display.sendSetupMessage(world, "Starting MultimediaLocator v0.9...");	// Show startup message
+		display.display(world);											
 
-		if(state.selectedLibrary && !state.initialSetup && !world.getState().interactive && !state.running)	/* Initial clustering once library is selected */
-			world.startInitialClustering();							
+		state.running = false;			// Stop running
+		state.initialSetup = true;				// Start clustering mode
+	}
 
-		/* Interactive Clustering */
-		if(world.getState().startInteractive && !world.getState().interactive && !state.running)	
-			world.startInteractiveClustering();						
+	/**
+	 * Start interactive clustering mode
+	 */
+	public void startInteractiveClustering()
+	{
+		background(0.f);						// Clear screen
 		
-		if(world.getState().interactive && !world.getState().startInteractive && !state.running)		
-			world.runInteractiveClustering();	
+		state.running = false;					// Stop running simulation
+		state.interactive = true;				// Start interactive clustering mode
+		state.startInteractive = false;			// Have started
+		
+		display.map2D.initializeMaps(world);
+		
+		display.resetDisplayModes();			// Reset display view and clear messages
+		display.displayClusteringInfo(this);
+		
+		world.getCurrentField().blackoutMedia();	// Blackout all media
+	}
+	
+	/**
+	 * Run user clustering 
+	 */
+	public void runInteractiveClustering()
+	{
+		background(0.f);					// Clear screen
+		display.display(world);						// Draw text		
+	}
+	
+	/**
+	 * Finish running Interactive Clustering and restart simulation 
+	 */
+	public void finishInteractiveClustering()
+	{
+		background(0.f);
+		
+		world.viewer.clearAttractorCluster();
+
+		state.interactive = false;				// Stop interactive clustering mode
+		state.startedRunning = true;				// Start GMViewer running
+		state.running = true;	
+		
+		world.viewer.setCurrentCluster( world.viewer.getNearestCluster(false), -1 );
+		world.getCurrentField().blackoutMedia();
 	}
 
 	/**
@@ -177,35 +236,43 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 	
 	/**
-	 * Initialize fields
+	 * Initialize current initialization field
 	 */
-	public void initializeFields()
+	public void initializeNextField()
 	{
 		if(!state.fieldsInitialized && !state.exit)
 		{
-			WMV_Field f = world.getField(state.initializationField);	// Field to initialize
-
-			WMV_SimulationState result = metadata.load(f, library.getLibraryFolder(), true);	// Load metadata from field media
+			/* Get field to initialize */
+			WMV_Field f = world.getField(state.initializationField);	
 			
-			boolean success = (result != null);
-			if(success) System.out.println("Valid SimulationState loaded...");
-			
-			if(success)						// If simulation state loaded from data, load simulation state
-				success = world.loadSimulationState(result, world.getCurrentField());
-			
-			if(!success)					// If simulation state not loaded from data folder, initialize field
-				world.getState().hierarchical = f.initialize(library.getLibraryFolder(), world.getState().lockMediaToClusters);		// Initialize field
+			/* Attempt to load simulation state from data folder. If not successful, initialize field */
+			boolean success = loadSimulationState(f, library.getLibraryFolder());
+			if(!success) world.getState().hierarchical = f.initialize( library.getLibraryFolder(), -100000L);
 			
 			world.setBlurMasks();			// Set blur masks
 		}
 		
-		state.initializationField++;										// Set next field to initialize
+		/* Set next field to initialize */
+		state.initializationField++;										
 		if( state.initializationField >= world.getFields().size() )			
 			state.fieldsInitialized = true;
 	}
 	
+	private boolean loadSimulationState(WMV_Field f, String libraryFolder)
+	{
+		/* Load metadata from media associated with field */
+		WMV_SimulationState result = metadata.load(f, libraryFolder, true);
+		boolean success = (result != null);
+		if(success) System.out.println("Valid SimulationState loaded...");
+		
+		/* If simulation state loaded from data, load simulation state */
+		if(success)						
+			success = world.loadSimulationState(result, f);
+
+		return success;
+	}
 	/**
-	 * Finish the setup process
+	 * Finish the world initialization process
 	 */
 	void finishInitialization()
 	{
@@ -223,24 +290,43 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		state.initialSetup = false;				
 		display.initialSetup = false;
 		
-		state.setupProgress = 100;
-
 		state.running = true;
 		state.startedRunning = true;
 	}
 
-	public void reset()
+	/**
+	 * Initialize 2D drawing 
+	 */
+	void start3DHUD()
+	{
+		PVector camLoc = world.viewer.getLocation();
+		PVector camOrientation = world.viewer.getOrientation();
+		perspective(world.viewer.getInitFieldOfView(), (float)width/(float)height, world.viewer.getNearClippingDistance(), 10000);
+		PVector t = new PVector(camLoc.x, camLoc.y, camLoc.z);
+		translate(t.x, t.y, t.z);
+//		rotateY(camera.attitude()[0]);
+//		rotateX(-camera.attitude()[1]);
+//		rotateZ(camera.attitude()[2]);
+		rotateY(camOrientation.x);
+		rotateX(-camOrientation.y);
+		rotateZ(camOrientation.z);
+	}
+
+	public void restartMultimediaLocator()
 	{
 		background(0.f);
 		display.window.hideWindows();
 		world.reset(true);
 	}
 	
-	public void save()
+	/**
+	 * Save screen image or export selected media
+	 */
+	public void export()
 	{
 		if(world.viewer.getSettings().selection)
 		{
-			world.exportSelectedImages();
+			world.exportSelectedMedia();
 			System.out.println("Exported image(s) to "+world.outputFolder);
 		}
 		else
@@ -248,7 +334,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
 			System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
 		}
-		state.save = false;
+		state.export = false;
 	}
 
 	/**
@@ -369,7 +455,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		else
 		{
 			state.selectedLibrary = false;				// Library in improper format if masks are missing
-			selectFolderPrompt();					// Retry folder prompt
+			librarySelectionDialog();					// Retry folder prompt
 		}
 	}
 	
@@ -462,7 +548,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 
 	public void handleButtonEvents(GButton button, GEvent event) { 
-		input.handleButtonEvent(world, display, button, event);
+		input.handleButtonEvent(this, display, button, event);
 	}
 	
 	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
@@ -479,7 +565,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	public void keyPressed() 
 	{
-		input.handleKeyPressed(world, key, keyCode);
+		input.handleKeyPressed(this, key, keyCode);
 	}
 
 	/**
@@ -493,7 +579,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void wmvWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
@@ -501,7 +587,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void timeWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
@@ -509,7 +595,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
@@ -517,7 +603,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void graphicsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
@@ -525,7 +611,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void memoryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
@@ -533,7 +619,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void modelWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
@@ -541,7 +627,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void selectionWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
@@ -549,7 +635,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void statisticsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
@@ -557,15 +643,15 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(world, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
-	public void selectFolderPrompt()
+	public void librarySelectionDialog()
 	{
 		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
-		state.openLibraryDialog = false;
+		state.chooseLibrary = false;
 	}
 	
 	/**
@@ -630,9 +716,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 				performanceSlow = true;
 			
 			if(performanceSlow && debugSettings.memory)
-			{
-				display.message(world.state, "Performance slow...");
-			}
+				display.message(this, "Performance slow...");
 		}
 		else
 		{

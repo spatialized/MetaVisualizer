@@ -55,10 +55,11 @@ public class WMV_Field
 			   ML_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
 	{
 		worldSettings = newWorldSettings;
+		debugSettings = newDebugSettings;
 		if(newWorldState != null) worldState = newWorldState;
 		if(newViewerSettings != null) viewerSettings = newViewerSettings;
 		if(newViewerState != null) viewerState = newViewerState;
-		debugSettings = newDebugSettings;
+		model = new WMV_Model(worldSettings, debugSettings);
 
 		state = new WMV_FieldState();
 		utilities = new WMV_Utilities();
@@ -66,7 +67,6 @@ public class WMV_Field
 		state.name = newMediaFolder;
 		state.id = newFieldID;
 
-		model = new WMV_Model(worldSettings, debugSettings);
 		state.clustersByDepth = new ArrayList<Integer>();
 		
 		clusters = new ArrayList<WMV_Cluster>();
@@ -113,8 +113,7 @@ public class WMV_Field
 			model.state.fieldArea = model.getState().fieldWidth * model.getState().fieldLength;				// Use volume instead?
 			model.state.mediaDensity = model.getState().validMedia / model.getState().fieldArea;				// Media per sq. m.
 
-			/* Increase maxClusterDistance as mediaDensity decreases */
-			if(worldState.autoClusterDistances)
+			if(worldState.autoClusterDistances)			/* Increase maxClusterDistance as mediaDensity decreases */
 			{
 				model.state.maxClusterDistance = worldSettings.maxClusterDistanceConstant / model.getState().mediaDensity;
 				if(model.state.maxClusterDistance > model.getState().minClusterDistance * worldSettings.maxClusterDistanceFactor)
@@ -130,7 +129,7 @@ public class WMV_Field
 				System.out.println("Set maxClusterDistance:"+model.getState().maxClusterDistance);
 
 			if(model.getState().highLongitude == -1000000 || model.getState().lowLongitude == 1000000 || model.getState().highLatitude == -1000000
-				|| model.getState().lowLatitude == 1000000)	// If field dimensions aren't initialized
+				|| model.getState().lowLatitude == 1000000)			// If field dimensions aren't initialized
 			{
 				model.state.lowLongitude = 1000.f;
 				model.state.fieldLength = 1000.f;
@@ -144,7 +143,8 @@ public class WMV_Field
 				model.state.fieldHeight = 50.f;						// Altitude already in meters
 			}
 
-			model.state.fieldAspectRatio = model.getState().lowLongitude / model.getState().fieldLength;
+			model.state.fieldAspectRatio = model.getState().fieldWidth / model.getState().fieldLength;
+//			model.state.fieldAspectRatio = model.getState().lowLongitude / model.getState().fieldLength;
 
 			if (debugSettings.field)
 			{
@@ -307,8 +307,13 @@ public class WMV_Field
 	 * @param library Current library folder
 	 * @param lockMediaToClusters Center media capture locations at associated cluster locations
 	 */
-	public boolean initialize(String library, boolean lockMediaToClusters)
+	public boolean initialize(String library, long randomSeed)
 	{
+		if(randomSeed == -100000L)
+			model.state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
+		else
+			model.state.clusteringRandomSeed = randomSeed;
+		
 		if(debugSettings.main) System.out.println("Initializing field #"+state.id);
 		
 		model.calculateFieldSize(images, panoramas, videos); 		// Calculate bounds of photo GPS locations
@@ -333,7 +338,7 @@ public class WMV_Field
 		runInitialClustering(hierarchical);		// Find media clusters
 //		model.findDuplicateClusterMedia();		// Find media in more than one cluster
 		
-		if(lockMediaToClusters)					// Center media capture locations at associated cluster locations
+		if(worldState.lockMediaToClusters)					// Center media capture locations at associated cluster locations
 			lockMediaToClusters();	
 
 		if(debugSettings.field) System.out.println("Creating timeline and dateline for field #"+state.id+"...");

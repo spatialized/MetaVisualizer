@@ -129,7 +129,7 @@ public class WMV_World
 	void draw2D()
 	{
 		/* 2D Display */
-		p.display.draw(this);										// Draw 2D display after 3D graphics
+		p.display.display(this);										// Draw 2D display after 3D graphics
 		
 		if(state.fadingAlpha) updateFadingAlpha();				// Fade alpha
 
@@ -384,20 +384,20 @@ public class WMV_World
 		if(system)
 		{
 			p.state.initializationField = 0;				// Field to be initialized this frame
-			p.state.setupProgress = 0;						// Setup progress (0 to 100)
+//			p.state.setupProgress = 0;						// Setup progress (0 to 100)
 			p.state.startedRunning = false;			// Program just started running
 			p.state.initialSetup = false;			// Performing initial setup 
 			p.state.initializingFields = false;			// Initializing media folders
 			p.state.fieldsInitialized = false;			// Initialized media folders
-			p.state.save = false;
+			p.state.export = false;
 		}
 		
 		settings.reset();
 
 		/* Clustering Modes */
 		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
-		state.interactive = false;					// In user clustering mode?
-		state.startInteractive = false;				// Start user clustering
+		p.state.interactive = false;					// In user clustering mode?
+		p.state.startInteractive = false;				// Start user clustering
 
 		/* Time */
 		state.timeFading = false;					// Does time affect media brightness? 
@@ -453,72 +453,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * Start initial clustering process
-	 */
-	public void startInitialClustering()
-	{
-		p.display.startupMessages = new ArrayList<String>();	// Clear startup messages
-		if(p.debugSettings.metadata)
-		{
-			p.display.sendSetupMessage(this, "Library folder: "+p.library.getLibraryFolder());	// Show library folder name
-			p.display.sendSetupMessage(this, " ");
-		}
-		
-		p.display.sendSetupMessage(this, "Starting MultimediaLocator v0.9...");	// Show startup message
-		p.display.draw(this);											
-
-		p.state.running = false;			// Stop running
-		p.state.initialSetup = true;				// Start clustering mode
-	}
-	
-	/**
-	 * Start interactive clustering mode
-	 */
-	public void startInteractiveClustering()
-	{
-		p.background(0.f);					// Clear screen
-		
-		p.state.running = false;					// Stop running simulation
-		state.interactive = true;					// Start interactive clustering mode
-		state.startInteractive = false;			// Have started
-		
-//		p.display.initializeSmallMap();
-		p.display.map2D.initializeMaps(this);
-		
-		p.display.resetDisplayModes();		// Clear messages
-		p.display.displayClusteringInfo(state);
-		
-		getCurrentField().blackoutMedia();	// Blackout all media
-	}
-	
-	/**
-	 * Run user clustering 
-	 */
-	public void runInteractiveClustering()
-	{
-		p.background(0.f);					// Clear screen
-		p.display.draw(this);						// Draw text		
-	}
-	
-	/**
-	 * Finish running Interactive Clustering and restart simulation 
-	 */
-	public void finishInteractiveClustering()
-	{
-		p.background(0.f);
-		
-		viewer.clearAttractorCluster();
-
-		state.interactive = false;				// Stop interactive clustering mode
-		p.state.startedRunning = true;				// Start GMViewer running
-		p.state.running = true;	
-		
-		viewer.setCurrentCluster( viewer.getNearestCluster(false), -1 );
-		getCurrentField().blackoutMedia();
-	}
-	
-	/**
-	 * Create fields from the media folders
+	 * Create a field from each media folder in library
 	 */
 	void createFieldsFromFolders(ArrayList<String> folders)
 	{
@@ -748,10 +683,10 @@ public class WMV_World
 	{
 		if(p.debugSettings.main)
 			System.out.println("Will output image to disk.");
-		p.state.save = true;
+		p.state.export = true;
 	}
 	
-	public void exportSelectedImages()
+	public void exportSelectedMedia()
 	{
 		List<Integer> selected = getCurrentField().getSelectedMedia(0);
 		for(int i:selected)

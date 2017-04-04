@@ -2539,9 +2539,9 @@ public class WMV_Viewer
 					state.zooming = false;
 			}
 		}
-		else										// If no transitions
+		else										// If no transitions and not currently moving or turning 
 		{
-			if(worldState.frameCount % 60 == 0 && settings.optimizeVisibility)		// If not currently turning
+			if(worldState.frameCount % 60 == 0 && settings.optimizeVisibility)	
 			{
 				if( !mediaAreVisible(false, 1) )	// Check whether any images are currently visible anywhere in front of camera
 				{
@@ -4053,18 +4053,18 @@ public class WMV_Viewer
 		settings.nearViewingDistance = settings.nearClippingDistance * 2.f;
 	}
 	
-	/**
-	 * Initialize 2D drawing 
-	 */
-	void start3DHUD()
-	{
-		p.p.perspective(getInitFieldOfView(), (float)p.p.width/(float)p.p.height, getNearClippingDistance(), 10000);
-		PVector t = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);
-		p.p.translate(t.x, t.y, t.z);
-		p.p.rotateY(camera.attitude()[0]);
-		p.p.rotateX(-camera.attitude()[1]);
-		p.p.rotateZ(camera.attitude()[2]);
-	}
+//	/**
+//	 * Initialize 2D drawing 
+//	 */
+//	void start3DHUD()
+//	{
+//		p.p.perspective(getInitFieldOfView(), (float)p.p.width/(float)p.p.height, getNearClippingDistance(), 10000);
+//		PVector t = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);
+//		p.p.translate(t.x, t.y, t.z);
+//		p.p.rotateY(camera.attitude()[0]);
+//		p.p.rotateX(-camera.attitude()[1]);
+//		p.p.rotateZ(camera.attitude()[2]);
+//	}
 	
 	public WMV_ViewerState getState()
 	{

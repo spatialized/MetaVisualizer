@@ -92,12 +92,12 @@ public class ML_Input
 	 * @param button GButton that was pressed
 	 * @param event GEvent that occurred
 	 */
-	public void handleButtonEvent(WMV_World world, ML_Display display, GButton button, GEvent event) 
+	public void handleButtonEvent(MultimediaLocator ml, ML_Display display, GButton button, GEvent event) 
 	{ 
 		switch(button.tag) 
 		{
 			case "Restart":
-				world.p.restart();
+				ml.restart();
 				break;
 	
 			/* Navigation */
@@ -110,57 +110,57 @@ public class ML_Input
 				break;
 	
 			case "NearestCluster":
-				world.viewer.moveToNearestCluster(world.viewer.getMovementTeleport());
+				ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
 				break;
 			case "RandomCluster":
-				world.viewer.moveToRandomCluster(world.viewer.getMovementTeleport());
+				ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport());
 				break;
 			case "LastCluster":
-				world.viewer.moveToLastCluster(world.viewer.getMovementTeleport());
+				ml.world.viewer.moveToLastCluster(ml.world.viewer.getMovementTeleport());
 				break;
 			case "NextField":
 				if(display.displayView == 1)
-					world.viewer.teleportToField(1, false);
+					ml.world.viewer.teleportToField(1, false);
 				else
-					world.viewer.teleportToField(1, true);
+					ml.world.viewer.teleportToField(1, true);
 				break;
 			case "PreviousField":
 				if(display.displayView == 1)
-					world.viewer.teleportToField(-1, false);
+					ml.world.viewer.teleportToField(-1, false);
 				else
-					world.viewer.teleportToField(-1, true);
+					ml.world.viewer.teleportToField(-1, true);
 				break;
 			case "ImportGPSTrack":
-				world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
+				ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
 				break;
 	
 			case "FollowStart":
-				if(!world.viewer.isFollowing())
+				if(!ml.world.viewer.isFollowing())
 				{
-					switch(world.viewer.getFollowMode())
+					switch(ml.world.viewer.getFollowMode())
 					{
 					case 0:
-						world.viewer.followTimeline(true, false);
+						ml.world.viewer.followTimeline(true, false);
 						break;
 					case 1:
-						world.viewer.followGPSTrack();
+						ml.world.viewer.followGPSTrack();
 						break;
 					case 2:
-						world.viewer.followMemory();
+						ml.world.viewer.followMemory();
 						break;
 					}
 				}
 				break;
 			case "FollowStop":
-				world.viewer.stopFollowing();
+				ml.world.viewer.stopFollowing();
 				break;
 				/* Model */
 			case "SubjectDistanceDown":
-				world.getCurrentField().fadeObjectDistances(0.85f);
+				ml.world.getCurrentField().fadeObjectDistances(0.85f);
 				break;
 	
 			case "SubjectDistanceUp":
-				world.getCurrentField().fadeObjectDistances(1.176f);
+				ml.world.getCurrentField().fadeObjectDistances(1.176f);
 				break;
 				
 				/* Help */
@@ -209,10 +209,10 @@ public class ML_Input
 				break;
 
 			case "ZoomIn":
-				world.viewer.startZoomTransition(-1);
+				ml.world.viewer.startZoomTransition(-1);
 				break;
 			case "ZoomOut":
-				world.viewer.startZoomTransition(1);
+				ml.world.viewer.startZoomTransition(1);
 				break;
 	
 				/* Model */
@@ -226,16 +226,16 @@ public class ML_Input
 				
 			/* Time */
 			case "NextTime":
-				world.viewer.moveToNextTimeSegment(true, world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToNextTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
 				break;
 			case "PreviousTime":
-				world.viewer.moveToPreviousTimeSegment(true, world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToPreviousTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
 				break;
 	
 			/* Selection */
 			case "OpenSelectionWindow":
 				display.window.openSelectionWindow();
-				world.viewer.setSelection( true );
+				ml.world.viewer.setSelection( true );
 				display.window.chkbxSelectionMode.setSelected(true);
 				break;
 
@@ -244,36 +244,36 @@ public class ML_Input
 				break;
 
 			case "SelectFront":
-				world.viewer.chooseMediaInFront(true);
+				ml.world.viewer.chooseMediaInFront(true);
 				break;
 				
 			case "DeselectFront":
-				world.viewer.chooseMediaInFront(false);	
+				ml.world.viewer.chooseMediaInFront(false);	
 				break;
 					
 			case "DeselectAll":
-				world.getCurrentField().deselectAllMedia(false);
+				ml.world.getCurrentField().deselectAllMedia(false);
 				break;
 			
 			case "StitchPanorama":
-				world.getCurrentCluster().stitchImages(world.p.stitcher, world.p.library.getLibraryFolder(), world.getCurrentField().getSelectedImages());    			
+				ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
 				break;
 				
 				/* Memory */
 			case "SaveLocation":
-				world.viewer.addPlaceToMemory();
+				ml.world.viewer.addPlaceToMemory();
 				break;
 			case "ClearMemory":
-				world.viewer.clearMemory();
+				ml.world.viewer.clearMemory();
 				break;
 	
 				/* Output */
 			case "ExportImage":
-				if(!world.outputFolderSelected) world.p.selectFolder("Select an output folder:", "outputFolderSelected");
-				world.saveToDisk();
+				if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
+				ml.world.saveToDisk();
 				break;
 			case "OutputFolder":
-				world.p.selectFolder("Select an output folder:", "outputFolderSelected");
+				ml.selectFolder("Select an output folder:", "outputFolderSelected");
 				break;
 		}
 	}
@@ -421,708 +421,708 @@ public class ML_Input
 	 * @param key Key that was pressed
 	 * Respond to user key presses
 	 */
-	void handleKeyPressed(WMV_World world, char key, int keyCode)
+	void handleKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		if (!world.p.state.running && !world.p.state.selectedLibrary)
+		if (!ml.state.running && !ml.state.selectedLibrary)
 		{
-			world.p.state.openLibraryDialog = true;
+			ml.state.chooseLibrary = true;
 		}
 		else
 		{
 			/* General */
 			if (key == ' ') 
 			{
-				if(world.getState().interactive)
+				if(ml.state.interactive)
 				{
-					world.finishInteractiveClustering();			// Restart simulation after interative clustering
+					ml.finishInteractiveClustering();			// Restart simulation after interactive clustering
 				}
 			}
 
 			if (key == ' ') 
 			{
-				if(!world.p.basic)
+				if(!ml.basic)
 				{
-					if(world.p.display.window.showWMVWindow)
-						world.p.display.window.hideWMVWindow();
+					if(ml.display.window.showWMVWindow)
+						ml.display.window.hideWMVWindow();
 					else
-						world.p.display.window.showWMVWindow();
+						ml.display.window.showWMVWindow();
 				}
 			}
 
 			/* Display Modes */
 			if (!optionKey && !commandKey && key == '1') 
-				world.p.display.setDisplayView(world, 0);
+				ml.display.setDisplayView(ml.world, 0);
 
 			if (!optionKey && !commandKey && key == '2') 
-				world.p.display.setDisplayView(world, 1);
+				ml.display.setDisplayView(ml.world, 1);
 
 			if (!optionKey && !commandKey && key == '3') 
-				world.p.display.setDisplayView(world, 2);
+				ml.display.setDisplayView(ml.world, 2);
 
 			if (!optionKey && !commandKey  && key == '4')
-				world.p.display.setDisplayView(world, 3);
+				ml.display.setDisplayView(ml.world, 3);
 
 			if (!optionKey && !commandKey  && key == '5')
 			{
-				boolean state = !world.getState().showModel;
-				world.getState().showModel = state;
-				if(world.p.display.window.setupModelWindow)
-					world.p.display.window.chkbxShowModel.setSelected(state);
+				boolean state = !ml.world.getState().showModel;
+				ml.world.state.showModel = state;
+				if(ml.display.window.setupModelWindow)
+					ml.display.window.chkbxShowModel.setSelected(state);
 			}
 
 			if (!optionKey && !commandKey  && key == '6') 
-				world.getState().showMediaToCluster = !world.getState().showMediaToCluster;			// Draw line from each media point to cluster
+				ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
 
 			if (!optionKey && !commandKey  && key == '7') 
-				world.getState().showCaptureToMedia = !world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
+				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
 
 			if (!optionKey && !commandKey  && key == '8') 
-				world.getState().showCaptureToCluster = !world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
+				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
 			if (!optionKey && commandKey && key == '1') 
 			{
-				if(!world.p.display.window.showNavigationWindow)
-					world.p.display.window.openNavigationWindow();
+				if(!ml.display.window.showNavigationWindow)
+					ml.display.window.openNavigationWindow();
 				else
-					world.p.display.window.hideNavigationWindow();
+					ml.display.window.hideNavigationWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '2') 
 			{
-				if(!world.p.display.window.showTimeWindow)
-					world.p.display.window.openTimeWindow();
+				if(!ml.display.window.showTimeWindow)
+					ml.display.window.openTimeWindow();
 				else
-					world.p.display.window.hideTimeWindow();
+					ml.display.window.hideTimeWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '3') 
 			{
-				if(!world.p.display.window.showGraphicsWindow)
-					world.p.display.window.openGraphicsWindow();
+				if(!ml.display.window.showGraphicsWindow)
+					ml.display.window.openGraphicsWindow();
 				else
-					world.p.display.window.hideGraphicsWindow();
+					ml.display.window.hideGraphicsWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '4') 
 			{
-				if(!world.p.display.window.showModelWindow)
-					world.p.display.window.openModelWindow();
+				if(!ml.display.window.showModelWindow)
+					ml.display.window.openModelWindow();
 				else
-					world.p.display.window.hideModelWindow();
+					ml.display.window.hideModelWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '5') 
 			{
-				if(!world.p.display.window.showMemoryWindow)
-					world.p.display.window.openMemoryWindow();
+				if(!ml.display.window.showMemoryWindow)
+					ml.display.window.openMemoryWindow();
 				else
-					world.p.display.window.hideMemoryWindow();
+					ml.display.window.hideMemoryWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '6') 
 			{
-				if(!world.p.display.window.showSelectionWindow)
-					world.p.display.window.openSelectionWindow();
+				if(!ml.display.window.showSelectionWindow)
+					ml.display.window.openSelectionWindow();
 				else
-					world.p.display.window.hideSelectionWindow();
+					ml.display.window.hideSelectionWindow();
 				commandKey = false;
 			}
 
 			if (!optionKey && commandKey && key == '7') 
 			{
-				if(!world.p.display.window.showStatisticsWindow)
-					world.p.display.window.openStatisticsWindow();
+				if(!ml.display.window.showStatisticsWindow)
+					ml.display.window.openStatisticsWindow();
 				else
-					world.p.display.window.hideStatisticsWindow();
+					ml.display.window.hideStatisticsWindow();
 				commandKey = false;
 			}
 			
 			if (!optionKey && commandKey && key == '8') 
 			{
-				if(!world.p.display.window.showHelpWindow)
-					world.p.display.window.openHelpWindow();
+				if(!ml.display.window.showHelpWindow)
+					ml.display.window.openHelpWindow();
 				else
-					world.p.display.window.hideHelpWindow();
+					ml.display.window.hideHelpWindow();
 				commandKey = false;
 			}
 
 			if (key == 'R')
-				world.p.restart();
+				ml.restart();
 
-			if(world.p.display.displayView == 1)	/* 2D Map View */
+			if(ml.display.displayView == 1)	/* 2D Map View */
 			{
 				if( key == '+' )
-					world.p.display.satelliteMap = !world.p.display.satelliteMap;
+					ml.display.satelliteMap = !ml.display.satelliteMap;
 
 				if (key == '{')
-					world.viewer.teleportToField(-1, false);
+					ml.world.viewer.teleportToField(-1, false);
 
 				if (key == '}') 
-					world.viewer.teleportToField(1, false);
+					ml.world.viewer.teleportToField(1, false);
 
 				/* Clustering */
 				if (key == 'r')
 				{
-					world.p.display.map2D.resetMapZoom(world, true);
+					ml.display.map2D.resetMapZoom(ml.world, true);
 				}
 
 				if (key == 'c')
 				{
-					world.p.display.map2D.resetMapZoom(world, true);
-					world.startInteractiveClustering();
+					ml.display.map2D.resetMapZoom(ml.world, true);
+					ml.startInteractiveClustering();
 				}
 
 				if (key == 'z')
-					world.p.display.map2D.zoomToCluster(world, world.getCurrentCluster());
+					ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster());
 
 				if (shiftKey && key == 'c')
-					world.startInitialClustering();				// Re-run clustering on all fields
+					ml.startInitialClustering();				// Re-run clustering on all fields
 
 				if (key == ']') 
-					world.p.display.map2D.zoomIn(world);
+					ml.display.map2D.zoomIn(ml.world);
 
 				if (key == '[') 
-					world.p.display.map2D.zoomOut(world);
+					ml.display.map2D.zoomOut(ml.world);
 
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.LEFT)
-						world.viewer.rotateX(-1);
+						ml.world.viewer.rotateX(-1);
 
 					if (keyCode == PApplet.RIGHT) 
-						world.viewer.rotateX(1);
+						ml.world.viewer.rotateX(1);
 
 					if (optionKey && shiftKey && keyCode == PApplet.LEFT) 
-						world.p.display.map2D.mapScrollTransition( world, 150.f * world.p.display.map2D.mapDistance, 0.f );
+						ml.display.map2D.mapScrollTransition( ml.world, 150.f * ml.display.map2D.mapDistance, 0.f );
 
 					if (optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-						world.p.display.map2D.mapScrollTransition( world, -150.f * world.p.display.map2D.mapDistance, 0.f );
+						ml.display.map2D.mapScrollTransition( ml.world, -150.f * ml.display.map2D.mapDistance, 0.f );
 
 					if (optionKey && shiftKey && keyCode == PApplet.DOWN) 
-						world.p.display.map2D.mapScrollTransition( world, 0.f, -150.f * world.p.display.map2D.mapDistance );
+						ml.display.map2D.mapScrollTransition( ml.world, 0.f, -150.f * ml.display.map2D.mapDistance );
 
 					if (optionKey && shiftKey && keyCode == PApplet.UP) 
-						world.p.display.map2D.mapScrollTransition( world, 0.f, 150.f * world.p.display.map2D.mapDistance );
+						ml.display.map2D.mapScrollTransition( ml.world, 0.f, 150.f * ml.display.map2D.mapDistance );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.LEFT) 
-						world.p.display.map2D.zoomRectangleScrollTransition( world, -400.f * world.p.display.map2D.mapDistance, 0.f );
+						ml.display.map2D.zoomRectangleScrollTransition( ml.world, -400.f * ml.display.map2D.mapDistance, 0.f );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-						world.p.display.map2D.zoomRectangleScrollTransition( world, 400.f * world.p.display.map2D.mapDistance, 0.f );
+						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 400.f * ml.display.map2D.mapDistance, 0.f );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.DOWN) 
-						world.p.display.map2D.zoomRectangleScrollTransition( world, 0.f, 400.f * world.p.display.map2D.mapDistance );
+						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, 400.f * ml.display.map2D.mapDistance );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.UP) 
-						world.p.display.map2D.zoomRectangleScrollTransition( world, 0.f, -400.f * world.p.display.map2D.mapDistance );
+						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, -400.f * ml.display.map2D.mapDistance );
 				}
 
 				if(key == PApplet.ENTER)
 				{
 					if(shiftKey)
 					{
-						world.viewer.teleportToCluster(world.p.display.map2D.getSelectedClusterID(), false, -1);
+						ml.world.viewer.teleportToCluster(ml.display.map2D.getSelectedClusterID(), false, -1);
 					}
 					else
 					{
-						world.viewer.teleportToCluster(world.p.display.map2D.getSelectedClusterID(), true, -1);
-						world.p.display.displayView = 0;
+						ml.world.viewer.teleportToCluster(ml.display.map2D.getSelectedClusterID(), true, -1);
+						ml.display.displayView = 0;
 					}
 				}
 			}
-			else if(world.p.display.displayView == 2)		/* Cluster View */
+			else if(ml.display.displayView == 2)		/* Cluster View */
 			{
 				if (key == 'c')
 				{
-					world.p.display.displayCluster = world.viewer.getState().getCurrentClusterID();
+					ml.display.displayCluster = ml.world.viewer.getState().getCurrentClusterID();
 				}
 				
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.LEFT) 
 					{
-						world.p.display.displayCluster--;
-						if(world.p.display.displayCluster < 0)
-							world.p.display.displayCluster = world.getFieldClusters().size() - 1;
+						ml.display.displayCluster--;
+						if(ml.display.displayCluster < 0)
+							ml.display.displayCluster = ml.world.getFieldClusters().size() - 1;
 
 						int count = 0;
-						while(world.getCurrentField().getCluster(world.p.display.displayCluster).isEmpty())
+						while(ml.world.getCurrentField().getCluster(ml.display.displayCluster).isEmpty())
 						{
-							world.p.display.displayCluster--;
+							ml.display.displayCluster--;
 							count++;
-							if(world.p.display.displayCluster < 0)
-								world.p.display.displayCluster = world.getFieldClusters().size() - 1;
+							if(ml.display.displayCluster < 0)
+								ml.display.displayCluster = ml.world.getFieldClusters().size() - 1;
 
-							if(count > world.getFieldClusters().size())
+							if(count > ml.world.getFieldClusters().size())
 								break;
 						}
 					}
 
 					if (keyCode == PApplet.RIGHT) 
 					{
-						world.p.display.displayCluster++;
-						if( world.p.display.displayCluster >= world.getFieldClusters().size())
-							world.p.display.displayCluster = 0;
+						ml.display.displayCluster++;
+						if( ml.display.displayCluster >= ml.world.getFieldClusters().size())
+							ml.display.displayCluster = 0;
 
 						int count = 0;
-						while(world.getCurrentField().getCluster(world.p.display.displayCluster).isEmpty())
+						while(ml.world.getCurrentField().getCluster(ml.display.displayCluster).isEmpty())
 						{
-							world.p.display.displayCluster++;
+							ml.display.displayCluster++;
 							count++;
-							if( world.p.display.displayCluster >= world.getFieldClusters().size())
-								world.p.display.displayCluster = 0;
+							if( ml.display.displayCluster >= ml.world.getFieldClusters().size())
+								ml.display.displayCluster = 0;
 
-							if(count > world.getFieldClusters().size())
+							if(count > ml.world.getFieldClusters().size())
 								break;
 						}
 					}
 				}
 			}
-			else if(world.p.display.displayView == 3)					/* Time View */
+			else if(ml.display.displayView == 3)					/* Time View */
 			{
 				if (key == 'r')									// Zoom out to whole timeline
-					world.p.display.resetZoom(world, true);
+					ml.display.resetZoom(ml.world, true);
 
 				if (key == 'z')									// Zoom to fit timeline
-					world.p.display.zoomToTimeline(world, true);
+					ml.display.zoomToTimeline(ml.world, true);
 
 				if (key == 't')									// Zoom to fit current time segment
-					world.p.display.zoomToCurrentTimeSegment(world, true);
+					ml.display.zoomToCurrentTimeSegment(ml.world, true);
 
 				if (key == 'd')									// Zoom to fit current time segment
-					world.p.display.zoomToCurrentDate(world, true);
+					ml.display.zoomToCurrentDate(ml.world, true);
 
 				if (key == 'a')									// Timeline zoom to fit
-					world.p.display.showAllDates();
+					ml.display.showAllDates();
 
 				if (key == PApplet.ENTER)
 				{
-					if(world.p.display.getCurrentSelectableTime() >= 0)
+					if(ml.display.getCurrentSelectableTime() >= 0)
 					{
-						world.viewer.teleportToCluster(world.p.display.getSelectedCluster(), true, -1); 
-						world.p.display.setDisplayView(world, 0);
+						ml.world.viewer.teleportToCluster(ml.display.getSelectedCluster(), true, -1); 
+						ml.display.setDisplayView(ml.world, 0);
 					}
 				}
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.UP) 					// Timeline zoom in 
-						world.p.display.zoom(world, -1, true);
+						ml.display.zoom(ml.world, -1, true);
 					
 					if (keyCode == PApplet.DOWN) 				// Timeline zoom out
-						world.p.display.zoom(world, 1, true);
+						ml.display.zoom(ml.world, 1, true);
 
 					if (keyCode == PApplet.LEFT)  				// Start timeline scrolling left
-						world.p.display.scroll(world, -1);
+						ml.display.scroll(ml.world, -1);
 					
 					if (keyCode == PApplet.RIGHT)  				// Start timeline scrolling right
-						world.p.display.scroll(world, 1);
+						ml.display.scroll(ml.world, 1);
 				}
 			}
 
-			if (!world.getState().interactive)		
+			if (!ml.state.interactive)		
 			{
 				/* 3D View Controls */
 				if (key == '|')
-					world.getCurrentCluster().stitchImages(world.p.stitcher, world.p.library.getLibraryFolder(), world.getCurrentField().getSelectedImages());    			
+					ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
 //					world.getCurrentCluster().stitchImages();    			
 
 				if (optionKey && key == '[')
 				{
-					if(world.viewer.getThinningAngle() > PApplet.PI / 64.f)
-						world.viewer.setThinningAngle( world.viewer.getThinningAngle() - PApplet.PI / 128.f );
+					if(ml.world.viewer.getThinningAngle() > PApplet.PI / 64.f)
+						ml.world.viewer.setThinningAngle( ml.world.viewer.getThinningAngle() - PApplet.PI / 128.f );
 //						world.viewer.getSettings().thinningAngle -= PApplet.PI / 128.f;
-					world.getCurrentField().analyzeClusterMediaDirections();
+					ml.world.getCurrentField().analyzeClusterMediaDirections();
 				}
 
 				if (optionKey && key == ']')
 				{
-					if(world.viewer.getThinningAngle() < world.viewer.getVisibleAngle() - PApplet.PI / 128.f)
-						world.viewer.setThinningAngle(world.viewer.getThinningAngle() + PApplet.PI / 128.f);
-					world.getCurrentField().analyzeClusterMediaDirections();
+					if(ml.world.viewer.getThinningAngle() < ml.world.viewer.getVisibleAngle() - PApplet.PI / 128.f)
+						ml.world.viewer.setThinningAngle(ml.world.viewer.getThinningAngle() + PApplet.PI / 128.f);
+					ml.world.getCurrentField().analyzeClusterMediaDirections();
 				}
 
 				if (optionKey && key == '\\')
-					world.getCurrentField().stitchAllClusters(world.p.stitcher, world.p.library.getLibraryFolder());		// Teleport to cluster with > 1 times
+					ml.world.getCurrentField().stitchAllClusters(ml.stitcher, ml.library.getLibraryFolder());		// Teleport to cluster with > 1 times
 //					world.getCurrentField().stitchAllClusters();		// Teleport to cluster with > 1 times
 
 				if (!optionKey && key == 'a') 
-					world.viewer.startMoveXTransition(-1);
+					ml.world.viewer.startMoveXTransition(-1);
 
 				if (!optionKey && key == 'd') 
-					world.viewer.startMoveXTransition(1);
+					ml.world.viewer.startMoveXTransition(1);
 
 				if( key == 'l' )
-					world.viewer.moveToLastCluster(world.viewer.getMovementTeleport());
+					ml.world.viewer.moveToLastCluster(ml.world.viewer.getMovementTeleport());
 
 				if( key == 'L' )
-					world.viewer.lookAtNearestMedia();
+					ml.world.viewer.lookAtNearestMedia();
 
 				if( key == '/' )
-					world.saveSimulationState();
+					ml.world.saveSimulationState();
 
 				if( key == '?' )
-					world.loadViewerState();
+					ml.world.loadViewerState();
 
 //				if( key == '?' )
 //					world.loadViewerSettings();
 
 				if( key == 't' )
 				{
-					boolean state = !world.viewer.getMovementTeleport();
-					world.viewer.setMovementTeleport( state );
-					if(world.p.display.window.setupNavigationWindow)
-						world.p.display.window.chkbxMovementTeleport.setSelected(state);
+					boolean state = !ml.world.viewer.getMovementTeleport();
+					ml.world.viewer.setMovementTeleport( state );
+					if(ml.display.window.setupNavigationWindow)
+						ml.display.window.chkbxMovementTeleport.setSelected(state);
 				}
 
 				if (key == 'T') 
 				{
-					boolean state = !world.getState().timeFading;
-					if(world.getState().timeFading != state)
+					boolean state = !ml.world.getState().timeFading;
+					if(ml.world.getState().timeFading != state)
 					{
-						world.getState().timeFading = state;
-						if(world.p.display.window.setupTimeWindow)
-							world.p.display.window.chkbxTimeFading.setSelected(state);
+						ml.world.state.timeFading = state;
+						if(ml.display.window.setupTimeWindow)
+							ml.display.window.chkbxTimeFading.setSelected(state);
 					}
 				}
 
 				if (!optionKey && key == 's') 
-					world.viewer.startMoveZTransition(1);
+					ml.world.viewer.startMoveZTransition(1);
 
 				if (!optionKey && key == 'w') 
-					world.viewer.walkForward();
+					ml.world.viewer.walkForward();
 
 				if (optionKey && key == 'm') 
 				{
-					boolean state = !world.getState().showMetadata;
-					world.getState().showMetadata = state;
-					if(world.p.display.window.setupSelectionWindow)
-						world.p.display.window.chkbxShowMetadata.setSelected(state);
+					boolean state = !ml.world.getState().showMetadata;
+					ml.world.state.showMetadata = state;
+					if(ml.display.window.setupSelectionWindow)
+						ml.display.window.chkbxShowMetadata.setSelected(state);
 				}
 
 				if (key == 'Q')
-					world.viewer.moveToNextCluster(false, -1);
+					ml.world.viewer.moveToNextCluster(false, -1);
 
 				if (!optionKey && key == 'e')									// Move UP
-					world.viewer.startMoveYTransition(-1);
+					ml.world.viewer.startMoveYTransition(-1);
 
 				if (key == 'c') 									// Move DOWN
-					world.viewer.startMoveYTransition(1);
+					ml.world.viewer.startMoveYTransition(1);
 
 				if (key == 'p') 								
-					world.getState().paused = !world.getState().paused;
+					ml.world.state.paused = !ml.world.getState().paused;
 
 				if (key == 'j') 
-					world.viewer.moveToRandomCluster(world.viewer.getMovementTeleport());				// Jump (teleport) to random cluster
+					ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport());				// Jump (teleport) to random cluster
 
 				if (key == 'I')
-					world.viewer.setOrientationMode( !world.viewer.getSettings().orientationMode );
+					ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
 
 				if (key == 'W') 
-					world.viewer.moveToNearestClusterAhead(false);
+					ml.world.viewer.moveToNearestClusterAhead(false);
 
 				if (!optionKey && key == ']') {
-					float value = world.settings.altitudeScalingFactor * 1.052f;
-					world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
-					world.getCurrentField().calculateMediaLocations();		// Recalculate media locations
-					world.getCurrentField().createClusters();				// Recalculate cluster locations
-					world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
+					float value = ml.world.settings.altitudeScalingFactor * 1.052f;
+					ml.world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
+					ml.world.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+					ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
+					ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
 				}
 
 				if (!optionKey && key == '[') {
-					float value = world.settings.altitudeScalingFactor *= 0.95f;
-					world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
-					world.getCurrentField().calculateMediaLocations();		// Recalculate media locations
-					world.getCurrentField().createClusters();				// Recalculate cluster locations
-					world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
+					float value = ml.world.settings.altitudeScalingFactor *= 0.95f;
+					ml.world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
+					ml.world.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+					ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
+					ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
 				}
 
 				if (key == 'n')						// Teleport to next time segment on same date
 				{
-					if(world.p.display.displayView == 0)
-						world.viewer.moveToNextTimeSegment(true, world.viewer.getMovementTeleport(), true);
+					if(ml.display.displayView == 0)
+						ml.world.viewer.moveToNextTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
 					else
-						world.viewer.moveToNextTimeSegment(true, true, false);
+						ml.world.viewer.moveToNextTimeSegment(true, true, false);
 				}
 
 				if (key == 'b')						// Teleport to previous time segment on same date
 				{
-					if(world.p.display.displayView == 0)
-						world.viewer.moveToPreviousTimeSegment(true, world.viewer.getMovementTeleport(), true);
+					if(ml.display.displayView == 0)
+						ml.world.viewer.moveToPreviousTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
 					else
-						world.viewer.moveToPreviousTimeSegment(true, true, false);
+						ml.world.viewer.moveToPreviousTimeSegment(true, true, false);
 				}
 
 				if (key == 'N')						// Teleport to next time segment on any date
 				{
-					if(world.p.display.displayView == 0)
-						world.viewer.moveToNextTimeSegment(false, world.viewer.getMovementTeleport(), true);
+					if(ml.display.displayView == 0)
+						ml.world.viewer.moveToNextTimeSegment(false, ml.world.viewer.getMovementTeleport(), true);
 					else
-						world.viewer.moveToNextTimeSegment(false, true, false);
+						ml.world.viewer.moveToNextTimeSegment(false, true, false);
 				}
 
 				if (key == 'B')						// Teleport to previous time segment on any date
 				{
-					if(world.p.display.displayView == 0)
-						world.viewer.moveToPreviousTimeSegment(false, world.viewer.getMovementTeleport(), true);
+					if(ml.display.displayView == 0)
+						ml.world.viewer.moveToPreviousTimeSegment(false, ml.world.viewer.getMovementTeleport(), true);
 					else
-						world.viewer.moveToPreviousTimeSegment(false, true, false);
+						ml.world.viewer.moveToPreviousTimeSegment(false, true, false);
 				}
 
 				if (key == '~')
-					if(!world.viewer.isFollowing())
+					if(!ml.world.viewer.isFollowing())
 					{
-						world.viewer.followMemory();
-						if(world.p.display.window.setupNavigationWindow)
+						ml.world.viewer.followMemory();
+						if(ml.display.window.setupNavigationWindow)
 						{
-							world.p.display.window.optTimeline.setSelected(true);
-							world.p.display.window.optGPSTrack.setSelected(false);
-							world.p.display.window.optMemory.setSelected(false);
+							ml.display.window.optTimeline.setSelected(true);
+							ml.display.window.optGPSTrack.setSelected(false);
+							ml.display.window.optMemory.setSelected(false);
 						}
 					}
 
 				if (optionKey && key == 'g')
-					if(!world.viewer.isFollowing())
+					if(!ml.world.viewer.isFollowing())
 					{
-						world.viewer.followGPSTrack();
-						if(world.p.display.window.setupNavigationWindow)
+						ml.world.viewer.followGPSTrack();
+						if(ml.display.window.setupNavigationWindow)
 						{
-							world.p.display.window.optTimeline.setSelected(false);
-							world.p.display.window.optGPSTrack.setSelected(true);
-							world.p.display.window.optMemory.setSelected(false);
+							ml.display.window.optTimeline.setSelected(false);
+							ml.display.window.optGPSTrack.setSelected(true);
+							ml.display.window.optMemory.setSelected(false);
 						}
 					}
 
 				if (!optionKey && key == '>')
 				{
-					if(!world.viewer.isFollowing())
+					if(!ml.world.viewer.isFollowing())
 					{
-						world.viewer.followTimeline(true, false);
-						if(world.p.display.window.setupNavigationWindow)
+						ml.world.viewer.followTimeline(true, false);
+						if(ml.display.window.setupNavigationWindow)
 						{
-							world.p.display.window.optTimeline.setSelected(false);
-							world.p.display.window.optGPSTrack.setSelected(false);
-							world.p.display.window.optMemory.setSelected(true);
+							ml.display.window.optTimeline.setSelected(false);
+							ml.display.window.optGPSTrack.setSelected(false);
+							ml.display.window.optMemory.setSelected(true);
 						}
 					}
 				}
 
 				if (key == 'u') 		// Teleport to nearest cluster with video
-					world.viewer.moveToNextCluster(true, 2);
+					ml.world.viewer.moveToNextCluster(true, 2);
 
 				if (key == 'U') 		// Go to nearest cluster with video
-					world.viewer.moveToNextCluster(false, 2);
+					ml.world.viewer.moveToNextCluster(false, 2);
 
 				if (shiftKey && key == 'u') 		// Teleport to nearest cluster with panorama
-					world.viewer.moveToNextCluster(true, 1);
+					ml.world.viewer.moveToNextCluster(true, 1);
 
 				if (shiftKey && key == 'U') 		// Go to nearest cluster with panorama
-					world.viewer.moveToNextCluster(false, 1);
+					ml.world.viewer.moveToNextCluster(false, 1);
 
 				if (key == 'm') 
-					world.viewer.moveToNearestCluster(true);
+					ml.world.viewer.moveToNearestCluster(true);
 
 				if (key == 'M') 
-					world.viewer.moveToNearestCluster(false);
+					ml.world.viewer.moveToNearestCluster(false);
 
 				if (key == '-') 
-					world.getCurrentField().fadeObjectDistances(0.85f);
+					ml.world.getCurrentField().fadeObjectDistances(0.85f);
 
 				if (key == '=')
-					world.getCurrentField().fadeObjectDistances(1.176f);
+					ml.world.getCurrentField().fadeObjectDistances(1.176f);
 
 //				if (key == 'Z')
-//					world.p.display.map2D.zoomToRectangle(100, 50, world.p.display.map2D.largeMapWidth * 0.5f, world.p.display.map2D.largeMapHeight * 0.5f);
+//					ml.display.map2D.zoomToRectangle(100, 50, ml.display.map2D.largeMapWidth * 0.5f, ml.display.map2D.largeMapHeight * 0.5f);
 
 				/* 3D Controls Disabled in HUD View */
-				if(!world.p.display.inDisplayView())							
+				if(!ml.display.inDisplayView())							
 				{
 					if (key == '{')
-						world.viewer.teleportToField(-1, true);
+						ml.world.viewer.teleportToField(-1, true);
 
 					if (key == '}') 
-						world.viewer.teleportToField(1, true);
+						ml.world.viewer.teleportToField(1, true);
 
 					if (key == 'q') 
-						world.viewer.startZoomTransition(-1);
+						ml.world.viewer.startZoomTransition(-1);
 
 					if (key == 'z') 
-						world.viewer.startZoomTransition(1);
+						ml.world.viewer.startZoomTransition(1);
 
 					if (optionKey && key == 'e')
 					{
-						boolean state = !world.getState().fadeEdges;
-						world.getState().fadeEdges = state;
-						if(world.p.display.window.setupGraphicsWindow)
+						boolean state = !ml.world.getState().fadeEdges;
+						ml.world.getState().fadeEdges = state;
+						if(ml.display.window.setupGraphicsWindow)
 						{
-							world.p.display.window.chkbxFadeEdges.setSelected(state);
+							ml.display.window.chkbxFadeEdges.setSelected(state);
 						}
 					}
 
 					if (key == 'i')	
 					{
-						if(world.viewer.getSettings().hideImages)
-							world.viewer.showImages();
+						if(ml.world.viewer.getSettings().hideImages)
+							ml.world.viewer.showImages();
 						else
-							world.viewer.hideImages();
+							ml.world.viewer.hideImages();
 					}
 
 					if (key == 'h')	
 					{
-						if(world.viewer.getSettings().hidePanoramas)
-							world.viewer.showPanoramas();
+						if(ml.world.viewer.getSettings().hidePanoramas)
+							ml.world.viewer.showPanoramas();
 						else
-							world.viewer.hidePanoramas();
+							ml.world.viewer.hidePanoramas();
 					}
 
 					if (key == 'v')	
 					{
-						if(world.viewer.getSettings().hideVideos)
-							world.viewer.showVideos();
+						if(ml.world.viewer.getSettings().hideVideos)
+							ml.world.viewer.showVideos();
 						else
-							world.viewer.hideVideos();
+							ml.world.viewer.hideVideos();
 					}
 
 					if (key == 'P')
 					{
-						boolean state = !world.getState().alphaMode;
-						world.getState().alphaMode = state;
-						if(world.p.display.window.setupGraphicsWindow)
-							world.p.display.window.chkbxAlphaMode.setSelected(state);
+						boolean state = !ml.world.getState().alphaMode;
+						ml.world.state.alphaMode = state;
+						if(ml.display.window.setupGraphicsWindow)
+							ml.display.window.chkbxAlphaMode.setSelected(state);
 					}
 
 					if (!shiftKey && optionKey && key == ' ') 
 					{
-						boolean state = !world.getState().timeFading;
-						world.getState().timeFading = state;
-						if(world.p.display.window.setupGraphicsWindow)
+						boolean state = !ml.world.getState().timeFading;
+						ml.world.state.timeFading = state;
+						if(ml.display.window.setupGraphicsWindow)
 						{
-							world.p.display.window.chkbxTimeFading.setSelected(state);
+							ml.display.window.chkbxTimeFading.setSelected(state);
 						}
 					}
 
 					if (key == ')') {
-						float newAlpha = PApplet.constrain(world.getState().alpha+15.f, 0.f, 255.f);
-						world.fadeAlpha(newAlpha);
+						float newAlpha = PApplet.constrain(ml.world.getState().alpha+15.f, 0.f, 255.f);
+						ml.world.fadeAlpha(newAlpha);
 					}
 
 					if (key == '(') {
-						float newAlpha = PApplet.constrain(world.getState().alpha-15.f, 0.f, 255.f);
-						world.fadeAlpha(newAlpha);
+						float newAlpha = PApplet.constrain(ml.world.getState().alpha-15.f, 0.f, 255.f);
+						ml.world.fadeAlpha(newAlpha);
 					}
 
 					if (key == ':')
 					{
-						world.settings.showUserPanoramas = !world.settings.showUserPanoramas;
+						ml.world.settings.showUserPanoramas = !ml.world.settings.showUserPanoramas;
 					}
 
 					if (key == ';')
 					{
-						world.settings.showStitchedPanoramas = !world.settings.showStitchedPanoramas;
+						ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
 					}
 
 					if (key == 'A') 
 					{
-						world.viewer.setSelection( !world.viewer.getSelection() );
-						if(world.p.display.window.setupSelectionWindow)
-							world.p.display.window.chkbxSelectionMode.setSelected(world.viewer.getSettings().selection);
+						ml.world.viewer.setSelection( !ml.world.viewer.getSelection() );
+						if(ml.display.window.setupSelectionWindow)
+							ml.display.window.chkbxSelectionMode.setSelected(ml.world.viewer.getSettings().selection);
 
-						if(world.viewer.getSelection() && world.viewer.getMultiSelection())
+						if(ml.world.viewer.getSelection() && ml.world.viewer.getMultiSelection())
 						{
-							world.viewer.setMultiSelection( false );
-							if(world.p.display.window.setupSelectionWindow)
-								world.p.display.window.chkbxMultiSelection.setSelected( false );
+							ml.world.viewer.setMultiSelection( false );
+							if(ml.display.window.setupSelectionWindow)
+								ml.display.window.chkbxMultiSelection.setSelected( false );
 						}
-						if(world.viewer.getSelection() && world.viewer.getSegmentSelection()) 
+						if(ml.world.viewer.getSelection() && ml.world.viewer.getSegmentSelection()) 
 						{
-							world.viewer.setSegmentSelection( false );
-							if(world.p.display.window.setupSelectionWindow)
-								world.p.display.window.chkbxSegmentSelection.setSelected( false );
+							ml.world.viewer.setSegmentSelection( false );
+							if(ml.display.window.setupSelectionWindow)
+								ml.display.window.chkbxSegmentSelection.setSelected( false );
 						}
 					}
 
 					if (optionKey && key == 'x')
-						world.getCurrentField().deselectAllMedia(false);
+						ml.world.getCurrentField().deselectAllMedia(false);
 
 					if (optionKey && key == '-')
-						world.viewer.setVisibleAngle( world.viewer.getVisibleAngle() - 3.1415f / 128.f ); 
+						ml.world.viewer.setVisibleAngle( ml.world.viewer.getVisibleAngle() - 3.1415f / 128.f ); 
 
 					if (optionKey && key == '=')
-						world.viewer.setVisibleAngle( world.viewer.getVisibleAngle() + 3.1415f / 128.f ); 
+						ml.world.viewer.setVisibleAngle( ml.world.viewer.getVisibleAngle() + 3.1415f / 128.f ); 
 
 					/* Selection */
 					if (!optionKey && key == 'x') 
-						world.viewer.chooseMediaInFront(true);
+						ml.world.viewer.chooseMediaInFront(true);
 
 					if (!optionKey && key == 'X')
-						world.viewer.chooseMediaInFront(false);
+						ml.world.viewer.chooseMediaInFront(false);
 
 					if (key == 'S')
 					{
-						world.viewer.setMultiSelection( !world.viewer.getMultiSelection() );
-						if(world.viewer.getMultiSelection() && !world.viewer.getSelection())
-							world.viewer.setSelection( true );
+						ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection() );
+						if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.getSelection())
+							ml.world.viewer.setSelection( true );
 					}
 
 					if (optionKey && key == 's')
 					{
-						world.viewer.setSegmentSelection( !world.viewer.getSegmentSelection() );
-						if(world.viewer.getSegmentSelection() && !world.viewer.getSelection())
-							world.viewer.setSelection( true );
+						ml.world.viewer.setSegmentSelection( !ml.world.viewer.getSegmentSelection() );
+						if(ml.world.viewer.getSegmentSelection() && !ml.world.viewer.getSelection())
+							ml.world.viewer.setSelection( true );
 					}
 
 					/* GPS */
 					if (!optionKey && key == 'g') 
-						world.viewer.importGPSTrack();				// Select a GPS tracking file from disk to load and navigate 
+						ml.world.viewer.importGPSTrack();				// Select a GPS tracking file from disk to load and navigate 
 
 					/* Memory */
 					if (key == '`') 
-						world.viewer.addPlaceToMemory();
+						ml.world.viewer.addPlaceToMemory();
 
 					if (key == 'Y') 
-						world.viewer.clearMemory();
+						ml.world.viewer.clearMemory();
 
 					/* Graphics */
 					if (key == 'G')
 					{
-						boolean state = !world.viewer.getAngleFading();
-						world.viewer.setAngleFading( state );
-						if(world.p.display.window.setupGraphicsWindow)
-							world.p.display.window.chkbxAngleFading.setSelected(state);
+						boolean state = !ml.world.viewer.getAngleFading();
+						ml.world.viewer.setAngleFading( state );
+						if(ml.display.window.setupGraphicsWindow)
+							ml.display.window.chkbxAngleFading.setSelected(state);
 					}
 
 //					if (key == 'H')
 //					{
-//						boolean state = !world.viewer.getAngleThinning();
-//						world.viewer.setAngleThinning( state );
-//						if(world.p.display.window.setupGraphicsWindow)
-//							world.p.display.window.chkbxAngleThinning.setSelected(state);
+//						boolean state = !ml.world.viewer.getAngleThinning();
+//						ml.world.viewer.setAngleThinning( state );
+//						if(ml.display.window.setupGraphicsWindow)
+//							ml.display.window.chkbxAngleThinning.setSelected(state);
 //					}
 
 					/* Output */
 					if (key == 'O') 
-						world.p.selectFolder("Select an output folder:", "outputFolderSelected");
+						ml.selectFolder("Select an output folder:", "outputFolderSelected");
 
 					if (key == 'o') 	// Save image to disk
 					{	
-						if(!world.outputFolderSelected) world.p.selectFolder("Select an output folder:", "outputFolderSelected");
-						world.saveToDisk();
+						if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
+						ml.world.saveToDisk();
 					}
 
 					if (key == '&') 
 					{
-						if(world.settings.defaultMediaLength > 10)
-							world.settings.defaultMediaLength -= 10;
+						if(ml.world.settings.defaultMediaLength > 10)
+							ml.world.settings.defaultMediaLength -= 10;
 					}
 
 					if (key == '*') 			// Look for images when none are visible
 					{
-						if(world.settings.defaultMediaLength < 990)
-							world.settings.defaultMediaLength += 10;
+						if(ml.world.settings.defaultMediaLength < 990)
+							ml.world.settings.defaultMediaLength += 10;
 					}
 				}
 			}
@@ -1130,55 +1130,55 @@ public class ML_Input
 			{
 				if (!optionKey && key == 'h')
 				{
-					if(!world.getState().hierarchical)
+					if(!ml.world.getState().hierarchical)
 					{
-						world.getState().hierarchical = true;
-						if(!world.getCurrentField().getState().dendrogramCreated)
-							world.getCurrentField().runHierarchicalClustering();
-						world.getCurrentField().setDendrogramDepth(world.getCurrentField().getState().clusterDepth);				// Initialize clusters 
-						world.getCurrentField().createTimeline();					// Create field timeline
+						ml.world.getState().hierarchical = true;
+						if(!ml.world.getCurrentField().getState().dendrogramCreated)
+							ml.world.getCurrentField().runHierarchicalClustering();
+						ml.world.getCurrentField().setDendrogramDepth(ml.world.getCurrentField().getState().clusterDepth);				// Initialize clusters 
+						ml.world.getCurrentField().createTimeline();					// Create field timeline
 					}
 
 				}
 
 				if (!optionKey && key == 'k')
 				{
-					if(world.getState().hierarchical)
+					if(ml.world.getState().hierarchical)
 					{
-						world.getState().hierarchical = false;
-						WMV_Field f = world.getCurrentField();
-						f.runKMeansClustering(world.settings.kMeansClusteringEpsilon, f.getModel().getState().clusterRefinement, f.getModel().getState().clusterPopulationFactor);
-						world.getCurrentField().createTimeline();					// Create field timeline
+						ml.world.getState().hierarchical = false;
+						WMV_Field f = ml.world.getCurrentField();
+						f.runKMeansClustering(ml.world.settings.kMeansClusteringEpsilon, f.getModel().getState().clusterRefinement, f.getModel().getState().clusterPopulationFactor);
+						ml.world.getCurrentField().createTimeline();					// Create field timeline
 					}
 				}
 
 				if (key == '[') 	
 				{
-					if(!world.getState().autoClusterDistances && world.settings.minClusterDistance > 0.25f)
+					if(!ml.world.getState().autoClusterDistances && ml.world.settings.minClusterDistance > 0.25f)
 					{
-						world.settings.minClusterDistance -= 0.25f;
-						for(WMV_Field f : world.getFields())
+						ml.world.settings.minClusterDistance -= 0.25f;
+						for(WMV_Field f : ml.world.getFields())
 						{
-							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);	
-							world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().getState().clusterRefinement, world.getCurrentField().getModel().getState().clusterPopulationFactor );
-							world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
-							world.p.display.map2D.initializeMaps(world);
+							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);	
+							ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
+							ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+							ml.display.map2D.initializeMaps(ml.world);
 						}
 					}
 				}
 
 				if (key == ']') 	
 				{
-					if(!world.getState().autoClusterDistances && world.settings.minClusterDistance < world.settings.maxClusterDistance - 2.f)
+					if(!ml.world.getState().autoClusterDistances && ml.world.settings.minClusterDistance < ml.world.settings.maxClusterDistance - 2.f)
 					{
-						world.settings.minClusterDistance += 0.25f;
-						//					System.out.println("world.minClusterDistance:"+world.minClusterDistance);
-						for(WMV_Field f : world.getFields())
+						ml.world.settings.minClusterDistance += 0.25f;
+						//					System.out.println("ml.world.minClusterDistance:"+ml.world.minClusterDistance);
+						for(WMV_Field f : ml.world.getFields())
 						{
-							f.getModel().setMinClusterDistance(world.settings.minClusterDistance);
-							world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().getState().clusterRefinement, world.getCurrentField().getModel().getState().clusterPopulationFactor );
-							world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
-							world.p.display.map2D.initializeMaps(world);
+							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);
+							ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
+							ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+							ml.display.map2D.initializeMaps(ml.world);
 						}
 					}
 				}
@@ -1187,82 +1187,82 @@ public class ML_Input
 			/* Arrow and Shift Keys */
 			if (key == PApplet.CODED) 					
 			{
-				if(world.p.display.inDisplayView())
+				if(ml.display.inDisplayView())
 				{
-					if(world.getState().interactive)			/* Interactive Clustering */
+					if(ml.state.interactive)			/* Interactive Clustering */
 					{
-						if(world.getState().hierarchical)
+						if(ml.world.getState().hierarchical)
 						{
 							if (keyCode == PApplet.UP) 
 							{
-								int clusterDepth = world.getCurrentField().getState().clusterDepth + 1;
-								if(clusterDepth <= world.getCurrentField().getState().deepestLevel)
-									world.getCurrentField().setDendrogramDepth( clusterDepth );
+								int clusterDepth = ml.world.getCurrentField().getState().clusterDepth + 1;
+								if(clusterDepth <= ml.world.getCurrentField().getState().deepestLevel)
+									ml.world.getCurrentField().setDendrogramDepth( clusterDepth );
 							}
 
 							if (keyCode == PApplet.DOWN) 
 							{
-								int clusterDepth = world.getCurrentField().getState().clusterDepth - 1;
-								if(clusterDepth >= world.getCurrentField().getState().minClusterDepth)
-									world.getCurrentField().setDendrogramDepth( clusterDepth );
+								int clusterDepth = ml.world.getCurrentField().getState().clusterDepth - 1;
+								if(clusterDepth >= ml.world.getCurrentField().getState().minClusterDepth)
+									ml.world.getCurrentField().setDendrogramDepth( clusterDepth );
 							}
 						}
 						else
 						{
 							if (keyCode == PApplet.LEFT) 		
 							{
-								world.getCurrentField().getModel().state.clusterRefinement -= 10;
-								float populationFactor = world.getCurrentField().getModel().state.clusterPopulationFactor;
+								ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
+								float populationFactor = ml.world.getCurrentField().getModel().state.clusterPopulationFactor;
 
-								if(world.getCurrentField().getModel().state.clusterRefinement >= world.getCurrentField().getModel().state.minClusterRefinement)
+								if(ml.world.getCurrentField().getModel().state.clusterRefinement >= ml.world.getCurrentField().getModel().state.minClusterRefinement)
 								{
-									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
-									world.p.display.map2D.initializeMaps(world);
+									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
+									ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+									ml.display.map2D.initializeMaps(ml.world);
 								}
-								else world.getCurrentField().getModel().state.clusterRefinement += 10;
+								else ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
 							}
 
 							if (keyCode == PApplet.RIGHT) 	
 							{
-								world.getCurrentField().getModel().state.clusterRefinement += 10;
-								float populationFactor = world.getCurrentField().getModel().state.clusterPopulationFactor;
+								ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
+								float populationFactor = ml.world.getCurrentField().getModel().state.clusterPopulationFactor;
 
-								if(world.getCurrentField().getModel().state.clusterRefinement <= world.getCurrentField().getModel().state.maxClusterRefinement)
+								if(ml.world.getCurrentField().getModel().state.clusterRefinement <= ml.world.getCurrentField().getModel().state.maxClusterRefinement)
 								{
-									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
-									world.p.display.map2D.initializeMaps(world);
+									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
+									ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+									ml.display.map2D.initializeMaps(ml.world);
 								}
-								else world.getCurrentField().getModel().state.clusterRefinement -= 10;
+								else ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
 							}
 
 							if (keyCode == PApplet.DOWN) 		
 							{
-								int refinementAmount = world.getCurrentField().getModel().state.clusterRefinement;
-								world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
+								int refinementAmount = ml.world.getCurrentField().getModel().state.clusterRefinement;
+								ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
 
-								if(world.getCurrentField().getModel().state.clusterPopulationFactor >= world.getCurrentField().getModel().state.minPopulationFactor)
+								if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor >= ml.world.getCurrentField().getModel().state.minPopulationFactor)
 								{
-									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().state.clusterPopulationFactor );
-									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
-									world.p.display.map2D.initializeMaps(world);
+									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
+									ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+									ml.display.map2D.initializeMaps(ml.world);
 								}
-								else world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
+								else ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
 							}
 
 							if (keyCode == PApplet.UP) 	
 							{
-								int refinementAmount = world.getCurrentField().getModel().state.clusterRefinement;
-								world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
+								int refinementAmount = ml.world.getCurrentField().getModel().state.clusterRefinement;
+								ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
 
-								if(world.getCurrentField().getModel().state.clusterPopulationFactor <= world.getCurrentField().getModel().state.maxPopulationFactor)
+								if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor <= ml.world.getCurrentField().getModel().state.maxPopulationFactor)
 								{
-									world.getCurrentField().runKMeansClustering( world.settings.kMeansClusteringEpsilon, refinementAmount, world.getCurrentField().getModel().state.clusterPopulationFactor );
-									world.getCurrentField().initializeClusters(world.getState().mergeClusters);			
-									world.p.display.map2D.initializeMaps(world);
+									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
+									ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+									ml.display.map2D.initializeMaps(ml.world);
 								}
-								else world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
+								else ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
 							}
 						}
 					}
@@ -1271,29 +1271,29 @@ public class ML_Input
 				{
 					/* Navigation */
 					if (keyCode == PApplet.LEFT) 
-						world.viewer.rotateX(-1);
+						ml.world.viewer.rotateX(-1);
 
 					if (keyCode == PApplet.RIGHT) 
-						world.viewer.rotateX(1);
+						ml.world.viewer.rotateX(1);
 
 					if (keyCode == PApplet.UP) 
-						world.viewer.rotateY(-1);
+						ml.world.viewer.rotateY(-1);
 
 					if (keyCode == PApplet.DOWN) 
-						world.viewer.rotateY(1);
+						ml.world.viewer.rotateY(1);
 
 					/* Time */
 					if (shiftKey && keyCode == PApplet.UP) 
-						world.incrementTime();
+						ml.world.incrementTime();
 
 					if (shiftKey && keyCode == PApplet.DOWN) 
-						world.decrementTime();
+						ml.world.decrementTime();
 
 					if (shiftKey && keyCode == PApplet.LEFT) 
-						world.decrementCycleLength();
+						ml.world.decrementCycleLength();
 
 					if (shiftKey && keyCode == PApplet.RIGHT) 
-						world.incrementCycleLength();
+						ml.world.incrementCycleLength();
 				}
 
 				if (keyCode == PApplet.SHIFT) {

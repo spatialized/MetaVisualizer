@@ -4,7 +4,7 @@ import g4p_controls.GButton;
 import processing.core.*;
 
 /***********************************
- * Class for displaying 2D text / graphics
+ * Class for displaying 2D text, maps and graphics
  * @author davidgordon
  */
 
@@ -161,7 +161,7 @@ class ML_Display
 	/**
 	 * Draw Heads-Up Display elements: messages, interactive map, field statistics, metadata.
 	 */
-	void draw(WMV_World p)
+	void display(WMV_World p)
 	{
 		if(initialSetup)
 		{
@@ -172,7 +172,7 @@ class ML_Display
 		}
 		else
 		{
-			if( displayView != 0 || p.getState().interactive )
+			if( displayView != 0 || p.p.state.interactive )
 			{
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 				p.p.background(0.f);																// Hide 3D view
@@ -183,7 +183,7 @@ class ML_Display
 					map2D.drawMainMap(p, !satelliteMap);
 					if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
 					if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
-					if(p.getState().interactive) displayInteractiveClustering(p);
+					if(p.p.state.interactive) displayInteractiveClustering(p);
 					map2D.updateMapMouse(p);
 					break;
 				case 2:
@@ -1326,29 +1326,29 @@ class ML_Display
 	/**
 	 * Draw Interactive Clustering footer text
 	 */
-	void displayClusteringInfo(WMV_WorldState worldState)
+	void displayClusteringInfo(MultimediaLocator ml)
 	{
 //		message("Interactive Clustering Mode: "+(p.hierarchical ?"Hierarchical Clustering":"K-Means Clustering"));
 //		message(" ");
 		
-		if(worldState.hierarchical)
+		if(ml.world.state.hierarchical)
 		{
 //			message("Hierarchical Clustering");
-			message(worldState, " ");
-			message(worldState, "Use arrow keys UP and DOWN to change clustering depth... ");
-			message(worldState, "Use [ and ] to change Minimum Cluster Distance... ");
+			message(ml, " ");
+			message(ml, "Use arrow keys UP and DOWN to change clustering depth... ");
+			message(ml, "Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		else
 		{
 //			message("K-Means Clustering");
-			message(worldState, " ");
-			message(worldState, "Use arrow keys LEFT and RIGHT to change Iterations... ");
-			message(worldState, "Use arrow keys UP and DOWN to change Population Factor... ");
-			message(worldState, "Use [ and ] to change Minimum Cluster Distance... ");
+			message(ml, " ");
+			message(ml, "Use arrow keys LEFT and RIGHT to change Iterations... ");
+			message(ml, "Use arrow keys UP and DOWN to change Population Factor... ");
+			message(ml, "Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		
-		message(worldState, " ");
-		message(worldState, "Press <spacebar> to restart 3D viewer...");
+		message(ml, " ");
+		message(ml, "Press <spacebar> to restart 3D viewer...");
 	}
 
 	/**
@@ -1641,9 +1641,9 @@ class ML_Display
 	 * Add message to queue
 	 * @param message Message to send
 	 */
-	void message(WMV_WorldState worldState, String message)
+	void message(MultimediaLocator ml, String message)
 	{
-		if(worldState.interactive)
+		if(ml.state.interactive)
 		{
 			messages.add(message);
 			while(messages.size() > 16)
@@ -1651,7 +1651,7 @@ class ML_Display
 		}
 		else
 		{
-			messageStartFrame = worldState.frameCount;		
+			messageStartFrame = ml.world.getState().frameCount;		
 			messages.add(message);
 			while(messages.size() > 16)
 				messages.remove(0);
@@ -1676,12 +1676,12 @@ class ML_Display
 	{
 		float yPos = userMessageYOffset - lineWidth;
 
-		p.viewer.start3DHUD();
+		p.p.start3DHUD();
 		p.p.pushMatrix();
 		p.p.fill(0, 0, 255, 255);            								
 		p.p.textSize(smallTextSize);
 
-		if(p.getState().interactive)
+		if(p.p.state.interactive)
 		{
 			for(String s : messages)
 				p.p.text(s, userMessageXOffset, yPos += lineWidth, hudDistance);		// Use period character to draw a point
@@ -1719,7 +1719,7 @@ class ML_Display
 	{
 		float yPos = metadataYOffset - lineWidth;
 
-		p.viewer.start3DHUD();
+		p.p.start3DHUD();
 		p.p.pushMatrix();
 
 		p.p.fill(0, 0, 255, 255);                     // White text
@@ -1744,7 +1744,7 @@ class ML_Display
 	 */
 	public void showStartup(WMV_World p)
 	{
-		draw(p);								// Draw setup display
+		display(p);								// Draw setup display
 	}
 	
 	/**

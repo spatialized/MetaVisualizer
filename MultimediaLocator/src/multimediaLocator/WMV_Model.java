@@ -28,9 +28,8 @@ public class WMV_Model
 		worldSettings = newWorldSettings;
 		debugSettings = newDebugSettings;
 
-		utilities = new WMV_Utilities();					// Utility methods
-
-		state.clusteringRandomSeed = System.currentTimeMillis();
+		utilities = new WMV_Utilities();								// Utility methods
+		state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
 	}
 
 	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 

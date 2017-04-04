@@ -153,7 +153,7 @@ class ML_Display
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
 
-	void setupWMVWindow(WMV_World world)
+	void initializeWindows(WMV_World world)
 	{
 		window = new ML_Window(world, this);				// Setup and display interaction window
 	}

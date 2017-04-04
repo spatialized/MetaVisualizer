@@ -8,7 +8,7 @@
 
 /************************************
 * @author davidgordon 
-* MultimediaLocator main app class
+* MultimediaLocator application class
 */
 
 package multimediaLocator;
@@ -32,50 +32,37 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	
 	/* Classes */
 	ML_Library library;							// Multimedia library
-	ML_Input input;								// Mouse and keyboard input
+	ML_Input input;								// Mouse / keyboard input
 	ML_Stitcher stitcher;						// Panoramic stitching
 	ML_Display display;							// Displaying 2D graphics and text
 	WMV_World world;							// The 3D World
 	WMV_Metadata metadata;						// Metadata reading and writing
-
-	/* Debugging */
-	ML_DebugSettings debugSettings;						// Handles debugging functions
-
-	/** 
-	 * Load the PApplet either in a window of specified size or in fullscreen
-	 */
-	static public void main(String[] args) 
-	{
-		PApplet.main("multimediaLocator.MultimediaLocator");						// Open PApplet in window
-//		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
-	}
+	ML_DebugSettings debugSettings;				// Debug settings
 	
 	/** 
-	 * Setup function called at startup
+	 * MultimediaLocator initial setup called once at launch
 	 */
 	public void setup()
 	{
-		world = new WMV_World(this);
-		debugSettings = new ML_DebugSettings(this);		
-		metadata = new WMV_Metadata(this, debugSettings);
-		stitcher = new ML_Stitcher(world);
-
-		if(debugSettings.main) System.out.println("Initializing world...");
-		world.initialize();
-		input = new ML_Input(width, height);
-		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
-
-		/* Initialize graphics and text parameters */
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
 		textAlign(PConstants.CENTER, PConstants.CENTER);
+		
+		input = new ML_Input(width, height);
+		debugSettings = new ML_DebugSettings(this);		
+	
+		world = new WMV_World(this);
+		world.initialize();
+		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
 
-		if(debugSettings.main)
-			System.out.println("Finished setup...");
+		metadata = new WMV_Metadata(this, debugSettings);
+		stitcher = new ML_Stitcher(world);
+
+		if(debugSettings.main) System.out.println("MultimediaLocator initial setup complete...");
 	}
 
 	/** 
-	 * Main draw loop called every frame
+	 * Main program loop
 	 */
 	public void draw() 
 	{		
@@ -87,7 +74,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 		else if(!state.running)
 		{
-			world.setup();						/* Run setup  n.b. called several times on different frames */
+			initialize();						/* Run setup  n.b. called several times on different frames */
 		}
 		else run();						/* Run program */
 	}
@@ -141,6 +128,98 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
 	}
 	
+	/**
+	 * Create each field and run initial clustering
+	 */
+	public void initialize()
+	{
+		/* Library Folder */
+		if (state.openLibraryDialog)
+			selectFolderPrompt();
+		
+		/* World Initialization */
+		if (state.selectedLibrary && state.initialSetup && !state.initializingFields && !state.running)
+			createFields();
+
+		if (state.selectedLibrary && state.initialSetup && state.initializingFields && !state.fieldsInitialized)	// Initialize fields
+			initializeFields();
+		
+		if (state.fieldsInitialized && state.initialSetup && !state.running)
+			finishInitialization();
+
+		if(state.selectedLibrary && !state.initialSetup && !world.getState().interactive && !state.running)	/* Initial clustering once library is selected */
+			world.startInitialClustering();							
+
+		/* Interactive Clustering */
+		if(world.getState().startInteractive && !world.getState().interactive && !state.running)	
+			world.startInteractiveClustering();						
+		
+		if(world.getState().interactive && !world.getState().startInteractive && !state.running)		
+			world.runInteractiveClustering();	
+	}
+
+	/**
+	 * Create field objects from library folders
+	 */
+	public void createFields()
+	{
+		world.createFieldsFromFolders(library.getFolders());		// Create empty field for each media folder	
+		state.initializingFields = true;
+	}
+	
+	/**
+	 * Initialize fields
+	 */
+	public void initializeFields()
+	{
+		if(!state.fieldsInitialized && !state.exit)
+		{
+			WMV_Field f = world.getField(state.initializationField);	// Field to initialize
+
+			WMV_SimulationState result = metadata.load(f, library.getLibraryFolder(), true);	// Load metadata from field media
+			
+			boolean success = (result != null);
+			if(success) System.out.println("Valid SimulationState loaded...");
+			
+			if(success)						// If simulation state loaded from data, load simulation state
+				success = world.loadSimulationState(result, world.getCurrentField());
+			
+			if(!success)					// If simulation state not loaded from data folder, initialize field
+				world.getState().hierarchical = f.initialize(library.getLibraryFolder(), world.getState().lockMediaToClusters);		// Initialize field
+			
+			world.setBlurMasks();			// Set blur masks
+		}
+		
+		state.initializationField++;										// Set next field to initialize
+		if( state.initializationField >= world.getFields().size() )			
+			state.fieldsInitialized = true;
+	}
+	
+	/**
+	 * Finish the setup process
+	 */
+	void finishInitialization()
+	{
+		if(debugSettings.main) System.out.println("Finishing MultimediaLocator initialization..");
+
+		display.initializeWindows(world);
+		display.window.setupWMVWindow();
+		
+		if(debugSettings.main) System.out.println("Finished setting up WMV Window...");
+		
+		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
+
+		if(debugSettings.main) System.out.println("Finished setting initial media settings...");
+
+		state.initialSetup = false;				
+		display.initialSetup = false;
+		
+		state.setupProgress = 100;
+
+		state.running = true;
+		state.startedRunning = true;
+	}
+
 	public void reset()
 	{
 		background(0.f);
@@ -153,12 +232,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(world.viewer.getSettings().selection)
 		{
 			world.exportSelectedImages();
-			System.out.println("Saved image(s) to "+world.outputFolder);
+			System.out.println("Exported image(s) to "+world.outputFolder);
 		}
 		else
 		{
 			saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
-			System.out.println("Saved image: "+world.outputFolder + "/image" + "-######.jpg");
+			System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
 		}
 		state.save = false;
 	}
@@ -177,7 +256,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	void stopMultimediaLocator() 
 	{
-		System.out.println("Exiting WorldMediaViewer 1.0.0...");
+		System.out.println("Exiting MultimediaLocator 0.9.0...");
 		exit();
 	}
 
@@ -477,6 +556,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void selectFolderPrompt()
 	{
 		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
+		state.openLibraryDialog = false;
 	}
 	
 	/**
@@ -488,6 +568,15 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		world.viewer.loadGPSTrack(selection);
 	}
 	
+	/** 
+	 * Load the PApplet either in a window of specified size or in fullscreen
+	 */
+	static public void main(String[] args) 
+	{
+		PApplet.main("multimediaLocator.MultimediaLocator");						// Open PApplet in window
+//		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
+	}
+
 	public void setSurfaceSize(int newWidth, int newHeight)
 	{
 		surface.setResizable(true);

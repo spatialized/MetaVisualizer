@@ -894,28 +894,19 @@ public class WMV_Field
 	{
 		if(debugSettings.field) System.out.println("Verifying field...");
 
-		boolean exit = false;
-
 		if (model.getState().fieldWidth <= 0 && clusters.size() > 1)
 		{
-			if(debugSettings.field)
-			System.out.println("Field size <= 0! Exiting...");
-			exit = true;			
+			System.out.println("verifyField()... Field width <= 0!");
+		}
+
+		if (model.getState().fieldHeight <= 0 && clusters.size() > 1)
+		{
+			System.out.println("verifyField()... Field height <= 0!");
 		}
 
 		if (model.getState().fieldAspectRatio <= 0 && clusters.size() > 1)
 		{
-			exit = true;
-			System.out.println("Field ratio <= 0! Exiting...");
-		}
-
-		if (exit) {
-			System.out.println("Fatal Error...");
-//			p.p.exit();
-		} 
-		else {
-			if(debugSettings.field)
-			System.out.println("Checked Variables... OK");
+			System.out.println("verifyField()... Field ratio == "+model.getState().fieldAspectRatio+"!");
 		}
 	}
 	

@@ -410,23 +410,23 @@ public class WMV_Cluster
 		state.empty = false;
 	}
 
-	void draw(WMV_World world)
+	void display(MultimediaLocator ml)
 	{
 		if(worldSettings.showUserPanoramas)
 		{
-			for(WMV_Panorama p : userPanoramas)
+			for(WMV_Panorama n : userPanoramas)
 			{
-				p.update(world.p);
-				p.display(world);
+				n.update(ml);
+				n.display(ml);
 			}
 		}
 
 		if(worldSettings.showStitchedPanoramas)
 		{
-			for(WMV_Panorama p : stitchedPanoramas)
+			for(WMV_Panorama n : stitchedPanoramas)
 			{
-				p.update(world.p);
-				p.display(world);
+				n.update(ml);
+				n.display(ml);
 			}
 		}
 	}

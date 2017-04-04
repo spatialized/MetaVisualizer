@@ -1703,9 +1703,9 @@ class ML_Display
 	 * Add a metadata message (single line) to the display queue
 	 * @param message Line of metadata 
 	 */
-	void metadata(WMV_World p, String message)
+	void metadata(int curFrameCount, String message)
 	{
-		metadataStartFrame = p.p.frameCount;		
+		metadataStartFrame = curFrameCount;		
 		metadata.add(message);
 		
 		while(metadata.size() > 16)

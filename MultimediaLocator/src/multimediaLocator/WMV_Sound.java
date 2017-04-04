@@ -54,9 +54,9 @@ public class WMV_Sound extends WMV_Media
 	/**
 	 * Display the image in virtual space
 	 */
-	public void display(WMV_World world)
+	public void display(MultimediaLocator ml)
 	{
-		if(getMediaState().showMetadata) displayMetadata(world);
+		if(getMediaState().showMetadata) displayMetadata(ml);
 	}
 
 	/**
@@ -74,21 +74,21 @@ public class WMV_Sound extends WMV_Media
 	 * @param size Size to draw the sound center
 	 * Draw the video center as a colored sphere
 	 */
-	void displayModel(WMV_World world)
+	void displayModel(MultimediaLocator ml)
 	{
-		world.p.pushMatrix();
+		ml.pushMatrix();
 		
-		world.p.fill(30, 0, 255, 150);
-		world.p.translate(getMediaState().location.x, getMediaState().location.y, getMediaState().location.z);
-		world.p.sphere(getMediaState().centerSize);
+		ml.fill(30, 0, 255, 150);
+		ml.translate(getMediaState().location.x, getMediaState().location.y, getMediaState().location.z);
+		ml.sphere(getMediaState().centerSize);
 
-		world.p.popMatrix();
+		ml.popMatrix();
 	}
 
 	/**
 	 * Draw the image metadata in Heads-Up Display
 	 */
-	public void displayMetadata(WMV_World world)
+	public void displayMetadata(MultimediaLocator ml)
 	{
 		String strTitleImage = "Sound";
 		String strTitleImage2 = "-----";
@@ -112,28 +112,29 @@ public class WMV_Sound extends WMV_Media
 		String strBrightness = "brightness: "+String.valueOf(getMediaState().viewingBrightness);
 		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getMediaState().fadingBrightness);
 		
-		world.p.display.metadata(world, strTitleImage);
-		world.p.display.metadata(world, strTitleImage2);
-		world.p.display.metadata(world, "");
+		int frameCount = getWorldState().frameCount;
+		ml.display.metadata(frameCount, strTitleImage);
+		ml.display.metadata(frameCount, strTitleImage2);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strID);
-		world.p.display.metadata(world, strCluster);
-		world.p.display.metadata(world, strName);
-		world.p.display.metadata(world, strX + strY + strZ);
-		world.p.display.metadata(world, "");
+		ml.display.metadata(frameCount, strID);
+		ml.display.metadata(frameCount, strCluster);
+		ml.display.metadata(frameCount, strName);
+		ml.display.metadata(frameCount, strX + strY + strZ);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strDate);
-		world.p.display.metadata(world, strTime);
-		world.p.display.metadata(world, "");
+		ml.display.metadata(frameCount, strDate);
+		ml.display.metadata(frameCount, strTime);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strLatitude + strLongitude);
-		world.p.display.metadata(world, strAltitude);
+		ml.display.metadata(frameCount, strLatitude + strLongitude);
+		ml.display.metadata(frameCount, strAltitude);
 
-		if(world.p.debugSettings.sound)
+		if(ml.debugSettings.sound)
 		{
-			world.p.display.metadata(world, strTitleDebug);
-			world.p.display.metadata(world, strBrightness);
-			world.p.display.metadata(world, strBrightnessFading);
+			ml.display.metadata(frameCount, strTitleDebug);
+			ml.display.metadata(frameCount, strBrightness);
+			ml.display.metadata(frameCount, strBrightnessFading);
 		}
 	}
 	

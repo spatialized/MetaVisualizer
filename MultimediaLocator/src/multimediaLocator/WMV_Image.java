@@ -50,10 +50,10 @@ class WMV_Image extends WMV_Media
 	/**
 	 * Display the image in virtual space
 	 */
-	public void display(WMV_World world)
+	public void display(MultimediaLocator ml)
 	{
 		if(getMediaState().showMetadata) 
-			displayMetadata(world);
+			displayMetadata(ml);
 
 		float angleBrightnessFactor;							// Fade with angle
 		float brightness = getFadingBrightness();					
@@ -79,12 +79,12 @@ class WMV_Image extends WMV_Media
 			if (getViewingBrightness() > 0)
 			{
 				if(image.width > 0)				// If image has been loaded
-					displayImage(world);        // Display image 
+					displayImage(ml);        // Display image 
 			}
 		} 
 
 		if(getMediaState().visible && getWorldState().showModel && !isHidden() && !isDisabled())
-			displayModel(world);
+			displayModel(ml);
 	}
 
 	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
@@ -109,46 +109,46 @@ class WMV_Image extends WMV_Media
 	 * @param size Size to draw the video center
 	 * Draw the video center as a colored sphere
 	 */
-	void displayModel(WMV_World world)
+	void displayModel(MultimediaLocator ml)
 	{
 		/* Draw frame */
-		world.p.pushMatrix();
+		ml.pushMatrix();
 		
-		world.p.stroke(0.f, 0.f, 255.f, getMediaState().viewingBrightness);	 
-		world.p.strokeWeight(2.f);
+		ml.stroke(0.f, 0.f, 255.f, getMediaState().viewingBrightness);	 
+		ml.strokeWeight(2.f);
 		
-		world.p.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
-		world.p.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
-		world.p.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
-		world.p.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
+		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
+		ml.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
+		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
+		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
 		
-		PVector c = world.getCurrentField().getCluster(getMediaState().cluster).getLocation();
+		PVector c = ml.world.getCurrentField().getCluster(getMediaState().cluster).getLocation();
 		PVector loc = getMediaState().location;
 		PVector cl = getCaptureLocation();
-		world.p.popMatrix();
+		ml.popMatrix();
 
-		world.p.pushMatrix();
+		ml.pushMatrix();
 		if(getWorldState().showMediaToCluster)
 		{
-			world.p.strokeWeight(3.f);
-			world.p.stroke(80, 135, 255, getMediaState().viewingBrightness);
-			world.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+			ml.strokeWeight(3.f);
+			ml.stroke(80, 135, 255, getMediaState().viewingBrightness);
+			ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToMedia)
 		{
-			world.p.strokeWeight(3.f);
-			world.p.stroke(160, 100, 255, getMediaState().viewingBrightness);
-			world.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+			ml.strokeWeight(3.f);
+			ml.stroke(160, 100, 255, getMediaState().viewingBrightness);
+			ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToCluster)
 		{
-			world.p.strokeWeight(3.f);
-			world.p.stroke(120, 55, 255, getMediaState().viewingBrightness);
-			world.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+			ml.strokeWeight(3.f);
+			ml.stroke(120, 55, 255, getMediaState().viewingBrightness);
+			ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
-		world.p.popMatrix();
+		ml.popMatrix();
 	}
 
 	/**
@@ -299,75 +299,75 @@ class WMV_Image extends WMV_Media
 	/** 
 	 * Draw the image
 	 */
-	private void displayImage(WMV_World world)
+	private void displayImage(MultimediaLocator ml)
 	{
-		world.p.noStroke(); 
+		ml.noStroke(); 
 		if (isSelected())     // Draw outline
 		{
 			if(!getViewerSettings().selection && getDebugSettings().field)
 			{
-				world.p.stroke(155, 146, 255, 255);
-				world.p.strokeWeight(state.outlineSize);
+				ml.stroke(155, 146, 255, 255);
+				ml.strokeWeight(state.outlineSize);
 			}
 		}
 
-		world.p.rectMode(PApplet.CENTER);
+		ml.rectMode(PApplet.CENTER);
 		
-		world.p.pushMatrix();
-		world.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
-		world.p.textureMode(PApplet.NORMAL);
+		ml.pushMatrix();
+		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
+		ml.textureMode(PApplet.NORMAL);
 		
-		world.p.noFill();
+		ml.noFill();
 
 		if(getWorldState().fadeEdges)
-			world.p.texture(blurred);
+			ml.texture(blurred);
 		else
-			world.p.texture(image);        			// Apply the image to the face as a texture 
+			ml.texture(image);        			// Apply the image to the face as a texture 
 
 		if(getViewerSettings().selection)
 		{
 			if(isSelected())
 			{
 				if(!getWorldState().alphaMode)
-					world.p.tint(getViewingBrightness(), 255);          				
+					ml.tint(getViewingBrightness(), 255);          				
 				else
-					world.p.tint(255, getViewingBrightness());          				
+					ml.tint(255, getViewingBrightness());          				
 			}
 			else
 			{
 				if(!getWorldState().alphaMode)
-					world.p.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
+					ml.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
 				else
-					world.p.tint(255, getViewingBrightness() * 0.333f);    
+					ml.tint(255, getViewingBrightness() * 0.333f);    
 			}
 		}
 		else
 		{
 			if(!getWorldState().alphaMode)
-				world.p.tint(getViewingBrightness(), 255);          				
+				ml.tint(getViewingBrightness(), 255);          				
 			else
 			{
-				world.p.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
+				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 			}
 		}
 
 		if(getViewerSettings().orientationMode)
 		{
-			world.p.vertex(state.sVertices[0].x, state.sVertices[0].y, state.sVertices[0].z, 0, 0);         // UPPER LEFT      
-			world.p.vertex(state.sVertices[1].x, state.sVertices[1].y, state.sVertices[1].z, 1, 0);         // UPPER RIGHT           
-			world.p.vertex(state.sVertices[2].x, state.sVertices[2].y, state.sVertices[2].z, 1, 1);			// LOWER RIGHT        
-			world.p.vertex(state.sVertices[3].x, state.sVertices[3].y, state.sVertices[3].z, 0, 1);         // LOWER LEFT
+			ml.vertex(state.sVertices[0].x, state.sVertices[0].y, state.sVertices[0].z, 0, 0);         // UPPER LEFT      
+			ml.vertex(state.sVertices[1].x, state.sVertices[1].y, state.sVertices[1].z, 1, 0);         // UPPER RIGHT           
+			ml.vertex(state.sVertices[2].x, state.sVertices[2].y, state.sVertices[2].z, 1, 1);			// LOWER RIGHT        
+			ml.vertex(state.sVertices[3].x, state.sVertices[3].y, state.sVertices[3].z, 0, 1);         // LOWER LEFT
 		}
 		else
 		{
-			world.p.vertex(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, 0, 0);            // UPPER LEFT      
-			world.p.vertex(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, 1, 0);            // UPPER RIGHT           
-			world.p.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, 1, 1);			// LOWER RIGHT        
-			world.p.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, 1);            // LOWER LEFT
+			ml.vertex(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, 0, 0);            // UPPER LEFT      
+			ml.vertex(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, 1, 0);            // UPPER RIGHT           
+			ml.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, 1, 1);			// LOWER RIGHT        
+			ml.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, 1);            // LOWER LEFT
 		}
 		
-		world.p.endShape(PApplet.CLOSE);       // End the shape containing the image
-		world.p.popMatrix();
+		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
+		ml.popMatrix();
 		
 //		p.imagesSeen++;
 //		p.setImagesSeen(p.getImagesSeen() + 1);
@@ -757,7 +757,7 @@ class WMV_Image extends WMV_Media
 	/**
 	 * Draw the image metadata in Heads-Up Display
 	 */
-	public void displayMetadata(WMV_World world)
+	public void displayMetadata(MultimediaLocator ml)
 	{
 		String strTitleImage = "Image";
 		String strTitleImage2 = "-----";
@@ -784,32 +784,33 @@ class WMV_Image extends WMV_Media
 		String strBrightness = "vState.brightness: "+String.valueOf(getViewingBrightness());
 		String strBrightnessFading = "vState.brightnessFadingValue: "+String.valueOf(getFadingBrightness());
 		
-		world.p.display.metadata(world, strTitleImage);
-		world.p.display.metadata(world, strTitleImage2);
-		world.p.display.metadata(world, "");
+		int frameCount = getWorldState().frameCount;
+		ml.display.metadata(frameCount, strTitleImage);
+		ml.display.metadata(frameCount, strTitleImage2);
+		ml.display.metadata(frameCount, "");
 		
-		world.p.display.metadata(world, strID);
-		world.p.display.metadata(world, strCluster);
-		world.p.display.metadata(world, strName);
-		world.p.display.metadata(world, strX + strY + strZ);
-		world.p.display.metadata(world, "");
+		ml.display.metadata(frameCount, strID);
+		ml.display.metadata(frameCount, strCluster);
+		ml.display.metadata(frameCount, strName);
+		ml.display.metadata(frameCount, strX + strY + strZ);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strDate);
-		world.p.display.metadata(world, strTime);
-		world.p.display.metadata(world, "");
+		ml.display.metadata(frameCount, strDate);
+		ml.display.metadata(frameCount, strTime);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strLatitude + strLongitude);
-		world.p.display.metadata(world, strAltitude);
-		world.p.display.metadata(world, strTheta);
-		world.p.display.metadata(world, strElevation);
-		world.p.display.metadata(world, strRotation);
-		world.p.display.metadata(world, strFocusDistance);
+		ml.display.metadata(frameCount, strLatitude + strLongitude);
+		ml.display.metadata(frameCount, strAltitude);
+		ml.display.metadata(frameCount, strTheta);
+		ml.display.metadata(frameCount, strElevation);
+		ml.display.metadata(frameCount, strRotation);
+		ml.display.metadata(frameCount, strFocusDistance);
 
 		if(getDebugSettings().image)
 		{
-			world.p.display.metadata(world, strTitleDebug);
-			world.p.display.metadata(world, strBrightness);
-			world.p.display.metadata(world, strBrightnessFading);
+			ml.display.metadata(frameCount, strTitleDebug);
+			ml.display.metadata(frameCount, strBrightness);
+			ml.display.metadata(frameCount, strBrightnessFading);
 		}
 	}
 

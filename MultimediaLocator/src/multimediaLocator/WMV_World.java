@@ -91,90 +91,6 @@ public class WMV_World
 		viewer.moveToFirstTimeSegment(false);
 	}
 
-//	/**
-//	 * Create each field and run initial clustering
-//	 */
-//	public void init()
-//	{
-//		float fieldProgressInc = 100.f;
-//	
-//		if (p.state.openLibraryDialog)
-//		{
-//			p.selectFolderPrompt();
-//			p.state.openLibraryDialog = false;
-//		}
-//		
-//		/* Create and initialize fields from folders, perform initial clustering, finish setup */
-//		if (p.state.selectedLibrary && p.state.initialSetup && !p.state.initializingFields && !p.state.running)
-//		{
-//			createFieldsFromFolders(p.library.getFolders());		// Create empty field for each media folder	
-//
-//			if(p.debugSettings.main)
-//			{
-//				p.display.sendSetupMessage(this, " ");	// Show startup message
-//				p.display.sendSetupMessage(this, "Creating "+fields.size()+(fields.size()>1?" fields...":" field..."));	// Show startup message
-//			}
-//			
-//			if(fields.size() > 5) p.display.sendSetupMessage(this, "This may take several minutes...");	// Show long startup time warning
-//
-//			p.display.draw(this);											
-//
-//			if(!p.basic)
-//				p.display.setupWMVWindow(this);									// Setup sidebar window
-//		
-//			fieldProgressInc = PApplet.round(100.f / fields.size());				// Amount to increment progress bar for each field
-//			p.state.initializingFields = true;
-//		}
-//
-//		if (p.state.selectedLibrary && p.state.initialSetup && p.state.initializingFields && !p.state.fieldsInitialized)	// Initialize fields
-//		{
-//			if(!p.state.fieldsInitialized && !p.state.exit)
-//			{
-//				WMV_Field f = getField(p.state.initializationField);
-//
-//				WMV_SimulationState result = p.metadata.load(f, p.library.getLibraryFolder(), true);											// Import metadata for all media in field
-//				if(result == null)
-//					state.hierarchical = f.initialize(p.library.getLibraryFolder(), state.lockMediaToClusters);		// Initialize field
-//				else
-//				{
-//					System.out.println("Valid SimulationState loaded...");
-//					boolean success = loadSimulationState(result, getCurrentField());
-//					if(!success) p.exit();
-//				}
-//				setBlurMasks();
-//				
-//				p.state.setupProgress += fieldProgressInc;				// Update progress bar
-//				p.display.draw(this);									// Draw progress bar
-//			}
-//			
-//			p.state.initializationField++;
-//			if( p.state.initializationField >= fields.size() )			// Initialize each field until all are finished
-//			{
-//				p.state.fieldsInitialized = true;
-//			}
-//		}
-//		
-//		if (p.state.fieldsInitialized && p.state.initialSetup && !p.state.running)
-//		{
-//			if(p.debugSettings.main)
-//				System.out.println("Finishing WMV_World setup()...");
-//
-//			finishSetup();
-//		}
-//
-//		if(p.state.selectedLibrary && !p.state.initialSetup && !state.interactive && !p.state.running)	/* Initial clustering once library is selected */
-//			startInitialClustering();							
-//		
-//		if(state.startInteractive && !state.interactive && !p.state.running)		/* Start interactive clustering */
-//		{
-//			System.out.println("Will start interactive clustering...");
-//			startInteractiveClustering();						
-//		}
-//		
-//		if(state.interactive && !state.startInteractive && !p.state.running)		/* Running interactive clustering */
-//			runInteractiveClustering();	
-//	}
-	
 	void updateState()
 	{
 		state.frameCount = p.frameCount;
@@ -188,19 +104,18 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
-//		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
 		attractViewer();						// Attract the viewer
 		
 		if(p.display.displayView == 0)
 		{
 			p.hint(PApplet.ENABLE_DEPTH_TEST);					// Enable depth testing for drawing 3D graphics
 			p.background(0.f);									// Set background
-			getCurrentField().display(this);					// Display media in current field
+			getCurrentField().display(p);					// Display media in current field
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
 				if(clusters.size()>0)
-					clusters.get(viewer.getState().getCurrentClusterID()).draw(this);		// Draw current cluster
+					clusters.get(viewer.getState().getCurrentClusterID()).display(p);		// Draw current cluster
 			}
 
 		}
@@ -371,38 +286,6 @@ public class WMV_World
 			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
 	}
 	
-//	/**
-//	 * Finish the setup process
-//	 */
-//	void finishSetup()
-//	{
-//		if(p.debugSettings.main) System.out.println("Finishing setup...");
-//
-//		p.display.window.setupWMVWindow();
-//		if(p.debugSettings.main) System.out.println("Finished setting up WMV Window...");
-//		
-//		// NEW
-//		WMV_Field f = getCurrentField();
-//		for(WMV_Image img : f.getImages())
-//			img.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
-//		for(WMV_Panorama pano : f.getPanoramas())
-//			pano.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
-//		for(WMV_Video vid : f.getVideos())
-//			vid.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
-////		for(WMV_Sound snd : f.getSounds())
-////			img.updateSettings(settings, viewer.getSettings(), p.debug);
-//
-//		if(p.debugSettings.main) System.out.println("Finished setting initial media settings...");
-//
-//		p.state.initialSetup = false;				
-//		p.display.initialSetup = false;
-//		
-//		p.state.setupProgress = 100;
-//
-//		p.state.running = true;
-//		p.state.startedRunning = true;
-//	}
-
 	public void updateAllMediaSettings()
 	{
 		WMV_Field f = getCurrentField();

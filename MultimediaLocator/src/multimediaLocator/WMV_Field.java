@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -18,8 +17,6 @@ import com.apporiented.algorithm.clustering.DefaultClusteringAlgorithm;
 import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.IntList;
-//import processing.video.Movie;
-import processing.video.Movie;
 
 /**************************************************
  * @author davidgordon
@@ -169,7 +166,7 @@ public class WMV_Field
 		}
 	}
 
-	public void display(WMV_World p) 				// Draw currently visible media
+	public void display(MultimediaLocator ml) 				// Draw currently visible media
 	{
 		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;	// Distance where transparency reaches zero
 		
@@ -193,14 +190,14 @@ public class WMV_Field
 				}
 
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
-					m.update(p.p, utilities);  		// Update geometry + visibility
+					m.update(ml, utilities);  		// Update geometry + visibility
 
 				if (distance < vanishingPoint && distance > viewerSettings.nearClippingDistance && !m.verticesAreNull()) 	// Visible	
 				{
 					if(!m.getMediaState().fadingFocusDistance && !m.isFading()) 
-						m.update(p.p, utilities);  	// Update geometry + visibility
+						m.update(ml, utilities);  	// Update geometry + visibility
 					
-					m.display(p); 		// Draw image
+					m.display(ml); 		// Draw image
 					state.imagesVisible++;
 				}
 			}
@@ -220,13 +217,13 @@ public class WMV_Field
 				}
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
-					n.update(p.p);  	// Update geometry + visibility
-					n.display(p); 		// Display panorama
+					n.update(ml);  	// Update geometry + visibility
+					n.display(ml); 		// Display panorama
 					state.panoramasVisible++;
 				}
 				else if(n.isFading())
 				{
-					n.update(p.p);  	// Update geometry + visibility
+					n.update(ml);  	// Update geometry + visibility
 				}
 			}
 		}
@@ -251,15 +248,15 @@ public class WMV_Field
 					}
 					else
 					{
-						v.update(p.p, utilities);  	// Update geometry + visibility
-						v.display(p); 		// Display video
+						v.update(ml, utilities);  	// Update geometry + visibility
+						v.display(ml); 		// Display video
 						state.videosVisible++;
 					}
 				}
 				else
 				{
 					if(v.isFading() || v.isFadingVolume())
-						v.update(p.p, utilities);  	// Update geometry + visibility
+						v.update(ml, utilities);  	// Update geometry + visibility
 					
 					if(v.isVisible())
 						v.fadeOut();

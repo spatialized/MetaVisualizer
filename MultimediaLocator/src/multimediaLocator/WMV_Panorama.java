@@ -115,9 +115,9 @@ public class WMV_Panorama extends WMV_Media
 	/**
 	 * Display the image or spherical panorama in virtual space
 	 */
-	public void display(WMV_World world)
+	public void display(MultimediaLocator ml)
 	{
-		if(getMediaState().showMetadata) displayMetadata(world);
+		if(getMediaState().showMetadata) displayMetadata(ml);
 
 		float brightness = getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
@@ -136,25 +136,25 @@ public class WMV_Panorama extends WMV_Media
 			{
 				if(texture.width > 0)		// If image has been loaded
 				{
-					displayPanorama(world);
+					displayPanorama(ml);
 				}
 			}
 		} 
 
 		if(isVisible() && getWorldState().showModel && !isHidden() && !isDisabled())
-			displayModel(world);
+			displayModel(ml);
 	}
 
 	/**
 	 * Draw the panorama sphere
 	 */
-	void displayModel(WMV_World world)
+	void displayModel(MultimediaLocator ml)
 	{
-		world.p.pushMatrix();
-		world.p.translate(getLocation().x, getLocation().y, getLocation().z);
-		world.p.fill(215, 135, 255, getViewingBrightness());
-		world.p.sphere(state.radius);								// -- Testing
-		world.p.popMatrix();
+		ml.pushMatrix();
+		ml.translate(getLocation().x, getLocation().y, getLocation().z);
+		ml.fill(215, 135, 255, getViewingBrightness());
+		ml.sphere(state.radius);								// -- Testing
+		ml.popMatrix();
 	}
 	
 	/**
@@ -182,18 +182,18 @@ public class WMV_Panorama extends WMV_Media
 	/**
 	 * Draw the panorama
 	 */
-	private void displayPanorama(WMV_World world) 
+	private void displayPanorama(MultimediaLocator ml) 
 	{
-		world.p.pushMatrix();
-		world.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
+		ml.pushMatrix();
+		ml.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
 
 		float r = state.radius;				
 		int v0, v1, v2;
 
-		world.p.textureMode(PApplet.IMAGE);
-		world.p.noStroke();
-		world.p.beginShape(PApplet.TRIANGLE_STRIP);
-		world.p.texture(texture);
+		ml.textureMode(PApplet.IMAGE);
+		ml.noStroke();
+		ml.beginShape(PApplet.TRIANGLE_STRIP);
+		ml.texture(texture);
 
 		/* Set the panorama brightness */		
 		if(getViewerSettings().selection)					// Viewer in selection mode
@@ -202,28 +202,28 @@ public class WMV_Panorama extends WMV_Media
 			{
 //				System.out.println("selected getViewingBrightness():"+getViewingBrightness());
 				if(!getWorldState().alphaMode)
-					world.p.tint(getViewingBrightness(), 255);          				
+					ml.tint(getViewingBrightness(), 255);          				
 				else
-					world.p.tint(255, getViewingBrightness());          				
+					ml.tint(255, getViewingBrightness());          				
 			}
 			else
 			{
 				if(!getWorldState().alphaMode)
-					world.p.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
+					ml.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
 				else
-					world.p.tint(255, getViewingBrightness() * 0.33f);          				
+					ml.tint(255, getViewingBrightness() * 0.33f);          				
 			}
 		}
 		else
 		{
 			if(!getWorldState().alphaMode)
 			{
-				world.p.tint(getViewingBrightness(), 255);          				
+				ml.tint(getViewingBrightness(), 255);          				
 			}
 			else
 			{
 //				System.out.println("alphaMode getViewingBrightness():"+getViewingBrightness()+" final alpha:"+PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, world.alpha));
-				world.p.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
+				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 			}
 		}
 		
@@ -233,14 +233,14 @@ public class WMV_Panorama extends WMV_Media
 
 		for (int i = 0; i < state.resolution; i++) 
 		{
-			world.p.vertex(0, -r, 0,u,0);
-			world.p.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
+			ml.vertex(0, -r, 0,u,0);
+			ml.vertex(sphere[i].x * r, sphere[i].y * r, sphere[i].z * r, u, v);
 			u += iu;
 		}
 
-		world.p.vertex(0, -r, 0, u, 0);
-		world.p.vertex(sphere[0].x * r, sphere[0].y * r, sphere[0].z * r, u, v);
-		world.p.endShape();   
+		ml.vertex(0, -r, 0, u, 0);
+		ml.vertex(sphere[0].x * r, sphere[0].y * r, sphere[0].z * r, u, v);
+		ml.endShape();   
 
 		// Draw middle rings
 		int voff = 0;
@@ -250,41 +250,41 @@ public class WMV_Panorama extends WMV_Media
 			voff += state.resolution;
 			v2 = voff;
 			u = 0;
-			world.p.beginShape(PApplet.TRIANGLE_STRIP);
-			world.p.texture(texture);
+			ml.beginShape(PApplet.TRIANGLE_STRIP);
+			ml.texture(texture);
 			for(int j = 0; j < state.resolution; j++) 			// Draw ring
 			{
-				world.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
-				world.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
+				ml.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
+				ml.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2++].z * r, u, v + iv);
 				u += iu;
 			}
 
 			// Close ring
 			v1 = v0;
 			v2 = voff;
-			world.p.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1].z * r, u, v);
-			world.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v + iv);
-			world.p.endShape();
+			ml.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1].z * r, u, v);
+			ml.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v + iv);
+			ml.endShape();
 			v += iv;
 		}
 		u = 0;
 
 		// Draw northern cap
-		world.p.beginShape(PApplet.TRIANGLE_STRIP);
-		world.p.texture(texture);
+		ml.beginShape(PApplet.TRIANGLE_STRIP);
+		ml.texture(texture);
 		for(int i = 0; i < state.resolution; i++) 
 		{
 			v2 = voff + i;
-			world.p.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
-			world.p.vertex(0, r, 0, u, v + iv);    
+			ml.vertex(sphere[v2].x * r, sphere[v2].y * r, sphere[v2].z * r, u, v);
+			ml.vertex(0, r, 0, u, v + iv);    
 			u += iu;
 		}
 
-		world.p.vertex(sphere[voff].x * r, sphere[voff].y * r, sphere[voff].z * r, u, v);
-		world.p.endShape();
+		ml.vertex(sphere[voff].x * r, sphere[voff].y * r, sphere[voff].z * r, u, v);
+		ml.endShape();
 
-		world.p.popMatrix();
-		world.p.textureMode(PApplet.NORMAL);
+		ml.popMatrix();
+		ml.textureMode(PApplet.NORMAL);
 	}
 
 	/***
@@ -427,7 +427,7 @@ public class WMV_Panorama extends WMV_Media
 	/**
 	 * Draw the panorama metadata in Heads-Up Display
 	 */
-	public void displayMetadata(WMV_World world)
+	public void displayMetadata(MultimediaLocator ml)
 	{
 		String strTitleImage = "Panorama";
 		String strTitleImage2 = "-----";
@@ -452,30 +452,31 @@ public class WMV_Panorama extends WMV_Media
 		String strBrightness = "brightness: "+String.valueOf(getViewingBrightness());
 		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getFadingBrightness());
 		
-		world.p.display.metadata(world, strTitleImage);
-		world.p.display.metadata(world, strTitleImage2);
-		world.p.display.metadata(world, "");
+		int frameCount = getWorldState().frameCount;
+		ml.display.metadata(frameCount, strTitleImage);
+		ml.display.metadata(frameCount, strTitleImage2);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strID);
-		world.p.display.metadata(world, strCluster);
-		world.p.display.metadata(world, strName);
-		world.p.display.metadata(world, strX + strY + strZ);
-		world.p.display.metadata(world, "");
+		ml.display.metadata(frameCount, strID);
+		ml.display.metadata(frameCount, strCluster);
+		ml.display.metadata(frameCount, strName);
+		ml.display.metadata(frameCount, strX + strY + strZ);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strDate);
-		world.p.display.metadata(world, strTime);
-		world.p.display.metadata(world, "");
+		ml.display.metadata(frameCount, strDate);
+		ml.display.metadata(frameCount, strTime);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strLatitude + strLongitude);
-		world.p.display.metadata(world, strAltitude);
-		world.p.display.metadata(world, strTheta);
-		world.p.display.metadata(world, strElevation);
+		ml.display.metadata(frameCount, strLatitude + strLongitude);
+		ml.display.metadata(frameCount, strAltitude);
+		ml.display.metadata(frameCount, strTheta);
+		ml.display.metadata(frameCount, strElevation);
 
 		if(getDebugSettings().panorama)
 		{
-			world.p.display.metadata(world, strTitleDebug);
-			world.p.display.metadata(world, strBrightness);
-			world.p.display.metadata(world, strBrightnessFading);
+			ml.display.metadata(frameCount, strTitleDebug);
+			ml.display.metadata(frameCount, strBrightness);
+			ml.display.metadata(frameCount, strBrightnessFading);
 		}
 	}
 

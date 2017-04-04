@@ -56,9 +56,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Display the video in virtual space
 	 */
-	void display(WMV_World world)
+	void display(MultimediaLocator ml)
 	{
-		if(getMediaState().showMetadata) displayMetadata(world);
+		if(getMediaState().showMetadata) displayMetadata(ml);
 
 		float distanceBrightness = 0.f; 					// Fade with distance
 		float angleBrightness;
@@ -92,71 +92,56 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		{
 			if (getViewingBrightness() > 0)
 				if ((video.width > 1) && (video.height > 1))
-					displayVideo(world);          // Draw the video 
+					displayVideo(ml);          // Draw the video 
 		}
-		else
-			world.p.noFill();                  // Hide video if it isn't visible
 
 		if(getMediaState().visible && getWorldState().showModel && !isHidden() && !!isDisabled())
-			displayModel(world);
+			displayModel(ml);
 	}
 
 	/**
 	 * @param size Size to draw the video center
 	 * Draw the video center as a colored sphere
 	 */
-	void displayModel(WMV_World world)
+	void displayModel(MultimediaLocator ml)
 	{
-		/* Draw frame */
-		world.p.pushMatrix();
+		ml.pushMatrix();
 
-//		world.p.stroke(0.f, 0.f, 255.f, 155.f);	 
-		world.p.stroke(0.f, 0.f, 255.f, getViewingBrightness());	 
-		world.p.strokeWeight(2.f);
+		ml.stroke(0.f, 0.f, 255.f, getViewingBrightness());	 
+		ml.strokeWeight(2.f);
 		
-		world.p.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
-		world.p.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
-		world.p.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
-		world.p.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
+		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
+		ml.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
+		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
+		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
 		
-		PVector c = world.getCurrentField().getCluster(getClusterID()).getLocation();
+		PVector c = ml.world.getCurrentField().getCluster(getClusterID()).getLocation();
 		PVector loc = getLocation();
 		PVector cl = getCaptureLocation();
-		world.p.popMatrix();
-		
-		/* Point only */
-//		world.p.pushMatrix();
-//		world.p.translate(location.x, location.y, location.z);
-//
-//		world.p.fill(150, 0, 255, 150);
-//		world.p.sphere(centerSize);
-//		PVector c = world.getCluster(cluster).getLocation();
-//		PVector loc = location;
-//		PVector cl = getCaptureLocation();
-//		world.p.popMatrix();
+		ml.popMatrix();
 
-		world.p.pushMatrix();
+		ml.pushMatrix();
 		if(getWorldState().showMediaToCluster)
 		{
-			world.p.strokeWeight(3.f);
-			world.p.stroke(150, 135, 255, getViewingBrightness());
-			world.p.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+			ml.strokeWeight(3.f);
+			ml.stroke(150, 135, 255, getViewingBrightness());
+			ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToMedia)
 		{
-			world.p.strokeWeight(3.f);
-			world.p.stroke(160, 100, 255, getViewingBrightness());
-			world.p.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+			ml.strokeWeight(3.f);
+			ml.stroke(160, 100, 255, getViewingBrightness());
+			ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToCluster)
 		{
-			world.p.strokeWeight(3.f);
-			world.p.stroke(120, 55, 255, getViewingBrightness());
-			world.p.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+			ml.strokeWeight(3.f);
+			ml.stroke(120, 55, 255, getViewingBrightness());
+			ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
-		world.p.popMatrix();
+		ml.popMatrix();
 	}
 
 	/**
@@ -378,18 +363,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
 	}
 
-//	public PVector getLocation()
-//	{
-////		if(getViewerSettings().orientationMode)
-////		{
-////			PVector result = new PVector(vState.location.x, vState.location.y, vState.location.z);
-////			result.add(getDisplacementVector());
-////			return result;
-////		}
-////		else
-//			return getViewableState().location;
-//	}
-
 	/**
 	 * Load the video file from disk
 	 */
@@ -493,26 +466,26 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Draw the video in virtual space
 	 */
-	private void displayVideo(WMV_World world)
+	private void displayVideo(MultimediaLocator ml)
 	{
-		world.p.rectMode(PApplet.CENTER);
-		world.p.noStroke(); 
+		ml.rectMode(PApplet.CENTER);
+		ml.noStroke(); 
 
 		if(isSelected())
 		{
 			if (!getViewerSettings().selection && getDebugSettings().field)     // Draw outline
 			{
-				world.p.stroke(19, 200, 150);
-				world.p.strokeWeight(state.outlineSize);
+				ml.stroke(19, 200, 150);
+				ml.strokeWeight(state.outlineSize);
 			}
 		}
 
-		world.p.pushMatrix();
-		world.p.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
-		world.p.textureMode(PApplet.IMAGE);
+		ml.pushMatrix();
+		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
+		ml.textureMode(PApplet.IMAGE);
 
 		if(frame != null)
-			world.p.texture(frame);
+			ml.texture(frame);
 
 		frame = new PImage(video.getImage());
 
@@ -521,58 +494,50 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			if(isSelected())
 			{
 				if(!getWorldState().alphaMode)
-					world.p.tint(getViewingBrightness(), 255);          				
+					ml.tint(getViewingBrightness(), 255);          				
 				else
-					world.p.tint(255, getViewingBrightness());          				
+					ml.tint(255, getViewingBrightness());          				
 			}
 			else
 			{
 				if(!getWorldState().alphaMode)
-					world.p.tint(getViewingBrightness() * 0.333f, 255);          // Set the image transparency					
+					ml.tint(getViewingBrightness() * 0.333f, 255);          // Set the image transparency					
 				else
-					world.p.tint(255, getViewingBrightness() * 0.333f);          				
+					ml.tint(255, getViewingBrightness() * 0.333f);          				
 			}
 		}
-//		else if(getViewerSettings().videoMode)
-//		{
-//			if(!world.alphaMode)
-//				world.p.tint(viewingBrightness, 255);          				
-//			else
-//				world.p.tint(255, viewingBrightness);          				
-//		}
 		else
 		{
 			if(!getWorldState().alphaMode)
-				world.p.tint(getViewingBrightness(), 255);          				
+				ml.tint(getViewingBrightness(), 255);          				
 			else
-				world.p.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
+				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 		}
 
 		if(getViewerSettings().orientationMode)
 		{
-			world.p.vertex(state.sVertices[0].x, state.sVertices[0].y, state.sVertices[0].z, 0, 0);           // UPPER LEFT      
-			world.p.vertex(state.sVertices[1].x, state.sVertices[1].y, state.sVertices[1].z, state.origVideoWidth, 0);           // UPPER RIGHT           
-			world.p.vertex(state.sVertices[2].x, state.sVertices[2].y, state.sVertices[2].z, state.origVideoWidth, state.origVideoHeight); 		// LOWER RIGHT        
-			world.p.vertex(state.sVertices[3].x, state.sVertices[3].y, state.sVertices[3].z, 0, state.origVideoHeight);           // LOWER LEFT
+			ml.vertex(state.sVertices[0].x, state.sVertices[0].y, state.sVertices[0].z, 0, 0);           // UPPER LEFT      
+			ml.vertex(state.sVertices[1].x, state.sVertices[1].y, state.sVertices[1].z, state.origVideoWidth, 0);           // UPPER RIGHT           
+			ml.vertex(state.sVertices[2].x, state.sVertices[2].y, state.sVertices[2].z, state.origVideoWidth, state.origVideoHeight); 		// LOWER RIGHT        
+			ml.vertex(state.sVertices[3].x, state.sVertices[3].y, state.sVertices[3].z, 0, state.origVideoHeight);           // LOWER LEFT
 		}
 		else
 		{
-			world.p.vertex(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, 0, 0);           // UPPER LEFT      
-			world.p.vertex(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.origVideoWidth, 0);           // UPPER RIGHT           
-			world.p.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.origVideoWidth, state.origVideoHeight); 		// LOWER RIGHT        
-			world.p.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, state.origVideoHeight);           // LOWER LEFT
+			ml.vertex(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, 0, 0);           // UPPER LEFT      
+			ml.vertex(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.origVideoWidth, 0);           // UPPER RIGHT           
+			ml.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.origVideoWidth, state.origVideoHeight); 		// LOWER RIGHT        
+			ml.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, state.origVideoHeight);           // LOWER LEFT
 		}
-		world.p.endShape(PApplet.CLOSE);       // End the shape containing the image
-		world.p.popMatrix();
+		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
+		ml.popMatrix();
 
-//		p.videosSeen++;
-//		p.setVideosSeen(p.getVideosSeen() + 1);
+//		ml.world.setVideosSeen(p.getVideosSeen() + 1);
 	}
 
 	/**
 	 * Draw the image metadata in Heads-Up Display
 	 */
-	public void displayMetadata(WMV_World world)
+	public void displayMetadata(MultimediaLocator ml)
 	{
 		String strTitleVideo = "Video";
 		String strTitleVideo2 = "-----";
@@ -598,55 +563,54 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		String strBrightness = "brightness: "+String.valueOf(getViewingBrightness());
 		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getFadingBrightness());
 		
-		world.p.display.metadata(world, strTitleVideo);
-		world.p.display.metadata(world, strTitleVideo2);
-		world.p.display.metadata(world, "");
+		int frameCount = getWorldState().frameCount;
+		ml.display.metadata(frameCount, strTitleVideo);
+		ml.display.metadata(frameCount, strTitleVideo2);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strID);
-		world.p.display.metadata(world, strCluster);
-		world.p.display.metadata(world, strName);
-		world.p.display.metadata(world, strX + strY + strZ);
-		world.p.display.metadata(world, "");
+		ml.display.metadata(frameCount, strID);
+		ml.display.metadata(frameCount, strCluster);
+		ml.display.metadata(frameCount, strName);
+		ml.display.metadata(frameCount, strX + strY + strZ);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strDate);
-		world.p.display.metadata(world, strTime);
-		world.p.display.metadata(world, "");
+		ml.display.metadata(frameCount, strDate);
+		ml.display.metadata(frameCount, strTime);
+		ml.display.metadata(frameCount, "");
 
-		world.p.display.metadata(world, strLatitude + strLongitude);
-		world.p.display.metadata(world, strAltitude);
-		world.p.display.metadata(world, strTheta);
-		world.p.display.metadata(world, strElevation);
-		world.p.display.metadata(world, strRotation);
+		ml.display.metadata(frameCount, strLatitude + strLongitude);
+		ml.display.metadata(frameCount, strAltitude);
+		ml.display.metadata(frameCount, strTheta);
+		ml.display.metadata(frameCount, strElevation);
+		ml.display.metadata(frameCount, strRotation);
 
 		if(getDebugSettings().video)
 		{
-			world.p.display.metadata(world, strTitleDebug);
-			world.p.display.metadata(world, strBrightness);
-			world.p.display.metadata(world, strBrightnessFading);
+			ml.display.metadata(frameCount, strTitleDebug);
+			ml.display.metadata(frameCount, strBrightness);
+			ml.display.metadata(frameCount, strBrightnessFading);
 		}	
 	}
 
 	/**
+	 * Find distance from camera to point in virtual space where photo appears
 	 * @return How far the video is from the camera
 	 */
-	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
+	public float getViewingDistance()                  
 	{
 		PVector camLoc = getViewerState().getLocation();
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
 		float r;
 
-		if(metadata.focusDistance == -1.f)
-			r = state.defaultFocusDistance;						// Use default if no focus distance in metadata					      
+		if(metadata.focusDistance == -1.f)							// Use default if no focus distance in metadata	
+			r = state.defaultFocusDistance;							      
 		else
 			r = metadata.focusDistance;							
 
 		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi)); 
 		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi));  
 		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-metadata.phi)); 
-//		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-metadata.phi)); 
-//		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-metadata.phi));  
-//		float yDisp = r * PApplet.cos(PApplet.radians(90-metadata.phi)); 
 
 		state.disp = new PVector(-xDisp, -yDisp, -zDisp);
 
@@ -671,55 +635,17 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		if(viewDist > farViewingDistance)
 		{
 			float vanishingPoint = farViewingDistance + metadata.focusDistance;	// Distance where transparency reaches zero
-//			float vanishingPoint = farViewingDistance + p.p.state.defaultFocusDistance;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
 				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, farViewingDistance, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
 		}
 		else if(viewDist < nearViewingDistance) 													// Near distance at which transparency reaches zero
-		{
 			distVisibility = PApplet.constrain(PApplet.map(viewDist, getViewerSettings().getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
-		}
 
-//		if(getDebugSettings().video)
-//		{
-//			p.p.p.display.message("video #"+getID()+"  distVisibility:"+distVisibility);
-//		}
 		return distVisibility;
 	}
 
-	/**
-	 * Check whether video is at an angle where it should currently be visible
-	 */
-//	public boolean getAngleVisibility()				 // Check if video should be visible
-//	{
-//		boolean visible = false;
-//
-//		if(p.p.transitionsOnly)					// With StaticMode ON, determine visibility based on distance of associated cluster 
-//		{
-//			if(cluster == p.p.viewer.getCurrentCluster())		// If this photo's cluster is the current (closest) cluster, it is visible
-//				visible = true;
-//
-//			for(int id : p.p.viewer.clustersVisible)
-//			{
-//				if(cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-//					visible = true;
-//			}
-//
-//			return visible;
-//		}
-//		else 
-//		{
-//			if(p.p.angleFading)
-//			{
-//				return isFacingCamera();		
-//			}
-//			else 
-//				return true;     										 		
-//		}
-//	}
-	
 	/**
 	 * Set thinning visibility of video
 	 * @param state New visibility

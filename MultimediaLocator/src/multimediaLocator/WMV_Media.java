@@ -1,6 +1,6 @@
 package multimediaLocator;
-
-import java.time.ZonedDateTime;
+//
+//import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import processing.core.PApplet;
@@ -55,9 +55,9 @@ public abstract class WMV_Media
 	}  
 
 	abstract void loadMedia(MultimediaLocator ml);
-	abstract void display(WMV_World world);
-	abstract void displayModel(WMV_World world);
-	abstract void displayMetadata(WMV_World world);
+	abstract void display(MultimediaLocator ml);
+	abstract void displayModel(MultimediaLocator ml);
+	abstract void displayMetadata(MultimediaLocator ml);
 
 	public void updateSettings( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
 								WMV_ViewerState newViewerState, ML_DebugSettings newDebugSettings )

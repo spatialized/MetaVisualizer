@@ -200,7 +200,7 @@ public class WMV_Field
 					if(!m.getMediaState().fadingFocusDistance && !m.isFading()) 
 						m.update(p.p, utilities);  	// Update geometry + visibility
 					
-					m.draw(p); 		// Draw image
+					m.display(p); 		// Draw image
 					state.imagesVisible++;
 				}
 			}
@@ -221,7 +221,7 @@ public class WMV_Field
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
 					n.update(p.p);  	// Update geometry + visibility
-					n.draw(p); 		// Display panorama
+					n.display(p); 		// Display panorama
 					state.panoramasVisible++;
 				}
 				else if(n.isFading())
@@ -252,7 +252,7 @@ public class WMV_Field
 					else
 					{
 						v.update(p.p, utilities);  	// Update geometry + visibility
-						v.draw(p); 		// Display video
+						v.display(p); 		// Display video
 						state.videosVisible++;
 					}
 				}

@@ -115,7 +115,7 @@ public class WMV_Panorama extends WMV_Media
 	/**
 	 * Display the image or spherical panorama in virtual space
 	 */
-	public void draw(WMV_World world)
+	public void display(WMV_World world)
 	{
 		if(getMediaState().showMetadata) displayMetadata(world);
 
@@ -136,22 +136,13 @@ public class WMV_Panorama extends WMV_Media
 			{
 				if(texture.width > 0)		// If image has been loaded
 				{
-					drawPanorama(world);
+					displayPanorama(world);
 				}
 			}
 		} 
-//		else
-//		{      
-//			world.p.noFill();                  // Hide image if it isn't visible
-//		}
 
 		if(isVisible() && getWorldState().showModel && !isHidden() && !isDisabled())
 			displayModel(world);
-
-//		if (isVisible() && isSelected() && !isDisabled() && getDebugSettings().model)		// Draw panorama vState.location for debugging or map display
-//			displayModel();
-//		if (isVisible() && !isDisabled() && getViewerSettings().map3DMode)
-//			displayModel();
 	}
 
 	/**
@@ -183,7 +174,7 @@ public class WMV_Panorama extends WMV_Media
 	public void fadeOut()
 	{
 		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
-				stopFading();
+			stopFading();
 
 		fadeBrightness(0.f);					// Fade out
 	}
@@ -191,13 +182,13 @@ public class WMV_Panorama extends WMV_Media
 	/**
 	 * Draw the panorama
 	 */
-	private void drawPanorama(WMV_World world) 
+	private void displayPanorama(WMV_World world) 
 	{
 		world.p.pushMatrix();
 		world.p.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
 
 		float r = state.radius;				
-		int v0,v1,v2;
+		int v0, v1, v2;
 
 		world.p.textureMode(PApplet.IMAGE);
 		world.p.noStroke();
@@ -342,16 +333,12 @@ public class WMV_Panorama extends WMV_Media
 		sphere[currVert++] = new PVector(0,0,0);
 		sphere[currVert++] = new PVector(0,0,0);
 		
-//		if (state.phi != 0.f)
-//		sphere = rotateVertices(sphere, -state.phi, verticalAxis);         // Rotate around X axis
-		
 		if (state.phi != 0.f)
 			sphere = rotateVertices(sphere, -state.phi, getMediaState().rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
 
 		if( getTheta() != 0.f )
 			sphere = rotateVertices(sphere, 360-getTheta(), getMediaState().azimuthAxis); // Rotate around Z axis
 		
-//		panoramaDetail = panoramaDetail;
 		initialized = true;
 	}
 
@@ -360,27 +347,8 @@ public class WMV_Panorama extends WMV_Media
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-//		if(getDebugSettings().panorama && getDebugSettings().detailed)
-//			p.p.p.display.message(p.p, "Requesting panorama file:"+getName());
-//
-//		if(!getDebugSettings().lowMemory)			// Check enough memory available
-//		{
-		
-//			if(getViewerSettings().orientationMode)
-//				vState.location = p.p.viewer.getLocation();
-//			else
-//				vState.location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
-
-//		vState.location = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
-//			if (p.utilities.isNaN(vState.location.x) || p.utilities.isNaN(vState.location.x) || p.utilities.isNaN(vState.location.x))
-//			{
-//				vState.location = new PVector (0, 0, 0);
-//			}
-
-			texture = ml.requestImage(getFilePath());
-			setRequested(true);
-//			p.p.vState.requestedPanoramas++;
-//		}
+		texture = ml.requestImage(getFilePath());
+		setRequested(true);
 	}
 
 	/** 
@@ -390,7 +358,6 @@ public class WMV_Panorama extends WMV_Media
 	public float getDistanceBrightness()									
 	{
 		float viewDist = getViewingDistance();
-//		float farViewingDistance = getViewerSettings().getFarViewingDistance();
 
 		float distVisibility = 1.f;
 

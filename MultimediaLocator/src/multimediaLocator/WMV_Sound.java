@@ -54,7 +54,7 @@ public class WMV_Sound extends WMV_Media
 	/**
 	 * Display the image in virtual space
 	 */
-	public void draw(WMV_World world)
+	public void display(WMV_World world)
 	{
 		if(getMediaState().showMetadata) displayMetadata(world);
 	}

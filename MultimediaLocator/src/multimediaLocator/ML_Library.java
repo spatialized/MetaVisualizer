@@ -41,25 +41,6 @@ public class ML_Library
 		return folders;
 	}
 
-//	public void saveTestImageData(WMV_Image image, String newFilePath)		// Testing
-//	{
-//		String filePath = newFilePath;
-//
-//		final ObjectMapper mapper = JsonFactory.create();
-//		final File file;
-//		try {
-//			file = File.createTempFile("json", "temp.json");    // Use temp file
-//			mapper.writeValue(file, image);    // Write staff object to file
-//
-//			WMV_Image newImage = mapper.readValue(file, WMV_Image.class);
-//			puts("WMV_Images are equal: ", newImage.equals(image));      // Not working ??
-//		}
-//		catch (Throwable t)
-//		{
-//			System.out.println("saveTestImageData Throwable t:"+t);
-//		}
-//	}
-
 	public void saveWorldSettings(WMV_WorldSettings settings, String newFilePath)		
 	{
 		String filePath = newFilePath;

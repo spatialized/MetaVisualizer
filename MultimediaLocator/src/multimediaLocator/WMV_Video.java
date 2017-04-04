@@ -56,7 +56,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Display the video in virtual space
 	 */
-	void draw(WMV_World world)
+	void display(WMV_World world)
 	{
 		if(getMediaState().showMetadata) displayMetadata(world);
 
@@ -773,7 +773,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	public boolean isFacingCamera(PVector cameraPosition)
 	{
 		return PApplet.abs(getAngleToCamera()) > getViewerSettings().visibleAngle;     			// If the result is positive, then it is facing the camera.
-//		return PApplet.abs(getAngleToCamera()) > p.p.defaultVisibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
 
 	/**
@@ -781,13 +780,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	public boolean isBackFacing(PVector cameraPosition)										
 	{
-//		PVector cameraPosition = p.p.viewer.getLocation();
-
 		float captureToCam = getCaptureLocation().dist(cameraPosition);  	// Find distance from capture location to camera
 		float camToVideo = getLocation().dist(cameraPosition);  		// Find distance from camera to image
 
 //		if(captureToCam > camToVideo + p.p.viewer.getNearClippingDistance())			// If captureToCam > camToVideo, then back of video is facing the camera
-		if(captureToCam > camToVideo + getViewerSettings().getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
+		if(captureToCam > camToVideo + getViewerSettings().getNearClippingDistance() * 0.5f)			// If captureToCam > camToVideo, then back of video is facing the camera
 			return true;
 		else
 			return false; 
@@ -813,8 +810,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	boolean isBehindCamera(PVector camLocation, PVector camOrientation)										
 	{
-//		PVector camLocation = p.p.viewer.getLocation();
-//		PVector camOrientation = p.p.viewer.getOrientationVector();
 		PVector centerVertex = calcCenterVertex();
 
 		PVector camToVideo = new PVector(  camLocation.x-centerVertex.x, 	//  Vector from the camera to the face.      
@@ -827,8 +822,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		if(result >= 0)							// If > zero, image is behind camera
 			return true;
-		else
-			return false; 						// If < zero, image is in front of camera
+		else									// If < zero, image is in front of camera
+			return false; 						
 	}
 
 	/**
@@ -852,7 +847,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	/**
-	 * getFaceNormal()
 	 * @return Normalized vector perpendicular to the image plane
 	 */
 	public PVector getFaceNormal()
@@ -1045,14 +1039,14 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	/**
-	 * @return Aspect ratio of the video
+	 * @return Video aspect ratio 
 	 */
 	float calculateAspectRatio()
 	{
 		float ratio = 0;
 
-//		ratio = (float)(video.height)/(float)(video.width);
 		ratio = (float) state.origVideoHeight / (float) state.origVideoWidth;
+//		ratio = (float)(video.height)/(float)(video.width);
 
 		return ratio;
 	}
@@ -1154,8 +1148,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	private PVector[] initializeVertices()
 	{
-		float width = getVideoWidthMeters();
-		float height = getVideoWidthMeters() * getAspectRatio();
+		float width = getVideoWidthInMeters();
+		float height = getVideoWidthInMeters() * getAspectRatio();
 
 		float left = -width * 0.5f;
 		float right = width * 0.5f;
@@ -1172,9 +1166,13 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		return verts;
 	}
 	
-	private float getVideoWidthMeters()
+	/**
+	 * Find video width using formula:
+	 * Video Width (m.) = Object Width on Sensor (mm.) / Focal Length (mm.) * Focus Distance (m.) 
+	 * @return Video width in simulation (m.)
+	 */
+	private float getVideoWidthInMeters()
 	{
-		// 	Image Size = Sensor Width * Focus Distance / Focal Length 
 		float result = metadata.sensorSize * state.subjectSizeRatio * metadata.focusDistance / metadata.focalLength;
 		return result;
 	}

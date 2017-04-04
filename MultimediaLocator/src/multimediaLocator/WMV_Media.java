@@ -55,7 +55,7 @@ public abstract class WMV_Media
 	}  
 
 	abstract void loadMedia(MultimediaLocator ml);
-	abstract void draw(WMV_World world);
+	abstract void display(WMV_World world);
 	abstract void displayModel(WMV_World world);
 	abstract void displayMetadata(WMV_World world);
 

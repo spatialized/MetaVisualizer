@@ -8,9 +8,8 @@ import processing.core.PVector;
 
 /*********************************************
  * @author davidgordon
- * A spatial cluster, or, group of media files forming a spatial unit
+ * A spatial cluster of media files representing a virtual point of interest
  */
-
 public class WMV_Cluster 
 {
 	/* Classes */
@@ -418,7 +417,7 @@ public class WMV_Cluster
 			for(WMV_Panorama p : userPanoramas)
 			{
 				p.update(world.p);
-				p.draw(world);
+				p.display(world);
 			}
 		}
 
@@ -427,7 +426,7 @@ public class WMV_Cluster
 			for(WMV_Panorama p : stitchedPanoramas)
 			{
 				p.update(world.p);
-				p.draw(world);
+				p.display(world);
 			}
 		}
 	}

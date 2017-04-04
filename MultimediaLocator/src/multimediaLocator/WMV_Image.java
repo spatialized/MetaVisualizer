@@ -18,7 +18,8 @@ class WMV_Image extends WMV_Media
 	private WMV_ImageMetadata metadata;
 	
 	/* Graphics */
-	public PImage image, blurred;			// Image pixels
+	private PImage image;
+	private PImage blurred;			// Image pixels
 	private PImage blurMask;
 
 	WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_MediaMetadata newMediaMetadata, WMV_ImageMetadata newImageMetadata ) 
@@ -30,10 +31,8 @@ class WMV_Image extends WMV_Media
 
 		if(newImage != null) image = newImage;														// Empty image
 		
-		if(metadata.focusDistance == -1.f) 
-			metadata.focusDistance = state.defaultFocusDistance;
-		else 
-			metadata.focusDistance = metadata.focusDistance;
+		if(metadata.focusDistance == -1.f) metadata.focusDistance = state.defaultFocusDistance;
+		else metadata.focusDistance = metadata.focusDistance;
 		
 		state.origFocusDistance = metadata.focusDistance;
 
@@ -51,7 +50,7 @@ class WMV_Image extends WMV_Media
 	/**
 	 * Display the image in virtual space
 	 */
-	public void draw(WMV_World world)
+	public void display(WMV_World world)
 	{
 		if(getMediaState().showMetadata) 
 			displayMetadata(world);
@@ -66,12 +65,8 @@ class WMV_Image extends WMV_Media
 		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade iBrightness based on time
 
-//		System.out.println("Image #"+getID()+" currentTime:"+getWorldState().currentTime+" getTimeBrightness():"+getTimeBrightness());
-		
 		if( getViewerSettings().angleFading )
 		{
-			if( isSelected() )
-				PApplet.println("Debugging: getViewerState().getOrientationVector():"+getViewerState().getOrientationVector());
 			float imageAngle = getFacingAngle(getViewerState().getOrientationVector());
 			angleBrightnessFactor = getAngleBrightness(imageAngle);                 // Fade out as turns sideways or gets too far / close
 			brightness *= angleBrightnessFactor;
@@ -83,12 +78,10 @@ class WMV_Image extends WMV_Media
 		{
 			if (getViewingBrightness() > 0)
 			{
-				if(image.width > 0)		// If image has been loaded
-					displayImage(world);          // Draw the image 
+				if(image.width > 0)				// If image has been loaded
+					displayImage(world);        // Display image 
 			}
 		} 
-		else
-			world.p.noFill();                  // Hide image if it isn't vState.visible
 
 		if(getMediaState().visible && getWorldState().showModel && !isHidden() && !isDisabled())
 			displayModel(world);
@@ -106,7 +99,7 @@ class WMV_Image extends WMV_Media
 		catch(RuntimeException ex)
 		{
 			if(getDebugSettings().image || getDebugSettings().main)
-				System.out.println("ERROR with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
+				System.out.println("Error with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
 		}
 		
 		return result;
@@ -443,16 +436,13 @@ class WMV_Image extends WMV_Media
 		if(viewDist > farViewingDistance)
 		{
 			float vanishingPoint = farViewingDistance + metadata.focusDistance;	// Distance where transparency reaches zero
-//			float vanishingPoint = farViewingDistance + p.p.state.defaultFocusDistance;	// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
 				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, getViewerSettings().getFarViewingDistance(), vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.vState.visibleFarDistance
 			else
 				distVisibility = 0.f;
 		}
 		else if(viewDist < nearViewingDistance)								
-		{
 			distVisibility = PApplet.constrain(PApplet.map(viewDist, getViewerSettings().getNearClippingDistance(), getViewerSettings().getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
-		}
 
 		return distVisibility;
 	}
@@ -498,11 +488,6 @@ class WMV_Image extends WMV_Media
 
 		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
 	}
-
-//	public PVector getLocation()
-//	{
-//		return getViewableState().location;
-//	}
 
 	/**
 	 * Request the image to be loaded from disk
@@ -637,7 +622,7 @@ class WMV_Image extends WMV_Media
 		float camToImage = getLocation().dist(camLoc);  					// Find distance from camera to image
 
 //		if(captureToCam > camToImage + p.p.viewer.getNearClippingDistance())								// If captureToCam > camToPhoto, then back of the image is facing the camera
-		if(captureToCam > camToImage + getViewerSettings().getNearClippingDistance() / 2.f)			// If captureToCam > camToVideo, then back of video is facing the camera
+		if(captureToCam > camToImage + getViewerSettings().getNearClippingDistance() * 0.5f)			// If captureToCam > camToVideo, then back of video is facing the camera
 			return true;
 		else
 			return false; 
@@ -932,7 +917,7 @@ class WMV_Image extends WMV_Media
 	
 	private PVector[] initializeVertices()
 	{
-		float width = calculateImageWidth();										
+		float width = getImageWidthInMeters();										
 		float height = width * getMediaState().aspectRatio;		
 
 		float left = -width * 0.5f;						
@@ -1007,11 +992,11 @@ class WMV_Image extends WMV_Media
 	}
 	
 	/**
-	 * Find image width from formula:
+	 * Find image width using formula:
 	 * Image Width (m.) = Object Width on Sensor (mm.) / Focal Length (mm.) * Focus Distance (m.) 
 	 * @return Image width in simulation (m.)
 	 */
-	private float calculateImageWidth()
+	private float getImageWidthInMeters()
 	{
 //		float state.subjectSizeRatio = subjectPixelWidth / originalstate.imageWidth;		// --More accurate
 

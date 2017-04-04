@@ -7,8 +7,9 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 /************************************
+ * Rectangular image in 3D virtual space
  * @author davidgordon
- * A rectangular image in 3D virtual space
+ * 
  */
 
 class WMV_Image extends WMV_Media						 
@@ -1127,6 +1128,9 @@ class WMV_Image extends WMV_Media
 		 return state;
 	 }
 
+	 /**
+	  * @return Save image state for exporting
+	  */
 	 public void captureState()
 	 {
 		 state.setMediaState( getMediaState(), metadata );

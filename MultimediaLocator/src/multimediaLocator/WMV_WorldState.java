@@ -1,8 +1,8 @@
 package multimediaLocator;
 
 /**
+ * State of the virtual world
  * @author davidgordon
- * Current state of the virtual world
  *
  */
 public class WMV_WorldState 

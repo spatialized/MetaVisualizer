@@ -7,8 +7,8 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 /**********************************************
+ * 360-degree panorama in virtual multimedia environment
  * @author davidgordon
- * A 360-degree panorama in 3D virtual space
  */
 public class WMV_Panorama extends WMV_Media 
 {
@@ -490,9 +490,11 @@ public class WMV_Panorama extends WMV_Media
 		return state;
 	}
 	
+	 /**
+	  * @return Save panorama state for exporting
+	  */
 	 public void captureState()
 	 {
-//		 setMediaMetadata();
 		 state.setMediaState( getMediaState(), metadata );
 	 }
 	 

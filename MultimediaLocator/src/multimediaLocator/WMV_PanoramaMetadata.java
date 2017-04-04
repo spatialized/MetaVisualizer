@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import processing.core.PVector;
 
 /**
- * 360-degree panorama metadata
+ * Metadata for a 360-degree panorama
  * @author davidgordon
  *
  */

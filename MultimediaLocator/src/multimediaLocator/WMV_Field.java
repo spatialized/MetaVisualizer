@@ -19,8 +19,8 @@ import processing.core.PVector;
 import processing.data.IntList;
 
 /**************************************************
+ * Multimedia environment corresponding to a particular geographical area
  * @author davidgordon
- * Basic geographical unit in simulation
  */
 public class WMV_Field 
 {
@@ -2581,22 +2581,32 @@ public class WMV_Field
 		}
 		for(WMV_Image i : images)
 		{
+			i.captureState();							// Save current image state for exporting
 			WMV_ImageState iState = i.getState();
 			if(iState != null)
 				imageStates.add(iState);
 		}
-		for(WMV_Panorama n : panoramas)
+		for(WMV_Panorama n : panoramas)					// Save current panorama state for exporting
 		{
+			n.captureState();
 			WMV_PanoramaState pState = n.getState();
 			if(pState != null)
 				panoramaStates.add(pState);
 		}
-		for(WMV_Video v : videos)
+		for(WMV_Video v : videos)						// Save current video state for exporting
 		{
+			v.captureState();
 			WMV_VideoState vState = v.getState();
 			if(vState != null)
 				videoStates.add(vState);
 		}
+//		for(WMV_Sound s : sounds)						// Save current video state for exporting
+//		{
+//			s.captureState();
+//			WMV_SoundState sState = s.getState();
+//			if(sState != null)
+//				soundStates.add(sState);
+//		}
 		
 		state.setFieldData(clusterStates, imageStates, panoramaStates, videoStates);
 	}
@@ -2607,13 +2617,13 @@ public class WMV_Field
 	 */
 	public void setState( WMV_FieldState newFieldState )
 	{
-//		state.reset();
 		state = newFieldState;
 		
 		ArrayList<WMV_ClusterState> clusterStates = newFieldState.clusters;
 		ArrayList<WMV_ImageState> imageStates = newFieldState.images; 				
 		ArrayList<WMV_PanoramaState> panoramaStates = newFieldState.panoramas; 			
 		ArrayList<WMV_VideoState> videoStates = newFieldState.videos; 				
+//		ArrayList<WMV_SoundState> soundStates = newFieldState.sounds; 				
 		
 		for(WMV_ClusterState cs : clusterStates)
 		{
@@ -2635,25 +2645,25 @@ public class WMV_Field
 			WMV_Video newVideo = getVideoFromVideoState(vs);
 			addVideo(newVideo);
 		}
+//		for(WMV_SoundState ss : soundStates)
+//		{
+//			WMV_Sound newSound = getSoundFromSoundState(ss);
+//			addSound(newSound);
+//		}
 
 		clusterStates = new ArrayList<WMV_ClusterState>();
 		imageStates = new ArrayList<WMV_ImageState>(); 				
 		panoramaStates = new ArrayList<WMV_PanoramaState>(); 			
 		videoStates = new ArrayList<WMV_VideoState>(); 				
+//		soundStates = new ArrayList<WMV_SoundState>(); 				
 	}
 
 	private WMV_Cluster getClusterFromClusterState(WMV_ClusterState clusterState)
 	{
-//		WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
-//				 ML_DebugSettings newDebugSettings, int _clusterID, float _x, float _y, float _z) 
-
 		WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, debugSettings, clusterState.id, 
 												  clusterState.location.x, clusterState.location.y, clusterState.location.z);
 		
 		newCluster.setState( clusterState );
-		
-		// DO ADDITIONAL WORK HERE 
-		
 		return newCluster;
 	}
 	
@@ -2662,7 +2672,6 @@ public class WMV_Field
 		WMV_Image newImage = new WMV_Image( imageState.mState.id, null, imageState.mState.mediaType, imageState.getMetadata());
 
 		newImage.setState( imageState );
-		
 		return newImage;
 	}
 	
@@ -2672,28 +2681,26 @@ public class WMV_Field
 				panoState.getMetadata() );
 
 		newPanorama.setState( panoState );
-
 		return newPanorama;
 	}
 	
 	private WMV_Video getVideoFromVideoState(WMV_VideoState videoState)			 // --  NULL error
 	{
 		WMV_Video newVideo = new WMV_Video( videoState.mState.id, null, videoState.mState.mediaType, videoState.getMetadata() );
-
 		newVideo.setState( videoState );
-		
 		return newVideo;
 	}
 	
-//	public WMV_Image getSoundFromSoundState(WMV_SoundState)
-//	{
-//		newSound.setState( soundState );
-//		return null;
-//	}
-	
-	public WMV_FieldState getState()
+	public WMV_Sound getSoundFromSoundState(WMV_SoundState soundState)
 	{
-		return state;
+		WMV_Sound newSound = new WMV_Sound(0, 0, null);
+		newSound.setState( soundState );
+		return newSound;
+	}
+	
+	public String getName()
+	{
+		return state.name;
 	}
 	
 	public int getID()
@@ -2701,6 +2708,11 @@ public class WMV_Field
 		return state.id;
 	}
 	
+	public WMV_FieldState getState()
+	{
+		return state;
+	}
+
 	public ArrayList<WMV_TimeSegment> getTimeline()
 	{
 		return timeline;
@@ -2734,11 +2746,6 @@ public class WMV_Field
 	public String getTimeZoneID()
 	{
 		return state.timeZoneID;
-	}
-
-	public String getName()
-	{
-		return state.name;
 	}
 
 	public void setName(String newName)

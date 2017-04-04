@@ -13,8 +13,9 @@ import toxi.math.InterpolateStrategy;
 import toxi.math.ScaleMap;
 
 /***************************************
+ * Abstract media object viewable in 3D space
  * @author davidgordon
- * A media object viewable in 3D space
+ * 
  */
 public abstract class WMV_Media
 {
@@ -801,16 +802,6 @@ public abstract class WMV_Media
 	{
 		return mState;
 	}
-	
-//	public void setMediaMetadata()
-//	{
-//		mState.mMetadata = mMetadata;
-//	}
-
-//	public WMV_MediaMetadata getMediaMetadata()
-//	{
-//		return mMetadata;
-//	}
 	
 	public WMV_WorldSettings getWorldSettings()
 	{

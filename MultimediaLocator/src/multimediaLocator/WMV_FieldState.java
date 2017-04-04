@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Snapshot of a 3D environment at a particular time
+ * Current field state 
  * @author davidgordon
  *
  */

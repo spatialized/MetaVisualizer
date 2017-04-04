@@ -35,8 +35,8 @@ import static org.bytedeco.javacpp.opencv_core.MatVector;
 import static org.bytedeco.javacpp.opencv_stitching.Stitcher;
 
 /***********************************
- * @author davidgordon
  * Class for stitching image sets into spherical panoramas
+ * @author davidgordon
  */
 public class ML_Stitcher 
 {
@@ -54,7 +54,6 @@ public class ML_Stitcher
 //		stitcher.setWaveCorrection(true);
 //		stitcher.setWaveCorrectKind(org.bytedeco.javacpp.opencv_stitching.WAVE_CORRECT_HORIZ);
 
-		// Testing
 //		stitcher.setRegistrationResol(0.3f);
 //		stitcher.setSeamEstimationResol(0.05f);
 		stitcher.setPanoConfidenceThresh(0.8f);
@@ -80,7 +79,6 @@ public class ML_Stitcher
 	 * @param library
 	 */
 	public WMV_Panorama stitch(String library, List<Integer> imageList, int clusterID, int segmentID, List<Integer> selected)
-//	public WMV_Panorama stitch(String library, IntList imageList, int clusterID, int segmentID, IntList selected)
 	{
 		Mat panorama = new Mat();							// Panoramic image result
 		IplImage iplImage = null;
@@ -239,13 +237,6 @@ public class ML_Stitcher
 			float panoElevation = segment.getCenterElevation();
 			
 			
-//			WMV_Panorama ( int newID, int newMediaType, String newName, String newFilePath, PVector newGPSLocation, float newTheta, 
-//					float newElevation, int newCameraModel, int newWidth, int newHeight, float newBrightness, ZonedDateTime newDateTime, String newTimeZone,
-//					PVector newLocation, PImage newTexture, String[] newKeywords )
-
-//			WMV_Panorama ( int newID, int newMediaType, float newElevation, PVector newLocation, PImage newTexture, WMV_MediaMetadata newMediaMetadata, 
-//					WMV_PanoramaMetadata newPanoramaMetadata )
-//			WMV_MediaMetadata mMetadata = new WMV_MediaMetadata("_stitched_"+Integer.toString(segment.getID()), "", null, null, ""); 
 			WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata("_stitched_"+Integer.toString(segment.getID()), "", null, null, "",
 					panoDirection, -1, result.width, result.height, 1.f, null); 
 

@@ -1,43 +1,32 @@
 package multimediaLocator;
 
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
-//import java.util.Calendar;
 
 import beads.*;
-import processing.core.PApplet;
 import processing.core.PVector;
 
 /**************************************************
+ * A sound spatialized in a virtual multimedia environment
  * @author davidgordon
- * Represents a sound in 3D virtual space
  */
 
 public class WMV_Sound extends WMV_Media						 
 {
 //	/* Classes */
-//	WMV_WorldSettings worldSettings;
-//	WMV_ViewerSettings viewerSettings;	// Update world settings
-//	ML_DebugSettings debugSettings;	// Update world settings
 	WMV_SoundMetadata metadata;
-//	SoundFile sound;
-	
-	private int id;
-	private Bead sound;
-	private float length;
+	WMV_SoundState state;
 
 	/* Sound */
-	private float volume = 0.f;			// Video volume between 0. and 1.
-	private boolean fadingVolume = false;
-	private int volumeFadingStartFrame = 0, volumeFadingEndFrame = 0;
-	private float volumeFadingStartVal = 0.f, volumeFadingTarget = 0.f;
-	private final int volumeFadingLength = 60;	// Fade volume over 30 frames
+	private Bead sound;
+//	SoundFile sound;
 	
 	WMV_Sound ( int newID, int newType, WMV_SoundMetadata newSoundMetadata )
 	{
 		super( newID, newType, newSoundMetadata.name, newSoundMetadata.filePath, newSoundMetadata.dateTime, newSoundMetadata.timeZone, 
 				newSoundMetadata.gpsLocation );
 
+		state = new WMV_SoundState();
+		
 		metadata = newSoundMetadata;
 //		filePath = newFilePath;
 		getMediaState().gpsLocation = metadata.gpsLocation;
@@ -176,13 +165,13 @@ public class WMV_Sound extends WMV_Media
 	 */
 	void fadeSoundIn()
 	{
-		if(volume < getWorldSettings().videoMaxVolume)
+		if(state.volume < getWorldSettings().videoMaxVolume)
 		{
-			fadingVolume = true;
-			volumeFadingStartFrame = getWorldState().frameCount; 
-			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = getWorldState().frameCount + volumeFadingLength;		// Fade volume over 30 frames
-			volumeFadingTarget = getWorldSettings().videoMaxVolume;
+			state.fadingVolume = true;
+			state.volumeFadingStartFrame = getWorldState().frameCount; 
+			state.volumeFadingStartVal = state.volume; 
+			state.volumeFadingEndFrame = getWorldState().frameCount + state.volumeFadingLength;		// Fade volume over 30 frames
+			state.volumeFadingTarget = getWorldSettings().videoMaxVolume;
 		}
 	}
 	
@@ -191,13 +180,13 @@ public class WMV_Sound extends WMV_Media
 	 */
 	void fadeSoundOut()
 	{
-		if(volume > 0.f)
+		if(state.volume > 0.f)
 		{
-			fadingVolume = true;
-			volumeFadingStartFrame = getWorldState().frameCount; 
-			volumeFadingStartVal = volume; 
-			volumeFadingEndFrame = getWorldState().frameCount + volumeFadingLength;		// Fade volume over 30 frames
-			volumeFadingTarget = 0.f;
+			state.fadingVolume = true;
+			state.volumeFadingStartFrame = getWorldState().frameCount; 
+			state.volumeFadingStartVal = state.volume; 
+			state.volumeFadingEndFrame = getWorldState().frameCount + state.volumeFadingLength;		// Fade volume over 30 frames
+			state.volumeFadingTarget = 0.f;
 		}
 	}
 	
@@ -269,10 +258,21 @@ public class WMV_Sound extends WMV_Media
 		return distance;
 	}
 	
-//	 public void captureState()
-//	 {
-//		 state.setViewableState(vState);
-//	 }
-//	 
+	public void setState(WMV_SoundState newState)
+	{
+		state = newState;
+	}
+	
+	public WMV_SoundState getState()
+	{
+		return state;
+	}
 
+	 /**
+	  * @return Save sound state for exporting
+	  */
+	 public void captureState()
+	 {
+		 state.setMediaState(getMediaState(), metadata);
+	 }
 }

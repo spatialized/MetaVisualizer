@@ -8,8 +8,8 @@ import g4p_controls.GValueControl;
 import processing.core.PApplet;
 
 /**************************************
- * @author davidgordon
  * Class for responding to user input from keyboard or mouse
+ * @author davidgordon
  */
 
 public class ML_Input

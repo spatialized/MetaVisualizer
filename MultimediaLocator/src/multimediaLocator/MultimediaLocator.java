@@ -7,8 +7,8 @@
 *********************************************************************************/
 
 /************************************
-* @author davidgordon 
 * MultimediaLocator application class
+* @author davidgordon 
 */
 
 package multimediaLocator;

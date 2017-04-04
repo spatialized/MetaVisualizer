@@ -9,8 +9,8 @@ import org.boon.json.ObjectMapper;
 import static org.boon.Boon.puts;
 
 /**************
+ * Represents a multimedia library
  * @author davidgordon
- * The multimedia library
  */
 public class ML_Library 
 {

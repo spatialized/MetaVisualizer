@@ -3,7 +3,7 @@ package multimediaLocator;
 import processing.core.PVector;
 
 /**
- * Media type-specific parameters of an image in a field
+ * State of an image in a field
  * @author davidgordon
  *
  */

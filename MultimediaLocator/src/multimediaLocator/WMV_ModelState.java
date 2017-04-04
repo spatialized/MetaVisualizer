@@ -1,7 +1,12 @@
 package multimediaLocator;
 
-public class WMV_ModelState {
-
+/**
+ * Current state of the field model
+ * @author davidgordon
+ *
+ */
+public class WMV_ModelState 
+{
 	/* Field */
 	public float fieldWidth; 			// Width (X) of GPS photo area (real world)
 	public float fieldHeight; 			// Height (Y) of GPS photo area (real world)

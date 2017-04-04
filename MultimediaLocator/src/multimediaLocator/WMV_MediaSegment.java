@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /***************
+ * Segment of overlapping images or videos captured in same cluster
  * @author davidgordon
- * Segment of images or videos overlapping without any gaps
+ * 
  */
 public class WMV_MediaSegment 
 {

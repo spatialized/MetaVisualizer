@@ -8,8 +8,8 @@ import processing.core.PVector;
 import processing.event.MouseEvent;
 
 /**
- * Class for handling secondary windows
  * @author davidgordon
+ * Class for handling secondary windows
  *
  */
 public class ML_Window {

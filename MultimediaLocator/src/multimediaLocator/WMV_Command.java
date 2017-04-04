@@ -4,9 +4,9 @@ import java.io.*;
 import java.util.List;
 
 /**
+ * Runs a system command given as a List of Strings.   
  * @author davidgordon
- * Runs a system command given as a List of Strings. Based on package com.devdaily.system;  
- *
+ * Based on package com.devdaily.system
  */
 public class WMV_Command
 {
@@ -38,8 +38,6 @@ public class WMV_Command
       
       Process process = pb.start();
 
-//      OutputStream stdOutput = process.getOutputStream();
-      
       InputStream inputStream = process.getInputStream();
       InputStream errorStream = process.getErrorStream();
 

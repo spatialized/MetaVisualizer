@@ -2,8 +2,8 @@ package multimediaLocator;
 import processing.core.PVector;
 
 /*****************************
- *  @author davidgordon
  *  Waypoint in virtual path navigable by viewer
+ *  @author davidgordon
  */
 
 public class WMV_Waypoint {

@@ -1,7 +1,7 @@
 package multimediaLocator;
 
 /**
- * Media type-specific parameters of a panorama in a field
+ * State of a panorama in a field
  * @author davidgordon
  *
  */

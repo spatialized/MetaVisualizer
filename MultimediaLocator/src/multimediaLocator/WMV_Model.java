@@ -7,8 +7,8 @@ import com.apporiented.algorithm.clustering.*;
 import processing.core.PVector;
 
 /******************
+ * Spatiotemporal model of a field
  * @author davidgordon
- * Spatiotemporal model of a 3D virtual environment
  */
 
 public class WMV_Model

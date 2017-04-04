@@ -13,7 +13,7 @@ import processing.data.IntList;
 
 /**************************************************
  * @author davidgordon
- * A rectangular video in 3D virtual space
+ * State of a video in a field
  */
 
 class WMV_Video extends WMV_Media          		// Represents a video in virtual space
@@ -51,7 +51,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		video = newVideo;
 		setLength( video.duration() );				// Set video length (in seconds)
 		video.dispose();
-		
 	}  
 
 	/**
@@ -1151,9 +1150,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		return metadata;
 	}
 	
+	/**
+	 * @return Save video state for exporting
+	 */
 	 public void captureState()
 	 {
-//		 setMediaMetadata();
 		 state.setMediaState( getMediaState(), metadata );
 	 }
 	 

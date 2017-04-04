@@ -4,7 +4,7 @@ import java.time.ZonedDateTime;
 import processing.core.PVector;
 
 /**
- * General state parameters of a media object of any type in a field
+ * State parameters applicable to any media object type 
  * @author davidgordon
  *
  */
@@ -16,8 +16,10 @@ public class WMV_MediaState
 	public boolean disabled = false;			// Disabled due to errors or user and will not be drawn
 	public boolean hidden = false;				// Hidden from view											-- Needed?
 	public boolean requested = false;			// Indicates a recent request to load media from disk
+	public boolean showMetadata = false;		// Show metadata
 
-	/* General */
+	/* Metadata */
+	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
 	public int id;
 	public int mediaType;							/* Media Types  0: image 1: panorama 2: video 3: sound */
 	public String name = "";
@@ -38,9 +40,6 @@ public class WMV_MediaState
 	public boolean beginFadingObjectDistance = false;			// Fading distance of object in image?
 	public final float defaultAltitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
 
-	/* Metadata */
-	public boolean showMetadata = false;		// Show metadata
-	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
 	
 	/* Graphics */
 	public float aspectRatio = 0.666f;	// Aspect ratio of image or texture

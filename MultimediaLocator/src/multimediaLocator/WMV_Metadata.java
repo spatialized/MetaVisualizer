@@ -29,8 +29,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**************
+ * Class for extracting metadata and adding media to field 
  * @author davidgordon
- * Class for extracting metadata and add 3D media to field 
+ * 
  */
 class WMV_Metadata
 {

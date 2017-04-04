@@ -7,8 +7,8 @@ import processing.core.PApplet;
 import processing.core.PVector;
 
 /*********************************************
+ * Spatial cluster of media files representing a virtual point of interest
  * @author davidgordon
- * A spatial cluster of media files representing a virtual point of interest
  */
 public class WMV_Cluster 
 {

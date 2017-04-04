@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import processing.core.PVector;
 
 /**
- * Rectangular image metadata
+ * Metadata for a rectangular image
  * @author davidgordon
  *
  */

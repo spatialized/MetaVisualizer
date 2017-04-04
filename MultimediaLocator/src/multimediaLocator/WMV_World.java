@@ -19,8 +19,8 @@ import toxi.math.ScaleMap;
 import toxi.math.ZoomLensInterpolation;
 
 /********************************************
+ * Virtual world comprised of a viewer and one or more multimedia fields
  * @author davidgordon
- * The virtual world comprised of a viewer and one or more navigable multimedia environments
  */
 
 public class WMV_World 

@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import processing.core.PVector;
 
 /**
- * Metadata fields applicable to all media types
+ * Metadata fields applicable to every media type 
  * @author davidgordon
  *
  */

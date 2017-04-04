@@ -3,8 +3,8 @@ package multimediaLocator;
 import processing.core.PVector;
 
 /**
- * Type-specific parameters of a video in a field
  * @author davidgordon
+ * Type-specific parameters of a video in a field
  *
  */
 public class WMV_VideoState
@@ -25,17 +25,15 @@ public class WMV_VideoState
 	public float brightness;
 	public float length;
 	
-	/* Playback */
+	/* Time */
 	public boolean loaded = false;
 	public boolean playing = false;
-	public boolean soundFadedIn = false, soundFadedOut = false;
+	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
+	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 	
 	/* Model*/
 	public PVector disp = new PVector(0, 0, 0);    	// Displacement from capture location
-	
-	/* Time */
-	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
-	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
+	public boolean thinningVisibility = false;
 
 	/* Graphics */
 	PVector[] vertices, sVertices;
@@ -50,8 +48,6 @@ public class WMV_VideoState
 	public float fadingFocusDistanceStart = 0.f, fadingFocusDistanceTarget = 0.f;
 	public float fadingFocusDistanceLength = 30.f;
 
-	public boolean thinningVisibility = false;
- 	
 	/* Sound */
 	public float volume = 0.f;						// Video volume between 0. and 1.
 	public boolean fadingVolume = false;
@@ -59,6 +55,7 @@ public class WMV_VideoState
 	public float volumeFadingStartVal = 0.f, volumeFadingTarget = 0.f;
 	public final int volumeFadingLength = 60;	// Fade volume over 30 frames
 	public boolean pauseAfterSoundFades = false;
+	public boolean soundFadedIn = false, soundFadedOut = false;
 	
 	/* Navigation */
 	public boolean isClose = false;				// Is the viewer in visible range?

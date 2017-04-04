@@ -7,8 +7,8 @@ import java.util.Objects;
 import processing.core.PVector;
 
 /******************************************
- * @author davidgordon
  * Date a group of media files were captured
+ * @author davidgordon
  */
 public class WMV_Date implements Comparable<WMV_Date>
 {

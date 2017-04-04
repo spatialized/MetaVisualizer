@@ -25,8 +25,8 @@ import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
 
 /***********************************
- * @author davidgordon
  * Methods for displaying interactive 2D maps of 3D environments
+ * @author davidgordon
  */
 public class ML_Map 
 {

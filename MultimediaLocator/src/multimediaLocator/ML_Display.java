@@ -4,8 +4,8 @@ import g4p_controls.GButton;
 import processing.core.*;
 
 /***********************************
+ * Class for displaying 2D text / graphics
  * @author davidgordon
- * Methods for displaying 2D text / graphics
  */
 
 class ML_Display

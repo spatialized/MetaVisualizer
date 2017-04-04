@@ -1,11 +1,12 @@
 package multimediaLocator;
 
-
 import java.io.*;
 
 /**
-* Based on package com.devdaily.system;  
-*/
+ * Thread object used by WMV_Command
+ * @author davidgordon
+ * Based on package com.devdaily.system;  
+ */
 class WMV_Thread extends Thread
 {
   InputStream inputStream;
@@ -27,12 +28,8 @@ class WMV_Thread extends Thread
   
   public void run()
   {
-    // on mac os x 10.5.x, when i run a 'sudo' command, i need to write
-    // the admin password out immediately; that's why this code is
-    // here.
     if (sudoIsRequested)
     {
-      //doSleep(500);
       printWriter.println(adminPassword);
       printWriter.flush();
     }
@@ -70,21 +67,21 @@ class WMV_Thread extends Thread
     }
   }
   
-  private void doSleep(long millis)
-  {
-    try
-    {
-      Thread.sleep(millis);
-    }
-    catch (InterruptedException e)
-    {
-      // ignore
-    }
-  }
   
   public StringBuilder getOutputBuffer()
   {
     return outputBuffer;
   }
 
+//  private void doSleep(long millis)
+//  {
+//    try
+//    {
+//      Thread.sleep(millis);
+//    }
+//    catch (InterruptedException e)
+//    {
+//      // ignore
+//    }
+//  }
 }

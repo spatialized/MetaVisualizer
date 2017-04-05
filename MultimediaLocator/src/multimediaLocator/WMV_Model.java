@@ -36,11 +36,15 @@ public class WMV_Model
 						WMV_ViewerState currentViewerState )
 	{
 		worldSettings = currentWorldSettings;	// Update world settings
-		worldState = currentWorldState;	// Update world settings
+		worldState = currentWorldState;			// Update world settings
 		viewerSettings = currentViewerSettings;	// Update viewer settings
 		viewerState = currentViewerState;		// Update viewer state
 	}
 
+	/**
+	 * Find duplicate media in clusters
+	 * @param clusters
+	 */
 	void findDuplicateClusterMedia(ArrayList<WMV_Cluster> clusters)
 	{
 		List<Integer> images = new ArrayList<Integer>();
@@ -309,15 +313,15 @@ public class WMV_Model
 
 		 if (debugSettings.metadata) 							// Display results for debugging
 		 {
-			 System.out.println("High Image Time:" + state.highImageTime);
-			 System.out.println("High Image Date:" + state.highImageDate);
-			 System.out.println("High Panorama Time:" + state.highPanoTime);
-			 System.out.println("High Panorama Date:" + state.highPanoDate);
-			 System.out.println("High Video Time:" + state.highVideoTime);
-			 System.out.println("High Video Date:" + state.highVideoDate);
-			 System.out.println("Longest Image Day Length:" + longestImageDayLength);
-			 System.out.println("Longest Panorama Day Length:" + state.longestPanoDayLength);
-			 System.out.println("Longest Video Day Length:" + state.longestVideoDayLength);
+			 if(state.highImageTime != -1000000.f) System.out.println("High Image Time:" + state.highImageTime);
+			 if(state.highImageDate != -1000000.f) System.out.println("High Image Date:" + state.highImageDate);
+			 if(state.highPanoTime != -1000000.f) System.out.println("High Panorama Time:" + state.highPanoTime);
+			 if(state.highPanoDate != -1000000.f) System.out.println("High Panorama Date:" + state.highPanoDate);
+			 if(state.highVideoTime != -1000000.f) System.out.println("High Video Time:" + state.highVideoTime);
+			 if(state.highVideoDate != -1000000.f) System.out.println("High Video Date:" + state.highVideoDate);
+			 if(state.longestImageDayLength != -1000000.f) System.out.println("Longest Image Day Length:" + longestImageDayLength);
+			 if(state.longestPanoDayLength != -1000000.f) System.out.println("Longest Panorama Day Length:" + state.longestPanoDayLength);
+			 if(state.longestVideoDayLength != -1000000.f) System.out.println("Longest Video Day Length:" + state.longestVideoDayLength);
 		 }
 	 }
 
@@ -329,9 +333,7 @@ public class WMV_Model
 	 {
 		 PVector result = new PVector(0, 0, 0);
 		 for (PVector p : points) 
-		 {
 			 result.add(p);
-		 }
 
 		 result.div(points.size());
 		 return result;

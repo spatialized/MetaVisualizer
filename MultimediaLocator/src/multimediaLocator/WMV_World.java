@@ -621,7 +621,6 @@ public class WMV_World
 	{
 		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
 
-//		for(int i : viewer.getNearClusters(-1, defaultFocusDistance))
 		for(int i : viewer.getNearClusters(-1, settings.maxClusterDistance))
 		{
 			WMV_Cluster c = getCurrentField().getCluster(i);

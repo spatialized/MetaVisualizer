@@ -32,17 +32,17 @@ public class WMV_ModelState
 	public float mediaDensity;								// Number of images as a function of field area
 
 	/* Metadata */
-	public float highLongitude = -1000000, lowLongitude = 1000000, highLatitude = -1000000, lowLatitude = 1000000,
-			highAltitude = -1000000, lowAltitude = 1000000;
-	public float highTime = -1000000, lowTime = 1000000;
-	public float highDate = -1000000, lowDate = 1000000;
-	public float highImageTime = -1000000, lowImageTime = 1000000;
-	public float highImageDate = -1000000, lowImageDate = 1000000;
-	public float highPanoTime = -1000000, lowPanoTime = 1000000;
-	public float highPanoDate = -1000000, lowPanoDate = 1000000;
-	public float highVideoTime = -1000000, lowVideoTime = 1000000;
-	public float highVideoDate = -1000000, lowVideoDate = 1000000;
-	public float longestImageDayLength = -1000000, longestPanoDayLength = -1000000, longestVideoDayLength = -1000000;	
+	public float highLongitude = -1000000.f, lowLongitude = 1000000, highLatitude = -1000000.f, lowLatitude = 1000000,
+			highAltitude = -1000000.f, lowAltitude = 1000000;
+	public float highTime = -1000000.f, lowTime = 1000000;
+	public float highDate = -1000000.f, lowDate = 1000000;
+	public float highImageTime = -1000000.f, lowImageTime = 1000000;
+	public float highImageDate = -1000000.f, lowImageDate = 1000000;
+	public float highPanoTime = -1000000.f, lowPanoTime = 1000000;
+	public float highPanoDate = -1000000.f, lowPanoDate = 1000000;
+	public float highVideoTime = -1000000.f, lowVideoTime = 1000000;
+	public float highVideoDate = -1000000.f, lowVideoDate = 1000000;
+	public float longestImageDayLength = -1000000.f, longestPanoDayLength = -1000000.f, longestVideoDayLength = -1000000.f;	
 
 	/* Time */
 	public int minFrameRate = 15;

@@ -636,10 +636,13 @@ public class WMV_Viewer
 				
 				if(settings.teleportToFarClusters && !teleport)
 				{
-					if( PVector.dist(currentField.getCluster(clusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
-						teleportToCluster(clusterID, fade, fieldTimeSegment);
-					else
-						setAttractorCluster(clusterID);
+					if(clusterID < currentField.getClusters().size())
+					{
+						if( PVector.dist(currentField.getCluster(clusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
+							teleportToCluster(clusterID, fade, fieldTimeSegment);
+						else
+							setAttractorCluster(clusterID);
+					} else System.out.println("moveToTimeSegmentInField()... Error! clusterID >= currentField.getClusters().size()! clusterID:"+clusterID+" currentField cluster count:"+currentField.getClusters().size());
 				}
 				else
 				{

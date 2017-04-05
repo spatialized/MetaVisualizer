@@ -6,7 +6,7 @@ import java.util.List;
 import com.apporiented.algorithm.clustering.*;
 import processing.core.PVector;
 
-/******************
+/******************************************
  * Spatiotemporal model of a field
  * @author davidgordon
  */

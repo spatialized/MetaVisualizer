@@ -7,7 +7,7 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 /**********************************************
- * 360-degree panorama in virtual multimedia environment
+ * 360-degree panorama in a virtual multimedia environment
  * @author davidgordon
  */
 public class WMV_Panorama extends WMV_Media 
@@ -47,7 +47,7 @@ public class WMV_Panorama extends WMV_Media
 		else
 			time = null;
 
-		state.phi = newElevation;              									// Elevation (Pitch angle) for stitched panoramas  	
+		state.phi = newElevation;              		// Elevation (Pitch angle) for stitched panoramas  	
 		state.radius = state.defaultFocusDistance * state.initFocusDistanceFactor;
 		state.origRadius = state.radius;
 	}  

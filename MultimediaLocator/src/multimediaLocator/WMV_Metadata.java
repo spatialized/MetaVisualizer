@@ -104,6 +104,7 @@ class WMV_Metadata
 				
 				WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
 									newViewerState, newWorldSettings, newWorldState );
+				
 				return newSimulationState;
 			}
 			else

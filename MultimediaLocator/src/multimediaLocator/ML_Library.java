@@ -120,7 +120,7 @@ public class ML_Library
 
 	public void saveFieldState(WMV_Field f, String newFilePath)
 	{
-		f.captureFieldState();
+		f.captureState();
 		WMV_FieldState fState = f.getState();
 		
 		final ObjectMapper mapper = JsonFactory.create();
@@ -212,6 +212,11 @@ public class ML_Library
 		return null;
 	}
 
+	/**
+	 * Load field state from given file path
+	 * @param newFilePath File path
+	 * @return Field state
+	 */
 	public WMV_FieldState loadFieldState(String newFilePath)		// Testing
 	{
 		String filePath = newFilePath;
@@ -228,7 +233,7 @@ public class ML_Library
 		}
 		catch (Throwable t)
 		{
-			System.out.println("loadViewerState Throwable t:"+t);
+			System.out.println("loadFieldState Throwable t:"+t);
 		}
 		return null;
 	}

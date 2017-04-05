@@ -12,8 +12,8 @@ import processing.core.PVector;
 import processing.data.IntList;
 
 /**************************************************
+ * Video in a virtual multimedia environment
  * @author davidgordon
- * State of a video in a field
  */
 
 class WMV_Video extends WMV_Media          		// Represents a video in virtual space

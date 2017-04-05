@@ -3,8 +3,6 @@ package multimediaLocator;
 import java.util.ArrayList;
 import java.util.Comparator;
 
-import processing.core.PApplet;
-
 /*********************************************
  * @author davidgordon
  * A time span of media objects

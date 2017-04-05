@@ -3,7 +3,7 @@ package multimediaLocator;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
+/******************************************
  * Current field state 
  * @author davidgordon
  *
@@ -16,6 +16,9 @@ public class WMV_FieldState
 	
 	/* Time */
 	public String timeZoneID = "America/Los_Angeles";					// Current time zone
+	public ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
+//	public ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
+	public ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
 
 	/* Data */
 	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
@@ -95,8 +98,16 @@ public class WMV_FieldState
 		videos = new ArrayList<WMV_VideoState>(); 				// All videos in this field
 	}
 	
-	public void setFieldData(ArrayList<WMV_ClusterState> newClusters, ArrayList<WMV_ImageState> newImages, ArrayList<WMV_PanoramaState> newPanoramas,
-			ArrayList<WMV_VideoState> newVideos)
+//	public void setTimeData( ArrayList<WMV_TimeSegment> newTimeline, ArrayList<ArrayList<WMV_TimeSegment>> newTimelines, 
+	public void setTimeData( ArrayList<WMV_TimeSegment> newTimeline, ArrayList<WMV_Date> newDateline )
+	{
+		timeline = newTimeline;
+//		timelines = newTimelines;
+		dateline = newDateline;
+	}
+	
+	public void setMediaData( ArrayList<WMV_ClusterState> newClusters, ArrayList<WMV_ImageState> newImages, ArrayList<WMV_PanoramaState> newPanoramas,
+							  ArrayList<WMV_VideoState> newVideos )
 	{
 		clusters = newClusters;
 		images = newImages;

@@ -146,7 +146,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			if( !state.fieldsInitialized )
 			{
 				if (!state.initializingFields) createFields();
-				else initializeNextField();
+				else initializeNextField();						// -- Modify this for loading multiple fields from saved state!
 			}
 			else finishInitialization();
 		}
@@ -247,7 +247,10 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
 			boolean success = loadSimulationState(f, library.getLibraryFolder());
-			if(!success) world.getState().hierarchical = f.initialize( library.getLibraryFolder(), -100000L);
+			if(success)
+				state.fieldsInitialized = true;			// Field initialized from saved state -- Modify for multiple field
+			else
+				world.getState().hierarchical = f.initialize( library.getLibraryFolder(), -100000L);
 			
 			world.setBlurMasks();			// Set blur masks
 		}
@@ -258,18 +261,24 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			state.fieldsInitialized = true;
 	}
 	
+	/**
+	 * Load simulation state from disk
+	 * @param f The field to initialize
+	 * @param libraryFolder Library folder
+	 * @return True if succeeded, false if failed
+	 */
 	private boolean loadSimulationState(WMV_Field f, String libraryFolder)
 	{
 		/* Load metadata from media associated with field */
-		WMV_SimulationState result = metadata.load(f, libraryFolder, true);
-		boolean success = (result != null);
-		if(success) System.out.println("Valid SimulationState loaded...");
+		WMV_SimulationState savedState = metadata.load(f, libraryFolder, true);
 		
-		/* If simulation state loaded from data, load simulation state */
-		if(success)						
-			success = world.loadSimulationState(result, f);
-
-		return success;
+		/* Attempt to load simulation state */
+		if(savedState != null)
+		{
+			System.out.println("Valid SimulationState loaded...");
+			return world.loadSimulationState(savedState, f);
+		}
+		else return false;
 	}
 	/**
 	 * Finish the world initialization process

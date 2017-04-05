@@ -5,7 +5,7 @@ package multimediaLocator;
  * @author davidgordon
  *
  */
-public class WMV_PanoramaState extends WMV_MediaState
+public class WMV_PanoramaState
 {
 	/* Classes */
 	public WMV_MediaState mState;

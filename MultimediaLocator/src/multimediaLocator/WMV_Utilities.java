@@ -35,7 +35,7 @@ public class WMV_Utilities
 	/**
 	 * Round to nearest <n> decimal places
 	 */
-	float round(float val, int n)
+	public float round(float val, int n)
 	{
 		val *= Math.pow(10.f, n);
 		val = Math.round(val);
@@ -44,9 +44,25 @@ public class WMV_Utilities
 	}
 	
 	/**
+	 * Map a value from given range to new range
+	 * @param val Value to map
+	 * @param min Initial range minimum
+	 * @param max Initial range maximum
+	 * @param min2 New range minimum
+	 * @param max2 New range maximum
+	 * @return
+	 */
+	public float mapValue(float val, float min, float max, float min2, float max2)
+	{
+	  float res;
+	  res = (((max2-min2)*(val-min))/(max-min)) + min2;
+	  return res;
+	}
+	
+	/**
 	 * Constrain float value between <min> and <max> by wrapping values around
 	 */
-	float constrainWrap(float value, float min, float max)
+	public float constrainWrap(float value, float min, float max)
 	{
 		if(value < min)
 			value += max;

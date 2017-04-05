@@ -52,6 +52,7 @@ public class WMV_Viewer
 	
 	WMV_Field currentField;
 	WMV_World p;
+	
 	public WMV_Viewer(WMV_World parent, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, ML_DebugSettings newDebugSettings)
 	{
 		p = parent;
@@ -127,7 +128,7 @@ public class WMV_Viewer
 		updateWalking();							/* Update walking */
 		updatePhysics();							/* Update physics */
 		
-		if(state.teleporting) updateTeleporting();		/* Update teleporting */
+		if(isTeleporting()) updateTeleporting();		/* Update teleporting */
 		updateMovement();							/* Update navigation */
 		if(state.turningX || state.turningY) updateTurning();	/* Update turning */
 
@@ -171,11 +172,17 @@ public class WMV_Viewer
 		if(settings.orientationMode) updateOrientationMode();
 	}
 	
+	/**
+	 * Send the 3D camera view to the screen
+	 */
 	public void draw()
 	{
-		camera.feed();						// Send the 3D camera view to the screen
+		camera.feed();						
 	}
 	
+	/**
+	 * Update Orientation Mode parameters
+	 */
 	private void updateOrientationMode()
 	{
 		state.clustersVisible = new ArrayList<Integer>();
@@ -425,7 +432,7 @@ public class WMV_Viewer
 	
 
 	/**
-	 * Move camera to the nearest cluster
+	 * Move camera to the last cluster
 	 * @param teleport  Whether to teleport (true) or move (false)
 	 */
 	void moveToLastCluster(boolean teleport) 
@@ -592,7 +599,7 @@ public class WMV_Viewer
 			}
 			else
 			{
-				if(state.teleporting) state.teleporting = false;
+				if(isTeleporting()) state.teleporting = false;
 				setAttractorCluster(state.currentCluster);
 			}
 		}
@@ -1115,9 +1122,7 @@ public class WMV_Viewer
 			state.turnYTarget = state.turnYStart + angle;
 			PVector turnInfo = getTurnInfo(state.turnYStart, state.turnYTarget, 0);
 			state.turnYDirection = turnInfo.x;
-//			state.turnYIncrement = turnIncrement;
 			state.turnYStartFrame = worldState.frameCount;
-//			state.turnYTargetFrame = state.turnYStartFrame + (int)turnInfo.z;
 			state.turningY = true;
 		}
 	}
@@ -1610,7 +1615,7 @@ public class WMV_Viewer
 
 		if(state.waiting)
 			state.waiting = false;
-		if(state.teleporting)
+		if(isTeleporting())
 			state.teleporting = false;
 		
 		currentField.clearAllAttractors();
@@ -1646,7 +1651,7 @@ public class WMV_Viewer
 			state.waiting = false;
 //		if(looking)
 //			looking = false;
-		if(state.teleporting)
+		if(isTeleporting())
 			state.teleporting = false;
 		
 		currentField.clearAllAttractors();
@@ -3950,11 +3955,25 @@ public class WMV_Viewer
 	 */
 	public boolean setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment, boolean updateTimelineSegment )
 	{
-//		if(currentField.getTimelines() != null)
-//			System.out.println("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(currentFieldDate).size()+" getLocation():"+getLocation());
-//		else
-//			System.out.println("currentField.getTimelines() == null!!!");
-			
+		if(currentField.getTimelines() != null)
+		{
+			if(currentField.getTimelines().size() > 0 && currentField.getTimelines().size() > state.currentFieldDate)
+			{
+				System.out.println("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).size()+" getLocation():"+getLocation());
+			}
+			else 
+			{
+				System.out.println("Error.. currentField.getTimelines().size() == "+currentField.getTimelines().size()+" but currentFieldDate == "+state.currentFieldDate+"...");
+				return false;
+			}
+
+		}
+		else
+		{
+			System.out.println("currentField.getTimelines() == null!!!");
+			return false;
+		}
+		
 		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimelinesSegment;
 		p.p.display.updateCurrentSelectableTime = true;
 

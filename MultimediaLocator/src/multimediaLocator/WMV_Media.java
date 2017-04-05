@@ -13,7 +13,7 @@ import toxi.math.InterpolateStrategy;
 import toxi.math.ScaleMap;
 
 /***************************************
- * Abstract media object viewable in 3D space
+ * A media object viewable in a virtual multimedia environment
  * @author davidgordon
  * 
  */

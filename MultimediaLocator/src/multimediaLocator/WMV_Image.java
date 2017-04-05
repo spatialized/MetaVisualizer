@@ -7,7 +7,7 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 /************************************
- * Rectangular image in 3D virtual space
+ * Rectangular image in a virtual multimedia environment
  * @author davidgordon
  * 
  */

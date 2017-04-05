@@ -3,8 +3,8 @@ package multimediaLocator;
 import processing.core.PVector;
 
 /**
+ * State of a video in a field
  * @author davidgordon
- * Type-specific parameters of a video in a field
  *
  */
 public class WMV_VideoState

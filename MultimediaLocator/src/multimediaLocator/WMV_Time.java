@@ -6,7 +6,6 @@ import java.util.Comparator;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 
-import processing.core.PApplet;
 import processing.core.PVector;
 
 /******************************************
@@ -175,26 +174,27 @@ public class WMV_Time implements Comparable<WMV_Time>
 		cSec = c.getSecond();
 
 		float cTime = cHour * 60 + cMin + cSec/60.f;
-		float time = PApplet.map(cTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
-
-//		int daysInMonth = 0, daysCount = 0;
-
-//		for (int i = 1; i < cMonth; i++) 				// Find number of days in prior months
-//		{
-//			daysInMonth = getDaysInMonth(i, cYear);		// Get days in month
-//			daysCount += daysInMonth;
-//		}
-
-		//		int startYear = 2013;							
-		//		int date = (year - startYear) * 365 + daysCount + day; 		
-//		float date = daysCount + cDay; 						// Days since Jan. 1st							//	 NOTE:	need to account for leap years!		
-
-		//		int endDate = 5000;																					
-//		date = PApplet.constrain(PApplet.map(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
+		float time = mapValue(cTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken	--Why 1439??		
 
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
 	}
 	
+	
+	/**
+	 * Map a value from given range to new range
+	 * @param val Value to map
+	 * @param min Initial range minimum
+	 * @param max Initial range maximum
+	 * @param min2 New range minimum
+	 * @param max2 New range maximum
+	 * @return
+	 */
+	public float mapValue(float val, float min, float max, float min2, float max2)
+	{
+	  float res;
+	  res = (((max2-min2)*(val-min))/(max-min)) + min2;
+	  return res;
+	}
 
 	/**
 	 * @return Day length associated with this time (unused)

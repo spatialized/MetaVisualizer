@@ -24,7 +24,6 @@ public class WMV_ModelState
 	public int clusterRefinement = 60;									// Number of iterations used to refine clusters
 	public int minClusterRefinement = 20, maxClusterRefinement = 300;	// Minimum and maximum values of clusterRefinement
 	public long clusteringRandomSeed = (long)0.f;
-//	public boolean clustersNeedUpdate = false;				// --NEED TO IMPLEMENT
 	
 	/* Media */
 	public int validImages, validPanoramas, validVideos;	// Number of valid images / number of valid videos

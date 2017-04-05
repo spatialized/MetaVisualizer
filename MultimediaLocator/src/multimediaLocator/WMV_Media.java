@@ -102,7 +102,7 @@ public abstract class WMV_Media
 	 */
 	void fadeBrightness(float target)
 	{
-		if(target != mState.fadingBrightness)			// Check if already at target
+		if(target != mState.fadingBrightness)			// Check if already at brightness target
 		{
 			mState.beginFading = true;
 			mState.fading = true;   
@@ -117,9 +117,7 @@ public abstract class WMV_Media
 				mState.isFadingOut = true;
 		}
 		else
-		{
 			mState.fading = false;
-		}
 	}
 
 	/**
@@ -144,7 +142,6 @@ public abstract class WMV_Media
 		float distance = PVector.dist(mState.captureLocation, camLoc);     
 		return distance;
 	}
-
 
 	/**
 	 * @return How far the image capture state.location is from a point
@@ -173,7 +170,7 @@ public abstract class WMV_Media
 		
 		int curTime = 0;
 		
-		switch(worldState.getTimeMode())
+		switch( worldState.getTimeMode() )
 		{
 			case 0:
 				curTime = c.getState().currentTime;						// Set image time from cluster
@@ -221,7 +218,7 @@ public abstract class WMV_Media
 				if(debugSettings.panorama && getMediaType() == 1)
 				{
 					System.out.println("Only one cluster time segment, full length:"+length);
-					System.out.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
+					System.out.println("-- time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
 				}
 
 				fadeInStart = 0;											// Frame media starts fading in
@@ -241,7 +238,7 @@ public abstract class WMV_Media
 
 				if(debugSettings.panorama && getMediaType() == 1)
 				{
-					System.out.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength);
+					System.out.println("Media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength);
 					System.out.println(" lower:"+lower+" upper:"+upper);
 					System.out.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 				}

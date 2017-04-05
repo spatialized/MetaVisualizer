@@ -436,7 +436,7 @@ public class WMV_Cluster
 						WMV_ViewerState currentViewerState )
 	{
 		worldSettings = currentWorldSettings;	// Update world settings
-		worldState = currentWorldState;	// Update world settings
+		worldState = currentWorldState;			// Update world settings
 		viewerSettings = currentViewerSettings;	// Update viewer settings
 		viewerState = currentViewerState;		// Update viewer state
 	}
@@ -730,10 +730,12 @@ public class WMV_Cluster
 	float getClusterDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
 		if(viewerState != null)
+		{
 			return PVector.dist(state.location, viewerState.getLocation());
+		}
 		else
 		{
-			System.out.println("getClusterDistance().. viewerState == NULL!!");
+			System.out.println("cluster id:"+getID()+" ... getClusterDistance().. viewerState == NULL!!");
 			return 0.f;
 		}
 	}

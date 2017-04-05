@@ -169,15 +169,6 @@ public class WMV_Viewer
 		}
 		
 		if(settings.orientationMode) updateOrientationMode();
-
-		/* Aim camera */
-//		if(state.movingToAttractor)
-//			camera.aim(attractorPoint.getLocation().x, attractorPoint.getLocation().y, attractorPoint.getLocation().z);
-//		if(state.movingToCluster)
-//		{
-//			GMV_Cluster c = p.getCurrentCluster();
-//			camera.aim(c.getLocation().x, c.getLocation().y, c.getLocation().z);
-//		}
 	}
 	
 	public void draw()

@@ -61,8 +61,6 @@ class WMV_Metadata
 	public boolean soundFilesFound = false;
 	private boolean dataFilesValidFormat = false, dataFolderValid = false;
 
-//	private final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-
 	int iCount = 0, pCount = 0, vCount = 0;							// Media count by type 
 	public File exifToolFile;										// File for ExifTool executable
 

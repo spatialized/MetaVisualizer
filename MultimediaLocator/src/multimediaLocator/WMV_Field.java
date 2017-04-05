@@ -947,8 +947,8 @@ public class WMV_Field
 			refineKMeansClusters(epsilon, refinement);	// Refine clusters over many iterations
 			createSingleClusters();						// Create clusters for single media points
 			
-			initializeClusters(worldState.mergeClusters);						// Initialize clusters (merge, etc.)
-			
+			initializeClusters(worldState.mergeClusters);	// Initialize clusters (merge, etc.)
+			setClusters( cleanupClusters() );				// Cleanup clusters
 			if(getClusters().size() > 0)					// Calculate capture times for each cluster
 				findVideoPlaceholders();
 		}

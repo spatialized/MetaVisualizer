@@ -13,42 +13,36 @@ public class WMV_FieldState
 	/* General */
 	public int id;						// Field ID
 	public String name;				// Field Name
-	
-	/* Time */
-	public String timeZoneID = "America/Los_Angeles";					// Current time zone
-	public ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
-//	public ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
-	public ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
 
+	/* Time */
+	public ArrayList<WMV_TimeSegment> timeline;						// List of time segments ordered by time from 0:00 to 24:00 as a single day
+	public ArrayList<WMV_Date> dateline;							// List of dates, whose indices correspond with timelines in timelines list
+	public String timeZoneID = "America/Los_Angeles";				// Current time zone
+//	public ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Time segment lists ordered by date
+	
 	/* Data */
-	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
-	public int indexPanoramaOffset, indexVideoOffset;		// Start of panoramas / videos in names and distances arrays
+	public ArrayList<WMV_ClusterState> clusters;			// Clusters for exporting/importing
+	public ArrayList<WMV_ImageState> images; 				// All images for exporting/importing
+	public ArrayList<WMV_PanoramaState> panoramas; 			// All panoramas for exporting/importing
+	public ArrayList<WMV_VideoState> videos; 				// All videos for exporting/importing
 
 	/* Clusters */
 	public int deepestLevel = -1;	
-	public int defaultClusterDepth = 8;						// How deep in the dendrogram to look for media?	-- Set based on deepestLevel?
-	public int minClusterDepth = 2;
-	public int clusterDepth = defaultClusterDepth;			// How deep in the dendrogram to look for media?
-	public List<Integer> clustersByDepth;						// Number of clusters at each dendrogram depth
-	
-	/* Hierarchical Clustering */
-	public boolean dendrogramCreated = false;				// Dendrogram has been created
+	public int defaultClusterDepth = 8;						// Default depth in dendrogram to look for media	-- Set based on deepestLevel?
+	public int minClusterDepth = 2;							// Minimum depth in dendrogram to look for media
+	public int clusterDepth = defaultClusterDepth;			// Current depth in dendrogram to look for media
+	public List<Integer> clustersByDepth;					// Number of clusters at each dendrogram depth
+	public boolean dendrogramCreated = false;				// Whether dendrogram has been created
 
-	/* Graphics */
+	/* Media */
 	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
 	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas and currently seen
 	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;
-	
-	/* -- Debug -- */	
-	public int disassociatedImages = 0;						// Images not associated with a cluster -- Still needed?
+	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
+	public int indexPanoramaOffset, indexVideoOffset;		// Start of panoramas / videos in names and distances arrays
+	public int disassociatedImages = 0;			// Images not associated with a cluster -- Obsolete?
 	public int disassociatedPanoramas = 0;
 	public int disassociatedVideos = 0;
-
-	/* Data */
-	public ArrayList<WMV_ClusterState> clusters;			// Clusters (spatial groupings) of media 
-	public ArrayList<WMV_ImageState> images; 				// All images in this field
-	public ArrayList<WMV_PanoramaState> panoramas; 			// All panoramas in this field
-	public ArrayList<WMV_VideoState> videos; 				// All videos in this field
 	
 	WMV_FieldState()
 	{

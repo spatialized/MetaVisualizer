@@ -322,11 +322,13 @@ public class WMV_World
 		if(!directory.exists()) directory.mkdir();			// Create directory if doesn't exist
 		
 		PApplet.println("Saving Simulation State to: "+folderPath);
+		
+		getCurrentField().captureState();
 		p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
 		p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
 		p.library.saveViewerSettings(viewer.getSettings(), folderPath+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), folderPath+"ml_library_viewerState.json");
-		p.library.saveFieldState(getCurrentField(), folderPath+"ml_library_fieldState.json");
+		p.library.saveFieldState(getCurrentField().getState(), folderPath+"ml_library_fieldState.json");
 	}
 
 	/**
@@ -384,7 +386,7 @@ public class WMV_World
 
 	public boolean loadFieldState(WMV_Field field)
 	{
-		return field.setState(p.library.loadFieldState(getDataFolder()+"ml_library_fieldState.json"));
+		return field.setState(p, p.library.loadFieldState(getDataFolder()+"ml_library_fieldState.json"));
 	}
 
 	public void loadSettings()

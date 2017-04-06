@@ -118,10 +118,16 @@ public class ML_Library
 		}
 	}
 
-	public void saveFieldState(WMV_Field f, String newFilePath)
+	public void saveFieldState(WMV_FieldState fState, String newFilePath)
 	{
-		f.captureState();
-		WMV_FieldState fState = f.getState();
+//		System.out.println("--> library.saveFieldState()");
+//		System.out.println("iState.getMediaState() == null? "+(fState.images.get(0).getMediaState() == null));
+//		System.out.println("iState.getMediaState().location == null? "+(fState.images.get(0).getMediaState().location == null));
+//		if(fState.images.get(0).getMediaState().location != null)
+//			System.out.println("  mState.location: "+fState.images.get(0).getMediaState().location);
+//		System.out.println("fState.images.get(0).getMediaState().name == null? "+(fState.images.get(0).getMediaState().name == null));
+//		if(fState.images.get(0).getMediaState().name != null)
+//			System.out.println("  mState.name: "+fState.images.get(0).getMediaState().name);
 		
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -131,7 +137,7 @@ public class ML_Library
 			mapper.writeValue(file, fState);    // Write staff object to file
 
 			WMV_FieldState newFieldState = mapper.readValue(file, WMV_FieldState.class);
-			puts("saveFieldData... Field states are equal", newFieldState.equals(f));      // Not working ??
+			puts("saveFieldData... Field states are equal", newFieldState.equals(fState));      // Not working ??
 		}
 		catch (Throwable t)
 		{
@@ -228,8 +234,18 @@ public class ML_Library
 			file = new File(filePath);
 //		    mapper.writeValue(file, state);    // Write staff object to file
 
-			WMV_FieldState newState = mapper.readValue(file, WMV_FieldState.class);
-			return newState;
+			WMV_FieldState fState = mapper.readValue(file, WMV_FieldState.class);
+			
+			System.out.println("--> library.loadFieldState()");
+			System.out.println("iState.getMediaState() == null? "+(fState.images.get(0).getMediaState() == null));
+			System.out.println("iState.getMediaState().location == null? "+(fState.images.get(0).getMediaState().location == null));
+			if(fState.images.get(0).getMediaState().location != null)
+				System.out.println("  mState.location: "+fState.images.get(0).getMediaState().location);
+			System.out.println("fState.images.get(0).getMediaState().name == null? "+(fState.images.get(0).getMediaState().name == null));
+			if(fState.images.get(0).getMediaState().name != null)
+				System.out.println("  mState.name: "+fState.images.get(0).getMediaState().name);
+			
+			return fState;
 		}
 		catch (Throwable t)
 		{

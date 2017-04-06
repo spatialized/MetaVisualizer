@@ -2326,7 +2326,7 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Capture the current field state for exporting to file
+	 * Capture current field state for exporting to file
 	 */
 	public void captureState()
 	{
@@ -2345,6 +2345,7 @@ public class WMV_Field
 		{
 			i.captureState();							// Save current image state for exporting
 			WMV_ImageState iState = i.getState();
+			iState.resetState();
 			if(iState != null)
 				imageStates.add(iState);
 		}
@@ -2352,6 +2353,7 @@ public class WMV_Field
 		{
 			n.captureState();
 			WMV_PanoramaState pState = n.getState();
+			pState.resetState();
 			if(pState != null)
 				panoramaStates.add(pState);
 		}
@@ -2359,6 +2361,7 @@ public class WMV_Field
 		{
 			v.captureState();
 			WMV_VideoState vState = v.getState();
+			vState.resetState();
 			if(vState != null)
 				videoStates.add(vState);
 		}
@@ -2379,12 +2382,16 @@ public class WMV_Field
 	/**
 	 * Set the current field state from file
 	 */
-	public boolean setState( WMV_FieldState newFieldState )
+	public boolean setState( MultimediaLocator ml, WMV_FieldState newFieldState )
 	{
 		try{
 			state = newFieldState;
-
-			System.out.println("Field setState()...");
+			
+//			System.out.println("Field setState()...");
+//			System.out.println(" before clusters.size():"+clusters.size());
+//			System.out.println(" before images.size():"+images.size());
+//			System.out.println(" before panoramas.size():"+panoramas.size());
+//			System.out.println(" before videos.size():"+videos.size());
 
 			ArrayList<WMV_ClusterState> clusterStates = newFieldState.clusters;
 			ArrayList<WMV_ImageState> imageStates = newFieldState.images; 				
@@ -2400,6 +2407,8 @@ public class WMV_Field
 			for(WMV_ImageState is : imageStates)
 			{
 				WMV_Image newImage = getImageFromImageState(is);
+				PImage emptyImage = ml.createImage(0,0,processing.core.PConstants.RGB);
+				newImage.setImage(emptyImage);
 				addImage(newImage);
 			}
 			for(WMV_PanoramaState ps : panoramaStates)
@@ -2430,13 +2439,13 @@ public class WMV_Field
 //			soundStates = new ArrayList<WMV_SoundState>(); 	
 			
 			timeline = newFieldState.timeline;
-//			timelines = newFieldState.timelines;
 			dateline = newFieldState.dateline;
+//			timelines = newFieldState.timelines;
 			
-			System.out.println("  timeline.size():"+timeline.size());
-			if(timeline.size()>0) System.out.println("    First time segment ftID:"+timeline.get(0).getFieldTimelineID());
-			System.out.println("  dateline.size():"+dateline.size());
-			if(dateline.size()>0) System.out.println("    First date month:"+dateline.get(0).getMonth());
+//			System.out.println("  timeline.size():"+timeline.size());
+//			if(timeline.size()>0) System.out.println("    First time segment ftID:"+timeline.get(0).getFieldTimelineID());
+//			System.out.println("  dateline.size():"+dateline.size());
+//			if(dateline.size()>0) System.out.println("    First date month:"+dateline.get(0).getMonth());
 
 			/* Perform checks */
 			boolean mediaLoaded = (clusters.size() > 0);
@@ -2597,12 +2606,7 @@ public class WMV_Field
 	
 	private WMV_Image getImageFromImageState(WMV_ImageState imageState)
 	{
-		if(imageState != null) 
-		{
-			if(imageState.getMetadata() == null) System.out.println("  imageState.getMetadata() == null");
-			if(imageState.mState == null) System.out.println("  imageState.mState == null");
-		}
-		WMV_Image newImage = new WMV_Image( imageState.mState.id, null, imageState.mState.mediaType, imageState.getMetadata());
+		WMV_Image newImage = new WMV_Image( imageState.getMediaState().id, null, imageState.getMediaState().mediaType, imageState.getMetadata());
 
 		newImage.setState( imageState );
 		return newImage;

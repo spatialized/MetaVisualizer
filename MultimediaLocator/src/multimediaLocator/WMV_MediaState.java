@@ -21,7 +21,7 @@ public class WMV_MediaState
 	/* Metadata */
 	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
 	public int id;
-	public int mediaType;							/* Media Types  0: image 1: panorama 2: video 3: sound */
+	public int mediaType;						// Media Types  0: image 1: panorama 2: video 3: sound 
 	public String name = "";
 	public String filePath = "";
 
@@ -37,9 +37,8 @@ public class WMV_MediaState
 	public PVector location;        			// Media location in simulation 
 	public int cluster = -1;				 	// Cluster it belongs to	
 	public boolean fadingFocusDistance = false;
-	public boolean beginFadingObjectDistance = false;			// Fading distance of object in image?
+	public boolean beginFadingObjectDistance = false;			// Whether fading distance of object in image
 	public final float defaultAltitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
-
 	
 	/* Graphics */
 	public float aspectRatio = 0.666f;	// Aspect ratio of image or texture
@@ -50,8 +49,8 @@ public class WMV_MediaState
 
 	/* Transparency */
 	public float viewingBrightness = 0;			// Final image brightness (or alpha in useAlphaFading mode) 
+	public float fadingBrightness;				// Media transparency due to fading in / out
 	public boolean isFadingIn = false, isFadingOut = false;
-	public float fadingBrightness;							// Media transparency due to fading in / out
 	public boolean beginFading = false, fading = false;		
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
 	public boolean fadedOut = false;			// Recently faded out
@@ -61,4 +60,38 @@ public class WMV_MediaState
 	public boolean selected = false;
 	
 	WMV_MediaState(){}
+	
+	public void resetState()
+	{
+		/* Status Modes */
+		visible = false;			
+		active = false;				
+		disabled = false;			
+		hidden = false;				
+		requested = false;			
+		showMetadata = false;		
+		
+		/* Time */
+		timeBrightness = 0.f;		
+		isCurrentMedia = false;
+
+		/* Model */
+		fadingFocusDistance = false;
+		beginFadingObjectDistance = false;		
+
+		/* Transparency */
+		viewingBrightness = 0.f;	
+		fadingBrightness = 0.f;	
+		
+		isFadingIn = false; isFadingOut = false;
+		beginFading = false;
+		fading = false;		
+		fadingStart = 0.f; fadingTarget = 0.f;
+		fadingStartFrame = 0.f; fadingEndFrame = 0.f; 
+		fadedOut = false;			
+		fadedIn = false;
+		
+		/* Interaction */
+		selected = false;
+	}
 }

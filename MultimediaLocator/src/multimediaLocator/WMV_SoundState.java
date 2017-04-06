@@ -27,4 +27,9 @@ public class WMV_SoundState
 		mState = newState;
 		metadata = newMetadata;
 	}
+	
+	public void resetStatusModes()
+	{
+		mState.resetState();
+	}
 }

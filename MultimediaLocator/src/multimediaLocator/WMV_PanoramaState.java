@@ -36,4 +36,9 @@ public class WMV_PanoramaState
 	{
 		return metadata;
 	}
+	
+	public void resetState()
+	{
+		mState.resetState();
+	}
 }

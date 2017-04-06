@@ -79,4 +79,9 @@ public class WMV_VideoState
 	{
 		return metadata;
 	}
+	
+	public void resetState()
+	{
+		mState.resetState();
+	}
 }

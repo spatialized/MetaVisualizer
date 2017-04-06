@@ -572,4 +572,10 @@ public class WMV_Panorama extends WMV_Media
 	 {
 		 return metadata.theta;
 	 }
+	 
+	 public void setTexture(PImage newTexture)
+	 {
+		 texture = newTexture;
+	 }
+
 }

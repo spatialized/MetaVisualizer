@@ -33,7 +33,7 @@ public class WMV_Field
 	private ML_DebugSettings debugSettings;		// Debug settings
 	private WMV_FieldState state;				// Field state
 	private WMV_Utilities utilities;			// Utility methods
-	private WMV_Model model;										// Dimensions and properties of current virtual space
+	private WMV_Model model;					// Dimensions of current virtual space
 
 	/* Time */
 	private ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
@@ -41,16 +41,16 @@ public class WMV_Field
 	private ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
 	
 	/* Data */
-	private ArrayList<WMV_Image> images; 					// All images in this field
-	private ArrayList<WMV_Panorama> panoramas; 				// All panoramas in this field
-	private ArrayList<WMV_Video> videos; 					// All videos in this field
-	private ArrayList<WMV_Sound> sounds; 					// All videos in this field
-	private ArrayList<WMV_Cluster> clusters;				// Clusters (spatial groupings) of media 
+	private ArrayList<WMV_Image> images; 				// All images in this field
+	private ArrayList<WMV_Panorama> panoramas; 			// All panoramas in this field
+	private ArrayList<WMV_Video> videos; 				// All videos in this field
+	private ArrayList<WMV_Sound> sounds; 				// All videos in this field
+	private ArrayList<WMV_Cluster> clusters;			// Clusters (spatial groupings) of media 
 
 	/* Hierarchical Clustering */
-	private Cluster dendrogramTop;							// Top cluster of the dendrogram
-	private String[] names;									// Media names
-	private double[][] distances;							// Media distances
+	private Cluster dendrogramTop;						// Top cluster of the dendrogram
+	private String[] names;								// Media names
+	private double[][] distances;						// Media distances
 
 	WMV_Field( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
 			   ML_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
@@ -239,7 +239,9 @@ public class WMV_Field
 				if ( v.isVisible() && !nowVisible )
 					v.fadeOut();
 				
-				v.updateTimeBrightness(clusters.get(v.getAssociatedCluster()), timeline, utilities);
+//				v.updateTimeBrightness(clusters.get(v.getAssociatedCluster()), timeline, utilities);
+				v.getMediaState().timeBrightness = 1.f;				// -- TESTING
+				
 				if (nowVisible || v.isFading())
 				{
 					if(v.getAssociatedCluster() > clusters.size())
@@ -2386,8 +2388,6 @@ public class WMV_Field
 	public boolean setState( MultimediaLocator ml, WMV_FieldState newFieldState )
 	{
 		boolean error = false;
-		System.out.println("------> field.setState()... ");
-
 		if(newFieldState != null && newFieldState.clusters != null && newFieldState.images != null 
 				&& newFieldState.panoramas != null && newFieldState.videos != null)
 		{

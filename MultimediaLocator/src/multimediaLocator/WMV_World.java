@@ -344,11 +344,13 @@ public class WMV_World
 		loadViewerSettings();
 		
 		/* Check world and viewer state/settings */
-		if(settings != null) System.out.println("WorldSettings exists...");
-		if(state != null) System.out.println("WorldState exists...");
-		if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
-		if(viewer.getState() != null) System.out.println("ViewerState exists...");
-		
+		if(p.debugSettings.main && p.debugSettings.detailed)
+		{
+			if(settings != null) System.out.println("WorldSettings exists...");
+			if(state != null) System.out.println("WorldState exists...");
+			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
+			if(viewer.getState() != null) System.out.println("ViewerState exists...");
+		}
 		String fieldName = curField.getName();
 		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
 		WMV_Field newField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, "", 0);
@@ -357,29 +359,8 @@ public class WMV_World
 		fields.add(newField);
 		
 		boolean success = loadFieldState(fields.get(0));
-		if(success) System.out.println("FieldState exists...");
-
-//		/* Classes */
-//		private WMV_WorldSettings worldSettings;	// World settings
-//		private WMV_WorldState worldState;			// World state
-//		private WMV_ViewerSettings viewerSettings;	// Viewer settings
-//		private WMV_ViewerState viewerState;		// Viewer state
-//		private ML_DebugSettings debugSettings;		// Debug settings
-//		private WMV_FieldState state;				// Field state
-//		private WMV_Utilities utilities;			// Utility methods
-//		private WMV_Model model;										// Dimensions and properties of current virtual space
-//
-//		/* Time */
-//		private ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
-//		private ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
-//		private ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
-//		
-//		/* Data */
-//		private ArrayList<WMV_Image> images; 					// All images in this field
-//		private ArrayList<WMV_Panorama> panoramas; 				// All panoramas in this field
-//		private ArrayList<WMV_Video> videos; 					// All videos in this field
-//		private ArrayList<WMV_Sound> sounds; 					// All videos in this field
-//		private ArrayList<WMV_Cluster> clusters;				// Clusters (spatial groupings) of media 
+		if(p.debugSettings.main && p.debugSettings.detailed)
+			if(success) System.out.println("FieldState exists...");
 
 		return success;
 	}
@@ -417,7 +398,6 @@ public class WMV_World
 		if(system)
 		{
 			p.state.initializationField = 0;				// Field to be initialized this frame
-//			p.state.setupProgress = 0;						// Setup progress (0 to 100)
 			p.state.startedRunning = false;			// Program just started running
 			p.state.initialSetup = false;			// Performing initial setup 
 			p.state.initializingFields = false;			// Initializing media folders

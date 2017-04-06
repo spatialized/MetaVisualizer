@@ -886,6 +886,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				images.get(closestIdx).associateVideo(getID());
 			}
 		}
+		else
+		{
+			setDisabled(true);
+		}
 		
 		if(!state.hasImagePlaceholder)
 		{

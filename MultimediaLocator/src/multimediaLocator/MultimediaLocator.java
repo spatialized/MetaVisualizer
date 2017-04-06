@@ -291,16 +291,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	void finishInitialization()
 	{
-		if(debugSettings.main) System.out.println("Finishing MultimediaLocator initialization..");
+		if(debugSettings.main && debugSettings.detailed) System.out.println("Finishing MultimediaLocator initialization..");
 
 		display.initializeWindows(world);
 		display.window.setupWMVWindow();
 		
-		if(debugSettings.main) System.out.println("Finished setting up WMV Window...");
+		if(debugSettings.main && debugSettings.detailed) System.out.println("Finished setting up WMV Window...");
 		
 		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
 
-		if(debugSettings.main) System.out.println("Finished setting initial media settings...");
+		if(debugSettings.main && debugSettings.detailed) System.out.println("Finished setting initial media settings...");
 
 		state.initialSetup = false;				
 		display.initialSetup = false;

@@ -319,7 +319,7 @@ class WMV_Metadata
 		dataFolderFound = (dataFolderFile.exists() && dataFolderFile.isDirectory());	
 		dataFiles = null;
 
-		System.out.println("dataFolderFound? " + (dataFolderFound)); 
+//		System.out.println("dataFolderFound? " + (dataFolderFound)); 
 //		System.out.println("dataFolderFile.isDirectory()? " + (dataFolderFile.isDirectory())); 
 //		System.out.println("dataFolderFile.exists()? " + (dataFolderFile.exists())); 
 //		System.out.println("dataFiles != null? " + (dataFiles != null)); 

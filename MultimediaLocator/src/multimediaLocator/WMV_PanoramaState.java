@@ -32,6 +32,11 @@ public class WMV_PanoramaState
 		metadata = newMetadata;
 	}
 	
+	public WMV_MediaState getMediaState()
+	{
+		return mState;
+	}
+	
 	public WMV_PanoramaMetadata getMetadata()
 	{
 		return metadata;

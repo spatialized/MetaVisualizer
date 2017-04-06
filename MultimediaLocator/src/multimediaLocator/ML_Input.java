@@ -351,7 +351,7 @@ public class ML_Input
 				world.getState().timeFading = option.isSelected();
 				break;
 			case "FadeEdges":
-				world.getState().fadeEdges = option.isSelected();
+				world.getState().useBlurMasks = option.isSelected();
 				break;
 			case "HideImages":
 				if(!option.isSelected() && world.viewer.getSettings().hideImages)
@@ -955,8 +955,8 @@ public class ML_Input
 
 					if (optionKey && key == 'e')
 					{
-						boolean state = !ml.world.getState().fadeEdges;
-						ml.world.getState().fadeEdges = state;
+						boolean state = !ml.world.getState().useBlurMasks;
+						ml.world.getState().useBlurMasks = state;
 						if(ml.display.window.setupGraphicsWindow)
 						{
 							ml.display.window.chkbxFadeEdges.setSelected(state);

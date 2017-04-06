@@ -328,11 +328,6 @@ class WMV_Metadata
 			dataFiles = dataFolderFile.listFiles();
 			if(dataFiles != null && dataFiles.length > 0)
 			{
-				System.out.println("dataFiles[0].getName(): " + (dataFiles[0].getName())); 
-				System.out.println("dataFiles[1].getName(): " + (dataFiles[1].getName())); 
-				System.out.println("dataFiles[2].getName(): " + (dataFiles[2].getName())); 
-				System.out.println("dataFiles[3].getName(): " + (dataFiles[3].getName())); 
-				System.out.println("dataFiles[4].getName(): " + (dataFiles[4].getName())); 
 				if( dataFiles[0].getName().equals("ml_library_fieldState.json") &&
 					dataFiles[1].getName().equals("ml_library_viewerSettings.json") &&
 					dataFiles[2].getName().equals("ml_library_viewerState.json") &&
@@ -344,8 +339,7 @@ class WMV_Metadata
 		
 		if (debugSettings.data)
 		{
-			System.out.println("Data Folder:" + dataFolder); 
-			System.out.println("dataFilesValidFormat? "+dataFilesValidFormat);
+			System.out.println("Data Folder:" + dataFolder + " Data Files Valid Format: "+dataFilesValidFormat);
 		}
 	}
 	
@@ -373,7 +367,8 @@ class WMV_Metadata
 				{
 					try
 					{
-						System.out.println("Loading sound:"+sFilePath);
+						if(debugSettings.sound || debugSettings.metadata)
+							System.out.println("Loading sound:"+sFilePath);
 
 						BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 						FileTime creationTime = attr.creationTime();
@@ -965,11 +960,6 @@ class WMV_Metadata
 				if(!(gpsLoc.x == 0.f && gpsLoc.y == 0.f && gpsLoc.z == 0.f ) && hasVideo && !dataMissing)
 				{
 					Movie pMov = new Movie(p, sFilePath);
-
-//					WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-//					WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-//					WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(-1, -1, -1, -1, -1, -1, iWidth, iHeight, 
-//							fBrightness, keywords);
 
 					WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID(), 
 							-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords);

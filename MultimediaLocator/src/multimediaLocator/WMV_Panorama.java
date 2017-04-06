@@ -483,6 +483,7 @@ public class WMV_Panorama extends WMV_Media
 	public void setState(WMV_PanoramaState newState)
 	{
 		state = newState;
+		setMediaState( state.getMediaState() );
 	}
 	
 	public WMV_PanoramaState getState()

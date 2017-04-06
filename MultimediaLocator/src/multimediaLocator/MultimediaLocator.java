@@ -174,6 +174,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			display.sendSetupMessage(world, " ");
 		}
 		
+		/* Check if data folder exists */
+//		String fieldPath = world.getField(0).getName();
+//		String dataFolder = library + fieldPath + "/data/";		// Max width 720 pixels  -- Check this!
+//		File dataFolderFile = new File(dataFolder);
+//		display.dataFolderFound = (dataFolderFile.exists() && dataFolderFile.isDirectory());
+		
 		display.sendSetupMessage(world, "Starting MultimediaLocator v0.9...");	// Show startup message
 		display.display(world);											
 

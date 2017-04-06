@@ -75,6 +75,11 @@ public class WMV_VideoState
 		metadata = newMetadata;
 	}
 	
+	public WMV_MediaState getMediaState()
+	{
+		return mState;
+	}
+	
 	public WMV_VideoMetadata getMetadata()
 	{
 		return metadata;

@@ -237,7 +237,7 @@ public class WMV_World
 	void setSingleTimeModeCurrentMedia(int timelineIndex)
 	{
 		viewer.setCurrentMedia( timelineIndex );
-		
+		// marijuana
 		if(viewer.getNearbyClusterTimeline().size() > 0)
 		{
 			WMV_Time time = viewer.getNearbyTimeByIndex(timelineIndex);
@@ -450,7 +450,7 @@ public class WMV_World
 		state.fadingAlphaEndFrame = 0; 
 		state.fadingAlphaLength = 20;	
 
-		state.fadeEdges = true;						// Blur image edges
+		state.useBlurMasks = true;						// Blur image edges
 		drawForceVector = true;						// Show attraction vector on map (mostly for debugging)
 		
 		/* Video */
@@ -805,12 +805,11 @@ public class WMV_World
 		{
 			settings.timeCycleLength = settings.defaultTimeCycleLength;
 		}
-		else if(state.timeMode == 2)
+		else if(state.timeMode == 2)		/* Time cycle length is flexible according to visible cluster media lengths */
 		{
 			ArrayList<WMV_Cluster> cl = getVisibleClusters();
 			settings.timeCycleLength = 0;
 			
-			/* Time cycle length is flexible according to visible cluster media lengths */
 			for(WMV_Cluster c : cl)
 			{
 				settings.timeCycleLength += c.getImages( getCurrentField().getImages() ).size() * settings.defaultMediaLength;
@@ -822,9 +821,16 @@ public class WMV_World
 			}
 			
 			if(cl.size() == 1)
-				viewer.setNearbyClusterTimeline(cl.get(0).getTimeline());
+			{
+				if(cl.get(0).getTimeline().size() > 0)
+					viewer.setNearbyClusterTimeline(cl.get(0).getTimeline());
+				else
+					System.out.println("CreateTimeCycle Error... Cluster #"+cl.get(0).getID()+"  getTimeline().size() == 0!");
+			}
 			else if(cl.size() > 1)
+			{
 				viewer.createNearbyClusterTimeline(cl);
+			}
 				
 			if(cl.size() == 0)
 				settings.timeCycleLength = -1;				// Flag for Viewer to keep calling this method until clusters are visible

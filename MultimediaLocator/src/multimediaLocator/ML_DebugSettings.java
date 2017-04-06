@@ -15,7 +15,7 @@ public class ML_DebugSettings
 	/* Data */
 	public boolean main = true;				// Debug WorldMediaViewer class
 	public boolean data = false;				// Debug WorldMediaViewer class
-	public boolean metadata = true;			// Debug WMV_Metadata class
+	public boolean metadata = false;			// Debug WMV_Metadata class
 
 	/* Model */
 	public boolean time = false;				// Debug WMV_Time class
@@ -29,7 +29,7 @@ public class ML_DebugSettings
 	
 	/* Media */
 	public boolean media = false;			// Debug WMV_Viewable class
-	public boolean image = true;				// Debug WMV_Image class
+	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class

@@ -28,6 +28,7 @@ class ML_Display
 	
 	/* Setup */
 	public boolean initialSetup = true;
+	public boolean dataFolderFound = false;
 	GButton btnSelectLibrary;
 	
 	/* Graphics */
@@ -1790,7 +1791,12 @@ class ML_Display
 			if(!p.p.state.selectedLibrary)
 				p.p.text("Press any key to begin...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 			else
-				p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+			{
+				if(!dataFolderFound)
+					p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				else
+					p.p.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+			}
 			
 			p.p.textSize(largeTextSize * 1.2f);
 			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.1f, yPos += lineWidthVeryWide * 6.f, hudDistance);

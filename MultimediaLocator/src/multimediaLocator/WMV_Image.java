@@ -321,7 +321,7 @@ class WMV_Image extends WMV_Media
 		
 		ml.noFill();
 
-		if(getWorldState().fadeEdges)
+		if(getWorldState().useBlurMasks)
 			ml.texture(blurred);
 		else
 			ml.texture(image);        			// Apply the image to the face as a texture 
@@ -1123,30 +1123,8 @@ class WMV_Image extends WMV_Media
 
 	 public void setState(WMV_ImageState newState)
 	 {
-//		 System.out.println("  state.getMediaState().name: "+state.getMediaState().name);
-//		 System.out.println("  state.getMediaState().location == null? "+(state.getMediaState().location == null));
-//		 if(state.getMediaState().location != null)
-//			 System.out.println("  state.getMediaState().location: "+state.getMediaState().location);
-//		 
-//		 System.out.println("  newState.getMediaState().name: "+newState.getMediaState().name);
-//		 System.out.println("  newState.getMediaState().location == null? "+(newState.getMediaState().location == null));
-//		 if(newState.getMediaState().location != null)
-//			 System.out.println("  newState.location: "+newState.getMediaState().location);
-
 		 state = newState;
-//		 System.out.println("----> image #"+getID()+" Will setMediaState()...");
-//		 
-//		 System.out.println("Name: "+state.getMediaState().name);
-//		 System.out.println("BEFORE  state.getMediaState().location == null? "+(state.getMediaState().location == null));
-//		 if(state.getMediaState().location != null)
-//			 System.out.println("BEFORE  state.location: "+state.getMediaState().location);
-		 
 		 setMediaState( state.getMediaState() );
-		 
-//		 System.out.println("AFTER  getMediaState().name: "+getMediaState().name);
-//		 System.out.println("AFTER  getMediaState().location == null? "+(getMediaState().location == null));
-//		 if(getMediaState().location != null)
-//			 System.out.println("AFTER  getMediaState().location: "+getMediaState().location);
 	 }
 
 	 public WMV_ImageState getState()

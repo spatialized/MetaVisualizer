@@ -47,10 +47,14 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			time = new WMV_Time( metadata.dateTime, getID(), getClusterID(), 2, metadata.timeZone );		
 		else
 			time = null;
-		
-		video = newVideo;
-		setLength( video.duration() );				// Set video length (in seconds)
-		video.dispose();
+
+		if(newVideo != null)
+		{
+			setVideoLength(newVideo);
+//			video = newVideo;
+//			setLength( video.duration() );				// Set video length (in seconds)
+//			video.dispose();
+		}
 	}  
 
 	/**
@@ -1138,6 +1142,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 public void setState(WMV_VideoState newState)
 	 {
 		 state = newState;
+		 setMediaState( state.getMediaState() );
 	 }
 	 
 	public WMV_VideoState getState()
@@ -1276,5 +1281,17 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 public void setFocalLength(float newFocalLength)
 	 {
 		 metadata.focalLength = newFocalLength;
+	 }
+	 
+	 public void setFrame(PImage newFrame)
+	 {
+		 frame = newFrame;
+	 }
+	 
+	 public void setVideoLength(Movie newVideo)
+	 {
+		 video = newVideo;
+		 setLength( video.duration() );				// Set video length (in seconds)
+		 video.dispose();
 	 }
 }

@@ -238,6 +238,12 @@ public abstract class WMV_Media
 				fadeInEnd = Math.round(centerTime - length / 4.f);			// Frame media reaches full state.brightness
 				fadeOutStart = Math.round(centerTime + length / 4.f);		// Frame media starts fading out
 				fadeOutEnd = Math.round(centerTime + length / 2.f);			// Frame media finishes fading out
+				if(fadeOutEnd > cycleLength)
+				{
+//					if((debugSettings.video && getType() == 2) || debugSettings.media)
+//						System.out.println("Adjusting fade out end from:"+fadeOutEnd+" to :"+cycleLength);
+					fadeOutEnd = cycleLength;
+				}
 			}	
 
 			/* Debugging */
@@ -283,7 +289,9 @@ public abstract class WMV_Media
 				if(debugSettings.main)
 				{
 					System.out.println(">>> Error: fadeOutStart after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
-				}
+					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+					System.out.println("-----cluster:"+mState.cluster+" media type:"+getType());
+			}
 			}
 
 			if(fadeOutEnd > cycleLength)
@@ -292,6 +300,8 @@ public abstract class WMV_Media
 				if(debugSettings.main)
 				{
 					System.out.println(">>> Error: fadeOutEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength+" media type:"+getType());
+					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+					System.out.println("-----cluster:"+mState.cluster+" media type:"+getType());
 				}
 			}
 

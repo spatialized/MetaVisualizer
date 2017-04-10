@@ -397,7 +397,7 @@ public class WMV_Cluster
 
 		if(mediaTimes.size() > 0)
 		{
-			timeline = utilities.calculateTimeSegments(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
+			timeline = utilities.createTimeSegments(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
 			if(timeline != null)
 			{
 				if(timeline.size() > 0)

@@ -26,7 +26,8 @@ public class WMV_MediaState
 	public String filePath = "";
 
 	/* Time */
-	public float clusterDate, clusterTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
+	public float clusterLowDate, clusterLowTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
+	public float clusterHighDate, clusterHighTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
 	public boolean isCurrentMedia;
 	public ZonedDateTime dateTime;				// Media date and time
 	public String timeZone;						// Media time zone

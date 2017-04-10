@@ -70,7 +70,7 @@ public class WMV_World
 	 */
 	void initialize() 
 	{
-		if(p.debugSettings.main) System.out.println("Initializing WMV_World...");
+		if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Initializing WMV_World...");
 
 		/* Create main classes */
 		settings = new WMV_WorldSettings();
@@ -116,7 +116,7 @@ public class WMV_World
 			{
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
 				if(clusters.size()>0)
-					clusters.get(viewer.getState().getCurrentClusterID()).display(p);		// Draw current cluster
+					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(p);		// Draw current cluster
 			}
 
 		}

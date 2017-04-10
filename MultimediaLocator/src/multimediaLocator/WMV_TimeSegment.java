@@ -28,9 +28,11 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	private boolean hasVideo;
 	private boolean hasSound;
 	
+//	WMV_TimeSegment( int newClusterID, int newClusterTimelineID, int newClusterTimelinesID, int newClusterDateID, 
+//			 int newFieldTimelineID, int newFieldTimelinesID, int newFieldDateID,
+//			 WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower, ArrayList<WMV_Time> newTimeline )
 	WMV_TimeSegment( int newClusterID, int newClusterTimelineID, int newClusterTimelinesID, int newClusterDateID, 
-					 int newFieldTimelineID, int newFieldTimelinesID, int newFieldDateID,
-					 WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower, ArrayList<WMV_Time> newTimeline )
+			 int newFieldTimelineID, int newFieldTimelinesID, int newFieldDateID, ArrayList<WMV_Time> newTimeline )
 	{
 //		id = newID;
 		clusterID = newClusterID;
@@ -43,14 +45,32 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		fieldTimelineIDOnDate = newFieldTimelinesID;
 		fieldDateID = newFieldDateID;						
 		
-		center = newCenter;
-		upper = newUpper;
-		lower = newLower;
+//		center = newCenter;
+//		upper = newUpper;
+//		lower = newLower;
 		
 		timeline = newTimeline;
+		lower = timeline.get(0);
+		upper = timeline.get(timeline.size()-1);
+		calculateCenter();
 		analyzeMediaTypes();
 	}
 
+	private void calculateCenter()
+	{
+		if(upper.getTime() == lower.getTime())
+		{
+			center = upper;								// If upper and lower are same, set center to that value
+		}
+		else
+		{
+			int middle = timeline.size()/2;				// Find center
+			if (timeline.size()%2 == 1) 
+				center = timeline.get(middle);			// Median if even #
+			else
+				center = timeline.get(middle-1);			// Use lower of center pair if odd #
+		}
+	}
 	/**
 	 * Analyze media types in time segment
 	 */

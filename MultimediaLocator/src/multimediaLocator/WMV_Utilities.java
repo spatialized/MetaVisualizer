@@ -560,8 +560,8 @@ public class WMV_Utilities
 	 * @return Time segments
 	 */
 	ArrayList<WMV_TimeSegment> calculateTimeSegments(ArrayList<WMV_Time> mediaTimes, float timePrecision, int clusterID)				// -- clusterTimelineMinPoints!!								
-	
 	{
+		boolean finished = false;
 		mediaTimes.sort(WMV_Time.WMV_SimulationTimeComparator);			// Sort media by simulation time (normalized 0. to 1.)
 
 		if(mediaTimes.size() > 0)
@@ -575,102 +575,85 @@ public class WMV_Utilities
 			curUpper = mediaTimes.get(0);
 			last = mediaTimes.get(0);
 
-			for(WMV_Time t : mediaTimes)									// Multiple time segments for cluster
+			for(WMV_Time t : mediaTimes)									// Find time segments for cluster
 			{
 				if(t.getTime() != last.getTime())
 				{
-					if(t.getTime() - last.getTime() < timePrecision)		// If moved by less than precision amount since last time, extend segment 
+					if(t.getTime() - last.getTime() < timePrecision)		// If moved by less than precision amount, extend segment 
 					{
 						curUpper = t;										// Move curUpper to new value
 						last = t;
-//						PApplet.print("Extending segment...");
+
+//						System.out.println("Extending segment...");
+						if(count == mediaTimes.size() - 1)					// Reached end while extending segment
+						{
+//							System.out.println("---> Extending segment at end...");
+
+							ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+							for(int i=startCount; i<=count; i++)
+								tl.add(mediaTimes.get(i));
+							tl.sort(WMV_Time.WMV_SimulationTimeComparator);
+
+//							System.out.println("(0) Finishing time segment...");
+
+							segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));	// Add time segment
+//							segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));	// Add time segment
+							finished = true;
+						}
 					}
 					else
 					{
-						WMV_Time center;
-						if(count == startCount)
-						{
-							curLower = t;
-							curUpper = t;
-							center = t;
-						}
-						else
-						{
-							if(curUpper.getTime() == curLower.getTime())
-							{
-								center = curUpper;								// If upper and lower are same, set center to that value
-							}
-							else
-							{
-								int middle = (count-startCount)/2;				// Find center
-								if ((count-startCount)%2 == 1) 
-									center = mediaTimes.get(middle);			// Median if even #
-								else
-									center = mediaTimes.get(middle-1);			// Use lower of center pair if odd #
-							}
-						}
-						
-//						if(p.p.debug.time)
-//						{
-//							if(p.p.debug.detailed) System.out.println("Cluster #"+clusterID+"... Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-//
-//							if(curUpper.getTime() - curLower.getTime() > 0.001f)
-//							{
-//								System.out.println("---> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-//								System.out.println("t.getTime():"+t.getTime()+" last:"+last.getTime()+" t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
-//							}
-//						}
 						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
 						for(int i=startCount; i<=count; i++)
-						{
 							tl.add(mediaTimes.get(i));
-//							System.out.println("Added media time...");
-						}
+						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
 						
-						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));	// Add time segment
-						
-//						tsID++;
+//						System.out.println("(1) Finishing time segment...");
+						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));	// Add time segment
+//						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));	// Add time segment
+
 						curLower = t;
 						curUpper = t;
 						last = t;
 						startCount = count + 1;
 					}
 				}
-//				else 
-//					System.out.println("Same as last...");
+				else																// Same time as last
+				{
+					if(count == mediaTimes.size() - 1)								// Reached end
+					{
+//						System.out.println("--> Same as last at end...");
+
+						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
+						for(int i=startCount; i<=count; i++)
+							tl.add(mediaTimes.get(i));
+
+						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
+//						System.out.println("(2) Finishing time segment...");
+
+						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));	// Add time segment
+//						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));	// Add time segment
+						finished = true;
+					}
+				}
 				
 				count++;
-//				System.out.println("count:"+count);
 			}
 			
-			if(startCount == 0)									// Single time segment for cluster
+			if(startCount == 0 && !finished)									// Single time segment
 			{
-				WMV_Time center;
-				if(curUpper.getTime() == curLower.getTime())
-					center = curUpper;							// If upper and lower are same, set center to that value
-				else
-				{
-					int middle = (count-startCount)/2;			// Find center
-					if ((count-startCount)%2 == 1) 
-					    center = mediaTimes.get(middle);			// Median if even #
-					else
-					   center = mediaTimes.get(middle-1);			// Use lower of center pair if odd #
-				}
+//				System.out.println("--> Single time segment...");
 
-				ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
-				for(int i=0; i<mediaTimes.size(); i++)
-					tl.add(mediaTimes.get(i));
+				ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();				// Create timeline for segment
+				for(WMV_Time t : mediaTimes)
+					tl.add(t);
+				tl.sort(WMV_Time.WMV_SimulationTimeComparator);
 
 //				System.out.println("Finishing time segment... center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
 
-				if(curUpper.getTime() - curLower.getTime() > 0.001f)
-				{
-					System.out.println("-> Cluster #"+clusterID+" with long time segment: center:"+(center.getTime())+" curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
-//					System.out.println("t.getTime():"+t.getTime()+" last:"+last.getTime());
-//					System.out.println("t.getTime() - last.getTime():"+(t.getTime() - last.getTime()));
-				}
-				
-				segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));
+				System.out.println("(4) Finishing time segment...");
+				segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));
+//				segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, center, curUpper, curLower, tl));
 			}
 			
 			return segments;			// Return cluster list
@@ -693,7 +676,6 @@ public class WMV_Utilities
 	}
 	
 	/**
-	 * angleToCompass
 	 * @param radians (Yaw) angle in radians
 	 * @return Corresponding cmpass orientation
 	 */
@@ -733,7 +715,6 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * getSunsetTime()
 	 * @param c Calendar date
 	 * @return Sunset time between 0. and 1.
 	 * Get sunset time for given calendar date
@@ -842,10 +823,9 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * getSunsetTime()
 	 * @param c Calendar date
-	 * @return Sunset time between 0. and 1.
-	 * Get sunset time for given calendar date
+	 * @return Sunrise time between 0. and 1.
+	 * Get sunrise time for given calendar date
 	 */
 	public float getSunriseTime(Calendar c, Location location) 	
 	{		

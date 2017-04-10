@@ -18,17 +18,17 @@ public class ML_DebugSettings
 	public boolean metadata = false;			// Debug WMV_Metadata class
 
 	/* Model */
-	public boolean time = false;				// Debug WMV_Time class
+	public boolean time = true;				// Debug WMV_Time class
 	public boolean field = false;				// Debug WMV_Field class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 
 	/* Viewer */
-	public boolean viewer = false;				// Debug WMV_Viewer class
+	public boolean viewer = true;				// Debug WMV_Viewer class
 	public boolean path = false;				// Debug WMV_Viewer class
 	public boolean display = false;				// Debug WMV_Display class
 	
 	/* Media */
-	public boolean media = false;			// Debug WMV_Viewable class
+	public boolean media = true;			// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class

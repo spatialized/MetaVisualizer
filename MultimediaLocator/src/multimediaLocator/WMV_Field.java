@@ -239,8 +239,8 @@ public class WMV_Field
 				if ( v.isVisible() && !nowVisible )
 					v.fadeOut();
 				
-//				v.updateTimeBrightness(clusters.get(v.getAssociatedCluster()), timeline, utilities);
-				v.getMediaState().timeBrightness = 1.f;				// -- TESTING
+				v.updateTimeBrightness(clusters.get(v.getAssociatedCluster()), timeline, utilities);
+//				v.getMediaState().timeBrightness = 1.f;				// -- TESTING
 				
 				if (nowVisible || v.isFading())
 				{
@@ -467,20 +467,20 @@ public class WMV_Field
 			{
 				for(WMV_Image i : c.getImages(images))
 				{
-					i.setClusterTime(c);
-					i.setClusterDate(c);
+					i.setClusterTimes(c);
+					i.setClusterDates(c);
 				}
 
 				for(WMV_Panorama n : c.getPanoramas(panoramas))
 				{
-					n.setClusterTime(c);
-					n.setClusterDate(c);
+					n.setClusterTimes(c);
+					n.setClusterDates(c);
 				}
 
 				for(WMV_Video v : c.getVideos(videos))
 				{
-					v.setClusterTime(c);
-					v.setClusterDate(c);
+					v.setClusterTimes(c);
+					v.setClusterDates(c);
 				}
 
 				c.findMediaSegments(images, panoramas, videos);

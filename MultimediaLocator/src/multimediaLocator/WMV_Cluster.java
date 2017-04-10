@@ -27,7 +27,6 @@ public class WMV_Cluster
 	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;	
 
 	/* Panoramic Stitching */
-//	ArrayList<WMV_Panorama> stitched360;					// Stitched panoramas with full coverage
 	ArrayList<WMV_Panorama> stitched;				// Stitched panoramas
 	List<Integer> valid;									// List of images that are good stitching candidates
 
@@ -54,191 +53,10 @@ public class WMV_Cluster
 		state.videos = new ArrayList<Integer>();
 		segments = new ArrayList<WMV_MediaSegment>();
 		
-//		stitched360 = new ArrayList<WMV_Panorama>();
 		stitched = new ArrayList<WMV_Panorama>();
 
 		timeline = new ArrayList<WMV_TimeSegment>();
 		state.mediaCount = 0;
-	}
-	
-	/**
-	 * Group adjacent, overlapping media into segments, where each image or video is at least stitchingMinAngle from one or more others
- 	 */
-	void findMediaSegments(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
-	{
-		List<Integer> allImages = new ArrayList<Integer>();
-		for(int i:state.images)
-			allImages.add(i);
-		
-		boolean done = false;
-		
-		if(allImages.size() == 0) done = true;					// Do nothing if no images
-		
-		if(allImages.size() == 1)
-		{
-			List<Integer> curImageList = new ArrayList<Integer>();
-			curImageList.add(allImages.get(0));
-			
-			float left = imageList.get(allImages.get(0)).getDirection();
-			float right = imageList.get(allImages.get(0)).getDirection();
-			float centerDirection = imageList.get(allImages.get(0)).getDirection();
-
-			float bottom = imageList.get(allImages.get(0)).getElevation();
-			float top = imageList.get(allImages.get(0)).getElevation();
-			float centerElevation = imageList.get(allImages.get(0)).getElevation();
-
-			WMV_MediaSegment newSegment = new WMV_MediaSegment( 0, curImageList, null, right, left, centerDirection, top, bottom, centerElevation, worldSettings.stitchingMinAngle );
-			newSegment.findBorders(imageList);
-			segments.add( newSegment );
-
-			if(debugSettings.cluster || debugSettings.field)
-				System.out.println("Added media segment in cluster: "+getID()+" with single image...");
-
-			done = true;
-		}
-		
-		while(!done)
-		{
-			List<Integer> curImages = new ArrayList<Integer>();
-
-			float left = 360.f, right = 0.f, centerDirection;		// Left and right bounds (in degrees) of segment 
-			float bottom = 100.f, top = -100.f, centerElevation;	// Top and bottom bounds (in degrees) of segment 
-
-			List<Integer> added = new ArrayList<Integer>();		// Images added to current segment 
-
-			if(debugSettings.cluster || debugSettings.field)
-				System.out.println("Finding media segments in cluster: "+getID()+" images.size():"+state.images.size()+" allImages.size():"+allImages.size());
-
-			int count = 0;
-			for(int i : allImages)									// Search for images at least stitchingMinAngle from each image
-			{
-				WMV_Image img = imageList.get(i);
-				
-				if(curImages.size() == 0)
-				{
-					curImages.add(img.getID());			// Add first image	
-					added.add(count);					// Remove added image from list
-				}
-				else 
-				{
-					boolean found = false;					// Have we found a media segment for the image?
-					int idx = 0;
-
-					while(!found && idx < curImages.size())
-					{
-						int m = curImages.get(idx);
-						if(imageList.get(m).getID() != img.getID())		// Don't compare image to itself
-						{
-							if(debugSettings.cluster && debugSettings.detailed)
-								System.out.println("Comparing image:"+img.getDirection()+" to m: "+imageList.get(m).getDirection() + " stitchingMinAngle:"+worldSettings.stitchingMinAngle);
-							
-							if(Math.abs(img.getDirection() - imageList.get(m).getDirection()) < worldSettings.stitchingMinAngle)
-							{
-								if(Math.abs(img.getElevation() - imageList.get(m).getElevation()) < worldSettings.stitchingMinAngle)
-								{
-									float direction = img.getDirection();
-									float elevation = img.getElevation();
-									
-									direction = utilities.constrainWrap(direction, 0.f, 360.f);
-									elevation = utilities.constrainWrap(elevation, -90.f, 90.f);
-									
-									if(direction < left) left = direction;
-									if(direction > right) right = direction;
-									if(elevation < bottom) bottom = elevation;
-									if(elevation > top) top = elevation;
-
-									if(debugSettings.cluster || debugSettings.field)
-										System.out.println("Added image:"+img.getID()+" to segment...");
-
-									if(!curImages.contains(img.getID()))
-										curImages.add(img.getID());		// -- Add video too?
-									
-									if(!added.contains(count))
-										added.add(count);				// Remove added image from list
-
-									found = true;
-								}
-							}
-						}
-						else if(allImages.size() == 1)			// Add last image
-						{
-							curImages.add(img.getID());		// -- Add video too?
-							added.add(count);				// Remove added image from list
-						}
-						
-						idx++;
-					}
-				}
-				
-				count++;
-			}
-			
-			Collections.sort(added);
-			
-			for(int i=added.size()-1; i>=0; i--)
-			{
-				int removed = allImages.remove(i);			// Remove images added to curSegment	-- NOT WORKING
-				if(debugSettings.cluster && debugSettings.detailed)
-					System.out.println("Removed image ID "+removed+" from allImages");
-			}
-
-			if(curImages.size() == 1)			// Only one image
-			{
-				left = imageList.get(curImages.get(0)).getDirection();
-				right = imageList.get(curImages.get(0)).getDirection();
-				centerDirection = imageList.get(curImages.get(0)).getDirection();
-				
-				bottom = imageList.get(allImages.get(0)).getElevation();
-				top = imageList.get(allImages.get(0)).getElevation();
-				centerElevation = imageList.get(allImages.get(0)).getElevation();
-				
-				left = utilities.constrainWrap(left, 0.f, 360.f);
-				right = utilities.constrainWrap(right, 0.f, 360.f);
-				centerDirection = utilities.constrainWrap(centerDirection, 0.f, 360.f);
-				bottom = utilities.constrainWrap(bottom, -90.f, 90.f);
-				top = utilities.constrainWrap(top, -90.f, 90.f);
-				centerElevation = utilities.constrainWrap(centerElevation, -90.f, 90.f);
-				
-//				if(left < 0.f)
-//					left += 360.f;
-//				
-//				if(right > 360.f)
-//					right -= 360.f;
-//				
-//				if(right < 0.f)
-//					right += 360.f;
-//							
-//				if(top > 90.f)
-//					top -= 90.f;
-//				
-//				if(bottom < -90.f)
-//					bottom -= 360.f;
-			}
-			else
-			{
-				centerDirection = (right + left) / 2.f;
-				centerElevation = (top + bottom) / 2.f;
-			}
-
-			WMV_MediaSegment newSegment = new WMV_MediaSegment( segments.size(), curImages, null, left, right, centerDirection, bottom, top, centerElevation, worldSettings.stitchingMinAngle );
-			newSegment.findBorders(imageList);
-			segments.add( newSegment );
-
-			if((debugSettings.cluster || debugSettings.field))
-				System.out.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
-			
-			done = (allImages.size() == 1 || allImages.size() == 0);
-		}
-
-		state.numSegments = segments.size();						// Number of media segments in the cluster
-		if(state.numSegments > 0)
-		{
-			if(debugSettings.cluster || debugSettings.field)
-				System.out.println(" Created "+state.numSegments+" media segments...");
-
-		}
-		else if(debugSettings.cluster) 
-			System.out.println(" No media segments added... cluster "+getID()+" has no images!");
 	}
 
 	/**
@@ -334,11 +152,6 @@ public class WMV_Cluster
 					state.panoramas.add(curPano.getID());
 					state.mediaCount++;
 				}
-//				if(!panoramas.hasValue(curPano.getID()))
-//				{
-//					panoramas.append(curPano.getID());
-//					state.mediaCount++;
-//				}
 			}
 		}
 
@@ -355,11 +168,6 @@ public class WMV_Cluster
 					state.videos.add(curVid.getID());
 					state.mediaCount++;
 				}
-//				if(!videos.hasValue(curVid.getID()))
-//				{
-//					videos.append(curVid.getID());
-//					state.mediaCount++;
-//				}
 			}
 		}
 
@@ -411,7 +219,7 @@ public class WMV_Cluster
 		state.empty = false;
 	}
 
-	void display(MultimediaLocator ml)
+	void displayUserPanoramas(MultimediaLocator ml)
 	{
 		if(worldSettings.showUserPanoramas)
 		{
@@ -421,15 +229,6 @@ public class WMV_Cluster
 				n.display(ml);
 			}
 		}
-
-//		if(worldSettings.showStitchedPanoramas)
-//		{
-//			for(WMV_Panorama n : stitched360)
-//			{
-//				n.update(ml);
-//				n.display(ml);
-//			}
-//		}
 	}
 	
 	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
@@ -517,7 +316,202 @@ public class WMV_Cluster
 			}
 		}		
 	}
+
 	
+	/**
+	 * Analyze associated media capture times (Need to implement: find on which scales it operates, i.e. minute, day, month, year)
+	 */
+	public void analyzeMedia(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList) 
+	{
+		calculateDimensions(imageList, panoramaList, videoList);		// Calculate cluster dimensions (bounds)
+		calculateTimes(imageList, panoramaList, videoList);				// Calculate cluster times
+		createDateline(imageList, panoramaList, videoList);				// Create dates histograms and analyze for date segments
+		createTimeline(imageList, panoramaList, videoList);				// Create timeline independent of date 
+		createTimelines();												// Create timeline for each capture date
+	}
+	
+	/**
+	 * Create list of all media capture dates in cluster, where index corresponds to index of corresponding timeline in timelines array
+	 */
+	void createDateline(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	{
+		dateline = new ArrayList<WMV_Date>();										// List of times to analyze
+
+		/* Get times of all media of all types in this cluster */
+		for(int i : state.images)
+		{
+			WMV_Date date = imageList.get(i).time.getDate();
+			if(!dateline.contains(date)) 				// Add date if doesn't exist
+				dateline.add( date );
+		}
+
+		for(int n : state.panoramas)
+		{
+			WMV_Date date = panoramaList.get(n).time.getDate();
+			if(!dateline.contains(date)) 
+				dateline.add( date );
+		}
+
+		for(int v : state.videos) 
+		{
+			WMV_Date date = videoList.get(v).time.getDate();
+			if(!dateline.contains(date)) 
+				dateline.add( date );
+		}
+
+		dateline.sort(WMV_Date.WMV_DateComparator);				// Sort dateline  
+		
+		int count = 0;
+		for (WMV_Date d : dateline) 		
+		{
+			d.setID(count);
+			count++;
+		}
+
+		if(dateline.size() == 0)
+		{
+			System.out.println("-------> Cluster "+getID()+" dateline has no points! "+getID()+" images.size():"+state.images.size()+" dateline.size():"+dateline.size());
+			empty();
+		}
+	}
+	
+	/**
+	 * Create date-independent timeline for cluster
+	 */
+	void createTimeline(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	{
+		ArrayList<WMV_Time> mediaTimes = new ArrayList<WMV_Time>();							// List of times to analyze
+		
+		/* Get times of all media in this cluster */
+		for(int i : state.images)
+			mediaTimes.add( imageList.get(i).time );
+		for(int n : state.panoramas) 
+			mediaTimes.add( panoramaList.get(n).time );
+		
+		boolean withVideo = false;
+		for(int v : state.videos)
+		{
+			mediaTimes.add( videoList.get(v).time );
+			withVideo = true;
+		}
+
+		if(mediaTimes.size() > 0)
+		{
+			timeline = utilities.calculateTimeSegments(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
+			if(timeline != null)
+			{
+				if(timeline.size() > 0)
+				{
+					timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
+					
+					ArrayList<WMV_Time> test = new ArrayList<WMV_Time>();
+					
+					for(WMV_TimeSegment t : timeline)
+						for(WMV_Time tm : t.getTimeline())
+							test.add(tm);
+
+					if(test.size() != mediaTimes.size())
+					{
+						System.out.println("Incomplete timeline created!  test.size():"+test.size()+" mediaTimes.size():"+mediaTimes.size()+"...");
+					}
+					else
+					{
+						boolean video = false;
+						if(withVideo)
+						{
+							for(WMV_TimeSegment ts : timeline)
+							{
+								for(WMV_Time tm : ts.getTimeline())
+								{
+									if(tm.getMediaType() == 2)
+									{
+										if(tm.getTime()<ts.getLower().getTime() || tm.getTime()>ts.getUpper().getTime())
+											System.out.println("Invalid video time segment! "+" time:"+tm.getTime()+" lower:"+ts.getLower().getTime()+" upper:"+ts.getLower().getTime());
+										video = true;
+									}
+								}
+							}
+							if(!video)
+							{
+								System.out.println("Video not added to timeline!  test.size():"+test.size()+" mediaTimes.size():"+mediaTimes.size()+"...");
+							}
+						}
+					}
+				}
+				else
+					System.out.println("No timeline created for cluster #"+getID()+"!!!");
+			}
+			else
+				System.out.println("NULL timeline created for cluster #"+getID()+"!!!!");
+			
+			int count = 0;
+			for (WMV_TimeSegment t : timeline) 												// Number time segments in chronological order
+			{
+				t.setClusterTimelineID(count);
+				count++;
+			}
+		}
+
+		if(timeline != null)
+		{
+			if(timeline.size() == 0)
+			{
+				System.out.println("Cluster #"+getID()+" timeline has no points!  images.size():"+state.images.size()+" panoramas.size():"+state.panoramas.size()+" videos.size():"+state.videos.size());
+				empty();
+			}
+		}
+		else
+		{
+			System.out.println("Cluster #"+getID()+" timeline is NULL!  images.size():"+state.images.size()+" panoramas.size():"+state.panoramas.size()+" videos.size():"+state.videos.size());
+			empty();
+		}
+
+		if(timeline.size() == 0)
+		{
+			System.out.println("Cluster timeline has no points! "+getID()+" images.size():"+state.images.size()+" panoramas.size():"+state.panoramas.size());
+			empty();
+		}
+	}
+	
+	/**
+	 * Create timeline for each date on dateline, where index of a date in dateline matches index of corresponding timeline in timelines array
+	 */
+	void createTimelines()
+	{
+		int ct = 0;
+		timelines = new ArrayList<ArrayList<WMV_TimeSegment>>();
+		for(WMV_Date d : dateline)			// For each date on dateline
+		{
+			ArrayList<WMV_TimeSegment> newTimeline = new ArrayList<WMV_TimeSegment>();
+			for(WMV_TimeSegment t : timeline)		// Add each cluster time segment to this date-specific field timeline 
+			{
+				if(d.getDate().equals(t.timeline.get(0).getDateAsPVector()))						// Compare time segment date to current timeline date
+					newTimeline.add(t);
+			}
+			
+			if(newTimeline.size() > 0)
+			{
+				if(newTimeline != null) 
+					newTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
+
+				int count = 0;
+				for (WMV_TimeSegment t : newTimeline) 									// Number time segments for this date in chronological order
+				{
+//					t.setID(count);
+					t.setClusterDateID(ct);
+					t.setClusterTimelinesID(count);
+					count++;
+				}
+				timelines.add( newTimeline );		// Calculate and add timeline to list
+
+				if(debugSettings.cluster)
+					System.out.println("Added timeline #"+count+" for cluster #"+getID()+" with "+newTimeline.size()+" points...");
+			}
+			
+			ct++;
+		}
+	}
+
 	/**
 	 * Analyze directions of all images and videos for Thinning Visibility Mode
 	 */
@@ -600,6 +594,171 @@ public class WMV_Cluster
 		}
 	}
 	
+	/**
+	 * Group adjacent, overlapping media into segments, where each image or video is at least stitchingMinAngle from one or more others
+ 	 */
+	void findMediaSegments(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	{
+		List<Integer> allImages = new ArrayList<Integer>();
+		for(int i:state.images)
+			allImages.add(i);
+		
+		boolean done = false;
+		
+		if(allImages.size() == 0) done = true;					// Do nothing if no images
+		
+		if(allImages.size() == 1)
+		{
+			List<Integer> curImageList = new ArrayList<Integer>();
+			curImageList.add(allImages.get(0));
+			
+			float left = imageList.get(allImages.get(0)).getDirection();
+			float right = imageList.get(allImages.get(0)).getDirection();
+			float centerDirection = imageList.get(allImages.get(0)).getDirection();
+
+			float bottom = imageList.get(allImages.get(0)).getElevation();
+			float top = imageList.get(allImages.get(0)).getElevation();
+			float centerElevation = imageList.get(allImages.get(0)).getElevation();
+
+			WMV_MediaSegment newSegment = new WMV_MediaSegment( 0, curImageList, null, right, left, centerDirection, top, bottom, centerElevation, worldSettings.stitchingMinAngle );
+			newSegment.findBorders(imageList);
+			segments.add( newSegment );
+
+			if(debugSettings.cluster && debugSettings.detailed)
+				System.out.println("Added media segment in cluster: "+getID()+" with single image...");
+
+			done = true;
+		}
+		
+		while(!done)
+		{
+			List<Integer> curImages = new ArrayList<Integer>();
+
+			float left = 360.f, right = 0.f, centerDirection;		// Left and right bounds (in degrees) of segment 
+			float bottom = 100.f, top = -100.f, centerElevation;	// Top and bottom bounds (in degrees) of segment 
+
+			List<Integer> added = new ArrayList<Integer>();		// Images added to current segment 
+
+			if(debugSettings.cluster && debugSettings.detailed)
+				System.out.println("Finding media segments in cluster: "+getID()+" images.size():"+state.images.size()+" allImages.size():"+allImages.size());
+
+			int count = 0;
+			for(int i : allImages)									// Search for images at least stitchingMinAngle from each image
+			{
+				WMV_Image img = imageList.get(i);
+				
+				if(curImages.size() == 0)
+				{
+					curImages.add(img.getID());			// Add first image	
+					added.add(count);					// Remove added image from list
+				}
+				else 
+				{
+					boolean found = false;					// Have we found a media segment for the image?
+					int idx = 0;
+
+					while(!found && idx < curImages.size())
+					{
+						int m = curImages.get(idx);
+						if(imageList.get(m).getID() != img.getID())		// Don't compare image to itself
+						{
+							if(debugSettings.cluster && debugSettings.detailed)
+								System.out.println("Comparing image:"+img.getDirection()+" to m: "+imageList.get(m).getDirection() + " stitchingMinAngle:"+worldSettings.stitchingMinAngle);
+							
+							if(Math.abs(img.getDirection() - imageList.get(m).getDirection()) < worldSettings.stitchingMinAngle)
+							{
+								if(Math.abs(img.getElevation() - imageList.get(m).getElevation()) < worldSettings.stitchingMinAngle)
+								{
+									float direction = img.getDirection();
+									float elevation = img.getElevation();
+									
+									direction = utilities.constrainWrap(direction, 0.f, 360.f);
+									elevation = utilities.constrainWrap(elevation, -90.f, 90.f);
+									
+									if(direction < left) left = direction;
+									if(direction > right) right = direction;
+									if(elevation < bottom) bottom = elevation;
+									if(elevation > top) top = elevation;
+
+									if(debugSettings.cluster && debugSettings.detailed)
+										System.out.println("Added image:"+img.getID()+" to segment...");
+
+									if(!curImages.contains(img.getID()))
+										curImages.add(img.getID());		// -- Add video too?
+									
+									if(!added.contains(count))
+										added.add(count);				// Remove added image from list
+
+									found = true;
+								}
+							}
+						}
+						else if(allImages.size() == 1)			// Add last image
+						{
+							curImages.add(img.getID());		// -- Add video too?
+							added.add(count);				// Remove added image from list
+						}
+						
+						idx++;
+					}
+				}
+				
+				count++;
+			}
+			
+			Collections.sort(added);
+			
+			for(int i=added.size()-1; i>=0; i--)
+			{
+				int removed = allImages.remove(i);			// Remove images added to curSegment	-- NOT WORKING
+				if(debugSettings.cluster && debugSettings.detailed)
+					System.out.println("Removed image ID "+removed+" from allImages");
+			}
+
+			if(curImages.size() == 1)			// Only one image
+			{
+				left = imageList.get(curImages.get(0)).getDirection();
+				right = imageList.get(curImages.get(0)).getDirection();
+				centerDirection = imageList.get(curImages.get(0)).getDirection();
+				
+				bottom = imageList.get(allImages.get(0)).getElevation();
+				top = imageList.get(allImages.get(0)).getElevation();
+				centerElevation = imageList.get(allImages.get(0)).getElevation();
+				
+				left = utilities.constrainWrap(left, 0.f, 360.f);
+				right = utilities.constrainWrap(right, 0.f, 360.f);
+				centerDirection = utilities.constrainWrap(centerDirection, 0.f, 360.f);
+				bottom = utilities.constrainWrap(bottom, -90.f, 90.f);
+				top = utilities.constrainWrap(top, -90.f, 90.f);
+				centerElevation = utilities.constrainWrap(centerElevation, -90.f, 90.f);
+			}
+			else
+			{
+				centerDirection = (right + left) / 2.f;
+				centerElevation = (top + bottom) / 2.f;
+			}
+
+			WMV_MediaSegment newSegment = new WMV_MediaSegment( segments.size(), curImages, null, left, right, centerDirection, bottom, top, centerElevation, worldSettings.stitchingMinAngle );
+			newSegment.findBorders(imageList);
+			segments.add( newSegment );
+
+			if((debugSettings.cluster && debugSettings.detailed))
+				System.out.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
+			
+			done = (allImages.size() == 1 || allImages.size() == 0);
+		}
+
+		state.numSegments = segments.size();						// Number of media segments in the cluster
+		if(state.numSegments > 0)
+		{
+			if(debugSettings.cluster && debugSettings.detailed)
+				System.out.println(" Created "+state.numSegments+" media segments...");
+
+		}
+		else if(debugSettings.cluster && debugSettings.detailed) 
+			System.out.println(" No media segments added... cluster "+getID()+" has no images!");
+	}
+
 	/**
 	 * @param id Media segment ID
 	 * @return Cluster media segment with given ID
@@ -849,153 +1008,6 @@ public class WMV_Cluster
 //		cluster.state.mediaCount = 0;
 //		cluster.state.active = false;
 //		cluster.state.empty = true;
-	}
-	
-	/**
-	 * Analyze associated media capture times (Need to implement: find on which scales it operates, i.e. minute, day, month, year)
-	 */
-	public void analyzeMedia(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList) 
-	{
-		calculateDimensions(imageList, panoramaList, videoList);		// Calculate cluster dimensions (bounds)
-		calculateTimes(imageList, panoramaList, videoList);				// Calculate cluster times
-		createDateline(imageList, panoramaList, videoList);				// Create dates histograms and analyze for date segments
-		createTimeline(imageList, panoramaList, videoList);				// Create timeline independent of date 
-		createTimelines();												// Create timeline for each capture date
-	}
-	
-	/**
-	 * Create list of all media capture dates in cluster, where index corresponds to index of corresponding timeline in timelines array
-	 */
-	void createDateline(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
-	{
-		dateline = new ArrayList<WMV_Date>();										// List of times to analyze
-
-		/* Get times of all media of all types in this cluster */
-		for(int i : state.images)
-		{
-			WMV_Date date = imageList.get(i).time.getDate();
-			if(!dateline.contains(date)) 				// Add date if doesn't exist
-				dateline.add( date );
-		}
-
-		for(int n : state.panoramas)
-		{
-			WMV_Date date = panoramaList.get(n).time.getDate();
-			if(!dateline.contains(date)) 
-				dateline.add( date );
-		}
-
-		for(int v : state.videos) 
-		{
-			WMV_Date date = videoList.get(v).time.getDate();
-			if(!dateline.contains(date)) 
-				dateline.add( date );
-		}
-
-		dateline.sort(WMV_Date.WMV_DateComparator);				// Sort dateline  
-		
-		int count = 0;
-		for (WMV_Date d : dateline) 		
-		{
-			d.setID(count);
-			count++;
-		}
-
-		if(dateline.size() == 0)
-		{
-			System.out.println("-------> Cluster "+getID()+" dateline has no points! "+getID()+" images.size():"+state.images.size()+" dateline.size():"+dateline.size());
-			empty();
-		}
-	}
-	
-	/**
-	 * Create date-independent timeline for cluster
-	 */
-	void createTimeline(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
-	{
-		ArrayList<WMV_Time> mediaTimes = new ArrayList<WMV_Time>();							// List of times to analyze
-		
-		/* Get times of all media of all types in this cluster */
-		for(int i : state.images)
-			mediaTimes.add( imageList.get(i).time );
-		for(int n : state.panoramas) 
-			mediaTimes.add( panoramaList.get(n).time );
-		for(int v : state.videos)
-			mediaTimes.add( videoList.get(v).time );
-
-		if(mediaTimes.size() > 0)
-		{
-			timeline = utilities.calculateTimeSegments(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
-			if(timeline != null)
-				timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
-			
-			int count = 0;
-			for (WMV_TimeSegment t : timeline) 												// Number time segments in chronological order
-			{
-//				t.setID(count);
-				t.setClusterTimelineID(count);
-				count++;
-			}
-		}
-
-		if(timeline != null)
-		{
-			if(timeline.size() == 0)
-			{
-				System.out.println("Cluster #"+getID()+" timeline has no points!  images.size():"+state.images.size()+" panoramas.size():"+state.panoramas.size()+" videos.size():"+state.videos.size());
-				empty();
-			}
-		}
-		else
-		{
-			System.out.println("Cluster #"+getID()+" timeline is NULL!  images.size():"+state.images.size()+" panoramas.size():"+state.panoramas.size()+" videos.size():"+state.videos.size());
-			empty();
-		}
-
-		if(timeline.size() == 0)
-		{
-			System.out.println("Cluster timeline has no points! "+getID()+" images.size():"+state.images.size()+" panoramas.size():"+state.panoramas.size());
-			empty();
-		}
-	}
-	
-	/**
-	 * Create timeline for each date on dateline, where index of a date in dateline matches index of corresponding timeline in timelines array
-	 */
-	void createTimelines()
-	{
-		int ct = 0;
-		timelines = new ArrayList<ArrayList<WMV_TimeSegment>>();
-		for(WMV_Date d : dateline)			// For each date on dateline
-		{
-			ArrayList<WMV_TimeSegment> newTimeline = new ArrayList<WMV_TimeSegment>();
-			for(WMV_TimeSegment t : timeline)		// Add each cluster time segment to this date-specific field timeline 
-			{
-				if(d.getDate().equals(t.timeline.get(0).getDateAsPVector()))						// Compare time segment date to current timeline date
-					newTimeline.add(t);
-			}
-			
-			if(newTimeline.size() > 0)
-			{
-				if(newTimeline != null) 
-					newTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
-
-				int count = 0;
-				for (WMV_TimeSegment t : newTimeline) 									// Number time segments for this date in chronological order
-				{
-//					t.setID(count);
-					t.setClusterDateID(ct);
-					t.setClusterTimelinesID(count);
-					count++;
-				}
-				timelines.add( newTimeline );		// Calculate and add timeline to list
-
-				if(debugSettings.cluster)
-					System.out.println("Added timeline #"+count+" for cluster #"+getID()+" with "+newTimeline.size()+" points...");
-			}
-			
-			ct++;
-		}
 	}
 	
 	/** 

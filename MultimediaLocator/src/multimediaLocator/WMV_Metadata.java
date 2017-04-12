@@ -328,11 +328,12 @@ class WMV_Metadata
 			dataFiles = dataFolderFile.listFiles();
 			if(dataFiles != null && dataFiles.length > 0)
 			{
-				if( dataFiles[0].getName().equals("ml_library_fieldState.json") &&
-					dataFiles[1].getName().equals("ml_library_viewerSettings.json") &&
-					dataFiles[2].getName().equals("ml_library_viewerState.json") &&
-					dataFiles[3].getName().equals("ml_library_worldSettings.json") &&
-					dataFiles[4].getName().equals("ml_library_worldState.json")    )
+				if( dataFiles[0].getName().equals("ml_library_clusterStates.json") &&
+					dataFiles[1].getName().equals("ml_library_fieldState.json") &&
+					dataFiles[2].getName().equals("ml_library_viewerSettings.json") &&
+					dataFiles[3].getName().equals("ml_library_viewerState.json") &&
+					dataFiles[4].getName().equals("ml_library_worldSettings.json") &&
+					dataFiles[5].getName().equals("ml_library_worldState.json")    )
 				dataFilesValidFormat = true;
 			}
 		}
@@ -377,7 +378,7 @@ class WMV_Metadata
 						ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
 
 						WMV_SoundMetadata sMetadata = new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, 
-								p.world.getCurrentField().getTimeZoneID() );
+								p.world.getCurrentField().getTimeZoneID(), null );
 						f.addSound( new WMV_Sound (count, 3, sMetadata) );
 					}
 					catch(Throwable t)

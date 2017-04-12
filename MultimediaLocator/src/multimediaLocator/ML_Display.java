@@ -998,7 +998,7 @@ class ML_Display
 				selectedTime = timeSelected.getID();				// Set to selected
 				selectedCluster = timeSelected.getClusterID();
 
-				if(p.p.debugSettings.time)
+				if(p.p.debugSettings.time && p.p.debugSettings.detailed)
 					System.out.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
 				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
@@ -1012,10 +1012,6 @@ class ML_Display
 			if(dateSelected != null)
 			{
 				selectedDate = dateSelected.getID();				// Set to selected
-						
-				if(p.p.debugSettings.time) 
-					System.out.println("Selected date:"+selectedDate);
-
 				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
 			else

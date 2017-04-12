@@ -64,8 +64,11 @@ public class WMV_VideoState
 	public boolean hasImagePlaceholder = false;
 	public int imagePlaceholder = -1;
 	
-	WMV_VideoState()
+	WMV_VideoState(){}
+
+	public void initialize(WMV_VideoMetadata newMetadata)
 	{
+		metadata = newMetadata;
 		mState = new WMV_MediaState();
 	}
 	

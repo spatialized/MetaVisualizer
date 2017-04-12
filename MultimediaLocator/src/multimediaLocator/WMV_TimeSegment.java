@@ -9,8 +9,6 @@ import java.util.Comparator;
  */
 public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>									
 {
-//	IntList images, panoramas, videos;		// Associated media
-	
 	private WMV_Time center;			// Center time 	 	  -- Mean or median??
 	private WMV_Time lower, upper;		// Upper and lower bounds of cluster
 	
@@ -28,10 +26,9 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	private boolean hasVideo;
 	private boolean hasSound;
 	
-//	WMV_TimeSegment( int newClusterID, int newClusterTimelineID, int newClusterTimelinesID, int newClusterDateID, 
-//			 int newFieldTimelineID, int newFieldTimelinesID, int newFieldDateID,
-//			 WMV_Time newCenter, WMV_Time newUpper, WMV_Time newLower, ArrayList<WMV_Time> newTimeline )
-	WMV_TimeSegment( int newClusterID, int newClusterTimelineID, int newClusterTimelinesID, int newClusterDateID, 
+	public WMV_TimeSegment(){}
+
+	public void initialize( int newClusterID, int newClusterTimelineID, int newClusterTimelinesID, int newClusterDateID, 
 			 int newFieldTimelineID, int newFieldTimelinesID, int newFieldDateID, ArrayList<WMV_Time> newTimeline )
 	{
 		clusterID = newClusterID;
@@ -51,7 +48,7 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		calculateCenterTime();
 		analyzeMediaTypes();
 	}
-	
+
 	private void calculateUpperBound()
 	{
 		upper = timeline.get(timeline.size()-1);
@@ -107,14 +104,6 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 					hasSound = true;
 		}
 	}
-	
-	/** 
-	 * @param newID New time segment ID
-	 */
-//	public void setID(int newID)
-//	{
-//		id = newID;
-//	}
 	
 	/** 
 	 * @param newID New cluster ID

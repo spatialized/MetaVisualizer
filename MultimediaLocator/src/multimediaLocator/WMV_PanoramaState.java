@@ -21,8 +21,11 @@ public class WMV_PanoramaState
 	public int resolution = 50;  										// Sphere detail setting
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 
-	WMV_PanoramaState()
+	WMV_PanoramaState(){}
+	
+	public void initialize(WMV_PanoramaMetadata newMetadata)
 	{
+		metadata = newMetadata;
 		mState = new WMV_MediaState();
 	}
 	

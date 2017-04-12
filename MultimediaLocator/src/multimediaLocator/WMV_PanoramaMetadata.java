@@ -12,17 +12,15 @@ import processing.core.PVector;
 public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 {
 	public int cameraModel;                 	// Camera model
-	public float brightness;
+	public float brightness;					// Panorama pixel brightness
 	public float theta = 0;                		// Media Orientation (in Degrees N)
 
 	public int imageWidth, imageHeight;			// Image width and height
-
-	public String[] keywords;
 	
 	WMV_PanoramaMetadata(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone, 
 			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords)
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newTimeZone);
+		super(newName, newFilePath, newGPSLocation, newDateTime, newTimeZone, newKeywords);
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
@@ -30,7 +28,20 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 		theta = newTheta;
 		brightness = newBrightness;
 		cameraModel = newCameraModel;
+	}
+	
+	WMV_PanoramaMetadata(){}
 
-		keywords = newKeywords;
+	public void initialize(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone, 
+			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords)
+	{
+		super.init(newName, newFilePath, newGPSLocation, newDateTime, newTimeZone, newKeywords);
+		
+		imageWidth = newWidth;
+		imageHeight = newHeight;
+
+		theta = newTheta;
+		brightness = newBrightness;
+		cameraModel = newCameraModel;
 	}
 }

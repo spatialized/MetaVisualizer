@@ -38,7 +38,9 @@ public class WMV_ImageState
 	public boolean isVideoPlaceHolder = false;		// Whether image is a video placeholder
 	public int assocVideoID = -1;					// Video for which this image is a placeholder
 	
-	WMV_ImageState(WMV_ImageMetadata newMetadata)
+	WMV_ImageState(){}
+	
+	void initialize(WMV_ImageMetadata newMetadata)
 	{
 		metadata = newMetadata;
 		mState = new WMV_MediaState();
@@ -48,10 +50,6 @@ public class WMV_ImageState
 	{
 		mState = newState;
 		metadata = newMetadata;
-//		System.out.println("--> setMediaState() for image: "+mState.id);
-//		System.out.println("mState.location == null? "+(mState.location == null));
-//		if(mState.location != null)
-//			System.out.println("  mState.location: "+(mState.location));
 	}
 	
 	public WMV_MediaState getMediaState()

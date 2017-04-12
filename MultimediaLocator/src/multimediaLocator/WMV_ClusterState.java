@@ -20,9 +20,12 @@ public class WMV_ClusterState
 	public boolean single = false;		// Only one media point in cluster?
 	
 	/* Segmentation */
-	public int numSegments = 0;						// Number of segments of the cluster
+	public int numSegments = 0;							// Number of segments of the cluster
 	
 	/* Time */
+	public ArrayList<WMV_Date> dateline;				// Capture dates for this cluster
+	public WMV_Timeline timeline;						// Date-independent capture times for this cluster
+	public ArrayList<WMV_Timeline> timelines;	
 	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
 	public boolean dateFading = true;					// Does time affect photos' brightness? (true = yes; false = no)
 	public boolean paused = false;						// Time is paused
@@ -45,6 +48,8 @@ public class WMV_ClusterState
 	public List<Integer> images = new ArrayList<Integer>();
 	public List<Integer> panoramas = new ArrayList<Integer>();
 	public List<Integer> videos = new ArrayList<Integer>();
+//	public List<Integer> sounds = new ArrayList<Integer>();
+	
 	public int mediaCount;								// No. of media associated with this cluster
 	private boolean hasImage = false;					// Cluster has panorama files?
 	private boolean hasPanorama = false;					// Cluster has panorama files?

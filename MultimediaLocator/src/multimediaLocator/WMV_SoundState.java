@@ -17,9 +17,13 @@ public class WMV_SoundState
 	public float volumeFadingStartVal = 0.f, volumeFadingTarget = 0.f;
 	public final int volumeFadingLength = 60;	// Fade volume over 30 frames
 
-	WMV_SoundState()
+	WMV_SoundState(){}
+	
+	public void initialize(WMV_SoundMetadata newMetadata)
 	{
 		mState = new WMV_MediaState();
+		if(newMetadata != null)
+			metadata = newMetadata;
 	}
 	
 	void setMediaState(WMV_MediaState newState, WMV_SoundMetadata newMetadata)

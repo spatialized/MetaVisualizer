@@ -29,7 +29,9 @@ class WMV_Image extends WMV_Media
 			   newImageMetadata.gpsLocation );
 		
 		metadata = newImageMetadata;
-		state = new WMV_ImageState(metadata);			// Store metadata in image state for exporting -- redundant?
+		
+		state = new WMV_ImageState();			// Store metadata in image state for exporting -- redundant?
+		state.initialize(metadata);			// Store metadata in image state for exporting -- redundant?
 
 		if(newImage != null) image = newImage;			// Empty image
 		
@@ -39,7 +41,10 @@ class WMV_Image extends WMV_Media
 		state.origFocusDistance = metadata.focusDistance;
 
 		if(metadata.dateTime != null)
-			time = new WMV_Time( metadata.dateTime, getID(), getMediaState().getClusterID(), 0, metadata.timeZone );		
+		{
+			time = new WMV_Time();		
+			time.initialize(metadata.dateTime, getID(), getMediaState().getClusterID(), 0, metadata.timeZone );		
+		}
 		else
 			time = null;
 

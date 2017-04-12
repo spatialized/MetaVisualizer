@@ -1,12 +1,23 @@
 package multimediaLocator;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.lang.reflect.*;
 
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
 
-import static org.boon.Boon.puts;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+//import static org.boon.Boon.puts;
+import com.google.gson.reflect.TypeToken;
 
 /**************
  * Represents a multimedia library
@@ -116,6 +127,17 @@ public class ML_Library
 		}
 	}
 
+//	public void saveFieldState(WMV_FieldState fState, String newFilePath)
+//	{
+////		Gson gson = new Gson();
+////		String jsonString = gson.toJson(fState);
+////		System.out.println(jsonString);
+//
+//		Type type = new TypeToken<WMV_FieldState>(){}.getType();
+////		Type type = WMV_FieldState.class;
+//		saveJson(fState, type, newFilePath);
+//	}
+
 	public void saveFieldState(WMV_FieldState fState, String newFilePath)
 	{
 		final ObjectMapper mapper = JsonFactory.create();
@@ -134,6 +156,19 @@ public class ML_Library
 		}
 	}
 
+	public void saveClusterStateList(WMV_ClusterStateList csl, String newFilePath)
+	{
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+			file = new File(newFilePath);
+			mapper.writeValue(file, csl);    // Write staff object to file
+		}
+		catch (Throwable t)
+		{
+			System.out.println("saveClusterStateList Throwable t:"+t);
+		}
+	}
 
 	public WMV_WorldSettings loadWorldSettings(String newFilePath)		// Testing
 	{
@@ -207,6 +242,29 @@ public class ML_Library
 		return null;
 	}
 
+//	/**
+//	 * Load field state from given file path (with GSON)
+//	 * @param newFilePath File path
+//	 * @return Field state
+//	 */
+//	public WMV_FieldState loadFieldState(String newFilePath)		// Testing
+//	{
+//		String filePath = newFilePath;
+//		Gson gson = new Gson();
+//
+//		try {
+//			WMV_FieldState fState;
+//			fState = gson.fromJson(new FileReader(filePath), WMV_FieldState.class);
+//			return fState;
+//		}
+//		catch(Throwable t)
+//		{
+//			System.out.println("loadFieldState throwable t:"+t);
+//		}
+//		
+//		return null;
+//	}
+	
 	/**
 	 * Load field state from given file path
 	 * @param newFilePath File path
@@ -230,5 +288,70 @@ public class ML_Library
 			System.out.println("loadFieldState Throwable t:"+t);
 		}
 		return null;
+	}
+
+	/**
+	 * Load field state from given file path
+	 * @param newFilePath File path
+	 * @return Field state
+	 */
+	public WMV_ClusterStateList loadClusterStateList(String newFilePath)		// Testing
+	{
+		String filePath = newFilePath;
+
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			file = new File(filePath);
+			WMV_ClusterStateList csl = mapper.readValue(file, WMV_ClusterStateList.class);
+			
+			return csl;
+		}
+		catch (Throwable t)
+		{
+			System.out.println("loadFieldState Throwable t:"+t);
+		}
+		return null;
+	}
+
+	private void saveJson(Object object, Type type, String fileName) 
+	{
+	  File file = new File(fileName);
+
+	  OutputStream outputStream = null;
+	  GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting();
+//	  gsonBuilder.registerTypeAdapter(object.getClass(), new Gson());
+	  Gson gson = gsonBuilder.create();
+//	  Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting()
+//			    .create();
+	  
+	  try {
+	    outputStream = new FileOutputStream(file);
+	    BufferedWriter bufferedWriter;
+	    bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+
+	    gson.toJson(object, type, bufferedWriter);
+	    bufferedWriter.close();
+	  } 
+	  catch (FileNotFoundException e) {
+	    e.printStackTrace();
+	    System.out.println("FileNotFoundException e:"+e);
+	  } 
+	  catch (IOException e) {
+	    e.printStackTrace();
+	    System.out.println("IOException e:"+e);
+	  } 
+	  finally {
+	    if (outputStream != null) {
+	      try {
+	        outputStream.flush();
+	        outputStream.close();
+	      } 
+	      catch (IOException e) {
+	    	  System.out.println("IOException e:"+e);
+	      }
+	    }
+	  }
 	}
 }

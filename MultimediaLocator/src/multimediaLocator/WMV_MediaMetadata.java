@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import processing.core.PVector;
 
 /**
- * Metadata fields applicable to every media type 
+ * General metadata for any media type 
  * @author davidgordon
  *
  */
@@ -16,14 +16,34 @@ public abstract class WMV_MediaMetadata
 	public ZonedDateTime dateTime;
 	public String timeZone;
 	public PVector gpsLocation;
-	
-	WMV_MediaMetadata ( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone )
+	public String[] keywords;
+
+	WMV_MediaMetadata ( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone,
+						String[] newKeywords )
 	{
 		name = newName;
 		filePath = newFilePath;
-
+		
 		timeZone = newTimeZone;
+
 		if(newDateTime != null) dateTime = newDateTime;
 		if(newGPSLocation != null) gpsLocation = newGPSLocation;
+		if(newKeywords != null) keywords = newKeywords;
+	}
+	
+	WMV_MediaMetadata(){}
+	
+	public void init( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone,
+			String[] newKeywords )
+	{
+		name = newName;
+		filePath = newFilePath;
+		
+		timeZone = newTimeZone;
+
+		if(newDateTime != null) dateTime = newDateTime;
+		if(newGPSLocation != null) gpsLocation = newGPSLocation;
+		if(newKeywords != null) keywords = newKeywords;
+
 	}
 }

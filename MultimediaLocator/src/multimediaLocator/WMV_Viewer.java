@@ -3723,7 +3723,8 @@ public class WMV_Viewer
 //				WMV_Time utcTime = new WMV_Time( utc, count, -1, 0, currentField.getTimeZoneID() );
 
 				ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("America/Los_Angeles"));
-				WMV_Time pacTime = new WMV_Time( pac, count, -1, 0, currentField.getTimeZoneID() );
+				WMV_Time pacTime = new WMV_Time();
+				pacTime.initialize( pac, count, -1, 0, currentField.getTimeZoneID() );
 
 				float newX = 0.f, newZ = 0.f, newY = 0.f;
 

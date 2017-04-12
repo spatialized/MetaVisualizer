@@ -323,11 +323,12 @@ public class WMV_World
 		
 		PApplet.println("Saving Simulation State to: "+folderPath);
 		
-		getCurrentField().captureState();
+		WMV_ClusterStateList csl = getCurrentField().captureState();
 		p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
 		p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
 		p.library.saveViewerSettings(viewer.getSettings(), folderPath+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), folderPath+"ml_library_viewerState.json");
+		p.library.saveClusterStateList(csl, folderPath+"ml_library_clusterStates.json");
 		p.library.saveFieldState(getCurrentField().getState(), folderPath+"ml_library_fieldState.json");
 	}
 
@@ -367,7 +368,8 @@ public class WMV_World
 
 	public boolean loadFieldState(WMV_Field field)
 	{
-		return field.setState(p, p.library.loadFieldState(getDataFolder()+"ml_library_fieldState.json"));
+		WMV_ClusterStateList csl = p.library.loadClusterStateList(getDataFolder()+"ml_library_clusterStates.json");
+		return field.setState(p, p.library.loadFieldState(getDataFolder()+"ml_library_fieldState.json"), csl);
 	}
 
 	public void loadSettings()

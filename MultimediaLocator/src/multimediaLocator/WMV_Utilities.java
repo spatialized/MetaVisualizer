@@ -689,7 +689,9 @@ public class WMV_Utilities
 	
 	public WMV_TimeSegment createSegment(int clusterID, ArrayList<WMV_Time> timeline)
 	{
-		WMV_TimeSegment ts = new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, timeline);
+		WMV_TimeSegment ts = new WMV_TimeSegment();
+		ts.initialize(clusterID, -1, -1, -1, -1, -1, -1, timeline);
+		
 		checkTimeSegment(ts);
 		return ts;
 	}

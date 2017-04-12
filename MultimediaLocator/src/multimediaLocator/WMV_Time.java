@@ -22,7 +22,9 @@ public class WMV_Time implements Comparable<WMV_Time>
 	ZonedDateTime dateTime;
 	String timeZoneID;
 	
-	WMV_Time(ZonedDateTime newDateTime, int newID, int newClusterID, int newMediaType, String newTimeZoneID)
+	WMV_Time(){}
+
+	public void initialize(ZonedDateTime newDateTime, int newID, int newClusterID, int newMediaType, String newTimeZoneID)
 	{
 		dateTime = newDateTime;
 		
@@ -97,7 +99,8 @@ public class WMV_Time implements Comparable<WMV_Time>
 	 */
 	public WMV_Date getDate()
 	{
-		WMV_Date date = new WMV_Date(-1, dateTime, timeZoneID);
+		WMV_Date date = new WMV_Date();
+		date.initialize(-1, dateTime, timeZoneID);
 		return date;
 	}
 

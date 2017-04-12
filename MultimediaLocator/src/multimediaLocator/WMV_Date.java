@@ -21,7 +21,9 @@ public class WMV_Date implements Comparable<WMV_Date>
 	ZonedDateTime dateTime;
 	String timeZoneID;
 
-	public WMV_Date(int newID, ZonedDateTime newDateTime, String newTimeZoneID)
+	public WMV_Date(){}
+	
+	public void initialize(int newID, ZonedDateTime newDateTime, String newTimeZoneID)
 	{
 		utilities = new WMV_Utilities();
 		id = newID;

@@ -829,10 +829,6 @@ public abstract class WMV_Media
 	
 	public void setAssociatedClusterID(int newCluster)
 	{
-//		if(mState.mediaType == 2)
-		if(mState.mediaType == 2 && getID() == 0)
-			System.out.println("Setting associated cluster for video:"+getID()+" from "+mState.getClusterID()+" to "+newCluster+"...");
-
 		mState.setClusterID( newCluster );
 	}
 	

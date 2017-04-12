@@ -33,6 +33,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		metadata = newVideoMetadata;
 		state = new WMV_VideoState();
+		state.initialize(metadata);
 		
 		state.vertices = new PVector[4]; 
 		state.sVertices = new PVector[4]; 
@@ -44,7 +45,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		state.origFocusDistance = metadata.focusDistance;
 
 		if(metadata.dateTime != null)
-			time = new WMV_Time( metadata.dateTime, getID(), getAssociatedClusterID(), 2, metadata.timeZone );		
+		{
+			time = new WMV_Time();		
+			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 2, metadata.timeZone );		
+		}
 		else
 			time = null;
 

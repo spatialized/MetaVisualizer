@@ -27,7 +27,14 @@ public class WMV_Sound extends WMV_Media
 
 		state = new WMV_SoundState();
 		
-		metadata = newSoundMetadata;
+		if(newSoundMetadata != null)
+		{
+			metadata = newSoundMetadata;
+			state.initialize(metadata);	
+		}
+		else
+			state.initialize(null);	
+		
 //		filePath = newFilePath;
 		getMediaState().gpsLocation = metadata.gpsLocation;
 		
@@ -35,7 +42,8 @@ public class WMV_Sound extends WMV_Media
 		
 		if(metadata.dateTime != null)
 		{
-			time = new WMV_Time( metadata.dateTime, getID(), getMediaState().getClusterID(), 3, metadata.timeZone );		
+			time = new WMV_Time();
+			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 3, metadata.timeZone );
 		}
 		else
 			time = null;

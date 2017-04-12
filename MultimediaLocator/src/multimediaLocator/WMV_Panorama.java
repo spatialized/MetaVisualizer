@@ -33,6 +33,7 @@ public class WMV_Panorama extends WMV_Media
 
 		metadata = newPanoMetadata;
 		state = new WMV_PanoramaState();
+		state.initialize(metadata);
 
 		texture = newTexture;
 
@@ -43,7 +44,10 @@ public class WMV_Panorama extends WMV_Media
 		}
 		
 		if(metadata.dateTime != null)
-			time = new WMV_Time( metadata.dateTime, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
+		{
+			time = new WMV_Time();
+			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
+		}
 		else
 			time = null;
 

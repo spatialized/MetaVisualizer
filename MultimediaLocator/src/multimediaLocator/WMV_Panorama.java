@@ -43,7 +43,7 @@ public class WMV_Panorama extends WMV_Media
 		}
 		
 		if(metadata.dateTime != null)
-			time = new WMV_Time( metadata.dateTime, getID(), getClusterID(), 1, metadata.timeZone );
+			time = new WMV_Time( metadata.dateTime, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
 		else
 			time = null;
 
@@ -74,7 +74,7 @@ public class WMV_Panorama extends WMV_Media
 			{
 				for(int id : getViewerState().getClustersVisible())
 				{
-					if(getMediaState().cluster == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+					if(getMediaState().getClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						setVisible(true);
 				}
 			}
@@ -392,37 +392,37 @@ public class WMV_Panorama extends WMV_Media
 		return distance;
 	}
 	
-	/**
-	 * Search given list of clusters and associated with this image
-	 * @return Whether associated field was successfully found
-	 */	
-	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
-	{
-		int closestClusterIndex = 0;
-		float closestDistance = 100000;
-
-		for (int i = 0; i < clusterList.size(); i++) 
-		{     
-			WMV_Cluster curCluster = clusterList.get(i);
-			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-
-			if (distanceCheck < closestDistance)
-			{
-				closestClusterIndex = i;
-				closestDistance = distanceCheck;
-			}
-		}
-
-		if(closestDistance < maxClusterDistance)
-			setClusterID(closestClusterIndex);		// Associate image with cluster
-		else
-			setClusterID(-1);						// Create a new single image cluster here!
-
-		if(getClusterID() != -1)
-			return true;
-		else
-			return false;
-	}
+//	/**
+//	 * Search given list of clusters and associated with this image
+//	 * @return Whether associated field was successfully found
+//	 */	
+//	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+//	{
+//		int closestClusterIndex = 0;
+//		float closestDistance = 100000;
+//
+//		for (int i = 0; i < clusterList.size(); i++) 
+//		{     
+//			WMV_Cluster curCluster = clusterList.get(i);
+//			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
+//
+//			if (distanceCheck < closestDistance)
+//			{
+//				closestClusterIndex = i;
+//				closestDistance = distanceCheck;
+//			}
+//		}
+//
+//		if(closestDistance < maxClusterDistance)
+//			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
+//		else
+//			setAssociatedClusterID(-1);						// Create a new single image cluster here!
+//
+//		if(getAssociatedClusterID() != -1)
+//			return true;
+//		else
+//			return false;
+//	}
 	
 	/**
 	 * Draw the panorama metadata in Heads-Up Display
@@ -433,7 +433,7 @@ public class WMV_Panorama extends WMV_Media
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
-		String strCluster = "Cluster: "+String.valueOf(getClusterID());
+		String strCluster = "Cluster: "+String.valueOf(getAssociatedClusterID());
 		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
 		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
 		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);

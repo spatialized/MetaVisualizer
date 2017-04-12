@@ -254,10 +254,10 @@ class ML_Display
 //					p.p.text(" Clusters: "+ f.getClusters().size()+"  Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
 					int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
 					p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
 					p.p.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
 					p.p.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
-							+" of "+ p.getCurrentField().getTimelines().get(fieldDate).size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
+							+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
 				}
 			}
 			if(c != null)
@@ -271,10 +271,10 @@ class ML_Display
 					{
 						int clusterDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
 						p.p.text(" Current Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-						p.p.text("   ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.getTimeline().size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+						p.p.text("   ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
 						p.p.text("   Date: "+ (clusterDate+1) +" of "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
 						if(c.getTimelines().size() > clusterDate)
-							p.p.text("  Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.getTimelines().get(clusterDate).size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
+							p.p.text("  Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.getTimelines().get(clusterDate).timeline.size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
 						else
 							p.p.text("ERROR: No Cluster Timeline for Current Cluster Date ("+clusterDate+")", xPos, yPos += lineWidth, hudDistance);
 					}
@@ -417,7 +417,7 @@ class ML_Display
 		if(f.getDateline().size() == 1)
 		{
 			int count = 0;
-			for(WMV_TimeSegment t : f.getTimeline())
+			for(WMV_TimeSegment t : f.getTimeline().timeline)
 			{
 				SelectableTimeSegment st = getSelectableTime(t, count);
 				if(st != null)
@@ -432,9 +432,9 @@ class ML_Display
 			if(displayDate == -1)
 			{
 				int count = 0;
-				for(ArrayList<WMV_TimeSegment> ts : f.getTimelines())
+				for(WMV_Timeline ts : f.getTimelines())
 				{
-					for(WMV_TimeSegment t:ts)
+					for(WMV_TimeSegment t:ts.timeline)
 					{
 						SelectableTimeSegment st = getSelectableTime(t, count);
 						if(st != null)
@@ -449,7 +449,7 @@ class ML_Display
 			{
 				if(displayDate < f.getTimelines().size())
 				{
-					ArrayList<WMV_TimeSegment> ts = f.getTimelines().get(displayDate);
+					ArrayList<WMV_TimeSegment> ts = f.getTimelines().get(displayDate).timeline;
 					int count = 0;
 					
 					for(WMV_TimeSegment t:ts)
@@ -697,7 +697,7 @@ class ML_Display
 		if(f.getDateline().size() == 1)
 		{
 			int count = 0;
-			for(WMV_TimeSegment t : f.getTimeline())
+			for(WMV_TimeSegment t : f.getTimeline().timeline)
 			{
 				drawTimeSegment(p, t, count);
 				count++;
@@ -708,9 +708,9 @@ class ML_Display
 			if(displayDate == -1)
 			{
 				int count = 0;
-				for(ArrayList<WMV_TimeSegment> ts : f.getTimelines())
+				for(WMV_Timeline ts : f.getTimelines())
 				{
-					for(WMV_TimeSegment t:ts)
+					for(WMV_TimeSegment t:ts.timeline)
 					{
 						drawTimeSegment(p, t, count);
 						count++;
@@ -721,7 +721,7 @@ class ML_Display
 			{
 				if(displayDate < f.getTimelines().size())
 				{
-					ArrayList<WMV_TimeSegment> ts = f.getTimelines().get(displayDate);
+					ArrayList<WMV_TimeSegment> ts = f.getTimelines().get(displayDate).timeline;
 					int count = 0;
 					for(WMV_TimeSegment t:ts)
 					{
@@ -1028,7 +1028,7 @@ class ML_Display
 		WMV_Field f = p.getCurrentField();
 		
 		float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
-		float last = f.getTimeSegment(f.getTimeline().size()-1).getUpper().getTime();		// Last field media time, normalized
+		float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
 		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 		first *= day;					// Convert from normalized value to seconds
@@ -1100,8 +1100,8 @@ class ML_Display
 		{
 			WMV_Field f = p.getCurrentField();
 			int curDate = selectableDates.get(currentSelectableDate).getID();
-			float first = f.getTimelines().get(curDate).get(0).getLower().getTime();
-			float last = f.getTimelines().get(curDate).get(f.getTimelines().get(curDate).size()-1).getUpper().getTime();
+			float first = f.getTimelines().get(curDate).timeline.get(0).getLower().getTime();
+			float last = f.getTimelines().get(curDate).timeline.get(f.getTimelines().get(curDate).timeline.size()-1).getUpper().getTime();
 			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			first *= day;					// Convert from normalized value to seconds
@@ -1206,7 +1206,7 @@ class ML_Display
 			WMV_Field f = p.getCurrentField();
 			
 			float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
-			float last = f.getTimeSegment(f.getTimeline().size()-1).getUpper().getTime();		// Last field media time, normalized
+			float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
 
 			if(transitionZoomDirection == 1)
 			{
@@ -1240,7 +1240,7 @@ class ML_Display
 		if(result < utilities.getTimePVectorSeconds(new PVector(24,0,0)))
 		{
 			WMV_Field f = p.getCurrentField();
-			float last = f.getTimeSegment(f.getTimeline().size()-1).getUpper().getTime();		// Last field media time, normalized
+			float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
 			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			float newTimelineEnd;
@@ -2068,13 +2068,13 @@ class ML_Display
 				p.p.text(" Current Field Time: "+ p.getState().currentTime, xPos, yPos += lineWidth, hudDistance);
 			if(p.p.world.getState().getTimeMode() == 1)
 				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().getState().currentTime, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().getTimeline().size(), xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().getTimeline().timeline.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment(), xPos, yPos += lineWidth, hudDistance);
-			if(f.getTimeline().size() > 0 && p.viewer.getCurrentFieldTimeSegment() >= 0 && p.viewer.getCurrentFieldTimeSegment() < f.getTimeline().size())
+			if(f.getTimeline().timeline.size() > 0 && p.viewer.getCurrentFieldTimeSegment() >= 0 && p.viewer.getCurrentFieldTimeSegment() < f.getTimeline().timeline.size())
 				p.p.text(" Upper: "+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()
 						+" Center:"+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
 						" Lower: "+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Current Cluster Timeline Segments: "+ p.getCurrentCluster().getTimeline().size(), xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Current Cluster Timeline Segments: "+ p.getCurrentCluster().getTimeline().timeline.size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.text(" Field Dateline Segments: "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
 			p.p.textSize(mediumTextSize);
 
@@ -2137,10 +2137,10 @@ class ML_Display
 		p.p.text(" ", xPos, yPos += lineWidth, hudDistance);
 		p.p.text("   Media Segments: "+ c.segments.size(), xPos, yPos += lineWidth, hudDistance);
 		
-		if(c.getTimeline().size() > 0)
+		if(c.getTimeline().timeline.size() > 0)
 		{
-			p.p.text(" Timeline Segments: "+ c.getTimeline().size(), xPos, yPos += lineWidthWide, hudDistance);
-			p.p.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline()), xPos, yPos += lineWidth, hudDistance);
+			p.p.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+			p.p.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += lineWidth, hudDistance);
 		}
 		if(c.getDateline() != null)
 			if(c.getDateline().size() > 0)
@@ -2169,10 +2169,10 @@ class ML_Display
 					{
 						int clusterDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
 						p.p.text(" Current Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-						p.p.text("   ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.getTimeline().size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+						p.p.text("   ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
 						p.p.text("   Date: "+ (clusterDate+1) +" of "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
 						if(c.getTimelines().size() > clusterDate)
-							p.p.text("  Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.getTimelines().get(clusterDate).size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
+							p.p.text("  Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.getTimelines().get(clusterDate).timeline.size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
 						else
 							p.p.text("ERROR: No Cluster Timeline for Current Cluster Date ("+clusterDate+")", xPos, yPos += lineWidth, hudDistance);
 					}
@@ -2196,10 +2196,10 @@ class ML_Display
 //					p.p.text(" Clusters: "+ f.getClusters().size()+"  Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
 					int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
 					p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
 					p.p.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
 					p.p.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
-							+" of "+ p.getCurrentField().getTimelines().get(fieldDate).size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
+							+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
 				}
 			}
 		}

@@ -10,7 +10,7 @@ public class ML_DebugSettings
 	/* General */
 	public boolean memory = false;				// Debug memory
 	public boolean detailed = false;			// Verbose debugging messages
-	public boolean print = false;				// Print all user messages
+	public boolean print = true;				// Print all user messages
 	
 	/* Data */
 	public boolean main = true;				// Debug WorldMediaViewer class
@@ -19,8 +19,8 @@ public class ML_DebugSettings
 
 	/* Model */
 	public boolean time = true;				// Debug WMV_Time class
-	public boolean field = false;				// Debug WMV_Field class
-	public boolean cluster = false;				// Debug WMV_Cluster class
+	public boolean field = true;				// Debug WMV_Field class
+	public boolean cluster = true;				// Debug WMV_Cluster class
 
 	/* Viewer */
 	public boolean viewer = true;				// Debug WMV_Viewer class

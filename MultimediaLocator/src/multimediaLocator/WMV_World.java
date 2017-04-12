@@ -802,8 +802,8 @@ public class WMV_World
 			
 			if(cl.size() == 1)
 			{
-				if(cl.get(0).getTimeline().size() > 0)
-					viewer.setNearbyClusterTimeline(cl.get(0).getTimeline());
+				if(cl.get(0).getTimeline().timeline.size() > 0)
+					viewer.setNearbyClusterTimeline(cl.get(0).getTimeline().timeline);
 				else
 					System.out.println("CreateTimeCycle Error... Cluster #"+cl.get(0).getID()+"  getTimeline().size() == 0!");
 			}
@@ -825,10 +825,10 @@ public class WMV_World
 			
 			for(WMV_Cluster c : cl)
 			{
-				float low = c.getTimeline().get(0).getLower().getTime();
+				float low = c.getTimeline().timeline.get(0).getLower().getTime();
 				if(low < lowest)
 					lowest = low;
-				float high = c.getTimeline().get(c.getTimeline().size()-1).getUpper().getTime();
+				float high = c.getTimeline().timeline.get(c.getTimeline().timeline.size()-1).getUpper().getTime();
 				if(high > highest)
 					highest = high;
 			}

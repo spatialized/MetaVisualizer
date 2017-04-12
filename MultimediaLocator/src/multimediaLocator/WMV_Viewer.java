@@ -518,7 +518,7 @@ public class WMV_Viewer
 
 		if(mediaType == 1)		// Panorama
 		{
-			while(  !currentField.getCluster(next).getState().hasPanorama || 		// Increment nextCluster until different non-empty panorama cluster found
+			while(  !currentField.getCluster(next).getHasPanorama() || 		// Increment nextCluster until different non-empty panorama cluster found
 					currentField.getCluster(next).isEmpty() || 
 					next == state.currentCluster )
 			{
@@ -556,7 +556,7 @@ public class WMV_Viewer
 		
 		if(mediaType == 2)				// Video
 		{
-			while(  !currentField.getCluster(next).getState().hasVideo || 		// Increment nextCluster until different non-empty video cluster found
+			while(  !currentField.getCluster(next).hasVideo() || 		// Increment nextCluster until different non-empty video cluster found
 					currentField.getCluster(next).isEmpty() || 
 					next == state.currentCluster )
 			{
@@ -616,11 +616,11 @@ public class WMV_Viewer
 		WMV_Field f = p.getField(fieldID);
 
 		if(debugSettings.viewer && debugSettings.detailed)
-			System.out.println("moveToTimeSegmentInField:"+f.getTimeline().get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().size());
+			System.out.println("moveToTimeSegmentInField:"+f.getTimeline().timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().timeline.size());
 
-		if(f.getTimeline().size()>0)
+		if(f.getTimeline().timeline.size()>0)
 		{
-			int clusterID = f.getTimeline().get(fieldTimeSegment).getClusterID();
+			int clusterID = f.getTimeline().timeline.get(fieldTimeSegment).getClusterID();
 			if(clusterID == state.currentCluster && currentField.getCluster(clusterID).getClusterDistance() < worldSettings.clusterCenterSize)	// Moving to different time in same cluster
 			{
 				setCurrentFieldTimeSegment(fieldTimeSegment, true);
@@ -935,7 +935,7 @@ public class WMV_Viewer
 			}
 			else
 			{
-				if(newValue >= currentField.getTimelines().get(state.currentFieldDate).size()) 		// Reached end of day
+				if(newValue >= currentField.getTimelines().get(state.currentFieldDate).timeline.size()) 		// Reached end of day
 				{
 					if(debugSettings.viewer) System.out.println("Reached end of day...");
 					state.currentFieldDate++;
@@ -947,7 +947,7 @@ public class WMV_Viewer
 					}
 					else
 					{
-						while(currentField.getTimelines().get(state.currentFieldDate).size() == 0)		// Go to next non-empty date
+						while(currentField.getTimelines().get(state.currentFieldDate).timeline.size() == 0)		// Go to next non-empty date
 						{
 							state.currentFieldDate++;
 							if(state.currentFieldDate >= currentField.getDateline().size())
@@ -964,7 +964,7 @@ public class WMV_Viewer
 		else
 		{
 			setCurrentFieldTimeSegment(state.currentFieldTimeSegment+1, true);
-			if(state.currentFieldTimeSegment >= currentField.getTimeline().size())
+			if(state.currentFieldTimeSegment >= currentField.getTimeline().timeline.size())
 				setCurrentFieldTimeSegment(0, true);									// Return to first segment
 		}
 
@@ -996,11 +996,11 @@ public class WMV_Viewer
 					if(state.currentFieldDate < 0) 
 					{
 						state.currentFieldDate = currentField.getDateline().size()-1;			// Go to last date
-						setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).size()-1, true);		// Go to last segment
+						setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Go to last segment
 					}
 					else
 					{
-						setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).size()-1, true);		// Start at last segment
+						setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Start at last segment
 					}
 				}	
 				else
@@ -1013,7 +1013,7 @@ public class WMV_Viewer
 		{
 			setCurrentFieldTimeSegment(state.currentFieldTimeSegment-1, true);
 			if(state.currentFieldTimeSegment < 0)
-				setCurrentFieldTimeSegment(currentField.getTimeline().size()-1, true);
+				setCurrentFieldTimeSegment(currentField.getTimeline().timeline.size()-1, true);
 		}
 
 		moveToTimeSegmentInField(currentField.getID(), state.currentFieldTimeSegment, teleport, fade);
@@ -1395,7 +1395,7 @@ public class WMV_Viewer
 			nextCluster = 0;
 		int count = 0;
 		boolean found = false;
-		while(currentField.getCluster(nextCluster).getTimeline().size() < 2)
+		while(currentField.getCluster(nextCluster).getTimeline().timeline.size() < 2)
 		{
 			nextCluster++;
 			count++;
@@ -1409,7 +1409,7 @@ public class WMV_Viewer
 			found = true;
 
 		if(debugSettings.viewer && debugSettings.detailed)
-			System.out.println("moveToClusterWith2OrMoreTimes... setting attractor:"+currentField.getTimeline().get(nextCluster).getFieldTimelineID());
+			System.out.println("moveToClusterWith2OrMoreTimes... setting attractor:"+currentField.getTimeline().timeline.get(nextCluster).getFieldTimelineID());
 
 		if(found)
 		{
@@ -3269,7 +3269,7 @@ public class WMV_Viewer
 				if(settings.segmentSelection)											// Segment selection
 				{
 					int segmentID = -1;
-					WMV_Cluster c = currentField.getCluster( currentField.getImage(newSelected).getClusterID() );
+					WMV_Cluster c = currentField.getCluster( currentField.getImage(newSelected).getAssociatedClusterID() );
 					for(WMV_MediaSegment m : c.segments)
 					{
 //						if(m.getImages().hasValue(newSelected))
@@ -3435,7 +3435,7 @@ public class WMV_Viewer
 			System.out.println(">>> Creating Viewer Timeline (Nearby Visible Clusters)... <<<");
 
 		for(WMV_Cluster c : clusters)											// Find all media cluster times
-			for(WMV_TimeSegment t : c.getTimeline())
+			for(WMV_TimeSegment t : c.getTimeline().timeline)
 				timeline.add(t);
 
 		timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort time segments 
@@ -3896,7 +3896,7 @@ public class WMV_Viewer
 				WMV_Field f = currentField;
 				if(newFieldTimeSegment == -1)						// If == -1, search for time segment
 				{
-					for(WMV_TimeSegment t : f.getTimeline())			// Search field timeline for cluster time segment
+					for(WMV_TimeSegment t : f.getTimeline().timeline)			// Search field timeline for cluster time segment
 					{
 						if(c.getTimeline() != null)
 						{
@@ -3936,12 +3936,12 @@ public class WMV_Viewer
 		
 		if(updateTimelinesSegment)
 		{
-			int newFieldDate = currentField.getTimeline().get(state.currentFieldTimeSegment).getFieldDateID();
-			int newFieldTimelinesSegment = currentField.getTimeline().get(state.currentFieldTimeSegment).getFieldTimelineIDOnDate();
+			int newFieldDate = currentField.getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldDateID();
+			int newFieldTimelinesSegment = currentField.getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldTimelineIDOnDate();
 			success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false);
 		}
 		
-		if(state.currentFieldTimeSegment >= 0 && state.currentFieldTimeSegment < currentField.getTimeline().size())
+		if(state.currentFieldTimeSegment >= 0 && state.currentFieldTimeSegment < currentField.getTimeline().timeline.size())
 			return success;
 		else
 			return false;
@@ -3959,7 +3959,7 @@ public class WMV_Viewer
 		{
 			if(currentField.getTimelines().size() > 0 && currentField.getTimelines().size() > state.currentFieldDate)
 			{
-				System.out.println("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).size()+" getLocation():"+getLocation());
+				System.out.println("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation());
 			}
 			else 
 			{
@@ -3979,11 +3979,11 @@ public class WMV_Viewer
 
 		if(state.currentFieldDate < currentField.getTimelines().size())
 		{
-			if(currentField.getTimelines().get(state.currentFieldDate).size() > 0 && state.currentFieldTimeSegmentOnDate < currentField.getTimelines().get(state.currentFieldDate).size())
+			if(currentField.getTimelines().get(state.currentFieldDate).timeline.size() > 0 && state.currentFieldTimeSegmentOnDate < currentField.getTimelines().get(state.currentFieldDate).timeline.size())
 			{
 				if(updateTimelineSegment)
 				{
-					int fieldTimelineID = currentField.getTimelines().get(state.currentFieldDate).get(state.currentFieldTimeSegmentOnDate).getFieldTimelineID();
+					int fieldTimelineID = currentField.getTimelines().get(state.currentFieldDate).timeline.get(state.currentFieldTimeSegmentOnDate).getFieldTimelineID();
 					boolean success = setCurrentFieldTimeSegment(fieldTimelineID, false);
 					return success;
 				}

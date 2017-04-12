@@ -606,7 +606,6 @@ public class ML_Window {
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(7);
 		sdrTimeCycleLength.setLimits(0.f, 5000.f, 10.f);
-		System.out.println("world.settings.timeCycleLength:"+world.settings.timeCycleLength);		// -- ??
 		sdrTimeCycleLength.setValue(world.settings.timeCycleLength);
 		sdrTimeCycleLength.setRotation(PApplet.PI/2.f);
 		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_LEFT);
@@ -1267,16 +1266,16 @@ public class ML_Window {
 			{
 				case 0:
 //					applet.text(" Time Mode: Cluster", x, y += lineWidthVeryWide);
-					if(f.getTimeline().size() > 0 && world.viewer.getCurrentFieldTimeSegment() >= 0 && world.viewer.getCurrentFieldTimeSegment() < f.getTimeline().size())
+					if(f.getTimeline().timeline.size() > 0 && world.viewer.getCurrentFieldTimeSegment() >= 0 && world.viewer.getCurrentFieldTimeSegment() < f.getTimeline().timeline.size())
 					{
 						applet.text(" Upper: "+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()+
 								" Center:"+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
 								" Lower: "+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
-						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().size(), x, y += lineWidthWide);
+						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().timeline.size(), x, y += lineWidthWide);
 					}
 					else
 					{
-						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().size(), x, y += lineWidthVeryWide);
+						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().timeline.size(), x, y += lineWidthVeryWide);
 					}
 					applet.text(" Current Cluster Dateline Size: "+ world.getCurrentCluster().getDateline().size(), x, y += lineWidth);
 					
@@ -1295,7 +1294,7 @@ public class ML_Window {
 			
 //			applet.text(" Current Field Time: "+ world.currentTime, x, y += lineWidth);
 			applet.text(" Current Field Time Segment: "+ world.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
-			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().size(), x, y += lineWidth);
+			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().timeline.size(), x, y += lineWidth);
 			applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
 		}
 	}

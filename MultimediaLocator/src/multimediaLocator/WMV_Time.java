@@ -27,7 +27,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 		dateTime = newDateTime;
 		
 		id = newID;
-		clusterID = newClusterID;
+		clusterID = newClusterID;					// Currently set to -1 when created, fixed later in cluster.createTimeline()
 		mediaType = newMediaType;									
 		timeZoneID = newTimeZoneID;
 		
@@ -196,6 +196,10 @@ public class WMV_Time implements Comparable<WMV_Time>
 	  return res;
 	}
 
+	public void setClusterID(int newClusterID)
+	{
+		clusterID = newClusterID;
+	}
 	/**
 	 * @return Day length associated with this time (unused)
 	 */

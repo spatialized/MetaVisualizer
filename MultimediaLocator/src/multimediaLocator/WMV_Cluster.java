@@ -23,8 +23,11 @@ public class WMV_Cluster
 
 	/* Time */
 	private ArrayList<WMV_Date> dateline;						// Capture dates for this cluster
-	private ArrayList<WMV_TimeSegment> timeline;				// Date-independent capture times for this cluster
-	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;	
+	private WMV_Timeline timeline;				// Date-independent capture times for this cluster
+	private ArrayList<WMV_Timeline> timelines;	
+	
+//	private ArrayList<WMV_TimeSegment> timeline;				// Date-independent capture times for this cluster
+//	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;	
 
 	/* Panoramic Stitching */
 	ArrayList<WMV_Panorama> stitched;				// Stitched panoramas
@@ -55,7 +58,8 @@ public class WMV_Cluster
 		
 		stitched = new ArrayList<WMV_Panorama>();
 
-		timeline = new ArrayList<WMV_TimeSegment>();
+//		timeline = new ArrayList<WMV_TimeSegment>();
+		timeline = new WMV_Timeline( null );
 		state.mediaCount = 0;
 	}
 
@@ -78,7 +82,7 @@ public class WMV_Cluster
 	 */
 	void addPanorama(WMV_Panorama newPanorama)
 	{
-		if(!state.hasPanorama) state.hasPanorama = true;
+		if(!state.hasPanorama()) state.setHasPanorama(true);
 		
 		if(!state.panoramas.contains(newPanorama.getID()))
 		{
@@ -128,7 +132,7 @@ public class WMV_Cluster
 		{
 			WMV_Image curImg = imageList.get(i);
 
-			if (curImg.getMediaState().cluster == state.id) 			// If the image is assigned to this cluster
+			if (curImg.getMediaState().getClusterID() == state.id) 			// If the image is assigned to this cluster
 			{
 				newLocation.add(curImg.getCaptureLocation());		// Move cluster towards the image
 				if(!state.images.contains(curImg.getID()))
@@ -144,7 +148,7 @@ public class WMV_Cluster
 		{
 			WMV_Panorama curPano = panoramaList.get(i);
 
-			if (curPano.getMediaState().cluster == state.id) 			// If the image is assigned to this cluster
+			if (curPano.getMediaState().getClusterID() == state.id) 			// If the image is assigned to this cluster
 			{
 				newLocation.add(curPano.getCaptureLocation());		// Move cluster towards the image
 				if(!state.panoramas.contains(curPano.getID()))
@@ -160,7 +164,7 @@ public class WMV_Cluster
 		{
 			WMV_Video curVid = videoList.get(i);
 
-			if (curVid.getMediaState().cluster == state.id) 				// If the image is assigned to this cluster
+			if (curVid.getMediaState().getClusterID() == state.id) 				// If the image is assigned to this cluster
 			{
 				newLocation.add(curVid.getCaptureLocation());	// Move cluster towards the image
 				if(!state.videos.contains(curVid.getID()))
@@ -388,25 +392,30 @@ public class WMV_Cluster
 		for(int n : state.panoramas) 
 			mediaTimes.add( panoramaList.get(n).time );
 		
-		boolean withVideo = false;
+		boolean withVideo = state.videos.size() > 0;
+		int videoID = -1;
 		for(int v : state.videos)
 		{
 			mediaTimes.add( videoList.get(v).time );
-			withVideo = true;
+			videoID = videoList.get(v).getID();
 		}
+		
+//		if(withVideo) System.out.println("Video(s) in timeline... state.videos.size():"+state.videos.size());
 
 		if(mediaTimes.size() > 0)
 		{
-			timeline = utilities.createTimeSegments(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
-			if(timeline != null)
+			timeline.timeline = utilities.createTimeline(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
+			timeline.finishTimeline();			// Finish timeline / set bounds
+
+			if(timeline.timeline != null)
 			{
-				if(timeline.size() > 0)
+				if(timeline.timeline.size() > 0)
 				{
-					timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
+					timeline.timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
 					
 					ArrayList<WMV_Time> test = new ArrayList<WMV_Time>();
 					
-					for(WMV_TimeSegment t : timeline)
+					for(WMV_TimeSegment t : timeline.timeline)
 						for(WMV_Time tm : t.getTimeline())
 							test.add(tm);
 
@@ -416,26 +425,41 @@ public class WMV_Cluster
 					}
 					else
 					{
-						boolean video = false;
-						if(withVideo)
-						{
-							for(WMV_TimeSegment ts : timeline)
-							{
-								for(WMV_Time tm : ts.getTimeline())
-								{
-									if(tm.getMediaType() == 2)
-									{
-										if(tm.getTime()<ts.getLower().getTime() || tm.getTime()>ts.getUpper().getTime())
-											System.out.println("Invalid video time segment! "+" time:"+tm.getTime()+" lower:"+ts.getLower().getTime()+" upper:"+ts.getLower().getTime());
-										video = true;
-									}
-								}
-							}
-							if(!video)
-							{
-								System.out.println("Video not added to timeline!  test.size():"+test.size()+" mediaTimes.size():"+mediaTimes.size()+"...");
-							}
-						}
+//						System.out.println("Complete timeline created...  test.size():"+test.size()+" mediaTimes.size():"+mediaTimes.size()+"...");
+//						boolean videoFound = false;
+						
+//						if(withVideo)
+//						{
+//							for(WMV_TimeSegment ts : timeline.timeline)
+//							{
+//								for(WMV_Time tm : ts.getTimeline())
+//								{
+//									if(tm.getMediaType() == 2)
+//									{
+//										if(tm.getID() == videoID)
+//										{	
+//											videoFound = true;
+//											System.out.println("Video #"+videoID+" added to timeline... video cluster id: "+videoList.get(videoID).getMediaState().getClusterID()+" == tm.getClusterID():"+tm.getClusterID()+" == this cluster ID:"+getID());
+//										}
+//										
+//										if(tm.getTime()<ts.getLower().getTime() || tm.getTime()>ts.getUpper().getTime())
+//											System.out.println("1  Invalid video time segment! "+" time:"+tm.getTime()+" lowerTS:"+ts.getLower().getTime()+" upperTS:"+ts.getLower().getTime());
+//										else
+//											System.out.println("1  Valid video time segment..."+" time:"+tm.getTime()+" cluster:"+getID()+" == tm.getClusterID():"+tm.getClusterID()+" == this cluster ID:"+getID());
+//
+//										if(tm.getTime()<timeline.getLower().getLower().getTime() || tm.getTime()>timeline.getUpper().getUpper().getTime())
+//											System.out.println("2  Invalid video time segment! "+" time:"+tm.getTime()+" lowerTL:"+timeline.getLower().getLower().getTime()+" upperTL:"+timeline.getUpper().getUpper().getTime());
+//										else
+//											System.out.println("2  Valid video time segment..."+" time:"+tm.getTime()+" cluster:"+getID()+" == tm.getClusterID():"+tm.getClusterID()+" == this cluster ID:"+getID());
+//
+//									}
+//								}
+//							}
+//							if(!videoFound)
+//							{
+//								System.out.println("Video #"+videoID+" NOT added to timeline!  test.size():"+test.size()+" mediaTimes.size():"+mediaTimes.size()+"... this cluster ID:"+getID());
+//							}
+//						}
 					}
 				}
 				else
@@ -445,16 +469,16 @@ public class WMV_Cluster
 				System.out.println("NULL timeline created for cluster #"+getID()+"!!!!");
 			
 			int count = 0;
-			for (WMV_TimeSegment t : timeline) 												// Number time segments in chronological order
+			for (WMV_TimeSegment t : timeline.timeline) 												// Number time segments in chronological order
 			{
 				t.setClusterTimelineID(count);
 				count++;
 			}
 		}
 
-		if(timeline != null)
+		if(timeline.timeline != null)
 		{
-			if(timeline.size() == 0)
+			if(timeline.timeline.size() == 0)
 			{
 				System.out.println("Cluster #"+getID()+" timeline has no points!  images.size():"+state.images.size()+" panoramas.size():"+state.panoramas.size()+" videos.size():"+state.videos.size());
 				empty();
@@ -466,7 +490,7 @@ public class WMV_Cluster
 			empty();
 		}
 
-		if(timeline.size() == 0)
+		if(timeline.timeline.size() == 0)
 		{
 			System.out.println("Cluster timeline has no points! "+getID()+" images.size():"+state.images.size()+" panoramas.size():"+state.panoramas.size());
 			empty();
@@ -479,23 +503,24 @@ public class WMV_Cluster
 	void createTimelines()
 	{
 		int ct = 0;
-		timelines = new ArrayList<ArrayList<WMV_TimeSegment>>();
+		timelines = new ArrayList<WMV_Timeline>();
 		for(WMV_Date d : dateline)			// For each date on dateline
 		{
-			ArrayList<WMV_TimeSegment> newTimeline = new ArrayList<WMV_TimeSegment>();
-			for(WMV_TimeSegment t : timeline)		// Add each cluster time segment to this date-specific field timeline 
+//			ArrayList<WMV_TimeSegment> newTimeline = new ArrayList<WMV_TimeSegment>();
+			WMV_Timeline newTimeline = new WMV_Timeline( null );
+			for(WMV_TimeSegment t : timeline.timeline)		// Add each cluster time segment to this date-specific field timeline 
 			{
 				if(d.getDate().equals(t.timeline.get(0).getDateAsPVector()))						// Compare time segment date to current timeline date
-					newTimeline.add(t);
+					newTimeline.timeline.add(t);
 			}
 			
-			if(newTimeline.size() > 0)
+			if(newTimeline.timeline.size() > 0)
 			{
 				if(newTimeline != null) 
-					newTimeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
+					newTimeline.timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);		// Sort timeline  
 
 				int count = 0;
-				for (WMV_TimeSegment t : newTimeline) 									// Number time segments for this date in chronological order
+				for (WMV_TimeSegment t : newTimeline.timeline) 									// Number time segments for this date in chronological order
 				{
 //					t.setID(count);
 					t.setClusterDateID(ct);
@@ -504,8 +529,8 @@ public class WMV_Cluster
 				}
 				timelines.add( newTimeline );		// Calculate and add timeline to list
 
-				if(debugSettings.cluster)
-					System.out.println("Added timeline #"+count+" for cluster #"+getID()+" with "+newTimeline.size()+" points...");
+				if(debugSettings.cluster && debugSettings.detailed)
+					System.out.println("Added timeline #"+count+" for cluster #"+getID()+" with "+newTimeline.timeline.size()+" points...");
 			}
 			
 			ct++;
@@ -950,7 +975,7 @@ public class WMV_Cluster
 	public int getFirstTimeSegment(boolean anyDate)
 	{
 		if(anyDate)
-			return timeline.get(0).getFieldTimelineID();
+			return timeline.timeline.get(0).getFieldTimelineID();
 		else 
 			return getFirstTimeSegmentForDate(dateline.get(0)).getFieldTimelineID();
 	}
@@ -961,7 +986,7 @@ public class WMV_Cluster
 	 */
 	void absorbCluster(WMV_Cluster cluster, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
 	{
-		if(debugSettings.cluster)
+		if(debugSettings.cluster && debugSettings.detailed)
 			System.out.println("Merging cluster "+getID()+" with "+cluster.getID());
 
 		/* Find images associated with cluster */
@@ -969,9 +994,10 @@ public class WMV_Cluster
 		{
 			WMV_Image curImg = imageList.get(i);
 
-			if (curImg.getMediaState().cluster == cluster.getID()) 				// If the image is assigned to this cluster
+			if (curImg.getMediaState().getClusterID() == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-				curImg.getMediaState().cluster = state.id;
+//				curImg.getMediaState().cluster = state.id;
+				curImg.setAssociatedClusterID( state.id );
 				addImage(curImg);
 			}
 		}
@@ -981,9 +1007,10 @@ public class WMV_Cluster
 		{
 			WMV_Panorama curPano = panoramaList.get(i);
 
-			if (curPano.getMediaState().cluster == cluster.getID()) 				// If the image is assigned to this cluster
+			if (curPano.getMediaState().getClusterID() == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-				curPano.getMediaState().cluster = state.id;
+//				curPano.getMediaState().cluster = state.id;
+				curPano.setAssociatedClusterID( state.id );
 				addPanorama(curPano);
 			}
 		}
@@ -993,23 +1020,43 @@ public class WMV_Cluster
 		{
 			WMV_Video curVid = videoList.get(i);
 
-			if (curVid.getMediaState().cluster == cluster.getID()) 				// If the image is assigned to this cluster
+			if (curVid.getMediaState().getClusterID() == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-				curVid.getMediaState().cluster = state.id;
+//				curVid.getMediaState().cluster = state.id;
+				curVid.setAssociatedClusterID( state.id );
 				addVideo(curVid);
 			}
 		}
 
-		/* Empty merged cluster */
-		cluster.empty();
-//		cluster.state.images = new ArrayList<Integer>();
-//		cluster.state.panoramas = new ArrayList<Integer>();
-//		cluster.state.videos = new ArrayList<Integer>();
-//		cluster.state.mediaCount = 0;
-//		cluster.state.active = false;
-//		cluster.state.empty = true;
+		cluster.empty();																/* Empty merged cluster */
 	}
-	
+
+	private void absorbTimeline(WMV_Timeline newTimeline)
+	{
+//		for(WMV_TimeSegment t:newTimeline.timeline)
+//		{
+//
+//		}
+
+		
+//		for(WMV_TimeSegment t:c.getTimeline().timeline)
+//		{
+//			if(t.getClusterID() != count)
+//				t.setClusterID(count);
+//			for(WMV_Time tm:t.timeline) tm.setClusterID(count);
+//		}
+//
+//		for(WMV_Timeline tl:c.getTimelines())
+//		{
+//			for(WMV_TimeSegment t:tl.timeline)
+//			{
+//				if(t.getClusterID() != count)
+//					t.setClusterID(count);
+//				for(WMV_Time tm:t.timeline) tm.setClusterID(count);
+//			}
+//		}
+	}
+
 	/** 
 	 * Update cluster time loop
 	 */
@@ -1078,7 +1125,7 @@ public class WMV_Cluster
 				{
 //					return timelines.get(timelineID).get(0);
 					try{
-						result = timelines.get(timelineID).get(0);
+						result = timelines.get(timelineID).timeline.get(0);
 					}
 					catch(NullPointerException e)
 					{
@@ -1090,7 +1137,7 @@ public class WMV_Cluster
 				{
 //					return timeline.get(0);
 					try{
-						result = timeline.get(0);
+						result = timeline.timeline.get(0);
 					}
 					catch(NullPointerException e)
 					{
@@ -1141,9 +1188,9 @@ public class WMV_Cluster
 			if(found)
 			{
 				if(dateline.size()>1)
-					return timelines.get(timelineID).get(timelines.get(timelineID).size()-1);
+					return timelines.get(timelineID).timeline.get(timelines.get(timelineID).timeline.size()-1);
 				else
-					return timeline.get(timeline.size()-1);
+					return timeline.timeline.get(timeline.timeline.size()-1);
 			}
 			else
 			{
@@ -1454,15 +1501,25 @@ public class WMV_Cluster
 		return state.videos;
 	}
 	
-	public ArrayList<WMV_TimeSegment> getTimeline()
+	public WMV_Timeline getTimeline()
 	{
 		return timeline;
 	}
 
-	public ArrayList<ArrayList<WMV_TimeSegment>> getTimelines()
+	public ArrayList<WMV_Timeline> getTimelines()
 	{
 		return timelines;
 	}
+
+//	public ArrayList<WMV_TimeSegment> getTimeline()
+//	{
+//		return timeline;
+//	}
+//
+//	public ArrayList<ArrayList<WMV_TimeSegment>> getTimelines()
+//	{
+//		return timelines;
+//	}
 
 	public ArrayList<WMV_Date> getDateline()
 	{
@@ -1550,5 +1607,45 @@ public class WMV_Cluster
 	public void setSelected(boolean newState)
 	{
 		state.selected = newState;
+	}
+	
+	public void setHasImage(boolean newState)
+	{
+		state.setHasImage(true);
+	}
+	
+	public boolean getHasImage()
+	{
+		return state.hasImage();
+	}
+	
+	public void setHasPanorama(boolean newState)
+	{
+		state.setHasPanorama(true);
+	}
+	
+	public boolean getHasPanorama()
+	{
+		return state.hasPanorama();
+	}
+	
+	public void setHasVideo(boolean newState)
+	{
+		state.setHasVideo(true);
+	}
+	
+	public boolean hasVideo()
+	{
+		return state.hasVideo();
+	}
+	
+	public void setHasSound(boolean newState)
+	{
+		state.setHasSound(true);
+	}
+	
+	public boolean getHasSound()
+	{
+		return state.hasSound();
 	}
 }

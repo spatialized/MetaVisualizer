@@ -9,8 +9,6 @@ public class WMV_WorldState
 {
 	/* Clustering Modes */
 	public boolean hierarchical = false;			// Use hierarchical clustering (true) or k-means clustering (false) 
-//	public boolean interactive = false;				// In user clustering mode?
-//	public boolean startInteractive = false;		// Start user clustering
 
 	/* Time */
 	public int frameCount = 0;						// Frame count

@@ -22,7 +22,7 @@ public class WMV_WorldSettings
 	public final float farDistanceFactor = 4.f;			// Multiplier for defaultFocusDistance to get farDistance
 	public float clusterFarDistance = defaultFocusDistance * farDistanceFactor;			// Distance to apply greater attraction force on viewer
 	public float minClusterDistance = 3.f; 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-	public float maxClusterDistance = 11.f;				// Maximum distance between cluster center and media
+	public float maxClusterDistance = 12.f;				// Maximum distance between cluster center and media
 	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 

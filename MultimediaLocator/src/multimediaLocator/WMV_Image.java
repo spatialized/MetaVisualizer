@@ -39,7 +39,7 @@ class WMV_Image extends WMV_Media
 		state.origFocusDistance = metadata.focusDistance;
 
 		if(metadata.dateTime != null)
-			time = new WMV_Time( metadata.dateTime, getID(), getMediaState().cluster, 0, metadata.timeZone );		
+			time = new WMV_Time( metadata.dateTime, getID(), getMediaState().getClusterID(), 0, metadata.timeZone );		
 		else
 			time = null;
 
@@ -124,7 +124,7 @@ class WMV_Image extends WMV_Media
 		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
 		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
 		
-		PVector c = ml.world.getCurrentField().getCluster(getMediaState().cluster).getLocation();
+		PVector c = ml.world.getCurrentField().getCluster(getMediaState().getClusterID()).getLocation();
 //		PVector loc = getMediaState().location;
 		PVector loc = getLocation();
 		PVector cl = getCaptureLocation();
@@ -200,11 +200,11 @@ class WMV_Image extends WMV_Media
 
 			if(getViewerSettings().orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 			{
-				if(getMediaState().cluster == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
+				if(getMediaState().getClusterID() == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
 					setVisible(true);
 
 				for(int id : getViewerState().getClustersVisible())
-					if(getMediaState().cluster == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+					if(getMediaState().getClusterID() == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						setVisible(true);
 			}
 			else 
@@ -284,7 +284,7 @@ class WMV_Image extends WMV_Media
 			if(getViewerSettings().orientationMode)
 			{
 				for(int id : getViewerState().getClustersVisible())
-					if(getMediaState().cluster == id  && !getMediaState().requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
 						loadMedia(ml);
 			}
 			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
@@ -518,33 +518,33 @@ class WMV_Image extends WMV_Media
 	 * Search given list of clusters and associated with this image
 	 * @return Whether associated field was successfully found
 	 */	
-	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
-	{
-		int closestClusterIndex = 0;
-		float closestDistance = 100000;
-
-		for (int i = 0; i < clusterList.size(); i++) 
-		{     
-			WMV_Cluster curCluster = clusterList.get(i);
-			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-
-			if (distanceCheck < closestDistance)
-			{
-				closestClusterIndex = i;
-				closestDistance = distanceCheck;
-			}
-		}
-
-		if(closestDistance < maxClusterDistance)
-			setClusterID(closestClusterIndex);		// Associate image with cluster
-		else
-			setClusterID(-1);						// Create a new single image cluster here!
-
-		if(getMediaState().cluster != -1)
-			return true;
-		else
-			return false;
-	}
+//	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+//	{
+//		int closestClusterIndex = 0;
+//		float closestDistance = 100000;
+//
+//		for (int i = 0; i < clusterList.size(); i++) 
+//		{     
+//			WMV_Cluster curCluster = clusterList.get(i);
+//			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
+//
+//			if (distanceCheck < closestDistance)
+//			{
+//				closestClusterIndex = i;
+//				closestDistance = distanceCheck;
+//			}
+//		}
+//
+//		if(closestDistance < maxClusterDistance)
+//			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
+//		else
+//			setAssociatedClusterID(-1);						// Create a new single image cluster here!
+//
+//		if(getAssociatedClusterID() != -1)
+//			return true;
+//		else
+//			return false;
+//	}
 
 	/**
 	 * Set thinning visibility of image
@@ -765,7 +765,7 @@ class WMV_Image extends WMV_Media
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
-		String strCluster = "Cluster: "+String.valueOf(getClusterID());
+		String strCluster = "Cluster: "+String.valueOf(getAssociatedClusterID());
 		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
 		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
 		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);

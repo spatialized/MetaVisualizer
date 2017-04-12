@@ -46,8 +46,10 @@ public class WMV_ClusterState
 	public List<Integer> panoramas = new ArrayList<Integer>();
 	public List<Integer> videos = new ArrayList<Integer>();
 	public int mediaCount;								// No. of media associated with this cluster
-	public boolean hasPanorama = false;					// Cluster has panorama files?
-	boolean hasVideo = false;
+	private boolean hasImage = false;					// Cluster has panorama files?
+	private boolean hasPanorama = false;					// Cluster has panorama files?
+	private boolean hasVideo = false;
+	private boolean hasSound = false;
 	
 	/* Interaction */
 	public boolean selected = false;
@@ -65,4 +67,44 @@ public class WMV_ClusterState
 	 	  highVideoDate = -1000000, lowVideoDate = 1000000;
 
 	WMV_ClusterState(){}
+	
+	public void setHasImage(boolean newState)
+	{
+		hasImage = true;
+	}
+	
+	public boolean hasImage()
+	{
+		return hasImage;
+	}
+	
+	public void setHasPanorama(boolean newState)
+	{
+		hasPanorama = true;
+	}
+	
+	public boolean hasPanorama()
+	{
+		return hasPanorama;
+	}
+	
+	public void setHasVideo(boolean newState)
+	{
+		hasVideo = true;
+	}
+	
+	public boolean hasVideo()
+	{
+		return hasVideo;
+	}
+	
+	public void setHasSound(boolean newState)
+	{
+		hasSound = true;
+	}
+	
+	public boolean hasSound()
+	{
+		return hasSound;
+	}
 }

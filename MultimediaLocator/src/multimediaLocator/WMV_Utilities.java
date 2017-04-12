@@ -321,19 +321,19 @@ public class WMV_Utilities
 	 * @param hour UTC hour
 	 * @return Corresponding hour in Pacific Time
 	 */
-	public WMV_Time utcToPacificTime(WMV_Time time)
-	{
-		int year = time.getYear();
-		int day = time.getDay();
-		int month = time.getMonth();
-		int hour = time.getHour();
-
-		ZonedDateTime utcDateTime = ZonedDateTime.of(year, month, day, hour, time.getMinute(), time.getSecond(), time.getMillisecond(), ZoneId.of("UTC"));
-		ZonedDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
-		
-		WMV_Time result = new WMV_Time( localDateTime, time.getID(), time.getClusterID(), time.getMediaType(), "America/Los_Angeles" );
-		return result;
-	}
+//	public WMV_Time utcToPacificTime(WMV_Time time)
+//	{
+//		int year = time.getYear();
+//		int day = time.getDay();
+//		int month = time.getMonth();
+//		int hour = time.getHour();
+//
+//		ZonedDateTime utcDateTime = ZonedDateTime.of(year, month, day, hour, time.getMinute(), time.getSecond(), time.getMillisecond(), ZoneId.of("UTC"));
+//		ZonedDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
+//		
+//		WMV_Time result = new WMV_Time( localDateTime, time.getID(), time.getClusterID(), time.getMediaType(), "America/Los_Angeles" );
+//		return result;
+//	}
 
 	/**
 	 * Shrink images to 3D view format (640 pixels max width)
@@ -355,7 +355,7 @@ public class WMV_Utilities
 		try {
 			int result = commandExecutor.execute();
 
-			// get the output from the command
+			// Get the output from the command
 			StringBuilder stdout = commandExecutor.getStandardOutput();
 //			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
 
@@ -559,7 +559,7 @@ public class WMV_Utilities
 	 * @param timePrecision Number of histogram bins
 	 * @return Time segments
 	 */
-	ArrayList<WMV_TimeSegment> createTimeSegments(ArrayList<WMV_Time> mediaTimes, float timePrecision, int clusterID)				// -- clusterTimelineMinPoints!!								
+	ArrayList<WMV_TimeSegment> createTimeline(ArrayList<WMV_Time> mediaTimes, float timePrecision, int clusterID)				// -- clusterTimelineMinPoints!!								
 	{
 		boolean finished = false;
 		mediaTimes.sort(WMV_Time.WMV_SimulationTimeComparator);			// Sort media by simulation time (normalized 0. to 1.)
@@ -577,9 +577,12 @@ public class WMV_Utilities
 
 			for(WMV_Time t : mediaTimes)									// Find time segments for cluster
 			{
+				if(t.getClusterID() != clusterID)							// Set cluster ID if incorrect value
+					t.setClusterID(clusterID);	
+				
 				if(t.getTime() != last.getTime())
 				{
-					if(t.getTime() - last.getTime() < timePrecision)		// If moved by less than precision amount, extend segment 
+					if(t.getTime() - last.getTime() < timePrecision)		// Extend segment if moved by less than precision amount
 					{
 						curUpper = t;										// Move curUpper to new value
 						last = t;
@@ -593,8 +596,8 @@ public class WMV_Utilities
 								tl.add(mediaTimes.get(i));
 							tl.sort(WMV_Time.WMV_SimulationTimeComparator);
 
-//							System.out.println("(0) Finishing time segment...");
-							segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));	// Add time segment
+//							System.out.println("(0) Finishing time segment... ");
+							segments.add(createSegment(clusterID, tl));		// Add time segment
 							finished = true;
 						}
 					}
@@ -606,28 +609,29 @@ public class WMV_Utilities
 							tl.add(mediaTimes.get(i));
 						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
 						
-//						System.out.println("(1) Finishing time segment... startCount:"+startCount+" count:"+count);
-						if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.001f)
+						if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.002f)
 						{
+							System.out.println("(1) Finishing time segment... startCount:"+startCount+" count:"+count);
 							System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getTime())+" tl lower:"+(tl.get(0).getTime()));
 							System.out.println("           			         curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
 						}
 
-						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));	// Add time segment
+						segments.add(createSegment(clusterID, tl));	// Add time segment
+//						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));
 
 						curLower = t;
 						curUpper = t;
 						last = t;
 						startCount = count;
 						
-						if(count == mediaTimes.size() - 1)
+						if(count == mediaTimes.size() - 1)			// Create single segment at end
 						{
 							tl = new ArrayList<WMV_Time>();			// Create timeline for segment
 							tl.add(mediaTimes.get(count));
-							System.out.println("Finishing single segment at end...");
-							segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));	// Add time segment
+//							System.out.println("Finishing single segment at end...");
+//							System.out.println("(2) Finishing time segment...");
+							segments.add(createSegment(clusterID, tl));		// Add time segment
 						}
-//						startCount = count + 1;
 					}
 				}
 				else																// Same time as last
@@ -641,14 +645,14 @@ public class WMV_Utilities
 							tl.add(mediaTimes.get(i));
 
 						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
-//						System.out.println("(2) Finishing time segment...");
-						if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.001f)
+						if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.002f)
 						{
+							System.out.println("(3) Finishing time segment...");
 							System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getTime())+" tl lower:"+(tl.get(0).getTime()));
 							System.out.println("           			         curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
 						}
 
-						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));	// Add time segment
+						segments.add(createSegment(clusterID, tl));	// Add time segment
 						finished = true;
 					}
 				}
@@ -665,13 +669,13 @@ public class WMV_Utilities
 				tl.sort(WMV_Time.WMV_SimulationTimeComparator);
 
 //				System.out.println("(4) Finishing time segment...");
-				if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.001f)
+				if(tl.get(tl.size()-1).getTime() - tl.get(0).getTime() > 0.002f)
 				{
 					System.out.println("---> Very long time segment: tl upper:"+(tl.get(tl.size()-1).getTime())+" tl lower:"+(tl.get(0).getTime()));
 					System.out.println("           			         curUpper:"+(curUpper.getTime())+" curLower:"+(curLower.getTime()));
 				}
 
-				segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));
+				segments.add(createSegment(clusterID, tl));	// Add time segment
 			}
 			
 			return segments;			
@@ -683,6 +687,32 @@ public class WMV_Utilities
 		}
 	}
 	
+	public WMV_TimeSegment createSegment(int clusterID, ArrayList<WMV_Time> timeline)
+	{
+		WMV_TimeSegment ts = new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, timeline);
+		checkTimeSegment(ts);
+		return ts;
+	}
+
+	public void checkTimeSegment(WMV_TimeSegment ts)
+	{
+		float upper = ts.getUpper().getTime();
+		float lower = ts.getLower().getTime();
+		
+//		System.out.println("checkTimeSegment()...");
+		for(WMV_Time t : ts.timeline)
+		{
+//			System.out.println(" checkTimeSegment()... t.getTime():"+t.getTime());
+			if(t.getTime() < lower)
+			{
+				System.out.println("  t.getTime() < lower... t.getTime():"+t.getTime()+" lower:"+lower);
+			}
+			if(t.getTime() > upper)
+			{
+				System.out.println("  t.getTime() < lower... t.getTime():"+t.getTime()+" upper:"+upper);
+			}
+		}
+	}
 
 	public float getTimelineLength(ArrayList<WMV_TimeSegment> timeline)
 	{
@@ -876,27 +906,27 @@ public class WMV_Utilities
 			float ssDiff = (cHour * 60 + cMin + cSec/60.f) - (ssHour * 60 + ssMin + ssSec/60.f);
 			//			System.out.println("ssDiff:"+ssDiff);
 
-			//			if (ssDiff > p.minutesPastSunset) {
-			//				if (p.p.debug.debugExif)
-			//					PApplet.print("Adjusted Sunset Length from:" + p.minutesPastSunset);
-			//
-			//				p.minutesPastSunset = ssDiff;
-			//
-			//				if (p.p.debug.debugExif)
-			//					System.out.println("  to:" + p.minutesPastSunset);
-			//			}
+//			if (ssDiff > p.minutesPastSunset) {
+//				if (p.p.debug.debugExif)
+//					PApplet.print("Adjusted Sunset Length from:" + p.minutesPastSunset);
+//
+//				p.minutesPastSunset = ssDiff;
+//
+//				if (p.p.debug.debugExif)
+//					System.out.println("  to:" + p.minutesPastSunset);
+//			}
 		}
 
 		if (cHour < srHour) 
 		{
 			float srDiff = (srHour * 60 + srMin + srSec/60.f) - (cHour * 60 + cMin + cSec/60.f);
 			System.out.println("srDiff:"+srDiff);
-			//			if (srDiff > p.minutesBeforeSunrise) 
-			//			{
-			//				PApplet.print("Adjusted Sunrise Length from:" + p.sunriseLength);
-			//				p.minutesBeforeSunrise = srDiff;
-			//				System.out.println("  to:" + p.sunriseLength);
-			//			}
+//			if (srDiff > p.minutesBeforeSunrise) 
+//			{
+//				PApplet.print("Adjusted Sunrise Length from:" + p.sunriseLength);
+//				p.minutesBeforeSunrise = srDiff;
+//				System.out.println("  to:" + p.sunriseLength);
+//			}
 		}
 
 		if (cHour < srHour) {
@@ -915,9 +945,9 @@ public class WMV_Utilities
 		//		float time = PApplet.constrain(PApplet.map(cTime, sunriseTime, sunsetTime, 0.f, 1.f), 0.f, 1.f); // Time of day when photo was taken		
 		float time = PApplet.map(cTime, sunriseTime, sunsetTime, 0.f, 1.f); // Time of day when photo was taken		
 
-		//		if (sunsetTime > p.lastSunset) {
-		//			p.lastSunset = sunsetTime;
-		//		}
+//		if (sunsetTime > p.lastSunset) {
+//			p.lastSunset = sunsetTime;
+//		}
 
 		int daysInMonth = 0, daysCount = 0;
 
@@ -927,11 +957,11 @@ public class WMV_Utilities
 			daysCount += daysInMonth;
 		}
 
-		//		int startYear = 2013;							
-		//		int date = (year - startYear) * 365 + daysCount + day; 		
+//		int startYear = 2013;							
+//		int date = (year - startYear) * 365 + daysCount + day; 		
 		float date = daysCount + cDay; 						// Days since Jan. 1st							//	 NOTE:	need to account for leap years!		
 
-		//		int endDate = 5000;																					
+//		int endDate = 5000;																					
 		date = PApplet.constrain(PApplet.map(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
 
 		time = PApplet.map(sunriseTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
@@ -990,22 +1020,22 @@ public class WMV_Utilities
 		return sb.toString();
 	}
 
-	//	public float calculateAverageDistance(float[] distances) 
-	//	{
-	//		float sum = 0;
-	//		float result;
-	//
-	//		for (int i=0; i<distances.length; i++) 
-	//		{
-	//			float dist = distances[i];
-	//			sum += dist;
-	//		}
-	//
-	//		if (distances.length > 0) 
-	//			result = sum / distances.length;
-	//		else 
-	//			result = 0.f;
-	//		
-	//		return result;
-	//	}
+//	public float calculateAverageDistance(float[] distances) 
+//	{
+//		float sum = 0;
+//		float result;
+//
+//		for (int i=0; i<distances.length; i++) 
+//		{
+//			float dist = distances[i];
+//			sum += dist;
+//		}
+//
+//		if (distances.length > 0) 
+//			result = sum / distances.length;
+//		else 
+//			result = 0.f;
+//
+//		return result;
+//	}
 }

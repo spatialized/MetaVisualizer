@@ -15,7 +15,8 @@ public class WMV_FieldState
 	public String name;				// Field Name
 
 	/* Time */
-	public ArrayList<WMV_TimeSegment> timeline;						// List of time segments ordered by time from 0:00 to 24:00 as a single day
+	public WMV_Timeline timeline;						// List of time segments ordered by time from 0:00 to 24:00 as a single day
+//	public ArrayList<WMV_TimeSegment> timeline;						// List of time segments ordered by time from 0:00 to 24:00 as a single day
 	public ArrayList<WMV_Date> dateline;							// List of dates, whose indices correspond with timelines in timelines list
 	public String timeZoneID = "America/Los_Angeles";				// Current time zone
 //	public ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Time segment lists ordered by date
@@ -92,8 +93,8 @@ public class WMV_FieldState
 		videos = new ArrayList<WMV_VideoState>(); 				// All videos in this field
 	}
 	
-//	public void setTimeData( ArrayList<WMV_TimeSegment> newTimeline, ArrayList<ArrayList<WMV_TimeSegment>> newTimelines, 
-	public void setTimeData( ArrayList<WMV_TimeSegment> newTimeline, ArrayList<WMV_Date> newDateline )
+//	public void setTimeData( ArrayList<WMV_TimeSegment> newTimeline, ArrayList<WMV_Date> newDateline )
+	public void setTimeData( WMV_Timeline newTimeline, ArrayList<WMV_Date> newDateline )
 	{
 		timeline = newTimeline;
 //		timelines = newTimelines;

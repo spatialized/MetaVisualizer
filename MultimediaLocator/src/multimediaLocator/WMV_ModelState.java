@@ -19,8 +19,9 @@ public class WMV_ModelState
 	public float minClusterDistance; 						// Minimum distance between clusters, i.e. closer than which clusters are merged
 	public float maxClusterDistance;						// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
 
-	public float clusterPopulationFactor = 10.f;						// Scaling from media spread (1/mediaDensity) to numClusters
-	public float minPopulationFactor = 1.f, maxPopulationFactor = 30.f;	// Minimum and maximum values of populationFactor
+	public float clusterPopulationFactor = 0.02f;						// Scaling from media spread (1/mediaDensity) to numClusters
+//	public float clusterPopulationFactor = 16.f;						// Scaling from media spread (1/mediaDensity) to numClusters
+	public float minPopulationFactor = 10.f, maxPopulationFactor = 40.f;	// Minimum and maximum values of populationFactor
 	public int clusterRefinement = 60;									// Number of iterations used to refine clusters
 	public int minClusterRefinement = 20, maxClusterRefinement = 300;	// Minimum and maximum values of clusterRefinement
 	public long clusteringRandomSeed = (long)0.f;

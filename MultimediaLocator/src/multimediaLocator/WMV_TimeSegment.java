@@ -34,7 +34,6 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	WMV_TimeSegment( int newClusterID, int newClusterTimelineID, int newClusterTimelinesID, int newClusterDateID, 
 			 int newFieldTimelineID, int newFieldTimelinesID, int newFieldDateID, ArrayList<WMV_Time> newTimeline )
 	{
-//		id = newID;
 		clusterID = newClusterID;
 		
 		clusterTimelineID = newClusterTimelineID;				
@@ -45,18 +44,29 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 		fieldTimelineIDOnDate = newFieldTimelinesID;
 		fieldDateID = newFieldDateID;						
 		
-//		center = newCenter;
-//		upper = newUpper;
-//		lower = newLower;
-		
 		timeline = newTimeline;
 		lower = timeline.get(0);
-		upper = timeline.get(timeline.size()-1);
-		calculateCenter();
+
+		calculateUpperBound();
+		calculateCenterTime();
 		analyzeMediaTypes();
 	}
+	
+	private void calculateUpperBound()
+	{
+		upper = timeline.get(timeline.size()-1);
+		
+		for(WMV_Time t : timeline)
+		{
+			if(t.getTime() > upper.getTime())
+			{
+				upper = t;
+				System.out.println("-----| Fixed upper bound for time segment "+clusterTimelineID+" in cluster:"+clusterID);
+			}
+		}
+	}
 
-	private void calculateCenter()
+	private void calculateCenterTime()
 	{
 		if(upper.getTime() == lower.getTime())
 		{

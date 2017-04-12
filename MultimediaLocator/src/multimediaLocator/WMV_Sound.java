@@ -35,7 +35,7 @@ public class WMV_Sound extends WMV_Media
 		
 		if(metadata.dateTime != null)
 		{
-			time = new WMV_Time( metadata.dateTime, getID(), getMediaState().cluster, 3, metadata.timeZone );		
+			time = new WMV_Time( metadata.dateTime, getID(), getMediaState().getClusterID(), 3, metadata.timeZone );		
 		}
 		else
 			time = null;
@@ -84,7 +84,7 @@ public class WMV_Sound extends WMV_Media
 		String strTitleImage2 = "-----";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
-		String strCluster = "Cluster: "+String.valueOf(getMediaState().cluster);
+		String strCluster = "Cluster: "+String.valueOf(getMediaState().getClusterID());
 		String strX = "Location X: "+String.valueOf(getCaptureLocation().z);
 		String strY = " Y: "+String.valueOf(getCaptureLocation().x);
 		String strZ = " Z: "+String.valueOf(getCaptureLocation().y);
@@ -150,11 +150,11 @@ public class WMV_Sound extends WMV_Media
 		}
 
 		if(closestDistance < maxClusterDistance)
-			setClusterID(closestClusterIndex);		// Associate image with cluster
+			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
 		else
-			setClusterID(-1);						// Create a new single image cluster here!
+			setAssociatedClusterID(-1);						// Create a new single image cluster here!
 
-		if(getClusterID() != -1)
+		if(getAssociatedClusterID() != -1)
 			return true;
 		else
 			return false;

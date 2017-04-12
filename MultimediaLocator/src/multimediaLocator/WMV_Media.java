@@ -13,7 +13,7 @@ import toxi.math.InterpolateStrategy;
 import toxi.math.ScaleMap;
 
 /***************************************
- * A media object viewable in a virtual multimedia environment
+ * Media object viewable in a virtual multimedia environment
  * @author davidgordon
  * 
  */
@@ -37,7 +37,7 @@ public abstract class WMV_Media
 	{
 		mState = new WMV_MediaState();
 
-		mState.name = newName;						// -- Temporary
+		mState.name = newName;								// -- Temporary
 		mState.filePath = newFilePath;
 		mState.dateTime = newDateTime;
 		mState.timeZone = newTimeZone;
@@ -74,13 +74,10 @@ public abstract class WMV_Media
 	 */
 	void setClusterDates(WMV_Cluster c)
 	{
-		if(mState.cluster != -1)
+		if(mState.getClusterID() != -1)
 		{
-//			if(c.getState().lowDate == c.getState().highDate)
 			mState.clusterLowDate = c.getState().lowDate;
 			mState.clusterHighDate = c.getState().highDate;
-//			else
-//				mState.clusterDate = PApplet.map(time.getDate().getDaysSince1980(), c.getState().lowDate, c.getState().highDate, 0.f, 1.f);			// -- Use dateLength?
 		}
 	}
 
@@ -89,13 +86,10 @@ public abstract class WMV_Media
 	 */
 	void setClusterTimes( WMV_Cluster c )
 	{
-		if(mState.cluster != -1)
+		if(mState.getClusterID() != -1)
 		{
-//			if(c.getState().lowImageTime == c.getState().highImageTime)
 			mState.clusterLowTime = c.getState().lowTime;
 			mState.clusterHighTime = c.getState().highTime;
-//			else
-//				mState.clusterLowTime = PApplet.map(time.getTime(), c.getState().lowImageTime, c.getState().highImageTime, 0.f, 1.f);			// -- Use dayLength?
 		}
 	}
 
@@ -154,7 +148,7 @@ public abstract class WMV_Media
 		return distance;
 	}
 
-	public void updateTimeBrightness(WMV_Cluster c, ArrayList<WMV_TimeSegment> fieldTimeline, WMV_Utilities utilities)
+	public void updateTimeBrightness(WMV_Cluster c, WMV_Timeline fieldTimeline, WMV_Utilities utilities)
 	{
 		int cycleLength = worldSettings.timeCycleLength;				// Length of main time loop
 		float centerTime = -1;								// Midpoint of visibility for this media 		
@@ -175,29 +169,15 @@ public abstract class WMV_Media
 		switch( worldState.getTimeMode() )
 		{
 			case 0:
-				curTime = c.getState().currentTime;						// Set image time from cluster
-				
-				if(c.getDateline() != null)
-				{
-					if(c.getDateline().size() == 1)
-					{
-						lower = c.getTimeline().get(0).getLower().getTime();						// Get cluster timeline lower bound
-						upper = c.getTimeline().get(c.getTimeline().size()-1).getUpper().getTime();	// Get cluster timeline upper bound
-					}
-					else
-					{
-						lower = c.getTimelines().get(0).get(0).getLower().getTime();							// Get cluster timeline lower bound
-						int lastIdx = c.getTimelines().size()-1;
-						upper = c.getTimelines().get(lastIdx).get(c.getTimelines().get(lastIdx).size()-1).getUpper().getTime();			// Get cluster timeline upper bound
-					}
-				}
-				else setTimeBrightness(0.f);
+				curTime = c.getState().currentTime;									// Set image time from cluster
+				lower = c.getTimeline().getLower().getLower().getTime();			// Get cluster timeline lower bound
+				upper = c.getTimeline().getUpper().getUpper().getTime();			// Get cluster timeline upper bound
 			break;
 		
 			case 1:												// Time Mode: Field
 				curTime = worldState.currentTime;
-				lower = fieldTimeline.get(0).getLower().getTime();		// Check division					// Get cluster timeline lower bound
-				upper = fieldTimeline.get(fieldTimeline.size()-1).getUpper().getTime();		// Get cluster timeline upper bound
+				lower = fieldTimeline.getLower().getLower().getTime();		// Check division					// Get cluster timeline lower bound
+				upper = fieldTimeline.getUpper().getUpper().getTime();		// Get cluster timeline upper bound
 				break;
 				
 			case 2:
@@ -209,18 +189,17 @@ public abstract class WMV_Media
 		{
 			float timelineLength = upper - lower;
 
-			if(debugSettings.video && getType() == 2)
-				System.out.println("--> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
+//			if(debugSettings.video && getType() == 2)
+//				System.out.println("--> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
 
-			if(lower == upper)												// Only one cluster segment
+			if(lower == upper)				// Only one cluster segment: fade for full timelineLength   -- CHANGE THIS?!
 			{
 				centerTime = cycleLength / 2.f;
-				length = worldSettings.timeCycleLength;						// -- Should depend on cluster it belongs to? 
+				length = worldSettings.timeCycleLength;						 
 
 				if(debugSettings.video && getType() == 2)
 				{
-					System.out.println("Only one cluster time segment, full length:"+length);
-					System.out.println("-- time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
+					System.out.println("Only one cluster time segment, full length:"+length+" -- time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
 				}
 
 				fadeInStart = 0;											// Frame media starts fading in
@@ -230,8 +209,58 @@ public abstract class WMV_Media
 			}
 			else
 			{
-				float mediaTime = time.getTime();		// Get time of this media file
-//				float mediaTime = utilities.round(time.getTime(), 4);		// Get time of this media file
+				float mediaTime = time.getTime();							// Get media time 
+				
+				if(mediaTime < lower)
+				{
+					System.out.println("-----=== mediaTime < lower!!  cluster:"+mState.getClusterID()+" == "+c.getID()+" time: "+mediaTime+" lower: "+lower+" worldState.getTimeMode():"+worldState.getTimeMode());
+					error = true;
+					
+					boolean check = false;
+					int count = 0, tsID = -1;
+					for(WMV_TimeSegment ts : c.getTimeline().timeline)
+					{
+						for(WMV_Time tm : ts.timeline)
+						{
+							if(tm.getTime() == mediaTime)
+							{
+								check = true;
+								tsID = count;
+							}
+						}
+						count++;
+					}
+					if(check)
+						System.out.println("  but timeline has mediaTime in timeline:"+tsID);
+					else
+						System.out.println("  ...since timeline doesn't contain mediaTime!!!");
+				}
+				
+				if(mediaTime > upper)
+				{
+					System.out.println("-----=== mediaTime > upper!!  cluster:"+mState.getClusterID()+" == "+c.getID()+" time: "+mediaTime+" upper: "+upper+" worldState.getTimeMode():"+worldState.getTimeMode());
+					error = true;
+
+					boolean check = false;
+					int count = 0, tsID = -1;
+					for(WMV_TimeSegment ts : c.getTimeline().timeline)
+					{
+						for(WMV_Time tm : ts.timeline)
+						{
+							if(tm.getTime() == mediaTime)
+							{
+								check = true;
+								tsID = count;
+							}
+						}
+						count++;
+					}
+					if(check)
+						System.out.println("   but timeline has mediaTime in timeline:"+tsID+" for cluster #"+c.getID());
+					else
+						System.out.println("   ...since timeline for cluster #"+c.getID()+" doesn't contain mediaTime!!!");
+				}
+
 				centerTime = Math.round(PApplet.map( mediaTime, lower, upper, length, cycleLength - length) );	// Calculate center time in cluster timeline
 
 				fadeInStart = Math.round(centerTime - length / 2.f);		// Frame media starts fading in
@@ -252,10 +281,11 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.main)
 				{
-					System.out.println(">>> Error: fadeInStart before day start!!");
-					System.out.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength+" getMediaType():"+getType());
-					System.out.println(" lower:"+lower+" upper:"+upper);
-					System.out.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+					System.out.println(">>> Error: fadeInStart before cycle start-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
+					System.out.println(" ------ fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" time.getTime():"+time.getTime()+" lower:"+lower+" upper:"+upper);
+					System.out.println(" media length:"+length);
+//					System.out.println("");
 				}
 			}
 
@@ -264,11 +294,11 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.main)
 				{
-					System.out.println(">>> Error: fadeInStart after day end!!");
-					System.out.println(" media length:"+length+" centerTime:"+centerTime+" cycleLength:"+cycleLength+" media type:"+getType());
-					System.out.println(" time.getTime():"+time.getTime()+" lower:"+lower+" upper:"+upper);
-//					System.out.println(" utilities.round(time.getTime(), 4):"+utilities.round(time.getTime(), 4)+" lower:"+lower+" upper:"+upper);
-					System.out.println(" fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+					System.out.println(">>> Error: fadeInStart after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
+					System.out.println("----- fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+" worldState.getTimeMode():"+worldState.getTimeMode());
+					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" time.getTime():"+time.getTime()+" lower:"+lower+" upper:"+upper);
+					System.out.println(" media length:"+length);
+//					System.out.println("");
 				}
 			}
 
@@ -277,9 +307,11 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.main)
 				{
-					System.out.println(">>> Error: fadeInEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
+					System.out.println(">>> Error: fadeInEnd after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-					System.out.println("-----cluster:"+mState.cluster+" media type:"+getType());
+					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode());
+					System.out.println(" media length:"+length);
+//					System.out.println("");
 				}
 			}
 
@@ -288,10 +320,12 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.main)
 				{
-					System.out.println(">>> Error: fadeOutStart after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
+					System.out.println(">>> Error: fadeOutStart after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength);
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-					System.out.println("-----cluster:"+mState.cluster+" media type:"+getType());
-			}
+					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode());
+					System.out.println(" media length:"+length);
+//					System.out.println("");
+				}
 			}
 
 			if(fadeOutEnd > cycleLength)
@@ -299,15 +333,16 @@ public abstract class WMV_Media
 				error = true;
 				if(debugSettings.main)
 				{
-					System.out.println(">>> Error: fadeOutEnd after day end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength+" media type:"+getType());
+					System.out.println(">>> Error: fadeOutEnd after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+cycleLength+" media type:"+getType());
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
-					System.out.println("-----cluster:"+mState.cluster+" media type:"+getType());
+					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode());
+//					System.out.println("");
 				}
 			}
 
-			if(getType() == 1)
+			if(debugSettings.panorama && getType() == 1)
 			{
-				System.out.println("time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength+"fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
+				System.out.println("Panorama time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength+"fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+" worldState.getTimeMode():"+worldState.getTimeMode());
 			}
 		}
 		else if(worldState.getTimeMode() == 2)
@@ -517,7 +552,61 @@ public abstract class WMV_Media
 			return new PVector[0];
 		}
 	}
+	
+	/**
+	 * Search given list of clusters and associated with this image
+	 * @return Whether associated field was successfully found
+	 */	
+	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+	{
+		int closestClusterIndex = 0;
+		float closestDistance = 100000;
 
+		if(getType() == 2 && getID() == 0)
+			System.out.println("Video 0  findAssociatedCluster()... clusterList.size() :"+clusterList.size());
+
+		for (int i = 0; i < clusterList.size(); i++) 
+		{     
+			WMV_Cluster curCluster = clusterList.get(i);
+			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
+
+			if (distanceCheck < closestDistance)
+			{
+				closestClusterIndex = i;
+				closestDistance = distanceCheck;
+			}
+		}
+
+//		if(closestDistance < maxClusterDistance)
+//			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
+//		else
+//			setAssociatedClusterID(-1);						// Create a new single image cluster here!
+
+		if(getType() == 2 && getID() == 0)
+			System.out.println("        Closest to Cluster #"+closestClusterIndex+" at distance:"+closestDistance+" maxClusterDistance:"+maxClusterDistance);
+
+		if(closestDistance < maxClusterDistance)
+		{
+			if(getType() == 2 && getID() == 0)
+				System.out.println("Video 0  findAssociatedCluster()... Will set associated cluster to :"+closestClusterIndex);
+			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
+			if(getType() == 2 && getID() == 0)
+				System.out.println("              ..................... Have set associated cluster to :"+getAssociatedClusterID());
+		}
+		else
+		{
+			setAssociatedClusterID(-1);						// Create a new single image cluster here!
+			if(getType() == 2 && getID() == 0)
+				System.out.println("Video 0  findAssociatedCluster()... Set associated cluster to :"+getAssociatedClusterID());
+		}
+
+		if(getAssociatedClusterID() != -1)
+			return true;
+		else
+			return false;
+	}
+
+	
 	/**
 	 * Translate list of vertices using matrices
 	 * @param verts Vertices list
@@ -550,7 +639,7 @@ public abstract class WMV_Media
 	 */
 	public void adjustCaptureLocation(WMV_Cluster mediaCluster)
 	{
-		if(mState.cluster != -1)
+		if(mState.getClusterID() != -1)
 			mState.captureLocation = mediaCluster.getLocation();
 		else
 			mState.disabled = true;
@@ -589,10 +678,10 @@ public abstract class WMV_Media
 	 * @param newCluster New associated cluster
 	 * Set nearest cluster to the capture state.location to be the associated cluster
 	 */	
-	void setAssociatedCluster(int newCluster)    				 // Associate cluster that is closest to photo
-	{
-		mState.cluster = newCluster;
-	}
+//	void setAssociatedClusterID(int newCluster)    				 // Associate cluster that is closest to photo
+//	{
+//		mState.cluster = newCluster;
+//	}
 
 	void setID(int newID)
 	{
@@ -738,14 +827,18 @@ public abstract class WMV_Media
 		return mState.requested;
 	}
 	
-	public void setClusterID(int newCluster)
+	public void setAssociatedClusterID(int newCluster)
 	{
-		mState.cluster = newCluster;
+//		if(mState.mediaType == 2)
+		if(mState.mediaType == 2 && getID() == 0)
+			System.out.println("Setting associated cluster for video:"+getID()+" from "+mState.getClusterID()+" to "+newCluster+"...");
+
+		mState.setClusterID( newCluster );
 	}
 	
-	public int getClusterID()
+	public int getAssociatedClusterID()
 	{
-		return mState.cluster;
+		return mState.getClusterID();
 	}
 
 	public void setLocation(PVector newLocation)
@@ -818,11 +911,6 @@ public abstract class WMV_Media
 		return mState.selected;
 	}
 
-	public int getAssociatedCluster()
-	{
-		return mState.cluster;
-	}
-	
 	public void setMediaType(int newMediaType)
 	{
 		mState.mediaType = newMediaType;

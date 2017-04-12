@@ -2430,25 +2430,26 @@ public class WMV_Field
 		if(newFieldState != null && newFieldState.clusters != null && newFieldState.images != null 
 				&& newFieldState.panoramas != null && newFieldState.videos != null)
 		{
-			ArrayList<WMV_ClusterState> clusterStates = newFieldState.clusters;
-			ArrayList<WMV_ImageState> imageStates = newFieldState.images; 				
-			ArrayList<WMV_PanoramaState> panoramaStates = newFieldState.panoramas; 			
-			ArrayList<WMV_VideoState> videoStates = newFieldState.videos; 				
+			ArrayList<WMV_ClusterState> clusterStates;
+			ArrayList<WMV_ImageState> imageStates; 				
+			ArrayList<WMV_PanoramaState> panoramaStates; 			
+			ArrayList<WMV_VideoState> videoStates; 				
 
 			try{
 				state = newFieldState;
 				PImage emptyImage = ml.createImage(0,0,processing.core.PConstants.RGB);
 
-//				System.out.println("Setting media states... ");
+				System.out.println("Setting media states... ");
 				clusterStates = newFieldState.clusters;
 				imageStates = newFieldState.images; 				
 				panoramaStates = newFieldState.panoramas; 			
 				videoStates = newFieldState.videos; 				
 
-//				System.out.println(" Adding Clusters... ");
+				System.out.println(" Adding Clusters...");
 				for(WMV_ClusterState cs : clusterStates)
 				{
-					WMV_Cluster newCluster = getClusterFromClusterState(cs);
+					System.out.println(" About to getClusterFromClusterState()... ");
+					WMV_Cluster newCluster = getClusterFromClusterState((WMV_ClusterState) cs);
 					addCluster(newCluster);
 				}
 //				System.out.println(" Adding Images... ");
@@ -2622,7 +2623,7 @@ public class WMV_Field
 		WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, debugSettings, clusterState.id, 
 												  clusterState.location.x, clusterState.location.y, clusterState.location.z);
 		
-		newCluster.setState( clusterState );
+		newCluster.setState( (WMV_ClusterState) clusterState );
 		return newCluster;
 	}
 	

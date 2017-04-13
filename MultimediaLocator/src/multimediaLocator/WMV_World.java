@@ -309,7 +309,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * Stops any currently playing videos
+	 * Stop any currently playing videos
 	 */
 	void stopAllVideos()
 	{
@@ -347,7 +347,8 @@ public class WMV_World
 		File videoDirectory = new File(videoDataPath);
 		if(!videoDirectory.exists()) videoDirectory.mkdir();			// Create directory if doesn't exist
 
-		PApplet.println("Saving Simulation State to: "+folderPath);
+		if(p.debugSettings.main)
+			PApplet.println("Saving Simulation State to: "+folderPath);
 		
 		WMV_Field f = getCurrentField();
 		f.captureState();											// Capture current state, i.e. save timeline and dateline
@@ -374,7 +375,8 @@ public class WMV_World
 	 */
 	public WMV_Field loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
 	{
-		PApplet.println("Loading and setting Simulation State... Field #"+curField.getID());
+		if(p.debugSettings.main && p.debugSettings.detailed)
+			PApplet.println("Loading and setting Simulation State... Field #"+curField.getID());
 
 		loadAndSetState(curField.getID());
 		loadAndSetSettings(curField.getID());
@@ -395,18 +397,13 @@ public class WMV_World
 		}
 		String fieldName = curField.getName();
 		int fieldID = curField.getID();
-//		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
 		curField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldName, fieldID);
-//		curField.setName(fieldName);
 		
-//		fields.add(newField);
-		
-		System.out.println("Will load field state for Field #"+curField.getID());
 		curField = loadFieldState(curField);
 		curField.setID(fieldID);
 		
-//		if(p.debugSettings.main && p.debugSettings.detailed)
-		System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
+		if(p.debugSettings.main && p.debugSettings.detailed)
+			System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
 
 		return curField;
 	}
@@ -524,9 +521,7 @@ public class WMV_World
 	public WMV_Field loadFieldState(WMV_Field field)
 	{
 		String dataFolderPath = p.library.getDataFolder(field.getID());
-//		System.out.println("dataFolderPath:"+dataFolderPath+" field ID:"+field.getID());
 		String clusterDataPath = dataFolderPath + "ml_library_clusterStates/";
-//		System.out.println("clusterDataPath:"+clusterDataPath+" field ID:"+field.getID());
 		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
 		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
 		String videoDataPath = dataFolderPath + "ml_library_videoStates/";
@@ -538,30 +533,10 @@ public class WMV_World
 		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
 //		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
 
-		System.out.println("Will set state for field ID:"+field.getID());
+		System.out.println("Will set state for field ID:"+field.getID()+" csl.clusters.size():"+csl.clusters.size());
 		field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl);
 		return field;
 	}
-
-//	public boolean loadFieldState(WMV_Field field)
-//	{
-//		String dataFolderPath = p.library.getDataFolder(field.getID());
-//		System.out.println("dataFolderPath:"+dataFolderPath+" field ID:"+field.getID());
-//		String clusterDataPath = dataFolderPath + "ml_library_clusterStates/";
-//		System.out.println("clusterDataPath:"+clusterDataPath+" field ID:"+field.getID());
-//		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
-//		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
-//		String videoDataPath = dataFolderPath + "ml_library_videoStates/";
-////		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
-//
-//		WMV_ClusterStateList csl = p.library.loadClusterStateLists(clusterDataPath);
-//		WMV_ImageStateList isl = p.library.loadImageStateLists(imageDataPath);
-//		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
-//		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
-////		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
-//
-//		return field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl);
-//	}
 
 	public void loadAndSetSettings(int fieldID)
 	{

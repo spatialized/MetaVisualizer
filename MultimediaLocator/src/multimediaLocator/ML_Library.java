@@ -174,7 +174,7 @@ public class ML_Library
 				ArrayList<WMV_ClusterState> temp = new ArrayList<WMV_ClusterState>();
 				for(int idx = i; idx < i+50; idx++)
 				{
-					if(idx < csl.clusters.size() - 1)
+					if(idx < csl.clusters.size())
 						temp.add(csl.clusters.get(idx));
 					else
 						break;
@@ -440,9 +440,9 @@ public class ML_Library
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
 				try {
-//					System.out.println("loadClusterStateLists()...  filePath: "+filePath);
 					file = new File(filePath);
 					WMV_ClusterStateList temp = mapper.readValue(file, WMV_ClusterStateList.class);
+//					System.out.println("loadClusterStateLists()...  temp.clusters.size(): "+temp.clusters.size());
 					for(WMV_ClusterState cs : temp.clusters)
 						csl.clusters.add(cs);
 				}

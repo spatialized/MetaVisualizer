@@ -23,11 +23,11 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 	public float focalLength = 0; 				// Camera focal length (Zoom Level)
 	public float sensorSize;					// Approx. size of sensor in mm.
 	
-	WMV_ImageMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone,
+	WMV_ImageMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone,
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
 			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords )
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newTimeZone, newKeywords);
+		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
@@ -45,11 +45,11 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 	
 	WMV_ImageMetadata(){}
 
-	public void initialize( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newTimeZone,
+	public void initialize( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone,
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
 			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords )
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newTimeZone, newKeywords);
+		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;

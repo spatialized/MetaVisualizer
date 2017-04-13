@@ -36,7 +36,7 @@ public class WMV_MediaState
 	/* Model */
 	public PVector captureLocation;				// Media capture location in simulation – EXIF GPS coords scaled to fieldSize.
 	public PVector location;        			// Media location in simulation 
-	private int cluster = -1;				 	// Cluster it belongs to	
+	public int cluster = -1;				 	// Cluster it belongs to	
 	public boolean fadingFocusDistance = false;
 	public boolean beginFadingObjectDistance = false;			// Whether fading distance of object in image
 	public final float defaultAltitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing

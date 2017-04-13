@@ -1,4 +1,5 @@
 package multimediaLocator;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 //
 //import java.time.ZonedDateTime;
@@ -209,6 +210,9 @@ public abstract class WMV_Media
 			}
 			else
 			{
+				if(time == null)
+					System.out.println("time == null!!");
+				
 				float mediaTime = time.getTime();							// Get media time 
 				
 				if(mediaTime < lower)
@@ -562,8 +566,8 @@ public abstract class WMV_Media
 		int closestClusterIndex = 0;
 		float closestDistance = 100000;
 
-		if(getType() == 2 && getID() == 0)
-			System.out.println("Video 0  findAssociatedCluster()... clusterList.size() :"+clusterList.size());
+//		if(getType() == 2 && getID() == 0)
+//			System.out.println("Video 0  findAssociatedCluster()... clusterList.size() :"+clusterList.size());
 
 		for (int i = 0; i < clusterList.size(); i++) 
 		{     
@@ -577,28 +581,10 @@ public abstract class WMV_Media
 			}
 		}
 
-//		if(closestDistance < maxClusterDistance)
-//			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
-//		else
-//			setAssociatedClusterID(-1);						// Create a new single image cluster here!
-
-		if(getType() == 2 && getID() == 0)
-			System.out.println("        Closest to Cluster #"+closestClusterIndex+" at distance:"+closestDistance+" maxClusterDistance:"+maxClusterDistance);
-
 		if(closestDistance < maxClusterDistance)
-		{
-			if(getType() == 2 && getID() == 0)
-				System.out.println("Video 0  findAssociatedCluster()... Will set associated cluster to :"+closestClusterIndex);
 			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
-			if(getType() == 2 && getID() == 0)
-				System.out.println("              ..................... Have set associated cluster to :"+getAssociatedClusterID());
-		}
 		else
-		{
 			setAssociatedClusterID(-1);						// Create a new single image cluster here!
-			if(getType() == 2 && getID() == 0)
-				System.out.println("Video 0  findAssociatedCluster()... Set associated cluster to :"+getAssociatedClusterID());
-		}
 
 		if(getAssociatedClusterID() != -1)
 			return true;
@@ -632,6 +618,47 @@ public abstract class WMV_Media
 			tMat.mult(clone[i], dst[i]);
 
 		return dst;
+	}
+
+	public ZonedDateTime parseDateTime(String input) 
+	{		
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		int sec = Integer.valueOf(parts[4]);
+		input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+
+		return pac;
+	}
+
+	public ZonedDateTime parseVideoDateTime(String input) 
+	{		
+		String[] parts = input.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		String secStr = parts[4];
+
+		input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		parts = secStr.split("-");
+		int sec = Integer.valueOf(parts[0]);
+
+		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+		return pac;
 	}
 
 	/**

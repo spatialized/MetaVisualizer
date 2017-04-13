@@ -190,8 +190,13 @@ public class WMV_Field
 				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(worldState.timeFading)
 				{
-					if(m.getAssociatedClusterID() > clusters.size()) System.out.println("Error in Field.display()... updateTimeBrightness: image id:"+m.getID()+" .getAssociatedCluster("+m.getAssociatedClusterID()+") > clusters.size():"+clusters.size()+"!!");
-					else m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
+					if(m.getAssociatedClusterID() < 0 || m.getAssociatedClusterID() >= clusters.size())
+					{
+						if(debugSettings.field || debugSettings.image || debugSettings.media)
+							System.out.println("Error in Field.display()... cannot updateTimeBrightness: image id:"+m.getID()+" .getAssociatedCluster("+m.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
+					}
+					else 
+						m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
 				}
 
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
@@ -217,8 +222,13 @@ public class WMV_Field
 				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
 				if(worldState.timeFading)
 				{
-					if(n.getAssociatedClusterID() > clusters.size()) System.out.println("Error in Field.display()... updateTimeBrightness: pano id:"+n.getID()+" .getAssociatedCluster() ("+n.getAssociatedClusterID()+") > clusters.size():"+clusters.size()+"!!");
-					else n.updateTimeBrightness(clusters.get(n.getAssociatedClusterID()), timeline, utilities);
+					if(n.getAssociatedClusterID() < 0 || n.getAssociatedClusterID() >= clusters.size()) 
+					{
+						if(debugSettings.field || debugSettings.panorama || debugSettings.media)
+							System.out.println("Error in Field.display()... cannot updateTimeBrightness: pano id:"+n.getID()+" .getAssociatedCluster() ("+n.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
+					}
+					else 
+						n.updateTimeBrightness(clusters.get(n.getAssociatedClusterID()), timeline, utilities);
 				}
 				if(distance < vanishingPoint)			// Check if panorama is in visible range
 				{
@@ -246,8 +256,13 @@ public class WMV_Field
 				
 				if(worldState.timeFading)
 				{
-					if(v.getAssociatedClusterID() > clusters.size()) System.out.println("Error in Field.display()... updateTimeBrightness: video id:"+v.getID()+" .getAssociatedCluster("+v.getAssociatedClusterID()+") > clusters.size():"+clusters.size()+"!!");
-					else v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
+					if(v.getAssociatedClusterID() < 0 || v.getAssociatedClusterID() >= clusters.size()) 
+					{
+						if(debugSettings.field || debugSettings.video || debugSettings.media)
+							System.out.println("Error in Field.display()... cannot updateTimeBrightness: video id:"+v.getID()+" .getAssociatedCluster("+v.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
+					}
+					else 
+						v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
 				}
 
 //				v.updateTimeBrightness(clusters.get(v.getAssociatedClusterID()), timeline, utilities);
@@ -508,7 +523,7 @@ public class WMV_Field
 			if(c.getState().mediaCount <= 0)
 			{
 				c.empty();					/* Empty cluster */
-				if(debugSettings.cluster) System.out.println("Set cluster #"+c.getID()+" to empty...");
+				if(debugSettings.cluster && debugSettings.detailed) System.out.println("Set cluster #"+c.getID()+" to empty...");
 			}
 		}
 		
@@ -2849,6 +2864,7 @@ public class WMV_Field
 	{
 		WMV_Image newImage = new WMV_Image( imageState.getMediaState().id, null, imageState.getMediaState().mediaType, imageState.getMetadata());
 		newImage.setState( imageState );
+		newImage.initializeTime();
 		return newImage;
 	}
 	
@@ -2858,6 +2874,7 @@ public class WMV_Field
 				panoState.getMetadata() );
 
 		newPanorama.setState( panoState );
+		newPanorama.initializeTime();
 		return newPanorama;
 	}
 	
@@ -2865,6 +2882,7 @@ public class WMV_Field
 	{
 		WMV_Video newVideo = new WMV_Video( videoState.mState.id, null, videoState.mState.mediaType, videoState.getMetadata() );
 		newVideo.setState( videoState );
+		newVideo.initializeTime();
 		return newVideo;
 	}
 	
@@ -2872,6 +2890,7 @@ public class WMV_Field
 	{
 		WMV_Sound newSound = new WMV_Sound(0, 0, null);
 		newSound.setState( soundState );
+		newSound.initializeTime();
 		return newSound;
 	}
 	

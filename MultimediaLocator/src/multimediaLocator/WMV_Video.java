@@ -44,13 +44,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		metadata.focusDistance = state.defaultFocusDistance;
 		state.origFocusDistance = metadata.focusDistance;
 
-		if(metadata.dateTime != null)
-		{
-			time = new WMV_Time();		
-			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 2, metadata.timeZone );		
-		}
-		else
-			time = null;
+		initializeTime();
 
 		if(newVideo != null)
 		{
@@ -60,6 +54,27 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 //			video.dispose();
 		}
 	}  
+	
+	public void initializeTime()
+	{
+		if(metadata.dateTime == null)
+		{
+			try {
+				metadata.dateTime = parseVideoDateTime(metadata.dateTimeString);
+				time = new WMV_Time();
+				time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 2, metadata.timeZone );
+			} 
+			catch (Throwable t) 
+			{
+				System.out.println("Error in video date / time... " + t);
+			}
+		}
+		else
+		{
+			time = new WMV_Time();
+			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 2, metadata.timeZone );
+		}
+	}
 
 	/**
 	 * Display the video in virtual space
@@ -1122,52 +1137,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		return result;
 	}
 
-	/**
-	 * Search given list of clusters and associated with this image
-	 * @return Whether associated field was successfully found
-	 */	
-//	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
-//	{
-//		int closestClusterIndex = 0;
-//		float closestDistance = 100000;
-//
-//		for (int i = 0; i < clusterList.size(); i++) 
-//		{     
-//			WMV_Cluster curCluster = clusterList.get(i);
-//			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-//
-//			if (distanceCheck < closestDistance)
-//			{
-//				closestClusterIndex = i;
-//				closestDistance = distanceCheck;
-//			}
-//		}
-//
-//		if(closestDistance < maxClusterDistance)
-//		{
-//			if(getID() == 0)
-//				System.out.println("Video 0  findAssociatedCluster()... Will set associated cluster to :"+closestClusterIndex);
-//			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
-//			if(getID() == 0)
-//				System.out.println("              ..................... Have set associated cluster to :"+getAssociatedClusterID());
-//		}
-//		else
-//		{
-//			setAssociatedClusterID(-1);						// Create a new single image cluster here!
-//			if(getID() == 0)
-//				System.out.println("Video 0  findAssociatedCluster()... Set associated cluster to :"+getAssociatedClusterID());
-//		}
-//
-//		if(getAssociatedClusterID() != -1)
-//			return true;
-//		else
-//			return false;
-//	}
-
 	 public void setState(WMV_VideoState newState)
 	 {
 		 state = newState;
 		 setMediaState( state.getMediaState() );
+		 metadata = state.getMetadata();
 	 }
 	 
 	public WMV_VideoState getState()

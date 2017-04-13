@@ -12,7 +12,7 @@ import processing.core.PVector;
  * 
  */
 
-class WMV_Image extends WMV_Media			 
+public class WMV_Image extends WMV_Media			 
 {
 	/* Classes */
 	private WMV_ImageState state;
@@ -23,7 +23,7 @@ class WMV_Image extends WMV_Media
 	private PImage blurred;			// Image pixels
 	private PImage blurMask;
 
-	WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata ) 
+	public WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata ) 
 	{
 		super( newID, newMediaType, newImageMetadata.name, newImageMetadata.filePath, newImageMetadata.dateTime, newImageMetadata.timeZone, 
 			   newImageMetadata.gpsLocation );
@@ -40,19 +40,34 @@ class WMV_Image extends WMV_Media
 		
 		state.origFocusDistance = metadata.focusDistance;
 
-		if(metadata.dateTime != null)
-		{
-			time = new WMV_Time();		
-			time.initialize(metadata.dateTime, getID(), getMediaState().getClusterID(), 0, metadata.timeZone );		
-		}
-		else
-			time = null;
-
+		initializeTime();
+		
 		state.vertices = new PVector[4]; 
 		state.sVertices = new PVector[4]; 
 		
 		setAspectRatio( calculateAspectRatio() );
 	}  
+
+	public void initializeTime()
+	{
+		if(metadata.dateTime == null)
+		{
+			try {
+				metadata.dateTime = parseDateTime(metadata.dateTimeString);
+				time = new WMV_Time();
+				time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 0, metadata.timeZone );
+			} 
+			catch (Throwable t) 
+			{
+				System.out.println("Error in image date / time... " + t);
+			}
+		}
+		else
+		{
+			time = new WMV_Time();
+			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 0, metadata.timeZone );
+		}
+	}
 
 	/**
 	 * Display the image in virtual space
@@ -1137,6 +1152,7 @@ class WMV_Image extends WMV_Media
 	 {
 		 state = newState;
 		 setMediaState( state.getMediaState() );
+		 metadata = state.getMetadata();
 	 }
 
 	 public WMV_ImageState getState()

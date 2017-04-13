@@ -43,19 +43,34 @@ public class WMV_Panorama extends WMV_Media
 			setCaptureLocation(newLocation);
 		}
 		
-		if(metadata.dateTime != null)
-		{
-			time = new WMV_Time();
-			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
-		}
-		else
-			time = null;
-
+		initializeTime();
+		
 		state.phi = newElevation;              		// Elevation (Pitch angle) for stitched panoramas  	
 		state.radius = state.defaultFocusDistance * state.initFocusDistanceFactor;
 		state.origRadius = state.radius;
 	}  
 
+	public void initializeTime()
+	{
+		if(metadata.dateTime == null)
+		{
+			try {
+				metadata.dateTime = parseDateTime(metadata.dateTimeString);
+				time = new WMV_Time();
+				time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
+			} 
+			catch (Throwable t) 
+			{
+				System.out.println("Error in panorama date / time... " + t);
+			}
+		}
+		else
+		{
+			time = new WMV_Time();
+			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
+		}
+	}
+	
 	/**
 =	 * Update main variables
 	 */
@@ -488,6 +503,7 @@ public class WMV_Panorama extends WMV_Media
 	{
 		state = newState;
 		setMediaState( state.getMediaState() );
+		metadata = state.getMetadata();
 	}
 	
 	public WMV_PanoramaState getState()

@@ -318,16 +318,17 @@ class WMV_Metadata
 		dataFolderFound = (dataFolderFile.exists() && dataFolderFile.isDirectory());	
 		dataFiles = null;
 
-		System.out.println("dataFolder: " + dataFolder); 
+		if (debugSettings.data)
+			System.out.println("Data Folder: " + dataFolder); 
 //		System.out.println("dataFolderFound? " + (dataFolderFound)); 
 //		System.out.println("dataFolderFile.isDirectory()? " + (dataFolderFile.isDirectory())); 
-		System.out.println("dataFolderFile.exists()? " + (dataFolderFile.exists())); 
+//		System.out.println("dataFolderFile.exists()? " + (dataFolderFile.exists())); 
 //		System.out.println("dataFiles != null? " + (dataFiles != null)); 
 
 		if(dataFolderFound)				// Check for sound files
 		{
 			dataFiles = dataFolderFile.listFiles();
-//			if (debugSettings.data)
+			if (debugSettings.data)
 			{
 				System.out.println("Data Files[0]:" + dataFiles[0].getName());
 				System.out.println("Data Files[1]:" + dataFiles[1].getName());
@@ -402,7 +403,7 @@ class WMV_Metadata
 							System.out.println("file: "+file.getName()+" creationTime: "+creationTime);
 						ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
 
-						WMV_SoundMetadata sMetadata = new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, 
+						WMV_SoundMetadata sMetadata = new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, "",
 								p.world.getCurrentField().getTimeZoneID(), null );
 						f.addSound( new WMV_Sound (count, 3, sMetadata) );
 					}
@@ -794,7 +795,7 @@ class WMV_Metadata
 					if(panorama && !dataMissing)
 					{
 //						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID(), fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
+						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
 //						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
 //						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
 
@@ -806,7 +807,7 @@ class WMV_Metadata
 					else if(!dataMissing)
 					{
 //						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID(), fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
+						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
 								fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
 //						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
 //						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
@@ -963,7 +964,7 @@ class WMV_Metadata
 				{
 					Movie pMov = new Movie(p, sFilePath);
 
-					WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID(), 
+					WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), 
 							-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords);
 					f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
 					vCount++;
@@ -1309,19 +1310,7 @@ class WMV_Metadata
 		int day = Integer.valueOf(parts[0]);
 		int hour = Integer.valueOf(parts[1]);
 
-//		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
 		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-		
-//		year = utc.getYear();
-//		month = utc.getMonthValue();
-//		day = utc.getDayOfMonth();
-//		hour = utc.getHour();
-//		System.out.println("IMAGE utc year:"+year+" month:"+month+" day:"+day+" hour:"+hour);
-//		year = pac.getYear();
-//		month = pac.getMonthValue();
-//		day = pac.getDayOfMonth();
-//		hour = pac.getHour();
-//		System.out.println("vs. pac year:"+year+" month:"+month+" day:"+day+" hour:"+hour);
 
 		return pac;
 	}
@@ -1343,21 +1332,7 @@ class WMV_Metadata
 		parts = secStr.split("-");
 		int sec = Integer.valueOf(parts[0]);
 
-//		Calendar c = Calendar.getInstance();
-//		c.set(year, month, day, hour, min, sec);
-//		ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
 		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-//		year = utc.getYear();
-//		month = utc.getMonthValue();
-//		day = utc.getDayOfMonth();
-//		hour = utc.getHour();
-//		System.out.println("VIDEO utc year:"+year+" month:"+month+" day:"+day+" hour:"+hour);
-//		year = pac.getYear();
-//		month = pac.getMonthValue();
-//		day = pac.getDayOfMonth();
-//		hour = pac.getHour();
-//		System.out.println("vs. pac year:"+year+" month:"+month+" day:"+day+" hour:"+hour);
-
 		return pac;
 	}
 

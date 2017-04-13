@@ -40,14 +40,29 @@ public class WMV_Sound extends WMV_Media
 		
 //		Bead sound = new Bead();
 		
-		if(metadata.dateTime != null)
+		initializeTime();
+	}  
+
+	public void initializeTime()
+	{
+		if(metadata.dateTime == null)
+		{
+			try {
+				metadata.dateTime = parseDateTime(metadata.dateTimeString);
+				time = new WMV_Time();
+				time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 3, metadata.timeZone );
+			} 
+			catch (Throwable t) 
+			{
+				System.out.println("Error in sound date / time... " + t);
+			}
+		}
+		else
 		{
 			time = new WMV_Time();
 			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 3, metadata.timeZone );
 		}
-		else
-			time = null;
-	}  
+	}
 
 	/**
 	 * Display the image in virtual space
@@ -269,6 +284,8 @@ public class WMV_Sound extends WMV_Media
 	public void setState(WMV_SoundState newState)
 	{
 		state = newState;
+//		setMediaState( state.getMediaState() );
+//		metadata = state.getMetadata();
 	}
 	
 	public WMV_SoundState getState()

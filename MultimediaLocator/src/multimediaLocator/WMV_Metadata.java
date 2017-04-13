@@ -326,24 +326,45 @@ class WMV_Metadata
 		if(dataFolderFound)				// Check for sound files
 		{
 			dataFiles = dataFolderFile.listFiles();
+			if (debugSettings.data)
+			{
+				System.out.println("Data Files[0]:" + dataFiles[0].getName());
+				System.out.println("Data Files[1]:" + dataFiles[1].getName());
+				System.out.println("Data Files[2]:" + dataFiles[2].getName());
+				System.out.println("Data Files[3]:" + dataFiles[3].getName());
+				System.out.println("Data Files[4]:" + dataFiles[4].getName());
+				System.out.println("Data Files[5]:" + dataFiles[5].getName());
+				System.out.println("Data Files[6]:" + dataFiles[6].getName());
+				System.out.println("Data Files[7]:" + dataFiles[7].getName());
+				System.out.println("Data Files[8]:" + dataFiles[8].getName());
+			}
+
 			if(dataFiles != null && dataFiles.length > 0)
 			{
-				if( dataFiles[0].getName().equals("ml_library_clusterStates") &&
-					dataFiles[1].getName().equals("ml_library_fieldState.json") &&
-					dataFiles[2].getName().equals("ml_library_imageStates") &&
-					dataFiles[3].getName().equals("ml_library_panoramaStates") &&
-					dataFiles[4].getName().equals("ml_library_videoStates") &&
-					dataFiles[5].getName().equals("ml_library_viewerSettings.json") &&
-					dataFiles[6].getName().equals("ml_library_viewerState.json") &&
-					dataFiles[7].getName().equals("ml_library_worldSettings.json") &&
-					dataFiles[8].getName().equals("ml_library_worldState.json")    )
+				if(dataFiles[0].getName().equals(".DS_Store"))
+				{
+					File[] newDataFiles = new File[dataFiles.length-1];
+					for(int i=1; i<dataFiles.length; i++)
+						newDataFiles[i-1]=dataFiles[i];
+					dataFiles = newDataFiles;
+				}
+				int idx = 0;
+				if( dataFiles[idx].getName().equals("ml_library_clusterStates") &&
+					dataFiles[++idx].getName().equals("ml_library_fieldState.json") &&
+					dataFiles[++idx].getName().equals("ml_library_imageStates") &&
+					dataFiles[++idx].getName().equals("ml_library_panoramaStates") &&
+					dataFiles[++idx].getName().equals("ml_library_videoStates") &&
+					dataFiles[++idx].getName().equals("ml_library_viewerSettings.json") &&
+					dataFiles[++idx].getName().equals("ml_library_viewerState.json") &&
+					dataFiles[++idx].getName().equals("ml_library_worldSettings.json") &&
+					dataFiles[++idx].getName().equals("ml_library_worldState.json")    )
 				dataFilesValidFormat = true;
 			}
 		}
 		
 		if (debugSettings.data)
 		{
-			System.out.println("Data Folder:" + dataFolder + " Data Files Valid Format: "+dataFilesValidFormat);
+			System.out.println("Data Folder:" + dataFolder + " Valid Format: "+dataFilesValidFormat);
 		}
 	}
 	

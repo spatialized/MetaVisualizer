@@ -402,9 +402,10 @@ public class WMV_World
 		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
 		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
 		String videoDataPath = dataFolderPath + "ml_library_videoStates/";
-		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
+//		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
 
-		WMV_ClusterStateList csl = p.library.loadClusterStateList(clusterDataPath+"ml_library_clusterStates.json");
+		WMV_ClusterStateList csl = p.library.loadClusterStateLists(clusterDataPath);
+//		WMV_ClusterStateList csl = p.library.loadClusterStateList(clusterDataPath+"ml_library_clusterStates.json");
 		WMV_ImageStateList isl = p.library.loadImageStateList(imageDataPath+"ml_library_imageStates.json");
 		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
 		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");

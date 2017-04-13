@@ -14,7 +14,7 @@ public class ML_DebugSettings
 	
 	/* Data */
 	public boolean main = true;				// Debug WorldMediaViewer class
-	public boolean data = false;				// Debug WorldMediaViewer class
+	public boolean data = true;				// Debug WorldMediaViewer class
 	public boolean metadata = false;			// Debug WMV_Metadata class
 
 	/* Model */

@@ -11,13 +11,13 @@ import java.util.List;
 public class WMV_FieldState 
 {
 	/* General */
-	public int id;						// Field ID
-	public String name;				// Field Name
+	public int id;											// Field ID
+	public String name;										// Field Name
 
 	/* Time */
-	public WMV_Timeline timeline;						// List of time segments ordered by time from 0:00 to 24:00 as a single day
-	public ArrayList<WMV_Date> dateline;							// List of dates, whose indices correspond with timelines in timelines list
-	public String timeZoneID = "America/Los_Angeles";				// Current time zone
+	public WMV_Timeline timeline;							// Field timeline
+	public ArrayList<WMV_Date> dateline;					// List of dates, whose indices correspond with timelines in WMV_Field timelines list
+	public String timeZoneID = "America/Los_Angeles";		// Current time zone
 	
 	/* Data */
 	public ArrayList<WMV_ImageState> images; 				// Images for exporting/importing

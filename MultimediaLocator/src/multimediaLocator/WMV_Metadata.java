@@ -330,10 +330,13 @@ class WMV_Metadata
 			{
 				if( dataFiles[0].getName().equals("ml_library_clusterStates.json") &&
 					dataFiles[1].getName().equals("ml_library_fieldState.json") &&
-					dataFiles[2].getName().equals("ml_library_viewerSettings.json") &&
-					dataFiles[3].getName().equals("ml_library_viewerState.json") &&
-					dataFiles[4].getName().equals("ml_library_worldSettings.json") &&
-					dataFiles[5].getName().equals("ml_library_worldState.json")    )
+					dataFiles[2].getName().equals("ml_library_imageStates.json") &&
+					dataFiles[3].getName().equals("ml_library_panoramaStates.json") &&
+					dataFiles[4].getName().equals("ml_library_videoStates.json") &&
+					dataFiles[5].getName().equals("ml_library_viewerSettings.json") &&
+					dataFiles[6].getName().equals("ml_library_viewerState.json") &&
+					dataFiles[7].getName().equals("ml_library_worldSettings.json") &&
+					dataFiles[8].getName().equals("ml_library_worldState.json")    )
 				dataFilesValidFormat = true;
 			}
 		}

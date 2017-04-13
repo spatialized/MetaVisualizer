@@ -56,12 +56,8 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
 			mapper.writeValue(file, settings);    // Write staff object to file
-
-//			WMV_WorldSettings newSettings = mapper.readValue(file, WMV_WorldSettings.class);
-//			System.out.println("WorldSettings are equal:"+ newSettings.equals(settings)); 
 		}
 		catch (Throwable t)
 		{
@@ -98,9 +94,6 @@ public class ML_Library
 		try {
 			file = new File(filePath);
 			mapper.writeValue(file, settings);    // Write staff object to file
-
-//			WMV_ViewerSettings newSettings = mapper.readValue(file, WMV_ViewerSettings.class);
-//			System.out.println("ViewerSettings are equal:"+ newSettings.equals(settings));      // Not working ??
 		}
 		catch (Throwable t)
 		{
@@ -117,9 +110,6 @@ public class ML_Library
 		try {
 			file = new File(filePath);
 			mapper.writeValue(file, state);    // Write staff object to file
-
-//			WMV_ViewerState newState = mapper.readValue(file, WMV_ViewerState.class);
-//			System.out.println("ViewerStates are equal:"+ newState.equals(state));      // Not working ??
 		}
 		catch (Throwable t)
 		{
@@ -143,12 +133,8 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-//			file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(newFilePath);
 			mapper.writeValue(file, fState);    // Write staff object to file
-
-//			WMV_FieldState newFieldState = mapper.readValue(file, WMV_FieldState.class);
-//			puts("saveFieldData... Field states are equal", newFieldState.equals(fState));      // Not working ??
 		}
 		catch (Throwable t)
 		{
@@ -167,6 +153,62 @@ public class ML_Library
 		catch (Throwable t)
 		{
 			System.out.println("saveClusterStateList Throwable t:"+t);
+		}
+	}
+
+	public void saveImageStateList(WMV_ImageStateList isl, String newFilePath)
+	{
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+			file = new File(newFilePath);
+			mapper.writeValue(file, isl);    // Write staff object to file
+		}
+		catch (Throwable t)
+		{
+			System.out.println("saveClusterStateList Throwable t:"+t);
+		}
+	}
+
+	public void savePanoramaStateList(WMV_PanoramaStateList psl, String newFilePath)
+	{
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+			file = new File(newFilePath);
+			mapper.writeValue(file, psl);    // Write staff object to file
+		}
+		catch (Throwable t)
+		{
+			System.out.println("saveClusterStateList Throwable t:"+t);
+		}
+	}
+
+	public void saveVideoStateList(WMV_VideoStateList vsl, String newFilePath)
+	{
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+			file = new File(newFilePath);
+			mapper.writeValue(file, vsl);    // Write staff object to file
+		}
+		catch (Throwable t)
+		{
+			System.out.println("saveClusterStateList Throwable t:"+t);
+		}
+	}
+
+	public void saveSoundStateList(WMV_SoundStateList ssl, String newFilePath)
+	{
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+			file = new File(newFilePath);
+			mapper.writeValue(file, ssl);    // Write staff object to file
+		}
+		catch (Throwable t)
+		{
+			System.out.println("saveSoundStateList Throwable t:"+t);
 		}
 	}
 
@@ -277,7 +319,6 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
 			WMV_FieldState fState = mapper.readValue(file, WMV_FieldState.class);
 			
@@ -311,6 +352,106 @@ public class ML_Library
 		catch (Throwable t)
 		{
 			System.out.println("loadFieldState Throwable t:"+t);
+		}
+		return null;
+	}
+
+	/**
+	 * Load field state from given file path
+	 * @param newFilePath File path
+	 * @return Field state
+	 */
+	public WMV_ImageStateList loadImageStateList(String newFilePath)		// Testing
+	{
+		String filePath = newFilePath;
+
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			file = new File(filePath);
+			WMV_ImageStateList isl = mapper.readValue(file, WMV_ImageStateList.class);
+			
+			return isl;
+		}
+		catch (Throwable t)
+		{
+			System.out.println("loadFieldState Throwable t:"+t);
+		}
+		return null;
+	}
+
+	/**
+	 * Load field state from given file path
+	 * @param newFilePath File path
+	 * @return Field state
+	 */
+	public WMV_PanoramaStateList loadPanoramaStateList(String newFilePath)		// Testing
+	{
+		String filePath = newFilePath;
+
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			file = new File(filePath);
+			WMV_PanoramaStateList psl = mapper.readValue(file, WMV_PanoramaStateList.class);
+			
+			return psl;
+		}
+		catch (Throwable t)
+		{
+			System.out.println("loadFieldState Throwable t:"+t);
+		}
+		return null;
+	}
+
+	/**
+	 * Load field state from given file path
+	 * @param newFilePath File path
+	 * @return Field state
+	 */
+	public WMV_VideoStateList loadVideoStateList(String newFilePath)		// Testing
+	{
+		String filePath = newFilePath;
+
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			file = new File(filePath);
+			WMV_VideoStateList vsl = mapper.readValue(file, WMV_VideoStateList.class);
+			
+			return vsl;
+		}
+		catch (Throwable t)
+		{
+			System.out.println("loadFieldState Throwable t:"+t);
+		}
+		return null;
+	}
+
+	/**
+	 * Load field state from given file path
+	 * @param newFilePath File path
+	 * @return Field state
+	 */
+	public WMV_SoundStateList loadSoundStateList(String newFilePath)		// Testing
+	{
+		String filePath = newFilePath;
+
+		final ObjectMapper mapper = JsonFactory.create();
+		final File file;
+		try {
+//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			file = new File(filePath);
+			WMV_SoundStateList ssl = mapper.readValue(file, WMV_SoundStateList.class);
+			
+			return ssl;
+		}
+		catch (Throwable t)
+		{
+			System.out.println("loadSoundStateList Throwable t:"+t);
 		}
 		return null;
 	}

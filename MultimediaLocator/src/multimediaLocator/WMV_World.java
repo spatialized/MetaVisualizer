@@ -323,13 +323,24 @@ public class WMV_World
 		
 		PApplet.println("Saving Simulation State to: "+folderPath);
 		
-		WMV_ClusterStateList csl = getCurrentField().captureState();
+		WMV_Field f = getCurrentField();
+		f.captureState();											// Capture current state, i.e. save timeline and dateline
+
+		WMV_ClusterStateList csl = f.captureClusterStates();
+		WMV_ImageStateList isl = f.captureImageStates();
+		WMV_PanoramaStateList psl = f.capturePanoramaStates();
+		WMV_VideoStateList vsl = f.captureVideoStates();
+//		WMV_SoundStateList ssl = f.captureSoundStates();
+		
 		p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
 		p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
 		p.library.saveViewerSettings(viewer.getSettings(), folderPath+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), folderPath+"ml_library_viewerState.json");
+		p.library.saveFieldState(f.getState(), folderPath+"ml_library_fieldState.json");
 		p.library.saveClusterStateList(csl, folderPath+"ml_library_clusterStates.json");
-		p.library.saveFieldState(getCurrentField().getState(), folderPath+"ml_library_fieldState.json");
+		p.library.saveImageStateList(isl, folderPath+"ml_library_imageStates.json");
+		p.library.savePanoramaStateList(psl, folderPath+"ml_library_panoramaStates.json");
+		p.library.saveVideoStateList(vsl, folderPath+"ml_library_videoStates.json");
 	}
 
 	/**
@@ -369,7 +380,11 @@ public class WMV_World
 	public boolean loadFieldState(WMV_Field field)
 	{
 		WMV_ClusterStateList csl = p.library.loadClusterStateList(getDataFolder()+"ml_library_clusterStates.json");
-		return field.setState(p, p.library.loadFieldState(getDataFolder()+"ml_library_fieldState.json"), csl);
+		WMV_ImageStateList isl = p.library.loadImageStateList(getDataFolder()+"ml_library_imageStates.json");
+		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(getDataFolder()+"ml_library_panoramaStates.json");
+		WMV_VideoStateList vsl = p.library.loadVideoStateList(getDataFolder()+"ml_library_videoStates.json");
+//		WMV_SoundStateList ssl = p.library.loadSoundStateList(getDataFolder()+"ml_library_soundStates.json");
+		return field.setState(p, p.library.loadFieldState(getDataFolder()+"ml_library_fieldState.json"), csl, isl, psl, vsl);
 	}
 
 	public void loadSettings()

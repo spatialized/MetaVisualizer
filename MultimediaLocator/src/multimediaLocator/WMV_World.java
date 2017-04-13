@@ -406,7 +406,8 @@ public class WMV_World
 
 		WMV_ClusterStateList csl = p.library.loadClusterStateLists(clusterDataPath);
 //		WMV_ClusterStateList csl = p.library.loadClusterStateList(clusterDataPath+"ml_library_clusterStates.json");
-		WMV_ImageStateList isl = p.library.loadImageStateList(imageDataPath+"ml_library_imageStates.json");
+		WMV_ImageStateList isl = p.library.loadImageStateLists(imageDataPath);
+//		WMV_ImageStateList isl = p.library.loadImageStateList(imageDataPath+"ml_library_imageStates.json");
 		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
 		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
 //		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");

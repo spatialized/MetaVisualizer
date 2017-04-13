@@ -2589,34 +2589,46 @@ public class WMV_Field
 			try{
 				if(newImageStateList != null)
 				{
-					System.out.println(" Adding Images... "+newImageStateList.images.size());
-					for(WMV_ImageState is : newImageStateList.images)
+					if(newImageStateList.images != null)
 					{
-						WMV_Image newImage = getImageFromImageState(is);
-						newImage.setImage(emptyImage);
-						addImage(newImage);
+						System.out.println(" Adding Images... "+newImageStateList.images.size());
+						for(WMV_ImageState is : newImageStateList.images)
+						{
+							WMV_Image newImage = getImageFromImageState(is);
+							if(newImage != null)
+							{
+								newImage.setImage(emptyImage);
+								addImage(newImage);
+							}
+						}
 					}
 				}
 				
 				if(newPanoramaStateList != null)
 				{
-					System.out.println(" Adding Panoramas... "+newPanoramaStateList.panoramas.size());
-					for(WMV_PanoramaState ps : newPanoramaStateList.panoramas)
+					if(newPanoramaStateList.panoramas != null)
 					{
-						WMV_Panorama newPanorama = getPanoramaFromPanoramaState(ps);
-						addPanorama(newPanorama);
+						System.out.println(" Adding Panoramas... "+newPanoramaStateList.panoramas.size());
+						for(WMV_PanoramaState ps : newPanoramaStateList.panoramas)
+						{
+							WMV_Panorama newPanorama = getPanoramaFromPanoramaState(ps);
+							addPanorama(newPanorama);
+						}
 					}
 				}
 				if(newVideoStateList != null)
 				{
-					System.out.println(" Adding Videos... "+newVideoStateList.videos.size());
-					for(WMV_VideoState vs : newVideoStateList.videos)
+					if(newVideoStateList.videos != null)
 					{
-						WMV_Video newVideo = getVideoFromVideoState(vs);
-						Movie newMovie = new Movie(ml, vs.getMetadata().filePath);
-						newVideo.setVideoLength(newMovie);
-						newVideo.setFrame(emptyImage);
-						addVideo(newVideo);
+						System.out.println(" Adding Videos... "+newVideoStateList.videos.size());
+						for(WMV_VideoState vs : newVideoStateList.videos)
+						{
+							WMV_Video newVideo = getVideoFromVideoState(vs);
+							Movie newMovie = new Movie(ml, vs.getMetadata().filePath);
+							newVideo.setVideoLength(newMovie);
+							newVideo.setFrame(emptyImage);
+							addVideo(newVideo);
+						}
 					}
 				}
 //				if(state.sounds != null)
@@ -2795,7 +2807,6 @@ public class WMV_Field
 	private WMV_Image getImageFromImageState(WMV_ImageState imageState)
 	{
 		WMV_Image newImage = new WMV_Image( imageState.getMediaState().id, null, imageState.getMediaState().mediaType, imageState.getMetadata());
-
 		newImage.setState( imageState );
 		return newImage;
 	}

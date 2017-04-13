@@ -96,11 +96,11 @@ class WMV_Metadata
 			
 			if(dataFilesValidFormat)
 			{
-				WMV_FieldState newFieldState = p.library.loadFieldState(dataFiles[0].getAbsolutePath());
-				WMV_ViewerSettings newViewerSettings = p.library.loadViewerSettings(dataFiles[1].getAbsolutePath());
-				WMV_ViewerState newViewerState = p.library.loadViewerState(dataFiles[2].getAbsolutePath());
-				WMV_WorldSettings newWorldSettings = p.library.loadWorldSettings(dataFiles[3].getAbsolutePath());
-				WMV_WorldState newWorldState = p.library.loadWorldState(dataFiles[4].getAbsolutePath());
+				WMV_FieldState newFieldState = p.library.loadFieldState(dataFiles[1].getAbsolutePath());
+				WMV_ViewerSettings newViewerSettings = p.library.loadViewerSettings(dataFiles[5].getAbsolutePath());
+				WMV_ViewerState newViewerState = p.library.loadViewerState(dataFiles[6].getAbsolutePath());
+				WMV_WorldSettings newWorldSettings = p.library.loadWorldSettings(dataFiles[7].getAbsolutePath());
+				WMV_WorldState newWorldState = p.library.loadWorldState(dataFiles[8].getAbsolutePath());
 				
 				WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
 									newViewerState, newWorldSettings, newWorldState );
@@ -328,11 +328,11 @@ class WMV_Metadata
 			dataFiles = dataFolderFile.listFiles();
 			if(dataFiles != null && dataFiles.length > 0)
 			{
-				if( dataFiles[0].getName().equals("ml_library_clusterStates.json") &&
+				if( dataFiles[0].getName().equals("ml_library_clusterStates") &&
 					dataFiles[1].getName().equals("ml_library_fieldState.json") &&
-					dataFiles[2].getName().equals("ml_library_imageStates.json") &&
-					dataFiles[3].getName().equals("ml_library_panoramaStates.json") &&
-					dataFiles[4].getName().equals("ml_library_videoStates.json") &&
+					dataFiles[2].getName().equals("ml_library_imageStates") &&
+					dataFiles[3].getName().equals("ml_library_panoramaStates") &&
+					dataFiles[4].getName().equals("ml_library_videoStates") &&
 					dataFiles[5].getName().equals("ml_library_viewerSettings.json") &&
 					dataFiles[6].getName().equals("ml_library_viewerState.json") &&
 					dataFiles[7].getName().equals("ml_library_worldSettings.json") &&

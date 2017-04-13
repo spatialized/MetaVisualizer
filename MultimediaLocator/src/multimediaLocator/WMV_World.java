@@ -318,9 +318,27 @@ public class WMV_World
 	void saveSimulationState()
 	{
 		String folderPath = getDataFolder();
-		File directory = new File(folderPath);
-		if(!directory.exists()) directory.mkdir();			// Create directory if doesn't exist
+		String clusterDataPath = folderPath + "ml_library_clusterStates/";
+		String imageDataPath = folderPath + "ml_library_imageStates/";
+		String panoramaDataPath = folderPath + "ml_library_panoramaStates/";
+		String videoDataPath = folderPath + "ml_library_videoStates/";
+		String soundDataPath = folderPath + "ml_library_soundStates/";
 		
+		File dataDirectory = new File(folderPath);
+		if(!dataDirectory.exists()) dataDirectory.mkdir();			// Create directory if doesn't exist
+
+		File clusterDirectory = new File(clusterDataPath);
+		if(!clusterDirectory.exists()) clusterDirectory.mkdir();			// Create directory if doesn't exist
+
+		File imageDirectory = new File(imageDataPath);
+		if(!imageDirectory.exists()) imageDirectory.mkdir();			// Create directory if doesn't exist
+
+		File panoramaDirectory = new File(panoramaDataPath);
+		if(!panoramaDirectory.exists()) panoramaDirectory.mkdir();			// Create directory if doesn't exist
+
+		File videoDirectory = new File(videoDataPath);
+		if(!videoDirectory.exists()) videoDirectory.mkdir();			// Create directory if doesn't exist
+
 		PApplet.println("Saving Simulation State to: "+folderPath);
 		
 		WMV_Field f = getCurrentField();
@@ -337,10 +355,10 @@ public class WMV_World
 		p.library.saveViewerSettings(viewer.getSettings(), folderPath+"ml_library_viewerSettings.json");
 		p.library.saveViewerState(viewer.getState(), folderPath+"ml_library_viewerState.json");
 		p.library.saveFieldState(f.getState(), folderPath+"ml_library_fieldState.json");
-		p.library.saveClusterStateList(csl, folderPath+"ml_library_clusterStates.json");
-		p.library.saveImageStateList(isl, folderPath+"ml_library_imageStates.json");
-		p.library.savePanoramaStateList(psl, folderPath+"ml_library_panoramaStates.json");
-		p.library.saveVideoStateList(vsl, folderPath+"ml_library_videoStates.json");
+		p.library.saveClusterStateList(csl, clusterDataPath+"ml_library_clusterStates.json");
+		p.library.saveImageStateList(isl, imageDataPath+"ml_library_imageStates.json");
+		p.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
+		p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
 	}
 
 	/**
@@ -379,12 +397,20 @@ public class WMV_World
 
 	public boolean loadFieldState(WMV_Field field)
 	{
-		WMV_ClusterStateList csl = p.library.loadClusterStateList(getDataFolder()+"ml_library_clusterStates.json");
-		WMV_ImageStateList isl = p.library.loadImageStateList(getDataFolder()+"ml_library_imageStates.json");
-		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(getDataFolder()+"ml_library_panoramaStates.json");
-		WMV_VideoStateList vsl = p.library.loadVideoStateList(getDataFolder()+"ml_library_videoStates.json");
-//		WMV_SoundStateList ssl = p.library.loadSoundStateList(getDataFolder()+"ml_library_soundStates.json");
-		return field.setState(p, p.library.loadFieldState(getDataFolder()+"ml_library_fieldState.json"), csl, isl, psl, vsl);
+		String dataFolderPath = getDataFolder();
+		String clusterDataPath = dataFolderPath + "ml_library_clusterStates/";
+		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
+		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
+		String videoDataPath = dataFolderPath + "ml_library_videoStates/";
+		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
+
+		WMV_ClusterStateList csl = p.library.loadClusterStateList(clusterDataPath+"ml_library_clusterStates.json");
+		WMV_ImageStateList isl = p.library.loadImageStateList(imageDataPath+"ml_library_imageStates.json");
+		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
+		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
+//		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
+
+		return field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl);
 	}
 
 	public void loadSettings()

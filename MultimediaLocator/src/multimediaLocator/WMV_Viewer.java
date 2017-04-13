@@ -111,7 +111,8 @@ public class WMV_Viewer
 		}
 		else
 		{
-			System.out.println("Entered field... "+currentField.getID());
+			if(debugSettings.viewer)
+				System.out.println("Entered field... "+currentField.getID());
 		}
 	}
 	
@@ -699,7 +700,6 @@ public class WMV_Viewer
 				{
 					state.teleportGoalCluster = dest;
 					state.teleportGoal = c.getLocation();
-					System.out.println("state.teleportGoal:"+state.teleportGoal);
 					startTeleport(-1);
 				}
 				else
@@ -733,18 +733,16 @@ public class WMV_Viewer
 	{
 		if(offset != 0)
 		{
-			System.out.println("teleportToField()... p.getFieldCount():"+p.getFieldCount());
+			if(debugSettings.viewer)
+				System.out.println("teleportToField()... p.getFieldCount():"+p.getFieldCount());
 			p.stopAllVideos();
 			int newField = state.field + offset;
-			System.out.println("newField 1:"+newField);
 
 			if(newField >= p.getFieldCount())
 				newField = 0;
-			System.out.println("newField 2:"+newField);
 			
 			if(newField < 0)
 				newField = p.getFieldCount() - 1;
-			System.out.println("newField 3:"+newField);
 
 			state.teleportGoalCluster = 0;
 			setCurrentCluster( 0, -1 );
@@ -770,8 +768,7 @@ public class WMV_Viewer
 			}
 			else
 			{
-//				if(debugSettings.viewer)
-					System.out.println("This field has no clusters!");
+				System.out.println("This field has no clusters!");
 			}
 		}
 	}

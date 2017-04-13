@@ -504,7 +504,9 @@ public class WMV_World
 		viewer.resetTimeState();
 
 		/* Check world and viewer state/settings */
-		System.out.println("--> Set Simulation State from Field #"+field.getID());
+		if(p.debugSettings.main)
+			System.out.println("Set Simulation State from Field #"+field.getID());
+		
 		if(p.debugSettings.main && p.debugSettings.detailed)
 		{
 			if(state != null) System.out.println("WorldState exists...");

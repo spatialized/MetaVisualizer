@@ -144,7 +144,7 @@ public class ML_Library
 
 	public void saveClusterStateList(WMV_ClusterStateList csl, String newFilePath)
 	{
-		if(csl.clusters.size() <= 100)
+		if(csl.clusters.size() <= 50)
 		{
 			final ObjectMapper mapper = JsonFactory.create();
 			final File file;
@@ -159,10 +159,10 @@ public class ML_Library
 		}
 		else
 		{
-			for(int i=0; i<csl.clusters.size(); i+=100)
+			for(int i=0; i<csl.clusters.size(); i+=50)
 			{
 				ArrayList<WMV_ClusterState> temp = new ArrayList<WMV_ClusterState>();
-				for(int idx = i; idx < i+100; idx++)
+				for(int idx = i; idx < i+50; idx++)
 				{
 					if(idx < csl.clusters.size() - 1)
 						temp.add(csl.clusters.get(idx));
@@ -176,7 +176,7 @@ public class ML_Library
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
 				try {
-					file = new File(newFilePath.replaceAll(".json", "_"+((Math.round(i/100)+1)+".json")));
+					file = new File(newFilePath.replaceAll(".json", "_"+((Math.round(i/50)+1)+".json")));
 					mapper.writeValue(file, tempCsl);    // Write object to file
 				}
 				catch (Throwable t)

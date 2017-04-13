@@ -556,6 +556,9 @@ public class ML_Input
 
 			if(ml.display.displayView == 1)	/* 2D Map View */
 			{
+				if( key == '|' )
+					ml.world.getCurrentField().calculateBorderPoints();
+				
 				if( key == '+' )
 					ml.display.satelliteMap = !ml.display.satelliteMap;
 
@@ -727,10 +730,6 @@ public class ML_Input
 			if (!ml.state.interactive)		
 			{
 				/* 3D View Controls */
-				if (key == '|')
-					ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
-//					world.getCurrentCluster().stitchImages();    			
-
 				if (optionKey && key == '[')
 				{
 					if(ml.world.viewer.getThinningAngle() > PApplet.PI / 64.f)
@@ -941,6 +940,9 @@ public class ML_Input
 				/* 3D Controls Disabled in HUD View */
 				if(!ml.display.inDisplayView())							
 				{
+					if (key == '|')
+						ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
+
 					if (key == '{')
 						ml.world.viewer.teleportToField(-1, true);
 

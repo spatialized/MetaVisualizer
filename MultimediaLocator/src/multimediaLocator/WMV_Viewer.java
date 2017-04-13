@@ -709,7 +709,6 @@ public class WMV_Viewer
 				}
 			}
 			else 
-//				if(debugSettings.cluster || debugSettings.field || debugSettings.viewer)
 				System.out.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+currentField.getClusters().size());
 		}
 	}
@@ -3996,7 +3995,8 @@ public class WMV_Viewer
 		{
 			if(currentField.getTimelines().size() > 0 && currentField.getTimelines().size() > state.currentFieldDate)
 			{
-				System.out.println("Setting newCurrentFieldTimeSegmentOnDate:"+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+currentField.getID());
+				if(debugSettings.viewer)
+					System.out.println("Setting newCurrentFieldTimeSegmentOnDate:"+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+currentField.getID());
 			}
 			else 
 			{
@@ -4043,7 +4043,8 @@ public class WMV_Viewer
 	{
 		state.currentFieldDate = newDate;
 		boolean success = setCurrentFieldTimeSegmentOnDate( newCurrentFieldTimelinesSegment, updateTimelineSegment );
-		System.out.println("setCurrentTimeSegmentAndDate... newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
+		if(debugSettings.viewer)
+			System.out.println("setCurrentTimeSegmentAndDate... newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
 		return success;
 	}
 	
@@ -4057,7 +4058,8 @@ public class WMV_Viewer
 		int newDate = 0;
 		if(ignoreDate)
 		{
-			System.out.println("Moving to first time segment on any date");
+			if(debugSettings.viewer)
+				System.out.println("Moving to first time segment on any date");
 			moveToTimeSegmentInField(currentField.getID(), 0, true, true);		// Move to first time segment in field
 			return true;
 		}		
@@ -4080,9 +4082,9 @@ public class WMV_Viewer
 			}
 			if(success)
 			{
-				System.out.println("Moving to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
+				if(debugSettings.viewer)
+					System.out.println("Moving to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
 				int curFieldTimeSegment = currentField.getTimeSegmentOnDate(state.currentFieldTimeSegmentOnDate, state.currentFieldDate).getFieldTimelineID();
-//				int curFieldTimeSegment = currentField.getTimelines().get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
 				moveToTimeSegmentInField(currentField.getID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
 			}
 			else System.out.println("Couldn't move to first time segment...");

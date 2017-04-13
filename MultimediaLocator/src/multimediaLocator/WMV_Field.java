@@ -35,6 +35,9 @@ public class WMV_Field
 	private WMV_Utilities utilities;			// Utility methods
 	private WMV_Model model;					// Dimensions of current virtual space
 
+	/* Model */
+	ArrayList<PVector> border;					// Convex hull (border) of media points
+
 	/* Time */
 	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
 	private ArrayList<WMV_Timeline> timelines;			// Lists of time segments in field ordered by date
@@ -52,6 +55,7 @@ public class WMV_Field
 	private String[] names;								// Media names
 	private double[][] distances;						// Media distances
 
+	
 	WMV_Field( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
 			   ML_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
 	{
@@ -537,8 +541,9 @@ public class WMV_Field
 			if(!c.isEmpty())
 				c.analyzeMedia(images, panoramas, videos);					
 
+		if(debugSettings.field)
 		System.out.println("Finished analyzing media...");
-		System.out.println("Setting cluster times/dates for media...");
+//		System.out.println("Setting cluster times/dates for media...");
 
 		/* Set cluster date and time for each media object */
 		for(WMV_Cluster c : clusters)
@@ -2585,7 +2590,6 @@ public class WMV_Field
 								addImage(newImage);
 							}
 						}
-//						System.out.println(" Added Images... images.size():"+images.size());
 					}
 				}
 				
@@ -2597,7 +2601,11 @@ public class WMV_Field
 						for(WMV_PanoramaState ps : newPanoramaStateList.panoramas)
 						{
 							WMV_Panorama newPanorama = getPanoramaFromPanoramaState(ps);
-							addPanorama(newPanorama);
+							if(newPanorama != null)
+							{
+								newPanorama.setTexture(emptyImage);
+								addPanorama(newPanorama);
+							}
 						}
 					}
 				}
@@ -3207,6 +3215,90 @@ public class WMV_Field
 		}
 	}
 
+	/**
+	 * Get convex hull of set of n points.
+	 * Based on:
+	 * http://www.geeksforgeeks.org/convex-hull-set-1-jarviss-algorithm-or-wrapping/
+	 * @param points
+	 * @return
+	 */
+	public void calculateBorderPoints()
+	{
+		border = new ArrayList<PVector>();
+		ArrayList<PVector> points = new ArrayList<PVector>();
+		
+		for(WMV_Image i : images)
+			points.add(new PVector(i.getLocation().x, i.getLocation().z));
+		for(WMV_Panorama n : panoramas)
+			points.add(new PVector(n.getLocation().x, n.getLocation().z));
+		for(WMV_Video v : videos)
+			points.add(new PVector(v.getLocation().x, v.getLocation().z));
+		
+	  // There must be at least 3 points
+	  if (points.size() < 3) return;
+
+
+	  // Find the leftmost PVector
+	  int l = 0;
+	  for (int i = 1; i < points.size(); i++)
+	    if (points.get(i).x < points.get(l).x)
+	      l = i;
+
+	  // Start from leftmost PVector, keep moving counterclockwise
+	  // until reach the start PVector again.  This loop runs O(h)
+	  // times where h is number of points in result or output.
+	  int p = l, q;
+	  do
+	  {
+	    // Add current PVector to result
+	    border.add(points.get(p));
+
+	    // Search for a PVector 'q' such that orientation(p, x,
+	    // q) is counterclockwise for all points 'x'. The idea
+	    // is to keep track of last visited most counterclock-
+	    // wise PVector in q. If any PVector 'i' is more counterclock-
+	    // wise than q, then update q.
+	    q = (p+1)%points.size();
+	    for (int i = 0; i < points.size(); i++)
+	    {
+	      // If i is more counterclockwise than current q, then
+	      // update q
+	      if (getPointTripletOrientation(points.get(p), points.get(i), points.get(q)) == 2)
+	        q = i;
+	    }
+
+	    // Now q is the most counterclockwise with respect to p
+	    // Set p as q for next iteration, so that q is added to
+	    // result 'hull'
+	    p = q;
+	  } 
+	  while (p != l);  // While we don't come to first PVector
+
+	  // Print Result
+//	  for (int i = 0; i < hull.size(); i++)
+//	    System.out.println( "(" + hull.get(i).x + ", "
+//	      + hull.get(i).y + ")\n");
+
+	  if(debugSettings.field)
+		  System.out.println("Found media points border of size:"+border.size());
+	}
+	
+	/**
+	 * Find orientation of ordered triplet (p, q, r).
+	 * @param p Point 1
+	 * @param q Point 2
+	 * @param r Point 3
+	 * @return 0: colinear, 1: clockwise, 2: counterclockwise
+	 */
+	private int getPointTripletOrientation(PVector p, PVector q, PVector r)
+	{
+	  float val = (q.y - p.y) * (r.x - q.x) -
+	    (q.x - p.x) * (r.y - q.y);
+
+	  if (val == 0.f) return 0;
+	  return (val > 0.f) ? 1 : 2; 
+	}
+	
 //	/**
 //	 * @param depth Depth at which to draw clusters
 //	 * Draw the clusters at given depth

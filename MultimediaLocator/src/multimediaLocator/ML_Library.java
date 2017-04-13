@@ -517,7 +517,6 @@ public class ML_Library
 				}
 			}
 			
-			System.out.println("loadImageStateLists loaded "+csl.images.size()+" images from "+files.length+" files...");
 			return csl;
 		}
 		return null;

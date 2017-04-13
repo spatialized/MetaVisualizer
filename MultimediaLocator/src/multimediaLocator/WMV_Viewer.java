@@ -720,7 +720,6 @@ public class WMV_Viewer
 			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
 		else
 		{
-			System.out.println("Set camera location:"+newLocation.x+" "+ newLocation.y+" "+ newLocation.z+"...");
 			camera.jump(newLocation.x, newLocation.y, newLocation.z);
 			state.location = getLocation();										// Update to precise camera location
 		}

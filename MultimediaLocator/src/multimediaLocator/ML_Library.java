@@ -429,7 +429,7 @@ public class ML_Library
 		WMV_ClusterStateList csl = new WMV_ClusterStateList();
 		csl.clusters = new ArrayList<WMV_ClusterState>();
 		
-		System.out.println("loadClusterStateLists... directoryPath:"+directoryPath);
+//		System.out.println("loadClusterStateLists... directoryPath:"+directoryPath);
 		if(dir.exists())
 		{
 			File[] files = dir.listFiles();
@@ -452,7 +452,7 @@ public class ML_Library
 				}
 			}
 			
-			System.out.println("loadClusterStateLists loaded "+csl.clusters.size()+" clusters from "+files.length+" files...");
+//			System.out.println("loadClusterStateLists loaded "+csl.clusters.size()+" clusters from "+files.length+" files...");
 			return csl;
 		}
 		return null;

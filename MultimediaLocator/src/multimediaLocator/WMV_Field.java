@@ -1901,8 +1901,18 @@ public class WMV_Field
 
 		for(WMV_TimeSegment t : timeline.timeline)
 		{
-			WMV_Waypoint w = clusters.get(t.getClusterID()).getClusterAsWaypoint();
-			timelinePath.add(w);
+			if(t.getClusterID() < clusters.size())
+			{
+				WMV_Waypoint w = clusters.get(t.getClusterID()).getClusterAsWaypoint();
+				timelinePath.add(w);
+			}
+			else
+			{
+				System.out.println("getTimelineAsPath() Error: t.getClusterID():"+t.getClusterID()+" > clusters.size():"+clusters.size()+" timeline.timeline.size():"+timeline.timeline.size());
+				System.out.println("     t.getFieldTimelineID():"+t.getFieldTimelineID()+" t.getClusterTimelineID():"+t.getClusterTimelineID());
+				System.out.println("     t.getClusterTimelineIDOnDate():"+t.getClusterTimelineIDOnDate()+" t.getFieldDateID():"+t.getFieldDateID());
+				System.out.println("     t.getClusterDateID():"+t.getClusterDateID()+" t.getTimespanAsString(true, true):"+t.getTimespanAsString(true, true));
+			}
 		}
 		
 		if(debugSettings.field)
@@ -2793,8 +2803,13 @@ public class WMV_Field
 
 				 for(WMV_TimeSegment t:c.getTimeline().timeline)
 				 {
+//					 t.getFieldTimelineID():131
+//					 if(t.getFieldTimelineID() == 131)
+//						 System.out.println("t.getClusterID() before:"+t.getClusterID());
 					 if(t.getClusterID() != count)
 						 t.setClusterID(count);
+//					 if(t.getFieldTimelineID() == 131)
+//						 System.out.println("t.getClusterID() after:"+t.getClusterID()+" count:"+count);
 					 for(WMV_Time tm:t.timeline)
 					 {
 						 if(tm.getClusterID() != count)

@@ -252,19 +252,45 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			WMV_Field f = world.getField(state.initializationField);	
 			
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
-			boolean success = loadSimulationState(f, library.getLibraryFolder());
-			if(success)
-				state.fieldsInitialized = true;			// Field initialized from saved state -- Modify for multiple field
-			else
-				world.getState().hierarchical = f.initialize( library.getLibraryFolder(), -100000L);
+//			boolean success = false;
+//			if(state.initializationField + 1 >= world.getFields().size())
+//				success = loadSimulationState(f, library.getFolder(state.initializationField), true);
+//			else
+//				success = loadSimulationState(f, library.getFolder(state.initializationField), false);
 			
-			world.setBlurMasks();			// Set blur masks
+//			System.out.println("Initialization Field:"+state.initializationField+" ID:"+f.getID()+" Name:"+f.getName());
+			
+			WMV_Field loadedField;
+			if(state.initializationField + 1 >= world.getFields().size())
+				loadedField = loadSimulationState(f, library.getLibraryFolder(), true);
+			else
+				loadedField = loadSimulationState(f, library.getLibraryFolder(), false);
+			
+			boolean success = (loadedField != null);
+			if(success) world.setField(loadedField, state.initializationField);
+			if(success) success = world.getField(state.initializationField).getClusters() != null;
+			if(success) success = (world.getField(state.initializationField).getClusters().size() > 0);
+			if(!success)
+			{
+				System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
+				world.getState().hierarchical = f.initialize( library.getLibraryFolder(), -100000L);
+			}
+			else
+			{
+//				System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(state.initializationField).getClusters().size());
+			}
 		}
 		
 		/* Set next field to initialize */
 		state.initializationField++;										
-		if( state.initializationField >= world.getFields().size() )			
+		if( state.initializationField >= world.getFields().size() )	
+		{
 			state.fieldsInitialized = true;
+			System.out.println("--> Fields initialized.");
+			System.out.println("  Field #0 Height:"+world.getField(0).getModel().state.fieldHeight);
+			System.out.println("  Field #1 Height:"+world.getField(1).getModel().state.fieldHeight);
+			System.out.println("  Field #2 Height:"+world.getField(2).getModel().state.fieldHeight);
+		}
 	}
 	
 	/**
@@ -273,7 +299,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 * @param libraryFolder Library folder
 	 * @return True if succeeded, false if failed
 	 */
-	private boolean loadSimulationState(WMV_Field f, String libraryFolder)
+	private WMV_Field loadSimulationState(WMV_Field f, String libraryFolder, boolean set)
 	{
 		/* Load metadata from media associated with field */
 		WMV_SimulationState savedState = metadata.load(f, libraryFolder, true);
@@ -282,15 +308,21 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if(savedState != null)
 		{
 			System.out.println("Valid SimulationState loaded...");
-			return world.loadSimulationState(savedState, f);
+			if(set)
+				return world.loadAndSetSimulationState(savedState, f);
+			else
+				return world.loadSimulationState(savedState, f);
 		}
-		else return false;
+		else return null;
 	}
+	
 	/**
 	 * Finish the world initialization process
 	 */
 	void finishInitialization()
 	{
+		world.setBlurMasks();			// Set blur masks
+
 		if(debugSettings.main && debugSettings.detailed) System.out.println("Finishing MultimediaLocator initialization..");
 
 		display.initializeWindows(world);
@@ -425,19 +457,20 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			String[] parts = input.split("/");
 			
 			String[] nameParts = parts[parts.length-1].split("_");		// Check if single field library 
-			boolean singleField = !nameParts[0].equals("Environments");
+			boolean singleField = !(nameParts[0].equals("ML") && nameParts[1].equals("Library"));
 			String parentFilePath = "";
 			
 			if(singleField)
 			{
+				System.out.println("Loading single field folder...");
 				String libFilePath = "";
 				for(int i=0; i<parts.length-1; i++)
 				{
 					libFilePath = libFilePath + parts[i] + "/";
 				}
 
-				library = new ML_Library(libFilePath);
-				library.addFolder(parts[parts.length-1]);
+				library = new ML_Library(libFilePath);				// Set library folder
+				library.addFolder(parts[parts.length-1]);			// Add single folder 
 				
 				selectedFolder = true;
 
@@ -446,7 +479,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			}
 			else
 			{
+				System.out.println("Loading media library...");
 				File libFile = new File(library.getLibraryFolder());
+				
 				String[] mediaFolderList = libFile.list();
 				for(String mediaFolder : mediaFolderList)
 					if(!mediaFolder.equals(".DS_Store"))
@@ -459,7 +494,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			}
 
 			world.getState().stitchingPath = parentFilePath + "stitched/";					// -- Move this to library!
-//			boolean success = world.loadImageMasks(parentFilePath);
 			world.loadImageMasks();					
 			
 			selectedFolder = true;

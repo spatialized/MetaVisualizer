@@ -317,8 +317,9 @@ public class WMV_Viewer
 		if(debugSettings.field || debugSettings.viewer)		
 			System.out.println("Set new field:"+state.field);
 
-		initialize(0,0,0);							// Initialize camera
-
+		initialize(0,0,0);												// Initialize camera
+		p.setSimulationStateFromField(p.getField(newField));			// Set simulation state from saved
+		
 		if(debugSettings.field || debugSettings.viewer)		
 			System.out.println("Moving (teleporting) to nearest cluster:"+state.field);
 
@@ -714,9 +715,9 @@ public class WMV_Viewer
 			state.teleportGoalCluster = 0;
 			setCurrentCluster( 0, -1 );
 
-			if(debugSettings.viewer)
+//			if(debugSettings.viewer)
 				System.out.println("Moving to field: "+newField+" out of "+p.getFieldCount());
-			if(debugSettings.viewer)
+//			if(debugSettings.viewer)
 				System.out.println("... at cluster: "+state.currentCluster+" out of "+p.getField(newField).getClusters().size());
 
 			if(p.getField(newField).getClusters().size() > 0)			// Check whether field has clusters (is valid)
@@ -736,7 +737,7 @@ public class WMV_Viewer
 			}
 			else
 			{
-				if(debugSettings.viewer)
+//				if(debugSettings.viewer)
 					System.out.println("This field has no clusters!");
 			}
 		}

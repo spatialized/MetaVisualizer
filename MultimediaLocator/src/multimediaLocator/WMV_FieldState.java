@@ -13,17 +13,14 @@ public class WMV_FieldState
 	/* General */
 	public int id;											// Field ID
 	public String name;										// Field Name
+	
+	/* Data */
+	public WMV_ModelState model;						// Model state for importing / exporting
 
 	/* Time */
 	public WMV_Timeline timeline;							// Field timeline
 	public ArrayList<WMV_Date> dateline;					// List of dates, whose indices correspond with timelines in WMV_Field timelines list
 	public String timeZoneID = "America/Los_Angeles";		// Current time zone
-	
-	/* Data */
-	public ArrayList<WMV_ImageState> images; 				// Images for exporting/importing
-	public ArrayList<WMV_PanoramaState> panoramas; 			// Panoramas for exporting/importing
-	public ArrayList<WMV_VideoState> videos; 				// Videos for exporting/importing
-//	public ArrayList<WMV_SoundState> sounds; 				// Sounds for exporting/importing
 
 	/* Clusters */
 	public int deepestLevel = -1;	
@@ -44,13 +41,6 @@ public class WMV_FieldState
 	public int disassociatedVideos = 0;
 	
 	public WMV_FieldState(){}
-	
-	public void initialize()
-	{
-		images = new ArrayList<WMV_ImageState>();
-		panoramas = new ArrayList<WMV_PanoramaState>();
-		videos = new ArrayList<WMV_VideoState>();
-	}
 	
 	public void reset()
 	{
@@ -87,9 +77,9 @@ public class WMV_FieldState
 
 		/* Data */
 //		clusters = new ArrayList<WMV_ClusterState>();			// Clusters (spatial groupings) of media 
-		images = new ArrayList<WMV_ImageState>(); 				// All images in this field
-		panoramas = new ArrayList<WMV_PanoramaState>(); 		// All panoramas in this field
-		videos = new ArrayList<WMV_VideoState>(); 				// All videos in this field
+//		images = new ArrayList<WMV_ImageState>(); 				// All images in this field
+//		panoramas = new ArrayList<WMV_PanoramaState>(); 		// All panoramas in this field
+//		videos = new ArrayList<WMV_VideoState>(); 				// All videos in this field
 	}
 	
 	public void setTimeData( WMV_Timeline newTimeline, ArrayList<WMV_Date> newDateline )
@@ -98,28 +88,33 @@ public class WMV_FieldState
 		dateline = newDateline;
 	}
 	
-	public void setMediaData( ArrayList<WMV_ImageState> newImages, ArrayList<WMV_PanoramaState> newPanoramas,
-							  ArrayList<WMV_VideoState> newVideos )
+	public void setModelData(WMV_ModelState newModelState)
 	{
-		images = newImages;
-		panoramas = newPanoramas;
-		videos = newVideos;
+		model = newModelState;
 	}
-
-	public void setImages(ArrayList<WMV_ImageState> newImages)
-	{
-		images = newImages;
-	}
-
-	public void setPanoramas(ArrayList<WMV_PanoramaState> newPanoramas)
-	{
-		panoramas = newPanoramas;
-	}
-
-	public void setVideos(ArrayList<WMV_VideoState> newVideos)
-	{
-		videos = newVideos;
-	}
+	
+//	public void setMediaData( ArrayList<WMV_ImageState> newImages, ArrayList<WMV_PanoramaState> newPanoramas,
+//							  ArrayList<WMV_VideoState> newVideos )
+//	{
+//		images = newImages;
+//		panoramas = newPanoramas;
+//		videos = newVideos;
+//	}
+//
+//	public void setImages(ArrayList<WMV_ImageState> newImages)
+//	{
+//		images = newImages;
+//	}
+//
+//	public void setPanoramas(ArrayList<WMV_PanoramaState> newPanoramas)
+//	{
+//		panoramas = newPanoramas;
+//	}
+//
+//	public void setVideos(ArrayList<WMV_VideoState> newVideos)
+//	{
+//		videos = newVideos;
+//	}
 
 //	public void setSounds(ArrayList<WMV_ImageState> newImages)
 //	{

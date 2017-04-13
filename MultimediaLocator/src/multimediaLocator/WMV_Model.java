@@ -22,14 +22,21 @@ public class WMV_Model
 	WMV_ModelState state;
 	WMV_Utilities utilities;			// Utility methods
 
-	WMV_Model(WMV_WorldSettings newWorldSettings, ML_DebugSettings newDebugSettings)
+	WMV_Model(){}
+
+	public void initialize(WMV_WorldSettings newWorldSettings, ML_DebugSettings newDebugSettings)
 	{
 		state = new WMV_ModelState();
 		worldSettings = newWorldSettings;
 		debugSettings = newDebugSettings;
-
+		
 		utilities = new WMV_Utilities();								// Utility methods
 		state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
+	}
+
+	public void setState(WMV_ModelState newState)
+	{
+		state = newState;
 	}
 
 	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 

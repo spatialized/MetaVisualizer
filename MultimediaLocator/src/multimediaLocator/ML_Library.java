@@ -49,6 +49,16 @@ public class ML_Library
 		return folders;
 	}
 
+	public String getFolder(int folderIdx)
+	{
+		return folders.get(folderIdx);
+	}
+
+	public String getDataFolder(int fieldID)
+	{
+		return getLibraryFolder() + "/" + folders.get(fieldID) + "/data/";
+	}
+
 	public void saveWorldSettings(WMV_WorldSettings settings, String newFilePath)		
 	{
 		String filePath = newFilePath;
@@ -419,6 +429,7 @@ public class ML_Library
 		WMV_ClusterStateList csl = new WMV_ClusterStateList();
 		csl.clusters = new ArrayList<WMV_ClusterState>();
 		
+		System.out.println("loadClusterStateLists... directoryPath:"+directoryPath);
 		if(dir.exists())
 		{
 			File[] files = dir.listFiles();

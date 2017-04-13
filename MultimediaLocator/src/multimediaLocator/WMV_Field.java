@@ -36,8 +36,6 @@ public class WMV_Field
 	private WMV_Model model;					// Dimensions of current virtual space
 
 	/* Time */
-//	private ArrayList<WMV_TimeSegment> timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
-//	private ArrayList<ArrayList<WMV_TimeSegment>> timelines;			// Lists of time segments in field ordered by date
 	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
 	private ArrayList<WMV_Timeline> timelines;			// Lists of time segments in field ordered by date
 	private ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
@@ -62,10 +60,11 @@ public class WMV_Field
 		if(newWorldState != null) worldState = newWorldState;
 		if(newViewerSettings != null) viewerSettings = newViewerSettings;
 		if(newViewerState != null) viewerState = newViewerState;
-		model = new WMV_Model(worldSettings, debugSettings);
+		model = new WMV_Model();
+		model.initialize(worldSettings, debugSettings);
 
 		state = new WMV_FieldState();
-		state.initialize();
+//		state.initialize();
 		
 		utilities = new WMV_Utilities();
 		
@@ -89,7 +88,7 @@ public class WMV_Field
 	/**
 	 * Initialize virtual space based on media GPS capture locations
 	 */
-	void setup()		 // Initialize field 
+	void setup()		
 	{
 		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0)
 		{
@@ -2438,8 +2437,8 @@ public class WMV_Field
 	public void captureState()
 	{
 		state.setTimeData(timeline, dateline);											// Store time data
+		state.setModelData(model.state);											// Store time data
 	}
-
 	
 	/**
 	 * Capture current field state for exporting to file
@@ -2550,8 +2549,8 @@ public class WMV_Field
 	/**
 	 * Set the current field state from file
 	 */
-	public boolean setState( MultimediaLocator ml, WMV_FieldState newFieldState, WMV_ClusterStateList newClusterStateList
-			, WMV_ImageStateList newImageStateList, WMV_PanoramaStateList newPanoramaStateList, WMV_VideoStateList newVideoStateList)
+	public boolean setState( MultimediaLocator ml, WMV_FieldState newFieldState, WMV_ClusterStateList newClusterStateList, 
+			WMV_ImageStateList newImageStateList, WMV_PanoramaStateList newPanoramaStateList, WMV_VideoStateList newVideoStateList)
 	{
 		boolean error = false, clusterError = false;
 //		if( newFieldState != null && newClusterStateList.clusters != null && (newFieldState.images != null 
@@ -2573,12 +2572,13 @@ public class WMV_Field
 			try{
 				System.out.println("Setting media states... ");
 
-				System.out.println(" Adding Clusters...");
+				System.out.println(" Adding Clusters... "+newClusterStateList.clusters.size());
 				for(WMV_ClusterState cs : newClusterStateList.clusters)
 				{
 					WMV_Cluster newCluster = getClusterFromClusterState(cs);
 					addCluster(newCluster);
 				}
+//				System.out.println(" Added Clusters... clusters.size():"+clusters.size());
 			}
 			catch(Throwable t)
 			{
@@ -2601,6 +2601,7 @@ public class WMV_Field
 								addImage(newImage);
 							}
 						}
+//						System.out.println(" Added Images... images.size():"+images.size());
 					}
 				}
 				
@@ -2652,6 +2653,9 @@ public class WMV_Field
 				try{
 					timeline = newFieldState.timeline;
 					dateline = newFieldState.dateline;
+					model = new WMV_Model();
+					model.initialize(worldSettings, debugSettings);
+					model.setState(newFieldState.model);
 
 					if(clusterError)		// Error loading clusters
 					{
@@ -2795,15 +2799,35 @@ public class WMV_Field
 		 return result;
 	 }
 
-	private WMV_Cluster getClusterFromClusterState(WMV_ClusterState clusterState)
-	{
-		WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, debugSettings, clusterState.id, 
-												  clusterState.location.x, clusterState.location.y, clusterState.location.z);
+	 public WMV_WorldState getWorldState()
+	 {
+		 return worldState;
+	 }
+
+	 public WMV_WorldSettings getWorldSettings()
+	 {
+		 return worldSettings;
+	 }
+
+	 public WMV_ViewerState getViewerState()
+	 {
+		 return viewerState;
+	 }
+
+	 public WMV_ViewerSettings getViewerSettings()
+	 {
+		 return viewerSettings;
+	 }
+
+	 private WMV_Cluster getClusterFromClusterState(WMV_ClusterState clusterState)
+	 {
+		 WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, debugSettings, clusterState.id, 
+				 clusterState.location.x, clusterState.location.y, clusterState.location.z);
+
+		 newCluster.setState( (WMV_ClusterState) clusterState );
+		 return newCluster;
+	 }
 		
-		newCluster.setState( (WMV_ClusterState) clusterState );
-		return newCluster;
-	}
-	
 	private WMV_Image getImageFromImageState(WMV_ImageState imageState)
 	{
 		WMV_Image newImage = new WMV_Image( imageState.getMediaState().id, null, imageState.getMediaState().mediaType, imageState.getMetadata());
@@ -2837,6 +2861,11 @@ public class WMV_Field
 	public String getName()
 	{
 		return state.name;
+	}
+	
+	public void setID(int newID)
+	{
+		state.id = newID;
 	}
 	
 	public int getID()

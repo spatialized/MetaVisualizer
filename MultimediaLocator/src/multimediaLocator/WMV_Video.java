@@ -606,6 +606,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	public float getViewingDistance()                  
 	{
+		if(getViewerState() != null)
+		{
 		PVector camLoc = getViewerState().getLocation();
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
@@ -626,6 +628,12 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		float distance = PVector.dist(loc, camLoc);     
 
 		return distance;
+		}
+		else
+		{
+			System.out.println("Video.getViewingDistance()... getViewerState() is null!!");
+			return 1.f;
+		}
 	}
 
 	/** 

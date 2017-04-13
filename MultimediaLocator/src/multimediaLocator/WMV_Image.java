@@ -399,33 +399,40 @@ class WMV_Image extends WMV_Media
 	}
 
 	/**
-	 * getViewingDistance()
 	 * @return How far the image is from the camera
 	 */
 	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc = getViewerState().getLocation();
-		float distance;
+		if(getViewerState() != null)
+		{
+			PVector camLoc = getViewerState().getLocation();
+			float distance;
 
-		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
+			PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
-		float r;
+			float r;
 
-		if(metadata.focusDistance == -1.f)
-			r = state.defaultFocusDistance;						// Use default if no focus distance in metadata					      
+			if(metadata.focusDistance == -1.f)
+				r = state.defaultFocusDistance;						// Use default if no focus distance in metadata					      
+			else
+				r = metadata.focusDistance;							
+
+			float xDisp = r * (float)Math.sin(PApplet.radians(360-getTheta())) * (float)Math.sin(PApplet.radians(90-metadata.phi)); 
+			float zDisp = r * (float)Math.cos(PApplet.radians(360-getTheta())) * (float)Math.sin(PApplet.radians(90-metadata.phi));  
+			float yDisp = r * (float)Math.cos(PApplet.radians(90-metadata.phi)); 
+
+			state.displacement = new PVector(-xDisp, -yDisp, -zDisp);
+
+			loc.add(state.displacement);
+			distance = PVector.dist(loc, camLoc);     
+
+			return distance;
+		}
 		else
-			r = metadata.focusDistance;							
-
-		float xDisp = r * (float)Math.sin(PApplet.radians(360-getTheta())) * (float)Math.sin(PApplet.radians(90-metadata.phi)); 
-		float zDisp = r * (float)Math.cos(PApplet.radians(360-getTheta())) * (float)Math.sin(PApplet.radians(90-metadata.phi));  
-		float yDisp = r * (float)Math.cos(PApplet.radians(90-metadata.phi)); 
-
-		state.displacement = new PVector(-xDisp, -yDisp, -zDisp);
-
-		loc.add(state.displacement);
-		distance = PVector.dist(loc, camLoc);     
-
-		return distance;
+		{
+			System.out.println("Image.getViewingDistance()... getViewerState() is null!!");
+			return 1.f;
+		}
 	}
 
 	/** 

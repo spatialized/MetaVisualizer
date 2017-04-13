@@ -12,7 +12,7 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
-import processing.core.PVector;
+//import processing.core.PVector;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
 import toxi.math.LinearInterpolation;
@@ -100,7 +100,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * Update the current field in 3D and display to viewer
+	 * Display the current field in 3D view
 	 */
 	void draw3D()
 	{
@@ -127,6 +127,9 @@ public class WMV_World
 				viewer.draw();						// Send the 3D camera view to the screen
 	}
 
+	/**
+	 * Display 2D text and graphics
+	 */
 	void draw2D()
 	{
 		/* 2D Display */
@@ -317,7 +320,7 @@ public class WMV_World
 	 */
 	void saveSimulationState()
 	{
-		String folderPath = getDataFolder();
+		String folderPath = p.library.getDataFolder(getCurrentField().getID());
 		String clusterDataPath = folderPath + "ml_library_clusterStates/";
 		String imageDataPath = folderPath + "ml_library_imageStates/";
 		String panoramaDataPath = folderPath + "ml_library_panoramaStates/";
@@ -362,77 +365,268 @@ public class WMV_World
 	}
 
 	/**
-	 * Save the current world, field and viewer states and settings to file
+	 * Load world, field and viewer states and settings from file
 	 */
-	public boolean loadSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
+	public WMV_Field loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
 	{
-		PApplet.println("Loading Simulation State... ");
+		PApplet.println("Loading and setting Simulation State... Field #"+curField.getID());
 
-		loadState();
-		loadSettings();
-		loadViewerState();
-		loadViewerSettings();
+		loadAndSetState(curField.getID());
+		loadAndSetSettings(curField.getID());
+		loadAndSetViewerState(curField.getID());
+		loadAndSetViewerSettings(curField.getID());
 		
 		/* Check world and viewer state/settings */
 		if(p.debugSettings.main && p.debugSettings.detailed)
 		{
-			if(settings != null) System.out.println("WorldSettings exists...");
 			if(state != null) System.out.println("WorldState exists...");
-			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
+			if(settings != null) System.out.println("WorldSettings exists...");
 			if(viewer.getState() != null) System.out.println("ViewerState exists...");
+			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
 		}
 		String fieldName = curField.getName();
-		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
-		WMV_Field newField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, "", 0);
-		newField.setName(fieldName);
+		int fieldID = curField.getID();
+//		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
+		curField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldName, fieldID);
+//		curField.setName(fieldName);
 		
-		fields.add(newField);
+//		fields.add(newField);
 		
-		boolean success = loadFieldState(fields.get(0));
-		if(p.debugSettings.main && p.debugSettings.detailed)
-			if(success) System.out.println("FieldState exists...");
+//		System.out.println("Will load field state for Field #"+curField.getID());
+		curField = loadFieldState(curField);
+		curField.setID(fieldID);
+		
+//		if(p.debugSettings.main && p.debugSettings.detailed)
+//		System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
 
-		return success;
+		return curField;
+	}
+	
+//	/**
+//	 * Load world, field and viewer states and settings from file
+//	 */
+//	public boolean loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
+//	{
+//		PApplet.println("Loading and setting Simulation State... Field #"+curField.getID());
+//
+//		loadAndSetState(curField.getID());
+//		loadAndSetSettings(curField.getID());
+//		loadAndSetViewerState(curField.getID());
+//		loadAndSetViewerSettings(curField.getID());
+//		
+//		/* Check world and viewer state/settings */
+//		if(p.debugSettings.main && p.debugSettings.detailed)
+//		{
+//			if(state != null) System.out.println("WorldState exists...");
+//			if(settings != null) System.out.println("WorldSettings exists...");
+//			if(viewer.getState() != null) System.out.println("ViewerState exists...");
+//			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
+//		}
+//		String fieldName = curField.getName();
+//		int fieldID = curField.getID();
+////		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
+//		curField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldName, fieldID);
+////		curField.setName(fieldName);
+//		
+////		fields.add(newField);
+//		
+//		System.out.println("Will load field state for Field #"+curField.getID());
+//		boolean success = loadFieldState(curField);
+//		curField.setID(fieldID);
+//		
+////		if(p.debugSettings.main && p.debugSettings.detailed)
+//		if(success)
+//			System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
+//
+//		return success;
+//	}
+
+	/**
+	 * Save the current world, field and viewer states and settings to file
+	 */
+	public WMV_Field loadSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
+	{
+		PApplet.println("Loading Simulation State... Field #"+curField.getID());
+
+		WMV_WorldState newWorldState = loadState(curField.getID());
+		WMV_WorldSettings newWorldSettings = loadSettings(curField.getID());
+		WMV_ViewerState newViewerState = loadViewerState(curField.getID());
+		WMV_ViewerSettings newViewerSettings = loadViewerSettings(curField.getID());
+		
+		/* Check world and viewer state/settings */
+		if(p.debugSettings.main && p.debugSettings.detailed)
+		{
+			if(newWorldState != null) System.out.println("WorldState exists...");
+			if(newWorldSettings != null) System.out.println("WorldSettings exists...");
+			if(newViewerState != null) System.out.println("ViewerState exists...");
+			if(newViewerSettings != null) System.out.println("ViewerSettings exists...");
+		}
+		
+		String fieldName = curField.getName();
+		int fieldID = curField.getID();
+		curField = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, p.debugSettings, fieldName, fieldID);
+//		curField.setName(fieldName);
+//		curField = newField;
+		
+//		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
+//		fields.add(newField);
+		
+//		System.out.println("Will load field state for Field #"+curField.getID());
+		curField= loadFieldState(curField);
+		curField.setID(fieldID);
+		
+//		if(p.debugSettings.main && p.debugSettings.detailed)
+//		System.out.println("Loaded Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
+
+		return curField;
 	}
 
-	public boolean loadFieldState(WMV_Field field)
+//	/**
+//	 * Save the current world, field and viewer states and settings to file
+//	 */
+//	public boolean loadSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
+//	{
+//		PApplet.println("Loading Simulation State... Field #"+curField.getID());
+//
+//		WMV_WorldState newWorldState = loadState(curField.getID());
+//		WMV_WorldSettings newWorldSettings = loadSettings(curField.getID());
+//		WMV_ViewerState newViewerState = loadViewerState(curField.getID());
+//		WMV_ViewerSettings newViewerSettings = loadViewerSettings(curField.getID());
+//		
+//		/* Check world and viewer state/settings */
+//		if(p.debugSettings.main && p.debugSettings.detailed)
+//		{
+//			if(newWorldState != null) System.out.println("WorldState exists...");
+//			if(newWorldSettings != null) System.out.println("WorldSettings exists...");
+//			if(newViewerState != null) System.out.println("ViewerState exists...");
+//			if(newViewerSettings != null) System.out.println("ViewerSettings exists...");
+//		}
+//		
+//		String fieldName = curField.getName();
+//		int fieldID = curField.getID();
+//		curField = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, p.debugSettings, fieldName, fieldID);
+////		curField.setName(fieldName);
+////		curField = newField;
+//		
+////		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
+////		fields.add(newField);
+//		
+//		System.out.println("Will load field state for Field #"+curField.getID());
+//		boolean success = loadFieldState(curField);
+//		curField.setID(fieldID);
+//		
+////		if(p.debugSettings.main && p.debugSettings.detailed)
+//		if(success)
+//			System.out.println("Loaded Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
+//
+//		return success;
+//	}
+	
+	void setSimulationStateFromField(WMV_Field field)
 	{
-		String dataFolderPath = getDataFolder();
+		setState(field.getWorldState());
+		setSettings(field.getWorldSettings());
+		viewer.setState(field.getViewerState());
+		viewer.setSettings(field.getViewerSettings());
+		
+		/* Check world and viewer state/settings */
+		System.out.println("Set Simulation State from Field #"+field.getID());
+		if(p.debugSettings.main && p.debugSettings.detailed)
+		{
+			if(state != null) System.out.println("WorldState exists...");
+			if(settings != null) System.out.println("WorldSettings exists...");
+			if(viewer.getState() != null) System.out.println("ViewerState exists...");
+			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
+		}
+	}
+
+	public WMV_Field loadFieldState(WMV_Field field)
+	{
+		String dataFolderPath = p.library.getDataFolder(field.getID());
+//		System.out.println("dataFolderPath:"+dataFolderPath+" field ID:"+field.getID());
 		String clusterDataPath = dataFolderPath + "ml_library_clusterStates/";
+//		System.out.println("clusterDataPath:"+clusterDataPath+" field ID:"+field.getID());
 		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
 		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
 		String videoDataPath = dataFolderPath + "ml_library_videoStates/";
 //		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
 
 		WMV_ClusterStateList csl = p.library.loadClusterStateLists(clusterDataPath);
-//		WMV_ClusterStateList csl = p.library.loadClusterStateList(clusterDataPath+"ml_library_clusterStates.json");
 		WMV_ImageStateList isl = p.library.loadImageStateLists(imageDataPath);
-//		WMV_ImageStateList isl = p.library.loadImageStateList(imageDataPath+"ml_library_imageStates.json");
 		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
 		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
 //		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
 
-		return field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl);
+		field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl);
+		return field;
 	}
 
-	public void loadSettings()
+//	public boolean loadFieldState(WMV_Field field)
+//	{
+//		String dataFolderPath = p.library.getDataFolder(field.getID());
+//		System.out.println("dataFolderPath:"+dataFolderPath+" field ID:"+field.getID());
+//		String clusterDataPath = dataFolderPath + "ml_library_clusterStates/";
+//		System.out.println("clusterDataPath:"+clusterDataPath+" field ID:"+field.getID());
+//		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
+//		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
+//		String videoDataPath = dataFolderPath + "ml_library_videoStates/";
+////		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
+//
+//		WMV_ClusterStateList csl = p.library.loadClusterStateLists(clusterDataPath);
+//		WMV_ImageStateList isl = p.library.loadImageStateLists(imageDataPath);
+//		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
+//		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
+////		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
+//
+//		return field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl);
+//	}
+
+	public void loadAndSetSettings(int fieldID)
 	{
-		setSettings(p.library.loadWorldSettings(getDataFolder()+"ml_library_worldSettings.json"));
+		String dataFolder = p.library.getDataFolder(fieldID);
+		setSettings(p.library.loadWorldSettings(dataFolder+"ml_library_worldSettings.json"));
 	}
 
-	public void loadState()
+	public void loadAndSetState(int fieldID)
 	{
-		setState(p.library.loadWorldState(getDataFolder()+"ml_library_worldState.json"));
+		String dataFolder = p.library.getDataFolder(fieldID);
+		setState(p.library.loadWorldState(dataFolder+"ml_library_worldState.json"));
 	}
 
-	public void loadViewerSettings()
+	public void loadAndSetViewerSettings(int fieldID)
 	{
-		viewer.setSettings(p.library.loadViewerSettings(getDataFolder()+"ml_library_viewerSettings.json"));
+		String dataFolder = p.library.getDataFolder(fieldID);
+		viewer.setSettings(p.library.loadViewerSettings(dataFolder+"ml_library_viewerSettings.json"));
 	}
 
-	public void loadViewerState()
+	public void loadAndSetViewerState(int fieldID)
 	{
-		viewer.setState(p.library.loadViewerState(getDataFolder()+"ml_library_viewerState.json"));
+		String dataFolder = p.library.getDataFolder(fieldID);
+		viewer.setState(p.library.loadViewerState(dataFolder+"ml_library_viewerState.json"));
+	}
+
+	public WMV_WorldSettings loadSettings(int fieldID)
+	{
+		String dataFolder = p.library.getDataFolder(fieldID);
+		return p.library.loadWorldSettings(dataFolder+"ml_library_worldSettings.json");
+	}
+
+	public WMV_WorldState loadState(int fieldID)
+	{
+		String dataFolder = p.library.getDataFolder(fieldID);
+		return p.library.loadWorldState(dataFolder+"ml_library_worldState.json");
+	}
+
+	public WMV_ViewerSettings loadViewerSettings(int fieldID)
+	{
+		String dataFolder = p.library.getDataFolder(fieldID);
+		return p.library.loadViewerSettings(dataFolder+"ml_library_viewerSettings.json");
+	}
+
+	public WMV_ViewerState loadViewerState(int fieldID)
+	{
+		String dataFolder = p.library.getDataFolder(fieldID);
+		return p.library.loadViewerState(dataFolder+"ml_library_viewerState.json");
 	}
 
 	/**
@@ -513,14 +707,14 @@ public class WMV_World
 	/**
 	 * Create a field from each media folder in library
 	 */
-	void createFieldsFromFolders(ArrayList<String> folders)
+	void createFieldsFromFolders(ArrayList<String> fieldFolders)
 	{
 		fields = new ArrayList<WMV_Field>();			// Initialize fields array
 		int count = 0;
 		
-		for(String s : folders)
+		for(String fieldFolder : fieldFolders)
 		{
-			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, s, count));
+			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldFolder, count));
 			count++;
 		}
 	}
@@ -798,6 +992,15 @@ public class WMV_World
 			return fields.get(fieldIndex);
 		else
 			return null;
+	}
+
+	/**
+	 * @param newField New field to set
+	 * @param fieldIndex Field ID 
+	 */
+	public void setField(WMV_Field newField, int fieldIndex)
+	{
+		fields.set(fieldIndex, newField);
 	}
 
 	/**
@@ -1176,10 +1379,10 @@ public class WMV_World
 		}
 	}
 	
-	public String getDataFolder()
-	{
-		return p.library.getLibraryFolder() + getCurrentField().getName() + "/data/";
-	}
+//	public String getDataFolder()
+//	{
+//		return p.library.getLibraryFolder() + "/" + getCurrentField().getName() + "/data/";
+//	}
 	
 	public void setSettings(WMV_WorldSettings newSettings)
 	{

@@ -766,7 +766,7 @@ public class ML_Input
 					ml.world.saveSimulationState();
 
 				if( key == '?' )
-					ml.world.loadViewerState();
+					ml.world.loadAndSetViewerState(ml.world.getCurrentField().getID());
 
 //				if( key == '?' )
 //					world.loadViewerSettings();

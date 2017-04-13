@@ -80,11 +80,11 @@ class WMV_Metadata
 	/**
 	 * Load metadata from a folder into a field 
 	 */
-	public WMV_SimulationState load(WMV_Field field, String mediaFolder, boolean formatted)
+	public WMV_SimulationState load(WMV_Field field, String libraryFolder, boolean formatted)
 	{
 		if(formatted)				// mediaFolder is correctly formatted library
 		{
-			library = mediaFolder;
+			library = libraryFolder;
 
 			f = field;
 			String fieldPath = f.getName();
@@ -312,21 +312,22 @@ class WMV_Metadata
 	 */
 	public void loadDataFolder(String library, String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
-		dataFolder = library + fieldPath + "/data/";		// Max width 720 pixels  -- Check this!
-//		dataFolder = library + "/" + fieldPath + "/data/";		// Max width 720 pixels  -- Check this!
+		dataFolder = library + "/" + fieldPath + "/data/";		// Max width 720 pixels  -- Check this!
 
 		dataFolderFile = new File(dataFolder);
 		dataFolderFound = (dataFolderFile.exists() && dataFolderFile.isDirectory());	
 		dataFiles = null;
 
+		System.out.println("dataFolder: " + dataFolder); 
 //		System.out.println("dataFolderFound? " + (dataFolderFound)); 
 //		System.out.println("dataFolderFile.isDirectory()? " + (dataFolderFile.isDirectory())); 
-//		System.out.println("dataFolderFile.exists()? " + (dataFolderFile.exists())); 
+		System.out.println("dataFolderFile.exists()? " + (dataFolderFile.exists())); 
 //		System.out.println("dataFiles != null? " + (dataFiles != null)); 
+
 		if(dataFolderFound)				// Check for sound files
 		{
 			dataFiles = dataFolderFile.listFiles();
-			if (debugSettings.data)
+//			if (debugSettings.data)
 			{
 				System.out.println("Data Files[0]:" + dataFiles[0].getName());
 				System.out.println("Data Files[1]:" + dataFiles[1].getName());
@@ -420,30 +421,6 @@ class WMV_Metadata
 	
 	private ZonedDateTime getTimeFromTimeStamp(FileTime creationTime)
 	{
-		String tsStr = creationTime.toString();
-
-		/* Old Method */
-//		String[] parts = tsStr.split("T");
-//		String strDate = parts[0];
-//		String strTime = parts[1];
-//
-//		parts = strDate.split("-");
-//		String strYear = parts[0];
-//		String strMonth = parts[1];
-//		String strDay = parts[2];
-//	
-//		parts = strTime.split("Z");
-//		parts = parts[0].split(":");
-//		
-//		String strHour = parts[0];
-//		String strMinute = parts[1];
-//		String strSecond = parts[2];
-//
-//
-//		ZonedDateTime utc = ZonedDateTime.of( Integer.parseInt(strYear), Integer.parseInt(strMonth), Integer.parseInt(strDay), 
-//				 							  Integer.parseInt(strHour), Integer.parseInt(strMinute), Integer.parseInt(strSecond), 0, ZoneId.of("UTC") );
-//		return utc;
-
 		Instant creationInstant = creationTime.toInstant();
 		ZonedDateTime mediaTime = creationInstant.atZone(ZoneId.of(p.world.getCurrentField().getTimeZoneID()));
 

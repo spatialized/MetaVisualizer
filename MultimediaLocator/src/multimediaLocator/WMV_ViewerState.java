@@ -143,6 +143,19 @@ public class WMV_ViewerState
 		currentCluster = 0;
 	}
 	
+	public void reset()
+	{
+		currentFieldTimeSegment = 0;			// Current time segment in field timeline
+		currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
+		currentFieldDate = 0;					// Current date in field dateline
+		
+		currentMedia = -1;						// In Single Time Mode, media index currently visible
+		currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
+		nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
+		lookAtCurrentMedia = false;				// In Single Time Mode, whether to turn and look at current media  -- bugs
+		nearbyClusterTimelineMediaCount = 0;	// Number of media in nearbyClusterTimeline
+	}
+	
 	public PVector getLocation()
 	{
 		return location;

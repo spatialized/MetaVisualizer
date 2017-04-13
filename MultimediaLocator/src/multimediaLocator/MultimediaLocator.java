@@ -27,7 +27,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 {
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
-	
+	boolean enteredField = false;
+
 	/* Classes */
 	ML_Library library;							// Multimedia library
 	ML_Input input;								// Mouse / keyboard input
@@ -100,7 +101,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	{
 		if(state.startedRunning)										// If simulation just started running
 		{
-			world.enter(0);												// Enter world at field 0
+			if(!enteredField)
+				world.enter(0, true);												// Enter world at field 0
 			state.startedRunning = false;
 		}
 		
@@ -252,14 +254,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			WMV_Field f = world.getField(state.initializationField);	
 			
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
-//			boolean success = false;
-//			if(state.initializationField + 1 >= world.getFields().size())
-//				success = loadSimulationState(f, library.getFolder(state.initializationField), true);
-//			else
-//				success = loadSimulationState(f, library.getFolder(state.initializationField), false);
-			
-//			System.out.println("Initialization Field:"+state.initializationField+" ID:"+f.getID()+" Name:"+f.getName());
-			
 			WMV_Field loadedField;
 			if(state.initializationField + 1 >= world.getFields().size())
 				loadedField = loadSimulationState(f, library.getLibraryFolder(), true);
@@ -270,14 +264,14 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			if(success) world.setField(loadedField, state.initializationField);
 			if(success) success = world.getField(state.initializationField).getClusters() != null;
 			if(success) success = (world.getField(state.initializationField).getClusters().size() > 0);
-			if(!success)
+			if(success)
 			{
-				System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
-				world.getState().hierarchical = f.initialize( library.getLibraryFolder(), -100000L);
+				System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(state.initializationField).getClusters().size());
 			}
 			else
 			{
-//				System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(state.initializationField).getClusters().size());
+				System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
+				world.getState().hierarchical = f.initialize( library.getLibraryFolder(), -100000L);
 			}
 		}
 		
@@ -286,10 +280,13 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if( state.initializationField >= world.getFields().size() )	
 		{
 			state.fieldsInitialized = true;
-			System.out.println("--> Fields initialized.");
-			System.out.println("  Field #0 Height:"+world.getField(0).getModel().state.fieldHeight);
-			System.out.println("  Field #1 Height:"+world.getField(1).getModel().state.fieldHeight);
-			System.out.println("  Field #2 Height:"+world.getField(2).getModel().state.fieldHeight);
+			if(debugSettings.main)
+				System.out.println("" + world.getFields().size() + " fields initialized...");
+			world.enter(state.initializationField-1, false);			// Enter world at last initialization field
+			
+//			System.out.println("  Field #0 Height:"+world.getField(0).getModel().state.fieldHeight);
+//			System.out.println("  Field #1 Height:"+world.getField(1).getModel().state.fieldHeight);
+//			System.out.println("  Field #2 Height:"+world.getField(2).getModel().state.fieldHeight);
 		}
 	}
 	

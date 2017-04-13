@@ -315,6 +315,21 @@ public class WMV_Field
 //		}
 	}
 	
+	public void updateAllMediaSettings()
+	{
+		for (WMV_Image i : images)  		// Update and display videos
+			if(!i.isDisabled())
+				i.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+	
+		for (WMV_Panorama n : panoramas)  		// Update and display videos
+			if(!n.isDisabled())
+				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+	
+		for (WMV_Video v : videos)  		// Update and display videos
+			if(!v.isDisabled())
+				v.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+	}
+	
 	/**
 	 * Initialize field with given library folder
 	 * @param library Current library folder
@@ -2561,7 +2576,9 @@ public class WMV_Field
 			PImage emptyImage = ml.createImage(0,0,processing.core.PConstants.RGB);
 
 			try{
+				int curFieldID = state.id;
 				state = newFieldState;
+				state.id = curFieldID;
 			}
 			catch(Throwable t)
 			{
@@ -2570,7 +2587,7 @@ public class WMV_Field
 			}
 
 			try{
-				System.out.println("Setting media states... ");
+				System.out.println("Setting media states for field #"+getID()+" ... ");
 
 				System.out.println(" Adding Clusters... "+newClusterStateList.clusters.size());
 				for(WMV_ClusterState cs : newClusterStateList.clusters)
@@ -2910,6 +2927,8 @@ public class WMV_Field
 	
 	public WMV_TimeSegment getTimeSegmentOnDate(int tsIdx, int dateIdx)
 	{
+		System.out.println("getTimeSegmentOnDate()... tsIdx:"+tsIdx+" dateIdx:"+dateIdx);
+		System.out.println("  result:"+(timelines.get(dateIdx).timeline.get(tsIdx)));
 		return timelines.get(dateIdx).timeline.get(tsIdx);
 	}
 	

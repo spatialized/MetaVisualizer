@@ -105,6 +105,14 @@ public class WMV_Viewer
 	public void enterField(WMV_Field newField)
 	{
 		currentField = newField;
+		if(currentField == null)
+		{
+			System.out.println("Didn't enter field... currentField == null!");
+		}
+		else
+		{
+			System.out.println("Entered field... "+currentField.getID());
+		}
 	}
 	
 	void updateState(WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState)
@@ -132,7 +140,10 @@ public class WMV_Viewer
 		updateMovement();							/* Update navigation */
 		if(state.turningX || state.turningY) updateTurning();	/* Update turning */
 
-		currentField.getAttractingClusters().size();
+		if(currentField != null)
+			currentField.getAttractingClusters().size();
+		else
+			System.out.println("viewer.currentField == null!");
 		
 		if(worldState.getTimeMode() == 2 && ( isMoving() || isFollowing() || isWalking() ))
 			p.createTimeCycle();
@@ -310,22 +321,30 @@ public class WMV_Viewer
 	public void setCurrentField(int newField)		
 	{
 		if(newField < p.getFieldCount())
-			state.field = newField;
+			setCurrentFieldID( newField );
 
 //		p.p.display.map2D.initializeMaps();
 
 		if(debugSettings.field || debugSettings.viewer)		
 			System.out.println("Set new field:"+state.field);
 
-		initialize(0,0,0);												// Initialize camera
+//		initialize(0,0,0);												// Initialize camera
 		p.setSimulationStateFromField(p.getField(newField));			// Set simulation state from saved
 		
 		if(debugSettings.field || debugSettings.viewer)		
-			System.out.println("Moving (teleporting) to nearest cluster:"+state.field);
+			System.out.println("After setSimulationStateFromField()... field:"+state.field);
 
-		moveToNearestCluster(true);					// Teleport to new location						
+//		if(debugSettings.field || debugSettings.viewer)		
+//			System.out.println("Moving (teleporting) to nearest cluster:"+state.field);
+
+//		moveToNearestCluster(true);					// Teleport to new location						
 	}
 
+	public void setCurrentFieldID(int newFieldID)
+	{
+		state.field = newFieldID;
+	}
+	
 	/**
 	 * Go to the given image capture location
 	 * @param teleport  Whether to teleport (true) or navigate (false)
@@ -616,16 +635,15 @@ public class WMV_Viewer
 	{
 		WMV_Field f = p.getField(fieldID);
 
-		if(debugSettings.viewer && debugSettings.detailed)
-			System.out.println("moveToTimeSegmentInField:"+f.getTimeline().timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().timeline.size());
-
 		if(f.getTimeline().timeline.size()>0)
 		{
+			if(debugSettings.viewer)
+				System.out.println("----> moveToTimeSegmentInField... fieldID:"+fieldID+" fieldTimeSegment:"+fieldTimeSegment+" fieldTimelineID:"+f.getTimeline().timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().timeline.size());
 			int clusterID = f.getTimeline().timeline.get(fieldTimeSegment).getClusterID();
 			if(clusterID == state.currentCluster && currentField.getCluster(clusterID).getClusterDistance() < worldSettings.clusterCenterSize)	// Moving to different time in same cluster
 			{
 				setCurrentFieldTimeSegment(fieldTimeSegment, true);
-				if(debugSettings.viewer && debugSettings.detailed)
+				if(debugSettings.viewer)
 					System.out.println("Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 			}
 			else
@@ -635,22 +653,32 @@ public class WMV_Viewer
 				
 				if(settings.teleportToFarClusters && !teleport)
 				{
+					if(debugSettings.viewer)
+						System.out.println("  1 clusterID:"+clusterID+" currentField.getCluster(clusterID).getLocation():"+currentField.getCluster(clusterID).getLocation());
 					if(clusterID < currentField.getClusters().size())
 					{
 						if( PVector.dist(currentField.getCluster(clusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
 							teleportToCluster(clusterID, fade, fieldTimeSegment);
 						else
 							setAttractorCluster(clusterID);
-					} else System.out.println("moveToTimeSegmentInField()... Error! clusterID >= currentField.getClusters().size()! clusterID:"+clusterID+" currentField cluster count:"+currentField.getClusters().size());
+					} 
+					else 
+						System.out.println("moveToTimeSegmentInField()... Error! clusterID >= currentField.getClusters().size()! clusterID:"+clusterID+" currentField cluster count:"+currentField.getClusters().size());
 				}
 				else
 				{
+					if(debugSettings.viewer)
+						System.out.println("  2 currentField id:"+clusterID+" currentField.getCluster(clusterID).getLocation():"+currentField.getCluster(clusterID).getLocation());
 					if(teleport)
 						teleportToCluster(clusterID, fade, fieldTimeSegment);
 					else
 						setAttractorCluster(clusterID);
 				}
 			}
+		}
+		else
+		{
+			System.out.println("moveToTimeSegmentInField... timeline is empty!");
 		}
 	}
 		
@@ -671,6 +699,7 @@ public class WMV_Viewer
 				{
 					state.teleportGoalCluster = dest;
 					state.teleportGoal = c.getLocation();
+					System.out.println("state.teleportGoal:"+state.teleportGoal);
 					startTeleport(-1);
 				}
 				else
@@ -679,7 +708,8 @@ public class WMV_Viewer
 					setCurrentCluster(dest, fieldTimeSegment);
 				}
 			}
-			else if(debugSettings.cluster || debugSettings.field || debugSettings.viewer)
+			else 
+//				if(debugSettings.cluster || debugSettings.field || debugSettings.viewer)
 				System.out.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+currentField.getClusters().size());
 		}
 	}
@@ -690,6 +720,7 @@ public class WMV_Viewer
 			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
 		else
 		{
+			System.out.println("Set camera location:"+newLocation.x+" "+ newLocation.y+" "+ newLocation.z+"...");
 			camera.jump(newLocation.x, newLocation.y, newLocation.z);
 			state.location = getLocation();										// Update to precise camera location
 		}
@@ -703,22 +734,24 @@ public class WMV_Viewer
 	{
 		if(offset != 0)
 		{
+			System.out.println("teleportToField()... p.getFieldCount():"+p.getFieldCount());
 			p.stopAllVideos();
 			int newField = state.field + offset;
+			System.out.println("newField 1:"+newField);
 
 			if(newField >= p.getFieldCount())
 				newField = 0;
+			System.out.println("newField 2:"+newField);
 			
 			if(newField < 0)
 				newField = p.getFieldCount() - 1;
+			System.out.println("newField 3:"+newField);
 
 			state.teleportGoalCluster = 0;
 			setCurrentCluster( 0, -1 );
 
-//			if(debugSettings.viewer)
-				System.out.println("Moving to field: "+newField+" out of "+p.getFieldCount());
-//			if(debugSettings.viewer)
-				System.out.println("... at cluster: "+state.currentCluster+" out of "+p.getField(newField).getClusters().size());
+			if(debugSettings.viewer)
+				System.out.println("Moving to field idx: "+newField+" out of "+p.getFieldCount()+" at cluster: "+state.currentCluster+" out of "+p.getField(newField).getClusters().size());
 
 			if(p.getField(newField).getClusters().size() > 0)			// Check whether field has clusters (is valid)
 			{
@@ -731,6 +764,7 @@ public class WMV_Viewer
 				{
 					setLocation(new PVector(0,0,0));
 					setCurrentField(newField);				// Set new field
+					enterField(p.getField(newField));
 					if(debugSettings.viewer)
 						System.out.println(" Teleported to field "+state.teleportToField+"...");
 				}
@@ -936,7 +970,7 @@ public class WMV_Viewer
 			}
 			else
 			{
-				if(newValue >= currentField.getTimelines().get(state.currentFieldDate).timeline.size()) 		// Reached end of day
+				if(newValue >= currentField.getTimelines().get(state.currentFieldDate).timeline.size()) 	// Reached end of day
 				{
 					if(debugSettings.viewer) System.out.println("Reached end of day...");
 					state.currentFieldDate++;
@@ -944,7 +978,7 @@ public class WMV_Viewer
 					{
 						if(debugSettings.viewer) System.out.println("Reached end of year...");
 						state.currentFieldDate = 0;
-						setCurrentFieldTimelinesSegment(0, true);									// Return to first segment
+						setCurrentFieldTimeSegmentOnDate(0, true);									// Return to first segment
 					}
 					else
 					{
@@ -955,11 +989,11 @@ public class WMV_Viewer
 								state.currentFieldDate = 0;
 						}
 						if(debugSettings.viewer) System.out.println("Moved to next date: "+state.currentFieldDate);
-						setCurrentFieldTimelinesSegment(0, true);									// Start at first segment
+						setCurrentFieldTimeSegmentOnDate(0, true);									// Start at first segment
 					}
 				}
 				else
-					setCurrentFieldTimelinesSegment(newValue, true);
+					setCurrentFieldTimeSegmentOnDate(newValue, true);
 			}
 		}
 		else
@@ -997,16 +1031,16 @@ public class WMV_Viewer
 					if(state.currentFieldDate < 0) 
 					{
 						state.currentFieldDate = currentField.getDateline().size()-1;			// Go to last date
-						setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Go to last segment
+						setCurrentFieldTimeSegmentOnDate(currentField.getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Go to last segment
 					}
 					else
 					{
-						setCurrentFieldTimelinesSegment(currentField.getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Start at last segment
+						setCurrentFieldTimeSegmentOnDate(currentField.getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Start at last segment
 					}
 				}	
 				else
 				{
-					setCurrentFieldTimelinesSegment(newValue, true);
+					setCurrentFieldTimeSegmentOnDate(newValue, true);
 				}
 			}
 		}
@@ -1027,7 +1061,6 @@ public class WMV_Viewer
 	public void startTeleport(int newField) 
 	{
 		currentField.fadeOutMedia();
-//		System.out.println("startTeleport()...");
 
 		state.teleporting = true;
 		state.teleportStart = worldState.frameCount;
@@ -2781,6 +2814,7 @@ public class WMV_Viewer
 					if(debugSettings.viewer) System.out.println(" Teleported to field "+state.teleportToField+"...");
 
 					setCurrentField(state.teleportToField);				// Set new field
+					enterField(p.getField(state.field));
 					state.teleportToField = -1;							// Reset target field
 				}
 
@@ -3889,7 +3923,8 @@ public class WMV_Viewer
 			
 			state.currentCluster = newCluster;
 			c = p.getCurrentCluster();
-			if(debugSettings.viewer) System.out.println("Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment+" getLocation():"+getLocation());
+			if(debugSettings.viewer) 
+				System.out.println("Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment+" getLocation():"+getLocation());
 			
 			if(c != null)
 			{
@@ -3946,29 +3981,32 @@ public class WMV_Viewer
 		if(state.currentFieldTimeSegment >= 0 && state.currentFieldTimeSegment < currentField.getTimeline().timeline.size())
 			return success;
 		else
+		{
+			if(debugSettings.viewer)
+				System.out.println("Couldn't set newCurrentFieldTimeSegment... currentField.getTimeline().timeline.size():"+currentField.getTimeline().timeline.size());
 			return false;
+		}
 	}
 
 	/**
 	 * Set current field timelines segment with option to adjust currentFieldTimelineSegment
-	 * @param newCurrentFieldTimelinesSegment
+	 * @param newCurrentFieldTimeSegmentOnDate
 	 * @param updateTimelineSegment Whether to update the current field time segment in date-specific timeline as well
 	 * @return True if succeeded
 	 */
-	public boolean setCurrentFieldTimelinesSegment( int newCurrentFieldTimelinesSegment, boolean updateTimelineSegment )
+	public boolean setCurrentFieldTimeSegmentOnDate( int newCurrentFieldTimeSegmentOnDate, boolean updateTimelineSegment )
 	{
 		if(currentField.getTimelines() != null)
 		{
 			if(currentField.getTimelines().size() > 0 && currentField.getTimelines().size() > state.currentFieldDate)
 			{
-				System.out.println("Setting newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation());
+				System.out.println("Setting newCurrentFieldTimeSegmentOnDate:"+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+currentField.getID());
 			}
 			else 
 			{
 				System.out.println("Error.. currentField.getTimelines().size() == "+currentField.getTimelines().size()+" but currentFieldDate == "+state.currentFieldDate+"...");
 				return false;
 			}
-
 		}
 		else
 		{
@@ -3976,7 +4014,7 @@ public class WMV_Viewer
 			return false;
 		}
 		
-		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimelinesSegment;
+		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimeSegmentOnDate;
 		p.p.display.updateCurrentSelectableTime = true;
 
 		if(state.currentFieldDate < currentField.getTimelines().size())
@@ -4008,8 +4046,8 @@ public class WMV_Viewer
 	public boolean setCurrentTimeSegmentAndDate(int newCurrentFieldTimelinesSegment, int newDate, boolean updateTimelineSegment)
 	{
 		state.currentFieldDate = newDate;
-		boolean success = setCurrentFieldTimelinesSegment( newCurrentFieldTimelinesSegment, updateTimelineSegment );
-//		System.out.println("setCurrentTimeSegmentAndDate... newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
+		boolean success = setCurrentFieldTimeSegmentOnDate( newCurrentFieldTimelinesSegment, updateTimelineSegment );
+		System.out.println("setCurrentTimeSegmentAndDate... newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
 		return success;
 	}
 	
@@ -4023,6 +4061,7 @@ public class WMV_Viewer
 		int newDate = 0;
 		if(ignoreDate)
 		{
+			System.out.println("Moving to first time segment on any date");
 			moveToTimeSegmentInField(currentField.getID(), 0, true, true);		// Move to first time segment in field
 			return true;
 		}		
@@ -4033,13 +4072,19 @@ public class WMV_Viewer
 			while(!success)
 			{
 				success = setCurrentTimeSegmentAndDate(0, newDate, true);
-				newDate++;
-				count++;
-				if(count > currentField.getDateline().size()) 
+				if(success)
 					break;
+				else
+				{
+					newDate++;
+					count++;
+					if(count > currentField.getDateline().size()) 
+						break;
+				}
 			}
 			if(success)
 			{
+				System.out.println("Moving to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
 				int curFieldTimeSegment = currentField.getTimeSegmentOnDate(state.currentFieldTimeSegmentOnDate, state.currentFieldDate).getFieldTimelineID();
 //				int curFieldTimeSegment = currentField.getTimelines().get(currentFieldDate).get(currentFieldTimeSegmentOnDate).getFieldTimelineID();
 				moveToTimeSegmentInField(currentField.getID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
@@ -4081,6 +4126,11 @@ public class WMV_Viewer
 //		p.p.rotateZ(camera.attitude()[2]);
 //	}
 	
+	public void resetTimeState()
+	{
+		state.reset();
+	}
+	
 	public WMV_ViewerState getState()
 	{
 		return state;
@@ -4113,6 +4163,11 @@ public class WMV_Viewer
 	public ArrayList<WMV_Waypoint> getGPSTrack()
 	{
 		return gpsTrack;
+	}
+	
+	public void setFrameCount(int newFrameCount)
+	{
+		worldState.frameCount = newFrameCount;
 	}
 	
 	/**

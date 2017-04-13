@@ -45,7 +45,6 @@ public class WMV_World
 	  blurMaskBothBottom, blurMaskBothBoth;
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
-	
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
 	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
@@ -84,12 +83,16 @@ public class WMV_World
 		distanceFadeMap.setMapFunction(circularEaseIn);
 	}
 
-	void enter(int fieldIdx)
+	void enter(int fieldIdx, boolean moveToFirstTimeSegment)
 	{
 		viewer.enterField( getField(fieldIdx) );								// Update navigation
 		viewer.updateState(settings, state);
 		viewer.update();												// Update navigation
-		viewer.moveToFirstTimeSegment(false);
+
+		if(moveToFirstTimeSegment)
+			viewer.moveToFirstTimeSegment(false);
+		
+		p.enteredField = true;
 	}
 
 	void updateState()
@@ -115,8 +118,10 @@ public class WMV_World
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
-				if(clusters.size()>0)
+				if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
 					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(p);		// Draw current cluster
+				else
+					System.out.println("viewer.getState().getCurrentClusterID():"+viewer.getState().getCurrentClusterID()+" over clusters.size():"+clusters.size()+"!!"+" getCurrentField().id:"+getCurrentField().getID());
 			}
 
 		}
@@ -375,6 +380,10 @@ public class WMV_World
 		loadAndSetSettings(curField.getID());
 		loadAndSetViewerState(curField.getID());
 		loadAndSetViewerSettings(curField.getID());
+		state.frameCount = p.frameCount;
+		viewer.setFrameCount(p.frameCount);
+		viewer.setCurrentFieldID(curField.getID());
+		viewer.resetTimeState();
 		
 		/* Check world and viewer state/settings */
 		if(p.debugSettings.main && p.debugSettings.detailed)
@@ -392,55 +401,16 @@ public class WMV_World
 		
 //		fields.add(newField);
 		
-//		System.out.println("Will load field state for Field #"+curField.getID());
+		System.out.println("Will load field state for Field #"+curField.getID());
 		curField = loadFieldState(curField);
 		curField.setID(fieldID);
 		
 //		if(p.debugSettings.main && p.debugSettings.detailed)
-//		System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
+		System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
 
 		return curField;
 	}
 	
-//	/**
-//	 * Load world, field and viewer states and settings from file
-//	 */
-//	public boolean loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
-//	{
-//		PApplet.println("Loading and setting Simulation State... Field #"+curField.getID());
-//
-//		loadAndSetState(curField.getID());
-//		loadAndSetSettings(curField.getID());
-//		loadAndSetViewerState(curField.getID());
-//		loadAndSetViewerSettings(curField.getID());
-//		
-//		/* Check world and viewer state/settings */
-//		if(p.debugSettings.main && p.debugSettings.detailed)
-//		{
-//			if(state != null) System.out.println("WorldState exists...");
-//			if(settings != null) System.out.println("WorldSettings exists...");
-//			if(viewer.getState() != null) System.out.println("ViewerState exists...");
-//			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
-//		}
-//		String fieldName = curField.getName();
-//		int fieldID = curField.getID();
-////		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
-//		curField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldName, fieldID);
-////		curField.setName(fieldName);
-//		
-////		fields.add(newField);
-//		
-//		System.out.println("Will load field state for Field #"+curField.getID());
-//		boolean success = loadFieldState(curField);
-//		curField.setID(fieldID);
-//		
-////		if(p.debugSettings.main && p.debugSettings.detailed)
-//		if(success)
-//			System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
-//
-//		return success;
-//	}
-
 	/**
 	 * Save the current world, field and viewer states and settings to file
 	 */
@@ -452,7 +422,9 @@ public class WMV_World
 		WMV_WorldSettings newWorldSettings = loadSettings(curField.getID());
 		WMV_ViewerState newViewerState = loadViewerState(curField.getID());
 		WMV_ViewerSettings newViewerSettings = loadViewerSettings(curField.getID());
-		
+		newWorldState.frameCount = p.frameCount;
+//		newViewerState.frameCount = p.frameCount;
+
 		/* Check world and viewer state/settings */
 		if(p.debugSettings.main && p.debugSettings.detailed)
 		{
@@ -471,12 +443,12 @@ public class WMV_World
 //		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
 //		fields.add(newField);
 		
-//		System.out.println("Will load field state for Field #"+curField.getID());
+		System.out.println("Will load field state for Field #"+curField.getID());
 		curField= loadFieldState(curField);
 		curField.setID(fieldID);
 		
 //		if(p.debugSettings.main && p.debugSettings.detailed)
-//		System.out.println("Loaded Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
+		System.out.println("Loaded Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
 
 		return curField;
 	}
@@ -529,15 +501,24 @@ public class WMV_World
 		viewer.setState(field.getViewerState());
 		viewer.setSettings(field.getViewerSettings());
 		
+		state.frameCount = p.frameCount;
+		viewer.setFrameCount(p.frameCount);
+		viewer.setCurrentFieldID(field.getID());
+		viewer.resetTimeState();
+
 		/* Check world and viewer state/settings */
-		System.out.println("Set Simulation State from Field #"+field.getID());
+		System.out.println("--> Set Simulation State from Field #"+field.getID());
 		if(p.debugSettings.main && p.debugSettings.detailed)
 		{
 			if(state != null) System.out.println("WorldState exists...");
 			if(settings != null) System.out.println("WorldSettings exists...");
 			if(viewer.getState() != null) System.out.println("ViewerState exists...");
 			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
+			System.out.println("Viewer.state.currentCluster:"+viewer.getState().currentCluster+" out of: "+getCurrentField().getClusters().size());
 		}
+		
+		updateState();
+		getCurrentField().updateAllMediaSettings();
 	}
 
 	public WMV_Field loadFieldState(WMV_Field field)
@@ -557,6 +538,7 @@ public class WMV_World
 		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
 //		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
 
+		System.out.println("Will set state for field ID:"+field.getID());
 		field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl);
 		return field;
 	}
@@ -991,7 +973,10 @@ public class WMV_World
 		if(fieldIndex >= 0 && fieldIndex < fields.size())
 			return fields.get(fieldIndex);
 		else
+		{
+			System.out.println("world.getField() Error: fieldIndex:"+fieldIndex+" fields.size():"+fields.size());
 			return null;
+		}
 	}
 
 	/**
@@ -1318,13 +1303,25 @@ public class WMV_World
 	
 	public void setBlurMasks()
 	{
-		WMV_Field f = getCurrentField();
-		for(WMV_Image image : f.getImages())
+		for(WMV_Field f : fields)
 		{
-			int bmID = image.getState().blurMaskID;
-			setBlurMask(image, bmID);
+			for(WMV_Image image : f.getImages())
+			{
+				int bmID = image.getState().blurMaskID;
+				setBlurMask(image, bmID);
+			}
 		}
 	}
+
+//	public void setBlurMasks()
+//	{
+//		WMV_Field f = getCurrentField();
+//		for(WMV_Image image : f.getImages())
+//		{
+//			int bmID = image.getState().blurMaskID;
+//			setBlurMask(image, bmID);
+//		}
+//	}
 
 	/**
 	 * Load image masks

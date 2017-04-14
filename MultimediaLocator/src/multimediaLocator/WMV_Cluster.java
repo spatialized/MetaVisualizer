@@ -240,6 +240,9 @@ public class WMV_Cluster
 		worldState = currentWorldState;			// Update world settings
 		viewerSettings = currentViewerSettings;	// Update viewer settings
 		viewerState = currentViewerState;		// Update viewer state
+
+//		updateAllMediaSettings(getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
+//				settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
 	}
 
 	/**
@@ -945,7 +948,6 @@ public class WMV_Cluster
 
 			if (curImg.getMediaState().getClusterID() == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-//				curImg.getMediaState().cluster = state.id;
 				curImg.setAssociatedClusterID( state.id );
 				addImage(curImg);
 			}
@@ -958,7 +960,6 @@ public class WMV_Cluster
 
 			if (curPano.getMediaState().getClusterID() == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-//				curPano.getMediaState().cluster = state.id;
 				curPano.setAssociatedClusterID( state.id );
 				addPanorama(curPano);
 			}
@@ -971,7 +972,6 @@ public class WMV_Cluster
 
 			if (curVid.getMediaState().getClusterID() == cluster.getID()) 				// If the image is assigned to this cluster
 			{
-//				curVid.getMediaState().cluster = state.id;
 				curVid.setAssociatedClusterID( state.id );
 				addVideo(curVid);
 			}
@@ -979,32 +979,6 @@ public class WMV_Cluster
 
 		cluster.empty();																/* Empty merged cluster */
 	}
-
-//	private void absorbTimeline(WMV_Timeline newTimeline)
-//	{
-//		for(WMV_TimeSegment t:newTimeline.timeline)
-//		{
-//
-//		}
-
-		
-//		for(WMV_TimeSegment t:c.getTimeline().timeline)
-//		{
-//			if(t.getClusterID() != count)
-//				t.setClusterID(count);
-//			for(WMV_Time tm:t.timeline) tm.setClusterID(count);
-//		}
-//
-//		for(WMV_Timeline tl:c.getTimelines())
-//		{
-//			for(WMV_TimeSegment t:tl.timeline)
-//			{
-//				if(t.getClusterID() != count)
-//					t.setClusterID(count);
-//				for(WMV_Time tm:t.timeline) tm.setClusterID(count);
-//			}
-//		}
-//	}
 
 	/** 
 	 * Update cluster time loop
@@ -1046,12 +1020,17 @@ public class WMV_Cluster
 		}
 	}
 	
+	/**
+	 * Get the first time segment on given date
+	 * @param date Given date
+	 * @return First time segment
+	 */
 	public WMV_TimeSegment getFirstTimeSegmentForDate(WMV_Date date)
 	{
 		boolean found = false;
 		int timelineID = 0;
 		
-		if(state.dateline != null)
+		if(state.dateline != null)				// -- Try just using date ID!!
 		{
 			for(WMV_Date d : state.dateline)		// Look through cluster dates for date
 			{
@@ -1470,6 +1449,50 @@ public class WMV_Cluster
 //		return timelines;
 //	}
 
+	public void updateAllMediaSettings(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList,
+			WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
+			ML_DebugSettings newDebugSettings)
+	{
+		for (int i:state.images)  		// Update and display videos
+		{
+			if(i < imageList.size())
+			{
+				if(!imageList.get(i).isDisabled())
+					imageList.get(i).updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+			}
+			else
+			{
+				System.out.println("Cluster #"+getID()+" has image id:"+i+" over imageList.size():"+imageList.size());
+			}
+		}
+	
+		for (int n:state.panoramas)  		// Update and display videos
+		{
+			if(n < panoramaList.size())
+			{
+				if(!panoramaList.get(n).isDisabled())
+					panoramaList.get(n).updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+			}
+			else
+			{
+				System.out.println("Cluster #"+getID()+" has panorama id:"+n+" over panoramaList.size():"+panoramaList.size());
+			}
+		}
+
+		for (int v : state.videos)  		// Update and display videos
+		{
+			if(v < videoList.size())
+			{
+				if(!videoList.get(v).isDisabled())
+					videoList.get(v).updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+			}
+			else
+			{
+				System.out.println("Cluster #"+getID()+" has video id:"+v+" over videoList.size():"+videoList.size());
+			}
+		}
+	}
+
 	public ArrayList<WMV_Date> getDateline()
 	{
 		return state.dateline;
@@ -1493,6 +1516,16 @@ public class WMV_Cluster
 		state.isAttractor = newState;
 	}
 
+	public void setTimeCycleLength(int newTimeCycleLength)
+	{
+		state.timeCycleLength = newTimeCycleLength;
+	}
+
+	public int getTimeCycleLength()
+	{
+		return state.timeCycleLength;
+	}
+	
 	public void setSingle(boolean newState)
 	{
 		state.single = newState;

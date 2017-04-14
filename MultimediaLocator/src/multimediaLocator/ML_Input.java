@@ -17,7 +17,7 @@ public class ML_Input
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
 	public boolean commandKey = false;
-	final public int COMMAND_KEY = 157;
+	final public int COMMAND_KEY = 157;			// -- Not reliable, change this!
 	
 	private boolean mouseClickedRecently = false;
 	private boolean mouseReleased = false;
@@ -35,6 +35,13 @@ public class ML_Input
 		screenHeight = newScreenHeight;
 	}
 
+	/**
+	 * Handle user input from all sliders
+	 * @param world Current world
+	 * @param display 2D display object
+	 * @param slider Slider that triggered the event
+	 * @param event The slider event
+	 */
 	public void handleSliderEvent(WMV_World world, ML_Display display, GValueControl slider, GEvent event)
 	{
 		if(display.window.setupNavigationWindow)
@@ -57,7 +64,21 @@ public class ML_Input
 			
 			if (slider.tag == "TimeCycleLength") 
 			{
-				world.settings.timeCycleLength = slider.getValueI();
+				System.out.println("slider.tag == TimeCycleLength... timeMode:"+world.state.timeMode);
+				switch(world.state.timeMode)
+				{
+					case 0:												// Cluster
+						world.setAllClustersTimeCycleLength(slider.getValueI());
+//						world.getCurrentCluster().setTimeCycleLength( slider.getValueI() );
+						break;
+					case 1:												// Field
+						world.settings.timeCycleLength = slider.getValueI();
+						break;
+					case 2:												// Media
+						break;
+					default:
+						break;
+				}
 			}
 		}
 		
@@ -70,7 +91,6 @@ public class ML_Input
 			
 			if (slider.tag == "Brightness") 
 			{
-//				viewer.getSettings().userBrightness = slider.getValueF();
 				world.viewer.setUserBrightness( slider.getValueF() );
 			}
 		}

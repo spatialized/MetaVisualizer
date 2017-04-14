@@ -219,7 +219,7 @@ public class ML_Library
 				ArrayList<WMV_ImageState> temp = new ArrayList<WMV_ImageState>();
 				for(int idx = i; idx < i+1000; idx++)
 				{
-					if(idx < isl.images.size() - 1)
+					if(idx < isl.images.size())
 						temp.add(isl.images.get(idx));
 					else
 						break;

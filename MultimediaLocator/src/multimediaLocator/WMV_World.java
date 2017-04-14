@@ -1040,7 +1040,7 @@ public class WMV_World
 				settings.timeCycleLength = -1;
 		}
 	}
-	
+
 	/**
 	 * @param newTimeMode New time mode (0: Cluster, 1:Field, 2: Media)
 	 */
@@ -1055,22 +1055,47 @@ public class WMV_World
 		{
 			switch(state.timeMode)
 			{
-				case 0:
+				case 0:														// Cluster
 					p.display.window.optClusterTimeMode.setSelected(true);
 					p.display.window.optFieldTimeMode.setSelected(false);
 					p.display.window.optMediaTimeMode.setSelected(false);
+					p.display.window.sdrTimeCycleLength.setValue(getCurrentCluster().getTimeCycleLength());
+					if(!p.display.window.sdrTimeCycleLength.isVisible())
+						p.display.window.sdrTimeCycleLength.setVisible(true);
 					break;
-				case 1:
+				case 1:														// Field
 					p.display.window.optClusterTimeMode.setSelected(false);
 					p.display.window.optFieldTimeMode.setSelected(true);
 					p.display.window.optMediaTimeMode.setSelected(false);
+					p.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
+					if(!p.display.window.sdrTimeCycleLength.isVisible())
+						p.display.window.sdrTimeCycleLength.setVisible(true);
 					break;
-				case 2:
+				case 2:														// Media
 					p.display.window.optClusterTimeMode.setSelected(false);
 					p.display.window.optFieldTimeMode.setSelected(false);
 					p.display.window.optMediaTimeMode.setSelected(true);
+					p.display.window.sdrTimeCycleLength.setVisible(false);
 					break;
 			}		
+		}
+	}
+	
+	public void setAllClustersTimeCycleLength(int newTimeCycleLength)
+	{
+		for(WMV_Cluster c : getCurrentField().getClusters())
+		{
+			if(!c.getState().empty)
+			{
+				c.setTimeCycleLength( newTimeCycleLength );
+//				public void updateAllMediaSettings(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+
+				c.updateAllMediaSettings(getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
+						settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
+
+//				for(WMV_Image img : c.getImages(getCurrentField().getImages()))
+//					img.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
+			}
 		}
 	}
 	

@@ -606,7 +606,24 @@ public class ML_Window {
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 80, 80, 20);
 		sdrTimeCycleLength.setLocalColorScheme(7);
 		sdrTimeCycleLength.setLimits(0.f, 5000.f, 10.f);
-		sdrTimeCycleLength.setValue(world.settings.timeCycleLength);
+		switch(world.state.timeMode)
+		{
+			case 0:											// Cluster
+				sdrTimeCycleLength.setValue(world.getCurrentCluster().getTimeCycleLength());
+				if(!sdrTimeCycleLength.isVisible())
+					sdrTimeCycleLength.setVisible(true);
+				break;
+			case 1:											// Field
+				sdrTimeCycleLength.setValue(world.settings.timeCycleLength);
+				if(!sdrTimeCycleLength.isVisible())
+					sdrTimeCycleLength.setVisible(true);
+				break;
+			case 2:											// Media
+				sdrTimeCycleLength.setVisible(false);
+				break;
+			default:
+				break;
+		}
 		sdrTimeCycleLength.setRotation(PApplet.PI/2.f);
 		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_LEFT);
 		sdrTimeCycleLength.setEasing(0);

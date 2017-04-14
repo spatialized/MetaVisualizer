@@ -351,65 +351,72 @@ public class WMV_Field
 	
 	/**
 	 * Initialize field with given library folder
-	 * @param library Current library folder
 	 * @param lockMediaToClusters Center media capture locations at associated cluster locations
 	 */
-	public boolean initialize(String library, long randomSeed)
+	public boolean initialize(long randomSeed)
 	{
-		if(randomSeed == -100000L)
-			model.state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
-		else
-			model.state.clusteringRandomSeed = randomSeed;
-		
-		if(debugSettings.main) System.out.println("Initializing field #"+state.id);
-		
-		model.calculateFieldSize(images, panoramas, videos); 		// Calculate bounds of photo GPS locations
-		model.analyzeMedia(images, panoramas, videos);				// Analyze media locations and times 
-		setup(); 						// Initialize field for first time 
-
-		boolean hierarchical = false;
-		if(model.getState().validMedia < 200)
-			hierarchical = true;
-
-		calculateMediaLocations(); 				// Set location of each photo in simulation
-//		detectMultipleFields();					// Run clustering on capture locations to detect multiple fields
-
-		// TESTING
-//		divideField(3000.f, 15000.f);			
-		
-		findVideoPlaceholders();				// Find image place holders for videos
-		calculateMediaVertices();				// Calculate all image vertices
-
-		if(debugSettings.field) System.out.println("Will run initial clustering for field #"+state.id+"...");
-
-		runInitialClustering(hierarchical);		// Find media clusters
-//		model.findDuplicateClusterMedia();		// Find media in more than one cluster
-		
-		if(worldState.lockMediaToClusters)					// Center media capture locations at associated cluster locations
-			lockMediaToClusters();	
-
-		if(debugSettings.field) System.out.println("Creating timeline and dateline for field #"+state.id+"...");
-
-		if( worldSettings.getTimeZonesFromGoogle )		// Get time zone for field from Google Time Zone API
+		if( images.size()>0 || panoramas.size()>0 || videos.size()>0 || sounds.size()>0 )
 		{
-			if(images.size() > 0)					
-				state.timeZoneID = utilities.getCurrentTimeZoneID(images.get(0).getGPSLocation().z, images.get(0).getGPSLocation().x);
-			else if(panoramas.size() > 0)
-				state.timeZoneID = utilities.getCurrentTimeZoneID(panoramas.get(0).getGPSLocation().z, panoramas.get(0).getGPSLocation().x);
-			else if(videos.size() > 0)
-				state.timeZoneID = utilities.getCurrentTimeZoneID(videos.get(0).getGPSLocation().z, videos.get(0).getGPSLocation().x);
-			else if(sounds.size() > 0)
-				state.timeZoneID = utilities.getCurrentTimeZoneID(sounds.get(0).getGPSLocation().z, sounds.get(0).getGPSLocation().x);
+			if(randomSeed == -100000L)
+				model.state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
+			else
+				model.state.clusteringRandomSeed = randomSeed;
+
+			if(debugSettings.main) System.out.println("Initializing field #"+state.id);
+
+			model.calculateFieldSize(images, panoramas, videos); 		// Calculate bounds of photo GPS locations
+			model.analyzeMedia(images, panoramas, videos);				// Analyze media locations and times 
+			setup(); 						// Initialize field for first time 
+
+			boolean hierarchical = false;
+			if(model.getState().validMedia < 200)
+				hierarchical = true;
+
+			calculateMediaLocations(); 				// Set location of each photo in simulation
+			//		detectMultipleFields();					// Run clustering on capture locations to detect multiple fields
+
+			// TESTING
+			//		divideField(3000.f, 15000.f);			
+
+			findVideoPlaceholders();				// Find image place holders for videos
+			calculateMediaVertices();				// Calculate all image vertices
+
+			if(debugSettings.field) System.out.println("Will run initial clustering for field #"+state.id+"...");
+
+			runInitialClustering(hierarchical);		// Find media clusters
+			//		model.findDuplicateClusterMedia();		// Find media in more than one cluster
+
+			if(worldState.lockMediaToClusters)					// Center media capture locations at associated cluster locations
+				lockMediaToClusters();	
+
+			if(debugSettings.field) System.out.println("Creating timeline and dateline for field #"+state.id+"...");
+
+			if( worldSettings.getTimeZonesFromGoogle )		// Get time zone for field from Google Time Zone API
+			{
+				if(images.size() > 0)					
+					state.timeZoneID = utilities.getCurrentTimeZoneID(images.get(0).getGPSLocation().z, images.get(0).getGPSLocation().x);
+				else if(panoramas.size() > 0)
+					state.timeZoneID = utilities.getCurrentTimeZoneID(panoramas.get(0).getGPSLocation().z, panoramas.get(0).getGPSLocation().x);
+				else if(videos.size() > 0)
+					state.timeZoneID = utilities.getCurrentTimeZoneID(videos.get(0).getGPSLocation().z, videos.get(0).getGPSLocation().x);
+				else if(sounds.size() > 0)
+					state.timeZoneID = utilities.getCurrentTimeZoneID(sounds.get(0).getGPSLocation().z, sounds.get(0).getGPSLocation().x);
+			}
+
+			createTimeline();							// Create date-independent timeline for field
+			createDateline();							// Create field dateline
+			createTimelines();							// Create date-specific timelines for field
+			analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
+
+			if(debugSettings.field) System.out.println("Finished initializing field #"+state.id+"..."+state.name);
+
+			return hierarchical;
 		}
-
-		createTimeline();							// Create date-independent timeline for field
-		createDateline();							// Create field dateline
-		createTimelines();							// Create date-specific timelines for field
-		analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
-		
-		if(debugSettings.field) System.out.println("Finished initializing field #"+state.id+"..."+state.name);
-
-		return hierarchical;
+		else
+		{
+			System.out.println("Field #"+getID()+" has no media! Cannot initialize field...");
+			return false;
+		}
 	}
 	
 	/**
@@ -3217,8 +3224,7 @@ public class WMV_Field
 
 	/**
 	 * Get convex hull of set of n points.
-	 * Based on:
-	 * http://www.geeksforgeeks.org/convex-hull-set-1-jarviss-algorithm-or-wrapping/
+	 * Based on: http://www.geeksforgeeks.org/convex-hull-set-1-jarviss-algorithm-or-wrapping/
 	 * @param points
 	 * @return
 	 */

@@ -256,9 +256,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
 			WMV_Field loadedField;
 			if(state.initializationField + 1 >= world.getFields().size())
-				loadedField = loadSimulationState(f, library.getLibraryFolder(), true);
+				loadedField = loadSimulationState(f, library.getLibraryFolder(), true);		// Load metadata, attempt to load simulation state, set simulation state from field 
 			else
-				loadedField = loadSimulationState(f, library.getLibraryFolder(), false);
+				loadedField = loadSimulationState(f, library.getLibraryFolder(), false);	// Load metadata and attempt to load simulation state
 			
 			boolean success = (loadedField != null);
 			if(success) world.setField(loadedField, state.initializationField);
@@ -273,7 +273,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			{
 				if(debugSettings.main || debugSettings.field)
 					System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
-				world.getState().hierarchical = f.initialize( library.getLibraryFolder(), -100000L);
+				
+//				metadata.load(f, library.getLibraryFolder(), true);			// Added
+				world.state.hierarchical = f.initialize(-100000L);
 			}
 		}
 		

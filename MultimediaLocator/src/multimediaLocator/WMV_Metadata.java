@@ -89,6 +89,7 @@ class WMV_Metadata
 			f = field;
 			String fieldPath = f.getName();
 
+			System.out.println("Will load media folders: library:"+library+" fieldPath:"+fieldPath);
 			loadImageFolders(library, fieldPath); 	// Load image and panorama file names
 			loadVideoFolder(library, fieldPath); 	// Load video file names
 			loadSoundFolder(library, fieldPath); 	// Load sound file names
@@ -143,9 +144,9 @@ class WMV_Metadata
 	 */
 	public void loadImageFolders(String library, String fieldPath) 		
 	{
-		smallImageFolder = library + fieldPath + "/small_images/";	/* Check for small_images folder */
-		imageFolder = library + fieldPath + "/images/";				/* Check for images folder */
-		panoramaFolder = library + fieldPath + "/panoramas/";			/* Check for panoramas folder */
+		smallImageFolder = library + "/" + fieldPath + "/small_images/";	/* Check for small_images folder */
+		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
+		panoramaFolder = library + "/" + fieldPath + "/panoramas/";			/* Check for panoramas folder */
 
 		smallImageFolderFile = new File(smallImageFolder);
 		imageFolderFile = new File(imageFolder);
@@ -320,10 +321,6 @@ class WMV_Metadata
 
 		if (debugSettings.data)
 			System.out.println("Data Folder: " + dataFolder); 
-//		System.out.println("dataFolderFound? " + (dataFolderFound)); 
-//		System.out.println("dataFolderFile.isDirectory()? " + (dataFolderFile.isDirectory())); 
-//		System.out.println("dataFolderFile.exists()? " + (dataFolderFile.exists())); 
-//		System.out.println("dataFiles != null? " + (dataFiles != null)); 
 
 		if(dataFolderFound)				// Check for sound files
 		{

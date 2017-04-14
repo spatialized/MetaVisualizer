@@ -243,20 +243,6 @@ public class ML_Library
 		}
 	}
 
-//	public void saveImageStateList(WMV_ImageStateList isl, String newFilePath)
-//	{
-//		final ObjectMapper mapper = JsonFactory.create();
-//		final File file;
-//		try {
-//			file = new File(newFilePath);
-//			mapper.writeValue(file, isl);    // Write object to file
-//		}
-//		catch (Throwable t)
-//		{
-//			System.out.println("saveClusterStateList Throwable t:"+t);
-//		}
-//	}
-
 	public void savePanoramaStateList(WMV_PanoramaStateList psl, String newFilePath)
 	{
 		final ObjectMapper mapper = JsonFactory.create();
@@ -370,29 +356,6 @@ public class ML_Library
 		}
 		return null;
 	}
-
-//	/**
-//	 * Load field state from given file path (with GSON)
-//	 * @param newFilePath File path
-//	 * @return Field state
-//	 */
-//	public WMV_FieldState loadFieldState(String newFilePath)		// Testing
-//	{
-//		String filePath = newFilePath;
-//		Gson gson = new Gson();
-//
-//		try {
-//			WMV_FieldState fState;
-//			fState = gson.fromJson(new FileReader(filePath), WMV_FieldState.class);
-//			return fState;
-//		}
-//		catch(Throwable t)
-//		{
-//			System.out.println("loadFieldState throwable t:"+t);
-//		}
-//		
-//		return null;
-//	}
 	
 	/**
 	 * Load field state from given file path

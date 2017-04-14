@@ -12,6 +12,7 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
+import processing.core.PVector;
 //import processing.core.PVector;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
@@ -83,11 +84,16 @@ public class WMV_World
 		distanceFadeMap.setMapFunction(circularEaseIn);
 	}
 
+	/**
+	 * Enter a field
+	 * @param fieldIdx The field to enter
+	 * @param moveToFirstTimeSegment Whether to move to first time segment after entering
+	 */
 	void enter(int fieldIdx, boolean moveToFirstTimeSegment)
 	{
 		viewer.enterField( getField(fieldIdx) );								// Update navigation
 		viewer.updateState(settings, state);
-		viewer.update();												// Update navigation
+		viewer.updateNavigation();												// Update navigation
 
 		if(moveToFirstTimeSegment)
 			viewer.moveToFirstTimeSegment(false);
@@ -95,6 +101,9 @@ public class WMV_World
 		p.enteredField = true;
 	}
 
+	/**
+	 * Update the viewer and media about the world state
+	 */
 	void updateState()
 	{
 		state.frameCount = p.frameCount;
@@ -108,12 +117,12 @@ public class WMV_World
 	void draw3D()
 	{
 		/* 3D Display */
-		attractViewer();						// Attract the viewer
+		attractViewer();									// Attract the viewer
 		
 		if(p.display.displayView == 0)
 		{
-			p.hint(PApplet.ENABLE_DEPTH_TEST);					// Enable depth testing for drawing 3D graphics
-			p.background(0.f);									// Set background
+			p.hint(PApplet.ENABLE_DEPTH_TEST);				// Enable depth testing for drawing 3D graphics
+			p.background(0.f);								// Set background
 			getCurrentField().display(p);					// Display media in current field
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
@@ -126,10 +135,15 @@ public class WMV_World
 
 		}
 		
-		viewer.update();							// Update navigation
+		if(state.drawTerrain)						// Draw terrain as wireframe grid
+		{
+			drawTerrain();
+		}
+		
+		viewer.updateNavigation();					// Update navigation
 		if(p.display.displayView == 0)	
 			if(p.state.running)
-				viewer.draw();						// Send the 3D camera view to the screen
+				viewer.show();						// Show the 3D view to the viewer
 	}
 
 	/**
@@ -145,7 +159,81 @@ public class WMV_World
 		if(viewer.getSettings().mouseNavigation)
 			input.updateMouseNavigation(viewer, p.mouseX, p.mouseY, p.frameCount);
 	}
+	
+	/**
+	 * Draw terrain as wireframe grid
+	 */
+	private void drawTerrain()
+	{
+		ArrayList<ArrayList<PVector>> gridPoints = new ArrayList<ArrayList<PVector>>();		// Points to draw
+		PVector vLoc = viewer.getLocation();
+		PVector gridLoc = vLoc;
+		gridLoc = new PVector(utilities.round(vLoc.x, 0), utilities.round(vLoc.y, 0), utilities.round(vLoc.z, 0));
 
+		float gridSize = settings.defaultFocusDistance * 2.f;
+		float gridHeight = gridLoc.y + settings.defaultFocusDistance * 0.5f;				// -- Get this from media points!	
+//		float gridHeight = vLoc.y + settings.defaultFocusDistance;					
+		
+//		for(int x=0; x<25; x++)
+		for(int x=0; x<gridSize; x++)
+		{
+			ArrayList<PVector> row = new ArrayList<PVector>();
+//			for(int z=0; z<25; z++)
+			for(int z=0; z<gridSize; z++)
+			{
+				float xStart = gridLoc.x - gridSize * 0.5f;
+				float zStart = gridLoc.z - gridSize * 0.5f;
+				float xEnd = gridLoc.x + gridSize * 0.5f;
+				float zEnd = gridLoc.z + gridSize * 0.5f;
+
+				PVector pLoc = new PVector(0,gridHeight,0);
+				pLoc.x = utilities.mapValue(x, 0, gridSize, xStart, xEnd);
+				pLoc.z = utilities.mapValue(z, 0, gridSize, zStart, zEnd);
+
+				row.add(pLoc);
+			}
+			gridPoints.add(row);
+		}
+		
+		int row = 0;
+		int col;
+		for(ArrayList<PVector> pvList : gridPoints)
+		{
+			col = 0;
+			for(PVector pv : pvList)
+			{
+//				float pointHeight = pv.y;
+				p.stroke(0.f, 0.f, 255.f, 155.f);
+				p.strokeWeight(6.f);
+				p.point(pv.x, pv.y, pv.z);				
+				
+				p.strokeWeight(1.f);
+				if(col-1 >= 0)
+				{
+					PVector pt2 = gridPoints.get(row).get(col-1);
+					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+				}
+				if(col+1 < pvList.size())
+				{
+					PVector pt2 = gridPoints.get(row).get(col+1);
+					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+				}
+				if(row-1 >= 0)
+				{
+					PVector pt2 = gridPoints.get(row-1).get(col);
+					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+				}
+				if(row+1 < gridPoints.size())
+				{
+					PVector pt2 = gridPoints.get(row+1).get(col);
+					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+				}
+				col++;
+			}
+			row++;
+		}
+	}
+	
 	/**
 	 * Attract viewer to each of the attracting clusters
 	 */

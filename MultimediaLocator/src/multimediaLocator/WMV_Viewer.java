@@ -127,9 +127,9 @@ public class WMV_Viewer
 	}
 	
 	/*** 
-	 * Update viewer movement and interaction each frame
+	 * Update viewer navigation each frame
 	 */
-	void update()
+	void updateNavigation()
 	{
 		if(!settings.orientationMode)
 			state.location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
@@ -187,7 +187,7 @@ public class WMV_Viewer
 	/**
 	 * Send the 3D camera view to the screen
 	 */
-	public void draw()
+	public void show()
 	{
 		camera.feed();						
 	}

@@ -89,7 +89,7 @@ class WMV_Metadata
 			f = field;
 			String fieldPath = f.getName();
 
-			System.out.println("Will load media folders: library:"+library+" fieldPath:"+fieldPath);
+//			System.out.println("Will load media folders: library:"+library+" fieldPath:"+fieldPath);
 			loadImageFolders(library, fieldPath); 	// Load image and panorama file names
 			loadVideoFolder(library, fieldPath); 	// Load video file names
 			loadSoundFolder(library, fieldPath); 	// Load sound file names

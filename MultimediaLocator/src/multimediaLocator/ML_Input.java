@@ -787,15 +787,17 @@ public class ML_Input
 				if( key == '?' )
 					ml.world.loadAndSetViewerState(ml.world.getCurrentField().getID());
 
-//				if( key == '?' )
-//					world.loadViewerSettings();
-
-				if( key == 't' )
+				if( key == 't' && !optionKey )
 				{
 					boolean state = !ml.world.viewer.getMovementTeleport();
 					ml.world.viewer.setMovementTeleport( state );
 					if(ml.display.window.setupNavigationWindow)
 						ml.display.window.chkbxMovementTeleport.setSelected(state);
+				}
+
+				if( key == 't' && optionKey )
+				{
+					ml.world.state.drawTerrain = !ml.world.state.drawTerrain;
 				}
 
 				if (key == 'T') 
@@ -943,10 +945,10 @@ public class ML_Input
 					ml.world.viewer.moveToNextCluster(false, 1);
 
 				if (key == 'm') 
-					ml.world.viewer.moveToNearestCluster(true);
+					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
 
-				if (key == 'M') 
-					ml.world.viewer.moveToNearestCluster(false);
+//				if (key == 'M') 
+//					ml.world.viewer.moveToNearestCluster(false);
 
 				if (key == '-') 
 					ml.world.getCurrentField().fadeObjectDistances(0.85f);

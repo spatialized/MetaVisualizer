@@ -13,6 +13,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.core.PVector;
+import processing.data.IntList;
 //import processing.core.PVector;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
@@ -168,10 +169,12 @@ public class WMV_World
 		ArrayList<ArrayList<PVector>> gridPoints = new ArrayList<ArrayList<PVector>>();		// Points to draw
 		PVector vLoc = viewer.getLocation();
 		PVector gridLoc = vLoc;
-		gridLoc = new PVector(utilities.round(vLoc.x, 0), utilities.round(vLoc.y, 0), utilities.round(vLoc.z, 0));
+		gridLoc = new PVector(utilities.round(vLoc.x, 0), vLoc.y, utilities.round(vLoc.z, 0));
+//		gridLoc = new PVector(utilities.round(vLoc.x, 0), utilities.round(vLoc.y, 0), utilities.round(vLoc.z, 0));
 
-		float gridSize = settings.defaultFocusDistance * 2.f;
-		float gridHeight = gridLoc.y + settings.defaultFocusDistance * 0.5f;				// -- Get this from media points!	
+		float gridSize = settings.defaultFocusDistance * 5.f;
+		float gridHeight = settings.defaultFocusDistance * 0.66f;
+		float defaultHeight = gridLoc.y + gridHeight;				// -- Get this from media points!	
 //		float gridHeight = vLoc.y + settings.defaultFocusDistance;					
 		
 //		for(int x=0; x<25; x++)
@@ -186,7 +189,7 @@ public class WMV_World
 				float xEnd = gridLoc.x + gridSize * 0.5f;
 				float zEnd = gridLoc.z + gridSize * 0.5f;
 
-				PVector pLoc = new PVector(0,gridHeight,0);
+				PVector pLoc = new PVector(0,defaultHeight,0);
 				pLoc.x = utilities.mapValue(x, 0, gridSize, xStart, xEnd);
 				pLoc.z = utilities.mapValue(z, 0, gridSize, zStart, zEnd);
 
@@ -194,7 +197,53 @@ public class WMV_World
 			}
 			gridPoints.add(row);
 		}
+
+//		IntList nearClusters = viewer.getNearClusters(-1, gridSize * 0.5f);
+//		for(int i : nearClusters)	// Adjust points within cluster viewing distance to cluster height
+		for(WMV_Cluster c : getCurrentField().getClusters())	// Adjust points within cluster viewing distance to cluster height
+		{
+			PVector cLoc = c.getLocation();
+			for(ArrayList<PVector> row : gridPoints)
+			{
+				for(PVector pv : row)
+				{
+//					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance)
+					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance * 1.5f)
+					{
+						pv.y = cLoc.y + gridHeight;
+					}
+				}
+			}
+		}
+
+		for(WMV_Cluster c : getCurrentField().getClusters())	// Adjust points within cluster viewing distance to cluster height
+		{
+			PVector cLoc = c.getLocation();
+			for(ArrayList<PVector> row : gridPoints)
+			{
+				for(PVector pv : row)
+				{
+//					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance)
+					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance * 1.5f)
+					{
+						pv.y = cLoc.y + gridHeight;
+					}
+				}
+			}
+		}
 		
+//		for(ArrayList<PVector> row : gridPoints)		// -- Method too slow
+//		{
+//			for(PVector pv : row)
+//			{
+//				WMV_Cluster c = getCurrentField().getCluster( getCurrentField().getNearestClusterToPoint(pv) );
+//				PVector cLoc = c.getLocation();
+//				if(pv.dist(cLoc) < settings.defaultFocusDistance)	// -- Should find nearest cluster!
+//					pv.y = cLoc.y + gridHeight;
+//			}
+//		}
+
+
 		int row = 0;
 		int col;
 		for(ArrayList<PVector> pvList : gridPoints)
@@ -202,8 +251,11 @@ public class WMV_World
 			col = 0;
 			for(PVector pv : pvList)
 			{
-//				float pointHeight = pv.y;
-				p.stroke(0.f, 0.f, 255.f, 155.f);
+				if(pv.y == defaultHeight)
+					p.stroke(0.f, 0.f, 155.f, 55.f);
+				else
+					p.stroke(0.f, 0.f, 255.f, 155.f);
+
 				p.strokeWeight(6.f);
 				p.point(pv.x, pv.y, pv.z);				
 				

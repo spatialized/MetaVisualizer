@@ -170,19 +170,18 @@ public class WMV_World
 		PVector vLoc = viewer.getLocation();
 		PVector gridLoc = vLoc;
 		gridLoc = new PVector(utilities.round(vLoc.x, 0), vLoc.y, utilities.round(vLoc.z, 0));
-//		gridLoc = new PVector(utilities.round(vLoc.x, 0), utilities.round(vLoc.y, 0), utilities.round(vLoc.z, 0));
+		if(gridLoc.x % 2 == 1) gridLoc.x++;
+		if(gridLoc.z % 2 == 1) gridLoc.z++;
 
 		float gridSize = settings.defaultFocusDistance * 5.f;
-		float gridHeight = settings.defaultFocusDistance * 0.66f;
+		float gridHeight = settings.defaultFocusDistance * 0.75f;
 		float defaultHeight = gridLoc.y + gridHeight;				// -- Get this from media points!	
-//		float gridHeight = vLoc.y + settings.defaultFocusDistance;					
 		
-//		for(int x=0; x<25; x++)
-		for(int x=0; x<gridSize; x++)
+		for(int x=0; x<gridSize; x+=2)
 		{
 			ArrayList<PVector> row = new ArrayList<PVector>();
 //			for(int z=0; z<25; z++)
-			for(int z=0; z<gridSize; z++)
+			for(int z=0; z<gridSize; z+=2)
 			{
 				float xStart = gridLoc.x - gridSize * 0.5f;
 				float zStart = gridLoc.z - gridSize * 0.5f;

@@ -136,9 +136,9 @@ public class WMV_World
 
 		}
 		
-		if(state.drawTerrain)						// Draw terrain as wireframe grid
+		if(state.displayTerrain)						// Draw terrain as wireframe grid
 		{
-			drawTerrain();
+			displayTerrain();
 		}
 		
 		viewer.updateNavigation();					// Update navigation
@@ -164,17 +164,17 @@ public class WMV_World
 	/**
 	 * Draw terrain as wireframe grid
 	 */
-	private void drawTerrain()
+	private void displayTerrain()
 	{
 		ArrayList<ArrayList<PVector>> gridPoints = new ArrayList<ArrayList<PVector>>();		// Points to draw
 		PVector vLoc = viewer.getLocation();
 		PVector gridLoc = vLoc;
 		gridLoc = new PVector(utilities.round(vLoc.x, 0), vLoc.y, utilities.round(vLoc.z, 0));
-		if(gridLoc.x % 2 == 1) gridLoc.x++;
-		if(gridLoc.z % 2 == 1) gridLoc.z++;
+		if((int)gridLoc.x % 2 == 0) gridLoc.x++;
+		if((int)gridLoc.z % 2 == 0) gridLoc.z++;
 
 		float gridSize = settings.defaultFocusDistance * 5.f;
-		float gridHeight = settings.defaultFocusDistance * 0.75f;
+		float gridHeight = settings.defaultFocusDistance * 0.9f;
 		float defaultHeight = gridLoc.y + gridHeight;				// -- Get this from media points!	
 		
 		for(int x=0; x<gridSize; x+=2)
@@ -197,7 +197,7 @@ public class WMV_World
 			gridPoints.add(row);
 		}
 
-//		IntList nearClusters = viewer.getNearClusters(-1, gridSize * 0.5f);
+//		IntList nearClusters = viewer.getNearClusters(-1, gridSize * 0.5f);		// --Not precise enough?
 //		for(int i : nearClusters)	// Adjust points within cluster viewing distance to cluster height
 		for(WMV_Cluster c : getCurrentField().getClusters())	// Adjust points within cluster viewing distance to cluster height
 		{
@@ -206,7 +206,6 @@ public class WMV_World
 			{
 				for(PVector pv : row)
 				{
-//					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance)
 					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance * 1.5f)
 					{
 						pv.y = cLoc.y + gridHeight;
@@ -215,33 +214,17 @@ public class WMV_World
 			}
 		}
 
-		for(WMV_Cluster c : getCurrentField().getClusters())	// Adjust points within cluster viewing distance to cluster height
-		{
-			PVector cLoc = c.getLocation();
-			for(ArrayList<PVector> row : gridPoints)
-			{
-				for(PVector pv : row)
-				{
-//					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance)
-					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance * 1.5f)
-					{
-						pv.y = cLoc.y + gridHeight;
-					}
-				}
-			}
-		}
-		
-//		for(ArrayList<PVector> row : gridPoints)		// -- Method too slow
+//		for(ArrayList<PVector> row : gridPoints)		// -- Method too slow: fixed by fewer points??
 //		{
 //			for(PVector pv : row)
 //			{
-//				WMV_Cluster c = getCurrentField().getCluster( getCurrentField().getNearestClusterToPoint(pv) );
+//				int nearestClusterID = getCurrentField().getNearestClusterToPoint(pv);	// Find nearest cluster ID
+//				WMV_Cluster c = getCurrentField().getCluster( nearestClusterID );
 //				PVector cLoc = c.getLocation();
 //				if(pv.dist(cLoc) < settings.defaultFocusDistance)	// -- Should find nearest cluster!
 //					pv.y = cLoc.y + gridHeight;
 //			}
 //		}
-
 
 		int row = 0;
 		int col;
@@ -279,14 +262,16 @@ public class WMV_World
 					PVector pt2 = gridPoints.get(row+1).get(col);
 					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
 				}
+				
 				col++;
 			}
+			
 			row++;
 		}
 	}
 	
 	/**
-	 * Attract viewer to each of the attracting clusters
+	 * Attract viewer to the attracting clusters
 	 */
 	public void attractViewer()
 	{
@@ -329,14 +314,12 @@ public class WMV_World
 					{
 						if(getCurrentField().mediaAreActive())
 						{
-							if(p.debugSettings.detailed)
-								System.out.println("Media still active...");
+							if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Media still active...");
 						}
 						else
 						{
 							state.currentTime = 0;
-							if(p.debugSettings.detailed)
-								System.out.println("Reached end of day at state.frameCount:"+state.frameCount);
+							if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Reached end of day at frameCount:"+state.frameCount);
 						}
 					}
 				}
@@ -353,20 +336,20 @@ public class WMV_World
 					{
 						if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
 						{
-							setSingleTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
+							setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
 						}
 						else
 						{
 							System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
 							state.currentTime = 0;
-							startSingleTimeModeCycle();
+							startMediaTimeModeCycle();
 						}
 					}
 					
 					if(state.currentTime > settings.timeCycleLength)
 					{
 						state.currentTime = 0;
-						startSingleTimeModeCycle();
+						startMediaTimeModeCycle();
 					}
 				}
 				break;
@@ -376,12 +359,15 @@ public class WMV_World
 		}
 	}
 	
-	void startSingleTimeModeCycle()
+	/**
+	 * Begin cycle in Media Time Mode (2)
+	 */
+	void startMediaTimeModeCycle()
 	{
-		setSingleTimeModeCurrentMedia(0);
+		setMediaTimeModeCurrentMedia(0);
 	}
 	
-	void setSingleTimeModeCurrentMedia(int timelineIndex)
+	void setMediaTimeModeCurrentMedia(int timelineIndex)
 	{
 		viewer.setCurrentMedia( timelineIndex );
 		// marijuana
@@ -438,11 +424,11 @@ public class WMV_World
 	{
 		WMV_Field f = getCurrentField();
 		for(WMV_Image img : f.getImages())
-			img.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
+			img.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
 		for(WMV_Panorama pano : f.getPanoramas())
-			pano.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
+			pano.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
 		for(WMV_Video vid : f.getVideos())
-			vid.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
+			vid.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
 //		for(WMV_Sound snd : f.getSounds())
 //			img.updateSettings(world.settings, world.state, world.viewer.getSettings(), world.viewer.getState(), debugSettings);
 	}
@@ -1156,7 +1142,7 @@ public class WMV_World
 			if(cl.size() == 0)
 				settings.timeCycleLength = -1;				// Flag for Viewer to keep calling this method until clusters are visible
 			else
-				startSingleTimeModeCycle();
+				startMediaTimeModeCycle();
 		}
 		else if(state.timeMode == 3)						/* Time cycle length is flexible according to visible cluster timelines */
 		{
@@ -1227,13 +1213,9 @@ public class WMV_World
 			if(!c.getState().empty)
 			{
 				c.setTimeCycleLength( newTimeCycleLength );
-//				public void updateAllMediaSettings(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
 
 				c.updateAllMediaSettings(getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
-						settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
-
-//				for(WMV_Image img : c.getImages(getCurrentField().getImages()))
-//					img.updateSettings(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
+						settings, state, viewer.getSettings(), viewer.getState());
 			}
 		}
 	}

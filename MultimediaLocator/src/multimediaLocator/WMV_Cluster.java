@@ -1450,15 +1450,14 @@ public class WMV_Cluster
 //	}
 
 	public void updateAllMediaSettings(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList,
-			WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
-			ML_DebugSettings newDebugSettings)
+			WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState )
 	{
 		for (int i:state.images)  		// Update and display videos
 		{
 			if(i < imageList.size())
 			{
 				if(!imageList.get(i).isDisabled())
-					imageList.get(i).updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+					imageList.get(i).updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 			}
 			else
 			{
@@ -1471,7 +1470,7 @@ public class WMV_Cluster
 			if(n < panoramaList.size())
 			{
 				if(!panoramaList.get(n).isDisabled())
-					panoramaList.get(n).updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+					panoramaList.get(n).updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 			}
 			else
 			{
@@ -1484,7 +1483,7 @@ public class WMV_Cluster
 			if(v < videoList.size())
 			{
 				if(!videoList.get(v).isDisabled())
-					videoList.get(v).updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+					videoList.get(v).updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 			}
 			else
 			{

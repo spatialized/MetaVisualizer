@@ -3961,7 +3961,7 @@ public class WMV_Viewer
 	public boolean setCurrentFieldTimeSegment( int newCurrentFieldTimeSegment, boolean updateTimelinesSegment )
 	{
 		state.currentFieldTimeSegment = newCurrentFieldTimeSegment;
-		p.p.display.updateCurrentSelectableTime = true;
+		p.p.display.updateCurrentSelectableTimeSegment = true;
 		boolean success = true;
 		if(debugSettings.viewer)
 			System.out.println("Setting newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment+" getLocation():"+getLocation());
@@ -4011,7 +4011,7 @@ public class WMV_Viewer
 		}
 		
 		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimeSegmentOnDate;
-		p.p.display.updateCurrentSelectableTime = true;
+		p.p.display.updateCurrentSelectableTimeSegment = true;
 
 		if(state.currentFieldDate < currentField.getTimelines().size())
 		{
@@ -4096,7 +4096,7 @@ public class WMV_Viewer
 	 * Set far viewing distance
 	 * @param newFarViewingDistance New far viewing distance
 	 */
-	public void setFarViewingDistance( float newFarViewingDistance)
+	public void setFarViewingDistance( float newFarViewingDistance )
 	{
 		settings.farViewingDistance = newFarViewingDistance;
 	}
@@ -4110,19 +4110,6 @@ public class WMV_Viewer
 		settings.nearClippingDistance = newNearClippingDistance;
 		settings.nearViewingDistance = settings.nearClippingDistance * 2.f;
 	}
-	
-//	/**
-//	 * Initialize 2D drawing 
-//	 */
-//	void start3DHUD()
-//	{
-//		p.p.perspective(getInitFieldOfView(), (float)p.p.width/(float)p.p.height, getNearClippingDistance(), 10000);
-//		PVector t = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);
-//		p.p.translate(t.x, t.y, t.z);
-//		p.p.rotateY(camera.attitude()[0]);
-//		p.p.rotateX(-camera.attitude()[1]);
-//		p.p.rotateZ(camera.attitude()[2]);
-//	}
 	
 	public void resetTimeState()
 	{
@@ -4627,4 +4614,18 @@ public class WMV_Viewer
 //		initialize(goal.x, goal.y, goal.z);
 //		camera.aim(target.x, target.y, target.z);
 //	}
+	
+//	/**
+//	 * Initialize 2D drawing when OCD camera feed is occurring each frame
+//	 */
+//	void start3DHUD()
+//	{
+//		p.p.perspective(getInitFieldOfView(), (float)p.p.width/(float)p.p.height, getNearClippingDistance(), 10000);
+//		PVector t = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);
+//		p.p.translate(t.x, t.y, t.z);
+//		p.p.rotateY(camera.attitude()[0]);
+//		p.p.rotateX(-camera.attitude()[1]);
+//		p.p.rotateZ(camera.attitude()[2]);
+//	}
+
 }

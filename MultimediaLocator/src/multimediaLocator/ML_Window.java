@@ -38,7 +38,7 @@ public class ML_Window {
 	private GButton btnLoadMediaLibrary;
 	private GLabel lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
-	public GOption optSceneView, optMapView, optClusterView;
+	public GOption optSceneView, optMapView, optLibraryView;
 	int wmvWindowHeight;
 
 	/* Navigation Window */
@@ -236,31 +236,31 @@ public class ML_Window {
 		optMapView = new GOption(wmvWindow, x+=100, y, 90, 20, "Map  (2)");
 		optMapView.setLocalColorScheme(10);
 		optMapView.tag = "MapView";
-		optClusterView = new GOption(wmvWindow, x+=100, y, 100, 20, "Info  (3)");
-		optClusterView.setLocalColorScheme(10);
-		optClusterView.tag = "ClusterView";
+		optLibraryView = new GOption(wmvWindow, x+=100, y, 100, 20, "Info  (3)");
+		optLibraryView.setLocalColorScheme(10);
+		optLibraryView.tag = "LibraryView";
 
 		switch(p.displayView)
 		{
 			case 0:
 				optSceneView.setSelected(true);
 				optMapView.setSelected(false);
-				optClusterView.setSelected(false);
+				optLibraryView.setSelected(false);
 				break;
 			case 1:
 				optSceneView.setSelected(false);
 				optMapView.setSelected(true);
-				optClusterView.setSelected(false);
+				optLibraryView.setSelected(false);
 				break;
 			case 2:
 				optSceneView.setSelected(false);
 				optMapView.setSelected(false);
-				optClusterView.setSelected(true);
+				optLibraryView.setSelected(true);
 				break;
 		}
 		
 		tgDisplayView = new GToggleGroup();
-		tgDisplayView.addControls(optSceneView, optMapView, optClusterView);
+		tgDisplayView.addControls(optSceneView, optMapView, optLibraryView);
 	
 		x = 65;
 		y += 30;

@@ -145,7 +145,6 @@ public class WMV_Image extends WMV_Media
 		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
 		
 		PVector c = ml.world.getCurrentField().getCluster(getMediaState().getClusterID()).getLocation();
-//		PVector loc = getMediaState().location;
 		PVector loc = getLocation();
 		PVector cl = getCaptureLocation();
 
@@ -180,7 +179,6 @@ public class WMV_Image extends WMV_Media
 	 */
 	public void fadeIn()
 	{
-//		if(getMediaState().fading || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
 		if(isFading()) stopFading();
 		fadeBrightness(1.f);				
 	}
@@ -190,7 +188,6 @@ public class WMV_Image extends WMV_Media
 	 */
 	public void fadeOut()
 	{
-//		if(getMediaState().fading || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
 		if(isFading()) stopFading();
 		fadeBrightness(0.f);				
 	}

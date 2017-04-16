@@ -21,12 +21,12 @@ import toxi.math.ScaleMap;
 public abstract class WMV_Media
 {
 	/* Classes */
-	private WMV_WorldSettings worldSettings;
-	private WMV_WorldState worldState;
-	private WMV_ViewerSettings viewerSettings;	// Update world settings
-	private WMV_ViewerState viewerState;	// Update world settings
-	private ML_DebugSettings debugSettings;	// Update world settings
-	private WMV_MediaState mState;
+	private WMV_MediaState mState;				// Media state
+	private WMV_WorldSettings worldSettings;	// World settings
+	private WMV_WorldState worldState;			// World State
+	private WMV_ViewerSettings viewerSettings;	// Viewer settings
+	private WMV_ViewerState viewerState;		// Viewer state
+	private ML_DebugSettings debugSettings;		// Debug settings
 	
 	/* Time */
 	private ScaleMap timeLogMap;
@@ -53,6 +53,8 @@ public abstract class WMV_Media
 
 		timeLogMap = new ScaleMap(0.f, 1.f, 0.f, 1.f);		/* Time fading interpolation */
 		timeLogMap.setMapFunction(circularEaseOut);
+		
+		debugSettings = new ML_DebugSettings();
 	}  
 
 	abstract void loadMedia(MultimediaLocator ml);
@@ -61,13 +63,12 @@ public abstract class WMV_Media
 	abstract void displayMetadata(MultimediaLocator ml);
 
 	public void updateSettings( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
-								WMV_ViewerState newViewerState, ML_DebugSettings newDebugSettings )
+								WMV_ViewerState newViewerState )
 	{
 		worldSettings = newWorldSettings;
 		worldState = newWorldState;
 		viewerSettings = newViewerSettings;
 		viewerState = newViewerState;
-		debugSettings = newDebugSettings;
 	}
 
 	/**

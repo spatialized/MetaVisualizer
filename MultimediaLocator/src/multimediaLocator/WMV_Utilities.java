@@ -102,6 +102,11 @@ public class WMV_Utilities
 		return Math.round(Math.round(value / interval) * interval);
 	}
 	
+	/**
+	 * Get date as formatted string
+	 * @param date Given date
+	 * @return String in format: "April 12, 1982"
+	 */
 	public String getDateAsString(WMV_Date date)
 	{
 		int year = date.getYear();

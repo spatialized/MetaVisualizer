@@ -314,7 +314,7 @@ public class ML_Input
 			case "MapView":
 				display.setDisplayView(world, 1);
 				break;
-			case "ClusterView":
+			case "LibraryView":
 				display.setDisplayView(world, 2);
 				break;
 			case "TimelineView":
@@ -662,24 +662,24 @@ public class ML_Input
 			{
 				if (key == 'c')
 				{
-					ml.display.displayCluster = ml.world.viewer.getState().getCurrentClusterID();
+					ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
 				}
 				
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.LEFT) 
 					{
-						ml.display.displayCluster--;
-						if(ml.display.displayCluster < 0)
-							ml.display.displayCluster = ml.world.getFieldClusters().size() - 1;
+						ml.display.currentDisplayCluster--;
+						if(ml.display.currentDisplayCluster < 0)
+							ml.display.currentDisplayCluster = ml.world.getFieldClusters().size() - 1;
 
 						int count = 0;
-						while(ml.world.getCurrentField().getCluster(ml.display.displayCluster).isEmpty())
+						while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
 						{
-							ml.display.displayCluster--;
+							ml.display.currentDisplayCluster--;
 							count++;
-							if(ml.display.displayCluster < 0)
-								ml.display.displayCluster = ml.world.getFieldClusters().size() - 1;
+							if(ml.display.currentDisplayCluster < 0)
+								ml.display.currentDisplayCluster = ml.world.getFieldClusters().size() - 1;
 
 							if(count > ml.world.getFieldClusters().size())
 								break;
@@ -688,21 +688,35 @@ public class ML_Input
 
 					if (keyCode == PApplet.RIGHT) 
 					{
-						ml.display.displayCluster++;
-						if( ml.display.displayCluster >= ml.world.getFieldClusters().size())
-							ml.display.displayCluster = 0;
+						ml.display.currentDisplayCluster++;
+						if( ml.display.currentDisplayCluster >= ml.world.getFieldClusters().size())
+							ml.display.currentDisplayCluster = 0;
 
 						int count = 0;
-						while(ml.world.getCurrentField().getCluster(ml.display.displayCluster).isEmpty())
+						while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
 						{
-							ml.display.displayCluster++;
+							ml.display.currentDisplayCluster++;
 							count++;
-							if( ml.display.displayCluster >= ml.world.getFieldClusters().size())
-								ml.display.displayCluster = 0;
+							if( ml.display.currentDisplayCluster >= ml.world.getFieldClusters().size())
+								ml.display.currentDisplayCluster = 0;
 
 							if(count > ml.world.getFieldClusters().size())
 								break;
 						}
+					}
+					
+					if (keyCode == PApplet.UP) 
+					{
+						ml.display.libraryViewMode--;
+						if(ml.display.libraryViewMode < 0)
+							ml.display.libraryViewMode = ml.world.getFieldClusters().size() - 1;
+					}
+
+					if (keyCode == PApplet.DOWN) 
+					{
+						ml.display.libraryViewMode++;
+						if( ml.display.libraryViewMode >= ml.world.getFieldClusters().size())
+							ml.display.libraryViewMode = 0;
 					}
 				}
 			}
@@ -715,17 +729,17 @@ public class ML_Input
 					ml.display.zoomToTimeline(ml.world, true);
 
 				if (key == 't')									// Zoom to fit current time segment
-					ml.display.zoomToCurrentTimeSegment(ml.world, true);
+					ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
 
 				if (key == 'd')									// Zoom to fit current time segment
-					ml.display.zoomToCurrentDate(ml.world, true);
+					ml.display.zoomToCurrentSelectableDate(ml.world, true);
 
 				if (key == 'a')									// Timeline zoom to fit
 					ml.display.showAllDates();
 
 				if (key == PApplet.ENTER)
 				{
-					if(ml.display.getCurrentSelectableTime() >= 0)
+					if(ml.display.getCurrentSelectableTimeSegment() >= 0)
 					{
 						ml.world.viewer.teleportToCluster(ml.display.getSelectedCluster(), true, -1); 
 						ml.display.setDisplayView(ml.world, 0);
@@ -797,7 +811,7 @@ public class ML_Input
 
 				if( key == 't' && optionKey )
 				{
-					ml.world.state.drawTerrain = !ml.world.state.drawTerrain;
+					ml.world.state.displayTerrain = !ml.world.state.displayTerrain;
 				}
 
 				if (key == 'T') 

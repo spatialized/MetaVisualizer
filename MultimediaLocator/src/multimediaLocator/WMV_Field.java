@@ -191,7 +191,7 @@ public class WMV_Field
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
 				
-				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 				if(worldState.timeFading)
 				{
 					if(m.getAssociatedClusterID() < 0 || m.getAssociatedClusterID() >= clusters.size())
@@ -223,7 +223,7 @@ public class WMV_Field
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
 
-				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 				if(worldState.timeFading)
 				{
 					if(n.getAssociatedClusterID() < 0 || n.getAssociatedClusterID() >= clusters.size()) 
@@ -254,7 +254,7 @@ public class WMV_Field
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
 				boolean nowVisible = (distance < vanishingPoint);
 
-				v.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+				v.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 				if ( v.isVisible() && !nowVisible )
 					v.fadeOut();
 				
@@ -338,15 +338,15 @@ public class WMV_Field
 	{
 		for (WMV_Image i : images)  		// Update and display videos
 			if(!i.isDisabled())
-				i.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+				i.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 	
 		for (WMV_Panorama n : panoramas)  		// Update and display videos
 			if(!n.isDisabled())
-				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 	
 		for (WMV_Video v : videos)  		// Update and display videos
 			if(!v.isDisabled())
-				v.updateSettings(worldSettings, worldState, viewerSettings, viewerState, debugSettings);
+				v.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 	}
 	
 	/**
@@ -2565,8 +2565,8 @@ public class WMV_Field
 				error = true;
 			}
 
+//			System.out.println("Setting media states for field #"+getID()+" ... ");
 			try{
-//				System.out.println("Setting media states for field #"+getID()+" ... ");
 
 //				System.out.println(" Adding Clusters... "+newClusterStateList.clusters.size());
 				for(WMV_ClusterState cs : newClusterStateList.clusters)
@@ -2574,7 +2574,6 @@ public class WMV_Field
 					WMV_Cluster newCluster = getClusterFromClusterState(cs);
 					addCluster(newCluster);
 				}
-//				System.out.println(" Added Clusters... clusters.size():"+clusters.size());
 			}
 			catch(Throwable t)
 			{

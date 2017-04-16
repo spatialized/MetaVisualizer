@@ -1,6 +1,6 @@
 package multimediaLocator;
 import java.util.ArrayList;
-import g4p_controls.GButton;
+//import g4p_controls.GButton;
 import processing.core.*;
 
 /***********************************
@@ -29,7 +29,6 @@ class ML_Display
 	/* Setup */
 	public boolean initialSetup = true;
 	public boolean dataFolderFound = false;
-	GButton btnSelectLibrary;
 	
 	/* Graphics */
 	public boolean drawGrid = false; 					// Draw 3D grid   			-- Unused
@@ -41,8 +40,9 @@ class ML_Display
 	private int screenWidth = -1;
 	private int screenHeight = -1;
 	
-	/* Clusters */
-	public int displayCluster = 0;
+	/* Library View */
+	public int libraryViewMode = 0;						// 0: Cluster, 1: Field, 2: Library
+	public int currentDisplayCluster = 0;
 
 	/* Messages */
 	ArrayList<String> messages;							// Messages to display on screen
@@ -59,18 +59,18 @@ class ML_Display
 	float timelineStart = 0.f, timelineEnd = 0.f;
 	float datelineStart = 0.f, datelineEnd = 0.f;
 	int displayDate = -1;
-	public boolean updateCurrentSelectableTime = true, updateCurrentSelectableDate = true;
+	public boolean updateCurrentSelectableTimeSegment = true, updateCurrentSelectableDate = true;
 	private final float timeTextSize = 44.f;
 	
-	private ArrayList<SelectableTimeSegment> selectableTimes;		// Selectable time segments on timeline
+	private ArrayList<SelectableTimeSegment> selectableTimeSegments;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;		// Selectable dates on dateline
 	private float minSegmentSeconds = 15.f;
 	
 	private boolean fieldTimelineCreated = false, fieldDatelineCreated = false, updateFieldTimeline = true;
 	private float timelineXOffset = 0.f, timelineYOffset = 0.f;
 	private float datelineXOffset = 0.f, datelineYOffset = 0.f;
-	private SelectableTimeSegment currentSelectableTime;
-	private int selectedTime = -1, selectedCluster = -1, currentSelectableTimeID = -1, currentSelectableTimeFTSID = -1;
+	private SelectableTimeSegment currentSelectableTimeSegment;
+	private int selectedTime = -1, selectedCluster = -1, currentSelectableTimeSegmentID = -1, currentSelectableTimeSegmentFieldTimeSegmentID = -1;
 	private int selectedDate = -1, currentSelectableDate = -1;
 		
 	private boolean timelineTransition = false, timelineZooming = false, timelineScrolling = false;   
@@ -148,15 +148,20 @@ class ML_Display
 		datelineYOffset = screenHeight * 0.266f;
 		
 		map2D = new ML_Map(this, screenWidth, screenHeight, hudDistance);
-		currentSelectableTime = null;
-		currentSelectableTimeID = -1;
-		currentSelectableTimeFTSID = -1;
+		currentSelectableTimeSegment = null;
+		currentSelectableTimeSegmentID = -1;
+		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
 
-	void initializeWindows(WMV_World world)
+	/**
+	 * Initialize Windows
+	 * @param p Parent world
+	 */
+	void initializeWindows(WMV_World p)
 	{
-		window = new ML_Window(world, this);				// Setup and display interaction window
+		window = new ML_Window(p, this);				// Setup and display interaction window
 	}
 
 	/**
@@ -188,7 +193,7 @@ class ML_Display
 					map2D.updateMapMouse(p);
 					break;
 				case 2:
-					displayCluster(p);
+					displayLibraryView(p);
 					break;
 				case 3:
 					displayTimeView(p);
@@ -306,69 +311,51 @@ class ML_Display
 			}
 		}
 
-		if(updateCurrentSelectableTime && !timelineTransition)
+		if(updateCurrentSelectableTimeSegment && !timelineTransition)
 		{
 			if(p.viewer.getCurrentFieldTimeSegment() >= 0)
 			{
 				WMV_TimeSegment t = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment());		
-				int previous = currentSelectableTimeID;
+				int previous = currentSelectableTimeSegmentID;
 				
 				if(t != null)
 				{
-					currentSelectableTimeID = getSelectableTimeIDOfFieldTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
-					if(currentSelectableTimeID != -1)
+					currentSelectableTimeSegmentID = getSelectableTimeIDOfFieldTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
+					if(currentSelectableTimeSegmentID != -1)
 					{
-						currentSelectableTime = selectableTimes.get(currentSelectableTimeID);
-						currentSelectableTimeFTSID = currentSelectableTime.segment.getFieldTimelineID();						// Set current selectable time (white rectangle) from current field time segment
+						currentSelectableTimeSegment = selectableTimeSegments.get(currentSelectableTimeSegmentID);
+						currentSelectableTimeSegmentFieldTimeSegmentID = currentSelectableTimeSegment.segment.getFieldTimelineID();						// Set current selectable time (white rectangle) from current field time segment
 					}
 					else
 					{
-						currentSelectableTimeFTSID = -1;
-						currentSelectableTime = null;
+						currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+						currentSelectableTimeSegment = null;
 					}
 				}
 				else
 				{
-					currentSelectableTimeID = -1;
-					currentSelectableTimeFTSID = -1;
-					currentSelectableTime = null;
+					currentSelectableTimeSegmentID = -1;
+					currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+					currentSelectableTimeSegment = null;
 				}
 
 				if(updateCurrentSelectableDate)
 				{
-					if(currentSelectableTimeID != previous && currentSelectableDate > -1)						// If changed field segment and displaying a single date
+					if(currentSelectableTimeSegmentID != previous && currentSelectableDate > -1)						// If changed field segment and displaying a single date
 					{
 						int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();		// Update date displayed
 						setCurrentSelectableDate(fieldDate);
 					}
 				}
 
-				updateCurrentSelectableTime = false;
+				updateCurrentSelectableTimeSegment = false;
 				updateCurrentSelectableDate = false;
 			}
 //			else 
-//				System.out.println("updateCurrentSelectableTime... No current time segment!");
+//				System.out.println("updateCurrentSelectableTimeSegment... No current time segment!");
 		}
 	}
 	
-	/** 
-	 * Get associated selectable time segment ID for given time segment
-	 * @param t Given time segment
-	 * @return Selectable time ID associated with given time segment
-	 */
-	private int getSelectableTimeIDOfFieldTimeSegment(WMV_TimeSegment t)
-	{
-		for(SelectableTimeSegment st : selectableTimes)
-		{
-			if( t.getClusterID() == st.segment.getClusterID() && t.getClusterDateID() == st.segment.getClusterDateID() &&
-				t.getClusterTimelineID() == st.segment.getClusterTimelineID() && t.getFieldTimelineID() == st.segment.getFieldTimelineID() )
-			{
-				return st.getID();
-			}
-		}
-		return -1;
-	}
-
 	/**
 	 * Create field dateline
 	 */
@@ -407,22 +394,23 @@ class ML_Display
 	}
 	
 	/**
-	 * Create field timeline
+	 * Create viewable timeline for field
+	 * @param p Parent world
 	 */
 	private void createFieldTimeline(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
-		selectableTimes = new ArrayList<SelectableTimeSegment>();
+		selectableTimeSegments = new ArrayList<SelectableTimeSegment>();
 		
 		if(f.getDateline().size() == 1)
 		{
 			int count = 0;
 			for(WMV_TimeSegment t : f.getTimeline().timeline)
 			{
-				SelectableTimeSegment st = getSelectableTime(t, count);
+				SelectableTimeSegment st = getSelectableTimeSegment(t, count);
 				if(st != null)
 				{
-					selectableTimes.add(st);
+					selectableTimeSegments.add(st);
 					count++;
 				}
 			}
@@ -436,10 +424,10 @@ class ML_Display
 				{
 					for(WMV_TimeSegment t:ts.timeline)
 					{
-						SelectableTimeSegment st = getSelectableTime(t, count);
+						SelectableTimeSegment st = getSelectableTimeSegment(t, count);
 						if(st != null)
 						{
-							selectableTimes.add(st);
+							selectableTimeSegments.add(st);
 							count++;
 						}
 					}
@@ -454,10 +442,10 @@ class ML_Display
 					
 					for(WMV_TimeSegment t:ts)
 					{
-						SelectableTimeSegment st = getSelectableTime(t, count);
+						SelectableTimeSegment st = getSelectableTimeSegment(t, count);
 						if(st != null)
 						{
-							selectableTimes.add(st);
+							selectableTimeSegments.add(st);
 							count++;
 						}
 					}
@@ -468,6 +456,10 @@ class ML_Display
 		fieldTimelineCreated = true;
 	}
 
+	/**
+	 * Create selectable dates for current field
+	 * @param p Parent world
+	 */
 	private void createFieldSelectableDates(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
@@ -495,7 +487,11 @@ class ML_Display
 	}
 
 	/**
-	 * Transition map zoom from current to given value
+	 * Transition timeline zoom from current to given value
+	 * @param newStart New timeline left edge value
+	 * @param newEnd New timeline right edge value
+	 * @param transitionLength Transition length in frames
+	 * @param frameCount Current frame count
 	 */
 	void timelineTransition(float newStart, float newEnd, int transitionLength, int frameCount)
 	{
@@ -538,6 +534,7 @@ class ML_Display
 	
 	/**
 	 * Update map zoom level each frame
+	 * @p Parent world
 	 */
 	void updateTimelineTransition(WMV_World p)
 	{
@@ -550,7 +547,7 @@ class ML_Display
 			newEnd = timelineEndTransitionTarget;
 			timelineTransition = false;
 			updateFieldTimeline = true;
-			updateCurrentSelectableTime = true;
+			updateCurrentSelectableTimeSegment = true;
 			transitionScrollIncrement = initTransitionScrollIncrement * getZoomLevel();
 		} 
 		else
@@ -580,12 +577,12 @@ class ML_Display
 	}
 
 	/**
-	 * Create and return selectable time from timeline
+	 * Create and return selectable time segment from timeline
 	 * @param t Time segment
 	 * @param id Time segment id
 	 * @return SelectableTime object
 	 */
-	private SelectableTimeSegment getSelectableTime(WMV_TimeSegment t, int id)
+	private SelectableTimeSegment getSelectableTimeSegment(WMV_TimeSegment t, int id)
 	{
 		float lowerSeconds = utilities.getTimePVectorSeconds(t.getLower().getTimeAsPVector());
 		float upperSeconds = utilities.getTimePVectorSeconds(t.getUpper().getTimeAsPVector());
@@ -641,6 +638,7 @@ class ML_Display
 
 	/**
 	 * Draw the field timeline
+	 * @param p Parent world
 	 */
 	private void displayFieldTimeline(WMV_World p)
 	{
@@ -696,71 +694,60 @@ class ML_Display
 
 		if(f.getDateline().size() == 1)
 		{
-			int count = 0;
 			for(WMV_TimeSegment t : f.getTimeline().timeline)
 			{
-				drawTimeSegment(p, t, count);
-				count++;
+				drawTimeSegment(p, t);
 			}
 		}
 		else if(f.getDateline().size() > 1)
 		{
 			if(displayDate == -1)
 			{
-				int count = 0;
 				for(WMV_Timeline ts : f.getTimelines())
-				{
 					for(WMV_TimeSegment t:ts.timeline)
-					{
-						drawTimeSegment(p, t, count);
-						count++;
-					}
-				}
+						drawTimeSegment(p, t);
 			}
 			else
 			{
 				if(displayDate < f.getTimelines().size())
 				{
 					ArrayList<WMV_TimeSegment> ts = f.getTimelines().get(displayDate).timeline;
-					int count = 0;
 					for(WMV_TimeSegment t:ts)
-					{
-						drawTimeSegment(p, t, count);
-						count++;
-					}
+						drawTimeSegment(p, t);
 				}
 			}
 		}
 		
 		if(!timelineTransition)
 		{
-			/* Draw selected time segment */
-			if(selectedTime != -1 && selectableTimes.size() > 0 && selectedTime < selectableTimes.size())
-				selectableTimes.get(selectedTime).draw(p, 40.f, 255.f, 255.f, true);
-
 			/* Draw current time segment */
-//			if(currentSelectableTimeFTSID == currentSelectableTime.segment.getFieldTimelineID())
-			if(currentSelectableTimeID >= 0 && currentSelectableTimeID < selectableTimes.size())
+			if(currentSelectableTimeSegmentID >= 0 && currentSelectableTimeSegmentID < selectableTimeSegments.size())
 			{
-				if(currentSelectableTimeFTSID == selectableTimes.get(currentSelectableTimeID).segment.getFieldTimelineID())
+				if(currentSelectableTimeSegmentFieldTimeSegmentID == selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getFieldTimelineID())
 				{
-//					System.out.println("currentSelectableTimeFTSID: "+currentSelectableTimeFTSID);
-					if(currentSelectableTimeID != -1 && selectableTimes.size() > 0 && currentSelectableTimeID < selectableTimes.size())
+					if(currentSelectableTimeSegmentID != -1 && selectableTimeSegments.size() > 0 && currentSelectableTimeSegmentID < selectableTimeSegments.size())
 					{
-						if(displayDate == -1 || selectableTimes.get(currentSelectableTimeID).segment.getFieldDateID() == displayDate)
+						if(displayDate == -1 || selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getFieldDateID() == displayDate)
 						{
 							if(selectedTime == -1)
-								selectableTimes.get(currentSelectableTimeID).draw(p, 0.f, 0.f, 255.f, true);
+								selectableTimeSegments.get(currentSelectableTimeSegmentID).draw(p, 0.f, 0.f, 255.f, true);
 							else
-								selectableTimes.get(currentSelectableTimeID).draw(p, 0.f, 0.f, 255.f, false);
+								selectableTimeSegments.get(currentSelectableTimeSegmentID).draw(p, 0.f, 0.f, 255.f, false);
 						}
 					}
 				}
-//				else updateCurrentSelectableTime = true;
 			}
+			
+			/* Draw selected time segment */
+			if(selectedTime != -1 && selectableTimeSegments.size() > 0 && selectedTime < selectableTimeSegments.size())
+				selectableTimeSegments.get(selectedTime).draw(p, 40.f, 255.f, 255.f, true);
 		}
 	}
 
+	/**
+	 * Display dateline for current field
+	 * @param p Parent world
+	 */
 	private void displayFieldDateline(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
@@ -773,14 +760,14 @@ class ML_Display
 	
 		if(f.getDateline().size() == 1)
 		{
-			drawDate(p, f.getDate(0), 0);
+			displayDate(p, f.getDate(0), 0);
 		}
 		else if(f.getDateline().size() > 1)
 		{
 			int count = 0;
 			for(WMV_Date d : f.getDateline())
 			{
-				drawDate(p, d, count);
+				displayDate(p, d, count);
 				count++;
 			}
 		}
@@ -792,12 +779,12 @@ class ML_Display
 	}
 
 	/**
-	 * Draw time segment on timeline
-	 * @param d
+	 * Display date on timeline
+	 * @param d Date to display
 	 * @param timelineLeftEdge
 	 * @param timelineTopEdge
 	 */
-	private void drawDate(WMV_World p, WMV_Date d, int id)
+	private void displayDate(WMV_World p, WMV_Date d, int id)
 	{
 		float date = d.getDaysSince1980();
 		float xOffset = PApplet.map(date, datelineStart, datelineEnd, datelineXOffset, datelineXOffset + timelineScreenSize);
@@ -817,19 +804,18 @@ class ML_Display
 	}
 	
 	/**
-	 * Draw time segment on timeline
-	 * @param t
-	 * @param timelineLeftEdge
-	 * @param timelineTopEdge
+	 * Display time segment on timeline
+	 * @param t Time segment to display
+	 * @param id 
 	 */
-	private void drawTimeSegment(WMV_World p, WMV_TimeSegment t, int id)
+	private void drawTimeSegment(WMV_World p, WMV_TimeSegment t)
 	{
 		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
 		PVector upperTime = t.getUpper().getTimeAsPVector();			
 
 		float lowerSeconds = utilities.getTimePVectorSeconds(lowerTime);
 		float upperSeconds = utilities.getTimePVectorSeconds(upperTime);
-//		boolean instant = (upperSeconds == lowerSeconds);
+
 		if(upperSeconds == lowerSeconds)
 		{
 			lowerSeconds -= minSegmentSeconds * 0.5f;
@@ -847,7 +833,6 @@ class ML_Display
 		{
 			p.p.pushMatrix();
 			p.p.translate(0.f, timelineYOffset, hudDistance);
-//			p.p.stroke(140.f, 185.f, 255.f, 155.f);
 			p.p.stroke(imageHue, 185.f, 255.f, 155.f);
 			p.p.strokeWeight(1.f);
 
@@ -876,14 +861,6 @@ class ML_Display
 					p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
 				}
 			}
-
-//			for(PVector time : times)
-//			{
-//				float seconds = utilities.getTimePVectorSeconds(time);
-//				float xOff = PApplet.map(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
-//				if(xOff > timelineXOffset && xOff < timelineXOffset + timelineScreenSize)
-//					p.p.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
-//			}
 
 			/* Set hue according to media type */
 			float firstHue = imageHue;
@@ -948,8 +925,6 @@ class ML_Display
 	{
 		float wFactor = 2.55f;
 		float hFactor = 2.55f;
-//		p.p.stroke(255, 255, 255);
-//		p.p.strokeWeight(4.f);
 		
 		PVector result = new PVector(mouseX * wFactor - screenWidth * 0.775f, mouseY * hFactor - screenHeight * 0.775f, hudDistance);
 //		p.p.point(result.x, result.y, result.z);		// Show mouse location for debugging
@@ -963,7 +938,7 @@ class ML_Display
 	 */
 	private SelectableTimeSegment getSelectedTimeSegment(PVector mouseLoc)
 	{
-		for(SelectableTimeSegment st : selectableTimes)
+		for(SelectableTimeSegment st : selectableTimeSegments)
 			if( mouseLoc.x > st.leftEdge && mouseLoc.x < st.rightEdge && 
 				mouseLoc.y > st.topEdge && mouseLoc.y < st.bottomEdge )
 				return st;
@@ -987,10 +962,14 @@ class ML_Display
 		return null;
 	}
 
+	/**
+	 * Update timeline based on current mouse position
+	 * @param p Parent world
+	 */
 	public void updateTimelineMouse(WMV_World p)
 	{
 		PVector mouseLoc = getMouse3DLocation(p.p.mouseX, p.p.mouseY);
-		if(selectableTimes != null)
+		if(selectableTimeSegments != null)
 		{
 			SelectableTimeSegment timeSelected = getSelectedTimeSegment(mouseLoc);
 			if(timeSelected != null)
@@ -1019,7 +998,12 @@ class ML_Display
 		}
 	}
 	
-	public void zoomToTimeline(WMV_World p, boolean fade)
+	/**
+	 * Zoom out to full timeline
+	 * @param p Parent world
+	 * @param transition Whether to use smooth zooming transition
+	 */
+	public void zoomToTimeline(WMV_World p, boolean transition)
 	{
 		WMV_Field f = p.getCurrentField();
 		
@@ -1037,7 +1021,7 @@ class ML_Display
 		if(newTimelineEnd < last) newTimelineEnd += 3600;
 		if(newTimelineEnd > day) newTimelineEnd = day;
 
-		if(fade)
+		if(transition)
 		{
 			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 		}
@@ -1048,28 +1032,21 @@ class ML_Display
 		}
 	}
 	
-	public void zoomToCurrentTimeSegment(WMV_World p, boolean fade)
+	/**
+	 * Zoom to current selectable time segment
+	 * @param p Parent World
+	 * @param transition Whether to use smooth zooming transition
+	 */
+	public void zoomToCurrentSelectableTimeSegment(WMV_World p, boolean transition)
 	{
-		if(currentSelectableTimeID >= 0)
+		if(currentSelectableTimeSegmentID >= 0)
 		{
-			float first = selectableTimes.get(currentSelectableTimeID).segment.getLower().getTime();
-			float last = selectableTimes.get(currentSelectableTimeID).segment.getUpper().getTime();
+			float first = selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getLower().getTime();
+			float last = selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getUpper().getTime();
 			float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
-
-	//		float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
-	//		float last = f.getTimeSegment(f.getTimeline().size()-1).getUpper().getTime();		// Last field media time, normalized
-	//		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 
 			first *= day;					// Convert from normalized value to seconds
 			last *= day;
-
-			/**
-			 * Round given value in seconds to nearest value given by interval parameter
-			 * @param value Value to round
-			 * @param interval Number of seconds to round to
-			 * @return Rounded value
-			 */
-//			public int roundSecondsToInterval(float value, float interval)
 
 			float newTimelineStart = utilities.roundSecondsToInterval(first, 600.f);		// Round down to nearest hour
 			if(newTimelineStart > first) newTimelineStart -= 600;
@@ -1078,7 +1055,7 @@ class ML_Display
 			if(newTimelineEnd < last) newTimelineEnd += 600;
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
-			if(fade)
+			if(transition)
 			{
 				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 			}
@@ -1090,7 +1067,12 @@ class ML_Display
 		}
 	}
 	
-	public void zoomToCurrentDate(WMV_World p, boolean fade)
+	/**
+	 * Zoom to the current selectable date
+	 * @param p Parent world
+	 * @param transition Whether to use smooth zooming transition
+	 */
+	public void zoomToCurrentSelectableDate(WMV_World p, boolean transition)
 	{
 		if(currentSelectableDate >= 0)
 		{
@@ -1110,14 +1092,7 @@ class ML_Display
 			if(newTimelineEnd < last) newTimelineEnd += 1800;
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
-//			float newTimelineStart = utilities.roundSecondsToHour(first);		// Round down to nearest hour
-//			if(newTimelineStart > first) newTimelineStart -= 3600;
-//			if(newTimelineStart < 0.f) newTimelineStart = 0.f;
-//			float newTimelineEnd = utilities.roundSecondsToHour(last);			// Round up to nearest hour
-//			if(newTimelineEnd < last) newTimelineEnd += 3600;
-//			if(newTimelineEnd > day) newTimelineEnd = day;
-
-			if(fade)
+			if(transition)
 			{
 				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 			}
@@ -1154,10 +1129,11 @@ class ML_Display
 	
 	/**
 	 * Start timeline zoom transition
+	 * @param p Parent world
 	 * @param direction -1: In  1: Out
-	 * @param fade Whether to use transition animation
+	 * @param transition Whether to use smooth zooming transition
 	 */
-	public void zoom(WMV_World p, int direction, boolean fade)
+	public void zoom(WMV_World p, int direction, boolean transition)
 	{
 		boolean zoom = true;
 		transitionZoomDirection = direction;
@@ -1217,7 +1193,7 @@ class ML_Display
 			if(newTimelineEnd > day) newTimelineEnd = day;
 			if(newTimelineStart < 0.f) newTimelineEnd = 0.f;
 
-			if(fade)
+			if(transition)
 			{
 				timelineTransition(timelineStart, newTimelineEnd, 10, p.p.frameCount);
 				timelineZooming = true;
@@ -1227,7 +1203,13 @@ class ML_Display
 		}
 	}
 	
-	public void zoomByAmount(WMV_World p, float amount, boolean fade)
+	/**
+	 * Zoom by a factor
+	 * @param p Parent world
+	 * @param amount Factor to zoom by
+	 * @param transition Whether to use smooth zooming transition 
+	 */
+	public void zoomByAmount(WMV_World p, float amount, boolean transition)
 	{
 		float length = timelineEnd - timelineStart;
 		float newLength = length * amount;
@@ -1250,7 +1232,7 @@ class ML_Display
 
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
-			if(fade)
+			if(transition)
 				timelineTransition(timelineStart, newTimelineEnd, initTimelineTransitionLength, p.p.frameCount);
 			else
 				timelineEnd = newTimelineEnd;
@@ -1259,6 +1241,7 @@ class ML_Display
 	
 	/**
 	 * Start scrolling timeline in specified direction
+	 * @param p Parent world
 	 * @param direction Left: -1 or Right: 1
 	 */
 	public void scroll(WMV_World p, int direction)
@@ -1275,6 +1258,9 @@ class ML_Display
 		}
 	}
 	
+	/**
+	 * Stop zooming the timeline
+	 */
 	public void stopZooming()
 	{
 		timelineZooming = false;
@@ -1282,19 +1268,28 @@ class ML_Display
 		transitionScrollIncrement = initTransitionScrollIncrement * getZoomLevel();
 	}
 	
+	/**
+	 * Stop scrolling the timeline
+	 */
 	public void stopScrolling()
 	{
 		timelineScrolling = false;
 		updateFieldTimeline = true;
 	}
 	
+	/**
+	 * Handle mouse released event
+	 * @param p Parent world
+	 * @param mouseX Mouse x position
+	 * @param mouseY Mouse y position
+	 */
 	public void handleMouseReleased(WMV_World p, float mouseX, float mouseY)
 	{
 		updateTimelineMouse(p);
 		
 		if(selectedTime != -1)
 			if(selectedCluster != -1)
-				p.viewer.teleportToCluster(selectedCluster, false, selectableTimes.get(selectedTime).segment.getFieldTimelineID());
+				p.viewer.teleportToCluster(selectedCluster, false, selectableTimeSegments.get(selectedTime).segment.getFieldTimelineID());
 
 		if(selectedDate != -1)
 		{
@@ -1302,13 +1297,35 @@ class ML_Display
 		}
 	}
 
+	/**
+	 * Set current selectable date (white rectangle)
+	 * @param newSelectableDate New selectable date ID
+	 */
 	private void setCurrentSelectableDate(int newSelectableDate)
 	{
 		displayDate = newSelectableDate;
 		currentSelectableDate = newSelectableDate;
-		updateCurrentSelectableTime = true;
+		updateCurrentSelectableTimeSegment = true;
 		updateCurrentSelectableDate = false;
 		updateFieldTimeline = true;
+	}
+
+	/** 
+	 * Get associated selectable time segment ID for given time segment
+	 * @param t Given time segment
+	 * @return Selectable time segment ID associated with given time segment
+	 */
+	private int getSelectableTimeIDOfFieldTimeSegment(WMV_TimeSegment t)
+	{
+		for(SelectableTimeSegment st : selectableTimeSegments)
+		{
+			if( t.getClusterID() == st.segment.getClusterID() && t.getClusterDateID() == st.segment.getClusterDateID() &&
+				t.getClusterTimelineID() == st.segment.getClusterTimelineID() && t.getFieldTimelineID() == st.segment.getFieldTimelineID() )
+			{
+				return st.getID();
+			}
+		}
+		return -1;
 	}
 
 	/**
@@ -1348,31 +1365,6 @@ class ML_Display
 		message(ml, "Press <spacebar> to restart 3D viewer...");
 	}
 
-	/**
-	 * Draw progress bar
-	 */
-	void progressBar()
-	{
-//		int length = 100;	// total length
-//		int pos = p.setupProgress;	//current position
-//
-//		startHUD();
-//		for(int i=0; i<pos; i++)
-//		{
-//			p.p.pushMatrix();
-//			
-//			p.p.fill(140, 100, 255);
-//			float xPos = PApplet.map(i, 0, length, 0, screenWidth * 1.f);
-//			float inc = PApplet.map(2, 0, length, 0, screenWidth * 1.f) - PApplet.map(1, 0, length, 0, screenWidth*1.f);
-//			int x = -screenWidth/2 + (int)xPos;
-//			int y = -screenHeight/2+screenHeight/2;
-//
-//			p.p.translate(x, y, hudDistance);
-//			p.p.box(inc, inc*10.f, 1);    // Display 
-//			p.p.popMatrix();
-//		}
-	}
-	
 	void reset()
 	{
 		/* Window Modes */
@@ -1401,8 +1393,8 @@ class ML_Display
 		
 		selectedTime = -1; 
 		selectedCluster = -1;
-		currentSelectableTimeID = -1;
-		currentSelectableTime = null;
+		currentSelectableTimeSegmentID = -1;
+		currentSelectableTimeSegment = null;
 		selectedDate = -1; 
 		currentSelectableDate = -1;
 
@@ -1411,7 +1403,7 @@ class ML_Display
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 		datelineStart = 0.f;
 		datelineEnd = 0.f;
-		updateCurrentSelectableTime = true;
+		updateCurrentSelectableTimeSegment = true;
 		updateCurrentSelectableDate = true;
 		
 		timelineXOffset = -screenWidth/ 1.66f;
@@ -1420,7 +1412,7 @@ class ML_Display
 		datelineXOffset = timelineXOffset;
 		datelineYOffset = screenHeight * 0.2f;
 
-		selectableTimes = new ArrayList<SelectableTimeSegment>();
+		selectableTimeSegments = new ArrayList<SelectableTimeSegment>();
 		selectableDates = new ArrayList<SelectableDate>();
 
 		fieldTimelineCreated = false;
@@ -1436,18 +1428,17 @@ class ML_Display
 		timelineTransitionStartFrame = 0; 
 		timelineTransitionEndFrame = 0;
 		timelineTransitionLength = 30; 
-//		initTimelineTransitionLength = 30;
 		timelineStartTransitionStart = 0; 
 		timelineStartTransitionTarget = 0;
 		timelineEndTransitionStart = 0; 
 		timelineEndTransitionTarget = 0;
 		transitionScrollIncrement = 2000.f; 
-//		initTransitionScrollIncrement = 2000.f;	// Seconds to scroll per frame
 		transitionZoomInIncrement = 0.95f; transitionZoomOutIncrement = 1.052f;	
 
-		/* Clusters */
-		displayCluster = 0;
-
+		/* Library View */
+		libraryViewMode = 0;
+		currentDisplayCluster = 0;
+		
 		/* Messages */
 		messageStartFrame = -1;
 		metadataStartFrame = -1;
@@ -1491,150 +1482,6 @@ class ML_Display
 	}
 
 	/**
-	 * Display the main key commands on screen
-	 */
-	void displayControls(WMV_World p)
-	{
-		startHUD(p);
-		p.p.pushMatrix();
-		
-		float xPos = centerTextXOffset;
-		float yPos = topTextYOffset;			// Starting vertical position
-		
-		p.p.fill(0, 0, 255, 255);                        
-		p.p.textSize(largeTextSize);
-		p.p.text(" Keyboard Controls ", xPos, yPos, hudDistance);
-
-		xPos = midLeftTextXOffset;
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Main", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" R    Restart MultimediaLocator", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" CMD + q    Quit MultimediaLocator", xPos, yPos += lineWidth, hudDistance);
-
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Display", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" 1    Show/Hide Field Map   		  +SHIFT to Overlay", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" 2    Show/Hide Field Statistics    +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" 3    Show/Hide Cluster Statistics  +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" 4    Show/Hide Keyboard Controls   +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
-
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Time", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" T    Time Fading On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" D    Date Fading On/Off", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" space Pause On/Off   ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" &/*  Default Media Length - / +", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" SHIFT + Lt/Rt   Cycle Length - / +", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" SHIFT + Up/Dn   Current Time - / +", xPos, yPos += lineWidth, hudDistance);
-
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Time Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" t    Teleport to Earliest Time in Field", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" T    Move to Earliest Time in Field", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" d    Teleport to Earliest Time on Earliest Date", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" D    Move to Earliest Time on Earliest Date", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" n    Move to Next Time Segment in Field", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" N    Move to Next Time Segment in Cluster", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" b    Move to Previous Time Segment in Field", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" B    Move to Previous Time Segment in Cluster", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" l    Move to Next Date in Field", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" L    Move to Next Date in Cluster", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" k    Move to Previous Date in Field", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" K    Move to Previous Date in Cluster", xPos, yPos += lineWidth, hudDistance);
-
-		xPos = centerTextXOffset;
-		yPos = topTextYOffset;			// Starting vertical position
-
-		/* Model */
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Model", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" [ ]  Altitude Scaling Adjustment  + / - ", xPos, yPos += lineWidthVeryWide, hudDistance);
-//		p.p.text(" , .  Object Distance  + / - ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" - =  Object Distance  - / +      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" OPTION + -   Visible Angle  -      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" OPTION + =   Visible Angle  +      ", xPos, yPos += lineWidth, hudDistance);
-		
-		/* Graphics */
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Graphics", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" G    Angle Fading On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" H    Angle Thinning On/Off", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" P    Transparency Mode  On / Off      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" ( )  Blend Mode  - / +      ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" i h v  Hide images / panoramas / videos    ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" D    Video Mode On/Off ", xPos, yPos += lineWidth, hudDistance);
-
-		/* Movement */
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Movement", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" a d w s   Walk Left / Right / Forward / Backward ", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" Arrows    Turn Camera ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" q z  Zoom In / Out + / - ", xPos, yPos += lineWidth, hudDistance);
-		
-		/* Navigation */
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" >    Follow Timeline Only", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" .    Follow Timeline by Date", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" OPTION + .    Follow Dateline Only", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" E    Move to Nearest Cluster", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" W    Move to Nearest Cluster in Front", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" Q    Move to Next Cluster in Time", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" A    Move to Next Location in Memory", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" Z    Move to Random Cluster", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" U    Move to Next Video ", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" u    Teleport to Next Video ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" M    Move to Next Panorama ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" m    Teleport to Next Panorama ", xPos, yPos += lineWidth, hudDistance);
-//		p.p.text(" C    Lock Viewer to Nearest Cluster On/Off", xPos, yPos += lineWidthWide, hudDistance);
-//		p.p.text(" l    Look At Selected Media", xPos, yPos += lineWidth, hudDistance);
-//		p.p.text(" L    Look for Media", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" { }  Teleport to Next / Previous Field ", xPos, yPos += lineWidth, hudDistance);
-
-		xPos = midRightTextXOffset;
-		yPos = topTextYOffset;			// Starting vertical position
-
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Interaction", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" O    Selection Mode On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" S    Multi-Selection Mode On/Off", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" OPTION + s    Segment Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
-		p.p.text(" x    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" X    Deselect Media in Front", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" OPTION + x    Deselect All Media", xPos, yPos += lineWidth, hudDistance);
-
-		p.p.textSize(mediumTextSize);
-		p.p.text(" GPS Tracks", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" g    Load GPS Track from File", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" OPTION + g    Follow GPS Track", xPos, yPos += lineWidth, hudDistance);
-
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" `    Save Current View to Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" ~    Follow Memory Path", xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" Y    Clear Memory", xPos, yPos += lineWidth, hudDistance);
-
-		p.p.textSize(mediumTextSize);
-		p.p.text(" Output", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(smallTextSize);
-		p.p.text(" o    Set Image Output Folder", xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text(" p    Save Screen Image to Disk", xPos, yPos += lineWidth, hudDistance);
-
-		p.p.popMatrix();
-	}
-	
-	/**
 	 * Add message to queue
 	 * @param message Message to send
 	 */
@@ -1653,17 +1500,6 @@ class ML_Display
 			while(messages.size() > 16)
 				messages.remove(0);
 		}
-
-//		if(p.p.debug.print)
-//			System.out.println(message);
-	}
-	
-	/**
-	 * Clear previous messages
-	 */
-	void clearMessages()
-	{
-		messages = new ArrayList<String>();			
 	}
 	
 	/**
@@ -1728,14 +1564,6 @@ class ML_Display
 		p.p.popMatrix();
 	}
 	
-	/**
-	 * Clear previous metadata messages
-	 */
-	void clearMetadata()
-	{
-		metadata = new ArrayList<String>();							// Reset message list
-	}
-
 	/**
 	 * Show startup screen
 	 */
@@ -1804,414 +1632,127 @@ class ML_Display
 	}
 	
 	/**
-	 * Clear previous setup messages
+	 * Draw Library View
 	 */
-	void clearSetupMessages()
+	void displayLibraryView(WMV_World p)
 	{
-		startupMessages = new ArrayList<String>();
-	}
-	
-	/**
-	 * Reset (turn off) display modes and clear messages
-	 */
-	void resetDisplayModes()
-	{
-		displayView = 0;
-		clearMessages();
-		clearMetadata();
-	}
-	
-	 /**
-	  * Increment blendMode by given amount and call setBlendMode()
-	  * @param inc Increment to blendMode number
-	  */
-	public void changeBlendMode(WMV_World p, int inc) 
-	{
-		if(inc > 0)
-		{
-			if (blendMode+inc < numBlendModes) 	
-				blendMode += inc;
-			else 
-				blendMode = 0;
-		}
-		else if(inc < 0)
-		{
-			{
-				if (blendMode-inc >= 0) 
-					blendMode -= inc;
-				else 
-					blendMode = numBlendModes - 1;
-			}
-		}
+		WMV_Field f = p.getCurrentField();
+		WMV_Cluster c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
 
-		if(inc != 0)
-			setBlendMode(p, blendMode);
-	}
-
-	/**
-	 * Change effect of image alpha channel on blending
-	 * @param blendMode
-	 */
-	public void setBlendMode(WMV_World p, int blendMode) {
-		switch (blendMode) {
-		case 0:
-			p.p.blendMode(PApplet.BLEND);
-			break;
-
-		case 1:
-			p.p.blendMode(PApplet.ADD);
-			break;
-
-		case 2:
-			p.p.blendMode(PApplet.SUBTRACT);
-			break;
-
-		case 3:
-			p.p.blendMode(PApplet.DARKEST);
-			break;
-
-		case 4:
-			p.p.blendMode(PApplet.LIGHTEST);
-			break;
-
-		case 5:
-			p.p.blendMode(PApplet.DIFFERENCE);
-			break;
-
-		case 6:
-			p.p.blendMode(PApplet.EXCLUSION);
-			break;
-
-		case 7:
-			p.p.blendMode(PApplet.MULTIPLY);
-			break;
-
-		case 8:
-			p.p.blendMode(PApplet.SCREEN);
-			break;
-
-		case 9:
-			p.p.blendMode(PApplet.REPLACE);
-			break;
-
-		case 10:
-			// blend(HARD_LIGHT);
-			break;
-
-		case 11:
-			// blend(SOFT_LIGHT);
-			break;
-
-		case 12:
-			// blend(OVERLAY);
-			break;
-
-		case 13:
-			// blend(DODGE);
-			break;
-
-		case 14:
-			// blend(BURN);
-			break;
-		}
-
-		if (p.p.debugSettings.field)
-			System.out.println("blendMode:" + blendMode);
-	}
-	
-	/**
-	 * Show statistics of the current simulation
-	 */
-	void displayInfo(WMV_World p)
-	{
 		startHUD(p);
 		p.p.pushMatrix();
 		
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
 		
-		WMV_Field f = p.getCurrentField();
-		
-		if(p.viewer.getState().getCurrentClusterID() >= 0)
+		switch(libraryViewMode)
 		{
-			WMV_Cluster c = p.getCurrentCluster();
-//			float[] camTar = p.viewer.camera.target();
-
-			p.p.fill(0, 0, 255, 255);
-			p.p.textSize(largeTextSize);
-			p.p.text(" MultimediaLocator v0.9 ", xPos, yPos, hudDistance);
-			p.p.textSize(mediumTextSize);
-
-			xPos = midLeftTextXOffset;
-			
-			p.p.text(" Program Modes ", xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.textSize(smallTextSize);
-			p.p.text(" Orientation Mode: "+p.viewer.getSettings().orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" Alpha Mode:"+p.getState().alphaMode, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Time Fading: "+ p.getState().timeFading, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Altitude Scaling: "+p.settings.altitudeScaling, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Lock Media to Clusters:"+p.getState().lockMediaToClusters, xPos, yPos += lineWidth, hudDistance);
-		
-			p.p.textSize(mediumTextSize);
-			p.p.text(" Graphics ", xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.textSize(smallTextSize);
-			p.p.text(" Alpha:"+p.getState().alpha, xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" Default Media Length:"+p.settings.defaultMediaLength, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Media Angle Fading: "+p.viewer.getSettings().angleFading, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Media Angle Thinning: "+p.viewer.getSettings().angleThinning, xPos, yPos += lineWidth, hudDistance);
-			if(p.viewer.getSettings().angleThinning)
-				p.p.text(" Media Thinning Angle:"+p.viewer.getSettings().thinningAngle, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Image Size Factor:"+p.settings.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Subject Distance (m.):"+p.settings.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
-
-			xPos = centerTextXOffset;
-			yPos = topTextYOffset;			// Starting vertical position
-
-			p.p.textSize(mediumTextSize);
-			p.p.text(" Field", xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.textSize(smallTextSize);
-			p.p.text(" Name: "+f.getName(), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" ID: "+(p.viewer.getState().getField()+1)+" out of "+p.getFieldCount()+" Total Fields", xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Width (m.): "+f.getModel().getState().fieldWidth+" Length (m.): "+f.getModel().getState().fieldLength+" Height (m.): "+f.getModel().getState().fieldHeight, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Total Media: "+f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-			p.p.text(" Total Images: "+f.getImageCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-			p.p.text(" Total Panoramas: "+f.getPanoramaCount(), xPos, yPos += lineWidth, hudDistance);			// Doesn't check for dataMissing!!
-			p.p.text(" Total Videos: "+f.getVideoCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-			p.p.text(" Total Sounds: "+f.getSoundCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-			p.p.text(" Media Density per sq. m.: "+f.getModel().getState().mediaDensity, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Images Visible: "+f.getImagesVisible(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Images Seen: "+f.getImagesSeen(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Panoramas Visible: "+f.getPanoramasVisible(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Panoramas Seen: "+f.getPanoramasSeen(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Videos Visible: "+f.getVideosVisible(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Videos Seen: "+f.getVideosSeen(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Videos Playing: "+f.getVideosPlaying(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Videos Loaded: "+f.getVideosLoaded(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Sounds Audible: "+f.getSoundsAudible(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Sounds Playing: "+f.getSoundsPlaying(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Sounds Loaded: "+f.getSoundsLoaded(), xPos, yPos += lineWidth, hudDistance);
-			if(p.viewer.getSettings().orientationMode)
-				p.p.text(" Clusters Visible: "+p.viewer.getState().getClustersVisible()+"  (Orientation Mode)", xPos, yPos += lineWidth, hudDistance);
-
-			p.p.textSize(mediumTextSize);
-			p.p.text(" Model ", xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.textSize(smallTextSize);
-			
-			p.p.text(" Clusters:"+(f.getClusters().size()-f.getModel().getState().mergedClusters), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" Merged: "+f.getModel().getState().mergedClusters+" out of "+f.getClusters().size()+" Total", xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
-			if(p.settings.altitudeScaling)
-				p.p.text(" Altitude Scaling Factor: "+p.settings.altitudeScalingFactor+"  (Altitude Scaling)", xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text(" Clustering Method : "+ ( p.getState().hierarchical ? "Hierarchical" : "K-Means" ), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
-			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
-
-			p.p.textSize(mediumTextSize);
-			p.p.text(" Viewer ", xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.textSize(smallTextSize);
-			p.p.text(" Location, x: "+PApplet.round(p.viewer.getLocation().x)+" y:"+PApplet.round(p.viewer.getLocation().y)+" z:"+
-					 PApplet.round(p.viewer.getLocation().z), xPos, yPos += lineWidthVeryWide, hudDistance);		
-			p.p.text(" GPS Longitude: "+p.viewer.getGPSLocation().x+" Latitude:"+p.viewer.getGPSLocation().y, xPos, yPos += lineWidth, hudDistance);		
-
-			p.p.text(" Current Cluster: "+p.viewer.getState().getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text("   Media Points: "+c.getState().mediaCount, xPos, yPos += lineWidth, hudDistance);
-			p.p.text("   Media Segments: "+p.getCurrentCluster().segments.size(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
-			p.p.text("   Stitched Panoramas: "+p.getCurrentCluster().stitched.size(), xPos, yPos += lineWidth, hudDistance);
-			if(p.viewer.getAttractorClusterID() != -1)
-			{
-				p.p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Destination Media Points: "+p.getCurrentField().getCluster(p.viewer.getAttractorClusterID()).getState().mediaCount, xPos, yPos += lineWidth, hudDistance);
-				p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
-			}
-
-			if(p.p.debugSettings.viewer) 
-			{
-				p.p.text(" Debug: Current Attraction: "+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Current Acceleration: "+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Current Velocity: "+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Moving? " + p.viewer.getState().isMoving(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Slowing? " + p.viewer.isSlowing(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Halting? " + p.viewer.isHalting(), xPos, yPos += lineWidth, hudDistance);
-			}
-
-			if(p.p.debugSettings.viewer)
-			{
-				p.p.text(" Debug: X Orientation (Yaw):" + p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Y Orientation (Pitch):" + p.viewer.getYOrientation(), xPos, yPos += lineWidth, hudDistance);
-//				p.p.text(" Debug: Target Point x:" + camTar[0] + ", y:" + camTar[1] + ", z:" + camTar[2], xPos, yPos += lineWidth, hudDistance);
-			}
-			else
-			{
-				p.p.text(" Compass Direction:" + utilities.angleToCompass(p.viewer.getXOrientation())+" Angle: "+p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Vertical Direction:" + PApplet.degrees(p.viewer.getYOrientation()), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Zoom:"+p.viewer.getFieldOfView(), xPos, yPos += lineWidth, hudDistance);
-			}
-			p.p.text(" Field of View:"+p.viewer.getFieldOfView(), xPos, yPos += lineWidth, hudDistance);
-
-			xPos = midRightTextXOffset;
-			yPos = topTextYOffset;			// Starting vertical position
-
-			p.p.textSize(mediumTextSize);
-			p.p.text(" Time ", xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.textSize(smallTextSize);
-			p.p.text(" Time Mode: "+ ((p.p.world.getState().getTimeMode() == 0) ? "Cluster" : "Field"), xPos, yPos += lineWidthVeryWide, hudDistance);
-			
-			if(p.p.world.getState().getTimeMode() == 0)
-				p.p.text(" Current Field Time: "+ p.getState().currentTime, xPos, yPos += lineWidth, hudDistance);
-			if(p.p.world.getState().getTimeMode() == 1)
-				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().getState().currentTime, xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().getTimeline().timeline.size(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment(), xPos, yPos += lineWidth, hudDistance);
-			if(f.getTimeline().timeline.size() > 0 && p.viewer.getCurrentFieldTimeSegment() >= 0 && p.viewer.getCurrentFieldTimeSegment() < f.getTimeline().timeline.size())
-				p.p.text(" Upper: "+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()
-						+" Center:"+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
-						" Lower: "+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Current Cluster Timeline Segments: "+ p.getCurrentCluster().getTimeline().timeline.size(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text(" Field Dateline Segments: "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-			p.p.textSize(mediumTextSize);
-
-			if(p.p.debugSettings.memory)
-			{
-				if(p.p.debugSettings.detailed)
-				{
-					p.p.text("Total memory (bytes): " + p.p.debugSettings.totalMemory, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("Available processors (cores): "+p.p.debugSettings.availableProcessors, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("Maximum memory (bytes): " +  (p.p.debugSettings.maxMemory == Long.MAX_VALUE ? "no limit" : p.p.debugSettings.maxMemory), xPos, yPos += lineWidth, hudDistance); 
-					p.p.text("Total memory (bytes): " + p.p.debugSettings.totalMemory, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("Allocated memory (bytes): " + p.p.debugSettings.allocatedMemory, xPos, yPos += lineWidth, hudDistance);
-				}
-				p.p.text("Free memory (bytes): "+p.p.debugSettings.freeMemory, xPos, yPos += lineWidth, hudDistance);
-				p.p.text("Approx. usable free memory (bytes): " + p.p.debugSettings.approxUsableFreeMemory, xPos, yPos += lineWidth, hudDistance);
-			}			
-		}
-		
-		p.p.popMatrix();
-	}
-
-	/**
-	 * Draw cluster statistics display
-	 */
-	void displayCluster(WMV_World p)
-	{
-		startHUD(p);
-		p.p.pushMatrix();
-		
-		float xPos = centerTextXOffset;
-		float yPos = topTextYOffset;			// Starting vertical position
-		
-		WMV_Field f = p.getCurrentField();
-		WMV_Cluster c = p.getCurrentField().getCluster(displayCluster);	// Get the cluster to display info about
-
-		p.p.fill(0, 0, 255, 255);
-
-		p.p.textSize(veryLargeTextSize);
-		p.p.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
-//		p.p.text(" Cluster View", textXPos, textYPos, hudDistance);
-
-		p.p.textSize(largeTextSize);
-		WMV_Cluster cl = p.getCurrentCluster();
-		p.p.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.textSize(mediumTextSize);
-		if(c.getState().images.size() > 0)
-			p.p.text("   Images: "+ c.getState().images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		if(c.getState().panoramas.size() > 0)
-			p.p.text("   Panoramas: "+ c.getState().panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		if(c.getState().videos.size() > 0)
-			p.p.text("   Videos: "+ c.getState().videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
-//		if(c.sounds.size() > 0)
-//			p.p.text("     Sounds: "+ c.sounds.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-//		p.p.text("     Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
-//		p.p.text("     Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);
-//		p.p.text("     Empty: "+ c.isEmpty(), textXPos, textYPos += lineWidth, hudDistance);
-		p.p.text("   Location: "+ c.getLocation(), xPos, yPos += lineWidthVeryWide, hudDistance);
-		p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
-		p.p.text(" ", xPos, yPos += lineWidth, hudDistance);
-		p.p.text("   Media Segments: "+ c.segments.size(), xPos, yPos += lineWidth, hudDistance);
-		
-		if(c.getTimeline().timeline.size() > 0)
-		{
-			p.p.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
-			p.p.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += lineWidth, hudDistance);
-		}
-		if(c.getDateline() != null)
-			if(c.getDateline().size() > 0)
-				p.p.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-
-		if(p.getCurrentCluster() != null)
-		{
-//			p.p.text("   Auto Stitched Panoramas: "+p.getCurrentCluster().stitched360.size(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text("   Stitched Panoramas: "+p.getCurrentCluster().stitched.size(), xPos, yPos += lineWidth, hudDistance);
-
-//			p.p.text(" Current Cluster ID: "+p.viewer.getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.text("   Media Count: "+cl.mediaCount, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(cl.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
-		}
-		
-		if(p.p.debugSettings.field || p.p.debugSettings.main)
-		{
-			if(c != null)
-			{
+			case 0:
+	
+				p.p.fill(0, 0, 255, 255);
+	
+				p.p.textSize(veryLargeTextSize);
+				p.p.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
+	
 				p.p.textSize(largeTextSize);
-				p.p.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistance);
+				WMV_Cluster cl = p.getCurrentCluster();
+				p.p.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistance);
 				p.p.textSize(mediumTextSize);
-				if(c.getDateline() != null)
+				if(c.getState().images.size() > 0)
+					p.p.text("   Images: "+ c.getState().images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				if(c.getState().panoramas.size() > 0)
+					p.p.text("   Panoramas: "+ c.getState().panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				if(c.getState().videos.size() > 0)
+					p.p.text("   Videos: "+ c.getState().videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				p.p.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
+	//			if(c.sounds.size() > 0)
+	//				p.p.text("     Sounds: "+ c.sounds.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+	//			p.p.text("     Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
+	//			p.p.text("     Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);
+	//			p.p.text("     Empty: "+ c.isEmpty(), textXPos, textYPos += lineWidth, hudDistance);
+				p.p.text("   Location: "+ c.getLocation(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
+				p.p.text(" ", xPos, yPos += lineWidth, hudDistance);
+				p.p.text("   Media Segments: "+ c.segments.size(), xPos, yPos += lineWidth, hudDistance);
+	
+				if(c.getTimeline().timeline.size() > 0)
 				{
+					p.p.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+					p.p.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += lineWidth, hudDistance);
+				}
+				if(c.getDateline() != null)
 					if(c.getDateline().size() > 0)
+						p.p.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
+	
+				if(p.getCurrentCluster() != null)
+				{
+					p.p.text("   Stitched Panoramas: "+p.getCurrentCluster().stitched.size(), xPos, yPos += lineWidth, hudDistance);
+				}
+	
+				if(p.p.debugSettings.field || p.p.debugSettings.main)
+				{
+					if(c != null)
 					{
-						int clusterDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
-						p.p.text(" Current Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-						p.p.text("   ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
-						p.p.text("   Date: "+ (clusterDate+1) +" of "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-						if(c.getTimelines().size() > clusterDate)
-							p.p.text("  Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.getTimelines().get(clusterDate).timeline.size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
-						else
-							p.p.text("ERROR: No Cluster Timeline for Current Cluster Date ("+clusterDate+")", xPos, yPos += lineWidth, hudDistance);
+						p.p.textSize(largeTextSize);
+						p.p.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistance);
+						p.p.textSize(mediumTextSize);
+						if(c.getDateline() != null)
+						{
+							if(c.getDateline().size() > 0)
+							{
+								int clusterDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
+								p.p.text(" Current Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
+								p.p.text("   ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+								p.p.text("   Date: "+ (clusterDate+1) +" of "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
+								if(c.getTimelines().size() > clusterDate)
+									p.p.text("  Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.getTimelines().get(clusterDate).timeline.size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
+								else
+									p.p.text("ERROR: No Cluster Timeline for Current Cluster Date ("+clusterDate+")", xPos, yPos += lineWidth, hudDistance);
+							}
+						}
+					}		
+	
+					p.p.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
+					p.p.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
+					if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
+					p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
+					p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
+					p.p.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
+	
+					if(f.getDateline() != null)
+					{
+						p.p.textSize(largeTextSize);
+						p.p.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+						p.p.textSize(mediumTextSize);
+						if(f.getDateline().size() > 0)
+						{
+							int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
+							p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
+							p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+							p.p.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
+							p.p.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
+									+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
+						}
 					}
 				}
-			}		
-			
-			p.p.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
-			p.p.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
-			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
-			p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
-			p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
-			p.p.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
-			
-			if(f.getDateline() != null)
-			{
-				p.p.textSize(largeTextSize);
-				p.p.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-				p.p.textSize(mediumTextSize);
-				if(f.getDateline().size() > 0)
+	
+				if(p.viewer.getAttractorClusterID() != -1)
 				{
-//					p.p.text(" Clusters: "+ f.getClusters().size()+"  Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
-					int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
-					p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
-					p.p.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-					p.p.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
-							+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
+					p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
+					p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
+					if(p.p.debugSettings.viewer) 
+					{
+						p.p.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
+						p.p.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);
+						p.p.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistance);
+					}
 				}
-			}
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
 		}
-		
-		if(p.viewer.getAttractorClusterID() != -1)
-		{
-			p.p.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
-			p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
-			if(p.p.debugSettings.viewer) 
-			{
-				p.p.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);
-				p.p.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistance);
-			}
-		}
-
 		p.p.popMatrix();
 		
 		drawClusterImages(p, c.getImages(p.getCurrentField().getImages()));
@@ -2279,21 +1820,21 @@ class ML_Display
 				displayView = 0;
 				window.optSceneView.setSelected(true);
 				window.optMapView.setSelected(false);
-				window.optClusterView.setSelected(false);
+				window.optLibraryView.setSelected(false);
 				break;
 			case 1:	
 				displayView = 1;
 				if(!initializedMaps) map2D.initializeMaps(p);
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(true);
-				window.optClusterView.setSelected(false);
+				window.optLibraryView.setSelected(false);
 				break;
 			case 2:	
 				displayView = 2;
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(false);
-				window.optClusterView.setSelected(true);
-				displayCluster = p.viewer.getState().getCurrentClusterID();
+				window.optLibraryView.setSelected(true);
+				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
 				break;
 			case 3:	
 				displayView = 3;
@@ -2302,6 +1843,40 @@ class ML_Display
 //				window.optClusterView.setSelected(true);
 				break;
 		}
+	}
+
+	/**
+	 * Clear previous messages
+	 */
+	void clearMessages()
+	{
+		messages = new ArrayList<String>();			
+	}
+	
+	/**
+	 * Clear previous metadata messages
+	 */
+	void clearMetadata()
+	{
+		metadata = new ArrayList<String>();							// Reset message list
+	}
+
+	/**
+	 * Clear previous setup messages
+	 */
+	void clearSetupMessages()
+	{
+		startupMessages = new ArrayList<String>();
+	}
+	
+	/**
+	 * Reset (turn off) display modes and clear messages
+	 */
+	void resetDisplayModes()
+	{
+		displayView = 0;
+		clearMessages();
+		clearMetadata();
 	}
 
 	private class SelectableTimeSegment
@@ -2325,6 +1900,105 @@ class ML_Display
 			bottomEdge = newBottomEdge;
 		}
 		
+		 /**
+		  * Increment blendMode by given amount and call setBlendMode()
+		  * @param inc Increment to blendMode number
+		  */
+		public void changeBlendMode(WMV_World p, int inc) 
+		{
+			if(inc > 0)
+			{
+				if (blendMode+inc < numBlendModes) 	
+					blendMode += inc;
+				else 
+					blendMode = 0;
+			}
+			else if(inc < 0)
+			{
+				{
+					if (blendMode-inc >= 0) 
+						blendMode -= inc;
+					else 
+						blendMode = numBlendModes - 1;
+				}
+			}
+
+			if(inc != 0)
+				setBlendMode(p, blendMode);
+		}
+
+		/**
+		 * Change effect of image alpha channel on blending
+		 * @param blendMode
+		 */
+		public void setBlendMode(WMV_World p, int blendMode) {
+			switch (blendMode) {
+			case 0:
+				p.p.blendMode(PApplet.BLEND);
+				break;
+
+			case 1:
+				p.p.blendMode(PApplet.ADD);
+				break;
+
+			case 2:
+				p.p.blendMode(PApplet.SUBTRACT);
+				break;
+
+			case 3:
+				p.p.blendMode(PApplet.DARKEST);
+				break;
+
+			case 4:
+				p.p.blendMode(PApplet.LIGHTEST);
+				break;
+
+			case 5:
+				p.p.blendMode(PApplet.DIFFERENCE);
+				break;
+
+			case 6:
+				p.p.blendMode(PApplet.EXCLUSION);
+				break;
+
+			case 7:
+				p.p.blendMode(PApplet.MULTIPLY);
+				break;
+
+			case 8:
+				p.p.blendMode(PApplet.SCREEN);
+				break;
+
+			case 9:
+				p.p.blendMode(PApplet.REPLACE);
+				break;
+
+			case 10:
+				// blend(HARD_LIGHT);
+				break;
+
+			case 11:
+				// blend(SOFT_LIGHT);
+				break;
+
+			case 12:
+				// blend(OVERLAY);
+				break;
+
+			case 13:
+				// blend(DODGE);
+				break;
+
+			case 14:
+				// blend(BURN);
+				break;
+			}
+
+			if (p.p.debugSettings.field)
+				System.out.println("blendMode:" + blendMode);
+		}
+
+
 		public int getID()
 		{
 			return id;
@@ -2437,11 +2111,328 @@ class ML_Display
 		return selectedCluster;	
 	}
 	
-	public int getCurrentSelectableTime()
+	public int getCurrentSelectableTimeSegment()
 	{
-		return currentSelectableTimeID;
+		return currentSelectableTimeSegmentID;
 	}
 	
+	/**
+	 * Display the main key commands on screen
+	 */
+//	void displayControls(WMV_World p)
+//	{
+//		startHUD(p);
+//		p.p.pushMatrix();
+//		
+//		float xPos = centerTextXOffset;
+//		float yPos = topTextYOffset;			// Starting vertical position
+//		
+//		p.p.fill(0, 0, 255, 255);                        
+//		p.p.textSize(largeTextSize);
+//		p.p.text(" Keyboard Controls ", xPos, yPos, hudDistance);
+//
+//		xPos = midLeftTextXOffset;
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Main", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" R    Restart MultimediaLocator", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" CMD + q    Quit MultimediaLocator", xPos, yPos += lineWidth, hudDistance);
+//
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Display", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" 1    Show/Hide Field Map   		  +SHIFT to Overlay", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" 2    Show/Hide Field Statistics    +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" 3    Show/Hide Cluster Statistics  +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" 4    Show/Hide Keyboard Controls   +SHIFT to Overlay", xPos, yPos += lineWidth, hudDistance);
+//
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Time", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" T    Time Fading On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" D    Date Fading On/Off", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" space Pause On/Off   ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" &/*  Default Media Length - / +", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" SHIFT + Lt/Rt   Cycle Length - / +", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" SHIFT + Up/Dn   Current Time - / +", xPos, yPos += lineWidth, hudDistance);
+//
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Time Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" t    Teleport to Earliest Time in Field", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" T    Move to Earliest Time in Field", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" d    Teleport to Earliest Time on Earliest Date", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" D    Move to Earliest Time on Earliest Date", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" n    Move to Next Time Segment in Field", xPos, yPos += lineWidthWide, hudDistance);
+//		p.p.text(" N    Move to Next Time Segment in Cluster", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" b    Move to Previous Time Segment in Field", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" B    Move to Previous Time Segment in Cluster", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" l    Move to Next Date in Field", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" L    Move to Next Date in Cluster", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" k    Move to Previous Date in Field", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" K    Move to Previous Date in Cluster", xPos, yPos += lineWidth, hudDistance);
+//
+//		xPos = centerTextXOffset;
+//		yPos = topTextYOffset;			// Starting vertical position
+//
+//		/* Model */
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Model", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" [ ]  Altitude Scaling Adjustment  + / - ", xPos, yPos += lineWidthVeryWide, hudDistance);
+////		p.p.text(" , .  Object Distance  + / - ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" - =  Object Distance  - / +      ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" OPTION + -   Visible Angle  -      ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" OPTION + =   Visible Angle  +      ", xPos, yPos += lineWidth, hudDistance);
+//		
+//		/* Graphics */
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Graphics", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" G    Angle Fading On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" H    Angle Thinning On/Off", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" P    Transparency Mode  On / Off      ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" ( )  Blend Mode  - / +      ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" i h v  Hide images / panoramas / videos    ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" D    Video Mode On/Off ", xPos, yPos += lineWidth, hudDistance);
+//
+//		/* Movement */
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Movement", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" a d w s   Walk Left / Right / Forward / Backward ", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" Arrows    Turn Camera ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" q z  Zoom In / Out + / - ", xPos, yPos += lineWidth, hudDistance);
+//		
+//		/* Navigation */
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Navigation", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" >    Follow Timeline Only", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" .    Follow Timeline by Date", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" OPTION + .    Follow Dateline Only", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" E    Move to Nearest Cluster", xPos, yPos += lineWidthWide, hudDistance);
+//		p.p.text(" W    Move to Nearest Cluster in Front", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" Q    Move to Next Cluster in Time", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" A    Move to Next Location in Memory", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" Z    Move to Random Cluster", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" U    Move to Next Video ", xPos, yPos += lineWidthWide, hudDistance);
+//		p.p.text(" u    Teleport to Next Video ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" M    Move to Next Panorama ", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" m    Teleport to Next Panorama ", xPos, yPos += lineWidth, hudDistance);
+////		p.p.text(" C    Lock Viewer to Nearest Cluster On/Off", xPos, yPos += lineWidthWide, hudDistance);
+////		p.p.text(" l    Look At Selected Media", xPos, yPos += lineWidth, hudDistance);
+////		p.p.text(" L    Look for Media", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" { }  Teleport to Next / Previous Field ", xPos, yPos += lineWidth, hudDistance);
+//
+//		xPos = midRightTextXOffset;
+//		yPos = topTextYOffset;			// Starting vertical position
+//
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Interaction", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" O    Selection Mode On/Off", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" S    Multi-Selection Mode On/Off", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" OPTION + s    Segment Selection Mode On/Off", xPos, yPos += lineWidthWide, hudDistance);
+//		p.p.text(" x    Select Media in Front", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" X    Deselect Media in Front", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" OPTION + x    Deselect All Media", xPos, yPos += lineWidth, hudDistance);
+//
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" GPS Tracks", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" g    Load GPS Track from File", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" OPTION + g    Follow GPS Track", xPos, yPos += lineWidth, hudDistance);
+//
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" `    Save Current View to Memory", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" ~    Follow Memory Path", xPos, yPos += lineWidth, hudDistance);
+//		p.p.text(" Y    Clear Memory", xPos, yPos += lineWidth, hudDistance);
+//
+//		p.p.textSize(mediumTextSize);
+//		p.p.text(" Output", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.textSize(smallTextSize);
+//		p.p.text(" o    Set Image Output Folder", xPos, yPos += lineWidthVeryWide, hudDistance);
+//		p.p.text(" p    Save Screen Image to Disk", xPos, yPos += lineWidth, hudDistance);
+//
+//		p.p.popMatrix();
+//	}
+	
+	/**
+	 * Show statistics of the current simulation
+	 */
+//	void displayStatisticsView(WMV_World p)
+//	{
+//		startHUD(p);
+//		p.p.pushMatrix();
+//		
+//		float xPos = centerTextXOffset;
+//		float yPos = topTextYOffset;			// Starting vertical position
+//		
+//		WMV_Field f = p.getCurrentField();
+//		
+//		if(p.viewer.getState().getCurrentClusterID() >= 0)
+//		{
+//			WMV_Cluster c = p.getCurrentCluster();
+////			float[] camTar = p.viewer.camera.target();
+//
+//			p.p.fill(0, 0, 255, 255);
+//			p.p.textSize(largeTextSize);
+//			p.p.text(" MultimediaLocator v0.9 ", xPos, yPos, hudDistance);
+//			p.p.textSize(mediumTextSize);
+//
+//			xPos = midLeftTextXOffset;
+//			
+//			p.p.text(" Program Modes ", xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.textSize(smallTextSize);
+//			p.p.text(" Orientation Mode: "+p.viewer.getSettings().orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.text(" Alpha Mode:"+p.getState().alphaMode, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Time Fading: "+ p.getState().timeFading, xPos, yPos += lineWidth, hudDistance);
+////			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Altitude Scaling: "+p.settings.altitudeScaling, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Lock Media to Clusters:"+p.getState().lockMediaToClusters, xPos, yPos += lineWidth, hudDistance);
+//		
+//			p.p.textSize(mediumTextSize);
+//			p.p.text(" Graphics ", xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.textSize(smallTextSize);
+//			p.p.text(" Alpha:"+p.getState().alpha, xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.text(" Default Media Length:"+p.settings.defaultMediaLength, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Media Angle Fading: "+p.viewer.getSettings().angleFading, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Media Angle Thinning: "+p.viewer.getSettings().angleThinning, xPos, yPos += lineWidth, hudDistance);
+//			if(p.viewer.getSettings().angleThinning)
+//				p.p.text(" Media Thinning Angle:"+p.viewer.getSettings().thinningAngle, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Image Size Factor:"+p.settings.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Subject Distance (m.):"+p.settings.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
+////			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
+//
+//			xPos = centerTextXOffset;
+//			yPos = topTextYOffset;			// Starting vertical position
+//
+//			p.p.textSize(mediumTextSize);
+//			p.p.text(" Field", xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.textSize(smallTextSize);
+//			p.p.text(" Name: "+f.getName(), xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.text(" ID: "+(p.viewer.getState().getField()+1)+" out of "+p.getFieldCount()+" Total Fields", xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Width (m.): "+f.getModel().getState().fieldWidth+" Length (m.): "+f.getModel().getState().fieldLength+" Height (m.): "+f.getModel().getState().fieldHeight, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Total Media: "+f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
+//			p.p.text(" Total Images: "+f.getImageCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
+//			p.p.text(" Total Panoramas: "+f.getPanoramaCount(), xPos, yPos += lineWidth, hudDistance);			// Doesn't check for dataMissing!!
+//			p.p.text(" Total Videos: "+f.getVideoCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
+//			p.p.text(" Total Sounds: "+f.getSoundCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
+//			p.p.text(" Media Density per sq. m.: "+f.getModel().getState().mediaDensity, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Images Visible: "+f.getImagesVisible(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Images Seen: "+f.getImagesSeen(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Panoramas Visible: "+f.getPanoramasVisible(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Panoramas Seen: "+f.getPanoramasSeen(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Videos Visible: "+f.getVideosVisible(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Videos Seen: "+f.getVideosSeen(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Videos Playing: "+f.getVideosPlaying(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Videos Loaded: "+f.getVideosLoaded(), xPos, yPos += lineWidth, hudDistance);
+////			p.p.text(" Sounds Audible: "+f.getSoundsAudible(), xPos, yPos += lineWidth, hudDistance);
+////			p.p.text(" Sounds Playing: "+f.getSoundsPlaying(), xPos, yPos += lineWidth, hudDistance);
+////			p.p.text(" Sounds Loaded: "+f.getSoundsLoaded(), xPos, yPos += lineWidth, hudDistance);
+//			if(p.viewer.getSettings().orientationMode)
+//				p.p.text(" Clusters Visible: "+p.viewer.getState().getClustersVisible()+"  (Orientation Mode)", xPos, yPos += lineWidth, hudDistance);
+//
+//			p.p.textSize(mediumTextSize);
+//			p.p.text(" Model ", xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.textSize(smallTextSize);
+//			
+//			p.p.text(" Clusters:"+(f.getClusters().size()-f.getModel().getState().mergedClusters), xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.text(" Merged: "+f.getModel().getState().mergedClusters+" out of "+f.getClusters().size()+" Total", xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
+//			if(p.settings.altitudeScaling)
+//				p.p.text(" Altitude Scaling Factor: "+p.settings.altitudeScalingFactor+"  (Altitude Scaling)", xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.text(" Clustering Method : "+ ( p.getState().hierarchical ? "Hierarchical" : "K-Means" ), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
+//			if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
+//
+//			p.p.textSize(mediumTextSize);
+//			p.p.text(" Viewer ", xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.textSize(smallTextSize);
+//			p.p.text(" Location, x: "+PApplet.round(p.viewer.getLocation().x)+" y:"+PApplet.round(p.viewer.getLocation().y)+" z:"+
+//					 PApplet.round(p.viewer.getLocation().z), xPos, yPos += lineWidthVeryWide, hudDistance);		
+//			p.p.text(" GPS Longitude: "+p.viewer.getGPSLocation().x+" Latitude:"+p.viewer.getGPSLocation().y, xPos, yPos += lineWidth, hudDistance);		
+//
+//			p.p.text(" Current Cluster: "+p.viewer.getState().getCurrentClusterID(), xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.text("   Media Points: "+c.getState().mediaCount, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text("   Media Segments: "+p.getCurrentCluster().segments.size(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text("   Stitched Panoramas: "+p.getCurrentCluster().stitched.size(), xPos, yPos += lineWidth, hudDistance);
+//			if(p.viewer.getAttractorClusterID() != -1)
+//			{
+//				p.p.text(" Destination Cluster : "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Destination Media Points: "+p.getCurrentField().getCluster(p.viewer.getAttractorClusterID()).getState().mediaCount, xPos, yPos += lineWidth, hudDistance);
+//				p.p.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
+//			}
+//
+//			if(p.p.debugSettings.viewer) 
+//			{
+//				p.p.text(" Debug: Current Attraction: "+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Debug: Current Acceleration: "+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Debug: Current Velocity: "+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Debug: Moving? " + p.viewer.getState().isMoving(), xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Debug: Slowing? " + p.viewer.isSlowing(), xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Debug: Halting? " + p.viewer.isHalting(), xPos, yPos += lineWidth, hudDistance);
+//			}
+//
+//			if(p.p.debugSettings.viewer)
+//			{
+//				p.p.text(" Debug: X Orientation (Yaw):" + p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Debug: Y Orientation (Pitch):" + p.viewer.getYOrientation(), xPos, yPos += lineWidth, hudDistance);
+////				p.p.text(" Debug: Target Point x:" + camTar[0] + ", y:" + camTar[1] + ", z:" + camTar[2], xPos, yPos += lineWidth, hudDistance);
+//			}
+//			else
+//			{
+//				p.p.text(" Compass Direction:" + utilities.angleToCompass(p.viewer.getXOrientation())+" Angle: "+p.viewer.getXOrientation(), xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Vertical Direction:" + PApplet.degrees(p.viewer.getYOrientation()), xPos, yPos += lineWidth, hudDistance);
+//				p.p.text(" Zoom:"+p.viewer.getFieldOfView(), xPos, yPos += lineWidth, hudDistance);
+//			}
+//			p.p.text(" Field of View:"+p.viewer.getFieldOfView(), xPos, yPos += lineWidth, hudDistance);
+//
+//			xPos = midRightTextXOffset;
+//			yPos = topTextYOffset;			// Starting vertical position
+//
+//			p.p.textSize(mediumTextSize);
+//			p.p.text(" Time ", xPos, yPos += lineWidthVeryWide, hudDistance);
+//			p.p.textSize(smallTextSize);
+//			p.p.text(" Time Mode: "+ ((p.p.world.getState().getTimeMode() == 0) ? "Cluster" : "Field"), xPos, yPos += lineWidthVeryWide, hudDistance);
+//			
+//			if(p.p.world.getState().getTimeMode() == 0)
+//				p.p.text(" Current Field Time: "+ p.getState().currentTime, xPos, yPos += lineWidth, hudDistance);
+//			if(p.p.world.getState().getTimeMode() == 1)
+//				p.p.text(" Current Cluster Time: "+ p.getCurrentCluster().getState().currentTime, xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Current Field Timeline Segments: "+ p.getCurrentField().getTimeline().timeline.size(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Current Field Time Segment: "+ p.viewer.getCurrentFieldTimeSegment(), xPos, yPos += lineWidth, hudDistance);
+//			if(f.getTimeline().timeline.size() > 0 && p.viewer.getCurrentFieldTimeSegment() >= 0 && p.viewer.getCurrentFieldTimeSegment() < f.getTimeline().timeline.size())
+//				p.p.text(" Upper: "+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()
+//						+" Center:"+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
+//						" Lower: "+f.getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Current Cluster Timeline Segments: "+ p.getCurrentCluster().getTimeline().timeline.size(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.text(" Field Dateline Segments: "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
+//			p.p.textSize(mediumTextSize);
+//
+//			if(p.p.debugSettings.memory)
+//			{
+//				if(p.p.debugSettings.detailed)
+//				{
+//					p.p.text("Total memory (bytes): " + p.p.debugSettings.totalMemory, xPos, yPos += lineWidth, hudDistance);
+//					p.p.text("Available processors (cores): "+p.p.debugSettings.availableProcessors, xPos, yPos += lineWidth, hudDistance);
+//					p.p.text("Maximum memory (bytes): " +  (p.p.debugSettings.maxMemory == Long.MAX_VALUE ? "no limit" : p.p.debugSettings.maxMemory), xPos, yPos += lineWidth, hudDistance); 
+//					p.p.text("Total memory (bytes): " + p.p.debugSettings.totalMemory, xPos, yPos += lineWidth, hudDistance);
+//					p.p.text("Allocated memory (bytes): " + p.p.debugSettings.allocatedMemory, xPos, yPos += lineWidth, hudDistance);
+//				}
+//				p.p.text("Free memory (bytes): "+p.p.debugSettings.freeMemory, xPos, yPos += lineWidth, hudDistance);
+//				p.p.text("Approx. usable free memory (bytes): " + p.p.debugSettings.approxUsableFreeMemory, xPos, yPos += lineWidth, hudDistance);
+//			}			
+//		}
+//		
+//		p.p.popMatrix();
+//	}
+
 //	void setFullScreen(boolean newState)
 //	{
 //		if(newState && !fullscreen)			// Switch to Fullscreen
@@ -2457,5 +2448,31 @@ class ML_Display
 //		
 //		fullscreen = newState;
 //	}
+	
+	/**
+	 * Draw progress bar
+	 */
+//	void progressBar()
+//	{
+//		int length = 100;	// total length
+//		int pos = p.setupProgress;	//current position
+//
+//		startHUD();
+//		for(int i=0; i<pos; i++)
+//		{
+//			p.p.pushMatrix();
+//			
+//			p.p.fill(140, 100, 255);
+//			float xPos = PApplet.map(i, 0, length, 0, screenWidth * 1.f);
+//			float inc = PApplet.map(2, 0, length, 0, screenWidth * 1.f) - PApplet.map(1, 0, length, 0, screenWidth*1.f);
+//			int x = -screenWidth/2 + (int)xPos;
+//			int y = -screenHeight/2+screenHeight/2;
+//
+//			p.p.translate(x, y, hudDistance);
+//			p.p.box(inc, inc*10.f, 1);    // Display 
+//			p.p.popMatrix();
+//		}
+//	}
+
 }
 

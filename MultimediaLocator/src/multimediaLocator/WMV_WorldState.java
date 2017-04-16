@@ -5,7 +5,7 @@ package multimediaLocator;
  * @author davidgordon
  *
  */
-public class WMV_WorldState 
+public class WMV_WorldState
 {
 	/* Clustering Modes */
 	public boolean hierarchical = false;			// Use hierarchical clustering (true) or k-means clustering (false) 
@@ -22,10 +22,10 @@ public class WMV_WorldState
 	/* Graphics */
 	public float hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera		-- Obsolete soon?
 	
-	public boolean displayTerrain = true;					// Show ground as wireframe grid
+	public boolean displayTerrain = true;				// Show ground as wireframe grid
 	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
 	public float alpha = 195.f;							// Transparency
-	public boolean beginFadingAlpha = false, fadingAlpha = false;
+	public boolean beginFadingAlpha = false, fadingAlpha = false;	// -- Obsolete??
 	public int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
 	public float fadingAlphaStart, fadingAlphaTarget;
 
@@ -34,6 +34,13 @@ public class WMV_WorldState
 	public boolean showMediaToCluster = false;			// Draw line from each media point to cluster
 	public boolean showCaptureToMedia = false;			// Draw line from each media point to its capture location
 	public boolean showCaptureToCluster = false;		// Draw line from each media capture location to associated cluster
+
+	public boolean fadingTerrainAlpha = false, waitingToFadeInTerrainAlpha = false;		
+	public float terrainAlpha = 0.f, fadingTerrainStart = 0.f, fadingTerrainTarget = 0.f;
+	public int fadingTerrainStartFrame = 0, fadingTerrainEndFrame = 0; 
+	public final int fadingTerrainLength = 20; 
+//	public boolean fadedOutTerrain = true;			// Recently faded out
+//	public boolean fadedInTerrain = false;
 
 	/* Clusters */  
 	public boolean mergeClusters = true;				// Merge nearby clusters?

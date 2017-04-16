@@ -715,7 +715,7 @@ public class WMV_Field
 	/**
 	 * Gradually fade all media brightness to zero
 	 */
-	public void fadeOutMedia()
+	public void fadeOutAllMedia()
 	{
 		if(debugSettings.field) System.out.println("Fading out media...");
 
@@ -727,14 +727,12 @@ public class WMV_Field
 
 		for (WMV_Video v : videos) 
 			v.fadeOut();
-		
-//		p.fadeOutGrid();
 	}
 
 	/**
 	 * Immediately set all media brightness to zero
 	 */
-	public void blackoutMedia()
+	public void blackoutAllMedia()
 	{
 		if(debugSettings.field) System.out.println("Fading out media...");
 

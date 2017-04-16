@@ -714,6 +714,7 @@ public class WMV_Viewer
 				{
 					setLocation( c.getLocation() );
 					setCurrentCluster(dest, fieldTimeSegment);
+					if(p.state.waitingToFadeInTerrainAlpha) p.fadeInTerrain();
 				}
 			}
 			else 
@@ -757,7 +758,6 @@ public class WMV_Viewer
 				WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
 				state.teleportGoalCluster = goalSegment.getClusterID();
 				newLocation = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();
-//				setCurrentCluster( state.teleportGoalCluster, goalSegment.getFieldTimelineID() );
 			}
 			else
 			{
@@ -1086,7 +1086,9 @@ public class WMV_Viewer
 	 */
 	public void startTeleport(int newField) 
 	{
-		currentField.fadeOutMedia();
+		p.fadeOutAllMedia();
+//		getCurrentField().fadeOutAllMedia();
+//		fadeOutGrid();
 
 		state.teleporting = true;
 		state.teleportStart = worldState.frameCount;
@@ -2821,7 +2823,7 @@ public class WMV_Viewer
 			if( !currentField.mediaAreFading() )			// Once no more images are fading
 			{
 				if(debugSettings.viewer) System.out.println(" Media finished fading...");
-
+				
 				if(state.following && path.size() > 0)
 				{
 					setCurrentCluster( getNearestCluster(true), -1 );
@@ -2863,13 +2865,18 @@ public class WMV_Viewer
 						setCurrentCluster( getNearestCluster(true), -1 );
 					}
 				}
+				
 				if(state.movingToAttractor)
 				{
 					state.movingToAttractor = false;
 					setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
 
-					currentField.clearAllAttractors();	// Clear current attractors
+					currentField.clearAllAttractors();						// Clear current attractors
 				}
+				
+				System.out.println("p.state.waitingToFadeInTerrainAlpha:"+p.state.waitingToFadeInTerrainAlpha);
+				if(p.state.waitingToFadeInTerrainAlpha) 		// Fade in terrain
+					p.fadeInTerrain();
 			}
 			else
 			{
@@ -3974,6 +3981,7 @@ public class WMV_Viewer
 			{
 				if(debugSettings.viewer) System.out.println("New current cluster is null!");
 			}
+			
 		}
 	}
 

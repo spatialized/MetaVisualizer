@@ -199,7 +199,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		display.resetDisplayModes();			// Reset display view and clear messages
 		display.displayClusteringInfo(this);
 		
-		world.getCurrentField().blackoutMedia();	// Blackout all media
+		world.getCurrentField().blackoutAllMedia();	// Blackout all media
 	}
 	
 	/**
@@ -225,7 +225,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		state.running = true;	
 		
 		world.viewer.setCurrentCluster( world.viewer.getNearestCluster(false), -1 );
-		world.getCurrentField().blackoutMedia();
+		world.getCurrentField().blackoutAllMedia();
 	}
 
 	/**

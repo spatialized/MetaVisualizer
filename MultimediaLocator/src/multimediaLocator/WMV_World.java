@@ -96,9 +96,10 @@ public class WMV_World
 		viewer.updateState(settings, state);
 		if(moveToFirstTimeSegment)
 			viewer.moveToFirstTimeSegment(false);
-		viewer.updateNavigation();												// Update navigation
+		viewer.updateNavigation();									// Update navigation
 
 		p.enteredField = true;
+		state.waitingToFadeInTerrainAlpha = true;
 	}
 
 	/**
@@ -109,6 +110,15 @@ public class WMV_World
 		state.frameCount = p.frameCount;
 		viewer.updateState(settings, state);
 		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
+		
+		if(state.displayTerrain)
+		{
+//			if(!state.fadingTerrainAlpha && state.terrainAlpha == 0.f)
+//				fadeInTerrain();
+			
+//			System.out.println("state.fadingTerrainAlpha:"+state.fadingTerrainAlpha);
+//			System.out.println("state.terrainAlpha:"+state.terrainAlpha);
+		}
 	}
 	
 	/**
@@ -152,7 +162,8 @@ public class WMV_World
 		/* 2D Display */
 		p.display.display(this);										// Draw 2D display after 3D graphics
 		
-		if(state.fadingAlpha) updateFadingAlpha();				// Fade alpha
+		if(state.fadingAlpha) updateFadingAlpha();			// Fade alpha	-- Obsolete??
+		if(state.fadingTerrainAlpha) updateFadingTerrainAlpha();			// Fade grid
 
 		if(viewer.getSettings().mouseNavigation)
 			input.updateMouseNavigation(viewer, p.mouseX, p.mouseY, p.frameCount);
@@ -211,18 +222,6 @@ public class WMV_World
 			}
 		}
 
-//		for(ArrayList<PVector> row : gridPoints)		// -- Method too slow: fixed by fewer points??
-//		{
-//			for(PVector pv : row)
-//			{
-//				int nearestClusterID = getCurrentField().getNearestClusterToPoint(pv);	// Find nearest cluster ID
-//				WMV_Cluster c = getCurrentField().getCluster( nearestClusterID );
-//				PVector cLoc = c.getLocation();
-//				if(pv.dist(cLoc) < settings.defaultFocusDistance)	// -- Should find nearest cluster!
-//					pv.y = cLoc.y + gridHeight;
-//			}
-//		}
-
 		int row = 0;
 		int col;
 		for(ArrayList<PVector> pvList : gridPoints)
@@ -231,9 +230,9 @@ public class WMV_World
 			for(PVector pv : pvList)
 			{
 				if(pv.y == defaultHeight)
-					p.stroke(0.f, 0.f, 155.f, 55.f);
+					p.stroke(0.f, 0.f, 155.f, state.terrainAlpha * 0.33f);
 				else
-					p.stroke(0.f, 0.f, 255.f, 155.f);
+					p.stroke(0.f, 0.f, 255.f, state.terrainAlpha);
 
 				p.strokeWeight(6.f);
 				p.point(pv.x, pv.y, pv.z);				
@@ -434,7 +433,7 @@ public class WMV_World
 	/**
 	 * Stop any currently playing videos
 	 */
-	void stopAllVideos()
+	public void stopAllVideos()
 	{
 		for(int i=0;i<getCurrentField().getVideos().size();i++)
 		{
@@ -443,10 +442,67 @@ public class WMV_World
 		}
 	}
 
+	public void fadeOutAllMedia()
+	{
+		getCurrentField().fadeOutAllMedia();
+		fadeOutTerrain();
+	}
+	
+	public void fadeOutTerrain()
+	{
+		if(state.terrainAlpha != 0.f)
+		{
+			state.fadingTerrainAlpha = true;		
+			state.fadingTerrainStart = state.terrainAlpha;
+			state.fadingTerrainTarget = 0.f;
+			state.fadingTerrainStartFrame = p.frameCount;
+			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
+//			state.fadedOutTerrain = false;			// Recently faded out
+//			state.fadedInTerrain = false;
+		}
+	}
+
+	public void fadeInTerrain()
+	{
+		System.out.println("fadeInTerrain()...");
+		if(state.terrainAlpha != 255.f)
+		{
+			state.fadingTerrainAlpha = true;		
+			state.fadingTerrainStart = state.terrainAlpha;
+			state.fadingTerrainTarget = 255.f;
+			state.fadingTerrainStartFrame = p.frameCount;
+			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
+			state.waitingToFadeInTerrainAlpha = false;
+		}
+	}
+
+	/**
+	 * Update state.fadingBrightness each frame
+	 */
+	void updateFadingTerrainAlpha()
+	{
+		float newFadeValue = 0.f;
+
+		if (p.frameCount >= state.fadingTerrainEndFrame)
+		{
+			state.fadingTerrainAlpha = false;
+			newFadeValue = state.fadingTerrainTarget;
+			if(newFadeValue == 0.f) state.waitingToFadeInTerrainAlpha = true;
+		} 
+		else
+		{
+			newFadeValue = PApplet.map(p.frameCount, state.fadingTerrainStartFrame, state.fadingTerrainEndFrame, 
+					state.fadingTerrainStart, state.fadingTerrainTarget);  	    // Fade with distance from current time
+		}
+
+		state.terrainAlpha = newFadeValue;
+	}
+
+
 	/**
 	 * Save the current world, field and viewer states and settings to file
 	 */
-	void saveSimulationState()
+	public void saveSimulationState()
 	{
 		String folderPath = p.library.getDataFolder(getCurrentField().getID());
 		String clusterDataPath = folderPath + "ml_library_clusterStates/";
@@ -620,47 +676,6 @@ public class WMV_World
 		return curField;
 	}
 
-//	/**
-//	 * Save the current world, field and viewer states and settings to file
-//	 */
-//	public boolean loadSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
-//	{
-//		PApplet.println("Loading Simulation State... Field #"+curField.getID());
-//
-//		WMV_WorldState newWorldState = loadState(curField.getID());
-//		WMV_WorldSettings newWorldSettings = loadSettings(curField.getID());
-//		WMV_ViewerState newViewerState = loadViewerState(curField.getID());
-//		WMV_ViewerSettings newViewerSettings = loadViewerSettings(curField.getID());
-//		
-//		/* Check world and viewer state/settings */
-//		if(p.debugSettings.main && p.debugSettings.detailed)
-//		{
-//			if(newWorldState != null) System.out.println("WorldState exists...");
-//			if(newWorldSettings != null) System.out.println("WorldSettings exists...");
-//			if(newViewerState != null) System.out.println("ViewerState exists...");
-//			if(newViewerSettings != null) System.out.println("ViewerSettings exists...");
-//		}
-//		
-//		String fieldName = curField.getName();
-//		int fieldID = curField.getID();
-//		curField = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, p.debugSettings, fieldName, fieldID);
-////		curField.setName(fieldName);
-////		curField = newField;
-//		
-////		fields = new ArrayList<WMV_Field>();			// -- Revise to handle multiple fields
-////		fields.add(newField);
-//		
-//		System.out.println("Will load field state for Field #"+curField.getID());
-//		boolean success = loadFieldState(curField);
-//		curField.setID(fieldID);
-//		
-////		if(p.debugSettings.main && p.debugSettings.detailed)
-//		if(success)
-//			System.out.println("Loaded Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
-//
-//		return success;
-//	}
-	
 	void setSimulationStateFromField(WMV_Field field)
 	{
 		setState(field.getWorldState());
@@ -764,9 +779,9 @@ public class WMV_World
 	{
 		if(system)
 		{
-			p.state.initializationField = 0;				// Field to be initialized this frame
-			p.state.startedRunning = false;			// Program just started running
-			p.state.initialSetup = false;			// Performing initial setup 
+			p.state.initializationField = 0;			// Field to be initialized this frame
+			p.state.startedRunning = false;				// Program just started running
+			p.state.initialSetup = false;				// Performing initial setup 
 			p.state.initializingFields = false;			// Initializing media folders
 			p.state.fieldsInitialized = false;			// Initialized media folders
 			p.state.export = false;
@@ -1392,22 +1407,22 @@ public class WMV_World
 	/**
 	 * @param dist Grid spacing
 	 */
-	public void drawGrid(float dist) 
-	{
-		WMV_ModelState m = getCurrentModel().getState();
-		for (float y = 0; y < m.fieldHeight / 2; y += dist) {
-			for (float x = 0; x < m.fieldWidth / 2; x += dist) {
-				for (float z = 0; z < m.fieldLength / 2; z += dist) {
-					p.stroke(50, 150, 250);
-					p.strokeWeight(1);
-					p.pushMatrix();
-					p.translate(x, y, z);
-					p.box(2);
-					p.popMatrix();
-				}
-			}
-		}
-	}
+//	public void displayGrid(float dist) 
+//	{
+//		WMV_ModelState m = getCurrentModel().getState();
+//		for (float y = 0; y < m.fieldHeight / 2; y += dist) {
+//			for (float x = 0; x < m.fieldWidth / 2; x += dist) {
+//				for (float z = 0; z < m.fieldLength / 2; z += dist) {
+//					p.stroke(50, 150, 250, state.fadingGridBrightness);
+//					p.strokeWeight(1);
+//					p.pushMatrix();
+//					p.translate(x, y, z);
+//					p.box(2);
+//					p.popMatrix();
+//				}
+//			}
+//		}
+//	}
 
 	public void setBlurMask(WMV_Image image, int blurMaskID)
 	{

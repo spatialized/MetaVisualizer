@@ -13,9 +13,10 @@ public class WMV_FieldState
 	/* General */
 	public int id;											// Field ID
 	public String name;										// Field Name
+	public boolean visited = false;							// Whether viewer has visited field
 	
 	/* Data */
-	public WMV_ModelState model;						// Model state for importing / exporting
+	public WMV_ModelState model;							// Model state for importing / exporting
 
 	/* Time */
 	public WMV_Timeline timeline;							// Field timeline
@@ -36,7 +37,8 @@ public class WMV_FieldState
 	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;
 	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
 	public int indexPanoramaOffset, indexVideoOffset;		// Start of panoramas / videos in names and distances arrays
-	public int disassociatedImages = 0;			// Images not associated with a cluster -- Obsolete?
+	
+	public int disassociatedImages = 0;						// Media not associated with a cluster -- Obsolete?
 	public int disassociatedPanoramas = 0;
 	public int disassociatedVideos = 0;
 	
@@ -46,7 +48,8 @@ public class WMV_FieldState
 	{
 		/* General */
 		id = -1;						// Field ID
-		name = "";				// Field Name
+		name = "";						// Field Name
+		visited = false;				// Whether viewer has visited field
 		
 		/* Time */
 		timeZoneID = "America/Los_Angeles";					// Current time zone

@@ -222,6 +222,7 @@ public class ML_Map
 	{
 		resetMapZoom(world, false);
 		initializeMaps(world);
+		selectedCluster = -1;
 	}
 	
 	/**
@@ -262,6 +263,14 @@ public class ML_Map
 		selectableClustersCreated = true;
 	}
 	
+	/**
+	 * Get map location for a given point
+	 * @param world Parent world
+	 * @param point Given point
+	 * @param mapWidth Map width
+	 * @param mapHeight Map height
+	 * @return
+	 */
 	PVector getMapLocation(WMV_World world, PVector point, float mapWidth, float mapHeight)
 	{
 		WMV_Model m = world.getCurrentField().getModel();
@@ -336,12 +345,17 @@ public class ML_Map
 
 		if(selectedCluster >= 0)
 		{
+			if(selectedCluster < world.getCurrentField().getClusters().size())
+			{
 			WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
 
 			if(selectedCluster == world.viewer.getState().getCurrentClusterID())
 				drawClusterMedia(world, c, mapWidth, mapHeight, false);
 			else
 				drawClusterMedia(world, c, mapWidth, mapHeight, true);
+			}
+			else
+				selectedCluster = -1;
 		}
 
 		if(selectedCluster != world.viewer.getState().getCurrentClusterID() && world.viewer.getState().getCurrentClusterID() >= 0)

@@ -140,15 +140,15 @@ public class ML_Input
 				break;
 			case "NextField":
 				if(display.displayView == 1)
-					ml.world.viewer.teleportToField(1, false);
+					ml.world.viewer.teleportToField(1, true, false);
 				else
-					ml.world.viewer.teleportToField(1, true);
+					ml.world.viewer.teleportToField(1, true, true);
 				break;
 			case "PreviousField":
 				if(display.displayView == 1)
-					ml.world.viewer.teleportToField(-1, false);
+					ml.world.viewer.teleportToField(-1, true, false);
 				else
-					ml.world.viewer.teleportToField(-1, true);
+					ml.world.viewer.teleportToField(-1, true, true);
 				break;
 			case "ImportGPSTrack":
 				ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
@@ -583,10 +583,10 @@ public class ML_Input
 					ml.display.satelliteMap = !ml.display.satelliteMap;
 
 				if (key == '{')
-					ml.world.viewer.teleportToField(-1, false);
+					ml.world.viewer.teleportToField(-1, true, false);
 
 				if (key == '}') 
-					ml.world.viewer.teleportToField(1, false);
+					ml.world.viewer.teleportToField(1, true, false);
 
 				/* Clustering */
 				if (key == 'r')
@@ -795,8 +795,16 @@ public class ML_Input
 				if( key == 'L' )
 					ml.world.viewer.lookAtNearestMedia();
 
-				if( key == '/' )
+				if( key == '/' && !shiftKey )
 					ml.world.saveSimulationState();
+
+				if( key == '/' && shiftKey )
+				{
+					if(ml.world.getFields().size() > 1)
+						ml.world.saveAllSimulationStates();
+					else
+						ml.world.saveSimulationState();
+				}
 
 				if( key == '?' )
 					ml.world.loadAndSetViewerState(ml.world.getCurrentField().getID());
@@ -980,10 +988,10 @@ public class ML_Input
 						ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
 
 					if (key == '{')
-						ml.world.viewer.teleportToField(-1, true);
+						ml.world.viewer.teleportToField(-1, true, true);
 
 					if (key == '}') 
-						ml.world.viewer.teleportToField(1, true);
+						ml.world.viewer.teleportToField(1, true, true);
 
 					if (key == 'q') 
 						ml.world.viewer.startZoomTransition(-1);

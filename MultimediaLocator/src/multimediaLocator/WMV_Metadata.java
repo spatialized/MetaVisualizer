@@ -660,7 +660,8 @@ class WMV_Metadata
 
 						if (tagName.equals("Keywords"))
 						{
-							System.out.println("-------------->  Keywords: "+tagString);
+							if (debugSettings.metadata)
+								System.out.println("-------------->  Keywords: "+tagString);
 							
 							sKeywords = ParseKeywordArray(tagString);
 						}
@@ -1368,14 +1369,9 @@ class WMV_Metadata
 				keywords[i] = keywordArray[idx];
 			}
 			
-//			if (p.debugSettings.metadata)
+			if (p.debugSettings.metadata)
 				System.out.println("Image or panorama keywords[i]:" + keywords[i]);
 		}
-
-//		for (int i = 0; i < keywords.length; i++) 
-//		{
-//			
-//		}
 
 		return keywords;
 	}

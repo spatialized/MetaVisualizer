@@ -493,6 +493,60 @@ public class WMV_World
 		p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
 	}
 
+
+	/**
+	 * Save the current world, field and viewer states and settings to file
+	 */
+	void saveAllSimulationStates()
+	{
+		String folderPath = p.library.getDataFolder(getCurrentField().getID());
+		String clusterDataPath = folderPath + "ml_library_clusterStates/";
+		String imageDataPath = folderPath + "ml_library_imageStates/";
+		String panoramaDataPath = folderPath + "ml_library_panoramaStates/";
+		String videoDataPath = folderPath + "ml_library_videoStates/";
+		String soundDataPath = folderPath + "ml_library_soundStates/";
+		
+		File dataDirectory = new File(folderPath);
+		if(!dataDirectory.exists()) dataDirectory.mkdir();			// Create directory if doesn't exist
+
+		File clusterDirectory = new File(clusterDataPath);
+		if(!clusterDirectory.exists()) clusterDirectory.mkdir();			// Create directory if doesn't exist
+
+		File imageDirectory = new File(imageDataPath);
+		if(!imageDirectory.exists()) imageDirectory.mkdir();			// Create directory if doesn't exist
+
+		File panoramaDirectory = new File(panoramaDataPath);
+		if(!panoramaDirectory.exists()) panoramaDirectory.mkdir();			// Create directory if doesn't exist
+
+		File videoDirectory = new File(videoDataPath);
+		if(!videoDirectory.exists()) videoDirectory.mkdir();			// Create directory if doesn't exist
+
+		if(p.debugSettings.main) PApplet.println("Saving Simulation State to: "+folderPath);
+		
+		for(WMV_Field f : fields)
+		{
+			f.captureState();											// Capture current state, i.e. save timeline and dateline
+
+			WMV_ClusterStateList csl = f.captureClusterStates();
+			WMV_ImageStateList isl = f.captureImageStates();
+			WMV_PanoramaStateList psl = f.capturePanoramaStates();
+			WMV_VideoStateList vsl = f.captureVideoStates();
+//			WMV_SoundStateList ssl = f.captureSoundStates();
+
+			p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
+			p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
+			p.library.saveViewerSettings(f.getViewerSettings(), folderPath+"ml_library_viewerSettings.json");
+			p.library.saveViewerState(f.getViewerState(), folderPath+"ml_library_viewerState.json");
+			p.library.saveFieldState(f.getState(), folderPath+"ml_library_fieldState.json");
+			p.library.saveClusterStateList(csl, clusterDataPath+"ml_library_clusterStates.json");
+			p.library.saveImageStateList(isl, imageDataPath+"ml_library_imageStates.json");
+			p.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
+			p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
+			
+			System.out.println("Saved simulation state for field #"+f.getID());
+		}
+	}
+
 	/**
 	 * Load world, field and viewer states and settings from file
 	 */
@@ -881,7 +935,7 @@ public class WMV_World
 	 */
 	public WMV_Cluster getCurrentCluster()
 	{
-		int cluster = viewer.getState().getCurrentClusterID();
+		int cluster = viewer.getCurrentClusterID();
 		if(cluster >= 0 && cluster < getCurrentField().getClusters().size())
 		{
 			WMV_Cluster c = getCurrentField().getCluster(cluster);

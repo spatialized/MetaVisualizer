@@ -2890,16 +2890,6 @@ public class WMV_Field
 		return timelines;
 	}
 	
-//	public ArrayList<WMV_TimeSegment> getTimeline()
-//	{
-//		return timeline;
-//	}
-//	
-//	public ArrayList<ArrayList<WMV_TimeSegment>> getTimelines()
-//	{
-//		return timelines;
-//	}
-	
 	public ArrayList<WMV_Date> getDateline()
 	{
 		return dateline;
@@ -2930,6 +2920,16 @@ public class WMV_Field
 	public void setName(String newName)
 	{
 		state.name = newName;
+	}
+	
+	public void setVisited(boolean newState)
+	{
+		state.visited = newState;
+	}
+	
+	public boolean hasBeenVisited()
+	{
+		return state.visited;
 	}
 	
 	/**

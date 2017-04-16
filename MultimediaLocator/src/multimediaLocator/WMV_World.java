@@ -499,32 +499,32 @@ public class WMV_World
 	 */
 	void saveAllSimulationStates()
 	{
-		String folderPath = p.library.getDataFolder(getCurrentField().getID());
-		String clusterDataPath = folderPath + "ml_library_clusterStates/";
-		String imageDataPath = folderPath + "ml_library_imageStates/";
-		String panoramaDataPath = folderPath + "ml_library_panoramaStates/";
-		String videoDataPath = folderPath + "ml_library_videoStates/";
-		String soundDataPath = folderPath + "ml_library_soundStates/";
-		
-		File dataDirectory = new File(folderPath);
-		if(!dataDirectory.exists()) dataDirectory.mkdir();			// Create directory if doesn't exist
-
-		File clusterDirectory = new File(clusterDataPath);
-		if(!clusterDirectory.exists()) clusterDirectory.mkdir();			// Create directory if doesn't exist
-
-		File imageDirectory = new File(imageDataPath);
-		if(!imageDirectory.exists()) imageDirectory.mkdir();			// Create directory if doesn't exist
-
-		File panoramaDirectory = new File(panoramaDataPath);
-		if(!panoramaDirectory.exists()) panoramaDirectory.mkdir();			// Create directory if doesn't exist
-
-		File videoDirectory = new File(videoDataPath);
-		if(!videoDirectory.exists()) videoDirectory.mkdir();			// Create directory if doesn't exist
-
-		if(p.debugSettings.main) PApplet.println("Saving Simulation State to: "+folderPath);
-		
 		for(WMV_Field f : fields)
 		{
+			String folderPath = p.library.getDataFolder(f.getID());
+			String clusterDataPath = folderPath + "ml_library_clusterStates/";
+			String imageDataPath = folderPath + "ml_library_imageStates/";
+			String panoramaDataPath = folderPath + "ml_library_panoramaStates/";
+			String videoDataPath = folderPath + "ml_library_videoStates/";
+			String soundDataPath = folderPath + "ml_library_soundStates/";
+			
+			File dataDirectory = new File(folderPath);
+			if(!dataDirectory.exists()) dataDirectory.mkdir();			// Create directory if doesn't exist
+
+			File clusterDirectory = new File(clusterDataPath);
+			if(!clusterDirectory.exists()) clusterDirectory.mkdir();			// Create directory if doesn't exist
+
+			File imageDirectory = new File(imageDataPath);
+			if(!imageDirectory.exists()) imageDirectory.mkdir();			// Create directory if doesn't exist
+
+			File panoramaDirectory = new File(panoramaDataPath);
+			if(!panoramaDirectory.exists()) panoramaDirectory.mkdir();			// Create directory if doesn't exist
+
+			File videoDirectory = new File(videoDataPath);
+			if(!videoDirectory.exists()) videoDirectory.mkdir();			// Create directory if doesn't exist
+
+			if(p.debugSettings.main) PApplet.println("Saving Simulation State to: "+folderPath);
+			
 			f.captureState();											// Capture current state, i.e. save timeline and dateline
 
 			WMV_ClusterStateList csl = f.captureClusterStates();

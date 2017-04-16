@@ -795,10 +795,10 @@ public class ML_Input
 				if( key == 'L' )
 					ml.world.viewer.lookAtNearestMedia();
 
-				if( key == '/' && !shiftKey )
+				if( key == '/' )
 					ml.world.saveSimulationState();
 
-				if( key == '/' && shiftKey )
+				if( key == '?' )
 				{
 					if(ml.world.getFields().size() > 1)
 						ml.world.saveAllSimulationStates();
@@ -806,8 +806,8 @@ public class ML_Input
 						ml.world.saveSimulationState();
 				}
 
-				if( key == '?' )
-					ml.world.loadAndSetViewerState(ml.world.getCurrentField().getID());
+//				if( key == '?' )
+//					ml.world.loadAndSetViewerState(ml.world.getCurrentField().getID());
 
 				if( key == 't' && !optionKey )
 				{

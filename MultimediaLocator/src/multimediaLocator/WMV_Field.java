@@ -542,14 +542,13 @@ public class WMV_Field
 		if(mergeClusters) clusters = mergeAdjacentClusters( clusters, model.getState().minClusterDistance );
 
 		/* Analyze media in each cluster */
-		System.out.println("Analyzing media in clusters...");
+		if(debugSettings.field) System.out.println("Analyzing media in clusters...");
 
 		for( WMV_Cluster c : clusters )
 			if(!c.isEmpty())
 				c.analyzeMedia(images, panoramas, videos);					
 
-		if(debugSettings.field)
-		System.out.println("Finished analyzing media...");
+		if(debugSettings.field) System.out.println("Finished analyzing media...");
 //		System.out.println("Setting cluster times/dates for media...");
 
 		/* Set cluster date and time for each media object */

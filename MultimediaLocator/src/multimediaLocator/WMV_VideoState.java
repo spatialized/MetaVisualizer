@@ -36,6 +36,9 @@ public class WMV_VideoState
 	public boolean thinningVisibility = false;
 
 	/* Graphics */
+	public int blurMaskID;							// ID of blur mask 
+	public int horizBorderID = -1;					// Horizontal border ID   	0: Left 1: Center 2: Right  3: Left+Right
+	public int vertBorderID = -1;					// Vertical border ID		0: Bottom 1: Center 2: Top  3: Top+Bottom
 	PVector[] vertices, sVertices;
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);

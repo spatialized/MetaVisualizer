@@ -19,9 +19,9 @@ public class WMV_Image extends WMV_Media
 	private WMV_ImageMetadata metadata;
 	
 	/* Graphics */
-	private PImage image;
-	private PImage blurred;			// Image pixels
-	private PImage blurMask;
+	private PImage image;			// Image pixels to be displayed
+	private PImage blurMask;		// Blur mask
+	private PImage blurred;			// Combined pixels 
 
 	public WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata ) 
 	{
@@ -1291,7 +1291,7 @@ public class WMV_Image extends WMV_Media
 	 {
 		 metadata.sensorSize = newSensorSize;
 	 }
-	 
+
 	 public void setHorizBorderID(int newHorizBorderID)
 	 {
 		 state.horizBorderID = newHorizBorderID;

@@ -20,8 +20,10 @@ public class WMV_MediaSegment
 
 	private float stitchingMinAngle;
 	
-	WMV_MediaSegment( int newID, List<Integer> newImages, List<Integer> newVideos, float newLower, float newUpper, float newCenter,
-					  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
+//	WMV_MediaSegment( int newID, List<Integer> newImages, List<Integer> newVideos, float newLower, float newUpper, float newCenter,
+//			  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
+	WMV_MediaSegment( int newID, List<Integer> newImages, float newLower, float newUpper, float newCenter,
+			  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
 	{
 		id = newID;
 		

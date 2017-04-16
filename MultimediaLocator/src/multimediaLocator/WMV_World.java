@@ -1467,7 +1467,66 @@ public class WMV_World
 			break;
 		}
 	}
+
+	public void setVideoBlurMask(WMV_Video video, int blurMaskID)
+	{
+		WMV_Field f = getCurrentField();
+		switch(blurMaskID)
+		{
+		case 0:
+			f.setVideoBlurMask(video, blurMaskLeftTop);
+			break;
+		case 1:
+			f.setVideoBlurMask(video, blurMaskLeftCenter);
+			break;
+		case 2:
+			f.setVideoBlurMask(video, blurMaskLeftBottom);
+			break;
+		case 3:
+			f.setVideoBlurMask(video, blurMaskLeftBoth);
+			break;
+		
+		case 4:
+			f.setVideoBlurMask(video, blurMaskCenterTop);
+			break;
+		case 5:
+			f.setVideoBlurMask(video, blurMaskCenterCenter);
+			break;
+		case 6:
+			f.setVideoBlurMask(video, blurMaskCenterBottom);
+			break;
+		case 7:
+			f.setVideoBlurMask(video, blurMaskCenterBoth);
+			break;
 	
+		case 8:
+			f.setVideoBlurMask(video, blurMaskRightTop);
+			break;
+		case 9:
+			f.setVideoBlurMask(video, blurMaskRightCenter);
+			break;
+		case 10:
+			f.setVideoBlurMask(video, blurMaskRightBottom);
+			break;
+		case 11:
+			f.setVideoBlurMask(video, blurMaskRightBoth);
+			break;
+	
+		case 12:
+			f.setVideoBlurMask(video, blurMaskBothTop);
+			break;
+		case 13:
+			f.setVideoBlurMask(video, blurMaskBothCenter);
+			break;
+		case 14:
+			f.setVideoBlurMask(video, blurMaskBothBottom);
+			break;
+		case 15:
+			f.setVideoBlurMask(video, blurMaskBothBoth);
+			break;
+		}
+	}
+
 	public void setBlurMasks()
 	{
 		for(WMV_Field f : fields)
@@ -1476,6 +1535,11 @@ public class WMV_World
 			{
 				int bmID = image.getState().blurMaskID;
 				setBlurMask(image, bmID);
+			}
+			for(WMV_Video video : f.getVideos())
+			{
+				int bmID = video.getState().blurMaskID;
+				setVideoBlurMask(video, bmID);
 			}
 		}
 	}

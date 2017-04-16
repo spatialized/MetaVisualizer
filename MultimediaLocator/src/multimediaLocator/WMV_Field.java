@@ -542,7 +542,7 @@ public class WMV_Field
 		if(mergeClusters) clusters = mergeAdjacentClusters( clusters, model.getState().minClusterDistance );
 
 		/* Analyze media in each cluster */
-		System.out.println("Analyzing media in each cluster...");
+		System.out.println("Analyzing media in clusters...");
 
 		for( WMV_Cluster c : clusters )
 			if(!c.isEmpty())
@@ -575,7 +575,7 @@ public class WMV_Field
 					v.setClusterDates(c);
 				}
 
-				c.findMediaSegments(images, panoramas, videos);
+				c.findMediaSegments(images);
 			}
 		}
 		
@@ -679,15 +679,25 @@ public class WMV_Field
 		 return null;
 	 }
 
-	/**
-	 * Set blur mask for image
-	 * @param image Image for which to set blur mask
-	 * @param blurMask Blur mask image
-	 */
-	void setImageBlurMask(WMV_Image image, PImage blurMask)
-	{
-		image.setBlurMask(blurMask);
-	}
+	 /**
+	  * Set blur mask for image
+	  * @param image Image for which to set blur mask
+	  * @param blurMask Blur mask image
+	  */
+	 void setImageBlurMask(WMV_Image image, PImage blurMask)
+	 {
+		 image.setBlurMask(blurMask);
+	 }
+
+	 /**
+	  * Set blur mask for image
+	  * @param image Image for which to set blur mask
+	  * @param blurMask Blur mask image
+	  */
+	 void setVideoBlurMask(WMV_Video video, PImage blurMask)
+	 {
+		 video.setBlurMask(blurMask);
+	 }
 	
 	/**
 	 * Calculate vertices for all images and videos in the field
@@ -718,6 +728,8 @@ public class WMV_Field
 
 		for (WMV_Video v : videos) 
 			v.fadeOut();
+		
+//		p.fadeOutGrid();
 	}
 
 	/**

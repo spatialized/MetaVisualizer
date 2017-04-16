@@ -2600,24 +2600,25 @@ public class WMV_Viewer
 		}
 		else										// If no transitions and not currently moving or turning 
 		{
-			if(worldState.frameCount % 60 == 0 && settings.optimizeVisibility)	
+			if(worldState.frameCount % 30 == 0 && settings.alwaysLookAtMedia)	
 			{
 				if( !mediaAreVisible(false, 1) )	// Check whether any images are currently visible anywhere in front of camera
 				{
 					if(debugSettings.viewer)
 						System.out.println("No images visible! will look at nearest image...");
-					lookAtNearestMedia();			// Look for images around the camera
+					if(settings.alwaysLookAtMedia)
+						lookAtNearestMedia();			// Look for images around the camera
 				}
-				else if(currentField.getImagesVisible() + currentField.getPanoramasVisible()
-						+ currentField.getVideosVisible() >= settings.mediaDensityThreshold)				// -- Update this!
-				{
-					if( mediaAreVisible(false, settings.mediaDensityThreshold) && !settings.angleFading )
-					{
-						if(debugSettings.viewer)
-							System.out.println("Over "+settings.mediaDensityThreshold+" media visible... Set angle fading to true...");
-						settings.angleFading = true;
-					}
-				}
+//				else if(currentField.getImagesVisible() + currentField.getPanoramasVisible()
+//						+ currentField.getVideosVisible() >= settings.mediaDensityThreshold)				// -- Update this!
+//				{
+//					if( mediaAreVisible(false, settings.mediaDensityThreshold) && !settings.angleFading )
+//					{
+//						if(debugSettings.viewer)
+//							System.out.println("Over "+settings.mediaDensityThreshold+" media visible... Set angle fading to true...");
+//						settings.angleFading = true;
+//					}
+//				}
 			}
 		}
 	}
@@ -3944,8 +3945,7 @@ public class WMV_Viewer
 			state.lastCluster = state.currentCluster;
 			WMV_Cluster c = p.getCurrentCluster();
 
-			if(c != null)
-				c.getState().timeFading = false;
+			if(c != null) c.getState().timeFading = false;
 			
 			state.currentCluster = newCluster;
 			c = p.getCurrentCluster();

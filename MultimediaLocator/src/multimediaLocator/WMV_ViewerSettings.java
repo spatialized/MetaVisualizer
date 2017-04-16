@@ -26,6 +26,7 @@ public class WMV_ViewerSettings
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
+	
 //	public final int maxVisibleImages = 50;					// Maximum visible images at one time
 //	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
 //	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
@@ -56,7 +57,8 @@ public class WMV_ViewerSettings
 	public int teleportLength = 30;							// Teleport transition length 
 	public boolean teleportToFarClusters = true;			// Automatically teleport to far clusters
 	public float farClusterTeleportDistance = 240.f;		// Distance at which cluster is considered far
-
+	public boolean alwaysLookAtMedia = false;				// Automatically turn towards media when reached new cluster -- Fix bugs!
+	
 	/* Turning */
 	final public float turningVelocityMin = 0.00005f;			// Threshold under which velocity counts as zero
 	final public float turningVelocityMax = 0.05f;				// Camera maximum velocity

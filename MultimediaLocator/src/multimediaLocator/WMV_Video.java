@@ -24,8 +24,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 	/* Video */
 	Movie video;									// Movie object
-	PImage frame;									// Frame to be displayed 
-	
+	PImage frame;									// Video frame to be displayed 
+	private PImage blurMask;						// Blur mask
+	private PImage blurred;							// Combined pixels
+
 	WMV_Video ( int newID, Movie newVideo, int newType, WMV_VideoMetadata newVideoMetadata )
 	{
 		super( newID, newType, newVideoMetadata.name, newVideoMetadata.filePath, newVideoMetadata.dateTime, newVideoMetadata.timeZone, 
@@ -54,6 +56,24 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 //			video.dispose();
 		}
 	}  
+	
+	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
+	{
+		PImage result = ml.createImage(640, 480, PApplet.RGB);
+		
+		try
+		{
+			result = source.copy();
+			result.mask(mask); 
+		}
+		catch(RuntimeException ex)
+		{
+//			if(getDebugSettings().video || getDebugSettings().main)
+				System.out.println("Error with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
+		}
+		
+		return result;
+	}
 	
 	public void initializeTime()
 	{
@@ -408,7 +428,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			
 			video.volume(0.f);
 			state.volume = 0.f;
-			
+
 //			if(getDebugSettings().video)
 //				ml.display.message(p.p, "Loading video file..."+filePath+" video.duration():"+video.duration());
 
@@ -507,10 +527,22 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
 		ml.textureMode(PApplet.IMAGE);
 
-		if(frame != null)
-			ml.texture(frame);
+		if(getWorldState().useBlurMasks)
+		{
+			if(blurred != null)
+				ml.texture(blurred);
+		}
+		else
+		{
+			if(frame != null)
+				ml.texture(frame);        			// Apply the image to the face as a texture 
+		}
+
+//		if(frame != null)
+//			ml.texture(frame);
 
 		frame = new PImage(video.getImage());
+		blurred = applyMask(ml, frame, blurMask);				// Apply blur mask once image has loaded
 
 		if(getViewerSettings().selection)
 		{
@@ -961,6 +993,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			metadata.rotation = i.getRotation();             
 			metadata.rotation = i.getRotation();             
 
+			setHorizBorderID(i.getState().horizBorderID);
+			setVertBorderID(i.getState().vertBorderID);
+			setBlurMaskID();
+
 			setSensorSize( i.getSensorSize() );
 			setAspectRatio( calculateAspectRatio() );
 			
@@ -1021,6 +1057,108 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		else
 			return true;
 	}
+	
+	 /**
+	  * Set blur mask ID for image
+	  * 	horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
+	  * 	vertBorderID	 0: Top  1: Center  2: Bottom  3: Top+Bottom
+	  */
+	 public void setBlurMaskID()
+	 {
+		 if(state.horizBorderID == 0)
+		 {
+			 switch(state.vertBorderID)
+			 {
+			 case 0:
+//				 blurMask = p.p.blurMaskLeftTop;
+				 state.blurMaskID = 0;
+				 break;
+			 case 1:
+//				 blurMask = p.p.blurMaskLeftCenter;
+				 state.blurMaskID = 1;
+				 break;
+			 case 2:
+//				 blurMask = p.p.blurMaskLeftBottom;
+				 state.blurMaskID = 2;
+				 break;
+			 case 3:
+			 default:
+//				 blurMask = p.p.blurMaskLeftBoth;
+				 state.blurMaskID = 3;
+				 break;
+			 }
+		 }
+		 else if(state.horizBorderID == 1)
+		 {
+			 switch(state.vertBorderID)
+			 {
+			 case 0:
+//				 blurMask = p.p.blurMaskCenterTop;
+				 state.blurMaskID = 4;
+				 break;
+			 case 1:
+//				 blurMask = p.p.blurMaskCenterCenter;
+				 state.blurMaskID = 5;
+				 break;
+			 case 2:
+//				 blurMask = p.p.blurMaskCenterBottom;
+				 state.blurMaskID = 6;
+				 break;
+			 case 3:
+			 default:
+//				 blurMask = p.p.blurMaskCenterBoth;
+				 state.blurMaskID = 7;
+				 break;
+			 }
+		 }
+		 else if(state.horizBorderID == 2)
+		 {
+			 switch(state.vertBorderID)
+			 {
+			 case 0:
+//				 blurMask = p.p.blurMaskRightTop;
+				 state.blurMaskID = 8;
+				 break;
+			 case 1:
+//				 blurMask = p.p.blurMaskRightCenter;
+				 state.blurMaskID = 9;
+				 break;
+			 case 2:
+//				 blurMask = p.p.blurMaskRightBottom;
+				 state.blurMaskID = 10;
+				 break;
+			 case 3:
+			 default:
+//				 blurMask = p.p.blurMaskRightBoth;
+				 state.blurMaskID = 11;
+				 break;
+			 }
+		 }
+		 else if(state.horizBorderID == 3)
+		 {
+			 switch(state.vertBorderID)
+			 {
+			 case 0:
+//				 blurMask = p.p.blurMaskBothTop;
+				 state.blurMaskID = 12;
+				 break;
+			 case 1:
+//				 blurMask = p.p.blurMaskBothCenter;
+				 state.blurMaskID = 13;
+				 break;
+			 case 2:
+//				 blurMask = p.p.blurMaskBothBottom;
+				 state.blurMaskID = 14;
+				 break;
+			 case 3:
+			 default:
+//				 blurMask = p.p.blurMaskBothBoth;
+				 state.blurMaskID = 15;
+				 break;
+			 }
+		 }
+	 }
+
 
 	/**
 	 * @return Average pixel color for this frame
@@ -1154,6 +1292,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		return metadata;
 	}
 	
+	 public void setBlurMask(PImage newBlurMask)
+	 {
+		 blurMask = newBlurMask;
+	 }
+
 	/**
 	 * @return Save video state for exporting
 	 */
@@ -1215,6 +1358,21 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		 return state.sensorSize;
 	 }
 	
+	 public void setHorizBorderID(int newHorizBorderID)
+	 {
+		 state.horizBorderID = newHorizBorderID;
+	 }
+
+	 public void setVertBorderID(int newVertBorderID)
+	 {
+		 state.vertBorderID = newVertBorderID;
+	 }
+	 
+	 public void setBlurMaskID(int newBlurMaskID)
+	 {
+		 state.blurMaskID = newBlurMaskID;
+	 }
+
 	 /**
 	  * @param newLength New video length
 	  */

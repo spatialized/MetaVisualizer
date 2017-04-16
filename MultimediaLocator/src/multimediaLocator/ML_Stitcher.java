@@ -204,7 +204,7 @@ public class ML_Stitcher
 				float centerDirection = (right + left) / 2.f;
 				float centerElevation = (upper + lower) / 2.f;
 
-				segment = new WMV_MediaSegment( -1, selected, null, left, right, centerDirection, lower, upper, centerElevation, p.getSettings().stitchingMinAngle);
+				segment = new WMV_MediaSegment( -1, selected, left, right, centerDirection, lower, upper, centerElevation, p.getSettings().stitchingMinAngle);
 			}
 			else
 			{

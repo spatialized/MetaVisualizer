@@ -574,7 +574,7 @@ public class WMV_Cluster
 	/**
 	 * Group adjacent, overlapping media into segments, where each image or video is at least stitchingMinAngle from one or more others
  	 */
-	void findMediaSegments(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	void findMediaSegments(ArrayList<WMV_Image> imageList)
 	{
 		List<Integer> allImages = new ArrayList<Integer>();
 		for(int i:state.images)
@@ -597,7 +597,7 @@ public class WMV_Cluster
 			float top = imageList.get(allImages.get(0)).getElevation();
 			float centerElevation = imageList.get(allImages.get(0)).getElevation();
 
-			WMV_MediaSegment newSegment = new WMV_MediaSegment( 0, curImageList, null, right, left, centerDirection, top, bottom, centerElevation, worldSettings.stitchingMinAngle );
+			WMV_MediaSegment newSegment = new WMV_MediaSegment( 0, curImageList, right, left, centerDirection, top, bottom, centerElevation, worldSettings.stitchingMinAngle );
 			newSegment.findBorders(imageList);
 			segments.add( newSegment );
 
@@ -715,7 +715,7 @@ public class WMV_Cluster
 				centerElevation = (top + bottom) / 2.f;
 			}
 
-			WMV_MediaSegment newSegment = new WMV_MediaSegment( segments.size(), curImages, null, left, right, centerDirection, bottom, top, centerElevation, worldSettings.stitchingMinAngle );
+			WMV_MediaSegment newSegment = new WMV_MediaSegment( segments.size(), curImages, left, right, centerDirection, bottom, top, centerElevation, worldSettings.stitchingMinAngle );
 			newSegment.findBorders(imageList);
 			segments.add( newSegment );
 

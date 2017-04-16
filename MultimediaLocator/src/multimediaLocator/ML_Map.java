@@ -1039,6 +1039,10 @@ public class ML_Map
 		return selectedCluster;
 	}
 	
+	/**
+	 * Set selected cluster
+	 * @param newCluster New selected cluster
+	 */
 	public void setSelectedCluster( int newCluster )
 	{
 		selectedCluster = newCluster;

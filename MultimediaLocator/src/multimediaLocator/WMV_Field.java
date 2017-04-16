@@ -1952,27 +1952,25 @@ public class WMV_Field
 
 	/**
 	 * Get ID of time segment <number> in field timeline matching given cluster ID 
-	 * @param id Cluster to get time segment from
+	 * @param clusterID Cluster to get time segment from
 	 * @param index Segment in cluster timeline to get
 	 * @return ID of time segment
 	 */
-	public WMV_TimeSegment getTimeSegmentInCluster(int id, int index)
+	public WMV_TimeSegment getTimeSegmentInCluster(int clusterID, int index)
 	{
 		WMV_TimeSegment t = null;
 		
-		if(id >= 0 && id < clusters.size())
+		if(clusterID >= 0 && clusterID < clusters.size())
 		{
-			if(clusters.get(id).getTimeline() != null)
-				if(index >= 0 && index < clusters.get(id).getTimeline().timeline.size())
-					t = clusters.get(id).getTimeline().timeline.get(index);
+			if(clusters.get(clusterID).getTimeline() != null)
+				if(index >= 0 && index < clusters.get(clusterID).getTimeline().timeline.size())
+					t = clusters.get(clusterID).getTimeline().timeline.get(index);
 		}
 
 		if(t == null)
-		{
-			System.out.println("NULL time segment "+index+" returned by getTimeSegmentInCluster() id:"+id+" index:"+index+" timeline size:"+clusters.get(id).getTimeline().timeline.size());
-		}
-		else if(id != t.getClusterID())
-			System.out.println("ERROR in getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+id+" t.getClusterID():"+t.getClusterID());
+			System.out.println("NULL time segment "+index+" returned by getTimeSegmentInCluster() id:"+clusterID+" index:"+index+" timeline size:"+clusters.get(clusterID).getTimeline().timeline.size());
+		else if(clusterID != t.getClusterID())
+			System.out.println("ERROR in getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+clusterID+" t.getClusterID():"+t.getClusterID());
 
 		return t;
 	}

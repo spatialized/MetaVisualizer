@@ -2817,12 +2817,6 @@ public class WMV_Viewer
 		if(worldState.frameCount >= state.teleportStart + settings.teleportLength)		// If the teleport has finished
 		{
 			if(debugSettings.viewer) System.out.println(" Reached teleport goal...");
-
-//			if(teleportWaitingCount > settings.teleportLength * 2.f)
-//			{
-//				if(debugSettings.viewer) System.out.println(" Exceeded teleport wait time. Stopping all media...");
-//				currentField.stopAllMediaFading();
-//			}
 			
 			if( !currentField.mediaAreFading() )			// Once no more images are fading
 			{
@@ -2873,10 +2867,6 @@ public class WMV_Viewer
 				{
 					state.movingToAttractor = false;
 					setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
-
-//					if(debugSettings.viewer) System.out.println("Reached attractor... turning towards image");
-//					if(attractorPoint != null)
-//						turnTowardsPoint(attractorPoint.getLocation());
 
 					currentField.clearAllAttractors();	// Clear current attractors
 				}
@@ -3964,7 +3954,8 @@ public class WMV_Viewer
 					{
 						if(c.getTimeline() != null)
 						{
-							if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
+//							if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
+							if(t.getFieldTimelineID() == f.getTimeSegmentInCluster(c.getID(), 0).getFieldTimelineID())			// Compare cluster time segment to field time segment
 								setCurrentFieldTimeSegment(t.getFieldTimelineID(), true);
 						}
 						else System.out.println("Current Cluster timeline is NULL!:"+c.getID());
@@ -3996,7 +3987,7 @@ public class WMV_Viewer
 		p.p.display.updateCurrentSelectableTimeSegment = true;
 		boolean success = true;
 		
-		if(debugSettings.viewer) System.out.println("Setting newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment+" getLocation():"+getLocation());
+		if(debugSettings.viewer) System.out.println("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
 		
 		if(updateTimelinesSegment)
 		{
@@ -4028,7 +4019,7 @@ public class WMV_Viewer
 			if(currentField.getTimelines().size() > 0 && currentField.getTimelines().size() > state.currentFieldDate)
 			{
 				if(debugSettings.viewer)
-					System.out.println("Setting newCurrentFieldTimeSegmentOnDate:"+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+currentField.getID());
+					System.out.println("setCurrentFieldTimeSegmentOnDate()... "+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+currentField.getID());
 			}
 			else 
 			{
@@ -4041,9 +4032,12 @@ public class WMV_Viewer
 			System.out.println("currentField.getTimelines() == null!!!");
 			return false;
 		}
-		
+	
 		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimeSegmentOnDate;
 		p.p.display.updateCurrentSelectableTimeSegment = true;
+
+		if(debugSettings.viewer)
+			System.out.println("Set new state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate);
 
 		if(state.currentFieldDate < currentField.getTimelines().size())
 		{
@@ -4076,7 +4070,7 @@ public class WMV_Viewer
 		state.currentFieldDate = newDate;
 		boolean success = setCurrentFieldTimeSegmentOnDate( newCurrentFieldTimelinesSegment, updateTimelineSegment );
 		if(debugSettings.viewer)
-			System.out.println("setCurrentTimeSegmentAndDate... newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
+			System.out.println("setCurrentTimeSegmentAndDate() newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
 		return success;
 	}
 	

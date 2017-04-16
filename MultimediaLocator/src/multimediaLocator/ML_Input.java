@@ -819,7 +819,17 @@ public class ML_Input
 
 				if( key == 't' && optionKey )
 				{
-					ml.world.state.displayTerrain = !ml.world.state.displayTerrain;
+					boolean state = ml.world.state.displayTerrain;
+					if(state)
+					{
+						ml.world.fadeOutTerrain(true);
+					}
+					else
+					{
+						ml.world.state.terrainAlpha = 0.f;
+						ml.world.state.displayTerrain = true;
+						ml.world.fadeInTerrain();
+					}
 				}
 
 				if (key == 'T') 

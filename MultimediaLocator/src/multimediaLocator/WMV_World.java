@@ -445,10 +445,10 @@ public class WMV_World
 	public void fadeOutAllMedia()
 	{
 		getCurrentField().fadeOutAllMedia();
-		fadeOutTerrain();
+		fadeOutTerrain(false);
 	}
 	
-	public void fadeOutTerrain()
+	public void fadeOutTerrain(boolean turnOff)
 	{
 		if(state.terrainAlpha != 0.f)
 		{
@@ -457,14 +457,12 @@ public class WMV_World
 			state.fadingTerrainTarget = 0.f;
 			state.fadingTerrainStartFrame = p.frameCount;
 			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
-//			state.fadedOutTerrain = false;			// Recently faded out
-//			state.fadedInTerrain = false;
+			state.turnOffTerrainAfterFadingOut = true;
 		}
 	}
 
 	public void fadeInTerrain()
 	{
-		System.out.println("fadeInTerrain()...");
 		if(state.terrainAlpha != 255.f)
 		{
 			state.fadingTerrainAlpha = true;		
@@ -482,12 +480,18 @@ public class WMV_World
 	void updateFadingTerrainAlpha()
 	{
 		float newFadeValue = 0.f;
-
+		
 		if (p.frameCount >= state.fadingTerrainEndFrame)
 		{
 			state.fadingTerrainAlpha = false;
 			newFadeValue = state.fadingTerrainTarget;
-			if(newFadeValue == 0.f) state.waitingToFadeInTerrainAlpha = true;
+			if(newFadeValue == 0.f)
+			{
+				if(state.turnOffTerrainAfterFadingOut)
+					state.displayTerrain = false;
+				else
+					state.waitingToFadeInTerrainAlpha = true;
+			}
 		} 
 		else
 		{

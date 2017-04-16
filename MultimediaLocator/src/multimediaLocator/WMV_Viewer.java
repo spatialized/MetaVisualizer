@@ -2874,7 +2874,6 @@ public class WMV_Viewer
 					currentField.clearAllAttractors();						// Clear current attractors
 				}
 				
-				System.out.println("p.state.waitingToFadeInTerrainAlpha:"+p.state.waitingToFadeInTerrainAlpha);
 				if(p.state.waitingToFadeInTerrainAlpha) 		// Fade in terrain
 					p.fadeInTerrain();
 			}

@@ -176,12 +176,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			display.sendSetupMessage(world, " ");
 		}
 		
-		/* Check if data folder exists */
-//		String fieldPath = world.getField(0).getName();
-//		String dataFolder = library + fieldPath + "/data/";		// Max width 720 pixels  -- Check this!
-//		File dataFolderFile = new File(dataFolder);
-//		display.dataFolderFound = (dataFolderFile.exists() && dataFolderFile.isDirectory());
-		
 		display.sendSetupMessage(world, "Starting MultimediaLocator v0.9...");	// Show startup message
 		display.display(world);											
 
@@ -274,7 +268,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 				if(debugSettings.main || debugSettings.field)
 					System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
 				
-//				metadata.load(f, library.getLibraryFolder(), true);			// Added
 				world.state.hierarchical = f.initialize(-100000L);
 			}
 		}
@@ -284,13 +277,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if( state.initializationField >= world.getFields().size() )	
 		{
 			state.fieldsInitialized = true;
-			if(debugSettings.main)
-				System.out.println("" + world.getFields().size() + " fields initialized...");
-			world.enter(state.initializationField-1, false);			// Enter world at last initialization field
-			
-//			System.out.println("  Field #0 Height:"+world.getField(0).getModel().state.fieldHeight);
-//			System.out.println("  Field #1 Height:"+world.getField(1).getModel().state.fieldHeight);
-//			System.out.println("  Field #2 Height:"+world.getField(2).getModel().state.fieldHeight);
+			if(debugSettings.main) System.out.println("" + world.getFields().size() + " fields initialized...");
+			world.enter(state.initializationField-1, true);			// Enter world at last initialization field
 		}
 	}
 	
@@ -352,9 +340,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		perspective(world.viewer.getInitFieldOfView(), (float)width/(float)height, world.viewer.getNearClippingDistance(), 10000);
 		PVector t = new PVector(camLoc.x, camLoc.y, camLoc.z);
 		translate(t.x, t.y, t.z);
-//		rotateY(camera.attitude()[0]);
-//		rotateX(-camera.attitude()[1]);
-//		rotateZ(camera.attitude()[2]);
 		rotateY(camOrientation.x);
 		rotateX(-camOrientation.y);
 		rotateZ(camOrientation.z);
@@ -412,28 +397,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		world.viewer.initialize(0,0,0);
 	}
 	
-	/**
-	 * Called when image output folder has been selected
-	 * @param selection
-	 */
-	public void outputFolderSelected(File selection) 
-	{
-		if (selection == null) 
-		{
-			if (debugSettings.main)
-				println("Window was closed or the user hit cancel.");
-		} 
-		else 
-		{
-			String input = selection.getPath();
-
-			if (debugSettings.main)
-				println("----> User selected output folder: " + input);
-
-			world.outputFolder = input;
-			world.outputFolderSelected = true;
-		}
-	}
 	
 	/**
 	 * Analyze and load media folders given user selection
@@ -508,8 +471,30 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			librarySelectionDialog();					// Retry folder prompt
 		}
 	}
-	
 
+	/**
+	 * Called when image output folder has been selected
+	 * @param selection
+	 */
+	public void outputFolderSelected(File selection) 
+	{
+		if (selection == null) 
+		{
+			if (debugSettings.main)
+				println("Window was closed or the user hit cancel.");
+		} 
+		else 
+		{
+			String input = selection.getPath();
+
+			if (debugSettings.main)
+				println("----> User selected output folder: " + input);
+
+			world.outputFolder = input;
+			world.outputFolderSelected = true;
+		}
+	}
+	
 	/**
 	 * Called every time a new frame is available to read
 	 * @param m Movie the event pertains to

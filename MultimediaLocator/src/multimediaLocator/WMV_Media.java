@@ -72,30 +72,6 @@ public abstract class WMV_Media
 	}
 
 	/**
-	 * Set cluster date for this media based on media times in associated cluster
-	 */
-	void setClusterDates(WMV_Cluster c)
-	{
-		if(mState.getClusterID() != -1)
-		{
-			mState.clusterLowDate = c.getState().lowDate;
-			mState.clusterHighDate = c.getState().highDate;
-		}
-	}
-
-	/**
-	 * Set cluster time for this image based on media times in associated cluster
-	 */
-	void setClusterTimes( WMV_Cluster c )
-	{
-		if(mState.getClusterID() != -1)
-		{
-			mState.clusterLowTime = c.getState().lowTime;
-			mState.clusterHighTime = c.getState().highTime;
-		}
-	}
-
-	/**
 	 * Transition alpha from current to given value
 	 */
 	void fadeBrightness(float target)
@@ -129,25 +105,6 @@ public abstract class WMV_Media
 
 		if(isFadingOut()) mState.isFadingOut = false;
 		if(isFadingIn()) mState.isFadingIn = false;
-	}
-
-	/**
-	 * @return Distance from the image capture state.location to the camera
-	 */
-	float getCaptureDistance()       // Find distance from camera to point in virtual space where photo appears           
-	{
-		PVector camLoc = viewerState.getLocation();
-		float distance = PVector.dist(mState.captureLocation, camLoc);     
-		return distance;
-	}
-
-	/**
-	 * @return How far the image capture state.location is from a point
-	 */
-	float getCaptureDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
-	{
-		float distance = PVector.dist(mState.captureLocation, point);     
-		return distance;
 	}
 
 	public void updateTimeBrightness(WMV_Cluster c, WMV_Timeline fieldTimeline, WMV_Utilities utilities)
@@ -191,8 +148,7 @@ public abstract class WMV_Media
 		{
 			float timelineLength = upper - lower;
 
-//			if(debugSettings.video && getType() == 2)
-//				System.out.println("--> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
+//			if(debugSettings.video && getType() == 2) System.out.println("--> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
 
 			if(lower == upper)				// Only one cluster segment: fade for full timelineLength   -- CHANGE THIS?!
 			{
@@ -274,8 +230,6 @@ public abstract class WMV_Media
 				fadeOutEnd = Math.round(centerTime + length / 2.f);			// Frame media finishes fading out
 				if(fadeOutEnd > cycleLength)
 				{
-//					if((debugSettings.video && getType() == 2) || debugSettings.media)
-//						System.out.println("Adjusting fade out end from:"+fadeOutEnd+" to :"+cycleLength);
 					fadeOutEnd = cycleLength;
 				}
 			}	
@@ -290,7 +244,6 @@ public abstract class WMV_Media
 					System.out.println(" ------ fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" time.getTime():"+time.getTime()+" lower:"+lower+" upper:"+upper);
 					System.out.println(" media length:"+length);
-//					System.out.println("");
 				}
 			}
 
@@ -303,7 +256,6 @@ public abstract class WMV_Media
 					System.out.println("----- fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+" worldState.getTimeMode():"+worldState.getTimeMode());
 					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" time.getTime():"+time.getTime()+" lower:"+lower+" upper:"+upper);
 					System.out.println(" media length:"+length);
-//					System.out.println("");
 				}
 			}
 
@@ -316,7 +268,6 @@ public abstract class WMV_Media
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode());
 					System.out.println(" media length:"+length);
-//					System.out.println("");
 				}
 			}
 
@@ -329,7 +280,6 @@ public abstract class WMV_Media
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
 					System.out.println("-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode());
 					System.out.println(" media length:"+length);
-//					System.out.println("");
 				}
 			}
 
@@ -621,47 +571,6 @@ public abstract class WMV_Media
 		return dst;
 	}
 
-	public ZonedDateTime parseDateTime(String input) 
-	{		
-		String[] parts = input.split("-");
-		input = parts[1];
-		parts = input.split(":");
-
-		int year = Integer.valueOf(parts[0].trim());
-		int month = Integer.valueOf(parts[1]);
-		int min = Integer.valueOf(parts[3]);
-		int sec = Integer.valueOf(parts[4]);
-		input = parts[2];
-		parts = input.split(" ");
-		int day = Integer.valueOf(parts[0]);
-		int hour = Integer.valueOf(parts[1]);
-
-		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-
-		return pac;
-	}
-
-	public ZonedDateTime parseVideoDateTime(String input) 
-	{		
-		String[] parts = input.split(":");
-
-		int year = Integer.valueOf(parts[0].trim());
-		int month = Integer.valueOf(parts[1]);
-		int min = Integer.valueOf(parts[3]);
-		String secStr = parts[4];
-
-		input = parts[2];
-		parts = input.split(" ");
-		int day = Integer.valueOf(parts[0]);
-		int hour = Integer.valueOf(parts[1]);
-
-		parts = secStr.split("-");
-		int sec = Integer.valueOf(parts[0]);
-
-		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-		return pac;
-	}
-
 	/**
 	 * Move the capture state.location to the associated cluster state.location
 	 */
@@ -671,6 +580,25 @@ public abstract class WMV_Media
 			mState.captureLocation = mediaCluster.getLocation();
 		else
 			mState.disabled = true;
+	}
+
+	/**
+	 * @return Distance from the image capture state.location to the camera
+	 */
+	float getCaptureDistance()       // Find distance from camera to media capture location
+	{
+		PVector camLoc = viewerState.getLocation();
+		float distance = PVector.dist(mState.captureLocation, camLoc);     
+		return distance;
+	}
+
+	/**
+	 * @return How far the image capture state.location is from a point
+	 */
+	float getCaptureDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
+	{
+		float distance = PVector.dist(mState.captureLocation, point);     
+		return distance;
 	}
 
 	public void setMediaState( WMV_MediaState newMediaState )
@@ -702,20 +630,44 @@ public abstract class WMV_Media
 		mState.timeBrightness = newTimeBrightness;
 	}
 	
-	/**
-	 * @param newCluster New associated cluster
-	 * Set nearest cluster to the capture state.location to be the associated cluster
-	 */	
-//	void setAssociatedClusterID(int newCluster)    				 // Associate cluster that is closest to photo
-//	{
-//		mState.cluster = newCluster;
-//	}
 
+	/**
+	 * Set cluster date for this media based on media times in associated cluster
+	 */
+	void setClusterDates(WMV_Cluster c)
+	{
+		if(mState.getClusterID() != -1)
+		{
+			mState.clusterLowDate = c.getState().lowDate;
+			mState.clusterHighDate = c.getState().highDate;
+		}
+	}
+
+	/**
+	 * Set cluster time for this image based on media times in associated cluster
+	 */
+	void setClusterTimes( WMV_Cluster c )
+	{
+		if(mState.getClusterID() != -1)
+		{
+			mState.clusterLowTime = c.getState().lowTime;
+			mState.clusterHighTime = c.getState().highTime;
+		}
+	}
+
+	/**
+	 * Set media id
+	 * @param newID New media id
+	 */
 	void setID(int newID)
 	{
 		mState.id = newID;
 	}
 
+	/**
+	 * Set whether media is visible
+	 * @param newState New visibility state
+	 */
 	void setVisible(boolean newState)
 	{
 		mState.visible = newState;
@@ -784,26 +736,34 @@ public abstract class WMV_Media
 		return mState.fadedOut;
 	}
 
+	/**
+	 * Set whether media is disabled 
+	 * @param newState New disabled state
+	 */
 	public void setDisabled(boolean newState)
 	{
 		mState.disabled = newState;
 	}
 
 	/**
-	 * @return Whether the media is vState.disabled
+	 * @return Whether the media is disabled
 	 */
 	public boolean isDisabled()
 	{
 		return mState.disabled;
 	}
 
+	/**
+	 * Set whether media is hidden
+	 * @param newState New hidden state
+	 */
 	public void setHidden(boolean newState)
 	{
 		mState.hidden = newState;
 	}
 
 	/**
-	 * @return Whether the media is vState.hidden
+	 * @return Whether the media is hidden
 	 */
 	public boolean isHidden()
 	{
@@ -855,11 +815,18 @@ public abstract class WMV_Media
 		return mState.requested;
 	}
 	
+	/**
+	 * Set nearest cluster to the capture state.location to be the associated cluster
+	 * @param newCluster New associated cluster
+	 */	
 	public void setAssociatedClusterID(int newCluster)
 	{
 		mState.setClusterID( newCluster );
 	}
 	
+	/**
+	 * @return Associated cluster
+	 */
 	public int getAssociatedClusterID()
 	{
 		return mState.getClusterID();
@@ -968,5 +935,52 @@ public abstract class WMV_Media
 	public ML_DebugSettings getDebugSettings()
 	{
 		return debugSettings;
+	}
+	
+	/**
+	 * Parse date/time string from metadata given media time zone
+	 * @param input String to parse
+	 * @return ZonedDateTime object corresponding to given string
+	 */
+	public ZonedDateTime parseDateTime(String input) 
+	{		
+		String[] parts = input.split("-");
+		input = parts[1];
+		parts = input.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		int sec = Integer.valueOf(parts[4]);
+		input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(mState.timeZone));
+//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+
+		return pac;
+	}
+
+	public ZonedDateTime parseVideoDateTime(String input) 
+	{		
+		String[] parts = input.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		String secStr = parts[4];
+
+		input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		parts = secStr.split("-");
+		int sec = Integer.valueOf(parts[0]);
+
+		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+		return pac;
 	}
 }

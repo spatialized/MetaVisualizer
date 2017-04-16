@@ -92,13 +92,12 @@ public class WMV_World
 	 */
 	void enter(int fieldIdx, boolean moveToFirstTimeSegment)
 	{
-		viewer.enterField( getField(fieldIdx) );								// Update navigation
+		viewer.enterField( fieldIdx );								// Update navigation
 		viewer.updateState(settings, state);
-		viewer.updateNavigation();												// Update navigation
-
 		if(moveToFirstTimeSegment)
 			viewer.moveToFirstTimeSegment(false);
-		
+		viewer.updateNavigation();												// Update navigation
+
 		p.enteredField = true;
 	}
 
@@ -130,8 +129,6 @@ public class WMV_World
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
 				if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
 					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(p);		// Draw current cluster
-				else
-					System.out.println("viewer.getState().getCurrentClusterID():"+viewer.getState().getCurrentClusterID()+" over clusters.size():"+clusters.size()+"!!"+" getCurrentField().id:"+getCurrentField().getID());
 			}
 
 		}
@@ -340,7 +337,8 @@ public class WMV_World
 						}
 						else
 						{
-							System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
+							if(p.debugSettings.main)
+								System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
 							state.currentTime = 0;
 							startMediaTimeModeCycle();
 						}

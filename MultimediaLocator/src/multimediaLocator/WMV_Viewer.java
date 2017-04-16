@@ -102,9 +102,11 @@ public class WMV_Viewer
 		settings = newSettings;
 	}
 
-	public void enterField(WMV_Field newField)
+	public void enterField(int newFieldID)
 	{
-		currentField = newField;
+		setCurrentField(newFieldID);				// Set new field
+		currentField = p.getField(newFieldID);
+		
 		if(currentField == null)
 		{
 			System.out.println("Didn't enter field... currentField == null!");
@@ -759,8 +761,8 @@ public class WMV_Viewer
 				else
 				{
 					setLocation(new PVector(0,0,0));
-					setCurrentField(newField);				// Set new field
-					enterField(p.getField(newField));
+//					setCurrentField(newField);				// Set new field
+					enterField(newField);
 					if(debugSettings.viewer)
 						System.out.println(" Teleported to field "+state.teleportToField+"...");
 				}
@@ -2808,8 +2810,8 @@ public class WMV_Viewer
 				{
 					if(debugSettings.viewer) System.out.println(" Teleported to field "+state.teleportToField+"...");
 
-					setCurrentField(state.teleportToField);				// Set new field
-					enterField(p.getField(state.field));
+//					setCurrentField(state.teleportToField);				// Set new field
+					enterField(state.field);
 					state.teleportToField = -1;							// Reset target field
 				}
 
@@ -3963,8 +3965,8 @@ public class WMV_Viewer
 		state.currentFieldTimeSegment = newCurrentFieldTimeSegment;
 		p.p.display.updateCurrentSelectableTimeSegment = true;
 		boolean success = true;
-		if(debugSettings.viewer)
-			System.out.println("Setting newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment+" getLocation():"+getLocation());
+		
+		if(debugSettings.viewer) System.out.println("Setting newCurrentFieldTimeSegment:"+newCurrentFieldTimeSegment+" getLocation():"+getLocation());
 		
 		if(updateTimelinesSegment)
 		{

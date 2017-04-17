@@ -345,7 +345,8 @@ public class WMV_Viewer
 			else
 				p.getCurrentField().updateAllMediaSettings();
 
-			p.getField(state.field).setVisited(true);
+			if(!p.getField(state.field).hasBeenVisited()) 
+				p.getField(state.field).setVisited(true);
 		}
 	}
 
@@ -741,8 +742,10 @@ public class WMV_Viewer
 	 */
 	public void teleportToField(int offset, boolean moveToFirstTimeSegment, boolean fade) 
 	{
+		System.out.println("teleportToField offset:"+offset);
 		if(offset != 0)
 		{
+			boolean error = false;
 			p.stopAllVideos();
 			int newField = state.field + offset;
 
@@ -752,12 +755,22 @@ public class WMV_Viewer
 			if(newField < 0)
 				newField = p.getFieldCount() - 1;
 
-			PVector newLocation;
+			System.out.println("teleportToField newField:"+newField);
+
+			PVector newLocation = new PVector(0,0,0);
 			if(moveToFirstTimeSegment)
 			{
 				WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
-				state.teleportGoalCluster = goalSegment.getClusterID();
-				newLocation = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();
+				if(goalSegment != null)
+				{
+					state.teleportGoalCluster = goalSegment.getClusterID();
+					newLocation = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();
+				}
+				else
+				{
+					error = true;
+					System.out.println("p.getField("+newField+").getTimeline().getLower() returns null!!");
+				}
 			}
 			else
 			{
@@ -768,37 +781,40 @@ public class WMV_Viewer
 			if(debugSettings.viewer)
 				System.out.println("teleportToField()... newField: "+newField+" out of "+p.getFieldCount()+" to cluster: "+state.teleportGoalCluster+" out of "+p.getField(newField).getClusters().size());
 
-			if(p.getField(newField).getClusters().size() > 0)
+			if(!error)
 			{
-				state.teleportGoal = newLocation;
-				if(fade)
+				if(p.getField(newField).getClusters().size() > 0)
 				{
-					startTeleport(newField);
-				}
-				else
-				{
-					enterField(newField); 
-					
-					if(moveToFirstTimeSegment)
+					state.teleportGoal = newLocation;
+					if(fade)
 					{
-						WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
-						
-						setCurrentCluster( state.teleportGoalCluster, goalSegment.getFieldTimelineID() );
+						startTeleport(newField);
 					}
 					else
 					{
-						state.teleportGoalCluster = -1;
-						setCurrentCluster( 0, -1 );
+						enterField(newField); 
+
+						if(moveToFirstTimeSegment)
+						{
+							WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
+							setCurrentCluster( state.teleportGoalCluster, goalSegment.getFieldTimelineID() );
+						}
+						else
+						{
+							state.teleportGoalCluster = -1;
+							setCurrentCluster( 0, -1 );
+						}
+
+						setLocation(newLocation);			// Set location
+
+						if(debugSettings.viewer) System.out.println(" Teleported to field "+state.teleportToField+"...");
 					}
-					
-					setLocation(newLocation);			// Set location
-					
-					if(debugSettings.viewer) System.out.println(" Teleported to field "+state.teleportToField+"...");
 				}
-			}
-			else
-			{
-				System.out.println("This field has no clusters!");
+				else
+				{
+					error = true;
+					System.out.println("This field has no clusters!");
+				}
 			}
 		}
 	}
@@ -2837,6 +2853,7 @@ public class WMV_Viewer
 					enterField(state.teleportToField);					// Enter new field
 					if(debugSettings.viewer) 
 						System.out.println(" Teleported to field "+state.teleportToField+" goal point: x:"+state.teleportGoal.x+" y:"+state.teleportGoal.y+" z:"+state.teleportGoal.z);
+					state.teleportToField = -1;
 				}
 				
 				setLocation(state.teleportGoal);				// Move the camera

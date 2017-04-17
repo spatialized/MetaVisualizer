@@ -285,7 +285,7 @@ public class WMV_Utilities
 	 * @param loc Given point
 	 * @return GPS location for given point
 	 */
-	public PVector getGPSLocation(WMV_Field f, PVector loc)			// -- Working??
+	public PVector getGPSLocation(WMV_Field f, PVector loc)			
 	{
 		WMV_Model m = f.getModel();
 		
@@ -293,7 +293,6 @@ public class WMV_Utilities
 		float newY = PApplet.map( loc.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, m.getState().highLatitude, m.getState().lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
 
 		PVector gpsLoc = new PVector(newX, newY);
-
 		return gpsLoc;
 	}
 

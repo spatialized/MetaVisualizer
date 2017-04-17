@@ -180,6 +180,8 @@ public class WMV_Model
 			 if (v.getMediaState().gpsLocation.z < state.lowLatitude)
 				 state.lowLatitude = v.getMediaState().gpsLocation.z;
 		 }
+		 
+		 
 
 		 if (debugSettings.field) 							// Display results for debugging
 		 {

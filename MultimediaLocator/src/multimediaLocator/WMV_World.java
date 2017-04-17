@@ -144,9 +144,7 @@ public class WMV_World
 		}
 		
 		if(state.displayTerrain)						// Draw terrain as wireframe grid
-		{
 			displayTerrain();
-		}
 		
 		viewer.updateNavigation();					// Update navigation
 		if(p.display.displayView == 0)	
@@ -463,11 +461,11 @@ public class WMV_World
 
 	public void fadeInTerrain()
 	{
-		if(state.terrainAlpha != 255.f)
+		if(state.terrainAlpha != state.terrainAlphaMax)
 		{
 			state.fadingTerrainAlpha = true;		
 			state.fadingTerrainStart = state.terrainAlpha;
-			state.fadingTerrainTarget = 255.f;
+			state.fadingTerrainTarget = state.terrainAlphaMax;
 			state.fadingTerrainStartFrame = p.frameCount;
 			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
 			state.waitingToFadeInTerrainAlpha = false;
@@ -603,7 +601,7 @@ public class WMV_World
 			p.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
 			p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
 			
-			System.out.println("Saved simulation state for field #"+f.getID());
+			if(p.debugSettings.main) System.out.println("Saved simulation state for field #"+f.getID());
 		}
 	}
 
@@ -689,7 +687,26 @@ public class WMV_World
 		
 		state.frameCount = p.frameCount;
 		viewer.setFrameCount(p.frameCount);
-		viewer.setCurrentFieldID(field.getID());
+		if(field.getID() < fields.size())
+		{
+			System.out.println("Will set viewer current field ID to:"+field.getID()+" fields.size():"+fields.size());
+			viewer.setCurrentFieldID(field.getID());
+		}
+		else
+		{
+			if(fields.size() == 1)
+			{
+				field.setID(0);
+				viewer.setCurrentFieldID(0);
+				System.out.println("Loading single field of a library... set field ID to:"+field.getID()+" fields.size():"+fields.size());
+			}
+			else
+			{
+				System.out.println("Error in setting field ID... field.getID():"+field.getID()+" fields.size():"+fields.size());
+				p.exit();
+			}
+		}
+
 		viewer.resetTimeState();
 
 		/* Check world and viewer state/settings */

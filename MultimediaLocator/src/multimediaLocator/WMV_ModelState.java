@@ -13,7 +13,9 @@ public class WMV_ModelState
 	public float fieldLength; 			// Length (Z) of GPS photo area	
 	public float fieldArea;				// Field width * height
 	public float fieldAspectRatio = 1; 	// Aspect ratio
-
+	public float centerLongitude = 0.f;	// Field center longitude
+	public float centerLatitude = 0.f;	// Field center latitude
+	
 	/* Clustering */
 	public int mergedClusters = 0;							// Number of merged clusters
 	public float minClusterDistance; 						// Minimum distance between clusters, i.e. closer than which clusters are merged

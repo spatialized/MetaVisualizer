@@ -37,6 +37,7 @@ public class WMV_WorldState
 
 	public boolean fadingTerrainAlpha = false, waitingToFadeInTerrainAlpha = false, turnOffTerrainAfterFadingOut = false;		
 	public float terrainAlpha = 0.f, fadingTerrainStart = 0.f, fadingTerrainTarget = 0.f;
+	public final float terrainAlphaMax = 200.f;
 	public int fadingTerrainStartFrame = 0, fadingTerrainEndFrame = 0; 
 	public final int fadingTerrainLength = 20; 
 //	public boolean fadedOutTerrain = true;			// Recently faded out

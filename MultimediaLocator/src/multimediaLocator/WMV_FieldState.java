@@ -17,7 +17,7 @@ public class WMV_FieldState
 	
 	/* Data */
 	public WMV_ModelState model;							// Model state for importing / exporting
-
+	
 	/* Time */
 	public WMV_Timeline timeline;							// Field timeline
 	public ArrayList<WMV_Date> dateline;					// List of dates, whose indices correspond with timelines in WMV_Field timelines list

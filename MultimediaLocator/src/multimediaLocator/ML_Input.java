@@ -1061,7 +1061,7 @@ public class ML_Input
 						}
 					}
 
-					if (key == ')') {
+					if (key == ')') {		// -- Obsolete?
 						float newAlpha = PApplet.constrain(ml.world.getState().alpha+15.f, 0.f, 255.f);
 						ml.world.fadeAlpha(newAlpha);
 					}

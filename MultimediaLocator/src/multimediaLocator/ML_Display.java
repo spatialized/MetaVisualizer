@@ -96,7 +96,7 @@ class ML_Display
 	float leftTextXOffset, rightTextXOffset, metadataYOffset, startupMessageYOffset;
 	float midLeftTextXOffset, midRightTextXOffset;
 	float clusterImageXOffset, clusterImageYOffset;
-
+	float fieldsXScreenSize, fieldsYScreenSize, fieldsXOffset, fieldsYOffset;
 	final float veryLargeTextSize = 64.f;
 	final float largeTextSize = 56.f;
 	final float mediumTextSize = 44.f;
@@ -126,8 +126,14 @@ class ML_Display
 		midRightTextXOffset = screenWidth / 1.5f;
 
 		topTextYOffset = -screenHeight / 1.6f;
-		clusterImageXOffset = -screenWidth/ 1.85f;
+		clusterImageXOffset = -screenWidth / 1.85f;
 		clusterImageYOffset = screenHeight * 1.33f;
+		
+		fieldsXOffset = -screenWidth / 1.88f;
+		fieldsYOffset = -screenHeight / 1.33f;
+		
+		fieldsXScreenSize = screenWidth * 1.75f;
+		fieldsYScreenSize = screenHeight * 1.33f;
 
 		userMessageXOffset = -screenWidth / 2.f;
 		userMessageYOffset = 0;
@@ -141,7 +147,7 @@ class ML_Display
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
-		timelineXOffset = -screenWidth/ 1.66f;
+		timelineXOffset = -screenWidth / 1.66f;
 		timelineYOffset = -screenHeight / 3.f;
 		timelineYOffset = 0.f;
 		datelineXOffset = timelineXOffset;
@@ -1639,18 +1645,16 @@ class ML_Display
 		WMV_Field f = p.getCurrentField();
 		WMV_Cluster c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
 
-		startHUD(p);
-		p.p.pushMatrix();
 		
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
 		
 		switch(libraryViewMode)
 		{
-			case 0:
-	
+			case 0:								// Cluster
+				startHUD(p);
+				p.p.pushMatrix();
 				p.p.fill(0, 0, 255, 255);
-	
 				p.p.textSize(veryLargeTextSize);
 				p.p.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
 	
@@ -1747,15 +1751,136 @@ class ML_Display
 						p.p.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistance);
 					}
 				}
+				
+				drawClusterImages(p, c.getImages(p.getCurrentField().getImages()));
+				p.p.popMatrix();
 				break;
-			case 1:
+			case 1:														// Field
 				break;
-			case 2:
+			case 2:														// Fields
+				startHUD(p);
+//				p.p.pushMatrix();
+				displayFields(p);
+//				p.p.popMatrix();
 				break;
 		}
-		p.p.popMatrix();
+	}
+
+	/**
+	 * Draw thumbnails in grid of images in cluster
+	 * @param cluster Cluster to preview
+	 */
+	private void displayFields(WMV_World p)
+	{
+		ArrayList<WMV_Field> fields = p.getFields();
 		
-		drawClusterImages(p, c.getImages(p.getCurrentField().getImages()));
+//		float xPos = fieldsXScreenSize;
+//		float yPos = fieldsYScreenSize;			// Starting vertical position
+		float hue = 0.f;
+		float hueInc = 160.f / fields.size();
+		
+		p.p.strokeWeight(4);
+//		p.p.fill(0, 0, 255, 255);
+//		p.p.tint(255);
+
+		float highLongitude = -100000, lowLongitude = 100000;
+		float highLatitude = -100000, lowLatitude = 100000;
+		float centerLongitude = 0, centerLatitude = 0;
+		
+		for(WMV_Field f : fields)				// -- Precalculate
+		{
+			if(f.getModel().getState().lowLongitude < lowLongitude)
+				lowLongitude = f.getModel().getState().lowLongitude;
+			if(f.getModel().getState().lowLatitude < lowLatitude)
+				lowLatitude = f.getModel().getState().lowLatitude;
+			if(f.getModel().getState().highLongitude > highLongitude)
+				highLongitude = f.getModel().getState().highLongitude;
+			if(f.getModel().getState().highLatitude > highLatitude)
+				highLatitude = f.getModel().getState().highLatitude;
+		}
+
+//		float xPos = centerTextXOffset;
+//		float yPos = topTextYOffset;			// Starting vertical position
+		
+//		p.p.text("FUCK", xPos, yPos);
+//		yPos += 100.f;
+//		p.p.text("xPos:"+xPos+" yPos:"+yPos, xPos, yPos);
+//		p.p.stroke(255, 255, 55, 255);
+//		p.p.point(0,0,0);
+
+		PVector centerPoint = new PVector(0,0);
+		centerLongitude = (highLongitude - lowLongitude) * 0.5f;
+		centerLatitude = (highLatitude - lowLatitude) * 0.5f;
+		centerPoint.x = utilities.mapValue(centerLongitude, lowLongitude, highLongitude, 0, fieldsXScreenSize);
+		centerPoint.y = utilities.mapValue(centerLatitude, lowLatitude, highLatitude, 0, fieldsYScreenSize);
+		p.p.fill(255, 0, 255, 255);
+		p.p.textSize(veryLargeTextSize);
+		p.p.text("+", centerPoint.x, centerPoint.y, hudDistance);
+
+		p.p.strokeWeight(20.f);
+
+		for(WMV_Field f : fields)
+		{
+			hue += hueInc;
+
+			if(!f.calculatedBorderPoints)
+				f.calculateBorderPoints();
+			
+//			PVector center = new PVector(f.getModel().getState().centerLongitude, f.getModel().getState().centerLatitude); 
+
+//			p.p.stroke(125, 255, 255, 255);
+//			p.p.strokeWeight(50.f);
+//			p.p.point(0,0,0);
+//			p.p.stroke(55, 255, 255, 255);
+//			p.p.strokeWeight(30.f);
+//			p.p.point(0,0,hudDistance);
+
+			PVector last = f.border.get(0);
+			PVector lastPoint = new PVector(0,0,0);
+			PVector first = last;
+			
+//			PVector lastPoint = new PVector(0,0,0);
+			PVector firstPoint = f.border.get(0);
+			PVector firstPointGPS = utilities.getGPSLocation(f, new PVector(firstPoint.x, 0, firstPoint.y));
+			firstPoint.x = utilities.mapValue(firstPointGPS.x, lowLongitude, highLongitude, 0, fieldsXScreenSize);
+			firstPoint.y = utilities.mapValue(firstPointGPS.y, lowLatitude, highLatitude, 0, fieldsYScreenSize);
+
+			int count = 0;
+//			if(f.getID() == 0)			System.out.println("------- Drawing Field #"+f.getID()+" border ------");
+			
+			for(PVector bp : f.border)
+			{
+				p.p.pushMatrix();
+				
+				p.p.strokeWeight(3.f);
+				p.p.stroke(hue, 255.f, 255.f, 255.f);
+	
+				PVector bpGPS = utilities.getGPSLocation(f, new PVector(bp.x, 0, bp.y));
+				PVector point = new PVector(0,0,0);
+				point.x = utilities.mapValue(bpGPS.x, lowLongitude, highLongitude, 0, fieldsXScreenSize);
+				point.y = utilities.mapValue(bpGPS.y, lowLatitude, highLatitude, 0, fieldsYScreenSize);
+				
+				if(bp != last)
+				{
+//					if(f.getID() == 0) System.out.println(" count:"+count+"  bp.x:"+bp.x+" bp.y:"+bp.y+"...");
+					
+//					p.p.point(fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance);
+//					p.p.strokeWeight(4.f);
+					p.p.line( fieldsXOffset + lastPoint.x, fieldsYOffset + lastPoint.y, hudDistance, 
+							  fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance );
+				}
+				p.p.popMatrix();
+
+				if(count == f.border.size()-1)		// Close the border
+					p.p.line( fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance, fieldsXOffset + firstPoint.x, 
+							  fieldsYOffset + firstPoint.y, hudDistance );
+				
+				last = bp;
+				lastPoint = point;
+				
+				count++;
+			}
+		}
 	}
 
 	/**
@@ -1800,10 +1925,8 @@ class ML_Display
 			p.p.popMatrix();
 			count++;
 		}
-		
-//		for(WMV_Viewable v : cluster.)
 	}
-	
+
 	public boolean inDisplayView()
 	{
 		if( displayView != 0 )

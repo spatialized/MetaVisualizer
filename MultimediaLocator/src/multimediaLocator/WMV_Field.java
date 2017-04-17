@@ -14,6 +14,7 @@ import com.apporiented.algorithm.clustering.Cluster;
 import com.apporiented.algorithm.clustering.ClusteringAlgorithm;
 import com.apporiented.algorithm.clustering.DefaultClusteringAlgorithm;
 
+import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.IntList;
@@ -36,7 +37,8 @@ public class WMV_Field
 	private WMV_Model model;					// Dimensions of current virtual space
 
 	/* Model */
-	ArrayList<PVector> border;					// Convex hull (border) of media points
+	public ArrayList<PVector> border;					// Convex hull (border) of media points
+	public boolean calculatedBorderPoints = false;
 
 	/* Time */
 	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
@@ -164,6 +166,8 @@ public class WMV_Field
 
 				System.out.println("Media Density:"+model.getState().mediaDensity);
 			}
+			
+			calculateBorderPoints();								// Calculate border points for Library View
 		}
 		else 
 		{
@@ -3229,7 +3233,7 @@ public class WMV_Field
 	}
 
 	/**
-	 * Get convex hull of set of n points.
+	 * Get convex hull of set of n points using Jarvis March algorithm.
 	 * Based on: http://www.geeksforgeeks.org/convex-hull-set-1-jarviss-algorithm-or-wrapping/
 	 * @param points
 	 * @return
@@ -3238,61 +3242,92 @@ public class WMV_Field
 	{
 		border = new ArrayList<PVector>();
 		ArrayList<PVector> points = new ArrayList<PVector>();
-		
+
 		for(WMV_Image i : images)
 			points.add(new PVector(i.getLocation().x, i.getLocation().z));
 		for(WMV_Panorama n : panoramas)
-			points.add(new PVector(n.getLocation().x, n.getLocation().z));
+		{
+			if(n.getLocation() != null)
+				points.add(new PVector(n.getLocation().x, n.getLocation().z));
+			else
+				System.out.println("Error in calculateBorderPoints()... panorama #"+n.getID()+" has no location!!!!");
+		}
 		for(WMV_Video v : videos)
 			points.add(new PVector(v.getLocation().x, v.getLocation().z));
+
+		// There must be at least 3 points
+		if (points.size() < 3) return;
+
+		// Find the leftmost PVector
+		int l = 0;
+		for (int i = 1; i < points.size(); i++)
+			if (points.get(i).x < points.get(l).x)
+				l = i;
+
+		// Start from leftmost PVector, keep moving counterclockwise
+		// until reach the start PVector again.  This loop runs O(h)
+		// times where h is number of points in result or output.
+		int p = l, q;
+		do
+		{
+			// Add current PVector to result
+			border.add(points.get(p));
+
+			// Search for a PVector 'q' such that orientation(p, x,
+			// q) is counterclockwise for all points 'x'. The idea
+			// is to keep track of last visited most counterclock-
+			// wise PVector in q. If any PVector 'i' is more counterclock-
+			// wise than q, then update q.
+			q = (p+1)%points.size();
+			for (int i = 0; i < points.size(); i++)
+			{
+				// If i is more counterclockwise than current q, then
+				// update q
+				if (getPointTripletOrientation(points.get(p), points.get(i), points.get(q)) == 2)
+					q = i;
+			}
+
+			// Now q is the most counterclockwise with respect to p
+			// Set p as q for next iteration, so that q is added to
+			// result 'hull'
+			p = q;
+		} 
+		while (p != l);  // While we don't come to first PVector
+
+		// Print Result
+		//	  for (int i = 0; i < hull.size(); i++)
+		//	    System.out.println( "(" + hull.get(i).x + ", "
+		//	      + hull.get(i).y + ")\n");
+
+		if(debugSettings.field)
+			System.out.println("Found media points border of size:"+border.size());
+
+		WMV_ModelState m = getModel().getState();
+		if(m.highLongitude != -1000000 && m.lowLongitude != 1000000 && m.highLatitude != -1000000 && m.lowLatitude != 1000000 && m.highAltitude != -1000000 && m.lowAltitude != 1000000)
+		{
+			if(m.highLongitude != m.lowLongitude && m.highLatitude != m.lowLatitude)
+			{
+				model.state.centerLongitude = (m.lowLongitude + m.highLongitude) * 0.5f; 	// GPS longitude decreases from left to right
+				model.state.centerLatitude = (m.lowLatitude + m.highLatitude) * 0.5f; 				// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
+				System.out.println("Found field#"+getID()+" center point... model.state.centerLongitude:"+model.state.centerLongitude+" model.state.centerLatitude:"+model.state.centerLatitude);
+			}
+			else
+			{
+				System.out.println("Error finding field #"+getID()+" center point...");
+			}
+		}
+
+		/* Correct border points' order */
+//		ArrayList<PVector> newBp = new ArrayList<PVector>();
+		int count = 0;
+		System.out.println("Border points for field #"+getID());
+		for(PVector bp : border)
+		{
+			System.out.println(" Point #"+count+" bp.x:"+bp.x+" bp.y:"+bp.y);
+			count++;
+		}
 		
-	  // There must be at least 3 points
-	  if (points.size() < 3) return;
-
-
-	  // Find the leftmost PVector
-	  int l = 0;
-	  for (int i = 1; i < points.size(); i++)
-	    if (points.get(i).x < points.get(l).x)
-	      l = i;
-
-	  // Start from leftmost PVector, keep moving counterclockwise
-	  // until reach the start PVector again.  This loop runs O(h)
-	  // times where h is number of points in result or output.
-	  int p = l, q;
-	  do
-	  {
-	    // Add current PVector to result
-	    border.add(points.get(p));
-
-	    // Search for a PVector 'q' such that orientation(p, x,
-	    // q) is counterclockwise for all points 'x'. The idea
-	    // is to keep track of last visited most counterclock-
-	    // wise PVector in q. If any PVector 'i' is more counterclock-
-	    // wise than q, then update q.
-	    q = (p+1)%points.size();
-	    for (int i = 0; i < points.size(); i++)
-	    {
-	      // If i is more counterclockwise than current q, then
-	      // update q
-	      if (getPointTripletOrientation(points.get(p), points.get(i), points.get(q)) == 2)
-	        q = i;
-	    }
-
-	    // Now q is the most counterclockwise with respect to p
-	    // Set p as q for next iteration, so that q is added to
-	    // result 'hull'
-	    p = q;
-	  } 
-	  while (p != l);  // While we don't come to first PVector
-
-	  // Print Result
-//	  for (int i = 0; i < hull.size(); i++)
-//	    System.out.println( "(" + hull.get(i).x + ", "
-//	      + hull.get(i).y + ")\n");
-
-	  if(debugSettings.field)
-		  System.out.println("Found media points border of size:"+border.size());
+		calculatedBorderPoints = true;
 	}
 	
 	/**

@@ -254,6 +254,10 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			else
 				loadedField = loadSimulationState(f, library.getLibraryFolder(), false);	// Load metadata and attempt to load simulation state
 			
+			if(world.getFields().size() == 0)
+				if(world.viewer.getState().field > 0)
+					world.viewer.setCurrentField(0, false);
+			
 			boolean success = (loadedField != null);
 			if(success) world.setField(loadedField, state.initializationField);
 			if(success) success = world.getField(state.initializationField).getClusters() != null;

@@ -721,7 +721,27 @@ public class ML_Input
 						if(ml.display.libraryViewMode == 2)
 						{
 							if(!ml.display.initializedFieldMap)
-								ml.display.map2D.initializeFieldMap(ml.world);
+								ml.display.map2D.initializeFieldsMap(ml.world);
+						}
+					}
+
+				}
+				
+				if (ml.display.libraryViewMode == 2)
+				{
+					if(key == PApplet.ENTER)
+					{
+						if(shiftKey)
+						{
+//							public void teleportToField(int newField, boolean moveToFirstTimeSegment, boolean fade) 
+							ml.world.viewer.teleportToField(ml.display.map2D.getSelectedFieldID(), true, false);
+//							ml.world.viewer.teleportToCluster(ml.display.map2D.getSelectedClusterID(), false, -1);
+						}
+						else
+						{
+							ml.world.viewer.teleportToField(ml.display.map2D.getSelectedFieldID(), true, true);
+//							ml.world.viewer.teleportToCluster(ml.display.map2D.getSelectedClusterID(), true, -1);
+							ml.display.displayView = 0;
 						}
 					}
 				}

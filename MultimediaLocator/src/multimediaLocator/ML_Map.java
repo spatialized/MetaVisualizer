@@ -40,7 +40,7 @@ public class ML_Map
 	private MarkerManager<Marker> markerManager;
 	private MultiMarker multiMarker;
 	private SimplePointMarker viewerMarker;
-	private int clusterZoomLevel = 18;
+	private int clusterZoomLevel = 18, fieldZoomLevel = 15;
 	
 	/* Graphics */
 	private float hudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
@@ -70,7 +70,7 @@ public class ML_Map
 	float smallPointSize, mediumPointSize, largePointSize, hugePointSize;	// Obsolete soon
 	float cameraPointSize;
 
-	public boolean mapImages = true, mapPanoramas = true, mapVideos = true, mapMedia = true;
+	public boolean mapImages = true, mapPanoramas = true, mapVideos = true, mapMedia = false;
 	private float imageHue = 150.f, imageCaptureHue = 90.f;
 	private float panoramaHue = 190.f, panoramaCaptureHue = 220.f;
 	private float videoHue = 40.f, videoCaptureHue = 70.f;
@@ -346,7 +346,9 @@ public class ML_Map
 			map.draw();
 
 			if(mapMedia)
+			{
 				displayClusters(world);
+			}
 		}
 	}
 	
@@ -359,12 +361,12 @@ public class ML_Map
 		{
 			if(selectedCluster < world.getCurrentField().getClusters().size())
 			{
-			WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
+				WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
 
-			if(selectedCluster == world.viewer.getState().getCurrentClusterID())
-				drawClusterMedia(world, c, mapWidth, mapHeight, false);
-			else
-				drawClusterMedia(world, c, mapWidth, mapHeight, true);
+				if(selectedCluster == world.viewer.getState().getCurrentClusterID())
+					drawClusterMedia(world, c, mapWidth, mapHeight, false);
+				else
+					drawClusterMedia(world, c, mapWidth, mapHeight, true);
 			}
 			else
 				selectedCluster = -1;
@@ -522,7 +524,21 @@ public class ML_Map
 			}
 		}
 	}
-	
+
+
+	/**
+	 * Zoom in on cluster
+	 * @param c Cluster to zoom in on
+	 */
+	void zoomToField(WMV_World world, WMV_Field f)
+	{
+		if(p.displayView == 2 && p.libraryViewMode == 2)
+		{
+			PVector gpsLoc = new PVector(f.getModel().getState().centerLongitude, f.getModel().getState().centerLatitude);
+			map.zoomAndPanTo(fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
+		}
+	}
+
 	/**
 	 * Zoom in on map
 	 */
@@ -1083,17 +1099,31 @@ public class ML_Map
 			}
 			else if(p.displayView == 2 && p.libraryViewMode == 2)	// Field map visible
 			{
-				System.out.println("handleMouseReleased() selectedField: "+selectedField+" current:"+world.getCurrentField().getID());
 				if(selectedField != world.getCurrentField().getID())
 				{
 					if(selectedField >= 0 && selectedField < world.getFields().size())
 					{
-						world.viewer.teleportToField(selectedField, true, false);
+						zoomToField(world, world.getField(selectedField));
+//						world.viewer.teleportToField(selectedField, true, false);
 						p.currentDisplayCluster = 0;
 					}
 				}
 			}
 		}		
+	}
+	
+	public int getSelectedFieldID()
+	{
+		return selectedField;
+	}
+	
+	/**
+	 * Set selected field
+	 * @param newField New selected field
+	 */
+	public void setSelectedField( int newField )
+	{
+		selectedField = newField;
 	}
 	
 	public int getSelectedClusterID()
@@ -1505,10 +1535,31 @@ public class ML_Map
 		}
 	}
 	
-	public void initializeFieldMap(WMV_World world)
+	public void initializeFieldsMap(WMV_World world)
 	{
-		System.out.println("initializeFieldMap()...");
 		createFieldMarkers(world);
+		if(mapMedia)
+			createAllClusterMarkers(world);
+		
+		float highLongitude = -100000, lowLongitude = 100000;
+		float highLatitude = -100000, lowLatitude = 100000;
+		
+		for(WMV_Field f : world.getFields())				// -- Precalculate
+		{
+			if(f.getModel().getState().lowLongitude < lowLongitude)
+				lowLongitude = f.getModel().getState().lowLongitude;
+			if(f.getModel().getState().lowLatitude < lowLatitude)
+				lowLatitude = f.getModel().getState().lowLatitude;
+			if(f.getModel().getState().highLongitude > highLongitude)
+				highLongitude = f.getModel().getState().highLongitude;
+			if(f.getModel().getState().highLatitude > highLatitude)
+				highLatitude = f.getModel().getState().highLatitude;
+		}
+
+		fieldsMapCenter = new Location(highLatitude, highLongitude);
+//		fieldsMapCenter = new Location((highLatitude - lowLatitude)*0.5f, (highLongitude - lowLongitude)*0.5f);
+
+		map.zoomAndPanTo(fieldZoomLevel, fieldsMapCenter);		// -- Fix this!
 		p.initializedFieldMap = true;
 	}
 	
@@ -1517,7 +1568,7 @@ public class ML_Map
 	 */
 	public void createFieldMarkers(WMV_World world)
 	{
-		multiMarker = new MultiMarker();
+//		multiMarker = new MultiMarker();
 		List<SimplePolygonMarker> markerList = new ArrayList<SimplePolygonMarker>();
 		
 		int count = 0;
@@ -1563,6 +1614,39 @@ public class ML_Map
 //		map.addMarkers(multiMarker);
 	}
 	
+	private void createAllClusterMarkers(WMV_World world)
+	{
+		multiMarker = new MultiMarker();
+//		List<SimplePolygonMarker> markerList = new ArrayList<SimplePolygonMarker>();
+		
+		int fCount = 0;
+		for( WMV_Field f : world.getFields() )	
+		{
+			for(WMV_Cluster c : f.getClusters())
+			{
+				PVector cLoc = c.getLocation();
+				PVector gpsLoc = utilities.getGPSLocation(f, cLoc);
+				Location loc = new Location(gpsLoc.y, gpsLoc.x);
+				
+				float hue = utilities.mapValue(fCount, 0, world.getFields().size(), fieldHueRangeLow, fieldHueRangeHigh);
+				
+				SimplePointMarker clusterMarker = new SimplePointMarker(loc);
+				clusterMarker.setId(String.valueOf(c.getID()));
+				clusterMarker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
+				clusterMarker.setColor(world.p.color(hue, 165.f, 215.f, fieldTransparency));			// Same color as time segments in Time View
+				clusterMarker.setStrokeWeight(0);
+
+				multiMarker.addMarkers(clusterMarker);
+			}
+			fCount++;
+		}
+
+//		for(SimplePolygonMarker marker : markerList)
+//			map.addMarkers(marker);
+		
+		map.addMarkers(multiMarker);
+	}
+	
 	/**
 	 * Draw map of all fields in library
 	 */
@@ -1585,116 +1669,120 @@ public class ML_Map
 		world.p.tint(255.f, 255.f);
 		map.draw();
 
-		if(mapMedia)
-			displayClusters(world);
+//		if(mapMedia)
+//			displayFieldClusters(world);
 	}
 	
-	public void displayFields(WMV_World p)
-	{
-		ArrayList<WMV_Field> fields = p.getFields();
-		
-		float hue = 0.f;
-		float hueInc = 160.f / fields.size();
-		
-		p.p.strokeWeight(4);
-
-		float highLongitude = -100000, lowLongitude = 100000;
-		float highLatitude = -100000, lowLatitude = 100000;
-		float centerLongitude = 0, centerLatitude = 0;
-		
-		for(WMV_Field f : fields)				// -- Precalculate
-		{
-			if(f.getModel().getState().lowLongitude < lowLongitude)
-				lowLongitude = f.getModel().getState().lowLongitude;
-			if(f.getModel().getState().lowLatitude < lowLatitude)
-				lowLatitude = f.getModel().getState().lowLatitude;
-			if(f.getModel().getState().highLongitude > highLongitude)
-				highLongitude = f.getModel().getState().highLongitude;
-			if(f.getModel().getState().highLatitude > highLatitude)
-				highLatitude = f.getModel().getState().highLatitude;
-		}
-
-		fieldsMapCenter = new Location((highLongitude - lowLongitude)*0.5f, (highLatitude - lowLatitude)*0.5f);
-		map.zoomAndPanTo(14, fieldsMapCenter);
-
-//		float fieldsLeftEdge = lowLongitude;
-//		float fieldsRightEdge = highLongitude;
-//		float fieldsTopEdge = lowLatitude;
-//		float fieldsBottomEdge = highLatitude;
-
-//		System.out.println("fieldsRightEdge - fieldsLeftEdge:"+(fieldsRightEdge - fieldsLeftEdge));
-//		System.out.println("fieldsBottomEdge - fieldsTopEdge:"+(fieldsBottomEdge - fieldsTopEdge));
-		
-		PVector centerPoint = new PVector(0,0);
-		centerLongitude = (highLongitude - lowLongitude) * 0.5f;
-		centerLatitude = (highLatitude - lowLatitude) * 0.5f;
-		
-//		centerPoint.x = utilities.mapValue(centerLongitude, fieldsLeftEdge, fieldsRightEdge, 0, fieldsXScreenSize);
-//		centerPoint.y = utilities.mapValue(centerLatitude, fieldsTopEdge, fieldsBottomEdge, 0, fieldsYScreenSize);
-		p.p.fill(255, 0, 255, 255);
-//		p.p.textSize(veryLargeTextSize);
-//		p.p.text("+", centerPoint.x, centerPoint.y, hudDistance);
-
-		p.p.stroke(155, 255, 255, 255);
-		p.p.strokeWeight(20.f);
-
-		for(WMV_Field f : fields)
-		{
-			hue += hueInc;
-
-			for(WMV_Cluster c : f.getClusters())
-			{
-//				p.p.pushMatrix();
-
-				PVector cLoc = c.getLocation();
-				PVector point = utilities.getGPSLocation(f, cLoc);
-//				point.x = utilities.mapValue(point.x, fieldsLeftEdge, fieldsRightEdge, 0, fieldsXScreenSize);
-//				point.y = utilities.mapValue(point.y, fieldsTopEdge, fieldsBottomEdge, 0, fieldsYScreenSize);
-				
-//				p.p.point(point.x, point.y, hudDistance);
-//				p.p.popMatrix();
-			}
-			
-//			if(!f.calculatedBorderPoints)
-//				f.calculateBorderPoints();
-			PVector last = f.border.get(0);
-			PVector lastPoint = new PVector(0,0,0);
+//	public void displayFields(WMV_World p)
+//	{
+//		ArrayList<WMV_Field> fields = p.getFields();
+//		
+//		float hue = 0.f;
+//		float hueInc = 160.f / fields.size();
+//		
+//		p.p.strokeWeight(4);
+//
+//		float highLongitude = -100000, lowLongitude = 100000;
+//		float highLatitude = -100000, lowLatitude = 100000;
+//		float centerLongitude = 0, centerLatitude = 0;
+//		
+//		for(WMV_Field f : fields)				// -- Precalculate
+//		{
+//			if(f.getModel().getState().lowLongitude < lowLongitude)
+//				lowLongitude = f.getModel().getState().lowLongitude;
+//			if(f.getModel().getState().lowLatitude < lowLatitude)
+//				lowLatitude = f.getModel().getState().lowLatitude;
+//			if(f.getModel().getState().highLongitude > highLongitude)
+//				highLongitude = f.getModel().getState().highLongitude;
+//			if(f.getModel().getState().highLatitude > highLatitude)
+//				highLatitude = f.getModel().getState().highLatitude;
+//		}
+//
+//		fieldsMapCenter = new Location((highLongitude - lowLongitude)*0.5f, (highLatitude - lowLatitude)*0.5f);
+//		map.zoomAndPanTo(14, fieldsMapCenter);
+//
+////		float fieldsLeftEdge = lowLongitude;
+////		float fieldsRightEdge = highLongitude;
+////		float fieldsTopEdge = lowLatitude;
+////		float fieldsBottomEdge = highLatitude;
+//
+////		System.out.println("fieldsRightEdge - fieldsLeftEdge:"+(fieldsRightEdge - fieldsLeftEdge));
+////		System.out.println("fieldsBottomEdge - fieldsTopEdge:"+(fieldsBottomEdge - fieldsTopEdge));
+//		
+//		PVector centerPoint = new PVector(0,0);
+//		centerLongitude = (highLongitude - lowLongitude) * 0.5f;
+//		centerLatitude = (highLatitude - lowLatitude) * 0.5f;
+//		
+////		centerPoint.x = utilities.mapValue(centerLongitude, fieldsLeftEdge, fieldsRightEdge, 0, fieldsXScreenSize);
+////		centerPoint.y = utilities.mapValue(centerLatitude, fieldsTopEdge, fieldsBottomEdge, 0, fieldsYScreenSize);
+//		p.p.fill(255, 0, 255, 255);
+////		p.p.textSize(veryLargeTextSize);
+////		p.p.text("+", centerPoint.x, centerPoint.y, hudDistance);
+//
+//		p.p.stroke(155, 255, 255, 255);
+//		p.p.strokeWeight(20.f);
+//
+//		for(WMV_Field f : fields)
+//		{
+//			hue += hueInc;
+//
+//			for(WMV_Cluster c : f.getClusters())
+//			{
+////				p.p.pushMatrix();
+//
+//				PVector cLoc = c.getLocation();
+//				PVector point = utilities.getGPSLocation(f, cLoc);
+////				point.x = utilities.mapValue(point.x, fieldsLeftEdge, fieldsRightEdge, 0, fieldsXScreenSize);
+////				point.y = utilities.mapValue(point.y, fieldsTopEdge, fieldsBottomEdge, 0, fieldsYScreenSize);
+//				
+////				p.p.point(point.x, point.y, hudDistance);
+////				p.p.popMatrix();
+//			}
 //			
-//			PVector firstPoint = f.border.get(0);
-//			firstPoint.x = utilities.mapValue(firstPoint.x, lowLongitude, highLongitude, 0, fieldsXScreenSize);
-//			firstPoint.y = utilities.mapValue(firstPoint.y, lowLatitude, highLatitude, 0, fieldsYScreenSize);
-//
-			int count = 0;
-			for(PVector bp : f.border)
-			{
-				p.p.pushMatrix();
-				
-				p.p.strokeWeight(3.f);
-				p.p.stroke(hue, 255.f, 255.f, 255.f);
-	
-//				PVector point = new PVector(0,0,0);
-//				point.x = utilities.mapValue(bp.x, lowLongitude, highLongitude, 0, fieldsXScreenSize);
-//				point.y = utilities.mapValue(bp.y, lowLatitude, highLatitude, 0, fieldsYScreenSize);
-				
-//				if(bp != last)
-//				{
-//					p.p.line( fieldsXOffset + lastPoint.x, fieldsYOffset + lastPoint.y, hudDistance, 
-//							  fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance );
-//				}
-//
-//				if(count == f.border.size()-1)		// Close the border
-//					p.p.line( fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance, fieldsXOffset + firstPoint.x, 
-//							  fieldsYOffset + firstPoint.y, hudDistance );
-				
-				p.p.popMatrix();
-				last = bp;
-//				lastPoint = point;
-				
-				count++;
-			}
-		}
-	}
+////			if(!f.calculatedBorderPoints)
+////				f.calculateBorderPoints();
+//			PVector last = f.border.get(0);
+//			PVector lastPoint = new PVector(0,0,0);
+////			
+////			PVector firstPoint = f.border.get(0);
+////			firstPoint.x = utilities.mapValue(firstPoint.x, lowLongitude, highLongitude, 0, fieldsXScreenSize);
+////			firstPoint.y = utilities.mapValue(firstPoint.y, lowLatitude, highLatitude, 0, fieldsYScreenSize);
+////
+//			int count = 0;
+//			for(PVector bp : f.border)
+//			{
+//				p.p.pushMatrix();
+//				
+//				p.p.strokeWeight(3.f);
+//				p.p.stroke(hue, 255.f, 255.f, 255.f);
+//	
+////				PVector point = new PVector(0,0,0);
+////				point.x = utilities.mapValue(bp.x, lowLongitude, highLongitude, 0, fieldsXScreenSize);
+////				point.y = utilities.mapValue(bp.y, lowLatitude, highLatitude, 0, fieldsYScreenSize);
+//				
+////				if(bp != last)
+////				{
+////					p.p.line( fieldsXOffset + lastPoint.x, fieldsYOffset + lastPoint.y, hudDistance, 
+////							  fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance );
+////				}
+////
+////				if(count == f.border.size()-1)		// Close the border
+////					p.p.line( fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance, fieldsXOffset + firstPoint.x, 
+////							  fieldsYOffset + firstPoint.y, hudDistance );
+//				
+//				p.p.popMatrix();
+//				last = bp;
+////				lastPoint = point;
+//				
+//				count++;
+//			}
+//		}
+//	}
 
+//	public void displayFieldClusters(WMV_World world)
+//	{
+//		for()
+//	}
 	
 //	/**
 //	 * Draw camera attraction force vector (for debugging)

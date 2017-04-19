@@ -140,15 +140,15 @@ public class ML_Input
 				break;
 			case "NextField":
 				if(display.displayView == 1)
-					ml.world.viewer.teleportToField(1, true, false);
+					ml.world.viewer.teleportToFieldOffset(1, true, false);
 				else
-					ml.world.viewer.teleportToField(1, true, true);
+					ml.world.viewer.teleportToFieldOffset(1, true, true);
 				break;
 			case "PreviousField":
 				if(display.displayView == 1)
-					ml.world.viewer.teleportToField(-1, true, false);
+					ml.world.viewer.teleportToFieldOffset(-1, true, false);
 				else
-					ml.world.viewer.teleportToField(-1, true, true);
+					ml.world.viewer.teleportToFieldOffset(-1, true, true);
 				break;
 			case "ImportGPSTrack":
 				ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
@@ -583,10 +583,10 @@ public class ML_Input
 					ml.display.satelliteMap = !ml.display.satelliteMap;
 
 				if (key == '{')
-					ml.world.viewer.teleportToField(-1, true, false);
+					ml.world.viewer.teleportToFieldOffset(-1, true, false);
 
 				if (key == '}') 
-					ml.world.viewer.teleportToField(1, true, false);
+					ml.world.viewer.teleportToFieldOffset(1, true, false);
 
 				/* Clustering */
 				if (key == 'r')
@@ -1004,10 +1004,10 @@ public class ML_Input
 						ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
 
 					if (key == '{')
-						ml.world.viewer.teleportToField(-1, true, true);
+						ml.world.viewer.teleportToFieldOffset(-1, true, true);
 
 					if (key == '}') 
-						ml.world.viewer.teleportToField(1, true, true);
+						ml.world.viewer.teleportToFieldOffset(1, true, true);
 
 					if (key == 'q') 
 						ml.world.viewer.startZoomTransition(-1);
@@ -1541,7 +1541,7 @@ public class ML_Input
 				world.viewer.moveToNearestCluster(world.viewer.getMovementTeleport());
 		}
 		
-		if(display.displayView == 1)
+		if(display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode == 2))
 		{
 			display.map2D.handleMouseReleased(world, mouseX, mouseY);
 		}

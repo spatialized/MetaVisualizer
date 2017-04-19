@@ -117,7 +117,8 @@ public class WMV_Viewer
 		}
 		else
 		{
-			p.p.display.map2D.reset(p);
+			if(p.p.display.displayView == 1)
+				p.p.display.map2D.reset(p);
 			if(debugSettings.viewer) System.out.println("Entered field... "+currentField.getID());
 		}
 	}
@@ -735,27 +736,31 @@ public class WMV_Viewer
 		
 		if(debugSettings.viewer) System.out.println("setLocation()... "+newLocation);
 	}
+
+	public void teleportToFieldOffset(int offset, boolean moveToFirstTimeSegment, boolean fade) 
+	{
+		System.out.println("teleportToFieldOffset:"+offset);
+		teleportToField(state.field + offset, moveToFirstTimeSegment, fade);
+	}
 	
 	/**
 	 * Teleport to the field ID <inc> from current field
 	 * @param offset Field ID offset amount (0 stays in same field)
 	 */
-	public void teleportToField(int offset, boolean moveToFirstTimeSegment, boolean fade) 
+	public void teleportToField(int newField, boolean moveToFirstTimeSegment, boolean fade) 
 	{
-		System.out.println("teleportToField offset:"+offset);
-		if(offset != 0)
+		if(newField >= 0)
 		{
 			boolean error = false;
 			p.stopAllVideos();
-			int newField = state.field + offset;
+//			int newField = state.field + offset;
 
 			if(newField >= p.getFieldCount())
 				newField = 0;
 			
-			if(newField < 0)
-				newField = p.getFieldCount() - 1;
+//			if(newField < 0)
+//				newField = p.getFieldCount() - 1;
 
-			System.out.println("teleportToField newField:"+newField);
 
 			PVector newLocation = new PVector(0,0,0);
 			if(moveToFirstTimeSegment)

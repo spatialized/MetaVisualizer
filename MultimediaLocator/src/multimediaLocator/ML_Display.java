@@ -21,8 +21,8 @@ class ML_Display
 	public boolean initializedFieldMap = false;
 	
 	/* Display Modes */
-	public int displayView = 0;							// 0: Scene  1: Map  2: Cluster  3: Timeline
-	public boolean satelliteMap = true;
+	public int displayView = 0;							// 0: Scene  1: Map  2: Library  3: Timeline
+	public boolean satelliteMap = true;					// -- Temporary
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -197,10 +197,12 @@ class ML_Display
 					if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
 					if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
 					if(p.p.state.interactive) displayInteractiveClustering(p);
-					map2D.updateMapMouse(p);
+					map2D.updateMouse(p);
 					break;
 				case 2:
 					displayLibraryView(p);
+					if(libraryViewMode == 2)
+						map2D.updateMouse(p);
 					break;
 				case 3:
 					displayTimeView(p);
@@ -1646,10 +1648,9 @@ class ML_Display
 		WMV_Field f = p.getCurrentField();
 		WMV_Cluster c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
 
-		
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
-		
+
 		switch(libraryViewMode)
 		{
 			case 0:								// Cluster

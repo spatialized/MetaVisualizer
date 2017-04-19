@@ -576,8 +576,8 @@ public class ML_Input
 
 			if(ml.display.displayView == 1)	/* 2D Map View */
 			{
-				if( key == '|' )
-					ml.world.getCurrentField().calculateBorderPoints();
+//				if( key == '|' )
+//					ml.world.getCurrentField().calculateBorderPoints();
 				
 				if( key == '+' )
 					ml.display.satelliteMap = !ml.display.satelliteMap;
@@ -717,6 +717,12 @@ public class ML_Input
 						ml.display.libraryViewMode++;
 						if( ml.display.libraryViewMode >= ml.world.getFieldClusters().size())
 							ml.display.libraryViewMode = 0;
+						
+						if(ml.display.libraryViewMode == 2)
+						{
+							if(!ml.display.initializedFieldMap)
+								ml.display.map2D.initializeFieldMap(ml.world);
+						}
 					}
 				}
 			}

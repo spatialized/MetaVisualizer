@@ -6,6 +6,10 @@ import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -167,7 +171,7 @@ public class WMV_Field
 				System.out.println("Media Density:"+model.getState().mediaDensity);
 			}
 			
-			calculateBorderPoints();								// Calculate border points for Library View
+//			calculateBorderPoints();								// Calculate border points for Library View
 		}
 		else 
 		{
@@ -406,6 +410,8 @@ public class WMV_Field
 				else if(sounds.size() > 0)
 					state.timeZoneID = utilities.getCurrentTimeZoneID(sounds.get(0).getGPSLocation().z, sounds.get(0).getGPSLocation().x);
 			}
+
+			calculateBorderPoints();					// Calculate border points for field, used in Library View
 
 			createTimeline();							// Create date-independent timeline for field
 			createDateline();							// Create field dateline
@@ -3243,41 +3249,115 @@ public class WMV_Field
 		border = new ArrayList<PVector>();
 		ArrayList<PVector> points = new ArrayList<PVector>();
 
+//		for(WMV_Cluster c : clusters)
+//		{
+//			PVector cGPSLoc = utilities.getGPSLocation(this, c.getLocation());
+//			points.add(new PVector(cGPSLoc.x, cGPSLoc.y));
+//		}
+
 		for(WMV_Image i : images)
-			points.add(new PVector(i.getLocation().x, i.getLocation().z));
+		{
+			PVector iGPSLoc = utilities.getGPSLocation(this, i.getLocation());
+			points.add(new PVector(iGPSLoc.x, iGPSLoc.y));
+		}
 		for(WMV_Panorama n : panoramas)
 		{
 			if(n.getLocation() != null)
-				points.add(new PVector(n.getLocation().x, n.getLocation().z));
+			{
+				PVector pGPSLoc = utilities.getGPSLocation(this, n.getLocation());
+				points.add(new PVector(pGPSLoc.x, pGPSLoc.y));
+			}
 			else
 				System.out.println("Error in calculateBorderPoints()... panorama #"+n.getID()+" has no location!!!!");
 		}
 		for(WMV_Video v : videos)
-			points.add(new PVector(v.getLocation().x, v.getLocation().z));
+		{
+			PVector vGPSLoc = utilities.getGPSLocation(this, v.getLocation());
+			points.add(new PVector(vGPSLoc.x, vGPSLoc.y));
+		}
+
+		WMV_ModelState m = getModel().getState();
+		if(m.highLongitude != -1000000 && m.lowLongitude != 1000000 && m.highLatitude != -1000000 && m.lowLatitude != 1000000 && m.highAltitude != -1000000 && m.lowAltitude != 1000000)
+		{
+			if(m.highLongitude != m.lowLongitude && m.highLatitude != m.lowLatitude)
+			{
+				model.state.centerLongitude = (m.lowLongitude + m.highLongitude) * 0.5f; 	// GPS longitude decreases from left to right
+				model.state.centerLatitude = (m.lowLatitude + m.highLatitude) * 0.5f; 				// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
+				System.out.println("Found field#"+getID()+" center point... model.state.centerLongitude:"+model.state.centerLongitude+" model.state.centerLatitude:"+model.state.centerLatitude);
+
+//				model.state.centerLongitude += 0.05f;				// DEBUGGING
+			}
+			else
+			{
+				System.out.println("Error finding field #"+getID()+" center point...");
+			}
+		}
+
+//		border = findBorder(points, new PVector(model.state.centerLongitude, model.state.centerLatitude));
+//		border = findBorder(points, new PVector(0,0));
+		border = findBorder(points, new PVector(100000,100000));
+		
+		/* Correct border points' order */
+//		ArrayList<PVector> newBp = new ArrayList<PVector>();
+		int count = 0;
+		System.out.println("Unsorted Border points for field #"+getID());
+		for(PVector bp : border)
+		{
+			System.out.println(" Unsorted Point #"+count+" bp.x:"+bp.x+" bp.y:"+bp.y);
+			count++;
+		}
+		
+//		border.sort(new PointComp(new PVector(model.state.centerLatitude, model.state.centerLongitude)));
+//		border.sort(new PointComp(new PVector(0,0)));
+		border = findBorder(points, new PVector(100000,100000));
+
+		count = 0;
+		System.out.println("Sorted Border points for field #"+getID());
+		PVector last = border.get(0);
+		for(PVector bp : border)
+		{
+			PointComp pc = new PointComp(new PVector(model.state.centerLatitude, model.state.centerLongitude));
+//			PointComp pc = new PointComp(new PVector(0,0));
+			System.out.println("  Point #"+count+" bp.x:"+bp.x+" bp.y:"+bp.y+ " compare(bp, last):"+(pc.compare(bp, last)));
+			last = bp;
+			count++;
+		}
+		
+		// TESTING
+//		border = findBorder(points, new PVector(model.state.centerLongitude, model.state.centerLatitude));
+//		count = 0;
+//		System.out.println("Corrected border points for field #"+getID());
+//		for(PVector bp : border)
+//		{
+//			System.out.println(" Corrected Point #"+count+" bp.x:"+bp.x+" bp.y:"+bp.y);
+//			count++;
+//		}
+
+		calculatedBorderPoints = true;
+	}
+		
+	private ArrayList<PVector> findBorder(ArrayList<PVector> points, PVector centerOfHull)
+	{
+		ArrayList<PVector> borderPts = new ArrayList<PVector>();
 
 		// There must be at least 3 points
-		if (points.size() < 3) return;
+		if (points.size() < 3) return null;
 
-		// Find the leftmost PVector
+		// Find the leftmost point
 		int l = 0;
 		for (int i = 1; i < points.size(); i++)
 			if (points.get(i).x < points.get(l).x)
 				l = i;
 
-		// Start from leftmost PVector, keep moving counterclockwise
-		// until reach the start PVector again.  This loop runs O(h)
-		// times where h is number of points in result or output.
+		// Start from leftmost point, keep moving counterclockwise until reach the start PVector again.  This loop runs O(h) times where h is number of points in result or output.
 		int p = l, q;
 		do
 		{
 			// Add current PVector to result
-			border.add(points.get(p));
+			borderPts.add(points.get(p));
 
-			// Search for a PVector 'q' such that orientation(p, x,
-			// q) is counterclockwise for all points 'x'. The idea
-			// is to keep track of last visited most counterclock-
-			// wise PVector in q. If any PVector 'i' is more counterclock-
-			// wise than q, then update q.
+			// Search for a PVector 'q' such that orientation(p, x, q) is counterclockwise for all points 'x'. The idea
+			// is to keep track of last visited most counterclock-wise PVector in q. If any PVector 'i' is more counterclockwise than q, then update q.
 			q = (p+1)%points.size();
 			for (int i = 0; i < points.size(); i++)
 			{
@@ -3287,9 +3367,7 @@ public class WMV_Field
 					q = i;
 			}
 
-			// Now q is the most counterclockwise with respect to p
-			// Set p as q for next iteration, so that q is added to
-			// result 'hull'
+			// Now q is the most counterclockwise with respect to p. Set p as q for next iteration, so that q is added to result 'hull'
 			p = q;
 		} 
 		while (p != l);  // While we don't come to first PVector
@@ -3302,32 +3380,57 @@ public class WMV_Field
 		if(debugSettings.field)
 			System.out.println("Found media points border of size:"+border.size());
 
-		WMV_ModelState m = getModel().getState();
-		if(m.highLongitude != -1000000 && m.lowLongitude != 1000000 && m.highLatitude != -1000000 && m.lowLatitude != 1000000 && m.highAltitude != -1000000 && m.lowAltitude != 1000000)
-		{
-			if(m.highLongitude != m.lowLongitude && m.highLatitude != m.lowLatitude)
-			{
-				model.state.centerLongitude = (m.lowLongitude + m.highLongitude) * 0.5f; 	// GPS longitude decreases from left to right
-				model.state.centerLatitude = (m.lowLatitude + m.highLatitude) * 0.5f; 				// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
-				System.out.println("Found field#"+getID()+" center point... model.state.centerLongitude:"+model.state.centerLongitude+" model.state.centerLatitude:"+model.state.centerLatitude);
-			}
-			else
-			{
-				System.out.println("Error finding field #"+getID()+" center point...");
-			}
-		}
-
-		/* Correct border points' order */
-//		ArrayList<PVector> newBp = new ArrayList<PVector>();
+//		borderPts.sort(new PointComp(centerOfHull));
+		
+		IntList removeList = new IntList();
+		ArrayList<PVector> removePoints = new ArrayList<PVector>();
+		
 		int count = 0;
-		System.out.println("Border points for field #"+getID());
-		for(PVector bp : border)
+		for(PVector pv : borderPts)
 		{
-			System.out.println(" Point #"+count+" bp.x:"+bp.x+" bp.y:"+bp.y);
+			int ct = 0;
+			for(PVector comp : borderPts)
+			{
+				if(ct != count)		// Don't compare same indices
+				{
+					if(pv.equals(comp))
+					{
+						if(!removePoints.contains(pv))
+						{
+							removeList.append(count);
+							removePoints.add(pv);
+						}
+						break;
+					}
+				}
+				ct++;
+			}
 			count++;
 		}
 		
-		calculatedBorderPoints = true;
+		System.out.println("Will remove "+removeList.size()+" points from field #"+getID()+" border of size "+borderPts.size()+"...");
+
+		ArrayList<PVector> newPoints = new ArrayList<PVector>();
+		count = 0;
+		for(PVector pv : borderPts)
+		{
+			if(!removeList.hasValue(count))
+				newPoints.add(pv);
+			count++;
+		}
+		borderPts = newPoints;
+		
+//		for(int i=removeList.size()-1; i>=0; i--)
+//		{
+//			borderPts.remove(i);
+//			i--;
+//		}
+
+		System.out.println("Points remaining: "+borderPts.size()+"...");
+//		System.out.println("Will sort remaining "+borderPts.size()+" points in border...");
+//		borderPts.sort(c);
+		
+		return borderPts;
 	}
 	
 	/**
@@ -3346,6 +3449,215 @@ public class WMV_Field
 	  return (val > 0.f) ? 1 : 2; 
 	}
 	
+	private class PointComp implements Comparator<PVector> {
+
+	    private PVector center;
+
+	    public PointComp(PVector center) {
+	        this.center = center;
+	    }
+
+	    public int compare(PVector o1, PVector o2) {
+//	        System.out.println("PointComp... o1.y:"+o1.y+" o1.x:"+o1.x+" o2.y:"+o2.y+" o2.x:"+o2.x);
+	        double angle1 = Math.atan2(o1.y - center.y, o1.x - center.x);
+	        double angle2 = Math.atan2(o2.y - center.y, o2.x - center.x);
+//	        System.out.println("  angle1:"+angle1+" angle2:"+angle2);
+	        if (angle1 > angle2)
+	        {
+//		        System.out.println("0  (angle1 < angle2):"+(angle1 < angle2));
+	            return 1;
+	        }
+	        if (angle1 < angle2)
+	        {
+//		        System.out.println("1  (angle1 < angle2):"+(angle1 < angle2));
+	            return -1;
+	        }
+	        
+//	        System.out.println("Angles are the same");
+	        return 0;
+	    }
+	}
+	
+//	class JarvisPoints {
+//	public double x[];
+//	public double y[];
+//
+//	public JarvisPoints(double[] x, double[] y) {
+//		this.x = x;
+//		this.y = y;
+//	}
+//
+//	// The starting point is the point with the lowest X
+//	// With ties going to the lowest Y.  This guarantees
+//	// that the next point over is clockwise.
+//	int startingPoint() 
+//	{
+//		double minY = y[0];
+//		double minX = x[0];
+//		int iMin = 0;
+//		for (int i = 1; i < x.length; i++) 
+//		{
+//			if (x[i] < minX) 
+//			{
+//				minX = x[i];
+//				iMin = i;
+//			} 
+//			else if (minX == x[i] && y[i] < minY) 
+//			{
+//				minY = y[i];
+//				iMin = i;
+//			}
+//		}
+//		return iMin;
+//	}
+//}
+//
+//class JarvisMarch 
+//{
+//  JarvisPoints pts;
+//  private JarvisPoints jHullPts = null;
+//  private List<Double> hy;
+//  private List<Double> hx;
+//  private ArrayList<PVector> hullPts;
+//  private int startingPoint;
+//  private double currentAngle;
+//  private static final double MAX_ANGLE = 4;
+//
+//  JarvisMarch(JarvisPoints pts) {
+//	hullPts = new ArrayList<PVector>();
+//    this.pts = pts;
+//  }
+//
+//  /**
+//   * The Jarvis March, sometimes known as the Gift Wrap Algorithm.
+//   * The next point is the point with the next largest angle.
+//   * <p/>
+//   * Imagine wrapping a string around a set of nails in a board.  Tie the string to the leftmost nail
+//   * and hold the string vertical.  Now move the string clockwise until you hit the next, then the next, then
+//   * the next.  When the string is vertical again, you will have found the hull.
+//   */
+//  public int calculateHull() 
+//  {
+//    initializeHull();
+//
+//    startingPoint = getStartingPoint();
+//    currentAngle = 0;
+//
+//    addToHull(startingPoint);
+//    for (int p = getNextPoint(startingPoint); p != startingPoint; p = getNextPoint(p))
+//      addToHull(p);
+//
+//    buildHullPoints();
+//    return jHullPts.x.length;
+//  }
+//
+//  public int getStartingPoint() {
+//    return pts.startingPoint();
+//  }
+//
+//  private int getNextPoint(int p) {
+//    double minAngle = MAX_ANGLE;
+//    int minP = startingPoint;
+//    for (int i = 0; i < pts.x.length; i++) {
+//      if (i != p) {
+//        double thisAngle = relativeAngle(i, p);
+//        if (thisAngle >= currentAngle && thisAngle <= minAngle) {
+//          minP = i;
+//          minAngle = thisAngle;
+//        }
+//      }
+//    }
+//    currentAngle = minAngle;
+//    return minP;
+//  }
+//
+//  private double relativeAngle(int i, int p) {
+//    return pseudoAngle(pts.x[i] - pts.x[p], pts.y[i] - pts.y[p]);
+//  }
+//
+//  private void initializeHull() {
+//    hx = new LinkedList<Double>();
+//    hy = new LinkedList<Double>();
+//    hullPts = new ArrayList<PVector>();
+//  }
+//
+//  private void buildHullPoints() {
+//    double[] ax = new double[hx.size()];
+//    double[] ay = new double[hy.size()];
+//    int n = 0;
+//    for (Iterator<Double> ix = hx.iterator(); ix.hasNext(); )
+//      ax[n++] = ix.next();
+//
+//    n = 0;
+//    for (Iterator<Double> iy = hy.iterator(); iy.hasNext(); )
+//      ay[n++] = iy.next();
+//
+//    jHullPts = new JarvisPoints(ax, ay);
+//  }
+//
+//  private void addToHull(int p) {
+////	  hx.add(pts.x[p]);
+////	  hy.add(pts.y[p]);
+//	  hullPts.add(new PVector((float)pts.x[p], (float)pts.y[p]));
+//  }
+//
+//  /**
+//   * The PseudoAngle is a number that increases as the angle from vertical increases.
+//   * The current implementation has the maximum pseudo angle < 4.  The pseudo angle for each quadrant is 1.
+//   * The algorithm is very simple.  It just finds where the angle intesects a square and measures the
+//   * perimeter of the square at that point.  The math is in my Sept '06 notebook.  UncleBob.
+//   */
+//  double pseudoAngle(double dx, double dy) {
+//    if (dx >= 0 && dy >= 0)
+//      return quadrantOnePseudoAngle(dx, dy);
+//    if (dx >= 0 && dy < 0)
+//      return 1 + quadrantOnePseudoAngle(Math.abs(dy), dx);
+//    if (dx < 0 && dy < 0)
+//      return 2 + quadrantOnePseudoAngle(Math.abs(dx), Math.abs(dy));
+//    if (dx < 0 && dy >= 0)
+//      return 3 + quadrantOnePseudoAngle(dy, Math.abs(dx));
+//    throw new Error("Impossible");
+//  }
+//
+//  double quadrantOnePseudoAngle(double dx, double dy) {
+//    return dx / (dy + dx);
+//  }
+//
+//  public JarvisPoints getJarvisHullPoints() {
+//    return jHullPts;
+//  }
+//  
+//  public ArrayList<PVector> getHullPoints()
+//  {
+//	  return hullPts;
+//  }
+//}
+//
+//private ArrayList<PVector> findBorder(ArrayList<PVector> points)
+//{
+//	ArrayList<PVector> borderPts = new ArrayList<PVector>();
+//
+//	double x[] = new double[points.size()];
+//	double y[] = new double[points.size()];
+//
+//	int count = 0;
+//	for(PVector p : points)
+//	{
+//		x[count] = (double)p.x;
+//		y[count] = (double)p.y;
+//		count++;
+//	}
+//	
+//	JarvisPoints pts = new JarvisPoints(x, y);
+//	JarvisMarch jm = new JarvisMarch(pts);
+//	jm.calculateHull();
+////	int n = jm.calculateHull();
+//
+//	borderPts = jm.getHullPoints();
+//
+//	return borderPts;
+//}
+
 //	/**
 //	 * @param depth Depth at which to draw clusters
 //	 * Draw the clusters at given depth

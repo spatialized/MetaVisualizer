@@ -2,6 +2,7 @@ package multimediaLocator;
 
 import java.util.ArrayList;
 //import java.util.List;
+import java.util.List;
 
 import processing.core.PApplet;
 import processing.core.PVector;
@@ -17,7 +18,9 @@ import de.fhpotsdam.unfolding.geo.Location;
 import de.fhpotsdam.unfolding.interactions.MouseHandler;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MarkerManager;
+import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
+import de.fhpotsdam.unfolding.marker.SimplePolygonMarker;
 import de.fhpotsdam.unfolding.providers.Microsoft;
 //import de.fhpotsdam.unfolding.providers.AbstractMapProvider;
 //import de.fhpotsdam.unfolding.utils.DebugDisplay;
@@ -32,9 +35,10 @@ public class ML_Map
 {
 	/* Map */
 	private UnfoldingMap map;
-	private Location mapCenter;
+	private Location mapCenter, fieldsMapCenter;
 	private EventDispatcher eventDispatcher;
 	private MarkerManager<Marker> markerManager;
+	private MultiMarker multiMarker;
 	private SimplePointMarker viewerMarker;
 	private int clusterZoomLevel = 18;
 	
@@ -167,7 +171,7 @@ public class ML_Map
 		map.setTweening(true);
 		map.setZoomRange(2, 19);
 //		map.setZoomRange(2, 21);
-		map.setTweening(true);
+//		map.setTweening(true);
 
 		eventDispatcher = new EventDispatcher();
 
@@ -179,6 +183,7 @@ public class ML_Map
 		eventDispatcher.register(map, "zoom", map.getId());
 
 		createPointMarkers(p);
+//		createFieldMarkers(p);
 		
 //		System.out.println("viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
 		PVector vLoc = p.viewer.getGPSLocation();
@@ -295,7 +300,7 @@ public class ML_Map
 	 */
 	void drawMainMap(WMV_World world, boolean mediaOnly)
 	{
-		if(mediaOnly)							// Draw media map markers only (offline)
+		if(mediaOnly)							// Draw media map markers only -- Obsolete
 		{
 			world.p.pushMatrix();
 			p.startHUD(world);											
@@ -323,7 +328,7 @@ public class ML_Map
 				if(viewerMarker != null)
 				{
 					viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-					markerManager.addMarker(viewerMarker);
+					markerManager.addMarker(viewerMarker);					// -- Needed??
 				}
 				else System.out.println("viewerMarker == null!");
 			}
@@ -1134,21 +1139,6 @@ public class ML_Map
 		mapLeftEdge = (screenWidth - zoomMapWidth)/2 - zoomMapLeftEdge;
 		mapTopEdge = (screenHeight - zoomMapHeight)/2 - zoomMapTopEdge;
 		
-//		if(p.p.p.debug.map)
-//		{
-//			System.out.println("---> zoomToRectangle()...");
-//			System.out.println("Set mapLeftEdge:" + mapLeftEdge);
-//			System.out.println("Set mapTopEdge:" + mapTopEdge);
-//			System.out.println("Set mapDistance:" + mapDistance);
-//			System.out.println("Set zoomMapXOffset:" + zoomMapXOffset);
-//			System.out.println("Set zoomMapYOffset:" + zoomMapYOffset);
-//			System.out.println("Set zoomMapLeftEdge:" + zoomMapLeftEdge);
-//			System.out.println("Set zoomMapTopEdge:" + zoomMapTopEdge);
-//			System.out.println("Set zoomMapWidth:" + zoomMapWidth);
-//			System.out.println("Set zoomMapHeight:" + zoomMapHeight);
-//		}
-//		mapZoomTransition();
-		
 		selectableClustersCreated = false;
 	}
 
@@ -1457,6 +1447,191 @@ public class ML_Map
 			location = newLocation;
 		}
 	}
+	
+	public void initializeFieldMap(WMV_World world)
+	{
+		createFieldMarkers(world);
+		p.initializedFieldMap = true;
+	}
+	
+	/**
+	 * Create simple point markers for each cluster
+	 */
+	public void createFieldMarkers(WMV_World world)
+	{
+		multiMarker = new MultiMarker();
+//		markerManager = new MarkerManager<Marker>();
+		int count = 0;
+		for( WMV_Field f : world.getFields() )	
+		{
+//			PVector mapLoc = c.getLocation();
+//			PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
+			
+			ArrayList<Location> locList = new ArrayList<Location>();
+			for(PVector pv : f.border)			
+			{
+//				Location = new Location(lat, lon);
+				Location loc = new Location(pv.y, pv.x);
+				locList.add(loc);
+				
+				System.out.println(" Field #"+f.getID()+" border point... x:"+pv.x+" y:"+pv.y);
+			}
+			
+			float hue = utilities.mapValue(count, 0, world.getFields().size(), 0.f, 180.f);
+			
+			SimplePolygonMarker fieldMarker = new SimplePolygonMarker(locList);
+			fieldMarker.setId(String.valueOf(f.getID()));
+			fieldMarker.setColor(world.p.color(hue, 185.f, 235.f, 215.f));			// Same color as time segments in Time View
+			fieldMarker.setHighlightColor(world.p.color(170, 255, 255, 255));
+			fieldMarker.setStrokeWeight(0);
+			multiMarker.addMarkers(fieldMarker);
+
+			// DEBUGGING
+			WMV_ModelState m = f.getModel().getState();
+			PVector centerPoint = new PVector(m.centerLongitude, m.centerLatitude);
+			Location loc = new Location(centerPoint.y, centerPoint.x);
+			SimplePointMarker centerMarker = new SimplePointMarker(loc);
+			centerMarker.setDiameter(25.f);
+			centerMarker.setColor(world.p.color(15.f, 15.f, 255.f, 255.f));			// Same color as time segments in Time View
+			multiMarker.addMarkers(centerMarker);
+			count++;
+		}
+
+		map.addMarkers(multiMarker);
+	}
+	
+	/**
+	 * Draw map of all fields in library
+	 */
+	void drawFieldsMap(WMV_World world)
+	{
+//		PVector vLoc = world.viewer.getGPSLocation();
+//		Location gpsLoc = new Location(vLoc.y, vLoc.x);
+//		if(gpsLoc != null)
+//		{
+//			if(viewerMarker != null)
+//			{
+//				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
+//				markerManager.addMarker(viewerMarker);					// -- Needed??
+//			}
+//			else System.out.println("viewerMarker == null!");
+//		}
+
+		world.p.perspective();
+		world.p.camera();												// Reset to default camera setting
+		world.p.tint(255.f, 255.f);
+		map.draw();
+
+		if(mapMedia)
+			displayClusters(world);
+	}
+	
+	public void displayFields(WMV_World p)
+	{
+		ArrayList<WMV_Field> fields = p.getFields();
+		
+		float hue = 0.f;
+		float hueInc = 160.f / fields.size();
+		
+		p.p.strokeWeight(4);
+
+		float highLongitude = -100000, lowLongitude = 100000;
+		float highLatitude = -100000, lowLatitude = 100000;
+		float centerLongitude = 0, centerLatitude = 0;
+		
+		for(WMV_Field f : fields)				// -- Precalculate
+		{
+			if(f.getModel().getState().lowLongitude < lowLongitude)
+				lowLongitude = f.getModel().getState().lowLongitude;
+			if(f.getModel().getState().lowLatitude < lowLatitude)
+				lowLatitude = f.getModel().getState().lowLatitude;
+			if(f.getModel().getState().highLongitude > highLongitude)
+				highLongitude = f.getModel().getState().highLongitude;
+			if(f.getModel().getState().highLatitude > highLatitude)
+				highLatitude = f.getModel().getState().highLatitude;
+		}
+
+		fieldsMapCenter = new Location((highLongitude - lowLongitude)*0.5f, (highLatitude - lowLatitude)*0.5f);
+		map.zoomAndPanTo(14, fieldsMapCenter);
+
+//		float fieldsLeftEdge = lowLongitude;
+//		float fieldsRightEdge = highLongitude;
+//		float fieldsTopEdge = lowLatitude;
+//		float fieldsBottomEdge = highLatitude;
+
+//		System.out.println("fieldsRightEdge - fieldsLeftEdge:"+(fieldsRightEdge - fieldsLeftEdge));
+//		System.out.println("fieldsBottomEdge - fieldsTopEdge:"+(fieldsBottomEdge - fieldsTopEdge));
+		
+		PVector centerPoint = new PVector(0,0);
+		centerLongitude = (highLongitude - lowLongitude) * 0.5f;
+		centerLatitude = (highLatitude - lowLatitude) * 0.5f;
+		
+//		centerPoint.x = utilities.mapValue(centerLongitude, fieldsLeftEdge, fieldsRightEdge, 0, fieldsXScreenSize);
+//		centerPoint.y = utilities.mapValue(centerLatitude, fieldsTopEdge, fieldsBottomEdge, 0, fieldsYScreenSize);
+		p.p.fill(255, 0, 255, 255);
+//		p.p.textSize(veryLargeTextSize);
+//		p.p.text("+", centerPoint.x, centerPoint.y, hudDistance);
+
+		p.p.stroke(155, 255, 255, 255);
+		p.p.strokeWeight(20.f);
+
+		for(WMV_Field f : fields)
+		{
+			hue += hueInc;
+
+			for(WMV_Cluster c : f.getClusters())
+			{
+//				p.p.pushMatrix();
+
+				PVector cLoc = c.getLocation();
+				PVector point = utilities.getGPSLocation(f, cLoc);
+//				point.x = utilities.mapValue(point.x, fieldsLeftEdge, fieldsRightEdge, 0, fieldsXScreenSize);
+//				point.y = utilities.mapValue(point.y, fieldsTopEdge, fieldsBottomEdge, 0, fieldsYScreenSize);
+				
+//				p.p.point(point.x, point.y, hudDistance);
+//				p.p.popMatrix();
+			}
+			
+//			if(!f.calculatedBorderPoints)
+//				f.calculateBorderPoints();
+			PVector last = f.border.get(0);
+			PVector lastPoint = new PVector(0,0,0);
+//			
+//			PVector firstPoint = f.border.get(0);
+//			firstPoint.x = utilities.mapValue(firstPoint.x, lowLongitude, highLongitude, 0, fieldsXScreenSize);
+//			firstPoint.y = utilities.mapValue(firstPoint.y, lowLatitude, highLatitude, 0, fieldsYScreenSize);
+//
+			int count = 0;
+			for(PVector bp : f.border)
+			{
+				p.p.pushMatrix();
+				
+				p.p.strokeWeight(3.f);
+				p.p.stroke(hue, 255.f, 255.f, 255.f);
+	
+//				PVector point = new PVector(0,0,0);
+//				point.x = utilities.mapValue(bp.x, lowLongitude, highLongitude, 0, fieldsXScreenSize);
+//				point.y = utilities.mapValue(bp.y, lowLatitude, highLatitude, 0, fieldsYScreenSize);
+				
+//				if(bp != last)
+//				{
+//					p.p.line( fieldsXOffset + lastPoint.x, fieldsYOffset + lastPoint.y, hudDistance, 
+//							  fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance );
+//				}
+//
+//				if(count == f.border.size()-1)		// Close the border
+//					p.p.line( fieldsXOffset + point.x, fieldsYOffset + point.y, hudDistance, fieldsXOffset + firstPoint.x, 
+//							  fieldsYOffset + firstPoint.y, hudDistance );
+				
+				p.p.popMatrix();
+				last = bp;
+//				lastPoint = point;
+				
+				count++;
+			}
+		}
+	}
+
 	
 //	/**
 //	 * Draw camera attraction force vector (for debugging)

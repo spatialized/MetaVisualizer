@@ -761,7 +761,6 @@ public class WMV_Viewer
 //			if(newField < 0)
 //				newField = p.getFieldCount() - 1;
 
-
 			PVector newLocation = new PVector(0,0,0);
 			if(moveToFirstTimeSegment)
 			{

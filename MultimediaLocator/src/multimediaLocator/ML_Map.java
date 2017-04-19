@@ -102,6 +102,10 @@ public class ML_Map
 	private float mapLeftEdgeTransitionStart, mapLeftEdgeTransitionTarget;
 	private float mapTopEdgeTransitionStart, mapTopEdgeTransitionTarget;
 	
+	/* Fields Map */
+	private final float fieldSelectedHue = 25.f;
+	private final float fieldTransparency = 120.f;
+	private final float fieldHueRangeLow = 50.f, fieldHueRangeHigh = 160.f;
 	PVector mapVectorOrigin, mapVectorVector;
 
 	WMV_Utilities utilities;
@@ -1519,36 +1523,36 @@ public class ML_Map
 		int count = 0;
 		for( WMV_Field f : world.getFields() )	
 		{
-			ArrayList<Location> locList = new ArrayList<Location>();
+			ArrayList<Location> locations = new ArrayList<Location>();
 			if(f.border == null)
 				f.calculateBorderPoints();
 			
 			for(PVector pv : f.border)			
 			{
-//				System.out.println(" Field #"+f.getID()+" border point... x:"+pv.x+" y:"+pv.y);
 				Location loc = new Location(pv.y, pv.x);
-				locList.add(loc);
+				locations.add(loc);
 			}
 			
-			float hue = utilities.mapValue(count, 0, world.getFields().size(), 0.f, 180.f);
+			float hue = utilities.mapValue(count, 0, world.getFields().size(), fieldHueRangeLow, fieldHueRangeHigh);
+//			float hue = fieldsMapFieldHue;
 			
-			SimplePolygonMarker fieldMarker = new SimplePolygonMarker(locList);
+			SimplePolygonMarker fieldMarker = new SimplePolygonMarker(locations);
 			fieldMarker.setId(String.valueOf(f.getID()));
-			fieldMarker.setColor(world.p.color(hue, 185.f, 235.f, 215.f));			// Same color as time segments in Time View
-			fieldMarker.setHighlightColor(world.p.color(170, 255, 255, 255));
+			fieldMarker.setColor(world.p.color(hue, 215.f, 245.f, fieldTransparency));			// Same color as time segments in Time View
+			fieldMarker.setHighlightColor(world.p.color(fieldSelectedHue, 245.f, 255.f, fieldTransparency));
 			fieldMarker.setStrokeWeight(0);
 
-//			multiMarker.addMarkers(fieldMarker);
 			markerList.add(fieldMarker);
+//			multiMarker.addMarkers(fieldMarker);
 			
 			// Draw field center (debugging)
-			WMV_ModelState m = f.getModel().getState();
-			PVector centerPoint = new PVector(m.centerLongitude, m.centerLatitude);
-			Location loc = new Location(centerPoint.y, centerPoint.x);
-			SimplePointMarker centerMarker = new SimplePointMarker(loc);
-			centerMarker.setDiameter(10.f);
-			centerMarker.setColor(world.p.color(15.f, 15.f, 255.f, 255.f));			// Same color as time segments in Time View
-			multiMarker.addMarkers(centerMarker);
+//			WMV_ModelState m = f.getModel().getState();
+//			PVector centerPoint = new PVector(m.centerLongitude, m.centerLatitude);
+//			Location loc = new Location(centerPoint.y, centerPoint.x);
+//			SimplePointMarker centerMarker = new SimplePointMarker(loc);
+//			centerMarker.setDiameter(10.f);
+//			centerMarker.setColor(world.p.color(15.f, 15.f, 255.f, 255.f));			// Same color as time segments in Time View
+//			multiMarker.addMarkers(centerMarker);
 			
 			count++;
 		}

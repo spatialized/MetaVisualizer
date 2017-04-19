@@ -1762,7 +1762,7 @@ class ML_Display
 			case 2:														// Fields
 				startHUD(p);
 //				p.p.pushMatrix();
-				map2D.drawFieldsMap(p);
+				map2D.displayFieldsMap(p);
 //				p.p.popMatrix();
 				break;
 		}

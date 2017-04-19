@@ -729,8 +729,12 @@ public class ML_Input
 				
 				if (ml.display.libraryViewMode == 2)
 				{
+					if (key == 'z')
+						ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField());
+					
 					if(key == PApplet.ENTER)
 					{
+						
 						if(shiftKey)
 						{
 //							public void teleportToField(int newField, boolean moveToFirstTimeSegment, boolean fade) 

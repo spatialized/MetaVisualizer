@@ -59,7 +59,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	
 	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
 	{
-		PImage result = ml.createImage(640, 480, PApplet.RGB);
+		PImage result = ml.createImage(state.origVideoWidth, state.origVideoHeight, PApplet.RGB);
+//		PImage result = ml.createImage(640, 480, PApplet.RGB);
 		
 		try
 		{
@@ -68,7 +69,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 		catch(RuntimeException ex)
 		{
-//			if(getDebugSettings().video || getDebugSettings().main)
+			if(getDebugSettings().video || getDebugSettings().main)
 				System.out.println("Error with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
 		}
 		
@@ -496,10 +497,16 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 //		p.videosLoaded--;
 //		p.setVideosLoaded(p.getVideosLoaded() - 1);
 
-		if(video != null)
+		try{
+			if(video != null)
+			{
+				video.stop();
+				video.dispose();
+			}
+		}
+		catch(Throwable t)
 		{
-			video.stop();
-			video.dispose();
+			System.out.println("Throwable in clearVideo():"+t);
 		}
 		
 		state.loaded = false;

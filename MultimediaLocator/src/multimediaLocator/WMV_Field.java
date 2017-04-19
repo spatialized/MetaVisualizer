@@ -3306,16 +3306,17 @@ public class WMV_Field
 		
 		border = findBorder(points, new PVector(100000,100000));
 
-		count = 0;
-		System.out.println("Sorted Border points for field #"+getID());
-		PVector last = border.get(0);
-		for(PVector bp : border)
-		{
-			PointComparator pc = new PointComparator(new PVector(model.state.centerLatitude, model.state.centerLongitude));
-			System.out.println("  Point #"+count+" bp.x:"+bp.x+" bp.y:"+bp.y+ " compare(bp, last):"+(pc.compare(bp, last)));
-			last = bp;
-			count++;
-		}
+//	 	DEBUGGING
+//		count = 0;
+//		System.out.println("Sorted Border points for field #"+getID());
+//		PVector last = border.get(0);
+//		for(PVector bp : border)
+//		{
+//			PointComparator pc = new PointComparator(new PVector(model.state.centerLatitude, model.state.centerLongitude));
+//			System.out.println("  Point #"+count+" bp.x:"+bp.x+" bp.y:"+bp.y+ " compare(bp, last):"+(pc.compare(bp, last)));
+//			last = bp;
+//			count++;
+//		}
 		
 		// TESTING
 //		border = findBorder(points, new PVector(model.state.centerLongitude, model.state.centerLatitude));

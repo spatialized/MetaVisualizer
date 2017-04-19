@@ -601,7 +601,10 @@ public class ML_Input
 				}
 
 				if (key == 'z')
-					ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster());
+					ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster());	// Zoom to current cluster
+
+				if (key == 'Z')
+					ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField());	// Zoom to current field
 
 				if (shiftKey && key == 'c')
 					ml.startInitialClustering();				// Re-run clustering on all fields

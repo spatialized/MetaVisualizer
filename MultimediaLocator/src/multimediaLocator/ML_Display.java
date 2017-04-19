@@ -1833,7 +1833,8 @@ class ML_Display
 				break;
 			case 1:	
 				displayView = 1;
-				if(!initializedMaps) map2D.initializeMaps(p);
+				map2D.initializeMaps(p);
+//				if(!initializedMaps) map2D.initializeMaps(p);
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(true);
 				window.optLibraryView.setSelected(false);
@@ -1841,6 +1842,8 @@ class ML_Display
 			case 2:	
 				displayView = 2;
 				if(!initializedMaps) map2D.initializeMaps(p);
+				map2D.initializeFieldsMap(p);
+//				if(!initializedFieldMap) map2D.initializeFieldsMap(p);
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(false);
 				window.optLibraryView.setSelected(true);

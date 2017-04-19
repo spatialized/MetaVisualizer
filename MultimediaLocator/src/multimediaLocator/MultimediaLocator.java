@@ -57,7 +57,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void setup()
 	{
 		debugSettings = new ML_DebugSettings();		
-		if(debugSettings.main) System.out.println("Starting MultimediaLocator initial setup...");
+		if(debugSettings.main) System.out.println("Starting initial setup...");
 
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
@@ -70,7 +70,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
 		metadata = new WMV_Metadata(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
-		if(debugSettings.main) System.out.println("MultimediaLocator initial setup complete...");
+		if(debugSettings.main) System.out.println("Initial setup complete...");
 	}
 
 	/** 
@@ -176,8 +176,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			display.sendSetupMessage(world, " ");
 		}
 		
-		display.sendSetupMessage(world, "Starting MultimediaLocator v0.9...");	// Show startup message
-		display.display(world);											
+//		display.sendSetupMessage(world, "Starting MultimediaLocator v0.9...");	// Show startup message
+//		display.display(world);											
 
 		state.running = false;			// Stop running
 		state.initialSetup = true;				// Start clustering mode

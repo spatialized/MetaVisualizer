@@ -1174,17 +1174,20 @@ public class WMV_Field
 			for (WMV_Image img : images) 			// Find closest cluster for each image
 			{
 				boolean success = img.findAssociatedCluster(clusters, model.getState().maxClusterDistance);		// Set associated cluster
-				if(!success) System.out.println("Couldn't find cluster for image #"+img.getID());
+				if(debugSettings.field && debugSettings.detailed)
+					if(!success) System.out.println("Couldn't find cluster for image #"+img.getID());
 			}
 			for (WMV_Panorama pano : panoramas) 		// Find closest cluster for each image
 			{
 				boolean success = pano.findAssociatedCluster(clusters, model.getState().maxClusterDistance);		// Set associated cluster
-				if(!success) System.out.println("Couldn't find cluster for pano #"+pano.getID());
+//				if(debugSettings.field && debugSettings.detailed)
+					if(!success) System.out.println("Couldn't find cluster for pano #"+pano.getID());
 			}
 			for (WMV_Video vid : videos) 			// Find closest cluster for each image
 			{
 				boolean success = vid.findAssociatedCluster(clusters, model.getState().maxClusterDistance);		// Set associated cluster
-				if(!success) System.out.println("Couldn't find cluster for video #"+vid.getID());
+//				if(debugSettings.field && debugSettings.detailed)
+					if(!success) System.out.println("Couldn't find cluster for video #"+vid.getID());
 			}
 			for (int i = 0; i < getClusters().size(); i++) 		// Find closest cluster for each image
 				clusters.get(i).create(images, panoramas, videos);						// Assign clusters
@@ -1976,7 +1979,7 @@ public class WMV_Field
 		}
 
 		if(t == null)
-			System.out.println("NULL time segment "+index+" returned by getTimeSegmentInCluster() id:"+clusterID+" index:"+index+" timeline size:"+clusters.get(clusterID).getTimeline().timeline.size());
+			System.out.println("NULL time segment "+index+" returned by getTimeSegmentInCluster() id:"+clusterID+" index:"+index);
 		else if(clusterID != t.getClusterID())
 			System.out.println("ERROR in getTimeSegmentInCluster().. clusterID and timeSegment clusterID do not match!  clusterID:"+clusterID+" t.getClusterID():"+t.getClusterID());
 
@@ -3281,9 +3284,7 @@ public class WMV_Field
 			{
 				model.state.centerLongitude = (m.lowLongitude + m.highLongitude) * 0.5f; 	// GPS longitude decreases from left to right
 				model.state.centerLatitude = (m.lowLatitude + m.highLatitude) * 0.5f; 				// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
-				System.out.println("Found field#"+getID()+" center point... model.state.centerLongitude:"+model.state.centerLongitude+" model.state.centerLatitude:"+model.state.centerLatitude);
-
-//				model.state.centerLongitude += 0.05f;				// DEBUGGING
+//				System.out.println("Found field#"+getID()+" center point... model.state.centerLongitude:"+model.state.centerLongitude+" model.state.centerLatitude:"+model.state.centerLatitude);
 			}
 			else
 			{
@@ -3403,7 +3404,7 @@ public class WMV_Field
 			count++;
 		}
 		
-		System.out.println("Will remove "+removeList.size()+" points from field #"+getID()+" border of size "+borderPts.size()+"...");
+		if(debugSettings.field) System.out.println("Will remove "+removeList.size()+" points from field #"+getID()+" border of size "+borderPts.size()+"...");
 
 		ArrayList<PVector> newPoints = new ArrayList<PVector>();
 		count = 0;
@@ -3421,7 +3422,7 @@ public class WMV_Field
 //			i--;
 //		}
 
-		System.out.println("Points remaining: "+borderPts.size()+"...");
+//		System.out.println("Points remaining: "+borderPts.size()+"...");
 //		System.out.println("Will sort remaining "+borderPts.size()+" points in border...");
 //		borderPts.sort(c);
 		

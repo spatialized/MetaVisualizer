@@ -41,7 +41,7 @@ public class ML_Map
 	private Location mapCenter, fieldsMapCenter;
 	private EventDispatcher eventDispatcher;
 	private MarkerManager<Marker> markerManager;
-	private MultiMarker multiMarker;
+	private MultiMarker allClustersMarker;
 	private SimplePointMarker viewerMarker;
 	private int clusterZoomLevel = 18, fieldZoomLevel = 14;
 	
@@ -73,7 +73,8 @@ public class ML_Map
 	float smallPointSize, mediumPointSize, largePointSize, hugePointSize;	// Obsolete soon
 	float cameraPointSize;
 
-	public boolean mapImages = true, mapPanoramas = true, mapVideos = true, mapMedia = false;
+	public final boolean mapMedia = true;
+	public boolean mapImages = true, mapPanoramas = true, mapVideos = true;
 	private float imageHue = 150.f, imageCaptureHue = 90.f;
 	private float panoramaHue = 190.f, panoramaCaptureHue = 220.f;
 	private float videoHue = 40.f, videoCaptureHue = 70.f;
@@ -535,15 +536,12 @@ public class ML_Map
 	 */
 	void zoomToField(WMV_World world, WMV_Field f)
 	{
-		if(p.displayView == 2 && p.libraryViewMode == 2)
-		{
-			PVector gpsLoc = new PVector(f.getModel().getState().centerLongitude, f.getModel().getState().centerLatitude);
-			map.zoomAndPanTo(fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
-		}
+		PVector gpsLoc = new PVector(f.getModel().getState().centerLongitude, f.getModel().getState().centerLatitude);
+		map.zoomAndPanTo(fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
 	}
 
 	/**
-	 * Zoom in on map
+	 * Zoom in map	-- Obsolete?
 	 */
 	public void zoomIn(WMV_World world)
 	{
@@ -552,7 +550,7 @@ public class ML_Map
 	}
 	
 	/**
-	 * Zoom out on map
+	 * Zoom out map	-- Obsolete?
 	 */
 	public void zoomOut(WMV_World world)
 	{
@@ -1032,22 +1030,30 @@ public class ML_Map
 				for (Marker m : map.getMarkers()) 
 					m.setSelected(false);
 
-				Marker marker = map.getFirstHitMarker(world.p.mouseX, world.p.mouseY);		// Select hit marker
-				if (marker != null) 
+//				Marker marker = map.getFirstHitMarker(world.p.mouseX, world.p.mouseY);		// Select hit marker
+				List<Marker> hitMarkers = map.getHitMarkers(world.p.mouseX, world.p.mouseY);
+				for(Marker marker : hitMarkers)
 				{
-					marker.setSelected(true);
-
-					String mID = marker.getId();
-
-					if(mID != null)
+					if(marker != null)
 					{
-						if(!mID.equals("viewer"))
-							selectedCluster = Integer.parseInt(mID);
+						String mID = marker.getId();
+						if(mID != null)
+						{
+							if (!marker.getId().equals("allClusters") && !mID.equals("viewer")) 
+							{
+								marker.setSelected(true);
+								selectedCluster = Integer.parseInt(mID);
+							}
+						}
+						else
+						{
+							selectedCluster = world.viewer.getState().getCurrentClusterID();
+						}
 					}
-				}
-				else
-				{
-					selectedCluster = world.viewer.getState().getCurrentClusterID();
+					else
+					{
+						selectedCluster = world.viewer.getState().getCurrentClusterID();
+					}
 				}
 			}
 		}
@@ -1055,27 +1061,56 @@ public class ML_Map
 		{
 			for (Marker m : map.getMarkers()) 
 				m.setSelected(false);
-
-			Marker marker = map.getFirstHitMarker(world.p.mouseX, world.p.mouseY);		// Select hit marker
-			if (marker != null) 
+			
+			List<Marker> hitMarkers = map.getHitMarkers(world.p.mouseX, world.p.mouseY);
+			for(Marker marker : hitMarkers)
 			{
-				marker.setSelected(true);
-
-				String mID = marker.getId();
-
-				if(mID != null)
+				if(marker != null)
 				{
-					if(!mID.equals("viewer"))
+					String mID = marker.getId();
+					if(mID != null)
 					{
-						if(selectedField != Integer.parseInt(mID))
+						if (!marker.getId().equals("allClusters") && !mID.equals("viewer")) 
 						{
-							System.out.println("Will set selectedField from:"+selectedField+" to:"+mID);
-							setSelectedField( world, Integer.parseInt(mID) );
-//							selectedField = Integer.parseInt(mID);
+							if(selectedField != Integer.parseInt(mID))
+							{
+								marker.setSelected(true);
+								setSelectedField( world, Integer.parseInt(mID) );
+							}
 						}
 					}
+					else
+					{
+//						selectedField = world.getCurrentField().getID();
+					}
+				}
+				else
+				{
+//					selectedField = world.getCurrentField().getID();
 				}
 			}
+
+			/* Old method */
+//			Marker marker = map.getFirstHitMarker(world.p.mouseX, world.p.mouseY);		// Select hit marker
+//			if (marker != null) 
+//			{
+//				marker.setSelected(true);
+//
+//				String mID = marker.getId();
+//
+//				if(mID != null)
+//				{
+//					if(!mID.equals("viewer"))
+//					{
+//						if(selectedField != Integer.parseInt(mID))
+//						{
+//							System.out.println("Will set selectedField from:"+selectedField+" to:"+mID);
+//							setSelectedField( world, Integer.parseInt(mID) );
+////							selectedField = Integer.parseInt(mID);
+//						}
+//					}
+//				}
+//			}
 //			else
 //			{
 //				selectedField = world.getCurrentField().getID();
@@ -1553,8 +1588,6 @@ public class ML_Map
 	public void initializeFieldsMap(WMV_World world)
 	{
 		createFieldMarkers(world);
-		
-//		if(mapMedia)
 		createAllClusterMarkers(world);
 		
 		float highLongitude = -100000, lowLongitude = 100000;
@@ -1575,13 +1608,10 @@ public class ML_Map
 		fieldsMapCenter = new Location(highLatitude, highLongitude);				// -- Fix this!
 //		fieldsMapCenter = new Location((highLatitude - lowLatitude)*0.5f, (highLongitude - lowLongitude)*0.5f);
 
-		System.out.println("initializeFieldsMap()... Will set selectedField from:"+selectedField+" to:"+world.getCurrentField().getID());
+//		System.out.println("initializeFieldsMap()... Will set selectedField from:"+selectedField+" to:"+world.getCurrentField().getID());
 		setSelectedField( world, world.getCurrentField().getID() );
-//		selectedField = world.getCurrentField().getID();
 
-//		map.zoomAndPanToFit(fieldMarkerCenters);
 		map.zoomAndPanToFit(allClusterLocations);
-//		map.zoomAndPanTo(fieldZoomLevel, fieldsMapCenter);		// -- Fix this!
 		p.initializedFieldMap = true;
 	}
 	
@@ -1648,8 +1678,8 @@ public class ML_Map
 	private void createAllClusterMarkers(WMV_World world)
 	{
 		allClusterLocations = new ArrayList<Location>();
+		allClustersMarker = new MultiMarker();
 		
-		multiMarker = new MultiMarker();
 //		List<SimplePolygonMarker> markerList = new ArrayList<SimplePolygonMarker>();
 		
 		int fCount = 0;
@@ -1669,7 +1699,7 @@ public class ML_Map
 				clusterMarker.setColor(world.p.color(hue, 165.f, 215.f, fieldTransparency));			// Same color as time segments in Time View
 				clusterMarker.setStrokeWeight(0);
 
-				if(mapMedia) multiMarker.addMarkers(clusterMarker);
+				if(mapMedia) allClustersMarker.addMarkers(clusterMarker);
 				allClusterLocations.add(loc);
 			}
 			fCount++;
@@ -1678,7 +1708,8 @@ public class ML_Map
 //		for(SimplePolygonMarker marker : markerList)
 //			map.addMarkers(marker);
 		
-		if(mapMedia) map.addMarkers(multiMarker);
+		allClustersMarker.setId("allClusters");
+		if(mapMedia) map.addMarkers(allClustersMarker);
 	}
 	
 	/**

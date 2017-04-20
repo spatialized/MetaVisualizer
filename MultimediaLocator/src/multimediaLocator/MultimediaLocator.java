@@ -551,7 +551,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //		System.out.println("released mouseX:"+mouseX+" mouseY:"+mouseY);
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseReleased(mouseX, mouseY);
-		if(display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode == 2))
+		if(display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode == 0))
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 		else if(display.displayView == 3)
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);

@@ -147,7 +147,7 @@ public class ML_Map
 		zoomMapDefaultWidth = (float)Math.log10(m.getState().fieldWidth) * 33.3f;										// Was 240.f
 		zoomMapDefaultHeight = (float)Math.log10(m.getState().fieldWidth) * 33.3f * screenHeight / screenWidth;		// Was 180.f
 
-		if(fieldAspectRatio >= 1.f)									
+		if(fieldAspectRatio >= 1.f)			// -- Obsolete									
 		{
 			curMapWidth = screenWidth * 0.95f;
 			curMapHeight = screenWidth / fieldAspectRatio;
@@ -158,14 +158,14 @@ public class ML_Map
 			curMapHeight = screenHeight * 0.95f;
 		}
 
-		zoomToRectangle(0, 0, curMapWidth, curMapHeight);			// Start zoomed out on whole map
-
+//		zoomToRectangle(0, 0, curMapWidth, curMapHeight);			// Start zoomed out on whole map
 		initializeSatelliteMap(world);
 		p.initializedMaps = true;
 	}
 	
 	/**
 	 * Initialize maps
+	 * @param p Parent world
 	 */
 	public void initializeSatelliteMap(WMV_World p)
 	{
@@ -178,7 +178,8 @@ public class ML_Map
 //		panoramaMarkers = new IntList();
 //		videoMarkers = new IntList();
 		
-		map.zoomAndPanTo(16, mapCenter);
+//		map.zoomAndPanTo(16, mapCenter);
+		zoomToField(p, p.getCurrentField());			// Start zoomed out on whole field
 		map.setTweening(true);
 		map.setZoomRange(2, 19);
 //		map.setZoomRange(2, 21);
@@ -1057,7 +1058,7 @@ public class ML_Map
 				}
 			}
 		}
-		else if(p.displayView == 2 && p.libraryViewMode == 2)			// Fields map visible
+		else if(p.displayView == 2 && p.libraryViewMode == 0)			// Fields map visible
 		{
 			for (Marker m : map.getMarkers()) 
 				m.setSelected(false);
@@ -1142,7 +1143,7 @@ public class ML_Map
 						zoomToCluster(world, world.getCurrentField().getCluster(selectedCluster));
 				}
 			}
-			else if(p.displayView == 2 && p.libraryViewMode == 2)	// Field map visible
+			else if(p.displayView == 2 && p.libraryViewMode == 0)	// Field map visible
 			{
 				if(selectedField != world.getCurrentField().getID())
 				{

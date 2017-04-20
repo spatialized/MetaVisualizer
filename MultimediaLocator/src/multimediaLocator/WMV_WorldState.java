@@ -8,19 +8,18 @@ package multimediaLocator;
 public class WMV_WorldState
 {
 	/* Clustering Modes */
-	public boolean hierarchical = false;			// Use hierarchical clustering (true) or k-means clustering (false) 
+	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
 
 	/* Time */
-	public int frameCount = 0;						// Frame count
-	public int timeMode = 0;						// Time Mode (0 = cluster; 1 = field; 2 = single)
-	public boolean timeFading = false;				// Does time affect media brightness? 
-	public boolean paused = false;					// Time is paused
-
-	public int currentTime = 0;						// Time units since start of time cycle (day / month / year)
-	public int currentDate = 0;						// Date units since start of date cycle (day / month / year)
+	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
+	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
+	public int frameCount = 0;							// Frame count
+	public int timeMode = 0;							// Time Mode (0 = cluster; 1 = field; 2 = single)
+	public boolean timeFading = false;					// Does time affect media brightness? 
+	public boolean paused = false;						// Time is paused
 
 	/* Graphics */
-	public float hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera		-- Obsolete soon?
+	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete soon?
 	
 	public boolean displayTerrain = true;				// Show ground as wireframe grid
 	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
@@ -40,11 +39,9 @@ public class WMV_WorldState
 	public final float terrainAlphaMax = 200.f;
 	public int fadingTerrainStartFrame = 0, fadingTerrainEndFrame = 0; 
 	public final int fadingTerrainLength = 20; 
-//	public boolean fadedOutTerrain = true;			// Recently faded out
-//	public boolean fadedInTerrain = false;
 
 	/* Clusters */  
-	public boolean mergeClusters = true;				// Merge nearby clusters?
+	public boolean mergeClusters = true;				// Whether to merge nearby clusters
 	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
 	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 

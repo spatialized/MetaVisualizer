@@ -730,7 +730,7 @@ public class ML_Input
 
 				}
 				
-				if (ml.display.libraryViewMode == 2)
+				if (ml.display.libraryViewMode == 0)
 				{
 					if (key == 'z')
 						ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField());
@@ -1568,7 +1568,7 @@ public class ML_Input
 				world.viewer.moveToNearestCluster(world.viewer.getMovementTeleport());
 		}
 		
-		if(display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode == 2))
+		if(display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode == 0))
 		{
 			display.map2D.handleMouseReleased(world, mouseX, mouseY);
 		}

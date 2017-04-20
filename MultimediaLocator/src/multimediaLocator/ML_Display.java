@@ -20,7 +20,7 @@ class ML_Display
 	public boolean initializedMaps = false;
 	public boolean initializedFieldMap = false;
 	
-	/* Display Modes */
+	/* Display Views */
 	public int displayView = 0;							// 0: Scene  1: Map  2: Library  3: Timeline
 	public boolean satelliteMap = true;					// -- Temporary
 	
@@ -42,7 +42,7 @@ class ML_Display
 	private int screenHeight = -1;
 	
 	/* Library View */
-	public int libraryViewMode = 0;						// 0: Cluster, 1: Field, 2: Library
+	public int libraryViewMode = 0;						// 0: Library, 1: Field, 2: Cluster
 	public int currentDisplayCluster = 0;
 
 	/* Messages */
@@ -201,7 +201,7 @@ class ML_Display
 					break;
 				case 2:
 					displayLibraryView(p);
-					if(libraryViewMode == 2)
+					if(libraryViewMode == 0)
 						map2D.updateMouse(p);
 					break;
 				case 3:
@@ -1653,7 +1653,15 @@ class ML_Display
 
 		switch(libraryViewMode)
 		{
-			case 0:								// Cluster
+			case 0:														// Fields
+				startHUD(p);
+	//			p.p.pushMatrix();
+				map2D.displayFieldsMap(p);
+	//			p.p.popMatrix();
+				break;
+			case 1:														// Field
+				break;
+			case 2:								// Cluster
 				startHUD(p);
 				p.p.pushMatrix();
 				p.p.fill(0, 0, 255, 255);
@@ -1756,14 +1764,6 @@ class ML_Display
 				
 				drawClusterImages(p, c.getImages(p.getCurrentField().getImages()));
 				p.p.popMatrix();
-				break;
-			case 1:														// Field
-				break;
-			case 2:														// Fields
-				startHUD(p);
-//				p.p.pushMatrix();
-				map2D.displayFieldsMap(p);
-//				p.p.popMatrix();
 				break;
 		}
 	}

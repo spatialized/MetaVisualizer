@@ -13,7 +13,7 @@ public class ML_DebugSettings
 	public boolean print = true;				// Print all user messages
 	
 	/* Data */
-	public boolean main = false;					// Debug WorldMediaViewer class
+	public boolean main = true;				// Debug WorldMediaViewer class
 	public boolean data = false;				// Debug WorldMediaViewer class
 	public boolean metadata = false;			// Debug WMV_Metadata class
 
@@ -31,7 +31,7 @@ public class ML_DebugSettings
 	public boolean media = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
-	public boolean video = false;				// Debug WMV_Video class
+	public boolean video = true;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
 
 	/* Other */

@@ -89,11 +89,18 @@ class WMV_Metadata
 			f = field;
 			String fieldPath = f.getName();
 
-//			System.out.println("Will load media folders: library:"+library+" fieldPath:"+fieldPath);
-			loadImageFolders(library, fieldPath); 	// Load image and panorama file names
-			loadVideoFolder(library, fieldPath); 	// Load video file names
-			loadSoundFolder(library, fieldPath); 	// Load sound file names
-			loadDataFolder(library, fieldPath);		// Load media data from disk
+			if(debugSettings.metadata) System.out.println("Will load media files from:"+library+" at fieldPath:"+fieldPath);
+			
+			loadImageFolders(fieldPath); 	// Load image + panorama folder(s)
+			loadImageFiles(fieldPath);		// Load image + panorama file names
+
+			loadVideoFolder(fieldPath); 	// Load video folder
+			loadVideoFiles(fieldPath);		// Load video file names
+			
+			loadSoundFolder(fieldPath); 	// Load sound folder
+			loadSoundFiles(fieldPath);		// Load sound file names
+			
+			loadDataFolder(fieldPath);		// Load media data from disk
 			
 			if(dataFilesValidFormat)
 			{
@@ -142,7 +149,7 @@ class WMV_Metadata
 	/**
 	 * Load metadata for folders of images, small images (640px wide) and panoramas
 	 */
-	public void loadImageFolders(String library, String fieldPath) 		
+	public void loadImageFolders(String fieldPath) 		
 	{
 		smallImageFolder = library + "/" + fieldPath + "/small_images/";	/* Check for small_images folder */
 		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
@@ -155,7 +162,10 @@ class WMV_Metadata
 		smallImageFolderFound = (smallImageFolderFile.exists() && smallImageFolderFile.isDirectory());			
 		imageFolderFound = (imageFolderFile.exists() && imageFolderFile.isDirectory());	
 		panoramaFolderFound = (panoramaFolderFile.exists() && panoramaFolderFile.isDirectory());
-		
+	}
+
+	public void loadImageFiles(String fieldPath)
+	{
 		smallImageFiles = null;
 		imageFiles = null;
 		panoramaFiles = null;
@@ -244,7 +254,7 @@ class WMV_Metadata
 					System.out.println("Shrink images failed...");
 			}
 
-			imageFolder = smallImageFolder;					// Set imageFolder to small_images
+			imageFolder = smallImageFolder;					// Set imageFolder to smallImageFolder
 			imageFolderFile = new File(imageFolder);
 			imageFiles = imageFolderFile.listFiles();
 		}
@@ -259,17 +269,39 @@ class WMV_Metadata
 				System.out.println("Panorama Folder Location:" + panoramaFolderFile + " panoramaFiles.length:"+panoramaFiles.length);
 		}
 	}
-
+	
 	/**
 	 * Load metadata for folder of videos
 	 */
-	public void loadVideoFolder(String library, String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	public void loadVideoFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
 //		File smallVideoFolderFile;
 //		File[] smallVideoFiles;				
 		
 //		videoFolder = library  + "/" + fieldPath + "/videos/";					// Original size
 		videoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max width 720 pixels  -- Check this!
+
+//		videoFolderFile = new File(videoFolder);
+//		videoFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());	
+//		videoFiles = null;
+//
+////		smallVideoFolderFile = new File(smallImageFolder);
+////		smallVideoFiles = new File[1];
+//
+//		if(videoFolderFound)				// Check for video files
+//		{
+//			videoFiles = videoFolderFile.listFiles();
+//			if(videoFiles != null && videoFiles.length > 0)
+//				videoFilesFound = true;
+//		}
+	}
+	
+	/**
+	 * Load metadata for folder of videos
+	 */
+	public void loadVideoFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	{
+//		videoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max width 720 pixels  -- Check this!
 
 		videoFolderFile = new File(videoFolder);
 		videoFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());	
@@ -289,9 +321,31 @@ class WMV_Metadata
 	/**
 	 * Load metadata for folder of videos
 	 */
-	public void loadSoundFolder(String library, String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	public void loadSoundFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
 		soundFolder = library  + "/" + fieldPath + "/sounds/";		// Max width 720 pixels  -- Check this!
+
+//		soundFolderFile = new File(soundFolder);
+//		soundFolderFound = (soundFolderFile.exists() && soundFolderFile.isDirectory());	
+//		soundFiles = null;
+//
+//		if(soundFolderFound)				// Check for sound files
+//		{
+//			soundFiles = soundFolderFile.listFiles();
+//			if(soundFiles != null && soundFiles.length > 0)
+//				soundFilesFound = true;
+//		}
+//		
+//		if (debugSettings.sound)
+//			System.out.println("Sound Folder:" + soundFolder);
+	}
+	
+	/**
+	 * Load metadata for folder of videos
+	 */
+	public void loadSoundFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	{
+//		soundFolder = library  + "/" + fieldPath + "/sounds/";		// Max width 720 pixels  -- Check this!
 
 		soundFolderFile = new File(soundFolder);
 		soundFolderFound = (soundFolderFile.exists() && soundFolderFile.isDirectory());	
@@ -311,7 +365,7 @@ class WMV_Metadata
 	/**
 	 * Load metadata for folder of videos
 	 */
-	public void loadDataFolder(String library, String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	public void loadDataFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
 		dataFolder = library + "/" + fieldPath + "/data/";		// Max width 720 pixels  -- Check this!
 

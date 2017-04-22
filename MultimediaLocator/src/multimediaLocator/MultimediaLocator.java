@@ -81,17 +81,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if (state.startup)
 		{
 			if(state.reset) restartMultimediaLocator();
-			else display.showStartup(world);	/* Startup screen */
+			else display.showStartup(world);						/* Startup screen */
 			
 			state.startup = false;	
 		}
 		else if(!state.running)
 		{
 			if (state.chooseLibrary) librarySelectionDialog();
-			else if(state.selectedLibrary) initialize();					/* Initialize world */
+			else if(state.selectedLibrary) initialize();			/* Initialize world */
 		}
-		else 
-			run();								/* Run program */
+		else run();													/* Run MultimediaLocator */
 	}
 	
 	/**
@@ -99,47 +98,37 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	void run()
 	{
-		if(state.startedRunning)										// If simulation just started running
+		if(state.startedRunning)										/* If simulation just started running */
 		{
-			if(!enteredField)
-				world.enter(0, true);												// Enter world at field 0
+			if(!enteredField) world.enter(0, true);						/* Enter world at field 0 */
 			state.startedRunning = false;
 		}
-		
-		if ( !state.initialSetup && !state.interactive && !state.exit ) 		/* Running the program */
+		else
 		{
-			world.updateState();
-			world.draw3D();						// 3D Display
-			world.draw2D();						// 2D Display
-			if(!world.state.paused) world.updateTime();		// Update time cycle
-// 			input.updateLeapMotion();			// Update Leap Motion 
+			if ( !state.initialSetup && !state.interactive && !state.exit ) 	/* Running the program */
+			{
+				world.updateState();
+				world.draw3D();						// 3D Display
+				world.draw2D();						// 2D Display
+				if(!world.state.paused) world.updateTime();		// Update time cycle
+//	 			input.updateLeapMotion();			// Update Leap Motion 
+			}
+
+			if(state.export && world.outputFolderSelected)						/* Image exporting */
+				export();
+
+			if ( debugSettings.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
+			{
+				checkMemory();
+				checkFrameRate();
+			}
 		}
 		
-		if ( state.exit ) 											/* Stopping the program */
-			exitMultimediaLocator();								//  Exit simulation
-		
-		if ( debugSettings.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
-		{
-			checkMemory();
-			checkFrameRate();
-		}
-		
-		if(state.export && world.outputFolderSelected)		/* Image exporting */
-			export();
+		if ( state.exit ) exitMultimediaLocator();							/* Stopping the program */		
 	}
 	
 	/**
-	 * Set window resolution and graphics mode
-	 */
-	public void settings() 
-	{
-		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
-//		size(1980, 1080, processing.core.PConstants.P3D);		// 
-//		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
-	}
-	
-	/**
-	 * Initialize MultimediaLocator. If necessary, create fields, then run spatial clustering
+	 * Initialize world and run clustering
 	 */
 	public void initialize()
 	{
@@ -147,8 +136,15 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			if( !state.fieldsInitialized )
 			{
-				if (!state.initializingFields) createFields();
-				else initializeNextField();						// -- Modify this for loading multiple fields from saved state!
+				if (!state.initializingFields) 
+				{
+					world.createFieldsFromFolders(library.getFolders());		// Create empty field for each media folder	
+					state.initializingFields = true;
+				}
+				else
+				{
+					initializeField(state.initializationField);					
+				}
 			}
 			else finishInitialization();
 		}
@@ -174,10 +170,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			display.sendSetupMessage(world, "Library folder: "+library.getLibraryFolder());	// Show library folder name
 			display.sendSetupMessage(world, " ");
+			display.display(world);											
 		}
-		
-//		display.sendSetupMessage(world, "Starting MultimediaLocator v0.9...");	// Show startup message
-//		display.display(world);											
 
 		state.running = false;			// Stop running
 		state.initialSetup = true;				// Start clustering mode
@@ -227,29 +221,20 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		world.viewer.setCurrentCluster( world.viewer.getNearestCluster(false), -1 );
 		world.getCurrentField().blackoutAllMedia();
 	}
-
-	/**
-	 * Create field objects from library folders
-	 */
-	public void createFields()
-	{
-		world.createFieldsFromFolders(library.getFolders());		// Create empty field for each media folder	
-		state.initializingFields = true;
-	}
 	
 	/**
 	 * Initialize current initialization field
 	 */
-	public void initializeNextField()
+	public void initializeField(int fieldID)
 	{
 		if(!state.fieldsInitialized && !state.exit)
 		{
 			/* Get field to initialize */
-			WMV_Field f = world.getField(state.initializationField);	
+			WMV_Field f = world.getField(fieldID);	
 			
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
 			WMV_Field loadedField;
-			if(state.initializationField + 1 >= world.getFields().size())
+			if(fieldID + 1 >= world.getFields().size())
 				loadedField = loadSimulationState(f, library.getLibraryFolder(), true);		// Load metadata, attempt to load simulation state, set simulation state from field 
 			else
 				loadedField = loadSimulationState(f, library.getLibraryFolder(), false);	// Load metadata and attempt to load simulation state
@@ -259,13 +244,13 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 					world.viewer.setCurrentField(0, false);
 			
 			boolean success = (loadedField != null);
-			if(success) world.setField(loadedField, state.initializationField);
-			if(success) success = world.getField(state.initializationField).getClusters() != null;
-			if(success) success = (world.getField(state.initializationField).getClusters().size() > 0);
+			if(success) world.setField(loadedField, fieldID);
+			if(success) success = world.getField(fieldID).getClusters() != null;
+			if(success) success = (world.getField(fieldID).getClusters().size() > 0);
 			if(success)
 			{
 				if(debugSettings.main || debugSettings.field)
-					System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(state.initializationField).getClusters().size());
+					System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(fieldID).getClusters().size());
 			}
 			else
 			{
@@ -274,15 +259,15 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 				
 				world.state.hierarchical = f.initialize(-100000L);
 			}
-		}
-		
-		/* Set next field to initialize */
-		state.initializationField++;										
-		if( state.initializationField >= world.getFields().size() )	
-		{
-			state.fieldsInitialized = true;
-			if(debugSettings.main) System.out.println("" + world.getFields().size() + " fields initialized...");
-			world.enter(state.initializationField-1, true);			// Enter world at last initialization field
+
+			/* Set next field to initialize */
+			state.initializationField++;										
+			if( state.initializationField >= world.getFields().size() )	
+			{
+				state.fieldsInitialized = true;
+				if(debugSettings.main) System.out.println("" + world.getFields().size() + " fields initialized...");
+				world.enter(state.initializationField-1, true);			// Enter world at last initialization field
+			}
 		}
 	}
 	
@@ -764,6 +749,28 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 	}
 	
+//	public void setSurfaceSize(int newWidth, int newHeight)
+//	{
+//		surface.setResizable(true);
+//		surface.setSize(newWidth, newHeight);
+//		surface.setResizable(false);
+//	}
+//	
+//	public void setSurfaceVisible(boolean newState)
+//	{
+//		surface.setVisible(newState);
+//	}
+	
+	/**
+	 * Set window resolution and graphics mode
+	 */
+	public void settings() 
+	{
+		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
+//		size(1980, 1080, processing.core.PConstants.P3D);		// 
+//		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
+	}
+
 	/** 
 	 * Load the PApplet either in a window of specified size or in fullscreen
 	 */
@@ -773,20 +780,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
 	}
 
-	public void setSurfaceSize(int newWidth, int newHeight)
-	{
-		surface.setResizable(true);
-		surface.setSize(newWidth, newHeight);
-		surface.setResizable(false);
-	}
-
 //	public void setSurfaceLocation(int newX, int newY)
 //	{
 //		surface.setLocation(newX, newY);
 //	}
-	
-	public void setSurfaceVisible(boolean newState)
-	{
-		surface.setVisible(newState);
-	}
 }

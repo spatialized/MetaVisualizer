@@ -34,6 +34,16 @@ public class ML_Library
 		libraryFolder = newLibraryFolder;
 	}
 
+	public void createNewLibrary(String destFolder)
+	{
+		File destFolderFile = new File(destFolder);
+		if(!destFolderFile.exists()) destFolderFile.mkdir();
+		
+		
+		
+		/* -- Add small images here */
+	}
+			
 	public String getLibraryFolder()
 	{
 		return libraryFolder;

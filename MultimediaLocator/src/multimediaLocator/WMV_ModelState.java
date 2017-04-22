@@ -20,7 +20,8 @@ public class WMV_ModelState
 	public int mergedClusters = 0;							// Number of merged clusters
 	public float minClusterDistance; 						// Minimum distance between clusters, i.e. closer than which clusters are merged
 	public float maxClusterDistance;						// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
-
+	public final int hierarchicalMaxMedia = 500;			// Maximum media to use hierarchical clustering (-- check this)
+	
 	public float clusterPopulationFactor = 0.02f;						// Scaling from media spread (1/mediaDensity) to numClusters
 //	public float clusterPopulationFactor = 16.f;						// Scaling from media spread (1/mediaDensity) to numClusters
 	public float minPopulationFactor = 10.f, maxPopulationFactor = 40.f;	// Minimum and maximum values of populationFactor

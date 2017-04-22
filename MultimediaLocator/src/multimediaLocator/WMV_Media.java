@@ -155,10 +155,8 @@ public abstract class WMV_Media
 				centerTime = cycleLength / 2.f;
 				length = worldSettings.timeCycleLength;						 
 
-				if(debugSettings.video && getType() == 2)
-				{
+				if(debugSettings.video && getType() == 2 && debugSettings.detailed)
 					System.out.println("Only one cluster time segment, full length:"+length+" -- time:"+time.getTime()+" centerTime:"+centerTime+" dayLength:"+cycleLength);
-				}
 
 				fadeInStart = 0;											// Frame media starts fading in
 				fadeInEnd = Math.round(centerTime - length / 4.f);			// Frame media reaches full state.brightness

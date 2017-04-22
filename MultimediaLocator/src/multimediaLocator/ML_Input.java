@@ -133,7 +133,7 @@ public class ML_Input
 				ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
 				break;
 			case "RandomCluster":
-				ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport());
+				ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport(), true);
 				break;
 			case "LastCluster":
 				ml.world.viewer.moveToLastCluster(ml.world.viewer.getMovementTeleport());
@@ -445,6 +445,7 @@ public class ML_Input
 	{
 		if (!ml.state.running && !ml.state.selectedLibrary)
 		{
+			System.out.println("Hit key... ");
 			ml.state.chooseLibrary = true;
 		}
 		else
@@ -576,8 +577,8 @@ public class ML_Input
 
 			if(ml.display.displayView == 1)	/* 2D Map View */
 			{
-//				if( key == '|' )
-//					ml.world.getCurrentField().calculateBorderPoints();
+				if (key == 'j') 
+					ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
 				
 				if( key == '+' )
 					ml.display.satelliteMap = !ml.display.satelliteMap;
@@ -663,6 +664,9 @@ public class ML_Input
 			}
 			else if(ml.display.displayView == 2)		/* Cluster View */
 			{
+				if (key == 'j') 
+					ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
+
 				if (key == 'c')
 				{
 					ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
@@ -755,6 +759,9 @@ public class ML_Input
 			}
 			else if(ml.display.displayView == 3)					/* Time View */
 			{
+				if (key == 'j') 
+					ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
+
 				if (key == 'r')									// Zoom out to whole timeline
 					ml.display.resetZoom(ml.world, true);
 
@@ -902,9 +909,6 @@ public class ML_Input
 				if (key == 'p') 								
 					ml.world.state.paused = !ml.world.getState().paused;
 
-				if (key == 'j') 
-					ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport());				// Jump (teleport) to random cluster
-
 				if (key == 'I')
 					ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
 
@@ -1027,6 +1031,9 @@ public class ML_Input
 				/* 3D Controls Disabled in HUD View */
 				if(!ml.display.inDisplayView())							
 				{
+					if (key == 'j') 
+						ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport(), true);				// Jump (teleport) to random cluster
+
 					if (key == '|')
 						ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
 

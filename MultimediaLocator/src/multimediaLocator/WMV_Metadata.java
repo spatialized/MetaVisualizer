@@ -155,6 +155,9 @@ class WMV_Metadata
 		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
 		panoramaFolder = library + "/" + fieldPath + "/panoramas/";			/* Check for panoramas folder */
 
+		System.out.println("smallImageFolder:"+smallImageFolder);
+		System.out.println("panoramaFolder:"+panoramaFolder);
+		
 		smallImageFolderFile = new File(smallImageFolder);
 		imageFolderFile = new File(imageFolder);
 		panoramaFolderFile = new File(panoramaFolder);

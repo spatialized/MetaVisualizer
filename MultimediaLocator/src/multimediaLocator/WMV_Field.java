@@ -27,7 +27,7 @@ import processing.data.IntList;
 import processing.video.Movie;
 
 /**************************************************
- * Multimedia environment corresponding to a particular geographical area
+ * Multimedia environment of a particular geographical area
  * @author davidgordon
  */
 public class WMV_Field 
@@ -3458,52 +3458,6 @@ public class WMV_Field
 		
 		for(int i=0; i<length; i++)
 			borderPts.add( jm.getHullPoints().pts[i] );
-		
-//		// Find the leftmost point
-//		int leftmost = 0;
-//		for (int i = 1; i < points.size(); i++)
-//			if (points.get(i).x < points.get(leftmost).x)
-//				leftmost = i;
-//
-//		// Start from leftmost point, keep moving counterclockwise until reach the start PVector again.  This loop runs O(h) times where h is number of points in result or output.
-//		int curPoint = leftmost, q;
-//		System.out.println("findBorder()  points.size():"+points.size()+" initial p:"+curPoint+" l:"+leftmost);
-//
-//		int whileCt = 0;
-//		do
-//		{
-//			// Add current point to result
-//			borderPts.add(points.get(curPoint));
-//
-//			// Search for a point 'q' such that orientation(p, x, q) is counterclockwise for all points 'x'. The idea
-//			// is to keep track of last visited most counterclockwise PVector in q. 
-//			// If any PVector 'i' is more counterclockwise than q, then update q.
-//			q = (curPoint+1)%points.size();
-//			for (int i = 0; i < points.size(); i++)
-//			{
-//				// If i is more counterclockwise than current q, then update q
-//				int result = getPointTripletOrientation(points.get(curPoint), points.get(i), points.get(q));
-//				
-//				if(whileCt < 950 && result != 1)
-//					System.out.println("findBorder()  result != 1: "+result+" p:"+curPoint+" i:"+i+" q:"+q);
-//				
-//				if (result == 2)
-//				{
-//					q = i;
-//				}
-//			}
-//
-//			// Now q is the most counterclockwise with respect to p. Set p as q for next iteration, so that q is added to result 'hull'
-//			curPoint = q;
-//			
-//			whileCt++;
-//			if(whileCt < 950)
-//				System.out.println("  whileCt: "+whileCt+" p == l? "+(curPoint == leftmost)+" borderPts.size():"+borderPts.size()+"   p:"+curPoint+" l:"+leftmost+" q:"+q);
-//		} 
-//		while (curPoint != leftmost);  // While we don't come to first PVector
-
-		
-		
 		
 		// Print Result
 		//	  for (int i = 0; i < hull.size(); i++)

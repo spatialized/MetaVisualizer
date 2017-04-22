@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
+//import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -17,7 +17,7 @@ import org.boon.json.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 //import static org.boon.Boon.puts;
-import com.google.gson.reflect.TypeToken;
+//import com.google.gson.reflect.TypeToken;
 
 /**************
  * Represents a multimedia library
@@ -27,6 +27,8 @@ public class ML_Library
 {
 	private String libraryFolder;								// Filepath for library folder 
 	private ArrayList<String> folders;							// Directories for each field in library
+	public String libraryDestination;							// Destination for library being created
+	public String mediaFolder;									// -- Make into list
 
 	ML_Library(String newLibraryFolder)
 	{
@@ -34,16 +36,156 @@ public class ML_Library
 		libraryFolder = newLibraryFolder;
 	}
 
-	public void createNewLibrary(String destFolder)
+	/**
+	 * Create new library in destination folder from given media folders
+	 * @param mediaFolders List of media folder(s)
+	 * @param destFolder Destination folder for library
+	 */
+	public boolean createNewLibrary(String srcFolder, ArrayList<String> mediaFolders, String destFolder)
 	{
-		File destFolderFile = new File(destFolder);
+		File destFolderFile = new File(getLibraryFolder() + destFolder);
 		if(!destFolderFile.exists()) destFolderFile.mkdir();
-		
-		
-		
-		/* -- Add small images here */
+
+		if(mediaFolders.size() == 0)
+			return copyMediaFolder(srcFolder, destFolder);
+		else
+		{
+			for(String folderString : mediaFolders)
+				return copyMediaFolder(srcFolder + folderString, destFolder);
+		}
+		return false;
 	}
-			
+	
+	/**
+	 * Copy a folder of media files to given destination
+	 * @param sourceFolder Source folder
+	 * @param destFolder Destination folder
+	 * @return
+	 */
+	public boolean copyMediaFolder(String sourceFolder, String destFolder)
+	{
+		System.out.println("copyMediaFolder... sourceFolder:"+sourceFolder+" destFolder:"+destFolder);
+		WMV_Command commandExecutor;
+		ArrayList<String> imagePaths = new ArrayList<String>();
+		ArrayList<String> videoPaths = new ArrayList<String>();
+//		ArrayList<String> soundPaths = new ArrayList<String>();
+		ArrayList<String> command = new ArrayList<String>();
+		ArrayList<String> files = new ArrayList<String>();
+
+		/* Get files in directory */
+		command = new ArrayList<String>();
+		command.add("ls");
+		commandExecutor = new WMV_Command(sourceFolder, command);
+		try {
+			int result = commandExecutor.execute();
+
+			// Get the output from the command
+			StringBuilder stdout = commandExecutor.getStandardOutput();
+//			StringBuilder stderr = commandExecutor.getStandardError();
+
+			String out = stdout.toString();
+			String[] parts = out.split("\n");
+			for (int i=0; i<parts.length; i++)
+			{
+				files.add(parts[i]);
+				//println("parts["+i+"]:"+parts[i]);
+			}
+		}
+		catch(Throwable t)
+		{
+			System.out.println("createNewLibrary()... Throwable t while getting folderString file list:"+t);
+			return false;
+		}
+
+		for(String fs : files)								// Split file list into lists based on media type
+		{
+			File f = new File(sourceFolder + "/" + fs);
+			String[] parts = f.getName().split("\\.");
+			if(parts[parts.length-1].equals("jpg"))
+				imagePaths.add(f.getAbsolutePath());
+			else if(parts[parts.length-1].equals("mov"))
+				videoPaths.add(f.getAbsolutePath());
+		}
+		
+		if(imagePaths.size() > 0)
+		{
+			String destination = getLibraryFolder() + destFolder + "/small_images/";
+			File imagesFolder = new File(destination);
+			if(!imagesFolder.exists())
+				imagesFolder.mkdir();
+
+			//				cp -a /source/. /dest/
+			//				cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
+
+			int count = 0;
+			for(String fs : imagePaths)
+			{
+				command = new ArrayList<String>();
+				command.add("cp");
+				command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
+				command.add(fs);
+				command.add(destination);
+				System.out.println("Image copying command:"+command.toString());
+
+				commandExecutor = new WMV_Command("", command);
+				try {
+					int result = commandExecutor.execute();
+
+					StringBuilder stdout = commandExecutor.getStandardOutput();
+					StringBuilder stderr = commandExecutor.getStandardError();
+//					System.out.println("... Image copying result ..."+result+" stdout:"+stdout+" stderr:"+stderr);
+				}
+				catch(Throwable t)
+				{
+					System.out.println("Throwable t while copying image files:"+t);
+					return false;
+				}
+				count++;
+			}
+		}
+
+		if(videoPaths.size() > 0)
+		{
+			String destination = getLibraryFolder() + destFolder + "/small_videos/";
+			File videosFolder = new File(destination);
+			if(!videosFolder.exists())
+				videosFolder.mkdir();
+
+//			cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
+//			cp -a /source/. /dest/
+//			cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
+
+			int count = 0;
+			for(String fs : videoPaths)
+			{
+				
+				command = new ArrayList<String>();
+				command.add("cp");
+				command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
+				command.add(fs);
+				command.add(destination);
+				System.out.println("Video copying command:"+command.toString());
+
+				commandExecutor = new WMV_Command("", command);
+				try {
+					int result = commandExecutor.execute();
+
+//					StringBuilder stdout = commandExecutor.getStandardOutput();
+//					StringBuilder stderr = commandExecutor.getStandardError();
+					System.out.println("... Video copying result ..."+result);
+				}
+				catch(Throwable t)
+				{
+					System.out.println("Throwable t while copying video files:"+t);
+					return false;
+				}
+				count++;
+			}
+		}
+		
+		return true;
+	}
+
 	public String getLibraryFolder()
 	{
 		return libraryFolder;
@@ -92,12 +234,12 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
 			mapper.writeValue(file, state);    // Write object to file
 
-//			WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
-//			System.out.println("WorldStates are equal:"+ newState.equals(state));      
+			//			WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
+			//			System.out.println("WorldStates are equal:"+ newState.equals(state));      
 		}
 		catch (Throwable t)
 		{
@@ -137,16 +279,16 @@ public class ML_Library
 		}
 	}
 
-//	public void saveFieldState(WMV_FieldState fState, String newFilePath)
-//	{
-////		Gson gson = new Gson();
-////		String jsonString = gson.toJson(fState);
-////		System.out.println(jsonString);
-//
-//		Type type = new TypeToken<WMV_FieldState>(){}.getType();
-////		Type type = WMV_FieldState.class;
-//		saveJson(fState, type, newFilePath);
-//	}
+	//	public void saveFieldState(WMV_FieldState fState, String newFilePath)
+	//	{
+	////		Gson gson = new Gson();
+	////		String jsonString = gson.toJson(fState);
+	////		System.out.println(jsonString);
+	//
+	//		Type type = new TypeToken<WMV_FieldState>(){}.getType();
+	////		Type type = WMV_FieldState.class;
+	//		saveJson(fState, type, newFilePath);
+	//	}
 
 	public void saveFieldState(WMV_FieldState fState, String newFilePath)
 	{
@@ -189,10 +331,10 @@ public class ML_Library
 					else
 						break;
 				}
-				
+
 				WMV_ClusterStateList tempCsl = new WMV_ClusterStateList();
 				tempCsl.setClusters(temp);
-				
+
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
 				try {
@@ -237,7 +379,7 @@ public class ML_Library
 
 				WMV_ImageStateList tempIsl = new WMV_ImageStateList();
 				tempIsl.setImages(temp);
-//				System.out.println("i:"+i+" saved:"+tempIsl.images.size());
+				//				System.out.println("i:"+i+" saved:"+tempIsl.images.size());
 
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
@@ -366,7 +508,7 @@ public class ML_Library
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Load field state from given file path
 	 * @param newFilePath File path
@@ -381,7 +523,7 @@ public class ML_Library
 		try {
 			file = new File(filePath);
 			WMV_FieldState fState = mapper.readValue(file, WMV_FieldState.class);
-			
+
 			return fState;
 		}
 		catch (Throwable t)
@@ -401,8 +543,8 @@ public class ML_Library
 		File dir = new File(directoryPath);
 		WMV_ClusterStateList csl = new WMV_ClusterStateList();
 		csl.clusters = new ArrayList<WMV_ClusterState>();
-		
-//		System.out.println("loadClusterStateLists... directoryPath:"+directoryPath);
+
+		//		System.out.println("loadClusterStateLists... directoryPath:"+directoryPath);
 		if(dir.exists())
 		{
 			File[] files = dir.listFiles();
@@ -415,7 +557,7 @@ public class ML_Library
 				try {
 					file = new File(filePath);
 					WMV_ClusterStateList temp = mapper.readValue(file, WMV_ClusterStateList.class);
-//					System.out.println("loadClusterStateLists()...  temp.clusters.size(): "+temp.clusters.size());
+					//					System.out.println("loadClusterStateLists()...  temp.clusters.size(): "+temp.clusters.size());
 					for(WMV_ClusterState cs : temp.clusters)
 						csl.clusters.add(cs);
 				}
@@ -424,8 +566,8 @@ public class ML_Library
 					System.out.println("loadClusterStateLists Throwable t:"+t);
 				}
 			}
-			
-//			System.out.println("loadClusterStateLists loaded "+csl.clusters.size()+" clusters from "+files.length+" files...");
+
+			//			System.out.println("loadClusterStateLists loaded "+csl.clusters.size()+" clusters from "+files.length+" files...");
 			return csl;
 		}
 		return null;
@@ -437,25 +579,25 @@ public class ML_Library
 	 * @param newFilePath File path
 	 * @return Field state
 	 */
-//	public WMV_ClusterStateList loadClusterStateList(String newFilePath)		// Testing
-//	{
-//		String filePath = newFilePath;
-//
-//		final ObjectMapper mapper = JsonFactory.create();
-//		final File file;
-//		try {
-////		    file = File.createTempFile("json", "temp.json");    // Use temp file
-//			file = new File(filePath);
-//			WMV_ClusterStateList csl = mapper.readValue(file, WMV_ClusterStateList.class);
-//			
-//			return csl;
-//		}
-//		catch (Throwable t)
-//		{
-//			System.out.println("loadClusterStateList Throwable t:"+t);
-//		}
-//		return null;
-//	}
+	//	public WMV_ClusterStateList loadClusterStateList(String newFilePath)		// Testing
+	//	{
+	//		String filePath = newFilePath;
+	//
+	//		final ObjectMapper mapper = JsonFactory.create();
+	//		final File file;
+	//		try {
+	////		    file = File.createTempFile("json", "temp.json");    // Use temp file
+	//			file = new File(filePath);
+	//			WMV_ClusterStateList csl = mapper.readValue(file, WMV_ClusterStateList.class);
+	//			
+	//			return csl;
+	//		}
+	//		catch (Throwable t)
+	//		{
+	//			System.out.println("loadClusterStateList Throwable t:"+t);
+	//		}
+	//		return null;
+	//	}
 
 	/**
 	 * Load field state from given file path
@@ -467,7 +609,7 @@ public class ML_Library
 		File dir = new File(directoryPath);
 		WMV_ImageStateList csl = new WMV_ImageStateList();
 		csl.images = new ArrayList<WMV_ImageState>();
-		
+
 		if(dir.exists())
 		{
 			File[] files = dir.listFiles();
@@ -478,7 +620,7 @@ public class ML_Library
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
 				try {
-//					System.out.println("loadClusterStateLists()...  filePath: "+filePath);
+					//					System.out.println("loadClusterStateLists()...  filePath: "+filePath);
 					file = new File(filePath);
 					WMV_ImageStateList temp = mapper.readValue(file, WMV_ImageStateList.class);
 					for(WMV_ImageState cs : temp.images)
@@ -489,36 +631,36 @@ public class ML_Library
 					System.out.println("loadImageStateLists Throwable t:"+t);
 				}
 			}
-			
+
 			return csl;
 		}
 		return null;
 	}
 
-//	/**
-//	 * Load field state from given file path
-//	 * @param newFilePath File path
-//	 * @return Field state
-//	 */
-//	public WMV_ImageStateList loadImageStateList(String newFilePath)		// Testing
-//	{
-//		String filePath = newFilePath;
-//
-//		final ObjectMapper mapper = JsonFactory.create();
-//		final File file;
-//		try {
-////		    file = File.createTempFile("json", "temp.json");    // Use temp file
-//			file = new File(filePath);
-//			WMV_ImageStateList isl = mapper.readValue(file, WMV_ImageStateList.class);
-//			
-//			return isl;
-//		}
-//		catch (Throwable t)
-//		{
-//			System.out.println("loadImageStateList Throwable t:"+t);
-//		}
-//		return null;
-//	}
+	//	/**
+	//	 * Load field state from given file path
+	//	 * @param newFilePath File path
+	//	 * @return Field state
+	//	 */
+	//	public WMV_ImageStateList loadImageStateList(String newFilePath)		// Testing
+	//	{
+	//		String filePath = newFilePath;
+	//
+	//		final ObjectMapper mapper = JsonFactory.create();
+	//		final File file;
+	//		try {
+	////		    file = File.createTempFile("json", "temp.json");    // Use temp file
+	//			file = new File(filePath);
+	//			WMV_ImageStateList isl = mapper.readValue(file, WMV_ImageStateList.class);
+	//			
+	//			return isl;
+	//		}
+	//		catch (Throwable t)
+	//		{
+	//			System.out.println("loadImageStateList Throwable t:"+t);
+	//		}
+	//		return null;
+	//	}
 
 	/**
 	 * Load field state from given file path
@@ -532,10 +674,10 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
 			WMV_PanoramaStateList psl = mapper.readValue(file, WMV_PanoramaStateList.class);
-			
+
 			return psl;
 		}
 		catch (Throwable t)
@@ -557,10 +699,10 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
 			WMV_VideoStateList vsl = mapper.readValue(file, WMV_VideoStateList.class);
-			
+
 			return vsl;
 		}
 		catch (Throwable t)
@@ -582,10 +724,10 @@ public class ML_Library
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
 			WMV_SoundStateList ssl = mapper.readValue(file, WMV_SoundStateList.class);
-			
+
 			return ssl;
 		}
 		catch (Throwable t)
@@ -597,41 +739,46 @@ public class ML_Library
 
 	private void saveJson(Object object, Type type, String fileName) 
 	{
-	  File file = new File(fileName);
+		File file = new File(fileName);
 
-	  OutputStream outputStream = null;
-	  GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting();
-//	  gsonBuilder.registerTypeAdapter(object.getClass(), new Gson());
-	  Gson gson = gsonBuilder.create();
-//	  Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting()
-//			    .create();
-	  
-	  try {
-	    outputStream = new FileOutputStream(file);
-	    BufferedWriter bufferedWriter;
-	    bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+		OutputStream outputStream = null;
+		GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting();
+		//	  gsonBuilder.registerTypeAdapter(object.getClass(), new Gson());
+		Gson gson = gsonBuilder.create();
+		//	  Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting()
+		//			    .create();
 
-	    gson.toJson(object, type, bufferedWriter);
-	    bufferedWriter.close();
-	  } 
-	  catch (FileNotFoundException e) {
-	    e.printStackTrace();
-	    System.out.println("FileNotFoundException e:"+e);
-	  } 
-	  catch (IOException e) {
-	    e.printStackTrace();
-	    System.out.println("IOException e:"+e);
-	  } 
-	  finally {
-	    if (outputStream != null) {
-	      try {
-	        outputStream.flush();
-	        outputStream.close();
-	      } 
-	      catch (IOException e) {
-	    	  System.out.println("IOException e:"+e);
-	      }
-	    }
-	  }
+		try {
+			outputStream = new FileOutputStream(file);
+			BufferedWriter bufferedWriter;
+			bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+
+			gson.toJson(object, type, bufferedWriter);
+			bufferedWriter.close();
+		} 
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+			System.out.println("FileNotFoundException e:"+e);
+		} 
+		catch (IOException e) {
+			e.printStackTrace();
+			System.out.println("IOException e:"+e);
+		} 
+		finally {
+			if (outputStream != null) {
+				try {
+					outputStream.flush();
+					outputStream.close();
+				} 
+				catch (IOException e) {
+					System.out.println("IOException e:"+e);
+				}
+			}
+		}
+	}
+	
+	public void setLibraryFolder(String newLibraryFolder)
+	{
+		libraryFolder = newLibraryFolder;
 	}
 }

@@ -81,6 +81,4 @@ public class WMV_Command
   {
     return errorStreamHandler.getOutputBuffer();
   }
-
-
 }

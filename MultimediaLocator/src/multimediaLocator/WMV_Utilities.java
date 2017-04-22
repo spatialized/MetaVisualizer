@@ -347,7 +347,8 @@ public class WMV_Utilities
 	 */
 	public boolean shrinkImages(String largeImages, String destination)
 	{
-		System.out.println("Shrinking images:"+largeImages+" to:"+destination+"...");
+//		if(world.debugSettings.main)
+			System.out.println("Shrinking images:"+largeImages+" to:"+destination+"...");
 		WMV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		ArrayList<String> files = new ArrayList<String>();

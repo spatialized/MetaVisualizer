@@ -15,13 +15,17 @@ public class ML_SystemState
 	public boolean exit = false;				// System message to exit the program
 
 	/* Setup */
-	public boolean selectedLibrary = false;		// Whether user has selected a library folder
-	public boolean chooseLibrary = false;	// Whether library dialog should open
-	public boolean initialSetup = false;		// Performing initial setup 
-	public boolean initializingFields = false;	// Initializing fields
-	public boolean fieldsInitialized = false;	// Initialized fields
-	public int initializationField = 0;			// Field to be initialized this frame
-//	public int setupProgress = 0;				// Setup progress (0 to 100)
+	public boolean selectedLibrary = false;					// Whether user has selected a library folder
+	public boolean selectedLibraryDestination = false;		// Whether user has selected a library destination folder
+	public boolean selectedMediaFolder = false;				// Whether user has selected a media folder
+	public boolean chooseLibrary = false;					// Whether library dialog should open
+	public boolean chooseLibraryDestination = false;		// Whether library destination dialog should open
+	public boolean chooseMediaFolder = false;				// Whether media folder dialog should open
+	
+	public boolean initialSetup = false;				// Performing initial setup 
+	public boolean initializingFields = false;			// Initializing fields
+	public boolean fieldsInitialized = false;			// Initialized fields
+	public int initializationField = 0;					// Field to be initialized this frame
 
 	/* Clustering Modes */
 	public boolean interactive = false;					// In user clustering mode?

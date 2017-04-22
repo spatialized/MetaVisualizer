@@ -1574,14 +1574,6 @@ class ML_Display
 	}
 	
 	/**
-	 * Show startup screen
-	 */
-	public void showStartup(WMV_World p)
-	{
-		display(p);								// Draw setup display
-	}
-	
-	/**
 	 * @param message Message to be sent
 	 * Add startup message to display queue
 	 */
@@ -1621,16 +1613,38 @@ class ML_Display
 			p.p.text("Entoptic Software", screenWidth / 1.2f, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(largeTextSize * 1.2f);
 			
-			if(!p.p.state.selectedLibrary)
-				p.p.text("Press any key to begin...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+			if(p.p.createLibrary)
+			{
+				if(!p.p.state.selectedMediaFolder)
+				{
+					p.p.text("Press any key to select media folder...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				}
+				else if(!p.p.state.selectedLibraryDestination)
+				{
+					p.p.text("Press any key to select library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				}
+				else
+				{
+//					if(!dataFolderFound)
+						p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+//					else
+//						p.p.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				}
+			}
 			else
 			{
-				if(!dataFolderFound)
-					p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				if(!p.p.state.selectedLibrary)
+				{
+					p.p.text("Press any key to open MultimediaLocator library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				}
 				else
-					p.p.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				{
+					if(!dataFolderFound)
+						p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					else
+						p.p.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				}
 			}
-			
 			p.p.textSize(largeTextSize * 1.2f);
 			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.1f, yPos += lineWidthVeryWide * 6.f, hudDistance);
 		}

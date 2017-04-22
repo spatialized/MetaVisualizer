@@ -27,6 +27,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 {
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
+	boolean createLibrary = false;
 	boolean enteredField = false;
 
 	/* Classes */
@@ -81,14 +82,82 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		if (state.startup)
 		{
 			if(state.reset) restartMultimediaLocator();
-			else display.showStartup(world);						/* Startup screen */
+			else display.display(world);						/* Startup screen */
 			
 			state.startup = false;	
 		}
 		else if(!state.running)
 		{
-			if (state.chooseLibrary) librarySelectionDialog();
-			else if(state.selectedLibrary) initialize();			/* Initialize world */
+			if (state.chooseLibrary || state.chooseLibraryDestination )
+			{
+				if(createLibrary)
+				{
+					if(state.chooseLibrary)					/* Choose media folder */
+						mediaFolderDialog();	
+					if(state.chooseLibraryDestination)			/* Choose library destination */
+						libraryDestinationDialog();	
+					display.display(world);
+				}
+				else
+				{
+					librarySelectionDialog();
+				}
+			}
+			else
+			{
+				if(state.selectedLibraryDestination && !state.selectedLibrary)
+				{
+					if(state.selectedMediaFolder)
+					{
+						File mediaFolderFile = new File(library.mediaFolder);
+						File[] fileList = mediaFolderFile.listFiles();
+						
+						boolean hasDirectory = false;
+						if(fileList != null)
+						{
+							System.out.println("fileList.length:"+fileList.length);
+							for(File f : fileList)
+							{
+								if(f.isDirectory())
+								{
+									hasDirectory = true;
+									break;
+								}
+							}
+						}
+						else
+						{
+							System.out.println("fileList == null... library.mediaFolder:"+library.mediaFolder);
+						}
+						
+						if(hasDirectory)
+						{
+							System.out.println("Haven't built multiple directory import yet! Will exit...");
+							exit();
+						}
+						else
+						{
+							ArrayList<String> folderList = new ArrayList<String>();
+//							folderList.add(library.mediaFolder);
+							System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination);
+							state.selectedLibrary = library.createNewLibrary(library.mediaFolder, folderList, library.libraryDestination);
+
+							if(!state.selectedLibrary)
+							{
+								System.out.println("Error creating library...");
+								exit();
+							}
+						}
+					}
+					else
+					{
+						System.out.println("ERROR: Selected library destination but no media folder selected!");
+					}
+				}
+				
+				display.display(world);
+				if(state.selectedLibrary) initialize();			/* Initialize world */
+			}
 		}
 		else run();													/* Run MultimediaLocator */
 	}
@@ -166,7 +235,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void startInitialClustering()
 	{
 		display.startupMessages = new ArrayList<String>();	// Clear startup messages
-		if(debugSettings.metadata)
+//		if(debugSettings.metadata)
 		{
 			display.sendSetupMessage(world, "Library folder: "+library.getLibraryFolder());	// Show library folder name
 			display.sendSetupMessage(world, " ");
@@ -369,6 +438,24 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 
 	/**
+	 * Open library destination folder when folder has been selected
+	 * @param selection File object for selected folder
+	 */
+	public void libraryDestinationSelected(File selection) 
+	{
+		openLibraryDestination(selection);
+	}
+
+	/**
+	 * Open media folder when folder has been selected
+	 * @param selection File object for selected folder
+	 */
+	public void mediaFolderSelected(File selection) 
+	{
+		openMediaFolder(selection);
+	}
+
+	/**
 	 * Stop the program
 	 */
 	void exitMultimediaLocator() 
@@ -386,6 +473,103 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		world.viewer.initialize(0,0,0);
 	}
 	
+	/**
+	 * Analyze and load media folders given user selection
+	 * @param selection Selected folder
+	 */
+	public void openLibraryDestination(File selection) 
+	{
+		boolean selectedFolder = false;
+		
+		if (selection == null) {
+			System.out.println("openLibraryDestination()... Window was closed or the user hit cancel.");
+		} 
+		else 
+		{
+			String input = selection.getPath();
+			String[] parts = input.split("/");
+
+//			if (debugSettings.metadata)
+				System.out.println("User selected library destination: " + input);
+
+//			library = new ML_Library(input);				// Set library folder
+
+			File file = new File(input);
+			if(file.exists())
+			{
+				if(file.isDirectory())
+				{
+					selectedFolder = true;
+					library.libraryDestination = parts[parts.length-1];
+//					library.libraryDestination = input;
+					
+					String libFilePath = "";
+					for(int i=0; i<parts.length-1; i++)
+					{
+						libFilePath = libFilePath + parts[i] + "/";
+					}
+
+					library.setLibraryFolder(libFilePath);
+					library.addFolder(library.libraryDestination);
+				}
+			}
+		}
+		
+		if(selectedFolder)
+		{
+			state.selectedLibraryDestination = true;	// Library destination folder has been selected
+//			state.selectedLibrary = true;
+		}
+		else
+		{
+			state.selectedLibraryDestination = false;		// Not a folder or folder doesn't exist
+			libraryDestinationDialog();					// Retry prompt
+		}
+	}
+
+	/**
+	 * Open media folder
+	 * @param selection Selected folder
+	 */
+	public void openMediaFolder(File selection) 
+	{
+		boolean selectedFolder = false;
+		
+		if (selection == null) {
+			System.out.println("openMediaFolder()... Window was closed or the user hit cancel.");
+		} 
+		else 
+		{
+			String input = selection.getPath();
+			String[] parts = input.split("/");
+
+//			if (debugSettings.metadata)
+				System.out.println("User selected media folder: " + input);
+
+			File file = new File(input);
+			if(file.exists())
+			{
+				if(file.isDirectory())
+				{
+					library = new ML_Library("");
+//					library.mediaFolder = parts[parts.length-1];
+					library.mediaFolder = input;
+					selectedFolder = true;
+				}
+			}
+		}
+		
+		if(selectedFolder)
+		{
+			state.selectedMediaFolder = true;			// Media folder has been selected
+			state.chooseLibraryDestination = true;		// Choose library destination folder
+		}
+		else
+		{
+			state.selectedMediaFolder = false;				// Library in improper format if masks are missing
+			mediaFolderDialog();					// Retry folder prompt
+		}
+	}
 	
 	/**
 	 * Analyze and load media folders given user selection
@@ -453,7 +637,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 		
 		if(selectedFolder)
+		{
 			state.selectedLibrary = true;	// Library folder has been selected
+		}
 		else
 		{
 			state.selectedLibrary = false;				// Library in improper format if masks are missing
@@ -672,10 +858,22 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
+	public void mediaFolderDialog()
+	{
+		state.chooseLibrary = false;
+		selectFolder("Select media folder:", "mediaFolderSelected");		// Get filepath of PhotoSceneLibrary folder
+	}
+	
+	public void libraryDestinationDialog()
+	{
+		state.chooseLibraryDestination = false;
+		selectFolder("Select library destination:", "libraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
+	}
+	
 	public void librarySelectionDialog()
 	{
-		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 		state.chooseLibrary = false;
+		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
 	/**

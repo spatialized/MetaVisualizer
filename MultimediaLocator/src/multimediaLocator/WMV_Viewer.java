@@ -1551,7 +1551,7 @@ public class WMV_Viewer
 	 * @param teleport Teleport (true) or navigate (false) to cluster?
 	 * Send the camera to a random cluster in the field
 	 */
-	public void moveToRandomCluster(boolean teleport)
+	public void moveToRandomCluster(boolean teleport, boolean fade)
 	{
 		int rand = (int) p.p.random(currentField.getClusters().size());
 		while(currentField.getCluster(rand).isEmpty())
@@ -1565,14 +1565,14 @@ public class WMV_Viewer
 		if(settings.teleportToFarClusters && !teleport)
 		{
 			if( PVector.dist(currentField.getCluster(rand).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
-				teleportToCluster(rand, true, -1);
+				teleportToCluster(rand, fade, -1);
 			else
 				setAttractorCluster( rand );
 		}
 		else
 		{
 			if(teleport)
-				teleportToCluster(rand, true, -1);
+				teleportToCluster(rand, fade, -1);
 			else
 				setAttractorCluster( rand );
 		}

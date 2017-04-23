@@ -2462,100 +2462,40 @@ public class WMV_Field
 		for(WMV_Cluster c : clusters)
 		{
 			boolean error = false;
-			for(WMV_Date d : c.getDateline())
+			if(c.getDateline() == null)
 			{
-//				if(d.dateTime == null)
-//					System.out.println("  d.dateTime == null"+" timeInitialized? "+d.timeInitialized);
-				if(d.timeInitialized == false)
-					System.out.println("  timeInitialized == "+d.timeInitialized+" d.dateTime == null?"+(d.dateTime == null));
-				if(d.dateTimeString == null)
-					System.out.println("  d.dateTimeString == null");
-				if(d.timeZoneID == null)
-					System.out.println("  d.timeZoneID == null");
+				System.out.println("  c.getDateline() == null... id:"+c.getID()+" media count:"+c.getMediaCount());
+				error = true;
 			}
-//			if(!error)
-//				System.out.println("No errors...");
-//			System.out.println("  Checking timeline dates for null variables...");
-			error = false;
-			for(WMV_TimeSegment ts : c.getTimeline().timeline)
+			if(c.getTimeline() == null)
 			{
-				if(ts.getLower().dateTime == null)
-					System.out.println("  ts.getLower().dateTime == null");
-				if(ts.getCenter().dateTime == null)
-					System.out.println("  ts.getCenter().dateTime == null");
-				if(ts.getUpper().dateTime == null)
-					System.out.println("  ts.getUpper().dateTime == null");
-				if(ts.getLower().dateTimeString == null)
-					System.out.println("  ts.getLower().dateTimeString == null");
-				if(ts.getCenter().dateTimeString == null)
-					System.out.println("  ts.getCenter().dateTimeString == null");
-				if(ts.getUpper().dateTimeString == null)
-					System.out.println("  ts.getUpper().dateTimeString == null");
-				for(WMV_Time t : ts.timeline)
-				{
-					if(t.dateTime == null)
-						System.out.println("  t.dateTime == null");
-					if(t.dateTimeString == null)
-						System.out.println("  t.dateTimeString == null");
-					if(t.timeZoneID == null)
-						System.out.println("  t.timeZoneID == null");
-				}
+				System.out.println("  c.getTimeline() == null... id:"+c.getID()+" media count:"+c.getMediaCount());
+				error = true;
 			}
-//			if(!error)
-//				System.out.println("No errors...");
-//			System.out.println("  Checking timelines dates for null variables...");
-			error = false;
-			for(WMV_Timeline tl : c.getTimelines())
+			if(c.getTimelines() == null)
 			{
-				if(tl.getLower() == null) System.out.println("  tl.getLower() == null");
-				else
+				System.out.println("  c.getTimelines() == null... id:"+c.getID()+" media count:"+c.getMediaCount());
+				error = true;
+			}
+
+			if(!error)
+			{
+				for(WMV_Date d : c.getDateline())
 				{
-					if(tl.getLower().getLower() == null)
-						System.out.println("  tl.getLower().getLower() == null");
-					else
-					{
-						if(tl.getLower().getLower().dateTime == null)
-							System.out.println("  tl.getLower().getLower().dateTime == null");
-						if(tl.getLower().getLower().dateTimeString == null)
-							System.out.println("  tl.getLower().getLower().dateTimeString == null");
-					}
-
-					if(tl.getLower().getUpper() == null)
-						System.out.println("  tl.getLower().getUpper() == null");
-					else
-					{
-						if(tl.getLower().getUpper().dateTime == null)
-							System.out.println("  tl.getLower().getUpper().dateTime == null");
-						if(tl.getLower().getUpper().dateTimeString == null)
-							System.out.println("  tl.getLower().getUpper().dateTimeString == null");
-					}
+					//				if(d.dateTime == null)
+					//					System.out.println("  d.dateTime == null"+" timeInitialized? "+d.timeInitialized);
+					if(d.timeInitialized == false)
+						System.out.println("  timeInitialized == "+d.timeInitialized+" d.dateTime == null?"+(d.dateTime == null));
+					if(d.dateTimeString == null)
+						System.out.println("  d.dateTimeString == null");
+					if(d.timeZoneID == null)
+						System.out.println("  d.timeZoneID == null");
 				}
-				if(tl.getUpper() == null) 
-					System.out.println("  tl.getUpper() == null");
-				else
-				{
-					if(tl.getUpper().getLower() == null)
-						System.out.println("  tl.getUpper().getLower() == null");
-					else
-					{
-						if(tl.getUpper().getLower().dateTime == null)
-							System.out.println("  tl.getUpper().getLower().dateTime == null");
-						if(tl.getUpper().getLower().dateTimeString == null)
-							System.out.println("  tl.getUpper().getLower().dateTimeString == null");
-					}
-
-					if(tl.getUpper().getUpper() == null)
-						System.out.println("  tl.getUpper().getUpper() == null");
-					else
-					{
-						if(tl.getUpper().getUpper().dateTime == null)
-							System.out.println("  tl.getUpper().getUpper().dateTime == null");
-						if(tl.getUpper().getUpper().dateTimeString == null)
-							System.out.println("  tl.getUpper().getUpper().dateTimeString == null");
-					}
-				}
-
-				for(WMV_TimeSegment ts : tl.timeline)
+				//			if(!error)
+				//				System.out.println("No errors...");
+				//			System.out.println("  Checking timeline dates for null variables...");
+				error = false;
+				for(WMV_TimeSegment ts : c.getTimeline().timeline)
 				{
 					if(ts.getLower().dateTime == null)
 						System.out.println("  ts.getLower().dateTime == null");
@@ -2572,20 +2512,103 @@ public class WMV_Field
 					for(WMV_Time t : ts.timeline)
 					{
 						if(t.dateTime == null)
-							System.out.println("    t.dateTime == null");
+							System.out.println("  t.dateTime == null");
 						if(t.dateTimeString == null)
-							System.out.println("    t.dateTimeString == null");
+							System.out.println("  t.dateTimeString == null");
 						if(t.timeZoneID == null)
-							System.out.println("    t.timeZoneID == null");
+							System.out.println("  t.timeZoneID == null");
+					}
+				}
+				//			if(!error)
+				//				System.out.println("No errors...");
+				//			System.out.println("  Checking timelines dates for null variables...");
+				error = false;
+				for(WMV_Timeline tl : c.getTimelines())
+				{
+					if(tl.getLower() == null) System.out.println("  tl.getLower() == null");
+					else
+					{
+						if(tl.getLower().getLower() == null)
+							System.out.println("  tl.getLower().getLower() == null");
+						else
+						{
+							if(tl.getLower().getLower().dateTime == null)
+								System.out.println("  tl.getLower().getLower().dateTime == null");
+							if(tl.getLower().getLower().dateTimeString == null)
+								System.out.println("  tl.getLower().getLower().dateTimeString == null");
+						}
+
+						if(tl.getLower().getUpper() == null)
+							System.out.println("  tl.getLower().getUpper() == null");
+						else
+						{
+							if(tl.getLower().getUpper().dateTime == null)
+								System.out.println("  tl.getLower().getUpper().dateTime == null");
+							if(tl.getLower().getUpper().dateTimeString == null)
+								System.out.println("  tl.getLower().getUpper().dateTimeString == null");
+						}
+					}
+					if(tl.getUpper() == null) 
+						System.out.println("  tl.getUpper() == null");
+					else
+					{
+						if(tl.getUpper().getLower() == null)
+							System.out.println("  tl.getUpper().getLower() == null");
+						else
+						{
+							if(tl.getUpper().getLower().dateTime == null)
+								System.out.println("  tl.getUpper().getLower().dateTime == null");
+							if(tl.getUpper().getLower().dateTimeString == null)
+								System.out.println("  tl.getUpper().getLower().dateTimeString == null");
+						}
+
+						if(tl.getUpper().getUpper() == null)
+							System.out.println("  tl.getUpper().getUpper() == null");
+						else
+						{
+							if(tl.getUpper().getUpper().dateTime == null)
+								System.out.println("  tl.getUpper().getUpper().dateTime == null");
+							if(tl.getUpper().getUpper().dateTimeString == null)
+								System.out.println("  tl.getUpper().getUpper().dateTimeString == null");
+						}
+					}
+
+					for(WMV_TimeSegment ts : tl.timeline)
+					{
+						if(ts.getLower().dateTime == null)
+							System.out.println("  ts.getLower().dateTime == null");
+						if(ts.getCenter().dateTime == null)
+							System.out.println("  ts.getCenter().dateTime == null");
+						if(ts.getUpper().dateTime == null)
+							System.out.println("  ts.getUpper().dateTime == null");
+						if(ts.getLower().dateTimeString == null)
+							System.out.println("  ts.getLower().dateTimeString == null");
+						if(ts.getCenter().dateTimeString == null)
+							System.out.println("  ts.getCenter().dateTimeString == null");
+						if(ts.getUpper().dateTimeString == null)
+							System.out.println("  ts.getUpper().dateTimeString == null");
+						for(WMV_Time t : ts.timeline)
+						{
+							if(t.dateTime == null)
+								System.out.println("    t.dateTime == null");
+							if(t.dateTimeString == null)
+								System.out.println("    t.dateTimeString == null");
+							if(t.timeZoneID == null)
+								System.out.println("    t.timeZoneID == null");
+						}
 					}
 				}
 			}
-//			if(!error)
-//				System.out.println("No errors...");
+			else
+			{
+				System.out.println("Error... cluster #"+c.getID()+" dateline, timeline or timelines == null!!!");
+			}
 
 			WMV_ClusterState cState = c.getState();
 			if(cState != null)
+			{
 				clusterStates.add(c.getState());
+			}
 			else
 			{
 				System.out.println("  Didn't output cluster #"+c.getID()+" since state is NULL!!!");

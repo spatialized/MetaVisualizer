@@ -26,6 +26,7 @@ public class WMV_ViewerSettings
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
+	public boolean sphericalView = false;					// 360 degree perspective 		// -- Under development
 	
 //	public final int maxVisibleImages = 50;					// Maximum visible images at one time
 //	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time

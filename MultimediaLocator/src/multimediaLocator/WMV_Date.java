@@ -16,6 +16,7 @@ public class WMV_Date implements Comparable<WMV_Date>
 {
 	private int year, month, day, days;				// Capture Year, Month, Day, # of Days since 1980
 	private int id;
+	public boolean timeInitialized = false;
 
 	ZonedDateTime dateTime;
 	String dateTimeString, timeZoneID;
@@ -29,7 +30,9 @@ public class WMV_Date implements Comparable<WMV_Date>
 
 		dateTime = newDateTime;
 		dateTimeString = newDateTimeString;
-		
+
+		initializeTime();
+
 		year = dateTime.getYear();
 		month = dateTime.getMonthValue();
 
@@ -49,7 +52,7 @@ public class WMV_Date implements Comparable<WMV_Date>
 		timeZoneID = newDate.timeZoneID;
 		
 		dateTimeString = newDate.dateTimeString;
-//		initializeTime();
+		initializeTime();
 		
 		year = newDate.year;
 		month = newDate.month;
@@ -175,6 +178,7 @@ public class WMV_Date implements Comparable<WMV_Date>
 	public void initializeTime()
 	{
 		dateTime = parseDateTime(dateTimeString);
+		timeInitialized = true;
 	}
 
 	/**
@@ -184,9 +188,9 @@ public class WMV_Date implements Comparable<WMV_Date>
 	 */
 	public ZonedDateTime parseDateTime(String input) 					// 2016:04:10 17:52:39
 	{		
-		System.out.println("   initializeTime() for date... input:"+input);
 //		String[] parts = input.split("-");
 //		input = parts[1];
+//		System.out.println("   initializeTime() for date... input:"+input);
 		String[] parts = input.split(":");
 
 		int year = Integer.valueOf(parts[0].trim());
@@ -199,6 +203,8 @@ public class WMV_Date implements Comparable<WMV_Date>
 		int hour = Integer.valueOf(parts[1]);
 
 		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
+		if(pac == null)
+			System.out.println("ERROR in parseDateTime for date #"+getID()+"... pac == null!");
 		return pac;
 	}
 

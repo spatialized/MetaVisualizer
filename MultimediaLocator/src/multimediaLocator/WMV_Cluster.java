@@ -100,7 +100,10 @@ public class WMV_Cluster
 		}
 		
 		for(WMV_Date d : state.dateline)
-			d.initializeTime();
+		{
+			if(!d.timeInitialized)
+				d.initializeTime();
+		}
 	}
 	
 	/**

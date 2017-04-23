@@ -222,7 +222,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 	{		
 //		String[] parts = input.split("-");
 //		input = parts[1];
-		System.out.println("   initializeTime() for time... input:"+input);
+//		System.out.println("   initializeTime() for time... input:"+input);
 		String[] parts = input.split(":");
 
 		int year = Integer.valueOf(parts[0].trim());

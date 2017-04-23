@@ -2456,23 +2456,26 @@ public class WMV_Field
 	{
 		ArrayList<WMV_ClusterState> clusterStates = new ArrayList<WMV_ClusterState>();				
 
+		if(debugSettings.field)
+			System.out.println("captureClusterStates()... Checking all times/dates for null variables...");
+		
 		for(WMV_Cluster c : clusters)
 		{
-			System.out.println("--> captureClusterStates() id:"+c.getID());
-			System.out.println("  Checking dates for null variable...");
 			boolean error = false;
 			for(WMV_Date d : c.getDateline())
 			{
-				if(d.dateTime == null)
-					System.out.println("  d.dateTime == null");
+//				if(d.dateTime == null)
+//					System.out.println("  d.dateTime == null"+" timeInitialized? "+d.timeInitialized);
+				if(d.timeInitialized == false)
+					System.out.println("  timeInitialized == "+d.timeInitialized+" d.dateTime == null?"+(d.dateTime == null));
 				if(d.dateTimeString == null)
 					System.out.println("  d.dateTimeString == null");
 				if(d.timeZoneID == null)
 					System.out.println("  d.timeZoneID == null");
 			}
-			if(!error)
-				System.out.println("No errors...");
-			System.out.println("  Checking timeline dates for null variable...");
+//			if(!error)
+//				System.out.println("No errors...");
+//			System.out.println("  Checking timeline dates for null variables...");
 			error = false;
 			for(WMV_TimeSegment ts : c.getTimeline().timeline)
 			{
@@ -2498,9 +2501,9 @@ public class WMV_Field
 						System.out.println("  t.timeZoneID == null");
 				}
 			}
-			if(!error)
-				System.out.println("No errors...");
-			System.out.println("  Checking timelines dates for null variable...");
+//			if(!error)
+//				System.out.println("No errors...");
+//			System.out.println("  Checking timelines dates for null variables...");
 			error = false;
 			for(WMV_Timeline tl : c.getTimelines())
 			{
@@ -2577,8 +2580,8 @@ public class WMV_Field
 					}
 				}
 			}
-			if(!error)
-				System.out.println("No errors...");
+//			if(!error)
+//				System.out.println("No errors...");
 
 			WMV_ClusterState cState = c.getState();
 			if(cState != null)

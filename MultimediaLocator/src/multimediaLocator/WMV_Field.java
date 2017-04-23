@@ -374,7 +374,8 @@ public class WMV_Field
 			setupModel(); 						// Initialize field for first time 
 
 			boolean hierarchical = false;		// Whether to use hierarchical clustering
-			if(model.getState().validMedia < model.getState().hierarchicalMaxMedia) hierarchical = true;
+			if(model.getState().validMedia < model.getState().hierarchicalMaxMedia) 
+				hierarchical = true;
 
 			calculateMediaLocations(); 				// Set location of each photo in simulation
 
@@ -2457,6 +2458,128 @@ public class WMV_Field
 
 		for(WMV_Cluster c : clusters)
 		{
+			System.out.println("--> captureClusterStates() id:"+c.getID());
+			System.out.println("  Checking dates for null variable...");
+			boolean error = false;
+			for(WMV_Date d : c.getDateline())
+			{
+				if(d.dateTime == null)
+					System.out.println("  d.dateTime == null");
+				if(d.dateTimeString == null)
+					System.out.println("  d.dateTimeString == null");
+				if(d.timeZoneID == null)
+					System.out.println("  d.timeZoneID == null");
+			}
+			if(!error)
+				System.out.println("No errors...");
+			System.out.println("  Checking timeline dates for null variable...");
+			error = false;
+			for(WMV_TimeSegment ts : c.getTimeline().timeline)
+			{
+				if(ts.getLower().dateTime == null)
+					System.out.println("  ts.getLower().dateTime == null");
+				if(ts.getCenter().dateTime == null)
+					System.out.println("  ts.getCenter().dateTime == null");
+				if(ts.getUpper().dateTime == null)
+					System.out.println("  ts.getUpper().dateTime == null");
+				if(ts.getLower().dateTimeString == null)
+					System.out.println("  ts.getLower().dateTimeString == null");
+				if(ts.getCenter().dateTimeString == null)
+					System.out.println("  ts.getCenter().dateTimeString == null");
+				if(ts.getUpper().dateTimeString == null)
+					System.out.println("  ts.getUpper().dateTimeString == null");
+				for(WMV_Time t : ts.timeline)
+				{
+					if(t.dateTime == null)
+						System.out.println("  t.dateTime == null");
+					if(t.dateTimeString == null)
+						System.out.println("  t.dateTimeString == null");
+					if(t.timeZoneID == null)
+						System.out.println("  t.timeZoneID == null");
+				}
+			}
+			if(!error)
+				System.out.println("No errors...");
+			System.out.println("  Checking timelines dates for null variable...");
+			error = false;
+			for(WMV_Timeline tl : c.getTimelines())
+			{
+				if(tl.getLower() == null) System.out.println("  tl.getLower() == null");
+				else
+				{
+					if(tl.getLower().getLower() == null)
+						System.out.println("  tl.getLower().getLower() == null");
+					else
+					{
+						if(tl.getLower().getLower().dateTime == null)
+							System.out.println("  tl.getLower().getLower().dateTime == null");
+						if(tl.getLower().getLower().dateTimeString == null)
+							System.out.println("  tl.getLower().getLower().dateTimeString == null");
+					}
+
+					if(tl.getLower().getUpper() == null)
+						System.out.println("  tl.getLower().getUpper() == null");
+					else
+					{
+						if(tl.getLower().getUpper().dateTime == null)
+							System.out.println("  tl.getLower().getUpper().dateTime == null");
+						if(tl.getLower().getUpper().dateTimeString == null)
+							System.out.println("  tl.getLower().getUpper().dateTimeString == null");
+					}
+				}
+				if(tl.getUpper() == null) 
+					System.out.println("  tl.getUpper() == null");
+				else
+				{
+					if(tl.getUpper().getLower() == null)
+						System.out.println("  tl.getUpper().getLower() == null");
+					else
+					{
+						if(tl.getUpper().getLower().dateTime == null)
+							System.out.println("  tl.getUpper().getLower().dateTime == null");
+						if(tl.getUpper().getLower().dateTimeString == null)
+							System.out.println("  tl.getUpper().getLower().dateTimeString == null");
+					}
+
+					if(tl.getUpper().getUpper() == null)
+						System.out.println("  tl.getUpper().getUpper() == null");
+					else
+					{
+						if(tl.getUpper().getUpper().dateTime == null)
+							System.out.println("  tl.getUpper().getUpper().dateTime == null");
+						if(tl.getUpper().getUpper().dateTimeString == null)
+							System.out.println("  tl.getUpper().getUpper().dateTimeString == null");
+					}
+				}
+
+				for(WMV_TimeSegment ts : tl.timeline)
+				{
+					if(ts.getLower().dateTime == null)
+						System.out.println("  ts.getLower().dateTime == null");
+					if(ts.getCenter().dateTime == null)
+						System.out.println("  ts.getCenter().dateTime == null");
+					if(ts.getUpper().dateTime == null)
+						System.out.println("  ts.getUpper().dateTime == null");
+					if(ts.getLower().dateTimeString == null)
+						System.out.println("  ts.getLower().dateTimeString == null");
+					if(ts.getCenter().dateTimeString == null)
+						System.out.println("  ts.getCenter().dateTimeString == null");
+					if(ts.getUpper().dateTimeString == null)
+						System.out.println("  ts.getUpper().dateTimeString == null");
+					for(WMV_Time t : ts.timeline)
+					{
+						if(t.dateTime == null)
+							System.out.println("    t.dateTime == null");
+						if(t.dateTimeString == null)
+							System.out.println("    t.dateTimeString == null");
+						if(t.timeZoneID == null)
+							System.out.println("    t.timeZoneID == null");
+					}
+				}
+			}
+			if(!error)
+				System.out.println("No errors...");
+
 			WMV_ClusterState cState = c.getState();
 			if(cState != null)
 				clusterStates.add(c.getState());
@@ -2581,10 +2704,10 @@ public class WMV_Field
 				error = true;
 			}
 
-//			System.out.println("Setting media states for field #"+getID()+" ... ");
+			System.out.println("Setting media states for field #"+getID()+" ... ");
 			try{
 
-//				System.out.println(" Adding Clusters... "+newClusterStateList.clusters.size());
+				System.out.println(" Adding Clusters... "+newClusterStateList.clusters.size());
 				for(WMV_ClusterState cs : newClusterStateList.clusters)
 				{
 					WMV_Cluster newCluster = getClusterFromClusterState(cs);
@@ -2674,7 +2797,7 @@ public class WMV_Field
 					if(clusterError)		// Error loading clusters
 					{
 						boolean hierarchical = false;
-						if(model.getState().validMedia < 200)
+						if(model.getState().validMedia < model.getState().hierarchicalMaxMedia)
 							hierarchical = true;
 						runInitialClustering(hierarchical);		// Find media clusters
 					}
@@ -2839,6 +2962,7 @@ public class WMV_Field
 				 clusterState.location.x, clusterState.location.y, clusterState.location.z);
 
 		 newCluster.setState( (WMV_ClusterState) clusterState );
+		 newCluster.initializeTime();
 		 return newCluster;
 	 }
 		
@@ -2918,8 +3042,6 @@ public class WMV_Field
 	
 	public WMV_TimeSegment getTimeSegmentOnDate(int tsIdx, int dateIdx)
 	{
-		System.out.println("getTimeSegmentOnDate()... tsIdx:"+tsIdx+" dateIdx:"+dateIdx);
-		System.out.println("  result:"+(timelines.get(dateIdx).timeline.get(tsIdx)));
 		return timelines.get(dateIdx).timeline.get(tsIdx);
 	}
 	
@@ -3448,9 +3570,9 @@ public class WMV_Field
 
 		JarvisPoints pts = new JarvisPoints(points);
 		JarvisMarch jm = new JarvisMarch(pts);
-		double start = System.currentTimeMillis();
+//		double start = System.currentTimeMillis();
 		int n = jm.calculateHull();
-		double end = System.currentTimeMillis();
+//		double end = System.currentTimeMillis();
 //		System.out.printf("%d points found %d vertices %f seconds\n", points.size(), n, (end-start)/1000.);
 
 		int length = jm.getHullPoints().pts.length;
@@ -3691,43 +3813,43 @@ public class WMV_Field
 	 * @param r Point 3
 	 * @return 0: colinear, 1: clockwise, 2: counterclockwise
 	 */
-	private int getPointTripletOrientation(PVector p, PVector q, PVector r)
-	{
-	  float val = (q.y - p.y) * (r.x - q.x) -
-	    (q.x - p.x) * (r.y - q.y);
-
-	  if (val == 0.f) return 0;
-	  return (val > 0.f) ? 1 : 2; 
-	}
-	
-	private class PointComparator implements Comparator<PVector> {
-
-	    private PVector center;
-
-	    public PointComparator(PVector center) {
-	        this.center = center;
-	    }
-
-	    public int compare(PVector o1, PVector o2) {
-//	        System.out.println("PointComp... o1.y:"+o1.y+" o1.x:"+o1.x+" o2.y:"+o2.y+" o2.x:"+o2.x);
-	        double angle1 = Math.atan2(o1.y - center.y, o1.x - center.x);
-	        double angle2 = Math.atan2(o2.y - center.y, o2.x - center.x);
-//	        System.out.println("  angle1:"+angle1+" angle2:"+angle2);
-	        if (angle1 > angle2)
-	        {
-//		        System.out.println("0  (angle1 < angle2):"+(angle1 < angle2));
-	            return 1;
-	        }
-	        if (angle1 < angle2)
-	        {
-//		        System.out.println("1  (angle1 < angle2):"+(angle1 < angle2));
-	            return -1;
-	        }
-	        
-//	        System.out.println("Angles are the same");
-	        return 0;
-	    }
-	}
+//	private int getPointTripletOrientation(PVector p, PVector q, PVector r)
+//	{
+//	  float val = (q.y - p.y) * (r.x - q.x) -
+//	    (q.x - p.x) * (r.y - q.y);
+//
+//	  if (val == 0.f) return 0;
+//	  return (val > 0.f) ? 1 : 2; 
+//	}
+//	
+//	private class PointComparator implements Comparator<PVector> {
+//
+//	    private PVector center;
+//
+//	    public PointComparator(PVector center) {
+//	        this.center = center;
+//	    }
+//
+//	    public int compare(PVector o1, PVector o2) {
+////	        System.out.println("PointComp... o1.y:"+o1.y+" o1.x:"+o1.x+" o2.y:"+o2.y+" o2.x:"+o2.x);
+//	        double angle1 = Math.atan2(o1.y - center.y, o1.x - center.x);
+//	        double angle2 = Math.atan2(o2.y - center.y, o2.x - center.x);
+////	        System.out.println("  angle1:"+angle1+" angle2:"+angle2);
+//	        if (angle1 > angle2)
+//	        {
+////		        System.out.println("0  (angle1 < angle2):"+(angle1 < angle2));
+//	            return 1;
+//	        }
+//	        if (angle1 < angle2)
+//	        {
+////		        System.out.println("1  (angle1 < angle2):"+(angle1 < angle2));
+//	            return -1;
+//	        }
+//	        
+////	        System.out.println("Angles are the same");
+//	        return 0;
+//	    }
+//	}
 	
 
 //	/**

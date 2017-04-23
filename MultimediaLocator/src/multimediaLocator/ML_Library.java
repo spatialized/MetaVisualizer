@@ -523,7 +523,6 @@ public class ML_Library
 		try {
 			file = new File(filePath);
 			WMV_FieldState fState = mapper.readValue(file, WMV_FieldState.class);
-
 			return fState;
 		}
 		catch (Throwable t)
@@ -557,7 +556,6 @@ public class ML_Library
 				try {
 					file = new File(filePath);
 					WMV_ClusterStateList temp = mapper.readValue(file, WMV_ClusterStateList.class);
-					//					System.out.println("loadClusterStateLists()...  temp.clusters.size(): "+temp.clusters.size());
 					for(WMV_ClusterState cs : temp.clusters)
 						csl.clusters.add(cs);
 				}
@@ -567,7 +565,6 @@ public class ML_Library
 				}
 			}
 
-			//			System.out.println("loadClusterStateLists loaded "+csl.clusters.size()+" clusters from "+files.length+" files...");
 			return csl;
 		}
 		return null;

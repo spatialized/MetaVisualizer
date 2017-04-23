@@ -739,7 +739,6 @@ public class WMV_Viewer
 
 	public void teleportToFieldOffset(int offset, boolean moveToFirstTimeSegment, boolean fade) 
 	{
-		System.out.println("teleportToFieldOffset:"+offset);
 		teleportToField(state.field + offset, moveToFirstTimeSegment, fade);
 	}
 	
@@ -3799,7 +3798,7 @@ public class WMV_Viewer
 
 				ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("America/Los_Angeles"));
 				WMV_Time pacTime = new WMV_Time();
-				pacTime.initialize( pac, count, -1, 0, currentField.getTimeZoneID() );
+				pacTime.initialize( pac, "", count, -1, 0, currentField.getTimeZoneID() );
 
 				float newX = 0.f, newZ = 0.f, newY = 0.f;
 

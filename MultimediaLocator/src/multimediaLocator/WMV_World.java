@@ -567,19 +567,54 @@ public class WMV_World
 			String soundDataPath = folderPath + "ml_library_soundStates/";
 			
 			File dataDirectory = new File(folderPath);
-			if(!dataDirectory.exists()) dataDirectory.mkdir();			// Create directory if doesn't exist
-
+			if(dataDirectory.exists()) 
+			{
+				File[] fileList = dataDirectory.listFiles();
+				for(File file : fileList) 
+				{
+					if(file.isDirectory())
+					{
+						File[] fileList2 = file.listFiles();
+						for(File file2 : fileList2) 
+						{
+							if(file2.isDirectory())
+							{
+								File[] fileList3 = file2.listFiles();
+								for(File file3 : fileList3) 
+									file3.delete();
+							}
+							else
+							{
+								file2.delete();
+							}
+						}
+					}
+					else
+					{
+						file.delete();
+					}
+				}
+			}
+			else
+			{
+				dataDirectory.mkdir();			// Create directory if doesn't exist
+			}
+			
 			File clusterDirectory = new File(clusterDataPath);
-			if(!clusterDirectory.exists()) clusterDirectory.mkdir();			// Create directory if doesn't exist
+			if(!clusterDirectory.exists()) 
+				clusterDirectory.mkdir();			// Create directory if doesn't exist
 
 			File imageDirectory = new File(imageDataPath);
-			if(!imageDirectory.exists()) imageDirectory.mkdir();			// Create directory if doesn't exist
+			if(!imageDirectory.exists()) 
+				imageDirectory.mkdir();			// Create directory if doesn't exist
 
 			File panoramaDirectory = new File(panoramaDataPath);
-			if(!panoramaDirectory.exists()) panoramaDirectory.mkdir();			// Create directory if doesn't exist
+			if(!panoramaDirectory.exists()) 
+				panoramaDirectory.mkdir();			// Create directory if doesn't exist
 
 			File videoDirectory = new File(videoDataPath);
-			if(!videoDirectory.exists()) videoDirectory.mkdir();			// Create directory if doesn't exist
+			if(!videoDirectory.exists()) 
+				videoDirectory.mkdir();			// Create directory if doesn't exist
 
 			if(p.debugSettings.main) PApplet.println("Saving Simulation State to: "+folderPath);
 			
@@ -736,6 +771,31 @@ public class WMV_World
 //		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
 
 		WMV_ClusterStateList csl = p.library.loadClusterStateLists(clusterDataPath);
+		
+//		for(WMV_ClusterState cs : csl.clusters)
+//		{
+//			if(cs.dateline != null)
+//			{
+//				for(WMV_Date d : cs.dateline)
+//				{
+//					if(d.dateTime == null)
+//						System.out.println("d.dateTime == null!");
+//				}
+//			}
+//			else
+//				System.out.println("cs.dateline == null!");
+//			if(cs.timeline != null)
+//			{
+//			}
+//			else
+//				System.out.println("cs.timeline == null!");
+//			if(cs.timelines != null)
+//			{
+//			}
+//			else
+//				System.out.println("cs.timelines == null!");
+//		}
+		
 		WMV_ImageStateList isl = p.library.loadImageStateLists(imageDataPath);
 		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
 		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");

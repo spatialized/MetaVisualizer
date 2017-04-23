@@ -238,12 +238,6 @@ public class WMV_Utilities
 		ZonedDateTime date1980 = ZonedDateTime.parse("1980-01-01T00:00:00+00:00[America/Los_Angeles]");
 		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(timeZoneID));
 		Duration duration = Duration.between(date1980, date);
-		
-//		if(p.p.debug.time)
-//		{
-//			System.out.println("Days: " + (int)duration.toDays());
-//			System.out.println("  ISO-8601: " + duration);
-//		}		
 
 		return (int)duration.toDays();
 	}

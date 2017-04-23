@@ -1613,7 +1613,7 @@ class ML_Display
 			p.p.text("Entoptic Software", screenWidth / 1.2f, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(largeTextSize * 1.2f);
 			
-			if(p.p.createLibrary)
+			if(p.p.createNewLibrary)
 			{
 				if(!p.p.state.selectedMediaFolder)
 				{

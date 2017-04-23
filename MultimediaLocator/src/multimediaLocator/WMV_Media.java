@@ -940,11 +940,11 @@ public abstract class WMV_Media
 	 * @param input String to parse
 	 * @return ZonedDateTime object corresponding to given string
 	 */
-	public ZonedDateTime parseDateTime(String input) 
+	public ZonedDateTime parseDateTime(String input) 					// 2016:04:10 17:52:39
 	{		
-		String[] parts = input.split("-");
-		input = parts[1];
-		parts = input.split(":");
+//		String[] parts = input.split("-");
+//		input = parts[1];
+		String[] parts = input.split(":");
 
 		int year = Integer.valueOf(parts[0].trim());
 		int month = Integer.valueOf(parts[1]);
@@ -961,24 +961,24 @@ public abstract class WMV_Media
 		return pac;
 	}
 
-	public ZonedDateTime parseVideoDateTime(String input) 
-	{		
-		String[] parts = input.split(":");
-
-		int year = Integer.valueOf(parts[0].trim());
-		int month = Integer.valueOf(parts[1]);
-		int min = Integer.valueOf(parts[3]);
-		String secStr = parts[4];
-
-		input = parts[2];
-		parts = input.split(" ");
-		int day = Integer.valueOf(parts[0]);
-		int hour = Integer.valueOf(parts[1]);
-
-		parts = secStr.split("-");
-		int sec = Integer.valueOf(parts[0]);
-
-		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-		return pac;
-	}
+//	public ZonedDateTime parseVideoDateTime(String input) 
+//	{		
+//		String[] parts = input.split(":");
+//
+//		int year = Integer.valueOf(parts[0].trim());
+//		int month = Integer.valueOf(parts[1]);
+//		int min = Integer.valueOf(parts[3]);
+//		String secStr = parts[4];
+//
+//		input = parts[2];
+//		parts = input.split(" ");
+//		int day = Integer.valueOf(parts[0]);
+//		int hour = Integer.valueOf(parts[1]);
+//
+//		parts = secStr.split("-");
+//		int sec = Integer.valueOf(parts[0]);
+//
+//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+//		return pac;
+//	}
 }

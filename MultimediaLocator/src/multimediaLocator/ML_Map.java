@@ -37,8 +37,8 @@ public class ML_Map
 	private UnfoldingMap map;
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
-;
 	private Location mapCenter, fieldsMapCenter;
+;
 	private EventDispatcher eventDispatcher;
 	private MarkerManager<Marker> markerManager;
 	private MultiMarker allClustersMarker;
@@ -158,8 +158,7 @@ public class ML_Map
 			curMapHeight = screenHeight * 0.95f;
 		}
 
-//		zoomToRectangle(0, 0, curMapWidth, curMapHeight);			// Start zoomed out on whole map
-		initializeSatelliteMap(world);
+		initializeFieldSatelliteMap(world);
 		p.initializedMaps = true;
 	}
 	
@@ -167,7 +166,7 @@ public class ML_Map
 	 * Initialize maps
 	 * @param p Parent world
 	 */
-	public void initializeSatelliteMap(WMV_World p)
+	public void initializeFieldSatelliteMap(WMV_World p)
 	{
 		map = new UnfoldingMap(p.p, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 
@@ -194,10 +193,9 @@ public class ML_Map
 		eventDispatcher.register(map, "pan", map.getId());
 		eventDispatcher.register(map, "zoom", map.getId());
 
-		createPointMarkers(p);
+		createFieldPointMarkers(p);
 //		createFieldMarkers(p);
 		
-//		System.out.println("viewerMarker getLocation():"+p.p.viewer.getLocation()+" p.p.viewer.getGPSLocation():"+p.p.viewer.getGPSLocation());
 		PVector vLoc = p.viewer.getGPSLocation();
 		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
 		viewerMarker.setId("viewer");
@@ -208,7 +206,7 @@ public class ML_Map
 	/**
 	 * Create simple point markers for each cluster
 	 */
-	public void createPointMarkers(WMV_World world)
+	public void createFieldPointMarkers(WMV_World world)
 	{
 		markerManager = new MarkerManager<Marker>();
 		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
@@ -219,7 +217,6 @@ public class ML_Map
 				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
 				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
 				marker.setId(String.valueOf(c.getID()));
-//				marker.setColor(p.p.p.color(90, 225, 225, 155));
 				marker.setColor(world.p.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
 				marker.setHighlightColor(world.p.color(170, 255, 255, 255));
 				marker.setStrokeWeight(0);
@@ -1647,12 +1644,15 @@ public class ML_Map
 			fieldMarker.setStrokeWeight(0);
 			if(f.getID() == getSelectedFieldID())
 			{
-				fieldMarker.setColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, fieldTransparency));		
+				fieldMarker.setColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, 0));		
+//				fieldMarker.setColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, fieldTransparency));		
 			}
 			else
 			{
-				fieldMarker.setColor(world.p.color(hue, 195.f, 235.f, fieldTransparency));		
-				fieldMarker.setHighlightColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, fieldTransparency));
+				fieldMarker.setColor(world.p.color(hue, 195.f, 235.f, 0));		
+				fieldMarker.setHighlightColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, 0));
+//				fieldMarker.setColor(world.p.color(hue, 195.f, 235.f, fieldTransparency));		
+//				fieldMarker.setHighlightColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, fieldTransparency));
 			}
 
 			fieldMarkers.add(fieldMarker);

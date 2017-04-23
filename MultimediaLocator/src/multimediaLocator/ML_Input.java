@@ -445,7 +445,6 @@ public class ML_Input
 	{
 		if (!ml.state.running && !ml.state.selectedLibrary)
 		{
-			System.out.println("Hit key... ");
 			ml.state.chooseLibrary = true;
 		}
 		else

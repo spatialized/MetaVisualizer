@@ -155,9 +155,6 @@ class WMV_Metadata
 		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
 		panoramaFolder = library + "/" + fieldPath + "/panoramas/";			/* Check for panoramas folder */
 
-		System.out.println("smallImageFolder:"+smallImageFolder);
-		System.out.println("panoramaFolder:"+panoramaFolder);
-		
 		smallImageFolderFile = new File(smallImageFolder);
 		imageFolderFile = new File(imageFolder);
 		panoramaFolderFile = new File(panoramaFolder);
@@ -646,7 +643,10 @@ class WMV_Metadata
 						if (tagName.equals("Date/Time Original")) // Orientation
 						{
 							sDateTime = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found DateTimeOriginal..." + sDateTime);
+							if (debugSettings.metadata && debugSettings.detailed) 
+								System.out.println("Found DateTimeOriginal..." + sDateTime);
+							String[] parts = sDateTime.split(" - ");
+							sDateTime = parts[1];
 						}
 						if (tagName.equals("GPS Latitude")) // Latitude
 						{
@@ -849,11 +849,7 @@ class WMV_Metadata
 				{
 					if(panorama && !dataMissing)
 					{
-//						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
 						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
-//						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-//						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
-
 						PImage pImg = p.createImage(0,0,processing.core.PConstants.RGB);
 
 						f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
@@ -861,12 +857,8 @@ class WMV_Metadata
 					}
 					else if(!dataMissing)
 					{
-//						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
 						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
 								fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
-//						WMV_MediaMetadata mMetadata = new WMV_MediaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, f.getTimeZoneID());
-//						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
-//								fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
 						
 						PImage pImg = p.createImage(0, 0, processing.core.PConstants.RGB);
 						f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata ) );
@@ -953,21 +945,21 @@ class WMV_Metadata
 				sWidth = videoMetadata.get("ImageWidth");
 				sHeight = videoMetadata.get("ImageHeight");
 				sKeywords = videoMetadata.get("Keywords");
+				
+				String[] parts = sDateTime.split("-");
+				sDateTime = parts[0];
 
 				if(debugSettings.metadata && debugSettings.video && debugSettings.detailed)
 				{
-					System.out.println("--> Video latitude:"+sLatitude);
-					System.out.println("  longitude:"+sLongitude);
-					System.out.println("  altitude:"+altitude);
-					System.out.println("  duration:"+duration);
+					System.out.println("--> Video latitude:"+sLatitude+"  longitude:"+sLongitude+"  altitude:"+altitude);
 					System.out.println("  date:"+sDateTime);
-					System.out.println("  width:"+sWidth);
-					System.out.println("  height:"+sHeight);
+					System.out.println("  duration:"+duration);
+					System.out.println("  width:"+sWidth+"  height:"+sHeight);
 					System.out.println("  keywords:"+sKeywords);
 				}
 
 				try {
-					zonedDateTime = parseVideoDateTime(sDateTime);
+					zonedDateTime = parseDateTime(sDateTime);
 				} 
 				catch (Throwable t) {
 					System.out.println("Throwable while parsing date / time... " + t);
@@ -1350,11 +1342,11 @@ class WMV_Metadata
 		return 1000;
 	}
 
-	public ZonedDateTime parseDateTime(String input) 
+	public ZonedDateTime parseDateTime(String input)  	// [Exif SubIFD] Date/Time Original - 2016:08:11 16:40:10
 	{		
-		String[] parts = input.split("-");
-		input = parts[1];
-		parts = input.split(":");
+//		String[] parts = input.split("-");
+//		input = parts[1];
+		String[] parts = input.split(":");
 
 		int year = Integer.valueOf(parts[0].trim());
 		int month = Integer.valueOf(parts[1]);
@@ -1370,26 +1362,26 @@ class WMV_Metadata
 		return pac;
 	}
 
-	public ZonedDateTime parseVideoDateTime(String input) 
-	{		
-		String[] parts = input.split(":");
-
-		int year = Integer.valueOf(parts[0].trim());
-		int month = Integer.valueOf(parts[1]);
-		int min = Integer.valueOf(parts[3]);
-		String secStr = parts[4];
-
-		input = parts[2];
-		parts = input.split(" ");
-		int day = Integer.valueOf(parts[0]);
-		int hour = Integer.valueOf(parts[1]);
-
-		parts = secStr.split("-");
-		int sec = Integer.valueOf(parts[0]);
-
-		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-		return pac;
-	}
+//	public ZonedDateTime parseVideoDateTime(String input)  // 2016:12:12 16:01:00-08:00
+//	{		
+//		String[] parts = input.split(":");
+//
+//		int year = Integer.valueOf(parts[0].trim());
+//		int month = Integer.valueOf(parts[1]);
+//		int min = Integer.valueOf(parts[3]);
+//		String secStr = parts[4];
+//
+//		input = parts[2];
+//		parts = input.split(" ");
+//		int day = Integer.valueOf(parts[0]);
+//		int hour = Integer.valueOf(parts[1]);
+//
+//		parts = secStr.split("-");
+//		int sec = Integer.valueOf(parts[0]);
+//
+//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+//		return pac;
+//	}
 
 //	public ZonedDateTime parseSoundDateTime(String input) 
 //	{

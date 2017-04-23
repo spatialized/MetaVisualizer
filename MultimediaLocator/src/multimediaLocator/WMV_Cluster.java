@@ -54,13 +54,55 @@ public class WMV_Cluster
 		
 		stitched = new ArrayList<WMV_Panorama>();
 
-//		timeline = new ArrayList<WMV_TimeSegment>();
 		state.timeline = new WMV_Timeline();
 		state.timeline.initialize(null);
 		
 		state.mediaCount = 0;
 	}
 
+	void initializeTime()
+	{
+		state.timeline.getLower().getLower().initializeTime();
+		state.timeline.getLower().getCenter().initializeTime();
+		state.timeline.getLower().getUpper().initializeTime();
+		state.timeline.getUpper().getLower().initializeTime();
+		state.timeline.getUpper().getCenter().initializeTime();
+		state.timeline.getUpper().getUpper().initializeTime();
+
+		for(WMV_TimeSegment ts : state.timeline.timeline)
+		{
+			ts.getLower().initializeTime();
+			ts.getCenter().initializeTime();
+			ts.getUpper().initializeTime();
+
+			for(WMV_Time t : ts.timeline)
+				t.initializeTime();
+		}
+		
+		for(WMV_Timeline tl : state.timelines)
+		{
+			tl.getLower().getLower().initializeTime();
+			tl.getLower().getCenter().initializeTime();
+			tl.getLower().getUpper().initializeTime();
+			tl.getUpper().getLower().initializeTime();
+			tl.getUpper().getCenter().initializeTime();
+			tl.getUpper().getUpper().initializeTime();
+
+			for(WMV_TimeSegment ts : tl.timeline)
+			{
+				ts.getLower().initializeTime();
+				ts.getCenter().initializeTime();
+				ts.getUpper().initializeTime();
+
+				for(WMV_Time t : ts.timeline)
+					t.initializeTime();
+			}
+		}
+		
+		for(WMV_Date d : state.dateline)
+			d.initializeTime();
+	}
+	
 	/**
 	 * @param newImage Image to add
 	 * Add an image to the cluster
@@ -480,6 +522,9 @@ public class WMV_Cluster
 					t.setClusterTimelinesID(count);
 					count++;
 				}
+				
+				newTimeline.finishTimeline();			// Calculate upper and lower time segment bounds
+				
 				state.timelines.add( newTimeline );		// Calculate and add timeline to list
 
 				if(debugSettings.cluster && debugSettings.detailed)

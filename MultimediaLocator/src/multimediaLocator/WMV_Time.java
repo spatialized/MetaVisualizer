@@ -1,5 +1,6 @@
 package multimediaLocator;
 
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 
@@ -20,18 +21,21 @@ public class WMV_Time implements Comparable<WMV_Time>
 	private float time;
 	
 	ZonedDateTime dateTime;
-	String timeZoneID;
+	String dateTimeString, timeZoneID;
 	
 	WMV_Time(){}
 
-	public void initialize(ZonedDateTime newDateTime, int newID, int newClusterID, int newMediaType, String newTimeZoneID)
+	public void initialize( ZonedDateTime newDateTime, String newDateTimeString, int newID, int newClusterID, int newMediaType, 
+							String newTimeZoneID )
 	{
-		dateTime = newDateTime;
-		
 		id = newID;
 		clusterID = newClusterID;					// Currently set to -1 when created, fixed later in cluster.createTimeline()
-		mediaType = newMediaType;									
 		timeZoneID = newTimeZoneID;
+		
+		dateTime = newDateTime;
+		dateTimeString = newDateTimeString;
+		
+		mediaType = newMediaType;									
 		
 		year = dateTime.getYear();
 		month = dateTime.getMonthValue();
@@ -100,7 +104,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 	public WMV_Date getDate()
 	{
 		WMV_Date date = new WMV_Date();
-		date.initialize(-1, dateTime, timeZoneID);
+		date.initialize(-1, dateTime, dateTimeString, timeZoneID);
 		return date;
 	}
 
@@ -203,12 +207,56 @@ public class WMV_Time implements Comparable<WMV_Time>
 	{
 		clusterID = newClusterID;
 	}
+
+	public void initializeTime()
+	{
+		dateTime = parseDateTime(dateTimeString);
+	}
+	
 	/**
-	 * @return Day length associated with this time (unused)
+	 * Parse date/time string from metadata given media time zone
+	 * @param input String to parse
+	 * @return ZonedDateTime object corresponding to given string
 	 */
-//	public float getDayLength()
-//	{
-//		return dayLength;
+	public ZonedDateTime parseDateTime(String input) 					// 2016:04:10 17:52:39
+	{		
+//		String[] parts = input.split("-");
+//		input = parts[1];
+		System.out.println("   initializeTime() for time... input:"+input);
+		String[] parts = input.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		int sec = Integer.valueOf(parts[4]);
+		input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
+		return pac;
+	}
+
+//	public ZonedDateTime parseVideoDateTime(String input) 
+//	{		
+//		String[] parts = input.split(":");
+//
+//		int year = Integer.valueOf(parts[0].trim());
+//		int month = Integer.valueOf(parts[1]);
+//		int min = Integer.valueOf(parts[3]);
+//		String secStr = parts[4];
+//
+//		input = parts[2];
+//		parts = input.split(" ");
+//		int day = Integer.valueOf(parts[0]);
+//		int hour = Integer.valueOf(parts[1]);
+//
+//		parts = secStr.split("-");
+//		int sec = Integer.valueOf(parts[0]);
+//
+//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
+//		return pac;
 //	}
 }
 

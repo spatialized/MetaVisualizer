@@ -55,7 +55,7 @@ public class WMV_Image extends WMV_Media
 			try {
 				metadata.dateTime = parseDateTime(metadata.dateTimeString);
 				time = new WMV_Time();
-				time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 0, metadata.timeZone );
+				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 0, metadata.timeZone );
 			} 
 			catch (Throwable t) 
 			{
@@ -65,7 +65,7 @@ public class WMV_Image extends WMV_Media
 		else
 		{
 			time = new WMV_Time();
-			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 0, metadata.timeZone );
+			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 0, metadata.timeZone );
 		}
 	}
 

@@ -1,5 +1,7 @@
 package multimediaLocator;
 
+import java.time.Duration;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Comparator;
 import java.util.Objects;
@@ -13,24 +15,21 @@ import processing.core.PVector;
 public class WMV_Date implements Comparable<WMV_Date>
 {
 	private int year, month, day, days;				// Capture Year, Month, Day, # of Days since 1980
-	private PVector date;							// (Day, Month, Year) format
-	private WMV_World p;
 	private int id;
 
-	WMV_Utilities utilities;
 	ZonedDateTime dateTime;
-	String timeZoneID;
+	String dateTimeString, timeZoneID;
 
 	public WMV_Date(){}
 	
-	public void initialize(int newID, ZonedDateTime newDateTime, String newTimeZoneID)
+	public void initialize(int newID, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZoneID)
 	{
-		utilities = new WMV_Utilities();
 		id = newID;
 		timeZoneID = newTimeZoneID;
 
 		dateTime = newDateTime;
-
+		dateTimeString = newDateTimeString;
+		
 		year = dateTime.getYear();
 		month = dateTime.getMonthValue();
 
@@ -38,23 +37,23 @@ public class WMV_Date implements Comparable<WMV_Date>
 		{
 			year --;
 			month = 12;
-			//			System.out.println("Corrected Month... year:"+year+" month:"+month);
 		}
 
 		day = dateTime.getDayOfMonth();
-		date = new PVector (month, day, year);
 		calculateDaysSince1980();
 	}
 
 	public WMV_Date(WMV_Date newDate)
 	{
-		p = newDate.p;
 		id = newDate.id;
-
+		timeZoneID = newDate.timeZoneID;
+		
+		dateTimeString = newDate.dateTimeString;
+//		initializeTime();
+		
 		year = newDate.year;
 		month = newDate.month;
 		day = newDate.day;
-		date = newDate.date;
 		days = newDate.days;
 	}
 
@@ -90,7 +89,8 @@ public class WMV_Date implements Comparable<WMV_Date>
 
 	public PVector getDate()
 	{
-		return date;
+		return new PVector (month, day, year);
+//		return date;
 	}
 
 	/** 
@@ -98,7 +98,23 @@ public class WMV_Date implements Comparable<WMV_Date>
 	 **/
 	private void calculateDaysSince1980()
 	{
-		days = utilities.getDaysSince1980(timeZoneID, day, month, year);
+		days = findDaysSince1980(timeZoneID, day, month, year);
+	}
+
+	/**
+	 * Get specified date as number of days from Jan 1, 1980
+	 * @param day Day
+	 * @param month Month
+	 * @param year Year
+	 * @return Number of days 
+	 */
+	public int findDaysSince1980(String timeZoneID, int day, int month, int year)
+	{
+		ZonedDateTime date1980 = ZonedDateTime.parse("1980-01-01T00:00:00+00:00[America/Los_Angeles]");
+		ZonedDateTime date = ZonedDateTime.of(year, month, day, 0, 0, 0, 0, ZoneId.of(timeZoneID));
+		Duration duration = Duration.between(date1980, date);
+
+		return (int)duration.toDays();
 	}
 
 	/**
@@ -154,6 +170,36 @@ public class WMV_Date implements Comparable<WMV_Date>
 
 		String result = monthStr+" "+String.valueOf(day)+", "+String.valueOf(year);
 		return result;
+	}
+
+	public void initializeTime()
+	{
+		dateTime = parseDateTime(dateTimeString);
+	}
+
+	/**
+	 * Parse date/time string from metadata given media time zone
+	 * @param input String to parse
+	 * @return ZonedDateTime object corresponding to given string
+	 */
+	public ZonedDateTime parseDateTime(String input) 					// 2016:04:10 17:52:39
+	{		
+		System.out.println("   initializeTime() for date... input:"+input);
+//		String[] parts = input.split("-");
+//		input = parts[1];
+		String[] parts = input.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		int sec = Integer.valueOf(parts[4]);
+		input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
+		return pac;
 	}
 
 	/**

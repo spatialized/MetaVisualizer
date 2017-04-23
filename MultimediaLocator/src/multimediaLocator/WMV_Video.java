@@ -81,9 +81,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		if(metadata.dateTime == null)
 		{
 			try {
-				metadata.dateTime = parseVideoDateTime(metadata.dateTimeString);
+				metadata.dateTime = parseDateTime(metadata.dateTimeString);
 				time = new WMV_Time();
-				time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 2, metadata.timeZone );
+				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 2, metadata.timeZone );
 			} 
 			catch (Throwable t) 
 			{
@@ -93,7 +93,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		else
 		{
 			time = new WMV_Time();
-			time.initialize( metadata.dateTime, getID(), getAssociatedClusterID(), 2, metadata.timeZone );
+			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 2, metadata.timeZone );
 		}
 	}
 

@@ -27,7 +27,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 {
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
-	boolean createLibrary = false;
+	boolean createNewLibrary = false;
 	boolean enteredField = false;
 
 	/* Classes */
@@ -90,7 +90,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			if (state.chooseLibrary || state.chooseLibraryDestination )
 			{
-				if(createLibrary)
+				if(createNewLibrary)
 				{
 					if(state.chooseLibrary)					/* Choose media folder */
 						mediaFolderDialog();	

@@ -121,7 +121,7 @@ public class WMV_Image extends WMV_Media
 		catch(RuntimeException ex)
 		{
 			if(getDebugSettings().image || getDebugSettings().main)
-				System.out.println("Error with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
+				System.out.println("Error with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
 		}
 		
 		return result;
@@ -1051,9 +1051,9 @@ public class WMV_Image extends WMV_Media
 	  */
 	 public void setBlurMaskID()
 	 {
-		 if(state.horizBorderID == 0)
+		 if(state.horizBordersID == 0)
 		 {
-			 switch(state.vertBorderID)
+			 switch(state.vertBordersID)
 			 {
 			 case 0:
 //				 blurMask = p.p.blurMaskLeftTop;
@@ -1074,9 +1074,9 @@ public class WMV_Image extends WMV_Media
 				 break;
 			 }
 		 }
-		 else if(state.horizBorderID == 1)
+		 else if(state.horizBordersID == 1)
 		 {
-			 switch(state.vertBorderID)
+			 switch(state.vertBordersID)
 			 {
 			 case 0:
 //				 blurMask = p.p.blurMaskCenterTop;
@@ -1097,9 +1097,9 @@ public class WMV_Image extends WMV_Media
 				 break;
 			 }
 		 }
-		 else if(state.horizBorderID == 2)
+		 else if(state.horizBordersID == 2)
 		 {
-			 switch(state.vertBorderID)
+			 switch(state.vertBordersID)
 			 {
 			 case 0:
 //				 blurMask = p.p.blurMaskRightTop;
@@ -1120,9 +1120,9 @@ public class WMV_Image extends WMV_Media
 				 break;
 			 }
 		 }
-		 else if(state.horizBorderID == 3)
+		 else if(state.horizBordersID == 3)
 		 {
-			 switch(state.vertBorderID)
+			 switch(state.vertBordersID)
 			 {
 			 case 0:
 //				 blurMask = p.p.blurMaskBothTop;
@@ -1294,12 +1294,12 @@ public class WMV_Image extends WMV_Media
 
 	 public void setHorizBorderID(int newHorizBorderID)
 	 {
-		 state.horizBorderID = newHorizBorderID;
+		 state.horizBordersID = newHorizBorderID;
 	 }
 
 	 public void setVertBorderID(int newVertBorderID)
 	 {
-		 state.vertBorderID = newVertBorderID;
+		 state.vertBordersID = newVertBorderID;
 	 }
 	 
 	 public void setBlurMaskID(int newBlurMaskID)

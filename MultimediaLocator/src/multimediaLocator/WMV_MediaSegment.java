@@ -8,20 +8,20 @@ import java.util.List;
  * @author davidgordon
  * 
  */
-public class WMV_MediaSegment 
+public class WMV_MediaSegment
 {
 	private int id;
 	List<Integer> images;					// Images in segment
-//	List<Integer> videos;					// Images in segment
-	
-	private float left, right, centerDirection;		// Upper and lower bounds for direction (in degrees)
-	private float bottom, top, centerElevation;		// Upper and lower bounds (in degrees)
-	private boolean hidden;
+//	List<Integer> videos;					// Videos in segment
 
-	private float stitchingMinAngle;
+	private float left, right;				// Left and right bounding angles (in degrees)
+	private float centerDirection;			// Horizontal center angle (in degrees)
+	private float bottom, top;				// Upper and lower bounding angles (in degrees)
+	private float centerElevation;			// Vertical center angle (in degrees)
 	
-//	WMV_MediaSegment( int newID, List<Integer> newImages, List<Integer> newVideos, float newLower, float newUpper, float newCenter,
-//			  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
+	private boolean hidden;					// Whether media segment is hidden
+	private float stitchingMinAngle;		// Minimum angle between images to stitch together
+	
 	WMV_MediaSegment( int newID, List<Integer> newImages, float newLower, float newUpper, float newCenter,
 			  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
 	{
@@ -42,47 +42,63 @@ public class WMV_MediaSegment
 	}
 	
 	/**
-	 * Associate each media item with a center or edge (left, right, bottom or top) position
+	 * Find horizontal and vertical edges at which each image borders segment edge,
+	 * in form of (horizBorderID, vertBorderID), where
+	 * 
+	 * horizBordersID key:	0: Left  1: Center  2: Right  3: Both (Left+Right) 
+	 * vertBordersID	key:    0: Top   1: Center  2: Bottom 3: Both (Top+Bottom)
+	 * 
+	 * Example: In segment below, Image A == (Center, Top), Image B == (Bottom, Right),
+	 * Image C == (Both, Both), only image in segment
+	 * Image D == (Both, Top)
+	 * 	_______________		_____		_____
+	 * 	|	|_A_|	  |		|_C_|		|_D_|
+	 * 	|		  ____|					|   |
+	 * 	|_________|_B_|					|___|
+	 * 
+	 * Both horizBorderID and vertBorderID are used in determining image mask, 
+	 * in following format: blurMask[horizBorderID][vertBorderID].jpg
+	 * 
+	 * @param imageList All images in field
 	 */
-	public void findBorders(ArrayList<WMV_Image> imageList)
+	public void findImageBorders(ArrayList<WMV_Image> imageList)
 	{
 		if(images != null)
 		{
-			for(int i:images)
+			for(int i:images)		// Determine mask for image: blurMask[horizBorderID][vertBorderID].jpg
 			{
-				int horizBorderID = 1;					// horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
-				int vertBorderID = 1;					// vertBorderID		0: Top  1: Center  2: Bottom  3: Top+Bottom
+				int horizBordersID = 1;					
+				int vertBordersID = 1;					
 
 				WMV_Image img = imageList.get(i);
 				float xDir = img.getDirection();
 				float yDir = img.getElevation();
 
 				if(xDir - left < stitchingMinAngle)
-					horizBorderID = 0;				// Left
+					horizBordersID = 0;				// Left
 
 				if(right - xDir < stitchingMinAngle)
 				{
-					if(horizBorderID == 0)
-						horizBorderID = 3;			// Left+Right
+					if(horizBordersID == 0)
+						horizBordersID = 3;			// Both (Left+Right)
 					else
-						horizBorderID = 2;			// Right
+						horizBordersID = 2;			// Right
 				}
 
 				if(yDir - top < stitchingMinAngle)
-					vertBorderID = 0;				// Top
+					vertBordersID = 0;				// Top
 
 				if(bottom - yDir < stitchingMinAngle)
 				{
-					if(vertBorderID == 0)
-						vertBorderID = 3;			// Top+Bottom
+					if(vertBordersID == 0)
+						vertBordersID = 3;			// Both (Top+Bottom)
 					else
-						vertBorderID = 2;			// Bottom
+						vertBordersID = 2;			// Bottom
 				}
 
-				img.setHorizBorderID(horizBorderID);
-				img.setVertBorderID(vertBorderID);
+				img.setHorizBorderID(horizBordersID);
+				img.setVertBorderID(vertBordersID);
 				img.setBlurMaskID();
-//				img.setBlurMask();
 
 //				if(p.p.p.p.debug.image)
 //					PApplet.println("Found image "+img.getID()+" borders horiz:"+horizBorderID+" vert:"+vertBorderID);

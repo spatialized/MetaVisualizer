@@ -1000,8 +1000,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			metadata.rotation = i.getRotation();             
 			metadata.rotation = i.getRotation();             
 
-			setHorizBorderID(i.getState().horizBorderID);
-			setVertBorderID(i.getState().vertBorderID);
+			setHorizBorderID(i.getState().horizBordersID);
+			setVertBorderID(i.getState().vertBordersID);
 			setBlurMaskID();
 
 			setSensorSize( i.getSensorSize() );

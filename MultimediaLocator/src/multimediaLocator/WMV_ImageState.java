@@ -16,8 +16,8 @@ public class WMV_ImageState
 	/* Graphics */
 	public PVector[] vertices, sVertices;			// Vertex list
 	public int blurMaskID;							// ID of blur mask 
-	public int horizBorderID = -1;					// Horizontal border ID   	0: Left 1: Center 2: Right  3: Left+Right
-	public int vertBorderID = -1;					// Vertical border ID		0: Bottom 1: Center 2: Top  3: Top+Bottom
+	public int horizBordersID = -1;					// Horizontal borders ID   	0: Left 1: Center 2: Right  3: Both (Left+Right)
+	public int vertBordersID = -1;					// Vertical borders ID		0: Bottom 1: Center 2: Top  3: Both (Top+Bottom)
 	public float outlineSize = 10.f;				// Size of the outline around a selected image
 
 	/* Model */

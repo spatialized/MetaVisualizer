@@ -2482,8 +2482,8 @@ public class WMV_Field
 			{
 				for(WMV_Date d : c.getDateline())
 				{
-					//				if(d.dateTime == null)
-					//					System.out.println("  d.dateTime == null"+" timeInitialized? "+d.timeInitialized);
+//					if(d.dateTime == null)
+//						System.out.println("  d.dateTime == null"+" timeInitialized? "+d.timeInitialized);
 					if(d.timeInitialized == false)
 						System.out.println("  timeInitialized == "+d.timeInitialized+" d.dateTime == null?"+(d.dateTime == null));
 					if(d.dateTimeString == null)
@@ -2491,9 +2491,8 @@ public class WMV_Field
 					if(d.timeZoneID == null)
 						System.out.println("  d.timeZoneID == null");
 				}
-				//			if(!error)
-				//				System.out.println("No errors...");
-				//			System.out.println("  Checking timeline dates for null variables...");
+//				if(!error) System.out.println("No errors...");
+//				System.out.println("  Checking timeline dates for null variables...");
 				error = false;
 				for(WMV_TimeSegment ts : c.getTimeline().timeline)
 				{
@@ -2519,9 +2518,8 @@ public class WMV_Field
 							System.out.println("  t.timeZoneID == null");
 					}
 				}
-				//			if(!error)
-				//				System.out.println("No errors...");
-				//			System.out.println("  Checking timelines dates for null variables...");
+//				if(!error) System.out.println("No errors...");
+//				System.out.println("  Checking timelines dates for null variables...");
 				error = false;
 				for(WMV_Timeline tl : c.getTimelines())
 				{
@@ -2640,7 +2638,6 @@ public class WMV_Field
 		isl.setImages(imageStates);
 		return isl;
 	}
-
 
 	/**
 	 * Capture current field state for exporting to file

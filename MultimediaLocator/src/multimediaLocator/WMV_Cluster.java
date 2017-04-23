@@ -630,7 +630,8 @@ public class WMV_Cluster
 		
 		boolean done = false;
 		
-		if(allImages.size() == 0) done = true;					// Do nothing if no images
+		if(allImages.size() == 0) 
+			done = true;						// Do nothing if no images
 		
 		if(allImages.size() == 1)
 		{
@@ -646,7 +647,7 @@ public class WMV_Cluster
 			float centerElevation = imageList.get(allImages.get(0)).getElevation();
 
 			WMV_MediaSegment newSegment = new WMV_MediaSegment( 0, curImageList, right, left, centerDirection, top, bottom, centerElevation, worldSettings.stitchingMinAngle );
-			newSegment.findBorders(imageList);
+			newSegment.findImageBorders(imageList);
 			segments.add( newSegment );
 
 			if(debugSettings.cluster && debugSettings.detailed)
@@ -764,7 +765,7 @@ public class WMV_Cluster
 			}
 
 			WMV_MediaSegment newSegment = new WMV_MediaSegment( segments.size(), curImages, left, right, centerDirection, bottom, top, centerElevation, worldSettings.stitchingMinAngle );
-			newSegment.findBorders(imageList);
+			newSegment.findImageBorders(imageList);
 			segments.add( newSegment );
 
 			if((debugSettings.cluster && debugSettings.detailed))

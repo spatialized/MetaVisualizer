@@ -140,7 +140,7 @@ public class ML_Map
 	 */
 	public void initializeMaps(WMV_World world)
 	{
-//		System.out.println("initializeMaps()...");
+		System.out.println("initializeMaps()..."+" frameCount:"+world.getState().frameCount);
 		
 		WMV_Model m = world.getCurrentModel();
 		fieldAspectRatio = m.getState().fieldAspectRatio;						//	Field ratio == fieldWidth / fieldLength;
@@ -170,19 +170,15 @@ public class ML_Map
 	{
 		map = new UnfoldingMap(p.p, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 
+		p.p.delay(100);
 		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
 		mapCenter = new Location(gpsLoc.y, gpsLoc.x);
-		
-//		imageMarkers = new IntList();
-//		panoramaMarkers = new IntList();
-//		videoMarkers = new IntList();
 		
 //		map.zoomAndPanTo(16, mapCenter);
 		zoomToField(p, p.getCurrentField());			// Start zoomed out on whole field
 		map.setTweening(true);
 		map.setZoomRange(2, 19);
 //		map.setZoomRange(2, 21);
-//		map.setTweening(true);
 
 		eventDispatcher = new EventDispatcher();
 
@@ -194,7 +190,7 @@ public class ML_Map
 		eventDispatcher.register(map, "zoom", map.getId());
 
 		createFieldPointMarkers(p);
-//		createFieldMarkers(p);
+		p.p.delay(100);
 		
 		PVector vLoc = p.viewer.getGPSLocation();
 		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
@@ -234,7 +230,6 @@ public class ML_Map
 	 */
 	public void reset(WMV_World world)
 	{
-//		System.out.println("reset()...");
 		resetMapZoom(world, false);
 		initializeMaps(world);
 		selectedCluster = -1;
@@ -340,7 +335,7 @@ public class ML_Map
 					viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
 					markerManager.addMarker(viewerMarker);					// -- Needed??
 				}
-				else System.out.println("viewerMarker == null!");
+				else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
 			}
 
 			world.p.perspective();

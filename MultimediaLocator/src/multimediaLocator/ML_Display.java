@@ -1669,9 +1669,7 @@ class ML_Display
 		{
 			case 0:														// Fields
 				startHUD(p);
-	//			p.p.pushMatrix();
 				map2D.displayFieldsMap(p);
-	//			p.p.popMatrix();
 				break;
 			case 1:														// Field
 				break;

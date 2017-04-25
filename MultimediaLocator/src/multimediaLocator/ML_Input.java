@@ -465,19 +465,19 @@ public class ML_Input
 			}
 
 			/* Display Modes */
-			if (!optionKey && !commandKey && key == '1') 
+			if (key == '1') 
 				ml.display.setDisplayView(ml.world, 0);
 
-			if (!optionKey && !commandKey && key == '2') 
+			if (key == '2') 
 				ml.display.setDisplayView(ml.world, 1);
 
-			if (!optionKey && !commandKey && key == '3') 
+			if (key == '3') 
 				ml.display.setDisplayView(ml.world, 2);
 
-			if (!optionKey && !commandKey  && key == '4')
+			if (key == '4')
 				ml.display.setDisplayView(ml.world, 3);
 
-			if (!optionKey && !commandKey  && key == '5')
+			if (key == '5')
 			{
 				boolean state = !ml.world.getState().showModel;
 				ml.world.state.showModel = state;
@@ -485,85 +485,83 @@ public class ML_Input
 					ml.display.window.chkbxShowModel.setSelected(state);
 			}
 
-			if (!optionKey && !commandKey  && key == '6') 
+			if (key == '6') 
 				ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
 
-			if (!optionKey && !commandKey  && key == '7') 
+			if (key == '7') 
 				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
 
-			if (!optionKey && !commandKey  && key == '8') 
+			if (key == '8') 
 				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 
-			if (!optionKey && commandKey && key == '1') 
+			if (key == '!') 
 			{
 				if(!ml.display.window.showNavigationWindow)
 					ml.display.window.openNavigationWindow();
 				else
 					ml.display.window.hideNavigationWindow();
-				commandKey = false;
+//				commandKey = false;
 			}
 
-			if (!optionKey && commandKey && key == '2') 
+			if (key == '@') 
 			{
+				System.out.println("WORKED");
 				if(!ml.display.window.showTimeWindow)
 					ml.display.window.openTimeWindow();
 				else
 					ml.display.window.hideTimeWindow();
-				commandKey = false;
+//				commandKey = false;
 			}
 
-			if (!optionKey && commandKey && key == '3') 
+			if (key == '#') 
 			{
 				if(!ml.display.window.showGraphicsWindow)
 					ml.display.window.openGraphicsWindow();
 				else
 					ml.display.window.hideGraphicsWindow();
-				commandKey = false;
+//				commandKey = false;
 			}
 
-			if (!optionKey && commandKey && key == '4') 
+			if (key == '$') 
 			{
 				if(!ml.display.window.showModelWindow)
 					ml.display.window.openModelWindow();
 				else
 					ml.display.window.hideModelWindow();
-				commandKey = false;
+//				commandKey = false;
 			}
 
-			if (!optionKey && commandKey && key == '5') 
+			if (key == '%') 
 			{
 				if(!ml.display.window.showMemoryWindow)
 					ml.display.window.openMemoryWindow();
 				else
 					ml.display.window.hideMemoryWindow();
-				commandKey = false;
+//				commandKey = false;
 			}
 
-			if (!optionKey && commandKey && key == '6') 
+			if (key == '^') 
 			{
 				if(!ml.display.window.showSelectionWindow)
 					ml.display.window.openSelectionWindow();
 				else
 					ml.display.window.hideSelectionWindow();
-				commandKey = false;
 			}
 
-			if (!optionKey && commandKey && key == '7') 
+			if (key == '&') 
 			{
 				if(!ml.display.window.showStatisticsWindow)
 					ml.display.window.openStatisticsWindow();
 				else
 					ml.display.window.hideStatisticsWindow();
-				commandKey = false;
 			}
 			
-			if (!optionKey && commandKey && key == '8') 
+			if (key == '*') 
 			{
 				if(!ml.display.window.showHelpWindow)
 					ml.display.window.openHelpWindow();
 				else
 					ml.display.window.hideHelpWindow();
-				commandKey = false;
 			}
 
 			if (key == 'R')
@@ -1007,11 +1005,8 @@ public class ML_Input
 				if (shiftKey && key == 'U') 		// Go to nearest cluster with panorama
 					ml.world.viewer.moveToNextCluster(false, 1);
 
-				if (key == 'm') 
+				if (key == 'v') 
 					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
-
-//				if (key == 'M') 
-//					ml.world.viewer.moveToNearestCluster(false);
 
 				if (key == '-') 
 					ml.world.getCurrentField().fadeObjectDistances(0.85f);
@@ -1061,7 +1056,7 @@ public class ML_Input
 							ml.world.viewer.hideImages();
 					}
 
-					if (key == 'h')	
+					if (key == 'P')	
 					{
 						if(ml.world.viewer.getSettings().hidePanoramas)
 							ml.world.viewer.showPanoramas();
@@ -1069,7 +1064,7 @@ public class ML_Input
 							ml.world.viewer.hidePanoramas();
 					}
 
-					if (key == 'v')	
+					if (key == 'V')	
 					{
 						if(ml.world.viewer.getSettings().hideVideos)
 							ml.world.viewer.showVideos();
@@ -1077,7 +1072,7 @@ public class ML_Input
 							ml.world.viewer.hideVideos();
 					}
 
-					if (key == 'P')
+					if (optionKey && key == 'p')
 					{
 						boolean state = !ml.world.getState().alphaMode;
 						ml.world.state.alphaMode = state;
@@ -1203,17 +1198,17 @@ public class ML_Input
 						ml.world.saveToDisk();
 					}
 
-					if (key == '&') 
-					{
-						if(ml.world.settings.defaultMediaLength > 10)
-							ml.world.settings.defaultMediaLength -= 10;
-					}
+//					if (key == '&') 
+//					{
+//						if(ml.world.settings.defaultMediaLength > 10)
+//							ml.world.settings.defaultMediaLength -= 10;
+//					}
 
-					if (key == '*') 			// Look for images when none are visible
-					{
-						if(ml.world.settings.defaultMediaLength < 990)
-							ml.world.settings.defaultMediaLength += 10;
-					}
+//					if (key == '*') 			// Look for images when none are visible
+//					{
+//						if(ml.world.settings.defaultMediaLength < 990)
+//							ml.world.settings.defaultMediaLength += 10;
+//					}
 				}
 			}
 			else 						// Interactive Clustering Mode
@@ -1458,11 +1453,8 @@ public class ML_Input
 				shiftKey = false;
 			if (keyCode == PApplet.ALT) 
 				optionKey = false;
-			if (keyCode == COMMAND_KEY)
-			{
+			if (keyCode == COMMAND_KEY)						// -- Unreliable
 				commandKey = false;
-//				System.out.println("commandKey set to "+commandKey + " on frame:"+frameCount);
-			}
 		}
 	}
 

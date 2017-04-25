@@ -18,7 +18,7 @@ public class ML_Window {
 	WMV_Utilities utilities;
 	
 	private boolean delay = true;
-	private int delayAmount = 250;
+	private int delayAmount = 180;
 	
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
@@ -341,7 +341,8 @@ public class ML_Window {
 	void setupNavigationWindow()
 	{
 		navigationWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, navigationWindowHeight, PApplet.JAVA2D);
-		navigationWindow.setVisible(false);
+		navigationWindow.setVisible(true);
+		
 		navigationWindow.addData(new WMV_WinData());
 		navigationWindow.addDrawHandler(this, "navigationWindowDraw");
 		navigationWindow.addMouseHandler(this, "navigationWindowMouse");
@@ -722,7 +723,7 @@ public class ML_Window {
 	void setupGraphicsWindow()
 	{
 		graphicsWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, graphicsWindowHeight, PApplet.JAVA2D);
-		graphicsWindow.setVisible(false);
+		graphicsWindow.setVisible(true);
 		graphicsWindow.addData(new WMV_WinData());
 		graphicsWindow.addDrawHandler(this, "graphicsWindowDraw");
 		graphicsWindow.addMouseHandler(this, "graphicsWindowMouse");
@@ -915,6 +916,7 @@ public class ML_Window {
 		lblModelWindow.setTextBold();
 
 		y += 30;
+		if(delay) world.p.delay(delayAmount);
 
 		lblModelSettings = new GLabel(modelWindow, x, y, modelWindow.width, 20, "Model Settings");
 		lblModelSettings.setLocalColorScheme(10);
@@ -924,6 +926,7 @@ public class ML_Window {
 
 		x = 210;
 		y += 30;
+		if(delay) world.p.delay(delayAmount);
 
 		sdrAltitudeScaling = new GSlider(modelWindow, x, y, 80, 80, 20);
 		sdrAltitudeScaling.setLocalColorScheme(7);
@@ -1012,7 +1015,7 @@ public class ML_Window {
 	void setupMemoryWindow()
 	{
 		memoryWindow = GWindow.getWindow(world.p, "Memory", 10, 45, windowWidth, memoryWindowHeight, PApplet.JAVA2D);
-		memoryWindow.setVisible(false);
+		memoryWindow.setVisible(true);
 		memoryWindow.addData(new WMV_WinData());
 		memoryWindow.addDrawHandler(this, "memoryWindowDraw");
 		memoryWindow.addMouseHandler(this, "memoryWindowMouse");
@@ -1044,7 +1047,7 @@ public class ML_Window {
 	void setupSelectionWindow()
 	{
 		selectionWindow = GWindow.getWindow(world.p, "Selection Mode", 10, 45, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
-		selectionWindow.setVisible(false);
+		selectionWindow.setVisible(true);
 		selectionWindow.addData(new WMV_WinData());
 		selectionWindow.addDrawHandler(this, "selectionWindowDraw");
 		selectionWindow.addMouseHandler(this, "selectionWindowMouse");
@@ -1143,7 +1146,7 @@ public class ML_Window {
 	void setupStatisticsWindow()
 	{
 		statisticsWindow = GWindow.getWindow(world.p, "Statistics", 10, 45, windowWidth * 2, statisticsWindowHeight, PApplet.JAVA2D);
-		statisticsWindow.setVisible(false);
+		statisticsWindow.setVisible(true);
 		statisticsWindow.addData(new WMV_WinData());
 		statisticsWindow.addDrawHandler(this, "statisticsWindowDraw");
 		statisticsWindow.addMouseHandler(this, "statisticsWindowMouse");
@@ -1177,7 +1180,7 @@ public class ML_Window {
 	void setupHelpWindow()
 	{
 		helpWindow = GWindow.getWindow(world.p, "Help", 10, 45, windowWidth, helpWindowHeight, PApplet.JAVA2D);
-		helpWindow.setVisible(false);
+		helpWindow.setVisible(true);
 		helpWindow.addData(new WMV_WinData());
 		helpWindow.addDrawHandler(this, "helpWindowDraw");
 		helpWindow.addMouseHandler(this, "helpWindowMouse");

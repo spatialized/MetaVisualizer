@@ -37,15 +37,11 @@ public class WMV_World
 	private ArrayList<WMV_Field> fields;		// Geographical areas containing media for simulation
 
 	/* Graphics */
-	public PImage blurMaskLeftTop, blurMaskLeftCenter, 	// Blur masks
-				  blurMaskLeftBottom, blurMaskLeftBoth;
-	public PImage blurMaskCenterTop, blurMaskCenterCenter, 	
-	  blurMaskCenterBottom, blurMaskCenterBoth;
-	public PImage blurMaskRightTop, blurMaskRightCenter, 	// Blur masks
-	  blurMaskRightBottom, blurMaskRightBoth;
-	public PImage blurMaskBothTop, blurMaskBothCenter, 	
-	  blurMaskBothBottom, blurMaskBothBoth;
-	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
+	public PImage blurMaskLeftTop, blurMaskLeftCenter, blurMaskLeftBottom, blurMaskLeftBoth;  	// Blur masks
+	public PImage blurMaskCenterTop, blurMaskCenterCenter, blurMaskCenterBottom, blurMaskCenterBoth;
+	public PImage blurMaskRightTop, blurMaskRightCenter, blurMaskRightBottom, blurMaskRightBoth;
+	public PImage blurMaskBothTop, blurMaskBothCenter, blurMaskBothBottom, blurMaskBothBoth;
+	
 
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
@@ -58,8 +54,15 @@ public class WMV_World
 	public String outputFolder;
 	public boolean outputFolderSelected = false;
 
-	MultimediaLocator p;
+	/* Debugging */
+	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
+
+	MultimediaLocator p;								// Parent App
 	
+	/**
+	 * Constructor for world object
+	 * @param parent Parent App
+	 */
 	WMV_World(MultimediaLocator parent)
 	{
 		p = parent;
@@ -86,7 +89,7 @@ public class WMV_World
 	}
 
 	/**
-	 * Enter a field
+	 * Enter given field
 	 * @param fieldIdx The field to enter
 	 * @param moveToFirstTimeSegment Whether to move to first time segment after entering
 	 */
@@ -101,33 +104,14 @@ public class WMV_World
 		p.enteredField = true;
 		state.waitingToFadeInTerrainAlpha = true;
 	}
-
-	/**
-	 * Update the viewer and media about the world state
-	 */
-	void updateState()
-	{
-		state.frameCount = p.frameCount;
-		viewer.updateState(settings, state);
-		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
-		
-		if(state.displayTerrain)
-		{
-//			if(!state.fadingTerrainAlpha && state.terrainAlpha == 0.f)
-//				fadeInTerrain();
-			
-//			System.out.println("state.fadingTerrainAlpha:"+state.fadingTerrainAlpha);
-//			System.out.println("state.terrainAlpha:"+state.terrainAlpha);
-		}
-	}
 	
 	/**
 	 * Display the current field in 3D view
 	 */
-	void draw3D()
+	void display3D()
 	{
 		/* 3D Display */
-		attractViewer();									// Attract the viewer
+		updateViewerAttraction();									// Attract the viewer
 		
 		if(p.display.displayView == 0)
 		{
@@ -155,7 +139,7 @@ public class WMV_World
 	/**
 	 * Display 2D text and graphics
 	 */
-	void draw2D()
+	void display2D()
 	{
 		/* 2D Display */
 		p.display.display(this);										// Draw 2D display after 3D graphics
@@ -166,6 +150,182 @@ public class WMV_World
 		if(viewer.getSettings().mouseNavigation)
 			input.updateMouseNavigation(viewer, p.mouseX, p.mouseY, p.frameCount);
 	}
+
+	/**
+	 * Update viewer attraction to attracting cluster(s)
+	 */
+	public void updateViewerAttraction()
+	{
+		if(viewer.getState().isMovingToAttractor())
+		{
+			if(viewer.getAttractorPoint() != null)
+				viewer.getAttractorPoint().attractViewer(viewer);		// Attract the camera to the memory navigation goal
+			else 
+				System.out.println("viewer.attractorPoint == NULL!!");
+		}
+		else if(viewer.getState().isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
+		{
+			for( WMV_Cluster c : getCurrentField().getAttractingClusters() )
+				if(c.getClusterDistance() > settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
+					c.attractViewer(viewer);
+		}
+	}
+
+	/** 
+	 * Update main time loop
+	 */
+	void updateTime()
+	{
+		switch(state.timeMode)
+		{
+			case 0:													// Cluster Time Mode
+				for(WMV_Cluster c : getCurrentField().getClusters())
+					if(c.getState().timeFading)
+						c.updateTime();
+				break;
+			
+			case 1:													// Field Time Mode
+				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
+				{
+					state.currentTime++;
+					if(state.currentTime > settings.timeCycleLength)
+						state.currentTime = 0;
+	
+					if(p.debugSettings.field && state.currentTime > settings.timeCycleLength + settings.defaultMediaLength * 0.25f)
+					{
+						if(getCurrentField().mediaAreActive())
+						{
+							if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Media still active...");
+						}
+						else
+						{
+							state.currentTime = 0;
+							if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Reached end of day at frameCount:"+state.frameCount);
+						}
+					}
+				}
+				break;
+
+			case 2:													// Single Time Mode
+				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
+				{
+					state.currentTime++;
+					if(p.debugSettings.time && p.debugSettings.detailed)
+						System.out.println("currentTime:"+state.currentTime);
+
+					if(state.currentTime >= viewer.getNextMediaStartTime())
+					{
+						if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
+						{
+							setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
+						}
+						else
+						{
+							if(p.debugSettings.main)
+								System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
+							state.currentTime = 0;
+							startMediaTimeModeCycle();
+						}
+					}
+					
+					if(state.currentTime > settings.timeCycleLength)
+					{
+						state.currentTime = 0;
+						startMediaTimeModeCycle();
+					}
+				}
+				break;
+				
+			case 3:													// Flexible Time Mode
+				break;
+		}
+	}
+	
+
+	/**
+	 * Update the viewer and media about the world state
+	 */
+	void updateState()
+	{
+		state.frameCount = p.frameCount;
+		viewer.updateState(settings, state);
+		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
+	}
+
+	/**
+	 * Begin cycle in Media Time Mode (2)
+	 */
+	void startMediaTimeModeCycle()
+	{
+		setMediaTimeModeCurrentMedia(0);
+	}
+	
+	void setMediaTimeModeCurrentMedia(int timelineIndex)
+	{
+		viewer.setCurrentMedia( timelineIndex );
+		// marijuana
+		if(viewer.getNearbyClusterTimeline().size() > 0)
+		{
+			WMV_Time time = viewer.getNearbyTimeByIndex(timelineIndex);
+			
+			if(time != null)
+			{
+				int curMediaID = time.getID();
+				int curMediaType = time.getMediaType();
+
+				switch(curMediaType)
+				{
+				case 0:
+					WMV_Image i = getCurrentField().getImage(curMediaID);
+					i.getMediaState().isCurrentMedia = true;
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
+					if(viewer.lookAtCurrentMedia())
+						viewer.lookAtMedia(i.getID(), 0);
+					break;
+				case 1:
+					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
+					n.getMediaState().isCurrentMedia = true;
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
+//					viewer.lookAtMedia(n.getID(), 1);
+					break;
+				case 2:	
+					WMV_Video v = getCurrentField().getVideo(curMediaID);
+					v.getMediaState().isCurrentMedia = true;
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
+					if(viewer.lookAtCurrentMedia())
+						viewer.lookAtMedia(v.getID(), 2);
+					break;
+//				case 3:	
+//					getCurrentField().sounds.get(curMediaID).currentMedia = true;
+//					viewer.nextMediaStartFrame = state.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
+//					break;
+				}
+			}
+			else
+			{
+				System.out.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timelineIndex);
+			}
+		}
+		else
+			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
+	}
+	
+	public void updateAllMediaSettings()
+	{
+		WMV_Field f = getCurrentField();
+		for(WMV_Image img : f.getImages())
+			img.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
+		for(WMV_Panorama pano : f.getPanoramas())
+			pano.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
+		for(WMV_Video vid : f.getVideos())
+			vid.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
+//		for(WMV_Sound snd : f.getSounds())
+//			img.updateSettings(world.settings, world.state, world.viewer.getSettings(), world.viewer.getState(), debugSettings);
+	}
+
 	
 	/**
 	 * Draw terrain as wireframe grid
@@ -263,171 +423,7 @@ public class WMV_World
 			row++;
 		}
 	}
-	
-	/**
-	 * Attract viewer to the attracting clusters
-	 */
-	public void attractViewer()
-	{
-		if(viewer.getState().isMovingToAttractor())
-		{
-			if(viewer.getAttractorPoint() != null)
-				viewer.getAttractorPoint().attractViewer(viewer);		// Attract the camera to the memory navigation goal
-			else 
-				System.out.println("viewer.attractorPoint == NULL!!");
-		}
-		else if(viewer.getState().isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
-		{
-			for( WMV_Cluster c : getCurrentField().getAttractingClusters() )
-				if(c.getClusterDistance() > settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
-					c.attractViewer(viewer);
-		}
-	}
 
-	/** 
-	 * Update main time loop
-	 */
-	void updateTime()
-	{
-		switch(state.timeMode)
-		{
-			case 0:													// Cluster Time Mode
-				for(WMV_Cluster c : getCurrentField().getClusters())
-					if(c.getState().timeFading)
-						c.updateTime();
-				break;
-			
-			case 1:													// Field Time Mode
-				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
-				{
-					state.currentTime++;
-					if(state.currentTime > settings.timeCycleLength)
-						state.currentTime = 0;
-	
-					if(p.debugSettings.field && state.currentTime > settings.timeCycleLength + settings.defaultMediaLength * 0.25f)
-					{
-						if(getCurrentField().mediaAreActive())
-						{
-							if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Media still active...");
-						}
-						else
-						{
-							state.currentTime = 0;
-							if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Reached end of day at frameCount:"+state.frameCount);
-						}
-					}
-				}
-				break;
-
-			case 2:													// Single Time Mode
-				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
-				{
-					state.currentTime++;
-					if(p.debugSettings.time && p.debugSettings.detailed)
-						System.out.println("currentTime:"+state.currentTime);
-
-					if(state.currentTime >= viewer.getNextMediaStartTime())
-					{
-						if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
-						{
-							setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
-						}
-						else
-						{
-							if(p.debugSettings.main)
-								System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
-							state.currentTime = 0;
-							startMediaTimeModeCycle();
-						}
-					}
-					
-					if(state.currentTime > settings.timeCycleLength)
-					{
-						state.currentTime = 0;
-						startMediaTimeModeCycle();
-					}
-				}
-				break;
-				
-			case 3:													// Flexible Time Mode
-				break;
-		}
-	}
-	
-	/**
-	 * Begin cycle in Media Time Mode (2)
-	 */
-	void startMediaTimeModeCycle()
-	{
-		setMediaTimeModeCurrentMedia(0);
-	}
-	
-	void setMediaTimeModeCurrentMedia(int timelineIndex)
-	{
-		viewer.setCurrentMedia( timelineIndex );
-		// marijuana
-		if(viewer.getNearbyClusterTimeline().size() > 0)
-		{
-			WMV_Time time = viewer.getNearbyTimeByIndex(timelineIndex);
-			
-			if(time != null)
-			{
-				int curMediaID = time.getID();
-				int curMediaType = time.getMediaType();
-
-				switch(curMediaType)
-				{
-				case 0:
-					WMV_Image i = getCurrentField().getImage(curMediaID);
-					i.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(state.currentTime);
-					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
-					if(viewer.lookAtCurrentMedia())
-						viewer.lookAtMedia(i.getID(), 0);
-					break;
-				case 1:
-					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
-					n.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(state.currentTime);
-					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
-//					viewer.lookAtMedia(n.getID(), 1);
-					break;
-				case 2:	
-					WMV_Video v = getCurrentField().getVideo(curMediaID);
-					v.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(state.currentTime);
-					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
-					if(viewer.lookAtCurrentMedia())
-						viewer.lookAtMedia(v.getID(), 2);
-					break;
-//				case 3:	
-//					getCurrentField().sounds.get(curMediaID).currentMedia = true;
-//					viewer.nextMediaStartFrame = state.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
-//					break;
-				}
-			}
-			else
-			{
-				System.out.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timelineIndex);
-			}
-		}
-		else
-			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
-	}
-	
-	public void updateAllMediaSettings()
-	{
-		WMV_Field f = getCurrentField();
-		for(WMV_Image img : f.getImages())
-			img.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
-		for(WMV_Panorama pano : f.getPanoramas())
-			pano.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
-		for(WMV_Video vid : f.getVideos())
-			vid.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
-//		for(WMV_Sound snd : f.getSounds())
-//			img.updateSettings(world.settings, world.state, world.viewer.getSettings(), world.viewer.getState(), debugSettings);
-	}
-	
 	/**
 	 * Stop any currently playing videos
 	 */
@@ -724,7 +720,7 @@ public class WMV_World
 		viewer.setFrameCount(p.frameCount);
 		if(field.getID() < fields.size())
 		{
-			System.out.println("Will set viewer current field ID to:"+field.getID()+" fields.size():"+fields.size());
+//			System.out.println("Will set viewer current field ID to:"+field.getID()+" fields.size():"+fields.size());
 			viewer.setCurrentFieldID(field.getID());
 		}
 		else
@@ -733,7 +729,7 @@ public class WMV_World
 			{
 				field.setID(0);
 				viewer.setCurrentFieldID(0);
-				System.out.println("Loading single field of a library... set field ID to:"+field.getID()+" fields.size():"+fields.size());
+//				if(p.debugSettings.main) System.out.println("Loading single field of a library... set field ID to:"+field.getID()+" fields.size():"+fields.size());
 			}
 			else
 			{

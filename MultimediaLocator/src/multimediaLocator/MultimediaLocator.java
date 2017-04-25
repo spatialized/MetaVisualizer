@@ -30,17 +30,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	boolean createNewLibrary = false;
 	boolean enteredField = false;
 
-	/* Classes */
+	/* MultimediaLocator Classes */
 	ML_Library library;							// Multimedia library
 	ML_Input input;								// Mouse / keyboard input
 	ML_Stitcher stitcher;						// Panoramic stitching
 	ML_Display display;							// Displaying 2D graphics and text
-	WMV_World world;							// The 3D World
-	WMV_Metadata metadata;						// Metadata reading and writing
 	ML_DebugSettings debugSettings;				// Debug settings
 	
-	/* Debug Modes */
-	public boolean basic = false;				// Minimal mode with no windows
+	/* WorldMediaViewer Classes */
+	WMV_World world;							// The 3D World
+	WMV_Metadata metadata;						// Metadata reading and writing
 	
 	/* Memory */
 	public boolean lowMemory = false;
@@ -53,7 +52,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public long approxUsableFreeMemory;
 
 	/** 
-	 * MultimediaLocator initial setup called once at launch
+	 * Initial setup called once at launch
 	 */
 	public void setup()
 	{
@@ -177,8 +176,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			if ( !state.initialSetup && !state.interactive && !state.exit ) 	/* Running the program */
 			{
 				world.updateState();
-				world.draw3D();						// 3D Display
-				world.draw2D();						// 2D Display
+				world.display3D();						// 3D Display
+				world.display2D();						// 2D Display
 				if(!world.state.paused) world.updateTime();		// Update time cycle
 //	 			input.updateLeapMotion();			// Update Leap Motion 
 			}

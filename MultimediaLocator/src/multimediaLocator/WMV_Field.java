@@ -3435,7 +3435,7 @@ public class WMV_Field
 		
 //		border = findBorder(points, new PVector(model.state.centerLongitude, model.state.centerLatitude));
 //		border = findBorder(points, new PVector(0,0));
-		border = findBorder(points, new PVector(100000,100000));
+		border = utilities.findBorderPoints(points);
 
 		/* Correct border points' order */
 //		int count = 0;
@@ -3448,18 +3448,6 @@ public class WMV_Field
 		
 //		border = findBorder(points, new PVector(100000,100000));
 
-//	 	DEBUGGING
-//		count = 0;
-//		System.out.println("Sorted Border points for field #"+getID());
-//		PVector last = border.get(0);
-//		for(PVector bp : border)
-//		{
-//			PointComparator pc = new PointComparator(new PVector(model.state.centerLatitude, model.state.centerLongitude));
-//			System.out.println("  Point #"+count+" bp.x:"+bp.x+" bp.y:"+bp.y+ " compare(bp, last):"+(pc.compare(bp, last)));
-//			last = bp;
-//			count++;
-//		}
-		
 		// TESTING
 //		border = findBorder(points, new PVector(model.state.centerLongitude, model.state.centerLatitude));
 //		count = 0;
@@ -3584,345 +3572,248 @@ public class WMV_Field
 //		return borderPts;
 //	}
 	
-	private ArrayList<PVector> findBorder(ArrayList<PVector> points, PVector centerOfHull)
-	{
-		ArrayList<PVector> borderPts = new ArrayList<PVector>();
-
-		// There must be at least 3 points
-		if (points.size() < 3) return null;
-
-		JarvisPoints pts = new JarvisPoints(points);
-		JarvisMarch jm = new JarvisMarch(pts);
-//		double start = System.currentTimeMillis();
-		int n = jm.calculateHull();
-//		double end = System.currentTimeMillis();
-//		System.out.printf("%d points found %d vertices %f seconds\n", points.size(), n, (end-start)/1000.);
-
-		int length = jm.getHullPoints().pts.length;
-		borderPts = new ArrayList<PVector>();
-		
-		for(int i=0; i<length; i++)
-			borderPts.add( jm.getHullPoints().pts[i] );
-		
-		// Print Result
-		//	  for (int i = 0; i < hull.size(); i++)
-		//	    System.out.println( "(" + hull.get(i).x + ", "
-		//	      + hull.get(i).y + ")\n");
-
-		if(debugSettings.field)
-			System.out.println("Found media points border of size:"+border.size());
-
-//		borderPts.sort(new PointComp(centerOfHull));
-		
-		IntList removeList = new IntList();
-		ArrayList<PVector> removePoints = new ArrayList<PVector>();
-		
-		int count = 0;
-		for(PVector pv : borderPts)
-		{
-			int ct = 0;
-			for(PVector comp : borderPts)
-			{
-				if(ct != count)		// Don't compare same indices
-				{
-					if(pv.equals(comp))
-					{
-						if(!removePoints.contains(pv))
-						{
-							removeList.append(count);
-							removePoints.add(pv);
-						}
-						break;
-					}
-				}
-				ct++;
-			}
-			count++;
-		}
-		
-		if(debugSettings.field) System.out.println("Will remove "+removeList.size()+" points from field #"+getID()+" border of size "+borderPts.size()+"...");
-
-		ArrayList<PVector> newPoints = new ArrayList<PVector>();
-		count = 0;
-		for(PVector pv : borderPts)
-		{
-			if(!removeList.hasValue(count))
-				newPoints.add(pv);
-			count++;
-		}
-		borderPts = newPoints;
-		
-//		for(int i=removeList.size()-1; i>=0; i--)
-//		{
-//			borderPts.remove(i);
-//			i--;
-//		}
-
-//		System.out.println("Points remaining: "+borderPts.size()+"...");
-//		System.out.println("Will sort remaining "+borderPts.size()+" points in border...");
-//		borderPts.sort(c);
-		
-		return borderPts;
-	}
-	
-	class JarvisMarch 
-	{
-	  JarvisPoints pts;
-	  private JarvisPoints hullPoints = null;
-	  private List<Float> hy;
-	  private List<Float> hx;
-	  private int startingPoint;
-	  private double currentAngle;
-	  private static final double MAX_ANGLE = 4;
-
-	  JarvisMarch(JarvisPoints pts) {
-	    this.pts = pts;
-	  }
-
-	  /**
-	   * The Jarvis March, sometimes known as the Gift Wrap Algorithm.
-	   * The next point is the point with the next largest angle.
-	   * <p/>
-	   * Imagine wrapping a string around a set of nails in a board.  Tie the string to the leftmost nail
-	   * and hold the string vertical.  Now move the string clockwise until you hit the next, then the next, then
-	   * the next.  When the string is vertical again, you will have found the hull.
-	   */
-	  public int calculateHull() 
-	  {
-	    initializeHull();
-
-	    startingPoint = getStartingPoint();
-	    currentAngle = 0;
-
-	    addToHull(startingPoint);
-	    for (int p = getNextPoint(startingPoint); p != startingPoint; p = getNextPoint(p))
-	      addToHull(p);
-
-	    buildHullPoints();
-	    return hullPoints.pts.length;
-	  }
-
-	  public int getStartingPoint() {
-	    return pts.startingPoint();
-	  }
-
-	  private int getNextPoint(int p) {
-	    double minAngle = MAX_ANGLE;
-	    int minP = startingPoint;
-	    for (int i = 0; i < pts.pts.length; i++) {
-	      if (i != p) {
-	        double thisAngle = relativeAngle(i, p);
-	        if (thisAngle >= currentAngle && thisAngle <= minAngle) {
-	          minP = i;
-	          minAngle = thisAngle;
-	        }
-	      }
-	    }
-	    currentAngle = minAngle;
-	    return minP;
-	  }
-
-	  private double relativeAngle(int i, int p) {
-		return pseudoAngle(pts.pts[i].x - pts.pts[p].x, pts.pts[i].y - pts.pts[p].y);
-//	    return pseudoAngle(pts.x[i] - pts.x[p], pts.y[i] - pts.y[p]);
-	  }
-
-	  private void initializeHull() {
-	    hx = new LinkedList<Float>();
-	    hy = new LinkedList<Float>();
-	  }
-
-	  private void buildHullPoints() {
-	    float[] ax = new float[hx.size()];
-	    float[] ay = new float[hy.size()];
-	    int n = 0;
-	    for (Iterator<Float> ix = hx.iterator(); ix.hasNext(); )
-	      ax[n++] = ix.next();
-
-	    n = 0;
-	    for (Iterator<Float> iy = hy.iterator(); iy.hasNext(); )
-	      ay[n++] = iy.next();
-
-	    ArrayList<PVector> newPts = new ArrayList<PVector>();
-	    for(int i=0; i<ax.length; i++)
-	    {
-	    	newPts.add(new PVector(ax[i], ay[i]));
-	    }
-	    hullPoints = new JarvisPoints(newPts);
-	  }
-
-	  private void addToHull(int p) {
-	    hx.add(pts.pts[p].x);
-	    hy.add(pts.pts[p].y);
-	  }
-
-	  /**
-	   * The PseudoAngle is a number that increases as the angle from vertical increases.
-	   * The current implementation has the maximum pseudo angle < 4.  The pseudo angle for each quadrant is 1.
-	   * The algorithm is very simple.  It just finds where the angle intesects a square and measures the
-	   * perimeter of the square at that point.  The math is in my Sept '06 notebook.  UncleBob.
-	   */
-	  double pseudoAngle(double dx, double dy) {
-	    if (dx >= 0 && dy >= 0)
-	      return quadrantOnePseudoAngle(dx, dy);
-	    if (dx >= 0 && dy < 0)
-	      return 1 + quadrantOnePseudoAngle(Math.abs(dy), dx);
-	    if (dx < 0 && dy < 0)
-	      return 2 + quadrantOnePseudoAngle(Math.abs(dx), Math.abs(dy));
-	    if (dx < 0 && dy >= 0)
-	      return 3 + quadrantOnePseudoAngle(dy, Math.abs(dx));
-	    throw new Error("Impossible");
-	  }
-
-	  double quadrantOnePseudoAngle(double dx, double dy) {
-	    return dx / (dy + dx);
-	  }
-
-	  public JarvisPoints getHullPoints() {
-	    return hullPoints;
-	  }
-	}
-	
-	class JarvisPoints {
-		public PVector[] pts;
-		
-//		public double x[];
-//		public double y[];
-
-		public JarvisPoints(ArrayList<PVector> newPts) 
-		{
-			pts = new PVector[newPts.size()];
-			for(int i=0; i<newPts.size(); i++)
-				pts[i] = newPts.get(i);
-		}
-
-//		public JarvisPoints(double[] x, double[] y) {
-//			this.x = x;
-//			this.y = y;
-//		}
-
-		// The starting point is the point with the lowest X
-		// With ties going to the lowest Y.  This guarantees
-		// that the next point over is clockwise.
-		int startingPoint() 
-		{
-			double minX = pts[0].x;
-			double minY = pts[0].y;
-//			double minY = y[0];
-//			double minX = x[0];
-			
-			int iMin = 0;
-			for (int i = 1; i < pts.length; i++) 
-			{
-				if (pts[i].x < minX) 
-				{
-					minX = pts[i].x;
-					iMin = i;
-				} 
-				else if (minX == pts[i].x && pts[i].y < minY) 
-				{
-					minY = pts[i].y;
-					iMin = i;
-				}
-			}
-			return iMin;
-		}
-	}
-	
-	/**
-	 * Find orientation of ordered triplet (p, q, r).
-	 * @param p Point 1
-	 * @param q Point 2
-	 * @param r Point 3
-	 * @return 0: colinear, 1: clockwise, 2: counterclockwise
-	 */
-//	private int getPointTripletOrientation(PVector p, PVector q, PVector r)
+//	private ArrayList<PVector> findBorder(ArrayList<PVector> points, PVector centerOfHull)
 //	{
-//	  float val = (q.y - p.y) * (r.x - q.x) -
-//	    (q.x - p.x) * (r.y - q.y);
+//		ArrayList<PVector> borderPts = new ArrayList<PVector>();
 //
-//	  if (val == 0.f) return 0;
-//	  return (val > 0.f) ? 1 : 2; 
+//		// There must be at least 3 points
+//		if (points.size() < 3) return null;
+//
+//		JarvisPoints pts = new JarvisPoints(points);
+//		JarvisMarch jm = new JarvisMarch(pts);
+////		double start = System.currentTimeMillis();
+//		int n = jm.calculateHull();
+////		double end = System.currentTimeMillis();
+////		System.out.printf("%d points found %d vertices %f seconds\n", points.size(), n, (end-start)/1000.);
+//
+//		int length = jm.getHullPoints().pts.length;
+//		borderPts = new ArrayList<PVector>();
+//		
+//		for(int i=0; i<length; i++)
+//			borderPts.add( jm.getHullPoints().pts[i] );
+//		
+//		// Print Result
+//		//	  for (int i = 0; i < hull.size(); i++)
+//		//	    System.out.println( "(" + hull.get(i).x + ", "
+//		//	      + hull.get(i).y + ")\n");
+//
+//		if(debugSettings.field)
+//			System.out.println("Found media points border of size:"+border.size());
+//
+////		borderPts.sort(new PointComp(centerOfHull));
+//		
+//		IntList removeList = new IntList();
+//		ArrayList<PVector> removePoints = new ArrayList<PVector>();
+//		
+//		int count = 0;
+//		for(PVector pv : borderPts)
+//		{
+//			int ct = 0;
+//			for(PVector comp : borderPts)
+//			{
+//				if(ct != count)		// Don't compare same indices
+//				{
+//					if(pv.equals(comp))
+//					{
+//						if(!removePoints.contains(pv))
+//						{
+//							removeList.append(count);
+//							removePoints.add(pv);
+//						}
+//						break;
+//					}
+//				}
+//				ct++;
+//			}
+//			count++;
+//		}
+//		
+//		if(debugSettings.field) System.out.println("Will remove "+removeList.size()+" points from field #"+getID()+" border of size "+borderPts.size()+"...");
+//
+//		ArrayList<PVector> newPoints = new ArrayList<PVector>();
+//		count = 0;
+//		for(PVector pv : borderPts)
+//		{
+//			if(!removeList.hasValue(count))
+//				newPoints.add(pv);
+//			count++;
+//		}
+//		borderPts = newPoints;
+//		
+////		for(int i=removeList.size()-1; i>=0; i--)
+////		{
+////			borderPts.remove(i);
+////			i--;
+////		}
+//
+////		System.out.println("Points remaining: "+borderPts.size()+"...");
+////		System.out.println("Will sort remaining "+borderPts.size()+" points in border...");
+////		borderPts.sort(c);
+//		
+//		return borderPts;
 //	}
 //	
-//	private class PointComparator implements Comparator<PVector> {
+//	class JarvisMarch 
+//	{
+//	  JarvisPoints pts;
+//	  private JarvisPoints hullPoints = null;
+//	  private List<Float> hy;
+//	  private List<Float> hx;
+//	  private int startingPoint;
+//	  private double currentAngle;
+//	  private static final double MAX_ANGLE = 4;
 //
-//	    private PVector center;
+//	  JarvisMarch(JarvisPoints pts) {
+//	    this.pts = pts;
+//	  }
 //
-//	    public PointComparator(PVector center) {
-//	        this.center = center;
-//	    }
+//	  /**
+//	   * The Jarvis March, sometimes known as the Gift Wrap Algorithm.
+//	   * The next point is the point with the next largest angle.
+//	   * <p/>
+//	   * Imagine wrapping a string around a set of nails in a board.  Tie the string to the leftmost nail
+//	   * and hold the string vertical.  Now move the string clockwise until you hit the next, then the next, then
+//	   * the next.  When the string is vertical again, you will have found the hull.
+//	   */
+//	  public int calculateHull() 
+//	  {
+//	    initializeHull();
 //
-//	    public int compare(PVector o1, PVector o2) {
-////	        System.out.println("PointComp... o1.y:"+o1.y+" o1.x:"+o1.x+" o2.y:"+o2.y+" o2.x:"+o2.x);
-//	        double angle1 = Math.atan2(o1.y - center.y, o1.x - center.x);
-//	        double angle2 = Math.atan2(o2.y - center.y, o2.x - center.x);
-////	        System.out.println("  angle1:"+angle1+" angle2:"+angle2);
-//	        if (angle1 > angle2)
-//	        {
-////		        System.out.println("0  (angle1 < angle2):"+(angle1 < angle2));
-//	            return 1;
+//	    startingPoint = getStartingPoint();
+//	    currentAngle = 0;
+//
+//	    addToHull(startingPoint);
+//	    for (int p = getNextPoint(startingPoint); p != startingPoint; p = getNextPoint(p))
+//	      addToHull(p);
+//
+//	    buildHullPoints();
+//	    return hullPoints.pts.length;
+//	  }
+//
+//	  public int getStartingPoint() {
+//	    return pts.startingPoint();
+//	  }
+//
+//	  private int getNextPoint(int p) {
+//	    double minAngle = MAX_ANGLE;
+//	    int minP = startingPoint;
+//	    for (int i = 0; i < pts.pts.length; i++) {
+//	      if (i != p) {
+//	        double thisAngle = relativeAngle(i, p);
+//	        if (thisAngle >= currentAngle && thisAngle <= minAngle) {
+//	          minP = i;
+//	          minAngle = thisAngle;
 //	        }
-//	        if (angle1 < angle2)
-//	        {
-////		        System.out.println("1  (angle1 < angle2):"+(angle1 < angle2));
-//	            return -1;
-//	        }
-//	        
-////	        System.out.println("Angles are the same");
-//	        return 0;
+//	      }
 //	    }
+//	    currentAngle = minAngle;
+//	    return minP;
+//	  }
+//
+//	  private double relativeAngle(int i, int p) {
+//		return pseudoAngle(pts.pts[i].x - pts.pts[p].x, pts.pts[i].y - pts.pts[p].y);
+////	    return pseudoAngle(pts.x[i] - pts.x[p], pts.y[i] - pts.y[p]);
+//	  }
+//
+//	  private void initializeHull() {
+//	    hx = new LinkedList<Float>();
+//	    hy = new LinkedList<Float>();
+//	  }
+//
+//	  private void buildHullPoints() {
+//	    float[] ax = new float[hx.size()];
+//	    float[] ay = new float[hy.size()];
+//	    int n = 0;
+//	    for (Iterator<Float> ix = hx.iterator(); ix.hasNext(); )
+//	      ax[n++] = ix.next();
+//
+//	    n = 0;
+//	    for (Iterator<Float> iy = hy.iterator(); iy.hasNext(); )
+//	      ay[n++] = iy.next();
+//
+//	    ArrayList<PVector> newPts = new ArrayList<PVector>();
+//	    for(int i=0; i<ax.length; i++)
+//	    {
+//	    	newPts.add(new PVector(ax[i], ay[i]));
+//	    }
+//	    hullPoints = new JarvisPoints(newPts);
+//	  }
+//
+//	  private void addToHull(int p) {
+//	    hx.add(pts.pts[p].x);
+//	    hy.add(pts.pts[p].y);
+//	  }
+//
+//	  /**
+//	   * The PseudoAngle is a number that increases as the angle from vertical increases.
+//	   * The current implementation has the maximum pseudo angle < 4.  The pseudo angle for each quadrant is 1.
+//	   * The algorithm is very simple.  It just finds where the angle intesects a square and measures the
+//	   * perimeter of the square at that point.  The math is in my Sept '06 notebook.  UncleBob.
+//	   */
+//	  double pseudoAngle(double dx, double dy) {
+//	    if (dx >= 0 && dy >= 0)
+//	      return quadrantOnePseudoAngle(dx, dy);
+//	    if (dx >= 0 && dy < 0)
+//	      return 1 + quadrantOnePseudoAngle(Math.abs(dy), dx);
+//	    if (dx < 0 && dy < 0)
+//	      return 2 + quadrantOnePseudoAngle(Math.abs(dx), Math.abs(dy));
+//	    if (dx < 0 && dy >= 0)
+//	      return 3 + quadrantOnePseudoAngle(dy, Math.abs(dx));
+//	    throw new Error("Impossible");
+//	  }
+//
+//	  double quadrantOnePseudoAngle(double dx, double dy) {
+//	    return dx / (dy + dx);
+//	  }
+//
+//	  public JarvisPoints getHullPoints() {
+//	    return hullPoints;
+//	  }
 //	}
-	
-
-//	/**
-//	 * @param depth Depth at which to draw clusters
-//	 * Draw the clusters at given depth
-//	 */
-//	void drawClustersAtDepth( Cluster topCluster, int depth )
-//	{		 
-//		System.out.println("Drawing clusters at depth level:"+depth);
-//		ArrayList<Cluster> clusters = (ArrayList<Cluster>) topCluster.getChildren();	// Dendrogram clusters
+//	
+//	class JarvisPoints {
+//		public PVector[] pts;
+//		
+////		public double x[];
+////		public double y[];
 //
-//		for( int i = 0; i<depth; i++ )								// For each level up to given depth
+//		public JarvisPoints(ArrayList<PVector> newPts) 
 //		{
-//			ArrayList<Cluster> nextDepth = new ArrayList<Cluster>();	// List of clusters at this depth
-//
-//			for( Cluster c : clusters )								// For all clusters at current depth
-//			{
-//				ArrayList<Cluster> children = (ArrayList<Cluster>) c.getChildren();
-//				for(Cluster d : children)								// Save children to nextDepth list
-//					nextDepth.add(d);										
-//			}
-//
-//			clusters = nextDepth;										// Move to next depth
-//		}	
-//
-//		for( Cluster c : clusters )
-//		{
-//			String name = c.getName();								// Otherwise, save the result if appropriate
-//			int mediaIdx = Integer.parseInt(name);
-//			PVector location;
-//
-//			if(mediaIdx < state.indexPanoramaOffset)
-//			{
-//				location = p.getImage(mediaIdx).getCaptureLocation();
-//			}
-//			else if(mediaIdx < state.indexVideoOffset)
-//			{
-//				mediaIdx -= state.indexPanoramaOffset; 
-//				location = p.getPanoramas().get(mediaIdx).getCaptureLocation();
-//			}
-//			else
-//			{
-//				mediaIdx -= state.indexVideoOffset; 
-//				location = p.videos.get(mediaIdx).getCaptureLocation();
-//			}
-//
-//			p.p.p.display.message("Drawing point:");
-//			p.p.p.display.drawMapPoint(location, 20.f, p.p.p.display.largeMapWidth, p.p.p.display.largeMapHeight, p.p.p.display.mapClusterHue, 255, 255, p.p.p.display.mapClusterHue);
+//			pts = new PVector[newPts.size()];
+//			for(int i=0; i<newPts.size(); i++)
+//				pts[i] = newPts.get(i);
 //		}
-//		if(debugSettings.cluster) 
-//			System.out.println("Getting "+clusters.size()+" dendrogram clusters at depth:"+depth);
+//
+////		public JarvisPoints(double[] x, double[] y) {
+////			this.x = x;
+////			this.y = y;
+////		}
+//
+//		// The starting point is the point with the lowest X
+//		// With ties going to the lowest Y.  This guarantees
+//		// that the next point over is clockwise.
+//		int startingPoint() 
+//		{
+//			double minX = pts[0].x;
+//			double minY = pts[0].y;
+////			double minY = y[0];
+////			double minX = x[0];
+//			
+//			int iMin = 0;
+//			for (int i = 1; i < pts.length; i++) 
+//			{
+//				if (pts[i].x < minX) 
+//				{
+//					minX = pts[i].x;
+//					iMin = i;
+//				} 
+//				else if (minX == pts[i].x && pts[i].y < minY) 
+//				{
+//					minY = pts[i].y;
+//					iMin = i;
+//				}
+//			}
+//			return iMin;
+//		}
 //	}
 }

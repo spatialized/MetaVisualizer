@@ -453,20 +453,15 @@ public class ML_Input
 			if (key == ' ') 
 			{
 				if(ml.state.interactive)
-				{
 					ml.finishInteractiveClustering();			// Restart simulation after interactive clustering
-				}
 			}
 
 			if (key == ' ') 
 			{
-				if(!ml.basic)
-				{
-					if(ml.display.window.showWMVWindow)
-						ml.display.window.hideWMVWindow();
-					else
-						ml.display.window.showWMVWindow();
-				}
+				if(ml.display.window.showWMVWindow)
+					ml.display.window.hideWMVWindow();
+				else
+					ml.display.window.showWMVWindow();
 			}
 
 			/* Display Modes */

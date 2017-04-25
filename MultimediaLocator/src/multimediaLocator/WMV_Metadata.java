@@ -821,7 +821,11 @@ class WMV_Metadata
 				}
 
 				try {
-					fOrientation = ParseOrientation(sOrientation);
+					if(sOrientation != null)
+						fOrientation = ParseOrientation(sOrientation);
+					else
+						fOrientation = 0;									// Default: horizontal -- Change?
+					
 					fDirection = ParseDirection(sDirection);		
 
 					if(panorama && sDirection == null)

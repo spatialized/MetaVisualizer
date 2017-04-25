@@ -28,9 +28,9 @@ public class WMV_ViewerSettings
 	public int alphaTransitionLength = 15;
 	public boolean sphericalView = false;					// 360 degree perspective 		// -- Under development
 	
-//	public final int maxVisibleImages = 50;					// Maximum visible images at one time
-//	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
-//	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
+	public final int maxVisibleImages = 60;					// Maximum visible images at one time
+	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
+	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
 	
 	public float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
 	public boolean hideImages = false;						// Hide images
@@ -77,7 +77,6 @@ public class WMV_ViewerSettings
 	public boolean multiSelection = false;				// User can select multiple images for stitching
 	public boolean segmentSelection = false;			// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
-//	public boolean map3DMode = false;					// 3D Map Mode
 
 	/* Interaction */
 	public int mediaDensityThreshold = 12;				// Number of images or videos counted as high density
@@ -86,8 +85,8 @@ public class WMV_ViewerSettings
 	public int lockToClusterWaitLength = 100;
 	
 	/* Clusters */
-	public int maxVisibleClusters = 4;							// Maximum visible clusters in Orientation Mode		
-	public int minVisibleClusters = 1;							// Maximum visible clusters in Orientation Mode	
+	public int orientationModeMaxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode		
+	public int orientationModeMinVisibleClusters = 1;					// Maximum visible clusters in Orientation Mode	
 	public float orientationModeClusterViewingDistance = nearClippingDistance;	// Distance clusters become visible in Orientation Mode
 	public boolean orientationModeForceVisible = false;			// Force <minimum visible clusters> to be seen, even if out of range
 	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
@@ -169,8 +168,8 @@ public class WMV_ViewerSettings
 		lockToClusterWaitLength = 100;
 	
 		/* Clusters */
-		maxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode
-		minVisibleClusters = 1;							// Maximum visible clusters in Orientation Mode	
+		orientationModeMaxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode
+		orientationModeMinVisibleClusters = 1;							// Maximum visible clusters in Orientation Mode	
 
 //		TESTINTLIST.append(1);
 //		TESTINTLIST.append(3);

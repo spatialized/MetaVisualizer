@@ -221,14 +221,14 @@ public class WMV_Viewer
 			}
 		}
 
-		if(state.clustersVisible.size() > settings.maxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
+		if(state.clustersVisible.size() > settings.orientationModeMaxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
 		{
 			List<Integer> allClusters = state.clustersVisible;
 			state.clustersVisible = new ArrayList<Integer>();
 
 			for(int i=0; i<allClusters.size(); i++)
 			{
-				if(state.clustersVisible.size() < (settings.orientationModeForceVisible ? settings.minVisibleClusters : settings.maxVisibleClusters))
+				if(state.clustersVisible.size() < (settings.orientationModeForceVisible ? settings.orientationModeMinVisibleClusters : settings.orientationModeMaxVisibleClusters))
 				{
 					state.clustersVisible.add(i);
 				}

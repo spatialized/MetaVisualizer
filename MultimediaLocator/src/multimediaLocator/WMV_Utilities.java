@@ -1,27 +1,31 @@
 package multimediaLocator;
 
+import processing.core.PApplet;
+import processing.core.PVector;
+import processing.data.IntList;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
+import java.net.URL;
+import java.nio.charset.Charset;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
-
-import processing.core.PApplet;
-import processing.core.PVector;
 
 /******************
  * @author davidgordon
@@ -32,8 +36,274 @@ public class WMV_Utilities
 {
 	WMV_Utilities(){}
 	
+	public ArrayList<PVector> findBorderPoints(ArrayList<PVector> points)
+	{
+		ArrayList<PVector> borderPts = new ArrayList<PVector>();
+//		PVector centerOfHull = new PVector(100000,100000);
+		
+		// There must be at least 3 points
+		if (points.size() < 3) return null;
+
+		JarvisPoints pts = new JarvisPoints(points);
+		JarvisMarch jm = new JarvisMarch(pts);
+//		double start = System.currentTimeMillis();
+		int n = jm.calculateHull();
+//		double end = System.currentTimeMillis();
+//		System.out.printf("%d points found %d vertices %f seconds\n", points.size(), n, (end-start)/1000.);
+
+		int length = jm.getHullPoints().pts.length;
+		borderPts = new ArrayList<PVector>();
+		
+		for(int i=0; i<length; i++)
+			borderPts.add( jm.getHullPoints().pts[i] );
+		
+		// Print Result
+		//	  for (int i = 0; i < hull.size(); i++)
+		//	    System.out.println( "(" + hull.get(i).x + ", "
+		//	      + hull.get(i).y + ")\n");
+
+//		if(debugSettings.field)
+//			System.out.println("Found media points border of size:"+border.size());
+
+//		borderPts.sort(new PointComp(centerOfHull));
+		
+		IntList removeList = new IntList();
+		ArrayList<PVector> removePoints = new ArrayList<PVector>();
+		
+		int count = 0;
+		for(PVector pv : borderPts)
+		{
+			int ct = 0;
+			for(PVector comp : borderPts)
+			{
+				if(ct != count)		// Don't compare same indices
+				{
+					if(pv.equals(comp))
+					{
+						if(!removePoints.contains(pv))
+						{
+							removeList.append(count);
+							removePoints.add(pv);
+						}
+						break;
+					}
+				}
+				ct++;
+			}
+			count++;
+		}
+		
+//		if(debugSettings.field) System.out.println("Will remove "+removeList.size()+" points from field #"+getID()+" border of size "+borderPts.size()+"...");
+
+		ArrayList<PVector> newPoints = new ArrayList<PVector>();
+		count = 0;
+		for(PVector pv : borderPts)
+		{
+			if(!removeList.hasValue(count))
+				newPoints.add(pv);
+			count++;
+		}
+		borderPts = newPoints;
+		
+//		for(int i=removeList.size()-1; i>=0; i--)
+//		{
+//			borderPts.remove(i);
+//			i--;
+//		}
+
+//		System.out.println("Points remaining: "+borderPts.size()+"...");
+//		System.out.println("Will sort remaining "+borderPts.size()+" points in border...");
+//		borderPts.sort(c);
+		
+		return borderPts;
+	}
+	
 	/**
-	 * Round to nearest <n> decimal places
+	 * Class for finding convex hull using Jarvis March Algorithm
+	 * Based on JarvisMarch class by UncleBob
+	 * @author davidgordon
+	 */
+	public class JarvisMarch 
+	{
+	  JarvisPoints pts;
+	  private JarvisPoints hullPoints = null;
+	  private List<Float> hy;
+	  private List<Float> hx;
+	  private int startingPoint;
+	  private double currentAngle;
+	  private static final double MAX_ANGLE = 4;
+
+	  /**
+	   * Constructor for JarvisMarch class
+	   * @param pts JarvisPoints for which to find border 
+	   */
+	  JarvisMarch(JarvisPoints pts) {
+	    this.pts = pts;
+	  }
+
+	  /**
+	   * The Jarvis March, i.e. Gift Wrap Algorithm. The next point is the point with the next largest angle. 
+	   * Imagine wrapping a string around a set of nails in a board.  Tie the string to the leftmost nail
+	   * and hold the string vertical.  Now move the string clockwise until you hit the next, then the next, then
+	   * the next.  When the string is vertical again, you will have found the hull.
+	   */
+	  public int calculateHull() 
+	  {
+	    initializeHull();
+
+	    startingPoint = getStartingPoint();
+	    currentAngle = 0;
+
+	    addToHull(startingPoint);
+	    for (int p = getNextPoint(startingPoint); p != startingPoint; p = getNextPoint(p))
+	      addToHull(p);
+
+	    buildHullPoints();
+	    return hullPoints.pts.length;
+	  }
+
+	  public int getStartingPoint() {
+	    return pts.startingPoint();
+	  }
+
+	  private int getNextPoint(int p) {
+	    double minAngle = MAX_ANGLE;
+	    int minP = startingPoint;
+	    for (int i = 0; i < pts.pts.length; i++) {
+	      if (i != p) {
+	        double thisAngle = relativeAngle(i, p);
+	        if (thisAngle >= currentAngle && thisAngle <= minAngle) {
+	          minP = i;
+	          minAngle = thisAngle;
+	        }
+	      }
+	    }
+	    currentAngle = minAngle;
+	    return minP;
+	  }
+
+	  /**
+	   * Find relative angle between two poins
+	   * @param i First point
+	   * @param p Second point
+	   * @return Relative angle
+	   */
+	  private double relativeAngle(int i, int p) {
+		return pseudoAngle(pts.pts[i].x - pts.pts[p].x, pts.pts[i].y - pts.pts[p].y);
+	  }
+
+	  /**
+	   * Initialize points in hx and hy
+	   */
+	  private void initializeHull() {
+	    hx = new LinkedList<Float>();
+	    hy = new LinkedList<Float>();
+	  }
+
+	  /**
+	   * Build points in convex hull
+	   */
+	  private void buildHullPoints() {
+	    float[] ax = new float[hx.size()];
+	    float[] ay = new float[hy.size()];
+	    int n = 0;
+	    for (Iterator<Float> ix = hx.iterator(); ix.hasNext(); )
+	      ax[n++] = ix.next();
+
+	    n = 0;
+	    for (Iterator<Float> iy = hy.iterator(); iy.hasNext(); )
+	      ay[n++] = iy.next();
+
+	    ArrayList<PVector> newPts = new ArrayList<PVector>();
+	    for(int i=0; i<ax.length; i++)
+	    {
+	    	newPts.add(new PVector(ax[i], ay[i]));
+	    }
+	    hullPoints = new JarvisPoints(newPts);
+	  }
+
+	  /**
+	   * Add point to hull
+	   * @param p Index of point to add
+	   */
+	  private void addToHull(int p) {
+	    hx.add(pts.pts[p].x);
+	    hy.add(pts.pts[p].y);
+	  }
+
+	  /**
+	   * The PseudoAngle increases as the angle from vertical increases. Current implementation has the maximum pseudo angle < 4.  
+	   * The pseudo angle for each quadrant is 1. The algorithm finds where the angle intersects a square and measures the
+	   * perimeter of the square at that point
+	   */
+	  double pseudoAngle(double dx, double dy) {
+	    if (dx >= 0 && dy >= 0)
+	      return quadrantOnePseudoAngle(dx, dy);
+	    if (dx >= 0 && dy < 0)
+	      return 1 + quadrantOnePseudoAngle(Math.abs(dy), dx);
+	    if (dx < 0 && dy < 0)
+	      return 2 + quadrantOnePseudoAngle(Math.abs(dx), Math.abs(dy));
+	    if (dx < 0 && dy >= 0)
+	      return 3 + quadrantOnePseudoAngle(dy, Math.abs(dx));
+	    throw new Error("Impossible");
+	  }
+
+	  double quadrantOnePseudoAngle(double dx, double dy) {
+	    return dx / (dy + dx);
+	  }
+
+	  public JarvisPoints getHullPoints() {
+	    return hullPoints;
+	  }
+	}
+	
+	/**
+	 * Array of points for Jarvis March algorithm
+	 * Based on JarvisPoints by UncleBob
+	 * @author davidgordon
+	 *
+	 */
+	class JarvisPoints 
+	{
+		public PVector[] pts;
+		
+		public JarvisPoints(ArrayList<PVector> newPts) 
+		{
+			pts = new PVector[newPts.size()];
+			for(int i=0; i<newPts.size(); i++)
+				pts[i] = newPts.get(i);
+		}
+
+		// The starting point is the point with the lowest X with ties going to the lowest Y.  This guarantees
+		// that the next point over is clockwise.
+		int startingPoint() 
+		{
+			double minX = pts[0].x;
+			double minY = pts[0].y;
+			
+			int iMin = 0;
+			for (int i = 1; i < pts.length; i++) 
+			{
+				if (pts[i].x < minX) 
+				{
+					minX = pts[i].x;
+					iMin = i;
+				} 
+				else if (minX == pts[i].x && pts[i].y < minY) 
+				{
+					minY = pts[i].y;
+					iMin = i;
+				}
+			}
+			return iMin;
+		}
+	}
+
+	/**
+	 * Round value to nearest <n> decimal places
+	 * @param val Value to round
+	 * @param n Decimal places to round to
+	 * @return Rounded value
 	 */
 	public float round(float val, int n)
 	{
@@ -61,6 +331,9 @@ public class WMV_Utilities
 	
 	/**
 	 * Constrain float value between <min> and <max> by wrapping values around
+	 * @param value Value to constrain by wrapping
+	 * @param min Minimum value
+	 * @param max Maximum value
 	 */
 	public float constrainWrap(float value, float min, float max)
 	{
@@ -251,21 +524,21 @@ public class WMV_Utilities
 	public float getAngularDistance(float theta1, float theta2)
 	{
 		if (theta1 < 0)
-			theta1 += PApplet.PI * 2.f;
+			theta1 += Math.PI * 2.f;
 		if (theta2 < 0)
-			theta2 += PApplet.PI * 2.f;
-		if (theta1 > PApplet.PI * 2.f)
-			theta1 -= PApplet.PI * 2.f;
-		if (theta2 > PApplet.PI * 2.f)
-			theta2 -= PApplet.PI * 2.f;
+			theta2 += Math.PI * 2.f;
+		if (theta1 > Math.PI * 2.f)
+			theta1 -= Math.PI * 2.f;
+		if (theta2 > Math.PI * 2.f)
+			theta2 -= Math.PI * 2.f;
 
 		float dist1 = Math.abs(theta1-theta2);
 		float dist2;
 
 		if (theta1 > theta2)
-			dist2   = Math.abs(theta1 - PApplet.PI*2.f-theta2);
+			dist2   = Math.abs(theta1 - (float)Math.PI*2.f-theta2);
 		else
-			dist2   = Math.abs(theta2 - PApplet.PI*2.f-theta1);
+			dist2   = Math.abs(theta2 - (float)Math.PI*2.f-theta1);
 
 		if (dist1 > dist2)
 			return dist2;
@@ -283,8 +556,8 @@ public class WMV_Utilities
 	{
 		WMV_Model m = f.getModel();
 		
-		float newX = PApplet.map( loc.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, m.getState().lowLongitude, m.getState().highLongitude ); 			// GPS longitude decreases from left to right
-		float newY = PApplet.map( loc.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, m.getState().highLatitude, m.getState().lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+		float newX = mapValue( loc.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, m.getState().lowLongitude, m.getState().highLongitude ); 			// GPS longitude decreases from left to right
+		float newY = mapValue( loc.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, m.getState().highLatitude, m.getState().lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
 
 		PVector gpsLoc = new PVector(newX, newY);
 		return gpsLoc;
@@ -825,9 +1098,9 @@ public class WMV_Utilities
 		if (cHour > ssHour) 
 		{
 			System.out.println("Difference in Sunset Time (min.): " + ((cHour * 60 + cMin + cSec/60.f) - (ssHour * 60 + ssMin + ssSec/60.f)));
-			PApplet.print("Hour:" + cHour);
+			System.out.print("Hour:" + cHour);
 			System.out.println(" Min:" + cMin);
-			PApplet.print("Sunset Hour:" + ssHour);
+			System.out.print("Sunset Hour:" + ssHour);
 			System.out.println(" Sunset Min:" + ssMin);
 		}
 		//
@@ -844,8 +1117,8 @@ public class WMV_Utilities
 		float dayLength = sunsetTime - sunriseTime;
 
 		float cTime = cHour * 60 + cMin + cSec/60.f;
-		//		float time = PApplet.constrain(PApplet.map(cTime, sunriseTime, sunsetTime, 0.f, 1.f), 0.f, 1.f); // Time of day when photo was taken		
-		float time = PApplet.map(cTime, sunriseTime, sunsetTime, 0.f, 1.f); // Time of day when photo was taken		
+		//		float time = PApplet.constrain(mapValue(cTime, sunriseTime, sunsetTime, 0.f, 1.f), 0.f, 1.f); // Time of day when photo was taken		
+		float time = mapValue(cTime, sunriseTime, sunsetTime, 0.f, 1.f); // Time of day when photo was taken		
 
 		//		if (sunsetTime > p.lastSunset) {
 		//			p.lastSunset = sunsetTime;
@@ -864,8 +1137,8 @@ public class WMV_Utilities
 		float date = daysCount + cDay; 						// Days since Jan. 1st							//	 NOTE:	need to account for leap years!		
 
 		//		int endDate = 5000;																					
-		date = PApplet.constrain(PApplet.map(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
-		time = PApplet.map(sunsetTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
+		date = PApplet.constrain(mapValue(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
+		time = mapValue(sunsetTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
 
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
 	}
@@ -932,9 +1205,9 @@ public class WMV_Utilities
 
 		if (cHour < srHour) {
 			System.out.println("Difference in Sunrise Time (min.): " + ((srHour * 60 + srMin + srSec/60.f) - (cHour * 60 + cMin + cSec/60.f)));
-			PApplet.print("Hour:" + cHour);
+			System.out.print("Hour:" + cHour);
 			System.out.println(" Min:" + cMin);
-			PApplet.print("Sunrise Hour:" + srHour);
+			System.out.print("Sunrise Hour:" + srHour);
 			System.out.println(" Sunrise Min:" + srMin);
 		}
 
@@ -943,8 +1216,8 @@ public class WMV_Utilities
 		float dayLength = sunsetTime - sunriseTime;
 
 		float cTime = cHour * 60 + cMin + cSec/60.f;
-		//		float time = PApplet.constrain(PApplet.map(cTime, sunriseTime, sunsetTime, 0.f, 1.f), 0.f, 1.f); // Time of day when photo was taken		
-		float time = PApplet.map(cTime, sunriseTime, sunsetTime, 0.f, 1.f); // Time of day when photo was taken		
+		//		float time = PApplet.constrain(mapValue(cTime, sunriseTime, sunsetTime, 0.f, 1.f), 0.f, 1.f); // Time of day when photo was taken		
+		float time = mapValue(cTime, sunriseTime, sunsetTime, 0.f, 1.f); // Time of day when photo was taken		
 
 //		if (sunsetTime > p.lastSunset) {
 //			p.lastSunset = sunsetTime;
@@ -963,9 +1236,9 @@ public class WMV_Utilities
 		float date = daysCount + cDay; 						// Days since Jan. 1st							//	 NOTE:	need to account for leap years!		
 
 //		int endDate = 5000;																					
-		date = PApplet.constrain(PApplet.map(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
+		date = PApplet.constrain(mapValue(date, 0.f, 365, 0.f, 1.f), 0.f, 1.f);					//	 NOTE:	need to account for leap years!		
 
-		time = PApplet.map(sunriseTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
+		time = mapValue(sunriseTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken		
 
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
 	}

@@ -202,7 +202,7 @@ public class WMV_Image extends WMV_Media
 			calculateVertices();  					// Update geometry		
 			
 			setAspectRatio( calculateAspectRatio() );
-			blurred = applyMask(ml, image, blurMask);				// Apply blur mask once image has loaded
+			blurred = applyMask(ml, image, blurMask);					// Apply blur mask once image has loaded
 			setRequested(false);
 //			p.p.requestedImages--;
 		}

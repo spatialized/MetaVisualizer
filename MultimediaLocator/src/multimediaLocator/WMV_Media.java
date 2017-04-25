@@ -457,7 +457,6 @@ public abstract class WMV_Media
 		mState.captureLocation = new PVector(newX, newY, newZ);
 	}
 
-
 	/**
 	 * Rotate list of vertices using matrices
 	 * @param verts Vertices list

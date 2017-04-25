@@ -505,12 +505,10 @@ public class ML_Input
 
 			if (key == '@') 
 			{
-				System.out.println("WORKED");
 				if(!ml.display.window.showTimeWindow)
 					ml.display.window.openTimeWindow();
 				else
 					ml.display.window.hideTimeWindow();
-//				commandKey = false;
 			}
 
 			if (key == '#') 
@@ -519,7 +517,6 @@ public class ML_Input
 					ml.display.window.openGraphicsWindow();
 				else
 					ml.display.window.hideGraphicsWindow();
-//				commandKey = false;
 			}
 
 			if (key == '$') 
@@ -528,7 +525,6 @@ public class ML_Input
 					ml.display.window.openModelWindow();
 				else
 					ml.display.window.hideModelWindow();
-//				commandKey = false;
 			}
 
 			if (key == '%') 
@@ -537,7 +533,6 @@ public class ML_Input
 					ml.display.window.openMemoryWindow();
 				else
 					ml.display.window.hideMemoryWindow();
-//				commandKey = false;
 			}
 
 			if (key == '^') 
@@ -567,10 +562,10 @@ public class ML_Input
 			if (key == 'R')
 				ml.restart();
 
-			if(ml.display.displayView == 1)	/* 2D Map View */
+			if(ml.display.displayView == 1)		/* 2D Map View */
 			{
 				if (key == 'j') 
-					ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
+					ml.world.viewer.moveToRandomCluster(true, false);				// Teleport to random cluster
 				
 				if( key == '+' )
 					ml.display.satelliteMap = !ml.display.satelliteMap;

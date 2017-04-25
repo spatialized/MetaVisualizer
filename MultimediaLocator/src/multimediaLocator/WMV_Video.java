@@ -12,7 +12,7 @@ import processing.core.PVector;
 import processing.data.IntList;
 
 /**************************************************
- * Video in a virtual multimedia environment
+ * Rectangular video in a 3D environment
  * @author davidgordon
  */
 
@@ -28,6 +28,13 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	private PImage blurMask;						// Blur mask
 	private PImage blurred;							// Combined pixels
 
+	/**
+	 * Constructor for 3D video
+	 * @param newID Video ID
+	 * @param newVideo Movie file
+	 * @param newType Media type ID
+	 * @param newVideoMetadata Video metadata
+	 */
 	WMV_Video ( int newID, Movie newVideo, int newType, WMV_VideoMetadata newVideoMetadata )
 	{
 		super( newID, newType, newVideoMetadata.name, newVideoMetadata.filePath, newVideoMetadata.dateTime, newVideoMetadata.timeZone, 
@@ -49,12 +56,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		initializeTime();
 
 		if(newVideo != null)
-		{
 			setVideoLength(newVideo);
-//			video = newVideo;
-//			setLength( video.duration() );				// Set video length (in seconds)
-//			video.dispose();
-		}
 	}  
 	
 	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
@@ -100,7 +102,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Display the video in virtual space
 	 */
-	void display(MultimediaLocator ml)
+	public void display(MultimediaLocator ml)
 	{
 		if(getMediaState().showMetadata) displayMetadata(ml);
 
@@ -144,8 +146,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	/**
-	 * @param size Size to draw the video center
 	 * Draw the video center as a colored sphere
+	 * @param size Size to draw the video center
 	 */
 	void displayModel(MultimediaLocator ml)
 	{
@@ -213,7 +215,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Fade in sound
 	 */
-	void fadeSoundIn()
+	public void fadeSoundIn()
 	{
 		if(state.volume < getWorldSettings().videoMaxVolume)
 		{
@@ -378,8 +380,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		if(state.vertices.length == 0) setDisabled(true);
 		if(state.sVertices.length == 0) setDisabled(true);
 		
-//		if(getViewerSettings().orientationMode)	state.vertices = translateVertices(vertices, p.p.viewer.getLocation());
-//		else
 		state.vertices = translateVertices(state.vertices, getCaptureLocation());                       // Move image to photo capture location   
 
 		state.disp = getDisplacementVector();
@@ -400,9 +400,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi)); 
 		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi));  
 		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-metadata.phi)); 
-//		float xDisp = r * PApplet.sin(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-metadata.phi)); 
-//		float zDisp = r * PApplet.cos(PApplet.radians(360-theta)) * PApplet.sin(PApplet.radians(90-metadata.phi));  
-//		float yDisp = r * PApplet.cos(PApplet.radians(90-metadata.phi)); 
 
 		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
 	}
@@ -430,13 +427,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			video.volume(0.f);
 			state.volume = 0.f;
 
-//			if(getDebugSettings().video)
-//				ml.display.message(p.p, "Loading video file..."+filePath+" video.duration():"+video.duration());
+			if(ml.debugSettings.video)
+				System.out.println("Loading video file..."+getMediaState().filePath+" video.duration():"+video.duration());
 
 			calculateVertices(); 
 			state.loaded = true;
-//			p.videosLoaded++;
-//			ml.world.setVideosLoaded(ml.world.getVideosLoaded() + 1);
 		}
 	}
 
@@ -449,8 +444,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		video.loop();					// Start loop
 
 		state.playing = true;
-//		p.setVideosPlaying(p.getVideosPlaying() + 1);
-//		p.videosPlaying++;
 		video.volume(0.f);
 		state.volume = 0.f;
 		
@@ -487,16 +480,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	public void clearVideo()
 	{
-//		if(video.state.playing)
-//		video.noLoop();
-//		if(video != null)
-//			video.stop();
-
-//		p.videosPlaying--;
-		
-//		p.videosLoaded--;
-//		p.setVideosLoaded(p.getVideosLoaded() - 1);
-
 		try{
 			if(video != null)
 			{
@@ -510,7 +493,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 		
 		state.loaded = false;
-//		videoPlaying = false;
 	}
 
 	/**
@@ -592,8 +574,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
 		ml.popMatrix();
-
-//		ml.world.setVideosSeen(p.getVideosSeen() + 1);
 	}
 
 	/**
@@ -602,7 +582,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	public void displayMetadata(MultimediaLocator ml)
 	{
 		String strTitleVideo = "Video";
-		String strTitleVideo2 = "-----";
+		String strTitleVideo2 = "";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
 		String strCluster = "Cluster: "+String.valueOf(getAssociatedClusterID());

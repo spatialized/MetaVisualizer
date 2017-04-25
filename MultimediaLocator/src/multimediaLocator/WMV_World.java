@@ -260,13 +260,16 @@ public class WMV_World
 		setMediaTimeModeCurrentMedia(0);
 	}
 	
-	void setMediaTimeModeCurrentMedia(int timelineIndex)
+	/**
+	 * Set current visible media in Media Time Mode
+	 * @param timeSegmentIndex
+	 */
+	void setMediaTimeModeCurrentMedia(int timeSegmentIndex)
 	{
-		viewer.setCurrentMedia( timelineIndex );
-		// marijuana
+		viewer.setCurrentMedia( timeSegmentIndex );
 		if(viewer.getNearbyClusterTimeline().size() > 0)
 		{
-			WMV_Time time = viewer.getNearbyTimeByIndex(timelineIndex);
+			WMV_Time time = viewer.getNearbyTimeByIndex(timeSegmentIndex);
 			
 			if(time != null)
 			{
@@ -306,7 +309,7 @@ public class WMV_World
 			}
 			else
 			{
-				System.out.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timelineIndex);
+				System.out.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timeSegmentIndex);
 			}
 		}
 		else
@@ -1087,23 +1090,6 @@ public class WMV_World
 	}
 
 	/**
-	 * @return Active clusters in current field
-	 */
-	public ArrayList<WMV_Cluster> getVisibleClusters()
-	{
-		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
-
-		for(int i : viewer.getNearClusters(-1, settings.maxClusterDistance))
-		{
-			WMV_Cluster c = getCurrentField().getCluster(i);
-			if(c.isActive() && !c.isEmpty())
-				clusters.add(c);
-		}
-		
-		return clusters;
-	}
-
-	/**
 	 * Manually move back in time
 	 */
 	void decrementTime()
@@ -1258,7 +1244,7 @@ public class WMV_World
 		}
 		else if(state.timeMode == 2)		/* Time cycle length is flexible according to visible cluster media lengths */
 		{
-			ArrayList<WMV_Cluster> cl = getVisibleClusters();
+			ArrayList<WMV_Cluster> cl = viewer.getVisibleClusters(getCurrentField());
 			settings.timeCycleLength = 0;
 			
 			for(WMV_Cluster c : cl)
@@ -1292,7 +1278,7 @@ public class WMV_World
 		{
 			float highest = -100000.f;
 			float lowest = 100000.f;
-			ArrayList<WMV_Cluster> cl = getVisibleClusters();
+			ArrayList<WMV_Cluster> cl = viewer.getVisibleClusters( getCurrentField() );
 			
 			for(WMV_Cluster c : cl)
 			{

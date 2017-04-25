@@ -741,7 +741,7 @@ public class ML_Window {
 
 		x = 80;
 		y += 30;
-		if(delay) world.p.delay(delayAmount);
+//		if(delay) world.p.delay(delayAmount);
 		
 		btnZoomOut = new GButton(graphicsWindow, x, y, 40, 20, "Out");
 		btnZoomOut.tag = "ZoomOut";

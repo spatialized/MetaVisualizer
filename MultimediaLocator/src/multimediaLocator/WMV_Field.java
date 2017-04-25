@@ -506,6 +506,8 @@ public class WMV_Field
 			panoramas.get(i).calculateCaptureLocation(model);
 		for (int i = 0; i < videos.size(); i++)
 			videos.get(i).calculateCaptureLocation(model);
+		for (int i = 0; i < sounds.size(); i++)
+			sounds.get(i).calculateCaptureLocation(model);
 	}
 	
 	/**

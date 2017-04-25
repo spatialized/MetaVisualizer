@@ -1,17 +1,13 @@
 package multimediaLocator;
 
-import java.util.ArrayList;
-
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
 
 /************************************
- * Rectangular image in a virtual multimedia environment
+ * Rectangular image in a 3D environment
  * @author davidgordon
- * 
  */
-
 public class WMV_Image extends WMV_Media			 
 {
 	/* Classes */
@@ -786,7 +782,7 @@ public class WMV_Image extends WMV_Media
 	public void displayMetadata(MultimediaLocator ml)
 	{
 		String strTitleImage = "Image";
-		String strTitleImage2 = "-----";
+		String strTitleImage2 = "";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
 		String strCluster = "Cluster: "+String.valueOf(getAssociatedClusterID());

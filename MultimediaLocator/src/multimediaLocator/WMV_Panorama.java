@@ -7,7 +7,7 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 /**********************************************
- * 360-degree panorama in a virtual multimedia environment
+ * 360-degree spherical panorama in 3D environment
  * @author davidgordon
  */
 public class WMV_Panorama extends WMV_Media 
@@ -26,6 +26,15 @@ public class WMV_Panorama extends WMV_Media
 	private float sinTable[];
 	private float cosTable[];
 	
+	/**
+	 * Constructor for spherical panorama
+	 * @param newID Panorama id
+	 * @param newType Media type
+	 * @param newElevation Elevation angle (currently set to default of 0)
+	 * @param newLocation Location (optional)
+	 * @param newTexture Texture image file
+	 * @param newPanoMetadata Panorama metadata
+	 */
 	WMV_Panorama ( int newID, int newType, float newElevation, PVector newLocation, PImage newTexture, WMV_PanoramaMetadata newPanoMetadata )
 	{
 		super( newID, newType, newPanoMetadata.name, newPanoMetadata.filePath, newPanoMetadata.dateTime, newPanoMetadata.timeZone, 
@@ -37,10 +46,14 @@ public class WMV_Panorama extends WMV_Media
 
 		texture = newTexture;
 
-		if(newLocation != null)
+		if(newLocation != null)					// If location was passed in constructor
 		{
-			setLocation(newLocation);
-			setCaptureLocation(newLocation);
+			setLocation(newLocation);			// Set location
+			setCaptureLocation(newLocation);	// Set capture location (Panorama capture location is identical to viewing location)
+		}
+		else									// Otherwise, set location from metadata
+		{
+			setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
 		}
 		
 		initializeTime();
@@ -125,10 +138,10 @@ public class WMV_Panorama extends WMV_Media
 				setVisible(false);
 		}
 
-		//		if(fadingObjectDistance)
-		//		{
-		//			updateFadingObjectDistance();
-		//		}
+//		if(fadingObjectDistance)
+//		{
+//			updateFadingObjectDistance();
+//		}
 	}
 
 	/**
@@ -165,41 +178,7 @@ public class WMV_Panorama extends WMV_Media
 	}
 
 	/**
-	 * Draw the panorama sphere
-	 */
-	void displayModel(MultimediaLocator ml)
-	{
-		ml.pushMatrix();
-		ml.translate(getLocation().x, getLocation().y, getLocation().z);
-		ml.fill(215, 135, 255, getViewingBrightness());
-		ml.sphere(state.radius);								// -- Testing
-		ml.popMatrix();
-	}
-	
-	/**
-	 * Fade in panorama
-	 */
-	public void fadeIn()
-	{
-		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
-			stopFading();
-
-		fadeBrightness(1.f);					// Fade in
-	}
-
-	/**
-	 * Fade out panorama
-	 */
-	public void fadeOut()
-	{
-		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
-			stopFading();
-
-		fadeBrightness(0.f);					// Fade out
-	}
-
-	/**
-	 * Draw the panorama
+	 * Display the panorama
 	 */
 	private void displayPanorama(MultimediaLocator ml) 
 	{
@@ -219,7 +198,6 @@ public class WMV_Panorama extends WMV_Media
 		{
 			if(isSelected())
 			{
-//				System.out.println("selected getViewingBrightness():"+getViewingBrightness());
 				if(!getWorldState().alphaMode)
 					ml.tint(getViewingBrightness(), 255);          				
 				else
@@ -236,14 +214,9 @@ public class WMV_Panorama extends WMV_Media
 		else
 		{
 			if(!getWorldState().alphaMode)
-			{
 				ml.tint(getViewingBrightness(), 255);          				
-			}
 			else
-			{
-//				System.out.println("alphaMode getViewingBrightness():"+getViewingBrightness()+" final alpha:"+PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, world.alpha));
 				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
-			}
 		}
 		
 		float iu = (float)(texture.width-1)/(state.resolution);
@@ -306,7 +279,42 @@ public class WMV_Panorama extends WMV_Media
 		ml.textureMode(PApplet.NORMAL);
 	}
 
-	/***
+
+	/**
+	 * Draw the panorama sphere
+	 */
+	void displayModel(MultimediaLocator ml)
+	{
+		ml.pushMatrix();
+		ml.translate(getLocation().x, getLocation().y, getLocation().z);
+		ml.fill(215, 135, 255, getViewingBrightness());
+		ml.sphere(state.radius);								// -- Testing
+		ml.popMatrix();
+	}
+	
+	/**
+	 * Fade in panorama
+	 */
+	public void fadeIn()
+	{
+		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
+			stopFading();
+
+		fadeBrightness(1.f);					// Fade in
+	}
+
+	/**
+	 * Fade out panorama
+	 */
+	public void fadeOut()
+	{
+		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
+			stopFading();
+
+		fadeBrightness(0.f);					// Fade out
+	}
+
+	/**
 	 * Initialize panorama geometry
 	 */
 	void initializeSphere()
@@ -411,45 +419,13 @@ public class WMV_Panorama extends WMV_Media
 		return distance;
 	}
 	
-//	/**
-//	 * Search given list of clusters and associated with this image
-//	 * @return Whether associated field was successfully found
-//	 */	
-//	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
-//	{
-//		int closestClusterIndex = 0;
-//		float closestDistance = 100000;
-//
-//		for (int i = 0; i < clusterList.size(); i++) 
-//		{     
-//			WMV_Cluster curCluster = clusterList.get(i);
-//			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-//
-//			if (distanceCheck < closestDistance)
-//			{
-//				closestClusterIndex = i;
-//				closestDistance = distanceCheck;
-//			}
-//		}
-//
-//		if(closestDistance < maxClusterDistance)
-//			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
-//		else
-//			setAssociatedClusterID(-1);						// Create a new single image cluster here!
-//
-//		if(getAssociatedClusterID() != -1)
-//			return true;
-//		else
-//			return false;
-//	}
-	
 	/**
 	 * Draw the panorama metadata in Heads-Up Display
 	 */
 	public void displayMetadata(MultimediaLocator ml)
 	{
 		String strTitleImage = "Panorama";
-		String strTitleImage2 = "-----";
+		String strTitleImage2 = "";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
 		String strCluster = "Cluster: "+String.valueOf(getAssociatedClusterID());

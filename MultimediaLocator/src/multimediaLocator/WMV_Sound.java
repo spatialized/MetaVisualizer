@@ -6,7 +6,7 @@ import beads.*;
 import processing.core.PVector;
 
 /**************************************************
- * A sound spatialized in a virtual multimedia environment
+ * Sound in a 3D environment
  * @author davidgordon
  */
 
@@ -104,7 +104,7 @@ public class WMV_Sound extends WMV_Media
 	public void displayMetadata(MultimediaLocator ml)
 	{
 		String strTitleImage = "Sound";
-		String strTitleImage2 = "-----";
+		String strTitleImage2 = "";
 		String strName = "Name: "+getName();
 		String strID = "ID: "+String.valueOf(getID());
 		String strCluster = "Cluster: "+String.valueOf(getMediaState().getClusterID());

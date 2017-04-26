@@ -1,30 +1,26 @@
 package multimediaLocator;
 
 import java.util.ArrayList;
-//import java.util.List;
 import java.util.List;
 
 import processing.core.PApplet;
+import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.IntList;
 import toxi.math.ScaleMap;
-//import shapes3d.*;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
-//import de.fhpotsdam.unfolding.data.MarkerFactory;
+import de.fhpotsdam.unfolding.core.Coordinate;
 import de.fhpotsdam.unfolding.events.EventDispatcher;
-//import de.fhpotsdam.unfolding.events.PanMapEvent;
 import de.fhpotsdam.unfolding.geo.Location;
-import de.fhpotsdam.unfolding.interactions.MouseHandler;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MarkerManager;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.marker.SimplePolygonMarker;
+import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.providers.Microsoft;
-//import de.fhpotsdam.unfolding.providers.AbstractMapProvider;
-//import de.fhpotsdam.unfolding.utils.DebugDisplay;
-//import de.fhpotsdam.unfolding.utils.MapUtils;
+import de.fhpotsdam.unfolding.utils.MapUtils;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
 
 /***********************************
@@ -34,15 +30,14 @@ import de.fhpotsdam.unfolding.utils.ScreenPosition;
 public class ML_Map 
 {
 	/* Map */
-	private UnfoldingMap map;
+	private UnfoldingMap map, plainMap;
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
-	private Location mapCenter, fieldsMapCenter;
-;
-	private EventDispatcher eventDispatcher;
-	private MarkerManager<Marker> markerManager;
+	private Location mapCenter, fieldsMapCenter, plainMapCenter;
+	private EventDispatcher eventDispatcher, plainMapEventDispatcher;
+	private MarkerManager<Marker> markerManager, plainMapMarkerManager;
 	private MultiMarker allClustersMarker;
-	private SimplePointMarker viewerMarker;
+	private SimplePointMarker viewerMarker, plainMapViewerMarker;
 	private int clusterZoomLevel = 18, fieldZoomLevel = 14;
 	
 	/* Graphics */
@@ -51,22 +46,22 @@ public class ML_Map
 	private int screenHeight = -1;
 	
 	/* Interaction */
+	public int mousePressedFrame = -1;
+	public int mouseDraggedFrame = -1;
 	private int selectedCluster = -1, selectedField = -1;
 	private IntList selectableClusterIDs;
-	private ArrayList<SelectableClusterLocation> selectableClusterLocations;
-	int mousePressedFrame = -1;
-	int mouseDraggedFrame = -1;
+//	private ArrayList<SelectableClusterLocation> selectableClusterLocations;
 
-	public float mapDistance = 1.f;										// Obsolete soon
+	private float mapDistance = 1.f;										// Obsolete soon
 	private final float mapDistanceMin = 0.04f, mapDistanceMax = 1.2f;	// Obsolete soon
-	public float mapLeftEdge = 0.f, mapTopEdge = 0.f;					// Obsolete soon
+	private float mapLeftEdge = 0.f, mapTopEdge = 0.f;					// Obsolete soon
 
 	private float curMapWidth, curMapHeight;							// Obsolete soon
 	private float largeMapXOffset, largeMapYOffset;						// Obsolete soon
 
 	/* Clusters */
 	private boolean selectableClustersCreated = false;
-	public float mapClusterHue = 112.f;
+	private float mapClusterHue = 112.f;
 	private float mapAttractorClusterHue = 222.f;
 	
 	/* Media */
@@ -88,7 +83,7 @@ public class ML_Map
 	private float zoomMapLeftEdge = 0.f, zoomMapTopEdge = 0.f;
 	private float zoomMapWidth, zoomMapHeight, zoomMapMaxWidth, zoomMapMaxHeight;
 	private float zoomMapXOffset, zoomMapYOffset;
-	private float zoomMapDefaultWidth, zoomMapDefaultHeight;
+//	private float zoomMapDefaultWidth, zoomMapDefaultHeight;
 
 	public boolean scrollTransition = false;
 	private int scrollTransitionStartFrame = 0, scrollTransitionEndFrame = 0, scrollTransitionLength = 16;	
@@ -108,15 +103,25 @@ public class ML_Map
 	
 	/* Fields Map */
 	private final float fieldSelectedHue = 20.f, fieldSelectedSaturation = 255.f, fieldSelectedBrightness = 255.f;
+	private final float clusterSaturation = 160.f, clusterBrightness = 185.f;
 	private final float fieldTransparency = 80.f;
 //	private final float fieldTransparency = 120.f;
 	private final float fieldHueRangeLow = 50.f, fieldHueRangeHigh = 160.f;
 	PVector mapVectorOrigin, mapVectorVector;
 
+	PImage blankTile;
+	
 	WMV_Utilities utilities;
 	ML_Display p;
 
-	ML_Map(ML_Display parent, int newScreenWidth, int newScreenHeight, float newHUDDistance)
+	/**
+	 * Constructor for 2D map
+	 * @param parent Parent display object
+	 * @param newScreenWidth Screen width
+	 * @param newScreenHeight Screen height
+	 * @param newHUDDistance Heads-Up Display distance
+	 */
+	public ML_Map(ML_Display parent, int newScreenWidth, int newScreenHeight, float newHUDDistance)
 	{
 		p = parent;
 		screenWidth = newScreenWidth;
@@ -141,88 +146,15 @@ public class ML_Map
 	public void initializeMaps(WMV_World world)
 	{
 		System.out.println("initializeMaps()..."+" frameCount:"+world.getState().frameCount);
+		blankTile = world.p.loadImage("res/blank.jpg");
+
+		initializeSatelliteMap(world);
+		initializePlainMap(world);
 		
-		WMV_Model m = world.getCurrentModel();
-		fieldAspectRatio = m.getState().fieldAspectRatio;						//	Field ratio == fieldWidth / fieldLength;
-		zoomMapDefaultWidth = (float)Math.log10(m.getState().fieldWidth) * 33.3f;										// Was 240.f
-		zoomMapDefaultHeight = (float)Math.log10(m.getState().fieldWidth) * 33.3f * screenHeight / screenWidth;		// Was 180.f
-
-		if(fieldAspectRatio >= 1.f)			// -- Obsolete									
-		{
-			curMapWidth = screenWidth * 0.95f;
-			curMapHeight = screenWidth / fieldAspectRatio;
-		}
-		else
-		{
-			curMapWidth = screenHeight * fieldAspectRatio;
-			curMapHeight = screenHeight * 0.95f;
-		}
-
-		initializeFieldSatelliteMap(world);
+		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, map, plainMap);
+		
+		world.p.delay(200);
 		p.initializedMaps = true;
-	}
-	
-	/**
-	 * Initialize maps
-	 * @param p Parent world
-	 */
-	public void initializeFieldSatelliteMap(WMV_World p)
-	{
-		map = new UnfoldingMap(p.p, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
-
-		p.p.delay(100);
-		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
-		mapCenter = new Location(gpsLoc.y, gpsLoc.x);
-		
-//		map.zoomAndPanTo(16, mapCenter);
-		zoomToField(p, p.getCurrentField());			// Start zoomed out on whole field
-		map.setTweening(true);
-		map.setZoomRange(2, 19);
-//		map.setZoomRange(2, 21);
-
-		eventDispatcher = new EventDispatcher();
-
-		// Add mouse interaction to map
-		MouseHandler mouseHandler = new MouseHandler(p.p, map);
-		eventDispatcher.addBroadcaster(mouseHandler);
-
-		eventDispatcher.register(map, "pan", map.getId());
-		eventDispatcher.register(map, "zoom", map.getId());
-
-		createFieldPointMarkers(p);
-		p.p.delay(100);
-		
-		PVector vLoc = p.viewer.getGPSLocation();
-		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
-		viewerMarker.setId("viewer");
-		viewerMarker.setDiameter(20.f);
-		viewerMarker.setColor(p.p.color(0, 0, 255, 255));
-	}
-	
-	/**
-	 * Create simple point markers for each cluster
-	 */
-	public void createFieldPointMarkers(WMV_World world)
-	{
-		markerManager = new MarkerManager<Marker>();
-		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
-		{
-			if(!c.isEmpty() && c.getState().mediaCount != 0)
-			{
-				PVector mapLoc = c.getLocation();
-				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
-				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
-				marker.setId(String.valueOf(c.getID()));
-				marker.setColor(world.p.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
-				marker.setHighlightColor(world.p.color(170, 255, 255, 255));
-				marker.setStrokeWeight(0);
-				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
-				markerManager.addMarker(marker);
-			}
-		}
-
-		map.addMarkerManager(markerManager);
-		markerManager.enableDrawing();
 	}
 	
 	/**
@@ -232,270 +164,374 @@ public class ML_Map
 	{
 		resetMapZoom(world, false);
 		initializeMaps(world);
-		selectedCluster = -1;
+		setSelectedCluster( -1 );
+	}
+
+	/**
+	 * Initialize maps
+	 * @param p Parent world
+	 */
+	private void initializeSatelliteMap(WMV_World p)
+	{
+		map = new UnfoldingMap(p.p, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
+
+		p.p.delay(100);
+		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
+		mapCenter = new Location(gpsLoc.y, gpsLoc.x);
+		
+		if(p.p.display.satelliteMap)
+			zoomToField(p, p.getCurrentField());			// Start zoomed out on whole field
+
+		map.setTweening(true);
+		map.setZoomRange(2, 19);
+
+		createClusterMarkers(p);
+		p.p.delay(100);
+		
+		PVector vLoc = p.viewer.getGPSLocation();
+		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
+		viewerMarker.setId("viewer");
+		viewerMarker.setDiameter(20.f);
+		viewerMarker.setColor(p.p.color(0, 0, 255, 255));
+	}
+
+	/**
+	 * Initialize maps
+	 * @param p Parent world
+	 */
+	private void initializePlainMap(WMV_World p)
+	{
+		plainMap = new UnfoldingMap(p.p, "Map", 0, 0, screenWidth, screenHeight, true, false, new BlankMapProvider());
+//		plainMap = new UnfoldingMap(p.p, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
+//		plainMap = new UnfoldingMap(p.p, "Map", 0, 0, screenWidth, screenHeight, true, false, new Google.GoogleTerrainProvider());
+
+		plainMap.setBackgroundColor(0);
+		p.p.delay(100);
+		
+		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
+		plainMapCenter = new Location(gpsLoc.y, gpsLoc.x);
+		
+		if(!p.p.display.satelliteMap)
+			zoomToField(p, p.getCurrentField());			// Start zoomed out on whole field
+		
+		plainMap.setTweening(true);
+		plainMap.setZoomRange(2, 21);
+
+		createPlainMapClusterMarkers(p);
+		p.p.delay(100);
+		
+		PVector vLoc = p.viewer.getGPSLocation();
+		plainMapViewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
+		plainMapViewerMarker.setId("viewer");
+		plainMapViewerMarker.setDiameter(20.f);
+		plainMapViewerMarker.setColor(p.p.color(0, 0, 255, 255));
 	}
 	
-	/**
-	 * Create selectable circle representing each cluster		// -- BROKEN
-	 * @param mapWidth
-	 * @param mapHeight
-	 */
-	public void createSelectableClusters(WMV_World world, float mapWidth, float mapHeight)
+	public class BlankMapProvider extends MBTilesMapProvider 
 	{
-//		selectableClusters = new ArrayList<Ellipsoid>();
-		selectableClusterIDs = new IntList();
-		selectableClusterLocations = new ArrayList<SelectableClusterLocation>();
-		
-		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
+		public PImage getTile(Coordinate coord)
 		{
-			if(!c.isEmpty() && c.getState().mediaCount != 0)
-			{
-				PVector mapLoc = getMapLocation(world, c.getLocation(), mapWidth, mapHeight);
-				if( pointIsVisible(world, mapLoc, true) )
-				{
-//					Ellipsoid ellipsoid = new Ellipsoid(p.p.p, 4, 4);
-//					float radius = (float)Math.sqrt(c.mediaCount) * 0.7f * mapDistance / PApplet.sqrt(PApplet.sqrt(mapDistance));
-
-					mapLoc.add(new PVector(largeMapXOffset, largeMapYOffset, hudDistance * mapDistance));
-					mapLoc.add(new PVector(mapLeftEdge, mapTopEdge, 0));
-//					ellipsoid.moveTo(mapLoc.x, mapLoc.y, mapLoc.z);
-					
-					SelectableClusterLocation scl = new SelectableClusterLocation(c.getID(), mapLoc);
-					
-//					ellipsoid.tagNo = c.getID();
-//					selectableClusters.add(ellipsoid);
-					selectableClusterIDs.append(c.getID());
-					selectableClusterLocations.add(scl);
-				}
-			}
+			return blankTile;
 		}
-		
-		selectableClustersCreated = true;
 	}
 	
-	/**
-	 * Get map location for a given point
-	 * @param world Parent world
-	 * @param point Given point
-	 * @param mapWidth Map width
-	 * @param mapHeight Map height
-	 * @return
-	 */
-	PVector getMapLocation(WMV_World world, PVector point, float mapWidth, float mapHeight)
-	{
-		WMV_Model m = world.getCurrentField().getModel();
-		float mapLocX, mapLocY;
-
-		if(fieldAspectRatio >= 1.f)					
-		{
-			mapLocX = PApplet.map( point.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, 0, mapWidth );		
-			mapLocY = PApplet.map( point.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, 0, mapWidth / fieldAspectRatio );
-		}
-		else
-		{
-			mapLocX = PApplet.map( point.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, 0, mapHeight * fieldAspectRatio );		
-			mapLocY = PApplet.map( point.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, 0, mapHeight );
-		}
-
-		return new PVector(mapLocX, mapLocY, 0.f);
-	}
-
 	/**
 	 * Draw map filling the main window
 	 */
-	void drawMainMap(WMV_World world, boolean mediaOnly)
+	void displaySatelliteMap(WMV_World world)
 	{
-		if(mediaOnly)							// Draw media map markers only -- Obsolete
+		PVector vLoc = world.viewer.getGPSLocation();
+		Location gpsLoc = new Location(vLoc.y, vLoc.x);
+		if(gpsLoc != null)
 		{
-			world.p.pushMatrix();
-			p.startHUD(world);											
-
-			world.p.fill(55, 0, 255, 255);
-			world.p.textSize(p.veryLargeTextSize);
-			float textXPos = p.centerTextXOffset;
-			float textYPos = p.topTextYOffset;
-
-			if(world.p.state.interactive)
-				world.p.text("Interactive "+(world.getState().hierarchical ? "Hierarchical" : "K-Means")+" Clustering", textXPos, textYPos, hudDistance);
-			else
-				world.p.text(world.getCurrentField().getName(), textXPos, textYPos, hudDistance);
-
-			world.p.popMatrix();
-
-			drawMap(world, curMapWidth, curMapHeight, largeMapXOffset, largeMapYOffset);
-		}
-		else									// Draw satellite map 
-		{
-			PVector vLoc = world.viewer.getGPSLocation();
-			Location gpsLoc = new Location(vLoc.y, vLoc.x);
-			if(gpsLoc != null)
+			if(viewerMarker != null)
 			{
-				if(viewerMarker != null)
-				{
-					viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-					markerManager.addMarker(viewerMarker);					// -- Needed??
-				}
-				else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
+				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
+				markerManager.addMarker(viewerMarker);					// -- Needed??
 			}
-
-			world.p.perspective();
-			world.p.camera();												// Reset to default camera setting
-			world.p.tint(255.f, 255.f);
-			map.draw();
-
-			if(mapMedia)
-			{
-				displayClusters(world);
-			}
-		}
-	}
-	
-	private void displayClusters(WMV_World world)
-	{
-		float mapWidth = curMapWidth;
-		float mapHeight = curMapHeight;
-
-		if(selectedCluster >= 0)
-		{
-			if(selectedCluster < world.getCurrentField().getClusters().size())
-			{
-				WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
-
-				if(selectedCluster == world.viewer.getState().getCurrentClusterID())
-					drawClusterMedia(world, c, mapWidth, mapHeight, false);
-				else
-					drawClusterMedia(world, c, mapWidth, mapHeight, true);
-			}
-			else
-				selectedCluster = -1;
+			else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
 		}
 
-		if(selectedCluster != world.viewer.getState().getCurrentClusterID() && world.viewer.getState().getCurrentClusterID() >= 0)
-		{
-			WMV_Cluster c = world.getCurrentCluster();
-			if(c != null)
-				drawClusterMedia(world, c, mapWidth, mapHeight, false);
-		}
+		world.p.perspective();
+		world.p.camera();												// Reset to default camera setting
+		world.p.tint(255.f, 255.f);
+		map.draw();														// Draw the Unfolding Map
+
+//		if(mapMedia) displayClusters(world);				// -- Obsolete??
 	}
 
 	/**
+	 * Draw map without satellite overlay 
+	 * @param world Parent world
+	 */
+	public void displayPlainMap(WMV_World world)				// -- Need to finish
+	{
+		PVector vLoc = world.viewer.getGPSLocation();
+		Location gpsLoc = new Location(vLoc.y, vLoc.x);
+		if(gpsLoc != null)
+		{
+			if(viewerMarker != null)
+			{
+				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
+				plainMapMarkerManager.addMarker(viewerMarker);					// -- Needed??
+			}
+			else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
+		}
+
+		world.p.perspective();
+		world.p.camera();												// Reset to default camera setting
+		world.p.tint(255.f, 255.f);
+		plainMap.draw();														// Draw the Unfolding Map
+	}
+
+	/**
+	 * Display spatial clusters in the current field on map
+	 * @param world Parent world
+	 */
+//	private void displayClusters(WMV_World world)
+//	{
+//		float mapWidth = curMapWidth;
+//		float mapHeight = curMapHeight;
+//
+//		if(selectedCluster >= 0)
+//		{
+//			if(selectedCluster < world.getCurrentField().getClusters().size())
+//			{
+//				WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
+//
+//				if(selectedCluster == world.viewer.getState().getCurrentClusterID())
+//					drawClusterMedia(world, c, mapWidth, mapHeight, false);
+//				else
+//					drawClusterMedia(world, c, mapWidth, mapHeight, true);
+//			}
+//			else
+//				setSelectedCluster( -1 );
+//		}
+//
+//		if(selectedCluster != world.viewer.getState().getCurrentClusterID() && world.viewer.getState().getCurrentClusterID() >= 0)
+//		{
+//			WMV_Cluster c = world.getCurrentCluster();
+//			if(c != null)
+//				drawClusterMedia(world, c, mapWidth, mapHeight, false);
+//		}
+//	}
+
+//	/**
+//	 * Draw map of media and viewer without UnfoldingMaps library
+//	 * @param world Parent world
+//	 * @param mapWidth Map width
+//	 * @param mapHeight Map height
+//	 * @param mapXOffset Map X offset
+//	 * @param mapYOffset Map Y offset
+//	 */
+//	private void displayMap(WMV_World world, float mapWidth, float mapHeight, float mapXOffset, float mapYOffset)	// -- Update this
+//	{
+//		if(!scrollTransition && !zoomToRectangleTransition && !world.p.state.interactive)
+//		{
+//			if(!selectableClustersCreated)
+//				createSelectableClusters(world, mapWidth, mapHeight);
+//		}
+//		
+//		p.startHUD(world);
+//
+//		/* Media */
+////		if(!scrollTransition && !zoomToRectangleTransition && !world.interactive)
+////		{
+////			if((mapImages && !p.p.getCurrentField().hideImages))
+////				for ( WMV_Image i : p.p.getCurrentField().images )					// Draw image capture locations on 2D Map
+////					drawImageOnMap(i, false, mapWidth, mapHeight, false);
+////
+////			if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
+////				for ( WMV_Panorama n : p.p.getCurrentField().panoramas )			// Draw panorama capture locations on 2D Map
+////					drawPanoramaOnMap(n, false, mapWidth, mapHeight, false);
+////
+////			if((mapVideos && !p.p.getCurrentField().hideVideos))
+////				for (WMV_Video v : p.p.getCurrentField().videos)					// Draw video capture locations on 2D Map
+////					drawVideoOnMap(v, false, mapWidth, mapHeight, false);
+////		}
+//
+//		/* Clusters */
+//		if(mapMedia)
+//		{
+//			if(!scrollTransition && !zoomToRectangleTransition && !world.p.state.interactive)
+//			{
+////				drawSelectableClusters();
+//
+//				if(selectedCluster >= 0)
+//				{
+//					WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
+////					if(!c.isEmpty() && c.mediaCount != 0)
+////						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
+//					
+//					if(selectedCluster == world.viewer.getState().getCurrentClusterID())
+//						drawClusterMedia(world, c, mapWidth, mapHeight, false);
+//					else
+//						drawClusterMedia(world, c, mapWidth, mapHeight, true);
+//				}
+//
+//				if(selectedCluster != world.viewer.getState().getCurrentClusterID() && world.viewer.getState().getCurrentClusterID() >= 0)
+//				{
+//					WMV_Cluster c = world.getCurrentCluster();
+//					if(c != null)
+//					{
+////						if(!c.isEmpty() && c.mediaCount != 0)
+////							highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
+//						drawClusterMedia(world, c, mapWidth, mapHeight, false);
+//					}
+//				}
+//			}
+//			else
+//			{
+//				drawSimpleClusters(world, mapWidth, mapHeight);
+//			}
+//		}
+//		
+//		if(!scrollTransition && !zoomToRectangleTransition)
+//		{
+//			if(!world.p.state.interactive)													// While not in Clustering Mode
+//			{
+//				if(world.viewer.getAttractorClusterID() != -1 && world.viewer.getAttractorClusterID() < world.getFieldClusters().size())
+//					drawPoint( world, world.viewer.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
+//
+//				WMV_Cluster c = world.getCurrentCluster();
+//				if(c != null)
+//				{
+//					if(world.viewer.getState().getCurrentClusterID() != -1 && world.viewer.getState().getCurrentClusterID() < world.getFieldClusters().size())
+//						drawPoint( world, c.getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
+//				}
+//				
+//				drawViewer(world, mapWidth, mapHeight);
+//			}
+//
+//			if(world.viewer.getGPSTrack().size() > 0)
+//				drawPathOnMap(world, world.viewer.getGPSTrack(), mapWidth, mapHeight);
+//			
+////			drawOriginOnMap(mapWidth, mapHeight);
+//		}
+//
+//		if(world.p.debugSettings.map)
+//			drawMapBorder(world, mapWidth, mapHeight);
+//	}
+
+	/**
 	 * Draw map of media and viewer without UnfoldingMaps library
+	 * @param world Parent world
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
 	 * @param mapXOffset Map X offset
 	 * @param mapYOffset Map Y offset
 	 */
-	private void drawMap(WMV_World world, float mapWidth, float mapHeight, float mapXOffset, float mapYOffset)
-	{
-		if(!scrollTransition && !zoomToRectangleTransition && !world.p.state.interactive)
-		{
-			if(!selectableClustersCreated)
-				createSelectableClusters(world, mapWidth, mapHeight);
-		}
-		
-		p.startHUD(world);
-
-		/* Media */
-//		if(!scrollTransition && !zoomToRectangleTransition && !world.interactive)
+//	private void displayMap(WMV_World world, float mapWidth, float mapHeight, float mapXOffset, float mapYOffset)	// -- Update this
+//	{
+////		if(!scrollTransition && !zoomToRectangleTransition && !world.p.state.interactive)
+////		{
+////			if(!selectableClustersCreated)
+////				createSelectableClusters(world, mapWidth, mapHeight);
+////		}
+//		
+//		p.startHUD(world);
+//
+//		/* Media */
+////		if(!scrollTransition && !zoomToRectangleTransition && !world.interactive)
+////		{
+////			if((mapImages && !p.p.getCurrentField().hideImages))
+////				for ( WMV_Image i : p.p.getCurrentField().images )					// Draw image capture locations on 2D Map
+////					drawImageOnMap(i, false, mapWidth, mapHeight, false);
+////
+////			if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
+////				for ( WMV_Panorama n : p.p.getCurrentField().panoramas )			// Draw panorama capture locations on 2D Map
+////					drawPanoramaOnMap(n, false, mapWidth, mapHeight, false);
+////
+////			if((mapVideos && !p.p.getCurrentField().hideVideos))
+////				for (WMV_Video v : p.p.getCurrentField().videos)					// Draw video capture locations on 2D Map
+////					drawVideoOnMap(v, false, mapWidth, mapHeight, false);
+////		}
+//
+//		/* Clusters */
+//		if(mapMedia)
 //		{
-//			if((mapImages && !p.p.getCurrentField().hideImages))
-//				for ( WMV_Image i : p.p.getCurrentField().images )					// Draw image capture locations on 2D Map
-//					drawImageOnMap(i, false, mapWidth, mapHeight, false);
+//			if(!scrollTransition && !zoomToRectangleTransition && !world.p.state.interactive)
+//			{
+////				drawSelectableClusters();
 //
-//			if((mapPanoramas && !p.p.getCurrentField().hidePanoramas))
-//				for ( WMV_Panorama n : p.p.getCurrentField().panoramas )			// Draw panorama capture locations on 2D Map
-//					drawPanoramaOnMap(n, false, mapWidth, mapHeight, false);
+//				if(selectedCluster >= 0)
+//				{
+//					WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
+////					if(!c.isEmpty() && c.mediaCount != 0)
+////						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
+//					
+//					if(selectedCluster == world.viewer.getState().getCurrentClusterID())
+//						drawClusterMedia(world, c, mapWidth, mapHeight, false);
+//					else
+//						drawClusterMedia(world, c, mapWidth, mapHeight, true);
+//				}
 //
-//			if((mapVideos && !p.p.getCurrentField().hideVideos))
-//				for (WMV_Video v : p.p.getCurrentField().videos)					// Draw video capture locations on 2D Map
-//					drawVideoOnMap(v, false, mapWidth, mapHeight, false);
+//				if(selectedCluster != world.viewer.getState().getCurrentClusterID() && world.viewer.getState().getCurrentClusterID() >= 0)
+//				{
+//					WMV_Cluster c = world.getCurrentCluster();
+//					if(c != null)
+//					{
+////						if(!c.isEmpty() && c.mediaCount != 0)
+////							highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
+//						drawClusterMedia(world, c, mapWidth, mapHeight, false);
+//					}
+//				}
+//			}
+//			else
+//			{
+//				drawSimpleClusters(world, mapWidth, mapHeight);
+//			}
 //		}
+//		
+//		if(!scrollTransition && !zoomToRectangleTransition)
+//		{
+//			WMV_Field curField = world.getCurrentField();
+//			if(!world.p.state.interactive)													// While not in Clustering Mode
+//			{
+//				if(world.viewer.getAttractorClusterID() != -1 && world.viewer.getAttractorClusterID() < world.getFieldClusters().size())
+//					drawPoint( world, curField, world.viewer.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
+//
+//				WMV_Cluster c = world.getCurrentCluster();
+//				if(c != null)
+//				{
+//					if(world.viewer.getState().getCurrentClusterID() != -1 && world.viewer.getState().getCurrentClusterID() < world.getFieldClusters().size())
+//						drawPoint( world, curField, c.getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
+//				}
+//				
+//				drawViewer(world, curField, mapWidth, mapHeight);
+//			}
+//
+//			if(world.viewer.getGPSTrack().size() > 0)
+//				drawPathOnMap(world, curField, world.viewer.getGPSTrack(), mapWidth, mapHeight);
+//			
+////			drawOriginOnMap(mapWidth, mapHeight);
+//		}
+//
+////		if(world.p.debugSettings.map)
+////			drawMapBorder(world, mapWidth, mapHeight);
+//	}
 
-		/* Clusters */
-		if(mapMedia)
-		{
-			if(!scrollTransition && !zoomToRectangleTransition && !world.p.state.interactive)
-			{
-//				drawSelectableClusters();
-
-				if(selectedCluster >= 0)
-				{
-					WMV_Cluster c = world.getCurrentField().getCluster(selectedCluster);
-//					if(!c.isEmpty() && c.mediaCount != 0)
-//						highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
-					
-					if(selectedCluster == world.viewer.getState().getCurrentClusterID())
-						drawClusterMedia(world, c, mapWidth, mapHeight, false);
-					else
-						drawClusterMedia(world, c, mapWidth, mapHeight, true);
-				}
-
-				if(selectedCluster != world.viewer.getState().getCurrentClusterID() && world.viewer.getState().getCurrentClusterID() >= 0)
-				{
-					WMV_Cluster c = world.getCurrentCluster();
-					if(c != null)
-					{
-//						if(!c.isEmpty() && c.mediaCount != 0)
-//							highlightCluster( c.getLocation(), PApplet.sqrt(c.mediaCount)*0.5f, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
-						drawClusterMedia(world, c, mapWidth, mapHeight, false);
-					}
-				}
-			}
-			else
-			{
-				drawSimpleClusters(world, mapWidth, mapHeight);
-			}
-		}
-		
-		if(!scrollTransition && !zoomToRectangleTransition)
-		{
-			if(!world.p.state.interactive)													// While not in Clustering Mode
-			{
-				if(world.viewer.getAttractorClusterID() != -1 && world.viewer.getAttractorClusterID() < world.getFieldClusters().size())
-					drawPoint( world, world.viewer.getAttractorCluster().getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
-
-				WMV_Cluster c = world.getCurrentCluster();
-				if(c != null)
-				{
-					if(world.viewer.getState().getCurrentClusterID() != -1 && world.viewer.getState().getCurrentClusterID() < world.getFieldClusters().size())
-						drawPoint( world, c.getLocation(), hugePointSize * mapWidth, mapWidth, mapHeight, mapAttractorClusterHue, 255.f, 255.f, mediaTransparency );
-				}
-				
-				drawViewer(world, mapWidth, mapHeight);
-			}
-
-			if(world.viewer.getGPSTrack().size() > 0)
-				drawPathOnMap(world, world.viewer.getGPSTrack(), mapWidth, mapHeight);
-			
-//			drawOriginOnMap(mapWidth, mapHeight);
-		}
-
-		if(world.p.debugSettings.map)
-			drawMapBorder(world, mapWidth, mapHeight);
-	}
-	
 	/**
 	 * Draw (nonselectable) points representing clusters
 	 * @param mapWidth
 	 * @param mapHeight
 	 */
-	void drawSimpleClusters(WMV_World world, float mapWidth, float mapHeight)
-	{
-		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
-		{
-			if(!c.isEmpty() && c.getState().mediaCount > 5)
-			{
-				PVector point = c.getLocation();
-
-				if( pointIsVisible(world, point, false) )
-				{
-					float radius = PApplet.sqrt(c.getState().mediaCount) * 0.7f;
-//					float radius = PApplet.sqrt(c.mediaPoints) * 0.7f  / PApplet.sqrt(PApplet.sqrt(mapDistance));
-					drawPoint(world, point, radius, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
-				}
-			}
-		}
-	}
+//	void drawSimpleClusters(WMV_World world, float mapWidth, float mapHeight)
+//	{
+//		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
+//		{
+//			if(!c.isEmpty() && c.getState().mediaCount > 5)
+//			{
+//				PVector point = c.getLocation();
+//
+//				if( pointIsVisible(world, point, false) )
+//				{
+//					float radius = PApplet.sqrt(c.getState().mediaCount) * 0.7f;
+//					drawPoint(world, world.getCurrentField(), point, radius, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
+//				}
+//			}
+//		}
+//	}
 
 	/**
 	 * Zoom in on cluster
@@ -505,21 +541,18 @@ public class ML_Map
 	{
 		if(!c.isEmpty() && c.getState().mediaCount > 0)
 		{
-			if(p.satelliteMap)
+			PVector mapLoc = c.getLocation();
+			PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
+
+			if(p.displayView == 1)
 			{
-				PVector mapLoc = c.getLocation();
-				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
-				
-				map.zoomAndPanTo(clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
+				if(p.satelliteMap)
+					map.zoomAndPanTo(clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
+				else
+					plainMap.zoomAndPanTo(clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
 			}
 			else
-			{
-				PVector point = getMapLocation(world, c.getLocation(), curMapWidth, curMapHeight);
-				zoomMapLeftEdge = 0.f;
-				zoomMapTopEdge = 0.f;
-				zoomToRectangleTransition(world, point.x - zoomMapDefaultWidth/2, point.y - zoomMapDefaultHeight/2.f, zoomMapDefaultWidth, 
-										  zoomMapDefaultHeight);								// -- Make sure not to zoom in too much on small fields!
-			}
+				map.zoomAndPanTo(clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
 		}
 	}
 
@@ -530,7 +563,15 @@ public class ML_Map
 	void zoomToField(WMV_World world, WMV_Field f)
 	{
 		PVector gpsLoc = new PVector(f.getModel().getState().centerLongitude, f.getModel().getState().centerLatitude);
-		map.zoomAndPanTo(fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
+		if(p.displayView == 1)
+		{
+			if(p.satelliteMap)
+				map.zoomAndPanTo(fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
+			else
+				plainMap.zoomAndPanTo(fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
+		}
+		else
+			map.zoomAndPanTo(fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x));
 	}
 
 	/**
@@ -538,8 +579,13 @@ public class ML_Map
 	 */
 	public void zoomIn(WMV_World world)
 	{
-		if (p.satelliteMap) map.zoomIn();
-		else mapZoomTransition(world, 0.85f);
+		if(p.displayView == 1)
+		{
+			if (p.satelliteMap) map.zoomIn();
+			else plainMap.zoomIn();
+		}
+		else
+			map.zoomIn();
 	}
 	
 	/**
@@ -547,8 +593,13 @@ public class ML_Map
 	 */
 	public void zoomOut(WMV_World world)
 	{
-		if (p.satelliteMap) map.zoomOut();
-		else mapZoomTransition(world, 1.176f);
+		if(p.displayView == 1)
+		{
+			if (p.satelliteMap) map.zoomOut();
+			else plainMap.zoomOut();
+		}
+		else
+			map.zoomOut();
 	}
 
 	/**
@@ -565,7 +616,7 @@ public class ML_Map
 		float yOff = zoomMapYOffset - largeMapYOffset;
 		
 		if(!mapCoords)														// Convert given world coords to map coords
-			point = getMapLocation(world, loc, curMapWidth, curMapHeight);
+			point = getMapLocation(world, world.getCurrentField(), loc, curMapWidth, curMapHeight);
 
 		if( point.x > xOff && point.x < zoomMapWidth + xOff && point.y > yOff && point.y < zoomMapHeight + yOff )
 			return true;
@@ -582,11 +633,13 @@ public class ML_Map
 	 */
 	void drawClusterMedia(WMV_World world, WMV_Cluster c, float mapWidth, float mapHeight, boolean ignoreTime)
 	{
+		WMV_Field curField = world.getCurrentField();
+		
 		if((mapImages && !world.viewer.getSettings().hideImages))
 			for ( int i : c.getState().images )									// Draw images on Map
 			{
 				WMV_Image img = world.getCurrentField().getImage(i);
-				drawImageOnMap(world, img, ignoreTime, mapWidth, mapHeight, false);
+				drawImageOnMap(world, curField, img, ignoreTime, mapWidth, mapHeight, false);
 				if(world.getState().showModel)
 				{
 //					drawLine(c.getLocation(), img.getLocation(), 60.f, 160.f, 255.f, mapWidth, mapHeight);
@@ -605,14 +658,14 @@ public class ML_Map
 			for ( int n : c.getState().panoramas )									// Draw panoramas on Map
 			{
 				WMV_Panorama pano = world.getCurrentField().getPanorama(n);
-				drawPanoramaOnMap(world, pano, ignoreTime, mapWidth, mapHeight, false);
+				drawPanoramaOnMap(world, curField, pano, ignoreTime, mapWidth, mapHeight, false);
 			}
 
 		if((mapVideos && !world.viewer.getSettings().hideVideos))
 			for (int v : c.getState().videos)										// Draw videos on Map
 			{
 				WMV_Video vid = world.getCurrentField().getVideo(v);
-				drawVideoOnMap(world, vid, ignoreTime, mapWidth, mapHeight, false);
+				drawVideoOnMap(world, curField, vid, ignoreTime, mapWidth, mapHeight, false);
 				if(world.getState().showModel)
 				{
 					if(world.getState().showMediaToCluster)
@@ -645,8 +698,8 @@ public class ML_Map
 		}
 		else
 		{
-			PVector mapLoc1 = getMapLocation(world, point1, mapWidth, mapHeight);
-			PVector mapLoc2 = getMapLocation(world, point2, mapWidth, mapHeight);
+			PVector mapLoc1 = getMapLocation(world, world.getCurrentField(), point1, mapWidth, mapHeight);
+			PVector mapLoc2 = getMapLocation(world, world.getCurrentField(), point2, mapWidth, mapHeight);
 
 			if( (mapLoc1.x < mapWidth && mapLoc1.x > 0 && mapLoc1.y < mapHeight && mapLoc1.y > 0) ||
 					(mapLoc2.x < mapWidth && mapLoc2.x > 0 && mapLoc2.y < mapHeight && mapLoc2.y > 0) )
@@ -671,53 +724,29 @@ public class ML_Map
 	 * @param capture Draw capture location (true) or viewing location (false)
 	 * Draw image location on map of specified size
 	 */
-	void drawImageOnMap(WMV_World world, WMV_Image image, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
+	void drawImageOnMap(WMV_World world, WMV_Field f, WMV_Image image, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
 	{
-		if(p.satelliteMap)
-		{
-			/* Markers method */
-//			if(!imageMarkers.hasValue(image.getID()))
-//			{
-//				PVector loc = image.getGPSLocation();  
-//				SimplePointMarker marker = new SimplePointMarker(new Location(loc.z, loc.x));
-//				marker.setId(String.valueOf(image.getID()));
-//				marker.setColor(p.p.p.color(imageHue, maxSaturation, 255.f, mediaTransparency));
-//				marker.setStrokeWeight(0);
-//				marker.setDiameter(10.f);
-//				markerManager.addMarker(marker);
-//				imageMarkers.append(image.getID());
-//			}
-			
-			float pointSize = smallPointSize * mapWidth;
-			float saturation = lowSaturation;
-//			float imageDistance = image.getViewingDistance();   // Get photo distance from current camera position
-			PVector loc = new PVector(image.getGPSLocation().z, image.getGPSLocation().x); 
-			drawPoint( world, loc, pointSize, mapWidth, mapHeight, imageCaptureHue, saturation, 255.f, mediaTransparency );
-		}
-		else
-		{
-			float pointSize = smallPointSize * mapWidth;
-			float saturation = maxSaturation;
-			float imageDistance = image.getViewingDistance();   // Get photo distance from current camera position
-			boolean visible = ignoreTime;
+		float pointSize = smallPointSize * mapWidth;
+		float saturation = maxSaturation;
+		float imageDistance = image.getViewingDistance();   // Get photo distance from current camera position
+		boolean visible = ignoreTime;
 
-			if (imageDistance < world.viewer.getSettings().getFarViewingDistance() && imageDistance > world.viewer.getSettings().getNearClippingDistance())    // If image is in visible range
-				visible = true;                                              
+		if (imageDistance < world.viewer.getSettings().getFarViewingDistance() && imageDistance > world.viewer.getSettings().getNearClippingDistance())    // If image is in visible range
+			visible = true;                                              
 
-			if(visible && image.getMediaState().location != null && !image.getMediaState().disabled && !image.getMediaState().hidden)
+		if(visible && image.getMediaState().location != null && !image.getMediaState().disabled && !image.getMediaState().hidden)
+		{
+			float alpha = 255.f;
+			if(!ignoreTime && world.getState().timeFading)
+				alpha = image.getTimeBrightness() * mediaTransparency;
+
+			if(alpha > 0.f)
 			{
-				float alpha = 255.f;
-				if(!ignoreTime && world.getState().timeFading)
-					alpha = image.getTimeBrightness() * mediaTransparency;
-
-				if(alpha > 0.f)
-				{
-					if(image.isSelected()) pointSize *= 5.f;
-					if(capture)
-						drawPoint( world, image.getCaptureLocation(), pointSize, mapWidth, mapHeight, imageCaptureHue, saturation, 255.f, mediaTransparency );
-					else
-						drawPoint( world, image.getLocation(),  pointSize, mapWidth, mapHeight, imageHue, saturation, 255.f, mediaTransparency );
-				}
+				if(image.isSelected()) pointSize *= 5.f;
+				if(capture)
+					drawPoint( world, f, image.getCaptureLocation(), pointSize, mapWidth, mapHeight, imageCaptureHue, saturation, 255.f, mediaTransparency );
+				else
+					drawPoint( world, f, image.getLocation(),  pointSize, mapWidth, mapHeight, imageHue, saturation, 255.f, mediaTransparency );
 			}
 		}
 	}
@@ -729,46 +758,26 @@ public class ML_Map
 	 * @param mapHeight Map height
 	 * Draw image location on map of specified size
 	 */
-	void drawPanoramaOnMap(WMV_World world, WMV_Panorama panorama, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
+	void drawPanoramaOnMap(WMV_World world, WMV_Field f, WMV_Panorama panorama, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
 	{
-		if(p.satelliteMap)
-		{
-//			if(!panoramaMarkers.hasValue(panorama.getID()))
-//			{
-//				PVector loc = panorama.getGPSLocation();
-//				SimplePointMarker marker = new SimplePointMarker(new Location(loc.z, loc.x));
-//				marker.setId(String.valueOf(panorama.getID()));
-//				marker.setColor(p.p.p.color(imageHue, maxSaturation, 255.f, mediaTransparency));
-//				marker.setStrokeWeight(0);
-//				marker.setDiameter(3.f);
-//				markerManager.addMarker(marker);
-//				panoramaMarkers.append(panorama.getID());
-//			}
-		}
-		else
-		{
-			float pointSize = mediumPointSize * mapWidth;
-			float saturation = maxSaturation;
-			float panoramaDistance = panorama.getViewingDistance();   // Get photo distance from current camera position
-			boolean visible = ignoreTime;
+		float pointSize = mediumPointSize * mapWidth;
+		float saturation = maxSaturation;
+		float panoramaDistance = panorama.getViewingDistance();   // Get photo distance from current camera position
+		boolean visible = ignoreTime;
 
-			if (panoramaDistance < world.viewer.getSettings().getFarViewingDistance() && panoramaDistance > world.viewer.getSettings().getNearClippingDistance())    // If panorama is in visible range
-				visible = true;                                              
+		if (panoramaDistance < world.viewer.getSettings().getFarViewingDistance() && panoramaDistance > world.viewer.getSettings().getNearClippingDistance())    // If panorama is in visible range
+			visible = true;                                              
 
-			if(visible && panorama.getMediaState().location != null && !panorama.getMediaState().disabled && !panorama.getMediaState().hidden)
+		if(visible && panorama.getMediaState().location != null && !panorama.getMediaState().disabled && !panorama.getMediaState().hidden)
+		{
+			float alpha = 255.f;
+			if(!ignoreTime && world.getState().timeFading)
+				alpha = panorama.getTimeBrightness() * mediaTransparency;
+
+			if(alpha > 0.f)
 			{
-				float alpha = 255.f;
-				if(!ignoreTime && world.getState().timeFading)
-					alpha = panorama.getTimeBrightness() * mediaTransparency;
-
-				if(alpha > 0.f)
-				{
-					if(panorama.isSelected()) pointSize *= 5.f;
-//					if(capture)
-//						drawPoint( panorama.getCaptureLocation(),  pointSize, mapWidth, mapHeight, panoramaCaptureHue, saturation, 255.f, mediaTransparency );
-//					else
-						drawPoint( world, panorama.getLocation(),  pointSize, mapWidth, mapHeight, panoramaHue, saturation, 255.f, mediaTransparency );
-				}
+				if(panorama.isSelected()) pointSize *= 5.f;
+				drawPoint( world, f, panorama.getLocation(),  pointSize, mapWidth, mapHeight, panoramaHue, saturation, 255.f, mediaTransparency );
 			}
 		}
 	}
@@ -780,63 +789,46 @@ public class ML_Map
 	 * @param mapHeight Map height
 	 * Draw image location on map of specified size
 	 */
-	void drawVideoOnMap(WMV_World world, WMV_Video video, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
+	void drawVideoOnMap(WMV_World world, WMV_Field f, WMV_Video video, boolean ignoreTime, float mapWidth, float mapHeight, boolean capture)
 	{
-		if(p.satelliteMap)
-		{
-//			if(!videoMarkers.hasValue(video.getID()))
-//			{
-//				PVector loc = video.getGPSLocation();
-//				SimplePointMarker marker = new SimplePointMarker(new Location(loc.z, loc.x));
-//				marker.setId(String.valueOf(video.getID()));
-//				marker.setColor(p.p.p.color(imageHue, maxSaturation, 255.f, mediaTransparency));
-//				marker.setStrokeWeight(0);
-//				marker.setDiameter(3.f);
-//				markerManager.addMarker(marker);
-//				videoMarkers.append(video.getID());
-//			}
-		}
-		else
-		{
-			float pointSize = mediumPointSize * mapWidth;
-			float saturation = maxSaturation;
-			float videoDistance = video.getViewingDistance();   // Get photo distance from current camera position
-			boolean visible = ignoreTime;
+		float pointSize = mediumPointSize * mapWidth;
+		float saturation = maxSaturation;
+		float videoDistance = video.getViewingDistance();   // Get photo distance from current camera position
+		boolean visible = ignoreTime;
 
-			if (videoDistance < world.viewer.getSettings().getFarViewingDistance() && videoDistance > world.viewer.getSettings().getNearClippingDistance())    // If video is in visible range
-				visible = true;                                              
+		if (videoDistance < world.viewer.getSettings().getFarViewingDistance() && videoDistance > world.viewer.getSettings().getNearClippingDistance())    // If video is in visible range
+			visible = true;                                              
 
-			if(visible && video.getMediaState().location != null && !video.getMediaState().disabled && !video.getMediaState().hidden)
+		if(visible && video.getMediaState().location != null && !video.getMediaState().disabled && !video.getMediaState().hidden)
+		{
+			float alpha = 255.f;
+			if(!ignoreTime && world.getState().timeFading)
+				alpha = video.getTimeBrightness() * mediaTransparency;
+
+			if(alpha > 0.f)
 			{
-				float alpha = 255.f;
-				if(!ignoreTime && world.getState().timeFading)
-					alpha = video.getTimeBrightness() * mediaTransparency;
-
-				if(alpha > 0.f)
-				{
-					if(video.isSelected()) pointSize *= 5.f;
-					if(capture)
-						drawPoint( world, video.getCaptureLocation(), pointSize, mapWidth, mapHeight, videoCaptureHue, saturation, 255.f, mediaTransparency );
-					else
-						drawPoint( world, video.getLocation(), pointSize, mapWidth, mapHeight, videoHue, saturation, 255.f, mediaTransparency );
-				}
+				if(video.isSelected()) pointSize *= 5.f;
+				if(capture)
+					drawPoint( world, f, video.getCaptureLocation(), pointSize, mapWidth, mapHeight, videoCaptureHue, saturation, 255.f, mediaTransparency );
+				else
+					drawPoint( world, f, video.getLocation(), pointSize, mapWidth, mapHeight, videoHue, saturation, 255.f, mediaTransparency );
 			}
 		}
 	}
 
-	/**
-	 * Draw the map origin
-	 * @param mapWidth
-	 * @param mapHeight
-	 */
-	void drawOriginOnMap(WMV_World world, float mapWidth, float mapHeight)
-	{
-		int size = (int)(mapWidth / 40.f);
-		for(int i=-size/2; i<size/2; i+=size/10)
-			drawPoint( world, new PVector(i, 0.f, 0.f), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mediaTransparency / 2.f );
-		for(int i=-size/2; i<size/2; i+=size/10)
-			drawPoint( world, new PVector(0.f, 0.f, i), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mediaTransparency / 2.f );
-	}
+//	/**
+//	 * Draw the map origin
+//	 * @param mapWidth
+//	 * @param mapHeight
+//	 */
+//	void drawOriginOnMap(WMV_World world, float mapWidth, float mapHeight)
+//	{
+//		int size = (int)(mapWidth / 40.f);
+//		for(int i=-size/2; i<size/2; i+=size/10)
+//			drawPoint( world, new PVector(i, 0.f, 0.f), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mediaTransparency / 2.f );
+//		for(int i=-size/2; i<size/2; i+=size/10)
+//			drawPoint( world, new PVector(0.f, 0.f, i), hugePointSize * mapWidth, mapWidth, mapHeight, 180.f, 30.f, 255.f, mediaTransparency / 2.f );
+//	}
 	
 	/**
 	 * Draw viewer as arrow on map
@@ -844,14 +836,14 @@ public class ML_Map
 	 * @param mapHeight Map height
 	 * Draw current viewer location and orientation on map of specified size
 	 */
-	void drawViewer(WMV_World world, float mapWidth, float mapHeight)
+	void drawViewer(WMV_World world, WMV_Field f, float mapWidth, float mapHeight)
 	{
 		PVector camLoc = world.viewer.getLocation();
 		if(pointIsVisible(world, camLoc, false))
 		{
 			float camYaw = -world.viewer.getXOrientation() - 0.5f * PApplet.PI;
 
-			drawPoint( world, camLoc, cameraPointSize, mapWidth, mapHeight, cameraHue, 255.f, 255.f, mediaTransparency );
+			drawPoint( world, f, camLoc, cameraPointSize, mapWidth, mapHeight, cameraHue, 255.f, 255.f, mediaTransparency );
 			float ptSize = cameraPointSize;
 
 			float arrowSize = fieldAspectRatio >= 1 ? world.getCurrentModel().getState().fieldWidth : world.getCurrentModel().getState().fieldLength;
@@ -876,7 +868,7 @@ public class ML_Map
 				float y = i * cameraPointSize * mapDistanceFactor * (float)Math.sin( camYaw );
 
 				PVector arrowPoint = new PVector(camLoc.x + x, 0, camLoc.z + y);
-				drawPoint( world, arrowPoint, ptSize, mapWidth, mapHeight, cameraHue, 120.f, 255.f, 255.f );
+				drawPoint( world, f, arrowPoint, ptSize, mapWidth, mapHeight, cameraHue, 120.f, 255.f, 255.f );
 
 				ptSize *= shrinkFactor;
 			}
@@ -890,7 +882,7 @@ public class ML_Map
 	 * @param capture Draw capture location (true) or viewing location (false)
 	 * Draw image location on map of specified size
 	 */
-	void drawPathOnMap(WMV_World world, ArrayList<WMV_Waypoint> path, float mapWidth, float mapHeight)
+	void drawPathOnMap(WMV_World world, WMV_Field f, ArrayList<WMV_Waypoint> path, float mapWidth, float mapHeight)
 	{
 //		System.out.println("drawPathOnMap..."+path.size());
 		float pointSize = smallPointSize * mapWidth;
@@ -899,7 +891,7 @@ public class ML_Map
 
 		for(WMV_Waypoint w : path)
 		{
-			drawPoint( world, w.getLocation(), pointSize * 4.f, mapWidth, mapHeight, 30, saturation, 255.f, mediaTransparency );
+			drawPoint( world, f, w.getLocation(), pointSize * 4.f, mapWidth, mapHeight, 30, saturation, 255.f, mediaTransparency );
 //			System.out.println("Path ---> location.x:"+w.getLocation().x+" y:"+w.getLocation().y);
 		}
 	}
@@ -922,49 +914,19 @@ public class ML_Map
 	/**
 	 * Draw the clusters at given depth
 	 */
-	void drawGMVClusters(WMV_World world)
-	{		 
-		if(  !p.initialSetup && p.messages.size() < 0 && p.metadata.size() < 0	 )
-		{
-			world.p.hint(PApplet.DISABLE_DEPTH_TEST);						// Disable depth testing for drawing HUD
-		}
-
-		for( WMV_Cluster c : world.getCurrentField().getClusters() )								// For all clusters at current depth
-		{
-			drawPoint( world, c.getLocation(), 5.f, curMapWidth, curMapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
-		}
-	}
-
-//	/**
-//	 * Draw (on 2D map) a point given in 3D world coordinates 
-//	 * @param point Point in 3D world coordinates
-//	 * @param pointSize Point size
-//	 * @param mapWidth Map width
-//	 * @param mapHeight Map height
-//	 * @param hue Point hue
-//	 * @param saturation Point saturation
-//	 * @param brightness Point brightness
-//	 * @param transparency Point transparency
-//	 */
-//	public void highlightCluster( PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
-//	{
-//		float size = pointSize;
-//		int iterations = PApplet.round(size);
-//		int sizeDiff = PApplet.round(size/iterations);
-//		float alpha = transparency;
-//		float alphaDiff = transparency / iterations;
-//		
-//		for(int i=0; i<iterations; i++)
+//	void drawGMVClusters(WMV_World world)
+//	{		 
+//		if(  !p.initialSetup && p.messages.size() < 0 && p.metadata.size() < 0	 )
 //		{
-//			float ptSize = size * smallPointSize * mapWidth / PApplet.sqrt(PApplet.sqrt(mapDistance));
-//			drawPoint( world, point, ptSize, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
-////			drawPoint( point, size * smallPointSize * mapWidth, mapWidth, mapHeight, mapClusterHue, 255.f, 255.f, alpha * 0.33f );
+//			world.p.hint(PApplet.DISABLE_DEPTH_TEST);						// Disable depth testing for drawing HUD
+//		}
 //
-//			size-=sizeDiff;
-//			alpha-=alphaDiff;
+//		for( WMV_Cluster c : world.getCurrentField().getClusters() )								// For all clusters at current depth
+//		{
+//			drawPoint( world, c.getLocation(), 5.f, curMapWidth, curMapHeight, mapClusterHue, 255.f, 255.f, mediaTransparency );
 //		}
 //	}
-	
+
 	/**
 	 * Draw (on map) a point given in 3D world coordinates 
 	 * @param point Point in 3D world coordinates
@@ -976,40 +938,136 @@ public class ML_Map
 	 * @param brightness Point brightness
 	 * @param transparency Point transparency
 	 */
-	public void drawPoint( WMV_World world, PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
+	public void drawPoint( WMV_World world, WMV_Field f, PVector point, float pointSize, float mapWidth, float mapHeight, float hue, float saturation, float brightness, float transparency )
 	{
 		if(!utilities.isNaN(point.x) && !utilities.isNaN(point.y) && !utilities.isNaN(point.z))
 		{
-			if(p.satelliteMap)
-			{
-				Location mapPoint = new Location(point.x, point.y);
-				ScreenPosition screenPos = map.getScreenPosition(mapPoint);
+//			if(p.satelliteMap)
+//			{
+				PVector gpsPoint = utilities.getGPSLocation(f, point);
+				Location mapPoint = new Location(gpsPoint.y, gpsPoint.x);
+				ScreenPosition screenPos = plainMap.getScreenPosition(mapPoint);
+				
+//				System.out.println("point.x:"+point.x+" point.y:"+point.y+" point.z:"+point.z);
+//				System.out.println("gpsPoint.x:"+gpsPoint.x+" gpsPoint.y:"+gpsPoint.y);
+//				System.out.println("mapPoint.x:"+mapPoint.x+" mapPoint.y:"+mapPoint.y);
+//				System.out.println("screenPos.x:"+screenPos.x+" screenPos.y:"+screenPos.y+" screenPos.z:"+screenPos.z+" map center x:"+
+//						map.getCenter().x+" y:"+map.getCenter().y+" z:"+map.getCenter().z);
+//				System.out.println(" map top left x:"+ map.getTopLeftBorder().x+" y:"+map.getTopLeftBorder().y+" z:"+map.getTopLeftBorder().z);
+//				System.out.println(" map bottom right x:"+ map.getBottomRightBorder().x+" y:"+map.getBottomRightBorder().y+" z:"+map.getBottomRightBorder().z);
+				
 				world.p.stroke(hue, saturation, brightness, transparency);
-				world.p.strokeWeight(pointSize / PApplet.sqrt(PApplet.sqrt(mapDistance)));
+//				world.p.strokeWeight(pointSize / PApplet.sqrt(PApplet.sqrt(mapDistance)));
+				world.p.strokeWeight(pointSize * 10.f);
 				
 				world.p.pushMatrix();
-				world.p.point(screenPos.x, screenPos.y, screenPos.z);
+//				world.p.point(screenPos.x, screenPos.y, screenPos.z);
 				world.p.popMatrix();
-			}
-			else
-			{
-				PVector mapLoc = getMapLocation(world, point, mapWidth, mapHeight);
-
-				if(mapLoc.x < mapWidth && mapLoc.x > 0 && mapLoc.y < mapHeight && mapLoc.y > 0)
-				{
-					world.p.stroke(hue, saturation, brightness, transparency);
-					world.p.strokeWeight(pointSize / PApplet.sqrt(PApplet.sqrt(mapDistance)));
-					world.p.pushMatrix();
-					world.p.translate(mapLeftEdge, mapTopEdge);
-					world.p.point(largeMapXOffset + mapLoc.x, largeMapYOffset + mapLoc.y, hudDistance * mapDistance);
-					world.p.popMatrix();
-				}
-			}
+//			}
+//			else
+//			{
+//				PVector mapLoc = getMapLocation(world, point, mapWidth, mapHeight);
+//
+//				if(mapLoc.x < mapWidth && mapLoc.x > 0 && mapLoc.y < mapHeight && mapLoc.y > 0)
+//				{
+//					world.p.stroke(hue, saturation, brightness, transparency);
+//					world.p.strokeWeight(pointSize / PApplet.sqrt(PApplet.sqrt(mapDistance)));
+//					world.p.pushMatrix();
+//					world.p.translate(mapLeftEdge, mapTopEdge);
+//					world.p.point(largeMapXOffset + mapLoc.x, largeMapYOffset + mapLoc.y, hudDistance * mapDistance);
+//					world.p.popMatrix();
+//				}
+//			}
 		}
 //		else if(world.p.debug.map) 
 //			p.message(worldSettings, "Map point is NaN!:"+point+" hue:"+hue);
 	}
 	
+	/**
+	 * Create simple point markers for each cluster
+	 */
+	private void createClusterMarkers(WMV_World world)
+	{
+		markerManager = new MarkerManager<Marker>();
+		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
+		{
+			if(!c.isEmpty() && c.getState().mediaCount != 0)
+			{
+				PVector mapLoc = c.getLocation();
+				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
+				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
+				marker.setId("Cluster_"+String.valueOf(c.getID()));
+				marker.setColor(world.p.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
+				marker.setHighlightColor(world.p.color(170, 255, 255, 255.f));
+				marker.setStrokeWeight(0);
+				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
+				markerManager.addMarker(marker);
+			}
+		}
+
+		map.addMarkerManager(markerManager);
+		markerManager.enableDrawing();
+	}
+	
+	/**
+	 * Create simple point markers for each cluster
+	 * @param Parent world
+	 */
+	private void createPlainMapClusterMarkers(WMV_World world)
+	{
+		plainMapMarkerManager = new MarkerManager<Marker>();
+		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
+		{
+			if(!c.isEmpty() && c.getState().mediaCount != 0)
+			{
+				PVector mapLoc = c.getLocation();
+				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
+				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
+				marker.setId("Cluster_"+String.valueOf(c.getID()));
+				marker.setColor(world.p.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
+				marker.setHighlightColor(world.p.color(170, 255, 255, 255.f));
+				marker.setStrokeWeight(0);
+				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
+				plainMapMarkerManager.addMarker(marker);
+			}
+		}
+		
+		plainMap.addMarkerManager(plainMapMarkerManager);
+		plainMapMarkerManager.enableDrawing();
+	}
+	
+	/**
+	 * Get map location for a given point
+	 * @param world Parent world
+	 * @param point Given point
+	 * @param mapWidth Map width
+	 * @param mapHeight Map height
+	 * @return
+	 */
+	PVector getMapLocation(WMV_World world, WMV_Field f, PVector point, float mapWidth, float mapHeight)
+	{
+		PVector gpsPoint = utilities.getGPSLocation(f, point);
+		ScreenPosition screenPos = plainMap.getScreenPosition(new Location(gpsPoint.y, gpsPoint.x));
+		return new PVector(screenPos.x, screenPos.y);
+		
+		/* Old method */
+//		WMV_Model m = world.getCurrentField().getModel();
+//		float mapLocX, mapLocY;
+//
+//		if(fieldAspectRatio >= 1.f)					
+//		{
+//			mapLocX = PApplet.map( point.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, 0, mapWidth );		
+//			mapLocY = PApplet.map( point.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, 0, mapWidth / fieldAspectRatio );
+//		}
+//		else
+//		{
+//			mapLocX = PApplet.map( point.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, 0, mapHeight * fieldAspectRatio );		
+//			mapLocY = PApplet.map( point.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, 0, mapHeight );
+//		}
+//
+//		return new PVector(mapLocX, mapLocY, 0.f);
+	}
+
 	/**
 	 * Update map settings based on current mouse position
 	 * @param world Parent world
@@ -1025,6 +1083,7 @@ public class ML_Map
 
 //				Marker marker = map.getFirstHitMarker(world.p.mouseX, world.p.mouseY);		// Select hit marker
 				List<Marker> hitMarkers = map.getHitMarkers(world.p.mouseX, world.p.mouseY);
+
 				for(Marker marker : hitMarkers)
 				{
 					if(marker != null)
@@ -1032,20 +1091,24 @@ public class ML_Map
 						String mID = marker.getId();
 						if(mID != null)
 						{
-							if (!marker.getId().equals("allClusters") && !mID.equals("viewer")) 
+							String[] parts = mID.split("_");
+							if(parts.length == 2)
 							{
-								marker.setSelected(true);
-								selectedCluster = Integer.parseInt(mID);
+								if(parts[0].equals("Cluster"))
+								{
+									marker.setSelected(true);
+									setSelectedCluster( Integer.parseInt(parts[1]) );
+								}
 							}
 						}
 						else
 						{
-							selectedCluster = world.viewer.getState().getCurrentClusterID();
+							setSelectedCluster( world.viewer.getState().getCurrentClusterID() );
 						}
 					}
 					else
 					{
-						selectedCluster = world.viewer.getState().getCurrentClusterID();
+						setSelectedCluster( world.viewer.getState().getCurrentClusterID() );
 					}
 				}
 			}
@@ -1063,23 +1126,16 @@ public class ML_Map
 					String mID = marker.getId();
 					if(mID != null)
 					{
-						if (!marker.getId().equals("allClusters") && !mID.equals("viewer")) 
+						if (!marker.getId().equals("allClusters") && !mID.equals("viewer") && !mID.contains("Cluster_")) 
 						{
 							if(selectedField != Integer.parseInt(mID))
 							{
+								System.out.println("Selected Field ID:"+Integer.parseInt(mID)+" mID:"+mID);
 								marker.setSelected(true);
 								setSelectedField( world, Integer.parseInt(mID) );
 							}
 						}
 					}
-					else
-					{
-//						selectedField = world.getCurrentField().getID();
-					}
-				}
-				else
-				{
-//					selectedField = world.getCurrentField().getID();
 				}
 			}
 
@@ -1129,7 +1185,7 @@ public class ML_Map
 						}
 					}
 				}
-				else 				// If mouse was most recently pressed, rather than dragged
+				else 							// If mouse was most recently pressed, rather than dragged
 				{
 					if(selectedCluster != -1)
 						zoomToCluster(world, world.getCurrentField().getCluster(selectedCluster));
@@ -1137,15 +1193,16 @@ public class ML_Map
 			}
 			else if(p.displayView == 2 && p.libraryViewMode == 0)	// Field map visible
 			{
-				if(selectedField != world.getCurrentField().getID())
+//				System.out.println("selectedField:"+selectedField+" world.getCurrentField().getID():"+world.getCurrentField().getID());
+//				if(selectedField != world.getCurrentField().getID())
+//				{
+				if(selectedField >= 0 && selectedField < world.getFields().size())
 				{
-					if(selectedField >= 0 && selectedField < world.getFields().size())
-					{
-						zoomToField(world, world.getField(selectedField));
-//						world.viewer.teleportToField(selectedField, true, false);
-						p.currentDisplayCluster = 0;
-					}
+					zoomToField(world, world.getField(selectedField));
+					p.currentDisplayCluster = 0;
 				}
+//				}
+//				else System.out.println("Selected current field...");
 			}
 		}		
 	}
@@ -1163,6 +1220,7 @@ public class ML_Map
 	{
 		selectedField = newField;
 		createFieldMarkers(world);
+		createAllClusterMarkers(world);
 	}
 	
 	public int getSelectedClusterID()
@@ -1227,7 +1285,7 @@ public class ML_Map
 			world.p.stroke(0,255,255,255);
 			world.p.strokeWeight(25);
 			WMV_Cluster c = world.getCurrentField().getEdgeClusterOnXAxis(true);
-			PVector point = getMapLocation(world, c.getLocation(), curMapWidth, curMapHeight);
+			PVector point = getMapLocation(world, world.getCurrentField(), c.getLocation(), curMapWidth, curMapHeight);
 			world.p.translate(mapLeftEdge, mapTopEdge);
 			world.p.translate(largeMapXOffset, largeMapYOffset);
 			world.p.point(point.x, point.y, hudDistance * mapDistance);
@@ -1237,7 +1295,7 @@ public class ML_Map
 			world.p.stroke(100,255,255,255);
 			world.p.strokeWeight(35);
 			c = world.getCurrentField().getEdgeClusterOnZAxis(true);
-			point = getMapLocation(world, c.getLocation(), curMapWidth, curMapHeight);
+			point = getMapLocation(world, world.getCurrentField(), c.getLocation(), curMapWidth, curMapHeight);
 			world.p.translate(mapLeftEdge, mapTopEdge);
 			world.p.translate(largeMapXOffset, largeMapYOffset);
 			world.p.point(point.x, point.y, hudDistance * mapDistance);
@@ -1563,17 +1621,6 @@ public class ML_Map
 //		else p.message(worldSettings, "Map point is NaN!:"+point+" hue:"+hue);
 	}
 	
-	private class SelectableClusterLocation
-	{
-		public int id;
-		public PVector location;
-		SelectableClusterLocation(int newID, PVector newLocation)
-		{
-			id = newID;
-			location = newLocation;
-		}
-	}
-	
 	/**
 	 * Initialize map for all fields in world
 	 * @param world Parent world
@@ -1598,10 +1645,7 @@ public class ML_Map
 				highLatitude = f.getModel().getState().highLatitude;
 		}
 
-		fieldsMapCenter = new Location(highLatitude, highLongitude);				// -- Fix this!
-//		fieldsMapCenter = new Location((highLatitude - lowLatitude)*0.5f, (highLongitude - lowLongitude)*0.5f);
-
-//		System.out.println("initializeFieldsMap()... Will set selectedField from:"+selectedField+" to:"+world.getCurrentField().getID());
+		fieldsMapCenter = new Location(highLatitude, highLongitude);				// -- Obsolete
 		setSelectedField( world, world.getCurrentField().getID() );
 
 		map.zoomAndPanToFit(allClusterLocations);
@@ -1612,7 +1656,7 @@ public class ML_Map
 	 * Create simple point markers for each cluster
 	 * @param world Parent world
 	 */
-	public void createFieldMarkers(WMV_World world)
+	private void createFieldMarkers(WMV_World world)
 	{
 		fieldMarkers = new ArrayList<SimplePolygonMarker>();
 		fieldMarkerCenters = new ArrayList<Location>();
@@ -1622,10 +1666,10 @@ public class ML_Map
 		{
 			ArrayList<Location> locations = new ArrayList<Location>();
 			
-			if(f.border == null)
+			if(f.getBorder() == null)
 				f.calculateBorderPoints();
 			
-			for(PVector pv : f.border)			
+			for(PVector pv : f.getBorder())			
 			{
 				Location loc = new Location(pv.y, pv.x);
 				locations.add(loc);
@@ -1637,19 +1681,20 @@ public class ML_Map
 			fieldMarker.setId(String.valueOf(f.getID()));
 			
 			fieldMarker.setStrokeWeight(0);
+//			fieldMarker.setHidden(true);
+
 			if(f.getID() == getSelectedFieldID())
 			{
-				fieldMarker.setColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, 0));		
+				fieldMarker.setColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, 0.f));		
 //				fieldMarker.setColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, fieldTransparency));		
 			}
 			else
 			{
-				fieldMarker.setColor(world.p.color(hue, 195.f, 235.f, 0));		
-				fieldMarker.setHighlightColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, 0));
-//				fieldMarker.setColor(world.p.color(hue, 195.f, 235.f, fieldTransparency));		
-//				fieldMarker.setHighlightColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, fieldTransparency));
+				fieldMarker.setColor(world.p.color(hue, 255.f, 255.f, 0.f));		
+//				fieldMarker.setHighlightColor(world.p.color(fieldSelectedHue, 0.f, 0.f, 0.f));
 			}
-
+			
+			fieldMarker.setHighlightColor(world.p.color(fieldSelectedHue, fieldSelectedSaturation, fieldSelectedBrightness, 0.f));
 			fieldMarkers.add(fieldMarker);
 			
 			Location fieldCenterPoint = new Location(f.getModel().getState().centerLatitude, f.getModel().getState().centerLongitude);
@@ -1676,8 +1721,6 @@ public class ML_Map
 		allClusterLocations = new ArrayList<Location>();
 		allClustersMarker = new MultiMarker();
 		
-//		List<SimplePolygonMarker> markerList = new ArrayList<SimplePolygonMarker>();
-		
 		int fCount = 0;
 		for( WMV_Field f : world.getFields() )	
 		{
@@ -1690,9 +1733,15 @@ public class ML_Map
 				float hue = utilities.mapValue(fCount, 0, world.getFields().size(), fieldHueRangeLow, fieldHueRangeHigh);
 				
 				SimplePointMarker clusterMarker = new SimplePointMarker(loc);
-				clusterMarker.setId(String.valueOf(c.getID()));
+//				clusterMarker.setId(String.valueOf(c.getID()));
+				clusterMarker.setId("Cluster_"+String.valueOf(c.getID()));
 				clusterMarker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
-				clusterMarker.setColor(world.p.color(hue, 165.f, 215.f, fieldTransparency));			// Same color as time segments in Time View
+
+				if(selectedField == f.getID())
+					clusterMarker.setColor(world.p.color(hue, clusterSaturation, clusterBrightness, fieldTransparency));			
+				else
+					clusterMarker.setColor(world.p.color(hue, fieldSelectedSaturation, fieldSelectedBrightness, fieldTransparency));			
+
 				clusterMarker.setStrokeWeight(0);
 
 				if(mapMedia) allClustersMarker.addMarkers(clusterMarker);
@@ -1701,9 +1750,6 @@ public class ML_Map
 			fCount++;
 		}
 
-//		for(SimplePolygonMarker marker : markerList)
-//			map.addMarkers(marker);
-		
 		allClustersMarker.setId("allClusters");
 		if(mapMedia) map.addMarkers(allClustersMarker);
 	}
@@ -1731,6 +1777,10 @@ public class ML_Map
 		map.draw();
 	}
 	
+	public float getMapDistance()
+	{
+		return mapDistance;
+	}
 	
 //	/**
 //	 * Draw camera attraction force vector (for debugging)

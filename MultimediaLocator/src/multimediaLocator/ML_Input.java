@@ -612,28 +612,28 @@ public class ML_Input
 						ml.world.viewer.rotateX(1);
 
 					if (optionKey && shiftKey && keyCode == PApplet.LEFT) 
-						ml.display.map2D.mapScrollTransition( ml.world, 150.f * ml.display.map2D.mapDistance, 0.f );
+						ml.display.map2D.mapScrollTransition( ml.world, 150.f * ml.display.map2D.getMapDistance(), 0.f );
 
 					if (optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-						ml.display.map2D.mapScrollTransition( ml.world, -150.f * ml.display.map2D.mapDistance, 0.f );
+						ml.display.map2D.mapScrollTransition( ml.world, -150.f * ml.display.map2D.getMapDistance(), 0.f );
 
 					if (optionKey && shiftKey && keyCode == PApplet.DOWN) 
-						ml.display.map2D.mapScrollTransition( ml.world, 0.f, -150.f * ml.display.map2D.mapDistance );
+						ml.display.map2D.mapScrollTransition( ml.world, 0.f, -150.f * ml.display.map2D.getMapDistance() );
 
 					if (optionKey && shiftKey && keyCode == PApplet.UP) 
-						ml.display.map2D.mapScrollTransition( ml.world, 0.f, 150.f * ml.display.map2D.mapDistance );
+						ml.display.map2D.mapScrollTransition( ml.world, 0.f, 150.f * ml.display.map2D.getMapDistance() );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.LEFT) 
-						ml.display.map2D.zoomRectangleScrollTransition( ml.world, -400.f * ml.display.map2D.mapDistance, 0.f );
+						ml.display.map2D.zoomRectangleScrollTransition( ml.world, -400.f * ml.display.map2D.getMapDistance(), 0.f );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 400.f * ml.display.map2D.mapDistance, 0.f );
+						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 400.f * ml.display.map2D.getMapDistance(), 0.f );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.DOWN) 
-						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, 400.f * ml.display.map2D.mapDistance );
+						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, 400.f * ml.display.map2D.getMapDistance() );
 
 					if (!optionKey && shiftKey && keyCode == PApplet.UP) 
-						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, -400.f * ml.display.map2D.mapDistance );
+						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, -400.f * ml.display.map2D.getMapDistance() );
 				}
 
 				if(key == PApplet.ENTER)
@@ -1539,6 +1539,7 @@ public class ML_Input
 	void handleMouseReleased(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
 	{
 		mouseReleased = true;
+		System.out.println("mouseReleased");
 //		releasedRecentlyFrame = frameCount;
 		
 		boolean doubleClick = false;

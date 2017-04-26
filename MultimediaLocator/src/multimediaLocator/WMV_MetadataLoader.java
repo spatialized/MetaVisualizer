@@ -31,7 +31,7 @@ import java.util.Set;
  * Class for extracting metadata and adding media to field 
  * @author davidgordon
  */
-class WMV_Metadata
+class WMV_MetadataLoader
 {
 	public String library = "";
 	public String imageFolder = "", smallImageFolder = "";
@@ -71,7 +71,7 @@ class WMV_Metadata
 	 * @param parent Parent App
 	 * @param newDebugSettings Debug settings
 	 */
-	WMV_Metadata( MultimediaLocator parent, ML_DebugSettings newDebugSettings )
+	WMV_MetadataLoader( MultimediaLocator parent, ML_DebugSettings newDebugSettings )
 	{
 		ml = parent;
 		u = new WMV_Utilities();

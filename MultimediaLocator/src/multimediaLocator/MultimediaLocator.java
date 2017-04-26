@@ -39,7 +39,10 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	
 	/* WorldMediaViewer Classes */
 	WMV_World world;							// The 3D World
-	WMV_Metadata metadata;						// Metadata reading and writing
+	WMV_MetadataLoader metadata;				// Metadata reading -- Future versions: writing
+	
+	/* General */
+	String programName = "MultimediaLocator 0.9.0";
 	
 	/* Memory */
 	public boolean lowMemory = false;
@@ -68,7 +71,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		
 		input = new ML_Input(width, height);
 		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
-		metadata = new WMV_Metadata(this, debugSettings);
+		metadata = new WMV_MetadataLoader(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
 		if(debugSettings.main) System.out.println("Initial setup complete...");
 	}
@@ -137,7 +140,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 						else
 						{
 							ArrayList<String> folderList = new ArrayList<String>();
-//							folderList.add(library.mediaFolder);
 							System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination);
 							state.selectedLibrary = library.createNewLibrary(library.mediaFolder, folderList, library.libraryDestination);
 
@@ -192,7 +194,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			}
 		}
 		
-		if ( state.exit ) exitMultimediaLocator();							/* Stopping the program */		
+		if ( state.exit ) exitProgram();							/* Stopping the program */		
 	}
 	
 	/**
@@ -457,9 +459,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	/**
 	 * Stop the program
 	 */
-	void exitMultimediaLocator() 
+	void exitProgram() 
 	{
-		System.out.println("Exiting MultimediaLocator 0.9.0...");
+		System.out.println("Exiting "+programName+"...");
 		exit();
 	}
 
@@ -481,17 +483,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		boolean selectedFolder = false;
 		
 		if (selection == null) {
-			System.out.println("openLibraryDestination()... Window was closed or the user hit cancel.");
+			if (debugSettings.main)
+				System.out.println("openLibraryDestination()... Window was closed or the user hit cancel.");
 		} 
 		else 
 		{
 			String input = selection.getPath();
 			String[] parts = input.split("/");
 
-//			if (debugSettings.metadata)
+			if (debugSettings.main)
 				System.out.println("User selected library destination: " + input);
-
-//			library = new ML_Library(input);				// Set library folder
 
 			File file = new File(input);
 			if(file.exists())
@@ -500,7 +501,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 				{
 					selectedFolder = true;
 					library.libraryDestination = parts[parts.length-1];
-//					library.libraryDestination = input;
 					
 					String libFilePath = "";
 					for(int i=0; i<parts.length-1; i++)
@@ -705,20 +705,15 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 */
 	public void mousePressed()
 	{
-//		System.out.println("pressed");
 //		if(world.viewer.mouseNavigation)
 //			input.handleMousePressed(mouseX, mouseY);
-		if(display.satelliteMap)
-		{
-			display.map2D.mousePressedFrame = frameCount;
-		}
+		display.map2D.mousePressedFrame = frameCount;
 	}
 
 	/**
 	 * Called when mouse is released
 	 */
 	public void mouseReleased() {
-//		System.out.println("released mouseX:"+mouseX+" mouseY:"+mouseY);
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseReleased(mouseX, mouseY);
 		if(display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode == 0))
@@ -731,7 +726,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 * Called when mouse is clicked
 	 */
 	public void mouseClicked() {
-//		System.out.println("clicked");
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseClicked(mouseX, mouseY);
 	}
@@ -740,10 +734,10 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	 * Called when mouse is dragged
 	 */
 	public void mouseDragged() {
-		if(display.satelliteMap)
-		{
-			display.map2D.mouseDraggedFrame = frameCount;
-		}
+//		if(display.satelliteMap)
+//		{
+		display.map2D.mouseDraggedFrame = frameCount;
+//		}
 //		System.out.println("dragged");
 //		if(world.mouseNavigation)
 //		{
@@ -946,18 +940,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 	}
 	
-//	public void setSurfaceSize(int newWidth, int newHeight)
-//	{
-//		surface.setResizable(true);
-//		surface.setSize(newWidth, newHeight);
-//		surface.setResizable(false);
-//	}
-//	
-//	public void setSurfaceVisible(boolean newState)
-//	{
-//		surface.setVisible(newState);
-//	}
-	
 	/**
 	 * Set window resolution and graphics mode
 	 */
@@ -976,6 +958,18 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		PApplet.main("multimediaLocator.MultimediaLocator");						// Open PApplet in window
 //		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
 	}
+	
+//	public void setSurfaceSize(int newWidth, int newHeight)
+//	{
+//		surface.setResizable(true);
+//		surface.setSize(newWidth, newHeight);
+//		surface.setResizable(false);
+//	}
+//	
+//	public void setSurfaceVisible(boolean newState)
+//	{
+//		surface.setVisible(newState);
+//	}
 
 //	public void setSurfaceLocation(int newX, int newY)
 //	{

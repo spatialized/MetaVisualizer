@@ -22,7 +22,7 @@ class ML_Display
 	
 	/* Display Views */
 	public int displayView = 0;							// 0: Scene  1: Map  2: Library  3: Timeline
-	public boolean satelliteMap = true;					// -- Temporary
+	public boolean satelliteMap = false;					// -- Temporary
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -192,22 +192,26 @@ class ML_Display
 
 				switch(displayView)
 				{
-				case 1:
-					map2D.drawMainMap(p, !satelliteMap);
-					if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
-					if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
-					if(p.p.state.interactive) displayInteractiveClustering(p);
-					map2D.updateMouse(p);
-					break;
-				case 2:
-					displayLibraryView(p);
-					if(libraryViewMode == 0)
+					case 1:
+						if(satelliteMap)
+							map2D.displaySatelliteMap(p);
+						else
+							map2D.displayPlainMap(p);
+						
+						if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
+						if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
+						if(p.p.state.interactive) displayInteractiveClustering(p);
 						map2D.updateMouse(p);
-					break;
-				case 3:
-					displayTimeView(p);
-					updateFieldTimeline(p);
-					break;
+						break;
+					case 2:
+						displayLibraryView(p);
+						if(libraryViewMode == 0)
+							map2D.updateMouse(p);
+						break;
+					case 3:
+						displayTimeView(p);
+						updateFieldTimeline(p);
+						break;
 				}
 
 			}
@@ -1342,7 +1346,7 @@ class ML_Display
 	 */
 	void displayInteractiveClustering(WMV_World p)
 	{
-		map2D.drawMainMap(p, false);
+		map2D.displaySatelliteMap(p);
 		if(messages.size() > 0) displayMessages(p);
 	}
 
@@ -1846,7 +1850,8 @@ class ML_Display
 			case 1:	
 				displayView = 1;
 				map2D.initializeMaps(p);
-//				if(!initializedMaps) map2D.initializeMaps(p);
+				map2D.zoomToField(p, p.getCurrentField());
+//				if(!satelliteMap) map2D.zoomToCluster(p, p.getCurrentCluster());
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(true);
 				window.optLibraryView.setSelected(false);

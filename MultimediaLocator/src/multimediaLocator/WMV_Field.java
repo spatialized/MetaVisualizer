@@ -43,8 +43,8 @@ public class WMV_Field
 	private WMV_Model model;					// Dimensions of current virtual space
 
 	/* Model */
-	public ArrayList<PVector> border;					// Convex hull (border) of media points
-	public boolean calculatedBorderPoints = false;
+	private ArrayList<PVector> border;					// Convex hull (border) of media points
+//	private boolean calculatedBorderPoints = false;
 
 	/* Time */
 	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
@@ -2048,7 +2048,7 @@ public class WMV_Field
 	 * @param f Field to divide
 	 * @return List of created fields
 	 */
-	ArrayList<WMV_Field> divideField(WMV_World world, float minFieldDistance, float maxFieldDistance)
+	public ArrayList<WMV_Field> divideField(WMV_World world, float minFieldDistance, float maxFieldDistance)
 	{
 		ArrayList<WMV_Cluster> fieldClusters = new ArrayList<WMV_Cluster>();			// Clear current cluster list
 
@@ -3170,6 +3170,11 @@ public class WMV_Field
 		return sounds;
 	}
 
+	public ArrayList<PVector> getBorder()
+	{
+		return border;
+	}
+	
 	public void setClusters(ArrayList<WMV_Cluster> newClusters)
 	{
 		clusters = newClusters;
@@ -3472,7 +3477,7 @@ public class WMV_Field
 //			count++;
 //		}
 
-		calculatedBorderPoints = true;
+//		calculatedBorderPoints = true;
 	}
 		
 //	private ArrayList<PVector> findBorder(ArrayList<PVector> points, PVector centerOfHull)

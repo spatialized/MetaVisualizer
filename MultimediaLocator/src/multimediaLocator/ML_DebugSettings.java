@@ -1,7 +1,7 @@
 package multimediaLocator;
 
 /******************************
- * Debug settings for MultimediaLocator
+ * MultimediaLocator debugging settings
  * @author davidgordon
  */
 
@@ -13,14 +13,14 @@ public class ML_DebugSettings
 	public boolean print = true;				// Print all user messages
 	
 	/* Data */
-	public boolean main = false;				// Debug WorldMediaViewer class
-	public boolean metadata = false;			// Debug WMV_Metadata class
-	public boolean data = false;				// Debug WorldMediaViewer class
-	public boolean field = false;				// Debug WMV_Field class
+	public boolean main = true;				// Debug WorldMediaViewer class
+	public boolean metadata = true;			// Debug WMV_Metadata class
+	public boolean data = true;				// Debug WorldMediaViewer class
 
 	/* Model */
-	public boolean time = false;				// Debug WMV_Time class
+	public boolean field = true;				// Debug WMV_Field class
 	public boolean cluster = false;				// Debug WMV_Cluster class
+	public boolean time = false;				// Debug WMV_Time class
 
 	/* Viewer */
 	public boolean viewer = false;				// Debug WMV_Viewer class

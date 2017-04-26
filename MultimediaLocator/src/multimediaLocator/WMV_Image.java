@@ -33,6 +33,9 @@ public class WMV_Image extends WMV_Media
 		
 		metadata = newImageMetadata;
 		
+		if(metadata.orientation == -1)
+			metadata.orientation = guessOrientation();
+		
 		state = new WMV_ImageState();			// Store metadata in image state for exporting -- redundant?
 		state.initialize(metadata);			// Store metadata in image state for exporting -- redundant?
 
@@ -604,7 +607,6 @@ public class WMV_Image extends WMV_Media
 	 */	
 	public float getAngleToCamera(PVector cameraPosition)
 	{
-//		PVector cameraPosition = viewer.getLocation();
 		PVector centerVertex = calcCenterVertex();
 
 		PVector cameraToFace = new PVector(  cameraPosition.x-centerVertex.x, 	//  Vector from the camera to the face.      
@@ -650,7 +652,6 @@ public class WMV_Image extends WMV_Media
 		float captureToCam = getCaptureLocation().dist(camLoc);  	// Find distance from capture location to camera
 		float camToImage = getLocation().dist(camLoc);  					// Find distance from camera to image
 
-//		if(captureToCam > camToImage + p.p.viewer.getNearClippingDistance())								// If captureToCam > camToPhoto, then back of the image is facing the camera
 		if(captureToCam > camToImage + getViewerSettings().getNearClippingDistance() * 0.5f)			// If captureToCam > camToVideo, then back of video is facing the camera
 			return true;
 		else
@@ -862,7 +863,17 @@ public class WMV_Image extends WMV_Media
 		b /= image.pixels.length;
 		return new PVector(r, g, b);
 	}
-
+	
+	public int guessOrientation()
+	{
+		if(metadata.imageWidth > metadata.imageHeight)
+			return 0;
+		if(metadata.imageWidth > metadata.imageHeight)
+			return 90;
+		else
+			return 0;
+	}
+	
 //	/**
 //	 * @return Average brightness across all pixels
 //	 */		

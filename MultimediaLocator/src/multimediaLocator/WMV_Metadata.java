@@ -62,8 +62,7 @@ class WMV_Metadata
 	int iCount = 0, pCount = 0, vCount = 0;							// Media count by type 
 	public File exifToolFile;										// File for ExifTool executable
 
-	MultimediaLocator p;
-//	WMV_Field f;													// Field to load metadata into
+	MultimediaLocator ml;
 	WMV_Utilities u;												// Utility class
 	ML_DebugSettings debugSettings;
 	
@@ -74,7 +73,7 @@ class WMV_Metadata
 	 */
 	WMV_Metadata( MultimediaLocator parent, ML_DebugSettings newDebugSettings )
 	{
-		p = parent;
+		ml = parent;
 		u = new WMV_Utilities();
 		debugSettings = newDebugSettings;
 		exifToolFile = new File("/usr/local/bin/exiftool");						// Initialize metadata extraction class	
@@ -84,7 +83,7 @@ class WMV_Metadata
 	 * Load metadata from a library for a field 
 	 * @param f Field to load metadata for
 	 * @param libraryFolder Library folder (correctly formatted, e.g. folders small_images, small_videos, data)
-	 * @return Simulation state, if one was saved, otherwise null
+	 * @return Simulation state if one was saved, otherwise null
 	 */
 	public WMV_SimulationState load(WMV_Field f, String libraryFolder)
 	{
@@ -107,11 +106,11 @@ class WMV_Metadata
 
 		if(dataFilesValidFormat)
 		{
-			WMV_FieldState newFieldState = p.library.loadFieldState(dataFiles[1].getAbsolutePath());
-			WMV_ViewerSettings newViewerSettings = p.library.loadViewerSettings(dataFiles[5].getAbsolutePath());
-			WMV_ViewerState newViewerState = p.library.loadViewerState(dataFiles[6].getAbsolutePath());
-			WMV_WorldSettings newWorldSettings = p.library.loadWorldSettings(dataFiles[7].getAbsolutePath());
-			WMV_WorldState newWorldState = p.library.loadWorldState(dataFiles[8].getAbsolutePath());
+			WMV_FieldState newFieldState = ml.library.loadFieldState(dataFiles[1].getAbsolutePath());
+			WMV_ViewerSettings newViewerSettings = ml.library.loadViewerSettings(dataFiles[5].getAbsolutePath());
+			WMV_ViewerState newViewerState = ml.library.loadViewerState(dataFiles[6].getAbsolutePath());
+			WMV_WorldSettings newWorldSettings = ml.library.loadWorldSettings(dataFiles[7].getAbsolutePath());
+			WMV_WorldState newWorldState = ml.library.loadWorldState(dataFiles[8].getAbsolutePath());
 
 			WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
 					newViewerState, newWorldSettings, newWorldState );
@@ -134,7 +133,8 @@ class WMV_Metadata
 	}
 
 	/**
-	 * Load metadata for folders of images, small images (640px wide) and panoramas
+	 * Set image folder paths, check if folders exist
+	 * @param fieldPath Field folder path
 	 */
 	public void loadImageFolders(String fieldPath) 		
 	{
@@ -291,7 +291,7 @@ class WMV_Metadata
 				imageFilesFound = true;
 			
 			if(imageFilesFound)				/* If no small images, but there are images */
-				p.world.utilities.makeDirectory("small_images", library);
+				ml.world.utilities.makeDirectory("small_images", library);
 		}
 		
 		// If images exist but no small images are found
@@ -300,24 +300,18 @@ class WMV_Metadata
 			boolean success = u.shrinkImages(imageFolder, smallImageFolder);		
 			if(success)
 			{
-//				if(debugSettings.metadata) 
-					System.out.println("Shrink images successful...");
+				if(debugSettings.metadata) System.out.println("Shrink images successful...");
 			}
 			else
-			{
-//				if(debugSettings.metadata) 
-					System.out.println("Shrink images failed...");
-			}
+				if(debugSettings.metadata)  System.out.println("Shrink images failed...");
 		}
 
-//		if(debugSettings.metadata) 	
+		if(debugSettings.metadata) 	
 		{
 			if(smallImageFilesFound)
 				System.out.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
 			if(imageFilesFound)
 				System.out.println("Large Image Folder Location:" + imageFolderFile + " imageFiles.length:"+imageFiles.length);
-//			if(panoramaFilesFound)
-//				System.out.println("Panorama Folder Location:" + panoramaFolderFile + " panoramaFiles.length:"+panoramaFiles.length);
 		}
 	}
 
@@ -362,17 +356,16 @@ class WMV_Metadata
 				{
 					try
 					{
-						if(debugSettings.sound || debugSettings.metadata)
-							System.out.println("Loading sound:"+sFilePath);
+						if(debugSettings.sound || debugSettings.metadata) System.out.println("Loading sound:"+sFilePath);
 
 						BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 						FileTime creationTime = attr.creationTime();
-						if(p.debugSettings.sound || p.debugSettings.metadata)
+						if(ml.debugSettings.sound || ml.debugSettings.metadata)
 							System.out.println("file: "+file.getName()+" creationTime: "+creationTime);
 						ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
 
 						WMV_SoundMetadata sMetadata = new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, "",
-								p.world.getCurrentField().getTimeZoneID(), null );
+								ml.world.getCurrentField().getTimeZoneID(), null );				// Dummy sound metadata object
 						f.addSound( new WMV_Sound (count, 3, sMetadata) );
 					}
 					catch(Throwable t)
@@ -441,16 +434,58 @@ class WMV_Metadata
 		try 
 		{
 			WMV_ImageMetadata iMetadata = loadImageMetadata(file, f.getTimeZoneID());
-			PImage pImg = p.createImage(0, 0, processing.core.PConstants.RGB);
+			PImage pImg = ml.createImage(0, 0, processing.core.PConstants.RGB);
 			f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata ) );
 			iCount++;
 
 		}
 		catch (RuntimeException ex) {
-			if (debugSettings.metadata) System.out.println("Could not add image! Error: "+ex+" f == null?"+(f==null));
+			if (debugSettings.metadata) System.out.println("Could not add image! Error: "+ex);
 		}
 	}
 	
+	/**
+	 * Load metadata and add panorama to field
+	 * @param f Field to add panorama to
+	 * @param file Panorama file
+	 */
+	public void addPanoramaToField(WMV_Field f, File file)
+	{
+		try 
+		{
+			WMV_PanoramaMetadata pMetadata = loadPanoramaMetadata(file, f.getTimeZoneID());
+
+			PImage pImg = ml.createImage(0,0,processing.core.PConstants.RGB);
+			f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
+			pCount++;
+		}
+		catch (RuntimeException ex) {
+			if (debugSettings.metadata) System.out.println("Could not add panorama! Error: "+ex);
+		}
+	}
+
+	/**
+	 * Load metadata and add 3D video object to field
+	 * @param f Field to add video to
+	 * @param file Video file
+	 */
+	public void addVideoToField(WMV_Field f, File file)
+	{
+		try 
+		{
+			WMV_VideoMetadata vMetadata = loadVideoMetadata(file, f.getTimeZoneID());
+			Movie pMov = new Movie(ml, vMetadata.filePath);
+			f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
+			vCount++;
+		}
+		catch (Throwable t) {
+			if (debugSettings.metadata)
+			{
+				System.out.println("Throwable while adding video to ArrayList: "+t);
+			}
+		}	
+	}
+
 	/**
 	 * Load image metadata from disk
 	 * @param file Image file
@@ -461,7 +496,8 @@ class WMV_Metadata
 	{
 		String sName = file.getName();
 		boolean panorama = false;
-		boolean dataMissing = false, brightnessMissing = false, descriptionMissing = false;
+		boolean dataMissing = false;
+		boolean brightnessMissing = false, descriptionMissing = false;
 
 		ZonedDateTime zonedDateTime = null;
 		
@@ -690,7 +726,7 @@ class WMV_Metadata
 				if(sOrientation != null)
 					fOrientation = ParseOrientation(sOrientation);
 				else
-					fOrientation = 0;									// Default: horizontal -- Change?
+					fOrientation = -1;
 				
 				if(sDirection != null)
 					fDirection = ParseDirection(sDirection);		
@@ -709,13 +745,11 @@ class WMV_Metadata
 		{
 			if(!dataMissing)
 			{
-				WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
+				return new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
 						fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
-				return iMetadata;
 			}
 			else
-				System.out.println("Data missing! Excluded image:"+sName);
-
+				if(debugSettings.metadata) System.out.println("Data missing! Excluded image:"+sName);
 		}
 		catch (RuntimeException ex) {
 			if (debugSettings.metadata) System.out.println("Could not add image! Error: "+ex);
@@ -724,27 +758,6 @@ class WMV_Metadata
 		return null;
 	}
 
-	/**
-	 * Load metadata and add panorama to field
-	 * @param f Field to add panorama to
-	 * @param file Panorama file
-	 */
-	public void addPanoramaToField(WMV_Field f, File file)
-	{
-		try 
-		{
-			WMV_PanoramaMetadata pMetadata = loadPanoramaMetadata(file, f.getTimeZoneID());
-
-			PImage pImg = p.createImage(0,0,processing.core.PConstants.RGB);
-			f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
-			pCount++;
-		}
-		catch (RuntimeException ex) {
-			if (debugSettings.metadata) System.out.println("Could not add panorama! Error: "+ex);
-		}
-
-	}
-	
 	/**
 	 * Load panorama metadata from disk
 	 * @param file File to read metadata from
@@ -960,10 +973,12 @@ class WMV_Metadata
 			}
 
 			try {
-				if(sOrientation != null)
-					fOrientation = ParseOrientation(sOrientation);
-				else
-					fOrientation = 0;									// Default: horizontal -- Change?
+//				if(sOrientation != null)
+//					fOrientation = ParseOrientation(sOrientation);
+//				else
+//				{
+//					fOrientation = 0;									// Default: horizontal -- Change?
+//				}
 				
 				fDirection = ParseDirection(sDirection);		
 
@@ -983,8 +998,8 @@ class WMV_Metadata
 		{
 			if(!dataMissing)
 			{
-				WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
-				return pMetadata;
+				return new WMV_PanoramaMetadata( sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, 
+												 iCameraModel, iWidth, iHeight, fBrightness, sKeywords );
 			}
 			else
 				System.out.println("Data missing!  Could not get panorama metadata:"+sName);
@@ -995,45 +1010,14 @@ class WMV_Metadata
 		}
 		
 		return null;
-		
-//		/* Add this media object to field */
-//		try 
-//		{
-//			if(!dataMissing)
-//			{
-//				WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
-//
-//				PImage pImg = p.createImage(0,0,processing.core.PConstants.RGB);
-//				f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
-//				pCount++;
-//			}
-//			else
-//				System.out.println("Data missing!  Excluded panorama:"+sName);
-//		}
-//		catch (RuntimeException ex) {
-//			if (debugSettings.metadata)
-//				System.out.println("Could not add panorama! Error: "+ex);
-//		}
 	}
 
-	public void addVideoToField(WMV_Field f, File file)
-	{
-		/* Add 3D video object to field based on given metadata */
-		try 
-		{
-			WMV_VideoMetadata vMetadata = loadVideoMetadata(file, f.getTimeZoneID());
-			Movie pMov = new Movie(p, vMetadata.filePath);
-			f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
-			vCount++;
-		}
-		catch (Throwable t) {
-			if (debugSettings.metadata)
-			{
-				System.out.println("Throwable while adding video to ArrayList: "+t);
-			}
-		}	
-	}
-
+	/**
+	 * Load video metadata from disk
+	 * @param file Video file
+	 * @param fieldTimeZoneID Video time zone
+	 * @return Video metadata
+	 */
 	public WMV_VideoMetadata loadVideoMetadata(File file, String fieldTimeZoneID)
 	{
 		String sName = file.getName();
@@ -1128,7 +1112,6 @@ class WMV_Metadata
 			if(!dataMissing) dataMissing = true;
 		}
 
-		/* Add 3D video object to field based on given metadata */
 		try 
 		{
 			if(!dataMissing)
@@ -1238,7 +1221,6 @@ class WMV_Metadata
 						catch (Throwable t) // If not, must be only one keyword
 						{
 							if (debugSettings.metadata) System.out.println("fileIsPanorama()... Throwable in parsing camera model..." + t);
-//							return false;
 						}
 					}
 				}
@@ -1385,19 +1367,30 @@ class WMV_Metadata
 		return focusDist;
 	}
 
-	public int ParseOrientation(String input) 	// Currently only handles horizontal
+	public int ParseOrientation(String input) 	// Currently only handles horizontal and rotated 90 CW
 	{
-		String[] parts = input.split("-");
-		input = parts[1];
-		parts = input.split(",");
-		input = parts[0];
-		if (parts[0].trim().equals("Top"))
+		if(input.contains("Horizontal") || input.contains("Normal") || input.contains("normal"))
+		{
 			return 0;
-		else {
-			return Integer.valueOf(parts[1].trim());
 		}
-	}
 
+		if(input.contains("Rotate 90 CW"))
+		{
+			return 90;
+		}
+
+		return 0;
+		
+//		String[] parts = input.split("-");
+//		input = parts[1];
+//		parts = input.split(",");
+//		input = parts[0];
+//		if (parts[0].trim().equals("Top"))
+//			return 0;
+//		else {
+//			return Integer.valueOf(parts[1].trim());
+//		}
+	}
 
 	public int parseCameraModel(String input) {
 		String[] parts = input.split(" Model - ");
@@ -1577,53 +1570,10 @@ class WMV_Metadata
 	private ZonedDateTime getTimeFromTimeStamp(FileTime creationTime)
 	{
 		Instant creationInstant = creationTime.toInstant();
-		ZonedDateTime mediaTime = creationInstant.atZone(ZoneId.of(p.world.getCurrentField().getTimeZoneID()));
+		ZonedDateTime mediaTime = creationInstant.atZone(ZoneId.of(ml.world.getCurrentField().getTimeZoneID()));
 
 		return mediaTime;
 	}
-	
-//	public ZonedDateTime parseVideoDateTime(String input)  // 2016:12:12 16:01:00-08:00
-//	{		
-//		String[] parts = input.split(":");
-//
-//		int year = Integer.valueOf(parts[0].trim());
-//		int month = Integer.valueOf(parts[1]);
-//		int min = Integer.valueOf(parts[3]);
-//		String secStr = parts[4];
-//
-//		input = parts[2];
-//		parts = input.split(" ");
-//		int day = Integer.valueOf(parts[0]);
-//		int hour = Integer.valueOf(parts[1]);
-//
-//		parts = secStr.split("-");
-//		int sec = Integer.valueOf(parts[0]);
-//
-//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-//		return pac;
-//	}
-
-//	public ZonedDateTime parseSoundDateTime(String input) 
-//	{
-//		String[] parts = input.split(":");
-//
-//		int year = Integer.valueOf(parts[0]);
-//		int month = Integer.valueOf(parts[1]);
-//		int min = Integer.valueOf(parts[3]);
-//		int sec = Integer.valueOf(parts[4]);
-//		input = parts[2];
-//		parts = input.split(" ");
-//		int day = Integer.valueOf(parts[0]);
-//		int hour = Integer.valueOf(parts[1]);
-//
-//		Calendar c = Calendar.getInstance();
-//		c.set(year, month, day, hour, min, sec);
-//
-//	Calendar c = Calendar.getInstance();
-//	c.set(year, month, day, hour, min, sec);
-//	ZonedDateTime utc = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("UTC"));
-//	return utc;
-//	}
 	
 	public String[] ParseKeywordArray(String input) 
 	{
@@ -1638,24 +1588,10 @@ class WMV_Metadata
 				keywords[i] = keywordArray[idx];
 			}
 			
-			if (p.debugSettings.metadata)
+			if (ml.debugSettings.metadata)
 				System.out.println("Image or panorama keywords[i]:" + keywords[i]);
 		}
 
 		return keywords;
 	}
-	
-
-//	public PVector ParseTrackLocation(String input) 
-//	{
-//		String[] parts = input.split(",");
-//
-//		float latitude = Float.valueOf(parts[0]);
-//		float longitude = Float.valueOf(parts[1]);
-//		float altitude = Float.valueOf(parts[2]);
-//
-//		PVector loc = new PVector(longitude, altitude, latitude);
-//		return loc;
-//	}
-
 }

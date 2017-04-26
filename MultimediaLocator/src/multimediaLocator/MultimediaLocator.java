@@ -234,12 +234,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	public void startInitialClustering()
 	{
 		display.startupMessages = new ArrayList<String>();	// Clear startup messages
-//		if(debugSettings.metadata)
+		if(debugSettings.metadata)
 		{
 			display.sendSetupMessage(world, "Library folder: "+library.getLibraryFolder());	// Show library folder name
 			display.sendSetupMessage(world, " ");
-			display.display(world);											
 		}
+		display.display(world);											
 
 		state.running = false;			// Stop running
 		state.initialSetup = true;				// Start clustering mode

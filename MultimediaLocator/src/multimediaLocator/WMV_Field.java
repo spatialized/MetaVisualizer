@@ -1016,9 +1016,7 @@ public class WMV_Field
 		setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
 
 		/* Estimate number of clusters */
-		//	Note: mediaDensity = validMedia / fieldArea;				// Media per sq. m.
-//		int numClusters = Math.round( (1.f / (float)Math.sqrt(model.getState().mediaDensity)) * populationFactor ); 	// Calculate numClusters from media density
-		int numClusters = Math.round( ((float)Math.sqrt(model.getState().fieldArea)*(float)Math.sqrt(model.getState().validMedia)) * populationFactor );   // Calculate numClusters from media density
+		int numClusters = estimateClusterAmount(model.getState(), populationFactor);
 
 		if(debugSettings.cluster || debugSettings.field)
 			System.out.println("Creating "+numClusters+" clusters based on "+model.getState().validMedia+" valid media...");
@@ -1039,6 +1037,26 @@ public class WMV_Field
 		
 		if(debugSettings.cluster || debugSettings.field)
 			System.out.println("Created "+numClusters+" Clusters...");
+	}
+	
+	/**
+	 * Estimate number of spatial clusters in field
+	 * @param m Model state for field
+	 * @param populationFactor Cluster population factor
+	 * @return Estimated cluster count
+	 */
+	private int estimateClusterAmount(WMV_ModelState m, float populationFactor)
+	{
+//		Note: mediaDensity = validMedia / fieldArea;				// Media per sq. m.
+//		int numClusters = Math.round( (1.f / (float)Math.sqrt(model.getState().mediaDensity)) * populationFactor ); 	// Calculate numClusters from media density
+//		int result = Math.round( (float)Math.sqrt(model.getState().validMedia) * populationFactor );   // Calculate numClusters from media density
+		int result = Math.round( model.getState().validMedia * populationFactor );   // Calculate numClusters from media density
+//		int result = Math.round( ((float)Math.sqrt(model.getState().fieldArea)*(float)Math.sqrt(model.getState().validMedia)) * populationFactor );   // Calculate numClusters from media density
+//		if(debugSettings.field)
+//			System.out.println("estimateClusterAmount()... fieldArea:"+model.getState().fieldArea+" validMedia:"+model.getState().validMedia+" populationFactor:"+populationFactor+" result:"+result);
+		if(debugSettings.field)
+			System.out.println("estimateClusterAmount()... validMedia:"+model.getState().validMedia+" populationFactor:"+populationFactor+" result:"+result);
+		return result;
 	}
 	
 	/** 
@@ -1223,12 +1241,6 @@ public class WMV_Field
 			
 			count++;
 		}
-		
-//		for (int i = 0; i < images.size(); i++) 			// Find closest cluster for each image
-//			System.out.println("Image #"+i+" cluster is "+images.get(i).getAssociatedClusterID());		// Set associated cluster
-//		for (int i = 0; i < videos.size(); i++) 			// Find closest cluster for each image
-//			System.out.println("Video #"+i+" cluster is "+videos.get(i).getAssociatedClusterID());		// Set associated cluster
-
 	}
 
 	/**
@@ -1244,7 +1256,7 @@ public class WMV_Field
 		List<Integer> merged = new ArrayList<Integer>();											// List of clusters already merged with neighbors
 		float firstMergePct = 0.2f;												// Fraction of clusters with most neighbors to merge first
 		
-		if(debugSettings.cluster) System.out.println("Merging adjacent clusters... starting number:"+clusterList.size());
+		if(debugSettings.field || debugSettings.cluster) System.out.println("mergeAdjacentClusters()... starting number:"+clusterList.size());
 
 		for( WMV_Cluster c : clusterList )					// Find distances of close neighbors to each cluster
 		{
@@ -2201,7 +2213,7 @@ public class WMV_Field
 				if(!moved)
 				{
 					if(debugSettings.field)
-						System.out.println(" Stopped refinement... no clusters moved farther than epsilon:"+epsilon);
+						System.out.println("divideField()... Stopped refinement, no clusters moved farther than epsilon:"+epsilon);
 					break;								// If all clusters moved less than epsilon, stop refinement
 				}
 			}

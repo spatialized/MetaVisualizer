@@ -36,6 +36,34 @@ public class WMV_Utilities
 {
 	WMV_Utilities(){}
 	
+	/**
+	 * Create a directory at destination
+	 * @param folderName Folder name
+	 * @param destination Destination for folder
+	 */
+	public void makeDirectory(String folderName, String destination)
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+		//	ArrayList<String> files = new ArrayList<String>();
+
+		command = new ArrayList<String>();				/* Create small_images directory */
+		command.add("mkdir");
+		command.add(folderName);
+		commandExecutor = new WMV_Command(destination, command);
+		try {
+			int result = commandExecutor.execute();
+			StringBuilder stderr = commandExecutor.getStandardError();
+
+			if (stderr.length() > 0 || result != 0)
+				System.out.println("Error creating small_images directory:" + stderr + " result:"+result);
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable t while creating small_images directory:"+t);
+		}
+	}
+	
 	public ArrayList<PVector> findBorderPoints(ArrayList<PVector> points)
 	{
 		ArrayList<PVector> borderPts = new ArrayList<PVector>();

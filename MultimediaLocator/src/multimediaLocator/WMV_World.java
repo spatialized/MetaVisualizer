@@ -1138,7 +1138,7 @@ public class WMV_World
 	 */
 	public void saveToDisk() 
 	{
-		if(p.debugSettings.main)
+		if(p.debugSettings.main && p.debugSettings.detailed)
 			System.out.println("Will output image to disk.");
 		p.state.export = true;
 	}

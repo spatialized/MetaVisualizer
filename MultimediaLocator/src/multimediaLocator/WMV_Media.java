@@ -14,7 +14,7 @@ import toxi.math.InterpolateStrategy;
 import toxi.math.ScaleMap;
 
 /***************************************
- * Media object viewable in a virtual multimedia environment
+ * Media object viewable in a 3D environment
  * @author davidgordon
  * 
  */
@@ -33,6 +33,16 @@ public abstract class WMV_Media
 	private InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
 	public WMV_Time time;
 
+	/**
+	 * Constructor for abstract 3D media object
+	 * @param newID Media ID
+	 * @param newMediaType Media type ID
+	 * @param newName File name
+	 * @param newFilePath File path
+	 * @param newDateTime Capture date/time
+	 * @param newTimeZone Time zone ID
+	 * @param newGPSLocation GPS location
+	 */
 	WMV_Media ( int newID, int newMediaType, String newName, String newFilePath, ZonedDateTime newDateTime, String newTimeZone,
 				PVector newGPSLocation )
 	{
@@ -94,19 +104,6 @@ public abstract class WMV_Media
 			mState.fading = false;
 	}
 
-	/**
-	 * Stop fading in or out
-	 */
-	public void stopFading()
-	{
-		mState.fadingEndFrame = worldState.frameCount;
-		mState.fadingStart = mState.fadingBrightness;
-		mState.fading = false;
-
-		if(isFadingOut()) mState.isFadingOut = false;
-		if(isFadingIn()) mState.isFadingIn = false;
-	}
-
 	public void updateTimeBrightness(WMV_Cluster c, WMV_Timeline fieldTimeline, WMV_Utilities utilities)
 	{
 		int cycleLength = worldSettings.timeCycleLength;				// Length of main time loop
@@ -146,8 +143,7 @@ public abstract class WMV_Media
 		
 		if(worldState.getTimeMode() == 0 || worldState.getTimeMode() == 1)
 		{
-			float timelineLength = upper - lower;
-
+//			float timelineLength = upper - lower;
 //			if(debugSettings.video && getType() == 2) System.out.println("--> ID:"+getID()+" time:"+time.getTime()+" ---> lower:"+lower+" upper:"+upper+" timelineLength:"+timelineLength+" curTime:"+curTime);
 
 			if(lower == upper)				// Only one cluster segment: fade for full timelineLength   -- CHANGE THIS?!
@@ -378,6 +374,41 @@ public abstract class WMV_Media
 	}
 
 	/**
+	 * Fade in media
+	 */
+	public void fadeIn()
+	{
+		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
+			stopFading();
+
+		fadeBrightness(1.f);					// Fade in
+	}
+
+	/**
+	 * Fade out media
+	 */
+	public void fadeOut()
+	{
+		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
+			stopFading();
+
+		fadeBrightness(0.f);					// Fade out
+	}
+
+	/**
+	 * Stop fading in or out
+	 */
+	public void stopFading()
+	{
+		mState.fadingEndFrame = worldState.frameCount;
+		mState.fadingStart = mState.fadingBrightness;
+		mState.fading = false;
+
+		if(isFadingOut()) mState.isFadingOut = false;
+		if(isFadingIn()) mState.isFadingIn = false;
+	}
+	
+	/**
 	 * Update state.fadingBrightness each frame
 	 */
 	void updateFadingBrightness()
@@ -456,6 +487,38 @@ public abstract class WMV_Media
 
 		mState.captureLocation = new PVector(newX, newY, newZ);
 	}
+	
+	/**
+	 * Search given list of clusters and associated with this image
+	 * @return Whether associated field was successfully found
+	 */	
+	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
+	{
+		int closestClusterIndex = 0;
+		float closestDistance = 100000;
+
+		for (int i = 0; i < clusterList.size(); i++) 
+		{     
+			WMV_Cluster curCluster = clusterList.get(i);
+			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
+
+			if (distanceCheck < closestDistance)
+			{
+				closestClusterIndex = i;
+				closestDistance = distanceCheck;
+			}
+		}
+
+		if(closestDistance < maxClusterDistance)
+			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
+		else
+			setAssociatedClusterID(-1);						// Create a new single image cluster here!
+
+		if(getAssociatedClusterID() != -1)
+			return true;
+		else
+			return false;
+	}
 
 	/**
 	 * Rotate list of vertices using matrices
@@ -506,42 +569,6 @@ public abstract class WMV_Media
 	}
 	
 	/**
-	 * Search given list of clusters and associated with this image
-	 * @return Whether associated field was successfully found
-	 */	
-	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
-	{
-		int closestClusterIndex = 0;
-		float closestDistance = 100000;
-
-//		if(getType() == 2 && getID() == 0)
-//			System.out.println("Video 0  findAssociatedCluster()... clusterList.size() :"+clusterList.size());
-
-		for (int i = 0; i < clusterList.size(); i++) 
-		{     
-			WMV_Cluster curCluster = clusterList.get(i);
-			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-
-			if (distanceCheck < closestDistance)
-			{
-				closestClusterIndex = i;
-				closestDistance = distanceCheck;
-			}
-		}
-
-		if(closestDistance < maxClusterDistance)
-			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
-		else
-			setAssociatedClusterID(-1);						// Create a new single image cluster here!
-
-		if(getAssociatedClusterID() != -1)
-			return true;
-		else
-			return false;
-	}
-
-	
-	/**
 	 * Translate list of vertices using matrices
 	 * @param verts Vertices list
 	 * @param dest Destination vector
@@ -582,7 +609,7 @@ public abstract class WMV_Media
 	/**
 	 * @return Distance from the image capture state.location to the camera
 	 */
-	float getCaptureDistance()       // Find distance from camera to media capture location
+	public float getCaptureDistance()       // Find distance from camera to media capture location
 	{
 		PVector camLoc = viewerState.getLocation();
 		float distance = PVector.dist(mState.captureLocation, camLoc);     
@@ -592,19 +619,23 @@ public abstract class WMV_Media
 	/**
 	 * @return How far the image capture state.location is from a point
 	 */
-	float getCaptureDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
+	public float getCaptureDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
 	{
 		float distance = PVector.dist(mState.captureLocation, point);     
 		return distance;
 	}
 
+	/**
+	 * Set media state
+	 * @param newMediaState New media state
+	 */
 	public void setMediaState( WMV_MediaState newMediaState )
 	{
 		mState = newMediaState;
 	}
 
 	/**
-	 * @return Media state
+	 * @return Current media state
 	 */
 	public WMV_MediaState getMediaState()
 	{
@@ -669,6 +700,7 @@ public abstract class WMV_Media
 	{
 		mState.visible = newState;
 	}
+	
 	/**
 	 * @return Whether the media is visible
 	 */
@@ -703,11 +735,19 @@ public abstract class WMV_Media
 			return false;
 	}
 
+	/**
+	 * Set whether media has faded in recently
+	 * @param newState New faded in state
+	 */
 	public void setFadedIn(boolean newState)
 	{
 		mState.fadedIn = newState;
 	}
 
+	/**
+	 * Set whether media has faded out recently
+	 * @param newState New faded out state
+	 */
 	public void setFadedOut(boolean newState)
 	{
 		mState.fadedOut = newState;
@@ -941,8 +981,6 @@ public abstract class WMV_Media
 	 */
 	public ZonedDateTime parseDateTime(String input) 					// 2016:04:10 17:52:39
 	{		
-//		String[] parts = input.split("-");
-//		input = parts[1];
 		String[] parts = input.split(":");
 
 		int year = Integer.valueOf(parts[0].trim());
@@ -955,29 +993,6 @@ public abstract class WMV_Media
 		int hour = Integer.valueOf(parts[1]);
 
 		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(mState.timeZone));
-//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-
 		return pac;
 	}
-
-//	public ZonedDateTime parseVideoDateTime(String input) 
-//	{		
-//		String[] parts = input.split(":");
-//
-//		int year = Integer.valueOf(parts[0].trim());
-//		int month = Integer.valueOf(parts[1]);
-//		int min = Integer.valueOf(parts[3]);
-//		String secStr = parts[4];
-//
-//		input = parts[2];
-//		parts = input.split(" ");
-//		int day = Integer.valueOf(parts[0]);
-//		int hour = Integer.valueOf(parts[1]);
-//
-//		parts = secStr.split("-");
-//		int sec = Integer.valueOf(parts[0]);
-//
-//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-//		return pac;
-//	}
 }

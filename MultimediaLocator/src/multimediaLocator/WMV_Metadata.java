@@ -21,7 +21,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,7 +30,6 @@ import java.util.Set;
 /**************
  * Class for extracting metadata and adding media to field 
  * @author davidgordon
- * 
  */
 class WMV_Metadata
 {
@@ -65,10 +63,15 @@ class WMV_Metadata
 	public File exifToolFile;										// File for ExifTool executable
 
 	MultimediaLocator p;
-	WMV_Field f;													// Field to load metadata into
+//	WMV_Field f;													// Field to load metadata into
 	WMV_Utilities u;												// Utility class
 	ML_DebugSettings debugSettings;
 	
+	/**
+	 * Constructor for metadata object
+	 * @param parent Parent App
+	 * @param newDebugSettings Debug settings
+	 */
 	WMV_Metadata( MultimediaLocator parent, ML_DebugSettings newDebugSettings )
 	{
 		p = parent;
@@ -78,74 +81,58 @@ class WMV_Metadata
 	}
 
 	/**
-	 * Load metadata from a folder into a field 
+	 * Load metadata from a library for a field 
+	 * @param f Field to load metadata for
+	 * @param libraryFolder Library folder (correctly formatted, e.g. folders small_images, small_videos, data)
+	 * @return Simulation state, if one was saved, otherwise null
 	 */
-	public WMV_SimulationState load(WMV_Field field, String libraryFolder, boolean formatted)
+	public WMV_SimulationState load(WMV_Field f, String libraryFolder)
 	{
-		if(formatted)				// mediaFolder is correctly formatted library
+		library = libraryFolder;
+		String fieldPath = f.getName();
+
+		if(debugSettings.metadata) System.out.println("Will load media files from:"+library+" at fieldPath:"+fieldPath);
+
+		loadImageFolders(fieldPath); 	// Load image + panorama folder(s)
+		if(panoramaFolderFound) loadPanoramas(fieldPath);
+		loadImages(fieldPath);		// Load image + panorama file names
+
+		loadVideoFolder(fieldPath); 	// Load video folder
+		loadVideos(fieldPath);		// Load video file names
+
+		loadSoundFolder(fieldPath); 	// Load sound folder
+		loadSoundFiles(fieldPath);		// Load sound file names
+
+		loadDataFolder(fieldPath);		// Load media data from disk
+
+		if(dataFilesValidFormat)
 		{
-			library = libraryFolder;
+			WMV_FieldState newFieldState = p.library.loadFieldState(dataFiles[1].getAbsolutePath());
+			WMV_ViewerSettings newViewerSettings = p.library.loadViewerSettings(dataFiles[5].getAbsolutePath());
+			WMV_ViewerState newViewerState = p.library.loadViewerState(dataFiles[6].getAbsolutePath());
+			WMV_WorldSettings newWorldSettings = p.library.loadWorldSettings(dataFiles[7].getAbsolutePath());
+			WMV_WorldState newWorldState = p.library.loadWorldState(dataFiles[8].getAbsolutePath());
 
-			f = field;
-			String fieldPath = f.getName();
+			WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
+					newViewerState, newWorldSettings, newWorldState );
 
-			if(debugSettings.metadata) System.out.println("Will load media files from:"+library+" at fieldPath:"+fieldPath);
-			
-			loadImageFolders(fieldPath); 	// Load image + panorama folder(s)
-			loadImageFiles(fieldPath);		// Load image + panorama file names
-
-			loadVideoFolder(fieldPath); 	// Load video folder
-			loadVideoFiles(fieldPath);		// Load video file names
-			
-			loadSoundFolder(fieldPath); 	// Load sound folder
-			loadSoundFiles(fieldPath);		// Load sound file names
-			
-			loadDataFolder(fieldPath);		// Load media data from disk
-			
-			if(dataFilesValidFormat)
-			{
-				WMV_FieldState newFieldState = p.library.loadFieldState(dataFiles[1].getAbsolutePath());
-				WMV_ViewerSettings newViewerSettings = p.library.loadViewerSettings(dataFiles[5].getAbsolutePath());
-				WMV_ViewerState newViewerState = p.library.loadViewerState(dataFiles[6].getAbsolutePath());
-				WMV_WorldSettings newWorldSettings = p.library.loadWorldSettings(dataFiles[7].getAbsolutePath());
-				WMV_WorldState newWorldState = p.library.loadWorldState(dataFiles[8].getAbsolutePath());
-				
-				WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
-									newViewerState, newWorldSettings, newWorldState );
-				
-				return newSimulationState;
-			}
-			else
-			{
-				iCount = 0; 
-				pCount = 0;
-				vCount = 0;
-
-				if(smallImageFilesFound) loadImageMetadata(smallImageFiles);						// Load image metadata 
-				if(panoramaFilesFound) loadImageMetadata(panoramaFiles);  // Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
-				if(videoFilesFound) loadVideoMetadata(videoFiles);	 	  // Load video metadata 
-				if(soundFilesFound) loadSounds(soundFiles);				  // Load sound file names 
-			}
+			return newSimulationState;
 		}
-		else						// mediaFolder is an ordinary folder of media
+		else
 		{
-			f = field;
-			
-			// -- GO THROUGH SUBFOLDERS, CHECK FILE EXTENSIONS AND CREATE ARRAYS HERE
-
 			iCount = 0; 
 			pCount = 0;
 			vCount = 0;
 
-			if(imageFiles != null) loadImageMetadata(imageFiles);							// Load image metadata 
-			if(panoramaFiles != null) loadImageMetadata(panoramaFiles); // Load panorama metadata  -- Fix bug in panoramaFiles.length == 0
-			if(videoFiles != null) loadVideoMetadata(videoFiles);			// Load video metadata
-			if(soundFiles != null) loadSounds(soundFiles);			// Load sounds (no metadata)
+			if(smallImageFilesFound) loadImagesMetadata(f, smallImageFiles);						// Load image metadata 
+			if(panoramaFilesFound) loadImagesMetadata(f, panoramaFiles); 						    // Load panorama metadata
+			if(videoFilesFound) loadVideosMetadata(f, videoFiles);	 	 							// Load video metadata 
+			if(soundFilesFound) loadSounds(f, soundFiles);				 							// Load sound file names 
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * Load metadata for folders of images, small images (640px wide) and panoramas
 	 */
@@ -162,112 +149,6 @@ class WMV_Metadata
 		smallImageFolderFound = (smallImageFolderFile.exists() && smallImageFolderFile.isDirectory());			
 		imageFolderFound = (imageFolderFile.exists() && imageFolderFile.isDirectory());	
 		panoramaFolderFound = (panoramaFolderFile.exists() && panoramaFolderFile.isDirectory());
-	}
-
-	public void loadImageFiles(String fieldPath)
-	{
-		smallImageFiles = null;
-		imageFiles = null;
-		panoramaFiles = null;
-		
-		if(panoramaFolderFound)
-		{
-			panoramaFiles = panoramaFolderFile.listFiles();
-			if(panoramaFiles != null && panoramaFiles.length > 0)
-				panoramaFilesFound = true;	
-		}
-		
-		if(smallImageFolderFound)		// Found small_images folder. Check for files
-		{
-			smallImageFiles = smallImageFolderFile.listFiles();
-
-			if(smallImageFiles != null && smallImageFiles.length > 0)
-				smallImageFilesFound = true;
-			
-			if(smallImageFilesFound)
-			{
-				if(smallImageFiles.length == 1)
-				{
-					File f = smallImageFiles[0];
-					String check = f.getName();
-					if(check.equals(".DS_Store"))
-						smallImageFilesFound = false;			/* Only found .DS_Store, ignore it */
-				}
-				
-				if(smallImageFilesFound && debugSettings.metadata) 
-					System.out.println("Files found in small_images folder, will use instead of shrinking large images...");
-
-//				imageFolder = smallImageFolder;					// Set imageFolder to small_images
-//				imageFolderFile = new File(imageFolder);
-//				imageFiles = imageFolderFile.listFiles();
-			}
-		}
-		else if(imageFolderFound || panoramaFolderFound)		// If no small images, look for original images and panoramas
-		{
-			if(debugSettings.metadata) 	
-				System.out.println("No small_images folder... ");
-
-			if(imageFolderFound)			// Check for image files
-			{
-				imageFiles = imageFolderFile.listFiles();
-				if(imageFiles != null && imageFiles.length > 0)
-					imageFilesFound = true;
-			}
-			
-			if(imageFilesFound)				/* If no small images, but there are images */
-			{
-				WMV_Command commandExecutor;
-				ArrayList<String> command = new ArrayList<String>();
-//				ArrayList<String> files = new ArrayList<String>();
-
-				command = new ArrayList<String>();				/* Create small_images directory */
-				command.add("mkdir");
-				command.add("small_images");
-				commandExecutor = new WMV_Command(library, command);
-				try {
-					int result = commandExecutor.execute();
-					StringBuilder stderr = commandExecutor.getStandardError();
-
-					if (stderr.length() > 0 || result != 0)
-						System.out.println("Error creating small_images directory:" + stderr + " result:"+result);
-				}
-				catch(Throwable t)
-				{
-					System.out.println("Throwable t while creating small_images directory:"+t);
-				}
-			}
-		}
-			
-		// If images exist but no small images are found
-		if(imageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
-		{
-			imageFolder = library + "/" + fieldPath + "/images/";					// Original size
-			boolean success = u.shrinkImages(imageFolder, smallImageFolder);		
-			if(success)
-			{
-//				if(debugSettings.metadata) 
-					System.out.println("Shrink images successful...");
-			}
-			else
-			{
-//				if(debugSettings.metadata) 
-					System.out.println("Shrink images failed...");
-			}
-
-			imageFolder = smallImageFolder;					// Set imageFolder to smallImageFolder
-			imageFolderFile = new File(imageFolder);
-			imageFiles = imageFolderFile.listFiles();
-		}
-
-		if(debugSettings.metadata) 	
-		{
-			if(smallImageFilesFound)
-				System.out.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
-			if(imageFilesFound)
-				System.out.println("Image Folder Location:" + imageFolderFile + " imageFiles.length:"+imageFiles.length);
-			if(panoramaFilesFound)
-				System.out.println("Panorama Folder Location:" + panoramaFolderFile + " panoramaFiles.length:"+panoramaFiles.length);
-		}
 	}
 	
 	/**
@@ -296,28 +177,6 @@ class WMV_Metadata
 //		}
 	}
 	
-	/**
-	 * Load metadata for folder of videos
-	 */
-	public void loadVideoFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
-	{
-//		videoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max width 720 pixels  -- Check this!
-
-		videoFolderFile = new File(videoFolder);
-		videoFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());	
-		videoFiles = null;
-
-//		smallVideoFolderFile = new File(smallImageFolder);
-//		smallVideoFiles = new File[1];
-
-		if(videoFolderFound)				// Check for video files
-		{
-			videoFiles = videoFolderFile.listFiles();
-			if(videoFiles != null && videoFiles.length > 0)
-				videoFilesFound = true;
-		}
-	}
-
 	/**
 	 * Load metadata for folder of videos
 	 */
@@ -421,11 +280,103 @@ class WMV_Metadata
 		}
 	}
 	
+	public void loadPanoramas(String fieldPath)
+	{
+		panoramaFiles = panoramaFolderFile.listFiles();
+		if(panoramaFiles != null && panoramaFiles.length > 0)
+			panoramaFilesFound = true;	
+	}
+	
+	public void loadImages(String fieldPath)
+	{
+		smallImageFiles = null;
+		imageFiles = null;
+		if(!panoramaFolderFound) panoramaFiles = null;
+		
+		if(smallImageFolderFound)								// Found small_images folder
+		{
+			smallImageFiles = smallImageFolderFile.listFiles();	// Check for files
+
+			if(smallImageFiles != null && smallImageFiles.length > 0)
+				smallImageFilesFound = true;
+			
+			if(smallImageFilesFound)
+			{
+				if(smallImageFiles.length == 1)
+				{
+					File f = smallImageFiles[0];
+					String check = f.getName();
+					if(check.equals(".DS_Store"))
+						smallImageFilesFound = false;			/* Only found .DS_Store, ignore it */
+				}
+				
+				if(smallImageFilesFound && debugSettings.metadata) 
+					System.out.println("Files found in small_images folder, will use instead of shrinking large images...");
+			}
+		}
+		
+		if(imageFolderFound)		// If no small images, look for original images and panoramas
+		{
+			if(debugSettings.metadata) 	
+				System.out.println("No small_images folder... ");
+
+			imageFiles = imageFolderFile.listFiles();
+			if(imageFiles != null && imageFiles.length > 0)
+				imageFilesFound = true;
+			
+			if(imageFilesFound)				/* If no small images, but there are images */
+				p.world.utilities.makeDirectory("small_images", library);
+		}
+		
+		// If images exist but no small images are found
+		if(imageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
+		{
+			boolean success = u.shrinkImages(imageFolder, smallImageFolder);		
+			if(success)
+			{
+//				if(debugSettings.metadata) 
+					System.out.println("Shrink images successful...");
+			}
+			else
+			{
+//				if(debugSettings.metadata) 
+					System.out.println("Shrink images failed...");
+			}
+		}
+
+//		if(debugSettings.metadata) 	
+		{
+			if(smallImageFilesFound)
+				System.out.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
+			if(imageFilesFound)
+				System.out.println("Large Image Folder Location:" + imageFolderFile + " imageFiles.length:"+imageFiles.length);
+//			if(panoramaFilesFound)
+//				System.out.println("Panorama Folder Location:" + panoramaFolderFile + " panoramaFiles.length:"+panoramaFiles.length);
+		}
+	}
+
+	/**
+	 * Load metadata for folder of videos
+	 */
+	public void loadVideos(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	{
+		videoFolderFile = new File(videoFolder);
+		videoFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());	
+		videoFiles = null;
+
+		if(videoFolderFound)				// Check for video files
+		{
+			videoFiles = videoFolderFile.listFiles();
+			if(videoFiles != null && videoFiles.length > 0)
+				videoFilesFound = true;
+		}
+	}
+
 	/** 
 	 * Read tags from array of video files and create 3D video objects
 	 * @param files File array
 	 */
-	public boolean loadSounds(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	public boolean loadSounds(WMV_Field f, File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
 	{
 		int count = 0;
 		
@@ -518,374 +469,94 @@ class WMV_Metadata
 	 * Read tags from array of image/panorama files and create 3D image/panorama objects
 	 * @param files File array
 	 */
-	public boolean loadImageMetadata(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	public boolean loadImagesMetadata(WMV_Field f, File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
 	{
 		int fileCount;
-
-		if(files != null)
+		if(files != null) 
 			fileCount = files.length;	 		// File count
 		else 
 			return false;
 		
 		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
 		{
-			boolean panorama = false;
-			boolean dataMissing = false, brightnessMissing = false, descriptionMissing = false;
-
-			String sName = "";
-			sName = files[currentMedia].getName();
-
-			ZonedDateTime zonedDateTime = null;
-			
-			int iWidth = -1, iHeight = -1;
-			float fDirection = 0, fElevation = 0, fRotation = 0, fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
-			float fFocusDistance = -1.f;										
-			float fBrightness = -1.f;
-			int iCameraModel = 0;
-
-			String[] sKeywords = new String[0];	
-			
-			String sDateTime = null;
-			String sLatitude = null, sLongitude = null, sAltitude = null;
-			String sOrientation = null, sDirection = null;
-			String sFocalLength = null, sFocalLength35mm = null;
-			String sSoftware = null;
-			String sCameraModel = null, sDescription = null;
-
-			PVector gpsLoc = new PVector(0, 0, 0);
-			String sFilePath = "";
-
-			Metadata imageMetadata = null;				// For images
-
-			File file = files[currentMedia];				// Get current file from array
-
-			if(debugSettings.metadata && debugSettings.detailed)
-				System.out.println("Loading image: "+sName);
-
-			try {
-				imageMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */
-			}
-			catch (Throwable t) 
-			{
-				if(debugSettings.metadata && debugSettings.detailed)
-					System.out.println("loadImageMetadata()... Throwable:" + t);
-				if(!dataMissing) dataMissing = true;
-			}
-
-			/* Set image variables from metadata */
-			if (imageMetadata != null) 
-			{
-				for (Directory directory : imageMetadata.getDirectories()) 
-				{
-					for (Tag tag : directory.getTags()) 
-					{
-						String tagString = tag.toString();		
-						String tagName = tag.getTagName();
-
-						if (tag.getTagName().equals("Software")) // Software
-						{
-							sSoftware = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Software..." + sSoftware);
-
-							if(sSoftware.equals("[Exif IFD0] Software - Occipital 360 Panorama"))
-							{
-								panorama = true;		// Image is a panorama
-								if(dataMissing) f.addPanoramaError();		// Count dataMissing as panorama error
-							}
-							else
-							{
-								if(dataMissing) f.addImageError();			// Count dataMissing as image error
-							}
-						}
-
-						if (tagName.equals("Model")) // Model
-						{
-							sCameraModel = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Camera Model..." + sCameraModel);
-
-							try
-							{
-								iCameraModel = parseCameraModel(sCameraModel);
-							}
-							catch (Throwable t) // If not, must be only one keyword
-							{
-								if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
-								if(!dataMissing)
-								{
-									f.addImageError();
-									dataMissing = true;
-								}						
-							}
-
-							if(iCameraModel == 1)
-							{
-								panorama = true;		// Image is a panorama
-								if(dataMissing) f.addPanoramaError();		// Count dataMissing as panorama error
-							}
-							else
-							{
-								if(brightnessMissing || descriptionMissing)
-								{
-									if(!dataMissing)
-									{
-										f.addImageError();
-										dataMissing = true;
-									}						
-								}
-							}
-						}
-
-						if (tagName.equals("Orientation")) // Orientation
-						{
-							sOrientation = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Orientation..." + sOrientation);
-						}
-						if (tagName.equals("Date/Time Original")) // Orientation
-						{
-							sDateTime = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) 
-								System.out.println("Found DateTimeOriginal..." + sDateTime);
-							String[] parts = sDateTime.split(" - ");
-							sDateTime = parts[1];
-						}
-						if (tagName.equals("GPS Latitude")) // Latitude
-						{
-							sLatitude = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Latitude..." + sLatitude);
-						}
-						if (tagName.equals("GPS Longitude")) // Longitude
-						{
-							sLongitude = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Longitude..." + sLongitude);
-						}
-						if (tagName.equals("GPS Altitude")) // Altitude
-						{
-							sAltitude = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Altitude..." + sAltitude);
-						}
-						if (tagName.equals("Focal Length")) // Focal Length
-						{
-							sFocalLength = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Focal Length..." + sFocalLength);
-						}
-
-						if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
-						{
-							sFocalLength35mm = tagString;
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Focal Length 35mm Equivalent..." + sFocalLength);
-						}
-						if (tagName.equals("GPS Img Direction")) // Image Direction
-						{
-							sDirection = tagString;
-							
-							if (debugSettings.metadata && debugSettings.detailed)
-								if(panorama) System.out.println("Found Panorama Direction..." + sDirection);
-						}
-						if (tagName.equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
-						{
-							sDescription = tagString;
-							String[] parts = tagString.split("Image Description -");
-							String input = parts[1];
-							parts = input.split("vert_angle_deg=");
-							if(parts.length > 1)
-							{
-								input = parts[1];
-								parts = input.split("/");
-								fElevation = Float.valueOf(parts[0]);
-								input = parts[1];
-								parts = input.split("=");
-								fRotation = Float.valueOf(parts[1]);
-							}
-							else
-							{
-								descriptionMissing = true;
-								if(debugSettings.metadata) System.out.println("Not a Theodolite image...");
-							}
-
-							if (debugSettings.metadata && debugSettings.detailed)
-								System.out.println("Found Description..." + sDescription);
-						}
-						
-						if (tagName.equals("AFPointsUsed")) // Orientation
-						{
-							// String afPointsStr = tagString;
-							// if (afPointsStr.equals("-"))
-							// 		afPoints[0] = 0;
-							// else
-							// 		afPoints = ParseAFPointsArray(afPointsStr);
-						}
-
-						if (tagName.equals("Keywords"))
-						{
-							if (debugSettings.metadata)
-								System.out.println("-------------->  Keywords: "+tagString);
-							
-							sKeywords = ParseKeywordArray(tagString);
-						}
-
-						if (tagName.equals("Aperture Value")) // Aperture
-						{
-//							fAperture = 
-//							System.out.println("Aperture Value (not recorded)..."+tagString);
-						}
-
-						if (tagName.equals("Brightness Value")) // Brightness
-						{
-							fBrightness = parseBrightness(tagString);
-							if(fBrightness == -1.f && !dataMissing)
-								brightnessMissing = true;
-						}
-
-						if (tagName.equals("Image Width")) // Orientation
-							iWidth = ParseWidthOrHeight(tagString);
-
-						if (tagName.equals("Image Height")) // Orientation
-							iHeight = ParseWidthOrHeight(tagString);
-					}
-
-					sFilePath = file.getPath();
-
-					if (directory.hasErrors()) {
-						for (String error : directory.getErrors()) {
-							System.out.println("ERROR: " + error);
-						}
-					}
-				}
-
-				try {
-					zonedDateTime = parseDateTime(sDateTime);
-				} 
-				catch (RuntimeException ex) 
-				{
-					if (debugSettings.metadata) System.out.println("Error in date / time... " + ex);
-					if(!dataMissing)
-					{
-						if(panorama) f.addPanoramaError();
-						else f.addImageError();
-						dataMissing = true;
-					}					
-				}
-
-				if(!panorama)			// -- Update this
-				{
-					try {
-						fFocalLength = parseFocalLength(sFocalLength);
-						fSensorSize = parseSensorSize(sFocalLength35mm);		// 29 mm for iPhone 6S+
-					} 
-					catch (Throwable t) // If not, must be only one keyword
-					{
-						if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
-						if(!dataMissing)
-						{
-							if(panorama) f.addPanoramaError();
-							else f.addImageError();
-							dataMissing = true;
-						}						
-					}
-				}
-				else
-				{
-					iCameraModel = -1;
-					fFocalLength = -1.f;
-				}
-
-				try {
-					float xCoord, yCoord, zCoord;
-					xCoord = parseLongitude(sLongitude);
-					yCoord = parseAltitude(sAltitude);
-					zCoord = parseLatitude(sLatitude);
-
-					if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
-					{
-						gpsLoc = new PVector(0, 0, 0);
-						if(!dataMissing)
-						{
-							if(panorama) f.addPanoramaError();
-							else f.addImageError();
-							dataMissing = true;
-						}						
-					}
-					gpsLoc = new PVector(xCoord, yCoord, zCoord);
-				} 
-				
-				catch (RuntimeException ex) 
-				{
-					if (debugSettings.metadata) System.out.println("Error reading image location:" + sName + "  " + ex);
-
-					if(!dataMissing)
-					{
-						if(panorama) f.addPanoramaError();
-						else f.addImageError();
-						dataMissing = true;
-					}					
-				}
-
-				try {
-					if(sOrientation != null)
-						fOrientation = ParseOrientation(sOrientation);
-					else
-						fOrientation = 0;									// Default: horizontal -- Change?
-					
-					fDirection = ParseDirection(sDirection);		
-
-					if(panorama && sDirection == null)
-					{
-						if (debugSettings.metadata) System.out.println("Panorama fDirection is null!");
-					}
-				} 
-				catch (RuntimeException ex) {
-					if (debugSettings.metadata) System.out.println("Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
-					if(!panorama)
-					{
-						if(!dataMissing)
-						{
-							f.addImageError();
-							dataMissing = true;
-						}			
-					}
-				}
-			}
-			
-			/* Add this media object to field */
-			try 
-			{
-				if(!(gpsLoc.x == 0.f && gpsLoc.y == 0.f && gpsLoc.z == 0.f))
-				{
-					if(panorama && !dataMissing)
-					{
-						WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
-						PImage pImg = p.createImage(0,0,processing.core.PConstants.RGB);
-
-						f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
-						pCount++;
-					}
-					else if(!dataMissing)
-					{
-						WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
-								fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
-						
-						PImage pImg = p.createImage(0, 0, processing.core.PConstants.RGB);
-						f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata ) );
-						iCount++;
-					}
-				}
-				else
-					System.out.println("Excluded "+(panorama?"panorama:":"image:")+sName);
-			}
-			catch (RuntimeException ex) {
-				if (debugSettings.metadata)
-					System.out.println("Could not add image! Error: "+ex);
-			}
+			File file = files[currentMedia];
+			boolean panorama = fileIsPanorama(file);
+			if(panorama)
+				loadPanoramaMetadata(f, file);
+			else
+				loadImageMetadata(f, file);
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Check metadata for image file to tell whether it is a regular image or panorama
+	 * @param file File to check
+	 * @return Whether the file is a panorama
+	 */
+	private boolean fileIsPanorama(File file)
+	{
+		Metadata imageMetadata = null;				// For images
+		
+		try {
+			imageMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */
+		}
+		catch (Throwable t) 
+		{
+			if(debugSettings.metadata && debugSettings.detailed)
+				System.out.println("fileIsPanorama()... Throwable:" + t);
+		}
+
+		if (imageMetadata != null) 
+		{
+			for (Directory directory : imageMetadata.getDirectories()) 
+			{
+				for (Tag tag : directory.getTags()) 
+				{
+					String tagString = tag.toString();		
+					String tagName = tag.getTagName();
+
+					if (tag.getTagName().equals("Software")) // Software
+					{
+						String sSoftware = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Software..." + sSoftware);
+
+						if(sSoftware.equals("[Exif IFD0] Software - Occipital 360 Panorama"))
+							return true;		// Image is a panorama
+					}
+
+					if (tagName.equals("Model")) // Model
+					{
+						String sCameraModel = tagString;
+						int iCameraModel;
+						
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Camera Model..." + sCameraModel);
+						
+						try
+						{
+							iCameraModel = parseCameraModel(sCameraModel);
+							if(iCameraModel == 1)
+								return true;		// Image is a panorama
+						}
+						catch (Throwable t) // If not, must be only one keyword
+						{
+							if (debugSettings.metadata) System.out.println("fileIsPanorama()... Throwable in parsing camera model..." + t);
+//							return false;
+						}
+					}
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	/** 
 	 * Read tags from array of video files and create 3D video objects
 	 * @param files File array
 	 */
-	public boolean loadVideoMetadata(File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	public boolean loadVideosMetadata(WMV_Field f, File[] files) 
 	{
 		int fileCount;
 		if(files != null)
@@ -893,151 +564,656 @@ class WMV_Metadata
 		else
 			return false;
 		
-		boolean videosExist = true;
-		
-		if (videoFiles == null)					// Check if any videos exist
-			videosExist = false;
+//		boolean videosExist = true;
+//		if (videoFiles == null)					// Check if any videos exist
+//			videosExist = false;
 		
 		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
+			loadVideoMetadata(f, files[currentMedia]);
+		
+		return true;
+	}
+	
+	public void loadImageMetadata(WMV_Field f, File file)
+	{
+		String sName = file.getName();
+		boolean panorama = false;
+		boolean dataMissing = false, brightnessMissing = false, descriptionMissing = false;
+
+		ZonedDateTime zonedDateTime = null;
+		
+		int iWidth = -1, iHeight = -1;
+		float fDirection = 0, fElevation = 0, fRotation = 0, fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
+		float fFocusDistance = -1.f;										
+		float fBrightness = -1.f;
+		int iCameraModel = 0;
+
+		String[] sKeywords = new String[0];	
+		
+		String sDateTime = null;
+		String sLatitude = null, sLongitude = null, sAltitude = null;
+		String sOrientation = null, sDirection = null;
+		String sFocalLength = null, sFocalLength35mm = null;
+		String sSoftware = null;
+		String sCameraModel = null, sDescription = null;
+
+		PVector gpsLoc = new PVector(0, 0, 0);
+		String sFilePath = "";
+
+		Metadata imageMetadata = null;				// For images
+
+		if(debugSettings.metadata && debugSettings.detailed)
+			System.out.println("Loading image: "+sName);
+
+		try {
+			imageMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */
+		}
+		catch (Throwable t) 
 		{
-			boolean dataMissing = false;
-			boolean hasVideo = true;
+			if(debugSettings.metadata && debugSettings.detailed)
+				System.out.println("loadImageMetadata()... Throwable:" + t);
+			if(!dataMissing) dataMissing = true;
+		}
 
-			if (!videosExist || videoFiles.length <= currentMedia)		// Check if this video exists
-				hasVideo = false;
-
-			String sName = "";
-			sName = videoFiles[currentMedia].getName();
-
-			ZonedDateTime zonedDateTime = null;			
-
-			int iWidth = -1, iHeight = -1;
-			float fBrightness = -1.f;
-			PVector gpsLoc = new PVector(0, 0, 0);
-			String sFilePath = "";
-			
-			String duration = null;										
-			String sDateTime = null, sWidth = null, sHeight = null;
-			String sLatitude = null, sLongitude = null, altitude = null;
-			String sKeywords = null;
-			String[] keywords = new String[0];	
-
-			File file = files[currentMedia];				// Get current file from array
-
-			if(debugSettings.metadata)
-				System.out.println("Loading video metadata for file: "+sName);
-
-
-			Map<String, String> videoMetadata = null;
-			/* Read video metadata from file using ExifToolWrapper */
-			try {
-				videoMetadata = readVideoMetadata(file, exifToolFile);		
-			}
-			catch(Throwable t)
+		/* Set image variables from metadata */
+		if (imageMetadata != null) 
+		{
+			for (Directory directory : imageMetadata.getDirectories()) 
 			{
-				System.out.println("Throwable while reading video metadata: " + t);
-				dataMissing = true;
-			}
-
-			/* Set video variables from metadata */
-			try {
-				sLongitude = videoMetadata.get("GPSLongitude");
-				sLatitude = videoMetadata.get("GPSLatitude");
-				altitude = videoMetadata.get("GPSAltitude");
-				duration = videoMetadata.get("MediaDuration");
-				sDateTime = videoMetadata.get("CreationDate");
-				sWidth = videoMetadata.get("ImageWidth");
-				sHeight = videoMetadata.get("ImageHeight");
-				sKeywords = videoMetadata.get("Keywords");
-				
-				String[] parts = sDateTime.split("-");
-				sDateTime = parts[0];
-
-				if(debugSettings.metadata && debugSettings.video && debugSettings.detailed)
+				for (Tag tag : directory.getTags()) 
 				{
-					System.out.println("--> Video latitude:"+sLatitude+"  longitude:"+sLongitude+"  altitude:"+altitude);
-					System.out.println("  date:"+sDateTime);
-					System.out.println("  duration:"+duration);
-					System.out.println("  width:"+sWidth+"  height:"+sHeight);
-					System.out.println("  keywords:"+sKeywords);
-				}
+					String tagString = tag.toString();		
+					String tagName = tag.getTagName();
 
-				try {
-					zonedDateTime = parseDateTime(sDateTime);
-				} 
-				catch (Throwable t) {
-					System.out.println("Throwable while parsing date / time... " + t);
-					dataMissing = true;
-				}
-
-				/* Parse video GPS coordinates */
-				try {
-					float xCoord, yCoord, zCoord;
-					xCoord = Float.valueOf(sLongitude);				// Flip sign of longitude?
-					yCoord = Float.valueOf(altitude);
-					zCoord = Float.valueOf(sLatitude);				// Flip sign of latitude?
-
-					if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
+					if (tag.getTagName().equals("Software")) // Software
 					{
-						gpsLoc = new PVector(0, 0, 0);
-						if(!dataMissing)
+						sSoftware = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Software..." + sSoftware);
+					}
+
+					if (tagName.equals("Model")) // Model
+					{
+						sCameraModel = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Camera Model..." + sCameraModel);
+
+						try
 						{
-							f.addVideoError();
-							dataMissing = true;
+							iCameraModel = parseCameraModel(sCameraModel);
+						}
+						catch (Throwable t) // If not, must be only one keyword
+						{
+							if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
+							if(!dataMissing) dataMissing = true;
 						}
 					}
-					gpsLoc = new PVector(xCoord, yCoord, zCoord);
-				} 
-				catch (RuntimeException ex) 
-				{
-					if (debugSettings.metadata)
-						System.out.println("Error reading video location:" + sName + "  " + ex);
-					dataMissing = true;
+
+					if (tagName.equals("Orientation")) // Orientation
+					{
+						sOrientation = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Orientation..." + sOrientation);
+					}
+					if (tagName.equals("Date/Time Original")) // Orientation
+					{
+						sDateTime = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) 
+							System.out.println("Found DateTimeOriginal..." + sDateTime);
+						String[] parts = sDateTime.split(" - ");
+						sDateTime = parts[1];
+					}
+					if (tagName.equals("GPS Latitude")) // Latitude
+					{
+						sLatitude = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Latitude..." + sLatitude);
+					}
+					if (tagName.equals("GPS Longitude")) // Longitude
+					{
+						sLongitude = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Longitude..." + sLongitude);
+					}
+					if (tagName.equals("GPS Altitude")) // Altitude
+					{
+						sAltitude = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Altitude..." + sAltitude);
+					}
+					if (tagName.equals("Focal Length")) // Focal Length
+					{
+						sFocalLength = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Focal Length..." + sFocalLength);
+					}
+
+					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
+					{
+						sFocalLength35mm = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Focal Length 35mm Equivalent..." + sFocalLength);
+					}
+					if (tagName.equals("GPS Img Direction")) // Image Direction
+					{
+						sDirection = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found GPS Img Direction..." + sDirection);
+					}
+					if (tagName.equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
+					{
+						sDescription = tagString;
+						String[] parts = tagString.split("Image Description -");
+						String input = parts[1];
+						parts = input.split("vert_angle_deg=");
+						if(parts.length > 1)
+						{
+							input = parts[1];
+							parts = input.split("/");
+							fElevation = Float.valueOf(parts[0]);
+							input = parts[1];
+							parts = input.split("=");
+							fRotation = Float.valueOf(parts[1]);
+						}
+						else
+						{
+							descriptionMissing = true;
+							if(debugSettings.metadata) System.out.println("Not a Theodolite image...");
+						}
+
+						if (debugSettings.metadata && debugSettings.detailed)
+							System.out.println("Found Description..." + sDescription);
+					}
+					
+					if (tagName.equals("AFPointsUsed")) // Orientation
+					{
+//						String afPointsStr = tagString;
+//						if (afPointsStr.equals("-"))
+//							afPoints[0] = 0;
+//						else
+//							afPoints = ParseAFPointsArray(afPointsStr);
+					}
+
+					if (tagName.equals("Aperture Value")) // Aperture
+					{
+//						fAperture = 
+//						System.out.println("Aperture Value (not recorded)..."+tagString);
+					}
+
+					if (tagName.equals("Keywords"))
+					{
+						if (debugSettings.metadata)
+							System.out.println("-------------->  Keywords: "+tagString);
+						
+						sKeywords = ParseKeywordArray(tagString);
+					}
+
+					if (tagName.equals("Brightness Value")) // Brightness
+					{
+						fBrightness = parseBrightness(tagString);
+						if(fBrightness == -1.f)
+							brightnessMissing = true;
+					}
+
+					if (tagName.equals("Image Width")) // Orientation
+						iWidth = ParseWidthOrHeight(tagString);
+
+					if (tagName.equals("Image Height")) // Orientation
+						iHeight = ParseWidthOrHeight(tagString);
 				}
 
-				iWidth = Integer.valueOf(sWidth);
-				iHeight = Integer.valueOf(sHeight);
 				sFilePath = file.getPath();
+
+				if (directory.hasErrors()) {
+					for (String error : directory.getErrors()) {
+						System.out.println("ERROR: " + error);
+					}
+				}
+			}
+
+			try {
+				zonedDateTime = parseDateTime(sDateTime);
 			} 
-			catch (Throwable t) {
-				System.out.println("Throwable while extracting video EXIF data:" + t);
-				if(!dataMissing)
-				{
-					f.addVideoError();
-					dataMissing = true;
-				}
-			}
-
-			/* Add 3D video object to field based on given metadata */
-			try 
+			catch (RuntimeException ex) 
 			{
-				if(!(gpsLoc.x == 0.f && gpsLoc.y == 0.f && gpsLoc.z == 0.f ) && hasVideo && !dataMissing)
-				{
-					Movie pMov = new Movie(p, sFilePath);
-
-					WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), 
-							-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords);
-					f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
-					vCount++;
-				}
-				else if(debugSettings.metadata || debugSettings.video)
-					System.out.println("Excluded video:"+sName);
-
+				if (debugSettings.metadata) System.out.println("Error in date / time... " + ex);
+				if(!dataMissing) dataMissing = true;
 			}
-			catch (Throwable t) {
-				if (debugSettings.metadata)
+
+			try {
+				fFocalLength = parseFocalLength(sFocalLength);
+				fSensorSize = parseSensorSize(sFocalLength35mm);		// 29 mm for iPhone 6S+
+			} 
+			catch (Throwable t) // If not, must be only one keyword
+			{
+				if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
+				if(!dataMissing) dataMissing = true;
+			}
+
+			try {
+				float xCoord, yCoord, zCoord;
+				xCoord = parseLongitude(sLongitude);
+				yCoord = parseAltitude(sAltitude);
+				zCoord = parseLatitude(sLatitude);
+
+				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
 				{
-					System.out.println("Throwable while adding video to ArrayList: "+t);
-					System.out.println("   pFilePath:" + sFilePath);
-					PApplet.print("    pLoc.x:" + gpsLoc.x);
-					PApplet.print("    pLoc.y:" + gpsLoc.y);
-					System.out.println("    pLoc.z:" + gpsLoc.z);
-					System.out.println("   dataMissing:" + dataMissing);
+					gpsLoc = new PVector(0, 0, 0);
+					if(!dataMissing) dataMissing = true;
 				}
+				else
+					gpsLoc = new PVector(xCoord, yCoord, zCoord);
+			} 
+			
+			catch (RuntimeException ex) 
+			{
+				if (debugSettings.metadata) System.out.println("Error reading image location:" + sName + "  " + ex);
+
+				if(!dataMissing) dataMissing = true;
+			}
+
+			try {
+				if(sOrientation != null)
+					fOrientation = ParseOrientation(sOrientation);
+				else
+					fOrientation = 0;									// Default: horizontal -- Change?
+				
+				if(sDirection != null)
+					fDirection = ParseDirection(sDirection);		
+				else
+					if (debugSettings.metadata) System.out.println("Image fDirection is null! "+sName);
+			} 
+			catch (RuntimeException ex) {
+				if (debugSettings.metadata)
+					System.out.println("Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
+				if(!dataMissing) dataMissing = true;
 			}
 		}
 		
-		return true;
+		/* Add this media object to field */
+		try 
+		{
+			if(!dataMissing)
+			{
+				WMV_ImageMetadata iMetadata = new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
+						fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
+
+				PImage pImg = p.createImage(0, 0, processing.core.PConstants.RGB);
+				f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata ) );
+				iCount++;
+			}
+			else
+				System.out.println("Data missing! Excluded image:"+sName);
+
+		}
+		catch (RuntimeException ex) {
+			if (debugSettings.metadata)
+				System.out.println("Could not add image! Error: "+ex+" f == null?"+(f==null));
+		}
+	}
+
+	public void loadPanoramaMetadata(WMV_Field f, File file)
+	{
+		String sName = file.getName();
+		boolean panorama = true;
+		boolean dataMissing = false, brightnessMissing = false, descriptionMissing = false;
+
+		ZonedDateTime zonedDateTime = null;
+		
+		int iWidth = -1, iHeight = -1;
+		float fDirection = 0, fElevation = 0, fRotation = 0, fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
+		float fFocusDistance = -1.f;										
+		float fBrightness = -1.f;
+		int iCameraModel = 0;
+
+		String[] sKeywords = new String[0];	
+		
+		String sDateTime = null;
+		String sLatitude = null, sLongitude = null, sAltitude = null;
+		String sOrientation = null, sDirection = null;
+		String sFocalLength = null, sFocalLength35mm = null;
+		String sSoftware = null;
+		String sCameraModel = null, sDescription = null;
+
+		PVector gpsLoc = new PVector(0, 0, 0);
+		String sFilePath = "";
+
+		Metadata panoramaMetadata = null;				// For images
+
+		if(debugSettings.metadata && debugSettings.detailed)
+			System.out.println("Loading panorama: "+sName);
+
+		try {
+			panoramaMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */
+		}
+		catch (Throwable t) 
+		{
+			if(debugSettings.metadata && debugSettings.detailed)
+				System.out.println("loadImageMetadata()... Throwable:" + t);
+			if(!dataMissing) dataMissing = true;
+		}
+
+		/* Set image variables from metadata */
+		if (panoramaMetadata != null) 
+		{
+			for (Directory directory : panoramaMetadata.getDirectories()) 
+			{
+				for (Tag tag : directory.getTags()) 
+				{
+					String tagString = tag.toString();		
+					String tagName = tag.getTagName();
+
+					if (tag.getTagName().equals("Software")) // Software
+					{
+						sSoftware = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Software..." + sSoftware);
+					}
+
+					if (tagName.equals("Model")) // Model
+					{
+						sCameraModel = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Camera Model..." + sCameraModel);
+
+						try
+						{
+							iCameraModel = parseCameraModel(sCameraModel);
+						}
+						catch (Throwable t) // If not, must be only one keyword
+						{
+							if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
+							if(!dataMissing) dataMissing = true;
+						}
+
+						if(dataMissing) f.addPanoramaError();		// Count dataMissing as panorama error
+					}
+
+					if (tagName.equals("Orientation")) // Orientation		-- Not needed for panorama?
+					{
+						sOrientation = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Orientation..." + sOrientation);
+					}
+					if (tagName.equals("Date/Time Original")) // Orientation
+					{
+						sDateTime = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) 
+							System.out.println("Found DateTimeOriginal..." + sDateTime);
+						String[] parts = sDateTime.split(" - ");
+						sDateTime = parts[1];
+					}
+					if (tagName.equals("GPS Latitude")) // Latitude
+					{
+						sLatitude = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Latitude..." + sLatitude);
+					}
+					if (tagName.equals("GPS Longitude")) // Longitude
+					{
+						sLongitude = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Longitude..." + sLongitude);
+					}
+					if (tagName.equals("GPS Altitude")) // Altitude
+					{
+						sAltitude = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Altitude..." + sAltitude);
+					}
+					if (tagName.equals("Focal Length")) // Focal Length
+					{
+						sFocalLength = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Focal Length..." + sFocalLength);
+					}
+
+					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
+					{
+						sFocalLength35mm = tagString;
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Focal Length 35mm Equivalent..." + sFocalLength);
+					}
+					if (tagName.equals("GPS Img Direction")) // Image Direction
+					{
+						sDirection = tagString;
+						
+						if (debugSettings.metadata && debugSettings.detailed)
+							System.out.println("Found Panorama Direction..." + sDirection);
+					}
+					if (tagName.equals("Image Description")) 	// Description -- Unused for panorama
+					{
+						sDescription = tagString;
+						if (debugSettings.metadata && debugSettings.detailed)
+							System.out.println("Found Description..." + sDescription);
+					}
+					
+					if (tagName.equals("Keywords"))
+					{
+						if (debugSettings.metadata)
+							System.out.println("-------------->  Keywords: "+tagString);
+						
+						sKeywords = ParseKeywordArray(tagString);
+					}
+
+					if (tagName.equals("Aperture Value")) // Aperture
+					{
+//						fAperture = 
+//						System.out.println("Aperture Value (not recorded)..."+tagString);
+					}
+
+					if (tagName.equals("Brightness Value")) // Brightness
+					{
+						fBrightness = parseBrightness(tagString);
+						if(fBrightness == -1.f) brightnessMissing = true;
+					}
+
+					if (tagName.equals("Image Width")) // Orientation
+						iWidth = ParseWidthOrHeight(tagString);
+
+					if (tagName.equals("Image Height")) // Orientation
+						iHeight = ParseWidthOrHeight(tagString);
+				}
+
+				sFilePath = file.getPath();
+
+				if (directory.hasErrors()) {
+					for (String error : directory.getErrors()) {
+						System.out.println("ERROR: " + error);
+					}
+				}
+			}
+
+			try {
+				zonedDateTime = parseDateTime(sDateTime);
+			} 
+			catch (RuntimeException ex) 
+			{
+				if (debugSettings.metadata) System.out.println("Error in date / time... " + ex);
+				if(!dataMissing) dataMissing = true;
+			}
+
+			if(!panorama)			// -- Update this
+			{
+				try {
+					fFocalLength = parseFocalLength(sFocalLength);
+					fSensorSize = parseSensorSize(sFocalLength35mm);		// 29 mm for iPhone 6S+
+				} 
+				catch (Throwable t) // If not, must be only one keyword
+				{
+					if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
+					if(!dataMissing) dataMissing = true;
+				}
+			}
+			else
+			{
+				iCameraModel = -1;
+				fFocalLength = -1.f;
+			}
+
+			try {
+				float xCoord, yCoord, zCoord;
+				xCoord = parseLongitude(sLongitude);
+				yCoord = parseAltitude(sAltitude);
+				zCoord = parseLatitude(sLatitude);
+
+				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
+				{
+					gpsLoc = new PVector(0, 0, 0);
+					if(!dataMissing) dataMissing = true;
+				}
+				else
+					gpsLoc = new PVector(xCoord, yCoord, zCoord);
+			} 
+			
+			catch (RuntimeException ex) 
+			{
+				if (debugSettings.metadata) System.out.println("Error reading image location:" + sName + "  " + ex);
+
+				if(!dataMissing) dataMissing = true;
+			}
+
+			try {
+				if(sOrientation != null)
+					fOrientation = ParseOrientation(sOrientation);
+				else
+					fOrientation = 0;									// Default: horizontal -- Change?
+				
+				fDirection = ParseDirection(sDirection);		
+
+				if(sDirection == null)
+				{
+					if (debugSettings.metadata) System.out.println("Panorama fDirection is null!");
+				}
+			} 
+			catch (RuntimeException ex) {
+				if (debugSettings.metadata) System.out.println("Error reading panorama orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
+				if(!dataMissing) dataMissing = true;
+			}
+		}
+		
+		/* Add this media object to field */
+		try 
+		{
+			if(!dataMissing)
+			{
+				WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), fDirection, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
+
+				PImage pImg = p.createImage(0,0,processing.core.PConstants.RGB);
+				f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
+				pCount++;
+			}
+			else
+				System.out.println("Data missing!  Excluded panorama:"+sName);
+		}
+		catch (RuntimeException ex) {
+			if (debugSettings.metadata)
+				System.out.println("Could not add panorama! Error: "+ex);
+		}
+	}
+
+	public void loadVideoMetadata(WMV_Field f, File file)
+	{
+		String sName = file.getName();
+
+		boolean dataMissing = false;
+		ZonedDateTime zonedDateTime = null;			
+
+		int iWidth = -1, iHeight = -1;
+		float fBrightness = -1.f;
+		PVector gpsLoc = new PVector(0, 0, 0);
+		String sFilePath = "";
+		
+		String duration = null;										
+		String sDateTime = null, sWidth = null, sHeight = null;
+		String sLatitude = null, sLongitude = null, altitude = null;
+		String sKeywords = null;
+		String[] keywords = new String[0];	
+
+		if(debugSettings.metadata) System.out.println("Loading video metadata for file: "+sName);
+
+		Map<String, String> videoMetadata = null;
+
+		/* Read video metadata from file using ExifToolWrapper */
+		try {
+			videoMetadata = readVideoMetadata(file, exifToolFile);		
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable while reading video metadata: " + t);
+			dataMissing = true;
+		}
+
+		/* Set video variables from metadata */
+		try {
+			sLongitude = videoMetadata.get("GPSLongitude");
+			sLatitude = videoMetadata.get("GPSLatitude");
+			altitude = videoMetadata.get("GPSAltitude");
+			duration = videoMetadata.get("MediaDuration");
+			sDateTime = videoMetadata.get("CreationDate");
+			sWidth = videoMetadata.get("ImageWidth");
+			sHeight = videoMetadata.get("ImageHeight");
+			sKeywords = videoMetadata.get("Keywords");
+			
+			String[] parts = sDateTime.split("-");
+			sDateTime = parts[0];
+
+			if(debugSettings.metadata && debugSettings.video && debugSettings.detailed)
+			{
+				System.out.println("--> Video latitude:"+sLatitude+"  longitude:"+sLongitude+"  altitude:"+altitude);
+				System.out.println("  date:"+sDateTime);
+				System.out.println("  duration:"+duration);
+				System.out.println("  width:"+sWidth+"  height:"+sHeight);
+				System.out.println("  keywords:"+sKeywords);
+			}
+
+			try {
+				zonedDateTime = parseDateTime(sDateTime);
+			} 
+			catch (Throwable t) {
+				System.out.println("Throwable while parsing date / time... " + t);
+				dataMissing = true;
+			}
+
+			/* Parse video GPS coordinates */
+			try {
+				float xCoord, yCoord, zCoord;
+				xCoord = Float.valueOf(sLongitude);				// Flip sign of longitude?
+				yCoord = Float.valueOf(altitude);
+				zCoord = Float.valueOf(sLatitude);				// Flip sign of latitude?
+
+				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
+				{
+					gpsLoc = new PVector(0, 0, 0);
+					if(!dataMissing) dataMissing = true;
+				}
+				else 
+					gpsLoc = new PVector(xCoord, yCoord, zCoord);
+			} 
+			catch (RuntimeException ex) 
+			{
+				if (debugSettings.metadata)
+					System.out.println("Error reading video location:" + sName + "  " + ex);
+				dataMissing = true;
+			}
+
+			iWidth = Integer.valueOf(sWidth);
+			iHeight = Integer.valueOf(sHeight);
+			sFilePath = file.getPath();
+		} 
+		catch (Throwable t) {
+			System.out.println("Throwable while extracting video EXIF data:" + t);
+			if(!dataMissing) dataMissing = true;
+		}
+
+		/* Add 3D video object to field based on given metadata */
+		try 
+		{
+			if(!dataMissing)
+			{
+				WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, f.getTimeZoneID(), 
+						-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords);
+				
+				Movie pMov = new Movie(p, sFilePath);
+				f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
+				vCount++;
+			}
+			else if(debugSettings.metadata || debugSettings.video)
+				System.out.println("Data missing!  Excluded video:"+sName);
+
+		}
+		catch (Throwable t) {
+			if (debugSettings.metadata)
+			{
+				System.out.println("Throwable while adding video to ArrayList: "+t);
+				System.out.println("   pFilePath:" + sFilePath);
+				PApplet.print("    pLoc.x:" + gpsLoc.x+"    pLoc.y:" + gpsLoc.y+"    pLoc.z:" + gpsLoc.z);
+				System.out.println("   dataMissing:" + dataMissing);
+			}
+		}
 	}
 	
 	/**

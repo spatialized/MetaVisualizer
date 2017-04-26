@@ -190,27 +190,27 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		ml.popMatrix();
 	}
 
-	/**
-	 * Fade in video
-	 */
-	public void fadeIn()
-	{
-		if(isFading() || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
-			stopFading();
-
-		fadeBrightness(1.f);					// Fade in
-	}
-
-	/**
-	 * Fade out video
-	 */
-	public void fadeOut()
-	{
-		if(isFading() || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
-			stopFading();
-
-		fadeBrightness(0.f);					// Fade out
-	}
+//	/**
+//	 * Fade in video
+//	 */
+//	public void fadeIn()
+//	{
+//		if(isFading() || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
+//			stopFading();
+//
+//		fadeBrightness(1.f);					// Fade in
+//	}
+//
+//	/**
+//	 * Fade out video
+//	 */
+//	public void fadeOut()
+//	{
+//		if(isFading() || getMediaState().isFadingIn || getMediaState().isFadingOut)		// If already fading, stop at current value
+//			stopFading();
+//
+//		fadeBrightness(0.f);					// Fade out
+//	}
 
 	/**
 	 * Fade in sound

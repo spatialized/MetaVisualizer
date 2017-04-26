@@ -19,6 +19,13 @@ public class WMV_Image extends WMV_Media
 	private PImage blurMask;		// Blur mask
 	private PImage blurred;			// Combined pixels 
 
+	/**
+	 * Constructor for 3D image
+	 * @param newID Image ID
+	 * @param newImage Image file
+	 * @param newMediaType Media type ID
+	 * @param newImageMetadata Image metadata
+	 */
 	public WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata ) 
 	{
 		super( newID, newMediaType, newImageMetadata.name, newImageMetadata.filePath, newImageMetadata.dateTime, newImageMetadata.timeZone, 
@@ -170,23 +177,23 @@ public class WMV_Image extends WMV_Media
 		ml.popMatrix();
 	}
 
-	/**
-	 * Fade in image
-	 */
-	public void fadeIn()
-	{
-		if(isFading()) stopFading();
-		fadeBrightness(1.f);				
-	}
-
-	/**
-	 * Fade out image
-	 */
-	public void fadeOut()
-	{
-		if(isFading()) stopFading();
-		fadeBrightness(0.f);				
-	}
+//	/**
+//	 * Fade in image
+//	 */
+//	public void fadeIn()
+//	{
+//		if(isFading()) stopFading();
+//		fadeBrightness(1.f);				
+//	}
+//
+//	/**
+//	 * Fade out image
+//	 */
+//	public void fadeOut()
+//	{
+//		if(isFading()) stopFading();
+//		fadeBrightness(0.f);				
+//	}
 	
 	/**
 =	 * Update image geometry + visibility

@@ -1,7 +1,5 @@
 package multimediaLocator;
 
-import java.util.ArrayList;
-
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
@@ -292,28 +290,6 @@ public class WMV_Panorama extends WMV_Media
 		ml.popMatrix();
 	}
 	
-	/**
-	 * Fade in panorama
-	 */
-	public void fadeIn()
-	{
-		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
-			stopFading();
-
-		fadeBrightness(1.f);					// Fade in
-	}
-
-	/**
-	 * Fade out panorama
-	 */
-	public void fadeOut()
-	{
-		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
-			stopFading();
-
-		fadeBrightness(0.f);					// Fade out
-	}
-
 	/**
 	 * Initialize panorama geometry
 	 */

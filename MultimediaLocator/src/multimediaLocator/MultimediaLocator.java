@@ -299,7 +299,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			/* Get field to initialize */
 			WMV_Field f = world.getField(fieldID);	
-			
+
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
 			WMV_Field loadedField;
 			if(fieldID + 1 >= world.getFields().size())
@@ -348,7 +348,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	private WMV_Field loadSimulationState(WMV_Field f, String libraryFolder, boolean set)
 	{
 		/* Load metadata from media associated with field */
-		WMV_SimulationState savedState = metadata.load(f, libraryFolder, true);
+		WMV_SimulationState savedState = metadata.load(f, libraryFolder);
 		
 		/* Attempt to load simulation state */
 		if(savedState != null)

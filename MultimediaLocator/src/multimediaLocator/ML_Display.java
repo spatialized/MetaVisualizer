@@ -1,6 +1,5 @@
 package multimediaLocator;
 import java.util.ArrayList;
-//import g4p_controls.GButton;
 import processing.core.*;
 
 /***********************************
@@ -42,7 +41,7 @@ class ML_Display
 	private int screenHeight = -1;
 	
 	/* Library View */
-	public int libraryViewMode = 0;						// 0: Library, 1: Field, 2: Cluster
+	public int libraryViewMode = 0;						// 0: World, 1: Field, 2: Cluster
 	public int currentDisplayCluster = 0;
 
 	/* Messages */
@@ -181,7 +180,6 @@ class ML_Display
 			p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 			p.p.background(0);																// Hide 3D view
 			displayStartup(p);														// Draw startup messages
-//			progressBar();
 		}
 		else
 		{
@@ -193,20 +191,17 @@ class ML_Display
 				switch(displayView)
 				{
 					case 1:
-						if(satelliteMap)
-							map2D.displaySatelliteMap(p);
-						else
-							map2D.displayPlainMap(p);
+						if(satelliteMap) map2D.displaySatelliteMap(p);
+						else map2D.displayLargeBasicMap(p);
 						
-						if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
-						if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
+//						if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
+//						if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
 						if(p.p.state.interactive) displayInteractiveClustering(p);
 						map2D.updateMouse(p);
 						break;
 					case 2:
 						displayLibraryView(p);
-						if(libraryViewMode == 0)
-							map2D.updateMouse(p);
+						if(libraryViewMode == 0) map2D.updateMouse(p);
 						break;
 					case 3:
 						displayTimeView(p);
@@ -218,15 +213,9 @@ class ML_Display
 			else if( messages.size() > 0 || metadata.size() > 0 )
 			{
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-
-				if(messages.size() > 0)
-					displayMessages(p);
-
+				if(messages.size() > 0) displayMessages(p);
 				if(p.getState().showMetadata && metadata.size() > 0 && p.viewer.getSettings().selection)	
 					displayMetadata(p);
-
-//				if((displayMode == 1) && drawForceVector)						// Draw force vector
-//					map2D.drawForceVector();
 			}
 		}
 	}
@@ -253,8 +242,8 @@ class ML_Display
 		p.p.textSize(largeTextSize);
 		String strDisplayDate = "Showing All Dates";
 		if(displayDate != -1) strDisplayDate = utilities.getDateAsString(p.getCurrentField().getDate(displayDate));
+
 		p.p.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistance);
-		
 		p.p.textSize(mediumTextSize);
 		p.p.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += lineWidthVeryWide, hudDistance);
 
@@ -1355,19 +1344,16 @@ class ML_Display
 	 */
 	void displayClusteringInfo(MultimediaLocator ml)
 	{
-//		message("Interactive Clustering Mode: "+(p.hierarchical ?"Hierarchical Clustering":"K-Means Clustering"));
-//		message(" ");
-		
 		if(ml.world.state.hierarchical)
 		{
-//			message("Hierarchical Clustering");
+			message(ml, "Hierarchical Clustering");
 			message(ml, " ");
 			message(ml, "Use arrow keys UP and DOWN to change clustering depth... ");
 			message(ml, "Use [ and ] to change Minimum Cluster Distance... ");
 		}
 		else
 		{
-//			message("K-Means Clustering");
+			message(ml, "K-Means Clustering");
 			message(ml, " ");
 			message(ml, "Use arrow keys LEFT and RIGHT to change Iterations... ");
 			message(ml, "Use arrow keys UP and DOWN to change Population Factor... ");
@@ -1378,6 +1364,9 @@ class ML_Display
 		message(ml, "Press <spacebar> to restart 3D viewer...");
 	}
 
+	/**
+	 * Reset 2D display object
+	 */
 	void reset()
 	{
 		/* Window Modes */
@@ -1389,9 +1378,6 @@ class ML_Display
 		
 		/* Debug */
 		drawForceVector = false;
-		
-		/* Status */
-//		initialSetup = true;
 		
 		/* Graphics */
 		drawGrid = false; 			// Draw 3D grid   			-- Unused
@@ -1629,10 +1615,7 @@ class ML_Display
 				}
 				else
 				{
-//					if(!dataFolderFound)
-						p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
-//					else
-//						p.p.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 				}
 			}
 			else
@@ -1664,8 +1647,13 @@ class ML_Display
 	void displayLibraryView(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
-		WMV_Cluster c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
+		if(currentDisplayCluster < 0 || currentDisplayCluster >= f.getClusters().size())
+		{
+			System.out.println("Fixed currentDisplayCluster out of range! was: "+currentDisplayCluster+" getClusters().size():"+f.getClusters().size());
+			currentDisplayCluster = 0;
+		}
 
+		WMV_Cluster c;
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
 
@@ -1673,10 +1661,51 @@ class ML_Display
 		{
 			case 0:														// Fields
 				startHUD(p);
-				map2D.displayFieldsMap(p);
+				map2D.displayWorldMap(p);
 				break;
 			case 1:														// Field
+				startHUD(p);
+				p.p.pushMatrix();
+				p.p.fill(0, 0, 255, 255);
+				p.p.textSize(veryLargeTextSize);
+				p.p.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
+				c = p.getCurrentCluster();
+
+				p.p.textSize(largeTextSize);
+				p.p.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+
+				if(c != null)
+				{
+					p.p.textSize(largeTextSize);
+					p.p.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistance);
+				}		
+
+				p.p.textSize(mediumTextSize);
+				p.p.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
+				p.p.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
+				if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
+				p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
+				p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
+				p.p.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
+
+				if(f.getDateline() != null)
+				{
+					p.p.textSize(mediumTextSize);
+					if(f.getDateline().size() > 0)
+					{
+						int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
+						p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
+						p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+						p.p.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
+						p.p.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
+								+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
+					}
+				}
+				p.p.popMatrix();
+
+				map2D.displaySmallBasicMap(p);
 				break;
+				
 			case 2:								// Cluster
 				startHUD(p);
 				p.p.pushMatrix();
@@ -1685,6 +1714,7 @@ class ML_Display
 				p.p.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
 	
 				p.p.textSize(largeTextSize);
+				c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
 				WMV_Cluster cl = p.getCurrentCluster();
 				p.p.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistance);
 				p.p.textSize(mediumTextSize);
@@ -1697,9 +1727,6 @@ class ML_Display
 				p.p.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
 	//			if(c.sounds.size() > 0)
 	//				p.p.text("     Sounds: "+ c.sounds.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
-	//			p.p.text("     Active: "+ c.isActive(), textXPos, textYPos += lineWidth, hudDistance);
-	//			p.p.text("     Single: "+ c.isSingle(), textXPos, textYPos += lineWidth, hudDistance);
-	//			p.p.text("     Empty: "+ c.isEmpty(), textXPos, textYPos += lineWidth, hudDistance);
 				p.p.text("   Location: "+ c.getLocation(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" ", xPos, yPos += lineWidth, hudDistance);
@@ -1714,57 +1741,8 @@ class ML_Display
 					if(c.getDateline().size() > 0)
 						p.p.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
 	
-				if(p.getCurrentCluster() != null)
-				{
-					p.p.text("   Stitched Panoramas: "+p.getCurrentCluster().stitched.size(), xPos, yPos += lineWidth, hudDistance);
-				}
-	
-				if(p.p.debugSettings.field || p.p.debugSettings.main)
-				{
-					if(c != null)
-					{
-						p.p.textSize(largeTextSize);
-						p.p.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistance);
-						p.p.textSize(mediumTextSize);
-						if(c.getDateline() != null)
-						{
-							if(c.getDateline().size() > 0)
-							{
-								int clusterDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
-								p.p.text(" Current Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-								p.p.text("   ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
-								p.p.text("   Date: "+ (clusterDate+1) +" of "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-								if(c.getTimelines().size() > clusterDate)
-									p.p.text("  Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.getTimelines().get(clusterDate).timeline.size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
-								else
-									p.p.text("ERROR: No Cluster Timeline for Current Cluster Date ("+clusterDate+")", xPos, yPos += lineWidth, hudDistance);
-							}
-						}
-					}		
-	
-					p.p.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
-					p.p.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
-					if(p.getState().hierarchical) p.p.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
-					p.p.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
-	
-					if(f.getDateline() != null)
-					{
-						p.p.textSize(largeTextSize);
-						p.p.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-						p.p.textSize(mediumTextSize);
-						if(f.getDateline().size() > 0)
-						{
-							int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
-							p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-							p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
-							p.p.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-							p.p.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
-									+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
-						}
-					}
-				}
+				if(cl != null)
+					p.p.text("   Stitched Panoramas: "+cl.stitched.size(), xPos, yPos += lineWidth, hudDistance);
 	
 				if(p.viewer.getAttractorClusterID() != -1)
 				{
@@ -1780,6 +1758,8 @@ class ML_Display
 				
 				drawClusterImages(p, c.getImages(p.getCurrentField().getImages()));
 				p.p.popMatrix();
+				
+				map2D.displaySmallBasicMap(p);
 				break;
 		}
 	}
@@ -1850,7 +1830,7 @@ class ML_Display
 			case 1:	
 				displayView = 1;
 				map2D.initializeMaps(p);
-				map2D.zoomToField(p, p.getCurrentField());
+				map2D.zoomToField(p, p.getCurrentField(), false);
 //				if(!satelliteMap) map2D.zoomToCluster(p, p.getCurrentCluster());
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(true);
@@ -1859,7 +1839,7 @@ class ML_Display
 			case 2:	
 				displayView = 2;
 				if(!initializedMaps) map2D.initializeMaps(p);
-				map2D.initializeFieldsMap(p);
+				map2D.initializeFieldsMap(p, false);
 //				if(!initializedFieldMap) map2D.initializeFieldsMap(p);
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(false);

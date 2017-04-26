@@ -371,7 +371,7 @@ public class WMV_Cluster
 	/**
 	 * Analyze associated media capture times (Need to implement: find on which scales it operates, i.e. minute, day, month, year)
 	 */
-	public void analyzeMedia(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList) 
+	public void createModel(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList) 
 	{
 		calculateDimensions(imageList, panoramaList, videoList);		// Calculate cluster dimensions (bounds)
 		calculateTimes(imageList, panoramaList, videoList);				// Calculate cluster times
@@ -736,7 +736,7 @@ public class WMV_Cluster
 			
 			for(int i=added.size()-1; i>=0; i--)
 			{
-				int removed = allImages.remove(i);			// Remove images added to curSegment	-- NOT WORKING
+				int removed = allImages.remove(i);			// Remove images added to curSegment
 				if(debugSettings.cluster && debugSettings.detailed)
 					System.out.println("Removed image ID "+removed+" from allImages");
 			}

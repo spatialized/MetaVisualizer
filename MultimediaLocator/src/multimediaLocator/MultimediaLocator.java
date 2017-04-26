@@ -629,8 +629,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 					parentFilePath = parentFilePath + parts[i] + "/";
 			}
 
-			world.getState().stitchingPath = parentFilePath + "stitched/";					// -- Move this to library!
+			world.getState().stitchingPath = parentFilePath + "stitched/";
 			world.loadImageMasks();					
+			world.loadVideoMasks();
 			
 			selectedFolder = true;
 		}

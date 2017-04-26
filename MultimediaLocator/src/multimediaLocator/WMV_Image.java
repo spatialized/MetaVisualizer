@@ -127,7 +127,18 @@ public class WMV_Image extends WMV_Media
 		catch(RuntimeException ex)
 		{
 			if(getDebugSettings().image || getDebugSettings().main)
-				System.out.println("Error with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
+			{
+				System.out.println("Image #"+getID()+" Error with Image Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
+				if(source != null && mask != null)
+				{
+					System.out.println("  source.width:"+source.width+" mask.width:"+mask.width+"  source.height:"+source.height+" mask.height:"+mask.height);
+				}
+				else
+				{
+					System.out.println("  source == null?"+(source == null));
+					System.out.println("  mask == null?"+(mask == null));
+				}
+			}
 		}
 		
 		return result;

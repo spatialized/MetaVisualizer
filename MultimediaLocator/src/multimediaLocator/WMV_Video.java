@@ -72,7 +72,19 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		catch(RuntimeException ex)
 		{
 			if(getDebugSettings().video || getDebugSettings().main)
-				System.out.println("Error with Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
+			{
+				System.out.println("Error with Video Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
+				if(source != null && mask != null)
+				{
+					System.out.println("  state.origVideoWidth:"+state.origVideoWidth+" source.width:"+source.width+" mask.width:"+mask.width);
+					System.out.println("  state.origVideoHeight:"+state.origVideoHeight+" source.height:"+source.height+" mask.height:"+mask.height);
+				}
+				else
+				{
+					System.out.println("  source == null?"+(source == null));
+					System.out.println("  mask == null?"+(mask == null));
+				}
+			}
 		}
 		
 		return result;

@@ -204,7 +204,7 @@ class WMV_MetadataLoader
 		if(dataFolderFound)				// Check for sound files
 		{
 			dataFiles = dataFolderFile.listFiles();
-			if (debugSettings.data)
+			if (debugSettings.data && debugSettings.detailed)
 			{
 				System.out.println("Data Files[0]:" + dataFiles[0].getName());
 				System.out.println("Data Files[1]:" + dataFiles[1].getName());

@@ -579,20 +579,20 @@ public class ML_Input
 				/* Clustering */
 				if (key == 'r')
 				{
-					ml.display.map2D.resetMapZoom(ml.world, true);
+//					ml.display.map2D.resetMapZoom(ml.world, true);
 				}
 
 				if (key == 'c')
 				{
-					ml.display.map2D.resetMapZoom(ml.world, true);
+//					ml.display.map2D.resetMapZoom(ml.world, true);
 					ml.startInteractiveClustering();
 				}
 
 				if (key == 'z')
-					ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster());	// Zoom to current cluster
+					ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
 
 				if (key == 'Z')
-					ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField());	// Zoom to current field
+					ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);	// Zoom to current field
 
 				if (shiftKey && key == 'c')
 					ml.startInitialClustering();				// Re-run clustering on all fields
@@ -611,29 +611,29 @@ public class ML_Input
 					if (keyCode == PApplet.RIGHT) 
 						ml.world.viewer.rotateX(1);
 
-					if (optionKey && shiftKey && keyCode == PApplet.LEFT) 
-						ml.display.map2D.mapScrollTransition( ml.world, 150.f * ml.display.map2D.getMapDistance(), 0.f );
-
-					if (optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-						ml.display.map2D.mapScrollTransition( ml.world, -150.f * ml.display.map2D.getMapDistance(), 0.f );
-
-					if (optionKey && shiftKey && keyCode == PApplet.DOWN) 
-						ml.display.map2D.mapScrollTransition( ml.world, 0.f, -150.f * ml.display.map2D.getMapDistance() );
-
-					if (optionKey && shiftKey && keyCode == PApplet.UP) 
-						ml.display.map2D.mapScrollTransition( ml.world, 0.f, 150.f * ml.display.map2D.getMapDistance() );
-
-					if (!optionKey && shiftKey && keyCode == PApplet.LEFT) 
-						ml.display.map2D.zoomRectangleScrollTransition( ml.world, -400.f * ml.display.map2D.getMapDistance(), 0.f );
-
-					if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 400.f * ml.display.map2D.getMapDistance(), 0.f );
-
-					if (!optionKey && shiftKey && keyCode == PApplet.DOWN) 
-						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, 400.f * ml.display.map2D.getMapDistance() );
-
-					if (!optionKey && shiftKey && keyCode == PApplet.UP) 
-						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, -400.f * ml.display.map2D.getMapDistance() );
+//					if (optionKey && shiftKey && keyCode == PApplet.LEFT) 
+//						ml.display.map2D.mapScrollTransition( ml.world, 150.f * ml.display.map2D.getMapDistance(), 0.f );
+//
+//					if (optionKey && shiftKey && keyCode == PApplet.RIGHT) 
+//						ml.display.map2D.mapScrollTransition( ml.world, -150.f * ml.display.map2D.getMapDistance(), 0.f );
+//
+//					if (optionKey && shiftKey && keyCode == PApplet.DOWN) 
+//						ml.display.map2D.mapScrollTransition( ml.world, 0.f, -150.f * ml.display.map2D.getMapDistance() );
+//
+//					if (optionKey && shiftKey && keyCode == PApplet.UP) 
+//						ml.display.map2D.mapScrollTransition( ml.world, 0.f, 150.f * ml.display.map2D.getMapDistance() );
+//
+//					if (!optionKey && shiftKey && keyCode == PApplet.LEFT) 
+//						ml.display.map2D.zoomRectangleScrollTransition( ml.world, -400.f * ml.display.map2D.getMapDistance(), 0.f );
+//
+//					if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
+//						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 400.f * ml.display.map2D.getMapDistance(), 0.f );
+//
+//					if (!optionKey && shiftKey && keyCode == PApplet.DOWN) 
+//						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, 400.f * ml.display.map2D.getMapDistance() );
+//
+//					if (!optionKey && shiftKey && keyCode == PApplet.UP) 
+//						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, -400.f * ml.display.map2D.getMapDistance() );
 				}
 
 				if(key == PApplet.ENTER)
@@ -649,7 +649,7 @@ public class ML_Input
 					}
 				}
 			}
-			else if(ml.display.displayView == 2)		/* Cluster View */
+			else if(ml.display.displayView == 2)									/* Library View */
 			{
 				if (key == 'j') 
 					ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
@@ -658,7 +658,10 @@ public class ML_Input
 				{
 					ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
 				}
-				
+
+				if (key == 'z')
+					ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);
+
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.LEFT) 
@@ -715,7 +718,7 @@ public class ML_Input
 						if(ml.display.libraryViewMode == 2)
 						{
 							if(!ml.display.initializedFieldMap)
-								ml.display.map2D.initializeFieldsMap(ml.world);
+								ml.display.map2D.initializeFieldsMap(ml.world, false);
 						}
 					}
 
@@ -723,8 +726,6 @@ public class ML_Input
 				
 				if (ml.display.libraryViewMode == 0)
 				{
-					if (key == 'z')
-						ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField());
 					
 					if(key == PApplet.ENTER)
 					{

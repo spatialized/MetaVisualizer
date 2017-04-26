@@ -360,7 +360,7 @@ public class WMV_Field
 	
 	/**
 	 * Initialize field
-	 * @param lockMediaToClusters Center media capture locations at associated cluster locations
+	 * @param randomSeed Clustering random seed
 	 */
 	public boolean initialize(long randomSeed)
 	{
@@ -427,7 +427,11 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Update field variables each frame
+	 * Update field variables
+	 * @param currentWorldSettings Current world settings
+	 * @param currentWorldState Current world state
+	 * @param currentViewerSettings Current viewer settings
+	 * @param currentViewerState Current viewer state
 	 */
 	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
 						WMV_ViewerState currentViewerState)
@@ -443,6 +447,9 @@ public class WMV_Field
 			c.update(currentWorldSettings, currentWorldState, currentViewerSettings, currentViewerState);
 	}
 
+	/**
+	 * Analyze cluster media directions
+	 */
 	public void analyzeClusterMediaDirections()
 	{
 		for(WMV_Cluster c : getClusters())
@@ -459,40 +466,6 @@ public class WMV_Field
 			v.findPlaceholder(images);
 	}
 
-	 /** 
-	  * Find video placeholder images, i.e. images taken just before a video to indicate same location, orientation, elevation and rotation angles
-	  */	
-//	 public void findVideoPlaceholders()
-//	 {
-//		 for (int i = 0; i < videos.size(); i++) 		
-//		 {
-//			 WMV_Video v = getVideo(i);
-//			 if(!v.isDisabled())
-//			 {
-//				 int id = v.getImagePlaceholder();				// Find associated image with each video
-//
-//				 if(id != -1)
-//				 {
-//					 if(v.getAssociatedClusterID() != getImage(id).getAssociatedClusterID())
-//					 {
-//						 System.out.println("findVideoPlaceholders().. Will set associated cluster for video #"+v.getID()+" from "+v.getAssociatedClusterID()+" to getImage(id).getAssociatedClusterID():"+getImage(id).getAssociatedClusterID());
-//						 v.setAssociatedClusterID( getImage(id).getAssociatedClusterID() );	// Set video cluster to cluster of associated image
-//						 System.out.println("findVideoPlaceholders().. Have set associated cluster for video #"+v.getID()+" to "+v.getAssociatedClusterID());
-//					 }
-//					 clusters.get(v.getAssociatedClusterID()).getState().hasVideo = true;	// Set cluster video property to true
-//					 if(debugSettings.video)
-//						 System.out.println("Image placeholder for video: "+i+" is:"+id+" getCluster(v.cluster).video:"+getCluster(v.getAssociatedClusterID()).getState().hasVideo);
-//				 }
-//				 else
-//				 {
-//					 if(debugSettings.video)
-//						 System.out.println("No image placeholder found for video: "+i+" getCluster(v.cluster).video:"+getCluster(v.getAssociatedClusterID()).getState().hasVideo);
-//					 v.setDisabled(true);
-//				 }
-//			 }
-//		 }
-//	 }
-	
 	/**
 	 * Calculate location of each media file in virtual space from GPS, orientation metadata
 	 */
@@ -555,10 +528,9 @@ public class WMV_Field
 
 		for( WMV_Cluster c : clusters )
 			if(!c.isEmpty())
-				c.analyzeMedia(images, panoramas, videos);					
+				c.createModel(images, panoramas, videos);					
 
 		if(debugSettings.field) System.out.println("Finished analyzing media...");
-//		System.out.println("Setting cluster times/dates for media...");
 
 		/* Set cluster date and time for each media object */
 		for(WMV_Cluster c : clusters)
@@ -599,7 +571,6 @@ public class WMV_Field
 	  * @param videos GMV_Video list
 	  * @return New cluster with given media
 	  */
-//	 public WMV_Cluster createCluster( int index, PVector location, List<Integer> imageList, List<Integer> panoramaList, List<Integer> videoList )
 	 public WMV_Cluster createCluster( int index, PVector location, List<Integer> imageList, List<Integer> panoramaList, List<Integer> videoList )
 	 {
 		 WMV_Cluster newCluster = new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, index, location.x, location.y, location.z);
@@ -636,7 +607,6 @@ public class WMV_Field
 			 if(i.getAssociatedClusterID() == -1)				// Create cluster for each single image
 			 {
 				 addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, i.getCaptureLocation().x, i.getCaptureLocation().y, i.getCaptureLocation().z));
-//				 System.out.println("--- createSingleClusters()  Setting associated cluster for image:"+i.getID()+" from "+i.getMediaState().getClusterID()+" to "+newClusterID+"...");
 				 i.setAssociatedClusterID(newClusterID);
 				 getCluster(newClusterID).createSingle(i.getID(), 0);
 				 newClusterID++;
@@ -649,7 +619,6 @@ public class WMV_Field
 			 {
 				 addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, n.getCaptureLocation().x, n.getCaptureLocation().y, n.getCaptureLocation().z));
 				 n.setAssociatedClusterID(newClusterID);
-
 				 getCluster(newClusterID).createSingle(n.getID(), 1);
 				 newClusterID++;
 			 }
@@ -660,10 +629,7 @@ public class WMV_Field
 			 if(v.getAssociatedClusterID() == -1)				// Create cluster for each single video
 			 {
 				 addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, v.getCaptureLocation().x, v.getCaptureLocation().y, v.getCaptureLocation().z));
-
-//				 System.out.println("--- createSingleClusters()  Setting associated cluster for video:"+v.getID()+" from "+v.getMediaState().getClusterID()+" to "+newClusterID+"...");
 				 v.setAssociatedClusterID(newClusterID);
-
 				 clusters.get(newClusterID).createSingle(v.getID(), 2);
 				 newClusterID++;
 			 }
@@ -921,23 +887,6 @@ public class WMV_Field
 		return cList;
 	}
 
-	 /**
-	  * If image is within <threshold> from center of cluster along axes specified by mx, my and mz, 
-	  * fold the image location into the cluster location along those axes.
-	  */
-	 public void lockMediaToClusters()
-	 {
-//		 if(debugSettings.field || debugSettings.field) System.out.println("lockMediaToClusters(): Moving media... ");
-		 for (WMV_Image i : images) 
-			 i.adjustCaptureLocation(clusters.get(i.getAssociatedClusterID()));		
-		 for (WMV_Panorama n : panoramas) 
-			 n.adjustCaptureLocation(clusters.get(n.getAssociatedClusterID()));		
-		 for (WMV_Video v : videos) 
-			 v.adjustCaptureLocation(clusters.get(v.getAssociatedClusterID()));		
-//		 for (WMV_Sound s : getSounds()) 
-//			 s.adjustCaptureLocation(clusters.get(s.getCluster()));		
-	 }
-
 	/**
 	 * @return Whether any images or videos are currently active
 	 */
@@ -1058,7 +1007,24 @@ public class WMV_Field
 			System.out.println("estimateClusterAmount()... validMedia:"+model.getState().validMedia+" populationFactor:"+populationFactor+" result:"+result);
 		return result;
 	}
-	
+
+	 /**
+	  * If image is within <threshold> from center of cluster along axes specified by mx, my and mz, 
+	  * fold the image location into the cluster location along those axes.
+	  */
+	 public void lockMediaToClusters()
+	 {
+//		 if(debugSettings.field || debugSettings.field) System.out.println("lockMediaToClusters(): Moving media... ");
+		 for (WMV_Image i : images) 
+			 i.adjustCaptureLocation(clusters.get(i.getAssociatedClusterID()));		
+		 for (WMV_Panorama n : panoramas) 
+			 n.adjustCaptureLocation(clusters.get(n.getAssociatedClusterID()));		
+		 for (WMV_Video v : videos) 
+			 v.adjustCaptureLocation(clusters.get(v.getAssociatedClusterID()));		
+//		 for (WMV_Sound s : getSounds()) 
+//			 s.adjustCaptureLocation(clusters.get(s.getCluster()));		
+	 }
+
 	/** 
 	 * Create initial clusters at random image locations	 			-- Need to: record random seed, account for associated videos
 	 */	
@@ -1928,7 +1894,6 @@ public class WMV_Field
 			else
 			{
 				timelines.add( newTimeline );		// Add empty timeline to preserve indexing 
-//				System.out.println("Added EMPTY timeline #"+ct+" for field #"+fieldID);
 			}
 			
 			ct++;
@@ -2231,17 +2196,6 @@ public class WMV_Field
 		if(debugSettings.field)
 			System.out.println("Detected "+fieldClusters.size()+" fields...");
 
-//		ArrayList<WMV_Field> result = new ArrayList<WMV_Field>();
-//		count = 0;
-//		for(WMV_Cluster c : fieldClusters)
-//		{
-//			WMV_Field field = new WMV_Field(this, null, c, count);
-//			count++;
-//			result.add(field);
-//		}
-//		
-//		return result;
-		
 		return null;
 	}
 	
@@ -3429,7 +3383,18 @@ public class WMV_Field
 				points.add(new PVector(pGPSLoc.x, pGPSLoc.y));
 			}
 			else
-				System.out.println("Error in calculateBorderPoints()... panorama #"+n.getID()+" has no location!!!!");
+			{
+				if(n.getCaptureLocation() != null)
+				{
+					System.out.println("Fixed panorama #"+n.getID()+" missing location error...");
+
+					n.setLocation( n.getCaptureLocation() );
+					PVector pGPSLoc = utilities.getGPSLocation(this, n.getLocation());
+					points.add(new PVector(pGPSLoc.x, pGPSLoc.y));
+				}
+				else
+					System.out.println("Error in calculateBorderPoints()... panorama #"+n.getID()+" has no location!!!!");
+			}
 		}
 		for(WMV_Video v : videos)
 		{

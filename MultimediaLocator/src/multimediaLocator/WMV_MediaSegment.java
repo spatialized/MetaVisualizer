@@ -12,7 +12,7 @@ public class WMV_MediaSegment
 {
 	private int id;
 	List<Integer> images;					// Images in segment
-//	List<Integer> videos;					// Videos in segment
+	List<Integer> videos;					// Videos in segment
 
 	private float left, right;				// Left and right bounding angles (in degrees)
 	private float centerDirection;			// Horizontal center angle (in degrees)
@@ -22,6 +22,8 @@ public class WMV_MediaSegment
 	private boolean hidden;					// Whether media segment is hidden
 	private float stitchingMinAngle;		// Minimum angle between images to stitch together
 	
+//	WMV_MediaSegment( int newID, List<Integer> newImages, List<Integer> newVideos, float newLower, float newUpper, float newCenter,
+//			  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
 	WMV_MediaSegment( int newID, List<Integer> newImages, float newLower, float newUpper, float newCenter,
 			  float newLowerElevation, float newUpperElevation, float newCenterElevation, float newStitchingMinAngle )
 	{
@@ -61,6 +63,8 @@ public class WMV_MediaSegment
 	 * 
 	 * @param imageList All images in field
 	 */
+	
+//	public void findImageBorders(ArrayList<WMV_Image> imageList, ArrayList<WMV_Video> videoList)
 	public void findImageBorders(ArrayList<WMV_Image> imageList)
 	{
 		if(images != null)
@@ -104,6 +108,48 @@ public class WMV_MediaSegment
 //					PApplet.println("Found image "+img.getID()+" borders horiz:"+horizBorderID+" vert:"+vertBorderID);
 			}
 		}
+		
+//		if(videos != null)
+//		{
+//			for(int v:videos)		// Determine mask for image: blurMask[horizBorderID][vertBorderID].jpg
+//			{
+//				int horizBordersID = 1;					
+//				int vertBordersID = 1;					
+//
+//				WMV_Video vid = videoList.get(v);
+//				float xDir = vid.getDirection();
+//				float yDir = vid.getVerticalAngle();
+//
+//				if(xDir - left < stitchingMinAngle)
+//					horizBordersID = 0;				// Left
+//
+//				if(right - xDir < stitchingMinAngle)
+//				{
+//					if(horizBordersID == 0)
+//						horizBordersID = 3;			// Both (Left+Right)
+//					else
+//						horizBordersID = 2;			// Right
+//				}
+//
+//				if(yDir - top < stitchingMinAngle)
+//					vertBordersID = 0;				// Top
+//
+//				if(bottom - yDir < stitchingMinAngle)
+//				{
+//					if(vertBordersID == 0)
+//						vertBordersID = 3;			// Both (Top+Bottom)
+//					else
+//						vertBordersID = 2;			// Bottom
+//				}
+//
+//				vid.setHorizBorderID(horizBordersID);
+//				vid.setVertBorderID(vertBordersID);
+//				vid.setBlurMaskID();
+//
+////				if(p.p.p.p.debug.image)
+////					PApplet.println("Found image "+img.getID()+" borders horiz:"+horizBorderID+" vert:"+vertBorderID);
+//			}
+//		}
 	}
 
 	public boolean isHidden()

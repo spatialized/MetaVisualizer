@@ -41,7 +41,10 @@ public class WMV_World
 	public PImage blurMaskCenterTop, blurMaskCenterCenter, blurMaskCenterBottom, blurMaskCenterBoth;
 	public PImage blurMaskRightTop, blurMaskRightCenter, blurMaskRightBottom, blurMaskRightBoth;
 	public PImage blurMaskBothTop, blurMaskBothCenter, blurMaskBothBottom, blurMaskBothBoth;
-	
+	public PImage videoBlurMaskLeftTop, videoBlurMaskLeftCenter, videoBlurMaskLeftBottom, videoBlurMaskLeftBoth;  	// Blur masks
+	public PImage videoBlurMaskCenterTop, videoBlurMaskCenterCenter, videoBlurMaskCenterBottom, videoBlurMaskCenterBoth;
+	public PImage videoBlurMaskRightTop, videoBlurMaskRightCenter, videoBlurMaskRightBottom, videoBlurMaskRightBoth;
+	public PImage videoBlurMaskBothTop, videoBlurMaskBothCenter, videoBlurMaskBothBottom, videoBlurMaskBothBoth;
 
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
@@ -1552,55 +1555,55 @@ public class WMV_World
 		switch(blurMaskID)
 		{
 		case 0:
-			f.setVideoBlurMask(video, blurMaskLeftTop);
+			f.setVideoBlurMask(video, videoBlurMaskLeftTop);
 			break;
 		case 1:
-			f.setVideoBlurMask(video, blurMaskLeftCenter);
+			f.setVideoBlurMask(video, videoBlurMaskLeftCenter);
 			break;
 		case 2:
-			f.setVideoBlurMask(video, blurMaskLeftBottom);
+			f.setVideoBlurMask(video, videoBlurMaskLeftBottom);
 			break;
 		case 3:
-			f.setVideoBlurMask(video, blurMaskLeftBoth);
+			f.setVideoBlurMask(video, videoBlurMaskLeftBoth);
 			break;
 		
 		case 4:
-			f.setVideoBlurMask(video, blurMaskCenterTop);
+			f.setVideoBlurMask(video, videoBlurMaskCenterTop);
 			break;
 		case 5:
-			f.setVideoBlurMask(video, blurMaskCenterCenter);
+			f.setVideoBlurMask(video, videoBlurMaskCenterCenter);
 			break;
 		case 6:
-			f.setVideoBlurMask(video, blurMaskCenterBottom);
+			f.setVideoBlurMask(video, videoBlurMaskCenterBottom);
 			break;
 		case 7:
-			f.setVideoBlurMask(video, blurMaskCenterBoth);
+			f.setVideoBlurMask(video, videoBlurMaskCenterBoth);
 			break;
 	
 		case 8:
-			f.setVideoBlurMask(video, blurMaskRightTop);
+			f.setVideoBlurMask(video, videoBlurMaskRightTop);
 			break;
 		case 9:
-			f.setVideoBlurMask(video, blurMaskRightCenter);
+			f.setVideoBlurMask(video, videoBlurMaskRightCenter);
 			break;
 		case 10:
-			f.setVideoBlurMask(video, blurMaskRightBottom);
+			f.setVideoBlurMask(video, videoBlurMaskRightBottom);
 			break;
 		case 11:
-			f.setVideoBlurMask(video, blurMaskRightBoth);
+			f.setVideoBlurMask(video, videoBlurMaskRightBoth);
 			break;
 	
 		case 12:
-			f.setVideoBlurMask(video, blurMaskBothTop);
+			f.setVideoBlurMask(video, videoBlurMaskBothTop);
 			break;
 		case 13:
-			f.setVideoBlurMask(video, blurMaskBothCenter);
+			f.setVideoBlurMask(video, videoBlurMaskBothCenter);
 			break;
 		case 14:
-			f.setVideoBlurMask(video, blurMaskBothBottom);
+			f.setVideoBlurMask(video, videoBlurMaskBothBottom);
 			break;
 		case 15:
-			f.setVideoBlurMask(video, blurMaskBothBoth);
+			f.setVideoBlurMask(video, videoBlurMaskBothBoth);
 			break;
 		}
 	}
@@ -1622,16 +1625,6 @@ public class WMV_World
 		}
 	}
 
-//	public void setBlurMasks()
-//	{
-//		WMV_Field f = getCurrentField();
-//		for(WMV_Image image : f.getImages())
-//		{
-//			int bmID = image.getState().blurMaskID;
-//			setBlurMask(image, bmID);
-//		}
-//	}
-
 	/**
 	 * Load image masks
 	 */
@@ -1644,6 +1637,59 @@ public class WMV_World
 		if(maskFolder.list() == null)
 		{
 			System.out.println("Masks folder is empty!");
+		}
+		else
+		{
+			for(String mask : maskFolderList)
+			{
+				if(mask.equals("blurMaskLeftTop.jpg"))
+					blurMaskLeftTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftCenter.jpg"))
+					blurMaskLeftCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBottom.jpg"))
+					blurMaskLeftBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBoth.jpg"))
+					blurMaskLeftBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterTop.jpg"))
+					blurMaskCenterTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterCenter.jpg"))
+					blurMaskCenterCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBottom.jpg"))
+					blurMaskCenterBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBoth.jpg"))
+					blurMaskCenterBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightTop.jpg"))
+					blurMaskRightTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightCenter.jpg"))
+					blurMaskRightCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBottom.jpg"))
+					blurMaskRightBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBoth.jpg"))
+					blurMaskRightBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothTop.jpg"))
+					blurMaskBothTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothCenter.jpg"))
+					blurMaskBothCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBottom.jpg"))
+					blurMaskBothBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBoth.jpg"))
+					blurMaskBothBoth = p.loadImage(maskPath + mask);
+			}
+		}
+	}
+	
+	/**
+	 * Load video masks
+	 */
+	public void loadVideoMasks()
+	{
+		String maskPath = "video_masks/";
+		File maskFolder = new File(maskPath);
+		String[] maskFolderList = maskFolder.list();
+		
+		if(maskFolder.list() == null)
+		{
+			System.out.println("Video masks folder is empty!");
 		}
 		else
 		{

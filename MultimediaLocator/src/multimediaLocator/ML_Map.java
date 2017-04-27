@@ -142,14 +142,14 @@ public class ML_Map
 	 */
 	public void initializeMaps(WMV_World world)
 	{
-		System.out.println("initializeMaps()..."+" frameCount:"+world.getState().frameCount);
 		blankTile = world.p.loadImage("res/blank.jpg");
 
 		initializeSatelliteMaps(world);
 		initializeBasicMaps(world);
 		
-		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
-//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm, small, large);
+//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
+		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm, small, large);
+		
 		world.p.delay(200);
 		
 		p.initializedMaps = true;

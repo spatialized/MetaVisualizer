@@ -8,9 +8,8 @@ import processing.core.PVector;
 import processing.event.MouseEvent;
 
 /**
+ * Handles secondary program windows
  * @author davidgordon
- * Class for handling secondary windows
- *
  */
 public class ML_Window {
 
@@ -24,10 +23,10 @@ public class ML_Window {
 	private int shortWindowHeight = 340;
 	
 	/* Windows */
-	public GWindow wmvWindow, timeWindow, navigationWindow, graphicsWindow, modelWindow, selectionWindow, statisticsWindow, helpWindow,
+	public GWindow mlWindow, timeWindow, navigationWindow, graphicsWindow, modelWindow, selectionWindow, statisticsWindow, helpWindow,
 				   memoryWindow;
-	private GLabel lblWMViewer, lblNavigationWindow, lblGraphics, lblStatistics, lblHelp, lblMemory;				// Window headings
-	public boolean showWMVWindow = false, showNavigationWindow = false, showTimeWindow = false, showGraphicsWindow = false, showModelWindow = false,
+	private GLabel lblMainMenu, lblNavigationWindow, lblGraphics, lblStatistics, lblHelp, lblMemory;				// Window headings
+	public boolean showMLWindow = false, showNavigationWindow = false, showTimeWindow = false, showGraphicsWindow = false, showModelWindow = false,
 				    showSelectionWindow = false, showStatisticsWindow = false, showHelpWindow = false, showMemoryWindow = false;
 	public boolean setupTimeWindow = false, setupNavigationWindow = false, setupGraphicsWindow = false, setupModelWindow = false, setupHelpWindow = false, 
 					setupSelectionWindow = false, setupStatisticsWindow = false, setupMemoryWindow = false;
@@ -39,7 +38,7 @@ public class ML_Window {
 	private GLabel lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
 	public GOption optSceneView, optMapView, optLibraryView;
-	int wmvWindowHeight;
+	int mlWindowHeight;
 
 	/* Navigation Window */
 	private GLabel lblClusterNavigation, lblMemoryCommands, lblPathNavigation, lblTeleportLength, lblPathWaitLength;
@@ -116,16 +115,21 @@ public class ML_Window {
 	int helpWindowHeight;
 	public GLabel lblCommand8;
 	
-	String windowTitle = " ";
-	WMV_World world;
+	private String windowTitle = " ";
+	private WMV_World world;
 	
-	ML_Window( WMV_World newWorld, ML_Display parent )
+	/**
+	 * Constructor for secondary window handler 
+	 * @param parent Parent world
+	 * @param newDisplay Parent display object
+	 */
+	public ML_Window( WMV_World parent, ML_Display newDisplay )
 	{
-		p = parent;
-		world = newWorld;
+		p = newDisplay;
+		world = parent;
 		utilities = new WMV_Utilities();
 		
-		wmvWindowHeight = shortWindowHeight;
+		mlWindowHeight = shortWindowHeight;
 		navigationWindowHeight = longWindowHeight;
 		timeWindowHeight = longWindowHeight;
 		graphicsWindowHeight = longWindowHeight;
@@ -203,15 +207,15 @@ public class ML_Window {
 		showHelpWindow();
 	}
 
-	void setupWMVWindow()
+	void setupMLWindow()
 	{
-		wmvWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, wmvWindowHeight, PApplet.JAVA2D);
-		wmvWindow.addData(new WMV_WinData());
-		wmvWindow.addDrawHandler(this, "wmvWindowDraw");
-		wmvWindow.addMouseHandler(this, "wmvWindowMouse");
-		wmvWindow.addKeyHandler(world.p, "wmvWindowKey");
-		wmvWindow.setActionOnClose(GWindow.KEEP_OPEN);
-		hideWMVWindow();
+		mlWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, mlWindowHeight, PApplet.JAVA2D);
+		mlWindow.addData(new ML_WinData());
+		mlWindow.addDrawHandler(this, "mlWindowDraw");
+		mlWindow.addMouseHandler(this, "mlWindowMouse");
+		mlWindow.addKeyHandler(world.p, "mlWindowKey");
+		mlWindow.setActionOnClose(GWindow.KEEP_OPEN);
+		hideMLWindow();
 		
 		int x = 0, y = 12;
 
@@ -219,24 +223,24 @@ public class ML_Window {
 
 		if(delay) world.p.delay(delayAmount);
 		
-		lblWMViewer = new GLabel(wmvWindow, x, y, wmvWindow.width, 20, "Main Menu");
-		lblWMViewer.setLocalColorScheme(10);
-		lblWMViewer.setFont(new Font("Monospaced", Font.PLAIN, 16));
-		lblWMViewer.setTextAlign(GAlign.CENTER, null);
-		lblWMViewer.setTextBold();
+		lblMainMenu = new GLabel(mlWindow, x, y, mlWindow.width, 20, "Main Menu");
+		lblMainMenu.setLocalColorScheme(10);
+		lblMainMenu.setFont(new Font("Monospaced", Font.PLAIN, 16));
+		lblMainMenu.setTextAlign(GAlign.CENTER, null);
+		lblMainMenu.setTextBold();
 
 		x = 20;
 		y += 30;
 		
 		if(delay) world.p.delay(delayAmount);
 
-		optSceneView = new GOption(wmvWindow, x, y, 90, 20, "World  (1)");
+		optSceneView = new GOption(mlWindow, x, y, 90, 20, "World  (1)");
 		optSceneView.setLocalColorScheme(10);
 		optSceneView.tag = "SceneView";
-		optMapView = new GOption(wmvWindow, x+=100, y, 90, 20, "Map  (2)");
+		optMapView = new GOption(mlWindow, x+=100, y, 90, 20, "Map  (2)");
 		optMapView.setLocalColorScheme(10);
 		optMapView.tag = "MapView";
-		optLibraryView = new GOption(wmvWindow, x+=100, y, 100, 20, "Info  (3)");
+		optLibraryView = new GOption(mlWindow, x+=100, y, 100, 20, "Info  (3)");
 		optLibraryView.setLocalColorScheme(10);
 		optLibraryView.tag = "LibraryView";
 
@@ -266,7 +270,7 @@ public class ML_Window {
 		y += 30;
 //		if(delay) world.p.delay(delayAmount);
 
-		btnLoadMediaLibrary = new GButton(wmvWindow, x, y, 180, 20, "Load Media Library  ⇧R");
+		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 180, 20, "Load Media Library  ⇧R");
 		btnLoadMediaLibrary.tag = "Restart";
 		btnLoadMediaLibrary.setLocalColorScheme(7);
 
@@ -274,61 +278,61 @@ public class ML_Window {
 		y += 30;
 //		if(delay) world.p.delay(delayAmount);
 
-		btnNavigationWindow = new GButton(wmvWindow, x, y, 125, 20, "Navigation  ⌘1");
+		btnNavigationWindow = new GButton(mlWindow, x, y, 125, 20, "Navigation  ⇧1");
 		btnNavigationWindow.tag = "OpenNavigationWindow";
 		btnNavigationWindow.setLocalColorScheme(5);
 		
 		x = 90;
 		y += 25;
-		btnTimeWindow = new GButton(wmvWindow, x, y, 125, 20, "Time  ⌘2");
+		btnTimeWindow = new GButton(mlWindow, x, y, 125, 20, "Time  ⇧2");
 		btnTimeWindow.tag = "OpenTimeWindow";
 		btnTimeWindow.setLocalColorScheme(5);
 
 		x = 90;
 		y += 25;
 
-		btnGraphicsWindow = new GButton(wmvWindow, x, y, 125, 20, "Graphics  ⌘3");
+		btnGraphicsWindow = new GButton(mlWindow, x, y, 125, 20, "Graphics  ⇧3");
 		btnGraphicsWindow.tag = "OpenGraphicsWindow";
 		btnGraphicsWindow.setLocalColorScheme(5);
 		
 		x = 90;
 		y += 25;
 		
-		btnModelWindow = new GButton(wmvWindow, x, y, 125, 20, "Model  ⌘4");
+		btnModelWindow = new GButton(mlWindow, x, y, 125, 20, "Model  ⇧4");
 		btnModelWindow.tag = "OpenModelWindow";
 		btnModelWindow.setLocalColorScheme(5);
 
 		x = 90;
 		y += 25;
 
-		btnMemoryWindow = new GButton(wmvWindow, x, y, 125, 20, "Memory  ⌘5");
+		btnMemoryWindow = new GButton(mlWindow, x, y, 125, 20, "Memory  ⇧5");
 		btnMemoryWindow.tag = "OpenMemoryWindow";
 		btnMemoryWindow.setLocalColorScheme(5);
 		
 		x = 90;
 		y += 25;
 
-		btnSelectionWindow = new GButton(wmvWindow, x, y, 125, 20, "Selection  ⌘6");
+		btnSelectionWindow = new GButton(mlWindow, x, y, 125, 20, "Selection  ⇧6");
 		btnSelectionWindow.tag = "OpenSelectionWindow";
 		btnSelectionWindow.setLocalColorScheme(5);
 		
 		x = 90;
 		y += 25;
 		
-		btnStatisticsWindow = new GButton(wmvWindow, x, y, 125, 20, "Statistics  ⌘7");
+		btnStatisticsWindow = new GButton(mlWindow, x, y, 125, 20, "Statistics  ⇧7");
 		btnStatisticsWindow.tag = "OpenStatisticsWindow";
 		btnStatisticsWindow.setLocalColorScheme(5);
 		
 		x = 90;
 		y += 25;
 		
-		btnHelpWindow = new GButton(wmvWindow, x, y, 125, 20, "Help  ⌘8");
+		btnHelpWindow = new GButton(mlWindow, x, y, 125, 20, "Help  ⇧8");
 		btnHelpWindow.tag = "OpenHelpWindow";
 		btnHelpWindow.setLocalColorScheme(5);
 
 		x = 0;
-		y = wmvWindowHeight - 25;
-		lblSpaceBar = new GLabel(wmvWindow, x, y, wmvWindow.width, 20);						/* Display Mode Label */
+		y = mlWindowHeight - 25;
+		lblSpaceBar = new GLabel(mlWindow, x, y, mlWindow.width, 20);						/* Display Mode Label */
 		lblSpaceBar.setText("Press SPACEBAR to show / hide");
 		lblSpaceBar.setFont(new Font("Monospaced", Font.PLAIN, 11));
 		lblSpaceBar.setLocalColorScheme(10);
@@ -343,7 +347,7 @@ public class ML_Window {
 		navigationWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, navigationWindowHeight, PApplet.JAVA2D);
 		navigationWindow.setVisible(true);
 		
-		navigationWindow.addData(new WMV_WinData());
+		navigationWindow.addData(new ML_WinData());
 		navigationWindow.addDrawHandler(this, "navigationWindowDraw");
 		navigationWindow.addMouseHandler(this, "navigationWindowMouse");
 		navigationWindow.addKeyHandler(world.p, "navigationWindowKey");
@@ -539,7 +543,7 @@ public class ML_Window {
 //		if(delay) world.p.delay(delayAmount);
 
 		lblCommand1 = new GLabel(navigationWindow, x, y, navigationWindow.width, 20);						/* Display Mode Label */
-		lblCommand1.setText("Press ⌘1 to show / hide");
+		lblCommand1.setText("Press ⇧1 to show / hide");
 		lblCommand1.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand1.setLocalColorScheme(10);
 		lblCommand1.setTextAlign(GAlign.CENTER, null);
@@ -554,7 +558,7 @@ public class ML_Window {
 	{
 		timeWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, timeWindowHeight, PApplet.JAVA2D);
 		timeWindow.setVisible(true);
-		timeWindow.addData(new WMV_WinData());
+		timeWindow.addData(new ML_WinData());
 		timeWindow.addDrawHandler(this, "timeWindowDraw");
 		timeWindow.addMouseHandler(this, "timeWindowMouse");
 		timeWindow.addKeyHandler(world.p, "timeWindowKey");
@@ -709,7 +713,7 @@ public class ML_Window {
 		x = 0;
 		y = timeWindowHeight - 25;
 		lblCommand2 = new GLabel(timeWindow, x, y, timeWindow.width, 20);						/* Display Mode Label */
-		lblCommand2.setText("Press ⌘2 to show / hide");
+		lblCommand2.setText("Press ⇧2 to show / hide");
 		lblCommand2.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand2.setLocalColorScheme(10);
 		lblCommand2.setTextAlign(GAlign.CENTER, null);
@@ -724,7 +728,7 @@ public class ML_Window {
 	{
 		graphicsWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, graphicsWindowHeight, PApplet.JAVA2D);
 		graphicsWindow.setVisible(true);
-		graphicsWindow.addData(new WMV_WinData());
+		graphicsWindow.addData(new ML_WinData());
 		graphicsWindow.addDrawHandler(this, "graphicsWindowDraw");
 		graphicsWindow.addMouseHandler(this, "graphicsWindowMouse");
 		graphicsWindow.addKeyHandler(world.p, "graphicsWindowKey");
@@ -885,7 +889,7 @@ public class ML_Window {
 		x = 0;
 		y = graphicsWindowHeight - 25;
 		lblCommand3 = new GLabel(graphicsWindow, x, y, graphicsWindow.width, 20);						/* Display Mode Label */
-		lblCommand3.setText("Press ⌘3 to show / hide");
+		lblCommand3.setText("Press ⇧3 to show / hide");
 		lblCommand3.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand3.setLocalColorScheme(10);
 		lblCommand3.setTextAlign(GAlign.CENTER, null);
@@ -900,7 +904,7 @@ public class ML_Window {
 	{
 		modelWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, modelWindowHeight, PApplet.JAVA2D);
 		modelWindow.setVisible(true);
-		modelWindow.addData(new WMV_WinData());
+		modelWindow.addData(new ML_WinData());
 		modelWindow.addDrawHandler(this, "modelWindowDraw");
 		modelWindow.addMouseHandler(this, "modelWindowMouse");
 		modelWindow.addKeyHandler(world.p, "modelWindowKey");
@@ -1001,7 +1005,7 @@ public class ML_Window {
 		x = 0;
 		y = modelWindowHeight - 25;
 		lblCommand4 = new GLabel(modelWindow, x, y, modelWindow.width, 20);						/* Display Mode Label */
-		lblCommand4.setText("Press ⌘4 to show / hide");
+		lblCommand4.setText("Press ⇧4 to show / hide");
 		lblCommand4.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand4.setLocalColorScheme(10);
 		lblCommand4.setTextAlign(GAlign.CENTER, null);
@@ -1016,7 +1020,7 @@ public class ML_Window {
 	{
 		memoryWindow = GWindow.getWindow(world.p, "Memory", 10, 45, windowWidth, memoryWindowHeight, PApplet.JAVA2D);
 		memoryWindow.setVisible(true);
-		memoryWindow.addData(new WMV_WinData());
+		memoryWindow.addData(new ML_WinData());
 		memoryWindow.addDrawHandler(this, "memoryWindowDraw");
 		memoryWindow.addMouseHandler(this, "memoryWindowMouse");
 		memoryWindow.addKeyHandler(world.p, "memoryWindowKey");
@@ -1033,7 +1037,7 @@ public class ML_Window {
 		x = 0;
 		y = memoryWindowHeight - 25;
 		lblCommand5 = new GLabel(memoryWindow, x, y, memoryWindow.width, 20);						/* Display Mode Label */
-		lblCommand5.setText("Press ⌘5 to show / hide");
+		lblCommand5.setText("Press ⇧5 to show / hide");
 		lblCommand5.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand5.setLocalColorScheme(10);
 		lblCommand5.setTextAlign(GAlign.CENTER, null);
@@ -1048,7 +1052,7 @@ public class ML_Window {
 	{
 		selectionWindow = GWindow.getWindow(world.p, "Selection Mode", 10, 45, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
 		selectionWindow.setVisible(true);
-		selectionWindow.addData(new WMV_WinData());
+		selectionWindow.addData(new ML_WinData());
 		selectionWindow.addDrawHandler(this, "selectionWindowDraw");
 		selectionWindow.addMouseHandler(this, "selectionWindowMouse");
 		selectionWindow.setActionOnClose(GWindow.KEEP_OPEN);
@@ -1131,7 +1135,7 @@ public class ML_Window {
 		x = 0;
 		y = selectionWindowHeight - 25;
 		lblCommand6 = new GLabel(selectionWindow, x, y, selectionWindow.width, 20);						/* Display Mode Label */
-		lblCommand6.setText("Press ⌘6 to show / hide");
+		lblCommand6.setText("Press ⇧6 to show / hide");
 		lblCommand6.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand6.setLocalColorScheme(10);
 		lblCommand6.setTextAlign(GAlign.CENTER, null);
@@ -1147,7 +1151,7 @@ public class ML_Window {
 	{
 		statisticsWindow = GWindow.getWindow(world.p, "Statistics", 10, 45, windowWidth * 2, statisticsWindowHeight, PApplet.JAVA2D);
 		statisticsWindow.setVisible(true);
-		statisticsWindow.addData(new WMV_WinData());
+		statisticsWindow.addData(new ML_WinData());
 		statisticsWindow.addDrawHandler(this, "statisticsWindowDraw");
 		statisticsWindow.addMouseHandler(this, "statisticsWindowMouse");
 		statisticsWindow.setActionOnClose(GWindow.KEEP_OPEN);
@@ -1164,7 +1168,7 @@ public class ML_Window {
 		x = 0;
 		y = statisticsWindowHeight - 25;
 		lblCommand7 = new GLabel(statisticsWindow, x, y, statisticsWindow.width, 20);						/* Display Mode Label */
-		lblCommand7.setText("Press ⌘7 to show / hide");
+		lblCommand7.setText("Press ⇧7 to show / hide");
 		lblCommand7.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand7.setLocalColorScheme(10);
 		lblCommand7.setTextAlign(GAlign.CENTER, null);
@@ -1181,7 +1185,7 @@ public class ML_Window {
 	{
 		helpWindow = GWindow.getWindow(world.p, "Help", 10, 45, windowWidth, helpWindowHeight, PApplet.JAVA2D);
 		helpWindow.setVisible(true);
-		helpWindow.addData(new WMV_WinData());
+		helpWindow.addData(new ML_WinData());
 		helpWindow.addDrawHandler(this, "helpWindowDraw");
 		helpWindow.addMouseHandler(this, "helpWindowMouse");
 		helpWindow.addKeyHandler(world.p, "helpWindowKey");
@@ -1199,7 +1203,7 @@ public class ML_Window {
 		x = 0;
 		y = helpWindowHeight - 25;
 		lblCommand8 = new GLabel(helpWindow, x, y, helpWindow.width, 20);						/* Display Mode Label */
-		lblCommand8.setText("Press ⌘8 to show / hide");
+		lblCommand8.setText("Press ⇧8 to show / hide");
 		lblCommand8.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand8.setLocalColorScheme(10);
 		lblCommand8.setTextAlign(GAlign.CENTER, null);
@@ -1208,11 +1212,11 @@ public class ML_Window {
 	}
 	
 	/**
-	 * Handles drawing to the WMV Window
+	 * Handles drawing to the ML Window
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 */
-	public void wmvWindowDraw(PApplet applet, GWinData data) {
+	public void mlWindowDraw(PApplet applet, GWinData data) {
 		applet.background(0);
 		applet.stroke(255);
 		applet.strokeWeight(1);
@@ -1225,8 +1229,8 @@ public class ML_Window {
 	 * @param data the data for the GWindow being used
 	 * @param event the mouse event
 	 */
-	public void wmvWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData data2 = (WMV_WinData)data;
+	public void mlWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
+		ML_WinData data2 = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -1326,7 +1330,7 @@ public class ML_Window {
 	 * @param event the mouse event
 	 */
 	public void timeWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData data2 = (WMV_WinData)data;
+		ML_WinData data2 = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -1374,7 +1378,7 @@ public class ML_Window {
 	 * @param event the mouse event
 	 */
 	public void navigationWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData data2 = (WMV_WinData)data;
+		ML_WinData data2 = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -1417,7 +1421,7 @@ public class ML_Window {
 	 * @param event the mouse event
 	 */
 	public void graphicsWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData data2 = (WMV_WinData)data;
+		ML_WinData data2 = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -1490,7 +1494,7 @@ public class ML_Window {
 	 * @param event the mouse event
 	 */
 	public void modelWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData data2 = (WMV_WinData)data;
+		ML_WinData data2 = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -1568,7 +1572,6 @@ public class ML_Window {
 //				applet.text(" Subject Distance (m.):"+world.defaultFocusDistance, x, y += lineWidth);
 
 				applet.textSize(mediumTextSize);
-//				applet.text(" Field", x, y += lineWidthVeryWide);
 				applet.text(" Field: "+f.getName(), x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
 				applet.text(" ID: "+(world.viewer.getState().getField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
@@ -1578,7 +1581,6 @@ public class ML_Window {
 				applet.text(" Video Count: "+f.getVideoCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 //				applet.text(" Sound Count: "+f.getSoundCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 				applet.text(" Media Density (per sq. m.): "+f.getModel().getState().mediaDensity, x, y += lineWidth);
-				
 //				applet.text(" Clusters Visible: "+world.viewer.clustersVisible+"  (Orientation Mode)", x, y += lineWidth);
 				
 				applet.text(" Images Visible: "+f.getImagesVisible(), x, y += lineWidth);
@@ -1681,7 +1683,7 @@ public class ML_Window {
 	 * @param event the mouse event
 	 */
 	public void statisticsWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData wmvWinData = (WMV_WinData)data;
+		ML_WinData wmvWinData = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -1720,7 +1722,7 @@ public class ML_Window {
 	 * @param event the mouse event
 	 */
 	public void selectionWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData wmvWinData = (WMV_WinData)data;
+		ML_WinData wmvWinData = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -1906,7 +1908,7 @@ public class ML_Window {
 	 * @param event the mouse event
 	 */
 	public void helpWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData wmvWinData = (WMV_WinData)data;
+		ML_WinData wmvWinData = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -1981,7 +1983,7 @@ public class ML_Window {
 	 * @param event the mouse event
 	 */
 	public void memoryWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		WMV_WinData wmvWinData = (WMV_WinData)data;
+		ML_WinData wmvWinData = (ML_WinData)data;
 		switch(event.getAction()) {
 
 		case MouseEvent.PRESS:
@@ -2006,8 +2008,8 @@ public class ML_Window {
 	
 	void showWMVWindow()
 	{
-		showWMVWindow = true;
-		wmvWindow.setVisible(true);
+		showMLWindow = true;
+		mlWindow.setVisible(true);
 	} 
 	
 	void showNavigationWindow()
@@ -2015,56 +2017,56 @@ public class ML_Window {
 		showNavigationWindow = true;
 		if(setupNavigationWindow)
 			navigationWindow.setVisible(true);
-		if(showWMVWindow)
-			hideWMVWindow();
+		if(showMLWindow)
+			hideMLWindow();
 	} 
 	void showTimeWindow()
 	{
 		showTimeWindow = true;
 		if(setupTimeWindow)
 			timeWindow.setVisible(true);
-		if(showWMVWindow)
-			hideWMVWindow();
+		if(showMLWindow)
+			hideMLWindow();
 	}
 	void showGraphicsWindow()
 	{
 		showGraphicsWindow = true;
 		if(setupGraphicsWindow)
 			graphicsWindow.setVisible(true);
-		if(showWMVWindow)
-			hideWMVWindow();
+		if(showMLWindow)
+			hideMLWindow();
 	}
 	void showModelWindow()
 	{
 		showModelWindow = true;
 		if(setupModelWindow)
 			modelWindow.setVisible(true);
-		if(showWMVWindow)
-			hideWMVWindow();
+		if(showMLWindow)
+			hideMLWindow();
 	}
 	void showMemoryWindow()
 	{
 		showMemoryWindow = true;
 		if(setupMemoryWindow)
 			memoryWindow.setVisible(true);
-		if(showWMVWindow)
-			hideWMVWindow();
+		if(showMLWindow)
+			hideMLWindow();
 	}
 	void showSelectionWindow()
 	{
 		showSelectionWindow = true;
 		if(setupSelectionWindow)
 			selectionWindow.setVisible(true);
-		if(showWMVWindow)
-			hideWMVWindow();
+		if(showMLWindow)
+			hideMLWindow();
 	} 
 	void showStatisticsWindow()
 	{
 		showStatisticsWindow = true;
 		if(setupStatisticsWindow)
 			statisticsWindow.setVisible(true);
-		if(showWMVWindow)
-			hideWMVWindow();
+		if(showMLWindow)
+			hideMLWindow();
 	} 
 	void showHelpWindow()
 	{
@@ -2072,10 +2074,10 @@ public class ML_Window {
 		if(setupHelpWindow)
 			helpWindow.setVisible(true);
 	}
-	void hideWMVWindow()
+	void hideMLWindow()
 	{
-		showWMVWindow = false;
-		wmvWindow.setVisible(false);
+		showMLWindow = false;
+		mlWindow.setVisible(false);
 	} 
 	void hideNavigationWindow()
 	{
@@ -2130,7 +2132,7 @@ public class ML_Window {
 	 */
 	void hideWindows()
 	{
-		hideWMVWindow();
+		hideMLWindow();
 		hideNavigationWindow();
 		hideGraphicsWindow();
 		hideSelectionWindow();
@@ -2144,7 +2146,7 @@ public class ML_Window {
  * that is specific to a particular window.
  * @author Peter Lager
  */
-class WMV_WinData extends GWinData {
+class ML_WinData extends GWinData {
 	int sx, sy, ex, ey;
 	boolean done;
 

@@ -20,11 +20,6 @@ public class WMV_Cluster
 	private WMV_Utilities utilities;			// Utility methods
 	private WMV_ClusterState state;				// Cluster state
 
-	/* Time */
-//	private ArrayList<WMV_Date> dateline;						// Capture dates for this cluster
-//	private WMV_Timeline timeline;				// Date-independent capture times for this cluster
-//	private ArrayList<WMV_Timeline> timelines;	
-	
 	/* Panoramic Stitching */
 	ArrayList<WMV_Panorama> stitched;				// Stitched panoramas
 	List<Integer> valid;									// List of images that are good stitching candidates
@@ -32,13 +27,21 @@ public class WMV_Cluster
 	/* Segmentation */
 	public ArrayList<WMV_MediaSegment> segments;			// List of overlapping segments of images or videos
 
+	/**
+	 * Constructor for spatial cluster of media
+	 * @param newWorldSettings World settings
+	 * @param newWorldState World state
+	 * @param newViewerSettings Viewer settings
+	 * @param newDebugSettings Debug settings
+	 * @param newClusterID Cluster ID
+	 * @param newLocation Cluster location
+	 */
 	WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
-				 ML_DebugSettings newDebugSettings, int _clusterID, float newX, float newY, float newZ) 
+				 ML_DebugSettings newDebugSettings, int newClusterID, PVector newLocation) 
 	{
 		state = new WMV_ClusterState();
-		
-		state.location = new PVector(newX, newY, newZ);
-		state.id = _clusterID;
+		state.id = newClusterID;
+		state.location = newLocation;
 
 		utilities = new WMV_Utilities();
 

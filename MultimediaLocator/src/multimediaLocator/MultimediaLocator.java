@@ -302,7 +302,7 @@ public class MultimediaLocator extends PApplet
 		if(debugSettings.main && debugSettings.detailed) System.out.println("Finishing MultimediaLocator initialization..");
 
 		display.initializeWindows(world);
-		display.window.setupWMVWindow();
+		display.window.setupMLWindow();
 		
 		if(debugSettings.main && debugSettings.detailed) System.out.println("Finished setting up WMV Window...");
 		
@@ -751,7 +751,7 @@ public class MultimediaLocator extends PApplet
 	 * @param button Button acted on
 	 * @param event Button event
 	 */
-	public void handleButtonEvent(GButton button, GEvent event) { 
+	public void handleButtonEvents(GButton button, GEvent event) { 
 		input.handleButtonEvent(this, display, button, event);
 	}
 	
@@ -760,7 +760,7 @@ public class MultimediaLocator extends PApplet
 	 * @param button Toggle control acted on
 	 * @param event Toggle control event
 	 */
-	public void handleToggleControlEvent(GToggleControl option, GEvent event) {
+	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
 		input.handleToggleControlEvent(world, display, option, event);
 	}
 	
@@ -769,7 +769,7 @@ public class MultimediaLocator extends PApplet
 	 * @param button Slider acted on
 	 * @param event Slider event
 	 */
-	public void handleSliderEvent(GValueControl slider, GEvent event) 
+	public void handleSliderEvents(GValueControl slider, GEvent event) 
 	{ 
 		input.handleSliderEvent(world, display, slider, event);
 	}

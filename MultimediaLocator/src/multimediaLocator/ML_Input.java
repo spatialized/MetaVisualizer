@@ -458,8 +458,8 @@ public class ML_Input
 
 			if (key == ' ') 
 			{
-				if(ml.display.window.showWMVWindow)
-					ml.display.window.hideWMVWindow();
+				if(ml.display.window.showMLWindow)
+					ml.display.window.hideMLWindow();
 				else
 					ml.display.window.showWMVWindow();
 			}

@@ -1696,37 +1696,37 @@ public class WMV_World
 			for(String mask : maskFolderList)
 			{
 				if(mask.equals("blurMaskLeftTop.jpg"))
-					blurMaskLeftTop = p.loadImage(maskPath + mask);
+					videoBlurMaskLeftTop = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskLeftCenter.jpg"))
-					blurMaskLeftCenter = p.loadImage(maskPath + mask);
+					videoBlurMaskLeftCenter = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskLeftBottom.jpg"))
-					blurMaskLeftBottom = p.loadImage(maskPath + mask);
+					videoBlurMaskLeftBottom = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskLeftBoth.jpg"))
-					blurMaskLeftBoth = p.loadImage(maskPath + mask);
+					videoBlurMaskLeftBoth = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskCenterTop.jpg"))
-					blurMaskCenterTop = p.loadImage(maskPath + mask);
+					videoBlurMaskCenterTop = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskCenterCenter.jpg"))
-					blurMaskCenterCenter = p.loadImage(maskPath + mask);
+					videoBlurMaskCenterCenter = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskCenterBottom.jpg"))
-					blurMaskCenterBottom = p.loadImage(maskPath + mask);
+					videoBlurMaskCenterBottom = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskCenterBoth.jpg"))
-					blurMaskCenterBoth = p.loadImage(maskPath + mask);
+					videoBlurMaskCenterBoth = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskRightTop.jpg"))
-					blurMaskRightTop = p.loadImage(maskPath + mask);
+					videoBlurMaskRightTop = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskRightCenter.jpg"))
-					blurMaskRightCenter = p.loadImage(maskPath + mask);
+					videoBlurMaskRightCenter = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskRightBottom.jpg"))
-					blurMaskRightBottom = p.loadImage(maskPath + mask);
+					videoBlurMaskRightBottom = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskRightBoth.jpg"))
-					blurMaskRightBoth = p.loadImage(maskPath + mask);
+					videoBlurMaskRightBoth = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskBothTop.jpg"))
-					blurMaskBothTop = p.loadImage(maskPath + mask);
+					videoBlurMaskBothTop = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskBothCenter.jpg"))
-					blurMaskBothCenter = p.loadImage(maskPath + mask);
+					videoBlurMaskBothCenter = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskBothBottom.jpg"))
-					blurMaskBothBottom = p.loadImage(maskPath + mask);
+					videoBlurMaskBothBottom = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskBothBoth.jpg"))
-					blurMaskBothBoth = p.loadImage(maskPath + mask);
+					videoBlurMaskBothBoth = p.loadImage(maskPath + mask);
 			}
 		}
 	}

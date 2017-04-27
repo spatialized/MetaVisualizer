@@ -76,7 +76,7 @@ public class WMV_MediaSegment
 
 				WMV_Image img = imageList.get(i);
 				float xDir = img.getDirection();
-				float yDir = img.getElevation();
+				float yDir = img.getElevationAngle();
 
 				if(xDir - left < stitchingMinAngle)
 					horizBordersID = 0;				// Left
@@ -100,8 +100,8 @@ public class WMV_MediaSegment
 						vertBordersID = 2;			// Bottom
 				}
 
-				img.setHorizBorderID(horizBordersID);
-				img.setVertBorderID(vertBordersID);
+				img.setHorizBordersID(horizBordersID);
+				img.setVertBordersID(vertBordersID);
 				img.setBlurMaskID();
 
 //				if(p.p.p.p.debug.image)

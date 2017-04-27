@@ -642,9 +642,9 @@ public class WMV_Cluster
 			float right = imageList.get(allImages.get(0)).getDirection();
 			float centerDirection = imageList.get(allImages.get(0)).getDirection();
 
-			float bottom = imageList.get(allImages.get(0)).getElevation();
-			float top = imageList.get(allImages.get(0)).getElevation();
-			float centerElevation = imageList.get(allImages.get(0)).getElevation();
+			float bottom = imageList.get(allImages.get(0)).getElevationAngle();
+			float top = imageList.get(allImages.get(0)).getElevationAngle();
+			float centerElevation = imageList.get(allImages.get(0)).getElevationAngle();
 
 			WMV_MediaSegment newSegment = new WMV_MediaSegment( 0, curImageList, right, left, centerDirection, top, bottom, centerElevation, worldSettings.stitchingMinAngle );
 			newSegment.findImageBorders(imageList);
@@ -693,10 +693,10 @@ public class WMV_Cluster
 							
 							if(Math.abs(img.getDirection() - imageList.get(m).getDirection()) < worldSettings.stitchingMinAngle)
 							{
-								if(Math.abs(img.getElevation() - imageList.get(m).getElevation()) < worldSettings.stitchingMinAngle)
+								if(Math.abs(img.getElevationAngle() - imageList.get(m).getElevationAngle()) < worldSettings.stitchingMinAngle)
 								{
 									float direction = img.getDirection();
-									float elevation = img.getElevation();
+									float elevation = img.getElevationAngle();
 									
 									direction = utilities.constrainWrap(direction, 0.f, 360.f);
 									elevation = utilities.constrainWrap(elevation, -90.f, 90.f);
@@ -747,9 +747,9 @@ public class WMV_Cluster
 				right = imageList.get(curImages.get(0)).getDirection();
 				centerDirection = imageList.get(curImages.get(0)).getDirection();
 				
-				bottom = imageList.get(allImages.get(0)).getElevation();
-				top = imageList.get(allImages.get(0)).getElevation();
-				centerElevation = imageList.get(allImages.get(0)).getElevation();
+				bottom = imageList.get(allImages.get(0)).getElevationAngle();
+				top = imageList.get(allImages.get(0)).getElevationAngle();
+				centerElevation = imageList.get(allImages.get(0)).getElevationAngle();
 				
 				left = utilities.constrainWrap(left, 0.f, 360.f);
 				right = utilities.constrainWrap(right, 0.f, 360.f);

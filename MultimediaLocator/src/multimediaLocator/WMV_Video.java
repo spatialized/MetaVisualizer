@@ -987,10 +987,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			setTheta(i.getDirection());  
 			metadata.orientation = i.getOrientation();       
 			metadata.orientation = i.getOrientation();       
-			metadata.phi = i.getVerticalAngle();            		
-			metadata.phi = i.getVerticalAngle();            		
-			metadata.rotation = i.getRotation();             
-			metadata.rotation = i.getRotation();             
+			metadata.phi = i.getElevationAngle();            		
+			metadata.phi = i.getElevationAngle();            		
+			metadata.rotation = i.getRotationAngle();             
+			metadata.rotation = i.getRotationAngle();             
 
 			setHorizBorderID(i.getState().horizBordersID);
 			setVertBorderID(i.getState().vertBordersID);
@@ -1180,13 +1180,12 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	/**
-	 * Calculate and return alpha value given camera distance and image angle
-	 * @param videoAngle Angle between video and viewer
+	 * Calculate video brightness given viewer to video angle
+	 * @param videoAngle Current angle between viewer and video
+	 * @return Amount to fade video due to angle
 	 */
 	private float getAngleBrightness(float videoAngle)
 	{
-//		float angleFadeAmt = 0.f;
-
 		float angleBrightness = 0.f;
 
 		if(videoAngle > getViewerSettings().visibleAngle)
@@ -1317,12 +1316,12 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		 return getTheta();
 	 }
 
-	 public float getVerticalAngle()
+	 public float getElevationAngle()
 	 {
 		 return metadata.phi;
 	 }
 	 
-	 public float getRotation()
+	 public float getRotationAngle()
 	 {
 		 return metadata.rotation;
 	 }

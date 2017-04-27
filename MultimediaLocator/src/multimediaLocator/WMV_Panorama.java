@@ -23,7 +23,7 @@ public class WMV_Panorama extends WMV_Media
 	private final int tableLength = (int)(360.0f / tablePrecision);
 	private float sinTable[];
 	private float cosTable[];
-	
+
 	/**
 	 * Constructor for spherical panorama
 	 * @param newID Panorama id
@@ -36,7 +36,7 @@ public class WMV_Panorama extends WMV_Media
 	WMV_Panorama ( int newID, int newType, float newElevation, PVector newLocation, PImage newTexture, WMV_PanoramaMetadata newPanoMetadata )
 	{
 		super( newID, newType, newPanoMetadata.name, newPanoMetadata.filePath, newPanoMetadata.dateTime, newPanoMetadata.timeZone, 
-			   newPanoMetadata.gpsLocation );
+				newPanoMetadata.gpsLocation );
 
 		metadata = newPanoMetadata;
 		state = new WMV_PanoramaState();
@@ -53,9 +53,9 @@ public class WMV_Panorama extends WMV_Media
 		{
 			setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
 		}
-		
+
 		initializeTime();
-		
+
 		state.phi = newElevation;              		// Elevation (Pitch angle) for stitched panoramas  	
 		state.radius = state.defaultFocusDistance * state.initFocusDistanceFactor;
 		state.origRadius = state.radius;
@@ -81,7 +81,7 @@ public class WMV_Panorama extends WMV_Media
 			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
 		}
 	}
-	
+
 	/**
 =	 * Update main variables
 	 */
@@ -112,7 +112,7 @@ public class WMV_Panorama extends WMV_Media
 			{
 				setVisible(true);     										 		
 			}
-			
+
 			setVisible(getDistanceBrightness() > 0.f);
 
 			if(!isFading() && getViewerSettings().hidePanoramas)
@@ -127,7 +127,7 @@ public class WMV_Panorama extends WMV_Media
 
 			if(hasFadedOut()) setFadedOut(false);
 		}
-		
+
 		if(isFading())                       // Fade in and out with time
 		{
 			updateFadingBrightness();
@@ -136,10 +136,10 @@ public class WMV_Panorama extends WMV_Media
 				setVisible(false);
 		}
 
-//		if(fadingObjectDistance)
-//		{
-//			updateFadingObjectDistance();
-//		}
+		//		if(fadingObjectDistance)
+		//		{
+		//			updateFadingObjectDistance();
+		//		}
 	}
 
 	/**
@@ -157,7 +157,7 @@ public class WMV_Panorama extends WMV_Media
 
 		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
 			brightness *= getTimeBrightness(); 					// Fade brightness based on time
-		
+
 		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
 
 		if (isVisible() && !isHidden() && !isDisabled()) 
@@ -216,7 +216,7 @@ public class WMV_Panorama extends WMV_Media
 			else
 				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 		}
-		
+
 		float iu = (float)(texture.width-1)/(state.resolution);
 		float iv = (float)(texture.height-1)/(state.resolution);
 		float u = 0, v = iv;
@@ -289,9 +289,9 @@ public class WMV_Panorama extends WMV_Media
 		ml.sphere(state.radius);								// -- Testing
 		ml.popMatrix();
 	}
-	
+
 	/**
-	 * Initialize panorama geometry
+	 * Initialize sphere vertices
 	 */
 	void initializeSphere()
 	{
@@ -335,13 +335,13 @@ public class WMV_Panorama extends WMV_Media
 
 		sphere[currVert++] = new PVector(0,0,0);
 		sphere[currVert++] = new PVector(0,0,0);
-		
+
 		if (state.phi != 0.f)
 			sphere = rotateVertices(sphere, -state.phi, getMediaState().rotationAxis);     // Rotate around X axis		-- Why diff. axis than for images?
 
-		if( getTheta() != 0.f )
-			sphere = rotateVertices(sphere, 360-getTheta(), getMediaState().azimuthAxis); // Rotate around Z axis
-		
+		if( getDirection() != 0.f )
+			sphere = rotateVertices(sphere, 360-getDirection(), getMediaState().azimuthAxis); // Rotate around Z axis
+
 		initialized = true;
 	}
 
@@ -394,7 +394,7 @@ public class WMV_Panorama extends WMV_Media
 
 		return distance;
 	}
-	
+
 	/**
 	 * Draw the panorama metadata in Heads-Up Display
 	 */
@@ -411,18 +411,18 @@ public class WMV_Panorama extends WMV_Media
 
 		String strDate = "Date: "+String.valueOf(time.getMonth()) + String.valueOf(time.getDay()) + String.valueOf(time.getYear());
 		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
-				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
+				(time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
 		String strLatitude = "GPS Latitude: "+String.valueOf(getGPSLocation().z);
 		String strLongitude = " Longitude: "+String.valueOf(getGPSLocation().x);
 		String strAltitude = "Altitude: "+String.valueOf(getGPSLocation().y);
-		String strTheta = "Direction: "+String.valueOf(getTheta());
+		String strTheta = "Direction: "+String.valueOf(getDirection());
 		String strElevation = "Vertical Angle: "+String.valueOf(state.phi);
 
 		String strTitleDebug = "--- Debugging ---";
 		String strBrightness = "brightness: "+String.valueOf(getViewingBrightness());
 		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getFadingBrightness());
-		
+
 		int frameCount = getWorldState().frameCount;
 		ml.display.metadata(frameCount, strTitleImage);
 		ml.display.metadata(frameCount, strTitleImage2);
@@ -451,104 +451,155 @@ public class WMV_Panorama extends WMV_Media
 		}
 	}
 
+	/**
+	 * Set panorama state
+	 * @param newState New panorama state
+	 */
 	public void setState(WMV_PanoramaState newState)
 	{
-		state = newState;
-		setMediaState( state.getMediaState() );
-		metadata = state.getMetadata();
+		state = newState;							// Set state parameters
+		setMediaState( state.getMediaState() );		// Set media state (general) parameters
+		metadata = state.getMetadata();				// Set metadata parameters
 	}
-	
+
+	/**
+	 * @return Panorama state
+	 */
 	public WMV_PanoramaState getState()
 	{
 		return state;
 	}
-	
-	 /**
-	  * @return Save panorama state for exporting
-	  */
-	 public void captureState()
-	 {
-		 state.setMediaState( getMediaState(), metadata );
-	 }
-	 
-	 public WMV_PanoramaMetadata getMetadata()
-	 {
-		 return metadata;
-	 }
 
-	public void setDirection( float newTheta )
+	/**
+	 * @return Save panorama state for exporting
+	 */
+	public void captureState()
 	{
-		setTheta(newTheta);
+		state.setMediaState( getMediaState(), metadata );
 	}
 
+	/**
+	 * @return Panorama metadata
+	 */
+	public WMV_PanoramaMetadata getMetadata()
+	{
+		return metadata;
+	}
+
+	/**
+	 * Set radius to original length
+	 */
 	void resetRadius()
 	{
 		setRadius(state.origRadius);
 	}
 
+	/**
+	 * Set radius length
+	 * @param newRadius New radius length
+	 */
 	void setRadius(float newRadius)
 	{
 		state.radius = newRadius;
 	}
-	
+
+	public void setDirection(float newTheta)
+	{
+		metadata.theta = newTheta;
+	}
+
 	public float getDirection()
 	{
 		return metadata.theta;
 	}
 
+	/**
+	 * Set elevation angle
+	 * @param newPhi New phi value
+	 */
+	public void setElevationAngle( float newPhi )
+	{
+		state.phi = newPhi;
+	}
+
+	/**
+	 * Get elevation angle
+	 */
+	public float getElevationAngle()
+	{
+		return state.phi;
+	}
+
+	/**
+	 * @return Texture width
+	 */
 	public float getWidth()
 	{
 		return metadata.imageWidth;
 	}
 
+	/**
+	 * @return Texture height
+	 */
 	public float getHeight()
 	{
 		return metadata.imageHeight;
 	}
-	
+
+	/**
+	 * @return Sphere radius
+	 */
 	public float getRadius()
 	{
 		return state.radius;
 	}
-	
+
+	/**
+	 * @return Original sphere radius
+	 */
 	public float getOrigRadius()
 	{
 		return state.origRadius;
 	}
-	
+
+	/**
+	 * Set camera model
+	 * @param newCameraModel New camera model ID (1: iPhone)
+	 */
 	public void setCameraModel(int newCameraModel)
 	{
 		metadata.cameraModel = newCameraModel;
 	}
 
+	/**
+	 * @return Camera model ID
+	 */
 	public int getCameraModel()
 	{
 		return metadata.cameraModel;
 	}
-	
-	 public void setBrightness(float newBrightness)
-	 {
-		 metadata.brightness = newBrightness;
-	 }
-	 
-	 public float getBrightness()
-	 {
-		 return metadata.brightness;
-	 }
-	
-	 public void setTheta(float newTheta)
-	 {
-		 metadata.theta = newTheta;
-	 }
 
-	 public float getTheta()
-	 {
-		 return metadata.theta;
-	 }
-	 
-	 public void setTexture(PImage newTexture)
-	 {
-		 texture = newTexture;
-	 }
+	/**
+	 * Set texture brightness metadata value
+	 * @param newBrightness New brightness value
+	 */
+	public void setBrightness(float newBrightness)
+	{
+		metadata.brightness = newBrightness;
+	}
+
+	/**
+	 * Get texture brightness from metadata
+	 * @return Brightness value
+	 */
+	public float getBrightness()
+	{
+		return metadata.brightness;
+	}
+
+	public void setTexture(PImage newTexture)
+	{
+		texture = newTexture;
+	}
 
 }

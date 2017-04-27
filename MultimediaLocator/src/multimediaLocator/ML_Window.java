@@ -1659,14 +1659,14 @@ public class ML_Window {
 				{
 					if(world.p.debugSettings.detailed)
 					{
-						applet.text("Total memory (bytes): " + world.p.debugSettings.totalMemory, x, y += lineWidth);
-						applet.text("Available processors (cores): "+world.p.debugSettings.availableProcessors, x, y += lineWidth);
-						applet.text("Maximum memory (bytes): " +  (world.p.debugSettings.maxMemory == Long.MAX_VALUE ? "no limit" : world.p.debugSettings.maxMemory), x, y += lineWidth); 
-						applet.text("Total memory (bytes): " + world.p.debugSettings.totalMemory, x, y += lineWidth);
-						applet.text("Allocated memory (bytes): " + world.p.debugSettings.allocatedMemory, x, y += lineWidth);
+						applet.text("Total memory (bytes): " + world.p.totalMemory, x, y += lineWidth);
+						applet.text("Available processors (cores): "+world.p.availableProcessors, x, y += lineWidth);
+						applet.text("Maximum memory (bytes): " +  (world.p.maxMemory == Long.MAX_VALUE ? "no limit" : world.p.maxMemory), x, y += lineWidth); 
+						applet.text("Total memory (bytes): " + world.p.totalMemory, x, y += lineWidth);
+						applet.text("Allocated memory (bytes): " + world.p.allocatedMemory, x, y += lineWidth);
 					}
-					applet.text("Free memory (bytes): "+world.p.debugSettings.freeMemory, x, y += lineWidth);
-					applet.text("Approx. usable free memory (bytes): " + world.p.debugSettings.approxUsableFreeMemory, x, y += lineWidth);
+					applet.text("Free memory (bytes): "+world.p.freeMemory, x, y += lineWidth);
+					applet.text("Approx. usable free memory (bytes): " + world.p.approxUsableFreeMemory, x, y += lineWidth);
 				}			
 			}
 //			else

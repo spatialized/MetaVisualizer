@@ -13,7 +13,7 @@ public class WMV_Image extends WMV_Media
 	/* Classes */
 	private WMV_ImageState state;
 	private WMV_ImageMetadata metadata;
-	
+
 	/* Graphics */
 	private PImage image;			// Image pixels to be displayed
 	private PImage blurMask;		// Blur mask
@@ -29,28 +29,28 @@ public class WMV_Image extends WMV_Media
 	public WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata ) 
 	{
 		super( newID, newMediaType, newImageMetadata.name, newImageMetadata.filePath, newImageMetadata.dateTime, newImageMetadata.timeZone, 
-			   newImageMetadata.gpsLocation );
-		
+				newImageMetadata.gpsLocation );
+
 		metadata = newImageMetadata;
-		
+
 		if(metadata.orientation == -1)
 			metadata.orientation = guessOrientation();
-		
+
 		state = new WMV_ImageState();			// Store metadata in image state for exporting -- redundant?
 		state.initialize(metadata);			// Store metadata in image state for exporting -- redundant?
 
 		if(newImage != null) image = newImage;			// Empty image
-		
+
 		if(metadata.focusDistance == -1.f) metadata.focusDistance = state.defaultFocusDistance;
 		else metadata.focusDistance = metadata.focusDistance;
-		
+
 		state.origFocusDistance = metadata.focusDistance;
 
 		initializeTime();
-		
+
 		state.vertices = new PVector[4]; 
 		state.sVertices = new PVector[4]; 
-		
+
 		setAspectRatio( calculateAspectRatio() );
 	}  
 
@@ -86,7 +86,7 @@ public class WMV_Image extends WMV_Media
 		float angleBrightnessFactor;							// Fade with angle
 		float brightness = getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
-		
+
 		float distanceBrightnessFactor = getDistanceBrightness(); 
 		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
 
@@ -101,7 +101,7 @@ public class WMV_Image extends WMV_Media
 		}
 
 		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
-		
+
 		if (!isHidden() && !isDisabled()) 
 		{
 			if (getViewingBrightness() > 0)
@@ -118,7 +118,7 @@ public class WMV_Image extends WMV_Media
 	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
 	{
 		PImage result = ml.createImage(640, 480, PApplet.RGB);
-		
+
 		try
 		{
 			result = source.copy();
@@ -140,10 +140,10 @@ public class WMV_Image extends WMV_Media
 				}
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
 	 * @param size Size to draw the video center
 	 * Draw the video center as a colored sphere
@@ -152,15 +152,15 @@ public class WMV_Image extends WMV_Media
 	{
 		/* Draw frame */
 		ml.pushMatrix();
-		
+
 		ml.stroke(0.f, 0.f, 255.f, getMediaState().viewingBrightness);	 
 		ml.strokeWeight(2.f);
-		
+
 		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
 		ml.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
 		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
 		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
-		
+
 		PVector c = ml.world.getCurrentField().getCluster(getMediaState().getClusterID()).getLocation();
 		PVector loc = getLocation();
 		PVector cl = getCaptureLocation();
@@ -191,24 +191,24 @@ public class WMV_Image extends WMV_Media
 		ml.popMatrix();
 	}
 
-//	/**
-//	 * Fade in image
-//	 */
-//	public void fadeIn()
-//	{
-//		if(isFading()) stopFading();
-//		fadeBrightness(1.f);				
-//	}
-//
-//	/**
-//	 * Fade out image
-//	 */
-//	public void fadeOut()
-//	{
-//		if(isFading()) stopFading();
-//		fadeBrightness(0.f);				
-//	}
-	
+	//	/**
+	//	 * Fade in image
+	//	 */
+	//	public void fadeIn()
+	//	{
+	//		if(isFading()) stopFading();
+	//		fadeBrightness(1.f);				
+	//	}
+	//
+	//	/**
+	//	 * Fade out image
+	//	 */
+	//	public void fadeOut()
+	//	{
+	//		if(isFading()) stopFading();
+	//		fadeBrightness(0.f);				
+	//	}
+
 	/**
 =	 * Update image geometry + visibility
 	 */
@@ -217,11 +217,11 @@ public class WMV_Image extends WMV_Media
 		if(getMediaState().requested && image.width != 0)			// If requested image has loaded, initialize image 
 		{
 			calculateVertices();  					// Update geometry		
-			
+
 			setAspectRatio( calculateAspectRatio() );
 			blurred = applyMask(ml, image, blurMask);					// Apply blur mask once image has loaded
 			setRequested(false);
-//			p.p.requestedImages--;
+			//			p.p.requestedImages--;
 		}
 
 		if(image.width > 0 && !isHidden() && !isDisabled())				// Image has been loaded and isn't mState.hidden or disabled
@@ -244,11 +244,11 @@ public class WMV_Image extends WMV_Media
 			else 
 			{
 				if(getViewerSettings().angleFading)
-					setVisible( isFacingCamera(getViewerState().getLocation()) );		
+					setVisible( isFacingViewer(getViewerState().getLocation()) );		
 				else 
 					setVisible(true);     										 		
 			}
-			
+
 			if(isVisible())
 			{
 				float imageAngle = getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
@@ -268,7 +268,7 @@ public class WMV_Image extends WMV_Media
 				if(isBackFacing(getViewerState().getLocation()) || isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
 					setVisible(false);
 			}
-			
+
 			if(isFading())										// Update brightness while fading
 			{
 				if(getMediaState().fadingBrightness == 0.f)
@@ -288,7 +288,7 @@ public class WMV_Image extends WMV_Media
 				if(getMediaState().fadingBrightness > 0.f && !isVisible())
 					visibilitySetToFalse = true;
 			}
-			
+
 			if(!getViewerSettings().angleThinning)
 			{
 				if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideImages && getFadingBrightness() == 0.f)			// Fade in
@@ -324,10 +324,10 @@ public class WMV_Image extends WMV_Media
 			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
 				loadMedia(ml); 					// Request image pixels from disk
 		}
-		
+
 		if(isFading())                       // Fade in and out with time
 			updateFadingBrightness();
-		
+
 		if(getMediaState().fadingFocusDistance)
 			updateFadingFocusDistance();
 	}
@@ -348,11 +348,11 @@ public class WMV_Image extends WMV_Media
 		}
 
 		ml.rectMode(PApplet.CENTER);
-		
+
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
 		ml.textureMode(PApplet.NORMAL);
-		
+
 		ml.noFill();
 
 		if(getWorldState().useBlurMasks)
@@ -401,17 +401,18 @@ public class WMV_Image extends WMV_Media
 			ml.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, 1, 1);			// LOWER RIGHT        
 			ml.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, 1);            // LOWER LEFT
 		}
-		
+
 		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
 		ml.popMatrix();
-		
+
 //		p.imagesSeen++;
 //		p.setImagesSeen(p.getImagesSeen() + 1);
 	}
+	
 	/**
-	 * Calculate and return alpha value given camera to image angle
-	 * @param imageAngle 
-	 * @return Fading amount due to image angle
+	 * Calculate image brightness given viewer to image angle
+	 * @param imageAngle Current angle between viewer and image
+	 * @return Amount to fade image due to angle
 	 */
 	public float getAngleBrightness(float imageAngle)
 	{
@@ -428,7 +429,8 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/**
-	 * @return How far the image is from the camera
+	 * Measure distance between image and viewer
+	 * @return Image viewing distance
 	 */
 	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
@@ -446,8 +448,8 @@ public class WMV_Image extends WMV_Media
 			else
 				r = metadata.focusDistance;							
 
-			float xDisp = r * (float)Math.sin(PApplet.radians(360-getTheta())) * (float)Math.sin(PApplet.radians(90-metadata.phi)); 
-			float zDisp = r * (float)Math.cos(PApplet.radians(360-getTheta())) * (float)Math.sin(PApplet.radians(90-metadata.phi));  
+			float xDisp = r * (float)Math.sin(PApplet.radians(360-getDirection())) * (float)Math.sin(PApplet.radians(90-metadata.phi)); 
+			float zDisp = r * (float)Math.cos(PApplet.radians(360-getDirection())) * (float)Math.sin(PApplet.radians(90-metadata.phi));  
 			float yDisp = r * (float)Math.cos(PApplet.radians(90-metadata.phi)); 
 
 			state.displacement = new PVector(-xDisp, -yDisp, -zDisp);
@@ -465,15 +467,15 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/** 
-	 * @return Distance visibility multiplier between 0. and 1.
 	 * Find image transparency due to distance (fades away in distance and as camera gets close)
+	 * @return Distance visibility multiplier between 0. and 1.
 	 */
 	public float getDistanceBrightness()									
 	{
 		float viewDist = getViewingDistance();
 		float farViewingDistance = getViewerSettings().getFarViewingDistance();
 		float nearViewingDistance = getViewerSettings().getNearViewingDistance();
-		
+
 		float distVisibility = 1.f;
 
 		if(viewDist > farViewingDistance)
@@ -497,16 +499,16 @@ public class WMV_Image extends WMV_Media
 	{
 		state.vertices = initializeVertices();					// Initialize Normal Mode state.vertices
 		state.sVertices = initializeVertices();					// Initialize Orientation Mode (static) state.vertices
-		
+
 		if (metadata.phi != 0.) state.vertices = rotateVertices(state.vertices, -metadata.phi, getMediaState().verticalAxis);        	 // Rotate around X axis
-		if (getTheta() != 0.) state.vertices = rotateVertices(state.vertices, 360-getTheta(), getMediaState().azimuthAxis);    // Rotate around Z axis
-		
+		if (getDirection() != 0.) state.vertices = rotateVertices(state.vertices, 360-getDirection(), getMediaState().azimuthAxis);    // Rotate around Z axis
+
 		if (metadata.phi != 0.) state.sVertices = rotateVertices(state.sVertices, -metadata.phi, getMediaState().verticalAxis);        // Rotate around X axis
-		if (getTheta() != 0.) state.sVertices = rotateVertices(state.sVertices, 360-getTheta(), getMediaState().azimuthAxis);    // Rotate around Z axis
-		
+		if (getDirection() != 0.) state.sVertices = rotateVertices(state.sVertices, 360-getDirection(), getMediaState().azimuthAxis);    // Rotate around Z axis
+
 		if(state.vertices.length == 0) setDisabled(true);
 		if(state.sVertices.length == 0) setDisabled(true);
-		
+
 		state.vertices = translateVertices(state.vertices, getCaptureLocation());               // Move image to photo capture location   
 
 		state.displacement = getDisplacementVector();
@@ -516,7 +518,10 @@ public class WMV_Image extends WMV_Media
 		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
 		addVectorToLocation(state.displacement);     													 
 	}
-	
+
+	/**
+	 * @return Image location displacement vector from capture location
+	 */
 	public PVector getDisplacementVector()
 	{
 		float r;				  				 // Viewing sphere radius
@@ -525,8 +530,8 @@ public class WMV_Image extends WMV_Media
 		else
 			r = metadata.focusDistance;							
 
-		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi)); 
-		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getTheta())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi));  
+		float xDisp = r * (float)Math.sin((float)Math.toRadians(360-getDirection())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi)); 
+		float zDisp = r * (float)Math.cos((float)Math.toRadians(360-getDirection())) * (float)Math.sin((float)Math.toRadians(90-metadata.phi));  
 		float yDisp = r * (float)Math.cos((float)Math.toRadians(90-metadata.phi)); 
 
 		return new PVector(-xDisp, -yDisp, -zDisp);			// Displacement from capture location
@@ -534,6 +539,7 @@ public class WMV_Image extends WMV_Media
 
 	/**
 	 * Request the image to be loaded from disk
+	 * @param ml Parent app
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
@@ -542,50 +548,20 @@ public class WMV_Image extends WMV_Media
 			calculateVertices();
 			image = ml.requestImage(getFilePath());
 			setRequested(true);
-//			p.p.requestedImages++;
+			//			p.p.requestedImages++;
 		}
 	}
 
 	/**
-	 * @return How far the image location is from a point
+	 * Find distance between image location and a given point
+	 * @param point Point to measure distance from
+	 * @return Distance between image and point
 	 */
 	float getImageDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
 	{
 		float distance = PVector.dist(getLocation(), point);     
 		return distance;
 	}
-
-	/**
-	 * Search given list of clusters and associated with this image
-	 * @return Whether associated field was successfully found
-	 */	
-//	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo
-//	{
-//		int closestClusterIndex = 0;
-//		float closestDistance = 100000;
-//
-//		for (int i = 0; i < clusterList.size(); i++) 
-//		{     
-//			WMV_Cluster curCluster = clusterList.get(i);
-//			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
-//
-//			if (distanceCheck < closestDistance)
-//			{
-//				closestClusterIndex = i;
-//				closestDistance = distanceCheck;
-//			}
-//		}
-//
-//		if(closestDistance < maxClusterDistance)
-//			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
-//		else
-//			setAssociatedClusterID(-1);						// Create a new single image cluster here!
-//
-//		if(getAssociatedClusterID() != -1)
-//			return true;
-//		else
-//			return false;
-//	}
 
 	/**
 	 * Set thinning visibility of image
@@ -606,23 +582,23 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/**
-	 * @return Whether image is facing the camera
+	 * @return Whether image is facing the viewer
 	 */	
-	public boolean isFacingCamera(PVector cameraPosition)
+	public boolean isFacingViewer(PVector viewerPosition)
 	{
-		return Math.abs(getAngleToCamera(cameraPosition)) > getViewerSettings().visibleAngle;     			// If the result is positive, then it is facing the camera.
+		return Math.abs(getAngleToViewer(viewerPosition)) > getViewerSettings().visibleAngle;     			// If the result is positive, then it is facing the camera.
 	}
-	
+
 	/**
-	 * @return Angle between camera location and image
+	 * @return Angle between viewer location and image
 	 */	
-	public float getAngleToCamera(PVector cameraPosition)
+	public float getAngleToViewer(PVector viewerPosition)
 	{
 		PVector centerVertex = calcCenterVertex();
 
-		PVector cameraToFace = new PVector(  cameraPosition.x-centerVertex.x, 	//  Vector from the camera to the face.      
-				cameraPosition.y-centerVertex.y, 
-				cameraPosition.z-centerVertex.z   );
+		PVector cameraToFace = new PVector(  viewerPosition.x-centerVertex.x, 	//  Vector from the camera to the face.      
+				viewerPosition.y-centerVertex.y, 
+				viewerPosition.z-centerVertex.z   );
 
 		PVector ab = new PVector(  state.vertices[1].x-state.vertices[0].x, 
 				state.vertices[1].y-state.vertices[0].y, 
@@ -639,31 +615,33 @@ public class WMV_Image extends WMV_Media
 
 		return PVector.dot(faceNormal, cameraToFace);     					// Dot product gives the angle between the two vectors
 	}
-	
+
 	/**
+	 * @param viewerOrientation Current viewer orientation
 	 * @return Angle between the image and direction the camera is facing
 	 */
-	public float getFacingAngle(PVector camOrientation)
+	public float getFacingAngle(PVector viewerOrientation)
 	{
 		PVector faceNormal = getFaceNormal();
 
 		PVector crossVector = new PVector();
-		if(camOrientation == null) System.out.println("camOrientation == NULL..."+getID());
-		PVector.cross(camOrientation, faceNormal, crossVector);				// Cross vector gives angle between camera and image
+		if(viewerOrientation == null) System.out.println("camOrientation == NULL..."+getID());
+		PVector.cross(viewerOrientation, faceNormal, crossVector);				// Cross vector gives angle between camera and image
 
 		float result = crossVector.mag();
 		return result;
 	}
 
 	/**
+	 * @param vLoc Viewer location
 	 * @return Whether the camera is behind the image
 	 */
-	public boolean isBackFacing(PVector camLoc)										
+	public boolean isBackFacing(PVector vLoc)										
 	{
-		float captureToCam = getCaptureLocation().dist(camLoc);  	// Find distance from capture location to camera
-		float camToImage = getLocation().dist(camLoc);  					// Find distance from camera to image
+		float captureToViewer = getCaptureLocation().dist(vLoc);  	// Find distance from capture location to camera
+		float viewerToImage = getLocation().dist(vLoc);  					// Find distance from camera to image
 
-		if(captureToCam > camToImage + getViewerSettings().getNearClippingDistance() * 0.5f)			// If captureToCam > camToVideo, then back of video is facing the camera
+		if(captureToViewer > viewerToImage + getViewerSettings().getNearClippingDistance() * 0.5f)			// If captureToCam > camToVideo, then back of video is facing the camera
 			return true;
 		else
 			return false; 
@@ -679,11 +657,11 @@ public class WMV_Image extends WMV_Media
 		PVector camToImage = new PVector(  camLocation.x-centerVertex.x, 	//  Vector from the camera to the face.      
 				camLocation.y-centerVertex.y, 
 				camLocation.z-centerVertex.z   );
-		
+
 		camToImage.normalize();
-		
+
 		float result = PVector.dot(camOrientation, camToImage);				// Dot product gives angle between camera and image
-		
+
 		if(result >= 0)							// If > zero, image is behind camera
 			return true;
 		else
@@ -794,7 +772,7 @@ public class WMV_Image extends WMV_Media
 		faceNormal.normalize(); 
 		return faceNormal;
 	}
-	
+
 	/**
 	 * Draw the image metadata in Heads-Up Display
 	 */
@@ -811,12 +789,12 @@ public class WMV_Image extends WMV_Media
 
 		String strDate = "Date: "+String.valueOf(time.getMonth()) + String.valueOf(time.getDay()) + String.valueOf(time.getYear());
 		String strTime = "Time: "+String.valueOf(time.getHour()) + ":" + (time.getMinute() >= 10 ? String.valueOf(time.getMinute()) : "0"+String.valueOf(time.getMinute())) + ":" + 
-				 (time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
+				(time.getSecond() >= 10 ? String.valueOf(time.getSecond()) : "0"+String.valueOf(time.getSecond()));
 
 		String strLatitude = "GPS Latitude: "+String.valueOf(getGPSLocation().z);
 		String strLongitude = " Longitude: "+String.valueOf(getGPSLocation().x);
 		String strAltitude = "Altitude: "+String.valueOf(getGPSLocation().y);
-		String strTheta = "Direction: "+String.valueOf(getTheta());
+		String strTheta = "Direction: "+String.valueOf(getDirection());
 		String strElevation = "Vertical Angle: "+String.valueOf(metadata.phi);
 		String strRotation = "Rotation: "+String.valueOf(metadata.rotation);
 		String strFocusDistance = "Focus Distance: "+String.valueOf(metadata.focusDistance);
@@ -824,12 +802,12 @@ public class WMV_Image extends WMV_Media
 		String strTitleDebug = "--- Debugging ---";
 		String strBrightness = "brightness: "+String.valueOf(getViewingBrightness());
 		String strBrightnessFading = "brightnessFadingValue: "+String.valueOf(getFadingBrightness());
-		
+
 		int frameCount = getWorldState().frameCount;
 		ml.display.metadata(frameCount, strTitleImage);
 		ml.display.metadata(frameCount, strTitleImage2);
 		ml.display.metadata(frameCount, "");
-		
+
 		ml.display.metadata(frameCount, strID);
 		ml.display.metadata(frameCount, strCluster);
 		ml.display.metadata(frameCount, strName);
@@ -867,14 +845,14 @@ public class WMV_Image extends WMV_Media
 			int c = image.pixels[i];
 			r += c>>16&0xFF;
 		g += c>>8&0xFF;
-			b += c&0xFF;
+		b += c&0xFF;
 		}
 		r /= image.pixels.length;
 		g /= image.pixels.length;
 		b /= image.pixels.length;
 		return new PVector(r, g, b);
 	}
-	
+
 	public int guessOrientation()
 	{
 		if(metadata.imageWidth > metadata.imageHeight)
@@ -884,21 +862,21 @@ public class WMV_Image extends WMV_Media
 		else
 			return 0;
 	}
-	
-//	/**
-//	 * @return Average brightness across all pixels
-//	 */		
-//	private float getAverageBrightness() 
-//	{
-//		image.loadPixels();
-//		int b = 0;
-//		for (int i=0; i<image.pixels.length; i++) {
-//			float cur = p.p.p.brightness(image.pixels[i]);
-//			b += cur;
-//		}
-//		b /= image.pixels.length;
-//		return b;
-//	}
+
+	//	/**
+	//	 * @return Average brightness across all pixels
+	//	 */		
+	//	private float getAverageBrightness() 
+	//	{
+	//		image.loadPixels();
+	//		int b = 0;
+	//		for (int i=0; i<image.pixels.length; i++) {
+	//			float cur = p.p.p.brightness(image.pixels[i]);
+	//			b += cur;
+	//		}
+	//		b /= image.pixels.length;
+	//		return b;
+	//	}
 
 	/**
 	 * Associate this image with given video ID  
@@ -909,7 +887,7 @@ public class WMV_Image extends WMV_Media
 		state.isVideoPlaceHolder = true;
 		state.assocVideoID = videoID;
 		setHidden(true);
-//		if(getDebugSettings().video) System.out.println("Image "+getID()+" is now associated with video "+videoID);
+		//		if(getDebugSettings().video) System.out.println("Image "+getID()+" is now associated with video "+videoID);
 	}
 
 	/**
@@ -919,10 +897,10 @@ public class WMV_Image extends WMV_Media
 	{
 		float ratio = 0;
 
-//		ratio = (float)(image.height)/(float)(image.width);
+		//		ratio = (float)(image.height)/(float)(image.width);
 		ratio = (float)metadata.imageHeight / (float)metadata.imageWidth;
-//		if (ratio > 1.)
-//			ratio = 0.666f;
+		//		if (ratio > 1.)
+		//			ratio = 0.666f;
 
 		return ratio;
 	}
@@ -939,7 +917,7 @@ public class WMV_Image extends WMV_Media
 		state.fadingFocusDistanceStart = metadata.focusDistance;
 		state.fadingFocusDistanceTarget = target;
 	}
-	
+
 	/**
 	 * Update fading of object distance (focus distance and image size together)
 	 */
@@ -955,18 +933,17 @@ public class WMV_Image extends WMV_Media
 		else
 		{
 			newFocusDistance = PApplet.map( getWorldState().frameCount, state.fadingFocusDistanceStartFrame, state.fadingFocusDistanceEndFrame, 
-											state.fadingFocusDistanceStart, state.fadingFocusDistanceTarget);      // Fade with distance from current time
+					state.fadingFocusDistanceStart, state.fadingFocusDistanceTarget);      // Fade with distance from current time
 		}
 
 		setFocusDistance( newFocusDistance );	// Set focus distance
 		calculateVertices();  					// Update state.vertices given new width
 	}
-	
-	void resetFocusDistance()
-	{
-		setFocusDistance(state.origFocusDistance);
-	}
-	
+
+	/**
+	 * Initialize image vertices
+	 * @return Vertex array
+	 */
 	private PVector[] initializeVertices()
 	{
 		float width = getImageWidthInMeters();										
@@ -979,34 +956,34 @@ public class WMV_Image extends WMV_Media
 
 		PVector[] verts = new PVector[4]; 
 
-		if(metadata.cameraModel == 1)      			// If it is an iPhone Image
+		if(metadata.cameraModel == 1)      				// If it is an iPhone Image
 		{
 			if (metadata.orientation == 90) 		 	// Vertical Image
 			{
-				verts[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[0] = new PVector( left, top, 0 );     		// UPPER LEFT  
 				verts[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
 				verts[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				verts[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[3] = new PVector( left, bottom, 0 );      	// LOWER LEFT
 			}
-			else if (metadata.orientation == 0)    	// Horizontal Image
+			else if (metadata.orientation == 0)    		// Horizontal Image
 			{
-				verts[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[0] = new PVector( left, top, 0 );     		// UPPER LEFT  
 				verts[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
 				verts[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				verts[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[3] = new PVector( left, bottom, 0 );      	// LOWER LEFT
 			}
-			else if (metadata.orientation == 180)    // Upside Down (Horizontal) Image
+			else if (metadata.orientation == 180)    	// Upside Down (Horizontal) Image
 			{
 				verts[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				verts[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
-				verts[2] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[1] = new PVector( left, bottom, 0 );      	// LOWER LEFT
+				verts[2] = new PVector( left, top, 0 );     		// UPPER LEFT  
 				verts[3] = new PVector( right, top, 0 );      		// UPPER RIGHT 
 			}
-			else  if (metadata.orientation == 270)    // Upside Down (Vertical) Image
+			else  if (metadata.orientation == 270)    	// Upside Down (Vertical) Image
 			{
 				verts[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				verts[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
-				verts[2] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[1] = new PVector( left, bottom, 0 );      	// LOWER LEFT
+				verts[2] = new PVector( left, top, 0 );     		// UPPER LEFT  
 				verts[3] = new PVector( right, top, 0 );      		// UPPER RIGHT 
 			}
 		}
@@ -1020,10 +997,10 @@ public class WMV_Image extends WMV_Media
 					metadata.imageHeight = image.width;
 				}
 
-				verts[0] = new PVector( left, top, 0 );     			// UPPER LEFT  
+				verts[0] = new PVector( left, top, 0 );     		// UPPER LEFT  
 				verts[1] = new PVector( right, top, 0 );      		// UPPER RIGHT 
 				verts[2] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				verts[3] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[3] = new PVector( left, bottom, 0 );      	// LOWER LEFT
 			}
 			else if (metadata.orientation == 180 || metadata.orientation == 270)    		// Upside Down (Horizontal or Vertical) Image
 			{
@@ -1034,15 +1011,15 @@ public class WMV_Image extends WMV_Media
 				}
 
 				verts[0] = new PVector( right, bottom, 0 );       	// LOWER RIGHT
-				verts[1] = new PVector( left, bottom, 0 );      		// LOWER LEFT
+				verts[1] = new PVector( left, bottom, 0 );      	// LOWER LEFT
 				verts[2] = new PVector( left, top, 0 );    			// UPPER LEFT  
 				verts[3] = new PVector( right, top, 0 );      		// UPPER RIGHT
 			}
 		}
-		
+
 		return verts;
 	}
-	
+
 	/**
 	 * Find image width using formula:
 	 * Image Width (m.) = Object Width on Sensor (mm.) / Focal Length (mm.) * Focus Distance (m.) 
@@ -1050,7 +1027,7 @@ public class WMV_Image extends WMV_Media
 	 */
 	private float getImageWidthInMeters()
 	{
-//		float state.subjectSizeRatio = subjectPixelWidth / originalstate.imageWidth;		// --More accurate
+		//		float state.subjectSizeRatio = subjectPixelWidth / originalstate.imageWidth;		// --More accurate
 
 		float objectWidthOnSensor = metadata.sensorSize * state.subjectSizeRatio;			// 29 * 0.18 == 5.22
 		float imgWidth = objectWidthOnSensor * metadata.focusDistance / metadata.focalLength;		// 5.22 * 9 / 4.2 == 11.19	Actual: 11.320482
@@ -1058,308 +1035,362 @@ public class WMV_Image extends WMV_Media
 		return imgWidth;
 	}
 
-	 /**
-	  * @return Whether the vertices are null
-	  */
-	 public boolean verticesAreNull()
-	 {
-		 if(state.vertices[0] != null && state.vertices[1] != null && state.vertices[2] != null && state.vertices[3] != null)
-			 return false;
-		 else
-			 return true;
-	 }
+	/**
+	 * @return Whether the vertices are null
+	 */
+	public boolean verticesAreNull()
+	{
+		if(state.vertices[0] != null && state.vertices[1] != null && state.vertices[2] != null && state.vertices[3] != null)
+			return false;
+		else
+			return true;
+	}
 
-	 /**
-	  * Set blur mask ID for image
-	  * 	horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
-	  * 	vertBorderID	 0: Top  1: Center  2: Bottom  3: Top+Bottom
-	  */
-	 public void setBlurMaskID()
-	 {
-		 if(state.horizBordersID == 0)
-		 {
-			 switch(state.vertBordersID)
-			 {
-			 case 0:
-//				 blurMask = p.p.blurMaskLeftTop;
-				 state.blurMaskID = 0;
-				 break;
-			 case 1:
-//				 blurMask = p.p.blurMaskLeftCenter;
-				 state.blurMaskID = 1;
-				 break;
-			 case 2:
-//				 blurMask = p.p.blurMaskLeftBottom;
-				 state.blurMaskID = 2;
-				 break;
-			 case 3:
-			 default:
-//				 blurMask = p.p.blurMaskLeftBoth;
-				 state.blurMaskID = 3;
-				 break;
-			 }
-		 }
-		 else if(state.horizBordersID == 1)
-		 {
-			 switch(state.vertBordersID)
-			 {
-			 case 0:
-//				 blurMask = p.p.blurMaskCenterTop;
-				 state.blurMaskID = 4;
-				 break;
-			 case 1:
-//				 blurMask = p.p.blurMaskCenterCenter;
-				 state.blurMaskID = 5;
-				 break;
-			 case 2:
-//				 blurMask = p.p.blurMaskCenterBottom;
-				 state.blurMaskID = 6;
-				 break;
-			 case 3:
-			 default:
-//				 blurMask = p.p.blurMaskCenterBoth;
-				 state.blurMaskID = 7;
-				 break;
-			 }
-		 }
-		 else if(state.horizBordersID == 2)
-		 {
-			 switch(state.vertBordersID)
-			 {
-			 case 0:
-//				 blurMask = p.p.blurMaskRightTop;
-				 state.blurMaskID = 8;
-				 break;
-			 case 1:
-//				 blurMask = p.p.blurMaskRightCenter;
-				 state.blurMaskID = 9;
-				 break;
-			 case 2:
-//				 blurMask = p.p.blurMaskRightBottom;
-				 state.blurMaskID = 10;
-				 break;
-			 case 3:
-			 default:
-//				 blurMask = p.p.blurMaskRightBoth;
-				 state.blurMaskID = 11;
-				 break;
-			 }
-		 }
-		 else if(state.horizBordersID == 3)
-		 {
-			 switch(state.vertBordersID)
-			 {
-			 case 0:
-//				 blurMask = p.p.blurMaskBothTop;
-				 state.blurMaskID = 12;
-				 break;
-			 case 1:
-//				 blurMask = p.p.blurMaskBothCenter;
-				 state.blurMaskID = 13;
-				 break;
-			 case 2:
-//				 blurMask = p.p.blurMaskBothBottom;
-				 state.blurMaskID = 14;
-				 break;
-			 case 3:
-			 default:
-//				 blurMask = p.p.blurMaskBothBoth;
-				 state.blurMaskID = 15;
-				 break;
-			 }
-		 }
-	 }
+	/**
+	 * Set blur mask ID for image
+	 * 	horizBorderID    0: Left  1: Center  2: Right  3: Left+Right
+	 * 	vertBorderID	 0: Top  1: Center  2: Bottom  3: Top+Bottom
+	 */
+	public void setBlurMaskID()
+	{
+		if(state.horizBordersID == 0)
+		{
+			switch(state.vertBordersID)
+			{
+			case 0:
+				//				 blurMask = p.p.blurMaskLeftTop;
+				state.blurMaskID = 0;
+				break;
+			case 1:
+				//				 blurMask = p.p.blurMaskLeftCenter;
+				state.blurMaskID = 1;
+				break;
+			case 2:
+				//				 blurMask = p.p.blurMaskLeftBottom;
+				state.blurMaskID = 2;
+				break;
+			case 3:
+			default:
+				//				 blurMask = p.p.blurMaskLeftBoth;
+				state.blurMaskID = 3;
+				break;
+			}
+		}
+		else if(state.horizBordersID == 1)
+		{
+			switch(state.vertBordersID)
+			{
+			case 0:
+				//				 blurMask = p.p.blurMaskCenterTop;
+				state.blurMaskID = 4;
+				break;
+			case 1:
+				//				 blurMask = p.p.blurMaskCenterCenter;
+				state.blurMaskID = 5;
+				break;
+			case 2:
+				//				 blurMask = p.p.blurMaskCenterBottom;
+				state.blurMaskID = 6;
+				break;
+			case 3:
+			default:
+				//				 blurMask = p.p.blurMaskCenterBoth;
+				state.blurMaskID = 7;
+				break;
+			}
+		}
+		else if(state.horizBordersID == 2)
+		{
+			switch(state.vertBordersID)
+			{
+			case 0:
+				//				 blurMask = p.p.blurMaskRightTop;
+				state.blurMaskID = 8;
+				break;
+			case 1:
+				//				 blurMask = p.p.blurMaskRightCenter;
+				state.blurMaskID = 9;
+				break;
+			case 2:
+				//				 blurMask = p.p.blurMaskRightBottom;
+				state.blurMaskID = 10;
+				break;
+			case 3:
+			default:
+				//				 blurMask = p.p.blurMaskRightBoth;
+				state.blurMaskID = 11;
+				break;
+			}
+		}
+		else if(state.horizBordersID == 3)
+		{
+			switch(state.vertBordersID)
+			{
+			case 0:
+				//				 blurMask = p.p.blurMaskBothTop;
+				state.blurMaskID = 12;
+				break;
+			case 1:
+				//				 blurMask = p.p.blurMaskBothCenter;
+				state.blurMaskID = 13;
+				break;
+			case 2:
+				//				 blurMask = p.p.blurMaskBothBottom;
+				state.blurMaskID = 14;
+				break;
+			case 3:
+			default:
+				//				 blurMask = p.p.blurMaskBothBoth;
+				state.blurMaskID = 15;
+				break;
+			}
+		}
+	}
 
-	 public void setState(WMV_ImageState newState)
-	 {
-		 state = newState;
-		 setMediaState( state.getMediaState() );
-		 metadata = state.getMetadata();
-	 }
+	/**
+	 * Set image state
+	 * @param newState New image state
+	 */
+	public void setState(WMV_ImageState newState)
+	{
+		state = newState;							// Set state parameters
+		setMediaState( state.getMediaState() );	// Set media state (general) parameters
+		metadata = state.getMetadata();			// Set metadata parameters
+	}
 
-	 public WMV_ImageState getState()
-	 {
-		 return state;
-	 }
-	 
-//	 /**
-//	  * @return Save image state for exporting
-//	  */
-//	 public void setMediaState(WMV_MediaState newMediaState)
-//	 {
-//		 state.setMediaState( newMediaState, metadata );
-//	 }
+	/**
+	 * @return Image state
+	 */
+	public WMV_ImageState getState()
+	{
+		return state;
+	}
 
-	 /**
-	  * @return Save image state for exporting
-	  */
-	 public void captureState()
-	 {
-		 state.setMediaState( getMediaState(), metadata );
-	 }
-	 
-	 public WMV_ImageMetadata getMetadata()
-	 {
-		 return metadata;
-	 }
-	 
-	 public void setBlurMask(PImage newBlurMask)
-	 {
-		 blurMask = newBlurMask;
-	 }
-	 
-	 public float getDirection()
-	 {
-		 return metadata.theta;
-	 }
+	/**
+	 * @return Save image state for exporting
+	 */
+	public void captureState()
+	{
+		state.setMediaState( getMediaState(), metadata );
+	}
 
-	 public float getVerticalAngle()
-	 {
-		 return metadata.phi;
-	 }
+	public WMV_ImageMetadata getMetadata()
+	{
+		return metadata;
+	}
 
-	 public float getRotation()
-	 {
-		 return metadata.rotation;
-	 }
+	/**
+	 * Set image blur mask
+	 * @param newBlurMask New blur mask
+	 */
+	public void setBlurMask(PImage newBlurMask)
+	{
+		blurMask = newBlurMask;
+	}
 
-	 public int getWidth()
-	 {
-		 return metadata.imageWidth;
-	 }
+	/**
+	 * Reset focus distance to original value
+	 */
+	void resetFocusDistance()
+	{
+		setFocusDistance(state.origFocusDistance);
+	}
 
-	 public int getHeight()
-	 {
-		 return metadata.imageHeight;
-	 }
+	/**
+	 * Set image compass direction
+	 * @param newTheta
+	 */
+	public void setDirection(float newTheta)
+	{
+		metadata.theta = newTheta;
+	}
 
-	 public void setTheta(float newTheta)
-	 {
-		 metadata.theta = newTheta;
-	 }
+	/**
+	 * @return Image compass direction
+	 */
+	public float getDirection()
+	{
+		return metadata.theta;
+	}
 
-	 public float getTheta()
-	 {
-		 return metadata.theta;
-	 }
+	/**
+	 * @return Image elevation angle
+	 */
+	public float getElevationAngle()
+	{
+		return metadata.phi;
+	}
 
-	 public void setCameraModel(int newCameraModel)
-	 {
-		 metadata.cameraModel = newCameraModel;
-	 }
+	/**
+	 * @return Image rotation angle
+	 */
+	public float getRotationAngle()
+	{
+		return metadata.rotation;
+	}
 
-	 public int getCameraModel()
-	 {
-		 return metadata.cameraModel;
-	 }
-	 
-	 public void setBrightness(float newBrightness)
-	 {
-		 metadata.brightness = newBrightness;
-	 }
-	 
-	 public float getBrightness()
-	 {
-		 return metadata.brightness;
-	 }
+	/**
+	 * @return Image width
+	 */
+	public int getWidth()
+	{
+		return metadata.imageWidth;
+	}
 
-	 public int getAssociatedVideo()
-	 {
-		 if(state.isVideoPlaceHolder)
-		 {
-			 return state.assocVideoID;
-		 }
-		 else return -1;
-	 }
+	/**
+	 * @return Image height
+	 */
+	public int getHeight()
+	{
+		return metadata.imageHeight;
+	}
 
-	 public boolean isVideoPlaceHolder()
-	 {
-		 return state.isVideoPlaceHolder;
-	 }
+	/**
+	 * Set camera model
+	 * @param newCameraModel New camera model ID (1: iPhone)
+	 */
+	public void setCameraModel(int newCameraModel)
+	{
+		metadata.cameraModel = newCameraModel;
+	}
 
-	 public float getElevation()
-	 {
-		 return metadata.phi;
-	 }
+	/**
+	 * @return Camera model ID
+	 */
+	public int getCameraModel()
+	{
+		return metadata.cameraModel;
+	}
 
-	 public float getOrientation()
-	 {
-		 return metadata.orientation;
-	 }
+	/**
+	 * Set image brightness metadata value
+	 * @param newBrightness New brightness 
+	 */
+	public void setBrightness(float newBrightness)
+	{
+		metadata.brightness = newBrightness;
+	}
 
-	 public float getFocusDistance()
-	 {
-		 return metadata.focusDistance;
-	 }
+	/**
+	 * Get image brightness metadata value
+	 */
+	public float getBrightness()
+	{
+		return metadata.brightness;
+	}
 
-	 public float getFocalLength()
-	 {
-		 return metadata.focalLength;
-	 }
+	/**
+	 * @return If image is a placeholder, associated video ID, otherwise -1
+	 */
+	public int getAssociatedVideo()
+	{
+		if(state.isVideoPlaceHolder)
+		{
+			return state.assocVideoID;
+		}
+		else return -1;
+	}
 
-	 public float getSensorSize()
-	 {
-		 return metadata.sensorSize;
-	 }
+	/**
+	 * @return Whether the image is a video placeholder
+	 */
+	public boolean isVideoPlaceHolder()
+	{
+		return state.isVideoPlaceHolder;
+	}
 
-	 public void setFocusDistance(float newFocusDistance)
-	 {
-		 metadata.focusDistance = newFocusDistance;
-	 }
+	/**
+	 * @return Image orientation metadata value (e.g. 0: Landscape, 90: Portrait, 180: Landscape [flipped], 270 Portrait [flipped])
+	 */
+	public float getOrientation()
+	{
+		return metadata.orientation;
+	}
 
-	 public void setFocalLength(float newFocalLength)
-	 {
-		 metadata.focalLength = newFocalLength;
-	 }
+	/**
+	 * @return Focus distance
+	 */
+	public float getFocusDistance()
+	{
+		return metadata.focusDistance;
+	}
 
-	 public void setSensorSize(float newSensorSize)
-	 {
-		 metadata.sensorSize = newSensorSize;
-	 }
+	/**
+	 * @return Focal length
+	 */
+	public float getFocalLength()
+	{
+		return metadata.focalLength;
+	}
 
-	 public void setHorizBorderID(int newHorizBorderID)
-	 {
-		 state.horizBordersID = newHorizBorderID;
-	 }
+	/**
+	 * @return Camera sensor size
+	 */
+	public float getSensorSize()
+	{
+		return metadata.sensorSize;
+	}
 
-	 public void setVertBorderID(int newVertBorderID)
-	 {
-		 state.vertBordersID = newVertBorderID;
-	 }
-	 
-	 public void setBlurMaskID(int newBlurMaskID)
-	 {
-		 state.blurMaskID = newBlurMaskID;
-	 }
-	 
-	 public void setImage(PImage newImage)
-	 {
-		 image = newImage;
-	 }
-	 
-//	 private PImage getDesaturated(PImage in, float amt) 
-//	 {
-//		 PImage out = in.get();
-//		 for (int i = 0; i < out.pixels.length; i++) {
-//			 int c = out.pixels[i];
-//			 float h = p.p.p.hue(c);
-//			 float s = p.p.p.saturation(c) * amt;
-//			 float b = p.p.p.brightness(c);
-//			 out.pixels[i] = p.p.p.color(h, s, b);
-//		 }
-//		 return out;
-//	 }
-//
-//	 private PImage getFaintImage(PImage image, float amt) 
-//	 {
-//		 PImage out = image.get();
-//		 for (int i = 0; i < out.pixels.length; i++) {
-//			 int c = out.pixels[i];
-//			 float h = p.p.p.hue(c);
-//			 float s = p.p.p.saturation(c) * amt;
-//			 float b = p.p.p.brightness(c) * amt;
-//			 out.pixels[i] = p.p.p.color(h, s, b);
-//		 }
-//		 return out;
-//	 }
+	/**
+	 * Set focus distance metadata value
+	 * @param newFocusDistance New focus distance
+	 */
+	public void setFocusDistance(float newFocusDistance)
+	{
+		metadata.focusDistance = newFocusDistance;
+	}
+
+	/**
+	 * Set focal length metadata value
+	 * @param newFocalLength New focal length
+	 */
+	public void setFocalLength(float newFocalLength)
+	{
+		metadata.focalLength = newFocalLength;
+	}
+
+	/**
+	 * Set sensor size
+	 * @param newSensorSize New sensor size
+	 */
+	public void setSensorSize(float newSensorSize)
+	{
+		metadata.sensorSize = newSensorSize;
+	}
+
+	/**
+	 * Set horizontal borders ID
+	 * @param newHorizBordersID New ID
+	 */
+	public void setHorizBordersID(int newHorizBordersID)
+	{
+		state.horizBordersID = newHorizBordersID;
+	}
+
+	/**
+	 * Set vertical borders ID
+	 * @param newVertBordersID New ID
+	 */
+	public void setVertBordersID(int newVertBordersID)
+	{
+		state.vertBordersID = newVertBordersID;
+	}
+
+	/**
+	 * Set blur mask ID
+	 * @param newBlurMaskID New blur mask ID
+	 */
+	public void setBlurMaskID(int newBlurMaskID)
+	{
+		state.blurMaskID = newBlurMaskID;
+	}
+
+	/**
+	 * Set image pixels 
+	 * @param newImage New image
+	 */
+	public void setImage(PImage newImage)
+	{
+		image = newImage;
+	}
 }

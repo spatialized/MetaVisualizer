@@ -195,10 +195,10 @@ public class ML_Stitcher
 						left = i.getDirection();
 					if(i.getDirection() > right)
 						right = i.getDirection();
-					if(i.getElevation() > upper)
-						upper = i.getElevation();
-					if(i.getElevation() < lower)
-						lower = i.getElevation();
+					if(i.getElevationAngle() > upper)
+						upper = i.getElevationAngle();
+					if(i.getElevationAngle() < lower)
+						lower = i.getElevationAngle();
 				}
 
 				float centerDirection = (right + left) / 2.f;

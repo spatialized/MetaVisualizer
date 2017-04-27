@@ -1540,7 +1540,7 @@ public class ML_Input
 	void handleMouseReleased(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
 	{
 		mouseReleased = true;
-		System.out.println("mouseReleased");
+//		System.out.println("mouseReleased");
 //		releasedRecentlyFrame = frameCount;
 		
 		boolean doubleClick = false;

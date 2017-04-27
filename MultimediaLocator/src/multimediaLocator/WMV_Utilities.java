@@ -1322,6 +1322,33 @@ public class WMV_Utilities
 		return sb.toString();
 	}
 
+	 
+//	 private PImage getDesaturated(PImage in, float amt) 
+//	 {
+//		 PImage out = in.get();
+//		 for (int i = 0; i < out.pixels.length; i++) {
+//			 int c = out.pixels[i];
+//			 float h = p.p.p.hue(c);
+//			 float s = p.p.p.saturation(c) * amt;
+//			 float b = p.p.p.brightness(c);
+//			 out.pixels[i] = p.p.p.color(h, s, b);
+//		 }
+//		 return out;
+//	 }
+//
+//	 private PImage getFaintImage(PImage image, float amt) 
+//	 {
+//		 PImage out = image.get();
+//		 for (int i = 0; i < out.pixels.length; i++) {
+//			 int c = out.pixels[i];
+//			 float h = p.p.p.hue(c);
+//			 float s = p.p.p.saturation(c) * amt;
+//			 float b = p.p.p.brightness(c) * amt;
+//			 out.pixels[i] = p.p.p.color(h, s, b);
+//		 }
+//		 return out;
+//	 }
+
 //	public float calculateAverageDistance(float[] distances) 
 //	{
 //		float sum = 0;

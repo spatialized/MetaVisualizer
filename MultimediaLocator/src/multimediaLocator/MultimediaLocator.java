@@ -23,49 +23,49 @@ import g4p_controls.GWinData;
 import processing.core.*;
 import processing.video.Movie;
 
-public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet class
+/**
+ * MultimediaLocator App class 
+ * @author davidgordon
+ */
+public class MultimediaLocator extends PApplet 
 {
+	/* General */
+	String programName = "MultimediaLocator 0.9.0";
+	
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
 	boolean createNewLibrary = false;
 	boolean enteredField = false;
 
-	/* MultimediaLocator Classes */
+	/* MultimediaLocator */
 	ML_Library library;							// Multimedia library
 	ML_Input input;								// Mouse / keyboard input
 	ML_Stitcher stitcher;						// Panoramic stitching
 	ML_Display display;							// Displaying 2D graphics and text
 	ML_DebugSettings debugSettings;				// Debug settings
 	
-	/* WorldMediaViewer Classes */
+	/* WorldMediaViewer */
 	WMV_World world;							// The 3D World
-	WMV_MetadataLoader metadata;				// Metadata reading -- Future versions: writing
-	
-	/* General */
-	String programName = "MultimediaLocator 0.9.0";
+	WMV_MetadataLoader metadata;				// Metadata reading and writing
 	
 	/* Memory */
 	public boolean lowMemory = false;
 	public boolean performanceSlow = false;
-	public int availableProcessors;
 	public long freeMemory;
 	public long maxMemory;
 	public long totalMemory;
 	public long allocatedMemory;
 	public long approxUsableFreeMemory;
+	public int availableProcessors;
 
 	/** 
-	 * Initial setup called once at launch
+	 * Setup function called at launch
 	 */
 	public void setup()
 	{
 		debugSettings = new ML_DebugSettings();		
 		if(debugSettings.main) System.out.println("Starting initial setup...");
 
-		colorMode(PConstants.HSB);
-		rectMode(PConstants.CENTER);
-		textAlign(PConstants.CENTER, PConstants.CENTER);
-		
 		world = new WMV_World(this);
 		world.initialize();
 		
@@ -74,6 +74,10 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		metadata = new WMV_MetadataLoader(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
 		if(debugSettings.main) System.out.println("Initial setup complete...");
+
+		colorMode(PConstants.HSB);
+		rectMode(PConstants.CENTER);
+		textAlign(PConstants.CENTER, PConstants.CENTER);
 	}
 
 	/** 
@@ -101,59 +105,16 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 					display.display(world);
 				}
 				else
-				{
 					librarySelectionDialog();
-				}
 			}
 			else
 			{
 				if(state.selectedLibraryDestination && !state.selectedLibrary)
 				{
 					if(state.selectedMediaFolder)
-					{
-						File mediaFolderFile = new File(library.mediaFolder);
-						File[] fileList = mediaFolderFile.listFiles();
-						
-						boolean hasDirectory = false;
-						if(fileList != null)
-						{
-							System.out.println("fileList.length:"+fileList.length);
-							for(File f : fileList)
-							{
-								if(f.isDirectory())
-								{
-									hasDirectory = true;
-									break;
-								}
-							}
-						}
-						else
-						{
-							System.out.println("fileList == null... library.mediaFolder:"+library.mediaFolder);
-						}
-						
-						if(hasDirectory)
-						{
-							System.out.println("Haven't built multiple directory import yet! Will exit...");
-							exit();
-						}
-						else
-						{
-							ArrayList<String> folderList = new ArrayList<String>();
-							System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination);
-							state.selectedLibrary = library.createNewLibrary(library.mediaFolder, folderList, library.libraryDestination);
-
-							if(!state.selectedLibrary)
-							{
-								System.out.println("Error creating library...");
-								exit();
-							}
-						}
-					}
+						importMediaFolder();
 					else
-					{
 						System.out.println("ERROR: Selected library destination but no media folder selected!");
-					}
 				}
 				
 				display.display(world);
@@ -177,10 +138,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		{
 			if ( !state.initialSetup && !state.interactive && !state.exit ) 	/* Running the program */
 			{
-				world.updateState();
-				world.display3D();						// 3D Display
-				world.display2D();						// 2D Display
-				if(!world.state.paused) world.updateTime();		// Update time cycle
+				world.run();
 //	 			input.updateLeapMotion();			// Update Leap Motion 
 			}
 
@@ -211,10 +169,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 					world.createFieldsFromFolders(library.getFolders());		// Create empty field for each media folder	
 					state.initializingFields = true;
 				}
-				else
-				{
-					initializeField(state.initializationField);					
-				}
+				else initializeField(state.initializationField);					
 			}
 			else finishInitialization();
 		}
@@ -228,7 +183,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			else startInitialClustering();			/* Run initial clustering */  	// -- Sets initialSetup to true	
 		}
 	}
-
 	
 	/**
 	 * Start initial clustering process
@@ -264,32 +218,6 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		display.displayClusteringInfo(this);
 		
 		world.getCurrentField().blackoutAllMedia();	// Blackout all media
-	}
-	
-	/**
-	 * Run user clustering 
-	 */
-	public void runInteractiveClustering()
-	{
-		background(0.f);					// Clear screen
-		display.display(world);						// Draw text		
-	}
-	
-	/**
-	 * Finish running Interactive Clustering and restart simulation 
-	 */
-	public void finishInteractiveClustering()
-	{
-		background(0.f);
-		
-		world.viewer.clearAttractorCluster();
-
-		state.interactive = false;				// Stop interactive clustering mode
-		state.startedRunning = true;				// Start GMViewer running
-		state.running = true;	
-		
-		world.viewer.setCurrentCluster( world.viewer.getNearestCluster(false), -1 );
-		world.getCurrentField().blackoutAllMedia();
 	}
 	
 	/**
@@ -389,10 +317,37 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		state.startedRunning = true;
 	}
 
+
+	/**
+	 * Run interactive clustering 
+	 */
+	public void runInteractiveClustering()
+	{
+		background(0.f);					// Clear screen
+		display.display(world);						// Draw text		
+	}
+	
+	/**
+	 * Finish running interactive clustering and restart simulation 
+	 */
+	public void finishInteractiveClustering()
+	{
+		background(0.f);
+		
+		world.viewer.clearAttractorCluster();
+
+		state.interactive = false;				// Stop interactive clustering mode
+		state.startedRunning = true;				// Start GMViewer running
+		state.running = true;	
+		
+		world.viewer.setCurrentCluster( world.viewer.getNearestCluster(false), -1 );
+		world.getCurrentField().blackoutAllMedia();
+	}
+	
 	/**
 	 * Initialize 2D drawing 
 	 */
-	void start3DHUD()
+	public void start3DHUD()
 	{
 		PVector camLoc = world.viewer.getLocation();
 		PVector camOrientation = world.viewer.getOrientation();
@@ -459,7 +414,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	/**
 	 * Stop the program
 	 */
-	void exitProgram() 
+	public void exitProgram() 
 	{
 		System.out.println("Exiting "+programName+"...");
 		exit();
@@ -468,7 +423,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	/**
 	 * Restart the program
 	 */
-	void restart()
+	public void restart()
 	{
 		state.reset();
 		world.viewer.initialize(0,0,0);
@@ -515,10 +470,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 		
 		if(selectedFolder)
-		{
 			state.selectedLibraryDestination = true;	// Library destination folder has been selected
-//			state.selectedLibrary = true;
-		}
 		else
 		{
 			state.selectedLibraryDestination = false;		// Not a folder or folder doesn't exist
@@ -534,7 +486,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	{
 		boolean selectedFolder = false;
 		
-		if (selection == null) {
+		if (selection == null) 
+		{
 			System.out.println("openMediaFolder()... Window was closed or the user hit cancel.");
 		} 
 		else 
@@ -637,9 +590,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 		
 		if(selectedFolder)
-		{
 			state.selectedLibrary = true;	// Library folder has been selected
-		}
 		else
 		{
 			state.selectedLibrary = false;				// Library in improper format if masks are missing
@@ -647,6 +598,48 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 	}
 
+	/**
+	 * Import media folder into library
+	 */
+	private void importMediaFolder()
+	{
+		File mediaFolderFile = new File(library.mediaFolder);
+		File[] fileList = mediaFolderFile.listFiles();
+		
+		boolean hasDirectory = false;
+		if(fileList != null)
+		{
+			if(debugSettings.main) System.out.println("fileList.length:"+fileList.length);
+			for(File f : fileList)
+			{
+				if(f.isDirectory())
+				{
+					hasDirectory = true;
+					break;
+				}
+			}
+		}
+		else System.out.println("fileList == null... library.mediaFolder:"+library.mediaFolder);
+		
+		if(hasDirectory)
+		{
+			System.out.println("Error: Haven't built multiple directory import yet! Will exit...");
+			exit();
+		}
+		else
+		{
+			ArrayList<String> folderList = new ArrayList<String>();
+			System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination);
+			state.selectedLibrary = library.createNewLibrary(library.mediaFolder, folderList, library.libraryDestination);
+
+			if(!state.selectedLibrary)
+			{
+				System.out.println("Error creating library...");
+				exit();
+			}
+		}
+	}
+	
 	/**
 	 * Called when image output folder has been selected
 	 * @param selection
@@ -671,7 +664,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 	
 	/**
-	 * Called every time a new frame is available to read
+	 * Called whenever a new frame is available to read
 	 * @param m Movie the event pertains to
 	 */
 	public void movieEvent(Movie m) 	
@@ -693,16 +686,8 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		}
 	}
 	
-	/* Input Handling */
-	public void mouseMoved()
-	{
-//		if(display.displayView == 1)
-//			if(display.satelliteMap)
-//				display.map2D.handleMouseMoved(mouseX, mouseY);
-	}
-	
 	/**
-	 * Called when mouse is pressed
+	 * Respond to mouse pressed event
 	 */
 	public void mousePressed()
 	{
@@ -712,7 +697,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 
 	/**
-	 * Called when mouse is released
+	 * Respond to mouse released event
 	 */
 	public void mouseReleased() {
 //		if(world.viewer.mouseNavigation)
@@ -724,7 +709,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 	
 	/**
-	 * Called when mouse is clicked
+	 * Respond to mouse clicked event
 	 */
 	public void mouseClicked() {
 //		if(world.viewer.mouseNavigation)
@@ -732,7 +717,17 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 	}
 	
 	/**
-	 * Called when mouse is dragged
+	 * Respond to mouse moved event
+	 */
+	public void mouseMoved()
+	{
+//		if(display.displayView == 1)
+//			if(display.satelliteMap)
+//				display.map2D.handleMouseMoved(mouseX, mouseY);
+	}
+
+	/**
+	 * Respond to mouse dragged event
 	 */
 	public void mouseDragged() {
 //		if(display.satelliteMap)
@@ -751,15 +746,30 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //		}
 	}
 
-	public void handleButtonEvents(GButton button, GEvent event) { 
+	/**
+	 * Respond to button event
+	 * @param button Button acted on
+	 * @param event Button event
+	 */
+	public void handleButtonEvent(GButton button, GEvent event) { 
 		input.handleButtonEvent(this, display, button, event);
 	}
 	
-	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
+	/**
+	 * Respond to toggle control event
+	 * @param button Toggle control acted on
+	 * @param event Toggle control event
+	 */
+	public void handleToggleControlEvent(GToggleControl option, GEvent event) {
 		input.handleToggleControlEvent(world, display, option, event);
 	}
 	
-	public void handleSliderEvents(GValueControl slider, GEvent event) 
+	/**
+	 * Respond to slider event
+	 * @param button Slider acted on
+	 * @param event Slider event
+	 */
+	public void handleSliderEvent(GValueControl slider, GEvent event) 
 	{ 
 		input.handleSliderEvent(world, display, slider, event);
 	}
@@ -780,7 +790,13 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		input.handleKeyReleased(world.viewer, display, key, keyCode);
 	}
 	
-	public void wmvWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	/**
+	 * Respond to key pressed in MultimediaLocator Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void mlWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
@@ -788,14 +804,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
-	public void timeWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-
+	/**
+	 * Respond to key pressed in Navigation Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
@@ -804,6 +818,26 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
+	/**
+	 * Respond to key pressed in Time Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void timeWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+
+	/**
+	 * Respond to key pressed in Graphics Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
 	public void graphicsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
@@ -812,6 +846,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
+	/**
+	 * Respond to key pressed in Memory Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
 	public void memoryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
@@ -820,6 +860,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
+	/**
+	 * Respond to key pressed in Model Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
 	public void modelWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
@@ -828,6 +874,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
+	/**
+	 * Respond to key pressed in Selection Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
 	public void selectionWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
@@ -836,6 +888,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
+	/**
+	 * Respond to key pressed in Statistics Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
 	public void statisticsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
@@ -844,6 +902,12 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
+	/**
+	 * Respond to key pressed in Help Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
 	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
@@ -907,7 +971,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 		  if(approxUsableFreeMemory > world.getState().minAvailableMemory && lowMemory)
 			  lowMemory = false;
 		  
-		  /* Other possible memory tests: */
+		  /* Possible memory tests: */
 //		  MemoryMXBean memBean = ManagementFactory.getMemoryMXBean();
 //		  MemoryUsage heap = memBean.getHeapMemoryUsage();
 //		  MemoryUsage nonheap = memBean.getNonHeapMemoryUsage();
@@ -924,6 +988,9 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //		  }
 	}
 
+	/**
+	 * Check current frame rate
+	 */
 	public void checkFrameRate()
 	{
 		if(frameRate < world.getState().minFrameRate)
@@ -960,6 +1027,7 @@ public class MultimediaLocator extends PApplet 	// WMViewer extends PApplet clas
 //		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
 	}
 	
+	/* Obsolete */
 //	public void setSurfaceSize(int newWidth, int newHeight)
 //	{
 //		surface.setResizable(true);

@@ -37,16 +37,6 @@ public class ML_DebugSettings
 	/* Other */
 	public boolean map = false;					// Debug WMV_Map class
 	public boolean stitching = false;			// Debug WMV_Stitcher class
-	
-	/* Memory */
-	public boolean lowMemory = false;
-	public boolean performanceSlow = false;
-	public int availableProcessors;
-	public long freeMemory;
-	public long maxMemory;
-	public long totalMemory;
-	public long allocatedMemory;
-	public long approxUsableFreeMemory;
-	
+
 	ML_DebugSettings (){}
 }

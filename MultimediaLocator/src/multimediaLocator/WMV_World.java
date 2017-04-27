@@ -29,12 +29,12 @@ import toxi.math.ZoomLensInterpolation;
 public class WMV_World 
 {
 	/* Classes */
-	ML_Input input;								// Handles input
-	WMV_WorldSettings settings;					// World settings
-	WMV_WorldState state;						// World state
-	WMV_Utilities utilities;					// Utilities
-	WMV_Viewer viewer;							// Virtual Viewer
-	private ArrayList<WMV_Field> fields;		// Geographical areas containing media for simulation
+	public ML_Input input;								// Handles input
+	public WMV_WorldSettings settings;					// World settings
+	public WMV_WorldState state;						// World state
+	public WMV_Viewer viewer;							// Virtual viewer
+	private ArrayList<WMV_Field> fields;				// Geographical areas of interest
+	public WMV_Utilities utilities;						// Utilities
 
 	/* Graphics */
 	public PImage blurMaskLeftTop, blurMaskLeftCenter, blurMaskLeftBottom, blurMaskLeftBoth;  	// Blur masks
@@ -60,13 +60,13 @@ public class WMV_World
 	/* Debugging */
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
-	MultimediaLocator p;								// Parent App
+	public MultimediaLocator p;								// Parent App
 	
 	/**
 	 * Constructor for world object
 	 * @param parent Parent App
 	 */
-	WMV_World(MultimediaLocator parent)
+	public WMV_World(MultimediaLocator parent)
 	{
 		p = parent;
 		utilities = new WMV_Utilities();
@@ -75,7 +75,7 @@ public class WMV_World
 	/**
 	 * Set up main classes and variables involving the world and viewer 
 	 */
-	void initialize() 
+	public void initialize() 
 	{
 		if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Initializing WMV_World...");
 
@@ -91,12 +91,21 @@ public class WMV_World
 		distanceFadeMap.setMapFunction(circularEaseIn);
 	}
 
+	public void run()
+	{
+		updateState();
+		updateViewerAttraction();									// Attract the viewer
+		display3D();						// 3D Display
+		display2D();						// 2D Display
+		if(!state.paused) updateTime();		// Update time cycle
+	}
+	
 	/**
 	 * Enter given field
 	 * @param fieldIdx The field to enter
 	 * @param moveToFirstTimeSegment Whether to move to first time segment after entering
 	 */
-	void enter(int fieldIdx, boolean moveToFirstTimeSegment)
+	public void enter(int fieldIdx, boolean moveToFirstTimeSegment)
 	{
 		viewer.enterField( fieldIdx );								// Update navigation
 		viewer.updateState(settings, state);
@@ -111,11 +120,9 @@ public class WMV_World
 	/**
 	 * Display the current field in 3D view
 	 */
-	void display3D()
+	public void display3D()
 	{
 		/* 3D Display */
-		updateViewerAttraction();									// Attract the viewer
-		
 		if(p.display.displayView == 0)
 		{
 			p.hint(PApplet.ENABLE_DEPTH_TEST);				// Enable depth testing for drawing 3D graphics
@@ -142,7 +149,7 @@ public class WMV_World
 	/**
 	 * Display 2D text and graphics
 	 */
-	void display2D()
+	public void display2D()
 	{
 		/* 2D Display */
 		p.display.display(this);										// Draw 2D display after 3D graphics
@@ -246,7 +253,7 @@ public class WMV_World
 	
 
 	/**
-	 * Update the viewer and media about the world state
+	 * Update viewer and current field about world state and settings
 	 */
 	void updateState()
 	{
@@ -256,7 +263,7 @@ public class WMV_World
 	}
 
 	/**
-	 * Begin cycle in Media Time Mode (2)
+	 * Begin cycle in Media Time Mode
 	 */
 	void startMediaTimeModeCycle()
 	{
@@ -763,6 +770,11 @@ public class WMV_World
 		getCurrentField().updateAllMediaSettings();
 	}
 
+	/**
+	 * Load field state from data folder
+	 * @param field Field to load state for
+	 * @return Field with loaded state
+	 */
 	public WMV_Field loadFieldState(WMV_Field field)
 	{
 		String dataFolderPath = p.library.getDataFolder(field.getID());

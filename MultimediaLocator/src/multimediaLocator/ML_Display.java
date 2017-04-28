@@ -21,7 +21,7 @@ class ML_Display
 	
 	/* Display Views */
 	public int displayView = 0;							// 0: Scene  1: Map  2: Library  3: Timeline
-	public boolean satelliteMap = false;					// -- Temporary
+	public boolean satelliteMap = true;					// -- Temporary
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -193,9 +193,6 @@ class ML_Display
 					case 1:
 						if(satelliteMap) map2D.displaySatelliteMap(p);
 						else map2D.displayLargeBasicMap(p);
-						
-//						if(map2D.scrollTransition) map2D.updateMapScrollTransition(p);
-//						if(map2D.zoomToRectangleTransition) map2D.updateZoomToRectangleTransition(p);
 						if(p.p.state.interactive) displayInteractiveClustering(p);
 						map2D.updateMouse(p);
 						break;

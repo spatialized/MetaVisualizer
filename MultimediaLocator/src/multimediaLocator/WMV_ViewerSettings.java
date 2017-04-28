@@ -19,7 +19,7 @@ public class WMV_ViewerSettings
 
 	/* Graphics */
 	public final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-	public boolean orientationMode = false;				// Orientation Mode: no simulation of viewer movement (only images fading in and out)
+	public boolean orientationMode = false;				// Viewer "moves" by standing still (images fade in and out across space)
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = (float)Math.PI / 3.33f;		// Angle within which images and videos become visible
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?

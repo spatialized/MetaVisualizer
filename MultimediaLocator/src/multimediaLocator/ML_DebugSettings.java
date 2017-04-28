@@ -13,12 +13,12 @@ public class ML_DebugSettings
 	public boolean print = true;				// Print all user messages
 	
 	/* Data */
-	public boolean main = true;				// Debug WorldMediaViewer class
+	public boolean main = true;					// Debug WorldMediaViewer class
 	public boolean metadata = false;			// Debug WMV_Metadata class
 	public boolean data = false;				// Debug WorldMediaViewer class
 
 	/* Model */
-	public boolean field = true;				// Debug WMV_Field class
+	public boolean field = false;				// Debug WMV_Field class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean time = false;				// Debug WMV_Time class
 

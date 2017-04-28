@@ -918,7 +918,6 @@ public class WMV_World
 
 		/* Clusters */
 		state.mergeClusters = true;					// Merge nearby clusters?
-		state.autoClusterDistances = false;			// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
 		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 
 		if(p.debugSettings.main)

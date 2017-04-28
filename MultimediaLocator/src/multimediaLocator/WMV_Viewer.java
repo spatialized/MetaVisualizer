@@ -2232,7 +2232,7 @@ public class WMV_Viewer
 			if(state.velocity.mag() != 0.f && Math.abs(state.velocity.mag()) < settings.velocityMin)		/* If reached min velocity, set velocity to zero */
 				state.velocity = new PVector(0,0,0);							
 
-			WMV_Cluster curAttractor = new WMV_Cluster(worldSettings, worldState, settings, debugSettings, 0, new PVector(0, 0, 0));	 /* Find current attractor if one exists */
+			WMV_Cluster curAttractor = new WMV_Cluster(worldSettings, worldState, settings, debugSettings, 0, new PVector(0.f, 0.f, 0.f));	 /* Find current attractor if one exists */
 			boolean attractorFound = false;
 			
 			if( state.movingToCluster )

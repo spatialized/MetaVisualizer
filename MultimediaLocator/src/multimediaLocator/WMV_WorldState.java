@@ -42,7 +42,6 @@ public class WMV_WorldState
 
 	/* Clusters */  
 	public boolean mergeClusters = true;				// Whether to merge nearby clusters
-	public boolean autoClusterDistances = false;		// Automatically set minClusterDistance + maxClusterDistance based on mediaDensity?
 	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 
 	/* Media */

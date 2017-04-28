@@ -33,7 +33,7 @@ public class WMV_ViewerState
 	public int timeSegmentTarget = -1;					// Field time segment goal			
 
 	/* Clusters */
-	public List<Integer> clustersVisible;						// Clusters visible to camera in Orientation Mode
+	public List<Integer> clustersVisible;				// Clusters visible to viewer in Orientation Mode
 	public int field = 0;								// Current field
 	public int currentCluster = 0;						// Cluster currently in view
 	public int lastCluster = -1;						// Last cluster visited

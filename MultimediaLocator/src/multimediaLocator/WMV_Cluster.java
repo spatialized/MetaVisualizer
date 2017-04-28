@@ -2,7 +2,6 @@ package multimediaLocator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import processing.core.PVector;
 
 /*********************************************
@@ -36,12 +35,12 @@ public class WMV_Cluster
 	 * @param newClusterID Cluster ID
 	 * @param newLocation Cluster location
 	 */
-	WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
-				 ML_DebugSettings newDebugSettings, int newClusterID, PVector newLocation) 
+	public WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
+						ML_DebugSettings newDebugSettings, int newClusterID, PVector newLocation ) 
 	{
 		state = new WMV_ClusterState();
 		state.id = newClusterID;
-		state.location = newLocation;
+		state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
 
 		utilities = new WMV_Utilities();
 

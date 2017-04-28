@@ -34,6 +34,94 @@ public class WMV_Model
 		state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
 	}
 
+	/**
+	 * Setup virtual space based on media capture locations
+	 */
+	public void setup(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos)		
+	{
+		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0)
+		{
+			calculateFieldSize(images, panoramas, videos); 		// Calculate bounds of photo GPS locations
+			analyzeMedia(images, panoramas, videos);				// Analyze media locations and times 
+
+			float midLongitude = (state.highLongitude - state.lowLongitude) / 2.f;
+			float midLatitude = (state.highLatitude - state.lowLatitude) / 2.f;
+
+			if(debugSettings.field) System.out.println("Initializing field model...");
+
+			/* Calculate number of valid media points */
+			state.validImages = images.size();
+			state.validPanoramas = panoramas.size();
+			state.validVideos = videos.size();
+			state.validMedia = state.validImages + state.validPanoramas + state.validVideos;
+
+			if(state.validMedia > 1)
+			{
+				state.fieldWidth = utilities.gpsToMeters(midLatitude, state.highLongitude, midLatitude, state.lowLongitude);
+				state.fieldLength = utilities.gpsToMeters(state.highLatitude, midLongitude, state.lowLatitude, midLongitude);
+				state.fieldHeight = state.highAltitude - state.lowAltitude;					
+			}
+			else
+			{
+				state.fieldWidth = 1000.f;
+				state.fieldLength = 1000.f;
+				state.fieldHeight = 1000.f;
+			}
+
+			state.fieldArea = state.fieldWidth * state.fieldLength;				// Use volume instead?
+			state.mediaDensity = state.validMedia / state.fieldArea;				// Media per sq. m.
+
+//			if(worldState.autoClusterDistances)			/* Increase maxClusterDistance as mediaDensity decreases */
+//			{
+//				state.maxClusterDistance = worldSettings.maxClusterDistanceConstant / state.mediaDensity;
+//				if(state.maxClusterDistance > state.minClusterDistance * worldSettings.maxClusterDistanceFactor)
+//					state.maxClusterDistance = state.minClusterDistance * worldSettings.maxClusterDistanceFactor;
+//			}
+//			else
+//			{
+				setMinClusterDistance(worldSettings.minClusterDistance); 				// Minimum distance between clusters, i.e. closer than which clusters are merged
+				setMaxClusterDistance(worldSettings.maxClusterDistance);				// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
+				if(debugSettings.cluster) System.out.println("autoClusterDistances... Set maxClusterDistance:"+state.maxClusterDistance);
+//			}
+
+			if(state.highLongitude == -1000000 || state.lowLongitude == 1000000 || state.highLatitude == -1000000
+					|| state.lowLatitude == 1000000)			// If field dimensions aren't initialized
+			{
+				state.lowLongitude = 1000.f;
+				state.fieldLength = 1000.f;
+				state.fieldHeight = 50.f;						// Altitude already in meters
+			}
+
+			if(images.size() == 1)
+			{
+				state.lowLongitude = 1000.f;
+				state.fieldLength = 1000.f;
+				state.fieldHeight = 50.f;						// Altitude already in meters
+			}
+
+			state.fieldAspectRatio = state.fieldWidth / state.fieldLength;
+
+			if (debugSettings.field)
+			{
+				System.out.print("Field Width:"+state.lowLongitude);
+				System.out.print(" Field Length:"+state.fieldLength);
+				System.out.println(" Field Height:"+state.fieldHeight);	
+				System.out.println("Field Area:"+state.fieldArea);
+
+				System.out.println("Media Density:"+state.mediaDensity);
+			}
+		}
+		else 
+		{
+			if(debugSettings.field) 
+			{
+				System.out.println("No images loaded! Couldn't initialize field...");
+				System.out.println("panoramas.size():"+panoramas.size());
+			}
+		}
+	}
+
+	
 	public void setState(WMV_ModelState newState)
 	{
 		state = newState;

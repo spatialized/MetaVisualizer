@@ -147,8 +147,8 @@ public class ML_Map
 		initializeSatelliteMaps(world);
 		initializeBasicMaps(world);
 		
-//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
-		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm, small, large);
+		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
+//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm, small, large);
 		
 		world.p.delay(200);
 		
@@ -173,7 +173,6 @@ public class ML_Map
 	{
 		satellite = new UnfoldingMap(p.p, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 		osm = new UnfoldingMap(p.p, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
-//		terrain = new UnfoldingMap(p.p, "Map", 0, 0, screenWidth, screenHeight, true, false, new Google.GoogleTerrainProvider());
 
 		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
 		satelliteMapCenter = new Location(gpsLoc.y, gpsLoc.x);

@@ -897,8 +897,8 @@ public class ML_Input
 				if (key == 'p') 								
 					ml.world.state.paused = !ml.world.getState().paused;
 
-				if (key == 'I')
-					ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
+//				if (key == 'I')							// -- Disabled
+//					ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
 
 				if (key == 'W') 
 					ml.world.viewer.moveToNearestClusterAhead(false);
@@ -1235,14 +1235,14 @@ public class ML_Input
 
 				if (key == '[') 	
 				{
-					if(!ml.world.getState().autoClusterDistances && ml.world.settings.minClusterDistance > 0.25f)
+					if(ml.world.settings.minClusterDistance > 0.25f)
 					{
 						ml.world.settings.minClusterDistance -= 0.25f;
 						for(WMV_Field f : ml.world.getFields())
 						{
 							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);	
 							ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
-							ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+							ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
 							ml.display.map2D.initializeMaps(ml.world);
 						}
 					}
@@ -1250,7 +1250,7 @@ public class ML_Input
 
 				if (key == ']') 	
 				{
-					if(!ml.world.getState().autoClusterDistances && ml.world.settings.minClusterDistance < ml.world.settings.maxClusterDistance - 2.f)
+					if(ml.world.settings.minClusterDistance < ml.world.settings.maxClusterDistance - 2.f)
 					{
 						ml.world.settings.minClusterDistance += 0.25f;
 						//					System.out.println("ml.world.minClusterDistance:"+ml.world.minClusterDistance);
@@ -1258,7 +1258,7 @@ public class ML_Input
 						{
 							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);
 							ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
-							ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+							ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
 							ml.display.map2D.initializeMaps(ml.world);
 						}
 					}
@@ -1298,7 +1298,7 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterRefinement >= ml.world.getCurrentField().getModel().state.minClusterRefinement)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-									ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+									ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
 								else ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
@@ -1312,7 +1312,7 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterRefinement <= ml.world.getCurrentField().getModel().state.maxClusterRefinement)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-									ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+									ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
 								else ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
@@ -1326,7 +1326,7 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor >= ml.world.getCurrentField().getModel().state.minPopulationFactor)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-									ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+									ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
 								else ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
@@ -1340,7 +1340,7 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor <= ml.world.getCurrentField().getModel().state.maxPopulationFactor)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-									ml.world.getCurrentField().initializeClusters(ml.world.getState().mergeClusters);			
+									ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
 								else ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;

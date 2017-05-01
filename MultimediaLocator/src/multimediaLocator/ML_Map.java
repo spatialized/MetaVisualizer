@@ -50,7 +50,7 @@ public class ML_Map
 	private int screenWidth = -1;
 	private int screenHeight = -1;
 	private float viewerDiameter = 15.f;
-	private int viewerArrowPoints = 12;
+	private int viewerArrowPoints = 9;
 	private float viewerArrowPointSpacingFactor;
 			
 	/* Interaction */
@@ -597,17 +597,36 @@ public class ML_Map
 	public void update(WMV_World world)
 	{
 		if(zoomingIn)
-			satellite.zoom(0.99f);
+		{
+			float zoomInPct = 1.f - 0.01f * satellite.getZoomLevel();
+			satellite.zoom(zoomInPct);
+		}
 		if(zoomingOut)
-			satellite.zoom(1.010101f);
+		{
+			float zoomInPct = 1.f - 0.01f * satellite.getZoomLevel();
+			float zoomOutPct = 1.f / zoomInPct;
+			satellite.zoom(zoomOutPct);
+		}
 		if(panningLeft)
-			satellite.panLeft();
+		{
+			float panAmount = satellite.getZoomLevel();
+			satellite.panBy(panAmount, 0.f);
+		}
 		if(panningRight)
-			satellite.panRight();
+		{
+			float panAmount = satellite.getZoomLevel();
+			satellite.panBy(-panAmount, 0.f);
+		}
 		if(panningUp)
-			satellite.panUp();
+		{
+			float panAmount = satellite.getZoomLevel();
+			satellite.panBy(0.f, panAmount);
+		}
 		if(panningDown)
-			satellite.panDown();
+		{
+			float panAmount = satellite.getZoomLevel();
+			satellite.panBy(0.f, -panAmount);
+		}
 		updateMouse(world);
 	}
 	
@@ -903,7 +922,7 @@ public class ML_Map
 		Location gpsLoc = new Location(vLoc.y, vLoc.x);
 		float camYaw = -world.viewer.getXOrientation() - 0.5f * PApplet.PI;
 
-		float shrinkFactor = 0.833f;
+		float shrinkFactor = 0.88f;
 		float ptSize = viewerDiameter * shrinkFactor;
 
 		world.p.stroke(world.p.color(0, 0, 255, 255));

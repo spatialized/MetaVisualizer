@@ -183,7 +183,7 @@ public class ML_Display
 		if(initialSetup)
 		{
 			p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-			p.p.background(0);																// Hide 3D view
+			p.p.background(0);																// Hide World View
 			displayStartup(p);														// Draw startup messages
 		}
 		else
@@ -191,7 +191,7 @@ public class ML_Display
 			if( displayView != 0 || p.p.state.interactive )
 			{
 				p.p.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-				p.p.background(0.f);																// Hide 3D view
+				p.p.background(0.f);																// Hide World View
 
 				switch(displayView)
 				{
@@ -1362,7 +1362,7 @@ public class ML_Display
 		}
 		
 		message(ml, " ");
-		message(ml, "Press <spacebar> to restart 3D viewer...");
+		message(ml, "Press <spacebar> to restart simulation...");
 	}
 
 	/**

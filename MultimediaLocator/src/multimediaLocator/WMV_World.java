@@ -29,11 +29,11 @@ import toxi.math.ZoomLensInterpolation;
 public class WMV_World 
 {
 	/* Classes */
-	public ML_Input input;								// Handles input
 	public WMV_WorldSettings settings;					// World settings
 	public WMV_WorldState state;						// World state
 	public WMV_Viewer viewer;							// Virtual viewer
 	private ArrayList<WMV_Field> fields;				// Geographical areas of interest
+	public ML_Input input;								// Input object
 	public WMV_Utilities utilities;						// Utilities
 
 	/* Graphics */
@@ -60,7 +60,7 @@ public class WMV_World
 	/* Debugging */
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
-	public MultimediaLocator p;								// Parent App
+	public MultimediaLocator p;							// Parent App
 	
 	/**
 	 * Constructor for world object
@@ -118,16 +118,16 @@ public class WMV_World
 	}
 	
 	/**
-	 * Display the current field in 3D view
+	 * Display the current field in World View
 	 */
 	public void display3D()
 	{
 		/* 3D Display */
 		if(p.display.displayView == 0)
 		{
-			p.hint(PApplet.ENABLE_DEPTH_TEST);				// Enable depth testing for drawing 3D graphics
-			p.background(0.f);								// Set background
-			getCurrentField().display(p);					// Display media in current field
+			p.hint(PApplet.ENABLE_DEPTH_TEST);				/* Enable depth testing for drawing 3D graphics */
+			p.background(0.f);								/* Set background */
+			getCurrentField().display(p);					/* Display media in current field */
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
@@ -137,13 +137,13 @@ public class WMV_World
 
 		}
 		
-		if(state.displayTerrain)						// Draw terrain as wireframe grid
+		if(state.displayTerrain)					/* Draw terrain as wireframe grid */
 			displayTerrain();
 		
-		viewer.updateNavigation();					// Update navigation
+		viewer.updateNavigation();					/* Update navigation */
 		if(p.display.displayView == 0)	
 			if(p.state.running)
-				viewer.show();						// Show the 3D view to the viewer
+				viewer.show();						/* Show the World View to the viewer */
 	}
 
 	/**
@@ -151,11 +151,9 @@ public class WMV_World
 	 */
 	public void display2D()
 	{
-		/* 2D Display */
-		p.display.display(this);										// Draw 2D display after 3D graphics
-		
-		if(state.fadingAlpha) updateFadingAlpha();			// Fade alpha	-- Obsolete??
-		if(state.fadingTerrainAlpha) updateFadingTerrainAlpha();			// Fade grid
+		p.display.display(this);									/* Draw 2D Display */
+		if(state.fadingAlpha) updateFadingAlpha();					/* Update global alpha fading */
+		if(state.fadingTerrainAlpha) updateFadingTerrainAlpha();	/* Update grid fading */
 
 		if(viewer.getSettings().mouseNavigation)
 			input.updateMouseNavigation(viewer, p.mouseX, p.mouseY, p.frameCount);
@@ -1283,9 +1281,9 @@ public class WMV_World
 				settings.timeCycleLength += c.getImages( getCurrentField().getImages() ).size() * settings.defaultMediaLength;
 				settings.timeCycleLength += c.getPanoramas( getCurrentField().getPanoramas() ).size() * settings.defaultMediaLength;
 				for(WMV_Video v: c.getVideos( getCurrentField().getVideos()) )
-					settings.timeCycleLength += PApplet.round( v.getLength() * 29.98f );
+					settings.timeCycleLength += PApplet.round( v.getLength() * 29.98f );		// Add videos' actual (approx.) lengths
 //				for(WMV_Sound s: c.getSounds( getCurrentField().getSounds() )
-//					settings.timeCycleLength += PApplet.round( s.getLength() * 29.98f );
+//					settings.timeCycleLength += PApplet.round( s.getLength() * 29.98f );		// Add sounds' actual (approx.) lengths -- Good idea??
 			}
 			
 			if(cl.size() == 1)
@@ -1301,7 +1299,7 @@ public class WMV_World
 			}
 				
 			if(cl.size() == 0)
-				settings.timeCycleLength = -1;				// Flag for Viewer to keep calling this method until clusters are visible
+				settings.timeCycleLength = -1;				// Flag viewer to keep calling this method until clusters are visible
 			else
 				startMediaTimeModeCycle();
 		}

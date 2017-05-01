@@ -68,7 +68,7 @@ public class WMV_Panorama extends WMV_Media
 			try {
 				metadata.dateTime = parseDateTime(metadata.dateTimeString);
 				time = new WMV_Time();
-				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
+				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 1, getAssociatedClusterID(), metadata.timeZone );
 			} 
 			catch (Throwable t) 
 			{
@@ -78,7 +78,7 @@ public class WMV_Panorama extends WMV_Media
 		else
 		{
 			time = new WMV_Time();
-			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 1, metadata.timeZone );
+			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 1, getAssociatedClusterID(), metadata.timeZone );
 		}
 	}
 

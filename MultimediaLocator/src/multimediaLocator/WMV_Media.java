@@ -819,7 +819,7 @@ public abstract class WMV_Media
 
 	public WMV_Date getDate()
 	{
-		return time.getDate();
+		return time.asDate();
 	}
 
 	public String getName()

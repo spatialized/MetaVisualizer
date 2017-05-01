@@ -791,14 +791,12 @@ public class ML_Input
 				}
 			}
 
-			if (!ml.state.interactive)		
+			if (!ml.state.interactive)						/* World View Controls */
 			{
-				/* 3D View Controls */
 				if (optionKey && key == '[')
 				{
 					if(ml.world.viewer.getThinningAngle() > PApplet.PI / 64.f)
 						ml.world.viewer.setThinningAngle( ml.world.viewer.getThinningAngle() - PApplet.PI / 128.f );
-//						world.viewer.getSettings().thinningAngle -= PApplet.PI / 128.f;
 					ml.world.getCurrentField().analyzeClusterMediaDirections();
 				}
 
@@ -811,7 +809,6 @@ public class ML_Input
 
 				if (optionKey && key == '\\')
 					ml.world.getCurrentField().stitchAllClusters(ml.stitcher, ml.library.getLibraryFolder());		// Teleport to cluster with > 1 times
-//					world.getCurrentField().stitchAllClusters();		// Teleport to cluster with > 1 times
 
 				if (!optionKey && key == 'a') 
 					ml.world.viewer.startMoveXTransition(-1);
@@ -835,9 +832,6 @@ public class ML_Input
 					else
 						ml.world.saveSimulationState();
 				}
-
-//				if( key == '?' )
-//					ml.world.loadAndSetViewerState(ml.world.getCurrentField().getID());
 
 				if( key == 't' && !optionKey )
 				{

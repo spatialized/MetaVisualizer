@@ -617,25 +617,7 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * @param hour UTC hour
-	 * @return Corresponding hour in Pacific Time
-	 */
-//	public WMV_Time utcToPacificTime(WMV_Time time)
-//	{
-//		int year = time.getYear();
-//		int day = time.getDay();
-//		int month = time.getMonth();
-//		int hour = time.getHour();
-//
-//		ZonedDateTime utcDateTime = ZonedDateTime.of(year, month, day, hour, time.getMinute(), time.getSecond(), time.getMillisecond(), ZoneId.of("UTC"));
-//		ZonedDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
-//		
-//		WMV_Time result = new WMV_Time( localDateTime, time.getID(), time.getClusterID(), time.getMediaType(), "America/Los_Angeles" );
-//		return result;
-//	}
-
-	/**
-	 * Shrink images to 3D view format (640 pixels max width)
+	 * Shrink images to optimized size (640 pixels max width) for 3D environment
 	 * @param largeImages Images to shrink
 	 * @param destination Destination folder
 	 * @return Whether successful
@@ -1365,6 +1347,24 @@ public class WMV_Utilities
 //		else 
 //			result = 0.f;
 //
+//		return result;
+//	}
+	
+	/**
+	 * @param hour UTC hour
+	 * @return Corresponding hour in Pacific Time
+	 */
+//	public WMV_Time utcToPacificTime(WMV_Time time)
+//	{
+//		int year = time.getYear();
+//		int day = time.getDay();
+//		int month = time.getMonth();
+//		int hour = time.getHour();
+//
+//		ZonedDateTime utcDateTime = ZonedDateTime.of(year, month, day, hour, time.getMinute(), time.getSecond(), time.getMillisecond(), ZoneId.of("UTC"));
+//		ZonedDateTime localDateTime = utcDateTime.withZoneSameInstant(ZoneId.of("America/Los_Angeles"));
+//		
+//		WMV_Time result = new WMV_Time( localDateTime, time.getID(), time.getClusterID(), time.getMediaType(), "America/Los_Angeles" );
 //		return result;
 //	}
 }

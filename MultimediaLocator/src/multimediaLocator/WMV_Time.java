@@ -18,14 +18,27 @@ public class WMV_Time implements Comparable<WMV_Time>
 	private int id, clusterID;
 	private int mediaType;							/* Media Types  0: image 1: panorama 2: video 3: sound */
 	private int year, month, day, hour, minute, second, millisecond;
-	private float time;
+	private float time;	 			/* Normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day */
+
 	
 	ZonedDateTime dateTime;
 	String dateTimeString, timeZoneID;
 	
+	/**
+	 * Constructor for media time
+	 */
 	WMV_Time(){}
 
-	public void initialize( ZonedDateTime newDateTime, String newDateTimeString, int newID, int newClusterID, int newMediaType, 
+	/**
+	 * Initialize media time with given parameters
+	 * @param newDateTime Zoned date/time
+	 * @param newDateTimeString Date/time string from metadata
+	 * @param newID Associated media object ID
+	 * @param newMediaType Associated media object type
+	 * @param newClusterID Cluster containing associated media object
+	 * @param newTimeZoneID Time zone ID
+	 */
+	public void initialize( ZonedDateTime newDateTime, String newDateTimeString, int newID, int newMediaType, int newClusterID, 
 							String newTimeZoneID )
 	{
 		id = newID;
@@ -48,60 +61,90 @@ public class WMV_Time implements Comparable<WMV_Time>
 		time = getSimulationTime( dateTime ); 		// Get normalized capture time (0. to 1. for 0:00 to 24:00)
 	}
 	
+	/**
+	 * @return Year
+	 */
 	public int getYear()
 	{
 		return year;
 	}
 
+	/**
+	 * @return Month of year
+	 */
 	public int getMonth()
 	{
 		return month;
 	}
 
+	/**
+	 * @return Day of month
+	 */
 	public int getDay()
 	{
 		return day;
 	}
 
+	/**
+	 * @return Hour of day
+	 */
 	public int getHour()
 	{
 		return hour;
 	}
 
+	/**
+	 * @return Minute
+	 */
 	public int getMinute()
 	{
 		return minute;
 	}
 
+	/**
+	 * @return Second
+	 */
 	public int getSecond()
 	{
 		return second;
 	}
 	
+	/**
+	 * @return Millisecond
+	 */
 	public int getMillisecond()
 	{
 		return millisecond;
 	}
 	
+	/**
+	 * @return Associated media id
+	 */
 	public int getID()
 	{
 		return id;
 	}
 	
-	public int getClusterID()
-	{
-		return clusterID;
-	}
-	
+	/**
+	 * @return Associated media type
+	 */
 	public int getMediaType()
 	{
 		return mediaType;
 	}
 	
 	/**
-	 * @return Date associated with this time
+	 * @return Associated cluster ID
 	 */
-	public WMV_Date getDate()
+	public int getClusterID()
+	{
+		return clusterID;
+	}
+	
+	/**
+	 * @return Date object associated with this time
+	 */
+	public WMV_Date asDate()
 	{
 		WMV_Date date = new WMV_Date();
 		date.initialize(-1, dateTime, dateTimeString, timeZoneID);
@@ -220,9 +263,6 @@ public class WMV_Time implements Comparable<WMV_Time>
 	 */
 	public ZonedDateTime parseDateTime(String input) 					// 2016:04:10 17:52:39
 	{		
-//		String[] parts = input.split("-");
-//		input = parts[1];
-//		System.out.println("   initializeTime() for time... input:"+input);
 		String[] parts = input.split(":");
 
 		int year = Integer.valueOf(parts[0].trim());
@@ -237,26 +277,5 @@ public class WMV_Time implements Comparable<WMV_Time>
 		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
 		return pac;
 	}
-
-//	public ZonedDateTime parseVideoDateTime(String input) 
-//	{		
-//		String[] parts = input.split(":");
-//
-//		int year = Integer.valueOf(parts[0].trim());
-//		int month = Integer.valueOf(parts[1]);
-//		int min = Integer.valueOf(parts[3]);
-//		String secStr = parts[4];
-//
-//		input = parts[2];
-//		parts = input.split(" ");
-//		int day = Integer.valueOf(parts[0]);
-//		int hour = Integer.valueOf(parts[1]);
-//
-//		parts = secStr.split("-");
-//		int sec = Integer.valueOf(parts[0]);
-//
-//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
-//		return pac;
-//	}
 }
 

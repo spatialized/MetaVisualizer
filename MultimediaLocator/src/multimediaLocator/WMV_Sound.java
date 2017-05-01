@@ -50,7 +50,7 @@ public class WMV_Sound extends WMV_Media
 			try {
 				metadata.dateTime = parseDateTime(metadata.dateTimeString);
 				time = new WMV_Time();
-				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 3, metadata.timeZone );
+				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 3, getAssociatedClusterID(), metadata.timeZone );
 			} 
 			catch (Throwable t) 
 			{
@@ -60,7 +60,7 @@ public class WMV_Sound extends WMV_Media
 		else
 		{
 			time = new WMV_Time();
-			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 3, metadata.timeZone );
+			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 3, getAssociatedClusterID(), metadata.timeZone );
 		}
 	}
 

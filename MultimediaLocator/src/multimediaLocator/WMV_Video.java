@@ -97,7 +97,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			try {
 				metadata.dateTime = parseDateTime(metadata.dateTimeString);
 				time = new WMV_Time();
-				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 2, metadata.timeZone );
+				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 2, getAssociatedClusterID(), metadata.timeZone );
 			} 
 			catch (Throwable t) 
 			{
@@ -107,7 +107,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		else
 		{
 			time = new WMV_Time();
-			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), getAssociatedClusterID(), 2, metadata.timeZone );
+			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 2, getAssociatedClusterID(), metadata.timeZone );
 		}
 	}
 
@@ -901,7 +901,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		
 		for (int i = 0; i < images.size(); i++) 					// -- Should limit this to only cluster!!
 		{
-			if(time.getDate().equals(images.get(i).time.getDate()))				// Placeholder will be from same date
+			if(time.asDate().equals(images.get(i).time.asDate()))				// Placeholder will be from same date
 			{
 				PVector imgLocation = images.get(i).getCaptureLocation();
 				float curDist = PVector.dist(getCaptureLocation(), imgLocation);

@@ -392,21 +392,21 @@ public class WMV_Cluster
 		/* Get times of all media of all types in this cluster */
 		for(int i : state.images)
 		{
-			WMV_Date date = imageList.get(i).time.getDate();
+			WMV_Date date = imageList.get(i).time.asDate();
 			if(!state.dateline.contains(date)) 				// Add date if doesn't exist
 				state.dateline.add( date );
 		}
 
 		for(int n : state.panoramas)
 		{
-			WMV_Date date = panoramaList.get(n).time.getDate();
+			WMV_Date date = panoramaList.get(n).time.asDate();
 			if(!state.dateline.contains(date)) 
 				state.dateline.add( date );
 		}
 
 		for(int v : state.videos) 
 		{
-			WMV_Date date = videoList.get(v).time.getDate();
+			WMV_Date date = videoList.get(v).time.asDate();
 			if(!state.dateline.contains(date)) 
 				state.dateline.add( date );
 		}
@@ -1220,8 +1220,8 @@ public class WMV_Cluster
 
 			if (initImageDate)  	// Calculate most recent and oldest image date
 			{	
-				state.highImageDate = i.time.getDate().getDaysSince1980();
-				state.lowImageDate = i.time.getDate().getDaysSince1980();
+				state.highImageDate = i.time.asDate().getDaysSince1980();
+				state.lowImageDate = i.time.asDate().getDaysSince1980();
 				initImageDate = false;
 			}
 
@@ -1230,10 +1230,10 @@ public class WMV_Cluster
 			if (i.time.getTime() < state.lowImageTime)
 				state.lowImageTime = i.time.getTime();
 
-			if (i.time.getDate().getDaysSince1980() > state.highImageDate)
-				state.highImageDate = i.time.getDate().getDaysSince1980();
-			if (i.time.getDate().getDaysSince1980() < state.lowImageDate)
-				state.lowImageDate = i.time.getDate().getDaysSince1980();
+			if (i.time.asDate().getDaysSince1980() > state.highImageDate)
+				state.highImageDate = i.time.asDate().getDaysSince1980();
+			if (i.time.asDate().getDaysSince1980() < state.lowImageDate)
+				state.lowImageDate = i.time.asDate().getDaysSince1980();
 
 //			if (fDayLength > longestDayLength)		// Calculate longest day length
 //				longestDayLength = fDayLength;
@@ -1253,8 +1253,8 @@ public class WMV_Cluster
 
 			if (initPanoramaDate) 		// Calculate most recent and oldest panorama date
 			{		
-				state.highPanoramaDate = n.time.getDate().getDaysSince1980();
-				state.lowPanoramaDate = n.time.getDate().getDaysSince1980();
+				state.highPanoramaDate = n.time.asDate().getDaysSince1980();
+				state.lowPanoramaDate = n.time.asDate().getDaysSince1980();
 				initPanoramaDate = false;
 			}
 
@@ -1263,10 +1263,10 @@ public class WMV_Cluster
 			if (n.time.getTime() < state.lowPanoramaTime)
 				state.lowPanoramaTime = n.time.getTime();
 
-			if (n.time.getDate().getDaysSince1980() > state.highPanoramaDate)
-				state.highPanoramaDate = n.time.getDate().getDaysSince1980();
-			if (n.time.getDate().getDaysSince1980() < state.lowPanoramaDate)
-				state.lowPanoramaDate = n.time.getDate().getDaysSince1980();
+			if (n.time.asDate().getDaysSince1980() > state.highPanoramaDate)
+				state.highPanoramaDate = n.time.asDate().getDaysSince1980();
+			if (n.time.asDate().getDaysSince1980() < state.lowPanoramaDate)
+				state.lowPanoramaDate = n.time.asDate().getDaysSince1980();
 
 //			if (fDayLength > longestPanoramaDayLength)		// Calculate longest panorama day length
 //				longestPanoramaDayLength = fDayLength;
@@ -1285,8 +1285,8 @@ public class WMV_Cluster
 
 			if (initVideoDate) 		// Calculate most recent and oldest video date
 			{		
-				state.highVideoDate = v.time.getDate().getDaysSince1980();
-				state.lowVideoDate = v.time.getDate().getDaysSince1980();
+				state.highVideoDate = v.time.asDate().getDaysSince1980();
+				state.lowVideoDate = v.time.asDate().getDaysSince1980();
 				initImageDate = false;
 			}
 
@@ -1295,10 +1295,10 @@ public class WMV_Cluster
 			if (v.time.getTime() < state.lowVideoTime)
 				state.lowVideoTime = v.time.getTime();
 
-			if (v.time.getDate().getDaysSince1980() > state.highVideoDate)
-				state.highVideoDate = v.time.getDate().getDaysSince1980();
-			if (v.time.getDate().getDaysSince1980() < state.lowVideoDate)
-				state.lowVideoDate = v.time.getDate().getDaysSince1980();
+			if (v.time.asDate().getDaysSince1980() > state.highVideoDate)
+				state.highVideoDate = v.time.asDate().getDaysSince1980();
+			if (v.time.asDate().getDaysSince1980() < state.lowVideoDate)
+				state.lowVideoDate = v.time.asDate().getDaysSince1980();
 
 //			if (fDayLength > longestVideoDayLength)		// Calculate longest video day length
 //				longestVideoDayLength = fDayLength;

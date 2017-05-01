@@ -305,8 +305,8 @@ public class WMV_Model
 
 			 if (initImageDate)  	// Calculate most recent and oldest image date
 			 {	
-				 state.highImageDate = i.time.getDate().getDaysSince1980();
-				 state.lowImageDate = i.time.getDate().getDaysSince1980();
+				 state.highImageDate = i.time.asDate().getDaysSince1980();
+				 state.lowImageDate = i.time.asDate().getDaysSince1980();
 				 initImageDate = false;
 			 }
 
@@ -315,10 +315,10 @@ public class WMV_Model
 			 if (i.time.getTime() < state.lowImageTime)
 				 state.lowImageTime = i.time.getTime();
 
-			 if (i.time.getDate().getDaysSince1980() > state.highImageDate)
-				 state.highImageDate = i.time.getDate().getDaysSince1980();
-			 if (i.time.getDate().getDaysSince1980() < state.lowImageDate)
-				 state.lowImageDate = i.time.getDate().getDaysSince1980();
+			 if (i.time.asDate().getDaysSince1980() > state.highImageDate)
+				 state.highImageDate = i.time.asDate().getDaysSince1980();
+			 if (i.time.asDate().getDaysSince1980() < state.lowImageDate)
+				 state.lowImageDate = i.time.asDate().getDaysSince1980();
 		 }
 
 		 for (WMV_Panorama n : panoramas) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
@@ -332,8 +332,8 @@ public class WMV_Model
 
 			 if (initPanoDate)  	// Calculate most recent and oldest Pano date
 			 {	
-				 state.highPanoDate = n.time.getDate().getDaysSince1980();
-				 state.lowPanoDate = n.time.getDate().getDaysSince1980();
+				 state.highPanoDate = n.time.asDate().getDaysSince1980();
+				 state.lowPanoDate = n.time.asDate().getDaysSince1980();
 				 initPanoDate = false;
 			 }
 
@@ -342,10 +342,10 @@ public class WMV_Model
 			 if (n.time.getTime() < state.lowPanoTime)
 				 state.lowPanoTime = n.time.getTime();
 
-			 if (n.time.getDate().getDaysSince1980() > state.highPanoDate)
-				 state.highPanoDate = n.time.getDate().getDaysSince1980();
-			 if (n.time.getDate().getDaysSince1980() < state.lowPanoDate)
-				 state.lowPanoDate = n.time.getDate().getDaysSince1980();
+			 if (n.time.asDate().getDaysSince1980() > state.highPanoDate)
+				 state.highPanoDate = n.time.asDate().getDaysSince1980();
+			 if (n.time.asDate().getDaysSince1980() < state.lowPanoDate)
+				 state.lowPanoDate = n.time.asDate().getDaysSince1980();
 		 }
 		 
 		 for ( WMV_Video v : videos ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
@@ -359,8 +359,8 @@ public class WMV_Model
 
 			 if (initVideoDate) 		// Calculate most recent and oldest image date
 			 {		
-				 state.highVideoDate = v.time.getDate().getDaysSince1980();
-				 state.lowVideoDate = v.time.getDate().getDaysSince1980();
+				 state.highVideoDate = v.time.asDate().getDaysSince1980();
+				 state.lowVideoDate = v.time.asDate().getDaysSince1980();
 				 initVideoDate = false;
 			 }
 
@@ -369,10 +369,10 @@ public class WMV_Model
 			 if (v.time.getTime() < state.lowVideoTime)
 				 state.lowVideoTime = v.time.getTime();
 
-			 if (v.time.getDate().getDaysSince1980() > state.highVideoDate)
-				 state.highVideoDate = v.time.getDate().getDaysSince1980();
-			 if (v.time.getDate().getDaysSince1980() < state.lowVideoDate)
-				 state.lowVideoDate = v.time.getDate().getDaysSince1980();
+			 if (v.time.asDate().getDaysSince1980() > state.highVideoDate)
+				 state.highVideoDate = v.time.asDate().getDaysSince1980();
+			 if (v.time.asDate().getDaysSince1980() < state.lowVideoDate)
+				 state.lowVideoDate = v.time.asDate().getDaysSince1980();
 		 }
 
 		 state.lowTime = state.lowImageTime;

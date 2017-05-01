@@ -20,7 +20,6 @@ public class ML_Display
 	
 	/* Display Views */
 	public int displayView = 0;							// 0: Scene  1: Map  2: Library  3: Timeline
-//	public boolean satelliteMap = true;					// -- Temporary
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -198,13 +197,12 @@ public class ML_Display
 				{
 					case 1:
 						map2D.displaySatelliteMap(p);
-//						map2D.displayLargeBasicMap(p);											// For zoom level > x (19?)
 						if(p.p.state.interactive) displayInteractiveClustering(p);
-						map2D.updateMouse(p);
+						map2D.update(p);
 						break;
 					case 2:
 						displayLibraryView(p);
-						if(libraryViewMode == 0) map2D.updateMouse(p);
+						if(libraryViewMode == 0) map2D.update(p);
 						break;
 					case 3:
 						displayTimeView(p);

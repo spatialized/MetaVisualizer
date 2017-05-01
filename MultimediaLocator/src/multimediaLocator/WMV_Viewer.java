@@ -108,13 +108,17 @@ public class WMV_Viewer
 		settings = newSettings;
 	}
 
-	public void enterField(int newFieldID)
+	/**
+	 * Enter the given field
+	 * @param fieldID Field to enter
+	 */
+	public void enterField(int fieldID)
 	{
 		if(debugSettings.viewer) System.out.println("enterField()... location before:"+getLocation());
-		if(p.getField(newFieldID).hasBeenVisited())
-			setCurrentField(newFieldID, true);				// Set new field and simulation state
+		if(p.getField(fieldID).hasBeenVisited())
+			setCurrentField(fieldID, true);				// Set new field and simulation state
 		else
-			setCurrentField(newFieldID, false);				// Set new field without setting simulation state
+			setCurrentField(fieldID, false);				// Set new field without setting simulation state
 
 		if(currentField == null)
 		{
@@ -784,7 +788,8 @@ public class WMV_Viewer
 				else
 				{
 					state.teleportGoalCluster = -1;
-					System.out.println("teleportToField()... Not moving to first time segment: will setCurrentCluster to "+state.teleportGoalCluster);
+					if(debugSettings.viewer)
+						System.out.println("teleportToField()... Not moving to first time segment: will setCurrentCluster to "+state.teleportGoalCluster);
 				}
 
 				if(fade)
@@ -1359,6 +1364,7 @@ public class WMV_Viewer
 	}
 
 	/**
+	 * Rotate viewer along X axis
 	 * @param dir Direction to rotate (1: clockwise, -1: counterclockwise)
 	 */
 	public void rotateX(int dir)
@@ -1368,6 +1374,7 @@ public class WMV_Viewer
 	}
 
 	/**
+	 * Rotate viewer along Y axis
 	 * @param dir Direction to rotate (1: clockwise, -1: counterclockwise)
 	 */
 	public void rotateY(int dir)
@@ -1377,6 +1384,7 @@ public class WMV_Viewer
 	}
 
 	/**
+	 * Get cluster along given vector
 	 * @param clusterList Clusters to search through
 	 * @param direction Directional vector of camera movement
 	 * @return Cluster in the approximate direction of given vector from camera. If none within 30 degrees, returns currentCluster

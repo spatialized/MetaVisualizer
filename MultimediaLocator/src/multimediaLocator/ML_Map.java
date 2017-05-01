@@ -34,9 +34,11 @@ public class ML_Map
 {
 	/* Map */
 	private UnfoldingMap satellite, osm, large, small;
+	
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
 	private Location satelliteMapCenter, worldMapCenter, plainMapCenter;
+	
 	private EventDispatcher eventDispatcher, plainMapEventDispatcher;
 	public MarkerManager<Marker> satelliteMarkerManager, osmMarkerManager, smallMarkerManager, largeMarkerManager;
 	private MultiMarker allClustersMarker;
@@ -44,55 +46,47 @@ public class ML_Map
 	private int clusterZoomLevel = 18, fieldZoomLevel = 14;
 	
 	/* Graphics */
-	private float hudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
+//	private float hudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
 	private int screenWidth = -1;
 	private int screenHeight = -1;
-	
+	private float viewerDiameter = 15.f;
+	private int viewerArrowPoints = 12;
+	private float viewerArrowPointSpacingFactor;
+			
 	/* Interaction */
 	public int mousePressedFrame = -1;
 	public int mouseDraggedFrame = -1;
 	private int selectedCluster = -1, selectedField = -1;
-
-//	private float mapDistance = 1.f;										// Obsolete soon
-//	private float mapLeftEdge = 0.f, mapTopEdge = 0.f;					// Obsolete soon
-//
-//	private float curMapWidth, curMapHeight;							// Obsolete soon
-//	private float largeMapXOffset, largeMapYOffset;						// Obsolete soon
+	private boolean zoomingIn = false, zoomingOut = false;
+	private boolean panningLeft = false, panningRight = false, panningUp = false, panningDown = false;
 
 	/* Media */
 	float smallPointSize, mediumPointSize, largePointSize, hugePointSize;	// Obsolete soon
-	float cameraPointSize;
 
 	public final boolean mapMedia = true;
 	public boolean mapImages = true, mapPanoramas = true, mapVideos = true;
+	private float maxSaturation = 210.f, lowSaturation = 80.f;
+	
 	private float imageHue = 150.f, imageCaptureHue = 90.f;
 	private float panoramaHue = 190.f, panoramaCaptureHue = 220.f;
 	private float videoHue = 40.f, videoCaptureHue = 70.f;
 	private float soundHue = 40.f;
 	private float cameraHue = 140.f;
 	private float mediaTransparency = 120.f;
-	private float maxSaturation = 210.f, lowSaturation = 80.f;
-
-	private float fieldAspectRatio;
 	
 	private final float zoomMapWidth = 500.f, zoomMapHeight = 500.f;
-	private float zoomMapLeftEdge = 0.f, zoomMapTopEdge = 0.f;
-	private float zoomMapXOffset, zoomMapYOffset;
-//	private float zoomMapDefaultWidth, zoomMapDefaultHeight;
 
-	public boolean scrollTransition = false;
-	
 	/* Fields Map */
 	private final float fieldSelectedHue = 20.f, fieldSelectedSaturation = 255.f, fieldSelectedBrightness = 255.f;
 	private final float clusterSaturation = 160.f, clusterBrightness = 185.f;
 	private final float fieldTransparency = 80.f;
 	private final float fieldHueRangeLow = 50.f, fieldHueRangeHigh = 160.f;
 	PVector mapVectorOrigin, mapVectorVector;
-
-	PImage blankTile;
 	
 	WMV_Utilities utilities;
 	ML_Display p;
+	
+	PImage blankTile;
 
 	/**
 	 * Constructor for 2D map
@@ -106,18 +100,14 @@ public class ML_Map
 		p = parent;
 		screenWidth = newScreenWidth;
 		screenHeight = newScreenHeight;
-		hudDistance = newHUDDistance;
 		
 		utilities = new WMV_Utilities();
 		
-//		largeMapXOffset = -screenWidth * 0.5f;
-//		largeMapYOffset = -screenHeight * 0.5f;
-
 		smallPointSize = 0.0000022f * screenWidth;
 		mediumPointSize = 0.0000028f * screenWidth;
 		largePointSize = 0.0000032f * screenWidth;
 		hugePointSize = 0.0000039f * screenWidth;
-		cameraPointSize = 0.005f * screenWidth;
+		viewerArrowPointSpacingFactor = 0.0033f * screenWidth;
 	}
 
 	/**
@@ -133,10 +123,13 @@ public class ML_Map
 
 		zoomToField(world, world.getCurrentField(), false);			// Start zoomed out on whole field
 
-		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
-//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm, small, large);
-		
-		world.p.delay(200);
+//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
+		eventDispatcher = new EventDispatcher();
+		MouseHandler mouseHandler = new MouseHandler(world.p, satellite);
+		eventDispatcher.addBroadcaster(mouseHandler);
+		eventDispatcher.register(satellite, "pan", satellite.getId());
+		eventDispatcher.register(satellite, "zoom", satellite.getId());
+		world.p.delay(150);
 		
 		p.initializedMaps = true;
 	}
@@ -146,7 +139,6 @@ public class ML_Map
 	 */
 	public void reset(WMV_World world)
 	{
-//		resetMapZoom(world, false);
 		initializeMaps(world);
 		setSelectedCluster( -1 );
 	}
@@ -163,9 +155,6 @@ public class ML_Map
 		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
 		satelliteMapCenter = new Location(gpsLoc.y, gpsLoc.x);
 		
-//		if(p.p.display.satelliteMap)
-//			zoomToField(p, p.getCurrentField(), false);			// Start zoomed out on whole field
-
 		satellite.setBackgroundColor(0);
 		osm.setBackgroundColor(0);
 		p.p.delay(100);
@@ -181,12 +170,12 @@ public class ML_Map
 		PVector vLoc = p.viewer.getGPSLocation();
 		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
 		viewerMarker.setId("viewer");
-		viewerMarker.setDiameter(20.f);
+		viewerMarker.setDiameter(viewerDiameter);
 		viewerMarker.setColor(p.p.color(0, 0, 255, 255));
 	}
 
 	/**
-	 * Initialize maps
+	 * Initialize basic maps
 	 * @param p Parent world
 	 */
 	private void initializeBasicMaps(WMV_World p)
@@ -202,15 +191,12 @@ public class ML_Map
 		small.setBackgroundColor(0);
 		p.p.delay(100);
 		
-//		if(!p.p.display.satelliteMap)
-//			zoomToField(p, p.getCurrentField(), false);			// Start zoomed out on whole field
-
 		large.setTweening(true);
 		large.setZoomRange(2, 21);
 		small.setTweening(true);
 		small.setZoomRange(2, 21);
 
-		// Add mouse interaction to map
+		/* Add mouse interaction */
 		eventDispatcher = new EventDispatcher();
 		MouseHandler mouseHandler = new MouseHandler(p.p, large);
 		eventDispatcher.addBroadcaster(mouseHandler);
@@ -223,7 +209,7 @@ public class ML_Map
 		PVector vLoc = p.viewer.getGPSLocation();
 		plainMapViewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
 		plainMapViewerMarker.setId("viewer");
-		plainMapViewerMarker.setDiameter(20.f);
+		plainMapViewerMarker.setDiameter(viewerDiameter);
 		plainMapViewerMarker.setColor(p.p.color(0, 0, 255, 255));
 	}
 	
@@ -260,7 +246,8 @@ public class ML_Map
 		world.p.perspective();
 		world.p.camera();												// Reset to default camera setting
 		world.p.tint(255.f, 255.f);
-		satellite.draw();														// Draw the Unfolding Map
+		satellite.draw();												// Draw the Unfolding Map
+		displayViewerOrientation(world, world.getCurrentField());						// Draw the viewer arrow
 	}
 	
 	/**
@@ -321,12 +308,9 @@ public class ML_Map
 		if(gpsLoc != null)
 		{
 			if(viewerMarker != null)
-			{
 				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-//				smallMarkerManager.addMarker(viewerMarker);					// -- Needed??
-//				largeMarkerManager.addMarker(viewerMarker);					// -- Needed??
-			}
-			else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
+			else 
+				System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
 		}
 
 		world.p.perspective();
@@ -346,12 +330,9 @@ public class ML_Map
 		if(gpsLoc != null)
 		{
 			if(viewerMarker != null)
-			{
 				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-				smallMarkerManager.addMarker(viewerMarker);					// -- Needed??
-				largeMarkerManager.addMarker(viewerMarker);					// -- Needed??
-			}
-			else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
+			else 
+				System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
 		}
 
 		world.p.perspective();
@@ -414,19 +395,71 @@ public class ML_Map
 	}
 
 	/**
-	 * Zoom in map
+	 * Start zooming in map
 	 */
 	public void zoomIn(WMV_World world)
 	{
-		satellite.zoomIn();
+		zoomingIn = true;
 	}
 	
 	/**
-	 * Zoom out map
+	 * Start zooming out map
 	 */
 	public void zoomOut(WMV_World world)
 	{
-		satellite.zoomOut();
+		zoomingOut = true;
+	}
+	
+	/**
+	 * Stop zooming the map
+	 */
+	public void stopZooming()
+	{
+		if(zoomingIn) zoomingIn = false;
+		if(zoomingOut) zoomingOut = false;
+	}
+	
+	/**
+	 * Start panning map to left
+	 */
+	public void panLeft()
+	{
+		panningLeft = true;
+	}
+	
+	/**
+	 * Start panning map to right
+	 */
+	public void panRight()
+	{
+		panningRight = true;
+	}
+	
+	/**
+	 * Start panning map up
+	 */
+	public void panUp()
+	{
+		panningUp = true;
+	}
+	
+	/**
+	 * Start panning map down
+	 */
+	public void panDown()
+	{
+		panningDown = true;
+	}
+	
+	/**
+	 * Stop panning the map
+	 */
+	public void stopPanning()
+	{
+		if(panningLeft) panningLeft = false;
+		if(panningRight) panningRight = false;
+		if(panningUp) panningUp = false;
+		if(panningDown) panningDown = false;
 	}
 	
 	/**
@@ -557,6 +590,26 @@ public class ML_Map
 		return new PVector(screenPos.x, screenPos.y);
 	}
 
+	/**
+	 * Update map
+	 */
+	public void update(WMV_World world)
+	{
+		if(zoomingIn)
+			satellite.zoom(0.99f);
+		if(zoomingOut)
+			satellite.zoom(1.010101f);
+		if(panningLeft)
+			satellite.panLeft();
+		if(panningRight)
+			satellite.panRight();
+		if(panningUp)
+			satellite.panUp();
+		if(panningDown)
+			satellite.panDown();
+		updateMouse(world);
+	}
+	
 	/**
 	 * Update map settings based on current mouse position
 	 * @param world Parent world
@@ -838,48 +891,33 @@ public class ML_Map
 	}
 
 	/**
-	 * Draw viewer as arrow on map
+	 * Draw viewer orientation as arrow on map
 	 * @param mapWidth Map width
 	 * @param mapHeight Map height
 	 * Draw current viewer location and orientation on map of specified size
 	 */
-//	private void drawViewer(WMV_World world, WMV_Field f, float mapWidth, float mapHeight)
-//	{
-//		PVector camLoc = world.viewer.getLocation();
-//		if(pointIsVisible(world, camLoc, false))
-//		{
-//			float camYaw = -world.viewer.getXOrientation() - 0.5f * PApplet.PI;
-//
-////			drawPoint( world, f, camLoc, cameraPointSize, mapWidth, mapHeight, cameraHue, 255.f, 255.f, mediaTransparency );
-//			float ptSize = cameraPointSize;
-//
-//			float arrowSize = fieldAspectRatio >= 1 ? world.getCurrentModel().getState().fieldWidth : world.getCurrentModel().getState().fieldLength;
-//			arrowSize = PApplet.round(PApplet.map(arrowSize, 0.f, 2500.f, 0.f, 100.f) * PApplet.sqrt(mapDistance));
-//
-//			ScaleMap logMap;
-//			logMap = new ScaleMap(6., arrowSize, 6., 60.);		/* Time fading interpolation */
-//			logMap.setMapFunction(world.circularEaseOut);
-//
-//			int arrowPoints = 15;								/* Number of points in arrow */
-//
-//			logMap = new ScaleMap(0.f, 0.25f, 0.f, 0.25f);		/* Time fading interpolation */
-//			logMap.setMapFunction(world.circularEaseOut);
-//
-//			float shrinkFactor = 0.88f;
-//			float mapDistanceFactor = PApplet.map(mapDistance, 0.f, 1.f, 0.f, 0.25f);
-//			
-//			for(float i=1; i<arrowPoints; i++)
-//			{
-//				world.p.textSize(ptSize);
-//				float x = i * cameraPointSize * mapDistanceFactor * (float)Math.cos( camYaw );
-//				float y = i * cameraPointSize * mapDistanceFactor * (float)Math.sin( camYaw );
-//
-//				PVector arrowPoint = new PVector(camLoc.x + x, 0, camLoc.z + y);
-////				drawPoint( world, f, arrowPoint, ptSize, mapWidth, mapHeight, cameraHue, 120.f, 255.f, 255.f );
-//
-//				ptSize *= shrinkFactor;
-//			}
-//		}
-//	}
+	private void displayViewerOrientation(WMV_World world, WMV_Field f)
+	{
+		PVector vLoc = world.viewer.getGPSLocation();
+		Location gpsLoc = new Location(vLoc.y, vLoc.x);
+		float camYaw = -world.viewer.getXOrientation() - 0.5f * PApplet.PI;
+
+		float shrinkFactor = 0.833f;
+		float ptSize = viewerDiameter * shrinkFactor;
+
+		world.p.stroke(world.p.color(0, 0, 255, 255));
+		for(float i=1; i<viewerArrowPoints; i++)
+		{
+			ScreenPosition vScreenPos = satellite.getScreenPosition(gpsLoc);
+			float x = i * viewerArrowPointSpacingFactor * (float)Math.cos( camYaw );
+			float y = i * viewerArrowPointSpacingFactor * (float)Math.sin( camYaw );
+			PVector arrowPoint = new PVector(vScreenPos.x + x, vScreenPos.y + y);
+
+			world.p.strokeWeight(ptSize);
+			world.p.point(arrowPoint.x, arrowPoint.y);
+			
+			ptSize *= shrinkFactor;
+		}
+	}
 }
 

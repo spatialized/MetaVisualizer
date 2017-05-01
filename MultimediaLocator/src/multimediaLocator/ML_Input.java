@@ -16,7 +16,7 @@ public class ML_Input
 {
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
-	public boolean commandKey = false;
+//	public boolean commandKey = false;
 	final public int COMMAND_KEY = 157;			// -- Not reliable, change this!
 	
 	private boolean mouseClickedRecently = false;
@@ -564,6 +564,15 @@ public class ML_Input
 
 			if(ml.display.displayView == 1)		/* 2D Map View */
 			{
+				if (key == 'a') 
+					ml.display.map2D.panLeft();
+				if (key == 'd') 
+					ml.display.map2D.panRight();
+				if (key == 's') 
+					ml.display.map2D.panDown();
+				if (key == 'w') 
+					ml.display.map2D.panUp();
+
 				if (key == 'j') 
 					ml.world.viewer.moveToRandomCluster(true, false);				// Teleport to random cluster
 				
@@ -594,12 +603,6 @@ public class ML_Input
 				if (shiftKey && key == 'c')
 					ml.startInitialClustering();				// Re-run clustering on all fields
 
-//				if (key == ']') 
-//					ml.display.map2D.zoomIn(ml.world);
-//
-//				if (key == '[') 
-//					ml.display.map2D.zoomOut(ml.world);
-
 				if (key == PApplet.CODED) 					
 				{
 					if (keyCode == PApplet.LEFT)
@@ -613,42 +616,11 @@ public class ML_Input
 						
 					if (keyCode == PApplet.DOWN) 
 						ml.display.map2D.zoomIn(ml.world);
-						
-//					if (optionKey && shiftKey && keyCode == PApplet.LEFT) 
-//						ml.display.map2D.mapScrollTransition( ml.world, 150.f * ml.display.map2D.getMapDistance(), 0.f );
-//
-//					if (optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-//						ml.display.map2D.mapScrollTransition( ml.world, -150.f * ml.display.map2D.getMapDistance(), 0.f );
-//
-//					if (optionKey && shiftKey && keyCode == PApplet.DOWN) 
-//						ml.display.map2D.mapScrollTransition( ml.world, 0.f, -150.f * ml.display.map2D.getMapDistance() );
-//
-//					if (optionKey && shiftKey && keyCode == PApplet.UP) 
-//						ml.display.map2D.mapScrollTransition( ml.world, 0.f, 150.f * ml.display.map2D.getMapDistance() );
-//
-//					if (!optionKey && shiftKey && keyCode == PApplet.LEFT) 
-//						ml.display.map2D.zoomRectangleScrollTransition( ml.world, -400.f * ml.display.map2D.getMapDistance(), 0.f );
-//
-//					if (!optionKey && shiftKey && keyCode == PApplet.RIGHT) 
-//						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 400.f * ml.display.map2D.getMapDistance(), 0.f );
-//
-//					if (!optionKey && shiftKey && keyCode == PApplet.DOWN) 
-//						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, 400.f * ml.display.map2D.getMapDistance() );
-//
-//					if (!optionKey && shiftKey && keyCode == PApplet.UP) 
-//						ml.display.map2D.zoomRectangleScrollTransition( ml.world, 0.f, -400.f * ml.display.map2D.getMapDistance() );
 				}
 
 				if(key == PApplet.ENTER)
 				{
 					ml.world.viewer.moveToClusterOnMap(ml.display.map2D.getSelectedClusterID(), shiftKey);
-//					if(shiftKey)
-//						ml.world.viewer.teleportToCluster(ml.display.map2D.getSelectedClusterID(), false, -1);
-//					else
-//					{
-//						ml.world.viewer.teleportToCluster(ml.display.map2D.getSelectedClusterID(), true, -1);
-//						ml.display.displayView = 0;
-//					}
 				}
 			}
 			else if(ml.display.displayView == 2)									/* Library View */
@@ -1391,7 +1363,7 @@ public class ML_Input
 				
 				if (keyCode == COMMAND_KEY) 
 				{
-					commandKey = true;
+//					commandKey = true;
 //					System.out.println("+ commandKey set to "+commandKey + " on frame:"+frameCount);
 				}
 			}
@@ -1406,19 +1378,33 @@ public class ML_Input
 //		System.out.println("handleKeyReleased keyCode: "+keyCode + " on frame:"+frameCount);
 
 		/* Navigation */
-		if (key == 'a') 
-			viewer.stopMoveXTransition();
-		if (key == 'd') 
-			viewer.stopMoveXTransition();
-		if (key == 's') 
-			viewer.stopMoveZTransition();
-		if (key == 'w') 
-			viewer.stopMoveZTransition();
-		if (key == 'e') 
-			viewer.stopMoveYTransition();
-		if (key == 'c') 
-			viewer.stopMoveYTransition();
-
+		if(display.displayView == 0)
+		{
+			if (key == 'a') 
+				viewer.stopMoveXTransition();
+			if (key == 'd') 
+				viewer.stopMoveXTransition();
+			if (key == 's') 
+				viewer.stopMoveZTransition();
+			if (key == 'w') 
+				viewer.stopMoveZTransition();
+			if (key == 'e') 
+				viewer.stopMoveYTransition();
+			if (key == 'c') 
+				viewer.stopMoveYTransition();
+		}
+		else if(display.displayView == 1)
+		{
+			if (key == 'a') 
+				display.map2D.stopPanning();
+			if (key == 'd') 
+				display.map2D.stopPanning();
+			if (key == 's') 
+				display.map2D.stopPanning();
+			if (key == 'w') 
+				display.map2D.stopPanning();
+		}
+		
 		/* Coded Keys */
 		if (key == PApplet.CODED) 
 		{
@@ -1433,6 +1419,17 @@ public class ML_Input
 				if (keyCode == PApplet.DOWN) 
 					viewer.stopRotateYTransition();
 			}
+			else if(display.displayView == 1)
+			{
+				if (keyCode == PApplet.LEFT) 
+					viewer.stopRotateXTransition();
+				if (keyCode == PApplet.RIGHT) 
+					viewer.stopRotateXTransition();
+				if (keyCode == PApplet.UP) 
+					display.map2D.stopZooming();
+				if (keyCode == PApplet.DOWN) 
+					display.map2D.stopZooming();
+			}
 			else if(display.displayView == 3)
 			{
 				if (keyCode == PApplet.UP)  				// Timeline scroll left
@@ -1443,19 +1440,14 @@ public class ML_Input
 					display.stopScrolling();
 				if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
 					display.stopScrolling();
-
-//				if (keyCode == PApplet.LEFT)  				// Timeline scroll left
-//					display.scroll(5.f, -1);
-//				if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
-//					display.scroll(5.f, 1);
 			}
 			
 			if (keyCode == PApplet.SHIFT) 
 				shiftKey = false;
 			if (keyCode == PApplet.ALT) 
 				optionKey = false;
-			if (keyCode == COMMAND_KEY)						// -- Unreliable
-				commandKey = false;
+//			if (keyCode == COMMAND_KEY)						// -- Obsolete
+//				commandKey = false;
 		}
 	}
 

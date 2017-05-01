@@ -247,7 +247,7 @@ public class ML_Map
 		world.p.camera();												// Reset to default camera setting
 		world.p.tint(255.f, 255.f);
 		satellite.draw();												// Draw the Unfolding Map
-		displayViewerOrientation(world, world.getCurrentField());						// Draw the viewer arrow
+		displayViewerOrientation(world, world.getCurrentField(), satellite);						// Draw the viewer arrow
 	}
 	
 	/**
@@ -271,6 +271,7 @@ public class ML_Map
 		world.p.camera();												// Reset to default camera setting
 		world.p.tint(255.f, 255.f);
 		satellite.draw();
+		displayViewerOrientation(world, world.getCurrentField(), satellite);		// Draw the viewer arrow
 	}
 	
 	/**
@@ -749,7 +750,7 @@ public class ML_Map
 			satellite.setTweening(true);
 		}
 		
-		p.initializedFieldMap = true;
+		p.initializedWorldMap = true;
 	}
 	
 	/**
@@ -896,7 +897,7 @@ public class ML_Map
 	 * @param mapHeight Map height
 	 * Draw current viewer location and orientation on map of specified size
 	 */
-	private void displayViewerOrientation(WMV_World world, WMV_Field f)
+	private void displayViewerOrientation(WMV_World world, WMV_Field f, UnfoldingMap map)
 	{
 		PVector vLoc = world.viewer.getGPSLocation();
 		Location gpsLoc = new Location(vLoc.y, vLoc.x);
@@ -908,7 +909,7 @@ public class ML_Map
 		world.p.stroke(world.p.color(0, 0, 255, 255));
 		for(float i=1; i<viewerArrowPoints; i++)
 		{
-			ScreenPosition vScreenPos = satellite.getScreenPosition(gpsLoc);
+			ScreenPosition vScreenPos = map.getScreenPosition(gpsLoc);
 			float x = i * viewerArrowPointSpacingFactor * (float)Math.cos( camYaw );
 			float y = i * viewerArrowPointSpacingFactor * (float)Math.sin( camYaw );
 			PVector arrowPoint = new PVector(vScreenPos.x + x, vScreenPos.y + y);

@@ -636,76 +636,9 @@ public class ML_Input
 				if (key == 'z')
 					ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);
 
-				if (key == PApplet.CODED) 					
-				{
-					if (keyCode == PApplet.LEFT) 
-					{
-						ml.display.currentDisplayCluster--;
-						if(ml.display.currentDisplayCluster < 0)
-							ml.display.currentDisplayCluster = ml.world.getFieldClusters().size() - 1;
-
-						int count = 0;
-						while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
-						{
-							ml.display.currentDisplayCluster--;
-							count++;
-							if(ml.display.currentDisplayCluster < 0)
-								ml.display.currentDisplayCluster = ml.world.getFieldClusters().size() - 1;
-
-							if(count > ml.world.getFieldClusters().size())
-								break;
-						}
-					}
-
-					if (keyCode == PApplet.RIGHT) 
-					{
-						ml.display.currentDisplayCluster++;
-						if( ml.display.currentDisplayCluster >= ml.world.getFieldClusters().size())
-							ml.display.currentDisplayCluster = 0;
-
-						int count = 0;
-						while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
-						{
-							ml.display.currentDisplayCluster++;
-							count++;
-							if( ml.display.currentDisplayCluster >= ml.world.getFieldClusters().size())
-								ml.display.currentDisplayCluster = 0;
-
-							if(count > ml.world.getFieldClusters().size())
-								break;
-						}
-					}
-					
-					if (keyCode == PApplet.UP) 
-						ml.display.map2D.zoomOut(ml.world);
-						
-					if (keyCode == PApplet.DOWN) 
-						ml.display.map2D.zoomIn(ml.world);
-
-//					if (keyCode == PApplet.UP) 
-//					{
-//						ml.display.libraryViewMode--;
-//						if(ml.display.libraryViewMode < 0)
-//							ml.display.libraryViewMode = ml.world.getFieldClusters().size() - 1;
-//					}
-//
-//					if (keyCode == PApplet.DOWN) 
-//					{
-//						ml.display.libraryViewMode++;
-//						if( ml.display.libraryViewMode >= ml.world.getFieldClusters().size())
-//							ml.display.libraryViewMode = 0;
-//						
-//						if(ml.display.libraryViewMode == 2)
-//						{
-//							if(!ml.display.initializedFieldMap)
-//								ml.display.map2D.initializeFieldsMap(ml.world, false);
-//						}
-//					}
-				}
 				
 				if (ml.display.libraryViewMode == 0)
 				{
-					
 					if(key == PApplet.ENTER)
 					{
 						int selectedField = ml.display.map2D.getSelectedFieldID();
@@ -718,6 +651,98 @@ public class ML_Input
 						{
 							ml.world.viewer.teleportToField(selectedField, true, true);
 							ml.display.displayView = 0;
+						}
+					}
+				}
+
+				if (key == '[') 
+				{
+					ml.display.libraryViewMode--;
+					if(ml.display.libraryViewMode < 0)
+						ml.display.libraryViewMode = ml.world.getFieldClusters().size() - 1;
+				}
+
+				if (key == ']') 
+				{
+					ml.display.libraryViewMode++;
+					if( ml.display.libraryViewMode >= ml.world.getFieldClusters().size())
+						ml.display.libraryViewMode = 0;
+					
+					if(ml.display.libraryViewMode == 2)
+					{
+						if(!ml.display.initializedWorldMap)
+							ml.display.map2D.initializeWorldMap(ml.world, false);
+					}
+				}
+
+				if (key == PApplet.CODED) 					
+				{
+					if(ml.display.libraryViewMode == 0)					// Library World View
+					{
+						if (keyCode == PApplet.LEFT)
+							ml.world.viewer.rotateX(-1);
+
+						if (keyCode == PApplet.RIGHT) 
+							ml.world.viewer.rotateX(1);
+						
+						if (keyCode == PApplet.UP) 
+							ml.display.map2D.zoomOut(ml.world);
+							
+						if (keyCode == PApplet.DOWN) 
+							ml.display.map2D.zoomIn(ml.world);
+					}
+					if(ml.display.libraryViewMode == 1)					// Library Field View
+					{
+						if (keyCode == PApplet.LEFT)
+							ml.world.viewer.rotateX(-1);
+
+						if (keyCode == PApplet.RIGHT) 
+							ml.world.viewer.rotateX(1);
+						
+						if (keyCode == PApplet.UP) 
+							ml.display.map2D.zoomOut(ml.world);
+							
+						if (keyCode == PApplet.DOWN) 
+							ml.display.map2D.zoomIn(ml.world);
+					}
+					else if(ml.display.libraryViewMode == 2)			// Library Cluster View
+					{
+						if (keyCode == PApplet.DOWN) 
+						{
+							ml.display.currentDisplayCluster--;
+							if(ml.display.currentDisplayCluster < 0)
+								ml.display.currentDisplayCluster = ml.world.getFieldClusters().size() - 1;
+
+							int count = 0;
+							while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
+							{
+								ml.display.currentDisplayCluster--;
+								count++;
+								if(ml.display.currentDisplayCluster < 0)
+									ml.display.currentDisplayCluster = ml.world.getFieldClusters().size() - 1;
+
+								if(count > ml.world.getFieldClusters().size())
+									break;
+							}
+						}
+
+						if (keyCode == PApplet.UP) 
+						{
+							ml.display.currentDisplayCluster++;
+							if( ml.display.currentDisplayCluster >= ml.world.getFieldClusters().size())
+								ml.display.currentDisplayCluster = 0;
+
+							int count = 0;
+							while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
+							{
+								ml.display.currentDisplayCluster++;
+								count++;
+								if( ml.display.currentDisplayCluster >= ml.world.getFieldClusters().size())
+									ml.display.currentDisplayCluster = 0;
+
+								if(count > ml.world.getFieldClusters().size())
+									break;
+							}
 						}
 					}
 				}
@@ -1021,7 +1046,7 @@ public class ML_Input
 						}
 					}
 
-					if (key == 'i')	
+					if (key == 'I')	
 					{
 						if(ml.world.viewer.getSettings().hideImages)
 							ml.world.viewer.showImages();
@@ -1393,7 +1418,7 @@ public class ML_Input
 			if (key == 'c') 
 				viewer.stopMoveYTransition();
 		}
-		else if(display.displayView == 1)
+		else if( display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode != 2) )
 		{
 			if (key == 'a') 
 				display.map2D.stopPanning();
@@ -1419,7 +1444,7 @@ public class ML_Input
 				if (keyCode == PApplet.DOWN) 
 					viewer.stopRotateYTransition();
 			}
-			else if(display.displayView == 1)
+			else if( display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode != 2) )
 			{
 				if (keyCode == PApplet.LEFT) 
 					viewer.stopRotateXTransition();

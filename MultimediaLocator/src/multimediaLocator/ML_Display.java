@@ -16,7 +16,7 @@ public class ML_Display
 	/* Window Modes */
 	public boolean fullscreen = true;
 	public boolean initializedMaps = false;
-	public boolean initializedFieldMap = false;
+	public boolean initializedWorldMap = false;
 	
 	/* Display Views */
 	public int displayView = 0;							// 0: Scene  1: Map  2: Library  3: Timeline

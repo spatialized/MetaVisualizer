@@ -3,11 +3,10 @@ import java.util.ArrayList;
 import processing.core.*;
 
 /***********************************
- * Class for displaying 2D text, maps and graphics
+ * Object for displaying 2D text, maps and graphics
  * @author davidgordon
  */
-
-class ML_Display
+public class ML_Display
 {
 	/* Classes */
 	public ML_Window window;							// Main interaction window
@@ -21,7 +20,7 @@ class ML_Display
 	
 	/* Display Views */
 	public int displayView = 0;							// 0: Scene  1: Map  2: Library  3: Timeline
-	public boolean satelliteMap = true;					// -- Temporary
+//	public boolean satelliteMap = true;					// -- Temporary
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -43,18 +42,8 @@ class ML_Display
 	/* Library View */
 	public int libraryViewMode = 0;						// 0: World, 1: Field, 2: Cluster
 	public int currentDisplayCluster = 0;
-
-	/* Messages */
-	ArrayList<String> messages;							// Messages to display on screen
-	ArrayList<String> metadata;							// Metadata messages to display on screen
-	ArrayList<String> startupMessages;					// Messages to display on screen
-
-	int messageStartFrame = -1;
-	int metadataStartFrame = -1;
-	int startupMessageStartFrame = -1;
-	int messageDuration = 60;
 	
-	/* Timeline */
+	/* Timeline View */
 	float timelineScreenSize, timelineHeight = 100.f;
 	float timelineStart = 0.f, timelineEnd = 0.f;
 	float datelineStart = 0.f, datelineEnd = 0.f;
@@ -90,6 +79,16 @@ class ML_Display
 	private float videoHue = 100.f;
 	private float soundHue = 40.f;
 
+	/* Messages */
+	ArrayList<String> messages;							// Messages to display on screen
+	ArrayList<String> metadata;							// Metadata messages to display on screen
+	ArrayList<String> startupMessages;					// Messages to display on screen
+
+	int messageStartFrame = -1;
+	int metadataStartFrame = -1;
+	int startupMessageStartFrame = -1;
+	int messageDuration = 60;
+
 	/* Text */
 	float centerTextXOffset, topTextYOffset;
 	float userMessageXOffset, userMessageYOffset, startupMessageXOffset;
@@ -97,6 +96,7 @@ class ML_Display
 	float midLeftTextXOffset, midRightTextXOffset;
 	float clusterImageXOffset, clusterImageYOffset;
 	float fieldsXScreenSize, fieldsYScreenSize, fieldsXOffset, fieldsYOffset;
+	
 	final float veryLargeTextSize = 64.f;
 	final float largeTextSize = 56.f;
 	final float mediumTextSize = 44.f;
@@ -106,7 +106,13 @@ class ML_Display
 	final float lineWidthWide = largeTextSize + linePadding;			
 	final float lineWidthVeryWide = largeTextSize * 2.f;			
 
-	ML_Display(int newScreenWidth, int newScreenHeight, float newHUDDistance)
+	/**
+	 * Constructor for 2D display object
+	 * @param newScreenWidth Screen width
+	 * @param newScreenHeight Screen height
+	 * @param newHUDDistance HUD Distance 			-- Obsolete
+	 */
+	public ML_Display(int newScreenWidth, int newScreenHeight, float newHUDDistance)
 	{
 		screenWidth = newScreenWidth;
 		screenHeight = newScreenHeight;
@@ -191,8 +197,8 @@ class ML_Display
 				switch(displayView)
 				{
 					case 1:
-						if(satelliteMap) map2D.displaySatelliteMap(p);
-						else map2D.displayLargeBasicMap(p);
+						map2D.displaySatelliteMap(p);
+//						map2D.displayLargeBasicMap(p);											// For zoom level > x (19?)
 						if(p.p.state.interactive) displayInteractiveClustering(p);
 						map2D.updateMouse(p);
 						break;
@@ -553,12 +559,12 @@ class ML_Display
 		{
 			if(timelineStart != timelineStartTransitionTarget)
 			{
-				newStart = PApplet.map( p.p.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
+				newStart = utilities.mapValue( p.p.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
 									    timelineStartTransitionStart, timelineStartTransitionTarget); 
 			}
 			if(timelineEnd != timelineEndTransitionTarget)
 			{
-				newEnd = PApplet.map( p.p.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
+				newEnd = utilities.mapValue( p.p.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
 									  timelineEndTransitionStart, timelineEndTransitionTarget);     			
 			}
 		}
@@ -592,8 +598,8 @@ class ML_Display
 			upperSeconds += minSegmentSeconds * 0.5f;
 		}
 		
-		float xOffset = PApplet.map(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
-		float xOffset2 = PApplet.map(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+		float xOffset = utilities.mapValue(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+		float xOffset2 = utilities.mapValue(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
  
 		if(xOffset > timelineXOffset && xOffset2 < timelineXOffset + timelineScreenSize)
 		{
@@ -623,7 +629,7 @@ class ML_Display
 	private SelectableDate getSelectableDate(WMV_Date d, int id)
 	{
 		float date = d.getDaysSince1980();
-		float xOffset = PApplet.map(date, datelineStart, datelineEnd, datelineXOffset, datelineXOffset + timelineScreenSize);
+		float xOffset = utilities.mapValue(date, datelineStart, datelineEnd, datelineXOffset, datelineXOffset + timelineScreenSize);
 
 		if(xOffset > datelineXOffset && xOffset < datelineXOffset + timelineScreenSize)
 		{
@@ -786,7 +792,7 @@ class ML_Display
 	private void displayDate(WMV_World p, WMV_Date d, int id)
 	{
 		float date = d.getDaysSince1980();
-		float xOffset = PApplet.map(date, datelineStart, datelineEnd, datelineXOffset, datelineXOffset + timelineScreenSize);
+		float xOffset = utilities.mapValue(date, datelineStart, datelineEnd, datelineXOffset, datelineXOffset + timelineScreenSize);
 
 		if(xOffset > datelineXOffset && xOffset < datelineXOffset + timelineScreenSize)
 		{
@@ -825,8 +831,8 @@ class ML_Display
 		ArrayList<PVector> times = new ArrayList<PVector>();
 		for(WMV_Time ti : tsTimeline) times.add(ti.getTimeAsPVector());
 
-		float xOffset = PApplet.map(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
-		float xOffset2 = PApplet.map(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+		float xOffset = utilities.mapValue(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+		float xOffset2 = utilities.mapValue(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
 
 		if(xOffset > timelineXOffset && xOffset2 < timelineXOffset + timelineScreenSize)
 		{
@@ -839,7 +845,7 @@ class ML_Display
 			{
 				PVector time = ti.getTimeAsPVector();
 				float seconds = utilities.getTimePVectorSeconds(time);
-				float xOff = PApplet.map(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+				float xOff = utilities.mapValue(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
 				if(xOff > timelineXOffset && xOff < timelineXOffset + timelineScreenSize)
 				{
 					switch(ti.getMediaType())
@@ -1827,8 +1833,9 @@ class ML_Display
 			case 1:	
 				displayView = 1;
 				map2D.initializeMaps(p);
+				map2D.largeMarkerManager.enableDrawing();
+				map2D.smallMarkerManager.enableDrawing();
 				map2D.zoomToField(p, p.getCurrentField(), false);
-//				if(!satelliteMap) map2D.zoomToCluster(p, p.getCurrentCluster());
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(true);
 				window.optLibraryView.setSelected(false);
@@ -1836,8 +1843,10 @@ class ML_Display
 			case 2:	
 				displayView = 2;
 				if(!initializedMaps) map2D.initializeMaps(p);
-				map2D.initializeFieldsMap(p, false);
-//				if(!initializedFieldMap) map2D.initializeFieldsMap(p);
+				map2D.initializeWorldMap(p, false);
+				map2D.satelliteMarkerManager.enableDrawing();
+				map2D.largeMarkerManager.disableDrawing();
+				map2D.smallMarkerManager.disableDrawing();
 				window.optSceneView.setSelected(false);
 				window.optMapView.setSelected(false);
 				window.optLibraryView.setSelected(true);
@@ -2046,7 +2055,7 @@ class ML_Display
 
 				float length = timelineEnd - timelineStart;
 				float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
-				float xOffset = -35.f * PApplet.map(length, 0.f, day, 0.2f, 1.f);
+				float xOffset = -35.f * utilities.mapValue(length, 0.f, day, 0.2f, 1.f);
 				p.p.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, hudDistance);
 			}
 			p.p.popMatrix();
@@ -2470,8 +2479,8 @@ class ML_Display
 //			p.p.pushMatrix();
 //			
 //			p.p.fill(140, 100, 255);
-//			float xPos = PApplet.map(i, 0, length, 0, screenWidth * 1.f);
-//			float inc = PApplet.map(2, 0, length, 0, screenWidth * 1.f) - PApplet.map(1, 0, length, 0, screenWidth*1.f);
+//			float xPos = utilities.mapValue(i, 0, length, 0, screenWidth * 1.f);
+//			float inc = utilities.mapValue(2, 0, length, 0, screenWidth * 1.f) - utilities.mapValue(1, 0, length, 0, screenWidth*1.f);
 //			int x = -screenWidth/2 + (int)xPos;
 //			int y = -screenHeight/2+screenHeight/2;
 //

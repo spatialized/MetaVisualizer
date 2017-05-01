@@ -110,13 +110,12 @@ public class WMV_Viewer
 
 	public void enterField(int newFieldID)
 	{
+		if(debugSettings.viewer) System.out.println("enterField()... location before:"+getLocation());
 		if(p.getField(newFieldID).hasBeenVisited())
 			setCurrentField(newFieldID, true);				// Set new field and simulation state
 		else
 			setCurrentField(newFieldID, false);				// Set new field without setting simulation state
 
-//		currentField = p.getField(newFieldID);
-		
 		if(currentField == null)
 		{
 			System.out.println("Didn't enter field... currentField == null!");
@@ -125,7 +124,7 @@ public class WMV_Viewer
 		{
 			if(p.p.display.displayView == 1)
 				p.p.display.map2D.reset(p);
-			if(debugSettings.viewer) System.out.println("Entered field... "+currentField.getID());
+			if(debugSettings.viewer) System.out.println("Entered field... "+currentField.getID()+"... location after:"+getLocation());
 		}
 	}
 	
@@ -334,20 +333,24 @@ public class WMV_Viewer
 	 */
 	public void setCurrentField(int newField, boolean setSimulationState)		
 	{
+		if(debugSettings.field || debugSettings.viewer)		
+			System.out.println("viewer.setCurrentField().. newField:"+newField+" setSimulationState? "+setSimulationState);
+
 		if(newField < p.getFieldCount())
 		{
 			setCurrentFieldID( newField );
 			currentField = p.getField(newField);
 
 			if(debugSettings.field || debugSettings.viewer)		
-				System.out.println("Set new field.. state.field:"+state.field);
+				System.out.println("viewer.setCurrentField().. after set field ID... new state.field:"+state.field+" currentField ID:"+currentField.getID()+" currentCluster:"+state.currentCluster);
 
 			if(setSimulationState)											// Set simulation state from saved
 			{
-				p.setSimulationStateFromField(p.getField(newField));
+				p.setSimulationStateFromField(p.getField(newField), false);
+//				p.setSimulationStateFromField(p.getField(newField), true);
 
 				if(debugSettings.field || debugSettings.viewer)		
-					System.out.println("After setSimulationStateFromField()... field:"+state.field);
+					System.out.println("  viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+state.field+" currentField ID:"+currentField.getID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
 			}
 			else
 				p.getCurrentField().updateAllMediaSettings();
@@ -698,6 +701,25 @@ public class WMV_Viewer
 			System.out.println("moveToTimeSegmentInField... timeline is empty!");
 		}
 	}
+	
+	public void moveToClusterOnMap( int clusterID, boolean switchTo3DView )
+	{
+		System.out.println("Moving to cluster on map:"+clusterID);
+
+		if(switchTo3DView)
+		{
+			teleportToCluster(clusterID, false, -1);
+		}
+		else
+		{
+			teleportToCluster(clusterID, true, -1);
+			p.p.display.displayView = 0;
+		}
+		
+		if(p.p.display.map2D.getSelectedClusterID() != clusterID) 
+			p.p.display.map2D.setSelectedCluster(clusterID);
+	}
+
 		
 	/**
 	 * Teleport the viewer to the given cluster ID
@@ -743,69 +765,69 @@ public class WMV_Viewer
 	{
 		if(newField >= 0)
 		{
-			boolean error = false;
 			p.stopAllVideos();
-
-			if(newField >= p.getFieldCount())
-				newField = 0;
+			if(newField >= p.getFieldCount()) newField = 0;
 			
-			PVector newLocation = new PVector(0,0,0);
-			if(moveToFirstTimeSegment)
+			if(debugSettings.viewer)
+				System.out.println("teleportToField()... newField: "+newField+" out of "+p.getFieldCount());
+
+			if(p.getField(newField).getClusters().size() > 0)
 			{
-				WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
-				if(goalSegment != null)
+				if(moveToFirstTimeSegment)
 				{
-					state.teleportGoalCluster = goalSegment.getClusterID();
-					newLocation = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();
+					WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
+					if(goalSegment != null)
+						state.teleportGoalCluster = goalSegment.getClusterID();
+					else
+						System.out.println("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
 				}
 				else
 				{
-					error = true;
-					System.out.println("p.getField("+newField+").getTimeline().getLower() returns null!!");
+					state.teleportGoalCluster = -1;
+					System.out.println("teleportToField()... Not moving to first time segment: will setCurrentCluster to "+state.teleportGoalCluster);
 				}
-			}
-			else
-			{
-				newLocation = new PVector(0,0,0);
-				System.out.println("Will setCurrentCluster to 0:"+state.teleportGoalCluster);
-			}
 
-			if(debugSettings.viewer)
-				System.out.println("teleportToField()... newField: "+newField+" out of "+p.getFieldCount()+" to cluster: "+state.teleportGoalCluster+" out of "+p.getField(newField).getClusters().size());
-
-			if(!error)
-			{
-				if(p.getField(newField).getClusters().size() > 0)
+				if(fade)
 				{
-					state.teleportGoal = newLocation;
-					if(fade)
+					if(state.teleportGoalCluster >= 0 && state.teleportGoalCluster < p.getField(newField).getClusters().size())
+						state.teleportGoal = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();	 // Set goal cluster 
+					else
+						if(debugSettings.viewer) System.out.println("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
+					
+					if(debugSettings.viewer) System.out.println("  teleportToField()...  Teleported to field "+state.teleportToField+" moveToFirstTimeSegment?"+moveToFirstTimeSegment+" state.teleportGoal:"+state.teleportGoal);
+					startTeleport(newField);
+				}
+				else
+				{
+					enterField(newField); 
+
+					if(moveToFirstTimeSegment) 
 					{
-						startTeleport(newField);
+						WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
+						if(goalSegment != null)
+						{
+							state.teleportGoalCluster = goalSegment.getClusterID();
+							if(state.teleportGoalCluster >= 0 && state.teleportGoalCluster < p.getField(newField).getClusters().size())
+								state.teleportGoal = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();
+							else
+								if(debugSettings.viewer) System.out.println("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
+						}
+						else
+							System.out.println("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
+//						System.out.println("  teleportToField()...  Teleported to field "+state.teleportToField+"... will teleport to new location:"+state.teleportGoal+"...");
+
+						setCurrentCluster( state.teleportGoalCluster, goalSegment.getFieldTimelineID() );
+//						System.out.println("  teleportToField()...  Will set location to state.teleportGoal:"+state.teleportGoal+"...");
+						setLocation(state.teleportGoal);															// Set location
 					}
 					else
 					{
-						enterField(newField); 
-
-						if(moveToFirstTimeSegment)
-						{
-							WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
-							setCurrentCluster( state.teleportGoalCluster, goalSegment.getFieldTimelineID() );
-						}
-						else
-						{
-							state.teleportGoalCluster = -1;
-							setCurrentCluster( 0, -1 );
-						}
-
-						setLocation(newLocation);			// Set location
-
-						if(debugSettings.viewer) System.out.println(" Teleported to field "+state.teleportToField+"...");
+						if(debugSettings.viewer)
+							System.out.println("  teleportToField()...  not moving to first time segment.. will set location to state.currentCluster:"+state.currentCluster+"...");
+						state.teleportGoalCluster = state.currentCluster;
+						setLocation( p.getCurrentCluster().getLocation() );					// Set location to current cluster
+						setCurrentCluster( 0, -1 );
 					}
-				}
-				else
-				{
-					error = true;
-					System.out.println("This field has no clusters!");
 				}
 			}
 		}
@@ -1550,7 +1572,7 @@ public class WMV_Viewer
 			state.location = getLocation();										// Update to precise camera location
 		}
 		
-		if(debugSettings.viewer) System.out.println("setLocation()... "+newLocation);
+		if(debugSettings.viewer) System.out.println("setLocation() to "+newLocation);
 	}
 
 	/**
@@ -2291,7 +2313,7 @@ public class WMV_Viewer
 				}
 			}
 
-			state.location.add(state.velocity);				// Add velocity to location
+			state.location.add(state.velocity);			// Add velocity to location
 			setLocation(state.location);				// Move camera
 		}
 
@@ -3941,7 +3963,7 @@ public class WMV_Viewer
 			c = p.getCurrentCluster();
 			
 			if(debugSettings.viewer) 
-				System.out.println("---> Set new cluster to: "+newCluster+" newFieldTimeSegment:"+newFieldTimeSegment+" getLocation():"+getLocation());
+				System.out.println("viewer.setCurrentCluster() to "+newCluster+" at field time segment "+newFieldTimeSegment+"  cluster location:"+c.getLocation()+" viewer location:"+getLocation());
 			
 			if(c != null)
 			{
@@ -3954,7 +3976,6 @@ public class WMV_Viewer
 					{
 						if(c.getTimeline() != null)
 						{
-//							if(t.equals(f.getTimeSegmentInCluster(c.getID(), 0)))			// Compare cluster time segment to field time segment
 							if(t.getFieldTimelineID() == f.getTimeSegmentInCluster(c.getID(), 0).getFieldTimelineID())			// Compare cluster time segment to field time segment
 								setCurrentFieldTimeSegment(t.getFieldTimelineID(), true);
 						}
@@ -3974,7 +3995,10 @@ public class WMV_Viewer
 			{
 				if(debugSettings.viewer) System.out.println("New current cluster is null!");
 			}
-			
+		}
+		else
+		{
+			if(debugSettings.viewer) System.out.println("New cluster "+newCluster+" is invalid!");
 		}
 	}
 

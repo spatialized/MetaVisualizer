@@ -1007,7 +1007,7 @@ public class MultimediaLocator extends PApplet
 				performanceSlow = false;
 		}
 	}
-	
+
 	/**
 	 * Set window resolution and graphics mode
 	 */

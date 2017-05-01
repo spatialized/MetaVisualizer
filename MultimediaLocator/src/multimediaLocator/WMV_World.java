@@ -722,18 +722,34 @@ public class WMV_World
 		return curField;
 	}
 
-	void setSimulationStateFromField(WMV_Field field)
+	/**
+	 * Set world and viewer states from saved data in given field
+	 * @param field Given field
+	 */
+	void setSimulationStateFromField(WMV_Field field, boolean moveToCurrentCluster)
 	{
+		if(p.debugSettings.main)
+			System.out.println("setSimulationStateFromField()... Field #"+field.getID());
+
 		setState(field.getWorldState());
 		setSettings(field.getWorldSettings());
 		viewer.setState(field.getViewerState());
 		viewer.setSettings(field.getViewerSettings());
 		
+		if(moveToCurrentCluster)
+		{
+			if(p.debugSettings.viewer || p.debugSettings.field)
+				System.out.println("setSimulationStateFromField()... moving to current cluster at "+getCurrentCluster().getLocation()+" before:"+viewer.getLocation());
+			viewer.setLocation(getCurrentCluster().getLocation());					// Set location to current cluster
+			if(p.debugSettings.viewer || p.debugSettings.field)
+				System.out.println("  setSimulationStateFromField()... after:"+viewer.getLocation());
+		}
+
 		state.frameCount = p.frameCount;
 		viewer.setFrameCount(p.frameCount);
+		
 		if(field.getID() < fields.size())
 		{
-//			System.out.println("Will set viewer current field ID to:"+field.getID()+" fields.size():"+fields.size());
 			viewer.setCurrentFieldID(field.getID());
 		}
 		else
@@ -742,29 +758,30 @@ public class WMV_World
 			{
 				field.setID(0);
 				viewer.setCurrentFieldID(0);
-//				if(p.debugSettings.main) System.out.println("Loading single field of a library... set field ID to:"+field.getID()+" fields.size():"+fields.size());
 			}
 			else
 			{
-				System.out.println("Error in setting field ID... field.getID():"+field.getID()+" fields.size():"+fields.size());
+				System.out.println("  Error in setting field ID... field.getID():"+field.getID()+" fields.size():"+fields.size());
 				p.exit();
 			}
 		}
 
+//		if(saveViewerLocation)
+//			viewer.setLocation( viewerLocation );
+		
 		viewer.resetTimeState();
 
 		/* Check world and viewer state/settings */
-		if(p.debugSettings.main)
-			System.out.println("Set Simulation State from Field #"+field.getID());
-		
 		if(p.debugSettings.main && p.debugSettings.detailed)
 		{
 			if(state != null) System.out.println("WorldState exists...");
 			if(settings != null) System.out.println("WorldSettings exists...");
 			if(viewer.getState() != null) System.out.println("ViewerState exists...");
 			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
-			System.out.println("Viewer.state.currentCluster:"+viewer.getState().currentCluster+" out of: "+getCurrentField().getClusters().size());
 		}
+		
+		if(p.debugSettings.main || p.debugSettings.viewer)
+			System.out.println("  setSimulationStateFromField()... currentCluster:"+getCurrentCluster()+" current location:"+viewer.getLocation());
 		
 		updateState();
 		getCurrentField().updateAllMediaSettings();

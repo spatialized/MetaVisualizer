@@ -314,7 +314,8 @@ class WMV_MetadataLoader
 		}
 		else
 		{
-			System.out.println("setSoundGPSLocations()... No GPS tracks in field #"+f.getID());
+			if(debugSettings.metadata)
+				System.out.println("setSoundGPSLocations()... No GPS tracks in field #"+f.getID());
 		}
 	}
 	

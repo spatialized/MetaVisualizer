@@ -294,13 +294,13 @@ public class WMV_Field
 
 			model.setup(images, panoramas, videos, sounds); 						// Initialize field for first time 
 
-			calculateMediaLocations(); 				// Set location of each photo in simulation
+			calculateMediaLocations(false); 		// Set location of each media in simulation, excluding sounds
 
 //			detectMultipleFields();					// Run clustering on capture locations to detect multiple fields
 //			divideField(3000.f, 15000.f);			
 
 			findVideoPlaceholders();				// Find image place holders for videos
-			calculateMediaVertices();				// Calculate all image vertices
+			calculateMediaVertices();				// Calculate vertices for all visual media
 		}
 		else
 		{
@@ -310,31 +310,31 @@ public class WMV_Field
 		return true;
 	}
 	
+	/**
+	 * Group media into spatial and temporal points of interest
+	 */
 	public void organize()
 	{
-//			setSoundLocations(this, state.gpsTracks);
-			if(debugSettings.field) System.out.println("Will run initial clustering for field #"+state.id+"...");
+			if(debugSettings.field) System.out.println("Running initial clustering for field #"+state.id+"...");
 			boolean hierarchical = false;			// Whether to use hierarchical clustering
 			if(model.getState().validMedia < model.getState().hierarchicalMaxMedia) 
 				hierarchical = true;
 			
-			runInitialClustering(hierarchical);		// Find media clusters
+			runInitialClustering(hierarchical);		// Find media spatial clusters (points of interest)
 //			model.findDuplicateClusterMedia();		// Find media in more than one cluster
 
-			if(worldState.lockMediaToClusters)					// Center media capture locations at associated cluster locations
-				lockMediaToClusters();	
+			if(worldState.lockMediaToClusters)					
+				lockMediaToClusters();				// Center media capture locations at associated cluster locations
 
 			if( worldSettings.getTimeZonesFromGoogle ) 
 				getTimeZoneFromGoogle();				// Get time zone for field from Google Time Zone API
 
 			calculateBorderPoints();					// Calculate border points for field, used in Library View
 
-			if(debugSettings.field) System.out.println("Will create timeline and dateline for field #"+state.id+"...");
 			createTimeline();							// Create date-independent timeline for field
 			createDateline();							// Create field dateline
 			createTimelines();							// Create date-specific timelines for field
-			analyzeClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
-
+			findClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 			if(debugSettings.field) System.out.println("Finished initializing field #"+state.id+"..."+state.name);
 	}
 	
@@ -343,16 +343,19 @@ public class WMV_Field
 	 */
 	public void setSoundLocations()
 	{
-		System.out.println("---> setSoundLocations()...");
+		if(debugSettings.sound) System.out.println("---> setSoundLocations()...");
 		for(WMV_Sound snd : sounds)
 		{
-			System.out.println( "  model.getState().highLongitude:"+model.getState().highLongitude+"  model.getState().highAltitude:"+model.getState().highAltitude+
-					   			"  model.getState().highLatitude:"+model.getState().highLatitude );
+			if(debugSettings.sound) 
+				System.out.println( "  model.getState().highLongitude:"+model.getState().highLongitude+"  model.getState().highAltitude:"+model.getState().highAltitude+"  model.getState().highLatitude:"+model.getState().highLatitude );
 			snd.calculateCaptureLocation(model);
-			System.out.println("  snd.getGPSLocation().x:"+snd.getGPSLocation().x+"  snd.getGPSLocation().y:"+snd.getGPSLocation().y+
-							   "  snd.getGPSLocation().z:"+snd.getGPSLocation().z);
-			System.out.println("  snd.getCaptureLocation().x:"+snd.getCaptureLocation().x+"  snd.getCaptureLocation().y:"+snd.getCaptureLocation().y+
-						       "  snd.getCaptureLocation().z:"+snd.getCaptureLocation().z);
+			if(debugSettings.sound) 
+			{
+				System.out.println("  snd.getGPSLocation().x:"+snd.getGPSLocation().x+"  snd.getGPSLocation().y:"+snd.getGPSLocation().y+
+								   "  snd.getGPSLocation().z:"+snd.getGPSLocation().z);
+				System.out.println("  snd.getCaptureLocation().x:"+snd.getCaptureLocation().x+"  snd.getCaptureLocation().y:"+snd.getCaptureLocation().y+
+							       "  snd.getCaptureLocation().z:"+snd.getCaptureLocation().z);
+			}
 			snd.setLocation(snd.getCaptureLocation());
 		}
 	}
@@ -391,13 +394,13 @@ public class WMV_Field
 	}
 
 	/**
-	 * Analyze cluster media directions
+	 * Find cluster media directions; set thinning visibility for each rectangular media object
 	 */
-	public void analyzeClusterMediaDirections()
+	public void findClusterMediaDirections()
 	{
 		for(WMV_Cluster c : getClusters())
 			if(!c.isEmpty())
-				c.analyzeMediaDirections(images, videos);
+				c.findMediaDirections(images, videos);
 	}
 
 	/**
@@ -411,8 +414,9 @@ public class WMV_Field
 
 	/**
 	 * Calculate location of each media file in virtual space from GPS, orientation metadata
+	 * @param inclSounds Whether to include sounds
 	 */
-	public void calculateMediaLocations() 
+	public void calculateMediaLocations(boolean inclSounds) 
 	{
 		if(debugSettings.field) System.out.println("Calculating image locations...");
 
@@ -422,8 +426,9 @@ public class WMV_Field
 			panoramas.get(i).calculateCaptureLocation(model);
 		for (int i = 0; i < videos.size(); i++)
 			videos.get(i).calculateCaptureLocation(model);
-//		for (int i = 0; i < sounds.size(); i++)
-//			sounds.get(i).calculateCaptureLocation(model);
+		if(inclSounds)
+			for (int i = 0; i < sounds.size(); i++)
+				sounds.get(i).calculateCaptureLocation(model);
 	}
 
 	/**
@@ -443,13 +448,15 @@ public class WMV_Field
 		if(debugSettings.main || debugSettings.field) System.out.println("Initializing clusters...");
 
 		markEmptyClusters();							/* Mark clusters with no media as empty */
-		
 		if(mergeClusters) clusters = mergeAdjacentClusters( clusters, model.getState().minClusterDistance );	/* Merge clusters */
 
 		createClusterModels();							/* Create cluster models */
 		setClusterTimes();								/* Set cluster times */
+		findClusterMediaSegments();						/* Find cluster media segments */
+		
 		verifyField();									/* Verify field */
 		setClusters( cleanupClusters() );				/* Cleanup clusters */
+		if(debugSettings.main || debugSettings.field) System.out.println("Finished cluster setup...");
 	}
 
 	/**
@@ -506,6 +513,21 @@ public class WMV_Field
 					v.setClusterDates(c);
 				}
 
+//				c.findMediaSegments(images);
+			}
+		}
+	}
+	
+	/**
+	 * Determine media segments (groups) by orientation within each cluster 
+	 */
+	private void findClusterMediaSegments()
+	{
+		if(debugSettings.main || debugSettings.field) System.out.println("Finding cluster media segments...");
+		for(WMV_Cluster c : clusters)
+		{
+			if(!c.isEmpty())
+			{
 				c.findMediaSegments(images);
 			}
 		}
@@ -1233,57 +1255,60 @@ public class WMV_Field
 
 		if(debugSettings.main || debugSettings.field) System.out.println("Merging adjacent clusters...  Start count:"+clusterList.size());
 
-		for( WMV_Cluster c : clusterList )					// Find distances of close neighbors to each cluster
+		/* Find distances of close neighbors for each cluster */
+		for( WMV_Cluster c : clusterList )					
 		{
 			closeNeighbors[c.getID()] = new IntList();	// Initialize list for this cluster
 			for( WMV_Cluster d : clusterList )
 			{
-				float dist = PVector.dist(c.getLocation(), d.getLocation());			// Get distance between clusters
-				if(dist < minClusterDistance)								// If less than minimum distance
-					closeNeighbors[c.getID()].append(d.getID());		// Add d to closest clusters to c
+				float dist = PVector.dist(c.getLocation(), d.getLocation());		// Get distance between clusters
+				if(dist < minClusterDistance)										// If less than minimum distance
+					closeNeighbors[c.getID()].append(d.getID());					// Add d to closest clusters to c
 			}
 		}
 
-		int count = 0;
-		for( WMV_Cluster c : clusterList )					// Find distances of close neighbors for each cluster
-		{
-			if(count < clusterList.size() * firstMergePct )		// Fill array with initial clusters 
-			{
-				mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
-			}
-			else
-			{
-				boolean larger = false;
-				for(PVector v : mostNeighbors)
-				{
-					float numCloseNeighbors = closeNeighbors[c.getID()].size();
-					if( v.y > numCloseNeighbors ) larger = true;					// 
-				}
+//		int count = 0;
+//		for( WMV_Cluster c : clusterList )					
+//		{
+//			if(count < clusterList.size() * firstMergePct )		// Fill array with initial clusters 
+//			{
+//				mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
+//			}
+//			else
+//			{
+//				boolean larger = false;
+//				for(PVector v : mostNeighbors)
+//				{
+//					float numCloseNeighbors = closeNeighbors[c.getID()].size();
+//					if( v.y > numCloseNeighbors ) larger = true;					// 
+//				}
+//
+//				if(larger)
+//				{
+//					int smallestIdx = -1;							// Index in mostNeighbors array of cluster with smallest distance
+//					float smallest = 10000.f;						// Smallest distance
+//
+//					for(int i = 0; i<mostNeighbors.size(); i++)		// Find smallest to remove
+//					{
+//						PVector v = mostNeighbors.get(i);
+//
+//						if(v.y < smallest)
+//						{
+//							smallestIdx = i;
+//							smallest = v.y;
+//						}
+//					}
+//					
+//					mostNeighbors.remove( smallestIdx );
+//					mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
+//				}
+//			}
+//
+//			count++;
+//		}		
 
-				if(larger)
-				{
-					int smallestIdx = -1;							// Index in mostNeighbors array of cluster with smallest distance
-					float smallest = 10000.f;						// Smallest distance
-
-					for(int i = 0; i<mostNeighbors.size(); i++)			// Find smallest to remove
-					{
-						PVector v = mostNeighbors.get(i);
-
-						if(v.y < smallest)
-						{
-							smallestIdx = i;
-							smallest = v.y;
-						}
-					}
-					mostNeighbors.remove( smallestIdx );
-					mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
-				}
-			}
-
-			count++;
-		}		
-
-		for( WMV_Cluster c : clusterList )					// Merge remaining clusters under minClusterDistance 
+		/* Merge remaining clusters under minimum cluster distance */
+		for( WMV_Cluster c : clusterList )					
 		{
 			if(!merged.contains(c.getID()))
 			{
@@ -1308,8 +1333,8 @@ public class WMV_Field
 
 		if(debugSettings.field) System.out.println("Merged Clusters..."+mergedClusters);
 
+		/* Add clusters not absorbed to new cluster list */
 		ArrayList<WMV_Cluster> newList = new ArrayList<WMV_Cluster>();
-
 		for(WMV_Cluster c : clusterList)
 			if(!absorbed.contains(c.getID()))
 				newList.add(c);
@@ -2525,8 +2550,6 @@ public class WMV_Field
 			{
 				for(WMV_Date d : c.getDateline())
 				{
-//					if(d.dateTime == null)
-//						System.out.println("  d.dateTime == null"+" timeInitialized? "+d.timeInitialized);
 					if(d.timeInitialized == false)
 						System.out.println("  timeInitialized == "+d.timeInitialized+" d.dateTime == null?"+(d.dateTime == null));
 					if(d.dateTimeString == null)

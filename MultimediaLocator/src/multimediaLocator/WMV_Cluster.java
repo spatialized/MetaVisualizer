@@ -611,7 +611,7 @@ public class WMV_Cluster
 	 * @param imageList Image list
 	 * @param videoList Video list
 	 */
-	public void analyzeMediaDirections(ArrayList<WMV_Image> imageList, ArrayList<WMV_Video> videoList)
+	public void findMediaDirections(ArrayList<WMV_Image> imageList, ArrayList<WMV_Video> videoList)
 	{
 		float thinningAngle = viewerSettings.thinningAngle;									// Angle to thin images and videos by
 		int numPerimeterPts = Math.round((float)Math.PI * 2.f / thinningAngle);		// Number of points on perimeter == number of images visible
@@ -1605,6 +1605,9 @@ public class WMV_Cluster
 		return result;
 	}
 	
+	/**
+	 * @return Number of media in cluster
+	 */
 	public int getMediaCount()
 	{
 		int count = state.images.size() + state.videos.size() + state.panoramas.size() + state.sounds.size();

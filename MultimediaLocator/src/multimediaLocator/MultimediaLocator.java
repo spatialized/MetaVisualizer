@@ -259,43 +259,6 @@ public class MultimediaLocator extends PApplet
 				world.state.hierarchical = f.initialize(-100000L);
 				metadata.setSoundGPSLocations(f, f.getSounds());
 				f.setSoundLocations();
-				
-//				 for (WMV_Sound s : f.getSounds()) 									// Update model after setting sound locations from it  -- Better way?
-//				 {
-//					 WMV_ModelState state = f.getModel().getState();
-//					 if (s.getMediaState().gpsLocation.x > state.highLongitude)
-//						 state.highLongitude = s.getMediaState().gpsLocation.x;
-//					 if (s.getMediaState().gpsLocation.x < state.lowLongitude)
-//						 state.lowLongitude = s.getMediaState().gpsLocation.x;
-//					 if (s.getMediaState().gpsLocation.y > state.highAltitude)
-//						 state.highAltitude = s.getMediaState().gpsLocation.y;
-//					 if (s.getMediaState().gpsLocation.y < state.lowAltitude)
-//						 state.lowAltitude = s.getMediaState().gpsLocation.y;
-//					 if (s.getMediaState().gpsLocation.z > state.highLatitude)
-//						 state.highLatitude = s.getMediaState().gpsLocation.z;
-//					 if (s.getMediaState().gpsLocation.z < state.lowLatitude)
-//						 state.lowLatitude = s.getMediaState().gpsLocation.z;
-//				 }
-
-				/* Testing */
-				for(WMV_Sound s : f.getSounds())
-				{
-					if(s.getGPSLocation() == null)
-						System.out.println("  Sound #"+s.getID()+" GPS location is null!!!");
-					else
-						System.out.println("  Sound #"+s.getID()+" GPS location:"+s.getGPSLocation());
-					
-					if(s.getCaptureLocation() == null)
-						System.out.println("  Sound #"+s.getID()+" capture location is null!!!");
-					else
-						System.out.println("  Sound #"+s.getID()+" capture location:"+s.getCaptureLocation());
-					
-					if(s.getLocation() == null)
-						System.out.println("  Sound #"+s.getID()+" location is null!!!");
-					else
-						System.out.println("  Sound #"+s.getID()+" location:"+s.getLocation());
-				}
-
 				f.organize();
 			}
 

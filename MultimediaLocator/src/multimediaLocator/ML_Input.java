@@ -99,7 +99,7 @@ public class ML_Input
 			if(display.window.setupModelWindow)
 			{
 				world.settings.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
-				world.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+				world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
 				world.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
 				world.getCurrentField().createClusters();				// Recalculate cluster locations
 			}
@@ -805,14 +805,14 @@ public class ML_Input
 				{
 					if(ml.world.viewer.getThinningAngle() > PApplet.PI / 64.f)
 						ml.world.viewer.setThinningAngle( ml.world.viewer.getThinningAngle() - PApplet.PI / 128.f );
-					ml.world.getCurrentField().analyzeClusterMediaDirections();
+					ml.world.getCurrentField().findClusterMediaDirections();
 				}
 
 				if (optionKey && key == ']')
 				{
 					if(ml.world.viewer.getThinningAngle() < ml.world.viewer.getVisibleAngle() - PApplet.PI / 128.f)
 						ml.world.viewer.setThinningAngle(ml.world.viewer.getThinningAngle() + PApplet.PI / 128.f);
-					ml.world.getCurrentField().analyzeClusterMediaDirections();
+					ml.world.getCurrentField().findClusterMediaDirections();
 				}
 
 				if (optionKey && key == '\\')
@@ -910,7 +910,7 @@ public class ML_Input
 				if (!optionKey && key == ']') {
 					float value = ml.world.settings.altitudeScalingFactor * 1.052f;
 					ml.world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
-					ml.world.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+					ml.world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
 					ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
 					ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
 				}
@@ -918,7 +918,7 @@ public class ML_Input
 				if (!optionKey && key == '[') {
 					float value = ml.world.settings.altitudeScalingFactor *= 0.95f;
 					ml.world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
-					ml.world.getCurrentField().calculateMediaLocations();		// Recalculate media locations
+					ml.world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
 					ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
 					ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
 				}

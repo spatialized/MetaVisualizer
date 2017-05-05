@@ -229,7 +229,6 @@ public class WMV_Model
 		 if(debugSettings.field) System.out.println("Calculating field dimensions...");
 
 		 boolean init = true;	
-		 System.out.println("0   state.highLongitude:"+state.highLongitude);
 
 		 for (WMV_Image i : images) 
 		 {
@@ -237,7 +236,6 @@ public class WMV_Model
 			 {	
 				 state.highLongitude = i.getMediaState().gpsLocation.x;
 				 state.lowLongitude = i.getMediaState().gpsLocation.x;
-				 System.out.println("0.5   state.highLongitude:"+state.highLongitude);
 			 }
 			 if (init) 	// Initialize high and low latitude
 			 {	

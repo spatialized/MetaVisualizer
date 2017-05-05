@@ -113,10 +113,10 @@ class WMV_MetadataLoader
 		if(dataFilesValidFormat)
 		{
 			WMV_FieldState newFieldState = ml.library.loadFieldState(dataFiles[1].getAbsolutePath());
-			WMV_ViewerSettings newViewerSettings = ml.library.loadViewerSettings(dataFiles[5].getAbsolutePath());
-			WMV_ViewerState newViewerState = ml.library.loadViewerState(dataFiles[6].getAbsolutePath());
-			WMV_WorldSettings newWorldSettings = ml.library.loadWorldSettings(dataFiles[7].getAbsolutePath());
-			WMV_WorldState newWorldState = ml.library.loadWorldState(dataFiles[8].getAbsolutePath());
+			WMV_ViewerSettings newViewerSettings = ml.library.loadViewerSettings(dataFiles[6].getAbsolutePath());
+			WMV_ViewerState newViewerState = ml.library.loadViewerState(dataFiles[7].getAbsolutePath());
+			WMV_WorldSettings newWorldSettings = ml.library.loadWorldSettings(dataFiles[8].getAbsolutePath());
+			WMV_WorldState newWorldState = ml.library.loadWorldState(dataFiles[9].getAbsolutePath());
 
 			WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
 					newViewerState, newWorldSettings, newWorldState );
@@ -284,12 +284,15 @@ class WMV_MetadataLoader
 	{
 		ArrayList<ArrayList<WMV_Waypoint>> tracks = new ArrayList<ArrayList<WMV_Waypoint>>();
 		
-		System.out.println("loadGPSTracks()... Count:"+files.length);
-		for(File file : files)
+		if(files != null)
 		{
-			System.out.println("  Loading next GPS track...");
-			ArrayList<WMV_Waypoint> gpsTrack = loadGPSTrack(f, file, ml.world.settings); 
-			tracks.add(gpsTrack);
+			for(File file : files)
+			{
+				System.out.println("loadGPSTracks()... Count:"+files.length);
+				System.out.println("  Loading next GPS track...");
+				ArrayList<WMV_Waypoint> gpsTrack = loadGPSTrack(f, file, ml.world.settings); 
+				tracks.add(gpsTrack);
+			}
 		}
 		return tracks;
 	}
@@ -301,10 +304,17 @@ class WMV_MetadataLoader
 	 */
 	public void setSoundGPSLocations(WMV_Field f, ArrayList<WMV_Sound> soundList)
 	{
-		for(ArrayList<WMV_Waypoint> track : f.getState().gpsTracks)
+		if(f.getState().gpsTracks != null)
 		{
-			System.out.println("  Setting sound locations from track...");
-			ml.world.utilities.setSoundGPSLocationsFromGPSTrack(f.getSounds(), track);
+			for(ArrayList<WMV_Waypoint> track : f.getState().gpsTracks)
+			{
+				System.out.println("  Setting sound locations from track...");
+				ml.world.utilities.setSoundGPSLocationsFromGPSTrack(f.getSounds(), track);
+			}
+		}
+		else
+		{
+			System.out.println("setSoundGPSLocations()... No GPS tracks in field #"+f.getID());
 		}
 	}
 	
@@ -337,6 +347,7 @@ class WMV_MetadataLoader
 				System.out.println("Data Files[6]:" + dataFiles[6].getName());
 				System.out.println("Data Files[7]:" + dataFiles[7].getName());
 				System.out.println("Data Files[8]:" + dataFiles[8].getName());
+				System.out.println("Data Files[9]:" + dataFiles[9].getName());
 			}
 
 			if(dataFiles != null && dataFiles.length > 0)
@@ -353,6 +364,7 @@ class WMV_MetadataLoader
 					dataFiles[++idx].getName().equals("ml_library_fieldState.json") &&
 					dataFiles[++idx].getName().equals("ml_library_imageStates") &&
 					dataFiles[++idx].getName().equals("ml_library_panoramaStates") &&
+					dataFiles[++idx].getName().equals("ml_library_soundStates") &&
 					dataFiles[++idx].getName().equals("ml_library_videoStates") &&
 					dataFiles[++idx].getName().equals("ml_library_viewerSettings.json") &&
 					dataFiles[++idx].getName().equals("ml_library_viewerState.json") &&

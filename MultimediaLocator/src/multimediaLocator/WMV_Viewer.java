@@ -1597,8 +1597,6 @@ public class WMV_Viewer
 			camera.jump(newLocation.x, newLocation.y, newLocation.z);
 			state.location = getLocation();										// Update to precise camera location
 		}
-		
-		if(debugSettings.viewer) System.out.println("setLocation() to "+newLocation);
 	}
 
 	/**

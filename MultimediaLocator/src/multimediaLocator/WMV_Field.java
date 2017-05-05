@@ -3149,7 +3149,7 @@ public class WMV_Field
 
 	public void setGPSTracks(ArrayList<ArrayList<WMV_Waypoint>> newGPSTracks)
 	{
-		state.gpsTracks = newGPSTracks;
+		if(newGPSTracks != null) state.gpsTracks = newGPSTracks;
 	}
 	
 	public void setName(String newName)

@@ -260,70 +260,6 @@ public class WMV_World
 		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
 	}
 
-	/**
-	 * Begin cycle in Media Time Mode
-	 */
-	void startMediaTimeModeCycle()
-	{
-		setMediaTimeModeCurrentMedia(0);
-	}
-	
-	/**
-	 * Set current visible media in Media Time Mode
-	 * @param timeSegmentIndex
-	 */
-	void setMediaTimeModeCurrentMedia(int timeSegmentIndex)
-	{
-		viewer.setCurrentMedia( timeSegmentIndex );
-		if(viewer.getNearbyClusterTimeline().size() > 0)
-		{
-			WMV_Time time = viewer.getNearbyTimeByIndex(timeSegmentIndex);
-			
-			if(time != null)
-			{
-				int curMediaID = time.getID();
-				int curMediaType = time.getMediaType();
-
-				switch(curMediaType)
-				{
-				case 0:
-					WMV_Image i = getCurrentField().getImage(curMediaID);
-					i.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(state.currentTime);
-					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
-					if(viewer.lookAtCurrentMedia())
-						viewer.lookAtMedia(i.getID(), 0);
-					break;
-				case 1:
-					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
-					n.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(state.currentTime);
-					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
-//					viewer.lookAtMedia(n.getID(), 1);
-					break;
-				case 2:	
-					WMV_Video v = getCurrentField().getVideo(curMediaID);
-					v.getMediaState().isCurrentMedia = true;
-					viewer.setCurrentMediaStartTime(state.currentTime);
-					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
-					if(viewer.lookAtCurrentMedia())
-						viewer.lookAtMedia(v.getID(), 2);
-					break;
-//				case 3:	
-//					getCurrentField().sounds.get(curMediaID).currentMedia = true;
-//					viewer.nextMediaStartFrame = state.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
-//					break;
-				}
-			}
-			else
-			{
-				System.out.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timeSegmentIndex);
-			}
-		}
-		else
-			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
-	}
-	
 	public void updateAllMediaSettings()
 	{
 		WMV_Field f = getCurrentField();
@@ -1303,6 +1239,71 @@ public class WMV_World
 				settings.timeCycleLength = -1;
 		}
 	}
+
+	/**
+	 * Begin cycle in Media Time Mode
+	 */
+	void startMediaTimeModeCycle()
+	{
+		setMediaTimeModeCurrentMedia(0);
+	}
+	
+	/**
+	 * Set current visible media in Media Time Mode
+	 * @param timeSegmentIndex
+	 */
+	void setMediaTimeModeCurrentMedia(int timeSegmentIndex)
+	{
+		viewer.setCurrentMedia( timeSegmentIndex );
+		if(viewer.getNearbyClusterTimeline().size() > 0)
+		{
+			WMV_Time time = viewer.getNearbyTimeByIndex(timeSegmentIndex);
+			
+			if(time != null)
+			{
+				int curMediaID = time.getID();
+				int curMediaType = time.getMediaType();
+
+				switch(curMediaType)
+				{
+				case 0:
+					WMV_Image i = getCurrentField().getImage(curMediaID);
+					i.getMediaState().isCurrentMedia = true;
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
+					if(viewer.lookAtCurrentMedia())
+						viewer.lookAtMedia(i.getID(), 0);
+					break;
+				case 1:
+					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
+					n.getMediaState().isCurrentMedia = true;
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
+//					viewer.lookAtMedia(n.getID(), 1);
+					break;
+				case 2:	
+					WMV_Video v = getCurrentField().getVideo(curMediaID);
+					v.getMediaState().isCurrentMedia = true;
+					viewer.setCurrentMediaStartTime(state.currentTime);
+					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
+					if(viewer.lookAtCurrentMedia())
+						viewer.lookAtMedia(v.getID(), 2);
+					break;
+//				case 3:	
+//					getCurrentField().sounds.get(curMediaID).currentMedia = true;
+//					viewer.nextMediaStartFrame = state.frameCount + PApplet.round( getCurrentField().sounds.get(curMediaID).getLength() * 29.98f );
+//					break;
+				}
+			}
+			else
+			{
+				System.out.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timeSegmentIndex);
+			}
+		}
+		else
+			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
+	}
+	
 
 	/**
 	 * @param newTimeMode New time mode (0: Cluster, 1:Field, 2: (Single) Media)

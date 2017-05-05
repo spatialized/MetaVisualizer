@@ -510,8 +510,6 @@ public class ML_Library
 	 */
 	public WMV_FieldState loadFieldState(String filePath)		// Testing
 	{
-//		String filePath = filePath;
-
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
@@ -537,7 +535,7 @@ public class ML_Library
 		WMV_ClusterStateList csl = new WMV_ClusterStateList();
 		csl.clusters = new ArrayList<WMV_ClusterState>();
 
-		//		System.out.println("loadClusterStateLists... directoryPath:"+directoryPath);
+//		System.out.println("loadClusterStateLists... directoryPath:"+directoryPath);
 		if(dir.exists())
 		{
 			File[] files = dir.listFiles();

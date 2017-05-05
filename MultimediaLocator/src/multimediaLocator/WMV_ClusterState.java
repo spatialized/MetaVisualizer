@@ -36,23 +36,23 @@ public class WMV_ClusterState
 	public int timeCycleLength = 250;					// Length of main time loop in frames
 	public int timeUnitLength = 1;						// How many frames between time increments
 	public float timeInc = timeCycleLength / 30.f;			
-	public int defaultMediaLength = 125;					// Default frame length of media in time cycle
+	public int defaultMediaLength = 125;				// Default frame length of media in time cycle
 	
 	/* Physics */
-	public boolean isAttractor;					// Whether cluster is attracting viewer
-	public float clusterGravity = 0.1333f;		// Cluster gravitational pull
-	public float clusterMass = 1.5f;			// Cluster mass		-- No longer tied to value of mediaPoints
-	public float farMassFactor = 8.f;			// How much more mass to give distant attractors to speed up navigation?
+	public boolean isAttractor;							// Whether cluster is attracting viewer
+	public float clusterGravity = 0.1333f;				// Cluster gravitational pull
+	public float farMassFactor = 8.f;					// How much more mass to give distant attractors to speed up navigation?
+	public float clusterMass = 1.5f;					// Cluster mass for calculating attraction force
 
 	/* Media */
-	public List<Integer> images = new ArrayList<Integer>();
-	public List<Integer> panoramas = new ArrayList<Integer>();
-	public List<Integer> videos = new ArrayList<Integer>();
-	public List<Integer> sounds = new ArrayList<Integer>();
+	public List<Integer> images = new ArrayList<Integer>();			// List of associated image IDs
+	public List<Integer> panoramas = new ArrayList<Integer>();		// List of associated panorama IDs
+	public List<Integer> videos = new ArrayList<Integer>();			// List of associated video IDs
+	public List<Integer> sounds = new ArrayList<Integer>();			// List of associated sound IDs
 	
-	public int mediaCount;								// No. of media associated with this cluster
-	private boolean hasImage = false;					// Cluster has panorama files?
-	private boolean hasPanorama = false;					// Cluster has panorama files?
+	public int mediaCount;								// Number of media associated with this cluster
+	private boolean hasImage = false;					// -- Obsolete?					
+	private boolean hasPanorama = false;				
 	private boolean hasVideo = false;
 	private boolean hasSound = false;
 	
@@ -60,8 +60,7 @@ public class WMV_ClusterState
 	public boolean selected = false;
 
 	/* Dimensions */
-	public float highLongitude, lowLongitude, highLatitude, lowLatitude, 		// - NEED TO CALCULATE!	
-			  	 highAltitude, lowAltitude;		
+	public float highLongitude, lowLongitude, highLatitude, lowLatitude, highAltitude, lowAltitude;		
 	
 	public float highTime, lowTime, highDate, lowDate;
 	public float highImageTime = -1000000, lowImageTime = 1000000, 

@@ -42,14 +42,11 @@ public class WMV_Model
 		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0 || sounds.size() > 0)
 		{
 			if(debugSettings.field) System.out.println("Initializing field model...");
-//			analyzeSpatialDimensions(images, panoramas, videos, sounds); 			// Calculate bounds of photo GPS locations
-//			analyzeTimeDimensions(images, panoramas, videos, sounds);				// Analyze media locations and times 
-			analyzeSpatialDimensions(images, panoramas, videos); 			// Calculate bounds of photo GPS locations
-			analyzeTimeDimensions(images, panoramas, videos, sounds);				// Analyze media locations and times 
+			analyzeSpatialDimensions(images, panoramas, videos); 			// Calculate bounds of media GPS locations (exclude sounds since field model is used to set their locations)
+			analyzeTimeDimensions(images, panoramas, videos, sounds);		// Analyze media locations and times 
 
 			float midLongitude = (state.highLongitude - state.lowLongitude) / 2.f;
 			float midLatitude = (state.highLatitude - state.lowLatitude) / 2.f;
-
 
 			/* Calculate number of valid media points */
 			state.validImages = images.size();
@@ -273,8 +270,6 @@ public class WMV_Model
 				 state.lowLatitude = i.getMediaState().gpsLocation.z;
 		 }
 		 
-		 System.out.println("1   state.highLongitude:"+state.highLongitude);
-
 		 for (WMV_Panorama n : panoramas) 				
 		 {
 			 if (n.getMediaState().gpsLocation.x > state.highLongitude)
@@ -290,7 +285,6 @@ public class WMV_Model
 			 if (n.getMediaState().gpsLocation.z < state.lowLatitude)
 				 state.lowLatitude = n.getMediaState().gpsLocation.z;
 		 }
-		 System.out.println("2   state.highLongitude:"+state.highLongitude);
 
 		 for (WMV_Video v : videos) 						
 		 {
@@ -307,7 +301,6 @@ public class WMV_Model
 			 if (v.getMediaState().gpsLocation.z < state.lowLatitude)
 				 state.lowLatitude = v.getMediaState().gpsLocation.z;
 		 }
-		 System.out.println("3   state.highLongitude:"+state.highLongitude);
 	 
 //		 for (WMV_Sound s : sounds) 							
 //		 {

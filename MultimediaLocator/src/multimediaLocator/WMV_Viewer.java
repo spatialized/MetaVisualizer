@@ -96,6 +96,18 @@ public class WMV_Viewer
 		state.clustersVisible = new ArrayList<Integer>();
 	}
 	
+	/**
+	 * Send the 3D camera view to the screen
+	 */
+	public void show()
+	{
+		camera.feed();						
+	}
+
+	/**
+	 * Set viewer state
+	 * @param newState New viewer state
+	 */
 	public void setState(WMV_ViewerState newState)
 	{
 		state = newState;
@@ -103,6 +115,10 @@ public class WMV_Viewer
 		setTarget(state.target);					// Update the camera target
 	}
 	
+	/**
+	 * Set viewer settings
+	 * @param newSettings New viewer settings
+	 */
 	public void setSettings(WMV_ViewerSettings newSettings)
 	{
 		settings = newSettings;
@@ -203,14 +219,6 @@ public class WMV_Viewer
 		}
 		
 		if(settings.orientationMode) updateOrientationMode();
-	}
-	
-	/**
-	 * Send the 3D camera view to the screen
-	 */
-	public void show()
-	{
-		camera.feed();						
 	}
 	
 	/**
@@ -2986,7 +2994,7 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Follow current GPS track
+	 * Follow GPS track
 	 */
 	public void followGPSTrack()
 	{
@@ -3074,11 +3082,13 @@ public class WMV_Viewer
 			return false;
 		
 		boolean imagesVisible = false;
-		ArrayList<WMV_Image> closeImages = new ArrayList<WMV_Image>();		// List of images in range
+		ArrayList<WMV_Image> closeImages = new ArrayList<WMV_Image>();				// List of images in range
 		boolean panoramasVisible = false;
-		ArrayList<WMV_Panorama> closePanoramas = new ArrayList<WMV_Panorama>();		// List of images in range
+		ArrayList<WMV_Panorama> closePanoramas = new ArrayList<WMV_Panorama>();		// List of panoramas in range
 		boolean videosVisible = false;
-		ArrayList<WMV_Video> closeVideos = new ArrayList<WMV_Video>();		// List of images in range
+		ArrayList<WMV_Video> closeVideos = new ArrayList<WMV_Video>();				// List of videos in range
+		boolean soundsVisible = false;
+		ArrayList<WMV_Sound> closeSounds = new ArrayList<WMV_Sound>();				// List of sounds in range
 		
 		float result;
 		
@@ -3088,8 +3098,8 @@ public class WMV_Viewer
 			for( int id : cluster.getState().images )
 			{
 				WMV_Image i = currentField.getImage(id);
-				if(i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() 
-				&& i.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
+				if( i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() && 
+				    i.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
 					if(!i.getMediaState().disabled)
 						closeImages.add(i);							
@@ -3099,8 +3109,8 @@ public class WMV_Viewer
 			for( int id : cluster.getState().panoramas )
 			{
 				WMV_Panorama n = currentField.getPanorama(id);
-				if(n.getViewingDistance() < settings.farViewingDistance + worldSettings.defaultFocusDistance 
-						&& n.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
+				if( n.getCaptureDistance() < settings.farViewingDistance + worldSettings.defaultFocusDistance &&
+				    n.getCaptureDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 				{
 					if(!n.getMediaState().disabled)
 						closePanoramas.add(n);							
@@ -3117,12 +3127,32 @@ public class WMV_Viewer
 						closeVideos.add(v);							
 				}
 			}
+
+			for( int id : cluster.getState().sounds )
+			{
+				WMV_Sound s = currentField.getSound(id);
+				if(s.getCaptureDistance() <= settings.farViewingDistance + worldSettings.defaultFocusDistance &&
+				   s.getCaptureDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
+				{
+					if(!s.getMediaState().disabled)
+						closeSounds.add(s);							
+				}
+			}
 		}
-		
+
+		int visPanoramas = closePanoramas.size();
+		int visSounds = closeSounds.size();
+
 		if(closePanoramas.size() > 0)
 		{
 			panoramasVisible = true;
-			return true;
+//			return true;
+		}
+
+		if(closeSounds.size() > 0)
+		{
+			soundsVisible = true;
+//			return true;
 		}
 
 		int visImages = 0;
@@ -3189,9 +3219,9 @@ public class WMV_Viewer
 		}
 		
 		if(threshold == 1)
-			return imagesVisible || panoramasVisible || videosVisible;
+			return imagesVisible || panoramasVisible || videosVisible || soundsVisible;
 		else
-			return (visImages + visVideos) >= threshold;
+			return (visImages + visPanoramas + visVideos + visSounds) >= threshold;
 	}
 		
 	/**
@@ -3201,7 +3231,7 @@ public class WMV_Viewer
 	{
 		if(!state.teleporting && !state.walking && state.velocity.mag() == 0.f)		// Only record points when stationary
 		{
-			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation(), null);				// -- Calculate time instead of null!!
+			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation(), null, false);				// -- Must calculate time instead of null!!
 			curWaypoint.setTarget(getOrientation());
 			curWaypoint.setID(state.currentCluster);						// Need to make sure camera is at current cluster!
 			
@@ -3209,14 +3239,12 @@ public class WMV_Viewer
 				memory.remove(0);
 				
 			memory.add(curWaypoint);
-			
 			if(debugSettings.viewer) System.out.println("Added point to memory... "+curWaypoint.getLocation()+" Path length:"+memory.size());
 		}
 		else if(debugSettings.viewer) System.out.println("Couldn't add memory point... walking? "+state.walking+" teleporting?"+state.teleporting+" velocity.mag():"+state.velocity.mag());
 	}
 	
 	/**
-	 * clearMemory()
 	 * Clear the current memory
 	 */
 	public void clearMemory()
@@ -3245,8 +3273,7 @@ public class WMV_Viewer
 		int newDate = 0;
 		if(ignoreDate)
 		{
-			if(debugSettings.viewer)
-				System.out.println("Moving to first time segment on any date");
+			if(debugSettings.viewer) System.out.println("Moving to first time segment on any date");
 			moveToTimeSegmentInField(currentField.getID(), 0, true, true);		// Move to first time segment in field
 			return true;
 		}		
@@ -3269,8 +3296,7 @@ public class WMV_Viewer
 			}
 			if(success)
 			{
-				if(debugSettings.viewer)
-					System.out.println("Moving to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
+				if(debugSettings.viewer) System.out.println("Moving to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
 				int curFieldTimeSegment = currentField.getTimeSegmentOnDate(state.currentFieldTimeSegmentOnDate, state.currentFieldDate).getFieldTimelineID();
 				moveToTimeSegmentInField(currentField.getID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
 			}
@@ -3280,7 +3306,11 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * Act on the image or video in front of camera. In Selection Mode, selects or deselects the media file.
+	 * Act on the media object (image or video) in front of camera. 				// -- Update to include panoramas + sounds
+	 * @param select Whether to select media object
+	 * 
+	 * Note:
+	 * In Selection Mode, selects or deselects the media file.
 	 * In Normal Mode, starts or stops a video, but has no effect on an image.
 	 */
 	public void chooseMediaInFront(boolean select) 
@@ -3398,27 +3428,6 @@ public class WMV_Viewer
 			if(debugSettings.viewer) 
 				System.out.println("Video is "+(v.isPlaying()?"playing":"not playing: ")+v.getID());
 		}
-	}
-	
-	/**
-	 * Get nearby time by timeline index 
-	 * @param timeSegmentIndex
-	 * @return
-	 */
-	public WMV_Time getNearbyTimeByIndex(int timeSegmentIndex)
-	{
-		WMV_Time time = null;
-
-		for(WMV_TimeSegment ts : nearbyClusterTimeline)
-		{
-			if(ts.getFieldTimelineID() == timeSegmentIndex)
-			{
-				time = ts.getTimeline().get(0);
-				return time;
-			}
-		}
-		
-		return time;
 	}
 
 	/**
@@ -3549,7 +3558,27 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * @return Image closest to directly in front of the camera
+	 * Get nearby time by timeline index 
+	 * @param timeSegmentIndex Index to find
+	 * @return Nearby time associated with index
+	 */
+	public WMV_Time getNearbyTimeByIndex(int timeSegmentIndex)
+	{
+		WMV_Time time = null;
+		for(WMV_TimeSegment ts : nearbyClusterTimeline)
+		{
+			if(ts.getFieldTimelineID() == timeSegmentIndex)
+			{
+				time = ts.getTimeline().get(0);
+				return time;
+			}
+		}
+		return time;
+	}
+
+	/**
+	 * Get ID of closest image in front of viewer
+	 * @return ID of image closest to viewer in front
 	 */
 	public int getFrontImage() {
 		float smallest = 100000.f;
@@ -3571,7 +3600,8 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * @return Image nearest to the camera in any direction
+	 * Get ID of image nearest to the viewer in any direction
+	 * @return Nearest image ID
 	 */
 	public int getNearestImage() {
 		float smallest = 100000.f;
@@ -3592,7 +3622,30 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * @return Video closest to directly in front of the camera
+	 * Get ID of panorama nearest to the viewer in any direction
+	 * @return Nearest panorama ID
+	 */
+	public int getNearestPanorama() {
+		float smallest = 100000.f;
+		int smallestIdx = 0;
+		WMV_Field f = currentField;
+
+		for (int i = 0; i < f.getPanoramas().size(); i++) {
+			if (f.getPanorama(i).getMediaState().visible) {
+				float panoramaDist = f.getPanorama(i).getCaptureDistance();
+				if (panoramaDist < smallest && panoramaDist > settings.nearClippingDistance) {
+					smallest = panoramaDist;
+					smallestIdx = i;
+				}
+			}
+		}
+
+		return smallestIdx;
+	}
+
+	/**
+	 * Get ID of closest video in front of viewer
+	 * @return ID of video closest to viewer in front
 	 */
 	public int getFrontVideo() {
 		float smallest = 100000.f;
@@ -3614,7 +3667,8 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * @return Video nearest to the camera in any direction
+	 * Get ID of video nearest to the viewer in any direction
+	 * @return Nearest video ID
 	 */
 	public int getNearestVideo() {
 		float smallest = 100000.f;
@@ -3633,7 +3687,29 @@ public class WMV_Viewer
 
 		return smallestIdx;
 	}
-	
+
+	/**
+	 * Get ID of sound nearest to the viewer in any direction
+	 * @return Nearest sound ID
+	 */
+	public int getNearestSound() {
+		float smallest = 100000.f;
+		int smallestIdx = 0;
+		WMV_Field f = currentField;
+
+		for (int i = 0; i < f.getSounds().size(); i++) {
+			if (f.getSound(i).getMediaState().visible) {
+				float soundDist = f.getSound(i).getCaptureDistance();
+				if (soundDist < smallest && soundDist > settings.nearClippingDistance) {
+					smallest = soundDist;
+					smallestIdx = i;
+				}
+			}
+		}
+
+		return smallestIdx;
+	}
+
 	/**
 	 * Open dialog to select GPS track file
 	 */
@@ -3643,193 +3719,6 @@ public class WMV_Viewer
 		p.p.selectInput("Select a GPS Track:", "gpsTrackSelected");
 	}
 
-	/**
-	 * Load and analyze GPS track file in response to user selection
-	 * @param selectedFile Selected GPS track file
-	 */
-	public void loadGPSTrack(File selectedFile) 
-	{
-		if (selectedFile == null) 
-		{
-			System.out.println("loadGPSTrack() window was closed or the user hit cancel.");
-		} 
-		else 
-		{
-			String input = selectedFile.getPath();
-
-			if(debugSettings.viewer)
-				System.out.println("User selected GPS Track: " + input);
-
-			state.gpsTrackName = input;
-			
-			try
-			{
-				String[] parts = state.gpsTrackName.split("/");
-				String fileName = parts[parts.length-1];
-				
-				parts = fileName.split("\\.");
-
-				if(parts[parts.length-1].equals("gpx"))				// Check that it's a GPX file
-				{
-					state.gpsTrackFile = new File(state.gpsTrackName);
-					state.gpsTrackSelected = true;
-				}
-				else
-				{
-					state.gpsTrackSelected = false;
-					System.out.println("Bad GPS Track.. doesn't end in .GPX!:"+input);
-				}
-			}
-			catch (Throwable t)
-			{
-				System.out.println("loadGPSTrack() Error... Throwable: "+t);
-			}
-		}
-
-		if(state.gpsTrackSelected)
-		{
-			analyzeGPSTrack();
-			getSoundLocationsFromGPSTrack();
-		}
-	}
-
-	/**
-	 * Analyze current GPS track
-	 */
-	public void analyzeGPSTrack()
-	{
-		try {
-			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(state.gpsTrackFile);
-
-			//http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
-			doc.getDocumentElement().normalize();
-
-			System.out.println("\nAnalyzing GPS Track:"+state.gpsTrackName);
-			System.out.println("Root Node:" + doc.getDocumentElement().getNodeName());
-			System.out.println("----");
-
-			NodeList allNodes = doc.getElementsByTagName("*");
-			
-			int len;
-			int count = 0;
-			
-			len = allNodes.getLength();
-			
-			for (int h=0; h < 5; h++)												// Iterate through each item in .gpx XML file
-			{
-				Element e;
-				e = (Element)allNodes.item(h);								// Location
-				System.out.println("Node "+h+" is "+e.getTagName() + ":");
-			}
-			for (int h=4; h < len; h+=3)												// Iterate through each item in .gpx XML file
-			{
-				NamedNodeMap locationNodeMap;
-				Element locationVal, elevationVal, timeVal;
-
-				locationVal = (Element)allNodes.item(h);								// Location
-				elevationVal = (Element)allNodes.item(h+1);								// Location
-				timeVal = (Element)allNodes.item(h+2);								// Location
-
-//				System.out.println("Node "+h+" Start ---> "+locationVal.getTagName() + ":");
-
-				/* Parse Location */
-				locationNodeMap = locationVal.getAttributes();
-
-				Node latitudeVal, longitudeVal;
-				latitudeVal = locationNodeMap.item(0);
-				longitudeVal = locationNodeMap.item(1);
-
-				float latitude = Float.parseFloat(latitudeVal.getNodeValue());
-				float longitude = Float.parseFloat(longitudeVal.getNodeValue());
-				float elevation = Float.parseFloat(elevationVal.getTextContent());
-
-				/* Parse Node Date */
-				String dateTimeStr = timeVal.getTextContent(); 						// Ex string: 2016-05-01T23:55:33Z
-																					// <time>2017-02-05T23:31:23Z</time>
-				String[] parts = dateTimeStr.split("T");
-				String dateStr = parts[0];			
-				String timeStr = parts[1];
-
-				parts = dateStr.split("-");
-				String yearStr, monthStr, dayStr;
-				yearStr = parts[0];
-				monthStr = parts[1];
-				dayStr = parts[2];
-				int year = Integer.parseInt(yearStr);
-				int month = Integer.parseInt(monthStr);
-				int day = Integer.parseInt(dayStr);
-
-				/* Parse Node Time */
-				parts = timeStr.split("Z");
-				timeStr = parts[0];
-
-				parts = timeStr.split(":");
-				String hourStr, minuteStr, secondStr;
-
-				hourStr = parts[0];
-				minuteStr = parts[1];
-				secondStr = parts[2];
-				int hour = Integer.parseInt(hourStr);
-				int minute = Integer.parseInt(minuteStr);
-				int second = Integer.parseInt(secondStr);
-				
-				ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of("America/Los_Angeles"));
-				WMV_Time pacTime = new WMV_Time();
-				pacTime.initialize( pac, "", count, 0, -1, currentField.getTimeZoneID() );
-
-				float newX = 0.f, newZ = 0.f, newY = 0.f;
-
-				WMV_ModelState m = currentField.getModel().getState();
-				if(m.highLongitude != -1000000 && m.lowLongitude != 1000000 && m.highLatitude != -1000000 && m.lowLatitude != 1000000 && m.highAltitude != -1000000 && m.lowAltitude != 1000000)
-				{
-					if(m.highLongitude != m.lowLongitude && m.highLatitude != m.lowLatitude)
-					{
-						newX = PApplet.map(longitude, m.lowLongitude, m.highLongitude, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth); 			// GPS longitude decreases from left to right
-						newY = -PApplet.map(elevation, m.lowAltitude, m.highAltitude, 0.f, m.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
-						newZ = PApplet.map(latitude, m.lowLatitude, m.highLatitude, 0.5f*m.fieldLength, -0.5f * m.fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
-						
-						if(worldSettings.altitudeScaling)	
-							newY *= worldSettings.altitudeScalingFactor;
-					}
-					else
-					{
-						newX = newY = newZ = 0.f;
-					}
-				}
-
-				if(debugSettings.viewer)
-				{
-					System.out.print("--> latitude:"+latitude+"  longitude:"+longitude+"  elevation:"+elevation);
-					System.out.print("newX:"+newX+"  newY:"+newY+"  newZ:"+newZ);
-					System.out.print("hour:"+hour+"  minute:"+minute+"  second:"+second);
-					System.out.print("  year:"+year+"  month:"+month+"  day:"+day);
-				}
-
-				PVector newLoc = new PVector(newX, newY, newZ);
-
-				WMV_Waypoint wp = new WMV_Waypoint(count, newLoc, pacTime);			// GPS track node as a waypoint
-				gpsTrack.add(wp);													// Add waypoint to gpsTrack
-				
-				count++;
-			}
-			if(debugSettings.viewer)
-				System.out.println("Added "+count+" nodes to gpsTrack...");
-		} 
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	void getSoundLocationsFromGPSTrack()
-	{
-		for(WMV_Sound s : currentField.getSounds())
-		{
-			s.calculateLocationFromGPSTrack(gpsTrack);
-		}
-	}
-	
 	/**
 	 * Get vector of direction of camera motion by comparing current and previous waypoints
 	 * @return Vector of direction of camera motion
@@ -3855,29 +3744,24 @@ public class WMV_Viewer
 
 
 	/**
-	 * pointsAreInList()
-	 * @param check Waypoints to check
-	 * @param memory How far back in memory to look
+	 * Check whether list waypoints are in history
+	 * @param check Waypoints to look for
+	 * @param historyDepth How far back in history to look
 	 * @return Waypoints found in history within the last <memory> waypoints
 	 */
-	public ArrayList<WMV_Waypoint> pointsAreInList(ArrayList<WMV_Waypoint> check, int memory)
+	public ArrayList<WMV_Waypoint> waypointsAreInHistory(ArrayList<WMV_Waypoint> check, int historyDepth)
 	{
 		ArrayList<WMV_Waypoint> found = new ArrayList<WMV_Waypoint>();
 		
 		for( WMV_Waypoint p : check )
 		{
-//			System.out.println("pointsAreInList()... memory:"+memory);
-
-//			for( GMV_Waypoint w : history )
-			for(int i = history.size()-1; i >= history.size()-memory; i--)		// Iterate through history from last element to 
+			for(int i = history.size()-1; i >= history.size()-historyDepth; i--)		// Iterate through history from last element to 
 			{
 				System.out.println("i:"+i);
 				WMV_Waypoint w = history.get(i);
 				
 				if(p.getLocation() == w.getLocation())
-				{
 					found.add(p);
-				}
 			}
 		}
 		
@@ -3889,7 +3773,7 @@ public class WMV_Viewer
 	 * @param memory How far back to look in memory 
 	 * @return Clusters found within the last <memory> waypoints
 	 */
-	public ArrayList<WMV_Cluster> clustersAreInList(IntList check, int memory)
+	public ArrayList<WMV_Cluster> clustersAreInHistory(IntList check, int memory)
 	{
 		ArrayList<WMV_Cluster> found = new ArrayList<WMV_Cluster>();
 		

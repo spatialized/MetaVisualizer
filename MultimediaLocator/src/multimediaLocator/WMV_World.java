@@ -545,7 +545,7 @@ public class WMV_World
 		WMV_ImageStateList isl = f.captureImageStates();
 		WMV_PanoramaStateList psl = f.capturePanoramaStates();
 		WMV_VideoStateList vsl = f.captureVideoStates();
-//		WMV_SoundStateList ssl = f.captureSoundStates();
+		WMV_SoundStateList ssl = f.captureSoundStates();
 		
 		p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
 		p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
@@ -556,6 +556,7 @@ public class WMV_World
 		p.library.saveImageStateList(isl, imageDataPath+"ml_library_imageStates.json");
 		p.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
 		p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
+		p.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
 	}
 
 
@@ -604,24 +605,28 @@ public class WMV_World
 			}
 			else
 			{
-				dataDirectory.mkdir();			// Create directory if doesn't exist
+				dataDirectory.mkdir();			// Create data directory if doesn't exist
 			}
 			
 			File clusterDirectory = new File(clusterDataPath);
 			if(!clusterDirectory.exists()) 
-				clusterDirectory.mkdir();			// Create directory if doesn't exist
+				clusterDirectory.mkdir();		// Create cluster directory if doesn't exist
 
 			File imageDirectory = new File(imageDataPath);
 			if(!imageDirectory.exists()) 
-				imageDirectory.mkdir();			// Create directory if doesn't exist
+				imageDirectory.mkdir();			// Create image directory if doesn't exist
 
 			File panoramaDirectory = new File(panoramaDataPath);
 			if(!panoramaDirectory.exists()) 
-				panoramaDirectory.mkdir();			// Create directory if doesn't exist
+				panoramaDirectory.mkdir();		// Create panorama directory if doesn't exist
 
 			File videoDirectory = new File(videoDataPath);
 			if(!videoDirectory.exists()) 
-				videoDirectory.mkdir();			// Create directory if doesn't exist
+				videoDirectory.mkdir();			// Create video directory if doesn't exist
+
+			File soundDirectory = new File(soundDataPath);
+			if(!soundDirectory.exists()) 
+				soundDirectory.mkdir();			// Create sound directory if doesn't exist
 
 			if(p.debugSettings.main) PApplet.println("Saving Simulation State to: "+folderPath);
 			
@@ -631,7 +636,7 @@ public class WMV_World
 			WMV_ImageStateList isl = f.captureImageStates();
 			WMV_PanoramaStateList psl = f.capturePanoramaStates();
 			WMV_VideoStateList vsl = f.captureVideoStates();
-//			WMV_SoundStateList ssl = f.captureSoundStates();
+			WMV_SoundStateList ssl = f.captureSoundStates();
 
 			p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
 			p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
@@ -642,6 +647,7 @@ public class WMV_World
 			p.library.saveImageStateList(isl, imageDataPath+"ml_library_imageStates.json");
 			p.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
 			p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
+			p.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
 			
 			if(p.debugSettings.main) System.out.println("Saved simulation state for field #"+f.getID());
 		}
@@ -764,9 +770,6 @@ public class WMV_World
 			}
 		}
 
-//		if(saveViewerLocation)
-//			viewer.setLocation( viewerLocation );
-		
 		viewer.resetTimeState();
 
 		/* Check world and viewer state/settings */
@@ -797,40 +800,16 @@ public class WMV_World
 		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
 		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
 		String videoDataPath = dataFolderPath + "ml_library_videoStates/";
-//		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
+		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
 
 		WMV_ClusterStateList csl = p.library.loadClusterStateLists(clusterDataPath);
-		
-//		for(WMV_ClusterState cs : csl.clusters)
-//		{
-//			if(cs.dateline != null)
-//			{
-//				for(WMV_Date d : cs.dateline)
-//				{
-//					if(d.dateTime == null)
-//						System.out.println("d.dateTime == null!");
-//				}
-//			}
-//			else
-//				System.out.println("cs.dateline == null!");
-//			if(cs.timeline != null)
-//			{
-//			}
-//			else
-//				System.out.println("cs.timeline == null!");
-//			if(cs.timelines != null)
-//			{
-//			}
-//			else
-//				System.out.println("cs.timelines == null!");
-//		}
 		
 		WMV_ImageStateList isl = p.library.loadImageStateLists(imageDataPath);
 		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
 		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
-//		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
+		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
 
-		field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl);
+		field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl, ssl);
 		return field;
 	}
 
@@ -1283,7 +1262,7 @@ public class WMV_World
 				for(WMV_Video v: c.getVideos( getCurrentField().getVideos()) )
 					settings.timeCycleLength += PApplet.round( v.getLength() * 29.98f );		// Add videos' actual (approx.) lengths
 //				for(WMV_Sound s: c.getSounds( getCurrentField().getSounds() )
-//					settings.timeCycleLength += PApplet.round( s.getLength() * 29.98f );		// Add sounds' actual (approx.) lengths -- Good idea??
+//					settings.timeCycleLength += PApplet.round( s.getLength() * 29.98f );		// Add sounds' actual (approx.) lengths -- Obsolete??
 			}
 			
 			if(cl.size() == 1)
@@ -1326,7 +1305,7 @@ public class WMV_World
 	}
 
 	/**
-	 * @param newTimeMode New time mode (0: Cluster, 1:Field, 2: Media)
+	 * @param newTimeMode New time mode (0: Cluster, 1:Field, 2: (Single) Media)
 	 */
 	public void setTimeMode(int newTimeMode)
 	{
@@ -1374,7 +1353,7 @@ public class WMV_World
 				c.setTimeCycleLength( newTimeCycleLength );
 
 				c.updateAllMediaSettings(getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
-						settings, state, viewer.getSettings(), viewer.getState());
+						getCurrentField().getSounds(), settings, state, viewer.getSettings(), viewer.getState());
 			}
 		}
 	}

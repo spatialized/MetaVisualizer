@@ -34,7 +34,7 @@ public abstract class WMV_Media
 	public WMV_Time time;
 
 	/**
-	 * Constructor for abstract 3D media object
+	 * Constructor for abstract media object
 	 * @param newID Media ID
 	 * @param newMediaType Media type ID
 	 * @param newName File name
@@ -751,6 +751,11 @@ public abstract class WMV_Media
 	public void setFadedOut(boolean newState)
 	{
 		mState.fadedOut = newState;
+	}
+	
+	public void setGPSLocation(PVector newGPSLocation)
+	{
+		mState.gpsLocation = newGPSLocation;
 	}
 	
 	public boolean isFadingIn()

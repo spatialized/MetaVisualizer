@@ -38,28 +38,31 @@ class WMV_MetadataLoader
 	public String panoramaFolder = "";
 	public String videoFolder = "", smallVideoFolder = "";				// File path for media folders
 	public String soundFolder = "";
+	public String gpsTrackFolder = "";
 	public String dataFolder = "";
 	
 	public File imageFolderFile = null, smallImageFolderFile = null, panoramaFolderFile = null, // Folders containing the media 
-				videoFolderFile = null, soundFolderFile = null, dataFolderFile = null;
+				videoFolderFile = null, soundFolderFile = null, gpsTrackFolderFile = null, dataFolderFile = null;
 	
 	public boolean imageFolderFound = false, smallImageFolderFound = false;
 	public boolean panoramaFolderFound = false;
 	public boolean videoFolderFound = false; 	
-	public boolean soundFolderFound = false; 	
+	public boolean soundFolderFound = false;
+	public boolean gpsTrackFolderFound = false;
 	public boolean dataFolderFound = false; 	
 	
 	public File[] smallImageFiles = null, imageFiles = null, panoramaFiles = null, // Temp arrays to store media files
-				  videoFiles = null, soundFiles = null, dataFiles = null;								
+				  videoFiles = null, soundFiles = null, gpsTrackFiles = null, dataFiles = null;								
 
 	public boolean smallImageFilesFound = false;
 	public boolean imageFilesFound = false;
 	public boolean panoramaFilesFound = false;
 	public boolean videoFilesFound = false;
 	public boolean soundFilesFound = false;
+	public boolean gpsTrackFilesFound = false;
 	private boolean dataFilesValidFormat = false;
 
-	int iCount = 0, pCount = 0, vCount = 0;							// Media count by type 
+	int iCount = 0, pCount = 0, vCount = 0, sCount;							// Media count by type 
 	public File exifToolFile;										// File for ExifTool executable
 
 	MultimediaLocator ml;
@@ -94,13 +97,16 @@ class WMV_MetadataLoader
 
 		loadImageFolders(fieldPath); 	// Load image + panorama folder(s)
 		if(panoramaFolderFound) loadPanoramas(fieldPath);
-		loadImages(fieldPath);		// Load image + panorama file names
+		loadImages(fieldPath);			// Load image + panorama file names
 
 		loadVideoFolder(fieldPath); 	// Load video folder
-		loadVideos(fieldPath);		// Load video file names
+		loadVideos(fieldPath);			// Load video file names
 
 		loadSoundFolder(fieldPath); 	// Load sound folder
 		loadSoundFiles(fieldPath);		// Load sound file names
+
+		loadGPSTrackFolder(fieldPath); 	// Load GPS track folder
+		loadGPSTrackFiles(fieldPath); 		// Load GPS track files
 
 		loadDataFolder(fieldPath);		// Load media data from disk
 
@@ -123,13 +129,67 @@ class WMV_MetadataLoader
 			pCount = 0;
 			vCount = 0;
 
-			if(smallImageFilesFound) loadImagesMetadata(f, smallImageFiles);						// Load image metadata 
-			if(panoramaFilesFound) loadImagesMetadata(f, panoramaFiles); 						    // Load panorama metadata
-			if(videoFilesFound) loadVideosMetadata(f, videoFiles);	 	 							// Load video metadata 
-			if(soundFilesFound) loadSounds(f, soundFiles);				 							// Load sound file names 
+			if(smallImageFilesFound) loadImages(f, smallImageFiles);						// Load image metadata 
+			if(panoramaFilesFound) loadImages(f, panoramaFiles); 						    // Load panorama metadata
+			if(videoFilesFound) loadVideos(f, videoFiles);	 	 							// Load video metadata 
+			if(soundFilesFound) loadSounds(f, soundFiles);				 					// Load sound file metadata
+			if(gpsTrackFilesFound) 
+				f.setGPSTracks( loadGPSTracks(f, gpsTrackFiles) );							// Load GPS tracks 
 		}
 
 		return null;
+	}
+
+	/**
+	 * Load and analyze GPS track file in response to user selection
+	 * @param newTrackFile GPS track file
+	 */
+	public ArrayList<WMV_Waypoint> loadGPSTrack(WMV_Field f, File newTrackFile, WMV_WorldSettings worldSettings) 
+	{
+		File gpsTrackFile = null;
+		String gpsTrackName = "";
+		boolean valid = false;
+		if (newTrackFile == null) 
+		{
+			System.out.println("loadGPSTrack() window was closed or the user hit cancel.");
+		} 
+		else 
+		{
+			String input = newTrackFile.getPath();
+			gpsTrackName = input;
+
+			if(debugSettings.metadata) System.out.println("User selected GPS Track: " + input);
+			
+			try
+			{
+				String[] parts = gpsTrackName.split("/");
+				String fileName = parts[parts.length-1];
+				
+				parts = fileName.split("\\.");
+
+				if(parts[parts.length-1].equals("gpx"))				// Check that it's a GPX file
+				{
+					gpsTrackFile = new File(gpsTrackName);
+					valid = true;
+				}
+				else
+				{
+					valid = false;
+					System.out.println("Bad GPS Track.. doesn't end in .GPX!:"+input);
+				}
+			}
+			catch (Throwable t)
+			{
+				System.out.println("loadGPSTrack() Error... Throwable: "+t);
+			}
+		}
+		
+		if(valid)
+		{
+			return ml.world.utilities.getGPSTrackFromFile(f, gpsTrackFile, worldSettings);
+		}
+		else 
+			return null;
 	}
 
 	/**
@@ -170,6 +230,14 @@ class WMV_MetadataLoader
 	/**
 	 * Load metadata for folder of videos
 	 */
+	public void loadGPSTrackFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	{
+		gpsTrackFolder = library  + "/" + fieldPath + "/gps_tracks/";		// Max width 720 pixels  -- Check this!
+	}
+	
+	/**
+	 * Load metadata for folder of videos
+	 */
 	public void loadSoundFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
 		soundFolderFile = new File(soundFolder);
@@ -189,6 +257,60 @@ class WMV_MetadataLoader
 	
 	/**
 	 * Load metadata for folder of videos
+	 */
+	public void loadGPSTrackFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	{
+		gpsTrackFolderFile = new File(gpsTrackFolder);
+		gpsTrackFolderFound = (gpsTrackFolderFile.exists() && gpsTrackFolderFile.isDirectory());	
+		gpsTrackFiles = null;
+
+		if(gpsTrackFolderFound)				// Check for sound files
+		{
+			gpsTrackFiles = gpsTrackFolderFile.listFiles();
+			if(gpsTrackFiles != null && gpsTrackFiles.length > 0)
+				gpsTrackFilesFound = true;
+		}
+		
+		if (debugSettings.main)
+			System.out.println("GPS Track Folder:" + gpsTrackFolder);
+	}
+	
+	/**
+	 * Load GPS tracks from disk and determine locations for sounds in field
+	 * @param f Field
+	 * @param files Array of GPS track files
+	 */
+	public ArrayList<ArrayList<WMV_Waypoint>> loadGPSTracks(WMV_Field f, File[] files)
+	{
+		ArrayList<ArrayList<WMV_Waypoint>> tracks = new ArrayList<ArrayList<WMV_Waypoint>>();
+		
+		System.out.println("loadGPSTracks()... Count:"+files.length);
+		for(File file : files)
+		{
+			System.out.println("  Loading next GPS track...");
+			ArrayList<WMV_Waypoint> gpsTrack = loadGPSTrack(f, file, ml.world.settings); 
+			tracks.add(gpsTrack);
+		}
+		return tracks;
+	}
+	
+	/**
+	 * Set field sound locations from loaded GPS tracks 
+	 * @param f Field to load sound locations for
+	 * @param soundList Sound list
+	 */
+	public void setSoundGPSLocations(WMV_Field f, ArrayList<WMV_Sound> soundList)
+	{
+		for(ArrayList<WMV_Waypoint> track : f.getState().gpsTracks)
+		{
+			System.out.println("  Setting sound locations from track...");
+			ml.world.utilities.setSoundGPSLocationsFromGPSTrack(f.getSounds(), track);
+		}
+	}
+	
+	/**
+	 * Load metadata for folder of videos
+	 * @param fieldPath Path to field folder
 	 */
 	public void loadDataFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
@@ -246,13 +368,10 @@ class WMV_MetadataLoader
 		}
 	}
 	
-	public void loadPanoramas(String fieldPath)
-	{
-		panoramaFiles = panoramaFolderFile.listFiles();
-		if(panoramaFiles != null && panoramaFiles.length > 0)
-			panoramaFilesFound = true;	
-	}
-	
+	/**
+	 * Load image files
+	 * @param fieldPath Field folder path
+	 */
 	public void loadImages(String fieldPath)
 	{
 		smallImageFiles = null;
@@ -316,7 +435,19 @@ class WMV_MetadataLoader
 	}
 
 	/**
-	 * Load metadata for folder of videos
+	 * Load panorama files
+	 * @param fieldPath Field folder path
+	 */
+	public void loadPanoramas(String fieldPath)
+	{
+		panoramaFiles = panoramaFolderFile.listFiles();
+		if(panoramaFiles != null && panoramaFiles.length > 0)
+			panoramaFilesFound = true;	
+	}
+	
+	/**
+	 * Load video files
+	 * @param fieldPath Field folder path
 	 */
 	public void loadVideos(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
@@ -338,54 +469,64 @@ class WMV_MetadataLoader
 	 */
 	public boolean loadSounds(WMV_Field f, File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
 	{
-		int count = 0;
-		
-		/* -- Should calculate time / date at least here */
-		
-		if(files != null)
-		{
-			for(File file : files)
-			{
-				String sName = "";
-				sName = file.getName();
-
-				String sFilePath = file.getPath();
-				Path path = FileSystems.getDefault().getPath(sFilePath);
-
-				if(!file.getName().equals(".DS_Store"))
-				{
-					try
-					{
-						if(debugSettings.sound || debugSettings.metadata) System.out.println("Loading sound:"+sFilePath);
-
-						BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-						FileTime creationTime = attr.creationTime();
-						if(ml.debugSettings.sound || ml.debugSettings.metadata)
-							System.out.println("file: "+file.getName()+" creationTime: "+creationTime);
-						ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
-
-						WMV_SoundMetadata sMetadata = new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, "",
-								ml.world.getCurrentField().getTimeZoneID(), null );				// Dummy sound metadata object
-						f.addSound( new WMV_Sound (count, 3, sMetadata) );
-					}
-					catch(Throwable t)
-					{
-						System.out.println("Throwable in loadSounds()... "+t);
-					}
-				}
-				count++;
-			}
-
-			return true;
-		}
+		int fileCount;
+		if(files != null) fileCount = files.length;	 		// File count
 		else return false;
+
+		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
+			addSoundToField(f, files[currentMedia]);
+		
+		return true;
+		
+//		if(files != null)
+//		{
+//			for(File file : files)
+//			{
+//				addSoundToField(f, file);
+//			}
+//
+//			return true;
+//		}
+//		else 
+//			return false;
+	}
+	
+	public WMV_SoundMetadata loadSoundMetadata(WMV_Field f, File file, String fieldTimeZoneID)
+	{
+		String sName = file.getName();
+		String sFilePath = file.getPath();
+		Path path = FileSystems.getDefault().getPath(sFilePath);
+
+		if(!file.getName().equals(".DS_Store"))
+		{
+			try
+			{
+				if(debugSettings.sound || debugSettings.metadata) System.out.println("Loading sound:"+sFilePath);
+
+				BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
+				FileTime creationTime = attr.creationTime();
+				if(ml.debugSettings.sound || ml.debugSettings.metadata)
+					System.out.println("file: "+file.getName()+" creationTime: "+creationTime);
+				ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
+				String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundTime);		// 2016:04:10 17:52:39
+				
+				return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, soundDateTimeString, fieldTimeZoneID, null );				
+			}
+			catch(Throwable t)
+			{
+				System.out.println("Throwable in loadSounds()... "+t);
+			}
+		}
+		
+		return null;
 	}
 	
 	/** 
-	 * Read metadata tags from image / panorama files and add 3D media objects to field
+	 * Read metadata tags from image and panorama files and add 3D media objects to field
+	 * @param f Field to load images and panoramas into
 	 * @param files File array
 	 */
-	public boolean loadImagesMetadata(WMV_Field f, File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	public boolean loadImages(WMV_Field f, File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
 	{
 		int fileCount;
 		if(files != null) 
@@ -408,9 +549,10 @@ class WMV_MetadataLoader
 	
 	/** 
 	 * Read metadata tags from video files and add 3D video objects to field
+	 * @param f Field to load videos into
 	 * @param files File array
 	 */
-	public boolean loadVideosMetadata(WMV_Field f, File[] files) 
+	public boolean loadVideos(WMV_Field f, File[] files) 
 	{
 		int fileCount;
 		if(files != null)
@@ -434,9 +576,14 @@ class WMV_MetadataLoader
 		try 
 		{
 			WMV_ImageMetadata iMetadata = loadImageMetadata(file, f.getTimeZoneID());
-			PImage pImg = ml.createImage(0, 0, processing.core.PConstants.RGB);
-			f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata ) );
-			iCount++;
+			if(iMetadata.isValid())
+			{
+				PImage pImg = ml.createImage(0, 0, processing.core.PConstants.RGB);
+				f.addImage( new WMV_Image(iCount, pImg, 0, iMetadata ) );
+				iCount++;
+			}
+			else
+				System.out.println("Invalid image metadata!  Image:"+iMetadata.name);
 
 		}
 		catch (RuntimeException ex) {
@@ -487,6 +634,30 @@ class WMV_MetadataLoader
 	}
 
 	/**
+	 * Load metadata and add 3D video object to field
+	 * @param f Field to add video to
+	 * @param file Video file
+	 */
+	public void addSoundToField(WMV_Field f, File file)
+	{
+		try 
+		{
+			WMV_SoundMetadata sMetadata = loadSoundMetadata(f, file, f.getTimeZoneID());
+//			Movie pMov = new Movie(ml, sMetadata.filePath);
+//			WMV_SoundMetadata sMetadata = new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, "",
+//			ml.world.getCurrentField().getTimeZoneID(), null );				
+			f.addSound( new WMV_Sound (sCount, 3, sMetadata) );
+			sCount++;
+		}
+		catch (Throwable t) {
+			if (debugSettings.metadata)
+			{
+				System.out.println("Throwable while adding video to ArrayList: "+t);
+			}
+		}	
+	}
+
+	/**
 	 * Load image metadata from disk
 	 * @param file Image file
 	 * @param timeZoneID Image time zone
@@ -495,7 +666,7 @@ class WMV_MetadataLoader
 	public WMV_ImageMetadata loadImageMetadata(File file, String timeZoneID)
 	{
 		String sName = file.getName();
-		boolean panorama = false;
+//		boolean panorama = false;
 		boolean dataMissing = false;
 		boolean brightnessMissing = false, descriptionMissing = false;
 
@@ -1549,8 +1720,6 @@ class WMV_MetadataLoader
 
 	public ZonedDateTime parseDateTime(String input)  	// [Exif SubIFD] Date/Time Original - 2016:08:11 16:40:10
 	{		
-//		String[] parts = input.split("-");
-//		input = parts[1];
 		String[] parts = input.split(":");
 
 		int year = Integer.valueOf(parts[0].trim());
@@ -1563,18 +1732,27 @@ class WMV_MetadataLoader
 		int hour = Integer.valueOf(parts[1]);
 
 		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-
 		return pac;
 	}
 	
+	/**
+	 * Get creation time as ZonedDateTime object from timestamp
+	 * @param creationTime FileTime object
+	 * @return ZonedDateTime object
+	 */
 	private ZonedDateTime getTimeFromTimeStamp(FileTime creationTime)
 	{
 		Instant creationInstant = creationTime.toInstant();
 		ZonedDateTime mediaTime = creationInstant.atZone(ZoneId.of(ml.world.getCurrentField().getTimeZoneID()));
-
+		System.out.println("getTimeFromTimeStamp()... mediaTime.string:"+mediaTime.toString());
 		return mediaTime;
 	}
 	
+	/**
+	 * Parse keyword array
+	 * @param input Single string of keywords separated by commas
+	 * @return Array of keyword strings
+	 */
 	public String[] ParseKeywordArray(String input) 
 	{
 		String[] parts = input.split(",");

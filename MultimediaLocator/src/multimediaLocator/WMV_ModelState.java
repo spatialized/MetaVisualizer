@@ -29,7 +29,7 @@ public class WMV_ModelState
 	public long clusteringRandomSeed = (long)0.f;
 	
 	/* Media */
-	public int validImages, validPanoramas, validVideos;	// Number of valid images / number of valid videos
+	public int validImages, validPanoramas, validVideos, validSounds;	// Number of valid images / number of valid videos
 	public int validMedia;									// Total valid media count
 	public float mediaDensity;								// Number of images as a function of field area
 
@@ -44,7 +44,10 @@ public class WMV_ModelState
 	public float highPanoDate = -1000000.f, lowPanoDate = 1000000;
 	public float highVideoTime = -1000000.f, lowVideoTime = 1000000;
 	public float highVideoDate = -1000000.f, lowVideoDate = 1000000;
-	public float longestImageDayLength = -1000000.f, longestPanoDayLength = -1000000.f, longestVideoDayLength = -1000000.f;	
+	public float highSoundTime = -1000000.f, lowSoundTime = 1000000;
+	public float highSoundDate = -1000000.f, lowSoundDate = 1000000;
+	public float longestImageDayLength = -1000000.f, longestPanoDayLength = -1000000.f, longestVideoDayLength = -1000000.f,
+				 longestSoundDayLength = -1000000.f;	
 
 	/* Time */
 	public int minFrameRate = 15;

@@ -5,24 +5,37 @@ import processing.core.PVector;
 import processing.data.IntList;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
@@ -515,6 +528,51 @@ public class WMV_Utilities
 		}
 	}
 	
+	public String getMonthAsString(int month)
+	{
+		String monthStr = "";
+		switch(month)
+		{
+			case 1:
+				monthStr = "January";
+				break;
+			case 2:
+				monthStr = "February";
+				break;
+			case 3:
+				monthStr = "March";
+				break;
+			case 4:
+				monthStr = "April";
+				break;
+			case 5:
+				monthStr = "May";
+				break;
+			case 6:
+				monthStr = "June";
+				break;
+			case 7:
+				monthStr = "July";
+				break;
+			case 8:
+				monthStr = "August";
+				break;
+			case 9:
+				monthStr = "September";
+				break;
+			case 10:
+				monthStr = "October";
+				break;
+			case 11:
+				monthStr = "November";
+				break;
+			case 12:
+				monthStr = "December";
+				break;
+		}
+		return monthStr;
+	}
+	
 	/**
 	 * @return Current date in days since Jan 1, 1980
 	 */
@@ -582,13 +640,183 @@ public class WMV_Utilities
 	 */
 	public PVector getGPSLocation(WMV_Field f, PVector loc)			
 	{
-		WMV_Model m = f.getModel();
-		
-		float newX = mapValue( loc.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, m.getState().lowLongitude, m.getState().highLongitude ); 			// GPS longitude decreases from left to right
-		float newY = mapValue( loc.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, m.getState().highLatitude, m.getState().lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+		if(loc != null)
+		{
+			WMV_Model m = f.getModel();
 
-		PVector gpsLoc = new PVector(newX, newY);
-		return gpsLoc;
+			float newX = mapValue( loc.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, m.getState().lowLongitude, m.getState().highLongitude ); 			// GPS longitude decreases from left to right
+			float newY = mapValue( loc.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, m.getState().highLatitude, m.getState().lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+
+			PVector gpsLoc = new PVector(newX, newY);
+			return gpsLoc;
+		}
+		else 
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Get sound locations from GPS track
+	 */
+	public void setSoundGPSLocationsFromGPSTrack(ArrayList<WMV_Sound> soundList, ArrayList<WMV_Waypoint> gpsTrack)
+	{
+		for(WMV_Sound s : soundList)
+		{
+			s.calculateLocationFromGPSTrack(gpsTrack);
+		}
+	}
+
+	/**
+	 * Analyze current GPS track
+	 */
+	public ArrayList<WMV_Waypoint> getGPSTrackFromFile(WMV_Field currentField, File gpsTrackFile, WMV_WorldSettings worldSettings)
+	{
+		ArrayList<WMV_Waypoint> gpsTrack = new ArrayList<WMV_Waypoint>();			
+		
+		try {
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+			Document doc = dBuilder.parse(gpsTrackFile);
+
+			//http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
+			doc.getDocumentElement().normalize();
+
+//			System.out.println("\ngetGPSTrackFromFile()... Analyzing GPS Track:"+gpsTrackFile.getName());
+//			System.out.println("Root Node:" + doc.getDocumentElement().getNodeName());
+//			System.out.println("----");
+
+			NodeList allNodes = doc.getElementsByTagName("*");
+			
+			int len;
+			int count = 0;
+			
+			len = allNodes.getLength();
+			System.out.println("getGPSTrackFromFile()... ");
+			
+			for (int h=0; h < 5; h++)												// Iterate through each item in .gpx XML file
+			{
+				Element e;
+				e = (Element)allNodes.item(h);										// Location
+				System.out.println("Node "+h+" is "+e.getTagName() + ":");
+			}
+			for (int h=4; h < len; h+=3)												// Iterate through each item in .gpx XML file
+			{
+				NamedNodeMap locationNodeMap;
+				Element locationVal, elevationVal, timeVal;
+
+				locationVal = (Element)allNodes.item(h);							// Location
+				elevationVal = (Element)allNodes.item(h+1);							// Elevation
+				timeVal = (Element)allNodes.item(h+2);								// Time
+
+//				System.out.println("Node "+h+" Start ---> "+locationVal.getTagName() + ":");
+
+				/* Parse Location */
+				locationNodeMap = locationVal.getAttributes();
+
+				Node latitudeVal, longitudeVal;
+				latitudeVal = locationNodeMap.item(0);
+				longitudeVal = locationNodeMap.item(1);
+
+				float latitude = Float.parseFloat(latitudeVal.getNodeValue());
+				float longitude = Float.parseFloat(longitudeVal.getNodeValue());
+				float elevation = Float.parseFloat(elevationVal.getTextContent());
+
+				/* Parse Node Date */
+				String dateTimeStr = timeVal.getTextContent(); 						// Ex. string: 2016-05-01T23:55:33Z   <time>2017-02-05T23:31:23Z</time>
+				
+//				System.out.println("getGPSTrackFromFile()... dateTimeStr:"+dateTimeStr);
+				ZonedDateTime zoned = parseUTCDateTimeString(dateTimeStr, currentField.getTimeZoneID());
+				WMV_Time zonedTime = new WMV_Time();
+				zonedTime.initialize( zoned, "", count, 0, -1, currentField.getTimeZoneID() );
+
+//				float newX = 0.f, newZ = 0.f, newY = 0.f;
+//
+//				WMV_ModelState m = currentField.getModel().getState();
+//				if(m.highLongitude != -1000000 && m.lowLongitude != 1000000 && m.highLatitude != -1000000 && m.lowLatitude != 1000000 && m.highAltitude != -1000000 && m.lowAltitude != 1000000)
+//				{
+//					if(m.highLongitude != m.lowLongitude && m.highLatitude != m.lowLatitude)
+//					{
+//						newX = PApplet.map(longitude, m.lowLongitude, m.highLongitude, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth); 			// GPS longitude decreases from left to right
+//						newY = -PApplet.map(elevation, m.lowAltitude, m.highAltitude, 0.f, m.fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
+//						newZ = PApplet.map(latitude, m.lowLatitude, m.highLatitude, 0.5f*m.fieldLength, -0.5f * m.fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+//						
+//						if(worldSettings.altitudeScaling)	
+//							newY *= worldSettings.altitudeScalingFactor;
+//					}
+//					else
+//					{
+//						newX = newY = newZ = 0.f;
+//					}
+//				}
+
+				WMV_Waypoint wp = new WMV_Waypoint(count, new PVector(longitude, elevation, latitude), zonedTime, true);	// Convert GPS track node to Waypoint
+				gpsTrack.add(wp);																					// Add Waypoint to GPS track
+				
+				count++;
+			}
+
+//			System.out.println("Added "+count+" nodes to gpsTrack...");
+		} 
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return gpsTrack;
+	}
+	
+	/**
+	 * Parse date time string in UTC format (Ex. 2016-05-01T23:55:33Z)
+	 * @param dateTimeStr
+	 * @param zoneIDStr
+	 * @return
+	 */
+	private ZonedDateTime parseUTCDateTimeString(String dateTimeStr, String zoneIDStr)
+	{
+		String[] parts = dateTimeStr.split("T");
+		String dateStr = parts[0];			
+		String timeStr = parts[1];
+
+		parts = dateStr.split("-");
+		String yearStr, monthStr, dayStr;
+		yearStr = parts[0];
+		monthStr = parts[1];
+		dayStr = parts[2];
+		int year = Integer.parseInt(yearStr);
+		int month = Integer.parseInt(monthStr);
+		int day = Integer.parseInt(dayStr);
+
+		/* Parse Node Time */
+		parts = timeStr.split("Z");
+		timeStr = parts[0];
+
+		parts = timeStr.split(":");
+		String hourStr, minuteStr, secondStr;
+
+		hourStr = parts[0];
+		minuteStr = parts[1];
+		secondStr = parts[2];
+		int hour = Integer.parseInt(hourStr);
+		int minute = Integer.parseInt(minuteStr);
+		int second = Integer.parseInt(secondStr);
+
+
+//      public static LocalDateTime of(int year, int month, int dayOfMonth, int hour, int minute, int second, int nanoOfSecond)
+        LocalDateTime ldt = LocalDateTime.of(year, month, day, hour, minute, second);
+        ZonedDateTime utc = ldt.atZone(ZoneId.of("UTC"));
+
+//        DateTimeFormatter format = DateTimeFormatter.ofPattern("HHmm, dd MMM yyyy");
+//        System.out.println("---> parseGPSDateTimeString()...  hour:"+hour+"  minute:"+minute+"  second:"+second+"    year:"+year+"  month:"+month+"  day:"+day);
+//        System.out.println("  LocalDateTime: " + format.format(ldt));
+
+//        ZonedDateTime expected = ZonedDateTime.parse("2012-12-21T00:00:00.000Z");
+//        ZonedDateTime stored = expected.withZoneSameInstant(ZoneId.systemDefault());
+        ZonedDateTime zoned = utc.withZoneSameInstant(ZoneId.of(zoneIDStr));
+        
+//		ZonedDateTime zoned = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of(zoneIDStr));
+//        System.out.println("   zoned... zone:"+zoned.getZone()+"  hour:"+zoned.getHour()+"  minute:"+zoned.getMinute()+"  second:"+zoned.getSecond()+"     year:"+zoned.getYear()+"  month:"+zoned.getMonthValue()+"  day:"+zoned.getDayOfMonth());
+
+		return zoned;
 	}
 
 	/** 
@@ -886,7 +1114,6 @@ public class WMV_Utilities
 					else
 					{
 						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
-//						for(int i=startCount; i<=count; i++)
 						for(int i=startCount; i<count; i++)
 							tl.add(mediaTimes.get(i));
 						tl.sort(WMV_Time.WMV_SimulationTimeComparator);
@@ -899,7 +1126,6 @@ public class WMV_Utilities
 						}
 
 						segments.add(createSegment(clusterID, tl));	// Add time segment
-//						segments.add(new WMV_TimeSegment(clusterID, -1, -1, -1, -1, -1, -1, tl));
 
 						curLower = t;
 						curUpper = t;
@@ -921,7 +1147,6 @@ public class WMV_Utilities
 					if(count == mediaTimes.size() - 1)								// Reached end
 					{
 //						System.out.println("--> Same as last at end...");
-
 						ArrayList<WMV_Time> tl = new ArrayList<WMV_Time>();			// Create timeline for segment
 						for(int i=startCount; i<=count; i++)
 							tl.add(mediaTimes.get(i));
@@ -1279,6 +1504,25 @@ public class WMV_Utilities
 			return null;
 	}
 	
+	/**
+	 * Convert ZonedDateTime object to EXIF metadata-style string
+	 * @param dateTime ZonedDateTime object
+	 * @return Date/time string
+	 */
+	public String getDateTimeAsString(ZonedDateTime dateTime)
+	{
+		String result = "";				// Format: 2016:05:28 17:13:39
+		String yearStr = String.valueOf(dateTime.getYear());
+		String monthStr = String.valueOf(dateTime.getMonthValue());
+		String dayStr = String.valueOf(dateTime.getDayOfMonth());
+		String hourStr = String.valueOf(dateTime.getHour());
+		String minuteStr = String.valueOf(dateTime.getMinute());
+		String secondStr = String.valueOf(dateTime.getSecond());
+		result = yearStr + ":" + monthStr + ":" + dayStr  + " " + hourStr + ":" + minuteStr + ":" + secondStr;
+		System.out.println("getTimeStringFromDateTime()... result:"+result);
+		return result;
+	}
+	
 	public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException 
 	{
 
@@ -1294,6 +1538,12 @@ public class WMV_Utilities
 		}
 	}
 	
+	/**
+	 * Read all lines in input buffer
+	 * @param rd Reader object
+	 * @return Single string output
+	 * @throws IOException 
+	 */
 	private static String readAll(Reader rd) throws IOException 
 	{
 		StringBuilder sb = new StringBuilder();
@@ -1303,7 +1553,6 @@ public class WMV_Utilities
 		}
 		return sb.toString();
 	}
-
 	 
 //	 private PImage getDesaturated(PImage in, float amt) 
 //	 {

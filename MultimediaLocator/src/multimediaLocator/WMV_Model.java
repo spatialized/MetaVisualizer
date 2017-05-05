@@ -37,23 +37,26 @@ public class WMV_Model
 	/**
 	 * Setup virtual space based on media capture locations
 	 */
-	public void setup(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos)		
+	public void setup(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos, ArrayList<WMV_Sound> sounds)		
 	{
-		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0)
+		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0 || sounds.size() > 0)
 		{
-			calculateFieldSize(images, panoramas, videos); 		// Calculate bounds of photo GPS locations
-			analyzeMedia(images, panoramas, videos);				// Analyze media locations and times 
+			if(debugSettings.field) System.out.println("Initializing field model...");
+//			analyzeSpatialDimensions(images, panoramas, videos, sounds); 			// Calculate bounds of photo GPS locations
+//			analyzeTimeDimensions(images, panoramas, videos, sounds);				// Analyze media locations and times 
+			analyzeSpatialDimensions(images, panoramas, videos); 			// Calculate bounds of photo GPS locations
+			analyzeTimeDimensions(images, panoramas, videos, sounds);				// Analyze media locations and times 
 
 			float midLongitude = (state.highLongitude - state.lowLongitude) / 2.f;
 			float midLatitude = (state.highLatitude - state.lowLatitude) / 2.f;
 
-			if(debugSettings.field) System.out.println("Initializing field model...");
 
 			/* Calculate number of valid media points */
 			state.validImages = images.size();
 			state.validPanoramas = panoramas.size();
 			state.validVideos = videos.size();
-			state.validMedia = state.validImages + state.validPanoramas + state.validVideos;
+			state.validSounds = sounds.size();
+			state.validMedia = state.validImages + state.validPanoramas + state.validVideos + state.validSounds;
 
 			if(state.validMedia > 1)
 			{
@@ -68,31 +71,21 @@ public class WMV_Model
 				state.fieldHeight = 1000.f;
 			}
 
-			state.fieldArea = state.fieldWidth * state.fieldLength;				// Use volume instead?
-			state.mediaDensity = state.validMedia / state.fieldArea;				// Media per sq. m.
+			state.fieldArea = state.fieldWidth * state.fieldLength;				// -- Use field volume instead?
+			state.mediaDensity = state.validMedia / state.fieldArea;			// Media per sq. m.
 
-//			if(worldState.autoClusterDistances)			/* Increase maxClusterDistance as mediaDensity decreases */
-//			{
-//				state.maxClusterDistance = worldSettings.maxClusterDistanceConstant / state.mediaDensity;
-//				if(state.maxClusterDistance > state.minClusterDistance * worldSettings.maxClusterDistanceFactor)
-//					state.maxClusterDistance = state.minClusterDistance * worldSettings.maxClusterDistanceFactor;
-//			}
-//			else
-//			{
-				setMinClusterDistance(worldSettings.minClusterDistance); 				// Minimum distance between clusters, i.e. closer than which clusters are merged
-				setMaxClusterDistance(worldSettings.maxClusterDistance);				// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
-				if(debugSettings.cluster) System.out.println("autoClusterDistances... Set maxClusterDistance:"+state.maxClusterDistance);
-//			}
+			setMinClusterDistance(worldSettings.minClusterDistance); 			// Minimum distance between clusters, i.e. closer than which clusters are merged
+			setMaxClusterDistance(worldSettings.maxClusterDistance);			// Maximum distance between clusters, i.e. farther than which single image clusters are created (set based on mediaDensity)
 
-			if(state.highLongitude == -1000000 || state.lowLongitude == 1000000 || state.highLatitude == -1000000
-					|| state.lowLatitude == 1000000)			// If field dimensions aren't initialized
+			if( state.highLongitude == -1000000 || state.lowLongitude == 1000000 || state.highLatitude == -1000000
+				|| state.lowLatitude == 1000000 )			// If field dimensions aren't initialized
 			{
 				state.lowLongitude = 1000.f;
 				state.fieldLength = 1000.f;
 				state.fieldHeight = 50.f;						// Altitude already in meters
 			}
 
-			if(images.size() == 1)
+			if(state.validMedia == 1)
 			{
 				state.lowLongitude = 1000.f;
 				state.fieldLength = 1000.f;
@@ -112,21 +105,26 @@ public class WMV_Model
 			}
 		}
 		else 
-		{
 			if(debugSettings.field) 
-			{
-				System.out.println("No images loaded! Couldn't initialize field...");
-				System.out.println("panoramas.size():"+panoramas.size());
-			}
-		}
+				System.out.println("No media loaded! Couldn't initialize field...");
 	}
 
-	
+	/**
+	 * Set model state
+	 * @param newState New model state
+	 */
 	public void setState(WMV_ModelState newState)
 	{
 		state = newState;
 	}
 
+	/**
+	 * Update current world and viewer settings
+	 * @param currentWorldSettings Current world settings
+	 * @param currentWorldState Current world state
+	 * @param currentViewerSettings Current viewer settings
+	 * @param currentViewerState Current viewer state
+	 */
 	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
 						WMV_ViewerState currentViewerState )
 	{
@@ -138,9 +136,9 @@ public class WMV_Model
 
 	/**
 	 * Find duplicate media in clusters
-	 * @param clusters
+	 * @param clusters Clusters to search for duplicates
 	 */
-	void findDuplicateClusterMedia(ArrayList<WMV_Cluster> clusters)
+	public void findDuplicateClusterMedia(ArrayList<WMV_Cluster> clusters)
 	{
 		List<Integer> images = new ArrayList<Integer>();
 		int count = 0;
@@ -153,7 +151,19 @@ public class WMV_Model
 			}
 		}
 		System.out.println("Images in more than one cluster::"+count);
-		
+
+		List<Integer> panoramas = new ArrayList<Integer>();
+		count = 0;
+		for(WMV_Cluster c : clusters)
+		{
+			for(int n : c.getState().panoramas)
+			{
+				if(panoramas.contains(n)) count++;
+				else panoramas.add(n);
+			}
+		}
+		System.out.println("Panoramas in more than one cluster::"+count);
+
 		List<Integer> videos = new ArrayList<Integer>();
 		count = 0;
 		for(WMV_Cluster c : clusters)
@@ -165,13 +175,28 @@ public class WMV_Model
 			}
 		}
 		System.out.println("Videos in more than one cluster:"+count);
+		
+
+		List<Integer> sounds = new ArrayList<Integer>();
+		count = 0;
+		for(WMV_Cluster c : clusters)
+		{
+			for(int s : c.getState().sounds)
+			{
+				if(sounds.contains(s)) count++;
+				else sounds.add(s);
+			}
+		}
+		System.out.println("Sounds in more than one cluster::"+count);
 	}
 	
 	/**
-	 * @param Dendrogram depth level
-	 * @return List of dendrogram clusters at given depth level
+	 * Get list of dendrogram clusters at given depth
+	 * @param topCluster Top dendrogram cluster
+	 * @param depth Dendrogram depth level
+	 * @return List of clusters at given depth level
 	 */
-	ArrayList<Cluster> getDendrogramClusters( Cluster topCluster, int depth )
+	public ArrayList<Cluster> getDendrogramClusters( Cluster topCluster, int depth )
 	{
 		ArrayList<Cluster> clusters = (ArrayList<Cluster>) topCluster.getChildren();	// Dendrogram clusters
 
@@ -195,21 +220,27 @@ public class WMV_Model
 		return clusters;
 	}
 
-	 /**
-	  * Analyze media to determine size of the virtual space
-	  */
-	 void calculateFieldSize(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos) 
+	/**
+	 * Analyze media locations to determine dimensions of the virtual space
+	 * @param images Image list
+	 * @param panoramas Panorama list
+	 * @param videos Video list
+	 * @param sounds Sounds list
+	 */
+	 void analyzeSpatialDimensions(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos) 
 	 {
 		 if(debugSettings.field) System.out.println("Calculating field dimensions...");
 
 		 boolean init = true;	
+		 System.out.println("0   state.highLongitude:"+state.highLongitude);
 
-		 for (WMV_Image i : images) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Image i : images) 
 		 {
 			 if (init) 	// Initialize high and low longitude
 			 {	
 				 state.highLongitude = i.getMediaState().gpsLocation.x;
 				 state.lowLongitude = i.getMediaState().gpsLocation.x;
+				 System.out.println("0.5   state.highLongitude:"+state.highLongitude);
 			 }
 			 if (init) 	// Initialize high and low latitude
 			 {	
@@ -221,6 +252,11 @@ public class WMV_Model
 				 state.highAltitude = i.getMediaState().gpsLocation.y;
 				 state.lowAltitude = i.getMediaState().gpsLocation.y;
 				 init = false;
+			 }
+			 
+			 if(i.getMediaState().gpsLocation.x == 0.f)
+			 {
+				 System.out.println("ERROR:   image #"+i.getID()+" gpsLocation.x == "+i.getMediaState().gpsLocation.x+" name:"+i.getName());
 			 }
 
 			 if (i.getMediaState().gpsLocation.x > state.highLongitude)
@@ -236,8 +272,10 @@ public class WMV_Model
 			 if (i.getMediaState().gpsLocation.z < state.lowLatitude)
 				 state.lowLatitude = i.getMediaState().gpsLocation.z;
 		 }
+		 
+		 System.out.println("1   state.highLongitude:"+state.highLongitude);
 
-		 for (WMV_Panorama n : panoramas) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Panorama n : panoramas) 				
 		 {
 			 if (n.getMediaState().gpsLocation.x > state.highLongitude)
 				 state.highLongitude = n.getMediaState().gpsLocation.x;
@@ -252,8 +290,9 @@ public class WMV_Model
 			 if (n.getMediaState().gpsLocation.z < state.lowLatitude)
 				 state.lowLatitude = n.getMediaState().gpsLocation.z;
 		 }
+		 System.out.println("2   state.highLongitude:"+state.highLongitude);
 
-		 for (WMV_Video v : videos) 							// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 for (WMV_Video v : videos) 						
 		 {
 			 if (v.getMediaState().gpsLocation.x > state.highLongitude)
 				 state.highLongitude = v.getMediaState().gpsLocation.x;
@@ -268,8 +307,23 @@ public class WMV_Model
 			 if (v.getMediaState().gpsLocation.z < state.lowLatitude)
 				 state.lowLatitude = v.getMediaState().gpsLocation.z;
 		 }
-		 
-		 
+		 System.out.println("3   state.highLongitude:"+state.highLongitude);
+	 
+//		 for (WMV_Sound s : sounds) 							
+//		 {
+//			 if (s.getMediaState().gpsLocation.x > state.highLongitude)
+//				 state.highLongitude = s.getMediaState().gpsLocation.x;
+//			 if (s.getMediaState().gpsLocation.x < state.lowLongitude)
+//				 state.lowLongitude = s.getMediaState().gpsLocation.x;
+//			 if (s.getMediaState().gpsLocation.y > state.highAltitude)
+//				 state.highAltitude = s.getMediaState().gpsLocation.y;
+//			 if (s.getMediaState().gpsLocation.y < state.lowAltitude)
+//				 state.lowAltitude = s.getMediaState().gpsLocation.y;
+//			 if (s.getMediaState().gpsLocation.z > state.highLatitude)
+//				 state.highLatitude = s.getMediaState().gpsLocation.z;
+//			 if (s.getMediaState().gpsLocation.z < state.lowLatitude)
+//				 state.lowLatitude = s.getMediaState().gpsLocation.z;
+//		 }
 
 		 if (debugSettings.field) 							// Display results for debugging
 		 {
@@ -283,14 +337,19 @@ public class WMV_Model
 	 }
 
 	 /**
-	  * Analyze media locations and capture times; calculate farthest media and time / date limits
+	  * Analyze media capture times, calculate time / date limits
+	  * @param images Image list
+	  * @param panoramas Panorama list
+	  * @param videos Video list
+	  * @param sounds Sound list
 	  */
-	 public void analyzeMedia(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos) 
+	 public void analyzeTimeDimensions(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos, ArrayList<WMV_Sound> sounds) 
 	 {
 		 float longestImageDayLength = (float) -1.;			// Length of the longest day
 		 boolean initImageTime = true, initImageDate = true;
 		 boolean initPanoTime = true, initPanoDate = true;	
 		 boolean initVideoTime = true, initVideoDate = true;	
+		 boolean initSoundTime = true, initSoundDate = true;	
 
 		 if(debugSettings.field) System.out.println("Analyzing media in field...");
 
@@ -374,30 +433,65 @@ public class WMV_Model
 			 if (v.time.asDate().getDaysSince1980() < state.lowVideoDate)
 				 state.lowVideoDate = v.time.asDate().getDaysSince1980();
 		 }
+		 
+		 for ( WMV_Sound s : sounds ) 			// Iterate over videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		 {
+			 if (initSoundTime) 		// Calculate most recent and oldest video time
+			 {		
+				 state.highSoundTime = s.time.getTime();
+				 state.lowSoundTime = s.time.getTime();
+				 initSoundTime = false;
+			 }
+
+			 if (initSoundDate) 		// Calculate most recent and oldest image date
+			 {		
+				 state.highSoundDate = s.time.asDate().getDaysSince1980();
+				 state.lowSoundDate = s.time.asDate().getDaysSince1980();
+				 initSoundDate = false;
+			 }
+
+			 if (s.time.getTime() > state.highSoundTime)
+				 state.highSoundTime = s.time.getTime();
+			 if (s.time.getTime() < state.lowSoundTime)
+				 state.lowSoundTime = s.time.getTime();
+
+			 if (s.time.asDate().getDaysSince1980() > state.highSoundDate)
+				 state.highSoundDate = s.time.asDate().getDaysSince1980();
+			 if (s.time.asDate().getDaysSince1980() < state.lowSoundDate)
+				 state.lowSoundDate = s.time.asDate().getDaysSince1980();
+		 }
 
 		 state.lowTime = state.lowImageTime;
 		 if (state.lowPanoTime < state.lowTime)
 			 state.lowTime = state.lowPanoTime;
 		 if (state.lowVideoTime < state.lowTime)
 			 state.lowTime = state.lowVideoTime;
+		 if (state.lowSoundTime < state.lowTime)
+			 state.lowTime = state.lowSoundTime;
 
 		 state.highTime = state.highImageTime;
 		 if (state.highPanoTime > state.highTime)
 			 state.highTime = state.highPanoTime;
 		 if (state.highVideoTime > state.highTime)
 			 state.highTime = state.highVideoTime;
+		 if (state.highSoundTime > state.highTime)
+			 state.highTime = state.highSoundTime;
 
 		 state.lowDate = state.lowImageDate;
 		 if (state.lowPanoDate < state.lowDate)
 			 state.lowDate = state.lowPanoDate;
 		 if (state.lowVideoDate < state.lowDate)
 			 state.lowDate = state.lowVideoDate;
+		 if (state.lowSoundDate < state.lowDate)
+			 state.lowDate = state.lowSoundDate;
 
 		 state.highDate = state.highImageDate;
 		 if (state.highPanoDate > state.highDate)
 			 state.highDate = state.highPanoDate;
 		 if (state.highVideoDate > state.highDate)
 			 state.highDate = state.highVideoDate;
+		 if (state.highSoundDate > state.highDate)
+			 state.highDate = state.highSoundDate;
 
 		 if (debugSettings.metadata) 							// Display results for debugging
 		 {
@@ -407,13 +501,17 @@ public class WMV_Model
 			 if(state.highPanoDate != -1000000.f) System.out.println("High Panorama Date:" + state.highPanoDate);
 			 if(state.highVideoTime != -1000000.f) System.out.println("High Video Time:" + state.highVideoTime);
 			 if(state.highVideoDate != -1000000.f) System.out.println("High Video Date:" + state.highVideoDate);
+			 if(state.highSoundTime != -1000000.f) System.out.println("High Sound Time:" + state.highSoundTime);
+			 if(state.highSoundDate != -1000000.f) System.out.println("High Sound Date:" + state.highSoundDate);
 			 if(state.longestImageDayLength != -1000000.f) System.out.println("Longest Image Day Length:" + longestImageDayLength);
 			 if(state.longestPanoDayLength != -1000000.f) System.out.println("Longest Panorama Day Length:" + state.longestPanoDayLength);
 			 if(state.longestVideoDayLength != -1000000.f) System.out.println("Longest Video Day Length:" + state.longestVideoDayLength);
+			 if(state.longestSoundDayLength != -1000000.f) System.out.println("Longest Sound Day Length:" + state.longestSoundDayLength);
 		 }
 	 }
 
 	 /**
+	  * Calculate average of given point list
 	  * @param points List of points to average
 	  * @return Average point 
 	  */
@@ -427,16 +525,27 @@ public class WMV_Model
 		 return result;
 	 }
 
+	 /**
+	  * Set min cluster distance
+	  * @param newMinClusterDistance New min cluster distance
+	  */
 	public void setMinClusterDistance(float newMinClusterDistance)
 	{
 		state.minClusterDistance = newMinClusterDistance;	
 	}
 	
+	/**
+	 * Set max cluster distance
+	 * @param newMaxClusterDistance New max cluster distance
+	 */
 	public void setMaxClusterDistance(float newMaxClusterDistance)
 	{
 		state.maxClusterDistance = newMaxClusterDistance;	
 	}
 	
+	/**
+	 * @return Current model state
+	 */
 	public WMV_ModelState getState()
 	{
 		return state;

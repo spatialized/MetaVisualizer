@@ -16,8 +16,7 @@ public class ML_Input
 {
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
-//	public boolean commandKey = false;
-	final public int COMMAND_KEY = 157;			// -- Not reliable, change this!
+//	final public int COMMAND_KEY = 157;			// -- Not reliable, change this!
 	
 	private boolean mouseClickedRecently = false;
 	private boolean mouseReleased = false;
@@ -639,6 +638,15 @@ public class ML_Input
 				
 				if (ml.display.libraryViewMode == 0)
 				{
+					if (key == 'a') 
+						ml.display.map2D.panLeft();
+					if (key == 'd') 
+						ml.display.map2D.panRight();
+					if (key == 's') 
+						ml.display.map2D.panDown();
+					if (key == 'w') 
+						ml.display.map2D.panUp();
+					
 					if(key == PApplet.ENTER)
 					{
 						int selectedField = ml.display.map2D.getSelectedFieldID();
@@ -1380,11 +1388,11 @@ public class ML_Input
 				if (keyCode == PApplet.ALT) 
 					optionKey = true;
 				
-				if (keyCode == COMMAND_KEY) 
-				{
+//				if (keyCode == COMMAND_KEY) 
+//				{
 //					commandKey = true;
 //					System.out.println("+ commandKey set to "+commandKey + " on frame:"+frameCount);
-				}
+//				}
 			}
 		}
 	}

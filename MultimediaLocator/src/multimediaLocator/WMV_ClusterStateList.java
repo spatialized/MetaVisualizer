@@ -2,7 +2,12 @@ package multimediaLocator;
 
 import java.util.ArrayList;
 
-public class WMV_ClusterStateList {
+/**
+ * List of cluster states
+ * @author davidgordon
+ */
+public class WMV_ClusterStateList 
+{
 	public ArrayList<WMV_ClusterState> clusters;			// Clusters for exporting/importing
 
 	WMV_ClusterStateList(){}

@@ -211,9 +211,9 @@ public class ML_Library
 		return getLibraryFolder() + "/" + folders.get(fieldID) + "/data/";
 	}
 
-	public void saveWorldSettings(WMV_WorldSettings settings, String newFilePath)		
+	public void saveWorldSettings(WMV_WorldSettings settings, String filePath)		
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -227,19 +227,19 @@ public class ML_Library
 		}
 	}
 
-	public void saveWorldState(WMV_WorldState state, String newFilePath)		
+	public void saveWorldState(WMV_WorldState state, String filePath)		
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+//			file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
 			mapper.writeValue(file, state);    // Write object to file
 
-			//			WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
-			//			System.out.println("WorldStates are equal:"+ newState.equals(state));      
+//			WMV_WorldState newState = mapper.readValue(file, WMV_WorldState.class);
+//			System.out.println("WorldStates are equal:"+ newState.equals(state));      
 		}
 		catch (Throwable t)
 		{
@@ -247,9 +247,9 @@ public class ML_Library
 		}
 	}
 
-	public void saveViewerSettings(WMV_ViewerSettings settings, String newFilePath)		
+	public void saveViewerSettings(WMV_ViewerSettings settings, String filePath)		
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -263,9 +263,9 @@ public class ML_Library
 		}
 	}
 
-	public void saveViewerState(WMV_ViewerState state, String newFilePath)		// Testing
+	public void saveViewerState(WMV_ViewerState state, String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -279,23 +279,17 @@ public class ML_Library
 		}
 	}
 
-	//	public void saveFieldState(WMV_FieldState fState, String newFilePath)
-	//	{
-	////		Gson gson = new Gson();
-	////		String jsonString = gson.toJson(fState);
-	////		System.out.println(jsonString);
-	//
-	//		Type type = new TypeToken<WMV_FieldState>(){}.getType();
-	////		Type type = WMV_FieldState.class;
-	//		saveJson(fState, type, newFilePath);
-	//	}
-
-	public void saveFieldState(WMV_FieldState fState, String newFilePath)
+	/**
+	 * Save current field state
+	 * @param fState Field state 
+	 * @param filePath File path
+	 */
+	public void saveFieldState(WMV_FieldState fState, String filePath)
 	{
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			file = new File(newFilePath);
+			file = new File(filePath);
 			mapper.writeValue(file, fState);    // Write object to file
 		}
 		catch (Throwable t)
@@ -304,14 +298,14 @@ public class ML_Library
 		}
 	}
 
-	public void saveClusterStateList(WMV_ClusterStateList csl, String newFilePath)
+	public void saveClusterStateList(WMV_ClusterStateList csl, String filePath)
 	{
 		if(csl.clusters.size() <= 50)
 		{
 			final ObjectMapper mapper = JsonFactory.create();
 			final File file;
 			try {
-				file = new File(newFilePath);
+				file = new File(filePath);
 				mapper.writeValue(file, csl);    // Write object to file
 			}
 			catch (Throwable t)
@@ -338,7 +332,7 @@ public class ML_Library
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
 				try {
-					file = new File(newFilePath.replaceAll(".json", "_"+((Math.round(i/50)+1)+".json")));
+					file = new File(filePath.replaceAll(".json", "_"+((Math.round(i/50)+1)+".json")));
 					mapper.writeValue(file, tempCsl);    // Write object to file
 				}
 				catch (Throwable t)
@@ -349,14 +343,14 @@ public class ML_Library
 		}
 	}
 
-	public void saveImageStateList(WMV_ImageStateList isl, String newFilePath)
+	public void saveImageStateList(WMV_ImageStateList isl, String filePath)
 	{
 		if(isl.images.size() <= 100)
 		{
 			final ObjectMapper mapper = JsonFactory.create();
 			final File file;
 			try {
-				file = new File(newFilePath);
+				file = new File(filePath);
 				mapper.writeValue(file, isl);    // Write object to file
 			}
 			catch (Throwable t)
@@ -384,7 +378,7 @@ public class ML_Library
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
 				try {
-					file = new File(newFilePath.replaceAll(".json", "_"+((Math.round(i/1000)+1)+".json")));
+					file = new File(filePath.replaceAll(".json", "_"+((Math.round(i/1000)+1)+".json")));
 					mapper.writeValue(file, tempIsl);    // Write object to file
 				}
 				catch (Throwable t)
@@ -395,12 +389,12 @@ public class ML_Library
 		}
 	}
 
-	public void savePanoramaStateList(WMV_PanoramaStateList psl, String newFilePath)
+	public void savePanoramaStateList(WMV_PanoramaStateList psl, String filePath)
 	{
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			file = new File(newFilePath);
+			file = new File(filePath);
 			mapper.writeValue(file, psl);    // Write object to file
 		}
 		catch (Throwable t)
@@ -409,12 +403,12 @@ public class ML_Library
 		}
 	}
 
-	public void saveVideoStateList(WMV_VideoStateList vsl, String newFilePath)
+	public void saveVideoStateList(WMV_VideoStateList vsl, String filePath)
 	{
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			file = new File(newFilePath);
+			file = new File(filePath);
 			mapper.writeValue(file, vsl);    // Write object to file
 		}
 		catch (Throwable t)
@@ -423,12 +417,12 @@ public class ML_Library
 		}
 	}
 
-	public void saveSoundStateList(WMV_SoundStateList ssl, String newFilePath)
+	public void saveSoundStateList(WMV_SoundStateList ssl, String filePath)
 	{
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			file = new File(newFilePath);
+			file = new File(filePath);
 			mapper.writeValue(file, ssl);    // Write object to file
 		}
 		catch (Throwable t)
@@ -437,9 +431,9 @@ public class ML_Library
 		}
 	}
 
-	public WMV_WorldSettings loadWorldSettings(String newFilePath)		// Testing
+	public WMV_WorldSettings loadWorldSettings(String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -455,9 +449,9 @@ public class ML_Library
 		return null;
 	}
 
-	public WMV_WorldState loadWorldState(String newFilePath)		// Testing
+	public WMV_WorldState loadWorldState(String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -473,9 +467,9 @@ public class ML_Library
 		return null;
 	}
 
-	public WMV_ViewerSettings loadViewerSettings(String newFilePath)		// Testing
+	public WMV_ViewerSettings loadViewerSettings(String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -491,9 +485,9 @@ public class ML_Library
 		return null;
 	}
 
-	public WMV_ViewerState loadViewerState(String newFilePath)		// Testing
+	public WMV_ViewerState loadViewerState(String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -511,12 +505,12 @@ public class ML_Library
 
 	/**
 	 * Load field state from given file path
-	 * @param newFilePath File path
+	 * @param filePath File path
 	 * @return Field state
 	 */
-	public WMV_FieldState loadFieldState(String newFilePath)		// Testing
+	public WMV_FieldState loadFieldState(String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -534,7 +528,7 @@ public class ML_Library
 
 	/**
 	 * Load field state from given file path
-	 * @param newFilePath File path
+	 * @param filePath File path
 	 * @return Field state
 	 */
 	public WMV_ClusterStateList loadClusterStateLists(String directoryPath)		// Testing
@@ -570,36 +564,10 @@ public class ML_Library
 		return null;
 	}
 
-
 	/**
-	 * Load field state from given file path
-	 * @param newFilePath File path
-	 * @return Field state
-	 */
-	//	public WMV_ClusterStateList loadClusterStateList(String newFilePath)		// Testing
-	//	{
-	//		String filePath = newFilePath;
-	//
-	//		final ObjectMapper mapper = JsonFactory.create();
-	//		final File file;
-	//		try {
-	////		    file = File.createTempFile("json", "temp.json");    // Use temp file
-	//			file = new File(filePath);
-	//			WMV_ClusterStateList csl = mapper.readValue(file, WMV_ClusterStateList.class);
-	//			
-	//			return csl;
-	//		}
-	//		catch (Throwable t)
-	//		{
-	//			System.out.println("loadClusterStateList Throwable t:"+t);
-	//		}
-	//		return null;
-	//	}
-
-	/**
-	 * Load field state from given file path
-	 * @param newFilePath File path
-	 * @return Field state
+	 * Load image state list from given file path
+	 * @param filePath File path
+	 * @return Image state list
 	 */
 	public WMV_ImageStateList loadImageStateLists(String directoryPath)		// Testing
 	{
@@ -634,39 +602,14 @@ public class ML_Library
 		return null;
 	}
 
-	//	/**
-	//	 * Load field state from given file path
-	//	 * @param newFilePath File path
-	//	 * @return Field state
-	//	 */
-	//	public WMV_ImageStateList loadImageStateList(String newFilePath)		// Testing
-	//	{
-	//		String filePath = newFilePath;
-	//
-	//		final ObjectMapper mapper = JsonFactory.create();
-	//		final File file;
-	//		try {
-	////		    file = File.createTempFile("json", "temp.json");    // Use temp file
-	//			file = new File(filePath);
-	//			WMV_ImageStateList isl = mapper.readValue(file, WMV_ImageStateList.class);
-	//			
-	//			return isl;
-	//		}
-	//		catch (Throwable t)
-	//		{
-	//			System.out.println("loadImageStateList Throwable t:"+t);
-	//		}
-	//		return null;
-	//	}
-
 	/**
-	 * Load field state from given file path
-	 * @param newFilePath File path
+	 * Load panorama state list from given file path
+	 * @param filePath File path
 	 * @return Field state
 	 */
-	public WMV_PanoramaStateList loadPanoramaStateList(String newFilePath)		// Testing
+	public WMV_PanoramaStateList loadPanoramaStateList(String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -685,13 +628,13 @@ public class ML_Library
 	}
 
 	/**
-	 * Load field state from given file path
-	 * @param newFilePath File path
+	 * Load video state list from given file path
+	 * @param filePath File path
 	 * @return Field state
 	 */
-	public WMV_VideoStateList loadVideoStateList(String newFilePath)		// Testing
+	public WMV_VideoStateList loadVideoStateList(String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
@@ -710,18 +653,18 @@ public class ML_Library
 	}
 
 	/**
-	 * Load field state from given file path
-	 * @param newFilePath File path
-	 * @return Field state
+	 * Load sound state list from given file path
+	 * @param filePath File path
+	 * @return Sound state list
 	 */
-	public WMV_SoundStateList loadSoundStateList(String newFilePath)		// Testing
+	public WMV_SoundStateList loadSoundStateList(String filePath)		// Testing
 	{
-		String filePath = newFilePath;
+//		String filePath = filePath;
 
 		final ObjectMapper mapper = JsonFactory.create();
 		final File file;
 		try {
-			//		    file = File.createTempFile("json", "temp.json");    // Use temp file
+//			file = File.createTempFile("json", "temp.json");    // Use temp file
 			file = new File(filePath);
 			WMV_SoundStateList ssl = mapper.readValue(file, WMV_SoundStateList.class);
 
@@ -734,48 +677,49 @@ public class ML_Library
 		return null;
 	}
 
-	private void saveJson(Object object, Type type, String fileName) 
-	{
-		File file = new File(fileName);
-
-		OutputStream outputStream = null;
-		GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting();
-		//	  gsonBuilder.registerTypeAdapter(object.getClass(), new Gson());
-		Gson gson = gsonBuilder.create();
-		//	  Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting()
-		//			    .create();
-
-		try {
-			outputStream = new FileOutputStream(file);
-			BufferedWriter bufferedWriter;
-			bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
-
-			gson.toJson(object, type, bufferedWriter);
-			bufferedWriter.close();
-		} 
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-			System.out.println("FileNotFoundException e:"+e);
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-			System.out.println("IOException e:"+e);
-		} 
-		finally {
-			if (outputStream != null) {
-				try {
-					outputStream.flush();
-					outputStream.close();
-				} 
-				catch (IOException e) {
-					System.out.println("IOException e:"+e);
-				}
-			}
-		}
-	}
-	
+	/**
+	 * Set library folder
+	 * @param newLibraryFolder New library folder path
+	 */
 	public void setLibraryFolder(String newLibraryFolder)
 	{
 		libraryFolder = newLibraryFolder;
 	}
+	
+//	private void saveJson(Object object, Type type, String fileName) 
+//	{
+//		File file = new File(fileName);
+//
+//		OutputStream outputStream = null;
+//		GsonBuilder gsonBuilder = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting();
+//		Gson gson = gsonBuilder.create();
+//
+//		try {
+//			outputStream = new FileOutputStream(file);
+//			BufferedWriter bufferedWriter;
+//			bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream, "UTF-8"));
+//
+//			gson.toJson(object, type, bufferedWriter);
+//			bufferedWriter.close();
+//		} 
+//		catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//			System.out.println("FileNotFoundException e:"+e);
+//		} 
+//		catch (IOException e) {
+//			e.printStackTrace();
+//			System.out.println("IOException e:"+e);
+//		} 
+//		finally {
+//			if (outputStream != null) {
+//				try {
+//					outputStream.flush();
+//					outputStream.close();
+//				} 
+//				catch (IOException e) {
+//					System.out.println("IOException e:"+e);
+//				}
+//			}
+//		}
+//	}
 }

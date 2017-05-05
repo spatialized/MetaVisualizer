@@ -64,11 +64,11 @@ public class ML_Map
 	float smallPointSize, mediumPointSize, largePointSize, hugePointSize;	// Obsolete soon
 
 	public final boolean mapMedia = true;
-	public boolean mapImages = true, mapPanoramas = true, mapVideos = true;
+	public boolean mapImages = true, mapPanoramas = true, mapVideos = true, mapSounds = true;
 	private float maxSaturation = 210.f, lowSaturation = 80.f;
 	
 	private float imageHue = 150.f, imageCaptureHue = 90.f;
-	private float panoramaHue = 190.f, panoramaCaptureHue = 220.f;
+	private float panoramaHue = 190.f;
 	private float videoHue = 40.f, videoCaptureHue = 70.f;
 	private float soundHue = 40.f;
 	private float cameraHue = 140.f;

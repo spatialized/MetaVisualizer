@@ -17,6 +17,7 @@ public class WMV_FieldState
 	
 	/* Data */
 	public WMV_ModelState model;							// Model state for importing / exporting
+	public ArrayList<ArrayList<WMV_Waypoint>> gpsTracks;				// GPS tracks
 	
 	/* Time */
 	public WMV_Timeline timeline;							// Field timeline
@@ -35,12 +36,14 @@ public class WMV_FieldState
 	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
 	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas and currently seen
 	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;
-	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0;			// Metadata loading errors per media type
-	public int indexPanoramaOffset, indexVideoOffset;		// Start of panoramas / videos in names and distances arrays
+	public int soundsAudible = 0, soundsLoaded = 0, soundsPlaying = 0, soundsHeard = 0;
+	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0, soundErrors = 0;			// Metadata loading errors per media type
+	public int indexPanoramaOffset, indexVideoOffset, indexSoundOffset;		// Start of panoramas / videos / sounds in names and distances arrays
 	
 	public int disassociatedImages = 0;						// Media not associated with a cluster -- Obsolete?
 	public int disassociatedPanoramas = 0;
 	public int disassociatedVideos = 0;
+	public int disassociatedSounds = 0;
 	
 	public WMV_FieldState(){}
 	
@@ -55,9 +58,11 @@ public class WMV_FieldState
 		timeZoneID = "America/Los_Angeles";					// Current time zone
 
 		/* Data */
-		imageErrors = 0; videoErrors = 0; panoramaErrors = 0;	// Metadata loading errors per media type
-		indexPanoramaOffset = -1; indexVideoOffset = -1;		// Start of panoramas / videos in names and distances arrays
-
+		imageErrors = 0; videoErrors = 0; panoramaErrors = 0; soundErrors = 0;	// Metadata loading errors per media type
+		indexPanoramaOffset = -1; indexVideoOffset = -1;		
+		indexSoundOffset = -1;
+		gpsTracks = new ArrayList<ArrayList<WMV_Waypoint>>();
+		
 		/* Clusters */
 		deepestLevel = -1;	
 		defaultClusterDepth = 8;						// How deep in the dendrogram to look for media?	-- Set based on deepestLevel?
@@ -72,55 +77,31 @@ public class WMV_FieldState
 		imagesVisible = 0; imagesSeen = 0;				// Number of visible photos and currently seen
 		panoramasVisible = 0; panoramasSeen = 0;		// Number of visible panoramas and currently seen
 		videosVisible = 0; videosLoaded = 0; videosPlaying = 0; videosSeen = 0;
+		soundsAudible = 0; soundsLoaded = 0; soundsPlaying = 0; soundsHeard = 0;
 		
-		/* -- Debug -- */	
 		disassociatedImages = 0;						// Images not associated with a cluster -- Still needed?
 		disassociatedPanoramas = 0;
 		disassociatedVideos = 0;
-
-		/* Data */
-//		clusters = new ArrayList<WMV_ClusterState>();			// Clusters (spatial groupings) of media 
-//		images = new ArrayList<WMV_ImageState>(); 				// All images in this field
-//		panoramas = new ArrayList<WMV_PanoramaState>(); 		// All panoramas in this field
-//		videos = new ArrayList<WMV_VideoState>(); 				// All videos in this field
+		disassociatedSounds = 0;
 	}
 	
+	/**
+	 * Set time data 
+	 * @param newTimeline New timeline
+	 * @param newDateline New dateline
+	 */
 	public void setTimeData( WMV_Timeline newTimeline, ArrayList<WMV_Date> newDateline )
 	{
 		timeline = newTimeline;
 		dateline = newDateline;
 	}
 	
+	/**
+	 * Set model data
+	 * @param newModelState New model state
+	 */
 	public void setModelData(WMV_ModelState newModelState)
 	{
 		model = newModelState;
 	}
-	
-//	public void setMediaData( ArrayList<WMV_ImageState> newImages, ArrayList<WMV_PanoramaState> newPanoramas,
-//							  ArrayList<WMV_VideoState> newVideos )
-//	{
-//		images = newImages;
-//		panoramas = newPanoramas;
-//		videos = newVideos;
-//	}
-//
-//	public void setImages(ArrayList<WMV_ImageState> newImages)
-//	{
-//		images = newImages;
-//	}
-//
-//	public void setPanoramas(ArrayList<WMV_PanoramaState> newPanoramas)
-//	{
-//		panoramas = newPanoramas;
-//	}
-//
-//	public void setVideos(ArrayList<WMV_VideoState> newVideos)
-//	{
-//		videos = newVideos;
-//	}
-
-//	public void setSounds(ArrayList<WMV_ImageState> newImages)
-//	{
-//		images = newImages;
-//	}
 }

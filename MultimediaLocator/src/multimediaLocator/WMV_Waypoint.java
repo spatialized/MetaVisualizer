@@ -11,12 +11,14 @@ public class WMV_Waypoint {
 	private PVector location;		// Camera location
 	private PVector target;			// Where camera is pointing
 	private WMV_Time time;
+	private boolean gps;
 	
-	WMV_Waypoint(int newID, PVector newLocation, WMV_Time newTime) 
+	WMV_Waypoint(int newID, PVector newLocation, WMV_Time newTime, boolean newGPS) 
 	{
 		id = newID;
 		location = newLocation;
 		time = newTime;
+		gps = newGPS;
 	}
 	
 	/**
@@ -57,5 +59,15 @@ public class WMV_Waypoint {
 	public WMV_Time getTime()
 	{
 		return time;
+	}
+	
+	public boolean isGPSWaypoint()
+	{
+		return gps;
+	}
+	
+	public void setGPSWaypoint(boolean newState)
+	{
+		gps = newState;
 	}
 }  

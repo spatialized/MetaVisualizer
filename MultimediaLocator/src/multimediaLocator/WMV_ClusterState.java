@@ -48,7 +48,7 @@ public class WMV_ClusterState
 	public List<Integer> images = new ArrayList<Integer>();
 	public List<Integer> panoramas = new ArrayList<Integer>();
 	public List<Integer> videos = new ArrayList<Integer>();
-//	public List<Integer> sounds = new ArrayList<Integer>();
+	public List<Integer> sounds = new ArrayList<Integer>();
 	
 	public int mediaCount;								// No. of media associated with this cluster
 	private boolean hasImage = false;					// Cluster has panorama files?
@@ -66,10 +66,12 @@ public class WMV_ClusterState
 	public float highTime, lowTime, highDate, lowDate;
 	public float highImageTime = -1000000, lowImageTime = 1000000, 
 		  highPanoramaTime = -1000000, lowPanoramaTime = 1000000, 
-		  highVideoTime = -1000000, lowVideoTime = 1000000; 	
+		  highVideoTime = -1000000, lowVideoTime = 1000000,
+	      highSoundTime = -1000000, lowSoundTime = 1000000; 	
 	public float highImageDate = -1000000, lowImageDate = 1000000, 
 		  highPanoramaDate = -1000000, lowPanoramaDate = 1000000,
-	 	  highVideoDate = -1000000, lowVideoDate = 1000000;
+		  highVideoDate = -1000000, lowVideoDate = 1000000,
+		  highSoundDate = -1000000, lowSoundDate = 1000000;
 
 	WMV_ClusterState(){}
 	

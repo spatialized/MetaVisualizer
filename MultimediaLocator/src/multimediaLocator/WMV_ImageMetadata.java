@@ -64,4 +64,12 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 		brightness = newBrightness;
 		cameraModel = newCameraModel;
 	}
+	
+	public boolean isValid()
+	{
+		if(gpsLocation.x != 0.f && gpsLocation.z != 0.f && gpsLocation.z != 0.f)
+			return true;
+		else
+			return false;
+	}
 }

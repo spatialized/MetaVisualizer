@@ -219,6 +219,8 @@ public class WMV_Sound extends WMV_Media
 	 */
 	void calculateLocationFromGPSTrack(ArrayList<WMV_Waypoint> gpsTrack)
 	{
+		if(getDebugSettings().sound) System.out.println("calculateLocationFromGPSTrack() for sound id#"+getID()+"...");
+		
 		float closestDist = 1000000.f;
 		int closestIdx = -1;
 
@@ -254,14 +256,17 @@ public class WMV_Sound extends WMV_Media
 		
 		if(closestIdx >= 0)
 		{
-			setLocation( gpsTrack.get(closestIdx).getLocation() );
-			if(getDebugSettings().sound)
-			{
-				System.out.println("Set sound #"+getID()+" location to waypoint "+closestIdx+" W hour:"+gpsTrack.get(closestIdx).getTime().getHour()+" W min:"+gpsTrack.get(closestIdx).getTime().getMinute());
-				System.out.println("S hour:"+sHour+" S min:"+sMinute);
-				System.out.println("location.x: "+getLocation().x+" location.y:"+getLocation().y+" location.z:"+getLocation().z);
-				System.out.println("timeDist: "+closestDist);
-			}
+			setGPSLocation( gpsTrack.get(closestIdx).getLocation() );
+//			if(getDebugSettings().sound)
+//			{
+//				System.out.println("Set sound #"+getID()+" GPS location to waypoint "+closestIdx+" waypoint hour:"+gpsTrack.get(closestIdx).getTime().getHour()+"   min:"+gpsTrack.get(closestIdx).getTime().getMinute());
+//				System.out.println("  S hour:"+sHour+" S min:"+sMinute);
+//				System.out.println("  gpsTrack.get(closestIdx).getLocation().x: "+gpsTrack.get(closestIdx).getLocation().x+
+//						" gpsTrack.get(closestIdx).getLocation().y:"+gpsTrack.get(closestIdx).getLocation().y+
+//						" gpsTrack.get(closestIdx).getLocation().z:"+gpsTrack.get(closestIdx).getLocation().z);
+//				System.out.println("  GPS location.x: "+getGPSLocation().x+" GPS location.y:"+getGPSLocation().y+" GPS location.z:"+getGPSLocation().z);
+//				System.out.println("  timeDist: "+closestDist);
+//			}
 		}
 		else 
 			if(getDebugSettings().sound)
@@ -269,7 +274,7 @@ public class WMV_Sound extends WMV_Media
 	}
 	
 	/**
-	 * @return How far the video is from the camera
+	 * @return Distance between video and the viewer
 	 */
 	public float getHearingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
@@ -281,13 +286,18 @@ public class WMV_Sound extends WMV_Media
 		return distance;
 	}
 	
+	/**
+	 * Set sound state
+	 * @param newState New sound state
+	 */
 	public void setState(WMV_SoundState newState)
 	{
 		state = newState;
-//		setMediaState( state.getMediaState() );
-//		metadata = state.getMetadata();
 	}
 	
+	/**
+	 * @return Current sound state
+	 */
 	public WMV_SoundState getState()
 	{
 		return state;

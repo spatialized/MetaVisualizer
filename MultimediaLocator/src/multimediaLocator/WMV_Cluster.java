@@ -5,7 +5,7 @@ import java.util.List;
 import processing.core.PVector;
 
 /*********************************************
- * Spatial cluster of media files representing a virtual point of interest
+ * Cluster of media files representing a spatial point of interest
  * @author davidgordon
  */
 public class WMV_Cluster 
@@ -62,6 +62,9 @@ public class WMV_Cluster
 		state.mediaCount = 0;
 	}
 
+	/**
+	 * Initialize cluster timeline and media time objects
+	 */
 	void initializeTime()
 	{
 		state.timeline.getLower().getLower().initializeTime();
@@ -109,8 +112,8 @@ public class WMV_Cluster
 	}
 	
 	/**
-	 * @param newImage Image to add
 	 * Add an image to the cluster
+	 * @param newImage Image to add
 	 */
 	void addImage(WMV_Image newImage)
 	{
@@ -122,8 +125,8 @@ public class WMV_Cluster
 	}
 
 	/**
-	 * @param newPanorama Panorama to add
 	 * Add a panorama to the cluster
+	 * @param newPanorama Panorama to add
 	 */
 	void addPanorama(WMV_Panorama newPanorama)
 	{
@@ -137,14 +140,27 @@ public class WMV_Cluster
 	}
 
 	/**
-	 * @param newImage Image to add
 	 * Add a video to the cluster
+	 * @param newImage Image to add
 	 */
 	void addVideo(WMV_Video newVideo)
 	{
 		if(!state.videos.contains(newVideo.getID()))
 		{
 			state.videos.add(newVideo.getID());
+			state.mediaCount++;
+		}
+	}
+
+	/**
+	 * Add a video to the cluster
+	 * @param newImage Image to add
+	 */
+	void addSound(WMV_Sound newSound)
+	{
+		if(!state.sounds.contains(newSound.getID()))
+		{
+			state.sounds.add(newSound.getID());
 			state.mediaCount++;
 		}
 	}
@@ -157,22 +173,27 @@ public class WMV_Cluster
 		state.images = new ArrayList<Integer>();
 		state.panoramas = new ArrayList<Integer>();
 		state.videos = new ArrayList<Integer>();
+		state.sounds = new ArrayList<Integer>();
 		state.mediaCount = 0;
 		state.active = false;
 		state.empty = true;
 	}
-	
+
 	/**
 	 * Initialize cluster from media associated with it; calculate location and assign media to it.
+	 * @param imageList Image list
+	 * @param panoramaList Panorama list
+	 * @param videoList Video list
+	 * @param soundList Sound list
 	 */
-	void create(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList) 						
+	void create(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList) 						
 	{			
 		state.mediaCount = 0;
 
-		PVector newLocation = new PVector((float)0.0, (float)0.0, (float)0.0);
-		empty();
+		PVector newLocation = new PVector(0.f, 0.f, 0.f);
+		empty();											// Empty cluster
 				
-		/* Find images associated with this cluster ID */
+		/* Find images associated with this cluster */
 		for (int i = 0; i < imageList.size(); i++) 
 		{
 			WMV_Image curImg = imageList.get(i);
@@ -188,7 +209,7 @@ public class WMV_Cluster
 			}
 		}
 
-		/* Find panoramas associated with this cluster ID */
+		/* Find panoramas associated with this cluster */
 		for (int i = 0; i < panoramaList.size(); i++) 
 		{
 			WMV_Panorama curPano = panoramaList.get(i);
@@ -204,7 +225,7 @@ public class WMV_Cluster
 			}
 		}
 
-		/* Find videos associated with this cluster ID */
+		/* Find videos associated with this cluster */
 		for (int i = 0; i < videoList.size(); i++) 
 		{
 			WMV_Video curVid = videoList.get(i);
@@ -220,15 +241,30 @@ public class WMV_Cluster
 			}
 		}
 
+		/* Find sounds associated with this cluster */
+		for (int i = 0; i < soundList.size(); i++) 
+		{
+			WMV_Sound curSnd = soundList.get(i);
+
+			if (curSnd.getMediaState().getClusterID() == state.id) 				// If the image is assigned to this cluster
+			{
+				newLocation.add(curSnd.getCaptureLocation());	// Move cluster towards the image
+				if(!state.sounds.contains(curSnd.getID()))
+				{
+					state.sounds.add(curSnd.getID());
+					state.mediaCount++;
+				}
+			}
+		}
+
 		/* Divide by number of associated points */
 		if (state.mediaCount > 0) 				
 		{
 			newLocation.div(state.mediaCount);
 			state.location = newLocation;
-
-//			state.clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
 			state.active = true;
 			state.empty = false;
+//			state.clusterMass = mediaPoints * p.p.mediaPointMass;			// Mass = 4 x number of media points
 		}
 		else
 		{
@@ -238,9 +274,9 @@ public class WMV_Cluster
 	}
 
 	/**
+	 * Create a cluster with a single image
 	 * @param mediaID  Single image to determine the cluster location
 	 * @param mediaType  0: image 1: panorama 2:video
-	 * Create a cluster with a single image
 	 */
 	void createSingle(int mediaID, int mediaType) 						
 	{
@@ -258,16 +294,23 @@ public class WMV_Cluster
 				state.videos = new ArrayList<Integer>();
 				state.videos.add(mediaID);
 				break;
+			case 3:
+				state.sounds = new ArrayList<Integer>();
+				state.sounds.add(mediaID);
+				break;
 			default:
 				break;
 		}
 		
 		state.mediaCount = 1;
-
 		state.active = true;
 		state.empty = false;
 	}
 
+	/**
+	 * Display user stitched panoramas in cluster
+	 * @param ml Parent app
+	 */
 	void displayUserPanoramas(MultimediaLocator ml)
 	{
 		if(worldSettings.showUserPanoramas)
@@ -280,6 +323,13 @@ public class WMV_Cluster
 		}
 	}
 	
+	/**
+	 * Update current world state and settings
+	 * @param currentWorldSettings
+	 * @param currentWorldState
+	 * @param currentViewerSettings
+	 * @param currentViewerState
+	 */
 	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
 						WMV_ViewerState currentViewerState )
 	{
@@ -287,13 +337,13 @@ public class WMV_Cluster
 		worldState = currentWorldState;			// Update world settings
 		viewerSettings = currentViewerSettings;	// Update viewer settings
 		viewerState = currentViewerState;		// Update viewer state
-
-//		updateAllMediaSettings(getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
-//				settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings);
 	}
 
 	/**
 	 * Stitch images based on current selection: if nothing selected, attempt to stitch all media segments in cluster
+	 * @param stitcher Stitching object to use
+	 * @param libraryFolder Library folder
+	 * @param selectedImages Selected images to stitch
 	 */
 	public void stitchImages(ML_Stitcher stitcher, String libraryFolder, ArrayList<WMV_Image> selectedImages)
 	{
@@ -368,24 +418,28 @@ public class WMV_Cluster
 			}
 		}		
 	}
-
 	
 	/**
 	 * Analyze associated media capture times (Need to implement: find on which scales it operates, i.e. minute, day, month, year)
 	 */
-	public void createModel(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList) 
+	public void createModel( ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList,
+							 ArrayList<WMV_Sound> soundList ) 
 	{
-		calculateDimensions(imageList, panoramaList, videoList);		// Calculate cluster dimensions (bounds)
-		calculateTimes(imageList, panoramaList, videoList);				// Calculate cluster times
-		createDateline(imageList, panoramaList, videoList);				// Create dates histograms and analyze for date segments
-		createTimeline(imageList, panoramaList, videoList);				// Create timeline independent of date 
+		calculateDimensions(imageList, panoramaList, videoList, soundList);			// Calculate cluster dimensions (bounds)
+		calculateTimes(imageList, panoramaList, videoList, soundList);				// Calculate cluster times
+		createDateline(imageList, panoramaList, videoList, soundList);				// Create dates histograms and analyze for date segments
+		createTimeline(imageList, panoramaList, videoList, soundList);				// Create timeline independent of date 
 		createTimelines();												// Create timeline for each capture date
 	}
 	
 	/**
 	 * Create list of all media capture dates in cluster, where index corresponds to index of corresponding timeline in timelines array
+	 * @param imageList Image list
+	 * @param panoramaList Panorama list
+	 * @param videoList Video list
+	 * @param soundList Sound list
 	 */
-	void createDateline(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	void createDateline(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList)
 	{
 		state.dateline = new ArrayList<WMV_Date>();										// List of times to analyze
 
@@ -411,6 +465,13 @@ public class WMV_Cluster
 				state.dateline.add( date );
 		}
 
+		for(int s : state.sounds) 
+		{
+			WMV_Date date = soundList.get(s).time.asDate();
+			if(!state.dateline.contains(date)) 
+				state.dateline.add( date );
+		}
+
 		state.dateline.sort(WMV_Date.WMV_DateComparator);				// Sort dateline  
 		
 		int count = 0;
@@ -429,8 +490,12 @@ public class WMV_Cluster
 	
 	/**
 	 * Create date-independent timeline for cluster
+	 * @param imageList Image list
+	 * @param panoramaList Panorama list
+	 * @param videoList Video list
+	 * @param soundList Sound list
 	 */
-	void createTimeline(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	void createTimeline(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList)
 	{
 		ArrayList<WMV_Time> mediaTimes = new ArrayList<WMV_Time>();							// List of times to analyze
 		
@@ -441,6 +506,8 @@ public class WMV_Cluster
 			mediaTimes.add( panoramaList.get(n).time );
 		for(int v : state.videos)
 			mediaTimes.add( videoList.get(v).time );
+		for(int s : state.sounds)
+			mediaTimes.add( soundList.get(s).time );
 
 		if(mediaTimes.size() > 0)
 		{
@@ -529,7 +596,6 @@ public class WMV_Cluster
 				}
 				
 				newTimeline.finishTimeline();			// Calculate upper and lower time segment bounds
-				
 				state.timelines.add( newTimeline );		// Calculate and add timeline to list
 
 				if(debugSettings.cluster && debugSettings.detailed)
@@ -541,7 +607,9 @@ public class WMV_Cluster
 	}
 
 	/**
-	 * Analyze directions of all images and videos for Thinning Visibility Mode
+	 * Analyze directions of all images and videos
+	 * @param imageList Image list
+	 * @param videoList Video list
 	 */
 	public void analyzeMediaDirections(ArrayList<WMV_Image> imageList, ArrayList<WMV_Video> videoList)
 	{
@@ -589,7 +657,7 @@ public class WMV_Cluster
 
 			for(int i=0; i<numPerimeterPts; i++)
 			{
-				float ppAngle = i * ((float)Math.PI * 2.f / numPerimeterPts);					// Angle of perimeter point i
+				float ppAngle = i * ((float)Math.PI * 2.f / numPerimeterPts);				// Angle of perimeter point i
 				if(perimeterPoints[i] == -1)
 				{
 					perimeterPoints[i] = idx;
@@ -597,8 +665,7 @@ public class WMV_Cluster
 				}
 				else											
 				{
-					/* Compare image angular distance from point to current closest */
-					float vidDist = utilities.getAngularDistance(vidAngle, ppAngle);		
+					float vidDist = utilities.getAngularDistance(vidAngle, ppAngle);		/* Compare video angular distance from point to current closest */
 					if(vidDist < perimeterDistances[i])
 					{
 						perimeterPoints[i] = v.getID() + videoIdxOffset;
@@ -622,8 +689,9 @@ public class WMV_Cluster
 	}
 	
 	/**
-	 * Group adjacent, overlapping media into segments, where each image or video is at least stitchingMinAngle from one or more others
- 	 */
+	 * Group adjacent overlapping media into segments where each image is at least stitchingMinAngle from one or more others
+	 * @param imageList Image list
+	 */
 	void findMediaSegments(ArrayList<WMV_Image> imageList)
 	{
 		List<Integer> allImages = new ArrayList<Integer>();
@@ -674,7 +742,6 @@ public class WMV_Cluster
 			for(int i : allImages)									// Search for images at least stitchingMinAngle from each image
 			{
 				WMV_Image img = imageList.get(i);
-				
 				if(curImages.size() == 0)
 				{
 					curImages.add(img.getID());			// Add first image	
@@ -734,16 +801,15 @@ public class WMV_Cluster
 				count++;
 			}
 			
-			Collections.sort(added);
+			Collections.sort(added);						// Sort added list
 			
 			for(int i=added.size()-1; i>=0; i--)
 			{
 				int removed = allImages.remove(i);			// Remove images added to curSegment
-				if(debugSettings.cluster && debugSettings.detailed)
-					System.out.println("Removed image ID "+removed+" from allImages");
+				if(debugSettings.cluster && debugSettings.detailed) System.out.println("Removed image ID "+removed+" from allImages");
 			}
 
-			if(curImages.size() == 1)			// Only one image
+			if(curImages.size() == 1)							// Only one image
 			{
 				left = imageList.get(curImages.get(0)).getDirection();
 				right = imageList.get(curImages.get(0)).getDirection();
@@ -766,9 +832,10 @@ public class WMV_Cluster
 				centerElevation = (top + bottom) / 2.f;
 			}
 
-			WMV_MediaSegment newSegment = new WMV_MediaSegment( segments.size(), curImages, left, right, centerDirection, bottom, top, centerElevation, worldSettings.stitchingMinAngle );
-			newSegment.findImageBorders(imageList);
-			segments.add( newSegment );
+			WMV_MediaSegment newSegment = new WMV_MediaSegment( segments.size(), curImages, left, right, centerDirection, bottom, top,
+																centerElevation, worldSettings.stitchingMinAngle );
+			newSegment.findImageBorders(imageList);				// Find image borders in segment
+			segments.add( newSegment );							// Add segment
 
 			if((debugSettings.cluster && debugSettings.detailed))
 				System.out.println("Added segment of size: "+curImages.size()+" to cluster segments... Left:"+left+" Center:"+centerDirection+" Right:"+right);
@@ -779,12 +846,10 @@ public class WMV_Cluster
 		state.numSegments = segments.size();						// Number of media segments in the cluster
 		if(state.numSegments > 0)
 		{
-			if(debugSettings.cluster && debugSettings.detailed)
-				System.out.println(" Created "+state.numSegments+" media segments...");
+			if(debugSettings.cluster && debugSettings.detailed) System.out.println(" Created "+state.numSegments+" media segments...");
 
 		}
-		else if(debugSettings.cluster && debugSettings.detailed) 
-			System.out.println(" No media segments added... cluster "+getID()+" has no images!");
+		else if(debugSettings.cluster && debugSettings.detailed) System.out.println(" No media segments added... cluster "+getID()+" has no images!");
 	}
 
 	/**
@@ -797,7 +862,7 @@ public class WMV_Cluster
 	}
 	
 	/**
-	 * @return Cluster media segments
+	 * @return Media segments in cluster
 	 */
 	public ArrayList<WMV_MediaSegment> getMediaSegments()
 	{
@@ -805,6 +870,7 @@ public class WMV_Cluster
 	}
 	
 	/**
+	 * @param imageList Image List
 	 * @return Images associated with cluster
 	 */
 	public ArrayList<WMV_Image> getImages(ArrayList<WMV_Image> imageList)
@@ -818,6 +884,7 @@ public class WMV_Cluster
 	}
 
 	/**
+	 * @param panoramaList Panorama List
 	 * @return Panoramas associated with cluster
 	 */
 	public ArrayList<WMV_Panorama> getPanoramas(ArrayList<WMV_Panorama> panoramaList)
@@ -831,6 +898,7 @@ public class WMV_Cluster
 	}
 	
 	/**
+	 * @param videoList Video list
 	 * @return Videos associated with cluster
 	 */
 	public ArrayList<WMV_Video> getVideos(ArrayList<WMV_Video> videoList)
@@ -844,9 +912,29 @@ public class WMV_Cluster
 	}
 	
 	/**
-	 * @return Are any images or videos in the cluster currently active?
+	 * @param soundList Sound list
+	 * @return Sounds associated with cluster
 	 */
-	public boolean mediaAreActive(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	public ArrayList<WMV_Sound> getSounds(ArrayList<WMV_Sound> soundList)
+	{
+		ArrayList<WMV_Sound> cSounds = new ArrayList<WMV_Sound>();
+		for(int i : state.sounds)
+		{
+			cSounds.add(soundList.get(i));
+		}
+		return cSounds;
+	}
+	
+	/**
+	 * Detect whether any media in cluster are active
+	 * @param imageList Image list
+	 * @param panoramaList Panorama list 
+	 * @param videoList Video list
+	 * @param soundList Sound list
+	 * @return Whether any media in the cluster are currently active
+	 */
+	public boolean mediaAreActive( ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, 
+								   ArrayList<WMV_Sound> soundList )
 	{
 		boolean active = false;
 
@@ -880,20 +968,22 @@ public class WMV_Cluster
 			}
 		}
 
+		if(state.sounds.size() > 0)
+		{
+			for(int sndIdx : state.sounds)
+			{
+				WMV_Sound s = soundList.get(sndIdx);
+				if(s.isActive())
+					active = true;
+			}
+		}
+
 		return active;
 	}
-	
-	/**
-	 * @param newBaseTimeScale New baseTimeScale
-	 * Set base time scale, i.e. unit to cycle through during simulation (0 = minute, 1 = hour, 2 = day, 3 = month, 4 = year)
-	 */
-//	public void setBaseTimeScale(int newBaseTimeScale)
-//	{
-//		baseTimeScale = newBaseTimeScale;
-//	}
 
 	/**
-	 * Attract the camera
+	 * Attract the viewer towards cluster
+	 * @param viewer Viewer to attract
 	 */
 	void attractViewer(WMV_Viewer viewer)			
 	{
@@ -903,7 +993,6 @@ public class WMV_Cluster
 			{
 				PVector force = getAttractionForce();
 //				System.out.println("Cluster #"+getID()+"... Adding attraction force:"+force);
-//				p.p.viewer.attraction.add( force );		// Add attraction force to camera 
 				viewer.attract( force );		// Add attraction force to camera 
 			}
 			else 
@@ -912,7 +1001,8 @@ public class WMV_Cluster
 	}
 
 	/**
-	 * @return Distance from cluster center to camera
+	 * Get distance from cluster center to viewer
+	 * @return Cluster distance
 	 */
 	float getClusterDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
@@ -928,7 +1018,7 @@ public class WMV_Cluster
 	}
 
 	/**
-	 * @return Attraction force to be applied on the camera
+	 * @return Attraction force to be applied on the viewer
 	 */
 	public PVector getAttractionForce() 
 	{
@@ -987,7 +1077,7 @@ public class WMV_Cluster
 	 * @param cluster Cluster to merge with
 	 * Merge this cluster with given cluster. Empty and make the given cluster non-active.
 	 */
-	void absorbCluster(WMV_Cluster cluster, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	void absorbCluster(WMV_Cluster cluster, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList)
 	{
 		if(debugSettings.cluster && debugSettings.detailed)
 			System.out.println("Merging cluster "+getID()+" with "+cluster.getID());
@@ -1009,7 +1099,7 @@ public class WMV_Cluster
 		{
 			WMV_Panorama curPano = panoramaList.get(i);
 
-			if (curPano.getMediaState().getClusterID() == cluster.getID()) 				// If the image is assigned to this cluster
+			if (curPano.getMediaState().getClusterID() == cluster.getID()) 				// If the panorama is assigned to this cluster
 			{
 				curPano.setAssociatedClusterID( state.id );
 				addPanorama(curPano);
@@ -1021,10 +1111,22 @@ public class WMV_Cluster
 		{
 			WMV_Video curVid = videoList.get(i);
 
-			if (curVid.getMediaState().getClusterID() == cluster.getID()) 				// If the image is assigned to this cluster
+			if (curVid.getMediaState().getClusterID() == cluster.getID()) 				// If the video is assigned to this cluster
 			{
 				curVid.setAssociatedClusterID( state.id );
 				addVideo(curVid);
+			}
+		}
+
+		/* Find videos associated with cluster */
+		for (int i = 0; i < soundList.size(); i++) 
+		{
+			WMV_Sound curSnd = soundList.get(i);
+
+			if (curSnd.getMediaState().getClusterID() == cluster.getID()) 				// If the sound is assigned to this cluster
+			{
+				curSnd.setAssociatedClusterID( state.id );
+				addSound(curSnd);
 			}
 		}
 
@@ -1102,7 +1204,6 @@ public class WMV_Cluster
 				WMV_TimeSegment result;
 				if(state.dateline.size()>1)
 				{
-//					return timelines.get(timelineID).get(0);
 					try{
 						result = state.timelines.get(timelineID).timeline.get(0);
 					}
@@ -1114,7 +1215,6 @@ public class WMV_Cluster
 				}
 				else
 				{
-//					return timeline.get(0);
 					try{
 						result = state.timeline.timeline.get(0);
 					}
@@ -1144,6 +1244,11 @@ public class WMV_Cluster
 		}
 	}
 	
+	/**
+	 * Get last time segment on given date
+	 * @param date Given date
+	 * @return Last time segment on date
+	 */
 	public WMV_TimeSegment getLastTimeSegmentForDate(WMV_Date date)
 	{
 		boolean found = false;
@@ -1187,11 +1292,11 @@ public class WMV_Cluster
 	/**
 	 * Calculate low and high values for time and date for each media point
 	 */
-	void calculateTimes(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	void calculateTimes(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList)
 	{
 //		float longestDayLength = (float) -1.;			// Length of the longest day
-		boolean initImageTime = true, initPanoramaTime = true, initVideoTime = true, 
-				initImageDate = true, initPanoramaDate = true, initVideoDate = true;	
+		boolean initImageTime = true, initPanoramaTime = true, initVideoTime = true, initSoundTime = true, 
+				initImageDate = true, initPanoramaDate = true, initVideoDate = true, initSoundDate = true;	
 
 //		if(debugSettings.cluster && (images.size() != 0 || panoramas.size() != 0 || videos.size() != 0))
 //			System.out.println("Analyzing media times in cluster "+id+" ..." + " associatedImages.size():"+images.size()+" associatedPanoramas:"+panoramas.size()+" associatedVideos:"+videos.size());
@@ -1199,6 +1304,7 @@ public class WMV_Cluster
 		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
 		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
 		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
+		ArrayList<WMV_Sound> cSounds = new ArrayList<WMV_Sound>();
 		
 		for(int i : state.images)
 			cImages.add(imageList.get(i));
@@ -1206,6 +1312,8 @@ public class WMV_Cluster
 			cPanoramas.add(panoramaList.get(n));
 		for(int v : state.videos)
 			cVideos.add(videoList.get(v));
+		for(int s : state.sounds)
+			cSounds.add(soundList.get(s));
 
 		for (WMV_Image i : cImages) 			// Iterate over cluster images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		{
@@ -1304,63 +1412,80 @@ public class WMV_Cluster
 //				longestVideoDayLength = fDayLength;
 		}
 
+		for (WMV_Sound s : cSounds) 			// Iterate over cluster videos to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		{
+//			float fDayLength = v.time.getDayLength();
+
+			if (initSoundTime) 		// Calculate most recent and oldest video time
+			{		
+				state.highSoundTime = s.time.getTime();
+				state.lowSoundTime = s.time.getTime();
+				initSoundTime = false;
+			}
+
+			if (initSoundDate) 		// Calculate most recent and oldest sound date
+			{		
+				state.highSoundDate = s.time.asDate().getDaysSince1980();
+				state.lowSoundDate = s.time.asDate().getDaysSince1980();
+				initImageDate = false;
+			}
+
+			if (s.time.getTime() > state.highSoundTime)
+				state.highSoundTime = s.time.getTime();
+			if (s.time.getTime() < state.lowSoundTime)
+				state.lowSoundTime = s.time.getTime();
+
+			if (s.time.asDate().getDaysSince1980() > state.highSoundDate)
+				state.highSoundDate = s.time.asDate().getDaysSince1980();
+			if (s.time.asDate().getDaysSince1980() < state.lowSoundDate)
+				state.lowSoundDate = s.time.asDate().getDaysSince1980();
+
+//			if (fDayLength > longestSoundDayLength)		// Calculate longest sound day length
+//				longestSoundDayLength = fDayLength;
+		}
+
 		state.lowTime = state.lowImageTime;
 		if (state.lowPanoramaTime < state.lowTime)
 			state.lowTime = state.lowPanoramaTime;
 		if (state.lowVideoTime < state.lowTime)
 			state.lowTime = state.lowVideoTime;
+		if (state.lowSoundTime < state.lowTime)
+			state.lowTime = state.lowSoundTime;
 
 		state.highTime = state.highImageTime;
 		if (state.highPanoramaTime > state.highTime)
 			state.highTime = state.highPanoramaTime;
 		if (state.highVideoTime > state.highTime)
 			state.highTime = state.highVideoTime;
+		if (state.highSoundTime > state.highTime)
+			state.highTime = state.highSoundTime;
 
 		state.lowDate = state.lowImageDate;
 		if (state.lowPanoramaDate < state.lowDate)
 			state.lowDate = state.lowPanoramaDate;
 		if (state.lowVideoDate < state.lowDate)
 			state.lowDate = state.lowVideoDate;
+		if (state.lowSoundDate < state.lowDate)
+			state.lowDate = state.lowSoundDate;
 
 		state.highDate = state.highImageDate;
 		if (state.highPanoramaDate > state.highDate)
 			state.highDate = state.highPanoramaDate;
 		if (state.highVideoDate > state.highDate)
 			state.highDate = state.highVideoDate;
+		if (state.highSoundDate > state.highDate)
+			state.highDate = state.highSoundDate;
 	}
-	
-	/**
-	 * Display cluster data
-	 */
-	public void displayClusterData()
-	{
-		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
-		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);
-		System.out.println("Cluster "+state.id+" High Altitude:" + state.highAltitude);
-		System.out.println("Cluster "+state.id+" Low Longitude:" + state.lowLongitude);
-		System.out.println("Cluster "+state.id+" Low Latitude:" + state.lowLatitude);
-		System.out.println("Cluster "+state.id+" Low Altitude:" + state.lowAltitude);	
-		
-		System.out.println("Cluster "+state.id+" High Time:" + state.highTime);
-		System.out.println("Cluster "+state.id+" High Date:" + state.highDate);
-		System.out.println("Cluster "+state.id+" Low Time:" + state.lowTime);
-		System.out.println("Cluster "+state.id+" Low Date:" + state.lowDate);
-		
-		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);
-		System.out.println("Cluster "+state.id+" Low Latitude:" + state.lowLatitude);
-		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
-		System.out.println("Cluster "+state.id+" Low Longitude:" + state.lowLongitude);
-		System.out.println(" ");
-	}
-	
+
 	/**
 	 * Calculate high and low longitude, latitude and altitude for cluster
 	 */
-	void calculateDimensions(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList)
+	void calculateDimensions( ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList,
+							  ArrayList<WMV_Sound> soundList )
 	{
 		boolean init = true;	
 
-		for (int img : state.images) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		for (int img : state.images) 				
 		{
 			WMV_Image i = imageList.get(img);
 			PVector gpsLocation = i.getGPSLocation();
@@ -1396,7 +1521,7 @@ public class WMV_Cluster
 				state.lowLatitude = gpsLocation.z;
 		}
 
-		for (int pano : state.panoramas) 				// Iterate over associated images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
+		for (int pano : state.panoramas) 				
 		{
 			WMV_Panorama n = panoramaList.get(pano);
 			PVector gpsLocation = n.getGPSLocation();
@@ -1433,77 +1558,132 @@ public class WMV_Cluster
 			if (gpsLocation.z < state.lowLatitude)
 				state.lowLatitude = gpsLocation.z;
 		}
+		
+		for (int snd : state.sounds) 		
+		{
+			WMV_Sound s = soundList.get(snd);
+			PVector gpsLocation = s.getGPSLocation();
+			
+			if (gpsLocation.x > state.highLongitude)
+				state.highLongitude = gpsLocation.x;
+			if (gpsLocation.x < state.lowLongitude)
+				state.lowLongitude = gpsLocation.x;
+			if (gpsLocation.y > state.highAltitude)
+				state.highAltitude = gpsLocation.y;
+			if (gpsLocation.y < state.lowAltitude)
+				state.lowAltitude = gpsLocation.y;
+			if (gpsLocation.z > state.highLatitude)
+				state.highLatitude = gpsLocation.z;
+			if (gpsLocation.z < state.lowLatitude)
+				state.lowLatitude = gpsLocation.z;
+		}
 	}
 	
+	/**
+	 * Set cluster state
+	 * @param newClusterState New cluster state
+	 */
 	public void setState( WMV_ClusterState newClusterState )
 	{
 		state = newClusterState;
 	}
 
+	/**
+	 * @return Current cluster state
+	 */
 	public WMV_ClusterState getState()
 	{
 		return state;
 	}
 
 	/**
-	 * @return This cluster as a waypoint for navigation
+	 * @return Cluster location as a waypoint for navigation
 	 */
-	WMV_Waypoint getClusterAsWaypoint()
+	public WMV_Waypoint getClusterAsWaypoint()
 	{
-		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), null);		// -- Calculate time instead of null!!
+		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), null, false);		// -- Must calculate time instead of null!!
 		return result;
 	}
 	
 	public int getMediaCount()
 	{
-		int count = state.images.size() + state.videos.size() + state.panoramas.size(); // + sounds.size();
+		int count = state.images.size() + state.videos.size() + state.panoramas.size() + state.sounds.size();
 		return count;
 	}
 	
+	/**
+	 * Set cluster media count
+	 * @param newMediaCount New media count
+	 */
 	public void setMediaCount(int newMediaCount)
 	{
 		state.mediaCount = newMediaCount;
 	}
 
+	/**
+	 * @return List of IDs of images in cluster
+	 */
 	public List<Integer> getImageIDs()
 	{
 		return state.images;
 	}
 
+	/**
+	 * @return List of IDs of panoramas in cluster
+	 */
 	public List<Integer> getPanoramaIDs()
 	{
 		return state.panoramas;
 	}
 
+	/**
+	 * @return List of IDs of videos in cluster
+	 */
 	public List<Integer> getVideoIDs()
 	{
 		return state.videos;
 	}
+
+	/**
+	 * @return List of IDs of sounds in cluster
+	 */
+	public List<Integer> getSoundIDs()
+	{
+		return state.sounds;
+	}
 	
+	/**
+	 * @return Date-independent timeline
+	 */
 	public WMV_Timeline getTimeline()
 	{
 		return state.timeline;
 	}
 
+	/**
+	 * @return List of timelines, corresponding to dates in dateline
+	 */
 	public ArrayList<WMV_Timeline> getTimelines()
 	{
 		return state.timelines;
 	}
 
-//	public ArrayList<WMV_TimeSegment> getTimeline()
-//	{
-//		return timeline;
-//	}
-//
-//	public ArrayList<ArrayList<WMV_TimeSegment>> getTimelines()
-//	{
-//		return timelines;
-//	}
-
-	public void updateAllMediaSettings(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList,
-			WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState )
+	/**
+	 * Update cluster media settings
+	 * @param imageList Image list
+	 * @param panoramaList Panorama list
+	 * @param videoList Video list
+	 * @param soundList Sound list
+	 * @param newWorldSettings Current world settings
+	 * @param newWorldState Current world state
+	 * @param newViewerSettings Current viewer settings
+	 * @param newViewerState Current viewer state
+	 */
+	public void updateAllMediaSettings(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, 
+			ArrayList<WMV_Sound> soundList, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, 
+			WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState )
 	{
-		for (int i:state.images)  		// Update and display videos
+		for (int i:state.images)  			// Update images
 		{
 			if(i < imageList.size())
 			{
@@ -1516,7 +1696,7 @@ public class WMV_Cluster
 			}
 		}
 	
-		for (int n:state.panoramas)  		// Update and display videos
+		for (int n:state.panoramas)  		// Update panoramas
 		{
 			if(n < panoramaList.size())
 			{
@@ -1529,7 +1709,7 @@ public class WMV_Cluster
 			}
 		}
 
-		for (int v : state.videos)  		// Update and display videos
+		for (int v : state.videos)  		// Update videos
 		{
 			if(v < videoList.size())
 			{
@@ -1541,71 +1721,126 @@ public class WMV_Cluster
 				System.out.println("Cluster #"+getID()+" has video id:"+v+" over videoList.size():"+videoList.size());
 			}
 		}
+
+		for (int s : state.sounds)  		// Update sounds
+		{
+			if(s < soundList.size())
+			{
+				if(!soundList.get(s).isDisabled())
+					soundList.get(s).updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+			}
+			else
+			{
+				System.out.println("Cluster #"+getID()+" has sound id:"+s+" over soundList.size():"+soundList.size());
+			}
+		}
 	}
 
+	/**
+	 * @return Dateline
+	 */
 	public ArrayList<WMV_Date> getDateline()
 	{
 		return state.dateline;
 	}
 	
+	/**
+	 * Set whether cluster is active
+	 * @param newActive New active state
+	 */
 	public void setActive(boolean newActive)
 	{
 		state.active = newActive;
 	}
-	
+
+	/**
+	 * @return Whether cluster is active
+	 */
+	public boolean isActive()
+	{
+		return state.active;
+	}
+
+	/**
+	 * Set whether cluster is empty
+	 * @param newActive New empty state
+	 */
 	public void setEmpty(boolean newEmpty)
 	{
 		state.empty = newEmpty;
 	}
-		
+	
+	/**
+	 * @return Whether cluster is empty
+	 */
+	public boolean isEmpty()
+	{
+		return state.empty;
+	}
+
 	/**
 	 * Set this cluster as an attractor
+	 * @param New attractor state
 	 */
 	public void setAttractor(boolean newState)
 	{
 		state.isAttractor = newState;
 	}
+	
+	/**
+	 * @return Whether cluster is an attractor
+	 */
+	public boolean isAttractor()
+	{
+		return state.isAttractor;
+	}
 
+	/**
+	 * Set whether cluster has a single media item
+	 * @param newState New single state
+	 */
+	public void setSingle(boolean newState)
+	{
+		state.single = newState;
+	}
+	
+	/**
+	 * @return Whether cluster has a single media item
+	 */
+	public boolean isSingle()
+	{
+		return state.single;
+	}
+
+	/**
+	 * Set length of cluster time cycle
+	 * @param newTimeCycleLength New time cycle length
+	 */
 	public void setTimeCycleLength(int newTimeCycleLength)
 	{
 		state.timeCycleLength = newTimeCycleLength;
 	}
 
+	/**
+	 * @return Length of cluster time cycle
+	 */
 	public int getTimeCycleLength()
 	{
 		return state.timeCycleLength;
 	}
 	
-	public void setSingle(boolean newState)
-	{
-		state.single = newState;
-	}
-
-	public boolean isActive()
-	{
-		return state.active;
-	}
-	
-	public boolean isEmpty()
-	{
-		return state.empty;
-	}
-	
-	public boolean isSingle()
-	{
-		return state.single;
-	}
-	
+	/**
+	 * Set cluster mass
+	 * @param newMass New cluster mass
+	 */
 	public void setMass(float newMass)
 	{
 		state.clusterMass = newMass;
 	}
 	
-	public boolean isAttractor()
-	{
-		return state.isAttractor;
-	}
-	
+	/**
+	 * @return Cluster mass
+	 */
 	public float getClusterMass()
 	{
 		return state.clusterMass;
@@ -1679,5 +1914,29 @@ public class WMV_Cluster
 	public boolean getHasSound()
 	{
 		return state.hasSound();
+	}
+	
+	/**
+	 * Print cluster data
+	 */
+	public void displayClusterData()
+	{
+		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
+		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);
+		System.out.println("Cluster "+state.id+" High Altitude:" + state.highAltitude);
+		System.out.println("Cluster "+state.id+" Low Longitude:" + state.lowLongitude);
+		System.out.println("Cluster "+state.id+" Low Latitude:" + state.lowLatitude);
+		System.out.println("Cluster "+state.id+" Low Altitude:" + state.lowAltitude);	
+		
+		System.out.println("Cluster "+state.id+" High Time:" + state.highTime);
+		System.out.println("Cluster "+state.id+" High Date:" + state.highDate);
+		System.out.println("Cluster "+state.id+" Low Time:" + state.lowTime);
+		System.out.println("Cluster "+state.id+" Low Date:" + state.lowDate);
+		
+		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);
+		System.out.println("Cluster "+state.id+" Low Latitude:" + state.lowLatitude);
+		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
+		System.out.println("Cluster "+state.id+" Low Longitude:" + state.lowLongitude);
+		System.out.println(" ");
 	}
 }

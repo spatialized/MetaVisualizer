@@ -9,6 +9,7 @@ public class WMV_SoundState
 {
 	public WMV_MediaState mState;
 	public WMV_SoundMetadata metadata;
+	
 	public int id;
 	public float length;
 	public float volume = 0.f;					// Sound volume between 0. and 1.
@@ -32,6 +33,16 @@ public class WMV_SoundState
 		metadata = newMetadata;
 	}
 	
+	public WMV_MediaState getMediaState()
+	{
+		return mState;
+	}
+	
+	public WMV_SoundMetadata getMetadata()
+	{
+		return metadata;
+	}
+
 	public void resetStatusModes()
 	{
 		mState.resetState();

@@ -233,14 +233,15 @@ public class MultimediaLocator extends PApplet
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
 			WMV_Field loadedField;
 			if(fieldID + 1 >= world.getFields().size())
-				loadedField = loadSimulationState(f, library.getLibraryFolder(), true);		// Load metadata, attempt to load simulation state, set simulation state from field 
+				loadedField = loadField(f, library.getLibraryFolder(), true);	// Load field (load simulation state or, if fails, metadata), and set simulation state if exists
 			else
-				loadedField = loadSimulationState(f, library.getLibraryFolder(), false);	// Load metadata and attempt to load simulation state
+				loadedField = loadField(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
 			
-			if(world.getFields().size() == 0)
+			if(world.getFields().size() == 0)					// -- ??
 				if(world.viewer.getState().field > 0)
 					world.viewer.setCurrentField(0, false);
 			
+			/* Check if field loaded correctly */
 			boolean success = (loadedField != null);
 			if(success) world.setField(loadedField, fieldID);
 			if(success) success = world.getField(fieldID).getClusters() != null;
@@ -250,12 +251,52 @@ public class MultimediaLocator extends PApplet
 				if(debugSettings.main || debugSettings.field)
 					System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(fieldID).getClusters().size());
 			}
-			else
+			else					// If failed to verify, initialize field from metadata
 			{
 				if(debugSettings.main || debugSettings.field)
 					System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
 				
 				world.state.hierarchical = f.initialize(-100000L);
+				metadata.setSoundGPSLocations(f, f.getSounds());
+				f.setSoundLocations();
+				
+//				 for (WMV_Sound s : f.getSounds()) 									// Update model after setting sound locations from it  -- Better way?
+//				 {
+//					 WMV_ModelState state = f.getModel().getState();
+//					 if (s.getMediaState().gpsLocation.x > state.highLongitude)
+//						 state.highLongitude = s.getMediaState().gpsLocation.x;
+//					 if (s.getMediaState().gpsLocation.x < state.lowLongitude)
+//						 state.lowLongitude = s.getMediaState().gpsLocation.x;
+//					 if (s.getMediaState().gpsLocation.y > state.highAltitude)
+//						 state.highAltitude = s.getMediaState().gpsLocation.y;
+//					 if (s.getMediaState().gpsLocation.y < state.lowAltitude)
+//						 state.lowAltitude = s.getMediaState().gpsLocation.y;
+//					 if (s.getMediaState().gpsLocation.z > state.highLatitude)
+//						 state.highLatitude = s.getMediaState().gpsLocation.z;
+//					 if (s.getMediaState().gpsLocation.z < state.lowLatitude)
+//						 state.lowLatitude = s.getMediaState().gpsLocation.z;
+//				 }
+
+				/* Testing */
+				for(WMV_Sound s : f.getSounds())
+				{
+					if(s.getGPSLocation() == null)
+						System.out.println("  Sound #"+s.getID()+" GPS location is null!!!");
+					else
+						System.out.println("  Sound #"+s.getID()+" GPS location:"+s.getGPSLocation());
+					
+					if(s.getCaptureLocation() == null)
+						System.out.println("  Sound #"+s.getID()+" capture location is null!!!");
+					else
+						System.out.println("  Sound #"+s.getID()+" capture location:"+s.getCaptureLocation());
+					
+					if(s.getLocation() == null)
+						System.out.println("  Sound #"+s.getID()+" location is null!!!");
+					else
+						System.out.println("  Sound #"+s.getID()+" location:"+s.getLocation());
+				}
+
+				f.organize();
 			}
 
 			/* Set next field to initialize */
@@ -275,7 +316,7 @@ public class MultimediaLocator extends PApplet
 	 * @param libraryFolder Library folder
 	 * @return True if succeeded, false if failed
 	 */
-	private WMV_Field loadSimulationState(WMV_Field f, String libraryFolder, boolean set)
+	private WMV_Field loadField(WMV_Field f, String libraryFolder, boolean set)
 	{
 		/* Load metadata from media associated with field */
 		WMV_SimulationState savedState = metadata.load(f, libraryFolder);
@@ -934,14 +975,14 @@ public class MultimediaLocator extends PApplet
 		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
-	/**
-	 * Called when user selects a GPS track file
-	 * @param selection Selected GPS Track file
-	 */
-	public void gpsTrackSelected(File selection)
-	{
-		world.viewer.loadGPSTrack(selection);
-	}
+//	/**
+//	 * Called when user selects a GPS track file
+//	 * @param selection Selected GPS Track file
+//	 */
+//	public void gpsTrackSelected(File selection)
+//	{
+//		world.viewer.loadGPSTrack(selection);
+//	}
 	
 	public void checkMemory()
 	{

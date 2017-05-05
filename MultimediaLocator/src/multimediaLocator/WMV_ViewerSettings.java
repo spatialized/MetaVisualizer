@@ -92,26 +92,30 @@ public class WMV_ViewerSettings
 	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
 
 	/* Sound */
-//	private float audibleFarDistanceMin, audibleFarDistanceMax;
-//	private float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal, audibleFarDistanceDestVal;
-//	private float audibleFarDistanceDiv = (float) 1.5;
-//	private boolean audibleFarDistanceTransition = false;
-//
-//	private float audibleNearDistanceMin, audibleNearDistanceMax;
-//	private float audibleNearDistanceFadeStart, audibleNearDistanceFadeLength = 40, audibleNearDistanceStartVal, audibleNearDistanceDestVal;
-//	private float audibleNearDistanceDiv = (float) 1.2; 
-//	private boolean audibleNearDistanceTransition = false;
+	private float audibleFarDistanceMin, audibleFarDistanceMax;
+	private float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal, audibleFarDistanceDestVal;
+	private float audibleFarDistanceDiv = (float) 1.5;
+	private boolean audibleFarDistanceTransition = false;
+
+	private float audibleNearDistanceMin, audibleNearDistanceMax;
+	private float audibleNearDistanceFadeStart, audibleNearDistanceFadeLength = 40, audibleNearDistanceStartVal, audibleNearDistanceDestVal;
+	private float audibleNearDistanceDiv = (float) 1.2; 
+	private boolean audibleNearDistanceTransition = false;
 
 	public WMV_ViewerSettings(){}
-	
-//	public void initialize(PImage NEWTEST)
+
+	/**
+	 * Initialize viewer settings object
+	 */
 	public void initialize()
 	{
 		fieldOfView = initFieldOfView; 		
 		selectionMaxDistance = defaultFocusDistance * selectionMaxDistanceFactor;
-//		IMAGETEST = NEWTEST;
 	}
 	
+	/**
+	 * Reset viewer settings
+	 */
 	public void reset()
 	{
 		/* Camera */

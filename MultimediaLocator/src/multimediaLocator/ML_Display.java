@@ -9,9 +9,9 @@ import processing.core.*;
 public class ML_Display
 {
 	/* Classes */
-	public ML_Window window;							// Main interaction window
+	public ML_Window window;							/* Main interaction window */
 	public ML_Map map2D;
-	private WMV_Utilities utilities;					// Utility methods
+	private WMV_Utilities utilities;					/* Utility methods */
 
 	/* Window Modes */
 	public boolean fullscreen = true;
@@ -19,7 +19,7 @@ public class ML_Display
 	public boolean initializedWorldMap = false;
 	
 	/* Display Views */
-	public int displayView = 0;							// 0: Scene  1: Map  2: Library  3: Timeline
+	public int displayView = 0;							/* 0: Scene  1: Map  2: Library  3: Timeline */
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -29,11 +29,11 @@ public class ML_Display
 	public boolean dataFolderFound = false;
 	
 	/* Graphics */
-	public boolean drawGrid = false; 					// Draw 3D grid   			-- Unused
+	public boolean drawGrid = false; 					/* Draw 3D grid */   			// -- Unused
 //	PImage startupImage;
 
-	public int blendMode = 0;							// Alpha blending mode
-	private int numBlendModes = 10;						// Number of blending modes
+	public int blendMode = 0;							/* Alpha blending mode */
+	private int numBlendModes = 10;						/* Number of blending modes */
 	private float hudDistance, initHudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
 	private int screenWidth = -1;
 	private int screenHeight = -1;
@@ -51,7 +51,7 @@ public class ML_Display
 	private final float timeTextSize = 44.f;
 	
 	private ArrayList<SelectableTimeSegment> selectableTimeSegments;		// Selectable time segments on timeline
-	private ArrayList<SelectableDate> selectableDates;		// Selectable dates on dateline
+	private ArrayList<SelectableDate> selectableDates;						// Selectable dates on dateline
 	private float minSegmentSeconds = 15.f;
 	
 	private boolean fieldTimelineCreated = false, fieldDatelineCreated = false, updateFieldTimeline = true;
@@ -70,7 +70,7 @@ public class ML_Display
 	private float timelineStartTransitionStart = 0, timelineStartTransitionTarget = 0;
 	private float timelineEndTransitionStart = 0, timelineEndTransitionTarget = 0;
 	public float transitionScrollIncrement = 1750.f;
-	public final float initTransitionScrollIncrement = 1750.f;	// Seconds to scroll per frame
+	public final float initTransitionScrollIncrement = 1750.f;								// Seconds to scroll per frame
 	public float transitionZoomInIncrement = 0.95f, transitionZoomOutIncrement = 1.052f;	
 
 	private float imageHue = 140.f;
@@ -176,7 +176,8 @@ public class ML_Display
 	}
 
 	/**
-	 * Draw Heads-Up Display elements: messages, interactive map, field statistics, metadata.
+	 * Draw Heads-Up Display elements: messages, interactive map, field statistics, metadata
+	 * @param p Parent world
 	 */
 	void display(WMV_World p)
 	{
@@ -223,6 +224,7 @@ public class ML_Display
 
 	/**
 	 * Display Time View in main window
+	 * @param p Parent world
 	 */
 	public void displayTimeView(WMV_World p)
 	{
@@ -259,7 +261,6 @@ public class ML_Display
 				p.p.textSize(mediumTextSize);
 				if(f.getDateline().size() > 0)
 				{
-//					p.p.text(" Clusters: "+ f.getClusters().size()+"  Media: "+ f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);
 					int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
 					p.p.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
 					p.p.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
@@ -298,6 +299,7 @@ public class ML_Display
 	
 	/**
 	 * Update field timeline every frame
+	 * @param p Parent world
 	 */
 	private void updateFieldTimeline(WMV_World p)
 	{
@@ -354,13 +356,14 @@ public class ML_Display
 				updateCurrentSelectableTimeSegment = false;
 				updateCurrentSelectableDate = false;
 			}
-//			else 
-//				System.out.println("updateCurrentSelectableTimeSegment... No current time segment!");
+			else 
+				System.out.println("updateCurrentSelectableTimeSegment... No current time segment!");
 		}
 	}
 	
 	/**
 	 * Create field dateline
+	 * @param p Parent world
 	 */
 	private void createFieldDateline(WMV_World p)
 	{
@@ -405,7 +408,7 @@ public class ML_Display
 		WMV_Field f = p.getCurrentField();
 		selectableTimeSegments = new ArrayList<SelectableTimeSegment>();
 		
-		if(f.getDateline().size() == 1)
+		if(f.getDateline().size() == 1) 		/* Field contains media from single date */
 		{
 			int count = 0;
 			for(WMV_TimeSegment t : f.getTimeline().timeline)
@@ -418,7 +421,7 @@ public class ML_Display
 				}
 			}
 		}
-		else if(f.getDateline().size() > 1)
+		else if(f.getDateline().size() > 1)		/* Field contains media from multiple dates */
 		{
 			if(displayDate == -1)
 			{
@@ -537,7 +540,7 @@ public class ML_Display
 	
 	/**
 	 * Update map zoom level each frame
-	 * @p Parent world
+	 * @param p Parent world
 	 */
 	void updateTimelineTransition(WMV_World p)
 	{
@@ -583,7 +586,7 @@ public class ML_Display
 	 * Create and return selectable time segment from timeline
 	 * @param t Time segment
 	 * @param id Time segment id
-	 * @return SelectableTime object
+	 * @return New SelectableTimeSegment object
 	 */
 	private SelectableTimeSegment getSelectableTimeSegment(WMV_TimeSegment t, int id)
 	{
@@ -698,9 +701,7 @@ public class ML_Display
 		if(f.getDateline().size() == 1)
 		{
 			for(WMV_TimeSegment t : f.getTimeline().timeline)
-			{
-				drawTimeSegment(p, t);
-			}
+				displayTimeSegment(p, t);
 		}
 		else if(f.getDateline().size() > 1)
 		{
@@ -708,7 +709,7 @@ public class ML_Display
 			{
 				for(WMV_Timeline ts : f.getTimelines())
 					for(WMV_TimeSegment t:ts.timeline)
-						drawTimeSegment(p, t);
+						displayTimeSegment(p, t);
 			}
 			else
 			{
@@ -716,14 +717,13 @@ public class ML_Display
 				{
 					ArrayList<WMV_TimeSegment> ts = f.getTimelines().get(displayDate).timeline;
 					for(WMV_TimeSegment t:ts)
-						drawTimeSegment(p, t);
+						displayTimeSegment(p, t);
 				}
 			}
 		}
 		
 		if(!timelineTransition)
 		{
-			/* Draw current time segment */
 			if(currentSelectableTimeSegmentID >= 0 && currentSelectableTimeSegmentID < selectableTimeSegments.size())
 			{
 				if(currentSelectableTimeSegmentFieldTimeSegmentID == selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getFieldTimelineID())
@@ -732,10 +732,10 @@ public class ML_Display
 					{
 						if(displayDate == -1 || selectableTimeSegments.get(currentSelectableTimeSegmentID).segment.getFieldDateID() == displayDate)
 						{
-							if(selectedTime == -1)
-								selectableTimeSegments.get(currentSelectableTimeSegmentID).draw(p, 0.f, 0.f, 255.f, true);
+							if(selectedTime == -1)						/* Draw current time segment */
+								selectableTimeSegments.get(currentSelectableTimeSegmentID).display(p, 0.f, 0.f, 255.f, true);
 							else
-								selectableTimeSegments.get(currentSelectableTimeSegmentID).draw(p, 0.f, 0.f, 255.f, false);
+								selectableTimeSegments.get(currentSelectableTimeSegmentID).display(p, 0.f, 0.f, 255.f, false);
 						}
 					}
 				}
@@ -743,7 +743,7 @@ public class ML_Display
 			
 			/* Draw selected time segment */
 			if(selectedTime != -1 && selectableTimeSegments.size() > 0 && selectedTime < selectableTimeSegments.size())
-				selectableTimeSegments.get(selectedTime).draw(p, 40.f, 255.f, 255.f, true);
+				selectableTimeSegments.get(selectedTime).display(p, 40.f, 255.f, 255.f, true);
 		}
 	}
 
@@ -763,31 +763,30 @@ public class ML_Display
 	
 		if(f.getDateline().size() == 1)
 		{
-			displayDate(p, f.getDate(0), 0);
+			displayDate(p, f.getDate(0));
 		}
 		else if(f.getDateline().size() > 1)
 		{
-			int count = 0;
+//			int count = 0;
 			for(WMV_Date d : f.getDateline())
 			{
-				displayDate(p, d, count);
-				count++;
+				displayDate(p, d);
+//				count++;
 			}
 		}
 		
 		if(selectedDate != -1 && selectableDates.size() > 0 && selectedDate < selectableDates.size())
-			selectableDates.get(selectedDate).draw(p, 40.f, 255.f, 255.f, true);
+			selectableDates.get(selectedDate).display(p, 40.f, 255.f, 255.f, true);
 		if(currentSelectableDate != -1 && selectableDates.size() > 0 && currentSelectableDate < selectableDates.size())
-			selectableDates.get(currentSelectableDate).draw(p, 0.f, 0.f, 255.f, false);
+			selectableDates.get(currentSelectableDate).display(p, 0.f, 0.f, 255.f, false);
 	}
 
 	/**
 	 * Display date on timeline
+	 * @param p Parent world
 	 * @param d Date to display
-	 * @param timelineLeftEdge
-	 * @param timelineTopEdge
 	 */
-	private void displayDate(WMV_World p, WMV_Date d, int id)
+	private void displayDate(WMV_World p, WMV_Date d)
 	{
 		float date = d.getDaysSince1980();
 		float xOffset = utilities.mapValue(date, datelineStart, datelineEnd, datelineXOffset, datelineXOffset + timelineScreenSize);
@@ -795,7 +794,6 @@ public class ML_Display
 		if(xOffset > datelineXOffset && xOffset < datelineXOffset + timelineScreenSize)
 		{
 			p.p.strokeWeight(0.f);
-
 			p.p.fill(120.f, 165.f, 245.f, 155.f);
 
 			p.p.pushMatrix();
@@ -811,7 +809,7 @@ public class ML_Display
 	 * @param t Time segment to display
 	 * @param id 
 	 */
-	private void drawTimeSegment(WMV_World p, WMV_TimeSegment t)
+	private void displayTimeSegment(WMV_World p, WMV_TimeSegment t)
 	{
 		PVector lowerTime = t.getLower().getTimeAsPVector();			// Format: PVector(hour, minute, second)
 		PVector upperTime = t.getUpper().getTimeAsPVector();			
@@ -1301,38 +1299,8 @@ public class ML_Display
 	}
 
 	/**
-	 * Set current selectable date (white rectangle)
-	 * @param newSelectableDate New selectable date ID
-	 */
-	private void setCurrentSelectableDate(int newSelectableDate)
-	{
-		displayDate = newSelectableDate;
-		currentSelectableDate = newSelectableDate;
-		updateCurrentSelectableTimeSegment = true;
-		updateCurrentSelectableDate = false;
-		updateFieldTimeline = true;
-	}
-
-	/** 
-	 * Get associated selectable time segment ID for given time segment
-	 * @param t Given time segment
-	 * @return Selectable time segment ID associated with given time segment
-	 */
-	private int getSelectableTimeIDOfFieldTimeSegment(WMV_TimeSegment t)
-	{
-		for(SelectableTimeSegment st : selectableTimeSegments)
-		{
-			if( t.getClusterID() == st.segment.getClusterID() && t.getClusterDateID() == st.segment.getClusterDateID() &&
-				t.getClusterTimelineID() == st.segment.getClusterTimelineID() && t.getFieldTimelineID() == st.segment.getFieldTimelineID() )
-			{
-				return st.getID();
-			}
-		}
-		return -1;
-	}
-
-	/**
 	 * Draw Interactive Clustering screen
+	 * @param p Parent world
 	 */
 	void displayInteractiveClustering(WMV_World p)
 	{
@@ -1342,6 +1310,7 @@ public class ML_Display
 
 	/**
 	 * Draw Interactive Clustering footer text
+	 * @param ml Parent app
 	 */
 	void displayClusteringInfo(MultimediaLocator ml)
 	{
@@ -1366,7 +1335,7 @@ public class ML_Display
 	}
 
 	/**
-	 * Reset 2D display object
+	 * Reset display object
 	 */
 	void reset()
 	{
@@ -1387,7 +1356,6 @@ public class ML_Display
 		numBlendModes = 10;						// Number of blending modes
 
 		/* Timeline */
-
 		timelineHeight = 80.f;
 		displayDate = -1;
 		
@@ -1474,6 +1442,7 @@ public class ML_Display
 
 	/**
 	 * Initialize 2D drawing 
+	 * @param p Parent world
 	 */
 	void startHUD(WMV_World p)
 	{
@@ -1483,6 +1452,7 @@ public class ML_Display
 
 	/**
 	 * Add message to queue
+	 * @param ml Parent app
 	 * @param message Message to send
 	 */
 	void message(MultimediaLocator ml, String message)
@@ -1504,6 +1474,7 @@ public class ML_Display
 	
 	/**
 	 * Display current messages
+	 * @p Parent world
 	 */
 	void displayMessages(WMV_World p)
 	{
@@ -1534,6 +1505,7 @@ public class ML_Display
 
 	/**
 	 * Add a metadata message (single line) to the display queue
+	 * @param curFrameCount Current frame count
 	 * @param message Line of metadata 
 	 */
 	void metadata(int curFrameCount, String message)
@@ -1547,6 +1519,7 @@ public class ML_Display
 	
 	/**
 	 * Draw current metadata messages to the screen
+	 * @param p Parent world
 	 */
 	void displayMetadata(WMV_World p)
 	{
@@ -1584,6 +1557,7 @@ public class ML_Display
 	
 	/**
 	 * Display startup 
+	 * @param Parent world
 	 */
 	void displayStartup(WMV_World p)
 	{
@@ -1644,6 +1618,7 @@ public class ML_Display
 	
 	/**
 	 * Draw Library View
+	 * @param p Parent world
 	 */
 	void displayLibraryView(WMV_World p)
 	{
@@ -1726,8 +1701,8 @@ public class ML_Display
 				if(c.getState().videos.size() > 0)
 					p.p.text("   Videos: "+ c.getState().videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				p.p.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
-	//			if(c.sounds.size() > 0)
-	//				p.p.text("     Sounds: "+ c.sounds.size(), textXPos, textYPos += lineWidthVeryWide, hudDistance);
+				if(c.getState().sounds.size() > 0)
+					p.p.text("     Sounds: "+ c.getState().sounds.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				p.p.text("   Location: "+ c.getLocation(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				p.p.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
 				p.p.text(" ", xPos, yPos += lineWidth, hudDistance);
@@ -1765,12 +1740,12 @@ public class ML_Display
 		}
 	}
 
-
 	/**
-	 * Draw thumbnails in grid of images in cluster
-	 * @param cluster Cluster to preview
+	 * Draw thumbnails (grid) of image list
+	 * @param p Parent world
+	 * @param imageList Images in cluster
 	 */
-	private void drawClusterImages(WMV_World p, ArrayList<WMV_Image> clusterImages)
+	private void drawClusterImages(WMV_World p, ArrayList<WMV_Image> imageList)
 	{
 		int count = 1;
 		float imgXPos = clusterImageXOffset;
@@ -1780,7 +1755,7 @@ public class ML_Display
 		p.p.strokeWeight(15);
 		p.p.fill(0, 0, 255, 255);
 
-		for(WMV_Image i : clusterImages)
+		for(WMV_Image i : imageList)
 		{
 			p.p.pushMatrix();
 			float origWidth = i.getWidth();
@@ -1810,6 +1785,9 @@ public class ML_Display
 		}
 	}
 
+	/**
+	 * @return Whether current view mode is a 2D display mode (true) or 3D World View (false)
+	 */
 	public boolean inDisplayView()
 	{
 		if( displayView != 0 )
@@ -1818,6 +1796,11 @@ public class ML_Display
 			return false;
 	}
 	
+	/**
+	 * Set display view
+	 * @param p Parent world
+	 * @param newDisplayView New display view
+	 */
 	public void setDisplayView(WMV_World p, int newDisplayView)
 	{
 		switch(newDisplayView)
@@ -1884,7 +1867,7 @@ public class ML_Display
 	}
 	
 	/**
-	 * Reset (turn off) display modes and clear messages
+	 * Reset display modes and clear messages
 	 */
 	void resetDisplayModes()
 	{
@@ -1893,6 +1876,41 @@ public class ML_Display
 		clearMetadata();
 	}
 
+	/** 
+	 * Get associated selectable time segment ID for given time segment
+	 * @param t Given time segment
+	 * @return Selectable time segment ID associated with given time segment
+	 */
+	private int getSelectableTimeIDOfFieldTimeSegment(WMV_TimeSegment t)
+	{
+		for(SelectableTimeSegment st : selectableTimeSegments)
+		{
+			if( t.getClusterID() == st.segment.getClusterID() && t.getClusterDateID() == st.segment.getClusterDateID() &&
+				t.getClusterTimelineID() == st.segment.getClusterTimelineID() && t.getFieldTimelineID() == st.segment.getFieldTimelineID() )
+			{
+				return st.getID();
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Set current selectable date (white rectangle)
+	 * @param newSelectableDate New selectable date ID
+	 */
+	private void setCurrentSelectableDate(int newSelectableDate)
+	{
+		displayDate = newSelectableDate;
+		currentSelectableDate = newSelectableDate;
+		updateCurrentSelectableTimeSegment = true;
+		updateCurrentSelectableDate = false;
+		updateFieldTimeline = true;
+	}
+
+	/**
+	 * Selectable time segment on Time View timeline
+	 * @author davidgordon
+	 */
 	private class SelectableTimeSegment
 	{
 		private int id, fieldTimelineID, clusterID;
@@ -2018,22 +2036,12 @@ public class ML_Display
 			return id;
 		}
 		
-//		public int getTimeSegmentID()
-//		{
-//			return fieldTimelineID;
-//		}
-		
 		public int getClusterID()
 		{
 			return clusterID;
 		}
 		
-//		public PVector getLocation()
-//		{
-//			return location;
-//		}
-		
-		public void draw(WMV_World p, float hue, float saturation, float brightness, boolean preview)
+		public void display(WMV_World p, float hue, float saturation, float brightness, boolean preview)
 		{
 			p.p.stroke(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
 			p.p.strokeWeight(3.f);
@@ -2070,7 +2078,6 @@ public class ML_Display
 		SelectableDate(int newID, PVector newLocation, float newRadius, WMV_Date newDate)
 		{
 			id = newID;
-//			dateID = newDateID;
 			location = newLocation;
 			radius = newRadius;
 			date = newDate;
@@ -2091,7 +2098,7 @@ public class ML_Display
 			return location;
 		}
 		
-		public void draw(WMV_World p, float hue, float saturation, float brightness, boolean preview)
+		public void display(WMV_World p, float hue, float saturation, float brightness, boolean preview)
 		{
 			p.p.pushMatrix();
 			

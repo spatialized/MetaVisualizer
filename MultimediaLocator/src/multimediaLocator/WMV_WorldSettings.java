@@ -45,6 +45,7 @@ public class WMV_WorldSettings
 
 	/* Video */
 	public final float videoMaxVolume = 0.9f;
+	public final float soundMaxVolume = 0.9f;
 	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
 	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 														// (WMV assumes videographers will take a photo with Theodolite shortly before hitting record,

@@ -286,7 +286,7 @@ public class WMV_Utilities
 	      return 2 + quadrantOnePseudoAngle(Math.abs(dx), Math.abs(dy));
 	    if (dx < 0 && dy >= 0)
 	      return 3 + quadrantOnePseudoAngle(dy, Math.abs(dx));
-	    throw new Error("Impossible");
+	    throw new Error("pseudoAngle()... Impossible");
 	  }
 
 	  double quadrantOnePseudoAngle(double dx, double dy) {
@@ -385,6 +385,25 @@ public class WMV_Utilities
 			value -= max;
 
 		return value;
+	}
+	
+	public boolean hasDuplicateInteger(List<Integer> intList)
+	{
+		boolean duplicate = false;
+		for(int i:intList)
+		{
+			for(int m:intList)
+			{
+				boolean found = false;
+				if(i == m)
+				{
+					if(found) duplicate = true;
+					else found = true;
+				}
+			}
+		}
+
+		return duplicate;
 	}
 	
 	/**

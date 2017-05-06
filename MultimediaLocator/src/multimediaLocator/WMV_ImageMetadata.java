@@ -23,6 +23,27 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 	public float focalLength = 0; 				// Camera focal length (Zoom Level)
 	public float sensorSize;					// Approx. size of sensor in mm.
 	
+	/**
+	 * Constructor for image metadata
+	 * @param newName Image name
+	 * @param newFilePath Image file path
+	 * @param newGPSLocation Image GPS location 
+	 * @param newDateTime Image zoned date/time object
+	 * @param newDateTimeString Image date/time metadata string
+	 * @param newTimeZone Image time zone ID
+	 * @param newTheta Image theta (compass direction)
+	 * @param newFocalLength Camera focal length
+	 * @param newOrientation Image orientation (0: horizontal, 90: vertical, 180: horizontal flipped, 270: vertical flipped)
+	 * @param newElevation Image elevation
+	 * @param newRotation Image rotation
+	 * @param newFocusDistance Image focus distance
+	 * @param newSensorSize Camera sensor size
+	 * @param newCameraModel Camera model
+	 * @param newWidth Image width
+	 * @param newHeight Image height
+	 * @param newBrightness Image brightness
+	 * @param newKeywords Image keyword array
+	 */
 	WMV_ImageMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone,
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
 			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords )
@@ -43,8 +64,32 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 		cameraModel = newCameraModel;
 	}
 	
+	/**
+	 * Dummy constructor for image metadata
+	 */
 	WMV_ImageMetadata(){}
 
+	/**
+	 * Initialize image metadata object
+	 * @param newName Image name
+	 * @param newFilePath Image file path
+	 * @param newGPSLocation Image GPS location 
+	 * @param newDateTime Image zoned date/time object
+	 * @param newDateTimeString Image date/time metadata string
+	 * @param newTimeZone Image time zone ID
+	 * @param newTheta Image theta (compass direction)
+	 * @param newFocalLength Camera focal length
+	 * @param newOrientation Image orientation (0: horizontal, 90: vertical, 180: horizontal flipped, 270: vertical flipped)
+	 * @param newElevation Image elevation
+	 * @param newRotation Image rotation
+	 * @param newFocusDistance Image focus distance
+	 * @param newSensorSize Camera sensor size
+	 * @param newCameraModel Camera model
+	 * @param newWidth Image width
+	 * @param newHeight Image height
+	 * @param newBrightness Image brightness
+	 * @param newKeywords Image keyword array
+	 */
 	public void initialize( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone,
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
 			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords )
@@ -65,6 +110,9 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 		cameraModel = newCameraModel;
 	}
 	
+	/**
+	 * @return Whether metadata is valid
+	 */
 	public boolean isValid()
 	{
 		if(gpsLocation.x != 0.f && gpsLocation.z != 0.f && gpsLocation.z != 0.f)

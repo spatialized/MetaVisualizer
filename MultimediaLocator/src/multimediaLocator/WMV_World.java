@@ -471,6 +471,9 @@ public class WMV_World
 		File videoDirectory = new File(videoDataPath);
 		if(!videoDirectory.exists()) videoDirectory.mkdir();			// Create directory if doesn't exist
 
+		File soundDirectory = new File(soundDataPath);
+		if(!soundDirectory.exists()) soundDirectory.mkdir();			// Create directory if doesn't exist
+
 		if(p.debugSettings.main)
 			PApplet.println("Saving Simulation State to: "+folderPath);
 		

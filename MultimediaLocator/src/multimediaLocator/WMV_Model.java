@@ -42,7 +42,8 @@ public class WMV_Model
 		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0 || sounds.size() > 0)
 		{
 			if(debugSettings.field) System.out.println("Initializing field model...");
-			analyzeSpatialDimensions(images, panoramas, videos); 			// Calculate bounds of media GPS locations (exclude sounds since field model is used to set their locations)
+			
+			analyzeSpatialDimensions(images, panoramas, videos); 			// Calculate bounds of media GPS locations (exclude sounds since field model is needed to set sound locations)
 			analyzeTimeDimensions(images, panoramas, videos, sounds);		// Analyze media locations and times 
 
 			float midLongitude = (state.highLongitude - state.lowLongitude) / 2.f;

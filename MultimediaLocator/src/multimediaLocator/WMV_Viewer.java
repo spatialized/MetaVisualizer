@@ -3897,13 +3897,13 @@ public class WMV_Viewer
 			}
 			else 
 			{
-				System.out.println("Error.. currentField.getTimelines().size() == "+currentField.getTimelines().size()+" but currentFieldDate == "+state.currentFieldDate+"...");
+				System.out.println("setCurrentFieldTimeSegmentOnDate() Error.. currentField.getTimelines().size() == "+currentField.getTimelines().size()+" but currentFieldDate == "+state.currentFieldDate+"...");
 				return false;
 			}
 		}
 		else
 		{
-			System.out.println("currentField.getTimelines() == null!!!");
+			System.out.println("setCurrentFieldTimeSegmentOnDate() currentField.getTimelines() == null!!!");
 			return false;
 		}
 	

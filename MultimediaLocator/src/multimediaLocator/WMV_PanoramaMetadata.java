@@ -17,6 +17,21 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 
 	public int imageWidth, imageHeight;			// Image width and height
 	
+	/**
+	 * Constructor for panorama metadata
+	 * @param newName Panorama name
+	 * @param newFilePath Panorama file path
+	 * @param newGPSLocation
+	 * @param newDateTime
+	 * @param newDateTimeString
+	 * @param newTimeZone
+	 * @param newTheta
+	 * @param newCameraModel
+	 * @param newWidth
+	 * @param newHeight
+	 * @param newBrightness
+	 * @param newKeywords
+	 */
 	WMV_PanoramaMetadata(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
 			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords)
 	{
@@ -32,6 +47,21 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 	
 	WMV_PanoramaMetadata(){}
 
+	/**
+	 * Initialize panorama metadata object
+	 * @param newName
+	 * @param newFilePath
+	 * @param newGPSLocation
+	 * @param newDateTime
+	 * @param newDateTimeString
+	 * @param newTimeZone
+	 * @param newTheta
+	 * @param newCameraModel
+	 * @param newWidth
+	 * @param newHeight
+	 * @param newBrightness
+	 * @param newKeywords
+	 */
 	public void initialize(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
 			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords)
 	{
@@ -43,5 +73,16 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 		theta = newTheta;
 		brightness = newBrightness;
 		cameraModel = newCameraModel;
+	}
+	
+	/**
+	 * @return Whether metadata is valid
+	 */
+	public boolean isValid()
+	{
+		if(gpsLocation.x != 0.f && gpsLocation.z != 0.f && gpsLocation.z != 0.f)
+			return true;
+		else
+			return false;
 	}
 }

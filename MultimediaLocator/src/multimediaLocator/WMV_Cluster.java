@@ -1580,6 +1580,24 @@ public class WMV_Cluster
 	}
 	
 	/**
+	 * Verify cluster has no duplicates
+	 * @return Whether valid or not
+	 */
+	public boolean verify()
+	{
+		boolean valid = true;
+		if(utilities.hasDuplicateInteger(state.images))
+			valid = false;
+		if(utilities.hasDuplicateInteger(state.panoramas))
+			valid = false;
+		if(utilities.hasDuplicateInteger(state.videos))
+			valid = false;
+		if(utilities.hasDuplicateInteger(state.sounds))
+			valid = false;
+		return valid;
+	}
+	
+	/**
 	 * Set cluster state
 	 * @param newClusterState New cluster state
 	 */

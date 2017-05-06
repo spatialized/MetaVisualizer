@@ -63,7 +63,6 @@ public class ML_Input
 			
 			if (slider.tag == "TimeCycleLength") 
 			{
-				System.out.println("slider.tag == TimeCycleLength... timeMode:"+world.state.timeMode);
 				switch(world.state.timeMode)
 				{
 					case 0:												// Cluster

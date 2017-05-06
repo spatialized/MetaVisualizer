@@ -43,7 +43,7 @@ public abstract class WMV_Media
 	 * @param newTimeZone Time zone ID
 	 * @param newGPSLocation GPS location
 	 */
-	WMV_Media ( int newID, int newMediaType, String newName, String newFilePath, ZonedDateTime newDateTime, String newTimeZone,
+	public WMV_Media ( int newID, int newMediaType, String newName, String newFilePath, ZonedDateTime newDateTime, String newTimeZone,
 				PVector newGPSLocation )
 	{
 		mState = new WMV_MediaState();
@@ -489,7 +489,7 @@ public abstract class WMV_Media
 	}
 	
 	/**
-	 * Search given list of clusters and associated with this image
+	 * Find and set associated cluster for this media from given cluster list
 	 * @return Whether associated field was successfully found
 	 */	
 	public boolean findAssociatedCluster(ArrayList<WMV_Cluster> clusterList, float maxClusterDistance)    				 // Associate cluster that is closest to photo

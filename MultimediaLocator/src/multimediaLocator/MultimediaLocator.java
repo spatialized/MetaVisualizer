@@ -166,7 +166,7 @@ public class MultimediaLocator extends PApplet
 			{
 				if (!state.initializingFields) 
 				{
-					world.createFieldsFromFolders(library.getFolders());		// Create empty field for each media folder	
+					world.createFieldsFromFolders(library.getFolders());		// Create empty field for each field folder	
 					state.initializingFields = true;
 				}
 				else initializeField(state.initializationField);					
@@ -248,13 +248,11 @@ public class MultimediaLocator extends PApplet
 			if(success) success = (world.getField(fieldID).getClusters().size() > 0);
 			if(success)
 			{
-				if(debugSettings.main || debugSettings.field)
-					System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(fieldID).getClusters().size());
+				if(debugSettings.main || debugSettings.field) System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(fieldID).getClusters().size());
 			}
 			else					// If failed to verify, initialize field from metadata
 			{
-				if(debugSettings.main || debugSettings.field)
-					System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
+				if(debugSettings.main || debugSettings.field) System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
 				
 				world.state.hierarchical = f.initialize(-100000L);
 				metadata.setSoundGPSLocations(f, f.getSounds());

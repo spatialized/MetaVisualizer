@@ -448,7 +448,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	/**
-	 * Start state.playing the video
+	 * Start playing the video
 	 * @param pause 
 	 */
 	public void playVideo()
@@ -463,18 +463,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 	
 	/**
-	 * Stop state.playing the video
+	 * Stop playing the video
 	 */
 	public void stopVideo()
 	{
-//		video.pause();
 		fadeSoundOut(true);				// Fade sound out and pause video once finished
-		
-//		if(video != null)
-//			video.stop();
-		
-//		p.videosPlaying--;
-//		p.setVideosPlaying(p.getVideosPlaying() - 1);
 		state.playing = false;
 	}
 
@@ -488,7 +481,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 	
 	/**
-	 * Stop state.playing and clear the video
+	 * Stop playing and clear the video
 	 */
 	public void clearVideo()
 	{
@@ -509,6 +502,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 	/**
 	 * Draw the video in virtual space
+	 * @param ml Parent app
 	 */
 	private void displayVideo(MultimediaLocator ml)
 	{
@@ -538,9 +532,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			if(frame != null)
 				ml.texture(frame);        			// Apply the image to the face as a texture 
 		}
-
-//		if(frame != null)
-//			ml.texture(frame);
 
 		frame = new PImage(video.getImage());
 		blurred = applyMask(ml, frame, blurMask);				// Apply blur mask once image has loaded

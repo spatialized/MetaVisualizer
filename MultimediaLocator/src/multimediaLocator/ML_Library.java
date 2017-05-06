@@ -373,7 +373,7 @@ public class ML_Library
 
 				WMV_ImageStateList tempIsl = new WMV_ImageStateList();
 				tempIsl.setImages(temp);
-				//				System.out.println("i:"+i+" saved:"+tempIsl.images.size());
+//				System.out.println("i:"+i+" saved:"+tempIsl.images.size());
 
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
@@ -583,7 +583,7 @@ public class ML_Library
 				final ObjectMapper mapper = JsonFactory.create();
 				final File file;
 				try {
-					//					System.out.println("loadClusterStateLists()...  filePath: "+filePath);
+//					System.out.println("loadClusterStateLists()...  filePath: "+filePath);
 					file = new File(filePath);
 					WMV_ImageStateList temp = mapper.readValue(file, WMV_ImageStateList.class);
 					for(WMV_ImageState cs : temp.images)

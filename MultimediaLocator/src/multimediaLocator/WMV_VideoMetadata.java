@@ -23,6 +23,25 @@ public class WMV_VideoMetadata extends WMV_MediaMetadata
 	public float focalLength = 0; 				// Camera focal length (Zoom Level)
 	public float sensorSize; 	 			// Image viewing distance (rarely given in metadata)
 
+	/**
+	 * Constructor for video metadata
+	 * @param newName Video name
+	 * @param newFilePath Video file path
+	 * @param newGPSLocation
+	 * @param newDateTime
+	 * @param newDateTimeString
+	 * @param newTimeZone
+	 * @param newTheta
+	 * @param newFocalLength
+	 * @param newOrientation
+	 * @param newElevation
+	 * @param newRotation
+	 * @param newCameraModel
+	 * @param newWidth
+	 * @param newHeight
+	 * @param newBrightness
+	 * @param newKeywords
+	 */
 	public WMV_VideoMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, int newCameraModel, 
 			int newWidth, int newHeight, float newBrightness, String[] newKeywords )
@@ -43,6 +62,25 @@ public class WMV_VideoMetadata extends WMV_MediaMetadata
 
 	public WMV_VideoMetadata(){}
 	
+	/**
+	 * 
+	 * @param newName
+	 * @param newFilePath
+	 * @param newGPSLocation
+	 * @param newDateTime
+	 * @param newDateTimeString
+	 * @param newTimeZone
+	 * @param newTheta
+	 * @param newFocalLength
+	 * @param newOrientation
+	 * @param newElevation
+	 * @param newRotation
+	 * @param newCameraModel
+	 * @param newWidth
+	 * @param newHeight
+	 * @param newBrightness
+	 * @param newKeywords
+	 */
 	public void initialize( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, int newCameraModel, 
 			int newWidth, int newHeight, float newBrightness, String[] newKeywords )
@@ -59,5 +97,16 @@ public class WMV_VideoMetadata extends WMV_MediaMetadata
 		rotation = newRotation;
 		brightness = newBrightness;
 		cameraModel = newCameraModel;
+	}
+	
+	/**
+	 * @return Whether metadata is valid
+	 */
+	public boolean isValid()
+	{
+		if(gpsLocation.x != 0.f && gpsLocation.z != 0.f && gpsLocation.z != 0.f)
+			return true;
+		else
+			return false;
 	}
 }

@@ -5,7 +5,6 @@ import processing.core.PVector;
 /**
  * State of an image in a field
  * @author davidgordon
- *
  */
 public class WMV_ImageState 
 {
@@ -16,8 +15,8 @@ public class WMV_ImageState
 	/* Graphics */
 	public PVector[] vertices, sVertices;			// Vertex list
 	public int blurMaskID;							// ID of blur mask 
-	public int horizBordersID = -1;					// Horizontal borders ID   	0: Left 1: Center 2: Right  3: Both (Left+Right)
-	public int vertBordersID = -1;					// Vertical borders ID		0: Bottom 1: Center 2: Top  3: Both (Top+Bottom)
+	public int horizBordersID = -1;					// Horizontal borders ID,   0: Left 1: Center 2: Right  3: Both (Left+Right)
+	public int vertBordersID = -1;					// Vertical borders ID,		0: Bottom 1: Center 2: Top  3: Both (Top+Bottom)
 	public float outlineSize = 10.f;				// Size of the outline around a selected image
 
 	/* Model */
@@ -38,18 +37,33 @@ public class WMV_ImageState
 	public boolean isVideoPlaceHolder = false;		// Whether image is a video placeholder
 	public int assocVideoID = -1;					// Video for which this image is a placeholder
 	
+	/**
+	 * Constructor for image state
+	 */
 	WMV_ImageState(){}
 	
+	/**
+	 * Initialize image state
+	 * @param newMetadata Image metadata
+	 */
 	void initialize(WMV_ImageMetadata newMetadata)
 	{
 		metadata = newMetadata;
 		mState = new WMV_MediaState();
 	}
 	
+	/**
+	 * Set media state 
+	 * @param newState
+	 * @param newMetadata
+	 */
 	void setMediaState(WMV_MediaState newState, WMV_ImageMetadata newMetadata)
 	{
 		mState = newState;
 		metadata = newMetadata;
+		
+		if(mState.cluster == -1)
+			System.out.println("setMediaState() for image #"+mState.id+" mState.cluster == -1!!!!");
 	}
 	
 	public WMV_MediaState getMediaState()

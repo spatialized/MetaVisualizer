@@ -11,6 +11,19 @@ import processing.core.PVector;
  */
 public class WMV_SoundMetadata extends WMV_MediaMetadata
 {
+	/**
+	 * Constructor for sound metadata
+	 * @param newName
+	 * @param newFilePath
+	 * @param newGPSLocation
+	 * @param newTheta
+	 * @param newCameraModel
+	 * @param newBrightness
+	 * @param newDateTime
+	 * @param newDateTimeString
+	 * @param newTimeZone
+	 * @param newKeywords
+	 */
 	WMV_SoundMetadata(String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, float newBrightness, 
 			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords)
 	{
@@ -18,11 +31,38 @@ public class WMV_SoundMetadata extends WMV_MediaMetadata
 		
 	}
 
+	/**
+	 * Dummy constructor for sound metadata
+	 */
 	WMV_SoundMetadata(){}
 	
+	/**
+	 * Initialize sound metadata object
+	 * @param newName
+	 * @param newFilePath
+	 * @param newGPSLocation
+	 * @param newTheta
+	 * @param newCameraModel
+	 * @param newBrightness
+	 * @param newDateTime
+	 * @param newDateTimeString
+	 * @param newTimeZone
+	 * @param newKeywords
+	 */
 	public void initialize(String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, float newBrightness, 
 			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords)
 	{
 		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+	}
+	
+	/**
+	 * @return Whether metadata is valid
+	 */
+	public boolean isValid()
+	{
+		if(gpsLocation.x != 0.f && gpsLocation.z != 0.f && gpsLocation.z != 0.f)
+			return true;
+		else
+			return false;
 	}
 }

@@ -30,12 +30,14 @@ public class WMV_ViewerSettings
 	
 	public final int maxVisibleImages = 60;					// Maximum visible images at one time
 	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
-	public final int maxVisibleVideos = 4;					// Maximum visible videos at one time
+	public final int maxVisibleVideos = 3;					// Maximum visible videos at one time
+	public final int maxAudibleSounds = 6;					// Maximum audible sounds at one time
 	
 	public float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
 	public boolean hideImages = false;						// Hide images
 	public boolean hidePanoramas = false;					// Hide panoramas
 	public boolean hideVideos = false;						// Hide videos
+	public boolean hideSounds = false;						// Hide videos
 
 	/* Video */
 	public boolean autoPlayVideos = true;				// Automatically play videos near viewer

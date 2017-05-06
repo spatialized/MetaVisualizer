@@ -21,7 +21,7 @@ public class WMV_MediaState
 	/* Metadata */
 	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
 	public int id;
-	public int mediaType;						// Media Types  0: image 1: panorama 2: video 3: sound 
+	public int mediaType;						// Media Type,  0: image 1: panorama 2: video 3: sound 
 	public String name = "";
 	public String filePath = "";
 
@@ -39,23 +39,23 @@ public class WMV_MediaState
 	public int cluster = -1;				 	// Cluster it belongs to	
 	public boolean fadingFocusDistance = false;
 	public boolean beginFadingObjectDistance = false;			// Whether fading distance of object in image
-	public final float defaultAltitudeScalingFactor = 0.33f;			// Adjust altitude for ease of viewing
+	public final float defaultAltitudeScalingFactor = 0.33f;	// Adjust altitude for ease of viewing
 	
 	/* Graphics */
-	public float aspectRatio = 0.666f;			// Aspect ratio of image or texture
+	public float aspectRatio = 0.666f;							// Aspect ratio of image or texture
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float centerSize = 0.05f;
 
 	/* Transparency */
-	public float viewingBrightness = 0;			// Final image brightness (or alpha in useAlphaFading mode) 
-	public float fadingBrightness;				// Media transparency due to fading in / out
+	public float viewingBrightness = 0;						// Final image brightness (or alpha in useAlphaFading mode) 
+	public float fadingBrightness;							// Media transparency due to fading in / out
 	public boolean isFadingIn = false, isFadingOut = false;
 	public boolean beginFading = false, fading = false;		
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
-	public boolean fadedOut = false;			// Recently faded out
-	public boolean fadedIn = false;
+	public boolean fadedOut = false;						// Recently faded out
+	public boolean fadedIn = false;							// Recently faded in	
 	
 	/* Interaction */
 	public boolean selected = false;
@@ -103,6 +103,7 @@ public class WMV_MediaState
 
 	public void setClusterID(int newClusterID)
 	{
+		if(newClusterID == -1) System.out.println("Setting cluster for media #"+id+" type "+mediaType+" from "+cluster+" to:"+newClusterID);
 		cluster = newClusterID;
 	}
 }

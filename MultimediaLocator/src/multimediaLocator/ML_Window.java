@@ -757,6 +757,9 @@ public class ML_Window {
 		btnZoomIn.tag = "ZoomIn";
 		btnZoomIn.setLocalColorScheme(5);
 
+		/* --- Add field of view --- */
+//		applet.text(" Field of View:"+world.viewer.getFieldOfView(), x, y += lineWidth);
+
 		x = 140;
 		y += 30;
 		if(delay) world.p.delay(delayAmount);
@@ -1532,57 +1535,51 @@ public class ML_Window {
 			applet.fill(0, 0, 255);
 
 			float lineWidthVeryWide = 20f;
-			//		float lineWidthWide = 16f;
 			float lineWidth = 14f;
 
 			float x = 10;
 			float y = 50;			// Starting vertical position
 
+			float largeTextSize = 18.f;
 			float mediumTextSize = 16.f;
 			float smallTextSize = 14.f;
 
 			WMV_Field f = world.getCurrentField();
-
 			if(world.viewer.getState().getCurrentClusterID() >= 0)
 			{
 				WMV_Cluster c = world.getCurrentCluster();
-//				float[] camTar = world.viewer.camera.target();
 
 				applet.fill(185, 215, 255, 255);					// Set text color
-
-//				applet.textSize(mediumTextSize);
-//				applet.text(" Program Modes ", x, y += lineWidthVeryWide);
-//				applet.textSize(smallTextSize);
-//				applet.text(" Orientation Mode: "+world.viewer.settings.orientationMode, x, y += lineWidthVeryWide);
-//				applet.text(" Alpha Mode:"+world.alphaMode, x, y += lineWidth);
-//				applet.text(" Time Fading: "+ world.timeFading, x, y += lineWidth);
+				applet.textSize(largeTextSize);
+				applet.text(" --- Program Modes --- ", x, y += lineWidthVeryWide);
+				applet.textSize(smallTextSize);
+				applet.text(" Alpha Mode:"+world.getState().alphaMode, x, y += lineWidth);
+				applet.text(" Orientation Mode (BETA): "+world.viewer.getSettings().orientationMode, x, y += lineWidthVeryWide);
 //				applet.text(" Altitude Scaling: "+world.altitudeScaling, x, y += lineWidth);
 //				applet.text(" Lock Media to Clusters:"+world.lockMediaToClusters, x, y += lineWidth);
 
-//				applet.textSize(mediumTextSize);
-//				applet.text(" Graphics ", x, y += lineWidthVeryWide);
-//				applet.textSize(smallTextSize);
-//				applet.text(" Alpha:"+world.alpha, x, y += lineWidthVeryWide);
-//				applet.text(" Default Media Length:"+world.settings.defaultMediaLength, x, y += lineWidth);
-//				applet.text(" Media Angle Fading: "+world.viewer.settings.angleFading, x, y += lineWidth);
-//				applet.text(" Media Angle Thinning: "+world.viewer.settings.angleThinning, x, y += lineWidth);
-//				if(world.viewer.settings.angleThinning)
-//					applet.text(" Media Thinning Angle:"+world.viewer.settings.thinningAngle, x, y += lineWidth);
-//				applet.text(" Image Size Factor:"+world.subjectSizeRatio, x, y += lineWidth);
-//				applet.text(" Subject Distance (m.):"+world.defaultFocusDistance, x, y += lineWidth);
-
+				applet.textSize(largeTextSize);
+				applet.text(" --- World --- ", x, y += lineWidthVeryWide);
 				applet.textSize(mediumTextSize);
-				applet.text(" Field: "+f.getName(), x, y += lineWidthVeryWide);
+				applet.text(" Field Count: "+world.getFields().size(), x, y += lineWidthVeryWide);
+				applet.text(" Current Field: "+f.getName(), x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
 				applet.text(" ID: "+(world.viewer.getState().getField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
 				applet.text(" Width: "+f.getModel().getState().fieldWidth+" Length: "+f.getModel().getState().fieldLength+" Height: "+f.getModel().getState().fieldHeight, x, y += lineWidth);
 				applet.text(" Image Count: "+f.getImageCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 				applet.text(" Panorama Count: "+f.getPanoramaCount(), x, y += lineWidth);			// Doesn't check for dataMissing!!
 				applet.text(" Video Count: "+f.getVideoCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
-//				applet.text(" Sound Count: "+f.getSoundCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
+				applet.text(" Sound Count: "+f.getSoundCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!
 				applet.text(" Media Density (per sq. m.): "+f.getModel().getState().mediaDensity, x, y += lineWidth);
 //				applet.text(" Clusters Visible: "+world.viewer.clustersVisible+"  (Orientation Mode)", x, y += lineWidth);
-				
+			
+				applet.textSize(largeTextSize);
+				applet.text(" --- Viewer --- ", x, y += lineWidthVeryWide);
+				applet.textSize(smallTextSize);
+				applet.text(" Location, x: "+PApplet.round(world.viewer.getLocation().x)+" y:"+PApplet.round(world.viewer.getLocation().y)+" z:"+
+						PApplet.round(world.viewer.getLocation().z), x, y += lineWidthVeryWide);		
+				applet.text(" GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidth);		
+
 				applet.text(" Images Visible: "+f.getImagesVisible(), x, y += lineWidth);
 				applet.text("   Images Seen: "+f.getImagesSeen(), x, y += lineWidth);
 				applet.text(" Panoramas Visible: "+f.getPanoramasVisible(), x, y += lineWidth);
@@ -1590,69 +1587,11 @@ public class ML_Window {
 				applet.text(" Videos Visible: "+f.getVideosVisible(), x, y += lineWidth);
 				applet.text("   Videos Seen: "+f.getVideosSeen(), x, y += lineWidth);
 				applet.text("   Currently Playing: "+f.getVideosPlaying(), x, y += lineWidth);
-//				applet.text(" Sounds Audible: "+f.soundsAudible, x, y += lineWidth);
-//				applet.text("   Currently Playing: "+f.soundsPlaying, x, y += lineWidth);
+				applet.text(" Sounds Audible: "+f.getSoundsAudible(), x, y += lineWidth);
+				applet.text("   Currently Playing: "+f.getSoundsPlaying(), x, y += lineWidth);
 
-				applet.textSize(mediumTextSize);
-				applet.text(" Model ", x, y += lineWidthVeryWide);
-				applet.textSize(smallTextSize);
-
-				applet.text(" Clusters:"+(f.getClusters().size()-f.getModel().getState().mergedClusters), x, y += lineWidthVeryWide);
-				applet.text(" Merged: "+f.getModel().getState().mergedClusters+" out of "+f.getClusters().size()+" Total", x, y += lineWidth);
-				applet.text(" Minimum Distance: "+world.settings.minClusterDistance, x, y += lineWidth);
-				applet.text(" Maximum Distance: "+world.settings.maxClusterDistance, x, y += lineWidth);
-				if(world.settings.altitudeScaling)
-					applet.text(" Altitude Scaling Factor: "+world.settings.altitudeScalingFactor+"  (Altitude Scaling)", x, y += lineWidthVeryWide);
-				applet.text(" Clustering Method : "+ ( world.getState().hierarchical ? "Hierarchical" : "K-Means" ), x, y += lineWidth);
-				applet.text(" Population Factor: "+f.getModel().getState().clusterPopulationFactor, x, y += lineWidth);
-				if(world.getState().hierarchical) applet.text(" Current Cluster Depth: "+f.getState().clusterDepth, x, y += lineWidth);
-
-				applet.textSize(mediumTextSize);
-				applet.text(" Viewer ", x, y += lineWidthVeryWide);
-				applet.textSize(smallTextSize);
-				applet.text(" Location, x: "+PApplet.round(world.viewer.getLocation().x)+" y:"+PApplet.round(world.viewer.getLocation().y)+" z:"+
-						PApplet.round(world.viewer.getLocation().z), x, y += lineWidthVeryWide);		
-				applet.text(" GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidth);		
-
-				applet.text(" Current Cluster: "+world.viewer.getState().getCurrentClusterID(), x, y += lineWidthVeryWide);
-				applet.text("   Media Points: "+c.getState().mediaCount, x, y += lineWidth);
-				applet.text("   Media Segments: "+world.getCurrentCluster().segments.size(), x, y += lineWidth);
-				applet.text("   Distance: "+PApplet.round(PVector.dist(c.getLocation(), world.viewer.getLocation())), x, y += lineWidth);
-//				applet.text("   Auto Stitched Panoramas: "+world.getCurrentCluster().stitched360.size(), x, y += lineWidth);
-				applet.text("   Stitched Panoramas: "+world.getCurrentCluster().stitched.size(), x, y += lineWidth);
-				if(world.viewer.getAttractorClusterID() != -1)
-				{
-					applet.text(" Destination Cluster : "+world.viewer.getAttractorCluster(), x, y += lineWidth);
-					applet.text(" Destination Media Points: "+world.getCurrentField().getCluster(world.viewer.getAttractorClusterID()).getState().mediaCount, x, y += lineWidth);
-					applet.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getCluster(world.viewer.getAttractorClusterID()).getLocation(), world.viewer.getLocation() )), x, y += lineWidth);
-				}
-
-				if(world.p.debugSettings.viewer) 
-				{
-					applet.text(" Debug: Current Attraction: "+world.viewer.getAttraction().mag(), x, y += lineWidth);
-					applet.text(" Debug: Current Acceleration: "+world.viewer.getAcceleration().mag(), x, y += lineWidth);
-					applet.text(" Debug: Current Velocity: "+ world.viewer.getVelocity().mag() , x, y += lineWidth);
-					applet.text(" Debug: Moving? " + world.viewer.getState().isMoving(), x, y += lineWidth);
-					applet.text(" Debug: Slowing? " + world.viewer.isSlowing(), x, y += lineWidth);
-					applet.text(" Debug: Halting? " + world.viewer.isHalting(), x, y += lineWidth);
-				}
-
-				if(world.p.debugSettings.viewer)
-				{
-					applet.text(" Debug: X Orientation (Yaw):" + world.viewer.getXOrientation(), x, y += lineWidth);
-					applet.text(" Debug: Y Orientation (Pitch):" + world.viewer.getYOrientation(), x, y += lineWidth);
-//					applet.text(" Debug: Target Point x:" + camTar[0] + ", y:" + camTar[1] + ", z:" + camTar[2], x, y += lineWidth);
-				}
-				else
-				{
-					applet.text(" Compass Direction:" + utilities.angleToCompass(world.viewer.getXOrientation())+" Angle: "+world.viewer.getXOrientation(), x, y += lineWidth);
-					applet.text(" Vertical Direction:" + PApplet.degrees(world.viewer.getYOrientation()), x, y += lineWidth);
-					applet.text(" Zoom:"+world.viewer.getFieldOfView(), x, y += lineWidth);
-				}
-				applet.text(" Field of View:"+world.viewer.getFieldOfView(), x, y += lineWidth);
-
-				applet.textSize(mediumTextSize);
-				applet.text(" Output ", x, y += lineWidthVeryWide);
+				applet.textSize(largeTextSize);
+				applet.text(" --- Output --- ", x, y += lineWidthVeryWide);
 				applet.textSize(smallTextSize);
 				applet.text(" Image Output Folder:"+world.outputFolder, x, y += lineWidthVeryWide);
 				applet.text(" Library Folder:"+world.p.library.getLibraryFolder(), x, y += lineWidth);

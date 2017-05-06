@@ -1153,8 +1153,9 @@ public class WMV_Image extends WMV_Media
 	 */
 	public void setState(WMV_ImageState newState)
 	{
-		state = newState;							// Set state parameters
+		state = newState;						// Set state parameters
 		setMediaState( state.getMediaState() );	// Set media state (general) parameters
+		if(state.getMediaState().cluster == -1) System.out.println("Image.setState()... state.getMediaState().cluster == "+state.getMediaState().cluster);
 		metadata = state.getMetadata();			// Set metadata parameters
 	}
 

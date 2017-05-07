@@ -257,6 +257,7 @@ class WMV_MetadataLoader
 	
 	/**
 	 * Load metadata for folder of videos
+	 * @param fieldPath Field path
 	 */
 	public void loadGPSTrackFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
@@ -271,8 +272,7 @@ class WMV_MetadataLoader
 				gpsTrackFilesFound = true;
 		}
 		
-		if (debugSettings.main)
-			System.out.println("GPS Track Folder:" + gpsTrackFolder);
+		if (debugSettings.metadata) System.out.println("GPS Track Folder:" + gpsTrackFolder);
 	}
 	
 	/**

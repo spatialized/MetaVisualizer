@@ -717,7 +717,7 @@ public class WMV_Utilities
 			{
 				Element e;
 				e = (Element)allNodes.item(h);										// Location
-				System.out.println("Node "+h+" is "+e.getTagName() + ":");
+//				System.out.println("Node "+h+" is "+e.getTagName() + ":");
 			}
 			for (int h=4; h < len; h+=3)												// Iterate through each item in .gpx XML file
 			{

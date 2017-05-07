@@ -383,6 +383,18 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Stop any currently playing sounds
+	 */
+	public void stopAllSounds()
+	{
+		for(int i=0;i<getCurrentField().getSounds().size();i++)
+		{
+			if(getCurrentField().getSound(i) != null && getCurrentField().getVideo(i).video != null)
+				getCurrentField().getSound(i).stopSound();
+		}
+	}
+
 	public void fadeOutAllMedia()
 	{
 		getCurrentField().fadeOutAllMedia();

@@ -33,17 +33,17 @@ public class WMV_FieldState
 	public boolean dendrogramCreated = false;				// Whether dendrogram has been created
 
 	/* Media */
-	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos and currently seen
-	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas and currently seen
-	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0;
-	public int soundsAudible = 0, soundsLoaded = 0, soundsPlaying = 0, soundsHeard = 0;
+	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos / currently seen
+	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas / currently seen
+	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0; // Number of visible videos / currently seen
+	public int soundsAudible = 0, soundsLoaded = 0, soundsPlaying = 0, soundsHeard = 0; // Number of audible sounds / currently heard
 	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0, soundErrors = 0;			// Metadata loading errors per media type
-	public int indexPanoramaOffset, indexVideoOffset, indexSoundOffset;		// Start of panoramas / videos / sounds in names and distances arrays
+	public int indexPanoramaOffset, indexVideoOffset, indexSoundOffset;		// Starting index of panoramas / videos / sounds in names and distances arrays
 	
-	public int disassociatedImages = 0;						// Media not associated with a cluster -- Obsolete?
-	public int disassociatedPanoramas = 0;
-	public int disassociatedVideos = 0;
-	public int disassociatedSounds = 0;
+//	public int disassociatedImages = 0;						// Media not associated with a cluster -- Obsolete?
+//	public int disassociatedPanoramas = 0;
+//	public int disassociatedVideos = 0;
+//	public int disassociatedSounds = 0;
 	
 	public WMV_FieldState(){}
 	
@@ -79,10 +79,10 @@ public class WMV_FieldState
 		videosVisible = 0; videosLoaded = 0; videosPlaying = 0; videosSeen = 0;
 		soundsAudible = 0; soundsLoaded = 0; soundsPlaying = 0; soundsHeard = 0;
 		
-		disassociatedImages = 0;						// Images not associated with a cluster -- Still needed?
-		disassociatedPanoramas = 0;
-		disassociatedVideos = 0;
-		disassociatedSounds = 0;
+//		disassociatedImages = 0;						// Images not associated with a cluster -- Still needed?
+//		disassociatedPanoramas = 0;
+//		disassociatedVideos = 0;
+//		disassociatedSounds = 0;
 	}
 	
 	/**

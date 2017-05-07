@@ -25,7 +25,7 @@ public class WMV_Panorama extends WMV_Media
 	private float cosTable[];
 
 	/**
-	 * Constructor for spherical panorama
+	 * Constructor for spherical panorama in 3D space
 	 * @param newID Panorama id
 	 * @param newType Media type
 	 * @param newElevation Elevation angle (currently set to default of 0)

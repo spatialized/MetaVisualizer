@@ -106,12 +106,16 @@ public class WMV_Field
 		state.panoramasVisible = 0;
 		state.videosVisible = 0;
 		state.videosSeen = 0;
+		state.soundsAudible = 0;
+		state.soundsHeard = 0;
 
 		for (WMV_Image m : images) 		// Update and display images
 		{
 			if(!m.isDisabled())
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
+				boolean nowVisible = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance 
+									   && !m.verticesAreNull() );
 
 				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 				if(worldState.timeFading)
@@ -128,7 +132,7 @@ public class WMV_Field
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
 					m.update(ml, utilities);  		// Update geometry + visibility
 
-				if (distance < vanishingPoint && distance > viewerSettings.nearClippingDistance && !m.verticesAreNull()) 	// Visible	
+				if (nowVisible) 		// Visible	
 				{
 					if(!m.getMediaState().fadingFocusDistance && !m.isFading()) 
 						m.update(ml, utilities);  	// Update geometry + visibility
@@ -144,6 +148,7 @@ public class WMV_Field
 			if(!n.isDisabled())
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
+				boolean nowVisible = (distance < vanishingPoint);
 
 				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 				if(worldState.timeFading)
@@ -156,15 +161,15 @@ public class WMV_Field
 					else 
 						n.updateTimeBrightness(clusters.get(n.getAssociatedClusterID()), timeline, utilities);
 				}
-				if(distance < vanishingPoint)			// Check if panorama is in visible range
+				if(nowVisible)			// Check if panorama is in visible range
 				{
-					n.update(ml);  	// Update geometry + visibility
+					n.update(ml);  		// Update geometry + visibility
 					n.display(ml); 		// Display panorama
 					state.panoramasVisible++;
 				}
 				else if(n.isFading())
 				{
-					n.update(ml);  	// Update geometry + visibility
+					n.update(ml);  		// Update geometry + visibility
 				}
 			}
 		}
@@ -190,22 +195,11 @@ public class WMV_Field
 					else 
 						v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
 				}
-
-//				v.updateTimeBrightness(clusters.get(v.getAssociatedClusterID()), timeline, utilities);
-//				v.getMediaState().timeBrightness = 1.f;				// -- TESTING
-
-				if (nowVisible || v.isFading())
+				if(nowVisible)
 				{
-					if(v.getAssociatedClusterID() > clusters.size())
-					{
-						System.out.println("v id#"+v.getID()+" .getAssociatedCluster() > clusters.size():"+"v.getAssociatedCluster():"+v.getAssociatedClusterID() +"clusters.size():" +clusters.size());
-					}
-					else
-					{
-						v.update(ml, utilities);  	// Update geometry + visibility
-						v.display(ml); 		// Display video
-						state.videosVisible++;
-					}
+					v.update(ml, utilities);  	// Update geometry + visibility
+					v.display(ml); 				// Display video
+					state.videosVisible++;
 				}
 				else
 				{
@@ -218,37 +212,52 @@ public class WMV_Field
 			}
 		}
 
-				for (WMV_Sound s : sounds)  		// Update and display sounds
+		for (WMV_Sound s : sounds)  		// Update and display sounds
+		{
+			if(!s.isDisabled())
+			{
+				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
+				boolean nowAudible = (distance < vanishingPoint);
+
+				s.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				if ( s.isVisible() && !nowAudible )
 				{
-					if(!s.isDisabled())
-					{
-						float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
-						boolean nowVisible = (distance < vanishingPoint);
-		
-						s.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
-						if ( s.isVisible() && !nowVisible )
-						{
-							s.fadeOut();
-						}
-						
-						if (nowVisible || s.isFading())
-						{
-							s.updateTimeBrightness(clusters.get(s.getAssociatedClusterID()), timeline, utilities);
-//							s.update();  	// Update geometry + visibility
-//							s.draw(); 		// Display sound
-//							soundsAudible++;
-						}
-						else
-						{
-//							if(s.isFading() || s.isFadingVolume())
-//							if(s.isFading())
-//								s.update();  	// Update geometry + visibility
-							
-							if(s.isVisible())
-								s.fadeOut();
-						}
-					}
+					s.fadeOut();
 				}
+
+				if(worldState.timeFading)
+				{
+					if(s.getAssociatedClusterID() < 0 || s.getAssociatedClusterID() >= clusters.size()) 
+					{
+						if(debugSettings.field || debugSettings.sound || debugSettings.media)
+							System.out.println("Error in Field.display()... cannot updateTimeBrightness: sound id:"+s.getID()+" .getAssociatedCluster("+s.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
+					}
+					else 
+						s.updateTimeBrightness(getCluster(s.getAssociatedClusterID()), timeline, utilities);
+				}
+
+				if (nowAudible)
+				{
+//					if(worldState.frameCount % 30 == 0)
+//						System.out.println("Sound #"+s.getID()+" nowAudible:"+nowAudible+" isFading():"+s.isFading());
+					s.update(ml, utilities);  	// Update geometry + visibility
+					s.display(ml); 				// Display sound as sphere
+					state.soundsAudible++;
+				}
+				else
+				{
+					if(s.isFading() || s.isFadingVolume())
+					{
+						s.update(ml, utilities);  	// Update geometry + visibility
+//						if(worldState.frameCount % 30 == 0)
+//							System.out.println("  Sound #"+s.getID()+" nowAudible:"+nowAudible+" isFading():"+s.isFading()+" isFadingVolume():"+s.isFadingVolume());
+					}
+
+					if(s.isVisible())
+						s.fadeOut();
+				}
+			}
+		}
 
 		//		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
 		//		{
@@ -1797,6 +1806,8 @@ public class WMV_Field
 			getPanorama(i).findAssociatedCluster(clusters, model.getState().maxClusterDistance);
 		for (int i = 0; i < videos.size(); i++) 			// Find closest cluster for each video
 			getVideo(i).findAssociatedCluster(clusters, model.getState().maxClusterDistance);
+//		for (int i = 0; i < sounds.size(); i++) 			// Find closest cluster for each video
+//			getSound(i).findAssociatedCluster(clusters, model.getState().maxClusterDistance);
 
 		if(getClusters().size() > 0)							// Find image place holders
 			findVideoPlaceholders();
@@ -2934,7 +2945,7 @@ public class WMV_Field
 								if(newImage.getAssociatedClusterID() == -1)			// Fix index 0 missing in JSON error
 								{
 									newImage.setAssociatedClusterID(0);
-									System.out.println("setState()...  Set image state #"+newImage.getID()+" associated cluster from -1 to 0.... name:"+newImage.getMediaState().name);
+//									System.out.println("setState()...  Set image state #"+newImage.getID()+" associated cluster from -1 to 0.... name:"+newImage.getMediaState().name);
 								}							
 								newImage.setImage(emptyImage);
 								addImage(newImage);
@@ -3621,45 +3632,45 @@ public class WMV_Field
 		state.soundsLoaded = newValue;
 	}
 
-	public int getDisassociatedImages()
-	{
-		return state.disassociatedImages;
-	}
-
-	public int getDisassociatedPanoramas()
-	{
-		return state.disassociatedPanoramas;
-	}
-
-	public int getDisassociatedVideos()
-	{
-		return state.disassociatedVideos;
-	}
-
-	public int getDisassociatedSounds()
-	{
-		return state.disassociatedVideos;
-	}
-
-	public void setDisassociatedImages(int newValue)
-	{
-		state.disassociatedImages = newValue;
-	}
-
-	public void setDisassociatedPanoramas(int newValue)
-	{
-		state.disassociatedPanoramas = newValue;
-	}
-
-	public void setDisassociatedVideos(int newValue)
-	{
-		state.disassociatedVideos = newValue;
-	}
-
-	public void setDisassociatedSounds(int newValue)
-	{
-		state.disassociatedSounds = newValue;
-	}
+//	public int getDisassociatedImages()
+//	{
+//		return state.disassociatedImages;
+//	}
+//
+//	public int getDisassociatedPanoramas()
+//	{
+//		return state.disassociatedPanoramas;
+//	}
+//
+//	public int getDisassociatedVideos()
+//	{
+//		return state.disassociatedVideos;
+//	}
+//
+//	public int getDisassociatedSounds()
+//	{
+//		return state.disassociatedVideos;
+//	}
+//
+//	public void setDisassociatedImages(int newValue)
+//	{
+//		state.disassociatedImages = newValue;
+//	}
+//
+//	public void setDisassociatedPanoramas(int newValue)
+//	{
+//		state.disassociatedPanoramas = newValue;
+//	}
+//
+//	public void setDisassociatedVideos(int newValue)
+//	{
+//		state.disassociatedVideos = newValue;
+//	}
+//
+//	public void setDisassociatedSounds(int newValue)
+//	{
+//		state.disassociatedSounds = newValue;
+//	}
 
 	/**
 	 * Get convex hull of set of n points using Jarvis March algorithm.
@@ -3709,7 +3720,7 @@ public class WMV_Field
 			if(sGPSLoc != null)
 				points.add(new PVector(sGPSLoc.x, sGPSLoc.y));
 			else
-				System.out.println("calculateBorderPoints()... Sound id#"+s.getID()+" GPS location is null!");
+				System.out.println("calculateBorderPoints()... Sound id#"+s.getID()+" GPS location is null!  s.getLocation():"+s.getLocation());
 		}
 
 		WMV_ModelState m = getModel().getState();
@@ -3719,7 +3730,7 @@ public class WMV_Field
 			{
 				model.state.centerLongitude = (m.lowLongitude + m.highLongitude) * 0.5f; 	// GPS longitude decreases from left to right
 				model.state.centerLatitude = (m.lowLatitude + m.highLatitude) * 0.5f; 				// GPS latitude increases from bottom to top, minus sign to match P3D coordinate space
-				//				System.out.println("Found field#"+getID()+" center point... model.state.centerLongitude:"+model.state.centerLongitude+" model.state.centerLatitude:"+model.state.centerLatitude);
+//				System.out.println("Found field#"+getID()+" center point... model.state.centerLongitude:"+model.state.centerLongitude+" model.state.centerLatitude:"+model.state.centerLatitude);
 			}
 			else
 			{

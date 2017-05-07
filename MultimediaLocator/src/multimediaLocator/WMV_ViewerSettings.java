@@ -42,7 +42,11 @@ public class WMV_ViewerSettings
 	/* Video */
 	public boolean autoPlayVideos = true;				// Automatically play videos near viewer
 	public int autoPlayMaxVideoCount = 2;				// Maximum videos to auto play simultaneously
-	
+
+	/* Sound */
+	public boolean autoPlaySounds = true;				// Automatically play videos near viewer
+	public int autoPlayMaxSoundCount = 3;				// Maximum videos to auto play simultaneously
+
 	/* Physics */
 	public float lastAttractorDistance = -1.f;
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction

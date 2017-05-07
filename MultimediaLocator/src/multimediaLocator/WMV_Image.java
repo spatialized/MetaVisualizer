@@ -20,7 +20,7 @@ public class WMV_Image extends WMV_Media
 	private PImage blurred;			// Combined pixels 
 
 	/**
-	 * Constructor for 3D image
+	 * Constructor for image in 3D space
 	 * @param newID Image ID
 	 * @param newImage Image file
 	 * @param newMediaType Media type ID
@@ -1155,7 +1155,7 @@ public class WMV_Image extends WMV_Media
 	{
 		state = newState;						// Set state parameters
 		setMediaState( state.getMediaState() );	// Set media state (general) parameters
-		if(state.getMediaState().cluster == -1) System.out.println("Image.setState()... state.getMediaState().cluster == "+state.getMediaState().cluster);
+//		if(state.getMediaState().cluster == -1) System.out.println("Image.setState()... state.getMediaState().cluster == "+state.getMediaState().cluster);
 		metadata = state.getMetadata();			// Set metadata parameters
 	}
 

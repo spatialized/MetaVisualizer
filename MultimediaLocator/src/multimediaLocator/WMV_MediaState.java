@@ -46,7 +46,7 @@ public class WMV_MediaState
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
-	public float centerSize = 0.05f;
+	public float centerSize = 0.5f;
 
 	/* Transparency */
 	public float viewingBrightness = 0;						// Final image brightness (or alpha in useAlphaFading mode) 

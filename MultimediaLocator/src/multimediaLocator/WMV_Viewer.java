@@ -795,7 +795,9 @@ public class WMV_Viewer
 	{
 		if(newField >= 0)
 		{
-			p.stopAllVideos();										/* Stop currently playing videos */
+			p.stopAllVideos();									/* Stop currently playing videos */
+			p.stopAllSounds();									/* Stop currently playing sounds */
+			
 			if(newField >= p.getFieldCount()) newField = 0;
 			
 			if(debugSettings.viewer)

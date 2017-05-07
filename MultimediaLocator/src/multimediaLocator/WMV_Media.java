@@ -497,22 +497,25 @@ public abstract class WMV_Media
 		int closestClusterIndex = 0;
 		float closestDistance = 100000;
 
+//		System.out.println("findAssociatedCluster()... Media #"+getID()+" Media type:"+getMediaType()+" clusterList.size():"+clusterList.size()+" getCaptureLocation():"+getCaptureLocation());
 		for (int i = 0; i < clusterList.size(); i++) 
 		{     
 			WMV_Cluster curCluster = clusterList.get(i);
-			float distanceCheck = getCaptureLocation().dist(curCluster.getLocation());
+			float distance = getCaptureLocation().dist(curCluster.getLocation());
+//			System.out.println("   :"+getCaptureLocation()+" Cluster #"+i+" location:"+curCluster.getLocation()+" distance:"+distance+" closestDistance:"+closestDistance+" maxClusterDistance:"+maxClusterDistance);
 
-			if (distanceCheck < closestDistance)
+			if (distance < closestDistance)
 			{
 				closestClusterIndex = i;
-				closestDistance = distanceCheck;
+				closestDistance = distance;
+//				System.out.println("   : Set closestClusterIndex:"+closestClusterIndex+" set closestDistance:"+closestDistance+" distance:"+distance);
 			}
 		}
 
 		if(closestDistance < maxClusterDistance)
 			setAssociatedClusterID(closestClusterIndex);		// Associate image with cluster
 		else
-			setAssociatedClusterID(-1);						// Create a new single image cluster here!
+			setAssociatedClusterID(-1);							// Create a new single image cluster here!
 
 		if(getAssociatedClusterID() != -1)
 			return true;
@@ -816,6 +819,11 @@ public abstract class WMV_Media
 	{
 		return mState.id;
 	}
+	
+	public int getMediaType()
+	{
+		return getMediaState().mediaType;
+	}
 
 	public float getTime()
 	{
@@ -863,6 +871,7 @@ public abstract class WMV_Media
 	 */	
 	public void setAssociatedClusterID(int newCluster)
 	{
+//		if(newCluster == -1) System.out.println("Media.setAssociatedClusterID()... Setting cluster for media #"+mState.id+" type "+mState.mediaType+" from "+mState.cluster+" to:"+newCluster);
 		mState.setClusterID( newCluster );
 	}
 	

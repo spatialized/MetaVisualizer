@@ -234,9 +234,9 @@ public class WMV_Field
 						if (nowVisible || s.isFading())
 						{
 							s.updateTimeBrightness(clusters.get(s.getAssociatedClusterID()), timeline, utilities);
-		//					s.update();  	// Update geometry + visibility
+//							s.update();  	// Update geometry + visibility
 //							s.draw(); 		// Display sound
-		//					soundsAudible++;
+//							soundsAudible++;
 						}
 						else
 						{
@@ -321,6 +321,8 @@ public class WMV_Field
 				hierarchical = true;
 			
 			runInitialClustering(hierarchical);		// Find media spatial clusters (points of interest)
+//			setSoundLocations();
+			
 //			model.findDuplicateClusterMedia();		// Find media in more than one cluster
 
 			if(worldState.lockMediaToClusters)					
@@ -334,7 +336,7 @@ public class WMV_Field
 			createTimeline();							// Create date-independent timeline for field
 			createDateline();							// Create field dateline
 			createTimelines();							// Create date-specific timelines for field
-			findClusterMediaDirections();			// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
+			findClusterMediaDirections();				// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
 			if(debugSettings.field) System.out.println("Finished initializing field #"+state.id+"..."+state.name);
 	}
 	
@@ -343,21 +345,30 @@ public class WMV_Field
 	 */
 	public void setSoundLocations()
 	{
-		if(debugSettings.sound) System.out.println("---> setSoundLocations()...");
+		if(debugSettings.sound) System.out.println("---> setSoundLocations()... clusters.size():"+clusters.size());
 		for(WMV_Sound snd : sounds)
 		{
-			if(debugSettings.sound) 
-				System.out.println( "  model.getState().highLongitude:"+model.getState().highLongitude+"  model.getState().highAltitude:"+model.getState().highAltitude+"  model.getState().highLatitude:"+model.getState().highLatitude );
+//			if(debugSettings.sound) System.out.println( "  model.getState().highLongitude:"+model.getState().highLongitude+"  model.getState().highAltitude:"+model.getState().highAltitude+"  model.getState().highLatitude:"+model.getState().highLatitude );
+
 			snd.calculateCaptureLocation(model);
-			if(debugSettings.sound) 
-			{
-				System.out.println("  snd.getGPSLocation().x:"+snd.getGPSLocation().x+"  snd.getGPSLocation().y:"+snd.getGPSLocation().y+
-								   "  snd.getGPSLocation().z:"+snd.getGPSLocation().z);
-				System.out.println("  snd.getCaptureLocation().x:"+snd.getCaptureLocation().x+"  snd.getCaptureLocation().y:"+snd.getCaptureLocation().y+
-							       "  snd.getCaptureLocation().z:"+snd.getCaptureLocation().z);
-			}
 			snd.setLocation(snd.getCaptureLocation());
-			snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);
+			
+			if(snd.getAssociatedClusterID() == -1)				// Search for existing cluster near sound
+			{
+				System.out.println("1  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
+				snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);
+				System.out.println("1   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
+			}
+			
+			if(snd.getAssociatedClusterID() == -1)				// Create cluster for single sound if no existing cluster nearby
+			{
+				System.out.println("2  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
+				int newClusterID = clusters.size();
+				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, snd.getCaptureLocation()));
+				snd.setAssociatedClusterID(newClusterID);
+				clusters.get(newClusterID).createSingle(snd.getID(), 3);
+				System.out.println("2   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
+			}
 		}
 	}
 
@@ -444,19 +455,22 @@ public class WMV_Field
 	/**
 	 * Merge and initialize media clusters 
 	 */
-	void finishClusterSetup(boolean mergeClusters)
+	void finishClusterSetup()
 	{
-		if(debugSettings.main || debugSettings.field) System.out.println("Initializing clusters...");
+		if(debugSettings.main || debugSettings.field) System.out.println("Finishing cluster setup...");
 
-		markEmptyClusters();							/* Mark clusters with no media as empty */
-		if(mergeClusters) clusters = mergeAdjacentClusters( clusters, model.getState().minClusterDistance );	/* Merge clusters */
-
+//		markEmptyClusters();							/* Mark clusters with no media as empty */
+//		if(mergeClusters) clusters = mergeAdjacentClusters( clusters, model.getState().minClusterDistance );	/* Merge clusters */
+		
+		setSoundLocations();							/* Set sound locations and clusters */
+		
 		createClusterModels();							/* Create cluster models */
 		setClusterTimes();								/* Set cluster times */
 		findClusterMediaSegments();						/* Find cluster media segments */
 		
 		verifyField();									/* Verify field */
 		setClusters( cleanupClusters() );				/* Cleanup clusters */
+		
 		if(debugSettings.main || debugSettings.field) System.out.println("Finished cluster setup...");
 	}
 
@@ -573,7 +587,7 @@ public class WMV_Field
 	/** 
 	 * Create a new cluster for each media not associated with a cluster
 	 */	
-	void createSingleClusters()
+	void createSingleClusters(boolean inclSounds)
 	{
 		int newClusterID = getClusters().size();	// Start adding clusters at end of current list 
 		int initial = newClusterID;
@@ -611,14 +625,17 @@ public class WMV_Field
 			}
 		}
 
-		for (WMV_Sound s : sounds) 							// Find closest cluster for each video
+		if(inclSounds)
 		{
-			if(s.getAssociatedClusterID() == -1)				// Create cluster for each single video
+			for (WMV_Sound s : sounds) 								// Find closest cluster for each video
 			{
-				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, s.getCaptureLocation()));
-				s.setAssociatedClusterID(newClusterID);
-				clusters.get(newClusterID).createSingle(s.getID(), 3);
-				newClusterID++;
+				if(s.getAssociatedClusterID() == -1)				// Create cluster for each single video
+				{
+					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, s.getCaptureLocation()));
+					s.setAssociatedClusterID(newClusterID);
+					clusters.get(newClusterID).createSingle(s.getID(), 3);
+					newClusterID++;
+				}
 			}
 		}
 
@@ -1018,11 +1035,11 @@ public class WMV_Field
 		if (model.getState().validMedia > 1) 				// If more than 1 media point
 		{
 			if(debugSettings.field) System.out.println("Running k-means clustering... model.validMedia:"+model.getState().validMedia);
-			initializeKMeansClusters(numClusters);		// Create initial clusters at random image locations	
-			refineKMeansClusters(epsilon, refinement);	// Refine clusters over many iterations
-			createSingleClusters();						// Create clusters for single media points
-
-			finishClusterSetup(worldState.mergeClusters);	// Initialize clusters (merge, etc.)
+			initializeKMeansClusters(numClusters, false);		// Create initial clusters at random image locations	
+			refineKMeansClusters(epsilon, refinement, false);	// Refine clusters over many iterations
+			createSingleClusters(false);						// Create clusters for single media points
+			mergeAllNearbyClusters();
+			finishClusterSetup();	// Initialize clusters (merge, etc.)
 		}
 		else System.out.println("Error in k-means clustering... model.validMedia == "+model.getState().validMedia);
 
@@ -1030,6 +1047,12 @@ public class WMV_Field
 			System.out.println("Created "+numClusters+" Clusters...");
 	}
 
+	public void mergeAllNearbyClusters()
+	{
+		markEmptyClusters();							/* Mark clusters with no media as empty */
+		if(worldState.mergeClusters) clusters = mergeAdjacentClusters( clusters, model.getState().minClusterDistance );	/* Merge clusters */
+	}
+	
 	/**
 	 * Estimate number of spatial clusters in field
 	 * @param m Model state for field
@@ -1071,7 +1094,7 @@ public class WMV_Field
 	 * Create initial clusters at random image locations	 			-- Need to: record random seed, account for associated videos
 	 * @param numClusters Number of initial clusters
 	 */	
-	void initializeKMeansClusters( int numClusters )
+	void initializeKMeansClusters( int numClusters, boolean inclSounds )
 	{
 		Random rng = new Random(System.currentTimeMillis());
 
@@ -1100,8 +1123,8 @@ public class WMV_Field
 
 				addedImages.add(imageID);								
 				addedPanoramas.add(panoramaID);								
-				addedVideos.add(videoID);								
-				addedSounds.add(soundID);								
+				addedVideos.add(videoID);	
+				if(inclSounds) addedSounds.add(soundID);								
 
 				/* Record media nearby added media */
 				for(WMV_Image img : images)						// Check for images near the picked one
@@ -1125,13 +1148,16 @@ public class WMV_Field
 						nearVideos.add(vid.getID());				// Add to the list of nearby picked images
 				}
 
-				for(WMV_Sound snd : sounds)						// Check for videos near the picked one
+				if(inclSounds)
 				{
-					float dist = snd.getCaptureDistanceFrom(getSound(soundID).getCaptureLocation());  // Get distance
-					if(dist < model.getState().minClusterDistance)
-						nearVideos.add(snd.getID());				// Add to the list of nearby picked images
+					for(WMV_Sound snd : sounds)						// Check for videos near the picked one
+					{
+						float dist = snd.getCaptureDistanceFrom(getSound(soundID).getCaptureLocation());  // Get distance
+						if(dist < model.getState().minClusterDistance)
+							nearVideos.add(snd.getID());				// Add to the list of nearby picked images
+					}
 				}
-
+				
 				/* Create the cluster */
 				PVector clusterPoint = new PVector(0,0,0);
 				if(images.size() > 0)
@@ -1152,13 +1178,15 @@ public class WMV_Field
 					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
 					i++;
 				}
-				if(sounds.size() > 0)
+				if(inclSounds)
 				{
-					clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
-					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
-					i++;
+					if(sounds.size() > 0)
+					{
+						clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
+						addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+						i++;
+					}
 				}
-
 				if(i > 0) i--;
 				else if(debugSettings.field) System.out.println("Error in initClusters()... No media!!");
 			}
@@ -1194,17 +1222,20 @@ public class WMV_Field
 					addedVideos.add(videoID);
 					clusterPoint = new PVector(getVideo(videoID).getCaptureLocation().x, getVideo(videoID).getCaptureLocation().y, getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
 				}
-				else if( mediaID < images.size() + panoramas.size() + videos.size() + sounds.size() )		// If sound, compare to already picked videos
+				else if(inclSounds)
 				{
-					soundID = (int) (rng.nextFloat() * (sounds.size()));  						
-					while(addedSounds.contains(soundID) && nearSounds.contains(soundID))
+					if( mediaID < images.size() + panoramas.size() + videos.size() + sounds.size() )		// If sound, compare to already picked videos
+					{
 						soundID = (int) (rng.nextFloat() * (sounds.size()));  						
+						while(addedSounds.contains(soundID) && nearSounds.contains(soundID))
+							soundID = (int) (rng.nextFloat() * (sounds.size()));  						
 
-					addedSounds.add(soundID);
-					clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
+						addedSounds.add(soundID);
+						clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
+					}
+
+					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
 				}
-
-				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
 			}
 		}	
 	}
@@ -1214,7 +1245,7 @@ public class WMV_Field
 	 * @param epsilon Termination criterion, i.e. if all clusters moved less than epsilon after last iteration, stop refinement
 	 * @param iterations Number of iterations
 	 */	
-	void refineKMeansClusters(float epsilon, int iterations)
+	void refineKMeansClusters(float epsilon, int iterations, boolean inclSounds)
 	{
 		int count = 0;
 		boolean moved = false;						// Has any cluster moved farther than epsilon?
@@ -1242,15 +1273,27 @@ public class WMV_Field
 				if(debugSettings.field && debugSettings.detailed)
 					if(!success) System.out.println("Couldn't find cluster for video #"+vid.getID());
 			}
-			for (WMV_Sound snd : sounds) 			// Find closest cluster for each image
+			if(inclSounds)
 			{
-				boolean success = snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);		// Set associated cluster
-//				if(debugSettings.field && debugSettings.detailed)
-					if(!success) System.out.println("Couldn't find cluster for sound #"+snd.getID());
+				for (WMV_Sound snd : sounds) 			// Find closest cluster for each image
+				{
+					boolean success = snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);		// Set associated cluster
+					if(debugSettings.field && debugSettings.detailed)
+						if(!success) System.out.println("Couldn't find cluster for sound #"+snd.getID());
+				}
 			}
-			for (int i = 0; i < getClusters().size(); i++) 		// Find closest cluster for each image
-				clusters.get(i).create(images, panoramas, videos, sounds);						// Assign clusters
-
+			
+			if(inclSounds)
+			{
+				for (int i = 0; i < getClusters().size(); i++) 										// Find closest cluster for each image
+					clusters.get(i).create(images, panoramas, videos, sounds);						// Assign media to clusters
+			}
+			else
+			{
+				for (int i = 0; i < getClusters().size(); i++) 										// Find closest cluster for each image
+					clusters.get(i).create(images, panoramas, videos, null);						// Assign media to clusters
+			}
+			
 			if(getClusters().size() == last.size())				// Check cluster movement
 			{
 				for(WMV_Cluster c : clusters)
@@ -1758,7 +1801,8 @@ public class WMV_Field
 		if(getClusters().size() > 0)							// Find image place holders
 			findVideoPlaceholders();
 
-		finishClusterSetup(worldState.mergeClusters);					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
+		mergeAllNearbyClusters();
+		finishClusterSetup();					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
 	}
 
 	/**
@@ -2979,12 +3023,11 @@ public class WMV_Field
 							WMV_Sound newSound = getSoundFromSoundState(ss);
 							if(newSound != null)
 							{
-								if(newSound.getAssociatedClusterID() == -1)
-								{
-									System.out.println("Field.setState()...  Loaded sound state #"+newSound.getID()+" associated cluster is -1.... name:"+newSound.getMediaState().name);
-									newSound.setAssociatedClusterID(0);
-									System.out.println("Field.setState()...  Set sound state #"+newSound.getID()+" associated cluster from -1 to 0.... name:"+newSound.getMediaState().name);
-								}
+//								if(newSound.getAssociatedClusterID() == -1)
+//								{
+//									newSound.setAssociatedClusterID(0);
+//									System.out.println("Field.setState()...  Set sound state #"+newSound.getID()+" associated cluster from -1 to 0.... name:"+newSound.getMediaState().name);
+//								}
 //								Movie newMovie = new Movie(ml, ss.getMetadata().filePath);
 //								newSound.setSoundLength(newMovie);
 //								newSound.setFrame(emptyImage);
@@ -3075,6 +3118,7 @@ public class WMV_Field
 	 */
 	public ArrayList<WMV_Cluster> cleanupClusters()
 	{
+		System.out.println("cleanupClusters()... ");
 		ArrayList<WMV_Cluster> result = new ArrayList<WMV_Cluster>();
 		int count = 0;
 		int before = clusters.size();

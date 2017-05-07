@@ -1245,7 +1245,7 @@ public class ML_Input
 						{
 							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);	
 							ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
-							ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
+							ml.world.getCurrentField().mergeAllNearbyClusters();							/* Mark clusters with no media as empty */
 							ml.display.map2D.initializeMaps(ml.world);
 						}
 					}
@@ -1261,7 +1261,8 @@ public class ML_Input
 						{
 							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);
 							ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
-							ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
+							ml.world.getCurrentField().mergeAllNearbyClusters();							/* Mark clusters with no media as empty */
+							ml.world.getCurrentField().finishClusterSetup();			
 							ml.display.map2D.initializeMaps(ml.world);
 						}
 					}
@@ -1301,7 +1302,8 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterRefinement >= ml.world.getCurrentField().getModel().state.minClusterRefinement)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-									ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
+									ml.world.getCurrentField().mergeAllNearbyClusters();						
+									ml.world.getCurrentField().finishClusterSetup();			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
 								else ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
@@ -1315,7 +1317,8 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterRefinement <= ml.world.getCurrentField().getModel().state.maxClusterRefinement)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-									ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
+									ml.world.getCurrentField().mergeAllNearbyClusters();						
+									ml.world.getCurrentField().finishClusterSetup();			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
 								else ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
@@ -1329,7 +1332,8 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor >= ml.world.getCurrentField().getModel().state.minPopulationFactor)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-									ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
+									ml.world.getCurrentField().mergeAllNearbyClusters();						
+									ml.world.getCurrentField().finishClusterSetup();			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
 								else ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
@@ -1343,7 +1347,8 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor <= ml.world.getCurrentField().getModel().state.maxPopulationFactor)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-									ml.world.getCurrentField().finishClusterSetup(ml.world.getState().mergeClusters);			
+									ml.world.getCurrentField().mergeAllNearbyClusters();						
+									ml.world.getCurrentField().finishClusterSetup();			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
 								else ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;

@@ -36,6 +36,7 @@ public class WMV_Sound extends WMV_Media
 		super( newID, newType, newSoundMetadata.name, newSoundMetadata.filePath, newSoundMetadata.dateTime, newSoundMetadata.timeZone, 
 				newSoundMetadata.gpsLocation );
 
+		metadata = newSoundMetadata;
 		state = new WMV_SoundState();
 
 		if(newSoundMetadata != null)

@@ -103,7 +103,7 @@ public class WMV_MediaState
 
 	public void setClusterID(int newClusterID)
 	{
-		if(newClusterID == -1) System.out.println("Setting cluster for media #"+id+" type "+mediaType+" from "+cluster+" to:"+newClusterID);
+//		if(newClusterID == -1) System.out.println("Setting cluster for media #"+id+" type "+mediaType+" from "+cluster+" to:"+newClusterID);
 		cluster = newClusterID;
 	}
 }

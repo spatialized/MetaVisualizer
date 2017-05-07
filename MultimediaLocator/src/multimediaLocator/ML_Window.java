@@ -1560,10 +1560,10 @@ public class ML_Window {
 
 				applet.textSize(largeTextSize);
 				applet.text(" --- World --- ", x, y += lineWidthVeryWide);
-				applet.textSize(mediumTextSize);
+				applet.textSize(smallTextSize);
 				applet.text(" Field Count: "+world.getFields().size(), x, y += lineWidthVeryWide);
 				applet.text(" Current Field: "+f.getName(), x, y += lineWidthVeryWide);
-				applet.textSize(smallTextSize);
+				applet.text(" Cluster Count: "+f.getClusters().size(), x, y += lineWidthVeryWide);
 				applet.text(" ID: "+(world.viewer.getState().getField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
 				applet.text(" Width: "+f.getModel().getState().fieldWidth+" Length: "+f.getModel().getState().fieldLength+" Height: "+f.getModel().getState().fieldHeight, x, y += lineWidth);
 				applet.text(" Image Count: "+f.getImageCount(), x, y += lineWidth);					// Doesn't check for dataMissing!!

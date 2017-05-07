@@ -237,7 +237,7 @@ public class MultimediaLocator extends PApplet
 			else
 				loadedField = loadField(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
 			
-			if(world.getFields().size() == 0)					// -- ??
+			if(world.getFields().size() == 0)					// -- ?
 				if(world.viewer.getState().field > 0)
 					world.viewer.setCurrentField(0, false);
 			
@@ -250,13 +250,13 @@ public class MultimediaLocator extends PApplet
 			{
 				if(debugSettings.main || debugSettings.field) System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(fieldID).getClusters().size());
 			}
-			else					// If failed to verify, initialize field from metadata
+			else												/* If failed to verify, initialize field from metadata */
 			{
 				if(debugSettings.main || debugSettings.field) System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
 				
 				world.state.hierarchical = f.initialize(-100000L);
 				metadata.setSoundGPSLocations(f, f.getSounds());
-				f.setSoundLocations();
+//				f.setSoundLocations();
 				f.organize();
 			}
 

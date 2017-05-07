@@ -242,17 +242,20 @@ public class WMV_Cluster
 		}
 
 		/* Find sounds associated with this cluster */
-		for (int i = 0; i < soundList.size(); i++) 
+		if(soundList != null)
 		{
-			WMV_Sound curSnd = soundList.get(i);
-
-			if (curSnd.getMediaState().getClusterID() == state.id) 				// If the image is assigned to this cluster
+			for (int i = 0; i < soundList.size(); i++) 
 			{
-				newLocation.add(curSnd.getCaptureLocation());	// Move cluster towards the image
-				if(!state.sounds.contains(curSnd.getID()))
+				WMV_Sound curSnd = soundList.get(i);
+
+				if (curSnd.getMediaState().getClusterID() == state.id) 				// If the image is assigned to this cluster
 				{
-					state.sounds.add(curSnd.getID());
-					state.mediaCount++;
+					newLocation.add(curSnd.getCaptureLocation());	// Move cluster towards the image
+					if(!state.sounds.contains(curSnd.getID()))
+					{
+						state.sounds.add(curSnd.getID());
+						state.mediaCount++;
+					}
 				}
 			}
 		}
@@ -274,7 +277,7 @@ public class WMV_Cluster
 	}
 
 	/**
-	 * Create a cluster with a single image
+	 * Initialize this cluster with a single media object
 	 * @param mediaID  Single image to determine the cluster location
 	 * @param mediaType  0: image 1: panorama 2:video
 	 */

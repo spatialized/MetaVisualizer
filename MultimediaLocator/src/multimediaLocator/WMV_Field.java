@@ -238,8 +238,6 @@ public class WMV_Field
 
 				if (nowAudible)
 				{
-//					if(worldState.frameCount % 30 == 0)
-//						System.out.println("Sound #"+s.getID()+" nowAudible:"+nowAudible+" isFading():"+s.isFading());
 					s.update(ml, utilities);  	// Update geometry + visibility
 					s.display(ml); 				// Display sound as sphere
 					state.soundsAudible++;
@@ -249,8 +247,6 @@ public class WMV_Field
 					if(s.isFading() || s.isFadingVolume())
 					{
 						s.update(ml, utilities);  	// Update geometry + visibility
-//						if(worldState.frameCount % 30 == 0)
-//							System.out.println("  Sound #"+s.getID()+" nowAudible:"+nowAudible+" isFading():"+s.isFading()+" isFadingVolume():"+s.isFadingVolume());
 					}
 
 					if(s.isVisible())
@@ -259,11 +255,11 @@ public class WMV_Field
 			}
 		}
 
-		//		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
-		//		{
-		//			if(clusters.size()>0)
-		//				clusters.get(p.viewer.getCurrentClusterID()).draw();		// Draw current cluster
-		//		}
+//		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
+//		{
+//			if(clusters.size()>0)
+//				clusters.get(p.viewer.getCurrentClusterID()).draw();		// Draw current cluster
+//		}
 	}
 
 	/**

@@ -92,7 +92,6 @@ public class WMV_Sound extends WMV_Media
 			
 			if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
 			{
-//				if(visibilitySetToTrue) System.out.println("Sound.update() ID #"+getID()+"... Visibility set to true, will load media...");
 				if(!state.loaded) loadMedia(ml);
 				fadeIn();											// Fade in
 				fadeSoundIn();
@@ -132,7 +131,8 @@ public class WMV_Sound extends WMV_Media
 		{
 			state.volume = state.volumeFadingTarget;
 			state.fadingVolume = false;
-			System.out.println("updateFadingVolume() for sound #"+getID()+" reached target at:"+state.volume+"...");
+			if(getDebugSettings().sound) System.out.println("updateFadingVolume() for sound #"+getID()+" reached target at:"+state.volume+"...");
+			
 			if(state.volume == 1.f)
 			{
 				state.soundFadedIn = true;
@@ -213,7 +213,8 @@ public class WMV_Sound extends WMV_Media
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-		System.out.println("loadMedia() for sound #"+getID());
+		if(ml.debugSettings.sound) System.out.println("loadMedia() for sound #"+getID());
+		
 		if( ml.world.getCurrentField().getState().soundsAudible < ml.world.viewer.getSettings().maxAudibleSounds &&
 				!getMediaState().hidden && !getMediaState().disabled)
 		{
@@ -259,7 +260,7 @@ public class WMV_Sound extends WMV_Media
 	}
 
 	/**
-	 * Pause the sound
+	 * Pause sound
 	 */
 	private void pauseSound()
 	{
@@ -269,7 +270,7 @@ public class WMV_Sound extends WMV_Media
 	}
 
 	/**
-	 * Stop playing and clear the sound
+	 * Stop playing and clear sound
 	 */
 	public void clearSound()
 	{
@@ -421,12 +422,9 @@ public class WMV_Sound extends WMV_Media
 	 */
 	public float getHearingDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
-//		System.out.println("getHearingDistance()... sound #"+getID()+" capture.x:"+getCaptureLocation().x+" capture.y:"+getCaptureLocation().y
-//							+" capture.z:"+getCaptureLocation().z+" loc.x:"+getLocation().x+" loc.y:"+getLocation().y+" loc.z:"+getLocation().z);
 		PVector camLoc = getViewerState().getLocation();
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
-//		System.out.println("  distance:"+PVector.dist(loc, camLoc));
 		return PVector.dist(loc, camLoc);     
 	}
 

@@ -18,8 +18,8 @@ public class ML_DebugSettings
 	public boolean data = false;				// Debug WorldMediaViewer class
 
 	/* Model */
-	public boolean field = true;				// Debug WMV_Field class
-	public boolean cluster = true;				// Debug WMV_Cluster class
+	public boolean field = false;				// Debug WMV_Field class
+	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean time = false;				// Debug WMV_Time class
 
 	/* Viewer */
@@ -32,7 +32,7 @@ public class ML_DebugSettings
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;			// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
-	public boolean sound = true;				// Debug WMV_Sound class
+	public boolean sound = false;				// Debug WMV_Sound class
 
 	/* Other */
 	public boolean map = false;					// Debug WMV_Map class

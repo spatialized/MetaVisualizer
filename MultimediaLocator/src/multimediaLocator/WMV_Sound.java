@@ -67,7 +67,7 @@ public class WMV_Sound extends WMV_Media
 					setVisible(false);
 
 				if(getMediaState().visible)
-					setVisible(getDistanceBrightness() > 0.f);
+					setVisible(getDistanceAudibility() > 0.f);
 			}
 
 			if(isFading())									// Update brightness while fading
@@ -99,6 +99,7 @@ public class WMV_Sound extends WMV_Media
 
 			if(visibilitySetToFalse)
 			{
+				System.out.println("Sound #"+getID()+" visibility was set to false...");
 				fadeOut();
 				fadeSoundOut();
 			}
@@ -112,11 +113,27 @@ public class WMV_Sound extends WMV_Media
 			if(state.soundFadedIn) state.soundFadedIn = false;
 			if(state.soundFadedOut) state.soundFadedOut = false;
 
-			if(state.fadingVolume && state.loaded)
-				updateFadingVolume();
+			if(state.loaded)
+			{
+				if(state.fadingVolume)
+					updateFadingVolume();
+				else
+					updateVolume(); 								// Tie volume to fading brightness
+			}
 		}
 	}
 
+	/**
+	 * Update volume based on viewer distance from sound
+	 */
+	private void updateVolume()
+	{
+		state.volume = getDistanceAudibility();
+//		state.volume = PApplet.map(getHearingDistance(), 0.f, getViewerSettings().farHearingDistance, getWorldSettings().soundMaxVolume, 0.f);
+//		if(getDebugSettings().sound && getDebugSettings().detailed) System.out.println("updateVolume()... state.volume:"+state.volume);
+		g.setGain(state.volume);
+	}
+	
 	/**
 	 * Update volume fading 
 	 */
@@ -131,7 +148,7 @@ public class WMV_Sound extends WMV_Media
 		{
 			state.volume = state.volumeFadingTarget;
 			state.fadingVolume = false;
-			if(getDebugSettings().sound) System.out.println("updateFadingVolume() for sound #"+getID()+" reached target at:"+state.volume+"...");
+//			if(getDebugSettings().sound) System.out.println("updateFadingVolume() for sound #"+getID()+" reached target at:"+state.volume+"...");
 			
 			if(state.volume == 1.f)
 			{
@@ -139,6 +156,7 @@ public class WMV_Sound extends WMV_Media
 			}
 			else if(state.volume == 0.f)
 			{
+				if(getDebugSettings().sound) System.out.println("updateFadingVolume() for sound #"+getID()+" reached zero... will clear sound...");
 				state.soundFadedOut = true;
 				pauseSound();
 				clearSound();
@@ -165,15 +183,9 @@ public class WMV_Sound extends WMV_Media
 		ml.rectMode(PApplet.CENTER);
 		ml.noStroke(); 
 
-		if(isSelected())
-		{
-			if (!getViewerSettings().selection && getDebugSettings().field)     // Draw outline
-			{
-				ml.stroke(19, 200, 150);
-				ml.fill(19, 200, 150);
-				ml.strokeWeight(2.f);
-			}
-		}
+		ml.stroke(70, 220, 150);
+		ml.fill(70, 220, 150);
+		ml.strokeWeight(1.f);
 
 		ml.pushMatrix();
 
@@ -377,25 +389,22 @@ public class WMV_Sound extends WMV_Media
 	}
 
 	/** 
-	 * @return Distance visibility multiplier between 0. and 1.
-	 * Find video visibility due to distance (fades away in distance and as camera gets close)
+	 * @return Distance audibility multiplier between 0. and 1.
+	 * Find sound audibility due to distance (fades away in distance and as camera gets close)
 	 */
-	public float getDistanceBrightness()								
+	public float getDistanceAudibility()								
 	{
-		float viewDist = getViewingDistance();
+		float hearingDist = getHearingDistance();
+		float audibility = 1.f;
 
-		float distVisibility = 1.f;
+		float inaudiblePoint = getViewerSettings().farHearingDistance;	// Distance where transparency reaches zero
+		float maxVolume = getWorldSettings().soundMaxVolume;
+		if(hearingDist < inaudiblePoint)
+			audibility = PApplet.constrain( maxVolume - PApplet.map(hearingDist, 0.f, inaudiblePoint, 0.f, maxVolume), 0.f, maxVolume );    // Fade out until inaudible point
+		else
+			audibility = 0.f;
 
-		if(viewDist > state.radius-getWorldSettings().clusterCenterSize*3.f)
-		{
-			float vanishingPoint = state.radius;	// Distance where transparency reaches zero
-			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-getWorldSettings().clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
-			else
-				distVisibility = 0.f;
-		}
-
-		return distVisibility;
+		return audibility;
 	}
 
 	/**

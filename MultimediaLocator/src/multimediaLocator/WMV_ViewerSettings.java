@@ -46,6 +46,7 @@ public class WMV_ViewerSettings
 	/* Sound */
 	public boolean autoPlaySounds = true;				// Automatically play videos near viewer
 	public int autoPlayMaxSoundCount = 3;				// Maximum videos to auto play simultaneously
+	public float farHearingDistance = 24.f; 						// Far distance (m.) at which media start fading out
 
 	/* Physics */
 	public float lastAttractorDistance = -1.f;

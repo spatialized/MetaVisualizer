@@ -880,7 +880,7 @@ public class ML_Input
 				if (!optionKey && key == 'w') 
 					ml.world.viewer.walkForward();
 
-				if (optionKey && key == 'm') 
+				if (optionKey && key == 'M') 
 				{
 					boolean state = !ml.world.getState().showMetadata;
 					ml.world.state.showMetadata = state;
@@ -897,7 +897,7 @@ public class ML_Input
 				if (key == 'c') 									// Move DOWN
 					ml.world.viewer.startMoveYTransition(1);
 
-				if (key == 'p') 								
+				if (key == '-') 								
 					ml.world.state.paused = !ml.world.getState().paused;
 
 //				if (key == 'I')							// -- Disabled
@@ -991,26 +991,26 @@ public class ML_Input
 						}
 					}
 				}
+				
+				if (key == 'i') 		// Go to next cluster ID with image
+					ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 0);
 
-				if (key == 'u') 		// Teleport to nearest cluster with video
-					ml.world.viewer.moveToNextCluster(true, 2);
+				if (key == 'p') 		// Go to next cluster ID with panorama
+					ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 1);
 
-				if (key == 'U') 		// Go to nearest cluster with video
-					ml.world.viewer.moveToNextCluster(false, 2);
+				if (key == 'v') 		// Go to to next cluster ID with video
+					ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 2);
 
-				if (shiftKey && key == 'u') 		// Teleport to nearest cluster with panorama
-					ml.world.viewer.moveToNextCluster(true, 1);
+				if (key == 'u') 		// Go to to next cluster ID with sound
+					ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 3);
 
-				if (shiftKey && key == 'U') 		// Go to nearest cluster with panorama
-					ml.world.viewer.moveToNextCluster(false, 1);
-
-				if (key == 'v') 
+				if (key == 'm') 
 					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
 
-				if (key == '-') 
+				if (key == '_') 
 					ml.world.getCurrentField().fadeObjectDistances(0.85f);
 
-				if (key == '=')
+				if (key == '+')
 					ml.world.getCurrentField().fadeObjectDistances(1.176f);
 
 //				if (key == 'Z')
@@ -1245,7 +1245,7 @@ public class ML_Input
 						{
 							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);	
 							ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
-							ml.world.getCurrentField().mergeAllNearbyClusters();							/* Mark clusters with no media as empty */
+							ml.world.getCurrentField().mergeAllAdjacentClusters();							/* Mark clusters with no media as empty */
 							ml.display.map2D.initializeMaps(ml.world);
 						}
 					}
@@ -1261,7 +1261,7 @@ public class ML_Input
 						{
 							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);
 							ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
-							ml.world.getCurrentField().mergeAllNearbyClusters();							/* Mark clusters with no media as empty */
+							ml.world.getCurrentField().mergeAllAdjacentClusters();							/* Mark clusters with no media as empty */
 							ml.world.getCurrentField().finishClusterSetup();			
 							ml.display.map2D.initializeMaps(ml.world);
 						}
@@ -1302,7 +1302,7 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterRefinement >= ml.world.getCurrentField().getModel().state.minClusterRefinement)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-									ml.world.getCurrentField().mergeAllNearbyClusters();						
+									ml.world.getCurrentField().mergeAllAdjacentClusters();						
 									ml.world.getCurrentField().finishClusterSetup();			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
@@ -1317,7 +1317,7 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterRefinement <= ml.world.getCurrentField().getModel().state.maxClusterRefinement)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-									ml.world.getCurrentField().mergeAllNearbyClusters();						
+									ml.world.getCurrentField().mergeAllAdjacentClusters();						
 									ml.world.getCurrentField().finishClusterSetup();			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
@@ -1332,7 +1332,7 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor >= ml.world.getCurrentField().getModel().state.minPopulationFactor)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-									ml.world.getCurrentField().mergeAllNearbyClusters();						
+									ml.world.getCurrentField().mergeAllAdjacentClusters();						
 									ml.world.getCurrentField().finishClusterSetup();			
 									ml.display.map2D.initializeMaps(ml.world);
 								}
@@ -1347,7 +1347,7 @@ public class ML_Input
 								if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor <= ml.world.getCurrentField().getModel().state.maxPopulationFactor)
 								{
 									ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-									ml.world.getCurrentField().mergeAllNearbyClusters();						
+									ml.world.getCurrentField().mergeAllAdjacentClusters();						
 									ml.world.getCurrentField().finishClusterSetup();			
 									ml.display.map2D.initializeMaps(ml.world);
 								}

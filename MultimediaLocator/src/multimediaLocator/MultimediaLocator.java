@@ -24,7 +24,7 @@ import processing.core.*;
 import processing.video.Movie;
 
 /**
- * MultimediaLocator App class 
+ * MultimediaLocator App  
  * @author davidgordon
  */
 public class MultimediaLocator extends PApplet 

@@ -130,7 +130,7 @@ public class WMV_Viewer
 	 */
 	public void enterField(int fieldID)
 	{
-		if(debugSettings.viewer) System.out.println("enterField()... location before:"+getLocation());
+//		if(debugSettings.viewer) System.out.println("enterField()... location before:"+getLocation());
 		if(p.getField(fieldID).hasBeenVisited())
 			setCurrentField(fieldID, true);				// Set new field and simulation state
 		else
@@ -350,7 +350,7 @@ public class WMV_Viewer
 	 */
 	public void setCurrentField(int newField, boolean setSimulationState)		
 	{
-		if(debugSettings.field || debugSettings.viewer)		
+		if(debugSettings.viewer && debugSettings.detailed)		
 			System.out.println("viewer.setCurrentField().. newField:"+newField+" setSimulationState? "+setSimulationState);
 
 		if(newField < p.getFieldCount())
@@ -358,15 +358,14 @@ public class WMV_Viewer
 			setCurrentFieldID( newField );
 			currentField = p.getField(newField);
 
-			if(debugSettings.field || debugSettings.viewer)		
+			if(debugSettings.viewer && debugSettings.detailed)		
 				System.out.println("viewer.setCurrentField().. after set field ID... new state.field:"+state.field+" currentField ID:"+currentField.getID()+" currentCluster:"+state.currentCluster);
 
 			if(setSimulationState)											// Set simulation state from saved
 			{
 				p.setSimulationStateFromField(p.getField(newField), false);
-//				p.setSimulationStateFromField(p.getField(newField), true);
 
-				if(debugSettings.field || debugSettings.viewer)		
+				if(debugSettings.viewer && debugSettings.detailed)		
 					System.out.println("  viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+state.field+" currentField ID:"+currentField.getID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
 			}
 			else
@@ -530,125 +529,57 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Go to the next cluster numerically containing given media type
+	 * Go to the next cluster numerically containing specified media type
 	 * @param teleport Whether to teleport or move
 	 * @param mediaType Media type without which clusters are skipped...  -1: any 0: image, 1: panorama, 2: video
 	 */
 	public void moveToNextCluster(boolean teleport, int mediaType) 
 	{
-		setCurrentCluster(state.currentCluster + 1, -1);
 		int next = state.currentCluster;
-		int count = 0;
+		int iterationCount = 0;
 		boolean found = false;
+		int result = -1;
 		
-		if (next >= currentField.getClusters().size())
-			next = 0;
-		
-		if(debugSettings.viewer)
-			System.out.println("moveToNextCluster()... mediaType "+mediaType);
+		if(debugSettings.viewer) System.out.println("moveToNextCluster()... mediaType "+mediaType);
 
 		/* Find goal cluster */
-		if(mediaType == -1)	// Any media
+		if(mediaType == -1)		// Any media type
 		{
+			if (next >= currentField.getClusters().size())
+				next = 0;
+
 			while( currentField.getCluster(next).isEmpty() || next == state.currentCluster )		// Increment nextCluster until different non-empty cluster found
 			{
 				next++;
-
 				if (next >= currentField.getClusters().size())
 				{
 					next = 0;
-					count++;
+					iterationCount++;
 
-					if(count > 3) break;
+					if(iterationCount > 3) break;
 				}
 
 				if(currentField.getCluster(next).getState().mediaCount != 0)
 					System.out.println("Error: Cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 
-			if(count <= 3)				// If a cluster was found in 2 iterations
+			if(iterationCount <= 3)				// If a cluster was found in 2 iterations
 			{
 				found = true;
 				if(debugSettings.viewer) System.out.println("Moving to next cluster:"+next+" from current cluster:"+state.currentCluster);
 			}
 		}
-
-		if(mediaType == 1)		// Panorama
+		else 
 		{
-			while(  !currentField.getCluster(next).getHasPanorama() || 		// Increment nextCluster until different non-empty panorama cluster found
-					currentField.getCluster(next).isEmpty() || 
-					next == state.currentCluster )
-			{
-				next++;
-
-				if(next >= currentField.getClusters().size())
-				{
-					next = 0;
-					count++;
-
-					if(count > 3)
-					{
-						if(debugSettings.viewer)
-							System.out.println("No panoramas found...");
-						break;
-					}
-				}
-				
-				if(currentField.getCluster(next).isEmpty() && currentField.getCluster(next).getState().mediaCount != 0)		// Testing
-					System.out.println("Error: Panorama cluster marked empty but mediaPoints != 0!  clusterID:"+next);
-			}
-			
-			if(count <= 3)				// If a cluster was found in 2 iterations
+			result = getNextClusterWithMediaType(currentField, mediaType, state.currentCluster);
+			if(result >= 0)
 			{
 				found = true;
-				if(debugSettings.viewer)
-					System.out.println("Moving to next cluster with panorama:"+next+" from current cluster:"+state.currentCluster);
-			}
-			else
-			{
-				if(debugSettings.viewer)
-					System.out.println("No panoramas found...");
+				next = result;
 			}
 		}
 		
-		if(mediaType == 2)				// Video
-		{
-			while(  !currentField.getCluster(next).hasVideo() || 		// Increment nextCluster until different non-empty video cluster found
-					currentField.getCluster(next).isEmpty() || 
-					next == state.currentCluster )
-			{
-				next++;
-
-				if(next >= currentField.getClusters().size())
-				{
-					next = 0;
-					count++;
-
-					if(count > 3)
-					{
-						System.out.println("No videos found...");
-						break;
-					}
-				}
-				
-				if(currentField.getCluster(next).isEmpty() && currentField.getCluster(next).getState().mediaCount != 0)		// Testing
-					System.out.println("Error: Video cluster marked empty but mediaPoints != 0!  clusterID:"+next);
-			}
-			
-			if(count <= 3)				// If a cluster was found in 2 iterations
-			{
-				found = true;
-				if(debugSettings.viewer)
-					System.out.println("Moving to next cluster with video:"+next+" from current cluster:"+state.currentCluster);
-			}
-			else
-			{
-				if(debugSettings.viewer)
-					System.out.println("No videos found...");
-			}
-		}
-		
-		if(found)				// If a cluster was found
+		if(found)				// If a cluster with specified media type was found
 		{
 			if(teleport)		/* Teleport or move */
 			{
@@ -657,11 +588,223 @@ public class WMV_Viewer
 			else
 			{
 				if(isTeleporting()) state.teleporting = false;
-				setAttractorCluster(state.currentCluster);
+				setAttractorCluster(next);
+//				setAttractorCluster(state.currentCluster);
 			}
 		}
+
+//		if(mediaType == 0)		// Image
+//		{
+//			boolean foundImage = fieldHasMediaType(currentField, mediaType);
+//			boolean end = false;
+//			while(  !currentField.getCluster(next).hasImage() ) 		// Increment <next> until different non-empty image cluster found
+//			{
+//				next++;
+//				while(	currentField.getCluster(next).isEmpty() || next == state.currentCluster )
+//				{
+//					next++;
+//
+//					if(next >= currentField.getClusters().size())
+//					{
+//						next = 0;
+//						iterationCount++;
+//
+//						if(iterationCount > 3)
+//						{
+//							if(debugSettings.viewer)
+//								System.out.println("No images found...");
+//							end = true;
+//							break;
+//						}
+//					}
+//				}
+//				
+//				if(end) break;
+//			}
+//			
+//			if(iterationCount <= 3)				// If a cluster was found in 2 iterations
+//			{
+//				found = true;
+//				if(debugSettings.viewer) System.out.println("Moving to next cluster with image:"+next+" from current cluster:"+state.currentCluster);
+//			}
+//			else if(debugSettings.viewer) System.out.println("No images found...");
+//		}
+//		
+//		if(mediaType == 1)		// Panorama
+//		{
+//			while(  !currentField.getCluster(next).hasPanorama() || 		// Increment nextCluster until different non-empty panorama cluster found
+//					currentField.getCluster(next).isEmpty() || 
+//					next == state.currentCluster )
+//			{
+//				next++;
+//
+//				if(next >= currentField.getClusters().size())
+//				{
+//					next = 0;
+//					iterationCount++;
+//
+//					if(iterationCount > 3)
+//					{
+//						if(debugSettings.viewer)
+//							System.out.println("No panoramas found...");
+//						break;
+//					}
+//				}
+//			}
+//			
+//			if(iterationCount <= 3)				// If a cluster was found in 2 iterations
+//			{
+//				found = true;
+//				if(debugSettings.viewer)
+//					System.out.println("Moving to next cluster with panorama:"+next+" from current cluster:"+state.currentCluster);
+//			}
+//			else
+//			{
+//				if(debugSettings.viewer)
+//					System.out.println("No panoramas found...");
+//			}
+//		}
+//		
+//		if(mediaType == 2)				// Video
+//		{
+//			while(  !currentField.getCluster(next).hasVideo() || 		// Increment nextCluster until different non-empty video cluster found
+//					currentField.getCluster(next).isEmpty() || 
+//					next == state.currentCluster )
+//			{
+//				next++;
+//
+//				if(next >= currentField.getClusters().size())
+//				{
+//					next = 0;
+//					iterationCount++;
+//
+//					if(iterationCount > 3)
+//					{
+//						if(debugSettings.viewer)
+//							System.out.println("No videos found...");
+//						break;
+//					}
+//				}
+//			}
+//			
+//			if(iterationCount <= 3)				// If a cluster was found in 2 iterations
+//			{
+//				found = true;
+//				if(debugSettings.viewer)
+//					System.out.println("Moving to next cluster with video:"+next+" from current cluster:"+state.currentCluster);
+//			}
+//			else
+//			{
+//				if(debugSettings.viewer)
+//					System.out.println("No videos found...");
+//			}
+//		}
+//
+//		if(mediaType == 3)				// Sound
+//		{
+//			while(  !currentField.getCluster(next).hasSound() || 		// Increment nextCluster until different non-empty video cluster found
+//					currentField.getCluster(next).isEmpty() || 
+//					next == state.currentCluster )
+//			{
+//				next++;
+//
+//				if(next >= currentField.getClusters().size())
+//				{
+//					next = 0;
+//					iterationCount++;
+//
+//					if(iterationCount > 3)
+//					{
+//						if(debugSettings.viewer)
+//							System.out.println("No sounds found...");
+//						break;
+//					}
+//				}
+//			}
+//			
+//			if(iterationCount <= 3)				// If a cluster was found in 2 iterations
+//			{
+//				found = true;
+//				if(debugSettings.viewer)
+//					System.out.println("Moving to next cluster with sound:"+next+" from current cluster:"+state.currentCluster);
+//			}
+//			else
+//			{
+//				if(debugSettings.viewer)
+//					System.out.println("No sounds found...");
+//			}
+//		}
 	}
 
+	/**
+	 * Find whether field contains at least one object of given media type
+	 * @param currentField Field to search
+	 * @param mediaType Media type to look for
+	 * @param startClusterID Starting cluster ID to search from
+	 * @return Whether field contains given media type
+	 */
+	public int getNextClusterWithMediaType(WMV_Field currentField, int mediaType, int startClusterID)
+	{
+		boolean end = false;			// End search while loop
+		int next = startClusterID;					// Next cluster to check
+		int iterationCount = 0, count = 0;
+		boolean result = false;
+		
+		while( !result ) 		// Increment <next> until different non-empty image cluster found
+		{
+			next++;
+			while(	currentField.getCluster(next).isEmpty() || next == state.currentCluster )
+			{
+				next++;
+
+				if(next >= currentField.getClusters().size())
+				{
+					next = 0;
+					iterationCount++;
+
+					if(iterationCount > 3)
+					{
+						if(debugSettings.viewer)
+							System.out.println("No images found...");
+						end = true;
+						break;
+					}
+				}
+			}
+
+			if(end) break;
+			switch(mediaType)
+			{
+				case 0:
+					result = currentField.getCluster(next).hasImage();
+					break;
+				case 1:
+					result = currentField.getCluster(next).hasPanorama();
+					break;
+				case 2:
+					result = currentField.getCluster(next).hasVideo();
+					break;
+				case 3:
+					result = currentField.getCluster(next).hasSound();
+					break;
+			}
+			
+//			System.out.println("count:"+count+" result:"+result+" == currentField.getCluster(next).hasSound():"+currentField.getCluster(next).hasSound()+" next:"+next);
+			count++;
+		}
+
+		if(iterationCount <= 3)				// If a cluster was found in 2 iterations
+		{
+			if(debugSettings.viewer) System.out.println("Moving to next cluster with media type:"+mediaType+" cluster found:"+next+"... moving from current cluster:"+state.currentCluster);
+			return next;
+		}
+		else
+		{
+			if(debugSettings.viewer) System.out.println("No media of type "+mediaType+" found...");
+			return -1;
+		}
+	}
+	
 	/**
 	 * Go to cluster corresponding to given time segment in field
 	 * @param fieldID Field to move to
@@ -2836,11 +2979,11 @@ public class WMV_Viewer
 	{
 		if(worldState.frameCount >= state.teleportStart + settings.teleportLength)		// If the teleport has finished
 		{
-			if(debugSettings.viewer) System.out.println(" Reached teleport goal...");
+			if(debugSettings.viewer && debugSettings.detailed) System.out.println(" Reached teleport goal...");
 			
 			if( !currentField.mediaAreFading() )			// Once no more images are fading
 			{
-				if(debugSettings.viewer) System.out.println(" Media finished fading...");
+				if(debugSettings.viewer && debugSettings.detailed) System.out.println(" Media finished fading...");
 				
 				if(state.following && path.size() > 0)
 				{
@@ -3813,7 +3956,7 @@ public class WMV_Viewer
 			state.currentCluster = newCluster;
 			c = p.getCurrentCluster();
 			
-			if(debugSettings.viewer) 
+			if(debugSettings.viewer && debugSettings.detailed) 
 				System.out.println("viewer.setCurrentCluster() to "+newCluster+" at field time segment "+newFieldTimeSegment+"  cluster location:"+c.getLocation()+" viewer location:"+getLocation());
 			
 			if(c != null)
@@ -3863,7 +4006,7 @@ public class WMV_Viewer
 		p.p.display.updateCurrentSelectableTimeSegment = true;
 		boolean success = true;
 		
-		if(debugSettings.viewer) System.out.println("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
+		if(debugSettings.viewer && debugSettings.detailed) System.out.println("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
 		
 		if(updateTimelinesSegment)
 		{
@@ -3876,7 +4019,7 @@ public class WMV_Viewer
 			return success;
 		else
 		{
-			if(debugSettings.viewer)
+			if(debugSettings.viewer && debugSettings.detailed)
 				System.out.println("Couldn't set newCurrentFieldTimeSegment... currentField.getTimeline().timeline.size():"+currentField.getTimeline().timeline.size());
 			return false;
 		}
@@ -3894,7 +4037,7 @@ public class WMV_Viewer
 		{
 			if(currentField.getTimelines().size() > 0 && currentField.getTimelines().size() > state.currentFieldDate)
 			{
-				if(debugSettings.viewer)
+				if(debugSettings.viewer && debugSettings.detailed)
 					System.out.println("setCurrentFieldTimeSegmentOnDate()... "+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+currentField.getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+currentField.getID());
 			}
 			else 
@@ -3912,7 +4055,7 @@ public class WMV_Viewer
 		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimeSegmentOnDate;
 		p.p.display.updateCurrentSelectableTimeSegment = true;
 
-		if(debugSettings.viewer)
+		if(debugSettings.viewer && debugSettings.detailed)
 			System.out.println("Set new state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate);
 
 		if(state.currentFieldDate < currentField.getTimelines().size())
@@ -3945,7 +4088,7 @@ public class WMV_Viewer
 	{
 		state.currentFieldDate = newDate;
 		boolean success = setCurrentFieldTimeSegmentOnDate( newCurrentFieldTimelinesSegment, updateTimelineSegment );
-		if(debugSettings.viewer)
+		if(debugSettings.viewer && debugSettings.detailed)
 			System.out.println("setCurrentTimeSegmentAndDate() newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
 		return success;
 	}

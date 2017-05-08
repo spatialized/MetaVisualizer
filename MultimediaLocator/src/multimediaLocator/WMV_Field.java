@@ -214,15 +214,18 @@ public class WMV_Field
 
 		for (WMV_Sound s : sounds)  		// Update and display sounds
 		{
+			float inaudiblePoint = viewerSettings.farHearingDistance;	// Distance where volume reaches zero
 			if(!s.isDisabled())
 			{
 				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
-				boolean nowAudible = (distance < vanishingPoint);
+				boolean nowAudible = (distance < inaudiblePoint);
 
 				s.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
 				if ( s.isVisible() && !nowAudible )
 				{
+//					System.out.println("Field.display()... Will fade out sound...");
 					s.fadeOut();
+					s.fadeSoundOut();
 				}
 
 				if(worldState.timeFading)
@@ -473,8 +476,8 @@ public class WMV_Field
 		setClusterTimes();								/* Set cluster times */
 		findClusterMediaSegments();						/* Find cluster media segments */
 		
-		verifyField();									/* Verify field */
 		setClusters( cleanupClusters() );				/* Cleanup clusters */
+		verifyField();									/* Verify field */
 		
 		if(debugSettings.main || debugSettings.field) System.out.println("Finished cluster setup...");
 	}
@@ -666,28 +669,28 @@ public class WMV_Field
 		for(WMV_Image img : images)
 			if(img.getAssociatedClusterID() == -1)
 			{
-				System.out.println("Image #"+img.getID()+" has no cluster!");
+				System.out.println("Image #"+img.getID()+" has no cluster!  name:"+img.getName());
 				error = true;
 			}
 
 		for(WMV_Panorama pano : panoramas)
 			if(pano.getAssociatedClusterID() == -1)
 			{
-				System.out.println("Image #"+pano.getID()+" has no cluster!");
+				System.out.println("Panorama #"+pano.getID()+" has no cluster!  name:"+pano.getName());
 				error = true;
 			}
 
 		for(WMV_Video vid : videos)
 			if(vid.getAssociatedClusterID() == -1)
 			{
-				System.out.println("Image #"+vid.getID()+" has no cluster!");
+				System.out.println("Video #"+vid.getID()+" has no cluster!  name:"+vid.getName());
 				error = true;
 			}
 
 		for(WMV_Sound snd : sounds)
 			if(snd.getAssociatedClusterID() == -1)
 			{
-				System.out.println("Image #"+snd.getID()+" has no cluster!");
+				System.out.println("Sound #"+snd.getID()+" has no cluster!  name:"+snd.getName());
 				error = true;
 			}
 	}
@@ -776,20 +779,6 @@ public class WMV_Field
 	}
 
 	/**
-	 * Stop the media in the field from fading
-	 */
-	public void stopAllFading()
-	{
-		if(debugSettings.field) System.out.println("Stopping all fading...");
-
-		for (WMV_Image i : images)
-			i.stopFading();
-
-		for (WMV_Video v : videos) 
-			v.stopFading();
-	}
-
-	/**
 	 * Stop all media from fading
 	 */
 	public void stopAllMediaFading()
@@ -805,10 +794,14 @@ public class WMV_Field
 		for(WMV_Video v : videos)
 			if(v.isFading())
 				v.stopFading();
+
+		for(WMV_Sound s : sounds)
+			if(s.isFading())
+				s.stopFading();
 	}
 
 	/**
-	 * Verify all field parameters are ready before starting simulation
+	 * Verify field parameters are ready before starting simulation		//	-- Improve this
 	 */
 	void verifyField() 
 	{
@@ -878,7 +871,7 @@ public class WMV_Field
 
 	/**
 	 * Return list of selected media IDs of given type
-	 * @param mediaType 0: image 1: panorama 2: video 3: sound
+	 * @param mediaType Type to select, 0: image 1: panorama 2: video 3: sound
 	 */
 	public List<Integer> getSelectedMedia(int mediaType) 
 	{
@@ -934,6 +927,11 @@ public class WMV_Field
 				if(v.isFading() && !v.isDisabled())
 					fading = true;
 
+		if(!fading)
+			for(WMV_Sound s : sounds)
+				if(s.isFading() && !s.isDisabled())
+					fading = true;
+
 		return fading;
 	}
 
@@ -976,6 +974,12 @@ public class WMV_Field
 		for(WMV_Video v : videos)
 		{
 			if(v.isActive())
+				active = true;
+		}
+
+		for(WMV_Sound s : sounds)
+		{
+			if(s.isActive())
 				active = true;
 		}
 
@@ -1027,6 +1031,7 @@ public class WMV_Field
 			System.out.println(" ");
 			//			display.displayClusteringInfo(p.p);
 		}
+		
 		setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
 
 		/* Estimate number of clusters */
@@ -1043,7 +1048,7 @@ public class WMV_Field
 			initializeKMeansClusters(numClusters, false);		// Create initial clusters at random image locations	
 			refineKMeansClusters(epsilon, refinement, false);	// Refine clusters over many iterations
 			createSingleClusters(false);						// Create clusters for single media points
-			mergeAllNearbyClusters();
+			mergeAllAdjacentClusters();
 			finishClusterSetup();	// Initialize clusters (merge, etc.)
 		}
 		else System.out.println("Error in k-means clustering... model.validMedia == "+model.getState().validMedia);
@@ -1052,7 +1057,10 @@ public class WMV_Field
 			System.out.println("Created "+numClusters+" Clusters...");
 	}
 
-	public void mergeAllNearbyClusters()
+	/**
+	 * Merge all clusters within ModelState.minClusterDistance of each other
+	 */
+	public void mergeAllAdjacentClusters()
 	{
 		markEmptyClusters();							/* Mark clusters with no media as empty */
 		if(worldState.mergeClusters) clusters = mergeAdjacentClusters( clusters, model.getState().minClusterDistance );	/* Merge clusters */
@@ -1238,9 +1246,8 @@ public class WMV_Field
 						addedSounds.add(soundID);
 						clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
 					}
-
-					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
 				}
+				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
 			}
 		}	
 	}
@@ -1808,7 +1815,7 @@ public class WMV_Field
 		if(getClusters().size() > 0)							// Find image place holders
 			findVideoPlaceholders();
 
-		mergeAllNearbyClusters();
+		mergeAllAdjacentClusters();
 		finishClusterSetup();					// Initialize clusters in Hierarchical Clustering Mode	 (Already done during k-means clustering)
 	}
 
@@ -2931,7 +2938,7 @@ public class WMV_Field
 				{
 					if(newImageStateList.images != null)
 					{
-						System.out.println(" Adding Images... "+newImageStateList.images.size());
+						if(debugSettings.field) System.out.println(" Adding Images... "+newImageStateList.images.size());
 						for(WMV_ImageState is : newImageStateList.images)
 						{
 							WMV_Image newImage = getImageFromImageState(is);
@@ -2961,7 +2968,7 @@ public class WMV_Field
 				{
 					if(newPanoramaStateList.panoramas != null)
 					{
-						System.out.println(" Adding Panoramas... "+newPanoramaStateList.panoramas.size());
+						if(debugSettings.field) System.out.println(" Adding Panoramas... "+newPanoramaStateList.panoramas.size());
 						for(WMV_PanoramaState ps : newPanoramaStateList.panoramas)
 						{
 							WMV_Panorama newPanorama = getPanoramaFromPanoramaState(ps);
@@ -2992,7 +2999,7 @@ public class WMV_Field
 				{
 					if(newVideoStateList.videos != null)
 					{
-						System.out.println(" Adding Videos... "+newVideoStateList.videos.size());
+						if(debugSettings.field) System.out.println(" Adding Videos... "+newVideoStateList.videos.size());
 						for(WMV_VideoState vs : newVideoStateList.videos)
 						{
 							WMV_Video newVideo = getVideoFromVideoState(vs);
@@ -3030,11 +3037,6 @@ public class WMV_Field
 							WMV_Sound newSound = getSoundFromSoundState(ss);
 							if(newSound != null)
 							{
-//								if(newSound.getAssociatedClusterID() == -1)
-//								{
-//									newSound.setAssociatedClusterID(0);
-//									System.out.println("Field.setState()...  Set sound state #"+newSound.getID()+" associated cluster from -1 to 0.... name:"+newSound.getMediaState().name);
-//								}
 //								Movie newMovie = new Movie(ml, ss.getMetadata().filePath);
 //								newSound.setSoundLength(newMovie);
 //								newSound.setFrame(emptyImage);
@@ -3042,6 +3044,10 @@ public class WMV_Field
 							}
 						}
 					}
+				}
+				else
+				{
+					if(debugSettings.field ||debugSettings.sound) System.out.println(" newSoundStateList == null... "); 
 				}
 			}
 			catch(Throwable t)
@@ -3137,13 +3143,13 @@ public class WMV_Field
 				int oldID = c.getID();
 				c.setID(count);
 
-				if(images.size() > 0) c.setHasImage(true);
+				if(c.getImageIDs().size() > 0) c.setHasImage(true);
 				else c.setHasImage(false);
-				if(panoramas.size() > 0) c.setHasPanorama(true);
+				if(c.getPanoramaIDs().size() > 0) c.setHasPanorama(true);
 				else c.setHasPanorama(false);
-				if(videos.size() > 0) c.setHasVideo(true);
+				if(c.getVideoIDs().size() > 0) c.setHasVideo(true);
 				else c.setHasVideo(false);
-				if(sounds.size() > 0) c.setHasSound(true);
+				if(c.getSoundIDs().size() > 0) c.setHasSound(true);
 				else c.setHasSound(false);
 
 				for(WMV_Image i : images)

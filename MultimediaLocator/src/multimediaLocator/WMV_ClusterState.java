@@ -76,7 +76,7 @@ public class WMV_ClusterState
 	
 	public void setHasImage(boolean newState)
 	{
-		hasImage = true;
+		hasImage = newState;
 	}
 	
 	public boolean hasImage()
@@ -86,7 +86,7 @@ public class WMV_ClusterState
 	
 	public void setHasPanorama(boolean newState)
 	{
-		hasPanorama = true;
+		hasPanorama = newState;
 	}
 	
 	public boolean hasPanorama()
@@ -96,7 +96,7 @@ public class WMV_ClusterState
 	
 	public void setHasVideo(boolean newState)
 	{
-		hasVideo = true;
+		hasVideo = newState;
 	}
 	
 	public boolean hasVideo()
@@ -106,7 +106,7 @@ public class WMV_ClusterState
 	
 	public void setHasSound(boolean newState)
 	{
-		hasSound = true;
+		hasSound = newState;
 	}
 	
 	public boolean hasSound()

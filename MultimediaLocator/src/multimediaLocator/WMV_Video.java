@@ -452,7 +452,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Pause the video
 	 */
-	public void pauseVideo()
+	private void pauseVideo()
 	{
 		video.pause();
 		state.playing = false;

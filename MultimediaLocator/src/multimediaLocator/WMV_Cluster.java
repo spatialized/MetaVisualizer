@@ -1902,27 +1902,27 @@ public class WMV_Cluster
 	
 	public void setHasImage(boolean newState)
 	{
-		state.setHasImage(true);
+		state.setHasImage(newState);
 	}
 	
-	public boolean getHasImage()
+	public boolean hasImage()
 	{
 		return state.hasImage();
 	}
 	
 	public void setHasPanorama(boolean newState)
 	{
-		state.setHasPanorama(true);
+		state.setHasPanorama(newState);
 	}
 	
-	public boolean getHasPanorama()
+	public boolean hasPanorama()
 	{
 		return state.hasPanorama();
 	}
 	
 	public void setHasVideo(boolean newState)
 	{
-		state.setHasVideo(true);
+		state.setHasVideo(newState);
 	}
 	
 	public boolean hasVideo()
@@ -1932,10 +1932,10 @@ public class WMV_Cluster
 	
 	public void setHasSound(boolean newState)
 	{
-		state.setHasSound(true);
+		state.setHasSound(newState);
 	}
-	
-	public boolean getHasSound()
+
+	public boolean hasSound()
 	{
 		return state.hasSound();
 	}

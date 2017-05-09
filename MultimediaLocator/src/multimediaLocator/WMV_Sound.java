@@ -35,7 +35,6 @@ public class WMV_Sound extends WMV_Media
 		super( newID, newType, newSoundMetadata.name, newSoundMetadata.filePath, newSoundMetadata.dateTime, newSoundMetadata.timeZone, 
 				newSoundMetadata.gpsLocation );
 
-		metadata = newSoundMetadata;
 		state = new WMV_SoundState();
 
 		if(newSoundMetadata != null)
@@ -43,8 +42,13 @@ public class WMV_Sound extends WMV_Media
 			metadata = newSoundMetadata;
 			state.initialize(metadata);	
 		}
+		else
+			System.out.println("newSoundMetadata == null!");
 
-		getMediaState().gpsLocation = metadata.gpsLocation;
+		if(metadata != null)
+			setGPSLocation( metadata.gpsLocation );
+		else
+			System.out.println("Sound metadata == null!");
 		initializeTime();
 	}  
 
@@ -498,6 +502,11 @@ public class WMV_Sound extends WMV_Media
 		state.setMediaState(getMediaState(), metadata);
 	}
 
+	public void setGPSLocationInMetadata(PVector newGPSLocation)
+	{
+		metadata.gpsLocation = newGPSLocation;
+	}
+	
 	public boolean isFadingVolume()
 	{
 		return state.fadingVolume;

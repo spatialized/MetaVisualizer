@@ -52,6 +52,7 @@ public class WMV_Cluster
 		state.images = new ArrayList<Integer>();
 		state.panoramas = new ArrayList<Integer>();
 		state.videos = new ArrayList<Integer>();
+		state.sounds = new ArrayList<Integer>();
 		segments = new ArrayList<WMV_MediaSegment>();
 		
 		stitched = new ArrayList<WMV_Panorama>();

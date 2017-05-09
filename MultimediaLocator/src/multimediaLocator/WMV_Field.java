@@ -329,7 +329,6 @@ public class WMV_Field
 				hierarchical = true;
 			
 			runInitialClustering(hierarchical);		// Find media spatial clusters (points of interest)
-//			setSoundLocations();
 			
 //			model.findDuplicateClusterMedia();		// Find media in more than one cluster
 
@@ -356,27 +355,69 @@ public class WMV_Field
 		if(debugSettings.sound) System.out.println("---> setSoundLocations()... clusters.size():"+clusters.size());
 		for(WMV_Sound snd : sounds)
 		{
-//			if(debugSettings.sound) System.out.println( "  model.getState().highLongitude:"+model.getState().highLongitude+"  model.getState().highAltitude:"+model.getState().highAltitude+"  model.getState().highLatitude:"+model.getState().highLatitude );
+			setSoundLocation(snd);
 
-			snd.calculateCaptureLocation(model);
-			snd.setLocation(snd.getCaptureLocation());
-			
-			if(snd.getAssociatedClusterID() == -1)				// Search for existing cluster near sound
+//			snd.calculateCaptureLocation(model);
+//			snd.setLocation(snd.getCaptureLocation());
+//			
+//			if(snd.getAssociatedClusterID() == -1)				// Search for existing cluster near sound
+//			{
+//				System.out.println("Field.setSoundLocations()...  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
+//				boolean success = snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);
+//				if(success)
+//				{
+//					WMV_Cluster c = clusters.get(snd.getAssociatedClusterID());
+//					if(!c.getSoundIDs().contains(snd.getID()))
+//						c.addSound(snd);
+//					System.out.println("Field.setSoundLocations()...   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
+//				}
+//			}
+//			
+//			if(snd.getAssociatedClusterID() == -1)				// Create cluster for single sound if no existing cluster nearby
+//			{
+//				System.out.println("Field.setSoundLocations()...2  sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
+//				int newClusterID = clusters.size();
+//				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, snd.getCaptureLocation()));
+//				snd.setAssociatedClusterID(newClusterID);
+//				clusters.get(newClusterID).createSingle(snd.getID(), 3);
+//				System.out.println("Field.setSoundLocations()... 2   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
+//			}
+		}
+	}
+	
+	/**
+	 * Set sound location and location metadata from GPS location in <mState>
+	 * @param snd Sound to set location for
+	 */
+	private void setSoundLocation(WMV_Sound snd)
+	{
+		snd.setGPSLocationInMetadata(snd.getMediaState().gpsLocation);
+		snd.calculateCaptureLocation(model);
+		snd.setLocation(snd.getCaptureLocation());
+		
+		System.out.println("Field.setSoundLocation()...  setLocation()... sound #"+snd.getID()+" snd.getCaptureLocation(): "+snd.getCaptureLocation()+" snd.getLocation(): "+snd.getLocation()+"...");
+
+		if(snd.getAssociatedClusterID() == -1)				// Search for existing cluster near sound
+		{
+			System.out.println("Field.setSoundLocation()...  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
+			boolean success = snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);
+			if(success)
 			{
-				System.out.println("1  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
-				snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);
-				System.out.println("1   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
+				WMV_Cluster c = clusters.get(snd.getAssociatedClusterID());
+				if(!c.getSoundIDs().contains(snd.getID()))
+					c.addSound(snd);
+				System.out.println("Field.setSoundLocation()...   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
 			}
-			
-			if(snd.getAssociatedClusterID() == -1)				// Create cluster for single sound if no existing cluster nearby
-			{
-				System.out.println("2  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
-				int newClusterID = clusters.size();
-				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, snd.getCaptureLocation()));
-				snd.setAssociatedClusterID(newClusterID);
-				clusters.get(newClusterID).createSingle(snd.getID(), 3);
-				System.out.println("2   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
-			}
+		}
+		
+		if(snd.getAssociatedClusterID() == -1)				// Create cluster for single sound if no existing cluster nearby
+		{
+			System.out.println("Field.setSoundLocation()...2  sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
+			int newClusterID = clusters.size();
+			addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, snd.getCaptureLocation()));
+			snd.setAssociatedClusterID(newClusterID);
+			clusters.get(newClusterID).createSingle(snd.getID(), 3);
+			System.out.println("Field.setSoundLocation()... 2   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
 		}
 	}
 
@@ -2803,13 +2844,9 @@ public class WMV_Field
 		{
 			i.captureState();							// Save current image state for exporting
 			WMV_ImageState iState = i.getState();
-			
-//			if(iState.mState.cluster == -1)
-//				System.out.println("While saving image state #"+iState.mState.id+" associated cluster is -1... name:"+iState.mState.name);
-//			if(iState.mState.cluster == -1)
-//				System.out.println("While saving image state #"+iState.mState.id+" associated cluster is 0... name:"+iState.mState.name);
 
 			iState.resetState();
+
 			if(iState != null)
 				imageStates.add(iState);
 		}
@@ -2831,9 +2868,9 @@ public class WMV_Field
 		{
 			n.captureState();
 			WMV_PanoramaState pState = n.getState();
-//			System.out.println("---> pState.getID():"+pState.mState.id+" pState.getMediaType():"+pState.mState.mediaType+" name:"+pState.mState.name);
 			
 			pState.resetState();
+
 			if(pState != null)
 				panoramaStates.add(pState);
 		}
@@ -2842,7 +2879,6 @@ public class WMV_Field
 		psl.setPanoramas(panoramaStates);
 		return psl;
 	}
-
 
 	/**
 	 * Capture video states for exporting to file
@@ -2856,7 +2892,9 @@ public class WMV_Field
 		{
 			v.captureState();
 			WMV_VideoState vState = v.getState();
+			
 			vState.resetState();
+			
 			if(vState != null)
 				videoStates.add(vState);
 		}
@@ -2879,7 +2917,9 @@ public class WMV_Field
 		{
 			s.captureState();
 			WMV_SoundState sState = s.getState();
-//			System.out.println("--> sState.getID():"+sState.mState.id+" sState.getMediaType():"+sState.mState.mediaType+" name:"+sState.mState.name);
+
+			sState.resetState();
+			
 			if(sState != null)
 				soundStates.add(sState);
 		}
@@ -3035,7 +3075,7 @@ public class WMV_Field
 				{
 					if(newSoundStateList.sounds != null)
 					{
-						if(debugSettings.field) System.out.println(" Adding sounds... "+newSoundStateList.sounds.size()); 
+						if(debugSettings.field) System.out.println(" Adding Sounds... "+newSoundStateList.sounds.size()); 
 						for(WMV_SoundState ss : newSoundStateList.sounds)
 						{
 							WMV_Sound newSound = getSoundFromSoundState(ss);
@@ -3069,6 +3109,8 @@ public class WMV_Field
 					model.initialize(worldSettings, debugSettings);
 					model.setState(newFieldState.model);
 
+					setSoundLocations();
+					
 					if(clusterError)							// Error loading clusters
 					{
 						boolean hierarchical = false;
@@ -3278,10 +3320,32 @@ public class WMV_Field
 
 	public WMV_Sound getSoundFromSoundState(WMV_SoundState soundState)
 	{
-//		System.out.println(" getSoundFromSoundState()...");
+		System.out.println("getSoundFromSoundState()...");
+//		if(soundState == null)
+//			System.out.println(" soundState == null...");
+//		if(soundState.getMetadata() == null)
+//			System.out.println(" soundState.getMetadata() == null...");
+			
 		WMV_Sound newSound = new WMV_Sound(soundState.mState.id, 3, soundState.getMetadata());
 		newSound.setState( soundState );
+//		System.out.println("getSoundFromSoundState()... will initialize time");
+
 		newSound.initializeTime();
+//		System.out.println("getSoundFromSoundState()... will set sound location...");
+		
+//		setSoundLocation(newSound);
+		
+		if(newSound.getMediaState().gpsLocation == null) System.out.println(" newSound.getMediaState().gpsLocation == null...");
+		else System.out.println("newSound.getMediaState().gpsLocation:"+newSound.getMediaState().gpsLocation);
+		if(newSound.metadata.gpsLocation == null) System.out.println(" newSound.metadata.gpsLocation == null...");
+		else System.out.println("newSound.metadata.gpsLocation:"+newSound.metadata.gpsLocation);
+		if(newSound.getGPSLocation() == null) System.out.println(" newSound.getGPSLocation() == null...");
+		else System.out.println("newSound.getGPSLocation():"+newSound.getGPSLocation());
+		if(newSound.getCaptureLocation() == null) System.out.println(" newSound.getCaptureLocation() == null...");
+		else System.out.println("newSound.getCaptureLocation():"+newSound.getCaptureLocation());
+		if(newSound.getLocation() == null) System.out.println(" newSound.getLocation() == null...");
+		else System.out.println("newSound.getLocation():"+newSound.getLocation());
+
 		return newSound;
 	}
 

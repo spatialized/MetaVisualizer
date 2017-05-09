@@ -3063,7 +3063,6 @@ public class WMV_Viewer
 					currentField.clearAllAttractors();						// Clear current attractors
 				}
 				
-				System.out.println("Viewer.updateTeleporting()... waitingToFadeInTerrainAlpha? "+p.state.waitingToFadeInTerrainAlpha);
 				if(p.state.waitingToFadeInTerrainAlpha) 		// Fade in terrain
 					p.fadeInTerrain();
 			}

@@ -13,7 +13,7 @@ public class WMV_SoundState
 	public int id;
 	public float length;
 	public float volume = 0.f;					// Sound volume between 0. and 1.
-	public float radius = 10.f;					// Audible distance			-- Set globally
+//	public float radius = 10.f;					// Audible distance			-- Set globally
 	
 	public boolean loaded = false;
 	public boolean playing = false;
@@ -50,8 +50,13 @@ public class WMV_SoundState
 		return metadata;
 	}
 
-	public void resetStatusModes()
+	public void resetState()
 	{
 		mState.resetState();
+		loaded = false;
+		playing = false;
+		volume = 0.f;
+		soundFadedIn = false;
+		soundFadedOut = false;
 	}
 }

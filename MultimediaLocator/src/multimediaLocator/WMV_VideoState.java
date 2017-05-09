@@ -94,5 +94,10 @@ public class WMV_VideoState
 	public void resetState()
 	{
 		mState.resetState();
+		loaded = false;
+		playing = false;
+		volume = 0.f;
+		soundFadedIn = false;
+		soundFadedOut = false;
 	}
 }

@@ -48,6 +48,7 @@ public class WMV_ViewerState
 	public boolean movementTeleport = false;		// Teleport when following navigation commands
 	public boolean followTeleport = false;			// Teleport when following navigation commands
 	public PVector teleportGoal;					// Coordinates of teleport goal
+	public boolean ignoreTeleportGoal = false;		// Ignore teleport goal when teleporting (for setting location manually)
 	public boolean teleporting = false;				// Transition where all images fade in or out
 	public int teleportStart;						// Frame that fade transition started
 	public int teleportToField = -1;				// What field ID to fade transition to	 (-1 remains in current field)

@@ -1,15 +1,11 @@
 package multimediaLocator;
 
 /**
- * State of the virtual world
+ * State of virtual world
  * @author davidgordon
- *
  */
 public class WMV_WorldState
 {
-	/* Clustering Modes */
-	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
-
 	/* Time */
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
@@ -19,12 +15,13 @@ public class WMV_WorldState
 	public boolean paused = false;						// Time is paused
 
 	/* Graphics */
-	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete soon?
+	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?
 	
 	public boolean displayTerrain = true;				// Show ground as wireframe grid
 	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
 	public float alpha = 195.f;							// Transparency
-	public boolean beginFadingAlpha = false, fadingAlpha = false;	// -- Obsolete??
+	
+	public boolean beginFadingAlpha = false, fadingAlpha = false;		// Global alpha fading 
 	public int fadingAlphaStartFrame = 0, fadingAlphaEndFrame = 0, fadingAlphaLength = 20;	
 	public float fadingAlphaStart, fadingAlphaTarget;
 
@@ -41,6 +38,7 @@ public class WMV_WorldState
 	public final int fadingTerrainLength = 20; 
 
 	/* Clusters */  
+	public boolean hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
 	public boolean mergeClusters = true;				// Whether to merge nearby clusters
 	public boolean lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 

@@ -62,12 +62,23 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
 	{
 		PImage result = ml.createImage(state.origVideoWidth, state.origVideoHeight, PApplet.RGB);
-//		PImage result = ml.createImage(640, 480, PApplet.RGB);
 		
 		try
 		{
-			result = source.copy();
-			result.mask(mask); 
+			if(source.width == mask.width && source.height == mask.height)
+			{
+				result = source.copy();
+				result.mask(mask); 
+			}
+			else
+			{
+				if(getDebugSettings().video || getDebugSettings().main)
+				{
+					System.out.println("Video Blur Mask different size from video!");
+					System.out.println("  state.origVideoWidth:"+state.origVideoWidth+" source.width:"+source.width+" mask.width:"+mask.width);
+					System.out.println("  state.origVideoHeight:"+state.origVideoHeight+" source.height:"+source.height+" mask.height:"+mask.height);
+				}
+			}
 		}
 		catch(RuntimeException ex)
 		{

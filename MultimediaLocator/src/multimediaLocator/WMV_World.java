@@ -13,7 +13,7 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.core.PVector;
-import processing.data.IntList;
+//import processing.data.IntList;
 //import processing.core.PVector;
 import toxi.math.CircularInterpolation;
 import toxi.math.InterpolateStrategy;
@@ -692,15 +692,6 @@ public class WMV_World
 		setSettings(field.getWorldSettings());
 		viewer.setState(field.getViewerState());
 		viewer.setSettings(field.getViewerSettings());
-		
-		if(moveToCurrentCluster)
-		{
-			if(p.debugSettings.viewer || p.debugSettings.field)
-				System.out.println("setSimulationStateFromField()... moving to current cluster at "+getCurrentCluster().getLocation()+" before:"+viewer.getLocation());
-			viewer.setLocation(getCurrentCluster().getLocation());					// Set location to current cluster
-			if(p.debugSettings.viewer || p.debugSettings.field)
-				System.out.println("  setSimulationStateFromField()... after:"+viewer.getLocation());
-		}
 
 		state.frameCount = p.frameCount;
 		viewer.setFrameCount(p.frameCount);
@@ -722,6 +713,23 @@ public class WMV_World
 				p.exit();
 			}
 		}
+		
+		if(moveToCurrentCluster)
+		{
+			if(getCurrentCluster() != null)
+			{
+				if(p.debugSettings.viewer || p.debugSettings.field)
+					System.out.println("setSimulationStateFromField()... moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" before:"+viewer.getLocation());
+			}
+			else
+			{
+				if(p.debugSettings.viewer || p.debugSettings.field)
+					System.out.println("  setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
+				viewer.setCurrentCluster(0, 0);
+			}
+			viewer.setLocation(getCurrentCluster().getLocation());					// Set location to current cluster
+			viewer.ignoreTeleportGoal();
+		}
 
 		viewer.resetTimeState();
 
@@ -735,7 +743,12 @@ public class WMV_World
 		}
 		
 		if(p.debugSettings.main || p.debugSettings.viewer)
-			System.out.println("  setSimulationStateFromField()... currentCluster:"+getCurrentCluster()+" current location:"+viewer.getLocation());
+		{
+			if(getCurrentCluster() != null)
+				System.out.println("  setSimulationStateFromField()... currentCluster id:"+getCurrentCluster().getID()+" cluster location:"+getCurrentCluster().getLocation()+" current location:"+viewer.getLocation());
+			else
+				System.out.println("  setSimulationStateFromField()... currentCluster is null!!!");
+		}
 		
 		updateState();
 		getCurrentField().updateAllMediaSettings();

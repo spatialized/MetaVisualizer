@@ -266,7 +266,7 @@ public class MultimediaLocator extends PApplet
 			{
 				state.fieldsInitialized = true;
 				if(debugSettings.main) System.out.println("" + world.getFields().size() + " fields initialized...");
-				world.enter(state.initializationField-1, true);			// Enter world at last initialization field
+				world.enter(state.initializationField-1, !success);		// Enter world at last initialization field; move to first time segment if simulation state not loaded from disk
 			}
 		}
 	}

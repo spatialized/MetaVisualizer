@@ -130,7 +130,7 @@ public class WMV_Viewer
 	 */
 	public void enterField(int fieldID)
 	{
-//		if(debugSettings.viewer) System.out.println("enterField()... location before:"+getLocation());
+		if(debugSettings.viewer) System.out.println("enterField()... location before:"+getLocation());
 		if(p.getField(fieldID).hasBeenVisited())
 			setCurrentField(fieldID, true);				// Set new field and simulation state
 		else
@@ -363,7 +363,7 @@ public class WMV_Viewer
 
 			if(setSimulationState)											// Set simulation state from saved
 			{
-				p.setSimulationStateFromField(p.getField(newField), false);
+				p.setSimulationStateFromField(p.getField(newField), true);
 
 				if(debugSettings.viewer && debugSettings.detailed)		
 					System.out.println("  viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+state.field+" currentField ID:"+currentField.getID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
@@ -846,40 +846,48 @@ public class WMV_Viewer
 			if(debugSettings.viewer)
 				System.out.println("----> moveToTimeSegmentInField... fieldID:"+fieldID+" fieldTimeSegment:"+fieldTimeSegment+" fieldTimelineID:"+f.getTimeline().timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().timeline.size());
 			int clusterID = f.getTimeline().timeline.get(fieldTimeSegment).getClusterID();
-			if(clusterID == state.currentCluster && p.getCurrentField().getCluster(clusterID).getClusterDistance() < worldSettings.clusterCenterSize)	// Moving to different time in same cluster
+			if(clusterID > 0)
 			{
-				setCurrentFieldTimeSegment(fieldTimeSegment, true);
-				if(debugSettings.viewer)
-					System.out.println("Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
-			}
-			else
-			{
-				state.movingToTimeSegment = true;								// Set time segment target
-				state.timeSegmentTarget = fieldTimeSegment;
-				
-				if(settings.teleportToFarClusters && !teleport)
+				if(clusterID == state.currentCluster && p.getCurrentField().getCluster(clusterID).getClusterDistance() < worldSettings.clusterCenterSize)	// Moving to different time in same cluster
 				{
+					setCurrentFieldTimeSegment(fieldTimeSegment, true);
 					if(debugSettings.viewer)
-						System.out.println("  1 clusterID:"+clusterID+" p.getCurrentField().getCluster(clusterID).getLocation():"+p.getCurrentField().getCluster(clusterID).getLocation());
-					if(clusterID < p.getCurrentField().getClusters().size())
-					{
-						if( PVector.dist(p.getCurrentField().getCluster(clusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
-							teleportToCluster(clusterID, fade, fieldTimeSegment);
-						else
-							setAttractorCluster(clusterID);
-					} 
-					else 
-						System.out.println("moveToTimeSegmentInField()... Error! clusterID >= p.getCurrentField().getClusters().size()! clusterID:"+clusterID+" p.getCurrentField() cluster count:"+p.getCurrentField().getClusters().size());
+						System.out.println("Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 				}
 				else
 				{
-					if(debugSettings.viewer)
-						System.out.println("  2 p.getCurrentField() id:"+clusterID+" p.getCurrentField().getCluster(clusterID).getLocation():"+p.getCurrentField().getCluster(clusterID).getLocation());
-					if(teleport)
-						teleportToCluster(clusterID, fade, fieldTimeSegment);
+					state.movingToTimeSegment = true;								// Set time segment target
+					state.timeSegmentTarget = fieldTimeSegment;
+
+					if(settings.teleportToFarClusters && !teleport)
+					{
+						if(debugSettings.viewer)
+							System.out.println("  1 clusterID:"+clusterID+" p.getCurrentField().getCluster(clusterID).getLocation():"+p.getCurrentField().getCluster(clusterID).getLocation());
+						if(clusterID < p.getCurrentField().getClusters().size())
+						{
+							if( PVector.dist(p.getCurrentField().getCluster(clusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
+								teleportToCluster(clusterID, fade, fieldTimeSegment);
+							else
+								setAttractorCluster(clusterID);
+						} 
+						else 
+							System.out.println("moveToTimeSegmentInField()... Error! clusterID >= p.getCurrentField().getClusters().size()! clusterID:"+clusterID+" p.getCurrentField() cluster count:"+p.getCurrentField().getClusters().size());
+					}
 					else
-						setAttractorCluster(clusterID);
+					{
+						if(debugSettings.viewer)
+							System.out.println("  2 p.getCurrentField() id:"+clusterID+" p.getCurrentField().getCluster(clusterID).getLocation():"+p.getCurrentField().getCluster(clusterID).getLocation());
+						if(teleport)
+							teleportToCluster(clusterID, fade, fieldTimeSegment);
+						else
+							setAttractorCluster(clusterID);
+					}
 				}
+			}
+			else
+			{
+				System.out.println("fieldTimeSegment in field #"+f.getID()+" cluster is -1!! Will move to cluster 0...");
+				teleportToCluster(0, fade, 0);
 			}
 		}
 		else
@@ -1003,6 +1011,7 @@ public class WMV_Viewer
 				else
 				{
 					enterField(newField); 				/* Enter new field */
+					System.out.println("  teleportToField()...  Entered field "+newField+"... moveToFirstTimeSegment? "+moveToFirstTimeSegment);
 
 					if(moveToFirstTimeSegment) 
 					{
@@ -3028,8 +3037,12 @@ public class WMV_Viewer
 					state.teleportToField = -1;
 				}
 				
-				setLocation(state.teleportGoal);				// Move the camera
-				state.teleporting = false;					// Change the system status
+				if(state.ignoreTeleportGoal)
+					state.ignoreTeleportGoal = false;
+				else
+					setLocation(state.teleportGoal);					// Move the viewer
+				
+				state.teleporting = false;								// Change the system status
 
 				if(state.teleportGoalCluster != -1)
 				{
@@ -4118,6 +4131,11 @@ public class WMV_Viewer
 		if(debugSettings.viewer && debugSettings.detailed)
 			System.out.println("setCurrentTimeSegmentAndDate() newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
 		return success;
+	}
+	
+	public void ignoreTeleportGoal()
+	{
+		state.ignoreTeleportGoal = true;
 	}
 	
 	/**

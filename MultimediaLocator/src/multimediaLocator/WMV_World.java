@@ -410,12 +410,13 @@ public class WMV_World
 			state.fadingTerrainTarget = 0.f;
 			state.fadingTerrainStartFrame = p.frameCount;
 			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
-			state.turnOffTerrainAfterFadingOut = true;
+//			state.turnOffTerrainAfterFadingOut = true;
 		}
 	}
 
 	public void fadeInTerrain()
 	{
+		System.out.println("World.fadeInTerrain()...");
 		if(state.terrainAlpha != state.terrainAlphaMax)
 		{
 			state.fadingTerrainAlpha = true;		
@@ -423,12 +424,13 @@ public class WMV_World
 			state.fadingTerrainTarget = state.terrainAlphaMax;
 			state.fadingTerrainStartFrame = p.frameCount;
 			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
-			state.waitingToFadeInTerrainAlpha = false;
+			if(state.waitingToFadeInTerrainAlpha)
+				state.waitingToFadeInTerrainAlpha = false;
 		}
 	}
 
 	/**
-	 * Update state.fadingBrightness each frame
+	 * Update fadingTerrainAlpha each frame
 	 */
 	void updateFadingTerrainAlpha()
 	{

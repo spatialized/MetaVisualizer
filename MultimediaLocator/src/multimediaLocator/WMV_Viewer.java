@@ -376,6 +376,10 @@ public class WMV_Viewer
 		}
 	}
 
+	/**
+	 * Set current field ID
+	 * @param newFieldID New current field ID
+	 */
 	public void setCurrentFieldID(int newFieldID)
 	{
 		state.field = newFieldID;
@@ -746,33 +750,28 @@ public class WMV_Viewer
 	public int getNextClusterWithMediaType(WMV_Field currentField, int mediaType, int startClusterID)
 	{
 		boolean end = false;			// End search while loop
-		int next = startClusterID;					// Next cluster to check
-		int iterationCount = 0, count = 0;
+		int next = startClusterID + 1;					// Next cluster to check
+		int iterationCount = 0;		
 		boolean result = false;
 		
-		while( !result ) 		// Increment <next> until different non-empty image cluster found
+		while( !result ) 		/* Search clusters until different cluster found with specified media type */
 		{
-			next++;
-			while(	currentField.getCluster(next).isEmpty() || next == state.currentCluster )
+			if(next >= currentField.getClusters().size() && !end)
 			{
-				next++;
-
-				if(next >= currentField.getClusters().size())
+				next = 0;
+				iterationCount++;
+				
+				if(iterationCount > 3)
 				{
-					next = 0;
-					iterationCount++;
-
-					if(iterationCount > 3)
-					{
-						if(debugSettings.viewer)
-							System.out.println("No images found...");
-						end = true;
-						break;
-					}
+					if(debugSettings.viewer)
+						System.out.println("1  No media found...");
+					end = true;
+					break;
 				}
 			}
-
+			
 			if(end) break;
+			
 			switch(mediaType)
 			{
 				case 0:
@@ -789,8 +788,35 @@ public class WMV_Viewer
 					break;
 			}
 			
-//			System.out.println("count:"+count+" result:"+result+" == currentField.getCluster(next).hasSound():"+currentField.getCluster(next).hasSound()+" next:"+next);
-			count++;
+			if(result)	/* If cluster with specified media type has been found */
+			{
+				end = true;
+			}
+			else	/* If not found */
+			{
+				next++;
+
+				if(currentField.getClusters().size() > next)
+				{
+					while(	currentField.getCluster(next).isEmpty() || next == state.currentCluster )
+					{
+						next++;
+						if(next >= currentField.getClusters().size())
+						{
+							next = 0;
+							iterationCount++;
+
+							if(iterationCount > 3)
+							{
+								if(debugSettings.viewer)
+									System.out.println("2 No media found...");
+								end = true;
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		if(iterationCount <= 3)				// If a cluster was found in 2 iterations
@@ -909,7 +935,8 @@ public class WMV_Viewer
 				{
 					setLocation( c.getLocation() );
 					setCurrentCluster(dest, fieldTimeSegment);
-					if(p.state.waitingToFadeInTerrainAlpha) p.fadeInTerrain();
+					if(p.state.waitingToFadeInTerrainAlpha) 
+						p.fadeInTerrain();
 				}
 			}
 			else 
@@ -3036,6 +3063,7 @@ public class WMV_Viewer
 					currentField.clearAllAttractors();						// Clear current attractors
 				}
 				
+				System.out.println("Viewer.updateTeleporting()... waitingToFadeInTerrainAlpha? "+p.state.waitingToFadeInTerrainAlpha);
 				if(p.state.waitingToFadeInTerrainAlpha) 		// Fade in terrain
 					p.fadeInTerrain();
 			}

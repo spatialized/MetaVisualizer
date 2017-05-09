@@ -1757,7 +1757,7 @@ class WMV_MetadataLoader
 	{
 		Instant creationInstant = creationTime.toInstant();
 		ZonedDateTime mediaTime = creationInstant.atZone(ZoneId.of(ml.world.getCurrentField().getTimeZoneID()));
-		System.out.println("getTimeFromTimeStamp()... mediaTime.string:"+mediaTime.toString());
+//		System.out.println("getTimeFromTimeStamp()... mediaTime.string:"+mediaTime.toString());
 		return mediaTime;
 	}
 	

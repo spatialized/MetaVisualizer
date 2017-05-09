@@ -1538,7 +1538,7 @@ public class WMV_Utilities
 		String minuteStr = String.valueOf(dateTime.getMinute());
 		String secondStr = String.valueOf(dateTime.getSecond());
 		result = yearStr + ":" + monthStr + ":" + dayStr  + " " + hourStr + ":" + minuteStr + ":" + secondStr;
-		System.out.println("getTimeStringFromDateTime()... result:"+result);
+//		System.out.println("getTimeStringFromDateTime()... result:"+result);
 		return result;
 	}
 	

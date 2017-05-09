@@ -647,14 +647,15 @@ public class WMV_Field
 			}
 		}
 
-		verifyClusters();
+		verifyClusters(inclSounds);
 		if(debugSettings.cluster) System.out.println("Created "+(newClusterID-initial)+" clusters from single images...");
 	}
 
 	/**
 	 * Verify that clusters have no duplicates and all media are associated with a cluster
+	 * @param inclSounds Whether to include sounds in checking cluster media
 	 */
-	public void verifyClusters()
+	public void verifyClusters(boolean inclSounds)
 	{
 		boolean error = false;
 		for(WMV_Cluster c : clusters)
@@ -687,12 +688,15 @@ public class WMV_Field
 				error = true;
 			}
 
-		for(WMV_Sound snd : sounds)
-			if(snd.getAssociatedClusterID() == -1)
-			{
-				System.out.println("Sound #"+snd.getID()+" has no cluster!  name:"+snd.getName());
-				error = true;
-			}
+		if(inclSounds)
+		{
+			for(WMV_Sound snd : sounds)
+				if(snd.getAssociatedClusterID() == -1)
+				{
+					System.out.println("Sound #"+snd.getID()+" has no cluster!  name:"+snd.getName());
+					error = true;
+				}
+		}
 	}
 
 	/**

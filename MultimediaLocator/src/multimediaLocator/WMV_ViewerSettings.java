@@ -2,7 +2,7 @@ package multimediaLocator;
 
 /*********************************
  * @author davidgordon
- * Current settings of the virtual viewer
+ * Current settings of virtual viewer
  */
 public class WMV_ViewerSettings 
 {
@@ -11,7 +11,6 @@ public class WMV_ViewerSettings
 	public float fieldOfView = initFieldOfView; 				// Initial camera field of view
 	public float rotateIncrement = 3.1415f / 256.f;				// Rotation amount per frame when turning
 	public float zoomIncrement = 3.1415f / 32.f;				// Zoom amount per frame when zooming
-
 	public float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
 	public float nearViewingDistance = nearClippingDistance * 2.f; 	// Near distance (m.) at which media start fading out
 	public float farViewingDistance = 12.f; 						// Far distance (m.) at which media start fading out
@@ -22,22 +21,14 @@ public class WMV_ViewerSettings
 	public boolean orientationMode = false;				// Viewer "moves" by standing still (images fade in and out across space)
 	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = (float)Math.PI / 3.33f;		// Angle within which images and videos become visible
+	public float visibleAngleMax = 3.14f;
+	public float visibleAngleMin = 0.05f;
+	public float visibleAngleInc = 0.04f;
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
 	public boolean sphericalView = false;					// 360 degree perspective 		// -- Under development
-	
-	public final int maxVisibleImages = 60;					// Maximum visible images at one time
-	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
-	public final int maxVisibleVideos = 3;					// Maximum visible videos at one time
-	public final int maxAudibleSounds = 6;					// Maximum audible sounds at one time
-	
-	public float visibleAngleMax = (float) 3.14, visibleAngleMin = (float) 0.05, visibleAngleInc = (float) 0.04;
-	public boolean hideImages = false;						// Hide images
-	public boolean hidePanoramas = false;					// Hide panoramas
-	public boolean hideVideos = false;						// Hide videos
-	public boolean hideSounds = false;						// Hide videos
 
 	/* Video */
 	public boolean autoPlayVideos = true;				// Automatically play videos near viewer
@@ -46,7 +37,17 @@ public class WMV_ViewerSettings
 	/* Sound */
 	public boolean autoPlaySounds = true;				// Automatically play videos near viewer
 	public int autoPlayMaxSoundCount = 3;				// Maximum videos to auto play simultaneously
-	public float farHearingDistance = 24.f; 						// Far distance (m.) at which media start fading out
+	public float farHearingDistance = 36.f; 						// Far distance (m.) at which media start fading out
+
+	/* Media Visibility */
+	public final int maxVisibleImages = 60;					// Maximum visible images at one time
+	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
+	public final int maxVisibleVideos = 3;					// Maximum visible videos at one time
+	public final int maxAudibleSounds = 6;					// Maximum audible sounds at one time
+	public boolean hideImages = false;						// Hide images
+	public boolean hidePanoramas = false;					// Hide panoramas
+	public boolean hideVideos = false;						// Hide videos
+	public boolean hideSounds = false;						// Hide videos
 
 	/* Physics */
 	public float lastAttractorDistance = -1.f;
@@ -67,7 +68,7 @@ public class WMV_ViewerSettings
 	public float farClusterTeleportDistance = 240.f;		// Distance at which cluster is considered far
 	public boolean alwaysLookAtMedia = false;				// Automatically turn towards media when reached new cluster -- Fix bugs!
 	
-	/* Turning */
+	/* Turn Settings */
 	final public float turningVelocityMin = 0.00005f;			// Threshold under which velocity counts as zero
 	final public float turningVelocityMax = 0.05f;				// Camera maximum velocity
 	final public float turningAccelerationMax = 0.005f;			// Camera maximum acceleration
@@ -85,30 +86,22 @@ public class WMV_ViewerSettings
 	public boolean segmentSelection = false;			// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
 
-	/* Interaction */
+	/* Interaction Settings */
 	public int mediaDensityThreshold = 12;				// Number of images or videos counted as high density
 	public float selectionMaxDistance;					// Maximum distance user can select a photo
 	public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
 	public int lockToClusterWaitLength = 100;
 	
-	/* Clusters */
+	/* Cluster Settings */
 	public int orientationModeMaxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode		
 	public int orientationModeMinVisibleClusters = 1;					// Maximum visible clusters in Orientation Mode	
 	public float orientationModeClusterViewingDistance = nearClippingDistance;	// Distance clusters become visible in Orientation Mode
 	public boolean orientationModeForceVisible = false;			// Force <minimum visible clusters> to be seen, even if out of range
 	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
 
-	/* Sound */
-	private float audibleFarDistanceMin, audibleFarDistanceMax;
-	private float audibleFarDistanceFadeStart, audibleFarDistanceFadeLength = 40, audibleFarDistanceStartVal, audibleFarDistanceDestVal;
-	private float audibleFarDistanceDiv = (float) 1.5;
-	private boolean audibleFarDistanceTransition = false;
-
-	private float audibleNearDistanceMin, audibleNearDistanceMax;
-	private float audibleNearDistanceFadeStart, audibleNearDistanceFadeLength = 40, audibleNearDistanceStartVal, audibleNearDistanceDestVal;
-	private float audibleNearDistanceDiv = (float) 1.2; 
-	private boolean audibleNearDistanceTransition = false;
-
+	/**
+	 * Constructor for viewer settings
+	 */
 	public WMV_ViewerSettings(){}
 
 	/**
@@ -142,6 +135,15 @@ public class WMV_ViewerSettings
 		thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 		alphaTransitionLength = 15;
 
+		/* Video */
+		autoPlayVideos = true;				// Automatically play videos near viewer
+		autoPlayMaxVideoCount = 2;				// Maximum videos to auto play simultaneously
+
+		/* Sound */
+		autoPlaySounds = true;				// Automatically play videos near viewer
+		autoPlayMaxSoundCount = 3;			// Maximum videos to auto play simultaneously
+		farHearingDistance = 24.f; 			// Far distance (m.) at which media start fading out
+
 		/* Physics */
 		lastAttractorDistance = -1.f;
 		cameraMass = 0.33f;						// Camera mass for cluster attraction
@@ -160,7 +162,7 @@ public class WMV_ViewerSettings
 		teleportToFarClusters = true;
 		farClusterTeleportDistance = 2000.f;
 
-		/* Turning */
+		/* Turn Settings */
 		turningXAccelInc = 0.0001f;
 		turningYAccelInc = 0.0001f;
 
@@ -171,29 +173,14 @@ public class WMV_ViewerSettings
 		multiSelection = false;				// User can select multiple images for stitching
 		segmentSelection = false;			// Select image segments at a time
 		mouseNavigation = false;			// Mouse navigation
-//		map3DMode = false;					// 3D Map Mode		-- Unused
-//		videoMode = false;					// Highlights videos by dimming other media types	-- Unused
 
-		/* Interaction */
+		/* Interaction Settings */
 		selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
 		lockToClusterWaitLength = 100;
 	
-		/* Clusters */
+		/* Cluster Settings */
 		orientationModeMaxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode
 		orientationModeMinVisibleClusters = 1;							// Maximum visible clusters in Orientation Mode	
-
-//		TESTINTLIST.append(1);
-//		TESTINTLIST.append(3);
-//		TESTINTLIST.append(2);
-		
-		/* Sound */
-//		audibleFarDistanceFadeLength = 40;
-//		audibleFarDistanceDiv = (float) 1.5;
-//		audibleFarDistanceTransition = false;
-//
-//		audibleNearDistanceFadeLength = 40;
-//		audibleNearDistanceDiv = (float) 1.2; 
-//		audibleNearDistanceTransition = false;
 	}
 	
 	/**

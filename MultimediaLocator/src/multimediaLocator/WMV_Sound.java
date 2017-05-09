@@ -148,7 +148,6 @@ public class WMV_Sound extends WMV_Media
 		{
 			state.volume = state.volumeFadingTarget;
 			state.fadingVolume = false;
-//			if(getDebugSettings().sound) System.out.println("updateFadingVolume() for sound #"+getID()+" reached target at:"+state.volume+"...");
 			
 			if(state.volume == 1.f)
 			{
@@ -170,8 +169,18 @@ public class WMV_Sound extends WMV_Media
 	public void display(MultimediaLocator ml)
 	{
 		if(getMediaState().showMetadata) displayMetadata(ml);
-		if(ml.debugSettings.sound)
-			displayModel(ml);
+		if(getMediaState().visible)
+		{
+//			System.out.println("getWorldState().showModel:"+getWorldState().showModel+" isHidden():"+isHidden()+" isDisabled():"+isDisabled()+" wtf? "+(getWorldState().showModel && !isHidden() && !!isDisabled()));
+
+			if(getWorldState().showModel && !isHidden() && !isDisabled())
+			{
+//				System.out.println("Will call displayModel()...");
+				displayModel(ml);
+			}
+			else if(ml.debugSettings.sound || ml.debugSettings.field) 
+				displayModel(ml);
+		}
 	}
 
 	/**
@@ -213,8 +222,10 @@ public class WMV_Sound extends WMV_Media
 			else
 				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 		}
+		
 
 		PVector loc = getLocation();
+//		System.out.println("Sound.displayModel()... loc.x:"+loc.x+" getViewingBrightness():"+getViewingBrightness()+" getMediaState().centerSize * 2.f:"+(getMediaState().centerSize * 2.f));
 		ml.translate(loc.x, loc.y, loc.z);
 		ml.sphere(getMediaState().centerSize * 2.f);
 		ml.popMatrix();

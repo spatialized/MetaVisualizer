@@ -28,7 +28,6 @@ public class WMV_ViewerSettings
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
-	public boolean sphericalView = false;					// 360 degree perspective 		// -- Under development
 
 	/* Video */
 	public boolean autoPlayVideos = true;				// Automatically play videos near viewer

@@ -13,6 +13,7 @@
 
 package multimediaLocator;
 import java.io.*;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 
 import g4p_controls.GButton;
@@ -21,6 +22,8 @@ import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
 import processing.core.*;
+import processing.opengl.PGL;
+import processing.opengl.PShader;
 import processing.video.Movie;
 
 /**
@@ -36,7 +39,8 @@ public class MultimediaLocator extends PApplet
 	public ML_SystemState state = new ML_SystemState();
 	boolean createNewLibrary = false;
 	boolean enteredField = false;
-
+	boolean cubeMapInitialized = false;
+	
 	/* MultimediaLocator */
 	ML_Library library;							// Multimedia library
 	ML_Input input;								// Mouse / keyboard input
@@ -47,6 +51,14 @@ public class MultimediaLocator extends PApplet
 	/* WorldMediaViewer */
 	WMV_World world;							// The 3D World
 	WMV_MetadataLoader metadata;				// Metadata reading and writing
+	
+	/* Graphics */
+	public PShader cubemapShader;
+	public PShape domeSphere;
+	public IntBuffer fbo;
+	public IntBuffer rbo;
+	public IntBuffer envMapTextureID;
+	public int cubeMapSize = 2048;   
 	
 	/* Memory */
 	public boolean lowMemory = false;
@@ -71,6 +83,7 @@ public class MultimediaLocator extends PApplet
 		
 		input = new ML_Input(width, height);
 		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
+		display.initializeWindows(world);
 		metadata = new WMV_MetadataLoader(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
 		if(debugSettings.main) System.out.println("Initial setup complete...");
@@ -78,6 +91,54 @@ public class MultimediaLocator extends PApplet
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
 		textAlign(PConstants.CENTER, PConstants.CENTER);
+		
+		initCubeMap();
+	}
+
+	public void initCubeMap()
+	{
+//		System.out.println("initCubeMap()...");
+		sphereDetail(50);
+		domeSphere = createShape(PApplet.SPHERE, height/2.0f);
+		domeSphere.rotateX(PApplet.HALF_PI);
+		domeSphere.setStroke(false);
+
+		PGL pgl = beginPGL();
+
+		envMapTextureID = IntBuffer.allocate(1);
+		pgl.genTextures(1, envMapTextureID);
+		
+		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0));
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_S, PGL.CLAMP_TO_EDGE);
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_T, PGL.CLAMP_TO_EDGE);
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_R, PGL.CLAMP_TO_EDGE);
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MIN_FILTER, PGL.NEAREST);
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MAG_FILTER, PGL.NEAREST);
+		
+		for (int i = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; i < PGL.TEXTURE_CUBE_MAP_POSITIVE_X + 6; i++) {
+			pgl.texImage2D(i, 0, PGL.RGBA8, cubeMapSize, cubeMapSize, 0, PGL.RGBA, PGL.UNSIGNED_BYTE, null);
+		}
+
+		fbo = IntBuffer.allocate(1);
+		rbo = IntBuffer.allocate(1);
+		pgl.genFramebuffers(1, fbo);
+		pgl.bindFramebuffer(PGL.FRAMEBUFFER, fbo.get(0));
+		pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, PGL.TEXTURE_CUBE_MAP_POSITIVE_X, envMapTextureID.get(0), 0);
+
+		pgl.genRenderbuffers(1, rbo);
+		pgl.bindRenderbuffer(PGL.RENDERBUFFER, rbo.get(0));
+		pgl.renderbufferStorage(PGL.RENDERBUFFER, PGL.DEPTH_COMPONENT24, cubeMapSize, cubeMapSize);
+
+		// Attach depth buffer to FBO
+		pgl.framebufferRenderbuffer(PGL.FRAMEBUFFER, PGL.DEPTH_ATTACHMENT, PGL.RENDERBUFFER, rbo.get(0));    
+
+		endPGL();
+
+		// Load cubemap shader.
+		cubemapShader = loadShader("shaders/cubemapfrag.glsl", "shaders/cubemapvert.glsl");
+		cubemapShader.set("cubemap", 1);
+		
+		cubeMapInitialized = true;
 	}
 
 	/** 
@@ -155,6 +216,135 @@ public class MultimediaLocator extends PApplet
 		if ( state.exit ) exitProgram();							/* Stopping the program */		
 	}
 	
+	public void display360()
+	{
+		/* Start cubemap */
+		PGL pgl = beginPGL();
+		pgl.activeTexture(PGL.TEXTURE1);
+		pgl.enable(PGL.TEXTURE_CUBE_MAP);  
+		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0)); 
+
+		regenerateEnvironmentMap(pgl);
+
+		endPGL();
+		drawDomeMaster();
+		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, 0);
+	}
+	
+	void drawDomeMaster() {
+		PVector cLoc = world.viewer.getLocation();
+//		camera(cLoc.x, cLoc.y, cLoc.z, width/2.0f, height/2.0f, 0, 0, 1, 0);
+		camera();
+		ortho();
+		resetMatrix();
+		shader(cubemapShader);
+		shape(domeSphere);
+		resetShader();
+	}
+	
+	public void regenerateEnvironmentMap(PGL pgl)
+	{
+		// bind fbo
+		pgl.bindFramebuffer(PGL.FRAMEBUFFER, fbo.get(0));
+
+		// generate 6 views from camera location
+		pgl.viewport(0, 0, cubeMapSize, cubeMapSize);    
+		perspective(90.0f * PApplet.DEG_TO_RAD, 1.0f, 1.0f, world.viewer.getFarViewingDistance());
+		
+//		for ( int face = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; 
+//				  face < PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z; face++ ) 
+		for ( int face = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; 
+				  face <= PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z; face++ ) 
+		{
+			resetMatrix();
+
+//			PVector cLoc = world.viewer.getLocation();
+//			System.out.println("cLoc.x:"+cLoc.x+" cLoc.y:"+cLoc.y+" cLoc.z:"+cLoc.z);
+//			if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//				camera(cLoc.x, cLoc.y, cLoc.z, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//				camera(cLoc.x, cLoc.y, cLoc.z, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//				camera(cLoc.x, cLoc.y, cLoc.z, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//				camera(cLoc.x, cLoc.y, cLoc.z, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//				camera(cLoc.x, cLoc.y, cLoc.z, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+//				camera(cLoc.x, cLoc.y, cLoc.z, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);    
+//			}
+
+		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
+		      }
+
+//			if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//				camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//				camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//				camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//				camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//				camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+//			}
+
+			scale(-1.f, 1.f, -1.f);
+//			translate(-width * 0.5f, -height * 0.5f, -500.f);
+//			translate(-width * 0.5f, -height * 0.5f, 0.f);
+//			translate(cLoc.x, cLoc.y, cLoc.z);
+//			translate(cLoc.x, 0.f, 0.f);
+
+			pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, face, envMapTextureID.get(0), 0);
+			
+			world.display3D();			// 3D Display
+			world.display2D();			// 2D Display
+			
+//			drawTestScene(); 		// Draw objects in the scene
+			
+//			pgl.flush();
+			flush(); 				// Make sure that the geometry in the scene is pushed to the GPU    
+			noLights();  			// Disabling lights to avoid adding many times
+			pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, face, 0, 0);
+		}
+	}
+	
+	void drawTestScene() 
+	{  
+//		System.out.println("drawTestScene()...");
+		background(0.f);
+
+		stroke(255.f, 0.f, 255.f, 255.f);
+		strokeWeight(3.f);
+		
+		for (int i = -width; i < 2 * width; i += 50) {
+			line(i, -height, -100, i, 2 * height, -100);
+		}
+		for (int i = -height; i < 2 * height; i += 50) {
+			line(-width, i, -100, 2 * width, i, -100);
+		}
+
+		lights();
+		noStroke();
+		
+//		translate(mouseX, mouseY, -200);
+		translate(mouseX, mouseY, 200);
+		
+		fill(255.f, 0.f, 255.f, 255.f);
+		box(100);
+	}
+
 	/**
 	 * Initialize world and run clustering
 	 */
@@ -303,7 +493,7 @@ public class MultimediaLocator extends PApplet
 
 		if(debugSettings.main && debugSettings.detailed) System.out.println("Finishing MultimediaLocator initialization..");
 
-		display.initializeWindows(world);
+//		display.initializeWindows(world);
 		display.window.setupMLWindow();
 		
 		if(debugSettings.main && debugSettings.detailed) System.out.println("Finished setting up WMV Window...");
@@ -799,6 +989,20 @@ public class MultimediaLocator extends PApplet
 	 * @param keyevent Key event
 	 */
 	public void mlWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Respond to key pressed in MultimediaLocator Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void libraryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());

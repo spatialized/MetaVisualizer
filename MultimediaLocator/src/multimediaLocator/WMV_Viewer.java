@@ -15,7 +15,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import damkjer.ocd.Camera;
+//import damkjer.ocd.Camera;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.data.FloatList;
@@ -2485,7 +2485,9 @@ public class WMV_Viewer
 				{
 					curAttractor = attractorPoint;
 					if(debugSettings.viewer)					/* If not slowing and attraction force exists */
-						System.out.println("--> attractorCluster:"+state.attractorCluster+" slowing:"+state.slowing+" halting:"+state.halting+" attraction.mag():"+state.attraction.mag()+" acceleration.mag():"+state.acceleration.mag()+" null? "+(curAttractor == null));
+						System.out.println("--> attractorCluster:"+state.attractorCluster+" slowing:"+state.slowing+" halting:"+state.halting+" attraction.mag():"+state.attraction.mag()+" null? "+(curAttractor == null));
+					if(debugSettings.viewer)					/* If not slowing and attraction force exists */
+						System.out.println("--> attractorPoint distance:"+attractorPoint.getClusterDistance()+" mass:"+attractorPoint.getClusterMass()+" acceleration.mag():"+state.acceleration.mag()+" curAttractor dist: "+(curAttractor.getClusterDistance()));
 				}
 			}
 				

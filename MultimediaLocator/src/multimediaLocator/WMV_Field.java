@@ -36,7 +36,7 @@ public class WMV_Field
 	/* Time */
 	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
 	private ArrayList<WMV_Timeline> timelines;			// Lists of time segments in field ordered by date
-	private ArrayList<WMV_Date> dateline;								// List of dates in this field, whose indices correspond with timelines in timelines list
+	private ArrayList<WMV_Date> dateline;				// List of dates in this field, whose indices correspond with timelines in timelines list
 
 	/* Data */
 	private ArrayList<WMV_Cluster> clusters;			// Clusters (spatial groupings) of media 

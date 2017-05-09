@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.core.PVector;
+import processing.opengl.PGL;
+import processing.opengl.PShader;
 //import processing.data.IntList;
 //import processing.core.PVector;
 import toxi.math.CircularInterpolation;
@@ -94,12 +97,30 @@ public class WMV_World
 	public void run()
 	{
 		updateState();
-		updateViewerAttraction();									// Attract the viewer
-		display3D();						// 3D Display
-		display2D();						// 2D Display
+		updateViewerAttraction();			// Attract the viewer
+		display(p.state.sphericalView);
 		if(!state.paused) updateTime();		// Update time cycle
 	}
 	
+	public void display(boolean sphericalView)
+	{
+		p.background(0.f);								/* Set background */
+		if(sphericalView)
+		{
+			if(p.cubeMapInitialized)
+				p.display360();
+			
+//			display3D();						// 3D Display
+//			display2D();						// 2D Display
+		}
+		else
+		{
+			p.background(0.f);								/* Set background */
+			display3D();						// 3D Display
+			display2D();						// 2D Display
+		}
+	}
+
 	/**
 	 * Enter given field
 	 * @param fieldIdx The field to enter
@@ -125,8 +146,8 @@ public class WMV_World
 		/* 3D Display */
 		if(p.display.displayView == 0)
 		{
-			p.hint(PApplet.ENABLE_DEPTH_TEST);				/* Enable depth testing for drawing 3D graphics */
 			p.background(0.f);								/* Set background */
+			if(settings.depthTesting) p.hint(PApplet.ENABLE_DEPTH_TEST);				/* Enable depth testing for drawing 3D graphics */
 			getCurrentField().display(p);					/* Display media in current field */
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
@@ -134,14 +155,14 @@ public class WMV_World
 				if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
 					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(p);		// Draw current cluster
 			}
-
 		}
 		
 		if(state.displayTerrain)					/* Draw terrain as wireframe grid */
 			displayTerrain();
 		
 		viewer.updateNavigation();					/* Update navigation */
-		if(p.display.displayView == 0)	
+//		if(p.display.displayView == 0)	
+		if(p.display.displayView == 0 && !p.state.sphericalView)	
 			if(p.state.running)
 				viewer.show();						/* Show the World View to the viewer */
 	}
@@ -410,7 +431,8 @@ public class WMV_World
 			state.fadingTerrainTarget = 0.f;
 			state.fadingTerrainStartFrame = p.frameCount;
 			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
-//			state.turnOffTerrainAfterFadingOut = true;
+			if(turnOff)
+				state.turnOffTerrainAfterFadingOut = true;
 		}
 	}
 

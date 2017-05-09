@@ -117,7 +117,20 @@ public class ML_Input
 			case "Restart":
 				ml.restart();
 				break;
+			
+			/* Library */
+			case "CreateLibrary":
+				ml.createNewLibrary = true;
+				ml.state.chooseLibrary = true;
+				display.window.hideLibraryWindow();
+				break;
 	
+			case "OpenLibrary":
+				if(ml.createNewLibrary) ml.createNewLibrary = false;
+				ml.state.chooseLibrary = true;
+				display.window.hideLibraryWindow();
+				break;
+
 			/* Navigation */
 			case "OpenNavigationWindow":
 				display.window.openNavigationWindow();
@@ -443,7 +456,7 @@ public class ML_Input
 	{
 		if (!ml.state.running && !ml.state.selectedLibrary)
 		{
-			ml.state.chooseLibrary = true;
+//			ml.state.chooseLibrary = true;			// -- Now handled by buttonEvent
 		}
 		else
 		{
@@ -800,6 +813,11 @@ public class ML_Input
 
 			if (!ml.state.interactive)						/* World View Controls */
 			{
+				if (key == '0')
+				{
+					ml.state.sphericalView = !ml.state.sphericalView;
+				}
+				
 				if (optionKey && key == '[')
 				{
 					if(ml.world.viewer.getThinningAngle() > PApplet.PI / 64.f)

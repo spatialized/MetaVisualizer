@@ -26,6 +26,9 @@ public class WMV_WorldSettings
 	public final float maxClusterDistanceConstant = 0.33f;	// Divisor to set maxClusterDistance based on mediaDensity
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
+	/* Graphics */
+	public boolean depthTesting = false;				// Enable depth testing
+	
 	/* Time */
 	public boolean getTimeZonesFromGoogle = false;		// Get time zone for each field center from Google Time Zone API
 	public int timeCycleLength = 250;					// Length of main time loop in frames

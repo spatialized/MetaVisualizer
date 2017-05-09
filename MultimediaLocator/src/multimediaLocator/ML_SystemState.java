@@ -27,6 +27,9 @@ public class ML_SystemState
 	public boolean fieldsInitialized = false;			// Initialized fields
 	public int initializationField = 0;					// Field to be initialized this frame
 
+	/* Graphics */
+	public boolean sphericalView = false;				// 360-degree fulldome view
+
 	/* Clustering Modes */
 	public boolean interactive = false;					// In user clustering mode?
 	public boolean startInteractive = false;			// Start user clustering

@@ -167,7 +167,7 @@ public class ML_Display
 	}
 
 	/**
-	 * Initialize Windows
+	 * Initialize windows
 	 * @param p Parent world
 	 */
 	void initializeWindows(WMV_World p)
@@ -1597,7 +1597,10 @@ public class ML_Display
 			{
 				if(!p.p.state.selectedLibrary)
 				{
-					p.p.text("Press any key to open MultimediaLocator library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					if(!window.setupLibraryWindow)
+						window.setupLibraryWindow();
+					
+//					p.p.text("Press any key to open MultimediaLocator library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 				}
 				else
 				{
@@ -1607,8 +1610,8 @@ public class ML_Display
 						p.p.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 				}
 			}
-			p.p.textSize(largeTextSize * 1.2f);
-			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.1f, yPos += lineWidthVeryWide * 6.f, hudDistance);
+			p.p.textSize(largeTextSize);
+			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.f, yPos += lineWidthVeryWide * 11.f, hudDistance);
 		}
 		else
 			displayMessages(p);

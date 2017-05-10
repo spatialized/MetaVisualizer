@@ -1767,7 +1767,7 @@ public class WMV_World
 	 */
 	public void loadImageMasks()
 	{
-		String maskPath = "masks/";
+		String maskPath = "resources/masks/";
 		File maskFolder = new File(maskPath);
 		String[] maskFolderList = maskFolder.list();
 
@@ -1814,7 +1814,7 @@ public class WMV_World
 			}
 		}
 		
-		String vertMaskPath = "masks_vert/";
+		String vertMaskPath = "resources/masks_vert/";
 		File vertMaskFolder = new File(vertMaskPath);
 		String[] vertMaskFolderList = vertMaskFolder.list();
 
@@ -1867,7 +1867,7 @@ public class WMV_World
 	 */
 	public void loadVideoMasks()
 	{
-		String maskPath = "video_masks/";
+		String maskPath = "resources/video_masks/";
 		File maskFolder = new File(maskPath);
 		String[] maskFolderList = maskFolder.list();
 		

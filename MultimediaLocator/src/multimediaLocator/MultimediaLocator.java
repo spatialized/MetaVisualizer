@@ -140,7 +140,7 @@ public class MultimediaLocator extends PApplet
 		endPGL();
 
 		// Load cubemap shader.
-		cubemapShader = loadShader("shaders/cubemapfrag.glsl", "shaders/cubemapvert.glsl");
+		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");
 		cubemapShader.set("cubemap", 1);
 		
 //		faces = new PGraphics[6];

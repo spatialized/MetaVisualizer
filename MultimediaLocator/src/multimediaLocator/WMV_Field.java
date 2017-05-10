@@ -2964,7 +2964,7 @@ public class WMV_Field
 			System.out.println("Setting media states for field #"+getID()+" ... ");
 			try{
 
-				System.out.println(" Adding Clusters... "+newClusterStateList.clusters.size());
+//				System.out.println(" Adding Clusters... "+newClusterStateList.clusters.size());
 				for(WMV_ClusterState cs : newClusterStateList.clusters)
 				{
 					WMV_Cluster newCluster = getClusterFromClusterState(cs);

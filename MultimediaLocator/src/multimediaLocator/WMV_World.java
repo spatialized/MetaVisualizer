@@ -1826,37 +1826,37 @@ public class WMV_World
 		{
 			for(String mask : vertMaskFolderList)
 			{
-				if(mask.equals("blurMaskLeftTop.jpg"))
+				if(mask.equals("vertBlurMaskLeftTop.jpg"))
 					vertBlurMaskLeftTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftCenter.jpg"))
+				if(mask.equals("vertBlurMaskLeftCenter.jpg"))
 					vertBlurMaskLeftCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftBottom.jpg"))
+				if(mask.equals("vertBlurMaskLeftBottom.jpg"))
 					vertBlurMaskLeftBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftBoth.jpg"))
+				if(mask.equals("vertBlurMaskLeftBoth.jpg"))
 					vertBlurMaskLeftBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterTop.jpg"))
+				if(mask.equals("vertBlurMaskCenterTop.jpg"))
 					vertBlurMaskCenterTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterCenter.jpg"))
+				if(mask.equals("vertBlurMaskCenterCenter.jpg"))
 					vertBlurMaskCenterCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterBottom.jpg"))
+				if(mask.equals("vertBlurMaskCenterBottom.jpg"))
 					vertBlurMaskCenterBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterBoth.jpg"))
+				if(mask.equals("vertBlurMaskCenterBoth.jpg"))
 					vertBlurMaskCenterBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightTop.jpg"))
+				if(mask.equals("vertBlurMaskRightTop.jpg"))
 					vertBlurMaskRightTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightCenter.jpg"))
+				if(mask.equals("vertBlurMaskRightCenter.jpg"))
 					vertBlurMaskRightCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightBottom.jpg"))
+				if(mask.equals("vertBlurMaskRightBottom.jpg"))
 					vertBlurMaskRightBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightBoth.jpg"))
+				if(mask.equals("vertBlurMaskRightBoth.jpg"))
 					vertBlurMaskRightBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothTop.jpg"))
+				if(mask.equals("vertBlurMaskBothTop.jpg"))
 					vertBlurMaskBothTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothCenter.jpg"))
+				if(mask.equals("vertBlurMaskBothCenter.jpg"))
 					vertBlurMaskBothCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothBottom.jpg"))
+				if(mask.equals("vertBlurMaskBothBottom.jpg"))
 					vertBlurMaskBothBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothBoth.jpg"))
+				if(mask.equals("vertBlurMaskBothBoth.jpg"))
 					vertBlurMaskBothBoth = p.loadImage(maskPath + mask);
 			}
 		}
@@ -1879,37 +1879,37 @@ public class WMV_World
 		{
 			for(String mask : maskFolderList)
 			{
-				if(mask.equals("blurMaskLeftTop.jpg"))
+				if(mask.equals("videoBlurMaskLeftTop.jpg"))
 					videoBlurMaskLeftTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftCenter.jpg"))
+				if(mask.equals("videoBlurMaskLeftCenter.jpg"))
 					videoBlurMaskLeftCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftBottom.jpg"))
+				if(mask.equals("videoBlurMaskLeftBottom.jpg"))
 					videoBlurMaskLeftBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskLeftBoth.jpg"))
+				if(mask.equals("videoBlurMaskLeftBoth.jpg"))
 					videoBlurMaskLeftBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterTop.jpg"))
+				if(mask.equals("videoBlurMaskCenterTop.jpg"))
 					videoBlurMaskCenterTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterCenter.jpg"))
+				if(mask.equals("videoBlurMaskCenterCenter.jpg"))
 					videoBlurMaskCenterCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterBottom.jpg"))
+				if(mask.equals("videoBlurMaskCenterBottom.jpg"))
 					videoBlurMaskCenterBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskCenterBoth.jpg"))
+				if(mask.equals("videoBlurMaskCenterBoth.jpg"))
 					videoBlurMaskCenterBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightTop.jpg"))
+				if(mask.equals("videoBlurMaskRightTop.jpg"))
 					videoBlurMaskRightTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightCenter.jpg"))
+				if(mask.equals("videoBlurMaskRightCenter.jpg"))
 					videoBlurMaskRightCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightBottom.jpg"))
+				if(mask.equals("videoBlurMaskRightBottom.jpg"))
 					videoBlurMaskRightBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskRightBoth.jpg"))
+				if(mask.equals("videoBlurMaskRightBoth.jpg"))
 					videoBlurMaskRightBoth = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothTop.jpg"))
+				if(mask.equals("videoBlurMaskBothTop.jpg"))
 					videoBlurMaskBothTop = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothCenter.jpg"))
+				if(mask.equals("videoBlurMaskBothCenter.jpg"))
 					videoBlurMaskBothCenter = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothBottom.jpg"))
+				if(mask.equals("videoBlurMaskBothBottom.jpg"))
 					videoBlurMaskBothBottom = p.loadImage(maskPath + mask);
-				if(mask.equals("blurMaskBothBoth.jpg"))
+				if(mask.equals("videoBlurMaskBothBoth.jpg"))
 					videoBlurMaskBothBoth = p.loadImage(maskPath + mask);
 			}
 		}

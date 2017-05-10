@@ -1565,21 +1565,28 @@ public class WMV_Cluster
 		
 		for (int snd : state.sounds) 		
 		{
-			WMV_Sound s = soundList.get(snd);
-			PVector gpsLocation = s.getGPSLocation();
-			
-			if (gpsLocation.x > state.highLongitude)
-				state.highLongitude = gpsLocation.x;
-			if (gpsLocation.x < state.lowLongitude)
-				state.lowLongitude = gpsLocation.x;
-			if (gpsLocation.y > state.highAltitude)
-				state.highAltitude = gpsLocation.y;
-			if (gpsLocation.y < state.lowAltitude)
-				state.lowAltitude = gpsLocation.y;
-			if (gpsLocation.z > state.highLatitude)
-				state.highLatitude = gpsLocation.z;
-			if (gpsLocation.z < state.lowLatitude)
-				state.lowLatitude = gpsLocation.z;
+			if(snd < soundList.size())
+			{
+				WMV_Sound s = soundList.get(snd);
+				PVector gpsLocation = s.getGPSLocation();
+
+				if (gpsLocation.x > state.highLongitude)
+					state.highLongitude = gpsLocation.x;
+				if (gpsLocation.x < state.lowLongitude)
+					state.lowLongitude = gpsLocation.x;
+				if (gpsLocation.y > state.highAltitude)
+					state.highAltitude = gpsLocation.y;
+				if (gpsLocation.y < state.lowAltitude)
+					state.lowAltitude = gpsLocation.y;
+				if (gpsLocation.z > state.highLatitude)
+					state.highLatitude = gpsLocation.z;
+				if (gpsLocation.z < state.lowLatitude)
+					state.lowLatitude = gpsLocation.z;
+			}
+			else
+			{
+				System.out.println("Cluster.calculateDimensions() error... snd >= soundList.size()");
+			}
 		}
 	}
 	

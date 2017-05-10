@@ -17,7 +17,7 @@ public class WMV_WorldState
 	/* Graphics */
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?
 	
-	public boolean displayTerrain = true;				// Show ground as wireframe grid
+	public boolean displayTerrain = false;				// Show ground as wireframe grid
 	public boolean alphaMode = true;					// Use alpha fading (true) or brightness fading (false)
 	public float alpha = 195.f;							// Transparency
 	

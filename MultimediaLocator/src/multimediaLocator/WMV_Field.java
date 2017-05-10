@@ -3177,7 +3177,7 @@ public class WMV_Field
 	 */
 	public ArrayList<WMV_Cluster> cleanupClusters()
 	{
-		System.out.println("cleanupClusters()... ");
+		if(debugSettings.field) System.out.println("cleanupClusters()... ");
 		ArrayList<WMV_Cluster> result = new ArrayList<WMV_Cluster>();
 		int count = 0;
 		int before = clusters.size();

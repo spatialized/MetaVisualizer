@@ -1599,7 +1599,9 @@ public class ML_Display
 				{
 					if(!window.setupLibraryWindow)
 						window.setupLibraryWindow();
-					
+
+					yPos += lineWidthVeryWide * 11.f;
+
 //					p.p.text("Press any key to open MultimediaLocator library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 				}
 				else
@@ -1608,10 +1610,11 @@ public class ML_Display
 						p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 					else
 						p.p.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					yPos += lineWidthVeryWide * 8.f;
 				}
 			}
 			p.p.textSize(largeTextSize);
-			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.f, yPos += lineWidthVeryWide * 11.f, hudDistance);
+//			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.f, yPos, hudDistance);
 		}
 		else
 			displayMessages(p);

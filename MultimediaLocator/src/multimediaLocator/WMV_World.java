@@ -44,6 +44,10 @@ public class WMV_World
 	public PImage blurMaskCenterTop, blurMaskCenterCenter, blurMaskCenterBottom, blurMaskCenterBoth;
 	public PImage blurMaskRightTop, blurMaskRightCenter, blurMaskRightBottom, blurMaskRightBoth;
 	public PImage blurMaskBothTop, blurMaskBothCenter, blurMaskBothBottom, blurMaskBothBoth;
+	public PImage vertBlurMaskLeftTop, vertBlurMaskLeftCenter, vertBlurMaskLeftBottom, vertBlurMaskLeftBoth;  	// Blur masks
+	public PImage vertBlurMaskCenterTop, vertBlurMaskCenterCenter, vertBlurMaskCenterBottom, vertBlurMaskCenterBoth;
+	public PImage vertBlurMaskRightTop, vertBlurMaskRightCenter, vertBlurMaskRightBottom, vertBlurMaskRightBoth;
+	public PImage vertBlurMaskBothTop, vertBlurMaskBothCenter, vertBlurMaskBothBottom, vertBlurMaskBothBoth;
 	public PImage videoBlurMaskLeftTop, videoBlurMaskLeftCenter, videoBlurMaskLeftBottom, videoBlurMaskLeftBoth;  	// Blur masks
 	public PImage videoBlurMaskCenterTop, videoBlurMaskCenterCenter, videoBlurMaskCenterBottom, videoBlurMaskCenterBoth;
 	public PImage videoBlurMaskRightTop, videoBlurMaskRightCenter, videoBlurMaskRightBottom, videoBlurMaskRightBoth;
@@ -1607,6 +1611,65 @@ public class WMV_World
 		}
 	}
 
+	public void setVerticalBlurMask(WMV_Image image, int blurMaskID)
+	{
+		WMV_Field f = getCurrentField();
+		switch(blurMaskID)
+		{
+		case 0:
+			f.setImageBlurMask(image, vertBlurMaskLeftTop);
+			break;
+		case 1:
+			f.setImageBlurMask(image, vertBlurMaskLeftCenter);
+			break;
+		case 2:
+			f.setImageBlurMask(image, vertBlurMaskLeftBottom);
+			break;
+		case 3:
+			f.setImageBlurMask(image, vertBlurMaskLeftBoth);
+			break;
+		
+		case 4:
+			f.setImageBlurMask(image, vertBlurMaskCenterTop);
+			break;
+		case 5:
+			f.setImageBlurMask(image, vertBlurMaskCenterCenter);
+			break;
+		case 6:
+			f.setImageBlurMask(image, vertBlurMaskCenterBottom);
+			break;
+		case 7:
+			f.setImageBlurMask(image, vertBlurMaskCenterBoth);
+			break;
+	
+		case 8:
+			f.setImageBlurMask(image, vertBlurMaskRightTop);
+			break;
+		case 9:
+			f.setImageBlurMask(image, vertBlurMaskRightCenter);
+			break;
+		case 10:
+			f.setImageBlurMask(image, vertBlurMaskRightBottom);
+			break;
+		case 11:
+			f.setImageBlurMask(image, vertBlurMaskRightBoth);
+			break;
+	
+		case 12:
+			f.setImageBlurMask(image, vertBlurMaskBothTop);
+			break;
+		case 13:
+			f.setImageBlurMask(image, vertBlurMaskBothCenter);
+			break;
+		case 14:
+			f.setImageBlurMask(image, vertBlurMaskBothBottom);
+			break;
+		case 15:
+			f.setImageBlurMask(image, vertBlurMaskBothBoth);
+			break;
+		}
+	}
+
 	public void setVideoBlurMask(WMV_Video video, int blurMaskID)
 	{
 		WMV_Field f = getCurrentField();
@@ -1666,6 +1729,9 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Set image blur masks
+	 */
 	public void setBlurMasks()
 	{
 		for(WMV_Field f : fields)
@@ -1673,25 +1739,30 @@ public class WMV_World
 			for(WMV_Image image : f.getImages())
 			{
 				int bmID = image.getState().blurMaskID;
-				setBlurMask(image, bmID);
+				if(image.getWidth() == 640 && image.getHeight() == 480) 
+					setBlurMask(image, bmID);
+				else if(image.getWidth() == 480 && image.getHeight() == 640) 
+					setVerticalBlurMask(image, bmID);
+				else
+					System.out.println("setBlurMasks()... ERROR: Could not set mask... image has size other than 640x480 or 480x640!"+image.getName());
 			}
 			for(WMV_Video video : f.getVideos())
 			{
 				int bmID = video.getState().blurMaskID;
-				setVideoBlurMask(video, bmID);
+				setVideoBlurMask(video, bmID);				// Should check width / height if possible
 			}
 		}
 	}
 
 	/**
-	 * Load image masks
+	 * Load image blur masks
 	 */
 	public void loadImageMasks()
 	{
 		String maskPath = "masks/";
 		File maskFolder = new File(maskPath);
 		String[] maskFolderList = maskFolder.list();
-		
+
 		if(maskFolder.list() == null)
 		{
 			System.out.println("Masks folder is empty!");
@@ -1732,6 +1803,53 @@ public class WMV_World
 					blurMaskBothBottom = p.loadImage(maskPath + mask);
 				if(mask.equals("blurMaskBothBoth.jpg"))
 					blurMaskBothBoth = p.loadImage(maskPath + mask);
+			}
+		}
+		
+		String vertMaskPath = "masks_vert/";
+		File vertMaskFolder = new File(vertMaskPath);
+		String[] vertMaskFolderList = vertMaskFolder.list();
+
+		if(vertMaskFolder.list() == null)
+		{
+			System.out.println("Vertical masks folder is empty!");
+		}
+		else
+		{
+			for(String mask : vertMaskFolderList)
+			{
+				if(mask.equals("blurMaskLeftTop.jpg"))
+					vertBlurMaskLeftTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftCenter.jpg"))
+					vertBlurMaskLeftCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBottom.jpg"))
+					vertBlurMaskLeftBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskLeftBoth.jpg"))
+					vertBlurMaskLeftBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterTop.jpg"))
+					vertBlurMaskCenterTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterCenter.jpg"))
+					vertBlurMaskCenterCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBottom.jpg"))
+					vertBlurMaskCenterBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskCenterBoth.jpg"))
+					vertBlurMaskCenterBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightTop.jpg"))
+					vertBlurMaskRightTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightCenter.jpg"))
+					vertBlurMaskRightCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBottom.jpg"))
+					vertBlurMaskRightBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskRightBoth.jpg"))
+					vertBlurMaskRightBoth = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothTop.jpg"))
+					vertBlurMaskBothTop = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothCenter.jpg"))
+					vertBlurMaskBothCenter = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBottom.jpg"))
+					vertBlurMaskBothBottom = p.loadImage(maskPath + mask);
+				if(mask.equals("blurMaskBothBoth.jpg"))
+					vertBlurMaskBothBoth = p.loadImage(maskPath + mask);
 			}
 		}
 	}

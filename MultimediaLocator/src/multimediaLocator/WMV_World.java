@@ -1138,11 +1138,19 @@ public class WMV_World
 	 */
 	public void saveToDisk() 
 	{
-		if(p.debugSettings.main && p.debugSettings.detailed)
-			System.out.println("Will output image to disk.");
+		if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Will output image to disk.");
 		p.state.export = true;
 	}
-	
+
+	/**
+	 * Save six current screen cubemap views to disk
+	 */
+	public void saveCubeMapToDisk() 
+	{
+		if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Will output cubemap images to disk.");
+		p.state.exportCubeMap = true;
+	}
+
 	public void exportSelectedMedia()
 	{
 		List<Integer> selected = getCurrentField().getSelectedMedia(0);

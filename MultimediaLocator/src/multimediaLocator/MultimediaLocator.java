@@ -12,7 +12,11 @@
 */
 
 package multimediaLocator;
+import java.awt.Image;
+import java.awt.color.ColorSpace;
+import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 
@@ -58,6 +62,7 @@ public class MultimediaLocator extends PApplet
 	public IntBuffer fbo;
 	public IntBuffer rbo;
 	public IntBuffer envMapTextureID;
+	public PImage[] faces;
 	public int cubeMapSize = 2048;   
 	
 	/* Memory */
@@ -138,6 +143,8 @@ public class MultimediaLocator extends PApplet
 		cubemapShader = loadShader("shaders/cubemapfrag.glsl", "shaders/cubemapvert.glsl");
 		cubemapShader.set("cubemap", 1);
 		
+//		faces = new PGraphics[6];
+		
 		cubeMapInitialized = true;
 	}
 
@@ -206,6 +213,9 @@ public class MultimediaLocator extends PApplet
 			if(state.export && world.outputFolderSelected)						/* Image exporting */
 				export();
 
+//			if(state.exportCubeMap && world.outputFolderSelected)						/* Image exporting */
+//				exportCubeMap();
+
 			if ( debugSettings.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
 			{
 				checkMemory();
@@ -244,10 +254,10 @@ public class MultimediaLocator extends PApplet
 	
 	public void regenerateEnvironmentMap(PGL pgl)
 	{
-		// bind fbo
+		// Bind FBO
 		pgl.bindFramebuffer(PGL.FRAMEBUFFER, fbo.get(0));
 
-		// generate 6 views from camera location
+		// Generate six views from camera location
 		pgl.viewport(0, 0, cubeMapSize, cubeMapSize);    
 		perspective(90.0f * PApplet.DEG_TO_RAD, 1.0f, 1.0f, world.viewer.getFarViewingDistance());
 		
@@ -258,35 +268,66 @@ public class MultimediaLocator extends PApplet
 		{
 			resetMatrix();
 
-//			PVector cLoc = world.viewer.getLocation();
-//			System.out.println("cLoc.x:"+cLoc.x+" cLoc.y:"+cLoc.y+" cLoc.z:"+cLoc.z);
-//			if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
-//				camera(cLoc.x, cLoc.y, cLoc.z, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
-//				camera(cLoc.x, cLoc.y, cLoc.z, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
-//				camera(cLoc.x, cLoc.y, cLoc.z, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
-//				camera(cLoc.x, cLoc.y, cLoc.z, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
-//				camera(cLoc.x, cLoc.y, cLoc.z, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
-//				camera(cLoc.x, cLoc.y, cLoc.z, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);    
-//			}
 
-		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
-		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
-		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
-		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
-		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
-		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
-		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
-		      }
+//			/* Facing Up Flipped X / Y Up Params */
+//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f);  
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f);    
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+//		      }
+
+//			/* Facing Foward (Ground Visible) (Normal w/ Flipped X and Z Up Params) */
+//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f);  
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
+//		      }
+
+//			/* Facing Up (Normal w/ Flipped Y and Z Up Params) */
+//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f);  
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f);    
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+//		      }
+		    
+			/* NORMAL Facing Forward (Ground Invisible?) */
+//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
+//		      }
 
 //			if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
 //				camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
@@ -302,49 +343,21 @@ public class MultimediaLocator extends PApplet
 
 			scale(-1.f, 1.f, -1.f);
 //			translate(-width * 0.5f, -height * 0.5f, -500.f);
-//			translate(-width * 0.5f, -height * 0.5f, 0.f);
-//			translate(cLoc.x, cLoc.y, cLoc.z);
-//			translate(cLoc.x, 0.f, 0.f);
 
 			pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, face, envMapTextureID.get(0), 0);
 			
 			world.display3D();			// 3D Display
 			world.display2D();			// 2D Display
 			
-//			drawTestScene(); 		// Draw objects in the scene
-			
-//			pgl.flush();
 			flush(); 				// Make sure that the geometry in the scene is pushed to the GPU    
 			noLights();  			// Disabling lights to avoid adding many times
 			pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, face, 0, 0);
+
+			if(state.exportCubeMap && world.outputFolderSelected)
+				exportCubeMapFace(face, pgl);
 		}
 	}
 	
-	void drawTestScene() 
-	{  
-//		System.out.println("drawTestScene()...");
-		background(0.f);
-
-		stroke(255.f, 0.f, 255.f, 255.f);
-		strokeWeight(3.f);
-		
-		for (int i = -width; i < 2 * width; i += 50) {
-			line(i, -height, -100, i, 2 * height, -100);
-		}
-		for (int i = -height; i < 2 * height; i += 50) {
-			line(-width, i, -100, 2 * width, i, -100);
-		}
-
-		lights();
-		noStroke();
-		
-//		translate(mouseX, mouseY, -200);
-		translate(mouseX, mouseY, 200);
-		
-		fill(255.f, 0.f, 255.f, 255.f);
-		box(100);
-	}
-
 	/**
 	 * Initialize world and run clustering
 	 */
@@ -574,6 +587,84 @@ public class MultimediaLocator extends PApplet
 			System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
 		}
 		state.export = false;
+	}
+	
+	/**
+	 * Save screen image or export selected media
+	 */
+	public void exportCubeMapFace(int faceID, PGL pgl)				// Starts at 34069
+	{
+		System.out.println("exportCubeMap()... faceID:"+faceID);	
+		
+		int idx = faceID-34068;
+	    ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * Integer.SIZE / 8);
+
+	    pgl.readPixels(0, 0, width, height, PGL.RGBA, PGL.UNSIGNED_BYTE, buffer); 
+
+//	    ByteBuffer byteBuffer = buffer;
+	    buffer.rewind();
+	    Byte[] buffer1 = new Byte[buffer.capacity()];
+	    int n = 0;
+	    while (n < buffer.capacity()) {
+	      buffer1[n] = buffer.get(n + 3);
+	      buffer1[n + 1] = buffer.get(n);
+	      buffer1[n + 2] = buffer.get(n + 1);
+	      buffer1[n + 3] = buffer.get(n + 2);
+	      n += 4;
+	    }
+	    buffer.rewind();
+	    
+//	    Image awtImage = new javax.swing.ImageIcon(buffer.array()).getImage();
+	    
+	    byte[] buf = new byte[buffer.remaining()];
+//	    buffer.get(b);
+	    
+	    Image awtImage = new javax.swing.ImageIcon(buf).getImage();
+//	    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+//	    img.getRaster().setDataElements(0, 0, width, height, buffer);
+//	    img = new BufferedImage(buffer);
+
+	    PImage image;
+	    
+	    if (awtImage instanceof BufferedImage) {
+	    	BufferedImage buffImage = (BufferedImage) awtImage;
+    		System.out.println("Image is BufferedImage. buf.length:"+buf.length+" buffer1.len:"+buffer1.length);
+	    	int space = buffImage.getColorModel().getColorSpace().getType();
+	    	if (space == ColorSpace.TYPE_CMYK) {
+	    		System.out.println("Image is a CMYK image, only RGB images are supported.");
+//	    		return null;
+	    	}
+	    	else if(space == ColorSpace.TYPE_RGB)
+	    		System.out.println("Image is a RGB image... buf.length:"+buf.length);
+	    	image = new PImage(awtImage);
+	    }
+	    else
+	    {
+    		System.out.println("Image is not a BufferedImage... buffer.capacity():"+buffer.capacity()+"...");
+	    	BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+	        int[] arr = new int[buffer.asIntBuffer().limit()];
+//	        int[] arr = new int[buffer1];
+    		System.out.println("   ... arr.length:"+arr.length);
+	    	img.setRGB(0, 0, width, height, arr, 0, width);
+	    	image = stitcher.bufferedImageToPImage(img);
+	    }
+
+//	    faces[idx] = new PImage(awtImage);
+	    if (image.width == -1) 
+	    {
+	    	System.err.println("The image contains bad image data, or may not be an image.");
+	    }
+	    else
+	    {
+	    	String titleStr = world.getCurrentField().getName() + "_face"+(faceID-34068)+"-######.jpg";
+	    	String filePathStr = world.outputFolder + "/";
+	    	String outputPath = filePathStr + titleStr;
+	    	image.save(outputPath);
+//	    	faces[idx] = stitcher.bufferedImageToPImage(image);
+	    	System.out.println("Saved cube map image: " + world.getCurrentField().getName() + "_face"+(faceID-34068)+"-######.jpg");
+	    }
+		if(faceID >= 34074)									// Stop exporting after face 6
+			state.exportCubeMap = false;
 	}
 
 	/**
@@ -1233,6 +1324,31 @@ public class MultimediaLocator extends PApplet
 //		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
 	}
 	
+//	void drawTestScene() 
+//	{  
+////		System.out.println("drawTestScene()...");
+//		background(0.f);
+//
+//		stroke(255.f, 0.f, 255.f, 255.f);
+//		strokeWeight(3.f);
+//		
+//		for (int i = -width; i < 2 * width; i += 50) {
+//			line(i, -height, -100, i, 2 * height, -100);
+//		}
+//		for (int i = -height; i < 2 * height; i += 50) {
+//			line(-width, i, -100, 2 * width, i, -100);
+//		}
+//
+//		lights();
+//		noStroke();
+//		
+////		translate(mouseX, mouseY, -200);
+//		translate(mouseX, mouseY, 200);
+//		
+//		fill(255.f, 0.f, 255.f, 255.f);
+//		box(100);
+//	}
+
 	/* Obsolete */
 //	public void setSurfaceSize(int newWidth, int newHeight)
 //	{

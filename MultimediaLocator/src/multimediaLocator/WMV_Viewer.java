@@ -3244,6 +3244,8 @@ public class WMV_Viewer
 			target = new PVector(target.x - getLocation().x, target.y - getLocation().y, target.z - getLocation().z);
 			camera.aim(target.x, target.y, target.z);
 			target = new PVector(camera.target()[0], camera.target()[1], camera.target()[2]);
+			
+			updateOrientationMode();
 		}
 		else
 		{
@@ -4052,9 +4054,14 @@ public class WMV_Viewer
 		
 		if(updateTimelinesSegment)
 		{
-			int newFieldDate = currentField.getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldDateID();
-			int newFieldTimelinesSegment = currentField.getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldTimelineIDOnDate();
-			success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false);
+			if(state.currentFieldTimeSegment != -1)
+			{
+				int newFieldDate = currentField.getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldDateID();
+				int newFieldTimelinesSegment = currentField.getTimeline().timeline.get(state.currentFieldTimeSegment).getFieldTimelineIDOnDate();
+				success = setCurrentTimeSegmentAndDate(newFieldTimelinesSegment, newFieldDate, false);
+			}
+			else
+				success = false;
 		}
 		
 		if(state.currentFieldTimeSegment >= 0 && state.currentFieldTimeSegment < currentField.getTimeline().timeline.size())

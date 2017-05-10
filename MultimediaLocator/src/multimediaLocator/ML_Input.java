@@ -918,8 +918,8 @@ public class ML_Input
 				if (key == '-') 								
 					ml.world.state.paused = !ml.world.getState().paused;
 
-//				if (key == 'I')							// -- Disabled
-//					ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
+				if (key == '9')							// -- Disabled
+					ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
 
 				if (key == 'W') 
 					ml.world.viewer.moveToNearestClusterAhead(false);
@@ -1212,6 +1212,9 @@ public class ML_Input
 					if (key == 'o') 	// Save image to disk
 					{	
 						if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
+//						if(ml.state.sphericalView)
+//							ml.world.saveCubeMapToDisk();
+//						else
 						ml.world.saveToDisk();
 					}
 

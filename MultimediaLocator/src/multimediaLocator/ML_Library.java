@@ -1,23 +1,10 @@
 package multimediaLocator;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-//import java.io.FileReader;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.lang.reflect.*;
 
 import org.boon.json.JsonFactory;
 import org.boon.json.ObjectMapper;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-//import static org.boon.Boon.puts;
-//import com.google.gson.reflect.TypeToken;
 
 /**************
  * Represents a multimedia library

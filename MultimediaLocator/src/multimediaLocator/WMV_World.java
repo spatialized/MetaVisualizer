@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +13,8 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PImage;
 import processing.core.PVector;
-import processing.opengl.PGL;
-import processing.opengl.PShader;
+//import processing.opengl.PGL;
+//import processing.opengl.PShader;
 //import processing.data.IntList;
 //import processing.core.PVector;
 import toxi.math.CircularInterpolation;

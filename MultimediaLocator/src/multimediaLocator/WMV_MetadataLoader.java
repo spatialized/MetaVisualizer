@@ -1,6 +1,6 @@
 package multimediaLocator;
 
-import processing.core.PApplet;
+//import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
 import processing.video.Movie;

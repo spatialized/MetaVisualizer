@@ -19,7 +19,6 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
@@ -315,19 +314,19 @@ public class MultimediaLocator extends PApplet
 //		      }
 		    
 			/* NORMAL Facing Forward (Ground Invisible?) */
-//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
-//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
-//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
-//		      }
+		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
+		      }
 
 //			if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
 //				camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);

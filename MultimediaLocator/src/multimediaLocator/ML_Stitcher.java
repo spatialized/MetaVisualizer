@@ -1,17 +1,11 @@
 package multimediaLocator;
 
-//import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-//import java.awt.image.WritableRaster;
-import java.util.ArrayList;
 import java.util.List;
-//import java.util.Calendar;
-
-import javax.imageio.*;
 
 import org.bytedeco.javacv.*;
 import org.bytedeco.javacv.OpenCVFrameConverter.*;
@@ -20,15 +14,8 @@ import processing.core.PApplet;
 import processing.core.PConstants;
 import processing.core.PGraphics;
 import processing.core.PImage;
-import processing.core.PVector;
-//import processing.core.PVector;
-import processing.data.IntList;
 
-//import org.bytedeco.javacpp.*;
 import org.bytedeco.javacpp.opencv_core.*;
-//import org.bytedeco.javacpp.opencv_imgproc.*;
-//import org.bytedeco.javacpp.opencv_imgcodecs.*;
-//import org.bytedeco.javacpp.opencv_highgui.*;
 
 import static org.bytedeco.javacpp.opencv_core.Mat;
 import static org.bytedeco.javacpp.opencv_core.MatVector;

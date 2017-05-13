@@ -395,29 +395,30 @@ public class WMV_Field
 		snd.calculateCaptureLocation(model);
 		snd.setLocation(snd.getCaptureLocation());
 		
-		System.out.println("Field.setSoundLocation()...  setLocation()... sound #"+snd.getID()+" snd.getCaptureLocation(): "+snd.getCaptureLocation()+" snd.getLocation(): "+snd.getLocation()+"...");
+		if(debugSettings.sound)
+			System.out.println("Field.setSoundLocation()...  setLocation()... sound #"+snd.getID()+" snd.getCaptureLocation(): "+snd.getCaptureLocation()+" snd.getLocation(): "+snd.getLocation()+"...");
 
 		if(snd.getAssociatedClusterID() == -1)				// Search for existing cluster near sound
 		{
-			System.out.println("Field.setSoundLocation()...  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
+//			System.out.println("Field.setSoundLocation()...  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
 			boolean success = snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);
 			if(success)
 			{
 				WMV_Cluster c = clusters.get(snd.getAssociatedClusterID());
 				if(!c.getSoundIDs().contains(snd.getID()))
 					c.addSound(snd);
-				System.out.println("Field.setSoundLocation()...   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
+//				System.out.println("Field.setSoundLocation()...   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
 			}
 		}
 		
 		if(snd.getAssociatedClusterID() == -1)				// Create cluster for single sound if no existing cluster nearby
 		{
-			System.out.println("Field.setSoundLocation()...2  sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
+//			System.out.println("Field.setSoundLocation()...2  sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
 			int newClusterID = clusters.size();
 			addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, snd.getCaptureLocation()));
 			snd.setAssociatedClusterID(newClusterID);
 			clusters.get(newClusterID).createSingle(snd.getID(), 3);
-			System.out.println("Field.setSoundLocation()... 2   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
+//			System.out.println("Field.setSoundLocation()... 2   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
 		}
 	}
 

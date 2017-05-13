@@ -28,7 +28,7 @@ import processing.data.IntList;
 public class WMV_Viewer 
 {
 	/* Camera */
-	private Camera camera;									// Camera object
+	private WMV_Camera camera;									// Camera object
 	private WMV_WorldSettings worldSettings;				// Viewer settings
 	private WMV_WorldState worldState;						// Viewer settings
 	private WMV_ViewerSettings settings;					// Viewer settings
@@ -89,7 +89,7 @@ public class WMV_Viewer
 	 */
 	public void initialize(float x, float y, float z)
 	{
-		camera = new Camera( p.p, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
+		camera = new WMV_Camera( p.p, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
 		state.location = new PVector(x, y, z);
 		state.teleportGoal = new PVector(x, y, z);
 		settings.initialize();

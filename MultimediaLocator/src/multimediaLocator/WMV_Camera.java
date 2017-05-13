@@ -6,15 +6,11 @@ import processing.core.*;
  * Camera class
  * @author davidgordon
  * 
- * Initial values:	Camera position     - sits on the positive z-axis
- *              	Target position     - located at the world origin
- *              	Up direction        - point in the negative y
- *              	Field-of-view       - PI/3 radians (60 degrees)
- *              	Aspect ratio        - Applet width to applet height
- *              	Near clipping plane - 0.1x shot length.
- *              	Far clipping plane  - 10x the shot length.
+ * Camera position: sits on positive z-axis      Target position: at world origin
+ * Up direction: points in negative y direction      Field-of-view: PI/3 radians (60 deg.)
+ * Aspect ratio: PApplet width to applet height
+ * Near clipping plane: 0.1 x shot length			Far clipping plane: 10 x the shot length.
  */ 
-
 public class WMV_Camera
 {
 	private PApplet p;
@@ -35,14 +31,10 @@ public class WMV_Camera
 	private float targetZ;
 
 	// Up vector
-	private float upX;
-	private float upY;
-	private float upZ;
+	private float upX, upY, upZ;
 
 	// Distance between camera and target
-	private float dX;
-	private float dY;
-	private float dZ;
+	private float dX, dY, dZ;
 	
 	// Field of view
 	private float fov;
@@ -50,7 +42,7 @@ public class WMV_Camera
 	// Aspect ratio
 	private float aspectRatio;
 	
-	// Clip planes
+	// Clipping planes
 	private float nearClip;
 	private float farClip;
 	
@@ -58,8 +50,22 @@ public class WMV_Camera
 	private float shotLength;
 
 	// Constructors
-
-	// Specify all parameters except the aspect ratio.
+	/**
+	 * Constructor without aspect ratio
+	 * @param newParent
+	 * @param newCameraX
+	 * @param newCameraY
+	 * @param newCameraZ
+	 * @param newTargetX
+	 * @param newTargetY
+	 * @param newTargetZ
+	 * @param newUpX
+	 * @param newUpY
+	 * @param newUpZ
+	 * @param newFoV
+	 * @param newNearClip
+	 * @param newFarClip
+	 */
 	public WMV_Camera(MultimediaLocator newParent, float newCameraX, float newCameraY, float newCameraZ,
 			float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
 			float newFoV, float newNearClip, float newFarClip)
@@ -71,43 +77,50 @@ public class WMV_Camera
 				newFoV, (float)(1f * newParent.width / newParent.height), newNearClip, newFarClip);
 	}
 
-	// Specify all parameters for camera creation
-	public WMV_Camera(MultimediaLocator aParent, float newCameraX, float newCameraY, float newCameraZ,
+	/**
+	 * Constructor with all parameters
+	 * @param newParent
+	 * @param newCameraX
+	 * @param newCameraY
+	 * @param newCameraZ
+	 * @param newTargetX
+	 * @param newTargetY
+	 * @param newTargetZ
+	 * @param newUpX
+	 * @param newUpY
+	 * @param newUpZ
+	 * @param newFoV
+	 * @param newAspect
+	 * @param newNearClip
+	 * @param newFarClip
+	 */
+	public WMV_Camera(MultimediaLocator newParent, float newCameraX, float newCameraY, float newCameraZ,
 			float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
 			float newFoV, float newAspect, float newNearClip, float newFarClip)
 	{
-		p   = aParent;
+		p = newParent;
 		cameraX  = newCameraX;
 		cameraY  = newCameraY;
 		cameraZ  = newCameraZ;
 		targetX  = newTargetX;
 		targetY  = newTargetY;
 		targetZ  = newTargetZ;
-		upX      = newUpX;
-		upY      = newUpY;
-		upZ      = newUpZ;
-		fov      = newFoV;
-		aspectRatio   = newAspect;
+		upX = newUpX;
+		upY = newUpY;
+		upZ = newUpZ;
+		fov = newFoV;
+		aspectRatio = newAspect;
 		nearClip = newNearClip;
-		farClip  = newFarClip;
+		farClip = newFarClip;
 
-		dX   = cameraX - targetX;
-		dY   = cameraY - targetY;
-		dZ   = cameraZ - targetZ;
+		dX = cameraX - targetX;
+		dY = cameraY - targetY;
+		dZ = cameraZ - targetZ;
 
 		shotLength = getMagnitude(dX, dY, dZ);
 
-		azimuth    = (float)Math.atan2(dX,
-				dZ);
-		elevation  = (float)Math.atan2(dY,
-				(float)Math.sqrt(dZ * dZ +
-						dX * dX));
-
-		if (elevation > (float)(Math.PI * 0.5) - 0.00001f)
-		{
-			upY =  0;
-			upZ = -1;
-		}     
+		azimuth = (float)Math.atan2(dX, dZ);
+		elevation  = (float)Math.atan2(dY, (float)Math.sqrt(dZ * dZ + dX * dX));
 
 		if (elevation < 0.00001f - (float)(Math.PI * 0.5))
 		{
@@ -115,6 +128,12 @@ public class WMV_Camera
 			upZ =  1;
 		}
 
+		if (elevation > (float)(Math.PI * 0.5) - 0.00001f)
+		{
+			upY =  0;
+			upZ = -1;
+		}     
+		
 		updateUp();
 	}
 
@@ -128,17 +147,10 @@ public class WMV_Camera
 				upX,     upY,     upZ);
 	}
 
-//	/** Send what this camera sees to the view port */
-//	public void feedCamera() {
-//		p.camera(cameraX, cameraY, cameraZ,
-//				targetX, targetY, targetZ,
-//				upX,     upY,     upZ);
-//	}
-
-	/** Aim the camera at the specified target */
+	/** Aim camera at the specified target */
 	public void aim(float aTargetX, float aTargetY, float aTargetZ)
 	{
-		// Move the target
+		// Move target
 		targetX = aTargetX;
 		targetY = aTargetY;
 		targetZ = aTargetZ;
@@ -146,10 +158,10 @@ public class WMV_Camera
 		update();
 	}
 
-	/** Jump the camera to the specified position */
+	/** Jump camera to the specified position */
 	public void jump(float positionX, float positionY, float positionZ)
 	{
-		// Move the camera
+		// Move camera
 		cameraX = positionX;
 		cameraY = positionY;
 		cameraZ = positionZ;
@@ -158,15 +170,15 @@ public class WMV_Camera
 	}
 
 	/** Change the field of view between "fish-eye" and "close-up" */
-	public void zoom(float anAmount)
+	public void zoom(float zoomAmount)
 	{
-		fov = PApplet.constrain(fov + anAmount, 0.00001f, (float) Math.PI - 0.00001f);
+		fov = PApplet.constrain(fov + zoomAmount, 0.00001f, (float) Math.PI - 0.00001f);
 	}
 
-	/** Move the camera and target simultaneously along the camera's X axis */
-	public void truck(float anAmount)
+	/** Move camera and target simultaneously along camera's X axis */
+	public void truck(float truckAmount)
 	{
-		// Calculate the camera's X axis in world space
+		// Calculate camera's X axis in world space
 		float directionX = dY * upZ - dZ * upY;
 		float directionY = dX * upZ - dZ * upX;
 		float directionZ = dX * upY - dY * upX;
@@ -179,28 +191,28 @@ public class WMV_Camera
 		directionZ /= magnitude;
 
 		// Perform the truck, if any
-		cameraX -= anAmount * directionX;
-		cameraY -= anAmount * directionY;
-		cameraZ -= anAmount * directionZ;
-		targetX -= anAmount * directionX;
-		targetY -= anAmount * directionY;
-		targetZ -= anAmount * directionZ;
+		cameraX -= truckAmount * directionX;
+		cameraY -= truckAmount * directionY;
+		cameraZ -= truckAmount * directionZ;
+		targetX -= truckAmount * directionX;
+		targetY -= truckAmount * directionY;
+		targetZ -= truckAmount * directionZ;
 	}
 
-	/** Move the camera and target simultaneously along the camera's Y axis */
-	public void boom(float anAmount)
+	/** Move camera and target simultaneously along camera's Y axis */
+	public void boom(float boomAmount)
 	{
 		// Perform the boom, if any
-		cameraX += anAmount * upX;
-		cameraY += anAmount * upY;
-		cameraZ += anAmount * upZ;
-		targetX += anAmount * upX;
-		targetY += anAmount * upY;
-		targetZ += anAmount * upZ;
+		cameraX += boomAmount * upX;
+		cameraY += boomAmount * upY;
+		cameraZ += boomAmount * upZ;
+		targetX += boomAmount * upX;
+		targetY += boomAmount * upY;
+		targetZ += boomAmount * upZ;
 	}
 
-	/** Move the camera and target along the view vector */
-	public void dolly(float amount)
+	/** Move camera and target along the view vector */
+	public void dolly(float dollyAmount)
 	{
 		// Normalize the view vector
 		float directionX = dX / shotLength;
@@ -208,128 +220,108 @@ public class WMV_Camera
 		float directionZ = dZ / shotLength;
 
 		// Perform the dolly, if any
-		cameraX += amount * directionX;
-		cameraY += amount * directionY;
-		cameraZ += amount * directionZ;
-		targetX += amount * directionX;
-		targetY += amount * directionY;
-		targetZ += amount * directionZ;
+		cameraX += dollyAmount * directionX;
+		cameraY += dollyAmount * directionY;
+		cameraZ += dollyAmount * directionZ;
+		targetX += dollyAmount * directionX;
+		targetY += dollyAmount * directionY;
+		targetZ += dollyAmount * directionZ;
 	}
 
-	/** Rotate the camera about its X axis */
+	/** Rotate camera about its X axis */
 	public void tilt(float elevationOffset)
 	{
-		// Calculate the new elevation for the camera
+		// Calculate the new elevation for camera
 		elevation = PApplet.constrain(elevation - elevationOffset,
 				0.00001f-(float)(Math.PI * 0.5), (float)(Math.PI * 0.5)-0.00001f);
 
-		// Update the target
+		// Update target
 		updateTarget();
 	}
 
-	/** Rotate the camera about its Y axis */
+	/** Rotate camera about its Y axis */
 	public void pan(float azimuthOffset)
 	{
-		// Calculate the new azimuth for the camera
-		azimuth = (azimuth - azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);
-
-		// Update the target
-		updateTarget();
+		azimuth = (azimuth - azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);		// Calculate the new azimuth for camera
+		updateTarget();		// Update target
 	}
 
-	/** Rotate the camera about its Z axis */
+	/** Rotate camera about its Z axis */
 	public void roll(float rollOffset)
 	{
-		// Change the roll amount
-		roll = (roll + rollOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);
-
-		// Update the up vector
-		updateUp();
+		roll = (roll + rollOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);		// Change the roll amount
+		updateUp();		// Update up vector
 	}
 
-	/** Arc the camera over (under) a center of interest along a set azimuth*/
+	/** Arc camera over (under) a center of interest along a set azimuth*/
 	public void arc(float elevationOffset)
 	{
-		// Calculate the new elevation for the camera
-		elevation = PApplet.constrain(elevation + elevationOffset,
-				0.00001f-(float)(Math.PI * 0.5), (float)(Math.PI * 0.5)-0.00001f);
+		elevation = PApplet.constrain(elevation + elevationOffset, 0.00001f-(float)(Math.PI * 0.5), 
+				(float)(Math.PI * 0.5)-0.00001f);		// Calculate the new elevation for camera
 
-		// Update the camera
-		updateCamera();
+		updateCamera();		// Update camera
 	}
 
-	/** Circle the camera around a center of interest at a set elevation*/
+	/** Circle camera around a center of interest at a set elevation*/
 	public void circle(float azimuthOffset)
 	{
-		// Calculate the new azimuth for the camera
-		azimuth = (azimuth + azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);
-
-		// Update the camera
-		updateCamera();
+		azimuth = (azimuth + azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);		// Calculate the new azimuth for camera
+		updateCamera();		// Update camera
 	}
 
-	/** Look about the camera's position */
+	/** Look about camera's position */
 	public void look(float azimuthOffset, float elevationOffset)
 	{
-		// Calculate the new azimuth and elevation for the camera
+		// Calculate the new azimuth and elevation for camera
 		elevation = PApplet.constrain(elevation - elevationOffset,
 				0.00001f-(float)(Math.PI * 0.5), (float)(Math.PI * 0.5)-0.00001f);
 
 		azimuth = (azimuth - azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);
 
-		// Update the target
+		// Update target
 		updateTarget();
 	}
 
-	/** Tumble the camera about its target */
+	/** Tumble camera about target **/
 	public void tumble(float anAzimuthOffset, float anElevationOffset)
 	{
-		// Calculate the new azimuth and elevation for the camera
-		elevation = PApplet.constrain(elevation + anElevationOffset,
-				0.00001f-(float)(Math.PI * 0.5), (float)(Math.PI * 0.5)-0.00001f);
+		elevation = PApplet.constrain(elevation + anElevationOffset, 0.00001f-(float)(Math.PI * 0.5), 
+				(float)(Math.PI * 0.5)-0.00001f);		// Calculate new azimuth / elevation for camera
+
 
 		azimuth   = (azimuth + anAzimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);
 
-		// Update the camera
-		updateCamera();
+		updateCamera();		// Update camera
 	}
 
-	/** Moves the camera and target simultaneously in the camera's X-Y plane */
+	/** Moves camera and target simultaneously in camera's X-Y plane */
 	public void track(float anXOffset, float aYOffset)
 	{
-		// Perform the truck, if any
-		truck(anXOffset);
-
-		// Perform the boom, if any
-		boom(aYOffset);
+		truck(anXOffset);		// Perform truck, if exists
+		boom(aYOffset);			// Perform boom, if exists
 	}
 
-	//** Returns the camera position */
-	public float[] position()
+	public float[] getPosition()
 	{
 		return new float[] {cameraX, cameraY, cameraZ};
 	}
 
-	//** Returns the camera orientation */
-	public float[] attitude()
+	public float[] getAttitude()
 	{
 		return new float[] {azimuth, elevation, roll};
 	}
 
-	//** Returns the target position */
-	public float[] target()
+	public float[] getTarget()
 	{
 		return new float[] {targetX, targetY, targetZ};
 	}
 
-	//** Returns the "up" vector */
-	public float[] up()
+	public float[] getUp()
 	{
 		return new float[] {upX, upY, upZ};
 	}
 
-	//** Returns the field of view */
-	public float fov()
+	public float getFov()
 	{
 		return fov;
 	}
@@ -337,44 +329,33 @@ public class WMV_Camera
 	/** Update **/
 	private void update()
 	{
-		// Describe the new vector between the camera and the target
+		// Find new vector between camera and target
 		dX = cameraX - targetX;
 		dY = cameraY - targetY;
 		dZ = cameraZ - targetZ;
 
-		// Describe the new azimuth and elevation for the camera
-		shotLength = (float)Math.sqrt(dX * dX +
-				dY * dY +
-				dZ * dZ);
+		// Find new azimuth and elevation for camera
+		shotLength = (float)Math.sqrt(dX * dX +	dY * dY + dZ * dZ);
+		azimuth = (float)Math.atan2(dX, dZ);
+		elevation  = (float)Math.atan2(dY, (float)Math.sqrt(dZ * dZ + dX * dX));
 
-		azimuth    = (float)Math.atan2(dX,
-				dZ);
-		elevation  = (float)Math.atan2(dY,
-				(float)Math.sqrt(dZ * dZ +
-						dX * dX));
-
-		// update the up vector
-		updateUp();
+		updateUp();		// Update up vector
 	}
 
 	/** Update target **/
 	private void updateTarget()
 	{
 		// Rotate to the new orientation while maintaining the shot distance.
-		targetX = cameraX - ( shotLength               *
-				(float)Math.sin((float)(Math.PI * 0.5) + elevation) *
+		targetX = cameraX - ( shotLength * (float)Math.sin((float)(Math.PI * 0.5) + elevation) *
 				(float)Math.sin(azimuth));
-		targetY = cameraY - (-shotLength               *
-				(float)Math.cos((float)(Math.PI * 0.5) + elevation));
-		targetZ = cameraZ - ( shotLength               *
-				(float)Math.sin((float)(Math.PI * 0.5) + elevation) *
+		targetY = cameraY - (-shotLength * (float)Math.cos((float)(Math.PI * 0.5) + elevation));
+		targetZ = cameraZ - ( shotLength * (float)Math.sin((float)(Math.PI * 0.5) + elevation) *
 				(float)Math.cos(azimuth));
 
-		// update the up vector
-		updateUp();
+		updateUp();		// Update up vector
 	}
 
-	/** Update target **/
+	/** Update camera **/
 	private void updateCamera()
 	{
 		// Orbit to the new orientation while maintaining the shot distance.
@@ -391,15 +372,15 @@ public class WMV_Camera
 		updateUp();
 	}
 
-	/** Update the up direction **/
+	/** Update up vector **/
 	private void updateUp()
 	{
-		// Describe the new vector between the camera and the target
+		// Describe the new vector between camera and target
 		dX = cameraX - targetX;
 		dY = cameraY - targetY;
 		dZ = cameraZ - targetZ;
 
-		// Calculate the new "up" vector for the camera
+		// Calculate the new "up" vector for camera
 		upX = -dX * dY;
 		upY =  dZ * dZ + dX * dX;
 		upZ = -dZ * dY;
@@ -433,7 +414,13 @@ public class WMV_Camera
 		}
 	}
 
-	/** Find the magnitude of a vector &*/
+	/**
+	 * Calculate magnitude of a vector
+	 * @param x X value 
+	 * @param y Y value
+	 * @param z Z value
+	 * @return Vector magnitude
+	 */
 	private static final float getMagnitude(float x, float y, float z)
 	{
 		float magnitude = (float)Math.sqrt(x * x + y * y + z * z);

@@ -164,7 +164,7 @@ public class WMV_Viewer
 	void updateNavigation()
 	{
 		if(!settings.orientationMode)
-			state.location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);		/* Update location */
+			state.location = new PVector(camera.getPosition()[0], camera.getPosition()[1], camera.getPosition()[2]);		/* Update location */
 		
 		updateWalking();							/* Update walking */
 		updatePhysics();							/* Update physics */
@@ -2038,7 +2038,7 @@ public class WMV_Viewer
 		}
 		else
 		{
-			state.location = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);			// Update location
+			state.location = new PVector(camera.getPosition()[0], camera.getPosition()[1], camera.getPosition()[2]);			// Update location
 			return state.location;
 		}
 	}
@@ -2101,7 +2101,7 @@ public class WMV_Viewer
 	 */
 	public PVector getOrientation()
 	{
-		state.orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update orientation
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
 		return state.orientation;
 	}
 
@@ -2110,7 +2110,7 @@ public class WMV_Viewer
 	 */
 	public float getXOrientation()
 	{
-		state.orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update X orientation
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update X orientation
 		return state.orientation.x;
 	}
 
@@ -2119,7 +2119,7 @@ public class WMV_Viewer
 	 */
 	public float getYOrientation()
 	{
-		state.orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update Y orientation
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update Y orientation
 		return state.orientation.y;
 	}
 
@@ -2128,7 +2128,7 @@ public class WMV_Viewer
 	 */
 	public float getZOrientation()
 	{
-		state.orientation = new PVector(camera.attitude()[0], camera.attitude()[1], camera.attitude()[2]);			// Update Z orientation
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update Z orientation
 		return state.orientation.z;
 	}
 	
@@ -2137,7 +2137,7 @@ public class WMV_Viewer
 	 */
 	public void setOrientation()
 	{
-		float[] cAtt = camera.attitude();			// Get camera attitude (orientation)
+		float[] cAtt = camera.getAttitude();			// Get camera attitude (orientation)
 		float pitch = cAtt[1], yaw = cAtt[0];
 //		float roll = cAtt[2];
 
@@ -2168,7 +2168,7 @@ public class WMV_Viewer
 	 */
 	public PVector getTarget()
 	{
-		return new PVector(camera.target()[0], camera.target()[1], camera.target()[2]);	
+		return new PVector(camera.getTarget()[0], camera.getTarget()[1], camera.getTarget()[2]);	
 	}
 	
 	/**
@@ -2177,7 +2177,7 @@ public class WMV_Viewer
 	 */
 	public PVector getTargetVector()
 	{
-		float[] cTar = camera.target();			// Get camera attitude (orientation)
+		float[] cTar = camera.getTarget();			// Get camera attitude (orientation)
 		float pitch = cTar[1], yaw = cTar[0];
 //		float roll = cTar[2];
 
@@ -2263,7 +2263,7 @@ public class WMV_Viewer
 
 			state.turningVelocity.add(state.turningAcceleration);							// Add acceleration to velocity
 
-			if(camera.attitude()[1] + state.turningVelocity.y >= PApplet.PI * 0.5f || camera.attitude()[1] - state.turningVelocity.y <= -PApplet.PI * 0.5f)	// Avoid gimbal lock
+			if(camera.getAttitude()[1] + state.turningVelocity.y >= PApplet.PI * 0.5f || camera.getAttitude()[1] - state.turningVelocity.y <= -PApplet.PI * 0.5f)	// Avoid gimbal lock
 			{
 				state.turningVelocity.y = 0.f;
 				state.turningAcceleration.y = 0.f;
@@ -3238,12 +3238,12 @@ public class WMV_Viewer
 		
 		if(newState)
 		{
-			PVector target = new PVector(camera.target()[0], camera.target()[1], camera.target()[2]);
+			PVector target = new PVector(camera.getTarget()[0], camera.getTarget()[1], camera.getTarget()[2]);
 			camera.jump(0, 0, 0);
 			
 			target = new PVector(target.x - getLocation().x, target.y - getLocation().y, target.z - getLocation().z);
 			camera.aim(target.x, target.y, target.z);
-			target = new PVector(camera.target()[0], camera.target()[1], camera.target()[2]);
+			target = new PVector(camera.getTarget()[0], camera.getTarget()[1], camera.getTarget()[2]);
 			
 			updateOrientationMode();
 		}
@@ -4486,7 +4486,7 @@ public class WMV_Viewer
 	 */
 	public float getFieldOfView()
 	{
-		return settings.fieldOfView = camera.fov();
+		return settings.fieldOfView = camera.getFov();
 	}
 	
 	/**

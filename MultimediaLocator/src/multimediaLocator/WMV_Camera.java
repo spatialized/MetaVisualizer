@@ -52,7 +52,7 @@ public class WMV_Camera
 	// Constructors
 	/**
 	 * Constructor without aspect ratio
-	 * @param newParent
+	 * @param newParent Parent app
 	 * @param newCameraX
 	 * @param newCameraY
 	 * @param newCameraZ
@@ -79,7 +79,7 @@ public class WMV_Camera
 
 	/**
 	 * Constructor with all parameters
-	 * @param newParent
+	 * @param newParent Parent app
 	 * @param newCameraX
 	 * @param newCameraY
 	 * @param newCameraZ

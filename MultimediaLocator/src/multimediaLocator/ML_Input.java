@@ -11,12 +11,10 @@ import processing.core.PApplet;
  * Class for responding to user input from keyboard or mouse
  * @author davidgordon
  */
-
 public class ML_Input
 {
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
-//	final public int COMMAND_KEY = 157;			// -- Not reliable, change this!
 	
 	private boolean mouseClickedRecently = false;
 	private boolean mouseReleased = false;
@@ -28,6 +26,11 @@ public class ML_Input
 
 	private int screenWidth, screenHeight;
 
+	/**
+	 * Constructor for input class
+	 * @param newScreenWidth
+	 * @param newScreenHeight
+	 */
 	ML_Input(int newScreenWidth, int newScreenHeight) 
 	{
 		screenWidth = newScreenWidth;
@@ -121,14 +124,30 @@ public class ML_Input
 			/* Library */
 			case "CreateLibrary":
 				ml.createNewLibrary = true;
-				ml.state.chooseLibrary = true;
+				ml.state.chooseMediaFolders = true;
+				ml.state.librarySetup = true;
 				display.window.hideLibraryWindow();
 				break;
 	
 			case "OpenLibrary":
 				if(ml.createNewLibrary) ml.createNewLibrary = false;
-				ml.state.chooseLibrary = true;
+				ml.state.librarySetup = true;
 				display.window.hideLibraryWindow();
+				break;
+				
+			case "AddImageFolder":
+				ml.state.addingImageFolder = true;
+				ml.mediaFolderDialog();
+				break;
+				
+			case "AddVideoFolder":
+				ml.state.addingVideoFolder = true;
+				ml.mediaFolderDialog();
+				break;
+				
+			case "AddSoundFolder":
+				ml.state.addingSoundFolder = true;
+				ml.mediaFolderDialog();
 				break;
 
 			/* Navigation */

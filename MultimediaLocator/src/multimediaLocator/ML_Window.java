@@ -6,6 +6,7 @@ import g4p_controls.*;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.event.MouseEvent;
+import processing.opengl.PJOGL;
 
 /**
  * Handles secondary program windows
@@ -24,13 +25,14 @@ public class ML_Window {
 	
 	/* Windows */
 	public GWindow mlWindow, timeWindow, navigationWindow, graphicsWindow, modelWindow, selectionWindow, statisticsWindow, helpWindow,
-				   memoryWindow, libraryWindow;
-	private GLabel lblMainMenu, lblNavigationWindow, lblGraphics, lblStatistics, lblHelp, lblMemory, lblLibrary;	// Window headings
+				   memoryWindow, libraryWindow, importWindow;
+	private GLabel lblMainMenu, lblNavigationWindow, lblGraphics, lblStatistics, lblHelp, lblMemory, lblLibrary, lblImport;	// Window headings
 	public boolean showMLWindow = false, showNavigationWindow = false, showTimeWindow = false, showGraphicsWindow = false, showModelWindow = false,
 				    showSelectionWindow = false, showStatisticsWindow = false, showHelpWindow = false, showMemoryWindow = false;
 	public boolean setupTimeWindow = false, setupNavigationWindow = false, setupGraphicsWindow = false, setupModelWindow = false, setupHelpWindow = false, 
 					setupSelectionWindow = false, setupStatisticsWindow = false, setupMemoryWindow = false;
 	public boolean setupLibraryWindow = false, showLibraryWindow = false;
+	public boolean setupImportWindow = false, showImportWindow = false;
 	
 	/* Main Window */
 	private GButton btnNavigationWindow, btnTimeWindow, btnGraphicsWindow, btnModelWindow, btnSelectionWindow,
@@ -41,9 +43,13 @@ public class ML_Window {
 	public GOption optSceneView, optMapView, optLibraryView;
 	int mlWindowHeight;
 	
-	/* Library Winow */
+	/* Library Window */
 	private GButton btnCreateLibrary, btnOpenLibrary;
 	int libraryWindowHeight;
+	
+	/* Import Window */
+	private GButton btnImportImageFolder, btnImportVideoFolder, btnImportSoundFolder;
+	int importWindowHeight;
 	
 	/* Navigation Window */
 	private GLabel lblClusterNavigation, lblMemoryCommands, lblPathNavigation, lblTeleportLength, lblPathWaitLength;
@@ -136,6 +142,8 @@ public class ML_Window {
 		
 		mlWindowHeight = shortWindowHeight;
 		libraryWindowHeight = shortWindowHeight / 2;
+		importWindowHeight = shortWindowHeight / 2;
+
 		navigationWindowHeight = longWindowHeight;
 		timeWindowHeight = longWindowHeight;
 		graphicsWindowHeight = longWindowHeight;
@@ -146,7 +154,7 @@ public class ML_Window {
 		helpWindowHeight = longWindowHeight;
 	}
 	
-	void openNavigationWindow()
+	public void openNavigationWindow()
 	{
 		if(!setupNavigationWindow)
 			setupNavigationWindow();
@@ -155,7 +163,7 @@ public class ML_Window {
 //		showNavigationWindow = true;
 	}
 
-	void openGraphicsWindow()
+	public void openGraphicsWindow()
 	{
 		if(!setupGraphicsWindow)
 			setupGraphicsWindow();
@@ -164,7 +172,7 @@ public class ML_Window {
 //		showGraphicsWindow = true;
 	}
 
-	void openTimeWindow()
+	public void openTimeWindow()
 	{
 		if(!setupTimeWindow)
 			setupTimeWindow();
@@ -173,7 +181,7 @@ public class ML_Window {
 //		showTimeWindow = true;
 	}
 
-	void openModelWindow()
+	public void openModelWindow()
 	{
 		if(!setupModelWindow)
 			setupModelWindow();
@@ -182,7 +190,7 @@ public class ML_Window {
 //		showModelWindow = true;
 	}
 
-	void openMemoryWindow()
+	public void openMemoryWindow()
 	{
 		if(!setupMemoryWindow)
 			setupMemoryWindow();
@@ -191,7 +199,7 @@ public class ML_Window {
 //		showMemoryWindow = true;
 	}
 
-	void openStatisticsWindow()
+	public void openStatisticsWindow()
 	{
 		if(!setupStatisticsWindow)
 			setupStatisticsWindow();
@@ -199,21 +207,21 @@ public class ML_Window {
 		showStatisticsWindow();
 	}
 	
-	void openSelectionWindow()
+	public void openSelectionWindow()
 	{
 		if(!setupSelectionWindow)
 			setupSelectionWindow();
 		showSelectionWindow();
 	}
 
-	void openHelpWindow()
+	public void openHelpWindow()
 	{
 		if(!setupHelpWindow)
 			setupHelpWindow();
 		showHelpWindow();
 	}
 
-	void setupMLWindow()
+	public void setupMLWindow()
 	{
 		mlWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, mlWindowHeight, PApplet.JAVA2D);
 		mlWindow.addData(new ML_WinData());
@@ -344,49 +352,11 @@ public class ML_Window {
 		lblSpaceBar.setLocalColorScheme(10);
 		lblSpaceBar.setTextAlign(GAlign.CENTER, null);
 	}
-	
-	void setupLibraryWindow()
-	{
-		libraryWindow = GWindow.getWindow( world.p, windowTitle, world.p.width / 2 - windowWidth, 
-										   world.p.height / 2 - libraryWindowHeight / 2, windowWidth * 2, 
-										   libraryWindowHeight, PApplet.JAVA2D);
-		
-		libraryWindow.addData(new ML_WinData());
-		libraryWindow.addDrawHandler(this, "libraryWindowDraw");
-		libraryWindow.addMouseHandler(this, "libraryWindowMouse");
-		libraryWindow.addKeyHandler(world.p, "libraryWindowKey");
-		libraryWindow.setActionOnClose(GWindow.KEEP_OPEN);
-//		hideLibraryWindow();
-		
-		int x = 0, y = 12;
 
-		if(delay) world.p.delay(delayAmount);
-		
-		lblLibrary = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Welcome to MultimediaLocator.");
-		lblLibrary.setLocalColorScheme(10);
-		lblLibrary.setFont(new Font("Monospaced", Font.PLAIN, 16));
-		lblLibrary.setTextAlign(GAlign.CENTER, null);
-		lblLibrary.setTextBold();
-
-		x = 90;
-		y += 60;
-
-		btnCreateLibrary = new GButton(libraryWindow, x, y, 170, 60, "Create Library");
-		btnCreateLibrary.tag = "CreateLibrary";
-		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
-		btnCreateLibrary.setLocalColorScheme(1);
-		btnOpenLibrary = new GButton(libraryWindow, x+270, y, 155, 60, "Open Library");
-		btnOpenLibrary.tag = "OpenLibrary";
-		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
-		btnOpenLibrary.setLocalColorScheme(5);
-		
-		setupLibraryWindow = true;
-	}
-	
 	/**
 	 * Setup the Navigation Window
 	 */
-	void setupNavigationWindow()
+	public void setupNavigationWindow()
 	{
 		navigationWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, navigationWindowHeight, PApplet.JAVA2D);
 		navigationWindow.setVisible(true);
@@ -598,7 +568,7 @@ public class ML_Window {
 	/**
 	 * Setup the Time Window
 	 */
-	void setupTimeWindow()
+	public void setupTimeWindow()
 	{
 		timeWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, timeWindowHeight, PApplet.JAVA2D);
 		timeWindow.setVisible(true);
@@ -768,7 +738,7 @@ public class ML_Window {
 	/**
 	 * Setup the Graphics Window
 	 */
-	void setupGraphicsWindow()
+	public void setupGraphicsWindow()
 	{
 		graphicsWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, graphicsWindowHeight, PApplet.JAVA2D);
 		graphicsWindow.setVisible(true);
@@ -947,7 +917,7 @@ public class ML_Window {
 	/**
 	 * Setup the Model Window
 	 */
-	void setupModelWindow()
+	public void setupModelWindow()
 	{
 		modelWindow = GWindow.getWindow(world.p, windowTitle, 10, 45, windowWidth, modelWindowHeight, PApplet.JAVA2D);
 		modelWindow.setVisible(true);
@@ -1063,7 +1033,7 @@ public class ML_Window {
 	/**
 	 * Setup the Memory Window
 	 */
-	void setupMemoryWindow()
+	public void setupMemoryWindow()
 	{
 		memoryWindow = GWindow.getWindow(world.p, "Memory", 10, 45, windowWidth, memoryWindowHeight, PApplet.JAVA2D);
 		memoryWindow.setVisible(true);
@@ -1095,7 +1065,7 @@ public class ML_Window {
 	/**
 	 * Setup the Selection Window
 	 */
-	void setupSelectionWindow()
+	public void setupSelectionWindow()
 	{
 		selectionWindow = GWindow.getWindow(world.p, "Selection Mode", 10, 45, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
 		selectionWindow.setVisible(true);
@@ -1194,7 +1164,7 @@ public class ML_Window {
 	/**
 	 * Setup the Statistics Window
 	 */
-	void setupStatisticsWindow()
+	public void setupStatisticsWindow()
 	{
 		statisticsWindow = GWindow.getWindow(world.p, "Statistics", 10, 45, windowWidth * 2, statisticsWindowHeight, PApplet.JAVA2D);
 		statisticsWindow.setVisible(true);
@@ -1228,7 +1198,7 @@ public class ML_Window {
 	/**
 	 * Setup the Help Window
 	 */
-	void setupHelpWindow()
+	public void setupHelpWindow()
 	{
 		helpWindow = GWindow.getWindow(world.p, "Help", 10, 45, windowWidth, helpWindowHeight, PApplet.JAVA2D);
 		helpWindow.setVisible(true);
@@ -1257,7 +1227,91 @@ public class ML_Window {
 		
 		setupHelpWindow = true;
 	}
-	
+
+	/**
+	 * Setup and show Library Window
+	 */
+	public void setupLibraryWindow()
+	{
+		libraryWindow = GWindow.getWindow( world.p, windowTitle, world.p.width / 2 - windowWidth, 
+										   world.p.height / 2 - libraryWindowHeight / 2, windowWidth * 2, 
+										   libraryWindowHeight, PApplet.JAVA2D);
+		
+		libraryWindow.addData(new ML_WinData());
+		libraryWindow.addDrawHandler(this, "libraryWindowDraw");
+		libraryWindow.addMouseHandler(this, "libraryWindowMouse");
+		libraryWindow.addKeyHandler(world.p, "libraryWindowKey");
+		libraryWindow.setActionOnClose(GWindow.KEEP_OPEN);
+		
+		int x = 0, y = 12;
+
+		if(delay) world.p.delay(delayAmount);
+		
+		lblLibrary = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Welcome to MultimediaLocator.");
+		lblLibrary.setLocalColorScheme(10);
+		lblLibrary.setFont(new Font("Monospaced", Font.PLAIN, 16));
+		lblLibrary.setTextAlign(GAlign.CENTER, null);
+		lblLibrary.setTextBold();
+
+		x = 90;
+		y += 60;
+
+		btnCreateLibrary = new GButton(libraryWindow, x, y, 170, 60, "Create Library");
+		btnCreateLibrary.tag = "CreateLibrary";
+		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnCreateLibrary.setLocalColorScheme(1);
+		btnOpenLibrary = new GButton(libraryWindow, x+270, y, 155, 60, "Open Library");
+		btnOpenLibrary.tag = "OpenLibrary";
+		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnOpenLibrary.setLocalColorScheme(5);
+		
+		setupLibraryWindow = true;
+	}
+
+	/**
+	 * Setup and show Import Window
+	 */
+	public void setupImportWindow()
+	{
+		importWindow = GWindow.getWindow( world.p, windowTitle, world.p.width / 2 - (windowWidth * 3)/2, 
+				   world.p.height / 2 - importWindowHeight / 2, windowWidth * 3, 
+				   importWindowHeight, PApplet.JAVA2D);
+
+		importWindow.addData(new ML_WinData());
+		importWindow.addDrawHandler(this, "importWindowDraw");
+		importWindow.addMouseHandler(this, "importWindowMouse");
+		importWindow.addKeyHandler(world.p, "importWindowKey");
+		importWindow.setActionOnClose(GWindow.KEEP_OPEN);
+
+		int x = 0, y = 12;
+
+		if(delay) world.p.delay(delayAmount);
+
+		lblImport = new GLabel(importWindow, x, y, importWindow.width, 22, "Import Media...");
+		lblImport.setLocalColorScheme(10);
+		lblImport.setFont(new Font("Monospaced", Font.PLAIN, 16));
+		lblImport.setTextAlign(GAlign.CENTER, null);
+		lblImport.setTextBold();
+
+		x = 90;
+		y += 60;
+
+		btnImportImageFolder = new GButton(importWindow, x, y, 190, 60, "Add Image Folder");
+		btnImportImageFolder.tag = "AddImageFolder";
+		btnImportImageFolder.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnImportImageFolder.setLocalColorScheme(1);
+		btnImportVideoFolder = new GButton(importWindow, x+=220, y, 190, 60, "Add Video Folder");
+		btnImportVideoFolder.tag = "AddVideoFolder";
+		btnImportVideoFolder.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnImportVideoFolder.setLocalColorScheme(4);
+		btnImportSoundFolder = new GButton(importWindow, x+220, y, 190, 60, "Add Sound Folder");
+		btnImportSoundFolder.tag = "AddSoundFolder";
+		btnImportSoundFolder.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnImportSoundFolder.setLocalColorScheme(5);
+		
+		setupImportWindow = true;
+	}
+
 	/**
 	 * Handles drawing to the ML Window
 	 * @param applet the main PApplet object
@@ -1341,6 +1395,48 @@ public class ML_Window {
 			break;
 		}
 	}
+	
+	/**
+	 * Handles drawing to the ML Window
+	 * @param applet the main PApplet object
+	 * @param data the data for the GWindow being used
+	 */
+	public void importWindowDraw(PApplet applet, GWinData data) {
+		applet.background(0);
+		applet.stroke(255);
+		applet.strokeWeight(1);
+		applet.fill(0, 0, 255);
+	}
+
+	/**
+	 * Handles mouse events for all GWindow objects
+	 * @param applet the main PApplet object
+	 * @param data the data for the GWindow being used
+	 * @param event the mouse event
+	 */
+	public void importWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
+		ML_WinData data2 = (ML_WinData)data;
+		switch(event.getAction()) {
+
+		case MouseEvent.PRESS:
+			data2.sx = data2.ex = applet.mouseX;
+			data2.sy = data2.ey = applet.mouseY;
+			data2.done = false;
+//			System.out.println("Mouse pressed");
+			break;
+		case MouseEvent.RELEASE:
+			data2.ex = applet.mouseX;
+			data2.ey = applet.mouseY;
+			data2.done = true;
+//			System.out.println("Mouse released:"+data.toString());
+			break;
+		case MouseEvent.DRAG:
+			data2.ex = applet.mouseX;
+			data2.ey = applet.mouseY;
+//			System.out.println("Mouse dragged");
+			break;
+		}
+	}
 
 	/**
 	 * Handles drawing to the Time Window 
@@ -1354,7 +1450,7 @@ public class ML_Window {
 			float lineWidthWide = 15f;
 			float lineWidth = 15f;
 
-			float mediumTextSize = 13.f;
+//			float mediumTextSize = 13.f;
 			float smallTextSize = 11.f;
 
 			float x = 10, y = 300;			
@@ -2030,13 +2126,13 @@ public class ML_Window {
 		}
 	}
 	
-	void showWMVWindow()
+	public void showWMVWindow()
 	{
 		showMLWindow = true;
 		mlWindow.setVisible(true);
 	} 
 	
-	void showNavigationWindow()
+	public void showNavigationWindow()
 	{
 		showNavigationWindow = true;
 		if(setupNavigationWindow)
@@ -2044,7 +2140,7 @@ public class ML_Window {
 		if(showMLWindow)
 			hideMLWindow();
 	} 
-	void showTimeWindow()
+	public void showTimeWindow()
 	{
 		showTimeWindow = true;
 		if(setupTimeWindow)
@@ -2052,7 +2148,7 @@ public class ML_Window {
 		if(showMLWindow)
 			hideMLWindow();
 	}
-	void showGraphicsWindow()
+	public void showGraphicsWindow()
 	{
 		showGraphicsWindow = true;
 		if(setupGraphicsWindow)
@@ -2060,7 +2156,7 @@ public class ML_Window {
 		if(showMLWindow)
 			hideMLWindow();
 	}
-	void showModelWindow()
+	public void showModelWindow()
 	{
 		showModelWindow = true;
 		if(setupModelWindow)
@@ -2068,7 +2164,7 @@ public class ML_Window {
 		if(showMLWindow)
 			hideMLWindow();
 	}
-	void showMemoryWindow()
+	public void showMemoryWindow()
 	{
 		showMemoryWindow = true;
 		if(setupMemoryWindow)
@@ -2076,7 +2172,7 @@ public class ML_Window {
 		if(showMLWindow)
 			hideMLWindow();
 	}
-	void showSelectionWindow()
+	public void showSelectionWindow()
 	{
 		showSelectionWindow = true;
 		if(setupSelectionWindow)
@@ -2084,7 +2180,7 @@ public class ML_Window {
 		if(showMLWindow)
 			hideMLWindow();
 	} 
-	void showStatisticsWindow()
+	public void showStatisticsWindow()
 	{
 		showStatisticsWindow = true;
 		if(setupStatisticsWindow)
@@ -2092,75 +2188,93 @@ public class ML_Window {
 		if(showMLWindow)
 			hideMLWindow();
 	} 
-	void showHelpWindow()
+	public void showHelpWindow()
 	{
 		showHelpWindow = true;
 		if(setupHelpWindow)
 			helpWindow.setVisible(true);
 	}
-	void hideMLWindow()
+	public void showLibraryWindow()
+	{
+		showLibraryWindow = true;
+		if(setupLibraryWindow)
+			libraryWindow.setVisible(true);
+	}
+	public void showImportWindow()
+	{
+		showImportWindow = true;
+		if(setupImportWindow)
+			importWindow.setVisible(true);
+	}
+	public void hideMLWindow()
 	{
 		showMLWindow = false;
 		mlWindow.setVisible(false);
 	} 
-	void hideLibraryWindow()
-	{
-		showLibraryWindow = false;
-		if(setupLibraryWindow)
-			libraryWindow.setVisible(false);
-	} 
-	void hideNavigationWindow()
+	public void hideNavigationWindow()
 	{
 		showNavigationWindow = false;
 		if(setupNavigationWindow)
 			navigationWindow.setVisible(false);
 	} 
-	void hideTimeWindow()
+	public void hideTimeWindow()
 	{
 		showTimeWindow = false;
 		if(setupTimeWindow)
 			timeWindow.setVisible(false);
 	} 
-	void hideGraphicsWindow()
+	public void hideGraphicsWindow()
 	{
 		showGraphicsWindow = false;
 		if(setupGraphicsWindow)
 			graphicsWindow.setVisible(false);
 	}
-	void hideModelWindow()
+	public void hideModelWindow()
 	{
 		showModelWindow = false;
 		if(setupModelWindow)
 			modelWindow.setVisible(false);
 	} 
-	void hideMemoryWindow()
+	public void hideMemoryWindow()
 	{
 		showMemoryWindow = false;
 		if(setupMemoryWindow)
 			memoryWindow.setVisible(false);
 	}	
-	void hideSelectionWindow()
+	public void hideSelectionWindow()
 	{
 		showSelectionWindow = false;
 		if(setupSelectionWindow)
 			selectionWindow.setVisible(false);
 	} 
-	void hideStatisticsWindow()
+	public void hideStatisticsWindow()
 	{
 		showStatisticsWindow = false;
 		if(setupStatisticsWindow)
 			statisticsWindow.setVisible(false);
 	} 
-	void hideHelpWindow()
+	public void hideHelpWindow()
 	{
 		showHelpWindow = false;
 		if(setupHelpWindow)
 			helpWindow.setVisible(false);
 	}
+	public void hideLibraryWindow()
+	{
+		showLibraryWindow = false;
+		if(setupLibraryWindow)
+			libraryWindow.setVisible(false);
+	} 
+	public void hideImportWindow()
+	{
+		showImportWindow = false;
+		if(setupImportWindow)
+			importWindow.setVisible(false);
+	} 
 	/**
 	 * Hide all windows
 	 */
-	void hideWindows()
+	public void hideWindows()
 	{
 		hideMLWindow();
 		hideNavigationWindow();

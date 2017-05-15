@@ -13,14 +13,29 @@ import org.boon.json.ObjectMapper;
 public class ML_Library 
 {
 	private String libraryFolder;								// Filepath for library folder 
-	private ArrayList<String> folders;							// Directories for each field in library
 	public String libraryDestination;							// Destination for library being created
-	public String mediaFolder;									// -- Make into list
 
+	private ArrayList<String> folders;							// Directory paths for each field in library
+	public ArrayList<String> mediaFolders;						// Directory paths for media folders added to library
+
+	/**
+	 * Constructor for media library
+	 * @param newLibraryFolder Library folder
+	 */
 	ML_Library(String newLibraryFolder)
 	{
 		folders = new ArrayList<String>();
+		mediaFolders = new ArrayList<String>();
 		libraryFolder = newLibraryFolder;
+	}
+	
+	/**
+	 * Reset to default settings
+	 */
+	public void reset()
+	{
+		folders = new ArrayList<String>();
+		mediaFolders = new ArrayList<String>();
 	}
 
 	/**
@@ -28,17 +43,20 @@ public class ML_Library
 	 * @param mediaFolders List of media folder(s)
 	 * @param destFolder Destination folder for library
 	 */
-	public boolean createNewLibrary(String srcFolder, ArrayList<String> mediaFolders, String destFolder)
+	public boolean createNewLibrary(ArrayList<String> mediaFolders, String destFolder)
 	{
+		System.out.println("createNewLibrary()... mediaFolders.size():"+mediaFolders.size()+" destFolder:"+destFolder);
 		File destFolderFile = new File(getLibraryFolder() + destFolder);
 		if(!destFolderFile.exists()) destFolderFile.mkdir();
 
 		if(mediaFolders.size() == 0)
-			return copyMediaFolder(srcFolder, destFolder);
+		{
+			System.out.println("Error mediaFolders.size() == 0!");
+		}
 		else
 		{
 			for(String folderString : mediaFolders)
-				return copyMediaFolder(srcFolder + folderString, destFolder);
+				return copyMediaFolder(folderString, destFolder);
 		}
 		return false;
 	}

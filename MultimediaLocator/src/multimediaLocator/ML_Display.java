@@ -1580,18 +1580,19 @@ public class ML_Display
 			
 			if(p.p.createNewLibrary)
 			{
-				if(!p.p.state.selectedMediaFolder)
+//				if(!p.p.state.selectedMediaFolder)
+				if(p.p.state.chooseMediaFolders)
 				{
-					p.p.text("Press any key to select media folder...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					p.p.text("Please select media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					if(!window.setupImportWindow)
+					{
+						window.setupImportWindow();
+					}
 				}
-				else if(!p.p.state.selectedLibraryDestination)
-				{
-					p.p.text("Press any key to select library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
-				}
+				else if(p.p.state.selectedNewLibraryDestination)
+					p.p.text("Creating library from media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 				else
-				{
-					p.p.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
-				}
+					p.p.text("Please select new library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 			}
 			else
 			{
@@ -1601,8 +1602,6 @@ public class ML_Display
 						window.setupLibraryWindow();
 
 					yPos += lineWidthVeryWide * 11.f;
-
-//					p.p.text("Press any key to open MultimediaLocator library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 				}
 				else
 				{

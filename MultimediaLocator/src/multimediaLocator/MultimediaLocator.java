@@ -26,6 +26,7 @@ import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
 import processing.core.*;
 import processing.opengl.PGL;
+import processing.opengl.PJOGL;
 import processing.opengl.PShader;
 import processing.video.Movie;
 
@@ -161,12 +162,14 @@ public class MultimediaLocator extends PApplet
 		}
 		else if(!state.running)
 		{
-			if (state.chooseLibrary || state.chooseLibraryDestination )
+//			System.out.println("HERE 0");
+			if (state.librarySetup)
 			{
+//				System.out.println("HERE 1");
 				if(createNewLibrary)
 				{
-					if(state.chooseLibrary)					/* Choose media folder */
-						mediaFolderDialog();	
+//					if(state.chooseMediaFolders)				/* Choose media folder */
+//						mediaFolderDialog();	
 					if(state.chooseLibraryDestination)			/* Choose library destination */
 						libraryDestinationDialog();	
 					display.display(world);
@@ -176,10 +179,12 @@ public class MultimediaLocator extends PApplet
 			}
 			else
 			{
-				if(state.selectedLibraryDestination && !state.selectedLibrary)
+//				System.out.println("state.selectedLibrary:"+state.selectedLibrary+" state.selectedLibraryDestination:"+state.selectedNewLibraryDestination+" state.selectedMediaFolder:"+state.selectedMediaFolder);
+				if(state.selectedNewLibraryDestination && !state.selectedLibrary)
 				{
+//					System.out.println("HERE 2");
 					if(state.selectedMediaFolder)
-						importMediaFolder();
+						importMediaFolders();
 					else
 						System.out.println("ERROR: Selected library destination but no media folder selected!");
 				}
@@ -519,6 +524,8 @@ public class MultimediaLocator extends PApplet
 		
 		state.running = true;
 		state.startedRunning = true;
+		
+//		PJOGL.setIcon("res/icon.png");
 	}
 
 
@@ -679,9 +686,9 @@ public class MultimediaLocator extends PApplet
 	 * Open library destination folder when folder has been selected
 	 * @param selection File object for selected folder
 	 */
-	public void libraryDestinationSelected(File selection) 
+	public void newLibraryDestinationSelected(File selection) 
 	{
-		openLibraryDestination(selection);
+		openNewLibraryDestination(selection);
 	}
 
 	/**
@@ -715,7 +722,7 @@ public class MultimediaLocator extends PApplet
 	 * Analyze and load media folders given user selection
 	 * @param selection Selected folder
 	 */
-	public void openLibraryDestination(File selection) 
+	public void openNewLibraryDestination(File selection) 
 	{
 		boolean selectedFolder = false;
 		
@@ -752,11 +759,14 @@ public class MultimediaLocator extends PApplet
 		}
 		
 		if(selectedFolder)
-			state.selectedLibraryDestination = true;	// Library destination folder has been selected
+		{
+			state.selectedNewLibraryDestination = true;	// Library destination folder has been selected
+			state.librarySetup = false;					// Library setup complete
+		}
 		else
 		{
-			state.selectedLibraryDestination = false;		// Not a folder or folder doesn't exist
-			libraryDestinationDialog();					// Retry prompt
+			state.selectedNewLibraryDestination = false;		// Not a folder or folder doesn't exist
+			libraryDestinationDialog();							// Retry prompt
 		}
 	}
 
@@ -786,8 +796,7 @@ public class MultimediaLocator extends PApplet
 				if(file.isDirectory())
 				{
 					library = new ML_Library("");
-//					library.mediaFolder = parts[parts.length-1];
-					library.mediaFolder = input;
+					library.mediaFolders.add(input);
 					selectedFolder = true;
 				}
 			}
@@ -796,12 +805,13 @@ public class MultimediaLocator extends PApplet
 		if(selectedFolder)
 		{
 			state.selectedMediaFolder = true;			// Media folder has been selected
+			state.chooseMediaFolders = false;			// No longer choose a media folder
 			state.chooseLibraryDestination = true;		// Choose library destination folder
 		}
 		else
 		{
-			state.selectedMediaFolder = false;				// Library in improper format if masks are missing
-			mediaFolderDialog();					// Retry folder prompt
+			state.selectedMediaFolder = false;			// Library in improper format if masks are missing
+			mediaFolderDialog();						// Retry folder prompt
 		}
 	}
 	
@@ -883,42 +893,46 @@ public class MultimediaLocator extends PApplet
 	/**
 	 * Import media folder into library
 	 */
-	private void importMediaFolder()
+	private void importMediaFolders()
 	{
-		File mediaFolderFile = new File(library.mediaFolder);
-		File[] fileList = mediaFolderFile.listFiles();
-		
-		boolean hasDirectory = false;
-		if(fileList != null)
+		if(library.mediaFolders.size() > 0)
 		{
-			if(debugSettings.main) System.out.println("fileList.length:"+fileList.length);
-			for(File f : fileList)
-			{
-				if(f.isDirectory())
-				{
-					hasDirectory = true;
-					break;
-				}
-			}
-		}
-		else System.out.println("fileList == null... library.mediaFolder:"+library.mediaFolder);
-		
-		if(hasDirectory)
-		{
-			System.out.println("Error: Haven't built multiple directory import yet! Will exit...");
-			exit();
-		}
-		else
-		{
-			ArrayList<String> folderList = new ArrayList<String>();
-			System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination);
-			state.selectedLibrary = library.createNewLibrary(library.mediaFolder, folderList, library.libraryDestination);
+//			File mediaFolderFile = new File(library.mediaFolder);
+//			File mediaFolderFile = new File(folderString);
+//			File[] fileList = mediaFolderFile.listFiles();
+
+//			boolean hasDirectory = false;
+//			if(fileList != null)
+//			{
+//				if(debugSettings.main) System.out.println("fileList.length:"+fileList.length);
+//				for(File f : fileList)
+//				{
+//					if(f.isDirectory())
+//					{
+//						hasDirectory = true;
+//						break;
+//					}
+//				}
+//			}
+//			else System.out.println("fileList == null... library.mediaFolder:"+folderString);
+
+//			if(hasDirectory)
+//			{
+//				System.out.println("Error: Haven't built multiple directory level import yet! Will exit...");
+//				exit();
+//			}
+//			else
+//			{
+//			ArrayList<String> folderList = new ArrayList<String>();
+			System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination+" from "+library.mediaFolders.size()+" imported media folders...");
+			state.selectedLibrary = library.createNewLibrary(library.mediaFolders, library.libraryDestination);
 
 			if(!state.selectedLibrary)
 			{
-				System.out.println("Error creating library...");
+				System.out.println("Error importing media to create library...");
 				exit();
 			}
+//			}
 		}
 	}
 	
@@ -1099,6 +1113,20 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
+	
+	/**
+	 * Respond to key pressed in MultimediaLocator Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void importWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
 
 	/**
 	 * Respond to key pressed in Navigation Window
@@ -1214,30 +1242,22 @@ public class MultimediaLocator extends PApplet
 	
 	public void mediaFolderDialog()
 	{
-		state.chooseLibrary = false;
 		selectFolder("Select media folder:", "mediaFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
 	public void libraryDestinationDialog()
 	{
 		state.chooseLibraryDestination = false;
-		selectFolder("Select library destination:", "libraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
+		if(display.window.importWindow.isVisible())
+			display.window.hideImportWindow();
+		selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
 	public void librarySelectionDialog()
 	{
-		state.chooseLibrary = false;
+		state.librarySetup = false;
 		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
-	
-//	/**
-//	 * Called when user selects a GPS track file
-//	 * @param selection Selected GPS Track file
-//	 */
-//	public void gpsTrackSelected(File selection)
-//	{
-//		world.viewer.loadGPSTrack(selection);
-//	}
 	
 	public void checkMemory()
 	{
@@ -1304,12 +1324,42 @@ public class MultimediaLocator extends PApplet
 		}
 	}
 
+	private void setAppIcon(PImage img) 
+	{
+		final PGraphics pg = createGraphics(16, 16, JAVA2D);
+
+		pg.beginDraw();
+		pg.image(img, 0, 0, 16, 16);
+		pg.endDraw();
+
+		
+		surface.setIcon(new PImage(pg.image));
+		surface.setIcon(img);
+		
+//		PJOGL.setIcon("res/icon.png");
+
+//		Window icons for OpenGL sketches can only be set in settings()
+//		using PJOGL.setIcon(filename).
+
+	}
+
 	/**
 	 * Set window resolution and graphics mode
 	 */
 	public void settings() 
 	{
 		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
+		
+//		PJOGL pgl = (PJOGL) beginPGL(); 
+		PJOGL.setIcon("res/icon.png");
+
+//		PImage img = loadImage("res/icon.jpg");
+//		surface.setIcon(img);
+		
+//		surface.setIcon(loadImage("res/icon.jpg"));
+		
+//		setAppIcon(loadImage("res/icon.jpg"));
+//		surface.setIcon("res/icon.jpg");
 //		size(1980, 1080, processing.core.PConstants.P3D);		// 
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
 	}
@@ -1322,6 +1372,11 @@ public class MultimediaLocator extends PApplet
 		PApplet.main("multimediaLocator.MultimediaLocator");						// Open PApplet in window
 //		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
 	}
+	
+//	private void setAppTitle(String title) 
+//	{
+//		surface.setTitle(title);
+//	}
 	
 //	void drawTestScene() 
 //	{  

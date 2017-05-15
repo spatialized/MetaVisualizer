@@ -16,11 +16,14 @@ public class ML_SystemState
 
 	/* Setup */
 	public boolean selectedLibrary = false;					// Whether user has selected a library folder
-	public boolean selectedLibraryDestination = false;		// Whether user has selected a library destination folder
+	public boolean selectedNewLibraryDestination = false;		// Whether user has selected a library destination folder
 	public boolean selectedMediaFolder = false;				// Whether user has selected a media folder
-	public boolean chooseLibrary = false;					// Whether library dialog should open
+	public boolean librarySetup = false;					// Whether library dialog should open
+	public boolean addingImageFolder = false;				// Adding image folder to library
+	public boolean addingVideoFolder = false;				// Adding image folder to library
+	public boolean addingSoundFolder = false;				// Adding image folder to library
 	public boolean chooseLibraryDestination = false;		// Whether library destination dialog should open
-	public boolean chooseMediaFolder = false;				// Whether media folder dialog should open
+	public boolean chooseMediaFolders = false;				// Whether media folder dialog should open
 	
 	public boolean initialSetup = false;				// Performing initial setup 
 	public boolean initializingFields = false;			// Initializing fields

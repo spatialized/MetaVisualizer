@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Runs a system command given as a List of Strings.   
  * @author davidgordon
- * Based on package com.devdaily.system
+ * - Based on com.devdaily.system
  */
 public class WMV_Command
 {
@@ -17,6 +17,9 @@ public class WMV_Command
   private String directory;
   
   /**
+   * System command
+   * @param newDirectory
+   * @param command
    */
   public WMV_Command(final String newDirectory, final List<String> command)
   {

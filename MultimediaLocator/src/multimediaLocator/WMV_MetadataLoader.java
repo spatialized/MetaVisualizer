@@ -429,7 +429,7 @@ class WMV_MetadataLoader
 		// If images exist but no small images are found
 		if(imageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
 		{
-			boolean success = u.shrinkImages(imageFolder, smallImageFolder);		
+			boolean success = u.shrinkImageFolder(imageFolder, smallImageFolder);		
 			if(success)
 			{
 				if(debugSettings.metadata) System.out.println("Shrink images successful...");
@@ -714,7 +714,7 @@ class WMV_MetadataLoader
 		catch (Throwable t) 
 		{
 			if(debugSettings.metadata && debugSettings.detailed)
-				System.out.println("loadImageMetadata()... Throwable:" + t);
+				System.out.println("ERROR in loadImageMetadata()... Throwable:" + t +" name:"+sName+"  file.getAbsolutePath():"+file.getAbsolutePath());
 			if(!dataMissing) dataMissing = true;
 		}
 

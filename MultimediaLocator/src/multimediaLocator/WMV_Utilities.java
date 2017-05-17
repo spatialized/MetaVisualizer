@@ -869,24 +869,178 @@ public class WMV_Utilities
 	 * @param destination Destination folder
 	 * @return Whether successful
 	 */
-	public boolean shrinkImages(String largeImages, String destination)
+	public boolean shrinkImageFolder(String largeImages, String destination)
 	{
-//		if(world.debugSettings.main)
-			System.out.println("Shrinking images:"+largeImages+" to:"+destination+"...");
+		System.out.println("shrinkImageFolder()... Shrinking images:"+largeImages+" dest: "+destination+"...");
 		WMV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
 		ArrayList<String> files = new ArrayList<String>();
 
 		/* Get files in directory */
-		command = new ArrayList<String>();
+		files = getFilesInDirectory(largeImages);
+		
+//		command = new ArrayList<String>();
+//		command.add("ls");
+//		commandExecutor = new WMV_Command(largeImages, command);
+//		try {
+//			int result = commandExecutor.execute();
+//
+//			// Get the output from the command
+//			StringBuilder stdout = commandExecutor.getStandardOutput();
+////			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
+//
+//			String out = stdout.toString();
+//			String[] parts = out.split("\n");
+//			for (int i=0; i<parts.length; i++)
+//			{
+//				files.add(parts[i]);
+//			}
+//		}
+//		catch(Throwable t)
+//		{
+//			System.out.println("Throwable t while getting largeImage file list:"+t);
+//			return false;
+//		}
+		
+		copyFiles(largeImages, destination);
+		
+//		/* Copy files to new directory */
+//		command = new ArrayList<String>();
+//		command.add("cp");
+//		command.add("-a");
+//		command.add(largeImages + ".");
+//		command.add(destination);
+//		
+//		commandExecutor = new WMV_Command("", command);
+//		try {
+//			int result = commandExecutor.execute();
+//
+////			StringBuilder stdout = commandExecutor.getStandardOutputFromCommand();
+////			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
+//
+////			System.out.println("... copying result ..."+result);
+//		}
+//		catch(Throwable t)
+//		{
+//			System.out.println("Throwable t while copying files:"+t);
+//			return false;
+//		}
+		
+		files = getFilesInDirectory(destination);
+		
+//		files = new ArrayList<String>();
+//		command = new ArrayList<String>();
+//		command.add("ls");
+//		commandExecutor = new WMV_Command(destination, command);
+//		try {
+//			int result = commandExecutor.execute();
+//
+//			StringBuilder stdout = commandExecutor.getStandardOutput();
+//			StringBuilder stderr = commandExecutor.getStandardError();
+//
+//			String out = stdout.toString();
+//			String[] parts = out.split("\n");
+//			for (int i=0; i<parts.length; i++)
+//				files.add(parts[i]);
+//		}
+//		catch(Throwable t)
+//		{
+//			System.out.println("Throwable t while getting small_images file list for shrinking:"+t);
+//			return false;
+//		}
+
+		/* Shrink files in new directory */
+		shrinkImageFileList(files, destination);
+		
+//		for (String fileName : files)					// -- Do in one command??
+//		{
+//			boolean isJpeg = false;
+//			if(fileName != null && !fileName.equals(""))
+//			{
+//				String[] parts = fileName.split("\\.");
+//
+//				if(parts.length > 0)
+//				{
+//					if(parts[parts.length-1].equals("jpg") || parts[parts.length-1].equals("JPG"))
+//						isJpeg = true;
+//				}
+//				
+//				if(isJpeg)
+//				{
+//					shrinkImage(fileName, destination);
+//					
+////					//Command: sips -Z 640 *.jpg
+////					command = new ArrayList<String>();
+////					command.add("sips");
+////					command.add("-Z");
+////					command.add("640");
+////					command.add(fileName);
+//////					System.out.println("destination:"+destination +" command:"+command);
+////					commandExecutor = new WMV_Command(destination, command);
+////
+////					try {
+////						int result = commandExecutor.execute();
+////
+////						// get the output from the command
+////						StringBuilder stdout = commandExecutor.getStandardOutput();
+////						StringBuilder stderr = commandExecutor.getStandardError();
+////					}
+////					catch(Throwable t)
+////					{
+////						System.out.println("Throwable t:"+t);
+////						return false;
+////					}
+//				}
+//			}
+//		}
+		
+		return true;
+	}
+	
+	/**
+	 * Shrink list of image files
+	 * @param files Image file list
+	 * @param directory Directory containing image files
+	 */
+	public void shrinkImageFileList(ArrayList<String> files, String directory)
+	{
+		for (String fileName : files)					// -- Do in one command??
+		{
+			boolean isJpeg = false;
+			if(fileName != null && !fileName.equals(""))
+			{
+				String[] parts = fileName.split("\\.");
+
+				if(parts.length > 0)
+				{
+					if(parts[parts.length-1].equals("jpg") || parts[parts.length-1].equals("JPG"))
+						isJpeg = true;
+				}
+				
+				if(isJpeg)
+					shrinkImage(fileName, directory);
+			}
+		}
+	}
+	
+	/**
+	 * Get files in directory as list of Strings
+	 * @param sourceFolder Directory to list files from
+	 * @return File list
+	 */
+	private ArrayList<String> getFilesInDirectory(String sourceFolder)
+	{
+		ArrayList<String> files = new ArrayList<String>();
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
 		command.add("ls");
-		commandExecutor = new WMV_Command(largeImages, command);
+		commandExecutor = new WMV_Command(sourceFolder, command);
 		try {
 			int result = commandExecutor.execute();
 
 			// Get the output from the command
 			StringBuilder stdout = commandExecutor.getStandardOutput();
-//			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
+//			StringBuilder stderr = commandExecutor.getStandardError();
 
 			String out = stdout.toString();
 			String[] parts = out.split("\n");
@@ -898,17 +1052,60 @@ public class WMV_Utilities
 		}
 		catch(Throwable t)
 		{
-			System.out.println("Throwable t while getting largeImage file list:"+t);
-			return false;
+			System.out.println("createNewLibrary()... Throwable t while getting folderString file list:"+t);
+//			return false;
 		}
 		
+		return files;
+	}
+
+	/**
+	 * Copy file to destination
+	 * @param filePath File to copy 
+	 * @param destination Destination path
+	 * @return Whether successful
+	 */
+	public boolean copyFile(String filePath, String destination)
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+		command.add("cp");
+		command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
+		command.add(filePath);
+		command.add(destination);
+		System.out.println("Copying command:"+command.toString());
+
+		commandExecutor = new WMV_Command("", command);
+		try {
+			int result = commandExecutor.execute();
+
+			System.out.println("... Copying result ..."+result);
+			return true;
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable t while copying video files:"+t);
+			return false;
+		}	
+	}
+	
+	/**
+	 * Copy files from source folder to destination
+	 * @param sourceFolder Source folder
+	 * @param destination Destination path
+	 * @return Whether successful
+	 */
+	public boolean copyFiles(String sourceFolder, String destination)
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+
 		/* Copy files to new directory */
 		command = new ArrayList<String>();
 		command.add("cp");
 		command.add("-a");
-		command.add(largeImages + ".");
+		command.add(sourceFolder + ".");
 		command.add(destination);
-//		System.out.println("Copying command:"+command.toString());
 		
 		commandExecutor = new WMV_Command("", command);
 		try {
@@ -918,85 +1115,51 @@ public class WMV_Utilities
 //			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
 
 //			System.out.println("... copying result ..."+result);
+			
+			return true;
 		}
 		catch(Throwable t)
 		{
 			System.out.println("Throwable t while copying files:"+t);
 			return false;
 		}
-		
-		files = new ArrayList<String>();
+	}
+
+	/**
+	 * Shrink image
+	 * @param fileName File path of image to shrink
+	 * @param directory Image file directory 
+	 * @return Whether successful
+	 */
+	public boolean shrinkImage(String fileName, String directory)
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+
+		//Command: sips -Z 640 *.jpg
 		command = new ArrayList<String>();
-		command.add("ls");
-		commandExecutor = new WMV_Command(destination, command);
+		command.add("sips");
+		command.add("-Z");
+		command.add("640");
+		command.add(fileName);
+		System.out.println("shrinkImage()... directory:"+directory +" command:"+command);
+		commandExecutor = new WMV_Command(directory, command);
+
 		try {
 			int result = commandExecutor.execute();
 
-			StringBuilder stdout = commandExecutor.getStandardOutput();
+			StringBuilder stdout = commandExecutor.getStandardOutput();			// get the output from the command
 			StringBuilder stderr = commandExecutor.getStandardError();
-
-			String out = stdout.toString();
-			String[] parts = out.split("\n");
-			for (int i=0; i<parts.length; i++)
-				files.add(parts[i]);
+			
+			return true;
 		}
 		catch(Throwable t)
 		{
-			System.out.println("Throwable t while getting small_images file list for shrinking:"+t);
+			System.out.println("Throwable t:"+t);
 			return false;
 		}
-
-//		System.out.println("files.size():"+files.size());
-
-		/* Shrink files in new directory */
-		for (String fileName : files)					// -- Do in one command??
-		{
-			boolean isJpeg = false;
-//			System.out.println("fileName:"+fileName);
-
-			if(fileName != null && !fileName.equals(""))
-			{
-				String[] parts = fileName.split("\\.");
-
-//				System.out.println("parts.length:"+parts.length);
-				if(parts.length > 0)
-				{
-//					System.out.println("parts[0]:"+parts[0]);
-//					System.out.println("parts[length-1]:"+parts[parts.length-1]);
-					if(parts[parts.length-1].equals("jpg") || parts[parts.length-1].equals("JPG"))
-						isJpeg = true;
-				}
-				
-				if(isJpeg)
-				{
-					//Command: sips -Z 640 *.jpg
-					command = new ArrayList<String>();
-					command.add("sips");
-					command.add("-Z");
-					command.add("640");
-					command.add(fileName);
-//					System.out.println("destination:"+destination +" command:"+command);
-					commandExecutor = new WMV_Command(destination, command);
-
-					try {
-						int result = commandExecutor.execute();
-
-						// get the output from the command
-						StringBuilder stdout = commandExecutor.getStandardOutput();
-						StringBuilder stderr = commandExecutor.getStandardError();
-					}
-					catch(Throwable t)
-					{
-						System.out.println("Throwable t:"+t);
-						return false;
-					}
-				}
-			}
-		}
-		
-		return true;
 	}
-
+	
 	/**
 	 * @param x Float to check
 	 * @return Whether the variable is NaN

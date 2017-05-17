@@ -107,54 +107,6 @@ public class MultimediaLocator extends PApplet
 		initCubeMap();
 	}
 
-	public void initCubeMap()
-	{
-//		System.out.println("initCubeMap()...");
-		sphereDetail(50);
-		domeSphere = createShape(PApplet.SPHERE, height/2.0f);
-		domeSphere.rotateX(PApplet.HALF_PI);
-		domeSphere.setStroke(false);
-
-		PGL pgl = beginPGL();
-
-		envMapTextureID = IntBuffer.allocate(1);
-		pgl.genTextures(1, envMapTextureID);
-		
-		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0));
-		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_S, PGL.CLAMP_TO_EDGE);
-		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_T, PGL.CLAMP_TO_EDGE);
-		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_R, PGL.CLAMP_TO_EDGE);
-		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MIN_FILTER, PGL.NEAREST);
-		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MAG_FILTER, PGL.NEAREST);
-		
-		for (int i = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; i < PGL.TEXTURE_CUBE_MAP_POSITIVE_X + 6; i++) {
-			pgl.texImage2D(i, 0, PGL.RGBA8, cubeMapSize, cubeMapSize, 0, PGL.RGBA, PGL.UNSIGNED_BYTE, null);
-		}
-
-		fbo = IntBuffer.allocate(1);
-		rbo = IntBuffer.allocate(1);
-		pgl.genFramebuffers(1, fbo);
-		pgl.bindFramebuffer(PGL.FRAMEBUFFER, fbo.get(0));
-		pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, PGL.TEXTURE_CUBE_MAP_POSITIVE_X, envMapTextureID.get(0), 0);
-
-		pgl.genRenderbuffers(1, rbo);
-		pgl.bindRenderbuffer(PGL.RENDERBUFFER, rbo.get(0));
-		pgl.renderbufferStorage(PGL.RENDERBUFFER, PGL.DEPTH_COMPONENT24, cubeMapSize, cubeMapSize);
-
-		// Attach depth buffer to FBO
-		pgl.framebufferRenderbuffer(PGL.FRAMEBUFFER, PGL.DEPTH_ATTACHMENT, PGL.RENDERBUFFER, rbo.get(0));    
-
-		endPGL();
-
-		// Load cubemap shader.
-		cubemapShader = loadShader("shaders/cubemapfrag.glsl", "shaders/cubemapvert.glsl");
-		cubemapShader.set("cubemap", 1);
-		
-//		faces = new PGraphics[6];
-		
-		cubeMapInitialized = true;
-	}
-
 	/** 
 	 * Main program loop
 	 */
@@ -187,7 +139,7 @@ public class MultimediaLocator extends PApplet
 				if(state.selectedNewLibraryDestination && !state.selectedLibrary)
 				{
 					if(state.selectedMediaFolders)
-						importMediaFolders();
+						createNewLibraryFromMediaFolders();
 					else
 						System.out.println("ERROR: Selected library destination but no media folder selected!");
 				}
@@ -274,7 +226,6 @@ public class MultimediaLocator extends PApplet
 				  face <= PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z; face++ ) 
 		{
 			resetMatrix();
-
 
 //			/* Facing Up Flipped X / Y Up Params */
 //		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
@@ -691,7 +642,17 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void newLibraryDestinationSelected(File selection) 
 	{
-		openNewLibraryDestination(selection);
+		if(selection.isDirectory())
+		{
+			File newLibraryFile = new File(selection.getAbsolutePath() + "/library.mlibrary");
+			if(!newLibraryFile.exists())
+				newLibraryFile.mkdir();
+			openNewLibraryDestination(newLibraryFile);
+		}
+		else
+		{
+			System.out.println("newLibraryDestinationSelected error... not a directory!");
+		}
 	}
 
 	/**
@@ -904,16 +865,16 @@ public class MultimediaLocator extends PApplet
 	/**
 	 * Import media folder into library
 	 */
-	private void importMediaFolders()
+	private void createNewLibraryFromMediaFolders()
 	{
 		if(library.mediaFolders.size() > 0)
 		{
-			System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination+" from "+library.mediaFolders.size()+" imported media folders...");
-			state.selectedLibrary = library.createNewLibrary(library.mediaFolders, library.libraryDestination);
+			if(debugSettings.main) System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination+" from "+library.mediaFolders.size()+" imported media folders...");
+			state.selectedLibrary = library.createNewLibrary(this, library.mediaFolders, library.libraryDestination);
 
 			if(!state.selectedLibrary)
 			{
-				System.out.println("Error importing media to create library...");
+				System.out.println("createNewLibraryFromMediaFolders()... Error importing media to create library...");
 				exit();
 			}
 		}
@@ -1311,6 +1272,55 @@ public class MultimediaLocator extends PApplet
 			if(performanceSlow)
 				performanceSlow = false;
 		}
+	}
+
+
+	public void initCubeMap()
+	{
+//		System.out.println("initCubeMap()...");
+		sphereDetail(50);
+		domeSphere = createShape(PApplet.SPHERE, height/2.0f);
+		domeSphere.rotateX(PApplet.HALF_PI);
+		domeSphere.setStroke(false);
+
+		PGL pgl = beginPGL();
+
+		envMapTextureID = IntBuffer.allocate(1);
+		pgl.genTextures(1, envMapTextureID);
+		
+		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0));
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_S, PGL.CLAMP_TO_EDGE);
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_T, PGL.CLAMP_TO_EDGE);
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_WRAP_R, PGL.CLAMP_TO_EDGE);
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MIN_FILTER, PGL.NEAREST);
+		pgl.texParameteri(PGL.TEXTURE_CUBE_MAP, PGL.TEXTURE_MAG_FILTER, PGL.NEAREST);
+		
+		for (int i = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; i < PGL.TEXTURE_CUBE_MAP_POSITIVE_X + 6; i++) {
+			pgl.texImage2D(i, 0, PGL.RGBA8, cubeMapSize, cubeMapSize, 0, PGL.RGBA, PGL.UNSIGNED_BYTE, null);
+		}
+
+		fbo = IntBuffer.allocate(1);
+		rbo = IntBuffer.allocate(1);
+		pgl.genFramebuffers(1, fbo);
+		pgl.bindFramebuffer(PGL.FRAMEBUFFER, fbo.get(0));
+		pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, PGL.TEXTURE_CUBE_MAP_POSITIVE_X, envMapTextureID.get(0), 0);
+
+		pgl.genRenderbuffers(1, rbo);
+		pgl.bindRenderbuffer(PGL.RENDERBUFFER, rbo.get(0));
+		pgl.renderbufferStorage(PGL.RENDERBUFFER, PGL.DEPTH_COMPONENT24, cubeMapSize, cubeMapSize);
+
+		// Attach depth buffer to FBO
+		pgl.framebufferRenderbuffer(PGL.FRAMEBUFFER, PGL.DEPTH_ATTACHMENT, PGL.RENDERBUFFER, rbo.get(0));    
+
+		endPGL();
+
+		// Load cubemap shader.
+		cubemapShader = loadShader("shaders/cubemapfrag.glsl", "shaders/cubemapvert.glsl");
+		cubemapShader.set("cubemap", 1);
+		
+//		faces = new PGraphics[6];
+		
+		cubeMapInitialized = true;
 	}
 
 	private void setAppIcon(PImage img) 

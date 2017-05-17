@@ -3438,6 +3438,11 @@ public class WMV_Field
 		return clusters;
 	}
 
+	/**
+	 * Get cluster with given id
+	 * @param id Cluster id
+	 * @return Cluster object
+	 */
 	public WMV_Cluster getCluster(int id)
 	{
 		WMV_Cluster c = clusters.get(id);

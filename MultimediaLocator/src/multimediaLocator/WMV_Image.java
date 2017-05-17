@@ -115,6 +115,13 @@ public class WMV_Image extends WMV_Media
 			displayModel(ml);
 	}
 
+	/**
+	 * Apply mask to image
+	 * @param ml Parent app
+	 * @param source Source image
+	 * @param mask Mask image
+	 * @return
+	 */
 	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
 	{
 		PImage result = ml.createImage(640, 480, PApplet.RGB);

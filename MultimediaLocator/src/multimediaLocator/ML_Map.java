@@ -46,7 +46,6 @@ public class ML_Map
 	private int clusterZoomLevel = 18, fieldZoomLevel = 14;
 	
 	/* Graphics */
-//	private float hudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
 	private int screenWidth = -1;
 	private int screenHeight = -1;
 	private float viewerDiameter = 15.f;
@@ -95,7 +94,7 @@ public class ML_Map
 	 * @param newScreenHeight Screen height
 	 * @param newHUDDistance Heads-Up Display distance
 	 */
-	public ML_Map(ML_Display parent, int newScreenWidth, int newScreenHeight, float newHUDDistance)
+	public ML_Map(ML_Display parent, int newScreenWidth, int newScreenHeight)
 	{
 		p = parent;
 		screenWidth = newScreenWidth;

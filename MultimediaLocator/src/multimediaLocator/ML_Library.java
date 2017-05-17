@@ -62,7 +62,7 @@ public class ML_Library
 	}
 	
 	/**
-	 * Copy a folder of media files to given destination
+	 * Copy media files in source folder to appropriate subfolders in given destination folder
 	 * @param sourceFolder Source folder
 	 * @param destFolder Destination folder
 	 * @return
@@ -73,12 +73,186 @@ public class ML_Library
 		WMV_Command commandExecutor;
 		ArrayList<String> imagePaths = new ArrayList<String>();
 		ArrayList<String> videoPaths = new ArrayList<String>();
-//		ArrayList<String> soundPaths = new ArrayList<String>();
+		ArrayList<String> soundPaths = new ArrayList<String>();
+		
 		ArrayList<String> command = new ArrayList<String>();
-		ArrayList<String> files = new ArrayList<String>();
+		ArrayList<String> files = getFilesInDirectory(sourceFolder);
+		
+//		command = new ArrayList<String>();
+//		command.add("ls");
+//		commandExecutor = new WMV_Command(sourceFolder, command);
+//		try {
+//			int result = commandExecutor.execute();
+//
+//			// Get the output from the command
+//			StringBuilder stdout = commandExecutor.getStandardOutput();
+////			StringBuilder stderr = commandExecutor.getStandardError();
+//
+//			String out = stdout.toString();
+//			String[] parts = out.split("\n");
+//			for (int i=0; i<parts.length; i++)
+//			{
+//				files.add(parts[i]);
+//				//println("parts["+i+"]:"+parts[i]);
+//			}
+//		}
+//		catch(Throwable t)
+//		{
+//			System.out.println("createNewLibrary()... Throwable t while getting folderString file list:"+t);
+//			return false;
+//		}
 
-		/* Get files in directory */
-		command = new ArrayList<String>();
+		for(String fs : files)								// Split file list into lists based on media type
+		{
+			File f = new File(sourceFolder + "/" + fs);
+			String[] parts = f.getName().split("\\.");
+			String end = parts[parts.length-1];
+			if(end.equals("jpg") || end.equals("JPG"))
+				imagePaths.add(f.getAbsolutePath());
+			else if(end.equals("mov") || end.equals("MOV"))
+				videoPaths.add(f.getAbsolutePath());
+			else if(end.equals("wav") || end.equals("WAV") || end.equals("aiff") || end.equals("AIFF"))
+				soundPaths.add(f.getAbsolutePath());
+		}
+		
+		if(imagePaths.size() > 0)
+		{
+			String destination = getLibraryFolder() + destFolder + "/small_images/";
+			File imagesFolder = new File(destination);
+			if(!imagesFolder.exists())
+				imagesFolder.mkdir();
+
+			//				cp -a /source/. /dest/
+			//				cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
+
+//			int count = 0;
+			for(String fs : imagePaths)
+			{
+				copyFile(fs, destination);
+//				command = new ArrayList<String>();
+//				command.add("cp");
+//				command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
+//				command.add(fs);
+//				command.add(destination);
+//				System.out.println("Image copying command:"+command.toString());
+//
+//				commandExecutor = new WMV_Command("", command);
+//				try {
+//					int result = commandExecutor.execute();
+//
+//					StringBuilder stdout = commandExecutor.getStandardOutput();
+//					StringBuilder stderr = commandExecutor.getStandardError();
+////					System.out.println("... Image copying result ..."+result+" stdout:"+stdout+" stderr:"+stderr);
+//				}
+//				catch(Throwable t)
+//				{
+//					System.out.println("Throwable t while copying image files:"+t);
+//					return false;
+//				}
+//				count++;
+			}
+		}
+
+		if(videoPaths.size() > 0)
+		{
+			String destination = getLibraryFolder() + destFolder + "/small_videos/";
+			File videosFolder = new File(destination);
+			if(!videosFolder.exists())
+				videosFolder.mkdir();
+
+//			int count = 0;
+			for(String fs : videoPaths)
+			{
+				copyFile(fs, destination);
+				
+//				command = new ArrayList<String>();
+//				command.add("cp");
+//				command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
+//				command.add(fs);
+//				command.add(destination);
+//				System.out.println("Copying command:"+command.toString());
+//
+//				commandExecutor = new WMV_Command("", command);
+//				try {
+//					int result = commandExecutor.execute();
+//
+//					System.out.println("... Copying result ..."+result);
+//				}
+//				catch(Throwable t)
+//				{
+//					System.out.println("Throwable t while copying video files:"+t);
+//					return false;
+//				}
+//				count++;
+			}
+		}
+		
+		if(soundPaths.size() > 0)
+		{
+			String destination = getLibraryFolder() + destFolder + "/sounds/";
+			File soundsFolder = new File(destination);
+			if(!soundsFolder.exists())
+				soundsFolder.mkdir();
+
+//			int count = 0;
+			for(String fs : soundPaths)
+			{
+				copyFile(fs, destination);
+				
+//				command = new ArrayList<String>();
+//				command.add("cp");
+//				command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
+//				command.add(fs);
+//				command.add(destination);
+//				System.out.println("Copying command:"+command.toString());
+//
+//				commandExecutor = new WMV_Command("", command);
+//				try {
+//					int result = commandExecutor.execute();
+//
+//					System.out.println("... Copying result ..."+result);
+//				}
+//				catch(Throwable t)
+//				{
+//					System.out.println("Throwable t while copying video files:"+t);
+//					return false;
+//				}
+//				count++;
+			}
+		}
+		
+		return true;
+	}
+
+	public boolean copyFile(String filePath, String destination)
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+		command.add("cp");
+		command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
+		command.add(filePath);
+		command.add(destination);
+		System.out.println("Copying command:"+command.toString());
+
+		commandExecutor = new WMV_Command("", command);
+		try {
+			int result = commandExecutor.execute();
+
+			System.out.println("... Copying result ..."+result);
+			return true;
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable t while copying video files:"+t);
+			return false;
+		}	
+	}
+	
+	private ArrayList<String> getFilesInDirectory(String sourceFolder)
+	{
+		ArrayList<String> files = new ArrayList<String>();
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
 		command.add("ls");
 		commandExecutor = new WMV_Command(sourceFolder, command);
 		try {
@@ -99,98 +273,12 @@ public class ML_Library
 		catch(Throwable t)
 		{
 			System.out.println("createNewLibrary()... Throwable t while getting folderString file list:"+t);
-			return false;
-		}
-
-		for(String fs : files)								// Split file list into lists based on media type
-		{
-			File f = new File(sourceFolder + "/" + fs);
-			String[] parts = f.getName().split("\\.");
-			if(parts[parts.length-1].equals("jpg"))
-				imagePaths.add(f.getAbsolutePath());
-			else if(parts[parts.length-1].equals("mov"))
-				videoPaths.add(f.getAbsolutePath());
+//			return false;
 		}
 		
-		if(imagePaths.size() > 0)
-		{
-			String destination = getLibraryFolder() + destFolder + "/small_images/";
-			File imagesFolder = new File(destination);
-			if(!imagesFolder.exists())
-				imagesFolder.mkdir();
-
-			//				cp -a /source/. /dest/
-			//				cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
-
-			int count = 0;
-			for(String fs : imagePaths)
-			{
-				command = new ArrayList<String>();
-				command.add("cp");
-				command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
-				command.add(fs);
-				command.add(destination);
-				System.out.println("Image copying command:"+command.toString());
-
-				commandExecutor = new WMV_Command("", command);
-				try {
-					int result = commandExecutor.execute();
-
-					StringBuilder stdout = commandExecutor.getStandardOutput();
-					StringBuilder stderr = commandExecutor.getStandardError();
-//					System.out.println("... Image copying result ..."+result+" stdout:"+stdout+" stderr:"+stderr);
-				}
-				catch(Throwable t)
-				{
-					System.out.println("Throwable t while copying image files:"+t);
-					return false;
-				}
-				count++;
-			}
-		}
-
-		if(videoPaths.size() > 0)
-		{
-			String destination = getLibraryFolder() + destFolder + "/small_videos/";
-			File videosFolder = new File(destination);
-			if(!videosFolder.exists())
-				videosFolder.mkdir();
-
-//			cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
-//			cp -a /source/. /dest/
-//			cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
-
-			int count = 0;
-			for(String fs : videoPaths)
-			{
-				
-				command = new ArrayList<String>();
-				command.add("cp");
-				command.add("-a");		// Improved recursive option that preserves all file attributes, and also preserve symlinks.
-				command.add(fs);
-				command.add(destination);
-				System.out.println("Video copying command:"+command.toString());
-
-				commandExecutor = new WMV_Command("", command);
-				try {
-					int result = commandExecutor.execute();
-
-//					StringBuilder stdout = commandExecutor.getStandardOutput();
-//					StringBuilder stderr = commandExecutor.getStandardError();
-					System.out.println("... Video copying result ..."+result);
-				}
-				catch(Throwable t)
-				{
-					System.out.println("Throwable t while copying video files:"+t);
-					return false;
-				}
-				count++;
-			}
-		}
-		
-		return true;
+		return files;
 	}
-
+	
 	public String getLibraryFolder()
 	{
 		return libraryFolder;

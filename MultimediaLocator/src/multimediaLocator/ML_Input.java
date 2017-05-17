@@ -135,20 +135,24 @@ public class ML_Input
 				display.window.hideLibraryWindow();
 				break;
 				
-			case "AddImageFolder":
-				ml.state.addingImageFolder = true;
+			case "AddMediaFolder":
 				ml.mediaFolderDialog();
 				break;
 				
-			case "AddVideoFolder":
-				ml.state.addingVideoFolder = true;
-				ml.mediaFolderDialog();
+			case "MakeLibrary":
+				ml.state.selectedMediaFolders = true;			// Media folder has been selected
+				ml.state.chooseMediaFolders = false;			// No longer choose a media folder
+				ml.state.chooseLibraryDestination = true;		// Choose library destination folder
 				break;
-				
-			case "AddSoundFolder":
-				ml.state.addingSoundFolder = true;
-				ml.mediaFolderDialog();
-				break;
+//			case "AddVideoFolder":
+//				ml.state.addingVideoFolder = true;
+//				ml.mediaFolderDialog();
+//				break;
+//				
+//			case "AddSoundFolder":
+//				ml.state.addingSoundFolder = true;
+//				ml.mediaFolderDialog();
+//				break;
 
 			/* Navigation */
 			case "OpenNavigationWindow":

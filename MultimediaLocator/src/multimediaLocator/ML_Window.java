@@ -4,9 +4,7 @@ import java.awt.Font;
 
 import g4p_controls.*;
 import processing.core.PApplet;
-import processing.core.PVector;
 import processing.event.MouseEvent;
-import processing.opengl.PJOGL;
 
 /**
  * Handles secondary program windows
@@ -48,7 +46,7 @@ public class ML_Window {
 	int libraryWindowHeight;
 	
 	/* Import Window */
-	private GButton btnImportImageFolder, btnImportVideoFolder, btnImportSoundFolder;
+	private GButton btnImportMediaFolder, btnMakeLibrary;
 	int importWindowHeight;
 	
 	/* Navigation Window */
@@ -142,7 +140,7 @@ public class ML_Window {
 		
 		mlWindowHeight = shortWindowHeight;
 		libraryWindowHeight = shortWindowHeight / 2;
-		importWindowHeight = shortWindowHeight / 2;
+		importWindowHeight = shortWindowHeight;
 
 		navigationWindowHeight = longWindowHeight;
 		timeWindowHeight = longWindowHeight;
@@ -195,7 +193,6 @@ public class ML_Window {
 		if(!setupMemoryWindow)
 			setupMemoryWindow();
 		showMemoryWindow();
-//		memoryWindow.setVisible(true);
 //		showMemoryWindow = true;
 	}
 
@@ -203,7 +200,6 @@ public class ML_Window {
 	{
 		if(!setupStatisticsWindow)
 			setupStatisticsWindow();
-//		statisticsWindow.setVisible(true);
 		showStatisticsWindow();
 	}
 	
@@ -351,6 +347,7 @@ public class ML_Window {
 		lblSpaceBar.setFont(new Font("Monospaced", Font.PLAIN, 11));
 		lblSpaceBar.setLocalColorScheme(10);
 		lblSpaceBar.setTextAlign(GAlign.CENTER, null);
+		world.p.setAppIcon = true;
 	}
 
 	/**
@@ -563,6 +560,7 @@ public class ML_Window {
 		lblCommand1.setTextAlign(GAlign.CENTER, null);
 
 		setupNavigationWindow = true;
+		world.p.setAppIcon = true;
 	}
 
 	/**
@@ -733,6 +731,7 @@ public class ML_Window {
 		lblCommand2.setTextAlign(GAlign.CENTER, null);
 
 		setupTimeWindow = true;
+		world.p.setAppIcon = true;
 	}
 	
 	/**
@@ -912,6 +911,7 @@ public class ML_Window {
 		lblCommand3.setTextAlign(GAlign.CENTER, null);
 
 		setupGraphicsWindow = true;
+		world.p.setAppIcon = true;
 	}
 	
 	/**
@@ -1028,6 +1028,7 @@ public class ML_Window {
 		lblCommand4.setTextAlign(GAlign.CENTER, null);
 
 		setupModelWindow = true;
+		world.p.setAppIcon = true;
 	}
 
 	/**
@@ -1060,6 +1061,7 @@ public class ML_Window {
 		lblCommand5.setTextAlign(GAlign.CENTER, null);
 		
 		setupMemoryWindow = true;
+		world.p.setAppIcon = true;
 	}
 
 	/**
@@ -1159,6 +1161,7 @@ public class ML_Window {
 		
 		selectionWindow.addKeyHandler(world.p, "selectionWindowKey");
 		setupSelectionWindow = true;
+		world.p.setAppIcon = true;
 	}
 
 	/**
@@ -1193,6 +1196,7 @@ public class ML_Window {
 		statisticsWindow.addKeyHandler(world.p, "statisticsWindowKey");
 		
 		setupStatisticsWindow = true;
+		world.p.setAppIcon = true;
 	}
 	
 	/**
@@ -1226,6 +1230,7 @@ public class ML_Window {
 		lblCommand8.setTextAlign(GAlign.CENTER, null);
 		
 		setupHelpWindow = true;
+		world.p.setAppIcon = true;
 	}
 
 	/**
@@ -1245,7 +1250,7 @@ public class ML_Window {
 		
 		int x = 0, y = 12;
 
-		if(delay) world.p.delay(delayAmount);
+		if(delay) world.p.delay(10);
 		
 		lblLibrary = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Welcome to MultimediaLocator.");
 		lblLibrary.setLocalColorScheme(10);
@@ -1266,6 +1271,7 @@ public class ML_Window {
 		btnOpenLibrary.setLocalColorScheme(5);
 		
 		setupLibraryWindow = true;
+		world.p.setAppIcon = true;
 	}
 
 	/**
@@ -1273,7 +1279,7 @@ public class ML_Window {
 	 */
 	public void setupImportWindow()
 	{
-		importWindow = GWindow.getWindow( world.p, windowTitle, world.p.width / 2 - (windowWidth * 3)/2, 
+		importWindow = GWindow.getWindow( world.p, windowTitle, world.p.width / 2 - windowWidth * 3 / 2, 
 				   world.p.height / 2 - importWindowHeight / 2, windowWidth * 3, 
 				   importWindowHeight, PApplet.JAVA2D);
 
@@ -1287,29 +1293,26 @@ public class ML_Window {
 
 		if(delay) world.p.delay(delayAmount);
 
-		lblImport = new GLabel(importWindow, x, y, importWindow.width, 22, "Import Media...");
+		lblImport = new GLabel(importWindow, x, y, importWindow.width, 22, "Import Media");
 		lblImport.setLocalColorScheme(10);
 		lblImport.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		lblImport.setTextAlign(GAlign.CENTER, null);
 		lblImport.setTextBold();
 
-		x = 90;
+		x = windowWidth * 3 / 2 - 180;
 		y += 60;
 
-		btnImportImageFolder = new GButton(importWindow, x, y, 190, 60, "Add Image Folder");
-		btnImportImageFolder.tag = "AddImageFolder";
-		btnImportImageFolder.setFont(new Font("Monospaced", Font.BOLD, 18));
-		btnImportImageFolder.setLocalColorScheme(1);
-		btnImportVideoFolder = new GButton(importWindow, x+=220, y, 190, 60, "Add Video Folder");
-		btnImportVideoFolder.tag = "AddVideoFolder";
-		btnImportVideoFolder.setFont(new Font("Monospaced", Font.BOLD, 18));
-		btnImportVideoFolder.setLocalColorScheme(4);
-		btnImportSoundFolder = new GButton(importWindow, x+220, y, 190, 60, "Add Sound Folder");
-		btnImportSoundFolder.tag = "AddSoundFolder";
-		btnImportSoundFolder.setFont(new Font("Monospaced", Font.BOLD, 18));
-		btnImportSoundFolder.setLocalColorScheme(5);
+		btnImportMediaFolder = new GButton(importWindow, x, y, 160, 60, "Add Folder");
+		btnImportMediaFolder.tag = "AddMediaFolder";
+		btnImportMediaFolder.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnImportMediaFolder.setLocalColorScheme(1);
+		btnMakeLibrary = new GButton(importWindow, x+220, y, 100, 60, "Done");
+		btnMakeLibrary.tag = "MakeLibrary";
+		btnMakeLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnMakeLibrary.setLocalColorScheme(5);
 		
 		setupImportWindow = true;
+		world.p.setAppIcon = true;
 	}
 
 	/**
@@ -1401,11 +1404,45 @@ public class ML_Window {
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 */
-	public void importWindowDraw(PApplet applet, GWinData data) {
+	public void importWindowDraw(PApplet applet, GWinData data) 
+	{
+		float smallTextSize = 11.f;
+		float mediumTextSize = 16.f;
 		applet.background(0);
-		applet.stroke(255);
+		applet.stroke(255, 0, 255);
 		applet.strokeWeight(1);
+		applet.colorMode(PApplet.HSB);
 		applet.fill(0, 0, 255);
+		applet.textSize(mediumTextSize);
+		
+		int x = windowWidth * 3 / 2 - 80, y = 185;
+		
+		if(p.ml.library == null)
+		{
+			applet.text("No media folders yet.", x, y);
+		}
+		else
+		{
+			if(p.ml.library.mediaFolders == null)
+			{
+				applet.text("No media folders yet.", x, y);
+			}
+			else
+			{
+				if( p.ml.library.mediaFolders.size() == 0 )
+					applet.text("No media folders yet.", x, y);
+				else
+				{
+					applet.textSize(smallTextSize);
+					x = 60;
+					for(String strFolder : p.ml.library.mediaFolders)
+					{
+						applet.text(strFolder, x, y);
+						y += 30;
+					}
+				}
+			}
+		}
 	}
 
 	/**

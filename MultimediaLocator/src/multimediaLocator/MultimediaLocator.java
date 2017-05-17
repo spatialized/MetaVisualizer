@@ -21,14 +21,17 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
+import g4p_controls.GPanel;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
+import interfascia.GUIEvent;
 import processing.core.*;
 import processing.opengl.PGL;
 import processing.opengl.PJOGL;
 import processing.opengl.PShader;
 import processing.video.Movie;
+import com.apple.eawt.Application;
 
 /**
  * MultimediaLocator App  
@@ -38,6 +41,8 @@ public class MultimediaLocator extends PApplet
 {
 	/* General */
 	String programName = "MultimediaLocator 0.9.0";
+	PImage appIcon;
+	boolean setAppIcon = true;
 	
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
@@ -80,6 +85,8 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void setup()
 	{
+		appIcon = loadImage("res/icon.png");
+
 		debugSettings = new ML_DebugSettings();		
 		if(debugSettings.main) System.out.println("Starting initial setup...");
 
@@ -87,7 +94,7 @@ public class MultimediaLocator extends PApplet
 		world.initialize();
 		
 		input = new ML_Input(width, height);
-		display = new ML_Display(width, height, world.getState().hudDistance);			// Initialize displays
+		display = new ML_Display(this);			// Initialize displays
 		display.initializeWindows(world);
 		metadata = new WMV_MetadataLoader(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
@@ -153,6 +160,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void draw() 
 	{		
+		if(setAppIcon) setAppIcon(appIcon);
 		if (state.startup)
 		{
 			if(state.reset) restartMultimediaLocator();
@@ -162,14 +170,10 @@ public class MultimediaLocator extends PApplet
 		}
 		else if(!state.running)
 		{
-//			System.out.println("HERE 0");
 			if (state.librarySetup)
 			{
-//				System.out.println("HERE 1");
 				if(createNewLibrary)
 				{
-//					if(state.chooseMediaFolders)				/* Choose media folder */
-//						mediaFolderDialog();	
 					if(state.chooseLibraryDestination)			/* Choose library destination */
 						libraryDestinationDialog();	
 					display.display(world);
@@ -182,8 +186,7 @@ public class MultimediaLocator extends PApplet
 //				System.out.println("state.selectedLibrary:"+state.selectedLibrary+" state.selectedLibraryDestination:"+state.selectedNewLibraryDestination+" state.selectedMediaFolder:"+state.selectedMediaFolder);
 				if(state.selectedNewLibraryDestination && !state.selectedLibrary)
 				{
-//					System.out.println("HERE 2");
-					if(state.selectedMediaFolder)
+					if(state.selectedMediaFolders)
 						importMediaFolders();
 					else
 						System.out.println("ERROR: Selected library destination but no media folder selected!");
@@ -795,7 +798,7 @@ public class MultimediaLocator extends PApplet
 			{
 				if(file.isDirectory())
 				{
-					library = new ML_Library("");
+//					library = new ML_Library("");
 					library.mediaFolders.add(input);
 					selectedFolder = true;
 				}
@@ -804,13 +807,14 @@ public class MultimediaLocator extends PApplet
 		
 		if(selectedFolder)
 		{
-			state.selectedMediaFolder = true;			// Media folder has been selected
-			state.chooseMediaFolders = false;			// No longer choose a media folder
-			state.chooseLibraryDestination = true;		// Choose library destination folder
+//			mediaFolderDialog();
+//			state.selectedMediaFolders = true;			// Media folder has been selected
+//			state.chooseMediaFolders = false;			// No longer choose a media folder
+//			state.chooseLibraryDestination = true;		// Choose library destination folder
 		}
 		else
 		{
-			state.selectedMediaFolder = false;			// Library in improper format if masks are missing
+//			state.selectedMediaFolders = false;			// Library in improper format if masks are missing
 			mediaFolderDialog();						// Retry folder prompt
 		}
 	}
@@ -897,33 +901,6 @@ public class MultimediaLocator extends PApplet
 	{
 		if(library.mediaFolders.size() > 0)
 		{
-//			File mediaFolderFile = new File(library.mediaFolder);
-//			File mediaFolderFile = new File(folderString);
-//			File[] fileList = mediaFolderFile.listFiles();
-
-//			boolean hasDirectory = false;
-//			if(fileList != null)
-//			{
-//				if(debugSettings.main) System.out.println("fileList.length:"+fileList.length);
-//				for(File f : fileList)
-//				{
-//					if(f.isDirectory())
-//					{
-//						hasDirectory = true;
-//						break;
-//					}
-//				}
-//			}
-//			else System.out.println("fileList == null... library.mediaFolder:"+folderString);
-
-//			if(hasDirectory)
-//			{
-//				System.out.println("Error: Haven't built multiple directory level import yet! Will exit...");
-//				exit();
-//			}
-//			else
-//			{
-//			ArrayList<String> folderList = new ArrayList<String>();
 			System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination+" from "+library.mediaFolders.size()+" imported media folders...");
 			state.selectedLibrary = library.createNewLibrary(library.mediaFolders, library.libraryDestination);
 
@@ -932,7 +909,6 @@ public class MultimediaLocator extends PApplet
 				System.out.println("Error importing media to create library...");
 				exit();
 			}
-//			}
 		}
 	}
 	
@@ -1042,6 +1018,12 @@ public class MultimediaLocator extends PApplet
 //		}
 	}
 
+	/******* G4P *******/
+	public void handlePanelEvents(GPanel panel, GEvent event)
+	{
+		display.handlePanelEvents(panel, event);
+	}
+	
 	/**
 	 * Respond to button event
 	 * @param button Button acted on
@@ -1326,21 +1308,9 @@ public class MultimediaLocator extends PApplet
 
 	private void setAppIcon(PImage img) 
 	{
-		final PGraphics pg = createGraphics(16, 16, JAVA2D);
-
-		pg.beginDraw();
-		pg.image(img, 0, 0, 16, 16);
-		pg.endDraw();
-
-		
-		surface.setIcon(new PImage(pg.image));
-		surface.setIcon(img);
-		
-//		PJOGL.setIcon("res/icon.png");
-
-//		Window icons for OpenGL sketches can only be set in settings()
-//		using PJOGL.setIcon(filename).
-
+		System.out.println("setAppIcon()... frameCount:"+frameCount);
+		Application.getApplication().setDockIconImage(img.getImage());
+		setAppIcon = false;
 	}
 
 	/**

@@ -1,5 +1,13 @@
 package multimediaLocator;
+import java.awt.Font;
 import java.util.ArrayList;
+
+import g4p_controls.GButton;
+import g4p_controls.GCScheme;
+import g4p_controls.GEvent;
+import g4p_controls.GPanel;
+import g4p_controls.GTextArea;
+import interfascia.*;
 import processing.core.*;
 
 /***********************************
@@ -9,9 +17,18 @@ import processing.core.*;
 public class ML_Display
 {
 	/* Classes */
+	public MultimediaLocator ml;
 	public ML_Window window;							/* Main interaction window */
 	public ML_Map map2D;
 	private WMV_Utilities utilities;					/* Utility methods */
+
+	/* Control panel */
+//	GPanel pnlMain;								
+	GTextArea txaMetadata;
+
+	/* Library Dialog */
+	private GButton btnCreateLibrary, btnOpenLibrary;
+	int libraryWindowHeight;
 
 	/* Window Modes */
 	public boolean fullscreen = true;
@@ -34,7 +51,8 @@ public class ML_Display
 
 	public int blendMode = 0;							/* Alpha blending mode */
 	private int numBlendModes = 10;						/* Number of blending modes */
-	private float hudDistance, initHudDistance;			// Distance of the Heads-Up Display from the virtual camera -- Change with zoom level??
+	private float hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera
+	private float initHudDistance = -1000.f;			// Distance of the Heads-Up Display from the virtual camera
 	private int screenWidth = -1;
 	private int screenHeight = -1;
 	
@@ -107,18 +125,31 @@ public class ML_Display
 
 	/**
 	 * Constructor for 2D display object
+	 * @param p Parent app
 	 * @param newScreenWidth Screen width
 	 * @param newScreenHeight Screen height
 	 * @param newHUDDistance HUD Distance 			-- Obsolete
 	 */
-	public ML_Display(int newScreenWidth, int newScreenHeight, float newHUDDistance)
+	public ML_Display(MultimediaLocator parent)
 	{
-		screenWidth = newScreenWidth;
-		screenHeight = newScreenHeight;
+		ml = parent;
+		
+//		pnlMain = new GPanel(ml, 20, 30, 500, 350, "Panel Test");
+//		pnlMain.setVisible(false);
+//		pnlMain.setText("MultimediaLocator v0.9.0");
+//		pnlMain.setOpaque(true);
+//		pnlMain.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+//		pnlMain.setDraggable(true);
+//		pnlMain.setCollapsible(false);
+//		pnlMain.setCollapsed(false);
+//
+//		pnlMain.tag = "Main";
+//		pnlMain.tagNo = 0;
+		
+		screenWidth = ml.width;
+		screenHeight = ml.height;
 		
 		utilities = new WMV_Utilities();
-		hudDistance = newHUDDistance;
-		initHudDistance = newHUDDistance;
 		
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
@@ -158,7 +189,7 @@ public class ML_Display
 		datelineXOffset = timelineXOffset;
 		datelineYOffset = screenHeight * 0.266f;
 		
-		map2D = new ML_Map(this, screenWidth, screenHeight, hudDistance);
+		map2D = new ML_Map(this, screenWidth, screenHeight);
 		currentSelectableTimeSegment = null;
 		currentSelectableTimeSegmentID = -1;
 		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
@@ -220,6 +251,34 @@ public class ML_Display
 					displayMetadata(p);
 			}
 		}
+	}
+
+	public void handlePanelEvents(GPanel panel, GEvent event)
+	{
+		if(panel.tagNo == 0)
+		{
+			handleMainPanelEvent(event);
+		}
+	}
+
+	public void handleMainPanelEvent(GEvent event)
+	{
+		if(event == GEvent.DRAGGED)
+			System.out.println("Panel dragged...");
+	}
+
+	/**
+	 * Handle given GUI event triggered by user
+	 * @param e GUI Event 
+	 */
+	public void handleActionPerformed (GUIEvent e)
+	{
+//		if (e.getSource() == b1) {
+//		println("Button one was clicked");
+//	} else if (e.getSource() == b2) {
+//		println("Button two was clicked");
+//	}
+
 	}
 
 	/**
@@ -295,6 +354,25 @@ public class ML_Display
 		if(fieldDatelineCreated) displayFieldDateline(p);
 		if(fieldTimelineCreated) displayFieldTimeline(p);
 		updateTimelineMouse(p);
+	}
+	
+	public void showCreateLibraryDialog(MultimediaLocator ml)
+	{
+		int x = 90, y = 72;
+
+		btnCreateLibrary = new GButton(ml, x, y, 170, 60, "Create Library");
+		btnCreateLibrary.tag = "CreateLibrary";
+		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnCreateLibrary.setLocalColorScheme(GCScheme.GREEN_SCHEME);
+		btnOpenLibrary = new GButton(ml, x+270, y, 155, 60, "Open Library");
+		btnOpenLibrary.tag = "OpenLibrary";
+		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
+		btnOpenLibrary.setLocalColorScheme(GCScheme.BLUE_SCHEME);
+//		pnlMain.addControl(btnCreateLibrary);
+//		pnlMain.addControl(btnOpenLibrary);
+//		pnlMain.setVisible(true);
+//		pnlMain.setDraggable(true);
+//		pnlMain.setCollapsed(false);
 	}
 	
 	/**
@@ -1437,7 +1515,7 @@ public class ML_Display
 		startupMessageXOffset = screenWidth / 2.f;
 		startupMessageYOffset = -screenHeight /2.f;
 		
-		map2D = new ML_Map(this, screenWidth, screenHeight, hudDistance);
+		map2D = new ML_Map(this, screenWidth, screenHeight);
 	}
 
 	/**
@@ -1580,13 +1658,13 @@ public class ML_Display
 			
 			if(p.p.createNewLibrary)
 			{
-//				if(!p.p.state.selectedMediaFolder)
 				if(p.p.state.chooseMediaFolders)
 				{
 					p.p.text("Please select media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 					if(!window.setupImportWindow)
 					{
 						window.setupImportWindow();
+						p.p.library = new ML_Library("");		// Create new library
 					}
 				}
 				else if(p.p.state.selectedNewLibraryDestination)

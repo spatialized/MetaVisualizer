@@ -1651,7 +1651,7 @@ public class ML_Display
 			p.p.textSize(largeTextSize * 3.f);
 			p.p.text("MultimediaLocator", screenWidth / 2.25f, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(mediumTextSize * 1.4f);
-			p.p.text("v0.9", screenWidth / 1.075f, yPos += lineWidth, hudDistance);
+			p.p.text("v0.9.0", screenWidth / 1.075f, yPos += lineWidth, hudDistance);
 			p.p.textSize(largeTextSize * 0.88f);
 			p.p.text("Entoptic Software", screenWidth / 1.2f, yPos += lineWidthVeryWide, hudDistance);
 			p.p.textSize(largeTextSize * 1.2f);

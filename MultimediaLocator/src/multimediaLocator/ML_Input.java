@@ -110,6 +110,8 @@ public class ML_Input
 
 	/**
 	 * Handle button input
+	 * @param ml Parent App
+	 * @param display Display object
 	 * @param button GButton that was pressed
 	 * @param event GEvent that occurred
 	 */
@@ -117,6 +119,7 @@ public class ML_Input
 	{ 
 		switch(button.tag) 
 		{
+			/* General */
 			case "Restart":
 				ml.restart();
 				break;
@@ -144,15 +147,6 @@ public class ML_Input
 				ml.state.chooseMediaFolders = false;			// No longer choose a media folder
 				ml.state.chooseLibraryDestination = true;		// Choose library destination folder
 				break;
-//			case "AddVideoFolder":
-//				ml.state.addingVideoFolder = true;
-//				ml.mediaFolderDialog();
-//				break;
-//				
-//			case "AddSoundFolder":
-//				ml.state.addingSoundFolder = true;
-//				ml.mediaFolderDialog();
-//				break;
 
 			/* Navigation */
 			case "OpenNavigationWindow":

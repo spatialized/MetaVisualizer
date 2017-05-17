@@ -840,14 +840,21 @@ public class MultimediaLocator extends PApplet
 			library = new ML_Library(input);
 
 			String[] parts = input.split("/");
+			String[] nameParts = parts[parts.length-1].split("\\.");		// Check if single field library 
+
+			boolean singleField;
+			if(nameParts[nameParts.length-1].equals("mlibrary"))
+				singleField = false;
+			else
+				singleField = true;
 			
-			String[] nameParts = parts[parts.length-1].split("_");		// Check if single field library 
-			boolean singleField = !(nameParts[0].equals("ML") && nameParts[1].equals("Library"));
+//			String[] nameParts = parts[parts.length-1].split("_");		// Check if single field library 
+//			boolean singleField = !(nameParts[0].equals("ML") && nameParts[1].equals("Library"));
+			
 			String parentFilePath = "";
-			
 			if(singleField)
 			{
-				System.out.println("Loading single field folder...");
+				System.out.println("Loading (single) field folder...");
 				String libFilePath = "";
 				for(int i=0; i<parts.length-1; i++)
 				{

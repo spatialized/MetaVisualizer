@@ -717,7 +717,7 @@ public class MultimediaLocator extends PApplet
 					}
 
 					library.setLibraryFolder(libFilePath);
-					library.addFolder(library.libraryDestination);
+					library.addFolder(library.libraryDestination + "/field");
 				}
 			}
 		}
@@ -863,7 +863,7 @@ public class MultimediaLocator extends PApplet
 	}
 
 	/**
-	 * Import media folder into library
+	 * Import media folders and create new library
 	 */
 	private void createNewLibraryFromMediaFolders()
 	{

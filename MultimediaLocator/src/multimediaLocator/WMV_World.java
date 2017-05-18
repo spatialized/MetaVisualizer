@@ -936,6 +936,7 @@ public class WMV_World
 		
 		for(String fieldFolder : fieldFolders)
 		{
+			System.out.println("Adding field for folder:"+fieldFolder);
 			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldFolder, count));
 			count++;
 		}

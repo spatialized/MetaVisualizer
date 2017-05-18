@@ -51,6 +51,10 @@ public class ML_Library
 		String destination = getLibraryFolder() + destFolder;
 		File destinationFile = new File(destination);
 		if(!destinationFile.exists()) destinationFile.mkdir();
+		
+		String fieldFolder = destination + "/field";
+		File fieldFolderFile = new File(fieldFolder);
+		if(!fieldFolderFile.exists()) fieldFolderFile.mkdir();
 
 		if(mediaFolders.size() == 0)
 		{
@@ -60,12 +64,15 @@ public class ML_Library
 		{
 			for(String mediaFolder : mediaFolders)
 			{
-				boolean success = sortAndCopyMedia(mediaFolder, destination);
+				boolean success = sortAndCopyMedia(mediaFolder, fieldFolder);
+//				boolean success = sortAndCopyMedia(mediaFolder, destination);
 				
 				if(success)
 				{
-					String smallImagesFolder = destination + "/small_images";
-					String largeImagesFolder = destination + "/large_images";
+					String smallImagesFolder = fieldFolder + "/small_images";
+					String largeImagesFolder = fieldFolder + "/large_images";
+//					String smallImagesFolder = destination + "/small_images";
+//					String largeImagesFolder = destination + "/large_images";
 					ArrayList<String> movedFiles = getFilesInDirectory(smallImagesFolder);
 					
 					for(String fs : movedFiles)
@@ -85,7 +92,7 @@ public class ML_Library
 								if(!largeImagesFolderFile.exists())
 									largeImagesFolderFile.mkdir();
 								copyFile(filePath, largeImagesFolder);						// Import full size image to large_images
-								ml.world.utilities.shrinkImage(filePath, destination);		// Shrink existing image in small_images
+								ml.world.utilities.shrinkImage(filePath, fieldFolder);		// Shrink existing image in small_images
 							}
 							else if(iMetadata.imageWidth < 640)
 							{

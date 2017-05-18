@@ -1,9 +1,12 @@
 package multimediaLocator;
 
 import processing.core.PApplet;
+import processing.core.PConstants;
+import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.IntList;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -1126,7 +1129,7 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * Shrink image
+	 * Shrink image in given directory
 	 * @param fileName File path of image to shrink
 	 * @param directory Image file directory 
 	 * @return Whether successful
@@ -1159,6 +1162,22 @@ public class WMV_Utilities
 			return false;
 		}
 	}
+	
+	public PImage bufferedImageToPImage(BufferedImage bimg)
+	{         
+		try {
+			PImage img=new PImage(bimg.getWidth(), bimg.getHeight(), PConstants.ARGB);
+			bimg.getRGB(0, 0, img.width, img.height, img.pixels, 0, img.width);
+			img.updatePixels();
+			return img;
+		}
+		catch(Exception e) {
+			System.err.println("Can't create image from buffer");
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	
 	/**
 	 * @param x Float to check

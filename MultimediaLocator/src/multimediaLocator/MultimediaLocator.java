@@ -16,16 +16,20 @@ import java.awt.Image;
 import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
 import g4p_controls.GPanel;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
-import interfascia.GUIEvent;
+//import interfascia.GUIEvent;
 import processing.core.*;
 import processing.opengl.PGL;
 import processing.opengl.PJOGL;
@@ -85,13 +89,13 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void setup()
 	{
-		appIcon = loadImage("res/icon.png");
-
 		debugSettings = new ML_DebugSettings();		
 		if(debugSettings.main) System.out.println("Starting initial setup...");
 
 		world = new WMV_World(this);
 		world.initialize();
+//		appIcon = loadImage("resources/images/icon.png");
+		appIcon = getImageResource("icon.png");
 		
 		input = new ML_Input(width, height);
 		display = new ML_Display(this);			// Initialize displays
@@ -105,6 +109,29 @@ public class MultimediaLocator extends PApplet
 		textAlign(PConstants.CENTER, PConstants.CENTER);
 		
 		initCubeMap();
+	}
+
+	/**
+	 * Get image from resources/images/
+	 * @param fileName File name
+	 * @return Mask image
+	 */
+	private PImage getImageResource(String fileName)
+	{
+		String resourcePath = "/images/";
+		BufferedImage image;
+		
+		URL imageURL = MultimediaLocator.class.getResource(resourcePath + fileName);
+		try{
+			image = ImageIO.read(imageURL.openStream());
+			return world.utilities.bufferedImageToPImage(image);
+		}
+		catch(Throwable t)
+		{
+			System.out.println("ERROR in getImageResource... t:"+t+" imageURL == null? "+(imageURL == null));
+		}
+		
+		return null;
 	}
 
 	/** 
@@ -1315,7 +1342,7 @@ public class MultimediaLocator extends PApplet
 		endPGL();
 
 		// Load cubemap shader.
-		cubemapShader = loadShader("shaders/cubemapfrag.glsl", "shaders/cubemapvert.glsl");
+		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");
 		cubemapShader.set("cubemap", 1);
 		
 //		faces = new PGraphics[6];
@@ -1325,9 +1352,9 @@ public class MultimediaLocator extends PApplet
 
 	private void setAppIcon(PImage img) 
 	{
-		System.out.println("setAppIcon()... frameCount:"+frameCount);
 		Application.getApplication().setDockIconImage(img.getImage());
 		setAppIcon = false;
+		if(debugSettings.main && debugSettings.detailed) System.out.println("setAppIcon()... frameCount:"+frameCount);
 	}
 
 	/**
@@ -1337,16 +1364,8 @@ public class MultimediaLocator extends PApplet
 	{
 		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
 		
-//		PJOGL pgl = (PJOGL) beginPGL(); 
-		PJOGL.setIcon("res/icon.png");
-
-//		PImage img = loadImage("res/icon.jpg");
-//		surface.setIcon(img);
+		PJOGL.setIcon("resources/images/icon.png");			// -- Needed?
 		
-//		surface.setIcon(loadImage("res/icon.jpg"));
-		
-//		setAppIcon(loadImage("res/icon.jpg"));
-//		surface.setIcon("res/icon.jpg");
 //		size(1980, 1080, processing.core.PConstants.P3D);		// 
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
 	}

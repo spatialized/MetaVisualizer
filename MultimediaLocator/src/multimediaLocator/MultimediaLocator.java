@@ -112,11 +112,11 @@ public class MultimediaLocator extends PApplet
 	}
 
 	/**
-	 * Get image from resources/images/
+	 * Get image from resources
 	 * @param fileName File name
 	 * @return Mask image
 	 */
-	private PImage getImageResource(String fileName)
+	public PImage getImageResource(String fileName)
 	{
 		String resourcePath = "/images/";
 		BufferedImage image;
@@ -1341,15 +1341,33 @@ public class MultimediaLocator extends PApplet
 
 		endPGL();
 
-		// Load cubemap shader.
-		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");
-		cubemapShader.set("cubemap", 1);
+		// Load cubemap shader
+		loadCubeMapShader();
+		
+//	     InputStreamReader isReader= 
+//                 new InputStreamReader(
+//                     this.getClass().getResourceAsStream(templateName));
+//	     BufferedReader br = new BufferedReader(isReader);  
+// 
+//		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");
+//		cubemapShader.set("cubemap", 1);
 		
 //		faces = new PGraphics[6];
 		
 		cubeMapInitialized = true;
 	}
 
+	private void loadCubeMapShader()
+	{
+		String resourcePath = "/shaders/";
+		URL fsURL = MultimediaLocator.class.getResource(resourcePath + "cubemapfrag.glsl");
+		URL vsURL = MultimediaLocator.class.getResource(resourcePath + "cubemapvert.glsl");
+		cubemapShader = new PShader(this, fsURL, vsURL);
+		cubemapShader.set("cubemap", 1);
+//		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");
+//		cubemapShader.set("cubemap", 1);
+	}
+	
 	private void setAppIcon(PImage img) 
 	{
 		Application.getApplication().setDockIconImage(img.getImage());
@@ -1364,7 +1382,7 @@ public class MultimediaLocator extends PApplet
 	{
 		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
 		
-		PJOGL.setIcon("resources/images/icon.png");			// -- Needed?
+//		PJOGL.setIcon("resources/images/icon.png");			// -- Needed?
 		
 //		size(1980, 1080, processing.core.PConstants.P3D);		// 
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large

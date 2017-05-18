@@ -114,7 +114,8 @@ public class ML_Map
 	 */
 	public void initializeMaps(WMV_World world)
 	{
-		blankTile = world.p.loadImage("resources/images/blank.jpg");
+		blankTile = world.p.getImageResource("blank.jpg");
+//		blankTile = world.p.loadImage("resources/images/blank.jpg");
 
 		initializeSatelliteMap(world);
 		initializeBasicMaps(world);
@@ -123,7 +124,6 @@ public class ML_Map
 		zoomToField(world, world.getCurrentField(), false);			// Start zoomed out on whole field
 
 //		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
-		
 		eventDispatcher = new EventDispatcher();
 		MouseHandler mouseHandler = new MouseHandler(world.p, satellite);
 		eventDispatcher.addBroadcaster(mouseHandler);

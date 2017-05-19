@@ -1,7 +1,9 @@
 package multimediaLocator;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import com.apporiented.algorithm.clustering.AverageLinkageStrategy;
@@ -99,8 +101,7 @@ public class WMV_Field
 	 */
 	public void display(MultimediaLocator ml) 				// Draw currently visible media
 	{
-		float vanishingPoint = viewerSettings.farViewingDistance + 
-				worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
+		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
 		
 		state.imagesVisible = 0;
 		state.imagesSeen = 0;
@@ -282,56 +283,446 @@ public class WMV_Field
 //		}
 	}
 
+	private void displayImage(MultimediaLocator ml, int i)
+	{
+		WMV_Image m = images.get(i);
+		m.display(ml); 							// Display image
+		if(!m.isSeen()) m.setSeen(true);
+		state.imagesSeen++;
+	}
+
+	private void displayPanorama(MultimediaLocator ml, int i)
+	{
+		WMV_Panorama n = panoramas.get(i);
+		n.display(ml); 					// Display panorama
+		if(!n.isSeen()) n.setSeen(true);
+		state.panoramasSeen++;
+	}
+	
+	private void displayVideo(MultimediaLocator ml, int i)
+	{
+		WMV_Video v = videos.get(i);
+		v.display(ml); 				// Display video
+		if(!v.isSeen()) v.setSeen(true);
+		state.videosSeen++;
+	}
+
+	private void displaySound(MultimediaLocator ml, int i)
+	{
+		WMV_Sound s = sounds.get(i);
+		s.display(ml); 					// Display sound 
+		if(!s.isSeen()) s.setSeen(true);
+		state.soundsHeard++;
+	}
+	
+	/**
+	 * Display visible images
+	 * @param ml Parent app
+	 * @param visibleImages List of visible images
+	 */
 	private void displayVisibleImages(MultimediaLocator ml, List<Integer> visibleImages)
 	{
 		int maxVisibleImages = ml.world.viewer.getSettings().maxVisibleImages;
 		boolean overMaxImages = (state.imagesVisible > maxVisibleImages);
-		for(int i : visibleImages)
+		state.imagesSeen = 0;
+		
+//		if(!overMaxImages)
+		if(true)
 		{
-//			if(!overMaxImages)
+			for(int i : visibleImages)
+				displayImage(ml, i);
+		}
+		else
+		{
+			List<Integer> visibleImagesToSort = new ArrayList<Integer>();;
+			List<Integer> visibleImagesSorted = new ArrayList<Integer>();;
+			List<Integer> visibleImagesFading = new ArrayList<Integer>();
+
+			for(int i : visibleImages)
+				if(images.get(i).isFading())
+					visibleImagesFading.add(i);
+
+			if(visibleImages.size() > visibleImagesFading.size())
 			{
-				WMV_Image m = images.get(i);
-				m.display(ml); 				// Display sound as sphere
+				for(int i : visibleImages) 
+					if(!visibleImagesFading.contains(i))
+						visibleImagesToSort.add(i);
+				
+				visibleImagesSorted = sortVisibleImages(visibleImagesToSort);
+			}
+
+			for(int i : visibleImagesFading)
+				displayImage(ml, i);
+			
+			System.out.println("--> visibleImagesSorted.size:"+visibleImagesSorted.size()+" visibleImagesFading.size:"+visibleImagesSorted.size());
+			
+			for(int i : visibleImagesSorted)
+			{
+				if(state.imagesSeen < maxVisibleImages)
+					displayImage(ml, i);
+				else
+				{
+					WMV_Image m = images.get(i);
+					if(m.isSeen())
+					{
+						m.display(ml); 				// Display image
+						m.fadeOut();
+					}
+				}
 			}
 		}
 	}
+	
 	private void displayVisiblePanoramas(MultimediaLocator ml, List<Integer> visiblePanoramas)
 	{
 		int maxVisiblePanoramas = ml.world.viewer.getSettings().maxVisiblePanoramas;
 		boolean overMaxPanoramas = (state.panoramasVisible > maxVisiblePanoramas);
-		for(int i : visiblePanoramas)
+//		if(!overMaxPanoramas)
+		if(true)
 		{
-//			if(!overMaxPanoramas)
+			for(int i : visiblePanoramas)
 			{
 				WMV_Panorama n = panoramas.get(i);
-				n.display(ml); 				// Display sound as sphere
+				n.display(ml); 					// Display panorama
+				if(!n.isSeen()) n.setSeen(true);
+				state.panoramasSeen++;
+			}
+		}
+		else
+		{
+			List<Integer> visiblePanoramasToSort = new ArrayList<Integer>();;
+			List<Integer> visiblePanoramasSorted = new ArrayList<Integer>();;
+			List<Integer> visiblePanoramasFading = new ArrayList<Integer>();
+
+			for(int i : visiblePanoramas)
+				if(panoramas.get(i).isFading())
+					visiblePanoramasFading.add(i);
+
+			if(visiblePanoramas.size() > visiblePanoramasFading.size())
+			{
+				for(int i : visiblePanoramas) 
+					if(!visiblePanoramasFading.contains(i))
+						visiblePanoramasToSort.add(i);
+				
+				visiblePanoramasSorted = sortVisiblePanoramas(visiblePanoramasToSort);
+			}
+
+			for(int i : visiblePanoramasFading)
+				displayPanorama(ml, i);
+
+			for(int i : visiblePanoramasSorted)
+			{
+				if(state.panoramasSeen < maxVisiblePanoramas)
+					displayPanorama(ml, i);
+				else
+				{
+					WMV_Panorama n = panoramas.get(i);
+					if(n.isSeen())
+					{
+						n.display(ml); 				// Display panorama
+						n.fadeOut();
+					}
+				}
 			}
 		}
 	}
+	
 	private void displayVisibleVideos(MultimediaLocator ml, List<Integer> visibleVideos)
 	{
 		int maxVisibleVideos = ml.world.viewer.getSettings().maxVisibleVideos;
 		boolean overMaxVideos = (state.videosVisible > maxVisibleVideos);
-		for(int i : visibleVideos)
+//		if(!overMaxVideos)
+		if(true)
 		{
-//			if(!overMaxVideos)
+			for(int i : visibleVideos)
 			{
-				WMV_Video v = videos.get(i);
-				v.display(ml); 				// Display sound as sphere
+				displayVideo(ml, i);
+			}
+		}
+		else
+		{
+			List<Integer> visibleVideosToSort = new ArrayList<Integer>();;
+			List<Integer> visibleVideosSorted = new ArrayList<Integer>();;
+			List<Integer> visibleVideosFading = new ArrayList<Integer>();
+
+			for(int i : visibleVideos)
+				if(videos.get(i).isFading())
+					visibleVideosFading.add(i);
+
+			if(visibleVideos.size() > visibleVideosFading.size())
+			{
+				for(int i : visibleVideos) 
+					if(!visibleVideosFading.contains(i))
+						visibleVideosToSort.add(i);
+				
+				visibleVideosSorted = sortVisibleVideos(visibleVideosToSort);
+			}
+
+			for(int i : visibleVideosFading)
+				displayVideo(ml, i);
+			
+			for(int i : visibleVideosSorted)
+			{
+				if(state.videosSeen < maxVisibleVideos)
+					displayVideo(ml, i);
+				else
+				{
+					WMV_Video v = videos.get(i);
+					if(v.isSeen())
+					{
+						v.display(ml); 				// Display video
+						v.fadeOut();
+					}
+				}
 			}
 		}
 	}
+
 	private void displayAudibleSounds(MultimediaLocator ml, List<Integer> audibleSounds)
 	{
 		int maxAudibleSounds = ml.world.viewer.getSettings().maxAudibleSounds;
 		boolean overMaxSounds = (state.soundsAudible > maxAudibleSounds);
+//		if(!overMaxSounds)
+		if(true)
+		{
+			for(int i : audibleSounds)
+				displaySound(ml, i);
+		}
+		else
+		{
+			List<Integer> audibleSoundsToSort = new ArrayList<Integer>();;
+			List<Integer> audibleSoundsSorted = new ArrayList<Integer>();;
+			List<Integer> audibleSoundsFading = new ArrayList<Integer>();
+
+			for(int i : audibleSounds)
+				if(sounds.get(i).isFading())
+					audibleSoundsFading.add(i);
+
+			if(audibleSounds.size() > audibleSoundsFading.size())
+			{
+				for(int i : audibleSounds) 
+					if(!audibleSoundsFading.contains(i))
+						audibleSoundsToSort.add(i);
+				
+				audibleSoundsSorted = sortAudibleSounds(audibleSoundsToSort);
+			}
+
+			for(int i : audibleSoundsFading)
+				displaySound(ml, i);
+
+			for(int i : audibleSoundsSorted)
+			{
+				if(state.soundsHeard < maxAudibleSounds)
+				{
+					displaySound(ml, i);
+				}
+				else
+				{
+					WMV_Sound s = sounds.get(i);
+					if(s.isSeen())
+					{
+						s.display(ml); 				// Display sound 
+						s.fadeOut();
+						s.fadeSoundOut();
+					}
+				}
+			}
+		}
+	}
+
+	private List<Integer> sortVisibleImages(List<Integer> visibleImages)
+	{
+//		System.out.println("sortVisibleImages()...");
+
+		ArrayList<ImageDistance> distances = new ArrayList<ImageDistance>();
+		for(int i : visibleImages)
+		{
+			WMV_Image img = images.get(i);
+			distances.add(new ImageDistance(i, img.getViewingDistance()));
+		}
+		
+//		System.out.println("--- BEFORE");
+//		for(ImageDistance imgDist : distances) System.out.print("ID:"+imgDist.id+" dist:"+imgDist.distance);
+//		System.out.println("");
+
+		distances.sort(null);
+		
+//		System.out.println("--- AFTER");
+//		for(ImageDistance imgDist : distances) 
+//			if(imgDist.id < 120) System.out.println("ID:"+imgDist.id+" dist:"+imgDist.distance);
+			
+		List<Integer> sorted  = new ArrayList<Integer>();
+		for(ImageDistance imgDist : distances)
+			sorted.add(imgDist.id);
+		
+		return sorted;
+	}
+
+	private List<Integer> sortVisiblePanoramas(List<Integer> visiblePanoramas)
+	{
+//		System.out.println("sortVisiblePanoramas()...");
+
+		ArrayList<PanoramaDistance> distances = new ArrayList<PanoramaDistance>();
+		for(int i : visiblePanoramas)
+		{
+			WMV_Panorama pano = panoramas.get(i);
+			distances.add(new PanoramaDistance(i, pano.getViewingDistance()));
+		}
+		
+		distances.sort(null);
+		
+		List<Integer> sorted  = new ArrayList<Integer>();
+		for(PanoramaDistance panoDist : distances)
+			sorted.add(panoDist.id);
+		
+		return sorted;
+	}
+
+	private List<Integer> sortVisibleVideos(List<Integer> visibleVideos)
+	{
+//		System.out.println("sortVisiblePanoramas()...");
+
+		ArrayList<VideoDistance> distances = new ArrayList<VideoDistance>();
+		for(int i : visibleVideos)
+		{
+			WMV_Video vid = videos.get(i);
+			distances.add(new VideoDistance(i, vid.getViewingDistance()));
+		}
+		
+		distances.sort(null);
+		
+		List<Integer> sorted  = new ArrayList<Integer>();
+		for(VideoDistance vidDist : distances)
+			sorted.add(vidDist.id);
+		
+		return sorted;
+	}
+
+	private List<Integer> sortAudibleSounds(List<Integer> audibleSounds)
+	{
+//		System.out.println("sortVisiblePanoramas()...");
+
+		ArrayList<SoundDistance> distances = new ArrayList<SoundDistance>();
 		for(int i : audibleSounds)
 		{
-//			if(!overMaxSounds)
-			{
-				WMV_Sound s = sounds.get(i);
-				s.display(ml); 				// Display sound as sphere
+			WMV_Sound snd = sounds.get(i);
+			distances.add(new SoundDistance(i, snd.getViewingDistance()));
+		}
+		
+		distances.sort(null);
+		
+		List<Integer> sorted  = new ArrayList<Integer>();
+		for(SoundDistance sndDist : distances)
+			sorted.add(sndDist.id);
+		
+		return sorted;
+	}
+
+	private class ImageDistance implements Comparable<ImageDistance>{
+		int id = -1;
+		float distance = -1.f;
+		public ImageDistance(int newID, float newDistance)
+		{
+			id = newID;
+			distance = newDistance;
+		}
+		
+		public int compareTo(ImageDistance imgDistance)
+		{
+			return Float.compare(this.distance, imgDistance.distance);		
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+
+			if (o == this) return true;
+			if (!(o instanceof ImageDistance)) {
+				return false;
 			}
+			ImageDistance iDist = (ImageDistance) o;
+
+			return distance == iDist.distance && Objects.equals(id, iDist.id);
+		}
+	}
+	
+	private class PanoramaDistance implements Comparable<PanoramaDistance>{
+		int id = -1;
+		float distance = -1.f;
+		public PanoramaDistance(int newID, float newDistance)
+		{
+			id = newID;
+			distance = newDistance;
+		}
+		
+		public int compareTo(PanoramaDistance panoDistance)
+		{
+			return Float.compare(this.distance, panoDistance.distance);		
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+
+			if (o == this) return true;
+			if (!(o instanceof PanoramaDistance)) {
+				return false;
+			}
+			
+			PanoramaDistance pDist = (PanoramaDistance) o;
+			return distance == pDist.distance && Objects.equals(id, pDist.id);
+		}
+	}
+
+	private class VideoDistance implements Comparable<VideoDistance>{
+		int id = -1;
+		float distance = -1.f;
+		public VideoDistance(int newID, float newDistance)
+		{
+			id = newID;
+			distance = newDistance;
+		}
+		
+		public int compareTo(VideoDistance vidDistance)
+		{
+			return Float.compare(this.distance, vidDistance.distance);		
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+
+			if (o == this) return true;
+			if (!(o instanceof VideoDistance)) {
+				return false;
+			}
+			
+			VideoDistance vDist = (VideoDistance) o;
+			return distance == vDist.distance && Objects.equals(id, vDist.id);
+		}
+	}
+
+	private class SoundDistance implements Comparable<SoundDistance>{
+		int id = -1;
+		float distance = -1.f;
+		public SoundDistance(int newID, float newDistance)
+		{
+			id = newID;
+			distance = newDistance;
+		}
+		
+		public int compareTo(SoundDistance sndDistance)
+		{
+			return Float.compare(this.distance, sndDistance.distance);		
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+
+			if (o == this) return true;
+			if (!(o instanceof SoundDistance)) {
+				return false;
+			}
+			
+			SoundDistance sDist = (SoundDistance) o;
+			return distance == sDist.distance && Objects.equals(id, sDist.id);
 		}
 	}
 

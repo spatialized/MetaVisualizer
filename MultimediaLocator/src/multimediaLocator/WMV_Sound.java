@@ -59,9 +59,9 @@ public class WMV_Sound extends WMV_Media
 	{
 		boolean overMaxSounds = (ml.world.getCurrentField().getState().soundsAudible > ml.world.viewer.getSettings().maxAudibleSounds);
 
-		if(!getMediaState().disabled)			
+		if(!isDisabled())			
 		{
-			boolean wasVisible = getMediaState().visible;
+			boolean wasVisible = isVisible();
 			boolean visibilitySetToTrue = false;
 			boolean visibilitySetToFalse = false;
 

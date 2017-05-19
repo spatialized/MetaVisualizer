@@ -333,9 +333,9 @@ public abstract class WMV_Media
 		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
 			stopFading();
 
+		if(isSeen()) setSeen(false);
 		startFading(0.f);					// Fade out
 	}
-
 
 	/**
 	 * Start alpha transition from current to given value
@@ -420,6 +420,7 @@ public abstract class WMV_Media
 		}
 
 		mState.fadingBrightness = newFadeValue;
+//		if(mState.fadingBrightness == 0.f) setVisible(false);
 	}
 
 	/**
@@ -679,6 +680,23 @@ public abstract class WMV_Media
 	}
 	
 	/**
+	 * Set whether media is being displayed
+	 * @param newState New seen state
+	 */
+	void setSeen(boolean newState)
+	{
+		mState.seen = newState;
+	}
+	
+	/**
+	 * @return Whether the media is being displayed
+	 */
+	public boolean isSeen()
+	{
+		return mState.seen;
+	}
+	
+	/**
 	 * @return Whether the media is vState.active at the current time
 	 */
 	public boolean isActive()
@@ -788,7 +806,7 @@ public abstract class WMV_Media
 	
 	public int getMediaType()
 	{
-		return getMediaState().mediaType;
+		return mState.mediaType;
 	}
 
 	public float getTime()

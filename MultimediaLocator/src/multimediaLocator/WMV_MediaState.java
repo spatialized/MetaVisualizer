@@ -11,7 +11,8 @@ import processing.core.PVector;
 public class WMV_MediaState 
 {
 	/* Status Modes */
-	public boolean visible = false;				// Media is currently visible and will be drawn
+	public boolean visible = false;				// Media is currently visible 
+	public boolean seen = false;				// Media is currently seen and will be drawn
 	public boolean active = false;				// True when the image has faded in and isn't fading out	-- Needed?
 	public boolean disabled = false;			// Disabled due to errors or user and will not be drawn
 	public boolean hidden = false;				// Hidden from view											-- Needed?

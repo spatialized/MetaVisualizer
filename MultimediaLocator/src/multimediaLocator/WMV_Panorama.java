@@ -98,48 +98,44 @@ public class WMV_Panorama extends WMV_Media
 			if(!initialized)
 				loadMedia(ml); 
 
-		if(texture.width > 0 && !isDisabled())			
+		if(!isDisabled())
 		{
-			if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
+			if(texture.width > 0)			
 			{
-				for(int id : getViewerState().getClustersVisible())
+				if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
 				{
-					if(getMediaState().getClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-						setVisible(true);
+					for(int id : getViewerState().getClustersVisible())
+					{
+						if(getMediaState().getClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+							setVisible(true);
+					}
 				}
+				else 
+				{
+					setVisible(true);     										 		
+				}
+
+				setVisible(getDistanceBrightness() > 0.f);
+
+				if(!isFading() && getViewerSettings().hidePanoramas)
+					setVisible(false);
+
+				if(isVisible() && !isFading() && !hasFadedOut() && !getViewerSettings().hidePanoramas && getFadingBrightness() == 0.f)					// Fade in
+				{
+					if(getDebugSettings().panorama)
+						System.out.println("fadeIn()...pano id:"+getID());
+					fadeIn();
+				}
+
+				if(hasFadedOut()) setFadedOut(false);
 			}
-			else 
-			{
-				setVisible(true);     										 		
-			}
 
-			setVisible(getDistanceBrightness() > 0.f);
-
-			if(!isFading() && getViewerSettings().hidePanoramas)
-				setVisible(false);
-
-			if(isVisible() && !isFading() && !hasFadedOut() && !getViewerSettings().hidePanoramas && getFadingBrightness() == 0.f)					// Fade in
-			{
-				if(getDebugSettings().panorama)
-					System.out.println("fadeIn()...pano id:"+getID());
-				fadeIn();
-			}
-
-			if(hasFadedOut()) setFadedOut(false);
+			if(isFading())                       // Fade in and out with time
+				updateFadingBrightness();
+			
+//			if(fadingObjectDistance)
+//				updateFadingObjectDistance();
 		}
-
-		if(isFading())                       // Fade in and out with time
-		{
-			updateFadingBrightness();
-
-			if(getFadingBrightness() == 0.f)
-				setVisible(false);
-		}
-
-		//		if(fadingObjectDistance)
-		//		{
-		//			updateFadingObjectDistance();
-		//		}
 	}
 
 	/**

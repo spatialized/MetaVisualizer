@@ -80,9 +80,7 @@ public class WMV_Image extends WMV_Media
 	 */
 	public void display(MultimediaLocator ml)
 	{
-		if(getMediaState().showMetadata) 
-			displayMetadata(ml);
-
+//		System.out.print("display image:"+getID()+" isHidden():"+isHidden());
 		float angleBrightnessFactor;							// Fade with angle
 		float brightness = getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
@@ -102,10 +100,14 @@ public class WMV_Image extends WMV_Media
 
 		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
 
+		if(getMediaState().showMetadata) 
+			displayMetadata(ml);
+
 		if (!isHidden() && !isDisabled()) 
 		{
 			if (getViewingBrightness() > 0)
 			{
+//				System.out.println(" ID:"+getID()+" getViewingBrightness():"+getViewingBrightness()+" distanceBrightnessFactor:"+distanceBrightnessFactor+" image.width: "+image.width);
 				if(image.width > 0)				// If image has been loaded
 					displayImage(ml);        // Display image 
 			}
@@ -216,8 +218,9 @@ public class WMV_Image extends WMV_Media
 	//		fadeBrightness(0.f);				
 	//	}
 
+	
 	/**
-=	 * Update image geometry + visibility
+=	 * Update image geometry + visibility -- May 10
 	 */
 	public void update(MultimediaLocator ml, WMV_Utilities utilities)
 	{
@@ -233,7 +236,7 @@ public class WMV_Image extends WMV_Media
 
 		if(image.width > 0 && !isHidden() && !isDisabled())				// Image has been loaded and isn't mState.hidden or disabled
 		{
-			boolean wasVisible = getMediaState().visible;
+			boolean wasVisible = isVisible();
 			boolean visibilitySetToTrue = false;
 			boolean visibilitySetToFalse = false;
 
@@ -339,11 +342,139 @@ public class WMV_Image extends WMV_Media
 			updateFadingFocusDistance();
 	}
 
+	/**
+=	 * Update image geometry + visibility
+	 */
+//	public void update(MultimediaLocator ml, WMV_Utilities utilities)
+//	{
+//		if(getMediaState().requested && image.width != 0)			// If requested image has loaded, initialize image 
+//		{
+//			calculateVertices();  					// Update geometry		
+//
+//			setAspectRatio( calculateAspectRatio() );
+//			blurred = applyMask(ml, image, blurMask);					// Apply blur mask once image has loaded
+//			setRequested(false);
+//			//			p.p.requestedImages--;
+//		}
+//
+//		if( !isDisabled() )
+//		{
+//			if(image.width > 0 && !isHidden())				// Image has been loaded and isn't mState.hidden or disabled
+//			{
+//				boolean wasVisible = isVisible();
+//				boolean visibilitySetToTrue = false;
+//				boolean visibilitySetToFalse = false;
+//
+//				setVisible(false);
+//
+//				if(getViewerSettings().orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
+//				{
+//					if(getMediaState().getClusterID() == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
+//						setVisible(true);
+//
+//					for(int id : getViewerState().getClustersVisible())
+//						if(getMediaState().getClusterID() == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+//							setVisible(true);
+//				}
+//				else 
+//				{
+//					if(getViewerSettings().angleFading)
+//						setVisible( isFacingViewer(getViewerState().getLocation()) );		
+//					else 
+//						setVisible(true);     										 		
+//				}
+//
+//				if(isVisible())
+//				{
+//					float imageAngle = getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
+//
+//					if(!utilities.isNaN(imageAngle))
+//						setVisible( (getAngleBrightness(imageAngle) > 0.f) );
+//
+//					if(!isFading() && getViewerSettings().hideImages)
+//						setVisible(false);
+//
+//					if(getMediaState().visible && !getViewerSettings().orientationMode)
+//						setVisible(getDistanceBrightness() > 0.f);
+//
+//					if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide state.orientations of 180 or 270 (avoid upside down images)
+//						setVisible(false);
+//
+//					if(isBackFacing(getViewerState().getLocation()) || isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
+//						setVisible(false);
+//				}
+//
+//				if(isFading())										// Update brightness while fading
+//				{
+//					if(getMediaState().fadingBrightness == 0.f)
+//						setVisible(false);
+//				}
+//				else 
+//				{
+//					if(!wasVisible && isVisible())
+//						visibilitySetToTrue = true;
+//
+//					if(getMediaState().fadingBrightness == 0.f && isVisible())
+//						visibilitySetToTrue = true;
+//
+//					if(wasVisible && !isVisible())
+//						visibilitySetToFalse = true;
+//
+//					if(getMediaState().fadingBrightness > 0.f && !isVisible())
+//						visibilitySetToFalse = true;
+//				}
+//
+//				if(!getViewerSettings().angleThinning)
+//				{
+//					if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideImages && getFadingBrightness() == 0.f)			// Fade in
+//						fadeIn();
+//				}
+//				else
+//				{
+//					if(getMediaState().visible && !state.thinningVisibility && !isFading())
+//					{
+//						fadeOut();
+//					}
+//
+//					if(!isVisible() && state.thinningVisibility && !isFading() && !getViewerSettings().hideImages) 
+//					{
+//						if(!hasFadedOut())					// Fade in if didn't just finish fading out this frame
+//							fadeIn();
+//					}
+//				}
+//				
+//				if(visibilitySetToFalse)
+//					fadeOut();
+//
+//				if(isFadingFocusDistance())
+//					updateFadingFocusDistance();
+//
+//				if(getMediaState().fadedOut) setFadedOut(false);
+//			}
+//			
+//			if(getViewerSettings().orientationMode)
+//			{
+//				for(int id : getViewerState().getClustersVisible())
+//					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+//						loadMedia(ml);
+//			}
+//			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
+//				loadMedia(ml); 					// Request image pixels from disk
+//
+//			if(isFading())                       // Fade in and out with time
+//			{
+//				updateFadingBrightness();
+////				if(getFadingBrightness() == 0.f) setVisible(false);
+//			}
+//		}
+//	}
+	
 	/** 
 	 * Draw the image
 	 */
 	private void displayImage(MultimediaLocator ml)
 	{
+		System.out.println("displayImage()... "+getID());
 		ml.noStroke(); 
 		if (isSelected())     // Draw outline
 		{

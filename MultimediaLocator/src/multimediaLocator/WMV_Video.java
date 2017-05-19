@@ -251,7 +251,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		if(!getMediaState().disabled)			
 		{
-			boolean wasVisible = getMediaState().visible;
+			boolean wasVisible = isVisible();
 			boolean visibilitySetToTrue = false;
 			boolean visibilitySetToFalse = false;
 			
@@ -315,7 +315,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				if(getFadingBrightness() > 0.f && !getMediaState().visible)
 					visibilitySetToFalse = true;
 			}
-			
+	
 			if(!getViewerSettings().angleThinning)										// Check Angle Thinning Mode
 			{
 				if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideVideos)	// If should be visible and already fading, fade in 
@@ -331,16 +331,13 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 				if(!getMediaState().visible && state.thinningVisibility && !isFading() && !hasFadedOut() && !getViewerSettings().hideVideos) 
 				{
-					if(!state.loaded) loadMedia(ml);
+					if(!state.loaded) loadMedia(ml); 				// Request video frames from disk
 					fadeIn();
 				}
 			}
-			
+
 			if(visibilitySetToFalse)
 				fadeOut();
-
-			if(isFading())									// Update brightness while fading
-				updateFadingBrightness();
 
 			if(isFadingFocusDistance())
 				updateFadingFocusDistance();
@@ -362,6 +359,18 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			
 			if(state.fadingVolume && state.loaded)
 				updateFadingVolume();
+			
+			if(getViewerSettings().orientationMode)
+			{
+				for(int id : getViewerState().getClustersVisible())
+					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this video's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+						loadMedia(ml); 					// Request video frames from disk
+			}
+			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
+				loadMedia(ml); 							// Request video frames from disk
+		
+			if(isFading())									// Update brightness while fading
+				updateFadingBrightness();
 		}
 	}
 	

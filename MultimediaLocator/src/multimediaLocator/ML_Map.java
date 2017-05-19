@@ -149,6 +149,7 @@ public class ML_Map
 	 */
 	private void initializeSatelliteMap(WMV_World p)
 	{
+		System.out.println("initializeSatelliteMap()...");
 		satellite = new UnfoldingMap(p.p, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 		osm = new UnfoldingMap(p.p, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
 

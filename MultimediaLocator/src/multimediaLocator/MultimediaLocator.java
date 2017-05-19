@@ -29,10 +29,9 @@ import g4p_controls.GPanel;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
-//import interfascia.GUIEvent;
+
 import processing.core.*;
 import processing.opengl.PGL;
-import processing.opengl.PJOGL;
 import processing.opengl.PShader;
 import processing.video.Movie;
 import com.apple.eawt.Application;
@@ -41,6 +40,7 @@ import com.apple.eawt.Application;
  * MultimediaLocator App  
  * @author davidgordon
  */
+@SuppressWarnings("restriction")
 public class MultimediaLocator extends PApplet 
 {
 	/* General */
@@ -1235,6 +1235,27 @@ public class MultimediaLocator extends PApplet
 		state.librarySetup = false;
 		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
+
+	/**
+	 * Check current frame rate
+	 */
+	public void checkFrameRate()
+	{
+		if(frameRate < world.getState().minFrameRate)
+		{
+			if(!performanceSlow)
+				performanceSlow = true;
+			
+			if(performanceSlow && debugSettings.memory)
+				display.message(this, "Performance slow...");
+		}
+		else
+		{
+			if(performanceSlow)
+				performanceSlow = false;
+		}
+	}
+
 	
 	public void checkMemory()
 	{
@@ -1281,27 +1302,6 @@ public class MultimediaLocator extends PApplet
 //		  }
 	}
 
-	/**
-	 * Check current frame rate
-	 */
-	public void checkFrameRate()
-	{
-		if(frameRate < world.getState().minFrameRate)
-		{
-			if(!performanceSlow)
-				performanceSlow = true;
-			
-			if(performanceSlow && debugSettings.memory)
-				display.message(this, "Performance slow...");
-		}
-		else
-		{
-			if(performanceSlow)
-				performanceSlow = false;
-		}
-	}
-
-
 	public void initCubeMap()
 	{
 //		System.out.println("initCubeMap()...");
@@ -1344,11 +1344,6 @@ public class MultimediaLocator extends PApplet
 		// Load cubemap shader
 		loadCubeMapShader();
 		
-//	     InputStreamReader isReader= 
-//                 new InputStreamReader(
-//                     this.getClass().getResourceAsStream(templateName));
-//	     BufferedReader br = new BufferedReader(isReader);  
-// 
 //		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");
 //		cubemapShader.set("cubemap", 1);
 		
@@ -1364,10 +1359,9 @@ public class MultimediaLocator extends PApplet
 		URL vsURL = MultimediaLocator.class.getResource(resourcePath + "cubemapvert.glsl");
 		cubemapShader = new PShader(this, fsURL, vsURL);
 		cubemapShader.set("cubemap", 1);
-//		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");
-//		cubemapShader.set("cubemap", 1);
 	}
 	
+	@SuppressWarnings("restriction")
 	private void setAppIcon(PImage img) 
 	{
 		Application.getApplication().setDockIconImage(img.getImage());

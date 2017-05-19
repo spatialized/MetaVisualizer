@@ -369,7 +369,7 @@ public class WMV_Viewer
 					System.out.println("  viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+state.field+" currentField ID:"+currentField.getID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
 			}
 			else
-				p.getCurrentField().updateAllMediaSettings();
+				p.getCurrentField().updateAllMediaWorldStates();
 
 			if(!p.getField(state.field).hasBeenVisited()) 
 				p.getField(state.field).setVisited(true);

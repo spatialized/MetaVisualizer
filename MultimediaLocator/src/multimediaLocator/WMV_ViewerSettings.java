@@ -14,7 +14,7 @@ public class WMV_ViewerSettings
 	public float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
 	public float nearViewingDistance = nearClippingDistance * 2.f; 	// Near distance (m.) at which media start fading out
 	public float farViewingDistance = 12.f; 						// Far distance (m.) at which media start fading out
-	public float userBrightness = 1.f;
+	public float userBrightness = 1.f;							// User brightness
 
 	/* Graphics */
 	public final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
@@ -24,6 +24,7 @@ public class WMV_ViewerSettings
 	public float visibleAngleMax = 3.14f;
 	public float visibleAngleMin = 0.05f;
 	public float visibleAngleInc = 0.04f;
+	
 	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
 	public boolean angleThinning = false;				// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
@@ -39,10 +40,11 @@ public class WMV_ViewerSettings
 	public float farHearingDistance = 36.f; 						// Far distance (m.) at which media start fading out
 
 	/* Media Visibility */
-	public final int maxVisibleImages = 60;					// Maximum visible images at one time
-	public final int maxVisiblePanoramas = 2;				// Maximum visible panoramas at one time
-	public final int maxVisibleVideos = 3;					// Maximum visible videos at one time
-	public final int maxAudibleSounds = 6;					// Maximum audible sounds at one time
+	public final int maxVisibleImages = 120;					// Maximum visible images at one time
+	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time
+	public final int maxVisibleVideos = 2;					// Maximum visible videos at one time
+	public final int maxAudibleSounds = 4;					// Maximum audible sounds at one time
+	
 	public boolean hideImages = false;						// Hide images
 	public boolean hidePanoramas = false;					// Hide panoramas
 	public boolean hideVideos = false;						// Hide videos

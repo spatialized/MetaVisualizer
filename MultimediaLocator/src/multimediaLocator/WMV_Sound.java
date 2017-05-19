@@ -57,6 +57,8 @@ public class WMV_Sound extends WMV_Media
 	 */
 	void update(MultimediaLocator ml, WMV_Utilities utilities)
 	{
+		boolean overMaxSounds = (ml.world.getCurrentField().getState().soundsAudible > ml.world.viewer.getSettings().maxAudibleSounds);
+
 		if(!getMediaState().disabled)			
 		{
 			boolean wasVisible = getMediaState().visible;
@@ -96,9 +98,12 @@ public class WMV_Sound extends WMV_Media
 			
 			if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
 			{
-				if(!state.loaded) loadMedia(ml);
-				fadeIn();											// Fade in
-				fadeSoundIn();
+				if(!overMaxSounds)
+				{
+					if(!state.loaded) loadMedia(ml);
+					fadeIn();											// Fade in
+					fadeSoundIn();
+				}
 			}
 
 			if(visibilitySetToFalse)

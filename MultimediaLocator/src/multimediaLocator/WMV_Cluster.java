@@ -1720,7 +1720,7 @@ public class WMV_Cluster
 			if(i < imageList.size())
 			{
 				if(!imageList.get(i).isDisabled())
-					imageList.get(i).updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+					imageList.get(i).updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 			}
 			else
 			{
@@ -1733,7 +1733,7 @@ public class WMV_Cluster
 			if(n < panoramaList.size())
 			{
 				if(!panoramaList.get(n).isDisabled())
-					panoramaList.get(n).updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+					panoramaList.get(n).updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 			}
 			else
 			{
@@ -1746,7 +1746,7 @@ public class WMV_Cluster
 			if(v < videoList.size())
 			{
 				if(!videoList.get(v).isDisabled())
-					videoList.get(v).updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+					videoList.get(v).updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 			}
 			else
 			{
@@ -1759,7 +1759,7 @@ public class WMV_Cluster
 			if(s < soundList.size())
 			{
 				if(!soundList.get(s).isDisabled())
-					soundList.get(s).updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+					soundList.get(s).updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 			}
 			else
 			{

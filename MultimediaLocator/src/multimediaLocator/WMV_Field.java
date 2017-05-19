@@ -99,8 +99,9 @@ public class WMV_Field
 	 */
 	public void display(MultimediaLocator ml) 				// Draw currently visible media
 	{
-		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;	// Distance where transparency reaches zero
-
+		float vanishingPoint = viewerSettings.farViewingDistance + 
+				worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
+		
 		state.imagesVisible = 0;
 		state.imagesSeen = 0;
 		state.panoramasVisible = 0;
@@ -109,6 +110,11 @@ public class WMV_Field
 		state.soundsAudible = 0;
 		state.soundsHeard = 0;
 
+		List<Integer> visibleImages = new ArrayList<Integer>();
+		List<Integer> visiblePanoramas = new ArrayList<Integer>();
+		List<Integer> visibleVideos = new ArrayList<Integer>();
+		List<Integer> audibleSounds = new ArrayList<Integer>();
+		
 		for (WMV_Image m : images) 		// Update and display images
 		{
 			if(!m.isDisabled())
@@ -117,7 +123,7 @@ public class WMV_Field
 				boolean nowVisible = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance 
 									   && !m.verticesAreNull() );
 
-				m.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				m.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
 					if(m.getAssociatedClusterID() < 0 || m.getAssociatedClusterID() >= clusters.size())
@@ -137,7 +143,10 @@ public class WMV_Field
 					if(!m.getMediaState().fadingFocusDistance && !m.isFading()) 
 						m.update(ml, utilities);  	// Update geometry + visibility
 
-					m.display(ml); 		// Draw image
+//					if(!overMaxImages)
+//					m.display(ml); 		// Draw image
+
+					visibleImages.add(m.getID());
 					state.imagesVisible++;
 				}
 			}
@@ -150,7 +159,7 @@ public class WMV_Field
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
 				boolean nowVisible = (distance < vanishingPoint);
 
-				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
 					if(n.getAssociatedClusterID() < 0 || n.getAssociatedClusterID() >= clusters.size()) 
@@ -164,7 +173,9 @@ public class WMV_Field
 				if(nowVisible)			// Check if panorama is in visible range
 				{
 					n.update(ml);  		// Update geometry + visibility
-					n.display(ml); 		// Display panorama
+//					if(!overMaxPanoramas)
+//					n.display(ml); 		// Display panorama
+					visiblePanoramas.add(n.getID());
 					state.panoramasVisible++;
 				}
 				else if(n.isFading())
@@ -181,7 +192,7 @@ public class WMV_Field
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
 				boolean nowVisible = (distance < vanishingPoint);
 
-				v.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				v.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if ( v.isVisible() && !nowVisible )
 					v.fadeOut();
 
@@ -198,7 +209,9 @@ public class WMV_Field
 				if(nowVisible)
 				{
 					v.update(ml, utilities);  	// Update geometry + visibility
-					v.display(ml); 				// Display video
+//					if(!overMaxVideos)
+//					v.display(ml); 				// Display video
+					visibleVideos.add(v.getID());
 					state.videosVisible++;
 				}
 				else
@@ -212,7 +225,7 @@ public class WMV_Field
 			}
 		}
 
-		for (WMV_Sound s : sounds)  		// Update and display sounds
+		for (WMV_Sound s : sounds)  		// Update and play sounds
 		{
 			float inaudiblePoint = viewerSettings.farHearingDistance;	// Distance where volume reaches zero
 			if(!s.isDisabled())
@@ -220,10 +233,9 @@ public class WMV_Field
 				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
 				boolean nowAudible = (distance < inaudiblePoint);
 
-				s.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if ( s.isVisible() && !nowAudible )
 				{
-//					System.out.println("Field.display()... Will fade out sound...");
 					s.fadeOut();
 					s.fadeSoundOut();
 				}
@@ -242,21 +254,26 @@ public class WMV_Field
 				if (nowAudible)
 				{
 					s.update(ml, utilities);  	// Update geometry + visibility
-					s.display(ml); 				// Display sound as sphere
+//					if(!overMaxSounds)
+//					s.display(ml); 				// Display sound as sphere
+					audibleSounds.add(s.getID());
 					state.soundsAudible++;
 				}
 				else
 				{
 					if(s.isFading() || s.isFadingVolume())
-					{
 						s.update(ml, utilities);  	// Update geometry + visibility
-					}
 
 					if(s.isVisible())
 						s.fadeOut();
 				}
 			}
 		}
+		
+		displayVisibleImages(ml, visibleImages);
+		displayVisiblePanoramas(ml, visiblePanoramas);
+		displayVisibleVideos(ml, visibleVideos);
+		displayAudibleSounds(ml, audibleSounds);
 
 //		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
 //		{
@@ -265,26 +282,79 @@ public class WMV_Field
 //		}
 	}
 
+	private void displayVisibleImages(MultimediaLocator ml, List<Integer> visibleImages)
+	{
+		int maxVisibleImages = ml.world.viewer.getSettings().maxVisibleImages;
+		boolean overMaxImages = (state.imagesVisible > maxVisibleImages);
+		for(int i : visibleImages)
+		{
+//			if(!overMaxImages)
+			{
+				WMV_Image m = images.get(i);
+				m.display(ml); 				// Display sound as sphere
+			}
+		}
+	}
+	private void displayVisiblePanoramas(MultimediaLocator ml, List<Integer> visiblePanoramas)
+	{
+		int maxVisiblePanoramas = ml.world.viewer.getSettings().maxVisiblePanoramas;
+		boolean overMaxPanoramas = (state.panoramasVisible > maxVisiblePanoramas);
+		for(int i : visiblePanoramas)
+		{
+//			if(!overMaxPanoramas)
+			{
+				WMV_Panorama n = panoramas.get(i);
+				n.display(ml); 				// Display sound as sphere
+			}
+		}
+	}
+	private void displayVisibleVideos(MultimediaLocator ml, List<Integer> visibleVideos)
+	{
+		int maxVisibleVideos = ml.world.viewer.getSettings().maxVisibleVideos;
+		boolean overMaxVideos = (state.videosVisible > maxVisibleVideos);
+		for(int i : visibleVideos)
+		{
+//			if(!overMaxVideos)
+			{
+				WMV_Video v = videos.get(i);
+				v.display(ml); 				// Display sound as sphere
+			}
+		}
+	}
+	private void displayAudibleSounds(MultimediaLocator ml, List<Integer> audibleSounds)
+	{
+		int maxAudibleSounds = ml.world.viewer.getSettings().maxAudibleSounds;
+		boolean overMaxSounds = (state.soundsAudible > maxAudibleSounds);
+		for(int i : audibleSounds)
+		{
+//			if(!overMaxSounds)
+			{
+				WMV_Sound s = sounds.get(i);
+				s.display(ml); 				// Display sound as sphere
+			}
+		}
+	}
+
 	/**
 	 * Update all media settings in field
 	 */
-	public void updateAllMediaSettings()
+	public void updateAllMediaWorldStates()
 	{
 		for (WMV_Image i : images)  		// Update and display videos
 			if(!i.isDisabled())
-				i.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				i.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 
 		for (WMV_Panorama n : panoramas)  		// Update and display videos
 			if(!n.isDisabled())
-				n.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 
 		for (WMV_Video v : videos)  		// Update and display videos
 			if(!v.isDisabled())
-				v.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				v.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 
 		for (WMV_Sound s : sounds)  		// Update and display videos
 			if(!s.isDisabled())
-				s.updateSettings(worldSettings, worldState, viewerSettings, viewerState);
+				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 	}
 
 	/**

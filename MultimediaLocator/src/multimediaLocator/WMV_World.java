@@ -292,11 +292,11 @@ public class WMV_World
 	{
 		WMV_Field f = getCurrentField();
 		for(WMV_Image img : f.getImages())
-			img.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
+			img.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
 		for(WMV_Panorama pano : f.getPanoramas())
-			pano.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
+			pano.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
 		for(WMV_Video vid : f.getVideos())
-			vid.updateSettings(settings, state, viewer.getSettings(), viewer.getState());
+			vid.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
 //		for(WMV_Sound snd : f.getSounds())
 //			img.updateSettings(world.settings, world.state, world.viewer.getSettings(), world.viewer.getState(), debugSettings);
 	}
@@ -781,7 +781,7 @@ public class WMV_World
 		}
 		
 		updateState();
-		getCurrentField().updateAllMediaSettings();
+		getCurrentField().updateAllMediaWorldStates();
 	}
 
 	/**

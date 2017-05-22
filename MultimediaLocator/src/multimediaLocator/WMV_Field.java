@@ -36,6 +36,12 @@ public class WMV_Field
 	/* Model */
 	private ArrayList<PVector> border;					// Convex hull (border) of media points
 
+	/* Media */
+	List<Integer> visibleImages;
+	List<Integer> visiblePanoramas;
+	List<Integer> visibleVideos;
+	List<Integer> audibleSounds;
+
 	/* Time */
 	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
 	private ArrayList<WMV_Timeline> timelines;			// Lists of time segments in field ordered by date
@@ -94,6 +100,11 @@ public class WMV_Field
 		timeline.initialize(null);
 
 		dateline = new ArrayList<WMV_Date>();
+		
+		visibleImages = new ArrayList<Integer>();
+		visiblePanoramas = new ArrayList<Integer>();
+		visibleVideos = new ArrayList<Integer>();
+		audibleSounds = new ArrayList<Integer>();
 	}
 	
 	/**
@@ -117,68 +128,91 @@ public class WMV_Field
 		/* Find visible clusters */
 //		ArrayList<WMV_Cluster> visibleClusters = ml.world.getVisibleClusters();
 		
-		List<Integer> visibleImages = new ArrayList<Integer>();
-		List<Integer> visiblePanoramas = new ArrayList<Integer>();
-		List<Integer> visibleVideos = new ArrayList<Integer>();
-		List<Integer> audibleSounds = new ArrayList<Integer>();
+		visibleImages = new ArrayList<Integer>();
+		visiblePanoramas = new ArrayList<Integer>();
+		visibleVideos = new ArrayList<Integer>();
+		audibleSounds = new ArrayList<Integer>();
 		
-		for (WMV_Image m : images) 		// Update and display images
+		updateImages(ml);
+		updatePanoramas(ml);
+		updateVideos(ml);
+		updateSounds(ml);
+		
+		displayVisibleImages(ml, visibleImages);
+		displayVisiblePanoramas(ml, visiblePanoramas);
+		displayVisibleVideos(ml, visibleVideos);
+		displayAudibleSounds(ml, audibleSounds);
+
+//		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
+//		{
+//			if(clusters.size()>0)
+//				clusters.get(p.viewer.getCurrentClusterID()).draw();		// Draw current cluster
+//		}
+	}
+	
+	private void updateImages(MultimediaLocator ml)
+	{
+		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
+
+		for (WMV_Image m : images) 		// Update images
 		{
 			if(!m.isDisabled())
 			{
 				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
-				boolean nowVisible = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance 
-									   && !m.verticesAreNull() );
+				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 
 				m.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
-					if(m.getAssociatedClusterID() < 0 || m.getAssociatedClusterID() >= clusters.size())
-					{
-						if(debugSettings.field || debugSettings.image || debugSettings.media)
-							System.out.println("Error in Field.display()... cannot updateTimeBrightness: image id:"+m.getID()+" .getAssociatedCluster("+m.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
-					}
-					else 
+//					if(m.getAssociatedClusterID() < 0 || m.getAssociatedClusterID() >= clusters.size())
+//					{
+//						if(debugSettings.field || debugSettings.image || debugSettings.media)
+//							System.out.println("Error in Field.display()... cannot updateTimeBrightness: image id:"+m.getID()+" .getAssociatedCluster("+m.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
+//					}
+//					else 
 						m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
 				}
 
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
 					m.update(ml, utilities);  		// Update geometry + visibility
 
-				if (nowVisible) 		// Visible	
+				if (inVisibleRange) 		// Visible	
 				{
 					if(!m.getMediaState().fadingFocusDistance && !m.isFading()) 
 						m.update(ml, utilities);  	// Update geometry + visibility
 
-//					m.display(ml); 		// Draw image
 					visibleImages.add(m.getID());
 					state.imagesVisible++;
 				}
 			}
 		}
+	}
 
-		for (WMV_Panorama n : panoramas)  	// Update and display panoramas
+	private void updatePanoramas(MultimediaLocator ml)
+	{
+		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
+
+		for (WMV_Panorama n : panoramas)  	// Update panoramas
 		{
 			if(!n.isDisabled())
 			{
 				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
-				boolean nowVisible = (distance < vanishingPoint);
+				boolean inVisibleRange = (distance < vanishingPoint);
 
 				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
-					if(n.getAssociatedClusterID() < 0 || n.getAssociatedClusterID() >= clusters.size()) 
-					{
-						if(debugSettings.field || debugSettings.panorama || debugSettings.media)
-							System.out.println("Error in Field.display()... cannot updateTimeBrightness: pano id:"+n.getID()+" .getAssociatedCluster() ("+n.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
-					}
-					else 
+//					if(n.getAssociatedClusterID() < 0 || n.getAssociatedClusterID() >= clusters.size()) 
+//					{
+//						if(debugSettings.field || debugSettings.panorama || debugSettings.media)
+//							System.out.println("Error in Field.display()... cannot updateTimeBrightness: pano id:"+n.getID()+" .getAssociatedCluster() ("+n.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
+//					}
+//					else 
 						n.updateTimeBrightness(clusters.get(n.getAssociatedClusterID()), timeline, utilities);
 				}
-				if(nowVisible)			// Check if panorama is in visible range
+				if(inVisibleRange)			// Check if panorama is in visible range
 				{
 					n.update(ml);  		// Update geometry + visibility
-//					n.display(ml); 		// Display panorama
 					visiblePanoramas.add(n.getID());
 					state.panoramasVisible++;
 				}
@@ -188,32 +222,36 @@ public class WMV_Field
 				}
 			}
 		}
+	}
+	
+	private void updateVideos(MultimediaLocator ml)
+	{
+		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
 
-		for (WMV_Video v : videos)  		// Update and display videos
+		for (WMV_Video v : videos)  		// Update videos
 		{
 			if(!v.isDisabled())
 			{
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
-				boolean nowVisible = (distance < vanishingPoint);
+				boolean inVisibleRange = (distance < vanishingPoint);
 
 				v.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
-				if ( v.isVisible() && !nowVisible )
+				if ( v.isVisible() && !inVisibleRange )
 					v.fadeOut();
 
 				if(worldState.timeFading)
 				{
-					if(v.getAssociatedClusterID() < 0 || v.getAssociatedClusterID() >= clusters.size()) 
-					{
-						if(debugSettings.field || debugSettings.video || debugSettings.media)
-							System.out.println("Error in Field.display()... cannot updateTimeBrightness: video id:"+v.getID()+" .getAssociatedCluster("+v.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
-					}
-					else 
+//					if(v.getAssociatedClusterID() < 0 || v.getAssociatedClusterID() >= clusters.size()) 
+//					{
+//						if(debugSettings.field || debugSettings.video || debugSettings.media)
+//							System.out.println("Error in Field.display()... cannot updateTimeBrightness: video id:"+v.getID()+" .getAssociatedCluster("+v.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
+//					}
+//					else 
 						v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
 				}
-				if(nowVisible)
+				if(inVisibleRange)
 				{
 					v.update(ml, utilities);  	// Update geometry + visibility
-//					v.display(ml); 				// Display video
 					visibleVideos.add(v.getID());
 					state.videosVisible++;
 				}
@@ -227,17 +265,21 @@ public class WMV_Field
 				}
 			}
 		}
-
+	}
+	
+	private void updateSounds(MultimediaLocator ml)
+	{
+		float inaudiblePoint = viewerSettings.farHearingDistance;	// Distance where volume reaches zero
+	
 		for (WMV_Sound s : sounds)  		// Update and play sounds
 		{
-			float inaudiblePoint = viewerSettings.farHearingDistance;	// Distance where volume reaches zero
 			if(!s.isDisabled())
 			{
 				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
-				boolean nowAudible = (distance < inaudiblePoint);
+				boolean inAudibleRange = (distance < inaudiblePoint);
 
 				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
-				if ( s.isVisible() && !nowAudible )
+				if ( s.isVisible() && !inAudibleRange )
 				{
 					s.fadeOut();
 					s.fadeSoundOut();
@@ -245,19 +287,18 @@ public class WMV_Field
 
 				if(worldState.timeFading)
 				{
-					if(s.getAssociatedClusterID() < 0 || s.getAssociatedClusterID() >= clusters.size()) 
-					{
-						if(debugSettings.field || debugSettings.sound || debugSettings.media)
-							System.out.println("Error in Field.display()... cannot updateTimeBrightness: sound id:"+s.getID()+" .getAssociatedCluster("+s.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
-					}
-					else 
+//					if(s.getAssociatedClusterID() < 0 || s.getAssociatedClusterID() >= clusters.size()) 
+//					{
+//						if(debugSettings.field || debugSettings.sound || debugSettings.media)
+//							System.out.println("Error in Field.display()... cannot updateTimeBrightness: sound id:"+s.getID()+" .getAssociatedCluster("+s.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
+//					}
+//					else 
 						s.updateTimeBrightness(getCluster(s.getAssociatedClusterID()), timeline, utilities);
 				}
 
-				if (nowAudible)
+				if (inAudibleRange)
 				{
 					s.update(ml, utilities);  	// Update geometry + visibility
-//					s.display(ml); 				// Display sound as sphere
 					audibleSounds.add(s.getID());
 					state.soundsAudible++;
 				}
@@ -271,19 +312,8 @@ public class WMV_Field
 				}
 			}
 		}
-		
-		displayVisibleImages(ml, visibleImages);
-		displayVisiblePanoramas(ml, visiblePanoramas);
-		displayVisibleVideos(ml, visibleVideos);
-		displayAudibleSounds(ml, audibleSounds);
-
-//		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
-//		{
-//			if(clusters.size()>0)
-//				clusters.get(p.viewer.getCurrentClusterID()).draw();		// Draw current cluster
-//		}
 	}
-
+	
 	/**
 	 * Display the image in virtual space
 	 */

@@ -200,25 +200,6 @@ public class WMV_Image extends WMV_Media
 		ml.popMatrix();
 	}
 
-	//	/**
-	//	 * Fade in image
-	//	 */
-	//	public void fadeIn()
-	//	{
-	//		if(isFading()) stopFading();
-	//		fadeBrightness(1.f);				
-	//	}
-	//
-	//	/**
-	//	 * Fade out image
-	//	 */
-	//	public void fadeOut()
-	//	{
-	//		if(isFading()) stopFading();
-	//		fadeBrightness(0.f);				
-	//	}
-
-	
 	/**
 =	 * Update image geometry + visibility
 	 */
@@ -238,50 +219,6 @@ public class WMV_Image extends WMV_Media
 			boolean wasVisible = isVisible();
 			calculateVisibility(utilities);
 			updateFading(wasVisible);
-			
-//			if(isFading())										// Update brightness while fading
-//			{
-//				if(getMediaState().fadingBrightness == 0.f)
-//					setVisible(false);
-//			}
-//			else 
-//			{
-//				if(!wasVisible && isVisible())
-//					visibilitySetToTrue = true;
-//
-//				if(getMediaState().fadingBrightness == 0.f && isVisible())
-//					visibilitySetToTrue = true;
-//
-//				if(wasVisible && !isVisible())
-//					visibilitySetToFalse = true;
-//
-//				if(getMediaState().fadingBrightness > 0.f && !isVisible())
-//					visibilitySetToFalse = true;
-//			}
-//
-//			if(!getViewerSettings().angleThinning)
-//			{
-//				if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideImages && getFadingBrightness() == 0.f)			// Fade in
-//					fadeIn();
-//			}
-//			else
-//			{
-//				if(getMediaState().visible && !state.thinningVisibility && !isFading())
-//				{
-//					fadeOut();
-//				}
-//
-//				if(!isVisible() && state.thinningVisibility && !isFading() && !getViewerSettings().hideImages) 
-//				{
-//					if(!hasFadedOut())					// Fade in if didn't just finish fading out this frame
-//						fadeIn();
-//				}
-//			}
-//
-//			if(visibilitySetToFalse)
-//				fadeOut();
-//
-//			if(getMediaState().fadedOut) setFadedOut(false);
 		}
 		else
 		{
@@ -319,7 +256,7 @@ public class WMV_Image extends WMV_Media
 		{
 			if(getViewerSettings().angleFading)
 				setVisible( isFacingViewer(getViewerState().getLocation()) );		
-			else 
+			else
 				setVisible(true);     										 		
 		}
 

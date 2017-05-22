@@ -1546,6 +1546,7 @@ public class WMV_World
 	
 	
 	/**
+	 * Get visible clusters in standard viewing mode
 	 * @return Active clusters in current field
 	 */
 	public ArrayList<WMV_Cluster> getVisibleClusters()

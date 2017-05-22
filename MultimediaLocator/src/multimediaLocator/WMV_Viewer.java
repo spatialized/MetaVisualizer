@@ -93,7 +93,7 @@ public class WMV_Viewer
 		state.location = new PVector(x, y, z);
 		state.teleportGoal = new PVector(x, y, z);
 		settings.initialize();
-		state.clustersVisible = new ArrayList<Integer>();
+		state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
 	}
 	
 	/**
@@ -226,33 +226,33 @@ public class WMV_Viewer
 	 */
 	private void updateOrientationMode()
 	{
-		state.clustersVisible = new ArrayList<Integer>();
+		state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
 
 		for(WMV_Cluster c : currentField.getClusters())
 		{
 			if(settings.orientationModeForceVisible)
 			{
 				if(!c.isEmpty())
-					state.clustersVisible.add(c.getID());
+					state.clustersVisibleInOrientationMode.add(c.getID());
 			}
 			else
 			{
 				if(!c.isEmpty())
 					if(c.getLocation().dist(state.location) < settings.orientationModeClusterViewingDistance)
-						state.clustersVisible.add(c.getID());
+						state.clustersVisibleInOrientationMode.add(c.getID());
 			}
 		}
 
-		if(state.clustersVisible.size() > settings.orientationModeMaxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
+		if(state.clustersVisibleInOrientationMode.size() > settings.orientationModeMaxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
 		{
-			List<Integer> allClusters = state.clustersVisible;
-			state.clustersVisible = new ArrayList<Integer>();
+			List<Integer> allClusters = state.clustersVisibleInOrientationMode;
+			state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
 
 			for(int i=0; i<allClusters.size(); i++)
 			{
-				if(state.clustersVisible.size() < (settings.orientationModeForceVisible ? settings.orientationModeMinVisibleClusters : settings.orientationModeMaxVisibleClusters))
+				if(state.clustersVisibleInOrientationMode.size() < (settings.orientationModeForceVisible ? settings.orientationModeMinVisibleClusters : settings.orientationModeMaxVisibleClusters))
 				{
-					state.clustersVisible.add(i);
+					state.clustersVisibleInOrientationMode.add(i);
 				}
 				else
 				{
@@ -262,7 +262,7 @@ public class WMV_Viewer
 					int largestIdx = -1;
 					int count = 0;
 
-					for(int n : state.clustersVisible)		// Find farthest
+					for(int n : state.clustersVisibleInOrientationMode)		// Find farthest
 					{
 						WMV_Cluster v = currentField.getCluster(n);
 						float vDist = v.getLocation().dist(state.location);
@@ -277,8 +277,8 @@ public class WMV_Viewer
 
 					if(cDist < largest)					// Remove farthest and add new index
 					{
-						state.clustersVisible.remove(largestIdx);
-						state.clustersVisible.add(i);
+						state.clustersVisibleInOrientationMode.remove(largestIdx);
+						state.clustersVisibleInOrientationMode.add(i);
 					}
 				}
 			}
@@ -4615,7 +4615,7 @@ public class WMV_Viewer
 	
 	public List<Integer> getClustersVisible()
 	{
-		return state.clustersVisible;
+		return state.clustersVisibleInOrientationMode;
 	}
 	
 	/**

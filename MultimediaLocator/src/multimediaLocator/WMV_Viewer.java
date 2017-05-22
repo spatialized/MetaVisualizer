@@ -1086,23 +1086,6 @@ public class WMV_Viewer
 
 		return smallestIdx;
 	}
-	
-	/**
-	 * @return Active clusters in current field
-	 */
-	public ArrayList<WMV_Cluster> getVisibleClusters(WMV_Field f)
-	{
-		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
-
-		for(int i : getNearClusters(-1, worldSettings.maxClusterDistance))
-		{
-			WMV_Cluster c = f.getCluster(i);
-			if(c.isActive() && !c.isEmpty())
-				clusters.add(c);
-		}
-		
-		return clusters;
-	}
 
 	/**
 	 * Get list of media clusters within a given distance threshold from the viewer
@@ -1111,7 +1094,7 @@ public class WMV_Viewer
 	 * @param inclCurrent Include the current cluster?
 	 * @return List of indices of nearest clusters to camera			
 	 */
-	private IntList getNearClusters(int amount, float threshold) 	// -- excluding the current cluster??
+	public IntList getNearClusters(int amount, float threshold) 	// -- excluding the current cluster??
 	{
 		PVector vPos = getLocation();
 		IntList nearList = new IntList();

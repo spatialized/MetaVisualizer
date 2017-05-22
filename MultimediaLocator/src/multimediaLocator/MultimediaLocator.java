@@ -94,7 +94,6 @@ public class MultimediaLocator extends PApplet
 
 		world = new WMV_World(this);
 		world.initialize();
-//		appIcon = loadImage("resources/images/icon.png");
 		appIcon = getImageResource("icon.png");
 		
 		input = new ML_Input(width, height);

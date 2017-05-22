@@ -1257,7 +1257,7 @@ public class WMV_World
 		}
 		else if(state.timeMode == 2)		/* Time cycle length is flexible according to visible cluster media lengths */
 		{
-			ArrayList<WMV_Cluster> cl = viewer.getVisibleClusters(getCurrentField());
+			ArrayList<WMV_Cluster> cl = getVisibleClusters();
 			settings.timeCycleLength = 0;
 			
 			for(WMV_Cluster c : cl)
@@ -1291,7 +1291,7 @@ public class WMV_World
 		{
 			float highest = -100000.f;
 			float lowest = 100000.f;
-			ArrayList<WMV_Cluster> cl = viewer.getVisibleClusters( getCurrentField() );
+			ArrayList<WMV_Cluster> cl = getVisibleClusters();
 			
 			for(WMV_Cluster c : cl)
 			{
@@ -1544,6 +1544,24 @@ public class WMV_World
 		getCurrentField().clearAllAttractors();
 	}
 	
+	
+	/**
+	 * @return Active clusters in current field
+	 */
+	public ArrayList<WMV_Cluster> getVisibleClusters()
+	{
+		WMV_Field f = getCurrentField();
+		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
+
+		for(int i : viewer.getNearClusters(-1, settings.maxClusterDistance))
+		{
+			WMV_Cluster c = f.getCluster(i);
+			if(c.isActive() && !c.isEmpty())
+				clusters.add(c);
+		}
+		
+		return clusters;
+	}
 	
 	/**
 	 * @param dist Grid spacing

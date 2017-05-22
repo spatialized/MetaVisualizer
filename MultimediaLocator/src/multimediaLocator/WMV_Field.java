@@ -11,6 +11,7 @@ import com.apporiented.algorithm.clustering.Cluster;
 import com.apporiented.algorithm.clustering.ClusteringAlgorithm;
 import com.apporiented.algorithm.clustering.DefaultClusteringAlgorithm;
 
+import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.IntList;
@@ -94,7 +95,7 @@ public class WMV_Field
 
 		dateline = new ArrayList<WMV_Date>();
 	}
-
+	
 	/**
 	 * Display field
 	 * @param ml Parent app
@@ -104,13 +105,18 @@ public class WMV_Field
 		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
 		
 		state.imagesVisible = 0;
-		state.imagesSeen = 0;
 		state.panoramasVisible = 0;
 		state.videosVisible = 0;
-		state.videosSeen = 0;
 		state.soundsAudible = 0;
+
+		state.imagesSeen = 0;
+		state.panoramasSeen = 0;
+		state.videosSeen = 0;
 		state.soundsHeard = 0;
 
+		/* Find visible clusters */
+//		ArrayList<WMV_Cluster> visibleClusters = ml.world.getVisibleClusters();
+		
 		List<Integer> visibleImages = new ArrayList<Integer>();
 		List<Integer> visiblePanoramas = new ArrayList<Integer>();
 		List<Integer> visibleVideos = new ArrayList<Integer>();
@@ -144,9 +150,7 @@ public class WMV_Field
 					if(!m.getMediaState().fadingFocusDistance && !m.isFading()) 
 						m.update(ml, utilities);  	// Update geometry + visibility
 
-//					if(!overMaxImages)
 //					m.display(ml); 		// Draw image
-
 					visibleImages.add(m.getID());
 					state.imagesVisible++;
 				}
@@ -174,7 +178,6 @@ public class WMV_Field
 				if(nowVisible)			// Check if panorama is in visible range
 				{
 					n.update(ml);  		// Update geometry + visibility
-//					if(!overMaxPanoramas)
 //					n.display(ml); 		// Display panorama
 					visiblePanoramas.add(n.getID());
 					state.panoramasVisible++;
@@ -210,7 +213,6 @@ public class WMV_Field
 				if(nowVisible)
 				{
 					v.update(ml, utilities);  	// Update geometry + visibility
-//					if(!overMaxVideos)
 //					v.display(ml); 				// Display video
 					visibleVideos.add(v.getID());
 					state.videosVisible++;
@@ -255,7 +257,6 @@ public class WMV_Field
 				if (nowAudible)
 				{
 					s.update(ml, utilities);  	// Update geometry + visibility
-//					if(!overMaxSounds)
 //					s.display(ml); 				// Display sound as sphere
 					audibleSounds.add(s.getID());
 					state.soundsAudible++;
@@ -283,10 +284,49 @@ public class WMV_Field
 //		}
 	}
 
+	/**
+	 * Display the image in virtual space
+	 */
 	private void displayImage(MultimediaLocator ml, int i)
 	{
 		WMV_Image m = images.get(i);
-		m.display(ml); 							// Display image
+		
+//		System.out.print("displayImage():"+getID()+" isHidden():"+isHidden());
+		float angleBrightnessFactor;							// Fade with angle
+		float brightness = m.getFadingBrightness();					
+		brightness *= getViewerSettings().userBrightness;
+
+		float distanceBrightnessFactor = m.getDistanceBrightness(); 
+		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+
+		if( getWorldState().timeFading && m.time != null && !getViewerState().isMoving() )
+			brightness *= m.getTimeBrightness(); 					// Fade iBrightness based on time
+
+		if( getViewerSettings().angleFading )
+		{
+			float imageAngle = m.getFacingAngle(getViewerState().getOrientationVector());
+			angleBrightnessFactor = m.getAngleBrightness(imageAngle);                 // Fade out as turns sideways or gets too far / close
+			brightness *= angleBrightnessFactor;
+		}
+
+		m.setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
+
+		if(m.getMediaState().showMetadata) 
+			m.displayMetadata(ml);
+
+		if (!m.isHidden() && !m.isDisabled()) 
+		{
+			if (m.getViewingBrightness() > 0)
+			{
+//				System.out.println(" ID:"+getID()+" getViewingBrightness():"+getViewingBrightness()+" distanceBrightnessFactor:"+distanceBrightnessFactor+" image.width: "+image.width);
+				if(m.image.width > 0)				// If image has been loaded
+					m.display(ml);        // Display image 
+			}
+		} 
+
+		if(m.isVisible() && getWorldState().showModel && !m.isHidden() && !m.isDisabled())
+			m.displayModel(ml);
+
 		if(!m.isSeen()) m.setSeen(true);
 		state.imagesSeen++;
 	}
@@ -294,7 +334,33 @@ public class WMV_Field
 	private void displayPanorama(MultimediaLocator ml, int i)
 	{
 		WMV_Panorama n = panoramas.get(i);
-		n.display(ml); 					// Display panorama
+		
+		if(n.getMediaState().showMetadata) n.displayMetadata(ml);
+
+		float brightness = n.getFadingBrightness();					
+		brightness *= getViewerSettings().userBrightness;
+
+		float distanceBrightnessFactor = n.getDistanceBrightness(); 
+		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
+
+		if( getWorldState().timeFading && n.time != null && !getViewerState().isMoving() )
+			brightness *= n.getTimeBrightness(); 					// Fade brightness based on time
+
+		n.setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
+
+		if (n.isVisible() && !n.isHidden() && !n.isDisabled()) 
+		{
+			if (n.getViewingBrightness() > 0)
+			{
+				if(n.texture.width > 0)		// If image has been loaded
+					n.display(ml);
+			}
+		} 
+
+		if(n.isVisible() && getWorldState().showModel && !n.isHidden() && !n.isDisabled())
+			n.displayModel(ml);
+
+		
 		if(!n.isSeen()) n.setSeen(true);
 		state.panoramasSeen++;
 	}
@@ -302,7 +368,47 @@ public class WMV_Field
 	private void displayVideo(MultimediaLocator ml, int i)
 	{
 		WMV_Video v = videos.get(i);
-		v.display(ml); 				// Display video
+		
+		if(v.getMediaState().showMetadata) v.displayMetadata(ml);
+
+		float distanceBrightness = 0.f; 					// Fade with distance
+		float angleBrightness;
+
+		float brightness = v.getFadingBrightness();					
+		brightness *= getViewerSettings().userBrightness;
+
+		distanceBrightness = v.getDistanceBrightness(); 
+		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
+
+		if( getWorldState().timeFading && v.time != null && !getViewerState().isMoving() )
+			brightness *= v.getTimeBrightness(); 					// Fade brightness based on time
+
+		if(v.state.isClose && distanceBrightness == 0.f)							// Video recently moved out of range
+		{
+			v.state.isClose = false;
+			v.fadeOut();
+		}
+
+		if( getViewerSettings().angleFading )
+		{
+			float videoAngle = v.getFacingAngle(getViewerState().getOrientationVector());
+
+			angleBrightness = v.getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
+			brightness *= angleBrightness;
+		}
+
+		v.setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
+
+		if (!v.isHidden() && !v.isDisabled()) 
+		{
+			if (v.getViewingBrightness() > 0)
+				if ((v.video.width > 1) && (v.video.height > 1))
+					v.display(ml);          // Draw the video 
+		}
+
+		if(v.getMediaState().visible && getWorldState().showModel && !v.isHidden() && !!v.isDisabled())
+			v.displayModel(ml);
+		
 		if(!v.isSeen()) v.setSeen(true);
 		state.videosSeen++;
 	}
@@ -310,7 +416,21 @@ public class WMV_Field
 	private void displaySound(MultimediaLocator ml, int i)
 	{
 		WMV_Sound s = sounds.get(i);
-		s.display(ml); 					// Display sound 
+		
+		if(s.getMediaState().showMetadata) s.displayMetadata(ml);
+		if(s.getMediaState().visible)
+		{
+//			System.out.println("getWorldState().showModel:"+getWorldState().showModel+" isHidden():"+isHidden()+" isDisabled():"+isDisabled()+" wtf? "+(getWorldState().showModel && !isHidden() && !!isDisabled()));
+
+			if(getWorldState().showModel && !s.isHidden() && !s.isDisabled())
+			{
+//				System.out.println("Will call displayModel()...");
+				s.displayModel(ml);
+			}
+			else if(ml.debugSettings.sound || ml.debugSettings.field) 
+				s.displayModel(ml);
+		}
+
 		if(!s.isSeen()) s.setSeen(true);
 		state.soundsHeard++;
 	}

@@ -57,70 +57,61 @@ public class WMV_Sound extends WMV_Media
 	 */
 	void update(MultimediaLocator ml, WMV_Utilities utilities)
 	{
-		boolean overMaxSounds = (ml.world.getCurrentField().getState().soundsAudible > ml.world.viewer.getSettings().maxAudibleSounds);
+//		boolean overMaxSounds = (ml.world.getCurrentField().getState().soundsAudible > ml.world.viewer.getSettings().maxAudibleSounds);
 
 		if(!isDisabled())			
 		{
 			boolean wasVisible = isVisible();
-			boolean visibilitySetToTrue = false;
-			boolean visibilitySetToFalse = false;
-
-			setVisible(true);     										 		
-
-			if(getMediaState().visible)
-			{
-				if(!isFading() && getViewerSettings().hideSounds)
-					setVisible(false);
-
-				if(getMediaState().visible)
-					setVisible(getDistanceAudibility() > 0.f);
-			}
-
-			if(isFading())									// Update brightness while fading
-			{
-				if(getFadingBrightness() == 0.f)
-					setVisible(false);
-			}
-			else 
-			{
-				if(!wasVisible && getMediaState().visible)
-					visibilitySetToTrue = true;
-
-				if(getFadingBrightness() == 0.f && getMediaState().visible)
-					visibilitySetToTrue = true;
-
-				if(wasVisible && !getMediaState().visible)
-					visibilitySetToFalse = true;
-
-				if(getFadingBrightness() > 0.f && !getMediaState().visible)
-					visibilitySetToFalse = true;
-			}
+			calculateAudibility();
+			updateFading(ml, wasVisible);
 			
-			if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
-			{
-				if(!overMaxSounds)
-				{
-					if(!state.loaded) loadMedia(ml);
-					fadeIn();											// Fade in
-					fadeSoundIn();
-				}
-			}
-
-			if(visibilitySetToFalse)
-			{
-				System.out.println("Sound #"+getID()+" visibility was set to false...");
-				fadeOut();
-				fadeSoundOut();
-			}
-
-			if(isFading())									// Update brightness while fading
-				updateFadingBrightness();
-
-			if(hasFadedIn()) setFadedIn(false);						
-			if(hasFadedOut()) setFadedOut(false);						
-
-			if(state.soundFadedIn) state.soundFadedIn = false;
-			if(state.soundFadedOut) state.soundFadedOut = false;
+//			boolean visibilitySetToTrue = false;
+//			boolean visibilitySetToFalse = false;
+//			if(isFading())									// Update brightness while fading
+//			{
+//				if(getFadingBrightness() == 0.f)
+//					setVisible(false);
+//			}
+//			else 
+//			{
+//				if(!wasVisible && getMediaState().visible)
+//					visibilitySetToTrue = true;
+//
+//				if(getFadingBrightness() == 0.f && getMediaState().visible)
+//					visibilitySetToTrue = true;
+//
+//				if(wasVisible && !getMediaState().visible)
+//					visibilitySetToFalse = true;
+//
+//				if(getFadingBrightness() > 0.f && !getMediaState().visible)
+//					visibilitySetToFalse = true;
+//			}
+//			
+//			if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
+//			{
+//				if(!overMaxSounds)
+//				{
+//					if(!state.loaded) loadMedia(ml);
+//					fadeIn();											// Fade in
+//					fadeSoundIn();
+//				}
+//			}
+//
+//			if(visibilitySetToFalse)
+//			{
+//				System.out.println("Sound #"+getID()+" visibility was set to false...");
+//				fadeOut();
+//				fadeSoundOut();
+//			}
+//
+//			if(isFading())									// Update brightness while fading
+//				updateFadingBrightness();
+//
+//			if(hasFadedIn()) setFadedIn(false);						
+//			if(hasFadedOut()) setFadedOut(false);						
+//
+//			if(state.soundFadedIn) state.soundFadedIn = false;
+//			if(state.soundFadedOut) state.soundFadedOut = false;
 
 			if(state.loaded)
 			{
@@ -131,7 +122,69 @@ public class WMV_Sound extends WMV_Media
 			}
 		}
 	}
+	
+	public void calculateAudibility()
+	{
+		setVisible(true);     										 		
 
+		if(getMediaState().visible)
+		{
+			if(!isFading() && getViewerSettings().hideSounds)
+				setVisible(false);
+
+			if(getMediaState().visible)
+				setVisible(getDistanceAudibility() > 0.f);
+		}
+	}
+
+	public void updateFading(MultimediaLocator ml, boolean wasVisible)
+	{
+		boolean visibilitySetToTrue = false;
+		boolean visibilitySetToFalse = false;
+		if(isFading())									// Update brightness while fading
+		{
+			if(getFadingBrightness() == 0.f)
+				setVisible(false);
+		}
+		else 
+		{
+			if(!wasVisible && getMediaState().visible)
+				visibilitySetToTrue = true;
+
+			if(getFadingBrightness() == 0.f && getMediaState().visible)
+				visibilitySetToTrue = true;
+
+			if(wasVisible && !getMediaState().visible)
+				visibilitySetToFalse = true;
+
+			if(getFadingBrightness() > 0.f && !getMediaState().visible)
+				visibilitySetToFalse = true;
+		}
+		
+		if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
+		{
+			if(!state.loaded) loadMedia(ml);
+			fadeIn();											// Fade in
+			fadeSoundIn();
+		}
+
+		if(visibilitySetToFalse)
+		{
+			System.out.println("Sound #"+getID()+" visibility was set to false...");
+			fadeOut();
+			fadeSoundOut();
+		}
+
+		if(isFading())									// Update brightness while fading
+			updateFadingBrightness();
+
+		if(hasFadedIn()) setFadedIn(false);						
+		if(hasFadedOut()) setFadedOut(false);						
+
+		if(state.soundFadedIn) state.soundFadedIn = false;
+		if(state.soundFadedOut) state.soundFadedOut = false;
+	}
+	
 	/**
 	 * Update volume based on viewer distance from sound
 	 */
@@ -177,19 +230,19 @@ public class WMV_Sound extends WMV_Media
 	 */
 	public void display(MultimediaLocator ml)
 	{
-		if(getMediaState().showMetadata) displayMetadata(ml);
-		if(getMediaState().visible)
-		{
-//			System.out.println("getWorldState().showModel:"+getWorldState().showModel+" isHidden():"+isHidden()+" isDisabled():"+isDisabled()+" wtf? "+(getWorldState().showModel && !isHidden() && !!isDisabled()));
-
-			if(getWorldState().showModel && !isHidden() && !isDisabled())
-			{
-//				System.out.println("Will call displayModel()...");
-				displayModel(ml);
-			}
-			else if(ml.debugSettings.sound || ml.debugSettings.field) 
-				displayModel(ml);
-		}
+//		if(getMediaState().showMetadata) displayMetadata(ml);
+//		if(getMediaState().visible)
+//		{
+////			System.out.println("getWorldState().showModel:"+getWorldState().showModel+" isHidden():"+isHidden()+" isDisabled():"+isDisabled()+" wtf? "+(getWorldState().showModel && !isHidden() && !!isDisabled()));
+//
+//			if(getWorldState().showModel && !isHidden() && !isDisabled())
+//			{
+////				System.out.println("Will call displayModel()...");
+//				displayModel(ml);
+//			}
+//			else if(ml.debugSettings.sound || ml.debugSettings.field) 
+//				displayModel(ml);
+//		}
 	}
 
 	/**

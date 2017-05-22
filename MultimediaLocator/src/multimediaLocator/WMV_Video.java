@@ -122,51 +122,51 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 	}
 
-	/**
-	 * Display the video in virtual space
-	 */
-	public void display(MultimediaLocator ml)
-	{
-		if(getMediaState().showMetadata) displayMetadata(ml);
-
-		float distanceBrightness = 0.f; 					// Fade with distance
-		float angleBrightness;
-
-		float brightness = getFadingBrightness();					
-		brightness *= getViewerSettings().userBrightness;
-
-		distanceBrightness = getDistanceBrightness(); 
-		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
-
-		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
-			brightness *= getTimeBrightness(); 					// Fade brightness based on time
-
-		if(state.isClose && distanceBrightness == 0.f)							// Video recently moved out of range
-		{
-			state.isClose = false;
-			fadeOut();
-		}
-
-		if( getViewerSettings().angleFading )
-		{
-			float videoAngle = getFacingAngle(getViewerState().getOrientationVector());
-
-			angleBrightness = getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
-			brightness *= angleBrightness;
-		}
-
-		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
-
-		if (!isHidden() && !isDisabled()) 
-		{
-			if (getViewingBrightness() > 0)
-				if ((video.width > 1) && (video.height > 1))
-					displayVideo(ml);          // Draw the video 
-		}
-
-		if(getMediaState().visible && getWorldState().showModel && !isHidden() && !!isDisabled())
-			displayModel(ml);
-	}
+//	/**
+//	 * Display the video in virtual space
+//	 */
+//	public void display(MultimediaLocator ml)
+//	{
+//		if(getMediaState().showMetadata) displayMetadata(ml);
+//
+//		float distanceBrightness = 0.f; 					// Fade with distance
+//		float angleBrightness;
+//
+//		float brightness = getFadingBrightness();					
+//		brightness *= getViewerSettings().userBrightness;
+//
+//		distanceBrightness = getDistanceBrightness(); 
+//		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
+//
+//		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
+//			brightness *= getTimeBrightness(); 					// Fade brightness based on time
+//
+//		if(state.isClose && distanceBrightness == 0.f)							// Video recently moved out of range
+//		{
+//			state.isClose = false;
+//			fadeOut();
+//		}
+//
+//		if( getViewerSettings().angleFading )
+//		{
+//			float videoAngle = getFacingAngle(getViewerState().getOrientationVector());
+//
+//			angleBrightness = getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
+//			brightness *= angleBrightness;
+//		}
+//
+//		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
+//
+//		if (!isHidden() && !isDisabled()) 
+//		{
+//			if (getViewingBrightness() > 0)
+//				if ((video.width > 1) && (video.height > 1))
+//					displayVideo(ml);          // Draw the video 
+//		}
+//
+//		if(getMediaState().visible && getWorldState().showModel && !isHidden() && !!isDisabled())
+//			displayModel(ml);
+//	}
 
 	/**
 	 * Draw the video center as a colored sphere
@@ -252,113 +252,74 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		if(!getMediaState().disabled)			
 		{
 			boolean wasVisible = isVisible();
-			boolean visibilitySetToTrue = false;
-			boolean visibilitySetToFalse = false;
+			calculateVisibility(utilities);
+			updateFading(ml, wasVisible);
 			
-			setVisible(false);
-
-			if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
-			{
-				if(getAssociatedClusterID() == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
-					setVisible(true);
-
-				for(int id : getViewerState().getClustersVisible())
-				{
-					if(getAssociatedClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-						setVisible(true);
-				}
-			}
-			else 
-			{
-				if(getViewerSettings().angleFading)
-					setVisible( isFacingCamera(getViewerState().getLocation()) );		
-				else 
-					setVisible(true);     										 		
-			}
-
-			if(getMediaState().visible)
-			{
-				float videoAngle = getFacingAngle(getViewerState().getOrientationVector());				
-
-				if(!utilities.isNaN(videoAngle))
-					setVisible(getAngleBrightness(videoAngle) > 0.f);	 // Check if video is visible at current angle facing viewer
-
-				if(!isFading() && getViewerSettings().hideVideos)
-					setVisible(false);
-					
-				if(getMediaState().visible && !getViewerSettings().orientationMode)
-					setVisible(getDistanceBrightness() > 0.f);
-
-				if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
-					setVisible(false);
-
-				if(isBackFacing(getViewerState().getLocation()) || isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
-					setVisible(false);
-			}
-			
-			if(isFading())									// Update brightness while fading
-			{
-				if(getFadingBrightness() == 0.f)
-					setVisible(false);
-			}
-			else 
-			{
-				if(!wasVisible && getMediaState().visible)
-					visibilitySetToTrue = true;
-
-				if(getFadingBrightness() == 0.f && getMediaState().visible)
-					visibilitySetToTrue = true;
-
-				if(wasVisible && !getMediaState().visible)
-					visibilitySetToFalse = true;
-
-				if(getFadingBrightness() > 0.f && !getMediaState().visible)
-					visibilitySetToFalse = true;
-			}
-	
-			if(!getViewerSettings().angleThinning)										// Check Angle Thinning Mode
-			{
-				if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideVideos)	// If should be visible and already fading, fade in 
-				{
-					if(!state.loaded) loadMedia(ml);
-					fadeIn();											// Fade in
-				}
-			}
-			else													// If in Angle Thinning Mode
-			{
-				if(getMediaState().visible && !state.thinningVisibility && !isFading())
-					fadeOut();
-
-				if(!getMediaState().visible && state.thinningVisibility && !isFading() && !hasFadedOut() && !getViewerSettings().hideVideos) 
-				{
-					if(!state.loaded) loadMedia(ml); 				// Request video frames from disk
-					fadeIn();
-				}
-			}
-
-			if(visibilitySetToFalse)
-				fadeOut();
-
-			if(isFadingFocusDistance())
-				updateFadingFocusDistance();
-
-			if(hasFadedIn())		// Fade in sound once video has faded in
-			{
-				if(isPlaying()) fadeSoundIn();
-				setFadedIn(false);						
-			}
-
-			if(hasFadedOut()) 
-			{
-				fadeSoundOut(false);			// Fade sound out and clear video once finished
-				setFadedOut(false);						
-			}
-			
-			if(state.soundFadedIn) state.soundFadedIn = false;
-			if(state.soundFadedOut) state.soundFadedOut = false;
-			
-			if(state.fadingVolume && state.loaded)
-				updateFadingVolume();
+//			boolean visibilitySetToTrue = false;
+//			boolean visibilitySetToFalse = false;
+//			if(isFading())									// Update brightness while fading
+//			{
+//				if(getFadingBrightness() == 0.f)
+//					setVisible(false);
+//			}
+//			else 
+//			{
+//				if(!wasVisible && getMediaState().visible)
+//					visibilitySetToTrue = true;
+//
+//				if(getFadingBrightness() == 0.f && getMediaState().visible)
+//					visibilitySetToTrue = true;
+//
+//				if(wasVisible && !getMediaState().visible)
+//					visibilitySetToFalse = true;
+//
+//				if(getFadingBrightness() > 0.f && !getMediaState().visible)
+//					visibilitySetToFalse = true;
+//			}
+//	
+//			if(!getViewerSettings().angleThinning)										// Check Angle Thinning Mode
+//			{
+//				if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideVideos)	// If should be visible and already fading, fade in 
+//				{
+//					if(!state.loaded) loadMedia(ml);
+//					fadeIn();											// Fade in
+//				}
+//			}
+//			else													// If in Angle Thinning Mode
+//			{
+//				if(getMediaState().visible && !state.thinningVisibility && !isFading())
+//					fadeOut();
+//
+//				if(!getMediaState().visible && state.thinningVisibility && !isFading() && !hasFadedOut() && !getViewerSettings().hideVideos) 
+//				{
+//					if(!state.loaded) loadMedia(ml); 				// Request video frames from disk
+//					fadeIn();
+//				}
+//			}
+//
+//			if(visibilitySetToFalse)
+//				fadeOut();
+//
+//			if(isFadingFocusDistance())
+//				updateFadingFocusDistance();
+//
+//			if(hasFadedIn())		// Fade in sound once video has faded in
+//			{
+//				if(isPlaying()) fadeSoundIn();
+//				setFadedIn(false);						
+//			}
+//
+//			if(hasFadedOut()) 
+//			{
+//				fadeSoundOut(false);			// Fade sound out and clear video once finished
+//				setFadedOut(false);						
+//			}
+//			
+//			if(state.soundFadedIn) state.soundFadedIn = false;
+//			if(state.soundFadedOut) state.soundFadedOut = false;
+//			
+//			if(state.fadingVolume && state.loaded)
+//				updateFadingVolume();
 			
 			if(getViewerSettings().orientationMode)
 			{
@@ -369,9 +330,123 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
 				loadMedia(ml); 							// Request video frames from disk
 		
-			if(isFading())									// Update brightness while fading
+			if(isFading())								// Update brightness while fading
 				updateFadingBrightness();
 		}
+	}
+	
+	public void calculateVisibility(WMV_Utilities utilities)
+	{
+		setVisible(false);
+
+		if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
+		{
+			if(getAssociatedClusterID() == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
+				setVisible(true);
+
+			for(int id : getViewerState().getClustersVisible())
+			{
+				if(getAssociatedClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+					setVisible(true);
+			}
+		}
+		else 
+		{
+			if(getViewerSettings().angleFading)
+				setVisible( isFacingCamera(getViewerState().getLocation()) );		
+			else 
+				setVisible(true);     										 		
+		}
+
+		if(getMediaState().visible)
+		{
+			float videoAngle = getFacingAngle(getViewerState().getOrientationVector());				
+
+			if(!utilities.isNaN(videoAngle))
+				setVisible(getAngleBrightness(videoAngle) > 0.f);	 // Check if video is visible at current angle facing viewer
+
+			if(!isFading() && getViewerSettings().hideVideos)
+				setVisible(false);
+				
+			if(getMediaState().visible && !getViewerSettings().orientationMode)
+				setVisible(getDistanceBrightness() > 0.f);
+
+			if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
+				setVisible(false);
+
+			if(isBackFacing(getViewerState().getLocation()) || isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
+				setVisible(false);
+		}
+	}
+	
+	public void updateFading(MultimediaLocator ml, boolean wasVisible)
+	{
+		boolean visibilitySetToTrue = false;
+		boolean visibilitySetToFalse = false;
+		
+		if(isFading())									// Update brightness while fading
+		{
+			if(getFadingBrightness() == 0.f)
+				setVisible(false);
+		}
+		else 
+		{
+			if(!wasVisible && getMediaState().visible)
+				visibilitySetToTrue = true;
+
+			if(getFadingBrightness() == 0.f && getMediaState().visible)
+				visibilitySetToTrue = true;
+
+			if(wasVisible && !getMediaState().visible)
+				visibilitySetToFalse = true;
+
+			if(getFadingBrightness() > 0.f && !getMediaState().visible)
+				visibilitySetToFalse = true;
+		}
+
+		if(!getViewerSettings().angleThinning)										// Check Angle Thinning Mode
+		{
+			if(visibilitySetToTrue && !isFading() && !hasFadedOut())	// If should be visible and already fading, fade in 
+			{
+				if(!state.loaded) loadMedia(ml);
+				fadeIn();											// Fade in
+			}
+		}
+		else													// If in Angle Thinning Mode
+		{
+			if(getMediaState().visible && !state.thinningVisibility && !isFading())
+				fadeOut();
+
+			if(!getMediaState().visible && state.thinningVisibility && !isFading() && !hasFadedOut()) 
+			{
+				if(!state.loaded) loadMedia(ml); 				// Request video frames from disk
+				fadeIn();
+			}
+		}
+
+		if(visibilitySetToFalse)
+			fadeOut();
+
+		if(isFadingFocusDistance())
+			updateFadingFocusDistance();
+
+		if(hasFadedIn())		// Fade in sound once video has faded in
+		{
+			if(isPlaying()) fadeSoundIn();
+			setFadedIn(false);						
+		}
+
+		if(hasFadedOut()) 
+		{
+			fadeSoundOut(false);			// Fade sound out and clear video once finished
+			setFadedOut(false);						
+		}
+		
+		if(state.soundFadedIn) state.soundFadedIn = false;
+		if(state.soundFadedOut) state.soundFadedOut = false;
+		
+		if(state.fadingVolume && state.loaded)
+			updateFadingVolume();
 	}
 	
 	/**
@@ -502,7 +577,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 * Draw the video in virtual space
 	 * @param ml Parent app
 	 */
-	private void displayVideo(MultimediaLocator ml)
+	public void display(MultimediaLocator ml)
 	{
 		ml.rectMode(PApplet.CENTER);
 		ml.noStroke(); 
@@ -1173,7 +1248,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 * @param videoAngle Current angle between viewer and video
 	 * @return Amount to fade video due to angle
 	 */
-	private float getAngleBrightness(float videoAngle)
+	public float getAngleBrightness(float videoAngle)
 	{
 		float angleBrightness = 0.f;
 

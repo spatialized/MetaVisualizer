@@ -102,32 +102,17 @@ public class WMV_Panorama extends WMV_Media
 		{
 			if(texture.width > 0)			
 			{
-				if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
-				{
-					for(int id : getViewerState().getClustersVisible())
-					{
-						if(getMediaState().getClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-							setVisible(true);
-					}
-				}
-				else 
-				{
-					setVisible(true);     										 		
-				}
-
-				setVisible(getDistanceBrightness() > 0.f);
-
-				if(!isFading() && getViewerSettings().hidePanoramas)
-					setVisible(false);
-
-				if(isVisible() && !isFading() && !hasFadedOut() && !getViewerSettings().hidePanoramas && getFadingBrightness() == 0.f)					// Fade in
-				{
-					if(getDebugSettings().panorama)
-						System.out.println("fadeIn()...pano id:"+getID());
-					fadeIn();
-				}
-
-				if(hasFadedOut()) setFadedOut(false);
+				calculateVisibility();
+				updateFading();
+				
+//				if(isVisible() && !isFading() && !hasFadedOut() && getFadingBrightness() == 0.f)					// Fade in
+//				{
+//					if(getDebugSettings().panorama)
+//						System.out.println("fadeIn()...pano id:"+getID());
+//					fadeIn();
+//				}
+//
+//				if(hasFadedOut()) setFadedOut(false);
 			}
 
 			if(isFading())                       // Fade in and out with time
@@ -138,43 +123,43 @@ public class WMV_Panorama extends WMV_Media
 		}
 	}
 
-	/**
-	 * Display the image or spherical panorama in virtual space
-	 */
-	public void display(MultimediaLocator ml)
+	public void calculateVisibility()
 	{
-		if(getMediaState().showMetadata) displayMetadata(ml);
-
-		float brightness = getFadingBrightness();					
-		brightness *= getViewerSettings().userBrightness;
-
-		float distanceBrightnessFactor = getDistanceBrightness(); 
-		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
-
-		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
-			brightness *= getTimeBrightness(); 					// Fade brightness based on time
-
-		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
-
-		if (isVisible() && !isHidden() && !isDisabled()) 
+		if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
 		{
-			if (getViewingBrightness() > 0)
+			for(int id : getViewerState().getClustersVisible())
 			{
-				if(texture.width > 0)		// If image has been loaded
-				{
-					displayPanorama(ml);
-				}
+				if(getMediaState().getClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+					setVisible(true);
 			}
-		} 
+		}
+		else 
+		{
+			setVisible(true);     										 		
+		}
 
-		if(isVisible() && getWorldState().showModel && !isHidden() && !isDisabled())
-			displayModel(ml);
+		setVisible(getDistanceBrightness() > 0.f);
+
+		if(!isFading() && getViewerSettings().hidePanoramas)
+			setVisible(false);
 	}
+	
+	public void updateFading()
+	{
+		if(isVisible() && !isFading() && !hasFadedOut() && getFadingBrightness() == 0.f)					// Fade in
+		{
+			if(getDebugSettings().panorama)
+				System.out.println("fadeIn()...pano id:"+getID());
+			fadeIn();
+		}
 
+		if(hasFadedOut()) setFadedOut(false);
+	}
+	
 	/**
 	 * Display the panorama
 	 */
-	private void displayPanorama(MultimediaLocator ml) 
+	public void display(MultimediaLocator ml) 
 	{
 		ml.pushMatrix();
 		ml.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
@@ -272,7 +257,6 @@ public class WMV_Panorama extends WMV_Media
 		ml.popMatrix();
 		ml.textureMode(PApplet.NORMAL);
 	}
-
 
 	/**
 	 * Draw the panorama sphere

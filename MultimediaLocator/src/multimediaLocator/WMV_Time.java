@@ -16,9 +16,9 @@ import processing.core.PVector;
 public class WMV_Time implements Comparable<WMV_Time>
 {
 	private int id, clusterID;
-	private int mediaType;							/* Media Types  0: image 1: panorama 2: video 3: sound */
+	private int mediaType;				/* Media Types  0: image 1: panorama 2: video 3: sound */
 	private int year, month, day, hour, minute, second, millisecond;
-	private float time;	 			/* Normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day */
+	private float time;	 				/* Normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day */
 
 	
 	ZonedDateTime dateTime;

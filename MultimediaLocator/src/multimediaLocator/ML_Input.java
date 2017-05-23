@@ -70,7 +70,6 @@ public class ML_Input
 				{
 					case 0:												// Cluster
 						world.setAllClustersTimeCycleLength(slider.getValueI());
-//						world.getCurrentCluster().setTimeCycleLength( slider.getValueI() );
 						break;
 					case 1:												// Field
 						world.settings.timeCycleLength = slider.getValueI();
@@ -80,6 +79,16 @@ public class ML_Input
 					default:
 						break;
 				}
+			}
+
+			if (slider.tag == "CurrentTime") 
+			{
+				world.setCurrentTimePoint(slider.getValueF());
+			}
+			
+			if (slider.tag == "VisibleTimeInterval") 
+			{
+				world.settings.timeVisibleInterval = slider.getValueF();
 			}
 		}
 		
@@ -391,13 +400,16 @@ public class ML_Input
 			case "FieldTimeMode":
 				world.setTimeMode(1);
 				break;
-			case "MediaTimeMode":
-				world.setTimeMode(2);
-				break;
-			/* Graphics */
+//			case "MediaTimeMode":
+//				world.setTimeMode(2);
+//				break;
 			case "TimeFading":
 				world.getState().timeFading = option.isSelected();
 				break;
+			case "Paused":
+				world.getState().paused = option.isSelected();
+				break;
+			/* Graphics */
 			case "FadeEdges":
 				world.getState().useBlurMasks = option.isSelected();
 				break;
@@ -554,21 +566,21 @@ public class ML_Input
 				else
 					ml.display.window.hideModelWindow();
 			}
-
+			
 			if (key == '%') 
-			{
-				if(!ml.display.window.showMemoryWindow)
-					ml.display.window.openMemoryWindow();
-				else
-					ml.display.window.hideMemoryWindow();
-			}
-
-			if (key == '^') 
 			{
 				if(!ml.display.window.showSelectionWindow)
 					ml.display.window.openSelectionWindow();
 				else
 					ml.display.window.hideSelectionWindow();
+			}
+
+			if (key == '^') 
+			{
+				if(!ml.display.window.showMemoryWindow)
+					ml.display.window.openMemoryWindow();
+				else
+					ml.display.window.hideMemoryWindow();
 			}
 
 			if (key == '&') 
@@ -1195,8 +1207,8 @@ public class ML_Input
 					}
 
 					/* GPS */
-					if (!optionKey && key == 'g') 
-						ml.world.viewer.importGPSTrack();				// Select a GPS tracking file from disk to load and navigate 
+//					if (!optionKey && key == 'g') 
+//						ml.world.viewer.importGPSTrack();				// Select a GPS tracking file from disk to load and navigate 
 
 					/* Memory */
 					if (key == '`') 

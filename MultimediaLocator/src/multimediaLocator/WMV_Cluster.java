@@ -518,26 +518,26 @@ public class WMV_Cluster
 			state.timeline.timeline = utilities.createTimeline(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
 			state.timeline.finishTimeline();			// Finish timeline / set bounds
 
-			if(state.timeline.timeline != null)
-			{
-				if(state.timeline.timeline.size() > 0)
-				{
-					state.timeline.timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
-					
-					ArrayList<WMV_Time> test = new ArrayList<WMV_Time>();
-					
-					for(WMV_TimeSegment t : state.timeline.timeline)
-						for(WMV_Time tm : t.getTimeline())
-							test.add(tm);
-
-					if(test.size() != mediaTimes.size())
-						System.out.println("Incomplete timeline created!  test.size():"+test.size()+" mediaTimes.size():"+mediaTimes.size()+"...");
-				}
-				else
-					System.out.println("No timeline created for cluster #"+getID()+"!!!");
-			}
-			else
-				System.out.println("NULL timeline created for cluster #"+getID()+"!!!!");
+//			if(state.timeline.timeline != null)
+//			{
+//				if(state.timeline.timeline.size() > 0)
+//				{
+//					state.timeline.timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
+//					
+//					ArrayList<WMV_Time> test = new ArrayList<WMV_Time>();
+//					
+//					for(WMV_TimeSegment t : state.timeline.timeline)
+//						for(WMV_Time tm : t.getTimeline())
+//							test.add(tm);
+//
+//					if(test.size() != mediaTimes.size())
+//						System.out.println("Incomplete timeline created!  test.size():"+test.size()+" mediaTimes.size():"+mediaTimes.size()+"...");
+//				}
+//				else
+//					System.out.println("No timeline created for cluster #"+getID()+"!!!");
+//			}
+//			else
+//				System.out.println("NULL timeline created for cluster #"+getID()+"!!!!");
 			
 			int count = 0;
 			for (WMV_TimeSegment t : state.timeline.timeline) 												// Number time segments in chronological order
@@ -1067,14 +1067,52 @@ public class WMV_Cluster
 	}
 
 	/**
+	 * @param anyDate Whether to use date-independent timeline (true) or last date (false)
 	 * @return ID of first time segment in cluster
 	 */
-	public int getFirstTimeSegment(boolean anyDate)
+	public int getFirstTimeSegmentFieldTimelineID(boolean anyDate)
 	{
 		if(anyDate)
 			return state.timeline.timeline.get(0).getFieldTimelineID();
 		else 
 			return getFirstTimeSegmentForDate(state.dateline.get(0)).getFieldTimelineID();
+	}
+
+	/**
+	 * @param anyDate Whether to use date-independent timeline (true) or last date (false)
+	 * @return ID of last time segment in cluster
+	 */
+	public int getLastTimeSegmentFieldTimelineID(boolean anyDate)
+	{
+		System.out.println("getLastTimeSegment()... result:"+state.timeline.timeline.get(state.timeline.timeline.size()-1).getFieldTimelineID()+" idx:"+(state.timeline.timeline.size()-1));
+		if(anyDate)
+			return state.timeline.timeline.get(state.timeline.timeline.size()-1).getFieldTimelineID();
+		else 
+			return getLastTimeSegmentForDate(state.dateline.get(state.dateline.size()-1)).getFieldTimelineID();
+	}
+
+	/**
+	 * @param anyDate Whether to use date-independent timeline (true) or last date (false)
+	 * @return ID of first time segment in cluster
+	 */
+	public int getFirstTimeSegmentClusterTimelineID(boolean anyDate)
+	{
+		if(anyDate)
+			return state.timeline.timeline.get(0).getClusterTimelineID();
+		else 
+			return getFirstTimeSegmentForDate(state.dateline.get(0)).getClusterTimelineID();
+	}
+
+	/**
+	 * @param anyDate Whether to use date-independent timeline (true) or last date (false)
+	 * @return ID of last time segment in cluster
+	 */
+	public int getLastTimeSegmentClusterTimelineID(boolean anyDate)
+	{
+		if(anyDate)
+			return state.timeline.timeline.get(state.timeline.timeline.size()-1).getClusterTimelineID();
+		else 
+			return getLastTimeSegmentForDate(state.dateline.get(state.dateline.size()-1)).getClusterTimelineID();
 	}
 	
 	/**
@@ -1137,10 +1175,15 @@ public class WMV_Cluster
 		cluster.empty();																/* Empty merged cluster */
 	}
 
+	public void setTimePoint(float newTimePoint)
+	{
+		state.currentTime = (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0, state.timeCycleLength);
+	}
+	
 	/** 
 	 * Update cluster time loop
 	 */
-	void updateTime()
+	public void updateTime()
 	{
 		if(state.timeFading && !state.dateFading && worldState.frameCount % state.timeUnitLength == 0)
 		{
@@ -1682,6 +1725,16 @@ public class WMV_Cluster
 	public List<Integer> getSoundIDs()
 	{
 		return state.sounds;
+	}
+	
+	public void setTimeFading(boolean newTimeFading)
+	{
+		state.timeFading = newTimeFading;
+	}
+	
+	public boolean isTimeFading()
+	{
+		return state.timeFading;
 	}
 	
 	/**

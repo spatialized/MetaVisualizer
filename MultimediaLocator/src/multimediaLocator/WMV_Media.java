@@ -30,7 +30,7 @@ public abstract class WMV_Media
 	/* Time */
 	private ScaleMap timeLogMap;
 	private InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
-	public WMV_Time time;
+	public WMV_Time time;						// Media time						
 
 	/**
 	 * Constructor for abstract media object
@@ -111,26 +111,26 @@ public abstract class WMV_Media
 
 		switch( worldState.getTimeMode() )
 		{
-			case 0:
+			case 0:															// Time Mode: Cluster
 				curTime = c.getState().currentTime;									// Set image time from cluster
 				lower = c.getTimeline().getLower().getLower().getTime();			// Get cluster timeline lower bound
 				upper = c.getTimeline().getUpper().getUpper().getTime();			// Get cluster timeline upper bound
 			break;
 		
-			case 1:												// Time Mode: Field
+			case 1:															// Time Mode: Field
 				curTime = worldState.currentTime;
 				lower = fieldTimeline.getLower().getLower().getTime();		// Check division					// Get cluster timeline lower bound
 				upper = fieldTimeline.getUpper().getUpper().getTime();		// Get cluster timeline upper bound
 				break;
 				
-			case 2:
+			case 2:															// Time Mode: (Single) Media
 				curTime = worldState.currentTime;
 				break;
 		}
 		
 		if(worldState.getTimeMode() == 0 || worldState.getTimeMode() == 1)
 		{
-			if(lower == upper)				// Only one time segment in cluster: fade for full timeline length
+			if(lower == upper)				// Only one time segment in cluster; fade for full timeline length
 			{
 				centerTime = worldSettings.timeCycleLength / 2.f;
 				length = worldSettings.timeCycleLength;						 
@@ -169,9 +169,7 @@ public abstract class WMV_Media
 				fadeOutStart = Math.round(centerTime + length / 4.f);		// Frame media starts fading out
 				fadeOutEnd = Math.round(centerTime + length / 2.f);			// Frame media finishes fading out
 				if(fadeOutEnd > worldSettings.timeCycleLength)
-				{
 					fadeOutEnd = worldSettings.timeCycleLength;
-				}
 			}	
 
 			/* Debugging */

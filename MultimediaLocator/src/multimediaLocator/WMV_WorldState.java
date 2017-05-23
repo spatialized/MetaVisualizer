@@ -7,12 +7,12 @@ package multimediaLocator;
 public class WMV_WorldState
 {
 	/* Time */
+	public boolean timeFading = false;					// Does time affect media brightness? 
+	public boolean paused = false;						// Time is paused
 	public int currentTime = 0;							// Time units since start of time cycle (day / month / year)
 	public int currentDate = 0;							// Date units since start of date cycle (day / month / year)
 	public int frameCount = 0;							// Frame count
 	public int timeMode = 0;							// Time Mode: 0 = cluster; 1 = field; 2 = (single) media
-	public boolean timeFading = false;					// Does time affect media brightness? 
-	public boolean paused = false;						// Time is paused
 
 	/* Graphics */
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?

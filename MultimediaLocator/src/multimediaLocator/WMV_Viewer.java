@@ -1094,7 +1094,7 @@ public class WMV_Viewer
 	 * @param inclCurrent Include the current cluster?
 	 * @return List of indices of nearest clusters to camera			
 	 */
-	public IntList getNearClusters(int amount, float threshold) 	// -- excluding the current cluster??
+	public IntList getNearClusterIDs(int amount, float threshold) 	// -- excluding the current cluster??
 	{
 		PVector vPos = getLocation();
 		IntList nearList = new IntList();
@@ -2701,7 +2701,7 @@ public class WMV_Viewer
 	{
 		PVector camOrientation = getOrientationVector();
 
-		IntList nearClusters = getNearClusters(20, worldSettings.defaultFocusDistance * 4.f);	// Find 20 nearest clusters -- Change based on density?
+		IntList nearClusters = getNearClusterIDs(20, worldSettings.defaultFocusDistance * 4.f);	// Find 20 nearest clusters -- Change based on density?
 		IntList frontClusters = new IntList();
 		
 		for (int i : nearClusters) 							// Iterate through the clusters
@@ -3246,7 +3246,7 @@ public class WMV_Viewer
 	 */
 	public boolean mediaAreVisible( boolean front, int threshold )
 	{
-		IntList nearClusters = getNearClusters(10, settings.farViewingDistance + worldSettings.defaultFocusDistance); 	
+		IntList nearClusters = getNearClusterIDs(10, settings.farViewingDistance + worldSettings.defaultFocusDistance); 	
 
 		if(nearClusters.size() == 0)
 			return false;
@@ -3988,7 +3988,8 @@ public class WMV_Viewer
 			
 			if(c != null)
 			{
-				c.getState().timeFading = true;
+				if(p.state.timeFading && !c.getState().timeFading) 
+					c.getState().timeFading = true;
 
 				WMV_Field f = currentField;
 				if(newFieldTimeSegment == -1)						// If == -1, search for time segment

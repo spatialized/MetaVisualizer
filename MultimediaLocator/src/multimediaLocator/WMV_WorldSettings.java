@@ -29,6 +29,10 @@ public class WMV_WorldSettings
 	/* Graphics */
 	public int maxVisibleClusters = -1;					// Maximum visible clusters at once (-1: no limit)
 	public boolean depthTesting = false;				// Enable depth testing
+	public final int maxVisibleImages = 85;					// Maximum visible images at one time
+	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time
+	public final int maxVisibleVideos = 2;					// Maximum visible videos at one time
+	public final int maxAudibleSounds = 4;					// Maximum audible sounds at one time
 	
 	/* Time */
 	public boolean getTimeZonesFromGoogle = false;		// Get time zone for each field center from Google Time Zone API
@@ -44,8 +48,9 @@ public class WMV_WorldSettings
 
 	final public int initDefaultMediaLength = 50;		// Initial frame length of media in time cycle
 	public int defaultMediaLength = 50;					// Default frame length of media in time cycle
-
-	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
+	public float timeVisibleInterval = 1.f;						// Time interval for which close media become visible (in % of timeline length)
+															// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
+	public final float clusterTimePrecision = 0.0001f;	// Precision of timesHistogram (no. of bins)
 
 	/* Video */
 	public final float videoMaxVolume = 0.85f;

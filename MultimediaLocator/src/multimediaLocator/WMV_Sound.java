@@ -248,8 +248,7 @@ public class WMV_Sound extends WMV_Media
 	{
 		if(ml.debugSettings.sound) System.out.println("loadMedia() for sound #"+getID());
 		
-		if( ml.world.getCurrentField().getState().soundsAudible < ml.world.viewer.getSettings().maxAudibleSounds &&
-				!getMediaState().hidden && !getMediaState().disabled)
+		if( !getMediaState().hidden && !getMediaState().disabled )
 		{
 			ac = new AudioContext();
 			player = new SamplePlayer(ac, SampleManager.sample(getMediaState().filePath));

@@ -24,8 +24,9 @@ public class WMV_ClusterState
 	
 	/* Time */
 	public ArrayList<WMV_Date> dateline;				// Capture dates for this cluster
-	public WMV_Timeline timeline;						// Date-independent capture times for this cluster
-	public ArrayList<WMV_Timeline> timelines;	
+	public WMV_Timeline timeline;						// Date-independent cluster capture times 
+	public ArrayList<WMV_Timeline> timelines;			// Date-specific cluster timelines 
+	
 	public boolean timeFading = false;					// Does time affect photos' brightness? (true = yes; false = no)
 	public boolean dateFading = true;					// Does time affect photos' brightness? (true = yes; false = no)
 	public boolean paused = false;						// Time is paused

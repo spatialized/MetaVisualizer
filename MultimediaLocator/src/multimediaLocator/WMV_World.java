@@ -106,7 +106,7 @@ public class WMV_World
 		updateState();
 		updateViewerAttraction();			// Attract the viewer
 		display(p.state.sphericalView);
-		if(!state.paused) updateTime();		// Update time cycle
+		if(!state.paused) updateTimeBehavior();		// Update time cycle
 	}
 	
 	public void display(boolean sphericalView)
@@ -210,74 +210,124 @@ public class WMV_World
 	/** 
 	 * Update main time loop
 	 */
-	void updateTime()
+	void updateTimeBehavior()
 	{
 		switch(state.timeMode)
 		{
 			case 0:													// Cluster Time Mode
-				for(WMV_Cluster c : getCurrentField().getClusters())
-					if(c.getState().timeFading)
-						c.updateTime();
+				if(state.timeFading)
+					updateClusterTimeMode();
 				break;
 			
 			case 1:													// Field Time Mode
 				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
-				{
-					state.currentTime++;
-					if(state.currentTime > settings.timeCycleLength)
-						state.currentTime = 0;
-	
-					if(p.debugSettings.field && state.currentTime > settings.timeCycleLength + settings.defaultMediaLength * 0.25f)
-					{
-						if(getCurrentField().mediaAreActive())
-						{
-							if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Media still active...");
-						}
-						else
-						{
-							state.currentTime = 0;
-							if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Reached end of day at frameCount:"+state.frameCount);
-						}
-					}
-				}
+					updateFieldTimeMode();
 				break;
 
 			case 2:													// Single Time Mode
 				if(state.timeFading && state.frameCount % settings.timeUnitLength == 0)
-				{
-					state.currentTime++;
-					if(p.debugSettings.time && p.debugSettings.detailed)
-						System.out.println("currentTime:"+state.currentTime);
-
-					if(state.currentTime >= viewer.getNextMediaStartTime())
-					{
-						if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
-						{
-							setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
-						}
-						else
-						{
-							if(p.debugSettings.main)
-								System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
-							state.currentTime = 0;
-							startMediaTimeModeCycle();
-						}
-					}
-					
-					if(state.currentTime > settings.timeCycleLength)
-					{
-						state.currentTime = 0;
-						startMediaTimeModeCycle();
-					}
-				}
+					updateSingleTimeMode();
 				break;
 				
-			case 3:													// Flexible Time Mode
+			case 3:													// Flexible Time Mode -- In progress
 				break;
 		}
 	}
 	
+	public void setCurrentTimePoint(float newTimePoint)
+	{
+		switch(state.timeMode)
+		{
+			case 0:													// Cluster Time Mode
+				for(WMV_Cluster c : getVisibleClusters())
+					if(c.getState().timeFading)
+						c.setTimePoint(newTimePoint);
+				break;
+			
+			case 1:													// Field Time Mode
+				setTimePoint(newTimePoint);
+				break;
 
+			case 2:													// (Single) Media Time Mode
+//				setTimePoint(newTimePoint);
+				break;
+				
+			case 3:													// Flexible Time Mode -- In progress
+				break;
+		}
+	}
+	
+	private void setTimePoint(float newTimePoint)
+	{
+		state.currentTime = (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0, settings.timeCycleLength);
+	}
+	
+	private void updateClusterTimeMode()
+	{
+		ArrayList<WMV_Cluster> visible = getVisibleClusters();
+		
+		for(WMV_Cluster c : getVisibleClusters())
+		{
+			if(!c.isTimeFading()) c.setTimeFading(true);
+			c.updateTime();
+		}
+		
+		for(WMV_Cluster c : getCurrentField().getClusters())
+		{
+			if(!visible.contains(c))
+				if(c.isTimeFading())
+					c.setTimeFading(false);
+		}
+	}
+	
+	private void updateFieldTimeMode()
+	{
+		state.currentTime++;
+		if(state.currentTime > settings.timeCycleLength)
+			state.currentTime = 0;
+
+//		if(p.debugSettings.field && state.currentTime > settings.timeCycleLength + settings.defaultMediaLength * 0.25f)
+//		{
+//			if(getCurrentField().mediaAreActive())
+//			{
+//				if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Media still active...");
+//			}
+//			else
+//			{
+//				state.currentTime = 0;
+//				if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Reached end of day at frameCount:"+state.frameCount);
+//			}
+//		}
+	}
+	
+	private void updateSingleTimeMode()
+	{
+		state.currentTime++;
+		if(p.debugSettings.time && p.debugSettings.detailed)
+			System.out.println("currentTime:"+state.currentTime);
+
+		if(state.currentTime >= viewer.getNextMediaStartTime())
+		{
+			if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
+			{
+				setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
+			}
+			else
+			{
+				if(p.debugSettings.main)
+					System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
+				state.currentTime = 0;
+				startMediaTimeModeCycle();
+			}
+		}
+		
+		if(state.currentTime > settings.timeCycleLength)
+		{
+			state.currentTime = 0;
+			startMediaTimeModeCycle();
+		}
+	}
+	
 	/**
 	 * Update viewer and current field about world state and settings
 	 */
@@ -1381,8 +1431,7 @@ public class WMV_World
 	{
 		state.timeMode = newTimeMode;
 		
-		if(state.timeMode == 2)
-			createTimeCycle();
+//		if(state.timeMode == 2) createTimeCycle();
 		
 		if(p.display.window.setupTimeWindow)
 		{
@@ -1391,25 +1440,27 @@ public class WMV_World
 				case 0:														// Cluster
 					p.display.window.optClusterTimeMode.setSelected(true);
 					p.display.window.optFieldTimeMode.setSelected(false);
-					p.display.window.optMediaTimeMode.setSelected(false);
-					p.display.window.sdrTimeCycleLength.setValue(getCurrentCluster().getTimeCycleLength());
-					if(!p.display.window.sdrTimeCycleLength.isVisible())
-						p.display.window.sdrTimeCycleLength.setVisible(true);
+//					p.display.window.optMediaTimeMode.setSelected(false);
+					if(p.display.window.sdrVisibleInterval.isVisible())
+						p.display.window.sdrVisibleInterval.setVisible(false);
+					if(p.display.window.lblVisibleInterval.isVisible())
+						p.display.window.lblVisibleInterval.setVisible(false);
 					break;
 				case 1:														// Field
 					p.display.window.optClusterTimeMode.setSelected(false);
 					p.display.window.optFieldTimeMode.setSelected(true);
-					p.display.window.optMediaTimeMode.setSelected(false);
-					p.display.window.sdrTimeCycleLength.setValue(settings.timeCycleLength);
-					if(!p.display.window.sdrTimeCycleLength.isVisible())
-						p.display.window.sdrTimeCycleLength.setVisible(true);
+//					p.display.window.optMediaTimeMode.setSelected(false);
+					if(!p.display.window.sdrVisibleInterval.isVisible())
+						p.display.window.sdrVisibleInterval.setVisible(true);
+					if(!p.display.window.lblVisibleInterval.isVisible())
+						p.display.window.lblVisibleInterval.setVisible(true);
 					break;
-				case 2:														// Media
-					p.display.window.optClusterTimeMode.setSelected(false);
-					p.display.window.optFieldTimeMode.setSelected(false);
-					p.display.window.optMediaTimeMode.setSelected(true);
-					p.display.window.sdrTimeCycleLength.setVisible(false);
-					break;
+//				case 2:														// Media
+//					p.display.window.optClusterTimeMode.setSelected(false);
+//					p.display.window.optFieldTimeMode.setSelected(false);
+////					p.display.window.optMediaTimeMode.setSelected(true);
+//					p.display.window.sdrTimeCycleLength.setVisible(false);
+//					break;
 			}		
 		}
 	}
@@ -1553,11 +1604,53 @@ public class WMV_World
 		WMV_Field f = getCurrentField();
 		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
 
-		for(int i : viewer.getNearClusters(settings.maxVisibleClusters, settings.maxClusterDistance))
+		for(int i : viewer.getNearClusterIDs(settings.maxVisibleClusters, settings.maxClusterDistance))
 		{
 			WMV_Cluster c = f.getCluster(i);
+			
 			if(c.isActive() && !c.isEmpty())
-				clusters.add(c);
+			{
+				boolean visible = true;
+				
+				if(state.timeFading)		// Time fading in Field Time Mode
+				{
+					if(settings.timeVisibleInterval < 1.f)
+					{
+						visible = false;
+						switch(state.timeMode)
+						{
+							case 0:
+								visible = true;
+								break;
+								
+							case 1:
+								float first = c.getTimeline().timeline.get( c.getFirstTimeSegmentFieldTimelineID(true) ).getLower().getTime();
+								float last = c.getTimeline().timeline.get( c.getLastTimeSegmentFieldTimelineID(true) ).getUpper().getTime();
+								float center;
+								
+								if(first == last)
+									center = first;
+								else
+									center = first + last * 0.5f;
+
+								float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
+								float timeDiff = (float)Math.abs(current-center);
+								if(timeDiff <= settings.timeVisibleInterval) 
+									visible = true;
+								break;
+								
+							case 2:
+								visible = true;
+								break;
+						}
+					}
+
+					if(visible) 
+						clusters.add(c);
+				}
+				else
+					clusters.add(c);
+			}
 		}
 		
 		return clusters;
@@ -1573,11 +1666,53 @@ public class WMV_World
 		WMV_Field f = getCurrentField();
 		List<Integer> clusters = new ArrayList<Integer>();
 
-		for(int i : viewer.getNearClusters(settings.maxVisibleClusters, settings.maxClusterDistance))
+		for(int i : viewer.getNearClusterIDs(settings.maxVisibleClusters, settings.maxClusterDistance))
 		{
 			WMV_Cluster c = f.getCluster(i);
+			
 			if(c.isActive() && !c.isEmpty())
-				clusters.add(c.getID());
+			{
+				boolean visible = true;
+				
+//				if(state.timeFading)		// Time fading in Field Time Mode
+//				{
+					if(settings.timeVisibleInterval < 1.f)
+					{
+						visible = false;
+						switch(state.timeMode)
+						{
+							case 0:
+								visible = true;
+								break;
+								
+							case 1:
+								float first = c.getTimeline().timeline.get( c.getFirstTimeSegmentClusterTimelineID(true) ).getLower().getTime();
+								float last = c.getTimeline().timeline.get( c.getLastTimeSegmentClusterTimelineID(true) ).getUpper().getTime();
+								float center;
+								
+								if(first == last)
+									center = first;
+								else
+									center = first + last * 0.5f;
+
+								float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
+								float timeDiff = (float)Math.abs(current - center);
+								if(timeDiff <= settings.timeVisibleInterval) 
+									visible = true;
+								break;
+								
+							case 2:
+								visible = true;
+								break;
+						}
+					}
+
+					if(visible) 
+						clusters.add(c.getID());
+//				}
+//				else
+//					clusters.add(c.getID());
+			}
 		}
 		
 		return clusters;

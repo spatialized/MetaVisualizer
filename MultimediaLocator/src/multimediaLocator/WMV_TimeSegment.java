@@ -12,12 +12,12 @@ public class WMV_TimeSegment implements Comparable<WMV_TimeSegment>
 	private WMV_Time center;			// Center time 	 	  -- Mean or median??
 	private WMV_Time lower, upper;		// Upper and lower bounds of cluster
 	
-	private int clusterID;			// Time segment ID and cluster ID
-	private int clusterTimelineID;		// ID of segment on cluster single day timeline
-	private int clusterTimelineIDOnDate;		// ID within cluster date-specific timelines
-	private int clusterDateID;			// Cluster date-specific timeline for this segment
-	private int fieldTimelineID;		// ID of segment on field single day timeline
-	private int fieldDateID;			// Field date-specific timeline for this segment
+	private int clusterID;				// Time segment ID and cluster ID
+	private int clusterTimelineID;			// ID of segment on cluster single day timeline
+	private int clusterTimelineIDOnDate;	// ID within cluster date-specific timelines
+	private int clusterDateID;				// Cluster date-specific timeline for this segment
+	private int fieldTimelineID;			// ID of segment on field single day timeline
+	private int fieldDateID;				// Field date-specific timeline for this segment
 	private int fieldTimelineIDOnDate;		// ID within field date-specific timelines
 	
 	ArrayList<WMV_Time> timeline;

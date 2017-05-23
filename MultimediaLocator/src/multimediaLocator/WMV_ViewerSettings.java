@@ -39,11 +39,11 @@ public class WMV_ViewerSettings
 	public int autoPlayMaxSoundCount = 3;				// Maximum videos to auto play simultaneously
 	public float farHearingDistance = 36.f; 						// Far distance (m.) at which media start fading out
 
-	/* Media Visibility */
-	public final int maxVisibleImages = 120;					// Maximum visible images at one time
-	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time
-	public final int maxVisibleVideos = 2;					// Maximum visible videos at one time
-	public final int maxAudibleSounds = 4;					// Maximum audible sounds at one time
+//	/* Media Visibility */
+//	public final int maxVisibleImages = 85;					// Maximum visible images at one time
+//	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time
+//	public final int maxVisibleVideos = 2;					// Maximum visible videos at one time
+//	public final int maxAudibleSounds = 4;					// Maximum audible sounds at one time
 	
 	public boolean hideImages = false;						// Hide images
 	public boolean hidePanoramas = false;					// Hide panoramas

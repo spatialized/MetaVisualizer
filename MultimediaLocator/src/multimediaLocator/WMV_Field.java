@@ -1,7 +1,6 @@
 package multimediaLocator;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -111,14 +110,12 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Display field
+	 * Display visible media in field
 	 * @param ml Parent app
 	 */
-	public void display(MultimediaLocator ml) 				// Draw currently visible media
+	public void display( MultimediaLocator ml ) 				
 	{
-		/* Find visible clusters */
-		if(ml.frameCount % 15 == 0)
-			updateVisibleClusters(ml);
+		if(ml.frameCount % 10 == 0) updateVisibleClusters(ml);		/* Find visible clusters */
 		
 		state.imagesVisible = visibleImages.size();
 		state.panoramasVisible = visiblePanoramas.size();
@@ -152,81 +149,10 @@ public class WMV_Field
 //		}
 	}
 	
-	public void updateVisibleClusters(MultimediaLocator ml)
-	{
-//		int maxVisibleImages = ml.world.viewer.getSettings().maxVisibleImages;
-//		boolean overMaxImages = (state.imagesVisible > maxVisibleImages);
-//		int maxVisiblePanoramas = ml.world.viewer.getSettings().maxVisiblePanoramas;
-//		boolean overMaxPanoramas = (state.panoramasVisible > maxVisiblePanoramas);
-//		int maxVisibleVideos = ml.world.viewer.getSettings().maxVisibleVideos;
-//		boolean overMaxVideos = (state.videosVisible > maxVisibleVideos);
-//		int maxAudibleSounds = ml.world.viewer.getSettings().maxAudibleSounds;
-//		boolean overMaxSounds = (state.soundsAudible > maxAudibleSounds);
-
-		int maxVisibleImages = ml.world.viewer.getSettings().maxVisibleImages;
-		boolean overMaxImages = (state.imagesInRange > maxVisibleImages);
-		int maxVisiblePanoramas = ml.world.viewer.getSettings().maxVisiblePanoramas;
-		boolean overMaxPanoramas = (state.panoramasInRange > maxVisiblePanoramas);
-		int maxVisibleVideos = ml.world.viewer.getSettings().maxVisibleVideos;
-		boolean overMaxVideos = (state.videosInRange > maxVisibleVideos);
-		int maxAudibleSounds = ml.world.viewer.getSettings().maxAudibleSounds;
-		boolean overMaxSounds = (state.soundsInRange > maxAudibleSounds);
-
-		if(overMaxImages || overMaxPanoramas || overMaxVideos || overMaxSounds)
-			reduceClusterVisibility(ml);
-		else
-			increaseClusterVisibility(ml);
-		
-		visibleClusters = ml.world.getVisibleClusterIDs();
-		
-//		if(visibleClusters.size() > 0)
-//		{
-//			System.out.println("--- Visible Clusters:"+visibleClusters.size()+" maxVisibleClusters:"+ml.world.settings.maxVisibleClusters);
-//			if(visibleImages.size() > 0) System.out.println("Visible Images:"+visibleImages.size()+" maxVisibleImages:"+ml.world.viewer.getSettings().maxVisibleImages);
-//			if(visiblePanoramas.size() > 0) System.out.println("Visible Panoramas:"+visiblePanoramas.size()+" maxVisiblePanoramas:"+ml.world.viewer.getSettings().maxVisiblePanoramas);
-//			if(visibleVideos.size() > 0) System.out.println("Visible Videos:"+visibleVideos.size()+" maxVisibleVideos:"+ml.world.viewer.getSettings().maxVisibleVideos);
-//			if(audibleSounds.size() > 0) System.out.println("Audible Sounds:"+audibleSounds.size()+" maxAudibleSounds:"+ml.world.viewer.getSettings().maxAudibleSounds);
-//		}
-	}
-	
-	public void increaseClusterVisibility(MultimediaLocator ml)
-	{
-		if( ml.world.settings.maxVisibleClusters != -1 )
-		{
-			if(ml.world.settings.maxVisibleClusters + 1 < 20)
-			{
-				ml.world.settings.maxVisibleClusters++;
-				System.out.println("> increaseClusterVisibility()... Increased cluster visibility to:"+ml.world.settings.maxVisibleClusters);
-			}
-			else
-				ml.world.settings.maxVisibleClusters = -1;
-		}
-	}
-	
-	public void reduceClusterVisibility(MultimediaLocator ml)
-	{
-		if( ml.world.settings.maxVisibleClusters == -1 )
-		{
-			ml.world.settings.maxVisibleClusters = 10;
-		}
-		else
-		{
-			if(ml.world.settings.maxVisibleClusters - 1 > 1)
-			{
-				ml.world.settings.maxVisibleClusters--;
-				System.out.println("> reduceClusterVisibility()... Reduced cluster visibility to:"+ml.world.settings.maxVisibleClusters);
-			}
-		}
-	}
-	
-	public boolean clusterIsVisible(int clusterID)
-	{
-		if(visibleClusters.contains(clusterID))
-			return true;
-		else
-			return false;
-	}
-	
+	/**
+	 * Update images in field
+	 * @param ml Parent app
+	 */
 	private void updateImages(MultimediaLocator ml)
 	{
 		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
@@ -257,6 +183,11 @@ public class WMV_Field
 		}
 	}
 	
+	/**
+	 * Update image geometry and visibility
+	 * @param ml Parent app
+	 * @param m Image ID
+	 */
 	private void updateImage(MultimediaLocator ml, WMV_Image m)
 	{
 		if(m.getMediaState().requested && m.image.width != 0)			// If requested image has loaded, initialize image 
@@ -271,7 +202,7 @@ public class WMV_Field
 		{
 			boolean wasVisible = m.isVisible();
 			m.calculateVisibility(utilities);
-			m.setVisible( clusterIsVisible(m.getAssociatedClusterID()) );		// Added 3-22
+			if(!clusterIsVisible(m.getAssociatedClusterID())) m.setVisible( false );		
 			m.updateFading(this, wasVisible);
 		}
 		else
@@ -293,6 +224,10 @@ public class WMV_Field
 			m.updateFadingFocusDistance();
 	}
 
+	/**
+	 * Update panoramas in field
+	 * @param ml Parent app
+	 */
 	private void updatePanoramas(MultimediaLocator ml)
 	{
 		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
@@ -322,6 +257,11 @@ public class WMV_Field
 		}
 	}
 	
+	/**
+	 * Update panorama geometry and visibility
+	 * @param ml Parent app
+	 * @param n Panorama ID
+	 */
 	public void updatePanorama(MultimediaLocator ml, WMV_Panorama n)
 	{
 		if(n.getMediaState().requested && n.texture.width != 0)			// If requested image has loaded, initialize image 
@@ -339,7 +279,7 @@ public class WMV_Field
 			if(n.texture.width > 0)			
 			{
 				n.calculateVisibility();
-				n.setVisible( clusterIsVisible(n.getAssociatedClusterID()) );		// Added 3-22
+				if(!clusterIsVisible(n.getAssociatedClusterID())) n.setVisible( false );		
 				n.updateFading(this);
 			}
 
@@ -351,6 +291,10 @@ public class WMV_Field
 		}
 	}
 	
+	/**
+	 * Update videos in field
+	 * @param ml Parent app
+	 */
 	private void updateVideos(MultimediaLocator ml)
 	{
 		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
@@ -387,13 +331,18 @@ public class WMV_Field
 		}
 	}
 	
+	/**
+	 * Update video geometry and visibility
+	 * @param ml Parent app
+	 * @param v Video ID
+	 */
 	private void updateVideo(MultimediaLocator ml, WMV_Video v)
 	{
 		if(!v.getMediaState().disabled)			
 		{
 			boolean wasVisible = v.isVisible();
 			v.calculateVisibility(utilities);
-			v.setVisible( clusterIsVisible(v.getAssociatedClusterID()) );		// Added 3-22
+			if(!clusterIsVisible(v.getAssociatedClusterID())) v.setVisible( false );		
 			v.updateFading(ml, wasVisible);
 			
 			if(getViewerSettings().orientationMode)
@@ -410,6 +359,10 @@ public class WMV_Field
 		}
 	}
 	
+	/**
+	 * Update sounds in field
+	 * @param ml Parent app
+	 */
 	private void updateSounds(MultimediaLocator ml)
 	{
 		float inaudiblePoint = viewerSettings.farHearingDistance;	// Distance where volume reaches zero
@@ -450,13 +403,18 @@ public class WMV_Field
 		}
 	}
 	
+	/**
+	 * Update sound audibility and (model) visibility
+	 * @param ml Parent app
+	 * @param s Sound ID
+	 */
 	private void updateSound(MultimediaLocator ml, WMV_Sound s)
 	{
 		if(!s.isDisabled())			
 		{
 			boolean wasVisible = s.isVisible();
 			s.calculateAudibility();
-			s.setVisible( clusterIsVisible(s.getAssociatedClusterID()) );		// Added 3-22
+			if(!clusterIsVisible(s.getAssociatedClusterID())) s.setVisible( false );		
 			s.updateFading(ml, wasVisible);
 			
 			if(s.state.loaded)
@@ -470,13 +428,44 @@ public class WMV_Field
 	}
 
 	/**
+	 * Update cluster visibility based on distance and media visibility restrictions
+	 * @param ml Parent app
+	 */
+	public void updateVisibleClusters(MultimediaLocator ml)
+	{
+		int maxVisibleImages = ml.world.getSettings().maxVisibleImages;
+		boolean overMaxImages = (state.imagesInRange > maxVisibleImages);
+		int maxVisiblePanoramas = ml.world.getSettings().maxVisiblePanoramas;
+		boolean overMaxPanoramas = (state.panoramasInRange > maxVisiblePanoramas);
+		int maxVisibleVideos = ml.world.getSettings().maxVisibleVideos;
+		boolean overMaxVideos = (state.videosInRange > maxVisibleVideos);
+		int maxAudibleSounds = ml.world.getSettings().maxAudibleSounds;
+		boolean overMaxSounds = (state.soundsInRange > maxAudibleSounds);
+		
+		if(overMaxImages || overMaxPanoramas || overMaxVideos || overMaxSounds)
+			reduceClusterVisibility(ml);
+		else
+			increaseClusterVisibility(ml);
+		
+		visibleClusters = ml.world.getVisibleClusterIDs();
+		
+//		if(visibleClusters.size() > 0)
+//		{
+//			System.out.println("updateVisibleClusters()... Current Visible Clusters:"+visibleClusters.size()+" maxVisibleClusters:"+ml.world.settings.maxVisibleClusters);
+//			if(visibleImages.size() > 0) System.out.println("Visible Images:"+visibleImages.size()+" maxVisibleImages:"+ml.world.viewer.getSettings().maxVisibleImages);
+//			if(visiblePanoramas.size() > 0) System.out.println("Visible Panoramas:"+visiblePanoramas.size()+" maxVisiblePanoramas:"+ml.world.viewer.getSettings().maxVisiblePanoramas);
+//			if(visibleVideos.size() > 0) System.out.println("Visible Videos:"+visibleVideos.size()+" maxVisibleVideos:"+ml.world.viewer.getSettings().maxVisibleVideos);
+//			if(audibleSounds.size() > 0) System.out.println("Audible Sounds:"+audibleSounds.size()+" maxAudibleSounds:"+ml.world.viewer.getSettings().maxAudibleSounds);
+//		}
+	}
+	
+	/**
 	 * Display the image in virtual space
 	 */
 	private void displayImage(MultimediaLocator ml, int i)
 	{
 		WMV_Image m = images.get(i);
 		
-//		System.out.print("displayImage():"+getID()+" isHidden():"+isHidden());
 		float angleBrightnessFactor;							// Fade with angle
 		float brightness = m.getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
@@ -503,7 +492,6 @@ public class WMV_Field
 		{
 			if (m.getViewingBrightness() > 0)
 			{
-//				System.out.println(" ID:"+getID()+" getViewingBrightness():"+getViewingBrightness()+" distanceBrightnessFactor:"+distanceBrightnessFactor+" image.width: "+image.width);
 				if(m.image.width > 0)				// If image has been loaded
 					m.display(ml);        // Display image 
 			}
@@ -605,13 +593,8 @@ public class WMV_Field
 		if(s.getMediaState().showMetadata) s.displayMetadata(ml);
 		if(s.getMediaState().visible)
 		{
-//			System.out.println("getWorldState().showModel:"+getWorldState().showModel+" isHidden():"+isHidden()+" isDisabled():"+isDisabled()+" wtf? "+(getWorldState().showModel && !isHidden() && !!isDisabled()));
-
 			if(getWorldState().showModel && !s.isHidden() && !s.isDisabled())
-			{
-//				System.out.println("Will call displayModel()...");
 				s.displayModel(ml);
-			}
 			else if(ml.debugSettings.sound || ml.debugSettings.field) 
 				s.displayModel(ml);
 		}
@@ -632,210 +615,90 @@ public class WMV_Field
 			displayImage(ml, i);
 	}
 	
+	/**
+	 * Display visible panoramas
+	 * @param ml Parent app
+	 * @param visiblePanoramas List of visible panoramas
+	 */
 	private void displayVisiblePanoramas(MultimediaLocator ml, List<Integer> visiblePanoramas)
 	{
 		for(int i : visiblePanoramas)
 			displayPanorama(ml, i);
 	}
 	
+	/**
+	 * Display visible videos
+	 * @param ml Parent app
+	 * @param visibleVideos List of visible videos
+	 */
 	private void displayVisibleVideos(MultimediaLocator ml, List<Integer> visibleVideos)
 	{
 		for(int i : visibleVideos)
 			displayVideo(ml, i);
 	}
 
+	/**
+	 * Display audible sounds
+	 * @param ml Parent app
+	 * @param audibleSounds List of audible sounds
+	 */
 	private void displayAudibleSounds(MultimediaLocator ml, List<Integer> audibleSounds)
 	{
 		for(int i : audibleSounds)
 			displaySound(ml, i);
 	}
 
-	private List<Integer> sortVisibleImages(List<Integer> visibleImages)
+	/**
+	 * Increase max. number of visible clusters
+	 * @param ml Parent app
+	 */
+	public void increaseClusterVisibility(MultimediaLocator ml)
 	{
-//		System.out.println("sortVisibleImages()...");
-
-		ArrayList<ImageDistance> distances = new ArrayList<ImageDistance>();
-		for(int i : visibleImages)
+		if( ml.world.settings.maxVisibleClusters != -1 )
 		{
-			WMV_Image img = images.get(i);
-			distances.add(new ImageDistance(i, img.getViewingDistance()));
-		}
-		
-		distances.sort(null);
-		
-		List<Integer> sorted  = new ArrayList<Integer>();
-		for(ImageDistance imgDist : distances)
-			sorted.add(imgDist.id);
-		
-		return sorted;
-	}
-
-	private List<Integer> sortVisiblePanoramas(List<Integer> visiblePanoramas)
-	{
-//		System.out.println("sortVisiblePanoramas()...");
-
-		ArrayList<PanoramaDistance> distances = new ArrayList<PanoramaDistance>();
-		for(int i : visiblePanoramas)
-		{
-			WMV_Panorama pano = panoramas.get(i);
-			distances.add(new PanoramaDistance(i, pano.getViewingDistance()));
-		}
-		
-		distances.sort(null);
-		
-		List<Integer> sorted  = new ArrayList<Integer>();
-		for(PanoramaDistance panoDist : distances)
-			sorted.add(panoDist.id);
-		
-		return sorted;
-	}
-
-	private List<Integer> sortVisibleVideos(List<Integer> visibleVideos)
-	{
-//		System.out.println("sortVisiblePanoramas()...");
-
-		ArrayList<VideoDistance> distances = new ArrayList<VideoDistance>();
-		for(int i : visibleVideos)
-		{
-			WMV_Video vid = videos.get(i);
-			distances.add(new VideoDistance(i, vid.getViewingDistance()));
-		}
-		
-		distances.sort(null);
-		
-		List<Integer> sorted  = new ArrayList<Integer>();
-		for(VideoDistance vidDist : distances)
-			sorted.add(vidDist.id);
-		
-		return sorted;
-	}
-
-	private List<Integer> sortAudibleSounds(List<Integer> audibleSounds)
-	{
-//		System.out.println("sortVisiblePanoramas()...");
-
-		ArrayList<SoundDistance> distances = new ArrayList<SoundDistance>();
-		for(int i : audibleSounds)
-		{
-			WMV_Sound snd = sounds.get(i);
-			distances.add(new SoundDistance(i, snd.getViewingDistance()));
-		}
-		
-		distances.sort(null);
-		
-		List<Integer> sorted  = new ArrayList<Integer>();
-		for(SoundDistance sndDist : distances)
-			sorted.add(sndDist.id);
-		
-		return sorted;
-	}
-
-	private class ImageDistance implements Comparable<ImageDistance>{
-		int id = -1;
-		float distance = -1.f;
-		public ImageDistance(int newID, float newDistance)
-		{
-			id = newID;
-			distance = newDistance;
-		}
-		
-		public int compareTo(ImageDistance imgDistance)
-		{
-			return Float.compare(this.distance, imgDistance.distance);		
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-
-			if (o == this) return true;
-			if (!(o instanceof ImageDistance)) {
-				return false;
+			if(ml.world.settings.maxVisibleClusters + 1 < 20)
+			{
+				ml.world.settings.maxVisibleClusters++;
+				if(debugSettings.field)
+					System.out.println("> increaseClusterVisibility()... Increased cluster visibility to:"+ml.world.settings.maxVisibleClusters);
 			}
-			ImageDistance iDist = (ImageDistance) o;
-
-			return distance == iDist.distance && Objects.equals(id, iDist.id);
+			else
+				ml.world.settings.maxVisibleClusters = -1;
 		}
 	}
 	
-	private class PanoramaDistance implements Comparable<PanoramaDistance>{
-		int id = -1;
-		float distance = -1.f;
-		public PanoramaDistance(int newID, float newDistance)
+	/**
+	 * Reduce max. number of visible clusters
+	 * @param ml Parent app
+	 */
+	public void reduceClusterVisibility(MultimediaLocator ml)
+	{
+		if( ml.world.settings.maxVisibleClusters == -1 )
 		{
-			id = newID;
-			distance = newDistance;
+			ml.world.settings.maxVisibleClusters = 10;
 		}
-		
-		public int compareTo(PanoramaDistance panoDistance)
+		else
 		{
-			return Float.compare(this.distance, panoDistance.distance);		
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-
-			if (o == this) return true;
-			if (!(o instanceof PanoramaDistance)) {
-				return false;
+			if(ml.world.settings.maxVisibleClusters - 1 > 1)
+			{
+				ml.world.settings.maxVisibleClusters--;
+				if(debugSettings.field)
+					System.out.println("> reduceClusterVisibility()... Reduced cluster visibility to:"+ml.world.settings.maxVisibleClusters);
 			}
-			
-			PanoramaDistance pDist = (PanoramaDistance) o;
-			return distance == pDist.distance && Objects.equals(id, pDist.id);
 		}
 	}
-
-	private class VideoDistance implements Comparable<VideoDistance>{
-		int id = -1;
-		float distance = -1.f;
-		public VideoDistance(int newID, float newDistance)
-		{
-			id = newID;
-			distance = newDistance;
-		}
-		
-		public int compareTo(VideoDistance vidDistance)
-		{
-			return Float.compare(this.distance, vidDistance.distance);		
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-
-			if (o == this) return true;
-			if (!(o instanceof VideoDistance)) {
-				return false;
-			}
-			
-			VideoDistance vDist = (VideoDistance) o;
-			return distance == vDist.distance && Objects.equals(id, vDist.id);
-		}
-	}
-
-	private class SoundDistance implements Comparable<SoundDistance>{
-		int id = -1;
-		float distance = -1.f;
-		public SoundDistance(int newID, float newDistance)
-		{
-			id = newID;
-			distance = newDistance;
-		}
-		
-		public int compareTo(SoundDistance sndDistance)
-		{
-			return Float.compare(this.distance, sndDistance.distance);		
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-
-			if (o == this) return true;
-			if (!(o instanceof SoundDistance)) {
-				return false;
-			}
-			
-			SoundDistance sDist = (SoundDistance) o;
-			return distance == sDist.distance && Objects.equals(id, sDist.id);
-		}
+	
+	/**
+	 * Check if given cluster is visible
+	 * @param clusterID Cluster ID
+	 * @return Whether cluster is visible
+	 */
+	public boolean clusterIsVisible(int clusterID)
+	{
+		if(visibleClusters.contains(clusterID))
+			return true;
+		else
+			return false;
 	}
 
 	/**
@@ -1029,25 +892,6 @@ public class WMV_Field
 	}
 
 	/**
-	 * Find cluster media directions; set thinning visibility for each rectangular media object
-	 */
-	public void findClusterMediaDirections()
-	{
-		for(WMV_Cluster c : getClusters())
-			if(!c.isEmpty())
-				c.findMediaDirections(images, videos);
-	}
-
-	/**
-	 * Find image place holders for each video in field
-	 */
-	void findVideoPlaceholders()
-	{
-		for(WMV_Video v : videos)
-			v.findPlaceholder(images);
-	}
-
-	/**
 	 * Calculate location of each media file in virtual space from GPS, orientation metadata
 	 * @param inclSounds Whether to include sounds
 	 */
@@ -1076,6 +920,25 @@ public class WMV_Field
 	}
 
 	/**
+	 * Find cluster media directions; set thinning visibility for each rectangular media object
+	 */
+	public void findClusterMediaDirections()
+	{
+		for(WMV_Cluster c : getClusters())
+			if(!c.isEmpty())
+				c.findMediaDirections(images, videos);
+	}
+
+	/**
+	 * Find image place holders for each video in field
+	 */
+	void findVideoPlaceholders()
+	{
+		for(WMV_Video v : videos)
+			v.findPlaceholder(images);
+	}
+
+	/**
 	 * Merge and initialize media clusters 
 	 */
 	void finishClusterSetup()
@@ -1098,6 +961,17 @@ public class WMV_Field
 	}
 
 	/**
+	 * Create cluster spatial model, timelines and dateline by analyzing associated media 
+	 */
+	private void createClusterModels()
+	{
+		if(debugSettings.main || debugSettings.field) System.out.println("Creating cluster models...");
+		for( WMV_Cluster c : clusters )
+			if(!c.isEmpty())
+				c.createModel(images, panoramas, videos, sounds);					
+	}
+
+	/**
 	 * Mark clusters with no media as empty
 	 */
 	private void markEmptyClusters()
@@ -1110,17 +984,6 @@ public class WMV_Field
 				if(debugSettings.cluster && debugSettings.detailed) System.out.println("Set cluster #"+c.getID()+" to empty...");
 			}
 		}
-	}
-	
-	/**
-	 * Analyze media in cluster: create spatial model, timelines and dateline
-	 */
-	private void createClusterModels()
-	{
-		if(debugSettings.main || debugSettings.field) System.out.println("Creating cluster models...");
-		for( WMV_Cluster c : clusters )
-			if(!c.isEmpty())
-				c.createModel(images, panoramas, videos, sounds);					
 	}
 	
 	/**
@@ -4412,4 +4275,195 @@ public class WMV_Field
 		//
 		//		calculatedBorderPoints = true;
 	}
+	
+	/* Obsolete */
+	private List<Integer> sortVisibleImages(List<Integer> visibleImages)
+	{
+//		System.out.println("sortVisibleImages()...");
+
+		ArrayList<ImageDistance> distances = new ArrayList<ImageDistance>();
+		for(int i : visibleImages)
+		{
+			WMV_Image img = images.get(i);
+			distances.add(new ImageDistance(i, img.getViewingDistance()));
+		}
+		
+		distances.sort(null);
+		
+		List<Integer> sorted  = new ArrayList<Integer>();
+		for(ImageDistance imgDist : distances)
+			sorted.add(imgDist.id);
+		
+		return sorted;
+	}
+
+	private List<Integer> sortVisiblePanoramas(List<Integer> visiblePanoramas)
+	{
+//		System.out.println("sortVisiblePanoramas()...");
+
+		ArrayList<PanoramaDistance> distances = new ArrayList<PanoramaDistance>();
+		for(int i : visiblePanoramas)
+		{
+			WMV_Panorama pano = panoramas.get(i);
+			distances.add(new PanoramaDistance(i, pano.getViewingDistance()));
+		}
+		
+		distances.sort(null);
+		
+		List<Integer> sorted  = new ArrayList<Integer>();
+		for(PanoramaDistance panoDist : distances)
+			sorted.add(panoDist.id);
+		
+		return sorted;
+	}
+
+	private List<Integer> sortVisibleVideos(List<Integer> visibleVideos)
+	{
+//		System.out.println("sortVisiblePanoramas()...");
+
+		ArrayList<VideoDistance> distances = new ArrayList<VideoDistance>();
+		for(int i : visibleVideos)
+		{
+			WMV_Video vid = videos.get(i);
+			distances.add(new VideoDistance(i, vid.getViewingDistance()));
+		}
+		
+		distances.sort(null);
+		
+		List<Integer> sorted  = new ArrayList<Integer>();
+		for(VideoDistance vidDist : distances)
+			sorted.add(vidDist.id);
+		
+		return sorted;
+	}
+
+	private List<Integer> sortAudibleSounds(List<Integer> audibleSounds)
+	{
+//		System.out.println("sortVisiblePanoramas()...");
+
+		ArrayList<SoundDistance> distances = new ArrayList<SoundDistance>();
+		for(int i : audibleSounds)
+		{
+			WMV_Sound snd = sounds.get(i);
+			distances.add(new SoundDistance(i, snd.getViewingDistance()));
+		}
+		
+		distances.sort(null);
+		
+		List<Integer> sorted  = new ArrayList<Integer>();
+		for(SoundDistance sndDist : distances)
+			sorted.add(sndDist.id);
+		
+		return sorted;
+	}
+
+	private class ImageDistance implements Comparable<ImageDistance>{
+		int id = -1;
+		float distance = -1.f;
+		public ImageDistance(int newID, float newDistance)
+		{
+			id = newID;
+			distance = newDistance;
+		}
+		
+		public int compareTo(ImageDistance imgDistance)
+		{
+			return Float.compare(this.distance, imgDistance.distance);		
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+
+			if (o == this) return true;
+			if (!(o instanceof ImageDistance)) {
+				return false;
+			}
+			ImageDistance iDist = (ImageDistance) o;
+
+			return distance == iDist.distance && Objects.equals(id, iDist.id);
+		}
+	}
+	
+	private class PanoramaDistance implements Comparable<PanoramaDistance>{
+		int id = -1;
+		float distance = -1.f;
+		public PanoramaDistance(int newID, float newDistance)
+		{
+			id = newID;
+			distance = newDistance;
+		}
+		
+		public int compareTo(PanoramaDistance panoDistance)
+		{
+			return Float.compare(this.distance, panoDistance.distance);		
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+
+			if (o == this) return true;
+			if (!(o instanceof PanoramaDistance)) {
+				return false;
+			}
+			
+			PanoramaDistance pDist = (PanoramaDistance) o;
+			return distance == pDist.distance && Objects.equals(id, pDist.id);
+		}
+	}
+
+	private class VideoDistance implements Comparable<VideoDistance>{
+		int id = -1;
+		float distance = -1.f;
+		public VideoDistance(int newID, float newDistance)
+		{
+			id = newID;
+			distance = newDistance;
+		}
+		
+		public int compareTo(VideoDistance vidDistance)
+		{
+			return Float.compare(this.distance, vidDistance.distance);		
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+
+			if (o == this) return true;
+			if (!(o instanceof VideoDistance)) {
+				return false;
+			}
+			
+			VideoDistance vDist = (VideoDistance) o;
+			return distance == vDist.distance && Objects.equals(id, vDist.id);
+		}
+	}
+
+	private class SoundDistance implements Comparable<SoundDistance>{
+		int id = -1;
+		float distance = -1.f;
+		public SoundDistance(int newID, float newDistance)
+		{
+			id = newID;
+			distance = newDistance;
+		}
+		
+		public int compareTo(SoundDistance sndDistance)
+		{
+			return Float.compare(this.distance, sndDistance.distance);		
+		}
+		
+		@Override
+		public boolean equals(Object o) {
+
+			if (o == this) return true;
+			if (!(o instanceof SoundDistance)) {
+				return false;
+			}
+			
+			SoundDistance sDist = (SoundDistance) o;
+			return distance == sDist.distance && Objects.equals(id, sDist.id);
+		}
+	}
+
+
 }

@@ -51,7 +51,7 @@ public class ML_Window {
 	
 	/* Navigation Window */
 	private GLabel lblClusterNavigation, lblMemoryCommands, lblPathNavigation, lblTeleportLength, lblPathWaitLength;
-	private GButton btnImportGPSTrack;
+//	private GButton btnImportGPSTrack;
 	private GButton btnSaveLocation, btnClearMemory;
 	private GButton btnJumpToRandomCluster;
 	private GButton btnZoomIn, btnZoomOut;
@@ -66,14 +66,14 @@ public class ML_Window {
 	int navigationWindowHeight;
 	
 	/* Time Window */
-	private GLabel lblTimeWindow, lblTimeSettings, lblTimeMode;
-	private GLabel lblMediaLength, lblTimeCycleLength;
+	private GLabel lblTimeWindow, lblTimeCycle, lblTimeMode;
+	public GLabel lblMediaLength, lblTimeCycleLength, lblCurrentTime, lblVisibleInterval;
 //	public GLabel lblCurrentTime;
 	public GLabel lblTime;
-	public GCheckbox chkbxTimeFading;
-	public GSlider sdrMediaLength, sdrTimeCycleLength;
+	public GCheckbox chkbxPaused, chkbxTimeFading;
+	public GSlider sdrMediaLength, sdrTimeCycleLength, sdrCurrentTime, sdrVisibleInterval;
 	public GToggleGroup tgTimeMode;	
-	public GOption optClusterTimeMode, optFieldTimeMode, optMediaTimeMode;
+	public GOption optClusterTimeMode, optFieldTimeMode; //, optMediaTimeMode;
 	public GLabel lblCommand2;
 	int timeWindowHeight;
 
@@ -90,7 +90,7 @@ public class ML_Window {
 	public GCheckbox chkbxOrientationMode;
 	public GCheckbox chkbxAngleFading, chkbxAngleThinning;
 
-	private GLabel lblAlpha, lblBrightness, lblMediaSize;
+	private GLabel lblAlpha, lblBrightness;
 	public GSlider sdrAlpha, sdrBrightness;//, sdrMediaSize;
 
 	private GLabel lblSubjectDistance;
@@ -292,48 +292,41 @@ public class ML_Window {
 		btnNavigationWindow.tag = "OpenNavigationWindow";
 		btnNavigationWindow.setLocalColorScheme(5);
 		
-		x = 90;
 		y += 25;
 		btnTimeWindow = new GButton(mlWindow, x, y, 125, 20, "Time  ⇧2");
 		btnTimeWindow.tag = "OpenTimeWindow";
 		btnTimeWindow.setLocalColorScheme(5);
 
-		x = 90;
 		y += 25;
 
 		btnGraphicsWindow = new GButton(mlWindow, x, y, 125, 20, "Graphics  ⇧3");
 		btnGraphicsWindow.tag = "OpenGraphicsWindow";
 		btnGraphicsWindow.setLocalColorScheme(5);
 		
-		x = 90;
 		y += 25;
 		
 		btnModelWindow = new GButton(mlWindow, x, y, 125, 20, "Model  ⇧4");
 		btnModelWindow.tag = "OpenModelWindow";
 		btnModelWindow.setLocalColorScheme(5);
+		
+		y += 25;
+		
+		btnSelectionWindow = new GButton(mlWindow, x, y, 125, 20, "Selection  ⇧5");
+		btnSelectionWindow.tag = "OpenSelectionWindow";
+		btnSelectionWindow.setLocalColorScheme(5);
 
-		x = 90;
 		y += 25;
 
-		btnMemoryWindow = new GButton(mlWindow, x, y, 125, 20, "Memory  ⇧5");
+		btnMemoryWindow = new GButton(mlWindow, x, y, 125, 20, "Memory  ⇧6");
 		btnMemoryWindow.tag = "OpenMemoryWindow";
 		btnMemoryWindow.setLocalColorScheme(5);
 		
-		x = 90;
-		y += 25;
-
-		btnSelectionWindow = new GButton(mlWindow, x, y, 125, 20, "Selection  ⇧6");
-		btnSelectionWindow.tag = "OpenSelectionWindow";
-		btnSelectionWindow.setLocalColorScheme(5);
-		
-		x = 90;
 		y += 25;
 		
 		btnStatisticsWindow = new GButton(mlWindow, x, y, 125, 20, "Statistics  ⇧7");
 		btnStatisticsWindow.tag = "OpenStatisticsWindow";
 		btnStatisticsWindow.setLocalColorScheme(5);
 		
-		x = 90;
 		y += 25;
 		
 		btnHelpWindow = new GButton(mlWindow, x, y, 125, 20, "Help  ⇧8");
@@ -469,7 +462,7 @@ public class ML_Window {
 		btnFollowStop.tag = "FollowStop";
 		btnFollowStop.setLocalColorScheme(0);
 
-		x = 160;
+		x = 130;
 		y += 30;
 
 		sdrTeleportLength = new GSlider(navigationWindow, x, y, 80, 80, 20);
@@ -509,9 +502,9 @@ public class ML_Window {
 		y += 65;
 //		if(delay) world.p.delay(delayAmount);
 
-		btnImportGPSTrack = new GButton(navigationWindow, x, y, 140, 20, "Import GPS Track  (g)");
-		btnImportGPSTrack.tag = "ImportGPSTrack";
-		btnImportGPSTrack.setLocalColorScheme(7);		
+//		btnImportGPSTrack = new GButton(navigationWindow, x, y, 140, 20, "Import GPS Track  (g)");
+//		btnImportGPSTrack.tag = "ImportGPSTrack";
+//		btnImportGPSTrack.setLocalColorScheme(7);		
 
 		x = 0;
 		y += 30;
@@ -585,103 +578,26 @@ public class ML_Window {
 		lblTimeWindow.setTextAlign(GAlign.CENTER, null);
 		lblTimeWindow.setTextBold();
 
-		y += 30;
-//		if(delay) world.p.delay(delayAmount);
-
-		lblTimeSettings = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time Settings");
-		lblTimeSettings.setLocalColorScheme(10);
-		lblTimeSettings.setFont(new Font("Monospaced", Font.PLAIN, 14));
-		lblTimeSettings.setTextAlign(GAlign.CENTER, null);
-		lblTimeSettings.setTextBold();
-
-		x = 100;
-		y += 30;
-//		if(delay) world.p.delay(delayAmount);
-		
-		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, 20, "Time Fading  ⇧T");
-		chkbxTimeFading.tag = "TimeFading";
-		chkbxTimeFading.setLocalColorScheme(10);
-		chkbxTimeFading.setSelected(world.getState().timeFading);
-
-		x = 150;
-		y += 35;
-//		if(delay) world.p.delay(delayAmount);
-
-		sdrMediaLength = new GSlider(timeWindow, x, y, 80, 80, 20);
-		sdrMediaLength.setLocalColorScheme(7);
-		sdrMediaLength.setLimits(0.f, 250.f, 10.f);
-		sdrMediaLength.setValue(world.settings.defaultMediaLength);
-		sdrMediaLength.setRotation(PApplet.PI/2.f);
-		sdrMediaLength.setTextOrientation(G4P.ORIENT_LEFT);
-		sdrMediaLength.setEasing(0);
-		sdrMediaLength.setShowValue(true);
-		sdrMediaLength.tag = "MediaLength";
-
-		x = 280;
-//		if(delay) world.p.delay(delayAmount);
-		
-		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 80, 80, 20);
-		sdrTimeCycleLength.setLocalColorScheme(7);
-		sdrTimeCycleLength.setLimits(0.f, 5000.f, 10.f);
-		switch(world.state.timeMode)
-		{
-			case 0:											// Cluster
-				sdrTimeCycleLength.setValue(world.getCurrentCluster().getTimeCycleLength());
-				if(!sdrTimeCycleLength.isVisible())
-					sdrTimeCycleLength.setVisible(true);
-				break;
-			case 1:											// Field
-				sdrTimeCycleLength.setValue(world.settings.timeCycleLength);
-				if(!sdrTimeCycleLength.isVisible())
-					sdrTimeCycleLength.setVisible(true);
-				break;
-			case 2:											// Media
-				sdrTimeCycleLength.setVisible(false);
-				break;
-			default:
-				break;
-		}
-		sdrTimeCycleLength.setRotation(PApplet.PI/2.f);
-		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_LEFT);
-		sdrTimeCycleLength.setEasing(0);
-		sdrTimeCycleLength.setShowValue(true);
-		sdrTimeCycleLength.tag = "TimeCycleLength";
-
-		x = 20;
-		y += 30;
-//		if(delay) world.p.delay(delayAmount);
-		
-		lblMediaLength = new GLabel(timeWindow, x, y, 100, 20, "Media Length");
-		lblMediaLength.setLocalColorScheme(10);
-
-		x = 150;
-//		if(delay) world.p.delay(delayAmount);
-		
-		lblTimeCycleLength = new GLabel(timeWindow, x, y, 120, 20, "Cycle Length");
-		lblTimeCycleLength.setLocalColorScheme(10);
-
 		x = 0;
-		y += 90;
-//		if(delay) world.p.delay(delayAmount);
-
+		y += 30;
 		lblTimeMode = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time Mode");
 		lblTimeMode.setLocalColorScheme(10);
 		lblTimeMode.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		lblTimeMode.setTextAlign(GAlign.CENTER, null);
 		lblTimeMode.setTextBold();
 
-		x = 30;
+		x = 70;
 		y += 30;
-//		if(delay) world.p.delay(delayAmount);
-		
-		optMediaTimeMode = new GOption(timeWindow, x, y, 90, 20, "Media");
-		optMediaTimeMode.setLocalColorScheme(10);
-		optMediaTimeMode.tag = "MediaTimeMode";
-		optClusterTimeMode = new GOption(timeWindow, x+=90, y, 90, 20, "Cluster");
+//		optMediaTimeMode = new GOption(timeWindow, x, y, 90, 20, "Media");
+//		optMediaTimeMode.setLocalColorScheme(10);
+//		optMediaTimeMode.tag = "MediaTimeMode";
+		optClusterTimeMode = new GOption(timeWindow, x, y, 90, 20, "Cluster");
 		optClusterTimeMode.setLocalColorScheme(10);
+		optClusterTimeMode.setFont(new Font("Monospaced", Font.PLAIN, 13));
 		optClusterTimeMode.tag = "ClusterTimeMode";
-		optFieldTimeMode = new GOption(timeWindow, x+=90, y, 90, 20, "Field");
+		optFieldTimeMode = new GOption(timeWindow, x+=110, y, 90, 20, "Field");
 		optFieldTimeMode.setLocalColorScheme(10);
+		optFieldTimeMode.setFont(new Font("Monospaced", Font.PLAIN, 13));
 		optFieldTimeMode.tag = "FieldTimeMode";
 
 		switch(world.getState().getTimeMode())
@@ -689,38 +605,127 @@ public class ML_Window {
 			case 0:
 				optClusterTimeMode.setSelected(true);
 				optFieldTimeMode.setSelected(false);
-				optMediaTimeMode.setSelected(false);
+//				optMediaTimeMode.setSelected(false);
 				break;
 			case 1:
 				optClusterTimeMode.setSelected(false);
 				optFieldTimeMode.setSelected(true);
-				optMediaTimeMode.setSelected(false);
+//				optMediaTimeMode.setSelected(false);
 				break;
-			case 2:
-				optClusterTimeMode.setSelected(false);
-				optFieldTimeMode.setSelected(false);
-				optMediaTimeMode.setSelected(true);
-				break;
+//			case 2:
+//				optClusterTimeMode.setSelected(false);
+//				optFieldTimeMode.setSelected(false);
+////				optMediaTimeMode.setSelected(true);
+//				break;
 		}
 		
 		tgTimeMode = new GToggleGroup();
-		tgTimeMode.addControls(optClusterTimeMode, optFieldTimeMode, optMediaTimeMode);
-
-		x = 40;
-		y += 30;
+		tgTimeMode.addControls(optClusterTimeMode, optFieldTimeMode);
+//		tgTimeMode.addControls(optClusterTimeMode, optFieldTimeMode, optMediaTimeMode);
 		if(delay) world.p.delay(delayAmount);
 
-//		lblCurrentTime = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Current Time  -:-- am");
-//		lblCurrentTime.setLocalColorScheme(10);
-//		lblCurrentTime.setTextAlign(GAlign.CENTER, null);
-//		lblCurrentTime.setTextBold();
+		x = 0;
+		y += 50;
+		lblTimeCycle = new GLabel(timeWindow, x, y, timeWindow.width, 20, "Time Cycle");
+		lblTimeCycle.setLocalColorScheme(10);
+		lblTimeCycle.setFont(new Font("Monospaced", Font.PLAIN, 14));
+		lblTimeCycle.setTextAlign(GAlign.CENTER, null);
+		lblTimeCycle.setTextBold();
 
-//		x = 40;
-//		y = timeWindowHeight - 40;
-//		
-//		btnCloseTimeWindow = new GButton(timeWindow, x, y, 180, 20, "Close Window");
-//		btnCloseTimeWindow.tag = "CloseTimeWindow";
-//		btnCloseTimeWindow.setLocalColorScheme(0);
+		x = 80;
+		y += 30;
+		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 160, 80, 20);
+		sdrTimeCycleLength.setLocalColorScheme(7);
+		sdrTimeCycleLength.setLimits(0.f, world.settings.timeCycleLength, 3200.f);
+		sdrTimeCycleLength.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrTimeCycleLength.setEasing(0);
+		sdrTimeCycleLength.setShowValue(true);
+		sdrTimeCycleLength.tag = "TimeCycleLength";
+
+		x = 130;
+	
+		lblTimeCycleLength = new GLabel(timeWindow, x, y, 120, 20, "Cycle Length");
+		lblTimeCycleLength.setLocalColorScheme(10);
+
+		x = 80;
+		y += 60;
+		sdrCurrentTime = new GSlider(timeWindow, x, y, 160, 80, 20);
+		sdrCurrentTime.setLocalColorScheme(1);
+		sdrCurrentTime.setLimits(0.f, 0.f, 1.f);
+		sdrCurrentTime.setValue(0.f);
+		sdrCurrentTime.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrCurrentTime.setEasing(0);
+		sdrCurrentTime.setShowValue(true);
+		sdrCurrentTime.tag = "CurrentTime";
+
+		x = 130;
+		lblCurrentTime = new GLabel(timeWindow, x, y, 100, 20, "Current Time");
+		lblCurrentTime.setLocalColorScheme(10);
+
+		x = 80;
+		y += 60;
+		sdrMediaLength = new GSlider(timeWindow, x, y, 160, 80, 20);
+		sdrMediaLength.setLocalColorScheme(5);
+		sdrMediaLength.setLimits(world.settings.defaultMediaLength, 0.f, 250.f);	// setLimits (int initValue, int start, int end)
+		sdrMediaLength.setValue(world.settings.defaultMediaLength);
+		sdrMediaLength.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrMediaLength.setEasing(0);
+		sdrMediaLength.setShowValue(true);
+		sdrMediaLength.tag = "MediaLength";
+
+		x = 130;
+		lblMediaLength = new GLabel(timeWindow, x, y, 100, 20, "Media Length");
+		lblMediaLength.setLocalColorScheme(10);
+
+		x = 80;
+		y += 60;
+		sdrVisibleInterval = new GSlider(timeWindow, x, y, 160, 80, 20);
+		sdrVisibleInterval.setLocalColorScheme(4);
+		sdrVisibleInterval.setLimits(world.settings.timeVisibleInterval, 0.f, 1.f);
+		sdrVisibleInterval.setValue(world.settings.timeVisibleInterval);
+		sdrVisibleInterval.setTextOrientation(G4P.ORIENT_TRACK);
+		sdrVisibleInterval.setEasing(0);
+		sdrVisibleInterval.setShowValue(true);
+		sdrVisibleInterval.tag = "VisibleTimeInterval";
+	
+		x = 130;
+		lblVisibleInterval = new GLabel(timeWindow, x, y, 120, 20, "Visible Interval");
+		lblVisibleInterval.setLocalColorScheme(10);
+
+		switch(world.state.timeMode)
+		{
+			case 0:											// Cluster
+				sdrVisibleInterval.setValue(world.getCurrentCluster().getTimeCycleLength());
+				if(sdrVisibleInterval.isVisible())
+					sdrVisibleInterval.setVisible(false);
+				if(lblVisibleInterval.isVisible())
+					lblVisibleInterval.setVisible(false);
+				break;
+			case 1:											// Field
+				sdrVisibleInterval.setValue(world.settings.timeCycleLength);
+				if(!sdrVisibleInterval.isVisible())
+					sdrVisibleInterval.setVisible(true);
+				if(!lblVisibleInterval.isVisible())
+					lblVisibleInterval.setVisible(true);
+				break;
+			default:
+				break;
+		}
+
+		x = 100;
+		y += 75;
+		
+		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, 20, "Run Cycle  ⇧T");
+		chkbxTimeFading.tag = "TimeFading";
+		chkbxTimeFading.setLocalColorScheme(10);
+		chkbxTimeFading.setSelected(world.getState().timeFading);
+
+		y += 30;
+		
+		chkbxPaused = new GCheckbox(timeWindow, x, y, 160, 20, "Pause  -");
+		chkbxPaused.tag = "Paused";
+		chkbxPaused.setLocalColorScheme(10);
+		chkbxPaused.setSelected(world.getState().paused);
 
 		x = 0;
 		y = timeWindowHeight - 25;
@@ -1055,7 +1060,7 @@ public class ML_Window {
 		x = 0;
 		y = memoryWindowHeight - 25;
 		lblCommand5 = new GLabel(memoryWindow, x, y, memoryWindow.width, 20);						/* Display Mode Label */
-		lblCommand5.setText("Press ⇧5 to show / hide");
+		lblCommand5.setText("Press ⇧6 to show / hide");
 		lblCommand5.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand5.setLocalColorScheme(10);
 		lblCommand5.setTextAlign(GAlign.CENTER, null);
@@ -1154,7 +1159,7 @@ public class ML_Window {
 		x = 0;
 		y = selectionWindowHeight - 25;
 		lblCommand6 = new GLabel(selectionWindow, x, y, selectionWindow.width, 20);						/* Display Mode Label */
-		lblCommand6.setText("Press ⇧6 to show / hide");
+		lblCommand6.setText("Press ⇧5 to show / hide");
 		lblCommand6.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		lblCommand6.setLocalColorScheme(10);
 		lblCommand6.setTextAlign(GAlign.CENTER, null);
@@ -1293,7 +1298,7 @@ public class ML_Window {
 
 		if(delay) world.p.delay(delayAmount);
 
-		lblImport = new GLabel(importWindow, x, y, importWindow.width, 22, "Import Media");
+		lblImport = new GLabel(importWindow, x, y, importWindow.width, 22, "Choose Media for New Library");
 		lblImport.setLocalColorScheme(10);
 		lblImport.setFont(new Font("Monospaced", Font.PLAIN, 16));
 		lblImport.setTextAlign(GAlign.CENTER, null);
@@ -1490,7 +1495,7 @@ public class ML_Window {
 //			float mediumTextSize = 13.f;
 			float smallTextSize = 11.f;
 
-			float x = 10, y = 300;			
+			float x = 10, y = 450;			
 			applet.background(0);
 			applet.stroke(255);
 			applet.strokeWeight(1);
@@ -1498,49 +1503,59 @@ public class ML_Window {
 
 			applet.textSize(smallTextSize);
 			
-			int mode = world.p.world.getState().getTimeMode();
-			if( mode == 0 || mode == 1 )
-			{
-				int curTime = (mode == 0) ? world.getCurrentCluster().getState().currentTime : world.getState().currentTime;
-				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
-			}
+			int mode = world.getState().getTimeMode();
+//			if( mode == 0 || mode == 1 )
+//			{
+//				int curTime = (mode == 0) ? world.getCurrentCluster().getState().currentTime : world.getState().currentTime;
+//				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
+//			}
 
 			WMV_Field f = world.getCurrentField();
+			float timePoint = 0.f;						// Normalized time position between 0.f and 1.f
 
 			switch(mode)
 			{
 				case 0:
 //					applet.text(" Time Mode: Cluster", x, y += lineWidthVeryWide);
-					if(f.getTimeline().timeline.size() > 0 && world.viewer.getCurrentFieldTimeSegment() >= 0 && world.viewer.getCurrentFieldTimeSegment() < f.getTimeline().timeline.size())
-					{
-						applet.text(" Upper: "+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()+
-								" Center:"+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
-								" Lower: "+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
-						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().timeline.size(), x, y += lineWidthWide);
-					}
-					else
-					{
-						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().timeline.size(), x, y += lineWidthVeryWide);
-					}
-					applet.text(" Current Cluster Dateline Size: "+ world.getCurrentCluster().getDateline().size(), x, y += lineWidth);
+					timePoint = utilities.mapValue(world.getCurrentCluster().getState().currentTime, 0, world.getCurrentCluster().getState().timeCycleLength, 0.f, 1.f);
+//					if(f.getTimeline().timeline.size() > 0 && world.viewer.getCurrentFieldTimeSegment() >= 0 && world.viewer.getCurrentFieldTimeSegment() < f.getTimeline().timeline.size())
+//					{
+//						applet.text(" Upper: "+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getUpper().getTime()+
+//								" Center:"+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getCenter().getTime()+
+//								" Lower: "+f.getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getLower().getTime(), x, y += lineWidthVeryWide);
+//						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().timeline.size(), x, y += lineWidthWide);
+//					}
+//					else
+//					{
+//						applet.text(" Current Cluster Timeline Size: "+ world.getCurrentCluster().getTimeline().timeline.size(), x, y += lineWidthVeryWide);
+//					}
+//					applet.text(" Current Cluster Dateline Size: "+ world.getCurrentCluster().getDateline().size(), x, y += lineWidth);
 					
 					break;
 				case 1:
+					timePoint = utilities.mapValue(world.getState().currentTime, 0, world.getSettings().timeCycleLength, 0.f, 1.f);
 //					applet.text(" Time Mode: Field", x, y += lineWidthVeryWide);
 					break;
 				case 2:
+					timePoint = utilities.mapValue(world.getState().currentTime, 0, world.getSettings().timeCycleLength, 0.f, 1.f);
 //					applet.text(" Time Mode: Media", x, y += lineWidthVeryWide);
 					applet.text(" Current Media: "+ world.viewer.getCurrentMedia(), x, y += lineWidth);		// -- Not very meaningful.. should show media index / type
 					break;
 //				case 3:
-//					applet.text(" Time Mode: Flexible"), x, y += lineWidthVeryWide);
+//					applet.text(" Time Mode: Flexible", x, y += lineWidthVeryWide);
 //					break;
 			}
-			
+	
+			if(setupTimeWindow)
+			{
+				if(world.state.timeFading)
+					sdrCurrentTime.setValue(timePoint);
+			}
+
 //			applet.text(" Current Field Time: "+ world.currentTime, x, y += lineWidth);
-			applet.text(" Current Field Time Segment: "+ world.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
-			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().timeline.size(), x, y += lineWidth);
-			applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
+//			applet.text(" Current Field Time Segment: "+ world.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
+//			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().timeline.size(), x, y += lineWidth);
+//			applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
 		}
 	}
 
@@ -1798,12 +1813,13 @@ public class ML_Window {
 						PApplet.round(world.viewer.getLocation().z), x, y += lineWidthVeryWide);		
 				applet.text(" GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidth);		
 
+				applet.text(" Clusters Visible: "+world.getVisibleClusters().size(), x, y += lineWidth);
 				applet.text(" Images Visible: "+f.getImagesVisible(), x, y += lineWidth);
-				applet.text("   Images Seen: "+f.getImagesSeen(), x, y += lineWidth);
+//				applet.text("   Images Seen: "+f.getImagesSeen(), x, y += lineWidth);
 				applet.text(" Panoramas Visible: "+f.getPanoramasVisible(), x, y += lineWidth);
-				applet.text("   Panoramas Seen: "+f.getPanoramasSeen(), x, y += lineWidth);
+//				applet.text("   Panoramas Seen: "+f.getPanoramasSeen(), x, y += lineWidth);
 				applet.text(" Videos Visible: "+f.getVideosVisible(), x, y += lineWidth);
-				applet.text("   Videos Seen: "+f.getVideosSeen(), x, y += lineWidth);
+//				applet.text("   Videos Seen: "+f.getVideosSeen(), x, y += lineWidth);
 				applet.text("   Currently Playing: "+f.getVideosPlaying(), x, y += lineWidth);
 				applet.text(" Sounds Audible: "+f.getSoundsAudible(), x, y += lineWidth);
 				applet.text("   Currently Playing: "+f.getSoundsPlaying(), x, y += lineWidth);

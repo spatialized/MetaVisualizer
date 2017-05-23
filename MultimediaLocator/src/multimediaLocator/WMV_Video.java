@@ -247,27 +247,27 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 =	 * Update video geometry and visibility 
 	 */
-	void update(MultimediaLocator ml, WMV_Utilities utilities)
-	{
-		if(!getMediaState().disabled)			
-		{
-			boolean wasVisible = isVisible();
-			calculateVisibility(utilities);
-			updateFading(ml, wasVisible);
-			
-			if(getViewerSettings().orientationMode)
-			{
-				for(int id : getViewerState().getClustersVisible())
-					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this video's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-						loadMedia(ml); 					// Request video frames from disk
-			}
-			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
-				loadMedia(ml); 							// Request video frames from disk
-		
-			if(isFading())								// Update brightness while fading
-				updateFadingBrightness();
-		}
-	}
+//	void update(MultimediaLocator ml, WMV_Utilities utilities)
+//	{
+//		if(!getMediaState().disabled)			
+//		{
+//			boolean wasVisible = isVisible();
+//			calculateVisibility(utilities);
+//			updateFading(ml, wasVisible);
+//			
+//			if(getViewerSettings().orientationMode)
+//			{
+//				for(int id : getViewerState().getClustersVisible())
+//					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this video's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+//						loadMedia(ml); 					// Request video frames from disk
+//			}
+//			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
+//				loadMedia(ml); 							// Request video frames from disk
+//		
+//			if(isFading())								// Update brightness while fading
+//				updateFadingBrightness();
+//		}
+//	}
 	
 	public void calculateVisibility(WMV_Utilities utilities)
 	{
@@ -343,23 +343,23 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			if(visibilitySetToTrue && !isFading() && !hasFadedOut())	// If should be visible and already fading, fade in 
 			{
 				if(!state.loaded) loadMedia(ml);
-				fadeIn();											// Fade in
+				fadeIn(ml.world.getCurrentField());											// Fade in
 			}
 		}
 		else													// If in Angle Thinning Mode
 		{
 			if(getMediaState().visible && !state.thinningVisibility && !isFading())
-				fadeOut();
+				fadeOut(ml.world.getCurrentField());
 
 			if(!getMediaState().visible && state.thinningVisibility && !isFading() && !hasFadedOut()) 
 			{
 				if(!state.loaded) loadMedia(ml); 				// Request video frames from disk
-				fadeIn();
+				fadeIn(ml.world.getCurrentField());
 			}
 		}
 
 		if(visibilitySetToFalse)
-			fadeOut();
+			fadeOut(ml.world.getCurrentField());
 
 		if(isFadingFocusDistance())
 			updateFadingFocusDistance();

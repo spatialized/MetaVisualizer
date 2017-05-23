@@ -55,6 +55,7 @@ public class WMV_Field
 	private ArrayList<WMV_Sound> sounds; 				// All videos in this field
 
 	/* Clustering */
+	List<Integer> visibleClusters;
 	private Cluster dendrogramTop;						// Top cluster of the dendrogram
 	private String[] names;								// Media names
 	private double[][] distances;						// Media distances
@@ -105,6 +106,8 @@ public class WMV_Field
 		visiblePanoramas = new ArrayList<Integer>();
 		visibleVideos = new ArrayList<Integer>();
 		audibleSounds = new ArrayList<Integer>();
+		
+		visibleClusters = new ArrayList<Integer>();
 	}
 	
 	/**
@@ -113,26 +116,25 @@ public class WMV_Field
 	 */
 	public void display(MultimediaLocator ml) 				// Draw currently visible media
 	{
-		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
+		/* Find visible clusters */
+		if(ml.frameCount % 15 == 0)
+			updateVisibleClusters(ml);
 		
-		state.imagesVisible = 0;
-		state.panoramasVisible = 0;
-		state.videosVisible = 0;
-		state.soundsAudible = 0;
+		state.imagesVisible = visibleImages.size();
+		state.panoramasVisible = visiblePanoramas.size();
+		state.videosVisible = visibleVideos.size();
+		state.soundsAudible = audibleSounds.size();
+
+		state.imagesInRange = 0;			// Number of images in visible range
+		state.panoramasInRange = 0;		// Number of panoramas in visible range
+		state.videosInRange = 0;			 // Number of videos in visible range
+		state.soundsInRange = 0; 			// Number of sounds in audible range
 
 		state.imagesSeen = 0;
 		state.panoramasSeen = 0;
 		state.videosSeen = 0;
 		state.soundsHeard = 0;
 
-		/* Find visible clusters */
-//		ArrayList<WMV_Cluster> visibleClusters = ml.world.getVisibleClusters();
-		
-		visibleImages = new ArrayList<Integer>();
-		visiblePanoramas = new ArrayList<Integer>();
-		visibleVideos = new ArrayList<Integer>();
-		audibleSounds = new ArrayList<Integer>();
-		
 		updateImages(ml);
 		updatePanoramas(ml);
 		updateVideos(ml);
@@ -150,11 +152,86 @@ public class WMV_Field
 //		}
 	}
 	
+	public void updateVisibleClusters(MultimediaLocator ml)
+	{
+//		int maxVisibleImages = ml.world.viewer.getSettings().maxVisibleImages;
+//		boolean overMaxImages = (state.imagesVisible > maxVisibleImages);
+//		int maxVisiblePanoramas = ml.world.viewer.getSettings().maxVisiblePanoramas;
+//		boolean overMaxPanoramas = (state.panoramasVisible > maxVisiblePanoramas);
+//		int maxVisibleVideos = ml.world.viewer.getSettings().maxVisibleVideos;
+//		boolean overMaxVideos = (state.videosVisible > maxVisibleVideos);
+//		int maxAudibleSounds = ml.world.viewer.getSettings().maxAudibleSounds;
+//		boolean overMaxSounds = (state.soundsAudible > maxAudibleSounds);
+
+		int maxVisibleImages = ml.world.viewer.getSettings().maxVisibleImages;
+		boolean overMaxImages = (state.imagesInRange > maxVisibleImages);
+		int maxVisiblePanoramas = ml.world.viewer.getSettings().maxVisiblePanoramas;
+		boolean overMaxPanoramas = (state.panoramasInRange > maxVisiblePanoramas);
+		int maxVisibleVideos = ml.world.viewer.getSettings().maxVisibleVideos;
+		boolean overMaxVideos = (state.videosInRange > maxVisibleVideos);
+		int maxAudibleSounds = ml.world.viewer.getSettings().maxAudibleSounds;
+		boolean overMaxSounds = (state.soundsInRange > maxAudibleSounds);
+
+		if(overMaxImages || overMaxPanoramas || overMaxVideos || overMaxSounds)
+			reduceClusterVisibility(ml);
+		else
+			increaseClusterVisibility(ml);
+		
+		visibleClusters = ml.world.getVisibleClusterIDs();
+		
+//		if(visibleClusters.size() > 0)
+//		{
+//			System.out.println("--- Visible Clusters:"+visibleClusters.size()+" maxVisibleClusters:"+ml.world.settings.maxVisibleClusters);
+//			if(visibleImages.size() > 0) System.out.println("Visible Images:"+visibleImages.size()+" maxVisibleImages:"+ml.world.viewer.getSettings().maxVisibleImages);
+//			if(visiblePanoramas.size() > 0) System.out.println("Visible Panoramas:"+visiblePanoramas.size()+" maxVisiblePanoramas:"+ml.world.viewer.getSettings().maxVisiblePanoramas);
+//			if(visibleVideos.size() > 0) System.out.println("Visible Videos:"+visibleVideos.size()+" maxVisibleVideos:"+ml.world.viewer.getSettings().maxVisibleVideos);
+//			if(audibleSounds.size() > 0) System.out.println("Audible Sounds:"+audibleSounds.size()+" maxAudibleSounds:"+ml.world.viewer.getSettings().maxAudibleSounds);
+//		}
+	}
+	
+	public void increaseClusterVisibility(MultimediaLocator ml)
+	{
+		if( ml.world.settings.maxVisibleClusters != -1 )
+		{
+			if(ml.world.settings.maxVisibleClusters + 1 < 20)
+			{
+				ml.world.settings.maxVisibleClusters++;
+				System.out.println("> increaseClusterVisibility()... Increased cluster visibility to:"+ml.world.settings.maxVisibleClusters);
+			}
+			else
+				ml.world.settings.maxVisibleClusters = -1;
+		}
+	}
+	
+	public void reduceClusterVisibility(MultimediaLocator ml)
+	{
+		if( ml.world.settings.maxVisibleClusters == -1 )
+		{
+			ml.world.settings.maxVisibleClusters = 10;
+		}
+		else
+		{
+			if(ml.world.settings.maxVisibleClusters - 1 > 1)
+			{
+				ml.world.settings.maxVisibleClusters--;
+				System.out.println("> reduceClusterVisibility()... Reduced cluster visibility to:"+ml.world.settings.maxVisibleClusters);
+			}
+		}
+	}
+	
+	public boolean clusterIsVisible(int clusterID)
+	{
+		if(visibleClusters.contains(clusterID))
+			return true;
+		else
+			return false;
+	}
+	
 	private void updateImages(MultimediaLocator ml)
 	{
 		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
 
-		for (WMV_Image m : images) 		// Update images
+		for (WMV_Image m : images) 		
 		{
 			if(!m.isDisabled())
 			{
@@ -164,28 +241,56 @@ public class WMV_Field
 				m.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
-//					if(m.getAssociatedClusterID() < 0 || m.getAssociatedClusterID() >= clusters.size())
-//					{
-//						if(debugSettings.field || debugSettings.image || debugSettings.media)
-//							System.out.println("Error in Field.display()... cannot updateTimeBrightness: image id:"+m.getID()+" .getAssociatedCluster("+m.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
-//					}
-//					else 
-						m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
+					m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
 				}
 
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
-					m.update(ml, utilities);  		// Update geometry + visibility
+					updateImage(ml, m);
 
-				if (inVisibleRange) 		// Visible	
+				if (inVisibleRange) 		
 				{
+					state.imagesInRange++;
 					if(!m.getMediaState().fadingFocusDistance && !m.isFading()) 
-						m.update(ml, utilities);  	// Update geometry + visibility
-
-					visibleImages.add(m.getID());
-					state.imagesVisible++;
+						updateImage(ml, m);
 				}
 			}
 		}
+	}
+	
+	private void updateImage(MultimediaLocator ml, WMV_Image m)
+	{
+		if(m.getMediaState().requested && m.image.width != 0)			// If requested image has loaded, initialize image 
+		{
+			m.calculateVertices();  					// Update geometry		
+			m.setAspectRatio( m.calculateAspectRatio() );
+			m.blurred = m.applyMask(ml, m.image, m.blurMask);					// Apply blur mask once image has loaded
+			m.setRequested(false);
+		}
+
+		if(m.image.width > 0 && !m.isHidden() && !m.isDisabled())				// Image has been loaded and isn't mState.hidden or disabled
+		{
+			boolean wasVisible = m.isVisible();
+			m.calculateVisibility(utilities);
+			m.setVisible( clusterIsVisible(m.getAssociatedClusterID()) );		// Added 3-22
+			m.updateFading(this, wasVisible);
+		}
+		else
+		{
+			if(getViewerSettings().orientationMode)
+			{
+				for(int id : getViewerState().getClustersVisible())
+					if(m.getMediaState().getClusterID() == id  && !m.getMediaState().requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+						m.loadMedia(ml);
+			}
+			else if(m.getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !m.getMediaState().requested)
+				m.loadMedia(ml); 					// Request image pixels from disk
+		}
+
+		if(m.isFading())                       // Fade in and out with time
+			m.updateFadingBehavior(ml.world.getCurrentField());
+
+		if(m.getMediaState().fadingFocusDistance)
+			m.updateFadingFocusDistance();
 	}
 
 	private void updatePanoramas(MultimediaLocator ml)
@@ -202,25 +307,47 @@ public class WMV_Field
 				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
-//					if(n.getAssociatedClusterID() < 0 || n.getAssociatedClusterID() >= clusters.size()) 
-//					{
-//						if(debugSettings.field || debugSettings.panorama || debugSettings.media)
-//							System.out.println("Error in Field.display()... cannot updateTimeBrightness: pano id:"+n.getID()+" .getAssociatedCluster() ("+n.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
-//					}
-//					else 
-						n.updateTimeBrightness(clusters.get(n.getAssociatedClusterID()), timeline, utilities);
+					n.updateTimeBrightness(clusters.get(n.getAssociatedClusterID()), timeline, utilities);
 				}
 				if(inVisibleRange)			// Check if panorama is in visible range
 				{
-					n.update(ml);  		// Update geometry + visibility
-					visiblePanoramas.add(n.getID());
-					state.panoramasVisible++;
+					state.panoramasInRange++;
+					updatePanorama(ml, n);
 				}
 				else if(n.isFading())
 				{
-					n.update(ml);  		// Update geometry + visibility
+					updatePanorama(ml, n);
 				}
 			}
+		}
+	}
+	
+	public void updatePanorama(MultimediaLocator ml, WMV_Panorama n)
+	{
+		if(n.getMediaState().requested && n.texture.width != 0)			// If requested image has loaded, initialize image 
+		{
+			n.initializeSphere();					
+			n.setRequested(false);
+		}
+
+		if(n.getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !n.getMediaState().requested)
+			if(!n.initialized)
+				n.loadMedia(ml); 
+
+		if(!n.isDisabled())
+		{
+			if(n.texture.width > 0)			
+			{
+				n.calculateVisibility();
+				n.setVisible( clusterIsVisible(n.getAssociatedClusterID()) );		// Added 3-22
+				n.updateFading(this);
+			}
+
+			if(n.isFading())                       // Fade in and out with time
+				n.updateFadingBehavior(ml.world.getCurrentField());
+			
+//			if(fadingObjectDistance)
+//				updateFadingObjectDistance();
 		}
 	}
 	
@@ -237,33 +364,49 @@ public class WMV_Field
 
 				v.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if ( v.isVisible() && !inVisibleRange )
-					v.fadeOut();
+					v.fadeOut(this);
 
 				if(worldState.timeFading)
 				{
-//					if(v.getAssociatedClusterID() < 0 || v.getAssociatedClusterID() >= clusters.size()) 
-//					{
-//						if(debugSettings.field || debugSettings.video || debugSettings.media)
-//							System.out.println("Error in Field.display()... cannot updateTimeBrightness: video id:"+v.getID()+" .getAssociatedCluster("+v.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
-//					}
-//					else 
-						v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
+					v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
 				}
 				if(inVisibleRange)
 				{
-					v.update(ml, utilities);  	// Update geometry + visibility
-					visibleVideos.add(v.getID());
-					state.videosVisible++;
+					state.videosInRange++;
+					updateVideo(ml, v);
 				}
 				else
 				{
 					if(v.isFading() || v.isFadingVolume())
-						v.update(ml, utilities);  	// Update geometry + visibility
+						updateVideo(ml, v);
 
 					if(v.isVisible())
-						v.fadeOut();
+						v.fadeOut(this);
 				}
 			}
+		}
+	}
+	
+	private void updateVideo(MultimediaLocator ml, WMV_Video v)
+	{
+		if(!v.getMediaState().disabled)			
+		{
+			boolean wasVisible = v.isVisible();
+			v.calculateVisibility(utilities);
+			v.setVisible( clusterIsVisible(v.getAssociatedClusterID()) );		// Added 3-22
+			v.updateFading(ml, wasVisible);
+			
+			if(getViewerSettings().orientationMode)
+			{
+				for(int id : getViewerState().getClustersVisible())
+					if(v.getMediaState().getClusterID() == id  && !v.getMediaState().requested)			// If this video's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+						v.loadMedia(ml); 					// Request video frames from disk
+			}
+			else if(v.getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !v.getMediaState().requested)
+				v.loadMedia(ml); 							// Request video frames from disk
+		
+			if(v.isFading())								// Update brightness while fading
+				v.updateFadingBehavior(ml.world.getCurrentField());
 		}
 	}
 	
@@ -281,39 +424,51 @@ public class WMV_Field
 				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if ( s.isVisible() && !inAudibleRange )
 				{
-					s.fadeOut();
+					s.fadeOut(this);
 					s.fadeSoundOut();
 				}
 
 				if(worldState.timeFading)
 				{
-//					if(s.getAssociatedClusterID() < 0 || s.getAssociatedClusterID() >= clusters.size()) 
-//					{
-//						if(debugSettings.field || debugSettings.sound || debugSettings.media)
-//							System.out.println("Error in Field.display()... cannot updateTimeBrightness: sound id:"+s.getID()+" .getAssociatedCluster("+s.getAssociatedClusterID()+") < 0 || >= clusters.size():"+clusters.size()+"!!");
-//					}
-//					else 
-						s.updateTimeBrightness(getCluster(s.getAssociatedClusterID()), timeline, utilities);
+					s.updateTimeBrightness(getCluster(s.getAssociatedClusterID()), timeline, utilities);
 				}
 
 				if (inAudibleRange)
 				{
-					s.update(ml, utilities);  	// Update geometry + visibility
-					audibleSounds.add(s.getID());
-					state.soundsAudible++;
+					state.soundsInRange++;
+					updateSound(ml, s);
 				}
 				else
 				{
 					if(s.isFading() || s.isFadingVolume())
-						s.update(ml, utilities);  	// Update geometry + visibility
+						updateSound(ml, s);
 
 					if(s.isVisible())
-						s.fadeOut();
+						s.fadeOut(this);
 				}
 			}
 		}
 	}
 	
+	private void updateSound(MultimediaLocator ml, WMV_Sound s)
+	{
+		if(!s.isDisabled())			
+		{
+			boolean wasVisible = s.isVisible();
+			s.calculateAudibility();
+			s.setVisible( clusterIsVisible(s.getAssociatedClusterID()) );		// Added 3-22
+			s.updateFading(ml, wasVisible);
+			
+			if(s.state.loaded)
+			{
+				if(s.state.fadingVolume)
+					s.updateFadingVolume();
+				else
+					s.updateVolume(); 								// Tie volume to fading brightness
+			}
+		}
+	}
+
 	/**
 	 * Display the image in virtual space
 	 */
@@ -416,7 +571,7 @@ public class WMV_Field
 		if(v.state.isClose && distanceBrightness == 0.f)							// Video recently moved out of range
 		{
 			v.state.isClose = false;
-			v.fadeOut();
+			v.fadeOut(this);
 		}
 
 		if( getViewerSettings().angleFading )
@@ -472,212 +627,27 @@ public class WMV_Field
 	 */
 	private void displayVisibleImages(MultimediaLocator ml, List<Integer> visibleImages)
 	{
-		int maxVisibleImages = ml.world.viewer.getSettings().maxVisibleImages;
-		boolean overMaxImages = (state.imagesVisible > maxVisibleImages);
 		state.imagesSeen = 0;
-		
-//		if(!overMaxImages)
-		if(true)
-		{
-			for(int i : visibleImages)
-				displayImage(ml, i);
-		}
-		else
-		{
-			List<Integer> visibleImagesToSort = new ArrayList<Integer>();;
-			List<Integer> visibleImagesSorted = new ArrayList<Integer>();;
-			List<Integer> visibleImagesFading = new ArrayList<Integer>();
-
-			for(int i : visibleImages)
-				if(images.get(i).isFading())
-					visibleImagesFading.add(i);
-
-			if(visibleImages.size() > visibleImagesFading.size())
-			{
-				for(int i : visibleImages) 
-					if(!visibleImagesFading.contains(i))
-						visibleImagesToSort.add(i);
-				
-				visibleImagesSorted = sortVisibleImages(visibleImagesToSort);
-			}
-
-			for(int i : visibleImagesFading)
-				displayImage(ml, i);
-			
-			System.out.println("--> visibleImagesSorted.size:"+visibleImagesSorted.size()+" visibleImagesFading.size:"+visibleImagesSorted.size());
-			
-			for(int i : visibleImagesSorted)
-			{
-				if(state.imagesSeen < maxVisibleImages)
-					displayImage(ml, i);
-				else
-				{
-					WMV_Image m = images.get(i);
-					if(m.isSeen())
-					{
-						m.display(ml); 				// Display image
-						m.fadeOut();
-					}
-				}
-			}
-		}
+		for(int i : visibleImages)
+			displayImage(ml, i);
 	}
 	
 	private void displayVisiblePanoramas(MultimediaLocator ml, List<Integer> visiblePanoramas)
 	{
-		int maxVisiblePanoramas = ml.world.viewer.getSettings().maxVisiblePanoramas;
-		boolean overMaxPanoramas = (state.panoramasVisible > maxVisiblePanoramas);
-//		if(!overMaxPanoramas)
-		if(true)
-		{
-			for(int i : visiblePanoramas)
-			{
-				WMV_Panorama n = panoramas.get(i);
-				n.display(ml); 					// Display panorama
-				if(!n.isSeen()) n.setSeen(true);
-				state.panoramasSeen++;
-			}
-		}
-		else
-		{
-			List<Integer> visiblePanoramasToSort = new ArrayList<Integer>();;
-			List<Integer> visiblePanoramasSorted = new ArrayList<Integer>();;
-			List<Integer> visiblePanoramasFading = new ArrayList<Integer>();
-
-			for(int i : visiblePanoramas)
-				if(panoramas.get(i).isFading())
-					visiblePanoramasFading.add(i);
-
-			if(visiblePanoramas.size() > visiblePanoramasFading.size())
-			{
-				for(int i : visiblePanoramas) 
-					if(!visiblePanoramasFading.contains(i))
-						visiblePanoramasToSort.add(i);
-				
-				visiblePanoramasSorted = sortVisiblePanoramas(visiblePanoramasToSort);
-			}
-
-			for(int i : visiblePanoramasFading)
-				displayPanorama(ml, i);
-
-			for(int i : visiblePanoramasSorted)
-			{
-				if(state.panoramasSeen < maxVisiblePanoramas)
-					displayPanorama(ml, i);
-				else
-				{
-					WMV_Panorama n = panoramas.get(i);
-					if(n.isSeen())
-					{
-						n.display(ml); 				// Display panorama
-						n.fadeOut();
-					}
-				}
-			}
-		}
+		for(int i : visiblePanoramas)
+			displayPanorama(ml, i);
 	}
 	
 	private void displayVisibleVideos(MultimediaLocator ml, List<Integer> visibleVideos)
 	{
-		int maxVisibleVideos = ml.world.viewer.getSettings().maxVisibleVideos;
-		boolean overMaxVideos = (state.videosVisible > maxVisibleVideos);
-//		if(!overMaxVideos)
-		if(true)
-		{
-			for(int i : visibleVideos)
-			{
-				displayVideo(ml, i);
-			}
-		}
-		else
-		{
-			List<Integer> visibleVideosToSort = new ArrayList<Integer>();;
-			List<Integer> visibleVideosSorted = new ArrayList<Integer>();;
-			List<Integer> visibleVideosFading = new ArrayList<Integer>();
-
-			for(int i : visibleVideos)
-				if(videos.get(i).isFading())
-					visibleVideosFading.add(i);
-
-			if(visibleVideos.size() > visibleVideosFading.size())
-			{
-				for(int i : visibleVideos) 
-					if(!visibleVideosFading.contains(i))
-						visibleVideosToSort.add(i);
-				
-				visibleVideosSorted = sortVisibleVideos(visibleVideosToSort);
-			}
-
-			for(int i : visibleVideosFading)
-				displayVideo(ml, i);
-			
-			for(int i : visibleVideosSorted)
-			{
-				if(state.videosSeen < maxVisibleVideos)
-					displayVideo(ml, i);
-				else
-				{
-					WMV_Video v = videos.get(i);
-					if(v.isSeen())
-					{
-						v.display(ml); 				// Display video
-						v.fadeOut();
-					}
-				}
-			}
-		}
+		for(int i : visibleVideos)
+			displayVideo(ml, i);
 	}
 
 	private void displayAudibleSounds(MultimediaLocator ml, List<Integer> audibleSounds)
 	{
-		int maxAudibleSounds = ml.world.viewer.getSettings().maxAudibleSounds;
-		boolean overMaxSounds = (state.soundsAudible > maxAudibleSounds);
-//		if(!overMaxSounds)
-		if(true)
-		{
-			for(int i : audibleSounds)
-				displaySound(ml, i);
-		}
-		else
-		{
-			List<Integer> audibleSoundsToSort = new ArrayList<Integer>();;
-			List<Integer> audibleSoundsSorted = new ArrayList<Integer>();;
-			List<Integer> audibleSoundsFading = new ArrayList<Integer>();
-
-			for(int i : audibleSounds)
-				if(sounds.get(i).isFading())
-					audibleSoundsFading.add(i);
-
-			if(audibleSounds.size() > audibleSoundsFading.size())
-			{
-				for(int i : audibleSounds) 
-					if(!audibleSoundsFading.contains(i))
-						audibleSoundsToSort.add(i);
-				
-				audibleSoundsSorted = sortAudibleSounds(audibleSoundsToSort);
-			}
-
-			for(int i : audibleSoundsFading)
-				displaySound(ml, i);
-
-			for(int i : audibleSoundsSorted)
-			{
-				if(state.soundsHeard < maxAudibleSounds)
-				{
-					displaySound(ml, i);
-				}
-				else
-				{
-					WMV_Sound s = sounds.get(i);
-					if(s.isSeen())
-					{
-						s.display(ml); 				// Display sound 
-						s.fadeOut();
-						s.fadeSoundOut();
-					}
-				}
-			}
-		}
+		for(int i : audibleSounds)
+			displaySound(ml, i);
 	}
 
 	private List<Integer> sortVisibleImages(List<Integer> visibleImages)
@@ -691,16 +661,8 @@ public class WMV_Field
 			distances.add(new ImageDistance(i, img.getViewingDistance()));
 		}
 		
-//		System.out.println("--- BEFORE");
-//		for(ImageDistance imgDist : distances) System.out.print("ID:"+imgDist.id+" dist:"+imgDist.distance);
-//		System.out.println("");
-
 		distances.sort(null);
 		
-//		System.out.println("--- AFTER");
-//		for(ImageDistance imgDist : distances) 
-//			if(imgDist.id < 120) System.out.println("ID:"+imgDist.id+" dist:"+imgDist.distance);
-			
 		List<Integer> sorted  = new ArrayList<Integer>();
 		for(ImageDistance imgDist : distances)
 			sorted.add(imgDist.id);
@@ -1409,13 +1371,13 @@ public class WMV_Field
 		if(debugSettings.field) System.out.println("Fading out media...");
 
 		for (WMV_Image i : images)
-			i.fadeOut();
+			i.fadeOut(this);
 
 		for (WMV_Panorama n : panoramas) 
-			n.fadeOut();
+			n.fadeOut(this);
 
 		for (WMV_Video v : videos) 
-			v.fadeOut();
+			v.fadeOut(this);
 	}
 
 	/**

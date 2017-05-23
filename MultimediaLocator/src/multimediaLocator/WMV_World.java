@@ -1447,7 +1447,7 @@ public class WMV_World
 			if(i.getMediaState().visible)
 			{
 				if(i.isFading()) i.stopFading();
-				i.fadeOut();
+				i.fadeOut(getCurrentField());
 			}
 		}
 
@@ -1474,7 +1474,7 @@ public class WMV_World
 			if(n.getMediaState().visible)
 			{
 				if(n.isFading()) n.stopFading();
-				n.fadeOut();
+				n.fadeOut(getCurrentField());
 			}
 		}
 		
@@ -1485,7 +1485,7 @@ public class WMV_World
 				for(WMV_Panorama n : c.stitched)
 				{
 					if(n.isFading()) n.stopFading();
-					n.fadeOut();
+					n.fadeOut(getCurrentField());
 				}
 			}
 		}
@@ -1513,7 +1513,7 @@ public class WMV_World
 			if(v.getMediaState().visible)
 			{
 				if(v.isFading()) v.stopFading();
-				v.fadeOut();
+				v.fadeOut(getCurrentField());
 			}
 		}
 		
@@ -1544,7 +1544,6 @@ public class WMV_World
 		getCurrentField().clearAllAttractors();
 	}
 	
-	
 	/**
 	 * Get visible clusters in standard viewing mode
 	 * @return Active clusters in current field
@@ -1554,7 +1553,7 @@ public class WMV_World
 		WMV_Field f = getCurrentField();
 		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
 
-		for(int i : viewer.getNearClusters(-1, settings.maxClusterDistance))
+		for(int i : viewer.getNearClusters(settings.maxVisibleClusters, settings.maxClusterDistance))
 		{
 			WMV_Cluster c = f.getCluster(i);
 			if(c.isActive() && !c.isEmpty())
@@ -1564,6 +1563,26 @@ public class WMV_World
 		return clusters;
 	}
 	
+	
+	/**
+	 * Get visible clusters in standard viewing mode
+	 * @return Active clusters in current field
+	 */
+	public List<Integer> getVisibleClusterIDs()
+	{
+		WMV_Field f = getCurrentField();
+		List<Integer> clusters = new ArrayList<Integer>();
+
+		for(int i : viewer.getNearClusters(settings.maxVisibleClusters, settings.maxClusterDistance))
+		{
+			WMV_Cluster c = f.getCluster(i);
+			if(c.isActive() && !c.isEmpty())
+				clusters.add(c.getID());
+		}
+		
+		return clusters;
+	}
+
 	/**
 	 * @param dist Grid spacing
 	 */

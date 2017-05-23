@@ -315,26 +315,60 @@ public abstract class WMV_Media
 	}
 
 	/**
-	 * Fade in media
+	 * Fade in media and add to visible list
 	 */
-	public void fadeIn()
+	public void fadeIn(WMV_Field f)
 	{
 		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
 			stopFading();
 
 		startFading(1.f);					// Fade in
+		switch(mState.mediaType)			// Media Type,  0: image 1: panorama 2: video 3: sound 
+		{
+			case 0:
+				f.visibleImages.add(getID());
+				break;
+			case 1:
+				f.visiblePanoramas.add(getID());
+				break;
+			case 2:
+				f.visibleVideos.add(getID());
+				break;
+			case 3:
+				f.audibleSounds.add(getID());
+				break;
+		}
 	}
 
 	/**
-	 * Fade out media
+	 * Fade out media and remove from visible list
 	 */
-	public void fadeOut()
+	public void fadeOut(WMV_Field f)
 	{
 		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
 			stopFading();
 
 		if(isSeen()) setSeen(false);
 		startFading(0.f);					// Fade out
+//		switch(mState.mediaType)			// Media Type,  0: image 1: panorama 2: video 3: sound 
+//		{
+//			case 0:
+//				if(f.visibleImages.contains(getID()))
+//					f.visibleImages.remove(f.visibleImages.indexOf(getID()));
+//				break;
+//			case 1:
+//				if(f.visiblePanoramas.contains(getID()))
+//					f.visiblePanoramas.remove(f.visiblePanoramas.indexOf(getID()));
+//				break;
+//			case 2:
+//				if(f.visibleVideos.contains(getID()))
+//					f.visibleVideos.remove(f.visibleVideos.indexOf(getID()));
+//				break;
+//			case 3:
+//				if(f.audibleSounds.contains(getID()))
+//					f.audibleSounds.remove(f.audibleSounds.indexOf(getID()));
+//				break;
+//		}
 	}
 
 	/**
@@ -377,7 +411,7 @@ public abstract class WMV_Media
 	/**
 	 * Update fading brightness
 	 */
-	void updateFadingBrightness()
+	void updateFadingBehavior(WMV_Field f)
 	{
 		float newFadeValue = 0.f;
 
@@ -409,6 +443,26 @@ public abstract class WMV_Media
 					newFadeValue = mState.fadingTarget;
 					mState.isFadingOut = false;
 					mState.fadedOut = true;
+					
+					switch(mState.mediaType)				// Remove from visible / audible list once faded out 
+					{
+						case 0:
+							if(f.visibleImages.contains(getID()))
+								f.visibleImages.remove(f.visibleImages.indexOf(getID()));
+							break;
+						case 1:
+							if(f.visiblePanoramas.contains(getID()))
+								f.visiblePanoramas.remove(f.visiblePanoramas.indexOf(getID()));
+							break;
+						case 2:
+							if(f.visibleVideos.contains(getID()))
+								f.visibleVideos.remove(f.visibleVideos.indexOf(getID()));
+							break;
+						case 3:
+							if(f.audibleSounds.contains(getID()))
+								f.audibleSounds.remove(f.audibleSounds.indexOf(getID()));
+							break;
+					}
 				}
 				else
 					System.out.println("Fading out but target == "+mState.fadingTarget);

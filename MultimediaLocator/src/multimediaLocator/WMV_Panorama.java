@@ -16,7 +16,7 @@ public class WMV_Panorama extends WMV_Media
 
 	/* Graphics */
 	public PImage texture;								// Texture image pixels
-	private boolean initialized;
+	public boolean initialized;
 
 	public PVector[] sphere;	
 	private final float tablePrecision = 0.5f;
@@ -82,47 +82,6 @@ public class WMV_Panorama extends WMV_Media
 		}
 	}
 
-	/**
-=	 * Update main variables
-	 */
-	public void update(MultimediaLocator ml)
-	{
-		if(getMediaState().requested && texture.width != 0)			// If requested image has loaded, initialize image 
-		{
-			initializeSphere();					
-			setRequested(false);
-//			p.p.vState.requestedPanoramas--;
-		}
-
-		if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
-			if(!initialized)
-				loadMedia(ml); 
-
-		if(!isDisabled())
-		{
-			if(texture.width > 0)			
-			{
-				calculateVisibility();
-				updateFading();
-				
-//				if(isVisible() && !isFading() && !hasFadedOut() && getFadingBrightness() == 0.f)					// Fade in
-//				{
-//					if(getDebugSettings().panorama)
-//						System.out.println("fadeIn()...pano id:"+getID());
-//					fadeIn();
-//				}
-//
-//				if(hasFadedOut()) setFadedOut(false);
-			}
-
-			if(isFading())                       // Fade in and out with time
-				updateFadingBrightness();
-			
-//			if(fadingObjectDistance)
-//				updateFadingObjectDistance();
-		}
-	}
-
 	public void calculateVisibility()
 	{
 		if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
@@ -144,13 +103,13 @@ public class WMV_Panorama extends WMV_Media
 			setVisible(false);
 	}
 	
-	public void updateFading()
+	public void updateFading(WMV_Field f)
 	{
 		if(isVisible() && !isFading() && !hasFadedOut() && getFadingBrightness() == 0.f)					// Fade in
 		{
 			if(getDebugSettings().panorama)
 				System.out.println("fadeIn()...pano id:"+getID());
-			fadeIn();
+			fadeIn(f);
 		}
 
 		if(hasFadedOut()) setFadedOut(false);

@@ -55,73 +55,23 @@ public class WMV_Sound extends WMV_Media
 	/**
 =	 * Update sound geometry and audibility
 	 */
-	void update(MultimediaLocator ml, WMV_Utilities utilities)
-	{
-//		boolean overMaxSounds = (ml.world.getCurrentField().getState().soundsAudible > ml.world.viewer.getSettings().maxAudibleSounds);
-
-		if(!isDisabled())			
-		{
-			boolean wasVisible = isVisible();
-			calculateAudibility();
-			updateFading(ml, wasVisible);
-			
-//			boolean visibilitySetToTrue = false;
-//			boolean visibilitySetToFalse = false;
-//			if(isFading())									// Update brightness while fading
-//			{
-//				if(getFadingBrightness() == 0.f)
-//					setVisible(false);
-//			}
-//			else 
-//			{
-//				if(!wasVisible && getMediaState().visible)
-//					visibilitySetToTrue = true;
-//
-//				if(getFadingBrightness() == 0.f && getMediaState().visible)
-//					visibilitySetToTrue = true;
-//
-//				if(wasVisible && !getMediaState().visible)
-//					visibilitySetToFalse = true;
-//
-//				if(getFadingBrightness() > 0.f && !getMediaState().visible)
-//					visibilitySetToFalse = true;
-//			}
+//	void update(MultimediaLocator ml, WMV_Utilities utilities)
+//	{
+//		if(!isDisabled())			
+//		{
+//			boolean wasVisible = isVisible();
+//			calculateAudibility();
+//			updateFading(ml, wasVisible);
 //			
-//			if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
+//			if(state.loaded)
 //			{
-//				if(!overMaxSounds)
-//				{
-//					if(!state.loaded) loadMedia(ml);
-//					fadeIn();											// Fade in
-//					fadeSoundIn();
-//				}
+//				if(state.fadingVolume)
+//					updateFadingVolume();
+//				else
+//					updateVolume(); 								// Tie volume to fading brightness
 //			}
-//
-//			if(visibilitySetToFalse)
-//			{
-//				System.out.println("Sound #"+getID()+" visibility was set to false...");
-//				fadeOut();
-//				fadeSoundOut();
-//			}
-//
-//			if(isFading())									// Update brightness while fading
-//				updateFadingBrightness();
-//
-//			if(hasFadedIn()) setFadedIn(false);						
-//			if(hasFadedOut()) setFadedOut(false);						
-//
-//			if(state.soundFadedIn) state.soundFadedIn = false;
-//			if(state.soundFadedOut) state.soundFadedOut = false;
-
-			if(state.loaded)
-			{
-				if(state.fadingVolume)
-					updateFadingVolume();
-				else
-					updateVolume(); 								// Tie volume to fading brightness
-			}
-		}
-	}
+//		}
+//	}
 	
 	public void calculateAudibility()
 	{
@@ -164,19 +114,19 @@ public class WMV_Sound extends WMV_Media
 		if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
 		{
 			if(!state.loaded) loadMedia(ml);
-			fadeIn();											// Fade in
+			fadeIn(ml.world.getCurrentField());											// Fade in
 			fadeSoundIn();
 		}
 
 		if(visibilitySetToFalse)
 		{
 			System.out.println("Sound #"+getID()+" visibility was set to false...");
-			fadeOut();
+			fadeOut(ml.world.getCurrentField());
 			fadeSoundOut();
 		}
 
 		if(isFading())									// Update brightness while fading
-			updateFadingBrightness();
+			updateFadingBehavior(ml.world.getCurrentField());
 
 		if(hasFadedIn()) setFadedIn(false);						
 		if(hasFadedOut()) setFadedOut(false);						
@@ -188,18 +138,16 @@ public class WMV_Sound extends WMV_Media
 	/**
 	 * Update volume based on viewer distance from sound
 	 */
-	private void updateVolume()
+	public void updateVolume()
 	{
 		state.volume = getDistanceAudibility();
-//		state.volume = PApplet.map(getHearingDistance(), 0.f, getViewerSettings().farHearingDistance, getWorldSettings().soundMaxVolume, 0.f);
-//		if(getDebugSettings().sound && getDebugSettings().detailed) System.out.println("updateVolume()... state.volume:"+state.volume);
 		g.setGain(state.volume);
 	}
 	
 	/**
 	 * Update volume fading 
 	 */
-	private void updateFadingVolume()
+	public void updateFadingVolume()
 	{
 		if(state.fadingVolume && getWorldState().frameCount < state.volumeFadingEndFrame)	// Still fading
 		{

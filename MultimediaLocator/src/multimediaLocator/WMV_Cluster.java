@@ -321,8 +321,8 @@ public class WMV_Cluster
 		{
 			for(WMV_Panorama n : stitched)
 			{
-				n.update(ml);
-				n.display(ml);
+				ml.world.getCurrentField().updatePanorama(ml, n);
+//				ml.world.getCurrentField().displayPanorama(ml, n);
 			}
 		}
 	}

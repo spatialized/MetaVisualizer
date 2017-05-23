@@ -33,6 +33,11 @@ public class WMV_FieldState
 	public boolean dendrogramCreated = false;				// Whether dendrogram has been created
 
 	/* Media */
+	public int imagesInRange = 0;			// Number of images in visible range
+	public int panoramasInRange = 0;		// Number of panoramas in visible range
+	public int videosInRange = 0;			 // Number of videos in visible range
+	public int soundsInRange = 0; 			// Number of sounds in audible range
+
 	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos / currently seen
 	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas / currently seen
 	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0; // Number of visible videos / currently seen
@@ -74,6 +79,11 @@ public class WMV_FieldState
 		dendrogramCreated = false;						// Dendrogram has been created
 
 		/* Graphics */
+		imagesInRange = 0;			// Number of images in visible range
+		panoramasInRange = 0;		// Number of panoramas in visible range
+		videosInRange = 0;			 // Number of videos in visible range
+		soundsInRange = 0; 			// Number of sounds in audible range
+
 		imagesVisible = 0; imagesSeen = 0;				// Number of visible photos and currently seen
 		panoramasVisible = 0; panoramasSeen = 0;		// Number of visible panoramas and currently seen
 		videosVisible = 0; videosLoaded = 0; videosPlaying = 0; videosSeen = 0;

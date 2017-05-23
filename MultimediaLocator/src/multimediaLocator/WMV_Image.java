@@ -16,8 +16,8 @@ public class WMV_Image extends WMV_Media
 
 	/* Graphics */
 	public PImage image;			// Image pixels to be displayed
-	private PImage blurMask;		// Blur mask
-	private PImage blurred;			// Combined pixels 
+	public PImage blurMask;		// Blur mask
+	public PImage blurred;			// Combined pixels 
 
 	/**
 	 * Constructor for image in 3D space
@@ -75,48 +75,6 @@ public class WMV_Image extends WMV_Media
 		}
 	}
 
-//	/**
-//	 * Display the image in virtual space
-//	 */
-//	public void display(MultimediaLocator ml)
-//	{
-////		System.out.print("display image:"+getID()+" isHidden():"+isHidden());
-//		float angleBrightnessFactor;							// Fade with angle
-//		float brightness = getFadingBrightness();					
-//		brightness *= getViewerSettings().userBrightness;
-//
-//		float distanceBrightnessFactor = getDistanceBrightness(); 
-//		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
-//
-//		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
-//			brightness *= getTimeBrightness(); 					// Fade iBrightness based on time
-//
-//		if( getViewerSettings().angleFading )
-//		{
-//			float imageAngle = getFacingAngle(getViewerState().getOrientationVector());
-//			angleBrightnessFactor = getAngleBrightness(imageAngle);                 // Fade out as turns sideways or gets too far / close
-//			brightness *= angleBrightnessFactor;
-//		}
-//
-//		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
-//
-//		if(getMediaState().showMetadata) 
-//			displayMetadata(ml);
-//
-//		if (!isHidden() && !isDisabled()) 
-//		{
-//			if (getViewingBrightness() > 0)
-//			{
-////				System.out.println(" ID:"+getID()+" getViewingBrightness():"+getViewingBrightness()+" distanceBrightnessFactor:"+distanceBrightnessFactor+" image.width: "+image.width);
-//				if(image.width > 0)				// If image has been loaded
-//					displayImage(ml);        // Display image 
-//			}
-//		} 
-//
-//		if(isVisible() && getWorldState().showModel && !isHidden() && !isDisabled())
-//			displayModel(ml);
-//	}
-
 	/**
 	 * Apply mask to image
 	 * @param ml Parent app
@@ -124,7 +82,7 @@ public class WMV_Image extends WMV_Media
 	 * @param mask Mask image
 	 * @return
 	 */
-	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
+	public PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
 	{
 		PImage result = ml.createImage(640, 480, PApplet.RGB);
 
@@ -199,45 +157,45 @@ public class WMV_Image extends WMV_Media
 		}
 		ml.popMatrix();
 	}
-
-	/**
-=	 * Update image geometry + visibility
-	 */
-	public void update(MultimediaLocator ml, WMV_Utilities utilities)
-	{
-		if(getMediaState().requested && image.width != 0)			// If requested image has loaded, initialize image 
-		{
-			calculateVertices();  					// Update geometry		
-
-			setAspectRatio( calculateAspectRatio() );
-			blurred = applyMask(ml, image, blurMask);					// Apply blur mask once image has loaded
-			setRequested(false);
-		}
-
-		if(image.width > 0 && !isHidden() && !isDisabled())				// Image has been loaded and isn't mState.hidden or disabled
-		{
-			boolean wasVisible = isVisible();
-			calculateVisibility(utilities);
-			updateFading(wasVisible);
-		}
-		else
-		{
-			if(getViewerSettings().orientationMode)
-			{
-				for(int id : getViewerState().getClustersVisible())
-					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-						loadMedia(ml);
-			}
-			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
-				loadMedia(ml); 					// Request image pixels from disk
-		}
-
-		if(isFading())                       // Fade in and out with time
-			updateFadingBrightness();
-
-		if(getMediaState().fadingFocusDistance)
-			updateFadingFocusDistance();
-	}
+//
+//	/**
+//=	 * Update image geometry + visibility
+//	 */
+//	public void update(MultimediaLocator ml, WMV_Utilities utilities)
+//	{
+//		if(getMediaState().requested && image.width != 0)			// If requested image has loaded, initialize image 
+//		{
+//			calculateVertices();  					// Update geometry		
+//
+//			setAspectRatio( calculateAspectRatio() );
+//			blurred = applyMask(ml, image, blurMask);					// Apply blur mask once image has loaded
+//			setRequested(false);
+//		}
+//
+//		if(image.width > 0 && !isHidden() && !isDisabled())				// Image has been loaded and isn't mState.hidden or disabled
+//		{
+//			boolean wasVisible = isVisible();
+//			calculateVisibility(utilities);
+//			updateFading(wasVisible);
+//		}
+//		else
+//		{
+//			if(getViewerSettings().orientationMode)
+//			{
+//				for(int id : getViewerState().getClustersVisible())
+//					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+//						loadMedia(ml);
+//			}
+//			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
+//				loadMedia(ml); 					// Request image pixels from disk
+//		}
+//
+//		if(isFading())                       // Fade in and out with time
+//			updateFadingBrightness();
+//
+//		if(getMediaState().fadingFocusDistance)
+//			updateFadingFocusDistance();
+//	}
 
 	public void calculateVisibility(WMV_Utilities utilities)
 	{
@@ -281,7 +239,7 @@ public class WMV_Image extends WMV_Media
 		}
 	}
 	
-	public void updateFading(boolean wasVisible)
+	public void updateFading(WMV_Field f, boolean wasVisible)
 	{
 		boolean visibilitySetToTrue = false;
 		boolean visibilitySetToFalse = false;
@@ -309,24 +267,22 @@ public class WMV_Image extends WMV_Media
 		if(!getViewerSettings().angleThinning)
 		{
 			if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideImages && getFadingBrightness() == 0.f)			// Fade in
-				fadeIn();
+				fadeIn(f);
 		}
 		else
 		{
 			if(getMediaState().visible && !state.thinningVisibility && !isFading())
-			{
-				fadeOut();
-			}
+				fadeOut(f);
 
 			if(!isVisible() && state.thinningVisibility && !isFading() && !getViewerSettings().hideImages) 
 			{
 				if(!hasFadedOut())					// Fade in if didn't just finish fading out this frame
-					fadeIn();
+					fadeIn(f);
 			}
 		}
 
 		if(visibilitySetToFalse)
-			fadeOut();
+			fadeOut(f);
 
 		if(getMediaState().fadedOut) setFadedOut(false);
 	}
@@ -921,7 +877,7 @@ public class WMV_Image extends WMV_Media
 	/**
 	 * Update fading of object distance (focus distance and image size together)
 	 */
-	private void updateFadingFocusDistance()
+	public void updateFadingFocusDistance()
 	{
 		float newFocusDistance = 0.f;
 

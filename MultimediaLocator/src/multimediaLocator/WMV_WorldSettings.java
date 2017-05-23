@@ -27,6 +27,7 @@ public class WMV_WorldSettings
 	public float maxClusterDistanceFactor = 5.f;			// Limit on maxClusterDistance as multiple of min. as media spread increases
 
 	/* Graphics */
+	public int maxVisibleClusters = -1;					// Maximum visible clusters at once (-1: no limit)
 	public boolean depthTesting = false;				// Enable depth testing
 	
 	/* Time */

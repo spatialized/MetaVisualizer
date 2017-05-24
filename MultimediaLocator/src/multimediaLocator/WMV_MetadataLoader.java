@@ -331,13 +331,13 @@ class WMV_MetadataLoader
 		dataFolderFound = (dataFolderFile.exists() && dataFolderFile.isDirectory());	
 		dataFiles = null;
 
-		if (debugSettings.data)
+		if (debugSettings.ml)
 			System.out.println("Data Folder: " + dataFolder); 
 
 		if(dataFolderFound)				// Check for sound files
 		{
 			dataFiles = dataFolderFile.listFiles();
-			if (debugSettings.data && debugSettings.detailed)
+			if (debugSettings.ml && debugSettings.detailed)
 			{
 				System.out.println("Data Files[0]:" + dataFiles[0].getName());
 				System.out.println("Data Files[1]:" + dataFiles[1].getName());
@@ -375,7 +375,7 @@ class WMV_MetadataLoader
 			}
 		}
 		
-		if (debugSettings.data)
+		if (debugSettings.ml)
 		{
 			System.out.println("Data Folder:" + dataFolder + " Valid Format: "+dataFilesValidFormat);
 		}

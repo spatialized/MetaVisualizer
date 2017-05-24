@@ -72,7 +72,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			}
 			else
 			{
-				if(getDebugSettings().video || getDebugSettings().main)
+				if(getDebugSettings().video || getDebugSettings().ml)
 				{
 					System.out.println("Video Blur Mask different size from video!");
 					System.out.println("  state.origVideoWidth:"+state.origVideoWidth+" source.width:"+source.width+" mask.width:"+mask.width);
@@ -82,7 +82,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 		catch(RuntimeException ex)
 		{
-			if(getDebugSettings().video || getDebugSettings().main)
+			if(getDebugSettings().video || getDebugSettings().ml)
 			{
 				System.out.println("Error with Video Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
 				if(source != null && mask != null)
@@ -424,7 +424,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	/**
-	 * Load the video file from disk
+	 * Load video frames from disk
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
@@ -440,8 +440,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				if(ml.world.getCurrentField().getVideosPlaying() < getViewerSettings().autoPlayMaxVideoCount)
 					playVideo();
 			}
-			else
-				pauseVideo();
+			else pauseVideo();
 			
 			video.volume(0.f);
 			state.volume = 0.f;
@@ -518,7 +517,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		if(isSelected())
 		{
-			if (!getViewerSettings().selection && getDebugSettings().field)     // Draw outline
+			if (!getViewerSettings().selection && getDebugSettings().world)     // Draw outline
 			{
 				ml.stroke(19, 200, 150);
 				ml.strokeWeight(state.outlineSize);

@@ -87,7 +87,7 @@ public class WMV_World
 	 */
 	public void initialize() 
 	{
-		if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Initializing WMV_World...");
+		if(p.debugSettings.world && p.debugSettings.detailed) System.out.println("Initializing WMV_World...");
 
 		/* Create main classes */
 		settings = new WMV_WorldSettings();
@@ -106,7 +106,7 @@ public class WMV_World
 		updateState();
 		updateViewerAttraction();			// Attract the viewer
 		display(p.state.sphericalView);
-		if(!state.paused) updateTimeBehavior();		// Update time cycle
+		updateTimeBehavior();		// Update time cycle
 	}
 	
 	public void display(boolean sphericalView)
@@ -265,11 +265,10 @@ public class WMV_World
 	private void updateClusterTimeMode()
 	{
 		ArrayList<WMV_Cluster> visible = getVisibleClusters();
-		
-		for(WMV_Cluster c : getVisibleClusters())
+		for(WMV_Cluster c : visible)
 		{
 			if(!c.isTimeFading()) c.setTimeFading(true);
-			c.updateTime();
+			if(!state.paused) c.updateTime();
 		}
 		
 		for(WMV_Cluster c : getCurrentField().getClusters())
@@ -282,49 +281,42 @@ public class WMV_World
 	
 	private void updateFieldTimeMode()
 	{
-		state.currentTime++;
-		if(state.currentTime > settings.timeCycleLength)
-			state.currentTime = 0;
-
-//		if(p.debugSettings.field && state.currentTime > settings.timeCycleLength + settings.defaultMediaLength * 0.25f)
-//		{
-//			if(getCurrentField().mediaAreActive())
-//			{
-//				if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Media still active...");
-//			}
-//			else
-//			{
-//				state.currentTime = 0;
-//				if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Reached end of day at frameCount:"+state.frameCount);
-//			}
-//		}
+		if(!state.paused)
+		{
+			state.currentTime++;
+			if(state.currentTime > settings.timeCycleLength)
+				state.currentTime = 0;
+		}
 	}
 	
 	private void updateSingleTimeMode()
 	{
-		state.currentTime++;
-		if(p.debugSettings.time && p.debugSettings.detailed)
-			System.out.println("currentTime:"+state.currentTime);
-
-		if(state.currentTime >= viewer.getNextMediaStartTime())
+		if(!state.paused)
 		{
-			if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
+			state.currentTime++;
+			if(p.debugSettings.time && p.debugSettings.detailed)
+				System.out.println("currentTime:"+state.currentTime);
+
+			if(state.currentTime >= viewer.getNextMediaStartTime())
 			{
-				setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
+				if(viewer.getCurrentMedia() + 1 < viewer.getNearbyClusterTimelineMediaCount())
+				{
+					setMediaTimeModeCurrentMedia(viewer.getCurrentMedia() + 1);		
+				}
+				else
+				{
+					if(p.debugSettings.world)
+						System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
+					state.currentTime = 0;
+					startMediaTimeModeCycle();
+				}
 			}
-			else
+
+			if(state.currentTime > settings.timeCycleLength)
 			{
-				if(p.debugSettings.main)
-					System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
 				state.currentTime = 0;
 				startMediaTimeModeCycle();
 			}
-		}
-		
-		if(state.currentTime > settings.timeCycleLength)
-		{
-			state.currentTime = 0;
-			startMediaTimeModeCycle();
 		}
 	}
 	
@@ -568,7 +560,7 @@ public class WMV_World
 		File soundDirectory = new File(soundDataPath);
 		if(!soundDirectory.exists()) soundDirectory.mkdir();			// Create directory if doesn't exist
 
-		if(p.debugSettings.main)
+		if(p.debugSettings.world)
 			PApplet.println("Saving Simulation State to: "+folderPath);
 		
 		WMV_Field f = getCurrentField();
@@ -661,7 +653,7 @@ public class WMV_World
 			if(!soundDirectory.exists()) 
 				soundDirectory.mkdir();			// Create sound directory if doesn't exist
 
-			if(p.debugSettings.main) PApplet.println("Saving Simulation State to: "+folderPath);
+			if(p.debugSettings.world) PApplet.println("Saving Simulation State to: "+folderPath);
 			
 			f.captureState();											// Capture current state, i.e. save timeline and dateline
 
@@ -682,7 +674,7 @@ public class WMV_World
 			p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
 			p.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
 			
-			if(p.debugSettings.main) System.out.println("Saved simulation state for field #"+f.getID());
+			if(p.debugSettings.world) System.out.println("Saved simulation state for field #"+f.getID());
 		}
 	}
 
@@ -691,7 +683,7 @@ public class WMV_World
 	 */
 	public WMV_Field loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
 	{
-		if(p.debugSettings.main && p.debugSettings.detailed)
+		if(p.debugSettings.world && p.debugSettings.detailed)
 			PApplet.println("Loading and setting Simulation State... Field #"+curField.getID());
 
 		loadAndSetState(curField.getID());
@@ -704,7 +696,7 @@ public class WMV_World
 		viewer.resetTimeState();
 		
 		/* Check world and viewer state/settings */
-		if(p.debugSettings.main && p.debugSettings.detailed)
+		if(p.debugSettings.world && p.debugSettings.detailed)
 		{
 			if(state != null) System.out.println("WorldState exists...");
 			if(settings != null) System.out.println("WorldSettings exists...");
@@ -718,7 +710,7 @@ public class WMV_World
 		curField = loadFieldState(curField);
 		curField.setID(fieldID);
 		
-		if(p.debugSettings.main && p.debugSettings.detailed)
+		if(p.debugSettings.world && p.debugSettings.detailed)
 			System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
 
 		return curField;
@@ -739,7 +731,7 @@ public class WMV_World
 //		newViewerState.frameCount = p.frameCount;
 
 		/* Check world and viewer state/settings */
-		if(p.debugSettings.main && p.debugSettings.detailed)
+		if(p.debugSettings.world && p.debugSettings.detailed)
 		{
 			if(newWorldState != null) System.out.println("WorldState exists...");
 			if(newWorldSettings != null) System.out.println("WorldSettings exists...");
@@ -753,7 +745,7 @@ public class WMV_World
 		curField= loadFieldState(curField);
 		curField.setID(fieldID);
 		
-		if(p.debugSettings.main && p.debugSettings.detailed)
+		if(p.debugSettings.world && p.debugSettings.detailed)
 			System.out.println("Loaded Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
 
 		return curField;
@@ -765,7 +757,7 @@ public class WMV_World
 	 */
 	void setSimulationStateFromField(WMV_Field field, boolean moveToCurrentCluster)
 	{
-		if(p.debugSettings.main)
+		if(p.debugSettings.world)
 			System.out.println("setSimulationStateFromField()... Field #"+field.getID());
 
 		setState(field.getWorldState());
@@ -798,12 +790,12 @@ public class WMV_World
 		{
 			if(getCurrentCluster() != null)
 			{
-				if(p.debugSettings.viewer || p.debugSettings.field)
+				if(p.debugSettings.viewer || p.debugSettings.world)
 					System.out.println("setSimulationStateFromField()... moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" before:"+viewer.getLocation());
 			}
 			else
 			{
-				if(p.debugSettings.viewer || p.debugSettings.field)
+				if(p.debugSettings.viewer || p.debugSettings.world)
 					System.out.println("  setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
 				viewer.setCurrentCluster(0, 0);
 			}
@@ -814,7 +806,7 @@ public class WMV_World
 		viewer.resetTimeState();
 
 		/* Check world and viewer state/settings */
-		if(p.debugSettings.main && p.debugSettings.detailed)
+		if(p.debugSettings.world && p.debugSettings.detailed)
 		{
 			if(state != null) System.out.println("WorldState exists...");
 			if(settings != null) System.out.println("WorldSettings exists...");
@@ -822,7 +814,7 @@ public class WMV_World
 			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
 		}
 		
-		if(p.debugSettings.main || p.debugSettings.viewer)
+		if(p.debugSettings.world)
 		{
 			if(getCurrentCluster() != null)
 				System.out.println("  setSimulationStateFromField()... currentCluster id:"+getCurrentCluster().getID()+" cluster location:"+getCurrentCluster().getLocation()+" current location:"+viewer.getLocation());
@@ -926,8 +918,8 @@ public class WMV_World
 
 		/* Clustering Modes */
 		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
-		p.state.interactive = false;					// In user clustering mode?
-		p.state.startInteractive = false;				// Start user clustering
+		p.state.interactive = false;				// In user clustering mode?
+		p.state.startInteractive = false;			// Start user clustering
 
 		/* Time */
 		state.timeFading = false;					// Does time affect media brightness? 
@@ -943,7 +935,7 @@ public class WMV_World
 		state.alpha = 195.f;						// Transparency
 		state.beginFadingAlpha = false;
 		state.fadingAlpha = false;
-		state.fadingAlphaStartFrame = 0; 
+		state.fadingAlphaStartFrame = 0;
 		state.fadingAlphaEndFrame = 0; 
 		state.fadingAlphaLength = 20;	
 
@@ -960,12 +952,11 @@ public class WMV_World
 		state.mergeClusters = true;					// Merge nearby clusters?
 		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 
-		if(p.debugSettings.main)
-			System.out.println("Resetting world...");
+		if(p.debugSettings.world) System.out.println("Resetting world...");
 		
 		/* Create main classes */
-		viewer.reset();			// Initialize navigation + viewer
-		p.display.reset();		// Initialize displays
+		viewer.reset();								// Initialize navigation + viewer
+		p.display.reset();							// Initialize displays
 
 		/* Initialize graphics and text parameters */
 		p.colorMode(PConstants.HSB);
@@ -986,12 +977,12 @@ public class WMV_World
 	 */
 	void createFieldsFromFolders(ArrayList<String> fieldFolders)
 	{
-		fields = new ArrayList<WMV_Field>();			// Initialize fields array
+		fields = new ArrayList<WMV_Field>();					// Initialize fields array
 		int count = 0;
 		
 		for(String fieldFolder : fieldFolders)
 		{
-			System.out.println("Adding field for folder:"+fieldFolder);
+			if(p.debugSettings.world) System.out.println("Adding field for folder:"+fieldFolder);
 			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldFolder, count));
 			count++;
 		}
@@ -1193,7 +1184,7 @@ public class WMV_World
 	 */
 	public void saveToDisk() 
 	{
-		if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Will output image to disk.");
+		if(p.debugSettings.ml && p.debugSettings.detailed) System.out.println("Will output image to disk.");
 		p.state.export = true;
 	}
 
@@ -1202,7 +1193,7 @@ public class WMV_World
 	 */
 	public void saveCubeMapToDisk() 
 	{
-		if(p.debugSettings.main && p.debugSettings.detailed) System.out.println("Will output cubemap images to disk.");
+		if(p.debugSettings.ml && p.debugSettings.detailed) System.out.println("Will output cubemap images to disk.");
 		p.state.exportCubeMap = true;
 	}
 
@@ -1607,7 +1598,6 @@ public class WMV_World
 		for(int i : viewer.getNearClusterIDs(settings.maxVisibleClusters, settings.maxClusterDistance))
 		{
 			WMV_Cluster c = f.getCluster(i);
-			
 			if(c.isActive() && !c.isEmpty())
 			{
 				boolean visible = true;

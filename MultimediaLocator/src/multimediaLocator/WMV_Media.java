@@ -176,7 +176,7 @@ public abstract class WMV_Media
 			if(fadeInStart < 0)
 			{
 				error = true;
-				if(debugSettings.main)
+				if(debugSettings.ml)
 				{
 					System.out.println(">>> Error: fadeInStart before cycle start-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
 					System.out.println(" ------ fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd);
@@ -187,7 +187,7 @@ public abstract class WMV_Media
 			if(fadeInStart > worldSettings.timeCycleLength)
 			{
 				error = true;
-				if(debugSettings.main)
+				if(debugSettings.ml)
 				{
 					System.out.println(">>> Error: fadeInStart after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
 					System.out.println("----- fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+" worldState.getTimeMode():"+worldState.getTimeMode());
@@ -198,7 +198,7 @@ public abstract class WMV_Media
 			if(fadeInEnd > worldSettings.timeCycleLength)
 			{
 				error = true;
-				if(debugSettings.main)
+				if(debugSettings.ml)
 				{
 					System.out.println(">>> Error: fadeInEnd after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+"-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode()+" media length:"+length);
@@ -208,7 +208,7 @@ public abstract class WMV_Media
 			if(fadeOutStart > worldSettings.timeCycleLength)
 			{
 				error = true;
-				if(debugSettings.main)
+				if(debugSettings.ml)
 				{
 					System.out.println(">>> Error: fadeOutStart after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength);
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+"-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode()+" media length:"+length);
@@ -218,7 +218,7 @@ public abstract class WMV_Media
 			if(fadeOutEnd > worldSettings.timeCycleLength)
 			{
 				error = true;
-				if(debugSettings.main)
+				if(debugSettings.ml)
 				{
 					System.out.println(">>> Error: fadeOutEnd after cycle end-----time:"+time.getTime()+" centerTime:"+centerTime+" lower:"+lower+" upper:"+upper+" dayLength:"+worldSettings.timeCycleLength+" media type:"+getType());
 					System.out.println("-----fadeInStart:"+fadeInStart+" fadeInEnd:"+fadeInEnd+" fadeOutStart:"+fadeOutStart+" fadeOutEnd:"+fadeOutEnd+"-----cluster:"+mState.getClusterID()+" media type:"+getType()+" id:"+getID()+" worldState.getTimeMode():"+worldState.getTimeMode());
@@ -243,7 +243,7 @@ public abstract class WMV_Media
 
 		if(error)
 		{
-			if(debugSettings.main) System.out.println("Time Brightness Error for media id:" + getID()+" type:"+ getType()+" set timeBrightness to :"+mState.timeBrightness);
+			if(debugSettings.ml) System.out.println("Time Brightness Error for media id:" + getID()+" type:"+ getType()+" set timeBrightness to :"+mState.timeBrightness);
 
 			setTimeBrightness( 1.f );
 		}
@@ -348,25 +348,6 @@ public abstract class WMV_Media
 
 		if(isSeen()) setSeen(false);
 		startFading(0.f);					// Fade out
-//		switch(mState.mediaType)			// Media Type,  0: image 1: panorama 2: video 3: sound 
-//		{
-//			case 0:
-//				if(f.visibleImages.contains(getID()))
-//					f.visibleImages.remove(f.visibleImages.indexOf(getID()));
-//				break;
-//			case 1:
-//				if(f.visiblePanoramas.contains(getID()))
-//					f.visiblePanoramas.remove(f.visiblePanoramas.indexOf(getID()));
-//				break;
-//			case 2:
-//				if(f.visibleVideos.contains(getID()))
-//					f.visibleVideos.remove(f.visibleVideos.indexOf(getID()));
-//				break;
-//			case 3:
-//				if(f.audibleSounds.contains(getID()))
-//					f.audibleSounds.remove(f.audibleSounds.indexOf(getID()));
-//				break;
-//		}
 	}
 
 	/**

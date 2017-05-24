@@ -41,7 +41,7 @@ public class WMV_Model
 	{
 		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0 || sounds.size() > 0)
 		{
-			if(debugSettings.field) System.out.println("Initializing field model...");
+			if(debugSettings.world) System.out.println("Initializing field model...");
 			
 			analyzeSpatialDimensions(images, panoramas, videos); 			// Calculate bounds of media GPS locations (exclude sounds since field model is needed to set sound locations)
 			analyzeTimeDimensions(images, panoramas, videos, sounds);		// Analyze media locations and times 
@@ -92,7 +92,7 @@ public class WMV_Model
 
 			state.fieldAspectRatio = state.fieldWidth / state.fieldLength;
 
-			if (debugSettings.field)
+			if (debugSettings.world)
 			{
 				System.out.print("Field Width:"+state.lowLongitude);
 				System.out.print(" Field Length:"+state.fieldLength);
@@ -103,7 +103,7 @@ public class WMV_Model
 			}
 		}
 		else 
-			if(debugSettings.field) 
+			if(debugSettings.world) 
 				System.out.println("No media loaded! Couldn't initialize field...");
 	}
 
@@ -227,7 +227,7 @@ public class WMV_Model
 	 */
 	 void analyzeSpatialDimensions(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos) 
 	 {
-		 if(debugSettings.field) System.out.println("Calculating field dimensions...");
+		 if(debugSettings.world) System.out.println("Calculating field dimensions...");
 
 		 boolean init = true;	
 
@@ -317,7 +317,7 @@ public class WMV_Model
 //				 state.lowLatitude = s.getMediaState().gpsLocation.z;
 //		 }
 
-		 if (debugSettings.field) 							// Display results for debugging
+		 if (debugSettings.world) 							// Display results for debugging
 		 {
 			 System.out.println("High Longitude:" + state.highLongitude);
 			 System.out.println("High Latitude:" + state.highLatitude);
@@ -343,7 +343,7 @@ public class WMV_Model
 		 boolean initVideoTime = true, initVideoDate = true;	
 		 boolean initSoundTime = true, initSoundDate = true;	
 
-		 if(debugSettings.field) System.out.println("Analyzing media in field...");
+		 if(debugSettings.world) System.out.println("Analyzing media in field...");
 
 		 for (WMV_Image i : images) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {

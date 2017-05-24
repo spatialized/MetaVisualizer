@@ -311,7 +311,7 @@ public class ML_Display
 
 		yPos = timelineYOffset + timelineHeight * 4.f;
 
-		if(p.p.debugSettings.field || p.p.debugSettings.main)
+		if(p.p.debugSettings.world || p.p.debugSettings.ml)
 		{
 			if(f.getDateline() != null)
 			{
@@ -2109,7 +2109,7 @@ public class ML_Display
 				break;
 			}
 
-			if (p.p.debugSettings.field)
+			if (p.p.debugSettings.world)
 				System.out.println("blendMode:" + blendMode);
 		}
 

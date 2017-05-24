@@ -2784,12 +2784,10 @@ public class WMV_Viewer
 			/* Zoom Transition */
 			if (state.zooming) 
 			{
-				if (worldState.frameCount < state.zoomStart + state.zoomLength) 
-				{
+//				if (worldState.frameCount < state.zoomStart + state.zoomLength) 
 					zoomByAmount(settings.zoomIncrement / state.zoomLength * state.zoomDirection);
-				}
-				else 
-					state.zooming = false;
+//				else 
+//					state.zooming = false;
 			}
 		}
 		else										// If no transitions and not currently moving or turning 
@@ -4548,11 +4546,23 @@ public class WMV_Viewer
 		state.rotatingZ = false;
 	}
 	
-	public void startZoomTransition(int dir)
+	public void zoomIn()
 	{
 		state.zoomStart = worldState.frameCount;
-		state.zoomDirection = dir;
+		state.zoomDirection = -1;
 		state.zooming = true;
+	}
+	
+	public void zoomOut()
+	{
+		state.zoomStart = worldState.frameCount;
+		state.zoomDirection = 1;
+		state.zooming = true;
+	}
+	
+	public void stopZooming()
+	{
+		state.zooming = false;
 	}
 	
 	/**

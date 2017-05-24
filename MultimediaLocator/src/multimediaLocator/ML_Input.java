@@ -266,10 +266,10 @@ public class ML_Input
 				break;
 
 			case "ZoomIn":
-				ml.world.viewer.startZoomTransition(-1);
+				ml.world.viewer.zoomIn();
 				break;
 			case "ZoomOut":
-				ml.world.viewer.startZoomTransition(1);
+				ml.world.viewer.zoomOut();
 				break;
 	
 				/* Model */
@@ -1079,10 +1079,10 @@ public class ML_Input
 						ml.world.viewer.teleportToFieldOffset(1, true, true);
 
 					if (key == 'q') 
-						ml.world.viewer.startZoomTransition(-1);
+						ml.world.viewer.zoomIn();
 
 					if (key == 'z') 
-						ml.world.viewer.startZoomTransition(1);
+						ml.world.viewer.zoomOut();
 
 					if (optionKey && key == 'e')
 					{
@@ -1473,6 +1473,10 @@ public class ML_Input
 				viewer.stopMoveYTransition();
 			if (key == 'c') 
 				viewer.stopMoveYTransition();
+			if (key == 'q')
+				viewer.stopZooming();
+			if (key == 'z')
+				viewer.stopZooming();
 		}
 		else if( display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode != 2) )
 		{

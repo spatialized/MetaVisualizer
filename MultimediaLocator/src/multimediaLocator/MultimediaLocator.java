@@ -90,7 +90,7 @@ public class MultimediaLocator extends PApplet
 	public void setup()
 	{
 		debugSettings = new ML_DebugSettings();		
-		if(debugSettings.main) System.out.println("Starting initial setup...");
+		if(debugSettings.ml) System.out.println("Starting initial setup...");
 
 		world = new WMV_World(this);
 		world.initialize();
@@ -101,7 +101,7 @@ public class MultimediaLocator extends PApplet
 		display.initializeWindows(world);
 		metadata = new WMV_MetadataLoader(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
-		if(debugSettings.main) System.out.println("Initial setup complete...");
+		if(debugSettings.ml) System.out.println("Initial setup complete...");
 
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
@@ -435,11 +435,11 @@ public class MultimediaLocator extends PApplet
 			if(success) success = (world.getField(fieldID).getClusters().size() > 0);
 			if(success)
 			{
-				if(debugSettings.main || debugSettings.field) System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(fieldID).getClusters().size());
+				if(debugSettings.ml || debugSettings.world) System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(fieldID).getClusters().size());
 			}
 			else												/* If failed to verify, initialize field from metadata */
 			{
-				if(debugSettings.main || debugSettings.field) System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
+				if(debugSettings.ml || debugSettings.world) System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
 				
 				world.state.hierarchical = f.initialize(-100000L);
 				metadata.setSoundGPSLocations(f, f.getSounds());
@@ -452,7 +452,7 @@ public class MultimediaLocator extends PApplet
 			if( state.initializationField >= world.getFields().size() )	
 			{
 				state.fieldsInitialized = true;
-				if(debugSettings.main) System.out.println("" + world.getFields().size() + " fields initialized...");
+				if(debugSettings.ml) System.out.println("" + world.getFields().size() + " fields initialized...");
 				world.enter(state.initializationField-1, !success);		// Enter world at last initialization field; move to first time segment if simulation state not loaded from disk
 			}
 		}
@@ -472,7 +472,7 @@ public class MultimediaLocator extends PApplet
 		/* Attempt to load simulation state */
 		if(savedState != null)
 		{
-			if(debugSettings.main && debugSettings.detailed) System.out.println("Valid SimulationState loaded...");
+			if(debugSettings.ml && debugSettings.detailed) System.out.println("Valid SimulationState loaded...");
 			if(set)
 				return world.loadAndSetSimulationState(savedState, f);
 			else
@@ -488,16 +488,16 @@ public class MultimediaLocator extends PApplet
 	{
 		world.setBlurMasks();			// Set blur masks
 
-		if(debugSettings.main && debugSettings.detailed) System.out.println("Finishing MultimediaLocator initialization..");
+		if(debugSettings.ml && debugSettings.detailed) System.out.println("Finishing MultimediaLocator initialization..");
 
 //		display.initializeWindows(world);
 		display.window.setupMLWindow();
 		
-		if(debugSettings.main && debugSettings.detailed) System.out.println("Finished setting up WMV Window...");
+		if(debugSettings.ml && debugSettings.detailed) System.out.println("Finished setting up WMV Window...");
 		
 		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
 
-		if(debugSettings.main && debugSettings.detailed) System.out.println("Finished setting initial media settings...");
+		if(debugSettings.ml && debugSettings.detailed) System.out.println("Finished setting initial media settings...");
 
 		state.initialSetup = false;				
 		display.initialSetup = false;
@@ -717,7 +717,7 @@ public class MultimediaLocator extends PApplet
 		boolean selectedFolder = false;
 		
 		if (selection == null) {
-			if (debugSettings.main)
+			if (debugSettings.ml)
 				System.out.println("openLibraryDestination()... Window was closed or the user hit cancel.");
 		} 
 		else 
@@ -725,7 +725,7 @@ public class MultimediaLocator extends PApplet
 			String input = selection.getPath();
 			String[] parts = input.split("/");
 
-			if (debugSettings.main)
+			if (debugSettings.ml)
 				System.out.println("User selected library destination: " + input);
 
 			File file = new File(input);
@@ -895,7 +895,7 @@ public class MultimediaLocator extends PApplet
 	{
 		if(library.mediaFolders.size() > 0)
 		{
-			if(debugSettings.main) System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination+" from "+library.mediaFolders.size()+" imported media folders...");
+			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination+" from "+library.mediaFolders.size()+" imported media folders...");
 			state.selectedLibrary = library.createNewLibrary(this, library.mediaFolders, library.libraryDestination);
 
 			if(!state.selectedLibrary)
@@ -914,14 +914,14 @@ public class MultimediaLocator extends PApplet
 	{
 		if (selection == null) 
 		{
-			if (debugSettings.main)
+			if (debugSettings.ml)
 				println("Window was closed or the user hit cancel.");
 		} 
 		else 
 		{
 			String input = selection.getPath();
 
-			if (debugSettings.main)
+			if (debugSettings.ml)
 				println("----> User selected output folder: " + input);
 
 			world.outputFolder = input;
@@ -1303,7 +1303,6 @@ public class MultimediaLocator extends PApplet
 
 	public void initCubeMap()
 	{
-//		System.out.println("initCubeMap()...");
 		sphereDetail(50);
 		domeSphere = createShape(PApplet.SPHERE, height/2.0f);
 		domeSphere.rotateX(PApplet.HALF_PI);
@@ -1341,12 +1340,10 @@ public class MultimediaLocator extends PApplet
 		endPGL();
 
 		// Load cubemap shader
-		loadCubeMapShader();
+//		loadCubeMapShader();			// From JAR file
 		
-//		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");
-//		cubemapShader.set("cubemap", 1);
-		
-//		faces = new PGraphics[6];
+		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");	// In Eclipse
+		cubemapShader.set("cubemap", 1);
 		
 		cubeMapInitialized = true;
 	}
@@ -1365,7 +1362,7 @@ public class MultimediaLocator extends PApplet
 	{
 		Application.getApplication().setDockIconImage(img.getImage());
 		setAppIcon = false;
-		if(debugSettings.main && debugSettings.detailed) System.out.println("setAppIcon()... frameCount:"+frameCount);
+		if(debugSettings.ml && debugSettings.detailed) System.out.println("setAppIcon()... frameCount:"+frameCount);
 	}
 
 	/**

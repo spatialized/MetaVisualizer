@@ -1548,7 +1548,7 @@ public class ML_Window {
 	
 			if(setupTimeWindow)
 			{
-				if(world.state.timeFading)
+				if(world.state.timeFading && !world.state.paused)
 					sdrCurrentTime.setValue(timePoint);
 			}
 

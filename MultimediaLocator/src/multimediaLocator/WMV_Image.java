@@ -93,7 +93,7 @@ public class WMV_Image extends WMV_Media
 		}
 		catch(RuntimeException ex)
 		{
-			if(getDebugSettings().image || getDebugSettings().main)
+			if(getDebugSettings().image || getDebugSettings().ml)
 			{
 				System.out.println("Image #"+getID()+" Error with Image Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
 				if(source != null && mask != null)
@@ -296,7 +296,7 @@ public class WMV_Image extends WMV_Media
 		ml.noStroke(); 
 		if (isSelected())     // Draw outline
 		{
-			if(!getViewerSettings().selection && getDebugSettings().field)
+			if(!getViewerSettings().selection && getDebugSettings().world)
 			{
 				ml.stroke(155, 146, 255, 255);
 				ml.strokeWeight(state.outlineSize);
@@ -504,7 +504,6 @@ public class WMV_Image extends WMV_Media
 			calculateVertices();
 			image = ml.requestImage(getFilePath());
 			setRequested(true);
-			//			p.p.requestedImages++;
 		}
 	}
 

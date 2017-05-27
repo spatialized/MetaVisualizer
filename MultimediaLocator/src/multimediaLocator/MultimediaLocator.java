@@ -20,6 +20,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -65,6 +66,9 @@ public class MultimediaLocator extends PApplet
 	WMV_World world;							// The 3D World
 	WMV_MetadataLoader metadata;				// Metadata reading and writing
 	
+	/* Field */
+	List<Integer> removeList;
+	
 	/* Graphics */
 	public PShader cubemapShader;
 	public PShape domeSphere;
@@ -108,6 +112,7 @@ public class MultimediaLocator extends PApplet
 		textAlign(PConstants.CENTER, PConstants.CENTER);
 		
 		initCubeMap();
+		removeList = new ArrayList<Integer>();
 	}
 
 	/**
@@ -137,8 +142,9 @@ public class MultimediaLocator extends PApplet
 	 * Main program loop
 	 */
 	public void draw() 
-	{		
-		if(setAppIcon) setAppIcon(appIcon);
+	{
+		if(setAppIcon) setAppIcon(appIcon);						/* Set app icon */
+		
 		if (state.startup)
 		{
 			if(state.reset) restartMultimediaLocator();
@@ -356,9 +362,27 @@ public class MultimediaLocator extends PApplet
 					world.createFieldsFromFolders(library.getFolders());		// Create empty field for each field folder	
 					state.initializingFields = true;
 				}
-				else initializeField(state.initializationField);					
+				else
+				{
+					WMV_Field f = world.getField(state.initializationField);
+					boolean loadedState = initializeField(f, true, true);				/* Initialize field */	
+					
+					/* Set next field to initialize */
+					state.initializationField++;										
+					if( state.initializationField >= world.getFields().size() )	
+					{
+						state.fieldsInitialized = true;
+						if(debugSettings.ml) System.out.println("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
+						/* Enter last initialization field, move to first time segment if simulation state not loaded from disk */
+						world.enter(state.initializationField-1, !loadedState);		
+					}
+				}
 			}
-			else finishInitialization();
+			else
+			{
+				organizeMedia();
+				finishInitialization();
+			}
 		}
 		else
 		{
@@ -410,52 +434,51 @@ public class MultimediaLocator extends PApplet
 	/**
 	 * Initialize current initialization field
 	 */
-	public void initializeField(int fieldID)
+	public boolean initializeField(WMV_Field f, boolean loadState, boolean setSoundGPSLocations)
 	{
-		if(!state.fieldsInitialized && !state.exit)
+		System.out.println("ML.initializeField()... state.fieldsInitialized:"+state.fieldsInitialized);
+		
+//		if(!state.fieldsInitialized && !state.exit)
+		if(!state.exit)
 		{
 			/* Get field to initialize */
-			WMV_Field f = world.getField(fieldID);	
-
+			boolean success = false;
+			
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
-			WMV_Field loadedField;
-			if(fieldID + 1 >= world.getFields().size())
-				loadedField = loadField(f, library.getLibraryFolder(), true);	// Load field (load simulation state or, if fails, metadata), and set simulation state if exists
-			else
-				loadedField = loadField(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
-			
-			if(world.getFields().size() == 0)					// -- ?
-				if(world.viewer.getState().field > 0)
-					world.viewer.setCurrentField(0, false);
-			
-			/* Check if field loaded correctly */
-			boolean success = (loadedField != null);
-			if(success) world.setField(loadedField, fieldID);
-			if(success) success = world.getField(fieldID).getClusters() != null;
-			if(success) success = (world.getField(fieldID).getClusters().size() > 0);
-			if(success)
+			if(loadState)
 			{
-				if(debugSettings.ml || debugSettings.world) System.out.println("Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+world.getField(fieldID).getClusters().size());
+				WMV_Field loadedField;
+				if(f.getID() + 1 >= world.getFields().size())
+					loadedField = loadField(f, library.getLibraryFolder(), true);	// Load field (load simulation state or, if fails, metadata), and set simulation state if exists
+				else
+					loadedField = loadField(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
+
+				if(world.getFields().size() == 0)					// Reset current viewer field
+					if(world.viewer.getState().field > 0)
+						world.viewer.setCurrentField(0, false);
+
+				/* Check if field loaded correctly */
+				success = (loadedField != null);
+				if(success) world.setField(loadedField, f.getID());
+				if(success) success = world.getField(f.getID()).getClusters() != null;
+				if(success) success = (world.getField(f.getID()).getClusters().size() > 0);
 			}
-			else												/* If failed to verify, initialize field from metadata */
+			if(success)									/* Loaded field state from disk */
 			{
-				if(debugSettings.ml || debugSettings.world) System.out.println("Failed at loading simulation state... Initializing field #"+f.getID());
+				if(debugSettings.ml || debugSettings.world) System.out.println("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
+			}
+			else										/* If failed to load field, initialize using metadata */
+			{
+				if(debugSettings.ml || debugSettings.world) System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
 				
-				world.state.hierarchical = f.initialize(-100000L);
-				metadata.setSoundGPSLocations(f, f.getSounds());
-//				f.setSoundLocations();
-				f.organize();
+				System.out.println("ML.initializeField()... will initialize field:"+f.getID()+" name:"+f.getName());
+				f.initialize(-100000L);
+				if(setSoundGPSLocations) metadata.setSoundGPSLocations(f, f.getSounds());
 			}
 
-			/* Set next field to initialize */
-			state.initializationField++;										
-			if( state.initializationField >= world.getFields().size() )	
-			{
-				state.fieldsInitialized = true;
-				if(debugSettings.ml) System.out.println("" + world.getFields().size() + " fields initialized...");
-				world.enter(state.initializationField-1, !success);		// Enter world at last initialization field; move to first time segment if simulation state not loaded from disk
-			}
+			return success;
 		}
+		return false;
 	}
 	
 	/**
@@ -482,9 +505,59 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
+	 * Organize media in each field
+	 */
+	private void organizeMedia()
+	{
+		ArrayList<WMV_Field> newFields = new ArrayList<WMV_Field>();
+		
+		for(WMV_Field f : world.getFields())
+		{
+			if(world.getSettings().divideFields)
+			{
+				ArrayList<WMV_Field> addedFields = divideField(f);						/* Attempt to divide field */
+				if(addedFields == null)					/* Check if field division succeeded */
+					f.organize();						/* If failed, analyze spatial and temporal features to create model */
+				else 
+				{
+					int count = 0;
+					for(WMV_Field added : addedFields)
+					{
+						if(count < addedFields.size() - 1)	
+							newFields.add(added);
+						count++;
+					}
+				}
+			}
+			else
+				f.organize();
+		}
+		
+		for(WMV_Field f : newFields) world.addField(f);			/* Add any new fields to world */
+		world.settings.divideFields = false;	/* No need to further divide fields */
+	}
+	
+	/**
+	 * Copy all media objects from source to target field
+	 * @param source Source field
+	 * @param target Target field
+	 */
+	private void copyAllFieldMedia(WMV_Field source, WMV_Field target)		/* Re-add media from last added field */
+	{
+		for(WMV_Image img : source.getImages())
+			target.addImage(img);
+		for(WMV_Panorama pano : source.getPanoramas())
+			target.addPanorama(pano);
+		for(WMV_Video vid : source.getVideos())
+			target.addVideo(vid);
+		for(WMV_Sound snd : source.getSounds())
+			target.addSound(snd);
+	}
+	
+	/**
 	 * Finish the world initialization process
 	 */
-	void finishInitialization()
+	private void finishInitialization()
 	{
 		world.setBlurMasks();			// Set blur masks
 
@@ -508,6 +581,47 @@ public class MultimediaLocator extends PApplet
 //		PJOGL.setIcon("res/icon.png");
 	}
 
+	/**
+	 * If large gaps are detected between media locations, divide target field into separate fields
+	 * @param field Target field to divide
+	 * @return Whether field was divided or not
+	 */
+	private ArrayList<WMV_Field> divideField(WMV_Field field)
+	{
+		ArrayList<WMV_Field> newFields = new ArrayList<WMV_Field>();
+		newFields = field.divide(world, 3000.f, 15000.f);				// Attempt to divide field
+		
+		if(newFields.size() > 0)
+		{
+			int count = 0;
+			
+			for(WMV_Field f : newFields)
+			{
+				System.out.println("ML.divideField()... Will initialize field #"+f.getID()+" name:"+f.getName()+" of "+newFields.size()+"...");
+
+				f.renumberMedia();							/* Renumber media in field from index 0 */
+				if(count < newFields.size() - 1)
+				{
+					initializeField(f, false, false);			/* Initialize field */
+					f.organize();								/* Analyze spatial and temporal features and create model */
+					library.moveFieldMediaFiles(field, f);		/* Move media into new field folders */
+				}
+				else
+				{
+					System.out.println("ML.divideField()... Last of new fields from dividing field id #"+field.getID());
+					field.reset();								/* Clear field */
+					copyAllFieldMedia(f, field);					/* Re-add media from last added field */
+					initializeField(field, false, false);		/* Initialize field */
+					field.organize();
+				}
+				count++;
+			}
+
+			return newFields;
+		}
+		else
+			return null;
+	}
 
 	/**
 	 * Run interactive clustering 
@@ -576,13 +690,13 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Save screen image or export selected media
+	 * Save screen image or export selected media		-- Not working?
 	 */
 	public void exportCubeMapFace(int faceID, PGL pgl)				// Starts at 34069
 	{
 		System.out.println("exportCubeMap()... faceID:"+faceID);	
 		
-		int idx = faceID-34068;
+//		int idx = faceID-34068;
 	    ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * Integer.SIZE / 8);
 
 	    pgl.readPixels(0, 0, width, height, PGL.RGBA, PGL.UNSIGNED_BYTE, buffer); 
@@ -734,16 +848,10 @@ public class MultimediaLocator extends PApplet
 				if(file.isDirectory())
 				{
 					selectedFolder = true;
-					library.libraryDestination = parts[parts.length-1];
-					
-					String libFilePath = "";
-					for(int i=0; i<parts.length-1; i++)
-					{
-						libFilePath = libFilePath + parts[i] + "/";
-					}
+					String libFilePath = input;
 
 					library.setLibraryFolder(libFilePath);
-					library.addFolder(library.libraryDestination + "/field");
+					library.addFolder("field");
 				}
 			}
 		}
@@ -761,7 +869,7 @@ public class MultimediaLocator extends PApplet
 	}
 
 	/**
-	 * Open media folder
+	 * Open existing media folder
 	 * @param selection Selected folder
 	 */
 	public void openMediaFolder(File selection) 
@@ -785,7 +893,6 @@ public class MultimediaLocator extends PApplet
 			{
 				if(file.isDirectory())
 				{
-//					library = new ML_Library("");
 					library.mediaFolders.add(input);
 					selectedFolder = true;
 				}
@@ -895,8 +1002,8 @@ public class MultimediaLocator extends PApplet
 	{
 		if(library.mediaFolders.size() > 0)
 		{
-			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+library.libraryDestination+" from "+library.mediaFolders.size()+" imported media folders...");
-			state.selectedLibrary = library.createNewLibrary(this, library.mediaFolders, library.libraryDestination);
+			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
+			state.selectedLibrary = library.createNewLibrary(this, library.mediaFolders);
 
 			if(!state.selectedLibrary)
 			{

@@ -33,9 +33,9 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 	 * @param newKeywords
 	 */
 	WMV_PanoramaMetadata(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
-			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords)
+			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware)
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
@@ -63,9 +63,9 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 	 * @param newKeywords
 	 */
 	public void initialize(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
-			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords)
+			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware)
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;

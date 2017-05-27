@@ -46,9 +46,9 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 	 */
 	WMV_ImageMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone,
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
-			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords )
+			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware )
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
@@ -92,9 +92,9 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 	 */
 	public void initialize( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone,
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
-			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords )
+			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware )
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;

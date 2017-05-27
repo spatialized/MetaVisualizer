@@ -25,9 +25,9 @@ public class WMV_SoundMetadata extends WMV_MediaMetadata
 	 * @param newKeywords
 	 */
 	WMV_SoundMetadata(String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, float newBrightness, 
-			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords)
+			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords, String newSoftware)
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
 		
 	}
 
@@ -50,9 +50,9 @@ public class WMV_SoundMetadata extends WMV_MediaMetadata
 	 * @param newKeywords
 	 */
 	public void initialize(String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, float newBrightness, 
-			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords)
+			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords, String newSoftware)
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
 	}
 	
 	/**

@@ -523,7 +523,7 @@ class WMV_MetadataLoader
 				ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
 				String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundTime);		// 2016:04:10 17:52:39
 				
-				return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, soundDateTimeString, fieldTimeZoneID, null );				
+				return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, soundDateTimeString, fieldTimeZoneID, null, "");				
 			}
 			catch(Throwable t)
 			{
@@ -730,8 +730,9 @@ class WMV_MetadataLoader
 
 					if (tag.getTagName().equals("Software")) // Software
 					{
-						sSoftware = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Software..." + sSoftware);
+						sSoftware = parseSoftware(tagString);
+//						if (debugSettings.metadata && debugSettings.detailed) 
+							System.out.println("Found Software..." + sSoftware);
 					}
 
 					if (tagName.equals("Model")) // Model
@@ -930,7 +931,7 @@ class WMV_MetadataLoader
 			if(!dataMissing)
 			{
 				return new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
-						fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords);
+						fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords, sSoftware);
 			}
 			else
 				if(debugSettings.metadata) System.out.println("Data missing! Excluded image:"+sName);
@@ -1183,7 +1184,7 @@ class WMV_MetadataLoader
 			if(!dataMissing)
 			{
 				return new WMV_PanoramaMetadata( sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, 
-												 iCameraModel, iWidth, iHeight, fBrightness, sKeywords );
+												 iCameraModel, iWidth, iHeight, fBrightness, sKeywords, sSoftware );
 			}
 			else
 				System.out.println("Data missing!  Could not get panorama metadata:"+sName);
@@ -1301,7 +1302,7 @@ class WMV_MetadataLoader
 			if(!dataMissing)
 			{
 				WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, fieldTimeZoneID, 
-						-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords);
+						-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords, "");
 				return vMetadata;
 			}
 			else if(debugSettings.metadata || debugSettings.video)
@@ -1576,25 +1577,40 @@ class WMV_MetadataLoader
 //		}
 	}
 
+	public String parseSoftware(String input)
+	{
+//		Ex. "[Exif IFD0] Software - Aperture 3.6"
+		
+		String[] parts = input.split(" Software - ");
+		String software = parts[parts.length-1];
+		
+		return software;
+	}
+	
 	public int parseCameraModel(String input) {
 		String[] parts = input.split(" Model - ");
 		String model = parts[parts.length-1];
 		model = model.replaceAll("\\s\\s","");
 //		System.out.println("parse model:"+model);
 		if (model.equals("iPhone"))
+		{
 			return 0;
+		}
+		else if (model.equals("NIKON"))
+		{
+//			System.out.println("NIKON");
+			return 1;
+		}
 		else if (model.equals("RICOH THETA S") || model.equals("RICOH THETA"))
 		{
 //			System.out.println("RICOH THETA S");
-			return 1;
+			return 2;
 		}
 		else
 		{
 //			System.out.println("NOT RICOH THETA S:"+model);
-			return 2;
+			return 3;
 		}
-//		else if (model.equals("NIKON"))
-//			return 2;
 	}
 
 	public float ParseDirection(String input) 

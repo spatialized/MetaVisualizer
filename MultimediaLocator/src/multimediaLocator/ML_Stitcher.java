@@ -225,7 +225,7 @@ public class ML_Stitcher
 			
 			
 			WMV_PanoramaMetadata pMetadata = new WMV_PanoramaMetadata("_stitched_"+Integer.toString(segment.getID()), "", null, null, "", "",
-					panoDirection, -1, result.width, result.height, 1.f, null); 
+					panoDirection, -1, result.width, result.height, 1.f, null, ""); 
 
 			WMV_Panorama pano = new WMV_Panorama( segment.getID(), 1, panoElevation, p.getCurrentField().getCluster(clusterID).getLocation(), 
 					result, pMetadata );

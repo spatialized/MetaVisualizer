@@ -18,9 +18,10 @@ public abstract class WMV_MediaMetadata
 	public String timeZone;
 	public PVector gpsLocation;
 	public String[] keywords;
-
+	public String software;
+	
 	WMV_MediaMetadata ( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString,
-						String newTimeZone, String[] newKeywords )
+						String newTimeZone, String[] newKeywords, String newSoftware )
 	{
 		name = newName;
 		filePath = newFilePath;
@@ -31,12 +32,13 @@ public abstract class WMV_MediaMetadata
 		if(newDateTime != null) dateTime = newDateTime;
 		if(newGPSLocation != null) gpsLocation = newGPSLocation;
 		if(newKeywords != null) keywords = newKeywords;
+		software = newSoftware;
 	}
 	
 	WMV_MediaMetadata(){}
 	
 	public void init( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, 
-			String newTimeZone, String[] newKeywords )
+			String newTimeZone, String[] newKeywords, String newSoftware )
 	{
 		name = newName;
 		filePath = newFilePath;
@@ -47,5 +49,6 @@ public abstract class WMV_MediaMetadata
 		if(newDateTime != null) dateTime = newDateTime;
 		if(newGPSLocation != null) gpsLocation = newGPSLocation;
 		if(newKeywords != null) keywords = newKeywords;
+		software = newSoftware;
 	}
 }

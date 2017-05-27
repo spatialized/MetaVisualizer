@@ -1337,11 +1337,47 @@ public class WMV_Cluster
 	}
 
 	/**
+	 * Convert cluster into a field
+	 * @param newName
+	 * @param newID
+	 * @param imageList
+	 * @param panoramaList
+	 * @param videoList
+	 * @param soundList
+	 * @return Cluster as a new field
+	 */
+	public WMV_Field getClusterAsField(String newName, int newID, ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList)
+	{
+		WMV_Field newField = new WMV_Field(worldSettings, worldState, viewerSettings, viewerState, debugSettings, newName, newID);
+
+		for(int i : state.images)
+		{
+			newField.addImage(imageList.get(i));
+		}
+		for(int n : state.panoramas)
+		{
+			newField.addPanorama(panoramaList.get(n));
+		}
+		for(int v : state.videos)
+		{
+			newField.addVideo(videoList.get(v));
+		}
+		for(int s : state.sounds)
+		{
+			newField.addSound(soundList.get(s));
+		}
+		
+//		if(debugSettings.world) 
+			System.out.println("Cluster.getClusterAsField()... Creating field from cluster id#"+getID());
+		
+		return newField;
+	}
+	
+	/**
 	 * Calculate low and high values for time and date for each media point
 	 */
 	void calculateTimes(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, ArrayList<WMV_Sound> soundList)
 	{
-//		float longestDayLength = (float) -1.;			// Length of the longest day
 		boolean initImageTime = true, initPanoramaTime = true, initVideoTime = true, initSoundTime = true, 
 				initImageDate = true, initPanoramaDate = true, initVideoDate = true, initSoundDate = true;	
 

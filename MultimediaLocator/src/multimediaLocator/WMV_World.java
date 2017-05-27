@@ -146,6 +146,24 @@ public class WMV_World
 	}
 	
 	/**
+	 * Add field to world
+	 * @param f Field to add
+	 */
+	public void addField(WMV_Field f)
+	{
+		fields.add(f);
+	}
+	
+	/**
+	 * Add field to world
+	 * @param f Field to add
+	 */
+	public void removeField(WMV_Field f)
+	{
+		fields.remove(f);
+	}
+	
+	/**
 	 * Display the current field in World View
 	 */
 	public void display3D()
@@ -1252,7 +1270,7 @@ public class WMV_World
 			return fields.get(fieldIndex);
 		else
 		{
-			System.out.println("world.getField() Error: fieldIndex:"+fieldIndex+" fields.size():"+fields.size());
+			System.out.println("World.getField()... ERROR: fieldIndex:"+fieldIndex+" fields.size():"+fields.size());
 			return null;
 		}
 	}
@@ -1266,26 +1284,26 @@ public class WMV_World
 		fields.set(fieldIndex, newField);
 	}
 
-	/**
-	 * Import media and create new library by detecting fields using k-means clustering
-	 * @param mediaFolder Folder containing the media
-	 */
-	public void createLibrary(String mediaFolder)
-	{
-		fields = new ArrayList<WMV_Field>();			// Initialize fields array
-		
-//		WMV_Field largeField = createLargeFieldFromFolder(mediaFolder);
-//		fields = divideField(largeField, 3000.f, 15000.f);			
-		
-//		ArrayList<GMV_Cluster> clusters;		
-//		int count = 0;
-//		for(String s : clusters)
-//		{
-//			fields.add(new GMV_Field(this, s, count));
-//			count++;
-//		}
-//		System.out.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
-	}
+//	/**
+//	 * Import media and create new library by detecting fields using k-means clustering
+//	 * @param mediaFolder Folder containing the media
+//	 */
+//	public void createLibrary(String mediaFolder)
+//	{
+//		fields = new ArrayList<WMV_Field>();			// Initialize fields array
+//		
+////		WMV_Field largeField = createLargeFieldFromFolder(mediaFolder);
+////		fields = divideField(largeField, 3000.f, 15000.f);			
+//		
+////		ArrayList<GMV_Cluster> clusters;		
+////		int count = 0;
+////		for(String s : clusters)
+////		{
+////			fields.add(new GMV_Field(this, s, count));
+////			count++;
+////		}
+////		System.out.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
+//	}
 	
 	/**
 	 * Determine and set the length of the Main Time Cycle

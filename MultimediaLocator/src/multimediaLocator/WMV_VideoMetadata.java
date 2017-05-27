@@ -25,28 +25,12 @@ public class WMV_VideoMetadata extends WMV_MediaMetadata
 
 	/**
 	 * Constructor for video metadata
-	 * @param newName Video name
-	 * @param newFilePath Video file path
-	 * @param newGPSLocation
-	 * @param newDateTime
-	 * @param newDateTimeString
-	 * @param newTimeZone
-	 * @param newTheta
-	 * @param newFocalLength
-	 * @param newOrientation
-	 * @param newElevation
-	 * @param newRotation
-	 * @param newCameraModel
-	 * @param newWidth
-	 * @param newHeight
-	 * @param newBrightness
-	 * @param newKeywords
 	 */
 	public WMV_VideoMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, int newCameraModel, 
-			int newWidth, int newHeight, float newBrightness, String[] newKeywords )
+			int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware )
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
 
 		videoWidth = newWidth;
 		videoHeight = newHeight;
@@ -83,9 +67,9 @@ public class WMV_VideoMetadata extends WMV_MediaMetadata
 	 */
 	public void initialize( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, int newCameraModel, 
-			int newWidth, int newHeight, float newBrightness, String[] newKeywords )
+			int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware )
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords);
+		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
 
 		videoWidth = newWidth;
 		videoHeight = newHeight;

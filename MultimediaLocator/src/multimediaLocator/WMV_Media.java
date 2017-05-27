@@ -861,6 +861,11 @@ public abstract class WMV_Media
 	{
 		return mState.filePath;
 	}
+
+	public void setFilePath(String newFilePath)
+	{
+		mState.filePath = newFilePath;
+	}
 	
 	public void setAspectRatio(float newAspectRatio)
 	{

@@ -911,7 +911,7 @@ public class WMV_Image extends WMV_Media
 
 		PVector[] verts = new PVector[4]; 
 
-		if(metadata.cameraModel == 1)      				// If it is an iPhone Image
+		if(metadata.cameraModel == 0)      				// iPhone Image
 		{
 			if (metadata.orientation == 90) 		 	// Vertical Image
 			{
@@ -942,7 +942,7 @@ public class WMV_Image extends WMV_Media
 				verts[3] = new PVector( right, top, 0 );      		// UPPER RIGHT 
 			}
 		}
-		else
+		else if(metadata.cameraModel == 1)				// Nikon image
 		{
 			if (metadata.orientation == 90 || metadata.orientation == 0)  				// Vertical or Horizontal Right-Side-Up Image
 			{

@@ -731,8 +731,10 @@ public class WMV_Field
 	 * Initialize all media locations and geometry
 	 * @param randomSeed Clustering random seed
 	 */
-	public boolean initialize(long randomSeed)
+	public void initialize(long randomSeed)
 	{
+		if(debugSettings.world) System.out.println("Field.initialize()... id #"+getID()+" images.size():"+images.size());
+
 		if( images.size()>0 || panoramas.size()>0 || videos.size()>0 || sounds.size()>0 )
 		{
 			if(debugSettings.ml) System.out.println("Initializing field #"+state.id);
@@ -743,19 +745,45 @@ public class WMV_Field
 			model.setup(images, panoramas, videos, sounds); 						// Initialize field for first time 
 
 			calculateMediaLocations(false); 		// Set location of each media in simulation, excluding sounds
-
-//			detectMultipleFields();					// Run clustering on capture locations to detect multiple fields
-//			divideField(3000.f, 15000.f);			
-
 			findVideoPlaceholders();				// Find image place holders for videos
 			calculateMediaVertices();				// Calculate vertices for all visual media
 		}
 		else
-		{
 			System.out.println("Field #"+getID()+" has no media! Cannot initialize field...");
-			return false;
+	}
+	
+	/**
+	 * Renumber each media type starting from index 0
+	 */
+	public void renumberMedia()
+	{
+		int count = 0;
+		for(WMV_Image i : images)
+		{
+			i.setID(count);
+			count++;
 		}
-		return true;
+		
+		count = 0;
+		for(WMV_Panorama n : panoramas)
+		{
+			n.setID(count);
+			count++;
+		}
+		
+		count = 0;
+		for(WMV_Video v : videos)
+		{
+			v.setID(count);
+			count++;
+		}
+		
+		count = 0;
+		for(WMV_Sound s : sounds)
+		{
+			s.setID(count);
+			count++;
+		}
 	}
 	
 	/**
@@ -763,10 +791,11 @@ public class WMV_Field
 	 */
 	public void organize()
 	{
-			if(debugSettings.world) System.out.println("Running initial clustering for field #"+state.id+"...");
+			if(debugSettings.world) System.out.println("Field.organize()... Running initial clustering for field #"+state.id+"...");
+			
 			boolean hierarchical = false;			// Whether to use hierarchical clustering
-			if(model.getState().validMedia < model.getState().hierarchicalMaxMedia) 
-				hierarchical = true;
+//			if(model.getState().validMedia < model.getState().hierarchicalMaxMedia) 	// -- Disabled
+//				hierarchical = true;
 			
 			runInitialClustering(hierarchical);		// Find media spatial clusters (points of interest)
 //			model.findDuplicateClusterMedia();		// Find media in more than one cluster
@@ -783,7 +812,8 @@ public class WMV_Field
 			createDateline();							// Create field dateline
 			createTimelines();							// Create date-specific timelines for field
 			findClusterMediaDirections();				// Analyze angles of all images and videos in each cluster for Thinning Visibility Mode
-			if(debugSettings.world) System.out.println("Finished initializing field #"+state.id+"..."+state.name);
+			
+			if(debugSettings.world) System.out.println("Field.organize()... Finished initializing field #"+state.id+"..."+state.name);
 	}
 	
 	/**
@@ -1469,19 +1499,14 @@ public class WMV_Field
 	{
 		if(debugSettings.cluster || debugSettings.world)
 		{
-			System.out.println("Running K-Means Clustering...");
-			System.out.println(" ");
-			System.out.println("  Iterations:"+refinement);
-			System.out.println("  Population Factor:"+populationFactor);
+			System.out.println("Field.runKMeansClustering()... Running K-Means Clustering... Iterations:"+refinement+"  Population Factor:"+populationFactor);
+			System.out.println("Image Count:"+images.size());
+			
 			if(worldState.mergeClusters)
 			{
-				System.out.println("");
-				System.out.println("Cluster Merging:");
-				System.out.println("  Minimum Cluster Distance:"+worldSettings.minClusterDistance);
-				System.out.println("  Maximum Cluster Distance:"+worldSettings.maxClusterDistance);
+				System.out.println("Field.runKMeansClustering()... Cluster Merging"+"...   Min. Cluster Distance:"+worldSettings.minClusterDistance+" Max. Cluster Distance:"+worldSettings.maxClusterDistance);
 			}
 			System.out.println(" ");
-			//			display.displayClusteringInfo(p.p);
 		}
 		
 		setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
@@ -1490,13 +1515,14 @@ public class WMV_Field
 		int numClusters = estimateClusterAmount(model.getState(), populationFactor);
 
 		if(debugSettings.cluster || debugSettings.world)
-			System.out.println("Creating "+numClusters+" clusters based on "+model.getState().validMedia+" valid media...");
-		//		System.out.println("model.getState().mediaDensity: "+model.getState().mediaDensity +" populationFactor:"+populationFactor);
+			System.out.println("Field.runKMeansClustering()... Creating "+numClusters+" clusters based on "+model.getState().validMedia+" valid media...");
+		
+//		System.out.println("model.getState().mediaDensity: "+model.getState().mediaDensity +" populationFactor:"+populationFactor);
 
 		/* K-means Clustering */
 		if (model.getState().validMedia > 1) 				// If more than 1 media point
 		{
-			if(debugSettings.world) System.out.println("Running k-means clustering... model.validMedia:"+model.getState().validMedia);
+			if(debugSettings.world) System.out.println("Field.runKMeansClustering()... Running k-means clustering... model.validMedia:"+model.getState().validMedia);
 			initializeKMeansClusters(numClusters, false);		// Create initial clusters at random image locations	
 			refineKMeansClusters(epsilon, refinement, false);	// Refine clusters over many iterations
 			createSingleClusters(false);						// Create clusters for single media points
@@ -1555,6 +1581,152 @@ public class WMV_Field
 			s.adjustCaptureLocation(clusters.get(s.getAssociatedClusterID()));		
 	}
 
+//	/** 
+//	 * Create initial clusters at random image locations	 			-- Need to: record random seed, account for associated videos
+//	 * @param numClusters Number of initial clusters
+//	 */	
+//	void initializeKMeansClusters( int numClusters, boolean inclSounds )
+//	{
+//		Random rng = new Random(System.currentTimeMillis());
+//
+//		List<Integer> addedImages = new ArrayList<Integer>();			// Images already added to clusters; should include all images at end
+//		List<Integer> nearImages = new ArrayList<Integer>();			// Images nearby added media 
+//
+//		List<Integer> addedPanoramas = new ArrayList<Integer>();		// Panoramas already added to clusters; should include all panoramas at end
+//		List<Integer> nearPanoramas = new ArrayList<Integer>();			// Panoramas nearby added media 
+//
+//		List<Integer> addedVideos = new ArrayList<Integer>();			// Videos already added to clusters; should include all videos at end
+//		List<Integer> nearVideos = new ArrayList<Integer>();			// Videos nearby added media 
+//
+//		List<Integer> addedSounds = new ArrayList<Integer>();			// Sounds already added to clusters; should include all sounds at end
+//		List<Integer> nearSounds = new ArrayList<Integer>();			// Sounds nearby added media 
+//
+//		for (int i = 0; i < numClusters; i++) 		// Iterate through the clusters
+//		{
+//			int imageID, panoramaID, videoID, soundID;			
+//
+//			if(i == 0)			
+//			{
+//				imageID = (int) (rng.nextFloat() * images.size());  			// Random image ID for setting cluster's start location				
+//				panoramaID = (int) (rng.nextFloat() * panoramas.size());  	// Random panorama ID for setting cluster's start location				
+//				videoID = (int) (rng.nextFloat() * videos.size());  			// Random video ID for setting cluster's start location		
+//				soundID = (int) (rng.nextFloat() * sounds.size());  			// Random video ID for setting cluster's start location		
+//
+//				addedImages.add(imageID);								
+//				addedPanoramas.add(panoramaID);								
+//				addedVideos.add(videoID);	
+//				if(inclSounds) addedSounds.add(soundID);								
+//
+//				/* Record media nearby added media */
+//				for(WMV_Image img : images)						// Check for images near the picked one
+//				{
+//					float dist = img.getCaptureDistanceFrom(getImage(imageID).getCaptureLocation());  // Get distance
+//					if(dist < model.getState().minClusterDistance)
+//						nearImages.add(img.getID());				// Record images nearby picked image
+//				}
+//				for(WMV_Panorama pano : panoramas)				// Check for panoramas near the picked one 
+//				{
+//					float dist = pano.getCaptureDistanceFrom(panoramas.get(panoramaID).getCaptureLocation());  // Get distance
+//					if(dist < model.getState().minClusterDistance)
+//						nearPanoramas.add(pano.getID());			// Add to the list of nearby picked images
+//				}
+//				for(WMV_Video vid : videos)						// Check for videos near the picked one
+//				{
+//					float dist = vid.getCaptureDistanceFrom(getVideo(videoID).getCaptureLocation());  // Get distance
+//					if(dist < model.getState().minClusterDistance)
+//						nearVideos.add(vid.getID());				// Add to the list of nearby picked images
+//				}
+//				if(inclSounds)
+//				{
+//					for(WMV_Sound snd : sounds)						// Check for videos near the picked one
+//					{
+//						float dist = snd.getCaptureDistanceFrom(getSound(soundID).getCaptureLocation());  // Get distance
+//						if(dist < model.getState().minClusterDistance)
+//							nearVideos.add(snd.getID());				// Add to the list of nearby picked images
+//					}
+//				}
+//				
+//				/* Create the cluster */
+//				PVector clusterPoint = new PVector(0,0,0);
+//				if(images.size() > 0)
+//				{
+//					clusterPoint = new PVector(getImage(imageID).getCaptureLocation().x, getImage(imageID).getCaptureLocation().y, getImage(imageID).getCaptureLocation().z); // Choose random image location to start
+//					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//					i++;
+//				}
+//				if(panoramas.size() > 0)
+//				{
+//					clusterPoint = new PVector(panoramas.get(panoramaID).getCaptureLocation().x, panoramas.get(panoramaID).getCaptureLocation().y, panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
+//					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//					i++;
+//				}
+//				if(videos.size() > 0)
+//				{
+//					clusterPoint = new PVector(getVideo(videoID).getCaptureLocation().x, getVideo(videoID).getCaptureLocation().y, getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
+//					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//					i++;
+//				}
+//				if(inclSounds)
+//				{
+//					if(sounds.size() > 0)
+//					{
+//						clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
+//						addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//						i++;
+//					}
+//				}
+//				if(i > 0) i--;
+//				else if(debugSettings.world) System.out.println("Error in initClusters()... No media!!");
+//			}
+//			else															// Find a random media (image, panorama or video) location for new cluster
+//			{
+//				int mediaID = (int) (rng.nextFloat() * (images.size() + panoramas.size() + videos.size() + sounds.size()));	// Media ID to add
+//				PVector clusterPoint = new PVector(0,0,0);
+//
+//				if( mediaID < images.size() )				// If image, compare to already picked images
+//				{
+//					imageID = (int) (rng.nextFloat() * (images.size()));  		 			
+//					while(addedImages.contains(imageID) && nearImages.contains(imageID))
+//						imageID = (int) (rng.nextFloat() * (images.size()));  							
+//
+//					addedImages.add(imageID);
+//					clusterPoint = new PVector(getImage(imageID).getCaptureLocation().x, getImage(imageID).getCaptureLocation().y, getImage(imageID).getCaptureLocation().z); // Choose random image location to start
+//				}
+//				else if( mediaID < images.size() + panoramas.size() )		// If panorama, compare to already picked panoramas
+//				{
+//					panoramaID = (int) (rng.nextFloat() * (panoramas.size()));  						
+//					while(addedPanoramas.contains(panoramaID) && nearPanoramas.contains(panoramaID))
+//						panoramaID = (int) (rng.nextFloat() * (panoramas.size()));  						
+//
+//					addedPanoramas.add(panoramaID);
+//					clusterPoint = new PVector(panoramas.get(panoramaID).getCaptureLocation().x, panoramas.get(panoramaID).getCaptureLocation().y, panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
+//				}
+//				else if( mediaID < images.size() + panoramas.size() + videos.size() )		// If video, compare to already picked videos
+//				{
+//					videoID = (int) (rng.nextFloat() * (videos.size()));  						
+//					while(addedVideos.contains(videoID) && nearVideos.contains(videoID))
+//						videoID = (int) (rng.nextFloat() * (videos.size()));  						
+//
+//					addedVideos.add(videoID);
+//					clusterPoint = new PVector(getVideo(videoID).getCaptureLocation().x, getVideo(videoID).getCaptureLocation().y, getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
+//				}
+//				else if(inclSounds)
+//				{
+//					if( mediaID < images.size() + panoramas.size() + videos.size() + sounds.size() )		// If sound, compare to already picked videos
+//					{
+//						soundID = (int) (rng.nextFloat() * (sounds.size()));  						
+//						while(addedSounds.contains(soundID) && nearSounds.contains(soundID))
+//							soundID = (int) (rng.nextFloat() * (sounds.size()));  						
+//
+//						addedSounds.add(soundID);
+//						clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
+//					}
+//				}
+//				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//			}
+//		}	
+//	}
+
 	/** 
 	 * Create initial clusters at random image locations	 			-- Need to: record random seed, account for associated videos
 	 * @param numClusters Number of initial clusters
@@ -1564,143 +1736,57 @@ public class WMV_Field
 		Random rng = new Random(System.currentTimeMillis());
 
 		List<Integer> addedImages = new ArrayList<Integer>();			// Images already added to clusters; should include all images at end
-		List<Integer> nearImages = new ArrayList<Integer>();			// Images nearby added media 
-
 		List<Integer> addedPanoramas = new ArrayList<Integer>();		// Panoramas already added to clusters; should include all panoramas at end
-		List<Integer> nearPanoramas = new ArrayList<Integer>();			// Panoramas nearby added media 
-
 		List<Integer> addedVideos = new ArrayList<Integer>();			// Videos already added to clusters; should include all videos at end
-		List<Integer> nearVideos = new ArrayList<Integer>();			// Videos nearby added media 
-
 		List<Integer> addedSounds = new ArrayList<Integer>();			// Sounds already added to clusters; should include all sounds at end
-		List<Integer> nearSounds = new ArrayList<Integer>();			// Sounds nearby added media 
 
 		for (int i = 0; i < numClusters; i++) 		// Iterate through the clusters
 		{
-			int imageID, panoramaID, videoID, soundID;			
+			int mediaID;			// Choose random media ID to add
 
-			if(i == 0)			
-			{
-				imageID = (int) (rng.nextFloat() * images.size());  			// Random image ID for setting cluster's start location				
-				panoramaID = (int) (rng.nextFloat() * panoramas.size());  	// Random panorama ID for setting cluster's start location				
-				videoID = (int) (rng.nextFloat() * videos.size());  			// Random video ID for setting cluster's start location		
-				soundID = (int) (rng.nextFloat() * sounds.size());  			// Random video ID for setting cluster's start location		
-
-				addedImages.add(imageID);								
-				addedPanoramas.add(panoramaID);								
-				addedVideos.add(videoID);	
-				if(inclSounds) addedSounds.add(soundID);								
-
-				/* Record media nearby added media */
-				for(WMV_Image img : images)						// Check for images near the picked one
-				{
-					float dist = img.getCaptureDistanceFrom(getImage(imageID).getCaptureLocation());  // Get distance
-					if(dist < model.getState().minClusterDistance)
-						nearImages.add(img.getID());				// Record images nearby picked image
-				}
-
-				for(WMV_Panorama pano : panoramas)				// Check for panoramas near the picked one 
-				{
-					float dist = pano.getCaptureDistanceFrom(panoramas.get(panoramaID).getCaptureLocation());  // Get distance
-					if(dist < model.getState().minClusterDistance)
-						nearPanoramas.add(pano.getID());			// Add to the list of nearby picked images
-				}
-
-				for(WMV_Video vid : videos)						// Check for videos near the picked one
-				{
-					float dist = vid.getCaptureDistanceFrom(getVideo(videoID).getCaptureLocation());  // Get distance
-					if(dist < model.getState().minClusterDistance)
-						nearVideos.add(vid.getID());				// Add to the list of nearby picked images
-				}
-
-				if(inclSounds)
-				{
-					for(WMV_Sound snd : sounds)						// Check for videos near the picked one
-					{
-						float dist = snd.getCaptureDistanceFrom(getSound(soundID).getCaptureLocation());  // Get distance
-						if(dist < model.getState().minClusterDistance)
-							nearVideos.add(snd.getID());				// Add to the list of nearby picked images
-					}
-				}
+			if(inclSounds) mediaID = (int) (rng.nextFloat() * (images.size() + panoramas.size() + videos.size() + sounds.size()));
+			else mediaID = (int) (rng.nextFloat() * (images.size() + panoramas.size() + videos.size()));
 				
-				/* Create the cluster */
-				PVector clusterPoint = new PVector(0,0,0);
-				if(images.size() > 0)
-				{
-					clusterPoint = new PVector(getImage(imageID).getCaptureLocation().x, getImage(imageID).getCaptureLocation().y, getImage(imageID).getCaptureLocation().z); // Choose random image location to start
-					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
-					i++;
-				}
-				if(panoramas.size() > 0)
-				{
-					clusterPoint = new PVector(panoramas.get(panoramaID).getCaptureLocation().x, panoramas.get(panoramaID).getCaptureLocation().y, panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
-					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
-					i++;
-				}
-				if(videos.size() > 0)
-				{
-					clusterPoint = new PVector(getVideo(videoID).getCaptureLocation().x, getVideo(videoID).getCaptureLocation().y, getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
-					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
-					i++;
-				}
-				if(inclSounds)
-				{
-					if(sounds.size() > 0)
-					{
-						clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
-						addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
-						i++;
-					}
-				}
-				if(i > 0) i--;
-				else if(debugSettings.world) System.out.println("Error in initClusters()... No media!!");
-			}
-			else															// Find a random media (image, panorama or video) location for new cluster
+			PVector clusterPoint = new PVector(0,0,0);
+
+			if( mediaID < images.size() )				// If image, compare to already picked images
 			{
-				int mediaID = (int) (rng.nextFloat() * (images.size() + panoramas.size() + videos.size() + sounds.size()));	// Media ID to add
-				PVector clusterPoint = new PVector(0,0,0);
+				int imageID = (int) (rng.nextFloat() * (images.size()));  		 			
+				while(addedImages.contains(imageID))
+					imageID = (int) (rng.nextFloat() * (images.size()));  							
 
-				if( mediaID < images.size() )				// If image, compare to already picked images
-				{
-					imageID = (int) (rng.nextFloat() * (images.size()));  		 			
-					while(addedImages.contains(imageID) && nearImages.contains(imageID))
-						imageID = (int) (rng.nextFloat() * (images.size()));  							
-
-					addedImages.add(imageID);
-					clusterPoint = new PVector(getImage(imageID).getCaptureLocation().x, getImage(imageID).getCaptureLocation().y, getImage(imageID).getCaptureLocation().z); // Choose random image location to start
-				}
-				else if( mediaID < images.size() + panoramas.size() )		// If panorama, compare to already picked panoramas
-				{
-					panoramaID = (int) (rng.nextFloat() * (panoramas.size()));  						
-					while(addedPanoramas.contains(panoramaID) && nearPanoramas.contains(panoramaID))
-						panoramaID = (int) (rng.nextFloat() * (panoramas.size()));  						
-
-					addedPanoramas.add(panoramaID);
-					clusterPoint = new PVector(panoramas.get(panoramaID).getCaptureLocation().x, panoramas.get(panoramaID).getCaptureLocation().y, panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
-				}
-				else if( mediaID < images.size() + panoramas.size() + videos.size() )		// If video, compare to already picked videos
-				{
-					videoID = (int) (rng.nextFloat() * (videos.size()));  						
-					while(addedVideos.contains(videoID) && nearVideos.contains(videoID))
-						videoID = (int) (rng.nextFloat() * (videos.size()));  						
-
-					addedVideos.add(videoID);
-					clusterPoint = new PVector(getVideo(videoID).getCaptureLocation().x, getVideo(videoID).getCaptureLocation().y, getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
-				}
-				else if(inclSounds)
-				{
-					if( mediaID < images.size() + panoramas.size() + videos.size() + sounds.size() )		// If sound, compare to already picked videos
-					{
-						soundID = (int) (rng.nextFloat() * (sounds.size()));  						
-						while(addedSounds.contains(soundID) && nearSounds.contains(soundID))
-							soundID = (int) (rng.nextFloat() * (sounds.size()));  						
-
-						addedSounds.add(soundID);
-						clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
-					}
-				}
-				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+				addedImages.add(imageID);
+				clusterPoint = new PVector(getImage(imageID).getCaptureLocation().x, getImage(imageID).getCaptureLocation().y, getImage(imageID).getCaptureLocation().z); // Choose random image location to start
 			}
+			else if( mediaID < images.size() + panoramas.size() )		// If panorama, compare to already picked panoramas
+			{
+				int panoramaID = (int) (rng.nextFloat() * (panoramas.size()));  						
+				while(addedPanoramas.contains(panoramaID))
+					panoramaID = (int) (rng.nextFloat() * (panoramas.size()));  						
+
+				addedPanoramas.add(panoramaID);
+				clusterPoint = new PVector(panoramas.get(panoramaID).getCaptureLocation().x, panoramas.get(panoramaID).getCaptureLocation().y, panoramas.get(panoramaID).getCaptureLocation().z); // Choose random image location to start
+			}
+			else if( mediaID < images.size() + panoramas.size() + videos.size() )		// If video, compare to already picked videos
+			{
+				int videoID = (int) (rng.nextFloat() * (videos.size()));  						
+				while(addedVideos.contains(videoID))
+					videoID = (int) (rng.nextFloat() * (videos.size()));  						
+
+				addedVideos.add(videoID);
+				clusterPoint = new PVector(getVideo(videoID).getCaptureLocation().x, getVideo(videoID).getCaptureLocation().y, getVideo(videoID).getCaptureLocation().z); // Choose random image location to start
+			}
+			else if( mediaID < images.size() + panoramas.size() + videos.size() + sounds.size() )		// If sound, compare to already picked videos
+			{
+				int soundID = (int) (rng.nextFloat() * (sounds.size()));  						
+				while(addedSounds.contains(soundID))
+					soundID = (int) (rng.nextFloat() * (sounds.size()));  						
+
+				addedSounds.add(soundID);
+				clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
+			}
+			
+			addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
 		}	
 	}
 
@@ -1803,12 +1889,13 @@ public class WMV_Field
 		List<Integer> absorbed = new ArrayList<Integer>();										// List of clusters absorbed into other clusters
 		List<Integer> merged = new ArrayList<Integer>();											// List of clusters already merged with neighbors
 
-		if(debugSettings.ml || debugSettings.world) System.out.println("Merging adjacent clusters...  Start count:"+clusterList.size());
+		if(debugSettings.ml || debugSettings.world) 
+			System.out.println("Field.mergeAdjacentClusters()... Merging "+clusterList.size()+" adjacent clusters...");
 
-		/* Find distances of close neighbors for each cluster */
+		/* Find distances between each cluster and its close neighbors */
 		for( WMV_Cluster c : clusterList )					
 		{
-			closeNeighbors[c.getID()] = new IntList();	// Initialize list for this cluster
+			closeNeighbors[c.getID()] = new IntList();		// Initialize neighbor array for this cluster
 			for( WMV_Cluster d : clusterList )
 			{
 				float dist = PVector.dist(c.getLocation(), d.getLocation());		// Get distance between clusters
@@ -1816,48 +1903,6 @@ public class WMV_Field
 					closeNeighbors[c.getID()].append(d.getID());					// Add d to closest clusters to c
 			}
 		}
-
-//		ArrayList<PVector> mostNeighbors = new ArrayList<PVector>();			// List of clusters with most neighbors and number of neighbors as PVector(id, neighborCount)
-//		float firstMergePct = 0.2f;												// Fraction of clusters with most neighbors to merge first
-//		int count = 0;
-//		for( WMV_Cluster c : clusterList )					
-//		{
-//			if(count < clusterList.size() * firstMergePct )		// Fill array with initial clusters 
-//			{
-//				mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
-//			}
-//			else
-//			{
-//				boolean larger = false;
-//				for(PVector v : mostNeighbors)
-//				{
-//					float numCloseNeighbors = closeNeighbors[c.getID()].size();
-//					if( v.y > numCloseNeighbors ) larger = true;					// 
-//				}
-//
-//				if(larger)
-//				{
-//					int smallestIdx = -1;							// Index in mostNeighbors array of cluster with smallest distance
-//					float smallest = 10000.f;						// Smallest distance
-//
-//					for(int i = 0; i<mostNeighbors.size(); i++)		// Find smallest to remove
-//					{
-//						PVector v = mostNeighbors.get(i);
-//
-//						if(v.y < smallest)
-//						{
-//							smallestIdx = i;
-//							smallest = v.y;
-//						}
-//					}
-//					
-//					mostNeighbors.remove( smallestIdx );
-//					mostNeighbors.add( new PVector(c.getID(), closeNeighbors[c.getID()].size()) );
-//				}
-//			}
-//
-//			count++;
-//		}		
 
 		/* Merge remaining clusters under minimum cluster distance */
 		for( WMV_Cluster c : clusterList )					
@@ -1883,7 +1928,7 @@ public class WMV_Field
 			}
 		}
 
-		if(debugSettings.world) System.out.println("Merged Clusters..."+mergedClusters);
+		if(debugSettings.world) System.out.println("Field.mergeAdjacentClusters()... Merged Clusters..."+mergedClusters);
 
 		/* Add clusters not absorbed to new cluster list */
 		ArrayList<WMV_Cluster> newList = new ArrayList<WMV_Cluster>();
@@ -1891,7 +1936,8 @@ public class WMV_Field
 			if(!absorbed.contains(c.getID()))
 				newList.add(c);
 
-		if(debugSettings.world) System.out.println("Final clusters size..."+newList.size());
+		if(debugSettings.world) System.out.println("Field.mergeAdjacentClusters()... Final clusters size..."+newList.size());
+
 		return newList;
 	}
 
@@ -2669,126 +2715,77 @@ public class WMV_Field
 	 * @param f Field to divide
 	 * @return List of created fields
 	 */
-	public ArrayList<WMV_Field> divideField(WMV_World world, float minFieldDistance, float maxFieldDistance)
+	public ArrayList<WMV_Field> divide(WMV_World world, float minFieldDistance, float maxFieldDistance)
 	{
-		ArrayList<WMV_Cluster> fieldClusters = new ArrayList<WMV_Cluster>();			// Clear current cluster list
+		ArrayList<WMV_Field> result = new ArrayList<WMV_Field>();				// Resulting field list
+		ArrayList<WMV_Cluster> fieldClusters = new ArrayList<WMV_Cluster>();	// Current cluster list
 
 		/* Estimate number of clusters */
-		int numFields = 10; 								// Estimate number of clusters 
-		float epsilon = worldSettings.kMeansClusteringEpsilon;
-		int refinement = 60;
+		int numFields = 10; 											/* Initial estimate of number of fields */ 
+		float epsilon = worldSettings.kMeansClusteringEpsilon;			/* Distance changed threshold for stopping clustering */
+		int refinement = 60;											/* Max. iterations to attempt */
 
 		/* K-means Clustering */
-		List<Integer> addedImages = new ArrayList<Integer>();		// Images already added to clusters; should include all images at end
-		List<Integer> nearImages = new ArrayList<Integer>();			// Images nearby added media 
-
+		List<Integer> addedImages = new ArrayList<Integer>();			// Images already added to clusters; should include all images at end
 		List<Integer> addedPanoramas = new ArrayList<Integer>();		// Panoramas already added to clusters; should include all panoramas at end
-		List<Integer> nearPanoramas = new ArrayList<Integer>();		// Panoramas nearby added media 
-
 		List<Integer> addedVideos = new ArrayList<Integer>();			// Videos already added to clusters; should include all videos at end
-		List<Integer> nearVideos = new ArrayList<Integer>();			// Videos nearby added media 
+		List<Integer> addedSounds = new ArrayList<Integer>();			// Videos already added to clusters; should include all videos at end
 
-		for (int i = 0; i < numFields; i++) 		// Iterate through the clusters
+		for (int i = 0; i < numFields; i++) 							/* Create initial proposed fields */
 		{
-			int imageID, panoramaID, videoID;			
+			Random rng = new Random(System.currentTimeMillis());
+			int mediaID;												// Choose random media ID to add
 
-			if(i == 0)			
+			mediaID = (int) (rng.nextFloat() * (images.size() + panoramas.size() + videos.size() + sounds.size()));
+			PVector clusterPoint = new PVector(0,0,0);
+
+			if( mediaID < images.size() )								// If image, compare to already picked images
 			{
-				long clusteringRandomSeed = (long) world.p.random(1000.f);
-				world.p.randomSeed(clusteringRandomSeed);
-				imageID = (int) world.p.random(images.size());  			// Random image ID for setting cluster's start location				
-				panoramaID = (int) world.p.random(panoramas.size());  		// Random panorama ID for setting cluster's start location				
-				videoID = (int) world.p.random(videos.size());  			// Random video ID for setting cluster's start location				
-				addedImages.add(imageID);								
-				addedPanoramas.add(panoramaID);								
-				addedVideos.add(videoID);								
-
-				for(WMV_Image img : images)						// Check for images near the picked one
-				{
-					float dist = img.getCaptureDistanceFrom(getImage(imageID).getCaptureLocation());  // Get distance
-					if(dist < minFieldDistance)
-						nearImages.add(img.getID());				// Record images nearby picked image
-				}
-
-				for(WMV_Panorama pano : panoramas)				// Check for panoramas near the picked one 
-				{
-					float dist = pano.getCaptureDistanceFrom(getPanorama(panoramaID).getCaptureLocation());  // Get distance
-					if(dist < minFieldDistance)
-						nearPanoramas.add(pano.getID());			// Add to the list of nearby picked images
-				}
-
-				for(WMV_Video vid : videos)				// Check for panoramas near the picked one 
-				{
-					float dist = vid.getCaptureDistanceFrom(getVideo(videoID).getCaptureLocation());  // Get distance
-					if(dist < minFieldDistance)
-						nearVideos.add(vid.getID());			// Add to the list of nearby picked images
-				}
-
-				PVector clusterPoint = new PVector(0,0,0);				// Create first cluster 
-				if(images.size() > 0)
-				{
-					PVector imgLoc = getImage(imageID).getCaptureLocation();
-					clusterPoint = new PVector(imgLoc.x, imgLoc.y, imgLoc.z); // Choose random image location to start
-					fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
-					i++;
-				}
-				else if(panoramas.size() > 0)
-				{
-					PVector panoLoc = getPanorama(panoramaID).getCaptureLocation();
-					clusterPoint = new PVector(panoLoc.x, panoLoc.y, panoLoc.z); // Choose random panorama location to start
-					fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
-					i++;
-				}
-				else if(videos.size() > 0)
-				{
-					PVector vidLoc = getVideo(videoID).getCaptureLocation();
-					clusterPoint = new PVector(vidLoc.x, vidLoc.y, vidLoc.z); // Choose random video location to start
-					fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
-					i++;
-				}
-			}
-			else											// Find a random media (image, panorama or video) location for new cluster
-			{
-				int mediaID = (int) world.p.random(images.size() + panoramas.size() + videos.size());
-				PVector clusterPoint = new PVector(0,0,0);
-
-				if( mediaID < images.size() )				// If image, compare to already picked images
-				{
+				int imageID = (int) world.p.random(images.size());  						
+				while(addedImages.contains(imageID))
 					imageID = (int) world.p.random(images.size());  						
-					while(addedImages.contains(imageID) && nearImages.contains(imageID))
-						imageID = (int) world.p.random(images.size());  						
 
-					addedImages.add(imageID);
+				addedImages.add(imageID);
 
-					PVector imgLoc = getImage(imageID).getCaptureLocation();
-					clusterPoint = new PVector(imgLoc.x, imgLoc.y, imgLoc.z); // Choose random image location to start
-				}
-				else if( mediaID < images.size() + panoramas.size() )		// If panorama, compare to already picked panoramas
-				{
-					panoramaID = (int) world.p.random(panoramas.size());  						
-					while(addedPanoramas.contains(panoramaID) && nearPanoramas.contains(panoramaID))
-						panoramaID = (int) world.p.random(panoramas.size());  						
-
-					addedPanoramas.add(panoramaID);
-
-					PVector panoLoc = getPanorama(panoramaID).getCaptureLocation();
-					clusterPoint = new PVector(panoLoc.x, panoLoc.y, panoLoc.z); // Choose random image location to start
-				}
-				else if( mediaID < images.size() + panoramas.size() + videos.size() )		// If video, compare to already picked videos
-				{
-					videoID = (int) world.p.random(videos.size());  						
-					while(addedImages.contains(videoID) && nearImages.contains(videoID))
-						videoID = (int) world.p.random(videos.size());  						
-
-					addedVideos.add(videoID);
-
-					PVector vidLoc = getVideo(videoID).getCaptureLocation();
-					clusterPoint = new PVector(vidLoc.x, vidLoc.y, vidLoc.z); // Choose random image location to start
-				}
-
-				fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+				PVector imgLoc = getImage(imageID).getCaptureLocation();
+				clusterPoint = new PVector(imgLoc.x, imgLoc.y, imgLoc.z); 	// Choose random image location to start
 			}
-		}	
+			else if( mediaID < images.size() + panoramas.size() )			// If panorama, compare to already picked panoramas
+			{
+				int panoramaID = (int) world.p.random(panoramas.size());  						
+				while(addedPanoramas.contains(panoramaID))
+					panoramaID = (int) world.p.random(panoramas.size());  						
+
+				addedPanoramas.add(panoramaID);
+
+				PVector panoLoc = getPanorama(panoramaID).getCaptureLocation();
+				clusterPoint = new PVector(panoLoc.x, panoLoc.y, panoLoc.z); // Choose random image location to start
+			}
+			else if( mediaID < images.size() + panoramas.size() + videos.size() )		// If video, compare to already picked videos
+			{
+				int videoID = (int) world.p.random(videos.size());  						
+				while(addedVideos.contains(videoID))
+					videoID = (int) world.p.random(videos.size());  						
+
+				addedVideos.add(videoID);
+
+				PVector vidLoc = getVideo(videoID).getCaptureLocation();
+				clusterPoint = new PVector(vidLoc.x, vidLoc.y, vidLoc.z); // Choose random image location to start
+			}
+			else if( mediaID < images.size() + panoramas.size() + videos.size() + sounds.size() )		// If sound, compare to already picked sounds
+			{
+				int soundID = (int) world.p.random(sounds.size());  						
+				while(addedSounds.contains(soundID))
+					soundID = (int) world.p.random(sounds.size());  						
+
+				addedSounds.add(soundID);
+
+				PVector sndLoc = getSound(soundID).getCaptureLocation();
+				clusterPoint = new PVector(sndLoc.x, sndLoc.y, sndLoc.z); // Choose random image location to start
+			}
+
+			fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+		}
 
 		/* Refine fields */
 		int count = 0;
@@ -2796,8 +2793,7 @@ public class WMV_Field
 
 		ArrayList<WMV_Cluster> last = fieldClusters;
 
-		if(debugSettings.world)
-			System.out.println("Refining field...");
+		if(debugSettings.world) System.out.println("Field.divide()... Refining fields...");
 
 		while( count < refinement ) 							// Iterate to create the clusters
 		{		
@@ -2832,7 +2828,7 @@ public class WMV_Field
 				if(!moved)
 				{
 					if(debugSettings.world)
-						System.out.println("divideField()... Stopped refinement, no clusters moved farther than epsilon:"+epsilon);
+						System.out.println("divide()... Stopped refinement, no clusters moved farther than epsilon:"+epsilon);
 					break;								// If all clusters moved less than epsilon, stop refinement
 				}
 			}
@@ -2846,12 +2842,247 @@ public class WMV_Field
 		}
 
 		fieldClusters = mergeAdjacentClusters(fieldClusters, 2500.f);
+		if(debugSettings.world) System.out.println("Field.divide()... Detected "+fieldClusters.size()+" fields...");
 
-		if(debugSettings.world)
-			System.out.println("Detected "+fieldClusters.size()+" fields...");
+		count = 0;
+		for(WMV_Cluster c : fieldClusters)
+		{
+			// Convert cluster into a field
+			int index = world.getFieldCount() + count;
+			WMV_Field f = c.getClusterAsField("field_part_"+String.valueOf(index), index, images, panoramas, videos, sounds);
+			result.add(f);
+			count ++;
+		}
+		
+		if(debugSettings.world) System.out.println("Field.divide()... Returning "+result.size()+" new fields...");
 
-		return null;
+		if(result.size() > 0)
+			return result;
+		else
+			return null;
 	}
+
+	/**
+	 * Detect and return multiple fields via k-means clustering 
+	 * @param f Field to divide
+	 * @return List of created fields
+	 */
+//	public ArrayList<WMV_Field> divide(WMV_World world, float minFieldDistance, float maxFieldDistance)
+//	{
+//		ArrayList<WMV_Cluster> fieldClusters = new ArrayList<WMV_Cluster>();			// Clear current cluster list
+//
+//		/* Estimate number of clusters */
+//		int numFields = 10; 											/* Initial estimate of number of fields */ 
+//		float epsilon = worldSettings.kMeansClusteringEpsilon;
+//		int refinement = 60;
+//
+//		/* K-means Clustering */
+//		List<Integer> addedImages = new ArrayList<Integer>();			// Images already added to clusters; should include all images at end
+//		List<Integer> nearImages = new ArrayList<Integer>();			// Images nearby added media 
+//
+//		List<Integer> addedPanoramas = new ArrayList<Integer>();		// Panoramas already added to clusters; should include all panoramas at end
+//		List<Integer> nearPanoramas = new ArrayList<Integer>();			// Panoramas nearby added media 
+//
+//		List<Integer> addedVideos = new ArrayList<Integer>();			// Videos already added to clusters; should include all videos at end
+//		List<Integer> nearVideos = new ArrayList<Integer>();			// Videos nearby added media 
+//
+//		List<Integer> addedSounds = new ArrayList<Integer>();			// Videos already added to clusters; should include all videos at end
+//		List<Integer> nearSounds = new ArrayList<Integer>();			// Videos nearby added media 
+//
+//		for (int i = 0; i < numFields; i++) 							/* Create initial proposed fields */
+//		{
+//			Random rng = new Random(System.currentTimeMillis());
+//			
+//			int imageID, panoramaID, videoID, soundID;			
+//
+//			if(i == 0)								/* First field */
+//			{
+//				long clusteringRandomSeed = (long) world.p.random(1000.f);
+//				world.p.randomSeed(clusteringRandomSeed);
+//				imageID = (int) world.p.random(images.size());  			// Random image ID for setting cluster's start location				
+//				panoramaID = (int) world.p.random(panoramas.size());  		// Random panorama ID for setting cluster's start location				
+//				videoID = (int) world.p.random(videos.size());  			// Random video ID for setting cluster's start location				
+//				soundID = (int) world.p.random(sounds.size());  			// Random video ID for setting cluster's start location				
+//				addedImages.add(imageID);								
+//				addedPanoramas.add(panoramaID);								
+//				addedVideos.add(videoID);								
+//				addedSounds.add(soundID);								
+//
+//				for(WMV_Image img : images)						// Check for images nearby the picked one
+//				{
+//					float dist = img.getCaptureDistanceFrom(getImage(imageID).getCaptureLocation());  // Get distance
+//					if(dist < minFieldDistance)
+//						nearImages.add(img.getID());			// Add to list of images nearby the picked one
+//				}
+//				for(WMV_Panorama pano : panoramas)				// Check for panoramas nearby the picked one 
+//				{
+//					float dist = pano.getCaptureDistanceFrom(getPanorama(panoramaID).getCaptureLocation());  // Get distance
+//					if(dist < minFieldDistance)
+//						nearPanoramas.add(pano.getID());		// Add to the list of panoramas nearby the picked one
+//				}
+//				for(WMV_Video vid : videos)						// Check for videos nearby the picked one 
+//				{
+//					float dist = vid.getCaptureDistanceFrom(getVideo(videoID).getCaptureLocation());  // Get distance
+//					if(dist < minFieldDistance)
+//						nearVideos.add(vid.getID());			// Add to the list of videos nearby the picked one
+//				}
+//				for(WMV_Sound snd : sounds)						// Check for sounds nearby the picked one 
+//				{
+//					float dist = snd.getCaptureDistanceFrom(getVideo(soundID).getCaptureLocation());  // Get distance
+//					if(dist < minFieldDistance)
+//						nearSounds.add(snd.getID());			// Add to the list of nearby the picked one
+//				}
+//
+//				PVector clusterPoint = new PVector(0,0,0);		/* Create first cluster */
+//				if(images.size() > 0)
+//				{
+//					PVector imgLoc = getImage(imageID).getCaptureLocation();
+//					clusterPoint = new PVector(imgLoc.x, imgLoc.y, imgLoc.z); // Choose random image location to start
+//					fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//					i++;
+//				}
+//				else if(panoramas.size() > 0)
+//				{
+//					PVector panoLoc = getPanorama(panoramaID).getCaptureLocation();
+//					clusterPoint = new PVector(panoLoc.x, panoLoc.y, panoLoc.z); // Choose random panorama location to start
+//					fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//					i++;
+//				}
+//				else if(videos.size() > 0)
+//				{
+//					PVector vidLoc = getVideo(videoID).getCaptureLocation();
+//					clusterPoint = new PVector(vidLoc.x, vidLoc.y, vidLoc.z); // Choose random video location to start
+//					fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//					i++;
+//				}
+//				else if(sounds.size() > 0)
+//				{
+//					PVector sndLoc = getSound(soundID).getCaptureLocation();
+//					clusterPoint = new PVector(sndLoc.x, sndLoc.y, sndLoc.z); // Choose random sound location to start
+//					fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+//					i++;
+//				}
+//			}
+//			else			/* Choose random media (image, panorama, video or sound) location for new cluster */
+//			{
+//				int mediaID = (int) world.p.random(images.size() + panoramas.size() + videos.size() + sounds.size());
+//				
+//			int mediaID;			// Choose random media ID to add
+//
+//			mediaID = (int) (rng.nextFloat() * (images.size() + panoramas.size() + videos.size() + sounds.size()));
+//			PVector clusterPoint = new PVector(0,0,0);
+//
+//				if( mediaID < images.size() )				// If image, compare to already picked images
+//				{
+//					imageID = (int) world.p.random(images.size());  						
+//					while(addedImages.contains(imageID) && nearImages.contains(imageID))
+//						imageID = (int) world.p.random(images.size());  						
+//
+//					addedImages.add(imageID);
+//
+//					PVector imgLoc = getImage(imageID).getCaptureLocation();
+//					clusterPoint = new PVector(imgLoc.x, imgLoc.y, imgLoc.z); // Choose random image location to start
+//				}
+//				else if( mediaID < images.size() + panoramas.size() )		// If panorama, compare to already picked panoramas
+//				{
+//					panoramaID = (int) world.p.random(panoramas.size());  						
+//					while(addedPanoramas.contains(panoramaID) && nearPanoramas.contains(panoramaID))
+//						panoramaID = (int) world.p.random(panoramas.size());  						
+//
+//					addedPanoramas.add(panoramaID);
+//
+//					PVector panoLoc = getPanorama(panoramaID).getCaptureLocation();
+//					clusterPoint = new PVector(panoLoc.x, panoLoc.y, panoLoc.z); // Choose random image location to start
+//				}
+//				else if( mediaID < images.size() + panoramas.size() + videos.size() )		// If video, compare to already picked videos
+//				{
+//					videoID = (int) world.p.random(videos.size());  						
+//					while(addedVideos.contains(videoID) && nearVideos.contains(videoID))
+//						videoID = (int) world.p.random(videos.size());  						
+//
+//					addedVideos.add(videoID);
+//
+//					PVector vidLoc = getVideo(videoID).getCaptureLocation();
+//					clusterPoint = new PVector(vidLoc.x, vidLoc.y, vidLoc.z); // Choose random image location to start
+//				}
+//				else if( mediaID < images.size() + panoramas.size() + videos.size() + sounds.size() )		// If sound, compare to already picked sounds
+//				{
+//					soundID = (int) world.p.random(sounds.size());  						
+//					while(addedSounds.contains(soundID) && nearSounds.contains(soundID))
+//						soundID = (int) world.p.random(sounds.size());  						
+//
+//					addedSounds.add(soundID);
+//
+//					PVector sndLoc = getSound(soundID).getCaptureLocation();
+//					clusterPoint = new PVector(sndLoc.x, sndLoc.y, sndLoc.z); // Choose random image location to start
+//				}
+//
+//				fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+////			}
+//		}
+//
+//		/* Refine fields */
+//		int count = 0;
+//		boolean moved = false;									// Whether any cluster has moved farther than epsilon
+//
+//		ArrayList<WMV_Cluster> last = fieldClusters;
+//
+//		if(debugSettings.world)
+//			System.out.println("Refining field...");
+//
+//		while( count < refinement ) 							// Iterate to create the clusters
+//		{		
+//			for (int i = 0; i < images.size(); i++) 			// Find closest cluster for each image
+//				getImage(i).findAssociatedCluster(fieldClusters, maxFieldDistance);		// Set associated cluster
+//			for (int i = 0; i < panoramas.size(); i++) 		// Find closest cluster for each image
+//				getPanorama(i).findAssociatedCluster(fieldClusters, maxFieldDistance);		// Set associated cluster
+//			for (int i = 0; i < videos.size(); i++) 		// Find closest cluster for each panorama
+//				getVideo(i).findAssociatedCluster(fieldClusters, maxFieldDistance);		// Set associated cluster
+//			for (int i = 0; i < sounds.size(); i++) 		// Find closest cluster for each panorama
+//				getSound(i).findAssociatedCluster(fieldClusters, maxFieldDistance);		// Set associated cluster
+//			for (int i = 0; i < fieldClusters.size(); i++) 		// Find closest cluster for each video
+//				fieldClusters.get(i).create(images, panoramas, videos, sounds);					// Assign clusters
+//
+//			if(fieldClusters.size() == last.size())				// Check cluster movement
+//			{
+//				for(WMV_Cluster c : fieldClusters)
+//				{
+//					float closestDist = 10000.f;
+//
+//					for(WMV_Cluster d : last)
+//					{
+//						float dist = c.getLocation().dist(d.getLocation());
+//						if(dist < closestDist)
+//							closestDist = dist;
+//					}
+//
+//					if(closestDist > epsilon)
+//						moved = true;
+//				}
+//
+//				if(!moved)
+//				{
+//					if(debugSettings.world)
+//						System.out.println("divide()... Stopped refinement, no clusters moved farther than epsilon:"+epsilon);
+//					break;								// If all clusters moved less than epsilon, stop refinement
+//				}
+//			}
+//			else
+//			{
+//				if(debugSettings.world)
+//					System.out.println(" New clusters found... will keep refining clusters... clusters.size():"+fieldClusters.size()+" last.size():"+last.size());
+//			}
+//
+//			count++;
+//		}
+//
+//		fieldClusters = mergeAdjacentClusters(fieldClusters, 2500.f);
+//
+//		if(debugSettings.world)
+//			System.out.println("Detected "+fieldClusters.size()+" fields...");
+//
+//		return null;
+//	}
 
 	public int getFieldTimeSegmentID(WMV_TimeSegment segment)
 	{
@@ -3756,6 +3987,40 @@ public class WMV_Field
 		return newSound;
 	}
 
+	public void reset()
+	{
+		model = new WMV_Model();
+		model.initialize(worldSettings, debugSettings);
+
+		state = new WMV_FieldState();
+
+		utilities = new WMV_Utilities();
+
+//		state.name = ";
+//		state.id = newFieldID;
+
+		state.clustersByDepth = new ArrayList<Integer>();
+		clusters = new ArrayList<WMV_Cluster>();
+
+		images = new ArrayList<WMV_Image>();
+		panoramas = new ArrayList<WMV_Panorama>();
+		videos = new ArrayList<WMV_Video>();		
+		sounds = new ArrayList<WMV_Sound>();		
+
+		timeline = new WMV_Timeline();
+		timeline.initialize(null);
+
+		dateline = new ArrayList<WMV_Date>();
+		
+		visibleImages = new ArrayList<Integer>();
+		visiblePanoramas = new ArrayList<Integer>();
+		visibleVideos = new ArrayList<Integer>();
+		audibleSounds = new ArrayList<Integer>();
+		
+		visibleClusters = new ArrayList<Integer>();
+	}
+	
+	
 	public String getName()
 	{
 		return state.name;

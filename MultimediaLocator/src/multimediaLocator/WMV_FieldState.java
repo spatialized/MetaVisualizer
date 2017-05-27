@@ -45,8 +45,6 @@ public class WMV_FieldState
 	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0, soundErrors = 0;			// Metadata loading errors per media type
 	public int indexPanoramaOffset, indexVideoOffset, indexSoundOffset;		// Starting index of panoramas / videos / sounds in names and distances arrays
 	
-//	public int disassociatedImages = 0;						// Media not associated with a cluster -- Obsolete?
-//	public int disassociatedPanoramas = 0;
 //	public int disassociatedVideos = 0;
 //	public int disassociatedSounds = 0;
 	

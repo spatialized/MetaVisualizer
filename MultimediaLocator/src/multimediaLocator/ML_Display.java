@@ -146,8 +146,8 @@ public class ML_Display
 //		pnlMain.tag = "Main";
 //		pnlMain.tagNo = 0;
 		
-		screenWidth = ml.width;
-		screenHeight = ml.height;
+		screenWidth = ml.appWidth;
+		screenHeight = ml.appHeight;
 		
 		utilities = new WMV_Utilities();
 		
@@ -189,7 +189,7 @@ public class ML_Display
 		datelineXOffset = timelineXOffset;
 		datelineYOffset = screenHeight * 0.266f;
 		
-		map2D = new ML_Map(this, screenWidth, screenHeight);
+		map2D = new ML_Map(this);
 		currentSelectableTimeSegment = null;
 		currentSelectableTimeSegmentID = -1;
 		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
@@ -1515,7 +1515,7 @@ public class ML_Display
 		startupMessageXOffset = screenWidth / 2.f;
 		startupMessageYOffset = -screenHeight /2.f;
 		
-		map2D = new ML_Map(this, screenWidth, screenHeight);
+		map2D = new ML_Map(this);
 	}
 
 	/**

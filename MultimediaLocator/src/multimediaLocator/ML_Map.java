@@ -94,11 +94,11 @@ public class ML_Map
 	 * @param newScreenHeight Screen height
 	 * @param newHUDDistance Heads-Up Display distance
 	 */
-	public ML_Map(ML_Display parent, int newScreenWidth, int newScreenHeight)
+	public ML_Map(ML_Display parent)
 	{
 		p = parent;
-		screenWidth = newScreenWidth;
-		screenHeight = newScreenHeight;
+		screenWidth = p.ml.appWidth;
+		screenHeight = p.ml.appHeight;
 		
 		utilities = new WMV_Utilities();
 		

@@ -731,7 +731,7 @@ class WMV_MetadataLoader
 					if (tag.getTagName().equals("Software")) // Software
 					{
 						sSoftware = parseSoftware(tagString);
-//						if (debugSettings.metadata && debugSettings.detailed) 
+						if (debugSettings.metadata && debugSettings.detailed) 
 							System.out.println("Found Software..." + sSoftware);
 					}
 

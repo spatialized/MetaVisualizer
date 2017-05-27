@@ -1243,8 +1243,8 @@ public class ML_Window {
 	 */
 	public void setupLibraryWindow()
 	{
-		libraryWindow = GWindow.getWindow( world.p, windowTitle, world.p.width / 2 - windowWidth, 
-										   world.p.height / 2 - libraryWindowHeight / 2, windowWidth * 2, 
+		libraryWindow = GWindow.getWindow( world.p, windowTitle, world.p.appWidth / 2 - windowWidth, 
+										   world.p.appHeight / 2 - libraryWindowHeight / 2, windowWidth * 2, 
 										   libraryWindowHeight, PApplet.JAVA2D);
 		
 		libraryWindow.addData(new ML_WinData());
@@ -1284,8 +1284,8 @@ public class ML_Window {
 	 */
 	public void setupImportWindow()
 	{
-		importWindow = GWindow.getWindow( world.p, windowTitle, world.p.width / 2 - windowWidth * 3 / 2, 
-				   world.p.height / 2 - importWindowHeight / 2, windowWidth * 3, 
+		importWindow = GWindow.getWindow( world.p, windowTitle, world.p.appWidth / 2 - windowWidth * 3 / 2, 
+				   world.p.appHeight / 2 - importWindowHeight / 2, windowWidth * 3, 
 				   importWindowHeight, PApplet.JAVA2D);
 
 		importWindow.addData(new ML_WinData());

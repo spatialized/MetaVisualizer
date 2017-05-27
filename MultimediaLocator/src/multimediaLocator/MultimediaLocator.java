@@ -44,9 +44,14 @@ import com.apple.eawt.Application;
 @SuppressWarnings("restriction")
 public class MultimediaLocator extends PApplet 
 {
+	/* Deployment */
+	private boolean createJar = true;
+	
 	/* General */
-	String programName = "MultimediaLocator 0.9.0";
-	PImage appIcon;
+	private String programName = "MultimediaLocator 0.9.0";
+	public int appWidth = 1680, appHeight = 960;		// App window dimensions
+	private boolean windowVisible = false;
+	private PImage appIcon;
 	boolean setAppIcon = true;
 	
 	/* System Status */
@@ -93,6 +98,9 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void setup()
 	{
+		surface.setResizable(true);
+		hideMainWindow();
+
 		debugSettings = new ML_DebugSettings();		
 		if(debugSettings.ml) System.out.println("Starting initial setup...");
 
@@ -190,6 +198,9 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.startedRunning)										/* If simulation just started running */
 		{
+//			if(!windowVisible)
+//				showMainWindow();
+
 			if(!enteredField) world.enter(0, true);						/* Enter world at field 0 */
 			state.startedRunning = false;
 		}
@@ -355,6 +366,9 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.initialSetup)
 		{
+			if(!windowVisible)
+				showMainWindow();
+
 			if( !state.fieldsInitialized )
 			{
 				if (!state.initializingFields) 
@@ -876,6 +890,9 @@ public class MultimediaLocator extends PApplet
 	{
 		boolean selectedFolder = false;
 		
+//		if(!windowVisible)
+//			showMainWindow();
+
 		if (selection == null) 
 		{
 			System.out.println("openMediaFolder()... Window was closed or the user hit cancel.");
@@ -921,6 +938,9 @@ public class MultimediaLocator extends PApplet
 	{
 		boolean selectedFolder = false;
 		
+//		if(!windowVisible)
+//			showMainWindow();
+
 		if (selection == null) {
 			System.out.println("Window was closed or the user hit cancel.");
 		} 
@@ -1000,6 +1020,9 @@ public class MultimediaLocator extends PApplet
 	 */
 	private void createNewLibraryFromMediaFolders()
 	{
+//		if(!windowVisible)
+//			showMainWindow();
+		
 		if(library.mediaFolders.size() > 0)
 		{
 			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
@@ -1447,11 +1470,13 @@ public class MultimediaLocator extends PApplet
 		endPGL();
 
 		// Load cubemap shader
-//		loadCubeMapShader();			// From JAR file
-		
-		cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");	// In Eclipse
-		cubemapShader.set("cubemap", 1);
-		
+		if(createJar)
+			loadCubeMapShader();			// From JAR file
+		else
+		{
+			cubemapShader = loadShader("resources/shaders/cubemapfrag.glsl", "resources/shaders/cubemapvert.glsl");	// In Eclipse
+			cubemapShader.set("cubemap", 1);
+		}
 		cubeMapInitialized = true;
 	}
 
@@ -1464,6 +1489,19 @@ public class MultimediaLocator extends PApplet
 		cubemapShader.set("cubemap", 1);
 	}
 	
+	private void hideMainWindow()
+	{
+		setSurfaceSize(1, 1);
+		windowVisible = false;
+	}
+	
+	private void showMainWindow()
+	{
+		System.out.println("showMainWindow()...");
+		setSurfaceSize(appWidth, appHeight);
+		windowVisible = true;
+	}
+
 	@SuppressWarnings("restriction")
 	private void setAppIcon(PImage img) 
 	{
@@ -1472,12 +1510,20 @@ public class MultimediaLocator extends PApplet
 		if(debugSettings.ml && debugSettings.detailed) System.out.println("setAppIcon()... frameCount:"+frameCount);
 	}
 
+	public void setSurfaceSize(int newWidth, int newHeight)
+	{
+//		surface.setResizable(true);
+		surface.setSize(newWidth, newHeight);
+//		surface.setResizable(false);
+	}
+
 	/**
 	 * Set window resolution and graphics mode
 	 */
 	public void settings() 
 	{
-		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
+		size(appWidth, appHeight, processing.core.PConstants.P3D);		// MacBook Pro
+//		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
 		
 //		PJOGL.setIcon("resources/images/icon.png");			// -- Needed?
 		
@@ -1525,12 +1571,6 @@ public class MultimediaLocator extends PApplet
 //	}
 
 	/* Obsolete */
-//	public void setSurfaceSize(int newWidth, int newHeight)
-//	{
-//		surface.setResizable(true);
-//		surface.setSize(newWidth, newHeight);
-//		surface.setResizable(false);
-//	}
 //	
 //	public void setSurfaceVisible(boolean newState)
 //	{

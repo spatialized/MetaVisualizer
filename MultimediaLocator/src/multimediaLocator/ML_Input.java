@@ -126,6 +126,9 @@ public class ML_Input
 		
 		if(display.window.setupGraphicsWindow)
 		{
+			if (slider.tag == "VisibleAngle") 
+				world.viewer.setVisibleAngle( slider.getValueF() );
+			
 			if (slider.tag == "Alpha") 
 				world.state.alpha = slider.getValueF();
 			

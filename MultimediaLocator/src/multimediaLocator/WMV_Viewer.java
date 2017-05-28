@@ -2798,10 +2798,9 @@ public class WMV_Viewer
 			/* Zoom Transition */
 			if (state.zooming) 
 			{
-//				if (worldState.frameCount < state.zoomStart + state.zoomLength) 
+				float fov = getFieldOfView();
+				if(fov > 0.1f && fov < 2 * Math.PI) 
 					zoomByAmount(settings.zoomIncrement / state.zoomLength * state.zoomDirection);
-//				else 
-//					state.zooming = false;
 			}
 		}
 		else										// If no transitions and not currently moving or turning 
@@ -2993,7 +2992,8 @@ public class WMV_Viewer
 	 */
 	public void zoomByAmount(float zoom)
 	{
-		settings.fieldOfView += zoom;
+		setFieldOfView( settings.fieldOfView + zoom );
+//		settings.fieldOfView += zoom;
 		camera.zoom(zoom);
 	}
 
@@ -4475,6 +4475,11 @@ public class WMV_Viewer
 	public void setUserBrightness( float newValue )
 	{
 		settings.userBrightness = newValue;
+	}
+	
+	public void setFieldOfView( float newFieldOfView )
+	{
+		settings.fieldOfView = newFieldOfView;
 	}
 	
 	/**

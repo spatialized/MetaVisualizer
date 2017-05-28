@@ -365,8 +365,7 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.initialSetup)
 		{
-			if(!windowVisible) 
-				showMainWindow();
+			if(!windowVisible) showMainWindow();
 
 			if( !state.fieldsInitialized )
 			{
@@ -1132,12 +1131,6 @@ public class MultimediaLocator extends PApplet
 //			}
 //		}
 	}
-
-	/******* G4P *******/
-//	public void handlePanelEvents(GPanel panel, GEvent event)
-//	{
-//		display.handlePanelEvents(panel, event);
-//	}
 	
 	/**
 	 * Respond to button event

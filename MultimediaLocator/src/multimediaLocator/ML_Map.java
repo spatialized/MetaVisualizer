@@ -115,9 +115,10 @@ public class ML_Map
 	public void initializeMaps(WMV_World world)
 	{
 		blankTile = world.p.getImageResource("blank.jpg");
-//		blankTile = world.p.loadImage("resources/images/blank.jpg");
 
 		initializeSatelliteMap(world);
+//		world.p.delay(250);
+		
 		initializeBasicMaps(world);
 		createViewerMarker(world);
 
@@ -129,6 +130,7 @@ public class ML_Map
 		eventDispatcher.addBroadcaster(mouseHandler);
 		eventDispatcher.register(satellite, "pan", satellite.getId());
 		eventDispatcher.register(satellite, "zoom", satellite.getId());
+		
 		world.p.delay(150);
 		
 		p.initializedMaps = true;
@@ -639,28 +641,35 @@ public class ML_Map
 	{
 		if(p.displayView == 1)						// Main map visible
 		{
-			List<Marker> hitMarkers;
-			for (Marker m : satellite.getMarkers()) 
-				if(m.isSelected()) m.setSelected(false);
-
-			hitMarkers = satellite.getHitMarkers(world.p.mouseX, world.p.mouseY);
-			for(Marker marker : hitMarkers)
+			if(world.p.display.initializedMaps)
 			{
-				if(marker != null)
+				List<Marker> hitMarkers;
+				for (Marker m : satellite.getMarkers()) 
+					if(m.isSelected()) m.setSelected(false);
+
+				hitMarkers = satellite.getHitMarkers(world.p.mouseX, world.p.mouseY);
+				for(Marker marker : hitMarkers)
 				{
-					String mID = marker.getId();
-					if(mID != null)
+					if(marker != null)
 					{
-//						System.out.println("mID:"+mID);
-						String[] parts = mID.split("_");
-						if(parts.length == 2)
+						String mID = marker.getId();
+						if(mID != null)
 						{
-//							System.out.println("parts[0]:"+parts[0]);
-							if(parts[0].equals("Cluster"))
+							//						System.out.println("mID:"+mID);
+							String[] parts = mID.split("_");
+							if(parts.length == 2)
 							{
-								marker.setSelected(true);
-								setSelectedCluster( Integer.parseInt(parts[1]) );
+								//							System.out.println("parts[0]:"+parts[0]);
+								if(parts[0].equals("Cluster"))
+								{
+									marker.setSelected(true);
+									setSelectedCluster( Integer.parseInt(parts[1]) );
+								}
 							}
+						}
+						else
+						{
+							setSelectedCluster( world.viewer.getState().getCurrentClusterID() );
 						}
 					}
 					else
@@ -668,32 +677,31 @@ public class ML_Map
 						setSelectedCluster( world.viewer.getState().getCurrentClusterID() );
 					}
 				}
-				else
-				{
-					setSelectedCluster( world.viewer.getState().getCurrentClusterID() );
-				}
 			}
 		}
 		else if(p.displayView == 2 && p.libraryViewMode == 0)			// World map visible
 		{
-			for (Marker m : satellite.getMarkers()) 
-				m.setSelected(false);
-			
-			List<Marker> hitMarkers = satellite.getHitMarkers(world.p.mouseX, world.p.mouseY);
-			for(Marker marker : hitMarkers)
+			if(world.p.display.initializedMaps)
 			{
-				if(marker != null)
+				for (Marker m : satellite.getMarkers()) 
+					m.setSelected(false);
+
+				List<Marker> hitMarkers = satellite.getHitMarkers(world.p.mouseX, world.p.mouseY);
+				for(Marker marker : hitMarkers)
 				{
-					String mID = marker.getId();
-					if(mID != null)
+					if(marker != null)
 					{
-						if (!marker.getId().equals("allClusters") && !mID.equals("viewer") && !mID.contains("Cluster_")) 
+						String mID = marker.getId();
+						if(mID != null)
 						{
-							if(selectedField != Integer.parseInt(mID))
+							if (!marker.getId().equals("allClusters") && !mID.equals("viewer") && !mID.contains("Cluster_")) 
 							{
-//								System.out.println("Selected Field ID:"+Integer.parseInt(mID)+" mID:"+mID);
-								marker.setSelected(true);
-								setSelectedField( world, Integer.parseInt(mID) );
+								if(selectedField != Integer.parseInt(mID))
+								{
+									//								System.out.println("Selected Field ID:"+Integer.parseInt(mID)+" mID:"+mID);
+									marker.setSelected(true);
+									setSelectedField( world, Integer.parseInt(mID) );
+								}
 							}
 						}
 					}

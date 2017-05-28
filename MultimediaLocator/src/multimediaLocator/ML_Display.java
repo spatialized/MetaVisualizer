@@ -134,18 +134,6 @@ public class ML_Display
 	{
 		ml = parent;
 		
-//		pnlMain = new GPanel(ml, 20, 30, 500, 350, "Panel Test");
-//		pnlMain.setVisible(false);
-//		pnlMain.setText("MultimediaLocator v0.9.0");
-//		pnlMain.setOpaque(true);
-//		pnlMain.setLocalColorScheme(GCScheme.GREEN_SCHEME);
-//		pnlMain.setDraggable(true);
-//		pnlMain.setCollapsible(false);
-//		pnlMain.setCollapsed(false);
-//
-//		pnlMain.tag = "Main";
-//		pnlMain.tagNo = 0;
-		
 		screenWidth = ml.appWidth;
 		screenHeight = ml.appHeight;
 		
@@ -228,7 +216,7 @@ public class ML_Display
 				switch(displayView)
 				{
 					case 1:
-						map2D.displaySatelliteMap(p);
+						if(initializedMaps) map2D.displaySatelliteMap(p);
 						if(p.p.state.interactive) displayInteractiveClustering(p);
 						map2D.update(p);
 						break;
@@ -1720,7 +1708,7 @@ public class ML_Display
 		{
 			case 0:														// Fields
 				startHUD(p);
-				map2D.displayWorldMap(p);
+				if(initializedMaps) map2D.displayWorldMap(p);
 				break;
 			case 1:														// Field
 				startHUD(p);

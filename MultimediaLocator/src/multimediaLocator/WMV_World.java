@@ -186,7 +186,6 @@ public class WMV_World
 			displayTerrain();
 		
 		viewer.updateNavigation();					/* Update navigation */
-//		if(p.display.displayView == 0)	
 		if(p.display.displayView == 0 && !p.state.sphericalView)	
 			if(p.state.running)
 				viewer.show();						/* Show the World View to the viewer */
@@ -252,6 +251,39 @@ public class WMV_World
 		}
 	}
 	
+	/**
+	 * Manually move back in time
+	 */
+	void decrementTime()
+	{
+		float curTimePoint = p.display.window.sdrCurrentTime.getValueF();
+		if (curTimePoint - settings.timeInc < 0) setCurrentTimePoint(0);
+		else setCurrentTimePoint(curTimePoint - settings.timeInc);
+		
+//		state.currentTime -= settings.timeInc;
+//		if (state.currentTime < 0)
+//			state.currentTime = 0;
+	}
+	
+	/**
+	 * Manually move forward in time
+	 */
+	void incrementTime()
+	{
+		float curTimePoint = p.display.window.sdrCurrentTime.getValueF();
+		float endTimePoint = p.display.window.sdrCurrentTime.getEndLimit();
+		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTimePoint(endTimePoint);
+		else setCurrentTimePoint(curTimePoint + settings.timeInc);
+
+//		state.currentTime += settings.timeInc;
+//		if (state.currentTime > settings.timeCycleLength)
+//			state.currentTime = settings.timeCycleLength - 200;
+	}
+
+	/**
+	 * Set time point based on current Time Mode
+	 * @param newTimePoint
+	 */
 	public void setCurrentTimePoint(float newTimePoint)
 	{
 		switch(state.timeMode)
@@ -1152,48 +1184,50 @@ public class WMV_World
 		
 		return clusters;
 	}
-
-	/**
-	 * Manually move back in time
-	 */
-	void decrementTime()
-	{
-		state.currentTime -= settings.timeInc;
-		if (state.currentTime < 0)
-			state.currentTime = 0;
-	}
-	
-	/**
-	 * Manually move forward in time
-	 */
-	void incrementTime()
-	{
-		state.currentTime += settings.timeInc;
-		if (state.currentTime > settings.timeCycleLength)
-			state.currentTime = settings.timeCycleLength - 200;
-	}
 	
 	/**
 	 * Decrement time cycle length
 	 */
-	void decrementCycleLength()
+	void decrementTimeCycleLength()
 	{
-		if(settings.timeCycleLength - 20 > 40.f)
+		int sdrValue = p.display.window.sdrTimeCycleLength.getValueI();
+		switch(state.timeMode)
 		{
-			settings.timeCycleLength -= 20.f;
-			settings.timeInc = settings.timeCycleLength / 30.f;			
+			case 0:												// Cluster
+				if(sdrValue - 20 > 0)
+					setAllClustersTimeCycleLength(sdrValue - 20);
+				break;
+			case 1:												// Field
+				if(sdrValue - 20 > 0)
+				{
+					settings.timeCycleLength = sdrValue - 20;
+					settings.timeInc = settings.timeCycleLength / 30.f;			
+				}
+				break;
 		}
 	}
 	
 	/**
 	 * Increment time cycle length
 	 */
-	void incrementCycleLength()
+	void incrementTimeCycleLength()
 	{
-		if(settings.timeCycleLength + 20 > 1000.f)
+		int sdrMax = (int) p.display.window.sdrTimeCycleLength.getEndLimit();
+		int sdrValue = p.display.window.sdrTimeCycleLength.getValueI();
+
+		switch(state.timeMode)
 		{
-			settings.timeCycleLength += 20.f;
-			settings.timeInc = settings.timeCycleLength / 30.f;			
+			case 0:												// Cluster
+				if(sdrValue + 20 < sdrMax)
+					setAllClustersTimeCycleLength(sdrValue + 20);
+				break;
+			case 1:												// Field
+				if(sdrValue + 20 < sdrMax)
+				{
+					settings.timeCycleLength = sdrValue + 20;
+					settings.timeInc = settings.timeCycleLength / 30.f;			
+				}
+				break;
 		}
 	}
 
@@ -1215,6 +1249,9 @@ public class WMV_World
 		p.state.exportCubeMap = true;
 	}
 
+	/**
+	 * Export currently selected media to disk
+	 */
 	public void exportSelectedMedia()
 	{
 		List<Integer> selected = getCurrentField().getSelectedMedia(0);

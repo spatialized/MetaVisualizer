@@ -73,6 +73,7 @@ public class ML_Input
 						break;
 					case 1:												// Field
 						world.settings.timeCycleLength = slider.getValueI();
+						world.settings.timeInc = world.settings.timeCycleLength / 30.f;			
 						break;
 					case 2:												// Media
 						break;
@@ -432,7 +433,7 @@ public class ML_Input
 					world.viewer.hidePanoramas();
 				break;
 			case "AlphaMode":
-				world.getState().alphaMode = option.isSelected();
+				world.state.alphaMode = option.isSelected();
 				break;
 			case "OrientationMode":
 				world.viewer.setOrientationMode( !world.viewer.getSettings().orientationMode );
@@ -446,16 +447,16 @@ public class ML_Input
 				
 			/* Model */
 			case "ShowModel":
-				world.getState().showModel = option.isSelected();
+				world.state.showModel = option.isSelected();
 				break;
 			case "MediaToCluster":
-				world.getState().showMediaToCluster = option.isSelected();
+				world.state.showMediaToCluster = option.isSelected();
 				break;
 			case "CaptureToMedia":
-				world.getState().showCaptureToMedia = option.isSelected();
+				world.state.showCaptureToMedia = option.isSelected();
 				break;
 			case "CaptureToCluster":
-				world.getState().showCaptureToCluster = option.isSelected();
+				world.state.showCaptureToCluster = option.isSelected();
 				break;
 				
 			/* Selection */
@@ -472,7 +473,7 @@ public class ML_Input
 				break;
 				
 			case "ViewMetadata":
-				world.getState().showMetadata = option.isSelected();
+				world.state.showMetadata = option.isSelected();
 				break;
 		}
 	}
@@ -675,7 +676,6 @@ public class ML_Input
 
 				if (key == 'z')
 					ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);
-
 				
 				if (ml.display.libraryViewMode == 0)
 				{
@@ -1060,8 +1060,13 @@ public class ML_Input
 				if (key == '+')
 					ml.world.getCurrentField().fadeObjectDistances(1.176f);
 
-//				if (key == 'Z')
-//					ml.display.map2D.zoomToRectangle(100, 50, ml.display.map2D.largeMapWidth * 0.5f, ml.display.map2D.largeMapHeight * 0.5f);
+				if (key == 'Z')
+				{
+					if(ml.world.state.timeMode == 0)
+						ml.world.setTimeMode(1);
+					else
+						ml.world.setTimeMode(0);
+				}
 
 				/* 3D Controls Disabled in HUD View */
 				if(!ml.display.inDisplayView())							
@@ -1126,17 +1131,7 @@ public class ML_Input
 							ml.display.window.chkbxAlphaMode.setSelected(state);
 					}
 
-					if (!shiftKey && optionKey && key == ' ') 
-					{
-						boolean state = !ml.world.getState().timeFading;
-						ml.world.state.timeFading = state;
-						if(ml.display.window.setupGraphicsWindow)
-						{
-							ml.display.window.chkbxTimeFading.setSelected(state);
-						}
-					}
-
-					if (key == ')') {		// -- Obsolete?
+					if (key == ')') {		
 						float newAlpha = PApplet.constrain(ml.world.getState().alpha+15.f, 0.f, 255.f);
 						ml.world.fadeAlpha(newAlpha);
 					}
@@ -1146,15 +1141,15 @@ public class ML_Input
 						ml.world.fadeAlpha(newAlpha);
 					}
 
-					if (key == ':')
-					{
-						ml.world.settings.showUserPanoramas = !ml.world.settings.showUserPanoramas;
-					}
-
-					if (key == ';')
-					{
-						ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
-					}
+//					if (key == ':')
+//					{
+//						ml.world.settings.showUserPanoramas = !ml.world.settings.showUserPanoramas;
+//					}
+//
+//					if (key == ';')
+//					{
+//						ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
+//					}
 
 					if (key == 'A') 
 					{
@@ -1226,13 +1221,13 @@ public class ML_Input
 							ml.display.window.chkbxAngleFading.setSelected(state);
 					}
 
-//					if (key == 'H')
-//					{
-//						boolean state = !ml.world.viewer.getAngleThinning();
-//						ml.world.viewer.setAngleThinning( state );
-//						if(ml.display.window.setupGraphicsWindow)
-//							ml.display.window.chkbxAngleThinning.setSelected(state);
-//					}
+					if (key == 'H')
+					{
+						boolean state = !ml.world.viewer.getAngleThinning();
+						ml.world.viewer.setAngleThinning( state );
+						if(ml.display.window.setupGraphicsWindow)
+							ml.display.window.chkbxAngleThinning.setSelected(state);
+					}
 
 					/* Output */
 					if (key == 'O') 
@@ -1247,17 +1242,17 @@ public class ML_Input
 						ml.world.saveToDisk();
 					}
 
-//					if (key == '&') 
-//					{
-//						if(ml.world.settings.defaultMediaLength > 10)
-//							ml.world.settings.defaultMediaLength -= 10;
-//					}
+					if (key == '&') 
+					{
+						if(ml.world.settings.defaultMediaLength > 10)
+							ml.world.settings.defaultMediaLength -= 10;
+					}
 
-//					if (key == '*') 			// Look for images when none are visible
-//					{
-//						if(ml.world.settings.defaultMediaLength < 990)
-//							ml.world.settings.defaultMediaLength += 10;
-//					}
+					if (key == '*') 			// Look for images when none are visible
+					{
+						if(ml.world.settings.defaultMediaLength < 990)
+							ml.world.settings.defaultMediaLength += 10;
+					}
 				}
 			}
 			else 						// Interactive Clustering Mode
@@ -1306,7 +1301,7 @@ public class ML_Input
 					if(ml.world.settings.minClusterDistance < ml.world.settings.maxClusterDistance - 2.f)
 					{
 						ml.world.settings.minClusterDistance += 0.25f;
-						//					System.out.println("ml.world.minClusterDistance:"+ml.world.minClusterDistance);
+//						System.out.println("ml.world.minClusterDistance:"+ml.world.minClusterDistance);
 						for(WMV_Field f : ml.world.getFields())
 						{
 							f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);
@@ -1429,10 +1424,10 @@ public class ML_Input
 						ml.world.decrementTime();
 
 					if (shiftKey && keyCode == PApplet.LEFT) 
-						ml.world.decrementCycleLength();
+						ml.world.decrementTimeCycleLength();
 
 					if (shiftKey && keyCode == PApplet.RIGHT) 
-						ml.world.incrementCycleLength();
+						ml.world.incrementTimeCycleLength();
 				}
 
 				if (keyCode == PApplet.SHIFT) {

@@ -70,7 +70,7 @@ public class WMV_World
 	/* Debugging */
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
-	public MultimediaLocator p;							// Parent App
+	public MultimediaLocator ml;							// Parent App
 	
 	/**
 	 * Constructor for world object
@@ -78,7 +78,7 @@ public class WMV_World
 	 */
 	public WMV_World(MultimediaLocator parent)
 	{
-		p = parent;
+		ml = parent;
 		utilities = new WMV_Utilities();
 	}
 	
@@ -87,12 +87,12 @@ public class WMV_World
 	 */
 	public void initialize() 
 	{
-		if(p.debugSettings.world && p.debugSettings.detailed) System.out.println("Initializing WMV_World...");
+		if(ml.debugSettings.world && ml.debugSettings.detailed) System.out.println("Initializing WMV_World...");
 
 		/* Create main classes */
 		settings = new WMV_WorldSettings();
 		state = new WMV_WorldState();
-		viewer = new WMV_Viewer(this, settings, state, p.debugSettings);			// Initialize navigation + viewer
+		viewer = new WMV_Viewer(this, settings, state, ml.debugSettings);			// Initialize navigation + viewer
 		
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
 		timeFadeMap.setMapFunction(circularEaseOut);
@@ -105,24 +105,24 @@ public class WMV_World
 	{
 		updateState();
 		updateViewerAttraction();			// Attract the viewer
-		display(p.state.sphericalView);
+		display(ml.state.sphericalView);
 		updateTimeBehavior();		// Update time cycle
 	}
 	
 	public void display(boolean sphericalView)
 	{
-		p.background(0.f);								/* Set background */
+		ml.background(0.f);								/* Set background */
 		if(sphericalView)
 		{
-			if(p.cubeMapInitialized)
-				p.display360();
+			if(ml.cubeMapInitialized)
+				ml.display360();
 			
 //			display3D();						// 3D Display
 //			display2D();						// 2D Display
 		}
 		else
 		{
-			p.background(0.f);								/* Set background */
+			ml.background(0.f);								/* Set background */
 			display3D();						// 3D Display
 			display2D();						// 2D Display
 		}
@@ -141,7 +141,7 @@ public class WMV_World
 			viewer.moveToFirstTimeSegment(false);
 		viewer.updateNavigation();									// Update navigation
 
-		p.enteredField = true;
+		ml.enteredField = true;
 		state.waitingToFadeInTerrainAlpha = true;
 	}
 	
@@ -169,16 +169,16 @@ public class WMV_World
 	public void display3D()
 	{
 		/* 3D Display */
-		if(p.display.displayView == 0)
+		if(ml.display.displayView == 0)
 		{
-			p.background(0.f);								/* Set background */
-			if(settings.depthTesting) p.hint(PApplet.ENABLE_DEPTH_TEST);				/* Enable depth testing for drawing 3D graphics */
-			getCurrentField().display(p);					/* Display media in current field */
+			ml.background(0.f);								/* Set background */
+			if(settings.depthTesting) ml.hint(PApplet.ENABLE_DEPTH_TEST);				/* Enable depth testing for drawing 3D graphics */
+			getCurrentField().display(ml);					/* Display media in current field */
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
 				if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
-					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(p);		// Draw current cluster
+					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(ml);		// Draw current cluster
 			}
 		}
 		
@@ -186,8 +186,8 @@ public class WMV_World
 			displayTerrain();
 		
 		viewer.updateNavigation();					/* Update navigation */
-		if(p.display.displayView == 0 && !p.state.sphericalView)	
-			if(p.state.running)
+		if(ml.display.displayView == 0 && !ml.state.sphericalView)	
+			if(ml.state.running)
 				viewer.show();						/* Show the World View to the viewer */
 	}
 
@@ -196,12 +196,12 @@ public class WMV_World
 	 */
 	public void display2D()
 	{
-		p.display.display(this);									/* Draw 2D Display */
+		ml.display.display(this);									/* Draw 2D Display */
 		if(state.fadingAlpha) updateFadingAlpha();					/* Update global alpha fading */
 		if(state.fadingTerrainAlpha) updateFadingTerrainAlpha();	/* Update grid fading */
 
 		if(viewer.getSettings().mouseNavigation)
-			input.updateMouseNavigation(viewer, p.mouseX, p.mouseY, p.frameCount);
+			input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 	}
 
 	/**
@@ -256,7 +256,7 @@ public class WMV_World
 	 */
 	void decrementTime()
 	{
-		float curTimePoint = p.display.window.sdrCurrentTime.getValueF();
+		float curTimePoint = ml.display.window.sdrCurrentTime.getValueF();
 		if (curTimePoint - settings.timeInc < 0) setCurrentTimePoint(0);
 		else setCurrentTimePoint(curTimePoint - settings.timeInc);
 		
@@ -270,8 +270,8 @@ public class WMV_World
 	 */
 	void incrementTime()
 	{
-		float curTimePoint = p.display.window.sdrCurrentTime.getValueF();
-		float endTimePoint = p.display.window.sdrCurrentTime.getEndLimit();
+		float curTimePoint = ml.display.window.sdrCurrentTime.getValueF();
+		float endTimePoint = ml.display.window.sdrCurrentTime.getEndLimit();
 		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTimePoint(endTimePoint);
 		else setCurrentTimePoint(curTimePoint + settings.timeInc);
 
@@ -344,7 +344,7 @@ public class WMV_World
 		if(!state.paused)
 		{
 			state.currentTime++;
-			if(p.debugSettings.time && p.debugSettings.detailed)
+			if(ml.debugSettings.time && ml.debugSettings.detailed)
 				System.out.println("currentTime:"+state.currentTime);
 
 			if(state.currentTime >= viewer.getNextMediaStartTime())
@@ -355,7 +355,7 @@ public class WMV_World
 				}
 				else
 				{
-					if(p.debugSettings.world)
+					if(ml.debugSettings.world)
 						System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
 					state.currentTime = 0;
 					startMediaTimeModeCycle();
@@ -375,7 +375,7 @@ public class WMV_World
 	 */
 	void updateState()
 	{
-		state.frameCount = p.frameCount;
+		state.frameCount = ml.frameCount;
 		viewer.updateState(settings, state);
 		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
 	}
@@ -455,33 +455,33 @@ public class WMV_World
 			for(PVector pv : pvList)
 			{
 				if(pv.y == defaultHeight)
-					p.stroke(0.f, 0.f, 155.f, state.terrainAlpha * 0.33f);
+					ml.stroke(0.f, 0.f, 155.f, state.terrainAlpha * 0.33f);
 				else
-					p.stroke(0.f, 0.f, 255.f, state.terrainAlpha);
+					ml.stroke(0.f, 0.f, 255.f, state.terrainAlpha);
 
-				p.strokeWeight(6.f);
-				p.point(pv.x, pv.y, pv.z);				
+				ml.strokeWeight(6.f);
+				ml.point(pv.x, pv.y, pv.z);				
 				
-				p.strokeWeight(1.f);
+				ml.strokeWeight(1.f);
 				if(col-1 >= 0)
 				{
 					PVector pt2 = gridPoints.get(row).get(col-1);
-					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
 				}
 				if(col+1 < pvList.size())
 				{
 					PVector pt2 = gridPoints.get(row).get(col+1);
-					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
 				}
 				if(row-1 >= 0)
 				{
 					PVector pt2 = gridPoints.get(row-1).get(col);
-					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
 				}
 				if(row+1 < gridPoints.size())
 				{
 					PVector pt2 = gridPoints.get(row+1).get(col);
-					p.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
 				}
 				
 				col++;
@@ -529,8 +529,8 @@ public class WMV_World
 			state.fadingTerrainAlpha = true;		
 			state.fadingTerrainStart = state.terrainAlpha;
 			state.fadingTerrainTarget = 0.f;
-			state.fadingTerrainStartFrame = p.frameCount;
-			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
+			state.fadingTerrainStartFrame = ml.frameCount;
+			state.fadingTerrainEndFrame = ml.frameCount + state.fadingTerrainLength; 
 			if(turnOff)
 				state.turnOffTerrainAfterFadingOut = true;
 		}
@@ -544,8 +544,8 @@ public class WMV_World
 			state.fadingTerrainAlpha = true;		
 			state.fadingTerrainStart = state.terrainAlpha;
 			state.fadingTerrainTarget = state.terrainAlphaMax;
-			state.fadingTerrainStartFrame = p.frameCount;
-			state.fadingTerrainEndFrame = p.frameCount + state.fadingTerrainLength; 
+			state.fadingTerrainStartFrame = ml.frameCount;
+			state.fadingTerrainEndFrame = ml.frameCount + state.fadingTerrainLength; 
 			if(state.waitingToFadeInTerrainAlpha)
 				state.waitingToFadeInTerrainAlpha = false;
 		}
@@ -558,7 +558,7 @@ public class WMV_World
 	{
 		float newFadeValue = 0.f;
 		
-		if (p.frameCount >= state.fadingTerrainEndFrame)
+		if (ml.frameCount >= state.fadingTerrainEndFrame)
 		{
 			state.fadingTerrainAlpha = false;
 			newFadeValue = state.fadingTerrainTarget;
@@ -572,7 +572,7 @@ public class WMV_World
 		} 
 		else
 		{
-			newFadeValue = PApplet.map(p.frameCount, state.fadingTerrainStartFrame, state.fadingTerrainEndFrame, 
+			newFadeValue = PApplet.map(ml.frameCount, state.fadingTerrainStartFrame, state.fadingTerrainEndFrame, 
 					state.fadingTerrainStart, state.fadingTerrainTarget);  	    // Fade with distance from current time
 		}
 
@@ -585,7 +585,7 @@ public class WMV_World
 	 */
 	public void saveSimulationState()
 	{
-		String folderPath = p.library.getDataFolder(getCurrentField().getID());
+		String folderPath = ml.library.getDataFolder(getCurrentField().getID());
 		String clusterDataPath = folderPath + "ml_library_clusterStates/";
 		String imageDataPath = folderPath + "ml_library_imageStates/";
 		String panoramaDataPath = folderPath + "ml_library_panoramaStates/";
@@ -610,7 +610,7 @@ public class WMV_World
 		File soundDirectory = new File(soundDataPath);
 		if(!soundDirectory.exists()) soundDirectory.mkdir();			// Create directory if doesn't exist
 
-		if(p.debugSettings.world)
+		if(ml.debugSettings.world)
 			PApplet.println("Saving Simulation State to: "+folderPath);
 		
 		WMV_Field f = getCurrentField();
@@ -622,16 +622,16 @@ public class WMV_World
 		WMV_VideoStateList vsl = f.captureVideoStates();
 		WMV_SoundStateList ssl = f.captureSoundStates();
 		
-		p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
-		p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
-		p.library.saveViewerSettings(viewer.getSettings(), folderPath+"ml_library_viewerSettings.json");
-		p.library.saveViewerState(viewer.getState(), folderPath+"ml_library_viewerState.json");
-		p.library.saveFieldState(f.getState(), folderPath+"ml_library_fieldState.json");
-		p.library.saveClusterStateList(csl, clusterDataPath+"ml_library_clusterStates.json");
-		p.library.saveImageStateList(isl, imageDataPath+"ml_library_imageStates.json");
-		p.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
-		p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
-		p.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
+		ml.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
+		ml.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
+		ml.library.saveViewerSettings(viewer.getSettings(), folderPath+"ml_library_viewerSettings.json");
+		ml.library.saveViewerState(viewer.getState(), folderPath+"ml_library_viewerState.json");
+		ml.library.saveFieldState(f.getState(), folderPath+"ml_library_fieldState.json");
+		ml.library.saveClusterStateList(csl, clusterDataPath+"ml_library_clusterStates.json");
+		ml.library.saveImageStateList(isl, imageDataPath+"ml_library_imageStates.json");
+		ml.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
+		ml.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
+		ml.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
 	}
 
 
@@ -642,7 +642,7 @@ public class WMV_World
 	{
 		for(WMV_Field f : fields)
 		{
-			String folderPath = p.library.getDataFolder(f.getID());
+			String folderPath = ml.library.getDataFolder(f.getID());
 			String clusterDataPath = folderPath + "ml_library_clusterStates/";
 			String imageDataPath = folderPath + "ml_library_imageStates/";
 			String panoramaDataPath = folderPath + "ml_library_panoramaStates/";
@@ -703,7 +703,7 @@ public class WMV_World
 			if(!soundDirectory.exists()) 
 				soundDirectory.mkdir();			// Create sound directory if doesn't exist
 
-			if(p.debugSettings.world) PApplet.println("Saving Simulation State to: "+folderPath);
+			if(ml.debugSettings.world) PApplet.println("Saving Simulation State to: "+folderPath);
 			
 			f.captureState();											// Capture current state, i.e. save timeline and dateline
 
@@ -713,18 +713,18 @@ public class WMV_World
 			WMV_VideoStateList vsl = f.captureVideoStates();
 			WMV_SoundStateList ssl = f.captureSoundStates();
 
-			p.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
-			p.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
-			p.library.saveViewerSettings(f.getViewerSettings(), folderPath+"ml_library_viewerSettings.json");
-			p.library.saveViewerState(f.getViewerState(), folderPath+"ml_library_viewerState.json");
-			p.library.saveFieldState(f.getState(), folderPath+"ml_library_fieldState.json");
-			p.library.saveClusterStateList(csl, clusterDataPath+"ml_library_clusterStates.json");
-			p.library.saveImageStateList(isl, imageDataPath+"ml_library_imageStates.json");
-			p.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
-			p.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
-			p.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
+			ml.library.saveWorldSettings(settings, folderPath+"ml_library_worldSettings.json");
+			ml.library.saveWorldState(state, folderPath+"ml_library_worldState.json");
+			ml.library.saveViewerSettings(f.getViewerSettings(), folderPath+"ml_library_viewerSettings.json");
+			ml.library.saveViewerState(f.getViewerState(), folderPath+"ml_library_viewerState.json");
+			ml.library.saveFieldState(f.getState(), folderPath+"ml_library_fieldState.json");
+			ml.library.saveClusterStateList(csl, clusterDataPath+"ml_library_clusterStates.json");
+			ml.library.saveImageStateList(isl, imageDataPath+"ml_library_imageStates.json");
+			ml.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
+			ml.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
+			ml.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
 			
-			if(p.debugSettings.world) System.out.println("Saved simulation state for field #"+f.getID());
+			if(ml.debugSettings.world) System.out.println("Saved simulation state for field #"+f.getID());
 		}
 	}
 
@@ -733,20 +733,20 @@ public class WMV_World
 	 */
 	public WMV_Field loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
 	{
-		if(p.debugSettings.world && p.debugSettings.detailed)
+		if(ml.debugSettings.world && ml.debugSettings.detailed)
 			PApplet.println("Loading and setting Simulation State... Field #"+curField.getID());
 
 		loadAndSetState(curField.getID());
 		loadAndSetSettings(curField.getID());
 		loadAndSetViewerState(curField.getID());
 		loadAndSetViewerSettings(curField.getID());
-		state.frameCount = p.frameCount;
-		viewer.setFrameCount(p.frameCount);
+		state.frameCount = ml.frameCount;
+		viewer.setFrameCount(ml.frameCount);
 		viewer.setCurrentFieldID(curField.getID());
 		viewer.resetTimeState();
 		
 		/* Check world and viewer state/settings */
-		if(p.debugSettings.world && p.debugSettings.detailed)
+		if(ml.debugSettings.world && ml.debugSettings.detailed)
 		{
 			if(state != null) System.out.println("WorldState exists...");
 			if(settings != null) System.out.println("WorldSettings exists...");
@@ -755,12 +755,12 @@ public class WMV_World
 		}
 		String fieldName = curField.getName();
 		int fieldID = curField.getID();
-		curField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldName, fieldID);
+		curField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debugSettings, fieldName, fieldID);
 		
 		curField = loadFieldState(curField);
 		curField.setID(fieldID);
 		
-		if(p.debugSettings.world && p.debugSettings.detailed)
+		if(ml.debugSettings.world && ml.debugSettings.detailed)
 			System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
 
 		return curField;
@@ -777,11 +777,11 @@ public class WMV_World
 		WMV_WorldSettings newWorldSettings = loadSettings(curField.getID());
 		WMV_ViewerState newViewerState = loadViewerState(curField.getID());
 		WMV_ViewerSettings newViewerSettings = loadViewerSettings(curField.getID());
-		newWorldState.frameCount = p.frameCount;
+		newWorldState.frameCount = ml.frameCount;
 //		newViewerState.frameCount = p.frameCount;
 
 		/* Check world and viewer state/settings */
-		if(p.debugSettings.world && p.debugSettings.detailed)
+		if(ml.debugSettings.world && ml.debugSettings.detailed)
 		{
 			if(newWorldState != null) System.out.println("WorldState exists...");
 			if(newWorldSettings != null) System.out.println("WorldSettings exists...");
@@ -791,11 +791,11 @@ public class WMV_World
 		
 		String fieldName = curField.getName();
 		int fieldID = curField.getID();
-		curField = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, p.debugSettings, fieldName, fieldID);
+		curField = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, ml.debugSettings, fieldName, fieldID);
 		curField= loadFieldState(curField);
 		curField.setID(fieldID);
 		
-		if(p.debugSettings.world && p.debugSettings.detailed)
+		if(ml.debugSettings.world && ml.debugSettings.detailed)
 			System.out.println("Loaded Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
 
 		return curField;
@@ -807,7 +807,7 @@ public class WMV_World
 	 */
 	void setSimulationStateFromField(WMV_Field field, boolean moveToCurrentCluster)
 	{
-		if(p.debugSettings.world)
+		if(ml.debugSettings.world)
 			System.out.println("setSimulationStateFromField()... Field #"+field.getID());
 
 		setState(field.getWorldState());
@@ -815,8 +815,8 @@ public class WMV_World
 		viewer.setState(field.getViewerState());
 		viewer.setSettings(field.getViewerSettings());
 
-		state.frameCount = p.frameCount;
-		viewer.setFrameCount(p.frameCount);
+		state.frameCount = ml.frameCount;
+		viewer.setFrameCount(ml.frameCount);
 		
 		if(field.getID() < fields.size())
 		{
@@ -832,7 +832,7 @@ public class WMV_World
 			else
 			{
 				System.out.println("  Error in setting field ID... field.getID():"+field.getID()+" fields.size():"+fields.size());
-				p.exit();
+				ml.exit();
 			}
 		}
 		
@@ -840,12 +840,12 @@ public class WMV_World
 		{
 			if(getCurrentCluster() != null)
 			{
-				if(p.debugSettings.viewer || p.debugSettings.world)
+				if(ml.debugSettings.viewer || ml.debugSettings.world)
 					System.out.println("setSimulationStateFromField()... moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" before:"+viewer.getLocation());
 			}
 			else
 			{
-				if(p.debugSettings.viewer || p.debugSettings.world)
+				if(ml.debugSettings.viewer || ml.debugSettings.world)
 					System.out.println("  setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
 				viewer.setCurrentCluster(0, 0);
 			}
@@ -856,7 +856,7 @@ public class WMV_World
 		viewer.resetTimeState();
 
 		/* Check world and viewer state/settings */
-		if(p.debugSettings.world && p.debugSettings.detailed)
+		if(ml.debugSettings.world && ml.debugSettings.detailed)
 		{
 			if(state != null) System.out.println("WorldState exists...");
 			if(settings != null) System.out.println("WorldSettings exists...");
@@ -864,7 +864,7 @@ public class WMV_World
 			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
 		}
 		
-		if(p.debugSettings.world)
+		if(ml.debugSettings.world)
 		{
 			if(getCurrentCluster() != null)
 				System.out.println("  setSimulationStateFromField()... currentCluster id:"+getCurrentCluster().getID()+" cluster location:"+getCurrentCluster().getLocation()+" current location:"+viewer.getLocation());
@@ -883,70 +883,70 @@ public class WMV_World
 	 */
 	public WMV_Field loadFieldState(WMV_Field field)
 	{
-		String dataFolderPath = p.library.getDataFolder(field.getID());
+		String dataFolderPath = ml.library.getDataFolder(field.getID());
 		String clusterDataPath = dataFolderPath + "ml_library_clusterStates/";
 		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
 		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
 		String videoDataPath = dataFolderPath + "ml_library_videoStates/";
 		String soundDataPath = dataFolderPath + "ml_library_soundStates/";
 
-		WMV_ClusterStateList csl = p.library.loadClusterStateLists(clusterDataPath);
+		WMV_ClusterStateList csl = ml.library.loadClusterStateLists(clusterDataPath);
 		
-		WMV_ImageStateList isl = p.library.loadImageStateLists(imageDataPath);
-		WMV_PanoramaStateList psl = p.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
-		WMV_VideoStateList vsl = p.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
-		WMV_SoundStateList ssl = p.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
+		WMV_ImageStateList isl = ml.library.loadImageStateLists(imageDataPath);
+		WMV_PanoramaStateList psl = ml.library.loadPanoramaStateList(panoramaDataPath+"ml_library_panoramaStates.json");
+		WMV_VideoStateList vsl = ml.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
+		WMV_SoundStateList ssl = ml.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
 
-		field.setState(p, p.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl, ssl);
+		field.setState(ml, ml.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl, ssl);
 		return field;
 	}
 
 	public void loadAndSetSettings(int fieldID)
 	{
-		String dataFolder = p.library.getDataFolder(fieldID);
-		setSettings(p.library.loadWorldSettings(dataFolder+"ml_library_worldSettings.json"));
+		String dataFolder = ml.library.getDataFolder(fieldID);
+		setSettings(ml.library.loadWorldSettings(dataFolder+"ml_library_worldSettings.json"));
 	}
 
 	public void loadAndSetState(int fieldID)
 	{
-		String dataFolder = p.library.getDataFolder(fieldID);
-		setState(p.library.loadWorldState(dataFolder+"ml_library_worldState.json"));
+		String dataFolder = ml.library.getDataFolder(fieldID);
+		setState(ml.library.loadWorldState(dataFolder+"ml_library_worldState.json"));
 	}
 
 	public void loadAndSetViewerSettings(int fieldID)
 	{
-		String dataFolder = p.library.getDataFolder(fieldID);
-		viewer.setSettings(p.library.loadViewerSettings(dataFolder+"ml_library_viewerSettings.json"));
+		String dataFolder = ml.library.getDataFolder(fieldID);
+		viewer.setSettings(ml.library.loadViewerSettings(dataFolder+"ml_library_viewerSettings.json"));
 	}
 
 	public void loadAndSetViewerState(int fieldID)
 	{
-		String dataFolder = p.library.getDataFolder(fieldID);
-		viewer.setState(p.library.loadViewerState(dataFolder+"ml_library_viewerState.json"));
+		String dataFolder = ml.library.getDataFolder(fieldID);
+		viewer.setState(ml.library.loadViewerState(dataFolder+"ml_library_viewerState.json"));
 	}
 
 	public WMV_WorldSettings loadSettings(int fieldID)
 	{
-		String dataFolder = p.library.getDataFolder(fieldID);
-		return p.library.loadWorldSettings(dataFolder+"ml_library_worldSettings.json");
+		String dataFolder = ml.library.getDataFolder(fieldID);
+		return ml.library.loadWorldSettings(dataFolder+"ml_library_worldSettings.json");
 	}
 
 	public WMV_WorldState loadState(int fieldID)
 	{
-		String dataFolder = p.library.getDataFolder(fieldID);
-		return p.library.loadWorldState(dataFolder+"ml_library_worldState.json");
+		String dataFolder = ml.library.getDataFolder(fieldID);
+		return ml.library.loadWorldState(dataFolder+"ml_library_worldState.json");
 	}
 
 	public WMV_ViewerSettings loadViewerSettings(int fieldID)
 	{
-		String dataFolder = p.library.getDataFolder(fieldID);
-		return p.library.loadViewerSettings(dataFolder+"ml_library_viewerSettings.json");
+		String dataFolder = ml.library.getDataFolder(fieldID);
+		return ml.library.loadViewerSettings(dataFolder+"ml_library_viewerSettings.json");
 	}
 
 	public WMV_ViewerState loadViewerState(int fieldID)
 	{
-		String dataFolder = p.library.getDataFolder(fieldID);
-		return p.library.loadViewerState(dataFolder+"ml_library_viewerState.json");
+		String dataFolder = ml.library.getDataFolder(fieldID);
+		return ml.library.loadViewerState(dataFolder+"ml_library_viewerState.json");
 	}
 
 	/**
@@ -956,20 +956,20 @@ public class WMV_World
 	{
 		if(system)
 		{
-			p.state.initializationField = 0;			// Field to be initialized this frame
-			p.state.startedRunning = false;				// Program just started running
-			p.state.initialSetup = false;				// Performing initial setup 
-			p.state.initializingFields = false;			// Initializing media folders
-			p.state.fieldsInitialized = false;			// Initialized media folders
-			p.state.export = false;
+			ml.state.initializationField = 0;			// Field to be initialized this frame
+			ml.state.startedRunning = false;				// Program just started running
+			ml.state.initialSetup = false;				// Performing initial setup 
+			ml.state.initializingFields = false;			// Initializing media folders
+			ml.state.fieldsInitialized = false;			// Initialized media folders
+			ml.state.export = false;
 		}
 		
 		settings.reset();
 
 		/* Clustering Modes */
 		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
-		p.state.interactive = false;				// In user clustering mode?
-		p.state.startInteractive = false;			// Start user clustering
+		ml.state.interactive = false;				// In user clustering mode?
+		ml.state.startInteractive = false;			// Start user clustering
 
 		/* Time */
 		state.timeFading = false;					// Does time affect media brightness? 
@@ -1002,16 +1002,16 @@ public class WMV_World
 		state.mergeClusters = true;					// Merge nearby clusters?
 		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 
-		if(p.debugSettings.world) System.out.println("Resetting world...");
+		if(ml.debugSettings.world) System.out.println("Resetting world...");
 		
 		/* Create main classes */
 		viewer.reset();								// Initialize navigation + viewer
-		p.display.reset();							// Initialize displays
+		ml.display.reset();							// Initialize displays
 
 		/* Initialize graphics and text parameters */
-		p.colorMode(PConstants.HSB);
-		p.rectMode(PConstants.CENTER);
-		p.textAlign(PConstants.CENTER, PConstants.CENTER);
+		ml.colorMode(PConstants.HSB);
+		ml.rectMode(PConstants.CENTER);
+		ml.textAlign(PConstants.CENTER, PConstants.CENTER);
 
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
 		timeFadeMap.setMapFunction(circularEaseOut);
@@ -1032,8 +1032,8 @@ public class WMV_World
 		
 		for(String fieldFolder : fieldFolders)
 		{
-			if(p.debugSettings.world) System.out.println("Adding field for folder:"+fieldFolder);
-			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), p.debugSettings, fieldFolder, count));
+			if(ml.debugSettings.world) System.out.println("Adding field for folder:"+fieldFolder);
+			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debugSettings, fieldFolder, count));
 			count++;
 		}
 	}
@@ -1190,7 +1190,7 @@ public class WMV_World
 	 */
 	void decrementTimeCycleLength()
 	{
-		int sdrValue = p.display.window.sdrTimeCycleLength.getValueI();
+		int sdrValue = ml.display.window.sdrTimeCycleLength.getValueI();
 		switch(state.timeMode)
 		{
 			case 0:												// Cluster
@@ -1212,8 +1212,8 @@ public class WMV_World
 	 */
 	void incrementTimeCycleLength()
 	{
-		int sdrMax = (int) p.display.window.sdrTimeCycleLength.getEndLimit();
-		int sdrValue = p.display.window.sdrTimeCycleLength.getValueI();
+		int sdrMax = (int) ml.display.window.sdrTimeCycleLength.getEndLimit();
+		int sdrValue = ml.display.window.sdrTimeCycleLength.getValueI();
 
 		switch(state.timeMode)
 		{
@@ -1236,8 +1236,8 @@ public class WMV_World
 	 */
 	public void saveToDisk() 
 	{
-		if(p.debugSettings.ml && p.debugSettings.detailed) System.out.println("Will output image to disk.");
-		p.state.export = true;
+		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output image to disk.");
+		ml.state.export = true;
 	}
 
 	/**
@@ -1245,8 +1245,8 @@ public class WMV_World
 	 */
 	public void saveCubeMapToDisk() 
 	{
-		if(p.debugSettings.ml && p.debugSettings.detailed) System.out.println("Will output cubemap images to disk.");
-		p.state.exportCubeMap = true;
+		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output cubemap images to disk.");
+		ml.state.exportCubeMap = true;
 	}
 
 	/**
@@ -1479,27 +1479,27 @@ public class WMV_World
 		
 //		if(state.timeMode == 2) createTimeCycle();
 		
-		if(p.display.window.setupTimeWindow)
+		if(ml.display.window.setupTimeWindow)
 		{
 			switch(state.timeMode)
 			{
 				case 0:														// Cluster
-					p.display.window.optClusterTimeMode.setSelected(true);
-					p.display.window.optFieldTimeMode.setSelected(false);
+					ml.display.window.optClusterTimeMode.setSelected(true);
+					ml.display.window.optFieldTimeMode.setSelected(false);
 //					p.display.window.optMediaTimeMode.setSelected(false);
-					if(p.display.window.sdrVisibleInterval.isVisible())
-						p.display.window.sdrVisibleInterval.setVisible(false);
-					if(p.display.window.lblVisibleInterval.isVisible())
-						p.display.window.lblVisibleInterval.setVisible(false);
+					if(ml.display.window.sdrVisibleInterval.isVisible())
+						ml.display.window.sdrVisibleInterval.setVisible(false);
+					if(ml.display.window.lblVisibleInterval.isVisible())
+						ml.display.window.lblVisibleInterval.setVisible(false);
 					break;
 				case 1:														// Field
-					p.display.window.optClusterTimeMode.setSelected(false);
-					p.display.window.optFieldTimeMode.setSelected(true);
+					ml.display.window.optClusterTimeMode.setSelected(false);
+					ml.display.window.optFieldTimeMode.setSelected(true);
 //					p.display.window.optMediaTimeMode.setSelected(false);
-					if(!p.display.window.sdrVisibleInterval.isVisible())
-						p.display.window.sdrVisibleInterval.setVisible(true);
-					if(!p.display.window.lblVisibleInterval.isVisible())
-						p.display.window.lblVisibleInterval.setVisible(true);
+					if(!ml.display.window.sdrVisibleInterval.isVisible())
+						ml.display.window.sdrVisibleInterval.setVisible(true);
+					if(!ml.display.window.lblVisibleInterval.isVisible())
+						ml.display.window.lblVisibleInterval.setVisible(true);
 					break;
 //				case 2:														// Media
 //					p.display.window.optClusterTimeMode.setSelected(false);
@@ -1530,8 +1530,8 @@ public class WMV_World
 	 */
 	public void showImages()
 	{
-		if(p.display.window.setupGraphicsWindow)
-			p.display.window.chkbxHideImages.setSelected(false);
+		if(ml.display.window.setupGraphicsWindow)
+			ml.display.window.chkbxHideImages.setSelected(false);
 	}
 	
 	/**
@@ -1548,8 +1548,8 @@ public class WMV_World
 			}
 		}
 
-		if(p.display.window.setupGraphicsWindow)
-			p.display.window.chkbxHideImages.setSelected(true);
+		if(ml.display.window.setupGraphicsWindow)
+			ml.display.window.chkbxHideImages.setSelected(true);
 	}
 	
 	/** 
@@ -1557,8 +1557,8 @@ public class WMV_World
 	 */
 	public void showPanoramas()
 	{
-		if(p.display.window.setupGraphicsWindow)
-			p.display.window.chkbxHidePanoramas.setSelected(false);
+		if(ml.display.window.setupGraphicsWindow)
+			ml.display.window.chkbxHidePanoramas.setSelected(false);
 	}
 	
 	/** 
@@ -1587,8 +1587,8 @@ public class WMV_World
 			}
 		}
 		
-		if(p.display.window.setupGraphicsWindow)
-			p.display.window.chkbxHidePanoramas.setSelected(true);
+		if(ml.display.window.setupGraphicsWindow)
+			ml.display.window.chkbxHidePanoramas.setSelected(true);
 	}
 	
 	/**
@@ -1596,8 +1596,8 @@ public class WMV_World
 	 */
 	public void showVideos()
 	{
-		if(p.display.window.setupGraphicsWindow)
-			p.display.window.chkbxHideVideos.setSelected(false);
+		if(ml.display.window.setupGraphicsWindow)
+			ml.display.window.chkbxHideVideos.setSelected(false);
 	}
 	
 	/**
@@ -1614,8 +1614,8 @@ public class WMV_World
 			}
 		}
 		
-		if(p.display.window.setupGraphicsWindow)
-			p.display.window.chkbxHideVideos.setSelected(true);
+		if(ml.display.window.setupGraphicsWindow)
+			ml.display.window.chkbxHideVideos.setSelected(true);
 	}
 	
 	/**
@@ -1624,7 +1624,7 @@ public class WMV_World
 	public void deselectAllMedia(boolean hide) 
 	{
 		getCurrentField().deselectAllMedia(hide);
-		p.display.clearMetadata();
+		ml.display.clearMetadata();
 	}
 
 	/**
@@ -1632,7 +1632,7 @@ public class WMV_World
 	 */
 	public void clearAllAttractors()
 	{
-		if(p.debugSettings.viewer && p.debugSettings.detailed)
+		if(ml.debugSettings.viewer && ml.debugSettings.detailed)
 			System.out.println("Clearing all attractors...");
 
 		if(viewer.getAttractorClusterID() != -1)

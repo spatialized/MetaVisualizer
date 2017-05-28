@@ -89,7 +89,7 @@ public class WMV_Viewer
 	 */
 	public void initialize(float x, float y, float z)
 	{
-		camera = new WMV_Camera( p.p, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
+		camera = new WMV_Camera( p.ml, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
 		state.location = new PVector(x, y, z);
 		state.teleportGoal = new PVector(x, y, z);
 		settings.initialize();
@@ -142,8 +142,8 @@ public class WMV_Viewer
 		}
 		else
 		{
-			if(p.p.display.displayView == 1)
-				p.p.display.map2D.reset(p);
+			if(p.ml.display.displayView == 1)
+				p.ml.display.map2D.reset(p);
 			if(debugSettings.viewer) System.out.println("Entered field... "+currentField.getID()+"... location after:"+getLocation());
 		}
 	}
@@ -912,11 +912,11 @@ public class WMV_Viewer
 		else
 		{
 			teleportToCluster(clusterID, true, -1);
-			p.p.display.displayView = 0;
+			p.ml.display.displayView = 0;
 		}
 		
-		if(p.p.display.map2D.getSelectedClusterID() != clusterID) 
-			p.p.display.map2D.setSelectedCluster(clusterID);
+		if(p.ml.display.map2D.getSelectedClusterID() != clusterID) 
+			p.ml.display.map2D.setSelectedCluster(clusterID);
 	}
 
 	/**
@@ -1679,14 +1679,14 @@ public class WMV_Viewer
 	 */
 	public void moveToRandomCluster(boolean teleport, boolean fade)
 	{
-		int rand = (int) p.p.random(currentField.getClusters().size());
+		int rand = (int) p.ml.random(currentField.getClusters().size());
 		while(currentField.getCluster(rand).isEmpty())
 		{
-			rand = (int) p.p.random(currentField.getClusters().size());
+			rand = (int) p.ml.random(currentField.getClusters().size());
 		}
 
 		while(currentField.getCluster(rand).isEmpty() || rand == state.currentCluster)
-			rand = (int) p.p.random(currentField.getClusters().size());
+			rand = (int) p.ml.random(currentField.getClusters().size());
 
 		if(settings.teleportToFarClusters && !teleport)
 		{
@@ -3233,8 +3233,8 @@ public class WMV_Viewer
 			camera.jump(state.location.x, state.location.y, state.location.z);
 		}
 		
-		if(p.p.display.window.setupGraphicsWindow)
-			p.p.display.window.chkbxOrientationMode.setSelected(newState);
+		if(p.ml.display.window.setupGraphicsWindow)
+			p.ml.display.window.chkbxOrientationMode.setSelected(newState);
 	}
 	
 	/**
@@ -3587,7 +3587,7 @@ public class WMV_Viewer
 
 			if(!v.isPlaying())									// Play video by choosing it
 			{
-				if(!v.isLoaded()) v.loadMedia(p.p);
+				if(!v.isLoaded()) v.loadMedia(p.ml);
 				v.playVideo();
 			}
 			else
@@ -3884,7 +3884,7 @@ public class WMV_Viewer
 	public void importGPSTrack()
 	{
 		state.gpsTrackSelected = false;
-		p.p.selectInput("Select a GPS Track:", "gpsTrackSelected");
+		p.ml.selectInput("Select a GPS Track:", "gpsTrackSelected");
 	}
 
 	/**
@@ -4029,7 +4029,7 @@ public class WMV_Viewer
 	public boolean setCurrentFieldTimeSegment( int newCurrentFieldTimeSegment, boolean updateTimelinesSegment )
 	{
 		state.currentFieldTimeSegment = newCurrentFieldTimeSegment;
-		p.p.display.updateCurrentSelectableTimeSegment = true;
+		p.ml.display.updateCurrentSelectableTimeSegment = true;
 		boolean success = true;
 		
 		if(debugSettings.viewer && debugSettings.detailed) System.out.println("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
@@ -4084,7 +4084,7 @@ public class WMV_Viewer
 		}
 	
 		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimeSegmentOnDate;
-		p.p.display.updateCurrentSelectableTimeSegment = true;
+		p.ml.display.updateCurrentSelectableTimeSegment = true;
 
 		if(debugSettings.viewer && debugSettings.detailed)
 			System.out.println("Set new state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate);
@@ -4636,69 +4636,4 @@ public class WMV_Viewer
 	{
 		return state.clusterNearDistance;
 	}
-
-//	private PVector velocity, acceleration, attraction;      // Physics model parameters
-//	public PVector getVelocity()
-//	{
-//		return velocity;
-//	}
-	
-//	/***
-//	 * jump()
-//	 * @param dest   Destination to jump to
-//	 * Jump to a point
-//	 */
-//	public void jumpTo(PVector dest)
-//	{
-//		camera.jump(dest.x, dest.y, dest.z);					
-//	}
-
-//	/**
-//	 * jumpAndPointAtTarget()
-//	 * @param goal Goal point
-//	 * @param target Location to point at
-//	 */
-//	public void jumpAndPointAtTarget(PVector goal, PVector target) 
-//	{
-//		initialize(goal.x, goal.y, goal.z);
-//		camera.aim(target.x, target.y, target.z);
-//	}
-	
-//	/**
-//	 * Initialize 2D drawing when OCD camera feed is occurring each frame
-//	 */
-//	void start3DHUD()
-//	{
-//		p.p.perspective(getInitFieldOfView(), (float)p.p.width/(float)p.p.height, getNearClippingDistance(), 10000);
-//		PVector t = new PVector(camera.position()[0], camera.position()[1], camera.position()[2]);
-//		p.p.translate(t.x, t.y, t.z);
-//		p.p.rotateY(camera.attitude()[0]);
-//		p.p.rotateX(-camera.attitude()[1]);
-//		p.p.rotateZ(camera.attitude()[2]);
-//	}
-
-
-	/**
-	 * Send the camera to nearest cluster in the field in the same direction it has been going -- Obsolete
-	 */
-//	public void moveToNextClusterAlongHistoryVector()
-//	{
-//		IntList closest = getNearClusters(20, worldSettings.defaultFocusDistance * 4.f);		// Find 20 near clusters 	- Set number based on cluster density?
-//		ArrayList<WMV_Cluster> clusterList = clustersAreInList(closest, 10);		// Are the clusters within the last 10 waypoints in history?
-//		PVector hv = getHistoryVector();											// Get vector for direction of camera movement
-//
-//		int newCluster = getClusterAlongVector(clusterList, hv);		
-//		setAttractorCluster(newCluster);
-//	}
-	
-//	/**
-//	 * During manual path navigation, move to next cluster on path; otherwise move to next closest cluster (besides current)
-//	 */
-//	public void moveToNextLocation()
-//	{
-//		moveToNextClusterAlongHistoryVector();				// Move to next attractor on a path (not retracing N steps) 
-//
-////		if(!manualPathNavigation)
-////			moveToNearestCluster(false);			// Move to closest cluster besides current
-//	}
 }

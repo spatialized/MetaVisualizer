@@ -98,17 +98,18 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void setup()
 	{
-		surface.setResizable(true);
-		hideMainWindow();
-
 		debugSettings = new ML_DebugSettings();		
 		if(debugSettings.ml) System.out.println("Starting initial setup...");
 
+		input = new ML_Input(appWidth, appHeight);
+
+		surface.setResizable(true);
+		hideMainWindow();
+		
 		world = new WMV_World(this);
 		world.initialize();
 		appIcon = getImageResource("icon.png");
 		
-		input = new ML_Input(width, height);
 		display = new ML_Display(this);			// Initialize displays
 		display.initializeWindows(world);
 		metadata = new WMV_MetadataLoader(this, debugSettings);
@@ -120,6 +121,7 @@ public class MultimediaLocator extends PApplet
 		textAlign(PConstants.CENTER, PConstants.CENTER);
 		
 		initCubeMap();
+		
 		removeList = new ArrayList<Integer>();
 	}
 
@@ -1098,9 +1100,9 @@ public class MultimediaLocator extends PApplet
 	public void mouseReleased() {
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseReleased(mouseX, mouseY);
-		if(display.displayView == 1 || (display.displayView == 2 && display.libraryViewMode == 0))
+		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
-		else if(display.displayView == 3)
+		else if(display.displayView == 2)
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 	}
 	
@@ -1181,7 +1183,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void keyPressed() 
 	{
-		input.handleKeyPressed(this, key, keyCode);
+		if(state.running) input.handleKeyPressed(this, key, keyCode);
 	}
 
 	/**

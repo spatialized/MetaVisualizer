@@ -2741,9 +2741,9 @@ public class WMV_Field
 
 			if( mediaID < images.size() )								// If image, compare to already picked images
 			{
-				int imageID = (int) world.p.random(images.size());  						
+				int imageID = (int) world.ml.random(images.size());  						
 				while(addedImages.contains(imageID))
-					imageID = (int) world.p.random(images.size());  						
+					imageID = (int) world.ml.random(images.size());  						
 
 				addedImages.add(imageID);
 
@@ -2752,9 +2752,9 @@ public class WMV_Field
 			}
 			else if( mediaID < images.size() + panoramas.size() )			// If panorama, compare to already picked panoramas
 			{
-				int panoramaID = (int) world.p.random(panoramas.size());  						
+				int panoramaID = (int) world.ml.random(panoramas.size());  						
 				while(addedPanoramas.contains(panoramaID))
-					panoramaID = (int) world.p.random(panoramas.size());  						
+					panoramaID = (int) world.ml.random(panoramas.size());  						
 
 				addedPanoramas.add(panoramaID);
 
@@ -2763,9 +2763,9 @@ public class WMV_Field
 			}
 			else if( mediaID < images.size() + panoramas.size() + videos.size() )		// If video, compare to already picked videos
 			{
-				int videoID = (int) world.p.random(videos.size());  						
+				int videoID = (int) world.ml.random(videos.size());  						
 				while(addedVideos.contains(videoID))
-					videoID = (int) world.p.random(videos.size());  						
+					videoID = (int) world.ml.random(videos.size());  						
 
 				addedVideos.add(videoID);
 
@@ -2774,9 +2774,9 @@ public class WMV_Field
 			}
 			else if( mediaID < images.size() + panoramas.size() + videos.size() + sounds.size() )		// If sound, compare to already picked sounds
 			{
-				int soundID = (int) world.p.random(sounds.size());  						
+				int soundID = (int) world.ml.random(sounds.size());  						
 				while(addedSounds.contains(soundID))
-					soundID = (int) world.p.random(sounds.size());  						
+					soundID = (int) world.ml.random(sounds.size());  						
 
 				addedSounds.add(soundID);
 

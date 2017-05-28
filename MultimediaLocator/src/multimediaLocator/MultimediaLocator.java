@@ -200,10 +200,7 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.startedRunning)										/* If simulation just started running */
 		{
-//			if(!windowVisible)
-//				showMainWindow();
-
-			if(!enteredField) world.enter(0, true);						/* Enter world at field 0 */
+			if(!enteredField) world.enterField(0);						/* Enter world at field 0 */
 			state.startedRunning = false;
 		}
 		else
@@ -368,29 +365,27 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.initialSetup)
 		{
-			if(!windowVisible)
+			if(!windowVisible) 
 				showMainWindow();
 
 			if( !state.fieldsInitialized )
 			{
-				if (!state.initializingFields) 
+				if (!state.initializingFields) 			/* Not yet initializing fields */
 				{
 					world.createFieldsFromFolders(library.getFolders());		// Create empty field for each field folder	
 					state.initializingFields = true;
 				}
-				else
+				else									/* Initializing fields */
 				{
 					WMV_Field f = world.getField(state.initializationField);
-					boolean loadedState = initializeField(f, true, true);				/* Initialize field */	
+					initializeField(f, true, true);				/* Initialize field */	
 					
-					/* Set next field to initialize */
-					state.initializationField++;										
+					state.initializationField++;		/* Set next field to initialize */
 					if( state.initializationField >= world.getFields().size() )	
 					{
 						state.fieldsInitialized = true;
 						if(debugSettings.ml) System.out.println("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
-						/* Enter last initialization field, move to first time segment if simulation state not loaded from disk */
-						world.enter(state.initializationField-1, !loadedState);		
+						world.start();					/* Start 3D world display */
 					}
 				}
 			}
@@ -440,7 +435,6 @@ public class MultimediaLocator extends PApplet
 		state.startInteractive = false;			// Have started
 		
 		display.map2D.initializeMaps(world);
-		
 		display.resetDisplayModes();			// Reset display view and clear messages
 		display.displayClusteringInfo(this);
 		
@@ -450,14 +444,12 @@ public class MultimediaLocator extends PApplet
 	/**
 	 * Initialize current initialization field
 	 */
-	public boolean initializeField(WMV_Field f, boolean loadState, boolean setSoundGPSLocations)
+	public void initializeField(WMV_Field f, boolean loadState, boolean setSoundGPSLocations)
 	{
 		System.out.println("ML.initializeField()... state.fieldsInitialized:"+state.fieldsInitialized);
 		
-//		if(!state.fieldsInitialized && !state.exit)
 		if(!state.exit)
 		{
-			/* Get field to initialize */
 			boolean success = false;
 			
 			/* Attempt to load simulation state from data folder. If not successful, initialize field */
@@ -481,20 +473,22 @@ public class MultimediaLocator extends PApplet
 			}
 			if(success)									/* Loaded field state from disk */
 			{
-				if(debugSettings.ml || debugSettings.world) System.out.println("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
+				if(debugSettings.ml || debugSettings.world) 
+					System.out.println("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
 			}
 			else										/* If failed to load field, initialize using metadata */
 			{
-				if(debugSettings.ml || debugSettings.world) System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
+				if(debugSettings.ml || debugSettings.world) 
+					System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
 				
 				System.out.println("ML.initializeField()... will initialize field:"+f.getID()+" name:"+f.getName());
 				f.initialize(-100000L);
 				if(setSoundGPSLocations) metadata.setSoundGPSLocations(f, f.getSounds());
 			}
 
-			return success;
+			f.setLoadedState(success);		/* Set field loaded state flag */
 		}
-		return false;
+		f.setLoadedState(false);			/* Set field loaded state flag */
 	}
 	
 	/**
@@ -511,7 +505,9 @@ public class MultimediaLocator extends PApplet
 		/* Attempt to load simulation state */
 		if(savedState != null)
 		{
-			if(debugSettings.ml && debugSettings.detailed) System.out.println("Valid SimulationState loaded...");
+			if(debugSettings.ml && debugSettings.detailed)
+				System.out.println("Valid Simulation State loaded...");
+	
 			if(set)
 				return world.loadAndSetSimulationState(savedState, f);
 			else
@@ -539,8 +535,7 @@ public class MultimediaLocator extends PApplet
 					int count = 0;
 					for(WMV_Field added : addedFields)
 					{
-						if(count < addedFields.size() - 1)	
-							newFields.add(added);
+						if(count < addedFields.size() - 1)	newFields.add(added);
 						count++;
 					}
 				}
@@ -576,17 +571,9 @@ public class MultimediaLocator extends PApplet
 	private void finishInitialization()
 	{
 		world.setBlurMasks();			// Set blur masks
-
-		if(debugSettings.ml && debugSettings.detailed) System.out.println("Finishing MultimediaLocator initialization..");
-
-//		display.initializeWindows(world);
 		display.window.setupMLWindow();
-		
-		if(debugSettings.ml && debugSettings.detailed) System.out.println("Finished setting up WMV Window...");
-		
-		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
 
-		if(debugSettings.ml && debugSettings.detailed) System.out.println("Finished setting initial media settings...");
+		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
 
 		state.initialSetup = false;				
 		display.initialSetup = false;
@@ -594,7 +581,8 @@ public class MultimediaLocator extends PApplet
 		state.running = true;
 		state.startedRunning = true;
 		
-//		PJOGL.setIcon("res/icon.png");
+		if(debugSettings.ml && debugSettings.detailed) 
+			System.out.println("Finishing MultimediaLocator initialization..");
 	}
 
 	/**
@@ -610,7 +598,6 @@ public class MultimediaLocator extends PApplet
 		if(newFields.size() > 0)
 		{
 			int count = 0;
-			
 			for(WMV_Field f : newFields)
 			{
 				System.out.println("ML.divideField()... Will initialize field #"+f.getID()+" name:"+f.getName()+" of "+newFields.size()+"...");
@@ -632,7 +619,7 @@ public class MultimediaLocator extends PApplet
 				}
 				count++;
 			}
-
+			
 			return newFields;
 		}
 		else
@@ -649,7 +636,7 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Finish running interactive clustering and restart simulation 
+	 * Finish running interactive clustering and restart simulation 		// -- Disabled
 	 */
 	public void finishInteractiveClustering()
 	{
@@ -666,7 +653,7 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Initialize 2D drawing 
+	 * Initialize 2D drawing 				// -- Obsolete
 	 */
 	public void start3DHUD()
 	{
@@ -680,6 +667,9 @@ public class MultimediaLocator extends PApplet
 		rotateZ(camOrientation.z);
 	}
 
+	/**
+	 * Restart					// -- In progress
+	 */
 	public void restartMultimediaLocator()
 	{
 		background(0.f);
@@ -688,7 +678,7 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Save screen image or export selected media
+	 * Export screen image or selected media files
 	 */
 	public void export()
 	{
@@ -731,7 +721,6 @@ public class MultimediaLocator extends PApplet
 	    buffer.rewind();
 	    
 //	    Image awtImage = new javax.swing.ImageIcon(buffer.array()).getImage();
-	    
 	    byte[] buf = new byte[buffer.remaining()];
 //	    buffer.get(b);
 	    
@@ -902,9 +891,9 @@ public class MultimediaLocator extends PApplet
 		else 
 		{
 			String input = selection.getPath();
-			String[] parts = input.split("/");
+//			String[] parts = input.split("/");
 
-//			if (debugSettings.metadata)
+			if (debugSettings.metadata)
 				System.out.println("User selected media folder: " + input);
 
 			File file = new File(input);
@@ -1145,10 +1134,10 @@ public class MultimediaLocator extends PApplet
 	}
 
 	/******* G4P *******/
-	public void handlePanelEvents(GPanel panel, GEvent event)
-	{
-		display.handlePanelEvents(panel, event);
-	}
+//	public void handlePanelEvents(GPanel panel, GEvent event)
+//	{
+//		display.handlePanelEvents(panel, event);
+//	}
 	
 	/**
 	 * Respond to button event
@@ -1164,7 +1153,8 @@ public class MultimediaLocator extends PApplet
 	 * @param button Toggle control acted on
 	 * @param event Toggle control event
 	 */
-	public void handleToggleControlEvents(GToggleControl option, GEvent event) {
+	public void handleToggleControlEvents(GToggleControl option, GEvent event) 
+	{
 		input.handleToggleControlEvent(world, display, option, event);
 	}
 	

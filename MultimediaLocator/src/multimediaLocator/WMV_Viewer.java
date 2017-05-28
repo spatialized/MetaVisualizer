@@ -286,13 +286,27 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Move camera forward
+	 * Move viewer forward
 	 */
 	public void walkForward()
 	{
-		state.moveZDirection = -1;
-		state.movingZ = true;
-		state.slowingZ = false;
+		startMoveZTransition(-1);
+
+//		state.moveZDirection = -1;
+//		state.movingZ = true;
+//		state.slowingZ = false;
+	}
+
+	/**
+	 * Move viewer backward
+	 */
+	public void walkBackward()
+	{
+		startMoveZTransition(1);
+
+//		state.moveZDirection = -1;
+//		state.movingZ = true;
+//		state.slowingZ = false;
 	}
 
 	/**
@@ -394,7 +408,7 @@ public class WMV_Viewer
 		if (debugSettings.viewer)
 			System.out.println("Moving to capture location... "+imageID);
 
-		PVector newLocation = p.getFieldImages().get(imageID).getCaptureLocation();
+		PVector newLocation = p.getCurrentFieldImages().get(imageID).getCaptureLocation();
 		
 		if(teleport)
 		{
@@ -4499,18 +4513,21 @@ public class WMV_Viewer
 	{
 		state.moveXDirection = dir;
 		state.movingX = true;
+		state.slowingX = false;
 	}
 	
 	public void startMoveYTransition(int dir)
 	{
 		state.moveYDirection = dir;
 		state.movingY = true;
+		state.slowingY = false;
 	}
 	
 	public void startMoveZTransition(int dir)
 	{
 		state.moveZDirection = dir;
 		state.movingZ = true;
+		state.slowingZ = false;
 	}
 	
 	public void stopMoveXTransition()

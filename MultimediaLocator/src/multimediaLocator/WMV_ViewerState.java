@@ -27,7 +27,7 @@ public class WMV_ViewerState
 	public boolean movingToAttractor = false;			// Moving to attractor point anywhere in field
 	public boolean movingToCluster = false;				// Moving to cluster 
 	public PVector pathGoal;							// Next goal point for camera in navigating from memory
-	public boolean following = false;					// Is the camera currently navigating from memory?
+	public boolean following = false;					// Is the camera currently navigating from memory
 	public int pathLocationIdx;							// Index of current cluster in memory
 	public boolean movingToTimeSegment = false;			// Moving / teleporting to target time segment
 	public int timeSegmentTarget = -1;					// Field time segment goal			
@@ -221,7 +221,7 @@ public class WMV_ViewerState
 	/**
 	 * @return Current field ID
 	 */
-	public int getField()
+	public int getCurrentField()
 	{
 		return field;
 	}

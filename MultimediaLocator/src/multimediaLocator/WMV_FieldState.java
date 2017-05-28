@@ -14,6 +14,7 @@ public class WMV_FieldState
 	public int id;											// Field ID
 	public String name;										// Field Name
 	public boolean visited = false;							// Whether viewer has visited field
+	public boolean loadedState = false;
 	
 	/* Data */
 	public WMV_ModelState model;							// Model state for importing / exporting

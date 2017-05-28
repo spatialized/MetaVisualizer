@@ -356,11 +356,6 @@ public class ML_Display
 		btnOpenLibrary.tag = "OpenLibrary";
 		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
 		btnOpenLibrary.setLocalColorScheme(GCScheme.BLUE_SCHEME);
-//		pnlMain.addControl(btnCreateLibrary);
-//		pnlMain.addControl(btnOpenLibrary);
-//		pnlMain.setVisible(true);
-//		pnlMain.setDraggable(true);
-//		pnlMain.setCollapsed(false);
 	}
 	
 	/**
@@ -1359,9 +1354,7 @@ public class ML_Display
 				p.viewer.teleportToCluster(selectedCluster, false, selectableTimeSegments.get(selectedTime).segment.getFieldTimelineID());
 
 		if(selectedDate != -1)
-		{
 			setCurrentSelectableDate(selectedDate);
-		}
 	}
 
 	/**

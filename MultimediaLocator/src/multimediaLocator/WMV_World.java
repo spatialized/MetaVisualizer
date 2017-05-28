@@ -109,6 +109,17 @@ public class WMV_World
 		updateTimeBehavior();		// Update time cycle
 	}
 	
+	public void start()
+	{
+//		chooseFieldDialog();
+		enterField(0);			/* Enter last field */
+//		enterField(ml.state.initializationField-1);			/* Enter last field */
+	}
+	
+	/**
+	 * Display 3D and/or 2D graphics
+	 * @param sphericalView Display in spherical view
+	 */
 	public void display(boolean sphericalView)
 	{
 		ml.background(0.f);								/* Set background */
@@ -116,9 +127,6 @@ public class WMV_World
 		{
 			if(ml.cubeMapInitialized)
 				ml.display360();
-			
-//			display3D();						// 3D Display
-//			display2D();						// 2D Display
 		}
 		else
 		{
@@ -133,12 +141,16 @@ public class WMV_World
 	 * @param fieldIdx The field to enter
 	 * @param moveToFirstTimeSegment Whether to move to first time segment after entering
 	 */
-	public void enter(int fieldIdx, boolean moveToFirstTimeSegment)
+	public void enterField(int fieldIdx)
 	{
+		boolean moveToFirstTimeSegment = true;
+
+		WMV_Field f = getField(fieldIdx);
+		if(f.getState().loadedState) moveToFirstTimeSegment = false;
+		
 		viewer.enterField( fieldIdx );								// Update navigation
 		viewer.updateState(settings, state);
-		if(moveToFirstTimeSegment)
-			viewer.moveToFirstTimeSegment(false);
+		if(moveToFirstTimeSegment) viewer.moveToFirstTimeSegment(false);
 		viewer.updateNavigation();									// Update navigation
 
 		ml.enteredField = true;
@@ -168,12 +180,11 @@ public class WMV_World
 	 */
 	public void display3D()
 	{
-		/* 3D Display */
-		if(ml.display.displayView == 0)
+		if(ml.display.displayView == 0)				/* 3D Display */
 		{
-			ml.background(0.f);								/* Set background */
-			if(settings.depthTesting) ml.hint(PApplet.ENABLE_DEPTH_TEST);				/* Enable depth testing for drawing 3D graphics */
-			getCurrentField().display(ml);					/* Display media in current field */
+			ml.background(0.f);						/* Set background */
+			if(settings.depthTesting) ml.hint(PApplet.ENABLE_DEPTH_TEST);		/* Enable depth testing for drawing 3D graphics */
+			getCurrentField().display(ml);										/* Display media in current field */
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
 				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
@@ -182,8 +193,7 @@ public class WMV_World
 			}
 		}
 		
-		if(state.displayTerrain)					/* Draw terrain as wireframe grid */
-			displayTerrain();
+		if(state.displayTerrain) displayTerrain();	/* Draw terrain as wireframe grid */
 		
 		viewer.updateNavigation();					/* Update navigation */
 		if(ml.display.displayView == 0 && !ml.state.sphericalView)	
@@ -232,7 +242,7 @@ public class WMV_World
 		switch(state.timeMode)
 		{
 			case 0:													// Cluster Time Mode
-				if(state.timeFading)
+				if(state.timeFading) 
 					updateClusterTimeMode();
 				break;
 			
@@ -257,12 +267,8 @@ public class WMV_World
 	void decrementTime()
 	{
 		float curTimePoint = ml.display.window.sdrCurrentTime.getValueF();
-		if (curTimePoint - settings.timeInc < 0) setCurrentTimePoint(0);
-		else setCurrentTimePoint(curTimePoint - settings.timeInc);
-		
-//		state.currentTime -= settings.timeInc;
-//		if (state.currentTime < 0)
-//			state.currentTime = 0;
+		if (curTimePoint - settings.timeInc < 0) setCurrentTime(0);
+		else setCurrentTime(curTimePoint - settings.timeInc);
 	}
 	
 	/**
@@ -272,19 +278,15 @@ public class WMV_World
 	{
 		float curTimePoint = ml.display.window.sdrCurrentTime.getValueF();
 		float endTimePoint = ml.display.window.sdrCurrentTime.getEndLimit();
-		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTimePoint(endTimePoint);
-		else setCurrentTimePoint(curTimePoint + settings.timeInc);
-
-//		state.currentTime += settings.timeInc;
-//		if (state.currentTime > settings.timeCycleLength)
-//			state.currentTime = settings.timeCycleLength - 200;
+		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTime(endTimePoint);
+		else setCurrentTime(curTimePoint + settings.timeInc);
 	}
 
 	/**
 	 * Set time point based on current Time Mode
 	 * @param newTimePoint
 	 */
-	public void setCurrentTimePoint(float newTimePoint)
+	public void setCurrentTime(float newTimePoint)
 	{
 		switch(state.timeMode)
 		{
@@ -295,11 +297,10 @@ public class WMV_World
 				break;
 			
 			case 1:													// Field Time Mode
-				setTimePoint(newTimePoint);
+				setFieldTimePoint(newTimePoint);
 				break;
 
 			case 2:													// (Single) Media Time Mode
-//				setTimePoint(newTimePoint);
 				break;
 				
 			case 3:													// Flexible Time Mode -- In progress
@@ -307,11 +308,18 @@ public class WMV_World
 		}
 	}
 	
-	private void setTimePoint(float newTimePoint)
+	/**
+	 * Set field time point
+	 * @param newTimePoint New time point
+	 */
+	private void setFieldTimePoint(float newTimePoint)
 	{
 		state.currentTime = (int) utilities.mapValue(newTimePoint, 0.f, 1.f, 0, settings.timeCycleLength);
 	}
 	
+	/**
+	 * Update Cluster Time Mode parameters
+	 */
 	private void updateClusterTimeMode()
 	{
 		ArrayList<WMV_Cluster> visible = getVisibleClusters();
@@ -329,6 +337,9 @@ public class WMV_World
 		}
 	}
 	
+	/**
+	 * Update Field Time Mode parameters
+	 */
 	private void updateFieldTimeMode()
 	{
 		if(!state.paused)
@@ -339,6 +350,9 @@ public class WMV_World
 		}
 	}
 	
+	/**
+	 * Update Single Time Mode parameters (Obsolete)
+	 */
 	private void updateSingleTimeMode()
 	{
 		if(!state.paused)
@@ -380,20 +394,23 @@ public class WMV_World
 		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
 	}
 
+	/**
+	 * Update all media settings
+	 */
 	public void updateAllMediaSettings()
 	{
 		WMV_Field f = getCurrentField();
+		
 		for(WMV_Image img : f.getImages())
 			img.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
 		for(WMV_Panorama pano : f.getPanoramas())
 			pano.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
 		for(WMV_Video vid : f.getVideos())
 			vid.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-//		for(WMV_Sound snd : f.getSounds())
-//			img.updateSettings(world.settings, world.state, world.viewer.getSettings(), world.viewer.getState(), debugSettings);
+		for(WMV_Sound snd : f.getSounds())
+			snd.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
 	}
 
-	
 	/**
 	 * Draw terrain as wireframe grid
 	 */
@@ -413,7 +430,6 @@ public class WMV_World
 		for(int x=0; x<gridSize; x+=2)
 		{
 			ArrayList<PVector> row = new ArrayList<PVector>();
-//			for(int z=0; z<25; z++)
 			for(int z=0; z<gridSize; z+=2)
 			{
 				float xStart = gridLoc.x - gridSize * 0.5f;
@@ -430,9 +446,8 @@ public class WMV_World
 			gridPoints.add(row);
 		}
 
-//		IntList nearClusters = viewer.getNearClusters(-1, gridSize * 0.5f);		// --Not precise enough?
-//		for(int i : nearClusters)	// Adjust points within cluster viewing distance to cluster height
-		for(WMV_Cluster c : getCurrentField().getClusters())	// Adjust points within cluster viewing distance to cluster height
+		ArrayList<WMV_Cluster> clusterList = getCurrentField().getClusters();
+		for(WMV_Cluster c : clusterList)	// Adjust points within cluster viewing distance to cluster height
 		{
 			PVector cLoc = c.getLocation();
 			for(ArrayList<PVector> row : gridPoints)
@@ -1100,7 +1115,7 @@ public class WMV_World
 	 */
 	public WMV_Field getCurrentField()
 	{
-		WMV_Field f = fields.get(viewer.getState().getField());
+		WMV_Field f = fields.get(viewer.getState().getCurrentField());
 		return f;
 	}
 	
@@ -1138,7 +1153,7 @@ public class WMV_World
 	/**
 	 * @return All images in current field
 	 */
-	public ArrayList<WMV_Image> getFieldImages()
+	public ArrayList<WMV_Image> getCurrentFieldImages()
 	{
 		ArrayList<WMV_Image> iList = getCurrentField().getImages();
 		return iList;
@@ -1147,7 +1162,7 @@ public class WMV_World
 	/**
 	 * @return All panoramas in field
 	 */
-	public ArrayList<WMV_Panorama> getFieldPanoramas()
+	public ArrayList<WMV_Panorama> getCurrentFieldPanoramas()
 	{
 		ArrayList<WMV_Panorama> pList = getCurrentField().getPanoramas();
 		return pList;
@@ -1156,7 +1171,7 @@ public class WMV_World
 	/**
 	 * @return All videos in current field
 	 */
-	public ArrayList<WMV_Video> getFieldVideos()
+	public ArrayList<WMV_Video> getCurrentFieldVideos()
 	{
 		ArrayList<WMV_Video> iList = getCurrentField().getVideos();
 		return iList;
@@ -1165,7 +1180,7 @@ public class WMV_World
 	/**
 	 * @return All clusters in current field
 	 */
-	public ArrayList<WMV_Cluster> getFieldClusters()
+	public ArrayList<WMV_Cluster> getCurrentFieldClusters()
 	{
 		ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
 		return clusters;
@@ -1234,19 +1249,10 @@ public class WMV_World
 	/**
 	 * Save current screen view to disk
 	 */
-	public void saveToDisk() 
+	public void exportCurrentView() 
 	{
 		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output image to disk.");
 		ml.state.export = true;
-	}
-
-	/**
-	 * Save six current screen cubemap views to disk
-	 */
-	public void saveCubeMapToDisk() 
-	{
-		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output cubemap images to disk.");
-		ml.state.exportCubeMap = true;
 	}
 
 	/**
@@ -1287,6 +1293,15 @@ public class WMV_World
 			}
 
 		}
+	}
+
+	/**
+	 * Save six current screen cubemap views to disk		// -- In progress
+	 */
+	public void saveCubeMapToDisk() 
+	{
+		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output cubemap images to disk.");
+		ml.state.exportCubeMap = true;
 	}
 
 	/**

@@ -4164,6 +4164,11 @@ public class WMV_Field
 		return sounds;
 	}
 
+	public void setLoadedState(boolean newLoadedState)
+	{
+		state.loadedState = newLoadedState;
+	}
+	
 	public ArrayList<PVector> getBorder()
 	{
 		return border;

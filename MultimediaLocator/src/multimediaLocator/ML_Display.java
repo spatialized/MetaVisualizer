@@ -1629,13 +1629,13 @@ public class ML_Display
 
 		if(initialSetup)																// Showing setup startup messages
 		{
-			p.ml.textSize(largeTextSize * 3.f);
-			p.ml.text("MultimediaLocator", screenWidth / 2.25f, yPos += lineWidthVeryWide, hudDistance);
-			p.ml.textSize(mediumTextSize * 1.4f);
-			p.ml.text("v0.9", screenWidth / 1.075f, yPos += lineWidth, hudDistance);
-			p.ml.textSize(largeTextSize * 0.88f);
-			p.ml.text("Entoptic Software", screenWidth / 1.2f, yPos += lineWidthVeryWide, hudDistance);
-			p.ml.textSize(largeTextSize * 1.2f);
+//			p.ml.textSize(largeTextSize * 3.f);
+//			p.ml.text("MultimediaLocator", screenWidth / 2.25f, yPos += lineWidthVeryWide, hudDistance);
+//			p.ml.textSize(mediumTextSize * 1.4f);
+//			p.ml.text("v0.9", screenWidth / 1.075f, yPos += lineWidth, hudDistance);
+//			p.ml.textSize(largeTextSize * 0.88f);
+//			p.ml.text("Entoptic Software", screenWidth / 1.2f, yPos += lineWidthVeryWide, hudDistance);
+//			p.ml.textSize(largeTextSize * 1.2f);
 			
 			if(p.ml.createNewLibrary)
 			{

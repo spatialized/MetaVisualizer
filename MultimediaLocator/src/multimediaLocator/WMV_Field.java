@@ -794,8 +794,6 @@ public class WMV_Field
 			if(debugSettings.world) System.out.println("Field.organize()... Running initial clustering for field #"+state.id+"...");
 			
 			boolean hierarchical = false;			// Whether to use hierarchical clustering
-//			if(model.getState().validMedia < model.getState().hierarchicalMaxMedia) 	// -- Disabled
-//				hierarchical = true;
 			
 			runInitialClustering(hierarchical);		// Find media spatial clusters (points of interest)
 //			model.findDuplicateClusterMedia();		// Find media in more than one cluster

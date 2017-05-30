@@ -818,20 +818,20 @@ public class WMV_Image extends WMV_Media
 			return 0;
 	}
 
-	//	/**
-	//	 * @return Average brightness across all pixels
-	//	 */		
-	//	private float getAverageBrightness() 
-	//	{
-	//		image.loadPixels();
-	//		int b = 0;
-	//		for (int i=0; i<image.pixels.length; i++) {
-	//			float cur = p.p.p.brightness(image.pixels[i]);
-	//			b += cur;
-	//		}
-	//		b /= image.pixels.length;
-	//		return b;
-	//	}
+//	/**
+//	 * @return Average brightness across all pixels
+//	 */		
+//	private float getAverageBrightness() 
+//	{
+//		image.loadPixels();
+//		int b = 0;
+//		for (int i=0; i<image.pixels.length; i++) {
+//			float cur = p.p.p.brightness(image.pixels[i]);
+//			b += cur;
+//		}
+//		b /= image.pixels.length;
+//		return b;
+//	}
 
 	/**
 	 * Associate this image with given video ID  
@@ -902,7 +902,7 @@ public class WMV_Image extends WMV_Media
 	private PVector[] initializeVertices()
 	{
 		float width = getImageWidthInMeters();										
-		float height = width * getMediaState().aspectRatio;		
+		float height = width * getAspectRatio();		
 
 		float left = -width * 0.5f;						
 		float right = width * 0.5f;
@@ -972,6 +972,7 @@ public class WMV_Image extends WMV_Media
 			}
 		}
 
+//		System.out.println("initializeVertices()... for image #"+getID()+" verts == null?"+(verts == null)+" verts[0] == null?"+(verts[0] == null));
 		return verts;
 	}
 
@@ -982,7 +983,7 @@ public class WMV_Image extends WMV_Media
 	 */
 	private float getImageWidthInMeters()
 	{
-		//		float state.subjectSizeRatio = subjectPixelWidth / originalstate.imageWidth;		// --More accurate
+//		float state.subjectSizeRatio = subjectPixelWidth / original.imageWidth;		// --More accurate
 
 		float objectWidthOnSensor = metadata.sensorSize * state.subjectSizeRatio;			// 29 * 0.18 == 5.22
 		float imgWidth = objectWidthOnSensor * metadata.focusDistance / metadata.focalLength;		// 5.22 * 9 / 4.2 == 11.19	Actual: 11.320482

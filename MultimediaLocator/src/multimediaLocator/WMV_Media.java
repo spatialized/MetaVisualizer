@@ -574,8 +574,8 @@ public abstract class WMV_Media
 			{
 				if(verts[i]!=null)
 					clone[i] = PVector.add(verts[i], new PVector());
-				else
-					System.out.println("verts["+i+"] is null!!");
+//				else
+//					System.out.println("verts["+i+"] is null!!");
 			}
 
 			PMatrix3D rMat = new PMatrix3D();
@@ -597,7 +597,7 @@ public abstract class WMV_Media
 		}
 		else
 		{
-			System.out.println("Failed rotating vertices!");
+//			System.out.println("Failed rotating vertices! for media id #"+getID()+" type:"+getMediaType());
 			return new PVector[0];
 		}
 	}

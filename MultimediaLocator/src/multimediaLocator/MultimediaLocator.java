@@ -177,7 +177,6 @@ public class MultimediaLocator extends PApplet
 			}
 			else
 			{
-//				System.out.println("state.selectedLibrary:"+state.selectedLibrary+" state.selectedLibraryDestination:"+state.selectedNewLibraryDestination+" state.selectedMediaFolder:"+state.selectedMediaFolder);
 				if(state.selectedNewLibraryDestination && !state.selectedLibrary)
 				{
 					if(state.selectedMediaFolders)
@@ -445,7 +444,8 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void initializeField(WMV_Field f, boolean loadState, boolean setSoundGPSLocations)
 	{
-		System.out.println("ML.initializeField()... state.fieldsInitialized:"+state.fieldsInitialized);
+		if(debugSettings.ml || debugSettings.world) 
+			System.out.println("ML.initializeField()... state.fieldsInitialized:"+state.fieldsInitialized);
 		
 		if(!state.exit)
 		{
@@ -480,7 +480,6 @@ public class MultimediaLocator extends PApplet
 				if(debugSettings.ml || debugSettings.world) 
 					System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
 				
-				System.out.println("ML.initializeField()... will initialize field:"+f.getID()+" name:"+f.getName());
 				f.initialize(-100000L);
 				if(setSoundGPSLocations) metadata.setSoundGPSLocations(f, f.getSounds());
 			}
@@ -524,20 +523,32 @@ public class MultimediaLocator extends PApplet
 		
 		for(WMV_Field f : world.getFields())
 		{
-			if(world.getSettings().divideFields)
+			if(world.getSettings().divideFields)				/* Only divide fields if library created, not opened */
 			{
-				ArrayList<WMV_Field> addedFields = divideField(f);						/* Attempt to divide field */
-				if(addedFields == null)					/* Check if field division succeeded */
-					f.organize();						/* If failed, analyze spatial and temporal features to create model */
-				else 
+				System.out.println("Attempting to divide field #"+f.getID()+"...");
+				ArrayList<WMV_Field> addedFields = new ArrayList<WMV_Field>();
+
+				if(state.createdLibrary)
 				{
-					int count = 0;
-					for(WMV_Field added : addedFields)
+					addedFields = divideField(f);		/* Attempt to divide field */
+
+					if(addedFields == null)				/* Check if field division succeeded */
 					{
-						if(count < addedFields.size() - 1)	newFields.add(added);
-						count++;
+						f.organize();		/* If failed, analyze spatial and temporal features to create model */
+					}
+					else 
+					{
+						int count = 0;
+						for(WMV_Field added : addedFields)
+						{
+							if(count < addedFields.size() - 1)	
+								newFields.add(added);
+							count++;
+						}
 					}
 				}
+				else
+					f.organize();
 			}
 			else
 				f.organize();
@@ -1010,14 +1021,12 @@ public class MultimediaLocator extends PApplet
 	 */
 	private void createNewLibraryFromMediaFolders()
 	{
-//		if(!windowVisible)
-//			showMainWindow();
-		
 		if(library.mediaFolders.size() > 0)
 		{
 			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
 			state.selectedLibrary = library.createNewLibrary(this, library.mediaFolders);
-
+			state.createdLibrary = true;
+			
 			if(!state.selectedLibrary)
 			{
 				System.out.println("createNewLibraryFromMediaFolders()... Error importing media to create library...");
@@ -1481,7 +1490,8 @@ public class MultimediaLocator extends PApplet
 	
 	private void hideMainWindow()
 	{
-		setSurfaceSize(1, 1);
+//		public int appWidth = 1680, appHeight = 960;		// App window dimensions
+		setSurfaceSize(3, 2);
 		windowVisible = false;
 	}
 	
@@ -1502,9 +1512,7 @@ public class MultimediaLocator extends PApplet
 
 	public void setSurfaceSize(int newWidth, int newHeight)
 	{
-//		surface.setResizable(true);
 		surface.setSize(newWidth, newHeight);
-//		surface.setResizable(false);
 	}
 
 	/**

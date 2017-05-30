@@ -1608,8 +1608,8 @@ class WMV_MetadataLoader
 		}
 		else
 		{
-//			System.out.println("NOT RICOH THETA S:"+model);
-			return 3;
+			if(debugSettings.metadata) System.out.println("Unknown Camera Model:"+model);
+			return 0;
 		}
 	}
 

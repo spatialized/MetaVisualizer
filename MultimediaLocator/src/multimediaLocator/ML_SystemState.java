@@ -19,9 +19,7 @@ public class ML_SystemState
 	public boolean selectedNewLibraryDestination = false;		// Whether user has selected a library destination folder
 	public boolean selectedMediaFolders = false;				// Whether user has selected a media folder
 	public boolean librarySetup = false;					// Whether library dialog should open
-//	public boolean addingImageFolder = false;				// Adding image folder to library
-//	public boolean addingVideoFolder = false;				// Adding image folder to library
-//	public boolean addingSoundFolder = false;				// Adding image folder to library
+	public boolean createdLibrary = false;					// Whether library dialog should open
 	public boolean chooseLibraryDestination = false;		// Whether library destination dialog should open
 	public boolean chooseMediaFolders = false;				// Whether media folder dialog should open
 	

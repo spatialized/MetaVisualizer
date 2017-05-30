@@ -174,11 +174,11 @@ public class ML_Window
 		navigationWindowHeight = longWindowHeight + 50;
 		timeWindowHeight = longWindowHeight - 140;
 		graphicsWindowHeight = longWindowHeight + 75;
-		modelWindowHeight = shortWindowHeight + 75;
+		modelWindowHeight = shortWindowHeight + 100;
 		memoryWindowHeight = shortWindowHeight - 50;
 		selectionWindowHeight = shortWindowHeight + 50;
 		statisticsWindowHeight = longWindowHeight + 100;
-		helpWindowHeight = longWindowHeight;
+		helpWindowHeight = longWindowHeight + 100;
 	}
 	
 	public void openNavigationWindow()
@@ -883,19 +883,19 @@ public class ML_Window
 		lblHideMedia.setTextAlign(GAlign.CENTER, null);
 		lblHideMedia.setTextBold();
 
-		x = 8;
+		x = iLeftMargin;
 		y += 40;
-		chkbxHideImages = new GCheckbox(graphicsWindow, x, y, 90, iSmallBoxHeight, "Images");
+		chkbxHideImages = new GCheckbox(graphicsWindow, x, y, 95, iSmallBoxHeight, "Images");
 		chkbxHideImages.tag = "HideImages";
 		chkbxHideImages.setLocalColorScheme(10);
 		chkbxHideImages.setSelected(false);
 
-		chkbxHideVideos = new GCheckbox(graphicsWindow, x += 90, y, 85, iSmallBoxHeight, "Videos");
+		chkbxHideVideos = new GCheckbox(graphicsWindow, x += 100, y, 95, iSmallBoxHeight, "Videos");
 		chkbxHideVideos.tag = "HideVideos";
 		chkbxHideVideos.setLocalColorScheme(10);
 		chkbxHideVideos.setSelected(false);
 
-		chkbxHidePanoramas = new GCheckbox(graphicsWindow, x += 85, y, 120, iSmallBoxHeight, "Panoramas");
+		chkbxHidePanoramas = new GCheckbox(graphicsWindow, x += 100, y, 120, iSmallBoxHeight, "Panoramas");
 		chkbxHidePanoramas.tag = "HidePanoramas";
 		chkbxHidePanoramas.setLocalColorScheme(10);
 		chkbxHidePanoramas.setSelected(false);
@@ -1059,6 +1059,7 @@ public class ML_Window
 		memoryWindow.addKeyHandler(world.ml, "memoryWindowKey");
 		memoryWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
+		world.ml.delay(delayAmount);
 		int x = 0, y = iTopMargin;
 
 		lblMemory = new GLabel(memoryWindow, x, y, memoryWindow.width, iSmallBoxHeight, "Memory");
@@ -1067,12 +1068,12 @@ public class ML_Window
 		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblMemory.setTextBold();
 
-		x = 45;
+		x = 40;
 		y += 40;
-		btnSaveLocation = new GButton(memoryWindow, x, y, 110, iSmallBoxHeight, "Save Location  (`)");
+		btnSaveLocation = new GButton(memoryWindow, x, y, 120, iSmallBoxHeight, "Save Location  (`)");
 		btnSaveLocation.tag = "SaveLocation";
 		btnSaveLocation.setLocalColorScheme(5);
-		btnClearMemory = new GButton(memoryWindow, x+110, y, 100, iSmallBoxHeight, "Clear Memory");
+		btnClearMemory = new GButton(memoryWindow, x+125, y, 120, iSmallBoxHeight, "Clear Memory");
 		btnClearMemory.tag = "ClearMemory";
 		btnClearMemory.setLocalColorScheme(0);
 		
@@ -1437,7 +1438,6 @@ public class ML_Window
 		applet.background(0);
 		applet.stroke(255, 0, 255);
 		applet.strokeWeight(1);
-		applet.colorMode(PApplet.HSB);
 		applet.fill(255, 255, 255);
 		applet.textSize(mediumTextSize);
 		
@@ -1783,27 +1783,27 @@ public class ML_Window
 				applet.textSize(fLargeTextSize);
 				applet.text("General", x, y += lineWidthVeryWide);
 				applet.textSize(fMediumTextSize);
-				applet.text(" Library:"+world.ml.library.getLibraryFolder(), x, y += lineWidthVeryWide);
+				applet.text(" Library:"+world.ml.library.getLibraryFolder(), x, y += lineWidthVeryWide * 1.5f);
 
 				applet.textSize(fLargeTextSize);
-				applet.text("Graphics", x, y += lineWidthVeryWide);
+				applet.text("Graphics", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);
-				applet.text(" Alpha Mode:"+world.getState().alphaMode, x, y += lineWidthVeryWide);
+				applet.text(" Alpha Mode:"+world.getState().alphaMode, x, y += lineWidthVeryWide * 1.5f);
 				applet.text(" Angle Fading:"+world.viewer.getSettings().angleFading, x, y += lineWidthVeryWide);
 				applet.text(" Angle Thinning:"+world.viewer.getSettings().angleThinning, x, y += lineWidthVeryWide);
 
 				applet.textSize(fLargeTextSize);
-				applet.text("Model", x, y += lineWidthVeryWide);
+				applet.text("Model", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);
-				applet.text(" Orientation Mode:"+world.viewer.getSettings().orientationMode, x, y += lineWidthVeryWide);
+				applet.text(" Orientation Mode:"+world.viewer.getSettings().orientationMode, x, y += lineWidthVeryWide * 1.5f);
 				applet.text(" Altitude Scaling: "+world.getSettings().altitudeScaling, x, y += lineWidthVeryWide);
 				applet.text(" Altitude Scaling Factor: "+world.getSettings().altitudeScalingFactor, x, y += lineWidthVeryWide);
 //				applet.text(" Lock Media to Clusters:"+world.lockMediaToClusters, x, y += lineWidthVeryWide);
 
 				applet.textSize(fLargeTextSize);
-				applet.text("World", x, y += lineWidthVeryWide);
+				applet.text("World", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);
-				applet.text(" Field Count: "+world.getFields().size(), x, y += lineWidthVeryWide);
+				applet.text(" Field Count: "+world.getFields().size(), x, y += lineWidthVeryWide * 1.5f);
 				applet.text(" Current Field: "+f.getName()+" ID: "+(world.viewer.getState().getCurrentField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
 				applet.text(" Width: "+f.getModel().getState().fieldWidth+" Length: "+f.getModel().getState().fieldLength+" Height: "+f.getModel().getState().fieldHeight, x, y += lineWidthVeryWide);
 				applet.text(" Cluster Count: "+f.getClusters().size(), x, y += lineWidthVeryWide);
@@ -1829,18 +1829,18 @@ public class ML_Window
 				if(f.getSoundsHeard() > 0) applet.text("   Heard: "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
 				
 				applet.textSize(fLargeTextSize);
-				applet.text("Viewer", x, y += lineWidthVeryWide);
+				applet.text("Viewer", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);
 				applet.text(" Location, x: "+PApplet.round(world.viewer.getLocation().x)+" y:"+PApplet.round(world.viewer.getLocation().y)+" z:"+
-							  PApplet.round(world.viewer.getLocation().z), x, y += lineWidthVeryWide);		
+							  PApplet.round(world.viewer.getLocation().z), x, y += lineWidthVeryWide * 1.5f);		
 				applet.text(" Approx. GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidthVeryWide);		
 				applet.text(" Field of View:"+world.viewer.getSettings().fieldOfView, x, y += lineWidthVeryWide);
 				applet.text(" Always Turn toward Media:"+world.viewer.getSettings().alwaysLookAtMedia, x, y += lineWidthVeryWide);
 
 				applet.textSize(fLargeTextSize);
-				applet.text("Output", x, y += lineWidthVeryWide);
+				applet.text("Output", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);
-				applet.text(" Image Output Folder:"+world.outputFolder, x, y += lineWidthVeryWide);
+				applet.text(" Image Output Folder:"+world.outputFolder, x, y += lineWidthVeryWide * 1.5f);
 
 				if(world.ml.debugSettings.memory)
 				{
@@ -1942,7 +1942,7 @@ public class ML_Window
 //		float lineWidthWide = 15.f;
 		
 		float xPos = iLeftMargin;
-		float yPos = 50 + lineWidthVeryWide * 2.f;			// Starting vertical position
+		float yPos = 40 + lineWidthVeryWide * 2.f;			// Starting vertical position
 
 		applet.fill(255, 255, 255, 255); 	// White text color                        
 
@@ -1952,7 +1952,7 @@ public class ML_Window
 			applet.text(" Background", xPos, yPos);
 
 			applet.textSize(fMediumTextSize);
-			applet.text(" MultimediaLocator is a program that brings browsing large media collections closer to the experience of ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" MultimediaLocator is a program that brings browsing large media collections closer to the experience of ", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" capturing photos, videos and sounds in the field. The software serves dual purposes as both an experimenal ", xPos, yPos += lineWidthVeryWide);
 			applet.text(" media library management system and a tool for informational and aesthetic visualization. After importing ", xPos, yPos += lineWidthVeryWide);
 			applet.text(" photos, sounds and videos with embedded geographical, temporal and orientation metadata, users can ", xPos, yPos += lineWidthVeryWide);
@@ -1968,33 +1968,26 @@ public class ML_Window
 			applet.text(" techniques (though it often performs well, especially for media captured outdoors). ", xPos, yPos += lineWidthVeryWide);
 
 			yPos += lineWidthVeryWide;
-			applet.text(" On the other hand, what metadata lacks in accuracy it makes up for in both speed and flexibility. MultimediaLocator  ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" relies on this economical metadata approach for the ability to visualize collections with up to 100,000+ photos, ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" videos and sounds. Furthermore, metadata’s independence from pixel data allows creation of scenes with images  ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" spaced far apart, containing \"artifacts\" such as blur or high contrast areas, or taken at different times of day. ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" Temporal metadata further allows \"playing\" static media over time, or displaying time-based and static media", xPos, yPos += lineWidthVeryWide);
-			applet.text(" together, and scrubbing through media. ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" However, what metadata lacks in accuracy it makes up for in both speed and flexibility. This highly efficient ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" approach facilitates the ability to visualize collections with up to 100,000+ photos, as well as blend ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" time-based media such as videos and sounds with static media. Metadata’s independence from media data allows  ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" creation of scenes with images spaced far apart, containing \"artifacts\" such as blur or high contrast areas, ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" or taken at different times of day. Additionally, MultimediaLocator allows \"playing\" static media over time,", xPos, yPos += lineWidthVeryWide);
+			applet.text("  scrubbing through spatial groupings of media, and displaying time-based and static media simultaneously. ", xPos, yPos += lineWidthVeryWide);
 
 			yPos += lineWidthVeryWide;
-			applet.text(" Furthermore, from an aesthetic perspective, a seamless rendering is not always desired. Preserving the rectangular ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" frame is a significant part of the \"Cubist photography\" made famous by British artist David Hockney, and preserves", xPos, yPos += lineWidthVeryWide);
-			applet.text(" a record of the creative process. In fact, MultimediaLocator was directly inspired by Hockney's work, in particular, ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" his call to \"introduce the time dimension into photography\". Additional influences include sound artist Janet Cardiff, ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" Norman Klein's \"Layers of Los Angeles\" interactive DVD, and the Aspen Moviemap Project.", xPos, yPos += lineWidthVeryWide);
+			applet.text(" From an aesthetic perspective, I would note that a seamless rendering is not always desired. For instance, the  ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" rectangular frame can serve as a record of the creative process: of the photographer's (or videographer's) ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" selection of viewpoint and composition. Preserving the frame is also a significant part of the \"Cubist photography\"", xPos, yPos += lineWidthVeryWide);
+			applet.text(" aesthetic made famous by British artist David Hockney. In fact, MultimediaLocator was directly inspired by, in ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" particular, Hockney's call to \"introduce the time dimension into photography\". Additional influences include sound ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" artist Janet Cardiff, Norman Klein's \"Layers of Los Angeles\" interactive DVD, and the Aspen Moviemap Project.", xPos, yPos += lineWidthVeryWide);
 
 			yPos += lineWidthVeryWide;
-			applet.text(" MultimediaLocator grew out of WorldMediaViewer visualization software, which was ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" my Master’s project the M.S. in Multimedia Engineering degree in Media, Arts, and Technology at the UC Santa ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" Barbara, where I also completed a Ph.D in Music Composition in March 2017. ", xPos, yPos += lineWidthVeryWide);
-
-			yPos += lineWidthVeryWide;
-			applet.text(" For more information or to download the paper on the project, visit: http://www.spatializedmusic.com/. ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" MultimediaLocator grew out of visualization software completed for my M.S. degree in Multimedia Engineering", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Engineering in Media, Arts, and Technology at the UC Santa Barbara, where I also completed a Ph.D in Music", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Composition in March 2017. To download the paper on the project, visit: http://www.spatializedmusic.com/.", xPos, yPos += lineWidthVeryWide);
 			
-//			applet.textSize(fMediumTextSize);
-//			applet.text(" MultimediaLocator is an experimental 3D multimedia browsing and navigation system that uses metadata", xPos, yPos += lineWidthVeryWide);
-//			applet.text(" to locate images, panoramas, videos and sounds in virtual space in the approximate real-world locations", xPos, yPos += lineWidthVeryWide);
-//			applet.text(" they were captured.", xPos, yPos += lineWidthVeryWide);
-//			
 //			yPos += lineWidthVeryWide;
 //			applet.text(" Note: Portions of the software are still under development. Please contact the author at: ", xPos, yPos += lineWidthWide);
 //			applet.text(" spatializedmusic@gmail.com to submit bug reports or offer suggestions / comments. ", xPos, yPos += lineWidthWide);
@@ -2006,7 +1999,7 @@ public class ML_Window
 
 			yPos += lineWidthVeryWide;
 			applet.textSize(fMediumTextSize);
-			applet.text(" General", xPos, yPos += lineWidthVeryWide);
+			applet.text(" General", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
 			applet.text(" space  	 	   	Show/Hide Main Menu ", xPos, yPos += lineWidthVeryWide);
 			applet.text(" SHIFT + [1-8]  	Show/Hide Windows ", xPos, yPos += lineWidthVeryWide);
@@ -2015,17 +2008,17 @@ public class ML_Window
 
 			/* Movement */
 			applet.textSize(fMediumTextSize);
-			applet.text(" Movement", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Movement", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" a d w s   Walk Lt/Rt/Fwd/Bkwd", xPos, yPos += lineWidthVeryWide);
+			applet.text(" a d w s   Walk Lt/Rt/Fwd/Bkwd", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" Arrows    Turn Lt/Rt/Up/Down", xPos, yPos += lineWidthVeryWide);
 			applet.text(" q z  Zoom In / Out + / - ", xPos, yPos += lineWidthVeryWide);
 
 			/* Navigation */
 			applet.textSize(fMediumTextSize);
-			applet.text(" Navigation", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Navigation", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" m    Move to Nearest Cluster", xPos, yPos += lineWidthWide);
+			applet.text(" m    Move to Nearest Cluster", xPos, yPos += lineWidthWide * 1.5f);
 			applet.text(" j    Move to Random Cluster", xPos, yPos += lineWidthVeryWide);
 			applet.text(" >    Follow Timeline", xPos, yPos += lineWidthVeryWide);
 //			applet.text(" .    Follow Single Date Timeline", xPos, yPos += lineWidthVeryWide);
@@ -2036,9 +2029,9 @@ public class ML_Window
 //			applet.text(" C    Lock Viewer to Nearest Cluster On/Off", xPos, yPos += lineWidthWide);
 
 			applet.textSize(fMediumTextSize);
-			applet.text(" Time Navigation", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Time Navigation", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" n    Move to Next Cluster in Time", xPos, yPos += lineWidthWide);
+			applet.text(" n    Move to Next Cluster in Time", xPos, yPos += lineWidthWide * 1.5f);
 			applet.text(" b    Move to Previous Cluster in Time", xPos, yPos += lineWidthVeryWide);
 //			applet.text(" i    Move to Next Image ", xPos, yPos += lineWidthVeryWide);
 //			applet.text(" m    Move to Next Panorama ", xPos, yPos += lineWidthVeryWide);
@@ -2047,23 +2040,23 @@ public class ML_Window
 
 			/* Interaction */
 			applet.textSize(fMediumTextSize);
-			applet.text(" Interaction", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Interaction", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" A    Enable / Disable Selection", xPos, yPos += lineWidthWide);
+			applet.text(" A    Enable / Disable Selection", xPos, yPos += lineWidthWide * 1.5f);
 			applet.text(" x    Select Media in Front", xPos, yPos += lineWidthVeryWide);
 			applet.text(" X    Deselect Media in Front", xPos, yPos += lineWidthVeryWide);
 			applet.text(" S    Multi-Selection On/Off", xPos, yPos += lineWidthVeryWide);
 			applet.text(" OPT + s    Segment Selection On/Off", xPos, yPos += lineWidthWide);
 			applet.text(" OPT + x    Deselect All Media", xPos, yPos += lineWidthVeryWide);
 
-			xPos = iLeftMargin + 270;
-			yPos = 50 + lineWidthVeryWide * 2.f;			// Starting vertical position
+			xPos = iLeftMargin + 280;
+			yPos = 40 + lineWidthVeryWide * 2.f;			// Starting vertical position
 
 			/* Time */
 			applet.textSize(fMediumTextSize);
-			applet.text(" Time", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Time", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" T    Time Fading On/Off", xPos, yPos += lineWidthVeryWide);
+			applet.text(" T    Time Fading On/Off", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" Z    Toggle Time Fading [Cluster/Field]", xPos, yPos += lineWidthVeryWide);
 			applet.text(" -    Pause On/Off   ", xPos, yPos += lineWidthVeryWide);
 			applet.text(" &/*  Default Media Length - / +", xPos, yPos += lineWidthVeryWide);
@@ -2072,9 +2065,9 @@ public class ML_Window
 
 			/* Graphics */
 			applet.textSize(fMediumTextSize);
-			applet.text(" Graphics", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Graphics", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" G     Angle Fading On/Off", xPos, yPos += lineWidthVeryWide);
+			applet.text(" G     Angle Fading On/Off", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" H     Angle Thinning On/Off", xPos, yPos += lineWidthVeryWide);
 			applet.text(" P     Alpha Mode  On/Off   ", xPos, yPos += lineWidthVeryWide);
 			applet.text(" ( )   Alpha Level - / +      ", xPos, yPos += lineWidthVeryWide);
@@ -2085,33 +2078,33 @@ public class ML_Window
 
 			/* Model */
 			applet.textSize(fMediumTextSize);
-			applet.text(" Model", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Model", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" [ ]   Altitude Scaling Factor  + / - ", xPos, yPos += lineWidthVeryWide);
+			applet.text(" [ ]   Altitude Scaling Factor  + / - ", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" - =   Object Distance  - / +      ", xPos, yPos += lineWidthVeryWide);
 			applet.text(" ⌥ -   Visible Angle  -      ", xPos, yPos += lineWidthVeryWide);
 			applet.text(" ⌥ =   Visible Angle  +      ", xPos, yPos += lineWidthVeryWide);
 
 			applet.textSize(fMediumTextSize);
-			applet.text(" GPS Tracks", xPos, yPos += lineWidthVeryWide);
+			applet.text(" GPS Tracks", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" g    		 Load GPS Track", xPos, yPos += lineWidthVeryWide);
+			applet.text(" g    		 Load GPS Track", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" OPT + g    Follow GPS Track", xPos, yPos += lineWidthVeryWide);
 
-			xPos = iLeftMargin + 540;
+			xPos = iLeftMargin + 560;
 			yPos = 50 + lineWidthVeryWide * 2.f;			// Starting vertical position
 
 			applet.textSize(fMediumTextSize);
-			applet.text(" Memory", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Memory", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" `    Remember Current View", xPos, yPos += lineWidthVeryWide);
+			applet.text(" `    Remember Current View", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" ~    Follow Memory Path", xPos, yPos += lineWidthVeryWide);
 			applet.text(" Y    Clear Memory", xPos, yPos += lineWidthVeryWide);
 
 			applet.textSize(fMediumTextSize);
-			applet.text(" Output", xPos, yPos += lineWidthVeryWide);
+			applet.text(" Output", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.textSize(fSmallTextSize);
-			applet.text(" O    Set Image Output Folder", xPos, yPos += lineWidthVeryWide);
+			applet.text(" O    Set Image Output Folder", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" o    Export Selected Media / Screenshot", xPos, yPos += lineWidthVeryWide);
 		}
 	}

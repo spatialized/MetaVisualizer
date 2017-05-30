@@ -7,7 +7,7 @@ package multimediaLocator;
 public class WMV_WorldSettings 
 {
 	/* Model */
-	public boolean divideFields = true;					// Attempt to divide fields when loading?
+	public boolean divideFields = false;					// Attempt to divide fields when loading?
 	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public float subjectSizeRatio = 0.18f;				// Subject portion of image / video plane (used in scaling from focus distance to imageSize)
 	public final float panoramaFocusDistanceFactor = 1.1f;	// Scaling from defaultFocusDistance to panorama radius

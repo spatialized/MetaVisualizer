@@ -1335,7 +1335,7 @@ public class MultimediaLocator extends PApplet
 	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getKey() == 'b')
-			display.window.backgroundText = !display.window.backgroundText;
+			display.window.aboutText = !display.window.aboutText;
 		else
 		{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)

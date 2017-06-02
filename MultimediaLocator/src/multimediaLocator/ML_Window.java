@@ -151,7 +151,7 @@ public class ML_Window
 	/* Help Window */
 	int helpWindowHeight;
 	public GLabel lblShift8;
-	public boolean backgroundText = false;							/* 0: Scene  1: Map  2: Library  3: Timeline */
+	public boolean aboutText = false;							/* 0: Scene  1: Map  2: Library  3: Timeline */
 
 	private String windowTitle = "";
 	private WMV_World world;
@@ -1224,10 +1224,10 @@ public class ML_Window
 	 */
 	public void setupHelpWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth * 3 / 2;
+		int leftEdge = world.ml.appWidth / 2 - windowWidth * 2;
 		int topEdge = world.ml.appHeight / 2 - helpWindowHeight / 2;
 
-		helpWindow = GWindow.getWindow(world.ml, "Help", leftEdge, topEdge, windowWidth * 3, helpWindowHeight, PApplet.JAVA2D);
+		helpWindow = GWindow.getWindow(world.ml, "Help", leftEdge, topEdge, windowWidth * 4, helpWindowHeight, PApplet.JAVA2D);
 		helpWindow.setVisible(true);
 		helpWindow.addData(new ML_WinData());
 		helpWindow.addDrawHandler(this, "helpWindowDraw");
@@ -1938,59 +1938,38 @@ public class ML_Window
 		applet.strokeWeight(1);
 		applet.fill(255, 255, 255);
 		
-//		float lineWidthVeryWide = 17.f;
-//		float lineWidthWide = 15.f;
-		
-		float xPos = iLeftMargin;
+		float xPos = 140;
 		float yPos = 40 + lineWidthVeryWide * 2.f;			// Starting vertical position
 
 		applet.fill(255, 255, 255, 255); 	// White text color                        
 
-		if(backgroundText)
+		if(aboutText)
 		{
 			applet.textSize(fLargeTextSize);
-			applet.text(" Background", xPos, yPos);
+			applet.text(" About", xPos, yPos);
 
 			applet.textSize(fMediumTextSize);
-			applet.text(" MultimediaLocator is a program that brings browsing large media collections closer to the experience of ", xPos, yPos += lineWidthVeryWide * 1.5f);
-			applet.text(" capturing photos, videos and sounds in the field. The software serves dual purposes as both an experimenal ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" media library management system and a tool for informational and aesthetic visualization. After importing ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" photos, sounds and videos with embedded geographical, temporal and orientation metadata, users can ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" navigate their media as 3D environments that change over time, export media and screenshots, or browse", xPos, yPos += lineWidthVeryWide);
-			applet.text(" Map and Timeline Views to quickly locate files both spatially and temporally. ", xPos, yPos += lineWidthVeryWide);
-
-			yPos += lineWidthWide;
-			applet.text(" Existing systems for arranging media in 3D environments, such as Google Street View or Photosynth, rely on ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" computationally-intensive feature matching and surface reconstruction methods to produce highly seamless ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" renderings. In contrast, MultimediaLocator uses embedded metadata alone to determine media locations. ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" Each MultimediaLocator library contains a spatial model independent from the media data, i.e. pixels or frames,", xPos, yPos += lineWidthVeryWide);
-			applet.text(" themselves. Due to GPS uncertainty, this approach rarely matches the seamlessness of surface reconstruction ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" techniques (though it often performs well, especially for media captured outdoors). ", xPos, yPos += lineWidthVeryWide);
-
-			yPos += lineWidthVeryWide;
-			applet.text(" However, what metadata lacks in accuracy it makes up for in both speed and flexibility. This highly efficient ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" approach facilitates the ability to visualize collections with up to 100,000+ photos, as well as blend ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" time-based media such as videos and sounds with static media. Metadata’s independence from media data allows  ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" creation of scenes with images spaced far apart, containing \"artifacts\" such as blur or high contrast areas, ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" or taken at different times of day. Additionally, MultimediaLocator allows \"playing\" static media over time,", xPos, yPos += lineWidthVeryWide);
-			applet.text("  scrubbing through spatial groupings of media, and displaying time-based and static media simultaneously. ", xPos, yPos += lineWidthVeryWide);
-
-			yPos += lineWidthVeryWide;
-			applet.text(" From an aesthetic perspective, I would note that a seamless rendering is not always desired. For instance, the  ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" rectangular frame can serve as a record of the creative process: of the photographer's (or videographer's) ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" selection of viewpoint and composition. Preserving the frame is also a significant part of the \"Cubist photography\"", xPos, yPos += lineWidthVeryWide);
-			applet.text(" aesthetic made famous by British artist David Hockney. In fact, MultimediaLocator was directly inspired by, in ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" particular, Hockney's call to \"introduce the time dimension into photography\". Additional influences include sound ", xPos, yPos += lineWidthVeryWide);
-			applet.text(" artist Janet Cardiff, Norman Klein's \"Layers of Los Angeles\" interactive DVD, and the Aspen Moviemap Project.", xPos, yPos += lineWidthVeryWide);
-
-			yPos += lineWidthVeryWide;
-			applet.text(" MultimediaLocator grew out of visualization software completed for my M.S. degree in Multimedia Engineering", xPos, yPos += lineWidthVeryWide);
-			applet.text(" Engineering in Media, Arts, and Technology at the UC Santa Barbara, where I also completed a Ph.D in Music", xPos, yPos += lineWidthVeryWide);
-			applet.text(" Composition in March 2017. To download the paper on the project, visit: http://www.spatializedmusic.com/.", xPos, yPos += lineWidthVeryWide);
 			
-//			yPos += lineWidthVeryWide;
-//			applet.text(" Note: Portions of the software are still under development. Please contact the author at: ", xPos, yPos += lineWidthWide);
-//			applet.text(" spatializedmusic@gmail.com to submit bug reports or offer suggestions / comments. ", xPos, yPos += lineWidthWide);
+			applet.text(" MultimediaLocator is a media library management and visualization system written in Java for MacOS that uses embedded   ", xPos, yPos += lineWidthVeryWide * 3.0f);
+			applet.text(" metadata* to allow users to experience image, video and sound collections as navigable virtual environments. Like most      ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" media library management programs, it allows importing, displaying, and exporting media, or viewing files on a satellite map    ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" or in a grid. However, MultimediaLocator's most distinctive features lie in its incorporation of multiple media types and    ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" innovative viewing and navigation methods only possible in a metadata-based spatial browsing framework.     ", xPos, yPos += lineWidthVeryWide * 1.2f);
+
+			applet.text(" Users can view and move freely around scenes using the keyboard, view media on a timeline, or “play back” nearby media   ", xPos, yPos += lineWidthVeryWide * 2.0f);
+			applet.text(" files to watch them fade chronologically. Automatic navigation between nearby groups of media, the ability to save and revisit     ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" points of interest, and the incorporation of GPS track files are among its many other features. For large media collections,     ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" in particular, metadata has the benefit of being much faster to read in bulk than media data (i.e. pixels or frames). Since      ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" metadata allows the creation of scenes without any image or video processing, no restrictions are placed on images spaced far     ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" apart, taken at different times of day, or containing \"artifacts\" such as motion blur or high contrast areas. Original    ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" rectangular image and video borders are preserved with no distortion or correction, while 360-degree panoramic images   ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			applet.text(" may also be imported and displayed in the same environment.    ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			
+			applet.text(" * Note: Recording files with the correct metadata information requires some additional effort. See “Importing Files” for more      ", xPos, yPos += lineWidthVeryWide * 2.0f);
+			applet.text(" information.     ", xPos, yPos += lineWidthVeryWide * 1.2f);
+			
+//			applet.text(" MultimediaLocator grew out of my Master’s project in Media, Arts, and Technology at the UC Santa Barbara, where I also    ", xPos, yPos += lineWidthVeryWide * 2.0f);
+//			applet.text(" earned a Ph.D in Music Composition in March 2017.    ", xPos, yPos += lineWidthVeryWide * 1.2f);
 		}
 		else
 		{
@@ -2049,7 +2028,7 @@ public class ML_Window
 			applet.text(" OPT + s    Segment Selection On/Off", xPos, yPos += lineWidthWide);
 			applet.text(" OPT + x    Deselect All Media", xPos, yPos += lineWidthVeryWide);
 
-			xPos = iLeftMargin + 280;
+			xPos += 340;
 			yPos = 40 + lineWidthVeryWide * 2.f;			// Starting vertical position
 
 			/* Time */
@@ -2091,7 +2070,7 @@ public class ML_Window
 			applet.text(" g    		 Load GPS Track", xPos, yPos += lineWidthVeryWide * 1.5f);
 			applet.text(" OPT + g    Follow GPS Track", xPos, yPos += lineWidthVeryWide);
 
-			xPos = iLeftMargin + 560;
+			xPos += 340;
 			yPos = 50 + lineWidthVeryWide * 2.f;			// Starting vertical position
 
 			applet.textSize(fMediumTextSize);

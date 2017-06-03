@@ -179,6 +179,28 @@ public class ML_Input
 				ml.state.librarySetup = true;
 				display.window.hideLibraryWindow();
 				break;
+				
+			case "LibraryHelp":
+				if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
+				else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
+				break;
+				
+			case "AboutHelp":
+				if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
+				else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
+				ml.display.window.helpAboutText = 0;
+				break;
+				
+			case "ImportHelp":
+				if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
+				else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
+				ml.display.window.helpAboutText = 1;
+				break;
+				
+			case "CloseHelp":
+				if(ml.display.window.setupHelpWindow && ml.display.window.showHelpWindow) 
+					ml.display.window.hideHelpWindow();
+				break;
 
 			case "AddMediaFolder":
 				ml.mediaFolderDialog();

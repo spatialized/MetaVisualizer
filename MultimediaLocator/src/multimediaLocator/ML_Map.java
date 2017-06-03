@@ -160,7 +160,7 @@ public class ML_Map
 		
 		satellite.setBackgroundColor(0);
 		osm.setBackgroundColor(0);
-		p.ml.delay(100);
+		p.ml.delay(120);
 	
 		satellite.setTweening(true);
 		satellite.setZoomRange(2, 19);
@@ -168,13 +168,14 @@ public class ML_Map
 		osm.setZoomRange(2, 19);
 
 		createSatelliteMapsClusterMarkers(p);
-		p.ml.delay(100);
+		p.ml.delay(120);
 		
 		PVector vLoc = p.viewer.getGPSLocation();
 		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
 		viewerMarker.setId("viewer");
 		viewerMarker.setDiameter(viewerDiameter);
 		viewerMarker.setColor(p.ml.color(0, 0, 255, 255));
+		p.ml.delay(120);
 	}
 
 	/**

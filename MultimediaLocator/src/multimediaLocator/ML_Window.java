@@ -173,7 +173,7 @@ public class ML_Window
 		importWindowHeight = shortWindowHeight;
 
 		navigationWindowHeight = longWindowHeight + 50;
-		timeWindowHeight = longWindowHeight - 140;
+		timeWindowHeight = longWindowHeight - 100;
 		graphicsWindowHeight = longWindowHeight + 75;
 		modelWindowHeight = shortWindowHeight + 100;
 		memoryWindowHeight = shortWindowHeight - 50;
@@ -650,6 +650,20 @@ public class ML_Window
 		lblTimeCycle.setTextAlign(GAlign.CENTER, null);
 		lblTimeCycle.setTextBold();
 
+		x = 115;
+		y += iButtonSpacingWide;
+		
+		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, iSmallBoxHeight, "Run Cycle  ⇧T");
+		chkbxTimeFading.tag = "TimeFading";
+		chkbxTimeFading.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxTimeFading.setSelected(world.getState().timeFading);
+
+		y += iButtonSpacingWide;
+		chkbxPaused = new GCheckbox(timeWindow, x, y, 160, iSmallBoxHeight, "Pause  -");
+		chkbxPaused.tag = "Paused";
+		chkbxPaused.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxPaused.setSelected(world.getState().paused);
+
 		x = 80;
 		y += iButtonSpacingWide;
 		sdrTimeCycleLength = new GSlider(timeWindow, x, y, 160, 80, 20);
@@ -729,20 +743,6 @@ public class ML_Window
 			default:
 				break;
 		}
-
-		x = 115;
-		y += 15;
-		
-		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, iSmallBoxHeight, "Run Cycle  ⇧T");
-		chkbxTimeFading.tag = "TimeFading";
-		chkbxTimeFading.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxTimeFading.setSelected(world.getState().timeFading);
-
-		y += iButtonSpacingWide;
-		chkbxPaused = new GCheckbox(timeWindow, x, y, 160, iSmallBoxHeight, "Pause  -");
-		chkbxPaused.tag = "Paused";
-		chkbxPaused.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxPaused.setSelected(world.getState().paused);
 
 		x = 0;
 		y = timeWindowHeight - iBottomMargin;

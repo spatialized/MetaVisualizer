@@ -342,7 +342,7 @@ public class ML_KeyboardControls {
 			ml.world.viewer.startMoveZTransition(1);
 
 		if (!input.optionKey && key == 'w') 
-//			ml.world.viewer.walkForward();
+			ml.world.viewer.walkForward();
 
 		if (input.optionKey && key == 'M') 
 		{

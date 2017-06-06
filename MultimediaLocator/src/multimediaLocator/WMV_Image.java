@@ -465,14 +465,21 @@ public class WMV_Image extends WMV_Media
 		if(state.vertices.length == 0) setDisabled(true);
 		if(state.sVertices.length == 0) setDisabled(true);
 
-		state.vertices = translateVertices(state.vertices, getCaptureLocation());               // Move image to photo capture location   
+		state.vertices = translateVertices(state.vertices, getCaptureLocation());      // Move image to photo capture location   
 
-		state.displacement = getDisplacementVector();
-		state.vertices = translateVertices(state.vertices, state.displacement);          // Translate image state.vertices from capture to viewing location
-		state.sVertices = translateVertices(state.sVertices, state.displacement);          // Translate image state.vertices from capture to viewing location
+		if(state.vertices == null)
+		{
+			System.out.println("Image.calculateVertices()... state.vertices == null!... id #"+getID()+"  name:"+getName());
+		}
+		else
+		{
+			state.displacement = getDisplacementVector();
+			state.vertices = translateVertices(state.vertices, state.displacement);        // Translate image vertices from capture to viewing location
+			state.sVertices = translateVertices(state.sVertices, state.displacement);      // Translate image static vertices from capture to viewing location
 
-		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
-		addVectorToLocation(state.displacement);     													 
+			setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
+			addVectorToLocation(state.displacement);     													 
+		}
 	}
 
 	/**

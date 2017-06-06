@@ -23,7 +23,6 @@ public class ML_Display
 	private WMV_Utilities utilities;					/* Utility methods */
 
 	/* Control panel */
-//	GPanel pnlMain;								
 	GTextArea txaMetadata;
 
 	/* Library Dialog */
@@ -202,16 +201,26 @@ public class ML_Display
 	{
 		if(initialSetup)
 		{
-			p.ml.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-			p.ml.background(0);																// Hide World View
+			p.ml.hint(PApplet.DISABLE_DEPTH_TEST);									// Disable depth testing for drawing HUD
+			p.ml.background(0);														// Hide World View
 			displayStartup(p);														// Draw startup messages
 		}
-		else
+		else																		
 		{
-			if( displayView != 0 || p.ml.state.interactive )
+			if( displayView == 0 )													// World View						
 			{
-				p.ml.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-				p.ml.background(0.f);																// Hide World View
+				if( messages.size() > 0 || metadata.size() > 0 )
+				{
+					p.ml.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
+					if(messages.size() > 0) displayMessages(p);
+					if(p.getState().showMetadata && metadata.size() > 0 && p.viewer.getSettings().selection)	
+						displayMetadata(p);
+				}
+			}
+			else																	// 2D Views
+			{
+				p.ml.hint(PApplet.DISABLE_DEPTH_TEST);								// Disable depth testing for drawing HUD
+				p.ml.background(0.f);												// Hide World View
 
 				switch(displayView)
 				{
@@ -230,13 +239,6 @@ public class ML_Display
 						break;
 				}
 
-			}
-			else if( messages.size() > 0 || metadata.size() > 0 )
-			{
-				p.ml.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-				if(messages.size() > 0) displayMessages(p);
-				if(p.getState().showMetadata && metadata.size() > 0 && p.viewer.getSettings().selection)	
-					displayMetadata(p);
 			}
 		}
 	}

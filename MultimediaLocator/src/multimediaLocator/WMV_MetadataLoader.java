@@ -88,7 +88,7 @@ class WMV_MetadataLoader
 	 * @param libraryFolder Library folder (correctly formatted, e.g. folders small_images, small_videos, data)
 	 * @return Simulation state if one was saved, otherwise null
 	 */
-	public WMV_SimulationState load(WMV_Field f, String libraryFolder)
+	public boolean load(WMV_Field f, String libraryFolder)
 	{
 		library = libraryFolder;
 		String fieldPath = f.getName();
@@ -112,16 +112,16 @@ class WMV_MetadataLoader
 
 		if(dataFilesValidFormat)
 		{
-			WMV_FieldState newFieldState = ml.library.loadFieldState(dataFiles[1].getAbsolutePath());
-			WMV_ViewerSettings newViewerSettings = ml.library.loadViewerSettings(dataFiles[6].getAbsolutePath());
-			WMV_ViewerState newViewerState = ml.library.loadViewerState(dataFiles[7].getAbsolutePath());
-			WMV_WorldSettings newWorldSettings = ml.library.loadWorldSettings(dataFiles[8].getAbsolutePath());
-			WMV_WorldState newWorldState = ml.library.loadWorldState(dataFiles[9].getAbsolutePath());
+//			WMV_FieldState newFieldState = ml.library.loadFieldState(dataFiles[1].getAbsolutePath());
+//			WMV_ViewerSettings newViewerSettings = ml.library.loadViewerSettings(dataFiles[6].getAbsolutePath());
+//			WMV_ViewerState newViewerState = ml.library.loadViewerState(dataFiles[7].getAbsolutePath());
+//			WMV_WorldSettings newWorldSettings = ml.library.loadWorldSettings(dataFiles[8].getAbsolutePath());
+//			WMV_WorldState newWorldState = ml.library.loadWorldState(dataFiles[9].getAbsolutePath());
+//
+//			WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
+//					newViewerState, newWorldSettings, newWorldState );
 
-			WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
-					newViewerState, newWorldSettings, newWorldState );
-
-			return newSimulationState;
+			return true;
 		}
 		else
 		{
@@ -136,8 +136,9 @@ class WMV_MetadataLoader
 			if(gpsTrackFilesFound) 
 				f.setGPSTracks( loadGPSTracks(f, gpsTrackFiles) );							// Load GPS tracks 
 		}
-
-		return null;
+		
+		return false;
+//		return null;
 	}
 
 	/**

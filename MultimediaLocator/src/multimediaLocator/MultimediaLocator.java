@@ -121,7 +121,6 @@ public class MultimediaLocator extends PApplet
 		textAlign(PConstants.CENTER, PConstants.CENTER);
 		
 		initCubeMap();
-		
 		removeList = new ArrayList<Integer>();
 	}
 
@@ -169,7 +168,8 @@ public class MultimediaLocator extends PApplet
 				if(createNewLibrary)
 				{
 					if(state.chooseLibraryDestination)			/* Choose library destination */
-						libraryDestinationDialog();	
+						libraryDestinationDialog();
+					
 					display.display(world);
 				}
 				else
@@ -224,137 +224,6 @@ public class MultimediaLocator extends PApplet
 		}
 		
 		if ( state.exit ) exitProgram();							/* Stopping the program */		
-	}
-	
-	public void display360()
-	{
-		/* Start cubemap */
-		PGL pgl = beginPGL();
-		pgl.activeTexture(PGL.TEXTURE1);
-		pgl.enable(PGL.TEXTURE_CUBE_MAP);  
-		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0)); 
-
-		regenerateEnvironmentMap(pgl);
-
-		endPGL();
-		drawDomeMaster();
-		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, 0);
-	}
-	
-	void drawDomeMaster() {
-		PVector cLoc = world.viewer.getLocation();
-//		camera(cLoc.x, cLoc.y, cLoc.z, width/2.0f, height/2.0f, 0, 0, 1, 0);
-		camera();
-		ortho();
-		resetMatrix();
-		shader(cubemapShader);
-		shape(domeSphere);
-		resetShader();
-	}
-	
-	public void regenerateEnvironmentMap(PGL pgl)
-	{
-		// Bind FBO
-		pgl.bindFramebuffer(PGL.FRAMEBUFFER, fbo.get(0));
-
-		// Generate six views from camera location
-		pgl.viewport(0, 0, cubeMapSize, cubeMapSize);    
-		perspective(90.0f * PApplet.DEG_TO_RAD, 1.0f, 1.0f, world.viewer.getFarViewingDistance());
-		
-//		for ( int face = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; 
-//				  face < PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z; face++ ) 
-		for ( int face = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; 
-				  face <= PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z; face++ ) 
-		{
-			resetMatrix();
-
-//			/* Facing Up Flipped X / Y Up Params */
-//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
-//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
-//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f);  
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f);    
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-//		      }
-
-//			/* Facing Foward (Ground Visible) (Normal w/ Flipped X and Z Up Params) */
-//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
-//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
-//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f);  
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
-//		      }
-
-//			/* Facing Up (Normal w/ Flipped Y and Z Up Params) */
-//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
-//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
-//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f);  
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f);    
-//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
-//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
-//		      }
-		    
-			/* NORMAL Facing Forward (Ground Invisible?) */
-		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
-		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
-		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
-		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
-		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
-		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
-		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
-		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
-		      }
-
-//			if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
-//				camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
-//				camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
-//				camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
-//				camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
-//				camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
-//			}
-
-			scale(-1.f, 1.f, -1.f);
-//			translate(-width * 0.5f, -height * 0.5f, -500.f);
-
-			pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, face, envMapTextureID.get(0), 0);
-			
-			world.display3D();			// 3D Display
-			world.display2D();			// 2D Display
-			
-			flush(); 				// Make sure that the geometry in the scene is pushed to the GPU    
-			noLights();  			// Disabling lights to avoid adding many times
-			pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, face, 0, 0);
-
-			if(state.exportCubeMap && world.outputFolderSelected)
-				exportCubeMapFace(face, pgl);
-		}
 	}
 	
 	/**
@@ -451,7 +320,7 @@ public class MultimediaLocator extends PApplet
 		{
 			boolean success = false;
 			
-			/* Attempt to load simulation state from data folder. If not successful, initialize field */
+			/* Attempt to load simulation state from data folder */
 			if(loadState)
 			{
 				WMV_Field loadedField;
@@ -460,22 +329,22 @@ public class MultimediaLocator extends PApplet
 				else
 					loadedField = loadField(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
 
-				if(world.getFields().size() == 0)					// Reset current viewer field
+				if(world.getFields().size() == 0)				// Reset current viewer field
 					if(world.viewer.getState().field > 0)
 						world.viewer.setCurrentField(0, false);
 
 				/* Check if field loaded correctly */
-				success = (loadedField != null);
-				if(success) world.setField(loadedField, f.getID());
-				if(success) success = world.getField(f.getID()).getClusters() != null;
-				if(success) success = (world.getField(f.getID()).getClusters().size() > 0);
+				success = (loadedField != null);												// If a field state was loaded
+				if(success) world.setField(loadedField, f.getID());								// Attempt to set field from saved field state
+				if(success) success = world.getField(f.getID()).getClusters() != null;			// Check that clusters exist
+				if(success) success = (world.getField(f.getID()).getClusters().size() > 0);		
 			}
 			if(success)									/* Loaded field state from disk */
 			{
 				if(debugSettings.ml || debugSettings.world) 
 					System.out.println("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
 			}
-			else										/* If failed to load field, initialize using metadata */
+			else										/* If failed to load field, initialize from metadata */
 			{
 				if(debugSettings.ml || debugSettings.world) 
 					System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
@@ -493,23 +362,28 @@ public class MultimediaLocator extends PApplet
 	 * Load simulation state from disk
 	 * @param f The field to initialize
 	 * @param libraryFolder Library folder
+	 * @param set Whether to set simulation state
 	 * @return True if succeeded, false if failed
 	 */
 	private WMV_Field loadField(WMV_Field f, String libraryFolder, boolean set)
 	{
 		/* Load metadata from media associated with field */
-		WMV_SimulationState savedState = metadata.load(f, libraryFolder);
+		boolean savedStateData = metadata.load(f, libraryFolder);
+//		WMV_SimulationState savedState = metadata.load(f, libraryFolder);
 		
-		/* Attempt to load simulation state */
-		if(savedState != null)
+		if(savedStateData)		/* Attempt to load simulation state */
 		{
-			if(debugSettings.ml && debugSettings.detailed)
-				System.out.println("Valid Simulation State loaded...");
+			if(debugSettings.ml && debugSettings.detailed) System.out.println("ML.loadField()... Simulation State exists...");
 	
 			if(set)
-				return world.loadAndSetSimulationState(savedState, f);
+				return world.loadAndSetSimulationState(f);
 			else
-				return world.loadSimulationState(savedState, f);
+				return world.loadSimulationState(f);
+			
+//			if(set)
+//				return world.loadAndSetSimulationState(savedState, f);
+//			else
+//				return world.loadSimulationState(savedState, f);
 		}
 		else return null;
 	}
@@ -1013,6 +887,137 @@ public class MultimediaLocator extends PApplet
 		{
 			state.selectedLibrary = false;				// Library in improper format if masks are missing
 			librarySelectionDialog();					// Retry folder prompt
+		}
+	}
+	
+	public void display360()
+	{
+		/* Start cubemap */
+		PGL pgl = beginPGL();
+		pgl.activeTexture(PGL.TEXTURE1);
+		pgl.enable(PGL.TEXTURE_CUBE_MAP);  
+		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, envMapTextureID.get(0)); 
+
+		regenerateEnvironmentMap(pgl);
+
+		endPGL();
+		drawDomeMaster();
+		pgl.bindTexture(PGL.TEXTURE_CUBE_MAP, 0);
+	}
+	
+	void drawDomeMaster() {
+		PVector cLoc = world.viewer.getLocation();
+//		camera(cLoc.x, cLoc.y, cLoc.z, width/2.0f, height/2.0f, 0, 0, 1, 0);
+		camera();
+		ortho();
+		resetMatrix();
+		shader(cubemapShader);
+		shape(domeSphere);
+		resetShader();
+	}
+	
+	public void regenerateEnvironmentMap(PGL pgl)
+	{
+		// Bind FBO
+		pgl.bindFramebuffer(PGL.FRAMEBUFFER, fbo.get(0));
+
+		// Generate six views from camera location
+		pgl.viewport(0, 0, cubeMapSize, cubeMapSize);    
+		perspective(90.0f * PApplet.DEG_TO_RAD, 1.0f, 1.0f, world.viewer.getFarViewingDistance());
+		
+//		for ( int face = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; 
+//				  face < PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z; face++ ) 
+		for ( int face = PGL.TEXTURE_CUBE_MAP_POSITIVE_X; 
+				  face <= PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z; face++ ) 
+		{
+			resetMatrix();
+
+//			/* Facing Up Flipped X / Y Up Params */
+//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f);  
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f);    
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+//		      }
+
+//			/* Facing Foward (Ground Visible) (Normal w/ Flipped X and Z Up Params) */
+//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, -1.0f, 0.0f, 0.0f);  
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
+//		      }
+
+//			/* Facing Up (Normal w/ Flipped Y and Z Up Params) */
+//		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f, 0.0f);  
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f);    
+//		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+//		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f);
+//		      }
+		    
+			/* NORMAL Facing Forward (Ground Invisible?) */
+		    if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+		        camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+		        camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+		      } else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Z) {
+		        camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f);
+		      }
+
+//			if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_X) {
+//				camera(0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_X) {
+//				camera(0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Y) {
+//				camera(0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, -1.0f);  
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_NEGATIVE_Y) {
+//				camera(0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+//			} else if (face == PGL.TEXTURE_CUBE_MAP_POSITIVE_Z) {
+//				camera(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f);    
+//			}
+
+			scale(-1.f, 1.f, -1.f);
+//			translate(-width * 0.5f, -height * 0.5f, -500.f);
+
+			pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, face, envMapTextureID.get(0), 0);
+			
+			world.display3D();			// 3D Display
+			world.display2D();			// 2D Display
+			
+			flush(); 				// Make sure that the geometry in the scene is pushed to the GPU    
+			noLights();  			// Disabling lights to avoid adding many times
+			pgl.framebufferTexture2D(PGL.FRAMEBUFFER, PGL.COLOR_ATTACHMENT0, face, 0, 0);
+
+			if(state.exportCubeMap && world.outputFolderSelected)
+				exportCubeMapFace(face, pgl);
 		}
 	}
 

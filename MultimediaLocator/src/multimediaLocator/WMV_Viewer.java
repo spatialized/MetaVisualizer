@@ -4516,23 +4516,26 @@ public class WMV_Viewer
 	
 	public void startMoveXTransition(int dir)
 	{
+		stopSlowing();
 		state.moveXDirection = dir;
 		state.movingX = true;
-		state.slowingX = false;
+//		state.slowingX = false;
 	}
 	
 	public void startMoveYTransition(int dir)
 	{
+		stopSlowing();
 		state.moveYDirection = dir;
 		state.movingY = true;
-		state.slowingY = false;
+//		state.slowingY = false;
 	}
 	
 	public void startMoveZTransition(int dir)
 	{
+		stopSlowing();
 		state.moveZDirection = dir;
 		state.movingZ = true;
-		state.slowingZ = false;
+//		state.slowingZ = false;
 	}
 	
 	public void stopMoveXTransition()
@@ -4566,6 +4569,41 @@ public class WMV_Viewer
 	public void stopRotateZTransition()
 	{
 		state.rotatingZ = false;
+	}
+	
+	/**
+	 * Stop immediately
+	 */
+	public void stopImmediately()
+	{
+		state.walking = false;										// Whether viewer is walking
+		state.velocity = new PVector(0.f, 0.f, 0.f);				// Camera walking acceleration increment
+		state.acceleration = new PVector(0.f, 0.f, 0.f);			// Camera walking acceleration increment
+		state.walkingAcceleration = new PVector(0.f, 0.f, 0.f);		// Camera walking acceleration increment
+
+		state.slowing = false;			// Whether viewer is slowing 
+		state.slowingX = false;			// Slowing X movement
+		state.slowingY = false;			// Slowing Y movement
+		state.slowingZ = false;			// Slowing Z movement
+		state.halting = false;			// Viewer is halting
+		
+		state.movingX = false;			// Is viewer automatically moving in X dimension (side to side)?
+		state.movingY = false;			// Is viewer automatically moving in Y dimension (up or down)?
+		state.movingZ = false;			// Is viewer automatically moving in Z dimension (forward or backward)?
+		state.movingNearby = false;		// Moving to a powithin nearClusterDistance
+		state.waiting = false;			// Whether the camera is waiting to move while following a path
+	}
+	
+	/**
+	 * Stop slowing
+	 */
+	public void stopSlowing()
+	{
+		state.slowing = false;			// Whether viewer is slowing 
+		state.slowingX = false;			// Slowing X movement
+		state.slowingY = false;			// Slowing Y movement
+		state.slowingZ = false;			// Slowing Z movement
+		state.halting = false;			// Viewer is halting
 	}
 	
 	public void zoomIn()

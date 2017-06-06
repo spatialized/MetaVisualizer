@@ -745,19 +745,21 @@ public class WMV_World
 
 	/**
 	 * Load world, field and viewer states and settings from file
+	 * @param field Field to load simulation state for
+	 * @return Whether successful
 	 */
-	public WMV_Field loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
+//	public WMV_Field loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field field)
+	public WMV_Field loadAndSetSimulationState(WMV_Field field)
 	{
-		if(ml.debugSettings.world && ml.debugSettings.detailed)
-			PApplet.println("Loading and setting Simulation State... Field #"+curField.getID());
+		if(ml.debugSettings.world && ml.debugSettings.detailed) PApplet.println("Loading and setting Simulation State... Field #"+field.getID());
 
-		loadAndSetState(curField.getID());
-		loadAndSetSettings(curField.getID());
-		loadAndSetViewerState(curField.getID());
-		loadAndSetViewerSettings(curField.getID());
+		loadAndSetState(field.getID());
+		loadAndSetSettings(field.getID());
+		loadAndSetViewerState(field.getID());
+		loadAndSetViewerSettings(field.getID());
 		state.frameCount = ml.frameCount;
 		viewer.setFrameCount(ml.frameCount);
-		viewer.setCurrentFieldID(curField.getID());
+		viewer.setCurrentFieldID(field.getID());
 		viewer.resetTimeState();
 		
 		/* Check world and viewer state/settings */
@@ -768,23 +770,25 @@ public class WMV_World
 			if(viewer.getState() != null) System.out.println("ViewerState exists...");
 			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
 		}
-		String fieldName = curField.getName();
-		int fieldID = curField.getID();
-		curField = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debugSettings, fieldName, fieldID);
 		
-		curField = loadFieldState(curField);
-		curField.setID(fieldID);
+		String fieldName = field.getName();
+		int fieldID = field.getID();
+		field = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debugSettings, fieldName, fieldID);
+		
+		field = loadFieldState(field);
+		field.setID(fieldID);
 		
 		if(ml.debugSettings.world && ml.debugSettings.detailed)
-			System.out.println("Loaded and Set Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
+			System.out.println("Loaded and Set Field State... Field #"+field.getID()+" clusters:"+field.getClusters().size());
 
-		return curField;
+		return field;
 	}
 	
 	/**
 	 * Save the current world, field and viewer states and settings to file
 	 */
-	public WMV_Field loadSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
+//	public WMV_Field loadSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
+	public WMV_Field loadSimulationState(WMV_Field curField)
 	{
 		PApplet.println("Loading Simulation State... Field #"+curField.getID());
 
@@ -793,7 +797,6 @@ public class WMV_World
 		WMV_ViewerState newViewerState = loadViewerState(curField.getID());
 		WMV_ViewerSettings newViewerSettings = loadViewerSettings(curField.getID());
 		newWorldState.frameCount = ml.frameCount;
-//		newViewerState.frameCount = p.frameCount;
 
 		/* Check world and viewer state/settings */
 		if(ml.debugSettings.world && ml.debugSettings.detailed)
@@ -916,48 +919,84 @@ public class WMV_World
 		return field;
 	}
 
+	/**
+	 * Load and set saved world settings for field
+	 * @param fieldID Field ID 
+	 */
 	public void loadAndSetSettings(int fieldID)
 	{
 		String dataFolder = ml.library.getDataFolder(fieldID);
 		setSettings(ml.library.loadWorldSettings(dataFolder+"ml_library_worldSettings.json"));
 	}
 
+	/**
+	 * Load and set saved world state for field
+	 * @param fieldID Field ID 
+	 */
 	public void loadAndSetState(int fieldID)
 	{
 		String dataFolder = ml.library.getDataFolder(fieldID);
 		setState(ml.library.loadWorldState(dataFolder+"ml_library_worldState.json"));
 	}
 
+	/**
+	 * Load and set saved viewer settings for field
+	 * @param fieldID Field ID 
+	 */
 	public void loadAndSetViewerSettings(int fieldID)
 	{
 		String dataFolder = ml.library.getDataFolder(fieldID);
 		viewer.setSettings(ml.library.loadViewerSettings(dataFolder+"ml_library_viewerSettings.json"));
 	}
 
+	/**
+	 * Load and set saved viewer state for field
+	 * @param fieldID Field ID 
+	 */
 	public void loadAndSetViewerState(int fieldID)
 	{
 		String dataFolder = ml.library.getDataFolder(fieldID);
 		viewer.setState(ml.library.loadViewerState(dataFolder+"ml_library_viewerState.json"));
 	}
 
+	/**
+	 * Load saved world settings for field
+	 * @param fieldID Field ID
+	 * @return Saved world settings for field
+	 */
 	public WMV_WorldSettings loadSettings(int fieldID)
 	{
 		String dataFolder = ml.library.getDataFolder(fieldID);
 		return ml.library.loadWorldSettings(dataFolder+"ml_library_worldSettings.json");
 	}
 
+	/**
+	 * Load saved world state for field
+	 * @param fieldID Field ID
+	 * @return Saved world state for field
+	 */
 	public WMV_WorldState loadState(int fieldID)
 	{
 		String dataFolder = ml.library.getDataFolder(fieldID);
 		return ml.library.loadWorldState(dataFolder+"ml_library_worldState.json");
 	}
 
+	/**
+	 * Load saved viewer settings for field
+	 * @param fieldID Field ID
+	 * @return Saved viewer settings for field
+	 */
 	public WMV_ViewerSettings loadViewerSettings(int fieldID)
 	{
 		String dataFolder = ml.library.getDataFolder(fieldID);
 		return ml.library.loadViewerSettings(dataFolder+"ml_library_viewerSettings.json");
 	}
 
+	/**
+	 * Load saved viewer state for field
+	 * @param fieldID Field ID
+	 * @return Saved viewer state for field
+	 */
 	public WMV_ViewerState loadViewerState(int fieldID)
 	{
 		String dataFolder = ml.library.getDataFolder(fieldID);
@@ -1100,17 +1139,26 @@ public class WMV_World
 		state.alpha = newAlphaFadeValue;
 	}
 	
+	/**
+	 * Get current world settings
+	 * @return Get current world settings
+	 */
 	public WMV_WorldSettings getSettings()
 	{
 		return settings;
 	}
 
+	/**
+	 * Get current world state
+	 * @return Get current world state
+	 */
 	public WMV_WorldState getState()
 	{
 		return state;
 	}
 	
 	/**
+	 * Get current field
 	 * @return Current field
 	 */
 	public WMV_Field getCurrentField()
@@ -1120,7 +1168,8 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return All fields in library
+	 * Get all fields in world
+	 * @return All fields in world
 	 */
 	public ArrayList<WMV_Field> getFields()
 	{
@@ -1128,6 +1177,7 @@ public class WMV_World
 	}
 	
 	/**
+	 * Get model of current field
 	 * @return Model of current field
 	 */
 	public WMV_Model getCurrentModel()
@@ -1137,7 +1187,8 @@ public class WMV_World
 	}
 	
 	/**
-	 * @return The current cluster
+	 * Get current cluster
+	 * @return Current cluster
 	 */
 	public WMV_Cluster getCurrentCluster()
 	{
@@ -1990,12 +2041,23 @@ public class WMV_World
 				else if(image.getWidth() == 480 && image.getHeight() == 640) 
 					setVerticalBlurMask(image, bmID);
 				else
+				{
 					System.out.println("setBlurMasks()... ERROR: Could not set mask... image has size other than 640x480 or 480x640!"+image.getName());
+					System.out.println("Setting image to disabled..."+image.getName());
+					image.setDisabled(true);
+				}
 			}
 			for(WMV_Video video : f.getVideos())
 			{
 				int bmID = video.getState().blurMaskID;
-				setVideoBlurMask(video, bmID);				// Should check width / height if possible
+				if(video.getWidth() == 640 && video.getHeight() == 360) 
+					setVideoBlurMask(video, bmID);				// Should check width / height if possible
+				else
+				{
+					System.out.println("setBlurMasks()... ERROR: Could not set mask... video has size other than 640x360!"+video.getName());
+					System.out.println("Setting image to disabled..."+video.getName());
+					video.setDisabled(true);
+				}
 			}
 		}
 	}

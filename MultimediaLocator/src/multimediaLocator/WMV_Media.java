@@ -610,23 +610,39 @@ public abstract class WMV_Media
 	 */
 	public PVector[] translateVertices(PVector[] verts, PVector dest) // Translate vertices to a designated point
 	{
-		int vl = verts.length;
-		PVector[] clone = new PVector[vl];
+		if(verts.length == 0)
+		{
+			System.out.println(  "verts.length:" + verts.length );
+			return null;
+		}
+		else if(verts[0] == null || verts[1] == null || verts[2] == null || verts[3] == null)
+		{
+			System.out.println(  "verts[0] == null"+(verts[0] == null) +
+								 "verts[1] == null"+(verts[1] == null) +
+								 "verts[2] == null"+(verts[2] == null) +
+								 "verts[3] == null"+(verts[3] == null)	 );
+			return null;
+		}
+		else
+		{
+			int vl = verts.length;
+			PVector[] clone = new PVector[vl];
 
-		for (int i = 0; i < vl; i++)
-			clone[i] = PVector.add(verts[i], new PVector());
+			for (int i = 0; i < vl; i++)
+				clone[i] = PVector.add(verts[i], new PVector());
 
-		PMatrix3D tMat = new PMatrix3D();
-		tMat.translate(dest.x, dest.y, dest.z);
+			PMatrix3D tMat = new PMatrix3D();
+			tMat.translate(dest.x, dest.y, dest.z);
 
-		PVector[] dst = new PVector[vl];
+			PVector[] dst = new PVector[vl];
 
-		for (int i = 0; i < vl; i++)
-			dst[i] = new PVector();
-		for (int i = 0; i < vl; i++)
-			tMat.mult(clone[i], dst[i]);
+			for (int i = 0; i < vl; i++)
+				dst[i] = new PVector();
+			for (int i = 0; i < vl; i++)
+				tMat.mult(clone[i], dst[i]);
 
-		return dst;
+			return dst;
+		}
 	}
 
 	/**

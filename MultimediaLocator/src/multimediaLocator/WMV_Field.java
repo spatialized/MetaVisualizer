@@ -3716,12 +3716,7 @@ public class WMV_Field
 						{
 							WMV_Sound newSound = getSoundFromSoundState(ss);
 							if(newSound != null)
-							{
-//								Movie newMovie = new Movie(ml, ss.getMetadata().filePath);
-//								newSound.setSoundLength(newMovie);
-//								newSound.setFrame(emptyImage);
 								addSound(newSound);
-							}
 						}
 					}
 				}
@@ -3789,18 +3784,12 @@ public class WMV_Field
 		else
 		{
 			System.out.println("Field: "+state.name+" Error 4 in setState()");
-			if(newFieldState == null)
-				System.out.println("newFieldState == null");
-			if(newClusterStateList.clusters == null) 
-				System.out.println("newClusterStateList.clusters == null");
-			if(newImageStateList == null)
-				System.out.println("newImageStateList == null");
-			if(newPanoramaStateList == null) 
-				System.out.println("newPanoramaStateList == null");
-			if(newVideoStateList == null)
-				System.out.println("newVideoStateList == null");
-			if(newSoundStateList == null)
-				System.out.println("newSoundStateList == null");
+			if(newFieldState == null) System.out.println("newFieldState == null");
+			if(newClusterStateList.clusters == null)  System.out.println("newClusterStateList.clusters == null");
+			if(newImageStateList == null) System.out.println("newImageStateList == null");
+			if(newPanoramaStateList == null) System.out.println("newPanoramaStateList == null");
+			if(newVideoStateList == null) System.out.println("newVideoStateList == null");
+			if(newSoundStateList == null) System.out.println("newSoundStateList == null");
 
 			return false;
 		}

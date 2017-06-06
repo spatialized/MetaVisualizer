@@ -8,11 +8,14 @@ package multimediaLocator;
 public class ML_SystemState 
 {
 	/* General */
+	public boolean startup = true;				// Startup frame
 	public boolean running = false;				// Whether simulation is running
 	public boolean startedRunning = false;		// Program just started running
-	public boolean startup = true;				// Startup frame
+
 	public boolean reset = false;				// Whether program was recently reset
 	public boolean exit = false;				// System message to exit the program
+	
+	public boolean hints = true;				// Whether to show hints
 
 	/* Setup */
 	public boolean selectedLibrary = false;					// Whether user has selected a library folder

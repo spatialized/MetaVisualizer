@@ -6,8 +6,8 @@ import processing.core.*;
  * Camera class
  * @author davidgordon
  * 
- * Camera position: sits on positive z-axis      Target position: at world origin
- * Up direction: points in negative y direction      Field-of-view: PI/3 radians (60 deg.)
+ * Camera position: sits on positive z-axis      	Target position: at world origin
+ * Up direction: points in negative y direction     Field-of-view: PI/3 radians (60 deg.)
  * Aspect ratio: PApplet width to applet height
  * Near clipping plane: 0.1 x shot length			Far clipping plane: 10 x the shot length.
  */ 
@@ -70,8 +70,7 @@ public class WMV_Camera
 			float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
 			float newFoV, float newNearClip, float newFarClip)
 	{
-		this(newParent,
-				newCameraX, newCameraY, newCameraZ,
+		this(newParent, newCameraX, newCameraY, newCameraZ,
 				newTargetX, newTargetY, newTargetZ,
 				newUpX,    newUpY,    newUpZ,
 				newFoV, (float)(1f * newParent.width / newParent.height), newNearClip, newFarClip);

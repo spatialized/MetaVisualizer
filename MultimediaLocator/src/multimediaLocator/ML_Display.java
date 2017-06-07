@@ -23,7 +23,7 @@ public class ML_Display
 	private WMV_Utilities utilities;					/* Utility methods */
 
 	/* Control panel */
-	GTextArea txaMetadata;
+	GTextArea txaMetadata;		
 
 	/* Library Dialog */
 	private GButton btnCreateLibrary, btnOpenLibrary;
@@ -35,7 +35,7 @@ public class ML_Display
 	public boolean initializedWorldMap = false;
 	
 	/* Display Views */
-	public int displayView = 0;							/* 0: Scene  1: Map  2: Library  3: Timeline */
+	public int displayView = 0;							/* 0: Scene  1: Map  2: Library  3: Timeline  4: Media */
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -50,8 +50,8 @@ public class ML_Display
 
 	public int blendMode = 0;							/* Alpha blending mode */
 	private int numBlendModes = 10;						/* Number of blending modes */
-	private float hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera
-	private float initHudDistance = -1000.f;			// Distance of the Heads-Up Display from the virtual camera
+	private float hudDistance = -1000.f;				/* Distance of the Heads-Up Display from the virtual camera */
+	private float initHudDistance = -1000.f;			/* Initial distance of the Heads-Up Display from the virtual camera */
 	private int screenWidth = -1;
 	private int screenHeight = -1;
 	
@@ -94,6 +94,10 @@ public class ML_Display
 	private float panoramaHue = 190.f;
 	private float videoHue = 100.f;
 	private float soundHue = 40.f;
+
+	/* Media View */
+	private int mediaViewMediaType = -1;
+	private int mediaViewMediaID = -1;
 
 	/* Messages */
 	ArrayList<String> messages;							// Messages to display on screen
@@ -237,6 +241,9 @@ public class ML_Display
 						displayLibraryView(p);
 						if(libraryViewMode == 0) map2D.update(p);
 						break;
+					case 4:
+						displayMediaView(p);
+						break;
 				}
 
 			}
@@ -268,7 +275,6 @@ public class ML_Display
 //	} else if (e.getSource() == b2) {
 //		println("Button two was clicked");
 //	}
-
 	}
 
 	/**
@@ -1805,6 +1811,71 @@ public class ML_Display
 				break;
 		}
 	}
+	
+	/**
+	 * Set current object viewable in Media View
+	 * @param mediaType Media type
+	 * @param mediaID Media ID
+	 */
+	public void setMediaViewObject(int mediaType, int mediaID)
+	{
+		mediaViewMediaType = mediaType;
+		mediaViewMediaID = mediaID;
+	}
+	
+	/**
+	 * Display selected media centered in window at full brightness
+	 * @param p Parent world
+	 */
+	private void displayMediaView(WMV_World p)
+	{
+		if(mediaViewMediaType > -1 && mediaViewMediaID > -1)
+		{
+			switch(mediaViewMediaType)
+			{
+				case 0:
+					displayImage2D(p.getCurrentField().getImage(mediaViewMediaID));
+					break;
+				case 1:
+					displayPanorama2D(p.getCurrentField().getPanorama(mediaViewMediaID));
+					break;
+				case 2:
+					displayVideo2D(p.getCurrentField().getVideo(mediaViewMediaID));
+					break;
+//				case 3:
+//					displaySound2D(p.getCurrentField().getSound(mediaViewMediaID));		
+//					break;
+			}
+		}
+	}
+	
+	/**
+	 * Display image in Media View
+	 * @param image Image to display
+	 */
+	private void displayImage2D(WMV_Image image)
+	{
+		image.display2D(ml);
+	}
+	
+	/**
+	 * Display 360-degree panorama texture in Media View
+	 * @param panorama Panorama to display
+	 */
+	private void displayPanorama2D(WMV_Panorama panorama)
+	{
+//		panorama.display2D(ml);
+	}
+
+	/**
+	 * Display video in Media View
+	 * @param video Video to display
+	 */
+	private void displayVideo2D(WMV_Video video)
+	{
+//		video.display2D(ml);
+	}
+
 
 	/**
 	 * Draw thumbnails (grid) of image list
@@ -1869,16 +1940,15 @@ public class ML_Display
 	 */
 	public void setDisplayView(WMV_World p, int newDisplayView)
 	{
+		displayView = newDisplayView;
 		switch(newDisplayView)
 		{
 			case 0:	
-				displayView = 0;
 				window.optWorldView.setSelected(true);
 				window.optMapView.setSelected(false);
 				window.optTimelineView.setSelected(false);
 				break;
 			case 1:	
-				displayView = 1;
 				map2D.initializeMaps(p);
 				map2D.largeMarkerManager.enableDrawing();
 				map2D.smallMarkerManager.enableDrawing();
@@ -1888,13 +1958,11 @@ public class ML_Display
 				window.optTimelineView.setSelected(false);
 				break;
 			case 2:	
-				displayView = 2;
 //				window.optSceneView.setSelected(false);
 //				window.optMapView.setSelected(false);
 //				window.optClusterView.setSelected(true);
 				break;
 			case 3:	
-				displayView = 3;
 				if(!initializedMaps) map2D.initializeMaps(p);
 				map2D.initializeWorldMap(p, false);
 				map2D.satelliteMarkerManager.enableDrawing();
@@ -1904,6 +1972,9 @@ public class ML_Display
 				window.optMapView.setSelected(false);
 				window.optTimelineView.setSelected(true);
 				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
+				break;
+			case 4:
+//				-- Start video playing
 				break;
 		}
 	}

@@ -51,21 +51,23 @@ public class ML_Input
 			/* General */
 			keyboardInput.handleUniversalKeyPressed(ml, key, keyCode);
 
-			if(ml.display.displayView == 1)						 /* 2D Map View */
+			if(ml.display.displayView == 1)											 /* Map View */
 				keyboardInput.handleMapViewKeyPressed(ml, key, keyCode);
-			else if(ml.display.displayView == 2)				 /* Time View */
+			else if(ml.display.displayView == 2)									 /* Time View */
 				keyboardInput.handleTimelineViewKeyPressed(ml, key, keyCode);
-			else if(ml.display.displayView == 3)				 /* Library View */
+			else if(ml.display.displayView == 3)									 /* Library View */
 				keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);
+			else if(ml.display.displayView == 4)							 		/* Media View */
+				keyboardInput.handleMediaViewKeyPressed(ml, key, keyCode);
 
-			if (ml.state.interactive)							 /* World View Controls */
+			if (ml.state.interactive)					
 				keyboardInput.handleInteractiveClusteringKeyPressed(ml, key, keyCode);
 			else 						// Interactive Clustering Mode
 			{
-				keyboardInput.handleGeneralKeyPressed(ml, key, keyCode);	 	 /* Controls for both 3D + HUD Views */
+				keyboardInput.handleGeneralKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
 
 				if(!ml.display.inDisplayView())							
-					keyboardInput.handleWorldViewKeyPressed(ml, key, keyCode); /* Controls only for World View */
+					keyboardInput.handleWorldViewKeyPressed(ml, key, keyCode); 		/* World View Controls only */
 			}
 		}
 	}
@@ -161,247 +163,251 @@ public class ML_Input
 		{
 			switch(button.tag) 
 			{
-			/* General */
-			case "Restart":
-				ml.restart();
-				break;
-
+				/* General */
+				case "Restart":
+					ml.restart();
+					break;
+	
+				case "SaveWorld":
+					if(ml.world.getFields().size() > 1)
+						ml.world.saveAllSimulationStates();
+					else
+						ml.world.saveSimulationState();
+					break;
+	
+				case "SaveField":
+					ml.world.saveSimulationState();
+					break;
+					
 				/* Library */
-			case "CreateLibrary":
-				ml.createNewLibrary = true;
-				ml.state.chooseMediaFolders = true;
-				ml.state.librarySetup = true;
-				display.window.hideLibraryWindow();
-				break;
-
-			case "OpenLibrary":
-				if(ml.createNewLibrary) ml.createNewLibrary = false;
-				ml.state.librarySetup = true;
-				display.window.hideLibraryWindow();
-				break;
-				
-			case "LibraryHelp":
-				if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
-				else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
-				break;
-				
-			case "AboutHelp":
-				if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
-				else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
-				ml.display.window.helpAboutText = 0;
-				break;
-				
-			case "ImportHelp":
-				if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
-				else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
-				ml.display.window.helpAboutText = 1;
-				break;
-				
-			case "CloseHelp":
-				if(ml.display.window.setupHelpWindow && ml.display.window.showHelpWindow) 
-					ml.display.window.hideHelpWindow();
-				break;
-
-			case "AddMediaFolder":
-				ml.mediaFolderDialog();
-				break;
-
-			case "MakeLibrary":
-				ml.state.selectedMediaFolders = true;			// Media folder has been selected
-				ml.state.chooseMediaFolders = false;			// No longer choose a media folder
-				ml.state.chooseLibraryDestination = true;		// Choose library destination folder
-				break;
-
+				case "CreateLibrary":
+					ml.createNewLibrary = true;
+					ml.state.chooseMediaFolders = true;
+					ml.state.librarySetup = true;
+					display.window.hideLibraryWindow();
+					break;
+	
+				case "OpenLibrary":
+					if(ml.createNewLibrary) ml.createNewLibrary = false;
+					ml.state.librarySetup = true;
+					display.window.hideLibraryWindow();
+					break;
+					
+				case "LibraryHelp":
+					if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
+					else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
+					break;
+					
+				case "AboutHelp":
+					if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
+					else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
+					ml.display.window.helpAboutText = 0;
+					break;
+					
+				case "ImportHelp":
+					if(!ml.display.window.setupHelpWindow) ml.display.window.openHelpWindow();
+					else if(!ml.display.window.showHelpWindow) ml.display.window.showHelpWindow();
+					ml.display.window.helpAboutText = 1;
+					break;
+					
+				case "CloseHelp":
+					if(ml.display.window.setupHelpWindow && ml.display.window.showHelpWindow) 
+						ml.display.window.hideHelpWindow();
+					break;
+	
+				case "AddMediaFolder":
+					ml.mediaFolderDialog();
+					break;
+	
+				case "MakeLibrary":
+					ml.state.selectedMediaFolders = true;			// Media folder has been selected
+					ml.state.chooseMediaFolders = false;			// No longer choose a media folder
+					ml.state.chooseLibraryDestination = true;		// Choose library destination folder
+					break;
+	
 				/* Navigation */
-			case "OpenNavigationWindow":
-				display.window.openNavigationWindow();
-				break;
-
-			case "CloseNavigationWindow":
-				display.window.hideNavigationWindow();
-				break;
-
-			case "NearestCluster":
-				ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
-				break;
-			case "RandomCluster":
-				ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport(), true);
-				break;
-			case "LastCluster":
-				ml.world.viewer.moveToLastCluster(ml.world.viewer.getMovementTeleport());
-				break;
-			case "NextField":
-				if(display.displayView == 1)
-					ml.world.viewer.teleportToFieldOffset(1, true, false);
-				else
-					ml.world.viewer.teleportToFieldOffset(1, true, true);
-				break;
-			case "PreviousField":
-				if(display.displayView == 1)
-					ml.world.viewer.teleportToFieldOffset(-1, true, false);
-				else
-					ml.world.viewer.teleportToFieldOffset(-1, true, true);
-				break;
-			case "ImportGPSTrack":
-				ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
-				break;
-
-			case "FollowStart":
-				if(!ml.world.viewer.isFollowing())
-				{
-					switch(ml.world.viewer.getFollowMode())
+				case "OpenNavigationWindow":
+					display.window.openNavigationWindow();
+					break;
+	
+				case "CloseNavigationWindow":
+					display.window.hideNavigationWindow();
+					break;
+	
+				case "NearestCluster":
+					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
+					break;
+				case "RandomCluster":
+					ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport(), true);
+					break;
+				case "LastCluster":
+					ml.world.viewer.moveToLastCluster(ml.world.viewer.getMovementTeleport());
+					break;
+				case "NextField":
+					if(display.displayView == 1)
+						ml.world.viewer.teleportToFieldOffset(1, true, false);
+					else
+						ml.world.viewer.teleportToFieldOffset(1, true, true);
+					break;
+				case "PreviousField":
+					if(display.displayView == 1)
+						ml.world.viewer.teleportToFieldOffset(-1, true, false);
+					else
+						ml.world.viewer.teleportToFieldOffset(-1, true, true);
+					break;
+					
+				case "ImportGPSTrack":
+					ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
+					break;
+				case "FollowStart":
+					if(!ml.world.viewer.isFollowing())
 					{
-					case 0:
-						ml.world.viewer.followTimeline(true, false);
-						break;
-					case 1:
-						ml.world.viewer.followGPSTrack();
-						break;
-					case 2:
-						ml.world.viewer.followMemory();
-						break;
+						switch(ml.world.viewer.getFollowMode())
+						{
+						case 0:
+							ml.world.viewer.followTimeline(true, false);
+							break;
+						case 1:
+							ml.world.viewer.followGPSTrack();
+							break;
+						case 2:
+							ml.world.viewer.followMemory();
+							break;
+						}
 					}
-				}
-				break;
-
-			case "FollowStop":
-				ml.world.viewer.stopFollowing();
-				break;
-
+					break;
+				case "FollowStop":
+					ml.world.viewer.stopFollowing();
+					break;
+	
 				/* Model */
-			case "SubjectDistanceDown":
-				ml.world.getCurrentField().fadeObjectDistances(0.85f);
-				break;
-
-			case "SubjectDistanceUp":
-				ml.world.getCurrentField().fadeObjectDistances(1.176f);
-				break;
-
+				case "SubjectDistanceDown":
+					ml.world.getCurrentField().fadeObjectDistances(0.85f);
+					break;
+				case "SubjectDistanceUp":
+					ml.world.getCurrentField().fadeObjectDistances(1.176f);
+					break;
+	
 				/* Help */
-			case "OpenHelpWindow":
-				display.window.openHelpWindow();
-				break;
-
-			case "CloseHelpWindow":
-				display.window.hideHelpWindow();
-				break;
-
+				case "OpenHelpWindow":
+					display.window.openHelpWindow();
+					break;
+				case "CloseHelpWindow":
+					display.window.hideHelpWindow();
+					break;
+	
 				/* Memory */
-			case "OpenMemoryWindow":
-				display.window.openMemoryWindow();
-				break;
-
-			case "CloseMemoryWindow":
-				display.window.hideMemoryWindow();
-				break;
-
+				case "OpenMemoryWindow":
+					display.window.openMemoryWindow();
+					break;
+				case "CloseMemoryWindow":
+					display.window.hideMemoryWindow();
+					break;
+	
 				/* Statistics */
-			case "OpenStatisticsWindow":
-				display.window.openStatisticsWindow();
-				break;
-
-			case "CloseStatisticsWindow":
-				display.window.hideStatisticsWindow();
-				break;
-
+				case "OpenStatisticsWindow":
+					display.window.openStatisticsWindow();
+					break;
+				case "CloseStatisticsWindow":
+					display.window.hideStatisticsWindow();
+					break;
+	
 				/* Time */
-			case "OpenTimeWindow":
-				display.window.openTimeWindow();
-				break;
-
-			case "CloseTimeWindow":
-				display.window.hideTimeWindow();
-				break;
-
+				case "OpenTimeWindow":
+					display.window.openTimeWindow();
+					break;
+				case "CloseTimeWindow":
+					display.window.hideTimeWindow();
+					break;
+	
 				/* Graphics */
-			case "OpenGraphicsWindow":
-				display.window.openGraphicsWindow();
-				break;
-
-			case "CloseGraphicsWindow":
-				display.window.hideGraphicsWindow();
-				break;
-
-			case "MoveForward":
-				ml.world.viewer.walkForward();
-				break;
-			case "MoveBackward":
-				ml.world.viewer.walkBackward();
-				break;
-			case "MoveLeft":
-				ml.world.viewer.startMoveXTransition(-1);
-				break;
-			case "MoveRight":
-				ml.world.viewer.startMoveXTransition(1);
-				break;
-
-			case "ZoomIn":
-				ml.world.viewer.zoomIn();
-				break;
-			case "ZoomOut":
-				ml.world.viewer.zoomOut();
-				break;
-
+				case "OpenGraphicsWindow":
+					display.window.openGraphicsWindow();
+					break;
+				case "CloseGraphicsWindow":
+					display.window.hideGraphicsWindow();
+					break;
+	
+				case "MoveForward":
+					ml.world.viewer.walkForward();
+					break;
+				case "MoveBackward":
+					ml.world.viewer.walkBackward();
+					break;
+				case "MoveLeft":
+					ml.world.viewer.startMoveXTransition(-1);
+					break;
+				case "MoveRight":
+					ml.world.viewer.startMoveXTransition(1);
+					break;
+	
+				case "ZoomIn":
+					ml.world.viewer.zoomIn();
+					break;
+				case "ZoomOut":
+					ml.world.viewer.zoomOut();
+					break;
+	
 				/* Model */
-			case "OpenModelWindow":
-				display.window.openModelWindow();
-				break;
-
-			case "CloseModelWindow":
-				display.window.modelWindow.setVisible(false);
-				break;
-
+				case "OpenModelWindow":
+					display.window.openModelWindow();
+					break;
+				case "CloseModelWindow":
+					display.window.modelWindow.setVisible(false);
+					break;
+	
 				/* Time */
-			case "NextTime":
-				ml.world.viewer.moveToNextTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
-				break;
-			case "PreviousTime":
-				ml.world.viewer.moveToPreviousTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
-				break;
-
+				case "NextTime":
+					ml.world.viewer.moveToNextTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
+					break;
+				case "PreviousTime":
+					ml.world.viewer.moveToPreviousTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
+					break;
+	
 				/* Selection */
-			case "OpenSelectionWindow":
-				display.window.openSelectionWindow();
-				ml.world.viewer.setSelection( true );
-				display.window.chkbxSelectionMode.setSelected(true);
-				break;
-
-			case "CloseSelectionWindow":
-				display.window.selectionWindow.setVisible(false);
-				break;
-
-			case "SelectFront":
-				ml.world.viewer.chooseMediaInFront(true);
-				break;
-
-			case "DeselectFront":
-				ml.world.viewer.chooseMediaInFront(false);	
-				break;
-
-			case "DeselectAll":
-				ml.world.getCurrentField().deselectAllMedia(false);
-				break;
-
-			case "StitchPanorama":
-				ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
-				break;
-
+				case "OpenSelectionWindow":
+					display.window.openSelectionWindow();
+					ml.world.viewer.setSelection( true );
+					display.window.chkbxSelectionMode.setSelected(true);
+					break;
+	
+				case "CloseSelectionWindow":
+					display.window.selectionWindow.setVisible(false);
+					break;
+	
+				case "SelectFront":
+					ml.world.viewer.chooseMediaInFront(true);
+					break;
+				case "DeselectFront":
+					ml.world.viewer.chooseMediaInFront(false);	
+					break;
+				case "DeselectAll":
+					ml.world.getCurrentField().deselectAllMedia(false);
+					break;
+	
+				case "ViewSelected":
+					ml.world.viewer.startViewingSelectedMedia();
+					break;
+				case "StitchPanorama":
+					ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
+					break;
+	
 				/* Memory */
-			case "SaveLocation":
-				ml.world.viewer.addPlaceToMemory();
-				break;
-			case "ClearMemory":
-				ml.world.viewer.clearMemory();
-				break;
-
+				case "SaveLocation":
+					ml.world.viewer.addPlaceToMemory();
+					break;
+				case "ClearMemory":
+					ml.world.viewer.clearMemory();
+					break;
+	
 				/* Output */
-			case "ExportImage":
-				if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
-				ml.world.exportCurrentView();
-				break;
-			case "OutputFolder":
-				ml.selectFolder("Select an output folder:", "outputFolderSelected");
-				break;
+				case "ExportImage":
+					if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
+					ml.world.exportCurrentView();
+					break;
+				case "OutputFolder":
+					ml.selectFolder("Select an output folder:", "outputFolderSelected");
+					break;
 			}
 		}
 		

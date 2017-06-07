@@ -108,15 +108,15 @@ public class ML_KeyboardControls {
 				ml.display.window.hideSelectionWindow();
 		}
 
-		if (key == '^') 
-		{
-			if(!ml.display.window.showMemoryWindow)
-				ml.display.window.openMemoryWindow();
-			else
-				ml.display.window.hideMemoryWindow();
-		}
+//		if (key == '^') 
+//		{
+//			if(!ml.display.window.showMemoryWindow)
+//				ml.display.window.openMemoryWindow();
+//			else
+//				ml.display.window.hideMemoryWindow();
+//		}
 
-		if (key == '&') 
+		if (key == '^') 
 		{
 			if(!ml.display.window.showStatisticsWindow)
 				ml.display.window.openStatisticsWindow();
@@ -909,6 +909,11 @@ public class ML_KeyboardControls {
 			if (keyCode == PApplet.RIGHT)  				// Start timeline scrolling right
 				ml.display.scroll(ml.world, 1);
 		}
+	}
+	
+	public void handleMediaViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	{
+		
 	}
 	
 	public void handleInteractiveClusteringKeyPressed(MultimediaLocator ml, char key, int keyCode)

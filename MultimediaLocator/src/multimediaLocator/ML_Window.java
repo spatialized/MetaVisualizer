@@ -19,7 +19,7 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
-	private int delayAmount = 180;					// Delay length to avoid G4P library concurrent modification exception
+	private int delayAmount = 175;							// Delay length to avoid G4P library concurrent modification exception
 	
 	/* Windows */
 	public GWindow mlWindow, timeWindow, navigationWindow, graphicsWindow, modelWindow, selectionWindow, statisticsWindow,  helpWindow, 
@@ -140,7 +140,7 @@ public class ML_Window
 	/* Selection Window */
 	private GLabel lblSelection, lblSelectionOptions;
 	public GCheckbox chkbxSelectionMode, chkbxMultiSelection, chkbxSegmentSelection, chkbxShowMetadata;
-	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnStitchPanorama;
+	private GButton btnSelectFront, btnDeselectFront, btnDeselectAll, btnViewSelected, btnStitchPanorama;
 	public GLabel lblCommand6;
 	int selectionWindowHeight;
 
@@ -177,7 +177,7 @@ public class ML_Window
 		graphicsWindowHeight = longWindowHeight + 75;
 		modelWindowHeight = shortWindowHeight + 100;
 		memoryWindowHeight = shortWindowHeight - 50;
-		selectionWindowHeight = shortWindowHeight + 50;
+		selectionWindowHeight = longWindowHeight - 50;
 		statisticsWindowHeight = longWindowHeight + 100;
 		helpWindowHeight = longWindowHeight + 100;
 	}
@@ -233,6 +233,9 @@ public class ML_Window
 		showHelpWindow();
 	}
 
+	/**
+	 * Setup MultimediaLocator Window
+	 */
 	public void setupMLWindow()
 	{
 		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
@@ -263,10 +266,10 @@ public class ML_Window
 		optWorldView = new GOption(mlWindow, x, y, 90, iSmallBoxHeight, "World (1)");
 		optWorldView.setLocalColorScheme(G4P.SCHEME_10);
 		optWorldView.tag = "SceneView";
-		optMapView = new GOption(mlWindow, x+=110, y, 90, iSmallBoxHeight, "Map (2)");
+		optMapView = new GOption(mlWindow, x+=105, y, 90, iSmallBoxHeight, "Map (2)");
 		optMapView.setLocalColorScheme(G4P.SCHEME_10);
 		optMapView.tag = "MapView";
-		optTimelineView = new GOption(mlWindow, x+=110, y, 100, iSmallBoxHeight, "Timeline (3)");
+		optTimelineView = new GOption(mlWindow, x+=100, y, 100, iSmallBoxHeight, "Timeline (3)");
 		optTimelineView.setLocalColorScheme(G4P.SCHEME_10);
 		optTimelineView.tag = "TimelineView";
 
@@ -291,17 +294,25 @@ public class ML_Window
 		
 		tgDisplayView = new GToggleGroup();
 		tgDisplayView.addControls(optWorldView, optMapView, optTimelineView);
-	
+		
 		x = 65;
 		y += iButtonSpacingWide;
-
-		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 180, iSmallBoxHeight, "Load Media Library  ⇧R");
+		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Load Library  ⇧R");
 		btnLoadMediaLibrary.tag = "Restart";
+		btnLoadMediaLibrary.setLocalColorScheme(G4P.GREEN_SCHEME);
+		
+		y += iButtonSpacing;
+		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Save Library  ⇧S");
+		btnLoadMediaLibrary.tag = "SaveWorld";
+		btnLoadMediaLibrary.setLocalColorScheme(G4P.GOLD_SCHEME);
+		
+		y += iButtonSpacing;
+		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Save Field  ⇧S");
+		btnLoadMediaLibrary.tag = "SaveField";
 		btnLoadMediaLibrary.setLocalColorScheme(G4P.GOLD_SCHEME);
 
 		x = 90;
 		y += iButtonSpacingWide;
-
 		btnNavigationWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Navigation  ⇧1");
 		btnNavigationWindow.tag = "OpenNavigationWindow";
 		btnNavigationWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -312,39 +323,36 @@ public class ML_Window
 		btnTimeWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		y += iButtonSpacing;
-
 		btnGraphicsWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Graphics  ⇧3");
 		btnGraphicsWindow.tag = "OpenGraphicsWindow";
 		btnGraphicsWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
 		y += iButtonSpacing;
-		
 		btnModelWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Model  ⇧4");
 		btnModelWindow.tag = "OpenModelWindow";
 		btnModelWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
 		y += iButtonSpacing;
-		
 		btnSelectionWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Selection  ⇧5");
 		btnSelectionWindow.tag = "OpenSelectionWindow";
 		btnSelectionWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		y += iButtonSpacing;
-
-		btnMemoryWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Memory  ⇧6");
-		btnMemoryWindow.tag = "OpenMemoryWindow";
-		btnMemoryWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
+//		y += iButtonSpacing;
+//
+//		btnMemoryWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Memory  ⇧6");
+//		btnMemoryWindow.tag = "OpenMemoryWindow";
+//		btnMemoryWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
 		y += iButtonSpacing;
-		
-		btnStatisticsWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Statistics  ⇧7");
+		btnStatisticsWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Statistics  ⇧6");
 		btnStatisticsWindow.tag = "OpenStatisticsWindow";
 		btnStatisticsWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-		y += iButtonSpacing;
-		
-		btnHelpWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Help  ⇧8");
+//		y += iButtonSpacing;
+		y = mlWindowHeight - iBottomMargin * 5 / 2;
+		btnHelpWindow = new GButton(mlWindow, windowWidth - 30 - iLeftMargin, y, 30, 30, "?");
 		btnHelpWindow.tag = "OpenHelpWindow";
+		btnHelpWindow.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnHelpWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = 0;
@@ -682,7 +690,7 @@ public class ML_Window
 		x = 80;
 		y += 60;
 		sdrCurrentTime = new GSlider(timeWindow, x, y, 160, 80, 20);
-		sdrCurrentTime.setLocalColorScheme(G4P.GREEN_SCHEME);
+		sdrCurrentTime.setLocalColorScheme(G4P.CYAN_SCHEME);
 		sdrCurrentTime.setLimits(0.f, 0.f, 1.f);
 		sdrCurrentTime.setValue(0.f);
 		sdrCurrentTime.setTextOrientation(G4P.ORIENT_TRACK);
@@ -1098,7 +1106,7 @@ public class ML_Window
 		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.appHeight / 2 - selectionWindowHeight / 2;
 
-		selectionWindow = GWindow.getWindow(world.ml, "Selection Mode", leftEdge, topEdge, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
+		selectionWindow = GWindow.getWindow(world.ml, "Selection", leftEdge, topEdge, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
 		selectionWindow.setVisible(true);
 		selectionWindow.addData(new ML_WinData());
 		selectionWindow.addDrawHandler(this, "selectionWindowDraw");
@@ -1121,23 +1129,29 @@ public class ML_Window
 		chkbxSelectionMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		chkbxSelectionMode.setLocalColorScheme(G4P.SCHEME_10);
 		
-		x = 100;
+		x = 95;
 		y += 35;
-		btnSelectFront = new GButton(selectionWindow, x, y, 110, iSmallBoxHeight, "Select (x)");
+		btnSelectFront = new GButton(selectionWindow, x, y, 120, iSmallBoxHeight, "Select (x)");
 		btnSelectFront.tag = "SelectFront";
 		btnSelectFront.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x = 100;
+		x = 95;
 		y += iButtonSpacingWide;
-		btnDeselectFront = new GButton(selectionWindow, x, y, 110, iSmallBoxHeight, "Deselect (X)");
+		btnDeselectFront = new GButton(selectionWindow, x, y, 120, iSmallBoxHeight, "Deselect (X)");
 		btnDeselectFront.tag = "DeselectFront";
 		btnDeselectFront.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = 95;
 		y += iButtonSpacingWide;
-		btnDeselectAll = new GButton(selectionWindow, x, y, 120, iSmallBoxHeight, "Deselect All...");
+		btnDeselectAll = new GButton(selectionWindow, x, y, 120, iSmallBoxHeight, "Deselect All");
 		btnDeselectAll.tag = "DeselectAll";
 		btnDeselectAll.setLocalColorScheme(G4P.RED_SCHEME);
+
+		x = 95;
+		y += iButtonSpacingWide;
+		btnViewSelected = new GButton(selectionWindow, x, y, 120, iSmallBoxHeight, "View Selected");
+		btnViewSelected.tag = "ViewSelected";
+		btnViewSelected.setLocalColorScheme(G4P.GREEN_SCHEME);
 
 		x = 0;
 		y += iButtonSpacingWide;
@@ -1208,11 +1222,11 @@ public class ML_Window
 
 		x = 0;
 		y = statisticsWindowHeight - iBottomMargin;
-		lblCommand7 = new GLabel(statisticsWindow, x, y, statisticsWindow.width, iSmallBoxHeight);						/* Display Mode Label */
-		lblCommand7.setText("Press SHIFT + 7 to show / hide");
-		lblCommand7.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-		lblCommand7.setLocalColorScheme(G4P.SCHEME_10);
-		lblCommand7.setTextAlign(GAlign.CENTER, null);
+		lblCommand6 = new GLabel(statisticsWindow, x, y, statisticsWindow.width, iSmallBoxHeight);						/* Display Mode Label */
+		lblCommand6.setText("Press SHIFT + 6 to show / hide");
+		lblCommand6.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
+		lblCommand6.setLocalColorScheme(G4P.SCHEME_10);
+		lblCommand6.setTextAlign(GAlign.CENTER, null);
 		
 		statisticsWindow.addKeyHandler(world.ml, "statisticsWindowKey");
 		
@@ -1250,14 +1264,14 @@ public class ML_Window
 		btnAboutHelp = new GButton(helpWindow, x, y, 100, iLargeBoxHeight, "About");
 		btnAboutHelp.tag = "AboutHelp";
 		btnAboutHelp.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
-		btnAboutHelp.setLocalColorScheme(G4P.GREEN_SCHEME);
+		btnAboutHelp.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = 20;
 		y = helpWindowHeight / 2 - iLargeBoxHeight + iLargeBoxHeight;
 		btnImportHelp = new GButton(helpWindow, x, y, 170, iLargeBoxHeight, "Importing Files");
 		btnImportHelp.tag = "ImportHelp";
 		btnImportHelp.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
-		btnImportHelp.setLocalColorScheme(G4P.GREEN_SCHEME);
+		btnImportHelp.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = windowWidth * 2 - 60;
 		y = helpWindowHeight - iBottomMargin * 3;
@@ -1360,7 +1374,7 @@ public class ML_Window
 		btnImportMediaFolder = new GButton(importWindow, x, y, 160, iLargeBoxHeight, "Add Folder");
 		btnImportMediaFolder.tag = "AddMediaFolder";
 		btnImportMediaFolder.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
-		btnImportMediaFolder.setLocalColorScheme(G4P.YELLOW_SCHEME);
+		btnImportMediaFolder.setLocalColorScheme(G4P.GREEN_SCHEME);
 		btnMakeLibrary = new GButton(importWindow, x+220, y, 100, iLargeBoxHeight, "Done");
 		btnMakeLibrary.tag = "MakeLibrary";
 		btnMakeLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));

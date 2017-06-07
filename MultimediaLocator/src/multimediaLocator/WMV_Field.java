@@ -3172,6 +3172,90 @@ public class WMV_Field
 	}
 
 	/**
+	 * @return List of IDs of currently selected images
+	 */
+	public ArrayList<WMV_Panorama> getSelectedPanoramas()
+	{
+		ArrayList<WMV_Panorama> selected = new ArrayList<WMV_Panorama>();
+
+		for(WMV_Panorama v : panoramas)
+			if(v.isSelected())
+				selected.add(v);
+
+		return selected;
+	}
+
+	/**
+	 * @return List of IDs of currently selected images
+	 */
+	public List<Integer> getSelectedPanoramaIDs()
+	{
+		List<Integer> selected = new ArrayList<Integer>();
+
+		for(WMV_Panorama v : panoramas)
+			if(v.isSelected())
+				selected.add(v.getID());
+
+		return selected;
+	}
+
+	/**
+	 * @return List of IDs of currently selected images
+	 */
+	public ArrayList<WMV_Video> getSelectedVideos()
+	{
+		ArrayList<WMV_Video> selected = new ArrayList<WMV_Video>();
+
+		for(WMV_Video v : videos)
+			if(v.isSelected())
+				selected.add(v);
+
+		return selected;
+	}
+
+	/**
+	 * @return List of IDs of currently selected images
+	 */
+	public List<Integer> getSelectedVideoIDs()
+	{
+		List<Integer> selected = new ArrayList<Integer>();
+
+		for(WMV_Video v : videos)
+			if(v.isSelected())
+				selected.add(v.getID());
+
+		return selected;
+	}
+	
+	/**
+	 * @return List of IDs of currently selected images
+	 */
+	public ArrayList<WMV_Sound> getSelectedSounds()
+	{
+		ArrayList<WMV_Sound> selected = new ArrayList<WMV_Sound>();
+
+		for(WMV_Sound v : sounds)
+			if(v.isSelected())
+				selected.add(v);
+
+		return selected;
+	}
+
+	/**
+	 * @return List of IDs of currently selected images
+	 */
+	public List<Integer> getSelectedSoundIDs()
+	{
+		List<Integer> selected = new ArrayList<Integer>();
+
+		for(WMV_Sound v : sounds)
+			if(v.isSelected())
+				selected.add(v.getID());
+
+		return selected;
+	}
+
+	/**
 	 * @return Index of nearest cluster to camera, excluding the current cluster
 	 */
 	int getNearestClusterToPoint(PVector target) 	// Returns the cluster nearest to the current camera position, excluding the current cluster

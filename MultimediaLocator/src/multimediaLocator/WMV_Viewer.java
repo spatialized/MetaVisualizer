@@ -28,7 +28,8 @@ import processing.data.IntList;
 public class WMV_Viewer 
 {
 	/* Camera */
-	private WMV_Camera camera;									// Camera object
+	private WMV_Camera camera;								// Camera object
+	private WMV_Camera hudCamera;								// Camera object
 	private WMV_WorldSettings worldSettings;				// Viewer settings
 	private WMV_WorldState worldState;						// Viewer settings
 	private WMV_ViewerSettings settings;					// Viewer settings
@@ -90,6 +91,13 @@ public class WMV_Viewer
 	public void initialize(float x, float y, float z)
 	{
 		camera = new WMV_Camera( p.ml, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
+		hudCamera = new WMV_Camera( p.ml, p.ml.width/2.f, p.ml.height/2.f, p.ml.height/2.f / (float)Math.tan((float)Math.PI * 30.f) / 180.f, 
+									0.f, 0.f, 0.f, 0.f, 1.f, 0.f, (float)Math.PI / 3.f, 0.f, 10000.f);
+
+//		public WMV_Camera(MultimediaLocator newParent, float newCameraX, float newCameraY, float newCameraZ,
+//				float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
+//				float newFoV, float newNearClip, float newFarClip)
+
 		state.location = new PVector(x, y, z);
 		state.teleportGoal = new PVector(x, y, z);
 		settings.initialize();
@@ -97,11 +105,19 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * Send the 3D camera view to the screen
+	 * Send 3D camera view to the screen
 	 */
 	public void show()
 	{
 		camera.feed();						
+	}
+
+	/**
+	 * Send 3D camera view to the screen
+	 */
+	public void showHUD()
+	{
+		hudCamera.feed();						
 	}
 
 	/**
@@ -3485,6 +3501,77 @@ public class WMV_Viewer
 			else System.out.println("Couldn't move to first time segment...");
 			return success;
 		}
+	}
+	
+	/**
+	 * Start viewing selected media in (2D) Media View
+	 */
+	public void startViewingSelectedMedia()
+	{
+		List<Integer> selected = new ArrayList<Integer>();				// Find selected media
+		int mediaType = 0;												// Media type found
+		
+		selected = p.getCurrentField().getSelectedImageIDs();
+		if(selected.size() == 0)
+		{
+			selected = p.getCurrentField().getSelectedPanoramaIDs();
+			mediaType = 1;
+		}
+		if(selected.size() == 0)
+		{
+			selected = p.getCurrentField().getSelectedVideoIDs();
+			mediaType = 2;
+		}
+//		if(selected.size() == 0)									// -- 2D Sound Display in progress
+//		{
+//			selected = p.getCurrentField().getSelectedSoundIDs();
+//			mediaType = 3;
+//		}
+		
+		if(selected.size() == 1)
+		{
+			switch(mediaType)
+			{
+				case 0:
+					viewImage(selected.get(0));
+					break;
+				case 1:
+					viewPanorama(selected.get(0));
+					break;
+				case 2:
+					viewVideo(selected.get(0));
+					break;
+//				case 3:
+//					viewSound(selected.get(0));
+//					break;
+			}
+		}
+		else
+		{
+			System.out.println("More than 1 media selected!");
+		}
+		
+		p.ml.display.setDisplayView(p, 4);			// Set current view to Media Display View
+	}
+	
+	public void viewImage(int id)
+	{
+		p.ml.display.setMediaViewObject(0, id);
+	}
+	
+	public void viewPanorama(int id)
+	{
+		p.ml.display.setMediaViewObject(1, id);
+	}
+	
+	public void viewVideo(int id)
+	{
+		p.ml.display.setMediaViewObject(2, id);
+	}
+
+	public void viewSound(int id)
+	{
+		p.ml.display.setMediaViewObject(3, id);
 	}
 	
 	/**

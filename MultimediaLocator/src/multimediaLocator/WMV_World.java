@@ -104,8 +104,21 @@ public class WMV_World
 	public void run()
 	{
 		updateState();
+//		updateViewerAttraction();			// Attract the viewer
+		display();
+		updateBehavior();
+//		updateTimeBehavior();		// Update time cycle
+	}
+	
+	public void updateBehavior()
+	{
 		updateViewerAttraction();			// Attract the viewer
-		display(ml.state.sphericalView);
+		if(ml.display.displayView != 4)
+			viewer.updateNavigation();		/* Update navigation */
+		if(state.fadingAlpha) 
+			updateFadingAlpha();					/* Update global alpha fading */
+		if(state.fadingTerrainAlpha) 
+			updateFadingTerrainAlpha();	/* Update grid fading */
 		updateTimeBehavior();		// Update time cycle
 	}
 	
@@ -120,19 +133,29 @@ public class WMV_World
 	 * Display 3D and/or 2D graphics
 	 * @param sphericalView Display in spherical view
 	 */
-	public void display(boolean sphericalView)
+	public void display()
 	{
 		ml.background(0.f);								/* Set background */
-		if(sphericalView)
+		if(ml.state.sphericalView)
 		{
 			if(ml.cubeMapInitialized)
 				ml.display360();
 		}
 		else
 		{
-			ml.background(0.f);								/* Set background */
-			display3D();						// 3D Display
-			display2D();						// 2D Display
+			ml.background(0.f);					/* Set background */
+			if(ml.display.displayView == 0)
+				display3D();					/* Display 3D Graphics */
+//			if(ml.display.displayView != 4)
+//				viewer.updateNavigation();		/* Update navigation */
+			display2D();						/* Display 2D Graphics */
+//			if(state.fadingAlpha) 
+//				updateFadingAlpha();					/* Update global alpha fading */
+//			if(state.fadingTerrainAlpha) 
+//				updateFadingTerrainAlpha();	/* Update grid fading */
+
+//			if(viewer.getSettings().mouseNavigation)	/* Update mouse navigation */
+//				input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 		}
 	}
 
@@ -180,8 +203,8 @@ public class WMV_World
 	 */
 	public void display3D()
 	{
-		if(ml.display.displayView == 0)				/* 3D Display */
-		{
+//		if(ml.display.displayView == 0)				/* 3D Display */
+//		{
 			ml.background(0.f);						/* Set background */
 			if(settings.depthTesting) ml.hint(PApplet.ENABLE_DEPTH_TEST);		/* Enable depth testing for drawing 3D graphics */
 			getCurrentField().display(ml);										/* Display media in current field */
@@ -191,12 +214,15 @@ public class WMV_World
 				if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
 					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(ml);		// Draw current cluster
 			}
-		}
+			
+			if(state.displayTerrain) displayTerrain();	/* Draw terrain as wireframe grid */
+//		}
 		
-		if(state.displayTerrain) displayTerrain();	/* Draw terrain as wireframe grid */
+//		if(state.displayTerrain) displayTerrain();	/* Draw terrain as wireframe grid */
+//		viewer.updateNavigation();					/* Update navigation */	-- Moved after display3D()...
 		
-		viewer.updateNavigation();					/* Update navigation */
-		if(ml.display.displayView == 0 && !ml.state.sphericalView)	
+//		if(ml.display.displayView == 0 && !ml.state.sphericalView)	
+		if(!ml.state.sphericalView)	
 			if(ml.state.running)
 				viewer.show();						/* Show the World View to the viewer */
 	}
@@ -207,11 +233,6 @@ public class WMV_World
 	public void display2D()
 	{
 		ml.display.display(this);									/* Draw 2D Display */
-		if(state.fadingAlpha) updateFadingAlpha();					/* Update global alpha fading */
-		if(state.fadingTerrainAlpha) updateFadingTerrainAlpha();	/* Update grid fading */
-
-		if(viewer.getSettings().mouseNavigation)
-			input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 	}
 
 	/**

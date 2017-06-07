@@ -364,7 +364,41 @@ public class WMV_Image extends WMV_Media
 //		p.imagesSeen++;
 //		p.setImagesSeen(p.getImagesSeen() + 1);
 	}
-	
+
+	/** 
+	 * Draw the image
+	 */
+	public void display2D(MultimediaLocator ml)
+	{
+		System.out.println("Image.display2D()... "+getID());
+		ml.noStroke(); 
+		ml.rectMode(PApplet.CENTER);
+
+		ml.pushMatrix();
+		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
+		ml.textureMode(PApplet.NORMAL);
+
+		ml.noFill();
+		ml.texture(image);        			// Apply the image to the face as a texture 
+		ml.tint(255, 255);          				
+
+		ml.translate(ml.width / 2.f, ml.height / 2.f);
+
+		int imgWidth = getWidth();
+		int imgHeight = getHeight();
+		
+		ml.vertex(-imgWidth/2.f, -imgHeight/2.f, 0, 0, 0);             	// UPPER LEFT      
+		ml.vertex(imgWidth/2.f, -imgHeight/2.f, 0, 1, 0);              	// UPPER RIGHT           
+		ml.vertex(imgWidth/2.f, imgHeight/2.f, 0, 1, 1);				// LOWER RIGHT        
+		ml.vertex(-imgWidth/2.f, imgHeight/2.f, 0, 0, 1);              	// LOWER LEFT
+
+		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
+		ml.popMatrix();
+
+//		p.imagesSeen++;
+//		p.setImagesSeen(p.getImagesSeen() + 1);
+	}
+
 	/**
 	 * Calculate image brightness given viewer to image angle
 	 * @param imageAngle Current angle between viewer and image

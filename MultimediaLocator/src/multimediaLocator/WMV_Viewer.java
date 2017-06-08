@@ -3554,13 +3554,12 @@ public class WMV_Viewer
 //					viewSound(selected.get(0));
 //					break;
 			}
+			p.ml.display.setDisplayView(p, 4);			// Set current view to Media Display View
 		}
 		else
 		{
 			System.out.println("More than 1 media selected!");
 		}
-		
-		p.ml.display.setDisplayView(p, 4);			// Set current view to Media Display View
 	}
 	
 	public void viewImage(int id)

@@ -258,6 +258,12 @@ public class ML_KeyboardControls {
 		}
 	}
 	
+	/**
+	 * Handle key pressed that affects any View Mode
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	public void handleGeneralKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (key == '0')
@@ -487,6 +493,12 @@ public class ML_KeyboardControls {
 		}
 	}
 	
+	/**
+	 * Handle key pressed in World View
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	public void handleWorldViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (key == 'j') 
@@ -506,6 +518,9 @@ public class ML_KeyboardControls {
 
 		if (key == 'z') 
 			ml.world.viewer.zoomOut();
+
+		if (key == PApplet.ENTER)
+			ml.world.viewer.startViewingSelectedMedia();
 
 		if (input.optionKey && key == 'e')
 		{
@@ -648,19 +663,28 @@ public class ML_KeyboardControls {
 		}
 
 		/* Output */
-		if (key == 'O') 
+		if (key == 'ø') 
 			ml.selectFolder("Select an output folder:", "outputFolderSelected");
-
-		if (key == 'o') 	// Save image to disk
-		{	
-			if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
+		if (key == 'O') 
+		{
 //			if(ml.state.sphericalView)
 //				ml.world.saveCubeMapToDisk();
 //			else
 			ml.world.exportCurrentView();
 		}
+		if (key == 'o') 	// Save image to disk
+		{	
+			if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
+			ml.world.exportCurrentMedia();
+		}
 	}
 	
+	/**
+	 * Handle key pressed in Map View
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	public void handleMapViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (key == 'a') 

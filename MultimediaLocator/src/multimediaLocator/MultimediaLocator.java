@@ -189,6 +189,9 @@ public class MultimediaLocator extends PApplet
 			if(state.export && world.outputFolderSelected)						/* Image exporting */
 				export();
 
+			if(state.exportMedia && world.outputFolderSelected)						/* Image exporting */
+				exportMedia();
+
 //			if(state.exportCubeMap && world.outputFolderSelected)				/* Cubemap exporting */
 //				exportCubeMap();
 
@@ -599,17 +602,30 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void export()
 	{
+//		if(world.viewer.getSettings().selection)
+//		{
+//			world.exportSelectedMedia();
+//			System.out.println("Exported image(s) to "+world.outputFolder);
+//		}
+//		else
+//		{
+			saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
+			System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
+//		}
+		state.export = false;
+	}
+
+	/**
+	 * Export screen image or selected media files
+	 */
+	public void exportMedia()
+	{
 		if(world.viewer.getSettings().selection)
 		{
 			world.exportSelectedMedia();
 			System.out.println("Exported image(s) to "+world.outputFolder);
 		}
-		else
-		{
-			saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
-			System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
-		}
-		state.export = false;
+		state.exportMedia = false;
 	}
 	
 	/**

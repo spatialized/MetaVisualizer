@@ -1314,8 +1314,17 @@ public class WMV_World
 	 */
 	public void exportCurrentView() 
 	{
-		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output image to disk.");
+		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will save screenshot to disk.");
 		ml.state.export = true;
+	}
+
+	/**
+	 * Save current screen view to disk
+	 */
+	public void exportCurrentMedia() 
+	{
+		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output selected media file(s) to disk.");
+		ml.state.exportMedia = true;
 	}
 
 	/**

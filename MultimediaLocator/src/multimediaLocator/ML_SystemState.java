@@ -40,6 +40,7 @@ public class ML_SystemState
 	public boolean startInteractive = false;			// Start user clustering
 
 	public boolean export = false;
+	public boolean exportMedia = false;
 	public boolean exportCubeMap = false;
 
 	ML_SystemState(){}

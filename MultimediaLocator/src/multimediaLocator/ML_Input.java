@@ -398,12 +398,16 @@ public class ML_Input
 					break;
 	
 				/* Output */
-				case "ExportImage":
-					if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
+				case "SaveScreenshot":
+					if(!ml.world.outputFolderSelected) ml.selectFolder("", "outputFolderSelected");
 					ml.world.exportCurrentView();
 					break;
+				case "ExportMedia":
+					if(!ml.world.outputFolderSelected) ml.selectFolder("", "outputFolderSelected");
+					ml.world.exportCurrentMedia();
+					break;
 				case "OutputFolder":
-					ml.selectFolder("Select an output folder:", "outputFolderSelected");
+					ml.selectFolder("", "outputFolderSelected");
 					break;
 			}
 		}
@@ -584,9 +588,22 @@ public class ML_Input
 				break;
 				
 			/* Selection */
-			case "SelectionMode":
+			case "EnableSelection":
 				world.viewer.setSelection( option.isSelected() );
-				if(!world.viewer.inSelectionMode())
+				if(world.viewer.inSelectionMode())
+				{
+					world.ml.display.window.btnSelectFront.setVisible(true);
+					world.ml.display.window.btnViewSelected.setVisible(true);
+					world.ml.display.window.btnDeselectFront.setVisible(true);
+					world.ml.display.window.btnDeselectAll.setVisible(true);
+					world.ml.display.window.btnExportMedia.setVisible(true);
+//					world.ml.display.window.lblSelectionOptions.setVisible(true);
+					world.ml.display.window.chkbxMultiSelection.setVisible(true);
+					world.ml.display.window.chkbxSegmentSelection.setVisible(true);
+					world.ml.display.window.chkbxShowMetadata.setVisible(true);
+//					world.ml.display.window.btnStitchPanorama.setVisible(true);
+				}
+				else
 				{
 					world.getCurrentField().deselectAllMedia(false);		// Deselect media if left Selection Mode
 					if(world.ml.display.displayView == 4)
@@ -594,6 +611,16 @@ public class ML_Input
 						world.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
 						world.ml.display.setDisplayView(world, 0);			// Set Display View to World
 					}
+					world.ml.display.window.btnSelectFront.setVisible(false);
+					world.ml.display.window.btnViewSelected.setVisible(false);
+					world.ml.display.window.btnDeselectFront.setVisible(false);
+					world.ml.display.window.btnDeselectAll.setVisible(false);
+					world.ml.display.window.btnExportMedia.setVisible(false);
+//					world.ml.display.window.lblSelectionOptions.setVisible(false);
+					world.ml.display.window.chkbxMultiSelection.setVisible(false);
+					world.ml.display.window.chkbxSegmentSelection.setVisible(false);
+					world.ml.display.window.chkbxShowMetadata.setVisible(false);
+//					world.ml.display.window.btnStitchPanorama.setVisible(false);
 				}
 				break;
 				

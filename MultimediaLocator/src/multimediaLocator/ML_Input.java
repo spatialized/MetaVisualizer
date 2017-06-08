@@ -164,10 +164,6 @@ public class ML_Input
 			switch(button.tag) 
 			{
 				/* General */
-				case "Restart":
-					ml.restart();
-					break;
-	
 				case "SaveWorld":
 					if(ml.world.getFields().size() > 1)
 						ml.world.saveAllSimulationStates();
@@ -178,7 +174,7 @@ public class ML_Input
 				case "SaveField":
 					ml.world.saveSimulationState();
 					break;
-					
+				
 				/* Library */
 				case "CreateLibrary":
 					ml.createNewLibrary = true;
@@ -191,6 +187,10 @@ public class ML_Input
 					if(ml.createNewLibrary) ml.createNewLibrary = false;
 					ml.state.librarySetup = true;
 					display.window.hideLibraryWindow();
+					break;
+				
+				case "CloseLibrary":
+					ml.restart();
 					break;
 					
 				case "LibraryHelp":
@@ -259,26 +259,26 @@ public class ML_Input
 				case "ImportGPSTrack":
 					ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
 					break;
-				case "FollowStart":
-					if(!ml.world.viewer.isFollowing())
-					{
-						switch(ml.world.viewer.getFollowMode())
-						{
-						case 0:
-							ml.world.viewer.followTimeline(true, false);
-							break;
-						case 1:
-							ml.world.viewer.followGPSTrack();
-							break;
-						case 2:
-							ml.world.viewer.followMemory();
-							break;
-						}
-					}
-					break;
-				case "FollowStop":
-					ml.world.viewer.stopFollowing();
-					break;
+//				case "FollowStart":
+//					if(!ml.world.viewer.isFollowing())
+//					{
+//						switch(ml.world.viewer.getFollowMode())
+//						{
+//						case 0:
+//							ml.world.viewer.followTimeline(true, false);
+//							break;
+//						case 1:
+//							ml.world.viewer.followGPSTrack();
+//							break;
+//						case 2:
+//							ml.world.viewer.followMemory();
+//							break;
+//						}
+//					}
+//					break;
+//				case "FollowStop":
+//					ml.world.viewer.stopFollowing();
+//					break;
 	
 				/* Model */
 				case "SubjectDistanceDown":
@@ -370,7 +370,6 @@ public class ML_Input
 					ml.world.viewer.setSelection( true );
 					display.window.chkbxSelectionMode.setSelected(true);
 					break;
-	
 				case "CloseSelectionWindow":
 					display.window.selectionWindow.setVisible(false);
 					break;
@@ -379,10 +378,14 @@ public class ML_Input
 					ml.world.viewer.chooseMediaInFront(true);
 					break;
 				case "DeselectFront":
-					ml.world.viewer.chooseMediaInFront(false);	
+					ml.world.viewer.chooseMediaInFront(false);
+					if(ml.display.displayView == 4)
+						ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
 					break;
 				case "DeselectAll":
 					ml.world.getCurrentField().deselectAllMedia(false);
+					if(ml.display.displayView == 4)
+						ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
 					break;
 	
 				case "ViewSelected":
@@ -494,7 +497,28 @@ public class ML_Input
 				if(!world.viewer.getMovementTeleport())
 					world.viewer.stopFollowing();
 				break;
-				
+			
+			case "Following":
+				if(option.isSelected())
+				{
+					if(!world.viewer.isFollowing())
+					{
+						switch(world.viewer.getFollowMode())
+						{
+						case 0:
+							world.viewer.followTimeline(true, false);
+							break;
+						case 1:
+							world.viewer.followGPSTrack();
+							break;
+						case 2:
+							world.viewer.followMemory();
+							break;
+						}
+					}
+				}
+				else world.viewer.stopFollowing();
+				break;
 			case "FollowTeleport":
 				world.viewer.setFollowTeleport( option.isSelected() );
 				break;
@@ -568,6 +592,15 @@ public class ML_Input
 			/* Selection */
 			case "SelectionMode":
 				world.viewer.setSelection( option.isSelected() );
+				if(!world.viewer.inSelectionMode())
+				{
+					world.getCurrentField().deselectAllMedia(false);		// Deselect media if left Selection Mode
+					if(world.ml.display.displayView == 4)
+					{
+						world.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
+						world.ml.display.setDisplayView(world, 0);			// Set Display View to World
+					}
+				}
 				break;
 				
 			case "MultiSelection":

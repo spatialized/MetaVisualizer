@@ -138,33 +138,39 @@ public class WMV_Camera
 
 	//--- Behaviors ----------
 
-	/** Send what this camera sees to the view port */
-	public void feed() {
+	/** 
+	 * Set viewport to this camera's view 
+	 */
+	public void show() 
+	{
 		p.perspective(fov, aspectRatio, nearClip, farClip);
 		p.camera(cameraX, cameraY, cameraZ,
 				targetX, targetY, targetZ,
 				upX,     upY,     upZ);
 	}
 
-	/** Aim camera at the specified target */
+	/** 
+	 * Aim camera at given target 
+	 * @param aTargetX
+	 * @param aTargetY
+	 * @param aTargetZ
+	 */
 	public void aim(float aTargetX, float aTargetY, float aTargetZ)
 	{
-		// Move target
 		targetX = aTargetX;
 		targetY = aTargetY;
 		targetZ = aTargetZ;
-
 		update();
 	}
 
-	/** Jump camera to the specified position */
-	public void jump(float positionX, float positionY, float positionZ)
+	/** 
+	 * Teleport camera to the specified position 
+	 */
+	public void teleport(float positionX, float positionY, float positionZ)
 	{
-		// Move camera
 		cameraX = positionX;
 		cameraY = positionY;
 		cameraZ = positionZ;
-
 		update();
 	}
 
@@ -182,14 +188,13 @@ public class WMV_Camera
 		float directionY = dX * upZ - dZ * upX;
 		float directionZ = dX * upY - dY * upX;
 
-		// Normalize this vector so that it can be scaled
+		// Normalize vector to be scaled
 		float magnitude = getMagnitude(directionX, directionY, directionZ);
-
 		directionX /= magnitude;
 		directionY /= magnitude;
 		directionZ /= magnitude;
 
-		// Perform the truck, if any
+		// Perform truck
 		cameraX -= truckAmount * directionX;
 		cameraY -= truckAmount * directionY;
 		cameraZ -= truckAmount * directionZ;
@@ -198,10 +203,12 @@ public class WMV_Camera
 		targetZ -= truckAmount * directionZ;
 	}
 
-	/** Move camera and target simultaneously along camera's Y axis */
+	/** 
+	 * Move camera and target simultaneously along camera's Y axis 
+	 */
 	public void boom(float boomAmount)
 	{
-		// Perform the boom, if any
+		// Perform boom
 		cameraX += boomAmount * upX;
 		cameraY += boomAmount * upY;
 		cameraZ += boomAmount * upZ;
@@ -210,15 +217,17 @@ public class WMV_Camera
 		targetZ += boomAmount * upZ;
 	}
 
-	/** Move camera and target along the view vector */
+	/** 
+	 * Move camera and target along view vector 
+	 */
 	public void dolly(float dollyAmount)
 	{
-		// Normalize the view vector
+		// Normalize view vector
 		float directionX = dX / shotLength;
 		float directionY = dY / shotLength;
 		float directionZ = dZ / shotLength;
 
-		// Perform the dolly, if any
+		// Perform dolly
 		cameraX += dollyAmount * directionX;
 		cameraY += dollyAmount * directionY;
 		cameraZ += dollyAmount * directionZ;
@@ -227,7 +236,9 @@ public class WMV_Camera
 		targetZ += dollyAmount * directionZ;
 	}
 
-	/** Rotate camera about its X axis */
+	/** 
+	 * Rotate camera about its X axis 
+	 */
 	public void tilt(float elevationOffset)
 	{
 		// Calculate the new elevation for camera
@@ -238,21 +249,27 @@ public class WMV_Camera
 		updateTarget();
 	}
 
-	/** Rotate camera about its Y axis */
+	/** 
+	 * Rotate camera about its Y axis 
+	 */
 	public void pan(float azimuthOffset)
 	{
 		azimuth = (azimuth - azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);		// Calculate the new azimuth for camera
 		updateTarget();		// Update target
 	}
 
-	/** Rotate camera about its Z axis */
+	/** 
+	 * Rotate camera about its Z axis 
+	 */
 	public void roll(float rollOffset)
 	{
 		roll = (roll + rollOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);		// Change the roll amount
 		updateUp();		// Update up vector
 	}
 
-	/** Arc camera over (under) a center of interest along a set azimuth*/
+	/** 
+	 * Arc camera over (under) a center of interest along a set azimuth
+	 */
 	public void arc(float elevationOffset)
 	{
 		elevation = PApplet.constrain(elevation + elevationOffset, 0.00001f-(float)(Math.PI * 0.5), 
@@ -261,14 +278,20 @@ public class WMV_Camera
 		updateCamera();		// Update camera
 	}
 
-	/** Circle camera around a center of interest at a set elevation*/
+	/** 
+	 * Circle camera around a center of interest at a set elevation
+	 */
 	public void circle(float azimuthOffset)
 	{
 		azimuth = (azimuth + azimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);		// Calculate the new azimuth for camera
 		updateCamera();		// Update camera
 	}
 
-	/** Look about camera's position */
+	/** 
+	 * Look about camera's position 
+	 * @param azimuthOffset
+	 * @param elevationOffset
+	 */
 	public void look(float azimuthOffset, float elevationOffset)
 	{
 		// Calculate the new azimuth and elevation for camera
@@ -281,23 +304,28 @@ public class WMV_Camera
 		updateTarget();
 	}
 
-	/** Tumble camera about target **/
+	/** 
+	 * Tumble camera about target 
+	 * @param anAzimuthOffset
+	 * @param anElevationOffset
+	 */
 	public void tumble(float anAzimuthOffset, float anElevationOffset)
 	{
 		elevation = PApplet.constrain(elevation + anElevationOffset, 0.00001f-(float)(Math.PI * 0.5), 
 				(float)(Math.PI * 0.5)-0.00001f);		// Calculate new azimuth / elevation for camera
-
-
 		azimuth   = (azimuth + anAzimuthOffset + (float)(2.0 * Math.PI)) % (float)(2.0 * Math.PI);
-
-		updateCamera();		// Update camera
+		updateCamera();		
 	}
 
-	/** Moves camera and target simultaneously in camera's X-Y plane */
-	public void track(float anXOffset, float aYOffset)
+	/** 
+	 * Move camera and target simultaneously in camera's X-Y plane 
+	 * @param xOffset
+	 * @param yOffset
+	 */
+	public void track(float xOffset, float yOffset)
 	{
-		truck(anXOffset);		// Perform truck, if exists
-		boom(aYOffset);			// Perform boom, if exists
+		truck(xOffset);		// Perform truck, if exists
+		boom(yOffset);		// Perform boom, if exists
 	}
 
 	public float[] getPosition()

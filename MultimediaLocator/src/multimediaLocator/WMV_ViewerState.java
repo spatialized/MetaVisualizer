@@ -13,6 +13,8 @@ import processing.core.PVector;
 public class WMV_ViewerState 
 {
 	/* Time */
+	public boolean firstRunningFrame = false;			// Flag indicating first World simulation frame
+
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
 	public int currentFieldDate = 0;					// Current date in field dateline

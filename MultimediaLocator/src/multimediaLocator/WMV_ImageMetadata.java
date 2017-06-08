@@ -5,9 +5,8 @@ import java.time.ZonedDateTime;
 import processing.core.PVector;
 
 /**
- * Metadata for a rectangular image
+ * Metadata associated with a rectangular image
  * @author davidgordon
- *
  */
 public class WMV_ImageMetadata extends WMV_MediaMetadata
 {

@@ -83,24 +83,25 @@ public class WMV_World
 	}
 	
 	/**
-	 * Set up main classes and variables involving the world and viewer 
+	 * Set up the world and viewer 
 	 */
 	public void initialize() 
 	{
-		if(ml.debugSettings.world && ml.debugSettings.detailed) System.out.println("Initializing WMV_World...");
-
 		/* Create main classes */
 		settings = new WMV_WorldSettings();
 		state = new WMV_WorldState();
 		viewer = new WMV_Viewer(this, settings, state, ml.debugSettings);			// Initialize navigation + viewer
 		
+		/* Setup interpolation variables */
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
 		timeFadeMap.setMapFunction(circularEaseOut);
-
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
 	}
 
+	/**
+	 * Run world simulation
+	 */
 	public void run()
 	{
 		updateState();
@@ -110,25 +111,28 @@ public class WMV_World
 //		updateTimeBehavior();		// Update time cycle
 	}
 	
-	public void updateBehavior()
-	{
-		updateViewerAttraction();			// Attract the viewer
-		if(ml.display.displayView != 4)
-			viewer.updateNavigation();		/* Update navigation */
-		if(state.fadingAlpha) 
-			updateFadingAlpha();					/* Update global alpha fading */
-		if(state.fadingTerrainAlpha) 
-			updateFadingTerrainAlpha();	/* Update grid fading */
-		updateTimeBehavior();		// Update time cycle
-	}
-	
+	/**
+	 * Start world simulation
+	 */
 	public void start()
 	{
-//		chooseFieldDialog();
-		enterField(0);			/* Enter last field */
+//		chooseFieldDialog();					-- In progress
+		enterFieldByIndex(0);								/* Enter first field */
 //		enterField(ml.state.initializationField-1);			/* Enter last field */
 	}
-	
+
+	/**
+	 * Update world behavior
+	 */
+	public void updateBehavior()
+	{
+		updateViewerAttraction();										/* Attract the viewer */
+		if(ml.display.displayView != 4) viewer.updateNavigation();		/* Update navigation */
+		if(state.fadingAlpha)  updateFadingAlpha();						/* Update global alpha fading */
+		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();		/* Update grid fading */
+		updateTimeBehavior();											/* Update time cycle */
+	}
+
 	/**
 	 * Display 3D and/or 2D graphics
 	 * @param sphericalView Display in spherical view
@@ -143,7 +147,7 @@ public class WMV_World
 		}
 		else
 		{
-			ml.background(0.f);					/* Set background */
+//			ml.background(0.f);					/* Set background */
 			if(ml.display.displayView == 0)
 				display3D();					/* Display 3D Graphics */
 //			if(ml.display.displayView != 4)
@@ -157,27 +161,6 @@ public class WMV_World
 //			if(viewer.getSettings().mouseNavigation)	/* Update mouse navigation */
 //				input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 		}
-	}
-
-	/**
-	 * Enter given field
-	 * @param fieldIdx The field to enter
-	 * @param moveToFirstTimeSegment Whether to move to first time segment after entering
-	 */
-	public void enterField(int fieldIdx)
-	{
-		boolean moveToFirstTimeSegment = true;
-
-		WMV_Field f = getField(fieldIdx);
-		if(f.getState().loadedState) moveToFirstTimeSegment = false;
-		
-		viewer.enterField( fieldIdx );								// Update navigation
-		viewer.updateState(settings, state);
-		if(moveToFirstTimeSegment) viewer.moveToFirstTimeSegment(false);
-		viewer.updateNavigation();									// Update navigation
-
-		ml.enteredField = true;
-		state.waitingToFadeInTerrainAlpha = true;
 	}
 	
 	/**
@@ -197,7 +180,30 @@ public class WMV_World
 	{
 		fields.remove(f);
 	}
-	
+
+	/**
+	 * Enter field with specified ID
+	 * @param fieldIdx The field to enter
+	 * @param first Whether to tell viewer this is the first frame
+	 */
+	public void enterFieldByIndex(int fieldIdx)
+	{
+		boolean moveToFirstTimeSegment = true;
+
+		WMV_Field f = getField(fieldIdx);
+		if(f.getState().loadedState) moveToFirstTimeSegment = false;
+		
+		viewer.enterField( fieldIdx );								// Update navigation
+		viewer.updateState(settings, state);
+		if(moveToFirstTimeSegment) viewer.moveToFirstTimeSegment(false);
+		viewer.updateNavigation();									// Update navigation
+
+		ml.enteredField = true;
+		state.waitingToFadeInTerrainAlpha = true;
+		
+		viewer.start();												// Start the viewer if this is the first frame
+	}
+
 	/**
 	 * Display the current field in World View
 	 */
@@ -224,7 +230,7 @@ public class WMV_World
 //		if(ml.display.displayView == 0 && !ml.state.sphericalView)	
 		if(!ml.state.sphericalView)	
 			if(ml.state.running)
-				viewer.show();						/* Show the World View to the viewer */
+				viewer.show();						/* Send World View to screen */
 	}
 
 	/**
@@ -232,7 +238,8 @@ public class WMV_World
 	 */
 	public void display2D()
 	{
-		ml.display.display(this);									/* Draw 2D Display */
+		ml.display.display(this);									/* Display 2D Graphics */
+		if(ml.display.displayView == 4) viewer.showHUD();			/* Set Media View camera angle */
 	}
 
 	/**
@@ -1029,22 +1036,22 @@ public class WMV_World
 	 */
 	void reset(boolean system)
 	{
-		if(system)
-		{
-			ml.state.initializationField = 0;			// Field to be initialized this frame
-			ml.state.startedRunning = false;				// Program just started running
-			ml.state.initialSetup = false;				// Performing initial setup 
-			ml.state.initializingFields = false;			// Initializing media folders
-			ml.state.fieldsInitialized = false;			// Initialized media folders
-			ml.state.export = false;
-		}
+//		if(system)
+//		{
+//			ml.state.initializationField = 0;			// Field to be initialized this frame
+//			ml.state.startedRunning = false;				// Program just started running
+//			ml.state.initialClustering = false;				// Performing initial setup 
+//			ml.state.initializingFields = false;			// Initializing media folders
+//			ml.state.fieldsInitialized = false;			// Initialized media folders
+//			ml.state.export = false;
+//		}
 		
 		settings.reset();
 
 		/* Clustering Modes */
 		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
-		ml.state.interactive = false;				// In user clustering mode?
-		ml.state.startInteractive = false;			// Start user clustering
+//		ml.state.interactive = false;				// In user clustering mode?
+//		ml.state.startInteractive = false;			// Start user clustering
 
 		/* Time */
 		state.timeFading = false;					// Does time affect media brightness? 
@@ -1081,7 +1088,7 @@ public class WMV_World
 		
 		/* Create main classes */
 		viewer.reset();								// Initialize navigation + viewer
-		ml.display.reset();							// Initialize displays
+//		ml.display.reset();							// Initialize displays
 
 		/* Initialize graphics and text parameters */
 		ml.colorMode(PConstants.HSB);

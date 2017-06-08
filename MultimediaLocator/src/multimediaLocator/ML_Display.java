@@ -1949,7 +1949,7 @@ public class ML_Display
 				window.optTimelineView.setSelected(false);
 				break;
 			case 1:	
-				map2D.initializeMaps(p);
+				if(!initializedMaps) map2D.initializeMaps(p);
 				map2D.largeMarkerManager.enableDrawing();
 				map2D.smallMarkerManager.enableDrawing();
 				map2D.zoomToField(p, p.getCurrentField(), false);

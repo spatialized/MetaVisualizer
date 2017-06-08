@@ -76,15 +76,16 @@ public class ML_KeyboardControls {
 				ml.display.window.hideNavigationWindow();
 		}
 
-		if (key == '@') 
-		{
-			if(!ml.display.window.showTimeWindow)
-				ml.display.window.openTimeWindow();
-			else
-				ml.display.window.hideTimeWindow();
-		}
+//		if (key == '@') 
+//		{
+//			if(!ml.display.window.showTimeWindow)
+//				ml.display.window.openTimeWindow();
+//			else
+//				ml.display.window.hideTimeWindow();
+//		}
 
-		if (key == '#') 
+//		if (key == '#') 
+		if (key == '@') 
 		{
 			if(!ml.display.window.showGraphicsWindow)
 				ml.display.window.openGraphicsWindow();
@@ -92,13 +93,13 @@ public class ML_KeyboardControls {
 				ml.display.window.hideGraphicsWindow();
 		}
 
-		if (key == '$') 
-		{
-			if(!ml.display.window.showModelWindow)
-				ml.display.window.openModelWindow();
-			else
-				ml.display.window.hideModelWindow();
-		}
+//		if (key == '$') 
+//		{
+//			if(!ml.display.window.showModelWindow)
+//				ml.display.window.openModelWindow();
+//			else
+//				ml.display.window.hideModelWindow();
+//		}
 		
 		if (key == '%') 
 		{
@@ -570,17 +571,17 @@ public class ML_KeyboardControls {
 
 		if (key == 'A') 
 		{
-			ml.world.viewer.setSelection( !ml.world.viewer.getSelection() );
+			ml.world.viewer.setSelection( !ml.world.viewer.inSelectionMode() );
 			if(ml.display.window.setupSelectionWindow)
 				ml.display.window.chkbxSelectionMode.setSelected(ml.world.viewer.getSettings().selection);
 
-			if(ml.world.viewer.getSelection() && ml.world.viewer.getMultiSelection())
+			if(ml.world.viewer.inSelectionMode() && ml.world.viewer.getMultiSelection())
 			{
 				ml.world.viewer.setMultiSelection( false );
 				if(ml.display.window.setupSelectionWindow)
 					ml.display.window.chkbxMultiSelection.setSelected( false );
 			}
-			if(ml.world.viewer.getSelection() && ml.world.viewer.getSegmentSelection()) 
+			if(ml.world.viewer.inSelectionMode() && ml.world.viewer.getSegmentSelection()) 
 			{
 				ml.world.viewer.setSegmentSelection( false );
 				if(ml.display.window.setupSelectionWindow)
@@ -607,14 +608,14 @@ public class ML_KeyboardControls {
 		if (key == 'S')
 		{
 			ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection() );
-			if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.getSelection())
+			if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.inSelectionMode())
 				ml.world.viewer.setSelection( true );
 		}
 
 		if (input.optionKey && key == 's')
 		{
 			ml.world.viewer.setSegmentSelection( !ml.world.viewer.getSegmentSelection() );
-			if(ml.world.viewer.getSegmentSelection() && !ml.world.viewer.getSelection())
+			if(ml.world.viewer.getSegmentSelection() && !ml.world.viewer.inSelectionMode())
 				ml.world.viewer.setSelection( true );
 		}
 
@@ -657,18 +658,6 @@ public class ML_KeyboardControls {
 //				ml.world.saveCubeMapToDisk();
 //			else
 			ml.world.exportCurrentView();
-		}
-
-		if (key == '&') 
-		{
-			if(ml.world.settings.defaultMediaLength > 10)
-				ml.world.settings.defaultMediaLength -= 10;
-		}
-
-		if (key == '*') 			// Look for images when none are visible
-		{
-			if(ml.world.settings.defaultMediaLength < 990)
-				ml.world.settings.defaultMediaLength += 10;
 		}
 	}
 	

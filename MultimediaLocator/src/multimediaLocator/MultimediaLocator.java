@@ -124,31 +124,8 @@ public class MultimediaLocator extends PApplet
 		removeList = new ArrayList<Integer>();
 	}
 
-	/**
-	 * Get image from resources
-	 * @param fileName File name
-	 * @return Mask image
-	 */
-	public PImage getImageResource(String fileName)
-	{
-		String resourcePath = "/images/";
-		BufferedImage image;
-		
-		URL imageURL = MultimediaLocator.class.getResource(resourcePath + fileName);
-		try{
-			image = ImageIO.read(imageURL.openStream());
-			return world.utilities.bufferedImageToPImage(image);
-		}
-		catch(Throwable t)
-		{
-			System.out.println("ERROR in getImageResource... t:"+t+" imageURL == null? "+(imageURL == null));
-		}
-		
-		return null;
-	}
-
 	/** 
-	 * Main program loop
+	 * Main loop called every frame
 	 */
 	public void draw() 
 	{
@@ -156,9 +133,9 @@ public class MultimediaLocator extends PApplet
 		
 		if (state.startup)
 		{
-			if(state.reset) restartMultimediaLocator();
-			else display.display(world);						/* Startup screen */
-			
+//			if(state.reset) restartMultimediaLocator();
+//			else 
+			display.display(world);						/* Startup screen */
 			state.startup = false;	
 		}
 		else if(!state.running)
@@ -193,18 +170,18 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Run program each frame
+	 * Run program
 	 */
 	void run()
 	{
-		if(state.startedRunning)										/* If simulation just started running */
+		if(state.startedRunning)												/* If simulation just started running */
 		{
-			if(!enteredField) world.enterField(0);						/* Enter world at field 0 */
+			if(!enteredField) world.enterFieldByIndex(0);						/* Enter world at field ID 0 	-- Change this */
 			state.startedRunning = false;
 		}
 		else
 		{
-			if ( !state.initialSetup && !state.interactive && !state.exit ) 	/* Running the program */
+			if ( !state.initialClustering && !state.interactive && !state.exit ) 	/* Running the program */
 			{
 				world.run();
 //	 			input.updateLeapMotion();			// Update Leap Motion 
@@ -213,7 +190,7 @@ public class MultimediaLocator extends PApplet
 			if(state.export && world.outputFolderSelected)						/* Image exporting */
 				export();
 
-//			if(state.exportCubeMap && world.outputFolderSelected)						/* Image exporting */
+//			if(state.exportCubeMap && world.outputFolderSelected)				/* Cubemap exporting */
 //				exportCubeMap();
 
 			if ( debugSettings.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
@@ -231,7 +208,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void initialize()
 	{
-		if(state.initialSetup)
+		if(state.initialClustering)
 		{
 			if(!windowVisible) showMainWindow();
 
@@ -272,9 +249,37 @@ public class MultimediaLocator extends PApplet
 			else startInitialClustering();			/* Run initial clustering */  	// -- Sets initialSetup to true	
 		}
 	}
+
+	/**
+	 * Reset main objects
+	 */
+//	public void reset()
+//	{
+//		surface.setResizable(true);
+//		hideMainWindow();
+//		
+////		world = new WMV_World(this);
+////		world.initialize();
+//		
+//		display.reset();							// Initialize displays
+////		display = new ML_Display(this);			// Initialize displays
+////		display.initializeWindows(world);
+//		
+//		metadata = new WMV_MetadataLoader(this, debugSettings);
+//		stitcher = new ML_Stitcher(world);
+//		
+//		if(debugSettings.ml) System.out.println("Initial setup complete...");
+//
+//		colorMode(PConstants.HSB);
+//		rectMode(PConstants.CENTER);
+//		textAlign(PConstants.CENTER, PConstants.CENTER);
+//		
+//		initCubeMap();
+//		removeList = new ArrayList<Integer>();
+//	}
 	
 	/**
-	 * Start initial clustering process
+	 * Start initial clustering of media in fields
 	 */
 	public void startInitialClustering()
 	{
@@ -286,8 +291,8 @@ public class MultimediaLocator extends PApplet
 		}
 		display.display(world);											
 
-		state.running = false;			// Stop running
-		state.initialSetup = true;				// Start clustering mode
+		state.running = false;						// Stop running
+		state.initialClustering = true;				// Start clustering 
 	}
 
 	/**
@@ -459,7 +464,7 @@ public class MultimediaLocator extends PApplet
 
 		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
 
-		state.initialSetup = false;				
+		state.initialClustering = false;				
 		display.initialSetup = false;
 		
 		state.running = true;
@@ -552,11 +557,36 @@ public class MultimediaLocator extends PApplet
 	}
 
 	/**
-	 * Restart					// -- In progress
+	 * Restart program and open Library dialog
 	 */
-	public void restartMultimediaLocator()
+	public void restart()
 	{
+		state.reset();
 		background(0.f);
+		
+//		surface.setResizable(true);
+//		hideMainWindow();
+
+//		world = new WMV_World(this);
+//		world.initialize();
+
+		display.reset();							// Initialize displays
+
+//		display = new ML_Display(this);			// Initialize displays
+//		display.initializeWindows(world);
+
+		metadata = new WMV_MetadataLoader(this, debugSettings);
+		stitcher = new ML_Stitcher(world);
+
+		if(debugSettings.ml) System.out.println("Initial setup complete...");
+
+		colorMode(PConstants.HSB);
+		rectMode(PConstants.CENTER);
+		textAlign(PConstants.CENTER, PConstants.CENTER);
+
+		initCubeMap();
+		removeList = new ArrayList<Integer>();
+
 		display.window.hideWindows();
 		world.reset(true);
 	}
@@ -700,15 +730,6 @@ public class MultimediaLocator extends PApplet
 	{
 		System.out.println("Exiting "+programName+"...");
 		exit();
-	}
-
-	/**
-	 * Restart the program
-	 */
-	public void restart()
-	{
-		state.reset();
-		world.viewer.initialize(0,0,0);
 	}
 	
 	/**
@@ -1040,6 +1061,29 @@ public class MultimediaLocator extends PApplet
 		}
 	}
 	
+	/**
+	 * Get image from resources
+	 * @param fileName File name
+	 * @return Mask image
+	 */
+	public PImage getImageResource(String fileName)
+	{
+		String resourcePath = "/images/";
+		BufferedImage image;
+		
+		URL imageURL = MultimediaLocator.class.getResource(resourcePath + fileName);
+		try{
+			image = ImageIO.read(imageURL.openStream());
+			return world.utilities.bufferedImageToPImage(image);
+		}
+		catch(Throwable t)
+		{
+			System.out.println("ERROR in getImageResource... t:"+t+" imageURL == null? "+(imageURL == null));
+		}
+		
+		return null;
+	}
+
 	/**
 	 * Called when image output folder has been selected
 	 * @param selection

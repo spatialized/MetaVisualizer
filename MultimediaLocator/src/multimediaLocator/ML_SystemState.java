@@ -19,14 +19,14 @@ public class ML_SystemState
 
 	/* Setup */
 	public boolean selectedLibrary = false;					// Whether user has selected a library folder
-	public boolean selectedNewLibraryDestination = false;		// Whether user has selected a library destination folder
-	public boolean selectedMediaFolders = false;				// Whether user has selected a media folder
+	public boolean selectedNewLibraryDestination = false;	// Whether user has selected a library destination folder
+	public boolean selectedMediaFolders = false;			// Whether user has selected a media folder
 	public boolean librarySetup = false;					// Whether library dialog should open
-	public boolean createdLibrary = false;					// Whether library dialog should open
+	public boolean createdLibrary = false;					// Whether library has been created
 	public boolean chooseLibraryDestination = false;		// Whether library destination dialog should open
 	public boolean chooseMediaFolders = false;				// Whether media folder dialog should open
 	
-	public boolean initialSetup = false;				// Performing initial setup 
+	public boolean initialClustering = false;			// Performing initial setup 
 	public boolean initializingFields = false;			// Initializing fields
 	public boolean fieldsInitialized = false;			// Initialized fields
 	public int initializationField = 0;					// Field to be initialized this frame
@@ -45,10 +45,29 @@ public class ML_SystemState
 	
 	public void reset()
 	{
-		running = false;				
-		selectedLibrary = false;	
-		reset = true;
 		startup = true;
-		exit = false;					
+		running = false;				
+		startedRunning = false;				
+		exit = false;		
+		
+		selectedLibrary = false;	
+		selectedNewLibraryDestination = false;		// Whether user has selected a library destination folder
+		selectedMediaFolders = false;				// Whether user has selected a media folder
+		librarySetup = false;
+		createdLibrary = false;
+		chooseLibraryDestination = false;
+		chooseMediaFolders = false;
+		
+		initialClustering = false;
+		initializingFields = false;
+		fieldsInitialized = false;
+		initializationField = 0;
+		
+		sphericalView = false;
+		
+		export = false;
+		exportCubeMap = false;
+		
+		reset = true;								// Set program reset flag
 	}
 }

@@ -91,33 +91,36 @@ public class WMV_Viewer
 	public void initialize(float x, float y, float z)
 	{
 		camera = new WMV_Camera( p.ml, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
-		hudCamera = new WMV_Camera( p.ml, p.ml.width/2.f, p.ml.height/2.f, p.ml.height/2.f / (float)Math.tan((float)Math.PI * 30.f) / 180.f, 
-									0.f, 0.f, 0.f, 0.f, 1.f, 0.f, (float)Math.PI / 3.f, 0.f, 10000.f);
-
-//		public WMV_Camera(MultimediaLocator newParent, float newCameraX, float newCameraY, float newCameraZ,
-//				float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
-//				float newFoV, float newNearClip, float newFarClip)
+		hudCamera = new WMV_Camera( p.ml, 0.f, 0.f, 500.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, (float)Math.PI / 3.f, settings.nearClippingDistance, 10000.f);
 
 		state.location = new PVector(x, y, z);
 		state.teleportGoal = new PVector(x, y, z);
 		settings.initialize();
 		state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
 	}
-	
+
 	/**
-	 * Send 3D camera view to the screen
+	 * Start the viewer
 	 */
-	public void show()
+	public void start()
 	{
-		camera.feed();						
+		state.firstRunningFrame = true;
 	}
 
 	/**
-	 * Send 3D camera view to the screen
+	 * Set World View camera view angle
+	 */
+	public void show()
+	{
+		camera.show();						
+	}
+
+	/**
+	 * Set Media View camera view angle
 	 */
 	public void showHUD()
 	{
-		hudCamera.feed();						
+		hudCamera.show();						
 	}
 
 	/**
@@ -139,7 +142,7 @@ public class WMV_Viewer
 	{
 		settings = newSettings;
 	}
-
+	
 	/**
 	 * Enter the given field
 	 * @param fieldID Field to enter
@@ -179,6 +182,12 @@ public class WMV_Viewer
 	 */
 	void updateNavigation()
 	{
+		if(state.firstRunningFrame)
+		{
+			camera.pan(0.0001f);
+			state.firstRunningFrame = false;
+		}
+		
 		if(!settings.orientationMode)
 			state.location = new PVector(camera.getPosition()[0], camera.getPosition()[1], camera.getPosition()[2]);		/* Update location */
 		
@@ -368,7 +377,7 @@ public class WMV_Viewer
 			}
 			else
 			{
-				camera.jump(dest.x, dest.y, dest.z);
+				camera.teleport(dest.x, dest.y, dest.z);
 			}
 		}
 //		System.out.println("teleportToPoint() getLocation() after:"+getLocation());
@@ -1788,7 +1797,7 @@ public class WMV_Viewer
 			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
 		else
 		{
-			camera.jump(newLocation.x, newLocation.y, newLocation.z);
+			camera.teleport(newLocation.x, newLocation.y, newLocation.z);
 			state.location = getLocation();										// Update to precise camera location
 		}
 	}
@@ -3250,7 +3259,7 @@ public class WMV_Viewer
 		if(newState)
 		{
 			PVector target = new PVector(camera.getTarget()[0], camera.getTarget()[1], camera.getTarget()[2]);
-			camera.jump(0, 0, 0);
+			camera.teleport(0, 0, 0);
 			
 			target = new PVector(target.x - getLocation().x, target.y - getLocation().y, target.z - getLocation().z);
 			camera.aim(target.x, target.y, target.z);
@@ -3260,7 +3269,7 @@ public class WMV_Viewer
 		}
 		else
 		{
-			camera.jump(state.location.x, state.location.y, state.location.z);
+			camera.teleport(state.location.x, state.location.y, state.location.z);
 		}
 		
 		if(p.ml.display.window.setupGraphicsWindow)
@@ -4440,7 +4449,7 @@ public class WMV_Viewer
 		state.movementTeleport = newMovementTeleport;
 	}
 
-	public boolean getSelection()
+	public boolean inSelectionMode()
 	{
 		return settings.selection;
 	}

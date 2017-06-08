@@ -49,7 +49,7 @@ public class WMV_WorldSettings
 
 	final public int initDefaultMediaLength = 50;		// Initial frame length of media in time cycle
 	public int defaultMediaLength = 50;					// Default frame length of media in time cycle
-	public float timeVisibleInterval = 1.f;						// Time interval for which close media become visible (in % of timeline length)
+	public float clusterLength = 1.f;						// Time interval for which close media become visible (in % of timeline length)
 															// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
 	public final float clusterTimePrecision = 0.0001f;	// Precision of timesHistogram (no. of bins)
 

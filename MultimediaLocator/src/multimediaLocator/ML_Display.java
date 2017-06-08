@@ -41,7 +41,7 @@ public class ML_Display
 	public boolean drawForceVector = false;
 	
 	/* Setup */
-	public boolean initialSetup = true;
+	public boolean worldSetup = true;
 	public boolean dataFolderFound = false;
 	
 	/* Graphics */
@@ -198,16 +198,16 @@ public class ML_Display
 	}
 
 	/**
-	 * Draw Heads-Up Display elements: messages, interactive map, field statistics, metadata
+	 * Display HUD elements (messages, satellite map, statistics, metadata, etc.)
 	 * @param p Parent world
 	 */
-	void display(WMV_World p)
+	void display(MultimediaLocator ml)
 	{
-		if(initialSetup)
+		if(worldSetup)
 		{
-			p.ml.hint(PApplet.DISABLE_DEPTH_TEST);									// Disable depth testing for drawing HUD
-			p.ml.background(0);														// Hide World View
-			displayStartup(p);														// Draw startup messages
+			ml.hint(PApplet.DISABLE_DEPTH_TEST);									// Disable depth testing for drawing HUD
+			ml.background(0);														// Hide World View
+			displayStartup(ml.world, ml.state.librarySetup);						// Draw startup messages
 		}
 		else																		
 		{
@@ -215,34 +215,34 @@ public class ML_Display
 			{
 				if( messages.size() > 0 || metadata.size() > 0 )
 				{
-					p.ml.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
-					if(messages.size() > 0) displayMessages(p);
-					if(p.getState().showMetadata && metadata.size() > 0 && p.viewer.getSettings().selection)	
-						displayMetadata(p);
+					ml.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
+					if(messages.size() > 0) displayMessages(ml.world);
+					if(ml.world.getState().showMetadata && metadata.size() > 0 && ml.world.viewer.getSettings().selection)	
+						displayMetadata(ml.world);
 				}
 			}
 			else																	// 2D Views
 			{
-				p.ml.hint(PApplet.DISABLE_DEPTH_TEST);								// Disable depth testing for drawing HUD
-				p.ml.background(0.f);												// Hide World View
+				ml.hint(PApplet.DISABLE_DEPTH_TEST);								// Disable depth testing for drawing HUD
+				ml.background(0.f);												// Hide World View
 
 				switch(displayView)
 				{
 					case 1:
-						if(initializedMaps) map2D.displaySatelliteMap(p);
-						if(p.ml.state.interactive) displayInteractiveClustering(p);
-						map2D.update(p);
+						if(initializedMaps) map2D.displaySatelliteMap(ml.world);
+						if(ml.state.interactive) displayInteractiveClustering(ml.world);
+						map2D.update(ml.world);
 						break;
 					case 2:
-						displayTimeView(p);
-						updateFieldTimeline(p);
+						displayTimeView(ml.world);
+						updateFieldTimeline(ml.world);
 						break;
 					case 3:
-						displayLibraryView(p);
-						if(libraryViewMode == 0) map2D.update(p);
+						displayLibraryView(ml.world);
+						if(libraryViewMode == 0) map2D.update(ml.world);
 						break;
 					case 4:
-						displayMediaView(p);
+						displayMediaView(ml.world);
 						break;
 				}
 
@@ -1610,7 +1610,7 @@ public class ML_Display
 	 */
 	void sendSetupMessage(WMV_World p, String message)
 	{
-		if(initialSetup)																
+		if(worldSetup)																
 		{
 			startupMessageStartFrame = p.ml.frameCount;		
 			startupMessages.add(message);
@@ -1626,7 +1626,7 @@ public class ML_Display
 	 * Display startup 
 	 * @param Parent world
 	 */
-	void displayStartup(WMV_World p)
+	void displayStartup(WMV_World p, boolean librarySetup)
 	{
 		float yPos = startupMessageYOffset;
 
@@ -1635,7 +1635,7 @@ public class ML_Display
 		p.ml.fill(0, 0, 245.f, 255.f);            								
 		p.ml.textSize(largeTextSize * 1.5f);
 
-		if(initialSetup)																// Showing setup startup messages
+		if(worldSetup)												// Showing setup messages + windows
 		{
 //			p.ml.textSize(largeTextSize * 3.f);
 //			p.ml.text("MultimediaLocator", screenWidth / 2.25f, yPos += lineWidthVeryWide, hudDistance);
@@ -1663,11 +1663,14 @@ public class ML_Display
 			}
 			else
 			{
-				if(!p.ml.state.selectedLibrary)
+				if(p.ml.state.startup && !p.ml.state.selectedLibrary)
 				{
 					if(!window.setupLibraryWindow)
 						window.setupLibraryWindow();
-
+					else 
+						if(!window.showLibraryWindow)
+							window.showLibraryWindow();
+					
 					yPos += lineWidthVeryWide * 11.f;
 				}
 				else

@@ -95,9 +95,6 @@ public class ML_Input
 				world.viewer.setTeleportLength( slider.getValueI() );
 			if (slider.tag == "PathWaitLength")
 				world.viewer.setPathWaitLength( slider.getValueI() );
-		}
-		if(display.window.setupTimeWindow)
-		{
 			if (slider.tag == "MediaLength") 
 				world.settings.defaultMediaLength = slider.getValueI();
 			
@@ -122,8 +119,8 @@ public class ML_Input
 			if (slider.tag == "CurrentTime") 
 				world.setCurrentTime(slider.getValueF());
 			
-			if (slider.tag == "VisibleTimeInterval") 
-				world.settings.timeVisibleInterval = slider.getValueF();
+			if (slider.tag == "ClusterLength") 
+				world.settings.clusterLength = slider.getValueF();
 		}
 		
 		if(display.window.setupGraphicsWindow)
@@ -136,11 +133,8 @@ public class ML_Input
 			
 			if (slider.tag == "Brightness") 
 				world.viewer.setUserBrightness( slider.getValueF() );
-		}
-		
-		if (slider.tag == "AltitudeScaling") 
-		{
-			if(display.window.setupModelWindow)
+			
+			if (slider.tag == "AltitudeScaling") 
 			{
 				world.settings.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
 				world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
@@ -177,15 +171,15 @@ public class ML_Input
 				
 				/* Library */
 				case "CreateLibrary":
+					ml.state.librarySetup = true;
 					ml.createNewLibrary = true;
 					ml.state.chooseMediaFolders = true;
-					ml.state.librarySetup = true;
 					display.window.hideLibraryWindow();
 					break;
 	
 				case "OpenLibrary":
-					if(ml.createNewLibrary) ml.createNewLibrary = false;
 					ml.state.librarySetup = true;
+					if(ml.createNewLibrary) ml.createNewLibrary = false;
 					display.window.hideLibraryWindow();
 					break;
 				
@@ -297,12 +291,12 @@ public class ML_Input
 					break;
 	
 				/* Memory */
-				case "OpenMemoryWindow":
-					display.window.openMemoryWindow();
-					break;
-				case "CloseMemoryWindow":
-					display.window.hideMemoryWindow();
-					break;
+//				case "OpenMemoryWindow":
+//					display.window.openMemoryWindow();
+//					break;
+//				case "CloseMemoryWindow":
+//					display.window.hideMemoryWindow();
+//					break;
 	
 				/* Statistics */
 				case "OpenStatisticsWindow":
@@ -313,12 +307,12 @@ public class ML_Input
 					break;
 	
 				/* Time */
-				case "OpenTimeWindow":
-					display.window.openTimeWindow();
-					break;
-				case "CloseTimeWindow":
-					display.window.hideTimeWindow();
-					break;
+//				case "OpenTimeWindow":
+//					display.window.openTimeWindow();
+//					break;
+//				case "CloseTimeWindow":
+//					display.window.hideTimeWindow();
+//					break;
 	
 				/* Graphics */
 				case "OpenGraphicsWindow":
@@ -349,12 +343,12 @@ public class ML_Input
 					break;
 	
 				/* Model */
-				case "OpenModelWindow":
-					display.window.openModelWindow();
-					break;
-				case "CloseModelWindow":
-					display.window.modelWindow.setVisible(false);
-					break;
+//				case "OpenModelWindow":
+//					display.window.openModelWindow();
+//					break;
+//				case "CloseModelWindow":
+//					display.window.modelWindow.setVisible(false);
+//					break;
 	
 				/* Time */
 				case "NextTime":

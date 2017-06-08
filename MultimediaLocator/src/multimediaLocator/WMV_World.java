@@ -238,7 +238,7 @@ public class WMV_World
 	 */
 	public void display2D()
 	{
-		ml.display.display(this);									/* Display 2D Graphics */
+		ml.display.display(ml);									/* Display 2D Graphics */
 		if(ml.display.displayView == 4) viewer.showHUD();			/* Set Media View camera angle */
 	}
 
@@ -1036,22 +1036,11 @@ public class WMV_World
 	 */
 	void reset(boolean system)
 	{
-//		if(system)
-//		{
-//			ml.state.initializationField = 0;			// Field to be initialized this frame
-//			ml.state.startedRunning = false;				// Program just started running
-//			ml.state.initialClustering = false;				// Performing initial setup 
-//			ml.state.initializingFields = false;			// Initializing media folders
-//			ml.state.fieldsInitialized = false;			// Initialized media folders
-//			ml.state.export = false;
-//		}
-		
+		if(ml.debugSettings.world) System.out.println("Resetting world...");
 		settings.reset();
 
 		/* Clustering Modes */
 		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
-//		ml.state.interactive = false;				// In user clustering mode?
-//		ml.state.startInteractive = false;			// Start user clustering
 
 		/* Time */
 		state.timeFading = false;					// Does time affect media brightness? 
@@ -1084,11 +1073,8 @@ public class WMV_World
 		state.mergeClusters = true;					// Merge nearby clusters?
 		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
 
-		if(ml.debugSettings.world) System.out.println("Resetting world...");
-		
 		/* Create main classes */
 		viewer.reset();								// Initialize navigation + viewer
-//		ml.display.reset();							// Initialize displays
 
 		/* Initialize graphics and text parameters */
 		ml.colorMode(PConstants.HSB);
@@ -1100,8 +1086,6 @@ public class WMV_World
 
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
-		
-//		p.selectFolderPrompt();
 	}
 	
 	/**
@@ -1570,39 +1554,29 @@ public class WMV_World
 	public void setTimeMode(int newTimeMode)
 	{
 		state.timeMode = newTimeMode;
-		
-//		if(state.timeMode == 2) createTimeCycle();
-		
-		if(ml.display.window.setupTimeWindow)
+		if(ml.display.window.setupNavigationWindow)
 		{
 			switch(state.timeMode)
 			{
 				case 0:														// Cluster
 					ml.display.window.optClusterTimeMode.setSelected(true);
 					ml.display.window.optFieldTimeMode.setSelected(false);
-//					p.display.window.optMediaTimeMode.setSelected(false);
-					if(ml.display.window.sdrVisibleInterval.isVisible())
-						ml.display.window.sdrVisibleInterval.setVisible(false);
-					if(ml.display.window.lblVisibleInterval.isVisible())
-						ml.display.window.lblVisibleInterval.setVisible(false);
+					if(ml.display.window.sdrClusterLength.isVisible())
+						ml.display.window.sdrClusterLength.setVisible(false);
+					if(ml.display.window.lblClusterLength.isVisible())
+						ml.display.window.lblClusterLength.setVisible(false);
 					break;
 				case 1:														// Field
 					ml.display.window.optClusterTimeMode.setSelected(false);
 					ml.display.window.optFieldTimeMode.setSelected(true);
-//					p.display.window.optMediaTimeMode.setSelected(false);
-					if(!ml.display.window.sdrVisibleInterval.isVisible())
-						ml.display.window.sdrVisibleInterval.setVisible(true);
-					if(!ml.display.window.lblVisibleInterval.isVisible())
-						ml.display.window.lblVisibleInterval.setVisible(true);
+					if(!ml.display.window.sdrClusterLength.isVisible())
+						ml.display.window.sdrClusterLength.setVisible(true);
+					if(!ml.display.window.lblClusterLength.isVisible())
+						ml.display.window.lblClusterLength.setVisible(true);
 					break;
-//				case 2:														// Media
-//					p.display.window.optClusterTimeMode.setSelected(false);
-//					p.display.window.optFieldTimeMode.setSelected(false);
-////					p.display.window.optMediaTimeMode.setSelected(true);
-//					p.display.window.sdrTimeCycleLength.setVisible(false);
-//					break;
 			}		
 		}
+
 	}
 	
 	public void setAllClustersTimeCycleLength(int newTimeCycleLength)
@@ -1753,19 +1727,22 @@ public class WMV_World
 				
 				if(state.timeFading)		// Time fading in Field Time Mode
 				{
-					if(settings.timeVisibleInterval < 1.f)
+					if(settings.clusterLength < 1.f)
 					{
 						visible = false;
 						switch(state.timeMode)
 						{
-							case 0:
-								visible = true;
+							case 0:						// Time Mode 0: Cluster
+								visible = true;			// Always visible
 								break;
 								
-							case 1:
-								float first = c.getTimeline().timeline.get( c.getFirstTimeSegmentFieldTimelineID(true) ).getLower().getTime();
-								float last = c.getTimeline().timeline.get( c.getLastTimeSegmentFieldTimelineID(true) ).getUpper().getTime();
-								float center;
+							case 1:						// Time Mode 1: Field 
+								float first; 			// First visible point in time cycle
+								float last;				// Last visible point in time cycle
+								float center;			// Center of visibility interval
+								
+								first = c.getTimeline().timeline.get( c.getFirstTimeSegmentFieldTimelineID(true) ).getLower().getTime();
+								last = c.getTimeline().timeline.get( c.getLastTimeSegmentFieldTimelineID(true) ).getUpper().getTime();
 								
 								if(first == last)
 									center = first;
@@ -1773,8 +1750,8 @@ public class WMV_World
 									center = first + last * 0.5f;
 
 								float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
-								float timeDiff = (float)Math.abs(current-center);
-								if(timeDiff <= settings.timeVisibleInterval) 
+								float timeDiff = (float)Math.abs(current-center);		// Find time offset from center
+								if(timeDiff <= settings.clusterLength) 					// Compare offset to cluster length
 									visible = true;
 								break;
 								
@@ -1815,7 +1792,7 @@ public class WMV_World
 				
 //				if(state.timeFading)		// Time fading in Field Time Mode
 //				{
-					if(settings.timeVisibleInterval < 1.f)
+					if(settings.clusterLength < 1.f)
 					{
 						visible = false;
 						switch(state.timeMode)
@@ -1836,7 +1813,7 @@ public class WMV_World
 
 								float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
 								float timeDiff = (float)Math.abs(current - center);
-								if(timeDiff <= settings.timeVisibleInterval) 
+								if(timeDiff <= settings.clusterLength) 
 									visible = true;
 								break;
 								

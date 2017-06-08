@@ -84,7 +84,6 @@ public class ML_KeyboardControls {
 //				ml.display.window.hideTimeWindow();
 //		}
 
-//		if (key == '#') 
 		if (key == '@') 
 		{
 			if(!ml.display.window.showGraphicsWindow)
@@ -101,7 +100,8 @@ public class ML_KeyboardControls {
 //				ml.display.window.hideModelWindow();
 //		}
 		
-		if (key == '%') 
+//		if (key == '%') 
+		if (key == '#') 
 		{
 			if(!ml.display.window.showSelectionWindow)
 				ml.display.window.openSelectionWindow();
@@ -627,7 +627,7 @@ public class ML_KeyboardControls {
 		if (key == '`') 
 			ml.world.viewer.addPlaceToMemory();
 
-		if (key == 'Y') 
+		if (key == 'y') 
 			ml.world.viewer.clearMemory();
 
 		/* Graphics */

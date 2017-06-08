@@ -11,7 +11,8 @@ public class ML_SystemState
 	public boolean startup = true;				// Startup frame
 	public boolean running = false;				// Whether simulation is running
 	public boolean startedRunning = false;		// Program just started running
-
+	public int framesSinceStart = 0;			// Frames since simulation start
+	
 	public boolean reset = false;				// Whether program was recently reset
 	public boolean exit = false;				// System message to exit the program
 	

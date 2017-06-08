@@ -45,7 +45,7 @@ import com.apple.eawt.Application;
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private boolean createJar = true;
+	private boolean createJar = false;					// Determines how to load cubemap shader
 	
 	/* General */
 	private String programName = "MultimediaLocator 0.9.0";
@@ -129,13 +129,11 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void draw() 
 	{
-		if(setAppIcon) setAppIcon(appIcon);						/* Set app icon */
+		if(setAppIcon) setAppIcon(appIcon);				/* Set app icon */
 		
 		if (state.startup)
 		{
-//			if(state.reset) restartMultimediaLocator();
-//			else 
-			display.display(world);						/* Startup screen */
+			display.display(this);						/* Startup screen */
 			state.startup = false;	
 		}
 		else if(!state.running)
@@ -147,7 +145,7 @@ public class MultimediaLocator extends PApplet
 					if(state.chooseLibraryDestination)			/* Choose library destination */
 						libraryDestinationDialog();
 					
-					display.display(world);
+					display.display(this);
 				}
 				else
 					librarySelectionDialog();
@@ -162,7 +160,7 @@ public class MultimediaLocator extends PApplet
 						System.out.println("ERROR: Selected library destination but no media folder selected!");
 				}
 				
-				display.display(world);
+				display.display(this);
 				if(state.selectedLibrary) initialize();			/* Initialize world */
 			}
 		}
@@ -178,6 +176,7 @@ public class MultimediaLocator extends PApplet
 		{
 			if(!enteredField) world.enterFieldByIndex(0);						/* Enter world at field ID 0 	-- Change this */
 			state.startedRunning = false;
+			state.framesSinceStart = 0;
 		}
 		else
 		{
@@ -198,6 +197,8 @@ public class MultimediaLocator extends PApplet
 				checkMemory();
 				checkFrameRate();
 			}
+			
+			state.framesSinceStart++;
 		}
 		
 		if ( state.exit ) exitProgram();							/* Stopping the program */		
@@ -289,7 +290,7 @@ public class MultimediaLocator extends PApplet
 			display.sendSetupMessage(world, "Library folder: "+library.getLibraryFolder());	// Show library folder name
 			display.sendSetupMessage(world, " ");
 		}
-		display.display(world);											
+		display.display(this);											
 
 		state.running = false;						// Stop running
 		state.initialClustering = true;				// Start clustering 
@@ -465,7 +466,7 @@ public class MultimediaLocator extends PApplet
 		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
 
 		state.initialClustering = false;				
-		display.initialSetup = false;
+		display.worldSetup = false;
 		
 		state.running = true;
 		state.startedRunning = true;
@@ -521,7 +522,7 @@ public class MultimediaLocator extends PApplet
 	public void runInteractiveClustering()
 	{
 		background(0.f);					// Clear screen
-		display.display(world);						// Draw text		
+		display.display(this);						// Draw text		
 	}
 	
 	/**
@@ -578,8 +579,6 @@ public class MultimediaLocator extends PApplet
 		metadata = new WMV_MetadataLoader(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
 
-		if(debugSettings.ml) System.out.println("Initial setup complete...");
-
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
 		textAlign(PConstants.CENTER, PConstants.CENTER);
@@ -589,6 +588,10 @@ public class MultimediaLocator extends PApplet
 
 		display.window.hideWindows();
 		world.reset(true);
+		
+		if(debugSettings.ml) System.out.println("World resetting complete...");
+
+//		here
 	}
 	
 	/**
@@ -1224,7 +1227,8 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void keyPressed() 
 	{
-		if(state.running) input.handleKeyPressed(this, key, keyCode);
+		if(state.running && state.framesSinceStart > world.viewer.getSettings().teleportLength) 
+			input.handleKeyPressed(this, key, keyCode);
 	}
 
 	/**

@@ -187,7 +187,7 @@ class WMV_MetadataLoader
 		
 		if(valid)
 		{
-			return ml.world.utilities.getGPSTrackFromFile(f, gpsTrackFile, worldSettings);
+			return ml.world.utilities.getGPSTrackFromFile(ml, f, gpsTrackFile);
 		}
 		else 
 			return null;

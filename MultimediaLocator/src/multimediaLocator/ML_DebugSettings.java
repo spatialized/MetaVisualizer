@@ -22,8 +22,9 @@ public class ML_DebugSettings
 	public boolean time = false;				// Debug WMV_Time class
 
 	/* Viewer */
-	public boolean viewer = false;				// Debug WMV_Viewer class
-	public boolean path = false;				// Debug WMV_Viewer class
+	public boolean viewer = true;				// Debug WMV_Viewer class
+	public boolean path = true;				// Debug WMV_Viewer class
+	public boolean gps = true;				// Debug WMV_Viewer class
 	public boolean display = false;				// Debug WMV_Display class
 	
 	/* Media */

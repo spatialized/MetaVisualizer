@@ -1709,7 +1709,8 @@ public class WMV_Cluster
 	 */
 	public WMV_Waypoint getClusterAsWaypoint()
 	{
-		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), null, false);		// -- Must calculate time instead of null!!
+		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), null, null);			// -- Should set to (center?) time instead of null!!
+//		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), getGPSLocation(), null);		// -- Must calculate time instead of null!!
 		return result;
 	}
 	

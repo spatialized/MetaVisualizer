@@ -1891,6 +1891,7 @@ public class ML_Window
 			float y = 50;			// Starting vertical position
 
 			WMV_Field f = world.getCurrentField();
+			
 			if(world.viewer.getState().getCurrentClusterID() >= 0)
 			{
 				WMV_Cluster c = world.getCurrentCluster();

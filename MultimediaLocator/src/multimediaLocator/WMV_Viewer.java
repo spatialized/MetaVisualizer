@@ -3214,8 +3214,8 @@ public class WMV_Viewer
 				state.pathLocationIdx = 0;
 				if(debugSettings.viewer)
 					System.out.println("Viewer.followGPSTrack()...  points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
-				state.pathGoal = path.get(state.pathLocationIdx).getLocation();
-				setAttractorPoint(state.pathGoal);
+				state.pathGoal = path.get(state.pathLocationIdx).getLocation();			// Set path goal from GPS track
+				setAttractorPoint(state.pathGoal);										// Set attractor point from path goal
 			}
 			else System.out.println("Viewer.followGPSTrack()... path.size() == 0!");
 		}
@@ -3451,7 +3451,7 @@ public class WMV_Viewer
 	{
 		if(!state.teleporting && !state.walking && state.velocity.mag() == 0.f)		// Only record points when stationary
 		{
-			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation(), null, false);				// -- Must calculate time instead of null!!
+			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation(), getGPSLocation(), null);		// -- Use simulation time instead of null!!
 			curWaypoint.setTarget(getOrientation());
 			curWaypoint.setID(state.currentCluster);						// Need to make sure camera is at current cluster!
 			

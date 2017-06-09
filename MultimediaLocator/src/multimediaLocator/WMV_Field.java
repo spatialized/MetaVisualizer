@@ -4160,7 +4160,6 @@ public class WMV_Field
 	public ArrayList<String> getGPSTrackNames()
 	{
 		ArrayList<String> names = new ArrayList<String>();
-		
 		for(ArrayList<WMV_Waypoint> track : state.gpsTracks)
 		{
 			WMV_Waypoint w = track.get(0);

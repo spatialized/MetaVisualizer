@@ -692,7 +692,7 @@ public class WMV_Utilities
 	/**
 	 * Analyze current GPS track
 	 */
-	public ArrayList<WMV_Waypoint> getGPSTrackFromFile(WMV_Field currentField, File gpsTrackFile, WMV_WorldSettings worldSettings)
+	public ArrayList<WMV_Waypoint> getGPSTrackFromFile(MultimediaLocator ml, WMV_Field f, File gpsTrackFile)
 	{
 		ArrayList<WMV_Waypoint> gpsTrack = new ArrayList<WMV_Waypoint>();			
 		
@@ -748,9 +748,9 @@ public class WMV_Utilities
 				String dateTimeStr = timeVal.getTextContent(); 						// Ex. string: 2016-05-01T23:55:33Z   <time>2017-02-05T23:31:23Z</time>
 				
 //				System.out.println("getGPSTrackFromFile()... dateTimeStr:"+dateTimeStr);
-				ZonedDateTime zoned = parseUTCDateTimeString(dateTimeStr, currentField.getTimeZoneID());
+				ZonedDateTime zoned = parseUTCDateTimeString(dateTimeStr, f.getTimeZoneID());
 				WMV_Time zonedTime = new WMV_Time();
-				zonedTime.initialize( zoned, "", count, 0, -1, currentField.getTimeZoneID() );
+				zonedTime.initialize( zoned, "", count, 0, -1, f.getTimeZoneID() );
 
 //				float newX = 0.f, newZ = 0.f, newY = 0.f;
 //
@@ -772,8 +772,12 @@ public class WMV_Utilities
 //					}
 //				}
 
-				WMV_Waypoint wp = new WMV_Waypoint(count, new PVector(longitude, elevation, latitude), zonedTime, true);	// Convert GPS track node to Waypoint
-				gpsTrack.add(wp);																					// Add Waypoint to GPS track
+				PVector gpsLocation = new PVector(longitude, elevation, latitude);
+				PVector captureLocation = getCaptureLocationFromGPS(ml, gpsLocation, f.getModel());
+				
+//				WMV_Waypoint wp = new WMV_Waypoint(count, gpsLocation, null, zonedTime);					// Convert GPS track node to Waypoint
+				WMV_Waypoint wp = new WMV_Waypoint(count, captureLocation, gpsLocation, zonedTime);			// Convert GPS track node to Waypoint
+				gpsTrack.add(wp);																			// Add Waypoint to GPS track
 				
 				count++;
 			}
@@ -787,6 +791,36 @@ public class WMV_Utilities
 		return gpsTrack;
 	}
 	
+	/**
+	 * Calculate media capture state.location in virtual space based on GPS location
+	 * @param model Field model
+	 */
+	public PVector getCaptureLocationFromGPS(MultimediaLocator ml, PVector gpsLocation, WMV_Model model)                                  
+	{
+		float newX = 0.f, newZ = 0.f, newY = 0.f;
+		
+		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000)
+		{
+			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
+			{
+				newX = PApplet.map(gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f*model.getState().fieldWidth); 			// GPS longitude decreases from left to right
+				newY = -PApplet.map(gpsLocation.y, model.getState().lowAltitude, model.getState().highAltitude, 0.f, model.getState().fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
+				newZ = PApplet.map(gpsLocation.z, model.getState().lowLatitude, model.getState().highLatitude, 0.5f*model.getState().fieldLength, -0.5f * model.getState().fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+				
+				if(ml.world.getSettings().altitudeScaling)	
+					newY *= ml.world.getSettings().altitudeScalingFactor;
+				else
+					newY *= ml.world.getSettings().defaultAltitudeScalingFactor;
+			}
+			else
+			{
+				newX = newY = newZ = 0.f;
+			}
+		}
+
+		return new PVector(newX, newY, newZ);
+	}
+
 	/**
 	 * Parse date time string in UTC format (Ex. 2016-05-01T23:55:33Z)
 	 * @param dateTimeStr

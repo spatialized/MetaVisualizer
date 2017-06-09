@@ -126,9 +126,9 @@ public class WMV_ViewerState
 	public int zoomLength = 15;
 
 	/* GPS Tracks */
-	public File gpsTrackFile;							// GPS track file
-	public String gpsTrackName = "";					// GPS track name
-	public boolean gpsTrackSelected = false;			// Has a GPS track been selected?
+//	public File gpsTrackFile;					// GPS track file
+	public String gpsTrackName = "";			// GPS track name
+	public int gpsTrackSelected = -1;			// ID of GPS track selected
 
 	WMV_ViewerState()
 	{

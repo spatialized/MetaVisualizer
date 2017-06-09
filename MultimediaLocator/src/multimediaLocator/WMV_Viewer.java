@@ -1,19 +1,19 @@
 package multimediaLocator;
 
-import java.io.File;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+//import java.io.File;
+//import java.time.ZoneId;
+//import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+//import javax.xml.parsers.DocumentBuilder;
+//import javax.xml.parsers.DocumentBuilderFactory;
+//
+//import org.w3c.dom.Document;
+//import org.w3c.dom.Element;
+//import org.w3c.dom.NamedNodeMap;
+//import org.w3c.dom.Node;
+//import org.w3c.dom.NodeList;
 
 //import damkjer.ocd.Camera;
 import processing.core.PApplet;
@@ -2021,7 +2021,7 @@ public class WMV_Viewer
 		state.clusterLockIdleFrames = 0;				// How long to wait after user input before auto navigation moves the camera?
 
 		/* GPS Tracks */
-		state.gpsTrackSelected = false;			// Has a GPS track been selected?
+		state.gpsTrackSelected = -1;				// Has a GPS track been selected?
 		state.gpsTrackName = "";					// GPS track name
 
 		/* Zooming */
@@ -3203,18 +3203,31 @@ public class WMV_Viewer
 	 */
 	public void followGPSTrack()
 	{
-		path = new ArrayList<WMV_Waypoint>(gpsTrack);								// Follow memory path 
-		
-		if(path.size() > 0)
+		if(state.gpsTrackSelected > -1 && state.gpsTrackSelected < p.getCurrentField().getGPSTracks().size())
 		{
-			state.following = true;
-			state.pathLocationIdx = 0;
-			if(debugSettings.viewer)
-				System.out.println("--> followGPSTrack() points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
-			state.pathGoal = path.get(state.pathLocationIdx).getLocation();
-			setAttractorPoint(state.pathGoal);
+			gpsTrack = p.getCurrentField().getGPSTracks().get(state.gpsTrackSelected);	// Set viewer GPS track from selection
+			path = new ArrayList<WMV_Waypoint>(gpsTrack);								// Set path waypoints to GPS track 
+			
+			if(path.size() > 0)
+			{
+				state.following = true;
+				state.pathLocationIdx = 0;
+				if(debugSettings.viewer)
+					System.out.println("Viewer.followGPSTrack()...  points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
+				state.pathGoal = path.get(state.pathLocationIdx).getLocation();
+				setAttractorPoint(state.pathGoal);
+			}
+			else System.out.println("Viewer.followGPSTrack()... path.size() == 0!");
 		}
-		else System.out.println("path.size() == 0!");
+	}
+	
+	/**
+	 * Choose GPS track from list and set to selected
+	 */
+	public void chooseGPSTrack()
+	{
+		ArrayList<String> tracks = p.getCurrentField().getGPSTrackNames();
+		p.ml.display.window.openChooseItemDialog(tracks, "Select GPS Track:", 1);
 	}
 	
 	/**
@@ -3560,6 +3573,11 @@ public class WMV_Viewer
 		{
 			System.out.println("More than 1 media selected!");
 		}
+	}
+	
+	public void stopViewingSelectedMedia()
+	{
+		p.ml.display.setDisplayView(p, 0);			// Set current view to Media Display View
 	}
 	
 	public void viewImage(int id)
@@ -3990,11 +4008,11 @@ public class WMV_Viewer
 	/**
 	 * Open dialog to select GPS track file
 	 */
-	public void importGPSTrack()
-	{
-		state.gpsTrackSelected = false;
-		p.ml.selectInput("Select a GPS Track:", "gpsTrackSelected");
-	}
+//	public void importGPSTrack()
+//	{
+//		state.gpsTrackSelected = false;
+//		p.ml.selectInput("Select a GPS Track:", "gpsTrackSelected");
+//	}
 
 	/**
 	 * Get vector of direction of camera motion by comparing current and previous waypoints
@@ -4294,6 +4312,32 @@ public class WMV_Viewer
 	public ArrayList<WMV_Waypoint> getGPSTrack()
 	{
 		return gpsTrack;
+	}
+
+	/**
+	 * Set current GPS track
+	 */
+//	public void setGPSTrack(ArrayList<WMV_Waypoint> newGPSTrack, String newName)
+	public void setGPSTrack(ArrayList<WMV_Waypoint> newGPSTrack)
+	{
+		gpsTrack = newGPSTrack;
+//		state.gpsTrackName = newName;
+	}
+
+	/**
+	 * @return List of waypoints representing current GPS track path
+	 */
+	public void setGPSTrackSelected(int newGPSTrackSelected)
+	{
+		state.gpsTrackSelected = newGPSTrackSelected;
+	}
+
+	/**
+	 * @return List of waypoints representing current GPS track path
+	 */
+	public int getGPSTrackSelected()
+	{
+		return state.gpsTrackSelected;
 	}
 	
 	public void setFrameCount(int newFrameCount)

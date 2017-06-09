@@ -22,9 +22,6 @@ public class ML_Display
 	public ML_Map map2D;
 	private WMV_Utilities utilities;					/* Utility methods */
 
-	/* Control panel */
-	GTextArea txaMetadata;		
-
 	/* Library Dialog */
 	private GButton btnCreateLibrary, btnOpenLibrary;
 	int libraryWindowHeight;
@@ -215,7 +212,7 @@ public class ML_Display
 			{
 				if( messages.size() > 0 || metadata.size() > 0 )
 				{
-					ml.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
+//					ml.hint(PApplet.DISABLE_DEPTH_TEST);												// Disable depth testing for drawing HUD
 					if(messages.size() > 0) displayMessages(ml.world);
 					if(ml.world.getState().showMetadata && metadata.size() > 0 && ml.world.viewer.getSettings().selection)	
 						displayMetadata(ml.world);
@@ -1592,7 +1589,7 @@ public class ML_Display
 	{
 		float yPos = metadataYOffset - lineWidth;
 
-		p.ml.start3DHUD();
+//		p.ml.start3DHUD();
 		p.ml.pushMatrix();
 
 		p.ml.fill(0, 0, 255, 255);                     // White text

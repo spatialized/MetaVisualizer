@@ -1,6 +1,8 @@
 package multimediaLocator;
 
+import g4p_controls.G4P;
 import g4p_controls.GButton;
+import g4p_controls.GCheckbox;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
@@ -70,6 +72,11 @@ public class ML_Input
 					keyboardInput.handleWorldViewKeyPressed(ml, key, keyCode); 		/* World View Controls only */
 			}
 		}
+	}
+	
+	void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	{
+		keyboardInput.handleListItemWindowKeyPressed(ml, key, keyCode);
 	}
 	
 	/**
@@ -250,9 +257,9 @@ public class ML_Input
 						ml.world.viewer.teleportToFieldOffset(-1, true, true);
 					break;
 					
-				case "ImportGPSTrack":
-					ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
-					break;
+//				case "ImportGPSTrack":
+//					ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
+//					break;
 //				case "FollowStart":
 //					if(!ml.world.viewer.isFollowing())
 //					{
@@ -359,14 +366,14 @@ public class ML_Input
 					break;
 	
 				/* Selection */
-				case "OpenSelectionWindow":
-					display.window.openSelectionWindow();
-					ml.world.viewer.setSelection( true );
-					display.window.chkbxSelectionMode.setSelected(true);
-					break;
-				case "CloseSelectionWindow":
-					display.window.selectionWindow.setVisible(false);
-					break;
+//				case "OpenSelectionWindow":
+//					display.window.openSelectionWindow();
+//					ml.world.viewer.setSelection( true );
+//					display.window.chkbxSelectionMode.setSelected(true);
+//					break;
+//				case "CloseSelectionWindow":
+//					display.window.selectionWindow.setVisible(false);
+//					break;
 	
 				case "SelectFront":
 					ml.world.viewer.chooseMediaInFront(true);
@@ -383,7 +390,10 @@ public class ML_Input
 					break;
 	
 				case "ViewSelected":
-					ml.world.viewer.startViewingSelectedMedia();
+					if(ml.display.displayView == 0)
+						ml.world.viewer.startViewingSelectedMedia();
+					else if(ml.display.displayView == 4)
+						ml.world.viewer.stopViewingSelectedMedia();
 					break;
 				case "StitchPanorama":
 					ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
@@ -576,6 +586,26 @@ public class ML_Input
 			/* Model */
 			case "ShowModel":
 				world.state.showModel = option.isSelected();
+				if(world.state.showModel)
+				{
+//					world.ml.display.window.chkbxMediaToCluster.setLocalColorScheme(G4P.SCHEME_10);
+					world.ml.display.window.chkbxMediaToCluster.setEnabled(true);
+//					world.ml.display.window.chkbxCaptureToMedia.setLocalColorScheme(G4P.SCHEME_10);
+					world.ml.display.window.chkbxCaptureToMedia.setEnabled(true);
+//					world.ml.display.window.chkbxCaptureToCluster.setLocalColorScheme(G4P.SCHEME_10);
+					world.ml.display.window.chkbxCaptureToCluster.setEnabled(true);
+
+				}
+				else
+				{
+//					world.ml.display.window.chkbxMediaToCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+					world.ml.display.window.chkbxMediaToCluster.setEnabled(false);
+//					world.ml.display.window.chkbxCaptureToMedia.setLocalColorScheme(G4P.CYAN_SCHEME);
+					world.ml.display.window.chkbxCaptureToMedia.setEnabled(false);
+//					world.ml.display.window.chkbxCaptureToCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+					world.ml.display.window.chkbxCaptureToCluster.setEnabled(false);
+				}
+
 				break;
 			case "MediaToCluster":
 				world.state.showMediaToCluster = option.isSelected();
@@ -592,16 +622,32 @@ public class ML_Input
 				world.viewer.setSelection( option.isSelected() );
 				if(world.viewer.inSelectionMode())
 				{
-					world.ml.display.window.btnSelectFront.setVisible(true);
-					world.ml.display.window.btnViewSelected.setVisible(true);
-					world.ml.display.window.btnDeselectFront.setVisible(true);
-					world.ml.display.window.btnDeselectAll.setVisible(true);
-					world.ml.display.window.btnExportMedia.setVisible(true);
-//					world.ml.display.window.lblSelectionOptions.setVisible(true);
-					world.ml.display.window.chkbxMultiSelection.setVisible(true);
-					world.ml.display.window.chkbxSegmentSelection.setVisible(true);
-					world.ml.display.window.chkbxShowMetadata.setVisible(true);
-//					world.ml.display.window.btnStitchPanorama.setVisible(true);
+					world.ml.display.window.btnSelectFront.setEnabled(true);
+					world.ml.display.window.btnViewSelected.setEnabled(true);
+					world.ml.display.window.btnDeselectFront.setEnabled(true);
+					world.ml.display.window.btnDeselectAll.setEnabled(true);
+					world.ml.display.window.btnExportMedia.setEnabled(true);
+					world.ml.display.window.chkbxMultiSelection.setEnabled(true);
+					world.ml.display.window.chkbxSegmentSelection.setEnabled(true);
+					world.ml.display.window.chkbxShowMetadata.setEnabled(true);
+
+//					world.ml.display.window.btnSelectFront.setLocalColorScheme(G4P.CYAN_SCHEME);
+//					world.ml.display.window.btnViewSelected.setLocalColorScheme(G4P.CYAN_SCHEME);
+//					world.ml.display.window.btnDeselectFront.setLocalColorScheme(G4P.RED_SCHEME);
+//					world.ml.display.window.btnDeselectAll.setLocalColorScheme(G4P.RED_SCHEME);
+//					world.ml.display.window.btnExportMedia.setLocalColorScheme(G4P.CYAN_SCHEME);
+//					world.ml.display.window.chkbxMultiSelection.setLocalColorScheme(G4P.SCHEME_10);
+//					world.ml.display.window.chkbxSegmentSelection.setLocalColorScheme(G4P.SCHEME_10);
+//					world.ml.display.window.chkbxShowMetadata.setLocalColorScheme(G4P.SCHEME_10);
+
+//					world.ml.display.window.btnSelectFront.setVisible(true);
+//					world.ml.display.window.btnViewSelected.setVisible(true);
+//					world.ml.display.window.btnDeselectFront.setVisible(true);
+//					world.ml.display.window.btnDeselectAll.setVisible(true);
+//					world.ml.display.window.btnExportMedia.setVisible(true);
+//					world.ml.display.window.chkbxMultiSelection.setVisible(true);
+//					world.ml.display.window.chkbxSegmentSelection.setVisible(true);
+//					world.ml.display.window.chkbxShowMetadata.setVisible(true);
 				}
 				else
 				{
@@ -611,16 +657,23 @@ public class ML_Input
 						world.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
 						world.ml.display.setDisplayView(world, 0);			// Set Display View to World
 					}
-					world.ml.display.window.btnSelectFront.setVisible(false);
-					world.ml.display.window.btnViewSelected.setVisible(false);
-					world.ml.display.window.btnDeselectFront.setVisible(false);
-					world.ml.display.window.btnDeselectAll.setVisible(false);
-					world.ml.display.window.btnExportMedia.setVisible(false);
-//					world.ml.display.window.lblSelectionOptions.setVisible(false);
-					world.ml.display.window.chkbxMultiSelection.setVisible(false);
-					world.ml.display.window.chkbxSegmentSelection.setVisible(false);
-					world.ml.display.window.chkbxShowMetadata.setVisible(false);
-//					world.ml.display.window.btnStitchPanorama.setVisible(false);
+					world.ml.display.window.btnSelectFront.setEnabled(false);
+					world.ml.display.window.btnViewSelected.setEnabled(false);
+					world.ml.display.window.btnDeselectFront.setEnabled(false);
+					world.ml.display.window.btnDeselectAll.setEnabled(false);
+					world.ml.display.window.btnExportMedia.setEnabled(false);
+					world.ml.display.window.chkbxMultiSelection.setEnabled(false);
+					world.ml.display.window.chkbxSegmentSelection.setEnabled(false);
+					world.ml.display.window.chkbxShowMetadata.setEnabled(false);
+					
+//					world.ml.display.window.btnSelectFront.setLocalColorScheme(G4P.BLUE_SCHEME);
+//					world.ml.display.window.btnViewSelected.setLocalColorScheme(G4P.BLUE_SCHEME);
+//					world.ml.display.window.btnDeselectFront.setLocalColorScheme(G4P.BLUE_SCHEME);
+//					world.ml.display.window.btnDeselectAll.setLocalColorScheme(G4P.BLUE_SCHEME);
+//					world.ml.display.window.btnExportMedia.setLocalColorScheme(G4P.BLUE_SCHEME);
+//					world.ml.display.window.chkbxMultiSelection.setLocalColorScheme(G4P.BLUE_SCHEME);
+//					world.ml.display.window.chkbxSegmentSelection.setLocalColorScheme(G4P.BLUE_SCHEME);
+//					world.ml.display.window.chkbxShowMetadata.setLocalColorScheme(G4P.BLUE_SCHEME);
 				}
 				break;
 				

@@ -4152,6 +4152,31 @@ public class WMV_Field
 		if(newGPSTracks != null) state.gpsTracks = newGPSTracks;
 	}
 	
+	public ArrayList<ArrayList<WMV_Waypoint>> getGPSTracks()
+	{
+		return state.gpsTracks;
+	}
+	
+	public ArrayList<String> getGPSTrackNames()
+	{
+		ArrayList<String> names = new ArrayList<String>();
+		
+		for(ArrayList<WMV_Waypoint> track : state.gpsTracks)
+		{
+			WMV_Waypoint w = track.get(0);
+			int wYear = w.getTime().getYear();
+			int wMonth = w.getTime().getMonth();
+			int wDay = w.getTime().getDay();
+			int wHour = w.getTime().getHour();
+			int wMinute = w.getTime().getMinute();
+			int wSecond = w.getTime().getSecond();
+			String name = wMonth+"_"+wDay+"_"+wYear;
+			names.add(name);
+		}
+		
+		return names;
+	}
+	
 	public void setName(String newName)
 	{
 		state.name = newName;

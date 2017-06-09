@@ -1312,20 +1312,6 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Respond to key pressed in Time Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void timeWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-
-	/**
 	 * Respond to key pressed in Graphics Window
 	 * @param applet Parent App
 	 * @param windata Window data
@@ -1345,40 +1331,12 @@ public class MultimediaLocator extends PApplet
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void memoryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	public void listItemWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in Model Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void modelWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in Selection Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void selectionWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleListItemWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+//		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+//			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**

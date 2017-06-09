@@ -100,24 +100,15 @@ public class ML_KeyboardControls {
 //				ml.display.window.hideModelWindow();
 //		}
 		
-//		if (key == '%') 
-		if (key == '#') 
-		{
-			if(!ml.display.window.showSelectionWindow)
-				ml.display.window.openSelectionWindow();
-			else
-				ml.display.window.hideSelectionWindow();
-		}
-
-//		if (key == '^') 
+//		if (key == '#') 
 //		{
-//			if(!ml.display.window.showMemoryWindow)
-//				ml.display.window.openMemoryWindow();
+//			if(!ml.display.window.showSelectionWindow)
+//				ml.display.window.openSelectionWindow();
 //			else
-//				ml.display.window.hideMemoryWindow();
+//				ml.display.window.hideSelectionWindow();
 //		}
 
-		if (key == '^') 
+		if (key == '#') 
 		{
 			if(!ml.display.window.showStatisticsWindow)
 				ml.display.window.openStatisticsWindow();
@@ -635,9 +626,13 @@ public class ML_KeyboardControls {
 		}
 
 		/* GPS */
-//		if (!input.optionKey && key == 'g') 
+		if (!input.optionKey && key == 'g') 
+		{
 //			ml.world.viewer.importGPSTrack();				// Select a GPS tracking file from disk to load and navigate 
-
+			if(ml.world.getCurrentField().getGPSTracks().size() > 0)
+				ml.world.viewer.chooseGPSTrack();
+		}
+		
 		/* Memory */
 		if (key == '`') 
 			ml.world.viewer.addPlaceToMemory();
@@ -927,6 +922,48 @@ public class ML_KeyboardControls {
 	public void handleMediaViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		
+	}
+	
+	/**
+	 * Handle key pressed in List Item Window
+	 * @param ml Parent app
+	 * @param key Key pressed
+	 * @param keyCode Key code
+	 */
+	public void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	{
+		if(key == PApplet.ENTER)
+		{
+			switch(ml.display.window.listItemWindowResultCode)
+			{
+				case 0:						// 0: Field
+					break;
+				case 1:						// 1: GPS Track
+					ml.world.viewer.setGPSTrackSelected( ml.display.window.listItemWindowSelectedItem );
+					break;
+			}
+			
+			ml.display.window.closeChooseItemDialog();
+		}
+		
+		if (key == PApplet.CODED) 
+		{
+			if(ml.display.displayView == 0)
+			{
+				if (keyCode == PApplet.DOWN) 
+				{
+					ml.display.window.listItemWindowSelectedItem++;
+					if(ml.display.window.listItemWindowSelectedItem >= ml.world.getCurrentField().getGPSTracks().size())
+						ml.display.window.listItemWindowSelectedItem = 0;
+				}
+				if (keyCode == PApplet.UP) 
+				{
+					ml.display.window.listItemWindowSelectedItem--;
+					if(ml.display.window.listItemWindowSelectedItem < 0)
+						ml.display.window.listItemWindowSelectedItem = ml.world.getCurrentField().getGPSTracks().size() - 1;
+				}
+			}
+		}
 	}
 	
 	public void handleInteractiveClusteringKeyPressed(MultimediaLocator ml, char key, int keyCode)

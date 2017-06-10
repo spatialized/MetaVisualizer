@@ -138,6 +138,8 @@ public class MultimediaLocator extends PApplet
 		}
 		else if(!state.running)
 		{
+			background(0.f);							// Clear screen
+
 			if (state.librarySetup)
 			{
 				if(createNewLibrary)
@@ -255,34 +257,6 @@ public class MultimediaLocator extends PApplet
 	}
 
 	/**
-	 * Reset main objects
-	 */
-//	public void reset()
-//	{
-//		surface.setResizable(true);
-//		hideMainWindow();
-//		
-////		world = new WMV_World(this);
-////		world.initialize();
-//		
-//		display.reset();							// Initialize displays
-////		display = new ML_Display(this);			// Initialize displays
-////		display.initializeWindows(world);
-//		
-//		metadata = new WMV_MetadataLoader(this, debugSettings);
-//		stitcher = new ML_Stitcher(world);
-//		
-//		if(debugSettings.ml) System.out.println("Initial setup complete...");
-//
-//		colorMode(PConstants.HSB);
-//		rectMode(PConstants.CENTER);
-//		textAlign(PConstants.CENTER, PConstants.CENTER);
-//		
-//		initCubeMap();
-//		removeList = new ArrayList<Integer>();
-//	}
-	
-	/**
 	 * Start initial clustering of media in fields
 	 */
 	public void startInitialClustering()
@@ -310,7 +284,7 @@ public class MultimediaLocator extends PApplet
 		state.interactive = true;				// Start interactive clustering mode
 		state.startInteractive = false;			// Have started
 		
-		display.map2D.initializeMaps(world);
+		display.map2D.initialize(world);
 		display.resetDisplayModes();			// Reset display view and clear messages
 		display.displayClusteringInfo(this);
 		
@@ -534,7 +508,6 @@ public class MultimediaLocator extends PApplet
 	public void finishInteractiveClustering()
 	{
 		background(0.f);
-		
 		world.viewer.clearAttractorCluster();
 
 		state.interactive = false;				// Stop interactive clustering mode
@@ -565,36 +538,37 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void restart()
 	{
+//		System.out.println("ML.restart()... 1");
 		state.reset();
-		background(0.f);
+//		background(0.f);
 		
 //		surface.setResizable(true);
 //		hideMainWindow();
 
-//		world = new WMV_World(this);
-//		world.initialize();
-
 		display.reset();							// Initialize displays
-
 //		display = new ML_Display(this);			// Initialize displays
 //		display.initializeWindows(world);
+//		System.out.println("ML.restart()... 3");
 
 		metadata = new WMV_MetadataLoader(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
 
-		colorMode(PConstants.HSB);
-		rectMode(PConstants.CENTER);
-		textAlign(PConstants.CENTER, PConstants.CENTER);
+//		colorMode(PConstants.HSB);
+//		rectMode(PConstants.CENTER);
+//		textAlign(PConstants.CENTER, PConstants.CENTER);
 
-		initCubeMap();
+//		initCubeMap();
 		removeList = new ArrayList<Integer>();
 
 		display.window.hideWindows();
+//		System.out.println("ML.restart()... 6");
+
 		world.reset(true);
-		
+//		System.out.println("ML.restart()... 7");
+
 		if(debugSettings.ml) System.out.println("World resetting complete...");
 
-//		here
+		display.window.setupLibraryWindow();
 	}
 	
 	/**

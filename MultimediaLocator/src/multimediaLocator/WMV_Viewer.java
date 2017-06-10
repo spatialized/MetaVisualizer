@@ -162,7 +162,7 @@ public class WMV_Viewer
 		else
 		{
 			if(p.ml.display.displayView == 1)
-				p.ml.display.map2D.reset(p);
+				p.ml.display.map2D.initialize(p);
 			if(debugSettings.viewer) System.out.println("Entered field... "+currentField.getID()+"... location after:"+getLocation());
 		}
 	}

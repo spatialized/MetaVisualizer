@@ -48,8 +48,8 @@ public class ML_Map
 	/* Graphics */
 	private int screenWidth = -1;
 	private int screenHeight = -1;
-	private float viewerDiameter = 15.f;
-	private int viewerArrowPoints = 9;
+	private final float viewerDiameter = 15.f;
+	private final int viewerArrowPoints = 9;
 	private float viewerArrowPointSpacingFactor;
 			
 	/* Interaction */
@@ -66,21 +66,21 @@ public class ML_Map
 	public boolean mapImages = true, mapPanoramas = true, mapVideos = true, mapSounds = true;
 	private float maxSaturation = 210.f, lowSaturation = 80.f;
 	
-	private float imageHue = 150.f, imageCaptureHue = 90.f;
-	private float panoramaHue = 190.f;
-	private float videoHue = 40.f, videoCaptureHue = 70.f;
-	private float soundHue = 40.f;
-	private float cameraHue = 140.f;
-	private float mediaTransparency = 120.f;
+	private final float imageHue = 150.f, imageCaptureHue = 90.f;
+	private final float panoramaHue = 190.f;
+	private final float videoHue = 40.f, videoCaptureHue = 70.f;
+	private final float soundHue = 40.f;
+	private final float cameraHue = 140.f;
+	private final float mediaTransparency = 120.f;
 	
 	private final float zoomMapWidth = 500.f, zoomMapHeight = 500.f;
 
 	/* Fields Map */
+	PVector mapVectorOrigin, mapVectorVector;
 	private final float fieldSelectedHue = 20.f, fieldSelectedSaturation = 255.f, fieldSelectedBrightness = 255.f;
 	private final float clusterSaturation = 160.f, clusterBrightness = 185.f;
 	private final float fieldTransparency = 80.f;
 	private final float fieldHueRangeLow = 50.f, fieldHueRangeHigh = 160.f;
-	PVector mapVectorOrigin, mapVectorVector;
 	
 	WMV_Utilities utilities;
 	ML_Display p;
@@ -108,11 +108,11 @@ public class ML_Map
 		hugePointSize = 0.0000039f * screenWidth;
 		viewerArrowPointSpacingFactor = 0.0033f * screenWidth;
 	}
-
+	
 	/**
 	 * Initialize maps
 	 */
-	public void initializeMaps(WMV_World world)
+	public void initialize(WMV_World world)
 	{
 		blankTile = world.ml.getImageResource("blank.jpg");
 
@@ -133,16 +133,27 @@ public class ML_Map
 		
 		world.ml.delay(150);
 		
+		setSelectedCluster( -1 );
+
 		p.initializedMaps = true;
 	}
 	
+
 	/**
-	 * Reset the map to initial state
+	 * Reset to initial state
 	 */
-	public void reset(WMV_World world)
+	public void reset()
 	{
-		initializeMaps(world);
+		mousePressedFrame = -1;
+		mouseDraggedFrame = -1;
 		setSelectedCluster( -1 );
+		selectedField = -1;
+		zoomingIn = false; 
+		zoomingOut = false;
+		panningLeft = false;
+		panningRight = false;
+		panningUp = false;
+		panningDown = false;
 	}
 
 	/**

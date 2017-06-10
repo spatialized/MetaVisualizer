@@ -27,7 +27,7 @@ public class ML_Display
 	int libraryWindowHeight;
 
 	/* Window Modes */
-	public boolean fullscreen = true;
+//	public boolean fullscreen = true;
 	public boolean initializedMaps = false;
 	public boolean initializedWorldMap = false;
 	
@@ -177,11 +177,12 @@ public class ML_Display
 		datelineXOffset = timelineXOffset;
 		datelineYOffset = screenHeight * 0.266f;
 		
-		map2D = new ML_Map(this);
 		currentSelectableTimeSegment = null;
 		currentSelectableTimeSegmentID = -1;
 		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
 
+		map2D = new ML_Map(this);
+		
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
 
@@ -203,7 +204,7 @@ public class ML_Display
 		if(worldSetup)
 		{
 			ml.hint(PApplet.DISABLE_DEPTH_TEST);									// Disable depth testing for drawing HUD
-			ml.background(0);														// Hide World View
+//			ml.background(0);														// Hide World View
 			displayStartup(ml.world, ml.state.librarySetup);						// Draw startup messages
 		}
 		else																		
@@ -1403,8 +1404,9 @@ public class ML_Display
 	 */
 	void reset()
 	{
+		System.out.println("Display.reset()... ");
 		/* Window Modes */
-		fullscreen = true;
+//		fullscreen = true;
 		initializedMaps = false;
 
 		/* Display Mode */
@@ -1432,9 +1434,13 @@ public class ML_Display
 
 		timelineScreenSize = screenWidth * 2.2f;
 		timelineStart = 0.f;
-		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
+		timelineEnd = utilities.getTimePVectorSeconds( new PVector(24,0,0) );
+
+		System.out.println("Display.reset()... 1");
+
 		datelineStart = 0.f;
 		datelineEnd = 0.f;
+		
 		updateCurrentSelectableTimeSegment = true;
 		updateCurrentSelectableDate = true;
 		
@@ -1467,6 +1473,8 @@ public class ML_Display
 		transitionScrollIncrement = 2000.f; 
 		transitionZoomInIncrement = 0.95f; transitionZoomOutIncrement = 1.052f;	
 
+		System.out.println("Display.reset()... 2");
+
 		/* Library View */
 		libraryViewMode = 0;
 		currentDisplayCluster = 0;
@@ -1482,6 +1490,8 @@ public class ML_Display
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
+
+		System.out.println("Display.reset()... 3");
 
 		centerTextXOffset = screenWidth / 2.f;
 		leftTextXOffset = 0.f;
@@ -1501,7 +1511,9 @@ public class ML_Display
 		startupMessageXOffset = screenWidth / 2.f;
 		startupMessageYOffset = -screenHeight /2.f;
 		
-		map2D = new ML_Map(this);
+		System.out.println("Display.reset()... 4");
+//		map2D = new ML_Map(this);
+		map2D.reset();
 	}
 
 	/**
@@ -1949,7 +1961,7 @@ public class ML_Display
 				window.optTimelineView.setSelected(false);
 				break;
 			case 1:	
-				if(!initializedMaps) map2D.initializeMaps(p);
+				if(!initializedMaps) map2D.initialize(p);
 				map2D.largeMarkerManager.enableDrawing();
 				map2D.smallMarkerManager.enableDrawing();
 				map2D.zoomToField(p, p.getCurrentField(), false);
@@ -1963,7 +1975,7 @@ public class ML_Display
 //				window.optClusterView.setSelected(true);
 				break;
 			case 3:	
-				if(!initializedMaps) map2D.initializeMaps(p);
+				if(!initializedMaps) map2D.initialize(p);
 				map2D.initializeWorldMap(p, false);
 				map2D.satelliteMarkerManager.enableDrawing();
 				map2D.largeMarkerManager.disableDrawing();

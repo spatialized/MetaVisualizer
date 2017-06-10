@@ -159,7 +159,7 @@ public class ML_KeyboardControls {
 								ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
 								ml.world.getCurrentField().mergeAllAdjacentClusters();						
 								ml.world.getCurrentField().finishClusterSetup();			
-								ml.display.map2D.initializeMaps(ml.world);
+								ml.display.map2D.initialize(ml.world);
 							}
 							else ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
 						}
@@ -174,7 +174,7 @@ public class ML_KeyboardControls {
 								ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
 								ml.world.getCurrentField().mergeAllAdjacentClusters();						
 								ml.world.getCurrentField().finishClusterSetup();			
-								ml.display.map2D.initializeMaps(ml.world);
+								ml.display.map2D.initialize(ml.world);
 							}
 							else ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
 						}
@@ -189,7 +189,7 @@ public class ML_KeyboardControls {
 								ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
 								ml.world.getCurrentField().mergeAllAdjacentClusters();						
 								ml.world.getCurrentField().finishClusterSetup();			
-								ml.display.map2D.initializeMaps(ml.world);
+								ml.display.map2D.initialize(ml.world);
 							}
 							else ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
 						}
@@ -204,7 +204,7 @@ public class ML_KeyboardControls {
 								ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
 								ml.world.getCurrentField().mergeAllAdjacentClusters();						
 								ml.world.getCurrentField().finishClusterSetup();			
-								ml.display.map2D.initializeMaps(ml.world);
+								ml.display.map2D.initialize(ml.world);
 							}
 							else ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
 						}
@@ -1002,7 +1002,7 @@ public class ML_KeyboardControls {
 					f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);	
 					ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
 					ml.world.getCurrentField().mergeAllAdjacentClusters();							/* Mark clusters with no media as empty */
-					ml.display.map2D.initializeMaps(ml.world);
+					ml.display.map2D.initialize(ml.world);
 				}
 			}
 		}
@@ -1019,7 +1019,7 @@ public class ML_KeyboardControls {
 					ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
 					ml.world.getCurrentField().mergeAllAdjacentClusters();							/* Mark clusters with no media as empty */
 					ml.world.getCurrentField().finishClusterSetup();			
-					ml.display.map2D.initializeMaps(ml.world);
+					ml.display.map2D.initialize(ml.world);
 				}
 			}
 		}	

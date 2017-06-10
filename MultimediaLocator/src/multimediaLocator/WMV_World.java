@@ -925,11 +925,12 @@ public class WMV_World
 	/**
 	 * Load field state from data folder
 	 * @param field Field to load state for
-	 * @return Field with loaded state
+	 * @return Field with new state loaded
 	 */
 	public WMV_Field loadFieldState(WMV_Field field)
 	{
-		String dataFolderPath = ml.library.getDataFolder(field.getID());
+		String dataFolderPath = ml.library.getDataFolder(field.getID());			// Data folder
+
 		String clusterDataPath = dataFolderPath + "ml_library_clusterStates/";
 		String imageDataPath = dataFolderPath + "ml_library_imageStates/";
 		String panoramaDataPath = dataFolderPath + "ml_library_panoramaStates/";
@@ -943,7 +944,13 @@ public class WMV_World
 		WMV_VideoStateList vsl = ml.library.loadVideoStateList(videoDataPath+"ml_library_videoStates.json");
 		WMV_SoundStateList ssl = ml.library.loadSoundStateList(soundDataPath+"ml_library_soundStates.json");
 
-		field.setState(ml, ml.library.loadFieldState(dataFolderPath+"ml_library_fieldState.json"), csl, isl, psl, vsl, ssl);
+		/* Load and set field state */
+		field.setState( ml, ml.library.loadFieldState( dataFolderPath+"ml_library_fieldState.json" ), csl, isl, psl, vsl, ssl);
+		
+		ml.metadata.loadGPSTrackFolder(field.getName()); 			// Load GPS track folder
+		ml.metadata.loadGPSTrackFiles(field.getName());				// Load GPS track files 
+		field.setGPSTracks( ml.metadata.loadGPSTracks(field) );		// Load GPS track(s) as Waypoint list(s) and store in field
+
 		return field;
 	}
 

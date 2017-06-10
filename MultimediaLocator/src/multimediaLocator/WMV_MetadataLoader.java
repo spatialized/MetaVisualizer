@@ -134,7 +134,7 @@ class WMV_MetadataLoader
 			if(videoFilesFound) loadVideos(f, videoFiles);	 	 							// Load video metadata 
 			if(soundFilesFound) loadSounds(f, soundFiles);				 					// Load sound file metadata
 			if(gpsTrackFilesFound) 
-				f.setGPSTracks( loadGPSTracks(f, gpsTrackFiles) );							// Load GPS tracks 
+				f.setGPSTracks( loadGPSTracks(f) );							// Load GPS tracks 
 		}
 		
 		return false;
@@ -281,8 +281,9 @@ class WMV_MetadataLoader
 	 * @param f Field
 	 * @param files Array of GPS track files
 	 */
-	public ArrayList<ArrayList<WMV_Waypoint>> loadGPSTracks(WMV_Field f, File[] files)
+	public ArrayList<ArrayList<WMV_Waypoint>> loadGPSTracks(WMV_Field f)
 	{
+		File[] files = gpsTrackFiles;
 		ArrayList<ArrayList<WMV_Waypoint>> tracks = new ArrayList<ArrayList<WMV_Waypoint>>();
 		
 		if(files != null)

@@ -14,7 +14,7 @@ public class ML_DebugSettings
 	
 	/* Data */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = true;				// Debug WMV_Field class
+	public boolean world = false;				// Debug WMV_Field class
 
 	/* Model */
 	public boolean metadata = false;			// Debug WMV_Metadata class

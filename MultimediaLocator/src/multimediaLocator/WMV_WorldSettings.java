@@ -31,6 +31,7 @@ public class WMV_WorldSettings
 
 	/* Graphics */
 	public int maxVisibleClusters = -1;					// Maximum visible clusters at once (-1: no limit)
+	public final int minClusterVisibility = 2;				// Minimum value for max visible clusters
 	public boolean depthTesting = false;				// Enable depth testing
 	public final int maxVisibleImages = 85;					// Maximum visible images at one time
 	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time

@@ -683,7 +683,7 @@ public class WMV_Field
 		}
 		else
 		{
-			if(ml.world.settings.maxVisibleClusters - 1 > 1)
+			if(ml.world.settings.maxVisibleClusters - 1 > ml.world.settings.minClusterVisibility)
 			{
 				ml.world.settings.maxVisibleClusters--;
 				if(debugSettings.world)

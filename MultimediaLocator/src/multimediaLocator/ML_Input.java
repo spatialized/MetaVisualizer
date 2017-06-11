@@ -84,6 +84,11 @@ public class ML_Input
 		keyboardInput.handleListItemWindowKeyPressed(ml, key, keyCode);
 	}
 	
+	public void handleLibraryWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	{
+		keyboardInput.handleLibraryWindowKeyPressed(ml, key, keyCode);
+	}
+	
 	/**
 	 * Respond to user key releases
 	 */
@@ -351,18 +356,18 @@ public class ML_Input
 					display.window.hideGraphicsWindow();
 					break;
 	
-				case "MoveForward":
-					ml.world.viewer.walkForward();
-					break;
-				case "MoveBackward":
-					ml.world.viewer.walkBackward();
-					break;
-				case "MoveLeft":
-					ml.world.viewer.startMoveXTransition(-1);
-					break;
-				case "MoveRight":
-					ml.world.viewer.startMoveXTransition(1);
-					break;
+//				case "MoveForward":
+//					ml.world.viewer.walkForward();
+//					break;
+//				case "MoveBackward":
+//					ml.world.viewer.walkBackward();
+//					break;
+//				case "MoveLeft":
+//					ml.world.viewer.startMoveXTransition(-1);
+//					break;
+//				case "MoveRight":
+//					ml.world.viewer.startMoveXTransition(1);
+//					break;
 	
 				case "ZoomIn":
 					ml.world.viewer.zoomIn();
@@ -370,14 +375,6 @@ public class ML_Input
 				case "ZoomOut":
 					ml.world.viewer.zoomOut();
 					break;
-	
-				/* Model */
-//				case "OpenModelWindow":
-//					display.window.openModelWindow();
-//					break;
-//				case "CloseModelWindow":
-//					display.window.modelWindow.setVisible(false);
-//					break;
 	
 				/* Time */
 				case "NextTime":
@@ -387,6 +384,18 @@ public class ML_Input
 					ml.world.viewer.moveToPreviousTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
 					break;
 	
+				case "ChooseGPSTrack":
+					ml.world.viewer.chooseGPSTrack();
+					break;
+					
+				/* Memory */
+				case "SaveLocation":
+					ml.world.viewer.addPlaceToMemory();
+					break;
+				case "ClearMemory":
+					ml.world.viewer.clearMemory();
+					break;
+
 				/* Selection */
 //				case "OpenSelectionWindow":
 //					display.window.openSelectionWindow();
@@ -419,14 +428,6 @@ public class ML_Input
 					break;
 				case "StitchPanorama":
 					ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
-					break;
-	
-				/* Memory */
-				case "SaveLocation":
-					ml.world.viewer.addPlaceToMemory();
-					break;
-				case "ClearMemory":
-					ml.world.viewer.clearMemory();
 					break;
 	
 				/* Output */

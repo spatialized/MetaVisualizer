@@ -149,7 +149,7 @@ public class WMV_Viewer
 	public void chooseFieldDialog()
 	{
 		ArrayList<String> fields = p.getFieldNames();
-		p.ml.display.window.openChooseItemDialog(fields, "Press ENTER to select Field:", 0);
+		p.ml.display.window.openChooseItemDialog(fields, "Use arrow keys to select field and press ENTER...", 0);
 	}
 
 	/**
@@ -3236,7 +3236,7 @@ public class WMV_Viewer
 	public void chooseGPSTrack()
 	{
 		ArrayList<String> tracks = p.getCurrentField().getGPSTrackNames();
-		p.ml.display.window.openChooseItemDialog(tracks, "Press ENTER to select GPS Track:", 1);
+		p.ml.display.window.openChooseItemDialog(tracks, "Use arrow keys to select GPS track file and press ENTER", 1);
 	}
 	
 	/**

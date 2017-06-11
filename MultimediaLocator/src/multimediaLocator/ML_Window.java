@@ -24,7 +24,7 @@ public class ML_Window
 
 	/* Windows */
 	public GWindow mlWindow, navigationWindow, graphicsWindow, statisticsWindow,  helpWindow, 
-				   memoryWindow, libraryWindow, importWindow, listItemWindow;
+				   memoryWindow, libraryWindow, importWindow, listItemWindow, textEntryWindow;
 	public GWindow timeWindow, modelWindow, selectionWindow;	// -- Obsolete
 
 	public GLabel lblMainMenu, lblNavigationWindow, lblGraphics, lblStatistics, lblHelp, lblMemory, lblLibrary, lblImport;	
@@ -35,15 +35,15 @@ public class ML_Window
 	public boolean showMLWindow = false, showNavigationWindow = false, showGraphicsWindow = false, showStatisticsWindow = false, 
 			showHelpWindow = false;
 	
-	public boolean setupNavigationWindow = false, setupGraphicsWindow = false, setupHelpWindow = false, 
-				   setupStatisticsWindow = false, setupMemoryWindow = false;
+	public boolean setupMLWindow, setupNavigationWindow = false, setupGraphicsWindow = false, setupHelpWindow = false, 
+				   setupStatisticsWindow = false;
 	
 	/* Margins */
 	private int iLeftMargin = 15;		/* Margins */
 	private int iBottomMargin = 25;
 	private int iTopMargin = 15;
 	
-	private int iButtonSpacingWide = 33;		/* Button spacing*/
+	private int iButtonSpacingWide = 32;		/* Button spacing*/
 	private int iButtonSpacing = 26;
 	
 	/* Sizing */
@@ -67,8 +67,8 @@ public class ML_Window
 
 	/* Main Window */
 	private GButton btnNavigationWindow, btnGraphicsWindow, btnStatisticsWindow, btnHelpWindow;
-	private GButton btnChooseField, btnLoadMediaLibrary, btnQuit;
-	private GLabel lblSpaceBar;
+	private GButton btnChooseField, btnSaveLibrary, btnSaveField, btnRestart, btnQuit;
+	private GLabel lblViews, lblWindows, lblCommands, lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
 	public GOption optWorldView, optMapView, optTimelineView;
 	private int mlWindowHeight;
@@ -82,7 +82,7 @@ public class ML_Window
 	/* Import Window */
 	private GButton btnImportMediaFolder, btnMakeLibrary;
 	private int importWindowHeight;
-	
+
 	/* List Item Window */
 	public boolean showListItemWindowList = false;
 	private int listItemWindowHeight;
@@ -90,6 +90,14 @@ public class ML_Window
 	private String listItemWindowText;
 	public int listItemWindowSelectedItem = -1;
 	public int listItemWindowResultCode = -1;		// 1: GPS Track  
+
+	/* Text Entry Window */
+	public boolean showTextEntryWindow = false;
+	private int textEntryWindowHeight;
+	private String textEntryWindowText;		// Prompt text
+	private String textEntryWindowUserEntry;	// User entry
+	public int textEntryWindowSelectedItem = -1;
+	public int textEntryWindowResultCode = -1;		// 1: GPS Track  
 	
 	/* Navigation Window */
 	private GLabel lblTimeNavigation, lblAutoNavigation, lblKeyNavigation, lblMemoryCommands, lblPathNavigation, 
@@ -103,7 +111,7 @@ public class ML_Window
 
 	private GButton btnNextTimeSegment, btnPreviousTimeSegment;
 	private GButton btnMoveToNearestCluster, btnMoveToLastCluster;
-	private GButton btnGoToPreviousField, btnGoToNextField;
+	private GButton btnGoToPreviousField, btnGoToNextField, btnChooseGPSTrack;
 
 	public GCheckbox chkbxPathFollowing;
 	public GLabel lblCommand1;
@@ -182,17 +190,23 @@ public class ML_Window
 		display = newDisplay;
 		utilities = new WMV_Utilities();
 		
-		mlWindowHeight = shortWindowHeight;
+		mlWindowHeight = shortWindowHeight + 50;
 		libraryWindowHeight = shortWindowHeight / 2;
 		importWindowHeight = shortWindowHeight;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
-
+		textEntryWindowHeight = shortWindowHeight;
+		
 		navigationWindowHeight = parent.ml.appHeight;
 		graphicsWindowHeight = parent.ml.appHeight;
 		statisticsWindowHeight = longWindowHeight + 100;
 		helpWindowHeight = longWindowHeight + 100;
 	}
 	
+	public void openMLWindow()
+	{
+		if(!setupMLWindow) setupMLWindow();
+		showMLWindow();
+	}
 	public void openNavigationWindow()
 	{
 		if(!setupNavigationWindow) setupNavigationWindow();
@@ -233,21 +247,30 @@ public class ML_Window
 		mlWindow.addMouseHandler(this, "mlWindowMouse");
 		mlWindow.addKeyHandler(world.ml, "mlWindowKey");
 		mlWindow.setActionOnClose(GWindow.KEEP_OPEN);
-		hideMLWindow();
+//		hideMLWindow();
 		
-		world.ml.delay(delayAmount * 2);
+		world.ml.delay(delayAmount);
 		
-		int x = 25, y = iTopMargin;
+		int x = 0, y = iTopMargin;
+		lblViews = new GLabel(mlWindow, x, y, mlWindow.width, iSmallBoxHeight);						/* Display Mode Label */
+		lblViews.setText("View Mode");
+		lblViews.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		lblViews.setLocalColorScheme(G4P.SCHEME_10);
+		lblViews.setTextAlign(GAlign.CENTER, null);
 
+		x = 25;
+		y += iButtonSpacingWide;
 		optWorldView = new GOption(mlWindow, x, y, 90, iSmallBoxHeight, "World (1)");
 		optWorldView.setLocalColorScheme(G4P.SCHEME_10);
 		optWorldView.tag = "SceneView";
-		optMapView = new GOption(mlWindow, x+=95, y, 90, iSmallBoxHeight, "Map (2)");
+		optMapView = new GOption(mlWindow, x += 100, y, 90, iSmallBoxHeight, "Map (2)");
 		optMapView.setLocalColorScheme(G4P.SCHEME_10);
 		optMapView.tag = "MapView";
-		optTimelineView = new GOption(mlWindow, x+=95, y, 100, iSmallBoxHeight, "Timeline (3)");
+		optTimelineView = new GOption(mlWindow, x += 95, y, 100, iSmallBoxHeight, "Time (3)");
 		optTimelineView.setLocalColorScheme(G4P.SCHEME_10);
 		optTimelineView.tag = "TimelineView";
+
+		world.ml.delay(delayAmount);
 
 		switch(display.displayView)
 		{
@@ -270,60 +293,70 @@ public class ML_Window
 		
 		tgDisplayView = new GToggleGroup();
 		tgDisplayView.addControls(optWorldView, optMapView, optTimelineView);
-		
-		x = 65;
-		if(world.getFieldCount() > 1)
-		{
-			y += iButtonSpacingWide;
-			btnChooseField = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Choose Field  ⇧C");
-			btnChooseField.tag = "ChooseField";
-			btnChooseField.setLocalColorScheme(G4P.GREEN_SCHEME);
-
-			y += iButtonSpacing;
-			btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Save Library  ⇧S");
-			btnLoadMediaLibrary.tag = "SaveWorld";
-			btnLoadMediaLibrary.setLocalColorScheme(G4P.GREEN_SCHEME);
-
-			y += iButtonSpacing;
-		}
-		else
-			y += iButtonSpacingWide;
-
-		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Save Field  /");
-		btnLoadMediaLibrary.tag = "SaveField";
-		btnLoadMediaLibrary.setLocalColorScheme(G4P.GREEN_SCHEME);
-
-		y += iButtonSpacing;
-		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Close Library  ⇧R");
-		btnLoadMediaLibrary.tag = "CloseLibrary";
-		btnLoadMediaLibrary.setLocalColorScheme(G4P.ORANGE_SCHEME);
-		
-		x = 90;
+	
+		x = 0;
 		y += iButtonSpacingWide;
-		btnNavigationWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Navigation  ⇧1");
+		lblWindows = new GLabel(mlWindow, x, y, mlWindow.width, iSmallBoxHeight);						/* Display Mode Label */
+		lblWindows.setText("Windows");
+		lblWindows.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		lblWindows.setLocalColorScheme(G4P.SCHEME_10);
+		lblWindows.setTextAlign(GAlign.CENTER, null);
+
+		x = 95;
+		y += iButtonSpacingWide;
+		btnNavigationWindow = new GButton(mlWindow, x, y, 120, iSmallBoxHeight, "Navigation  ⇧1");
 		btnNavigationWindow.tag = "OpenNavigationWindow";
 		btnNavigationWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
 		y += iButtonSpacing;
-		btnGraphicsWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Graphics  ⇧2");
+		btnGraphicsWindow = new GButton(mlWindow, x, y, 120, iSmallBoxHeight, "Graphics  ⇧2");
 		btnGraphicsWindow.tag = "OpenGraphicsWindow";
 		btnGraphicsWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
 		y += iButtonSpacing;
-		btnStatisticsWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Statistics  ⇧3");
+		btnStatisticsWindow = new GButton(mlWindow, x, y, 120, iSmallBoxHeight, "Statistics  ⇧3");
 		btnStatisticsWindow.tag = "OpenStatisticsWindow";
 		btnStatisticsWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 
+		x = 0;
 		y += iButtonSpacingWide;
-		btnQuit = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Quit  ⇧Q");
+		lblCommands = new GLabel(mlWindow, x, y, mlWindow.width, iSmallBoxHeight);						/* Display Mode Label */
+		lblCommands.setText("Commands");
+		lblCommands.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		lblCommands.setLocalColorScheme(G4P.SCHEME_10);
+		lblCommands.setTextAlign(GAlign.CENTER, null);
+
+		x = 85;
+		y += iButtonSpacingWide;
+		btnSaveLibrary = new GButton(mlWindow, x, y, 140, iSmallBoxHeight, "Save Library  ⇧S");
+		btnSaveLibrary.tag = "SaveWorld";
+		btnSaveLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		if(world.getFieldCount() > 1)
+		{
+			btnSaveField = new GButton(mlWindow, x, y, 140, iSmallBoxHeight, "Save Field  /");
+			btnSaveField.tag = "SaveField";
+			btnSaveField.setLocalColorScheme(G4P.CYAN_SCHEME);
+		}
+
+		y += iButtonSpacing;
+		btnRestart = new GButton(mlWindow, x, y, 140, iSmallBoxHeight, "Close Library  ⇧R");
+		btnRestart.tag = "CloseLibrary";
+		btnRestart.setLocalColorScheme(G4P.ORANGE_SCHEME);
+
+		x = 105;
+		y += iButtonSpacing;
+		btnQuit = new GButton(mlWindow, x, y, 100, iSmallBoxHeight, "Quit  ⇧Q");
 		btnQuit.tag = "Quit";
-		btnQuit.setLocalColorScheme(G4P.ORANGE_SCHEME);
+		btnQuit.setLocalColorScheme(G4P.RED_SCHEME);
 
 		y = mlWindowHeight - iBottomMargin * 5 / 2;
 		btnHelpWindow = new GButton(mlWindow, windowWidth - 30 - iLeftMargin, y, 30, 30, "?");
 		btnHelpWindow.tag = "OpenHelpWindow";
 		btnHelpWindow.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnHelpWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		world.ml.delay(delayAmount);
 
 		x = 0;
 		y = mlWindowHeight - iBottomMargin;
@@ -332,6 +365,8 @@ public class ML_Window
 		lblSpaceBar.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		lblSpaceBar.setLocalColorScheme(G4P.SCHEME_10);
 		lblSpaceBar.setTextAlign(GAlign.CENTER, null);
+		
+		setupMLWindow = true;
 		world.ml.setAppIcon = true;
 	}
 
@@ -378,7 +413,6 @@ public class ML_Window
 		lblKeyNavigation.setFont(new Font("Monospaced", Font.ITALIC, iMediumTextSize));
 		lblKeyNavigation.setTextAlign(GAlign.CENTER, null);
 		
-
 		x = 50;
 		y += 40;
 		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 60, iSmallBoxHeight, "Last (l)");
@@ -443,6 +477,11 @@ public class ML_Window
 			{
 				x = 40;
 				y += iButtonSpacingWide;
+				btnChooseField = new GButton(mlWindow, x, y, 150, iSmallBoxHeight, "Choose Field  ⇧C");
+				btnChooseField.tag = "ChooseField";
+				btnChooseField.setLocalColorScheme(G4P.CYAN_SCHEME);
+				
+				y += iButtonSpacing;
 				btnGoToPreviousField = new GButton(navigationWindow, x, y, 120, iSmallBoxHeight, "Previous Field  ⇧[");
 				btnGoToPreviousField.tag = "PreviousField";
 				btnGoToPreviousField.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -494,8 +533,14 @@ public class ML_Window
 		tgFollow = new GToggleGroup();
 		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
 
-		x = 120;
+		x = 100;
 		y += 40;
+		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 30, iSmallBoxHeight, "Select GPS Track");
+		btnChooseGPSTrack.tag = "ChooseGPSTrack";
+		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		x = 120;
+		y += 30;
 		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "Follow");
 		chkbxPathFollowing.tag = "Following";
 		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
@@ -1219,8 +1264,8 @@ public class ML_Window
 			listItemWindowSelectedItem = 0;
 			listItemWindowResultCode = resultCode;					// Flag indicating what to do with dialog result value
 			
-			int leftEdge = world.ml.appWidth / 2 - windowWidth * 3 / 2;
-			int topEdge = world.ml.appHeight / 2 - importWindowHeight / 2;
+			int leftEdge = world.ml.appWidth / 2 - windowWidth;
+			int topEdge = world.ml.appHeight / 2 - listItemWindowHeight / 2;
 
 			listItemWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, listItemWindowHeight, PApplet.JAVA2D);
 
@@ -1235,6 +1280,42 @@ public class ML_Window
 	}
 	
 	public void closeChooseItemDialog()
+	{
+		listItemWindow.setVisible(false);
+		listItemWindow.close();
+		listItemWindow.dispose();
+		showListItemWindowList = false;
+	}
+
+	/**
+	 * Open window to choose item from a list of strings and return index result
+	 * @param list List items
+	 * @return Index of chosen item from list
+	 */
+	public void openTextEntryDialog(ArrayList<String> list, String promptText, int resultCode)
+	{
+		if(list.size() > 0)
+		{
+			textEntryWindowUserEntry = "";
+			textEntryWindowText = promptText;
+			textEntryWindowSelectedItem = 0;
+			textEntryWindowResultCode = resultCode;					// Flag indicating what to do with dialog result value
+			
+			int leftEdge = world.ml.appWidth / 2 - windowWidth * 3 / 2;
+			int topEdge = world.ml.appHeight / 2 - importWindowHeight / 2;
+
+			textEntryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
+
+			textEntryWindow.addData(new ML_WinData());
+			textEntryWindow.addDrawHandler(this, "textEntryWindowDraw");
+			textEntryWindow.addKeyHandler(world.ml, "textEntryWindowKey");
+			textEntryWindow.setActionOnClose(GWindow.KEEP_OPEN);
+			
+			showTextEntryWindow = true;
+		}
+	}
+	
+	public void closeTextEntryDialog()
 	{
 		listItemWindow.setVisible(false);
 		listItemWindow.close();
@@ -1388,8 +1469,8 @@ public class ML_Window
 		applet.text(listItemWindowText, x, y);
 		applet.textSize(iMediumTextSize);
 
-		x += iLeftMargin;
-		y += iButtonSpacingWide;
+		x += iLeftMargin * 2;
+		y += iButtonSpacingWide * 1.5;
 		
 		if(listItemWindowList.size() == 0)
 		{
@@ -2025,7 +2106,7 @@ public class ML_Window
 		}
 	}
 	
-	public void showWMVWindow()
+	public void showMLWindow()
 	{
 		showMLWindow = true;
 		mlWindow.setVisible(true);

@@ -35,7 +35,7 @@ public class ML_KeyboardControls {
 			if(ml.display.window.showMLWindow)
 				ml.display.window.hideMLWindow();
 			else
-				ml.display.window.showWMVWindow();
+				ml.display.window.openMLWindow();
 		}
 
 		/* Display Modes */

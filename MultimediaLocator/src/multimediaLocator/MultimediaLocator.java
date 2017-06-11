@@ -449,8 +449,6 @@ public class MultimediaLocator extends PApplet
 	private void finishInitialization()
 	{
 		world.setBlurMasks();			// Set blur masks
-		display.window.setupMLWindow();
-
 		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
 
 		state.initialClustering = false;				
@@ -1267,9 +1265,9 @@ public class MultimediaLocator extends PApplet
 	public void libraryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleLibraryWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+//		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+//			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**

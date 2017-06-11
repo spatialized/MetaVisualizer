@@ -144,6 +144,15 @@ public class WMV_Viewer
 	}
 	
 	/**
+	 * Choose field from world to enter
+	 */
+	public void chooseFieldDialog()
+	{
+		ArrayList<String> fields = p.getFieldNames();
+		p.ml.display.window.openChooseItemDialog(fields, "Press ENTER to select Field:", 0);
+	}
+
+	/**
 	 * Enter the given field
 	 * @param fieldID Field to enter
 	 */
@@ -3227,7 +3236,7 @@ public class WMV_Viewer
 	public void chooseGPSTrack()
 	{
 		ArrayList<String> tracks = p.getCurrentField().getGPSTrackNames();
-		p.ml.display.window.openChooseItemDialog(tracks, "Select GPS Track:", 1);
+		p.ml.display.window.openChooseItemDialog(tracks, "Press ENTER to select GPS Track:", 1);
 	}
 	
 	/**

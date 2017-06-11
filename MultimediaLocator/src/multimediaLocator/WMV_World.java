@@ -116,9 +116,10 @@ public class WMV_World
 	 */
 	public void start()
 	{
-//		chooseFieldDialog();					-- In progress
-		enterFieldByIndex(0);								/* Enter first field */
-//		enterField(ml.state.initializationField-1);			/* Enter last field */
+		if(fields.size() > 1)
+			viewer.chooseFieldDialog();
+		else
+			enterFieldByIndex(0);								/* Enter first field */
 	}
 
 	/**
@@ -202,6 +203,18 @@ public class WMV_World
 		state.waitingToFadeInTerrainAlpha = true;
 		
 		viewer.start();												// Start the viewer if this is the first frame
+	}
+	
+	/**
+	 * Get field names as list of strings
+	 * @return List of field names
+	 */
+	public ArrayList<String> getFieldNames()
+	{
+		ArrayList<String> names = new ArrayList<String>();
+		for(WMV_Field field : fields)
+			names.add(field.getName());
+		return names;
 	}
 
 	/**
@@ -294,7 +307,7 @@ public class WMV_World
 	 */
 	void decrementTime()
 	{
-		float curTimePoint = ml.display.window.sdrCurrentTime.getValueF();
+		float curTimePoint = getCurrentTimePoint();
 		if (curTimePoint - settings.timeInc < 0) setCurrentTime(0);
 		else setCurrentTime(curTimePoint - settings.timeInc);
 	}
@@ -304,10 +317,28 @@ public class WMV_World
 	 */
 	void incrementTime()
 	{
-		float curTimePoint = ml.display.window.sdrCurrentTime.getValueF();
-		float endTimePoint = ml.display.window.sdrCurrentTime.getEndLimit();
+		float curTimePoint = getCurrentTimePoint();
+		float endTimePoint = 1.f;
 		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTime(endTimePoint);
 		else setCurrentTime(curTimePoint + settings.timeInc);
+	}
+	
+	public float getCurrentTimePoint()
+	{
+		float timePoint = 0.f;						// Normalized time position between 0.f and 1.f
+		switch(getState().getTimeMode())
+		{
+			case 0:
+				timePoint = utilities.mapValue(getCurrentCluster().getState().currentTime, 0, getCurrentCluster().getState().timeCycleLength, 0.f, 1.f);
+				break;
+			case 1:
+				timePoint = utilities.mapValue(getState().currentTime, 0, getSettings().timeCycleLength, 0.f, 1.f);
+				break;
+			case 2:
+				timePoint = utilities.mapValue(getState().currentTime, 0, getSettings().timeCycleLength, 0.f, 1.f);
+				break;
+		}
+		return timePoint;
 	}
 
 	/**
@@ -1275,17 +1306,22 @@ public class WMV_World
 	 */
 	void decrementTimeCycleLength()
 	{
-		int sdrValue = ml.display.window.sdrTimeCycleLength.getValueI();
+		int cycleLength;
+		if(ml.display.window.setupNavigationWindow)
+			cycleLength = ml.display.window.sdrTimeCycleLength.getValueI();
+		else
+			cycleLength = settings.timeCycleLength;
+		
 		switch(state.timeMode)
 		{
 			case 0:												// Cluster
-				if(sdrValue - 20 > 0)
-					setAllClustersTimeCycleLength(sdrValue - 20);
+				if(cycleLength - 20 > 0)
+					setAllClustersTimeCycleLength(cycleLength - 20);
 				break;
 			case 1:												// Field
-				if(sdrValue - 20 > 0)
+				if(cycleLength - 20 > 0)
 				{
-					settings.timeCycleLength = sdrValue - 20;
+					settings.timeCycleLength = cycleLength - 20;
 					settings.timeInc = settings.timeCycleLength / 30.f;			
 				}
 				break;
@@ -1297,19 +1333,29 @@ public class WMV_World
 	 */
 	void incrementTimeCycleLength()
 	{
-		int sdrMax = (int) ml.display.window.sdrTimeCycleLength.getEndLimit();
-		int sdrValue = ml.display.window.sdrTimeCycleLength.getValueI();
+		int cycleMax;
+		int cycleLength;
+		if(ml.display.window.setupNavigationWindow)
+		{
+			cycleLength = ml.display.window.sdrTimeCycleLength.getValueI();
+			cycleMax = (int) ml.display.window.sdrTimeCycleLength.getEndLimit();
+		}
+		else
+		{
+			cycleLength = settings.timeCycleLength;
+			cycleMax = 3200;
+		}
 
 		switch(state.timeMode)
 		{
 			case 0:												// Cluster
-				if(sdrValue + 20 < sdrMax)
-					setAllClustersTimeCycleLength(sdrValue + 20);
+				if(cycleLength + 20 < cycleMax)
+					setAllClustersTimeCycleLength(cycleLength + 20);
 				break;
 			case 1:												// Field
-				if(sdrValue + 20 < sdrMax)
+				if(cycleLength + 20 < cycleMax)
 				{
-					settings.timeCycleLength = sdrValue + 20;
+					settings.timeCycleLength = cycleLength + 20;
 					settings.timeInc = settings.timeCycleLength / 30.f;			
 				}
 				break;

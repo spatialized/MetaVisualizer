@@ -222,7 +222,7 @@ public class ML_Display
 			else																	// 2D Views
 			{
 				ml.hint(PApplet.DISABLE_DEPTH_TEST);								// Disable depth testing for drawing HUD
-				ml.background(0.f);												// Hide World View
+//				ml.background(0.f);												// Hide World View
 
 				switch(displayView)
 				{
@@ -1646,14 +1646,6 @@ public class ML_Display
 
 		if(worldSetup)												// Showing setup messages + windows
 		{
-//			p.ml.textSize(largeTextSize * 3.f);
-//			p.ml.text("MultimediaLocator", screenWidth / 2.25f, yPos += lineWidthVeryWide, hudDistance);
-//			p.ml.textSize(mediumTextSize * 1.4f);
-//			p.ml.text("v0.9", screenWidth / 1.075f, yPos += lineWidth, hudDistance);
-//			p.ml.textSize(largeTextSize * 0.88f);
-//			p.ml.text("Entoptic Software", screenWidth / 1.2f, yPos += lineWidthVeryWide, hudDistance);
-//			p.ml.textSize(largeTextSize * 1.2f);
-			
 			if(p.ml.createNewLibrary)
 			{
 				if(p.ml.state.chooseMediaFolders)
@@ -1666,36 +1658,49 @@ public class ML_Display
 					}
 				}
 				else if(p.ml.state.selectedNewLibraryDestination)
+				{
 					p.ml.text("Creating library from media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				}
 				else
+				{
 					p.ml.text("Please select new library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+				}
 			}
 			else
 			{
 				if(p.ml.state.startup && !p.ml.state.selectedLibrary)
 				{
 					if(!window.setupLibraryWindow)
-						window.setupLibraryWindow();
+						window.openLibraryWindow();
 					else 
 						if(!window.showLibraryWindow)
 							window.showLibraryWindow();
 					
-					yPos += lineWidthVeryWide * 11.f;
+//					yPos += lineWidthVeryWide * 11.f;
 				}
 				else
 				{
 					if(!dataFolderFound)
-						p.ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					{
+						window.setLibraryWindowText("Loading media folder(s)...");
+//						p.ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					}
 					else
-						p.ml.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
-					yPos += lineWidthVeryWide * 8.f;
+					{
+						window.setLibraryWindowText("Loading media library...");
+//						p.ml.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					}
+					
+//					yPos += lineWidthVeryWide * 8.f;
 				}
 			}
 			p.ml.textSize(largeTextSize);
 //			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.f, yPos, hudDistance);
 		}
 		else
+		{
 			displayMessages(p);
+		}
 
 		p.ml.popMatrix();
 	}

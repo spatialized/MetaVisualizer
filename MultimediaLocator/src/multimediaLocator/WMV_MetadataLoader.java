@@ -322,7 +322,7 @@ class WMV_MetadataLoader
 	}
 	
 	/**
-	 * Load metadata for folder of videos
+	 * Load data folder for field
 	 * @param fieldPath Path to field folder
 	 */
 	public void loadDataFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
@@ -333,26 +333,9 @@ class WMV_MetadataLoader
 		dataFolderFound = (dataFolderFile.exists() && dataFolderFile.isDirectory());	
 		dataFiles = null;
 
-		if (debugSettings.ml)
-			System.out.println("Data Folder: " + dataFolder); 
-
 		if(dataFolderFound)				// Check for sound files
 		{
 			dataFiles = dataFolderFile.listFiles();
-			if (debugSettings.ml && debugSettings.detailed)
-			{
-				System.out.println("Data Files[0]:" + dataFiles[0].getName());
-				System.out.println("Data Files[1]:" + dataFiles[1].getName());
-				System.out.println("Data Files[2]:" + dataFiles[2].getName());
-				System.out.println("Data Files[3]:" + dataFiles[3].getName());
-				System.out.println("Data Files[4]:" + dataFiles[4].getName());
-				System.out.println("Data Files[5]:" + dataFiles[5].getName());
-				System.out.println("Data Files[6]:" + dataFiles[6].getName());
-				System.out.println("Data Files[7]:" + dataFiles[7].getName());
-				System.out.println("Data Files[8]:" + dataFiles[8].getName());
-				System.out.println("Data Files[9]:" + dataFiles[9].getName());
-			}
-
 			if(dataFiles != null && dataFiles.length > 0)
 			{
 				if(dataFiles[0].getName().equals(".DS_Store"))
@@ -378,9 +361,7 @@ class WMV_MetadataLoader
 		}
 		
 		if (debugSettings.ml)
-		{
-			System.out.println("Data Folder:" + dataFolder + " Valid Format: "+dataFilesValidFormat);
-		}
+			System.out.println("Data Folder: " + dataFolder + " Valid Format? "+dataFilesValidFormat);
 	}
 	
 	/**

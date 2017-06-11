@@ -296,10 +296,10 @@ public class ML_KeyboardControls {
 
 		if( key == '?' )
 		{
-			if(ml.world.getFields().size() > 1)
-				ml.world.saveAllSimulationStates();
-			else
-				ml.world.saveSimulationState();
+//			if(ml.world.getFields().size() > 1)
+//				ml.world.saveAllSimulationStates();
+//			else
+//				ml.world.saveSimulationState();
 		}
 
 		if( key == 't' && !input.optionKey )
@@ -351,13 +351,17 @@ public class ML_KeyboardControls {
 		}
 
 		if (key == 'Q')
-			ml.world.viewer.moveToNextCluster(false, -1);
+			ml.exitProgram();
+//			ml.world.viewer.moveToNextCluster(false, -1);
 
 		if (!input.optionKey && key == 'e')									// Move UP
 			ml.world.viewer.startMoveYTransition(-1);
 
 		if (key == 'c') 									// Move DOWN
 			ml.world.viewer.startMoveYTransition(1);
+
+		if (key == 'C') 									// Choose field from list
+			ml.world.viewer.chooseFieldDialog();
 
 		if (key == '-') 								
 			ml.world.state.paused = !ml.world.getState().paused;
@@ -611,11 +615,16 @@ public class ML_KeyboardControls {
 		if (!input.optionKey && key == 'X')
 			ml.world.viewer.chooseMediaInFront(false);
 
-		if (key == 'S')
+		if (key == 'S')						// Save all fields
 		{
-			ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection() );
-			if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.inSelectionMode())
-				ml.world.viewer.setSelection( true );
+			if(ml.world.getFields().size() > 1)
+				ml.world.saveAllSimulationStates();
+			else
+				ml.world.saveSimulationState();
+			
+//			ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection() );
+//			if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.inSelectionMode())
+//				ml.world.viewer.setSelection( true );
 		}
 
 		if (input.optionKey && key == 's')
@@ -930,13 +939,49 @@ public class ML_KeyboardControls {
 	 * @param key Key pressed
 	 * @param keyCode Key code
 	 */
+	public void handleLibraryWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	{
+		System.out.println("handleLibraryWindowKeyPressed:"+key);
+		if(key == 'o' || key == 'O')
+		{
+			ml.state.librarySetup = true;
+			if(ml.createNewLibrary) ml.createNewLibrary = false;
+			ml.display.window.btnCreateLibrary.setVisible(false);
+			ml.display.window.btnOpenLibrary.setVisible(false);
+			ml.display.window.btnLibraryHelp.setVisible(false);
+			ml.display.window.lblLibrary.setVisible(false);
+//			ml.display.window.lblLibraryWait.setVisible(true);
+//			ml.display.window.hideLibraryWindow();
+		}
+
+		if(key == 'c' || key == 'C')
+		{
+			ml.state.librarySetup = true;
+			ml.createNewLibrary = true;
+			ml.state.chooseMediaFolders = true;
+//			ml.display.window.btnCreateLibrary.setVisible(false);
+//			ml.display.window.btnOpenLibrary.setVisible(false);
+//			ml.display.window.btnLibraryHelp.setVisible(false);
+//			ml.display.window.lblLibraryWait.setVisible(true);
+			ml.display.window.hideLibraryWindow();
+		}
+	}
+	
+	/**
+	 * Handle key pressed in List Item Window
+	 * @param ml Parent app
+	 * @param key Key pressed
+	 * @param keyCode Key code
+	 */
 	public void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
+//		System.out.println("handleListItemWindowKeyPressed:"+key);
 		if(key == PApplet.ENTER)
 		{
 			switch(ml.display.window.listItemWindowResultCode)
 			{
 				case 0:						// 0: Field
+					ml.world.enterFieldByIndex( ml.display.window.listItemWindowSelectedItem );								/* Enter first field */
 					break;
 				case 1:						// 1: GPS Track
 					ml.world.viewer.setGPSTrackSelected( ml.display.window.listItemWindowSelectedItem );
@@ -953,14 +998,33 @@ public class ML_KeyboardControls {
 				if (keyCode == PApplet.DOWN) 
 				{
 					ml.display.window.listItemWindowSelectedItem++;
-					if(ml.display.window.listItemWindowSelectedItem >= ml.world.getCurrentField().getGPSTracks().size())
-						ml.display.window.listItemWindowSelectedItem = 0;
+					switch(ml.display.window.listItemWindowResultCode)
+					{
+						case 0:						// 0: Field
+							if(ml.display.window.listItemWindowSelectedItem >= ml.world.getFieldCount())
+								ml.display.window.listItemWindowSelectedItem = 0;
+							break;
+						case 1:						// 1: GPS Track
+							if(ml.display.window.listItemWindowSelectedItem >= ml.world.getCurrentField().getGPSTracks().size())
+								ml.display.window.listItemWindowSelectedItem = 0;
+							break;
+					}
 				}
 				if (keyCode == PApplet.UP) 
 				{
 					ml.display.window.listItemWindowSelectedItem--;
-					if(ml.display.window.listItemWindowSelectedItem < 0)
-						ml.display.window.listItemWindowSelectedItem = ml.world.getCurrentField().getGPSTracks().size() - 1;
+					switch(ml.display.window.listItemWindowResultCode)
+					{
+						case 0:						// 0: Field
+							if(ml.display.window.listItemWindowSelectedItem < 0)
+								ml.display.window.listItemWindowSelectedItem = ml.world.getFieldCount() - 1;
+							break;
+						case 1:						// 1: GPS Track
+							if(ml.display.window.listItemWindowSelectedItem < 0)
+								ml.display.window.listItemWindowSelectedItem = ml.world.getCurrentField().getGPSTracks().size() - 1;
+							break;
+					}
+
 				}
 			}
 		}

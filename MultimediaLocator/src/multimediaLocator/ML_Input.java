@@ -73,7 +73,12 @@ public class ML_Input
 			}
 		}
 	}
-	
+
+	void handleLibraryViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	{
+		keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
+	}
+
 	void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		keyboardInput.handleListItemWindowKeyPressed(ml, key, keyCode);
@@ -165,6 +170,9 @@ public class ML_Input
 			switch(button.tag) 
 			{
 				/* General */
+				case "ChooseField":
+					ml.world.viewer.chooseFieldDialog();
+					break;
 				case "SaveWorld":
 					if(ml.world.getFields().size() > 1)
 						ml.world.saveAllSimulationStates();
@@ -181,17 +189,31 @@ public class ML_Input
 					ml.state.librarySetup = true;
 					ml.createNewLibrary = true;
 					ml.state.chooseMediaFolders = true;
+//					ml.display.window.btnCreateLibrary.setVisible(false);
+//					ml.display.window.btnOpenLibrary.setVisible(false);
+//					ml.display.window.btnLibraryHelp.setVisible(false);
+//					ml.display.window.lblLibrary.setVisible(false);
+//					ml.display.window.lblLibraryWait.setVisible(true);
 					display.window.hideLibraryWindow();
 					break;
 	
 				case "OpenLibrary":
 					ml.state.librarySetup = true;
 					if(ml.createNewLibrary) ml.createNewLibrary = false;
-					display.window.hideLibraryWindow();
+					ml.display.window.btnCreateLibrary.setVisible(false);
+					ml.display.window.btnOpenLibrary.setVisible(false);
+					ml.display.window.btnLibraryHelp.setVisible(false);
+					ml.display.window.lblLibrary.setVisible(false);
+//					ml.display.window.lblLibraryWait.setVisible(true);
+//					display.window.hideLibraryWindow();
 					break;
 				
 				case "CloseLibrary":
 					ml.restart();
+					break;
+					
+				case "Quit":
+					ml.exitProgram();
 					break;
 					
 				case "LibraryHelp":

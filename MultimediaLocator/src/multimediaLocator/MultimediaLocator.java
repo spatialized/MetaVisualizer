@@ -166,9 +166,20 @@ public class MultimediaLocator extends PApplet
 				if(state.selectedLibrary) initialize();			/* Initialize world */
 			}
 		}
-		else run();													/* Run MultimediaLocator */
+		else
+		{
+			if(!choosingField()) run();							/* Run MultimediaLocator */
+		}
 	}
 	
+	/**
+	 * Whether currently choosing field
+	 * @return
+	 */
+	public boolean choosingField()
+	{
+		return display.window.showListItemWindowList && display.window.listItemWindowResultCode == 0;
+	}
 	/**
 	 * Run program
 	 */
@@ -176,7 +187,7 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.startedRunning)												/* If simulation just started running */
 		{
-			if(!enteredField) world.enterFieldByIndex(0);						/* Enter world at field ID 0 	-- Change this */
+//			if(!enteredField) world.enterFieldByIndex(0);						/* Enter world at field ID 0 	-- Change this */
 			state.startedRunning = false;
 			state.framesSinceStart = 0;
 		}
@@ -444,7 +455,9 @@ public class MultimediaLocator extends PApplet
 
 		state.initialClustering = false;				
 		display.worldSetup = false;
-		
+		if(display.window.showLibraryWindow)
+			display.window.hideLibraryWindow();
+
 		state.running = true;
 		state.startedRunning = true;
 		
@@ -568,7 +581,7 @@ public class MultimediaLocator extends PApplet
 
 		if(debugSettings.ml) System.out.println("World resetting complete...");
 
-		display.window.setupLibraryWindow();
+		display.window.openLibraryWindow();
 	}
 	
 	/**
@@ -685,6 +698,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void libraryFolderSelected(File selection) 
 	{
+		display.window.lblLibraryWindowText.setVisible(true);			// Set "Please wait..." text
 		openLibraryFolder(selection);
 	}
 
@@ -713,6 +727,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void mediaFolderSelected(File selection) 
 	{
+		display.window.lblLibraryWindowText.setVisible(true);			// Set "Please wait..." text
 		openMediaFolder(selection);
 	}
 
@@ -1350,6 +1365,8 @@ public class MultimediaLocator extends PApplet
 	
 	public void mediaFolderDialog()
 	{
+//		if(!display.window.lblLibraryWait.isVisible())
+		display.window.lblLibraryWindowText.setVisible(true);
 		selectFolder("Select media folder:", "mediaFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	

@@ -32,11 +32,11 @@ public class ML_Window
 	public boolean setupLibraryWindow = false, showLibraryWindow = false;
 	public boolean setupImportWindow = false, showImportWindow = false;
 
-	public boolean showMLWindow = false, showNavigationWindow = false, showTimeWindow = false, showGraphicsWindow = false, showModelWindow = false,
-				   showSelectionWindow = false, showStatisticsWindow = false, showHelpWindow = false, showMemoryWindow = false;
+	public boolean showMLWindow = false, showNavigationWindow = false, showGraphicsWindow = false, showStatisticsWindow = false, 
+			showHelpWindow = false;
 	
-	public boolean setupTimeWindow = false, setupNavigationWindow = false, setupGraphicsWindow = false, setupModelWindow = false, setupHelpWindow = false, 
-				   setupSelectionWindow = false, setupStatisticsWindow = false, setupMemoryWindow = false;
+	public boolean setupNavigationWindow = false, setupGraphicsWindow = false, setupHelpWindow = false, 
+				   setupStatisticsWindow = false, setupMemoryWindow = false;
 	
 	/* Margins */
 	private int iLeftMargin = 15;		/* Margins */
@@ -44,7 +44,7 @@ public class ML_Window
 	private int iTopMargin = 15;
 	
 	private int iButtonSpacingWide = 33;		/* Button spacing*/
-	private int iButtonSpacing = 25;
+	private int iButtonSpacing = 26;
 	
 	/* Sizing */
 	private int iSmallBoxHeight = 20;	/* GUI box object height */
@@ -66,9 +66,7 @@ public class ML_Window
 	float lineWidth = 14.f;
 
 	/* Main Window */
-	private GButton btnNavigationWindow, btnTimeWindow, btnGraphicsWindow, btnModelWindow, btnSelectionWindow,
-				    btnStatisticsWindow, btnHelpWindow, btnMemoryWindow;
-	
+	private GButton btnNavigationWindow, btnGraphicsWindow, btnStatisticsWindow, btnHelpWindow;
 	private GButton btnChooseField, btnLoadMediaLibrary, btnQuit;
 	private GLabel lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
@@ -143,7 +141,7 @@ public class ML_Window
 	int graphicsWindowHeight;
 
 	/* Model Window */
-	private GLabel lblAdvanced, lblAltitudeScaling, lblModelSettings, lblModelDisplay;
+	private GLabel lblAdvanced, lblAltitudeScaling;
 	public GCheckbox chkbxShowModel, chkbxMediaToCluster, chkbxCaptureToMedia, chkbxCaptureToCluster;
 	public GSlider sdrAltitudeScaling;
 	public GLabel lblCommand4;
@@ -190,13 +188,7 @@ public class ML_Window
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 
 		navigationWindowHeight = parent.ml.appHeight;
-//		navigationWindowHeight = longWindowHeight + 100;
-		timeWindowHeight = longWindowHeight - 100;
 		graphicsWindowHeight = parent.ml.appHeight;
-//		graphicsWindowHeight = longWindowHeight + 75;
-		modelWindowHeight = shortWindowHeight + 100;
-		memoryWindowHeight = shortWindowHeight - 50;
-		selectionWindowHeight = longWindowHeight - 50;
 		statisticsWindowHeight = longWindowHeight + 100;
 		helpWindowHeight = longWindowHeight + 100;
 	}
@@ -220,13 +212,6 @@ public class ML_Window
 		showStatisticsWindow();
 	}
 	
-//	public void openSelectionWindow()
-//	{
-//		if(!setupSelectionWindow)
-//			setupSelectionWindow();
-//		showSelectionWindow();
-//	}
-
 	public void openHelpWindow()
 	{
 		if(!setupHelpWindow)
@@ -242,7 +227,7 @@ public class ML_Window
 		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.appHeight / 2 - mlWindowHeight / 2;
 		
-		mlWindow = GWindow.getWindow(world.ml, "MultimediaLocator", leftEdge, topEdge, windowWidth, mlWindowHeight, PApplet.JAVA2D);
+		mlWindow = GWindow.getWindow(world.ml, "Main Menu", leftEdge, topEdge, windowWidth, mlWindowHeight, PApplet.JAVA2D);
 		mlWindow.addData(new ML_WinData());
 		mlWindow.addDrawHandler(this, "mlWindowDraw");
 		mlWindow.addMouseHandler(this, "mlWindowMouse");
@@ -250,19 +235,9 @@ public class ML_Window
 		mlWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		hideMLWindow();
 		
-		world.ml.delay(delayAmount);
+		world.ml.delay(delayAmount * 2);
 		
-		int x = 0, y = iTopMargin;
-		lblMainMenu = new GLabel(mlWindow, x, y, mlWindow.width, iSmallBoxHeight, "Main Menu");
-		lblMainMenu.setLocalColorScheme(G4P.SCHEME_10);
-		lblMainMenu.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
-		lblMainMenu.setTextAlign(GAlign.CENTER, null);
-		lblMainMenu.setTextBold();
-
-		x = 25;
-		y += iButtonSpacingWide;
-		
-		world.ml.delay(delayAmount);
+		int x = 25, y = iTopMargin;
 
 		optWorldView = new GOption(mlWindow, x, y, 90, iSmallBoxHeight, "World (1)");
 		optWorldView.setLocalColorScheme(G4P.SCHEME_10);
@@ -297,21 +272,23 @@ public class ML_Window
 		tgDisplayView.addControls(optWorldView, optMapView, optTimelineView);
 		
 		x = 65;
-		
 		if(world.getFieldCount() > 1)
 		{
-			y += iButtonSpacing;
+			y += iButtonSpacingWide;
 			btnChooseField = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Choose Field  ⇧C");
 			btnChooseField.tag = "ChooseField";
 			btnChooseField.setLocalColorScheme(G4P.GREEN_SCHEME);
-		}
 
-		y += iButtonSpacing;
-		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Save All  ⇧S");
-		btnLoadMediaLibrary.tag = "SaveWorld";
-		btnLoadMediaLibrary.setLocalColorScheme(G4P.GREEN_SCHEME);
-		
-		y += iButtonSpacing;
+			y += iButtonSpacing;
+			btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Save Library  ⇧S");
+			btnLoadMediaLibrary.tag = "SaveWorld";
+			btnLoadMediaLibrary.setLocalColorScheme(G4P.GREEN_SCHEME);
+
+			y += iButtonSpacing;
+		}
+		else
+			y += iButtonSpacingWide;
+
 		btnLoadMediaLibrary = new GButton(mlWindow, x, y, 160, iSmallBoxHeight, "Save Field  /");
 		btnLoadMediaLibrary.tag = "SaveField";
 		btnLoadMediaLibrary.setLocalColorScheme(G4P.GREEN_SCHEME);
@@ -327,11 +304,6 @@ public class ML_Window
 		btnNavigationWindow.tag = "OpenNavigationWindow";
 		btnNavigationWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-//		y += iButtonSpacing;
-//		btnTimeWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Time  ⇧2");
-//		btnTimeWindow.tag = "OpenTimeWindow";
-//		btnTimeWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
-
 		y += iButtonSpacing;
 		btnGraphicsWindow = new GButton(mlWindow, x, y, 125, iSmallBoxHeight, "Graphics  ⇧2");
 		btnGraphicsWindow.tag = "OpenGraphicsWindow";
@@ -566,13 +538,6 @@ public class ML_Window
 		x = 165;
 		lblPathWaitLength = new GLabel(navigationWindow, x, y, 100, iSmallBoxHeight, "Wait Time");
 		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
-//		world.ml.delay(delayAmount);
-
-//		lblNavigationWindow = new GLabel(navigationWindow, x, y, navigationWindow.width, iSmallBoxHeight, "Navigation");
-//		lblNavigationWindow.setLocalColorScheme(G4P.SCHEME_10);
-//		lblNavigationWindow.setFont(new Font("Monospaced", Font.ITALIC, iLargeTextSize));
-//		lblNavigationWindow.setTextAlign(GAlign.CENTER, null);
-//		lblNavigationWindow.setTextBold();
 
 		/* Time */
 		y += 60;
@@ -736,36 +701,6 @@ public class ML_Window
 	}
 
 	/**
-	 * Setup the Time Window		-- Obsolete
-	 */
-	public void setupTimeWindow()
-	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - timeWindowHeight / 2;
-		timeWindow = GWindow.getWindow(world.ml, windowTitle, leftEdge, topEdge, windowWidth, timeWindowHeight, PApplet.JAVA2D);
-		timeWindow.setVisible(true);
-		timeWindow.addData(new ML_WinData());
-		timeWindow.addDrawHandler(this, "timeWindowDraw");
-		timeWindow.addMouseHandler(this, "timeWindowMouse");
-		timeWindow.addKeyHandler(world.ml, "timeWindowKey");
-		timeWindow.setActionOnClose(GWindow.KEEP_OPEN);
-
-		int x = 0, y = iTopMargin;
-		world.ml.delay(delayAmount);
-
-		x = 0;
-		y = timeWindowHeight - iBottomMargin;
-		lblCommand2 = new GLabel(timeWindow, x, y, timeWindow.width, iSmallBoxHeight);						/* Display Mode Label */
-		lblCommand2.setText("Press SHIFT + 2 to show / hide");
-		lblCommand2.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-		lblCommand2.setLocalColorScheme(G4P.SCHEME_10);
-		lblCommand2.setTextAlign(GAlign.CENTER, null);
-
-		setupTimeWindow = true;
-		world.ml.setAppIcon = true;
-	}
-	
-	/**
 	 * Setup the Graphics Window
 	 */
 	public void setupGraphicsWindow()
@@ -805,7 +740,6 @@ public class ML_Window
 		sdrVisibleAngle = new GSlider(graphicsWindow, x, y, 160, 80, 20);
 		sdrVisibleAngle.setLocalColorScheme(G4P.GOLD_SCHEME);
 		sdrVisibleAngle.setLimits(world.viewer.getVisibleAngle(), 0.1f, (float)Math.PI * 0.5f);
-//		sdrVisibleAngle.setLimits(world.viewer.getVisibleAngle(), 0.1f, 2.f * (float)Math.PI);
 		sdrVisibleAngle.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrVisibleAngle.setEasing(0);
 		sdrVisibleAngle.setShowValue(true);
@@ -1065,18 +999,6 @@ public class ML_Window
 			chkbxMultiSelection.setEnabled(false);
 			chkbxSegmentSelection.setEnabled(false);
 			chkbxShowMetadata.setEnabled(false);
-
-//			btnSelectFront.setLocalColor(G4P.SCHEME_11, world.ml.color(255, 0, 25));
-//			btnViewSelected.setLocalColor(G4P.SCHEME_11, world.ml.color(255, 0, 25));
-
-//			btnSelectFront.setLocalColorScheme(G4P.BLUE_SCHEME);
-//			btnViewSelected.setLocalColorScheme(G4P.BLUE_SCHEME);
-//			btnDeselectFront.setLocalColorScheme(G4P.BLUE_SCHEME);
-//			btnDeselectAll.setLocalColorScheme(G4P.BLUE_SCHEME);
-//			btnExportMedia.setLocalColorScheme(G4P.BLUE_SCHEME);
-//			chkbxMultiSelection.setLocalColorScheme(G4P.BLUE_SCHEME);
-//			chkbxSegmentSelection.setLocalColorScheme(G4P.BLUE_SCHEME);
-//			chkbxShowMetadata.setLocalColorScheme(G4P.BLUE_SCHEME);
 		}
 
 		x = 0;
@@ -1091,107 +1013,6 @@ public class ML_Window
 		world.ml.setAppIcon = true;
 	}
 	
-	/**
-	 * Setup the Model Window
-	 */
-	public void setupModelWindow()
-	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - modelWindowHeight / 2;
-
-		modelWindow = GWindow.getWindow(world.ml, windowTitle, leftEdge, topEdge, windowWidth, modelWindowHeight, PApplet.JAVA2D);
-		modelWindow.setVisible(true);
-		modelWindow.addData(new ML_WinData());
-		modelWindow.addDrawHandler(this, "modelWindowDraw");
-		modelWindow.addMouseHandler(this, "modelWindowMouse");
-		modelWindow.addKeyHandler(world.ml, "modelWindowKey");
-		modelWindow.setActionOnClose(GWindow.KEEP_OPEN);
-		
-		int x = 0, y = iTopMargin;
-		world.ml.delay(delayAmount);
-
-		setupModelWindow = true;
-		world.ml.setAppIcon = true;
-	}
-
-	/**
-	 * Setup the Memory Window
-	 */
-	public void setupMemoryWindow()
-	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - memoryWindowHeight / 2;
-
-		memoryWindow = GWindow.getWindow(world.ml, "Memory", leftEdge, topEdge, windowWidth, memoryWindowHeight, PApplet.JAVA2D);
-		memoryWindow.setVisible(true);
-		memoryWindow.addData(new ML_WinData());
-		memoryWindow.addDrawHandler(this, "memoryWindowDraw");
-		memoryWindow.addMouseHandler(this, "memoryWindowMouse");
-		memoryWindow.addKeyHandler(world.ml, "memoryWindowKey");
-		memoryWindow.setActionOnClose(GWindow.KEEP_OPEN);
-		
-		world.ml.delay(delayAmount);
-		int x = 0, y = iTopMargin;
-
-//		lblMemory = new GLabel(memoryWindow, x, y, memoryWindow.width, iSmallBoxHeight, "Memory");
-//		lblMemory.setLocalColorScheme(G4P.SCHEME_10);
-//		lblMemory.setTextAlign(GAlign.CENTER, null);
-//		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
-//		lblMemory.setTextBold();
-//
-//		x = 40;
-//		y += 40;
-//		btnSaveLocation = new GButton(memoryWindow, x, y, 120, iSmallBoxHeight, "Save Location  (`)");
-//		btnSaveLocation.tag = "SaveLocation";
-//		btnSaveLocation.setLocalColorScheme(G4P.CYAN_SCHEME);
-//		btnClearMemory = new GButton(memoryWindow, x+125, y, 120, iSmallBoxHeight, "Clear Memory");
-//		btnClearMemory.tag = "ClearMemory";
-//		btnClearMemory.setLocalColorScheme(G4P.RED_SCHEME);
-//		
-//		x = 0;
-//		y = memoryWindowHeight - iBottomMargin;
-//		lblCommand5 = new GLabel(memoryWindow, x, y, memoryWindow.width, iSmallBoxHeight);						/* Display Mode Label */
-//		lblCommand5.setText("Press SHIFT + 6 to show / hide");
-//		lblCommand5.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-//		lblCommand5.setLocalColorScheme(G4P.SCHEME_10);
-//		lblCommand5.setTextAlign(GAlign.CENTER, null);
-		
-		setupMemoryWindow = true;
-		world.ml.setAppIcon = true;
-	}
-
-	/**
-	 * Setup the Selection Window
-	 */
-	public void setupSelectionWindow()
-	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - selectionWindowHeight / 2;
-
-		selectionWindow = GWindow.getWindow(world.ml, "Selection", leftEdge, topEdge, windowWidth, selectionWindowHeight, PApplet.JAVA2D);
-		selectionWindow.setVisible(true);
-		selectionWindow.addData(new ML_WinData());
-		selectionWindow.addDrawHandler(this, "selectionWindowDraw");
-		selectionWindow.addMouseHandler(this, "selectionWindowMouse");
-		selectionWindow.addKeyHandler(world.ml, "selectionWindowKey");
-		selectionWindow.setActionOnClose(GWindow.KEEP_OPEN);
-		
-		int x = 0, y = iTopMargin;
-		world.ml.delay(delayAmount);
-		
-		x = 0;
-		y = selectionWindowHeight - iBottomMargin;
-		lblCommand6 = new GLabel(selectionWindow, x, y, selectionWindow.width, iSmallBoxHeight);						/* Display Mode Label */
-		lblCommand6.setText("Press SHIFT + 3 to show / hide");
-		lblCommand6.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-		lblCommand6.setLocalColorScheme(G4P.SCHEME_10);
-		lblCommand6.setTextAlign(GAlign.CENTER, null);
-		
-		selectionWindow.addKeyHandler(world.ml, "selectionWindowKey");
-		setupSelectionWindow = true;
-		world.ml.setAppIcon = true;
-	}
-
 	/**
 	 * Setup the Statistics Window
 	 */
@@ -1247,13 +1068,6 @@ public class ML_Window
 		
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount);
-
-		/* Selection Window */
-//		lblHelp = new GLabel(helpWindow, x, y, helpWindow.width, iSmallBoxHeight, "Help");
-//		lblHelp.setLocalColorScheme(G4P.SCHEME_10);
-//		lblHelp.setTextAlign(GAlign.CENTER, null);
-//		lblHelp.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
-//		lblHelp.setTextBold();
 
 		x = 55;
 		y = helpWindowHeight / 2 - iLargeBoxHeight - iLargeBoxHeight;
@@ -1564,11 +1378,7 @@ public class ML_Window
 	 */
 	public void listItemWindowDraw(PApplet applet, GWinData data) 
 	{
-//		float smallTextSize = 11.f;
-//		float mediumTextSize = 16.f;
 		applet.background(0);
-//		applet.stroke(255, 0, 185);
-//		applet.strokeWeight(1);
 		applet.fill(255);
 		
 		int x = iLeftMargin * 3;
@@ -1674,7 +1484,7 @@ public class ML_Window
 //				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
 //			}
 
-			if(setupTimeWindow)
+			if(setupNavigationWindow)
 			{
 				if(world.state.timeFading && !world.state.paused)
 					sdrCurrentTime.setValue(world.getCurrentTimePoint());
@@ -1684,37 +1494,6 @@ public class ML_Window
 //			applet.text(" Current Field Time Segment: "+ world.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
 //			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().timeline.size(), x, y += lineWidth);
 //			applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
-		}
-	}
-
-	/**
-	 * Handles mouse events for Time Window  
-	 * @param applet the main PApplet object
-	 * @param data the data for the GWindow being used
-	 * @param event the mouse event
-	 */
-	public void timeWindowMouse(PApplet applet, GWinData data, MouseEvent event) 
-	{
-		ML_WinData data2 = (ML_WinData)data;
-		switch(event.getAction()) {
-
-		case MouseEvent.PRESS:
-			data2.sx = data2.ex = applet.mouseX;
-			data2.sy = data2.ey = applet.mouseY;
-			data2.done = false;
-//			System.out.println("Mouse pressed");
-			break;
-		case MouseEvent.RELEASE:
-			data2.ex = applet.mouseX;
-			data2.ey = applet.mouseY;
-			data2.done = true;
-//			System.out.println("Mouse released:"+data.toString());
-			break;
-		case MouseEvent.DRAG:
-			data2.ex = applet.mouseX;
-			data2.ey = applet.mouseY;
-//			System.out.println("Mouse dragged");
-			break;
 		}
 	}
 
@@ -1817,50 +1596,6 @@ public class ML_Window
 		}
 	}
 
-	/**
-	 * Handles drawing to the Model Window 
-	 * @param applet the main PApplet object
-	 * @param data the data for the GWindow being used
-	 */
-	public void modelWindowDraw(PApplet applet, GWinData data) 
-	{
-		applet.background(0);
-		applet.stroke(255);
-		applet.strokeWeight(1);
-		applet.fill(255, 255, 255);
-	}
-
-	/**
-	 * Handles mouse events for Time Window  
-	 * @param applet the main PApplet object
-	 * @param data the data for the GWindow being used
-	 * @param event the mouse event
-	 */
-	public void modelWindowMouse(PApplet applet, GWinData data, MouseEvent event) 
-	{
-		ML_WinData data2 = (ML_WinData)data;
-		switch(event.getAction()) {
-
-		case MouseEvent.PRESS:
-			data2.sx = data2.ex = applet.mouseX;
-			data2.sy = data2.ey = applet.mouseY;
-			data2.done = false;
-//			System.out.println("Mouse pressed");
-			break;
-		case MouseEvent.RELEASE:
-			data2.ex = applet.mouseX;
-			data2.ey = applet.mouseY;
-			data2.done = true;
-			System.out.println("Mouse released:"+data.toString());
-			break;
-		case MouseEvent.DRAG:
-			data2.ex = applet.mouseX;
-			data2.ey = applet.mouseY;
-//			System.out.println("Mouse dragged");
-			break;
-		}
-	}
-	
 	/**
 	 * Handles drawing to the Statistics Window
 	 * @param applet the main PApplet object
@@ -1992,46 +1727,6 @@ public class ML_Window
 		}
 	}
 	
-	/**
-	 * Handles drawing to Selection Window
-	 * @param applet the main PApplet object
-	 * @param data the data for the GWindow being used
-	 */
-	public void selectionWindowDraw(PApplet applet, GWinData data) {
-		applet.background(0);
-		applet.stroke(255);
-		applet.strokeWeight(1);
-		applet.fill(255, 255, 255);
-	}
-
-	/**
-	 * Handles mouse events for Selection Window
-	 * @param applet the main PApplet object
-	 * @param data the data for the GWindow being used
-	 * @param event the mouse event
-	 */
-	public void selectionWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		ML_WinData wmvWinData = (ML_WinData)data;
-		switch(event.getAction()) {
-
-		case MouseEvent.PRESS:
-			wmvWinData.sx = wmvWinData.ex = applet.mouseX;
-			wmvWinData.sy = wmvWinData.ey = applet.mouseY;
-			wmvWinData.done = false;
-			break;
-		case MouseEvent.RELEASE:
-			wmvWinData.ex = applet.mouseX;
-			wmvWinData.ey = applet.mouseY;
-			wmvWinData.done = true;
-			break;
-		case MouseEvent.DRAG:
-			wmvWinData.ex = applet.mouseX;
-			wmvWinData.ey = applet.mouseY;
-			break;
-		}
-	}
-	
-
 	/**
 	 * Handles drawing to the Help Window PApplet area
 	 * @param applet the main PApplet object
@@ -2376,14 +2071,14 @@ public class ML_Window
 //		if(showMLWindow)
 //			hideMLWindow();
 //	}
-	public void showSelectionWindow()
-	{
-		showSelectionWindow = true;
-		if(setupSelectionWindow)
-			selectionWindow.setVisible(true);
-		if(showMLWindow)
-			hideMLWindow();
-	} 
+//	public void showSelectionWindow()
+//	{
+//		showSelectionWindow = true;
+//		if(setupSelectionWindow)
+//			selectionWindow.setVisible(true);
+//		if(showMLWindow)
+//			hideMLWindow();
+//	} 
 	public void showStatisticsWindow()
 	{
 		showStatisticsWindow = true;
@@ -2428,36 +2123,12 @@ public class ML_Window
 		if(setupNavigationWindow)
 			navigationWindow.setVisible(false);
 	} 
-	public void hideTimeWindow()
-	{
-		showTimeWindow = false;
-		if(setupTimeWindow)
-			timeWindow.setVisible(false);
-	} 
 	public void hideGraphicsWindow()
 	{
 		showGraphicsWindow = false;
 		if(setupGraphicsWindow)
 			graphicsWindow.setVisible(false);
 	}
-	public void hideModelWindow()
-	{
-		showModelWindow = false;
-		if(setupModelWindow)
-			modelWindow.setVisible(false);
-	} 
-	public void hideMemoryWindow()
-	{
-		showMemoryWindow = false;
-		if(setupMemoryWindow)
-			memoryWindow.setVisible(false);
-	}	
-	public void hideSelectionWindow()
-	{
-		showSelectionWindow = false;
-		if(setupSelectionWindow)
-			selectionWindow.setVisible(false);
-	} 
 	public void hideStatisticsWindow()
 	{
 		showStatisticsWindow = false;
@@ -2490,7 +2161,7 @@ public class ML_Window
 		hideMLWindow();
 		hideNavigationWindow();
 		hideGraphicsWindow();
-		hideSelectionWindow();
+//		hideSelectionWindow();
 		hideStatisticsWindow();
 		hideHelpWindow();
 	}

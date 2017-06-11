@@ -55,7 +55,7 @@ public class ML_KeyboardControls {
 		{
 			boolean state = !ml.world.getState().showModel;
 			ml.world.state.showModel = state;
-			if(ml.display.window.setupModelWindow)
+			if(ml.display.window.setupGraphicsWindow)
 				ml.display.window.chkbxShowModel.setSelected(state);
 		}
 
@@ -331,7 +331,7 @@ public class ML_KeyboardControls {
 			if(ml.world.getState().timeFading != state)
 			{
 				ml.world.state.timeFading = state;
-				if(ml.display.window.setupTimeWindow)
+				if(ml.display.window.setupNavigationWindow)
 					ml.display.window.chkbxTimeFading.setSelected(state);
 			}
 		}
@@ -346,7 +346,7 @@ public class ML_KeyboardControls {
 		{
 			boolean state = !ml.world.getState().showMetadata;
 			ml.world.state.showMetadata = state;
-			if(ml.display.window.setupSelectionWindow)
+			if(ml.display.window.setupGraphicsWindow)
 				ml.display.window.chkbxShowMetadata.setSelected(state);
 		}
 
@@ -582,19 +582,19 @@ public class ML_KeyboardControls {
 		if (key == 'A') 
 		{
 			ml.world.viewer.setSelection( !ml.world.viewer.inSelectionMode() );
-			if(ml.display.window.setupSelectionWindow)
+			if(ml.display.window.setupGraphicsWindow)
 				ml.display.window.chkbxSelectionMode.setSelected(ml.world.viewer.getSettings().selection);
 
 			if(ml.world.viewer.inSelectionMode() && ml.world.viewer.getMultiSelection())
 			{
 				ml.world.viewer.setMultiSelection( false );
-				if(ml.display.window.setupSelectionWindow)
+				if(ml.display.window.setupGraphicsWindow)
 					ml.display.window.chkbxMultiSelection.setSelected( false );
 			}
 			if(ml.world.viewer.inSelectionMode() && ml.world.viewer.getSegmentSelection()) 
 			{
 				ml.world.viewer.setSegmentSelection( false );
-				if(ml.display.window.setupSelectionWindow)
+				if(ml.display.window.setupGraphicsWindow)
 					ml.display.window.chkbxSegmentSelection.setSelected( false );
 			}
 		}

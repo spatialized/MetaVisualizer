@@ -17,6 +17,7 @@ import de.fhpotsdam.unfolding.interactions.MouseHandler;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MarkerManager;
 import de.fhpotsdam.unfolding.marker.MultiMarker;
+import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.marker.SimplePolygonMarker;
 import de.fhpotsdam.unfolding.providers.Google;
@@ -37,12 +38,14 @@ public class ML_Map
 	
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
-	private Location satelliteMapCenter, worldMapCenter, plainMapCenter;
+//	private Location satelliteMapCenter, worldMapCenter, plainMapCenter;
 	
 	private EventDispatcher eventDispatcher, plainMapEventDispatcher;
 	public MarkerManager<Marker> satelliteMarkerManager, osmMarkerManager, smallMarkerManager, largeMarkerManager;
 	private MultiMarker allClustersMarker;
 	private SimplePointMarker viewerMarker, plainMapViewerMarker;
+	private SimpleLinesMarker gpsTrackMarker;
+	
 	private int clusterZoomLevel = 18, fieldZoomLevel = 14;
 	
 	/* Graphics */
@@ -134,7 +137,6 @@ public class ML_Map
 		world.ml.delay(150);
 		
 		setSelectedCluster( -1 );
-
 		p.initializedMaps = true;
 	}
 	
@@ -167,7 +169,7 @@ public class ML_Map
 		osm = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
 
 		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
-		satelliteMapCenter = new Location(gpsLoc.y, gpsLoc.x);
+//		satelliteMapCenter = new Location(gpsLoc.y, gpsLoc.x);
 		
 		satellite.setBackgroundColor(0);
 		osm.setBackgroundColor(0);
@@ -200,7 +202,7 @@ public class ML_Map
 		small = new UnfoldingMap(p.ml, "Map", 0, 0, zoomMapWidth, zoomMapHeight, true, false, new BlankMapProvider());
 		
 		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
-		plainMapCenter = new Location(gpsLoc.y, gpsLoc.x);
+//		plainMapCenter = new Location(gpsLoc.y, gpsLoc.x);
 
 		large.setBackgroundColor(0);
 		small.setBackgroundColor(0);
@@ -488,8 +490,8 @@ public class ML_Map
 	void drawPathOnMap(WMV_World world, WMV_Field f, ArrayList<WMV_Waypoint> path, float mapWidth, float mapHeight)
 	{
 //		System.out.println("drawPathOnMap..."+path.size());
-		float pointSize = smallPointSize * mapWidth;
-		float saturation = maxSaturation;                                              
+//		float pointSize = smallPointSize * mapWidth;
+//		float saturation = maxSaturation;                                              
 
 		for(WMV_Waypoint w : path)
 		{
@@ -589,6 +591,24 @@ public class ML_Map
 		osmMarkerManager.addMarker(viewerMarker);				
 		largeMarkerManager.addMarker(viewerMarker);			
 		smallMarkerManager.addMarker(viewerMarker);				
+	}
+	
+	private void createGPSTrackMarker(WMV_World world, ArrayList<WMV_Waypoint> gpsTrack)
+	{
+		List<Location> gpsPoints = new ArrayList<Location>();
+		
+		for(WMV_Waypoint w : gpsTrack)					 /* Waypoint GPS location format: {longitude, latitude} */
+
+		{
+			Location loc = new Location(w.getGPSLocation().y, w.getGPSLocation().x);	 /* Unfolding Location format: {latitude, longitude} */
+			gpsPoints.add(loc);
+		}
+		
+		if(gpsPoints.size() > 0)
+		{
+			gpsTrackMarker = new SimpleLinesMarker(gpsPoints);
+			satelliteMarkerManager.addMarker(gpsTrackMarker);
+		}
 	}
 	
 	/**
@@ -775,7 +795,7 @@ public class ML_Map
 				highLatitude = f.getModel().getState().highLatitude;
 		}
 
-		worldMapCenter = new Location(highLatitude, highLongitude);				// -- Obsolete
+//		worldMapCenter = new Location(highLatitude, highLongitude);				// -- Obsolete
 		setSelectedField( world, world.getCurrentField().getID() );
 
 		if(fade)

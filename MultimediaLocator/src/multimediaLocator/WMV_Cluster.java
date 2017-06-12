@@ -1707,10 +1707,11 @@ public class WMV_Cluster
 	/**
 	 * @return Cluster location as a waypoint for navigation
 	 */
-	public WMV_Waypoint getClusterAsWaypoint()
+	public WMV_Waypoint getClusterAsWaypoint(WMV_Field field)
 	{
-		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), null, null);			// -- Should set to (center?) time instead of null!!
-//		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), getGPSLocation(), null);		// -- Must calculate time instead of null!!
+		PVector gpsLoc = utilities.getGPSLocation(field, getLocation());
+		float altitude = utilities.getAltitude(field, getLocation());
+		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), gpsLoc, altitude, null);			// -- Should set to center time instead of null!!
 		return result;
 	}
 	

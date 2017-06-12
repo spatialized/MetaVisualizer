@@ -22,12 +22,7 @@ public class ML_Display
 	public ML_Map map2D;
 	private WMV_Utilities utilities;					/* Utility methods */
 
-	/* Library Dialog */
-	private GButton btnCreateLibrary, btnOpenLibrary;
-	int libraryWindowHeight;
-
 	/* Window Modes */
-//	public boolean fullscreen = true;
 	public boolean initializedMaps = false;
 	public boolean initializedWorldMap = false;
 	
@@ -56,7 +51,7 @@ public class ML_Display
 	public int libraryViewMode = 0;						// 0: World, 1: Field, 2: Cluster
 	public int currentDisplayCluster = 0;
 	
-	/* Timeline View */
+	/* Time View */
 	float timelineScreenSize, timelineHeight = 100.f;
 	float timelineStart = 0.f, timelineEnd = 0.f;
 	float datelineStart = 0.f, datelineEnd = 0.f;
@@ -66,7 +61,7 @@ public class ML_Display
 	
 	private ArrayList<SelectableTimeSegment> selectableTimeSegments;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;						// Selectable dates on dateline
-	private float minSegmentSeconds = 15.f;
+	private final float minSegmentSeconds = 15.f;
 	
 	private boolean fieldTimelineCreated = false, fieldDatelineCreated = false, updateFieldTimeline = true;
 	private float timelineXOffset = 0.f, timelineYOffset = 0.f;
@@ -348,20 +343,6 @@ public class ML_Display
 		if(fieldDatelineCreated) displayFieldDateline(p);
 		if(fieldTimelineCreated) displayFieldTimeline(p);
 		updateTimelineMouse(p);
-	}
-	
-	public void showCreateLibraryDialog(MultimediaLocator ml)
-	{
-		int x = 90, y = 72;
-
-		btnCreateLibrary = new GButton(ml, x, y, 170, 60, "Create Library");
-		btnCreateLibrary.tag = "CreateLibrary";
-		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
-		btnCreateLibrary.setLocalColorScheme(GCScheme.GREEN_SCHEME);
-		btnOpenLibrary = new GButton(ml, x+270, y, 155, 60, "Open Library");
-		btnOpenLibrary.tag = "OpenLibrary";
-		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, 18));
-		btnOpenLibrary.setLocalColorScheme(GCScheme.BLUE_SCHEME);
 	}
 	
 	/**
@@ -1960,12 +1941,15 @@ public class ML_Display
 		displayView = newDisplayView;
 		switch(newDisplayView)
 		{
-			case 0:	
-				window.optWorldView.setSelected(true);
-				window.optMapView.setSelected(false);
-				window.optTimelineView.setSelected(false);
+			case 0:													// World View
+				if(window.setupMLWindow)
+				{
+					window.optWorldView.setSelected(true);
+					window.optMapView.setSelected(false);
+					window.optTimelineView.setSelected(false);
+				}
 				break;
-			case 1:	
+			case 1:													// Map View
 				if(!initializedMaps) map2D.initialize(p);
 				map2D.largeMarkerManager.enableDrawing();
 				map2D.smallMarkerManager.enableDrawing();
@@ -1977,7 +1961,7 @@ public class ML_Display
 					window.optTimelineView.setSelected(false);
 				}
 				break;
-			case 2:	
+			case 2:													// Time View
 				if(window.setupMLWindow)
 				{
 					window.optWorldView.setSelected(false);
@@ -1985,18 +1969,15 @@ public class ML_Display
 					window.optTimelineView.setSelected(true);
 				}
 				break;
-			case 3:	
+			case 3:													// Library View (Disabled)
 				if(!initializedMaps) map2D.initialize(p);
 				map2D.initializeWorldMap(p, false);
 				map2D.satelliteMarkerManager.enableDrawing();
 				map2D.largeMarkerManager.disableDrawing();
 				map2D.smallMarkerManager.disableDrawing();
-//				window.optWorldView.setSelected(false);
-//				window.optMapView.setSelected(false);
-//				window.optTimelineView.setSelected(true);
 				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
 				break;
-			case 4:
+			case 4:													// Media View
 //				-- Start video playing
 				break;
 		}

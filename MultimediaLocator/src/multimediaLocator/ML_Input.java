@@ -598,6 +598,10 @@ public class ML_Input
 				break;
 			case "OrientationMode":
 				world.viewer.setOrientationMode( !world.viewer.getSettings().orientationMode );
+				display.window.chkbxDomeView.setEnabled(world.viewer.getSettings().orientationMode);
+				break;
+			case "DomeView":
+				world.ml.state.sphericalView = option.isSelected();
 				break;
 			case "AngleFading":
 				world.viewer.setAngleFading( option.isSelected() );

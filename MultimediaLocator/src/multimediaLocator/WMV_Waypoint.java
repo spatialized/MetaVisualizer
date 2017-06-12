@@ -8,18 +8,20 @@ import processing.core.PVector;
 
 public class WMV_Waypoint {
 	private int id;					// ID (Cluster)
-	private PVector location;		// Camera location
-	private PVector gpsLocation;	// Camera location
+	private PVector location;		// World location
+	private PVector gpsLocation;	// GPS location
+	private float altitude;		// GPS Altitude
 	private PVector target;			// Where camera is pointing
 	private WMV_Time time;
 //	private boolean gps;
 	
-	WMV_Waypoint(int newID, PVector newLocation, PVector newGPSLocation, WMV_Time newTime) 
+	WMV_Waypoint(int newID, PVector newLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
 	{
 		id = newID;
 		location = newLocation;
 		time = newTime;
 		gpsLocation = newGPSLocation;
+		altitude = newAltitude;
 	}
 	
 	/**
@@ -62,13 +64,21 @@ public class WMV_Waypoint {
 		return time;
 	}
 	
+	/**
+	 * Get GPS location in format: {longitude, latitude}
+	 * @return GPS Location
+	 */
 	public PVector getGPSLocation()
 	{
 		return gpsLocation;
 	}
-	
-	public void setGPSLocation(PVector newGPSLocation)
-	{
-		gpsLocation = newGPSLocation;
-	}
+
+	/**
+	 * Get GPS location in format [longitude, latitude]
+	 * @param newGPSLocation New GPS location
+	 */
+//	public void setGPSLocation(PVector newGPSLocation)
+//	{
+//		gpsLocation = newGPSLocation;
+//	}
 }  

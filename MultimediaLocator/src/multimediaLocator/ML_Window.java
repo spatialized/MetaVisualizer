@@ -137,7 +137,7 @@ public class ML_Window
 	private GLabel lblHideMedia;
 	public GCheckbox chkbxHideImages, chkbxHideVideos, chkbxHidePanoramas;
 	public GCheckbox chkbxAlphaMode;
-	public GCheckbox chkbxOrientationMode;
+	public GCheckbox chkbxOrientationMode, chkbxDomeView;
 	public GCheckbox chkbxAngleFading, chkbxAngleThinning;
 
 	private GLabel lblVisibleAngle, lblAlpha, lblBrightness;
@@ -557,11 +557,17 @@ public class ML_Window
 		tgFollow = new GToggleGroup();
 		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
 
-		x = 90;
-		y += 30;
-		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 140, iSmallBoxHeight, "Select GPS Track");
-		btnChooseGPSTrack.tag = "ChooseGPSTrack";
-		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
+		if(world.getCurrentField().getGPSTracks() != null)
+		{
+			if(world.getCurrentField().getGPSTracks().size() > 0)
+			{
+				x = 90;
+				y += 30;
+				btnChooseGPSTrack = new GButton(navigationWindow, x, y, 140, iSmallBoxHeight, "Select GPS Track");
+				btnChooseGPSTrack.tag = "ChooseGPSTrack";
+				btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
+			}
+		}
 
 		x = 150;
 		y += iButtonSpacingWide;
@@ -871,7 +877,7 @@ public class ML_Window
 		lblSubjectDistance.setTextAlign(GAlign.CENTER, null);
 		lblSubjectDistance.setTextBold();
 		
-		x = 195;
+		x = 205;
 		btnSubjectDistanceUp = new GButton(graphicsWindow, x, y, 30, iSmallBoxHeight, "+");
 		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
 		btnSubjectDistanceUp.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -1050,7 +1056,14 @@ public class ML_Window
 		chkbxOrientationMode.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxOrientationMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		chkbxOrientationMode.setSelected(world.viewer.getSettings().orientationMode);
-	
+
+		x = 110;
+		y += iButtonSpacing;
+		chkbxDomeView = new GCheckbox(graphicsWindow, x, y, 160, iSmallBoxHeight, "Sphere View (BETA)");
+		chkbxDomeView.tag = "DomeView";
+		chkbxDomeView.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxDomeView.setEnabled(world.viewer.getSettings().orientationMode);
+		
 		if(!world.viewer.getSettings().selection)
 		{
 			btnSelectFront.setEnabled(false);

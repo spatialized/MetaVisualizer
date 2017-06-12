@@ -2611,7 +2611,7 @@ public class WMV_Field
 		{
 			if(t.getClusterID() < clusters.size())
 			{
-				WMV_Waypoint w = clusters.get(t.getClusterID()).getClusterAsWaypoint();
+				WMV_Waypoint w = clusters.get(t.getClusterID()).getClusterAsWaypoint(this);
 				timelinePath.add(w);
 			}
 			else

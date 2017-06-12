@@ -2075,6 +2075,7 @@ public class WMV_Viewer
 	}
 
 	/**
+	 * Get viewer GPS location in format: {longitude, latitude}
 	 * @return Current viewer GPS location
 	 */
 	public PVector getGPSLocation()
@@ -2086,6 +2087,11 @@ public class WMV_Viewer
 		float newY = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
 
 		return new PVector(newX, newY);
+	}
+	
+	public float getAltitude()
+	{
+		return p.utilities.getAltitude(p.getCurrentField(), getLocation());
 	}
 	
 	/**
@@ -3460,7 +3466,7 @@ public class WMV_Viewer
 	{
 		if(!state.teleporting && !state.walking && state.velocity.mag() == 0.f)		// Only record points when stationary
 		{
-			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation(), getGPSLocation(), null);		// -- Use simulation time instead of null!!
+			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation(), getGPSLocation(), getAltitude(), null);		// -- Use simulation time instead of null!!
 			curWaypoint.setTarget(getOrientation());
 			curWaypoint.setID(state.currentCluster);						// Need to make sure camera is at current cluster!
 			

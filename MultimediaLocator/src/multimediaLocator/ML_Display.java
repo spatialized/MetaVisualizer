@@ -1970,14 +1970,20 @@ public class ML_Display
 				map2D.largeMarkerManager.enableDrawing();
 				map2D.smallMarkerManager.enableDrawing();
 				map2D.zoomToField(p, p.getCurrentField(), false);
-				window.optWorldView.setSelected(false);
-				window.optMapView.setSelected(true);
-				window.optTimelineView.setSelected(false);
+				if(window.setupMLWindow)
+				{
+					window.optWorldView.setSelected(false);
+					window.optMapView.setSelected(true);
+					window.optTimelineView.setSelected(false);
+				}
 				break;
 			case 2:	
-//				window.optSceneView.setSelected(false);
-//				window.optMapView.setSelected(false);
-//				window.optClusterView.setSelected(true);
+				if(window.setupMLWindow)
+				{
+					window.optWorldView.setSelected(false);
+					window.optMapView.setSelected(false);
+					window.optTimelineView.setSelected(true);
+				}
 				break;
 			case 3:	
 				if(!initializedMaps) map2D.initialize(p);
@@ -1985,9 +1991,9 @@ public class ML_Display
 				map2D.satelliteMarkerManager.enableDrawing();
 				map2D.largeMarkerManager.disableDrawing();
 				map2D.smallMarkerManager.disableDrawing();
-				window.optWorldView.setSelected(false);
-				window.optMapView.setSelected(false);
-				window.optTimelineView.setSelected(true);
+//				window.optWorldView.setSelected(false);
+//				window.optMapView.setSelected(false);
+//				window.optTimelineView.setSelected(true);
 				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
 				break;
 			case 4:

@@ -20,7 +20,7 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
-	private int delayAmount = 160;							// Delay length to avoid G4P library concurrent modification exception
+	private int delayAmount = 150;							// Delay length to avoid G4P library concurrent modification exception
 
 	/* Windows */
 	public GWindow mlWindow, navigationWindow, graphicsWindow, statisticsWindow,  helpWindow, 
@@ -334,6 +334,7 @@ public class ML_Window
 
 		if(world.getFieldCount() > 1)
 		{
+			y += iButtonSpacing;
 			btnSaveField = new GButton(mlWindow, x, y, 140, iSmallBoxHeight, "Save Field  /");
 			btnSaveField.tag = "SaveField";
 			btnSaveField.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -380,7 +381,7 @@ public class ML_Window
 		
 		navigationWindow = GWindow.getWindow(world.ml, windowTitle, leftEdge, topEdge, windowWidth, navigationWindowHeight, PApplet.JAVA2D);
 		navigationWindow.setVisible(true);
-		
+
 		navigationWindow.addData(new ML_WinData());
 		navigationWindow.addDrawHandler(this, "navigationWindowDraw");
 		navigationWindow.addMouseHandler(this, "navigationWindowMouse");
@@ -412,7 +413,9 @@ public class ML_Window
 		lblKeyNavigation.setLocalColorScheme(G4P.SCHEME_10);
 		lblKeyNavigation.setFont(new Font("Monospaced", Font.ITALIC, iMediumTextSize));
 		lblKeyNavigation.setTextAlign(GAlign.CENTER, null);
-		
+	
+		world.ml.delay(delayAmount);
+
 		x = 50;
 		y += 40;
 		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 60, iSmallBoxHeight, "Last (l)");
@@ -435,6 +438,8 @@ public class ML_Window
 		chkbxMovementTeleport.tag = "MovementTeleport";
 		chkbxMovementTeleport.setLocalColorScheme(G4P.SCHEME_10);
 
+		world.ml.delay(delayAmount);
+
 		x = 0;
 		y += 40;
 		lblTimeNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iSmallBoxHeight, "Time");
@@ -442,6 +447,8 @@ public class ML_Window
 		lblTimeNavigation.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblTimeNavigation.setTextAlign(GAlign.CENTER, null);
 		lblTimeNavigation.setTextBold();
+
+		world.ml.delay(delayAmount);
 
 		x = 65;
 		btnPreviousTimeSegment = new GButton(navigationWindow, x, y, 60, iSmallBoxHeight, "Back (b)");
@@ -470,6 +477,8 @@ public class ML_Window
 		btnZoomIn = new GButton(navigationWindow, x, y, 50, iSmallBoxHeight, "In (q)");
 		btnZoomIn.tag = "ZoomIn";
 		btnZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		world.ml.delay(delayAmount);
 
 		if(world.getFields() != null)
 		{
@@ -516,7 +525,22 @@ public class ML_Window
 		lblPathNavigation.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblPathNavigation.setTextAlign(GAlign.CENTER, null);
 		lblPathNavigation.setTextBold();
+
+		x = 105;
+		y += 30;
+		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "On / Off");
+		chkbxPathFollowing.tag = "Following";
+		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
 		
+		y += iSmallBoxHeight * 1.5f;
+		x = 115;
+		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "Teleport");
+		chkbxFollowTeleport.tag = "FollowTeleport";
+		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
+
+		world.ml.delay(delayAmount);
+
 		x = 40;
 		y += 40;
 		optTimeline = new GOption(navigationWindow, x, y, 90, iSmallBoxHeight, "Timeline");
@@ -533,24 +557,11 @@ public class ML_Window
 		tgFollow = new GToggleGroup();
 		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
 
-		x = 100;
-		y += 40;
-		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 30, iSmallBoxHeight, "Select GPS Track");
+		x = 90;
+		y += 30;
+		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 140, iSmallBoxHeight, "Select GPS Track");
 		btnChooseGPSTrack.tag = "ChooseGPSTrack";
 		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		x = 120;
-		y += 30;
-		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "Follow");
-		chkbxPathFollowing.tag = "Following";
-		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
-
-		y += iSmallBoxHeight * 1.5f;
-		x += 20;
-		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "Teleport");
-		chkbxFollowTeleport.tag = "FollowTeleport";
-		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
 
 		x = 150;
 		y += iButtonSpacingWide;
@@ -755,6 +766,7 @@ public class ML_Window
 
 		graphicsWindow = GWindow.getWindow(world.ml, windowTitle, leftEdge, topEdge, windowWidth, graphicsWindowHeight, PApplet.JAVA2D);
 		graphicsWindow.setVisible(true);
+
 		graphicsWindow.addData(new ML_WinData());
 		graphicsWindow.addDrawHandler(this, "graphicsWindowDraw");
 		graphicsWindow.addMouseHandler(this, "graphicsWindowMouse");
@@ -806,6 +818,8 @@ public class ML_Window
 		sdrAlpha.setShowValue(true);
 		sdrAlpha.tag = "Alpha";
 
+		world.ml.delay(delayAmount);
+
 		x = 30;
 		y += 30;
 		lblAlpha= new GLabel(graphicsWindow, x, y, 60, iSmallBoxHeight, "Alpha");
@@ -837,13 +851,14 @@ public class ML_Window
 		sdrAltitudeScaling.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrAltitudeScaling.setEasing(0);
 		sdrAltitudeScaling.setShowValue(true);
-//		sdrAltitudeScaling.setRotation(PApplet.PI/2.f);
 		sdrAltitudeScaling.tag = "AltitudeScaling";
 		
 		x = 30;
 		y += 30;
 		lblAltitudeScaling = new GLabel(graphicsWindow, x, y, 100, iSmallBoxHeight, "Altitude Factor");
 		lblAltitudeScaling .setLocalColorScheme(G4P.SCHEME_10);
+
+		world.ml.delay(delayAmount);
 
 		x = 55;
 		y += 45;
@@ -856,7 +871,7 @@ public class ML_Window
 		lblSubjectDistance.setTextAlign(GAlign.CENTER, null);
 		lblSubjectDistance.setTextBold();
 		
-		x = 185;
+		x = 195;
 		btnSubjectDistanceUp = new GButton(graphicsWindow, x, y, 30, iSmallBoxHeight, "+");
 		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
 		btnSubjectDistanceUp.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -884,6 +899,8 @@ public class ML_Window
 		chkbxAngleThinning.tag = "AngleThinning";
 		chkbxAngleThinning.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxAngleThinning.setSelected(false);
+
+		world.ml.delay(delayAmount);
 
 		x = 0;
 		y += 40;

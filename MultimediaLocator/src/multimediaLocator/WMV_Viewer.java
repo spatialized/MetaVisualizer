@@ -3578,10 +3578,10 @@ public class WMV_Viewer
 			}
 			p.ml.display.setDisplayView(p, 4);			// Set current view to Media Display View
 		}
+		else if(selected.size() > 1)
+			System.out.println("Viewer.startViewingSelectedMedia()... More than 1 media selected!");
 		else
-		{
-			System.out.println("More than 1 media selected!");
-		}
+			System.out.println("Viewer.startViewingSelectedMedia()... No media selected!");
 	}
 	
 	public void stopViewingSelectedMedia()

@@ -515,7 +515,12 @@ public class ML_KeyboardControls {
 			ml.world.viewer.zoomOut();
 
 		if (key == PApplet.ENTER)
-			ml.world.viewer.startViewingSelectedMedia();
+		{
+			if(ml.display.displayView == 0)
+				ml.world.viewer.startViewingSelectedMedia();
+			else if(ml.display.displayView == 4)
+				ml.world.viewer.stopViewingSelectedMedia();
+		}
 
 		if (input.optionKey && key == 'e')
 		{

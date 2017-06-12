@@ -571,28 +571,40 @@ public class ML_Input
 			case "Paused":
 				world.getState().paused = option.isSelected();
 				break;
+				
 			/* Graphics */
 			case "FadeEdges":
 				world.getState().useBlurMasks = option.isSelected();
 				break;
+				
 			case "HideImages":
 				if(!option.isSelected() && world.viewer.getSettings().hideImages)
 					world.viewer.showImages();
 				else if(option.isSelected() && !world.viewer.getSettings().hideImages)
 					world.viewer.hideImages();
 				break;
+				
 			case "HideVideos":
 				if(!option.isSelected() && world.viewer.getSettings().hideVideos)
 					world.viewer.showVideos();
 				else if(option.isSelected() && !world.viewer.getSettings().hideVideos)
 					world.viewer.hideVideos();
 				break;
+				
 			case "HidePanoramas":
 				if(!option.isSelected() && world.viewer.getSettings().hidePanoramas)
 					world.viewer.showPanoramas();
 				else if(option.isSelected() && !world.viewer.getSettings().hidePanoramas)
 					world.viewer.hidePanoramas();
 				break;
+				
+			case "HideSounds":
+				if(!option.isSelected() && world.viewer.getSettings().hideSounds)
+					world.viewer.showSounds();
+				else if(option.isSelected() && !world.viewer.getSettings().hideSounds)
+					world.viewer.hideSounds();
+				break;
+				
 			case "AlphaMode":
 				world.state.alphaMode = option.isSelected();
 				break;

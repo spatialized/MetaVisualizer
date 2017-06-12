@@ -135,7 +135,7 @@ public class ML_Window
 	public GCheckbox chkbxMovementTeleport, chkbxFollowTeleport;
 	public GCheckbox chkbxFadeEdges;
 	private GLabel lblHideMedia;
-	public GCheckbox chkbxHideImages, chkbxHideVideos, chkbxHidePanoramas;
+	public GCheckbox chkbxHideImages, chkbxHideVideos, chkbxHidePanoramas, chkbxHideSounds;
 	public GCheckbox chkbxAlphaMode;
 	public GCheckbox chkbxOrientationMode, chkbxDomeView;
 	public GCheckbox chkbxAngleFading, chkbxAngleThinning;
@@ -864,8 +864,6 @@ public class ML_Window
 		lblAltitudeScaling = new GLabel(graphicsWindow, x, y, 100, iSmallBoxHeight, "Altitude Factor");
 		lblAltitudeScaling .setLocalColorScheme(G4P.SCHEME_10);
 
-		world.ml.delay(delayAmount);
-
 		x = 55;
 		y += 45;
 		btnSubjectDistanceDown = new GButton(graphicsWindow, x, y, 30, iSmallBoxHeight, "-");
@@ -881,6 +879,8 @@ public class ML_Window
 		btnSubjectDistanceUp = new GButton(graphicsWindow, x, y, 30, iSmallBoxHeight, "+");
 		btnSubjectDistanceUp.tag = "SubjectDistanceUp";
 		btnSubjectDistanceUp.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		world.ml.delay(delayAmount);
 
 		x = 50;
 		y += iButtonSpacingWide;
@@ -923,15 +923,20 @@ public class ML_Window
 		chkbxHideImages.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHideImages.setSelected(false);
 
-		chkbxHideVideos = new GCheckbox(graphicsWindow, x += 100, y, 95, iSmallBoxHeight, "Videos");
+		chkbxHideVideos = new GCheckbox(graphicsWindow, x += 65, y, 95, iSmallBoxHeight, "Videos");
 		chkbxHideVideos.tag = "HideVideos";
 		chkbxHideVideos.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHideVideos.setSelected(false);
 
-		chkbxHidePanoramas = new GCheckbox(graphicsWindow, x += 100, y, 120, iSmallBoxHeight, "Panoramas");
+		chkbxHidePanoramas = new GCheckbox(graphicsWindow, x += 65, y, 115, iSmallBoxHeight, "Panoramas");
 		chkbxHidePanoramas.tag = "HidePanoramas";
 		chkbxHidePanoramas.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHidePanoramas.setSelected(false);
+
+		chkbxHideSounds = new GCheckbox(graphicsWindow, x += 75, y, 95, iSmallBoxHeight, "Sounds");
+		chkbxHideSounds.tag = "HideSounds";
+		chkbxHideSounds.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxHideSounds.setSelected(false);
 
 		x = 30;
 		y += iButtonSpacingWide;
@@ -1057,12 +1062,12 @@ public class ML_Window
 		chkbxOrientationMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		chkbxOrientationMode.setSelected(world.viewer.getSettings().orientationMode);
 
-		x = 110;
-		y += iButtonSpacing;
-		chkbxDomeView = new GCheckbox(graphicsWindow, x, y, 160, iSmallBoxHeight, "Sphere View (BETA)");
-		chkbxDomeView.tag = "DomeView";
-		chkbxDomeView.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxDomeView.setEnabled(world.viewer.getSettings().orientationMode);
+//		x = 110;
+//		y += iButtonSpacing;
+//		chkbxDomeView = new GCheckbox(graphicsWindow, x, y, 160, iSmallBoxHeight, "Sphere View (BETA)");
+//		chkbxDomeView.tag = "DomeView";
+//		chkbxDomeView.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxDomeView.setEnabled(world.viewer.getSettings().orientationMode);
 		
 		if(!world.viewer.getSettings().selection)
 		{
@@ -1723,7 +1728,7 @@ public class ML_Window
 
 			float lineWidthVeryWide = 20f;
 
-			float x = 10;
+			float x = 50;
 			float y = 50;			// Starting vertical position
 
 			WMV_Field f = world.getCurrentField();
@@ -1732,67 +1737,69 @@ public class ML_Window
 			{
 				WMV_Cluster c = world.getCurrentCluster();
 
-				applet.textSize(fLargeTextSize);
-				applet.text("General", x, y += lineWidthVeryWide);
-				applet.textSize(fMediumTextSize);
-				applet.text(" Library:"+world.ml.library.getLibraryFolder(), x, y += lineWidthVeryWide * 1.5f);
+//				applet.textSize(fLargeTextSize);
+//				applet.text("General", x, y += lineWidthVeryWide);
+//				applet.textSize(fMediumTextSize);
+//				applet.text(" Library:"+world.ml.library.getLibraryFolder(), x, y += lineWidthVeryWide * 1.5f);
 
-				applet.textSize(fLargeTextSize);
-				applet.text("Graphics", x, y += lineWidthVeryWide * 1.5f);
-				applet.textSize(fMediumTextSize);
-				applet.text(" Alpha Mode:"+world.getState().alphaMode, x, y += lineWidthVeryWide * 1.5f);
-				applet.text(" Angle Fading:"+world.viewer.getSettings().angleFading, x, y += lineWidthVeryWide);
-				applet.text(" Angle Thinning:"+world.viewer.getSettings().angleThinning, x, y += lineWidthVeryWide);
-
-				applet.textSize(fLargeTextSize);
-				applet.text("Model", x, y += lineWidthVeryWide * 1.5f);
-				applet.textSize(fMediumTextSize);
-				applet.text(" Orientation Mode:"+world.viewer.getSettings().orientationMode, x, y += lineWidthVeryWide * 1.5f);
-				applet.text(" Altitude Scaling: "+world.getSettings().altitudeScaling, x, y += lineWidthVeryWide);
-				applet.text(" Altitude Scaling Factor: "+world.getSettings().altitudeScalingFactor, x, y += lineWidthVeryWide);
+//				applet.textSize(fLargeTextSize);
+//				applet.text("Graphics", x, y += lineWidthVeryWide * 1.5f);
+//				applet.textSize(fMediumTextSize);
+//				applet.text(" Alpha Mode:"+world.getState().alphaMode, x, y += lineWidthVeryWide * 1.5f);
+//				applet.text(" Angle Fading:"+world.viewer.getSettings().angleFading, x, y += lineWidthVeryWide);
+//				applet.text(" Angle Thinning:"+world.viewer.getSettings().angleThinning, x, y += lineWidthVeryWide);
+//
+//				applet.textSize(fLargeTextSize);
+//				applet.text("Model", x, y += lineWidthVeryWide * 1.5f);
+//				applet.textSize(fMediumTextSize);
+//				applet.text(" Orientation Mode:"+world.viewer.getSettings().orientationMode, x, y += lineWidthVeryWide * 1.5f);
+//				applet.text(" Altitude Scaling: "+world.getSettings().altitudeScaling, x, y += lineWidthVeryWide);
+//				applet.text(" Altitude Scaling Factor: "+world.getSettings().altitudeScalingFactor, x, y += lineWidthVeryWide);
 //				applet.text(" Lock Media to Clusters:"+world.lockMediaToClusters, x, y += lineWidthVeryWide);
 
 				applet.textSize(fLargeTextSize);
-				applet.text("World", x, y += lineWidthVeryWide * 1.5f);
-				applet.textSize(fMediumTextSize);
-				applet.text(" Field Count: "+world.getFields().size(), x, y += lineWidthVeryWide * 1.5f);
-				applet.text(" Current Field: "+f.getName()+" ID: "+(world.viewer.getState().getCurrentField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
-				applet.text(" Width: "+f.getModel().getState().fieldWidth+" Length: "+f.getModel().getState().fieldLength+" Height: "+f.getModel().getState().fieldHeight, x, y += lineWidthVeryWide);
-				applet.text(" Cluster Count: "+f.getClusters().size(), x, y += lineWidthVeryWide);
-				applet.text(" Clusters Visible: "+world.getVisibleClusters().size(), x, y += lineWidthVeryWide);
-				applet.text(" Media Density (per sq. m.): "+f.getModel().getState().mediaDensity, x, y += lineWidthVeryWide);
-			
-				if(f.getImageCount() > 0) applet.text(" Images: "+f.getImageCount(), x, y += lineWidthVeryWide);			
-				if(f.getImagesVisible() > 0) applet.text("   Visible: "+f.getImagesVisible(), x, y += lineWidthVeryWide);
-				if(f.getImagesSeen() > 0) applet.text("   Seen: "+f.getImagesSeen(), x, y += lineWidthVeryWide);
-
-				if(f.getPanoramaCount() > 0) applet.text(" Panoramas: "+f.getPanoramaCount(), x, y += lineWidthVeryWide);		
-				if(f.getPanoramasVisible() > 0) applet.text("   Visible: "+f.getPanoramasVisible(), x, y += lineWidthVeryWide);
-				if(f.getPanoramasSeen() > 0) applet.text("   Seen: "+f.getPanoramasSeen(), x, y += lineWidthVeryWide);
-
-				if(f.getVideoCount() > 0) applet.text(" Videos: "+f.getVideoCount(), x, y += lineWidthVeryWide);					
-				if(f.getVideosVisible() > 0) applet.text("   Visible: "+f.getVideosVisible(), x, y += lineWidthVeryWide);
-				if(f.getVideosPlaying() > 0) applet.text("   Playing: "+f.getVideosPlaying(), x, y += lineWidthVeryWide);
-				if(f.getVideosSeen() > 0) applet.text("   Seen: "+f.getVideosSeen(), x, y += lineWidthVeryWide);
-	
-				if(f.getSoundCount() > 0) applet.text(" Sounds: "+f.getSoundCount(), x, y += lineWidthVeryWide);					
-				if(f.getSoundsPlaying() > 0) applet.text(" Sounds Playing: "+f.getSoundsPlaying(), x, y += lineWidthVeryWide);
-				if(f.getSoundsAudible() > 0) applet.text("   Audible: "+f.getSoundsAudible(), x, y += lineWidthVeryWide);
-				if(f.getSoundsHeard() > 0) applet.text("   Heard: "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
-				
-				applet.textSize(fLargeTextSize);
-				applet.text("Viewer", x, y += lineWidthVeryWide * 1.5f);
+				applet.text("Viewer", x, y);
+//				applet.text("Viewer", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);
 				applet.text(" Location, x: "+PApplet.round(world.viewer.getLocation().x)+" y:"+PApplet.round(world.viewer.getLocation().y)+" z:"+
 							  PApplet.round(world.viewer.getLocation().z), x, y += lineWidthVeryWide * 1.5f);		
 				applet.text(" Approx. GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidthVeryWide);		
 				applet.text(" Field of View:"+world.viewer.getSettings().fieldOfView, x, y += lineWidthVeryWide);
-				applet.text(" Always Turn toward Media:"+world.viewer.getSettings().alwaysLookAtMedia, x, y += lineWidthVeryWide);
+				applet.text(" Clusters Visible: "+world.getVisibleClusters().size(), x, y += lineWidthVeryWide);
+//				applet.text(" Always Turn toward Media:"+world.viewer.getSettings().alwaysLookAtMedia, x, y += lineWidthVeryWide);
+
+				applet.textSize(fLargeTextSize);
+				applet.text("World", x, y += lineWidthVeryWide * 1.5f);
+				applet.textSize(fMediumTextSize);
+				if(world.getFieldCount() > 1)
+					applet.text(" Fields in World: "+world.getFields().size(), x, y += lineWidthVeryWide * 1.5f);
+				applet.text(" Current Field: "+f.getName()+" ID: "+(world.viewer.getState().getCurrentField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
+				applet.text(" Width: "+f.getModel().getState().fieldWidth+" Length: "+f.getModel().getState().fieldLength+" Height: "+f.getModel().getState().fieldHeight, x, y += lineWidthVeryWide);
+				applet.text(" Clusters in Field: "+f.getClusters().size(), x, y += lineWidthVeryWide);
+				applet.text(" Media Density (per sq. m.): "+f.getModel().getState().mediaDensity, x, y += lineWidthVeryWide);
+			
+				if(f.getImageCount() > 0) applet.text(" Images: "+f.getImageCount(), x, y += lineWidthVeryWide);			
+				if(f.getImagesVisible() > 0) applet.text("   Visible: "+f.getImagesVisible(), x, y += lineWidthVeryWide);
+//				if(f.getImagesSeen() > 0) applet.text("   Seen: "+f.getImagesSeen(), x, y += lineWidthVeryWide);
+
+				if(f.getPanoramaCount() > 0) applet.text(" Panoramas: "+f.getPanoramaCount(), x, y += lineWidthVeryWide);		
+				if(f.getPanoramasVisible() > 0) applet.text("   Visible: "+f.getPanoramasVisible(), x, y += lineWidthVeryWide);
+//				if(f.getPanoramasSeen() > 0) applet.text("   Seen: "+f.getPanoramasSeen(), x, y += lineWidthVeryWide);
+
+				if(f.getVideoCount() > 0) applet.text(" Videos: "+f.getVideoCount(), x, y += lineWidthVeryWide);					
+				if(f.getVideosVisible() > 0) applet.text("   Visible: "+f.getVideosVisible(), x, y += lineWidthVeryWide);
+				if(f.getVideosPlaying() > 0) applet.text("   Playing: "+f.getVideosPlaying(), x, y += lineWidthVeryWide);
+//				if(f.getVideosSeen() > 0) applet.text("   Seen: "+f.getVideosSeen(), x, y += lineWidthVeryWide);
+	
+				if(f.getSoundCount() > 0) applet.text(" Sounds: "+f.getSoundCount(), x, y += lineWidthVeryWide);					
+				if(f.getSoundsPlaying() > 0) applet.text(" Sounds Playing: "+f.getSoundsPlaying(), x, y += lineWidthVeryWide);
+				if(f.getSoundsAudible() > 0) applet.text("   Audible: "+f.getSoundsAudible(), x, y += lineWidthVeryWide);
+//				if(f.getSoundsHeard() > 0) applet.text("   Heard: "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
 
 				applet.textSize(fLargeTextSize);
 				applet.text("Output", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);
-				applet.text(" Image Output Folder:"+world.outputFolder, x, y += lineWidthVeryWide * 1.5f);
+				applet.text(" Media Output Folder:"+world.outputFolder, x, y += lineWidthVeryWide * 1.5f);
 
 				if(world.ml.debugSettings.memory)
 				{
@@ -2269,12 +2276,16 @@ public class ML_Window
 	 */
 	public void hideWindows()
 	{
-		hideMLWindow();
-		hideNavigationWindow();
-		hideGraphicsWindow();
-//		hideSelectionWindow();
-		hideStatisticsWindow();
-		hideHelpWindow();
+		if(showMLWindow)
+			hideMLWindow();
+		if(showNavigationWindow)
+			hideNavigationWindow();
+		if(showGraphicsWindow)
+			hideGraphicsWindow();
+		if(showStatisticsWindow)
+			hideStatisticsWindow();
+		if(showHelpWindow)
+			hideHelpWindow();
 	}
 }
 	

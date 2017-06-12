@@ -1864,6 +1864,24 @@ public class WMV_Viewer
 		settings.hideVideos = true;
 		p.hideVideos();
 	}
+	
+	/** 
+	 * Show any sound in field if visible
+	 */
+	public void showSounds()
+	{
+		settings.hideSounds = false;
+		p.showSounds();
+	}
+	
+	/** 
+	 * Hide all sound in field
+	 */
+	public void hideSounds()
+	{
+		settings.hideSounds = true;
+		p.hideSounds();
+	}
 
 	/**
 	 * Stop any current viewer movement

@@ -1747,7 +1747,35 @@ public class WMV_World
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHideVideos.setSelected(true);
 	}
+
 	
+	/**
+	 * Show any sound in field if visible
+	 */
+	public void showSounds()
+	{
+		if(ml.display.window.setupGraphicsWindow)
+			ml.display.window.chkbxHideSounds.setSelected(false);
+	}
+	
+	/**
+	 * Hide all sounds in field
+	 */
+	public void hideSounds()
+	{
+		for(WMV_Sound s : getCurrentField().getSounds())
+		{
+			if(s.getMediaState().visible)
+			{
+				if(s.isFading()) s.stopFading();
+				s.fadeOut(getCurrentField());
+			}
+		}
+		
+		if(ml.display.window.setupGraphicsWindow)
+			ml.display.window.chkbxHideSounds.setSelected(true);
+	}
+
 	/**
 	 * Deselect all media in field
 	 */

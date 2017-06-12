@@ -9,7 +9,7 @@ public class ML_DebugSettings
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
-	public boolean detailed = true;			// Verbose debugging messages
+	public boolean detailed = true;				// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	
 	/* Data */
@@ -23,8 +23,8 @@ public class ML_DebugSettings
 
 	/* Viewer */
 	public boolean viewer = true;				// Debug WMV_Viewer class
-	public boolean path = true;				// Debug WMV_Viewer class
-	public boolean gps = true;				// Debug WMV_Viewer class
+	public boolean path = true;					// Debug WMV_Viewer class
+	public boolean gps = true;					// Debug WMV_Viewer class
 	public boolean display = false;				// Debug WMV_Display class
 	
 	/* Media */

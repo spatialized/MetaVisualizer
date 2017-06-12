@@ -916,6 +916,12 @@ public class ML_KeyboardControls {
 		}
 	}
 	
+	/**
+	 * Handle key pressed in Media View
+	 * @param ml Parent app
+	 * @param key Key pressed
+	 * @param keyCode Key code
+	 */
 	public void handleMediaViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if(key == PApplet.ENTER)

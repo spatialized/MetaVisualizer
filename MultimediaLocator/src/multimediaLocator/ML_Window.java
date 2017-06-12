@@ -465,25 +465,29 @@ public class ML_Window
 		btnZoomOut = new GButton(navigationWindow, x, y, 50, iSmallBoxHeight, "Out (z)");
 		btnZoomOut.tag = "ZoomOut";
 		btnZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
+
+		world.ml.delay(delayAmount);
+
 		x = 0;
 		lblZoom = new GLabel(navigationWindow, x, y, navigationWindow.width, iSmallBoxHeight, "Zoom");
 		lblZoom.setLocalColorScheme(G4P.SCHEME_10);
 		lblZoom.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblZoom.setTextAlign(GAlign.CENTER, null);
 		lblZoom.setTextBold();
-		
+
+		world.ml.delay(delayAmount);
+
 		x = 190;
 		btnZoomIn = new GButton(navigationWindow, x, y, 50, iSmallBoxHeight, "In (q)");
 		btnZoomIn.tag = "ZoomIn";
 		btnZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		world.ml.delay(delayAmount);
+		world.ml.delay(delayAmount * 2);
 
-		if(world.getFields() != null)
-		{
-			if(world.getFieldCount() > 1)
-			{
+//		if(world.getFields() != null)
+//		{
+//			if(world.getFieldCount() > 1)
+//			{
 				x = 40;
 				y += iButtonSpacingWide;
 				btnChooseField = new GButton(mlWindow, x, y, 150, iSmallBoxHeight, "Choose Field  ⇧C");
@@ -498,8 +502,8 @@ public class ML_Window
 				btnGoToNextField = new GButton(navigationWindow, x+=125, y, 100, iSmallBoxHeight, "Next Field  ⇧]");
 				btnGoToNextField.tag = "NextField";
 				btnGoToNextField.setLocalColorScheme(G4P.CYAN_SCHEME);
-			}
-		}
+//			}
+//		}
 
 		x = 40;
 		y += 40;

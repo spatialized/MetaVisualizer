@@ -933,7 +933,7 @@ public class ML_Window
 		chkbxHidePanoramas.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHidePanoramas.setSelected(false);
 
-		chkbxHideSounds = new GCheckbox(graphicsWindow, x += 75, y, 95, iSmallBoxHeight, "Sounds");
+		chkbxHideSounds = new GCheckbox(graphicsWindow, x += 85, y, 95, iSmallBoxHeight, "Sounds");
 		chkbxHideSounds.tag = "HideSounds";
 		chkbxHideSounds.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHideSounds.setSelected(false);
@@ -957,9 +957,9 @@ public class ML_Window
 		lblSelection.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblSelection.setTextBold();
 
-		x = 120;
+		x = 105;
 		y += iButtonSpacingWide;
-		chkbxSelectionMode = new GCheckbox(graphicsWindow, x, y, 90, iSmallBoxHeight, "Enable");
+		chkbxSelectionMode = new GCheckbox(graphicsWindow, x, y, 120, iSmallBoxHeight, "Enable (A)");
 		chkbxSelectionMode.tag = "EnableSelection";
 		chkbxSelectionMode.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxSelectionMode.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));

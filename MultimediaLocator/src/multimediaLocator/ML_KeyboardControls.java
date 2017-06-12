@@ -518,8 +518,6 @@ public class ML_KeyboardControls {
 		{
 			if(ml.display.displayView == 0)
 				ml.world.viewer.startViewingSelectedMedia();
-			else if(ml.display.displayView == 4)
-				ml.world.viewer.stopViewingSelectedMedia();
 		}
 
 		if (input.optionKey && key == 'e')
@@ -587,21 +585,6 @@ public class ML_KeyboardControls {
 		if (key == 'A') 
 		{
 			ml.world.viewer.setSelection( !ml.world.viewer.inSelectionMode() );
-			if(ml.display.window.setupGraphicsWindow)
-				ml.display.window.chkbxSelectionMode.setSelected(ml.world.viewer.getSettings().selection);
-
-			if(ml.world.viewer.inSelectionMode() && ml.world.viewer.getMultiSelection())
-			{
-				ml.world.viewer.setMultiSelection( false );
-				if(ml.display.window.setupGraphicsWindow)
-					ml.display.window.chkbxMultiSelection.setSelected( false );
-			}
-			if(ml.world.viewer.inSelectionMode() && ml.world.viewer.getSegmentSelection()) 
-			{
-				ml.world.viewer.setSegmentSelection( false );
-				if(ml.display.window.setupGraphicsWindow)
-					ml.display.window.chkbxSegmentSelection.setSelected( false );
-			}
 		}
 
 		if (input.optionKey && key == 'x')
@@ -935,7 +918,8 @@ public class ML_KeyboardControls {
 	
 	public void handleMediaViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		
+		if(key == PApplet.ENTER)
+			ml.world.viewer.stopViewingSelectedMedia();
 	}
 	
 	/**

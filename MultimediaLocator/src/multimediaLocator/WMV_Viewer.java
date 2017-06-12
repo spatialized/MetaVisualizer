@@ -3610,6 +3610,7 @@ public class WMV_Viewer
 	
 	public void stopViewingSelectedMedia()
 	{
+		System.out.println("stopViewingSelectedMedia...");
 		p.ml.display.setDisplayView(p, 0);			// Set current view to Media Display View
 	}
 	
@@ -4533,6 +4534,57 @@ public class WMV_Viewer
 	public void setSelection(boolean newSelection)
 	{
 		settings.selection = newSelection;
+		
+		if(p.ml.display.window.setupGraphicsWindow)
+			p.ml.display.window.chkbxSelectionMode.setSelected(settings.selection);
+
+		if(inSelectionMode())
+		{
+			if(p.ml.display.window.setupGraphicsWindow)
+			{
+				p.ml.display.window.btnSelectFront.setEnabled(true);
+				p.ml.display.window.btnViewSelected.setEnabled(true);
+				p.ml.display.window.btnDeselectFront.setEnabled(true);
+				p.ml.display.window.btnDeselectAll.setEnabled(true);
+				p.ml.display.window.btnExportMedia.setEnabled(true);
+				p.ml.display.window.chkbxMultiSelection.setEnabled(true);
+				p.ml.display.window.chkbxSegmentSelection.setEnabled(true);
+				p.ml.display.window.chkbxShowMetadata.setEnabled(true);
+			}
+		}
+		else
+		{
+			p.getCurrentField().deselectAllMedia(false);		// Deselect media if left Selection Mode
+			if(p.ml.display.displayView == 4)
+			{
+				p.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
+				p.ml.display.setDisplayView(p, 0);			// Set Display View to World
+			}
+			if(p.ml.display.window.setupGraphicsWindow)
+			{
+				p.ml.display.window.btnSelectFront.setEnabled(false);
+				p.ml.display.window.btnViewSelected.setEnabled(false);
+				p.ml.display.window.btnDeselectFront.setEnabled(false);
+				p.ml.display.window.btnDeselectAll.setEnabled(false);
+				p.ml.display.window.btnExportMedia.setEnabled(false);
+				p.ml.display.window.chkbxMultiSelection.setEnabled(false);
+				p.ml.display.window.chkbxSegmentSelection.setEnabled(false);
+				p.ml.display.window.chkbxShowMetadata.setEnabled(false);
+			}
+		}
+
+		if(inSelectionMode() && getMultiSelection())
+		{
+			setMultiSelection( false );
+			if(p.ml.display.window.setupGraphicsWindow)
+				p.ml.display.window.chkbxMultiSelection.setSelected( false );
+		}
+		if(inSelectionMode() && getSegmentSelection()) 
+		{
+			setSegmentSelection( false );
+			if(p.ml.display.window.setupGraphicsWindow)
+				p.ml.display.window.chkbxSegmentSelection.setSelected( false );
+		}
 	}
 
 	public boolean getSegmentSelection()

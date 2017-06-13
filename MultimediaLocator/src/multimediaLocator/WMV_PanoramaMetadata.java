@@ -13,7 +13,7 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 {
 	public int cameraModel;                 	// Camera model
 	public float brightness;					// Panorama pixel brightness
-	public float theta = 0;                		// Media Orientation (in Degrees N)
+	public float theta = -100000.f;             // Media Orientation (in Degrees N)
 
 	public int imageWidth, imageHeight;			// Image width and height
 	

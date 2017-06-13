@@ -98,20 +98,20 @@ public class ML_Library
 									}
 									else if(iMetadata.imageWidth < 640)
 									{
-										System.out.println("ERROR in createNewLibrary()... Image smaller than 640 px: "+fs);
+										System.out.println("Library.createNewLibrary()... ERROR: Image smaller than 640 px: "+fs);
 									}
 								}
 							}
-//							else
-//							{
-//								System.out.println("Library.createNewLibrary()... Verified image width for image:"+fs);
-//							}
+							else
+							{
+								System.out.println("Library.createNewLibrary()... Verified image width for image:"+fs);
+							}
 						}
 					}
 				}
 				else
 				{
-					System.out.println("ERROR creating new library! Failed to copy media folder: "+mediaFolder);
+					System.out.println("Library.createNewLibrary()... ERROR creating new library! Failed to copy media folder: "+mediaFolder);
 					return false;
 				}
 			}

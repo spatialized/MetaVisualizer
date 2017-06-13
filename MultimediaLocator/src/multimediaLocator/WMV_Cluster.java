@@ -36,7 +36,7 @@ public class WMV_Cluster
 	 * @param newLocation Cluster location
 	 */
 	public WMV_Cluster( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
-						ML_DebugSettings newDebugSettings, int newClusterID, PVector newLocation ) 
+						WMV_ViewerState newViewerState, ML_DebugSettings newDebugSettings, int newClusterID, PVector newLocation ) 
 	{
 		state = new WMV_ClusterState();
 		state.id = newClusterID;
@@ -47,6 +47,7 @@ public class WMV_Cluster
 		if(newWorldSettings != null) worldSettings = newWorldSettings;	// Update world settings
 		if(newWorldState != null) worldState = newWorldState;	// Update world settings
 		if(newViewerSettings != null) viewerSettings = newViewerSettings;	// Update viewer settings
+		if(newViewerState != null) viewerState = newViewerState;	// Update viewer settings
 		if(newDebugSettings != null) debugSettings = newDebugSettings;
 		
 		state.images = new ArrayList<Integer>();
@@ -1016,7 +1017,7 @@ public class WMV_Cluster
 		}
 		else
 		{
-			System.out.println("cluster id:"+getID()+" ... getClusterDistance().. viewerState == NULL!!");
+			System.out.println("Cluster.getClusterDistance()... cluster id:"+getID()+" ... viewerState == NULL!!");
 			return 0.f;
 		}
 	}

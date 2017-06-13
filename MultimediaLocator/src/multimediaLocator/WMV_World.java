@@ -1453,27 +1453,6 @@ public class WMV_World
 		fields.set(fieldIndex, newField);
 	}
 
-//	/**
-//	 * Import media and create new library by detecting fields using k-means clustering
-//	 * @param mediaFolder Folder containing the media
-//	 */
-//	public void createLibrary(String mediaFolder)
-//	{
-//		fields = new ArrayList<WMV_Field>();			// Initialize fields array
-//		
-////		WMV_Field largeField = createLargeFieldFromFolder(mediaFolder);
-////		fields = divideField(largeField, 3000.f, 15000.f);			
-//		
-////		ArrayList<GMV_Cluster> clusters;		
-////		int count = 0;
-////		for(String s : clusters)
-////		{
-////			fields.add(new GMV_Field(this, s, count));
-////			count++;
-////		}
-////		System.out.println("Created "+getCurrentField().clusters.size()+"fields from "+xxx+" clusters...");
-//	}
-	
 	/**
 	 * Determine and set the length of the Main Time Cycle
 	 */
@@ -1599,6 +1578,16 @@ public class WMV_World
 		}
 		else
 			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
+	}
+	
+	public void setImageOrientation()			// -- To Do
+	{
+		
+	}
+	
+	public void setPanoramaOrientation()			// -- To Do
+	{
+		
 	}
 	
 

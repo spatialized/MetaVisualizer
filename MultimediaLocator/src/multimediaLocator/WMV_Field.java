@@ -854,7 +854,7 @@ public class WMV_Field
 		{
 //			System.out.println("Field.setSoundLocation()...2  sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
 			int newClusterID = clusters.size();
-			addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, snd.getCaptureLocation()));
+			addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, newClusterID, snd.getCaptureLocation()));
 			snd.setAssociatedClusterID(newClusterID);
 			clusters.get(newClusterID).createSingle(snd.getID(), 3);
 		}
@@ -1043,7 +1043,7 @@ public class WMV_Field
 	 */
 	public WMV_Cluster createCluster( int index, PVector location, List<Integer> imageList, List<Integer> panoramaList, List<Integer> videoList, List<Integer> soundList )
 	{
-		WMV_Cluster newCluster = new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, index, location);
+		WMV_Cluster newCluster = new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, index, location);
 
 		/* Add media to cluster */
 		for( int i : imageList )
@@ -1080,7 +1080,7 @@ public class WMV_Field
 		{
 			if(i.getAssociatedClusterID() == -1)				// Create cluster for each single image
 			{
-				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, i.getCaptureLocation()));
+				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, newClusterID, i.getCaptureLocation()));
 				i.setAssociatedClusterID(newClusterID);
 				clusters.get(newClusterID).createSingle(i.getID(), 0);
 				newClusterID++;
@@ -1091,7 +1091,7 @@ public class WMV_Field
 		{
 			if(n.getAssociatedClusterID() == -1)				// Create cluster for each panorama
 			{
-				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, n.getCaptureLocation()));
+				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, newClusterID, n.getCaptureLocation()));
 				n.setAssociatedClusterID(newClusterID);
 				clusters.get(newClusterID).createSingle(n.getID(), 1);
 				newClusterID++;
@@ -1102,7 +1102,7 @@ public class WMV_Field
 		{
 			if(v.getAssociatedClusterID() == -1)				// Create cluster for each single video
 			{
-				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, v.getCaptureLocation()));
+				addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, newClusterID, v.getCaptureLocation()));
 				v.setAssociatedClusterID(newClusterID);
 				clusters.get(newClusterID).createSingle(v.getID(), 2);
 				newClusterID++;
@@ -1115,7 +1115,7 @@ public class WMV_Field
 			{
 				if(s.getAssociatedClusterID() == -1)				// Create cluster for each single video
 				{
-					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, newClusterID, s.getCaptureLocation()));
+					addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, newClusterID, s.getCaptureLocation()));
 					s.setAssociatedClusterID(newClusterID);
 					clusters.get(newClusterID).createSingle(s.getID(), 3);
 					newClusterID++;
@@ -1184,7 +1184,7 @@ public class WMV_Field
 	{
 		if(location != null)
 		{
-			WMV_Cluster cluster = new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, index, location);
+			WMV_Cluster cluster = new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, index, location);
 			return cluster;
 		}
 		return null;
@@ -1784,7 +1784,7 @@ public class WMV_Field
 				clusterPoint = new PVector(getSound(soundID).getCaptureLocation().x, getSound(soundID).getCaptureLocation().y, getSound(soundID).getCaptureLocation().z); // Choose random image location to start
 			}
 			
-			addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+			addCluster(new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, i, clusterPoint));
 		}	
 	}
 
@@ -2780,7 +2780,7 @@ public class WMV_Field
 				clusterPoint = new PVector(sndLoc.x, sndLoc.y, sndLoc.z); // Choose random image location to start
 			}
 
-			fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, debugSettings, i, clusterPoint));
+			fieldClusters.add(new WMV_Cluster(worldSettings, worldState, viewerSettings, viewerState, debugSettings, i, clusterPoint));
 		}
 
 		/* Refine fields */
@@ -3992,7 +3992,7 @@ public class WMV_Field
 
 	private WMV_Cluster getClusterFromClusterState(WMV_ClusterState clusterState)
 	{
-		WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, debugSettings, clusterState.id, clusterState.location);
+		WMV_Cluster newCluster = new WMV_Cluster( worldSettings, worldState, viewerSettings, viewerState, debugSettings, clusterState.id, clusterState.location);
 
 		newCluster.setState( (WMV_ClusterState) clusterState );
 		newCluster.initializeTime();

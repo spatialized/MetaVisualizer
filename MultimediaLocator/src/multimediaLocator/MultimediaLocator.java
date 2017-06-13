@@ -21,12 +21,10 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.imageio.ImageIO;
 
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
-import g4p_controls.GPanel;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
@@ -67,7 +65,7 @@ public class MultimediaLocator extends PApplet
 	ML_DebugSettings debugSettings;				// Debug settings
 	
 	/* WorldMediaViewer */
-	WMV_World world;							// The 3D World
+	WMV_World world;							// World simulation
 	WMV_MetadataLoader metadata;				// Metadata reading and writing
 	
 	/* Field */

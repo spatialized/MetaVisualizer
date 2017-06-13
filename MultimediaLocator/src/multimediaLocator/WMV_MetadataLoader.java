@@ -662,7 +662,6 @@ class WMV_MetadataLoader
 	public WMV_ImageMetadata loadImageMetadata(File file, String timeZoneID)
 	{
 		String sName = file.getName();
-//		boolean panorama = false;
 		boolean dataMissing = false;
 		boolean brightnessMissing = false, descriptionMissing = false;
 
@@ -689,7 +688,7 @@ class WMV_MetadataLoader
 		Metadata imageMetadata = null;				// For images
 
 		if(debugSettings.metadata && debugSettings.detailed)
-			System.out.println("Loading image: "+sName);
+			System.out.println("loadImageMetadata()... "+sName);
 
 		try {
 			imageMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */
@@ -729,7 +728,7 @@ class WMV_MetadataLoader
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
+							if (debugSettings.metadata) System.out.println("loadImageMetadata()... Throwable in camera model / focal length..." + t);
 							if(!dataMissing) dataMissing = true;
 						}
 					}
@@ -796,7 +795,7 @@ class WMV_MetadataLoader
 						else
 						{
 							descriptionMissing = true;
-							if(debugSettings.metadata) System.out.println("Not a Theodolite image...");
+							if(debugSettings.metadata) System.out.println("loadImageMetadata()... Not a Theodolite image...");
 						}
 
 						if (debugSettings.metadata && debugSettings.detailed)
@@ -899,7 +898,10 @@ class WMV_MetadataLoader
 				if(sDirection != null)
 					fDirection = ParseDirection(sDirection);		
 				else
+				{
 					if (debugSettings.metadata) System.out.println("Image fDirection is null! "+sName);
+					fDirection = -100000.f;
+				}
 			} 
 			catch (RuntimeException ex) {
 				if (debugSettings.metadata)
@@ -996,10 +998,11 @@ class WMV_MetadataLoader
 						try
 						{
 							iCameraModel = parseCameraModel(sCameraModel);
+							if (debugSettings.metadata && debugSettings.detailed) System.out.println("  Set iCameraModel:" + iCameraModel);
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
+							if (debugSettings.metadata) System.out.println("Throwable in camera model..." + t);
 							if(!dataMissing) dataMissing = true;
 						}
 					}
@@ -1141,22 +1144,17 @@ class WMV_MetadataLoader
 			}
 
 			try {
-//				if(sOrientation != null)
-//					fOrientation = ParseOrientation(sOrientation);
-//				else
-//				{
-//					fOrientation = 0;									// Default: horizontal -- Change?
-//				}
-				
-				fDirection = ParseDirection(sDirection);		
-
 				if(sDirection == null)
 				{
-					if (debugSettings.metadata) System.out.println("Panorama fDirection is null!");
+					if (debugSettings.metadata) System.out.println("Panorama fDirection is null! "+sName);
+					fDirection = -100000.f;
 				}
-			} 
+				else
+					fDirection = ParseDirection(sDirection);		
+			}
 			catch (RuntimeException ex) {
-				if (debugSettings.metadata) System.out.println("Error reading panorama orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
+				if (debugSettings.ml || debugSettings.metadata) 
+					System.out.println("Error reading panorama orientation / direction... sDirection:" + sDirection+" fOrientation:"+fOrientation + "  fDirection:" + fDirection + "  " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 		}
@@ -1367,7 +1365,7 @@ class WMV_MetadataLoader
 					if (tag.getTagName().equals("Software")) // Software
 					{
 						String sSoftware = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Software..." + sSoftware);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.fileIsPanorama()... Found Software..." + sSoftware);
 
 						if(sSoftware.equals("[Exif IFD0] Software - Occipital 360 Panorama"))
 							return true;		// Image is a panorama
@@ -1378,12 +1376,12 @@ class WMV_MetadataLoader
 						String sCameraModel = tagString;
 						int iCameraModel;
 						
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Camera Model..." + sCameraModel);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.fileIsPanorama()... Found Camera Model..." + sCameraModel);
 						
 						try
 						{
 							iCameraModel = parseCameraModel(sCameraModel);
-							if(iCameraModel == 1)
+							if(iCameraModel == 2)				// {0: iPhone, 1: Nikon, 2: Ricoh Theta S}
 								return true;		// Image is a panorama
 						}
 						catch (Throwable t) // If not, must be only one keyword
@@ -1570,23 +1568,28 @@ class WMV_MetadataLoader
 		return software;
 	}
 	
-	public int parseCameraModel(String input) {
+	/**
+	 * Parse metadata camera model
+	 * @param input Camera Model EXIF String
+	 * @return Camera model ID {0: iPhone, 1: Nikon, 2: Ricoh Theta S}
+	 */
+	public int parseCameraModel(String input) 
+	{
+//		System.out.println("parseCameraModel()... input:"+input);
 		String[] parts = input.split(" Model - ");
 		String model = parts[parts.length-1];
 		model = model.replaceAll("\\s\\s","");
-//		System.out.println("parse model:"+model);
+//		System.out.println("parseCameraModel()... model:"+model);
 		if (model.equals("iPhone"))
 		{
 			return 0;
 		}
 		else if (model.equals("NIKON"))
 		{
-//			System.out.println("NIKON");
 			return 1;
 		}
 		else if (model.equals("RICOH THETA S") || model.equals("RICOH THETA"))
 		{
-//			System.out.println("RICOH THETA S");
 			return 2;
 		}
 		else

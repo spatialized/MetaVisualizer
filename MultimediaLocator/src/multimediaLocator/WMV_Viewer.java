@@ -164,16 +164,8 @@ public class WMV_Viewer
 		else
 			setCurrentField(fieldID, false);				// Set new field without setting simulation state
 
-		if(currentField == null)
-		{
-			System.out.println("Didn't enter field... currentField == null!");
-		}
-		else
-		{
-			if(p.ml.display.displayView == 1)
-				p.ml.display.map2D.initialize(p);
-			if(debugSettings.viewer) System.out.println("Entered field... "+currentField.getID()+"... location after:"+getLocation());
-		}
+		if(p.ml.display.displayView == 1)
+			p.ml.display.map2D.initialize(p);
 	}
 	
 	void updateState(WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState)
@@ -2380,9 +2372,29 @@ public class WMV_Viewer
 						if(Math.abs(state.velocity.mag()) > settings.velocityMin)									/* Slow down near attractor center */
 							if(!state.slowing) slow();
 
-					if(curAttractor.getClusterDistance() < worldSettings.clusterCenterSize && !state.centering)		/* Moving to far cluster */
+					if(state.centering)													/* Centering within cluster */
 					{
-						if(Math.abs(state.velocity.mag()) > settings.velocityMin)									/* Halt at attractor center */
+						if(curAttractor.getClusterDistance() < worldSettings.clusterCenterSize)
+						{
+							System.out.println("Viewer.updatePhysics()... Centering on attractor cluster... loc:"+getLocation()+" curAttractor loc:"+curAttractor.getLocation()+" curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance());
+							if(p.ml.frameCount < state.centeringTransitionEnd)
+							{
+								center(curAttractor.getLocation());						/* Center at current attractor */
+							}
+							else
+							{
+								System.out.println("Viewer.updatePhysics()... Centered on attractor cluster... curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance()+" worldSettings.clusterCenterSize:"+worldSettings.clusterCenterSize);
+								reachedAttractor = true;
+							}
+						}
+						else
+						{
+							stopCentering();				/* Shouldn't be centering if > than clusterCenterSize away from attractor*/
+						}
+					}
+					else if(curAttractor.getClusterDistance() < worldSettings.clusterCenterSize)		
+					{
+						if(Math.abs(state.velocity.mag()) > settings.velocityMin)						/* Halt at attractor center */
 						{
 							if(!state.halting) halt();
 						}
@@ -2391,18 +2403,6 @@ public class WMV_Viewer
 							if(state.halting) state.halting = false;
 							if(state.slowing) state.slowing = false;
 							startCenteringAtAttractor();
-//							reachedAttractor = true;
-						}
-					}
-					else if(state.centering)									/* Centering within cluster */
-					{
-						System.out.println("Viewer.updatePhysics()... Centering on attractor cluster... loc:"+getLocation()+" curAttractor loc:"+curAttractor.getLocation()+" curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance());
-						if(p.ml.frameCount < state.centeringTransitionEnd)
-							center(curAttractor.getLocation());			// Center at current attractor
-						else
-						{
-							System.out.println("Viewer.updatePhysics()... Centered on attractor cluster... curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance()+" worldSettings.clusterCenterSize:"+worldSettings.clusterCenterSize);
-							reachedAttractor = true;
 						}
 					}
 
@@ -2411,8 +2411,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					if(debugSettings.viewer && debugSettings.detailed) 
-						System.out.println("Waiting...");
+					if(debugSettings.viewer && debugSettings.detailed) System.out.println("Waiting...");
 				}
 			}
 
@@ -2426,12 +2425,11 @@ public class WMV_Viewer
 		if(state.attractorCluster != -1)
 		{
 			float curAttractorDistance = PVector.dist( currentField.getCluster(state.attractorCluster).getLocation(), getLocation() );
-			if(curAttractorDistance > settings.lastAttractorDistance && !state.slowing)	// If the camera is getting farther than attractor
+			if(curAttractorDistance > settings.lastAttractorDistance && !state.slowing)		// If the camera is getting farther than attractor
 			{
 				if(debugSettings.viewer && state.attractionStart - worldState.frameCount > 20)
 				{
 					System.out.println("---> Getting farther from attractor: will stop moving...");
-//					stop();												// Stop
 					stop(true);
 				}
 			}
@@ -2454,6 +2452,11 @@ public class WMV_Viewer
 		state.centering = true;
 		state.centeringTransitionStart = p.ml.frameCount;
 		state.centeringTransitionEnd = state.centeringTransitionStart + state.centeringTransitionLength;
+	}
+	
+	public void stopCentering()
+	{
+		state.centering = false;
 	}
 	
 	private void center(PVector dest)
@@ -3384,6 +3387,7 @@ public class WMV_Viewer
 		}		
 		else
 		{
+			if(debugSettings.viewer) System.out.println("Viewer.moveToFirstTimeSegment()... Moving to first time segment on first date");
 			int count = 0;
 			boolean success = false;
 			while(!success)

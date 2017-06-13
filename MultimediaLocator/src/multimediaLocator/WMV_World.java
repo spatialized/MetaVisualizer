@@ -112,14 +112,11 @@ public class WMV_World
 	}
 	
 	/**
-	 * Start world simulation
+	 * Choose starting field
 	 */
-	public void start()
+	public void chooseStartingField()
 	{
-		if(fields.size() > 1)
-			viewer.chooseFieldDialog();
-		else
-			enterFieldByIndex(0);								/* Enter first field */
+		viewer.chooseFieldDialog();
 	}
 
 	/**
@@ -189,20 +186,15 @@ public class WMV_World
 	 */
 	public void enterFieldByIndex(int fieldIdx)
 	{
-		boolean moveToFirstTimeSegment = true;
-
 		WMV_Field f = getField(fieldIdx);
-		if(f.getState().loadedState) moveToFirstTimeSegment = false;
 		
-		viewer.enterField( fieldIdx );								// Update navigation
-		viewer.updateState(settings, state);
-		if(moveToFirstTimeSegment) viewer.moveToFirstTimeSegment(false);
+		viewer.enterField( fieldIdx );								// Enter field
+		viewer.updateState(settings, state);						// Update viewer about world settings + state
+		if(!f.getState().loadedState) viewer.moveToFirstTimeSegment(false);	// Move to first time segment if start location not set from saved data 
 		viewer.updateNavigation();									// Update navigation
-
-		ml.enteredField = true;
-		state.waitingToFadeInTerrainAlpha = true;
-		
 		viewer.start();												// Start the viewer if this is the first frame
+
+		state.waitingToFadeInTerrainAlpha = true;
 	}
 	
 	/**

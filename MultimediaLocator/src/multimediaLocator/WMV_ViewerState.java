@@ -86,7 +86,6 @@ public class WMV_ViewerState
 	public float moveZDirection;				// 1 (forward) or -1 (backward)
 	public boolean movingNearby = false;		// Moving to center from a point less than nearClusterDistance but greater than clusterCenterSize
 	public boolean centering = false;			// Moving to precise center from a point less than clusterCenterSize
-//	public PVector centeringStartLocation;
 	public final int centeringTransitionLength = 20;	// Frame length of centering transition
 	public int centeringTransitionStart, centeringTransitionEnd;	// Frame length of centering transition
 	public boolean waiting = false;				// Whether viewer is waiting to move while following a path

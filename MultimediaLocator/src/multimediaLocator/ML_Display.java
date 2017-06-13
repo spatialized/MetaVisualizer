@@ -300,44 +300,6 @@ public class ML_Display
 
 		yPos = timelineYOffset + timelineHeight * 4.f;
 
-		if(p.ml.debugSettings.world || p.ml.debugSettings.ml)
-		{
-			if(f.getDateline() != null)
-			{
-				p.ml.textSize(largeTextSize);
-				p.ml.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-				p.ml.textSize(mediumTextSize);
-				if(f.getDateline().size() > 0)
-				{
-					int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
-					p.ml.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-					p.ml.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
-					p.ml.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-					p.ml.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
-							+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
-				}
-			}
-			if(c != null)
-			{
-				p.ml.textSize(largeTextSize);
-				p.ml.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistance);
-				p.ml.textSize(mediumTextSize);
-				if(c.getDateline() != null)
-				{
-					if(c.getDateline().size() > 0)
-					{
-						int clusterDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
-						p.ml.text(" Current Cluster Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-						p.ml.text("   ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
-						p.ml.text("   Date: "+ (clusterDate+1) +" of "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-						if(c.getTimelines().size() > clusterDate)
-							p.ml.text("  Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getClusterTimelineIDOnDate()+"  of "+ c.getTimelines().get(clusterDate).timeline.size() + " in Cluster Timeline #"+clusterDate, xPos, yPos += lineWidth, hudDistance);
-						else
-							p.ml.text("ERROR: No Cluster Timeline for Current Cluster Date ("+clusterDate+")", xPos, yPos += lineWidth, hudDistance);
-					}
-				}
-			}
-		}
 		p.ml.popMatrix();
 		
 		if(fieldDatelineCreated) displayFieldDateline(p);

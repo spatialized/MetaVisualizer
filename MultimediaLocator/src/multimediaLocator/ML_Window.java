@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import g4p_controls.*;
 import processing.core.PApplet;
+import processing.core.PVector;
 import processing.event.MouseEvent;
 
 /**
@@ -1770,18 +1771,37 @@ public class ML_Window
 				applet.text(" Approx. GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidthVeryWide);		
 				applet.text(" Field of View:"+world.viewer.getSettings().fieldOfView, x, y += lineWidthVeryWide);
 				applet.text(" Clusters Visible: "+world.getVisibleClusters().size(), x, y += lineWidthVeryWide);
-//				applet.text(" Always Turn toward Media:"+world.viewer.getSettings().alwaysLookAtMedia, x, y += lineWidthVeryWide);
+				applet.text(" Current Cluster #"+ (c.getID()+1)+" of "+ f.getClusters().size(), x, y += lineWidthVeryWide);
+				applet.text(" 	Distance (m.): "+PVector.dist(world.viewer.getLocation(), world.getCurrentCluster().getLocation()), x, y += lineWidthVeryWide);
+				if(world.state.timeMode == 0 && c.getDateline() != null)	// Cluster Time Mode
+				{
+					if(c.getDateline().size() > 0)
+					{
+						int clusterDate = world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
+						applet.text("   Current Cluster Time Segment ID: "+ (world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+1)+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", x, y += lineWidthVeryWide);
+						applet.text("   Date: "+ (clusterDate+1) +" of "+ c.getDateline().size(), x, y += lineWidth);
+					}
+				}
 
 				applet.textSize(fLargeTextSize);
 				applet.text("World", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);
 				if(world.getFieldCount() > 1)
 					applet.text(" Fields in World: "+world.getFields().size(), x, y += lineWidthVeryWide * 1.5f);
-				applet.text(" Current Field: "+f.getName()+" ID: "+(world.viewer.getState().getCurrentField()+1)+" out of "+world.getFieldCount()+" Total Fields", x, y += lineWidthVeryWide);
+				applet.text(" Current Field #"+ (f.getID()+1)+" of "+ world.getFields().size(), x, y += lineWidthVeryWide);
 				applet.text(" Width: "+f.getModel().getState().fieldWidth+" Length: "+f.getModel().getState().fieldLength+" Height: "+f.getModel().getState().fieldHeight, x, y += lineWidthVeryWide);
 				applet.text(" Clusters in Field: "+f.getClusters().size(), x, y += lineWidthVeryWide);
 				applet.text(" Media Density (per sq. m.): "+f.getModel().getState().mediaDensity, x, y += lineWidthVeryWide);
 			
+				if(world.state.timeMode == 1 && f.getDateline().size() > 0)	// Field Time Mode
+				{
+					int fieldDate = world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
+					applet.text("   Current Field Time Segment ID: "+ world.viewer.getCurrentFieldTimeSegment()+" of "+ world.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", x, y += lineWidthVeryWide);
+					applet.text("   Date: "+ (fieldDate)+" of "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
+//					applet.text("   Date-Specific ID: "+ world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
+//							+" of "+ world.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), x, y += lineWidth);
+				}
+				
 				if(f.getImageCount() > 0) applet.text(" Images: "+f.getImageCount(), x, y += lineWidthVeryWide);			
 				if(f.getImagesVisible() > 0) applet.text("   Visible: "+f.getImagesVisible(), x, y += lineWidthVeryWide);
 //				if(f.getImagesSeen() > 0) applet.text("   Seen: "+f.getImagesSeen(), x, y += lineWidthVeryWide);

@@ -45,7 +45,7 @@ import com.apple.eawt.Application;
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private boolean createJar = true;					// Determines how to load cubemap shader
+	private boolean createJar = false;					// Determines how to load cubemap shader
 	
 	/* General */
 	private String programName = "MultimediaLocator 0.9.0";
@@ -57,7 +57,6 @@ public class MultimediaLocator extends PApplet
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
 	boolean createNewLibrary = false;
-	boolean enteredField = false;
 	boolean cubeMapInitialized = false;
 	
 	/* MultimediaLocator */
@@ -245,15 +244,20 @@ public class MultimediaLocator extends PApplet
 					if( state.initializationField >= world.getFields().size() )	
 					{
 						state.fieldsInitialized = true;
+						
 						if(debugSettings.ml) System.out.println("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
-						world.start();					/* Start 3D world display */
+						
+//						if(world.getFieldCount() > 1)
+//							world.chooseStartingField();					/* Choose starting field */
+//						else
+//							world.enterFieldByIndex(0);						/* Enter first field */
 					}
 				}
 			}
 			else
 			{
-				organizeMedia();
-				finishInitialization();
+				organizeMedia();					/* Analyze and organize media */
+				finishInitialization();				/* Finish initialization and start running */
 			}
 		}
 		else
@@ -453,14 +457,19 @@ public class MultimediaLocator extends PApplet
 
 		state.initialClustering = false;				
 		display.worldSetup = false;
-		if(display.window.showLibraryWindow)
-			display.window.hideLibraryWindow();
+		
+		if(display.window.showLibraryWindow) display.window.hideLibraryWindow();
 
 		state.running = true;
 		state.startedRunning = true;
 		
 		if(debugSettings.ml && debugSettings.detailed) 
 			System.out.println("Finishing MultimediaLocator initialization..");
+		
+		if(world.getFieldCount() > 1)
+			world.chooseStartingField();					/* Choose starting field */
+		else
+			world.enterFieldByIndex(0);						/* Enter first field */
 	}
 
 	/**

@@ -2554,7 +2554,6 @@ public class WMV_Field
 			WMV_Timeline newTimeline = new WMV_Timeline();
 			newTimeline.initialize(null);
 
-			//			ArrayList<WMV_TimeSegment> newTimeline = new ArrayList<WMV_TimeSegment>();
 			for(WMV_TimeSegment t : timeline.timeline)		// Add each cluster time segment to this date-specific field timeline 
 			{
 				if(d.getDate().equals(t.timeline.get(0).getDateAsPVector()))						// Compare time segment date to current timeline date
@@ -2569,7 +2568,6 @@ public class WMV_Field
 				int count = 0;
 				for (WMV_TimeSegment t : newTimeline.timeline) 									// Number time segments for this date in chronological order
 				{
-					//					t.setID(count);
 					t.setFieldDateID(ct);
 					t.setFieldTimelinesID(count);
 
@@ -2579,8 +2577,8 @@ public class WMV_Field
 						{
 							fieldTime.setFieldDateID(ct);
 							fieldTime.setFieldTimelinesID(count);
-							//							System.out.println("Correcting fieldTime for cluster #:"+fieldTime.getClusterID()+" ct:"+ct+" count:"+count
-							//											+" newTimeline size:"+newTimeline.size());	
+//							System.out.println("Correcting fieldTime for cluster #:"+fieldTime.getClusterID()+" ct:"+ct+" count:"+count
+//									+" newTimeline size:"+newTimeline.size());	
 						}
 					}
 

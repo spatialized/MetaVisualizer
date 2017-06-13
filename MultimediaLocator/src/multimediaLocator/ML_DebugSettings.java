@@ -14,10 +14,10 @@ public class ML_DebugSettings
 	
 	/* Data */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = true;				// Debug WMV_Field class
+	public boolean world = false;				// Debug WMV_Field class
 
 	/* Model */
-	public boolean metadata = true;			// Debug WMV_Metadata class
+	public boolean metadata = false;			// Debug WMV_Metadata class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean time = false;				// Debug WMV_Time class
 

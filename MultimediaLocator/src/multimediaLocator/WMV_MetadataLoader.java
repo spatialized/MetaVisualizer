@@ -1579,8 +1579,9 @@ class WMV_MetadataLoader
 		String[] parts = input.split(" Model - ");
 		String model = parts[parts.length-1];
 		model = model.replaceAll("\\s\\s","");
-//		System.out.println("parseCameraModel()... model:"+model);
-		if (model.equals("iPhone"))
+
+//		if (model.equals("iPhone") || model.equals("iPhone 7 Plus"))
+		if (model.contains("iPhone"))
 		{
 			return 0;
 		}

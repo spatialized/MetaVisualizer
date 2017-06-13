@@ -2376,14 +2376,16 @@ public class WMV_Viewer
 					{
 						if(curAttractor.getClusterDistance() < worldSettings.clusterCenterSize)
 						{
-							System.out.println("Viewer.updatePhysics()... Centering on attractor cluster... loc:"+getLocation()+" curAttractor loc:"+curAttractor.getLocation()+" curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance());
+							if(debugSettings.viewer && debugSettings.detailed)
+								System.out.println("Viewer.updatePhysics()... Centering on attractor cluster... loc:"+getLocation()+" curAttractor loc:"+curAttractor.getLocation()+" curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance());
 							if(p.ml.frameCount < state.centeringTransitionEnd)
 							{
 								center(curAttractor.getLocation());						/* Center at current attractor */
 							}
 							else
 							{
-								System.out.println("Viewer.updatePhysics()... Centered on attractor cluster... curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance()+" worldSettings.clusterCenterSize:"+worldSettings.clusterCenterSize);
+								if(debugSettings.viewer)
+									System.out.println("Viewer.updatePhysics()... Centered on attractor cluster... curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance()+" worldSettings.clusterCenterSize:"+worldSettings.clusterCenterSize);
 								reachedAttractor = true;
 							}
 						}

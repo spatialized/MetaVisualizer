@@ -1616,32 +1616,32 @@ public class WMV_Viewer
 	 */
 	private void setAttractorCluster(int newCluster)
 	{
-		stopMovementTransitions();
-		stopMoving();									// -- Improve by slowing down instead and then starting
-		clearAttractorPoint();
+		stop(true);														// -- Improve by slowing down instead and then starting?
 		
-		if(debugSettings.viewer)
-			System.out.println("Setting new attractor:"+newCluster+" old attractor:"+state.attractorCluster);
+		if(debugSettings.viewer) System.out.println("Setting new attractor:"+newCluster+" old attractor:"+state.attractorCluster);
 			
-		state.attractorCluster = newCluster;											// Set attractorCluster
+		state.attractionStart = worldState.frameCount;									// Set attraction starting frame 
+		state.attractorCluster = newCluster;											// Set attractor cluster
 		state.movingToCluster = true;													// Move to cluster
-		state.attractionStart = worldState.frameCount;
 		
-		for(WMV_Cluster c : currentField.getClusters())
-			c.setAttractor(false);
-
-		currentField.getCluster(state.attractorCluster).setAttractor(true);
+		p.getCurrentField().clearAllAttractors();										// Clear all attractors
+		p.getCurrentField().getCluster(state.attractorCluster).setAttractor(true);		// Set attractor cluster
 		
-		if(currentField.getCluster(state.attractorCluster).getClusterDistance() < state.clusterNearDistance)
+		if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() < state.clusterNearDistance)
 		{
-			if(currentField.getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize)
+			if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize)
 			{
-				if(debugSettings.viewer) System.out.println("Moving nearby...");
+				if(debugSettings.viewer) System.out.println("Viewer.setAttractorCluster()... Moving nearby...");
 				state.movingNearby = true;
+			}
+			else if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize * 0.01f)
+			{
+				if(debugSettings.viewer) System.out.println("Viewer.setAttractorCluster()... Centering at attractor cluster...");
+				startCenteringAtAttractor();
 			}
 			else
 			{
-				if(debugSettings.viewer) System.out.println("Reached attractor without moving...");
+				if(debugSettings.viewer) System.out.println("Viewer.setAttractorCluster()... Reached attractor without moving...");
 				handleReachedAttractor();				// Reached attractor without moving
 			}
 		}
@@ -1740,11 +1740,40 @@ public class WMV_Viewer
 		settings.hideSounds = true;
 		p.hideSounds();
 	}
-
-	/**
-	 * Stop any current viewer movement
+	
+	/** 
+	 * Stop any movement and turning behaviors
 	 */
-	public void stopMoving()
+	public void stop(boolean clearAttractors)
+	{
+		stopTurningTransitions();			// Stop turning
+		stopMovementTransitions();			// Stop moving
+		setMovementVectorsToZero();			// Set speed, acceleration to zero
+		if(clearAttractors)
+		{
+			p.getCurrentField().clearAllAttractors();	// Clear all current attractor(s)
+			clearAttractor();
+		}
+	}
+	
+	private void stopTurningTransitions()
+	{
+		if(state.rotatingX) 
+			state.rotatingX = false;
+		if(state.rotatingY)
+			state.rotatingY = false;
+		if(state.rotatingZ) 
+			state.rotatingZ = false; 
+		if(state.turningX)
+			state.turningX = false;
+		if(state.turningY) 
+			state.turningY = false;
+	}
+	
+	/**
+	 * Set attraction, acceleration and velocity to zero
+	 */
+	private void setMovementVectorsToZero()
 	{
 		if(debugSettings.viewer)
 			System.out.println("Stopping...");
@@ -1754,90 +1783,29 @@ public class WMV_Viewer
 		state.velocity = new PVector(0,0,0);							
 		state.walkingAcceleration = new PVector(0,0,0);					
 		state.walkingVelocity = new PVector(0,0,0);	
-		
-		state.walking = false;
-		state.slowing = false;
-		state.halting = false;
-		state.movingToAttractor = false;
-		state.movingToCluster = false;
-		
-//		teleporting = false;
 	}
 	
-	public void stopAllTurningTransitions()
+	private void stopMovementTransitions()
 	{
-		if(state.rotatingX) 
-			state.rotatingX = false;
-		if(state.rotatingY)
-			state.rotatingY = false;
-		if(state.rotatingZ) 
-			state.rotatingZ = false; 
-		if(state.turningX)
-			state.turningX = false;
-		if(state.turningY) 
-			state.turningY = false;
-	}
-	
-	/** 
-	 * Stop all currently running transitions
-	 */
-	public void stopMovementTransitions()
-	{
-		if(state.movingX) 
-			state.movingX = false;
-		if(state.movingY)
-			state.movingY = false;
-		if(state.movingZ)
-			state.movingZ = false;
-		if(state.movingToCluster) 
-			state.movingToCluster = false;
-		if(state.zooming)
-			state.zooming = false;
+		if(state.walking) state.walking = false;
+		if(state.slowing) state.slowing = false;
+		if(state.slowingX) state.slowingX = false;
+		if(state.slowingY) state.slowingY = false;
+		if(state.slowingZ) state.slowingZ = false;
+		if(state.halting) state.halting = false;
 
-		if(state.waiting)
-			state.waiting = false;
-		if(isTeleporting())
-			state.teleporting = false;
-		
-		currentField.clearAllAttractors();
-	}
-	
-	/** 
-	 * Stop all currently running transitions
-	 */
-	public void stopAllTransitions()
-	{
-		if(state.rotatingX) 
-			state.rotatingX = false;
-		if(state.rotatingY)
-			state.rotatingY = false;
-		if(state.rotatingZ) 
-			state.rotatingZ = false; 
-		if(state.movingX) 
-			state.movingX = false;
-		if(state.movingY)
-			state.movingY = false;
-		if(state.movingZ)
-			state.movingZ = false;
-		if(state.turningX)
-			state.turningX = false;
-		if(state.turningY) 
-			state.turningY = false;
-		if(state.movingToCluster) 
-			state.movingToCluster = false;
-		if(state.zooming)
-			state.zooming = false;
+		if(state.movingX) state.movingX = false;
+		if(state.movingY) state.movingY = false;
+		if(state.movingZ) state.movingZ = false;
+		if(state.movingNearby) state.movingNearby = false;		// Moving to a point within nearClusterDistance
+		if(state.movingToAttractor) state.movingToAttractor = false;
+		if(state.movingToCluster) state.movingToCluster = false;
+		if(state.zooming) state.zooming = false;
 
-		if(state.waiting)
-			state.waiting = false;
-//		if(looking)
-//			looking = false;
-		if(isTeleporting())
-			state.teleporting = false;
-		
-		currentField.clearAllAttractors();
+		if(state.waiting) state.waiting = false;
+		if(state.teleporting) state.teleporting = false;
 	}
-	
+
 	/**
 	 * Reset the viewer to initial state
 	 */
@@ -1848,7 +1816,7 @@ public class WMV_Viewer
 
 		/* Time */
 		state.currentFieldDate = 0;					// Current date in field dateline
-		state.currentFieldTimeSegment = 0;				// Current time segment in field timeline
+		state.currentFieldTimeSegment = 0;			// Current time segment in field timeline
 		
 		/* Memory */
 		state.movingToAttractor = false;			// Moving to attractor poanywhere in field
@@ -1856,24 +1824,23 @@ public class WMV_Viewer
 		state.following = false;					// Is the camera currently navigating from memory?
 		
 		/* Clusters */
-		state.field = 0;							// Current field
-		state.currentCluster = 0;					// Cluster currently in view
-		state.lastCluster = -1;						// Last cluster visited
-		state.attractorCluster = -1;				// Cluster attracting the camera
-		state.attractionStart = 0;
-		state.teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
-		state.clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
+		state.field = 0;						// Current field
+		state.currentCluster = 0;				// Cluster currently in view
+		state.lastCluster = -1;					// Last cluster visited
+		state.attractorCluster = -1;			// Cluster attracting the camera
+		state.attractionStart = 0;				// Attraction start frame
+		state.teleportGoalCluster = -1;			// Cluster to navigate to (-1 == none)
+		state.clusterNearDistanceFactor = 2.f;	// Multiplier for clusterCenterSize to get clusterNearDistance
 		
 		/* Teleporting */
 		state.movementTeleport = false;		// Teleport when following navigation commands
 		state.teleporting = false;			// Transition where all images fade in or out
-		state.teleportToField = -1;				// What field ID to fade transition to	 (-1 remains in current field)
-		state.teleportWaitingCount = 0;			// How long has the viewer been waiting for media to fade out before teleport?
+		state.teleportToField = -1;			// What field ID to fade transition to	 (-1 remains in current field)
+		state.teleportWaitingCount = 0;		// How long has the viewer been waiting for media to fade out before teleport?
 		
 		/* Movement */
-		state.followMode = 0;					// 0: Timeline 1: GPS Track 2: Memory
+		state.followMode = 0;			// 0: Timeline 1: GPS Track 2: Memory
 		state.walking = false;			// Whether viewer is walking
-//		state.walkingAccelInc = 0.002f;		// Camera walking acceleration increment
 
 		state.slowing = false;			// Whether viewer is slowing 
 		state.slowingX = false;			// Slowing X movement
@@ -1881,33 +1848,29 @@ public class WMV_Viewer
 		state.slowingZ = false;			// Slowing Z movement
 		state.halting = false;			// Viewer is halting
 		
-		state.movingX = false;			// Is viewer automatically moving in X dimension (side to side)?
-		state.movingY = false;			// Is viewer automatically moving in Y dimension (up or down)?
-		state.movingZ = false;			// Is viewer automatically moving in Z dimension (forward or backward)?
-		state.movingNearby = false;		// Moving to a powithin nearClusterDistance
-
-		state.waiting = false;						// Whether the camera is waiting to move while following a path
+		state.movingX = false;			// Whether viewer is automatically moving in X dimension (side to side)
+		state.movingY = false;			// Whether viewer is automatically moving in Y dimension (up or down)
+		state.movingZ = false;			// Whether viewer is automatically moving in Z dimension (forward or backward)
+		state.movingNearby = false;		// Moving to center from a point less than nearClusterDistance but greater than clusterCenterSize
+		state.centering = false;		// Moving to precise center from a point less than clusterCenterSize
+		state.waiting = false;			// Whether viewer is waiting to move while following a path
 		
-		/* Looking */
-//		looking = false;				// Whether viewer is turning to look for images, since none are visible
-//		lookingRotationCount = 0;		// Amount of times viewer has rotated looking for images
-
 		/* Turning */
 		state.turningX = false;			// Whether the viewer is turning (right or left)
 		state.turningY = false;			// Whether the viewer is turning (up or down)
 		
-		state.rotatingX = false;			// Whether the camera is rotating in X dimension (turning left or right)?
-		state.rotatingY = false;			// Whether the camera is rotating in Y dimension (turning up or down)?
-		state.rotatingZ = false;			// Whether the camera is rotating in Z dimension (rolling left or right)?
+		state.rotatingX = false;		// Whether the camera is rotating in X dimension (turning left or right)
+		state.rotatingY = false;		// Whether the camera is rotating in Y dimension (turning up or down)
+		state.rotatingZ = false;		// Whether the camera is rotating in Z dimension (rolling left or right)
 
 		/* Interaction */
 		state.lastMovementFrame = 500000; 
 		state.lastLookFrame = 500000;
-		state.clusterLockIdleFrames = 0;				// How long to wait after user input before auto navigation moves the camera?
+		state.clusterLockIdleFrames = 0;	// How long to wait after user input before auto navigation moves the camera?
 
 		/* GPS Tracks */
-		state.gpsTrackSelected = -1;				// Has a GPS track been selected?
-		state.gpsTrackName = "";					// GPS track name
+		state.gpsTrackSelected = -1;	// Whether a GPS track has been selected
+		state.gpsTrackName = "";		// GPS track name
 
 		/* Zooming */
 		state.zooming = false;
@@ -2344,7 +2307,7 @@ public class WMV_Viewer
 		{
 			if(state.walking) state.walking = false;
 
-			if(Math.abs(state.attraction.mag()) > 0.f)					/* If not slowing and attraction force exists */
+			if(Math.abs(state.attraction.mag()) > 0.f && !state.centering)					/* If not centering and attraction force exists */
 			{
 				if(Math.abs(state.acceleration.mag()) < settings.accelerationMax)			/* Apply attraction up to maximum acceleration */
 					state.acceleration.add( PVector.div(state.attraction, settings.cameraMass) );	
@@ -2414,12 +2377,12 @@ public class WMV_Viewer
 					boolean reachedAttractor = false;
 					
 					if(curAttractor.getClusterDistance() < state.clusterNearDistance && !state.movingNearby)
-						if(Math.abs(state.velocity.mag()) > settings.velocityMin)					/* Slow down at attractor center */
+						if(Math.abs(state.velocity.mag()) > settings.velocityMin)									/* Slow down near attractor center */
 							if(!state.slowing) slow();
 
-					if(curAttractor.getClusterDistance() < worldSettings.clusterCenterSize)
+					if(curAttractor.getClusterDistance() < worldSettings.clusterCenterSize && !state.centering)		/* Moving to far cluster */
 					{
-						if(Math.abs(state.velocity.mag()) > settings.velocityMin)					/* Slow down at attractor center */
+						if(Math.abs(state.velocity.mag()) > settings.velocityMin)									/* Halt at attractor center */
 						{
 							if(!state.halting) halt();
 						}
@@ -2427,7 +2390,18 @@ public class WMV_Viewer
 						{
 							if(state.halting) state.halting = false;
 							if(state.slowing) state.slowing = false;
-							if(state.movingNearby) state.movingNearby = false;
+							startCenteringAtAttractor();
+//							reachedAttractor = true;
+						}
+					}
+					else if(state.centering)									/* Centering within cluster */
+					{
+						System.out.println("Viewer.updatePhysics()... Centering on attractor cluster... loc:"+getLocation()+" curAttractor loc:"+curAttractor.getLocation()+" curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance());
+						if(p.ml.frameCount < state.centeringTransitionEnd)
+							center(curAttractor.getLocation());			// Center at current attractor
+						else
+						{
+							System.out.println("Viewer.updatePhysics()... Centered on attractor cluster... curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance()+" worldSettings.clusterCenterSize:"+worldSettings.clusterCenterSize);
 							reachedAttractor = true;
 						}
 					}
@@ -2437,13 +2411,16 @@ public class WMV_Viewer
 				}
 				else
 				{
-					if(debugSettings.viewer && debugSettings.detailed)
+					if(debugSettings.viewer && debugSettings.detailed) 
 						System.out.println("Waiting...");
 				}
 			}
 
-			state.location.add(state.velocity);			// Add velocity to location
-			setLocation(state.location);				// Move camera
+			if(!state.centering)
+			{
+				state.location.add(state.velocity);			// Add velocity to location
+				setLocation(state.location);				// Move camera
+			}
 		}
 
 		if(state.attractorCluster != -1)
@@ -2454,8 +2431,8 @@ public class WMV_Viewer
 				if(debugSettings.viewer && state.attractionStart - worldState.frameCount > 20)
 				{
 					System.out.println("---> Getting farther from attractor: will stop moving...");
-					stopMoving();												// Stop
-					stopMovementTransitions();
+//					stop();												// Stop
+					stop(true);
 				}
 			}
 
@@ -2470,32 +2447,51 @@ public class WMV_Viewer
 	}
 	
 	/**
+	 * Center viewer at attractor cluster
+	 */
+	public void startCenteringAtAttractor()
+	{
+		state.centering = true;
+		state.centeringTransitionStart = p.ml.frameCount;
+		state.centeringTransitionEnd = state.centeringTransitionStart + state.centeringTransitionLength;
+	}
+	
+	private void center(PVector dest)
+	{
+		setLocation( p.utilities.lerp3D(getLocation(), dest, 1.f/state.centeringTransitionLength) );
+	}
+			
+	/**
 	 * Handle when viewer has reached attractorPoint or attractorCluster
 	 */
 	private void handleReachedAttractor()
 	{
-		if(state.following && path.size() > 0)
+		if(state.following && path.size() > 0)		/* Reached attractor when following a path */	
 		{
+			stop(true);												// -- Added 3-12-17
 			setCurrentCluster( state.attractorCluster, -1 );
 			if(debugSettings.path)
-				System.out.println("Reached path goal #"+state.pathLocationIdx+", will start waiting...");
+				System.out.println("Viewer.handleReachedAttractor()... Reached path goal #"+state.pathLocationIdx+", will start waiting...");
 			startWaiting();
 		}
 
-		if(state.movingToCluster)		
+		if(state.movingToCluster)		/* Reached attractor when moving to cluster */		
 		{
 			if(debugSettings.viewer)
-				System.out.println("Moving to cluster... current:"+state.currentCluster+" attractor: "+state.attractorCluster+"...");
+				System.out.println("Viewer.handleReachedAttractor()... Moving to cluster... current:"+state.currentCluster+" attractor: "+state.attractorCluster+"...");
 			
 			if(state.attractorCluster != -1)
 			{
+				if(debugSettings.viewer)									// -- Debugging:
+					if(state.attractorCluster != getNearestCluster(true))	// -- Check if attractor cluster is nearest cluster
+						System.out.println("Viewer.handleReachedAttractor()... WARNING: attractor cluster is: "+state.attractorCluster+" but nearest cluster is different:"+getNearestCluster(true));
+
 				if(state.movingToTimeSegment)
 					setCurrentCluster( state.attractorCluster, state.timeSegmentTarget );
 				else
 					setCurrentCluster( state.attractorCluster, -1 );
 
 				state.attractorCluster = -1;
-				
 				currentField.clearAllAttractors();	// Stop attracting when reached attractorCluster
 			}
 			else
@@ -2504,11 +2500,11 @@ public class WMV_Viewer
 			}
 			
 			if(debugSettings.viewer)
-				System.out.println("Reached cluster... current:"+state.currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+state.currentFieldTimeSegment);
+				System.out.println("Viewer.handleReachedAttractor()... Reached cluster... current:"+state.currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+state.currentFieldTimeSegment);
 			state.movingToCluster = false;
+			state.movingToAttractor = false;
 		}
-
-		if(state.movingToAttractor)		// Stop attracting when reached attractorPoint
+		else if(state.movingToAttractor)							/* Stop attracting when reached attractorPoint */
 		{
 			setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
 			currentField.clearAllAttractors();
@@ -2930,7 +2926,7 @@ public class WMV_Viewer
 		{
 			if(debugSettings.viewer && debugSettings.detailed) System.out.println(" Reached teleport goal...");
 			
-			if( !currentField.mediaAreFading() )			// Once no more images are fading
+			if( !currentField.mediaAreFading() )						// Once no more media are fading
 			{
 				if(debugSettings.viewer && debugSettings.detailed) System.out.println(" Media finished fading...");
 				
@@ -2953,7 +2949,7 @@ public class WMV_Viewer
 				if(state.ignoreTeleportGoal)
 					state.ignoreTeleportGoal = false;
 				else
-					setLocation(state.teleportGoal);					// Move the viewer
+					setLocation(state.teleportGoal);					// Jump to goal
 				
 				state.teleporting = false;								// Change the system status
 
@@ -2967,7 +2963,7 @@ public class WMV_Viewer
 					state.teleportGoalCluster = -1;
 				}
 
-				if(state.movingToCluster)
+				if(state.movingToCluster)								// Teleporting to cluster
 				{
 					state.movingToCluster = false;
 					if(state.attractorCluster != -1)
@@ -3063,9 +3059,8 @@ public class WMV_Viewer
 			if(state.following)
 			{
 				state.following = false;
-				stopMovementTransitions();
-				stopMoving();									// -- Improve by slowing down instead and then starting 
-				clearAttractorPoint();
+				stop(true);
+//				stop();									// -- Improve by slowing down instead and then starting 
 			}
 		}
 	}
@@ -3136,8 +3131,7 @@ public class WMV_Viewer
 	 */
 	private void setAttractorPoint(PVector newPoint)
 	{
-		stopMovementTransitions();
-		stopMoving();					
+		stop(true);
 		
 		state.movingToAttractor = true;
 		attractorPoint = new WMV_Cluster(worldSettings, worldState, settings, debugSettings, -1, newPoint);
@@ -3150,7 +3144,7 @@ public class WMV_Viewer
 	/**
 	 * Clear the current attractor point
 	 */
-	private void clearAttractorPoint()
+	private void clearAttractor()
 	{
 		state.movingToAttractor = false;
 		attractorPoint = null;
@@ -4105,9 +4099,6 @@ public class WMV_Viewer
 		state.currentFieldTimeSegmentOnDate = newCurrentFieldTimeSegmentOnDate;
 		p.ml.display.updateCurrentSelectableTimeSegment = true;
 
-		if(debugSettings.viewer && debugSettings.detailed)
-			System.out.println("Set new state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate);
-
 		if(state.currentFieldDate < currentField.getTimelines().size())
 		{
 			if(currentField.getTimelines().get(state.currentFieldDate).timeline.size() > 0 && state.currentFieldTimeSegmentOnDate < currentField.getTimelines().get(state.currentFieldDate).timeline.size())
@@ -4138,8 +4129,6 @@ public class WMV_Viewer
 	{
 		state.currentFieldDate = newDate;
 		boolean success = setCurrentFieldTimeSegmentOnDate( newCurrentFieldTimelinesSegment, updateTimelineSegment );
-		if(debugSettings.viewer && debugSettings.detailed)
-			System.out.println("setCurrentTimeSegmentAndDate() newCurrentFieldTimelinesSegment:"+newCurrentFieldTimelinesSegment+" newDate:"+newDate+" success? "+success+" getLocation():"+getLocation());
 		return success;
 	}
 	

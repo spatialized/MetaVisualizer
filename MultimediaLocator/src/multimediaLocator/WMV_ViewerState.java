@@ -77,15 +77,19 @@ public class WMV_ViewerState
 	public boolean slowingZ = false;			// Slowing Z movement
 	public boolean halting = false;			// Viewer is halting
 	
-	public boolean movingX = false;			// Is viewer automatically moving in X dimension (side to side)?
-	public boolean movingY = false;			// Is viewer automatically moving in Y dimension (up or down)?
-	public boolean movingZ = false;			// Is viewer automatically moving in Z dimension (forward or backward)?
+	public boolean movingX = false;			// Whether viewer is automatically moving in X dimension (side to side)
+	public boolean movingY = false;			// Whether viewer is automatically moving in Y dimension (up or down)
+	public boolean movingZ = false;			// Whether viewer is automatically moving in Z dimension (forward or backward)
+	
 	public float moveXDirection;				// 1 (right)   or -1 (left)
 	public float moveYDirection;				// 1 (down)    or -1 (up)
 	public float moveZDirection;				// 1 (forward) or -1 (backward)
-	public boolean movingNearby = false;		// Moving to a point within nearClusterDistance
-
-	public boolean waiting = false;						// Whether the camera is waiting to move while following a path
+	public boolean movingNearby = false;		// Moving to center from a point less than nearClusterDistance but greater than clusterCenterSize
+	public boolean centering = false;			// Moving to precise center from a point less than clusterCenterSize
+//	public PVector centeringStartLocation;
+	public final int centeringTransitionLength = 20;	// Frame length of centering transition
+	public int centeringTransitionStart, centeringTransitionEnd;	// Frame length of centering transition
+	public boolean waiting = false;				// Whether viewer is waiting to move while following a path
 	public int pathWaitStartFrame;
 	
 	/* Turning */

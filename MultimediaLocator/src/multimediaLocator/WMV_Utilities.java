@@ -51,6 +51,34 @@ import com.luckycatlabs.sunrisesunset.dto.Location;
 public class WMV_Utilities 
 {
 	WMV_Utilities(){}
+
+	/**
+	 * Perform linear interpolation between two 3D points
+	 * @param point1 First point
+	 * @param point2 Second point 
+	 * @param step Step size {Between 0.f and 1.f}
+	 * @return Interpolated point
+	 */
+	public PVector lerp3D(PVector point1, PVector point2, float step)
+	{
+		PVector result = new PVector(0,0,0);
+		result.x = lerp(point1.x, point2.x, step);
+		result.y = lerp(point1.y, point2.y, step);
+		result.z = lerp(point1.z, point2.z, step);
+		return result;
+	}
+	
+	/**
+	 * Perform linear interpolation between two values
+	 * @param val1 First value
+	 * @param val2 Second value
+	 * @param step Interpolation step size {Between 0.f and 1.f}
+	 * @return Interpolated value
+	 */
+	public float lerp(float val1, float val2, float step)
+	{
+	    return val1 + step * (val2 - val1);
+	}
 	
 	/**
 	 * Create a directory at destination

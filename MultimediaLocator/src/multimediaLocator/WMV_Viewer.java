@@ -3092,7 +3092,7 @@ public class WMV_Viewer
 	/**
 	 * Follow GPS track
 	 */
-	public void followGPSTrack()
+	public void startFollowingGPSTrack()
 	{
 		if(state.gpsTrackSelected > -1 && state.gpsTrackSelected < p.getCurrentField().getGPSTracks().size())
 		{
@@ -3103,10 +3103,16 @@ public class WMV_Viewer
 			{
 				state.following = true;
 				state.pathLocationIdx = 0;
-				if(debugSettings.viewer)
-					System.out.println("Viewer.followGPSTrack()...  points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
+				
+				if(debugSettings.viewer || debugSettings.gps)
+					System.out.println("Viewer.startFollowingGPSTrack()...  points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
+				
 				state.pathGoal = path.get(state.pathLocationIdx).getLocation();			// Set path goal from GPS track
-				setAttractorPoint(state.pathGoal);										// Set attractor point from path goal
+				
+				if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
+					teleportToPoint(state.pathGoal, true);
+				else
+					setAttractorPoint(state.pathGoal);									// Set attractor point from path goal
 			}
 			else System.out.println("Viewer.followGPSTrack()... path.size() == 0!");
 		}

@@ -540,7 +540,7 @@ public class ML_Input
 							world.viewer.followTimeline(true, false);
 							break;
 						case 1:
-							world.viewer.followGPSTrack();
+							world.viewer.startFollowingGPSTrack();
 							break;
 						case 2:
 							world.viewer.followMemory();

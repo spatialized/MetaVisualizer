@@ -435,7 +435,7 @@ public class ML_KeyboardControls {
 		if (input.optionKey && key == 'g')
 			if(!ml.world.viewer.isFollowing())
 			{
-				ml.world.viewer.followGPSTrack();
+				ml.world.viewer.startFollowingGPSTrack();
 				if(ml.display.window.setupNavigationWindow)
 				{
 					ml.display.window.optTimeline.setSelected(false);

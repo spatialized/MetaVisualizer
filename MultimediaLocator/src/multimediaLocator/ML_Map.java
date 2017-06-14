@@ -125,6 +125,17 @@ public class ML_Map
 		initializeBasicMaps(world);
 		createViewerMarker(world);
 
+		if(world.getCurrentField().getGPSTracks() != null)
+		{
+			if(world.getCurrentField().getGPSTracks().size() > 0)
+			{
+				if(world.viewer.getSelectedGPSTrackID() != -1)
+				{
+					createGPSTrackMarker(world, world.viewer.getGPSTrack());
+				}
+			}
+		}
+		
 		zoomToField(world, world.getCurrentField(), false);			// Start zoomed out on whole field
 
 //		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
@@ -599,7 +610,6 @@ public class ML_Map
 		List<Location> gpsPoints = new ArrayList<Location>();
 		
 		for(WMV_Waypoint w : gpsTrack)					 /* Waypoint GPS location format: {longitude, latitude} */
-
 		{
 			Location loc = new Location(w.getGPSLocation().y, w.getGPSLocation().x);	 /* Unfolding Location format: {latitude, longitude} */
 			gpsPoints.add(loc);

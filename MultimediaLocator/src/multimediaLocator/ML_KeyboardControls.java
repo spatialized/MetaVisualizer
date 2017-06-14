@@ -478,17 +478,26 @@ public class ML_KeyboardControls {
 				ml.display.window.chkbxFollowTeleport.setSelected( ml.world.viewer.getFollowTeleport() );
 		}
 		
-		if (key == 'i') 		// Go to next cluster ID with image
-			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 0);
+//		if (key == 'i') 		// Go to next cluster ID with image
+//			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 0);
+//		if (key == 'p') 		// Go to next cluster ID with panorama
+//			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 1);
+//		if (key == 'v') 		// Go to to next cluster ID with video
+//			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 2);
+//		if (key == 'u') 		// Go to to next cluster ID with sound
+//			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 3);
 
-		if (key == 'p') 		// Go to next cluster ID with panorama
-			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 1);
+		if (key == 'i') 		// Go to nearest cluster ID with image
+			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 0, false);
 
-		if (key == 'v') 		// Go to to next cluster ID with video
-			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 2);
+		if (key == 'p') 		// Go to nearest cluster ID with panorama
+			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 1, false);
 
-		if (key == 'u') 		// Go to to next cluster ID with sound
-			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 3);
+		if (key == 'v') 		// Go to nearest cluster ID with video
+			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 2, false);
+
+		if (key == 'u') 		// Go to nearest cluster ID with sound
+			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 3, false);
 
 		if (key == 'm') 
 			ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
@@ -999,7 +1008,7 @@ public class ML_KeyboardControls {
 					ml.world.enterFieldByIndex( ml.display.window.listItemWindowSelectedItem );								/* Enter first field */
 					break;
 				case 1:						// 1: GPS Track
-					ml.world.viewer.setGPSTrackSelected( ml.display.window.listItemWindowSelectedItem );
+					ml.world.viewer.selectGPSTrack( ml.display.window.listItemWindowSelectedItem );
 					break;
 			}
 			

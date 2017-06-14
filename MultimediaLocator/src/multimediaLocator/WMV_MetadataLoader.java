@@ -1272,7 +1272,7 @@ class WMV_MetadataLoader
 			iWidth = Integer.valueOf(sWidth);
 			iHeight = Integer.valueOf(sHeight);
 			sFilePath = file.getPath();
-		} 
+		}
 		catch (Throwable t) {
 			System.out.println("Throwable while extracting video EXIF data:" + t);
 			if(!dataMissing) dataMissing = true;

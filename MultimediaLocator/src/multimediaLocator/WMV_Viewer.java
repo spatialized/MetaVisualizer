@@ -633,7 +633,6 @@ public class WMV_Viewer
 			{
 				if(isTeleporting()) state.teleporting = false;
 				setAttractorCluster(next);
-//				setAttractorCluster(state.currentCluster);
 			}
 		}
 	}
@@ -729,6 +728,85 @@ public class WMV_Viewer
 		}
 	}
 	
+	/**
+	 * Go to the nearest cluster containing specified media type
+	 * @param teleport Whether to teleport or move
+	 * @param mediaType Media type without which clusters are skipped...  0: image, 1: panorama, 2: video, 3: sound
+	 * @param inclCurrent Whether to include current cluster
+	 */
+	public void moveToNearestClusterWithMediaType(boolean teleport, int mediaType, boolean inclCurrent) 
+	{
+		int nearest = state.currentCluster;
+		boolean found = false;
+		int result = -1;
+		
+		if(debugSettings.viewer) System.out.println("Viewer.moveToNearestClusterWithMediaType()... mediaType "+mediaType+" inclCurrent:"+inclCurrent);
+
+		/* Find goal cluster */
+		if(mediaType < 0 || mediaType > 3)		// Incorrect media type
+			return;
+		else 
+		{
+			result = getNearestClusterWithMediaType(p.getCurrentField(), mediaType, inclCurrent);
+			if(result >= 0 && result < p.getCurrentField().getClusters().size())
+			{
+				found = true;
+				nearest = result;
+				if(debugSettings.viewer) System.out.println("Viewer.moveToNearestClusterWithMediaType()... found media #:"+nearest);
+			}
+		}
+		
+		if(found)				// If a cluster with specified media type was found
+		{
+			if(teleport)		/* Teleport or move */
+			{
+				teleportToCluster(nearest, true, -1);
+			}
+			else
+			{
+				if(isTeleporting()) state.teleporting = false;
+				setAttractorCluster(nearest);
+			}
+		}
+	}
+
+
+	/**
+	 * Find cluster in field contains at least one object of given media type  -- Should look nearby, not numerically
+	 * @param currentField Field to search
+	 * @param mediaType Media type to look for
+	 * @param startClusterID Starting cluster ID to search from
+	 * @return Whether field contains given media type
+	 */
+	private int getNearestClusterWithMediaType(WMV_Field currentField, int mediaType, boolean inclCurrent)
+	{
+		int result = -1;
+		
+		switch(mediaType)
+		{
+			case 0:
+				result = getNearestImage(inclCurrent);
+				break;
+			case 1:
+				result = getNearestPanorama(inclCurrent);
+				break;
+			case 2:
+				result = getNearestVideo(inclCurrent);
+				break;
+			case 3:
+				result = getNearestSound(inclCurrent);
+				break;
+		}
+
+		if(result == -1)
+		{
+			if(debugSettings.viewer) System.out.println("Viewer.getNearestClusterWithMediaType()... No media of type "+mediaType+" found...");
+			return -1;
+		}
+		else
+			return result;
+	}
+
 	/**
 	 * Go to cluster corresponding to given time segment in field
 	 * @param fieldID Field to move to
@@ -3110,7 +3188,7 @@ public class WMV_Viewer
 	{
 		if(state.gpsTrackSelected > -1 && state.gpsTrackSelected < p.getCurrentField().getGPSTracks().size())
 		{
-			gpsTrack = p.getCurrentField().getGPSTracks().get(state.gpsTrackSelected);	// Set viewer GPS track from selection
+//			gpsTrack = p.getCurrentField().getGPSTracks().get(state.gpsTrackSelected);	// Set viewer GPS track from selection
 			path = new ArrayList<WMV_Waypoint>(gpsTrack);								// Set path waypoints to GPS track 
 			
 			if(path.size() > 0)
@@ -3787,7 +3865,7 @@ public class WMV_Viewer
 	 * Get ID of closest image in front of viewer
 	 * @return ID of image closest to viewer in front
 	 */
-	public int getFrontImage() {
+	private int getFrontImage() {
 		float smallest = 100000.f;
 		int smallestIdx = 0;
 
@@ -3808,21 +3886,36 @@ public class WMV_Viewer
 
 	/**
 	 * Get ID of image nearest to the viewer in any direction
+	 * @param inclCurrent Whether to include images in current cluster
 	 * @return Nearest image ID
 	 */
-	public int getNearestImage() {
+	private int getNearestImage(boolean inclCurrent) 
+	{
 		float smallest = 100000.f;
-		int smallestIdx = 0;
+		int smallestIdx = -1;
 		WMV_Field f = p.getCurrentField();
 
 		for (int i = 0; i < f.getImages().size(); i++) {
-			if (f.getImage(i).getMediaState().visible) {
+//			if (f.getImage(i).getMediaState().visible) 
+//			{
 				float imageDist = f.getImage(i).getViewingDistance();
-				if (imageDist < smallest && imageDist > settings.nearClippingDistance) {
-					smallest = imageDist;
-					smallestIdx = i;
+				if (imageDist < smallest && imageDist > settings.nearClippingDistance) 
+				{
+					if(inclCurrent)
+					{
+						smallest = imageDist;
+						smallestIdx = i;
+					}
+					else
+					{
+						if(f.getImage(i).getAssociatedClusterID() != getCurrentClusterID())
+						{
+							smallest = imageDist;
+							smallestIdx = i;
+						}
+					}
 				}
-			}
+//			}
 		}
 
 		return smallestIdx;
@@ -3830,21 +3923,37 @@ public class WMV_Viewer
 	
 	/**
 	 * Get ID of panorama nearest to the viewer in any direction
+	 * @param inclCurrent Whether to include panoramas in current cluster
 	 * @return Nearest panorama ID
 	 */
-	public int getNearestPanorama() {
+	private int getNearestPanorama(boolean inclCurrent) 
+	{
 		float smallest = 100000.f;
-		int smallestIdx = 0;
+		int smallestIdx = -1;
 		WMV_Field f = p.getCurrentField();
 
-		for (int i = 0; i < f.getPanoramas().size(); i++) {
-			if (f.getPanorama(i).getMediaState().visible) {
+		for (int i = 0; i < f.getPanoramas().size(); i++) 
+		{
+//			if (f.getPanorama(i).getMediaState().visible) 
+//			{
 				float panoramaDist = f.getPanorama(i).getCaptureDistance();
-				if (panoramaDist < smallest && panoramaDist > settings.nearClippingDistance) {
-					smallest = panoramaDist;
-					smallestIdx = i;
+				if (panoramaDist < smallest && panoramaDist > settings.nearClippingDistance) 
+				{
+					if(inclCurrent)
+					{
+						smallest = panoramaDist;
+						smallestIdx = i;
+					}
+					else
+					{
+						if(f.getPanorama(i).getAssociatedClusterID() != getCurrentClusterID())
+						{
+							smallest = panoramaDist;
+							smallestIdx = i;
+						}
+					}
 				}
-			}
+//			}
 		}
 
 		return smallestIdx;
@@ -3854,14 +3963,17 @@ public class WMV_Viewer
 	 * Get ID of closest video in front of viewer
 	 * @return ID of video closest to viewer in front
 	 */
-	public int getFrontVideo() {
+	private int getFrontVideo() 
+	{
 		float smallest = 100000.f;
-		int smallestIdx = 0;
+		int smallestIdx = -1;
 
 		WMV_Field f = p.getCurrentField();
 
-		for (int i = 0; i < f.getVideos().size(); i++) {
-			if (f.getVideo(i).getMediaState().visible) {
+		for (int i = 0; i < f.getVideos().size(); i++) 
+		{
+			if (f.getVideo(i).getMediaState().visible) 
+			{
 				float videoAngle = f.getVideo(i).getFacingAngle(getOrientationVector());
 				if (videoAngle < smallest) {
 					smallest = videoAngle;
@@ -3875,21 +3987,37 @@ public class WMV_Viewer
 
 	/**
 	 * Get ID of video nearest to the viewer in any direction
+	 * @param inclCurrent Whether to include videos in current cluster
 	 * @return Nearest video ID
 	 */
-	public int getNearestVideo() {
+	private int getNearestVideo(boolean inclCurrent) 
+	{
 		float smallest = 100000.f;
-		int smallestIdx = 0;
+		int smallestIdx = -1;
 		WMV_Field f = p.getCurrentField();
 
-		for (int i = 0; i < f.getVideos().size(); i++) {
-			if (f.getVideo(i).getMediaState().visible) {
+		for (int i = 0; i < f.getVideos().size(); i++) 
+		{
+//			if (f.getVideo(i).getMediaState().visible) 
+//			{
 				float videoDist = f.getVideo(i).getViewingDistance();
-				if (videoDist < smallest && videoDist > settings.nearClippingDistance) {
-					smallest = videoDist;
-					smallestIdx = i;
+				if (videoDist < smallest && videoDist > settings.nearClippingDistance) 
+				{
+					if(inclCurrent)
+					{
+						smallest = videoDist;
+						smallestIdx = i;
+					}
+					else
+					{
+						if(f.getVideo(i).getAssociatedClusterID() != getCurrentClusterID())
+						{
+							smallest = videoDist;
+							smallestIdx = i;
+						}
+					}
 				}
-			}
+//			}
 		}
 
 		return smallestIdx;
@@ -3897,40 +4025,47 @@ public class WMV_Viewer
 
 	/**
 	 * Get ID of sound nearest to the viewer in any direction
+	 * @param inclCurrent Whether to include sounds in current cluster
 	 * @return Nearest sound ID
 	 */
-	public int getNearestSound() {
+	private int getNearestSound(boolean inclCurrent) 
+	{
 		float smallest = 100000.f;
-		int smallestIdx = 0;
+		int smallestIdx = -1;
 		WMV_Field f = p.getCurrentField();
 
-		for (int i = 0; i < f.getSounds().size(); i++) {
-			if (f.getSound(i).getMediaState().visible) {
+		for (int i = 0; i < f.getSounds().size(); i++) 
+		{
+//			if (f.getSound(i).getMediaState().visible) 
+//			{
 				float soundDist = f.getSound(i).getCaptureDistance();
-				if (soundDist < smallest && soundDist > settings.nearClippingDistance) {
-					smallest = soundDist;
-					smallestIdx = i;
+				if (soundDist < smallest && soundDist > settings.nearClippingDistance) 
+				{
+					if(inclCurrent)
+					{
+						smallest = soundDist;
+						smallestIdx = i;
+					}
+					else
+					{
+						if(f.getSound(i).getAssociatedClusterID() != getCurrentClusterID())
+						{
+							smallest = soundDist;
+							smallestIdx = i;
+						}
+					}
 				}
-			}
+//			}
 		}
 
 		return smallestIdx;
 	}
 
 	/**
-	 * Open dialog to select GPS track file
-	 */
-//	public void importGPSTrack()
-//	{
-//		state.gpsTrackSelected = false;
-//		p.ml.selectInput("Select a GPS Track:", "gpsTrackSelected");
-//	}
-
-	/**
 	 * Get vector of direction of camera motion by comparing current and previous waypoints
 	 * @return Vector of direction of camera motion
 	 */
-	public PVector getHistoryVector()
+	private PVector getHistoryVector()
 	{
 		PVector hv = new PVector();
 		
@@ -3956,7 +4091,7 @@ public class WMV_Viewer
 	 * @param historyDepth How far back in history to look
 	 * @return Waypoints found in history within the last <memory> waypoints
 	 */
-	public ArrayList<WMV_Waypoint> waypointsAreInHistory(ArrayList<WMV_Waypoint> check, int historyDepth)
+	private ArrayList<WMV_Waypoint> waypointsAreInHistory(ArrayList<WMV_Waypoint> check, int historyDepth)
 	{
 		ArrayList<WMV_Waypoint> found = new ArrayList<WMV_Waypoint>();
 		
@@ -3980,7 +4115,7 @@ public class WMV_Viewer
 	 * @param memory How far back to look in memory 
 	 * @return Clusters found within the last <memory> waypoints
 	 */
-	public ArrayList<WMV_Cluster> clustersAreInHistory(IntList check, int memory)
+	private ArrayList<WMV_Cluster> clustersAreInHistory(IntList check, int memory)
 	{
 		ArrayList<WMV_Cluster> found = new ArrayList<WMV_Cluster>();
 		
@@ -4214,7 +4349,32 @@ public class WMV_Viewer
 	}
 
 	/**
+	 * Set current GPS track	-- Deprecated, use selectGPSTrack()
+	 */
+	public void setGPSTrack(ArrayList<WMV_Waypoint> newGPSTrack)
+	{
+		gpsTrack = newGPSTrack;
+	}
+
+	/**
 	 * @return List of waypoints representing current GPS track path
+	 */
+	public void selectGPSTrack(int gpsTrackID)
+	{
+		state.gpsTrackSelected = gpsTrackID;
+		gpsTrack = p.getCurrentField().getGPSTracks().get(state.gpsTrackSelected);	// Set viewer GPS track from selection
+	}
+
+	/**
+	 * @return Selected GPS Track ID in list of GPS tracks for field
+	 */
+	public int getSelectedGPSTrackID()
+	{
+		return state.gpsTrackSelected;
+	}
+	
+	/**
+	 * @return List of waypoints representing selected GPS track path
 	 */
 	public ArrayList<WMV_Waypoint> getGPSTrack()
 	{
@@ -4222,31 +4382,9 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Set current GPS track
+	 * Set viewer frame count
+	 * @param newFrameCount New frame count
 	 */
-//	public void setGPSTrack(ArrayList<WMV_Waypoint> newGPSTrack, String newName)
-	public void setGPSTrack(ArrayList<WMV_Waypoint> newGPSTrack)
-	{
-		gpsTrack = newGPSTrack;
-//		state.gpsTrackName = newName;
-	}
-
-	/**
-	 * @return List of waypoints representing current GPS track path
-	 */
-	public void setGPSTrackSelected(int newGPSTrackSelected)
-	{
-		state.gpsTrackSelected = newGPSTrackSelected;
-	}
-
-	/**
-	 * @return List of waypoints representing current GPS track path
-	 */
-	public int getGPSTrackSelected()
-	{
-		return state.gpsTrackSelected;
-	}
-	
 	public void setFrameCount(int newFrameCount)
 	{
 		worldState.frameCount = newFrameCount;

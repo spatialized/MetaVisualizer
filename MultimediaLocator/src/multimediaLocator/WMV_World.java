@@ -2131,7 +2131,7 @@ public class WMV_World
 				else
 				{
 					System.out.println("setBlurMasks()... ERROR: Could not set mask... video has size other than 640x360!"+video.getName());
-					System.out.println("Setting image to disabled..."+video.getName());
+					System.out.println("Setting video to disabled..."+video.getName());
 					video.setDisabled(true);
 				}
 			}

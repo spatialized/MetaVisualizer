@@ -1207,6 +1207,13 @@ public class ML_Window
 		lblLibrary.setTextAlign(GAlign.CENTER, null);
 		lblLibrary.setTextBold();
 
+		x = 0;
+		lblLibraryWindowText = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Please wait...");
+		lblLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
+		lblLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		lblLibraryWindowText.setTextAlign(GAlign.CENTER, null);
+		lblLibraryWindowText.setVisible(false);
+
 		x = 90;
 		y += 50;
 		btnCreateLibrary = new GButton(libraryWindow, x, y, 170, iLargeBoxHeight, "Create Library");
@@ -1217,13 +1224,6 @@ public class ML_Window
 		btnOpenLibrary.tag = "OpenLibrary";
 		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnOpenLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		x = 0;
-		lblLibraryWindowText = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Please wait...");
-		lblLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
-		lblLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
-		lblLibraryWindowText.setTextAlign(GAlign.CENTER, null);
-		lblLibraryWindowText.setVisible(false);
 
 		y += 50;
 		btnLibraryHelp = new GButton(libraryWindow, windowWidth * 2 - 30 - iLeftMargin, y, 30, 30, "?");
@@ -1406,11 +1406,22 @@ public class ML_Window
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 */
-	public void libraryWindowDraw(PApplet applet, GWinData data) {
+	public void libraryWindowDraw(PApplet applet, GWinData data) 
+	{
 		applet.background(0);
-		applet.stroke(255);
+		applet.stroke(0, 25, 255);
 		applet.strokeWeight(1);
-		applet.fill(255, 255, 255);
+//		applet.fill(255, 255, 255);
+		int barWidth = windowWidth-40;
+		
+		if(display.setupProgress > 0.f)
+		{
+			for(int i=0; i<barWidth*display.setupProgress; i++)
+			{
+				int x = (int)utilities.round( 40 + i * 2.f, 0 );
+				applet.line(x, libraryWindowHeight - 75, x, libraryWindowHeight - 35);
+			}
+		}
 	}
 
 	/**

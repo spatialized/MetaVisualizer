@@ -35,6 +35,7 @@ public class ML_Display
 	/* Setup */
 	public boolean worldSetup = true;
 	public boolean dataFolderFound = false;
+	public float setupProgress = 0.f;
 	
 	/* Graphics */
 	public boolean drawGrid = false; 					/* Draw 3D grid */   			// -- Unused
@@ -243,18 +244,15 @@ public class ML_Display
 		}
 	}
 
-	public void handlePanelEvents(GPanel panel, GEvent event)
+	/**
+	 * Set the current initialization progress bar position
+	 * @param progress New position {0.f to 1.f}
+	 */
+	public void setupProgress(float progress)
 	{
-		if(panel.tagNo == 0)
-		{
-			handleMainPanelEvent(event);
-		}
-	}
+		System.out.println("Display.setupProgress()... progress:"+progress);
 
-	public void handleMainPanelEvent(GEvent event)
-	{
-		if(event == GEvent.DRAGGED)
-			System.out.println("Panel dragged...");
+		setupProgress = progress;
 	}
 
 	/**

@@ -421,13 +421,13 @@ class WMV_MetadataLoader
 				if(debugSettings.metadata)  System.out.println("Shrink images failed...");
 		}
 
-		if(debugSettings.metadata) 	
-		{
-			if(smallImageFilesFound)
-				System.out.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
-			if(imageFilesFound)
-				System.out.println("Large Image Folder Location:" + imageFolderFile + " imageFiles.length:"+imageFiles.length);
-		}
+//		if(debugSettings.metadata) 	
+//		{
+//			if(smallImageFilesFound)
+//				System.out.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
+//			if(imageFilesFound)
+//				System.out.println("Large Image Folder Location:" + imageFolderFile + " imageFiles.length:"+imageFiles.length);
+//		}
 	}
 
 	/**

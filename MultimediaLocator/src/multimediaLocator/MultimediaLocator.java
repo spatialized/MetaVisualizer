@@ -232,23 +232,22 @@ public class MultimediaLocator extends PApplet
 				{
 					world.createFieldsFromFolders(library.getFolders());		// Create empty field for each field folder	
 					state.initializingFields = true;
+					display.setupProgress(0.25f);
 				}
 				else									/* Initializing fields */
 				{
-					WMV_Field f = world.getField(state.initializationField);
-					initializeField(f, true, true);				/* Initialize field */	
+					initializeField(world.getField(state.initializationField), true, true);		/* Initialize field */	
 					
 					state.initializationField++;		/* Set next field to initialize */
 					if( state.initializationField >= world.getFields().size() )	
 					{
 						state.fieldsInitialized = true;
-						
 						if(debugSettings.ml) System.out.println("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
-						
-//						if(world.getFieldCount() > 1)
-//							world.chooseStartingField();					/* Choose starting field */
-//						else
-//							world.enterFieldByIndex(0);						/* Enter first field */
+						display.setupProgress(1.f);
+					}
+					else
+					{
+						display.setupProgress(0.5f + (float)(state.initializationField-1) / (float)world.getFieldCount() * 0.5f);
 					}
 				}
 			}
@@ -256,6 +255,7 @@ public class MultimediaLocator extends PApplet
 			{
 				organizeMedia();					/* Analyze and organize media */
 				finishInitialization();				/* Finish initialization and start running */
+				display.setupProgress(0.f);
 			}
 		}
 		else

@@ -66,7 +66,7 @@ public class WMV_ViewerState
 	public PVector orientationVector;
 	
 	/* Movement */
-	public int followMode = 0;					// 0: Timeline 1: GPS Track 2: Memory
+	public int followMode = 0;				// 0: Timeline 1: GPS Track 2: Memory
 	public boolean walking = false;			// Whether viewer is walking
 	public PVector walkingVelocity;
 	public PVector walkingAcceleration;			// Physics parameters applied relative to camera direction

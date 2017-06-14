@@ -1717,6 +1717,18 @@ public class WMV_Cluster
 	}
 	
 	/**
+	 * Get "weight" of cluster, defined as the media count, where panoramas are weighted at 25 images per panorama
+	 * @return
+	 */
+	public int getMediaWeight()
+	{
+		int count = state.images.size() + state.videos.size();
+		if(state.panoramas.size() > 0)
+			count += state.panoramas.size() * 25;
+		return count;
+	}
+	
+	/**
 	 * @return Number of media in cluster
 	 */
 	public int getMediaCount()

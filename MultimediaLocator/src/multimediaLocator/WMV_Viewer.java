@@ -1739,6 +1739,11 @@ public class WMV_Viewer
 	public void stop(boolean clearAttractors)
 	{
 		stopTurningTransitions();			// Stop turning
+		stopMoving(clearAttractors);
+	}
+	
+	public void stopMoving(boolean clearAttractors)
+	{
 		stopMovementTransitions();			// Stop moving
 		setMovementVectorsToZero();			// Set speed, acceleration to zero
 		if(clearAttractors)
@@ -2352,10 +2357,16 @@ public class WMV_Viewer
 				if( attractorPoint != null )
 				{
 					curAttractor = attractorPoint;
-					if(debugSettings.viewer)					/* If not slowing and attraction force exists */
+					if(debugSettings.viewer && debugSettings.detailed)					/* If not slowing and attraction force exists */
 						System.out.println("--> attractorCluster:"+state.attractorCluster+" slowing:"+state.slowing+" halting:"+state.halting+" attraction.mag():"+state.attraction.mag()+" null? "+(curAttractor == null));
-					if(debugSettings.viewer)					/* If not slowing and attraction force exists */
+					if(debugSettings.viewer && debugSettings.detailed)					/* If not slowing and attraction force exists */
 						System.out.println("--> attractorPoint distance:"+attractorPoint.getClusterDistance()+" mass:"+attractorPoint.getClusterMass()+" acceleration.mag():"+state.acceleration.mag()+" curAttractor dist: "+(curAttractor.getClusterDistance()));
+					if(p.utilities.isNaN(state.attraction.mag()))
+					{
+						state.movingToAttractor = false;
+						if(debugSettings.viewer)					/* If not slowing and attraction force exists */
+							System.out.println("--> attraction was NaN... set movingToAttractor to false");
+					}
 				}
 			}
 				
@@ -2473,7 +2484,9 @@ public class WMV_Viewer
 	{
 		if(state.following && path.size() > 0)		/* Reached attractor when following a path */	
 		{
-			stop(true);												// -- Added 3-12-17
+			stopMoving(true);
+//			stop(true);												// -- Added 3-12-17
+			
 			setCurrentCluster( state.attractorCluster, -1 );
 			if(debugSettings.path)
 				System.out.println("Viewer.handleReachedAttractor()... Reached path goal #"+state.pathLocationIdx+", will start waiting...");
@@ -2808,6 +2821,8 @@ public class WMV_Viewer
 					System.out.println(" ");
 				}
 				stopFollowing();
+				if(p.ml.display.window.setupNavigationWindow)
+					p.ml.display.window.chkbxPathFollowing.setSelected(false);
 			}
 		}
 		
@@ -3065,7 +3080,6 @@ public class WMV_Viewer
 			{
 				state.following = false;
 				stop(true);
-//				stop();									// -- Improve by slowing down instead and then starting 
 			}
 		}
 	}

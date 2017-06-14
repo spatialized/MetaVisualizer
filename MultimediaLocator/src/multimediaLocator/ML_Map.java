@@ -180,7 +180,7 @@ public class ML_Map
 		osm.setTweening(true);
 		osm.setZoomRange(2, 19);
 
-		createSatelliteMapsClusterMarkers(p);
+		createFieldClusterMarkers(p);
 		p.ml.delay(120);
 		
 		PVector vLoc = p.viewer.getGPSLocation();
@@ -501,10 +501,10 @@ public class ML_Map
 	}
 
 	/**
-	 * Create satellite map markers for each cluster in current field
+	 * Create satellite map markers for clusters in current field
 	 * @param world Parent world
 	 */
-	private void createSatelliteMapsClusterMarkers(WMV_World world)
+	private void createFieldClusterMarkers(WMV_World world)
 	{
 		satelliteMarkerManager = new MarkerManager<Marker>();
 		osmMarkerManager = new MarkerManager<Marker>();
@@ -519,7 +519,8 @@ public class ML_Map
 				marker.setColor(world.ml.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
 				marker.setHighlightColor(world.ml.color(170, 255, 255, 255.f));
 				marker.setStrokeWeight(0);
-				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
+//				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
+				marker.setDiameter((float)Math.sqrt(c.getMediaWeight()) * 3.f);
 				satelliteMarkerManager.addMarker(marker);
 				osmMarkerManager.addMarker(marker);
 			}
@@ -573,7 +574,7 @@ public class ML_Map
 	public void recreateMarkers(WMV_World world)
 	{
 		createFieldMarkers(world);
-		createSatelliteMapsClusterMarkers(world);
+		createFieldClusterMarkers(world);
 		createBasicMapsClusterMarkers(world);
 		createWorldClusterMarkers(world);
 		createViewerMarker(world);
@@ -877,6 +878,10 @@ public class ML_Map
 			satellite.addMarkers(marker);
 	}
 	
+	/**
+	 * Create cluster markers for world
+	 * @param world
+	 */
 	private void createWorldClusterMarkers(WMV_World world)
 	{
 		allClusterLocations = new ArrayList<Location>();
@@ -895,7 +900,7 @@ public class ML_Map
 				
 				SimplePointMarker clusterMarker = new SimplePointMarker(loc);
 				clusterMarker.setId("Cluster_"+String.valueOf(c.getID()));
-				clusterMarker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
+				clusterMarker.setDiameter((float)Math.sqrt(c.getMediaWeight()) * 3.f);
 
 				if(selectedField == f.getID())
 					clusterMarker.setColor(world.ml.color(hue, clusterSaturation, clusterBrightness, fieldTransparency));			

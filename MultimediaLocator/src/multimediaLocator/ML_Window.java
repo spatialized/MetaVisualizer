@@ -144,6 +144,8 @@ public class ML_Window
 	private GLabel lblVisibleAngle, lblAlpha, lblBrightness;
 	public GSlider sdrVisibleAngle, sdrAlpha, sdrBrightness;//, sdrMediaSize;
 
+	private int graphicsWindowLineBreakY;
+
 	private GLabel lblSubjectDistance;
 	private GButton btnSubjectDistanceUp, btnSubjectDistanceDown;
 	public GLabel lblCommand3;
@@ -197,7 +199,7 @@ public class ML_Window
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = shortWindowHeight;
 		
-		navigationWindowHeight = parent.ml.appHeight;
+		navigationWindowHeight = parent.ml.appHeight - 50;
 		graphicsWindowHeight = parent.ml.appHeight;
 		statisticsWindowHeight = longWindowHeight + 100;
 		helpWindowHeight = longWindowHeight + 100;
@@ -248,7 +250,6 @@ public class ML_Window
 		mlWindow.addMouseHandler(this, "mlWindowMouse");
 		mlWindow.addKeyHandler(world.ml, "mlWindowKey");
 		mlWindow.setActionOnClose(GWindow.KEEP_OPEN);
-//		hideMLWindow();
 		
 		world.ml.delay(delayAmount);
 		
@@ -452,6 +453,7 @@ public class ML_Window
 		y += iButtonSpacing;
 		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "Teleport");
 		chkbxMovementTeleport.tag = "MovementTeleport";
+		chkbxMovementTeleport.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		chkbxMovementTeleport.setLocalColorScheme(G4P.SCHEME_10);
 //		world.ml.delay(delayAmount);
 
@@ -522,17 +524,18 @@ public class ML_Window
 		lblPathNavigation.setTextAlign(GAlign.CENTER, null);
 		lblPathNavigation.setTextBold();
 
-		x = 105;
+		x = 100;
 		y += 30;
-		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "On / Off");
+		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 150, iSmallBoxHeight, "On / Off  (>)");
 		chkbxPathFollowing.tag = "Following";
 		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
 		
 		y += iSmallBoxHeight * 1.5f;
 		x = 115;
-		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "Teleport");
+		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 125, iSmallBoxHeight, "Teleport  (,)");
 		chkbxFollowTeleport.tag = "FollowTeleport";
+		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
 		world.ml.delay(delayAmount);
 
@@ -780,14 +783,14 @@ public class ML_Window
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount);
 
-		lblGraphics = new GLabel(graphicsWindow, x, y, graphicsWindow.width, iSmallBoxHeight, "Graphics");
+		lblGraphics = new GLabel(graphicsWindow, x, y, graphicsWindow.width, iSmallBoxHeight, "Media");
 		lblGraphics.setLocalColorScheme(G4P.SCHEME_10);
 		lblGraphics.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblGraphics.setTextAlign(GAlign.CENTER, null);
 		lblGraphics.setTextBold();
 		
 		x = 0;
-		y += 40;
+		y += iSmallBoxHeight * 1.5f;
 		lblGraphicsSettings = new GLabel(graphicsWindow, x, y, graphicsWindow.width, iSmallBoxHeight, "Settings");
 		lblGraphicsSettings.setLocalColorScheme(G4P.SCHEME_10);
 		lblGraphicsSettings.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
@@ -948,7 +951,8 @@ public class ML_Window
 		btnExportScreenshot.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = 0;
-		y += 40;
+		y += 60;
+		graphicsWindowLineBreakY = y - 15;
 		lblSelection = new GLabel(graphicsWindow, x, y, graphicsWindow.width, iSmallBoxHeight, "Selection");
 		lblSelection.setLocalColorScheme(G4P.SCHEME_10);
 		lblSelection.setTextAlign(GAlign.CENTER, null);
@@ -1668,10 +1672,12 @@ public class ML_Window
 	public void graphicsWindowDraw(PApplet applet, GWinData data) 
 	{
 		applet.background(0);
-		applet.stroke(255);
+		applet.stroke(155);
 		applet.strokeWeight(1);
-		applet.fill(255, 255, 255);
-		
+		applet.fill(155, 155, 155);
+	
+		applet.line(0, graphicsWindowLineBreakY, windowWidth, graphicsWindowLineBreakY);
+
 		if(setupGraphicsWindow)
 		{
 			if(world.state.timeFading && !world.state.paused)

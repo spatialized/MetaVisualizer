@@ -42,22 +42,24 @@ class WMV_MetadataLoader
 	public String dataFolder = "";
 	
 	public File imageFolderFile = null, smallImageFolderFile = null, panoramaFolderFile = null, // Folders containing the media 
-				videoFolderFile = null, soundFolderFile = null, gpsTrackFolderFile = null, dataFolderFile = null;
+				videoFolderFile = null, smallVideoFolderFile = null, soundFolderFile = null;
+	public File gpsTrackFolderFile = null, dataFolderFile = null;
 	
 	public boolean imageFolderFound = false, smallImageFolderFound = false;
 	public boolean panoramaFolderFound = false;
-	public boolean videoFolderFound = false; 	
+	public boolean videoFolderFound = false, smallVideoFolderFound = false; 	
 	public boolean soundFolderFound = false;
+	
 	public boolean gpsTrackFolderFound = false;
 	public boolean dataFolderFound = false; 	
 	
 	public File[] smallImageFiles = null, imageFiles = null, panoramaFiles = null, // Temp arrays to store media files
-				  videoFiles = null, soundFiles = null, gpsTrackFiles = null, dataFiles = null;								
+				  smallVideoFiles = null, videoFiles = null, soundFiles = null, gpsTrackFiles = null, dataFiles = null;								
 
 	public boolean smallImageFilesFound = false;
 	public boolean imageFilesFound = false;
 	public boolean panoramaFilesFound = false;
-	public boolean videoFilesFound = false;
+	public boolean videoFilesFound = false, smallVideoFilesFound = false;
 	public boolean soundFilesFound = false;
 	public boolean gpsTrackFilesFound = false;
 	private boolean dataFilesValidFormat = false;
@@ -97,30 +99,21 @@ class WMV_MetadataLoader
 
 		loadImageFolders(fieldPath); 	// Load image + panorama folder(s)
 		if(panoramaFolderFound) loadPanoramas(fieldPath);
-		loadImages(fieldPath);			// Load image + panorama file names
+		loadImageFiles(fieldPath);			// Load image + panorama file names
 
 		loadVideoFolder(fieldPath); 	// Load video folder
-		loadVideos(fieldPath);			// Load video file names
+		loadVideoFiles(fieldPath);		// Load video file names
 
 		loadSoundFolder(fieldPath); 	// Load sound folder
 		loadSoundFiles(fieldPath);		// Load sound file names
 
 		loadGPSTrackFolder(fieldPath); 	// Load GPS track folder
-		loadGPSTrackFiles(fieldPath); 		// Load GPS track files
+		loadGPSTrackFiles(fieldPath); 	// Load GPS track files
 
 		loadDataFolder(fieldPath);		// Load media data from disk
 
 		if(dataFilesValidFormat)
 		{
-//			WMV_FieldState newFieldState = ml.library.loadFieldState(dataFiles[1].getAbsolutePath());
-//			WMV_ViewerSettings newViewerSettings = ml.library.loadViewerSettings(dataFiles[6].getAbsolutePath());
-//			WMV_ViewerState newViewerState = ml.library.loadViewerState(dataFiles[7].getAbsolutePath());
-//			WMV_WorldSettings newWorldSettings = ml.library.loadWorldSettings(dataFiles[8].getAbsolutePath());
-//			WMV_WorldState newWorldState = ml.library.loadWorldState(dataFiles[9].getAbsolutePath());
-//
-//			WMV_SimulationState newSimulationState = new WMV_SimulationState( newFieldState, newViewerSettings,
-//					newViewerState, newWorldSettings, newWorldState );
-
 			return true;
 		}
 		else
@@ -131,7 +124,7 @@ class WMV_MetadataLoader
 
 			if(smallImageFilesFound) loadImages(f, smallImageFiles);						// Load image metadata 
 			if(panoramaFilesFound) loadImages(f, panoramaFiles); 						    // Load panorama metadata
-			if(videoFilesFound) loadVideos(f, videoFiles);	 	 							// Load video metadata 
+			if(smallVideoFilesFound) loadVideos(f, smallVideoFiles);	 	 				// Load video metadata 
 			if(soundFilesFound) loadSounds(f, soundFiles);				 					// Load sound file metadata
 			if(gpsTrackFilesFound) 
 				f.setGPSTracks( loadGPSTracks(f) );							// Load GPS tracks 
@@ -199,16 +192,16 @@ class WMV_MetadataLoader
 	 */
 	public void loadImageFolders(String fieldPath) 		
 	{
-		smallImageFolder = library + "/" + fieldPath + "/small_images/";	/* Check for small_images folder */
 		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
+		smallImageFolder = library + "/" + fieldPath + "/small_images/";	/* Check for small_images folder */
 		panoramaFolder = library + "/" + fieldPath + "/panoramas/";			/* Check for panoramas folder */
 
-		smallImageFolderFile = new File(smallImageFolder);
-		imageFolderFile = new File(imageFolder);
-		panoramaFolderFile = new File(panoramaFolder);
+		imageFolderFile = new File(imageFolder);							// No max. size
+		smallImageFolderFile = new File(smallImageFolder);					// Max size 640 x 480 px
+		panoramaFolderFile = new File(panoramaFolder);						// 2:1 aspect ratio only
 
-		smallImageFolderFound = (smallImageFolderFile.exists() && smallImageFolderFile.isDirectory());			
 		imageFolderFound = (imageFolderFile.exists() && imageFolderFile.isDirectory());	
+		smallImageFolderFound = (smallImageFolderFile.exists() && smallImageFolderFile.isDirectory());			
 		panoramaFolderFound = (panoramaFolderFile.exists() && panoramaFolderFile.isDirectory());
 	}
 	
@@ -217,7 +210,14 @@ class WMV_MetadataLoader
 	 */
 	public void loadVideoFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
-		videoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max width 720 pixels  -- Check this!
+		videoFolder = library  + "/" + fieldPath + "/large_videos/";			// Max size 4K
+		smallVideoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max size 480p
+		
+		videoFolderFile = new File(videoFolder);
+		smallVideoFolderFile = new File(smallVideoFolder);
+		
+		videoFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());
+		smallVideoFolderFound = (smallVideoFolderFile.exists() && smallVideoFolderFile.isDirectory());	
 	}
 	
 	/**
@@ -226,6 +226,8 @@ class WMV_MetadataLoader
 	public void loadSoundFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
 		soundFolder = library  + "/" + fieldPath + "/sounds/";		// Max width 720 pixels  -- Check this!
+		soundFolderFile = new File(soundFolder);
+		soundFolderFound = (soundFolderFile.exists() && soundFolderFile.isDirectory());	
 	}
 	
 	/**
@@ -241,8 +243,6 @@ class WMV_MetadataLoader
 	 */
 	public void loadSoundFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
-		soundFolderFile = new File(soundFolder);
-		soundFolderFound = (soundFolderFile.exists() && soundFolderFile.isDirectory());	
 		soundFiles = null;
 
 		if(soundFolderFound)				// Check for sound files
@@ -368,7 +368,7 @@ class WMV_MetadataLoader
 	 * Load image files
 	 * @param fieldPath Field folder path
 	 */
-	public void loadImages(String fieldPath)
+	public void loadImageFiles(String fieldPath)
 	{
 		smallImageFiles = null;
 		imageFiles = null;
@@ -396,16 +396,13 @@ class WMV_MetadataLoader
 			}
 		}
 		
-		if(imageFolderFound)		// If no small images, look for original images and panoramas
+		if(imageFolderFound)		// Look for original images and panoramas
 		{
-			if(debugSettings.metadata) 	
-				System.out.println("No small_images folder... ");
-
 			imageFiles = imageFolderFile.listFiles();
 			if(imageFiles != null && imageFiles.length > 0)
 				imageFilesFound = true;
 			
-			if(imageFilesFound)				/* If no small images, but there are images */
+			if(imageFilesFound && !smallImageFolderFound)				/* If no small images, but there are images */
 				ml.world.utilities.makeDirectory("small_images", library);
 		}
 		
@@ -420,14 +417,6 @@ class WMV_MetadataLoader
 			else
 				if(debugSettings.metadata)  System.out.println("Shrink images failed...");
 		}
-
-//		if(debugSettings.metadata) 	
-//		{
-//			if(smallImageFilesFound)
-//				System.out.println("Small Image Folder Location:" + smallImageFolderFile + " smallImageFiles.length:"+smallImageFiles.length);
-//			if(imageFilesFound)
-//				System.out.println("Large Image Folder Location:" + imageFolderFile + " imageFiles.length:"+imageFiles.length);
-//		}
 	}
 
 	/**
@@ -445,46 +434,23 @@ class WMV_MetadataLoader
 	 * Load video files
 	 * @param fieldPath Field folder path
 	 */
-	public void loadVideos(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	public void loadVideoFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
-		videoFolderFile = new File(videoFolder);
-		videoFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());	
 		videoFiles = null;
-
 		if(videoFolderFound)				// Check for video files
 		{
 			videoFiles = videoFolderFile.listFiles();
 			if(videoFiles != null && videoFiles.length > 0)
 				videoFilesFound = true;
 		}
-	}
-
-	/** 
-	 * Read tags from array of video files and create 3D video objects
-	 * @param files File array
-	 */
-	public boolean loadSounds(WMV_Field f, File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
-	{
-		int fileCount;
-		if(files != null) fileCount = files.length;	 		// File count
-		else return false;
-
-		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
-			addSoundToField(f, files[currentMedia]);
 		
-		return true;
-		
-//		if(files != null)
-//		{
-//			for(File file : files)
-//			{
-//				addSoundToField(f, file);
-//			}
-//
-//			return true;
-//		}
-//		else 
-//			return false;
+		smallVideoFiles = null;
+		if(smallVideoFolderFound)				// Check for video files
+		{
+			smallVideoFiles = smallVideoFolderFile.listFiles();
+			if(smallVideoFiles != null && smallVideoFiles.length > 0)
+				smallVideoFilesFound = true;
+		}
 	}
 	
 	public WMV_SoundMetadata loadSoundMetadata(WMV_Field f, File file, String fieldTimeZoneID)
@@ -562,6 +528,22 @@ class WMV_MetadataLoader
 		return true;
 	}
 	
+	/** 
+	 * Read tags from array of video files and create 3D video objects
+	 * @param files File array
+	 */
+	public boolean loadSounds(WMV_Field f, File[] files) 			// Load metadata for a folder of images and add to imgs ArrayList
+	{
+		int fileCount;
+		if(files != null) fileCount = files.length;	 		// File count
+		else return false;
+
+		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
+			addSoundToField(f, files[currentMedia]);
+		
+		return true;
+	}
+
 	/**
 	 * Load metadata and add image to field 
 	 * @param f Field to add image to

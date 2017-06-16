@@ -190,7 +190,7 @@ public class WMV_Field
 	 */
 	private void updateImage(MultimediaLocator ml, WMV_Image m)
 	{
-		if(m.isRequested() && m.image.width != 0)			// If requested image has loaded, initialize image 
+		if(m.isRequested() && m.image.width > 0)			// If requested image has loaded, initialize image 
 		{
 			m.calculateVertices();  					// Update geometry		
 			m.setAspectRatio( m.calculateAspectRatio() );
@@ -267,9 +267,10 @@ public class WMV_Field
 	 */
 	public void updatePanorama(MultimediaLocator ml, WMV_Panorama n)
 	{
-		if(n.getMediaState().requested && n.texture.width != 0)			// If requested image has loaded, initialize image 
+		if(n.getMediaState().requested && n.texture.width > 0)			// If requested image has loaded, initialize image 
 		{
 			n.initializeSphere();					
+			n.blurred = n.applyMask(ml, n.texture, n.blurMask);					// Apply blur mask once image has loaded
 			n.setRequested(false);
 		}
 
@@ -1198,6 +1199,16 @@ public class WMV_Field
 	void setImageBlurMask(WMV_Image image, PImage blurMask)
 	{
 		image.setBlurMask(blurMask);
+	}
+
+	/**
+	 * Set blur mask for image
+	 * @param image Image for which to set blur mask
+	 * @param blurMask Blur mask image
+	 */
+	void setPanoramaBlurMask(WMV_Panorama panorama, PImage blurMask)
+	{
+		panorama.setBlurMask(blurMask);
 	}
 
 	/**

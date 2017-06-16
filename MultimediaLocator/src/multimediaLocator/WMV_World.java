@@ -43,15 +43,16 @@ public class WMV_World
 	public WMV_Utilities utilities;						// Utilities
 
 	/* Graphics */
-	public PImage blurMaskLeftTop, blurMaskLeftCenter, blurMaskLeftBottom, blurMaskLeftBoth;  	// Blur masks
+	public PImage blurMaskLeftTop, blurMaskLeftCenter, blurMaskLeftBottom, blurMaskLeftBoth;  						// Image blur masks
 	public PImage blurMaskCenterTop, blurMaskCenterCenter, blurMaskCenterBottom, blurMaskCenterBoth;
 	public PImage blurMaskRightTop, blurMaskRightCenter, blurMaskRightBottom, blurMaskRightBoth;
 	public PImage blurMaskBothTop, blurMaskBothCenter, blurMaskBothBottom, blurMaskBothBoth;
-	public PImage vertBlurMaskLeftTop, vertBlurMaskLeftCenter, vertBlurMaskLeftBottom, vertBlurMaskLeftBoth;  	// Blur masks
+	public PImage vertBlurMaskLeftTop, vertBlurMaskLeftCenter, vertBlurMaskLeftBottom, vertBlurMaskLeftBoth;  		// Vertical image blur masks
 	public PImage vertBlurMaskCenterTop, vertBlurMaskCenterCenter, vertBlurMaskCenterBottom, vertBlurMaskCenterBoth;
 	public PImage vertBlurMaskRightTop, vertBlurMaskRightCenter, vertBlurMaskRightBottom, vertBlurMaskRightBoth;
 	public PImage vertBlurMaskBothTop, vertBlurMaskBothCenter, vertBlurMaskBothBottom, vertBlurMaskBothBoth;
-	public PImage videoBlurMaskLeftTop, videoBlurMaskLeftCenter, videoBlurMaskLeftBottom, videoBlurMaskLeftBoth;  	// Blur masks
+	public PImage blurMaskPanorama;																					// Panorama blur mask
+	public PImage videoBlurMaskLeftTop, videoBlurMaskLeftCenter, videoBlurMaskLeftBottom, videoBlurMaskLeftBoth;  	// Video blur masks
 	public PImage videoBlurMaskCenterTop, videoBlurMaskCenterCenter, videoBlurMaskCenterBottom, videoBlurMaskCenterBoth;
 	public PImage videoBlurMaskRightTop, videoBlurMaskRightCenter, videoBlurMaskRightBottom, videoBlurMaskRightBoth;
 	public PImage videoBlurMaskBothTop, videoBlurMaskBothCenter, videoBlurMaskBothBottom, videoBlurMaskBothBoth;
@@ -1925,6 +1926,12 @@ public class WMV_World
 //		}
 //	}
 
+	public void setPanoramaBlurMask(WMV_Panorama panorama)
+	{
+		WMV_Field f = getCurrentField();
+		f.setPanoramaBlurMask(panorama, blurMaskPanorama);
+	}
+	
 	public void setBlurMask(WMV_Image image, int blurMaskID)
 	{
 		WMV_Field f = getCurrentField();
@@ -2123,6 +2130,17 @@ public class WMV_World
 					image.setDisabled(true);
 				}
 			}
+			for(WMV_Panorama panorama : f.getPanoramas())
+			{
+				if(panorama.getWidth() == 5376 && panorama.getHeight() == 2688) 
+					setPanoramaBlurMask(panorama);				// Should check width / height if possible
+				else
+				{
+					System.out.println("setBlurMasks()... ERROR: Could not set mask... panorama has size other than 5376x2688!"+panorama.getName());
+//					System.out.println("Setting panorama to disabled..."+panorama.getName());
+//					panorama.setDisabled(true);
+				}
+			}
 			for(WMV_Video video : f.getVideos())
 			{
 				int bmID = video.getState().blurMaskID;
@@ -2185,6 +2203,9 @@ public class WMV_World
 		blurMaskBothBottom = getMaskImageResource(maskPath, "blurMaskBothBottom.jpg");
 		blurMaskBothBoth = getMaskImageResource(maskPath, "blurMaskBothBoth.jpg");
 		
+		maskPath = "/masks_panorama/";
+		blurMaskPanorama = getMaskImageResource(maskPath, "blurMaskPanorama.jpg");
+
 		maskPath = "/masks_image_vert/";
 
 		vertBlurMaskLeftTop = getMaskImageResource(maskPath, "vertBlurMaskLeftTop.jpg");

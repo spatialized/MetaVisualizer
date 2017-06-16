@@ -16,13 +16,16 @@ public class WMV_Panorama extends WMV_Media
 
 	/* Graphics */
 	public PImage texture;								// Texture image pixels
-	public boolean initialized;
+	public PImage blurMask;		// Blur mask
+	public PImage blurred;			// Combined pixels 
 
 	public PVector[] sphere;	
 	private final float tablePrecision = 0.5f;
 	private final int tableLength = (int)(360.0f / tablePrecision);
 	private float sinTable[];
 	private float cosTable[];
+
+	public boolean initialized;
 
 	/**
 	 * Constructor for spherical panorama in 3D space
@@ -129,7 +132,11 @@ public class WMV_Panorama extends WMV_Media
 		ml.textureMode(PApplet.IMAGE);
 		ml.noStroke();
 		ml.beginShape(PApplet.TRIANGLE_STRIP);
-		ml.texture(texture);
+		
+		if(getWorldState().useBlurMasks)
+			ml.texture(blurred);
+		else
+			ml.texture(texture);        			
 
 		/* Set the panorama brightness */		
 		if(getViewerSettings().selection)					// Viewer in selection mode
@@ -159,6 +166,7 @@ public class WMV_Panorama extends WMV_Media
 
 		float iu = (float)(texture.width-1)/(state.resolution);
 		float iv = (float)(texture.height-1)/(state.resolution);
+		
 		float u = 0, v = iv;
 
 		for (int i = 0; i < state.resolution; i++) 
@@ -181,7 +189,12 @@ public class WMV_Panorama extends WMV_Media
 			v2 = voff;
 			u = 0;
 			ml.beginShape(PApplet.TRIANGLE_STRIP);
-			ml.texture(texture);
+			
+			if(getWorldState().useBlurMasks)
+				ml.texture(blurred);
+			else
+				ml.texture(texture);        			
+
 			for(int j = 0; j < state.resolution; j++) 			// Draw ring
 			{
 				ml.vertex(sphere[v1].x * r, sphere[v1].y * r, sphere[v1++].z * r, u, v);
@@ -201,7 +214,12 @@ public class WMV_Panorama extends WMV_Media
 
 		// Draw northern cap
 		ml.beginShape(PApplet.TRIANGLE_STRIP);
-		ml.texture(texture);
+		
+		if(getWorldState().useBlurMasks)
+			ml.texture(blurred);
+		else
+			ml.texture(texture);        			
+
 		for(int i = 0; i < state.resolution; i++) 
 		{
 			v2 = voff + i;
@@ -215,6 +233,42 @@ public class WMV_Panorama extends WMV_Media
 
 		ml.popMatrix();
 		ml.textureMode(PApplet.NORMAL);
+	}
+
+	/**
+	 * Apply mask to image
+	 * @param ml Parent app
+	 * @param source Source image
+	 * @param mask Mask image
+	 * @return
+	 */
+	public PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
+	{
+		PImage result = ml.createImage(state.getMetadata().imageWidth, state.getMetadata().imageHeight, PApplet.RGB);
+
+		try
+		{
+			result = source.copy();
+			result.mask(mask); 
+		}
+		catch(RuntimeException ex)
+		{
+			if(getDebugSettings().image || getDebugSettings().ml)
+			{
+				System.out.println("Panorama #"+getID()+" Error with Panorama Blur Mask... "+ex);
+				if(source != null && mask != null)
+				{
+					System.out.println("  source.width:"+source.width+" mask.width:"+mask.width+"  source.height:"+source.height+" mask.height:"+mask.height);
+				}
+				else
+				{
+					System.out.println("  source == null?"+(source == null));
+					System.out.println("  mask == null?"+(mask == null));
+				}
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -423,6 +477,15 @@ public class WMV_Panorama extends WMV_Media
 	public WMV_PanoramaMetadata getMetadata()
 	{
 		return metadata;
+	}
+
+	/**
+	 * Set south pole blur mask
+	 * @param newBlurMask New blur mask
+	 */
+	public void setBlurMask(PImage newBlurMask)
+	{
+		blurMask = newBlurMask;
 	}
 
 	/**

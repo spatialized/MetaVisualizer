@@ -1,0 +1,29 @@
+on run arguments
+	set inputFolder to (first item of arguments)
+	set inputFiles to (list folder (inputFolder) without invisibles)
+	#	tell application "Finder" to set inputFiles to get every file of folder (inputFolder)
+	tell application "Finder" to set outputFolder to (second item of arguments) as «class furl»
+	
+	tell application "QuickTime Player"
+		activate
+	end tell
+	
+	repeat with documentName in inputFiles
+		set currentItem to (inputFolder & documentName) as POSIX file
+		tell application "QuickTime Player"
+			open currentItem
+			set movieDuration to the duration of the front document
+			export document 1 in file ((outputFolder as text) & documentName) using settings preset "480p"
+			close document 1 saving no
+		end tell
+		delay movieDuration * 0.2
+	end repeat
+	
+	
+	tell application "QuickTime Player"
+		quit
+	end tell
+	
+	#return "Video Conversion to 480p... documentName: " & documentName & " outputFolder: " & outputFolder & " duration:" & movieDuration
+	
+end run

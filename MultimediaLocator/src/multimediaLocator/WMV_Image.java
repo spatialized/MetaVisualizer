@@ -157,45 +157,6 @@ public class WMV_Image extends WMV_Media
 		}
 		ml.popMatrix();
 	}
-//
-//	/**
-//=	 * Update image geometry + visibility
-//	 */
-//	public void update(MultimediaLocator ml, WMV_Utilities utilities)
-//	{
-//		if(getMediaState().requested && image.width != 0)			// If requested image has loaded, initialize image 
-//		{
-//			calculateVertices();  					// Update geometry		
-//
-//			setAspectRatio( calculateAspectRatio() );
-//			blurred = applyMask(ml, image, blurMask);					// Apply blur mask once image has loaded
-//			setRequested(false);
-//		}
-//
-//		if(image.width > 0 && !isHidden() && !isDisabled())				// Image has been loaded and isn't mState.hidden or disabled
-//		{
-//			boolean wasVisible = isVisible();
-//			calculateVisibility(utilities);
-//			updateFading(wasVisible);
-//		}
-//		else
-//		{
-//			if(getViewerSettings().orientationMode)
-//			{
-//				for(int id : getViewerState().getClustersVisible())
-//					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-//						loadMedia(ml);
-//			}
-//			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
-//				loadMedia(ml); 					// Request image pixels from disk
-//		}
-//
-//		if(isFading())                       // Fade in and out with time
-//			updateFadingBrightness();
-//
-//		if(getMediaState().fadingFocusDistance)
-//			updateFadingFocusDistance();
-//	}
 
 	public void calculateVisibility(WMV_Utilities utilities)
 	{
@@ -1171,7 +1132,7 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/**
-	 * Set image blur mask
+	 * Set blur mask
 	 * @param newBlurMask New blur mask
 	 */
 	public void setBlurMask(PImage newBlurMask)

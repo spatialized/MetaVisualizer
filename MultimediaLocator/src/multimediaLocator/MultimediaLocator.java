@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
+
 import javax.imageio.ImageIO;
 
 import g4p_controls.GButton;
@@ -33,6 +35,7 @@ import processing.core.*;
 import processing.opengl.PGL;
 import processing.opengl.PShader;
 import processing.video.Movie;
+
 import com.apple.eawt.Application;
 
 /**
@@ -90,6 +93,13 @@ public class MultimediaLocator extends PApplet
 	public long approxUsableFreeMemory;
 	public int availableProcessors;
 
+	public static final String tempDir = System.getProperty("java.io.tmpdir")+"tmp"+System.nanoTime();		// Create temp. dir.
+	static {
+	    File tempDirFile = new File(tempDir);
+	    if(!tempDirFile.exists())
+	    	tempDirFile.mkdir();
+	}
+	
 	/** 
 	 * Setup function called at launch
 	 */
@@ -119,6 +129,9 @@ public class MultimediaLocator extends PApplet
 		
 		initCubeMap();
 		removeList = new ArrayList<Integer>();
+		
+		addShutdownHook();
+//		convertVideosTest();
 	}
 
 	/** 
@@ -1095,6 +1108,148 @@ public class MultimediaLocator extends PApplet
 		}
 		
 		return null;
+	}
+	
+	/**
+	 * Get image from resources
+	 * @param fileName File name
+	 * @return Mask image
+	 */
+	public String getScriptResource(String fileName)
+	{
+		String resourcePath = "/scripts/";
+		
+//		URL textURL = MultimediaLocator.class.getResource(resourcePath + fileName);
+		StringBuilder result = new StringBuilder("");
+		try{
+			String line;
+
+			InputStream in = MultimediaLocator.class.getResourceAsStream(resourcePath + fileName); 
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+			while ((line = reader.readLine()) != null) {
+				result.append(line);
+				result.append(System.getProperty("line.separator"));
+			}
+			in.close();
+		}
+		catch(Throwable t)
+		{
+			System.out.println("ERROR in getScriptResource... t:"+t);
+		}
+
+		BufferedWriter writer = null;
+		String scriptName = "Convert_to_480p.txt";
+		String scriptTxtPath = tempDir + "/" + scriptName;
+		String scriptPath = tempDir + "/" + "Convert_to_480p.scpt";
+		
+		try {
+			File file = new File(scriptTxtPath);
+			if(!file.exists())
+				file.createNewFile();
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(result.toString());
+		} 
+		catch (Throwable t)
+		{
+			System.out.println("ERROR 2 in getScriptResource... t:"+t);
+		}
+
+		try{
+			if (writer != null) writer.close();
+		}
+		catch(IOException io)
+		{
+			System.out.println("ERROR 3 in getScriptResource... t:"+io);
+		}
+		
+		Runtime runtime = Runtime.getRuntime();
+		String[] args = { "osacompile", "-o", scriptPath, scriptTxtPath };
+		try
+		{
+			Process process = runtime.exec(args);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		return scriptPath;
+	}
+	
+	public void convertVideosTest()		// -- Debugging
+	{
+		String inputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testInput/";
+		String outputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testOutput/";
+		convertVideos(inputPath, outputPath);
+	}
+	
+	public void addShutdownHook()
+	{
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+	        @Override
+	        public void run() {
+	            //stackless deletion
+	            System.out.println("Running Shutdown Hook");
+
+	            String root = MultimediaLocator.tempDir;
+	            Stack<String> dirStack = new Stack<String>();
+	            dirStack.push(root);
+	            while(!dirStack.empty()) {
+	                String dir = dirStack.pop();
+	                File f = new File(dir);
+	                if(f.listFiles().length==0)
+	                {
+	                	System.out.println("Deleting f:"+f.getName());
+	                    f.delete();
+	                }
+	                else {
+	                    dirStack.push(dir);
+	                    for(File ff: f.listFiles()) {
+	                        if(ff.isFile())
+	                        {
+	    	                	System.out.println("Deleting ff:"+ff.getName());
+	                            ff.delete();
+	                        }
+	                        else if(ff.isDirectory())
+	                            dirStack.push(ff.getPath());
+	                    }
+	                }
+	            }
+	        }
+	    });
+	}
+	
+	public void convertVideos(String inputPath, String outputPath)
+	{
+		String scriptPath = getScriptResource("Convert_to_480p.txt");
+		delay(200);
+
+		System.out.println("convertVideos()... scriptPath:"+scriptPath);
+		System.out.println(" ... inputPath:"+inputPath);
+		System.out.println(" ... outputPath:"+outputPath);
+
+		Runtime runtime = Runtime.getRuntime();
+
+		String[] args = { "osascript", scriptPath, inputPath, outputPath };
+
+		try
+		{
+			Process process = runtime.exec(args);
+
+			InputStream input = process.getInputStream();
+			for (int i = 0; i < input.available(); i++) {
+				System.out.println("" + input.read());
+			}
+
+			InputStream error = process.getErrorStream();
+			for (int i = 0; i < error.available(); i++) {
+				System.out.println("" + error.read());
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**

@@ -1431,27 +1431,27 @@ public class ML_Window
 	 * @param event the mouse event
 	 */
 	public void libraryWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-		ML_WinData data2 = (ML_WinData)data;
-		switch(event.getAction()) {
-
-		case MouseEvent.PRESS:
-			data2.sx = data2.ex = applet.mouseX;
-			data2.sy = data2.ey = applet.mouseY;
-			data2.done = false;
-//			System.out.println("Mouse pressed");
-			break;
-		case MouseEvent.RELEASE:
-			data2.ex = applet.mouseX;
-			data2.ey = applet.mouseY;
-			data2.done = true;
-//			System.out.println("Mouse released:"+data.toString());
-			break;
-		case MouseEvent.DRAG:
-			data2.ex = applet.mouseX;
-			data2.ey = applet.mouseY;
-//			System.out.println("Mouse dragged");
-			break;
-		}
+//		ML_WinData data2 = (ML_WinData)data;
+//		switch(event.getAction()) {
+//
+//		case MouseEvent.PRESS:
+//			data2.sx = data2.ex = applet.mouseX;
+//			data2.sy = data2.ey = applet.mouseY;
+//			data2.done = false;
+////			System.out.println("Mouse pressed");
+//			break;
+//		case MouseEvent.RELEASE:
+//			data2.ex = applet.mouseX;
+//			data2.ey = applet.mouseY;
+//			data2.done = true;
+////			System.out.println("Mouse released:"+data.toString());
+//			break;
+//		case MouseEvent.DRAG:
+//			data2.ex = applet.mouseX;
+//			data2.ey = applet.mouseY;
+////			System.out.println("Mouse dragged");
+//			break;
+//		}
 	}
 	
 	/**

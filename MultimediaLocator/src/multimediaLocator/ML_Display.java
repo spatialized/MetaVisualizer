@@ -256,19 +256,6 @@ public class ML_Display
 	}
 
 	/**
-	 * Handle given GUI event triggered by user
-	 * @param e GUI Event 
-	 */
-	public void handleActionPerformed (GUIEvent e)
-	{
-//		if (e.getSource() == b1) {
-//		println("Button one was clicked");
-//	} else if (e.getSource() == b2) {
-//		println("Button two was clicked");
-//	}
-	}
-
-	/**
 	 * Display Time View in main window
 	 * @param p Parent world
 	 */

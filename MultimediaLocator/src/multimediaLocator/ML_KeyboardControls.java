@@ -688,10 +688,12 @@ public class ML_KeyboardControls {
 			ml.selectFolder("Select an output folder:", "outputFolderSelected");
 		if (key == 'O') 
 		{
-//			if(ml.state.sphericalView)
-//				ml.world.saveCubeMapToDisk();
-//			else
+			if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
 			ml.world.exportCurrentView();
+////			if(ml.state.sphericalView)
+////				ml.world.saveCubeMapToDisk();
+////			else
+//			ml.world.exportCurrentView();
 		}
 		if (key == 'o') 	// Save image to disk
 		{	

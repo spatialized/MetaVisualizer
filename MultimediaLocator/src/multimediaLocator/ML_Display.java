@@ -1,13 +1,6 @@
 package multimediaLocator;
-import java.awt.Font;
 import java.util.ArrayList;
 
-import g4p_controls.GButton;
-import g4p_controls.GCScheme;
-import g4p_controls.GEvent;
-import g4p_controls.GPanel;
-import g4p_controls.GTextArea;
-import interfascia.*;
 import processing.core.*;
 
 /***********************************

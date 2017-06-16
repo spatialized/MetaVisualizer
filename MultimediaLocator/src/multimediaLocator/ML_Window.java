@@ -21,7 +21,7 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
-	private int delayAmount = 125;							// Delay length to avoid G4P library concurrent modification exception
+	private int delayAmount = 130;							// Delay length to avoid G4P library concurrent modification exception
 
 	/* Windows */
 	public GWindow mlWindow, navigationWindow, graphicsWindow, statisticsWindow,  helpWindow, 

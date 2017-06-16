@@ -52,6 +52,7 @@ public class ML_Window
 	private int iLargeBoxHeight = 40;
 
 	/* Text */
+	int iVeryLargeTextSize = 20;			/* Button text size */
 	int iLargeTextSize = 18;			/* Button text size */
 	int iMediumTextSize = 16;
 	int iSmallTextSize = 14;
@@ -1199,13 +1200,13 @@ public class ML_Window
 		libraryWindow.addKeyHandler(world.ml, "libraryWindowKey");
 		libraryWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
-		int x = 0, y = iTopMargin * 2;
+		int x = 0, y = iTopMargin * 5 / 2;
 		world.ml.delay(10);
 		lblLibrary = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Welcome to MultimediaLocator.");
 		lblLibrary.setLocalColorScheme(G4P.SCHEME_10);
-		lblLibrary.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		lblLibrary.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
 		lblLibrary.setTextAlign(GAlign.CENTER, null);
-		lblLibrary.setTextBold();
+//		lblLibrary.setTextBold();
 
 		x = 0;
 		lblLibraryWindowText = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Please wait...");
@@ -1215,7 +1216,7 @@ public class ML_Window
 		lblLibraryWindowText.setVisible(false);
 
 		x = 90;
-		y += 50;
+		y += 45;
 		btnCreateLibrary = new GButton(libraryWindow, x, y, 170, iLargeBoxHeight, "Create Library");
 		btnCreateLibrary.tag = "CreateLibrary";
 		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));

@@ -59,7 +59,7 @@ public class MultimediaLocator extends PApplet
 	public ML_SystemState state = new ML_SystemState();
 	boolean createNewLibrary = false;
 	boolean cubeMapInitialized = false;
-	
+
 	/* MultimediaLocator */
 	ML_Library library;							// Multimedia library
 	ML_Input input;								// Mouse / keyboard input
@@ -70,7 +70,7 @@ public class MultimediaLocator extends PApplet
 	/* WorldMediaViewer */
 	WMV_World world;							// World simulation
 	WMV_MetadataLoader metadata;				// Metadata reading and writing
-	
+
 	/* Field */
 	List<Integer> removeList;
 	
@@ -83,6 +83,9 @@ public class MultimediaLocator extends PApplet
 	public PImage[] faces;
 	public int cubeMapSize = 2048;   
 	
+	/* File Conversion*/
+	Process conversionProcess;
+
 	/* Memory */
 	public boolean lowMemory = false;
 	public boolean performanceSlow = false;
@@ -1219,14 +1222,24 @@ public class MultimediaLocator extends PApplet
 	    });
 	}
 	
-	public void convertVideos(String inputPath, String outputPath)
+	/**
+	 * Convert videos in input folder to 480p (using QuickTime Player) and export to output folder
+	 * @param inputPath Input folder path
+	 * @param outputPath Output folder path
+	 * @return Whether successful
+	 */
+	public Process convertVideos(String inputPath, String outputPath)
 	{
+		Process process;
 		String scriptPath = getScriptResource("Convert_to_480p.txt");
 		delay(200);
 
-		System.out.println("convertVideos()... scriptPath:"+scriptPath);
-		System.out.println(" ... inputPath:"+inputPath);
-		System.out.println(" ... outputPath:"+outputPath);
+		if(debugSettings.ml || debugSettings.metadata)
+		{
+			System.out.println("ML.convertVideos()... scriptPath:"+scriptPath);
+			System.out.println(" ... inputPath:"+inputPath);
+			System.out.println(" ... outputPath:"+outputPath);
+		}
 
 		Runtime runtime = Runtime.getRuntime();
 
@@ -1234,7 +1247,7 @@ public class MultimediaLocator extends PApplet
 
 		try
 		{
-			Process process = runtime.exec(args);
+			process = runtime.exec(args);
 
 			InputStream input = process.getInputStream();
 			for (int i = 0; i < input.available(); i++) {
@@ -1249,7 +1262,10 @@ public class MultimediaLocator extends PApplet
 		catch (IOException e)
 		{
 			e.printStackTrace();
+			return null;
 		}
+		
+		return process;
 	}
 
 	/**

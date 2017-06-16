@@ -192,9 +192,9 @@ class WMV_MetadataLoader
 	 */
 	public void loadImageFolders(String fieldPath) 		
 	{
-		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
-		smallImageFolder = library + "/" + fieldPath + "/small_images/";	/* Check for small_images folder */
-		panoramaFolder = library + "/" + fieldPath + "/panoramas/";			/* Check for panoramas folder */
+		imageFolder = library + fieldPath + "/images/";				/* Check for images folder */
+		smallImageFolder = library + fieldPath + "/small_images/";	/* Check for small_images folder */
+		panoramaFolder = library + fieldPath + "/panoramas/";			/* Check for panoramas folder */
 
 		imageFolderFile = new File(imageFolder);							// No max. size
 		smallImageFolderFile = new File(smallImageFolder);					// Max size 640 x 480 px
@@ -210,8 +210,8 @@ class WMV_MetadataLoader
 	 */
 	public void loadVideoFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
-		videoFolder = library  + "/" + fieldPath + "/large_videos/";			// Max size 4K
-		smallVideoFolder = library  + "/" + fieldPath + "/small_videos/";		// Max size 480p
+		videoFolder = library + fieldPath + "/large_videos/";			// Max size 4K
+		smallVideoFolder = library + fieldPath + "/small_videos/";		// Max size 480p
 		
 		videoFolderFile = new File(videoFolder);
 		smallVideoFolderFile = new File(smallVideoFolder);
@@ -225,7 +225,7 @@ class WMV_MetadataLoader
 	 */
 	public void loadSoundFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
-		soundFolder = library  + "/" + fieldPath + "/sounds/";		// Max width 720 pixels  -- Check this!
+		soundFolder = library + fieldPath + "/sounds/";		// Max width 720 pixels  -- Check this!
 		soundFolderFile = new File(soundFolder);
 		soundFolderFound = (soundFolderFile.exists() && soundFolderFile.isDirectory());	
 	}
@@ -374,6 +374,13 @@ class WMV_MetadataLoader
 		imageFiles = null;
 		if(!panoramaFolderFound) panoramaFiles = null;
 		
+		if(imageFolderFound)		// Look for original images and panoramas
+		{
+			imageFiles = imageFolderFile.listFiles();
+			if(imageFiles != null && imageFiles.length > 0)
+				imageFilesFound = true;
+		}
+		
 		if(smallImageFolderFound)								// Found small_images folder
 		{
 			smallImageFiles = smallImageFolderFile.listFiles();	// Check for files
@@ -396,19 +403,13 @@ class WMV_MetadataLoader
 			}
 		}
 		
-		if(imageFolderFound)		// Look for original images and panoramas
-		{
-			imageFiles = imageFolderFile.listFiles();
-			if(imageFiles != null && imageFiles.length > 0)
-				imageFilesFound = true;
-			
-			if(imageFilesFound && !smallImageFolderFound)				/* If no small images, but there are images */
-				ml.world.utilities.makeDirectory("small_images", library);
-		}
-		
 		// If images exist but no small images are found
 		if(imageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
 		{
+			if(!smallImageFolderFile.exists())
+				smallImageFolderFile.mkdir();
+
+//			ml.world.utilities.makeDirectory("small_images", library);
 			boolean success = u.shrinkImageFolder(imageFolder, smallImageFolder);		
 			if(success)
 			{
@@ -426,7 +427,8 @@ class WMV_MetadataLoader
 	public void loadPanoramas(String fieldPath)
 	{
 		panoramaFiles = panoramaFolderFile.listFiles();
-		if(panoramaFiles != null && panoramaFiles.length > 0)
+		if(panoramaFiles != null) 
+			if(panoramaFiles.length > 0)
 			panoramaFilesFound = true;	
 	}
 	
@@ -440,16 +442,49 @@ class WMV_MetadataLoader
 		if(videoFolderFound)				// Check for video files
 		{
 			videoFiles = videoFolderFile.listFiles();
-			if(videoFiles != null && videoFiles.length > 0)
-				videoFilesFound = true;
+			if(videoFiles != null) 
+				if(videoFiles.length > 0)
+					videoFilesFound = true;
 		}
 		
 		smallVideoFiles = null;
 		if(smallVideoFolderFound)				// Check for video files
 		{
 			smallVideoFiles = smallVideoFolderFile.listFiles();
-			if(smallVideoFiles != null && smallVideoFiles.length > 0)
-				smallVideoFilesFound = true;
+			if(smallVideoFiles != null)
+				if(smallVideoFiles.length > 0)
+					smallVideoFilesFound = true;
+		}
+		
+		// If images exist but no small images are found
+		if(videoFilesFound && !smallVideoFilesFound)	// Copy original videos to small_videos directory and resize	-- Move to ML class
+		{
+			if(!smallVideoFolderFile.exists())
+				smallVideoFolderFile.mkdir();
+			
+			String inputPath = videoFolder;
+			String outputPath = smallVideoFolder;
+			Process conversionProcess = ml.convertVideos(inputPath, outputPath);
+			
+			try{
+				conversionProcess.waitFor();
+			}
+			catch(Throwable t)
+			{
+				System.out.println("Metadata.loadVideoFiles()... ERROR in process.waitFor()... t:"+t);
+			}
+			
+			boolean success = true;		
+			if(success)
+			{
+				if(debugSettings.metadata) System.out.println("Shrink videos successful...");
+				smallVideoFiles = smallVideoFolderFile.listFiles();
+				if(smallVideoFiles != null) 
+					if(smallVideoFiles.length > 0)
+						smallVideoFilesFound = true;
+			}
+			else
+				if(debugSettings.metadata)  System.out.println("Shrink videos failed...");
 		}
 	}
 	

@@ -6,6 +6,9 @@ package multimediaLocator;
 import java.util.ArrayList;
 import java.util.List;
 
+import g4p_controls.G4P;
+import g4p_controls.GCheckbox;
+
 //import javax.xml.parsers.DocumentBuilder;
 //import javax.xml.parsers.DocumentBuilderFactory;
 //
@@ -1134,21 +1137,78 @@ public class WMV_Viewer
 
 	/**
 	 * Move to cluster corresponding to one time segment later on timeline
-	 * @param currentDate Whether to look only at time segments on current date
+	 * @param currentDate Whether to consider only segments on current date
+	 * @param newCluster Whether to force moving to a different cluster -- NEED TO IMPLEMENT
 	 * @param teleport Whether to teleport or move
 	 * @param fade Whether to fade or jump when teleporting
 	 */
-	public void moveToNextTimeSegment(boolean currentDate, boolean teleport, boolean fade)
+	public void moveToNextTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
+	{
+		chooseNextTimeSegment(currentDate);
+		
+//		if(currentDate)
+//		{
+//			int newValue = state.currentFieldTimeSegmentOnDate+1;
+//			if(state.currentFieldDate >= p.getCurrentField().getTimelines().size())								// Past dateline end
+//			{
+//				state.currentFieldDate = 0;
+//				state.currentFieldTimeSegmentOnDate = 0;
+//				System.out.println( "--> Current field date reset! currentFieldDate was greater than timelines.size(): "
+//									+ p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size() );
+//			}
+//			else
+//			{
+//				if(newValue >= p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()) 	// Reached end of day
+//				{
+//					if(debugSettings.viewer) System.out.println("Reached end of day...");
+//					state.currentFieldDate++;
+//					if(state.currentFieldDate >= p.getCurrentField().getDateline().size()) 
+//					{
+//						if(debugSettings.viewer) System.out.println("Reached end of year...");
+//						state.currentFieldDate = 0;
+//						setCurrentFieldTimeSegmentOnDate(0, true);												// Return to first segment
+//					}
+//					else
+//					{
+//						while(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size() == 0)		// Go to next non-empty date
+//						{
+//							state.currentFieldDate++;
+//							if(state.currentFieldDate >= p.getCurrentField().getDateline().size())
+//								state.currentFieldDate = 0;
+//						}
+//						if(debugSettings.viewer) System.out.println("Moved to next date: "+state.currentFieldDate);
+//						setCurrentFieldTimeSegmentOnDate(0, true);												// Start at first segment
+//					}
+//				}
+//				else
+//					setCurrentFieldTimeSegmentOnDate(newValue, true);
+//			}
+//		}
+//		else
+//		{
+//			setCurrentFieldTimeSegment(state.currentFieldTimeSegment+1, true);
+//			if(state.currentFieldTimeSegment >= p.getCurrentField().getTimeline().timeline.size())
+//				setCurrentFieldTimeSegment(0, true);									// Return to first segment
+//		}
+
+		moveToTimeSegmentInField(p.getCurrentField().getID(), state.currentFieldTimeSegment, teleport, fade);
+	}
+	
+	/**
+	 * Choose next field time segment 
+	 * @param currentDate Whether to consider only segments on current date
+	 */
+	private void chooseNextTimeSegment(boolean currentDate)
 	{
 		if(currentDate)
 		{
 			int newValue = state.currentFieldTimeSegmentOnDate+1;
-			if(state.currentFieldDate >= p.getCurrentField().getTimelines().size())
+			if(state.currentFieldDate >= p.getCurrentField().getTimelines().size())								// Past dateline end
 			{
 				state.currentFieldDate = 0;
 				state.currentFieldTimeSegmentOnDate = 0;
-				System.out.println("--> Current field date reset! currentFieldDate was greater than timelines.size(): "
-						+p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size());
+				System.out.println( "--> Current field date reset! currentFieldDate was greater than timelines.size(): "
+									+ p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size() );
 			}
 			else
 			{
@@ -1160,7 +1220,7 @@ public class WMV_Viewer
 					{
 						if(debugSettings.viewer) System.out.println("Reached end of year...");
 						state.currentFieldDate = 0;
-						setCurrentFieldTimeSegmentOnDate(0, true);									// Return to first segment
+						setCurrentFieldTimeSegmentOnDate(0, true);												// Return to first segment
 					}
 					else
 					{
@@ -1171,7 +1231,7 @@ public class WMV_Viewer
 								state.currentFieldDate = 0;
 						}
 						if(debugSettings.viewer) System.out.println("Moved to next date: "+state.currentFieldDate);
-						setCurrentFieldTimeSegmentOnDate(0, true);									// Start at first segment
+						setCurrentFieldTimeSegmentOnDate(0, true);												// Start at first segment
 					}
 				}
 				else
@@ -1184,16 +1244,65 @@ public class WMV_Viewer
 			if(state.currentFieldTimeSegment >= p.getCurrentField().getTimeline().timeline.size())
 				setCurrentFieldTimeSegment(0, true);									// Return to first segment
 		}
-
-		moveToTimeSegmentInField(p.getCurrentField().getID(), state.currentFieldTimeSegment, teleport, fade);
 	}
 	
 	/**
 	 * Move to cluster corresponding to one time segment earlier on timeline
 	 * @param currentDate Whether to look only at time segments on current date
+	 * @param newCluster Whether to force moving to a different cluster -- NEED TO IMPLEMENT
 	 * @param teleport Whether to teleport or move
+	 * @param fade Whether to fade or jump when teleporting
 	 */
-	public void moveToPreviousTimeSegment(boolean currentDate, boolean teleport, boolean fade)
+	public void moveToPreviousTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
+	{
+		choosePreviousTimeSegment(currentDate);
+		
+//		if(currentDate)
+//		{
+//			int newValue = state.currentFieldTimeSegmentOnDate-1;
+//			if(state.currentFieldDate >= p.getCurrentField().getTimelines().size())
+//			{
+//				state.currentFieldDate = 0;
+//				state.currentFieldTimeSegmentOnDate = 0;
+//				System.out.println("--> Current field date reset!... was greater than timelines.size(): "
+//								+p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size());
+//			}
+//			else
+//			{
+//				if(newValue < 0) 															// Reached beginning of day
+//				{
+//					state.currentFieldDate--;
+//					if(state.currentFieldDate < 0) 
+//					{
+//						state.currentFieldDate = p.getCurrentField().getDateline().size()-1;			// Go to last date
+//						setCurrentFieldTimeSegmentOnDate(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Go to last segment
+//					}
+//					else
+//					{
+//						setCurrentFieldTimeSegmentOnDate(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Start at last segment
+//					}
+//				}	
+//				else
+//				{
+//					setCurrentFieldTimeSegmentOnDate(newValue, true);
+//				}
+//			}
+//		}
+//		else
+//		{
+//			setCurrentFieldTimeSegment(state.currentFieldTimeSegment-1, true);
+//			if(state.currentFieldTimeSegment < 0)
+//				setCurrentFieldTimeSegment(p.getCurrentField().getTimeline().timeline.size()-1, true);
+//		}
+
+		moveToTimeSegmentInField(p.getCurrentField().getID(), state.currentFieldTimeSegment, teleport, fade);
+	}
+	
+	/**
+	 * Choose previous field time segment
+	 * @param currentDate Whether to consider only segments on current date
+	 */
+	private void choosePreviousTimeSegment(boolean currentDate)
 	{
 		if(currentDate)
 		{
@@ -1232,8 +1341,6 @@ public class WMV_Viewer
 			if(state.currentFieldTimeSegment < 0)
 				setCurrentFieldTimeSegment(p.getCurrentField().getTimeline().timeline.size()-1, true);
 		}
-
-		moveToTimeSegmentInField(p.getCurrentField().getID(), state.currentFieldTimeSegment, teleport, fade);
 	}
 
 	/**
@@ -3306,10 +3413,10 @@ public class WMV_Viewer
 			for( int id : cluster.getState().images )
 			{
 				WMV_Image i = p.getCurrentField().getImage(id);
-				if( i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() && 
-				    i.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
+				if(!i.getMediaState().disabled)
 				{
-					if(!i.getMediaState().disabled)
+					if( i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() && 
+						i.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 						closeImages.add(i);							
 				}
 			}
@@ -3317,10 +3424,10 @@ public class WMV_Viewer
 			for( int id : cluster.getState().panoramas )
 			{
 				WMV_Panorama n = p.getCurrentField().getPanorama(id);
-				if( n.getCaptureDistance() < settings.farViewingDistance + worldSettings.defaultFocusDistance &&
-				    n.getCaptureDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
+				if(!n.getMediaState().disabled)
 				{
-					if(!n.getMediaState().disabled)
+					if( n.getCaptureDistance() < settings.farViewingDistance + worldSettings.defaultFocusDistance &&
+							n.getCaptureDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
 						closePanoramas.add(n);							
 				}
 			}
@@ -3328,10 +3435,10 @@ public class WMV_Viewer
 			for( int id : cluster.getState().videos )
 			{
 				WMV_Video v = p.getCurrentField().getVideo(id);
-				if(v.getViewingDistance() <= settings.farViewingDistance + v.getFocusDistance()
-				&& v.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
+				if(!v.getMediaState().disabled)
 				{
-					if(!v.getMediaState().disabled)
+					if( v.getViewingDistance() <= settings.farViewingDistance + v.getFocusDistance() &&
+					    v.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
 						closeVideos.add(v);							
 				}
 			}
@@ -3339,10 +3446,10 @@ public class WMV_Viewer
 			for( int id : cluster.getState().sounds )
 			{
 				WMV_Sound s = p.getCurrentField().getSound(id);
-				if(s.getCaptureDistance() <= settings.farViewingDistance + worldSettings.defaultFocusDistance &&
-				   s.getCaptureDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
+				if(!s.getMediaState().disabled)
 				{
-					if(!s.getMediaState().disabled)
+					if( s.getCaptureDistance() <= settings.farViewingDistance + worldSettings.defaultFocusDistance &&
+						s.getCaptureDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
 						closeSounds.add(s);							
 				}
 			}
@@ -3603,8 +3710,8 @@ public class WMV_Viewer
 		ArrayList<WMV_Image> possibleImages = new ArrayList<WMV_Image>();
 		for(WMV_Image i : p.getCurrentField().getImages())
 		{
-			if(i.getViewingDistance() <= settings.selectionMaxDistance)
-				if(!i.getMediaState().disabled)
+			if(!i.getMediaState().disabled)
+				if(i.getViewingDistance() <= settings.selectionMaxDistance)
 					possibleImages.add(i);
 		}
 
@@ -3628,8 +3735,8 @@ public class WMV_Viewer
 		ArrayList<WMV_Video> possibleVideos = new ArrayList<WMV_Video>();
 		for(WMV_Video v : p.getCurrentField().getVideos())
 		{
-			if(v.getViewingDistance() <= settings.selectionMaxDistance)
-				if(!v.getMediaState().disabled)
+			if(!v.getMediaState().disabled)
+				if(v.getViewingDistance() <= settings.selectionMaxDistance)
 					possibleVideos.add(v);
 		}
 
@@ -4606,6 +4713,8 @@ public class WMV_Viewer
 	public void setSegmentSelection(boolean newSegmentSelection)
 	{
 		settings.segmentSelection = newSegmentSelection;
+		if(p.ml.display.window.setupGraphicsWindow)
+			p.ml.display.window.chkbxSegmentSelection.setSelected(settings.segmentSelection);
 	}
 
 	public boolean getMultiSelection()
@@ -4616,6 +4725,8 @@ public class WMV_Viewer
 	public void setMultiSelection(boolean newMultiSelection)
 	{
 		settings.multiSelection = newMultiSelection;
+		if(p.ml.display.window.setupGraphicsWindow)
+			p.ml.display.window.chkbxMultiSelection.setSelected(settings.multiSelection);
 	}
 
 	public void setFollowTeleport(boolean newFollowTeleport)

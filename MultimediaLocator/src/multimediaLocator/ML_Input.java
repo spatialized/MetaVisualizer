@@ -378,10 +378,10 @@ public class ML_Input
 	
 				/* Time */
 				case "NextTime":
-					ml.world.viewer.moveToNextTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
+					ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
 					break;
 				case "PreviousTime":
-					ml.world.viewer.moveToPreviousTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
+					ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
 					break;
 	
 				case "ChooseGPSTrack":

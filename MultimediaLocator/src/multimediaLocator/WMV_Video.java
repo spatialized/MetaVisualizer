@@ -892,7 +892,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Find image taken immediately before this video was captured to serve as placeholder, determining elevation and state.rotation angles
 	 */
-	public void findPlaceholder(ArrayList<WMV_Image> images)
+	public void findPlaceholder(ArrayList<WMV_Image> images, ML_DebugSettings debugSettings)
 	{
 		IntList candidates = new IntList();							// List of placeholder candidates
 		
@@ -913,7 +913,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		
 		if(candidates.size() == 0)
 		{
-			System.out.println("  Video "+getID()+" has no candidates under distance tolerance:"+state.assocVideoDistTolerance+"!");
+			if(debugSettings.video)
+				System.out.println("  Video "+getID()+" has no candidates under distance tolerance:"+state.assocVideoDistTolerance+"!");
 		}
 		
 		for( int i : candidates )							// Compare distances of the candidates
@@ -932,12 +933,14 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		
 		if(closestIdx != -1)
 		{
-//			System.out.println("--> Found image placeholder:"+images.get(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+images.get(closestIdx).getID()+" closestIdx:"+closestIdx);
+			if(debugSettings.video && debugSettings.detailed)
+				System.out.println("--> Found image placeholder:"+images.get(closestIdx).getName()+"  for video:"+getName()+" placeholder ID:"+images.get(closestIdx).getID()+" closestIdx:"+closestIdx);
 			boolean success = associateImagePlaceholder(images.get(closestIdx), closestDist, PApplet.abs(time.getTime() - images.get(closestIdx).time.getTime()));
 			
 			if(success)
 			{
-//				System.out.println("---> Set placeholder image id:"+images.get(closestIdx).getID());
+				if(debugSettings.video && debugSettings.detailed)
+					System.out.println("---> Set placeholder image id:"+images.get(closestIdx).getID());
 				images.get(closestIdx).associateVideo(getID());
 				setAssociatedClusterID(images.get(closestIdx).getID());
 			}
@@ -949,10 +952,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		
 		if(!state.hasImagePlaceholder)
 		{
-			System.out.println("No image placeholder found for video:"+getID()+", will set to disabled...");
+			if(debugSettings.video)
+				System.out.println("No image placeholder found for video:"+getID()+", will set to disabled...");
 			setDisabled(true);
 			setHidden(true);
-//			p.numVideos--;
 		}
 	}
 

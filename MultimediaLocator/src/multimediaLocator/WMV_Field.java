@@ -938,7 +938,7 @@ public class WMV_Field
 	void findVideoPlaceholders()
 	{
 		for(WMV_Video v : videos)
-			v.findPlaceholder(images);
+			v.findPlaceholder(images, debugSettings);
 	}
 
 	/**

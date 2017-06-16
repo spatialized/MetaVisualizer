@@ -399,7 +399,6 @@ class WMV_MetadataLoader
 		
 		smallImageFiles = null;
 		imageFiles = null;
-		panoramaFiles = null;
 		
 		if(imageFolderFound)		// Look for original images and panoramas
 		{

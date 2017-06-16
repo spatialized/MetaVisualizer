@@ -46,11 +46,11 @@ import com.apple.eawt.Application;
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private boolean createJar = false;					// Determines how to load cubemap shader
+	private boolean createJar = false;				// Determines how to load cubemap shader
 	
 	/* General */
-	private String programName = "MultimediaLocator 0.9.0";
-	public int appWidth = 1680, appHeight = 960;		// App window dimensions
+	private String programName = "MultimediaLocator 0.9.1";
+	public int appWidth = 1680, appHeight = 960;	// App window dimensions
 	private boolean windowVisible = false;
 	private PImage appIcon;
 	boolean setAppIcon = true;
@@ -61,15 +61,15 @@ public class MultimediaLocator extends PApplet
 	boolean cubeMapInitialized = false;
 
 	/* MultimediaLocator */
-	ML_Library library;							// Multimedia library
-	ML_Input input;								// Mouse / keyboard input
-	ML_Stitcher stitcher;						// Panoramic stitching
-	ML_Display display;							// Displaying 2D graphics and text
-	ML_DebugSettings debugSettings;				// Debug settings
+	ML_Library library;								// Multimedia library
+	ML_Input input;									// Mouse / keyboard input
+	ML_Stitcher stitcher;							// Panoramic stitching
+	ML_Display display;								// Displaying 2D graphics and text
+	ML_DebugSettings debugSettings;					// Debug settings
 	
 	/* WorldMediaViewer */
-	WMV_World world;							// World simulation
-	WMV_MetadataLoader metadata;				// Metadata reading and writing
+	WMV_World world;								// World simulation
+	WMV_MetadataLoader metadata;					// Metadata reading and writing
 
 	/* Field */
 	List<Integer> removeList;
@@ -1693,7 +1693,6 @@ public class MultimediaLocator extends PApplet
 	
 	private void showMainWindow()
 	{
-		System.out.println("showMainWindow()...");
 		setSurfaceSize(appWidth, appHeight);
 		windowVisible = true;
 	}

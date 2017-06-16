@@ -315,7 +315,7 @@ public class ML_KeyboardControls {
 		if (!input.optionKey && key == 'w') 
 			ml.world.viewer.walkForward();
 
-		if (input.optionKey && key == 'M') 
+		if (key == 'M') 
 		{
 			boolean state = !ml.world.getState().showMetadata;
 			ml.world.state.showMetadata = state;
@@ -329,16 +329,16 @@ public class ML_KeyboardControls {
 		if (!input.optionKey && key == 'e')									// Move UP
 			ml.world.viewer.startMoveYTransition(-1);
 
-		if (key == 'c') 									// Move DOWN
+		if (key == 'c') 													// Move DOWN
 			ml.world.viewer.startMoveYTransition(1);
 
-		if (key == 'C') 									// Choose field from list
+		if (key == 'C') 													// Choose field from list
 			ml.world.viewer.chooseFieldDialog();
 
 		if (key == '-') 								
 			ml.world.state.paused = !ml.world.getState().paused;
 
-		if (key == '9')							// -- Disabled
+		if (key == '9')														// -- Disabled
 			ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
 
 		if (key == 'W') 
@@ -363,33 +363,33 @@ public class ML_KeyboardControls {
 		if (key == 'n')						// Teleport to next time segment on same date
 		{
 			if(ml.display.displayView == 0)
-				ml.world.viewer.moveToNextTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
 			else
-				ml.world.viewer.moveToNextTimeSegment(true, true, false);
+				ml.world.viewer.moveToNextTimeSegment(true, true, true, false);
 		}
 
 		if (key == 'b')						// Teleport to previous time segment on same date
 		{
 			if(ml.display.displayView == 0)
-				ml.world.viewer.moveToPreviousTimeSegment(true, ml.world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
 			else
-				ml.world.viewer.moveToPreviousTimeSegment(true, true, false);
+				ml.world.viewer.moveToPreviousTimeSegment(true, true, true, false);
 		}
 
 		if (key == 'N')						// Teleport to next time segment on any date
 		{
 			if(ml.display.displayView == 0)
-				ml.world.viewer.moveToNextTimeSegment(false, ml.world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToNextTimeSegment(false, true, ml.world.viewer.getMovementTeleport(), true);
 			else
-				ml.world.viewer.moveToNextTimeSegment(false, true, false);
+				ml.world.viewer.moveToNextTimeSegment(false, true, true, false);
 		}
 
 		if (key == 'B')						// Teleport to previous time segment on any date
 		{
 			if(ml.display.displayView == 0)
-				ml.world.viewer.moveToPreviousTimeSegment(false, ml.world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToPreviousTimeSegment(false, true, ml.world.viewer.getMovementTeleport(), true);
 			else
-				ml.world.viewer.moveToPreviousTimeSegment(false, true, false);
+				ml.world.viewer.moveToPreviousTimeSegment(false, true, true, false);
 		}
 
 		if (key == '~')
@@ -555,7 +555,7 @@ public class ML_KeyboardControls {
 			ml.world.getState().useBlurMasks = state;
 			if(ml.display.window.setupGraphicsWindow)
 			{
-				ml.display.window.chkbxFadeEdges.setSelected(state);
+				ml.display.window.chkbxBlurMasks.setSelected(state);
 			}
 		}
 
@@ -638,13 +638,16 @@ public class ML_KeyboardControls {
 				ml.world.saveAllSimulationStates();
 			else
 				ml.world.saveSimulationState();
-			
-//			ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection() );
-//			if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.inSelectionMode())
-//				ml.world.viewer.setSelection( true );
 		}
 
-		if (input.optionKey && key == 's')
+		if (key == 'µ')		// opt + m
+		{
+			ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection() );
+			if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.inSelectionMode())
+				ml.world.viewer.setSelection( true );
+		}
+		
+		if (key == 'ß')		// opt + s
 		{
 			ml.world.viewer.setSegmentSelection( !ml.world.viewer.getSegmentSelection() );
 			if(ml.world.viewer.getSegmentSelection() && !ml.world.viewer.inSelectionMode())
@@ -967,7 +970,6 @@ public class ML_KeyboardControls {
 	 */
 	public void handleLibraryWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		System.out.println("handleLibraryWindowKeyPressed:"+key);
 		if(key == 'o' || key == 'O')
 		{
 			ml.state.librarySetup = true;

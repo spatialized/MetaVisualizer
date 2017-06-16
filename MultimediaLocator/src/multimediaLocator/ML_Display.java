@@ -243,8 +243,6 @@ public class ML_Display
 	 */
 	public void setupProgress(float progress)
 	{
-		System.out.println("Display.setupProgress()... progress:"+progress);
-
 		setupProgress = progress;
 	}
 

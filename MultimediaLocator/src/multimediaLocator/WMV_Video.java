@@ -243,31 +243,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			state.pauseAfterSoundFades = pause;
 		}
 	}
-
-	/**
-=	 * Update video geometry and visibility 
-	 */
-//	void update(MultimediaLocator ml, WMV_Utilities utilities)
-//	{
-//		if(!getMediaState().disabled)			
-//		{
-//			boolean wasVisible = isVisible();
-//			calculateVisibility(utilities);
-//			updateFading(ml, wasVisible);
-//			
-//			if(getViewerSettings().orientationMode)
-//			{
-//				for(int id : getViewerState().getClustersVisible())
-//					if(getMediaState().getClusterID() == id  && !getMediaState().requested)			// If this video's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
-//						loadMedia(ml); 					// Request video frames from disk
-//			}
-//			else if(getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !getMediaState().requested)
-//				loadMedia(ml); 							// Request video frames from disk
-//		
-//			if(isFading())								// Update brightness while fading
-//				updateFadingBrightness();
-//		}
-//	}
 	
 	public void calculateVisibility(WMV_Utilities utilities)
 	{
@@ -674,7 +649,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 		else
 		{
-			System.out.println("Video.getViewingDistance()... getViewerState() is null!!");
+			System.out.println("Video.getViewingDistance()... getViewerState() is null!! id #"+getID()+" name:"+getName());
 			return 1.f;
 		}
 	}
@@ -979,17 +954,15 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			state.imagePlaceholder = i.getID();
 			
 			/* Set video parameters from image placeholder metadata */
-			metadata.videoWidth = i.getWidth();								// -- Correct?							
-			metadata.videoHeight = (int) (i.getWidth() * getAspectRatio());	// -- Correct?
+//			metadata.videoWidth = i.getWidth();														
+//			metadata.videoHeight = (int) (i.getWidth() * getAspectRatio());	
 
+			// Editing metadata here -- Better way?
 			metadata.focusDistance = i.getFocusDistance();		    
-			metadata.focalLength = i.getFocalLength();		// -- n.b. Editing metadata here
+			metadata.focalLength = i.getFocalLength();			
 			setTheta(i.getDirection());  
 			metadata.orientation = i.getOrientation();       
-			metadata.orientation = i.getOrientation();       
 			metadata.phi = i.getElevationAngle();            		
-			metadata.phi = i.getElevationAngle();            		
-			metadata.rotation = i.getRotationAngle();             
 			metadata.rotation = i.getRotationAngle();             
 
 			setHorizBorderID(i.getState().horizBordersID);

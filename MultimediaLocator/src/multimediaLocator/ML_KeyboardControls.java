@@ -73,7 +73,8 @@ public class ML_KeyboardControls {
 			if(!ml.display.window.showNavigationWindow)
 				ml.display.window.openNavigationWindow();
 			else
-				ml.display.window.hideNavigationWindow();
+				ml.display.window.closeNavigationWindow();
+//				ml.display.window.hideNavigationWindow();
 		}
 
 		if (key == '@') 
@@ -81,7 +82,8 @@ public class ML_KeyboardControls {
 			if(!ml.display.window.showGraphicsWindow)
 				ml.display.window.openGraphicsWindow();
 			else
-				ml.display.window.hideGraphicsWindow();
+				ml.display.window.closeGraphicsWindow();
+//				ml.display.window.hideGraphicsWindow();
 		}
 
 		if (key == '#') 
@@ -89,7 +91,8 @@ public class ML_KeyboardControls {
 			if(!ml.display.window.showStatisticsWindow)
 				ml.display.window.openStatisticsWindow();
 			else
-				ml.display.window.hideStatisticsWindow();
+				ml.display.window.closeStatisticsWindow();
+//				ml.display.window.hideStatisticsWindow();
 		}
 		
 		if (key == '$') 

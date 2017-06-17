@@ -2125,8 +2125,11 @@ public class WMV_World
 					setVerticalBlurMask(image, bmID);
 				else
 				{
-					System.out.println("setBlurMasks()... ERROR: Could not set mask... image has size other than 640x480 or 480x640!"+image.getName());
-					System.out.println("Setting image to disabled..."+image.getName());
+					if(ml.debugSettings.image)
+					{
+						System.out.println("World.setBlurMasks()... ERROR: Could not set mask... image has size other than 640x480 or 480x640!"+image.getName());
+						System.out.println("Setting image to disabled..."+image.getName());
+					}
 					image.setDisabled(true);
 				}
 			}
@@ -2136,9 +2139,10 @@ public class WMV_World
 					setPanoramaBlurMask(panorama);				// Should check width / height if possible
 				else
 				{
-					System.out.println("setBlurMasks()... ERROR: Could not set mask... panorama has size other than 5376x2688!"+panorama.getName());
-//					System.out.println("Setting panorama to disabled..."+panorama.getName());
-//					panorama.setDisabled(true);
+					if(ml.debugSettings.panorama)
+					{
+						System.out.println("World.setBlurMasks()... ERROR: Could not set mask... panorama has size other than 5376x2688!"+panorama.getName());
+					}
 				}
 			}
 			for(WMV_Video video : f.getVideos())
@@ -2148,8 +2152,12 @@ public class WMV_World
 					setVideoBlurMask(video, bmID);				// Should check width / height if possible
 				else
 				{
-					System.out.println("setBlurMasks()... ERROR: Could not set mask... video has size other than 640x360!"+video.getName());
-					System.out.println("Setting video to disabled..."+video.getName());
+					if(ml.debugSettings.video)
+					{
+						System.out.println("World.setBlurMasks()... ERROR: Could not set mask... video has size other than 640x360!"+video.getName()+
+								" width:"+video.getWidth()+" height:"+video.getHeight());
+						System.out.println("Setting video to disabled..."+video.getName());
+					}
 					video.setDisabled(true);
 				}
 			}

@@ -21,7 +21,7 @@ public class WMV_VideoMetadata extends WMV_MediaMetadata
 	public float rotation;				    	// Image rotation angle (Z-axis rotation in degrees)
 	public float focusDistance; 	 			// Image viewing distance (rarely given in metadata)
 	public float focalLength = 0; 				// Camera focal length (Zoom Level)
-	public float sensorSize; 	 			// Image viewing distance (rarely given in metadata)
+	public float sensorSize; 	 				// Image viewing distance (rarely given in metadata)
 
 	/**
 	 * Constructor for video metadata

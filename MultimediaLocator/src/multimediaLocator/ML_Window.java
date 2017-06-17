@@ -21,7 +21,7 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
-	private int delayAmount = 130;							// Delay length to avoid G4P library concurrent modification exception
+	private int delayAmount = 110;							// Delay length to avoid G4P library concurrent modification exception
 
 	/* Windows */
 	public GWindow mlWindow, navigationWindow, graphicsWindow, statisticsWindow,  helpWindow, 
@@ -1340,6 +1340,7 @@ public class ML_Window
 			listItemWindow.setActionOnClose(GWindow.KEEP_OPEN);
 			
 			showListItemWindowList = true;
+			world.ml.setAppIcon = true;
 		}
 	}
 	
@@ -1376,6 +1377,7 @@ public class ML_Window
 			textEntryWindow.setActionOnClose(GWindow.KEEP_OPEN);
 			
 			showTextEntryWindow = true;
+			world.ml.setAppIcon = true;
 		}
 	}
 	
@@ -2305,17 +2307,50 @@ public class ML_Window
 		if(setupNavigationWindow)
 			navigationWindow.setVisible(false);
 	} 
+	public void closeNavigationWindow()
+	{
+		showNavigationWindow = false;
+		if(setupNavigationWindow)
+		{
+			navigationWindow.setVisible(false);
+			navigationWindow.close();
+			navigationWindow.dispose();
+			setupNavigationWindow = false;
+		}
+	} 
 	public void hideGraphicsWindow()
 	{
 		showGraphicsWindow = false;
 		if(setupGraphicsWindow)
 			graphicsWindow.setVisible(false);
 	}
+	public void closeGraphicsWindow()
+	{
+		showGraphicsWindow = false;
+		if(setupGraphicsWindow)
+		{
+			graphicsWindow.setVisible(false);
+			graphicsWindow.close();
+			graphicsWindow.dispose();
+			setupGraphicsWindow = false;
+		}
+	} 
 	public void hideStatisticsWindow()
 	{
 		showStatisticsWindow = false;
 		if(setupStatisticsWindow)
 			statisticsWindow.setVisible(false);
+	} 
+	public void closeStatisticsWindow()
+	{
+		showStatisticsWindow = false;
+		if(setupStatisticsWindow)
+		{
+			statisticsWindow.setVisible(false);
+			statisticsWindow.close();
+			statisticsWindow.dispose();
+			setupStatisticsWindow = false;
+		}
 	} 
 	public void hideHelpWindow()
 	{
@@ -2323,6 +2358,17 @@ public class ML_Window
 		if(setupHelpWindow)
 			helpWindow.setVisible(false);
 	}
+	public void closeHelpWindow()
+	{
+		showHelpWindow = false;
+		if(setupHelpWindow)
+		{
+			helpWindow.setVisible(false);
+			helpWindow.close();
+			helpWindow.dispose();
+			setupHelpWindow = false;
+		}
+	} 
 	public void hideLibraryWindow()
 	{
 		showLibraryWindow = false;

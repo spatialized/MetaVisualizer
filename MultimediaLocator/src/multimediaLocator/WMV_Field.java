@@ -307,10 +307,11 @@ public class WMV_Field
 		{
 			if(!v.isDisabled())
 			{
+//				v.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
+
 				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
 				boolean inVisibleRange = (distance < vanishingPoint);
 
-				v.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if ( v.isVisible() && !inVisibleRange )
 					v.fadeOut(this);
 
@@ -379,7 +380,7 @@ public class WMV_Field
 				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
 				boolean inAudibleRange = (distance < inaudiblePoint);
 
-				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
+//				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if ( s.isVisible() && !inAudibleRange )
 				{
 					s.fadeOut(this);
@@ -711,19 +712,19 @@ public class WMV_Field
 	 */
 	public void updateAllMediaWorldStates()
 	{
-		for (WMV_Image i : images)  		// Update and display videos
+		for (WMV_Image i : images)  		// Update images
 			if(!i.isDisabled())
 				i.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 
-		for (WMV_Panorama n : panoramas)  		// Update and display videos
+		for (WMV_Panorama n : panoramas)  	// Update panoramas
 			if(!n.isDisabled())
 				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 
-		for (WMV_Video v : videos)  		// Update and display videos
+		for (WMV_Video v : videos)  		// Update videos
 			if(!v.isDisabled())
 				v.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 
-		for (WMV_Sound s : sounds)  		// Update and display videos
+		for (WMV_Sound s : sounds)  		// Update sounds
 			if(!s.isDisabled())
 				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 	}

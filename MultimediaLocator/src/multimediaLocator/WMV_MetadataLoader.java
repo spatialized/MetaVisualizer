@@ -101,7 +101,7 @@ class WMV_MetadataLoader
 		if(panoramaFolderFound) loadPanoramas(fieldPath);
 		if(imageFolderFound || smallImageFolderFound) loadImageFiles(fieldPath);			// Load image + panorama file names
 
-		loadVideoFolder(fieldPath); 	// Load video folder
+		loadVideoFolders(fieldPath); 	// Load video folder
 		if(videoFolderFound || smallVideoFolderFound) loadVideoFiles(fieldPath);		// Load video file names
 
 		loadSoundFolder(fieldPath); 	// Load sound folder
@@ -218,7 +218,7 @@ class WMV_MetadataLoader
 	/**
 	 * Load metadata for folder of videos
 	 */
-	public void loadVideoFolder(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	public void loadVideoFolders(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
 		videoFolder = library + "/" + fieldPath + "/large_videos/";			// Max size 4K
 		smallVideoFolder = library + "/" + fieldPath + "/small_videos/";		// Max size 480p
@@ -231,10 +231,10 @@ class WMV_MetadataLoader
 
 		if(debugSettings.metadata)
 		{
-			System.out.println("Metadata.loadImageFolders()... videoFolder: "+videoFolder);
-			System.out.println("Metadata.loadImageFolders()... videoFolderFound: "+videoFolderFound);
-			System.out.println("Metadata.loadImageFolders()... smallVideoFolder: "+smallVideoFolder);
-			System.out.println("Metadata.loadImageFolders()... smallVideoFolderFound: "+smallVideoFolderFound);
+			if(videoFolderFound)
+				System.out.println("Metadata.loadVideoFolders()... videoFolder: "+videoFolder);
+			if(smallVideoFolderFound)
+				System.out.println("Metadata.loadVideoFolders()... smallVideoFolder: "+smallVideoFolder);
 		}
 	}
 	
@@ -249,8 +249,8 @@ class WMV_MetadataLoader
 		
 		if(debugSettings.metadata)
 		{
-			System.out.println("Metadata.loadImageFolders()... soundFolder: "+soundFolder);
-			System.out.println("Metadata.loadImageFolders()... soundFolderFound: "+soundFolderFound);
+			if(soundFolderFound)
+				System.out.println("Metadata.loadSoundFolder()... soundFolder: "+soundFolder);
 		}
 	}
 	
@@ -564,7 +564,7 @@ class WMV_MetadataLoader
 		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
 		{
 			File file = files[currentMedia];
-			boolean panorama = fileIsPanorama(file);
+			boolean panorama = fileIsPanorama(file);	// Check whether image is a panorama
 			if(panorama)
 				addPanoramaToField(f, file);
 			else
@@ -644,10 +644,14 @@ class WMV_MetadataLoader
 		try 
 		{
 			WMV_PanoramaMetadata pMetadata = loadPanoramaMetadata(file, f.getTimeZoneID());
-
-			PImage pImg = ml.createImage(0,0,processing.core.PConstants.RGB);
-			f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
-			pCount++;
+			if(pMetadata.isValid())
+			{
+				PImage pImg = ml.createImage(0,0,processing.core.PConstants.RGB);
+				f.addPanorama( new WMV_Panorama(pCount, 1, 0.f, null, pImg, pMetadata) );
+				pCount++;
+			}
+			else
+				System.out.println("Invalid panorama metadata!  Panorama:"+pMetadata.name);
 		}
 		catch (RuntimeException ex) {
 			if (debugSettings.metadata) System.out.println("Could not add panorama! Error: "+ex);
@@ -664,14 +668,19 @@ class WMV_MetadataLoader
 		try 
 		{
 			WMV_VideoMetadata vMetadata = loadVideoMetadata(file, f.getTimeZoneID());
-			Movie pMov = new Movie(ml, vMetadata.filePath);
-			f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
-			vCount++;
+			if(vMetadata.isValid())
+			{
+				Movie pMov = new Movie(ml, vMetadata.filePath);
+				f.addVideo( new WMV_Video(vCount, pMov, 2, vMetadata) );
+				vCount++;
+			}
+			else
+				System.out.println("Invalid video metadata!  Video:"+vMetadata.name);
 		}
 		catch (Throwable t) {
 			if (debugSettings.metadata)
 			{
-				System.out.println("Throwable while adding video to ArrayList: "+t);
+				System.out.println("Could not add video! Error: "+t);
 			}
 		}	
 	}
@@ -686,16 +695,18 @@ class WMV_MetadataLoader
 		try 
 		{
 			WMV_SoundMetadata sMetadata = loadSoundMetadata(f, file, f.getTimeZoneID());
-//			Movie pMov = new Movie(ml, sMetadata.filePath);
-//			WMV_SoundMetadata sMetadata = new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, "",
-//			ml.world.getCurrentField().getTimeZoneID(), null );				
-			f.addSound( new WMV_Sound (sCount, 3, sMetadata) );
-			sCount++;
+			if(sMetadata.isValid())
+			{
+				f.addSound( new WMV_Sound (sCount, 3, sMetadata) );
+				sCount++;
+			}
+			else
+				System.out.println("Invalid sound metadata!  Sound:"+sMetadata.name);
 		}
 		catch (Throwable t) {
 			if (debugSettings.metadata)
 			{
-				System.out.println("Throwable while adding video to ArrayList: "+t);
+				System.out.println("Could not add sound! Error:: "+t);
 			}
 		}	
 	}
@@ -735,7 +746,7 @@ class WMV_MetadataLoader
 		Metadata imageMetadata = null;				// For images
 
 		if(debugSettings.metadata && debugSettings.detailed)
-			System.out.println("loadImageMetadata()... "+sName);
+			System.out.println("Metadata.loadImageMetadata()...  "+sName);
 
 		try {
 			imageMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */
@@ -743,7 +754,7 @@ class WMV_MetadataLoader
 		catch (Throwable t) 
 		{
 			if(debugSettings.metadata && debugSettings.detailed)
-				System.out.println("ERROR in loadImageMetadata()... Throwable:" + t +" name:"+sName+"  file.getAbsolutePath():"+file.getAbsolutePath());
+				System.out.println("Metadata.loadImageMetadata()...  Throwable:" + t +" name:"+sName+"  file.getAbsolutePath():"+file.getAbsolutePath());
 			if(!dataMissing) dataMissing = true;
 		}
 
@@ -767,7 +778,7 @@ class WMV_MetadataLoader
 					if (tagName.equals("Model")) // Model
 					{
 						sCameraModel = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Camera Model..." + sCameraModel);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadImageMetadata()... Found Camera Model..." + sCameraModel);
 
 						try
 						{
@@ -775,7 +786,7 @@ class WMV_MetadataLoader
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata) System.out.println("loadImageMetadata()... Throwable in camera model / focal length..." + t);
+							if (debugSettings.metadata) System.out.println("Metadata.loadImageMetadata()... Throwable in camera model / focal length..." + t);
 							if(!dataMissing) dataMissing = true;
 						}
 					}
@@ -842,11 +853,11 @@ class WMV_MetadataLoader
 						else
 						{
 							descriptionMissing = true;
-							if(debugSettings.metadata) System.out.println("loadImageMetadata()... Not a Theodolite image...");
+							if(debugSettings.metadata) System.out.println("Metadata.loadImageMetadata()...  Not a Theodolite image...");
 						}
 
 						if (debugSettings.metadata && debugSettings.detailed)
-							System.out.println("Found Description..." + sDescription);
+							System.out.println("Metadata.loadImageMetadata()... Found Description..." + sDescription);
 					}
 					
 					if (tagName.equals("AFPointsUsed")) // Orientation
@@ -867,7 +878,7 @@ class WMV_MetadataLoader
 					if (tagName.equals("Keywords"))
 					{
 						if (debugSettings.metadata)
-							System.out.println("-------------->  Keywords: "+tagString);
+							System.out.println("Metadata.loadImageMetadata()...   Keywords: "+tagString);
 						
 						sKeywords = ParseKeywordArray(tagString);
 					}
@@ -952,7 +963,7 @@ class WMV_MetadataLoader
 			} 
 			catch (RuntimeException ex) {
 				if (debugSettings.metadata)
-					System.out.println("Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
+					System.out.println("Metadata.loadImageMetadata()... Error reading image orientation / direction:" + fOrientation + "  " + fDirection + "  " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 		}
@@ -966,10 +977,10 @@ class WMV_MetadataLoader
 						fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords, sSoftware);
 			}
 			else
-				if(debugSettings.metadata) System.out.println("Data missing! Excluded image:"+sName);
+				if(debugSettings.metadata) System.out.println("Metadata.loadImageMetadata()... Data missing! Excluded image:"+sName);
 		}
 		catch (RuntimeException ex) {
-			if (debugSettings.metadata) System.out.println("Could not add image! Error: "+ex);
+			if (debugSettings.metadata) System.out.println("Metadata.loadImageMetadata()... Could not add image! Error: "+ex);
 		}
 
 		return null;
@@ -1009,19 +1020,19 @@ class WMV_MetadataLoader
 
 		Metadata panoramaMetadata = null;				// For images
 
-		if(debugSettings.metadata && debugSettings.detailed)
-			System.out.println("Loading panorama: "+sName);
+		if(debugSettings.metadata && debugSettings.panorama && debugSettings.detailed)
+			System.out.println("Metadata.loadPanoramaMetadata()... Loading panorama: "+sName);
 
 		try {
 			panoramaMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */
 		}
 		catch (Throwable t) 
 		{
-			if(debugSettings.metadata && debugSettings.detailed) System.out.println("loadImageMetadata()... Throwable:" + t);
+			if(debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Throwable:" + t);
 			if(!dataMissing) dataMissing = true;
 		}
 
-		/* Set image variables from metadata */
+		/* Set panorama variables from metadata */
 		if (panoramaMetadata != null) 
 		{
 			for (Directory directory : panoramaMetadata.getDirectories()) 
@@ -1034,83 +1045,83 @@ class WMV_MetadataLoader
 					if (tag.getTagName().equals("Software")) // Software
 					{
 						sSoftware = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Software..." + sSoftware);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Software..." + sSoftware);
 					}
 
 					if (tagName.equals("Model")) // Model
 					{
 						sCameraModel = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Camera Model..." + sCameraModel);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Camera Model..." + sCameraModel);
 
 						try
 						{
 							iCameraModel = parseCameraModel(sCameraModel);
-							if (debugSettings.metadata && debugSettings.detailed) System.out.println("  Set iCameraModel:" + iCameraModel);
+							if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()...   Set iCameraModel:" + iCameraModel);
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata) System.out.println("Throwable in camera model..." + t);
+							if (debugSettings.metadata) System.out.println("Metadata.loadPanoramaMetadata()... Throwable in camera model..." + t);
 							if(!dataMissing) dataMissing = true;
 						}
 					}
 
-					if (tagName.equals("Orientation")) // Orientation		-- Not needed for panorama?
+					if (tagName.equals("Orientation")) 			// Orientation		-- Not needed for panorama?
 					{
 						sOrientation = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Orientation..." + sOrientation);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Orientation..." + sOrientation);
 					}
-					if (tagName.equals("Date/Time Original")) // Orientation
+					if (tagName.equals("Date/Time Original")) 	// Date/Time
 					{
 						sDateTime = tagString;
 						if (debugSettings.metadata && debugSettings.detailed) 
-							System.out.println("Found DateTimeOriginal..." + sDateTime);
+							System.out.println("Metadata.loadPanoramaMetadata()... Found DateTimeOriginal..." + sDateTime);
 						String[] parts = sDateTime.split(" - ");
 						sDateTime = parts[1];
 					}
 					if (tagName.equals("GPS Latitude")) // Latitude
 					{
 						sLatitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Latitude..." + sLatitude);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Latitude..." + sLatitude);
 					}
 					if (tagName.equals("GPS Longitude")) // Longitude
 					{
 						sLongitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Longitude..." + sLongitude);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Longitude..." + sLongitude);
 					}
 					if (tagName.equals("GPS Altitude")) // Altitude
 					{
 						sAltitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Altitude..." + sAltitude);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Altitude..." + sAltitude);
 					}
 					if (tagName.equals("Focal Length")) // Focal Length
 					{
 						sFocalLength = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Focal Length..." + sFocalLength);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Focal Length..." + sFocalLength);
 					}
 
 					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
 					{
 						sFocalLength35mm = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Found Focal Length 35mm Equivalent..." + sFocalLength);
+						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Focal Length 35mm Equivalent..." + sFocalLength);
 					}
 					if (tagName.equals("GPS Img Direction")) // Image Direction
 					{
 						sDirection = tagString;
 						
 						if (debugSettings.metadata && debugSettings.detailed)
-							System.out.println("Found Panorama Direction..." + sDirection);
+							System.out.println("Metadata.loadPanoramaMetadata()... Found Panorama Direction..." + sDirection);
 					}
-					if (tagName.equals("Image Description")) 	// Description -- Unused for panorama
+					if (tagName.equals("Image Description")) 	// Description	 -- Unused for panorama?
 					{
 						sDescription = tagString;
 						if (debugSettings.metadata && debugSettings.detailed)
-							System.out.println("Found Description..." + sDescription);
+							System.out.println("Metadata.loadPanoramaMetadata()... Found Description..." + sDescription);
 					}
 					
 					if (tagName.equals("Keywords"))
 					{
 						if (debugSettings.metadata)
-							System.out.println("-------------->  Keywords: "+tagString);
+							System.out.println("Metadata.loadPanoramaMetadata()...  Keywords: "+tagString);
 						
 						sKeywords = ParseKeywordArray(tagString);
 					}
@@ -1137,7 +1148,7 @@ class WMV_MetadataLoader
 
 				if (directory.hasErrors()) {
 					for (String error : directory.getErrors()) {
-						System.out.println("ERROR: " + error);
+						System.out.println("Metadata.loadPanoramaMetadata()... ERROR: " + error);
 					}
 				}
 			}
@@ -1147,27 +1158,27 @@ class WMV_MetadataLoader
 			} 
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata) System.out.println("Error in date / time... " + ex);
+				if (debugSettings.metadata) System.out.println("Metadata.loadPanoramaMetadata()... Error in date / time... " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 
-			if(!panorama)			// -- Update this
-			{
-				try {
-					fFocalLength = parseFocalLength(sFocalLength);
-					fSensorSize = parseSensorSize(sFocalLength35mm);		// 29 mm for iPhone 6S+
-				} 
-				catch (Throwable t) // If not, must be only one keyword
-				{
-					if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
-					if(!dataMissing) dataMissing = true;
-				}
-			}
-			else
-			{
+//			if(!panorama)			// -- Update this
+//			{
+//				try {
+//					fFocalLength = parseFocalLength(sFocalLength);
+//					fSensorSize = parseSensorSize(sFocalLength35mm);		// 29 mm for iPhone 6S+
+//				} 
+//				catch (Throwable t) // If not, must be only one keyword
+//				{
+//					if (debugSettings.metadata) System.out.println("Throwable in camera model / focal length..." + t);
+//					if(!dataMissing) dataMissing = true;
+//				}
+//			}
+//			else
+//			{
 				iCameraModel = -1;
 				fFocalLength = -1.f;
-			}
+//			}
 
 			try {
 				float xCoord, yCoord, zCoord;
@@ -1186,14 +1197,14 @@ class WMV_MetadataLoader
 			
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata) System.out.println("Error reading image location:" + sName + "  " + ex);
+				if (debugSettings.metadata) System.out.println("Metadata.loadPanoramaMetadata()... Error reading image location:" + sName + "  " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 
 			try {
 				if(sDirection == null)
 				{
-					if (debugSettings.metadata) System.out.println("Panorama fDirection is null! "+sName);
+					if (debugSettings.metadata) System.out.println("Metadata.loadPanoramaMetadata()... Panorama fDirection is null! "+sName);
 					fDirection = -100000.f;
 				}
 				else
@@ -1201,7 +1212,7 @@ class WMV_MetadataLoader
 			}
 			catch (RuntimeException ex) {
 				if (debugSettings.ml || debugSettings.metadata) 
-					System.out.println("Error reading panorama orientation / direction... sDirection:" + sDirection+" fOrientation:"+fOrientation + "  fDirection:" + fDirection + "  " + ex);
+					System.out.println("Metadata.loadPanoramaMetadata()... Error reading panorama orientation / direction... sDirection:" + sDirection+" fOrientation:"+fOrientation + "  fDirection:" + fDirection + "  " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 		}
@@ -1215,11 +1226,11 @@ class WMV_MetadataLoader
 												 iCameraModel, iWidth, iHeight, fBrightness, sKeywords, sSoftware );
 			}
 			else
-				System.out.println("Data missing!  Could not get panorama metadata:"+sName);
+				System.out.println("Metadata.loadPanoramaMetadata()... Data missing!  Could not get panorama metadata:"+sName);
 		}
 		catch (RuntimeException ex) {
 			if (debugSettings.metadata)
-				System.out.println("Could not get panorama metadata! Error: "+ex);
+				System.out.println("Metadata.loadPanoramaMetadata()... Could not get panorama metadata! Error: "+ex);
 		}
 		
 		return null;
@@ -1249,7 +1260,8 @@ class WMV_MetadataLoader
 		String sKeywords = null;
 		String[] keywords = new String[0];	
 
-		if(debugSettings.metadata) System.out.println("Loading video metadata for file: "+sName);
+		if(debugSettings.metadata && debugSettings.video && debugSettings.detailed) 
+			System.out.println("Metadata.loadVideoMetadata()... Loading video metadata for file: "+sName);
 
 		Map<String, String> videoMetadata = null;
 
@@ -1259,7 +1271,7 @@ class WMV_MetadataLoader
 		}
 		catch(Throwable t)
 		{
-			System.out.println("Throwable while reading video metadata: " + t);
+			if(debugSettings.metadata) System.out.println("Metadata.loadVideoMetadata()... Throwable while reading video metadata: " + t);
 			dataMissing = true;
 		}
 
@@ -1279,10 +1291,8 @@ class WMV_MetadataLoader
 
 			if(debugSettings.metadata && debugSettings.video && debugSettings.detailed)
 			{
-				System.out.println("--> Video latitude:"+sLatitude+"  longitude:"+sLongitude+"  altitude:"+altitude);
-				System.out.println("  date:"+sDateTime);
-				System.out.println("  duration:"+duration);
-				System.out.println("  width:"+sWidth+"  height:"+sHeight);
+				System.out.println("Metadata.loadVideoMetadata()...  Video latitude:"+sLatitude+"  longitude:"+sLongitude+"  altitude:"+altitude);
+				System.out.println("  date:"+sDateTime+"  duration:"+duration+"  width:"+sWidth+"  height:"+sHeight);
 				System.out.println("  keywords:"+sKeywords);
 			}
 
@@ -1290,7 +1300,7 @@ class WMV_MetadataLoader
 				zonedDateTime = parseDateTime(sDateTime);
 			} 
 			catch (Throwable t) {
-				System.out.println("Throwable while parsing date / time... " + t);
+				System.out.println("Metadata.loadVideoMetadata()... Throwable while parsing date / time... " + t);
 				dataMissing = true;
 			}
 
@@ -1312,7 +1322,7 @@ class WMV_MetadataLoader
 			catch (RuntimeException ex) 
 			{
 				if (debugSettings.metadata)
-					System.out.println("Error reading video location:" + sName + "  " + ex);
+					System.out.println("Metadata.loadVideoMetadata()... Error reading video location:" + sName + "  " + ex);
 				dataMissing = true;
 			}
 
@@ -1321,7 +1331,7 @@ class WMV_MetadataLoader
 			sFilePath = file.getPath();
 		}
 		catch (Throwable t) {
-			System.out.println("Throwable while extracting video EXIF data:" + t);
+			System.out.println("Metadata.loadVideoMetadata()... Throwable while extracting video EXIF data:" + t);
 			if(!dataMissing) dataMissing = true;
 		}
 
@@ -1334,13 +1344,13 @@ class WMV_MetadataLoader
 				return vMetadata;
 			}
 			else if(debugSettings.metadata || debugSettings.video)
-				System.out.println("Data missing!  Could not get video metadata:"+sName);
+				System.out.println("Metadata.loadVideoMetadata()... Data missing!  Could not get video metadata:"+sName);
 
 		}
 		catch (Throwable t) {
 			if (debugSettings.metadata)
 			{
-				System.out.println("Throwable while getting video metadata: "+t);
+				System.out.println("Metadata.loadVideoMetadata()... Throwable while getting video metadata: "+t);
 				System.out.println("   pFilePath:" + sFilePath+"  pLoc.x:" + gpsLoc.x+"    pLoc.y:" + gpsLoc.y+"    pLoc.z:" + gpsLoc.z);
 			}
 		}

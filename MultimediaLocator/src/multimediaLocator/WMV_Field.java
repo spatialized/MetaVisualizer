@@ -123,7 +123,7 @@ public class WMV_Field
 		state.soundsAudible = audibleSounds.size();
 
 		state.imagesInRange = 0;			// Number of images in visible range
-		state.panoramasInRange = 0;		// Number of panoramas in visible range
+		state.panoramasInRange = 0;			// Number of panoramas in visible range
 		state.videosInRange = 0;			 // Number of videos in visible range
 		state.soundsInRange = 0; 			// Number of sounds in audible range
 
@@ -161,7 +161,7 @@ public class WMV_Field
 		{
 			if(!m.isDisabled())
 			{
-				float distance = m.getViewingDistance(); // Estimate image distance to camera based on capture location
+				float distance = m.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 
 				m.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
@@ -203,7 +203,7 @@ public class WMV_Field
 			if(!m.isHidden() && !m.isDisabled())
 			{
 				boolean wasVisible = m.isVisible();
-				m.calculateVisibility(utilities);
+				m.calculateVisibility(ml.world.viewer, utilities);
 				if(!clusterIsVisible(m.getAssociatedClusterID())) m.setVisible( false );		
 				m.updateFading(this, wasVisible);
 			}
@@ -239,7 +239,7 @@ public class WMV_Field
 		{
 			if(!n.isDisabled())
 			{
-				float distance = n.getViewingDistance(); // Estimate image distance to camera based on capture location
+				float distance = n.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 				boolean inVisibleRange = (distance < vanishingPoint);
 
 				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
@@ -282,7 +282,7 @@ public class WMV_Field
 		{
 			if(n.texture.width > 0)			
 			{
-				n.calculateVisibility();
+				n.calculateVisibility(ml.world.viewer);
 				if(!clusterIsVisible(n.getAssociatedClusterID())) n.setVisible( false );		
 				n.updateFading(this);
 			}
@@ -307,9 +307,10 @@ public class WMV_Field
 		{
 			if(!v.isDisabled())
 			{
-//				v.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
+				float distance = v.getViewingDistance(ml.world.viewer);	 // Estimate video distance to camera based on capture location
+				
+//				System.out.println("Field.updateVideos()... Video #"+getID()+" distance:"+distance+" loc:"+v.getLocation());
 
-				float distance = v.getViewingDistance();	 // Estimate video distance to camera based on capture location
 				boolean inVisibleRange = (distance < vanishingPoint);
 
 				if ( v.isVisible() && !inVisibleRange )
@@ -346,7 +347,7 @@ public class WMV_Field
 		if(!v.getMediaState().disabled)			
 		{
 			boolean wasVisible = v.isVisible();
-			v.calculateVisibility(utilities);
+			v.calculateVisibility(ml.world.viewer, utilities);
 			if(!clusterIsVisible(v.getAssociatedClusterID())) v.setVisible( false );		
 			v.updateFading(ml, wasVisible);
 			
@@ -454,15 +455,6 @@ public class WMV_Field
 			increaseClusterVisibility(ml);
 		
 		visibleClusters = ml.world.getVisibleClusterIDs();
-		
-//		if(visibleClusters.size() > 0)
-//		{
-//			System.out.println("updateVisibleClusters()... Current Visible Clusters:"+visibleClusters.size()+" maxVisibleClusters:"+ml.world.settings.maxVisibleClusters);
-//			if(visibleImages.size() > 0) System.out.println("Visible Images:"+visibleImages.size()+" maxVisibleImages:"+ml.world.viewer.getSettings().maxVisibleImages);
-//			if(visiblePanoramas.size() > 0) System.out.println("Visible Panoramas:"+visiblePanoramas.size()+" maxVisiblePanoramas:"+ml.world.viewer.getSettings().maxVisiblePanoramas);
-//			if(visibleVideos.size() > 0) System.out.println("Visible Videos:"+visibleVideos.size()+" maxVisibleVideos:"+ml.world.viewer.getSettings().maxVisibleVideos);
-//			if(audibleSounds.size() > 0) System.out.println("Audible Sounds:"+audibleSounds.size()+" maxAudibleSounds:"+ml.world.viewer.getSettings().maxAudibleSounds);
-//		}
 	}
 	
 	/**
@@ -478,7 +470,7 @@ public class WMV_Field
 		float brightness = m.getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
 
-		float distanceBrightnessFactor = m.getDistanceBrightness(); 
+		float distanceBrightnessFactor = m.getDistanceBrightness(ml.world.viewer); 
 		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
 
 		if( getWorldState().timeFading && m.time != null && !getViewerState().isMoving() )
@@ -529,7 +521,7 @@ public class WMV_Field
 		float brightness = n.getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
 
-		float distanceBrightnessFactor = n.getDistanceBrightness(); 
+		float distanceBrightnessFactor = n.getDistanceBrightness(ml.world.viewer); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
 		if( getWorldState().timeFading && n.time != null && !getViewerState().isMoving() )
@@ -577,7 +569,7 @@ public class WMV_Field
 		float brightness = v.getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
 
-		distanceBrightness = v.getDistanceBrightness(); 
+		distanceBrightness = v.getDistanceBrightness(ml.world.viewer); 
 		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
 
 		if( getWorldState().timeFading && v.time != null && !getViewerState().isMoving() )
@@ -4681,7 +4673,7 @@ public class WMV_Field
 	}
 	
 	/* Obsolete */
-	private List<Integer> sortVisibleImages(List<Integer> visibleImages)
+	private List<Integer> sortVisibleImages(WMV_World world, List<Integer> visibleImages)
 	{
 //		System.out.println("sortVisibleImages()...");
 
@@ -4689,7 +4681,7 @@ public class WMV_Field
 		for(int i : visibleImages)
 		{
 			WMV_Image img = images.get(i);
-			distances.add(new ImageDistance(i, img.getViewingDistance()));
+			distances.add(new ImageDistance(i, img.getViewingDistance(world.viewer)));
 		}
 		
 		distances.sort(null);
@@ -4701,7 +4693,7 @@ public class WMV_Field
 		return sorted;
 	}
 
-	private List<Integer> sortVisiblePanoramas(List<Integer> visiblePanoramas)
+	private List<Integer> sortVisiblePanoramas(WMV_World world, List<Integer> visiblePanoramas)
 	{
 //		System.out.println("sortVisiblePanoramas()...");
 
@@ -4709,7 +4701,7 @@ public class WMV_Field
 		for(int i : visiblePanoramas)
 		{
 			WMV_Panorama pano = panoramas.get(i);
-			distances.add(new PanoramaDistance(i, pano.getViewingDistance()));
+			distances.add(new PanoramaDistance(i, pano.getViewingDistance(world.viewer)));
 		}
 		
 		distances.sort(null);
@@ -4721,7 +4713,7 @@ public class WMV_Field
 		return sorted;
 	}
 
-	private List<Integer> sortVisibleVideos(List<Integer> visibleVideos)
+	private List<Integer> sortVisibleVideos(WMV_World world, List<Integer> visibleVideos)
 	{
 //		System.out.println("sortVisiblePanoramas()...");
 
@@ -4729,7 +4721,7 @@ public class WMV_Field
 		for(int i : visibleVideos)
 		{
 			WMV_Video vid = videos.get(i);
-			distances.add(new VideoDistance(i, vid.getViewingDistance()));
+			distances.add(new VideoDistance(i, vid.getViewingDistance(world.viewer)));
 		}
 		
 		distances.sort(null);
@@ -4741,7 +4733,7 @@ public class WMV_Field
 		return sorted;
 	}
 
-	private List<Integer> sortAudibleSounds(List<Integer> audibleSounds)
+	private List<Integer> sortAudibleSounds(WMV_World world, List<Integer> audibleSounds)
 	{
 //		System.out.println("sortVisiblePanoramas()...");
 
@@ -4749,7 +4741,7 @@ public class WMV_Field
 		for(int i : audibleSounds)
 		{
 			WMV_Sound snd = sounds.get(i);
-			distances.add(new SoundDistance(i, snd.getViewingDistance()));
+			distances.add(new SoundDistance(i, snd.getViewingDistance(world.viewer)));
 		}
 		
 		distances.sort(null);

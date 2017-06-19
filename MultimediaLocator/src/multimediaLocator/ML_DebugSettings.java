@@ -12,6 +12,7 @@ public class ML_DebugSettings
 	public boolean detailed = false;			// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	public boolean messages = true;				// On screen debug messages
+	
 	/* Data */
 	public boolean ml = true;					// Debug MultimediaLocator class
 	public boolean world = true;				// Debug WMV_Field class
@@ -22,7 +23,7 @@ public class ML_DebugSettings
 	public boolean time = false;				// Debug WMV_Time class
 
 	/* Viewer */
-	public boolean viewer = false;				// Debug WMV_Viewer class
+	public boolean viewer = true;				// Debug WMV_Viewer class
 	public boolean path = false;					// Debug WMV_Viewer class
 	public boolean gps = false;					// Debug WMV_Viewer class
 	public boolean display = false;				// Debug WMV_Display class

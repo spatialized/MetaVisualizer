@@ -85,7 +85,7 @@ public class WMV_Panorama extends WMV_Media
 		}
 	}
 
-	public void calculateVisibility()
+	public void calculateVisibility(WMV_Viewer viewer)
 	{
 		if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
 		{
@@ -100,7 +100,7 @@ public class WMV_Panorama extends WMV_Media
 			setVisible(true);     										 		
 		}
 
-		setVisible(getDistanceBrightness() > 0.f);
+		setVisible(getDistanceBrightness(viewer) > 0.f);
 
 		if(!isFading() && getViewerSettings().hidePanoramas)
 			setVisible(false);
@@ -351,9 +351,9 @@ public class WMV_Panorama extends WMV_Media
 	 * @return Distance visibility multiplier between 0. and 1.
 	 * Find panorama brightness due to distance (fades away in distance and as camera gets close)
 	 */
-	public float getDistanceBrightness()									
+	public float getDistanceBrightness(WMV_Viewer viewer)							
 	{
-		float viewDist = getViewingDistance();
+		float viewDist = getViewingDistance(viewer);
 
 		float distVisibility = 1.f;
 
@@ -372,20 +372,10 @@ public class WMV_Panorama extends WMV_Media
 	/**
 	 * @return Distance from the panorama to the camera
 	 */
-	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
+	public float getViewingDistance(WMV_Viewer viewer)       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc;
-
-		if(getViewerSettings().orientationMode)
-			camLoc = getViewerState().getLocation();
-		else
-			camLoc = getViewerState().getLocation();
-
-		float distance;
-
-		distance = PVector.dist(getCaptureLocation(), camLoc);
-
-		return distance;
+		PVector camLoc = viewer.getLocation();
+		return PVector.dist(getCaptureLocation(), camLoc);
 	}
 
 	/**

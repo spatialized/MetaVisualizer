@@ -805,25 +805,25 @@ public class WMV_Viewer
 	 * @param mediaType Media type without which clusters are skipped...  0: image, 1: panorama, 2: video, 3: sound
 	 * @param inclCurrent Whether to include current cluster
 	 */
-	public void moveToNearestClusterWithMediaType(boolean teleport, int mediaType, boolean inclCurrent) 
+	public void moveToNearestClusterWithType(boolean teleport, int mediaType, boolean inclCurrent) 
 	{
 		int nearest = state.currentCluster;
 		boolean found = false;
 		int result = -1;
 		
-		if(debugSettings.viewer) System.out.println("Viewer.moveToNearestClusterWithMediaType()... mediaType "+mediaType+" inclCurrent:"+inclCurrent);
+		if(debugSettings.viewer) System.out.println("Viewer.moveToNearestClusterWithType()... mediaType "+mediaType+" inclCurrent:"+inclCurrent);
 
 		/* Find goal cluster */
 		if(mediaType < 0 || mediaType > 3)		// Incorrect media type
 			return;
 		else 
 		{
-			result = getNearestClusterWithMediaType(p.getCurrentField(), mediaType, inclCurrent);
+			result = getNearestClusterWithType(p.getCurrentField(), mediaType, inclCurrent);
 			if(result >= 0 && result < p.getCurrentField().getClusters().size())
 			{
 				found = true;
 				nearest = result;
-				if(debugSettings.viewer) System.out.println("Viewer.moveToNearestClusterWithMediaType()... found media #:"+nearest);
+				if(debugSettings.viewer) System.out.println("Viewer.moveToNearestClusterWithType()... found media #:"+nearest);
 			}
 		}
 		
@@ -839,6 +839,29 @@ public class WMV_Viewer
 				setAttractorCluster(nearest);
 			}
 		}
+		else
+		{
+			String strMediaType = "";
+			switch(mediaType)			// 0: image, 1: panorama, 2: video, 3: sound
+			{
+				case 0:
+					strMediaType = "images";
+					break;
+				case 1:
+					strMediaType = "panoramas";
+					break;
+				case 2:
+					strMediaType = "videos";
+					break;
+				case 3:
+					strMediaType = "sounds";
+					break;
+			}
+			if(debugSettings.viewer)
+				System.out.println("No clusters with "+strMediaType+" found...");
+			if(p.getSettings().screenMessagesOn)
+				p.ml.display.message(p.ml, "No clusters with "+strMediaType+" found...");
+		}
 	}
 
 
@@ -849,29 +872,34 @@ public class WMV_Viewer
 	 * @param startClusterID Starting cluster ID to search from
 	 * @return Whether field contains given media type
 	 */
-	private int getNearestClusterWithMediaType(WMV_Field currentField, int mediaType, boolean inclCurrent)
+	private int getNearestClusterWithType(WMV_Field currentField, int mediaType, boolean inclCurrent)
 	{
 		int result = -1;
+		int id = -1;
 		
 		switch(mediaType)
 		{
 			case 0:
-				result = getNearestImage(inclCurrent);
+				id = getNearestImage(inclCurrent);
+				result = currentField.getImage(id).getAssociatedClusterID();
 				break;
 			case 1:
-				result = getNearestPanorama(inclCurrent);
+				id = getNearestPanorama(inclCurrent);
+				result = currentField.getPanorama(id).getAssociatedClusterID();
 				break;
 			case 2:
-				result = getNearestVideo(inclCurrent);
+				id = getNearestVideo(inclCurrent);
+				result = currentField.getVideo(id).getAssociatedClusterID();
 				break;
 			case 3:
-				result = getNearestSound(inclCurrent);
+				id = getNearestSound(inclCurrent);
+				result = currentField.getSound(id).getAssociatedClusterID();
 				break;
 		}
 
 		if(result == -1)
 		{
-			if(debugSettings.viewer) System.out.println("Viewer.getNearestClusterWithMediaType()... No media of type "+mediaType+" found...");
+			if(debugSettings.viewer) System.out.println("Viewer.getNearestClusterWithType()... No media of type "+mediaType+" found...");
 			return -1;
 		}
 		else
@@ -3533,8 +3561,8 @@ public class WMV_Viewer
 				WMV_Image i = p.getCurrentField().getImage(id);
 				if(!i.getMediaState().disabled)
 				{
-					if( i.getViewingDistance() < settings.farViewingDistance + i.getFocusDistance() && 
-						i.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find images in range
+					if( i.getViewingDistance(this) < settings.farViewingDistance + i.getFocusDistance() && 
+						i.getViewingDistance(this) > settings.nearClippingDistance * 2.f )		// Find images in range
 						closeImages.add(i);							
 				}
 			}
@@ -3555,8 +3583,8 @@ public class WMV_Viewer
 				WMV_Video v = p.getCurrentField().getVideo(id);
 				if(!v.getMediaState().disabled)
 				{
-					if( v.getViewingDistance() <= settings.farViewingDistance + v.getFocusDistance() &&
-					    v.getViewingDistance() > settings.nearClippingDistance * 2.f )		// Find videos in range
+					if( v.getViewingDistance(this) <= settings.farViewingDistance + v.getFocusDistance() &&
+					    v.getViewingDistance(this) > settings.nearClippingDistance * 2.f )		// Find videos in range
 						closeVideos.add(v);							
 				}
 			}
@@ -3834,7 +3862,7 @@ public class WMV_Viewer
 		for(WMV_Image i : p.getCurrentField().getImages())
 		{
 			if(!i.getMediaState().disabled)
-				if(i.getViewingDistance() <= settings.selectionMaxDistance)
+				if(i.getViewingDistance(this) <= settings.selectionMaxDistance)
 					possibleImages.add(i);
 		}
 
@@ -3859,7 +3887,7 @@ public class WMV_Viewer
 		for(WMV_Video v : p.getCurrentField().getVideos())
 		{
 			if(!v.getMediaState().disabled)
-				if(v.getViewingDistance() <= settings.selectionMaxDistance)
+				if(v.getViewingDistance(this) <= settings.selectionMaxDistance)
 					possibleVideos.add(v);
 		}
 
@@ -4146,7 +4174,7 @@ public class WMV_Viewer
 		for (int i = 0; i < f.getImages().size(); i++) {
 //			if (f.getImage(i).getMediaState().visible) 
 //			{
-				float imageDist = f.getImage(i).getViewingDistance();
+				float imageDist = f.getImage(i).getViewingDistance(this);
 				if (imageDist < smallest && imageDist > settings.nearClippingDistance) 
 				{
 					if(inclCurrent)
@@ -4259,7 +4287,7 @@ public class WMV_Viewer
 
 		for (int i = 0; i < f.getVideos().size(); i++) 
 		{
-			float videoDist = f.getVideo(i).getViewingDistance();
+			float videoDist = f.getVideo(i).getViewingDistance(this);
 			if (!f.getVideo(i).isDisabled() && videoDist < smallest && videoDist > settings.nearClippingDistance) 
 			{
 				if(inclCurrent)

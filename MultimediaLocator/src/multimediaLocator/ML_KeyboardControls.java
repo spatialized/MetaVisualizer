@@ -394,16 +394,16 @@ public class ML_KeyboardControls
 //		ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 3);
 
 		if (key == 'i') 		// Go to nearest cluster ID with image
-			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 0, false);
+			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 0, false);
 
 		if (key == 'p') 		// Go to nearest cluster ID with panorama
-			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 1, false);
+			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 1, false);
 
 		if (key == 'v') 		// Go to nearest cluster ID with video
-			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 2, false);
+			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 2, false);
 
 		if (key == 'u') 		// Go to nearest cluster ID with sound
-			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 3, false);
+			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 3, false);
 
 		if (key == 'm') 
 			ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());

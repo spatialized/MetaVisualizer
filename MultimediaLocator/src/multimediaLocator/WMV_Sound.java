@@ -430,20 +430,10 @@ public class WMV_Sound extends WMV_Media
 	/**
 	 * @return Distance from the panorama to the camera
 	 */
-	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
+	public float getViewingDistance(WMV_Viewer viewer)       // Find distance from camera to point in virtual space where photo appears           
 	{
-		PVector camLoc;
-
-		if(getViewerSettings().orientationMode)
-			camLoc = getViewerState().getLocation();
-		else
-			camLoc = getViewerState().getLocation();
-
-		float distance;
-
-		distance = PVector.dist(getCaptureLocation(), camLoc);
-
-		return distance;
+		PVector camLoc = viewer.getLocation();
+		return PVector.dist(getCaptureLocation(), camLoc);
 	}
 
 	/**

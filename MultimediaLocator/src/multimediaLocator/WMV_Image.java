@@ -157,7 +157,7 @@ public class WMV_Image extends WMV_Media
 		ml.popMatrix();
 	}
 
-	public void calculateVisibility(WMV_Utilities utilities)
+	public void calculateVisibility(WMV_Viewer viewer, WMV_Utilities utilities)
 	{
 		setVisible(false);
 
@@ -189,7 +189,7 @@ public class WMV_Image extends WMV_Media
 				setVisible(false);
 
 			if(getMediaState().visible && !getViewerSettings().orientationMode)
-				setVisible(getDistanceBrightness() > 0.f);
+				setVisible(getDistanceBrightness(viewer) > 0.f);
 
 			if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide state.orientations of 180 or 270 (avoid upside down images)
 				setVisible(false);
@@ -376,47 +376,36 @@ public class WMV_Image extends WMV_Media
 	 * Measure distance between image and viewer
 	 * @return Image viewing distance
 	 */
-	public float getViewingDistance()       // Find distance from camera to point in virtual space where photo appears           
+	public float getViewingDistance(WMV_Viewer viewer)       // Find distance from camera to point in virtual space where photo appears           
 	{
-		if(getViewerState() != null)
-		{
-			PVector camLoc = getViewerState().getLocation();
-			float distance;
+		PVector camLoc = viewer.getLocation();
 
-			PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
+		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
-			float r;
+		float r;
 
-			if(metadata.focusDistance == -1.f)
-				r = state.defaultFocusDistance;						// Use default if no focus distance in metadata					      
-			else
-				r = metadata.focusDistance;							
-
-			float xDisp = r * (float)Math.sin(PApplet.radians(360-getDirection())) * (float)Math.sin(PApplet.radians(90-metadata.phi)); 
-			float zDisp = r * (float)Math.cos(PApplet.radians(360-getDirection())) * (float)Math.sin(PApplet.radians(90-metadata.phi));  
-			float yDisp = r * (float)Math.cos(PApplet.radians(90-metadata.phi)); 
-
-			state.displacement = new PVector(-xDisp, -yDisp, -zDisp);
-
-			loc.add(state.displacement);
-			distance = PVector.dist(loc, camLoc);     
-
-			return distance;
-		}
+		if(metadata.focusDistance == -1.f)
+			r = state.defaultFocusDistance;						// Use default if no focus distance in metadata					      
 		else
-		{
-			System.out.println("Image.getViewingDistance()... getViewerState() is null!!");
-			return 1.f;
-		}
+			r = metadata.focusDistance;							
+
+		float xDisp = r * (float)Math.sin(PApplet.radians(360-getDirection())) * (float)Math.sin(PApplet.radians(90-metadata.phi)); 
+		float zDisp = r * (float)Math.cos(PApplet.radians(360-getDirection())) * (float)Math.sin(PApplet.radians(90-metadata.phi));  
+		float yDisp = r * (float)Math.cos(PApplet.radians(90-metadata.phi)); 
+
+		state.displacement = new PVector(-xDisp, -yDisp, -zDisp);
+
+		loc.add(state.displacement);
+		return PVector.dist(loc, camLoc);     
 	}
 
 	/** 
 	 * Find image transparency due to distance (fades away in distance and as camera gets close)
 	 * @return Distance visibility multiplier between 0. and 1.
 	 */
-	public float getDistanceBrightness()									
+	public float getDistanceBrightness(WMV_Viewer viewer)									
 	{
-		float viewDist = getViewingDistance();
+		float viewDist = getViewingDistance(viewer);
 		float farViewingDistance = getViewerSettings().getFarViewingDistance();
 		float nearViewingDistance = getViewerSettings().getNearViewingDistance();
 

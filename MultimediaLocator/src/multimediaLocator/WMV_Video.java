@@ -200,7 +200,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 	}
 	
-	public void calculateVisibility(WMV_Utilities utilities)
+	public void calculateVisibility(WMV_Viewer viewer, WMV_Utilities utilities)
 	{
 		setVisible(false);
 
@@ -223,8 +223,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				setVisible(true);     										 		
 		}
 
-		if(getMediaState().visible)
+		if(isVisible())
 		{
+			System.out.println("Video #"+getID()+" visible... 1");
 			float videoAngle = getFacingAngle(getViewerState().getOrientationVector());				
 
 			if(!utilities.isNaN(videoAngle))
@@ -234,13 +235,15 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				setVisible(false);
 				
 			if(getMediaState().visible && !getViewerSettings().orientationMode)
-				setVisible(getDistanceBrightness() > 0.f);
+				setVisible(getDistanceBrightness(viewer) > 0.f);
 
 			if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 				setVisible(false);
 
 			if(isBackFacing(getViewerState().getLocation()) || isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
 				setVisible(false);
+			
+			System.out.println("Video #"+getID()+" 2   visible? "+isVisible()+" ...");
 		}
 	}
 	
@@ -273,18 +276,22 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		{
 			if(visibilitySetToTrue && !isFading() && !hasFadedOut())	// If should be visible and already fading, fade in 
 			{
+				if(ml.debugSettings.video)
+					System.out.println("Video.updateFading()... id#"+getID()+" will call load media? "+(!state.loaded));
 				if(!state.loaded) loadMedia(ml);
+				if(ml.debugSettings.video)
+					System.out.println("Video.updateFading()... will fade in video id#"+getID());
 				fadeIn(ml.world.getCurrentField());											// Fade in
 			}
 		}
-		else													// If in Angle Thinning Mode
+		else															// If in Angle Thinning Mode
 		{
 			if(getMediaState().visible && !state.thinningVisibility && !isFading())
 				fadeOut(ml.world.getCurrentField());
 
 			if(!getMediaState().visible && state.thinningVisibility && !isFading() && !hasFadedOut()) 
 			{
-				if(!state.loaded) loadMedia(ml); 				// Request video frames from disk
+				if(!state.loaded) loadMedia(ml); 						// Request video frames from disk
 				fadeIn(ml.world.getCurrentField());
 			}
 		}
@@ -577,11 +584,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 * Find distance from camera to point in virtual space where photo appears
 	 * @return How far the video is from the camera
 	 */
-	public float getViewingDistance()                  
+	public float getViewingDistance(WMV_Viewer viewer)                  
 	{
-		if(getViewerState() != null)
-		{
-		PVector camLoc = getViewerState().getLocation();
+		PVector camLoc = viewer.getLocation();
 		PVector loc = new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
 		float r;
@@ -601,21 +606,15 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		float distance = PVector.dist(loc, camLoc);     
 
 		return distance;
-		}
-		else
-		{
-			System.out.println("Video.getViewingDistance()... getViewerState() is null!! id #"+getID()+" name:"+getName());
-			return 1.f;
-		}
 	}
 
 	/** 
 	 * @return Distance visibility multiplier between 0. and 1.
 	 * Find video visibility due to distance (fades away in distance and as camera gets close)
 	 */
-	public float getDistanceBrightness()								
+	public float getDistanceBrightness(WMV_Viewer viewer)
 	{
-		float viewDist = getViewingDistance();
+		float viewDist = getViewingDistance(viewer);
 		float distVisibility = 1.f;
 
 		float farViewingDistance = getViewerSettings().getFarViewingDistance();

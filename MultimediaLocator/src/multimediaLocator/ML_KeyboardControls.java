@@ -58,21 +58,37 @@ public class ML_KeyboardControls
 
 		/* Settings for Show Model Option */
 		if (key == '5')
+			ml.world.setShowModel(!ml.world.getState().showModel);
+
+		if (key == '6')
 		{
-			boolean state = !ml.world.getState().showModel;
-			ml.world.state.showModel = state;
-			if(ml.display.window.setupGraphicsWindow)
-				ml.display.window.chkbxShowModel.setSelected(state);
+			if(ml.world.viewer.getSettings().selection)
+			{
+				ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
+				if(ml.display.window.showGraphicsWindow)
+					ml.display.window.chkbxMediaToCluster.setSelected( ml.world.state.showMediaToCluster );
+			}			
 		}
 
-		if (key == '6') 
-			ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
+		if (key == '7')
+		{
+			if(ml.world.viewer.getSettings().selection)
+			{
+				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
+				if(ml.display.window.showGraphicsWindow)
+					ml.display.window.chkbxCaptureToMedia.setSelected( ml.world.state.showCaptureToMedia );
+			}
+		}
 
-		if (key == '7') 
-			ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
-
-		if (key == '8') 
-			ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
+		if (key == '8')
+		{
+			if(ml.world.viewer.getSettings().selection)
+			{
+				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
+				if(ml.display.window.showGraphicsWindow)
+					ml.display.window.chkbxCaptureToCluster.setSelected( ml.world.state.showCaptureToCluster );
+			}
+		}
 
 		if (key == ' ') 
 		{
@@ -88,7 +104,6 @@ public class ML_KeyboardControls
 				ml.display.window.openNavigationWindow();
 			else
 				ml.display.window.closeNavigationWindow();
-//				ml.display.window.hideNavigationWindow();
 		}
 
 		if (key == '@') 
@@ -97,7 +112,6 @@ public class ML_KeyboardControls
 				ml.display.window.openGraphicsWindow();
 			else
 				ml.display.window.closeGraphicsWindow();
-//				ml.display.window.hideGraphicsWindow();
 		}
 
 		if (key == '#') 
@@ -106,7 +120,6 @@ public class ML_KeyboardControls
 				ml.display.window.openStatisticsWindow();
 			else
 				ml.display.window.closeStatisticsWindow();
-//				ml.display.window.hideStatisticsWindow();
 		}
 		
 		if (key == '$') 
@@ -114,10 +127,7 @@ public class ML_KeyboardControls
 			if(!ml.display.window.showHelpWindow)
 				ml.display.window.openHelpWindow();
 			else
-			{
 				ml.display.window.closeHelpWindow();
-//				ml.display.window.hideHelpWindow();
-			}
 		}
 
 		if (key == '0')
@@ -542,14 +552,14 @@ public class ML_KeyboardControls
 
 		if (key == 'µ')		// opt + m
 		{
-			ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection() );
+			ml.world.viewer.setMultiSelection( !ml.world.viewer.getMultiSelection(), true );
 			if(ml.world.viewer.getMultiSelection() && !ml.world.viewer.inSelectionMode())
 				ml.world.viewer.setSelection( true );
 		}
 		
 		if (key == 'ß')		// opt + s
 		{
-			ml.world.viewer.setGroupSelection( !ml.world.viewer.getSegmentSelection() );
+			ml.world.viewer.setGroupSelection( !ml.world.viewer.getSegmentSelection(), true );
 			if(ml.world.viewer.getSegmentSelection() && !ml.world.viewer.inSelectionMode())
 				ml.world.viewer.setSelection( true );
 		}

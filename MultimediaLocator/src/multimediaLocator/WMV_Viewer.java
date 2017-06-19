@@ -389,7 +389,7 @@ public class WMV_Viewer
 	
 	public void jumpTeleport(PVector dest, boolean update)
 	{
-		System.out.println("Viewer.jumpTeleport()... :"+dest);
+//		System.out.println("Viewer.jumpTeleport()... :"+dest);
 		if(state.atCurrentCluster)
 		{
 			saveCurrentClusterOrientation();
@@ -4868,13 +4868,13 @@ public class WMV_Viewer
 
 		if(inSelectionMode() && getMultiSelection())
 		{
-			setMultiSelection( false );
+			setMultiSelection( false, false );
 			if(p.ml.display.window.setupGraphicsWindow)
 				p.ml.display.window.chkbxMultiSelection.setSelected( false );
 		}
 		if(inSelectionMode() && getSegmentSelection()) 
 		{
-			setGroupSelection( false );
+			setGroupSelection( false, false );
 			if(p.ml.display.window.setupGraphicsWindow)
 				p.ml.display.window.chkbxSegmentSelection.setSelected( false );
 		}
@@ -4885,12 +4885,12 @@ public class WMV_Viewer
 		return settings.groupSelection;
 	}
 
-	public void setGroupSelection(boolean newGroupSelection)
+	public void setGroupSelection(boolean newGroupSelection, boolean message)
 	{
 		settings.groupSelection = newGroupSelection;
 		if(p.ml.display.window.setupGraphicsWindow)
 			p.ml.display.window.chkbxSegmentSelection.setSelected(settings.groupSelection);
-		if(p.getSettings().screenMessagesOn)
+		if(p.getSettings().screenMessagesOn && message)
 			p.ml.display.message(p.ml, "Group Selection Mode "+(newGroupSelection?"Enabled":"Disabled"));
 	}
 
@@ -4899,12 +4899,12 @@ public class WMV_Viewer
 		return settings.multiSelection;
 	}
 
-	public void setMultiSelection(boolean newMultiSelection)
+	public void setMultiSelection(boolean newMultiSelection, boolean message)
 	{
 		settings.multiSelection = newMultiSelection;
 		if(p.ml.display.window.setupGraphicsWindow)
 			p.ml.display.window.chkbxMultiSelection.setSelected(settings.multiSelection);
-		if(p.getSettings().screenMessagesOn)
+		if(p.getSettings().screenMessagesOn && message)
 			p.ml.display.message(p.ml, "Multiple Selection Mode "+(newMultiSelection?"Enabled":"Disabled"));
 	}
 

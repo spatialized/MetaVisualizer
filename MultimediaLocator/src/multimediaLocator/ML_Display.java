@@ -155,7 +155,7 @@ public class ML_Display
 		messageXOffset = screenWidth;
 		messageYOffset = -screenHeight * 0.33f;
 
-		metadataXOffset = leftTextXOffset;
+		metadataXOffset = -screenWidth * 0.2f;
 		metadataYOffset = -screenHeight / 2.f;
 
 		startupMessageXOffset = screenWidth / 2.f;
@@ -1899,6 +1899,7 @@ public class ML_Display
 	public void setDisplayView(WMV_World p, int newDisplayView)
 	{
 		displayView = newDisplayView;
+		System.out.println("Display.setDisplayView()... displayView:"+displayView);
 		switch(newDisplayView)
 		{
 			case 0:													// World View

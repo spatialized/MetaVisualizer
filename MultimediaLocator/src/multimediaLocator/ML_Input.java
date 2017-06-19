@@ -53,22 +53,24 @@ public class ML_Input
 			/* General */
 			keyboardInput.handleUniversalKeyPressed(ml, key, keyCode);
 
-			if(ml.display.displayView == 1)											 /* Map View */
-				keyboardInput.handleMapViewKeyPressed(ml, key, keyCode);
-			else if(ml.display.displayView == 2)									 /* Time View */
-				keyboardInput.handleTimelineViewKeyPressed(ml, key, keyCode);
-			else if(ml.display.displayView == 3)									 /* Library View */
-				keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);
-			else if(ml.display.displayView == 4)							 		/* Media View */
-				keyboardInput.handleMediaViewKeyPressed(ml, key, keyCode);
-
 			if (ml.state.interactive)					
 				keyboardInput.handleInteractiveClusteringKeyPressed(ml, key, keyCode);
 			else 						// Interactive Clustering Mode
 			{
 				keyboardInput.handleAllViewsKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
 
-				if(!ml.display.inDisplayView())							
+				if(ml.display.inDisplayView())							
+				{
+					if(ml.display.displayView == 1)											 /* Map View */
+						keyboardInput.handleMapViewKeyPressed(ml, key, keyCode);
+					else if(ml.display.displayView == 2)									 /* Time View */
+						keyboardInput.handleTimelineViewKeyPressed(ml, key, keyCode);
+					else if(ml.display.displayView == 3)									 /* Library View */
+						keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);
+					else if(ml.display.displayView == 4)							 		/* Media View */
+						keyboardInput.handleMediaViewKeyPressed(ml, key, keyCode);
+				}
+				else
 					keyboardInput.handleWorldViewKeyPressed(ml, key, keyCode); 		/* Controls for World View only */
 			}
 		}
@@ -630,26 +632,20 @@ public class ML_Input
 				
 			/* Model */
 			case "ShowModel":
-				world.state.showModel = option.isSelected();
-				if(world.state.showModel)
-				{
-//					world.ml.display.window.chkbxMediaToCluster.setLocalColorScheme(G4P.SCHEME_10);
-					world.ml.display.window.chkbxMediaToCluster.setEnabled(true);
-//					world.ml.display.window.chkbxCaptureToMedia.setLocalColorScheme(G4P.SCHEME_10);
-					world.ml.display.window.chkbxCaptureToMedia.setEnabled(true);
-//					world.ml.display.window.chkbxCaptureToCluster.setLocalColorScheme(G4P.SCHEME_10);
-					world.ml.display.window.chkbxCaptureToCluster.setEnabled(true);
-
-				}
-				else
-				{
-//					world.ml.display.window.chkbxMediaToCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-					world.ml.display.window.chkbxMediaToCluster.setEnabled(false);
-//					world.ml.display.window.chkbxCaptureToMedia.setLocalColorScheme(G4P.CYAN_SCHEME);
-					world.ml.display.window.chkbxCaptureToMedia.setEnabled(false);
-//					world.ml.display.window.chkbxCaptureToCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-					world.ml.display.window.chkbxCaptureToCluster.setEnabled(false);
-				}
+				world.setShowModel( option.isSelected() );
+//				world.state.showModel = option.isSelected();
+//				if(world.state.showModel)
+//				{
+//					world.ml.display.window.chkbxMediaToCluster.setEnabled(true);
+//					world.ml.display.window.chkbxCaptureToMedia.setEnabled(true);
+//					world.ml.display.window.chkbxCaptureToCluster.setEnabled(true);
+//				}
+//				else
+//				{
+//					world.ml.display.window.chkbxMediaToCluster.setEnabled(false);
+//					world.ml.display.window.chkbxCaptureToMedia.setEnabled(false);
+//					world.ml.display.window.chkbxCaptureToCluster.setEnabled(false);
+//				}
 
 				break;
 			case "MediaToCluster":
@@ -696,11 +692,11 @@ public class ML_Input
 				break;
 				
 			case "MultiSelection":
-				world.viewer.setMultiSelection( option.isSelected() );
+				world.viewer.setMultiSelection( option.isSelected(), true );
 				break;
 					
 			case "SegmentSelection":
-				world.viewer.setGroupSelection( option.isSelected() );
+				world.viewer.setGroupSelection( option.isSelected(), true );
 				break;
 				
 			case "ViewMetadata":

@@ -2235,8 +2235,8 @@ public class WMV_World
 	
 	public void setShowMetadata(boolean newShowMetadata)
 	{
-		ml.world.state.showMetadata = newShowMetadata;
-		if(ml.world.getSettings().screenMessagesOn)
+		state.showMetadata = newShowMetadata;
+		if(getSettings().screenMessagesOn)
 		{
 			if(newShowMetadata)
 				ml.display.message(ml, "Show Metadata ON");
@@ -2245,6 +2245,27 @@ public class WMV_World
 		}
 	}
 
+	public void setShowModel(boolean newShowModel)
+	{
+		state.showModel = newShowModel;
+		if(ml.display.window.setupGraphicsWindow)
+		{
+			ml.display.window.chkbxShowModel.setSelected(newShowModel);
+			if(state.showModel)
+			{
+				ml.display.window.chkbxMediaToCluster.setEnabled(true);
+				ml.display.window.chkbxCaptureToMedia.setEnabled(true);
+				ml.display.window.chkbxCaptureToCluster.setEnabled(true);
+			}
+			else
+			{
+				ml.display.window.chkbxMediaToCluster.setEnabled(false);
+				ml.display.window.chkbxCaptureToMedia.setEnabled(false);
+				ml.display.window.chkbxCaptureToCluster.setEnabled(false);
+			}
+		}
+	}
+	
 	/**
 	 * Load image blur masks
 	 */

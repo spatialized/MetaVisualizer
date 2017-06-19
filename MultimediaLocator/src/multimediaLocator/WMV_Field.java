@@ -466,7 +466,9 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Display the image in virtual space
+	 * Display given image ID in virtual space
+	 * @param ml Parent app
+	 * @param i Image ID
 	 */
 	private void displayImage(MultimediaLocator ml, int i)
 	{
@@ -491,25 +493,33 @@ public class WMV_Field
 
 		m.setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
 
-		if(m.getMediaState().showMetadata) 
-			m.displayMetadata(ml);
-
 		if (!m.isHidden() && !m.isDisabled()) 
 		{
 			if (m.getViewingBrightness() > 0)
 			{
-				if(m.image.width > 0)				// If image has been loaded
-					m.display(ml);        // Display image 
+				if(m.image.width > 0)												// If image has been loaded
+				{
+					m.display(ml);        											// Display image 
+					if(m.isSelected())
+					{
+						if(m.getMediaState().showMetadata) m.displayMetadata(ml);	// Display metadata
+					}
+					else
+					{
+						if(getWorldState().showModel) m.displayModel(ml);			// Display model
+					}
+					if(!m.isSeen()) m.setSeen(true);
+					state.imagesSeen++;
+				}
 			}
 		} 
-
-		if(m.isVisible() && getWorldState().showModel && !m.isHidden() && !m.isDisabled())
-			m.displayModel(ml);
-
-		if(!m.isSeen()) m.setSeen(true);
-		state.imagesSeen++;
 	}
 
+	/**
+	 * Display given panorama ID in virtual space
+	 * @param ml Parent app
+	 * @param i Panorama ID
+	 */
 	private void displayPanorama(MultimediaLocator ml, int i)
 	{
 		WMV_Panorama n = panoramas.get(i);
@@ -532,18 +542,29 @@ public class WMV_Field
 			if (n.getViewingBrightness() > 0)
 			{
 				if(n.texture.width > 0)		// If image has been loaded
+				{
 					n.display(ml);
+					if(!n.isSeen()) n.setSeen(true);
+					if(n.isSelected())
+					{
+						if(n.getMediaState().showMetadata) n.displayMetadata(ml);
+					}
+					else
+					{
+						if(getWorldState().showModel) n.displayModel(ml);
+					}
+					state.panoramasSeen++;
+				}
 			}
-		} 
-
-		if(n.isVisible() && getWorldState().showModel && !n.isHidden() && !n.isDisabled())
-			n.displayModel(ml);
-
-		
-		if(!n.isSeen()) n.setSeen(true);
-		state.panoramasSeen++;
+			
+		}
 	}
 	
+	/**
+	 * Display given video ID in virtual space
+	 * @param ml Parent app
+	 * @param i Video ID
+	 */
 	private void displayVideo(MultimediaLocator ml, int i)
 	{
 		WMV_Video v = videos.get(i);
@@ -581,32 +602,55 @@ public class WMV_Field
 		if (!v.isHidden() && !v.isDisabled()) 
 		{
 			if (v.getViewingBrightness() > 0)
+			{
 				if ((v.video.width > 1) && (v.video.height > 1))
+				{
 					v.display(ml);          // Draw the video 
+					if(v.isSelected())
+					{
+						if(v.getMediaState().showMetadata) v.displayMetadata(ml);
+					}
+					else
+					{
+						if(getWorldState().showModel) v.displayModel(ml);
+					}
+					if(!v.isSeen()) v.setSeen(true);
+					state.videosSeen++;
+				}
+			}
 		}
-
-		if(v.getMediaState().visible && getWorldState().showModel && !v.isHidden() && !!v.isDisabled())
-			v.displayModel(ml);
-		
-		if(!v.isSeen()) v.setSeen(true);
-		state.videosSeen++;
 	}
 
+	/**
+	 * Display given sound ID in virtual space
+	 * @param ml Parent app
+	 * @param i Sound ID
+	 */
 	private void displaySound(MultimediaLocator ml, int i)
 	{
 		WMV_Sound s = sounds.get(i);
 		
 		if(s.getMediaState().showMetadata) s.displayMetadata(ml);
-		if(s.getMediaState().visible)
-		{
-			if(getWorldState().showModel && !s.isHidden() && !s.isDisabled())
-				s.displayModel(ml);
-			else if(ml.debugSettings.sound || ml.debugSettings.world) 
-				s.displayModel(ml);
-		}
 
-		if(!s.isSeen()) s.setSeen(true);
-		state.soundsHeard++;
+		if(!s.isHidden() && !s.isDisabled())
+		{
+			if(s.getViewingBrightness() > 0)
+			{
+				if(s.getMediaState().visible && getWorldState().showModel)
+				{
+					if(s.isSelected())
+					{
+						if(s.getMediaState().showMetadata) s.displayMetadata(ml);
+					}
+					else
+					{
+						if(getWorldState().showModel) s.displayModel(ml);
+					}
+					if(!s.isSeen()) s.setSeen(true);
+					state.soundsHeard++;
+				}
+			}
+		}
 	}
 	
 	/**
@@ -655,7 +699,7 @@ public class WMV_Field
 	}
 
 	/**
-	 * Increase max. number of visible clusters
+	 * Increase maximum number of visible clusters
 	 * @param ml Parent app
 	 */
 	public void increaseClusterVisibility(MultimediaLocator ml)
@@ -674,7 +718,7 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Reduce max. number of visible clusters
+	 * Reduce maximum number of visible clusters
 	 * @param ml Parent app
 	 */
 	public void reduceClusterVisibility(MultimediaLocator ml)

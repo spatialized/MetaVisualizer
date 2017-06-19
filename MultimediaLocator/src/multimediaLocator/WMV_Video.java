@@ -122,58 +122,13 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		}
 	}
 
-//	/**
-//	 * Display the video in virtual space
-//	 */
-//	public void display(MultimediaLocator ml)
-//	{
-//		if(getMediaState().showMetadata) displayMetadata(ml);
-//
-//		float distanceBrightness = 0.f; 					// Fade with distance
-//		float angleBrightness;
-//
-//		float brightness = getFadingBrightness();					
-//		brightness *= getViewerSettings().userBrightness;
-//
-//		distanceBrightness = getDistanceBrightness(); 
-//		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
-//
-//		if( getWorldState().timeFading && time != null && !getViewerState().isMoving() )
-//			brightness *= getTimeBrightness(); 					// Fade brightness based on time
-//
-//		if(state.isClose && distanceBrightness == 0.f)							// Video recently moved out of range
-//		{
-//			state.isClose = false;
-//			fadeOut();
-//		}
-//
-//		if( getViewerSettings().angleFading )
-//		{
-//			float videoAngle = getFacingAngle(getViewerState().getOrientationVector());
-//
-//			angleBrightness = getAngleBrightness(videoAngle);                 // Fade out as turns sideways or gets too far / close
-//			brightness *= angleBrightness;
-//		}
-//
-//		setViewingBrightness( PApplet.map(brightness, 0.f, 1.f, 0.f, 255.f) );				// Scale to setting for alpha range
-//
-//		if (!isHidden() && !isDisabled()) 
-//		{
-//			if (getViewingBrightness() > 0)
-//				if ((video.width > 1) && (video.height > 1))
-//					displayVideo(ml);          // Draw the video 
-//		}
-//
-//		if(getMediaState().visible && getWorldState().showModel && !isHidden() && !!isDisabled())
-//			displayModel(ml);
-//	}
-
 	/**
 	 * Draw the video center as a colored sphere
 	 * @param size Size to draw the video center
 	 */
 	void displayModel(MultimediaLocator ml)
 	{
+		/* Draw frame */
 		ml.pushMatrix();
 
 		ml.stroke(0.f, 0.f, 255.f, getViewingBrightness());	 
@@ -189,25 +144,26 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		PVector cl = getCaptureLocation();
 		ml.popMatrix();
 
+		/* Draw media, cluster and capture location */
 		ml.pushMatrix();
 		if(getWorldState().showMediaToCluster)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(150, 135, 255, getViewingBrightness());
+			ml.stroke(150, 135, 255, getViewingBrightness() * 0.8f);
 			ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToMedia)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(160, 100, 255, getViewingBrightness());
+			ml.stroke(160, 100, 255, getViewingBrightness() * 0.8f);
 			ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToCluster)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(120, 55, 255, getViewingBrightness());
+			ml.stroke(120, 55, 255, getViewingBrightness() * 0.8f);
 			ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
 		ml.popMatrix();
@@ -487,27 +443,16 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	public void display(MultimediaLocator ml)
 	{
-//		ml.rectMode(PApplet.CENTER);
 		if(getViewerSettings().selection)
 		{
 			if (isSelected())     // Draw outline
 			{
-				ml.stroke(90, 80, 255, state.outlineAlpha);
+				ml.stroke(state.outlineHue, 120, 245, state.outlineAlpha);
 				ml.strokeWeight(state.outlineSize);
 			}
 		}
 		else
 			ml.noStroke(); 
-
-//		ml.noStroke(); 
-//		if(isSelected())
-//		{
-//			if (!getViewerSettings().selection && getDebugSettings().world)     // Draw outline
-//			{
-//				ml.stroke(19, 200, 150);
-//				ml.strokeWeight(state.outlineSize);
-//			}
-//		}
 
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
@@ -527,30 +472,30 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		frame = new PImage(video.getImage());
 		blurred = applyMask(ml, frame, blurMask);				// Apply blur mask once image has loaded
 
-		if(getViewerSettings().selection)
-		{
-			if(isSelected())
-			{
-				if(!getWorldState().alphaMode)
-					ml.tint(getViewingBrightness(), 255);          				
-				else
-					ml.tint(255, getViewingBrightness());          				
-			}
-			else
-			{
-				if(!getWorldState().alphaMode)
-					ml.tint(getViewingBrightness() * 0.333f, 255);          // Set the image transparency					
-				else
-					ml.tint(255, getViewingBrightness() * 0.333f);          				
-			}
-		}
-		else
-		{
+//		if(getViewerSettings().selection)
+//		{
+//			if(isSelected())
+//			{
+//				if(!getWorldState().alphaMode)
+//					ml.tint(getViewingBrightness(), 255);          				
+//				else
+//					ml.tint(255, getViewingBrightness());          				
+//			}
+//			else
+//			{
+//				if(!getWorldState().alphaMode)
+//					ml.tint(getViewingBrightness() * 0.333f, 255);          // Set the image transparency					
+//				else
+//					ml.tint(255, getViewingBrightness() * 0.333f);          				
+//			}
+//		}
+//		else
+//		{
 			if(!getWorldState().alphaMode)
 				ml.tint(getViewingBrightness(), 255);          				
 			else
 				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
-		}
+//		}
 
 		if(getViewerSettings().orientationMode)
 		{

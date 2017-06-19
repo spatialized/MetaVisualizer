@@ -119,7 +119,6 @@ public class WMV_Image extends WMV_Media
 	{
 		/* Draw frame */
 		ml.pushMatrix();
-
 		ml.stroke(0.f, 0.f, 255.f, getMediaState().viewingBrightness);	 
 		ml.strokeWeight(2.f);
 
@@ -131,28 +130,28 @@ public class WMV_Image extends WMV_Media
 		PVector c = ml.world.getCurrentField().getCluster(getMediaState().getClusterID()).getLocation();
 		PVector loc = getLocation();
 		PVector cl = getCaptureLocation();
-
 		ml.popMatrix();
 
+		/* Draw media, cluster and capture location */
 		ml.pushMatrix();
 		if(getWorldState().showMediaToCluster)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(80, 135, 255, getMediaState().viewingBrightness);
+			ml.stroke(80, 135, 255, getMediaState().viewingBrightness * 0.8f);
 			ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToMedia)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(160, 100, 255, getMediaState().viewingBrightness);
+			ml.stroke(160, 100, 255, getMediaState().viewingBrightness * 0.8f);
 			ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToCluster)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(120, 55, 255, getMediaState().viewingBrightness);
+			ml.stroke(120, 55, 255, getMediaState().viewingBrightness * 0.8f);
 			ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
 		ml.popMatrix();
@@ -258,7 +257,7 @@ public class WMV_Image extends WMV_Media
 		{
 			if (isSelected())     // Draw outline
 			{
-				ml.stroke(90, 80, 255, state.outlineAlpha);
+				ml.stroke(state.outlineHue, 120, 245, state.outlineAlpha);
 				ml.strokeWeight(state.outlineSize);
 			}
 			else

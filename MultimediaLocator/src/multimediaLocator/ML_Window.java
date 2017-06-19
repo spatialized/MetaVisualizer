@@ -988,12 +988,14 @@ public class ML_Window
 		chkbxSelectionMode.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 		chkbxSelectionMode.setSelected(world.viewer.getSettings().selection);
 		
-		x = 95;
-		y += 35;
-		btnSelectFront = new GButton(graphicsWindow, x, y, 120, iSmallBoxHeight, "Select (x)");
-		btnSelectFront.tag = "SelectFront";
-		btnSelectFront.setLocalColorScheme(G4P.CYAN_SCHEME);
-
+		x = 85;
+		y += iSmallBoxHeight * 1.5f;
+		chkbxShowMetadata = new GCheckbox(graphicsWindow, x, y, 200, iSmallBoxHeight, "Show Metadata (M)");
+		chkbxShowMetadata.tag = "ViewMetadata";
+		chkbxShowMetadata.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxShowMetadata.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxShowMetadata.setSelected(world.getState().showMetadata);
+		
 		x = iLeftMargin - 3;
 		y += iSmallBoxHeight * 1.5f;
 		chkbxMultiSelection = new GCheckbox(graphicsWindow, x, y, 145, iSmallBoxHeight, "Allow Multiple (OPT m)");
@@ -1005,6 +1007,12 @@ public class ML_Window
 		chkbxSegmentSelection.tag = "SegmentSelection";
 		chkbxSegmentSelection.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxSegmentSelection.setSelected(world.viewer.getSettings().groupSelection);
+		
+		x = 95;
+		y += 35;
+		btnSelectFront = new GButton(graphicsWindow, x, y, 120, iSmallBoxHeight, "Select (x)");
+		btnSelectFront.tag = "SelectFront";
+		btnSelectFront.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = 95;
 		y += iButtonSpacingWide;
@@ -1029,14 +1037,6 @@ public class ML_Window
 		btnDeselectAll.tag = "DeselectAll";
 		btnDeselectAll.setLocalColorScheme(G4P.RED_SCHEME);
 
-		x = 85;
-		y += iSmallBoxHeight * 1.5f;
-		chkbxShowMetadata = new GCheckbox(graphicsWindow, x, y, 200, iSmallBoxHeight, "Show Metadata (M)");
-		chkbxShowMetadata.tag = "ViewMetadata";
-		chkbxShowMetadata.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxShowMetadata.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxShowMetadata.setSelected(world.getState().showMetadata);
-		
 //		x = 85;
 //		y += iButtonSpacingWide;
 //		btnStitchPanorama = new GButton(graphicsWindow, x, y, 140, iSmallBoxHeight, "Stitch Selection  (⇧\\)");

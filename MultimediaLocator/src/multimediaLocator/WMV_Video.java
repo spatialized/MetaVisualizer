@@ -487,17 +487,27 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	public void display(MultimediaLocator ml)
 	{
-		ml.rectMode(PApplet.CENTER);
-		ml.noStroke(); 
-
-		if(isSelected())
+//		ml.rectMode(PApplet.CENTER);
+		if(getViewerSettings().selection)
 		{
-			if (!getViewerSettings().selection && getDebugSettings().world)     // Draw outline
+			if (isSelected())     // Draw outline
 			{
-				ml.stroke(19, 200, 150);
+				ml.stroke(90, 80, 255, state.outlineAlpha);
 				ml.strokeWeight(state.outlineSize);
 			}
 		}
+		else
+			ml.noStroke(); 
+
+//		ml.noStroke(); 
+//		if(isSelected())
+//		{
+//			if (!getViewerSettings().selection && getDebugSettings().world)     // Draw outline
+//			{
+//				ml.stroke(19, 200, 150);
+//				ml.strokeWeight(state.outlineSize);
+//			}
+//		}
 
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the video

@@ -1,6 +1,7 @@
 package multimediaLocator;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 //import processing.core.PApplet;
@@ -14,7 +15,6 @@ public class WMV_ViewerState
 {
 	/* Time */
 	public boolean firstRunningFrame = false;			// Flag indicating first World simulation frame
-
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
 	public int currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
 	public int currentFieldDate = 0;					// Current date in field dateline
@@ -35,9 +35,11 @@ public class WMV_ViewerState
 	public int timeSegmentTarget = -1;					// Field time segment goal			
 
 	/* Clusters */
+	public ArrayList<WMV_Orientation> clusterOrientations;	// List of viewer orientations at each cluster 
 	public List<Integer> clustersVisibleInOrientationMode;				// Clusters visible to viewer in Orientation Mode
 	public int field = 0;								// Current field
 	public int currentCluster = 0;						// Cluster currently in view
+	public boolean atCurrentCluster = false;			// Whether viewer is centered at current cluster (false if has moved)
 	public int lastCluster = -1;						// Last cluster visited
 
 	public int attractorCluster = -1;					// ID of single cluster currently attracting the camera
@@ -58,7 +60,7 @@ public class WMV_ViewerState
 	
 	/* Physics */
 	public PVector location;		// Viewer location in virtual space
-	public PVector orientation;		// Viewer orientation 
+	public PVector orientation;		// Viewer orientation {azimuth, elevation, roll} in radians
 	public PVector target;			// Viewer target point
 	public PVector velocity;		// Viewer velocity
 	public PVector acceleration;	// Viewer acceleration
@@ -133,8 +135,10 @@ public class WMV_ViewerState
 	public String gpsTrackName = "";			// GPS track name
 	public int gpsTrackSelected = -1;			// ID of GPS track selected
 
-	WMV_ViewerState()
+	public WMV_ViewerState()
 	{
+		clusterOrientations = new ArrayList<WMV_Orientation>();
+
 		location = new PVector(0,0,0);
 		velocity = new PVector(0,0,0);
 		acceleration = new PVector(0,0,0);
@@ -151,6 +155,8 @@ public class WMV_ViewerState
 	
 	public void reset()
 	{
+		clusterOrientations = new ArrayList<WMV_Orientation>();
+
 		currentFieldTimeSegment = 0;			// Current time segment in field timeline
 		currentFieldTimeSegmentOnDate = 0;		// Current time segment in field timelines
 		currentFieldDate = 0;					// Current date in field dateline
@@ -161,7 +167,42 @@ public class WMV_ViewerState
 		lookAtCurrentMedia = false;				// In Single Time Mode, whether to turn and look at current media  -- bugs
 		nearbyClusterTimelineMediaCount = 0;	// Number of media in nearbyClusterTimeline
 	}
-	
+
+	/**
+	 * Save viewer orientation at given cluster
+	 * @param clusterID Cluster ID
+	 * @param direction Viewer direction at cluster
+	 * @param elevation Viewer elevation at cluster
+	 * @param rotation Viewer rotation at cluster
+	 */
+	public void saveClusterOrientation( int clusterID, float direction, float elevation, float rotation )
+	{
+		WMV_Orientation newOrientation = new WMV_Orientation(clusterID, direction, elevation, rotation);
+		clusterOrientations.add(newOrientation);
+		System.out.println("ViewerState.saveClusterOrientation()... Saved viewer orientation for cluster #"+clusterID);
+	}
+
+	public WMV_Orientation getClusterOrientation(int clusterID)
+	{
+		for(WMV_Orientation o : clusterOrientations)
+		{
+			if(o.getID() == clusterID)
+				return o;
+		}
+		
+		return null;
+	}
+
+	public ArrayList<WMV_Orientation> getClusterOrientations()
+	{
+		return clusterOrientations;
+	}
+
+	public void clearClusterOrientations()
+	{
+		clusterOrientations = new ArrayList<WMV_Orientation>();
+	}
+
 	public PVector getLocation()
 	{
 		return location;

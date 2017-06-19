@@ -352,7 +352,7 @@ public class WMV_Cluster
 	 */
 	public void stitchImages(ML_Stitcher stitcher, String libraryFolder, ArrayList<WMV_Image> selectedImages)
 	{
-		if(viewerSettings.multiSelection || viewerSettings.segmentSelection)		// Segment or group is selected
+		if(viewerSettings.multiSelection || viewerSettings.groupSelection)		// Segment or group is selected
 		{
 			List<Integer> allSelected = new ArrayList<Integer>();
 			List<Integer> visible = new ArrayList<Integer>();
@@ -1014,6 +1014,24 @@ public class WMV_Cluster
 		if(viewerState != null)
 		{
 			return PVector.dist(state.location, viewerState.getLocation());
+		}
+		else
+		{
+			System.out.println("Cluster.getClusterDistance()... cluster id:"+getID()+" ... viewerState == NULL!!");
+			return 0.f;
+		}
+	}
+
+
+	/**
+	 * Get distance from cluster center to viewer
+	 * @return Cluster distance
+	 */
+	float getClusterDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
+	{
+		if(viewerState != null)
+		{
+			return PVector.dist(state.location, point);
 		}
 		else
 		{
@@ -1703,17 +1721,6 @@ public class WMV_Cluster
 	public WMV_ClusterState getState()
 	{
 		return state;
-	}
-
-	/**
-	 * @return Cluster location as a waypoint for navigation
-	 */
-	public WMV_Waypoint getClusterAsWaypoint(WMV_Field field)
-	{
-		PVector gpsLoc = utilities.getGPSLocation(field, getLocation());
-		float altitude = utilities.getAltitude(field, getLocation());
-		WMV_Waypoint result = new WMV_Waypoint(getID(), getLocation(), gpsLoc, altitude, null);			// -- Should set to center time instead of null!!
-		return result;
 	}
 	
 	/**

@@ -199,7 +199,7 @@ public class WMV_Sound extends WMV_Media
 	 */
 	public void displayModel(MultimediaLocator ml)
 	{
-		ml.rectMode(PApplet.CENTER);
+//		ml.rectMode(PApplet.CENTER);
 		ml.noStroke(); 
 
 		ml.stroke(70, 220, 150);
@@ -220,9 +220,9 @@ public class WMV_Sound extends WMV_Media
 			else
 			{
 				if(!getWorldState().alphaMode)
-					ml.tint(getViewingBrightness() * 0.333f, 255);          // Set the image transparency					
+					ml.tint(getViewingBrightness() * 0.5f, 255);          // Set the image transparency					
 				else
-					ml.tint(255, getViewingBrightness() * 0.333f);          				
+					ml.tint(255, getViewingBrightness() * 0.4f);          				
 			}
 		}
 		else

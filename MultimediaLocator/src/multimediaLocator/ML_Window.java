@@ -21,7 +21,7 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
-	private int delayAmount = 110;							// Delay length to avoid G4P library concurrent modification exception
+	private int delayAmount = 60;							// Delay length to avoid G4P library concurrent modification exception
 
 	/* Windows */
 	public GWindow mlWindow, navigationWindow, graphicsWindow, statisticsWindow,  helpWindow, 
@@ -452,7 +452,7 @@ public class ML_Window
 		
 		x = 120;
 		y += iButtonSpacing;
-		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "Teleport");
+		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 120, iSmallBoxHeight, "Teleport (t)");
 		chkbxMovementTeleport.tag = "MovementTeleport";
 		chkbxMovementTeleport.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		chkbxMovementTeleport.setLocalColorScheme(G4P.SCHEME_10);
@@ -940,22 +940,22 @@ public class ML_Window
 
 		x = iLeftMargin;
 		y += iButtonSpacingWide;
-		chkbxHideImages = new GCheckbox(graphicsWindow, x, y, 95, iSmallBoxHeight, "Images");
+		chkbxHideImages = new GCheckbox(graphicsWindow, x, y, 85, iSmallBoxHeight, "Images");
 		chkbxHideImages.tag = "HideImages";
 		chkbxHideImages.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHideImages.setSelected(world.viewer.getSettings().hideImages);
 		
-		chkbxHidePanoramas = new GCheckbox(graphicsWindow, x += 65, y, 115, iSmallBoxHeight, "Panoramas");
+		chkbxHidePanoramas = new GCheckbox(graphicsWindow, x += 65, y, 105, iSmallBoxHeight, "Panoramas");
 		chkbxHidePanoramas.tag = "HidePanoramas";
 		chkbxHidePanoramas.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHidePanoramas.setSelected(world.viewer.getSettings().hidePanoramas);
 
-		chkbxHideVideos = new GCheckbox(graphicsWindow, x += 65, y, 95, iSmallBoxHeight, "Videos");
+		chkbxHideVideos = new GCheckbox(graphicsWindow, x += 95, y, 85, iSmallBoxHeight, "Videos");
 		chkbxHideVideos.tag = "HideVideos";
 		chkbxHideVideos.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHideVideos.setSelected(world.viewer.getSettings().hideVideos);
 
-		chkbxHideSounds = new GCheckbox(graphicsWindow, x += 85, y, 95, iSmallBoxHeight, "Sounds");
+		chkbxHideSounds = new GCheckbox(graphicsWindow, x += 65, y, 95, iSmallBoxHeight, "Sounds");
 		chkbxHideSounds.tag = "HideSounds";
 		chkbxHideSounds.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxHideSounds.setSelected(world.viewer.getSettings().hideSounds);
@@ -1004,7 +1004,7 @@ public class ML_Window
 		chkbxSegmentSelection = new GCheckbox(graphicsWindow, x + 148, y, 175, iSmallBoxHeight, "Select Groups (OPT s)");
 		chkbxSegmentSelection.tag = "SegmentSelection";
 		chkbxSegmentSelection.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxSegmentSelection.setSelected(world.viewer.getSettings().segmentSelection);
+		chkbxSegmentSelection.setSelected(world.viewer.getSettings().groupSelection);
 
 		x = 95;
 		y += iButtonSpacingWide;
@@ -1845,23 +1845,39 @@ public class ML_Window
 				}
 				
 				if(f.getImageCount() > 0) applet.text(" Images: "+f.getImageCount(), x, y += lineWidthVeryWide);			
-				if(f.getImagesVisible() > 0) applet.text("   Visible: "+f.getImagesVisible(), x, y += lineWidthVeryWide);
-//				if(f.getImagesSeen() > 0) applet.text("   Seen: "+f.getImagesSeen(), x, y += lineWidthVeryWide);
-
+				if(f.getImagesVisible() > 0) 
+				{
+					applet.text("   In Visible Range: "+f.getImagesVisible(), x, y += lineWidthVeryWide);
+					applet.text("   Seen: "+f.getImagesSeen(), x, y += lineWidthVeryWide);
+				}
+				
 				if(f.getPanoramaCount() > 0) applet.text(" Panoramas: "+f.getPanoramaCount(), x, y += lineWidthVeryWide);		
-				if(f.getPanoramasVisible() > 0) applet.text("   Visible: "+f.getPanoramasVisible(), x, y += lineWidthVeryWide);
-//				if(f.getPanoramasSeen() > 0) applet.text("   Seen: "+f.getPanoramasSeen(), x, y += lineWidthVeryWide);
+				if(f.getPanoramasVisible() > 0)
+				{
+					applet.text("   In Visible Range: "+f.getPanoramasVisible(), x, y += lineWidthVeryWide);
+					applet.text("   Seen: "+f.getPanoramasSeen(), x, y += lineWidthVeryWide);
+				}
 
 				if(f.getVideoCount() > 0) applet.text(" Videos: "+f.getVideoCount(), x, y += lineWidthVeryWide);					
-				if(f.getVideosVisible() > 0) applet.text("   Visible: "+f.getVideosVisible(), x, y += lineWidthVeryWide);
-				if(f.getVideosPlaying() > 0) applet.text("   Playing: "+f.getVideosPlaying(), x, y += lineWidthVeryWide);
-//				if(f.getVideosSeen() > 0) applet.text("   Seen: "+f.getVideosSeen(), x, y += lineWidthVeryWide);
-	
+				if(f.getVideosVisible() > 0)
+				{
+					applet.text("   In Visible Range: "+f.getVideosVisible(), x, y += lineWidthVeryWide);
+					if(f.getVideosPlaying() > 0)
+					{
+						applet.text("   Playing: "+f.getVideosPlaying(), x, y += lineWidthVeryWide);
+						if(f.getVideosSeen() > 0) applet.text("   Seen: "+f.getVideosSeen(), x, y += lineWidthVeryWide);
+					}
+				}
+				
 				if(f.getSoundCount() > 0) applet.text(" Sounds: "+f.getSoundCount(), x, y += lineWidthVeryWide);					
-				if(f.getSoundsPlaying() > 0) applet.text(" Sounds Playing: "+f.getSoundsPlaying(), x, y += lineWidthVeryWide);
-				if(f.getSoundsAudible() > 0) applet.text("   Audible: "+f.getSoundsAudible(), x, y += lineWidthVeryWide);
-//				if(f.getSoundsHeard() > 0) applet.text("   Heard: "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
-
+				if(f.getSoundsAudible() > 0)
+				{
+					applet.text(" In Audible Range: "+f.getSoundsAudible(), x, y += lineWidthVeryWide);
+					if(f.getSoundsPlaying() > 0) 
+						applet.text("   Playing: "+f.getSoundsPlaying(), x, y += lineWidthVeryWide);
+					applet.text("   Heard: "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
+				}
+				
 				applet.textSize(fLargeTextSize);
 				applet.text("Output", x, y += lineWidthVeryWide * 1.5f);
 				applet.textSize(fMediumTextSize);

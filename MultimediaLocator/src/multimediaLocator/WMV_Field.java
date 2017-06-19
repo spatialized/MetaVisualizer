@@ -2621,7 +2621,7 @@ public class WMV_Field
 		{
 			if(t.getClusterID() < clusters.size())
 			{
-				WMV_Waypoint w = clusters.get(t.getClusterID()).getClusterAsWaypoint(this);
+				WMV_Waypoint w = getClusterAsWaypoint(t.getClusterID());
 				timelinePath.add(w);
 			}
 			else
@@ -2638,6 +2638,21 @@ public class WMV_Field
 
 		return timelinePath;
 	}
+	
+
+	/**
+	 * @return Cluster location as a waypoint for navigation
+	 */
+	public WMV_Waypoint getClusterAsWaypoint(int clusterID)
+	{
+		WMV_Cluster c = clusters.get(clusterID);
+		
+		PVector gpsLoc = utilities.getGPSLocation(this, c.getLocation());
+		float altitude = utilities.getAltitude(this, c.getLocation());
+		WMV_Waypoint result = new WMV_Waypoint(c.getID(), c.getLocation(), gpsLoc, altitude, null);			// -- Should set to center time instead of null!!
+		return result;
+	}
+
 
 	public int getFirstTimeSegment()
 	{

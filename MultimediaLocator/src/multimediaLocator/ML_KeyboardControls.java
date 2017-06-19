@@ -3,10 +3,11 @@ package multimediaLocator;
 import processing.core.PApplet;
 
 /**
- * Keyboard input handling methods
+ * Keyboard input handler
  * @author davidgordon
  */
-public class ML_KeyboardControls {
+public class ML_KeyboardControls 
+{
 
 	private ML_Input input;
 	
@@ -26,18 +27,22 @@ public class ML_KeyboardControls {
 		if (key == 'R')
 			ml.restart();
 
-		if (key == ' ') 
-			if(ml.state.interactive)
-				ml.finishInteractiveClustering();			// Restart simulation after interactive clustering
-
-		if (key == ' ') 
-		{
-			if(ml.display.window.showMLWindow)
-				ml.display.window.hideMLWindow();
-			else
-				ml.display.window.openMLWindow();
+		if (keyCode == PApplet.SHIFT) {
+			input.shiftKey = true;
 		}
 
+		if (keyCode == PApplet.ALT) 
+			input.optionKey = true;
+	}
+	
+	/**
+	 * Handle key pressed that affects any View Mode
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
+	public void handleAllViewsKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	{
 		/* Display Modes */
 		if (key == '1') 
 			ml.display.setDisplayView(ml.world, 0);
@@ -48,9 +53,10 @@ public class ML_KeyboardControls {
 		if (key == '3') 
 			ml.display.setDisplayView(ml.world, 2);
 
-		if (key == '4')									// -- Obsolete soon
+		if (key == '4')									// -- Obsolete 
 			ml.display.setDisplayView(ml.world, 3);
 
+		/* Settings for Show Model Option */
 		if (key == '5')
 		{
 			boolean state = !ml.world.getState().showModel;
@@ -67,6 +73,14 @@ public class ML_KeyboardControls {
 
 		if (key == '8') 
 			ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
+
+		if (key == ' ') 
+		{
+			if(ml.display.window.showMLWindow)
+				ml.display.window.hideMLWindow();
+			else
+				ml.display.window.openMLWindow();
+		}
 
 		if (key == '!') 
 		{
@@ -100,147 +114,42 @@ public class ML_KeyboardControls {
 			if(!ml.display.window.showHelpWindow)
 				ml.display.window.openHelpWindow();
 			else
-				ml.display.window.hideHelpWindow();
-		}
-		
-		/* Arrow and Shift Keys */
-		if (key == PApplet.CODED) 					
-		{
-			if(ml.display.inDisplayView())
 			{
-				if(ml.state.interactive)			/* Interactive Clustering */
-				{
-					if(ml.world.getState().hierarchical)
-					{
-						if (keyCode == PApplet.UP) 
-						{
-							int clusterDepth = ml.world.getCurrentField().getState().clusterDepth + 1;
-							if(clusterDepth <= ml.world.getCurrentField().getState().deepestLevel)
-								ml.world.getCurrentField().setDendrogramDepth( clusterDepth );
-						}
-
-						if (keyCode == PApplet.DOWN) 
-						{
-							int clusterDepth = ml.world.getCurrentField().getState().clusterDepth - 1;
-							if(clusterDepth >= ml.world.getCurrentField().getState().minClusterDepth)
-								ml.world.getCurrentField().setDendrogramDepth( clusterDepth );
-						}
-					}
-					else
-					{
-						if (keyCode == PApplet.LEFT) 		
-						{
-							ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
-							float populationFactor = ml.world.getCurrentField().getModel().state.clusterPopulationFactor;
-
-							if(ml.world.getCurrentField().getModel().state.clusterRefinement >= ml.world.getCurrentField().getModel().state.minClusterRefinement)
-							{
-								ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-								ml.world.getCurrentField().mergeAllAdjacentClusters();						
-								ml.world.getCurrentField().finishClusterSetup();			
-								ml.display.map2D.initialize(ml.world);
-							}
-							else ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
-						}
-
-						if (keyCode == PApplet.RIGHT) 	
-						{
-							ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
-							float populationFactor = ml.world.getCurrentField().getModel().state.clusterPopulationFactor;
-
-							if(ml.world.getCurrentField().getModel().state.clusterRefinement <= ml.world.getCurrentField().getModel().state.maxClusterRefinement)
-							{
-								ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-								ml.world.getCurrentField().mergeAllAdjacentClusters();						
-								ml.world.getCurrentField().finishClusterSetup();			
-								ml.display.map2D.initialize(ml.world);
-							}
-							else ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
-						}
-
-						if (keyCode == PApplet.DOWN) 		
-						{
-							int refinementAmount = ml.world.getCurrentField().getModel().state.clusterRefinement;
-							ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
-
-							if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor >= ml.world.getCurrentField().getModel().state.minPopulationFactor)
-							{
-								ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-								ml.world.getCurrentField().mergeAllAdjacentClusters();						
-								ml.world.getCurrentField().finishClusterSetup();			
-								ml.display.map2D.initialize(ml.world);
-							}
-							else ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
-						}
-
-						if (keyCode == PApplet.UP) 	
-						{
-							int refinementAmount = ml.world.getCurrentField().getModel().state.clusterRefinement;
-							ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
-
-							if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor <= ml.world.getCurrentField().getModel().state.maxPopulationFactor)
-							{
-								ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-								ml.world.getCurrentField().mergeAllAdjacentClusters();						
-								ml.world.getCurrentField().finishClusterSetup();			
-								ml.display.map2D.initialize(ml.world);
-							}
-							else ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
-						}
-					}
-				}
+				ml.display.window.closeHelpWindow();
+//				ml.display.window.hideHelpWindow();
 			}
-			else
-			{
-				/* Navigation */
-				if (keyCode == PApplet.LEFT) 
-					ml.world.viewer.rotateX(-1);
-
-				if (keyCode == PApplet.RIGHT) 
-					ml.world.viewer.rotateX(1);
-
-				if (keyCode == PApplet.UP) 
-					ml.world.viewer.rotateY(-1);
-
-				if (keyCode == PApplet.DOWN) 
-					ml.world.viewer.rotateY(1);
-
-				/* Time */
-				if (input.shiftKey && keyCode == PApplet.UP) 
-					ml.world.incrementTime();
-
-				if (input.shiftKey && keyCode == PApplet.DOWN) 
-					ml.world.decrementTime();
-
-				if (input.shiftKey && keyCode == PApplet.LEFT) 
-					ml.world.decrementTimeCycleLength();
-
-				if (input.shiftKey && keyCode == PApplet.RIGHT) 
-					ml.world.incrementTimeCycleLength();
-			}
-
-			if (keyCode == PApplet.SHIFT) {
-				input.shiftKey = true;
-			}
-
-			if (keyCode == PApplet.ALT) 
-				input.optionKey = true;
 		}
-	}
-	
-	/**
-	 * Handle key pressed that affects any View Mode
-	 * @param ml
-	 * @param key
-	 * @param keyCode
-	 */
-	public void handleGeneralKeyPressed(MultimediaLocator ml, char key, int keyCode)
-	{
+
 		if (key == '0')
-		{
 			ml.state.sphericalView = !ml.state.sphericalView;
-		}
 		
+		/* Navigation */
+		if (keyCode == PApplet.LEFT) 
+			ml.world.viewer.rotateX(-1);
+
+		if (keyCode == PApplet.RIGHT) 
+			ml.world.viewer.rotateX(1);
+
+		if (keyCode == PApplet.UP) 
+			ml.world.viewer.rotateY(-1);
+
+		if (keyCode == PApplet.DOWN) 
+			ml.world.viewer.rotateY(1);
+
+		/* Time */
+		if (input.shiftKey && keyCode == PApplet.UP) 
+			ml.world.incrementTime();
+
+		if (input.shiftKey && keyCode == PApplet.DOWN) 
+			ml.world.decrementTime();
+
+		if (input.shiftKey && keyCode == PApplet.LEFT) 
+			ml.world.decrementTimeCycleLength();
+
+		if (input.shiftKey && keyCode == PApplet.RIGHT) 
+			ml.world.incrementTimeCycleLength();
+		
+		/* Graphics */
 		if (input.optionKey && key == '[')
 		{
 			if(ml.world.viewer.getThinningAngle() > PApplet.PI / 64.f)
@@ -273,11 +182,6 @@ public class ML_KeyboardControls {
 		if( key == '/' )
 			ml.world.saveSimulationState();
 
-		if( key == '?' )
-		{
-
-		}
-
 		if( key == 't' && !input.optionKey )
 		{
 			boolean state = !ml.world.viewer.getMovementTeleport();
@@ -290,9 +194,7 @@ public class ML_KeyboardControls {
 		{
 			boolean state = ml.world.state.displayTerrain;
 			if(state)
-			{
 				ml.world.fadeOutTerrain(true);
-			}
 			else
 			{
 				ml.world.state.terrainAlpha = 0.f;
@@ -304,12 +206,9 @@ public class ML_KeyboardControls {
 		if (key == 'T') 
 		{
 			boolean state = !ml.world.getState().timeFading;
-			if(ml.world.getState().timeFading != state)
-			{
-				ml.world.state.timeFading = state;
-				if(ml.display.window.setupNavigationWindow)
-					ml.display.window.chkbxTimeFading.setSelected(state);
-			}
+			ml.world.setTimeFading(state);
+			if(ml.display.window.setupNavigationWindow)
+				ml.display.window.chkbxTimeFading.setSelected(state);
 		}
 
 		if (!input.optionKey && key == 's') 
@@ -318,13 +217,8 @@ public class ML_KeyboardControls {
 		if (!input.optionKey && key == 'w') 
 			ml.world.viewer.walkForward();
 
-		if (key == 'M') 
-		{
-			boolean state = !ml.world.getState().showMetadata;
-			ml.world.state.showMetadata = state;
-			if(ml.display.window.setupGraphicsWindow)
-				ml.display.window.chkbxShowMetadata.setSelected(state);
-		}
+		if (key == '9')														// -- Disabled
+			ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
 
 		if (key == 'Q')
 			ml.exitProgram();
@@ -341,11 +235,16 @@ public class ML_KeyboardControls {
 		if (key == '-') 								
 			ml.world.state.paused = !ml.world.getState().paused;
 
-		if (key == '9')														// -- Disabled
-			ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
-
 		if (key == 'W') 
 			ml.world.viewer.moveToNearestClusterAhead(false);
+
+		if (key == 'M') 
+		{
+			boolean state = !ml.world.getState().showMetadata;
+			ml.world.setShowMetadata(state);
+			if(ml.display.window.setupGraphicsWindow)
+				ml.display.window.chkbxShowMetadata.setSelected(state);
+		}
 
 		if (!input.optionKey && key == ']') {
 			float value = ml.world.settings.altitudeScalingFactor * 1.052f;
@@ -400,10 +299,8 @@ public class ML_KeyboardControls {
 			if(!ml.world.viewer.isFollowing())
 			{
 				int followMode = ml.world.viewer.getFollowMode();
-				if(followMode >= 2)
-					followMode = 0;
-				else
-					followMode++;
+				if(followMode >= 2) followMode = 0;
+				else followMode++;
 
 				ml.world.viewer.setFollowMode(followMode);
 
@@ -481,14 +378,10 @@ public class ML_KeyboardControls {
 				ml.display.window.chkbxFollowTeleport.setSelected( ml.world.viewer.getFollowTeleport() );
 		}
 		
-//		if (key == 'i') 		// Go to next cluster ID with image
-//			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 0);
-//		if (key == 'p') 		// Go to next cluster ID with panorama
-//			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 1);
-//		if (key == 'v') 		// Go to to next cluster ID with video
-//			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 2);
-//		if (key == 'u') 		// Go to to next cluster ID with sound
-//			ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 3);
+//		ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 0);
+//		ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 1);
+//		ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 2);
+//		ml.world.viewer.moveToNextCluster(ml.world.viewer.getMovementTeleport(), 3);
 
 		if (key == 'i') 		// Go to nearest cluster ID with image
 			ml.world.viewer.moveToNearestClusterWithMediaType(ml.world.viewer.getMovementTeleport(), 0, false);
@@ -573,17 +466,17 @@ public class ML_KeyboardControls {
 		if (key == 'P')	
 		{
 			if(ml.world.viewer.getSettings().hidePanoramas)
-				ml.world.viewer.showPanoramas();
+				ml.world.showPanoramas();
 			else
-				ml.world.viewer.hidePanoramas();
+				ml.world.hidePanoramas();
 		}
 
 		if (key == 'V')	
 		{
 			if(ml.world.viewer.getSettings().hideVideos)
-				ml.world.viewer.showVideos();
+				ml.world.showVideos();
 			else
-				ml.world.viewer.hideVideos();
+				ml.world.hideVideos();
 		}
 
 		if (input.optionKey && key == 'p')
@@ -623,10 +516,14 @@ public class ML_KeyboardControls {
 			ml.world.getCurrentField().deselectAllMedia(false);
 
 		if (input.optionKey && key == '-')
+		{
 			ml.world.viewer.setVisibleAngle( ml.world.viewer.getVisibleAngle() - 3.1415f / 128.f ); 
+		}
 
 		if (input.optionKey && key == '=')
+		{
 			ml.world.viewer.setVisibleAngle( ml.world.viewer.getVisibleAngle() + 3.1415f / 128.f ); 
+		}
 
 		/* Selection */
 		if (!input.optionKey && key == 'x') 
@@ -652,7 +549,7 @@ public class ML_KeyboardControls {
 		
 		if (key == 'ß')		// opt + s
 		{
-			ml.world.viewer.setSegmentSelection( !ml.world.viewer.getSegmentSelection() );
+			ml.world.viewer.setGroupSelection( !ml.world.viewer.getSegmentSelection() );
 			if(ml.world.viewer.getSegmentSelection() && !ml.world.viewer.inSelectionMode())
 				ml.world.viewer.setSelection( true );
 		}
@@ -660,17 +557,20 @@ public class ML_KeyboardControls {
 		/* GPS */
 		if (!input.optionKey && key == 'g') 
 		{
-//			ml.world.viewer.importGPSTrack();				// Select a GPS tracking file from disk to load and navigate 
 			if(ml.world.getCurrentField().getGPSTracks().size() > 0)
 				ml.world.viewer.chooseGPSTrack();
 		}
 		
 		/* Memory */
 		if (key == '`') 
+		{
 			ml.world.viewer.addPlaceToMemory();
+		}
 
 		if (key == 'y') 
+		{
 			ml.world.viewer.clearMemory();
+		}
 
 		/* Graphics */
 		if (key == 'G')
@@ -710,9 +610,9 @@ public class ML_KeyboardControls {
 	
 	/**
 	 * Handle key pressed in Map View
-	 * @param ml
-	 * @param key
-	 * @param keyCode
+	 * @param ml Parent app
+	 * @param key Key pressed
+	 * @param keyCode Key code
 	 */
 	public void handleMapViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
@@ -805,7 +705,6 @@ public class ML_KeyboardControls {
 				int selectedField = ml.display.map2D.getSelectedFieldID();
 				if(input.shiftKey)
 				{
-//					if(ml.world.getField(selectedField).hasBeenVisited())
 					ml.world.viewer.teleportToField(selectedField, true, false);
 				}
 				else
@@ -1118,6 +1017,93 @@ public class ML_KeyboardControls {
 				}
 			}
 		}	
+		
+		if (key == ' ') 
+			if(ml.state.interactive)
+				ml.finishInteractiveClustering();			// Restart simulation after interactive clustering
+
+		/* Arrow and Shift Keys */
+		if (key == PApplet.CODED) 					
+		{
+			if(ml.world.getState().hierarchical)
+			{
+				if (keyCode == PApplet.UP) 
+				{
+					int clusterDepth = ml.world.getCurrentField().getState().clusterDepth + 1;
+					if(clusterDepth <= ml.world.getCurrentField().getState().deepestLevel)
+						ml.world.getCurrentField().setDendrogramDepth( clusterDepth );
+				}
+
+				if (keyCode == PApplet.DOWN) 
+				{
+					int clusterDepth = ml.world.getCurrentField().getState().clusterDepth - 1;
+					if(clusterDepth >= ml.world.getCurrentField().getState().minClusterDepth)
+						ml.world.getCurrentField().setDendrogramDepth( clusterDepth );
+				}
+			}
+			else
+			{
+				if (keyCode == PApplet.LEFT) 		
+				{
+					ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
+					float populationFactor = ml.world.getCurrentField().getModel().state.clusterPopulationFactor;
+
+					if(ml.world.getCurrentField().getModel().state.clusterRefinement >= ml.world.getCurrentField().getModel().state.minClusterRefinement)
+					{
+						ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
+						ml.world.getCurrentField().mergeAllAdjacentClusters();						
+						ml.world.getCurrentField().finishClusterSetup();			
+						ml.display.map2D.initialize(ml.world);
+					}
+					else ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
+				}
+
+				if (keyCode == PApplet.RIGHT) 	
+				{
+					ml.world.getCurrentField().getModel().state.clusterRefinement += 10;
+					float populationFactor = ml.world.getCurrentField().getModel().state.clusterPopulationFactor;
+
+					if(ml.world.getCurrentField().getModel().state.clusterRefinement <= ml.world.getCurrentField().getModel().state.maxClusterRefinement)
+					{
+						ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
+						ml.world.getCurrentField().mergeAllAdjacentClusters();						
+						ml.world.getCurrentField().finishClusterSetup();			
+						ml.display.map2D.initialize(ml.world);
+					}
+					else ml.world.getCurrentField().getModel().state.clusterRefinement -= 10;
+				}
+
+				if (keyCode == PApplet.DOWN) 		
+				{
+					int refinementAmount = ml.world.getCurrentField().getModel().state.clusterRefinement;
+					ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
+
+					if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor >= ml.world.getCurrentField().getModel().state.minPopulationFactor)
+					{
+						ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
+						ml.world.getCurrentField().mergeAllAdjacentClusters();						
+						ml.world.getCurrentField().finishClusterSetup();			
+						ml.display.map2D.initialize(ml.world);
+					}
+					else ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
+				}
+
+				if (keyCode == PApplet.UP) 	
+				{
+					int refinementAmount = ml.world.getCurrentField().getModel().state.clusterRefinement;
+					ml.world.getCurrentField().getModel().state.clusterPopulationFactor += 1.f;
+
+					if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor <= ml.world.getCurrentField().getModel().state.maxPopulationFactor)
+					{
+						ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
+						ml.world.getCurrentField().mergeAllAdjacentClusters();						
+						ml.world.getCurrentField().finishClusterSetup();			
+						ml.display.map2D.initialize(ml.world);
+					}
+					else ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
+				}
+			}
+		}
 	}
 	
 	public void handleKeyReleased(WMV_Viewer viewer, ML_Display display, char key, int keyCode)

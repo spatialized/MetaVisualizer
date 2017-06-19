@@ -66,14 +66,20 @@ public class ML_Input
 				keyboardInput.handleInteractiveClusteringKeyPressed(ml, key, keyCode);
 			else 						// Interactive Clustering Mode
 			{
-				keyboardInput.handleGeneralKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
+				keyboardInput.handleAllViewsKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
 
 				if(!ml.display.inDisplayView())							
-					keyboardInput.handleWorldViewKeyPressed(ml, key, keyCode); 		/* World View Controls only */
+					keyboardInput.handleWorldViewKeyPressed(ml, key, keyCode); 		/* Controls for World View only */
 			}
 		}
 	}
 
+	/**
+	 * Handle key pressed in Library View
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	void handleLibraryViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
@@ -694,7 +700,7 @@ public class ML_Input
 				break;
 					
 			case "SegmentSelection":
-				world.viewer.setSegmentSelection( option.isSelected() );
+				world.viewer.setGroupSelection( option.isSelected() );
 				break;
 				
 			case "ViewMetadata":

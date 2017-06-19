@@ -555,17 +555,17 @@ public class MultimediaLocator extends PApplet
 	/**
 	 * Initialize 2D drawing 				// -- Obsolete
 	 */
-	public void start3DHUD()
-	{
-		PVector camLoc = world.viewer.getLocation();
-		PVector camOrientation = world.viewer.getOrientation();
-		perspective(world.viewer.getInitFieldOfView(), (float)width/(float)height, world.viewer.getNearClippingDistance(), 10000);
-		PVector t = new PVector(camLoc.x, camLoc.y, camLoc.z);
-		translate(t.x, t.y, t.z);
-		rotateY(camOrientation.x);
-		rotateX(-camOrientation.y);
-		rotateZ(camOrientation.z);
-	}
+//	public void start3DHUD()
+//	{
+//		PVector camLoc = world.viewer.getLocation();
+//		PVector camOrientation = world.viewer.getOrientation();
+//		perspective(world.viewer.getInitFieldOfView(), (float)width/(float)height, world.viewer.getNearClippingDistance(), 10000);
+//		PVector t = new PVector(camLoc.x, camLoc.y, camLoc.z);
+//		translate(t.x, t.y, t.z);
+//		rotateY(camOrientation.x);
+//		rotateX(-camOrientation.y);
+//		rotateZ(camOrientation.z);
+//	}
 
 	/**
 	 * Restart program and open Library dialog
@@ -1526,22 +1526,14 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-//		if(keyevent.getKey() == 'b')
-//			display.window.helpAboutText = 0;
-//		if(keyevent.getKey() == 'b')
-//			display.window.helpAboutText = 0;
-//		else
-//		{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
-//		}
 	}
 	
 	public void mediaFolderDialog()
 	{
-//		if(!display.window.lblLibraryWait.isVisible())
 		display.window.lblLibraryWindowText.setVisible(true);
 		selectFolder("Select media folder:", "mediaFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
@@ -1697,6 +1689,14 @@ public class MultimediaLocator extends PApplet
 		windowVisible = true;
 	}
 
+	public void debugMessage(String message)
+	{
+		if(debugSettings.print)
+			System.out.println(message);
+		if(debugSettings.messages)
+		display.message(this, message);
+	}
+	
 	@SuppressWarnings("restriction")
 	private void setAppIcon(PImage img) 
 	{

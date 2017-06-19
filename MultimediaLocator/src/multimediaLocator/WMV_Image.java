@@ -254,17 +254,18 @@ public class WMV_Image extends WMV_Media
 	public void display(MultimediaLocator ml)
 	{
 //		System.out.println("Image.display()... "+getID());
-		ml.noStroke(); 
-		if (isSelected())     // Draw outline
+		if(getViewerSettings().selection)
 		{
-			if(!getViewerSettings().selection && getDebugSettings().world)
+			if (isSelected())     // Draw outline
 			{
-				ml.stroke(155, 146, 255, 255);
+				ml.stroke(90, 80, 255, state.outlineAlpha);
 				ml.strokeWeight(state.outlineSize);
 			}
+			else
+				ml.noStroke(); 
 		}
-
-		ml.rectMode(PApplet.CENTER);
+		else 
+			ml.noStroke(); 
 
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
@@ -277,32 +278,32 @@ public class WMV_Image extends WMV_Media
 		else
 			ml.texture(image);        			// Apply the image to the face as a texture 
 
-		if(getViewerSettings().selection)
-		{
-			if(isSelected())
-			{
-				if(!getWorldState().alphaMode)
-					ml.tint(getViewingBrightness(), 255);          				
-				else
-					ml.tint(255, getViewingBrightness());          				
-			}
-			else
-			{
-				if(!getWorldState().alphaMode)
-					ml.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
-				else
-					ml.tint(255, getViewingBrightness() * 0.333f);    
-			}
-		}
-		else
-		{
+//		if(getViewerSettings().selection)
+//		{
+//			if(isSelected())
+//			{
+//				if(!getWorldState().alphaMode)
+//					ml.tint(getViewingBrightness(), 255);          				
+//				else
+//					ml.tint(255, getViewingBrightness());          				
+//			}
+//			else
+//			{
+//				if(!getWorldState().alphaMode)
+//					ml.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
+//				else
+//					ml.tint(255, getViewingBrightness() * 0.333f);    
+//			}
+//		}
+//		else
+//		{
 			if(!getWorldState().alphaMode)
 				ml.tint(getViewingBrightness(), 255);          				
 			else
 			{
 				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 			}
-		}
+//		}
 
 		if(getViewerSettings().orientationMode)
 		{
@@ -329,7 +330,7 @@ public class WMV_Image extends WMV_Media
 	public void display2D(MultimediaLocator ml)
 	{
 		ml.noStroke(); 
-		ml.rectMode(PApplet.CENTER);
+//		ml.rectMode(PApplet.CENTER);
 
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image

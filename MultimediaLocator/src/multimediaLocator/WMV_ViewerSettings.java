@@ -84,7 +84,7 @@ public class WMV_ViewerSettings
 	public boolean optimizeVisibility = false;			// Optimize visibility automatically by turning towards media / changing graphics modes
 	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
 	public boolean multiSelection = false;				// User can select multiple images for stitching
-	public boolean segmentSelection = false;			// Select image segments at a time
+	public boolean groupSelection = false;			// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
 
 	/* Interaction Settings */
@@ -172,7 +172,7 @@ public class WMV_ViewerSettings
 		optimizeVisibility = true;			// Optimize visibility automatically
 		lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
 		multiSelection = false;				// User can select multiple images for stitching
-		segmentSelection = false;			// Select image segments at a time
+		groupSelection = false;			// Select image segments at a time
 		mouseNavigation = false;			// Mouse navigation
 
 		/* Interaction Settings */

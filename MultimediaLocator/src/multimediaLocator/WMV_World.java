@@ -195,7 +195,8 @@ public class WMV_World
 		viewer.updateNavigation();									// Update navigation
 		viewer.start();												// Start the viewer if this is the first frame
 
-		state.waitingToFadeInTerrainAlpha = true;
+		if(state.displayTerrain)
+			state.waitingToFadeInTerrainAlpha = true;
 	}
 	
 	/**
@@ -403,7 +404,7 @@ public class WMV_World
 	}
 	
 	/**
-	 * Update Single Time Mode parameters (Obsolete)
+	 * Update Single Time Mode parameters -- Obsolete
 	 */
 	private void updateSingleTimeMode()
 	{
@@ -600,6 +601,8 @@ public class WMV_World
 			state.fadingTerrainEndFrame = ml.frameCount + state.fadingTerrainLength; 
 			if(turnOff)
 				state.turnOffTerrainAfterFadingOut = true;
+			if(ml.world.getSettings().screenMessagesOn)
+				ml.display.message(ml, "Display Terrain OFF");
 		}
 	}
 
@@ -615,6 +618,8 @@ public class WMV_World
 			state.fadingTerrainEndFrame = ml.frameCount + state.fadingTerrainLength; 
 			if(state.waitingToFadeInTerrainAlpha)
 				state.waitingToFadeInTerrainAlpha = false;
+			if(ml.world.getSettings().screenMessagesOn)
+				ml.display.message(ml, "Display Terrain ON");
 		}
 	}
 
@@ -707,6 +712,9 @@ public class WMV_World
 	 */
 	void saveAllSimulationStates()
 	{
+		if(ml.world.getSettings().screenMessagesOn)
+			ml.display.message(ml, "Saving Library...");
+
 		for(WMV_Field f : fields)
 		{
 			String folderPath = ml.library.getDataFolder(f.getID());
@@ -800,7 +808,6 @@ public class WMV_World
 	 * @param field Field to load simulation state for
 	 * @return Whether successful
 	 */
-//	public WMV_Field loadAndSetSimulationState(WMV_SimulationState newSimulationState, WMV_Field field)
 	public WMV_Field loadAndSetSimulationState(WMV_Field field)
 	{
 		if(ml.debugSettings.world && ml.debugSettings.detailed) PApplet.println("Loading and setting Simulation State... Field #"+field.getID());
@@ -839,7 +846,6 @@ public class WMV_World
 	/**
 	 * Save the current world, field and viewer states and settings to file
 	 */
-//	public WMV_Field loadSimulationState(WMV_SimulationState newSimulationState, WMV_Field curField)
 	public WMV_Field loadSimulationState(WMV_Field curField)
 	{
 		PApplet.println("Loading Simulation State... Field #"+curField.getID());
@@ -901,7 +907,7 @@ public class WMV_World
 			}
 			else
 			{
-				System.out.println("  Error in setting field ID... field.getID():"+field.getID()+" fields.size():"+fields.size());
+				ml.debugMessage("  Error in setting field ID... field.getID():"+field.getID()+" fields.size():"+fields.size());
 				ml.exit();
 			}
 		}
@@ -919,7 +925,7 @@ public class WMV_World
 					System.out.println("  setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
 				viewer.setCurrentCluster(0, 0);
 			}
-			viewer.setLocation(getCurrentCluster().getLocation());					// Set location to current cluster
+			viewer.setLocation(getCurrentCluster().getLocation(), false);					// Set location to current cluster
 			viewer.ignoreTeleportGoal();
 		}
 
@@ -1148,6 +1154,8 @@ public class WMV_World
 			state.fadingAlphaTarget = target;
 			state.fadingAlphaStartFrame = state.frameCount;
 			state.fadingAlphaEndFrame = state.fadingAlphaStartFrame + state.fadingAlphaLength;
+			if(getSettings().screenMessagesOn)
+				ml.display.message(ml, "Set Alpha to: "+target);
 		}
 		else
 		{
@@ -1593,7 +1601,7 @@ public class WMV_World
 	
 
 	/**
-	 * @param newTimeMode New time mode (0: Cluster, 1:Field, 2: (Single) Media)
+	 * @param newTimeMode New time mode {0: Cluster, 1:Field, 2: Media}
 	 */
 	public void setTimeMode(int newTimeMode)
 	{
@@ -1609,6 +1617,8 @@ public class WMV_World
 						ml.display.window.sdrClusterLength.setVisible(false);
 					if(ml.display.window.lblClusterLength.isVisible())
 						ml.display.window.lblClusterLength.setVisible(false);
+					if(ml.world.getSettings().screenMessagesOn)
+						ml.display.message(ml, "Set Time Mode to: Cluster");
 					break;
 				case 1:														// Field
 					ml.display.window.optClusterTimeMode.setSelected(false);
@@ -1617,12 +1627,18 @@ public class WMV_World
 						ml.display.window.sdrClusterLength.setVisible(true);
 					if(!ml.display.window.lblClusterLength.isVisible())
 						ml.display.window.lblClusterLength.setVisible(true);
+					if(ml.world.getSettings().screenMessagesOn)
+						ml.display.message(ml, "Set Time Mode to: Field");
 					break;
 			}		
 		}
 
 	}
 	
+	/**
+	 * Set time cycle length for all clusters in current field
+	 * @param newTimeCycleLength New time cycle length
+	 */
 	public void setAllClustersTimeCycleLength(int newTimeCycleLength)
 	{
 		for(WMV_Cluster c : getCurrentField().getClusters())
@@ -1644,6 +1660,9 @@ public class WMV_World
 	{
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHideImages.setSelected(false);
+		
+		if(getSettings().screenMessagesOn)
+			ml.display.message(ml, "Hiding Images ON");
 	}
 	
 	/**
@@ -1662,6 +1681,9 @@ public class WMV_World
 
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHideImages.setSelected(true);
+		
+		if(getSettings().screenMessagesOn)
+			ml.display.message(ml, "Hiding Images ON");
 	}
 	
 	/** 
@@ -1671,6 +1693,9 @@ public class WMV_World
 	{
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHidePanoramas.setSelected(false);
+		
+		if(getSettings().screenMessagesOn)
+			ml.display.message(ml, "Hiding Panoramas OFF");
 	}
 	
 	/** 
@@ -1701,6 +1726,9 @@ public class WMV_World
 		
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHidePanoramas.setSelected(true);
+		
+		if(getSettings().screenMessagesOn)
+			ml.display.message(ml, "Hiding Panoramas ON");
 	}
 	
 	/**
@@ -1710,6 +1738,9 @@ public class WMV_World
 	{
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHideVideos.setSelected(false);
+		
+		if(getSettings().screenMessagesOn)
+			ml.display.message(ml, "Hiding Videos OFF");
 	}
 	
 	/**
@@ -1728,6 +1759,9 @@ public class WMV_World
 		
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHideVideos.setSelected(true);
+		
+		if(getSettings().screenMessagesOn)
+			ml.display.message(ml, "Hiding Videos ON");
 	}
 
 	
@@ -2186,6 +2220,30 @@ public class WMV_World
 		
 		return null;
 	}
+	
+	public void setTimeFading( boolean newTimeFading )
+	{
+		state.timeFading = newTimeFading;
+		if(ml.world.getSettings().screenMessagesOn)
+		{
+			if(newTimeFading)
+				ml.display.message(ml, "Time Fading ON");
+			else
+				ml.display.message(ml, "Time Fading OFF");
+		}
+	}
+	
+	public void setShowMetadata(boolean newShowMetadata)
+	{
+		ml.world.state.showMetadata = newShowMetadata;
+		if(ml.world.getSettings().screenMessagesOn)
+		{
+			if(newShowMetadata)
+				ml.display.message(ml, "Show Metadata ON");
+			else
+				ml.display.message(ml, "Show Metadata OFF");
+		}
+	}
 
 	/**
 	 * Load image blur masks
@@ -2259,164 +2317,6 @@ public class WMV_World
 		videoBlurMaskBothBoth = getMaskImageResource(maskPath, "videoBlurMaskBothBoth.jpg");
 	}
 
-//	/**
-//	 * Load image blur masks
-//	 */
-//	public void loadImageMasks()
-//	{
-//		String maskPath = "masks/";
-//		File maskFolder = new File(maskPath);
-//		String[] maskFolderList = maskFolder.list();
-//
-//		if(maskFolder.list() == null)
-//		{
-//			System.out.println("Masks folder is empty!");
-//		}
-//		else
-//		{
-//			for(String mask : maskFolderList)
-//			{
-//				if(mask.equals("blurMaskLeftTop.jpg"))
-//					blurMaskLeftTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskLeftCenter.jpg"))
-//					blurMaskLeftCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskLeftBottom.jpg"))
-//					blurMaskLeftBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskLeftBoth.jpg"))
-//					blurMaskLeftBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskCenterTop.jpg"))
-//					blurMaskCenterTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskCenterCenter.jpg"))
-//					blurMaskCenterCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskCenterBottom.jpg"))
-//					blurMaskCenterBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskCenterBoth.jpg"))
-//					blurMaskCenterBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskRightTop.jpg"))
-//					blurMaskRightTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskRightCenter.jpg"))
-//					blurMaskRightCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskRightBottom.jpg"))
-//					blurMaskRightBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskRightBoth.jpg"))
-//					blurMaskRightBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskBothTop.jpg"))
-//					blurMaskBothTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskBothCenter.jpg"))
-//					blurMaskBothCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskBothBottom.jpg"))
-//					blurMaskBothBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("blurMaskBothBoth.jpg"))
-//					blurMaskBothBoth = p.loadImage(maskPath + mask);
-//			}
-//		}
-//		
-//		String vertMaskPath = "masks_vert/";
-//		File vertMaskFolder = new File(vertMaskPath);
-//		String[] vertMaskFolderList = vertMaskFolder.list();
-//
-//		if(vertMaskFolder.list() == null)
-//		{
-//			System.out.println("Vertical masks folder is empty!");
-//		}
-//		else
-//		{
-//			for(String mask : vertMaskFolderList)
-//			{
-//				if(mask.equals("vertBlurMaskLeftTop.jpg"))
-//					vertBlurMaskLeftTop = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskLeftCenter.jpg"))
-//					vertBlurMaskLeftCenter = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskLeftBottom.jpg"))
-//					vertBlurMaskLeftBottom = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskLeftBoth.jpg"))
-//					vertBlurMaskLeftBoth = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskCenterTop.jpg"))
-//					vertBlurMaskCenterTop = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskCenterCenter.jpg"))
-//					vertBlurMaskCenterCenter = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskCenterBottom.jpg"))
-//					vertBlurMaskCenterBottom = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskCenterBoth.jpg"))
-//					vertBlurMaskCenterBoth = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskRightTop.jpg"))
-//					vertBlurMaskRightTop = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskRightCenter.jpg"))
-//					vertBlurMaskRightCenter = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskRightBottom.jpg"))
-//					vertBlurMaskRightBottom = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskRightBoth.jpg"))
-//					vertBlurMaskRightBoth = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskBothTop.jpg"))
-//					vertBlurMaskBothTop = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskBothCenter.jpg"))
-//					vertBlurMaskBothCenter = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskBothBottom.jpg"))
-//					vertBlurMaskBothBottom = p.loadImage(vertMaskPath + mask);
-//				if(mask.equals("vertBlurMaskBothBoth.jpg"))
-//					vertBlurMaskBothBoth = p.loadImage(vertMaskPath + mask);
-//			}
-//		}
-//	}
-	
-//	/**
-//	 * Load video masks
-//	 */
-//	public void loadVideoMasks()
-//	{
-//		String maskPath = "video_masks/";
-//		File maskFolder = new File(maskPath);
-//		String[] maskFolderList = maskFolder.list();
-//		
-//		if(maskFolder.list() == null)
-//		{
-//			System.out.println("Video masks folder is empty!");
-//		}
-//		else
-//		{
-//			for(String mask : maskFolderList)
-//			{
-//				if(mask.equals("videoBlurMaskLeftTop.jpg"))
-//					videoBlurMaskLeftTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskLeftCenter.jpg"))
-//					videoBlurMaskLeftCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskLeftBottom.jpg"))
-//					videoBlurMaskLeftBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskLeftBoth.jpg"))
-//					videoBlurMaskLeftBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskCenterTop.jpg"))
-//					videoBlurMaskCenterTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskCenterCenter.jpg"))
-//					videoBlurMaskCenterCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskCenterBottom.jpg"))
-//					videoBlurMaskCenterBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskCenterBoth.jpg"))
-//					videoBlurMaskCenterBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskRightTop.jpg"))
-//					videoBlurMaskRightTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskRightCenter.jpg"))
-//					videoBlurMaskRightCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskRightBottom.jpg"))
-//					videoBlurMaskRightBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskRightBoth.jpg"))
-//					videoBlurMaskRightBoth = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskBothTop.jpg"))
-//					videoBlurMaskBothTop = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskBothCenter.jpg"))
-//					videoBlurMaskBothCenter = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskBothBottom.jpg"))
-//					videoBlurMaskBothBottom = p.loadImage(maskPath + mask);
-//				if(mask.equals("videoBlurMaskBothBoth.jpg"))
-//					videoBlurMaskBothBoth = p.loadImage(maskPath + mask);
-//			}
-//		}
-//	}
-	
-//	public String getDataFolder()
-//	{
-//		return p.library.getLibraryFolder() + "/" + getCurrentField().getName() + "/data/";
-//	}
-	
 	public void setSettings(WMV_WorldSettings newSettings)
 	{
 		settings = newSettings;

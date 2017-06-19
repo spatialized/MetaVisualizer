@@ -16,9 +16,9 @@ public class WMV_Camera
 	private PApplet p;
 
 	// Camera orientation 
-	private float azimuth;
-	private float elevation;
-	private float roll;
+	private float azimuth;			// Azimuth (yaw) in radians
+	private float elevation;		// Elevation (pitch) in radians
+	private float roll;				// Rotation (roll) in radians
 
 	// Camera position
 	private float cameraX;

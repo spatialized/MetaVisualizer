@@ -151,9 +151,9 @@ public class WMV_Panorama extends WMV_Media
 			else
 			{
 				if(!getWorldState().alphaMode)
-					ml.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
+					ml.tint(getViewingBrightness() * 0.5f, 255);          // Set the image transparency					
 				else
-					ml.tint(255, getViewingBrightness() * 0.33f);          				
+					ml.tint(255, getViewingBrightness() * 0.4f);          				
 			}
 		}
 		else

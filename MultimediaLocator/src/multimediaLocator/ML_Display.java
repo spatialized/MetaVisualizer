@@ -89,28 +89,32 @@ public class ML_Display
 	ArrayList<String> messages;							// Messages to display on screen
 	ArrayList<String> metadata;							// Metadata messages to display on screen
 	ArrayList<String> startupMessages;					// Messages to display on screen
+	PFont messageFont;
+
+	int messageDuration = 40;							// Frame length to display messages
+	int maxMessages = 16;								// Maximum simultaneous messages on screen
 
 	int messageStartFrame = -1;
 	int metadataStartFrame = -1;
-	int startupMessageStartFrame = -1;
-	int messageDuration = 60;
-
-	/* Text */
-	float centerTextXOffset, topTextYOffset;
-	float userMessageXOffset, userMessageYOffset, startupMessageXOffset;
-	float leftTextXOffset, rightTextXOffset, metadataYOffset, startupMessageYOffset;
-	float midLeftTextXOffset, midRightTextXOffset;
-	float clusterImageXOffset, clusterImageYOffset;
-	float fieldsXScreenSize, fieldsYScreenSize, fieldsXOffset, fieldsYOffset;
+	int startupMessageStartFrame = -1;					
 	
-	final float veryLargeTextSize = 64.f;
-	final float largeTextSize = 56.f;
-	final float mediumTextSize = 44.f;
-	final float smallTextSize = 36.f;
-	final float linePadding = 20.f;
-	final float lineWidth = smallTextSize + linePadding;			
-	final float lineWidthWide = largeTextSize + linePadding;			
-	final float lineWidthVeryWide = largeTextSize * 2.f;			
+	/* Text */
+	private float centerTextXOffset, topTextYOffset;
+	private float messageXOffset, messageYOffset, startupMessageXOffset;
+	private float leftTextXOffset, rightTextXOffset;
+	private float metadataXOffset, metadataYOffset, startupMessageYOffset;
+	private float midLeftTextXOffset, midRightTextXOffset;
+	private float clusterImageXOffset, clusterImageYOffset;
+	private float fieldsXScreenSize, fieldsYScreenSize, fieldsXOffset, fieldsYOffset;
+	
+	private final float veryLargeTextSize = 64.f;
+	private final float largeTextSize = 56.f;
+	private final float mediumTextSize = 44.f;
+	private final float smallTextSize = 36.f;
+	private final float linePadding = 20.f;
+	private final float lineWidth = smallTextSize + linePadding;			
+	private final float lineWidthWide = largeTextSize + linePadding;			
+	private final float lineWidthVeryWide = largeTextSize * 2.f;			
 
 	/**
 	 * Constructor for 2D display object
@@ -148,9 +152,10 @@ public class ML_Display
 		fieldsXScreenSize = screenWidth * 1.75f;
 		fieldsYScreenSize = screenHeight * 1.33f;
 
-		userMessageXOffset = -screenWidth / 2.f;
-		userMessageYOffset = 0;
+		messageXOffset = screenWidth;
+		messageYOffset = -screenHeight * 0.33f;
 
+		metadataXOffset = leftTextXOffset;
 		metadataYOffset = -screenHeight / 2.f;
 
 		startupMessageXOffset = screenWidth / 2.f;
@@ -171,6 +176,9 @@ public class ML_Display
 		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
 
 		map2D = new ML_Map(this);
+		
+		messageFont = ml.createFont("ArialNarrow-Bold", 48);
+		ml.textFont(messageFont);
 		
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
@@ -253,7 +261,7 @@ public class ML_Display
 	public void displayTimeView(WMV_World p)
 	{
 		startHUD(p);
-		p.ml.pushMatrix();
+		ml.pushMatrix();
 		
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
@@ -261,22 +269,22 @@ public class ML_Display
 		WMV_Field f = p.getCurrentField();
 		WMV_Cluster c = p.getCurrentCluster();
 
-		p.ml.fill(0, 0, 255, 255);
+		ml.fill(0, 0, 255, 255);
 
-		p.ml.textSize(veryLargeTextSize);
-		p.ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
+		ml.textSize(veryLargeTextSize);
+		ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
 
-		p.ml.textSize(largeTextSize);
+		ml.textSize(largeTextSize);
 		String strDisplayDate = "Showing All Dates";
 		if(displayDate != -1) strDisplayDate = utilities.getDateAsString(p.getCurrentField().getDate(displayDate));
 
-		p.ml.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistance);
-		p.ml.textSize(mediumTextSize);
-		p.ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += lineWidthVeryWide, hudDistance);
+		ml.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistance);
+		ml.textSize(mediumTextSize);
+		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += lineWidthVeryWide, hudDistance);
 
 		yPos = timelineYOffset + timelineHeight * 4.f;
 
-		p.ml.popMatrix();
+		ml.popMatrix();
 		
 		if(fieldDatelineCreated) displayFieldDateline(p);
 		if(fieldTimelineCreated) displayFieldTimeline(p);
@@ -533,7 +541,7 @@ public class ML_Display
 		float newStart = timelineStart;
 		float newEnd = timelineEnd;
 
-		if (p.ml.frameCount >= timelineTransitionEndFrame)
+		if (ml.frameCount >= timelineTransitionEndFrame)
 		{
 			newStart = timelineStartTransitionTarget;
 			newEnd = timelineEndTransitionTarget;
@@ -546,12 +554,12 @@ public class ML_Display
 		{
 			if(timelineStart != timelineStartTransitionTarget)
 			{
-				newStart = utilities.mapValue( p.ml.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
+				newStart = utilities.mapValue( ml.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
 									    timelineStartTransitionStart, timelineStartTransitionTarget); 
 			}
 			if(timelineEnd != timelineEndTransitionTarget)
 			{
-				newEnd = utilities.mapValue( p.ml.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
+				newEnd = utilities.mapValue( ml.frameCount, timelineTransitionStartFrame, timelineTransitionEndFrame,
 									  timelineEndTransitionStart, timelineEndTransitionTarget);     			
 			}
 		}
@@ -636,16 +644,16 @@ public class ML_Display
 	{
 		WMV_Field f = p.getCurrentField();
 			
-		p.ml.tint(255);
-		p.ml.stroke(0.f, 0.f, 255.f, 255.f);
-		p.ml.strokeWeight(3.f);
-		p.ml.fill(0.f, 0.f, 255.f, 255.f);
-		p.ml.line(timelineXOffset, timelineYOffset, hudDistance, timelineXOffset + timelineScreenSize, timelineYOffset, hudDistance);
+		ml.tint(255);
+		ml.stroke(0.f, 0.f, 255.f, 255.f);
+		ml.strokeWeight(3.f);
+		ml.fill(0.f, 0.f, 255.f, 255.f);
+		ml.line(timelineXOffset, timelineYOffset, hudDistance, timelineXOffset + timelineScreenSize, timelineYOffset, hudDistance);
 		
 		String startTime = utilities.secondsToTimeAsString(timelineStart, false, false);
 		String endTime = utilities.secondsToTimeAsString(timelineEnd, false, false);
 		
-		p.ml.textSize(timeTextSize);
+		ml.textSize(timeTextSize);
 		float firstHour = utilities.roundSecondsToHour(timelineStart);
 		if(firstHour == (int)(timelineStart / 3600.f) * 3600.f) firstHour += 3600.f;
 		float lastHour = utilities.roundSecondsToHour(timelineEnd);
@@ -662,16 +670,16 @@ public class ML_Display
 			for( pos = firstHour ; pos <= lastHour ; pos += 3600.f )
 			{
 				String time = utilities.secondsToTimeAsString(pos, false, false);
-				p.ml.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+				ml.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 				xOffset += 3600.f * timeToScreenRatio;
 			}
 			
 			if( (firstHour - timelineStart) * timeToScreenRatio - 20.f > 200.f)
-				p.ml.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+				ml.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 			
 			xOffset -= 3600.f * timeToScreenRatio;
 			if(timelineXOffset + timelineScreenSize - 40.f - xOffset > 200.f)
-				p.ml.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+				ml.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 		}
 		else
 		{
@@ -679,7 +687,7 @@ public class ML_Display
 			for( float pos = firstHour - 3600.f ; pos <= lastHour ; pos += 7200.f )
 			{
 				String time = utilities.secondsToTimeAsString(pos, false, false);
-				p.ml.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
+				ml.text(time, xOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistance);
 				xOffset += 7200.f * timeToScreenRatio;
 			}
 		}
@@ -741,11 +749,11 @@ public class ML_Display
 	{
 		WMV_Field f = p.getCurrentField();
 			
-		p.ml.tint(255);
-		p.ml.stroke(0.f, 0.f, 255.f, 255.f);
-		p.ml.strokeWeight(3.f);
-		p.ml.fill(0.f, 0.f, 255.f, 255.f);
-		p.ml.line(datelineXOffset, datelineYOffset, hudDistance, datelineXOffset + timelineScreenSize, datelineYOffset, hudDistance);
+		ml.tint(255);
+		ml.stroke(0.f, 0.f, 255.f, 255.f);
+		ml.strokeWeight(3.f);
+		ml.fill(0.f, 0.f, 255.f, 255.f);
+		ml.line(datelineXOffset, datelineYOffset, hudDistance, datelineXOffset + timelineScreenSize, datelineYOffset, hudDistance);
 	
 		if(f.getDateline().size() == 1)
 		{
@@ -779,14 +787,14 @@ public class ML_Display
 
 		if(xOffset > datelineXOffset && xOffset < datelineXOffset + timelineScreenSize)
 		{
-			p.ml.strokeWeight(0.f);
-			p.ml.fill(120.f, 165.f, 245.f, 155.f);
+			ml.strokeWeight(0.f);
+			ml.fill(120.f, 165.f, 245.f, 155.f);
 
-			p.ml.pushMatrix();
-			p.ml.stroke(120.f, 165.f, 245.f, 155.f);
-			p.ml.strokeWeight(25.f);
-			p.ml.point(xOffset, datelineYOffset, hudDistance);
-			p.ml.popMatrix();
+			ml.pushMatrix();
+			ml.stroke(120.f, 165.f, 245.f, 155.f);
+			ml.strokeWeight(25.f);
+			ml.point(xOffset, datelineYOffset, hudDistance);
+			ml.popMatrix();
 		}
 	}
 	
@@ -818,10 +826,10 @@ public class ML_Display
 
 		if(xOffset > timelineXOffset && xOffset2 < timelineXOffset + timelineScreenSize)
 		{
-			p.ml.pushMatrix();
-			p.ml.translate(0.f, timelineYOffset, hudDistance);
-			p.ml.stroke(imageHue, 185.f, 255.f, 155.f);
-			p.ml.strokeWeight(1.f);
+			ml.pushMatrix();
+			ml.translate(0.f, timelineYOffset, hudDistance);
+			ml.stroke(imageHue, 185.f, 255.f, 155.f);
+			ml.strokeWeight(1.f);
 
 			for(WMV_Time ti : tsTimeline)
 			{
@@ -833,19 +841,19 @@ public class ML_Display
 					switch(ti.getMediaType())
 					{
 						case 0:
-							p.ml.stroke(imageHue, 165.f, 215.f, 225.f);					
+							ml.stroke(imageHue, 165.f, 215.f, 225.f);					
 							break;
 						case 1:
-							p.ml.stroke(panoramaHue, 165.f, 215.f, 225.f);					
+							ml.stroke(panoramaHue, 165.f, 215.f, 225.f);					
 							break;
 						case 2:
-							p.ml.stroke(videoHue, 165.f, 215.f, 225.f);					
+							ml.stroke(videoHue, 165.f, 215.f, 225.f);					
 							break;
 						case 3:
-							p.ml.stroke(soundHue, 165.f, 215.f, 225.f);					
+							ml.stroke(soundHue, 165.f, 215.f, 225.f);					
 							break;
 					}
-					p.ml.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
+					ml.line(xOff, -timelineHeight / 2.f, 0.f, xOff, timelineHeight / 2.f, 0.f);
 				}
 			}
 
@@ -888,17 +896,17 @@ public class ML_Display
 					secondHue = defaultHue;
 			}
 			
-			p.ml.strokeWeight(2.f);
+			ml.strokeWeight(2.f);
 
 			/* Draw rectangle around time segment */
-			p.ml.stroke(firstHue, 165.f, 215.f, 225.f);					
-			p.ml.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset, timelineHeight * 0.5f, 0.f);			
-			p.ml.line(xOffset, timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
-			p.ml.stroke(secondHue, 165.f, 215.f, 225.f);					
-			p.ml.line(xOffset2, -timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
-			p.ml.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset2, -timelineHeight * 0.5f, 0.f);
+			ml.stroke(firstHue, 165.f, 215.f, 225.f);					
+			ml.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset, timelineHeight * 0.5f, 0.f);			
+			ml.line(xOffset, timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
+			ml.stroke(secondHue, 165.f, 215.f, 225.f);					
+			ml.line(xOffset2, -timelineHeight * 0.5f, 0.f, xOffset2, timelineHeight * 0.5f, 0.f);
+			ml.line(xOffset, -timelineHeight * 0.5f, 0.f, xOffset2, -timelineHeight * 0.5f, 0.f);
 			
-			p.ml.popMatrix();
+			ml.popMatrix();
 		}
 	}
 
@@ -955,7 +963,7 @@ public class ML_Display
 	 */
 	public void updateTimelineMouse(WMV_World p)
 	{
-		PVector mouseLoc = getMouse3DLocation(p.ml.mouseX, p.ml.mouseY);
+		PVector mouseLoc = getMouse3DLocation(ml.mouseX, ml.mouseY);
 		if(selectableTimeSegments != null)
 		{
 			SelectableTimeSegment timeSelected = getSelectedTimeSegment(mouseLoc);
@@ -964,7 +972,7 @@ public class ML_Display
 				selectedTime = timeSelected.getID();				// Set to selected
 				selectedCluster = timeSelected.getClusterID();
 
-				if(p.ml.debugSettings.time && p.ml.debugSettings.detailed)
+				if(ml.debugSettings.time && ml.debugSettings.detailed)
 					System.out.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
 				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
@@ -1010,7 +1018,7 @@ public class ML_Display
 
 		if(transition)
 		{
-			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.ml.frameCount);
+			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
 		}
 		else
 		{
@@ -1044,7 +1052,7 @@ public class ML_Display
 
 			if(transition)
 			{
-				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.ml.frameCount);
+				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
 			}
 			else
 			{
@@ -1081,7 +1089,7 @@ public class ML_Display
 
 			if(transition)
 			{
-				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.ml.frameCount);
+				timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
 			}
 			else
 			{
@@ -1098,7 +1106,7 @@ public class ML_Display
 		
 		if(fade)
 		{
-			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, p.ml.frameCount);
+			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
 		}
 		else
 		{
@@ -1182,7 +1190,7 @@ public class ML_Display
 
 			if(transition)
 			{
-				timelineTransition(timelineStart, newTimelineEnd, 10, p.ml.frameCount);
+				timelineTransition(timelineStart, newTimelineEnd, 10, ml.frameCount);
 				timelineZooming = true;
 			}
 			else
@@ -1220,7 +1228,7 @@ public class ML_Display
 			if(newTimelineEnd > day) newTimelineEnd = day;
 
 			if(transition)
-				timelineTransition(timelineStart, newTimelineEnd, initTimelineTransitionLength, p.ml.frameCount);
+				timelineTransition(timelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
 			else
 				timelineEnd = newTimelineEnd;
 		}
@@ -1241,7 +1249,7 @@ public class ML_Display
 		if(newStart > 0.f && newEnd < day)
 		{
 			timelineScrolling = true;
-			timelineTransition(newStart, newEnd, 10, p.ml.frameCount);			
+			timelineTransition(newStart, newEnd, 10, ml.frameCount);			
 		}
 	}
 	
@@ -1422,8 +1430,8 @@ public class ML_Display
 		clusterImageXOffset = -screenWidth/ 1.9f;
 		clusterImageYOffset = screenHeight / 2.5f;
 
-		userMessageXOffset = -screenWidth / 2.f;
-		userMessageYOffset = 0;
+		messageXOffset = -screenWidth / 2.f;
+		messageYOffset = 0;
 
 		metadataYOffset = -screenHeight / 2.f;
 
@@ -1441,8 +1449,9 @@ public class ML_Display
 	 */
 	void startHUD(WMV_World p)
 	{
-		p.ml.perspective(p.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
-		p.ml.camera();
+		ml.camera();
+//		ml.perspective(p.viewer.getFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
+//		ml.perspective(p.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
 	}
 
 	/**
@@ -1455,14 +1464,14 @@ public class ML_Display
 		if(ml.state.interactive)
 		{
 			messages.add(message);
-			while(messages.size() > 16)
+			while(messages.size() > maxMessages)
 				messages.remove(0);
 		}
 		else
 		{
 			messageStartFrame = ml.world.getState().frameCount;		
 			messages.add(message);
-			while(messages.size() > 16)
+			while(messages.size() > maxMessages)
 				messages.remove(0);
 		}
 	}
@@ -1473,29 +1482,33 @@ public class ML_Display
 	 */
 	void displayMessages(WMV_World p)
 	{
-		float yPos = userMessageYOffset - lineWidth;
+		float yPos = messageYOffset - lineWidth;
 
-		p.ml.start3DHUD();
-		p.ml.pushMatrix();
-		p.ml.fill(0, 0, 255, 255);            								
-		p.ml.textSize(smallTextSize);
+//		System.out.println("Display.displayMessages()... messages.size(): "+messages.size());
 
-		if(p.ml.state.interactive)
+		ml.pushMatrix();
+		ml.fill(0, 0, 255, 255);  
+		
+//		ml.textSize(smallTextSize);
+		ml.textSize(largeTextSize);
+		ml.textFont(messageFont);
+		
+		if(ml.state.interactive)
 		{
 			for(String s : messages)
-				p.ml.text(s, userMessageXOffset, yPos += lineWidth, hudDistance);		// Use period character to draw a point
+				ml.text(s, messageXOffset, yPos += lineWidth, hudDistance);		// Use period character to draw a point
 		}
-		else if(p.ml.frameCount - messageStartFrame < messageDuration)
+		else if(ml.frameCount - messageStartFrame < messageDuration)
 		{
 			for(String s : messages)
-				p.ml.text(s, userMessageXOffset, yPos += lineWidth, hudDistance);		// Use period character to draw a point
+				displayScreenText(ml, s, messageXOffset, yPos += lineWidth);
 		}
 		else
 		{
 			clearMessages();														// Clear messages after duration has ended
 		}
 
-		p.ml.popMatrix();
+		ml.popMatrix();
 	}
 
 	/**
@@ -1520,16 +1533,25 @@ public class ML_Display
 	{
 		float yPos = metadataYOffset - lineWidth;
 
-//		p.ml.start3DHUD();
-		p.ml.pushMatrix();
+//		startHUD(ml.world);
+		ml.pushMatrix();
 
-		p.ml.fill(0, 0, 255, 255);                     // White text
-		p.ml.textSize(mediumTextSize);
+		ml.fill(0, 0, 255, 255);                     // White text
+		ml.textSize(mediumTextSize);
 
 		for(String s : metadata)
-			p.ml.text(s, leftTextXOffset, yPos += lineWidth, hudDistance);				// Use period character to draw a point
+			displayScreenText(ml, s, metadataXOffset, yPos += lineWidth);
+//			ml.text(s, leftTextXOffset, yPos += lineWidth, hudDistance);				// Use period character to draw a point
 
-		p.ml.popMatrix();
+		ml.popMatrix();
+	}
+	
+	public void displayScreenText(MultimediaLocator ml, String text, float x, float y)
+	{
+		startHUD(ml.world);
+//		System.out.println("Display.displayScreenText()... Text: "+text+" x:"+x+" y:"+y);
+		ml.text(text, x, y, hudDistance);		// Use period character to draw a point
+//		ml.text(text, x, y, -100);		// Use period character to draw a point
 	}
 	
 	/**
@@ -1540,12 +1562,12 @@ public class ML_Display
 	{
 		if(worldSetup)																
 		{
-			startupMessageStartFrame = p.ml.frameCount;		
+			startupMessageStartFrame = ml.frameCount;		
 			startupMessages.add(message);
 			while(startupMessages.size() > 16)
 				startupMessages.remove(0);
 
-			if(p.ml.debugSettings.print)
+			if(ml.debugSettings.print)
 				System.out.println(message);
 		}
 	}
@@ -1559,35 +1581,35 @@ public class ML_Display
 		float yPos = startupMessageYOffset;
 
 		startHUD(p);
-		p.ml.pushMatrix();
-		p.ml.fill(0, 0, 245.f, 255.f);            								
-		p.ml.textSize(largeTextSize * 1.5f);
+		ml.pushMatrix();
+		ml.fill(0, 0, 245.f, 255.f);            								
+		ml.textSize(largeTextSize * 1.5f);
 
 		if(worldSetup)												// Showing setup messages + windows
 		{
-			if(p.ml.createNewLibrary)
+			if(ml.createNewLibrary)
 			{
-				if(p.ml.state.chooseMediaFolders)
+				if(ml.state.chooseMediaFolders)
 				{
-					p.ml.text("Please select media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					ml.text("Please select media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 					if(!window.setupImportWindow)
 					{
 						window.setupImportWindow();
-						p.ml.library = new ML_Library("");		// Create new library
+						ml.library = new ML_Library("");		// Create new library
 					}
 				}
-				else if(p.ml.state.selectedNewLibraryDestination)
+				else if(ml.state.selectedNewLibraryDestination)
 				{
-					p.ml.text("Creating library from media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					ml.text("Creating library from media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 				}
 				else
 				{
-					p.ml.text("Please select new library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+					ml.text("Please select new library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 				}
 			}
 			else
 			{
-				if(p.ml.state.startup && !p.ml.state.selectedLibrary)
+				if(ml.state.startup && !ml.state.selectedLibrary)
 				{
 					if(!window.setupLibraryWindow)
 						window.openLibraryWindow();
@@ -1602,18 +1624,18 @@ public class ML_Display
 					if(!dataFolderFound)
 					{
 						window.setLibraryWindowText("Loading media folder(s)...");
-//						p.ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+//						ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 					}
 					else
 					{
 						window.setLibraryWindowText("Loading media library...");
-//						p.ml.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+//						ml.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
 					}
 					
 //					yPos += lineWidthVeryWide * 8.f;
 				}
 			}
-			p.ml.textSize(largeTextSize);
+			ml.textSize(largeTextSize);
 //			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.f, yPos, hudDistance);
 		}
 		else
@@ -1621,7 +1643,7 @@ public class ML_Display
 			displayMessages(p);
 		}
 
-		p.ml.popMatrix();
+		ml.popMatrix();
 	}
 	
 	/**
@@ -1649,99 +1671,99 @@ public class ML_Display
 				break;
 			case 1:														// Field
 				startHUD(p);
-				p.ml.pushMatrix();
-				p.ml.fill(0, 0, 255, 255);
-				p.ml.textSize(veryLargeTextSize);
-				p.ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
+				ml.pushMatrix();
+				ml.fill(0, 0, 255, 255);
+				ml.textSize(veryLargeTextSize);
+				ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
 				c = p.getCurrentCluster();
 
-				p.ml.textSize(largeTextSize);
-				p.ml.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				ml.textSize(largeTextSize);
+				ml.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 
 				if(c != null)
 				{
-					p.ml.textSize(largeTextSize);
-					p.ml.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistance);
+					ml.textSize(largeTextSize);
+					ml.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistance);
 				}		
 
-				p.ml.textSize(mediumTextSize);
-				p.ml.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
-				p.ml.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
-				if(p.getState().hierarchical) p.ml.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
-				p.ml.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
-				p.ml.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
-				p.ml.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
+				ml.textSize(mediumTextSize);
+				ml.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistance);
+				ml.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistance);
+				if(p.getState().hierarchical) ml.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistance);
+				ml.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistance);
+				ml.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistance);
+				ml.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistance);
 
 				if(f.getDateline() != null)
 				{
-					p.ml.textSize(mediumTextSize);
+					ml.textSize(mediumTextSize);
 					if(f.getDateline().size() > 0)
 					{
 						int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
-						p.ml.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
-						p.ml.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
-						p.ml.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
-						p.ml.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
+						ml.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistance);
+						ml.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistance);
+						ml.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistance);
+						ml.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
 								+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistance);
 					}
 				}
-				p.ml.popMatrix();
+				ml.popMatrix();
 
 				map2D.displaySmallBasicMap(p);
 				break;
 				
 			case 2:								// Cluster
 				startHUD(p);
-				p.ml.pushMatrix();
-				p.ml.fill(0, 0, 255, 255);
-				p.ml.textSize(veryLargeTextSize);
-				p.ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
+				ml.pushMatrix();
+				ml.fill(0, 0, 255, 255);
+				ml.textSize(veryLargeTextSize);
+				ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistance);
 	
-				p.ml.textSize(largeTextSize);
+				ml.textSize(largeTextSize);
 				c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
 				WMV_Cluster cl = p.getCurrentCluster();
-				p.ml.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistance);
-				p.ml.textSize(mediumTextSize);
+				ml.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistance);
+				ml.textSize(mediumTextSize);
 				if(c.getState().images.size() > 0)
-					p.ml.text("   Images: "+ c.getState().images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+					ml.text("   Images: "+ c.getState().images.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				if(c.getState().panoramas.size() > 0)
-					p.ml.text("   Panoramas: "+ c.getState().panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+					ml.text("   Panoramas: "+ c.getState().panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				if(c.getState().videos.size() > 0)
-					p.ml.text("   Videos: "+ c.getState().videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+					ml.text("   Videos: "+ c.getState().videos.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
 				if(c.getState().sounds.size() > 0)
-					p.ml.text("     Sounds: "+ c.getState().sounds.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
-				p.ml.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
-				p.ml.text("   Location: "+ c.getLocation(), xPos, yPos += lineWidthVeryWide, hudDistance);
-				p.ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
-				p.ml.text(" ", xPos, yPos += lineWidth, hudDistance);
-				p.ml.text("   Media Segments: "+ c.segments.size(), xPos, yPos += lineWidth, hudDistance);
+					ml.text("     Sounds: "+ c.getState().sounds.size(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				ml.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += lineWidthVeryWide, hudDistance);
+				ml.text("   Location: "+ c.getLocation(), xPos, yPos += lineWidthVeryWide, hudDistance);
+				ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistance);
+				ml.text(" ", xPos, yPos += lineWidth, hudDistance);
+				ml.text("   Media Segments: "+ c.segments.size(), xPos, yPos += lineWidth, hudDistance);
 	
 				if(c.getTimeline().timeline.size() > 0)
 				{
-					p.ml.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
-					p.ml.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += lineWidth, hudDistance);
+					ml.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += lineWidthWide, hudDistance);
+					ml.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += lineWidth, hudDistance);
 				}
 				if(c.getDateline() != null)
 					if(c.getDateline().size() > 0)
-						p.ml.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
+						ml.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistance);
 	
 				if(cl != null)
-					p.ml.text("   Stitched Panoramas: "+cl.stitched.size(), xPos, yPos += lineWidth, hudDistance);
+					ml.text("   Stitched Panoramas: "+cl.stitched.size(), xPos, yPos += lineWidth, hudDistance);
 	
 				if(p.viewer.getAttractorClusterID() != -1)
 				{
-					p.ml.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
-					p.ml.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
-					if(p.ml.debugSettings.viewer) 
+					ml.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistance);
+					ml.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistance);
+					if(ml.debugSettings.viewer) 
 					{
-						p.ml.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
-						p.ml.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);
-						p.ml.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistance);
+						ml.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistance);
+						ml.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistance);
+						ml.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistance);
 					}
 				}
 				
 				drawClusterImages(p, c.getImages(p.getCurrentField().getImages()));
-				p.ml.popMatrix();
+				ml.popMatrix();
 				
 				map2D.displaySmallBasicMap(p);
 				break;
@@ -1824,25 +1846,25 @@ public class ML_Display
 		float imgXPos = clusterImageXOffset;
 		float imgYPos = clusterImageYOffset;			// Starting vertical position
 
-		p.ml.stroke(255, 255, 255);
-		p.ml.strokeWeight(15);
-		p.ml.fill(0, 0, 255, 255);
+		ml.stroke(255, 255, 255);
+		ml.strokeWeight(15);
+		ml.fill(0, 0, 255, 255);
 
 		for(WMV_Image i : imageList)
 		{
-			p.ml.pushMatrix();
+			ml.pushMatrix();
 			float origWidth = i.getWidth();
 			float origHeight = i.getHeight();
 			float width = 120.f;
 			float height = width * origHeight / origWidth;
 			
-			p.ml.translate(imgXPos, imgYPos, hudDistance);
-			p.ml.tint(255);
+			ml.translate(imgXPos, imgYPos, hudDistance);
+			ml.tint(255);
 			
 			if(count < 60)
 			{
-				PImage image = p.ml.loadImage(i.getFilePath());
-				p.ml.image(image, 0, 0, width, height);
+				PImage image = ml.loadImage(i.getFilePath());
+				ml.image(image, 0, 0, width, height);
 			}
 			
 			imgXPos += width * 1.5f;
@@ -1853,7 +1875,7 @@ public class ML_Display
 				imgYPos += height * 1.5f;
 			}
 			
-			p.ml.popMatrix();
+			ml.popMatrix();
 			count++;
 		}
 	}
@@ -2045,43 +2067,43 @@ public class ML_Display
 		public void setBlendMode(WMV_World p, int blendMode) {
 			switch (blendMode) {
 			case 0:
-				p.ml.blendMode(PApplet.BLEND);
+				ml.blendMode(PApplet.BLEND);
 				break;
 
 			case 1:
-				p.ml.blendMode(PApplet.ADD);
+				ml.blendMode(PApplet.ADD);
 				break;
 
 			case 2:
-				p.ml.blendMode(PApplet.SUBTRACT);
+				ml.blendMode(PApplet.SUBTRACT);
 				break;
 
 			case 3:
-				p.ml.blendMode(PApplet.DARKEST);
+				ml.blendMode(PApplet.DARKEST);
 				break;
 
 			case 4:
-				p.ml.blendMode(PApplet.LIGHTEST);
+				ml.blendMode(PApplet.LIGHTEST);
 				break;
 
 			case 5:
-				p.ml.blendMode(PApplet.DIFFERENCE);
+				ml.blendMode(PApplet.DIFFERENCE);
 				break;
 
 			case 6:
-				p.ml.blendMode(PApplet.EXCLUSION);
+				ml.blendMode(PApplet.EXCLUSION);
 				break;
 
 			case 7:
-				p.ml.blendMode(PApplet.MULTIPLY);
+				ml.blendMode(PApplet.MULTIPLY);
 				break;
 
 			case 8:
-				p.ml.blendMode(PApplet.SCREEN);
+				ml.blendMode(PApplet.SCREEN);
 				break;
 
 			case 9:
-				p.ml.blendMode(PApplet.REPLACE);
+				ml.blendMode(PApplet.REPLACE);
 				break;
 
 			case 10:
@@ -2105,7 +2127,7 @@ public class ML_Display
 				break;
 			}
 
-			if (p.ml.debugSettings.world)
+			if (ml.debugSettings.world)
 				System.out.println("blendMode:" + blendMode);
 		}
 
@@ -2122,28 +2144,28 @@ public class ML_Display
 		
 		public void display(WMV_World p, float hue, float saturation, float brightness, boolean preview)
 		{
-			p.ml.stroke(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-			p.ml.strokeWeight(3.f);
+			ml.stroke(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
+			ml.strokeWeight(3.f);
 
-			p.ml.pushMatrix();
-			p.ml.line(leftEdge, topEdge, hudDistance, leftEdge, bottomEdge, hudDistance);	
-			p.ml.line(rightEdge, topEdge, hudDistance, rightEdge, bottomEdge, hudDistance);			
-			p.ml.line(leftEdge, topEdge, hudDistance, rightEdge, topEdge, hudDistance);			
-			p.ml.line(leftEdge, bottomEdge, hudDistance, rightEdge, bottomEdge, hudDistance);			
+			ml.pushMatrix();
+			ml.line(leftEdge, topEdge, hudDistance, leftEdge, bottomEdge, hudDistance);	
+			ml.line(rightEdge, topEdge, hudDistance, rightEdge, bottomEdge, hudDistance);			
+			ml.line(leftEdge, topEdge, hudDistance, rightEdge, topEdge, hudDistance);			
+			ml.line(leftEdge, bottomEdge, hudDistance, rightEdge, bottomEdge, hudDistance);			
 
 			if(preview)
 			{
-				p.ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-				p.ml.textSize(smallTextSize);
+				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
+				ml.textSize(smallTextSize);
 				String strTimespan = segment.getTimespanAsString(false, false);
 				String strPreview = String.valueOf( segment.getTimeline().size() ) + " media, "+strTimespan;
 
 				float length = timelineEnd - timelineStart;
 				float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 				float xOffset = -35.f * utilities.mapValue(length, 0.f, day, 0.2f, 1.f);
-				p.ml.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, hudDistance);
+				ml.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, hudDistance);
 			}
-			p.ml.popMatrix();
+			ml.popMatrix();
 		}
 	}
 
@@ -2179,22 +2201,22 @@ public class ML_Display
 		
 		public void display(WMV_World p, float hue, float saturation, float brightness, boolean preview)
 		{
-			p.ml.pushMatrix();
+			ml.pushMatrix();
 			
-			p.ml.stroke(hue, saturation, brightness, 255.f);
-			p.ml.strokeWeight(25.f);
-			p.ml.point(location.x, location.y, location.z);
+			ml.stroke(hue, saturation, brightness, 255.f);
+			ml.strokeWeight(25.f);
+			ml.point(location.x, location.y, location.z);
 
 			if(preview)
 			{
-				p.ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-				p.ml.textSize(smallTextSize);
+				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
+				ml.textSize(smallTextSize);
 				String strDate = date.getDateAsString();
 //				String strPreview = String.valueOf( segment.getTimeline().size() ) + " media, "+strTimespan;
-				p.ml.text(strDate, location.x - 25.f, location.y + 50.f, location.z);
+				ml.text(strDate, location.x - 25.f, location.y + 50.f, location.z);
 			}
 		
-			p.ml.popMatrix();
+			ml.popMatrix();
 		}
 	}
 

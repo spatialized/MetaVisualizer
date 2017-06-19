@@ -85,6 +85,10 @@ public class WMV_Panorama extends WMV_Media
 		}
 	}
 
+	/**
+	 * Calculate visibility based on viewer position
+	 * @param viewer Given viewer
+	 */
 	public void calculateVisibility(WMV_Viewer viewer)
 	{
 		if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
@@ -135,12 +139,16 @@ public class WMV_Panorama extends WMV_Media
 		if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hidePanoramas && getFadingBrightness() == 0.f)					// Fade in
 		{
 			if(getDebugSettings().panorama)
-				System.out.println("fadeIn()...panorama id #"+getID());
+				System.out.println("fadeIn()...panorama id #"+getID()+" visibilitySetToTrue");
 			fadeIn(f);
 		}
 
 		if(visibilitySetToFalse)
-			fadeOut(f);
+		{
+			if(getDebugSettings().panorama)
+				System.out.println("fadeOut()...panorama id #"+getID()+" visibilitySetToFalse");
+			fadeOut(f, false);
+		}
 
 		if(hasFadedOut()) setFadedOut(false);
 	}

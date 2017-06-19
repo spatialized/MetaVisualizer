@@ -341,12 +341,14 @@ public abstract class WMV_Media
 	/**
 	 * Fade out media and remove from visible list
 	 */
-	public void fadeOut(WMV_Field f)
+	public void fadeOut(WMV_Field f, boolean hide)
 	{
 		if(isFading() || isFadingIn() || isFadingOut())		// If already fading, stop at current value
 			stopFading();
 
 		if(isSeen()) setSeen(false);
+		
+		mState.hideAfterFadingOut = true;	// Hide after fading out
 		startFading(0.f);					// Fade out
 	}
 
@@ -423,15 +425,27 @@ public abstract class WMV_Media
 					mState.isFadingOut = false;
 					mState.fadedOut = true;
 					
+					if(mState.hideAfterFadingOut)
+					{
+						setHidden(true);
+						mState.hideAfterFadingOut = false;
+					}
+					
 					switch(mState.mediaType)				// Remove from visible / audible list once faded out 
 					{
 						case 0:
 							if(f.visibleImages.contains(getID()))
+							{
+								System.out.println("Removing image #"+getID());
 								f.visibleImages.remove(f.visibleImages.indexOf(getID()));
+							}
 							break;
 						case 1:
 							if(f.visiblePanoramas.contains(getID()))
+							{
+								System.out.println("Removing panorama #"+getID());
 								f.visiblePanoramas.remove(f.visiblePanoramas.indexOf(getID()));
+							}
 							break;
 						case 2:
 							if(f.visibleVideos.contains(getID()))
@@ -453,7 +467,6 @@ public abstract class WMV_Media
 		}
 
 		mState.fadingBrightness = newFadeValue;
-//		if(mState.fadingBrightness == 0.f) setVisible(false);
 	}
 
 	/**

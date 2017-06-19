@@ -57,6 +57,7 @@ public class WMV_MediaState
 	public float fadingStart = 0.f, fadingTarget = 0.f, fadingStartFrame = 0.f, fadingEndFrame = 0.f; 
 	public boolean fadedOut = false;						// Recently faded out
 	public boolean fadedIn = false;							// Recently faded in	
+	public boolean hideAfterFadingOut = false;				// Hide media after fading out
 	
 	/* Interaction */
 	public boolean selected = false;

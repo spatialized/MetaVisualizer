@@ -285,7 +285,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			if(isVisible() && !state.thinningVisibility && !isFading())
 			{
 				System.out.println("1  Will fade out video #"+getID());
-				fadeOut(ml.world.getCurrentField());
+				fadeOut(ml.world.getCurrentField(), false);
 			}
 			
 			if(!isVisible() && state.thinningVisibility && !isFading() && !hasFadedOut()) 
@@ -310,7 +310,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		if(visibilitySetToFalse)
 		{
 			System.out.println("2  Will fade out video #"+getID());
-			fadeOut(ml.world.getCurrentField());
+			fadeOut(ml.world.getCurrentField(), false);
 		}
 
 		if(isFadingFocusDistance())

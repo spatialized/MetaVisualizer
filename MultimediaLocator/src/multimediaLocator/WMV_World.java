@@ -1664,6 +1664,10 @@ public class WMV_World
 	 */
 	public void showImages()
 	{
+		for(WMV_Image i : getCurrentField().getImages())
+			if(!i.isDisabled())
+				i.setHidden(false);						
+
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHideImages.setSelected(false);
 		
@@ -1681,7 +1685,7 @@ public class WMV_World
 			if(i.getMediaState().visible)
 			{
 				if(i.isFading()) i.stopFading();
-				i.fadeOut(getCurrentField());
+				i.fadeOut(getCurrentField(), true);						// Fade out and hide after
 			}
 		}
 
@@ -1697,6 +1701,10 @@ public class WMV_World
 	 */
 	public void showPanoramas()
 	{
+		for(WMV_Panorama n : getCurrentField().getPanoramas())
+			if(!n.isDisabled())
+				n.setHidden(false);						
+
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHidePanoramas.setSelected(false);
 		
@@ -1714,7 +1722,7 @@ public class WMV_World
 			if(n.getMediaState().visible)
 			{
 				if(n.isFading()) n.stopFading();
-				n.fadeOut(getCurrentField());
+				n.fadeOut(getCurrentField(), true);						// Fade out and hide after
 			}
 		}
 		
@@ -1725,7 +1733,7 @@ public class WMV_World
 				for(WMV_Panorama n : c.stitched)
 				{
 					if(n.isFading()) n.stopFading();
-					n.fadeOut(getCurrentField());
+					n.fadeOut(getCurrentField(), true);					// Fade out and hide after
 				}
 			}
 		}
@@ -1742,6 +1750,10 @@ public class WMV_World
 	 */
 	public void showVideos()
 	{
+		for(WMV_Video v : getCurrentField().getVideos())
+			if(!v.isDisabled())
+				v.setHidden(false);						
+
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHideVideos.setSelected(false);
 		
@@ -1759,7 +1771,7 @@ public class WMV_World
 			if(v.getMediaState().visible)
 			{
 				if(v.isFading()) v.stopFading();
-				v.fadeOut(getCurrentField());
+				v.fadeOut(getCurrentField(), true);
 			}
 		}
 		
@@ -1776,6 +1788,10 @@ public class WMV_World
 	 */
 	public void showSounds()
 	{
+		for(WMV_Sound s : getCurrentField().getSounds())
+			if(!s.isDisabled())
+				s.setHidden(false);						
+
 		if(ml.display.window.setupGraphicsWindow)
 			ml.display.window.chkbxHideSounds.setSelected(false);
 	}
@@ -1790,7 +1806,7 @@ public class WMV_World
 			if(s.getMediaState().visible)
 			{
 				if(s.isFading()) s.stopFading();
-				s.fadeOut(getCurrentField());
+				s.fadeOut(getCurrentField(), true);
 			}
 		}
 		

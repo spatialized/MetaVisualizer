@@ -228,7 +228,7 @@ public class WMV_Image extends WMV_Media
 		if(getViewerSettings().angleThinning)
 		{
 			if(isVisible() && !state.thinningVisibility && !isFading())
-				fadeOut(f);
+				fadeOut(f, false);
 			
 			if(!isVisible() && state.thinningVisibility && !isFading() && !getViewerSettings().hideImages) 
 			{
@@ -243,7 +243,7 @@ public class WMV_Image extends WMV_Media
 		}
 
 		if(visibilitySetToFalse)
-			fadeOut(f);
+			fadeOut(f, false);
 
 		if(hasFadedOut()) setFadedOut(false);
 	}

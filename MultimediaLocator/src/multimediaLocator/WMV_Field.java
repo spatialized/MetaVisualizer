@@ -233,7 +233,7 @@ public class WMV_Field
 				boolean inVisibleRange = (distance < vanishingPoint);
 
 				if ( v.isVisible() && !inVisibleRange )
-					v.fadeOut(this);
+					v.fadeOut(this, false);
 
 				if(worldState.timeFading)
 					v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
@@ -249,7 +249,7 @@ public class WMV_Field
 						updateVideo(ml, v);
 
 					if(v.isVisible())
-						v.fadeOut(this);
+						v.fadeOut(this, false);
 				}
 			}
 		}
@@ -273,7 +273,7 @@ public class WMV_Field
 //				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if ( s.isVisible() && !inAudibleRange )
 				{
-					s.fadeOut(this);
+					s.fadeOut(this, false);
 					s.fadeSoundOut();
 				}
 
@@ -293,7 +293,7 @@ public class WMV_Field
 						updateSound(ml, s);
 
 					if(s.isVisible())
-						s.fadeOut(this);
+						s.fadeOut(this, false);
 				}
 			}
 		}
@@ -376,16 +376,23 @@ public class WMV_Field
 					if(getViewerSettings().orientationMode)
 					{
 						for(int id : getViewerState().getClustersVisible())
-							if(n.getMediaState().getClusterID() == id && !n.getMediaState().requested && !n.initialized)			
+							if(n.getMediaState().getClusterID() == id && !n.getMediaState().requested && !n.initialized)
+							{
+								System.out.println("Load media for pano #"+n.getID());
 								n.loadMedia(ml);
+							}
 					}
 					else if(n.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !n.isRequested())
+					{
+						System.out.println("Load media 2 for pano #"+n.getID());
 						n.loadMedia(ml); 					// Request image pixels from disk
+					}
 				}
+				
+				if(n.isFading())                      
+					n.updateFadingBehavior(ml.world.getCurrentField());
 			}
 
-			if(n.isFading())                      
-				n.updateFadingBehavior(ml.world.getCurrentField());
 //			if(fadingObjectDistance)
 //				updateFadingObjectDistance();
 		}
@@ -602,7 +609,7 @@ public class WMV_Field
 		if(v.state.isClose && distanceBrightness == 0.f)							// Video recently moved out of range
 		{
 			v.state.isClose = false;
-			v.fadeOut(this);
+			v.fadeOut(this, false);
 		}
 
 		if( getViewerSettings().angleFading )
@@ -1304,20 +1311,23 @@ public class WMV_Field
 		if(debugSettings.world) System.out.println("Fading out media...");
 
 		for (WMV_Image i : images)
-			i.fadeOut(this);
+			i.fadeOut(this, false);
 
 		for (WMV_Panorama n : panoramas) 
-			n.fadeOut(this);
+		{
+			System.out.println("Field.fadeOutAllMedia()... Fade out for pano #"+n.getID());
+			n.fadeOut(this, false);
+		}
 
 		for (WMV_Video v : videos)
 		{
-			v.fadeOut(this);
+			v.fadeOut(this, false);
 			v.fadeSoundOut(true);
 		}
 
 		for (WMV_Sound s : sounds) 
 		{
-			s.fadeOut(this);
+			s.fadeOut(this, false);
 		}
 	}
 
@@ -1330,12 +1340,12 @@ public class WMV_Field
 //
 //		for (WMV_Video v : videos)
 //		{
-//			v.fadeOut(this);
+//			v.fadeOut(this, false);
 //			v.fadeSoundOut(true);
 //		}
 //
 //		for (WMV_Sound s : sounds) 
-//			s.fadeOut(this);
+//			s.fadeOut(this, false);
 //	}
 
 	/**

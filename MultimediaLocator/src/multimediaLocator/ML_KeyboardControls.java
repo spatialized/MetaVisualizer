@@ -478,17 +478,25 @@ public class ML_KeyboardControls
 		if (key == 'P')	
 		{
 			if(ml.world.viewer.getSettings().hidePanoramas)
-				ml.world.showPanoramas();
+				ml.world.viewer.showPanoramas();
 			else
-				ml.world.hidePanoramas();
+				ml.world.viewer.hidePanoramas();
 		}
 
 		if (key == 'V')	
 		{
 			if(ml.world.viewer.getSettings().hideVideos)
-				ml.world.showVideos();
+				ml.world.viewer.showVideos();
 			else
-				ml.world.hideVideos();
+				ml.world.viewer.hideVideos();
+		}
+
+		if (key == 'Í')	
+		{
+			if(ml.world.viewer.getSettings().hideSounds)
+				ml.world.viewer.showSounds();
+			else
+				ml.world.viewer.hideSounds();
 		}
 
 		if (input.optionKey && key == 'p')
@@ -1127,7 +1135,7 @@ public class ML_KeyboardControls
 				viewer.stopMoveXTransition();
 			if (key == 'd') 
 				viewer.stopMoveXTransition();
-			if (key == 's') 
+			if (key == 's')
 				viewer.stopMoveZTransition();
 			if (key == 'w') 
 				viewer.stopMoveZTransition();

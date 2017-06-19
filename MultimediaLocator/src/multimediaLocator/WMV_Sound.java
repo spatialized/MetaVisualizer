@@ -121,7 +121,7 @@ public class WMV_Sound extends WMV_Media
 		if(visibilitySetToFalse)
 		{
 			System.out.println("Sound #"+getID()+" visibility was set to false...");
-			fadeOut(ml.world.getCurrentField());
+			fadeOut(ml.world.getCurrentField(), false);
 			fadeSoundOut();
 		}
 

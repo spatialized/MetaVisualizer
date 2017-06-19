@@ -1071,20 +1071,20 @@ public class ML_Window
 		chkbxMediaToCluster = new GCheckbox(graphicsWindow, x, y, 130, iSmallBoxHeight, "View Clusters (6)");
 		chkbxMediaToCluster.tag = "MediaToCluster";
 		chkbxMediaToCluster.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxMediaToCluster.setEnabled(world.getState().showMediaToCluster);
+		chkbxMediaToCluster.setEnabled(world.getState().showModel);
 		chkbxMediaToCluster.setSelected(world.getState().showMediaToCluster);
 		
 		chkbxCaptureToMedia = new GCheckbox(graphicsWindow, x+130, y, 150, iSmallBoxHeight, "View GPS Locations (7)");
 		chkbxCaptureToMedia.tag = "CaptureToMedia";
 		chkbxCaptureToMedia.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxCaptureToMedia.setEnabled(world.getState().showCaptureToMedia);
+		chkbxCaptureToMedia.setEnabled(world.getState().showModel);
 		chkbxCaptureToMedia.setSelected(world.getState().showCaptureToMedia);
 
 		y += iSmallBoxHeight * 1.5f;
 		chkbxCaptureToCluster = new GCheckbox(graphicsWindow, x, y, 170, iSmallBoxHeight, "View Adjustment (8)");
 		chkbxCaptureToCluster.tag = "CaptureToCluster";
 		chkbxCaptureToCluster.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxCaptureToCluster.setEnabled(world.getState().showCaptureToCluster);
+		chkbxCaptureToCluster.setEnabled(world.getState().showModel);
 		chkbxCaptureToCluster.setSelected(world.getState().showCaptureToCluster);
 
 //		x = 110;

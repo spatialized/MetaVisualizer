@@ -202,8 +202,8 @@ public class WMV_Viewer
 		updateMovement();										/* Update navigation */
 		if(state.turningX || state.turningY) updateTurning();	/* Update turning */
 
-		if(p.ml.frameCount % 10 == 0)
-			updateCurrentCluster(false);						/* Update current cluster */
+		if( state.walking && p.ml.frameCount % 15 == 0)			/* Update current cluster while walking */
+			updateCurrentCluster(false);						
 		
 		if(worldState.getTimeMode() == 2 && ( isMoving() || isFollowing() || isWalking() ))
 		{
@@ -318,10 +318,6 @@ public class WMV_Viewer
 	public void walkForward()
 	{
 		startMoveZTransition(-1);
-
-//		state.moveZDirection = -1;
-//		state.movingZ = true;
-//		state.slowingZ = false;
 	}
 
 	/**
@@ -330,10 +326,16 @@ public class WMV_Viewer
 	public void walkBackward()
 	{
 		startMoveZTransition(1);
+	}
 
-//		state.moveZDirection = -1;
-//		state.movingZ = true;
-//		state.slowingZ = false;
+	public void walkUp()
+	{
+		startMoveYTransition(-1);
+	}
+	
+	public void walkDown()
+	{
+		startMoveYTransition(1);
 	}
 
 	/**
@@ -399,7 +401,7 @@ public class WMV_Viewer
 		if(update)
 		{
 			updateCurrentCluster(true);
-			turnToCurrentClusterOrientation();
+//			turnToCurrentClusterOrientation();
 		}
 	}
 	
@@ -528,9 +530,10 @@ public class WMV_Viewer
 	{
 		if(teleport)
 		{
-			state.teleportGoalCluster = newCluster;
-			PVector newLocation = ((WMV_Cluster) p.getCurrentField().getCluster(newCluster)).getLocation();
-			teleportToPoint(newLocation, true);
+//			state.teleportGoalCluster = newCluster;
+//			PVector newLocation = ((WMV_Cluster) p.getCurrentField().getCluster(newCluster)).getLocation();
+//			teleportToPoint(newLocation, true);
+			teleportToCluster( newCluster, true, -1 ); 
 		}
 		else
 		{
@@ -881,19 +884,23 @@ public class WMV_Viewer
 		{
 			case 0:
 				id = getNearestImage(inclCurrent);
-				result = currentField.getImage(id).getAssociatedClusterID();
+				if(id >= 0 && id < currentField.getImageCount())
+					result = currentField.getImage(id).getAssociatedClusterID();
 				break;
 			case 1:
 				id = getNearestPanorama(inclCurrent);
-				result = currentField.getPanorama(id).getAssociatedClusterID();
+				if(id >= 0 && id < currentField.getPanoramaCount())
+					result = currentField.getPanorama(id).getAssociatedClusterID();
 				break;
 			case 2:
 				id = getNearestVideo(inclCurrent);
-				result = currentField.getVideo(id).getAssociatedClusterID();
+				if(id >= 0 && id < currentField.getVideoCount())
+					result = currentField.getVideo(id).getAssociatedClusterID();
 				break;
 			case 3:
 				id = getNearestSound(inclCurrent);
-				result = currentField.getSound(id).getAssociatedClusterID();
+				if(id >= 0 && id < currentField.getSoundCount())
+					result = currentField.getSound(id).getAssociatedClusterID();
 				break;
 		}
 
@@ -1011,13 +1018,11 @@ public class WMV_Viewer
 
 				if(fade)
 				{
-//					state.teleportGoalCluster = dest;
-//					state.teleportGoal = c.getLocation();
 					fadeTeleport(c.getLocation(), c.getID(), -1);
 				}
 				else
 				{
-					setLocation( c.getLocation(), true );
+					setLocation( c.getLocation(), false );
 					setCurrentCluster(dest, fieldTimeSegment);
 					if(p.state.waitingToFadeInTerrainAlpha) 
 						p.fadeInTerrain();
@@ -1888,7 +1893,7 @@ public class WMV_Viewer
 	 */
 	private void setAttractorCluster(int newCluster)
 	{
-		stop(true);														// -- Improve by slowing down instead and then starting?
+		stop(true);					
 		
 		if(state.atCurrentCluster)
 		{
@@ -1896,7 +1901,7 @@ public class WMV_Viewer
 			state.atCurrentCluster = false;
 		}
 
-//		if(debugSettings.viewer) System.out.println("Setting new attractor:"+newCluster+" old attractor:"+state.attractorCluster);
+		if(debugSettings.viewer) System.out.println("Setting new attractor:"+newCluster+" old attractor:"+state.attractorCluster);
 			
 		state.attractionStart = worldState.frameCount;									// Set attraction starting frame 
 		state.attractorCluster = newCluster;											// Set attractor cluster
@@ -1913,12 +1918,12 @@ public class WMV_Viewer
 			}
 			else if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize * 0.01f)
 			{
-				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.setAttractorCluster()... Centering at attractor cluster...");
+				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.setAttractorCluster()... Centering at attractor cluster#"+state.attractorCluster+"...");
 				startCenteringAtAttractor();
 			}
 			else
 			{
-				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.setAttractorCluster()... Reached attractor without moving...");
+				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.setAttractorCluster()... Reached attractor cluster #"+state.attractorCluster+" without moving...");
 				handleReachedAttractor();				// Reached attractor without moving
 			}
 		}
@@ -2809,7 +2814,7 @@ public class WMV_Viewer
 			else
 			{
 				updateCurrentCluster(true);
-				turnToCurrentClusterOrientation();
+//				turnToCurrentClusterOrientation();
 			}
 			
 			if(debugSettings.viewer)
@@ -2824,7 +2829,7 @@ public class WMV_Viewer
 			state.movingToAttractor = false;
 			
 			updateCurrentCluster(true);
-			turnToCurrentClusterOrientation();
+//			turnToCurrentClusterOrientation();
 //			setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
 		}
 	}
@@ -3294,27 +3299,17 @@ public class WMV_Viewer
 
 					state.teleportGoalCluster = -1;
 				}
-
-				if(state.movingToCluster)								// Teleporting to cluster
+				else
 				{
-					state.movingToCluster = false;
-					if(state.attractorCluster != -1)
-					{
-						state.attractorCluster = -1;
-						p.getCurrentField().clearAllAttractors();
-					}
-					else
-					{
-						setCurrentCluster( getNearestCluster(true), -1 );
-					}
+					if(state.movingToCluster)									// Teleporting to cluster
+						state.movingToCluster = false;
+					if(state.movingToAttractor)
+						state.movingToAttractor = false;
+
+					setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
 				}
 				
-				if(state.movingToAttractor)
-				{
-					state.movingToAttractor = false;
-					setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
-					p.getCurrentField().clearAllAttractors();				// Clear current attractors
-				}
+				p.getCurrentField().clearAllAttractors();				// Clear current attractors
 				
 				if(p.state.waitingToFadeInTerrainAlpha) 		// Fade in terrain
 					p.fadeInTerrain();
@@ -3963,7 +3958,7 @@ public class WMV_Viewer
 			if(!v.isPlaying())									// Play video by choosing it
 			{
 				if(!v.isLoaded()) v.loadMedia(p.ml);
-				v.playVideo();
+				v.play();
 			}
 			else
 				v.stopVideo();

@@ -62,7 +62,7 @@ public class ML_KeyboardControls
 
 		if (key == '6')
 		{
-			if(ml.world.viewer.getSettings().selection)
+			if(ml.world.getState().showModel)
 			{
 				ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
 				if(ml.display.window.showGraphicsWindow)
@@ -72,7 +72,7 @@ public class ML_KeyboardControls
 
 		if (key == '7')
 		{
-			if(ml.world.viewer.getSettings().selection)
+			if(ml.world.getState().showModel)
 			{
 				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
 				if(ml.display.window.showGraphicsWindow)
@@ -82,7 +82,7 @@ public class ML_KeyboardControls
 
 		if (key == '8')
 		{
-			if(ml.world.viewer.getSettings().selection)
+			if(ml.world.getState().showModel)
 			{
 				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
 				if(ml.display.window.showGraphicsWindow)
@@ -222,7 +222,7 @@ public class ML_KeyboardControls
 		}
 
 		if (!input.optionKey && key == 's') 
-			ml.world.viewer.startMoveZTransition(1);
+			ml.world.viewer.walkBackward();
 
 		if (!input.optionKey && key == 'w') 
 			ml.world.viewer.walkForward();
@@ -234,10 +234,12 @@ public class ML_KeyboardControls
 			ml.exitProgram();
 
 		if (!input.optionKey && key == 'e')									// Move UP
-			ml.world.viewer.startMoveYTransition(-1);
+			ml.world.viewer.walkUp();
+//			ml.world.viewer.startMoveYTransition(-1);
 
 		if (key == 'c') 													// Move DOWN
-			ml.world.viewer.startMoveYTransition(1);
+			ml.world.viewer.walkDown();
+//			ml.world.viewer.startMoveYTransition(1);
 
 		if (key == 'C') 													// Choose field from list
 			ml.world.viewer.chooseFieldDialog();

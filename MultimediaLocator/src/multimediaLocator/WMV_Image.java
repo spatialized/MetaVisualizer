@@ -167,13 +167,13 @@ public class WMV_Image extends WMV_Media
 				setVisible(true);
 
 			for(int id : getViewerState().getClustersVisible())
-				if(getMediaState().getClusterID() == id)			// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+				if(getMediaState().getClusterID() == id)			// If associated cluster is visible, it is visible
 					setVisible(true);
 		}
 		else 
 		{
 			if(getViewerSettings().angleFading)
-				setVisible( isFacingViewer(getViewerState().getLocation()) );		
+				setVisible( isFacingViewer(getViewerState().getLocation()) );					// Check if image is facing viewer	
 			else
 				setVisible(true);     										 		
 		}
@@ -185,7 +185,7 @@ public class WMV_Image extends WMV_Media
 			if(!utilities.isNaN(imageAngle))
 				setVisible( (getAngleBrightness(imageAngle) > 0.f) );
 
-			if(!isFading() && getViewerSettings().hideImages)
+			if(!isFadingOut() && getViewerSettings().hideImages)
 				setVisible(false);
 
 			if(getMediaState().visible && !getViewerSettings().orientationMode)
@@ -206,45 +206,46 @@ public class WMV_Image extends WMV_Media
 
 		if(isFading())										// Update brightness while fading
 		{
-			if(getMediaState().fadingBrightness == 0.f)
-				setVisible(false);
+			if(isFadingOut())
+				if(getFadingBrightness() == 0.f)
+					setVisible(false);
 		}
 		else 
 		{
 			if(!wasVisible && isVisible())
 				visibilitySetToTrue = true;
 
-			if(getMediaState().fadingBrightness == 0.f && isVisible())
+			if(getFadingBrightness() == 0.f && isVisible())
 				visibilitySetToTrue = true;
 
 			if(wasVisible && !isVisible())
 				visibilitySetToFalse = true;
 
-			if(getMediaState().fadingBrightness > 0.f && !isVisible())
+			if(getFadingBrightness() > 0.f && !isVisible())
 				visibilitySetToFalse = true;
 		}
 
-		if(!getViewerSettings().angleThinning)
+		if(getViewerSettings().angleThinning)
 		{
-			if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideImages && getFadingBrightness() == 0.f)			// Fade in
-				fadeIn(f);
-		}
-		else
-		{
-			if(getMediaState().visible && !state.thinningVisibility && !isFading())
+			if(isVisible() && !state.thinningVisibility && !isFading())
 				fadeOut(f);
-
+			
 			if(!isVisible() && state.thinningVisibility && !isFading() && !getViewerSettings().hideImages) 
 			{
 				if(!hasFadedOut())					// Fade in if didn't just finish fading out this frame
 					fadeIn(f);
 			}
 		}
+		else
+		{
+			if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideImages && getFadingBrightness() == 0.f)			// Fade in
+				fadeIn(f);
+		}
 
 		if(visibilitySetToFalse)
 			fadeOut(f);
 
-		if(getMediaState().fadedOut) setFadedOut(false);
+		if(hasFadedOut()) setFadedOut(false);
 	}
 	
 	/** 
@@ -277,32 +278,12 @@ public class WMV_Image extends WMV_Media
 		else
 			ml.texture(image);        			// Apply the image to the face as a texture 
 
-//		if(getViewerSettings().selection)
-//		{
-//			if(isSelected())
-//			{
-//				if(!getWorldState().alphaMode)
-//					ml.tint(getViewingBrightness(), 255);          				
-//				else
-//					ml.tint(255, getViewingBrightness());          				
-//			}
-//			else
-//			{
-//				if(!getWorldState().alphaMode)
-//					ml.tint(getViewingBrightness() * 0.4f, 255);          // Set the image transparency					
-//				else
-//					ml.tint(255, getViewingBrightness() * 0.333f);    
-//			}
-//		}
-//		else
-//		{
-			if(!getWorldState().alphaMode)
-				ml.tint(getViewingBrightness(), 255);          				
-			else
-			{
-				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
-			}
-//		}
+		if(!getWorldState().alphaMode)
+			ml.tint(getViewingBrightness(), 255);          				
+		else
+		{
+			ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
+		}
 
 		if(getViewerSettings().orientationMode)
 		{
@@ -329,7 +310,6 @@ public class WMV_Image extends WMV_Media
 	public void display2D(MultimediaLocator ml)
 	{
 		ml.noStroke(); 
-//		ml.rectMode(PApplet.CENTER);
 
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image

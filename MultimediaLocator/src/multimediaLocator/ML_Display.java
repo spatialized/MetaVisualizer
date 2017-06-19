@@ -1779,6 +1779,14 @@ public class ML_Display
 	{
 		mediaViewMediaType = mediaType;
 		mediaViewMediaID = mediaID;
+		if(mediaType == 2)
+		{
+			WMV_Video v = ml.world.getCurrentField().getVideo(mediaID);
+			if(!v.isLoaded())
+				v.loadMedia(ml);
+			if(!v.isPlaying())
+				v.play();
+		}
 	}
 	
 	/**
@@ -1822,7 +1830,7 @@ public class ML_Display
 	 */
 	private void displayPanorama2D(WMV_Panorama panorama)
 	{
-//		panorama.display2D(ml);
+		panorama.display2D(ml);
 	}
 
 	/**
@@ -1831,9 +1839,8 @@ public class ML_Display
 	 */
 	private void displayVideo2D(WMV_Video video)
 	{
-//		video.display2D(ml);
+		video.display2D(ml);
 	}
-
 
 	/**
 	 * Draw thumbnails (grid) of image list

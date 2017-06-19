@@ -211,7 +211,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 			for(int id : getViewerState().getClustersVisible())
 			{
-				if(getAssociatedClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+				if(getAssociatedClusterID() == id)				// If associated cluster is visible, it is visible	
 					setVisible(true);
 			}
 		}
@@ -231,10 +231,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			if(!utilities.isNaN(videoAngle))
 				setVisible(getAngleBrightness(videoAngle) > 0.f);	 // Check if video is visible at current angle facing viewer
 
-			if(!isFading() && getViewerSettings().hideVideos)
+			if(!isFadingOut() && getViewerSettings().hideVideos)
 				setVisible(false);
 				
-			if(getMediaState().visible && !getViewerSettings().orientationMode)
+			if(isVisible() && !getViewerSettings().orientationMode)
 				setVisible(getDistanceBrightness(viewer) > 0.f);
 
 			if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
@@ -251,53 +251,67 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		boolean visibilitySetToTrue = false;
 		boolean visibilitySetToFalse = false;
-		
+
+		if(isVisible())
+			System.out.println("Video.updateFading()... 1 frame:"+ml.frameCount+" isVisible():"+isVisible()+" visibilitySetToTrue:"+visibilitySetToTrue);
+
 		if(isFading())									// Update brightness while fading
 		{
-			if(getFadingBrightness() == 0.f)
-				setVisible(false);
+			if(isFadingOut())
+				if(getFadingBrightness() == 0.f)
+					setVisible(false);
 		}
 		else 
 		{
-			if(!wasVisible && getMediaState().visible)
+			if(!wasVisible && isVisible())
 				visibilitySetToTrue = true;
 
-			if(getFadingBrightness() == 0.f && getMediaState().visible)
+			if(getFadingBrightness() == 0.f && isVisible())
 				visibilitySetToTrue = true;
 
-			if(wasVisible && !getMediaState().visible)
+			if(wasVisible && !isVisible())
 				visibilitySetToFalse = true;
 
-			if(getFadingBrightness() > 0.f && !getMediaState().visible)
+			if(getFadingBrightness() > 0.f && !isVisible())
 				visibilitySetToFalse = true;
 		}
 
-		if(!getViewerSettings().angleThinning)										// Check Angle Thinning Mode
+		if(isVisible())
+			System.out.println("Video.updateFading()... 2 "
+					+ "'frame:"+ml.frameCount+" isVisible():"+isVisible()+" visibilitySetToTrue:"+visibilitySetToTrue);
+		
+		if(getViewerSettings().angleThinning)										// Check Angle Thinning Mode
+		{
+			if(isVisible() && !state.thinningVisibility && !isFading())
+			{
+				System.out.println("1  Will fade out video #"+getID());
+				fadeOut(ml.world.getCurrentField());
+			}
+			
+			if(!isVisible() && state.thinningVisibility && !isFading() && !hasFadedOut()) 
+			{
+				if(!state.loaded) loadMedia(ml); 						// Request video frames from disk
+				if(ml.debugSettings.video)
+					System.out.println("Video.updateFading()... will fade in video id#"+getID());
+				fadeIn(ml.world.getCurrentField());
+			}
+		}
+		else
 		{
 			if(visibilitySetToTrue && !isFading() && !hasFadedOut())	// If should be visible and already fading, fade in 
 			{
-				if(ml.debugSettings.video)
-					System.out.println("Video.updateFading()... id#"+getID()+" will call load media? "+(!state.loaded));
 				if(!state.loaded) loadMedia(ml);
 				if(ml.debugSettings.video)
 					System.out.println("Video.updateFading()... will fade in video id#"+getID());
 				fadeIn(ml.world.getCurrentField());											// Fade in
 			}
 		}
-		else															// If in Angle Thinning Mode
-		{
-			if(getMediaState().visible && !state.thinningVisibility && !isFading())
-				fadeOut(ml.world.getCurrentField());
-
-			if(!getMediaState().visible && state.thinningVisibility && !isFading() && !hasFadedOut()) 
-			{
-				if(!state.loaded) loadMedia(ml); 						// Request video frames from disk
-				fadeIn(ml.world.getCurrentField());
-			}
-		}
 
 		if(visibilitySetToFalse)
+		{
+			System.out.println("2  Will fade out video #"+getID());
 			fadeOut(ml.world.getCurrentField());
+		}
 
 		if(isFadingFocusDistance())
 			updateFadingFocusDistance();
@@ -371,12 +385,12 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			video = new Movie(ml, getMediaState().filePath);
 			setLength( video.duration() );				// Set video length (in seconds)
 			
-			video.loop();								// Start loop
+//			video.loop();								// Start loop
 
 			if(getViewerSettings().autoPlayVideos)
 			{
 				if(ml.world.getCurrentField().getVideosPlaying() < getViewerSettings().autoPlayMaxVideoCount)
-					playVideo();
+					play();
 			}
 			else pauseVideo();
 			
@@ -395,7 +409,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 * Start playing the video
 	 * @param pause 
 	 */
-	public void playVideo()
+	public void play()
 	{
 		video.loop();					// Start loop
 
@@ -479,30 +493,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		frame = new PImage(video.getImage());
 		blurred = applyMask(ml, frame, blurMask);				// Apply blur mask once image has loaded
 
-//		if(getViewerSettings().selection)
-//		{
-//			if(isSelected())
-//			{
-//				if(!getWorldState().alphaMode)
-//					ml.tint(getViewingBrightness(), 255);          				
-//				else
-//					ml.tint(255, getViewingBrightness());          				
-//			}
-//			else
-//			{
-//				if(!getWorldState().alphaMode)
-//					ml.tint(getViewingBrightness() * 0.333f, 255);          // Set the image transparency					
-//				else
-//					ml.tint(255, getViewingBrightness() * 0.333f);          				
-//			}
-//		}
-//		else
-//		{
-			if(!getWorldState().alphaMode)
-				ml.tint(getViewingBrightness(), 255);          				
-			else
-				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
-//		}
+		if(!getWorldState().alphaMode)
+			ml.tint(getViewingBrightness(), 255);          				
+		else
+			ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 
 		if(getViewerSettings().orientationMode)
 		{
@@ -518,6 +512,37 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			ml.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.origVideoWidth, state.origVideoHeight); 		// LOWER RIGHT        
 			ml.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, state.origVideoHeight);           // LOWER LEFT
 		}
+		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
+		ml.popMatrix();
+	}
+	
+	/** 
+	 * Draw the image
+	 */
+	public void display2D(MultimediaLocator ml)
+	{
+		ml.noStroke(); 
+
+		ml.pushMatrix();
+		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
+		ml.textureMode(PApplet.NORMAL);
+
+		ml.noFill();
+		if(frame != null)
+			ml.texture(frame);        			// Apply the image to the face as a texture 
+		frame = new PImage(video.getImage());	// Get next frame
+		ml.tint(255, 255);          				
+
+		int vidWidth = getWidth();
+		int vidHeight = getHeight();
+
+		ml.translate(-vidWidth / 2.f, -vidHeight / 2.f);
+
+		ml.vertex(0, 0, 0, 0, 0);             	// UPPER LEFT      
+		ml.vertex(vidWidth, 0, 0, 1, 0);              	// UPPER RIGHT           
+		ml.vertex(vidWidth, vidHeight, 0, 1, 1);				// LOWER RIGHT        
+		ml.vertex(0, vidHeight, 0, 0, 1);              	// LOWER LEFT
+
 		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
 		ml.popMatrix();
 	}
@@ -1141,7 +1166,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Update fading of object distance (focus distance and image size together)
 	 */
-	private void updateFadingFocusDistance()
+	public void updateFadingFocusDistance()
 	{
 		float newFocusDistance = 0.f;
 
@@ -1165,7 +1190,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		setFocusDistance(state.origFocusDistance);
 	}
-
+	
 	/**	
 	 * Setup video rectangle geometry 
 	 */
@@ -1253,12 +1278,12 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		 return metadata.rotation;
 	 }
 	 
-	 public float getWidth()
+	 public int getWidth()
 	 {
 		 return metadata.videoWidth;
 	 }
 
-	 public float getHeight()
+	 public int getHeight()
 	 {
 		 return metadata.videoHeight;
 	 }

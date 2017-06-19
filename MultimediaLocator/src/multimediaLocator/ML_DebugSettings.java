@@ -9,7 +9,7 @@ public class ML_DebugSettings
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
-	public boolean detailed = false;			// Verbose debugging messages
+	public boolean detailed = true;			// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	public boolean messages = true;				// On screen debug messages
 	
@@ -31,8 +31,8 @@ public class ML_DebugSettings
 	/* Media */
 	public boolean media = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
-	public boolean panorama = false;				// Debug WMV_Panorama class
-	public boolean video = true;				// Debug WMV_Video class
+	public boolean panorama = true;				// Debug WMV_Panorama class
+	public boolean video = false;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
 
 	/* Other */

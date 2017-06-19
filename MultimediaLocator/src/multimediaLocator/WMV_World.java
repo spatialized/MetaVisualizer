@@ -588,6 +588,12 @@ public class WMV_World
 		getCurrentField().fadeOutAllMedia();
 		fadeOutTerrain(false);
 	}
+
+//	public void fadeOutAllVideosAndSounds()
+//	{
+//		getCurrentField().fadeOutAllVideosAndSounds();
+//		fadeOutTerrain(false);
+//	}
 	
 	public void fadeOutTerrain(boolean turnOff)
 	{
@@ -1662,7 +1668,7 @@ public class WMV_World
 			ml.display.window.chkbxHideImages.setSelected(false);
 		
 		if(getSettings().screenMessagesOn)
-			ml.display.message(ml, "Hiding Images ON");
+			ml.display.message(ml, "Hiding Images OFF");
 	}
 	
 	/**

@@ -633,20 +633,6 @@ public class ML_Input
 			/* Model */
 			case "ShowModel":
 				world.setShowModel( option.isSelected() );
-//				world.state.showModel = option.isSelected();
-//				if(world.state.showModel)
-//				{
-//					world.ml.display.window.chkbxMediaToCluster.setEnabled(true);
-//					world.ml.display.window.chkbxCaptureToMedia.setEnabled(true);
-//					world.ml.display.window.chkbxCaptureToCluster.setEnabled(true);
-//				}
-//				else
-//				{
-//					world.ml.display.window.chkbxMediaToCluster.setEnabled(false);
-//					world.ml.display.window.chkbxCaptureToMedia.setEnabled(false);
-//					world.ml.display.window.chkbxCaptureToCluster.setEnabled(false);
-//				}
-
 				break;
 			case "MediaToCluster":
 				world.state.showMediaToCluster = option.isSelected();

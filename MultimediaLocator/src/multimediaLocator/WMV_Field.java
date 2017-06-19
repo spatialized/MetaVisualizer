@@ -159,7 +159,7 @@ public class WMV_Field
 
 		for (WMV_Image m : images) 		
 		{
-			if(!m.isDisabled())
+			if(!m.isDisabled() && !m.isHidden())
 			{
 				float distance = m.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
@@ -184,61 +184,18 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Update image geometry and visibility
-	 * @param ml Parent app
-	 * @param m Image ID
-	 */
-	private void updateImage(MultimediaLocator ml, WMV_Image m)
-	{
-		if(m.isRequested() && m.image.width > 0)			// If requested image has loaded, initialize image 
-		{
-			m.calculateVertices();  					// Update geometry		
-			m.setAspectRatio( m.calculateAspectRatio() );
-			m.blurred = m.applyMask(ml, m.image, m.blurMask);					// Apply blur mask once image has loaded
-			m.setRequested(false);
-		}
-
-		if(m.image.width > 0)				// Image has been loaded and isn't mState.hidden or disabled
-		{
-			if(!m.isHidden() && !m.isDisabled())
-			{
-				boolean wasVisible = m.isVisible();
-				m.calculateVisibility(ml.world.viewer, utilities);
-				if(!clusterIsVisible(m.getAssociatedClusterID())) m.setVisible( false );		
-				m.updateFading(this, wasVisible);
-			}
-		}
-		else
-		{
-			if(getViewerSettings().orientationMode)
-			{
-				for(int id : getViewerState().getClustersVisible())
-					if(m.getMediaState().getClusterID() == id  && !m.getMediaState().requested)			
-						m.loadMedia(ml);
-			}
-			else if(m.getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !m.getMediaState().requested)
-				m.loadMedia(ml); 					// Request image pixels from disk
-		}
-
-		if(m.isFading())                       // Fade in and out with time
-			m.updateFadingBehavior(ml.world.getCurrentField());
-
-		if(m.getMediaState().fadingFocusDistance)
-			m.updateFadingFocusDistance();
-	}
-
-	/**
 	 * Update panoramas in field
 	 * @param ml Parent app
 	 */
 	private void updatePanoramas(MultimediaLocator ml)
 	{
-		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
+//		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
 
 		for (WMV_Panorama n : panoramas)  	// Update panoramas
 		{
-			if(!n.isDisabled())
+			if(!n.isDisabled() && !n.isHidden())
 			{
+				float vanishingPoint = n.getRadius() - getWorldSettings().clusterCenterSize;	// Distance where transparency reaches zero
 				float distance = n.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 				boolean inVisibleRange = (distance < vanishingPoint);
 
@@ -261,41 +218,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Update panorama geometry and visibility
-	 * @param ml Parent app
-	 * @param n Panorama ID
-	 */
-	public void updatePanorama(MultimediaLocator ml, WMV_Panorama n)
-	{
-		if(n.getMediaState().requested && n.texture.width > 0)			// If requested image has loaded, initialize image 
-		{
-			n.initializeSphere();					
-			n.blurred = n.applyMask(ml, n.texture, n.blurMask);					// Apply blur mask once image has loaded
-			n.setRequested(false);
-		}
-
-		if(n.getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !n.getMediaState().requested)
-			if(!n.initialized)
-				n.loadMedia(ml); 
-
-		if(!n.isDisabled())
-		{
-			if(n.texture.width > 0)			
-			{
-				n.calculateVisibility(ml.world.viewer);
-				if(!clusterIsVisible(n.getAssociatedClusterID())) n.setVisible( false );		
-				n.updateFading(this);
-			}
-
-			if(n.isFading())                       // Fade in and out with time
-				n.updateFadingBehavior(ml.world.getCurrentField());
-			
-//			if(fadingObjectDistance)
-//				updateFadingObjectDistance();
-		}
-	}
-	
-	/**
 	 * Update videos in field
 	 * @param ml Parent app
 	 */
@@ -305,21 +227,17 @@ public class WMV_Field
 
 		for (WMV_Video v : videos)  		// Update videos
 		{
-			if(!v.isDisabled())
+			if(!v.isDisabled() && !v.isHidden())
 			{
 				float distance = v.getViewingDistance(ml.world.viewer);	 // Estimate video distance to camera based on capture location
-				
-//				System.out.println("Field.updateVideos()... Video #"+getID()+" distance:"+distance+" loc:"+v.getLocation());
-
 				boolean inVisibleRange = (distance < vanishingPoint);
 
 				if ( v.isVisible() && !inVisibleRange )
 					v.fadeOut(this);
 
 				if(worldState.timeFading)
-				{
 					v.updateTimeBrightness(getCluster(v.getAssociatedClusterID()), timeline, utilities);
-				}
+
 				if(inVisibleRange)
 				{
 					state.videosInRange++;
@@ -338,35 +256,6 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Update video geometry and visibility
-	 * @param ml Parent app
-	 * @param v Video ID
-	 */
-	private void updateVideo(MultimediaLocator ml, WMV_Video v)
-	{
-		if(!v.getMediaState().disabled)			
-		{
-			boolean wasVisible = v.isVisible();
-			v.calculateVisibility(ml.world.viewer, utilities);
-			if(!clusterIsVisible(v.getAssociatedClusterID())) v.setVisible( false );		
-			v.updateFading(ml, wasVisible);
-			
-			if(getViewerSettings().orientationMode)
-			{
-				for(int id : getViewerState().getClustersVisible())
-					if( v.getMediaState().getClusterID() == id  && !v.getMediaState().requested 
-						&& !v.isLoaded())			
-						v.loadMedia(ml); 					// Request video frames from disk
-			}
-			else if( v.getCaptureDistance() < getViewerSettings().getFarViewingDistance() && !v.isLoaded() )
-				v.loadMedia(ml); 							// Request video frames from disk
-		
-			if(v.isFading())								// Update brightness while fading
-				v.updateFadingBehavior(ml.world.getCurrentField());
-		}
-	}
-	
-	/**
 	 * Update sounds in field
 	 * @param ml Parent app
 	 */
@@ -376,7 +265,7 @@ public class WMV_Field
 	
 		for (WMV_Sound s : sounds)  		// Update and play sounds
 		{
-			if(!s.isDisabled())
+			if(!s.isDisabled() && !s.isHidden())
 			{
 				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
 				boolean inAudibleRange = (distance < inaudiblePoint);
@@ -411,6 +300,138 @@ public class WMV_Field
 	}
 	
 	/**
+	 * Update image geometry and visibility
+	 * @param ml Parent app
+	 * @param m Image ID
+	 */
+	private void updateImage(MultimediaLocator ml, WMV_Image m)
+	{
+		if(!m.isDisabled())
+		{
+			if(!m.isHidden())
+			{
+				if(m.isRequested() && m.image.width > 0)			// If requested image has loaded, initialize image 
+				{
+					m.calculateVertices();  						// Update geometry		
+					m.setAspectRatio( m.calculateAspectRatio() );
+					m.blurred = m.applyMask(ml, m.image, m.blurMask);		// Apply blur mask once image has loaded
+					m.setRequested(false);
+				}
+
+				if(m.image.width > 0)								// Image has been loaded and isn't mState.hidden or disabled
+				{
+					boolean wasVisible = m.isVisible();
+					m.calculateVisibility(ml.world.viewer, utilities);
+					if(!clusterIsVisible(m.getAssociatedClusterID())) m.setVisible( false );		
+					m.updateFading(this, wasVisible);
+				}
+				else
+				{
+					if(getViewerSettings().orientationMode)
+					{
+						for(int id : getViewerState().getClustersVisible())
+							if(m.getMediaState().getClusterID() == id  && !m.getMediaState().requested)			
+								m.loadMedia(ml);
+					}
+					if(m.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !m.isRequested())
+						m.loadMedia(ml); 					// Request image pixels from disk
+				}
+			}
+			
+			if(m.isFading())                       // Fade in and out with time
+				m.updateFadingBehavior(ml.world.getCurrentField());
+			
+			if(m.getMediaState().fadingFocusDistance)
+				m.updateFadingFocusDistance();
+		}
+	}
+	
+	/**
+	 * Update panorama geometry and visibility
+	 * @param ml Parent app
+	 * @param n Panorama ID
+	 */
+	public void updatePanorama(MultimediaLocator ml, WMV_Panorama n)
+	{
+		if(!n.isDisabled())
+		{
+			if(!n.isHidden())
+			{
+				if(n.getMediaState().requested && n.texture.width > 0)			// If requested image has loaded, initialize image 
+				{
+					n.initializeSphere();					
+					n.blurred = n.applyMask(ml, n.texture, n.blurMask);					// Apply blur mask once image has loaded
+					n.setRequested(false);
+				}
+
+				if(n.texture.width > 0)			
+				{
+					boolean wasVisible = n.isVisible();
+					n.calculateVisibility(ml.world.viewer);
+					if(!clusterIsVisible(n.getAssociatedClusterID())) n.setVisible( false );		
+					n.updateFading(this, wasVisible);
+				}
+				else
+				{
+					if(getViewerSettings().orientationMode)
+					{
+						for(int id : getViewerState().getClustersVisible())
+							if(n.getMediaState().getClusterID() == id && !n.getMediaState().requested && !n.initialized)			
+								n.loadMedia(ml);
+					}
+					else if(n.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !n.isRequested())
+						n.loadMedia(ml); 					// Request image pixels from disk
+				}
+			}
+
+			if(n.isFading())                      
+				n.updateFadingBehavior(ml.world.getCurrentField());
+//			if(fadingObjectDistance)
+//				updateFadingObjectDistance();
+		}
+	}
+	
+	
+	/**
+	 * Update video geometry and visibility
+	 * @param ml Parent app
+	 * @param v Video ID
+	 */
+	private void updateVideo(MultimediaLocator ml, WMV_Video v)
+	{
+		if(!v.isDisabled())			
+		{
+			if(!v.isHidden())
+			{
+				boolean wasVisible = v.isVisible();
+				v.calculateVisibility(ml.world.viewer, utilities);
+				if(!clusterIsVisible(v.getAssociatedClusterID())) v.setVisible( false );		
+				v.updateFading(ml, wasVisible);
+
+				if(getViewerSettings().orientationMode)
+				{
+					for(int id : getViewerState().getClustersVisible())
+						if( v.getMediaState().getClusterID() == id && !v.isLoaded())
+						{
+							System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID());
+							v.loadMedia(ml); 					// Load video frames from disk
+						}
+				}
+				else if( v.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !v.isLoaded() )
+				{
+					System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible());
+					v.loadMedia(ml); 							// Load video frames from disk
+				}
+			}
+		
+			if(v.isFading())								// Update brightness while fading
+				v.updateFadingBehavior(ml.world.getCurrentField());
+			if(v.getMediaState().fadingFocusDistance)		// Update focus distance transition
+				v.updateFadingFocusDistance();
+		}
+	}
+
+	/**
 	 * Update sound audibility and (model) visibility
 	 * @param ml Parent app
 	 * @param s Sound ID
@@ -419,10 +440,13 @@ public class WMV_Field
 	{
 		if(!s.isDisabled())			
 		{
-			boolean wasVisible = s.isVisible();
-			s.calculateAudibility();
-			if(!clusterIsVisible(s.getAssociatedClusterID())) s.setVisible( false );		
-			s.updateFading(ml, wasVisible);
+			if(!s.isHidden())
+			{
+				boolean wasVisible = s.isVisible();
+				s.calculateAudibility();
+				if(!clusterIsVisible(s.getAssociatedClusterID())) s.setVisible( false );		
+				s.updateFading(ml, wasVisible);
+			}
 			
 			if(s.state.loaded)
 			{
@@ -1273,7 +1297,7 @@ public class WMV_Field
 	}
 
 	/**
-	 * Gradually fade all media brightness to zero
+	 * Gradually fade all media brightness / volume to zero
 	 */
 	public void fadeOutAllMedia()
 	{
@@ -1285,9 +1309,34 @@ public class WMV_Field
 		for (WMV_Panorama n : panoramas) 
 			n.fadeOut(this);
 
-		for (WMV_Video v : videos) 
+		for (WMV_Video v : videos)
+		{
 			v.fadeOut(this);
+			v.fadeSoundOut(true);
+		}
+
+		for (WMV_Sound s : sounds) 
+		{
+			s.fadeOut(this);
+		}
 	}
+
+	/**
+	 * Gradually fade all video and sound brightness / volume to zero
+	 */
+//	public void fadeOutAllVideosAndSounds()
+//	{
+//		if(debugSettings.world) System.out.println("Fading out videos and sounds...");
+//
+//		for (WMV_Video v : videos)
+//		{
+//			v.fadeOut(this);
+//			v.fadeSoundOut(true);
+//		}
+//
+//		for (WMV_Sound s : sounds) 
+//			s.fadeOut(this);
+//	}
 
 	/**
 	 * Immediately set all media brightness to zero
@@ -1304,6 +1353,9 @@ public class WMV_Field
 
 		for (WMV_Video v : videos) 
 			v.getMediaState().fadingBrightness = 0;
+
+		for (WMV_Sound s : sounds) 
+			s.getMediaState().fadingBrightness = 0;
 	}
 
 	/**

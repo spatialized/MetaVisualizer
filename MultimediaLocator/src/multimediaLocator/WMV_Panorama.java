@@ -91,7 +91,7 @@ public class WMV_Panorama extends WMV_Media
 		{
 			for(int id : getViewerState().getClustersVisible())
 			{
-				if(getMediaState().getClusterID() == id)				// If this photo's cluster is on next closest list, it is visible	-- CHANGE THIS??!!
+				if(getMediaState().getClusterID() == id)				
 					setVisible(true);
 			}
 		}
@@ -102,18 +102,45 @@ public class WMV_Panorama extends WMV_Media
 
 		setVisible(getDistanceBrightness(viewer) > 0.f);
 
-		if(!isFading() && getViewerSettings().hidePanoramas)
+		if(!isFadingOut() && getViewerSettings().hidePanoramas)
 			setVisible(false);
 	}
 	
-	public void updateFading(WMV_Field f)
+	public void updateFading(WMV_Field f, boolean wasVisible)
 	{
-		if(isVisible() && !isFading() && !hasFadedOut() && getFadingBrightness() == 0.f)					// Fade in
+		boolean visibilitySetToTrue = false;
+		boolean visibilitySetToFalse = false;
+
+		if(isFading())										// Update brightness while fading
+		{
+			if(isFadingOut())
+				if(getFadingBrightness() == 0.f)
+					setVisible(false);
+		}
+		else 
+		{
+			if(!wasVisible && isVisible())
+				visibilitySetToTrue = true;
+
+			if(getFadingBrightness() == 0.f && isVisible())
+				visibilitySetToTrue = true;
+
+			if(wasVisible && !isVisible())
+				visibilitySetToFalse = true;
+
+			if(getFadingBrightness() > 0.f && !isVisible())
+				visibilitySetToFalse = true;
+		}
+
+		if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hidePanoramas && getFadingBrightness() == 0.f)					// Fade in
 		{
 			if(getDebugSettings().panorama)
-				System.out.println("fadeIn()...pano id:"+getID());
+				System.out.println("fadeIn()...panorama id #"+getID());
 			fadeIn(f);
 		}
+
+		if(visibilitySetToFalse)
+			fadeOut(f);
 
 		if(hasFadedOut()) setFadedOut(false);
 	}
@@ -233,6 +260,35 @@ public class WMV_Panorama extends WMV_Media
 
 		ml.popMatrix();
 		ml.textureMode(PApplet.NORMAL);
+	}
+
+	/** 
+	 * Draw the image
+	 */
+	public void display2D(MultimediaLocator ml)
+	{
+		ml.noStroke(); 
+
+		ml.pushMatrix();
+		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
+		ml.textureMode(PApplet.NORMAL);
+
+		ml.noFill();
+		ml.texture(texture);        			// Apply the image to the face as a texture 
+		ml.tint(255, 255);          				
+
+		int imgWidth = getWidth();
+		int imgHeight = getHeight();
+
+		ml.translate(-imgWidth / 2.f, -imgHeight / 2.f);
+
+		ml.vertex(0, 0, 0, 0, 0);             	// UPPER LEFT      
+		ml.vertex(imgWidth, 0, 0, 1, 0);              	// UPPER RIGHT           
+		ml.vertex(imgWidth, imgHeight, 0, 1, 1);				// LOWER RIGHT        
+		ml.vertex(0, imgHeight, 0, 0, 1);              	// LOWER LEFT
+
+		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
+		ml.popMatrix();
 	}
 
 	/**
@@ -357,11 +413,11 @@ public class WMV_Panorama extends WMV_Media
 
 		float distVisibility = 1.f;
 
-		if(viewDist > state.radius-getWorldSettings().clusterCenterSize*3.f)
+		if(viewDist > getWorldSettings().clusterCenterSize * 1.5f)
 		{
-			float vanishingPoint = state.radius;	// Distance where transparency reaches zero
+			float vanishingPoint = state.radius - getWorldSettings().clusterCenterSize;			// Distance where transparency reaches zero
 			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, vanishingPoint-getWorldSettings().clusterCenterSize*3.f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, getWorldSettings().clusterCenterSize * 1.5f, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
 		}
@@ -525,7 +581,7 @@ public class WMV_Panorama extends WMV_Media
 	/**
 	 * @return Texture width
 	 */
-	public float getWidth()
+	public int getWidth()
 	{
 		return metadata.imageWidth;
 	}
@@ -533,7 +589,7 @@ public class WMV_Panorama extends WMV_Media
 	/**
 	 * @return Texture height
 	 */
-	public float getHeight()
+	public int getHeight()
 	{
 		return metadata.imageHeight;
 	}

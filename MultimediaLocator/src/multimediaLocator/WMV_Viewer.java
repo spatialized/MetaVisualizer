@@ -821,7 +821,7 @@ public class WMV_Viewer
 			return;
 		else 
 		{
-			result = getNearestClusterWithType(p.getCurrentField(), mediaType, inclCurrent);
+			result = getNearestClusterWithType(p.getCurrentField(), mediaType, inclCurrent);	// Find nearest cluster with given media type
 			if(result >= 0 && result < p.getCurrentField().getClusters().size())
 			{
 				found = true;
@@ -891,6 +891,10 @@ public class WMV_Viewer
 				id = getNearestPanorama(inclCurrent);
 				if(id >= 0 && id < currentField.getPanoramaCount())
 					result = currentField.getPanorama(id).getAssociatedClusterID();
+				
+				System.out.println("Viewer.getNearestClusterWithType()... type Panorama... found id#"+id+" in cluster #"+result);
+				System.out.println("	has pano?  "+currentField.getCluster(result).hasPanorama()+"	is pano in cluster?  "+currentField.getCluster(result).getPanoramas(currentField.getPanoramas()).contains(id));
+				
 				break;
 			case 2:
 				id = getNearestVideo(inclCurrent);
@@ -1835,7 +1839,7 @@ public class WMV_Viewer
 			found = true;
 
 		if(debugSettings.viewer && debugSettings.detailed)
-			System.out.println("moveToClusterWith2OrMoreTimes... setting attractor:"+p.getCurrentField().getTimeline().timeline.get(nextCluster).getFieldTimelineID());
+			System.out.println("Viewer.moveToNearestClusterWithTimes... setting attractor:"+p.getCurrentField().getTimeline().timeline.get(nextCluster).getFieldTimelineID());
 
 		if(found)
 		{

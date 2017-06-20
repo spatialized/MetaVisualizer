@@ -3970,12 +3970,10 @@ public class WMV_Viewer
 	
 	/**
 	 * Choose panorama near the viewer
-	 * @param select Whetehr to select or deselect
+	 * @param select Whether to select or deselect
 	 */
 	public void choosePanoramaNearby(boolean select)
 	{
-		System.out.println("choosePanoramaNearby()... select? "+select);
-		
 		float closestPanoramaDist = 100000.f;
 		int closestPanoramaID = -1;
 
@@ -3984,7 +3982,7 @@ public class WMV_Viewer
 			if(!i.getMediaState().disabled)
 			{
 				float result = i.getViewingDistance(this);
-				if(result <= settings.selectionMaxDistance)
+				if(result <= settings.selectionMaxDistance && result < closestPanoramaDist)
 				{
 					closestPanoramaDist = result;
 					closestPanoramaID = i.getID();

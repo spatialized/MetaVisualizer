@@ -934,7 +934,7 @@ public class ML_Window
 		chkbxAngleFading.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxAngleFading.setSelected(world.viewer.getSettings().angleFading);
 
-		chkbxAngleThinning = new GCheckbox(graphicsWindow, x += 110, y, 100, iSmallBoxHeight, "Angle Thinning");
+		chkbxAngleThinning = new GCheckbox(graphicsWindow, x += 105, y, 100, iSmallBoxHeight, "Angle Thinning");
 		chkbxAngleThinning.tag = "AngleThinning";
 		chkbxAngleThinning.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxAngleThinning.setSelected(world.viewer.getSettings().angleThinning);

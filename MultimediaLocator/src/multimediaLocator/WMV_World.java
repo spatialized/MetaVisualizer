@@ -223,9 +223,12 @@ public class WMV_World
 			getCurrentField().display(ml);										/* Display media in current field */
 			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
 			{
-				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
-				if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
-					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(ml);		// Draw current cluster
+				if(viewer.getState().getCurrentClusterID() > 0 && viewer.getState().getCurrentClusterID() < getCurrentField().getClusters().size())
+				{
+					ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
+					if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
+						clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(ml);		// Draw current cluster
+				}
 			}
 			
 			if(state.displayTerrain) displayTerrain();	/* Draw terrain as wireframe grid */

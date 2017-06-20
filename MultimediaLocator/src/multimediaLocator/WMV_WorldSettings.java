@@ -71,8 +71,8 @@ public class WMV_WorldSettings
 	public int maxStitchingImages = 30;					// Maximum number of images to try to stitch
 	public float stitchingMinAngle = 30.f;				// Angle in degrees that determines media segments for stitching 
 	public boolean persistentStitching = false;			// Keep trying to stitch, removing one image at a time until it works or no images left
-	public boolean showUserPanoramas = true;			// Show panoramas stitched from user selected media
-	public boolean showStitchedPanoramas = true;		// Show panoramas stitched from media segments
+	public boolean showUserPanoramas = false;			// Show panoramas stitched from user selected media
+	public boolean showStitchedPanoramas = false;		// Show panoramas stitched from media segments
 
 	WMV_WorldSettings(){}
 	

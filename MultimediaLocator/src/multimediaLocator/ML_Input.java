@@ -417,11 +417,19 @@ public class ML_Input
 				case "SelectFront":
 					ml.world.viewer.chooseMediaInFront(true);
 					break;
+				case "SelectPanorama":
+					ml.world.viewer.choosePanoramaNearby(true);
+					break;
+					
 				case "DeselectFront":
 					ml.world.viewer.chooseMediaInFront(false);
 					if(ml.display.displayView == 4)
 						ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
 					break;
+				case "DeselectPanorama":
+					ml.world.viewer.choosePanoramaNearby(false);
+					break;
+
 				case "DeselectAll":
 					ml.world.getCurrentField().deselectAllMedia(false);
 					if(ml.display.displayView == 4)
@@ -492,7 +500,7 @@ public class ML_Input
 	{
 		switch (option.tag)
 		{
-			/* Views */
+			/* Main Window */
 			case "SceneView":
 				display.setDisplayView(world, 0);
 				break;
@@ -505,7 +513,11 @@ public class ML_Input
 //			case "LibraryView":
 //				display.setDisplayView(world, 3);
 //				break;
-				
+			case "ScreenMessagesOn":
+				world.settings.screenMessagesOn = option.isSelected();
+//				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);
+				break;
+
 			/* Navigation */
 			case "FollowTimeline":
 				if(option.isSelected())

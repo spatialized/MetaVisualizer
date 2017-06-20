@@ -178,10 +178,11 @@ public class WMV_Panorama extends WMV_Media
 		{
 			if(isSelected())
 			{
-				if(!getWorldState().alphaMode)
-					ml.tint(getViewingBrightness(), 255);          				
-				else
-					ml.tint(255, getViewingBrightness());          				
+				ml.tint(255, 255);          				
+//				if(!getWorldState().alphaMode)
+//					ml.tint(getViewingBrightness(), 255);          				
+//				else
+//					ml.tint(255, getViewingBrightness());          				
 			}
 			else
 			{
@@ -275,6 +276,7 @@ public class WMV_Panorama extends WMV_Media
 	 */
 	public void display2D(MultimediaLocator ml)
 	{
+		System.out.print("Panorama.display2D()... id #"+getID());
 		ml.noStroke(); 
 
 		ml.pushMatrix();
@@ -288,7 +290,7 @@ public class WMV_Panorama extends WMV_Media
 		int imgWidth = getWidth();
 		int imgHeight = getHeight();
 
-		ml.translate(-imgWidth / 2.f, -imgHeight / 2.f);
+		ml.translate(-imgWidth / 2.f, -imgHeight / 2.f, -3000.f);
 
 		ml.vertex(0, 0, 0, 0, 0);             	// UPPER LEFT      
 		ml.vertex(imgWidth, 0, 0, 1, 0);              	// UPPER RIGHT           

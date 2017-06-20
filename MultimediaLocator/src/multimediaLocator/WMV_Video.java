@@ -536,7 +536,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		int vidWidth = getWidth();
 		int vidHeight = getHeight();
 
-		ml.translate(-vidWidth / 2.f, -vidHeight / 2.f);
+		ml.translate(-vidWidth / 2.f, -vidHeight / 2.f, 100.f);
 
 		ml.vertex(0, 0, 0, 0, 0);             	// UPPER LEFT      
 		ml.vertex(vidWidth, 0, 0, 1, 0);              	// UPPER RIGHT           

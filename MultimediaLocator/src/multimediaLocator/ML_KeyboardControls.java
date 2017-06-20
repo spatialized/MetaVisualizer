@@ -521,11 +521,14 @@ public class ML_KeyboardControls
 //		{
 //			ml.world.settings.showUserPanoramas = !ml.world.settings.showUserPanoramas;
 //		}
-//
-//		if (key == ';')
-//		{
+
+		if (key == ';')
+		{
+			ml.world.settings.screenMessagesOn = !ml.world.settings.screenMessagesOn;
+			if(ml.display.window.setupMLWindow)
+				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);
 //			ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
-//		}
+		}
 
 		if (key == 'A') 
 		{
@@ -551,6 +554,14 @@ public class ML_KeyboardControls
 
 		if (!input.optionKey && key == 'X')
 			ml.world.viewer.chooseMediaInFront(false);
+
+//		if (key == '≈') 		
+		if (!input.optionKey && key == 'k') 		
+			ml.world.viewer.choosePanoramaNearby(true);
+
+//		if (key == '˛') 		
+		if (key == 'K') 		
+			ml.world.viewer.choosePanoramaNearby(false);
 
 		if (key == 'S')						// Save all fields
 		{

@@ -3864,16 +3864,16 @@ public class WMV_Viewer
 		float closestImageDist = 100000.f;
 		int closestImageID = -1;
 
-		for(WMV_Image s : possibleImages)
+		for(WMV_Image i : possibleImages)
 		{
-			if(!s.isBackFacing(getLocation()) && !s.isBehindCamera(getLocation(), getOrientationVector()))					// If image is ahead and front facing
+			if(!i.isBackFacing(getLocation()) && !i.isBehindCamera(getLocation(), getOrientationVector()))					// If image is ahead and front facing
 			{
-				float result = Math.abs(s.getFacingAngle(getOrientationVector()));				// Get angle at which it faces camera
+				float result = Math.abs(i.getFacingAngle(getOrientationVector()));				// Get angle at which it faces camera
 
 				if(result < closestImageDist)										// Find closest to camera orientation
 				{
 					closestImageDist = result;
-					closestImageID = s.getID();
+					closestImageID = i.getID();
 				}
 			}
 		}
@@ -3965,6 +3965,52 @@ public class WMV_Viewer
 			
 			if(debugSettings.viewer) 
 				System.out.println("Video is "+(v.isPlaying()?"playing":"not playing: ")+v.getID());
+		}
+	}
+	
+	/**
+	 * Choose panorama near the viewer
+	 * @param select Whetehr to select or deselect
+	 */
+	public void choosePanoramaNearby(boolean select)
+	{
+		System.out.println("choosePanoramaNearby()... select? "+select);
+		
+		float closestPanoramaDist = 100000.f;
+		int closestPanoramaID = -1;
+
+		for(WMV_Panorama i : p.getCurrentField().getPanoramas())
+		{
+			if(!i.getMediaState().disabled)
+			{
+				float result = i.getViewingDistance(this);
+				if(result <= settings.selectionMaxDistance)
+				{
+					closestPanoramaDist = result;
+					closestPanoramaID = i.getID();
+				}
+			}
+		}
+		
+		if(settings.selection)						// In Selection Mode
+		{
+			if(closestPanoramaDist != 100000.f)
+			{
+				int newSelected = closestPanoramaID;
+				if(select && !settings.multiSelection)
+					p.deselectAllMedia(false);				// If selecting media, deselect all media unless in Multi Selection Mode
+
+				if(newSelected != -1)
+				{
+					p.getCurrentField().getPanorama(newSelected).setSelected(select);
+					System.out.println("choosePanoramaNearby()... Selected #"+newSelected);
+				}
+			}
+			else
+			{
+				System.out.println("choosePanoramaNearby()... No panoramas nearby...");
+			}
+				
 		}
 	}
 

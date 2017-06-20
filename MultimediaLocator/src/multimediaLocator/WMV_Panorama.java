@@ -137,18 +137,10 @@ public class WMV_Panorama extends WMV_Media
 		}
 
 		if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hidePanoramas && getFadingBrightness() == 0.f)					// Fade in
-		{
-			if(getDebugSettings().panorama)
-				System.out.println("fadeIn()...panorama id #"+getID()+" visibilitySetToTrue");
 			fadeIn(f);
-		}
 
 		if(visibilitySetToFalse)
-		{
-			if(getDebugSettings().panorama)
-				System.out.println("fadeOut()...panorama id #"+getID()+" visibilitySetToFalse");
 			fadeOut(f, false);
-		}
 
 		if(hasFadedOut()) setFadedOut(false);
 	}

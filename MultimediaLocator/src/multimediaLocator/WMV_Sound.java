@@ -199,7 +199,6 @@ public class WMV_Sound extends WMV_Media
 	 */
 	public void displayModel(MultimediaLocator ml)
 	{
-//		ml.rectMode(PApplet.CENTER);
 		ml.noStroke(); 
 
 		ml.stroke(70, 220, 150);
@@ -212,10 +211,7 @@ public class WMV_Sound extends WMV_Media
 		{
 			if(isSelected())
 			{
-				if(!getWorldState().alphaMode)
-					ml.tint(getViewingBrightness(), 255);          				
-				else
-					ml.tint(255, getViewingBrightness());          				
+				ml.tint(255, 255);          				
 			}
 			else
 			{
@@ -232,10 +228,8 @@ public class WMV_Sound extends WMV_Media
 			else
 				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
 		}
-		
 
 		PVector loc = getLocation();
-//		System.out.println("Sound.displayModel()... loc.x:"+loc.x+" getViewingBrightness():"+getViewingBrightness()+" getMediaState().centerSize * 2.f:"+(getMediaState().centerSize * 2.f));
 		ml.translate(loc.x, loc.y, loc.z);
 		ml.sphere(getMediaState().centerSize * 2.f);
 		ml.popMatrix();

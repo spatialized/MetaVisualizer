@@ -161,7 +161,6 @@ public class WMV_Viewer
 	 */
 	public void enterField(int fieldID)
 	{
-		if(debugSettings.viewer) System.out.println("enterField()... location before:"+getLocation());
 		if(p.getField(fieldID).hasBeenVisited())
 			setCurrentField(fieldID, true);				// Set new field and simulation state
 		else
@@ -929,7 +928,7 @@ public class WMV_Viewer
 
 		if(f.getTimeline().timeline.size()>0)
 		{
-			if(debugSettings.viewer)
+			if(debugSettings.viewer && debugSettings.detailed)
 				System.out.println("Viewer.moveToTimeSegmentInField()... fieldID:"+fieldID+" fieldTimeSegment:"+fieldTimeSegment+" fieldTimelineID:"+f.getTimeline().timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().timeline.size());
 			int clusterID = f.getTimeline().timeline.get(fieldTimeSegment).getClusterID();
 			if(clusterID > 0)
@@ -937,7 +936,7 @@ public class WMV_Viewer
 				if(clusterID == state.currentCluster && p.getCurrentField().getCluster(clusterID).getClusterDistance() < worldSettings.clusterCenterSize)	// Moving to different time in same cluster
 				{
 					setCurrentFieldTimeSegment(fieldTimeSegment, true);
-					if(debugSettings.viewer)
+					if(debugSettings.viewer && debugSettings.detailed)
 						System.out.println("Viewer.moveToTimeSegmentInField()... Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 				}
 				else
@@ -947,8 +946,6 @@ public class WMV_Viewer
 
 					if(settings.teleportToFarClusters && !teleport)
 					{
-						if(debugSettings.viewer)
-							System.out.println("Viewer.moveToTimeSegmentInField()... 1  clusterID:"+clusterID+" p.getCurrentField().getCluster(clusterID).getLocation():"+p.getCurrentField().getCluster(clusterID).getLocation());
 						if(clusterID < p.getCurrentField().getClusters().size())
 						{
 							if( PVector.dist(p.getCurrentField().getCluster(clusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
@@ -956,13 +953,11 @@ public class WMV_Viewer
 							else
 								setAttractorCluster(clusterID);
 						} 
-						else 
+						else if(debugSettings.viewer)
 							System.out.println("Viewer.moveToTimeSegmentInField()... Error! clusterID >= p.getCurrentField().getClusters().size()! clusterID:"+clusterID+" p.getCurrentField() cluster count:"+p.getCurrentField().getClusters().size());
 					}
 					else
 					{
-						if(debugSettings.viewer)
-							System.out.println("Viewer.moveToTimeSegmentInField()...  2 p.getCurrentField() id:"+clusterID+" p.getCurrentField().getCluster(clusterID).getLocation():"+p.getCurrentField().getCluster(clusterID).getLocation());
 						if(teleport)
 							teleportToCluster(clusterID, fade, fieldTimeSegment);
 						else
@@ -972,13 +967,15 @@ public class WMV_Viewer
 			}
 			else
 			{
-				System.out.println("Viewer.moveToTimeSegmentInField()... fieldTimeSegment in field #"+f.getID()+" cluster is -1!! Will move to cluster 0...");
+				if(debugSettings.viewer)
+					System.out.println("Viewer.moveToTimeSegmentInField()... fieldTimeSegment in field #"+f.getID()+" cluster is -1!! Will move to cluster 0...");
 				teleportToCluster(0, fade, 0);
 			}
 		}
 		else
 		{
-			System.out.println("Viewer.moveToTimeSegmentInField()... timeline is empty!");
+			if(debugSettings.viewer)
+				System.out.println("Viewer.moveToTimeSegmentInField()... timeline is empty!");
 		}
 	}
 	
@@ -989,7 +986,8 @@ public class WMV_Viewer
 	 */
 	public void moveToClusterOnMap( int clusterID, boolean switchTo3DView )
 	{
-		System.out.println("Viewer.moveToClusterOnMap()... Moving to cluster on map:"+clusterID);
+		if(debugSettings.viewer || debugSettings.map)
+			System.out.println("Viewer.moveToClusterOnMap()... Moving to cluster on map:"+clusterID);
 
 		if(switchTo3DView)
 		{
@@ -1013,7 +1011,9 @@ public class WMV_Viewer
 	 */
 	public void teleportToCluster( int dest, boolean fade, int fieldTimeSegment ) 
 	{
-//		System.out.println("Viewer.teleportToCluster()... dest:"+dest+" fade:"+fade);
+		if(debugSettings.viewer && debugSettings.detailed)
+			System.out.println("Viewer.teleportToCluster()... dest:"+dest+" fade:"+fade);
+		
 		if(!isTeleporting() && !isMoving())
 		{
 			if(dest >= 0 && dest < p.getCurrentField().getClusters().size())
@@ -3525,7 +3525,7 @@ public class WMV_Viewer
 			camera.teleport(state.location.x, state.location.y, state.location.z);
 		}
 		
-		if(p.ml.display.window.setupGraphicsWindow)
+		if(p.ml.display.window.setupMediaWindow)
 			p.ml.display.window.chkbxOrientationMode.setSelected(newState);
 	}
 	
@@ -3762,11 +3762,13 @@ public class WMV_Viewer
 			}
 			if(success)
 			{
-				if(debugSettings.viewer) System.out.println("Viewer.moveToFirstTimeSegment()... Moving to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
+				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.moveToFirstTimeSegment()... Will move to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
 				int curFieldTimeSegment = p.getCurrentField().getTimeSegmentOnDate(state.currentFieldTimeSegmentOnDate, state.currentFieldDate).getFieldTimelineID();
 				moveToTimeSegmentInField(p.getCurrentField().getID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
 			}
-			else System.out.println("Viewer.moveToFirstTimeSegment()... Couldn't move to first time segment...");
+			else if(debugSettings.viewer)
+				System.out.println("Viewer.moveToFirstTimeSegment()... Couldn't move to first time segment...");
+			
 			return success;
 		}
 	}
@@ -3907,24 +3909,44 @@ public class WMV_Viewer
 			}
 		}
 
+		ArrayList<WMV_Sound> possibleSounds = new ArrayList<WMV_Sound>();
+		for(WMV_Sound s : p.getCurrentField().getSounds())
+		{
+			if(!s.getMediaState().disabled)
+				if(s.getViewingDistance(this) <= settings.selectionMaxDistance)
+					possibleSounds.add(s);
+		}
+
+		float closestSoundDist = 100000.f;
+		int closestSoundID = -1;
+
+		for(WMV_Sound s : possibleSounds)
+		{
+			float result = s.getCaptureDistance();
+			if(result < closestSoundDist)								// Find closest to camera orientation
+			{
+				closestSoundDist = result;
+				closestSoundID = s.getID();
+			}
+		}
+
 		if(settings.selection)						// In Selection Mode
 		{
 			int newSelected;
 			if(select && !settings.multiSelection)
 				p.deselectAllMedia(false);				// If selecting media, deselect all media unless in Multi Selection Mode
 
-			if(closestImageDist < closestVideoDist && closestImageDist != 100000.f)
+			if(closestImageDist < closestVideoDist && closestImageDist < closestSoundDist && closestImageID != -1)	// Image closer than video
 			{
-				newSelected = closestImageID;
-				if(debugSettings.viewer) System.out.println("Selected image in front: "+newSelected);
+				if(debugSettings.viewer) System.out.println("Selected image in front: "+closestImageID);
 
 				if(settings.groupSelection)											// Segment selection
 				{
 					int segmentID = -1;
-					WMV_Cluster c = p.getCurrentField().getCluster( p.getCurrentField().getImage(newSelected).getAssociatedClusterID() );
+					WMV_Cluster c = p.getCurrentField().getCluster( p.getCurrentField().getImage(closestImageID).getAssociatedClusterID() );
 					for(WMV_MediaSegment m : c.segments)
 					{
-						if(m.getImages().contains(newSelected))
+						if(m.getImages().contains(closestImageID))
 						{
 							segmentID = m.getID();
 							break;
@@ -3937,22 +3959,32 @@ public class WMV_Viewer
 					if(segmentID != -1)
 					{
 						for(int i : c.segments.get(segmentID).getImages())				// Set all images in selected segment to new state
-							p.getCurrentField().getImage(i).setSelected(select);
+						{
+							WMV_Image img = p.getCurrentField().getImage(i);
+							if(img.getAssociatedVideo() == -1)							// Select image, if not a video placeholder
+							{
+								img.setSelected(select);
+							}
+							else														// Select associated video, if image is a placeholder
+							{
+								WMV_Video vid = p.getCurrentField().getVideo(img.getAssociatedVideo());
+								vid.setSelected(select);
+							}
+						}
 					}
 				}
 				else												// Single image selection
-				{
-					if(newSelected != -1)
-						p.getCurrentField().getImage(newSelected).setSelected(select);
-				}
+					p.getCurrentField().getImage(closestImageID).setSelected(select);
 			}
-			else if(closestVideoDist < closestImageDist && closestVideoDist != 100000.f)
+			else if(closestVideoDist < closestImageDist && closestVideoDist < closestSoundDist && closestVideoID != -1)	// Video closer than image
 			{
-				newSelected = closestVideoID;
-				if(debugSettings.viewer) 	System.out.println("Selected video in front: "+newSelected);
-
-				if(newSelected != -1)
-					p.getCurrentField().getVideo(newSelected).setSelected(select);
+				if(debugSettings.viewer) 	System.out.println("Selected video in front: "+closestVideoID);
+				p.getCurrentField().getVideo(closestVideoID).setSelected(select);
+			}
+			else if(closestSoundDist < closestImageDist && closestSoundDist < closestVideoDist && closestSoundID != -1)	// Video closer than image
+			{
+				if(debugSettings.viewer) 	System.out.println("Selected sound in front: "+closestSoundID);
+				p.getCurrentField().getSound(closestSoundID).setSelected(select);
 			}
 		}
 		else if(closestVideoDist != 100000.f)					// In Normal Mode
@@ -4896,7 +4928,7 @@ public class WMV_Viewer
 	{
 		settings.selection = newSelection;
 		
-		if(p.ml.display.window.setupGraphicsWindow)
+		if(p.ml.display.window.setupMediaWindow)
 			p.ml.display.window.chkbxSelectionMode.setSelected(settings.selection);
 
 		if(p.getSettings().screenMessagesOn)
@@ -4904,7 +4936,7 @@ public class WMV_Viewer
 		
 		if(inSelectionMode())
 		{
-			if(p.ml.display.window.setupGraphicsWindow)
+			if(p.ml.display.window.setupMediaWindow)
 			{
 				p.ml.display.window.btnSelectFront.setEnabled(true);
 				p.ml.display.window.btnViewSelected.setEnabled(true);
@@ -4924,7 +4956,7 @@ public class WMV_Viewer
 				p.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
 				p.ml.display.setDisplayView(p, 0);			// Set Display View to World
 			}
-			if(p.ml.display.window.setupGraphicsWindow)
+			if(p.ml.display.window.setupMediaWindow)
 			{
 				p.ml.display.window.btnSelectFront.setEnabled(false);
 				p.ml.display.window.btnViewSelected.setEnabled(false);
@@ -4940,13 +4972,13 @@ public class WMV_Viewer
 		if(inSelectionMode() && getMultiSelection())
 		{
 			setMultiSelection( false, false );
-			if(p.ml.display.window.setupGraphicsWindow)
+			if(p.ml.display.window.setupMediaWindow)
 				p.ml.display.window.chkbxMultiSelection.setSelected( false );
 		}
 		if(inSelectionMode() && getSegmentSelection()) 
 		{
 			setGroupSelection( false, false );
-			if(p.ml.display.window.setupGraphicsWindow)
+			if(p.ml.display.window.setupMediaWindow)
 				p.ml.display.window.chkbxSegmentSelection.setSelected( false );
 		}
 	}
@@ -4959,7 +4991,7 @@ public class WMV_Viewer
 	public void setGroupSelection(boolean newGroupSelection, boolean message)
 	{
 		settings.groupSelection = newGroupSelection;
-		if(p.ml.display.window.setupGraphicsWindow)
+		if(p.ml.display.window.setupMediaWindow)
 			p.ml.display.window.chkbxSegmentSelection.setSelected(settings.groupSelection);
 		if(p.getSettings().screenMessagesOn && message)
 			p.ml.display.message(p.ml, "Group Selection Mode "+(newGroupSelection?"Enabled":"Disabled"));
@@ -4973,7 +5005,7 @@ public class WMV_Viewer
 	public void setMultiSelection(boolean newMultiSelection, boolean message)
 	{
 		settings.multiSelection = newMultiSelection;
-		if(p.ml.display.window.setupGraphicsWindow)
+		if(p.ml.display.window.setupMediaWindow)
 			p.ml.display.window.chkbxMultiSelection.setSelected(settings.multiSelection);
 		if(p.getSettings().screenMessagesOn && message)
 			p.ml.display.message(p.ml, "Multiple Selection Mode "+(newMultiSelection?"Enabled":"Disabled"));

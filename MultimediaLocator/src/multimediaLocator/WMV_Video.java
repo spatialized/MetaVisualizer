@@ -1379,6 +1379,11 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 {
 		 return state.playing;
 	 }
+	 
+	 public boolean hasOriginal()
+	 {
+		 return getMediaState().hasOriginal;
+	 }
 
 	 public void setFocusDistance(float newFocusDistance)
 	 {

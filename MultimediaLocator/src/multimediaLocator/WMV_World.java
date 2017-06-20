@@ -600,7 +600,6 @@ public class WMV_World
 	
 	public void fadeOutTerrain(boolean turnOff)
 	{
-		System.out.println("World.fadeOutTerrain()...");
 		if(state.terrainAlpha != 0.f)
 		{
 			state.fadingTerrainAlpha = true;		
@@ -617,7 +616,6 @@ public class WMV_World
 
 	public void fadeInTerrain()
 	{
-		System.out.println("World.fadeInTerrain()...");
 		if(state.terrainAlpha != state.terrainAlphaMax)
 		{
 			state.fadingTerrainAlpha = true;		
@@ -1406,15 +1404,38 @@ public class WMV_World
 	 */
 	public void exportSelectedMedia()
 	{
-		List<Integer> selected = getCurrentField().getSelectedMedia(0);
-		for(int i:selected)
+		List<Integer> selected;
+		
+		selected = getCurrentField().getSelectedMediaOfType(0);
+		if(selected.size() > 0) exportImages(selected);
+		
+		selected = getCurrentField().getSelectedMediaOfType(1);
+		if(selected.size() > 0) exportPanoramas(selected);
+		
+		selected = getCurrentField().getSelectedMediaOfType(2);
+		if(selected.size() > 0) exportVideos(selected);
+		
+		selected = getCurrentField().getSelectedMediaOfType(3);
+		if(selected.size() > 0) exportSounds(selected);
+	}
+
+	public void exportImages(List<Integer> imageIDs)
+	{
+		for(int i:imageIDs)
 		{
 			InputStream is = null;
 			OutputStream os = null;
 			try {
-				File imgFilePath = new File(getCurrentField().getImage(i).getFilePath());
+				File imgFilePath;
+				
+				WMV_Image img = getCurrentField().getImage(i);
+				if(img.hasOriginal())
+					imgFilePath = new File(img.getOriginalPath());
+				else
+					imgFilePath = new File(img.getFilePath());
+
 				is = new FileInputStream(imgFilePath);
-				os = new FileOutputStream(new File(outputFolder + "/" + getCurrentField().getImage(i).getName()));
+				os = new FileOutputStream(new File(outputFolder + "/" + img.getName()));
 				byte[] buffer = new byte[1024];
 				int length;
 				while ((length = is.read(buffer)) > 0) {
@@ -1423,7 +1444,7 @@ public class WMV_World
 			} 
 			catch(Throwable t)
 			{
-				System.out.println("ERROR 1 in exportSelectedImages:"+t);
+				System.out.println("ERROR 1 in exportImages:"+t);
 			}
 			finally 
 			{
@@ -1434,10 +1455,129 @@ public class WMV_World
 				} 
 				catch (IOException e) 
 				{
-					System.out.println("ERROR 2 in exportSelectedImages:"+e);
+					System.out.println("ERROR 2 in exportImages:"+e);
 				}
 			}
+		}
+	}
 
+	public void exportPanoramas(List<Integer> panoramaIDs)
+	{
+		for(int i:panoramaIDs)
+		{
+			InputStream is = null;
+			OutputStream os = null;
+			try {
+				File panoFilePath;
+				
+				WMV_Panorama pano = getCurrentField().getPanorama(i);
+				panoFilePath = new File(pano.getFilePath());
+
+				is = new FileInputStream(panoFilePath);
+				os = new FileOutputStream(new File(outputFolder + "/" + pano.getName()));
+				byte[] buffer = new byte[1024];
+				int length;
+				while ((length = is.read(buffer)) > 0) {
+					os.write(buffer, 0, length);
+				}
+			} 
+			catch(Throwable t)
+			{
+				System.out.println("ERROR 1 in exportPanoramas:"+t);
+			}
+			finally 
+			{
+				try 
+				{
+					is.close();
+					os.close(); 
+				} 
+				catch (IOException e) 
+				{
+					System.out.println("ERROR 2 in exportPanoramas:"+e);
+				}
+			}
+		}
+	}
+	
+	public void exportVideos(List<Integer> videoIDs)
+	{
+		for(int i:videoIDs)
+		{
+			InputStream is = null;
+			OutputStream os = null;
+			try {
+				File vidFilePath;
+				
+				WMV_Video vid = getCurrentField().getVideo(i);
+				if(vid.hasOriginal())
+					vidFilePath = new File(vid.getOriginalPath());
+				else
+					vidFilePath = new File(vid.getFilePath());
+
+				is = new FileInputStream(vidFilePath);
+				os = new FileOutputStream(new File(outputFolder + "/" + vid.getName()));
+				byte[] buffer = new byte[1024];
+				int length;
+				while ((length = is.read(buffer)) > 0) {
+					os.write(buffer, 0, length);
+				}
+			} 
+			catch(Throwable t)
+			{
+				System.out.println("ERROR 1 in exportVideos:"+t);
+			}
+			finally 
+			{
+				try 
+				{
+					is.close();
+					os.close(); 
+				} 
+				catch (IOException e) 
+				{
+					System.out.println("ERROR 2 in exportVideos:"+e);
+				}
+			}
+		}
+	}
+
+	public void exportSounds(List<Integer> soundIDs)
+	{
+		for(int i:soundIDs)
+		{
+			InputStream is = null;
+			OutputStream os = null;
+			try {
+				File sndFilePath;
+				
+				WMV_Sound snd = getCurrentField().getSound(i);
+				sndFilePath = new File(snd.getFilePath());
+
+				is = new FileInputStream(sndFilePath);
+				os = new FileOutputStream(new File(outputFolder + "/" + snd.getName()));
+				byte[] buffer = new byte[1024];
+				int length;
+				while ((length = is.read(buffer)) > 0) {
+					os.write(buffer, 0, length);
+				}
+			} 
+			catch(Throwable t)
+			{
+				System.out.println("ERROR 1 in exportSounds:"+t);
+			}
+			finally 
+			{
+				try 
+				{
+					is.close();
+					os.close(); 
+				} 
+				catch (IOException e) 
+				{
+					System.out.println("ERROR 2 in exportSounds:"+e);
+				}
+			}
 		}
 	}
 
@@ -1682,7 +1822,7 @@ public class WMV_World
 			if(!i.isDisabled())
 				i.setHidden(false);						
 
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 			ml.display.window.chkbxHideImages.setSelected(false);
 		
 		if(getSettings().screenMessagesOn)
@@ -1703,7 +1843,7 @@ public class WMV_World
 			}
 		}
 
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 			ml.display.window.chkbxHideImages.setSelected(true);
 		
 		if(getSettings().screenMessagesOn)
@@ -1719,7 +1859,7 @@ public class WMV_World
 			if(!n.isDisabled())
 				n.setHidden(false);						
 
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 			ml.display.window.chkbxHidePanoramas.setSelected(false);
 		
 		if(getSettings().screenMessagesOn)
@@ -1752,7 +1892,7 @@ public class WMV_World
 			}
 		}
 		
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 			ml.display.window.chkbxHidePanoramas.setSelected(true);
 		
 		if(getSettings().screenMessagesOn)
@@ -1768,7 +1908,7 @@ public class WMV_World
 			if(!v.isDisabled())
 				v.setHidden(false);						
 
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 			ml.display.window.chkbxHideVideos.setSelected(false);
 		
 		if(getSettings().screenMessagesOn)
@@ -1789,7 +1929,7 @@ public class WMV_World
 			}
 		}
 		
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 			ml.display.window.chkbxHideVideos.setSelected(true);
 		
 		if(getSettings().screenMessagesOn)
@@ -1806,7 +1946,7 @@ public class WMV_World
 			if(!s.isDisabled())
 				s.setHidden(false);						
 
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 			ml.display.window.chkbxHideSounds.setSelected(false);
 	}
 	
@@ -1824,7 +1964,7 @@ public class WMV_World
 			}
 		}
 		
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 			ml.display.window.chkbxHideSounds.setSelected(true);
 	}
 
@@ -2284,7 +2424,7 @@ public class WMV_World
 	public void setShowModel(boolean newShowModel)
 	{
 		state.showModel = newShowModel;
-		if(ml.display.window.setupGraphicsWindow)
+		if(ml.display.window.setupMediaWindow)
 		{
 			ml.display.window.chkbxShowModel.setSelected(newShowModel);
 			if(state.showModel)

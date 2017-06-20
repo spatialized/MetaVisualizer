@@ -1252,6 +1252,11 @@ public class WMV_Image extends WMV_Media
 		return metadata.sensorSize;
 	}
 
+	public boolean hasOriginal()
+	{
+		return getMediaState().hasOriginal;
+	}
+	
 	/**
 	 * Set focus distance metadata value
 	 * @param newFocusDistance New focus distance

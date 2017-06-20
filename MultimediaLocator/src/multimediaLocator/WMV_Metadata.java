@@ -31,23 +31,23 @@ import java.util.Set;
  * Class for extracting metadata and adding media to field 
  * @author davidgordon
  */
-class WMV_MetadataLoader
+class WMV_Metadata
 {
 	public String library = "";
-	public String imageFolder = "", smallImageFolder = "";
+	public String largeImageFolder = "", smallImageFolder = "";
 	public String panoramaFolder = "";
-	public String videoFolder = "", smallVideoFolder = "";				// File path for media folders
+	public String largeVideoFolder = "", smallVideoFolder = "";				// File path for media folders
 	public String soundFolder = "";
 	public String gpsTrackFolder = "";
 	public String dataFolder = "";
 	
-	public File imageFolderFile = null, smallImageFolderFile = null, panoramaFolderFile = null, // Folders containing the media 
-				videoFolderFile = null, smallVideoFolderFile = null, soundFolderFile = null;
+	public File largeImageFolderFile = null, smallImageFolderFile = null, panoramaFolderFile = null, // Folders containing the media 
+				largeVideoFolderFile = null, smallVideoFolderFile = null, soundFolderFile = null;
 	public File gpsTrackFolderFile = null, dataFolderFile = null;
 	
-	public boolean imageFolderFound = false, smallImageFolderFound = false;
+	public boolean largeImageFolderFound = false, smallImageFolderFound = false;
 	public boolean panoramaFolderFound = false;
-	public boolean videoFolderFound = false, smallVideoFolderFound = false; 	
+	public boolean largeVideoFolderFound = false, smallVideoFolderFound = false; 	
 	public boolean soundFolderFound = false;
 	
 	public boolean gpsTrackFolderFound = false;
@@ -76,7 +76,7 @@ class WMV_MetadataLoader
 	 * @param parent Parent App
 	 * @param newDebugSettings Debug settings
 	 */
-	WMV_MetadataLoader( MultimediaLocator parent, ML_DebugSettings newDebugSettings )
+	WMV_Metadata( MultimediaLocator parent, ML_DebugSettings newDebugSettings )
 	{
 		ml = parent;
 		u = new WMV_Utilities();
@@ -99,10 +99,10 @@ class WMV_MetadataLoader
 
 		loadImageFolders(fieldPath); 	// Load image + panorama folder(s)
 		if(panoramaFolderFound) loadPanoramas(fieldPath);
-		if(imageFolderFound || smallImageFolderFound) loadImageFiles(fieldPath);			// Load image + panorama file names
-
+		if(largeImageFolderFound || smallImageFolderFound) loadImageFiles(fieldPath);			// Load image + panorama file names
+		
 		loadVideoFolders(fieldPath); 	// Load video folder
-		if(videoFolderFound || smallVideoFolderFound) loadVideoFiles(fieldPath);		// Load video file names
+		if(largeVideoFolderFound || smallVideoFolderFound) loadVideoFiles(fieldPath);		// Load video file names
 
 		loadSoundFolder(fieldPath); 	// Load sound folder
 		loadSoundFiles(fieldPath);		// Load sound file names
@@ -192,24 +192,24 @@ class WMV_MetadataLoader
 	 */
 	public void loadImageFolders(String fieldPath) 		
 	{
-		imageFolder = library + "/" + fieldPath + "/images/";				/* Check for images folder */
 		smallImageFolder = library + "/" + fieldPath + "/small_images/";	/* Check for small_images folder */
+		largeImageFolder = library + "/" + fieldPath + "/large_images/";				/* Check for images folder */
 		panoramaFolder = library + "/" + fieldPath + "/panoramas/";			/* Check for panoramas folder */
 
-		imageFolderFile = new File(imageFolder);							// No max. size
 		smallImageFolderFile = new File(smallImageFolder);					// Max size 640 x 480 px
+		largeImageFolderFile = new File(largeImageFolder);							// No max. size
 		panoramaFolderFile = new File(panoramaFolder);						// 2:1 aspect ratio only
 
-		imageFolderFound = (imageFolderFile.exists() && imageFolderFile.isDirectory());	
 		smallImageFolderFound = (smallImageFolderFile.exists() && smallImageFolderFile.isDirectory());			
+		largeImageFolderFound = (largeImageFolderFile.exists() && largeImageFolderFile.isDirectory());	
 		panoramaFolderFound = (panoramaFolderFile.exists() && panoramaFolderFile.isDirectory());
 		
 		if(debugSettings.metadata)
 		{
-			System.out.println("Metadata.loadImageFolders()... imageFolder: "+imageFolder);
-			System.out.println("Metadata.loadImageFolders()... imageFolderFound: "+imageFolderFound);
 			System.out.println("Metadata.loadImageFolders()... smallImageFolder: "+smallImageFolder);
 			System.out.println("Metadata.loadImageFolders()... smallImageFolderFound: "+smallImageFolderFound);
+			System.out.println("Metadata.loadImageFolders()... largeImageFolder: "+largeImageFolder);
+			System.out.println("Metadata.loadImageFolders()... largeImageFolderFound: "+largeImageFolderFound);
 			System.out.println("Metadata.loadImageFolders()... panoramaFolder: "+panoramaFolder);
 			System.out.println("Metadata.loadImageFolders()... panoramaFolderFound: "+panoramaFolderFound);
 		}
@@ -220,21 +220,21 @@ class WMV_MetadataLoader
 	 */
 	public void loadVideoFolders(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
-		videoFolder = library + "/" + fieldPath + "/large_videos/";			// Max size 4K
 		smallVideoFolder = library + "/" + fieldPath + "/small_videos/";		// Max size 480p
+		largeVideoFolder = library + "/" + fieldPath + "/large_videos/";			// Max size 4K
 		
-		videoFolderFile = new File(videoFolder);
 		smallVideoFolderFile = new File(smallVideoFolder);
+		largeVideoFolderFile = new File(largeVideoFolder);
 		
-		videoFolderFound = (videoFolderFile.exists() && videoFolderFile.isDirectory());
 		smallVideoFolderFound = (smallVideoFolderFile.exists() && smallVideoFolderFile.isDirectory());	
+		largeVideoFolderFound = (largeVideoFolderFile.exists() && largeVideoFolderFile.isDirectory());
 
 		if(debugSettings.metadata)
 		{
-			if(videoFolderFound)
-				System.out.println("Metadata.loadVideoFolders()... videoFolder: "+videoFolder);
 			if(smallVideoFolderFound)
 				System.out.println("Metadata.loadVideoFolders()... smallVideoFolder: "+smallVideoFolder);
+			if(largeVideoFolderFound)
+				System.out.println("Metadata.loadVideoFolders()... videoFolder: "+largeVideoFolder);
 		}
 	}
 	
@@ -400,9 +400,9 @@ class WMV_MetadataLoader
 		smallImageFiles = null;
 		imageFiles = null;
 		
-		if(imageFolderFound)		// Look for original images and panoramas
+		if(largeImageFolderFound)		// Look for original images and panoramas
 		{
-			imageFiles = imageFolderFile.listFiles();
+			imageFiles = largeImageFolderFile.listFiles();
 			if(imageFiles != null && imageFiles.length > 0)
 				imageFilesFound = true;
 		}
@@ -440,7 +440,7 @@ class WMV_MetadataLoader
 			if(!smallImageFolderFile.exists())
 				smallImageFolderFile.mkdir();
 
-			boolean success = u.shrinkImageFolder(imageFolder, smallImageFolder);		
+			boolean success = u.shrinkImageFolder(largeImageFolder, smallImageFolder);		
 			if(success)
 			{
 				if(debugSettings.metadata) System.out.println("Shrink images successful...");
@@ -469,9 +469,9 @@ class WMV_MetadataLoader
 	public void loadVideoFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
 	{
 		videoFiles = null;
-		if(videoFolderFound)				// Check for video files
+		if(largeVideoFolderFound)				// Check for video files
 		{
-			videoFiles = videoFolderFile.listFiles();
+			videoFiles = largeVideoFolderFile.listFiles();
 			if(videoFiles != null) 
 				if(videoFiles.length > 0)
 					videoFilesFound = true;
@@ -492,7 +492,7 @@ class WMV_MetadataLoader
 			if(!smallVideoFolderFile.exists())
 				smallVideoFolderFile.mkdir();
 			
-			String inputPath = videoFolder;
+			String inputPath = largeVideoFolder;
 			String outputPath = smallVideoFolder;
 			Process conversionProcess = ml.convertVideos(inputPath, outputPath);
 			
@@ -571,6 +571,9 @@ class WMV_MetadataLoader
 				addImageToField(f, file);
 		}
 		
+		if(imageFilesFound && smallImageFilesFound)
+			associateOriginalImages(f);
+
 		return true;
 	}
 	
@@ -590,7 +593,34 @@ class WMV_MetadataLoader
 		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
 			addVideoToField(f, files[currentMedia]);
 		
+		if(videoFilesFound && smallVideoFilesFound)
+			associateOriginalVideos(f);
+
 		return true;
+	}
+	
+	/**
+	 * Associate low-resolution videos with originals
+	 * @param f Field containing images
+	 */
+	private void associateOriginalImages(WMV_Field f)
+	{
+		for(WMV_Image img : f.getImages())
+			for(int i = 0; i<imageFiles.length; i++)
+				if(imageFiles[i].getName().equals(img.getName()))
+					img.setOriginalPath(imageFiles[i].getAbsolutePath());
+	}
+	
+	/**
+	 * Associate low-resolution videos with originals
+	 * @param f Field containing videos
+	 */
+	private void associateOriginalVideos(WMV_Field f)
+	{
+		for(WMV_Video vid : f.getVideos())
+			for(int i = 0; i<videoFiles.length; i++)
+				if(videoFiles[i].getName().equals(vid.getName()))
+					vid.setOriginalPath(videoFiles[i].getAbsolutePath());
 	}
 	
 	/** 

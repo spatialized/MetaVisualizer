@@ -19,6 +19,10 @@ public class WMV_MediaState
 	public boolean requested = false;			// Indicates a recent request to load media from disk
 	public boolean showMetadata = false;		// Show metadata
 
+	/* Files */
+	public String originalPath = "";			// Path to original (full size) media
+	public boolean hasOriginal = false;			// Whether has original (full size) media
+	
 	/* Metadata */
 	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
 	public int id;

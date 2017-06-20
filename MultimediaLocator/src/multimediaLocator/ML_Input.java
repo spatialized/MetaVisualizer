@@ -148,7 +148,7 @@ public class ML_Input
 				world.settings.clusterLength = slider.getValueF();
 		}
 		
-		if(display.window.setupGraphicsWindow)
+		if(display.window.setupMediaWindow)
 		{
 			if (slider.tag == "VisibleAngle") 
 				world.viewer.setVisibleAngle( slider.getValueF() );
@@ -371,8 +371,8 @@ public class ML_Input
 //					break;
 	
 				/* Graphics */
-				case "OpenGraphicsWindow":
-					display.window.openGraphicsWindow();
+				case "OpenMediaWindow":
+					display.window.openMediaWindow();
 					break;
 				case "CloseGraphicsWindow":
 					display.window.hideGraphicsWindow();

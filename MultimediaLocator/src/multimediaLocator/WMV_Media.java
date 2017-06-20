@@ -915,6 +915,17 @@ public abstract class WMV_Media
 	{
 		return mState.requested;
 	}
+
+	public void setOriginalPath(String newPath)
+	{
+		mState.originalPath = newPath;
+		mState.hasOriginal = true;
+	}
+	
+	public String getOriginalPath()
+	{
+		return mState.originalPath;
+	}
 	
 	/**
 	 * Set nearest cluster to the capture state.location to be the associated cluster

@@ -42,18 +42,20 @@ import com.apple.eawt.Application;
  * MultimediaLocator App  
  * @author davidgordon
  */
-@SuppressWarnings("restriction")
+@SuppressWarnings("restriction")					// Allow setting app icon
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
 	private boolean createJar = false;				// Determines how to load cubemap shader
 	
-	/* General */
-	private String programName = "MultimediaLocator 0.9.1";
+	/* App */
+	private String appName = "MultimediaLocator 0.9.2";
 	public int appWidth = 1680, appHeight = 960;	// App window dimensions
-	private boolean windowVisible = false;
-	private PImage appIcon;
-	boolean setAppIcon = true;
+	private PImage appIcon;							// App icon
+	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
+
+	/* Windows */
+	private boolean windowVisible = false;			// Main window visible (for hiding when opening)
 	
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
@@ -68,12 +70,9 @@ public class MultimediaLocator extends PApplet
 	ML_DebugSettings debugSettings;					// Debug settings
 	
 	/* WorldMediaViewer */
-	WMV_World world;								// World simulation
-	WMV_MetadataLoader metadata;					// Metadata reading and writing
+	WMV_World world;						// World simulation
+	WMV_Metadata metadata;					// Metadata reading and writing
 
-	/* Field */
-	List<Integer> removeList;
-	
 	/* Graphics */
 	public PShader cubemapShader;
 	public PShape domeSphere;
@@ -96,7 +95,8 @@ public class MultimediaLocator extends PApplet
 	public long approxUsableFreeMemory;
 	public int availableProcessors;
 
-	public static final String tempDir = System.getProperty("java.io.tmpdir")+"tmp"+System.nanoTime();		// Create temp. dir.
+	/* Temp Directory */
+	public static final String tempDir = System.getProperty("java.io.tmpdir")+"tmp"+System.nanoTime();		
 	static {
 	    File tempDirFile = new File(tempDir);
 	    if(!tempDirFile.exists())
@@ -122,7 +122,7 @@ public class MultimediaLocator extends PApplet
 		
 		display = new ML_Display(this);			// Initialize displays
 		display.initializeWindows(world);
-		metadata = new WMV_MetadataLoader(this, debugSettings);
+		metadata = new WMV_Metadata(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
 		if(debugSettings.ml) System.out.println("Initial setup complete...");
 
@@ -131,7 +131,6 @@ public class MultimediaLocator extends PApplet
 		textAlign(PConstants.CENTER, PConstants.CENTER);
 		
 		initCubeMap();
-		removeList = new ArrayList<Integer>();
 		
 		addShutdownHook();
 //		convertVideosTest();
@@ -325,8 +324,8 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void initializeField(WMV_Field f, boolean loadState, boolean setSoundGPSLocations)
 	{
-		if(debugSettings.ml || debugSettings.world) 
-			System.out.println("ML.initializeField()... state.fieldsInitialized:"+state.fieldsInitialized);
+		if(debugSettings.ml && debugSettings.detailed) 
+			System.out.println("ML.initializeField()... fields initialized? "+state.fieldsInitialized);
 		
 		if(!state.exit)
 		{
@@ -584,7 +583,7 @@ public class MultimediaLocator extends PApplet
 //		display.initializeWindows(world);
 //		System.out.println("ML.restart()... 3");
 
-		metadata = new WMV_MetadataLoader(this, debugSettings);
+		metadata = new WMV_Metadata(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
 
 //		colorMode(PConstants.HSB);
@@ -592,7 +591,6 @@ public class MultimediaLocator extends PApplet
 //		textAlign(PConstants.CENTER, PConstants.CENTER);
 
 //		initCubeMap();
-		removeList = new ArrayList<Integer>();
 
 		display.window.hideWindows();
 //		System.out.println("ML.restart()... 6");
@@ -757,7 +755,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void exitProgram() 
 	{
-		System.out.println("Exiting "+programName+"...");
+		System.out.println("Exiting "+appName+"...");
 		exit();
 	}
 	
@@ -1477,12 +1475,12 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Respond to key pressed in Graphics Window
+	 * Respond to key pressed in Media Window
 	 * @param applet Parent App
 	 * @param windata Window data
 	 * @param keyevent Key event
 	 */
-	public void graphicsWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());

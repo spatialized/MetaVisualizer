@@ -65,7 +65,7 @@ public class ML_KeyboardControls
 			if(ml.world.getState().showModel)
 			{
 				ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
-				if(ml.display.window.showGraphicsWindow)
+				if(ml.display.window.showMediaWindow)
 					ml.display.window.chkbxMediaToCluster.setSelected( ml.world.state.showMediaToCluster );
 			}			
 		}
@@ -75,7 +75,7 @@ public class ML_KeyboardControls
 			if(ml.world.getState().showModel)
 			{
 				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
-				if(ml.display.window.showGraphicsWindow)
+				if(ml.display.window.showMediaWindow)
 					ml.display.window.chkbxCaptureToMedia.setSelected( ml.world.state.showCaptureToMedia );
 			}
 		}
@@ -85,7 +85,7 @@ public class ML_KeyboardControls
 			if(ml.world.getState().showModel)
 			{
 				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
-				if(ml.display.window.showGraphicsWindow)
+				if(ml.display.window.showMediaWindow)
 					ml.display.window.chkbxCaptureToCluster.setSelected( ml.world.state.showCaptureToCluster );
 			}
 		}
@@ -108,8 +108,8 @@ public class ML_KeyboardControls
 
 		if (key == '@') 
 		{
-			if(!ml.display.window.showGraphicsWindow)
-				ml.display.window.openGraphicsWindow();
+			if(!ml.display.window.showMediaWindow)
+				ml.display.window.openMediaWindow();
 			else
 				ml.display.window.closeGraphicsWindow();
 		}
@@ -254,7 +254,7 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.getState().showMetadata;
 			ml.world.setShowMetadata(state);
-			if(ml.display.window.setupGraphicsWindow)
+			if(ml.display.window.setupMediaWindow)
 				ml.display.window.chkbxShowMetadata.setSelected(state);
 		}
 
@@ -459,7 +459,7 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.getState().useBlurMasks;
 			ml.world.getState().useBlurMasks = state;
-			if(ml.display.window.setupGraphicsWindow)
+			if(ml.display.window.setupMediaWindow)
 			{
 				ml.display.window.chkbxBlurMasks.setSelected(state);
 			}
@@ -501,7 +501,7 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.getState().alphaMode;
 			ml.world.state.alphaMode = state;
-			if(ml.display.window.setupGraphicsWindow)
+			if(ml.display.window.setupMediaWindow)
 				ml.display.window.chkbxAlphaMode.setSelected(state);
 		}
 
@@ -606,7 +606,7 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.viewer.getAngleFading();
 			ml.world.viewer.setAngleFading( state );
-			if(ml.display.window.setupGraphicsWindow)
+			if(ml.display.window.setupMediaWindow)
 				ml.display.window.chkbxAngleFading.setSelected(state);
 		}
 
@@ -614,7 +614,7 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.viewer.getAngleThinning();
 			ml.world.viewer.setAngleThinning( state );
-			if(ml.display.window.setupGraphicsWindow)
+			if(ml.display.window.setupMediaWindow)
 				ml.display.window.chkbxAngleThinning.setSelected(state);
 		}
 

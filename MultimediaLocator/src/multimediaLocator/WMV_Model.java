@@ -92,19 +92,15 @@ public class WMV_Model
 
 			state.fieldAspectRatio = state.fieldWidth / state.fieldLength;
 
-			if (debugSettings.world)
+			if (debugSettings.world && debugSettings.detailed)
 			{
-				System.out.print("Field Width:"+state.lowLongitude);
-				System.out.print(" Field Length:"+state.fieldLength);
-				System.out.println(" Field Height:"+state.fieldHeight);	
-				System.out.println("Field Area:"+state.fieldArea);
-
-				System.out.println("Media Density:"+state.mediaDensity);
+				System.out.print("Model.setup()... Field Width:"+state.lowLongitude+" Field Length:"+state.fieldLength+" Field Height:"+state.fieldHeight);	
+				System.out.println("Model.setup()... Field Area:"+state.fieldArea+" Media Density:"+state.mediaDensity);
 			}
 		}
 		else 
 			if(debugSettings.world) 
-				System.out.println("No media loaded! Couldn't initialize field...");
+				System.out.println("Model.setup()... No media loaded! Couldn't initialize field...");
 	}
 
 	/**
@@ -317,14 +313,12 @@ public class WMV_Model
 //				 state.lowLatitude = s.getMediaState().gpsLocation.z;
 //		 }
 
-		 if (debugSettings.world) 							// Display results for debugging
+		 if (debugSettings.world && debugSettings.detailed) 							// Display results for debugging
 		 {
-			 System.out.println("High Longitude:" + state.highLongitude);
-			 System.out.println("High Latitude:" + state.highLatitude);
-			 System.out.println("High Altitude:" + state.highAltitude);
-			 System.out.println("Low Longitude:" + state.lowLongitude);
-			 System.out.println("Low Latitude:" + state.lowLatitude);
-			 System.out.println("Low Altitude:" + state.lowAltitude);
+			 System.out.println("Model.analyzeSpatialDimensions()... High Longitude:" + state.highLongitude+" High Latitude:" + state.highLatitude);
+			 System.out.println("Model.analyzeSpatialDimensions()... High Altitude:" + state.highAltitude);
+			 System.out.println("Model.analyzeSpatialDimensions()... Low Longitude:" + state.lowLongitude+" Low Latitude:" + state.lowLatitude);
+			 System.out.println("Model.analyzeSpatialDimensions()... Low Altitude:" + state.lowAltitude);
 		 }
 	 }
 
@@ -343,7 +337,7 @@ public class WMV_Model
 		 boolean initVideoTime = true, initVideoDate = true;	
 		 boolean initSoundTime = true, initSoundDate = true;	
 
-		 if(debugSettings.world) System.out.println("Analyzing media in field...");
+		 if(debugSettings.world && debugSettings.detailed) System.out.println("Analyzing media in field...");
 
 		 for (WMV_Image i : images) 			// Iterate over images to calculate X,Y,Z and T (longitude, latitude, altitude and time)
 		 {

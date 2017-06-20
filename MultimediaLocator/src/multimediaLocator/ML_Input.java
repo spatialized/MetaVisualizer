@@ -190,11 +190,11 @@ public class ML_Input
 					if(ml.world.getFields().size() > 1)
 						ml.world.saveAllSimulationStates();
 					else
-						ml.world.saveSimulationState();
+						ml.world.saveCurrentSimulationState();
 					break;
 	
 				case "SaveField":
-					ml.world.saveSimulationState();
+					ml.world.saveCurrentSimulationState();
 					break;
 				
 				/* Library */
@@ -279,6 +279,20 @@ public class ML_Input
 				case "LastCluster":
 					ml.world.viewer.moveToLastCluster(ml.world.viewer.getMovementTeleport());
 					break;
+					
+				case "NearestImage":
+					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 0, false);
+					break;
+				case "NearestPanorama":
+					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 1, false);
+					break;
+				case "NearestVideo":
+					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 2, false);
+					break;
+				case "NearestSound":
+					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 3, false);
+					break;
+					
 				case "NextField":
 					if(display.displayView == 1)
 						ml.world.viewer.teleportToFieldOffset(1, true, false);

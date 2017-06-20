@@ -9,7 +9,7 @@ public class ML_DebugSettings
 {
 	/* General */
 	public boolean memory = false;				// Debug memory
-	public boolean detailed = true;			// Verbose debugging messages
+	public boolean detailed = false;			// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	public boolean messages = true;				// On screen debug messages
 	

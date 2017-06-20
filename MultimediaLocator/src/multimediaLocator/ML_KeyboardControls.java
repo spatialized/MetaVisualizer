@@ -190,7 +190,7 @@ public class ML_KeyboardControls
 			ml.world.viewer.lookAtNearestMedia();
 
 		if( key == '/' )
-			ml.world.saveSimulationState();
+			ml.world.saveCurrentSimulationState();
 
 		if( key == 't' && !input.optionKey )
 		{
@@ -417,12 +417,10 @@ public class ML_KeyboardControls
 			ml.world.getCurrentField().fadeObjectDistances(1.176f);
 
 		if (key == 'Z')
-		{
-			if(ml.world.state.timeMode == 0)
-				ml.world.setTimeMode(1);
-			else
-				ml.world.setTimeMode(0);
-		}
+			ml.world.setTimeMode(0);
+		
+		if (key == 'Ω')		// OPT + z
+			ml.world.setTimeMode(1);
 	}
 	
 	/**
@@ -491,7 +489,7 @@ public class ML_KeyboardControls
 				ml.world.viewer.hideVideos();
 		}
 
-		if (key == 'Í')	
+		if (key == 'U')			
 		{
 			if(ml.world.viewer.getSettings().hideSounds)
 				ml.world.viewer.showSounds();
@@ -568,7 +566,7 @@ public class ML_KeyboardControls
 			if(ml.world.getFields().size() > 1)
 				ml.world.saveAllSimulationStates();
 			else
-				ml.world.saveSimulationState();
+				ml.world.saveCurrentSimulationState();
 		}
 
 		if (key == 'µ')		// opt + m

@@ -2062,7 +2062,7 @@ public class WMV_Cluster
 	/**
 	 * Print cluster data
 	 */
-	public void displayClusterData()
+	private void displayClusterData()
 	{
 		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
 		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);

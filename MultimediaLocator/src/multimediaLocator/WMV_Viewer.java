@@ -1013,7 +1013,7 @@ public class WMV_Viewer
 	 */
 	public void teleportToCluster( int dest, boolean fade, int fieldTimeSegment ) 
 	{
-		System.out.println("Viewer.teleportToCluster()... dest:"+dest+" fade:"+fade);
+//		System.out.println("Viewer.teleportToCluster()... dest:"+dest+" fade:"+fade);
 		if(!isTeleporting() && !isMoving())
 		{
 			if(dest >= 0 && dest < p.getCurrentField().getClusters().size())

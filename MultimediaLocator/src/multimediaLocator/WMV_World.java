@@ -664,8 +664,12 @@ public class WMV_World
 	/**
 	 * Save the current world, field and viewer states and settings to file
 	 */
-	public void saveSimulationState()
+	public void saveCurrentSimulationState()
 	{
+		if(ml.world.getSettings().screenMessagesOn)
+			ml.display.message(ml, "Saving Current Field...");
+		ml.display.display(ml);
+
 		String folderPath = ml.library.getDataFolder(getCurrentField().getID());
 		String clusterDataPath = folderPath + "ml_library_clusterStates/";
 		String imageDataPath = folderPath + "ml_library_imageStates/";
@@ -713,6 +717,9 @@ public class WMV_World
 		ml.library.savePanoramaStateList(psl, panoramaDataPath+"ml_library_panoramaStates.json");
 		ml.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
 		ml.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
+		
+//		if(ml.world.getSettings().screenMessagesOn)
+//			ml.display.message(ml, "Saved Current Field...");
 	}
 
 
@@ -723,6 +730,7 @@ public class WMV_World
 	{
 		if(ml.world.getSettings().screenMessagesOn)
 			ml.display.message(ml, "Saving Library...");
+		ml.display.display(ml);
 
 		for(WMV_Field f : fields)
 		{
@@ -787,7 +795,7 @@ public class WMV_World
 			if(!soundDirectory.exists()) 
 				soundDirectory.mkdir();			// Create sound directory if doesn't exist
 
-			if(ml.debugSettings.world) PApplet.println("Saving Simulation State to: "+folderPath);
+			if(ml.debugSettings.world && ml.debugSettings.detailed) PApplet.println("Saving Simulation State to: "+folderPath);
 			
 			f.captureState();											// Capture current state, i.e. save timeline and dateline
 
@@ -810,6 +818,9 @@ public class WMV_World
 			
 			if(ml.debugSettings.world) System.out.println("Saved simulation state for field #"+f.getID());
 		}
+		
+//		if(ml.world.getSettings().screenMessagesOn)
+//			ml.display.message(ml, "Saved Library...");
 	}
 
 	/**

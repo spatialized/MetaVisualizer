@@ -2609,31 +2609,5 @@ public class ML_Display
 //		
 //		fullscreen = newState;
 //	}
-	
-	/**
-	 * Draw progress bar
-	 */
-//	void progressBar()
-//	{
-//		int length = 100;	// total length
-//		int pos = p.setupProgress;	//current position
-//
-//		startHUD();
-//		for(int i=0; i<pos; i++)
-//		{
-//			p.p.pushMatrix();
-//			
-//			p.p.fill(140, 100, 255);
-//			float xPos = utilities.mapValue(i, 0, length, 0, screenWidth * 1.f);
-//			float inc = utilities.mapValue(2, 0, length, 0, screenWidth * 1.f) - utilities.mapValue(1, 0, length, 0, screenWidth*1.f);
-//			int x = -screenWidth/2 + (int)xPos;
-//			int y = -screenHeight/2+screenHeight/2;
-//
-//			p.p.translate(x, y, hudDistance);
-//			p.p.box(inc, inc*10.f, 1);    // Display 
-//			p.p.popMatrix();
-//		}
-//	}
-
 }
 

@@ -968,7 +968,7 @@ public class WMV_Field
 	 */
 	public void calculateMediaLocations(boolean inclSounds) 
 	{
-		if(debugSettings.world) System.out.println("Calculating image locations...");
+		if(debugSettings.world && debugSettings.detailed) System.out.println("Calculating image locations...");
 
 		for (int i = 0; i < images.size(); i++)
 			images.get(i).calculateCaptureLocation(model);
@@ -1916,28 +1916,28 @@ public class WMV_Field
 			for (WMV_Image img : images) 			// Find closest cluster for each image
 			{
 				boolean success = img.findAssociatedCluster(clusters, model.getState().maxClusterDistance);		// Set associated cluster
-				if(debugSettings.world && debugSettings.detailed)
-					if(!success) System.out.println("Couldn't find cluster for image #"+img.getID());
+//				if(debugSettings.world && debugSettings.detailed)
+//					if(!success) System.out.println("Couldn't find cluster for image #"+img.getID());
 			}
 			for (WMV_Panorama pano : panoramas) 		// Find closest cluster for each image
 			{
 				boolean success = pano.findAssociatedCluster(clusters, model.getState().maxClusterDistance);	// Set associated cluster
-				if(debugSettings.world && debugSettings.detailed)
-					if(!success) System.out.println("Couldn't find cluster for pano #"+pano.getID());
+//				if(debugSettings.world && debugSettings.detailed)
+//					if(!success) System.out.println("Couldn't find cluster for pano #"+pano.getID());
 			}
 			for (WMV_Video vid : videos) 			// Find closest cluster for each image
 			{
 				boolean success = vid.findAssociatedCluster(clusters, model.getState().maxClusterDistance);		// Set associated cluster
-				if(debugSettings.world && debugSettings.detailed)
-					if(!success) System.out.println("Couldn't find cluster for video #"+vid.getID());
+//				if(debugSettings.world && debugSettings.detailed)
+//					if(!success) System.out.println("Couldn't find cluster for video #"+vid.getID());
 			}
 			if(inclSounds)
 			{
 				for (WMV_Sound snd : sounds) 			// Find closest cluster for each image
 				{
 					boolean success = snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);		// Set associated cluster
-					if(debugSettings.world && debugSettings.detailed)
-						if(!success) System.out.println("Couldn't find cluster for sound #"+snd.getID());
+//					if(debugSettings.world && debugSettings.detailed)
+//						if(!success) System.out.println("Couldn't find cluster for sound #"+snd.getID());
 				}
 			}
 			
@@ -1997,7 +1997,7 @@ public class WMV_Field
 		List<Integer> absorbed = new ArrayList<Integer>();										// List of clusters absorbed into other clusters
 		List<Integer> merged = new ArrayList<Integer>();											// List of clusters already merged with neighbors
 
-		if(debugSettings.ml || debugSettings.world) 
+		if(debugSettings.world && debugSettings.detailed) 
 			System.out.println("Field.mergeAdjacentClusters()... Merging "+clusterList.size()+" adjacent clusters...");
 
 		/* Find distances between each cluster and its close neighbors */

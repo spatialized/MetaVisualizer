@@ -436,7 +436,7 @@ public abstract class WMV_Media
 						case 0:
 							if(f.visibleImages.contains(getID()))
 							{
-								System.out.println("Removing image #"+getID());
+//								System.out.println("Removing image #"+getID());
 								f.visibleImages.remove(f.visibleImages.indexOf(getID()));
 							}
 							break;

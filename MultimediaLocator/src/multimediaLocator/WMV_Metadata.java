@@ -314,8 +314,8 @@ class WMV_Metadata
 		{
 			for(File file : files)
 			{
-				System.out.println("loadGPSTracks()... Count:"+files.length);
-				System.out.println("  Loading next GPS track...");
+//				System.out.println("loadGPSTracks()... Count:"+files.length);
+//				System.out.println("  Loading next GPS track...");
 				ArrayList<WMV_Waypoint> gpsTrack = loadGPSTrack(f, file, ml.world.settings); 
 				tracks.add(gpsTrack);
 			}
@@ -494,7 +494,7 @@ class WMV_Metadata
 			
 			String inputPath = largeVideoFolder;
 			String outputPath = smallVideoFolder;
-			Process conversionProcess = ml.convertVideos(inputPath, outputPath);
+			Process conversionProcess = ml.world.utilities.convertVideos(ml, inputPath, outputPath);
 			
 			try{
 				conversionProcess.waitFor();
@@ -1427,7 +1427,7 @@ class WMV_Metadata
 	 * @param file File to check
 	 * @return Whether the file is a panorama
 	 */
-	private boolean fileIsPanorama(File file)
+	public boolean fileIsPanorama(File file)
 	{
 		Metadata imageMetadata = null;				// For images
 		

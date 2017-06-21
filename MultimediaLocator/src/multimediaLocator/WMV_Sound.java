@@ -182,7 +182,7 @@ public class WMV_Sound extends WMV_Media
 			else if( framesBeforeEnd == ml.world.viewer.getSettings().soundFadingLength && !isFadingVolume())	
 			{
 				if(ml.debugSettings.sound)
-					System.out.println("  Sound.updateVolume()... First frame, will fade sound out...");
+					System.out.println("  Sound.updateVolume()... Near end, will fade sound out...");
 				fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
 			}
 		}
@@ -309,13 +309,14 @@ public class WMV_Sound extends WMV_Media
 			g = new Gain(ac, 2, 0.2f);
 			g.addInput(player);
 			ac.out.addInput(g);
+//			ml.world.getCurrentField().setSoundsPlaying(ml.world.getCurrentField().getSoundsPlaying());
 			
 			setLength( (float)player.getSample().getLength() * 0.001f );	// Set sound length
 			
 			if(getViewerSettings().autoPlaySounds)
 			{
 				if(ml.world.getCurrentField().getVideosPlaying() < getViewerSettings().autoPlayMaxSoundCount)
-					playSound();
+					play(ml);
 			}
 			else
 				pauseSound();
@@ -328,13 +329,17 @@ public class WMV_Sound extends WMV_Media
 	 * Start playing the sound
 	 * @param pause 
 	 */
-	public void playSound()
+	public void play(MultimediaLocator ml)
 	{
 		if(getDebugSettings().sound) System.out.println("playSound()...");
+		
 		ac.start();					// Start audio context 
 		state.playing = true;
 		state.volume = 0.f;
 		fadeSoundIn();
+		
+		ml.world.getCurrentField().setSoundsPlaying(ml.world.getCurrentField().getSoundsPlaying());
+		ml.world.getCurrentField().setSoundsHeard(ml.world.getCurrentField().getSoundsHeard());
 	}
 
 	/**

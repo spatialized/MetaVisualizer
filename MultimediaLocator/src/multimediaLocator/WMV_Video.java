@@ -253,22 +253,22 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		int frameLength = getLengthInFrames(30);							// Get video frame length at 30 fps
 //		int framesSinceStart = ml.frameCount - state.playbackStartFrame;	// Frames since start
 		int framesBeforeEnd = getFramesBeforeEnd(ml.frameCount);		// Playback position in frames, i.e. frames from end
-		if(ml.debugSettings.video)
-			System.out.println("Video.updateVolume()... playing?"+isPlaying()+" frameLength:"+frameLength+" framesBeforeEnd:"+framesBeforeEnd);
+//		if(ml.debugSettings.video)
+//			System.out.println("Video.updateVolume()... playing?"+isPlaying()+" frameLength:"+frameLength+" framesBeforeEnd:"+framesBeforeEnd);
 		
 		if(frameLength > 0)
 		{
 			if( framesBeforeEnd == 0 )	// Fade in at first frame
 			{
 				if(ml.debugSettings.video)
-					System.out.println("  Video.updateVolume()... First frame, will fade sound in...");
+					System.out.println("  Video.updateVolume()... id #"+getID()+" First frame, will fade sound in...");
 				fadeSoundIn();
 				state.playbackStartFrame = ml.frameCount;
 			}
 			else if( framesBeforeEnd == ml.world.viewer.getSettings().soundFadingLength && !isFadingVolume())	
 			{
 				if(ml.debugSettings.video)
-					System.out.println("  Video.updateVolume()... First frame, will fade sound out...");
+					System.out.println("  Video.updateVolume()... id #"+getID()+" Near end, will fade sound out...");
 				fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
 			}
 		}
@@ -452,6 +452,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		state.volume = 0.f;
 		
 		fadeSoundIn();
+		
+		ml.world.getCurrentField().setVideosPlaying(ml.world.getCurrentField().getVideosPlaying());
 	}
 	
 	/**

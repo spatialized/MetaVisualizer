@@ -330,7 +330,11 @@ public abstract class WMV_Media
 				f.visiblePanoramas.add(getID());
 				break;
 			case 2:
+				if(getDebugSettings().video)
+					System.out.println("Video.fadeIn()... id #"+getID()+" adding to visible videos...");
 				f.visibleVideos.add(getID());
+				if(getDebugSettings().video)
+					System.out.println("  f.visibleVideos.size():"+f.visibleVideos.size());
 				break;
 			case 3:
 				f.audibleSounds.add(getID());

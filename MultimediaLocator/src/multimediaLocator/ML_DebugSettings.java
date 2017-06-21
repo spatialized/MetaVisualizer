@@ -29,11 +29,11 @@ public class ML_DebugSettings
 	public boolean display = false;				// Debug WMV_Display class
 	
 	/* Media */
-	public boolean media = true;				// Debug WMV_Viewable class
+	public boolean media = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;				// Debug WMV_Panorama class
 	public boolean video = true;				// Debug WMV_Video class
-	public boolean sound = true;				// Debug WMV_Sound class
+	public boolean sound = false;				// Debug WMV_Sound class
 
 	/* Other */
 	public boolean map = false;					// Debug WMV_Map class

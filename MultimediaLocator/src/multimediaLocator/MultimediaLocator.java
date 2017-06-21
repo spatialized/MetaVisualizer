@@ -1070,7 +1070,7 @@ public class MultimediaLocator extends PApplet
 		if(library.mediaFolders.size() > 0)
 		{
 			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
-			state.selectedLibrary = library.createNewLibrary(this, library.mediaFolders);
+			state.selectedLibrary = library.create(this, library.mediaFolders);
 			state.createdLibrary = true;
 			
 			if(!state.selectedLibrary)
@@ -1174,7 +1174,7 @@ public class MultimediaLocator extends PApplet
 	{
 		String inputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testInput/";
 		String outputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testOutput/";
-		convertVideos(inputPath, outputPath);
+		world.utilities.convertVideos(this, inputPath, outputPath);
 	}
 	
 	public void addShutdownHook()
@@ -1213,52 +1213,6 @@ public class MultimediaLocator extends PApplet
 	    });
 	}
 	
-	/**
-	 * Convert videos in input folder to 480p (using QuickTime Player) and export to output folder
-	 * @param inputPath Input folder path
-	 * @param outputPath Output folder path
-	 * @return Whether successful
-	 */
-	public Process convertVideos(String inputPath, String outputPath)
-	{
-		Process process;
-		String scriptPath = getScriptResource("Convert_to_480p.txt");
-		delay(200);
-
-		if(debugSettings.ml || debugSettings.metadata)
-		{
-			System.out.println("ML.convertVideos()... scriptPath:"+scriptPath);
-			System.out.println(" ... inputPath:"+inputPath);
-			System.out.println(" ... outputPath:"+outputPath);
-		}
-
-		Runtime runtime = Runtime.getRuntime();
-
-		String[] args = { "osascript", scriptPath, inputPath, outputPath };
-
-		try
-		{
-			process = runtime.exec(args);
-
-			InputStream input = process.getInputStream();
-			for (int i = 0; i < input.available(); i++) {
-				System.out.println("" + input.read());
-			}
-
-			InputStream error = process.getErrorStream();
-			for (int i = 0; i < error.available(); i++) {
-				System.out.println("" + error.read());
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
-		
-		return process;
-	}
-
 	/**
 	 * Called when image output folder has been selected
 	 * @param selection

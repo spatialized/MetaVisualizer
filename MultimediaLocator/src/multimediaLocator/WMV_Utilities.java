@@ -1182,7 +1182,7 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * Shrink image in given directory
+	 * Shrink image in place at specified directory
 	 * @param fileName File path of image to shrink
 	 * @param directory Image file directory 
 	 * @return Whether successful
@@ -1198,7 +1198,8 @@ public class WMV_Utilities
 		command.add("-Z");
 		command.add("640");
 		command.add(fileName);
-		System.out.println("shrinkImage()... directory:"+directory +" command:"+command);
+
+//		System.out.println("Utilities.shrinkImage()... directory:"+directory +" command:"+command);
 		commandExecutor = new WMV_Command(directory, command);
 
 		try {
@@ -1216,6 +1217,52 @@ public class WMV_Utilities
 		}
 	}
 	
+	/**
+	 * Convert videos in input folder to 480p (using QuickTime Player) and export to output folder
+	 * @param inputPath Input folder path
+	 * @param outputPath Output folder path
+	 * @return Whether successful
+	 */
+	public Process convertVideos(MultimediaLocator ml, String inputPath, String outputPath)
+	{
+		Process process;
+		String scriptPath = ml.getScriptResource("Convert_to_480p.txt");
+		ml.delay(200);
+
+		if(ml.debugSettings.video )
+		{
+			System.out.println("Utilities.convertVideos()... scriptPath:"+scriptPath);
+			System.out.println(" ... inputPath:"+inputPath);
+			System.out.println(" ... outputPath:"+outputPath);
+		}
+
+		Runtime runtime = Runtime.getRuntime();
+
+		String[] args = { "osascript", scriptPath, inputPath, outputPath };
+
+		try
+		{
+			process = runtime.exec(args);
+
+			InputStream input = process.getInputStream();
+			for (int i = 0; i < input.available(); i++) {
+				System.out.println("" + input.read());
+			}
+
+			InputStream error = process.getErrorStream();
+			for (int i = 0; i < error.available(); i++) {
+				System.out.println("" + error.read());
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		
+		return process;
+	}
+
 	public PImage bufferedImageToPImage(BufferedImage bimg)
 	{         
 		try {

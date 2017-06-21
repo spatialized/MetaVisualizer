@@ -22,7 +22,7 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310, longWindowHeight = 600;
 	private int shortWindowHeight = 340;
-	private int delayAmount = 50;							// Delay length to avoid G4P library concurrent modification exception
+	private int delayAmount = 90;							// Delay length to avoid G4P library concurrent modification exception
 
 	/* Windows */
 	public GWindow mlWindow, navigationWindow, mediaWindow, statisticsWindow,  helpWindow, 
@@ -1922,7 +1922,7 @@ public class ML_Window
 					if(f.getVideosPlaying() > 0)
 					{
 						applet.text("   Playing: "+f.getVideosPlaying(), x, y += lineWidthVeryWide);
-						if(f.getVideosSeen() > 0) applet.text("   Seen: "+f.getVideosSeen(), x, y += lineWidthVeryWide);
+						applet.text("   Seen: "+f.getVideosSeen(), x, y += lineWidthVeryWide);
 					}
 				}
 				
@@ -1931,8 +1931,10 @@ public class ML_Window
 				{
 					applet.text(" In Audible Range: "+f.getSoundsAudible(), x, y += lineWidthVeryWide);
 					if(f.getSoundsPlaying() > 0) 
+					{
 						applet.text("   Playing: "+f.getSoundsPlaying(), x, y += lineWidthVeryWide);
-					applet.text("   Heard: "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
+						applet.text("   Heard: "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
+					}
 				}
 				
 				applet.textSize(fLargeTextSize);

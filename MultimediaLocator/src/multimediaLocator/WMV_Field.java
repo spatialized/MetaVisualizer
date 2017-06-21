@@ -4317,27 +4317,32 @@ public class WMV_Field
 
 	public int getImagesVisible()
 	{
-		return state.imagesVisible;
+		return state.imagesVisible = visibleImages.size();
 	}
 
 	public int getPanoramasVisible()
 	{
-		return state.panoramasVisible;
+		return state.panoramasVisible = visiblePanoramas.size();
 	}
 
 	public int getVideosVisible()
 	{
-		return state.videosVisible;
+		return state.videosVisible = visibleVideos.size();
 	}
 
 	public int getSoundsAudible()
 	{
-		return state.soundsAudible;
+		return state.soundsAudible = audibleSounds.size();
 	}
 
 	public int getSoundsPlaying()
 	{
 		return state.soundsPlaying;
+	}
+
+	public void setSoundsPlaying(int newValue)
+	{
+		state.soundsPlaying = newValue;
 	}
 
 	public void setImagesVisible(int newValue)

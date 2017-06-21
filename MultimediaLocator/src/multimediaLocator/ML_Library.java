@@ -42,9 +42,9 @@ public class ML_Library
 	 * @param mediaFolders List of media folder(s)
 	 * @param libraryFolder Destination folder for library
 	 */
-	public boolean createNewLibrary(MultimediaLocator ml, ArrayList<String> mediaFolders)
+	public boolean create(MultimediaLocator ml, ArrayList<String> mediaFolders)
 	{
-		System.out.println("createNewLibrary()... mediaFolders.size():"+mediaFolders.size());
+		System.out.println("Library.create()... mediaFolders.size():"+mediaFolders.size());
 		
 		String destination = getLibraryFolder();
 		File destinationFile = new File(destination);
@@ -54,69 +54,146 @@ public class ML_Library
 		File fieldFolderFile = new File(fieldFolder);
 		if(!fieldFolderFile.exists()) fieldFolderFile.mkdir();
 
-		System.out.println(">>> getLibraryFolder():"+getLibraryFolder()+" fieldFolder:"+fieldFolder);
+		System.out.println("Library.create():"+getLibraryFolder()+" fieldFolder:"+fieldFolder);
+
 		if(mediaFolders.size() == 0)
-		{
 			System.out.println("Error mediaFolders.size() == 0!");
-		}
 		else
-		{
 			for(String mediaFolder : mediaFolders)
+				sortAndCopyMedia(ml, mediaFolder, fieldFolder);				// Sort by type and copy into folders
+		
+		return true;
+	}
+	
+	private void sortPanoramasFromImages(MultimediaLocator ml, String mediaFolder, String fieldFolder)
+	{
+		ArrayList<String> files = getFilesInDirectory(mediaFolder);
+		ArrayList<String> panoramaPaths = new ArrayList<String>();
+		
+		for(String fs : files)							/* Split file list into lists based on media type */
+		{
+			File f = new File(mediaFolder + "/" + fs);
+			if(ml.metadata.fileIsPanorama(f))
 			{
-				boolean success = sortAndCopyMedia(mediaFolder, fieldFolder);
-				
-				if(success)
+				panoramaPaths.add(f.getAbsolutePath());
+				System.out.println("Library.sortPanoramasFromImages()... file is panorama: "+fs);
+			}
+		}
+
+		String panoramasFolder = fieldFolder + "/panoramas";
+		File panoramasFolderFile = new File(panoramasFolder);
+		if(!panoramasFolderFile.exists())
+			panoramasFolderFile.mkdir();
+
+		for(String fs : panoramaPaths)
+			copyFile(fs, panoramasFolder);
+
+	}
+	
+	private void sortImagesBySize(MultimediaLocator ml, String fieldFolder)
+	{
+		String smallImagesFolder = fieldFolder + "/small_images";
+		String largeImagesFolder = fieldFolder + "/large_images";
+		ArrayList<String> files = getFilesInDirectory(smallImagesFolder);
+		
+		for(String fs : files)
+		{
+			String filePath = smallImagesFolder + "/"+ fs;
+			File file = new File(filePath);
+			File largeImagesFolderFile = new File(largeImagesFolder);
+			
+			WMV_ImageMetadata iMetadata = ml.metadata.loadImageMetadata(file, "America/Los_Angeles");
+			if(iMetadata == null)
+			{
+				System.out.println("Library.createNewLibrary()... iMetadata is NULL for image "+fs+"!");
+			}
+			else
+			{
+				if(iMetadata.cameraModel != 2)		// Check that image isn't a Theta S panorama
 				{
-					String smallImagesFolder = fieldFolder + "/small_images";
-					String largeImagesFolder = fieldFolder + "/large_images";
-					ArrayList<String> movedFiles = getFilesInDirectory(smallImagesFolder);
-					
-					for(String fs : movedFiles)
+					if(!iMetadata.software.equals("Occipital 360 Panorama"))		// -- Check this!!
 					{
-						String filePath = smallImagesFolder + "/"+ fs;
-						File file = new File(filePath);
-						File largeImagesFolderFile = new File(largeImagesFolder);
-						
-						WMV_ImageMetadata iMetadata = ml.metadata.loadImageMetadata(file, "America/Los_Angeles");
-						if(iMetadata == null)
+						if(iMetadata.imageWidth > 640)
 						{
-							System.out.println("Library.createNewLibrary()... iMetadata is NULL for image "+fs+"!");
+							System.out.println("Library.createNewLibrary()... Image larger than 640 px: "+fs);
+							if(!largeImagesFolderFile.exists())
+								largeImagesFolderFile.mkdir();
+							copyFile(filePath, largeImagesFolder);						// Import full size image to large_images
+							ml.world.utilities.shrinkImage(filePath, fieldFolder);		// Shrink large image in place 
 						}
-						else
+						else if(iMetadata.imageWidth < 640)
 						{
-							if(iMetadata.cameraModel != 2)		// Check that image isn't a Theta S panorama
-							{
-								if(!iMetadata.software.equals("Occipital 360 Panorama"))		// -- Check this!!
-								{
-									if(iMetadata.imageWidth > 640)
-									{
-										System.out.println("Library.createNewLibrary()... Image larger than 640 px: "+fs);
-										if(!largeImagesFolderFile.exists())
-											largeImagesFolderFile.mkdir();
-										copyFile(filePath, largeImagesFolder);						// Import full size image to large_images
-										ml.world.utilities.shrinkImage(filePath, fieldFolder);		// Shrink existing image in small_images
-									}
-									else if(iMetadata.imageWidth < 640)
-									{
-										System.out.println("Library.createNewLibrary()... ERROR: Image smaller than 640 px: "+fs);
-									}
-								}
-							}
-							else
-							{
-								System.out.println("Library.createNewLibrary()... Verified image width for image:"+fs);
-							}
+							System.out.println("Library.createNewLibrary()... ERROR: Image smaller than 640 px: "+fs);
 						}
 					}
 				}
 				else
 				{
-					System.out.println("Library.createNewLibrary()... ERROR creating new library! Failed to copy media folder: "+mediaFolder);
-					return false;
+					System.out.println("Library.createNewLibrary()... Verified image width for image:"+fs);
 				}
 			}
 		}
-		return true;
+	}
+	
+	private void sortVideosBySize(MultimediaLocator ml, String fieldFolder)
+	{
+		String smallVideosFolder = fieldFolder + "/small_videos";
+		String largeVideosFolder = fieldFolder + "/large_videos";
+		ArrayList<String> files = getFilesInDirectory(smallVideosFolder);
+		ArrayList<String> filesToShrink = new ArrayList<String>();
+		
+		for(String fs : files)
+		{
+			String filePath = smallVideosFolder + "/"+ fs;
+			File file = new File(filePath);
+			File largeVideosFolderFile = new File(largeVideosFolder);
+			
+			WMV_VideoMetadata iMetadata = ml.metadata.loadVideoMetadata(file, "America/Los_Angeles");
+			if(iMetadata == null)
+			{
+				System.out.println("Library.createNewLibrary()... iMetadata is NULL for video "+fs+"!");
+			}
+			else
+			{
+				if(iMetadata.cameraModel != 2)		// Check that video isn't a Theta S panorama
+				{
+					if(!iMetadata.software.equals("Occipital 360 Panorama"))		// -- Check this!!
+					{
+						if(iMetadata.videoWidth > 640)
+						{
+							System.out.println("Library.createNewLibrary()... video larger than 640 px: "+fs);
+							if(!largeVideosFolderFile.exists())
+								largeVideosFolderFile.mkdir();
+							copyFile(filePath, largeVideosFolder);						// Import full size video to large_videos
+							filesToShrink.add(filePath);
+						}
+						else if(iMetadata.videoWidth < 640)
+						{
+							System.out.println("Library.createNewLibrary()... ERROR: video smaller than 640 px: "+fs);
+						}
+					}
+				}
+				else
+				{
+					System.out.println("Library.createNewLibrary()... Verified video width for video:"+fs);
+				}
+			}
+		}
+		
+		if(filesToShrink.size() > 0)
+		{
+			System.out.println("Library.sortVideosBySize()... Shrinking "+filesToShrink.size()+" videos...");
+			
+			Process conversionProcess = ml.world.utilities.convertVideos(ml, largeVideosFolder, smallVideosFolder);
+			
+			try{
+				conversionProcess.waitFor();
+			}
+			catch(Throwable t)
+			{
+				System.out.println("Metadata.loadVideoFiles()... ERROR in process.waitFor()... t:"+t);
+			}
+		}
 	}
 	
 	/**
@@ -279,19 +356,20 @@ public class ML_Library
 	 * @param destFolder Destination folder
 	 * @return
 	 */
-	public boolean sortAndCopyMedia(String sourceFolder, String destFolder)
+	public boolean sortAndCopyMedia(MultimediaLocator ml, String mediaFolder, String fieldFolder)
 	{
-		System.out.println("Library.sortAndCopyMedia()... sourceFolder:"+sourceFolder+" destFolder:"+destFolder);
+		System.out.println("Library.sortAndCopyMedia()... mediaFolder:"+mediaFolder+" fieldFolder:"+fieldFolder);
 		
 		ArrayList<String> imagePaths = new ArrayList<String>();
 		ArrayList<String> videoPaths = new ArrayList<String>();
 		ArrayList<String> soundPaths = new ArrayList<String>();
+		ArrayList<String> gpsTrackPaths = new ArrayList<String>();
 		
-		ArrayList<String> files = getFilesInDirectory(sourceFolder);
+		ArrayList<String> files = getFilesInDirectory(mediaFolder);
 		
 		for(String fs : files)							/* Split file list into lists based on media type */
 		{
-			File f = new File(sourceFolder + "/" + fs);
+			File f = new File(mediaFolder + "/" + fs);
 			String[] parts = f.getName().split("\\.");
 			String end = parts[parts.length-1];
 			if(end.equals("jpg") || end.equals("JPG"))
@@ -300,14 +378,16 @@ public class ML_Library
 				videoPaths.add(f.getAbsolutePath());
 			else if(end.equals("wav") || end.equals("WAV") || end.equals("aiff") || end.equals("AIFF"))
 				soundPaths.add(f.getAbsolutePath());
+			else if(end.equals("gpx") || end.equals("GPX"))
+				gpsTrackPaths.add(f.getAbsolutePath());
 		}
 		
 		if(imagePaths.size() > 0)
 		{
-			String destination = destFolder + "/small_images/";
-			File imagesFolder = new File(destination);
-			if(!imagesFolder.exists())
-				imagesFolder.mkdir();
+			String destination = fieldFolder + "/small_images/";
+			File smallImagesFolder = new File(destination);
+			if(!smallImagesFolder.exists())
+				smallImagesFolder.mkdir();
 
 			for(String fs : imagePaths)
 				copyFile(fs, destination);
@@ -315,10 +395,10 @@ public class ML_Library
 
 		if(videoPaths.size() > 0)
 		{
-			String destination = destFolder + "/small_videos/";
-			File videosFolder = new File(destination);
-			if(!videosFolder.exists())
-				videosFolder.mkdir();
+			String destination = fieldFolder + "/small_videos/";
+			File smallVideosFolder = new File(destination);
+			if(!smallVideosFolder.exists())
+				smallVideosFolder.mkdir();
 
 			for(String fs : videoPaths)
 				copyFile(fs, destination);
@@ -326,7 +406,7 @@ public class ML_Library
 		
 		if(soundPaths.size() > 0)
 		{
-			String destination = destFolder + "/sounds/";
+			String destination = fieldFolder + "/sounds/";
 			File soundsFolder = new File(destination);
 			if(!soundsFolder.exists())
 				soundsFolder.mkdir();
@@ -334,6 +414,22 @@ public class ML_Library
 			for(String fs : soundPaths)
 				copyFile(fs, destination);
 		}
+		
+		if(gpsTrackPaths.size() > 0)
+		{
+			String destination = fieldFolder + "/gps_tracks/";
+			File gpsTracksFolder = new File(destination);
+			if(!gpsTracksFolder.exists())
+				gpsTracksFolder.mkdir();
+
+			System.out.println("Will copy "+gpsTrackPaths.size()+" GPS tracks to field folder...");
+			for(String fs : gpsTrackPaths)
+				copyFile(fs, destination);
+		}
+		
+		sortPanoramasFromImages(ml, mediaFolder, fieldFolder);
+		sortImagesBySize(ml, fieldFolder);
+		sortVideosBySize(ml, fieldFolder);
 		
 		return true;
 	}
@@ -423,7 +519,7 @@ public class ML_Library
 	
 	private ArrayList<String> getFilesInDirectory(String sourceFolder)
 	{
-		System.out.println("getFilesInDirectory(): sourceFolder:"+sourceFolder);
+//		System.out.println("getFilesInDirectory(): sourceFolder:"+sourceFolder);
 		ArrayList<String> files = new ArrayList<String>();
 		WMV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();

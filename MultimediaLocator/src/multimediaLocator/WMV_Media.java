@@ -392,7 +392,7 @@ public abstract class WMV_Media
 	/**
 	 * Update fading brightness
 	 */
-	void updateFadingBehavior(WMV_Field f)
+	void updateFading(WMV_Field f)
 	{
 		float newFadeValue = 0.f;
 

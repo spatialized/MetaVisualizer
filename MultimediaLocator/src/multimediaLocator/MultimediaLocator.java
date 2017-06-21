@@ -571,32 +571,25 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void restart()
 	{
-//		System.out.println("ML.restart()... 1");
 		state.reset();
-//		background(0.f);
 		
 //		surface.setResizable(true);
 //		hideMainWindow();
 
-		display.reset();							// Initialize displays
+		display.reset();						// Initialize displays
 //		display = new ML_Display(this);			// Initialize displays
 //		display.initializeWindows(world);
-//		System.out.println("ML.restart()... 3");
 
-		metadata = new WMV_Metadata(this, debugSettings);
-		stitcher = new ML_Stitcher(world);
+		metadata = new WMV_Metadata(this, debugSettings);		// Reset metadata loader
+		stitcher = new ML_Stitcher(world);						// Reset panoramic stitcher
 
-//		colorMode(PConstants.HSB);
-//		rectMode(PConstants.CENTER);
-//		textAlign(PConstants.CENTER, PConstants.CENTER);
+		colorMode(PConstants.HSB);
+		rectMode(PConstants.CENTER);
 
 //		initCubeMap();
 
 		display.window.hideWindows();
-//		System.out.println("ML.restart()... 6");
-
-		world.reset(true);
-//		System.out.println("ML.restart()... 7");
+		world.reset(true);						// Reset world
 
 		if(debugSettings.ml) System.out.println("World resetting complete...");
 

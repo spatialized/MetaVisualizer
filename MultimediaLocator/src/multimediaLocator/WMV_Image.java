@@ -199,7 +199,7 @@ public class WMV_Image extends WMV_Media
 		}
 	}
 	
-	public void updateFading(WMV_Field f, boolean wasVisible)
+	public void calculateFadingVisibility(WMV_Field f, boolean wasVisible)
 	{
 		boolean visibilitySetToTrue = false;
 		boolean visibilitySetToFalse = false;

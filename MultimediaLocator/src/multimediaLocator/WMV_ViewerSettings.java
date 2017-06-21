@@ -25,20 +25,21 @@ public class WMV_ViewerSettings
 	public float visibleAngleMin = 0.05f;
 	public float visibleAngleInc = 0.04f;
 	
-	public float centeredAngle = visibleAngle / 2.f;	// At what angle is the image centered?
-	public boolean angleThinning = false;				// Thin images and videos of similar orientation
+	public float centeredAngle = visibleAngle / 2.f;		// Angle at which the image is considered centered
+	public boolean angleThinning = false;					// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;
 
 	/* Video */
-	public boolean autoPlayVideos = true;				// Automatically play videos near viewer
-	public int autoPlayMaxVideoCount = 2;				// Maximum videos to auto play simultaneously
+	public boolean autoPlayVideos = true;					// Automatically play videos near viewer
+	public int autoPlayMaxVideoCount = 2;					// Maximum videos to auto play simultaneously
 
 	/* Sound */
-	public boolean autoPlaySounds = true;				// Automatically play videos near viewer
-	public int autoPlayMaxSoundCount = 3;				// Maximum videos to auto play simultaneously
-	public float farHearingDistance = 36.f; 						// Far distance (m.) at which media start fading out
-
+	public boolean autoPlaySounds = true;					// Automatically play videos near viewer
+	public int autoPlayMaxSoundCount = 3;					// Maximum videos to auto play simultaneously
+	public float farHearingDistance = 36.f; 				// Far distance (m.) at which media start fading out
+	public int soundFadingLength = 30;						// Frame length of sounds, including video sound, to fade in and out 
+	
 //	/* Media Visibility */
 //	public final int maxVisibleImages = 85;					// Maximum visible images at one time
 //	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time
@@ -69,7 +70,7 @@ public class WMV_ViewerSettings
 	public float farClusterTeleportDistance = 240.f;		// Distance at which cluster is considered far
 	public boolean alwaysLookAtMedia = false;				// Automatically turn towards media when reached new cluster -- Fix bugs!
 	
-	/* Turn Settings */
+	/* Turning */
 	final public float turningVelocityMin = 0.00005f;			// Threshold under which velocity counts as zero
 	final public float turningVelocityMax = 0.05f;				// Camera maximum velocity
 	final public float turningAccelerationMax = 0.005f;			// Camera maximum acceleration
@@ -79,7 +80,7 @@ public class WMV_ViewerSettings
 	public float turningXAccelInc = 0.0001f;					// Turning X axis acceleration increment
 	public float turningYAccelInc = 0.0001f;					// Turning Y axis acceleration increment
 
-	/* Interaction Modes */
+	/* Interaction */
 	public boolean selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean optimizeVisibility = false;			// Optimize visibility automatically by turning towards media / changing graphics modes
 	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
@@ -87,7 +88,6 @@ public class WMV_ViewerSettings
 	public boolean groupSelection = false;			// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
 
-	/* Interaction Settings */
 	public int mediaDensityThreshold = 12;				// Number of images or videos counted as high density
 	public float selectionMaxDistance;					// Maximum distance user can select a photo
 	public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance

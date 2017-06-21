@@ -15,15 +15,15 @@ public class ML_DebugSettings
 	
 	/* Data */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = true;				// Debug WMV_Field class
+	public boolean world = false;				// Debug WMV_Field class
 
 	/* Model */
-	public boolean metadata = true;				// Debug WMV_Metadata class
+	public boolean metadata = false;				// Debug WMV_Metadata class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean time = false;				// Debug WMV_Time class
 
 	/* Viewer */
-	public boolean viewer = true;				// Debug WMV_Viewer class
+	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean path = false;					// Debug WMV_Viewer class
 	public boolean gps = false;					// Debug WMV_Viewer class
 	public boolean display = false;				// Debug WMV_Display class
@@ -33,7 +33,7 @@ public class ML_DebugSettings
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;				// Debug WMV_Panorama class
 	public boolean video = true;				// Debug WMV_Video class
-	public boolean sound = false;				// Debug WMV_Sound class
+	public boolean sound = true;				// Debug WMV_Sound class
 
 	/* Other */
 	public boolean map = false;					// Debug WMV_Map class

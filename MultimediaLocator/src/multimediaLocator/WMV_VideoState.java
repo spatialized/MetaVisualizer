@@ -17,17 +17,19 @@ public class WMV_VideoState
 	public int origVideoWidth = 0, origVideoHeight = 0;
 	public PVector averageColor;
 	public float averageBrightness;
-	public float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-	public float origFocusDistance; 	 		 		// Original video viewing distance
+	public float defaultFocusDistance = 9.0f;		// Default focus distance for images and videos (m.)
+	public float origFocusDistance; 	 		 	// Original video viewing distance
 	public float sensorSize;
 	public float subjectSizeRatio = 0.18f;			// Subject portion of video plane (used in scaling from focus distance to imageSize)
-	public int cameraModel;                 	// Camera model
+	public int cameraModel;                 		// Camera model
 	public float brightness;
 	public float length;
 	
 	/* Time */
 	public boolean loaded = false;
 	public boolean playing = false;
+	public int playbackStartFrame = -1;
+	
 	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
 	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;
 	
@@ -101,5 +103,13 @@ public class WMV_VideoState
 		volume = 0.f;
 		soundFadedIn = false;
 		soundFadedOut = false;
+		
+		playbackStartFrame = -1;
+		
+		fadingFocusDistanceStartFrame = 0.f;
+		fadingFocusDistanceEndFrame = 0.f;	
+		fadingFocusDistanceStart = 0.f; 
+		fadingFocusDistanceTarget = 0.f;
+		fadingFocusDistanceLength = 30.f;
 	}
 }

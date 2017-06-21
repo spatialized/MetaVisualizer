@@ -87,7 +87,7 @@ public class WMV_Sound extends WMV_Media
 		}
 	}
 
-	public void updateFading(MultimediaLocator ml, boolean wasVisible)
+	public void calculateFadingVisibility(MultimediaLocator ml, boolean wasVisible)
 	{
 		boolean visibilitySetToTrue = false;
 		boolean visibilitySetToFalse = false;
@@ -122,11 +122,11 @@ public class WMV_Sound extends WMV_Media
 		{
 			System.out.println("Sound #"+getID()+" visibility was set to false...");
 			fadeOut(ml.world.getCurrentField(), false);
-			fadeSoundOut();
+			fadeSoundOut(false);						// Fade sound out and clear sound after
 		}
 
 		if(isFading())									// Update brightness while fading
-			updateFadingBehavior(ml.world.getCurrentField());
+			updateFading(ml.world.getCurrentField());
 
 		if(hasFadedIn()) setFadedIn(false);						
 		if(hasFadedOut()) setFadedOut(false);						
@@ -138,11 +138,62 @@ public class WMV_Sound extends WMV_Media
 	/**
 	 * Update volume based on viewer distance from sound
 	 */
-	public void updateVolume()
+//	public void updateVolume(MultimediaLocator ml)
+//	{
+//		state.volume = getDistanceAudibility();
+//		g.setGain(state.volume);
+//		
+//		int frameLength = getLengthInFrames(30);							// Get video frame length at 30 fps
+//		int framesSinceStart = ml.frameCount - state.playbackStartFrame;	// Frames since start
+//		int framePosition = getPlaybackPositionInFrames(ml.frameCount);		// Playback position, i.e. frameLength - framesSinceStart
+//		
+//		if( framesSinceStart == 0 && !isFadingIn())	// Fade in at first frame
+//			fadeSoundIn();
+//		else if( frameLength - framePosition == ml.world.viewer.getSettings().soundFadingLength  
+//				 && !isFadingOut())	
+//		{
+//			fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
+//		}
+//	}
+	
+	
+	/**
+	 * Update volume fading in at beginning and out at end
+	 * @param ml Parent app
+	 */
+	void updateVolume(MultimediaLocator ml)
 	{
-		state.volume = getDistanceAudibility();
-		g.setGain(state.volume);
+		int frameLength = getLengthInFrames(30);							// Get video frame length at 30 fps
+//		int framesSinceStart = ml.frameCount - state.playbackStartFrame;	// Frames since start
+		int framesBeforeEnd = getFramesBeforeEnd(ml.frameCount);		// Playback position in frames, i.e. frames from end
+//		if(ml.debugSettings.sound)
+//			System.out.println("Sound.updateVolume()... playing?"+isPlaying()+" frameLength:"+frameLength+" framesBeforeEnd:"+framesBeforeEnd);
+		
+		if(frameLength > 0)
+		{
+//			if( framesSinceStart == 0 && !isFadingVolume())	// Fade in at first frame
+			if( framesBeforeEnd == 0 )	// Fade in at first frame
+			{
+				if(ml.debugSettings.sound)
+					System.out.println("  Sound.updateVolume()... First frame, will fade sound in...");
+				fadeSoundIn();
+				state.playbackStartFrame = ml.frameCount;
+			}
+			else if( framesBeforeEnd == ml.world.viewer.getSettings().soundFadingLength && !isFadingVolume())	
+			{
+				if(ml.debugSettings.sound)
+					System.out.println("  Sound.updateVolume()... First frame, will fade sound out...");
+				fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
+			}
+		}
+		else
+		{
+			if(ml.debugSettings.sound)
+				System.out.println("Sound.updateVolume()... ERROR... video #"+getID()+" has no length!");
+		}
 	}
+
+	
 	
 	/**
 	 * Update volume fading 
@@ -167,8 +218,17 @@ public class WMV_Sound extends WMV_Media
 			{
 				if(getDebugSettings().sound) System.out.println("updateFadingVolume() for sound #"+getID()+" reached zero... will clear sound...");
 				state.soundFadedOut = true;
-				pauseSound();
-				clearSound();
+				
+				if(state.pauseAfterSoundFades)
+				{
+					pauseSound();
+					state.pauseAfterSoundFades = false;
+				}
+				else
+					clearSound();
+
+//				pauseSound();
+//				clearSound();
 			}
 		}
 	}
@@ -250,6 +310,8 @@ public class WMV_Sound extends WMV_Media
 			g.addInput(player);
 			ac.out.addInput(g);
 			
+			setLength( (float)player.getSample().getLength() * 0.001f );	// Set sound length
+			
 			if(getViewerSettings().autoPlaySounds)
 			{
 				if(ml.world.getCurrentField().getVideosPlaying() < getViewerSettings().autoPlayMaxSoundCount)
@@ -276,12 +338,12 @@ public class WMV_Sound extends WMV_Media
 	}
 
 	/**
-	 * Fade sound out and pause sound once finished
+	 * Fade sound out and clear sound once finished
 	 */
 	public void stopSound()
 	{
 		if(getDebugSettings().sound) System.out.println("stopSound()...");
-		fadeSoundOut();														
+		fadeSoundOut(false);														
 		state.playing = false;
 	}
 
@@ -333,8 +395,9 @@ public class WMV_Sound extends WMV_Media
 
 	/**
 	 * Fade out sound
+	 * @param pause Whether to pause sound or dispose of samples
 	 */
-	void fadeSoundOut()
+	void fadeSoundOut(boolean pause)
 	{
 		if(getDebugSettings().sound) System.out.println("fadeSoundOut()...");
 		if(state.volume > 0.f)
@@ -344,6 +407,7 @@ public class WMV_Sound extends WMV_Media
 			state.volumeFadingStartVal = state.volume; 
 			state.volumeFadingEndFrame = getWorldState().frameCount + state.volumeFadingLength;		// Fade volume out over n frames
 			state.volumeFadingTarget = 0.f;
+			state.pauseAfterSoundFades = pause;
 		}
 	}
 
@@ -441,6 +505,33 @@ public class WMV_Sound extends WMV_Media
 		return PVector.dist(loc, camLoc);     
 	}
 
+	/**
+	 * Get playback position in frames, i.e. frames from end
+	 * @param curFrameCount Current frame count
+	 * @return Frames until last frame of video
+	 */
+	public int getFramesBeforeEnd(int curFrameCount)
+	{
+		int frameLength = getLengthInFrames( 30 );			// -- Use actual frame rate?
+		int endFrame = state.playbackStartFrame + frameLength;
+//		System.out.println("Sound.getFramesBeforeEnd()... frameLength: "+frameLength+" state.playbackStartFrame:"+state.playbackStartFrame);
+		
+		return endFrame - curFrameCount;
+	}
+
+	public int getLengthInFrames(float frameRate)
+	{
+//		System.out.println("Sound.getLengthInFrames()... state.length: "+state.length+" player.sample.length (ms.): "+player.getSample().getLength());
+		if(state.length != 0)
+			return Math.round( state.length * frameRate );			// -- Use actual frame rate?
+		else if(player != null)
+		{
+			setLengthFromSound(player.getSample());
+			return Math.round( state.length * frameRate );			// -- Use actual frame rate?
+		}		
+		else 
+			return 0;
+	}
 
 	/**
 	 * Initialize sound time from metadata date/time string
@@ -510,6 +601,25 @@ public class WMV_Sound extends WMV_Media
 	{
 		return state.playing;
 	}
+
+	public float getLength()
+	{
+		return state.length;
+	}
+	
+	 /**
+	  * @param newLength New sound length
+	  */
+	 void setLength(float newLength)
+	 {
+		 state.length = newLength;
+		 System.out.println("Sound.setLength()... newLength:"+newLength+" state.length:"+state.length);
+	 }
+	 
+	 void setLengthFromSound( Sample sample )
+	 {
+		state.length = (float) sample.getLength() * 0.001f;
+	 }
 
 	/**
 	 * Draw the image metadata in Heads-Up Display

@@ -1088,7 +1088,7 @@ public class ML_Window
 		btnDeselectPanorama.setLocalColorScheme(G4P.RED_SCHEME);
 
 		x = 90;
-		y += iButtonSpacing;
+		y += iButtonSpacingWide;
 		btnDeselectAll = new GButton(mediaWindow, x, y, 150, iSmallBoxHeight, "Deselect All (OPT x)");
 		btnDeselectAll.tag = "DeselectAll";
 		btnDeselectAll.setLocalColorScheme(G4P.RED_SCHEME);

@@ -3994,7 +3994,7 @@ public class WMV_Viewer
 			if(!v.isPlaying())									// Play video by choosing it
 			{
 				if(!v.isLoaded()) v.loadMedia(p.ml);
-				v.play();
+				v.play(p.ml);
 			}
 			else
 				v.stopVideo();

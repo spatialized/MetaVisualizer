@@ -200,7 +200,7 @@ public class WMV_Cluster
 		{
 			WMV_Image curImg = imageList.get(i);
 
-			if (curImg.getMediaState().getClusterID() == state.id) 			// If the image is assigned to this cluster
+			if (curImg.getAssociatedClusterID() == state.id) 			// If the image is assigned to this cluster
 			{
 				newLocation.add(curImg.getCaptureLocation());		// Move cluster towards the image
 				if(!state.images.contains(curImg.getID()))
@@ -216,7 +216,7 @@ public class WMV_Cluster
 		{
 			WMV_Panorama curPano = panoramaList.get(i);
 
-			if (curPano.getMediaState().getClusterID() == state.id) 			// If the image is assigned to this cluster
+			if (curPano.getAssociatedClusterID() == state.id) 			// If the image is assigned to this cluster
 			{
 				newLocation.add(curPano.getCaptureLocation());		// Move cluster towards the image
 				if(!state.panoramas.contains(curPano.getID()))
@@ -232,7 +232,7 @@ public class WMV_Cluster
 		{
 			WMV_Video curVid = videoList.get(i);
 
-			if (curVid.getMediaState().getClusterID() == state.id) 				// If the image is assigned to this cluster
+			if (curVid.getAssociatedClusterID() == state.id) 				// If the image is assigned to this cluster
 			{
 				newLocation.add(curVid.getCaptureLocation());	// Move cluster towards the image
 				if(!state.videos.contains(curVid.getID()))
@@ -250,7 +250,7 @@ public class WMV_Cluster
 			{
 				WMV_Sound curSnd = soundList.get(i);
 
-				if (curSnd.getMediaState().getClusterID() == state.id) 				// If the image is assigned to this cluster
+				if (curSnd.getAssociatedClusterID() == state.id) 				// If the image is assigned to this cluster
 				{
 					newLocation.add(curSnd.getCaptureLocation());	// Move cluster towards the image
 					if(!state.sounds.contains(curSnd.getID()))

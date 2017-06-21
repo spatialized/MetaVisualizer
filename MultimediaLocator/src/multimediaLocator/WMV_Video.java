@@ -23,8 +23,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	public WMV_VideoMetadata metadata;
 
 	/* Video */
-	Movie video;									// Movie object
-	PImage frame;									// Video frame to be displayed 
+	public Movie video;									// Movie object
+	public PImage frame;									// Video frame to be displayed 
 	private PImage blurMask;						// Blur mask
 	private PImage blurred;							// Combined pixels
 
@@ -56,7 +56,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		initializeTime();
 
 		if(newVideo != null)
-			setVideoLength(newVideo);
+			setLengthFromMovie(newVideo);
 	}  
 	
 	private PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
@@ -225,7 +225,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		if(isVisible())
 		{
-			System.out.println("Video #"+getID()+" visible... 1");
 			float videoAngle = getFacingAngle(getViewerState().getOrientationVector());				
 
 			if(!utilities.isNaN(videoAngle))
@@ -242,18 +241,52 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 			if(isBackFacing(getViewerState().getLocation()) || isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
 				setVisible(false);
-			
-			System.out.println("Video #"+getID()+" 2   visible? "+isVisible()+" ...");
 		}
 	}
 	
-	public void updateFading(MultimediaLocator ml, boolean wasVisible)
+	/**
+	 * Update volume fading in at beginning and out at end
+	 * @param ml Parent app
+	 */
+	void updateVolume(MultimediaLocator ml)
+	{
+		int frameLength = getLengthInFrames(30);							// Get video frame length at 30 fps
+//		int framesSinceStart = ml.frameCount - state.playbackStartFrame;	// Frames since start
+		int framesBeforeEnd = getFramesBeforeEnd(ml.frameCount);		// Playback position in frames, i.e. frames from end
+		if(ml.debugSettings.video)
+			System.out.println("Video.updateVolume()... playing?"+isPlaying()+" frameLength:"+frameLength+" framesBeforeEnd:"+framesBeforeEnd);
+		
+		if(frameLength > 0)
+		{
+			if( framesBeforeEnd == 0 )	// Fade in at first frame
+			{
+				if(ml.debugSettings.video)
+					System.out.println("  Video.updateVolume()... First frame, will fade sound in...");
+				fadeSoundIn();
+				state.playbackStartFrame = ml.frameCount;
+			}
+			else if( framesBeforeEnd == ml.world.viewer.getSettings().soundFadingLength && !isFadingVolume())	
+			{
+				if(ml.debugSettings.video)
+					System.out.println("  Video.updateVolume()... First frame, will fade sound out...");
+				fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
+			}
+		}
+		else
+		{
+			System.out.println("Video.updateVolume()... ERROR... video #"+getID()+" has no length!");
+		}
+	}
+
+	/**
+	 * Update video (and video sound) fading in and out
+	 * @param ml Parent app
+	 * @param wasVisible Whether video was visible last frame
+	 */
+	public void calculateFadingVisibility(MultimediaLocator ml, boolean wasVisible)
 	{
 		boolean visibilitySetToTrue = false;
 		boolean visibilitySetToFalse = false;
-
-		if(isVisible())
-			System.out.println("Video.updateFading()... 1 frame:"+ml.frameCount+" isVisible():"+isVisible()+" visibilitySetToTrue:"+visibilitySetToTrue);
 
 		if(isFading())									// Update brightness while fading
 		{
@@ -276,9 +309,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				visibilitySetToFalse = true;
 		}
 
-		if(isVisible())
-			System.out.println("Video.updateFading()... 2 "
-					+ "'frame:"+ml.frameCount+" isVisible():"+isVisible()+" visibilitySetToTrue:"+visibilitySetToTrue);
+//		if(isVisible())
+//			System.out.println("Video.updateFading()... 2 "
+//					+ "'frame:"+ml.frameCount+" isVisible():"+isVisible()+" visibilitySetToTrue:"+visibilitySetToTrue);
 		
 		if(getViewerSettings().angleThinning)										// Check Angle Thinning Mode
 		{
@@ -332,7 +365,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		if(state.soundFadedOut) state.soundFadedOut = false;
 		
 		if(state.fadingVolume && state.loaded)
-			updateFadingVolume();
+			updateVolumeFading();
 	}
 	
 	/**
@@ -380,27 +413,25 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-		if(!getMediaState().disabled)																	
+		if(!isDisabled())																	
 		{
 			video = new Movie(ml, getMediaState().filePath);
-			setLength( video.duration() );				// Set video length (in seconds)
-			
-//			video.loop();								// Start loop
-
 			if(getViewerSettings().autoPlayVideos)
 			{
 				if(ml.world.getCurrentField().getVideosPlaying() < getViewerSettings().autoPlayMaxVideoCount)
-					play();
+					play(ml);
 			}
 			else pauseVideo();
 			
 			video.volume(0.f);
 			state.volume = 0.f;
 
-			if(ml.debugSettings.video)
-				System.out.println("Loading video file..."+getMediaState().filePath+" video.duration():"+video.duration());
-
 			calculateVertices(); 
+
+			setLength( video.duration() );				// Set video length (in seconds)
+			if(ml.debugSettings.video)
+				System.out.println("Loading video file..."+getMediaState().filePath+" video.duration():"+video.duration()+" state.length:"+state.length);
+			
 			state.loaded = true;
 		}
 	}
@@ -409,11 +440,14 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 * Start playing the video
 	 * @param pause 
 	 */
-	public void play()
+	public void play(MultimediaLocator ml)
 	{
 		video.loop();					// Start loop
 
 		state.playing = true;
+		state.playbackStartFrame = ml.frameCount;
+		if(ml.debugSettings.video)
+			System.out.println("Video.play()... id #"+getID()+" set playbackStartFrame:"+state.playbackStartFrame);
 		video.volume(0.f);
 		state.volume = 0.f;
 		
@@ -427,6 +461,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		fadeSoundOut(true);				// Fade sound out and pause video once finished
 		state.playing = false;
+		state.playbackStartFrame = -1;
 	}
 
 	/**
@@ -960,7 +995,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	/**
 	 * Update volume fading 
 	 */
-	private void updateFadingVolume()
+	private void updateVolumeFading()
 	{
 		if(state.fadingVolume && getWorldState().frameCount < state.volumeFadingEndFrame)	// Still fading
 		{
@@ -978,9 +1013,14 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				state.soundFadedOut = true;
 			
 				if(state.pauseAfterSoundFades)
+				{
 					video.pause();
+					state.pauseAfterSoundFades = false;
+				}
 				else
+				{
 					clearVideo();
+				}
 			}
 		}
 	}
@@ -1215,6 +1255,32 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 	
 	/**
+	 * Get playback position in frames, i.e. frames from end
+	 * @param curFrameCount Current frame count
+	 * @return Frames until last frame of video
+	 */
+	public int getFramesBeforeEnd(int curFrameCount)
+	{
+		int frameLength = getLengthInFrames( 30 );			// -- Use actual frame rate?
+		int endFrame = state.playbackStartFrame + frameLength;
+//		System.out.println("Video.getFramesBeforeEnd()... frameLength:"+frameLength+" state.playbackStartFrame:"+state.playbackStartFrame);
+		
+		return endFrame - curFrameCount;
+//		return frameLength - framesSinceStart;	// Current video position between 0.f and 1.f
+	}
+
+	public int getLengthInFrames(float frameRate)
+	{
+//		System.out.println("Video.getLengthInFrames()... state.length:"+state.length+" video.duration"+video.duration());
+		if(state.length != 0)
+			return Math.round( state.length * frameRate );			// -- Use actual frame rate?
+		else if(video != null)
+			return Math.round( video.duration() * frameRate );			// -- Use actual frame rate?
+		else 
+			return 0;
+	}
+
+	/**
 	 * Find video width using formula:
 	 * Video Width (m.) = Object Width on Sensor (mm.) / Focal Length (mm.) * Focus Distance (m.) 
 	 * @return Video width in simulation (m.)
@@ -1329,8 +1395,14 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 void setLength(float newLength)
 	 {
 		 state.length = newLength;
+//		 System.out.println("Video.setLength()... newLength:"+newLength+" state.length now:"+state.length);
 	 }
 
+	 void setLengthFromMovie(Movie newVideo)
+	 {
+		 setLength( newVideo.duration() );				// Set video length (in seconds)
+		 newVideo.dispose();
+	 }
 	 /**
 	  * @return Video length
 	  */
@@ -1398,12 +1470,5 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 public void setFrame(PImage newFrame)
 	 {
 		 frame = newFrame;
-	 }
-	 
-	 public void setVideoLength(Movie newVideo)
-	 {
-		 video = newVideo;
-		 setLength( video.duration() );				// Set video length (in seconds)
-		 video.dispose();
 	 }
 }

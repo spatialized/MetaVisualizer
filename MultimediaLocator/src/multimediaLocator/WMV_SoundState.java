@@ -15,14 +15,16 @@ public class WMV_SoundState
 	public float volume = 0.f;					// Sound volume between 0. and 1.
 //	public float radius = 10.f;					// Audible distance			-- Set globally
 	
-	public boolean loaded = false;
-	public boolean playing = false;
+	public boolean loaded = false;				// Whether sound is loaded
+	public boolean playing = false;				// Whether sound is playing
+	public int playbackStartFrame = -1;			// Frame sound started playing
 
 	public boolean fadingVolume = false;
 	public int volumeFadingStartFrame = 0, volumeFadingEndFrame = 0;
 	public float volumeFadingStartVal = 0.f, volumeFadingTarget = 0.f;
 	public final int volumeFadingLength = 60;	// Fade volume over 30 frames
-	
+	public boolean pauseAfterSoundFades = false;
+
 	public boolean soundFadedIn = false, soundFadedOut = false;
 
 	WMV_SoundState(){}

@@ -103,9 +103,9 @@ public class ML_Display
 //	private float leftTextXOffset, rightTextXOffset;
 	private float messageXOffset, messageYOffset, startupMessageXOffset;
 	private float metadataXOffset, metadataYOffset, startupMessageYOffset;
-	private float midLeftTextXOffset, midRightTextXOffset;
+//	private float midLeftTextXOffset, midRightTextXOffset;
 	private float clusterImageXOffset, clusterImageYOffset;
-	private float fieldsXScreenSize, fieldsYScreenSize, fieldsXOffset, fieldsYOffset;
+//	private float fieldsXScreenSize, fieldsYScreenSize, fieldsXOffset, fieldsYOffset;
 	
 	private final float veryLargeTextSize = 64.f;
 	private final float largeTextSize = 56.f;
@@ -138,19 +138,19 @@ public class ML_Display
 
 		centerTextXOffset = screenWidth / 2.f;
 //		leftTextXOffset = 0.f;
-		midLeftTextXOffset = screenWidth / 3.f;
+//		midLeftTextXOffset = screenWidth / 3.f;
 //		rightTextXOffset = 0.f;
-		midRightTextXOffset = screenWidth / 1.5f;
+//		midRightTextXOffset = screenWidth / 1.5f;
 
 		topTextYOffset = -screenHeight / 1.66f;
 		clusterImageXOffset = -screenWidth / 1.85f;
 		clusterImageYOffset = screenHeight * 1.33f;
 		
-		fieldsXOffset = -screenWidth / 1.88f;
-		fieldsYOffset = -screenHeight / 1.33f;
-		
-		fieldsXScreenSize = screenWidth * 1.75f;
-		fieldsYScreenSize = screenHeight * 1.33f;
+//		fieldsXOffset = -screenWidth / 1.88f;
+//		fieldsYOffset = -screenHeight / 1.33f;
+//		
+//		fieldsXScreenSize = screenWidth * 1.75f;
+//		fieldsYScreenSize = screenHeight * 1.33f;
 
 		messageXOffset = screenWidth * 1.75f;
 		messageYOffset = -screenHeight * 0.33f;
@@ -1422,9 +1422,9 @@ public class ML_Display
 
 		centerTextXOffset = screenWidth / 2.f;
 //		leftTextXOffset = 0.f;
-		midLeftTextXOffset = screenWidth / 3.f;
+//		midLeftTextXOffset = screenWidth / 3.f;
 //		rightTextXOffset = 0.f;
-		midRightTextXOffset = screenWidth / 1.5f;
+//		midRightTextXOffset = screenWidth / 1.5f;
 
 		topTextYOffset = -screenHeight / 1.6f;
 		clusterImageXOffset = -screenWidth/ 1.9f;
@@ -1816,7 +1816,7 @@ public class ML_Display
 			if(!v.isLoaded())
 				v.loadMedia(ml);
 			if(!v.isPlaying())
-				v.play();
+				v.play(ml);
 		}
 	}
 	

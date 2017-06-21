@@ -1024,7 +1024,7 @@ public class ML_KeyboardControls
 				{
 					f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);	
 					ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
-					ml.world.getCurrentField().mergeAllAdjacentClusters();							/* Mark clusters with no media as empty */
+					ml.world.getCurrentField().mergeAdjacentClusters();							/* Mark clusters with no media as empty */
 					ml.display.map2D.initialize(ml.world);
 				}
 			}
@@ -1040,7 +1040,7 @@ public class ML_KeyboardControls
 				{
 					f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);
 					ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().getState().clusterRefinement, ml.world.getCurrentField().getModel().getState().clusterPopulationFactor );
-					ml.world.getCurrentField().mergeAllAdjacentClusters();							/* Mark clusters with no media as empty */
+					ml.world.getCurrentField().mergeAdjacentClusters();							/* Mark clusters with no media as empty */
 					ml.world.getCurrentField().finishClusterSetup();			
 					ml.display.map2D.initialize(ml.world);
 				}
@@ -1080,7 +1080,7 @@ public class ML_KeyboardControls
 					if(ml.world.getCurrentField().getModel().state.clusterRefinement >= ml.world.getCurrentField().getModel().state.minClusterRefinement)
 					{
 						ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-						ml.world.getCurrentField().mergeAllAdjacentClusters();						
+						ml.world.getCurrentField().mergeAdjacentClusters();						
 						ml.world.getCurrentField().finishClusterSetup();			
 						ml.display.map2D.initialize(ml.world);
 					}
@@ -1095,7 +1095,7 @@ public class ML_KeyboardControls
 					if(ml.world.getCurrentField().getModel().state.clusterRefinement <= ml.world.getCurrentField().getModel().state.maxClusterRefinement)
 					{
 						ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, ml.world.getCurrentField().getModel().state.clusterRefinement, populationFactor );
-						ml.world.getCurrentField().mergeAllAdjacentClusters();						
+						ml.world.getCurrentField().mergeAdjacentClusters();						
 						ml.world.getCurrentField().finishClusterSetup();			
 						ml.display.map2D.initialize(ml.world);
 					}
@@ -1110,7 +1110,7 @@ public class ML_KeyboardControls
 					if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor >= ml.world.getCurrentField().getModel().state.minPopulationFactor)
 					{
 						ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-						ml.world.getCurrentField().mergeAllAdjacentClusters();						
+						ml.world.getCurrentField().mergeAdjacentClusters();						
 						ml.world.getCurrentField().finishClusterSetup();			
 						ml.display.map2D.initialize(ml.world);
 					}
@@ -1125,7 +1125,7 @@ public class ML_KeyboardControls
 					if(ml.world.getCurrentField().getModel().state.clusterPopulationFactor <= ml.world.getCurrentField().getModel().state.maxPopulationFactor)
 					{
 						ml.world.getCurrentField().runKMeansClustering( ml.world.settings.kMeansClusteringEpsilon, refinementAmount, ml.world.getCurrentField().getModel().state.clusterPopulationFactor );
-						ml.world.getCurrentField().mergeAllAdjacentClusters();						
+						ml.world.getCurrentField().mergeAdjacentClusters();						
 						ml.world.getCurrentField().finishClusterSetup();			
 						ml.display.map2D.initialize(ml.world);
 					}

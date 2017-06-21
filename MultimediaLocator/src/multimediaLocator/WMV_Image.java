@@ -52,7 +52,7 @@ public class WMV_Image extends WMV_Media
 		state.sVertices = new PVector[4]; 
 
 		setAspectRatio( calculateAspectRatio() );
-	}  
+	}
 
 	public void initializeTime()
 	{

@@ -13,10 +13,8 @@ public class WMV_Waypoint
 
 	private int id;					// ID (Cluster)
 	private PVector location;		// World location
-	private PVector gpsLocation;	// GPS location
-	private float altitude;		// GPS Altitude
-//	private PVector target;			// Where camera is pointing
-//	private boolean gps;
+	private PVector gpsLocation;	// GPS location {longitude, latitude}
+	private float altitude;			// GPS Altitude
 	
 	WMV_Waypoint(int newID, PVector newLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
 	{
@@ -87,7 +85,16 @@ public class WMV_Waypoint
 	}
 
 	/**
-	 * Set GPS location in format [longitude, latitude]
+	 * Get GPS location in format: {longitude, altitude, latitude}
+	 * @return GPS Location
+	 */
+	public PVector getGPSLocationWithAltitude()
+	{
+		return new PVector(gpsLocation.x, altitude, gpsLocation.y);
+	}
+
+	/**
+	 * Set GPS location in format {longitude, latitude}
 	 * @param newGPSLocation New GPS location
 	 */
 	public void setGPSLocation(PVector newGPSLocation)

@@ -239,14 +239,14 @@ public class WMV_Sound extends WMV_Media
 	public void display(MultimediaLocator ml)
 	{
 //		if(getMediaState().showMetadata) displayMetadata(ml);
-//		if(getMediaState().visible)
+//		if(isVisible())
 //		{
-////			System.out.println("getWorldState().showModel:"+getWorldState().showModel+" isHidden():"+isHidden()+" isDisabled():"+isDisabled()+" wtf? "+(getWorldState().showModel && !isHidden() && !!isDisabled()));
-//
+//			System.out.println("getWorldState().showModel:"+getWorldState().showModel+" isHidden():"+isHidden()+" isDisabled():"+isDisabled()+" wtf? "+(getWorldState().showModel && !isHidden() && !!isDisabled()));
+
 //			if(getWorldState().showModel && !isHidden() && !isDisabled())
 //			{
-////				System.out.println("Will call displayModel()...");
-//				displayModel(ml);
+//				System.out.println("Will call displayModel()...");
+				displayModel(ml);
 //			}
 //			else if(ml.debugSettings.sound || ml.debugSettings.field) 
 //				displayModel(ml);
@@ -260,6 +260,7 @@ public class WMV_Sound extends WMV_Media
 	public void displayModel(MultimediaLocator ml)
 	{
 		ml.noStroke(); 
+		System.out.println("Sound.displayModel()... getViewingBrightness():"+getViewingBrightness());
 
 		ml.stroke(70, 220, 150);
 		ml.fill(70, 220, 150);
@@ -296,11 +297,11 @@ public class WMV_Sound extends WMV_Media
 	}
 
 	/**
-	 * Load the sound from disk
+	 * Load sound file from disk
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-		if(ml.debugSettings.sound) System.out.println("loadMedia() for sound #"+getID());
+		if(ml.debugSettings.sound) System.out.println("Sound loadMedia()... id #"+getID());
 		
 		if( !getMediaState().hidden && !getMediaState().disabled )
 		{
@@ -309,7 +310,6 @@ public class WMV_Sound extends WMV_Media
 			g = new Gain(ac, 2, 0.2f);
 			g.addInput(player);
 			ac.out.addInput(g);
-//			ml.world.getCurrentField().setSoundsPlaying(ml.world.getCurrentField().getSoundsPlaying());
 			
 			setLength( (float)player.getSample().getLength() * 0.001f );	// Set sound length
 			
@@ -422,7 +422,7 @@ public class WMV_Sound extends WMV_Media
 	 */
 	void calculateLocationFromGPSTrack(ArrayList<WMV_Waypoint> gpsTrack)
 	{
-		if(getDebugSettings().sound) System.out.println("calculateLocationFromGPSTrack() for sound id#"+getID()+"...");
+		if(getDebugSettings().sound) System.out.println("Sound.calculateLocationFromGPSTrack() for sound id#"+getID()+"...");
 
 		float closestDist = 1000000.f;
 		int closestIdx = -1;
@@ -459,11 +459,13 @@ public class WMV_Sound extends WMV_Media
 
 		if(closestIdx >= 0)
 		{
-			setGPSLocation( gpsTrack.get(closestIdx).getLocation() );
+			setGPSLocation( gpsTrack.get(closestIdx).getGPSLocationWithAltitude() );			// Format: {longitude, altitude, latitude}
+			setGPSLocationInMetadata( gpsTrack.get(closestIdx).getGPSLocationWithAltitude() );	// Format: {longitude, altitude, latitude}
+
 			if(getDebugSettings().sound)
 			{
 				System.out.println("Set sound #"+getID()+" GPS location to waypoint "+closestIdx+" waypoint hour:"+gpsTrack.get(closestIdx).getTime().getHour()+"   min:"+gpsTrack.get(closestIdx).getTime().getMinute());
-				System.out.println("  Sound hour:"+sHour+" Sound min:"+sMinute+" Sound GPS X:"+getGPSLocation().x+" GPS Y:"+getGPSLocation().y);
+				System.out.println("  Sound hour:"+sHour+" Sound min:"+sMinute+" Sound GPS X:"+getGPSLocation().x+" GPS Y:"+getGPSLocation().y+" GPS Z:"+getGPSLocation().z);
 			}
 		}
 		else 
@@ -489,6 +491,32 @@ public class WMV_Sound extends WMV_Media
 
 		return audibility;
 	}
+
+	/** 
+	 * @return Distance visibility multiplier between 0. and 1.
+	 * Find video visibility due to distance (fades away in distance and as camera gets close)
+	 */
+//	public float getDistanceBrightness(WMV_Viewer viewer)
+//	{
+//		float viewDist = getViewingDistance(viewer);
+//		float distVisibility = 1.f;
+//
+//		float farViewingDistance = getViewerSettings().getFarViewingDistance();
+//		float nearViewingDistance = getViewerSettings().getNearViewingDistance();
+//		
+//		if(viewDist > farViewingDistance)
+//		{
+//			float vanishingPoint = farViewingDistance + viewer.p.getSettings().defaultFocusDistance;	// Distance where transparency reaches zero
+//			if(viewDist < vanishingPoint)
+//				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, farViewingDistance, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+//			else
+//				distVisibility = 0.f;
+//		}
+//		else if(viewDist < nearViewingDistance) 													// Near distance at which transparency reaches zero
+//			distVisibility = PApplet.constrain(PApplet.map(viewDist, getViewerSettings().getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
+//
+//		return distVisibility;
+//	}
 
 	/**
 	 * @return Distance from the panorama to the camera
@@ -587,6 +615,12 @@ public class WMV_Sound extends WMV_Media
 		state.setMediaState(getMediaState(), metadata);
 	}
 
+	public void setGPSLocationFromMetadata()
+	{
+		metadata.gpsLocation = getMediaState().gpsLocation;
+		System.out.println("SOUND GPS ID#"+getID()+" LOC:"+metadata.gpsLocation);
+	}
+	
 	public void setGPSLocationInMetadata(PVector newGPSLocation)
 	{
 		metadata.gpsLocation = newGPSLocation;

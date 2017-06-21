@@ -196,49 +196,58 @@ public class WMV_Cluster
 		empty();											// Empty cluster
 				
 		/* Find images associated with this cluster */
-		for (int i = 0; i < imageList.size(); i++) 
+		if(imageList != null)
 		{
-			WMV_Image curImg = imageList.get(i);
-
-			if (curImg.getAssociatedClusterID() == state.id) 			// If the image is assigned to this cluster
+			for (int i = 0; i < imageList.size(); i++) 
 			{
-				newLocation.add(curImg.getCaptureLocation());		// Move cluster towards the image
-				if(!state.images.contains(curImg.getID()))
+				WMV_Image curImg = imageList.get(i);
+
+				if (curImg.getAssociatedClusterID() == state.id) 			// If the image is assigned to this cluster
 				{
-					state.images.add(curImg.getID());
-					state.mediaCount++;
+					newLocation.add(curImg.getCaptureLocation());		// Move cluster towards the image
+					if(!state.images.contains(curImg.getID()))
+					{
+						state.images.add(curImg.getID());
+						state.mediaCount++;
+					}
 				}
 			}
 		}
 
 		/* Find panoramas associated with this cluster */
-		for (int i = 0; i < panoramaList.size(); i++) 
+		if(panoramaList != null)
 		{
-			WMV_Panorama curPano = panoramaList.get(i);
-
-			if (curPano.getAssociatedClusterID() == state.id) 			// If the image is assigned to this cluster
+			for (int i = 0; i < panoramaList.size(); i++) 
 			{
-				newLocation.add(curPano.getCaptureLocation());		// Move cluster towards the image
-				if(!state.panoramas.contains(curPano.getID()))
+				WMV_Panorama curPano = panoramaList.get(i);
+
+				if (curPano.getAssociatedClusterID() == state.id) 			// If the image is assigned to this cluster
 				{
-					state.panoramas.add(curPano.getID());
-					state.mediaCount++;
+					newLocation.add(curPano.getCaptureLocation());		// Move cluster towards the image
+					if(!state.panoramas.contains(curPano.getID()))
+					{
+						state.panoramas.add(curPano.getID());
+						state.mediaCount++;
+					}
 				}
 			}
 		}
 
 		/* Find videos associated with this cluster */
-		for (int i = 0; i < videoList.size(); i++) 
+		if(videoList != null)
 		{
-			WMV_Video curVid = videoList.get(i);
-
-			if (curVid.getAssociatedClusterID() == state.id) 				// If the image is assigned to this cluster
+			for (int i = 0; i < videoList.size(); i++) 
 			{
-				newLocation.add(curVid.getCaptureLocation());	// Move cluster towards the image
-				if(!state.videos.contains(curVid.getID()))
+				WMV_Video curVid = videoList.get(i);
+
+				if (curVid.getAssociatedClusterID() == state.id) 				// If the image is assigned to this cluster
 				{
-					state.videos.add(curVid.getID());
-					state.mediaCount++;
+					newLocation.add(curVid.getCaptureLocation());	// Move cluster towards the image
+					if(!state.videos.contains(curVid.getID()))
+					{
+						state.videos.add(curVid.getID());
+						state.mediaCount++;
+					}
 				}
 			}
 		}

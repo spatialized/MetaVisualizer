@@ -793,7 +793,7 @@ public class WMV_Utilities
 				zonedTime.initialize( zoned, "", count, 0, -1, f.getTimeZoneID() );
 
 				PVector gpsLocation = new PVector(longitude, latitude);
-				PVector captureLocation = getCaptureLocationFromGPS(ml, gpsLocation, altitude, f.getModel());
+				PVector captureLocation = getCaptureLocationFromGPSAndAltitude(ml, gpsLocation, altitude, f.getModel());
 				
 				WMV_Waypoint wp = new WMV_Waypoint(count, captureLocation, gpsLocation, altitude, zonedTime);			// Convert GPS track node to Waypoint
 				gpsTrack.add(wp);																			// Add Waypoint to GPS track
@@ -814,7 +814,7 @@ public class WMV_Utilities
 	 * Calculate media capture state.location in virtual space based on GPS location in format {longitude, latitude} and GPS altitude
 	 * @param model Field model
 	 */
-	public PVector getCaptureLocationFromGPS(MultimediaLocator ml, PVector gpsLocation, float altitude, WMV_Model model)                                  
+	public PVector getCaptureLocationFromGPSAndAltitude(MultimediaLocator ml, PVector gpsLocation, float altitude, WMV_Model model)                                  
 	{
 		float newX = 0.f, newZ = 0.f, newY = 0.f;
 		

@@ -24,7 +24,7 @@ public class WMV_MediaState
 	public boolean hasOriginal = false;			// Whether has original (full size) media
 	
 	/* Metadata */
-	public PVector gpsLocation;            		// Location in original GPS coords (longitude, altitude, latitude) 
+	public PVector gpsLocation;            		// Location in original GPS coordinates {longitude, altitude, latitude}
 	public int id;
 	public int mediaType;						// Media Type,  0: image 1: panorama 2: video 3: sound 
 	public String name = "";
@@ -54,7 +54,7 @@ public class WMV_MediaState
 	public float centerSize = 0.5f;
 
 	/* Transparency */
-	public float viewingBrightness = 0;						// Final image brightness (or alpha in useAlphaFading mode) 
+	public float viewingBrightness = 0;						// Viewing brightness (alpha if in useAlphaFading mode) 
 	public float fadingBrightness;							// Media transparency due to fading in / out
 	public boolean isFadingIn = false, isFadingOut = false;
 	public boolean beginFading = false, fading = false;		

@@ -60,9 +60,17 @@ public class WMV_SoundMetadata extends WMV_MediaMetadata
 	 */
 	public boolean isValid()
 	{
-		if(gpsLocation.x != 0.f && gpsLocation.z != 0.f && gpsLocation.z != 0.f)
+		String parts[] = super.name.split("\\.");
+		String extension = parts[1];
+		
+		if(extension.equals("wav") || extension.equals("WAV") || extension.equals("aiff") || extension.equals("AIFF"))
 			return true;
 		else
 			return false;
+		
+//		if(gpsLocation.x != 0.f && gpsLocation.z != 0.f && gpsLocation.z != 0.f)	// -- Sound location metadata is usually missing
+//			return true;
+//		else
+//			return false;
 	}
 }

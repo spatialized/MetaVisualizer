@@ -314,8 +314,6 @@ class WMV_Metadata
 		{
 			for(File file : files)
 			{
-//				System.out.println("loadGPSTracks()... Count:"+files.length);
-//				System.out.println("  Loading next GPS track...");
 				ArrayList<WMV_Waypoint> gpsTrack = loadGPSTrack(f, file, ml.world.settings); 
 				tracks.add(gpsTrack);
 			}
@@ -731,7 +729,9 @@ class WMV_Metadata
 				sCount++;
 			}
 			else
+			{
 				System.out.println("Invalid sound metadata!  Sound:"+sMetadata.name);
+			}
 		}
 		catch (Throwable t) {
 			if (debugSettings.metadata)

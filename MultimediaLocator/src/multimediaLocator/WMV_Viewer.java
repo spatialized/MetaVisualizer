@@ -829,7 +829,7 @@ public class WMV_Viewer
 			}
 		}
 		
-		if(found)				// If a cluster with specified media type was found
+		if(found)				/* If cluster with specified media type was found */
 		{
 			if(teleport)		/* Teleport or move */
 			{
@@ -841,7 +841,7 @@ public class WMV_Viewer
 				setAttractorCluster(nearest);
 			}
 		}
-		else
+		else					/* If no cluster with given media type found */
 		{
 			String strMediaType = "";
 			switch(mediaType)			// 0: image, 1: panorama, 2: video, 3: sound
@@ -860,7 +860,7 @@ public class WMV_Viewer
 					break;
 			}
 			if(debugSettings.viewer)
-				System.out.println("No clusters with "+strMediaType+" found...");
+				System.out.println("No clusters with "+strMediaType+" found... result:"+result);
 			if(p.getSettings().screenMessagesOn)
 				p.ml.display.message(p.ml, "No clusters with "+strMediaType+" found...");
 		}
@@ -4397,27 +4397,34 @@ public class WMV_Viewer
 
 		for (int i = 0; i < f.getSounds().size(); i++) 
 		{
-//			if (f.getSound(i).getMediaState().visible) 
-//			{
-				float soundDist = f.getSound(i).getCaptureDistance();
-				if (soundDist < smallest && soundDist > settings.nearClippingDistance) 
+			float soundDist = f.getSound(i).getCaptureDistance();
+			System.out.println("Viewer.getNearestSound()... id #"+i+" soundDist:"+soundDist);
+			
+			if (soundDist < smallest) 
+			{
+				if(inclCurrent)
 				{
-					if(inclCurrent)
+					smallest = soundDist;
+					smallestIdx = i;
+				}
+				else
+				{
+					if(f.getSound(i).getAssociatedClusterID() != getCurrentClusterID())
 					{
 						smallest = soundDist;
 						smallestIdx = i;
+						System.out.println("Viewer.getNearestSound()... found smallestIdx:"+smallestIdx);
+
 					}
 					else
 					{
-						if(f.getSound(i).getAssociatedClusterID() != getCurrentClusterID())
-						{
-							smallest = soundDist;
-							smallestIdx = i;
-						}
+						System.out.println("Viewer.getNearestSound()... Smallest is at current cluster:"+getCurrentClusterID());
+
 					}
 				}
-//			}
+			}
 		}
+		System.out.println("Viewer.getNearestSound()... result: smallestIdx:"+smallestIdx);
 
 		return smallestIdx;
 	}

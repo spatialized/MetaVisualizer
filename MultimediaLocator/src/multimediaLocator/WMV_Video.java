@@ -349,7 +349,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		if(isFadingFocusDistance())
 			updateFadingFocusDistance();
 
-		if(hasFadedIn())		// Fade in sound once video has faded in
+		if(hasFadedIn())					// Fade in sound once video has faded in
 		{
 			if(isPlaying()) fadeSoundIn();
 			setFadedIn(false);						
@@ -969,11 +969,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			state.hasImagePlaceholder = true;
 			state.imagePlaceholder = i.getID();
 			
-			/* Set video parameters from image placeholder metadata */
-//			metadata.videoWidth = i.getWidth();														
-//			metadata.videoHeight = (int) (i.getWidth() * getAspectRatio());	
-
-			// Editing metadata here -- Better way?
+			/* Set video parameters from image placeholder metadata */			// Editing metadata here -- Better way?
 			metadata.focusDistance = i.getFocusDistance();		    
 			metadata.focalLength = i.getFocalLength();			
 			setTheta(i.getDirection());  

@@ -46,7 +46,7 @@ import com.apple.eawt.Application;
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private boolean createJar = false;				// Determines how to load cubemap shader
+	private boolean createJar = true;				// Determines how to load cubemap shader
 	
 	/* App */
 	private String appName = "MultimediaLocator 0.9.2";

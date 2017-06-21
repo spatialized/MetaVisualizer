@@ -36,10 +36,10 @@ public class WMV_Field
 	private ArrayList<PVector> border;					// Convex hull (border) of media points
 
 	/* Media */
-	List<Integer> visibleImages;
-	List<Integer> visiblePanoramas;
-	List<Integer> visibleVideos;
-	List<Integer> audibleSounds;
+	public List<Integer> visibleImages;
+	public List<Integer> visiblePanoramas;
+	public List<Integer> visibleVideos;
+	public List<Integer> audibleSounds;
 
 	/* Time */
 	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
@@ -124,23 +124,25 @@ public class WMV_Field
 
 		state.imagesInRange = 0;			// Number of images in visible range
 		state.panoramasInRange = 0;			// Number of panoramas in visible range
-		state.videosInRange = 0;			 // Number of videos in visible range
+		state.videosInRange = 0;			// Number of videos in visible range
 		state.soundsInRange = 0; 			// Number of sounds in audible range
 
-		state.imagesSeen = 0;
+		state.imagesSeen = 0;				// -- Fix
 		state.panoramasSeen = 0;
 		state.videosSeen = 0;
 		state.soundsHeard = 0;
 
+		/* Update media parameters */
 		updateImages(ml);
 		updatePanoramas(ml);
 		updateVideos(ml);
 		updateSounds(ml);
 		
+		/* Display media */
 		displayVisibleImages(ml, visibleImages);
 		displayVisiblePanoramas(ml, visiblePanoramas);
 		displayVisibleVideos(ml, visibleVideos);
-		displayAudibleSounds(ml, audibleSounds);
+		displayAudibleSounds(ml, audibleSounds);			// Sounds visible when Show Model setting is on
 
 //		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
 //		{
@@ -164,7 +166,7 @@ public class WMV_Field
 				float distance = m.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 
-				m.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
+//				m.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
 					m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
@@ -199,7 +201,7 @@ public class WMV_Field
 				float distance = n.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 				boolean inVisibleRange = (distance < vanishingPoint);
 
-				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
+//				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
 					n.updateTimeBrightness(clusters.get(n.getAssociatedClusterID()), timeline, utilities);
@@ -270,7 +272,6 @@ public class WMV_Field
 				float distance = s.getHearingDistance();	 // Estimate video distance to camera based on capture location
 				boolean inAudibleRange = (distance < inaudiblePoint);
 
-//				s.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if ( s.isVisible() && !inAudibleRange )
 				{
 					s.fadeOut(this, false);		// Fade sound (model) graphics out
@@ -284,6 +285,7 @@ public class WMV_Field
 
 				if (inAudibleRange)
 				{
+					System.out.println("Field.updateSounds()... id #"+s.getID()+" inAudibleRange true");
 					state.soundsInRange++;
 					updateSound(ml, s);
 				}
@@ -296,6 +298,8 @@ public class WMV_Field
 						s.fadeOut(this, false);
 				}
 			}
+			else
+				System.out.println("X Field.updateSounds()... id #"+s.getID()+" disabled:"+s.isDisabled()+" hidden:"+s.isHidden());
 		}
 	}
 	
@@ -449,10 +453,16 @@ public class WMV_Field
 				s.calculateAudibility();
 				if(!clusterIsVisible(s.getAssociatedClusterID())) s.setVisible( false );		
 				s.calculateFadingVisibility(ml, wasVisible);
+				if(debugSettings.sound)
+					System.out.println("Field.updateSound()... id #"+s.getID()+" cluster:"+s.getAssociatedClusterID()+" clusterIsVisible():"+clusterIsVisible(s.getAssociatedClusterID()));
+				if(debugSettings.sound)
+					System.out.println("Field.updateSound()... id #"+s.getID()+" s.isVisible():"+s.isVisible());
 			}
 			
 			if(s.isLoaded())
 			{
+				if(debugSettings.sound)
+					System.out.println("Field.updateSound()... id #"+s.getID()+" isLoaded: true...");
 				if(s.isFadingVolume())
 					s.updateFadingVolume();								// Update volume due to fading
 				else if(s.isPlaying())
@@ -653,15 +663,16 @@ public class WMV_Field
 		WMV_Sound s = sounds.get(i);
 		
 		if(s.getMediaState().showMetadata) s.displayMetadata(ml);
-//		float distanceBrightness = 0.f; 					// Fade with distance
+		float distanceBrightness = 0.f; 								// Fade with distance
 
 		float brightness = s.getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
 
-		if(ml.debugSettings.sound)
-			System.out.println("Field.displaySound()... id #"+getID()+" getFadingBrightness():"+s.getFadingBrightness());
-//		distanceBrightness = s.getDistanceBrightness(ml.world.viewer); 
-//		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
+//		if(ml.debugSettings.sound)
+//			System.out.println("Field.displaySound()... id #"+getID()+" getFadingBrightness():"+s.getFadingBrightness());
+		
+		distanceBrightness = s.getDistanceBrightness(ml.world.viewer); 
+		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
 
 		if( getWorldState().timeFading && s.time != null && !getViewerState().isMoving() )
 			brightness *= s.getTimeBrightness(); 					// Fade brightness based on time
@@ -672,16 +683,15 @@ public class WMV_Field
 		{
 			if(s.getViewingBrightness() > 0)
 			{
-				if(s.getMediaState().visible && getWorldState().showModel)
+				if(s.isVisible())
 				{
-					if(s.isSelected())
-					{
-						if(s.getMediaState().showMetadata) s.displayMetadata(ml);
-					}
-					else
-					{
-						if(getWorldState().showModel) s.displayModel(ml);
-					}
+					if(s.isSelected()) 
+						if(s.getMediaState().showMetadata) 
+							s.displayMetadata(ml);
+
+					if(getWorldState().showModel)
+						s.display(ml);
+					
 					if(!s.isSeen()) s.setSeen(true);
 					state.soundsHeard++;
 				}
@@ -1458,6 +1468,13 @@ public class WMV_Field
 						if(debugSettings.image)
 							System.out.println("Image #"+img.getID()+" associated with cluster #"+img.getAssociatedClusterID()+" but not in cluster!");
 						if(repair) c.addImage(img);
+						
+						if(c.isEmpty()) 
+						{
+							c.setEmpty(false);
+							System.out.println("Image cluster #"+c.getID()+" associated with image #"+img.getID()+" was EMPTY! Fixed...");
+						}
+
 						errorDetected++;
 					}
 				}
@@ -1475,6 +1492,13 @@ public class WMV_Field
 						if(debugSettings.panorama)
 							System.out.println("Panorama #"+pano.getID()+" associated with cluster #"+pano.getAssociatedClusterID()+" but not in cluster!");
 						if(repair) c.addPanorama(pano);
+						
+						if(c.isEmpty()) 
+						{
+							c.setEmpty(false);
+							System.out.println("Panorama cluster #"+c.getID()+" associated with pano #"+pano.getID()+" was EMPTY! Fixed...");
+						}
+
 						errorDetected++;
 					}
 				}
@@ -1492,6 +1516,13 @@ public class WMV_Field
 						if(debugSettings.video)
 							System.out.println("Video #"+vid.getID()+" associated with cluster #"+vid.getAssociatedClusterID()+" but not in cluster!");
 						if(repair) c.addVideo(vid);
+						
+						if(c.isEmpty()) 
+						{
+							c.setEmpty(false);
+							System.out.println("Video cluster #"+c.getID()+" associated with video #"+vid.getID()+" was EMPTY! Fixed...");
+						}
+
 						errorDetected++;
 					}
 				}
@@ -1509,6 +1540,13 @@ public class WMV_Field
 						if(debugSettings.sound)
 							System.out.println("Sound #"+snd.getID()+" associated with cluster #"+snd.getAssociatedClusterID()+" but not in cluster!");
 						if(repair) c.addSound(snd);
+					
+						if(c.isEmpty()) 
+						{
+							c.setEmpty(false);
+							System.out.println("Sound cluster #"+c.getID()+" associated with sound #"+snd.getID()+" was EMPTY! Fixed...");
+						}
+
 						errorDetected++;
 					}
 				}

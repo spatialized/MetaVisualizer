@@ -2072,44 +2072,39 @@ public class WMV_World
 			{
 				boolean visible = true;
 				
-//				if(state.timeFading)		// Time fading in Field Time Mode
-//				{
-					if(settings.clusterLength < 1.f)
+				if(settings.clusterLength < 1.f)			// Get visibility based on Time Mode
+				{
+					visible = false;
+					switch(state.timeMode)
 					{
-						visible = false;
-						switch(state.timeMode)
-						{
-							case 0:
-								visible = true;
-								break;
-								
-							case 1:
-								float first = c.getTimeline().timeline.get( c.getFirstTimeSegmentClusterTimelineID(true) ).getLower().getTime();
-								float last = c.getTimeline().timeline.get( c.getLastTimeSegmentClusterTimelineID(true) ).getUpper().getTime();
-								float center;
-								
-								if(first == last)
-									center = first;
-								else
-									center = first + last * 0.5f;
+					case 0:									// Cluster Time Mode
+						visible = true;
+						break;
 
-								float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
-								float timeDiff = (float)Math.abs(current - center);
-								if(timeDiff <= settings.clusterLength) 
-									visible = true;
-								break;
-								
-							case 2:
-								visible = true;
-								break;
-						}
+					case 1:									// Field Time Mode
+						float first = c.getTimeline().timeline.get( c.getFirstTimeSegmentClusterTimelineID(true) ).getLower().getTime();
+						float last = c.getTimeline().timeline.get( c.getLastTimeSegmentClusterTimelineID(true) ).getUpper().getTime();
+						float center;
+
+						if(first == last)
+							center = first;
+						else
+							center = first + last * 0.5f;
+
+						float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
+						float timeDiff = (float)Math.abs(current - center);
+						if(timeDiff <= settings.clusterLength) 
+							visible = true;
+						break;
+
+					case 2:
+						visible = true;
+						break;
 					}
+				}
 
-					if(visible) 
-						clusters.add(c.getID());
-//				}
-//				else
-//					clusters.add(c.getID());
+				if(visible) 
+					clusters.add(c.getID());
 			}
 		}
 		

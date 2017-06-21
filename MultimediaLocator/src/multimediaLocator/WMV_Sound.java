@@ -37,42 +37,17 @@ public class WMV_Sound extends WMV_Media
 
 		state = new WMV_SoundState();
 
-		if(newSoundMetadata != null)
-		{
-			metadata = newSoundMetadata;
-			state.initialize(metadata);	
-		}
-		else
-			System.out.println("newSoundMetadata == null!");
+		metadata = newSoundMetadata;
+		state.initialize(metadata);	
 
 		if(metadata != null)
 			setGPSLocation( metadata.gpsLocation );
 		else
 			System.out.println("Sound metadata == null!");
+		
 		initializeTime();
 	}  
 
-	/**
-=	 * Update sound geometry and audibility
-	 */
-//	void update(MultimediaLocator ml, WMV_Utilities utilities)
-//	{
-//		if(!isDisabled())			
-//		{
-//			boolean wasVisible = isVisible();
-//			calculateAudibility();
-//			updateFading(ml, wasVisible);
-//			
-//			if(state.loaded)
-//			{
-//				if(state.fadingVolume)
-//					updateFadingVolume();
-//				else
-//					updateVolume(); 								// Tie volume to fading brightness
-//			}
-//		}
-//	}
-	
 	public void calculateAudibility()
 	{
 		setVisible(true);     										 		
@@ -114,14 +89,17 @@ public class WMV_Sound extends WMV_Media
 		if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
 		{
 			if(!state.loaded) loadMedia(ml);
+			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()... visibility was set to true Will call fadeIn()");
 			fadeIn(ml.world.getCurrentField());											// Fade in
+			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()... Will call fadeSoundIn() at same time");
 			fadeSoundIn();
 		}
 
 		if(visibilitySetToFalse)
 		{
-			System.out.println("Sound #"+getID()+" visibility was set to false...");
+			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()...Sound #"+getID()+" visibility was set to false... Will call fadeOut()");
 			fadeOut(ml.world.getCurrentField(), false);
+			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()...Sound #"+getID()+" Will call fadeSoundOut() at same time");
 			fadeSoundOut(false);						// Fade sound out and clear sound after
 		}
 
@@ -136,36 +114,14 @@ public class WMV_Sound extends WMV_Media
 	}
 	
 	/**
-	 * Update volume based on viewer distance from sound
-	 */
-//	public void updateVolume(MultimediaLocator ml)
-//	{
-//		state.volume = getDistanceAudibility();
-//		g.setGain(state.volume);
-//		
-//		int frameLength = getLengthInFrames(30);							// Get video frame length at 30 fps
-//		int framesSinceStart = ml.frameCount - state.playbackStartFrame;	// Frames since start
-//		int framePosition = getPlaybackPositionInFrames(ml.frameCount);		// Playback position, i.e. frameLength - framesSinceStart
-//		
-//		if( framesSinceStart == 0 && !isFadingIn())	// Fade in at first frame
-//			fadeSoundIn();
-//		else if( frameLength - framePosition == ml.world.viewer.getSettings().soundFadingLength  
-//				 && !isFadingOut())	
-//		{
-//			fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
-//		}
-//	}
-	
-	
-	/**
 	 * Update volume fading in at beginning and out at end
 	 * @param ml Parent app
 	 */
 	void updateVolume(MultimediaLocator ml)
 	{
 		int frameLength = getLengthInFrames(30);							// Get video frame length at 30 fps
-//		int framesSinceStart = ml.frameCount - state.playbackStartFrame;	// Frames since start
 		int framesBeforeEnd = getFramesBeforeEnd(ml.frameCount);		// Playback position in frames, i.e. frames from end
+		
 //		if(ml.debugSettings.sound)
 //			System.out.println("Sound.updateVolume()... playing?"+isPlaying()+" frameLength:"+frameLength+" framesBeforeEnd:"+framesBeforeEnd);
 		
@@ -181,19 +137,15 @@ public class WMV_Sound extends WMV_Media
 			}
 			else if( framesBeforeEnd == ml.world.viewer.getSettings().soundFadingLength && !isFadingVolume())	
 			{
-				if(ml.debugSettings.sound)
-					System.out.println("  Sound.updateVolume()... Near end, will fade sound out...");
+				if(ml.debugSettings.sound) System.out.println("  Sound.updateVolume()... Near end, will fade sound out...");
 				fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
 			}
 		}
 		else
 		{
-			if(ml.debugSettings.sound)
-				System.out.println("Sound.updateVolume()... ERROR... video #"+getID()+" has no length!");
+			if(ml.debugSettings.sound) System.out.println("Sound.updateVolume()... ERROR... video #"+getID()+" has no length!");
 		}
 	}
-
-	
 	
 	/**
 	 * Update volume fading 
@@ -216,19 +168,19 @@ public class WMV_Sound extends WMV_Media
 			}
 			else if(state.volume == 0.f)
 			{
-				if(getDebugSettings().sound) System.out.println("updateFadingVolume() for sound #"+getID()+" reached zero... will clear sound...");
-				state.soundFadedOut = true;
 				
 				if(state.pauseAfterSoundFades)
 				{
+					if(getDebugSettings().sound) System.out.println("Sound.updateFadingVolume() id #"+getID()+" pausing sound...");
 					pauseSound();
-					state.pauseAfterSoundFades = false;
+					state.pauseAfterSoundFades = false;			// Reset pauseAfterSoundFades 
 				}
 				else
+				{
+					if(getDebugSettings().sound) System.out.println("Sound.updateFadingVolume() id #"+getID()+" clearing sound...");
+					state.soundFadedOut = true;
 					clearSound();
-
-//				pauseSound();
-//				clearSound();
+				}
 			}
 		}
 	}
@@ -238,19 +190,7 @@ public class WMV_Sound extends WMV_Media
 	 */
 	public void display(MultimediaLocator ml)
 	{
-//		if(getMediaState().showMetadata) displayMetadata(ml);
-//		if(isVisible())
-//		{
-//			System.out.println("getWorldState().showModel:"+getWorldState().showModel+" isHidden():"+isHidden()+" isDisabled():"+isDisabled()+" wtf? "+(getWorldState().showModel && !isHidden() && !!isDisabled()));
-
-//			if(getWorldState().showModel && !isHidden() && !isDisabled())
-//			{
-//				System.out.println("Will call displayModel()...");
-				displayModel(ml);
-//			}
-//			else if(ml.debugSettings.sound || ml.debugSettings.field) 
-//				displayModel(ml);
-//		}
+		displayModel(ml);
 	}
 
 	/**
@@ -260,7 +200,6 @@ public class WMV_Sound extends WMV_Media
 	public void displayModel(MultimediaLocator ml)
 	{
 		ml.noStroke(); 
-		System.out.println("Sound.displayModel()... getViewingBrightness():"+getViewingBrightness());
 
 		ml.stroke(70, 220, 150);
 		ml.fill(70, 220, 150);
@@ -319,7 +258,10 @@ public class WMV_Sound extends WMV_Media
 					play(ml);
 			}
 			else
+			{
+				if(getDebugSettings().sound) System.out.println("Sound.loadMedia() id #"+getID()+" pausing sound...");
 				pauseSound();
+			}
 			
 			state.loaded = true;
 		}
@@ -331,7 +273,7 @@ public class WMV_Sound extends WMV_Media
 	 */
 	public void play(MultimediaLocator ml)
 	{
-		if(getDebugSettings().sound) System.out.println("playSound()...");
+		if(getDebugSettings().sound) System.out.println("Sound.play()...");
 		
 		ac.start();					// Start audio context 
 		state.playing = true;
@@ -387,7 +329,7 @@ public class WMV_Sound extends WMV_Media
 	 */
 	void fadeSoundIn()
 	{
-		if(getDebugSettings().sound) System.out.println("fadeSoundIn()...");
+		if(getDebugSettings().sound) System.out.println("Sound.fadeSoundIn()...");
 		if(state.volume < getWorldSettings().videoMaxVolume)
 		{
 			state.fadingVolume = true;
@@ -404,7 +346,7 @@ public class WMV_Sound extends WMV_Media
 	 */
 	void fadeSoundOut(boolean pause)
 	{
-		if(getDebugSettings().sound) System.out.println("fadeSoundOut()...");
+		if(getDebugSettings().sound) System.out.println("Sound.fadeSoundOut()...");
 		if(state.volume > 0.f)
 		{
 			state.fadingVolume = true;
@@ -496,27 +438,27 @@ public class WMV_Sound extends WMV_Media
 	 * @return Distance visibility multiplier between 0. and 1.
 	 * Find video visibility due to distance (fades away in distance and as camera gets close)
 	 */
-//	public float getDistanceBrightness(WMV_Viewer viewer)
-//	{
-//		float viewDist = getViewingDistance(viewer);
-//		float distVisibility = 1.f;
-//
-//		float farViewingDistance = getViewerSettings().getFarViewingDistance();
-//		float nearViewingDistance = getViewerSettings().getNearViewingDistance();
-//		
-//		if(viewDist > farViewingDistance)
-//		{
-//			float vanishingPoint = farViewingDistance + viewer.p.getSettings().defaultFocusDistance;	// Distance where transparency reaches zero
-//			if(viewDist < vanishingPoint)
-//				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, farViewingDistance, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
-//			else
-//				distVisibility = 0.f;
-//		}
-//		else if(viewDist < nearViewingDistance) 													// Near distance at which transparency reaches zero
-//			distVisibility = PApplet.constrain(PApplet.map(viewDist, getViewerSettings().getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
-//
-//		return distVisibility;
-//	}
+	public float getDistanceBrightness(WMV_Viewer viewer)
+	{
+		float viewDist = getViewingDistance(viewer);
+		float distVisibility = 1.f;
+
+		float farViewingDistance = getViewerSettings().getFarViewingDistance();
+		float nearViewingDistance = getViewerSettings().getNearViewingDistance();
+		
+		if(viewDist > farViewingDistance)
+		{
+			float vanishingPoint = farViewingDistance + viewer.p.getSettings().defaultFocusDistance;	// Distance where transparency reaches zero
+			if(viewDist < vanishingPoint)
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, farViewingDistance, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+			else
+				distVisibility = 0.f;
+		}
+		else if(viewDist < nearViewingDistance) 													// Near distance at which transparency reaches zero
+			distVisibility = PApplet.constrain(PApplet.map(viewDist, getViewerSettings().getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
+
+		return distVisibility;
+	}
 
 	/**
 	 * @return Distance from the panorama to the camera

@@ -336,7 +336,7 @@ public abstract class WMV_Media
 				if(getDebugSettings().video)
 					System.out.println("  f.visibleVideos.size():"+f.visibleVideos.size());
 				break;
-			case 3:
+			case 3:	
 				f.audibleSounds.add(getID());
 				break;
 		}

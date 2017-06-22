@@ -1389,8 +1389,8 @@ public class MultimediaLocator extends PApplet
 	{
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleLibraryWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-//		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-//			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**
@@ -1407,6 +1407,20 @@ public class MultimediaLocator extends PApplet
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
+	/**
+	 * Respond to key pressed in Memory Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void listItemWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleListItemWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+//		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+//			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
 	/**
 	 * Respond to key pressed in Navigation Window
 	 * @param applet Parent App
@@ -1434,21 +1448,7 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
-	
-	/**
-	 * Respond to key pressed in Memory Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void listItemWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleListItemWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-//		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-//			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
+
 	/**
 	 * Respond to key pressed in Statistics Window
 	 * @param applet Parent App
@@ -1477,6 +1477,34 @@ public class MultimediaLocator extends PApplet
 			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
+	/**
+	 * Respond to key pressed in Navigation Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void mapWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Respond to key pressed in Media Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void timelineWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+
 	public void mediaFolderDialog()
 	{
 		display.window.lblLibraryWindowText.setVisible(true);

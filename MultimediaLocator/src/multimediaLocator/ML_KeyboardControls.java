@@ -111,7 +111,7 @@ public class ML_KeyboardControls
 			if(!ml.display.window.showMediaWindow)
 				ml.display.window.openMediaWindow();
 			else
-				ml.display.window.closeGraphicsWindow();
+				ml.display.window.closeMediaWindow();
 		}
 
 		if (key == '#') 
@@ -121,8 +121,24 @@ public class ML_KeyboardControls
 			else
 				ml.display.window.closeStatisticsWindow();
 		}
-		
+
 		if (key == '$') 
+		{
+			if(!ml.display.window.showMapWindow)
+				ml.display.window.openMapWindow();
+			else
+				ml.display.window.closeMapWindow();
+		}
+
+		if (key == '%') 
+		{
+			if(!ml.display.window.showTimelineWindow)
+				ml.display.window.openTimelineWindow();
+			else
+				ml.display.window.closeTimelineWindow();
+		}
+		
+		if (key == '^') 
 		{
 			if(!ml.display.window.showHelpWindow)
 				ml.display.window.openHelpWindow();
@@ -235,11 +251,9 @@ public class ML_KeyboardControls
 
 		if (!input.optionKey && key == 'e')									// Move UP
 			ml.world.viewer.walkUp();
-//			ml.world.viewer.startMoveYTransition(-1);
 
 		if (key == 'c') 													// Move DOWN
 			ml.world.viewer.walkDown();
-//			ml.world.viewer.startMoveYTransition(1);
 
 		if (key == 'C') 													// Choose field from list
 			ml.world.viewer.chooseFieldDialog();
@@ -529,9 +543,7 @@ public class ML_KeyboardControls
 		}
 
 		if (key == 'A') 
-		{
 			ml.world.viewer.setSelection( !ml.world.viewer.inSelectionMode() );
-		}
 
 		if (input.optionKey && key == 'x')
 			ml.world.getCurrentField().deselectAllMedia(false);
@@ -645,13 +657,13 @@ public class ML_KeyboardControls
 	 */
 	public void handleMapViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		if (key == 'a') 
+		if (key == 'A') 
 			ml.display.map2D.panLeft();
-		if (key == 'd') 
+		if (key == 'D') 
 			ml.display.map2D.panRight();
-		if (key == 's') 
+		if (key == 'S') 
 			ml.display.map2D.panDown();
-		if (key == 'w') 
+		if (key == 'W') 
 			ml.display.map2D.panUp();
 
 		if (key == 'j') 
@@ -720,13 +732,13 @@ public class ML_KeyboardControls
 		
 		if (ml.display.libraryViewMode == 0)
 		{
-			if (key == 'a') 
+			if (key == 'A') 
 				ml.display.map2D.panLeft();
-			if (key == 'd') 
+			if (key == 'D') 
 				ml.display.map2D.panRight();
-			if (key == 's') 
+			if (key == 'S') 
 				ml.display.map2D.panDown();
-			if (key == 'w') 
+			if (key == 'W') 
 				ml.display.map2D.panUp();
 			
 			if(key == PApplet.ENTER)
@@ -1138,16 +1150,25 @@ public class ML_KeyboardControls
 	public void handleKeyReleased(WMV_Viewer viewer, ML_Display display, char key, int keyCode)
 	{
 		/* Navigation */
+		if (key == 'a') 
+			viewer.stopMoveXTransition();
+		if (key == 'd') 
+			viewer.stopMoveXTransition();
+		if (key == 's')
+			viewer.stopMoveZTransition();
+		if (key == 'w') 
+			viewer.stopMoveZTransition();
+
 		if(display.displayView == 0)
 		{
-			if (key == 'a') 
-				viewer.stopMoveXTransition();
-			if (key == 'd') 
-				viewer.stopMoveXTransition();
-			if (key == 's')
-				viewer.stopMoveZTransition();
-			if (key == 'w') 
-				viewer.stopMoveZTransition();
+//			if (key == 'a') 
+//				viewer.stopMoveXTransition();
+//			if (key == 'd') 
+//				viewer.stopMoveXTransition();
+//			if (key == 's')
+//				viewer.stopMoveZTransition();
+//			if (key == 'w') 
+//				viewer.stopMoveZTransition();
 			if (key == 'e') 
 				viewer.stopMoveYTransition();
 			if (key == 'c') 
@@ -1159,13 +1180,13 @@ public class ML_KeyboardControls
 		}
 		else if( display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode != 2) )
 		{
-			if (key == 'a') 
+			if (key == 'A') 
 				display.map2D.stopPanning();
-			if (key == 'd') 
+			if (key == 'D') 
 				display.map2D.stopPanning();
-			if (key == 's') 
+			if (key == 'S') 
 				display.map2D.stopPanning();
-			if (key == 'w') 
+			if (key == 'W') 
 				display.map2D.stopPanning();
 		}
 		

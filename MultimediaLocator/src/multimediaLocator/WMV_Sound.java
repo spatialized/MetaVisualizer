@@ -89,17 +89,17 @@ public class WMV_Sound extends WMV_Media
 		if(visibilitySetToTrue && !isFading() && !hasFadedOut() && !getViewerSettings().hideSounds)	// If should be visible and already fading, fade in 
 		{
 			if(!state.loaded) loadMedia(ml);
-			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()... visibility was set to true Will call fadeIn()");
+//			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()... visibility was set to true Will call fadeIn()");
 			fadeIn(ml.world.getCurrentField());											// Fade in
-			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()... Will call fadeSoundIn() at same time");
+//			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()... Will call fadeSoundIn() at same time");
 			fadeSoundIn();
 		}
 
 		if(visibilitySetToFalse)
 		{
-			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()...Sound #"+getID()+" visibility was set to false... Will call fadeOut()");
+//			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()...Sound #"+getID()+" visibility was set to false... Will call fadeOut()");
 			fadeOut(ml.world.getCurrentField(), false);
-			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()...Sound #"+getID()+" Will call fadeSoundOut() at same time");
+//			if(getDebugSettings().sound) System.out.println("Sound.calculateFadingVisibility()...Sound #"+getID()+" Will call fadeSoundOut() at same time");
 			fadeSoundOut(false);						// Fade sound out and clear sound after
 		}
 
@@ -280,8 +280,8 @@ public class WMV_Sound extends WMV_Media
 		state.volume = 0.f;
 		fadeSoundIn();
 		
-		ml.world.getCurrentField().setSoundsPlaying(ml.world.getCurrentField().getSoundsPlaying());
-		ml.world.getCurrentField().setSoundsHeard(ml.world.getCurrentField().getSoundsHeard());
+		ml.world.getCurrentField().setSoundsPlaying(ml.world.getCurrentField().getSoundsPlaying()+1);
+		ml.world.getCurrentField().setSoundsHeard(ml.world.getCurrentField().getSoundsHeard()+1);
 	}
 
 	/**

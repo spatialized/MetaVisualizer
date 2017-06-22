@@ -453,16 +453,16 @@ public class WMV_Field
 				s.calculateAudibility();
 				if(!clusterIsVisible(s.getAssociatedClusterID())) s.setVisible( false );		
 				s.calculateFadingVisibility(ml, wasVisible);
-				if(debugSettings.sound)
-					System.out.println("Field.updateSound()... id #"+s.getID()+" cluster:"+s.getAssociatedClusterID()+" clusterIsVisible():"+clusterIsVisible(s.getAssociatedClusterID()));
-				if(debugSettings.sound)
-					System.out.println("Field.updateSound()... id #"+s.getID()+" s.isVisible():"+s.isVisible());
+//				if(debugSettings.sound)
+//					System.out.println("Field.updateSound()... id #"+s.getID()+" cluster:"+s.getAssociatedClusterID()+" clusterIsVisible():"+clusterIsVisible(s.getAssociatedClusterID()));
+//				if(debugSettings.sound)
+//					System.out.println("Field.updateSound()... id #"+s.getID()+" s.isVisible():"+s.isVisible());
 			}
 			
 			if(s.isLoaded())
 			{
-				if(debugSettings.sound)
-					System.out.println("Field.updateSound()... id #"+s.getID()+" isLoaded: true...");
+//				if(debugSettings.sound)
+//					System.out.println("Field.updateSound()... id #"+s.getID()+" isLoaded: true...");
 				if(s.isFadingVolume())
 					s.updateFadingVolume();								// Update volume due to fading
 				else if(s.isPlaying())

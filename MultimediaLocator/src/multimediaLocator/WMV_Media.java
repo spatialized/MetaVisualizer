@@ -352,7 +352,7 @@ public abstract class WMV_Media
 
 		if(isSeen()) setSeen(false);
 		
-		mState.hideAfterFadingOut = true;	// Hide after fading out
+		if(hide) mState.hideAfterFadingOut = true;	// Hide after fading out
 		startFading(0.f);					// Fade out
 	}
 
@@ -431,6 +431,9 @@ public abstract class WMV_Media
 					
 					if(mState.hideAfterFadingOut)
 					{
+						if(debugSettings.sound)
+							if(mState.mediaType == 3)	// Sound
+								System.out.println("Media.updateFading()... Will hide sound #"+getID()+" mState.hideAfterFadingOut:"+mState.hideAfterFadingOut);
 						setHidden(true);
 						mState.hideAfterFadingOut = false;
 					}

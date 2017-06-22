@@ -453,7 +453,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		
 		fadeSoundIn();
 		
-		ml.world.getCurrentField().setVideosPlaying(ml.world.getCurrentField().getVideosPlaying());
+		ml.world.getCurrentField().setVideosPlaying(ml.world.getCurrentField().getVideosPlaying()+1);
 	}
 	
 	/**

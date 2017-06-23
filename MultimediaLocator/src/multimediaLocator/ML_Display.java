@@ -290,9 +290,10 @@ public class ML_Display
 		ml.fill(0, 0, 255, 255);
 
 		ml.textSize(veryLargeTextSize);
-		ml.text(""+p.getCurrentField().getName(), xPos, yPos, getMessageHUDDistance());
+//		ml.text(""+p.getCurrentField().getName(), xPos, yPos, getMessageHUDDistance());
+		ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistanceInit);
 
-		ml.textSize(largeTextSize);
+		ml.textSize(largeTextSize - 5.f);
 		String strDisplayDate = "Showing All Dates";
 		if(displayDate != -1) strDisplayDate = utilities.getDateAsString(p.getCurrentField().getDate(displayDate));
 
@@ -332,45 +333,54 @@ public class ML_Display
 		{
 			if(p.viewer.getCurrentFieldTimeSegment() >= 0)
 			{
-				WMV_TimeSegment t = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment());		
-				int previous = currentSelectableTimeSegmentID;
-				
-				if(t != null)
-				{
-					currentSelectableTimeSegmentID = getSelectableTimeIDOfFieldTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
-					if(currentSelectableTimeSegmentID != -1)
-					{
-						currentSelectableTimeSegment = selectableTimeSegments.get(currentSelectableTimeSegmentID);
-						currentSelectableTimeSegmentFieldTimeSegmentID = currentSelectableTimeSegment.segment.getFieldTimelineID();						// Set current selectable time (white rectangle) from current field time segment
-					}
-					else
-					{
-						currentSelectableTimeSegmentFieldTimeSegmentID = -1;
-						currentSelectableTimeSegment = null;
-					}
-				}
-				else
-				{
-					currentSelectableTimeSegmentID = -1;
-					currentSelectableTimeSegmentFieldTimeSegmentID = -1;
-					currentSelectableTimeSegment = null;
-				}
-
-				if(updateCurrentSelectableDate)
-				{
-					if(currentSelectableTimeSegmentID != previous && currentSelectableDate > -1)						// If changed field segment and displaying a single date
-					{
-						int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();		// Update date displayed
-						setCurrentSelectableDate(fieldDate);
-					}
-				}
-
-				updateCurrentSelectableTimeSegment = false;
-				updateCurrentSelectableDate = false;
+				updateTimelineSelection(p);
 			}
 			else 
-				System.out.println("updateCurrentSelectableTimeSegment... No current time segment!");
+				System.out.println("Display.updateCurrentSelectableTimeSegment()... ERROR: No current time segment!");
 		}
+	}
+	
+	/**
+	 * Update user selection in Timeline View
+	 * @param p Parent world
+	 */
+	private void updateTimelineSelection(WMV_World p)
+	{
+		WMV_TimeSegment t = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment());		
+		int previous = currentSelectableTimeSegmentID;
+		
+		if(t != null)
+		{
+			currentSelectableTimeSegmentID = getSelectableTimeIDOfFieldTimeSegment(t);						// Set current selectable time (white rectangle) from current field time segment
+			if(currentSelectableTimeSegmentID != -1)
+			{
+				currentSelectableTimeSegment = selectableTimeSegments.get(currentSelectableTimeSegmentID);
+				currentSelectableTimeSegmentFieldTimeSegmentID = currentSelectableTimeSegment.segment.getFieldTimelineID();						// Set current selectable time (white rectangle) from current field time segment
+			}
+			else
+			{
+				currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+				currentSelectableTimeSegment = null;
+			}
+		}
+		else
+		{
+			currentSelectableTimeSegmentID = -1;
+			currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+			currentSelectableTimeSegment = null;
+		}
+
+		if(updateCurrentSelectableDate)
+		{
+			if(currentSelectableTimeSegmentID != previous && currentSelectableDate > -1)						// If changed field segment and displaying a single date
+			{
+				int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();		// Update date displayed
+				setCurrentSelectableDate(fieldDate);
+			}
+		}
+
+		updateCurrentSelectableTimeSegment = false;
+		updateCurrentSelectableDate = false;
 	}
 	
 	/**
@@ -938,9 +948,21 @@ public class ML_Display
 	{
 		float wFactor = 2.55f;
 		float hFactor = 2.55f;
+		float sWidthFactor = 0.775f;
+		float sHeightFactor = 0.775f;
+
+		float x = mouseX * wFactor - screenWidth * sWidthFactor;
+		float y = mouseY * hFactor - screenHeight * sHeightFactor;
 		
-		PVector result = new PVector(mouseX * wFactor - screenWidth * 0.775f, mouseY * hFactor - screenHeight * 0.775f, hudDistanceInit);
-//		p.p.point(result.x, result.y, result.z);		// Show mouse location for debugging
+		PVector result = new PVector(x, y, hudDistanceInit + 166.f);
+		
+		if(ml.debugSettings.mouse)
+		{
+			ml.stroke(155, 0, 255);
+			ml.strokeWeight(5);
+			ml.point(result.x, result.y, result.z);		// Show mouse location for debugging
+		}
+
 		return result;
 	}
 	
@@ -982,6 +1004,7 @@ public class ML_Display
 	public void updateTimelineMouse(WMV_World p)
 	{
 		PVector mouseLoc = getMouse3DLocation(ml.mouseX, ml.mouseY);
+		
 		if(selectableTimeSegments != null)
 		{
 			SelectableTimeSegment timeSelected = getSelectedTimeSegment(mouseLoc);
@@ -1381,7 +1404,7 @@ public class ML_Display
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds( new PVector(24,0,0) );
 
-		System.out.println("Display.reset()... 1");
+//		System.out.println("Display.reset()... 1");
 
 		datelineStart = 0.f;
 		datelineEnd = 0.f;
@@ -1389,8 +1412,8 @@ public class ML_Display
 		updateCurrentSelectableTimeSegment = true;
 		updateCurrentSelectableDate = true;
 		
-		timelineXOffset = -screenWidth/ 1.66f;
-		timelineYOffset = -screenHeight/ 2.f;
+		timelineXOffset = -screenWidth / 1.66f;
+		timelineYOffset = -screenHeight / 2.f;
 		timelineYOffset = 0.f;
 		datelineXOffset = timelineXOffset;
 		datelineYOffset = screenHeight * 0.2f;
@@ -1418,7 +1441,7 @@ public class ML_Display
 		transitionScrollIncrement = 2000.f; 
 		transitionZoomInIncrement = 0.95f; transitionZoomOutIncrement = 1.052f;	
 
-		System.out.println("Display.reset()... 2");
+//		System.out.println("Display.reset()... 2");
 
 		/* Library View */
 		libraryViewMode = 0;
@@ -1436,7 +1459,7 @@ public class ML_Display
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
-		System.out.println("Display.reset()... 3");
+//		System.out.println("Display.reset()... 3");
 
 		centerTextXOffset = screenWidth / 2.f;
 //		leftTextXOffset = 0.f;

@@ -14,11 +14,11 @@ public class ML_DebugSettings
 	public boolean messages = true;				// On screen debug messages
 	
 	/* Data */
-	public boolean ml = true;					// Debug MultimediaLocator class
+	public boolean ml = false;					// Debug MultimediaLocator class
 	public boolean world = false;				// Debug WMV_Field class
 
 	/* Model */
-	public boolean metadata = true;				// Debug WMV_Metadata class
+	public boolean metadata = false;				// Debug WMV_Metadata class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean time = false;				// Debug WMV_Time class
 
@@ -38,6 +38,7 @@ public class ML_DebugSettings
 	/* Other */
 	public boolean map = false;					// Debug WMV_Map class
 	public boolean stitching = false;			// Debug WMV_Stitcher class
-
+	public boolean mouse = true;
+	
 	ML_DebugSettings (){}
 }

@@ -38,7 +38,7 @@ public class ML_DebugSettings
 	/* Other */
 	public boolean map = false;					// Debug WMV_Map class
 	public boolean stitching = false;			// Debug WMV_Stitcher class
-	public boolean mouse = true;
+	public boolean mouse = false;
 	
 	ML_DebugSettings (){}
 }

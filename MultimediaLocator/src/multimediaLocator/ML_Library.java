@@ -134,13 +134,13 @@ public class ML_Library
 					{
 						if(iMetadata.imageWidth > 640)
 						{
-							System.out.println("Library.createNewLibrary()... Image larger than 640 px: "+fs);
+//							System.out.println("Library.createNewLibrary()... Image larger than 640 px: "+fs);
 							if(ml.world.getSettings().copyLargeImageFiles)
 							{
 								if(!largeImagesFolderFile.exists()) largeImagesFolderFile.mkdir();
 								copyFile(filePath, largeImagesFolder);						// Import full size image to large_images
 							}
-							ml.world.utilities.shrinkImage(fs, largeImagesFolder);		// Shrink large image in place 
+							ml.world.utilities.shrinkImage(fs, smallImagesFolder);		// Shrink large image in place 
 						}
 						else if((iMetadata.imageWidth == 640 && iMetadata.imageHeight == 480) ||
 								(iMetadata.imageWidth == 480 && iMetadata.imageHeight == 640))
@@ -174,14 +174,15 @@ public class ML_Library
 
 		String smallVideosFolder = fieldFolder + "/small_videos";
 		String largeVideosFolder = fieldFolder + "/large_videos";
+		File smallVideosFolderFile = new File(smallVideosFolder);
+		File largeVideosFolderFile = new File(largeVideosFolder);
+		
 		ArrayList<String> filesToShrink = new ArrayList<String>();
 		
 		for(String fs : files)
 		{
 			String filePath = fs;
 			File file = new File(filePath);
-			File smallVideosFolderFile = new File(smallVideosFolder);
-			File largeVideosFolderFile = new File(largeVideosFolder);
 			
 			WMV_VideoMetadata vMetadata = ml.metadata.loadVideoMetadata(file, "America/Los_Angeles");
 			if(vMetadata == null)
@@ -199,16 +200,14 @@ public class ML_Library
 //							System.out.println("Library.createNewLibrary()... video larger than 640 px: "+fs);
 							if(ml.world.getSettings().copyLargeVideoFiles)
 							{
-								if(!largeVideosFolderFile.exists())
-									largeVideosFolderFile.mkdir();
+								if(!largeVideosFolderFile.exists()) largeVideosFolderFile.mkdir();
 								copyFile(filePath, largeVideosFolder);						// Import full size video to large_videos
 							}
 							filesToShrink.add(filePath);
 						}
 						else if(vMetadata.videoWidth == 640 && vMetadata.videoHeight == 360)
 						{
-							if(!smallVideosFolderFile.exists())
-								smallVideosFolderFile.mkdir();
+							if(!smallVideosFolderFile.exists()) smallVideosFolderFile.mkdir();
 							copyFile(filePath, smallVideosFolder);						// Import full size video to large_videos
 						}
 						else if(vMetadata.videoWidth < 640)
@@ -223,6 +222,10 @@ public class ML_Library
 				}
 			}
 		}
+		
+		System.out.println("Library.sortVideosBySize()... largeVideosFolderFile.exists: "+largeVideosFolderFile.exists()+" largeVideosFolderFile.isDir? "+largeVideosFolderFile.isDirectory());
+
+		ml.delay(500);
 		
 		if(filesToShrink.size() > 0)
 		{
@@ -622,8 +625,8 @@ public class ML_Library
 			if(!soundsFolder.exists())
 				soundsFolder.mkdir();
 
-//			for(String fs : soundPaths)
-//				copyFile(fs, destination);
+			for(String fs : soundPaths)
+				copyFile(fs, destination);
 		}
 		
 		if(gpsTrackPaths.size() > 0)
@@ -696,7 +699,7 @@ public class ML_Library
 		command.add(filePath);
 		command.add(destination);
 		
-//		System.out.println("copyFile()... command.toString():"+command.toString());
+		System.out.println("copyFile()... command.toString():"+command.toString());
 //		cp -a /source/. /dest/
 //		cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
 

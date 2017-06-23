@@ -854,7 +854,9 @@ public class WMV_World
 	}
 	
 	/**
-	 * Save the current world, field and viewer states and settings to file
+	 * Load field's associated simulation state, i.e. world and viewer states + settings
+	 * @param curField Field to load state for
+	 * @return Field with loaded simulation state
 	 */
 	public WMV_Field loadSimulationState(WMV_Field curField)
 	{

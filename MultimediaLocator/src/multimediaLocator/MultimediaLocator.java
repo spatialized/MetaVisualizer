@@ -328,6 +328,8 @@ public class MultimediaLocator extends PApplet
 	{
 		if(debugSettings.ml && debugSettings.detailed) 
 			System.out.println("ML.initializeField()... fields initialized? "+state.fieldsInitialized);
+
+		int fieldID = f.getID();
 		
 		if(!state.exit)
 		{
@@ -337,10 +339,10 @@ public class MultimediaLocator extends PApplet
 			if(loadState)
 			{
 				WMV_Field loadedField;
-				if(f.getID() + 1 >= world.getFields().size())
-					loadedField = loadField(f, library.getLibraryFolder(), true);	// Load field (load simulation state or, if fails, metadata), and set simulation state if exists
+				if(fieldID + 1 >= world.getFields().size())
+					loadedField = loadFieldSimulationState(f, library.getLibraryFolder(), true);	// Load field (load simulation state or, if fails, metadata), and set simulation state if exists
 				else
-					loadedField = loadField(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
+					loadedField = loadFieldSimulationState(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
 
 				if(world.getFields().size() == 0)				// Reset current viewer field
 					if(world.viewer.getState().field > 0)
@@ -348,12 +350,13 @@ public class MultimediaLocator extends PApplet
 
 				/* Check if field loaded correctly */
 				success = (loadedField != null);												// If a field state was loaded
-				if(success) world.setField(loadedField, f.getID());								// Attempt to set field from saved field state
-				if(success) success = world.getField(f.getID()).getClusters() != null;			// Check that clusters exist
-				if(success) success = (world.getField(f.getID()).getClusters().size() > 0);		
+				if(success) world.setField(loadedField, fieldID);								// Attempt to set field from saved field state
+				if(success) success = world.getField(fieldID).getClusters() != null;			// Check that clusters exist
+				if(success) success = (world.getField(fieldID).getClusters().size() > 0);		
 			}
 			if(success)									/* Loaded field state from disk */
 			{
+				world.getField(fieldID).setDataFolderLoaded(true);
 				if(debugSettings.ml || debugSettings.world) 
 					System.out.println("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
 			}
@@ -362,15 +365,20 @@ public class MultimediaLocator extends PApplet
 				if(debugSettings.ml || debugSettings.world) 
 					System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
 				
-				f.initialize(-100000L);
+				world.getField(fieldID).initialize(-100000L);
+				world.getField(fieldID).setDataFolderLoaded(false);
+				
+//				f.initialize(-100000L);
 				if(setSoundGPSLocations)
 					if(f.getSounds().size() > 0)
 						metadata.setSoundGPSLocations(f, f.getSounds());
 			}
 
-			f.setLoadedState(success);		/* Set field loaded state flag */
+			world.getField(fieldID).setLoadedState(success);		/* Set field loaded state flag */
+//			f.setLoadedState(success);		/* Set field loaded state flag */
 		}
-		f.setLoadedState(false);			/* Set field loaded state flag */
+		world.getField(fieldID).setLoadedState(false);			/* Set field loaded state flag */
+//		f.setLoadedState(false);			/* Set field loaded state flag */
 	}
 	
 	/**
@@ -380,12 +388,10 @@ public class MultimediaLocator extends PApplet
 	 * @param set Whether to set simulation state
 	 * @return True if succeeded, false if failed
 	 */
-	private WMV_Field loadField(WMV_Field f, String libraryFolder, boolean set)
+	private WMV_Field loadFieldSimulationState(WMV_Field f, String libraryFolder, boolean set)
 	{
-		/* Load metadata from media associated with field */
-		boolean savedStateData = metadata.load(f, libraryFolder);
-//		WMV_SimulationState savedState = metadata.load(f, libraryFolder);
-		
+		boolean savedStateData = metadata.load(f, libraryFolder);		/* Load metadata from media associated with field */
+
 		if(savedStateData)		/* Attempt to load simulation state */
 		{
 			if(debugSettings.ml && debugSettings.detailed) System.out.println("ML.loadField()... Simulation State exists...");
@@ -708,7 +714,8 @@ public class MultimediaLocator extends PApplet
 			display.window.btnMakeLibrary.setVisible(false);
 			display.window.lblImport.setVisible(false);
 			display.window.lblCreateLibraryWindowText.setVisible(true);			// Set "Please wait..." text
-			display.window.setCreateLibraryWindowText("Creating library...");
+			display.window.lblCreateLibraryWindowText2.setVisible(true);			// Set "Please wait..." text
+			display.window.setCreateLibraryWindowText("Creating library. Please wait...", "This process can take up to an hour for very large media collections...");
 		}
 		else
 		{
@@ -751,16 +758,8 @@ public class MultimediaLocator extends PApplet
 			}
 		}
 		
-		if(selectedFolder)
+		if(!selectedFolder)
 		{
-//			mediaFolderDialog();
-//			state.selectedMediaFolders = true;			// Media folder has been selected
-//			state.chooseMediaFolders = false;			// No longer choose a media folder
-//			state.chooseLibraryDestination = true;		// Choose library destination folder
-		}
-		else
-		{
-//			state.selectedMediaFolders = false;			// Library in improper format if masks are missing
 			mediaFolderDialog();						// Retry folder prompt
 		}
 	}
@@ -1518,7 +1517,7 @@ public class MultimediaLocator extends PApplet
 	public void libraryDestinationDialog()
 	{
 		state.chooseLibraryDestination = false;
-		display.window.setCreateLibraryWindowText("Please select library destination:");
+		display.window.setCreateLibraryWindowText("Please select library destination...", null);
 
 //		if(display.window.importWindow.isVisible())
 //			display.window.closeCreateLibraryWindow();

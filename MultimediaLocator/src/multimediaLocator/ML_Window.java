@@ -22,7 +22,7 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310;
 	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 875;
-	private int compressedNavigationWindowHeight = 560, compressedMediaWindowHeight = 490;
+	private int compressedNavigationWindowHeight = 580, compressedMediaWindowHeight = 490;
 	private int delayAmount = 100;							// Delay length to avoid G4P library concurrent modification exception
 		
 	/* Windows */
@@ -50,7 +50,7 @@ public class ML_Window
 	
 	/* CreateLibrary Window */
 	public GButton btnImportMediaFolder, btnMakeLibrary;
-	public GLabel lblCreateLibraryWindowText;
+	public GLabel lblCreateLibraryWindowText, lblCreateLibraryWindowText2;
 	private int createLibraryWindowHeight;
 
 	/* List Item Window */
@@ -235,7 +235,7 @@ public class ML_Window
 			mediaWindowWidth = windowWidth;
 		}
 		
-		statisticsWindowHeight = mediumWindowHeight - 120;
+		statisticsWindowHeight = mediumWindowHeight - 60;
 		helpWindowHeight = mediumWindowHeight + 100;
 		mapWindowHeight = shortWindowHeight - 25;
 		timelineWindowHeight = shortWindowHeight - 90;
@@ -1512,7 +1512,7 @@ public class ML_Window
 		btnZoomToViewer.tag = "ZoomToViewer";					// -- Zooms to current cluster
 		btnZoomToViewer.setLocalColorScheme(G4P.CYAN_SCHEME);
 		x += 95;
-		btnZoomOutToField = new GButton(mapWindow, x, y, 65, iVerySmallBoxHeight, "Field");
+		btnZoomOutToField = new GButton(mapWindow, x, y, 70, iVerySmallBoxHeight, "Field");
 		btnZoomOutToField.tag = "ZoomToField";
 		btnZoomOutToField.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -1532,7 +1532,7 @@ public class ML_Window
 		
 		x = 205;
 		y += iMediumBoxHeight * 0.5f;
-		btnZoomOutToWorld = new GButton(mapWindow, x, y, 65, iVerySmallBoxHeight, "World");
+		btnZoomOutToWorld = new GButton(mapWindow, x, y, 70, iVerySmallBoxHeight, "World");
 		btnZoomOutToWorld.tag = "ZoomToWorld";
 		btnZoomOutToWorld.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -1733,9 +1733,10 @@ public class ML_Window
 		lblLibraryWindowText.setText(newText);
 	}
 
-	public void setCreateLibraryWindowText(String newText)
+	public void setCreateLibraryWindowText(String newText1, String newText2)
 	{
-		lblCreateLibraryWindowText.setText(newText);
+		lblCreateLibraryWindowText.setText(newText1);
+		if(newText2 != null) lblCreateLibraryWindowText2.setText(newText2);
 	}
 	
 	/**
@@ -1764,11 +1765,18 @@ public class ML_Window
 		lblImport.setTextBold();
 
 		x = 0;
-		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y, createLibraryWindow.width, 22, "Building media library...");
+		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y + 60, createLibraryWindow.width, 22, "Building media library...");
 		lblCreateLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
 		lblCreateLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblCreateLibraryWindowText.setTextAlign(GAlign.CENTER, null);
 		lblCreateLibraryWindowText.setVisible(false);
+
+		x = 0;
+		lblCreateLibraryWindowText2 = new GLabel(createLibraryWindow, x, y + 120, createLibraryWindow.width, 22, "Please wait. The process may take several minutes...");
+		lblCreateLibraryWindowText2.setLocalColorScheme(G4P.SCHEME_10);
+		lblCreateLibraryWindowText2.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		lblCreateLibraryWindowText2.setTextAlign(GAlign.CENTER, null);
+		lblCreateLibraryWindowText2.setVisible(false);
 
 		x = windowWidth * 3 / 2 - 160;
 		y += 60;

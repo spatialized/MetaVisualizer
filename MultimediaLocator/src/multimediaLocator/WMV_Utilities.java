@@ -1247,7 +1247,7 @@ public class WMV_Utilities
 		command.add("--out");
 		command.add(outputDirectory + "/" + fileName);
 
-		System.out.println("Utilities.shrinkImage()... no directory... command:"+command);
+//		System.out.println("Utilities.shrinkImage()... no directory... command:"+command);
 		commandExecutor = new WMV_Command("", command);
 
 		try {

@@ -4219,6 +4219,16 @@ public class WMV_Field
 	{
 		return state.timeZoneID;
 	}
+	
+	public void setDataFolderLoaded(boolean newValue)
+	{
+		state.dataFolderLoaded = newValue;
+	}
+
+	public boolean getDataFolderLoaded()
+	{
+		return state.dataFolderLoaded;
+	}
 
 	public void setGPSTracks(ArrayList<ArrayList<WMV_Waypoint>> newGPSTracks)
 	{

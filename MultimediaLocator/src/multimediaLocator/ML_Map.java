@@ -35,6 +35,7 @@ public class ML_Map
 {
 	/* Map */
 	private UnfoldingMap satellite, osm, large, small;
+	private final int mapDelay = 150;
 	
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
@@ -137,8 +138,8 @@ public class ML_Map
 		
 		zoomToField(world, world.getCurrentField(), false);			// Start zoomed out on whole field
 
-//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
 		eventDispatcher = new EventDispatcher();
+//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
 		MouseHandler mouseHandler = new MouseHandler(world.ml, satellite);
 		eventDispatcher.addBroadcaster(mouseHandler);
 		eventDispatcher.register(satellite, "pan", satellite.getId());
@@ -182,7 +183,7 @@ public class ML_Map
 		
 		satellite.setBackgroundColor(0);
 		osm.setBackgroundColor(0);
-		p.ml.delay(120);
+		p.ml.delay(mapDelay);
 	
 		satellite.setTweening(true);
 		satellite.setZoomRange(2, 19);
@@ -190,14 +191,14 @@ public class ML_Map
 		osm.setZoomRange(2, 19);
 
 		createFieldClusterMarkers(p);
-		p.ml.delay(120);
+		p.ml.delay(mapDelay);
 		
 		PVector vLoc = p.viewer.getGPSLocation();
 		viewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
 		viewerMarker.setId("viewer");
 		viewerMarker.setDiameter(viewerDiameter);
 		viewerMarker.setColor(p.ml.color(0, 0, 255, 255));
-		p.ml.delay(120);
+		p.ml.delay(mapDelay);
 	}
 
 	/**
@@ -209,12 +210,13 @@ public class ML_Map
 		large = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new BlankMapProvider());
 //		large = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 		small = new UnfoldingMap(p.ml, "Map", 0, 0, zoomMapWidth, zoomMapHeight, true, false, new BlankMapProvider());
+		p.ml.delay(mapDelay);
 		
 		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
 
 		large.setBackgroundColor(0);
 		small.setBackgroundColor(0);
-		p.ml.delay(100);
+		p.ml.delay(mapDelay);
 		
 		large.setTweening(true);
 		large.setZoomRange(2, 21);
@@ -229,7 +231,7 @@ public class ML_Map
 		eventDispatcher.register(large, "zoom", large.getId());
 
 		createBasicMapsClusterMarkers(p);
-		p.ml.delay(100);
+		p.ml.delay(mapDelay);				// -- Scale to number of clusters
 		
 		PVector vLoc = p.viewer.getGPSLocation();
 		plainMapViewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
@@ -550,7 +552,6 @@ public class ML_Map
 				marker.setColor(world.ml.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
 				marker.setHighlightColor(world.ml.color(170, 255, 255, 255.f));
 				marker.setStrokeWeight(0);
-//				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
 				marker.setDiameter((float)Math.sqrt(c.getMediaWeight()) * 3.f);
 				satelliteMarkerManager.addMarker(marker);
 				osmMarkerManager.addMarker(marker);
@@ -604,11 +605,11 @@ public class ML_Map
 	 */
 	public void recreateMarkers(WMV_World world)
 	{
-		createFieldMarkers(world);
-		createFieldClusterMarkers(world);
-		createBasicMapsClusterMarkers(world);
+		createFieldMarkers(world);				// World Mode
 		createWorldClusterMarkers(world);
-		createViewerMarker(world);
+		createFieldClusterMarkers(world);		// Field Mode
+		createBasicMapsClusterMarkers(world);	// Cluster Mode -- In progress
+		createViewerMarker(world);				// Viewer
 	}
 	
 	private void createViewerMarker(WMV_World world)
@@ -622,7 +623,9 @@ public class ML_Map
 		satelliteMarkerManager.addMarker(viewerMarker);				
 		osmMarkerManager.addMarker(viewerMarker);				
 		largeMarkerManager.addMarker(viewerMarker);			
-		smallMarkerManager.addMarker(viewerMarker);				
+		smallMarkerManager.addMarker(viewerMarker);	
+		
+		p.ml.delay(mapDelay);
 	}
 	
 	private void createGPSTrackMarker(WMV_World world, ArrayList<WMV_Waypoint> gpsTrack)
@@ -712,7 +715,10 @@ public class ML_Map
 					for (Marker m : satellite.getMarkers()) 
 						if(m.isSelected()) m.setSelected(false);
 
-					hitMarkers = satellite.getHitMarkers(world.ml.mouseX, world.ml.mouseY);
+					PVector adjustedMouse = getMapMouseLocation(world.ml.mouseX, world.ml.mouseY);
+					
+					hitMarkers = satellite.getHitMarkers(adjustedMouse.x, adjustedMouse.y);
+//					hitMarkers = satellite.getHitMarkers(world.ml.mouseX, world.ml.mouseY);
 					for(Marker marker : hitMarkers)
 					{
 						if(marker != null)
@@ -777,6 +783,66 @@ public class ML_Map
 	}
 	
 	/**
+	 * Get mouse 3D location from screen location
+	 * @param mouseX
+	 * @param mouseY
+	 * @return
+	 */
+	public PVector getMapMouseLocation(float mouseX, float mouseY)
+	{
+//		float wFactor = 2.55f;
+//		float hFactor = 2.55f;
+//		float sWidthFactor = 0.775f;
+//		float sHeightFactor = 0.775f;
+		float offsetXFactor = 0.115f;
+		float offsetYFactor = 0.115f;
+
+		float x = mouseX;
+		float y = mouseY;
+//		float x = mouseX * wFactor - screenWidth * sWidthFactor;
+//		float y = mouseY * hFactor - screenHeight * sHeightFactor;
+
+		float centerX = screenWidth * 0.5f;
+		float centerY = screenHeight * 0.5f;
+		
+		float dispX = x - centerX;
+		float dispY = y - centerY;
+		
+		float offsetX = dispX * offsetXFactor;
+		float offsetY = dispY * offsetYFactor;
+
+		if(p.ml.debugSettings.mouse) System.out.println("Map.getMapMouseLocation()... x:"+x+" y:"+y);
+		
+		x += offsetX;
+		y += offsetY;
+		
+		if(p.ml.debugSettings.mouse || p.ml.debugSettings.map)
+		{
+			System.out.println("	Center x:"+centerX+" y:"+centerY+" Offset x:"+offsetX+" y:"+offsetY +"  result x:"+x+" y:"+y);
+			System.out.println("    screenWidth:"+screenWidth+" screenHeight:"+screenHeight);  	//	Screen width:1280 height:800	1/2=640/400
+
+			p.ml.stroke(155, 155, 0, 255);
+			p.ml.strokeWeight(5);
+			
+			p.ml.point(x, y, 0);
+		}
+		
+		PVector result = new PVector(x, y);			
+//		PVector result = new PVector(x, y, 0);		
+		
+		if(p.ml.debugSettings.mouse)
+		{
+			p.ml.stroke(155, 0, 255);
+			p.ml.strokeWeight(5);
+			p.ml.point(result.x, result.y, result.z);		// Show mouse location for debugging
+			System.out.println("Map Mouse Location: x:"+result.x+" y:"+result.y);
+		}
+
+		return result;
+	}
+
+	
+	/**
 	 * Handle map mouse released event
 	 * @param world Parent world
 	 * @param mouseX Mouse x screen position
@@ -814,8 +880,8 @@ public class ML_Map
 	 */
 	public void initializeWorldMap(WMV_World world, boolean fade)
 	{
-		createFieldMarkers(world);
-		createWorldClusterMarkers(world);
+		createFieldMarkers(world);				// Create markers for each field
+		createWorldClusterMarkers(world);		// Create cluster markers for all fields
 		
 		float highLongitude = -100000, lowLongitude = 100000;
 		float highLatitude = -100000, lowLatitude = 100000;

@@ -18,7 +18,8 @@ public class WMV_FieldState
 	
 	/* Data */
 	public WMV_ModelState model;							// Model state for importing / exporting
-	public ArrayList<ArrayList<WMV_Waypoint>> gpsTracks;				// GPS tracks
+	public ArrayList<ArrayList<WMV_Waypoint>> gpsTracks;	// GPS tracks
+	public boolean dataFolderLoaded = false;					// Whether a data folder was found in field folder
 	
 	/* Time */
 	public WMV_Timeline timeline;							// Field timeline

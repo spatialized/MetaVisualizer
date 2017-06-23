@@ -959,7 +959,7 @@ public class ML_Display
 	 * @param mouseY
 	 * @return
 	 */
-	private PVector getMouse3DLocation(float mouseX, float mouseY)
+	public PVector getMouse3DLocation(float mouseX, float mouseY)
 	{
 		float wFactor = 2.55f;
 		float hFactor = 2.55f;
@@ -980,8 +980,7 @@ public class ML_Display
 		float offsetX = dispX * offsetXFactor;
 		float offsetY = dispY * offsetYFactor;
 
-		if(ml.debugSettings.mouse)
-			System.out.println("Display.getMouse3DLocation()... x:"+x+" y:"+y);
+		if(ml.debugSettings.mouse) System.out.println("Display.getMouse3DLocation()... x:"+x+" y:"+y);
 		
 		x += offsetX;
 		y += offsetY;
@@ -1706,7 +1705,7 @@ public class ML_Display
 				}
 				else if(!ml.state.selectedNewLibraryDestination)
 				{
-					window.setCreateLibraryWindowText("Please select new library destination...");
+					window.setCreateLibraryWindowText("Please select new library destination...", null);
 //					ml.text("Please select new library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistanceInit);
 				}
 			}
@@ -1724,18 +1723,27 @@ public class ML_Display
 				}
 				else
 				{
-					if(!dataFolderFound)
+					if(p.getFields() != null)
 					{
-						window.setLibraryWindowText("Building media library...");
-//						ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+						if(p.getFields().size() > p.ml.state.initializationField)
+						{
+							if(p.getField( p.ml.state.initializationField ).getDataFolderLoaded())
+							{
+								window.setLibraryWindowText("Loading media library...");		// -- Not being called
+								//						System.out.println("Called setLibraryWindowText to:  Loading media library...");
+							}
+							else
+							{
+								window.setLibraryWindowText("Building media library...");
+								//						ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+							}
+						}
+						else
+						{
+							System.out.println("Display.displayStartup()... Called but initializationField >= fields.size()!!  ml.state.fieldsInitialized:"+ml.state.fieldsInitialized);
+							System.out.println("            initializationField:"+ml.state.initializationField+" fields.size():"+ml.world.getFields().size());
+						}
 					}
-					else
-					{
-						window.setLibraryWindowText("Loading media library...");
-//						ml.text("Loading media library...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
-					}
-					
-//					yPos += lineWidthVeryWide * 8.f;
 				}
 			}
 			ml.textSize(largeTextSize);

@@ -1,24 +1,8 @@
 package multimediaLocator;
 
-//import java.io.File;
-//import java.time.ZoneId;
-//import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import g4p_controls.G4P;
-import g4p_controls.GCheckbox;
-
-//import javax.xml.parsers.DocumentBuilder;
-//import javax.xml.parsers.DocumentBuilderFactory;
-//
-//import org.w3c.dom.Document;
-//import org.w3c.dom.Element;
-//import org.w3c.dom.NamedNodeMap;
-//import org.w3c.dom.Node;
-//import org.w3c.dom.NodeList;
-
-//import damkjer.ocd.Camera;
 import processing.core.PApplet;
 import processing.core.PVector;
 import processing.data.FloatList;

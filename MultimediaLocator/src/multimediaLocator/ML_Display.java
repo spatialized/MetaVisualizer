@@ -2031,11 +2031,13 @@ public class ML_Display
 	 */
 	public void setDisplayView(WMV_World p, int newDisplayView)
 	{
-		if(window.setupMapWindow) 
-			if(displayView == 1 && newDisplayView != 1)
-				window.setMapControlsEnabled(false);
+		int oldDisplayView = displayView;
 		
 		displayView = newDisplayView;								// Set display view
+
+		if(window.setupMapWindow) 
+			if(oldDisplayView == 1 && newDisplayView != 1)
+				window.setMapControlsEnabled(false);
 
 		if(p.ml.debugSettings.display) System.out.println("Display.setDisplayView()... displayView:"+displayView);
 		
@@ -2074,7 +2076,7 @@ public class ML_Display
 					window.optTimelineView.setSelected(false);
 				}
 				if(window.setupMapWindow) 
-					window.setMapControlsEnabled(false);
+					window.setMapControlsEnabled(true);
 				break;
 			case 2:													// Time View
 				if(window.setupMLWindow)

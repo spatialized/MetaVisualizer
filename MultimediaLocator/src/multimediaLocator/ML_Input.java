@@ -1,7 +1,11 @@
 package multimediaLocator;
 
+import java.awt.Font;
+
+import g4p_controls.G4P;
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
+import g4p_controls.GLabel;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import processing.core.PApplet;
@@ -58,7 +62,7 @@ public class ML_Input
 			else 						// Interactive Clustering Mode
 			{
 				keyboardInput.handleAllViewsKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
-
+				
 				if(ml.display.inDisplayView())							
 				{
 					if(ml.display.displayView == 1)											 /* Map View */
@@ -127,14 +131,14 @@ public class ML_Input
 			{
 				switch(world.state.timeMode)
 				{
-					case 0:												// Cluster
+					case 0:														// Cluster
 						world.setAllClustersTimeCycleLength(slider.getValueI());
 						break;
-					case 1:												// Field
+					case 1:														// Field
 						world.settings.timeCycleLength = slider.getValueI();
 						world.settings.timeInc = world.settings.timeCycleLength / 30.f;			
 						break;
-					case 2:												// Media
+					case 2:														// Media
 						break;
 					default:
 						break;
@@ -163,8 +167,8 @@ public class ML_Input
 			{
 				world.settings.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
 				world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
-				world.getCurrentField().recalculateGeometries();		// Recalculate media geometries at new locations
-				world.getCurrentField().createClusters();				// Recalculate cluster locations
+				world.getCurrentField().recalculateGeometries();			// Recalculate media geometries at new locations
+				world.getCurrentField().createClusters();					// Recalculate cluster locations
 			}
 		}
 	}
@@ -177,7 +181,7 @@ public class ML_Input
 	 * @param event GEvent that occurred
 	 */
 	public void handleButtonEvent(MultimediaLocator ml, ML_Display display, GButton button, GEvent event) 
-	{ 
+	{
 		if(event == GEvent.CLICKED)
 		{
 			switch(button.tag) 
@@ -187,12 +191,9 @@ public class ML_Input
 					ml.world.viewer.chooseFieldDialog();
 					break;
 				case "SaveWorld":
-					if(ml.world.getFields().size() > 1)
-						ml.world.saveAllSimulationStates();
-					else
-						ml.world.saveCurrentSimulationState();
+					if(ml.world.getFields().size() > 1) ml.world.saveAllSimulationStates();
+					else ml.world.saveCurrentSimulationState();
 					break;
-	
 				case "SaveField":
 					ml.world.saveCurrentSimulationState();
 					break;
@@ -305,7 +306,27 @@ public class ML_Input
 					else
 						ml.world.viewer.teleportToFieldOffset(-1, true, true);
 					break;
-					
+				
+				case "ZoomIn":
+					ml.world.viewer.stopZooming();
+					break;
+				case "ZoomOut":
+					ml.world.viewer.stopZooming();
+					break;
+
+				case "MoveForward":								// -- Disabled
+					ml.world.viewer.stopMoveZTransition();
+					break;
+				case "MoveBackward":							// -- Disabled
+					ml.world.viewer.stopMoveZTransition();
+					break;
+				case "MoveLeft":								// -- Disabled
+					ml.world.viewer.stopMoveXTransition();
+					break;
+				case "MoveRight":								// -- Disabled
+					ml.world.viewer.stopMoveXTransition();
+					break;
+
 				/* Model */
 				case "SubjectDistanceDown":
 					ml.world.getCurrentField().fadeObjectDistances(0.85f);
@@ -350,12 +371,12 @@ public class ML_Input
 					display.window.hideMediaWindow();
 					break;
 	
-				case "ZoomIn":
-					ml.world.viewer.zoomIn();
-					break;
-				case "ZoomOut":
-					ml.world.viewer.zoomOut();
-					break;
+//				case "ZoomIn":
+//					ml.world.viewer.zoomIn();
+//					break;
+//				case "ZoomOut":
+//					ml.world.viewer.zoomOut();
+//					break;
 
 				case "SelectFront":
 					ml.world.viewer.chooseMediaInFront(true);
@@ -401,7 +422,7 @@ public class ML_Input
 				case "OutputFolder":
 					ml.selectFolder("", "outputFolderSelected");
 					break;
-					
+				
 				/* Statistics */
 				case "OpenStatisticsWindow":
 					display.window.openStatisticsWindow();
@@ -415,38 +436,97 @@ public class ML_Input
 					display.setDisplayView(ml.world, 1);
 					break;
 				case "PanUp":
-					ml.display.map2D.panUp();
+					if(ml.display.map2D.isPanning())
+						ml.display.map2D.stopPanning();
 					break;
 				case "PanLeft":
-					ml.display.map2D.panLeft();
+					if(ml.display.map2D.isPanning())
+						ml.display.map2D.stopPanning();
 					break;
 				case "PanDown":
-					ml.display.map2D.panDown();
+					if(ml.display.map2D.isPanning())
+						ml.display.map2D.stopPanning();
 					break;
 				case "PanRight":
-					ml.display.map2D.panRight();
+					if(ml.display.map2D.isPanning())
+						ml.display.map2D.stopPanning();
+					break;
+				case "ZoomToViewer":
+					ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+					break;
+				case "ZoomToField":
+					if(ml.world.getFields().size() > 1)
+						ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);
+					else
+						ml.display.map2D.zoomToWorld(true);
+					break;
+				case "ZoomToWorld":
+					ml.display.map2D.zoomToWorld(true);
+					break;
+//				case "ZoomToSelected":
+//					break;
+			}
+		}
+		
+		if(event == GEvent.PRESSED)
+		{
+			switch(button.tag)
+			{
+				/* Navigation */
+				case "ZoomIn":
+					ml.world.viewer.zoomIn();
+					break;
+				case "ZoomOut":
+					ml.world.viewer.zoomOut();
+					break;
+					
+				/* Map */
+				case "PanUp":
+					if(ml.display.map2D.isPanning())
+						ml.display.map2D.stopPanning();
+					else
+						ml.display.map2D.panUp();
+					break;
+				case "PanLeft":
+					if(ml.display.map2D.isPanning())
+						ml.display.map2D.stopPanning();
+					else
+						ml.display.map2D.panLeft();
+					break;
+				case "PanDown":
+					if(ml.display.map2D.isPanning())
+						ml.display.map2D.stopPanning();
+					else
+						ml.display.map2D.panDown();
+					break;
+				case "PanRight":
+					if(ml.display.map2D.isPanning())
+						ml.display.map2D.stopPanning();
+					else
+						ml.display.map2D.panRight();
 					break;
 			}
 		}
 		
 		if(event == GEvent.RELEASED)
 		{
-			System.out.println("RELEASED EVENT: tag:"+button.tag);
+//			System.out.println("RELEASED EVENT: tag:"+button.tag);
 			
 			switch(button.tag)
 			{
-				case "MoveForward":
-					ml.world.viewer.stopMoveZTransition();
-					break;
-				case "MoveBackward":
-					ml.world.viewer.stopMoveZTransition();
-					break;
-				case "MoveLeft":
-					ml.world.viewer.stopMoveXTransition();
-					break;
-				case "MoveRight":
-					ml.world.viewer.stopMoveXTransition();
-					break;
+//				case "MoveForward":
+//					ml.world.viewer.stopMoveZTransition();
+//					break;
+//				case "MoveBackward":
+//					ml.world.viewer.stopMoveZTransition();
+//					break;
+//				case "MoveLeft":
+//					ml.world.viewer.stopMoveXTransition();
+//					break;
+//				case "MoveRight":
+//					ml.world.viewer.stopMoveXTransition();
+//					break;
+			
 				case "ZoomIn":
 					ml.world.viewer.stopZooming();
 					break;
@@ -460,7 +540,7 @@ public class ML_Input
 				case "PanDown":
 				case "PanRight":
 					display.map2D.stopPanning();
-					System.out.println("Stopped panning... panningLeft:"+display.map2D.panningLeft+ " panningRight:"+display.map2D.panningRight);
+//					System.out.println("Stopped panning... panningLeft:"+display.map2D.panningLeft+ " panningRight:"+display.map2D.panningRight);
 					break;
 			}
 		}

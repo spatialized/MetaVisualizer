@@ -1431,7 +1431,6 @@ public class MultimediaLocator extends PApplet
 	public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
 //		System.out.println("mediaWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction());
-//		System.out.println(" fyi  KeyEvent.RELEASE:"+processing.event.KeyEvent.RELEASE+"   KeyEvent.PRESS:"+processing.event.KeyEvent.PRESS);
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 //		else

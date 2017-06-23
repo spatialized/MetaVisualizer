@@ -91,62 +91,6 @@ public class ML_KeyboardControls
 			}
 		}
 
-//		if (key == ' ') 
-//		{
-//			if(ml.display.window.showMLWindow)
-//				ml.display.window.hideMLWindow();
-//			else
-//				ml.display.window.openMLWindow();
-//		}
-//
-//		if (key == '!') 
-//		{
-//			if(!ml.display.window.showNavigationWindow)
-//				ml.display.window.openNavigationWindow();
-//			else
-//				ml.display.window.closeNavigationWindow();
-//		}
-//
-//		if (key == '@')
-//		{
-//			if(!ml.display.window.showMediaWindow)
-//				ml.display.window.openMediaWindow();
-//			else
-//				ml.display.window.closeMediaWindow();
-//		}
-//
-//		if (key == '#') 
-//		{
-//			if(!ml.display.window.showStatisticsWindow)
-//				ml.display.window.openStatisticsWindow();
-//			else
-//				ml.display.window.closeStatisticsWindow();
-//		}
-//
-//		if (key == '$') 
-//		{
-//			if(!ml.display.window.showMapWindow)
-//				ml.display.window.openMapWindow();
-//			else
-//				ml.display.window.closeMapWindow();
-//		}
-//
-//		if (key == '%') 
-//		{
-//			if(!ml.display.window.showTimelineWindow)
-//				ml.display.window.openTimelineWindow();
-//			else
-//				ml.display.window.closeTimelineWindow();
-//		}
-//		
-//		if (key == '^') 
-//		{
-//			if(!ml.display.window.showHelpWindow)
-//				ml.display.window.openHelpWindow();
-//			else
-//				ml.display.window.closeHelpWindow();
-//		}
-
 		if (key == '0')
 			ml.state.sphericalView = !ml.state.sphericalView;
 		
@@ -651,7 +595,35 @@ public class ML_KeyboardControls
 	 */
 	public void handleMapViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		if (ml.display.mapViewMode == 0)		// World Mode Commands
+		if(key == 'L')
+		{
+			ml.display.setMapViewMode(0);
+			if(ml.display.window.setupMapWindow) 
+			{
+				ml.display.window.optMapViewWorldMode.setEnabled(true);
+				ml.display.window.optMapViewFieldMode.setEnabled(true);
+				ml.display.window.optMapViewWorldMode.setSelected(true);	
+				ml.display.window.optMapViewFieldMode.setSelected(false);	
+				ml.display.window.optMapViewWorldMode.setEnabled(ml.display.displayView == 1);
+				ml.display.window.optMapViewFieldMode.setEnabled(ml.display.displayView == 1);
+			}
+		}
+	
+		if(key == 'F')
+		{
+			ml.display.setMapViewMode(1);
+			if(ml.display.window.setupMapWindow) 
+			{
+				ml.display.window.optMapViewWorldMode.setEnabled(true);
+				ml.display.window.optMapViewFieldMode.setEnabled(true);
+				ml.display.window.optMapViewWorldMode.setSelected(false);	
+				ml.display.window.optMapViewFieldMode.setSelected(true);	
+				ml.display.window.optMapViewWorldMode.setEnabled(ml.display.displayView == 1);
+				ml.display.window.optMapViewFieldMode.setEnabled(ml.display.displayView == 1);
+			}
+		}
+
+		if(ml.display.mapViewMode == 0)		// World Mode Commands
 		{
 			if(key == PApplet.ENTER)
 			{
@@ -674,7 +646,7 @@ public class ML_KeyboardControls
 		{
 //			if (key == 'c')
 //			{
-////				ml.display.map2D.resetMapZoom(ml.world, true);
+////			ml.display.map2D.resetMapZoom(ml.world, true);
 //				ml.startInteractiveClustering();
 //			}
 
@@ -731,12 +703,10 @@ public class ML_KeyboardControls
 			ml.world.viewer.moveToRandomCluster(true, false);				/* Teleport to random cluster */
 
 		if (key == 'c')
-		{
 			ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
-		}
 
-		if (key == 'z')
-			ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);
+//		if (key == 'z')
+//			ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);
 		
 //		if (ml.display.libraryViewMode == 0)
 //		{

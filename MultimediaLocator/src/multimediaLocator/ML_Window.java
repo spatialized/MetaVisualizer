@@ -178,22 +178,22 @@ public class ML_Window
 	
 	/* Sizing */
 	private int iVerySmallBoxHeight = 22;		/* GUI box object height */
-	private int iSmallBoxHeight = 27;
+	private int iSmallBoxHeight = 28;
 	private int iMediumBoxHeight = 30;	
 	private int iLargeBoxHeight = 33;
 	private int iVeryLargeBoxHeight = 39;
 
 	/* Text */
-	int iVeryLargeTextSize = 20;		/* Button text sizes */
+	int iVeryLargeTextSize = 20;				/* Button text sizes */
 	int iLargeTextSize = 18;			
 	int iMediumTextSize = 16;
 	int iSmallTextSize = 14;
 	int iVerySmallTextSize = 12;
-	float fLargeTextSize = 18.f;		/* Window text sizes */
+	float fLargeTextSize = 18.f;				/* Window text sizes */
 	float fMediumTextSize = 16.f;
 	float fSmallTextSize = 14.f;
 
-	float lineWidthVeryWide = 18.f;		/* Window text line width */
+	float lineWidthVeryWide = 18.f;				/* Window text line width */
 	float lineWidthWide = 16.f;
 	float lineWidth = 14.f;
 
@@ -219,7 +219,7 @@ public class ML_Window
 
 		if(world.ml.displayHeight < tallWindowHeight + 25)
 		{
-			System.out.println("world.ml.displayHeight:"+world.ml.displayHeight+" will compress windows...");
+//			System.out.println("world.ml.displayHeight:"+world.ml.displayHeight+" will compress windows...");
 			compressTallWindows = true;
 			navigationWindowHeight = compressedNavigationWindowHeight;		// 960	
 			navigationWindowWidth = windowWidth * 2;
@@ -563,6 +563,7 @@ public class ML_Window
 		btnZoomOut = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "Out (z)");
 		btnZoomOut.tag = "ZoomOut";
 		btnZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnZoomOut.fireAllEvents(true);
 
 		if(compressTallWindows) x = 135;
 		else x = 0;
@@ -578,6 +579,7 @@ public class ML_Window
 		btnZoomIn = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "In (q)");
 		btnZoomIn.tag = "ZoomIn";
 		btnZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnZoomIn.fireAllEvents(true);
 
 		if(world.getFields() != null)
 		{
@@ -1445,11 +1447,11 @@ public class ML_Window
 //		public GToggleGroup tgMapViewMode;	
 		x = 40;
 		y += iVeryLargeBoxHeight;
-		optMapViewFieldMode = new GOption(mapWindow, x, y, 115, iVerySmallBoxHeight, "Field (7)");
+		optMapViewFieldMode = new GOption(mapWindow, x, y, 115, iVerySmallBoxHeight, "Field (F)");
 		optMapViewFieldMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
 		optMapViewFieldMode.setLocalColorScheme(G4P.SCHEME_10);
 		optMapViewFieldMode.tag = "SetMapViewFieldMode";
-		optMapViewWorldMode = new GOption(mapWindow, x += 125, y, 115, iVerySmallBoxHeight, "World (9)");
+		optMapViewWorldMode = new GOption(mapWindow, x += 125, y, 115, iVerySmallBoxHeight, "World (L)");
 		optMapViewWorldMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
 		optMapViewWorldMode.setLocalColorScheme(G4P.SCHEME_10);
 		optMapViewWorldMode.tag = "SetMapViewWorldMode";
@@ -1506,12 +1508,12 @@ public class ML_Window
 		btnPanDown.fireAllEvents(true);
 
 		x = 110;
-		y += iLargeBoxHeight;
-		btnZoomToViewer = new GButton(mapWindow, x, y, 80, iVerySmallBoxHeight, "Viewer");
-		btnZoomToViewer.tag = "ZoomToViewer";
+		y += iVeryLargeBoxHeight;
+		btnZoomToViewer = new GButton(mapWindow, x, y, 75, iVerySmallBoxHeight, "Viewer");
+		btnZoomToViewer.tag = "ZoomToViewer";					// -- Zooms to current cluster
 		btnZoomToViewer.setLocalColorScheme(G4P.CYAN_SCHEME);
 		x += 95;
-		btnZoomOutToField = new GButton(mapWindow, x, y, 70, iVerySmallBoxHeight, "Field");
+		btnZoomOutToField = new GButton(mapWindow, x, y, 65, iVerySmallBoxHeight, "Field");
 		btnZoomOutToField.tag = "ZoomToField";
 		btnZoomOutToField.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -1522,13 +1524,16 @@ public class ML_Window
 		lblZoomTo.setFont(new Font("Monospaced", Font.ITALIC, iMediumTextSize));
 		lblZoomTo.setTextBold();
 
-		x = 110;
+//		x = 110;
+//		y += iMediumBoxHeight * 0.5f;
+//		btnZoomToSelected = new GButton(mapWindow, x, y, 80, iVerySmallBoxHeight, "Selected");
+//		btnZoomToSelected.tag = "ZoomToSelected";
+//		btnZoomToSelected.setLocalColorScheme(G4P.CYAN_SCHEME);
+//		x += 95;
+		
+		x = 205;
 		y += iMediumBoxHeight * 0.5f;
-		btnZoomToSelected = new GButton(mapWindow, x, y, 80, iVerySmallBoxHeight, "Selected");
-		btnZoomToSelected.tag = "ZoomToSelected";
-		btnZoomToSelected.setLocalColorScheme(G4P.CYAN_SCHEME);
-		x += 95;
-		btnZoomOutToWorld = new GButton(mapWindow, x, y, 70, iVerySmallBoxHeight, "World");
+		btnZoomOutToWorld = new GButton(mapWindow, x, y, 65, iVerySmallBoxHeight, "World");
 		btnZoomOutToWorld.tag = "ZoomToWorld";
 		btnZoomOutToWorld.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -1555,13 +1560,13 @@ public class ML_Window
 
 		if(enable)		// Enable map controls
 		{
-			btnMapView.setEnabled(true);
+//			btnMapView.setEnabled(true);
 			btnPanUp.setEnabled(true);
 			btnPanLeft.setEnabled(true);
 			btnPanDown.setEnabled(true);
 			btnPanRight.setEnabled(true);
 			btnZoomToViewer.setEnabled(true);
-			btnZoomToSelected.setEnabled(true);
+//			btnZoomToSelected.setEnabled(true);
 			btnZoomOutToField.setEnabled(true);
 			btnZoomOutToWorld.setEnabled(true);
 			optMapViewFieldMode.setEnabled(true);
@@ -1569,13 +1574,13 @@ public class ML_Window
 		}
 		else			// Disable map controls
 		{
-			btnMapView.setEnabled(false);
+//			btnMapView.setEnabled(false);
 			btnPanUp.setEnabled(false);
 			btnPanLeft.setEnabled(false);
 			btnPanDown.setEnabled(false);
 			btnPanRight.setEnabled(false);
 			btnZoomToViewer.setEnabled(false);
-			btnZoomToSelected.setEnabled(false);
+//			btnZoomToSelected.setEnabled(false);
 			btnZoomOutToField.setEnabled(false);
 			btnZoomOutToWorld.setEnabled(false);
 			optMapViewFieldMode.setEnabled(false);
@@ -1615,7 +1620,7 @@ public class ML_Window
 		btnTimeView.setLocalColorScheme(G4P.GOLD_SCHEME);
 
 		x = 70;
-		y += iVeryLargeBoxHeight;
+		y += iVeryLargeBoxHeight + 5;
 		btnTimelineReverse = new GButton(timelineWindow, x, y, 90, iVerySmallBoxHeight, "Reverse");
 		btnTimelineReverse.tag = "TimelineReverse";
 		btnTimelineReverse.setLocalColorScheme(G4P.CYAN_SCHEME);

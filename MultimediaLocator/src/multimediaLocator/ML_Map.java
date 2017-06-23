@@ -174,7 +174,7 @@ public class ML_Map
 	 */
 	private void initializeSatelliteMap(WMV_World p)
 	{
-		System.out.println("initializeSatelliteMap()...");
+//		System.out.println("initializeSatelliteMap()...");
 		satellite = new UnfoldingMap(p.ml, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 		osm = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
 
@@ -207,11 +207,10 @@ public class ML_Map
 	private void initializeBasicMaps(WMV_World p)
 	{
 		large = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new BlankMapProvider());
-//		large = new UnfoldingMap(p.p, "Map", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
+//		large = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 		small = new UnfoldingMap(p.ml, "Map", 0, 0, zoomMapWidth, zoomMapHeight, true, false, new BlankMapProvider());
 		
 		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
-//		plainMapCenter = new Location(gpsLoc.y, gpsLoc.x);
 
 		large.setBackgroundColor(0);
 		small.setBackgroundColor(0);
@@ -383,6 +382,21 @@ public class ML_Map
 			PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
 			zoomAndPanMapTo(satellite, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
 			zoomAndPanMapTo(osm, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
+		}
+	}
+	
+	public void zoomToWorld(boolean fade)
+	{
+		if(fade)
+		{
+			satellite.zoomAndPanToFit(allClusterLocations);
+		}
+		else
+		{
+			satellite.setTweening(false);
+			satellite.zoomAndPanToFit(allClusterLocations);
+			satellite.zoomAndPanToFit(allClusterLocations);		// Not a typo, not reliable on first call
+			satellite.setTweening(true);
 		}
 	}
 
@@ -821,17 +835,7 @@ public class ML_Map
 //		worldMapCenter = new Location(highLatitude, highLongitude);				// -- Obsolete
 		setSelectedField( world, world.getCurrentField().getID() );
 
-		if(fade)
-		{
-			satellite.zoomAndPanToFit(allClusterLocations);
-		}
-		else
-		{
-			satellite.setTweening(false);
-			satellite.zoomAndPanToFit(allClusterLocations);
-			satellite.zoomAndPanToFit(allClusterLocations);		// Not a typo, not reliable on first call
-			satellite.setTweening(true);
-		}
+		zoomToWorld(fade);
 		
 		p.initializedWorldMap = true;
 	}

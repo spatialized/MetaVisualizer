@@ -1277,9 +1277,11 @@ public class MultimediaLocator extends PApplet
 	public void mouseReleased() {
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseReleased(mouseX, mouseY);
-		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
+
+//		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
+		if(display.displayView == 1)				// Map View
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
-		else if(display.displayView == 2)
+		else if(display.displayView == 2)			// Timeline View
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 	}
 	
@@ -1660,7 +1662,8 @@ public class MultimediaLocator extends PApplet
 	
 	private void showMainWindow()
 	{
-		setSurfaceSize(appWidth, appHeight);
+//		setSurfaceSize(appWidth, appHeight);
+		setSurfaceSize(displayWidth, displayHeight);
 		windowVisible = true;
 	}
 
@@ -1690,13 +1693,17 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void settings() 
 	{
-		size(appWidth, appHeight, processing.core.PConstants.P3D);		// MacBook Pro
-//		size(1680, 960, processing.core.PConstants.P3D);		// MacBook Pro
-		
-//		PJOGL.setIcon("resources/images/icon.png");			// -- Needed?
+//		size(appWidth, appHeight, processing.core.PConstants.P3D);						// MacBook Pro-size Window
+//		size(displayWidth, displayHeight, processing.core.PConstants.P3D);				// Screen size Window
+//		size(1680, 960, processing.core.PConstants.P3D);								
 		
 //		size(1980, 1080, processing.core.PConstants.P3D);		// 
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
+
+		fullScreen(processing.core.PConstants.P3D);										// Full screen
+//		fullScreen(processing.core.PConstants.P3D, processing.core.PConstants.SPAN);	// Multi monitor setup
+		
+//		PJOGL.setIcon("resources/images/icon.png");				// -- Obsolete, doesn't work in JAR
 	}
 
 	/** 

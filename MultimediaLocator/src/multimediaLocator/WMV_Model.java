@@ -479,20 +479,21 @@ public class WMV_Model
 		 if (state.highSoundDate > state.highDate)
 			 state.highDate = state.highSoundDate;
 
-		 if (debugSettings.metadata) 							// Display results for debugging
+		 if (debugSettings.media) 							// Display results for debugging
 		 {
-			 if(state.highImageTime != -1000000.f) System.out.println("High Image Time:" + state.highImageTime);
-			 if(state.highImageDate != -1000000.f) System.out.println("High Image Date:" + state.highImageDate);
-			 if(state.highPanoTime != -1000000.f) System.out.println("High Panorama Time:" + state.highPanoTime);
-			 if(state.highPanoDate != -1000000.f) System.out.println("High Panorama Date:" + state.highPanoDate);
-			 if(state.highVideoTime != -1000000.f) System.out.println("High Video Time:" + state.highVideoTime);
-			 if(state.highVideoDate != -1000000.f) System.out.println("High Video Date:" + state.highVideoDate);
-			 if(state.highSoundTime != -1000000.f) System.out.println("High Sound Time:" + state.highSoundTime);
-			 if(state.highSoundDate != -1000000.f) System.out.println("High Sound Date:" + state.highSoundDate);
-			 if(state.longestImageDayLength != -1000000.f) System.out.println("Longest Image Day Length:" + longestImageDayLength);
-			 if(state.longestPanoDayLength != -1000000.f) System.out.println("Longest Panorama Day Length:" + state.longestPanoDayLength);
-			 if(state.longestVideoDayLength != -1000000.f) System.out.println("Longest Video Day Length:" + state.longestVideoDayLength);
-			 if(state.longestSoundDayLength != -1000000.f) System.out.println("Longest Sound Day Length:" + state.longestSoundDayLength);
+			 System.out.println("Model.analyzeTimeDimensions():");
+			 if(state.highImageTime != -1000000.f) System.out.println(" High Image Time:" + state.highImageTime);
+			 if(state.highImageDate != -1000000.f) System.out.println(" High Image Date:" + state.highImageDate);
+			 if(state.highPanoTime != -1000000.f) System.out.println(" High Panorama Time:" + state.highPanoTime);
+			 if(state.highPanoDate != -1000000.f) System.out.println(" High Panorama Date:" + state.highPanoDate);
+			 if(state.highVideoTime != -1000000.f) System.out.println(" High Video Time:" + state.highVideoTime);
+			 if(state.highVideoDate != -1000000.f) System.out.println(" High Video Date:" + state.highVideoDate);
+			 if(state.highSoundTime != -1000000.f) System.out.println(" High Sound Time:" + state.highSoundTime);
+			 if(state.highSoundDate != -1000000.f) System.out.println(" High Sound Date:" + state.highSoundDate);
+//			 if(state.longestImageDayLength != -1000000.f) System.out.println(" Longest Image Day Length:" + longestImageDayLength);
+//			 if(state.longestPanoDayLength != -1000000.f) System.out.println(" Longest Panorama Day Length:" + state.longestPanoDayLength);
+//			 if(state.longestVideoDayLength != -1000000.f) System.out.println( "Longest Video Day Length:" + state.longestVideoDayLength);
+//			 if(state.longestSoundDayLength != -1000000.f) System.out.println(" Longest Sound Day Length:" + state.longestSoundDayLength);
 		 }
 	 }
 

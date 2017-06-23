@@ -33,13 +33,7 @@ public class WMV_Field
 	private WMV_Model model;					// Model of environment
 
 	/* Model */
-	private ArrayList<PVector> border;					// Convex hull (border) of media points
-
-	/* Media */
-	public List<Integer> visibleImages;
-	public List<Integer> visiblePanoramas;
-	public List<Integer> visibleVideos;
-	public List<Integer> audibleSounds;
+	private ArrayList<PVector> border;			// Convex hull (border) of media points in field
 
 	/* Time */
 	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
@@ -58,6 +52,12 @@ public class WMV_Field
 	private Cluster dendrogramTop;						// Top cluster of the dendrogram
 	private String[] names;								// Media names
 	private double[][] distances;						// Media distances
+	
+	/* Media */
+	public List<Integer> visibleImages;			// Currently visible images
+	public List<Integer> visiblePanoramas;		// Currently visible panoramas
+	public List<Integer> visibleVideos;			// Currently visible videos
+	public List<Integer> audibleSounds;			// Currently audible sounds
 
 	/**
 	 * Constructor for media field
@@ -420,13 +420,13 @@ public class WMV_Field
 					for(int id : getViewerState().getClustersVisible())
 						if( v.getMediaState().getClusterID() == id && !v.isLoaded())
 						{
-							System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID());
+//							System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID());
 							v.loadMedia(ml); 					// Load video frames from disk
 						}
 				}
 				else if( v.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !v.isLoaded() )
 				{
-					System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible());
+//					System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible());
 					v.loadMedia(ml); 							// Load video frames from disk
 				}
 			}
@@ -1285,7 +1285,12 @@ public class WMV_Field
 		
 		int repairedCount = verifyClusterAssociations(true);		// Verify and repair cluster associations
 		if(debugSettings.ml || debugSettings.media)
-			System.out.println("Field.verifyClusterAssociations()... Errors repaired: "+repairedCount);
+			{
+			if(repairedCount > 0)
+				System.out.println("Field.verifyClusterAssociations()... Errors repaired: "+repairedCount);
+			else
+				System.out.println("Field.verifyClusterAssociations() finished with no errors..."+repairedCount);
+			}
 	}
 
 	/**

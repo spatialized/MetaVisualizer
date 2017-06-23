@@ -1455,7 +1455,7 @@ public class WMV_Viewer
 	 */
 	public void turnXToAngle(float angle, int turnDirection)
 	{
-		System.out.println("turnXToAngle()... angle:"+angle);
+		if(debugSettings.viewer) System.out.println("Viewer.turnXToAngle()... angle:"+angle);
 		if(!state.turningX)
 		{
 			state.turnXStart = getXOrientation();
@@ -1480,7 +1480,7 @@ public class WMV_Viewer
 	 */
 	public void turnYToAngle(float angle, int turnDirection)
 	{
-		System.out.println("turnYToAngle()... angle:"+angle);
+		if(debugSettings.viewer) System.out.println("ViewerturnYToAngle()... angle:"+angle);
 
 		if(!state.turningY)
 		{

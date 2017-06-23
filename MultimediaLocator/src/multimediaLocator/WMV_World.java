@@ -126,7 +126,7 @@ public class WMV_World
 	public void updateBehavior()
 	{
 		updateViewerAttraction();										/* Attract the viewer */
-		if(ml.display.displayView != 4) viewer.updateNavigation();		/* Update navigation */
+		if(ml.display.displayView < 3) viewer.updateNavigation();		/* Update navigation */
 		if(state.fadingAlpha)  updateFadingAlpha();						/* Update global alpha fading */
 		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();		/* Update grid fading */
 		updateTimeBehavior();											/* Update time cycle */
@@ -248,8 +248,8 @@ public class WMV_World
 	 */
 	public void display2D()
 	{
-		ml.display.display(ml);									/* Display 2D Graphics */
-		if(ml.display.displayView == 4) viewer.showHUD();			/* Set Media View camera angle */
+		ml.display.display(ml);										/* Display 2D Graphics */
+		if(ml.display.displayView == 4) viewer.showHUD();			/* Set camera angle in Media View */
 	}
 
 	/**

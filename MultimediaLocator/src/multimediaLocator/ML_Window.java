@@ -268,8 +268,8 @@ public class ML_Window
 	 */
 	public void setupMLWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - mlWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
+		int topEdge = world.ml.displayHeight / 2 - mlWindowHeight / 2;
 		
 		mlWindow = GWindow.getWindow(world.ml, "Main Menu", leftEdge, topEdge, windowWidth, mlWindowHeight, PApplet.JAVA2D);
 		mlWindow.addData(new ML_WinData());
@@ -422,8 +422,8 @@ public class ML_Window
 	 */
 	public void setupNavigationWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - navigationWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
+		int topEdge = world.ml.displayHeight / 2 - navigationWindowHeight / 2;
 		
 		navigationWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth, navigationWindowHeight, PApplet.JAVA2D);
 		navigationWindow.setVisible(true);
@@ -855,8 +855,8 @@ public class ML_Window
 	 */
 	public void setupMediaWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - mediaWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
+		int topEdge = world.ml.displayHeight / 2 - mediaWindowHeight / 2;
 
 		mediaWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth, mediaWindowHeight, PApplet.JAVA2D);
 		mediaWindow.setVisible(true);
@@ -1207,8 +1207,8 @@ public class ML_Window
 	 */
 	public void setupStatisticsWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth * 3 / 4;
-		int topEdge = world.ml.appHeight / 2 - statisticsWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth * 3 / 4;
+		int topEdge = world.ml.displayHeight / 2 - statisticsWindowHeight / 2;
 
 		statisticsWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth * 3 / 2, statisticsWindowHeight, PApplet.JAVA2D);
 		statisticsWindow.setVisible(true);
@@ -1260,8 +1260,8 @@ public class ML_Window
 	 */
 	public void setupHelpWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth * 2;
-		int topEdge = world.ml.appHeight / 2 - helpWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth * 2;
+		int topEdge = world.ml.displayHeight / 2 - helpWindowHeight / 2;
 
 		helpWindow = GWindow.getWindow(world.ml, "Help", leftEdge, topEdge, windowWidth * 4, helpWindowHeight, PApplet.JAVA2D);
 		helpWindow.setVisible(true);
@@ -1303,8 +1303,8 @@ public class ML_Window
 	 */
 	public void setupMapWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - mapWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
+		int topEdge = world.ml.displayHeight / 2 - mapWindowHeight / 2;
 
 		mapWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth, mapWindowHeight, PApplet.JAVA2D);
 		mapWindow.setVisible(true);
@@ -1329,6 +1329,8 @@ public class ML_Window
 		btnMapView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnMapView.setLocalColorScheme(G4P.GOLD_SCHEME);
 
+		// -- Map View Mode Selection
+		
 		x = 125;
 		y += iLargeBoxHeight;
 		btnPanUp = new GButton(mapWindow, x, y, 60, iVerySmallBoxHeight, "Up (W)");
@@ -1403,8 +1405,8 @@ public class ML_Window
 	 */
 	public void setupTimelineWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.appHeight / 2 - timelineWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
+		int topEdge = world.ml.displayHeight / 2 - timelineWindowHeight / 2;
 
 		timelineWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth, timelineWindowHeight, PApplet.JAVA2D);
 		timelineWindow.setVisible(true);
@@ -1487,8 +1489,8 @@ public class ML_Window
 	 */
 	public void openLibraryWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth;
-		int topEdge = world.ml.appHeight / 2 - libraryWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth;
+		int topEdge = world.ml.displayHeight / 2 - libraryWindowHeight / 2;
 		
 		libraryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, libraryWindowHeight, PApplet.JAVA2D);
 		
@@ -1549,8 +1551,8 @@ public class ML_Window
 	 */
 	public void setupImportWindow()
 	{
-		int leftEdge = world.ml.appWidth / 2 - windowWidth * 3 / 2;
-		int topEdge = world.ml.appHeight / 2 - importWindowHeight / 2;
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth * 3 / 2;
+		int topEdge = world.ml.displayHeight / 2 - importWindowHeight / 2;
 		
 		importWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 3, 
 				   importWindowHeight, PApplet.JAVA2D);
@@ -1599,8 +1601,8 @@ public class ML_Window
 			listItemWindowSelectedItem = 0;
 			listItemWindowResultCode = resultCode;					// Flag indicating what to do with dialog result value
 			
-			int leftEdge = world.ml.appWidth / 2 - windowWidth;
-			int topEdge = world.ml.appHeight / 2 - listItemWindowHeight / 2;
+			int leftEdge = world.ml.displayWidth / 2 - windowWidth;
+			int topEdge = world.ml.displayHeight / 2 - listItemWindowHeight / 2;
 
 			listItemWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, listItemWindowHeight, PApplet.JAVA2D);
 
@@ -1637,8 +1639,8 @@ public class ML_Window
 			textEntryWindowSelectedItem = 0;
 			textEntryWindowResultCode = resultCode;					// Flag indicating what to do with dialog result value
 			
-			int leftEdge = world.ml.appWidth / 2 - windowWidth * 3 / 2;
-			int topEdge = world.ml.appHeight / 2 - importWindowHeight / 2;
+			int leftEdge = world.ml.displayWidth / 2 - windowWidth * 3 / 2;
+			int topEdge = world.ml.displayHeight / 2 - importWindowHeight / 2;
 
 			textEntryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
 

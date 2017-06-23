@@ -15,10 +15,6 @@ public class ML_Display
 	public ML_Map map2D;
 	private WMV_Utilities utilities;					/* Utility methods */
 
-	/* Window Modes */
-	public boolean initializedMaps = false;
-	public boolean initializedWorldMap = false;
-	
 	/* Display Views */
 	public int displayView = 0;							/* 0: Scene  1: Map  2: Library  3: Timeline  4: Media */
 	
@@ -40,6 +36,11 @@ public class ML_Display
 	private float messageHUDDistance = hudDistanceInit * 6.f;
 	private int screenWidth = -1;
 	private int screenHeight = -1;
+	
+	/* Map View */
+	public int mapViewMode = 0;								// 0: World, 1: Field 	-- In progress, 2: Cluster 
+	public boolean initializedMaps = false;
+	public boolean initializedWorldMap = false;
 	
 	/* Library View */
 	public int libraryViewMode = 0;						// 0: World, 1: Field, 2: Cluster
@@ -223,24 +224,30 @@ public class ML_Display
 
 				switch(displayView)
 				{
-					case 1:
-						if(initializedMaps) map2D.displaySatelliteMap(ml.world);
-						if(ml.state.interactive) displayInteractiveClustering(ml.world);
-						map2D.update(ml.world);
+					case 1:								// Map View
+						if(mapViewMode == 0)			// World Mode
+						{
+							if(initializedMaps) map2D.displayWorldMap(ml.world);
+						}
+						else if(mapViewMode == 1)		// Field Mode
+						{
+							if(initializedMaps) map2D.displaySatelliteMap(ml.world);
+							if(ml.state.interactive) displayInteractiveClustering(ml.world);
+							map2D.update(ml.world);
+						}
 						break;
-					case 2:
+					case 2:								// Timeline View
 						displayTimeView(ml.world);
 						updateFieldTimeline(ml.world);
 						break;
-					case 3:
+					case 3:								// Library view
 						displayLibraryView(ml.world);
-						if(libraryViewMode == 0) map2D.update(ml.world);
+//						if(libraryViewMode == 0) map2D.update(ml.world);
 						break;
-					case 4:
+					case 4:								// Media View
 						displayMediaView(ml.world);
 						break;
 				}
-
 			}
 		}
 	}
@@ -260,14 +267,14 @@ public class ML_Display
 	 */
 	public void displayTimeView(WMV_World p)
 	{
-		startHUD(p);
+		startHUD();
 		ml.pushMatrix();
 		
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
 		
 		WMV_Field f = p.getCurrentField();
-		WMV_Cluster c = p.getCurrentCluster();
+//		WMV_Cluster c = p.getCurrentCluster();
 
 		ml.fill(0, 0, 255, 255);
 
@@ -1447,8 +1454,9 @@ public class ML_Display
 	 * Initialize 2D drawing 
 	 * @param p Parent world
 	 */
-	void startHUD(WMV_World p)
+	void startHUD()
 	{
+//		ml.perspective();
 		ml.camera();
 //		ml.perspective(p.viewer.getFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
 //		ml.perspective(p.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
@@ -1580,7 +1588,7 @@ public class ML_Display
 	{
 //		System.out.println("Display.displayScreenText()... Text: "+text+" x:"+x+" y:"+y);
 		ml.textSize(textSize);
-		startHUD(ml.world);
+		startHUD();
 		ml.text(text, x, y, getMessageHUDDistance());		// Use period character to draw a point
 //		ml.text(text, x, y, hudDistanceInit);		// Use period character to draw a point
 	}
@@ -1611,7 +1619,7 @@ public class ML_Display
 	{
 		float yPos = startupMessageYOffset;
 
-		startHUD(p);
+		startHUD();
 		ml.pushMatrix();
 		ml.fill(0, 0, 245.f, 255.f);            								
 		ml.textSize(largeTextSize * 1.5f);
@@ -1696,12 +1704,12 @@ public class ML_Display
 
 		switch(libraryViewMode)
 		{
-			case 0:														// Fields
-				startHUD(p);
-				if(initializedMaps) map2D.displayWorldMap(p);
+			case 0:														// -- Obsolete
+//				startHUD();
+//				if(initializedMaps) map2D.displayWorldMap(p);
 				break;
 			case 1:														// Field
-				startHUD(p);
+				startHUD();
 				ml.pushMatrix();
 				ml.fill(0, 0, 255, 255);
 				ml.textSize(veryLargeTextSize);
@@ -1744,7 +1752,7 @@ public class ML_Display
 				break;
 				
 			case 2:								// Cluster
-				startHUD(p);
+				startHUD();
 				ml.pushMatrix();
 				ml.fill(0, 0, 255, 255);
 				ml.textSize(veryLargeTextSize);
@@ -1937,7 +1945,9 @@ public class ML_Display
 	public void setDisplayView(WMV_World p, int newDisplayView)
 	{
 		displayView = newDisplayView;
-		System.out.println("Display.setDisplayView()... displayView:"+displayView);
+
+		if(p.ml.debugSettings.display) System.out.println("Display.setDisplayView()... displayView:"+displayView);
+		
 		switch(newDisplayView)
 		{
 			case 0:													// World View
@@ -1950,9 +1960,23 @@ public class ML_Display
 				break;
 			case 1:													// Map View
 				if(!initializedMaps) map2D.initialize(p);
-				map2D.largeMarkerManager.enableDrawing();
-				map2D.smallMarkerManager.enableDrawing();
-				map2D.zoomToField(p, p.getCurrentField(), false);
+				switch(mapViewMode)
+				{
+					case 0:												// World Mode
+						map2D.initializeWorldMap(p, false);
+						map2D.satelliteMarkerManager.enableDrawing();
+						map2D.largeMarkerManager.disableDrawing();
+						map2D.smallMarkerManager.disableDrawing();
+						break;
+					case 1:												// Field Mode
+						map2D.largeMarkerManager.enableDrawing();
+						map2D.smallMarkerManager.enableDrawing();
+						if(map2D.satelliteMarkerManager != null)
+							map2D.satelliteMarkerManager.disableDrawing();
+						map2D.zoomToField(p, p.getCurrentField(), false);
+						break;	
+
+				}
 				if(window.setupMLWindow)
 				{
 					window.optWorldView.setSelected(false);
@@ -1968,16 +1992,15 @@ public class ML_Display
 					window.optTimelineView.setSelected(true);
 				}
 				break;
-			case 3:													// Library View (Disabled)
-				if(!initializedMaps) map2D.initialize(p);
-				map2D.initializeWorldMap(p, false);
-				map2D.satelliteMarkerManager.enableDrawing();
-				map2D.largeMarkerManager.disableDrawing();
-				map2D.smallMarkerManager.disableDrawing();
+			case 3:													// Library View  -- Disabled
+//				if(!initializedMaps) map2D.initialize(p);
+//				map2D.initializeWorldMap(p, false);
+//				map2D.satelliteMarkerManager.enableDrawing();
+//				map2D.largeMarkerManager.disableDrawing();
+//				map2D.smallMarkerManager.disableDrawing();
 				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
 				break;
 			case 4:													// Media View
-//				-- Start video playing
 				break;
 		}
 	}
@@ -2012,6 +2035,10 @@ public class ML_Display
 	void resetDisplayModes()
 	{
 		displayView = 0;
+		
+		mapViewMode = 0;
+		libraryViewMode = 0;
+
 		clearMessages();
 		clearMetadata();
 	}
@@ -2282,7 +2309,7 @@ public class ML_Display
 	 */
 //	void displayControls(WMV_World p)
 //	{
-//		startHUD(p);
+//		startHUD();
 //		p.p.pushMatrix();
 //		
 //		float xPos = centerTextXOffset;
@@ -2426,7 +2453,7 @@ public class ML_Display
 	 */
 //	void displayStatisticsView(WMV_World p)
 //	{
-//		startHUD(p);
+//		startHUD();
 //		p.p.pushMatrix();
 //		
 //		float xPos = centerTextXOffset;

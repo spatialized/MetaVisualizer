@@ -805,7 +805,8 @@ public class ML_Input
 				world.viewer.moveToNearestCluster(world.viewer.getMovementTeleport());
 		}
 		
-		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
+//		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
+		if(display.displayView == 1)
 			display.map2D.handleMouseReleased(world, mouseX, mouseY);
 		else if(display.displayView == 2)
 			display.handleMouseReleased(world, mouseX, mouseY);

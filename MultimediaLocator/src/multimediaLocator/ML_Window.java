@@ -68,7 +68,7 @@ public class ML_Window
 	/* Main Window */
 	private GButton btnNavigationWindow, btnMediaWindow, btnStatisticsWindow, btnHelpWindow;
 	private GButton btnChooseField, btnSaveLibrary, btnSaveField, btnRestart, btnQuit;
-	private GLabel lblViews, lblWindows, lblCommands, lblSpaceBar;
+	private GLabel lblViewMode, lblWindows, lblCommands, lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
 	public GOption optWorldView, optMapView, optTimelineView;
 	private int mlWindowHeight;
@@ -171,8 +171,8 @@ public class ML_Window
 	private int iBottomTextY = 25;
 	
 	/* Sizing */
-	private int iVerySmallBoxHeight = 21;		/* GUI box object height */
-	private int iSmallBoxHeight = 26;
+	private int iVerySmallBoxHeight = 22;		/* GUI box object height */
+	private int iSmallBoxHeight = 27;
 	private int iMediumBoxHeight = 30;	
 	private int iLargeBoxHeight = 33;
 	private int iVeryLargeBoxHeight = 39;
@@ -214,8 +214,8 @@ public class ML_Window
 		mediaWindowHeight = parent.ml.appHeight;
 		statisticsWindowHeight = longWindowHeight - 120;
 		helpWindowHeight = longWindowHeight + 100;
-		mapWindowHeight = shortWindowHeight - 80;
-		timelineWindowHeight = shortWindowHeight - 100;
+		mapWindowHeight = shortWindowHeight - 65;
+		timelineWindowHeight = shortWindowHeight - 90;
 	}
 	
 	public void openMLWindow()
@@ -279,23 +279,33 @@ public class ML_Window
 		mlWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		world.ml.delay(delayAmount);
-		
-		int x = 0, y = iTopMargin;
-		lblViews = new GLabel(mlWindow, x, y, mlWindow.width, iVerySmallBoxHeight);						/* Display Mode Label */
-		lblViews.setText("View Mode");
-		lblViews.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		lblViews.setLocalColorScheme(G4P.SCHEME_10);
-		lblViews.setTextAlign(GAlign.CENTER, null);
 
-		x = 25;
+		int x = 0, y = iTopMargin;
+		lblMainMenu = new GLabel(mlWindow, x, y, mlWindow.width, iMediumBoxHeight, "Main Menu");
+		lblMainMenu.setLocalColorScheme(G4P.SCHEME_10);
+		lblMainMenu.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
+		lblMainMenu.setTextAlign(GAlign.CENTER, null);
+		lblMainMenu.setTextBold();
+
+		y += iLargeBoxHeight;
+		lblViewMode = new GLabel(mlWindow, x, y, mlWindow.width, iSmallBoxHeight);						/* Display Mode Label */
+		lblViewMode.setText("View Mode");
+		lblViewMode.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		lblViewMode.setLocalColorScheme(G4P.SCHEME_10);
+		lblViewMode.setTextAlign(GAlign.CENTER, null);
+
+		x = iLeftMargin + 3;
 		y += iMediumBoxHeight;
-		optWorldView = new GOption(mlWindow, x, y, 90, iVerySmallBoxHeight, "World (1)");
+		optWorldView = new GOption(mlWindow, x, y, 95, iVerySmallBoxHeight, "World (1)");
+		optWorldView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
 		optWorldView.setLocalColorScheme(G4P.SCHEME_10);
 		optWorldView.tag = "SceneView";
-		optMapView = new GOption(mlWindow, x += 100, y, 90, iVerySmallBoxHeight, "Map (2)");
+		optMapView = new GOption(mlWindow, x += 105, y, 80, iVerySmallBoxHeight, "Map (2)");
+		optMapView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
 		optMapView.setLocalColorScheme(G4P.SCHEME_10);
 		optMapView.tag = "MapView";
-		optTimelineView = new GOption(mlWindow, x += 95, y, 100, iVerySmallBoxHeight, "Time (3)");
+		optTimelineView = new GOption(mlWindow, x += 90, y, 100, iVerySmallBoxHeight, "Time (3)");
+		optTimelineView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
 		optTimelineView.setLocalColorScheme(G4P.SCHEME_10);
 		optTimelineView.tag = "TimelineView";
 
@@ -323,11 +333,19 @@ public class ML_Window
 		tgDisplayView = new GToggleGroup();
 		tgDisplayView.addControls(optWorldView, optMapView, optTimelineView);
 	
+		x = 65;
+		y += iMediumBoxHeight;
+		chkbxScreenMessagesOn = new GCheckbox(mlWindow, x, y, 220, iVerySmallBoxHeight, "Screen Messages (H)");
+		chkbxScreenMessagesOn.tag = "ScreenMessagesOn";
+		chkbxScreenMessagesOn.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxScreenMessagesOn.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxScreenMessagesOn.setSelected(world.getSettings().screenMessagesOn);
+
 		x = 0;
 		y += iMediumBoxHeight;
-		lblWindows = new GLabel(mlWindow, x, y, mlWindow.width, iVerySmallBoxHeight);						/* Display Mode Label */
+		lblWindows = new GLabel(mlWindow, x, y, mlWindow.width, iSmallBoxHeight);						/* Display Mode Label */
 		lblWindows.setText("Windows");
-		lblWindows.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		lblWindows.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblWindows.setLocalColorScheme(G4P.SCHEME_10);
 		lblWindows.setTextAlign(GAlign.CENTER, null);
 
@@ -349,9 +367,9 @@ public class ML_Window
 
 		x = 0;
 		y += iMediumBoxHeight;
-		lblCommands = new GLabel(mlWindow, x, y, mlWindow.width, iVerySmallBoxHeight);						/* Display Mode Label */
+		lblCommands = new GLabel(mlWindow, x, y, mlWindow.width, iSmallBoxHeight);						/* Display Mode Label */
 		lblCommands.setText("Commands");
-		lblCommands.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		lblCommands.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblCommands.setLocalColorScheme(G4P.SCHEME_10);
 		lblCommands.setTextAlign(GAlign.CENTER, null);
 
@@ -386,14 +404,6 @@ public class ML_Window
 		btnHelpWindow.tag = "OpenHelpWindow";
 		btnHelpWindow.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnHelpWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		x = 45;
-//		y += iMediumBoxHeight;
-		chkbxScreenMessagesOn = new GCheckbox(mlWindow, x, y, 220, iVerySmallBoxHeight, "Screen Messages On/Off (H)");
-		chkbxScreenMessagesOn.tag = "ScreenMessagesOn";
-		chkbxScreenMessagesOn.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-		chkbxScreenMessagesOn.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxScreenMessagesOn.setSelected(world.getSettings().screenMessagesOn);
 		
 		x = 0;
 		y = mlWindowHeight - iBottomTextY;
@@ -426,7 +436,7 @@ public class ML_Window
 		world.ml.delay(delayAmount);
 		
 		int x = 0, y = iTopMargin;
-		lblNavigationWindow = new GLabel(navigationWindow, x, y, navigationWindow.width, iSmallBoxHeight, "Navigation");
+		lblNavigationWindow = new GLabel(navigationWindow, x, y, navigationWindow.width, iMediumBoxHeight, "Navigation");
 		lblNavigationWindow.setLocalColorScheme(G4P.SCHEME_10);
 		lblNavigationWindow.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
 		lblNavigationWindow.setTextAlign(GAlign.CENTER, null);
@@ -728,7 +738,7 @@ public class ML_Window
 		chkbxTimeFading.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		chkbxTimeFading.setSelected(world.getState().timeFading);
 
-		x = iLeftMargin;
+		x = 35;
 		y += iMediumBoxHeight * 0.5f;
 		lblTimeCycle = new GLabel(navigationWindow, x, y, 85, iVerySmallBoxHeight, "Cycle");
 		lblTimeCycle.setLocalColorScheme(G4P.SCHEME_10);
@@ -1224,7 +1234,7 @@ public class ML_Window
 		lblViewerStats.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblViewerStats.setTextBold();
 
-		y = 160;
+		y = 200;
 		lblWorldStats = new GLabel(statisticsWindow, x, y, statisticsWindow.width, iMediumBoxHeight, "World");
 		lblWorldStats.setLocalColorScheme(G4P.SCHEME_10);
 		lblWorldStats.setTextAlign(GAlign.CENTER, null);
@@ -1306,16 +1316,17 @@ public class ML_Window
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount);
 
-		lblMap = new GLabel(mapWindow, x, y, mapWindow.width, iVerySmallBoxHeight, "Map Controls");
+		lblMap = new GLabel(mapWindow, x, y, mapWindow.width, iSmallBoxHeight, "Map Controls");
 		lblMap.setLocalColorScheme(G4P.SCHEME_10);
 		lblMap.setTextAlign(GAlign.CENTER, null);
 		lblMap.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblMap.setTextBold();
 
-		x = 100;
+		x = 90;
 		y += iLargeBoxHeight;
-		btnMapView = new GButton(mapWindow, x, y, 120, iVerySmallBoxHeight, "Open Map View");
+		btnMapView = new GButton(mapWindow, x, y, 130, iSmallBoxHeight, "Open Map View");
 		btnMapView.tag = "SetMapView";
+		btnMapView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnMapView.setLocalColorScheme(G4P.GOLD_SCHEME);
 
 		x = 125;
@@ -1411,10 +1422,11 @@ public class ML_Window
 		lblTimeline.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblTimeline.setTextBold();
 		
-		x = 100;
+		x = 90;
 		y += iLargeBoxHeight;
-		btnTimeView = new GButton(timelineWindow, x, y, 120, iVerySmallBoxHeight, "Open Time View");
+		btnTimeView = new GButton(timelineWindow, x, y, 130, iSmallBoxHeight, "Open Time View");
 		btnTimeView.tag = "SetTimeView";
+		btnTimeView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnTimeView.setLocalColorScheme(G4P.GOLD_SCHEME);
 
 		x = 70;
@@ -2068,77 +2080,83 @@ public class ML_Window
 //				applet.text("Viewer", x, y += lineWidthVeryWide * 1.5f);
 				
 				applet.textSize(fMediumTextSize);
-				applet.text(" GPS Longitude: "+world.viewer.getGPSLocation().x+" Latitude:"+world.viewer.getGPSLocation().y, x, y += lineWidthVeryWide);		
-//				applet.text(" Location, x: "+utilities.round(world.viewer.getLocation().x, 2)+" y:"+utilities.round(world.viewer.getLocation().y, 2)+" z:"+
+				applet.text(" GPS Longitude:  "+utilities.round( world.viewer.getGPSLocation().x, 4 )+" Latitude:"+utilities.round( world.viewer.getGPSLocation().y, 4 ), x, y += lineWidthVeryWide);		
+//				applet.text(" Location, x:  "+utilities.round(world.viewer.getLocation().x, 2)+" y:"+utilities.round(world.viewer.getLocation().y, 2)+" z:"+
 //							utilities.round(world.viewer.getLocation().z, 2), x, y += lineWidthVeryWide);		
-				applet.text(" Field of View:"+world.viewer.getSettings().fieldOfView, x, y += lineWidthVeryWide);
-				applet.text(" Current Cluster #"+ (c.getID()+1)+" of "+ f.getClusters().size()+" Clusters Visible: "+world.getVisibleClusters().size(), x, y += lineWidthVeryWide);
-//				applet.text(" 	Distance (m.): "+PVector.dist(world.viewer.getLocation(), world.getCurrentCluster().getLocation()), x, y += lineWidthVeryWide);
+				applet.text(" Current Cluster:  "+ (c.getID()+1)+" of "+ f.getClusters().size(), x, y += lineWidthVeryWide * 1.5f);
+				applet.text(" Clusters Visible:  "+world.getVisibleClusters().size(), x, y += lineWidthVeryWide);
+				applet.text(" Field of View:" + utilities.round( world.viewer.getSettings().fieldOfView, 3), x, y += lineWidthVeryWide);
+//				applet.text(" 	Distance (m.):  "+PVector.dist(world.viewer.getLocation(), world.getCurrentCluster().getLocation()), x, y += lineWidthVeryWide);
 //				if(world.state.timeMode == 0 && c.getDateline() != null)	// Cluster Time Mode
 //				{
 //					if(c.getDateline().size() > 0)
 //					{
 //						int clusterDate = world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getClusterDateID();
-//						applet.text("   Current Cluster Time Segment ID: "+ (world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+1)+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", x, y += lineWidthVeryWide);
-//						applet.text("   Date: "+ (clusterDate+1) +" of "+ c.getDateline().size(), x, y += lineWidth);
+//						applet.text("   Current Cluster Time Segment ID:  "+ (world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getClusterTimelineID()+1)+"  of "+ c.getTimeline().timeline.size() +" in Cluster Main Timeline", x, y += lineWidthVeryWide);
+//						applet.text("   Date:  "+ (clusterDate+1) +" of "+ c.getDateline().size(), x, y += lineWidth);
 //					}
 //				}
 
 //				applet.textSize(fLargeTextSize);
 //				applet.text("World", x, y += lineWidthVeryWide * 1.5f);
 				
-				y = 200;
+				y = 240;
 //				applet.textSize(fMediumTextSize);
 				if(world.getFieldCount() > 1)
 					applet.text(" Current Field #"+ (f.getID()+1)+" of "+ world.getFields().size(), x, y += lineWidthVeryWide);
-				applet.text(" Field Width: "+f.getModel().getState().fieldWidth+" Length: "+f.getModel().getState().fieldLength+" Height: "+f.getModel().getState().fieldHeight, x, y += lineWidthVeryWide);
-				applet.text(" Points of Interest: "+f.getClusters().size(), x, y += lineWidthVeryWide);
-				applet.text(" Media Density (per sq. m.): "+f.getModel().getState().mediaDensity, x, y += lineWidthVeryWide);
+				applet.text(" Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 ) + " Length:  "+utilities.round( f.getModel().getState().fieldLength, 3), x, y += lineWidthVeryWide);
+				applet.text(" Field Height:  " + utilities.round( f.getModel().getState().fieldHeight, 3 ), x, y += lineWidthVeryWide);
+				applet.text(" Points of Interest:  "+f.getClusters().size(), x, y += lineWidthVeryWide * 1.5f);
+				applet.text(" Media Density (per sq. m.):  "+utilities.round( f.getModel().getState().mediaDensity, 3 ), x, y += lineWidthVeryWide);
 			
 //				if(world.state.timeMode == 1 && f.getDateline().size() > 0)	// Field Time Mode
 //				{
 //					int fieldDate = world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
-//					applet.text("   Current Field Time Segment ID: "+ world.viewer.getCurrentFieldTimeSegment()+" of "+ world.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", x, y += lineWidthVeryWide);
-//					applet.text("   Date: "+ (fieldDate)+" of "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
-////					applet.text("   Date-Specific ID: "+ world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
+//					applet.text("   Current Field Time Segment ID:  "+ world.viewer.getCurrentFieldTimeSegment()+" of "+ world.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", x, y += lineWidthVeryWide);
+//					applet.text("   Date:  "+ (fieldDate)+" of "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
+////					applet.text("   Date-Specific ID:  "+ world.getCurrentField().getTimeSegment(world.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
 ////							+" of "+ world.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), x, y += lineWidth);
 //				}
 				
-				if(f.getImageCount() > 0) applet.text(" Images: "+f.getImageCount(), x, y += lineWidthVeryWide);			
+				if(f.getImageCount() > 0) applet.text(" Images:  "+f.getImageCount(), x, y += lineWidthVeryWide);		// --  Add missing originals
 				if(f.getImagesVisible() > 0) 
 				{
-					applet.text("   In Visible Range: "+f.getImagesVisible(), x, y += lineWidthVeryWide);
-//					applet.text("   Seen: "+f.getImagesSeen(), x, y += lineWidthVeryWide);
+					applet.text("   In Visible Range:  "+f.getImagesVisible(), x, y += lineWidthVeryWide);
+//					applet.text("   Seen:  "+f.getImagesSeen(), x, y += lineWidthVeryWide);
 				}
 				
-				if(f.getPanoramaCount() > 0) applet.text(" Panoramas: "+f.getPanoramaCount(), x, y += lineWidthVeryWide);		
+				if(f.getPanoramaCount() > 0) applet.text(" Panoramas:  "+f.getPanoramaCount(), x, y += lineWidthVeryWide);		
 				if(f.getPanoramasVisible() > 0)
 				{
-					applet.text("   In Visible Range: "+f.getPanoramasVisible(), x, y += lineWidthVeryWide);
-//					applet.text("   Seen: "+f.getPanoramasSeen(), x, y += lineWidthVeryWide);
+					applet.text("   In Visible Range:  "+f.getPanoramasVisible(), x, y += lineWidthVeryWide);
+//					applet.text("   Seen:  "+f.getPanoramasSeen(), x, y += lineWidthVeryWide);
 				}
 
-				if(f.getVideoCount() > 0) applet.text(" Videos: "+f.getVideoCount(), x, y += lineWidthVeryWide);					
+				if(f.getVideoCount() > 0) applet.text(" Videos:  "+f.getVideoCount(), x, y += lineWidthVeryWide);					
 				if(f.getVideosVisible() > 0)
 				{
-					applet.text("   In Visible Range: "+f.getVideosVisible(), x, y += lineWidthVeryWide);
+					applet.text("   In Visible Range:  "+f.getVideosVisible(), x, y += lineWidthVeryWide);
 					if(f.getVideosPlaying() > 0)
 					{
-						applet.text("   Playing: "+f.getVideosPlaying(), x, y += lineWidthVeryWide);
-//						applet.text("   Seen: "+f.getVideosSeen(), x, y += lineWidthVeryWide);
+						applet.text("   Playing:  "+f.getVideosPlaying(), x, y += lineWidthVeryWide);
+//						applet.text("   Seen:  "+f.getVideosSeen(), x, y += lineWidthVeryWide);
 					}
 				}
 				
-				if(f.getSoundCount() > 0) applet.text(" Sounds: "+f.getSoundCount(), x, y += lineWidthVeryWide);					
+				if(f.getSoundCount() > 0) applet.text(" Sounds:  "+f.getSoundCount(), x, y += lineWidthVeryWide);					
 				if(f.getSoundsAudible() > 0)
 				{
-					applet.text(" In Audible Range: "+f.getSoundsAudible(), x, y += lineWidthVeryWide);
+					applet.text(" In Audible Range:  "+f.getSoundsAudible(), x, y += lineWidthVeryWide);
 					if(f.getSoundsPlaying() > 0) 
 					{
-						applet.text("   Playing: "+f.getSoundsPlaying(), x, y += lineWidthVeryWide);
-//						applet.text("   Heard: "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
+						applet.text("   Playing:  "+f.getSoundsPlaying(), x, y += lineWidthVeryWide);
+//						applet.text("   Heard:  "+f.getSoundsHeard(), x, y += lineWidthVeryWide);
 					}
 				}
+				
+				if(f.getGPSTracks() != null)
+					if(f.getGPSTracks().size() > 0) 
+						applet.text(" GPS Tracks: "+f.getGPSTracks().size(), x, y += lineWidthVeryWide);			
 				
 //				applet.textSize(fLargeTextSize);
 //				applet.text("Output", x, y += lineWidthVeryWide * 1.5f);

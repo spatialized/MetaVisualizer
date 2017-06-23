@@ -46,7 +46,7 @@ import com.apple.eawt.Application;
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private boolean createJar = true;				// Determines how to load cubemap shader
+	private boolean createJar = false;				// Determines how to load cubemap shader
 	
 	/* App */
 	private String appName = "MultimediaLocator 0.9.2";
@@ -361,7 +361,9 @@ public class MultimediaLocator extends PApplet
 					System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
 				
 				f.initialize(-100000L);
-				if(setSoundGPSLocations) metadata.setSoundGPSLocations(f, f.getSounds());
+				if(setSoundGPSLocations)
+					if(f.getSounds().size() > 0)
+						metadata.setSoundGPSLocations(f, f.getSounds());
 			}
 
 			f.setLoadedState(success);		/* Set field loaded state flag */

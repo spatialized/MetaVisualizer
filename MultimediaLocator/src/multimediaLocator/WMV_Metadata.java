@@ -33,6 +33,14 @@ import java.util.Set;
  */
 class WMV_Metadata
 {
+	/* Classes */
+	MultimediaLocator ml; 											// Parent app
+	WMV_Utilities u;												// Utility class
+	ML_DebugSettings debugSettings;									// Debug settings
+	
+	public File exifToolFile;										// File for ExifTool executable
+
+	/* File System */
 	public String library = "";
 	public String largeImageFolder = "", smallImageFolder = "";
 	public String panoramaFolder = "";
@@ -54,23 +62,18 @@ class WMV_Metadata
 	public boolean dataFolderFound = false; 	
 	
 	public File[] smallImageFiles = null, imageFiles = null, panoramaFiles = null, // Temp arrays to store media files
-				  smallVideoFiles = null, videoFiles = null, soundFiles = null, gpsTrackFiles = null, dataFiles = null;								
+				  smallVideoFiles = null, largeVideoFiles = null, soundFiles = null, gpsTrackFiles = null, dataFiles = null;								
 
 	public boolean smallImageFilesFound = false;
-	public boolean imageFilesFound = false;
+	public boolean largeImageFilesFound = false;
 	public boolean panoramaFilesFound = false;
-	public boolean videoFilesFound = false, smallVideoFilesFound = false;
+	public boolean largeVideoFilesFound = false, smallVideoFilesFound = false;
 	public boolean soundFilesFound = false;
 	public boolean gpsTrackFilesFound = false;
 	private boolean dataFilesValidFormat = false;
 
-	int iCount = 0, pCount = 0, vCount = 0, sCount;							// Media count by type 
-	public File exifToolFile;										// File for ExifTool executable
+	private int iCount = 0, pCount = 0, vCount = 0, sCount = 0;							// Media count by type 
 
-	MultimediaLocator ml;
-	WMV_Utilities u;												// Utility class
-	ML_DebugSettings debugSettings;
-	
 	/**
 	 * Constructor for metadata loader
 	 * @param parent Parent App
@@ -83,6 +86,63 @@ class WMV_Metadata
 		debugSettings = newDebugSettings;
 		exifToolFile = new File("/usr/local/bin/exiftool");						// Initialize metadata extraction class	
 	}
+	
+	/**
+	 * Reset metadata loader to original state
+	 */
+	public void reset()
+	{
+		library = "";
+		
+		// Media folder file paths
+		largeImageFolder = ""; smallImageFolder = "";
+		panoramaFolder = "";
+		largeVideoFolder = ""; smallVideoFolder = "";	
+		soundFolder = "";
+		gpsTrackFolder = "";
+		dataFolder = "";
+		
+		smallImageFolderFile = null; largeImageFolderFile = null; 
+		panoramaFolderFile = null;		
+		
+		// Media folders 
+		smallVideoFolderFile = null; largeVideoFolderFile = null; 
+		soundFolderFile = null;
+		gpsTrackFolderFile = null;
+		dataFolderFile = null;
+		
+		
+		smallImageFolderFound = false; largeImageFolderFound = false; 
+		panoramaFolderFound = false;
+		smallVideoFolderFound = false; largeVideoFolderFound = false; 
+		soundFolderFound = false;
+		
+		gpsTrackFolderFound = false;
+		dataFolderFound = false; 	
+		
+		smallImageFiles = null;
+		imageFiles = null;
+		panoramaFiles = null;
+		
+		// Temp arrays to store media files
+		smallVideoFiles = null; largeVideoFiles = null;
+		soundFiles = null;
+		gpsTrackFiles = null;
+		dataFiles = null;								
+
+		smallImageFilesFound = false; largeImageFilesFound = false;
+		panoramaFilesFound = false;
+		smallVideoFilesFound = false; largeVideoFilesFound = false;
+		soundFilesFound = false;
+		gpsTrackFilesFound = false;
+		dataFilesValidFormat = false;
+
+		// Media counts by type
+		iCount = 0;
+		pCount = 0;
+		vCount = 0;
+		sCount = 0;							 
+	}
 
 	/**
 	 * Load metadata from a library for a field 
@@ -92,6 +152,8 @@ class WMV_Metadata
 	 */
 	public boolean load(WMV_Field f, String libraryFolder)
 	{
+		reset();						// Added 6-22-17
+		
 		library = libraryFolder;
 		String fieldPath = f.getName();
 
@@ -402,7 +464,7 @@ class WMV_Metadata
 		{
 			imageFiles = largeImageFolderFile.listFiles();
 			if(imageFiles != null && imageFiles.length > 0)
-				imageFilesFound = true;
+				largeImageFilesFound = true;
 		}
 		
 		if(smallImageFolderFound)								// Found small_images folder
@@ -433,7 +495,7 @@ class WMV_Metadata
 		}
 		
 		// If images exist but no small images are found
-		if(imageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
+		if(largeImageFilesFound && !smallImageFilesFound)	// Copy original images to small_images directory and resize
 		{
 			if(!smallImageFolderFile.exists())
 				smallImageFolderFile.mkdir();
@@ -464,19 +526,19 @@ class WMV_Metadata
 	 * Load video files
 	 * @param fieldPath Field folder path
 	 */
-	public void loadVideoFiles(String fieldPath) // Load photos up to limit to load at once, save those over limit to load later
+	public void loadVideoFiles(String fieldPath)
 	{
-		videoFiles = null;
-		if(largeVideoFolderFound)				// Check for video files
+		largeVideoFiles = null;
+		if(largeVideoFolderFound)				// Check for large video files if folder found
 		{
-			videoFiles = largeVideoFolderFile.listFiles();
-			if(videoFiles != null) 
-				if(videoFiles.length > 0)
-					videoFilesFound = true;
+			largeVideoFiles = largeVideoFolderFile.listFiles();
+			if(largeVideoFiles != null) 
+				if(largeVideoFiles.length > 0)
+					largeVideoFilesFound = true;
 		}
 		
 		smallVideoFiles = null;
-		if(smallVideoFolderFound)				// Check for video files
+		if(smallVideoFolderFound)				// Check for small video files if folder found
 		{
 			smallVideoFiles = smallVideoFolderFile.listFiles();
 			if(smallVideoFiles != null)
@@ -484,8 +546,7 @@ class WMV_Metadata
 					smallVideoFilesFound = true;
 		}
 		
-		// If images exist but no small images are found
-		if(videoFilesFound && !smallVideoFilesFound)	// Copy original videos to small_videos directory and resize	-- Move to ML class
+		if(largeVideoFilesFound && !smallVideoFilesFound)	// If original images exist but no small images were found
 		{
 			if(!smallVideoFolderFile.exists())
 				smallVideoFolderFile.mkdir();
@@ -494,7 +555,7 @@ class WMV_Metadata
 			String outputPath = smallVideoFolder;
 			Process conversionProcess = ml.world.utilities.convertVideos(ml, inputPath, outputPath);
 			
-			try{
+			try{								// Copy original videos to small_videos directory and resize	-- Move to ML class
 				conversionProcess.waitFor();
 			}
 			catch(Throwable t)
@@ -516,6 +577,13 @@ class WMV_Metadata
 		}
 	}
 	
+	/**
+	 * Load sound metadata for specified sound file 
+	 * @param f Field containing sound
+	 * @param file Sound file 
+	 * @param fieldTimeZoneID Time zone ID
+	 * @return
+	 */
 	public WMV_SoundMetadata loadSoundMetadata(WMV_Field f, File file, String fieldTimeZoneID)
 	{
 		String sName = file.getName();
@@ -526,12 +594,10 @@ class WMV_Metadata
 		{
 			try
 			{
-				if(debugSettings.sound || debugSettings.metadata) System.out.println("Loading sound:"+sFilePath);
-
+				if(debugSettings.sound || debugSettings.metadata) System.out.println("Metadata.loadSoundMetadata()... Loading sound file:"+sFilePath);
 				BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 				FileTime creationTime = attr.creationTime();
-				if(ml.debugSettings.sound || ml.debugSettings.metadata)
-					System.out.println("file: "+file.getName()+" creationTime: "+creationTime);
+				if(ml.debugSettings.sound && ml.debugSettings.metadata) System.out.println("file: "+file.getName()+" creationTime: "+creationTime);
 				ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
 				String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundTime);		// 2016:04:10 17:52:39
 				
@@ -569,7 +635,7 @@ class WMV_Metadata
 				addImageToField(f, file);
 		}
 		
-		if(imageFilesFound && smallImageFilesFound)
+		if(largeImageFilesFound && smallImageFilesFound)
 			associateOriginalImages(f);
 
 		return true;
@@ -591,7 +657,7 @@ class WMV_Metadata
 		for (int currentMedia = 0; currentMedia < fileCount; currentMedia++) 
 			addVideoToField(f, files[currentMedia]);
 		
-		if(videoFilesFound && smallVideoFilesFound)
+		if(smallVideoFilesFound && largeVideoFilesFound)
 			associateOriginalVideos(f);
 
 		return true;
@@ -603,10 +669,18 @@ class WMV_Metadata
 	 */
 	private void associateOriginalImages(WMV_Field f)
 	{
-		for(WMV_Image img : f.getImages())
-			for(int i = 0; i<imageFiles.length; i++)
-				if(imageFiles[i].getName().equals(img.getName()))
-					img.setOriginalPath(imageFiles[i].getAbsolutePath());
+		if(imageFiles != null)
+		{
+			for(WMV_Image img : f.getImages())
+				for(int i = 0; i<imageFiles.length; i++)
+					if(imageFiles[i].getName().equals(img.getName()))
+						img.setOriginalPath(imageFiles[i].getAbsolutePath());
+		}
+		else
+		{
+			if(ml.debugSettings.metadata || ml.debugSettings.image)
+				System.out.println("Metadata.associateOriginalImages()... No original images found in field:"+f.getName());
+		}
 	}
 	
 	/**
@@ -615,10 +689,18 @@ class WMV_Metadata
 	 */
 	private void associateOriginalVideos(WMV_Field f)
 	{
-		for(WMV_Video vid : f.getVideos())
-			for(int i = 0; i<videoFiles.length; i++)
-				if(videoFiles[i].getName().equals(vid.getName()))
-					vid.setOriginalPath(videoFiles[i].getAbsolutePath());
+		if(largeVideoFiles != null)
+		{
+			for(WMV_Video vid : f.getVideos())
+				for(int i = 0; i<largeVideoFiles.length; i++)
+					if(largeVideoFiles[i].getName().equals(vid.getName()))
+						vid.setOriginalPath(largeVideoFiles[i].getAbsolutePath());
+		}
+		else
+		{
+			if(ml.debugSettings.metadata || ml.debugSettings.video)
+				System.out.println("Metadata.associateOriginalVideos()... No original videos found in field:"+f.getName());
+		}
 	}
 	
 	/** 
@@ -1025,8 +1107,9 @@ class WMV_Metadata
 	public WMV_PanoramaMetadata loadPanoramaMetadata(File file, String timeZoneID)
 	{
 		String sName = file.getName();
-		boolean panorama = true;
-		boolean dataMissing = false, brightnessMissing = false, descriptionMissing = false;
+//		boolean panorama = true;
+		boolean dataMissing = false;
+		boolean brightnessMissing = false, descriptionMissing = false;
 
 		ZonedDateTime zonedDateTime = null;
 		
@@ -1869,7 +1952,7 @@ class WMV_Metadata
 				keywords[i] = keywordArray[idx];
 			}
 			
-			if (ml.debugSettings.metadata)
+			if (ml.debugSettings.metadata && ml.debugSettings.detailed)
 				System.out.println("Image or panorama keywords[i]:" + keywords[i]);
 		}
 

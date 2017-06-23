@@ -755,7 +755,7 @@ public class WMV_Utilities
 			int count = 0;
 			
 			len = allNodes.getLength();
-			System.out.println("getGPSTrackFromFile()... ");
+//			System.out.println("getGPSTrackFromFile()... ");
 			
 			for (int h=0; h < 5; h++)												// Iterate through each item in .gpx XML file
 			{

@@ -231,7 +231,6 @@ public class ML_Display
 			else																	// 2D Views
 			{
 				ml.hint(PApplet.DISABLE_DEPTH_TEST);								// Disable depth testing for drawing HUD
-//				ml.background(0.f);												// Hide World View
 
 				switch(displayView)
 				{
@@ -1526,35 +1525,8 @@ public class ML_Display
 		startupMessageXOffset = screenWidth / 2.f;
 		startupMessageYOffset = -screenHeight /2.f;
 		
-		System.out.println("Display.reset()... 4");
-//		map2D = new ML_Map(this);
+//		System.out.println("Display.reset()... 4");
 		map2D.reset();
-	}
-
-	/**
-	 * Initialize 2D drawing 
-	 * @param p Parent world
-	 */
-	void startHUD()
-	{
-//		ml.perspective();
-		ml.camera();
-//		ml.perspective(p.viewer.getFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
-//		ml.perspective(p.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
-	}
-
-	/**
-	 * Initialize 2D drawing 
-	 * @param p Parent world
-	 */
-	void startTimelineHUD()
-	{
-		ml.perspective(ml.world.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, ml.world.viewer.getSettings().nearClippingDistance, 10000.f);;
-		ml.camera();
-
-//		ml.camera();
-//		ml.perspective(ml.world.viewer.getFieldOfView(), (float)screenWidth/(float)screenHeight, ml.world.viewer.getSettings().nearClippingDistance, 10000.f);;
-//		ml.perspective(ml.world.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, ml.world.viewer.getSettings().nearClippingDistance, 10000.f);;
 	}
 
 	/**
@@ -1615,7 +1587,7 @@ public class ML_Display
 		
 		ml.textFont(messageFont);
 		
-		float hudDist = getMessageHUDDistance();
+//		float hudDist = getMessageHUDDistance();
 		if(ml.state.interactive)
 		{
 			for(String s : messages)
@@ -1665,6 +1637,8 @@ public class ML_Display
 		float xPos = metadataXOffset * xFactor; 
 		float yPos = metadataYOffset * yFactor - lineWidth * yFactor;
 
+//		ml.textFont(messageFont);
+		ml.textFont(defaultFont);
 		ml.pushMatrix();
 
 		ml.fill(0, 0, 255, 255);                     // White text
@@ -1681,11 +1655,9 @@ public class ML_Display
 	
 	public void displayScreenText(MultimediaLocator ml, String text, float x, float y, float textSize)
 	{
-//		System.out.println("Display.displayScreenText()... Text: "+text+" x:"+x+" y:"+y);
 		ml.textSize(textSize);
 		startHUD();
 		ml.text(text, x, y, getMessageHUDDistance());		// Use period character to draw a point
-//		ml.text(text, x, y, hudDistanceInit);		// Use period character to draw a point
 	}
 	
 	/**
@@ -1974,6 +1946,25 @@ public class ML_Display
 	private void displayVideo2D(WMV_Video video)
 	{
 		video.display2D(ml);
+	}
+
+	/**
+	 * Initialize 2D drawing 
+	 * @param p Parent world
+	 */
+	void startHUD()
+	{
+		ml.camera();
+	}
+
+	/**
+	 * Initialize 2D drawing 
+	 * @param p Parent world
+	 */
+	private void startTimelineHUD()
+	{
+		ml.perspective(ml.world.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, ml.world.viewer.getSettings().nearClippingDistance, 10000.f);;
+		ml.camera();
 	}
 
 	/**

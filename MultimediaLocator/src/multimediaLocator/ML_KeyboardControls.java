@@ -469,7 +469,7 @@ public class ML_KeyboardControls
 				ml.world.viewer.startViewingSelectedMedia();
 		}
 
-		if (input.optionKey && key == 'e')
+		if (key == 'E')
 		{
 			boolean state = !ml.world.getState().useBlurMasks;
 			ml.world.getState().useBlurMasks = state;
@@ -622,7 +622,7 @@ public class ML_KeyboardControls
 				ml.display.window.chkbxAngleFading.setSelected(state);
 		}
 
-		if (key == 'H')
+		if (input.optionKey && key == 'H')
 		{
 			boolean state = !ml.world.viewer.getAngleThinning();
 			ml.world.viewer.setAngleThinning( state );

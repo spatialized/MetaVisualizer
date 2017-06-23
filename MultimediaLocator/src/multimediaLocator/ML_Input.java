@@ -1,8 +1,6 @@
 package multimediaLocator;
 
-import g4p_controls.G4P;
 import g4p_controls.GButton;
-import g4p_controls.GCheckbox;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
@@ -48,8 +46,10 @@ public class ML_Input
 	 */
 	void handleKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
+//		System.out.println("Input.handleKeyPressed()... key:"+key);
 		if (ml.state.running && ml.state.selectedLibrary)
 		{
+
 			/* General */
 			keyboardInput.handleUniversalKeyPressed(ml, key, keyCode);
 
@@ -100,9 +100,9 @@ public class ML_Input
 	/**
 	 * Respond to user key releases
 	 */
-	void handleKeyReleased(WMV_Viewer viewer, ML_Display display, char key, int keyCode)
+	void handleKeyReleased(MultimediaLocator ml, ML_Display display, char key, int keyCode)
 	{
-		keyboardInput.handleKeyReleased(viewer, display, key, keyCode);
+		keyboardInput.handleKeyReleased(ml, display, key, keyCode);
 	}
 	
 	/**
@@ -306,30 +306,6 @@ public class ML_Input
 						ml.world.viewer.teleportToFieldOffset(-1, true, true);
 					break;
 					
-//				case "ImportGPSTrack":
-//					ml.world.viewer.importGPSTrack();						// Select a GPS tracking file from disk to load and navigate 
-//					break;
-//				case "FollowStart":
-//					if(!ml.world.viewer.isFollowing())
-//					{
-//						switch(ml.world.viewer.getFollowMode())
-//						{
-//						case 0:
-//							ml.world.viewer.followTimeline(true, false);
-//							break;
-//						case 1:
-//							ml.world.viewer.followGPSTrack();
-//							break;
-//						case 2:
-//							ml.world.viewer.followMemory();
-//							break;
-//						}
-//					}
-//					break;
-//				case "FollowStop":
-//					ml.world.viewer.stopFollowing();
-//					break;
-	
 				/* Model */
 				case "SubjectDistanceDown":
 					ml.world.getCurrentField().fadeObjectDistances(0.85f);
@@ -344,58 +320,6 @@ public class ML_Input
 					break;
 				case "CloseHelpWindow":
 					display.window.hideHelpWindow();
-					break;
-	
-				/* Memory */
-//				case "OpenMemoryWindow":
-//					display.window.openMemoryWindow();
-//					break;
-//				case "CloseMemoryWindow":
-//					display.window.hideMemoryWindow();
-//					break;
-	
-				/* Statistics */
-				case "OpenStatisticsWindow":
-					display.window.openStatisticsWindow();
-					break;
-				case "CloseStatisticsWindow":
-					display.window.hideStatisticsWindow();
-					break;
-	
-				/* Time */
-//				case "OpenTimeWindow":
-//					display.window.openTimeWindow();
-//					break;
-//				case "CloseTimeWindow":
-//					display.window.hideTimeWindow();
-//					break;
-	
-				/* Graphics */
-				case "OpenMediaWindow":
-					display.window.openMediaWindow();
-					break;
-				case "CloseGraphicsWindow":
-					display.window.hideGraphicsWindow();
-					break;
-	
-//				case "MoveForward":
-//					ml.world.viewer.walkForward();
-//					break;
-//				case "MoveBackward":
-//					ml.world.viewer.walkBackward();
-//					break;
-//				case "MoveLeft":
-//					ml.world.viewer.startMoveXTransition(-1);
-//					break;
-//				case "MoveRight":
-//					ml.world.viewer.startMoveXTransition(1);
-//					break;
-	
-				case "ZoomIn":
-					ml.world.viewer.zoomIn();
-					break;
-				case "ZoomOut":
-					ml.world.viewer.zoomOut();
 					break;
 	
 				/* Time */
@@ -418,16 +342,21 @@ public class ML_Input
 					ml.world.viewer.clearMemory();
 					break;
 
-				/* Selection */
-//				case "OpenSelectionWindow":
-//					display.window.openSelectionWindow();
-//					ml.world.viewer.setSelection( true );
-//					display.window.chkbxSelectionMode.setSelected(true);
-//					break;
-//				case "CloseSelectionWindow":
-//					display.window.selectionWindow.setVisible(false);
-//					break;
+				/* Media */
+				case "OpenMediaWindow":
+					display.window.openMediaWindow();
+					break;
+				case "CloseGraphicsWindow":
+					display.window.hideMediaWindow();
+					break;
 	
+				case "ZoomIn":
+					ml.world.viewer.zoomIn();
+					break;
+				case "ZoomOut":
+					ml.world.viewer.zoomOut();
+					break;
+
 				case "SelectFront":
 					ml.world.viewer.chooseMediaInFront(true);
 					break;
@@ -472,6 +401,31 @@ public class ML_Input
 				case "OutputFolder":
 					ml.selectFolder("", "outputFolderSelected");
 					break;
+					
+				/* Statistics */
+				case "OpenStatisticsWindow":
+					display.window.openStatisticsWindow();
+					break;
+				case "CloseStatisticsWindow":
+					display.window.hideStatisticsWindow();
+					break;
+	
+				/* Map */
+				case "SetMapView":
+					display.setDisplayView(ml.world, 1);
+					break;
+				case "PanUp":
+					ml.display.map2D.panUp();
+					break;
+				case "PanLeft":
+					ml.display.map2D.panLeft();
+					break;
+				case "PanDown":
+					ml.display.map2D.panDown();
+					break;
+				case "PanRight":
+					ml.display.map2D.panRight();
+					break;
 			}
 		}
 		
@@ -498,6 +452,15 @@ public class ML_Input
 					break;
 				case "ZoomOut":
 					ml.world.viewer.stopZooming();
+					break;
+					
+				/* Map */
+				case "PanUp":
+				case "PanLeft":
+				case "PanDown":
+				case "PanRight":
+					display.map2D.stopPanning();
+					System.out.println("Stopped panning... panningLeft:"+display.map2D.panningLeft+ " panningRight:"+display.map2D.panningRight);
 					break;
 			}
 		}
@@ -530,6 +493,15 @@ public class ML_Input
 			case "ScreenMessagesOn":
 				world.settings.screenMessagesOn = option.isSelected();
 //				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);
+				break;
+				
+			case "SetMapViewWorldMode":
+				display.setMapViewMode(0);
+				if(option.isSelected()) display.window.optMapViewFieldMode.setSelected(false);	
+				break;
+			case "SetMapViewFieldMode":
+				display.setMapViewMode(1);
+				if(option.isSelected()) display.window.optMapViewWorldMode.setSelected(false);	
 				break;
 
 			/* Navigation */

@@ -60,7 +60,7 @@ public class ML_Map
 	public int mouseDraggedFrame = -1;
 	private int selectedCluster = -1, selectedField = -1;
 	private boolean zoomingIn = false, zoomingOut = false;
-	private boolean panningLeft = false, panningRight = false, panningUp = false, panningDown = false;
+	public boolean panningLeft = false, panningRight = false, panningUp = false, panningDown = false;
 
 	/* Media */
 	float smallPointSize, mediumPointSize, largePointSize, hugePointSize;	// Obsolete soon
@@ -120,7 +120,6 @@ public class ML_Map
 		blankTile = world.ml.getImageResource("blank.jpg");
 
 		initializeSatelliteMap(world);
-//		world.p.delay(250);
 		
 		initializeBasicMaps(world);
 		createViewerMarker(world);
@@ -179,8 +178,7 @@ public class ML_Map
 		satellite = new UnfoldingMap(p.ml, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 		osm = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
 
-		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
-//		satelliteMapCenter = new Location(gpsLoc.y, gpsLoc.x);
+//		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
 		
 		satellite.setBackgroundColor(0);
 		osm.setBackgroundColor(0);
@@ -490,7 +488,15 @@ public class ML_Map
 		if(panningUp) panningUp = false;
 		if(panningDown) panningDown = false;
 	}
-	
+
+	/**
+	 * Stop panning the map
+	 */
+	public boolean isPanning()
+	{
+		return panningLeft || panningRight || panningUp || panningDown;
+	}
+
 	/**
 	 * @param path Path to draw
 	 * @param mapWidth Map width

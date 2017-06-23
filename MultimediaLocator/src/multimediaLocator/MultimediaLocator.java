@@ -1334,8 +1334,10 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void keyPressed() 
 	{
-		if(state.running && state.framesSinceStart > world.viewer.getSettings().teleportLength) 
+		if(state.running) 
 			input.handleKeyPressed(this, key, keyCode);
+//		if(state.running && state.framesSinceStart > world.viewer.getSettings().teleportLength) 
+//			input.handleKeyPressed(this, key, keyCode);
 	}
 
 	/**
@@ -1343,7 +1345,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void keyReleased() 
 	{
-		input.handleKeyReleased(world.viewer, display, key, keyCode);
+		input.handleKeyReleased(this, display, key, keyCode);
 	}
 	
 	/**
@@ -1357,7 +1359,7 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**
@@ -1371,7 +1373,7 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleLibraryWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**
@@ -1385,11 +1387,11 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
 	/**
-	 * Respond to key pressed in Memory Window
+	 * Respond to key pressed in List Item Window
 	 * @param applet Parent App
 	 * @param windata Window data
 	 * @param keyevent Key event
@@ -1410,10 +1412,14 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
+//		System.out.println("navigationWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction());
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+//		else
+//			System.out.println(" navigationWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction()+" != "+processing.event.KeyEvent.PRESS);
+
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**
@@ -1424,10 +1430,15 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
+//		System.out.println("mediaWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction());
+//		System.out.println(" fyi  KeyEvent.RELEASE:"+processing.event.KeyEvent.RELEASE+"   KeyEvent.PRESS:"+processing.event.KeyEvent.PRESS);
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+//		else
+//			System.out.println(" mediaWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction()+" != "+processing.event.KeyEvent.PRESS);
+
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
 	/**
@@ -1441,7 +1452,7 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**
@@ -1455,7 +1466,7 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**
@@ -1469,7 +1480,7 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 	
 	/**
@@ -1483,7 +1494,7 @@ public class MultimediaLocator extends PApplet
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}
 
 	public void mediaFolderDialog()

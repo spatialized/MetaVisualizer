@@ -42,7 +42,18 @@ public class WMV_World
 	public ML_Input input;								// Input object
 	public WMV_Utilities utilities;						// Utilities
 
-	/* Graphics */
+	/* Interpolation */
+	ScaleMap distanceFadeMap, timeFadeMap;
+	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
+	InterpolateStrategy circularEaseIn = new CircularInterpolation(true);		// Steepest ascent toward end value
+	InterpolateStrategy zoomLens = new ZoomLensInterpolation();
+	InterpolateStrategy linear = new LinearInterpolation();
+	
+	/* File System */
+	public String outputFolder;
+	public boolean outputFolderSelected = false;
+
+	/* Masks */
 	public PImage blurMaskLeftTop, blurMaskLeftCenter, blurMaskLeftBottom, blurMaskLeftBoth;  						// Image blur masks
 	public PImage blurMaskCenterTop, blurMaskCenterCenter, blurMaskCenterBottom, blurMaskCenterBoth;
 	public PImage blurMaskRightTop, blurMaskRightCenter, blurMaskRightBottom, blurMaskRightBoth;
@@ -56,17 +67,6 @@ public class WMV_World
 	public PImage videoBlurMaskCenterTop, videoBlurMaskCenterCenter, videoBlurMaskCenterBottom, videoBlurMaskCenterBoth;
 	public PImage videoBlurMaskRightTop, videoBlurMaskRightCenter, videoBlurMaskRightBottom, videoBlurMaskRightBoth;
 	public PImage videoBlurMaskBothTop, videoBlurMaskBothCenter, videoBlurMaskBothBottom, videoBlurMaskBothBoth;
-
-	/* Interpolation */
-	ScaleMap distanceFadeMap, timeFadeMap;
-	InterpolateStrategy circularEaseOut = new CircularInterpolation(false);		// Steepest ascent at beginning
-	InterpolateStrategy circularEaseIn = new CircularInterpolation(true);		// Steepest ascent toward end value
-	InterpolateStrategy zoomLens = new ZoomLensInterpolation();
-	InterpolateStrategy linear = new LinearInterpolation();
-	
-	/* File System */
-	public String outputFolder;
-	public boolean outputFolderSelected = false;
 
 	/* Debugging */
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
@@ -130,10 +130,13 @@ public class WMV_World
 		if(state.fadingAlpha)  updateFadingAlpha();						/* Update global alpha fading */
 		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();		/* Update grid fading */
 		updateTimeBehavior();											/* Update time cycle */
+
+//		if(viewer.getSettings().mouseNavigation)	/* Update mouse navigation */
+//		input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 	}
 
 	/**
-	 * Display 3D and/or 2D graphics
+	 * Display graphics
 	 * @param sphericalView Display in spherical view
 	 */
 	public void display()
@@ -146,19 +149,8 @@ public class WMV_World
 		}
 		else
 		{
-//			ml.background(0.f);					/* Set background */
-			if(ml.display.displayView == 0)
-				display3D();					/* Display 3D Graphics */
-//			if(ml.display.displayView != 4)
-//				viewer.updateNavigation();		/* Update navigation */
-			display2D();						/* Display 2D Graphics */
-//			if(state.fadingAlpha) 
-//				updateFadingAlpha();					/* Update global alpha fading */
-//			if(state.fadingTerrainAlpha) 
-//				updateFadingTerrainAlpha();	/* Update grid fading */
-
-//			if(viewer.getSettings().mouseNavigation)	/* Update mouse navigation */
-//				input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
+			if(ml.display.displayView == 0) display3D();	/* Display 3D Graphics */
+			display2D();									/* Display 2D Graphics */
 		}
 	}
 	

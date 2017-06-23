@@ -19,13 +19,13 @@ public class WMV_Cluster
 	private WMV_Utilities utilities;			// Utility methods
 	private WMV_ClusterState state;				// Cluster state
 
-	/* Panoramic Stitching */
-	ArrayList<WMV_Panorama> stitched;				// Stitched panoramas
-	List<Integer> valid;									// List of images that are good stitching candidates
-
 	/* Segmentation */
 	public ArrayList<WMV_MediaSegment> segments;			// List of overlapping segments of images or videos
 
+	/* Stitching */
+	ArrayList<WMV_Panorama> stitched;				// Stitched panoramas
+	List<Integer> valid;							// List of images that are good stitching candidates
+	
 	/**
 	 * Constructor for spatial cluster of media
 	 * @param newWorldSettings World settings
@@ -332,7 +332,7 @@ public class WMV_Cluster
 			for(WMV_Panorama n : stitched)
 			{
 				ml.world.getCurrentField().updatePanorama(ml, n);
-//				ml.world.getCurrentField().displayPanorama(ml, n);
+//				ml.world.getCurrentField().displayPanorama(ml, n);		-- Disabled
 			}
 		}
 	}
@@ -528,27 +528,6 @@ public class WMV_Cluster
 			state.timeline.timeline = utilities.createTimeline(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
 			state.timeline.finishTimeline();			// Finish timeline / set bounds
 
-//			if(state.timeline.timeline != null)
-//			{
-//				if(state.timeline.timeline.size() > 0)
-//				{
-//					state.timeline.timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort timeline points 
-//					
-//					ArrayList<WMV_Time> test = new ArrayList<WMV_Time>();
-//					
-//					for(WMV_TimeSegment t : state.timeline.timeline)
-//						for(WMV_Time tm : t.getTimeline())
-//							test.add(tm);
-//
-//					if(test.size() != mediaTimes.size())
-//						System.out.println("Incomplete timeline created!  test.size():"+test.size()+" mediaTimes.size():"+mediaTimes.size()+"...");
-//				}
-//				else
-//					System.out.println("No timeline created for cluster #"+getID()+"!!!");
-//			}
-//			else
-//				System.out.println("NULL timeline created for cluster #"+getID()+"!!!!");
-			
 			int count = 0;
 			for (WMV_TimeSegment t : state.timeline.timeline) 												// Number time segments in chronological order
 			{

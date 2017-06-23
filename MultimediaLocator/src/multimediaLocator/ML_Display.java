@@ -90,7 +90,7 @@ public class ML_Display
 	ArrayList<String> messages;							// Messages to display on screen
 	ArrayList<String> metadata;							// Metadata messages to display on screen
 	ArrayList<String> startupMessages;					// Messages to display on screen
-	PFont messageFont;
+	PFont defaultFont, messageFont;
 
 	int messageDuration = 40;							// Frame length to display messages
 	int maxMessages = 16;								// Maximum simultaneous messages on screen
@@ -112,6 +112,9 @@ public class ML_Display
 	private final float largeTextSize = 56.f;
 	private final float mediumTextSize = 44.f;
 	private final float smallTextSize = 36.f;
+	
+	private final float messageTextSize = 48.f;
+	
 	private final float linePadding = 20.f;
 	private final float lineWidth = smallTextSize + linePadding;			
 	private final float lineWidthWide = largeTextSize + linePadding;			
@@ -128,8 +131,10 @@ public class ML_Display
 	{
 		ml = parent;
 		
-		screenWidth = ml.appWidth;
-		screenHeight = ml.appHeight;
+		screenWidth = ml.displayWidth;
+		screenHeight = ml.displayHeight;
+//		screenWidth = ml.appWidth;
+//		screenHeight = ml.appHeight;
 		
 		utilities = new WMV_Utilities();
 		
@@ -143,7 +148,8 @@ public class ML_Display
 //		rightTextXOffset = 0.f;
 //		midRightTextXOffset = screenWidth / 1.5f;
 
-		topTextYOffset = -screenHeight / 1.66f;
+//		topTextYOffset = -screenHeight / 1.66f;
+		topTextYOffset = -screenHeight / 1.6f;
 		clusterImageXOffset = -screenWidth / 1.85f;
 		clusterImageYOffset = screenHeight * 1.33f;
 		
@@ -178,7 +184,10 @@ public class ML_Display
 
 		map2D = new ML_Map(this);
 		
-		messageFont = ml.createFont("ArialNarrow-Bold", 48);
+		messageFont = ml.createFont("ArialNarrow-Bold", messageTextSize);
+		defaultFont = ml.createFont("SansSerif", smallTextSize);
+
+//		messageFont = ml.createFont("ArialNarrow-Bold", 48);
 		ml.textFont(messageFont);
 		
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
@@ -267,9 +276,11 @@ public class ML_Display
 	 */
 	public void displayTimeView(WMV_World p)
 	{
-		startHUD();
+		startTimelineHUD();
 		ml.pushMatrix();
 		
+		ml.textFont(defaultFont); // = ml.createFont("SansSerif", 30);
+
 		float xPos = centerTextXOffset;
 		float yPos = topTextYOffset;			// Starting vertical position
 		
@@ -1460,6 +1471,20 @@ public class ML_Display
 		ml.camera();
 //		ml.perspective(p.viewer.getFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
 //		ml.perspective(p.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, p.viewer.getSettings().nearClippingDistance, 10000.f);;
+	}
+
+	/**
+	 * Initialize 2D drawing 
+	 * @param p Parent world
+	 */
+	void startTimelineHUD()
+	{
+		ml.perspective(ml.world.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, ml.world.viewer.getSettings().nearClippingDistance, 10000.f);;
+		ml.camera();
+
+//		ml.camera();
+//		ml.perspective(ml.world.viewer.getFieldOfView(), (float)screenWidth/(float)screenHeight, ml.world.viewer.getSettings().nearClippingDistance, 10000.f);;
+//		ml.perspective(ml.world.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, ml.world.viewer.getSettings().nearClippingDistance, 10000.f);;
 	}
 
 	/**

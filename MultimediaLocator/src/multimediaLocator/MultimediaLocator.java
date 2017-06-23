@@ -133,7 +133,6 @@ public class MultimediaLocator extends PApplet
 		initCubeMap();
 		
 		addShutdownHook();
-//		convertVideosTest();
 	}
 
 	/** 
@@ -212,7 +211,7 @@ public class MultimediaLocator extends PApplet
 			}
 
 			if(state.export && world.outputFolderSelected)						/* Image exporting */
-				export();
+				exportScreenImage();
 
 			if(state.exportMedia && world.outputFolderSelected)						/* Image exporting */
 				exportMedia();
@@ -392,11 +391,6 @@ public class MultimediaLocator extends PApplet
 				return world.loadAndSetSimulationState(f);
 			else
 				return world.loadSimulationState(f);
-			
-//			if(set)
-//				return world.loadAndSetSimulationState(savedState, f);
-//			else
-//				return world.loadSimulationState(savedState, f);
 		}
 		else return null;
 	}
@@ -579,8 +573,6 @@ public class MultimediaLocator extends PApplet
 //		hideMainWindow();
 
 		display.reset();						// Initialize displays
-//		display = new ML_Display(this);			// Initialize displays
-//		display.initializeWindows(world);
 
 		metadata = new WMV_Metadata(this, debugSettings);		// Reset metadata loader
 		stitcher = new ML_Stitcher(world);						// Reset panoramic stitcher
@@ -601,18 +593,10 @@ public class MultimediaLocator extends PApplet
 	/**
 	 * Export screen image or selected media files
 	 */
-	public void export()
+	public void exportScreenImage()
 	{
-//		if(world.viewer.getSettings().selection)
-//		{
-//			world.exportSelectedMedia();
-//			System.out.println("Exported image(s) to "+world.outputFolder);
-//		}
-//		else
-//		{
-			saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
-			System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
-//		}
+		saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
+		System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
 		state.export = false;
 	}
 
@@ -629,83 +613,6 @@ public class MultimediaLocator extends PApplet
 		state.exportMedia = false;
 	}
 	
-	/**
-	 * Save screen image or export selected media		-- Not working?
-	 */
-	public void exportCubeMapFace(int faceID, PGL pgl)				// Starts at 34069
-	{
-		System.out.println("exportCubeMap()... faceID:"+faceID);	
-		
-//		int idx = faceID-34068;
-	    ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * Integer.SIZE / 8);
-
-	    pgl.readPixels(0, 0, width, height, PGL.RGBA, PGL.UNSIGNED_BYTE, buffer); 
-
-//	    ByteBuffer byteBuffer = buffer;
-	    buffer.rewind();
-	    Byte[] buffer1 = new Byte[buffer.capacity()];
-	    int n = 0;
-	    while (n < buffer.capacity()) {
-	      buffer1[n] = buffer.get(n + 3);
-	      buffer1[n + 1] = buffer.get(n);
-	      buffer1[n + 2] = buffer.get(n + 1);
-	      buffer1[n + 3] = buffer.get(n + 2);
-	      n += 4;
-	    }
-	    buffer.rewind();
-	    
-//	    Image awtImage = new javax.swing.ImageIcon(buffer.array()).getImage();
-	    byte[] buf = new byte[buffer.remaining()];
-//	    buffer.get(b);
-	    
-	    Image awtImage = new javax.swing.ImageIcon(buf).getImage();
-//	    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-//	    img.getRaster().setDataElements(0, 0, width, height, buffer);
-//	    img = new BufferedImage(buffer);
-
-	    PImage image;
-	    
-	    if (awtImage instanceof BufferedImage) {
-	    	BufferedImage buffImage = (BufferedImage) awtImage;
-    		System.out.println("Image is BufferedImage. buf.length:"+buf.length+" buffer1.len:"+buffer1.length);
-	    	int space = buffImage.getColorModel().getColorSpace().getType();
-	    	if (space == ColorSpace.TYPE_CMYK) {
-	    		System.out.println("Image is a CMYK image, only RGB images are supported.");
-//	    		return null;
-	    	}
-	    	else if(space == ColorSpace.TYPE_RGB)
-	    		System.out.println("Image is a RGB image... buf.length:"+buf.length);
-	    	image = new PImage(awtImage);
-	    }
-	    else
-	    {
-    		System.out.println("Image is not a BufferedImage... buffer.capacity():"+buffer.capacity()+"...");
-	    	BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
-	        int[] arr = new int[buffer.asIntBuffer().limit()];
-//	        int[] arr = new int[buffer1];
-    		System.out.println("   ... arr.length:"+arr.length);
-	    	img.setRGB(0, 0, width, height, arr, 0, width);
-	    	image = stitcher.bufferedImageToPImage(img);
-	    }
-
-//	    faces[idx] = new PImage(awtImage);
-	    if (image.width == -1) 
-	    {
-	    	System.err.println("The image contains bad image data, or may not be an image.");
-	    }
-	    else
-	    {
-	    	String titleStr = world.getCurrentField().getName() + "_face"+(faceID-34068)+"-######.jpg";
-	    	String filePathStr = world.outputFolder + "/";
-	    	String outputPath = filePathStr + titleStr;
-	    	image.save(outputPath);
-//	    	faces[idx] = stitcher.bufferedImageToPImage(image);
-	    	System.out.println("Saved cube map image: " + world.getCurrentField().getName() + "_face"+(faceID-34068)+"-######.jpg");
-	    }
-		if(faceID >= 34074)									// Stop exporting after face 6
-			state.exportCubeMap = false;
-	}
-
 	/**
 	 * Open library folder when folder has been selected
 	 * @param selection File object for selected folder
@@ -933,6 +840,114 @@ public class MultimediaLocator extends PApplet
 		}
 	}
 	
+	/**
+	 * Import media folders and create new library
+	 */
+	private void createNewLibraryFromMediaFolders()
+	{
+		if(library.mediaFolders.size() > 0)
+		{
+			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
+			state.selectedLibrary = library.create(this, library.mediaFolders);
+			state.createdLibrary = true;
+			
+			if(!state.selectedLibrary)
+			{
+				System.out.println("createNewLibraryFromMediaFolders()... Error importing media to create library...");
+				exit();
+			}
+		}
+	}
+	
+	/**
+	 * Get image from resources
+	 * @param fileName File name
+	 * @return Mask image
+	 */
+	public PImage getImageResource(String fileName)
+	{
+		String resourcePath = "/images/";
+		BufferedImage image;
+		
+		URL imageURL = MultimediaLocator.class.getResource(resourcePath + fileName);
+		try{
+			image = ImageIO.read(imageURL.openStream());
+			return world.utilities.bufferedImageToPImage(image);
+		}
+		catch(Throwable t)
+		{
+			System.out.println("ERROR in getImageResource... t:"+t+" imageURL == null? "+(imageURL == null));
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Get image from resources
+	 * @param fileName File name
+	 * @return Mask image
+	 */
+	public String getScriptResource(String fileName)
+	{
+		String resourcePath = "/scripts/";
+		
+//		URL textURL = MultimediaLocator.class.getResource(resourcePath + fileName);
+		StringBuilder result = new StringBuilder("");
+		try{
+			String line;
+
+			InputStream in = MultimediaLocator.class.getResourceAsStream(resourcePath + fileName); 
+			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+			while ((line = reader.readLine()) != null) {
+				result.append(line);
+				result.append(System.getProperty("line.separator"));
+			}
+			in.close();
+		}
+		catch(Throwable t)
+		{
+			System.out.println("ERROR in getScriptResource... t:"+t);
+		}
+
+		BufferedWriter writer = null;
+		String scriptName = "Convert_to_480p.txt";
+		String scriptTxtPath = tempDir + "/" + scriptName;
+		String scriptPath = tempDir + "/" + "Convert_to_480p.scpt";
+		
+		try {
+			File file = new File(scriptTxtPath);
+			if(!file.exists())
+				file.createNewFile();
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(result.toString());
+		} 
+		catch (Throwable t)
+		{
+			System.out.println("ERROR 2 in getScriptResource... t:"+t);
+		}
+
+		try{
+			if (writer != null) writer.close();
+		}
+		catch(IOException io)
+		{
+			System.out.println("ERROR 3 in getScriptResource... t:"+io);
+		}
+		
+		Runtime runtime = Runtime.getRuntime();
+		String[] args = { "osacompile", "-o", scriptPath, scriptTxtPath };
+		try
+		{
+			Process process = runtime.exec(args);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+		return scriptPath;
+	}
+	
 	public void display360()
 	{
 		/* Start cubemap */
@@ -1065,120 +1080,82 @@ public class MultimediaLocator extends PApplet
 	}
 
 	/**
-	 * Import media folders and create new library
+	 * Save screen image or export selected media		-- In progress
 	 */
-	private void createNewLibraryFromMediaFolders()
+	public void exportCubeMapFace(int faceID, PGL pgl)				// Starts at 34069
 	{
-		if(library.mediaFolders.size() > 0)
-		{
-			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
-			state.selectedLibrary = library.create(this, library.mediaFolders);
-			state.createdLibrary = true;
-			
-			if(!state.selectedLibrary)
-			{
-				System.out.println("createNewLibraryFromMediaFolders()... Error importing media to create library...");
-				exit();
-			}
-		}
-	}
-	
-	/**
-	 * Get image from resources
-	 * @param fileName File name
-	 * @return Mask image
-	 */
-	public PImage getImageResource(String fileName)
-	{
-		String resourcePath = "/images/";
-		BufferedImage image;
+		System.out.println("exportCubeMap()... faceID:"+faceID);	
 		
-		URL imageURL = MultimediaLocator.class.getResource(resourcePath + fileName);
-		try{
-			image = ImageIO.read(imageURL.openStream());
-			return world.utilities.bufferedImageToPImage(image);
-		}
-		catch(Throwable t)
-		{
-			System.out.println("ERROR in getImageResource... t:"+t+" imageURL == null? "+(imageURL == null));
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * Get image from resources
-	 * @param fileName File name
-	 * @return Mask image
-	 */
-	public String getScriptResource(String fileName)
-	{
-		String resourcePath = "/scripts/";
-		
-//		URL textURL = MultimediaLocator.class.getResource(resourcePath + fileName);
-		StringBuilder result = new StringBuilder("");
-		try{
-			String line;
+//		int idx = faceID-34068;
+	    ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * Integer.SIZE / 8);
 
-			InputStream in = MultimediaLocator.class.getResourceAsStream(resourcePath + fileName); 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			while ((line = reader.readLine()) != null) {
-				result.append(line);
-				result.append(System.getProperty("line.separator"));
-			}
-			in.close();
-		}
-		catch(Throwable t)
-		{
-			System.out.println("ERROR in getScriptResource... t:"+t);
-		}
+	    pgl.readPixels(0, 0, width, height, PGL.RGBA, PGL.UNSIGNED_BYTE, buffer); 
 
-		BufferedWriter writer = null;
-		String scriptName = "Convert_to_480p.txt";
-		String scriptTxtPath = tempDir + "/" + scriptName;
-		String scriptPath = tempDir + "/" + "Convert_to_480p.scpt";
-		
-		try {
-			File file = new File(scriptTxtPath);
-			if(!file.exists())
-				file.createNewFile();
-			writer = new BufferedWriter(new FileWriter(file));
-			writer.write(result.toString());
-		} 
-		catch (Throwable t)
-		{
-			System.out.println("ERROR 2 in getScriptResource... t:"+t);
-		}
+//	    ByteBuffer byteBuffer = buffer;
+	    buffer.rewind();
+	    Byte[] buffer1 = new Byte[buffer.capacity()];
+	    int n = 0;
+	    while (n < buffer.capacity()) {
+	      buffer1[n] = buffer.get(n + 3);
+	      buffer1[n + 1] = buffer.get(n);
+	      buffer1[n + 2] = buffer.get(n + 1);
+	      buffer1[n + 3] = buffer.get(n + 2);
+	      n += 4;
+	    }
+	    buffer.rewind();
+	    
+//	    Image awtImage = new javax.swing.ImageIcon(buffer.array()).getImage();
+	    byte[] buf = new byte[buffer.remaining()];
+//	    buffer.get(b);
+	    
+	    Image awtImage = new javax.swing.ImageIcon(buf).getImage();
+//	    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+//	    img.getRaster().setDataElements(0, 0, width, height, buffer);
+//	    img = new BufferedImage(buffer);
 
-		try{
-			if (writer != null) writer.close();
-		}
-		catch(IOException io)
-		{
-			System.out.println("ERROR 3 in getScriptResource... t:"+io);
-		}
-		
-		Runtime runtime = Runtime.getRuntime();
-		String[] args = { "osacompile", "-o", scriptPath, scriptTxtPath };
-		try
-		{
-			Process process = runtime.exec(args);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+	    PImage image;
+	    
+	    if (awtImage instanceof BufferedImage) {
+	    	BufferedImage buffImage = (BufferedImage) awtImage;
+    		System.out.println("Image is BufferedImage. buf.length:"+buf.length+" buffer1.len:"+buffer1.length);
+	    	int space = buffImage.getColorModel().getColorSpace().getType();
+	    	if (space == ColorSpace.TYPE_CMYK) {
+	    		System.out.println("Image is a CMYK image, only RGB images are supported.");
+//	    		return null;
+	    	}
+	    	else if(space == ColorSpace.TYPE_RGB)
+	    		System.out.println("Image is a RGB image... buf.length:"+buf.length);
+	    	image = new PImage(awtImage);
+	    }
+	    else
+	    {
+    		System.out.println("Image is not a BufferedImage... buffer.capacity():"+buffer.capacity()+"...");
+	    	BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+	        int[] arr = new int[buffer.asIntBuffer().limit()];
+//	        int[] arr = new int[buffer1];
+    		System.out.println("   ... arr.length:"+arr.length);
+	    	img.setRGB(0, 0, width, height, arr, 0, width);
+	    	image = stitcher.bufferedImageToPImage(img);
+	    }
 
-		return scriptPath;
+//	    faces[idx] = new PImage(awtImage);
+	    if (image.width == -1) 
+	    {
+	    	System.err.println("The image contains bad image data, or may not be an image.");
+	    }
+	    else
+	    {
+	    	String titleStr = world.getCurrentField().getName() + "_face"+(faceID-34068)+"-######.jpg";
+	    	String filePathStr = world.outputFolder + "/";
+	    	String outputPath = filePathStr + titleStr;
+	    	image.save(outputPath);
+//	    	faces[idx] = stitcher.bufferedImageToPImage(image);
+	    	System.out.println("Saved cube map image: " + world.getCurrentField().getName() + "_face"+(faceID-34068)+"-######.jpg");
+	    }
+		if(faceID >= 34074)									// Stop exporting after face 6
+			state.exportCubeMap = false;
 	}
-	
-	public void convertVideosTest()		// -- Debugging
-	{
-		String inputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testInput/";
-		String outputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testOutput/";
-		world.utilities.convertVideos(this, inputPath, outputPath);
-	}
-	
+
 	public void addShutdownHook()
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -1720,6 +1697,13 @@ public class MultimediaLocator extends PApplet
 //		surface.setTitle(title);
 //	}
 	
+//	public void convertVideosTest()		// -- Debugging
+//	{
+//		String inputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testInput/";
+//		String outputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testOutput/";
+//		world.utilities.convertVideos(this, inputPath, outputPath);
+//	}
+
 //	void drawTestScene() 
 //	{  
 ////		System.out.println("drawTestScene()...");

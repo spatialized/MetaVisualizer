@@ -95,7 +95,7 @@ public class WMV_Image extends WMV_Media
 		{
 			if(getDebugSettings().image || getDebugSettings().ml)
 			{
-				System.out.println("Image #"+getID()+" Error with Image Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
+				System.out.println("Image #"+getID()+" name:"+getName()+" ERROR with Image Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
 				if(source != null && mask != null)
 				{
 					System.out.println("  source.width:"+source.width+" mask.width:"+mask.width+"  source.height:"+source.height+" mask.height:"+mask.height);

@@ -1177,7 +1177,7 @@ public class ML_KeyboardControls
 				ml.display.window.closeHelpWindow();
 		}
 
-		if(display.displayView < 2)			/* World and Map View Controls */
+		if(display.displayView < 2)				/* World and Map View Controls */
 		{
 			if (key == 'a') 
 				ml.world.viewer.stopMoveXTransition();
@@ -1189,7 +1189,7 @@ public class ML_KeyboardControls
 				ml.world.viewer.stopMoveZTransition();
 		}
 		
-		if(display.displayView == 0)		/* World View Controls */
+		if(display.displayView == 0)			/* World View Controls */
 		{
 			if (key == 'e') 
 				ml.world.viewer.stopMoveYTransition();

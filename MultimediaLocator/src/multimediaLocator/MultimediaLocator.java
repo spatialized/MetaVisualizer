@@ -238,6 +238,9 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.initialClustering)
 		{
+			world.loadImageMasks();					
+			world.loadVideoMasks();
+
 			if(!windowVisible) showMainWindow();
 
 			if( !state.fieldsInitialized )
@@ -461,8 +464,9 @@ public class MultimediaLocator extends PApplet
 	 */
 	private void finishInitialization()
 	{
-		world.setBlurMasks();			// Set blur masks
-		world.updateAllMediaSettings();					// -- Only needed if field(s) loaded from data folder!
+		System.out.println("ML.finishInitialization()...");
+		world.setBlurMasks();						// Set blur masks
+		world.updateAllMediaSettings();				// -- Only needed if field(s) loaded from data folder!
 
 		state.initialClustering = false;				
 		display.worldSetup = false;
@@ -831,8 +835,8 @@ public class MultimediaLocator extends PApplet
 			}
 
 			world.getState().stitchingPath = parentFilePath + "stitched/";
-			world.loadImageMasks();					
-			world.loadVideoMasks();
+//			world.loadImageMasks();					
+//			world.loadVideoMasks();
 			
 			selectedFolder = true;
 		}
@@ -857,9 +861,12 @@ public class MultimediaLocator extends PApplet
 			state.selectedLibrary = library.create(this, library.mediaFolders);
 			state.createdLibrary = true;
 			
+			world.state.stitchingPath = library.getLibraryFolder() + "/stitched/";
+			System.out.println("ML.createNewLibraryFromMediaFolders()... Set stitching path:"+world.getState().stitchingPath);
+
 			if(!state.selectedLibrary)
 			{
-				System.out.println("createNewLibraryFromMediaFolders()... Error importing media to create library...");
+				System.out.println("ML.createNewLibraryFromMediaFolders()... Error importing media to create library...");
 				exit();
 			}
 		}

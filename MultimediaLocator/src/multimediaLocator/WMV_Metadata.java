@@ -1384,7 +1384,8 @@ class WMV_Metadata
 		}
 		catch(Throwable t)
 		{
-			if(debugSettings.metadata) System.out.println("Metadata.loadVideoMetadata()... Throwable while reading video metadata: " + t);
+			if(debugSettings.metadata) 
+				System.out.println("Metadata.loadVideoMetadata()... Throwable while reading video metadata: " + t);
 			dataMissing = true;
 		}
 

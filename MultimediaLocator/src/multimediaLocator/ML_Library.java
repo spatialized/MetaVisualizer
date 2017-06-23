@@ -174,30 +174,29 @@ public class ML_Library
 
 		String smallVideosFolder = fieldFolder + "/small_videos";
 		String largeVideosFolder = fieldFolder + "/large_videos";
-//		ArrayList<String> files = getFilesInDirectory(smallVideosFolder);
 		ArrayList<String> filesToShrink = new ArrayList<String>();
 		
 		for(String fs : files)
 		{
-			String filePath = smallVideosFolder + "/"+ fs;
+			String filePath = fs;
 			File file = new File(filePath);
 			File smallVideosFolderFile = new File(smallVideosFolder);
 			File largeVideosFolderFile = new File(largeVideosFolder);
 			
-			WMV_VideoMetadata iMetadata = ml.metadata.loadVideoMetadata(file, "America/Los_Angeles");
-			if(iMetadata == null)
+			WMV_VideoMetadata vMetadata = ml.metadata.loadVideoMetadata(file, "America/Los_Angeles");
+			if(vMetadata == null)
 			{
-				System.out.println("Library.createNewLibrary()... iMetadata is NULL for video "+fs+"!");
+				System.out.println("Library.sortVideosBySize()... vMetadata is NULL for video "+fs+"!");
 			}
 			else
 			{
-				if(iMetadata.cameraModel != 2)		// Check that video isn't a Theta S panorama
+				if(vMetadata.cameraModel != 2)		// Check that video isn't a Theta S panorama
 				{
-					if(!iMetadata.software.equals("Occipital 360 Panorama"))		// -- Check this!!
+					if(!vMetadata.software.equals("Occipital 360 Panorama"))		// -- Check this!!
 					{
-						if(iMetadata.videoWidth > 640)
+						if(vMetadata.videoWidth > 640)
 						{
-							System.out.println("Library.createNewLibrary()... video larger than 640 px: "+fs);
+//							System.out.println("Library.createNewLibrary()... video larger than 640 px: "+fs);
 							if(ml.world.getSettings().copyLargeVideoFiles)
 							{
 								if(!largeVideosFolderFile.exists())
@@ -206,21 +205,21 @@ public class ML_Library
 							}
 							filesToShrink.add(filePath);
 						}
-						else if(iMetadata.videoWidth == 640 && iMetadata.videoHeight == 360)
+						else if(vMetadata.videoWidth == 640 && vMetadata.videoHeight == 360)
 						{
 							if(!smallVideosFolderFile.exists())
 								smallVideosFolderFile.mkdir();
 							copyFile(filePath, smallVideosFolder);						// Import full size video to large_videos
 						}
-						else if(iMetadata.videoWidth < 640)
+						else if(vMetadata.videoWidth < 640)
 						{
-							System.out.println("Library.createNewLibrary()... ERROR: video smaller than 640 px: "+fs);
+							System.out.println("Library.sortVideosBySize()... ERROR: video smaller than 640 px: "+fs);
 						}
 					}
 				}
 				else
 				{
-					System.out.println("Library.createNewLibrary()... Verified video width for video:"+fs);
+					System.out.println("Library.sortVideosBySize()... Verified video width for video:"+fs);
 				}
 			}
 		}
@@ -228,15 +227,21 @@ public class ML_Library
 		if(filesToShrink.size() > 0)
 		{
 			System.out.println("Library.sortVideosBySize()... Shrinking "+filesToShrink.size()+" videos...");
-			
-			Process conversionProcess = ml.world.utilities.convertVideos(ml, largeVideosFolder, smallVideosFolder);
-			
-			try{
-				conversionProcess.waitFor();
-			}
-			catch(Throwable t)
+
+			for(String largeVideoPath : filesToShrink)
 			{
-				System.out.println("Metadata.loadVideoFiles()... ERROR in process.waitFor()... t:"+t);
+//				File file = new File(largeVideoPath);
+//				String largeVideoName = file.getName();
+//				System.out.println("Library.sortVideosBySize()... Shrinking video: "+file.getName()+" largeVideoPath:"+largeVideoPath);
+
+				try{
+					Process conversionProcess = ml.world.utilities.convertVideo(ml, largeVideoPath, smallVideosFolder + "/");
+					conversionProcess.waitFor();
+				}
+				catch(Throwable t)
+				{
+					System.out.println("Library.sortVideosBySize()... ERROR in process.waitFor()... t:"+t);
+				}
 			}
 		}
 	}
@@ -634,6 +639,9 @@ public class ML_Library
 				copyFile(fs, destination);
 		}
 		
+		sortPanoramasFromImages(ml, imagePaths, fieldFolder);
+		sortImagesBySize(ml, imagePaths, fieldFolder);
+		sortVideosBySize(ml, videoPaths, fieldFolder);
 //		sortPanoramasFromImages(ml, mediaFolder, fieldFolder);
 //		sortImagesBySize(ml, fieldFolder);
 //		sortVideosBySize(ml, fieldFolder);

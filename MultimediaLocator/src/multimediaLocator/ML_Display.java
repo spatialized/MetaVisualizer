@@ -1704,17 +1704,7 @@ public class ML_Display
 						ml.library = new ML_Library("");		// Create new library
 					}
 				}
-				else if(ml.state.selectedNewLibraryDestination)
-				{
-					System.out.println(">>> displayStartup()... selectedNewLibraryDestination");
-//					window.btnImportMediaFolder.setVisible(false);
-//					window.btnMakeLibrary.setVisible(false);
-//					window.lblImport.setVisible(false);
-//					window.lblCreateLibraryWindowText.setVisible(true);			// Set "Please wait..." text
-//					window.setCreateLibraryWindowText("Creating library...");
-//					ml.text("Creating library from media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistanceInit);
-				}
-				else
+				else if(!ml.state.selectedNewLibraryDestination)
 				{
 					window.setCreateLibraryWindowText("Please select new library destination...");
 //					ml.text("Please select new library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistanceInit);

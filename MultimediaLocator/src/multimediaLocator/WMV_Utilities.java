@@ -1264,9 +1264,9 @@ public class WMV_Utilities
 			return false;
 		}
 	}
-	
+
 	/**
-	 * Convert videos in input folder to 480p (using QuickTime Player) and export to output folder
+	 * Convert list of videos to 480p (using QuickTime Player) and export to output folder
 	 * @param inputPath Input folder path
 	 * @param outputPath Output folder path
 	 * @return Whether successful
@@ -1274,6 +1274,7 @@ public class WMV_Utilities
 	public Process convertVideos(MultimediaLocator ml, String inputPath, String outputPath)
 	{
 		Process process;
+//		String scriptPath = ml.getScriptResource("Convert_File_to_480p.txt");
 		String scriptPath = ml.getScriptResource("Convert_to_480p.txt");
 		ml.delay(200);
 
@@ -1310,6 +1311,101 @@ public class WMV_Utilities
 		
 		return process;
 	}
+
+	/**
+	 * Convert list of videos to 480p (using QuickTime Player) and export to output folder
+	 * @param inputPath Input folder path
+	 * @param outputPath Output folder path
+	 * @return Whether successful
+	 */
+	public Process convertVideo(MultimediaLocator ml, String filePath, String outputPath)
+	{
+		String fileName = getFileNameFromPath(filePath);
+		
+		Process process;
+		String scriptPath = ml.getScriptResource("Convert_File_to_480p.txt");
+		ml.delay(200);
+
+		if(ml.debugSettings.video )
+		{
+			System.out.println("Utilities.convertVideo()... scriptPath:"+scriptPath);
+			System.out.println(" ... filePath:"+filePath);
+			System.out.println(" ... fileName:"+fileName);
+			System.out.println(" ... outputPath:"+outputPath);
+		}
+
+		Runtime runtime = Runtime.getRuntime();
+
+		String[] args = { "osascript", scriptPath, filePath, fileName, outputPath };
+
+		try
+		{
+			process = runtime.exec(args);
+
+			InputStream input = process.getInputStream();
+			for (int i = 0; i < input.available(); i++) {
+				System.out.println("" + input.read());
+			}
+
+			InputStream error = process.getErrorStream();
+			for (int i = 0; i < error.available(); i++) {
+				System.out.println("" + error.read());
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		
+		return process;
+	}
+
+//	/**
+//	 * Convert videos in input folder to 480p (using QuickTime Player) and export to output folder
+//	 * @param inputPath Input folder path
+//	 * @param outputPath Output folder path
+//	 * @return Whether successful
+//	 */
+//	public Process convertVideos(MultimediaLocator ml, String inputPath, String outputPath)
+//	{
+//		Process process;
+//		String scriptPath = ml.getScriptResource("Convert_to_480p.txt");
+//		ml.delay(200);
+//
+//		if(ml.debugSettings.video )
+//		{
+//			System.out.println("Utilities.convertVideos()... scriptPath:"+scriptPath);
+//			System.out.println(" ... inputPath:"+inputPath);
+//			System.out.println(" ... outputPath:"+outputPath);
+//		}
+//
+//		Runtime runtime = Runtime.getRuntime();
+//
+//		String[] args = { "osascript", scriptPath, inputPath, outputPath };
+//
+//		try
+//		{
+//			process = runtime.exec(args);
+//
+//			InputStream input = process.getInputStream();
+//			for (int i = 0; i < input.available(); i++) {
+//				System.out.println("" + input.read());
+//			}
+//
+//			InputStream error = process.getErrorStream();
+//			for (int i = 0; i < error.available(); i++) {
+//				System.out.println("" + error.read());
+//			}
+//		}
+//		catch (IOException e)
+//		{
+//			e.printStackTrace();
+//			return null;
+//		}
+//		
+//		return process;
+//	}
 
 	public PImage bufferedImageToPImage(BufferedImage bimg)
 	{         

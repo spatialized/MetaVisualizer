@@ -23,7 +23,7 @@ public class ML_Window
 	private int windowWidth = 310;
 	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 875;
 	private int compressedNavigationWindowHeight = 560, compressedMediaWindowHeight = 490;
-	private int delayAmount = 95;							// Delay length to avoid G4P library concurrent modification exception
+	private int delayAmount = 100;							// Delay length to avoid G4P library concurrent modification exception
 		
 	/* Windows */
 	public boolean compressTallWindows = false;
@@ -1340,6 +1340,8 @@ public class ML_Window
 		lblStatistics.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
 		lblStatistics.setTextBold();
 		
+		world.ml.delay(delayAmount);
+
 		y += iLargeBoxHeight;
 		lblViewerStats = new GLabel(statisticsWindow, x, y, statisticsWindow.width, iMediumBoxHeight, "Viewer");
 		lblViewerStats.setLocalColorScheme(G4P.SCHEME_10);

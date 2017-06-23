@@ -2184,6 +2184,8 @@ public class WMV_World
 			break;
 		case 15:
 			f.setImageBlurMask(image, blurMaskBothBoth);
+//			System.out.println("blurMaskBothBoth added to image #"+image.getID()+" name:"+image.getName());
+//			System.out.println("	mask == null?"+image.blurMask);
 			break;
 		}
 	}
@@ -2311,8 +2313,10 @@ public class WMV_World
 	 */
 	public void setBlurMasks()
 	{
+
 		for(WMV_Field f : fields)
 		{
+			System.out.println("World.setBlurMasks()... f.getImages().size():"+f.getImages().size());
 			for(WMV_Image image : f.getImages())
 			{
 				int bmID = image.getState().blurMaskID;
@@ -2322,7 +2326,7 @@ public class WMV_World
 					setVerticalBlurMask(image, bmID);
 				else
 				{
-					if(ml.debugSettings.image)
+//					if(ml.debugSettings.image)
 					{
 						System.out.println("World.setBlurMasks()... ERROR: Could not set mask... image has size other than 640x480 or 480x640!"+image.getName());
 						System.out.println("Setting image to disabled..."+image.getName());
@@ -2435,7 +2439,6 @@ public class WMV_World
 	public void loadImageMasks()
 	{
 		String maskPath = "/masks_image/";
-		
 		blurMaskLeftTop = getMaskImageResource(maskPath, "blurMaskLeftTop.jpg");
 		blurMaskLeftCenter = getMaskImageResource(maskPath, "blurMaskLeftCenter.jpg");
 		blurMaskLeftBottom = getMaskImageResource(maskPath, "blurMaskLeftBottom.jpg");
@@ -2452,6 +2455,8 @@ public class WMV_World
 		blurMaskBothCenter = getMaskImageResource(maskPath, "blurMaskBothCenter.jpg");
 		blurMaskBothBottom = getMaskImageResource(maskPath, "blurMaskBothBottom.jpg");
 		blurMaskBothBoth = getMaskImageResource(maskPath, "blurMaskBothBoth.jpg");
+		
+//		System.out.println("blurMaskBothBoth == null?"+(blurMaskBothBoth==null));
 		
 		maskPath = "/masks_panorama/";
 		blurMaskPanorama = getMaskImageResource(maskPath, "blurMaskPanorama.jpg");

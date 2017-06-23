@@ -38,9 +38,6 @@ public class WMV_VideoState
 	public boolean thinningVisibility = false;
 
 	/* Graphics */
-	public int blurMaskID;							// ID of blur mask 
-	public int horizBorderID = -1;					// Horizontal border ID   	0: Left 1: Center 2: Right  3: Left+Right
-	public int vertBorderID = -1;					// Vertical border ID		0: Bottom 1: Center 2: Top  3: Top+Bottom
 	PVector[] vertices, sVertices;
 	public PVector azimuthAxis = new PVector(0, 1, 0);
 	public PVector verticalAxis = new PVector(1, 0, 0);
@@ -49,6 +46,10 @@ public class WMV_VideoState
 	public float outlineAlpha = 180.f;				// Selection outline alpha
 	public float outlineHue = 90.f;					// Selection outline hue
 	public final float videoFocusDistanceFactor = 0.8f;		// Scaling from defaultFocusDistance to video focus distance
+	
+	public int blurMaskID;							// ID of blur mask 
+	public int horizBordersID = -1;					// Horizontal border ID   	0: Left 1: Center 2: Right  3: Left+Right
+	public int vertBordersID = -1;					// Vertical border ID		0: Bottom 1: Center 2: Top  3: Top+Bottom
 	
 	public float fadingFocusDistanceStartFrame = 0.f;
 	public float fadingFocusDistanceEndFrame = 0.f;	// Fade focus distance and image size together

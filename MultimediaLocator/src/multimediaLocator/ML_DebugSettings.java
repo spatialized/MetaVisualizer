@@ -7,16 +7,17 @@ package multimediaLocator;
 
 public class ML_DebugSettings 
 {
-	/* General */
-	public boolean memory = false;				// Debug memory
-	public boolean detailed = false;			// Verbose debugging messages
+	/* Debug Modes */
+	public boolean detailed = true;			// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	public boolean messages = true;				// On screen debug messages
 	
-	/* Data */
-	public boolean ml = false;					// Debug MultimediaLocator class
-	public boolean world = false;				// Debug WMV_Field class
-
+	/* Main */
+	public boolean ml = true;					// Debug MultimediaLocator class
+	public boolean world = true;				// Debug WMV_Field class
+	public boolean library = true;
+	public boolean memory = false;				// Debug memory
+	
 	/* Model */
 	public boolean metadata = false;				// Debug WMV_Metadata class
 	public boolean cluster = false;				// Debug WMV_Cluster class

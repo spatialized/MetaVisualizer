@@ -467,8 +467,9 @@ public class MultimediaLocator extends PApplet
 		state.initialClustering = false;				
 		display.worldSetup = false;
 		
-		if(display.window.showLibraryWindow) display.window.hideLibraryWindow();
-
+		if(display.window.showCreateLibraryWindow) display.window.closeCreateLibraryWindow();
+		if(display.window.showLibraryWindow) display.window.closeLibraryWindow();
+//		if(display.window.showLibraryWindow) display.window.hideLibraryWindow();
 		state.running = true;
 		state.startedRunning = true;
 		
@@ -699,6 +700,11 @@ public class MultimediaLocator extends PApplet
 		{
 			state.selectedNewLibraryDestination = true;	// Library destination folder has been selected
 			state.librarySetup = false;					// Library setup complete
+			display.window.btnImportMediaFolder.setVisible(false);
+			display.window.btnMakeLibrary.setVisible(false);
+			display.window.lblImport.setVisible(false);
+			display.window.lblCreateLibraryWindowText.setVisible(true);			// Set "Please wait..." text
+			display.window.setCreateLibraryWindowText("Creating library...");
 		}
 		else
 		{
@@ -1505,8 +1511,12 @@ public class MultimediaLocator extends PApplet
 	public void libraryDestinationDialog()
 	{
 		state.chooseLibraryDestination = false;
-		if(display.window.importWindow.isVisible())
-			display.window.hideImportWindow();
+		display.window.setCreateLibraryWindowText("Please select library destination:");
+
+//		if(display.window.importWindow.isVisible())
+//			display.window.closeCreateLibraryWindow();
+//			display.window.hideCreateLibraryWindow();
+		
 		selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	

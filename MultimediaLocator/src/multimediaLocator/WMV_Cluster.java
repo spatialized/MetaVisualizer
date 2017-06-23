@@ -750,8 +750,8 @@ public class WMV_Cluster
 						int m = curImages.get(idx);
 						if(imageList.get(m).getID() != img.getID())		// Don't compare image to itself
 						{
-							if(debugSettings.cluster && debugSettings.detailed)
-								System.out.println("Comparing image:"+img.getDirection()+" to m: "+imageList.get(m).getDirection() + " stitchingMinAngle:"+worldSettings.stitchingMinAngle);
+//							if(debugSettings.cluster && debugSettings.detailed)
+//								System.out.println("Comparing image:"+img.getDirection()+" to m: "+imageList.get(m).getDirection() + " stitchingMinAngle:"+worldSettings.stitchingMinAngle);
 							
 							if(Math.abs(img.getDirection() - imageList.get(m).getDirection()) < worldSettings.stitchingMinAngle)
 							{

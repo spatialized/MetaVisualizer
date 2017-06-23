@@ -875,8 +875,8 @@ public class WMV_Viewer
 				if(id >= 0 && id < currentField.getPanoramaCount())
 					result = currentField.getPanorama(id).getAssociatedClusterID();
 				
-				System.out.println("Viewer.getNearestClusterWithType()... type Panorama... found id#"+id+" in cluster #"+result);
-				System.out.println("	has pano?  "+currentField.getCluster(result).hasPanorama()+"	is pano in cluster?  "+currentField.getCluster(result).getPanoramas(currentField.getPanoramas()).contains(id));
+//				System.out.println("Viewer.getNearestClusterWithType()... type Panorama... found id#"+id+" in cluster #"+result);
+//				System.out.println("	has pano?  "+currentField.getCluster(result).hasPanorama()+"	is pano in cluster?  "+currentField.getCluster(result).getPanoramas(currentField.getPanoramas()).contains(id));
 				
 				break;
 			case 2:

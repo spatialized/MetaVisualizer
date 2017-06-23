@@ -84,7 +84,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		{
 			if(getDebugSettings().video || getDebugSettings().ml)
 			{
-				System.out.println("Error with Video Blur Mask... "+ex+" state.horizBorderID:"+state.horizBorderID+" state.vertBorderID:"+state.vertBorderID);
+				System.out.println("Error with Video Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
 				if(source != null && mask != null)
 				{
 					System.out.println("  state.origVideoWidth:"+state.origVideoWidth+" source.width:"+source.width+" mask.width:"+mask.width);
@@ -1054,9 +1054,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	  */
 	 public void setBlurMaskID()
 	 {
-		 if(state.horizBorderID == 0)
+		 if(state.horizBordersID == 0)
 		 {
-			 switch(state.vertBorderID)
+			 switch(state.vertBordersID)
 			 {
 			 case 0:
 //				 blurMask = p.p.blurMaskLeftTop;
@@ -1077,9 +1077,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				 break;
 			 }
 		 }
-		 else if(state.horizBorderID == 1)
+		 else if(state.horizBordersID == 1)
 		 {
-			 switch(state.vertBorderID)
+			 switch(state.vertBordersID)
 			 {
 			 case 0:
 //				 blurMask = p.p.blurMaskCenterTop;
@@ -1100,9 +1100,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				 break;
 			 }
 		 }
-		 else if(state.horizBorderID == 2)
+		 else if(state.horizBordersID == 2)
 		 {
-			 switch(state.vertBorderID)
+			 switch(state.vertBordersID)
 			 {
 			 case 0:
 //				 blurMask = p.p.blurMaskRightTop;
@@ -1123,9 +1123,9 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				 break;
 			 }
 		 }
-		 else if(state.horizBorderID == 3)
+		 else if(state.horizBordersID == 3)
 		 {
-			 switch(state.vertBorderID)
+			 switch(state.vertBordersID)
 			 {
 			 case 0:
 //				 blurMask = p.p.blurMaskBothTop;
@@ -1374,12 +1374,12 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	
 	 public void setHorizBorderID(int newHorizBorderID)
 	 {
-		 state.horizBorderID = newHorizBorderID;
+		 state.horizBordersID = newHorizBorderID;
 	 }
 
 	 public void setVertBorderID(int newVertBorderID)
 	 {
-		 state.vertBorderID = newVertBorderID;
+		 state.vertBordersID = newVertBorderID;
 	 }
 	 
 	 public void setBlurMaskID(int newBlurMaskID)

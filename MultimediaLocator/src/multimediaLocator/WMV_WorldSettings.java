@@ -11,7 +11,10 @@ public class WMV_WorldSettings
 	
 	/* Model */
 	public boolean divideFields = false;					// Attempt to divide fields when loading?
-
+	
+	public boolean copyLargeImageFiles = false;
+	public boolean copyLargeVideoFiles = false;
+	
 	public final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public final float defaultAltitudeScalingFactor = 0.33f;	// Adjust altitude for ease of viewing
 	public float subjectSizeRatio = 0.18f;					// Subject portion of image / video plane (used in scaling from focus distance to imageSize)

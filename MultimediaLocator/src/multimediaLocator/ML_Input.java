@@ -203,12 +203,11 @@ public class ML_Input
 					ml.state.librarySetup = true;
 					ml.createNewLibrary = true;
 					ml.state.chooseMediaFolders = true;
-//					ml.display.window.btnCreateLibrary.setVisible(false);
-//					ml.display.window.btnOpenLibrary.setVisible(false);
-//					ml.display.window.btnLibraryHelp.setVisible(false);
-//					ml.display.window.lblLibrary.setVisible(false);
-//					ml.display.window.lblLibraryWait.setVisible(true);
-					display.window.hideLibraryWindow();
+//					ml.display.window.btnImportMediaFolder.setVisible(false);
+//					ml.display.window.btnMakeLibrary.setVisible(false);
+//					ml.display.window.lblImport.setVisible(false);
+
+//					display.window.closeLibraryWindow();
 					break;
 	
 				case "OpenLibrary":
@@ -465,6 +464,48 @@ public class ML_Input
 					break;
 //				case "ZoomToSelected":
 //					break;
+				
+				/* Time */
+				case "SetTimeView":
+					display.setDisplayView(ml.world, 2);
+					break;
+				case "TimelineReverse":
+						ml.display.scroll(ml.world, -1);
+					break;
+				case "TimelineForward":
+					ml.display.scroll(ml.world, 1);
+					break;
+				case "TimelineZoomIn":
+					ml.display.zoom(ml.world, -1, true);
+					break;
+				case "TimelineZoomOut":
+					ml.display.zoom(ml.world, 1, true);
+					break;
+				case "TimelineZoomToFit":
+					ml.display.zoomToTimeline(ml.world, true);
+					break;
+				case "TimelineZoomToSelected":
+					ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+					break;
+				case "TimelineZoomToDate":
+					ml.display.zoomToCurrentSelectableDate(ml.world, true);
+					break;
+					
+//					if (key == 'j') 
+//						ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
+//
+//					if (key == 'r')									// Zoom out to whole timeline
+//						ml.display.resetZoom(ml.world, true);
+//
+//					if (key == 'z')									// Zoom to fit timeline
+//						ml.display.zoomToTimeline(ml.world, true);
+//
+//					if (key == 't')									// Zoom to fit current time segment
+//						ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+//
+//					if (key == 'd')									// Zoom to fit current date
+//						ml.display.zoomToCurrentSelectableDate(ml.world, true);
+
 			}
 		}
 		

@@ -1074,7 +1074,7 @@ public class WMV_Utilities
 				}
 				
 				if(isJpeg)
-					shrinkImage(fileName, directory);
+					shrinkImageInPlace(fileName, directory);
 			}
 		}
 	}
@@ -1187,7 +1187,7 @@ public class WMV_Utilities
 	 * @param directory Image file directory 
 	 * @return Whether successful
 	 */
-	public boolean shrinkImage(String fileName, String directory)
+	public boolean shrinkImageInPlace(String fileName, String directory)
 	{
 		WMV_Command commandExecutor;
 		ArrayList<String> command = new ArrayList<String>();
@@ -1199,8 +1199,56 @@ public class WMV_Utilities
 		command.add("640");
 		command.add(fileName);
 
-//		System.out.println("Utilities.shrinkImage()... directory:"+directory +" command:"+command);
+//		System.out.println("Utilities.shrinkImageInPlace()... directory:"+directory +" command:"+command);
 		commandExecutor = new WMV_Command(directory, command);
+
+		try {
+			int result = commandExecutor.execute();
+
+			StringBuilder stdout = commandExecutor.getStandardOutput();			// get the output from the command
+			StringBuilder stderr = commandExecutor.getStandardError();
+			
+			return true;
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable t:"+t);
+			return false;
+		}
+	}
+	
+	public String getFileNameFromPath(String filePath)
+	{
+		String[] parts = filePath.split("/");
+		String filename = "";
+		if(parts.length>0)
+			filename= parts[parts.length-1]; 
+		return filename;
+	}
+	/**
+	 * Shrink image in place at specified directory
+	 * @param fileName File path of image to shrink
+	 * @param inputDirectory Image file directory 
+	 * @param inputDirectory Image output directory 
+	 * @return Whether successful
+	 */
+	public boolean shrinkImage(String filePath, String outputDirectory)
+	{
+		String fileName = getFileNameFromPath(filePath);
+		
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+
+		command = new ArrayList<String>();		// Ex. Command: sips -Z 640 *.jpg
+		command.add("sips");
+		command.add("-Z");
+		command.add("640");
+		command.add(filePath);
+		command.add("--out");
+		command.add(outputDirectory + "/" + fileName);
+
+		System.out.println("Utilities.shrinkImage()... no directory... command:"+command);
+		commandExecutor = new WMV_Command("", command);
 
 		try {
 			int result = commandExecutor.execute();

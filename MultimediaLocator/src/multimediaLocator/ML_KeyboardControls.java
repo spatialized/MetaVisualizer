@@ -1,5 +1,9 @@
 package multimediaLocator;
 
+import java.awt.Font;
+
+import g4p_controls.G4P;
+import g4p_controls.GButton;
 import processing.core.PApplet;
 
 /**
@@ -902,11 +906,8 @@ public class ML_KeyboardControls
 			ml.state.librarySetup = true;
 			ml.createNewLibrary = true;
 			ml.state.chooseMediaFolders = true;
-//			ml.display.window.btnCreateLibrary.setVisible(false);
-//			ml.display.window.btnOpenLibrary.setVisible(false);
-//			ml.display.window.btnLibraryHelp.setVisible(false);
-//			ml.display.window.lblLibraryWait.setVisible(true);
-			ml.display.window.hideLibraryWindow();
+
+			ml.display.window.closeLibraryWindow();
 		}
 	}
 	

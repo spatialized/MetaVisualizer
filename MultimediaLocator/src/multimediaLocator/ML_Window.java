@@ -22,7 +22,6 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310;
 	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 875;
-//	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 960;
 	private int compressedNavigationWindowHeight = 560, compressedMediaWindowHeight = 490;
 	private int delayAmount = 95;							// Delay length to avoid G4P library concurrent modification exception
 		
@@ -31,27 +30,28 @@ public class ML_Window
 	
 	public GWindow mlWindow, navigationWindow, mediaWindow, statisticsWindow,  helpWindow, 
 				   mapWindow, timelineWindow;
-	public GWindow libraryWindow, importWindow, listItemWindow, textEntryWindow;
+	public GWindow libraryWindow, createLibraryWindow, listItemWindow, textEntryWindow;
 
 	public GLabel lblMainMenu, lblNavigationWindow, lblMedia, lblStatistics, lblHelp, lblMap, lblTimeline;
 	public GLabel lblLibrary, lblImport;	
 	
 	public boolean setupMLWindow, setupNavigationWindow = false, setupMediaWindow = false, setupHelpWindow = false, 
 				   setupStatisticsWindow = false, setupMapWindow = false, setupTimelineWindow = false;
-	public boolean setupImportWindow = false, setupLibraryWindow = false;
+	public boolean setupCreateLibraryWindow = false, setupLibraryWindow = false;
 	
 	public boolean showMLWindow = false, showNavigationWindow = false, showMediaWindow = false, showStatisticsWindow = false, 
 				   showHelpWindow = false, showMapWindow = false, showTimelineWindow = false;;
-	public boolean showImportWindow, showLibraryWindow = false;
+	public boolean showCreateLibraryWindow, showLibraryWindow = false;
 
 	/* Library Window */
 	public GButton btnCreateLibrary, btnOpenLibrary, btnLibraryHelp;
 	public GLabel lblLibraryWindowText;
 	private int libraryWindowHeight;
 	
-	/* Import Window */
-	private GButton btnImportMediaFolder, btnMakeLibrary;
-	private int importWindowHeight;
+	/* CreateLibrary Window */
+	public GButton btnImportMediaFolder, btnMakeLibrary;
+	public GLabel lblCreateLibraryWindowText;
+	private int createLibraryWindowHeight;
 
 	/* List Item Window */
 	public boolean showListItemWindowList = false;
@@ -161,7 +161,7 @@ public class ML_Window
 	public GOption optMapViewFieldMode, optMapViewWorldMode;
 	int mapWindowHeight;
 	
-	/* Timeline Window */
+	/* Time Window */
 	public GToggleGroup tgMapViewMode;	
 	private GButton btnTimeView;		
 	private GButton btnTimelineReverse, btnTimelineForward;		
@@ -212,7 +212,7 @@ public class ML_Window
 		
 		mlWindowHeight = shortWindowHeight + 70;
 		libraryWindowHeight = shortWindowHeight / 2;
-		importWindowHeight = shortWindowHeight;
+		createLibraryWindowHeight = shortWindowHeight;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = shortWindowHeight;
 		
@@ -1435,16 +1435,13 @@ public class ML_Window
 		lblMap.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblMap.setTextBold();
 
-		x = 80;
+		x = 78;
 		y += iVeryLargeBoxHeight;
-		btnMapView = new GButton(mapWindow, x, y, 155, iSmallBoxHeight, "Open Map View (2)");
+		btnMapView = new GButton(mapWindow, x, y, 160, iSmallBoxHeight, "Open Map View (2)");
 		btnMapView.tag = "SetMapView";
 		btnMapView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnMapView.setLocalColorScheme(G4P.GOLD_SCHEME);
 
-		// -- Map View Mode Selection
-//		public GOption optMapViewFieldMode, optMapViewWorldMode;
-//		public GToggleGroup tgMapViewMode;	
 		x = 40;
 		y += iVeryLargeBoxHeight;
 		optMapViewFieldMode = new GOption(mapWindow, x, y, 115, iVerySmallBoxHeight, "Field (F)");
@@ -1734,43 +1731,57 @@ public class ML_Window
 		lblLibraryWindowText.setText(newText);
 	}
 
+	public void setCreateLibraryWindowText(String newText)
+	{
+		lblCreateLibraryWindowText.setText(newText);
+	}
+	
 	/**
-	 * Setup and show Import Window
+	 * Setup and show Create Library Window
 	 */
-	public void setupImportWindow()
+	public void openCreateLibraryWindow()
 	{
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth * 3 / 2;
-		int topEdge = world.ml.displayHeight / 2 - importWindowHeight / 2;
+		int topEdge = world.ml.displayHeight / 2 - createLibraryWindowHeight / 2;
 		
-		importWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 3, 
-				   importWindowHeight, PApplet.JAVA2D);
+		createLibraryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 3, 
+				   createLibraryWindowHeight, PApplet.JAVA2D);
 
-		importWindow.addData(new ML_WinData());
-		importWindow.addDrawHandler(this, "importWindowDraw");
-		importWindow.addMouseHandler(this, "importWindowMouse");
-		importWindow.addKeyHandler(world.ml, "importWindowKey");
-		importWindow.setActionOnClose(GWindow.KEEP_OPEN);
+		createLibraryWindow.addData(new ML_WinData());
+		createLibraryWindow.addDrawHandler(this, "importWindowDraw");
+		createLibraryWindow.addMouseHandler(this, "importWindowMouse");
+		createLibraryWindow.addKeyHandler(world.ml, "importWindowKey");
+		createLibraryWindow.setActionOnClose(GWindow.KEEP_OPEN);
 
 		int x = 0, y = iTopMargin * 2;
 		world.ml.delay(delayAmount);
-		lblImport = new GLabel(importWindow, x, y, importWindow.width, 22, "Select Media Folder(s) for Library");
+		lblImport = new GLabel(createLibraryWindow, x, y, createLibraryWindow.width, 22, "Select Media Folder(s) for Library");
 		lblImport.setLocalColorScheme(G4P.SCHEME_10);
 		lblImport.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblImport.setTextAlign(GAlign.CENTER, null);
 		lblImport.setTextBold();
 
+		x = 0;
+		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y, createLibraryWindow.width, 22, "Building media library...");
+		lblCreateLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
+		lblCreateLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		lblCreateLibraryWindowText.setTextAlign(GAlign.CENTER, null);
+		lblCreateLibraryWindowText.setVisible(false);
+
 		x = windowWidth * 3 / 2 - 160;
 		y += 60;
-		btnImportMediaFolder = new GButton(importWindow, x, y, 160, iLargeBoxHeight, "Add Folder");
+		btnImportMediaFolder = new GButton(createLibraryWindow, x, y, 160, iLargeBoxHeight, "Add Folder");
 		btnImportMediaFolder.tag = "AddMediaFolder";
 		btnImportMediaFolder.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnImportMediaFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnMakeLibrary = new GButton(importWindow, x+220, y, 100, iLargeBoxHeight, "Done");
+		btnMakeLibrary = new GButton(createLibraryWindow, x+220, y, 100, iLargeBoxHeight, "Done");
 		btnMakeLibrary.tag = "MakeLibrary";
 		btnMakeLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnMakeLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-		setupImportWindow = true;
+		setupCreateLibraryWindow = true;
+		showCreateLibraryWindow = true;
+		
 		world.ml.setAppIcon = true;
 	}
 	
@@ -1828,7 +1839,7 @@ public class ML_Window
 			textEntryWindowResultCode = resultCode;					// Flag indicating what to do with dialog result value
 			
 			int leftEdge = world.ml.displayWidth / 2 - windowWidth * 3 / 2;
-			int topEdge = world.ml.displayHeight / 2 - importWindowHeight / 2;
+			int topEdge = world.ml.displayHeight / 2 - createLibraryWindowHeight / 2;
 
 			textEntryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
 
@@ -1961,30 +1972,49 @@ public class ML_Window
 		applet.fill(255, 255, 255);
 		applet.textSize(mediumTextSize);
 		
-		int x = windowWidth * 3 / 2 - 80, y = 185;
+		int x = windowWidth * 3 / 2 - 80, y = 165;
 		
-		if(display.ml.library == null)
+		if(display.ml.state.selectedNewLibraryDestination)
 		{
-			applet.text("No media folders yet.", x, y);
+			if(display.setupProgress > 0.f)
+			{
+				applet.stroke(0, 25, 255);
+				applet.strokeWeight(1);
+				int barWidth = windowWidth * 3 - 40;
+
+				for(int i=0; i<barWidth*display.setupProgress; i++)
+				{
+					x = (int)utilities.round( 40 + i * 2.f, 0 );
+					if(x % 2 == 0)
+						applet.line(x, createLibraryWindowHeight - 175, x, createLibraryWindowHeight - 135);
+				}
+			}
 		}
 		else
 		{
-			if(display.ml.library.mediaFolders == null)
+			if(display.ml.library == null)
 			{
 				applet.text("No media folders yet.", x, y);
 			}
 			else
 			{
-				if( display.ml.library.mediaFolders.size() == 0 )
+				if(display.ml.library.mediaFolders == null)
+				{
 					applet.text("No media folders yet.", x, y);
+				}
 				else
 				{
-					applet.textSize(smallTextSize);
-					x = 60;
-					for(String strFolder : display.ml.library.mediaFolders)
+					if( display.ml.library.mediaFolders.size() == 0 )
+						applet.text("No media folders yet.", x, y);
+					else
 					{
-						applet.text(strFolder, x, y);
-						y += iMediumBoxHeight;
+						applet.textSize(smallTextSize);
+						x = iLeftMargin * 2;
+						for(String strFolder : display.ml.library.mediaFolders)
+						{
+							applet.text(strFolder, x, y);
+							y += iMediumBoxHeight;
+						}
 					}
 				}
 			}
@@ -2073,49 +2103,49 @@ public class ML_Window
 		}
 	}
 
-	/**
-	 * Handles drawing to the Time Window 
-	 * @param applet the main PApplet object
-	 * @param data the data for the GWindow being used
-	 */
-	public void timeWindowDraw(PApplet applet, GWinData data) 
-	{
-		if(world.ml.state.running)
-		{
-//			float lineWidthVeryWide = 20f;
-//			float lineWidthWide = 15f;
-//			float lineWidth = 15f;
-
-//			float mediumTextSize = 13.f;
-			float smallTextSize = 11.f;
-
-//			float x = 10, y = 450;			
-			applet.background(0);
-			applet.stroke(255);
-			applet.strokeWeight(1);
-			applet.fill(255, 255, 255);
-
-			applet.textSize(smallTextSize);
-			
-//			int mode = world.getState().getTimeMode();
-//			if( mode == 0 || mode == 1 )
+//	/**
+//	 * Handles drawing to the Time Window 
+//	 * @param applet the main PApplet object
+//	 * @param data the data for the GWindow being used
+//	 */
+//	public void timeWindowDraw(PApplet applet, GWinData data) 
+//	{
+//		if(world.ml.state.running)
+//		{
+////			float lineWidthVeryWide = 20f;
+////			float lineWidthWide = 15f;
+////			float lineWidth = 15f;
+//
+////			float mediumTextSize = 13.f;
+//			float smallTextSize = 11.f;
+//
+////			float x = 10, y = 450;			
+//			applet.background(0);
+//			applet.stroke(255);
+//			applet.strokeWeight(1);
+//			applet.fill(255, 255, 255);
+//
+//			applet.textSize(smallTextSize);
+//			
+////			int mode = world.getState().getTimeMode();
+////			if( mode == 0 || mode == 1 )
+////			{
+////				int curTime = (mode == 0) ? world.getCurrentCluster().getState().currentTime : world.getState().currentTime;
+////				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
+////			}
+//
+//			if(setupNavigationWindow)
 //			{
-//				int curTime = (mode == 0) ? world.getCurrentCluster().getState().currentTime : world.getState().currentTime;
-//				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
+//				if(world.state.timeFading && !world.state.paused)
+//					sdrCurrentTime.setValue(world.getCurrentTimePoint());
 //			}
-
-			if(setupNavigationWindow)
-			{
-				if(world.state.timeFading && !world.state.paused)
-					sdrCurrentTime.setValue(world.getCurrentTimePoint());
-			}
-
-//			applet.text(" Current Field Time: "+ world.currentTime, x, y += lineWidth);
-//			applet.text(" Current Field Time Segment: "+ world.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
-//			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().timeline.size(), x, y += lineWidth);
-//			applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
-		}
-	}
+//
+////			applet.text(" Current Field Time: "+ world.currentTime, x, y += lineWidth);
+////			applet.text(" Current Field Time Segment: "+ world.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
+////			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().timeline.size(), x, y += lineWidth);
+////			applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
+//		}
+//	}
 
 	/**
 	 * Handles drawing to the Navigation Window
@@ -2780,14 +2810,6 @@ public class ML_Window
 		if(showMLWindow)
 			hideMLWindow();
 	}
-	public void showImportWindow()
-	{
-		showImportWindow = true;
-		if(setupImportWindow)
-			importWindow.setVisible(true);
-		if(showMLWindow)
-			hideMLWindow();
-	}
 	public void hideMLWindow()
 	{
 		showMLWindow = false;
@@ -2895,17 +2917,40 @@ public class ML_Window
 			setupTimelineWindow = false;
 		}
 	} 
-	public void hideLibraryWindow()
+	public void hideLibraryWindowX()
 	{
 		showLibraryWindow = false;
 		if(setupLibraryWindow)
 			libraryWindow.setVisible(false);
 	} 
-	public void hideImportWindow()
+	public void closeLibraryWindow()
 	{
-		showImportWindow = false;
-		if(setupImportWindow)
-			importWindow.setVisible(false);
+		showLibraryWindow = false;
+		if(setupLibraryWindow)
+		{
+			libraryWindow.setVisible(false);
+			libraryWindow.close();
+			libraryWindow.dispose();
+			setupLibraryWindow = false;
+		}
+	} 
+	public void hideCreateLibraryWindow()
+	{
+		showCreateLibraryWindow = false;
+		if(setupCreateLibraryWindow)
+			createLibraryWindow.setVisible(false);
+	} 
+	
+	public void closeCreateLibraryWindow()
+	{
+		showCreateLibraryWindow = false;
+		if(setupCreateLibraryWindow)
+		{
+			createLibraryWindow.setVisible(false);
+			createLibraryWindow.close();
+			createLibraryWindow.dispose();
+			setupCreateLibraryWindow = false;
+		}
 	} 
 	/**
 	 * Hide all windows

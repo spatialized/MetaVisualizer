@@ -144,12 +144,77 @@ public class WMV_Field
 		displayVisibleVideos(ml, visibleVideos);
 		displayAudibleSounds(ml, audibleSounds);			// Sounds visible when Show Model setting is on
 
+		if(ml.world.getState().showModel)
+		{
+			displayImageModels(ml, images);						// Display models (diff. clipping distance)
+			displayVideoModels(ml, videos);
+		}
+		
 //		if(worldSettings.showUserPanoramas || worldSettings.showStitchedPanoramas)
 //		{
 //			if(clusters.size()>0)
 //				clusters.get(p.viewer.getCurrentClusterID()).draw();		// Draw current cluster
 //		}
 	}
+	
+	public void displayImageModels(MultimediaLocator ml, ArrayList<WMV_Image> imageList)
+	{
+		for(WMV_Image img : imageList)
+		{
+			float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactor;		// Distance where transparency reaches zero
+			float distance = img.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+			boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
+			if(inVisibleRange)
+			{
+				float imageAngle = img.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
+				if(!utilities.isNaN(imageAngle))
+					if(img.getAngleBrightness(imageAngle) > 0.f)
+						if(!img.isBackFacing(getViewerState().getLocation()) && !img.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
+							img.displayModel(ml);			// Display model
+			}
+		}
+	}
+	
+//	public void displayPanoramaModels(MultimediaLocator ml, ArrayList<WMV_Image> imageList)
+//	{
+//		for(WMV_Image img : imageList)
+//		{
+//			float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
+//			float distance = img.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+//			boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
+//			if(inVisibleRange) img.displayModel(ml);			// Display model
+//		}
+//	}
+	
+	public void displayVideoModels(MultimediaLocator ml, ArrayList<WMV_Video> videoList)
+	{
+		for(WMV_Video vid : videoList)
+		{
+			float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
+			float distance = vid.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+			boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
+//			if(inVisibleRange) vid.displayModel(ml);			// Display model
+			if(inVisibleRange)
+			{
+				float imageAngle = vid.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
+				if(!utilities.isNaN(imageAngle))
+					if(vid.getAngleBrightness(imageAngle) > 0.f)
+						if(!vid.isBackFacing(getViewerState().getLocation()) && !vid.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
+							vid.displayModel(ml);			// Display model
+			}
+		}
+	}
+	
+//	public void displaySoundModels(MultimediaLocator ml, ArrayList<WMV_Image> imageList)
+//	{
+//		for(WMV_Image img : imageList)
+//		{
+//			float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
+//			float distance = img.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+//			boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
+//			if(inVisibleRange) img.displayModel(ml);			// Display model
+//		}
+//	}
 	
 	/**
 	 * Update images in field
@@ -174,7 +239,7 @@ public class WMV_Field
 
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
 					updateImage(ml, m);
-
+				
 				if (inVisibleRange) 		
 				{
 					state.imagesInRange++;
@@ -536,14 +601,20 @@ public class WMV_Field
 					{
 						if(m.getMediaState().showMetadata) m.displayMetadata(ml);	// Display metadata
 					}
-					else
-					{
-						if(getWorldState().showModel) m.displayModel(ml);			// Display model
-					}
+//					else
+//					{
+//						if(getWorldState().showModel) m.displayModel(ml);			// Display model
+//					}
 					if(!m.isSeen()) m.setSeen(true);
 					state.imagesSeen++;
 				}
 			}
+//			else
+//			{
+//				if(getWorldState().showModel) 
+//					if(m.getViewingDistance(ml.world.viewer) < 300.f)
+//						m.displayModel(ml);			// Display model``-- Not working here
+//			}
 		} 
 	}
 
@@ -588,7 +659,6 @@ public class WMV_Field
 					state.panoramasSeen++;
 				}
 			}
-			
 		}
 	}
 	
@@ -642,14 +712,20 @@ public class WMV_Field
 					{
 						if(v.getMediaState().showMetadata) v.displayMetadata(ml);
 					}
-					else
-					{
-						if(getWorldState().showModel) v.displayModel(ml);
-					}
+//					else
+//					{
+//						if(getWorldState().showModel) v.displayModel(ml);
+//					}
 					if(!v.isSeen()) v.setSeen(true);
 					state.videosSeen++;
 				}
 			}
+//			else
+//			{
+//				if(getWorldState().showModel) 
+//					if(v.getViewingDistance(ml.world.viewer) < 300.f)
+//						v.displayModel(ml);			// Display model
+//			}
 		}
 	}
 

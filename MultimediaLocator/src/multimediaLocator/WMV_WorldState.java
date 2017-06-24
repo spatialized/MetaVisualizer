@@ -14,6 +14,9 @@ public class WMV_WorldState
 	public int frameCount = 0;							// Frame count
 	public int timeMode = 0;							// Time Mode: 0 = cluster; 1 = field; 2 = (single) media
 
+	/* Model */
+	public final float modelDistanceVisibilityFactor = 8.f;	// Distance at which media model becomes invisible
+	
 	/* Graphics */
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?
 	

@@ -51,9 +51,9 @@ public class ML_Input
 	void handleKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 //		System.out.println("Input.handleKeyPressed()... key:"+key);
-		if (ml.state.running && ml.state.selectedLibrary)
+//		if (ml.state.running && ml.state.selectedLibrary )
+		if (ml.state.running && ml.state.selectedLibrary && ml.state.fieldsInitialized )
 		{
-
 			/* General */
 			keyboardInput.handleUniversalKeyPressed(ml, key, keyCode);
 
@@ -106,7 +106,10 @@ public class ML_Input
 	 */
 	void handleKeyReleased(MultimediaLocator ml, ML_Display display, char key, int keyCode)
 	{
-		keyboardInput.handleKeyReleased(ml, display, key, keyCode);
+		if (ml.state.running && ml.state.selectedLibrary && ml.state.fieldsInitialized )
+		{
+			keyboardInput.handleKeyReleased(ml, display, key, keyCode);
+		}
 	}
 	
 	/**

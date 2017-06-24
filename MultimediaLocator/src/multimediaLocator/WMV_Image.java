@@ -119,7 +119,8 @@ public class WMV_Image extends WMV_Media
 	{
 		/* Draw frame */
 		ml.pushMatrix();
-		ml.stroke(0.f, 0.f, 255.f, getMediaState().viewingBrightness);	 
+		ml.stroke(0.f, 0.f, 255.f, state.outlineAlpha);	 
+//		ml.stroke(0.f, 0.f, 255.f, getMediaState().viewingBrightness);	 
 		ml.strokeWeight(2.f);
 
 		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
@@ -253,7 +254,6 @@ public class WMV_Image extends WMV_Media
 	 */
 	public void display(MultimediaLocator ml)
 	{
-//		System.out.println("Image.display()... "+getID());
 		if(getViewerSettings().selection)
 		{
 			if (isSelected())     // Draw outline
@@ -264,8 +264,18 @@ public class WMV_Image extends WMV_Media
 			else
 				ml.noStroke(); 
 		}
-		else 
-			ml.noStroke(); 
+		else
+		{
+			if(ml.world.getState().showModel)
+			{
+				ml.stroke(state.outlineHue, 0, 245, state.outlineAlpha);
+				ml.strokeWeight(1);
+			}
+			else
+				ml.noStroke(); 
+		}
+//		else 
+//			ml.noStroke(); 
 
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image

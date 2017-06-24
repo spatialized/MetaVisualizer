@@ -47,7 +47,6 @@ public class ML_KeyboardControls
 	 */
 	public void handleAllViewsKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-//		System.out.println("Keyboard.handleAllViewsKeyPressed()... key:"+key);
 		/* Display Modes */
 		if (key == '1') 
 			ml.display.setDisplayView(ml.world, 0);		// World View
@@ -58,8 +57,16 @@ public class ML_KeyboardControls
 		if (key == '3') 
 			ml.display.setDisplayView(ml.world, 2);		// Time View
 
-		if (key == '4')									// -- Obsolete 
+		if (key == '4')									// Library View -- Disabled 
 			ml.display.setDisplayView(ml.world, 3);
+
+		if (key == 'H')
+		{
+			ml.world.settings.screenMessagesOn = !ml.world.settings.screenMessagesOn;
+			if(ml.display.window.setupMLWindow)
+				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);
+//			ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
+		}
 
 		/* Settings for Show Model Option */
 		if (key == '5')
@@ -475,14 +482,6 @@ public class ML_KeyboardControls
 
 //		if (key == ':')
 //			ml.world.settings.showUserPanoramas = !ml.world.settings.showUserPanoramas;
-
-		if (key == ';')
-		{
-			ml.world.settings.screenMessagesOn = !ml.world.settings.screenMessagesOn;
-			if(ml.display.window.setupMLWindow)
-				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);
-//			ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
-		}
 
 		if (key == 'A') 
 			ml.world.viewer.setSelection( !ml.world.viewer.inSelectionMode() );

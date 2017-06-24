@@ -857,8 +857,8 @@ class WMV_Metadata
 
 		Metadata imageMetadata = null;				// For images
 
-		if(debugSettings.metadata && debugSettings.detailed)
-			System.out.println("Metadata.loadImageMetadata()...  "+sName);
+//		if(debugSettings.metadata && debugSettings.detailed)
+//			System.out.println("Metadata.loadImageMetadata()...  "+sName);
 
 		try {
 			imageMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */

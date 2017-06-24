@@ -152,6 +152,26 @@ public class WMV_Viewer
 
 		if(p.ml.display.displayView == 1)
 			p.ml.display.map2D.initialize(p);
+		
+		if(p.ml.display.window.setupNavigationWindow)
+		{
+			boolean noGPSTracks = p.getCurrentField().getGPSTracks() == null;	// Update Select GPS Track button state
+			if(!noGPSTracks) noGPSTracks = p.getCurrentField().getGPSTracks().size() == 0;
+			if(noGPSTracks)
+			{
+				p.ml.display.window.btnChooseGPSTrack.setEnabled(false);
+				p.ml.display.window.btnChooseGPSTrack.setVisible(false);
+				p.ml.display.window.chkbxPathFollowing.moveTo(100, p.ml.display.window.chkbxPathFollowing.getY());;
+				p.ml.display.window.chkbxFollowTeleport.moveTo(100, p.ml.display.window.chkbxFollowTeleport.getY());;
+			}
+			else
+			{
+				p.ml.display.window.btnChooseGPSTrack.setEnabled(true);
+				p.ml.display.window.btnChooseGPSTrack.setVisible(true);
+				p.ml.display.window.chkbxPathFollowing.moveTo(180, p.ml.display.window.chkbxPathFollowing.getY());;
+				p.ml.display.window.chkbxFollowTeleport.moveTo(180, p.ml.display.window.chkbxFollowTeleport.getY());;
+			}
+		}
 	}
 	
 	void updateState(WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState)
@@ -1850,28 +1870,37 @@ public class WMV_Viewer
 	 */
 	public void moveToRandomCluster(boolean teleport, boolean fade)
 	{
-		int rand = (int) p.ml.random(p.getCurrentField().getClusters().size());
-		while(p.getCurrentField().getCluster(rand).isEmpty())
+		boolean failed = false;
+		int count = 0;
+		int rndClusterID = (int) p.ml.random(p.getCurrentField().getClusters().size());
+		while(p.getCurrentField().getCluster(rndClusterID).isEmpty() || rndClusterID == state.currentCluster)
 		{
-			rand = (int) p.ml.random(p.getCurrentField().getClusters().size());
+			rndClusterID = (int) p.ml.random(p.getCurrentField().getClusters().size());
+			count++;
+			
+			if(count > p.getCurrentField().getClusters().size() * 2)
+			{
+				failed = true;
+				break;
+			}
 		}
 
-		while(p.getCurrentField().getCluster(rand).isEmpty() || rand == state.currentCluster)
-			rand = (int) p.ml.random(p.getCurrentField().getClusters().size());
-
-		if(settings.teleportToFarClusters && !teleport)
+		if(!failed)
 		{
-			if( PVector.dist(p.getCurrentField().getCluster(rand).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
-				teleportToCluster(rand, fade, -1);
+			if(settings.teleportToFarClusters && !teleport)
+			{
+				if( PVector.dist(p.getCurrentField().getCluster(rndClusterID).getLocation(), getLocation()) > settings.farClusterTeleportDistance )
+					teleportToCluster(rndClusterID, fade, -1);
+				else
+					setAttractorCluster( rndClusterID );
+			}
 			else
-				setAttractorCluster( rand );
-		}
-		else
-		{
-			if(teleport)
-				teleportToCluster(rand, fade, -1);
-			else
-				setAttractorCluster( rand );
+			{
+				if(teleport)
+					teleportToCluster(rndClusterID, fade, -1);
+				else
+					setAttractorCluster( rndClusterID );
+			}
 		}
 	}
 	
@@ -5042,8 +5071,6 @@ public class WMV_Viewer
 	public void setVisibleAngle(float newValue)
 	{
 		settings.visibleAngle = newValue;
-		if(p.getSettings().screenMessagesOn)
-			p.ml.display.message(p.ml, "Set Visible Angle: "+p.viewer.getVisibleAngle());
 	}
 	
 	public boolean getAngleFading()

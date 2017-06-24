@@ -223,10 +223,15 @@ public class WMV_Sound extends WMV_Media
 		}
 		else
 		{
-			if(!getWorldState().alphaMode)
-				ml.tint(getViewingBrightness(), 255);          				
+			if(ml.world.getState().showModel)
+				ml.tint(255, 255);          				
 			else
-				ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
+			{
+				if(!getWorldState().alphaMode)
+					ml.tint(getViewingBrightness(), 255);          				
+				else
+					ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));    
+			}
 		}
 
 		PVector loc = getLocation();

@@ -131,7 +131,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		/* Draw frame */
 		ml.pushMatrix();
 
-		ml.stroke(0.f, 0.f, 255.f, getViewingBrightness());	 
+		ml.stroke(0.f, 0.f, 255.f, state.outlineAlpha);	 
+//		ml.stroke(0.f, 0.f, 255.f, getViewingBrightness());	 
 		ml.strokeWeight(2.f);
 		
 		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
@@ -510,7 +511,15 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			}
 		}
 		else
-			ml.noStroke(); 
+		{
+			if(ml.world.getState().showModel)
+			{
+				ml.stroke(state.outlineHue, 0, 245, state.outlineAlpha);
+				ml.strokeWeight(1);
+			}
+			else
+				ml.noStroke(); 
+		}
 
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the video
@@ -527,7 +536,8 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				ml.texture(frame);        			// Apply the image to the face as a texture 
 		}
 
-		frame = new PImage(video.getImage());
+		setFrame( new PImage(video.getImage() ));
+//		frame = new PImage(video.getImage());
 		blurred = applyMask(ml, frame, blurMask);				// Apply blur mask once image has loaded
 
 		if(!getWorldState().alphaMode)

@@ -453,6 +453,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		state.volume = 0.f;
 		
 		fadeSoundIn();
+//		state.firstFramePlaying = true;
 		
 		ml.world.getCurrentField().setVideosPlaying(ml.world.getCurrentField().getVideosPlaying()+1);
 	}
@@ -504,7 +505,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		if(getViewerSettings().selection)
 		{
-			if (isSelected())     // Draw outline
+			if (isSelected())     		// Draw outline
 			{
 				ml.stroke(state.outlineHue, 120, 245, state.outlineAlpha);
 				ml.strokeWeight(state.outlineSize);
@@ -533,11 +534,10 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		else
 		{
 			if(frame != null)
-				ml.texture(frame);        			// Apply the image to the face as a texture 
+				ml.texture(frame);        	// Apply the image to the face as a texture 
 		}
-
-		setFrame( new PImage(video.getImage() ));
-//		frame = new PImage(video.getImage());
+		
+		setFrame( new PImage( video.getImage() ));
 		blurred = applyMask(ml, frame, blurMask);				// Apply blur mask once image has loaded
 
 		if(!getWorldState().alphaMode)
@@ -547,18 +547,19 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		if(getViewerSettings().orientationMode)
 		{
-			ml.vertex(state.sVertices[0].x, state.sVertices[0].y, state.sVertices[0].z, 0, 0);           // UPPER LEFT      
+			ml.vertex(state.sVertices[0].x, state.sVertices[0].y, state.sVertices[0].z, 0, 0);           		// UPPER LEFT      
 			ml.vertex(state.sVertices[1].x, state.sVertices[1].y, state.sVertices[1].z, state.origVideoWidth, 0);           // UPPER RIGHT           
 			ml.vertex(state.sVertices[2].x, state.sVertices[2].y, state.sVertices[2].z, state.origVideoWidth, state.origVideoHeight); 		// LOWER RIGHT        
 			ml.vertex(state.sVertices[3].x, state.sVertices[3].y, state.sVertices[3].z, 0, state.origVideoHeight);           // LOWER LEFT
 		}
 		else
 		{
-			ml.vertex(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, 0, 0);           // UPPER LEFT      
+			ml.vertex(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, 0, 0);          			 // UPPER LEFT      
 			ml.vertex(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.origVideoWidth, 0);           // UPPER RIGHT           
 			ml.vertex(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.origVideoWidth, state.origVideoHeight); 		// LOWER RIGHT        
 			ml.vertex(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, 0, state.origVideoHeight);           // LOWER LEFT
 		}
+
 		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
 		ml.popMatrix();
 	}

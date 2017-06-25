@@ -151,7 +151,8 @@ public class WMV_Panorama extends WMV_Media
 	public void display(MultimediaLocator ml) 
 	{
 		ml.pushMatrix();
-		ml.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);	// CHANGE VALUES!
+		if(!getViewerSettings().orientationMode)		
+			ml.translate(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z);
 
 		float r = state.radius;				
 		int v0, v1, v2;

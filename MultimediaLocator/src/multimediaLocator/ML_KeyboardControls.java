@@ -102,8 +102,8 @@ public class ML_KeyboardControls
 			}
 		}
 
-		if (key == '0')
-			ml.state.sphericalView = !ml.state.sphericalView;
+//		if (key == '0')
+//			ml.state.sphericalView = !ml.state.sphericalView;
 		
 		/* Navigation */
 		if (keyCode == PApplet.LEFT) 

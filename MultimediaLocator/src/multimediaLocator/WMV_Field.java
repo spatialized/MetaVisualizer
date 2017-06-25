@@ -3933,6 +3933,8 @@ public class WMV_Field
 							}
 						}
 					}
+					else if(debugSettings.video) 
+						System.out.println("Field.setState()...  newVideoStateList is null!");
 				}
 			}
 			catch(Throwable t)

@@ -28,7 +28,7 @@ public class WMV_Viewer
 	public ArrayList<WMV_Waypoint> path; 				// Record of camera path
 
 	/* Time */
-	public ArrayList<WMV_TimeSegment> nearbyClusterTimeline;	// Combined timeline of nearby (visible) clusters
+	public ArrayList<WMV_TimeSegment> visibleClusterTimeline;	// Combined timeline of nearby (visible) clusters
 
 	/* Navigation */
 	public WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
@@ -65,7 +65,7 @@ public class WMV_Viewer
 		memory = new ArrayList<WMV_Waypoint>();
 		path = new ArrayList<WMV_Waypoint>();
 
-		nearbyClusterTimeline = new ArrayList<WMV_TimeSegment>();
+		visibleClusterTimeline = new ArrayList<WMV_TimeSegment>();
 		initialize(0, 0, 0);
 	}
 
@@ -4154,10 +4154,10 @@ public class WMV_Viewer
 	 */
 	void setNearbyClusterTimeline(ArrayList<WMV_TimeSegment> newTimeline)
 	{
-		nearbyClusterTimeline = newTimeline;
+		visibleClusterTimeline = newTimeline;
 		state.nearbyClusterTimelineMediaCount = 0;
 		
-		for(WMV_TimeSegment t : nearbyClusterTimeline)
+		for(WMV_TimeSegment t : visibleClusterTimeline)
 			state.nearbyClusterTimelineMediaCount += t.getTimeline().size();
 	}
 
@@ -4177,15 +4177,15 @@ public class WMV_Viewer
 				timeline.add(t);
 
 		timeline.sort(WMV_TimeSegment.WMV_TimeLowerBoundComparator);				// Sort time segments 
-		nearbyClusterTimeline = timeline;
+		visibleClusterTimeline = timeline;
 	
 		state.nearbyClusterTimelineMediaCount = 0;
 		
-		for(WMV_TimeSegment t : nearbyClusterTimeline)
+		for(WMV_TimeSegment t : visibleClusterTimeline)
 			state.nearbyClusterTimelineMediaCount += t.getTimeline().size();
 
 		if(debugSettings.time)
-			System.out.println("createNearbyClusterTimeline  nearbyClusterTimeline.size():"+nearbyClusterTimeline.size());
+			System.out.println("createNearbyClusterTimeline  nearbyClusterTimeline.size():"+visibleClusterTimeline.size());
 	}
 
 	/**
@@ -4196,7 +4196,7 @@ public class WMV_Viewer
 	public WMV_Time getNearbyTimeByIndex(int timeSegmentIndex)
 	{
 		WMV_Time time = null;
-		for(WMV_TimeSegment ts : nearbyClusterTimeline)
+		for(WMV_TimeSegment ts : visibleClusterTimeline)
 		{
 			if(ts.getFieldTimelineID() == timeSegmentIndex)
 			{
@@ -4874,7 +4874,7 @@ public class WMV_Viewer
 	
 	public ArrayList<WMV_TimeSegment>getNearbyClusterTimeline()
 	{
-		return nearbyClusterTimeline;
+		return visibleClusterTimeline;
 	}
 	
 	public int getNearbyClusterTimelineMediaCount()

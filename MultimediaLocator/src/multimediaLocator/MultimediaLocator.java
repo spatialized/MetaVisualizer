@@ -26,6 +26,7 @@ import java.util.Stack;
 import javax.imageio.ImageIO;
 
 import g4p_controls.GButton;
+import g4p_controls.GEditableTextControl;
 import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
@@ -37,6 +38,7 @@ import processing.opengl.PShader;
 import processing.video.Movie;
 
 import com.apple.eawt.Application;
+//import org.apache.commons.io.FileUtils;
 
 /**
  * MultimediaLocator App  
@@ -55,7 +57,7 @@ public class MultimediaLocator extends PApplet
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
 
 	/* Windows */
-	private boolean windowVisible = false;			// Main window visible (for hiding when opening)
+	private boolean appWindowVisible = false;			// Main window visible (for hiding when opening)
 	
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
@@ -113,17 +115,25 @@ public class MultimediaLocator extends PApplet
 
 		input = new ML_Input(appWidth, appHeight);
 
-		surface.setResizable(true);
-		hideMainWindow();
-		
+//		delay(50);
+
+//		surface.setResizable(true);
+//		hideMainWindow();
+
+//		delay(50);
+
 		world = new WMV_World(this);
-		world.initialize();
+//		world.initialize();				-- Obsolete
+		
 		appIcon = getImageResource("icon.png");
 		
-		display = new ML_Display(this);			// Initialize displays
-		display.initializeWindows(world);
+		display = new ML_Display(this);			
+		display.window = new ML_Window(world, display);				// Setup and display interaction window
+//		display.initializeWindows(world);
+
 		metadata = new WMV_Metadata(this, debugSettings);
 		stitcher = new ML_Stitcher(world);
+		
 		if(debugSettings.ml) System.out.println("Initial setup complete...");
 
 		colorMode(PConstants.HSB);
@@ -132,6 +142,8 @@ public class MultimediaLocator extends PApplet
 		
 		initCubeMap();
 		
+//		delay(50);
+
 		addShutdownHook();
 	}
 
@@ -140,47 +152,49 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void draw() 
 	{
-		if(setAppIcon) setAppIcon(appIcon);				/* Set app icon */
+		background(0.f);										/* Clear screen */
 		
 		if (state.startup)
 		{
-			display.display(this);						/* Startup screen */
+			display.display(this);								/* Startup screen */
 			state.startup = false;	
 		}
 		else if(!state.running)
 		{
-			background(0.f);							// Clear screen
-
-			if (state.librarySetup)
+//			background(0.f);									/* Clear screen */
+			if (state.inLibrarySetup)
 			{
 				if(createNewLibrary)
 				{
 					if(state.chooseLibraryDestination)			/* Choose library destination */
 						libraryDestinationDialog();
 					
-					display.display(this);
+					display.display(this);						/* Update display */
 				}
 				else
 					librarySelectionDialog();
 			}
 			else
 			{
-				if(state.selectedNewLibraryDestination && !state.selectedLibrary)
+				if(state.selectedLibrary) 
 				{
-					if(state.selectedMediaFolders)
-						createNewLibraryFromMediaFolders();
-					else
-						System.out.println("ERROR: Selected library destination but no media folder selected!");
+					if(state.rebuildLibrary) rebuildSelectedLibrary();	/* Purge data directories to rebuild library during initialization */
+					runWorldInitialization();							/* Initialize world once a library has been selected */
 				}
-				
-				display.display(this);
-				if(state.selectedLibrary) initialize();			/* Initialize world */
+				else if(state.selectedNewLibraryDestination)
+				{
+					if(state.selectedNewLibraryMedia) createNewLibrary();
+					else System.out.println("ML.draw()... ERROR: Selected library destination but no media folder selected!");
+				}
+				display.display(this);			/* Update display */
 			}
 		}
 		else
 		{
 			if(!choosingField()) run();							/* Run MultimediaLocator */
 		}
+		
+		if(setAppIcon) setAppIcon(appIcon);						/* Set app icon, if needed */
 	}
 	
 	/**
@@ -189,8 +203,9 @@ public class MultimediaLocator extends PApplet
 	 */
 	public boolean choosingField()
 	{
-		return display.window.showListItemWindowList && display.window.listItemWindowResultCode == 0;
+		return display.window.showListItemWindow && display.window.listItemWindowResultCode == 0;
 	}
+	
 	/**
 	 * Run program
 	 */
@@ -204,7 +219,7 @@ public class MultimediaLocator extends PApplet
 		}
 		else
 		{
-			if ( !state.initialClustering && !state.interactive && !state.exit ) 	/* Running the program */
+			if ( !state.inFieldInitialization && !state.interactive && !state.exit ) 	/* Running the program */
 			{
 				world.run();
 //	 			input.updateLeapMotion();			// Update Leap Motion 
@@ -232,64 +247,158 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Initialize world and run clustering
+	 * Run field initialization and start clustering process
 	 */
-	public void initialize()
+	public void runWorldInitialization()
 	{
-		if(state.initialClustering)
-		{
-			world.loadImageMasks();					
-			world.loadVideoMasks();
-
-			if(!windowVisible) showMainWindow();
-
-			if( !state.fieldsInitialized )
-			{
-				if (!state.initializingFields) 			/* Not yet initializing fields */
-				{
-					world.createFieldsFromFolders(library.getFolders());		// Create empty field for each field folder	
-					state.initializingFields = true;
-					display.setupProgress(0.25f);
-				}
-				else									/* Initializing fields */
-				{
-					initializeField(world.getField(state.initializationField), true, true);		/* Initialize field */	
-					
-					state.initializationField++;		/* Set next field to initialize */
-					if( state.initializationField >= world.getFields().size() )	
-					{
-						state.fieldsInitialized = true;
-						if(debugSettings.ml) System.out.println("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
-						display.setupProgress(1.f);
-					}
-					else
-					{
-						display.setupProgress(0.5f + (float)(state.initializationField-1) / (float)world.getFieldCount() * 0.5f);
-					}
-				}
-			}
-			else
-			{
-				organizeMedia();					/* Analyze and organize media */
-				finishInitialization();				/* Finish initialization and start running */
-				display.setupProgress(0.f);
-			}
-		}
-		else
+		if(!state.inFieldInitialization)			/* Not yet initializing fields, start clustering */
 		{
 			if(state.interactive)					/* Run interactive clustering */
 			{
 				if(state.startInteractive && !state.interactive) startInteractiveClustering();						
 				if(state.interactive && !state.startInteractive) runInteractiveClustering();	
 			}
-			else startInitialClustering();			/* Run initial clustering */  	// -- Sets initialSetup to true	
+			else startFieldInitialization();					/* Run initial clustering */  	// -- Sets initialSetup to true	
 		}
+		else
+		{
+			if(!world.state.loadedMasks) world.loadMasks();
+			if(!appWindowVisible) showAppWindow();
+			
+			runFieldInitialization();
+		}
+	}
+	
+	/**
+	 * Run process of initializing fields, one per draw() frame
+	 */
+	public void runFieldInitialization()
+	{
+		if( !state.fieldsInitialized )				/* Call until fields are initialized */
+		{
+			if (!state.initializingFields) 			/* Not yet initializing fields */
+			{
+				world.createFields(library.getFolders());	/* Create field objects for each folder */
+				state.initializingFields = true;
+				display.setupProgress(0.25f);
+			}
+			else initializeNextField();				/* Initialize next field */
+		}
+		else if( state.createdLibrary && !state.libraryNamed)
+		{
+			if(!display.window.showTextEntryWindow)
+			{
+				openLibraryNamingDialog();				/* Open dialog to get library name */
+			}
+		}
+		else if( state.createdLibrary && !state.fieldsNamed && !state.inFieldNaming )
+		{
+			startFieldNaming();
+		}
+		else if( state.createdLibrary && state.inFieldNaming )
+		{
+			runFieldNaming();
+		}
+		else
+		{
+			organizeMedia();						/* Analyze and organize media */
+			finishInitialization();					/* Finish initialization and start running */
+			display.setupProgress(0.f);
+		}
+	}
+	
+	private void openLibraryNamingDialog()
+	{
+		display.window.openTextEntryWindow("Enter new library name:", "library", 1);
+//		state.inLibraryNaming = true;
+	}
+	
+	/**
+	 * Start naming fields
+	 */
+	private void startFieldNaming()
+	{
+		for(WMV_Field f : world.getFields())	
+			f.setNamed(false);
+		
+		String curName = world.getField(state.namingField).getName();
+		display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
+
+		state.namingField = 0;
+		state.inFieldNaming = true;
+		state.oldFieldName = world.getField(state.namingField).getName();
+	}
+	
+	private void runFieldNaming()
+	{
+		if(state.namingField + 1 >= world.getFieldCount())
+		{
+			updateFieldFolderName(state.namingField);
+			state.fieldsNamed = true;
+			state.inFieldNaming = false;
+		}
+		else
+		{
+			updateFieldFolderName(state.namingField);
+			state.namingField++;
+			if(!display.window.showTextEntryWindow && state.namingField < world.getFieldCount())
+			{
+				String curName = world.getField(state.namingField).getName();
+				display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
+			}
+		}
+	}
+	
+	/**
+	 * Update field folder name
+	 * @param fieldIdx Field idx to update name for
+	 */
+	private void updateFieldFolderName(int fieldIdx)
+	{
+		String fieldName = world.getField(fieldIdx).getName();
+		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, fieldName);
+		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
+	}
+	
+	/**
+	 * Delete data folders to rebuild library
+	 */
+	public void rebuildSelectedLibrary()
+	{
+		ArrayList<String> libFolders = library.getFolders();
+		display.window.setLibraryWindowText("Rebuilding media library...");		// -- Not being called
+		for(String strFolderName : libFolders)
+		{
+			File folderFile = new File(library.getLibraryFolder() + "/" + strFolderName);
+			if(folderFile.exists() && folderFile.isDirectory())
+			{
+				File[] fileList = folderFile.listFiles();
+				for(int i=0; i<fileList.length; i++)
+				{
+					File file = fileList[i];
+					if(file.getName().equals("data") && file.isDirectory())
+					{
+//						if(debugSettings.ml || debugSettings.library) 
+						System.out.println("Purging data folder:"+file.getName());
+
+						world.utilities.purgeDirectory(file);
+						file.delete();
+					}
+				}
+			}
+			else
+			{
+				System.out.println("ML.rebuildSelectedLibrary()... ERROR: folderFile missing or not a directory!  (library.getLibraryFolder() + strFolderName):"+library.getLibraryFolder() + "/" + strFolderName);
+			}
+		}
+		
+		state.rebuildLibrary = false;
 	}
 
 	/**
 	 * Start initial clustering of media in fields
 	 */
-	public void startInitialClustering()
+	public void startFieldInitialization()
 	{
 		display.startupMessages = new ArrayList<String>();	// Clear startup messages
 		if(debugSettings.metadata)
@@ -300,7 +409,7 @@ public class MultimediaLocator extends PApplet
 		display.display(this);											
 
 		state.running = false;						// Stop running
-		state.initialClustering = true;				// Start clustering 
+		state.inFieldInitialization = true;				// Start clustering 
 	}
 
 	/**
@@ -319,6 +428,28 @@ public class MultimediaLocator extends PApplet
 		display.displayClusteringInfo(this);
 		
 		world.getCurrentField().blackoutAllMedia();	// Blackout all media
+	}
+	
+	/**
+	 * Initialize next field in world
+	 */
+	public void initializeNextField()
+	{
+		initializeField(world.getField(state.initializationField), true, true);		/* Initialize field */	
+		
+		state.initializationField++;		/* Set next field to initialize */
+		if( state.initializationField >= world.getFields().size() )	
+		{
+			state.fieldsInitialized = true;
+			if(debugSettings.ml) System.out.println("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
+			display.setupProgress(1.f);
+			if(display.window.showCreateLibraryWindow) display.window.closeCreateLibraryWindow();
+			if(display.window.showLibraryWindow) display.window.closeLibraryWindow();
+		}
+		else
+		{
+			display.setupProgress(0.5f + (float)(state.initializationField-1) / (float)world.getFieldCount() * 0.5f);
+		}
 	}
 	
 	/**
@@ -357,11 +488,17 @@ public class MultimediaLocator extends PApplet
 			if(success)									/* Loaded field state from disk */
 			{
 				world.getField(fieldID).setDataFolderLoaded(true);
+				if(f.getID() == 0)
+					display.window.setLibraryWindowText("Loading media library...");		/* Change Library Window Text */
+
 				if(debugSettings.ml || debugSettings.world) 
 					System.out.println("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
 			}
 			else										/* If failed to load field, initialize from metadata */
 			{
+				if(f.getID() == 0)
+					display.window.setLibraryWindowText("Building media library...");		/* Change Library Window Text */
+
 				if(debugSettings.ml || debugSettings.world) 
 					System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
 				
@@ -474,12 +611,12 @@ public class MultimediaLocator extends PApplet
 		world.setBlurMasks();						// Set blur masks
 		world.updateAllMediaSettings();				// -- Only needed if field(s) loaded from data folder!
 
-		state.initialClustering = false;				
+		state.inFieldInitialization = false;				
 		display.worldSetup = false;
 		
-		if(display.window.showCreateLibraryWindow) display.window.closeCreateLibraryWindow();
-		if(display.window.showLibraryWindow) display.window.closeLibraryWindow();
-//		if(display.window.showLibraryWindow) display.window.hideLibraryWindow();
+//		if(display.window.showCreateLibraryWindow) display.window.closeCreateLibraryWindow();
+//		if(display.window.showLibraryWindow) display.window.closeLibraryWindow();
+		
 		state.running = true;
 		state.startedRunning = true;
 		
@@ -709,7 +846,7 @@ public class MultimediaLocator extends PApplet
 		if(selectedFolder)
 		{
 			state.selectedNewLibraryDestination = true;	// Library destination folder has been selected
-			state.librarySetup = false;					// Library setup complete
+			state.inLibrarySetup = false;					// Library setup complete
 			display.window.btnImportMediaFolder.setVisible(false);
 			display.window.btnMakeLibrary.setVisible(false);
 			display.window.lblImport.setVisible(false);
@@ -796,21 +933,18 @@ public class MultimediaLocator extends PApplet
 			else
 				singleField = true;
 			
-//			String[] nameParts = parts[parts.length-1].split("_");		// Check if single field library 
-//			boolean singleField = !(nameParts[0].equals("ML") && nameParts[1].equals("Library"));
-			
 			String parentFilePath = "";
 			if(singleField)
 			{
-				System.out.println("Loading (single) field folder...");
+				System.out.println("Loading field...");
 				String libFilePath = "";
 				for(int i=0; i<parts.length-1; i++)
 				{
 					libFilePath = libFilePath + parts[i] + "/";
 				}
 
-				library = new ML_Library(libFilePath);				// Set library folder
-				library.addFolder(parts[parts.length-1]);			// Add single folder 
+				library = new ML_Library(libFilePath);				/* Create library object */
+				library.addFolder(parts[parts.length-1]);			/* Add folder */
 				
 				selectedFolder = true;
 
@@ -834,14 +968,14 @@ public class MultimediaLocator extends PApplet
 			}
 
 			world.getState().stitchingPath = parentFilePath + "stitched/";
-//			world.loadImageMasks();					
-//			world.loadVideoMasks();
 			
 			selectedFolder = true;
 		}
 		
 		if(selectedFolder)
+		{
 			state.selectedLibrary = true;	// Library folder has been selected
+		}
 		else
 		{
 			state.selectedLibrary = false;				// Library in improper format if masks are missing
@@ -852,14 +986,16 @@ public class MultimediaLocator extends PApplet
 	/**
 	 * Import media folders and create new library
 	 */
-	private void createNewLibraryFromMediaFolders()
+	private void createNewLibrary()
 	{
 		if(library.mediaFolders.size() > 0)
 		{
 			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
 			state.selectedLibrary = library.create(this, library.mediaFolders);
+
 			state.createdLibrary = true;
-			
+			state.libraryNamed = false;
+
 			world.state.stitchingPath = library.getLibraryFolder() + "/stitched/";
 			System.out.println("ML.createNewLibraryFromMediaFolders()... Set stitching path:"+world.getState().stitchingPath);
 
@@ -1341,6 +1477,13 @@ public class MultimediaLocator extends PApplet
 		input.handleSliderEvent(world, display, slider, event);
 	}
 
+	public void handleTextEvents(GEditableTextControl textcontrol, GEvent event) {
+//		  if (textcontrol == txaDemo)
+//		    lblAction.setText("TextArea: " + event);
+//		  if (textcontrol == txfDemo)
+//		    lblAction.setText("TextField: " + event);
+		}
+
 	/**
 	 * Processing method called when a key is pressed
 	 */
@@ -1528,7 +1671,7 @@ public class MultimediaLocator extends PApplet
 	
 	public void librarySelectionDialog()
 	{
-		state.librarySetup = false;
+		state.inLibrarySetup = false;
 		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 
@@ -1660,14 +1803,14 @@ public class MultimediaLocator extends PApplet
 	{
 //		public int appWidth = 1680, appHeight = 960;		// App window dimensions
 		setSurfaceSize(3, 2);
-		windowVisible = false;
+		appWindowVisible = false;
 	}
 	
-	private void showMainWindow()
+	private void showAppWindow()
 	{
 //		setSurfaceSize(appWidth, appHeight);
 		setSurfaceSize(displayWidth, displayHeight);
-		windowVisible = true;
+		appWindowVisible = true;
 	}
 
 	public void debugMessage(String message)

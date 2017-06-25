@@ -37,7 +37,7 @@ public class ML_Window
 	
 	public boolean setupMLWindow, setupNavigationWindow = false, setupMediaWindow = false, setupHelpWindow = false, 
 				   setupStatisticsWindow = false, setupMapWindow = false, setupTimelineWindow = false;
-	public boolean setupCreateLibraryWindow = false, setupLibraryWindow = false;
+	public boolean setupCreateLibraryWindow = false, setupLibraryWindow = false, setupTextEntryWindow = false;
 	
 	public boolean showMLWindow = false, showNavigationWindow = false, showMediaWindow = false, showStatisticsWindow = false, 
 				   showHelpWindow = false, showMapWindow = false, showTimelineWindow = false;;
@@ -45,6 +45,7 @@ public class ML_Window
 
 	/* Library Window */
 	public GButton btnCreateLibrary, btnOpenLibrary, btnLibraryHelp;
+	public GCheckbox chkbxRebuildLibrary;
 	public GLabel lblLibraryWindowText;
 	private int libraryWindowHeight;
 	
@@ -54,7 +55,7 @@ public class ML_Window
 	private int createLibraryWindowHeight;
 
 	/* List Item Window */
-	public boolean showListItemWindowList = false;
+	public boolean showListItemWindow = false;
 	private int listItemWindowHeight;
 	private ArrayList<String> listItemWindowList;
 	private String listItemWindowText;
@@ -62,12 +63,16 @@ public class ML_Window
 	public int listItemWindowResultCode = -1;		// 1: GPS Track  
 
 	/* Text Entry Window */
+	GTextField txfInputText;
+	GButton btnEnterText;
+	GLabel lblText;
+	
 	public boolean showTextEntryWindow = false;
 	private int textEntryWindowHeight;
-	public int textEntryWindowSelectedItem = -1;
+//	public int textEntryWindowSelectedItem = -1;
+//	private String textEntryWindowText;				// Prompt text
+//	private String textEntryWindowUserEntry;		// User entry
 	public int textEntryWindowResultCode = -1;		// 1: GPS Track  
-	private String textEntryWindowText;				// Prompt text
-	private String textEntryWindowUserEntry;		// User entry
 	
 	/* Main Window */
 	private GButton btnNavigationWindow, btnMediaWindow, btnStatisticsWindow, btnHelpWindow;
@@ -212,9 +217,9 @@ public class ML_Window
 		
 		mlWindowHeight = shortWindowHeight + 70;
 		libraryWindowHeight = shortWindowHeight / 2;
-		createLibraryWindowHeight = shortWindowHeight;
+		createLibraryWindowHeight = shortWindowHeight + 30;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
-		textEntryWindowHeight = shortWindowHeight;
+		textEntryWindowHeight = 120;
 		
 		statisticsWindowHeight = mediumWindowHeight - 30;
 		helpWindowHeight = mediumWindowHeight + 100;
@@ -1138,11 +1143,11 @@ public class ML_Window
 		btnOutputFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x += 125;
-		btnExportScreenshot = new GButton(mediaWindow, x, y, 140, iVerySmallBoxHeight, "Save Screenshot (O)");
+		btnExportScreenshot = new GButton(mediaWindow, x, y, 140, iVerySmallBoxHeight, "Save Screenshot (\\)");
 		btnExportScreenshot.tag = "SaveScreenshot";
 		btnExportScreenshot.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		world.ml.delay(delayAmount / 2);
+		world.ml.delay(delayAmount);
 		if(compressTallWindows)
 		{
 			x = windowWidth + 100;
@@ -1658,9 +1663,9 @@ public class ML_Window
 		btnTimelineForward.tag = "TimelineForward";
 		btnTimelineForward.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x = 120;
+		x = 135;
 		y += iLargeBoxHeight;
-		btnTimelineZoomToField = new GButton(timelineWindow, x, y, 90, iVerySmallBoxHeight, "Field");
+		btnTimelineZoomToField = new GButton(timelineWindow, x, y, 65, iVerySmallBoxHeight, "Fit");
 		btnTimelineZoomToField.tag = "TimelineZoomToFit";
 		btnTimelineZoomToField.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
@@ -1725,23 +1730,28 @@ public class ML_Window
 //		lblLibrary.setTextBold();
 
 		x = 0;
-		lblLibraryWindowText = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Building media library...");
+		lblLibraryWindowText = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Opening media library...");
 		lblLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
 		lblLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblLibraryWindowText.setTextAlign(GAlign.CENTER, null);
 		lblLibraryWindowText.setVisible(false);
 
-		x = 90;
-		y += 45;
-		btnCreateLibrary = new GButton(libraryWindow, x, y, 170, iVeryLargeBoxHeight, "Create Library");
+		x = 55;
+		y += 50;
+		btnCreateLibrary = new GButton(libraryWindow, x, y, 195, iVeryLargeBoxHeight - 3, "Create Library");
 		btnCreateLibrary.tag = "CreateLibrary";
 		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
-		btnCreateLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnOpenLibrary = new GButton(libraryWindow, x+270, y, 155, iVeryLargeBoxHeight, "Open Library");
+		btnCreateLibrary.setLocalColorScheme(G4P.ORANGE_SCHEME);
+		btnOpenLibrary = new GButton(libraryWindow, x+=215, y, 180, iVeryLargeBoxHeight - 3, "Open Library");
 		btnOpenLibrary.tag = "OpenLibrary";
 		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnOpenLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-
+		chkbxRebuildLibrary = new GCheckbox(libraryWindow, x+=205, y+7, 125, iVerySmallBoxHeight, "Rebuild");
+		chkbxRebuildLibrary.tag = "RebuildLibrary";
+		chkbxRebuildLibrary.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		chkbxRebuildLibrary.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxRebuildLibrary.setSelected(world.ml.state.rebuildLibrary);
+		
 		y += 50;
 		btnLibraryHelp = new GButton(libraryWindow, windowWidth * 2 - 30 - iLeftMargin, y, 30, 30, "?");
 		btnLibraryHelp.tag = "LibraryHelp";
@@ -1780,8 +1790,8 @@ public class ML_Window
 				   createLibraryWindowHeight, PApplet.JAVA2D);
 
 		createLibraryWindow.addData(new ML_WinData());
-		createLibraryWindow.addDrawHandler(this, "importWindowDraw");
-		createLibraryWindow.addMouseHandler(this, "importWindowMouse");
+		createLibraryWindow.addDrawHandler(this, "createLibraryWindowDraw");
+		createLibraryWindow.addMouseHandler(this, "createLibraryWindowMouse");
 		createLibraryWindow.addKeyHandler(world.ml, "importWindowKey");
 		createLibraryWindow.setActionOnClose(GWindow.KEEP_OPEN);
 
@@ -1794,14 +1804,14 @@ public class ML_Window
 		lblImport.setTextBold();
 
 		x = 0;
-		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y + 60, createLibraryWindow.width, 22, "Building media library...");
+		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y + 35, createLibraryWindow.width, 22, "Creating media library...");
 		lblCreateLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
 		lblCreateLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblCreateLibraryWindowText.setTextAlign(GAlign.CENTER, null);
 		lblCreateLibraryWindowText.setVisible(false);
 
 		x = 0;
-		lblCreateLibraryWindowText2 = new GLabel(createLibraryWindow, x, y + 120, createLibraryWindow.width, 22, "Please wait. The process may take several minutes...");
+		lblCreateLibraryWindowText2 = new GLabel(createLibraryWindow, x, y + 95, createLibraryWindow.width, 22, "Please wait. The process may take several minutes...");
 		lblCreateLibraryWindowText2.setLocalColorScheme(G4P.SCHEME_10);
 		lblCreateLibraryWindowText2.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblCreateLibraryWindowText2.setTextAlign(GAlign.CENTER, null);
@@ -1812,7 +1822,7 @@ public class ML_Window
 		btnImportMediaFolder = new GButton(createLibraryWindow, x, y, 160, iLargeBoxHeight, "Add Folder");
 		btnImportMediaFolder.tag = "AddMediaFolder";
 		btnImportMediaFolder.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
-		btnImportMediaFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnImportMediaFolder.setLocalColorScheme(G4P.ORANGE_SCHEME);
 		btnMakeLibrary = new GButton(createLibraryWindow, x+220, y, 100, iLargeBoxHeight, "Done");
 		btnMakeLibrary.tag = "MakeLibrary";
 		btnMakeLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
@@ -1847,10 +1857,9 @@ public class ML_Window
 			listItemWindow.addData(new ML_WinData());
 			listItemWindow.addDrawHandler(this, "listItemWindowDraw");
 			listItemWindow.addKeyHandler(world.ml, "listItemWindowKey");
-//			listItemWindow.addMouseHandler(this, "listItemWindowMouse");
 			listItemWindow.setActionOnClose(GWindow.KEEP_OPEN);
 			
-			showListItemWindowList = true;
+			showListItemWindow = true;
 			world.ml.setAppIcon = true;
 		}
 	}
@@ -1860,44 +1869,66 @@ public class ML_Window
 		listItemWindow.setVisible(false);
 		listItemWindow.close();
 		listItemWindow.dispose();
-		showListItemWindowList = false;
+		showListItemWindow = false;
 	}
 
 	/**
-	 * Open window to choose item from a list of strings and return index result
-	 * @param list List items
-	 * @return Index of chosen item from list
+	 * Open window to enter text and return result
+	 * @param promptText
+	 * @param resultCode
+	 * @return Text entered by user
 	 */
-	public void openTextEntryDialog(ArrayList<String> list, String promptText, int resultCode)
+	public void openTextEntryWindow(String promptText, String initText, int resultCode)
 	{
-		if(list.size() > 0)
-		{
-			textEntryWindowUserEntry = "";
-			textEntryWindowText = promptText;
-			textEntryWindowSelectedItem = 0;
-			textEntryWindowResultCode = resultCode;					// Flag indicating what to do with dialog result value
-			
-			int leftEdge = world.ml.displayWidth / 2 - windowWidth * 3 / 2;
-			int topEdge = world.ml.displayHeight / 2 - createLibraryWindowHeight / 2;
+//		textEntryWindowUserEntry = "";
+//		textEntryWindowText = promptText;
+		textEntryWindowResultCode = resultCode;					// Flag indicating what to do with dialog result value
 
-			textEntryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
+		int leftEdge = world.ml.displayWidth / 2 - windowWidth;
+		int topEdge = world.ml.displayHeight / 2 - createLibraryWindowHeight / 2;
 
-			textEntryWindow.addData(new ML_WinData());
-			textEntryWindow.addDrawHandler(this, "textEntryWindowDraw");
-			textEntryWindow.addKeyHandler(world.ml, "textEntryWindowKey");
-			textEntryWindow.setActionOnClose(GWindow.KEEP_OPEN);
-			
-			showTextEntryWindow = true;
-			world.ml.setAppIcon = true;
-		}
+		textEntryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
+
+		textEntryWindow.addData(new ML_WinData());
+		textEntryWindow.addDrawHandler(this, "textEntryWindowDraw");
+//		textEntryWindow.addKeyHandler(world.ml, "textEntryWindowKey");
+		textEntryWindow.setActionOnClose(GWindow.KEEP_OPEN);
+
+		int x = 60, y = iTopMargin * 3;
+
+		lblText = new GLabel(textEntryWindow, x, y, textEntryWindow.width, 22, promptText);
+		lblText.setLocalColorScheme(G4P.SCHEME_10);
+		lblText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		lblText.setTextAlign(GAlign.CENTER, null);
+		lblText.setTextBold();
+
+		y += iLargeBoxHeight;
+		
+		txfInputText = new GTextField(textEntryWindow, x, y, windowWidth * 3 / 2, 30, G4P.SCROLLBARS_HORIZONTAL_ONLY | G4P.SCROLLBARS_AUTOHIDE);
+		txfInputText.setText(initText);
+		txfInputText.setLocalColorScheme(G4P.GREEN_SCHEME);
+
+		x = windowWidth * 2 - 50;
+		btnEnterText = new GButton(textEntryWindow, x, y, 40, iLargeBoxHeight, "OK");
+		btnEnterText.tag = "EnteredText";
+		btnEnterText.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
+		btnEnterText.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		setupTextEntryWindow = true;
+		showTextEntryWindow = true;
+		world.ml.setAppIcon = true;
 	}
 	
-	public void closeTextEntryDialog()
+	/**
+	 * Close Text Entry Window
+	 */
+	public void closeTextEntryWindow()
 	{
-		listItemWindow.setVisible(false);
-		listItemWindow.close();
-		listItemWindow.dispose();
-		showListItemWindowList = false;
+		textEntryWindow.setVisible(false);
+		textEntryWindow.close();
+		textEntryWindow.dispose();
+		showTextEntryWindow = false;
+		setupTextEntryWindow = false;
 	}
 
 	/**
@@ -2001,7 +2032,7 @@ public class ML_Window
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 */
-	public void importWindowDraw(PApplet applet, GWinData data) 
+	public void createLibraryWindowDraw(PApplet applet, GWinData data) 
 	{
 		float smallTextSize = 11.f;
 		float mediumTextSize = 16.f;
@@ -2071,7 +2102,7 @@ public class ML_Window
 		applet.fill(255);
 		
 		int x = iLeftMargin * 3;
-		int y = iTopMargin * 2;
+		int y = iTopMargin * 3;
 
 		applet.textSize(iLargeTextSize);
 		applet.text(listItemWindowText, x, y);
@@ -2111,13 +2142,30 @@ public class ML_Window
 //		applet.text("Press ENTER to select...", x, y);
 	}
 
+
+	/**
+	 * Handles drawing to the ML Window
+	 * @param applet the main PApplet object
+	 * @param data the data for the GWindow being used
+	 */
+	public void textEntryWindowDraw(PApplet applet, GWinData data) 
+	{
+		applet.background(0);
+		applet.fill(255);
+		
+
+//		applet.fill(255);
+//		applet.textSize(iLargeTextSize);
+//		applet.text("Press ENTER to select...", x, y);
+	}
+
 	/**
 	 * Handles mouse events for all GWindow objects
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 * @param event the mouse event
 	 */
-	public void importWindowMouse(PApplet applet, GWinData data, MouseEvent event) 
+	public void createLibraryWindowMouse(PApplet applet, GWinData data, MouseEvent event) 
 	{
 		ML_WinData data2 = (ML_WinData)data;
 		switch(event.getAction()) {
@@ -2142,50 +2190,6 @@ public class ML_Window
 		}
 	}
 
-//	/**
-//	 * Handles drawing to the Time Window 
-//	 * @param applet the main PApplet object
-//	 * @param data the data for the GWindow being used
-//	 */
-//	public void timeWindowDraw(PApplet applet, GWinData data) 
-//	{
-//		if(world.ml.state.running)
-//		{
-////			float lineWidthVeryWide = 20f;
-////			float lineWidthWide = 15f;
-////			float lineWidth = 15f;
-//
-////			float mediumTextSize = 13.f;
-//			float smallTextSize = 11.f;
-//
-////			float x = 10, y = 450;			
-//			applet.background(0);
-//			applet.stroke(255);
-//			applet.strokeWeight(1);
-//			applet.fill(255, 255, 255);
-//
-//			applet.textSize(smallTextSize);
-//			
-////			int mode = world.getState().getTimeMode();
-////			if( mode == 0 || mode == 1 )
-////			{
-////				int curTime = (mode == 0) ? world.getCurrentCluster().getState().currentTime : world.getState().currentTime;
-////				applet.text(" Current Time: "+ curTime, x, y += lineWidth);
-////			}
-//
-//			if(setupNavigationWindow)
-//			{
-//				if(world.state.timeFading && !world.state.paused)
-//					sdrCurrentTime.setValue(world.getCurrentTimePoint());
-//			}
-//
-////			applet.text(" Current Field Time: "+ world.currentTime, x, y += lineWidth);
-////			applet.text(" Current Field Time Segment: "+ world.viewer.getCurrentFieldTimeSegment(), x, y += lineWidthVeryWide);
-////			applet.text(" Current Field Timeline Size: "+ world.getCurrentField().getTimeline().timeline.size(), x, y += lineWidth);
-////			applet.text(" Current Field Dateline Size: "+ world.getCurrentField().getDateline().size(), x, y += lineWidth);
-//		}
-//	}
-
 	/**
 	 * Handles drawing to the Navigation Window
 	 * @param applet the main PApplet object
@@ -2206,7 +2210,6 @@ public class ML_Window
 //		applet.text("WorldMediaViewer v1.0", window.width / 2 - 10, yPos);
 //		applet.text("David Gordon", window.width / 2 - 10, yPos += 20);
 	}
-
 
 	/**
 	 * Handles mouse events for Navigation Window

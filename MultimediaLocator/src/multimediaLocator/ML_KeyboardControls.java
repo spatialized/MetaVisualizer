@@ -146,8 +146,8 @@ public class ML_KeyboardControls
 			ml.world.getCurrentField().findClusterMediaDirections();
 		}
 
-		if (input.optionKey && key == '\\')
-			ml.world.getCurrentField().stitchAllClusters(ml.stitcher, ml.library.getLibraryFolder());		// Teleport to cluster with > 1 times
+//		if (input.optionKey && key == '\\')
+//			ml.world.getCurrentField().stitchAllClusters(ml.stitcher, ml.library.getLibraryFolder());		// Teleport to cluster with > 1 times
 
 		if (!input.optionKey && key == 'a') 
 			ml.world.viewer.startMoveXTransition(-1);
@@ -574,7 +574,7 @@ public class ML_KeyboardControls
 		/* Output */
 		if (key == 'ø') 
 			ml.selectFolder("Select an output folder:", "outputFolderSelected");
-		if (key == 'O') 
+		if (key == '\\') 
 		{
 			if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
 			ml.world.exportCurrentView();
@@ -890,10 +890,11 @@ public class ML_KeyboardControls
 	{
 		if(key == 'o' || key == 'O')
 		{
-			ml.state.librarySetup = true;
+			ml.state.inLibrarySetup = true;
 			if(ml.createNewLibrary) ml.createNewLibrary = false;
 			ml.display.window.btnCreateLibrary.setVisible(false);
 			ml.display.window.btnOpenLibrary.setVisible(false);
+			ml.display.window.chkbxRebuildLibrary.setVisible(false);
 			ml.display.window.btnLibraryHelp.setVisible(false);
 			ml.display.window.lblLibrary.setVisible(false);
 //			ml.display.window.lblLibraryWait.setVisible(true);
@@ -902,7 +903,7 @@ public class ML_KeyboardControls
 
 		if(key == 'c' || key == 'C')
 		{
-			ml.state.librarySetup = true;
+			ml.state.inLibrarySetup = true;
 			ml.createNewLibrary = true;
 			ml.state.chooseMediaFolders = true;
 

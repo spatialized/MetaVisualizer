@@ -80,16 +80,11 @@ public class WMV_World
 	public WMV_World(MultimediaLocator parent)
 	{
 		ml = parent;
-		utilities = new WMV_Utilities();
-	}
-	
-	/**
-	 * Set up the world and viewer 
-	 */
-	public void initialize() 
-	{
+		
 		/* Create main classes */
 		settings = new WMV_WorldSettings();
+		utilities = new WMV_Utilities();
+		
 		state = new WMV_WorldState();
 		viewer = new WMV_Viewer(this, settings, state, ml.debugSettings);			// Initialize navigation + viewer
 		
@@ -98,6 +93,23 @@ public class WMV_World
 		timeFadeMap.setMapFunction(circularEaseOut);
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
+	}
+	
+	/**
+	 * Set up the world and viewer 
+	 */
+	private void initializeX() 
+	{
+//		/* Create main classes */
+//		settings = new WMV_WorldSettings();
+//		state = new WMV_WorldState();
+//		viewer = new WMV_Viewer(this, settings, state, ml.debugSettings);			// Initialize navigation + viewer
+//		
+//		/* Setup interpolation variables */
+//		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
+//		timeFadeMap.setMapFunction(circularEaseOut);
+//		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
+//		distanceFadeMap.setMapFunction(circularEaseIn);
 	}
 
 	/**
@@ -657,7 +669,8 @@ public class WMV_World
 	public void saveCurrentSimulationState()
 	{
 		if(ml.world.getSettings().screenMessagesOn)
-			ml.display.message(ml, "Saving Current Field...");
+			ml.display.message(ml, "Saving "+getCurrentField().getName()+"...");
+		
 		ml.display.display(ml);
 
 		String folderPath = ml.library.getDataFolder(getCurrentField().getID());
@@ -1087,7 +1100,7 @@ public class WMV_World
 	{
 		if(ml.debugSettings.world) System.out.println("Resetting world...");
 		settings.reset();
-
+		
 		/* Clustering Modes */
 		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
 
@@ -1099,6 +1112,7 @@ public class WMV_World
 		state.currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
 
 		/* Graphics */
+		state.loadedMasks = false;
 		state.hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera
 
 		state.alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
@@ -1140,7 +1154,7 @@ public class WMV_World
 	/**
 	 * Create a field from each media folder in library
 	 */
-	void createFieldsFromFolders(ArrayList<String> fieldFolders)
+	void createFields(ArrayList<String> fieldFolders)
 	{
 		fields = new ArrayList<WMV_Field>();					// Initialize fields array
 		int count = 0;
@@ -1262,56 +1276,6 @@ public class WMV_World
 			return c;
 		}
 		else return null;
-	}
-	
-	/**
-	 * @return All images in current field
-	 */
-	public ArrayList<WMV_Image> getCurrentFieldImages()
-	{
-		ArrayList<WMV_Image> iList = getCurrentField().getImages();
-		return iList;
-	}
-	
-	/**
-	 * @return All panoramas in field
-	 */
-	public ArrayList<WMV_Panorama> getCurrentFieldPanoramas()
-	{
-		ArrayList<WMV_Panorama> pList = getCurrentField().getPanoramas();
-		return pList;
-	}
-	
-	/**
-	 * @return All videos in current field
-	 */
-	public ArrayList<WMV_Video> getCurrentFieldVideos()
-	{
-		ArrayList<WMV_Video> iList = getCurrentField().getVideos();
-		return iList;
-	}
-	
-	/**
-	 * @return All clusters in current field
-	 */
-	public ArrayList<WMV_Cluster> getCurrentFieldClusters()
-	{
-		ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
-		return clusters;
-	}
-
-	/**
-	 * @return Active clusters in current field
-	 */
-	public ArrayList<WMV_Cluster> getActiveClusters()
-	{
-		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
-
-		for(WMV_Cluster c : getCurrentField().getClusters())
-			if(c.isActive() && !c.isEmpty())
-				clusters.add(c);
-		
-		return clusters;
 	}
 	
 	/**
@@ -1455,6 +1419,10 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Export given panoramas
+	 * @param panoramaIDs List of panorama IDs
+	 */
 	public void exportPanoramas(List<Integer> panoramaIDs)
 	{
 		for(int i:panoramaIDs)
@@ -1536,6 +1504,10 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Export given sounds
+	 * @param soundIDs
+	 */
 	public void exportSounds(List<Integer> soundIDs)
 	{
 		for(int i:soundIDs)
@@ -1605,6 +1577,56 @@ public class WMV_World
 			System.out.println("World.getField()... ERROR: fieldIndex:"+fieldIndex+" fields.size():"+fields.size());
 			return null;
 		}
+	}
+
+	/**
+	 * @return All images in current field
+	 */
+	public ArrayList<WMV_Image> getCurrentFieldImages()
+	{
+		ArrayList<WMV_Image> iList = getCurrentField().getImages();
+		return iList;
+	}
+	
+	/**
+	 * @return All panoramas in field
+	 */
+	public ArrayList<WMV_Panorama> getCurrentFieldPanoramas()
+	{
+		ArrayList<WMV_Panorama> pList = getCurrentField().getPanoramas();
+		return pList;
+	}
+	
+	/**
+	 * @return All videos in current field
+	 */
+	public ArrayList<WMV_Video> getCurrentFieldVideos()
+	{
+		ArrayList<WMV_Video> iList = getCurrentField().getVideos();
+		return iList;
+	}
+	
+	/**
+	 * @return All clusters in current field
+	 */
+	public ArrayList<WMV_Cluster> getCurrentFieldClusters()
+	{
+		ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
+		return clusters;
+	}
+
+	/**
+	 * @return Active clusters in current field
+	 */
+	public ArrayList<WMV_Cluster> getActiveClusters()
+	{
+		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
+
+		for(WMV_Cluster c : getCurrentField().getClusters())
+			if(c.isActive() && !c.isEmpty())
+				clusters.add(c);
+		
+		return clusters;
 	}
 
 	/**
@@ -2435,10 +2457,16 @@ public class WMV_World
 		}
 	}
 	
+	public void loadMasks()
+	{
+		loadImageMasks();					
+		loadVideoMasks();
+		state.loadedMasks = true;
+	}
 	/**
 	 * Load image blur masks
 	 */
-	public void loadImageMasks()
+	private void loadImageMasks()
 	{
 		String maskPath = "/masks_image/";
 		blurMaskLeftTop = getMaskImageResource(maskPath, "blurMaskLeftTop.jpg");
@@ -2486,7 +2514,7 @@ public class WMV_World
 	/**
 	 * Load video masks
 	 */
-	public void loadVideoMasks()
+	private void loadVideoMasks()
 	{
 		String maskPath = "/masks_video/";
 		

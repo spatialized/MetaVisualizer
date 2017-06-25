@@ -157,26 +157,34 @@ public class WMV_Field
 //		}
 	}
 	
+	/**
+	 * Display image models
+	 * @param ml Parent app
+	 * @param imageList Image list
+	 */
 	public void displayImageModels(MultimediaLocator ml, ArrayList<WMV_Image> imageList)
 	{
-		for(WMV_Image img : imageList)
+		if(!ml.world.viewer.getSettings().hideImages)
 		{
-			float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactor;		// Distance where transparency reaches zero
-			float distance = img.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
-			boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
-			if(inVisibleRange)
+			for(WMV_Image img : imageList)
 			{
-				float imageAngle = img.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
-				if(!utilities.isNaN(imageAngle))
-					if(img.getAngleBrightness(imageAngle) > 0.f)
-						if(!img.isBackFacing(getViewerState().getLocation()) && !img.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
-							img.displayModel(ml);			// Display model
+				float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactor;		// Distance where transparency reaches zero
+				float distance = img.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
+				if(inVisibleRange)
+				{
+					float imageAngle = img.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
+					if(!utilities.isNaN(imageAngle))
+						if(img.getAngleBrightness(imageAngle) > 0.f)
+							if(!img.isBackFacing(getViewerState().getLocation()) && !img.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
+								img.displayModel(ml);			// Display model
+				}
 			}
 		}
 	}
 	
-//	public void displayPanoramaModels(MultimediaLocator ml, ArrayList<WMV_Image> imageList)
-//	{
+	public void displayPanoramaModels(MultimediaLocator ml, ArrayList<WMV_Image> imageList) 	// -- In progress
+	{
 //		for(WMV_Image img : imageList)
 //		{
 //			float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
@@ -184,29 +192,32 @@ public class WMV_Field
 //			boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 //			if(inVisibleRange) img.displayModel(ml);			// Display model
 //		}
-//	}
+	}
 	
 	public void displayVideoModels(MultimediaLocator ml, ArrayList<WMV_Video> videoList)
 	{
-		for(WMV_Video vid : videoList)
+		if(!ml.world.viewer.getSettings().hideVideos)
 		{
-			float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
-			float distance = vid.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
-			boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
-//			if(inVisibleRange) vid.displayModel(ml);			// Display model
-			if(inVisibleRange)
+			for(WMV_Video vid : videoList)
 			{
-				float imageAngle = vid.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
-				if(!utilities.isNaN(imageAngle))
-					if(vid.getAngleBrightness(imageAngle) > 0.f)
-						if(!vid.isBackFacing(getViewerState().getLocation()) && !vid.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
-							vid.displayModel(ml);			// Display model
+				float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
+				float distance = vid.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
+				//			if(inVisibleRange) vid.displayModel(ml);			// Display model
+				if(inVisibleRange)
+				{
+					float imageAngle = vid.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
+					if(!utilities.isNaN(imageAngle))
+						if(vid.getAngleBrightness(imageAngle) > 0.f)
+							if(!vid.isBackFacing(getViewerState().getLocation()) && !vid.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
+								vid.displayModel(ml);			// Display model
+				}
 			}
 		}
 	}
 	
-//	public void displaySoundModels(MultimediaLocator ml, ArrayList<WMV_Image> imageList)
-//	{
+	public void displaySoundModels(MultimediaLocator ml, ArrayList<WMV_Image> imageList)	// -- In progress
+	{
 //		for(WMV_Image img : imageList)
 //		{
 //			float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
@@ -214,7 +225,7 @@ public class WMV_Field
 //			boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 //			if(inVisibleRange) img.displayModel(ml);			// Display model
 //		}
-//	}
+	}
 	
 	/**
 	 * Update images in field
@@ -4306,6 +4317,16 @@ public class WMV_Field
 		return state.dataFolderLoaded;
 	}
 
+	public void setNamed(boolean newNamed)
+	{
+		state.named = newNamed;
+	}
+
+	public boolean getNamed()
+	{
+		return state.named;
+	}
+
 	public void setGPSTracks(ArrayList<ArrayList<WMV_Waypoint>> newGPSTracks)
 	{
 		if(newGPSTracks != null) state.gpsTracks = newGPSTracks;
@@ -4338,6 +4359,8 @@ public class WMV_Field
 	public void setName(String newName)
 	{
 		state.name = newName;
+		state.named = true;
+		System.out.println("Set field name to:"+state.name);
 	}
 
 	public void setVisited(boolean newState)

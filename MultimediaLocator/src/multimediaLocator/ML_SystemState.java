@@ -21,16 +21,25 @@ public class ML_SystemState
 	/* Setup */
 	public boolean selectedLibrary = false;					// Whether user has selected a library folder
 	public boolean selectedNewLibraryDestination = false;	// Whether user has selected a library destination folder
-	public boolean selectedMediaFolders = false;			// Whether user has selected a media folder
-	public boolean librarySetup = false;					// Whether library dialog should open
+	public boolean selectedNewLibraryMedia = false;			// Whether user has selected a media folder
+	public boolean inLibrarySetup = false;					// Whether library dialog should open
+	public boolean rebuildLibrary = false;					// Whether to rebuild library before opening
+	
 	public boolean createdLibrary = false;					// Whether library has been created
 	public boolean chooseLibraryDestination = false;		// Whether library destination dialog should open
 	public boolean chooseMediaFolders = false;				// Whether media folder dialog should open
 	
-	public boolean initialClustering = false;			// Performing initial setup 
-	public boolean initializingFields = false;			// Initializing fields
-	public boolean fieldsInitialized = false;			// Initialized fields
+	public boolean inFieldInitialization = false;			// Performing initial setup 
+	public boolean initializingFields = false;				// Initializing fields
+	public boolean fieldsInitialized = false;				// Initialized fields
+	public boolean libraryNamed = false;		// Whether new library has been named
+//	public boolean inLibraryNaming = false;		// Whether currently naming library
+	public boolean fieldsNamed = true; 			// Whether new library fields have been named
+	public boolean inFieldNaming = false;		// Whether currently naming fields
+	public String oldFieldName = "";
+	
 	public int initializationField = 0;					// Field to be initialized this frame
+	public int namingField = 0;					// Field to be initialized this frame
 
 	/* Graphics */
 	public boolean sphericalView = false;				// 360-degree fulldome view
@@ -54,13 +63,13 @@ public class ML_SystemState
 		
 		selectedLibrary = false;	
 		selectedNewLibraryDestination = false;		// Whether user has selected a library destination folder
-		selectedMediaFolders = false;				// Whether user has selected a media folder
-		librarySetup = false;
+		selectedNewLibraryMedia = false;				// Whether user has selected a media folder
+		inLibrarySetup = false;
 		createdLibrary = false;
 		chooseLibraryDestination = false;
 		chooseMediaFolders = false;
 		
-		initialClustering = false;
+		inFieldInitialization = false;
 		initializingFields = false;
 		fieldsInitialized = false;
 		initializationField = 0;

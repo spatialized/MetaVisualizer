@@ -60,8 +60,7 @@ public class ML_Display
 	private boolean fieldTimelineCreated = false, fieldDatelineCreated = false, updateFieldTimeline = true;
 	private float timelineXOffset = 0.f, timelineYOffset = 0.f;
 	private float datelineXOffset = 0.f, datelineYOffset = 0.f;
-//	private float timelineHUDDistance = hudDistanceInit * 1.166f;
-	private float timelineHUDDistance = hudDistanceInit + 166.f; 
+
 	private SelectableTimeSegment currentSelectableTimeSegment;
 	private int selectedTime = -1, selectedCluster = -1, currentSelectableTimeSegmentID = -1, currentSelectableTimeSegmentFieldTimeSegmentID = -1;
 	private int selectedDate = -1, currentSelectableDate = -1;
@@ -198,10 +197,10 @@ public class ML_Display
 	 * Initialize windows
 	 * @param p Parent world
 	 */
-	void initializeWindows(WMV_World p)
-	{
-		window = new ML_Window(p, this);				// Setup and display interaction window
-	}
+//	void initializeWindows(WMV_World p)
+//	{
+//		window = new ML_Window(p, this);				// Setup and display interaction window
+//	}
 
 	/**
 	 * Display HUD elements (messages, satellite map, statistics, metadata, etc.)
@@ -213,7 +212,7 @@ public class ML_Display
 		{
 			ml.hint(PApplet.DISABLE_DEPTH_TEST);									// Disable depth testing for drawing HUD
 //			ml.background(0);														// Hide World View
-			displayStartup(ml.world, ml.state.librarySetup);						// Draw startup messages
+			displayStartup(ml.world, ml.state.inLibrarySetup);						// Draw startup messages
 		}
 		else																		
 		{
@@ -1721,30 +1720,30 @@ public class ML_Display
 					
 //					yPos += lineWidthVeryWide * 11.f;
 				}
-				else
-				{
-					if(p.getFields() != null)
-					{
-						if(p.getFields().size() > p.ml.state.initializationField)
-						{
-							if(p.getField( p.ml.state.initializationField ).getDataFolderLoaded())
-							{
-								window.setLibraryWindowText("Loading media library...");		// -- Not being called
-								//						System.out.println("Called setLibraryWindowText to:  Loading media library...");
-							}
-							else
-							{
-								window.setLibraryWindowText("Building media library...");
-								//						ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
-							}
-						}
-						else
-						{
-							System.out.println("Display.displayStartup()... Called but initializationField >= fields.size()!!  ml.state.fieldsInitialized:"+ml.state.fieldsInitialized);
-							System.out.println("            initializationField:"+ml.state.initializationField+" fields.size():"+ml.world.getFields().size());
-						}
-					}
-				}
+//				else
+//				{
+//					if(p.getFields() != null)
+//					{
+//						if(p.getFields().size() > p.ml.state.initializationField)
+//						{
+//							if(p.getField( p.ml.state.initializationField ).getDataFolderLoaded())
+//							{
+//								window.setLibraryWindowText("Loading media library...");		// -- Not being called
+//								//						System.out.println("Called setLibraryWindowText to:  Loading media library...");
+//							}
+//							else
+//							{
+//								window.setLibraryWindowText("Building media library...");
+//								//						ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
+//							}
+//						}
+//						else
+//						{
+//							System.out.println("Display.displayStartup()... Called but initializationField >= fields.size()!!  ml.state.fieldsInitialized:"+ml.state.fieldsInitialized);
+//							System.out.println("            initializationField:"+ml.state.initializationField+" fields.size():"+ml.world.getFields().size());
+//						}
+//					}
+//				}
 			}
 			ml.textSize(largeTextSize);
 //			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.f, yPos, hudDistance);
@@ -2055,7 +2054,7 @@ public class ML_Display
 					window.optTimelineView.setSelected(false);
 				}
 				break;
-			case 1:													// Map View
+			case 1:														// Map View
 				if(!initializedMaps) map2D.initialize(p);
 				switch(mapViewMode)
 				{
@@ -2082,13 +2081,14 @@ public class ML_Display
 				if(window.setupMapWindow) 
 					window.setMapControlsEnabled(true);
 				break;
-			case 2:													// Time View
+			case 2:														// Time View
 				if(window.setupMLWindow)
 				{
 					window.optWorldView.setSelected(false);
 					window.optMapView.setSelected(false);
 					window.optTimelineView.setSelected(true);
 				}
+				zoomToTimeline(ml.world, true);
 				break;
 			case 3:													// Library View  -- Disabled
 //				if(!initializedMaps) map2D.initialize(p);

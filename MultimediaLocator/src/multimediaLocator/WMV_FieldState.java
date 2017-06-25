@@ -13,6 +13,7 @@ public class WMV_FieldState
 	/* General */
 	public int id;											// Field ID
 	public String name;										// Field Name
+	public boolean named = true;							// Whether field has been named
 	public boolean visited = false;							// Whether viewer has visited field
 	public boolean loadedState = false;
 	

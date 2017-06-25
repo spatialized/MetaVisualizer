@@ -203,21 +203,17 @@ public class ML_Input
 				
 				/* Library */
 				case "CreateLibrary":
-					ml.state.librarySetup = true;
+					ml.state.inLibrarySetup = true;
 					ml.createNewLibrary = true;
 					ml.state.chooseMediaFolders = true;
-//					ml.display.window.btnImportMediaFolder.setVisible(false);
-//					ml.display.window.btnMakeLibrary.setVisible(false);
-//					ml.display.window.lblImport.setVisible(false);
-
-//					display.window.closeLibraryWindow();
 					break;
-	
+					
 				case "OpenLibrary":
-					ml.state.librarySetup = true;
+					ml.state.inLibrarySetup = true;
 					if(ml.createNewLibrary) ml.createNewLibrary = false;
 					ml.display.window.btnCreateLibrary.setVisible(false);
 					ml.display.window.btnOpenLibrary.setVisible(false);
+					ml.display.window.chkbxRebuildLibrary.setVisible(false);
 					ml.display.window.btnLibraryHelp.setVisible(false);
 					ml.display.window.lblLibrary.setVisible(false);
 //					ml.display.window.lblLibraryWait.setVisible(true);
@@ -259,9 +255,29 @@ public class ML_Input
 					break;
 	
 				case "MakeLibrary":
-					ml.state.selectedMediaFolders = true;			// Media folder has been selected
+					ml.state.selectedNewLibraryMedia = true;			// Media folder has been selected
 					ml.state.chooseMediaFolders = false;			// No longer choose a media folder
 					ml.state.chooseLibraryDestination = true;		// Choose library destination folder
+					break;
+
+				/* Text Entry */
+				case "EnteredText":
+					switch(ml.display.window.textEntryWindowResultCode)
+					{
+						case 0:						// 0: Field Name 
+							String fieldName = ml.display.window.txfInputText.getText();
+//							System.out.println("Input.buttonPressed()... Field name input text:"+fieldName);
+							ml.world.getField(ml.state.namingField).setName(fieldName);
+							break;
+						case 1:						// 1: Library Name
+							String libraryName = ml.display.window.txfInputText.getText();
+							System.out.println("Input.buttonPressed()... Library name input text:"+libraryName);
+							ml.library.setName(libraryName);
+							ml.state.libraryNamed = true;
+							ml.state.fieldsNamed = false;
+							break;
+					}
+					ml.display.window.closeTextEntryWindow();
 					break;
 	
 				/* Navigation */
@@ -601,6 +617,11 @@ public class ML_Input
 	{
 		switch (option.tag)
 		{
+			/* Create Library Window */
+			case "RebuildLibrary":
+				world.ml.state.rebuildLibrary = option.isSelected();
+				break;
+			
 			/* Main Window */
 			case "SceneView":
 				display.setDisplayView(world, 0);

@@ -12,6 +12,9 @@ import org.boon.json.ObjectMapper;
  */
 public class ML_Library 
 {
+	private String name = "";
+	public boolean named = false;
+	
 	private String libraryFolder;								// Filepath for library folder 
 	private ArrayList<String> folders;							// Directory paths for each field in library
 	public ArrayList<String> mediaFolders;						// Directory paths for media folders added to library
@@ -55,7 +58,7 @@ public class ML_Library
 		File destinationFile = new File(destination);
 		if(!destinationFile.exists()) destinationFile.mkdir();
 		
-		String fieldFolder = destination + "/field";
+		String fieldFolder = destination + "/field";				/* Generic initial field name */
 		File fieldFolderFile = new File(fieldFolder);
 		if(!fieldFolderFile.exists()) fieldFolderFile.mkdir();
 
@@ -699,7 +702,7 @@ public class ML_Library
 		command.add(filePath);
 		command.add(destination);
 		
-		System.out.println("copyFile()... command.toString():"+command.toString());
+//		System.out.println("copyFile()... command.toString():"+command.toString());
 //		cp -a /source/. /dest/
 //		cp /home/usr/dir/{file1,file2,file3,file4} /home/usr/destination/
 
@@ -762,6 +765,35 @@ public class ML_Library
 		}
 		
 		return files;
+	}
+	
+	/**
+	 * Set library name and rename folder
+	 * @param newName
+	 */
+	public void setName(String newName)
+	{
+		WMV_Utilities utilities = new WMV_Utilities();
+		
+		name = newName + ".mlibrary";					/* Add library extension*/
+		named = true;
+		
+		utilities.renameFolder(libraryFolder, name);
+	}
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public void setNamed(boolean newNamed)
+	{
+		named = newNamed;
+	}
+	
+	public boolean getNamed()
+	{
+		return named;
 	}
 	
 	public String getLibraryFolder()

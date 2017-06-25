@@ -18,6 +18,7 @@ public class WMV_WorldState
 	public final float modelDistanceVisibilityFactor = 8.f;	// Distance at which media model becomes invisible
 	
 	/* Graphics */
+	public boolean loadedMasks = false;
 	public float hudDistance = -1000.f;					// Distance of the Heads-Up Display from the virtual camera		-- Obsolete?
 	
 	public boolean displayTerrain = false;				// Show ground as wireframe grid

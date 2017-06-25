@@ -69,6 +69,46 @@ public class WMV_Utilities
 	}
 	
 	/**
+	 * Purge all files and sub-folders in a directory
+	 * @param directory Directory to purge
+	 */
+	public void purgeDirectory(File directory) {
+	    for (File file: directory.listFiles()) {
+	        if (file.isDirectory()) purgeDirectory(file);
+	        file.delete();
+	    }
+	}
+	
+	public boolean renameFolder(String oldFolder, String newName)
+	{
+		File oldFolderFile = new File(oldFolder);
+		File parentFolderFile = oldFolderFile.getParentFile();
+		
+		System.out.println("Will rename folder from:"+oldFolderFile.getAbsolutePath());
+		System.out.println("      to:"+parentFolderFile.getAbsolutePath() + "/" + newName);
+		File newNameFile = new File(parentFolderFile.getAbsolutePath() + "/" + oldFolder);
+	
+		if(!newNameFile.exists())
+		{
+			if(oldFolderFile.isDirectory())
+			{
+				return oldFolderFile.renameTo(newNameFile);
+			}
+			else
+			{
+				System.out.println("Utilities.renameFolder()... ERROR: File "+oldFolderFile.getName()+" is not a directory!");
+				return false;
+			}
+		}
+		else
+		{
+			System.out.println("Utilities.renameFolder()... ERROR: File "+newNameFile.getName()+" already exists!");
+			return false;
+		}
+	}
+	
+
+	/**
 	 * Perform linear interpolation between two values
 	 * @param val1 First value
 	 * @param val2 Second value

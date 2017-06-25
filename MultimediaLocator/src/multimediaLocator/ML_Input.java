@@ -272,7 +272,8 @@ public class ML_Input
 						case 1:						// 1: Library Name
 							String libraryName = ml.display.window.txfInputText.getText();
 							System.out.println("Input.buttonPressed()... Library name input text:"+libraryName);
-							ml.library.setName(libraryName);
+							ml.library.rename(libraryName);
+							ml.world.updateMediaFilePaths();		// Update media file paths with new library name
 							ml.state.libraryNamed = true;
 							ml.state.fieldsNamed = false;
 							break;

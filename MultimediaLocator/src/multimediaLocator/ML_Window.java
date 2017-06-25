@@ -1894,7 +1894,7 @@ public class ML_Window
 //		textEntryWindow.addKeyHandler(world.ml, "textEntryWindowKey");
 		textEntryWindow.setActionOnClose(GWindow.KEEP_OPEN);
 
-		int x = 60, y = iTopMargin * 3;
+		int x = 0, y = iTopMargin * 3;
 
 		lblText = new GLabel(textEntryWindow, x, y, textEntryWindow.width, 22, promptText);
 		lblText.setLocalColorScheme(G4P.SCHEME_10);
@@ -1904,6 +1904,7 @@ public class ML_Window
 
 		y += iLargeBoxHeight;
 		
+		x = windowWidth / 8;
 		txfInputText = new GTextField(textEntryWindow, x, y, windowWidth * 3 / 2, 30, G4P.SCROLLBARS_HORIZONTAL_ONLY | G4P.SCROLLBARS_AUTOHIDE);
 		txfInputText.setText(initText);
 		txfInputText.setLocalColorScheme(G4P.GREEN_SCHEME);
@@ -2078,12 +2079,12 @@ public class ML_Window
 						applet.text("No media folders yet.", x, y);
 					else
 					{
-						applet.textSize(smallTextSize);
+						applet.textSize(smallTextSize+1);
 						x = iLeftMargin * 2;
 						for(String strFolder : display.ml.library.mediaFolders)
 						{
 							applet.text(strFolder, x, y);
-							y += iMediumBoxHeight;
+							y += iSmallBoxHeight;
 						}
 					}
 				}

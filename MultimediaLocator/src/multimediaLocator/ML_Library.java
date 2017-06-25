@@ -416,35 +416,35 @@ public class ML_Library
 	 * @param newName New name to attempt
 	 * @return Whether operation succeeded
 	 */
-	public boolean renameFieldFolder(WMV_Field field, String newName)
-	{
-		field.setName(newName);
-		String fieldFolderPath = getLibraryFolder() + "/" + field.getName();
-		File fieldFolderFile = new File(fieldFolderPath);
-		String newFilePath = getLibraryFolder() + "/" + newName;
-		File newNameFile = new File(newFilePath);
-		boolean success = false;
-
-		if(!newNameFile.exists())
-			success = fieldFolderFile.renameTo(newNameFile);
-
-		if(!success)
-		{
-			System.out.println("Failed at renaming to :"+newFilePath+"... will try appending numbers...");
-			boolean found = false;
-			int count = 2;
-			while(!found)				// Append count to file name until non-duplicate name found
-			{
-				String path = getLibraryFolder() + "/" + newName + "_" + String.valueOf(count);
-				newNameFile = new File(path);
-				if(!newNameFile.exists()) found = true;
-				count++;
-			}
-			success = fieldFolderFile.renameTo(newNameFile);
-		}
-		
-		return success;
-	}
+//	private boolean renameFieldFolder(WMV_Field field, String newName)
+//	{
+//		field.setName(newName);
+//		String fieldFolderPath = getLibraryFolder() + "/" + field.getName();
+//		File fieldFolderFile = new File(fieldFolderPath);
+//		String newFilePath = getLibraryFolder() + "/" + newName;
+//		File newNameFile = new File(newFilePath);
+//		boolean success = false;
+//
+//		if(!newNameFile.exists())
+//			success = fieldFolderFile.renameTo(newNameFile);
+//
+//		if(!success)
+//		{
+//			System.out.println("Failed at renaming to :"+newFilePath+"... will try appending numbers...");
+//			boolean found = false;
+//			int count = 2;
+//			while(!found)				// Append count to file name until non-duplicate name found
+//			{
+//				String path = getLibraryFolder() + "/" + newName + "_" + String.valueOf(count);
+//				newNameFile = new File(path);
+//				if(!newNameFile.exists()) found = true;
+//				count++;
+//			}
+//			success = fieldFolderFile.renameTo(newNameFile);
+//		}
+//		
+//		return success;
+//	}
 	
 	/**
 	 * Move matching media in source field to target
@@ -768,22 +768,30 @@ public class ML_Library
 	}
 	
 	/**
-	 * Set library name and rename folder
-	 * @param newName
+	 * Rename library and library folder on disk
+	 * @param newName New library name (without ".mlibrary" file extension)
 	 */
-	public void setName(String newName)
+	public void rename(String newName)
 	{
 		WMV_Utilities utilities = new WMV_Utilities();
 		
-		name = newName + ".mlibrary";					/* Add library extension*/
+		File libraryFolderFile = new File(libraryFolder);
+		File parentFolderFile = libraryFolderFile.getParentFile();
+		
+		String newLibraryFolder = parentFolderFile.getAbsolutePath() + "/" + newName + ".mlibrary";
+		name = newName;					
 		named = true;
 		
-		utilities.renameFolder(libraryFolder, name);
+		utilities.renameFolder(libraryFolder, newLibraryFolder, true);
+		libraryFolder = newLibraryFolder;
 	}
 	
-	public String getName()
+	public String getName(boolean extension)
 	{
-		return name;
+		if(extension)
+			return name + ".mlibrary";
+		else
+			return name;
 	}
 	
 	public void setNamed(boolean newNamed)
@@ -801,6 +809,15 @@ public class ML_Library
 		return libraryFolder;
 	}
 
+	/**
+	 * Set library folder
+	 * @param newLibraryFolder New library folder path
+	 */
+	public void setLibraryFolder(String newLibraryFolder)
+	{
+		libraryFolder = newLibraryFolder;
+	}
+	
 	public void addFolder(String newFolder)
 	{
 		folders.add(newFolder);
@@ -809,6 +826,30 @@ public class ML_Library
 	public ArrayList<String> getFolders()
 	{
 		return folders;
+	}
+	
+	/**
+	 * Update names of folders in library to match fields in world
+	 * @param world World containing fields
+	 */
+	public void updateFolderNames(WMV_World world)
+	{
+		if(folders.size() == world.getFieldCount())	// Correct folder count
+		{
+			int count = 0;
+			for(WMV_Field f : world.getFields())
+			{
+				folders.set(count, f.getName());
+			}
+		}
+		else										// New field count
+		{
+			folders = new ArrayList<String>();
+			for(WMV_Field f : world.getFields())
+			{
+				folders.add(f.getName());
+			}
+		}
 	}
 
 	public String getFolder(int folderIdx)
@@ -1275,14 +1316,5 @@ public class ML_Library
 			System.out.println("loadSoundStateList Throwable t:"+t);
 		}
 		return null;
-	}
-
-	/**
-	 * Set library folder
-	 * @param newLibraryFolder New library folder path
-	 */
-	public void setLibraryFolder(String newLibraryFolder)
-	{
-		libraryFolder = newLibraryFolder;
 	}
 }

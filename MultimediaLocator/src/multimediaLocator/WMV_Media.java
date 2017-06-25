@@ -47,8 +47,8 @@ public abstract class WMV_Media
 	{
 		mState = new WMV_MediaState();
 
-		mState.name = newName;								// -- Temporary
-		mState.filePath = newFilePath;
+		mState.name = newName;
+//		mState.filePath = newFilePath;
 		mState.dateTime = newDateTime;
 		mState.timeZone = newTimeZone;
 		mState.gpsLocation = newGPSLocation;
@@ -893,16 +893,6 @@ public abstract class WMV_Media
 		return mState.name;
 	}
 
-	public String getFilePath()
-	{
-		return mState.filePath;
-	}
-
-	public void setFilePath(String newFilePath)
-	{
-		mState.filePath = newFilePath;
-	}
-	
 	public void setAspectRatio(float newAspectRatio)
 	{
 		mState.aspectRatio = newAspectRatio;
@@ -922,7 +912,7 @@ public abstract class WMV_Media
 	{
 		return mState.requested;
 	}
-
+	
 	public void setOriginalPath(String newPath)
 	{
 		mState.originalPath = newPath;

@@ -4360,7 +4360,7 @@ public class WMV_Field
 	{
 		state.name = newName;
 		state.named = true;
-		System.out.println("Set field name to:"+state.name);
+//		System.out.println("Set field name to:"+state.name);
 	}
 
 	public void setVisited(boolean newState)

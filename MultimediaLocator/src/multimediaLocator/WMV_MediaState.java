@@ -28,7 +28,7 @@ public class WMV_MediaState
 	public int id;
 	public int mediaType;						// Media Type,  0: image 1: panorama 2: video 3: sound 
 	public String name = "";
-	public String filePath = "";
+//	public String filePath = "";				// -- Obsolete
 
 	/* Time */
 	public float clusterLowDate, clusterLowTime;		// Date and time relative to other images in cluster (position between 0. and 1.)

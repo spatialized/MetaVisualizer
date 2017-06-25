@@ -762,6 +762,31 @@ public class WMV_Image extends WMV_Media
 		}
 	}
 
+	public String getFilePath()
+	{
+		return getMetadata().filePath;
+	}
+
+	public void setFilePath(String newFilePath)
+	{
+		metadata.filePath = newFilePath;
+	}
+	
+	public void updateFilePath(MultimediaLocator ml, WMV_Field parentField)
+	{
+		String oldFilePath = getFilePath();
+		String[] parts = oldFilePath.split("/");
+
+		parts[parts.length-4] = ml.library.getName(true);			// Library name
+		parts[parts.length-3] = parentField.getName();					// Field name
+		
+		String newFilePath = parts[0];
+		for(int i=1; i<parts.length; i++)
+			newFilePath = newFilePath + "/" + parts[i];
+//		System.out.println("Image.updateFilePath()... Will set image path to:"+newFilePath);
+		setFilePath(newFilePath);
+	}
+	
 	/**
 	 * @return Average color across all pixels  
 	 */	

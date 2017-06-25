@@ -55,9 +55,9 @@ public class MultimediaLocator extends PApplet
 	public int appWidth = 1680, appHeight = 960;	// App window dimensions
 	private PImage appIcon;							// App icon
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
-
+	private final int delayAmount = 60;				
 	/* Windows */
-	private boolean appWindowVisible = false;			// Main window visible (for hiding when opening)
+	private boolean appWindowVisible = false;		// Main window visible (for hiding when opening)
 	
 	/* System Status */
 	public ML_SystemState state = new ML_SystemState();
@@ -110,17 +110,18 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void setup()
 	{
+//		delay(delayAmount);
+		
+		surface.setResizable(true);
+		hideAppWindow();
+		
+//		delay(delayAmount);
+		
 		debugSettings = new ML_DebugSettings();		
 		if(debugSettings.ml) System.out.println("Starting initial setup...");
 
 		input = new ML_Input(appWidth, appHeight);
 
-//		delay(50);
-
-//		surface.setResizable(true);
-//		hideMainWindow();
-
-//		delay(50);
 
 		world = new WMV_World(this);
 //		world.initialize();				-- Obsolete
@@ -142,7 +143,7 @@ public class MultimediaLocator extends PApplet
 		
 		initCubeMap();
 		
-//		delay(50);
+//		delay(delayAmount);
 
 		addShutdownHook();
 	}
@@ -263,7 +264,7 @@ public class MultimediaLocator extends PApplet
 		else
 		{
 			if(!world.state.loadedMasks) world.loadMasks();
-			if(!appWindowVisible) showAppWindow();
+//			if(!appWindowVisible) showAppWindow();
 			
 			runFieldInitialization();
 		}
@@ -303,6 +304,7 @@ public class MultimediaLocator extends PApplet
 		{
 			organizeMedia();						/* Analyze and organize media */
 			finishInitialization();					/* Finish initialization and start running */
+			if(!appWindowVisible) showAppWindow();
 			display.setupProgress(0.f);
 		}
 	}
@@ -322,7 +324,7 @@ public class MultimediaLocator extends PApplet
 			f.setNamed(false);
 		
 		String curName = world.getField(state.namingField).getName();
-		display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
+		display.window.openTextEntryWindow("Enter field #"+(state.namingField+1)+" name...", curName, 0);						// Open text entry dialog
 
 		state.namingField = 0;
 		state.inFieldNaming = true;
@@ -333,9 +335,13 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.namingField + 1 >= world.getFieldCount())
 		{
-			updateFieldFolderName(state.namingField);
-			state.fieldsNamed = true;
-			state.inFieldNaming = false;
+			if(world.getField(state.namingField).getState().named)
+			{
+				updateFieldFolderName(state.namingField);
+				state.fieldsNamed = true;
+				state.inFieldNaming = false;
+				library.updateFolderNames(world);		// Update library folder names to match fields
+			}
 		}
 		else
 		{
@@ -356,8 +362,9 @@ public class MultimediaLocator extends PApplet
 	private void updateFieldFolderName(int fieldIdx)
 	{
 		String fieldName = world.getField(fieldIdx).getName();
-		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, fieldName);
+		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, library.getLibraryFolder() + "/" + fieldName, false);
 		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
+		world.updateMediaFilePaths();		// Update media file paths with new library name
 	}
 	
 	/**
@@ -620,6 +627,8 @@ public class MultimediaLocator extends PApplet
 		state.running = true;
 		state.startedRunning = true;
 		
+//		if(!appWindowVisible) showAppWindow();
+
 		if(debugSettings.ml && debugSettings.detailed) 
 			System.out.println("Finishing MultimediaLocator initialization..");
 		
@@ -839,6 +848,7 @@ public class MultimediaLocator extends PApplet
 
 					library.setLibraryFolder(libFilePath);
 					library.addFolder("field");
+					delay(delayAmount);
 				}
 			}
 		}
@@ -852,7 +862,7 @@ public class MultimediaLocator extends PApplet
 			display.window.lblImport.setVisible(false);
 			display.window.lblCreateLibraryWindowText.setVisible(true);			// Set "Please wait..." text
 			display.window.lblCreateLibraryWindowText2.setVisible(true);			// Set "Please wait..." text
-			display.window.setCreateLibraryWindowText("Creating library. Please wait...", "This process can take up to an hour for very large media collections...");
+			display.window.setCreateLibraryWindowText("Creating library.", "This process can take a while for large media collections...");
 		}
 		else
 		{
@@ -870,7 +880,7 @@ public class MultimediaLocator extends PApplet
 		boolean selectedFolder = false;
 		
 //		if(!windowVisible)
-//			showMainWindow();
+//			showAppWindow();
 
 		if (selection == null) 
 		{
@@ -891,6 +901,7 @@ public class MultimediaLocator extends PApplet
 				{
 					library.mediaFolders.add(input);
 					selectedFolder = true;
+					delay(delayAmount);
 				}
 			}
 		}
@@ -910,7 +921,7 @@ public class MultimediaLocator extends PApplet
 		boolean selectedFolder = false;
 		
 //		if(!windowVisible)
-//			showMainWindow();
+//			showAppWindow();
 
 		if (selection == null) {
 			System.out.println("Window was closed or the user hit cancel.");
@@ -1799,7 +1810,7 @@ public class MultimediaLocator extends PApplet
 		cubemapShader.set("cubemap", 1);
 	}
 	
-	private void hideMainWindow()
+	private void hideAppWindow()
 	{
 //		public int appWidth = 1680, appHeight = 960;		// App window dimensions
 		setSurfaceSize(3, 2);

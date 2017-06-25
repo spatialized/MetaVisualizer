@@ -269,11 +269,11 @@ class WMV_Metadata
 		if(debugSettings.metadata)
 		{
 			System.out.println("Metadata.loadImageFolders()... smallImageFolder: "+smallImageFolder);
-			System.out.println("Metadata.loadImageFolders()... smallImageFolderFound: "+smallImageFolderFound);
-			System.out.println("Metadata.loadImageFolders()... largeImageFolder: "+largeImageFolder);
-			System.out.println("Metadata.loadImageFolders()... largeImageFolderFound: "+largeImageFolderFound);
-			System.out.println("Metadata.loadImageFolders()... panoramaFolder: "+panoramaFolder);
-			System.out.println("Metadata.loadImageFolders()... panoramaFolderFound: "+panoramaFolderFound);
+			System.out.println("               smallImageFolderFound: "+smallImageFolderFound);
+			System.out.println("               largeImageFolder: "+largeImageFolder);
+			System.out.println("               largeImageFolderFound: "+largeImageFolderFound);
+			System.out.println("               panoramaFolder: "+panoramaFolder);
+			System.out.println("               panoramaFolderFound: "+panoramaFolderFound);
 		}
 	}
 	

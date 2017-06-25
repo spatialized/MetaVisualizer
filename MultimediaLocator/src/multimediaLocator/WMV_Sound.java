@@ -250,7 +250,7 @@ public class WMV_Sound extends WMV_Media
 		if( !getMediaState().hidden && !getMediaState().disabled )
 		{
 			ac = new AudioContext();
-			player = new SamplePlayer(ac, SampleManager.sample(getMediaState().filePath));
+			player = new SamplePlayer(ac, SampleManager.sample(getMetadata().filePath));
 			g = new Gain(ac, 2, 0.2f);
 			g.addInput(player);
 			ac.out.addInput(g);
@@ -606,6 +606,11 @@ public class WMV_Sound extends WMV_Media
 	 {
 		state.length = (float) sample.getLength() * 0.001f;
 	 }
+	 
+	 public WMV_SoundMetadata getMetadata()
+	 {
+		 return metadata;
+	 }
 
 	/**
 	 * Draw the image metadata in Heads-Up Display
@@ -658,5 +663,30 @@ public class WMV_Sound extends WMV_Media
 			ml.display.metadata(frameCount, strBrightness);
 			ml.display.metadata(frameCount, strBrightnessFading);
 		}
+	}
+	
+	public String getFilePath()
+	{
+		return getMetadata().filePath;
+	}
+
+	public void setFilePath(String newFilePath)
+	{
+		metadata.filePath = newFilePath;
+	}
+
+	public void updateFilePath(MultimediaLocator ml, WMV_Field parentField)
+	{
+		String oldFilePath = getFilePath();
+		String[] parts = oldFilePath.split("/");
+
+		parts[parts.length-4] = ml.library.getName(true);			// Library name
+		parts[parts.length-3] = parentField.getName();					// Field name
+		
+		String newFilePath = parts[0];
+		for(int i=1; i<parts.length; i++)
+			newFilePath = newFilePath + "/" + parts[i];
+		System.out.println("Sound.updateFilePath()... Will set sound path to:"+newFilePath);
+		setFilePath(newFilePath);
 	}
 }

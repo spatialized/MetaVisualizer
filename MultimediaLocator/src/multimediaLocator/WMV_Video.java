@@ -416,7 +416,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	{
 		if(!isDisabled())																	
 		{
-			video = new Movie(ml, getMediaState().filePath);
+			video = new Movie(ml, getMetadata().filePath);
 			if(getViewerSettings().autoPlayVideos)
 			{
 				if(ml.world.getCurrentField().getVideosPlaying() < getViewerSettings().autoPlayMaxVideoCount)
@@ -431,7 +431,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 			setLength( video.duration() );				// Set video length (in seconds)
 			if(ml.debugSettings.video)
-				System.out.println("Loading video file..."+getMediaState().filePath+" video.duration():"+video.duration()+" state.length:"+state.length);
+				System.out.println("Loading video file..."+getMetadata().filePath+" video.duration():"+video.duration()+" state.length:"+state.length);
 			
 			state.loaded = true;
 		}
@@ -1316,6 +1316,31 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		return metadata;
 	}
 	
+	public String getFilePath()
+	{
+		return getMetadata().filePath;
+	}
+
+	public void setFilePath(String newFilePath)
+	{
+		metadata.filePath = newFilePath;
+	}
+
+	public void updateFilePath(MultimediaLocator ml, WMV_Field parentField)
+	{
+		String oldFilePath = getFilePath();
+		String[] parts = oldFilePath.split("/");
+
+		parts[parts.length-4] = ml.library.getName(true);			// Library name
+		parts[parts.length-3] = parentField.getName();					// Field name
+		
+		String newFilePath = parts[0];
+		for(int i=1; i<parts.length; i++)
+			newFilePath = newFilePath + "/" + parts[i];
+		System.out.println("Video.updateFilePath()... Will set video path to:"+newFilePath);
+		setFilePath(newFilePath);
+	}
+
 	 public void setBlurMask(PImage newBlurMask)
 	 {
 		 blurMask = newBlurMask;

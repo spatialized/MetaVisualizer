@@ -96,23 +96,6 @@ public class WMV_World
 	}
 	
 	/**
-	 * Set up the world and viewer 
-	 */
-	private void initializeX() 
-	{
-//		/* Create main classes */
-//		settings = new WMV_WorldSettings();
-//		state = new WMV_WorldState();
-//		viewer = new WMV_Viewer(this, settings, state, ml.debugSettings);			// Initialize navigation + viewer
-//		
-//		/* Setup interpolation variables */
-//		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
-//		timeFadeMap.setMapFunction(circularEaseOut);
-//		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
-//		distanceFadeMap.setMapFunction(circularEaseIn);
-	}
-
-	/**
 	 * Run world simulation
 	 */
 	public void run()
@@ -661,7 +644,30 @@ public class WMV_World
 
 		state.terrainAlpha = newFadeValue;
 	}
-
+	
+	void updateMediaFilePaths()
+	{
+		for(WMV_Field f : fields)
+		{
+			for(WMV_Image i:f.getImages())
+				i.updateFilePath(ml, f);
+			for(WMV_Panorama n:f.getPanoramas())
+				n.updateFilePath(ml, f);
+			for(WMV_Video v:f.getVideos())
+				v.updateFilePath(ml, f);
+			for(WMV_Sound s:f.getSounds())
+				s.updateFilePath(ml, f);
+		}
+	}
+	
+//	public void updateGPSTrackFilePaths()
+//	{
+//		for(WMV_Field f : fields)
+//		{
+//			for(ArrayList<WMV_Waypoint> gps:f.getGPSTracks())
+//				gps.updateFilePath(ml, f);
+//		}
+//	}
 
 	/**
 	 * Save the current world, field and viewer states and settings to file

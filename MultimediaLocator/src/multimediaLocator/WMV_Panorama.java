@@ -651,5 +651,29 @@ public class WMV_Panorama extends WMV_Media
 	{
 		texture = newTexture;
 	}
+	
+	public String getFilePath()
+	{
+		return getMetadata().filePath;
+	}
 
+	public void setFilePath(String newFilePath)
+	{
+		metadata.filePath = newFilePath;
+	}
+
+	public void updateFilePath(MultimediaLocator ml, WMV_Field parentField)
+	{
+		String oldFilePath = getFilePath();
+		String[] parts = oldFilePath.split("/");
+
+		parts[parts.length-4] = ml.library.getName(true);			// Library name
+		parts[parts.length-3] = parentField.getName();					// Field name
+		
+		String newFilePath = parts[0];
+		for(int i=1; i<parts.length; i++)
+			newFilePath = newFilePath + "/" + parts[i];
+		System.out.println("Panorama.updateFilePath()... Will set panorama path to:"+newFilePath);
+		setFilePath(newFilePath);
+	}
 }

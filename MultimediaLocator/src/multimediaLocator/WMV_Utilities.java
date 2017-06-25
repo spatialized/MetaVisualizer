@@ -79,32 +79,55 @@ public class WMV_Utilities
 	    }
 	}
 	
-	public boolean renameFolder(String oldFolder, String newName)
+	public boolean renameFolder(String oldFolderPath, String newFolderPath, boolean ignoreDirectoryStatus)
 	{
-		File oldFolderFile = new File(oldFolder);
-		File parentFolderFile = oldFolderFile.getParentFile();
+		File oldFolderFile = new File(oldFolderPath);
+//		File parentFolderFile = oldFolderFile.getParentFile();
 		
-		System.out.println("Will rename folder from:"+oldFolderFile.getAbsolutePath());
-		System.out.println("      to:"+parentFolderFile.getAbsolutePath() + "/" + newName);
-		File newNameFile = new File(parentFolderFile.getAbsolutePath() + "/" + oldFolder);
-	
+		System.out.println("Utilities.renameFolder()... Will rename folder from:"+oldFolderFile.getAbsolutePath());
+//		System.out.println("      to:"+parentFolderFile.getAbsolutePath() + "/" + newName);
+		File newNameFile = new File(newFolderPath);
+		System.out.println("      to:"+newNameFile.getAbsolutePath());
+		System.out.println("      oldFolderFile.exists? "+oldFolderFile.exists());
+//		System.out.println("      parentFolderFile.exists? "+parentFolderFile.exists());
+		System.out.println("      newNameFile.exists? "+newNameFile.exists());
+		boolean success = false;
+		
 		if(!newNameFile.exists())
 		{
-			if(oldFolderFile.isDirectory())
+			if(ignoreDirectoryStatus)
 			{
-				return oldFolderFile.renameTo(newNameFile);
+				success = oldFolderFile.renameTo(newNameFile);
 			}
 			else
 			{
-				System.out.println("Utilities.renameFolder()... ERROR: File "+oldFolderFile.getName()+" is not a directory!");
-				return false;
+				if(oldFolderFile.isDirectory())
+				{
+					success = oldFolderFile.renameTo(newNameFile);
+				}
+				else
+				{
+					System.out.println("Utilities.renameFolder()... ERROR: File "+oldFolderFile.getName()+" is not a directory!");
+					success = false;
+				}
 			}
 		}
-		else
+		
+		if(!success)
 		{
-			System.out.println("Utilities.renameFolder()... ERROR: File "+newNameFile.getName()+" already exists!");
-			return false;
+			System.out.println("Failed at renaming to :"+newNameFile+"... will try appending numbers...");
+			boolean found = false;
+			int count = 2;
+			while(!found)				// Append count to file name until non-duplicate name found
+			{
+				String path = newFolderPath + "_" + String.valueOf(count);
+				newNameFile = new File(path);
+				if(!newNameFile.exists()) found = true;
+				count++;
+			}
+			success = oldFolderFile.renameTo(newNameFile);
 		}
+		return success;
 	}
 	
 
@@ -968,127 +991,18 @@ public class WMV_Utilities
 	public boolean shrinkImageFolder(String largeImages, String destination)
 	{
 		System.out.println("shrinkImageFolder()... Shrinking images:"+largeImages+" dest: "+destination+"...");
-		WMV_Command commandExecutor;
-		ArrayList<String> command = new ArrayList<String>();
+
 		ArrayList<String> files = new ArrayList<String>();
 
 		/* Get files in directory */
 		files = getFilesInDirectory(largeImages);
 		
-//		command = new ArrayList<String>();
-//		command.add("ls");
-//		commandExecutor = new WMV_Command(largeImages, command);
-//		try {
-//			int result = commandExecutor.execute();
-//
-//			// Get the output from the command
-//			StringBuilder stdout = commandExecutor.getStandardOutput();
-////			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
-//
-//			String out = stdout.toString();
-//			String[] parts = out.split("\n");
-//			for (int i=0; i<parts.length; i++)
-//			{
-//				files.add(parts[i]);
-//			}
-//		}
-//		catch(Throwable t)
-//		{
-//			System.out.println("Throwable t while getting largeImage file list:"+t);
-//			return false;
-//		}
-		
 		copyFiles(largeImages, destination);
-		
-//		/* Copy files to new directory */
-//		command = new ArrayList<String>();
-//		command.add("cp");
-//		command.add("-a");
-//		command.add(largeImages + ".");
-//		command.add(destination);
-//		
-//		commandExecutor = new WMV_Command("", command);
-//		try {
-//			int result = commandExecutor.execute();
-//
-////			StringBuilder stdout = commandExecutor.getStandardOutputFromCommand();
-////			StringBuilder stderr = commandExecutor.getStandardErrorFromCommand();
-//
-////			System.out.println("... copying result ..."+result);
-//		}
-//		catch(Throwable t)
-//		{
-//			System.out.println("Throwable t while copying files:"+t);
-//			return false;
-//		}
 		
 		files = getFilesInDirectory(destination);
 		
-//		files = new ArrayList<String>();
-//		command = new ArrayList<String>();
-//		command.add("ls");
-//		commandExecutor = new WMV_Command(destination, command);
-//		try {
-//			int result = commandExecutor.execute();
-//
-//			StringBuilder stdout = commandExecutor.getStandardOutput();
-//			StringBuilder stderr = commandExecutor.getStandardError();
-//
-//			String out = stdout.toString();
-//			String[] parts = out.split("\n");
-//			for (int i=0; i<parts.length; i++)
-//				files.add(parts[i]);
-//		}
-//		catch(Throwable t)
-//		{
-//			System.out.println("Throwable t while getting small_images file list for shrinking:"+t);
-//			return false;
-//		}
-
 		/* Shrink files in new directory */
 		shrinkImageFileList(files, destination);
-		
-//		for (String fileName : files)					// -- Do in one command??
-//		{
-//			boolean isJpeg = false;
-//			if(fileName != null && !fileName.equals(""))
-//			{
-//				String[] parts = fileName.split("\\.");
-//
-//				if(parts.length > 0)
-//				{
-//					if(parts[parts.length-1].equals("jpg") || parts[parts.length-1].equals("JPG"))
-//						isJpeg = true;
-//				}
-//				
-//				if(isJpeg)
-//				{
-//					shrinkImage(fileName, destination);
-//					
-////					//Command: sips -Z 640 *.jpg
-////					command = new ArrayList<String>();
-////					command.add("sips");
-////					command.add("-Z");
-////					command.add("640");
-////					command.add(fileName);
-//////					System.out.println("destination:"+destination +" command:"+command);
-////					commandExecutor = new WMV_Command(destination, command);
-////
-////					try {
-////						int result = commandExecutor.execute();
-////
-////						// get the output from the command
-////						StringBuilder stdout = commandExecutor.getStandardOutput();
-////						StringBuilder stderr = commandExecutor.getStandardError();
-////					}
-////					catch(Throwable t)
-////					{
-////						System.out.println("Throwable t:"+t);
-////						return false;
-////					}
-//				}
-//			}
-//		}
 		
 		return true;
 	}

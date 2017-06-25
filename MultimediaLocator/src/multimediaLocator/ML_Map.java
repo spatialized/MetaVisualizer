@@ -592,7 +592,7 @@ public class ML_Map
 		large.addMarkerManager(largeMarkerManager);
 		small.addMarkerManager(smallMarkerManager);
 
-		if(p.displayView == 1)
+		if(p.getDisplayView() == 1)
 		{
 			largeMarkerManager.enableDrawing();
 			smallMarkerManager.enableDrawing();
@@ -705,7 +705,7 @@ public class ML_Map
 	 */
 	public void updateMouse(WMV_World world)
 	{
-		if(p.displayView == 1)							// In Map View
+		if(p.getDisplayView() == 1)							// In Map View
 		{
 			if(p.mapViewMode == 1)						// Field Mode
 			{
@@ -852,7 +852,7 @@ public class ML_Map
 	{
 		if(mousePressedFrame > mouseDraggedFrame)
 		{
-			if(p.displayView == 1)					// In Map View
+			if(p.getDisplayView() == 1)					// In Map View
 			{
 				if(p.mapViewMode == 1)				// Field Mode
 				{

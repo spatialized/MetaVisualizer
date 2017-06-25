@@ -150,7 +150,7 @@ public class WMV_Viewer
 		else
 			setCurrentField(fieldID, false);				// Set new field without setting simulation state
 
-		if(p.ml.display.displayView == 1)
+		if(p.ml.display.getDisplayView() == 1)
 			p.ml.display.map2D.initialize(p);
 		
 		if(p.ml.display.window.setupNavigationWindow)
@@ -1000,7 +1000,7 @@ public class WMV_Viewer
 		else
 		{
 			teleportToCluster(clusterID, true, -1);
-			p.ml.display.displayView = 0;
+			p.ml.display.setDisplayView( p, 0 );
 		}
 		
 		if(p.ml.display.map2D.getSelectedClusterID() != clusterID) 
@@ -1049,7 +1049,8 @@ public class WMV_Viewer
 	 */
 	public void teleportToFieldOffset(int offset, boolean moveToFirstTimeSegment, boolean fade) 
 	{
-		teleportToField(state.field + offset, moveToFirstTimeSegment, fade);
+		if(p.getFieldCount() > 1)
+			teleportToField(state.field + offset, moveToFirstTimeSegment, fade);
 	}
 	
 	/**
@@ -4971,7 +4972,7 @@ public class WMV_Viewer
 		else
 		{
 			p.getCurrentField().deselectAllMedia(false);		// Deselect media if left Selection Mode
-			if(p.ml.display.displayView == 4)
+			if(p.ml.display.getDisplayView() == 4)
 			{
 				p.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
 				p.ml.display.setDisplayView(p, 0);			// Set Display View to World

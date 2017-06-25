@@ -783,7 +783,6 @@ public class WMV_Image extends WMV_Media
 		String newFilePath = parts[0];
 		for(int i=1; i<parts.length; i++)
 			newFilePath = newFilePath + "/" + parts[i];
-//		System.out.println("Image.updateFilePath()... Will set image path to:"+newFilePath);
 		setFilePath(newFilePath);
 	}
 	

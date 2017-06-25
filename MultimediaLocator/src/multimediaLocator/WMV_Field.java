@@ -1912,10 +1912,8 @@ public class WMV_Field
 //		int result = Math.round( (float)Math.sqrt(model.getState().validMedia) * populationFactor );   // Calculate numClusters from media density
 		int result = Math.round( model.getState().validMedia * populationFactor );   // Calculate numClusters from media density
 //		int result = Math.round( ((float)Math.sqrt(model.getState().fieldArea)*(float)Math.sqrt(model.getState().validMedia)) * populationFactor );   // Calculate numClusters from media density
-//		if(debugSettings.field)
-//			System.out.println("estimateClusterAmount()... fieldArea:"+model.getState().fieldArea+" validMedia:"+model.getState().validMedia+" populationFactor:"+populationFactor+" result:"+result);
 		if(debugSettings.world)
-			System.out.println("estimateClusterAmount()... validMedia:"+model.getState().validMedia+" populationFactor:"+populationFactor+" result:"+result);
+			System.out.println("Field.estimateClusterAmount()... validMedia:"+model.getState().validMedia+" populationFactor:"+populationFactor+" result:"+result);
 		return result;
 	}
 
@@ -4360,7 +4358,6 @@ public class WMV_Field
 	{
 		state.name = newName;
 		state.named = true;
-//		System.out.println("Set field name to:"+state.name);
 	}
 
 	public void setVisited(boolean newState)

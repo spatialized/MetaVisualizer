@@ -15,7 +15,7 @@ public class ML_Display
 	private WMV_Utilities utilities;					/* Utility methods */
 
 	/* Display Views */
-	public int displayView = 0;							/* 0: Scene  1: Map  2: Library  3: Timeline  4: Media */
+	private int displayView = 0;							/* 0: Scene  1: Map  2: Library  3: Timeline  4: Media */
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -1713,37 +1713,11 @@ public class ML_Display
 				if(ml.state.startup && !ml.state.selectedLibrary)
 				{
 					if(!window.setupLibraryWindow)
-						window.openLibraryWindow();
+						window.openStartupWindow();
 					else 
 						if(!window.showLibraryWindow)
 							window.showLibraryWindow();
-					
-//					yPos += lineWidthVeryWide * 11.f;
 				}
-//				else
-//				{
-//					if(p.getFields() != null)
-//					{
-//						if(p.getFields().size() > p.ml.state.initializationField)
-//						{
-//							if(p.getField( p.ml.state.initializationField ).getDataFolderLoaded())
-//							{
-//								window.setLibraryWindowText("Loading media library...");		// -- Not being called
-//								//						System.out.println("Called setLibraryWindowText to:  Loading media library...");
-//							}
-//							else
-//							{
-//								window.setLibraryWindowText("Building media library...");
-//								//						ml.text("Loading media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistance);
-//							}
-//						}
-//						else
-//						{
-//							System.out.println("Display.displayStartup()... Called but initializationField >= fields.size()!!  ml.state.fieldsInitialized:"+ml.state.fieldsInitialized);
-//							System.out.println("            initializationField:"+ml.state.initializationField+" fields.size():"+ml.world.getFields().size());
-//						}
-//					}
-//				}
 			}
 			ml.textSize(largeTextSize);
 //			p.p.text("For support and the latest updates, visit: www.spatializedmusic.com/MultimediaLocator", screenWidth / 2.f, yPos, hudDistance);
@@ -2103,6 +2077,11 @@ public class ML_Display
 		}
 	}
 
+	public int getDisplayView()
+	{
+		return displayView;
+	}
+	
 	/**
 	 * Clear previous messages
 	 */

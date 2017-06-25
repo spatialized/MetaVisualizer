@@ -82,15 +82,7 @@ public class WMV_Utilities
 	public boolean renameFolder(String oldFolderPath, String newFolderPath, boolean ignoreDirectoryStatus)
 	{
 		File oldFolderFile = new File(oldFolderPath);
-//		File parentFolderFile = oldFolderFile.getParentFile();
-		
-		System.out.println("Utilities.renameFolder()... Will rename folder from:"+oldFolderFile.getAbsolutePath());
-//		System.out.println("      to:"+parentFolderFile.getAbsolutePath() + "/" + newName);
 		File newNameFile = new File(newFolderPath);
-		System.out.println("      to:"+newNameFile.getAbsolutePath());
-		System.out.println("      oldFolderFile.exists? "+oldFolderFile.exists());
-//		System.out.println("      parentFolderFile.exists? "+parentFolderFile.exists());
-		System.out.println("      newNameFile.exists? "+newNameFile.exists());
 		boolean success = false;
 		
 		if(!newNameFile.exists())

@@ -121,7 +121,7 @@ public class WMV_World
 	public void updateBehavior()
 	{
 		updateViewerAttraction();										/* Attract the viewer */
-		if(ml.display.displayView < 3) viewer.updateNavigation();		/* Update navigation */
+		if(ml.display.getDisplayView() < 3) viewer.updateNavigation();		/* Update navigation */
 		if(state.fadingAlpha)  updateFadingAlpha();						/* Update global alpha fading */
 		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();		/* Update grid fading */
 		updateTimeBehavior();											/* Update time cycle */
@@ -144,7 +144,7 @@ public class WMV_World
 		}
 		else
 		{
-			if(ml.display.displayView == 0) display3D();	/* Display 3D Graphics */
+			if(ml.display.getDisplayView() == 0) display3D();	/* Display 3D Graphics */
 			display2D();									/* Display 2D Graphics */
 		}
 	}
@@ -236,7 +236,7 @@ public class WMV_World
 	public void display2D()
 	{
 		ml.display.display(ml);										/* Display 2D Graphics */
-		if(ml.display.displayView == 4) viewer.showHUD();			/* Set camera angle in Media View */
+		if(ml.display.getDisplayView() == 4) viewer.showHUD();			/* Set camera angle in Media View */
 	}
 
 	/**
@@ -915,7 +915,7 @@ public class WMV_World
 	void setSimulationStateFromField(WMV_Field field, boolean moveToCurrentCluster)
 	{
 		if(ml.debugSettings.world)
-			System.out.println("setSimulationStateFromField()... Field #"+field.getID());
+			System.out.println("World.setSimulationStateFromField()... Field #"+field.getID());
 
 		setState(field.getWorldState());
 		setSettings(field.getWorldSettings());
@@ -948,12 +948,12 @@ public class WMV_World
 			if(getCurrentCluster() != null)
 			{
 				if(ml.debugSettings.viewer || ml.debugSettings.world)
-					System.out.println("setSimulationStateFromField()... moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" before:"+viewer.getLocation());
+					System.out.println("World.setSimulationStateFromField()... Moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" viewer loc before:"+viewer.getLocation());
 			}
 			else
 			{
 				if(ml.debugSettings.viewer || ml.debugSettings.world)
-					System.out.println("  setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
+					System.out.println("World.setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
 				viewer.setCurrentCluster(0, 0);
 			}
 			viewer.setLocation(getCurrentCluster().getLocation(), false);					// Set location to current cluster

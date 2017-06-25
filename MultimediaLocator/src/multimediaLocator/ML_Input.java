@@ -65,13 +65,13 @@ public class ML_Input
 				
 				if(ml.display.inDisplayView())							
 				{
-					if(ml.display.displayView == 1)											 /* Map View */
+					if(ml.display.getDisplayView() == 1)											 /* Map View */
 						keyboardInput.handleMapViewKeyPressed(ml, key, keyCode);
-					else if(ml.display.displayView == 2)									 /* Time View */
+					else if(ml.display.getDisplayView() == 2)									 /* Time View */
 						keyboardInput.handleTimelineViewKeyPressed(ml, key, keyCode);
-					else if(ml.display.displayView == 3)									 /* Library View */
+					else if(ml.display.getDisplayView() == 3)									 /* Library View */
 						keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);
-					else if(ml.display.displayView == 4)							 		/* Media View */
+					else if(ml.display.getDisplayView() == 4)							 		/* Media View */
 						keyboardInput.handleMediaViewKeyPressed(ml, key, keyCode);
 				}
 				else
@@ -215,9 +215,7 @@ public class ML_Input
 					ml.display.window.btnOpenLibrary.setVisible(false);
 					ml.display.window.chkbxRebuildLibrary.setVisible(false);
 					ml.display.window.btnLibraryHelp.setVisible(false);
-					ml.display.window.lblLibrary.setVisible(false);
-//					ml.display.window.lblLibraryWait.setVisible(true);
-//					display.window.hideLibraryWindow();
+					ml.display.window.lblStartup.setVisible(false);
 					break;
 				
 				case "CloseLibrary":
@@ -253,11 +251,19 @@ public class ML_Input
 				case "AddMediaFolder":
 					ml.mediaFolderDialog();
 					break;
-	
+					
 				case "MakeLibrary":
 					ml.state.selectedNewLibraryMedia = true;			// Media folder has been selected
 					ml.state.chooseMediaFolders = false;			// No longer choose a media folder
 					ml.state.chooseLibraryDestination = true;		// Choose library destination folder
+					break;
+				
+				case "CancelCreateLibrary":
+					ml.display.window.closeCreateLibraryWindow();
+					ml.state.inLibrarySetup = false;
+					ml.createNewLibrary = false;
+					ml.state.chooseMediaFolders = false;
+					display.window.lblStartupWindowText.setVisible(false);
 					break;
 
 				/* Text Entry */
@@ -271,7 +277,7 @@ public class ML_Input
 							break;
 						case 1:						// 1: Library Name
 							String libraryName = ml.display.window.txfInputText.getText();
-							System.out.println("Input.buttonPressed()... Library name input text:"+libraryName);
+//							System.out.println("Input.buttonPressed()... Library name input text:"+libraryName);
 							ml.library.rename(libraryName);
 							ml.world.updateMediaFilePaths();		// Update media file paths with new library name
 							ml.state.libraryNamed = true;
@@ -314,13 +320,13 @@ public class ML_Input
 					break;
 					
 				case "NextField":
-					if(display.displayView == 1)
+					if(display.getDisplayView() == 1)
 						ml.world.viewer.teleportToFieldOffset(1, true, false);
 					else
 						ml.world.viewer.teleportToFieldOffset(1, true, true);
 					break;
 				case "PreviousField":
-					if(display.displayView == 1)
+					if(display.getDisplayView() == 1)
 						ml.world.viewer.teleportToFieldOffset(-1, true, false);
 					else
 						ml.world.viewer.teleportToFieldOffset(-1, true, true);
@@ -406,7 +412,7 @@ public class ML_Input
 					
 				case "DeselectFront":
 					ml.world.viewer.chooseMediaInFront(false);
-					if(ml.display.displayView == 4)
+					if(ml.display.getDisplayView() == 4)
 						ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
 					break;
 				case "DeselectPanorama":
@@ -415,14 +421,14 @@ public class ML_Input
 
 				case "DeselectAll":
 					ml.world.getCurrentField().deselectAllMedia(false);
-					if(ml.display.displayView == 4)
+					if(ml.display.getDisplayView() == 4)
 						ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
 					break;
 	
 				case "ViewSelected":
-					if(ml.display.displayView == 0)
+					if(ml.display.getDisplayView() == 0)
 						ml.world.viewer.startViewingSelectedMedia();
-					else if(ml.display.displayView == 4)
+					else if(ml.display.getDisplayView() == 4)
 						ml.world.viewer.stopViewingSelectedMedia();
 					break;
 				case "StitchPanorama":
@@ -452,7 +458,8 @@ public class ML_Input
 	
 				/* Map */
 				case "SetMapView":
-					display.setDisplayView(ml.world, 1);
+					if(display.getDisplayView() != 1)
+						display.setDisplayView(ml.world, 1);
 					break;
 				case "PanUp":
 					if(ml.display.map2D.isPanning())
@@ -487,7 +494,8 @@ public class ML_Input
 				
 				/* Time */
 				case "SetTimeView":
-					display.setDisplayView(ml.world, 2);
+					if(display.getDisplayView() != 2)
+						display.setDisplayView(ml.world, 2);
 					break;
 				case "TimelineReverse":
 						ml.display.scroll(ml.world, -1);
@@ -625,13 +633,16 @@ public class ML_Input
 			
 			/* Main Window */
 			case "SceneView":
-				display.setDisplayView(world, 0);
+				if(display.getDisplayView() != 0)
+					display.setDisplayView(world, 0);
 				break;
 			case "MapView":
-				display.setDisplayView(world, 1);
+				if(display.getDisplayView() != 1)
+					display.setDisplayView(world, 1);
 				break;
 			case "TimelineView":
-				display.setDisplayView(world, 2);
+				if(display.getDisplayView() != 2)
+					display.setDisplayView(world, 2);
 				break;
 //			case "LibraryView":
 //				display.setDisplayView(world, 3);
@@ -805,7 +816,7 @@ public class ML_Input
 //				else
 //				{
 //					world.getCurrentField().deselectAllMedia(false);		// Deselect media if left Selection Mode
-//					if(world.ml.display.displayView == 4)
+//					if(world.ml.display.getDisplayView() == 4)
 //					{
 //						world.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
 //						world.ml.display.setDisplayView(world, 0);			// Set Display View to World
@@ -924,11 +935,11 @@ public class ML_Input
 		}
 		
 //		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
-		if(display.displayView == 1)
+		if(display.getDisplayView() == 1)
 			display.map2D.handleMouseReleased(world, mouseX, mouseY);
-		else if(display.displayView == 2)
+		else if(display.getDisplayView() == 2)
 			display.handleMouseReleased(world, mouseX, mouseY);
-//		else if(display.displayView == 3)
+//		else if(display.getDisplayView() == 3)
 //			display.handleMouseReleased(mouseX, mouseY);
 	}
 	

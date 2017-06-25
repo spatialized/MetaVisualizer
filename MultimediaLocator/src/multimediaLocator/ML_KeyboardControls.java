@@ -246,7 +246,7 @@ public class ML_KeyboardControls
 
 		if (key == 'n')						// Teleport to next time segment on same date
 		{
-			if(ml.display.displayView == 0)
+			if(ml.display.getDisplayView() == 0)
 				ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
 			else
 				ml.world.viewer.moveToNextTimeSegment(true, true, true, false);
@@ -254,7 +254,7 @@ public class ML_KeyboardControls
 
 		if (key == 'b')						// Teleport to previous time segment on same date
 		{
-			if(ml.display.displayView == 0)
+			if(ml.display.getDisplayView() == 0)
 				ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
 			else
 				ml.world.viewer.moveToPreviousTimeSegment(true, true, true, false);
@@ -262,7 +262,7 @@ public class ML_KeyboardControls
 
 		if (key == 'N')						// Teleport to next time segment on any date
 		{
-			if(ml.display.displayView == 0)
+			if(ml.display.getDisplayView() == 0)
 				ml.world.viewer.moveToNextTimeSegment(false, true, ml.world.viewer.getMovementTeleport(), true);
 			else
 				ml.world.viewer.moveToNextTimeSegment(false, true, true, false);
@@ -270,7 +270,7 @@ public class ML_KeyboardControls
 
 		if (key == 'B')						// Teleport to previous time segment on any date
 		{
-			if(ml.display.displayView == 0)
+			if(ml.display.getDisplayView() == 0)
 				ml.world.viewer.moveToPreviousTimeSegment(false, true, ml.world.viewer.getMovementTeleport(), true);
 			else
 				ml.world.viewer.moveToPreviousTimeSegment(false, true, true, false);
@@ -416,7 +416,7 @@ public class ML_KeyboardControls
 
 		if (key == PApplet.ENTER)
 		{
-			if(ml.display.displayView == 0)
+			if(ml.display.getDisplayView() == 0)
 				ml.world.viewer.startViewingSelectedMedia();
 		}
 
@@ -607,8 +607,8 @@ public class ML_KeyboardControls
 				ml.display.window.optMapViewFieldMode.setEnabled(true);
 				ml.display.window.optMapViewWorldMode.setSelected(true);	
 				ml.display.window.optMapViewFieldMode.setSelected(false);	
-				ml.display.window.optMapViewWorldMode.setEnabled(ml.display.displayView == 1);
-				ml.display.window.optMapViewFieldMode.setEnabled(ml.display.displayView == 1);
+				ml.display.window.optMapViewWorldMode.setEnabled(ml.display.getDisplayView() == 1);
+				ml.display.window.optMapViewFieldMode.setEnabled(ml.display.getDisplayView() == 1);
 			}
 		}
 	
@@ -621,8 +621,8 @@ public class ML_KeyboardControls
 				ml.display.window.optMapViewFieldMode.setEnabled(true);
 				ml.display.window.optMapViewWorldMode.setSelected(false);	
 				ml.display.window.optMapViewFieldMode.setSelected(true);	
-				ml.display.window.optMapViewWorldMode.setEnabled(ml.display.displayView == 1);
-				ml.display.window.optMapViewFieldMode.setEnabled(ml.display.displayView == 1);
+				ml.display.window.optMapViewWorldMode.setEnabled(ml.display.getDisplayView() == 1);
+				ml.display.window.optMapViewFieldMode.setEnabled(ml.display.getDisplayView() == 1);
 			}
 		}
 
@@ -638,7 +638,7 @@ public class ML_KeyboardControls
 				else
 				{
 					ml.world.viewer.teleportToField(selectedField, true, true);
-					ml.display.displayView = 0;
+					ml.display.setDisplayView( ml.world, 0 );
 				}
 			}
 			
@@ -896,9 +896,7 @@ public class ML_KeyboardControls
 			ml.display.window.btnOpenLibrary.setVisible(false);
 			ml.display.window.chkbxRebuildLibrary.setVisible(false);
 			ml.display.window.btnLibraryHelp.setVisible(false);
-			ml.display.window.lblLibrary.setVisible(false);
-//			ml.display.window.lblLibraryWait.setVisible(true);
-//			ml.display.window.hideLibraryWindow();
+			ml.display.window.lblStartup.setVisible(false);
 		}
 
 		if(key == 'c' || key == 'C')
@@ -937,7 +935,7 @@ public class ML_KeyboardControls
 		
 		if (key == PApplet.CODED) 
 		{
-			if(ml.display.displayView == 0)
+			if(ml.display.getDisplayView() == 0)
 			{
 				if (keyCode == PApplet.DOWN) 
 				{
@@ -1177,7 +1175,7 @@ public class ML_KeyboardControls
 				ml.display.window.closeHelpWindow();
 		}
 
-		if(display.displayView < 2)				/* World and Map View Controls */
+		if(display.getDisplayView() < 2)				/* World and Map View Controls */
 		{
 			if (key == 'a') 
 				ml.world.viewer.stopMoveXTransition();
@@ -1189,7 +1187,7 @@ public class ML_KeyboardControls
 				ml.world.viewer.stopMoveZTransition();
 		}
 		
-		if(display.displayView == 0)			/* World View Controls */
+		if(display.getDisplayView() == 0)			/* World View Controls */
 		{
 			if (key == 'e') 
 				ml.world.viewer.stopMoveYTransition();
@@ -1200,7 +1198,7 @@ public class ML_KeyboardControls
 			if (key == 'z')
 				ml.world.viewer.stopZooming();
 		}
-		else if( display.displayView == 1 )		/* Map View Controls */
+		else if( display.getDisplayView() == 1 )		/* Map View Controls */
 		{
 			if (key == 'A') 
 				display.map2D.stopPanning();
@@ -1226,7 +1224,7 @@ public class ML_KeyboardControls
 		/* Coded Keys */
 		if (key == PApplet.CODED) 
 		{
-			if(display.displayView == 0)
+			if(display.getDisplayView() == 0)
 			{
 				if (keyCode == PApplet.LEFT) 
 					ml.world.viewer.stopRotateXTransition();
@@ -1237,7 +1235,7 @@ public class ML_KeyboardControls
 				if (keyCode == PApplet.DOWN) 
 					ml.world.viewer.stopRotateYTransition();
 			}
-			else if( display.displayView == 1 )
+			else if( display.getDisplayView() == 1 )
 			{
 				if (keyCode == PApplet.LEFT) 
 					ml.world.viewer.stopRotateXTransition();
@@ -1248,7 +1246,7 @@ public class ML_KeyboardControls
 				if (keyCode == PApplet.DOWN) 
 					display.map2D.stopZooming();
 			}
-			else if(display.displayView == 2)
+			else if(display.getDisplayView() == 2)
 			{
 				if (keyCode == PApplet.UP)  				// Timeline scroll left
 					display.stopZooming();

@@ -20,7 +20,6 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 import javax.imageio.ImageIO;
@@ -38,7 +37,6 @@ import processing.opengl.PShader;
 import processing.video.Movie;
 
 import com.apple.eawt.Application;
-//import org.apache.commons.io.FileUtils;
 
 /**
  * MultimediaLocator App  
@@ -163,17 +161,19 @@ public class MultimediaLocator extends PApplet
 		else if(!state.running)
 		{
 //			background(0.f);									/* Clear screen */
-			if (state.inLibrarySetup)
+			if(state.inLibrarySetup)
 			{
 				if(createNewLibrary)
 				{
 					if(state.chooseLibraryDestination)			/* Choose library destination */
 						libraryDestinationDialog();
 					
-					display.display(this);						/* Update display */
+					display.display(this);						/* Display startup window(s) */
 				}
 				else
+				{
 					librarySelectionDialog();
+				}
 			}
 			else
 			{
@@ -309,6 +309,9 @@ public class MultimediaLocator extends PApplet
 		}
 	}
 	
+	/**
+	 * Open dialog to name created library
+	 */
 	private void openLibraryNamingDialog()
 	{
 		display.window.openTextEntryWindow("Enter new library name:", "library", 1);
@@ -331,6 +334,9 @@ public class MultimediaLocator extends PApplet
 		state.oldFieldName = world.getField(state.namingField).getName();
 	}
 	
+	/**
+	 * Run field naming process
+	 */
 	private void runFieldNaming()
 	{
 		if(state.namingField + 1 >= world.getFieldCount())
@@ -363,7 +369,7 @@ public class MultimediaLocator extends PApplet
 	{
 		String fieldName = world.getField(fieldIdx).getName();
 		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, library.getLibraryFolder() + "/" + fieldName, false);
-		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
+//		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
 		world.updateMediaFilePaths();		// Update media file paths with new library name
 	}
 	
@@ -744,7 +750,7 @@ public class MultimediaLocator extends PApplet
 
 		if(debugSettings.ml) System.out.println("World resetting complete...");
 
-		display.window.openLibraryWindow();
+		display.window.openStartupWindow();
 	}
 	
 	/**
@@ -776,8 +782,21 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void libraryFolderSelected(File selection) 
 	{
-		display.window.lblLibraryWindowText.setVisible(true);			// Set "Please wait..." text
-		openLibraryFolder(selection);
+		if(selection != null)
+		{
+			display.window.lblStartupWindowText.setVisible(true);			// Set "Please wait..." text
+			openLibraryFolder(selection);
+		}
+		else
+		{
+			state.inLibrarySetup = false;
+			display.window.btnCreateLibrary.setVisible(true);
+			display.window.btnOpenLibrary.setVisible(true);
+			display.window.chkbxRebuildLibrary.setVisible(true);
+			display.window.btnLibraryHelp.setVisible(true);
+			display.window.lblStartup.setVisible(true);
+			display.window.lblStartupWindowText.setVisible(false);
+		}
 	}
 
 	/**
@@ -786,16 +805,24 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void newLibraryDestinationSelected(File selection) 
 	{
-		if(selection.isDirectory())
+		if(selection != null)
 		{
-			File newLibraryFile = new File(selection.getAbsolutePath() + "/library.mlibrary");
-			if(!newLibraryFile.exists())
-				newLibraryFile.mkdir();
-			openNewLibraryDestination(newLibraryFile);
+			if(selection.isDirectory())
+			{
+				File newLibraryFile = new File(selection.getAbsolutePath() + "/library.mlibrary");
+				if(!newLibraryFile.exists())
+					newLibraryFile.mkdir();
+				openNewLibraryDestination(newLibraryFile);
+			}
+			else
+			{
+				System.out.println("newLibraryDestinationSelected error... not a directory!");
+				selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
+			}
 		}
 		else
 		{
-			System.out.println("newLibraryDestinationSelected error... not a directory!");
+			selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
 		}
 	}
 
@@ -805,8 +832,11 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void mediaFolderSelected(File selection) 
 	{
-		display.window.lblLibraryWindowText.setVisible(true);			// Set "Please wait..." text
-		openMediaFolder(selection);
+		if(selection != null)
+		{
+			display.window.lblStartupWindowText.setVisible(true);			// Set "Please wait..." text
+			openMediaFolder(selection);
+		}
 	}
 
 	/**
@@ -855,14 +885,15 @@ public class MultimediaLocator extends PApplet
 		
 		if(selectedFolder)
 		{
-			state.selectedNewLibraryDestination = true;	// Library destination folder has been selected
-			state.inLibrarySetup = false;					// Library setup complete
+			state.selectedNewLibraryDestination = true;			// Library destination folder has been selected
+			state.inLibrarySetup = false;						// Library setup complete
 			display.window.btnImportMediaFolder.setVisible(false);
 			display.window.btnMakeLibrary.setVisible(false);
+			display.window.btnCancelCreateLibrary.setVisible(false);
 			display.window.lblImport.setVisible(false);
-			display.window.lblCreateLibraryWindowText.setVisible(true);			// Set "Please wait..." text
+			display.window.lblCreateLibraryWindowText.setVisible(true);				// Set "Please wait..." text
 			display.window.lblCreateLibraryWindowText2.setVisible(true);			// Set "Please wait..." text
-			display.window.setCreateLibraryWindowText("Creating library.", "This process can take a while for large media collections...");
+			display.window.setCreateLibraryWindowText("Creating MultimediaLocator library...", "This process can take a while for large media collections...");
 		}
 		else
 		{
@@ -905,11 +936,10 @@ public class MultimediaLocator extends PApplet
 				}
 			}
 		}
-		
-		if(!selectedFolder)
-		{
-			mediaFolderDialog();						// Retry folder prompt
-		}
+//		if(!selectedFolder)
+//		{
+//			mediaFolderDialog();						// Retry folder prompt
+//		}
 	}
 	
 	/**
@@ -979,18 +1009,19 @@ public class MultimediaLocator extends PApplet
 			}
 
 			world.getState().stitchingPath = parentFilePath + "stitched/";
-			
 			selectedFolder = true;
 		}
 		
 		if(selectedFolder)
 		{
 			state.selectedLibrary = true;	// Library folder has been selected
+			state.inLibrarySetup = false;	// End library setup
 		}
 		else
 		{
-			state.selectedLibrary = false;				// Library in improper format if masks are missing
-			librarySelectionDialog();					// Retry folder prompt
+			state.selectedLibrary = false;	// Library in improper format if masks are missing
+			state.inLibrarySetup = true;	// Still in library setup
+//			librarySelectionDialog();		// Retry folder prompt
 		}
 	}
 	
@@ -1415,9 +1446,9 @@ public class MultimediaLocator extends PApplet
 //			input.handleMouseReleased(mouseX, mouseY);
 
 //		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
-		if(display.displayView == 1)				// Map View
+		if(display.getDisplayView() == 1)				// Map View
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
-		else if(display.displayView == 2)			// Timeline View
+		else if(display.getDisplayView() == 2)			// Timeline View
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 	}
 	
@@ -1664,7 +1695,7 @@ public class MultimediaLocator extends PApplet
 
 	public void mediaFolderDialog()
 	{
-		display.window.lblLibraryWindowText.setVisible(true);
+		display.window.lblStartupWindowText.setVisible(true);
 		selectFolder("Select media folder:", "mediaFolderSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
@@ -1673,10 +1704,6 @@ public class MultimediaLocator extends PApplet
 		state.chooseLibraryDestination = false;
 		display.window.setCreateLibraryWindowText("Please select library destination...", null);
 
-//		if(display.window.importWindow.isVisible())
-//			display.window.closeCreateLibraryWindow();
-//			display.window.hideCreateLibraryWindow();
-		
 		selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
@@ -1882,31 +1909,6 @@ public class MultimediaLocator extends PApplet
 //		String inputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testInput/";
 //		String outputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testOutput/";
 //		world.utilities.convertVideos(this, inputPath, outputPath);
-//	}
-
-//	void drawTestScene() 
-//	{  
-////		System.out.println("drawTestScene()...");
-//		background(0.f);
-//
-//		stroke(255.f, 0.f, 255.f, 255.f);
-//		strokeWeight(3.f);
-//		
-//		for (int i = -width; i < 2 * width; i += 50) {
-//			line(i, -height, -100, i, 2 * height, -100);
-//		}
-//		for (int i = -height; i < 2 * height; i += 50) {
-//			line(-width, i, -100, 2 * width, i, -100);
-//		}
-//
-//		lights();
-//		noStroke();
-//		
-////		translate(mouseX, mouseY, -200);
-//		translate(mouseX, mouseY, 200);
-//		
-//		fill(255.f, 0.f, 255.f, 255.f);
-//		box(100);
 //	}
 
 	/* Obsolete */

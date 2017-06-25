@@ -157,7 +157,7 @@ class WMV_Metadata
 		library = libraryFolder;
 		String fieldPath = f.getName();
 
-		if(debugSettings.metadata) System.out.println("Will load media files from:"+library+" at fieldPath:"+fieldPath);
+		if(debugSettings.metadata) System.out.println("Metadata.load()... Will load files from:"+library+" at fieldPath:"+fieldPath);
 
 		loadImageFolders(fieldPath); 	// Load image + panorama folder(s)
 		if(panoramaFolderFound) loadPanoramas(fieldPath);
@@ -269,11 +269,11 @@ class WMV_Metadata
 		if(debugSettings.metadata)
 		{
 			System.out.println("Metadata.loadImageFolders()... smallImageFolder: "+smallImageFolder);
-			System.out.println("               smallImageFolderFound: "+smallImageFolderFound);
-			System.out.println("               largeImageFolder: "+largeImageFolder);
-			System.out.println("               largeImageFolderFound: "+largeImageFolderFound);
-			System.out.println("               panoramaFolder: "+panoramaFolder);
-			System.out.println("               panoramaFolderFound: "+panoramaFolderFound);
+			System.out.println("              				   smallImageFolderFound: "+smallImageFolderFound);
+			System.out.println("               				   largeImageFolder: "+largeImageFolder);
+			System.out.println("               				   largeImageFolderFound: "+largeImageFolderFound);
+			System.out.println("                          	   panoramaFolder: "+panoramaFolder);
+			System.out.println("                               panoramaFolderFound: "+panoramaFolderFound);
 		}
 	}
 	

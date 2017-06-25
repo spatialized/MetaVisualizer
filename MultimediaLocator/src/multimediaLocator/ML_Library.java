@@ -73,12 +73,14 @@ public class ML_Library
 		return true;
 	}
 	
+	/**
+	 * Sort panoramas from image list
+	 * @param ml Parent app
+	 * @param files Image files
+	 * @param fieldFolder Field folder
+	 */
 	private void sortPanoramasFromImages(MultimediaLocator ml, ArrayList<String> files, String fieldFolder)
 	{
-		if(ml.debugSettings.library)
-			System.out.println("Library.sortPanoramasFromImages()... files.size():"+files.size()+" fieldFolder:"+fieldFolder);
-
-//		ArrayList<String> files = getFilesInDirectory(mediaFolder);
 		ArrayList<String> panoramaPaths = new ArrayList<String>();
 		
 		for(String fs : files)							/* Split file list into lists based on media type */
@@ -87,7 +89,7 @@ public class ML_Library
 			if(ml.metadata.fileIsPanorama(f))
 			{
 				panoramaPaths.add(f.getAbsolutePath());
-				System.out.println("Library.sortPanoramasFromImages()... file is panorama: "+fs);
+//				System.out.println("Library.sortPanoramasFromImages()... file is panorama: "+fs);
 			}
 		}
 

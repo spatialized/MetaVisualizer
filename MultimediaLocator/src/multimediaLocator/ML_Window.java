@@ -30,10 +30,10 @@ public class ML_Window
 	
 	public GWindow mlWindow, navigationWindow, mediaWindow, statisticsWindow,  helpWindow, 
 				   mapWindow, timelineWindow;
-	public GWindow libraryWindow, createLibraryWindow, listItemWindow, textEntryWindow;
+	public GWindow startupWindow, createLibraryWindow, listItemWindow, textEntryWindow;
 
 	public GLabel lblMainMenu, lblNavigationWindow, lblMedia, lblStatistics, lblHelp, lblMap, lblTimeline;
-	public GLabel lblLibrary, lblImport;	
+	public GLabel lblStartup, lblImport;	
 	
 	public boolean setupMLWindow, setupNavigationWindow = false, setupMediaWindow = false, setupHelpWindow = false, 
 				   setupStatisticsWindow = false, setupMapWindow = false, setupTimelineWindow = false;
@@ -46,11 +46,11 @@ public class ML_Window
 	/* Library Window */
 	public GButton btnCreateLibrary, btnOpenLibrary, btnLibraryHelp;
 	public GCheckbox chkbxRebuildLibrary;
-	public GLabel lblLibraryWindowText;
+	public GLabel lblStartupWindowText;
 	private int libraryWindowHeight;
 	
 	/* CreateLibrary Window */
-	public GButton btnImportMediaFolder, btnMakeLibrary;
+	public GButton btnImportMediaFolder, btnMakeLibrary, btnCancelCreateLibrary;
 	public GLabel lblCreateLibraryWindowText, lblCreateLibraryWindowText2;
 	private int createLibraryWindowHeight;
 
@@ -339,7 +339,7 @@ public class ML_Window
 
 		world.ml.delay(delayAmount  / 2);
 
-		switch(display.displayView)
+		switch(display.getDisplayView())
 		{
 			case 0:
 				optWorldView.setSelected(true);
@@ -1578,7 +1578,7 @@ public class ML_Window
 		lblShift4.setLocalColorScheme(G4P.SCHEME_10);
 		lblShift4.setTextAlign(GAlign.CENTER, null);
 		
-		setMapControlsEnabled(display.displayView == 1);
+		setMapControlsEnabled(display.getDisplayView() == 1);
 		setupMapWindow = true;
 		world.ml.setAppIcon = true;
 	}
@@ -1708,52 +1708,52 @@ public class ML_Window
 	/**
 	 * Setup and open Library Window
 	 */
-	public void openLibraryWindow()
+	public void openStartupWindow()
 	{
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth;
 		int topEdge = world.ml.displayHeight / 2 - libraryWindowHeight / 2;
 		
-		libraryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, libraryWindowHeight, PApplet.JAVA2D);
+		startupWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, libraryWindowHeight, PApplet.JAVA2D);
 		
-		libraryWindow.addData(new ML_WinData());
-		libraryWindow.addDrawHandler(this, "libraryWindowDraw");
-		libraryWindow.addMouseHandler(this, "libraryWindowMouse");
-		libraryWindow.addKeyHandler(world.ml, "libraryWindowKey");
-		libraryWindow.setActionOnClose(GWindow.KEEP_OPEN);
+		startupWindow.addData(new ML_WinData());
+		startupWindow.addDrawHandler(this, "libraryWindowDraw");
+		startupWindow.addMouseHandler(this, "libraryWindowMouse");
+		startupWindow.addKeyHandler(world.ml, "libraryWindowKey");
+		startupWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = iTopMargin * 5 / 2;
 		world.ml.delay(10);
-		lblLibrary = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Welcome to MultimediaLocator.");
-		lblLibrary.setLocalColorScheme(G4P.SCHEME_10);
-		lblLibrary.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
-		lblLibrary.setTextAlign(GAlign.CENTER, null);
+		lblStartup = new GLabel(startupWindow, x, y, startupWindow.width, 22, "Welcome to MultimediaLocator.");
+		lblStartup.setLocalColorScheme(G4P.SCHEME_10);
+		lblStartup.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
+		lblStartup.setTextAlign(GAlign.CENTER, null);
 //		lblLibrary.setTextBold();
 
 		x = 0;
-		lblLibraryWindowText = new GLabel(libraryWindow, x, y, libraryWindow.width, 22, "Opening media library...");
-		lblLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
-		lblLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
-		lblLibraryWindowText.setTextAlign(GAlign.CENTER, null);
-		lblLibraryWindowText.setVisible(false);
+		lblStartupWindowText = new GLabel(startupWindow, x, y, startupWindow.width, 22, "Opening media library...");
+		lblStartupWindowText.setLocalColorScheme(G4P.SCHEME_10);
+		lblStartupWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		lblStartupWindowText.setTextAlign(GAlign.CENTER, null);
+		lblStartupWindowText.setVisible(false);
 
 		x = 55;
 		y += 50;
-		btnCreateLibrary = new GButton(libraryWindow, x, y, 195, iVeryLargeBoxHeight - 3, "Create Library");
+		btnCreateLibrary = new GButton(startupWindow, x, y, 195, iVeryLargeBoxHeight - 3, "Create Library");
 		btnCreateLibrary.tag = "CreateLibrary";
 		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnCreateLibrary.setLocalColorScheme(G4P.ORANGE_SCHEME);
-		btnOpenLibrary = new GButton(libraryWindow, x+=215, y, 180, iVeryLargeBoxHeight - 3, "Open Library");
+		btnOpenLibrary = new GButton(startupWindow, x+=215, y, 180, iVeryLargeBoxHeight - 3, "Open Library");
 		btnOpenLibrary.tag = "OpenLibrary";
 		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnOpenLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-		chkbxRebuildLibrary = new GCheckbox(libraryWindow, x+=205, y+7, 125, iVerySmallBoxHeight, "Rebuild");
+		chkbxRebuildLibrary = new GCheckbox(startupWindow, x+=205, y+7, 125, iVerySmallBoxHeight, "Rebuild");
 		chkbxRebuildLibrary.tag = "RebuildLibrary";
 		chkbxRebuildLibrary.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		chkbxRebuildLibrary.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxRebuildLibrary.setSelected(world.ml.state.rebuildLibrary);
 		
 		y += 50;
-		btnLibraryHelp = new GButton(libraryWindow, windowWidth * 2 - 30 - iLeftMargin, y, 30, 30, "?");
+		btnLibraryHelp = new GButton(startupWindow, windowWidth * 2 - 30 - iLeftMargin, y, 30, 30, "?");
 		btnLibraryHelp.tag = "LibraryHelp";
 		btnLibraryHelp.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnLibraryHelp.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -1769,7 +1769,7 @@ public class ML_Window
 	 */
 	public void setLibraryWindowText(String newText)
 	{
-		lblLibraryWindowText.setText(newText);
+		lblStartupWindowText.setText(newText);
 	}
 
 	public void setCreateLibraryWindowText(String newText1, String newText2)
@@ -1818,7 +1818,7 @@ public class ML_Window
 		lblCreateLibraryWindowText2.setVisible(false);
 
 		x = windowWidth * 3 / 2 - 160;
-		y += 60;
+		y += 45;
 		btnImportMediaFolder = new GButton(createLibraryWindow, x, y, 160, iLargeBoxHeight, "Add Folder");
 		btnImportMediaFolder.tag = "AddMediaFolder";
 		btnImportMediaFolder.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
@@ -1827,7 +1827,14 @@ public class ML_Window
 		btnMakeLibrary.tag = "MakeLibrary";
 		btnMakeLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnMakeLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
+
+		x = windowWidth * 3 - 120;
+		y = createLibraryWindowHeight - iLargeBoxHeight * 3 / 2 - 10;
+		btnCancelCreateLibrary = new GButton(createLibraryWindow, x, y, 100, iLargeBoxHeight, "Cancel");
+		btnCancelCreateLibrary.tag = "CancelCreateLibrary";
+		btnCancelCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
+		btnCancelCreateLibrary.setLocalColorScheme(G4P.RED_SCHEME);
+
 		setupCreateLibraryWindow = true;
 		showCreateLibraryWindow = true;
 		
@@ -2043,7 +2050,8 @@ public class ML_Window
 		applet.fill(255, 255, 255);
 		applet.textSize(mediumTextSize);
 		
-		int x = windowWidth * 3 / 2 - 80, y = 165;
+		int x = windowWidth * 3 / 2 - 80;
+		int y = 145;
 		
 		if(display.ml.state.selectedNewLibraryDestination)
 		{
@@ -2084,7 +2092,7 @@ public class ML_Window
 						for(String strFolder : display.ml.library.mediaFolders)
 						{
 							applet.text(strFolder, x, y);
-							y += iSmallBoxHeight;
+							y += iSmallBoxHeight - 5;
 						}
 					}
 				}
@@ -2839,7 +2847,7 @@ public class ML_Window
 	{
 		showLibraryWindow = true;
 		if(setupLibraryWindow)
-			libraryWindow.setVisible(true);
+			startupWindow.setVisible(true);
 		if(showMLWindow)
 			hideMLWindow();
 	}
@@ -2954,16 +2962,16 @@ public class ML_Window
 	{
 		showLibraryWindow = false;
 		if(setupLibraryWindow)
-			libraryWindow.setVisible(false);
+			startupWindow.setVisible(false);
 	} 
 	public void closeLibraryWindow()
 	{
 		showLibraryWindow = false;
 		if(setupLibraryWindow)
 		{
-			libraryWindow.setVisible(false);
-			libraryWindow.close();
-			libraryWindow.dispose();
+			startupWindow.setVisible(false);
+			startupWindow.close();
+			startupWindow.dispose();
 			setupLibraryWindow = false;
 		}
 	} 

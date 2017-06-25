@@ -33,7 +33,6 @@ public class ML_SystemState
 	public boolean initializingFields = false;				// Initializing fields
 	public boolean fieldsInitialized = false;				// Initialized fields
 	public boolean libraryNamed = false;		// Whether new library has been named
-//	public boolean inLibraryNaming = false;		// Whether currently naming library
 	public boolean fieldsNamed = true; 			// Whether new library fields have been named
 	public boolean inFieldNaming = false;		// Whether currently naming fields
 	public String oldFieldName = "";

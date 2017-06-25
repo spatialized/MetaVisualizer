@@ -2042,12 +2042,14 @@ public class WMV_Viewer
 	}
 	
 	/** 
-	 * Stop any movement and turning behaviors
+	 * Stop any movement, turning, zooming and teleporting behaviors
 	 */
 	public void stop(boolean clearAttractors)
 	{
 		stopTurningTransitions();			// Stop turning
-		stopMoving(clearAttractors);
+		stopMoving(clearAttractors);		// Stop moving
+		stopZooming();						// Stop zooming
+		stopTeleporting();					// Stop teleporting
 	}
 	
 	public void stopMoving(boolean clearAttractors)
@@ -2073,6 +2075,12 @@ public class WMV_Viewer
 			state.turningX = false;
 		if(state.turningY) 
 			state.turningY = false;
+	}
+	
+	private void stopTeleporting()
+	{
+		state.teleporting = false;
+		state.teleportGoalCluster = -1;
 	}
 	
 	/**
@@ -5231,7 +5239,7 @@ public class WMV_Viewer
 	/**
 	 * Stop immediately
 	 */
-	public void stopImmediately()
+	private void stopImmediately()
 	{
 		state.walking = false;										// Whether viewer is walking
 		state.velocity = new PVector(0.f, 0.f, 0.f);				// Camera walking acceleration increment

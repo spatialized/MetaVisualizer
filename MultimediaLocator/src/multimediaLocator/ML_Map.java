@@ -39,7 +39,6 @@ public class ML_Map
 	
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
-//	private Location satelliteMapCenter, worldMapCenter, plainMapCenter;
 	
 	private EventDispatcher eventDispatcher, plainMapEventDispatcher;
 	public MarkerManager<Marker> satelliteMarkerManager, osmMarkerManager, smallMarkerManager, largeMarkerManager;
@@ -627,6 +626,11 @@ public class ML_Map
 		p.ml.delay(mapDelay);
 	}
 	
+	/**
+	 * Create line marker from GPS track 
+	 * @param world Parent world
+	 * @param gpsTrack GPS track waypoint list
+	 */
 	private void createGPSTrackMarker(WMV_World world, ArrayList<WMV_Waypoint> gpsTrack)
 	{
 		List<Location> gpsPoints = new ArrayList<Location>();
@@ -634,14 +638,22 @@ public class ML_Map
 		for(WMV_Waypoint w : gpsTrack)					 /* Waypoint GPS location format: {longitude, latitude} */
 		{
 			Location loc = new Location(w.getGPSLocation().y, w.getGPSLocation().x);	 /* Unfolding Location format: {latitude, longitude} */
+			if(world.ml.debugSettings.gps)
+				System.out.println("Adding gps loc x:"+loc.x+" loc.y");
 			gpsPoints.add(loc);
 		}
 		
 		if(gpsPoints.size() > 0)
 		{
+			if(world.ml.debugSettings.gps)
+				System.out.println("Adding GPS track marker to satellite map...");
+
 			gpsTrackMarker = new SimpleLinesMarker(gpsPoints);
 			satelliteMarkerManager.addMarker(gpsTrackMarker);
 		}
+		else if(world.ml.debugSettings.gps)
+			System.out.println("Map.createGPSTrackMarker()... No gpsPoint markers to add!");
+
 	}
 	
 	/**

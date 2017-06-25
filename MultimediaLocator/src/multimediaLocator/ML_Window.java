@@ -93,7 +93,7 @@ public class ML_Window
 	private GButton btnSaveLocation, btnClearMemory;
 	private GButton btnJumpToRandomCluster;
 	public GButton btnExportScreenshot, btnExportMedia, btnOutputFolder;
-	private GButton btnNextTimeSegment, btnPreviousTimeSegment;
+	private GButton btnNextTimeSegment, btnPreviousTimeSegment, btnStopViewer;
 	private GButton btnMoveToNearestCluster, btnMoveToLastCluster;
 	private GButton btnMoveToNearestImage, btnMoveToNearestPanorama;
 	private GButton btnMoveToNearestVideo, btnMoveToNearestSound;
@@ -567,8 +567,13 @@ public class ML_Window
 		btnNextTimeSegment.tag = "NextTime";
 		btnNextTimeSegment.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-		x = 105;
+		x = 40;
 		y += iMediumBoxHeight;
+		btnStopViewer = new GButton(navigationWindow, x, y, 65, iVerySmallBoxHeight, "Stop");
+		btnStopViewer.tag = "StopViewer";
+		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
+		
+		x = 125;
 		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 125, iVerySmallBoxHeight, "Teleport (t)");
 		chkbxMovementTeleport.tag = "MovementTeleport";
 		chkbxMovementTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
@@ -687,7 +692,7 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 
-		x = 180;
+		x = 165;
 		y += iMediumBoxHeight;
 		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 150, iVerySmallBoxHeight, "On / Off  (>)");
 		chkbxPathFollowing.tag = "Following";
@@ -695,13 +700,13 @@ public class ML_Window
 		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxPathFollowing.setSelected(world.viewer.isFollowing());
 
-		x = 30;
+		x = iLeftMargin;
 		y += iMediumBoxHeight * 0.5f;
 		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Select GPS Track");
 		btnChooseGPSTrack.tag = "ChooseGPSTrack";
 		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-		x = 180;
+		x = 165;
 		y += iMediumBoxHeight * 0.5f;
 		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 135, iVerySmallBoxHeight, "Teleport  (,)");
 		chkbxFollowTeleport.tag = "FollowTeleport";

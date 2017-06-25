@@ -351,6 +351,11 @@ public class ML_Input
 				case "MoveRight":								// -- Disabled
 					ml.world.viewer.stopMoveXTransition();
 					break;
+					
+				case "StopViewer":
+					ml.world.viewer.stop(true);
+					ml.world.viewer.stopZooming();
+					break;
 
 				/* Model */
 				case "SubjectDistanceDown":

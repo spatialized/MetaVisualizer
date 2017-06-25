@@ -68,7 +68,7 @@ public class WMV_ViewerState
 	public PVector orientationVector;
 	
 	/* Movement */
-	public int followMode = 0;				// 0: Timeline 1: GPS Track 2: Memory
+	private int followMode = 0;				// 0: Timeline 1: GPS Track 2: Memory
 	public boolean walking = false;			// Whether viewer is walking
 	public PVector walkingVelocity;
 	public PVector walkingAcceleration;			// Physics parameters applied relative to camera direction
@@ -283,5 +283,21 @@ public class WMV_ViewerState
 	public float getClusterNearDistance()
 	{
 		return clusterNearDistance;
+	}
+	
+	/**
+	 * @return Current Path Following Mode
+	 */
+	public void setFollowMode(int newMode)
+	{
+		followMode = newMode;
+	}
+	
+	/**
+	 * @return Current Path Following Mode
+	 */
+	public int getFollowMode()
+	{
+		return followMode;
 	}
 }

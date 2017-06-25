@@ -375,13 +375,20 @@ public class ML_Map
 	 */
 	void zoomToCluster(WMV_World world, WMV_Cluster c, boolean fade)
 	{
-		if(!c.isEmpty() && c.getState().mediaCount > 0)
+		if(c != null)
 		{
-			System.out.println("Zooming to cluster:"+c.getID());
-			PVector mapLoc = c.getLocation();
-			PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
-			zoomAndPanMapTo(satellite, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
-			zoomAndPanMapTo(osm, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
+			if(!c.isEmpty() && c.getState().mediaCount > 0)
+			{
+				System.out.println("Zooming to cluster:"+c.getID());
+				PVector mapLoc = c.getLocation();
+				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
+				zoomAndPanMapTo(satellite, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
+				zoomAndPanMapTo(osm, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
+			}
+		}
+		else
+		{
+			System.out.println("Map.zoomToCluster()... ERROR cluster is NULL!");
 		}
 	}
 	

@@ -682,7 +682,11 @@ public class ML_KeyboardControls
 			ml.world.viewer.teleportToFieldOffset(1, true, false);
 
 		if (key == 'z')
-			ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+		{
+			WMV_Cluster current = ml.world.getCurrentCluster();
+			if(current != null) ml.display.map2D.zoomToCluster(ml.world, current, true);	// Zoom to current cluster
+			else System.out.println("z Cannot move to cluster: ml.world.getCurrentCluster() is NULL!");
+		}
 
 		if (key == 'Z')
 			ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);	// Zoom to current field

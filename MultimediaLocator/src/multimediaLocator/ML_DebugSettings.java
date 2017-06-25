@@ -8,9 +8,9 @@ package multimediaLocator;
 public class ML_DebugSettings 
 {
 	/* Debug Modes */
-	public boolean detailed = false;			// Verbose debugging messages
+	public boolean detailed = true;				// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
-	public boolean messages = false;				// On screen debug messages
+	public boolean messages = false;			// On screen debug messages
 	
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
@@ -20,7 +20,7 @@ public class ML_DebugSettings
 	
 	/* Model */
 	public boolean metadata = false;				// Debug WMV_Metadata class
-	public boolean cluster = true;				// Debug WMV_Cluster class
+	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean time = false;				// Debug WMV_Time class
 	
 	/* Media */

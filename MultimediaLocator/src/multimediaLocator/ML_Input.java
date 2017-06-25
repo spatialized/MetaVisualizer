@@ -765,15 +765,15 @@ public class ML_Input
 					{
 						switch(world.viewer.getFollowMode())
 						{
-						case 0:
-							world.viewer.followTimeline(true, false);
-							break;
-						case 1:
-							world.viewer.startFollowingGPSTrack();
-							break;
-						case 2:
-							world.viewer.followMemory();
-							break;
+							case 0:
+								world.viewer.followTimeline(true, false);
+								break;
+							case 1:
+								world.viewer.startFollowingGPSTrack();
+								break;
+							case 2:
+								world.viewer.followMemory();
+								break;
 						}
 					}
 				}

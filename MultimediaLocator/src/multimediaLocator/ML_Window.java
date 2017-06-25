@@ -677,7 +677,7 @@ public class ML_Window
 		optMemory.setLocalColorScheme(G4P.SCHEME_10);
 		optMemory.tag = "FollowMemory";
 		
-		switch(world.viewer.getState().followMode)			// 0: Timeline 1: GPS Track 2: Memory
+		switch(world.viewer.getFollowMode())			// 0: Timeline 1: GPS Track 2: Memory
 		{
 			case 0:						// Timeline
 				optTimeline.setSelected(true);

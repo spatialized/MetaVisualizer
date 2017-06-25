@@ -2159,7 +2159,7 @@ public class WMV_Viewer
 		state.teleportWaitingCount = 0;		// How long has the viewer been waiting for media to fade out before teleport?
 		
 		/* Movement */
-		state.followMode = 0;			// 0: Timeline 1: GPS Track 2: Memory
+		setFollowMode( 0 );				// { 0: Timeline 1: GPS Track 2: Memory }
 		state.walking = false;			// Whether viewer is walking
 
 		state.slowing = false;			// Whether viewer is slowing 
@@ -3398,8 +3398,13 @@ public class WMV_Viewer
 						if(debugSettings.viewer)
 							System.out.println("followTimeline()... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
 
+
 						state.pathGoal = path.get(state.pathLocationIdx).getLocation();
-						setAttractorPoint(state.pathGoal);
+//						setAttractorPoint(state.pathGoal);
+						if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
+							teleportToPoint(state.pathGoal, true);
+						else
+							setAttractorPoint(state.pathGoal);									// Set attractor point from path goal
 						
 						if(p.getSettings().screenMessagesOn)
 							p.ml.display.message(p.ml, "Started Following Path: Timeline...");
@@ -3440,7 +3445,12 @@ public class WMV_Viewer
 			if(debugSettings.viewer)
 				System.out.println("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
 			state.pathGoal = path.get(state.pathLocationIdx).getLocation();
-			setAttractorPoint(state.pathGoal);
+//			setAttractorPoint(state.pathGoal);
+			if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
+				teleportToPoint(state.pathGoal, true);
+			else
+				setAttractorPoint(state.pathGoal);									// Set attractor point from path goal
+
 			if(p.getSettings().screenMessagesOn)
 				p.ml.display.message(p.ml, "Started Following Path: Memory...");
 		}
@@ -3514,7 +3524,7 @@ public class WMV_Viewer
 		attractorPoint = new WMV_Cluster(worldSettings, worldState, settings, state, debugSettings, -1, newPoint);
 		attractorPoint.setEmpty(false);
 		attractorPoint.setAttractor(true);
-		attractorPoint.setMass(worldSettings.mediaPointMass * 25.f);
+		attractorPoint.setMass(worldSettings.mediaPointMass * 25.f);		// -- Tie to distance?
 		state.attractionStart = worldState.frameCount;
 	}
 	
@@ -5061,12 +5071,12 @@ public class WMV_Viewer
 	
 	public int getFollowMode()
 	{	
-		return state.followMode;
+		return getState().getFollowMode();
 	}
 	
 	public void setFollowMode(int newFollowMode)
 	{
-		state.followMode = newFollowMode;
+		state.setFollowMode( newFollowMode );
 	}
 	
 	public void setTeleportLength( int newValue )

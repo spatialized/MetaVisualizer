@@ -179,7 +179,7 @@ public class WMV_ViewerState
 	{
 		WMV_Orientation newOrientation = new WMV_Orientation(clusterID, direction, elevation, rotation);
 		clusterOrientations.add(newOrientation);
-		System.out.println("ViewerState.saveClusterOrientation()... Saved viewer orientation for cluster #"+clusterID);
+//		System.out.println("ViewerState.saveClusterOrientation()... Saved viewer orientation for cluster #"+clusterID);
 	}
 
 	public WMV_Orientation getClusterOrientation(int clusterID)

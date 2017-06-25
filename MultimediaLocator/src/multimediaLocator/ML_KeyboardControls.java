@@ -57,8 +57,8 @@ public class ML_KeyboardControls
 		if (key == '3') 
 			ml.display.setDisplayView(ml.world, 2);		// Time View
 
-		if (key == '4')									// Library View -- Disabled 
-			ml.display.setDisplayView(ml.world, 3);
+//		if (key == '4')									// Library View -- Disabled 
+//			ml.display.setDisplayView(ml.world, 3);
 
 		if (key == 'H')
 		{
@@ -708,35 +708,6 @@ public class ML_KeyboardControls
 		if (key == 'c')
 			ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
 
-//		if (key == 'z')
-//			ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);
-		
-//		if (ml.display.libraryViewMode == 0)
-//		{
-//			if (key == 'A') 
-//				ml.display.map2D.panLeft();
-//			if (key == 'D') 
-//				ml.display.map2D.panRight();
-//			if (key == 'S') 
-//				ml.display.map2D.panDown();
-//			if (key == 'W') 
-//				ml.display.map2D.panUp();
-//			
-//			if(key == PApplet.ENTER)
-//			{
-//				int selectedField = ml.display.map2D.getSelectedFieldID();
-//				if(input.shiftKey)
-//				{
-//					ml.world.viewer.teleportToField(selectedField, true, false);
-//				}
-//				else
-//				{
-//					ml.world.viewer.teleportToField(selectedField, true, true);
-//					ml.display.displayView = 0;
-//				}
-//			}
-//		}
-
 		if (key == '[') 
 		{
 			ml.display.libraryViewMode--;
@@ -755,17 +726,7 @@ public class ML_KeyboardControls
 		{
 //			if(ml.display.libraryViewMode == 0)					// Library World View
 //			{
-//				if (keyCode == PApplet.LEFT)
-//					ml.world.viewer.rotateX(-1);
-//
-//				if (keyCode == PApplet.RIGHT) 
-//					ml.world.viewer.rotateX(1);
-//				
-//				if (keyCode == PApplet.UP) 
-//					ml.display.map2D.zoomOut(ml.world);
-//					
-//				if (keyCode == PApplet.DOWN) 
-//					ml.display.map2D.zoomIn(ml.world);
+//			
 //			}
 			if(ml.display.libraryViewMode == 1)					// Library Field View
 			{

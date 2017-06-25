@@ -2346,7 +2346,7 @@ public class WMV_World
 
 		for(WMV_Field f : fields)
 		{
-			System.out.println("World.setBlurMasks()... f.getImages().size():"+f.getImages().size());
+//			System.out.println("World.setBlurMasks()... f.getImages().size():"+f.getImages().size());
 			for(WMV_Image image : f.getImages())
 			{
 				int bmID = image.getState().blurMaskID;
@@ -2356,7 +2356,7 @@ public class WMV_World
 					setVerticalBlurMask(image, bmID);
 				else
 				{
-//					if(ml.debugSettings.image)
+					if(ml.debugSettings.image)
 					{
 						System.out.println("World.setBlurMasks()... ERROR: Could not set mask... image has size other than 640x480 or 480x640!"+image.getName());
 						System.out.println("Setting image to disabled..."+image.getName());

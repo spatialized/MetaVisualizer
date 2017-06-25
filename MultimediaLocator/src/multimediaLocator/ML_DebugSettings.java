@@ -19,7 +19,7 @@ public class ML_DebugSettings
 	public boolean memory = false;				// Debug memory
 	
 	/* Model */
-	public boolean metadata = true;				// Debug WMV_Metadata class
+	public boolean metadata = false;				// Debug WMV_Metadata class
 	public boolean cluster = true;				// Debug WMV_Cluster class
 	public boolean time = false;				// Debug WMV_Time class
 	
@@ -31,7 +31,7 @@ public class ML_DebugSettings
 	public boolean sound = true;				// Debug WMV_Sound class
 	
 	/* Viewer */
-	public boolean viewer = false;				// Debug WMV_Viewer class
+	public boolean viewer = true;				// Debug WMV_Viewer class
 	public boolean path = false;					// Debug WMV_Viewer class
 
 	/* Viewer */

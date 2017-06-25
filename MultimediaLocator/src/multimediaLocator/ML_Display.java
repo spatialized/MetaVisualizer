@@ -31,15 +31,16 @@ public class ML_Display
 
 	public int blendMode = 0;							/* Alpha blending mode */
 	private int numBlendModes = 10;						/* Number of blending modes */
-	private float hudDistanceInit = -1000.f;				/* Distance of the Heads-Up Display from the virtual camera */
+	public float hudDistanceInit = -1000.f;				/* Distance of the Heads-Up Display from the virtual camera */
 	private float messageHUDDistance = hudDistanceInit * 6.f;
 	private int screenWidth = -1;
 	private int screenHeight = -1;
 	
 	/* Map View */
-	public int mapViewMode = 0;								// 0: World, 1: Field 	-- In progress, 2: Cluster 
+	public int mapViewMode = 1;								// 0: World, 1: Field 	-- In progress, 2: Cluster 
 	public boolean initializedMaps = false;
 	public boolean initializedWorldMap = false;
+	public boolean initializedSatelliteMap = false;
 	
 	/* Library View */
 	public int libraryViewMode = 0;						// 0: World, 1: Field, 2: Cluster
@@ -964,8 +965,8 @@ public class ML_Display
 		float hFactor = 2.55f;
 		float sWidthFactor = 0.775f;
 		float sHeightFactor = 0.775f;
-		float offsetXFactor = 0.115f;
-		float offsetYFactor = 0.115f;
+		float offsetXFactor = 0.033f;
+		float offsetYFactor = 0.033f;
 
 		float x = mouseX * wFactor - screenWidth * sWidthFactor;
 		float y = mouseY * hFactor - screenHeight * sHeightFactor;
@@ -1200,6 +1201,10 @@ public class ML_Display
 		}
 	}
 	
+	/**
+	 * Get current zoom level
+	 * @return Zoom level
+	 */
 	public float getZoomLevel()
 	{
 		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
@@ -2009,7 +2014,6 @@ public class ML_Display
 	public void setDisplayView(WMV_World p, int newDisplayView)
 	{
 		int oldDisplayView = displayView;
-		
 		displayView = newDisplayView;								// Set display view
 
 		if(window.setupMapWindow) 
@@ -2027,13 +2031,21 @@ public class ML_Display
 					window.optMapView.setSelected(false);
 					window.optTimelineView.setSelected(false);
 				}
+				if(window.setupMapWindow)
+				{
+					window.setMapControlsEnabled(false);
+					window.btnMapView.setEnabled(true);
+				}
+				if(window.setupTimelineWindow)
+				{
+					window.btnTimeView.setEnabled(true);
+				}
 				break;
 			case 1:														// Map View
 				if(!initializedMaps) map2D.initialize(p);
 				switch(mapViewMode)
 				{
 					case 0:												// World Mode
-						map2D.initializeWorldMap(p, false);
 						map2D.satelliteMarkerManager.enableDrawing();
 						map2D.largeMarkerManager.disableDrawing();
 						map2D.smallMarkerManager.disableDrawing();
@@ -2052,8 +2064,15 @@ public class ML_Display
 					window.optMapView.setSelected(true);
 					window.optTimelineView.setSelected(false);
 				}
-				if(window.setupMapWindow) 
+				if(window.setupMapWindow)
+				{
 					window.setMapControlsEnabled(true);
+					window.btnMapView.setEnabled(false);
+				}
+				if(window.setupTimelineWindow)
+				{
+					window.btnTimeView.setEnabled(true);
+				}
 				break;
 			case 2:														// Time View
 				if(window.setupMLWindow)
@@ -2062,14 +2081,17 @@ public class ML_Display
 					window.optMapView.setSelected(false);
 					window.optTimelineView.setSelected(true);
 				}
+				if(window.setupMapWindow)
+				{
+					window.btnMapView.setEnabled(true);
+				}
+				if(window.setupTimelineWindow)
+				{
+					window.btnTimeView.setEnabled(false);
+				}
 				zoomToTimeline(ml.world, true);
 				break;
 			case 3:													// Library View  -- Disabled
-//				if(!initializedMaps) map2D.initialize(p);
-//				map2D.initializeWorldMap(p, false);
-//				map2D.satelliteMarkerManager.enableDrawing();
-//				map2D.largeMarkerManager.disableDrawing();
-//				map2D.smallMarkerManager.disableDrawing();
 				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
 				break;
 			case 4:													// Media View
@@ -2127,10 +2149,12 @@ public class ML_Display
 	public void setMapViewMode(int newMapViewMode)
 	{
 		mapViewMode = newMapViewMode;		// Set Map View Mode
+		if(!initializedMaps) map2D.initialize(ml.world);
 		switch(mapViewMode)
 		{
 			case 0:												// World Mode
-				map2D.initializeWorldMap(ml.world, false);
+//				if(!initializedWorldMap) map2D.initializeWorldMap(ml.world);
+				map2D.zoomToWorld(false);
 				map2D.satelliteMarkerManager.enableDrawing();
 				if(map2D.largeMarkerManager != null)
 					map2D.largeMarkerManager.disableDrawing();
@@ -2138,7 +2162,7 @@ public class ML_Display
 					map2D.smallMarkerManager.disableDrawing();
 				break;
 			case 1:												// Field Mode
-				if(!initializedMaps) map2D.initialize(ml.world);
+//				if(!initializedSatelliteMap) map2D.initializeSatelliteMap(ml.world);
 				map2D.largeMarkerManager.enableDrawing();
 				map2D.smallMarkerManager.enableDrawing();
 				if(map2D.satelliteMarkerManager != null)
@@ -2346,6 +2370,16 @@ public class ML_Display
 		}
 	}
 
+	public boolean isZooming()
+	{
+		return timelineZooming;
+	}
+
+	public boolean isScrolling()
+	{
+		return timelineScrolling;
+	}
+	
 	private class SelectableDate
 	{
 		private int id;

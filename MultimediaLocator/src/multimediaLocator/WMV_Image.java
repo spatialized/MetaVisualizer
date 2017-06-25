@@ -352,13 +352,19 @@ public class WMV_Image extends WMV_Media
 	{
 		float angleBrightness = 0.f;
 
-		if(imageAngle > getViewerSettings().visibleAngle)
-			angleBrightness = 0.f;
-		else if (imageAngle < getViewerSettings().visibleAngle * 0.66f)
-			angleBrightness = 1.f;
+		if(getViewerSettings() != null)
+		{
+			if(imageAngle > getViewerSettings().visibleAngle)
+				angleBrightness = 0.f;
+			else if (imageAngle < getViewerSettings().visibleAngle * 0.66f)
+				angleBrightness = 1.f;
+			else
+				angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, getViewerSettings().visibleAngle * 0.66f, getViewerSettings().visibleAngle, 0.f, 1.f)), 0.f, 1.f);
+		}
 		else
-			angleBrightness = PApplet.constrain((1.f-PApplet.map(imageAngle, getViewerSettings().visibleAngle * 0.66f, getViewerSettings().visibleAngle, 0.f, 1.f)), 0.f, 1.f);
-
+		{
+			System.out.println("Image.getAngleBrightness()... Image #"+getID()+" viewerSettings is null! disabled?"+isDisabled());
+		}
 		return angleBrightness;
 	}
 

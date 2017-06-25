@@ -17,11 +17,11 @@ public class WMV_Viewer
 	/* Camera */
 	private WMV_Camera camera;								// Camera object
 	private WMV_Camera hudCamera;								// Camera object
-	private WMV_WorldSettings worldSettings;				// Viewer settings
-	private WMV_WorldState worldState;						// Viewer settings
+	private WMV_WorldSettings worldSettings;				// World settings
+	private WMV_WorldState worldState;						// World state
 	private WMV_ViewerSettings settings;					// Viewer settings
-	private WMV_ViewerState state;							// Viewer settings
-	private ML_DebugSettings debugSettings;					// Viewer settings
+	private WMV_ViewerState state;							// Viewer state
+	private ML_DebugSettings debugSettings;					// Debug settings
 
 	/* Memory */
 	public ArrayList<WMV_Waypoint> memory;				// Path for camera to take

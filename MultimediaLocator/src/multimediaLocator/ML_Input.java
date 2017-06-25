@@ -396,13 +396,6 @@ public class ML_Input
 					display.window.hideMediaWindow();
 					break;
 	
-//				case "ZoomIn":
-//					ml.world.viewer.zoomIn();
-//					break;
-//				case "ZoomOut":
-//					ml.world.viewer.zoomOut();
-//					break;
-
 				case "SelectFront":
 					ml.world.viewer.chooseMediaInFront(true);
 					break;
@@ -498,16 +491,23 @@ public class ML_Input
 						display.setDisplayView(ml.world, 2);
 					break;
 				case "TimelineReverse":
-						ml.display.scroll(ml.world, -1);
+					ml.display.stopScrolling();
 					break;
 				case "TimelineForward":
-					ml.display.scroll(ml.world, 1);
+					ml.display.stopScrolling();
 					break;
+//				case "TimelineZoomIn":
+//					ml.display.zoom(ml.world, -1, true);
+//					break;
+//				case "TimelineZoomOut":
+//					ml.display.zoom(ml.world, 1, true);
+//					break;
+				/* Timeline */
 				case "TimelineZoomIn":
-					ml.display.zoom(ml.world, -1, true);
+					ml.display.stopZooming();
 					break;
 				case "TimelineZoomOut":
-					ml.display.zoom(ml.world, 1, true);
+					ml.display.stopZooming();
 					break;
 				case "TimelineZoomToFit":
 					ml.display.zoomToTimeline(ml.world, true);
@@ -518,22 +518,9 @@ public class ML_Input
 				case "TimelineZoomToDate":
 					ml.display.zoomToCurrentSelectableDate(ml.world, true);
 					break;
-					
-//					if (key == 'j') 
-//						ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
-//
-//					if (key == 'r')									// Zoom out to whole timeline
-//						ml.display.resetZoom(ml.world, true);
-//
-//					if (key == 'z')									// Zoom to fit timeline
-//						ml.display.zoomToTimeline(ml.world, true);
-//
-//					if (key == 't')									// Zoom to fit current time segment
-//						ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
-//
-//					if (key == 'd')									// Zoom to fit current date
-//						ml.display.zoomToCurrentSelectableDate(ml.world, true);
-
+				case "TimelineZoomToFull":
+					ml.display.resetZoom(ml.world, true);
+					break;
 			}
 		}
 		
@@ -574,6 +561,39 @@ public class ML_Input
 					else
 						ml.display.map2D.panRight();
 					break;
+				
+				/* Timeline */
+				case "TimelineZoomIn":
+					if(ml.display.isZooming())
+						ml.display.stopZooming();
+					else
+						ml.display.zoom(ml.world, -1, true);
+					break;
+				case "TimelineZoomOut":
+					if(ml.display.isZooming())
+						ml.display.stopZooming();
+					else
+						ml.display.zoom(ml.world, 1, true);
+					break;
+				case "TimelineReverse":
+//					System.out.println("TimelineReverse... ml.display.isScrolling():"+ml.display.isScrolling());
+					if(ml.display.isScrolling())
+						ml.display.stopScrolling();
+					else
+						ml.display.scroll(ml.world, -1);
+					break;
+				case "TimelineForward":
+//					System.out.println("TimelineForward... ml.display.isScrolling():"+ml.display.isScrolling());
+					if(ml.display.isScrolling())
+						ml.display.stopScrolling();
+					else
+						ml.display.scroll(ml.world, 1);
+					break;
+
+//					if (keyCode == PApplet.UP)  				// Timeline scroll left
+//						display.stopZooming();
+//					if (keyCode == PApplet.DOWN)  				// Timeline scroll right
+//						display.stopZooming();
 			}
 		}
 		
@@ -610,6 +630,20 @@ public class ML_Input
 				case "PanRight":
 					display.map2D.stopPanning();
 //					System.out.println("Stopped panning... panningLeft:"+display.map2D.panningLeft+ " panningRight:"+display.map2D.panningRight);
+					break;
+					
+				/* Timeline */
+				case "TimelineZoomIn":
+					ml.display.stopZooming();
+					break;
+				case "TimelineZoomOut":
+					ml.display.stopZooming();
+					break;
+				case "TimelineReverse":
+					ml.display.stopScrolling();
+					break;
+				case "TimelineForward":
+					ml.display.stopScrolling();
 					break;
 			}
 		}

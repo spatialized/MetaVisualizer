@@ -120,9 +120,10 @@ public class ML_Map
 	{
 		blankTile = world.ml.getImageResource("blank.jpg");
 
-		initializeSatelliteMap(world);
-		
 		initializeBasicMaps(world);
+		initializeSatelliteMap(world);
+		initializeWorldMap(world);
+		
 		createViewerMarker(world);
 
 		if(world.getCurrentField().getGPSTracks() != null)
@@ -139,7 +140,6 @@ public class ML_Map
 		zoomToField(world, world.getCurrentField(), false);			// Start zoomed out on whole field
 
 		eventDispatcher = new EventDispatcher();
-//		eventDispatcher = MapUtils.createDefaultEventDispatcher(world.p, satellite, osm);
 		MouseHandler mouseHandler = new MouseHandler(world.ml, satellite);
 		eventDispatcher.addBroadcaster(mouseHandler);
 		eventDispatcher.register(satellite, "pan", satellite.getId());
@@ -173,9 +173,8 @@ public class ML_Map
 	 * Initialize maps
 	 * @param p Parent world
 	 */
-	private void initializeSatelliteMap(WMV_World p)
+	public void initializeSatelliteMap(WMV_World p)
 	{
-//		System.out.println("initializeSatelliteMap()...");
 		satellite = new UnfoldingMap(p.ml, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
 		osm = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
 
@@ -199,6 +198,8 @@ public class ML_Map
 		viewerMarker.setDiameter(viewerDiameter);
 		viewerMarker.setColor(p.ml.color(0, 0, 255, 255));
 		p.ml.delay(mapDelay);
+		
+		p.ml.display.initializedSatelliteMap = true;
 	}
 
 	/**
@@ -270,7 +271,7 @@ public class ML_Map
 			else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
 		}
 
-//		world.ml.perspective();
+		world.ml.perspective();
 		p.startHUD();
 		world.ml.tint(255.f, 255.f);
 		satellite.draw();												// Draw the Unfolding Map
@@ -287,14 +288,12 @@ public class ML_Map
 		if(gpsLoc != null)
 		{
 			if(viewerMarker != null)
-			{
 				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-//				satelliteMarkerManager.addMarker(viewerMarker);					// -- Needed??
-			}
+
 			else System.out.println("viewerMarker == null!");
 		}
 
-//		world.ml.perspective();
+		world.ml.perspective();
 		p.startHUD();
 		world.ml.tint(255.f, 255.f);
 		satellite.draw();
@@ -715,10 +714,15 @@ public class ML_Map
 					for (Marker m : satellite.getMarkers()) 
 						if(m.isSelected()) m.setSelected(false);
 
-					PVector adjustedMouse = getMapMouseLocation(world.ml.mouseX, world.ml.mouseY);
+//					PVector adjustedMouse = getMapMouseLocation(world.ml.mouseX, world.ml.mouseY);
+//					if(p.ml.debugSettings.mouse || p.ml.debugSettings.map)
+//						p.ml.point(adjustedMouse.x, adjustedMouse.y, p.hudDistanceInit);
+//					if(p.ml.debugSettings.mouse || p.ml.debugSettings.map)
+//						p.ml.point(world.ml.mouseX, world.ml.mouseY, -1000);
 					
-					hitMarkers = satellite.getHitMarkers(adjustedMouse.x, adjustedMouse.y);
-//					hitMarkers = satellite.getHitMarkers(world.ml.mouseX, world.ml.mouseY);
+//					hitMarkers = satellite.getHitMarkers(adjustedMouse.x, adjustedMouse.y);
+					hitMarkers = satellite.getHitMarkers(world.ml.mouseX, world.ml.mouseY);
+					
 					for(Marker marker : hitMarkers)
 					{
 						if(marker != null)
@@ -726,11 +730,11 @@ public class ML_Map
 							String mID = marker.getId();
 							if(mID != null)
 							{
-								//						System.out.println("mID:"+mID);
+//								System.out.println("mID:"+mID);
 								String[] parts = mID.split("_");
 								if(parts.length == 2)
 								{
-									//							System.out.println("parts[0]:"+parts[0]);
+//									System.out.println("parts[0]:"+parts[0]);
 									if(parts[0].equals("Cluster"))
 									{
 										marker.setSelected(true);
@@ -824,7 +828,7 @@ public class ML_Map
 			p.ml.stroke(155, 155, 0, 255);
 			p.ml.strokeWeight(5);
 			
-			p.ml.point(x, y, 0);
+//			p.ml.point(x, y, 0);
 		}
 		 
 		PVector result = new PVector(x, y);			
@@ -878,7 +882,7 @@ public class ML_Map
 	 * Initialize map for all fields in world
 	 * @param world Parent world
 	 */
-	public void initializeWorldMap(WMV_World world, boolean fade)
+	public void initializeWorldMap(WMV_World world)
 	{
 		createFieldMarkers(world);				// Create markers for each field
 		createWorldClusterMarkers(world);		// Create cluster markers for all fields
@@ -898,11 +902,7 @@ public class ML_Map
 				highLatitude = f.getModel().getState().highLatitude;
 		}
 
-//		worldMapCenter = new Location(highLatitude, highLongitude);				// -- Obsolete
 		setSelectedField( world, world.getCurrentField().getID() );
-
-		zoomToWorld(fade);
-		
 		p.initializedWorldMap = true;
 	}
 	

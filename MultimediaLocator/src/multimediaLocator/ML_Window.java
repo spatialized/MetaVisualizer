@@ -21,7 +21,7 @@ public class ML_Window
 	
 	/* General */
 	private int windowWidth = 310;
-	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 890;
+	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 885;
 	private int compressedNavigationWindowHeight = 560, compressedMediaWindowHeight = 485;
 	private int delayAmount = 100;							// Delay length to avoid G4P library concurrent modification exception
 	
@@ -157,7 +157,7 @@ public class ML_Window
 	int helpWindowHeight;
 	
 	/* Map Window */
-	private GButton btnMapView;		
+	public GButton btnMapView;		
 	private GButton btnPanUp, btnPanLeft, btnPanDown, btnPanRight;		
 	private GButton btnZoomToViewer, btnZoomToSelected;		
 	private GButton btnZoomOutToField, btnZoomOutToWorld;		
@@ -168,10 +168,10 @@ public class ML_Window
 	
 	/* Time Window */
 	public GToggleGroup tgMapViewMode;	
-	private GButton btnTimeView;		
+	public GButton btnTimeView;		
 	private GButton btnTimelineReverse, btnTimelineForward;		
 	private GButton btnTimelineZoomIn, btnTimelineZoomOut;		
-	private GButton btnTimelineZoomToField, btnTimelineZoomToSelected;		
+	private GButton btnTimelineZoomToField, btnTimelineZoomToSelected, btnTimelineZoomToFull;		
 	public GLabel lblTimelineZoomTo;					
 	public GLabel lblShift5;
 	int timeWindowHeight;
@@ -215,7 +215,7 @@ public class ML_Window
 		display = newDisplay;
 		utilities = new WMV_Utilities();
 		
-		mlWindowHeight = shortWindowHeight + 70;
+		mlWindowHeight = shortWindowHeight + 80;
 		libraryWindowHeight = shortWindowHeight / 2;
 		createLibraryWindowHeight = shortWindowHeight + 30;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
@@ -687,14 +687,6 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 
-//		x = 180;
-//		y += iMediumBoxHeight;
-//		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 150, iVerySmallBoxHeight, "On / Off  (>)");
-//		chkbxPathFollowing.tag = "Following";
-//		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-//		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxPathFollowing.setSelected(world.viewer.isFollowing());
-
 		x = 180;
 		y += iMediumBoxHeight;
 		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 150, iVerySmallBoxHeight, "On / Off  (>)");
@@ -849,7 +841,7 @@ public class ML_Window
 
 		x = 120;
 		if(compressTallWindows) x += windowWidth;
-		y += 10;
+		y += 5;
 		sdrCurrentTime = new GSlider(navigationWindow, x, y, 160, 80, 24);
 		sdrCurrentTime.setLocalColorScheme(G4P.CYAN_SCHEME);
 		sdrCurrentTime.setLimits(0.f, 0.f, 1.f);
@@ -1475,6 +1467,7 @@ public class ML_Window
 		btnMapView.tag = "SetMapView";
 		btnMapView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnMapView.setLocalColorScheme(G4P.GOLD_SCHEME);
+		if(world.ml.display.getDisplayView() == 1) btnMapView.setEnabled(false);
 
 		x = 40;
 		y += iVeryLargeBoxHeight;
@@ -1585,11 +1578,7 @@ public class ML_Window
 	
 	public void setMapControlsEnabled(boolean enable)
 	{
-		System.out.println("Window.setMapControlsEnabled()... "+enable);
-//		private GButton btnMapView;		
-//		private GButton btnPanUp, btnPanLeft, btnPanDown, btnPanRight;		
-//		private GButton btnZoomToViewer, btnZoomToSelected;		
-//		private GButton btnZoomOutToField, btnZoomOutToWorld;		
+//		System.out.println("Window.setMapControlsEnabled()... "+enable);
 
 		if(enable)		// Enable map controls
 		{
@@ -1651,24 +1640,30 @@ public class ML_Window
 		btnTimeView.tag = "SetTimeView";
 		btnTimeView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnTimeView.setLocalColorScheme(G4P.GOLD_SCHEME);
+		if(world.ml.display.getDisplayView() == 2) btnTimeView.setEnabled(false);
 
 		x = 70;
 		y += iVeryLargeBoxHeight + 5;
 		btnTimelineReverse = new GButton(timelineWindow, x, y, 90, iVerySmallBoxHeight, "Reverse");
 		btnTimelineReverse.tag = "TimelineReverse";
 		btnTimelineReverse.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnTimelineReverse.fireAllEvents(true);
 
 		x += 100;
 		btnTimelineForward = new GButton(timelineWindow, x, y, 90, iVerySmallBoxHeight, "Forward");
 		btnTimelineForward.tag = "TimelineForward";
 		btnTimelineForward.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnTimelineForward.fireAllEvents(true);
 
-		x = 135;
+		x = 125;
 		y += iLargeBoxHeight;
 		btnTimelineZoomToField = new GButton(timelineWindow, x, y, 65, iVerySmallBoxHeight, "Fit");
 		btnTimelineZoomToField.tag = "TimelineZoomToFit";
 		btnTimelineZoomToField.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
+		btnTimelineZoomToSelected = new GButton(timelineWindow, x+80, y, 90, iVerySmallBoxHeight, "Selected");
+		btnTimelineZoomToSelected.tag = "TimelineZoomToSelected";
+		btnTimelineZoomToSelected.setLocalColorScheme(G4P.CYAN_SCHEME);
+
 		x = iLeftMargin;
 		y += iMediumBoxHeight * 0.5f;
 		lblTimelineZoomTo = new GLabel(timelineWindow, x, y, timelineWindow.width, iSmallBoxHeight, "Zoom To:");
@@ -1676,22 +1671,23 @@ public class ML_Window
 		lblTimelineZoomTo.setFont(new Font("Monospaced", Font.ITALIC, iMediumTextSize));
 		lblTimelineZoomTo.setTextBold();
 		
-		x = 120;
+		x = 125;
 		y += iMediumBoxHeight * 0.5f;
-		btnTimelineZoomToSelected = new GButton(timelineWindow, x, y, 90, iVerySmallBoxHeight, "Selected");
-		btnTimelineZoomToSelected.tag = "TimelineZoomToSelected";
-		btnTimelineZoomToSelected.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnTimelineZoomToFull = new GButton(timelineWindow, x, y, 130, iVerySmallBoxHeight, "Full Timeline");
+		btnTimelineZoomToFull.tag = "TimelineZoomToFull";
+		btnTimelineZoomToFull.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
 		x = 70;
 		y += iLargeBoxHeight;
 		btnTimelineZoomIn = new GButton(timelineWindow, x, y, 90, iVerySmallBoxHeight, "Zoom In");
 		btnTimelineZoomIn.tag = "TimelineZoomIn";
 		btnTimelineZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
-
+		btnTimelineZoomIn.fireAllEvents(true);
 		x += 100;
 		btnTimelineZoomOut = new GButton(timelineWindow, x, y, 90, iVerySmallBoxHeight, "Zoom Out");
 		btnTimelineZoomOut.tag = "TimelineZoomOut";
 		btnTimelineZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnTimelineZoomOut.fireAllEvents(true);
 
 		x = 0;
 		y = timeWindowHeight - iBottomTextY;
@@ -1742,11 +1738,11 @@ public class ML_Window
 		btnCreateLibrary.tag = "CreateLibrary";
 		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnCreateLibrary.setLocalColorScheme(G4P.ORANGE_SCHEME);
-		btnOpenLibrary = new GButton(startupWindow, x+=215, y, 180, iVeryLargeBoxHeight - 3, "Open Library");
+		btnOpenLibrary = new GButton(startupWindow, x+=225, y, 180, iVeryLargeBoxHeight - 3, "Open Library");
 		btnOpenLibrary.tag = "OpenLibrary";
 		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnOpenLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-		chkbxRebuildLibrary = new GCheckbox(startupWindow, x+=205, y+7, 125, iVerySmallBoxHeight, "Rebuild");
+		chkbxRebuildLibrary = new GCheckbox(startupWindow, x+=195, y+7, 125, iVerySmallBoxHeight, "Rebuild");
 		chkbxRebuildLibrary.tag = "RebuildLibrary";
 		chkbxRebuildLibrary.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		chkbxRebuildLibrary.setLocalColorScheme(G4P.SCHEME_10);
@@ -2000,7 +1996,7 @@ public class ML_Window
 			{
 				int x = (int)utilities.round( 40 + i * 2.f, 0 );
 				if(x % 2 == 0)
-					applet.line(x, libraryWindowHeight - 75, x, libraryWindowHeight - 35);
+					applet.line(x, libraryWindowHeight - 85, x, libraryWindowHeight - 45);
 			}
 		}
 	}

@@ -565,7 +565,7 @@ public class WMV_Sound extends WMV_Media
 	public void setGPSLocationFromMetadata()
 	{
 		metadata.gpsLocation = getMediaState().gpsLocation;
-		System.out.println("SOUND GPS ID#"+getID()+" LOC:"+metadata.gpsLocation);
+//		System.out.println("SOUND GPS ID#"+getID()+" LOC:"+metadata.gpsLocation);
 	}
 	
 	public void setGPSLocationInMetadata(PVector newGPSLocation)

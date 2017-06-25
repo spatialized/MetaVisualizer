@@ -56,6 +56,7 @@ public class ML_Display
 	
 	private ArrayList<SelectableTimeSegment> selectableTimeSegments;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;						// Selectable dates on dateline
+	private SelectableDate allDates;
 	private final float minSegmentSeconds = 15.f;
 	
 	private boolean fieldTimelineCreated = false, fieldDatelineCreated = false, updateFieldTimeline = true;
@@ -286,22 +287,28 @@ public class ML_Display
 		float yPos = topTextYOffset;			// Starting vertical position
 		
 		WMV_Field f = p.getCurrentField();
-//		WMV_Cluster c = p.getCurrentCluster();
 
 		ml.fill(0, 0, 255, 255);
 
 		ml.textSize(veryLargeTextSize);
-//		ml.text(""+p.getCurrentField().getName(), xPos, yPos, timelineHUDDistance);
 		ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistanceInit);
 
 		ml.textSize(largeTextSize - 5.f);
-		String strDisplayDate = "Showing All Dates";
-		if(displayDate != -1) strDisplayDate = utilities.getDateAsString(p.getCurrentField().getDate(displayDate));
+		String strDisplayDate = "";
+		
+		if(displayDate >= 0)
+		{
+			strDisplayDate = utilities.getDateAsString(p.getCurrentField().getDate(displayDate));
+		}
+		else
+		{
+			strDisplayDate = "Showing All Dates";
+			ml.fill(35, 115, 255, 255);
+		}
 
-//		ml.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, timelineHUDDistance);
 		ml.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistanceInit);
 		ml.textSize(mediumTextSize);
-//		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += lineWidthVeryWide, timelineHUDDistance);
+		ml.fill(0, 0, 255, 255);
 		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
 
 		yPos = timelineYOffset + timelineHeight * 4.f;
@@ -379,6 +386,12 @@ public class ML_Display
 			{
 				int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();		// Update date displayed
 				setCurrentSelectableDate(fieldDate);
+			}
+			else
+			{
+				System.out.println("Display.updateTimelineSelection()... 1 updateCurrentSelectableDate... currentSelectableDate:"+currentSelectableDate);
+				if(currentSelectableDate == -100)
+					setCurrentSelectableDate(-1);
 			}
 		}
 
@@ -514,6 +527,10 @@ public class ML_Display
 					count++;
 				}
 			}
+			
+			float xOffset = datelineXOffset;
+			PVector loc = new PVector(xOffset, datelineYOffset, hudDistanceInit);
+			allDates = new SelectableDate(-100, loc, 25.f, null);		// int newID, int newClusterID, PVector newLocation, Box newRectangle
 		}
 	}
 
@@ -801,22 +818,26 @@ public class ML_Display
 		}
 		else if(f.getDateline().size() > 1)
 		{
-//			int count = 0;
 			for(WMV_Date d : f.getDateline())
-			{
 				displayDate(p, d);
-//				count++;
-			}
 		}
 		
-		if(selectedDate != -1 && selectableDates.size() > 0 && selectedDate < selectableDates.size())
+		if(selectedDate >= 0 && selectableDates.size() > 0 && selectedDate < selectableDates.size())
 			selectableDates.get(selectedDate).display(p, 40.f, 255.f, 255.f, true);
-		if(currentSelectableDate != -1 && selectableDates.size() > 0 && currentSelectableDate < selectableDates.size())
+		if(currentSelectableDate >= 0 && selectableDates.size() > 0 && currentSelectableDate < selectableDates.size())
 			selectableDates.get(currentSelectableDate).display(p, 0.f, 0.f, 255.f, false);
+		
+		if(displayDate >= 0)
+		{
+			allDates.display(p, 55.f, 120.f, 255.f, false);
+			ml.textSize(smallTextSize);
+			ml.fill(35, 115, 255, 255);
+			ml.text("Show All", allDates.getLocation().x - 20, allDates.getLocation().y + 50, hudDistanceInit);
+		}
 	}
 
 	/**
-	 * Display date on timeline
+	 * Display date on dateline
 	 * @param p Parent world
 	 * @param d Date to display
 	 */
@@ -1039,7 +1060,10 @@ public class ML_Display
 				return sd;
 		}
 		
-		return null;
+		if(PVector.dist(mouseLoc, allDates.getLocation()) < allDates.radius)
+			return allDates;
+		else
+			return null;
 	}
 
 	/**
@@ -1072,7 +1096,8 @@ public class ML_Display
 			if(dateSelected != null)
 			{
 				selectedDate = dateSelected.getID();				// Set to selected
-				updateFieldTimeline = true;				// Update timeline to show selected segment
+				updateFieldTimeline = true;							// Update timeline to show selected segment
+//				updateCurrentSelectableDate = true;			// Added 6-24-17
 			}
 			else
 				selectedDate = -1;
@@ -2196,11 +2221,19 @@ public class ML_Display
 	 */
 	private void setCurrentSelectableDate(int newSelectableDate)
 	{
-		displayDate = newSelectableDate;
-		currentSelectableDate = newSelectableDate;
+		if(newSelectableDate == -1 || newSelectableDate == -100)
+		{
+			showAllDates();
+		}
+		else
+		{
+			displayDate = newSelectableDate;
+			currentSelectableDate = newSelectableDate;
+			updateFieldTimeline = true;
+		}
+		
 		updateCurrentSelectableTimeSegment = true;
 		updateCurrentSelectableDate = false;
-		updateFieldTimeline = true;
 	}
 
 	/**
@@ -2410,7 +2443,7 @@ public class ML_Display
 			return location;
 		}
 		
-		public void display(WMV_World p, float hue, float saturation, float brightness, boolean preview)
+		public void display(WMV_World p, float hue, float saturation, float brightness, boolean selected)
 		{
 			ml.pushMatrix();
 			
@@ -2418,7 +2451,7 @@ public class ML_Display
 			ml.strokeWeight(25.f);
 			ml.point(location.x, location.y, location.z);
 
-			if(preview)
+			if(selected && selectedDate != -1)
 			{
 				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
 				ml.textSize(smallTextSize);

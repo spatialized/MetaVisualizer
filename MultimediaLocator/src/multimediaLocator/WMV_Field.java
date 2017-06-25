@@ -168,16 +168,19 @@ public class WMV_Field
 		{
 			for(WMV_Image img : imageList)
 			{
-				float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactor;		// Distance where transparency reaches zero
-				float distance = img.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
-				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
-				if(inVisibleRange)
+				if(!img.isDisabled())
 				{
-					float imageAngle = img.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
-					if(!utilities.isNaN(imageAngle))
-						if(img.getAngleBrightness(imageAngle) > 0.f)
-							if(!img.isBackFacing(getViewerState().getLocation()) && !img.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
-								img.displayModel(ml);			// Display model
+					float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactor;		// Distance where transparency reaches zero
+					float distance = img.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+					boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
+					if(inVisibleRange)
+					{
+						float imageAngle = img.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
+						if(!utilities.isNaN(imageAngle))
+							if(img.getAngleBrightness(imageAngle) > 0.f)
+								if(!img.isBackFacing(getViewerState().getLocation()) && !img.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
+									img.displayModel(ml);			// Display model
+					}
 				}
 			}
 		}
@@ -198,19 +201,22 @@ public class WMV_Field
 	{
 		if(!ml.world.viewer.getSettings().hideVideos)
 		{
+
 			for(WMV_Video vid : videoList)
 			{
-				float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
-				float distance = vid.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
-				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
-				//			if(inVisibleRange) vid.displayModel(ml);			// Display model
-				if(inVisibleRange)
+				if(!vid.isDisabled())
 				{
-					float imageAngle = vid.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
-					if(!utilities.isNaN(imageAngle))
-						if(vid.getAngleBrightness(imageAngle) > 0.f)
-							if(!vid.isBackFacing(getViewerState().getLocation()) && !vid.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
-								vid.displayModel(ml);			// Display model
+					float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
+					float distance = vid.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+					boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
+					if(inVisibleRange)
+					{
+						float imageAngle = vid.getFacingAngle(getViewerState().getOrientationVector());			// Check if image is visible at current angle facing viewer
+						if(!utilities.isNaN(imageAngle))
+							if(vid.getAngleBrightness(imageAngle) > 0.f)
+								if(!vid.isBackFacing(getViewerState().getLocation()) && !vid.isBehindCamera(getViewerState().getLocation(), getViewerState().getOrientationVector()))
+									vid.displayModel(ml);			// Display model
+					}
 				}
 			}
 		}
@@ -718,17 +724,21 @@ public class WMV_Field
 			{
 				if ((v.video.width > 1) && (v.video.height > 1))
 				{
-					v.display(ml);          // Draw the video 
-					if(v.isSelected())
+					if(v.getState().startPlayback)
 					{
-						if(v.getMediaState().showMetadata) v.displayMetadata(ml);
+						v.updateFrame(ml);
+						v.state.startPlayback = false;
 					}
-//					else
-//					{
-//						if(getWorldState().showModel) v.displayModel(ml);
-//					}
-					if(!v.isSeen()) v.setSeen(true);
-					state.videosSeen++;
+					else
+					{
+						v.display(ml);          // Draw the video 
+						if(v.isSelected())
+						{
+							if(v.getMediaState().showMetadata) v.displayMetadata(ml);
+						}
+						if(!v.isSeen()) v.setSeen(true);
+						state.videosSeen++;
+					}
 				}
 			}
 //			else

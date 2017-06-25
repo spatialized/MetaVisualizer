@@ -162,6 +162,14 @@ public class WMV_Image extends WMV_Media
 	{
 		setVisible(false);
 
+		if(getViewerSettings() == null)
+		{
+			if(getDebugSettings().image || getDebugSettings().ml) 
+				System.out.println("Image.calculateVisibility()... Fixing getSettings().. error in image #"+getID());
+			
+			updateWorldState(viewer.p.getSettings(), viewer.p.getState(), viewer.getSettings(), viewer.getState());
+		}
+		
 		if(getViewerSettings().orientationMode)								// In Transitions Only Mode, visibility is based on distance of associated cluster 
 		{
 			if(getMediaState().getClusterID() == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible

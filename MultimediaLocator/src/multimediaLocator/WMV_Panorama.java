@@ -91,6 +91,14 @@ public class WMV_Panorama extends WMV_Media
 	 */
 	public void calculateVisibility(WMV_Viewer viewer)
 	{
+		if(getViewerSettings() == null)
+		{
+			if(getDebugSettings().image || getDebugSettings().ml) 
+				System.out.println("Panorama.calculateVisibility()... Fixing getSettings().. error in panorama #"+getID());
+			
+			updateWorldState(viewer.p.getSettings(), viewer.p.getState(), viewer.getSettings(), viewer.getState());
+		}
+		
 		if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated vState.cluster 
 		{
 			for(int id : getViewerState().getClustersVisible())

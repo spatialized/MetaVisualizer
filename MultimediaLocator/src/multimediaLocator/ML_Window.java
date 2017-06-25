@@ -75,7 +75,7 @@ public class ML_Window
 	public int textEntryWindowResultCode = -1;		// 1: GPS Track  
 	
 	/* Main Window */
-	private GButton btnNavigationWindow, btnMediaWindow, btnStatisticsWindow, btnHelpWindow;
+	private GButton btnNavigationWindow, btnMediaWindow, btnStatisticsWindow, btnMapWindow, btnTimeWindow, btnHelpWindow;
 	private GButton btnChooseField, btnSaveLibrary, btnSaveField, btnRestart, btnQuit;
 	private GLabel lblViewMode, lblWindows, lblCommands, lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
@@ -215,7 +215,7 @@ public class ML_Window
 		display = newDisplay;
 		utilities = new WMV_Utilities();
 		
-		mlWindowHeight = shortWindowHeight + 80;
+		mlWindowHeight = shortWindowHeight + 130;
 		libraryWindowHeight = shortWindowHeight / 2;
 		createLibraryWindowHeight = shortWindowHeight + 30;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
@@ -394,6 +394,16 @@ public class ML_Window
 		btnStatisticsWindow = new GButton(mlWindow, x, y, 120, iVerySmallBoxHeight, "Statistics  ⇧3");
 		btnStatisticsWindow.tag = "OpenStatisticsWindow";
 		btnStatisticsWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		y += iSmallBoxHeight;
+		btnMapWindow = new GButton(mlWindow, x, y, 120, iVerySmallBoxHeight, "Map View  ⇧4");
+		btnMapWindow.tag = "OpenMapWindow";
+		btnMapWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		y += iSmallBoxHeight;
+		btnTimeWindow = new GButton(mlWindow, x, y, 120, iVerySmallBoxHeight, "Time View  ⇧5");
+		btnTimeWindow.tag = "OpenTimeWindow";
+		btnTimeWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = 0;
 		y += iMediumBoxHeight;
@@ -411,7 +421,6 @@ public class ML_Window
 
 		if(world.getFieldCount() > 1)
 		{
-//			System.out.println("btnSaveField...");
 			y += iSmallBoxHeight;
 			btnSaveField = new GButton(mlWindow, x, y, 140, iVerySmallBoxHeight, "Save Field  /");
 			btnSaveField.tag = "SaveField";
@@ -567,18 +576,18 @@ public class ML_Window
 		btnNextTimeSegment.tag = "NextTime";
 		btnNextTimeSegment.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-		x = 40;
+		x = 50;
 		y += iMediumBoxHeight;
-		btnStopViewer = new GButton(navigationWindow, x, y, 65, iVerySmallBoxHeight, "Stop");
-		btnStopViewer.tag = "StopViewer";
-		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
-		
-		x = 125;
 		chkbxMovementTeleport = new GCheckbox(navigationWindow, x, y, 125, iVerySmallBoxHeight, "Teleport (t)");
 		chkbxMovementTeleport.tag = "MovementTeleport";
 		chkbxMovementTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		chkbxMovementTeleport.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxMovementTeleport.setSelected(world.viewer.getState().movementTeleport);
+		
+		x += 130;
+		btnStopViewer = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Stop (.)");
+		btnStopViewer.tag = "StopViewer";
+		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
 
 		x = 75;
 		y += iMediumBoxHeight;
@@ -1153,7 +1162,7 @@ public class ML_Window
 		else
 		{
 			x = 0;
-			y += 43;
+			y += 40;
 		}
 
 		mediaWindowLineBreakY_1 = y - 10;
@@ -1261,7 +1270,7 @@ public class ML_Window
 			x = 0;
 
 		y += 38;
-		mediaWindowLineBreakY_2 = y - 10;
+		mediaWindowLineBreakY_2 = y - 7;
 		lblAdvanced = new GLabel(mediaWindow, x, y, mediaWindow.width, iSmallBoxHeight, "Advanced");
 		lblAdvanced.setLocalColorScheme(G4P.SCHEME_10);
 		lblAdvanced.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
@@ -1301,7 +1310,7 @@ public class ML_Window
 
 		x = 85;
 		if(compressTallWindows) x += windowWidth;
-		y += iSmallBoxHeight;
+		y += iSmallBoxHeight - 2;
 		chkbxOrientationMode = new GCheckbox(mediaWindow, x, y, 155, iVerySmallBoxHeight, "Static Mode (9)");
 		chkbxOrientationMode.tag = "OrientationMode";
 		chkbxOrientationMode.setLocalColorScheme(G4P.SCHEME_10);
@@ -1460,7 +1469,7 @@ public class ML_Window
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount);
 
-		lblMap = new GLabel(mapWindow, x, y, mapWindow.width, iSmallBoxHeight, "Map Controls");
+		lblMap = new GLabel(mapWindow, x, y, mapWindow.width, iSmallBoxHeight, "Map View");
 		lblMap.setLocalColorScheme(G4P.SCHEME_10);
 		lblMap.setTextAlign(GAlign.CENTER, null);
 		lblMap.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
@@ -1633,7 +1642,7 @@ public class ML_Window
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount);
 
-		lblTimeline = new GLabel(timelineWindow, x, y, timelineWindow.width, iVerySmallBoxHeight, "Timeline Controls");
+		lblTimeline = new GLabel(timelineWindow, x, y, timelineWindow.width, iVerySmallBoxHeight, "Time View");
 		lblTimeline.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimeline.setTextAlign(GAlign.CENTER, null);
 		lblTimeline.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));

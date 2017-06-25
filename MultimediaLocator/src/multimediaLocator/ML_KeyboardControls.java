@@ -176,12 +176,12 @@ public class ML_KeyboardControls
 		{
 			boolean state = ml.world.state.displayTerrain;
 			if(state)
-				ml.world.fadeOutTerrain(true);
+				ml.world.fadeOutTerrain(true, true);
 			else
 			{
 				ml.world.state.terrainAlpha = 0.f;
 				ml.world.state.displayTerrain = true;
-				ml.world.fadeInTerrain();
+				ml.world.fadeInTerrain(true);
 			}
 		}
 
@@ -414,6 +414,9 @@ public class ML_KeyboardControls
 		if (key == 'z') 
 			ml.world.viewer.zoomOut();
 
+		if (key == '.')
+			ml.world.viewer.stop(true);
+		
 		if (key == PApplet.ENTER)
 		{
 			if(ml.display.getDisplayView() == 0)

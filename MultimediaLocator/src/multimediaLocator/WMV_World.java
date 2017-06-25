@@ -576,7 +576,7 @@ public class WMV_World
 	public void fadeOutAllMedia()
 	{
 		getCurrentField().fadeOutAllMedia();
-		fadeOutTerrain(false);
+		fadeOutTerrain(false, false);
 	}
 
 //	public void fadeOutAllVideosAndSounds()
@@ -585,7 +585,7 @@ public class WMV_World
 //		fadeOutTerrain(false);
 //	}
 	
-	public void fadeOutTerrain(boolean turnOff)
+	public void fadeOutTerrain(boolean turnOff, boolean message)
 	{
 		if(state.terrainAlpha != 0.f)
 		{
@@ -596,12 +596,12 @@ public class WMV_World
 			state.fadingTerrainEndFrame = ml.frameCount + state.fadingTerrainLength; 
 			if(turnOff)
 				state.turnOffTerrainAfterFadingOut = true;
-			if(ml.world.getSettings().screenMessagesOn)
+			if(message && ml.world.getSettings().screenMessagesOn)
 				ml.display.message(ml, "Display Terrain OFF");
 		}
 	}
 
-	public void fadeInTerrain()
+	public void fadeInTerrain(boolean message)
 	{
 		if(state.terrainAlpha != state.terrainAlphaMax)
 		{
@@ -612,7 +612,7 @@ public class WMV_World
 			state.fadingTerrainEndFrame = ml.frameCount + state.fadingTerrainLength; 
 			if(state.waitingToFadeInTerrainAlpha)
 				state.waitingToFadeInTerrainAlpha = false;
-			if(ml.world.getSettings().screenMessagesOn)
+			if(message && ml.world.getSettings().screenMessagesOn)
 				ml.display.message(ml, "Display Terrain ON");
 		}
 	}
@@ -1738,8 +1738,8 @@ public class WMV_World
 					i.getMediaState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
-					if(viewer.lookAtCurrentMedia())
-						viewer.lookAtMedia(i.getID(), 0);
+//					if(viewer.lookAtCurrentMedia())
+//						viewer.lookAtMedia(i.getID(), 0);
 					break;
 				case 1:
 					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
@@ -1753,8 +1753,8 @@ public class WMV_World
 					v.getMediaState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
-					if(viewer.lookAtCurrentMedia())
-						viewer.lookAtMedia(v.getID(), 2);
+//					if(viewer.lookAtCurrentMedia())
+//						viewer.lookAtMedia(v.getID(), 2);
 					break;
 //				case 3:	
 //					getCurrentField().sounds.get(curMediaID).currentMedia = true;

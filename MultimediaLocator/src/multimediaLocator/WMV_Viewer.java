@@ -1033,7 +1033,7 @@ public class WMV_Viewer
 					setLocation( c.getLocation(), false );
 					setCurrentCluster(dest, fieldTimeSegment);
 					if(p.state.waitingToFadeInTerrainAlpha) 
-						p.fadeInTerrain();
+						p.fadeInTerrain(false);
 				}
 			}
 			else 
@@ -1096,10 +1096,17 @@ public class WMV_Viewer
 						if(debugSettings.viewer) System.out.println("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
 					
 					if(debugSettings.viewer) System.out.println("  teleportToField()...  Teleported to field "+state.teleportToField+" moveToFirstTimeSegment?"+moveToFirstTimeSegment+" state.teleportGoal:"+state.teleportGoal);
+					
+					if(p.getSettings().screenMessagesOn) 
+						p.ml.display.message(p.ml, "Moving to "+p.getField(newField).getName());
+					
 					fadeTeleport(null, -1, newField);
 				}
 				else
 				{
+					if(p.getSettings().screenMessagesOn) 
+						p.ml.display.message(p.ml, "Moving to "+p.getField(newField).getName());
+
 					enterField(newField); 				/* Enter new field */
 					System.out.println("  teleportToField()...  Entered field "+newField+"... moveToFirstTimeSegment? "+moveToFirstTimeSegment);
 
@@ -1552,7 +1559,7 @@ public class WMV_Viewer
 	 * Smoothly turn to look at given media
 	 * @param goal Point to smoothly turn towards
 	 */
-	public void lookAtMedia( int id, int mediaType ) 
+	private void lookAtMedia( int id, int mediaType ) 
 	{
 		PVector turnLoc = new PVector(0,0,0);
 		
@@ -3338,7 +3345,7 @@ public class WMV_Viewer
 				p.getCurrentField().clearAllAttractors();				// Clear current attractors
 				
 				if(p.state.waitingToFadeInTerrainAlpha) 		// Fade in terrain
-					p.fadeInTerrain();
+					p.fadeInTerrain(false);
 			}
 			else
 			{

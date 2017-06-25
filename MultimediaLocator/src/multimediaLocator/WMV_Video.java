@@ -204,7 +204,14 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	public void calculateVisibility(WMV_Viewer viewer, WMV_Utilities utilities)
 	{
 		setVisible(false);
-
+		if(getViewerSettings() == null)
+		{
+			if(getDebugSettings().video || getDebugSettings().ml) 
+				System.out.println("Video.calculateVisibility()... Fixing getSettings().. error in video #"+getID());
+			
+			updateWorldState(viewer.p.getSettings(), viewer.p.getState(), viewer.getSettings(), viewer.getState());
+		}
+		
 		if(getViewerSettings().orientationMode)									// With StaticMode ON, determine visibility based on distance of associated cluster 
 		{
 			if(getAssociatedClusterID() == getViewerState().getCurrentClusterID())		// If this photo's cluster is the current (closest) cluster, it is visible
@@ -252,7 +259,6 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	void updateVolume(MultimediaLocator ml)
 	{
 		int frameLength = getLengthInFrames(30);							// Get video frame length at 30 fps
-//		int framesSinceStart = ml.frameCount - state.playbackStartFrame;	// Frames since start
 		int framesBeforeEnd = getFramesBeforeEnd(ml.frameCount);		// Playback position in frames, i.e. frames from end
 //		if(ml.debugSettings.video)
 //			System.out.println("Video.updateVolume()... playing?"+isPlaying()+" frameLength:"+frameLength+" framesBeforeEnd:"+framesBeforeEnd);
@@ -451,6 +457,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			System.out.println("Video.play()... id #"+getID()+" set playbackStartFrame:"+state.playbackStartFrame);
 		video.volume(0.f);
 		state.volume = 0.f;
+		state.startPlayback = true;
 		
 		fadeSoundIn();
 //		state.firstFramePlaying = true;
@@ -537,8 +544,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				ml.texture(frame);        	// Apply the image to the face as a texture 
 		}
 		
-		setFrame( new PImage( video.getImage() ));
-		blurred = applyMask(ml, frame, blurMask);				// Apply blur mask once image has loaded
+		updateFrame(ml);
 
 		if(!getWorldState().alphaMode)
 			ml.tint(getViewingBrightness(), 255);          				
@@ -562,6 +568,12 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
 		ml.popMatrix();
+	}
+	
+	public void updateFrame(MultimediaLocator ml)
+	{
+		setFrame( new PImage( video.getImage() ));
+		blurred = applyMask(ml, frame, blurMask);				// Apply blur mask once image has loaded
 	}
 	
 	/** 

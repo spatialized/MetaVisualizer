@@ -50,8 +50,6 @@ public class ML_Input
 	 */
 	void handleKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-//		System.out.println("Input.handleKeyPressed()... key:"+key);
-//		if (ml.state.running && ml.state.selectedLibrary )
 		if (ml.state.running && ml.state.selectedLibrary && ml.state.fieldsInitialized )
 		{
 			/* General */
@@ -289,12 +287,16 @@ public class ML_Input
 	
 				/* Navigation */
 				case "OpenNavigationWindow":
-					display.window.openNavigationWindow();
+//					display.window.openNavigationWindow();
+					if(!ml.display.window.showNavigationWindow)
+						ml.display.window.openNavigationWindow();
+					else
+						ml.display.window.closeNavigationWindow();
 					break;
 	
-				case "CloseNavigationWindow":
-					display.window.hideNavigationWindow();
-					break;
+//				case "CloseNavigationWindow":
+//					display.window.closeNavigationWindow();
+//					break;
 	
 				case "NearestCluster":
 					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
@@ -367,13 +369,23 @@ public class ML_Input
 	
 				/* Help */
 				case "OpenHelpWindow":
-					display.window.openHelpWindow();
+					if(!ml.display.window.showHelpWindow)
+						ml.display.window.openHelpWindow();
+					else
+						ml.display.window.closeHelpWindow();
 					break;
 				case "CloseHelpWindow":
-					display.window.hideHelpWindow();
+					display.window.closeHelpWindow();
 					break;
 	
 				/* Time */
+				case "OpenTimeWindow":
+//					display.window.openTimelineWindow();
+					if(!ml.display.window.showTimelineWindow)
+						ml.display.window.openTimelineWindow();
+					else
+						ml.display.window.openTimelineWindow();
+					break;
 				case "NextTime":
 					ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
 					break;
@@ -395,11 +407,15 @@ public class ML_Input
 
 				/* Media */
 				case "OpenMediaWindow":
-					display.window.openMediaWindow();
+//					display.window.openMediaWindow();
+					if(!ml.display.window.showMediaWindow)
+						ml.display.window.openMediaWindow();
+					else
+						ml.display.window.closeMediaWindow();
 					break;
-				case "CloseGraphicsWindow":
-					display.window.hideMediaWindow();
-					break;
+//				case "CloseMediaWindow":
+//					display.window.closeMediaWindow();
+//					break;
 	
 				case "SelectFront":
 					ml.world.viewer.chooseMediaInFront(true);
@@ -448,13 +464,24 @@ public class ML_Input
 				
 				/* Statistics */
 				case "OpenStatisticsWindow":
-					display.window.openStatisticsWindow();
+//					display.window.openStatisticsWindow();
+					if(!ml.display.window.showStatisticsWindow)
+						ml.display.window.openStatisticsWindow();
+					else
+						ml.display.window.closeStatisticsWindow();
 					break;
-				case "CloseStatisticsWindow":
-					display.window.hideStatisticsWindow();
-					break;
+//				case "CloseStatisticsWindow":
+//					display.window.hideStatisticsWindow();
+//					break;
 	
 				/* Map */
+				case "OpenMapWindow":
+//					display.window.openMapWindow();
+					if(!ml.display.window.showMapWindow)
+						ml.display.window.openMapWindow();
+					else
+						ml.display.window.closeMapWindow();
+					break;
 				case "SetMapView":
 					if(display.getDisplayView() != 1)
 						display.setDisplayView(ml.world, 1);

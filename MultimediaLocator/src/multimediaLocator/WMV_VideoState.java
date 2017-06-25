@@ -29,6 +29,7 @@ public class WMV_VideoState
 	public boolean loaded = false;
 	public boolean playing = false;
 	public int playbackStartFrame = -1;
+	public boolean startPlayback = false;
 	
 	public final float assocVideoDistTolerance = 15.f;			// How far a photo can be taken from a video's location to become associated.
 	public final float assocVideoTimeTolerance = 0.015f;		// How long a photo can be taken before a video and still become associated;

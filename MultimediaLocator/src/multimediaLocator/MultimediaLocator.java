@@ -53,7 +53,8 @@ public class MultimediaLocator extends PApplet
 	public int appWidth = 1680, appHeight = 960;	// App window dimensions
 	private PImage appIcon;							// App icon
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
-	private final int delayAmount = 60;				
+	private final int delayAmount = 60;	
+	
 	/* Windows */
 	private boolean appWindowVisible = false;		// Main window visible (for hiding when opening)
 	
@@ -1627,12 +1628,8 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-//		System.out.println("mediaWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction());
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-//		else
-//			System.out.println(" mediaWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction()+" != "+processing.event.KeyEvent.PRESS);
-
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
 	}

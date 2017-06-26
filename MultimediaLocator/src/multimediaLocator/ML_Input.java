@@ -1,11 +1,7 @@
 package multimediaLocator;
 
-import java.awt.Font;
-
-import g4p_controls.G4P;
 import g4p_controls.GButton;
 import g4p_controls.GEvent;
-import g4p_controls.GLabel;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import processing.core.PApplet;
@@ -287,17 +283,12 @@ public class ML_Input
 	
 				/* Navigation */
 				case "OpenNavigationWindow":
-//					display.window.openNavigationWindow();
 					if(!ml.display.window.showNavigationWindow)
 						ml.display.window.openNavigationWindow();
 					else
 						ml.display.window.closeNavigationWindow();
 					break;
-	
-//				case "CloseNavigationWindow":
-//					display.window.closeNavigationWindow();
-//					break;
-	
+
 				case "NearestCluster":
 					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
 					break;
@@ -380,7 +371,6 @@ public class ML_Input
 	
 				/* Time */
 				case "OpenTimeWindow":
-//					display.window.openTimelineWindow();
 					if(!ml.display.window.showTimelineWindow)
 						ml.display.window.openTimelineWindow();
 					else
@@ -407,15 +397,11 @@ public class ML_Input
 
 				/* Media */
 				case "OpenMediaWindow":
-//					display.window.openMediaWindow();
 					if(!ml.display.window.showMediaWindow)
 						ml.display.window.openMediaWindow();
 					else
 						ml.display.window.closeMediaWindow();
 					break;
-//				case "CloseMediaWindow":
-//					display.window.closeMediaWindow();
-//					break;
 	
 				case "SelectFront":
 					ml.world.viewer.chooseMediaInFront(true);
@@ -464,19 +450,14 @@ public class ML_Input
 				
 				/* Statistics */
 				case "OpenStatisticsWindow":
-//					display.window.openStatisticsWindow();
 					if(!ml.display.window.showStatisticsWindow)
 						ml.display.window.openStatisticsWindow();
 					else
 						ml.display.window.closeStatisticsWindow();
 					break;
-//				case "CloseStatisticsWindow":
-//					display.window.hideStatisticsWindow();
-//					break;
 	
 				/* Map */
 				case "OpenMapWindow":
-//					display.window.openMapWindow();
 					if(!ml.display.window.showMapWindow)
 						ml.display.window.openMapWindow();
 					else
@@ -528,12 +509,7 @@ public class ML_Input
 				case "TimelineForward":
 					ml.display.stopScrolling();
 					break;
-//				case "TimelineZoomIn":
-//					ml.display.zoom(ml.world, -1, true);
-//					break;
-//				case "TimelineZoomOut":
-//					ml.display.zoom(ml.world, 1, true);
-//					break;
+
 				/* Timeline */
 				case "TimelineZoomIn":
 					ml.display.stopZooming();
@@ -608,46 +584,24 @@ public class ML_Input
 						ml.display.zoom(ml.world, 1, true);
 					break;
 				case "TimelineReverse":
-//					System.out.println("TimelineReverse... ml.display.isScrolling():"+ml.display.isScrolling());
 					if(ml.display.isScrolling())
 						ml.display.stopScrolling();
 					else
 						ml.display.scroll(ml.world, -1);
 					break;
 				case "TimelineForward":
-//					System.out.println("TimelineForward... ml.display.isScrolling():"+ml.display.isScrolling());
 					if(ml.display.isScrolling())
 						ml.display.stopScrolling();
 					else
 						ml.display.scroll(ml.world, 1);
 					break;
-
-//					if (keyCode == PApplet.UP)  				// Timeline scroll left
-//						display.stopZooming();
-//					if (keyCode == PApplet.DOWN)  				// Timeline scroll right
-//						display.stopZooming();
 			}
 		}
 		
 		if(event == GEvent.RELEASED)
 		{
-//			System.out.println("RELEASED EVENT: tag:"+button.tag);
-			
 			switch(button.tag)
 			{
-//				case "MoveForward":
-//					ml.world.viewer.stopMoveZTransition();
-//					break;
-//				case "MoveBackward":
-//					ml.world.viewer.stopMoveZTransition();
-//					break;
-//				case "MoveLeft":
-//					ml.world.viewer.stopMoveXTransition();
-//					break;
-//				case "MoveRight":
-//					ml.world.viewer.stopMoveXTransition();
-//					break;
-			
 				case "ZoomIn":
 					ml.world.viewer.stopZooming();
 					break;
@@ -677,6 +631,21 @@ public class ML_Input
 				case "TimelineForward":
 					ml.display.stopScrolling();
 					break;
+				
+				/* Navigation -- Disabled */
+//				case "MoveForward":
+//					ml.world.viewer.stopMoveZTransition();
+//					break;
+//				case "MoveBackward":
+//					ml.world.viewer.stopMoveZTransition();
+//					break;
+//				case "MoveLeft":
+//					ml.world.viewer.stopMoveXTransition();
+//					break;
+//				case "MoveRight":
+//					ml.world.viewer.stopMoveXTransition();
+//					break;
+
 			}
 		}
 	}
@@ -710,7 +679,7 @@ public class ML_Input
 				if(display.getDisplayView() != 2)
 					display.setDisplayView(world, 2);
 				break;
-//			case "LibraryView":
+//			case "LibraryView":							// -- Disabled
 //				display.setDisplayView(world, 3);
 //				break;
 			case "ScreenMessagesOn":
@@ -731,7 +700,7 @@ public class ML_Input
 			case "FollowTimeline":
 				if(option.isSelected())
 				{
-					world.viewer.setFollowMode( 0 );
+					world.viewer.setPathNavigationMode( 0 );
 					display.window.optGPSTrack.setSelected(false);
 					display.window.optMemory.setSelected(false);
 				}
@@ -739,7 +708,7 @@ public class ML_Input
 	  		case "FollowGPSTrack":
 				if(option.isSelected())
 				{
-					world.viewer.setFollowMode( 1 );
+					world.viewer.setPathNavigationMode( 1 );
 					display.window.optTimeline.setSelected(false);
 					display.window.optMemory.setSelected(false);
 				}
@@ -747,7 +716,7 @@ public class ML_Input
 	  		case "FollowMemory":
 				if(option.isSelected())
 				{
-					world.viewer.setFollowMode( 2 );
+					world.viewer.setPathNavigationMode( 2 );
 					display.window.optTimeline.setSelected(false);
 					display.window.optGPSTrack.setSelected(false);
 				}
@@ -763,7 +732,7 @@ public class ML_Input
 				{
 					if(!world.viewer.isFollowing())
 					{
-						switch(world.viewer.getFollowMode())
+						switch(world.viewer.getPathNavigationMode())
 						{
 							case 0:
 								world.viewer.followTimeline(true, false);
@@ -868,34 +837,6 @@ public class ML_Input
 			/* Selection */
 			case "EnableSelection":
 				world.viewer.setSelection( option.isSelected() );
-//				if(world.viewer.inSelectionMode())
-//				{
-//					world.ml.display.window.btnSelectFront.setEnabled(true);
-//					world.ml.display.window.btnViewSelected.setEnabled(true);
-//					world.ml.display.window.btnDeselectFront.setEnabled(true);
-//					world.ml.display.window.btnDeselectAll.setEnabled(true);
-//					world.ml.display.window.btnExportMedia.setEnabled(true);
-//					world.ml.display.window.chkbxMultiSelection.setEnabled(true);
-//					world.ml.display.window.chkbxSegmentSelection.setEnabled(true);
-//					world.ml.display.window.chkbxShowMetadata.setEnabled(true);
-//				}
-//				else
-//				{
-//					world.getCurrentField().deselectAllMedia(false);		// Deselect media if left Selection Mode
-//					if(world.ml.display.getDisplayView() == 4)
-//					{
-//						world.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
-//						world.ml.display.setDisplayView(world, 0);			// Set Display View to World
-//					}
-//					world.ml.display.window.btnSelectFront.setEnabled(false);
-//					world.ml.display.window.btnViewSelected.setEnabled(false);
-//					world.ml.display.window.btnDeselectFront.setEnabled(false);
-//					world.ml.display.window.btnDeselectAll.setEnabled(false);
-//					world.ml.display.window.btnExportMedia.setEnabled(false);
-//					world.ml.display.window.chkbxMultiSelection.setEnabled(false);
-//					world.ml.display.window.chkbxSegmentSelection.setEnabled(false);
-//					world.ml.display.window.chkbxShowMetadata.setEnabled(false);
-//				}
 				break;
 				
 			case "MultiSelection":
@@ -1000,7 +941,6 @@ public class ML_Input
 				world.viewer.moveToNearestCluster(world.viewer.getMovementTeleport());
 		}
 		
-//		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
 		if(display.getDisplayView() == 1)
 			display.map2D.handleMouseReleased(world, mouseX, mouseY);
 		else if(display.getDisplayView() == 2)

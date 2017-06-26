@@ -532,11 +532,11 @@ public class ML_Stitcher
 	}
 
 	private class BufferedImageBuilder {
-	  private static final int DEFAULT_IMAGE_TYPE = BufferedImage.TYPE_INT_RGB;
+//	  private static final int DEFAULT_IMAGE_TYPE = BufferedImage.TYPE_INT_RGB;
 
-	  public BufferedImage bufferImage(Image image) {
-	    return bufferImage(image, DEFAULT_IMAGE_TYPE);
-	  }
+//	  public BufferedImage bufferImage(Image image) {
+//	    return bufferImage(image, DEFAULT_IMAGE_TYPE);
+//	  }
 
 	  public BufferedImage bufferImage(Image image, int type) {
 	    BufferedImage bufferedImage = new BufferedImage(image.getWidth(null), image.getHeight(null), type);

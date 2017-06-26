@@ -5,7 +5,7 @@ import java.util.List;
 import processing.core.PVector;
 
 /*********************************************
- * Cluster of media files representing a spatial point of interest
+ * Cluster of media representing localized point of interest
  * @author davidgordon
  */
 public class WMV_Cluster 

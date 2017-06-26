@@ -6,8 +6,8 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
-import processing.data.IntList;
-import toxi.math.ScaleMap;
+//import processing.data.IntList;
+//import toxi.math.ScaleMap;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.core.Coordinate;
@@ -20,11 +20,11 @@ import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.marker.SimplePolygonMarker;
-import de.fhpotsdam.unfolding.providers.Google;
+//import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.providers.Microsoft;
 import de.fhpotsdam.unfolding.providers.OpenStreetMap;
-import de.fhpotsdam.unfolding.utils.MapUtils;
+//import de.fhpotsdam.unfolding.utils.MapUtils;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
 
 /***********************************
@@ -40,7 +40,7 @@ public class ML_Map
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
 	
-	private EventDispatcher eventDispatcher, plainMapEventDispatcher;
+	private EventDispatcher eventDispatcher; // plainMapEventDispatcher;
 	public MarkerManager<Marker> satelliteMarkerManager, osmMarkerManager, smallMarkerManager, largeMarkerManager;
 	private MultiMarker allClustersMarker;
 	private SimplePointMarker viewerMarker, plainMapViewerMarker;
@@ -67,14 +67,14 @@ public class ML_Map
 
 	public final boolean mapMedia = true;
 	public boolean mapImages = true, mapPanoramas = true, mapVideos = true, mapSounds = true;
-	private float maxSaturation = 210.f, lowSaturation = 80.f;
+//	private float maxSaturation = 210.f, lowSaturation = 80.f;
 	
-	private final float imageHue = 150.f, imageCaptureHue = 90.f;
-	private final float panoramaHue = 190.f;
-	private final float videoHue = 40.f, videoCaptureHue = 70.f;
-	private final float soundHue = 40.f;
-	private final float cameraHue = 140.f;
-	private final float mediaTransparency = 120.f;
+//	private final float imageHue = 150.f, imageCaptureHue = 90.f;
+//	private final float panoramaHue = 190.f;
+//	private final float videoHue = 40.f, videoCaptureHue = 70.f;
+//	private final float soundHue = 40.f;
+//	private final float cameraHue = 140.f;
+//	private final float mediaTransparency = 120.f;
 	
 	private final float zoomMapWidth = 500.f, zoomMapHeight = 500.f;
 
@@ -516,26 +516,6 @@ public class ML_Map
 	public boolean isPanning()
 	{
 		return panningLeft || panningRight || panningUp || panningDown;
-	}
-
-	/**
-	 * @param path Path to draw
-	 * @param mapWidth Map width
-	 * @param mapHeight Map height
-	 * @param capture Draw capture location (true) or viewing location (false)
-	 * Draw image location on map of specified size
-	 */
-	void drawPathOnMap(WMV_World world, WMV_Field f, ArrayList<WMV_Waypoint> path, float mapWidth, float mapHeight)
-	{
-//		System.out.println("drawPathOnMap..."+path.size());
-//		float pointSize = smallPointSize * mapWidth;
-//		float saturation = maxSaturation;                                              
-
-		for(WMV_Waypoint w : path)
-		{
-//			drawPoint( world, f, w.getLocation(), pointSize * 4.f, mapWidth, mapHeight, 30, saturation, 255.f, mediaTransparency );
-//			System.out.println("Path ---> location.x:"+w.getLocation().x+" y:"+w.getLocation().y);
-		}
 	}
 
 	/**
@@ -1096,5 +1076,25 @@ public class ML_Map
 			ptSize *= shrinkFactor;
 		}
 	}
-}
+	
 
+	/**
+	 * @param path Path to draw
+	 * @param mapWidth Map width
+	 * @param mapHeight Map height
+	 * @param capture Draw capture location (true) or viewing location (false)
+	 * Draw image location on map of specified size
+	 */
+	void drawPathOnMap(WMV_World world, WMV_Field f, ArrayList<WMV_Waypoint> path, float mapWidth, float mapHeight)
+	{
+//		System.out.println("drawPathOnMap..."+path.size());
+//		float pointSize = smallPointSize * mapWidth;
+//		float saturation = maxSaturation;                                              
+
+//		for(WMV_Waypoint w : path)
+//		{
+//			drawPoint( world, f, w.getLocation(), pointSize * 4.f, mapWidth, mapHeight, 30, saturation, 255.f, mediaTransparency );
+//			System.out.println("Path ---> location.x:"+w.getLocation().x+" y:"+w.getLocation().y);
+//		}
+	}
+}

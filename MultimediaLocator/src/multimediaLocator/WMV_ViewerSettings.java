@@ -2,24 +2,24 @@ package multimediaLocator;
 
 /*********************************
  * @author davidgordon
- * Current settings of virtual viewer
+ * Current virtual viewer settings
  */
 public class WMV_ViewerSettings 
 {
 	/* Camera */
 	public final float initFieldOfView = (float)Math.PI * 0.375f;	// Camera field of view
-	public float fieldOfView = initFieldOfView; 				// Initial camera field of view
-	public float rotateIncrement = 3.1415f / 256.f;				// Rotation amount per frame when turning
-	public float zoomIncrement = 3.1415f / 32.f;				// Zoom amount per frame when zooming
+	public float fieldOfView = initFieldOfView; 					// Initial camera field of view
+	public float rotateIncrement = 3.1415f / 256.f;					// Rotation amount per frame when turning
+	public float zoomIncrement = 3.1415f / 32.f;					// Zoom amount per frame when zooming
 	public float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
 	public float nearViewingDistance = nearClippingDistance * 2.f; 	// Near distance (m.) at which media start fading out
 	public float farViewingDistance = 11.f; 						// Far distance (m.) at which media start fading out
-	public float userBrightness = 1.f;							// User brightness
+	public float userBrightness = 1.f;								// User brightness
 
 	/* Graphics */
 	public final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
-	public boolean orientationMode = false;				// Viewer "moves" by standing still (images fade in and out across space)
-	public boolean angleFading = true;					// Do photos fade out as the camera turns away from them?
+	public boolean orientationMode = false;					// Viewer "moves" by standing still (images fade in and out across space)
+	public boolean angleFading = true;						// Do photos fade out as the camera turns away from them?
 	public float visibleAngle = (float)Math.PI / 3.33f;		// Angle within which images and videos become visible
 	public float visibleAngleMax = 3.14f;
 	public float visibleAngleMin = 0.05f;
@@ -28,7 +28,7 @@ public class WMV_ViewerSettings
 	public float centeredAngle = visibleAngle / 2.f;		// Angle at which the image is considered centered
 	public boolean angleThinning = false;					// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
-	public int alphaTransitionLength = 15;
+	public int alphaTransitionLength = 15;					// Transition length from one alpha value to next
 
 	/* Video */
 	public boolean autoPlayVideos = true;					// Automatically play videos near viewer
@@ -41,11 +41,6 @@ public class WMV_ViewerSettings
 	public int soundFadingLength = 30;						// Frame length of sounds, including video sound, to fade in and out 
 	
 //	/* Media Visibility */
-//	public final int maxVisibleImages = 85;					// Maximum visible images at one time
-//	public final int maxVisiblePanoramas = 3;				// Maximum visible panoramas at one time
-//	public final int maxVisibleVideos = 2;					// Maximum visible videos at one time
-//	public final int maxAudibleSounds = 4;					// Maximum audible sounds at one time
-	
 	public boolean hideImages = false;						// Hide images
 	public boolean hidePanoramas = false;					// Hide panoramas
 	public boolean hideVideos = false;						// Hide videos
@@ -63,12 +58,12 @@ public class WMV_ViewerSettings
 
 	/* Movement */
 	public float walkingAccelInc = 0.002f;					// Camera walking acceleration increment
-	public final int initPathWaitLength = 60;				// Initial pathWaitLength
-	public int pathWaitLength = initPathWaitLength;			// Time to wait once reached path location before moving to next
 	public int teleportLength = 30;							// Teleport transition length 
 	public boolean teleportToFarClusters = true;			// Automatically teleport to far clusters
 	public float farClusterTeleportDistance = 240.f;		// Distance at which cluster is considered far
 	public boolean alwaysLookAtMedia = false;				// Automatically turn towards media when reached new cluster -- Fix bugs!
+	public final int pathWaitLengthInit = 60;				// Initial pathWaitLength
+	public int pathWaitLength = pathWaitLengthInit;			// Time to wait once reached path location before moving to next
 	
 	/* Turning */
 	final public float turningVelocityMin = 0.00005f;			// Threshold under which velocity counts as zero
@@ -83,22 +78,22 @@ public class WMV_ViewerSettings
 	/* Interaction */
 	public boolean selection = false;					// Allows selection, increases transparency to make selected image(s) easier to see
 	public boolean optimizeVisibility = false;			// Optimize visibility automatically by turning towards media / changing graphics modes
-	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle
 	public boolean multiSelection = false;				// User can select multiple images for stitching
-	public boolean groupSelection = false;			// Select image segments at a time
+	public boolean groupSelection = false;				// Select image segments at a time
 	public boolean mouseNavigation = false;				// Mouse navigation
-
 	public int mediaDensityThreshold = 12;				// Number of images or videos counted as high density
 	public float selectionMaxDistance;					// Maximum distance user can select a photo
 	public float selectionMaxDistanceFactor = 2.f;		// Scaling from defaultFocusDistanceFactor to selectionMaxDistance
-	public int lockToClusterWaitLength = 100;
+
+	public boolean lockToCluster = false;				// Automatically move viewer to nearest cluster when idle	-- Disabled
+	public int lockToClusterWaitLength = 100;			// Delay before "locking" viewer to center of cluster		-- Disabled
 	
 	/* Cluster Settings */
-	public int orientationModeMaxVisibleClusters = 4;					// Maximum visible clusters in Orientation Mode		
-	public int orientationModeMinVisibleClusters = 1;					// Maximum visible clusters in Orientation Mode	
+	public int orientationModeMaxVisibleClusters = 4;							// Maximum visible clusters in Orientation Mode		
+	public int orientationModeMinVisibleClusters = 1;							// Maximum visible clusters in Orientation Mode	
 	public float orientationModeClusterViewingDistance = nearClippingDistance;	// Distance clusters become visible in Orientation Mode
-	public boolean orientationModeForceVisible = false;			// Force <minimum visible clusters> to be seen, even if out of range
-	public boolean orientationModeConstantWaitLength = true;	// Wait same length of time even if multiple time segments in one location
+	public boolean orientationModeForceVisible = false;							// Force <minimum visible clusters> to be seen, even if out of range
+	public boolean orientationModeConstantWaitLength = true;					// Wait same length of time even if multiple time segments in one location
 
 	/**
 	 * Constructor for viewer settings
@@ -106,7 +101,7 @@ public class WMV_ViewerSettings
 	public WMV_ViewerSettings(){}
 
 	/**
-	 * Initialize viewer settings object
+	 * Initialize viewer settings 
 	 */
 	public void initialize()
 	{
@@ -159,7 +154,7 @@ public class WMV_ViewerSettings
 		/* Movement */
 		teleportLength = 30;
 		walkingAccelInc = 0.002f;				// Camera walking acceleration increment
-		pathWaitLength = initPathWaitLength;
+		pathWaitLength = pathWaitLengthInit;
 		teleportToFarClusters = true;
 		farClusterTeleportDistance = 2000.f;
 

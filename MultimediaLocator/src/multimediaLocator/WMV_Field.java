@@ -367,7 +367,7 @@ public class WMV_Field
 
 				if (inAudibleRange)
 				{
-					System.out.println("Field.updateSounds()... id #"+s.getID()+" inAudibleRange true");
+//					System.out.println("Field.updateSounds()... id #"+s.getID()+" inAudibleRange true");
 					state.soundsInRange++;
 					updateSound(ml, s);
 				}
@@ -380,8 +380,8 @@ public class WMV_Field
 						s.fadeOut(this, false);
 				}
 			}
-			else
-				System.out.println("X Field.updateSounds()... id #"+s.getID()+" disabled:"+s.isDisabled()+" hidden:"+s.isHidden());
+//			else
+//				System.out.println("X Field.updateSounds()... id #"+s.getID()+" disabled:"+s.isDisabled()+" hidden:"+s.isHidden());
 		}
 	}
 	
@@ -1339,13 +1339,13 @@ public class WMV_Field
 	 */
 	public void verifyClusters(boolean inclSounds)
 	{
-		boolean error = false;
+//		boolean error = false;
 		for(WMV_Cluster c : clusters)
 		{
 			if(!c.verify())
 			{
 				System.out.println("Cluster #"+c.getID()+" is invalid!");
-				error = true;
+//				error = true;
 			}
 		}
 		
@@ -1353,21 +1353,21 @@ public class WMV_Field
 			if(img.getAssociatedClusterID() == -1)
 			{
 				System.out.println("Image #"+img.getID()+" has no cluster!  name:"+img.getName());
-				error = true;
+//				error = true;
 			}
 
 		for(WMV_Panorama pano : panoramas)
 			if(pano.getAssociatedClusterID() == -1)
 			{
 				System.out.println("Panorama #"+pano.getID()+" has no cluster!  name:"+pano.getName());
-				error = true;
+//				error = true;
 			}
 
 		for(WMV_Video vid : videos)
 			if(vid.getAssociatedClusterID() == -1)
 			{
 				System.out.println("Video #"+vid.getID()+" has no cluster!  name:"+vid.getName());
-				error = true;
+//				error = true;
 			}
 
 		if(inclSounds)
@@ -1376,7 +1376,7 @@ public class WMV_Field
 				if(snd.getAssociatedClusterID() == -1)
 				{
 					System.out.println("Sound #"+snd.getID()+" has no cluster!  name:"+snd.getName());
-					error = true;
+//					error = true;
 				}
 		}
 		
@@ -2998,7 +2998,7 @@ public class WMV_Field
 		WMV_Cluster c = clusters.get(clusterID);
 		
 		PVector gpsLoc = utilities.getGPSLocation(this, c.getLocation());
-		float altitude = utilities.getAltitude(this, c.getLocation());
+		float altitude = utilities.getAltitude(c.getLocation());
 		WMV_Waypoint result = new WMV_Waypoint(c.getID(), c.getLocation(), gpsLoc, altitude, null);			// -- Should set to center time instead of null!!
 		return result;
 	}

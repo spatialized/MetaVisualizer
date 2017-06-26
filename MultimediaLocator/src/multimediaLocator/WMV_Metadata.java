@@ -833,7 +833,7 @@ class WMV_Metadata
 	{
 		String sName = file.getName();
 		boolean dataMissing = false;
-		boolean brightnessMissing = false, descriptionMissing = false;
+//		boolean brightnessMissing = false, descriptionMissing = false;
 
 		ZonedDateTime zonedDateTime = null;
 		
@@ -964,7 +964,7 @@ class WMV_Metadata
 						}
 						else
 						{
-							descriptionMissing = true;
+//							descriptionMissing = true;
 							if(debugSettings.metadata) System.out.println("Metadata.loadImageMetadata()...  Not a Theodolite image...");
 						}
 
@@ -998,8 +998,8 @@ class WMV_Metadata
 					if (tagName.equals("Brightness Value")) // Brightness
 					{
 						fBrightness = parseBrightness(tagString);
-						if(fBrightness == -1.f)
-							brightnessMissing = true;
+//						if(fBrightness == -1.f)
+//							brightnessMissing = true;
 					}
 
 					if (tagName.equals("Image Width")) // Orientation
@@ -1124,7 +1124,7 @@ class WMV_Metadata
 		String sDateTime = null;
 		String sLatitude = null, sLongitude = null, sAltitude = null;
 		String sOrientation = null, sDirection = null;
-		String sFocalLength = null, sFocalLength35mm = null;
+		String sFocalLength = null; // sFocalLength35mm = null;
 		String sSoftware = null;
 		String sCameraModel = null, sDescription = null;
 
@@ -1214,7 +1214,7 @@ class WMV_Metadata
 
 					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
 					{
-						sFocalLength35mm = tagString;
+//						sFocalLength35mm = tagString;
 						if (debugSettings.metadata && debugSettings.detailed) System.out.println("Metadata.loadPanoramaMetadata()... Found Focal Length 35mm Equivalent..." + sFocalLength);
 					}
 					if (tagName.equals("GPS Img Direction")) // Image Direction

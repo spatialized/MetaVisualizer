@@ -364,77 +364,6 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Teleport to given point in 3D virtual space
-	 * @param dest	Destination point in world coordinates
-	 * @param fade  Use fade transition (true) or jump (false)
-	 */
-	public void teleportToPoint( PVector dest, boolean fade ) 
-	{
-		System.out.println("Viewer.teleportToPoint("+dest+")...");
-		
-		if(isMoving())
-			stop(true);
-		
-		if(settings.orientationMode)
-		{
-			state.teleportGoal = dest;
-			state.location = dest;
-		}
-		else
-		{
-			if(fade)
-			{
-//				state.teleportGoal = dest;
-				fadeTeleport(dest, -1, -1);
-			}
-			else
-				jumpTeleport(dest, true);
-		}
-	}	
-	
-	public void jumpTeleport(PVector dest, boolean update)
-	{
-//		System.out.println("Viewer.jumpTeleport()... :"+dest);
-		if(state.atCurrentCluster)
-		{
-			saveCurrentClusterOrientation();
-			state.atCurrentCluster = false;
-		}
-		camera.teleport(dest.x, dest.y, dest.z);
-		if(update)
-		{
-			updateCurrentCluster(true);
-//			turnToCurrentClusterOrientation();
-		}
-	}
-	
-	/**
-	 * Teleport by fading: fade out visible media, move to goal, then fade in media in visible range
-	 * @param newField Goal field ID; value of -1 indicates to stay in current field
-	 */
-	private void fadeTeleport(PVector newLocation, int goalClusterID, int newField) 
-	{
-		state.teleportGoalCluster = goalClusterID;
-		if(newLocation != null)
-			state.teleportGoal = newLocation;
-
-		p.fadeOutAllMedia();
-
-		if(state.atCurrentCluster)
-		{
-			saveCurrentClusterOrientation();
-			state.atCurrentCluster = false;
-		}
-
-		state.teleporting = true;
-		state.teleportStart = worldState.frameCount;
-		state.teleportWaitingCount = 0;
-		
-		if(newField != -1)
-			state.teleportToField = newField;
-	}
-
-	/**
 	 * Set current cluster if one is nearby, or else set to -1
 	 * @param forceUpdate Force setting current cluster, even if already at current cluster
 	 */
@@ -502,7 +431,7 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * Go to the given image capture location
+	 * Move to the given image capture location
 	 * @param teleport  Whether to teleport (true) or navigate (false)
 	 */
 	void moveToImageCaptureLocation(int imageID, boolean teleport) 
@@ -525,7 +454,7 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * Go to the specified cluster
+	 * Move to the specified cluster
 	 * @param newCluster Destination cluster ID
 	 * @param teleport Whether to teleport (true) or move (false)
 	 */
@@ -533,9 +462,6 @@ public class WMV_Viewer
 	{
 		if(teleport)
 		{
-//			state.teleportGoalCluster = newCluster;
-//			PVector newLocation = ((WMV_Cluster) p.getCurrentField().getCluster(newCluster)).getLocation();
-//			teleportToPoint(newLocation, true);
 			teleportToCluster( newCluster, true, -1 ); 
 		}
 		else
@@ -603,7 +529,7 @@ public class WMV_Viewer
 		else
 		{
 			if(debugSettings.viewer)
-				System.out.println("moveToNearestClusterAhead... can't move to same cluster!... "+ahead);
+				System.out.println("Viewer.moveToNearestClusterAhead()... can't move to same cluster!... "+ahead);
 		}
 	}
 	
@@ -692,7 +618,7 @@ public class WMV_Viewer
 		}
 		else 
 		{
-			result = getNextClusterWithMediaType(p.getCurrentField(), mediaType, state.currentCluster);
+			result = getNextClusterWithType(p.getCurrentField(), mediaType, state.currentCluster);
 			if(result >= 0)
 			{
 				found = true;
@@ -715,100 +641,87 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Find cluster in field contains at least one object of given media type  -- Should look nearby, not numerically
-	 * @param currentField Field to search
-	 * @param mediaType Media type to look for
-	 * @param startClusterID Starting cluster ID to search from
-	 * @return Whether field contains given media type
+	 * Teleport to given point in 3D virtual space
+	 * @param dest	Destination point in world coordinates
+	 * @param fade  Use fade transition (true) or jump (false)
 	 */
-	public int getNextClusterWithMediaType(WMV_Field currentField, int mediaType, int startClusterID)
+	public void teleportToPoint( PVector dest, boolean fade ) 
 	{
-		boolean end = false;			// End search while loop
-		int next = startClusterID + 1;					// Next cluster to check
-		int iterationCount = 0;		
-		boolean result = false;
+		System.out.println("Viewer.teleportToPoint("+dest+")...");
 		
-		while( !result ) 		/* Search clusters until different cluster found with specified media type */
+		if(isMoving())
+			stop(true);
+		
+		if(settings.orientationMode)
 		{
-			if(next >= currentField.getClusters().size() && !end)
-			{
-				next = 0;
-				iterationCount++;
-				
-				if(iterationCount > 3)
-				{
-					if(debugSettings.viewer)
-						System.out.println("1  No media found...");
-					end = true;
-					break;
-				}
-			}
-			
-			if(end) break;
-			
-			switch(mediaType)
-			{
-				case 0:
-					result = currentField.getCluster(next).hasImage();
-					break;
-				case 1:
-					result = currentField.getCluster(next).hasPanorama();
-					break;
-				case 2:
-					result = currentField.getCluster(next).hasVideo();
-					break;
-				case 3:
-					result = currentField.getCluster(next).hasSound();
-					break;
-			}
-			
-			if(result)	/* If cluster with specified media type has been found */
-			{
-				end = true;
-			}
-			else	/* If not found */
-			{
-				next++;
-
-				if(currentField.getClusters().size() > next)
-				{
-					while(	currentField.getCluster(next).isEmpty() || next == state.currentCluster )
-					{
-						next++;
-						if(next >= currentField.getClusters().size())
-						{
-							next = 0;
-							iterationCount++;
-
-							if(iterationCount > 3)
-							{
-								if(debugSettings.viewer)
-									System.out.println("2 No media found...");
-								end = true;
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-
-		if(iterationCount <= 3)				// If a cluster was found in 2 iterations
-		{
-			if(debugSettings.viewer) System.out.println("Moving to next cluster with media type:"+mediaType+" cluster found:"+next+"... moving from current cluster:"+state.currentCluster);
-			return next;
+			state.teleportGoal = dest;
+			state.location = dest;
 		}
 		else
 		{
-			if(debugSettings.viewer) System.out.println("No media of type "+mediaType+" found...");
-			return -1;
+			if(fade)
+			{
+//				state.teleportGoal = dest;
+				fadeTeleport(dest, -1, -1);
+			}
+			else
+				jumpTeleport(dest, true);
+		}
+	}	
+	
+	/**
+	 * Teleport immediately to given point
+	 * @param dest Destination point
+	 * @param update Whether to update current cluster
+	 */
+	public void jumpTeleport(PVector dest, boolean update)
+	{
+//		System.out.println("Viewer.jumpTeleport()... :"+dest);
+		if(state.atCurrentCluster)
+		{
+			saveCurrentClusterOrientation();
+			state.atCurrentCluster = false;
+		}
+		camera.teleport(dest.x, dest.y, dest.z);
+		if(update)
+		{
+			updateCurrentCluster(true);
+//			turnToCurrentClusterOrientation();
 		}
 	}
 	
 	/**
+	 * Teleport by fading: fade out visible media, move to goal, then fade in media in visible range
+	 * @param newField Goal field ID; value of -1 indicates to stay in current field
+	 */
+	private void fadeTeleport(PVector newLocation, int goalClusterID, int newField) 
+	{
+//		if(worldState.frameCount >= state.teleportStart + settings.teleportLength)		// If the teleport has finished
+
+		state.teleportGoalCluster = goalClusterID;
+		if(newLocation != null)
+			state.teleportGoal = newLocation;
+
+		p.fadeOutAllMedia();
+
+		if(state.atCurrentCluster)
+		{
+			saveCurrentClusterOrientation();
+			state.atCurrentCluster = false;
+		}
+
+		state.teleporting = true;
+		state.teleportStart = worldState.frameCount;
+		state.teleportWaitingCount = 0;
+		
+		if(newField != -1)
+			state.teleportToField = newField;
+	}
+
+	/**
 	 * Go to the nearest cluster containing specified media type
 	 * @param teleport Whether to teleport or move
-	 * @param mediaType Media type without which clusters are skipped...  0: image, 1: panorama, 2: video, 3: sound
+	 * @param mediaType Media type without which clusters are skipped...  {0: image, 1: panorama, 2: video, 3: sound}
 	 * @param inclCurrent Whether to include current cluster
 	 */
 	public void moveToNearestClusterWithType(boolean teleport, int mediaType, boolean inclCurrent) 
@@ -872,10 +785,10 @@ public class WMV_Viewer
 
 
 	/**
-	 * Find cluster in field contains at least one object of given media type  -- Should look nearby, not numerically
+	 * Find cluster in field contains at least one object of given media type
 	 * @param currentField Field to search
 	 * @param mediaType Media type to look for
-	 * @param startClusterID Starting cluster ID to search from
+	 * @param inclCurrent Whether to include current cluster
 	 * @return Whether field contains given media type
 	 */
 	private int getNearestClusterWithType(WMV_Field currentField, int mediaType, boolean inclCurrent)
@@ -918,6 +831,97 @@ public class WMV_Viewer
 		}
 		else
 			return result;
+	}
+
+	/**
+	 * Find cluster in field contains at least one object of given media type  -- Should look nearby, not numerically
+	 * @param currentField Field to search
+	 * @param mediaType Media type to look for
+	 * @param startClusterID Starting cluster ID to search from
+	 * @return Whether field contains given media type
+	 */
+	public int getNextClusterWithType(WMV_Field currentField, int mediaType, int startClusterID)
+	{
+		boolean end = false;			// End search while loop
+		int next = startClusterID + 1;					// Next cluster to check
+		int iterationCount = 0;		
+		boolean result = false;
+		
+		while( !result ) 		/* Search clusters until different cluster found with specified media type */
+		{
+			if(next >= currentField.getClusters().size() && !end)
+			{
+				next = 0;
+				iterationCount++;
+				
+				if(iterationCount > 3)
+				{
+					if(debugSettings.viewer)
+						System.out.println("1  No media found...");
+					end = true;
+					break;
+				}
+			}
+			
+			if(end) break;
+			
+			switch(mediaType)
+			{
+				case 0:
+					result = currentField.getCluster(next).hasImage();
+					break;
+				case 1:
+					result = currentField.getCluster(next).hasPanorama();
+					break;
+				case 2:
+					result = currentField.getCluster(next).hasVideo();
+					break;
+				case 3:
+					result = currentField.getCluster(next).hasSound();
+					break;
+			}
+			
+			if(result)			/* If cluster with specified media type has been found */
+			{
+				end = true;
+			}
+			else				/* If not found */
+			{
+				next++;
+
+				if(currentField.getClusters().size() > next)
+				{
+					while(	currentField.getCluster(next).isEmpty() || next == state.currentCluster )
+					{
+						next++;
+						if(next >= currentField.getClusters().size())
+						{
+							next = 0;
+							iterationCount++;
+
+							if(iterationCount > 3)
+							{
+								if(debugSettings.viewer)
+									System.out.println("2 No media found...");
+								end = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if(iterationCount <= 3)				// If a cluster was found in 2 iterations
+		{
+			if(debugSettings.viewer) System.out.println("Moving to next cluster with media type:"+mediaType+" cluster found:"+next+"... moving from current cluster:"+state.currentCluster);
+			return next;
+		}
+		else
+		{
+			if(debugSettings.viewer) System.out.println("No media of type "+mediaType+" found...");
+			return -1;
+		}
 	}
 
 	/**
@@ -1123,11 +1127,14 @@ public class WMV_Viewer
 						}
 						else
 							System.out.println("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
-//						System.out.println("  teleportToField()...  Teleported to field "+state.teleportToField+"... will teleport to new location:"+state.teleportGoal+"...");
+						
+						if(debugSettings.viewer)
+							System.out.println("  teleportToField()...  Teleported to field "+state.teleportToField+"... will teleport to new location:"+state.teleportGoal+"...");
 
 						setLocation(state.teleportGoal, false);															// Set location
 						setCurrentCluster( state.teleportGoalCluster, goalSegment.getFieldTimelineID() );
-//						System.out.println("  teleportToField()...  Will set location to state.teleportGoal:"+state.teleportGoal+"...");
+						if(debugSettings.viewer)
+							System.out.println("  teleportToField()...  Will set location to state.teleportGoal:"+state.teleportGoal+"...");
 					}
 					else
 					{
@@ -1143,117 +1150,6 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * @param inclCurrent Whether to include the current cluster in search
-	 * @return Index of nearest cluster to camera
-	 */
-	public int getNearestCluster(boolean inclCurrent) 	// Returns the cluster nearest to the current camera position, excluding the current cluster
-	{
-		PVector cPos = getLocation();
-		float smallest = 100000.f;
-		int smallestIdx = 0;
-
-		if (p.getCurrentField().getClusters().size() > 0) 
-		{
-			for (WMV_Cluster c : p.getActiveClusters()) 
-			{
-				float dist = PVector.dist(cPos, c.getLocation());
-				if (dist < smallest) 
-				{
-					if(inclCurrent)									// If current cluster is included
-					{
-						if(!c.isEmpty())
-						{
-							smallest = dist;
-							smallestIdx = c.getID();	
-						}
-					}
-					else if (c.getID() != state.currentCluster) 		// If current cluster is excluded
-					{
-						smallest = dist;
-						smallestIdx = c.getID();
-					}
-				}
-			}
-		} 
-		else
-		{
-			if(debugSettings.cluster)
-				System.out.println("No clusters in field...");
-		}
-
-		return smallestIdx;
-	}
-
-	/**
-	 * Get list of media clusters within a given distance threshold from the viewer
-	 * @param amount Number of nearest clusters to return
-	 * @param threshold If distance exceeds, will return less than <amount> nearest clusters
-	 * @param inclCurrent Include the current cluster?
-	 * @return List of indices of nearest clusters to camera			
-	 */
-	public IntList getNearClusterIDs(int amount, float threshold) 	// -- excluding the current cluster??
-	{
-		PVector vPos = getLocation();
-		IntList nearList = new IntList();
-		FloatList distList = new FloatList();
-		ArrayList<WMV_Cluster> cl = new ArrayList<WMV_Cluster>(p.getActiveClusters());
-		ArrayList<WMV_Cluster> removeList = new ArrayList<WMV_Cluster>();
-		
-		if(amount == -1)				// No limit on number of clusters to search for
-			amount = cl.size();
-		
-		for (WMV_Cluster c : cl) 		// Fill the list with <amount> locations under <threshold> distance from viewer
-		{
-			float dist = PVector.dist(vPos, c.getLocation());			// Distance from cluster to viewer
-			if(dist < threshold)
-			{
-				if(nearList.size() < amount)
-				{
-					nearList.append(c.getID());
-					distList.append(dist);
-					removeList.add(c);
-				}
-				else break;
-			}
-		}
-		
-		for(WMV_Cluster c : removeList)
-			cl.remove(c);
-
-		for (WMV_Cluster c : cl) 					// Test remaining clusters against list locations and update lists
-		{
-			float dist = PVector.dist(vPos, c.getLocation());	// Distance from cluster to viewer
-			if(dist < threshold)
-			{
-				int count = 0;
-				int largestIdx = -1;
-				float largest = -1000.f;
-
-				for(float f : distList)							// Find farthest distance in nearList to compare
-				{
-					if(f > largest)
-					{
-						largestIdx = count;
-						largest = f;
-					}
-					count++;
-				}
-
-				float fcDist = PVector.dist(vPos, p.getCurrentField().getCluster(largestIdx).getLocation());		// Distance of farthest cluster on nearList
-				if(dist < fcDist)
-				{
-					nearList.remove(largestIdx);
-					nearList.append(c.getID());
-					distList.remove(largestIdx);
-					distList.append(dist);
-				}
-			}
-		}
-		
-		return nearList;
-	}
-
-	/**
 	 * Move to cluster corresponding to one time segment later on timeline
 	 * @param currentDate Whether to consider only segments on current date
 	 * @param newCluster Whether to force moving to a different cluster -- NEED TO IMPLEMENT
@@ -1263,52 +1159,6 @@ public class WMV_Viewer
 	public void moveToNextTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
 	{
 		chooseNextTimeSegment(currentDate);
-		
-//		if(currentDate)
-//		{
-//			int newValue = state.currentFieldTimeSegmentOnDate+1;
-//			if(state.currentFieldDate >= p.getCurrentField().getTimelines().size())								// Past dateline end
-//			{
-//				state.currentFieldDate = 0;
-//				state.currentFieldTimeSegmentOnDate = 0;
-//				System.out.println( "--> Current field date reset! currentFieldDate was greater than timelines.size(): "
-//									+ p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size() );
-//			}
-//			else
-//			{
-//				if(newValue >= p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()) 	// Reached end of day
-//				{
-//					if(debugSettings.viewer) System.out.println("Reached end of day...");
-//					state.currentFieldDate++;
-//					if(state.currentFieldDate >= p.getCurrentField().getDateline().size()) 
-//					{
-//						if(debugSettings.viewer) System.out.println("Reached end of year...");
-//						state.currentFieldDate = 0;
-//						setCurrentFieldTimeSegmentOnDate(0, true);												// Return to first segment
-//					}
-//					else
-//					{
-//						while(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size() == 0)		// Go to next non-empty date
-//						{
-//							state.currentFieldDate++;
-//							if(state.currentFieldDate >= p.getCurrentField().getDateline().size())
-//								state.currentFieldDate = 0;
-//						}
-//						if(debugSettings.viewer) System.out.println("Moved to next date: "+state.currentFieldDate);
-//						setCurrentFieldTimeSegmentOnDate(0, true);												// Start at first segment
-//					}
-//				}
-//				else
-//					setCurrentFieldTimeSegmentOnDate(newValue, true);
-//			}
-//		}
-//		else
-//		{
-//			setCurrentFieldTimeSegment(state.currentFieldTimeSegment+1, true);
-//			if(state.currentFieldTimeSegment >= p.getCurrentField().getTimeline().timeline.size())
-//				setCurrentFieldTimeSegment(0, true);									// Return to first segment
-//		}
-
 		moveToTimeSegmentInField(p.getCurrentField().getID(), state.currentFieldTimeSegment, teleport, fade);
 	}
 	
@@ -1374,45 +1224,6 @@ public class WMV_Viewer
 	public void moveToPreviousTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
 	{
 		choosePreviousTimeSegment(currentDate);
-		
-//		if(currentDate)
-//		{
-//			int newValue = state.currentFieldTimeSegmentOnDate-1;
-//			if(state.currentFieldDate >= p.getCurrentField().getTimelines().size())
-//			{
-//				state.currentFieldDate = 0;
-//				state.currentFieldTimeSegmentOnDate = 0;
-//				System.out.println("--> Current field date reset!... was greater than timelines.size(): "
-//								+p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size());
-//			}
-//			else
-//			{
-//				if(newValue < 0) 															// Reached beginning of day
-//				{
-//					state.currentFieldDate--;
-//					if(state.currentFieldDate < 0) 
-//					{
-//						state.currentFieldDate = p.getCurrentField().getDateline().size()-1;			// Go to last date
-//						setCurrentFieldTimeSegmentOnDate(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Go to last segment
-//					}
-//					else
-//					{
-//						setCurrentFieldTimeSegmentOnDate(p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()-1, true);		// Start at last segment
-//					}
-//				}	
-//				else
-//				{
-//					setCurrentFieldTimeSegmentOnDate(newValue, true);
-//				}
-//			}
-//		}
-//		else
-//		{
-//			setCurrentFieldTimeSegment(state.currentFieldTimeSegment-1, true);
-//			if(state.currentFieldTimeSegment < 0)
-//				setCurrentFieldTimeSegment(p.getCurrentField().getTimeline().timeline.size()-1, true);
-//		}
-
 		moveToTimeSegmentInField(p.getCurrentField().getID(), state.currentFieldTimeSegment, teleport, fade);
 	}
 	
@@ -1954,100 +1765,6 @@ public class WMV_Viewer
 		}
 	}
 
-	public void clearAttractorCluster()
-	{
-		state.attractorCluster = -1;											// Set attractorCluster
-		state.movingToCluster = false;
-		state.movingToAttractor = false;
-	}
-	
-	/**
-	 * Set viewer location
-	 * @param newLocation New location
-	 */
-	public void setLocation(PVector newLocation, boolean update)
-	{
-		if(settings.orientationMode)
-			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
-		else
-		{
-			jumpTeleport(newLocation, update);
-			state.location = getLocation();										// Update to precise camera location
-		}
-	}
-
-	/**
-	 * Show any image in field if visible
-	 */
-	public void showImages()
-	{
-		settings.hideImages = false;
-		p.showImages();
-	}
-	
-	/**
-	 * Hide all images in field
-	 */
-	public void hideImages()
-	{
-		settings.hideImages = true;
-		p.hideImages();
-	}
-	
-	/** 
-	 * Show any panorama in field if visible
-	 */
-	public void showPanoramas()
-	{
-		settings.hidePanoramas = false;
-		p.showPanoramas();
-	}
-	
-	/** 
-	 * Hide all panoramas in field
-	 */
-	public void hidePanoramas()
-	{
-		settings.hidePanoramas = true;
-		p.hidePanoramas();
-	}
-	
-	/**
-	 * Show any video in field at viewing distance
-	 */
-	public void showVideos()
-	{
-		settings.hideVideos = false;
-		p.showVideos();
-	}
-	
-	/**
-	 * Hide all videos in field
-	 */
-	public void hideVideos()
-	{
-		settings.hideVideos = true;
-		p.hideVideos();
-	}
-	
-	/** 
-	 * Show any sound in field if visible
-	 */
-	public void showSounds()
-	{
-		settings.hideSounds = false;
-		p.showSounds();
-	}
-	
-	/** 
-	 * Hide all sound in field
-	 */
-	public void hideSounds()
-	{
-		settings.hideSounds = true;
-		p.hideSounds();
-	}
-	
 	/** 
 	 * Stop any movement, turning, zooming and teleporting behaviors
 	 */
@@ -2127,6 +1844,16 @@ public class WMV_Viewer
 	}
 
 	/**
+	 * Clear attractor cluster
+	 */
+	public void clearAttractorCluster()
+	{
+		state.attractorCluster = -1;											// Set attractorCluster
+		state.movingToCluster = false;
+		state.movingToAttractor = false;
+	}
+	
+	/**
 	 * Reset the viewer to initial state
 	 */
 	public void reset()
@@ -2159,7 +1886,7 @@ public class WMV_Viewer
 		state.teleportWaitingCount = 0;		// How long has the viewer been waiting for media to fade out before teleport?
 		
 		/* Movement */
-		setFollowMode( 0 );				// { 0: Timeline 1: GPS Track 2: Memory }
+		setPathNavigationMode( 0 );				// { 0: Timeline 1: GPS Track 2: Memory }
 		state.walking = false;			// Whether viewer is walking
 
 		state.slowing = false;			// Whether viewer is slowing 
@@ -2218,7 +1945,96 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * @return Current viewer world location
+	 * Show any image in field if visible
+	 */
+	public void showImages()
+	{
+		settings.hideImages = false;
+		p.showImages();
+	}
+	
+	/**
+	 * Hide all images in field
+	 */
+	public void hideImages()
+	{
+		settings.hideImages = true;
+		p.hideImages();
+	}
+	
+	/** 
+	 * Show any panorama in field if visible
+	 */
+	public void showPanoramas()
+	{
+		settings.hidePanoramas = false;
+		p.showPanoramas();
+	}
+	
+	/** 
+	 * Hide all panoramas in field
+	 */
+	public void hidePanoramas()
+	{
+		settings.hidePanoramas = true;
+		p.hidePanoramas();
+	}
+	
+	/**
+	 * Show any video in field at viewing distance
+	 */
+	public void showVideos()
+	{
+		settings.hideVideos = false;
+		p.showVideos();
+	}
+	
+	/**
+	 * Hide all videos in field
+	 */
+	public void hideVideos()
+	{
+		settings.hideVideos = true;
+		p.hideVideos();
+	}
+	
+	/** 
+	 * Show any sound in field if visible
+	 */
+	public void showSounds()
+	{
+		settings.hideSounds = false;
+		p.showSounds();
+	}
+	
+	/** 
+	 * Hide all sound in field
+	 */
+	public void hideSounds()
+	{
+		settings.hideSounds = true;
+		p.hideSounds();
+	}
+
+	/**
+	 * Set viewer location
+	 * @param newLocation New viewer location
+	 * @param update Whether to update current cluster
+	 */
+	public void setLocation(PVector newLocation, boolean update)
+	{
+		if(settings.orientationMode)
+			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
+		else
+		{
+			jumpTeleport(newLocation, update);
+			state.location = getLocation();										// Update to precise camera location
+		}
+	}
+
+	/**
+	 * Get current viewer location in field
+	 * @return Viewer virtual location
 	 */
 	public PVector getLocation()
 	{
@@ -2250,7 +2066,7 @@ public class WMV_Viewer
 	
 	public float getAltitude()
 	{
-		return p.utilities.getAltitude(p.getCurrentField(), getLocation());
+		return p.utilities.getAltitude(getLocation());
 	}
 	
 	/**
@@ -2291,25 +2107,6 @@ public class WMV_Viewer
 	{
 		return state.attraction;
 	}
-	
-	/**
-	 * @return Current camera orientation as PVector in format: Yaw, Pitch, Roll
-	 */
-	public PVector getOrientation()
-	{
-		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
-		return state.orientation;
-	}
-
-	/**
-	 * @return Current camera orientation as PVector in format: Yaw, Pitch, Roll
-	 */
-	public WMV_Orientation getOrientationAtCluster()
-	{
-		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
-		WMV_Orientation orientation = new WMV_Orientation(state.currentCluster, state.orientation.x, state.orientation.y, state.orientation.z);
-		return orientation;
-	}
 
 	/**
 	 * @return Current camera X orientation (Yaw)
@@ -2338,6 +2135,25 @@ public class WMV_Viewer
 		return state.orientation.z;
 	}
 	
+	/**
+	 * @return Current camera orientation as PVector in format: Yaw, Pitch, Roll
+	 */
+	public PVector getOrientation()
+	{
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
+		return state.orientation;
+	}
+
+	/**
+	 * @return Current camera orientation as PVector in format: Yaw, Pitch, Roll
+	 */
+	public WMV_Orientation getOrientationAtCluster()
+	{
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
+		WMV_Orientation orientation = new WMV_Orientation(state.currentCluster, state.orientation.x, state.orientation.y, state.orientation.z);
+		return orientation;
+	}
+
 	/**
 	 * Set the current viewer orientation from the OCD camera state
 	 */
@@ -2866,20 +2682,6 @@ public class WMV_Viewer
 //			setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
 		}
 	}
-
-	/**
-	 * Turn to saved orientation for current cluster, if exists
-	 */
-	private void turnToCurrentClusterOrientation()
-	{
-		WMV_Orientation o = state.getClusterOrientation(state.currentCluster);
-		
-		if(o != null) 
-		{
-			System.out.println("Viewer.turnToCurrentClusterOrientation()... Found cluster #"+state.currentCluster+" orientation, x:"+o.getDirection()+" y:"+o.getElevation());
-			turnToOrientation(o);
-		}
-	}
 	
 	/**
 	 * Update walking movement parameters
@@ -2948,13 +2750,6 @@ public class WMV_Viewer
 	 */
 	private void slow()
 	{
-//		if(debugSettings.viewer && debugSettings.detailed)
-//		{
-//			WMV_Cluster curAttractor = getAttractorCluster();
-//			if(curAttractor != null) System.out.println("Slowing... curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
-//			else System.out.println("Slowing... no attractor");
-//		}
-		
 		state.slowing = true;										// Slowing when close to attractor
 	}
 
@@ -2963,13 +2758,6 @@ public class WMV_Viewer
 	 */
 	private void halt()
 	{
-//		if(debugSettings.viewer && debugSettings.detailed)
-//		{
-//			WMV_Cluster curAttractor = getAttractorCluster();
-//			if(curAttractor != null) System.out.println("Halting...  curAttractor.getClusterDistance():"+curAttractor.getClusterDistance());
-//			else System.out.println("Halting... no attractor");
-//		}
-		
 		state.slowing = false;
 		state.halting = true;										// Slowing when close to attractor
 	}
@@ -2987,6 +2775,117 @@ public class WMV_Viewer
 				cameraPosition.z-cluster.getLocation().z   );
 	
 		return cameraToCluster;
+	}
+	
+	/**
+	 * @param inclCurrent Whether to include the current cluster in search
+	 * @return Index of nearest cluster to camera
+	 */
+	public int getNearestCluster(boolean inclCurrent) 	// Returns the cluster nearest to the current camera position, excluding the current cluster
+	{
+		PVector cPos = getLocation();
+		float smallest = 100000.f;
+		int smallestIdx = 0;
+
+		if (p.getCurrentField().getClusters().size() > 0) 
+		{
+			for (WMV_Cluster c : p.getActiveClusters()) 
+			{
+				float dist = PVector.dist(cPos, c.getLocation());
+				if (dist < smallest) 
+				{
+					if(inclCurrent)									// If current cluster is included
+					{
+						if(!c.isEmpty())
+						{
+							smallest = dist;
+							smallestIdx = c.getID();	
+						}
+					}
+					else if (c.getID() != state.currentCluster) 		// If current cluster is excluded
+					{
+						smallest = dist;
+						smallestIdx = c.getID();
+					}
+				}
+			}
+		} 
+		else
+		{
+			if(debugSettings.cluster)
+				System.out.println("No clusters in field...");
+		}
+
+		return smallestIdx;
+	}
+
+	/**
+	 * Get list of media clusters within a given distance threshold from the viewer
+	 * @param amount Number of nearest clusters to return
+	 * @param threshold If distance exceeds, will return less than <amount> nearest clusters
+	 * @param inclCurrent Include the current cluster?
+	 * @return List of indices of nearest clusters to camera			
+	 */
+	public IntList getNearClusterIDs(int amount, float threshold) 	// -- excluding the current cluster??
+	{
+		PVector vPos = getLocation();
+		IntList nearList = new IntList();
+		FloatList distList = new FloatList();
+		ArrayList<WMV_Cluster> cl = new ArrayList<WMV_Cluster>(p.getActiveClusters());
+		ArrayList<WMV_Cluster> removeList = new ArrayList<WMV_Cluster>();
+		
+		if(amount == -1)				// No limit on number of clusters to search for
+			amount = cl.size();
+		
+		for (WMV_Cluster c : cl) 		// Fill the list with <amount> locations under <threshold> distance from viewer
+		{
+			float dist = PVector.dist(vPos, c.getLocation());			// Distance from cluster to viewer
+			if(dist < threshold)
+			{
+				if(nearList.size() < amount)
+				{
+					nearList.append(c.getID());
+					distList.append(dist);
+					removeList.add(c);
+				}
+				else break;
+			}
+		}
+		
+		for(WMV_Cluster c : removeList)
+			cl.remove(c);
+
+		for (WMV_Cluster c : cl) 					// Test remaining clusters against list locations and update lists
+		{
+			float dist = PVector.dist(vPos, c.getLocation());	// Distance from cluster to viewer
+			if(dist < threshold)
+			{
+				int count = 0;
+				int largestIdx = -1;
+				float largest = -1000.f;
+
+				for(float f : distList)							// Find farthest distance in nearList to compare
+				{
+					if(f > largest)
+					{
+						largestIdx = count;
+						largest = f;
+					}
+					count++;
+				}
+
+				float fcDist = PVector.dist(vPos, p.getCurrentField().getCluster(largestIdx).getLocation());		// Distance of farthest cluster on nearList
+				if(dist < fcDist)
+				{
+					nearList.remove(largestIdx);
+					nearList.append(c.getID());
+					distList.remove(largestIdx);
+					distList.append(dist);
+				}
+			}
+		}
+		
+		return nearList;
 	}
 	
 	/** 
@@ -3971,7 +3870,6 @@ public class WMV_Viewer
 
 		if(settings.selection)						// In Selection Mode
 		{
-			int newSelected;
 			if(select && !settings.multiSelection)
 				p.deselectAllMedia(false);				// If selecting media, deselect all media unless in Multi Selection Mode
 
@@ -4234,47 +4132,6 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Get ID of closest image in front of viewer
-	 * @return ID of image closest to viewer in front
-	 */
-	private int getFrontImage(boolean visible) {
-		float smallest = 100000.f;
-		int smallestIdx = 0;
-
-		WMV_Field f = p.getCurrentField();
-
-		for (int i = 0; i < f.getImages().size(); i++) 
-		{
-			if (f.getImage(i).getMediaState().visible) 
-			{
-				if(visible)
-				{
-					if(f.getVideo(i).getMediaState().visible)
-					{
-						float imageAngle = f.getImage(i).getFacingAngle(getOrientationVector());
-						if (imageAngle < smallest) 
-						{
-							smallest = imageAngle;
-							smallestIdx = i;
-						}
-					}
-				}
-				else
-				{
-					float imageAngle = f.getImage(i).getFacingAngle(getOrientationVector());
-					if (imageAngle < smallest) 
-					{
-						smallest = imageAngle;
-						smallestIdx = i;
-					}
-				}
-			}
-		}
-
-		return smallestIdx;
-	}
-
-	/**
 	 * Get ID of image nearest to the viewer in any direction
 	 * @param inclCurrent Whether to include images in current cluster
 	 * @return Nearest image ID
@@ -4337,48 +4194,6 @@ public class WMV_Viewer
 					if(f.getPanorama(i).getAssociatedClusterID() != getCurrentClusterID())
 					{
 						smallest = panoramaDist;
-						smallestIdx = i;
-					}
-				}
-			}
-		}
-
-		return smallestIdx;
-	}
-
-	/**
-	 * Get ID of closest video in front of viewer
-	 * @return ID of video closest to viewer in front
-	 */
-	private int getFrontVideo(boolean visible) 
-	{
-		float smallest = 100000.f;
-		int smallestIdx = -1;
-
-		WMV_Field f = p.getCurrentField();
-
-		for (int i = 0; i < f.getVideos().size(); i++) 
-		{
-			if (!f.getVideo(i).isDisabled()) 
-			{
-				if(visible)
-				{
-					if(f.getVideo(i).getMediaState().visible)
-					{
-						float videoAngle = f.getVideo(i).getFacingAngle(getOrientationVector());
-						if (videoAngle < smallest) 
-						{
-							smallest = videoAngle;
-							smallestIdx = i;
-						}
-					}
-				}
-				else
-				{
-					float videoAngle = f.getVideo(i).getFacingAngle(getOrientationVector());
-					if (videoAngle < smallest) 
-					{
-						smallest = videoAngle;
 						smallestIdx = i;
 					}
 				}
@@ -4466,83 +4281,6 @@ public class WMV_Viewer
 		System.out.println("Viewer.getNearestSound()... result: smallestIdx:"+smallestIdx);
 
 		return smallestIdx;
-	}
-
-	/**
-	 * Get vector of direction of camera motion by comparing current and previous waypoints
-	 * @return Vector of direction of camera motion
-	 */
-	private PVector getHistoryVector()
-	{
-		PVector hv = new PVector();
-		
-		if(history.size() > 1)
-		{
-			WMV_Waypoint w1 = history.get(history.size()-1);
-			WMV_Waypoint w2 = history.get(history.size()-2);
-			
-//			float dist = w1.getDistance(w2);
-			
-			hv = new PVector(  w1.getLocation().x-w2.getLocation().x, 	//  Vector from the camera to the face.      
-					w1.getLocation().y-w2.getLocation().y, 
-					w1.getLocation().z-w2.getLocation().z   );			
-		}
-		
-		return hv;
-	}
-
-
-	/**
-	 * Check whether list waypoints are in history
-	 * @param check Waypoints to look for
-	 * @param historyDepth How far back in history to look
-	 * @return Waypoints found in history within the last <memory> waypoints
-	 */
-	private ArrayList<WMV_Waypoint> waypointsAreInHistory(ArrayList<WMV_Waypoint> check, int historyDepth)
-	{
-		ArrayList<WMV_Waypoint> found = new ArrayList<WMV_Waypoint>();
-		
-		for( WMV_Waypoint p : check )
-		{
-			for(int i = history.size()-1; i >= history.size()-historyDepth; i--)		// Iterate through history from last element to 
-			{
-				System.out.println("i:"+i);
-				WMV_Waypoint w = history.get(i);
-				
-				if(p.getLocation() == w.getLocation())
-					found.add(p);
-			}
-		}
-		
-		return found;
-	}
-	
-	/**
-	 * @param check List of clusters to check
-	 * @param memory How far back to look in memory 
-	 * @return Clusters found within the last <memory> waypoints
-	 */
-	private ArrayList<WMV_Cluster> clustersAreInHistory(IntList check, int memory)
-	{
-		ArrayList<WMV_Cluster> found = new ArrayList<WMV_Cluster>();
-		
-		for( int cPoint : check )
-		{
-			System.out.println("clustersInList()... memory:"+memory);
-
-			for(int i = history.size()-1; i >= history.size()-memory; i--)		// Iterate through history from last element to 
-			{
-				System.out.println("i:"+i);
-				WMV_Waypoint w = history.get(i);
-				
-				if(p.getCurrentField().getCluster(cPoint).getLocation() == w.getLocation())
-				{
-					found.add(p.getCurrentField().getCluster(cPoint));
-				}
-			}
-		}
-		
-		return found;
 	}
 	
 	/**
@@ -4965,11 +4703,18 @@ public class WMV_Viewer
 		}
 	}
 
+	/**
+	 * @return Whether in Selection Mode
+	 */
 	public boolean inSelectionMode()
 	{
 		return settings.selection;
 	}
 
+	/**
+	 * Set whether Selection Mode is enabled or disabled
+	 * @param newSelection New Selection Mode state
+	 */
 	public void setSelection(boolean newSelection)
 	{
 		settings.selection = newSelection;
@@ -5021,7 +4766,7 @@ public class WMV_Viewer
 			if(p.ml.display.window.setupMediaWindow)
 				p.ml.display.window.chkbxMultiSelection.setSelected( false );
 		}
-		if(inSelectionMode() && getSegmentSelection()) 
+		if(inSelectionMode() && getGroupSelection()) 
 		{
 			setGroupSelection( false, false );
 			if(p.ml.display.window.setupMediaWindow)
@@ -5029,11 +4774,11 @@ public class WMV_Viewer
 		}
 	}
 
-	public boolean getSegmentSelection()
-	{
-		return settings.groupSelection;
-	}
-
+	/**
+	 * Set whether to select groups of overlapping media 
+	 * @param newGroupSelection Whether to enable or disable Group Selection
+	 * @param message Whether to send user message
+	 */
 	public void setGroupSelection(boolean newGroupSelection, boolean message)
 	{
 		settings.groupSelection = newGroupSelection;
@@ -5043,11 +4788,19 @@ public class WMV_Viewer
 			p.ml.display.message(p.ml, "Group Selection Mode "+(newGroupSelection?"Enabled":"Disabled"));
 	}
 
-	public boolean getMultiSelection()
+	/**
+	 * @return Whether to select groups of overlapping media 
+	 */
+	public boolean getGroupSelection()
 	{
-		return settings.multiSelection;
+		return settings.groupSelection;
 	}
-
+	
+	/**
+	 * Set whether to allow multiple selected media at same time
+	 * @param newMultiSelection Whether to enable or disable Multi-Selection
+	 * @param message Whether to send user message
+	 */
 	public void setMultiSelection(boolean newMultiSelection, boolean message)
 	{
 		settings.multiSelection = newMultiSelection;
@@ -5057,6 +4810,18 @@ public class WMV_Viewer
 			p.ml.display.message(p.ml, "Multiple Selection Mode "+(newMultiSelection?"Enabled":"Disabled"));
 	}
 
+	/**
+	 * @return Whether to enable or disable multi-selection
+	 */
+	public boolean getMultiSelection()
+	{
+		return settings.multiSelection;
+	}
+
+	/**
+	 * Set whether to force teleporting when in Path Mode
+	 * @param newFollowTeleport
+	 */
 	public void setFollowTeleport(boolean newFollowTeleport)
 	{
 		state.followTeleport = newFollowTeleport;
@@ -5069,12 +4834,19 @@ public class WMV_Viewer
 		}
 	}
 	
-	public int getFollowMode()
+	/**
+	 * @param newFollowTeleport Current Path Navigation Mode {0: Timeline 1: GPS Track 2: Memory}
+	 */
+	public int getPathNavigationMode()
 	{	
 		return getState().getFollowMode();
 	}
 	
-	public void setFollowMode(int newFollowMode)
+	/**
+	 * Set Path Navigation Mode
+	 * @param newFollowMode New Path Navigation Mode {0: Timeline 1: GPS Track 2: Memory}
+	 */
+	public void setPathNavigationMode(int newFollowMode)
 	{
 		state.setFollowMode( newFollowMode );
 	}
@@ -5377,5 +5149,178 @@ public class WMV_Viewer
 	public float getClusterNearDistance()
 	{
 		return state.clusterNearDistance;
+	}
+	
+	/**
+	 * Get ID of closest image in front of viewer
+	 * @return ID of image closest to viewer in front
+	 */
+	private int getFrontImage(boolean visible) {
+		float smallest = 100000.f;
+		int smallestIdx = 0;
+
+		WMV_Field f = p.getCurrentField();
+
+		for (int i = 0; i < f.getImages().size(); i++) 
+		{
+			if (f.getImage(i).getMediaState().visible) 
+			{
+				if(visible)
+				{
+					if(f.getVideo(i).getMediaState().visible)
+					{
+						float imageAngle = f.getImage(i).getFacingAngle(getOrientationVector());
+						if (imageAngle < smallest) 
+						{
+							smallest = imageAngle;
+							smallestIdx = i;
+						}
+					}
+				}
+				else
+				{
+					float imageAngle = f.getImage(i).getFacingAngle(getOrientationVector());
+					if (imageAngle < smallest) 
+					{
+						smallest = imageAngle;
+						smallestIdx = i;
+					}
+				}
+			}
+		}
+
+		return smallestIdx;
+	}
+	
+	/**
+	 * Get ID of closest video in front of viewer
+	 * @return ID of video closest to viewer in front
+	 */
+	private int getFrontVideo(boolean visible) 
+	{
+		float smallest = 100000.f;
+		int smallestIdx = -1;
+
+		WMV_Field f = p.getCurrentField();
+
+		for (int i = 0; i < f.getVideos().size(); i++) 
+		{
+			if (!f.getVideo(i).isDisabled()) 
+			{
+				if(visible)
+				{
+					if(f.getVideo(i).getMediaState().visible)
+					{
+						float videoAngle = f.getVideo(i).getFacingAngle(getOrientationVector());
+						if (videoAngle < smallest) 
+						{
+							smallest = videoAngle;
+							smallestIdx = i;
+						}
+					}
+				}
+				else
+				{
+					float videoAngle = f.getVideo(i).getFacingAngle(getOrientationVector());
+					if (videoAngle < smallest) 
+					{
+						smallest = videoAngle;
+						smallestIdx = i;
+					}
+				}
+			}
+		}
+
+		return smallestIdx;
+	}
+
+	/**
+	 * Turn to saved orientation for current cluster, if exists
+	 */
+	private void turnToCurrentClusterOrientation()
+	{
+		WMV_Orientation o = state.getClusterOrientation(state.currentCluster);
+		
+		if(o != null) 
+		{
+			System.out.println("Viewer.turnToCurrentClusterOrientation()... Found cluster #"+state.currentCluster+" orientation, x:"+o.getDirection()+" y:"+o.getElevation());
+			turnToOrientation(o);
+		}
+	}
+	
+	/**
+	 * Get vector of direction of camera motion by comparing current and previous waypoints
+	 * @return Vector of direction of camera motion
+	 */
+	private PVector getHistoryVector()
+	{
+		PVector hv = new PVector();
+		
+		if(history.size() > 1)
+		{
+			WMV_Waypoint w1 = history.get(history.size()-1);
+			WMV_Waypoint w2 = history.get(history.size()-2);
+			
+//			float dist = w1.getDistance(w2);
+			
+			hv = new PVector(  w1.getLocation().x-w2.getLocation().x, 	//  Vector from the camera to the face.      
+					w1.getLocation().y-w2.getLocation().y, 
+					w1.getLocation().z-w2.getLocation().z   );			
+		}
+		
+		return hv;
+	}
+
+	/**
+	 * Check whether list waypoints are in history
+	 * @param check Waypoints to look for
+	 * @param historyDepth How far back in history to look
+	 * @return Waypoints found in history within the last <memory> waypoints
+	 */
+	private ArrayList<WMV_Waypoint> waypointsAreInHistory(ArrayList<WMV_Waypoint> check, int historyDepth)
+	{
+		ArrayList<WMV_Waypoint> found = new ArrayList<WMV_Waypoint>();
+		
+		for( WMV_Waypoint p : check )
+		{
+			for(int i = history.size()-1; i >= history.size()-historyDepth; i--)		// Iterate through history from last element to 
+			{
+				System.out.println("i:"+i);
+				WMV_Waypoint w = history.get(i);
+				
+				if(p.getLocation() == w.getLocation())
+					found.add(p);
+			}
+		}
+		
+		return found;
+	}
+	
+	/**
+	 * @param check List of clusters to check
+	 * @param memory How far back to look in memory 
+	 * @return Clusters found within the last <memory> waypoints
+	 */
+	private ArrayList<WMV_Cluster> clustersAreInHistory(IntList check, int memory)
+	{
+		ArrayList<WMV_Cluster> found = new ArrayList<WMV_Cluster>();
+		
+		for( int cPoint : check )
+		{
+			System.out.println("clustersInList()... memory:"+memory);
+
+			for(int i = history.size()-1; i >= history.size()-memory; i--)		// Iterate through history from last element to 
+			{
+				System.out.println("i:"+i);
+				WMV_Waypoint w = history.get(i);
+				
+				if(p.getCurrentField().getCluster(cPoint).getLocation() == w.getLocation())
+				{
+					found.add(p.getCurrentField().getCluster(cPoint));
+				}
+			}
+		}
+		
+		return found;
 	}
 }

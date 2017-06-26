@@ -832,7 +832,7 @@ public class ML_Display
 			allDates.display(p, 55.f, 120.f, 255.f, false);
 			ml.textSize(smallTextSize);
 			ml.fill(35, 115, 255, 255);
-			ml.text("Show All", allDates.getLocation().x - 20, allDates.getLocation().y + 50, hudDistanceInit);
+			ml.text("Show All", allDates.getLocation().x - 16, allDates.getLocation().y + 50, hudDistanceInit);
 		}
 	}
 
@@ -1660,9 +1660,9 @@ public class ML_Display
 	 */
 	void displayMetadata(WMV_World p)
 	{
-		float xFactor = (float) Math.pow( ml.world.viewer.getSettings().fieldOfView * 12.f, 3) * 0.33f;
+//		float xFactor = (float) Math.pow( ml.world.viewer.getSettings().fieldOfView * 12.f, 3) * 0.33f;
 		float yFactor = ml.world.viewer.getSettings().fieldOfView * 4.f;
-		float xPos = metadataXOffset * xFactor; 
+//		float xPos = metadataXOffset * xFactor; 
 		float yPos = metadataYOffset * yFactor - lineWidth * yFactor;
 
 //		ml.textFont(messageFont);
@@ -1712,7 +1712,7 @@ public class ML_Display
 	 */
 	void displayStartup(WMV_World p, boolean librarySetup)
 	{
-		float yPos = startupMessageYOffset;
+//		float yPos = startupMessageYOffset;
 
 		startHUD();
 		ml.pushMatrix();
@@ -2242,123 +2242,24 @@ public class ML_Display
 	 */
 	private class SelectableTimeSegment
 	{
-		private int id, fieldTimelineID, clusterID;
-		private PVector location;
+		private int id, clusterID;
+//		private PVector location;
 		public float leftEdge, rightEdge, topEdge, bottomEdge;
 		WMV_TimeSegment segment;
 		
 		SelectableTimeSegment(int newID, int newFieldTimelineID, int newClusterID, WMV_TimeSegment newSegment, PVector newLocation, float newLeftEdge, float newRightEdge, float newTopEdge, float newBottomEdge)
 		{
 			id = newID;
-			fieldTimelineID = newFieldTimelineID;
+//			fieldTimelineID = newFieldTimelineID;
 			clusterID = newClusterID;
 			segment = newSegment;
 			
-			location = newLocation;
+//			location = newLocation;
 			leftEdge = newLeftEdge;
 			rightEdge = newRightEdge;
 			topEdge = newTopEdge;
 			bottomEdge = newBottomEdge;
 		}
-		
-		 /**
-		  * Increment blendMode by given amount and call setBlendMode()
-		  * @param inc Increment to blendMode number
-		  */
-		public void changeBlendMode(WMV_World p, int inc) 
-		{
-			if(inc > 0)
-			{
-				if (blendMode+inc < numBlendModes) 	
-					blendMode += inc;
-				else 
-					blendMode = 0;
-			}
-			else if(inc < 0)
-			{
-				{
-					if (blendMode-inc >= 0) 
-						blendMode -= inc;
-					else 
-						blendMode = numBlendModes - 1;
-				}
-			}
-
-			if(inc != 0)
-				setBlendMode(p, blendMode);
-		}
-
-		/**
-		 * Change effect of image alpha channel on blending
-		 * @param blendMode
-		 */
-		public void setBlendMode(WMV_World p, int blendMode) {
-			switch (blendMode) {
-			case 0:
-				ml.blendMode(PApplet.BLEND);
-				break;
-
-			case 1:
-				ml.blendMode(PApplet.ADD);
-				break;
-
-			case 2:
-				ml.blendMode(PApplet.SUBTRACT);
-				break;
-
-			case 3:
-				ml.blendMode(PApplet.DARKEST);
-				break;
-
-			case 4:
-				ml.blendMode(PApplet.LIGHTEST);
-				break;
-
-			case 5:
-				ml.blendMode(PApplet.DIFFERENCE);
-				break;
-
-			case 6:
-				ml.blendMode(PApplet.EXCLUSION);
-				break;
-
-			case 7:
-				ml.blendMode(PApplet.MULTIPLY);
-				break;
-
-			case 8:
-				ml.blendMode(PApplet.SCREEN);
-				break;
-
-			case 9:
-				ml.blendMode(PApplet.REPLACE);
-				break;
-
-			case 10:
-				// blend(HARD_LIGHT);
-				break;
-
-			case 11:
-				// blend(SOFT_LIGHT);
-				break;
-
-			case 12:
-				// blend(OVERLAY);
-				break;
-
-			case 13:
-				// blend(DODGE);
-				break;
-
-			case 14:
-				// blend(BURN);
-				break;
-			}
-
-			if (ml.debugSettings.world)
-				System.out.println("blendMode:" + blendMode);
-		}
-
 
 		public int getID()
 		{
@@ -2626,6 +2527,105 @@ public class ML_Display
 //		p.p.popMatrix();
 //	}
 	
+	
+	 /**
+	  * Increment blendMode by given amount and call setBlendMode()
+	  * @param inc Increment to blendMode number
+	  */
+//	public void changeBlendMode(WMV_World p, int inc) 
+//	{
+//		if(inc > 0)
+//		{
+//			if (blendMode+inc < numBlendModes) 	
+//				blendMode += inc;
+//			else 
+//				blendMode = 0;
+//		}
+//		else if(inc < 0)
+//		{
+//			{
+//				if (blendMode-inc >= 0) 
+//					blendMode -= inc;
+//				else 
+//					blendMode = numBlendModes - 1;
+//			}
+//		}
+//
+//		if(inc != 0)
+//			setBlendMode(p, blendMode);
+//	}
+
+//	/**
+//	 * Change effect of image alpha channel on blending
+//	 * @param blendMode
+//	 */
+//	public void setBlendMode(WMV_World p, int blendMode) {
+//		switch (blendMode) {
+//		case 0:
+//			ml.blendMode(PApplet.BLEND);
+//			break;
+//
+//		case 1:
+//			ml.blendMode(PApplet.ADD);
+//			break;
+//
+//		case 2:
+//			ml.blendMode(PApplet.SUBTRACT);
+//			break;
+//
+//		case 3:
+//			ml.blendMode(PApplet.DARKEST);
+//			break;
+//
+//		case 4:
+//			ml.blendMode(PApplet.LIGHTEST);
+//			break;
+//
+//		case 5:
+//			ml.blendMode(PApplet.DIFFERENCE);
+//			break;
+//
+//		case 6:
+//			ml.blendMode(PApplet.EXCLUSION);
+//			break;
+//
+//		case 7:
+//			ml.blendMode(PApplet.MULTIPLY);
+//			break;
+//
+//		case 8:
+//			ml.blendMode(PApplet.SCREEN);
+//			break;
+//
+//		case 9:
+//			ml.blendMode(PApplet.REPLACE);
+//			break;
+//
+//		case 10:
+//			// blend(HARD_LIGHT);
+//			break;
+//
+//		case 11:
+//			// blend(SOFT_LIGHT);
+//			break;
+//
+//		case 12:
+//			// blend(OVERLAY);
+//			break;
+//
+//		case 13:
+//			// blend(DODGE);
+//			break;
+//
+//		case 14:
+//			// blend(BURN);
+//			break;
+//		}
+//
+//		if (ml.debugSettings.world)
+//			System.out.println("blendMode:" + blendMode);
+//	}
+
 	/**
 	 * Show statistics of the current simulation
 	 */
@@ -2644,67 +2644,6 @@ public class ML_Display
 //			WMV_Cluster c = p.getCurrentCluster();
 ////			float[] camTar = p.viewer.camera.target();
 //
-//			p.p.fill(0, 0, 255, 255);
-//			p.p.textSize(largeTextSize);
-//			p.p.text(" MultimediaLocator v0.9 ", xPos, yPos, hudDistance);
-//			p.p.textSize(mediumTextSize);
-//
-//			xPos = midLeftTextXOffset;
-//			
-//			p.p.text(" Program Modes ", xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.textSize(smallTextSize);
-//			p.p.text(" Orientation Mode: "+p.viewer.getSettings().orientationMode, xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.text(" Alpha Mode:"+p.getState().alphaMode, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Time Fading: "+ p.getState().timeFading, xPos, yPos += lineWidth, hudDistance);
-////			p.p.text(" Date Fading: "+ p.dateFading, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Altitude Scaling: "+p.settings.altitudeScaling, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Lock Media to Clusters:"+p.getState().lockMediaToClusters, xPos, yPos += lineWidth, hudDistance);
-//		
-//			p.p.textSize(mediumTextSize);
-//			p.p.text(" Graphics ", xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.textSize(smallTextSize);
-//			p.p.text(" Alpha:"+p.getState().alpha, xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.text(" Default Media Length:"+p.settings.defaultMediaLength, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Media Angle Fading: "+p.viewer.getSettings().angleFading, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Media Angle Thinning: "+p.viewer.getSettings().angleThinning, xPos, yPos += lineWidth, hudDistance);
-//			if(p.viewer.getSettings().angleThinning)
-//				p.p.text(" Media Thinning Angle:"+p.viewer.getSettings().thinningAngle, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Image Size Factor:"+p.settings.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Subject Distance (m.):"+p.settings.defaultFocusDistance, xPos, yPos += lineWidth, hudDistance);
-////			p.p.text(" Image Size Factor:"+p.subjectSizeRatio, xPos, yPos += lineWidth, hudDistance);
-//
-//			xPos = centerTextXOffset;
-//			yPos = topTextYOffset;			// Starting vertical position
-//
-//			p.p.textSize(mediumTextSize);
-//			p.p.text(" Field", xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.textSize(smallTextSize);
-//			p.p.text(" Name: "+f.getName(), xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.text(" ID: "+(p.viewer.getState().getField()+1)+" out of "+p.getFieldCount()+" Total Fields", xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Width (m.): "+f.getModel().getState().fieldWidth+" Length (m.): "+f.getModel().getState().fieldLength+" Height (m.): "+f.getModel().getState().fieldHeight, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Total Media: "+f.getMediaCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-//			p.p.text(" Total Images: "+f.getImageCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-//			p.p.text(" Total Panoramas: "+f.getPanoramaCount(), xPos, yPos += lineWidth, hudDistance);			// Doesn't check for dataMissing!!
-//			p.p.text(" Total Videos: "+f.getVideoCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-//			p.p.text(" Total Sounds: "+f.getSoundCount(), xPos, yPos += lineWidth, hudDistance);					// Doesn't check for dataMissing!!
-//			p.p.text(" Media Density per sq. m.: "+f.getModel().getState().mediaDensity, xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Images Visible: "+f.getImagesVisible(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Images Seen: "+f.getImagesSeen(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Panoramas Visible: "+f.getPanoramasVisible(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Panoramas Seen: "+f.getPanoramasSeen(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Videos Visible: "+f.getVideosVisible(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Videos Seen: "+f.getVideosSeen(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Videos Playing: "+f.getVideosPlaying(), xPos, yPos += lineWidth, hudDistance);
-//			p.p.text(" Videos Loaded: "+f.getVideosLoaded(), xPos, yPos += lineWidth, hudDistance);
-////			p.p.text(" Sounds Audible: "+f.getSoundsAudible(), xPos, yPos += lineWidth, hudDistance);
-////			p.p.text(" Sounds Playing: "+f.getSoundsPlaying(), xPos, yPos += lineWidth, hudDistance);
-////			p.p.text(" Sounds Loaded: "+f.getSoundsLoaded(), xPos, yPos += lineWidth, hudDistance);
-//			if(p.viewer.getSettings().orientationMode)
-//				p.p.text(" Clusters Visible: "+p.viewer.getState().getClustersVisible()+"  (Orientation Mode)", xPos, yPos += lineWidth, hudDistance);
-//
-//			p.p.textSize(mediumTextSize);
-//			p.p.text(" Model ", xPos, yPos += lineWidthVeryWide, hudDistance);
-//			p.p.textSize(smallTextSize);
 //			
 //			p.p.text(" Clusters:"+(f.getClusters().size()-f.getModel().getState().mergedClusters), xPos, yPos += lineWidthVeryWide, hudDistance);
 //			p.p.text(" Merged: "+f.getModel().getState().mergedClusters+" out of "+f.getClusters().size()+" Total", xPos, yPos += lineWidth, hudDistance);

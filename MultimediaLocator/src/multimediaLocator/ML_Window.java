@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import g4p_controls.*;
 import processing.core.PApplet;
 import processing.core.PConstants;
-import processing.core.PVector;
 import processing.event.MouseEvent;
 
 /**
@@ -44,15 +43,15 @@ public class ML_Window
 	public boolean showCreateLibraryWindow, showLibraryWindow = false;
 
 	/* Library Window */
+	private int libraryWindowHeight;
 	public GButton btnCreateLibrary, btnOpenLibrary, btnLibraryHelp;
 	public GCheckbox chkbxRebuildLibrary;
 	public GLabel lblStartupWindowText;
-	private int libraryWindowHeight;
 	
-	/* CreateLibrary Window */
+	/* Create Library Window */
+	private int createLibraryWindowHeight;
 	public GButton btnImportMediaFolder, btnMakeLibrary, btnCancelCreateLibrary;
 	public GLabel lblCreateLibraryWindowText, lblCreateLibraryWindowText2;
-	private int createLibraryWindowHeight;
 
 	/* List Item Window */
 	public boolean showListItemWindow = false;
@@ -159,7 +158,7 @@ public class ML_Window
 	/* Map Window */
 	public GButton btnMapView;		
 	private GButton btnPanUp, btnPanLeft, btnPanDown, btnPanRight;		
-	private GButton btnZoomToViewer, btnZoomToSelected;		
+	private GButton btnZoomToViewer;	// btnZoomToSelected;		
 	private GButton btnZoomOutToField, btnZoomOutToWorld;		
 	public GLabel lblZoomTo, lblPan;					
 	public GLabel lblShift4;
@@ -242,51 +241,6 @@ public class ML_Window
 			navigationWindowWidth = windowWidth;
 			compressTallWindows = false;
 		}
-	}
-	
-	public void openMLWindow()
-	{
-		if(!setupMLWindow) setupMLWindow();
-		showMLWindow();
-	}
-	public void openNavigationWindow()
-	{
-		if(!setupNavigationWindow) setupNavigationWindow();
-		showNavigationWindow();
-	}
-
-	public void openMediaWindow()
-	{
-		if(!setupMediaWindow) setupMediaWindow();
-		showMediaWindow();
-	}
-
-	public void openStatisticsWindow()
-	{
-		if(!setupStatisticsWindow)
-			setupStatisticsWindow();
-		showStatisticsWindow();
-	}
-	
-	public void openHelpWindow()
-	{
-		if(!setupHelpWindow)
-			setupHelpWindow();
-		showHelpWindow();
-	}
-
-	public void openMapWindow()
-	{
-		if(!setupMapWindow)
-			setupMapWindow();
-		showMapWindow();
-	}
-
-	public void openTimelineWindow()
-	{
-		if(!setupTimelineWindow)
-			setupTimelineWindow();
-		showTimelineWindow();
 	}
 
 	/**
@@ -677,7 +631,7 @@ public class ML_Window
 		optMemory.setLocalColorScheme(G4P.SCHEME_10);
 		optMemory.tag = "FollowMemory";
 		
-		switch(world.viewer.getFollowMode())			// 0: Timeline 1: GPS Track 2: Memory
+		switch(world.viewer.getPathNavigationMode())			// 0: Timeline 1: GPS Track 2: Memory
 		{
 			case 0:						// Timeline
 				optTimeline.setSelected(true);
@@ -3022,6 +2976,52 @@ public class ML_Window
 			hideMapWindow();
 		if(showTimelineWindow)
 			hideTimelineWindow();
+	}
+	
+	
+	public void openMLWindow()
+	{
+		if(!setupMLWindow) setupMLWindow();
+		showMLWindow();
+	}
+	public void openNavigationWindow()
+	{
+		if(!setupNavigationWindow) setupNavigationWindow();
+		showNavigationWindow();
+	}
+
+	public void openMediaWindow()
+	{
+		if(!setupMediaWindow) setupMediaWindow();
+		showMediaWindow();
+	}
+
+	public void openStatisticsWindow()
+	{
+		if(!setupStatisticsWindow)
+			setupStatisticsWindow();
+		showStatisticsWindow();
+	}
+	
+	public void openHelpWindow()
+	{
+		if(!setupHelpWindow)
+			setupHelpWindow();
+		showHelpWindow();
+	}
+
+	public void openMapWindow()
+	{
+		if(!setupMapWindow)
+			setupMapWindow();
+		showMapWindow();
+	}
+
+	public void openTimelineWindow()
+	{
+		if(!setupTimelineWindow)
+			setupTimelineWindow();
+		showTimelineWindow();
 	}
 }
 	

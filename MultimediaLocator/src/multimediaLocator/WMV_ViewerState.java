@@ -1,10 +1,8 @@
 package multimediaLocator;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-//import processing.core.PApplet;
 import processing.core.PVector;
 
 /**
@@ -68,7 +66,7 @@ public class WMV_ViewerState
 	public PVector orientationVector;
 	
 	/* Movement */
-	private int followMode = 0;				// 0: Timeline 1: GPS Track 2: Memory
+	private int followMode = 0;				// {0: Timeline 1: GPS Track 2: Memory}
 	public boolean walking = false;			// Whether viewer is walking
 	public PVector walkingVelocity;
 	public PVector walkingAcceleration;			// Physics parameters applied relative to camera direction

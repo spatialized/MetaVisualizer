@@ -15,10 +15,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Month;
+//import java.time.Month;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+//import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
@@ -764,16 +764,6 @@ public class WMV_Utilities
 		}
 	}
 	
-	public float getAltitude(WMV_Field f, PVector loc)
-	{
-		WMV_Model model = f.getModel();
-		
-//		newY = -PApplet.map(mState.gpsLocation.y, model.getState().lowAltitude, model.getState().highAltitude, 0.f, model.getState().fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
-		float altitude = mapValue( loc.y, 0.f, model.getState().fieldHeight, model.getState().lowAltitude, model.getState().highAltitude );
-		
-		return loc.y;
-	}
-	
 	/**
 	 * Get sound locations from GPS track
 	 */
@@ -1151,8 +1141,8 @@ public class WMV_Utilities
 		try {
 			int result = commandExecutor.execute();
 
-			StringBuilder stdout = commandExecutor.getStandardOutput();			// get the output from the command
-			StringBuilder stderr = commandExecutor.getStandardError();
+//			StringBuilder stdout = commandExecutor.getStandardOutput();			// get the output from the command
+//			StringBuilder stderr = commandExecutor.getStandardError();
 			
 			return true;
 		}
@@ -1199,8 +1189,8 @@ public class WMV_Utilities
 		try {
 			int result = commandExecutor.execute();
 
-			StringBuilder stdout = commandExecutor.getStandardOutput();			// get the output from the command
-			StringBuilder stderr = commandExecutor.getStandardError();
+//			StringBuilder stdout = commandExecutor.getStandardOutput();			// get the output from the command
+//			StringBuilder stderr = commandExecutor.getStandardError();
 			
 			return true;
 		}
@@ -1801,9 +1791,9 @@ public class WMV_Utilities
 
 		System.out.println("---> ssHour:"+ssHour);
 
-		if (cHour > ssHour) 
-		{
-			float ssDiff = (cHour * 60 + cMin + cSec/60.f) - (ssHour * 60 + ssMin + ssSec/60.f);
+//		if (cHour > ssHour) 
+//		{
+//			float ssDiff = (cHour * 60 + cMin + cSec/60.f) - (ssHour * 60 + ssMin + ssSec/60.f);
 			//			System.out.println("ssDiff:"+ssDiff);
 
 //			if (ssDiff > p.minutesPastSunset) {
@@ -1815,7 +1805,7 @@ public class WMV_Utilities
 //				if (p.p.debug.debugExif)
 //					System.out.println("  to:" + p.minutesPastSunset);
 //			}
-		}
+//		}
 
 		if (cHour < srHour) 
 		{
@@ -1945,6 +1935,11 @@ public class WMV_Utilities
 		return sb.toString();
 	}
 	 
+	public float getAltitude(PVector loc)
+	{
+		return loc.y;
+	}
+	
 //	 private PImage getDesaturated(PImage in, float amt) 
 //	 {
 //		 PImage out = in.get();

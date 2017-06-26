@@ -909,11 +909,6 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void openMediaFolder(File selection) 
 	{
-		boolean selectedFolder = false;
-		
-//		if(!windowVisible)
-//			showAppWindow();
-
 		if (selection == null) 
 		{
 			System.out.println("openMediaFolder()... Window was closed or the user hit cancel.");
@@ -921,7 +916,6 @@ public class MultimediaLocator extends PApplet
 		else 
 		{
 			String input = selection.getPath();
-//			String[] parts = input.split("/");
 
 			if (debugSettings.metadata)
 				System.out.println("User selected media folder: " + input);
@@ -932,15 +926,10 @@ public class MultimediaLocator extends PApplet
 				if(file.isDirectory())
 				{
 					library.mediaFolders.add(input);
-					selectedFolder = true;
 					delay(delayAmount);
 				}
 			}
 		}
-//		if(!selectedFolder)
-//		{
-//			mediaFolderDialog();						// Retry folder prompt
-//		}
 	}
 	
 	/**

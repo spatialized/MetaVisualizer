@@ -1,9 +1,9 @@
 package multimediaLocator;
 
-import java.awt.Font;
+//import java.awt.Font;
 
-import g4p_controls.G4P;
-import g4p_controls.GButton;
+//import g4p_controls.G4P;
+//import g4p_controls.GButton;
 import processing.core.PApplet;
 
 /**
@@ -280,16 +280,16 @@ public class ML_KeyboardControls
 		{
 			if(!ml.world.viewer.isFollowing())
 			{
-				int followMode = ml.world.viewer.getFollowMode();
+				int followMode = ml.world.viewer.getPathNavigationMode();
 				if(followMode >= 2) followMode = 0;
 				else followMode++;
 
-				ml.world.viewer.setFollowMode(followMode);
+				ml.world.viewer.setPathNavigationMode(followMode);
 
 				if(ml.display.window.setupNavigationWindow)
 				{
 
-					switch(ml.world.viewer.getFollowMode())		// 0: Timeline 1: GPS Track 2: Memory
+					switch(ml.world.viewer.getPathNavigationMode())		// 0: Timeline 1: GPS Track 2: Memory
 					{
 						case 0:					// Timeline
 							ml.display.window.optTimeline.setSelected(true);
@@ -329,7 +329,7 @@ public class ML_KeyboardControls
 		{
 			if(!ml.world.viewer.isFollowing())
 			{
-				switch(ml.world.viewer.getFollowMode())
+				switch(ml.world.viewer.getPathNavigationMode())
 				{
 					case 0:
 						ml.world.viewer.followTimeline(true, false);
@@ -534,8 +534,8 @@ public class ML_KeyboardControls
 		
 		if (key == 'ß')		// opt + s
 		{
-			ml.world.viewer.setGroupSelection( !ml.world.viewer.getSegmentSelection(), true );
-			if(ml.world.viewer.getSegmentSelection() && !ml.world.viewer.inSelectionMode())
+			ml.world.viewer.setGroupSelection( !ml.world.viewer.getGroupSelection(), true );
+			if(ml.world.viewer.getGroupSelection() && !ml.world.viewer.inSelectionMode())
 				ml.world.viewer.setSelection( true );
 		}
 

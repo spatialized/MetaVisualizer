@@ -28,19 +28,20 @@ import toxi.math.ScaleMap;
 import toxi.math.ZoomLensInterpolation;
 
 /********************************************
- * Virtual world comprised of a viewer and one or more multimedia fields
+ * Virtual world, containing one or more media environments ("fields") and viewer 
  * @author davidgordon
  */
 
 public class WMV_World 
 {
 	/* Classes */
+	public MultimediaLocator ml;						// Parent app
+	private ArrayList<WMV_Field> fields;				// Virtual media environments 
+	public WMV_Viewer viewer;							// Virtual viewer
 	public WMV_WorldSettings settings;					// World settings
 	public WMV_WorldState state;						// World state
-	public WMV_Viewer viewer;							// Virtual viewer
-	private ArrayList<WMV_Field> fields;				// Geographical areas of interest
-	public ML_Input input;								// Input object
-	public WMV_Utilities utilities;						// Utilities
+	public WMV_Utilities utilities;						// Utility class
+	public ML_Input input;								// Keyboard input handler
 
 	/* Interpolation */
 	ScaleMap distanceFadeMap, timeFadeMap;
@@ -62,17 +63,15 @@ public class WMV_World
 	public PImage vertBlurMaskCenterTop, vertBlurMaskCenterCenter, vertBlurMaskCenterBottom, vertBlurMaskCenterBoth;
 	public PImage vertBlurMaskRightTop, vertBlurMaskRightCenter, vertBlurMaskRightBottom, vertBlurMaskRightBoth;
 	public PImage vertBlurMaskBothTop, vertBlurMaskBothCenter, vertBlurMaskBothBottom, vertBlurMaskBothBoth;
-	public PImage blurMaskPanorama;																					// Panorama blur mask
 	public PImage videoBlurMaskLeftTop, videoBlurMaskLeftCenter, videoBlurMaskLeftBottom, videoBlurMaskLeftBoth;  	// Video blur masks
 	public PImage videoBlurMaskCenterTop, videoBlurMaskCenterCenter, videoBlurMaskCenterBottom, videoBlurMaskCenterBoth;
 	public PImage videoBlurMaskRightTop, videoBlurMaskRightCenter, videoBlurMaskRightBottom, videoBlurMaskRightBoth;
 	public PImage videoBlurMaskBothTop, videoBlurMaskBothCenter, videoBlurMaskBothBottom, videoBlurMaskBothBoth;
+	public PImage blurMaskPanorama;																					// Panorama blur mask
 
-	/* Debugging */
+	/* Effects */
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
-	public MultimediaLocator ml;							// Parent App
-	
 	/**
 	 * Constructor for world object
 	 * @param parent Parent App
@@ -101,10 +100,8 @@ public class WMV_World
 	public void run()
 	{
 		updateState();
-//		updateViewerAttraction();			// Attract the viewer
 		display();
 		updateBehavior();
-//		updateTimeBehavior();		// Update time cycle
 	}
 	
 	/**
@@ -121,12 +118,12 @@ public class WMV_World
 	public void updateBehavior()
 	{
 		updateViewerAttraction();										/* Attract the viewer */
-		if(ml.display.getDisplayView() < 3) viewer.updateNavigation();		/* Update navigation */
+		if(ml.display.getDisplayView() < 3) viewer.updateNavigation();	/* Update navigation */
 		if(state.fadingAlpha)  updateFadingAlpha();						/* Update global alpha fading */
 		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();		/* Update grid fading */
 		updateTimeBehavior();											/* Update time cycle */
 
-//		if(viewer.getSettings().mouseNavigation)	/* Update mouse navigation */
+//		if(viewer.getSettings().mouseNavigation)						/* Update mouse navigation   -- Disabled */
 //		input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 	}
 
@@ -136,35 +133,17 @@ public class WMV_World
 	 */
 	public void display()
 	{
-		ml.background(0.f);								/* Set background */
+		ml.background(0.f);										/* Set background */
 		if(ml.state.sphericalView)
 		{
 			if(ml.cubeMapInitialized)
-				ml.display360();
+				ml.display360();								/* Display Spherical View -- Disabled / In progress */
 		}
 		else
 		{
 			if(ml.display.getDisplayView() == 0) display3D();	/* Display 3D Graphics */
-			display2D();									/* Display 2D Graphics */
+			display2D();										/* Display 2D Graphics */
 		}
-	}
-	
-	/**
-	 * Add field to world
-	 * @param f Field to add
-	 */
-	public void addField(WMV_Field f)
-	{
-		fields.add(f);
-	}
-	
-	/**
-	 * Add field to world
-	 * @param f Field to add
-	 */
-	public void removeField(WMV_Field f)
-	{
-		fields.remove(f);
 	}
 
 	/**
@@ -203,28 +182,21 @@ public class WMV_World
 	 */
 	public void display3D()
 	{
-//		if(ml.display.displayView == 0)				/* 3D Display */
-//		{
-			ml.background(0.f);						/* Set background */
-			if(settings.depthTesting) ml.hint(PApplet.ENABLE_DEPTH_TEST);		/* Enable depth testing for drawing 3D graphics */
-			getCurrentField().display(ml);										/* Display media in current field */
-			if(settings.showUserPanoramas || settings.showStitchedPanoramas)
+		ml.background(0.f);						/* Set background */
+		if(settings.depthTesting) ml.hint(PApplet.ENABLE_DEPTH_TEST);		/* Enable depth testing for drawing 3D graphics */
+		getCurrentField().display(ml);										/* Display media in current field */
+		if(settings.showUserPanoramas || settings.showStitchedPanoramas)
+		{
+			if(viewer.getState().getCurrentClusterID() > 0 && viewer.getState().getCurrentClusterID() < getCurrentField().getClusters().size())
 			{
-				if(viewer.getState().getCurrentClusterID() > 0 && viewer.getState().getCurrentClusterID() < getCurrentField().getClusters().size())
-				{
-					ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
-					if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
-						clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(ml);		// Draw current cluster
-				}
+				ArrayList<WMV_Cluster> clusters = getCurrentField().getClusters();
+				if(clusters.size()>0 && viewer.getState().getCurrentClusterID() < clusters.size())
+					clusters.get(viewer.getState().getCurrentClusterID()).displayUserPanoramas(ml);		// Draw current cluster
 			}
-			
-			if(state.displayTerrain) displayTerrain();	/* Draw terrain as wireframe grid */
-//		}
+		}
+
+		if(state.displayTerrain) displayTerrain();	/* Draw terrain as wireframe grid */
 		
-//		if(state.displayTerrain) displayTerrain();	/* Draw terrain as wireframe grid */
-//		viewer.updateNavigation();					/* Update navigation */	-- Moved after display3D()...
-		
-//		if(ml.display.displayView == 0 && !ml.state.sphericalView)	
 		if(!ml.state.sphericalView)	
 			if(ml.state.running)
 				viewer.show();						/* Send World View to screen */
@@ -1738,8 +1710,7 @@ public class WMV_World
 					i.getMediaState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + settings.defaultMediaLength);
-//					if(viewer.lookAtCurrentMedia())
-//						viewer.lookAtMedia(i.getID(), 0);
+//					if(viewer.lookAtCurrentMedia()) viewer.lookAtMedia(i.getID(), 0);
 					break;
 				case 1:
 					WMV_Panorama n = getCurrentField().getPanorama(curMediaID);
@@ -1753,8 +1724,7 @@ public class WMV_World
 					v.getMediaState().isCurrentMedia = true;
 					viewer.setCurrentMediaStartTime(state.currentTime);
 					viewer.setNextMediaStartTime(state.currentTime + PApplet.round( getCurrentField().getVideo(curMediaID).getLength() * 29.98f));
-//					if(viewer.lookAtCurrentMedia())
-//						viewer.lookAtMedia(v.getID(), 2);
+//					if(viewer.lookAtCurrentMedia()) viewer.lookAtMedia(v.getID(), 2);
 					break;
 //				case 3:	
 //					getCurrentField().sounds.get(curMediaID).currentMedia = true;
@@ -1771,16 +1741,21 @@ public class WMV_World
 			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
 	}
 	
+	/**
+	 * Set image orientation
+	 */
 	public void setImageOrientation()			// -- To Do
 	{
 		
 	}
 	
+	/**
+	 * Set panorama orientation
+	 */
 	public void setPanoramaOrientation()			// -- To Do
 	{
 		
 	}
-	
 
 	/**
 	 * @param newTimeMode New time mode {0: Cluster, 1:Field, 2: Media}
@@ -1815,24 +1790,6 @@ public class WMV_World
 			}		
 		}
 
-	}
-	
-	/**
-	 * Set time cycle length for all clusters in current field
-	 * @param newTimeCycleLength New time cycle length
-	 */
-	public void setAllClustersTimeCycleLength(int newTimeCycleLength)
-	{
-		for(WMV_Cluster c : getCurrentField().getClusters())
-		{
-			if(!c.getState().empty)
-			{
-				c.setTimeCycleLength( newTimeCycleLength );
-
-				c.updateAllMediaSettings(getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
-						getCurrentField().getSounds(), settings, state, viewer.getSettings(), viewer.getState());
-			}
-		}
 	}
 	
 	/**
@@ -2014,6 +1971,42 @@ public class WMV_World
 	}
 	
 	/**
+	 * Set world settings
+	 * @param newSettings New world settings
+	 */
+	public void setSettings(WMV_WorldSettings newSettings)
+	{
+		settings = newSettings;
+	}
+	
+	/**
+	 * Set world state
+	 * @param newState New world state
+	 */
+	public void setState(WMV_WorldState newState)
+	{
+		state = newState;
+	}
+	
+	/**
+	 * Add field to world
+	 * @param f Field to add
+	 */
+	public void addField(WMV_Field f)
+	{
+		fields.add(f);
+	}
+	
+	/**
+	 * Add field to world
+	 * @param f Field to add
+	 */
+	public void removeField(WMV_Field f)
+	{
+		fields.remove(f);
+	}
+	
+	/**
 	 * Get visible clusters in standard viewing mode
 	 * @return Active clusters in current field
 	 */
@@ -2075,8 +2068,7 @@ public class WMV_World
 		
 		return clusters;
 	}
-	
-	
+
 	/**
 	 * Get visible clusters in standard viewing mode
 	 * @return Active clusters in current field
@@ -2132,33 +2124,40 @@ public class WMV_World
 		
 		return clusters;
 	}
+	
+	/**
+	 * Set time cycle length for all clusters in current field
+	 * @param newTimeCycleLength New time cycle length
+	 */
+	public void setAllClustersTimeCycleLength(int newTimeCycleLength)
+	{
+		for(WMV_Cluster c : getCurrentField().getClusters())
+		{
+			if(!c.getState().empty)
+			{
+				c.setTimeCycleLength( newTimeCycleLength );
+
+				c.updateAllMediaSettings(getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
+						getCurrentField().getSounds(), settings, state, viewer.getSettings(), viewer.getState());
+			}
+		}
+	}
 
 	/**
-	 * @param dist Grid spacing
+	 * Set specified panorama's blur mask
+	 * @param panorama
 	 */
-//	public void displayGrid(float dist) 
-//	{
-//		WMV_ModelState m = getCurrentModel().getState();
-//		for (float y = 0; y < m.fieldHeight / 2; y += dist) {
-//			for (float x = 0; x < m.fieldWidth / 2; x += dist) {
-//				for (float z = 0; z < m.fieldLength / 2; z += dist) {
-//					p.stroke(50, 150, 250, state.fadingGridBrightness);
-//					p.strokeWeight(1);
-//					p.pushMatrix();
-//					p.translate(x, y, z);
-//					p.box(2);
-//					p.popMatrix();
-//				}
-//			}
-//		}
-//	}
-
 	public void setPanoramaBlurMask(WMV_Panorama panorama)
 	{
 		WMV_Field f = getCurrentField();
 		f.setPanoramaBlurMask(panorama, blurMaskPanorama);
 	}
 	
+	/**
+	 * Set specified horizontal image's blur mask
+	 * @param image
+	 * @param blurMaskID
+	 */
 	public void setBlurMask(WMV_Image image, int blurMaskID)
 	{
 		WMV_Field f = getCurrentField();
@@ -2220,6 +2219,11 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Set specified vertical image's blur mask
+	 * @param image
+	 * @param blurMaskID
+	 */
 	public void setVerticalBlurMask(WMV_Image image, int blurMaskID)
 	{
 		WMV_Field f = getCurrentField();
@@ -2279,6 +2283,11 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Set specified video's blur mask
+	 * @param video
+	 * @param blurMaskID
+	 */
 	public void setVideoBlurMask(WMV_Video video, int blurMaskID)
 	{
 		WMV_Field f = getCurrentField();
@@ -2540,15 +2549,5 @@ public class WMV_World
 		videoBlurMaskBothCenter = getMaskImageResource(maskPath, "videoBlurMaskBothCenter.jpg");
 		videoBlurMaskBothBottom = getMaskImageResource(maskPath, "videoBlurMaskBothBottom.jpg");
 		videoBlurMaskBothBoth = getMaskImageResource(maskPath, "videoBlurMaskBothBoth.jpg");
-	}
-
-	public void setSettings(WMV_WorldSettings newSettings)
-	{
-		settings = newSettings;
-	}
-	
-	public void setState(WMV_WorldState newState)
-	{
-		state = newState;
 	}
 }

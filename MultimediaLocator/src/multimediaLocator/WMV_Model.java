@@ -43,8 +43,9 @@ public class WMV_Model
 		{
 			if(debugSettings.world) System.out.println("Initializing field model...");
 			
-			analyzeSpatialDimensions(images, panoramas, videos); 			// Calculate bounds of media GPS locations (exclude sounds since field model is needed to set sound locations)
-			analyzeTimeDimensions(images, panoramas, videos, sounds);		// Analyze media locations and times 
+			analyzeSpatialDimensions(images, panoramas, videos, null); 		// Calculate bounds of field from spatial metadata
+																			// -- No sounds, since need model to set sound locations) -- Fix model later!
+			analyzeTimeDimensions(images, panoramas, videos, sounds);		// Analyze media times and dates
 
 			float midLongitude = (state.highLongitude - state.lowLongitude) / 2.f;
 			float midLatitude = (state.highLatitude - state.lowLatitude) / 2.f;
@@ -101,15 +102,6 @@ public class WMV_Model
 		else 
 			if(debugSettings.world) 
 				System.out.println("Model.setup()... No media loaded! Couldn't initialize field...");
-	}
-
-	/**
-	 * Set model state
-	 * @param newState New model state
-	 */
-	public void setState(WMV_ModelState newState)
-	{
-		state = newState;
 	}
 
 	/**
@@ -221,7 +213,7 @@ public class WMV_Model
 	 * @param videos Video list
 	 * @param sounds Sounds list
 	 */
-	 void analyzeSpatialDimensions(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos) 
+	 void analyzeSpatialDimensions(ArrayList<WMV_Image> images, ArrayList<WMV_Panorama> panoramas, ArrayList<WMV_Video> videos, ArrayList<WMV_Sound> sounds) 
 	 {
 		 if(debugSettings.world) System.out.println("Calculating field dimensions...");
 
@@ -297,21 +289,24 @@ public class WMV_Model
 				 state.lowLatitude = v.getMediaState().gpsLocation.z;
 		 }
 	 
-//		 for (WMV_Sound s : sounds) 							
-//		 {
-//			 if (s.getMediaState().gpsLocation.x > state.highLongitude)
-//				 state.highLongitude = s.getMediaState().gpsLocation.x;
-//			 if (s.getMediaState().gpsLocation.x < state.lowLongitude)
-//				 state.lowLongitude = s.getMediaState().gpsLocation.x;
-//			 if (s.getMediaState().gpsLocation.y > state.highAltitude)
-//				 state.highAltitude = s.getMediaState().gpsLocation.y;
-//			 if (s.getMediaState().gpsLocation.y < state.lowAltitude)
-//				 state.lowAltitude = s.getMediaState().gpsLocation.y;
-//			 if (s.getMediaState().gpsLocation.z > state.highLatitude)
-//				 state.highLatitude = s.getMediaState().gpsLocation.z;
-//			 if (s.getMediaState().gpsLocation.z < state.lowLatitude)
-//				 state.lowLatitude = s.getMediaState().gpsLocation.z;
-//		 }
+		 if(sounds != null)
+		 {
+			 for (WMV_Sound s : sounds) 							
+			 {
+				 if (s.getMediaState().gpsLocation.x > state.highLongitude)
+					 state.highLongitude = s.getMediaState().gpsLocation.x;
+				 if (s.getMediaState().gpsLocation.x < state.lowLongitude)
+					 state.lowLongitude = s.getMediaState().gpsLocation.x;
+				 if (s.getMediaState().gpsLocation.y > state.highAltitude)
+					 state.highAltitude = s.getMediaState().gpsLocation.y;
+				 if (s.getMediaState().gpsLocation.y < state.lowAltitude)
+					 state.lowAltitude = s.getMediaState().gpsLocation.y;
+				 if (s.getMediaState().gpsLocation.z > state.highLatitude)
+					 state.highLatitude = s.getMediaState().gpsLocation.z;
+				 if (s.getMediaState().gpsLocation.z < state.lowLatitude)
+					 state.lowLatitude = s.getMediaState().gpsLocation.z;
+			 }
+		 }
 
 		 if (debugSettings.world && debugSettings.detailed) 							// Display results for debugging
 		 {
@@ -490,10 +485,6 @@ public class WMV_Model
 			 if(state.highVideoDate != -1000000.f) System.out.println(" High Video Date:" + state.highVideoDate);
 			 if(state.highSoundTime != -1000000.f) System.out.println(" High Sound Time:" + state.highSoundTime);
 			 if(state.highSoundDate != -1000000.f) System.out.println(" High Sound Date:" + state.highSoundDate);
-//			 if(state.longestImageDayLength != -1000000.f) System.out.println(" Longest Image Day Length:" + longestImageDayLength);
-//			 if(state.longestPanoDayLength != -1000000.f) System.out.println(" Longest Panorama Day Length:" + state.longestPanoDayLength);
-//			 if(state.longestVideoDayLength != -1000000.f) System.out.println( "Longest Video Day Length:" + state.longestVideoDayLength);
-//			 if(state.longestSoundDayLength != -1000000.f) System.out.println(" Longest Sound Day Length:" + state.longestSoundDayLength);
 		 }
 	 }
 
@@ -510,6 +501,15 @@ public class WMV_Model
 
 		 result.div(points.size());
 		 return result;
+	 }
+
+	 /**
+	  * Set model state
+	  * @param newState New model state
+	  */
+	 public void setState(WMV_ModelState newState)
+	 {
+		 state = newState;
 	 }
 
 	 /**

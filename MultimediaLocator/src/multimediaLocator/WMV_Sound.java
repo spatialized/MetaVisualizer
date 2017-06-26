@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import beads.*;
 import processing.core.PApplet;
-import processing.core.PImage;
+//import processing.core.PImage;
 import processing.core.PVector;
 
 /**************************************************

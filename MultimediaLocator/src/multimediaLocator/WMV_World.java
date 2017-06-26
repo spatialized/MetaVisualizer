@@ -2012,61 +2012,65 @@ public class WMV_World
 	 */
 	public ArrayList<WMV_Cluster> getVisibleClusters()
 	{
-		WMV_Field f = getCurrentField();
 		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
-
-		for(int i : viewer.getNearClusterIDs(settings.maxVisibleClusters, settings.maxClusterDistance))
+		ArrayList<WMV_Cluster> nearClusters = viewer.getNearClusters(settings.maxVisibleClusters, settings.maxClusterDistance);
+		
+		if(nearClusters != null)
 		{
-			WMV_Cluster c = f.getCluster(i);
-			if(c.isActive() && !c.isEmpty())
+			for(WMV_Cluster c : nearClusters)
 			{
-				boolean visible = true;
-				
-				if(state.timeFading)		// Time fading in Field Time Mode
+				if(c.isActive() && !c.isEmpty())
 				{
-					if(settings.clusterLength < 1.f)
+					boolean visible = true;
+
+					if(state.timeFading)		// Time fading in Field Time Mode
 					{
-						visible = false;
-						switch(state.timeMode)
+						if(settings.clusterLength < 1.f)
 						{
-							case 0:						// Time Mode 0: Cluster
-								visible = true;			// Always visible
-								break;
-								
-							case 1:						// Time Mode 1: Field 
-								float first; 			// First visible point in time cycle
-								float last;				// Last visible point in time cycle
-								float center;			// Center of visibility interval
-								
-								first = c.getTimeline().timeline.get( c.getFirstTimeSegmentFieldTimelineID(true) ).getLower().getTime();
-								last = c.getTimeline().timeline.get( c.getLastTimeSegmentFieldTimelineID(true) ).getUpper().getTime();
-								
-								if(first == last)
-									center = first;
-								else
-									center = first + last * 0.5f;
-
-								float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
-								float timeDiff = (float)Math.abs(current-center);		// Find time offset from center
-								if(timeDiff <= settings.clusterLength) 					// Compare offset to cluster length
+							visible = false;
+							switch(state.timeMode)
+							{
+								case 0:						// Time Mode 0: Cluster
+									visible = true;			// Always visible
+									break;
+	
+								case 1:						// Time Mode 1: Field 
+									float first; 			// First visible point in time cycle
+									float last;				// Last visible point in time cycle
+									float center;			// Center of visibility interval
+	
+									first = c.getTimeline().timeline.get( c.getFirstTimeSegmentFieldTimelineID(true) ).getLower().getTime();
+									last = c.getTimeline().timeline.get( c.getLastTimeSegmentFieldTimelineID(true) ).getUpper().getTime();
+	
+									if(first == last)
+										center = first;
+									else
+										center = first + last * 0.5f;
+	
+									float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
+									float timeDiff = (float)Math.abs(current-center);		// Find time offset from center
+									if(timeDiff <= settings.clusterLength) 					// Compare offset to cluster length
+										visible = true;
+									break;
+	
+								case 2:
 									visible = true;
-								break;
-								
-							case 2:
-								visible = true;
-								break;
+									break;
+							}
 						}
-					}
 
-					if(visible) 
+						if(visible) 
+							clusters.add(c);
+					}
+					else
 						clusters.add(c);
 				}
-				else
-					clusters.add(c);
 			}
+
+			return clusters;
 		}
-		
-		return clusters;
+
+		return new ArrayList<WMV_Cluster>();
 	}
 
 	/**
@@ -2075,54 +2079,74 @@ public class WMV_World
 	 */
 	public List<Integer> getVisibleClusterIDs()
 	{
-		WMV_Field f = getCurrentField();
+		ArrayList<WMV_Cluster> visible = getVisibleClusters();
 		List<Integer> clusters = new ArrayList<Integer>();
-
-		for(int i : viewer.getNearClusterIDs(settings.maxVisibleClusters, settings.maxClusterDistance))
+		if(visible != null)
 		{
-			WMV_Cluster c = f.getCluster(i);
-			
-			if(c.isActive() && !c.isEmpty())
+			for(WMV_Cluster c : visible)
 			{
-				boolean visible = true;
-				
-				if(settings.clusterLength < 1.f)			// Get visibility based on Time Mode
-				{
-					visible = false;
-					switch(state.timeMode)
-					{
-					case 0:									// Cluster Time Mode
-						visible = true;
-						break;
-
-					case 1:									// Field Time Mode
-						float first = c.getTimeline().timeline.get( c.getFirstTimeSegmentClusterTimelineID(true) ).getLower().getTime();
-						float last = c.getTimeline().timeline.get( c.getLastTimeSegmentClusterTimelineID(true) ).getUpper().getTime();
-						float center;
-
-						if(first == last)
-							center = first;
-						else
-							center = first + last * 0.5f;
-
-						float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
-						float timeDiff = (float)Math.abs(current - center);
-						if(timeDiff <= settings.clusterLength) 
-							visible = true;
-						break;
-
-					case 2:
-						visible = true;
-						break;
-					}
-				}
-
-				if(visible) 
-					clusters.add(c.getID());
+				clusters.add(c.getID());
 			}
+			return clusters;
 		}
+		else 
+			return new ArrayList<Integer>();
 		
-		return clusters;
+//		WMV_Field f = getCurrentField();
+//		List<Integer> clusters = new ArrayList<Integer>();
+//		ArrayList<WMV_Cluster> nearClusters = viewer.getNearClusters(settings.maxVisibleClusters, settings.maxClusterDistance);
+//		
+//		if(nearClusters != null)
+//		{
+//			for(WMV_Cluster c : nearClusters)
+//			{
+//				//			WMV_Cluster c = f.getCluster(i);
+//
+//				if(c.isActive() && !c.isEmpty())
+//				{
+//					boolean visible = true;
+//
+//					if(settings.clusterLength < 1.f)			// Get visibility based on Time Mode
+//					{
+//						visible = false;
+//						switch(state.timeMode)
+//						{
+//						case 0:									// Cluster Time Mode
+//							visible = true;
+//							break;
+//
+//						case 1:									// Field Time Mode
+//							float first = c.getTimeline().timeline.get( c.getFirstTimeSegmentClusterTimelineID(true) ).getLower().getTime();
+//							float last = c.getTimeline().timeline.get( c.getLastTimeSegmentClusterTimelineID(true) ).getUpper().getTime();
+//							float center;
+//
+//							if(first == last)
+//								center = first;
+//							else
+//								center = first + last * 0.5f;
+//
+//							float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
+//							float timeDiff = (float)Math.abs(current - center);
+//							if(timeDiff <= settings.clusterLength) 
+//								visible = true;
+//							break;
+//
+//						case 2:
+//							visible = true;
+//							break;
+//						}
+//					}
+//
+//					if(visible) 
+//						clusters.add(c.getID());
+//				}
+//			}
+//
+//			return clusters;
+//		}
+//		else return null;
+		
+		
 	}
 	
 	/**

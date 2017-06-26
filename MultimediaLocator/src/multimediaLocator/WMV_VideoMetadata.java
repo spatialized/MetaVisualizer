@@ -12,16 +12,16 @@ import processing.core.PVector;
 public class WMV_VideoMetadata extends WMV_MediaMetadata 
 {
 	public int cameraModel;                 	// Camera model
-	public float brightness;
-	public float theta = 0;                		// Media Orientation (in Degrees N)
+	public float brightness;					// Video brightness 	-- Unused
+	public float theta = 0;                		// Compass direction (in Degrees N)
 
-	public int videoWidth, videoHeight;			// Image width and height
-	public float phi;			        		// Image elevation angle (Y-axis rotation in degrees N)
-	public float orientation;              		// Image orientation (Landscape = 0, Portrait = 90, Upside Down Landscape = 180, Upside Down Portrait = 270)
-	public float rotation;				    	// Image rotation angle (Z-axis rotation in degrees)
-	public float focusDistance; 	 			// Image viewing distance (rarely given in metadata)
+	public int videoWidth, videoHeight;			// Video width and height
+	public float phi;			        		// Video elevation angle (Y-axis rotation in degrees N)
+	public float orientation;              		// Video orientation  {0: Landscape, 90: Portrait, 180: Landscape [flipped], 270 Portrait [flipped]}
+	public float rotation;				    	// Video rotation angle (Z-axis rotation in degrees)
+	public float focusDistance; 	 			// Video viewing distance (rarely given in metadata)
 	public float focalLength = 0; 				// Camera focal length (Zoom Level)
-	public float sensorSize; 	 				// Image viewing distance (rarely given in metadata)
+	public float sensorSize; 	 				// Video viewing distance (rarely given in metadata)
 
 	/**
 	 * Constructor for video metadata

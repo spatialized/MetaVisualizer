@@ -8,7 +8,7 @@ package multimediaLocator;
 public class ML_DebugSettings 
 {
 	/* Debug Modes */
-	public boolean detailed = true;				// Verbose debugging messages
+	public boolean detailed = false;				// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	public boolean messages = false;			// On screen debug messages
 	

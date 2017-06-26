@@ -940,7 +940,7 @@ public class WMV_Utilities
 	}
 
 	/** 
-	 * Get (approximate) distance between two GPS points in meters 
+	 * Get approximate distance between two GPS points in meters 
 	 * @param startLatitude Latitude of first point
 	 * @param startLongitude Longitude of first point
 	 * @param endLatitude Latitude of second point

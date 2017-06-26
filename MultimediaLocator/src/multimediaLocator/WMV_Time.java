@@ -178,8 +178,8 @@ public class WMV_Time implements Comparable<WMV_Time>
 	}
 	
 	/**
-	 * @param t Time segment to compare to
 	 * Compare this time segment with given one
+	 * @param t Time segment to compare to
 	 */
 	public int compareTo(WMV_Time t)
 	{
@@ -190,7 +190,6 @@ public class WMV_Time implements Comparable<WMV_Time>
 	{
 		public int compare(WMV_Time t1, WMV_Time t2) 
 		{
-
 			float time1 = t1.getTime();
 			float time2 = t2.getTime();
 
@@ -202,9 +201,9 @@ public class WMV_Time implements Comparable<WMV_Time>
 	};
 	
 	/**
+	 * Calculate date, time and dayLength for given Calendar date
 	 * @param c Calendar date
 	 * @return PVector containing (date, time, dayLength)
-	 * Calculate date, time and dayLength for given Calendar date
 	 */
 	public float getSimulationTime(ZonedDateTime c) 	
 	{		

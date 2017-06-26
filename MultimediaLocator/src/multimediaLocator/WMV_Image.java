@@ -11,13 +11,13 @@ import processing.core.PVector;
 public class WMV_Image extends WMV_Media			 
 {
 	/* Classes */
-	private WMV_ImageState state;
-	private WMV_ImageMetadata metadata;
+	private WMV_ImageState state;			// Image virtual state
+	private WMV_ImageMetadata metadata;		// Image metadata
 
 	/* Graphics */
-	public PImage image;			// Image pixels to be displayed
-	public PImage blurMask;		// Blur mask
-	public PImage blurred;			// Combined pixels 
+	public PImage image;					// Image pixels to display
+	public PImage blurMask;					// Blur mask
+	public PImage blurred;					// Combined pixels 
 
 	/**
 	 * Constructor for image in 3D space
@@ -31,84 +31,29 @@ public class WMV_Image extends WMV_Media
 		super( newID, newMediaType, newImageMetadata.name, newImageMetadata.filePath, newImageMetadata.dateTime, newImageMetadata.timeZone, 
 				newImageMetadata.gpsLocation );
 
-		metadata = newImageMetadata;
+		metadata = newImageMetadata;					// Image metadata
 
 		if(metadata.orientation == -1)
-			metadata.orientation = guessOrientation();
+			metadata.orientation = guessOrientation();	// Guess image orientation if none found in metadata
 
-		state = new WMV_ImageState();			// Store metadata in image state for exporting -- redundant?
-		state.initialize(metadata);			// Store metadata in image state for exporting -- redundant?
+		state = new WMV_ImageState();
+		state.initialize(metadata);						// Copy metadata to image state (for exporting)
 
 		if(newImage != null) image = newImage;			// Empty image
 
-		if(metadata.focusDistance == -1.f) metadata.focusDistance = state.defaultFocusDistance;
-		else metadata.focusDistance = metadata.focusDistance;
+		if(metadata.focusDistance == -1.f) 							// Use default focus distance if none found in metadata
+			metadata.focusDistance = state.defaultFocusDistance;
+		else 
+			metadata.focusDistance = metadata.focusDistance;
 
 		state.origFocusDistance = metadata.focusDistance;
 
-		initializeTime();
+		initializeTime();								// Initialize time and date from metadata
 
-		state.vertices = new PVector[4]; 
-		state.sVertices = new PVector[4]; 
+		state.vertices = new PVector[4]; 				// Initialize vertices
+		state.sVertices = new PVector[4]; 				// Initialize Static (Orientation) Mode vertices
 
-		setAspectRatio( calculateAspectRatio() );
-	}
-
-	public void initializeTime()
-	{
-		if(metadata.dateTime == null)
-		{
-			try {
-				metadata.dateTime = parseDateTime(metadata.dateTimeString);
-				time = new WMV_Time();
-				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 0, getAssociatedClusterID(), metadata.timeZone );
-			} 
-			catch (Throwable t) 
-			{
-				System.out.println("Error in image date / time... " + t);
-			}
-		}
-		else
-		{
-			time = new WMV_Time();
-			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 0, getAssociatedClusterID(), metadata.timeZone );
-		}
-	}
-
-	/**
-	 * Apply mask to image
-	 * @param ml Parent app
-	 * @param source Source image
-	 * @param mask Mask image
-	 * @return
-	 */
-	public PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
-	{
-		PImage result = ml.createImage(640, 480, PApplet.RGB);
-
-		try
-		{
-			result = source.copy();
-			result.mask(mask); 
-		}
-		catch(RuntimeException ex)
-		{
-			if(getDebugSettings().image || getDebugSettings().ml)
-			{
-				System.out.println("Image #"+getID()+" name:"+getName()+" ERROR with Image Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
-				if(source != null && mask != null)
-				{
-					System.out.println("  source.width:"+source.width+" mask.width:"+mask.width+"  source.height:"+source.height+" mask.height:"+mask.height);
-				}
-				else
-				{
-					System.out.println("  source == null?"+(source == null));
-					System.out.println("  mask == null?"+(mask == null));
-				}
-			}
-		}
-
-		return result;
+		setAspectRatio( calculateAspectRatio() );		// Set image aspect ratio
 	}
 
 	/**
@@ -158,6 +103,11 @@ public class WMV_Image extends WMV_Media
 		ml.popMatrix();
 	}
 
+	/**
+	 * Calculate and set image visibility based on viewer location and orientation
+	 * @param viewer Viewer
+	 * @param utilities Utilities object
+	 */
 	public void calculateVisibility(WMV_Viewer viewer, WMV_Utilities utilities)
 	{
 		setVisible(false);
@@ -208,6 +158,11 @@ public class WMV_Image extends WMV_Media
 		}
 	}
 	
+	/**
+	 * Calculate visibility resulting from fading behavior
+	 * @param f
+	 * @param wasVisible
+	 */
 	public void calculateFadingVisibility(WMV_Field f, boolean wasVisible)
 	{
 		boolean visibilitySetToTrue = false;
@@ -282,8 +237,6 @@ public class WMV_Image extends WMV_Media
 			else
 				ml.noStroke(); 
 		}
-//		else 
-//			ml.noStroke(); 
 
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
@@ -323,7 +276,7 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/** 
-	 * Draw the image
+	 * Draw original image in Heads-Up Display
 	 */
 	public void display2D(MultimediaLocator ml)
 	{
@@ -350,6 +303,43 @@ public class WMV_Image extends WMV_Media
 		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
 		ml.popMatrix();
 	}
+	
+	/**
+	 * Apply mask to image
+	 * @param ml Parent app
+	 * @param source Source image
+	 * @param mask Mask image
+	 * @return
+	 */
+	public PImage applyMask(MultimediaLocator ml, PImage source, PImage mask)
+	{
+		PImage result = ml.createImage(640, 480, PApplet.RGB);
+
+		try
+		{
+			result = source.copy();
+			result.mask(mask); 
+		}
+		catch(RuntimeException ex)
+		{
+			if(getDebugSettings().image || getDebugSettings().ml)
+			{
+				System.out.println("Image #"+getID()+" name:"+getName()+" ERROR with Image Blur Mask... "+ex+" state.horizBorderID:"+state.horizBordersID+" state.vertBorderID:"+state.vertBordersID);
+				if(source != null && mask != null)
+				{
+					System.out.println("  source.width:"+source.width+" mask.width:"+mask.width+"  source.height:"+source.height+" mask.height:"+mask.height);
+				}
+				else
+				{
+					System.out.println("  source == null?"+(source == null));
+					System.out.println("  mask == null?"+(mask == null));
+				}
+			}
+		}
+
+		return result;
+	}
+
 
 	/**
 	 * Calculate image brightness given viewer to image angle
@@ -717,6 +707,30 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/**
+	 * Initialize time and date from metadata
+	 */
+	public void initializeTime()
+	{
+		if(metadata.dateTime == null)
+		{
+			try {
+				metadata.dateTime = parseDateTime(metadata.dateTimeString);
+				time = new WMV_Time();
+				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 0, getAssociatedClusterID(), metadata.timeZone );
+			} 
+			catch (Throwable t) 
+			{
+				System.out.println("Error in image date / time... " + t);
+			}
+		}
+		else
+		{
+			time = new WMV_Time();
+			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 0, getAssociatedClusterID(), metadata.timeZone );
+		}
+	}
+
+	/**
 	 * Draw the image metadata in Heads-Up Display
 	 */
 	public void displayMetadata(MultimediaLocator ml)
@@ -829,21 +843,6 @@ public class WMV_Image extends WMV_Media
 		else
 			return 0;
 	}
-
-//	/**
-//	 * @return Average brightness across all pixels
-//	 */		
-//	private float getAverageBrightness() 
-//	{
-//		image.loadPixels();
-//		int b = 0;
-//		for (int i=0; i<image.pixels.length; i++) {
-//			float cur = p.p.p.brightness(image.pixels[i]);
-//			b += cur;
-//		}
-//		b /= image.pixels.length;
-//		return b;
-//	}
 
 	/**
 	 * Associate this image with given video ID  
@@ -984,7 +983,6 @@ public class WMV_Image extends WMV_Media
 			}
 		}
 
-//		System.out.println("initializeVertices()... for image #"+getID()+" verts == null?"+(verts == null)+" verts[0] == null?"+(verts[0] == null));
 		return verts;
 	}
 
@@ -1269,7 +1267,7 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/**
-	 * @return Image orientation metadata value (e.g. 0: Landscape, 90: Portrait, 180: Landscape [flipped], 270 Portrait [flipped])
+	 * @return Image orientation metadata value {0: Landscape, 90: Portrait, 180: Landscape [flipped], 270 Portrait [flipped]}
 	 */
 	public float getOrientation()
 	{
@@ -1367,4 +1365,19 @@ public class WMV_Image extends WMV_Media
 	{
 		image = newImage;
 	}
+
+//	/**
+//	 * @return Average brightness across all pixels
+//	 */		
+//	private float getAverageBrightness() 
+//	{
+//		image.loadPixels();
+//		int b = 0;
+//		for (int i=0; i<image.pixels.length; i++) {
+//			float cur = p.p.p.brightness(image.pixels[i]);
+//			b += cur;
+//		}
+//		b /= image.pixels.length;
+//		return b;
+//	}
 }

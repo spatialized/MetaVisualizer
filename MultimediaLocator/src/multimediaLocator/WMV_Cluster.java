@@ -1,6 +1,7 @@
 package multimediaLocator;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import processing.core.PVector;
 
@@ -8,7 +9,7 @@ import processing.core.PVector;
  * Cluster of media representing localized point of interest
  * @author davidgordon
  */
-public class WMV_Cluster 
+public class WMV_Cluster implements Comparable<WMV_Cluster>
 {
 	/* Classes */
 	private ML_DebugSettings debugSettings;		// Debug settings
@@ -1010,20 +1011,36 @@ public class WMV_Cluster
 		}
 	}
 
+	/**
+	 * Get distance from cluster center to viewer
+	 * @return Cluster distance
+	 */
+	public float getDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
+	{
+//		if(viewerState != null)
+//		{
+			return PVector.dist(state.location, point);
+//		}
+//		else
+//		{
+//			System.out.println("Cluster.getClusterDistance()... cluster id:"+getID()+" ... viewerState == NULL!!");
+//			return 0.f;
+//		}
+	}
 
 	/**
 	 * Get distance from cluster center to viewer
 	 * @return Cluster distance
 	 */
-	float getClusterDistanceFrom(PVector point)       // Find distance from camera to point in virtual space where photo appears           
+	float getViewerDistance()       // Find distance from camera to point in virtual space where photo appears           
 	{
 		if(viewerState != null)
 		{
-			return PVector.dist(state.location, point);
+			return PVector.dist(state.location, viewerState.getLocation());
 		}
 		else
 		{
-			System.out.println("Cluster.getClusterDistance()... cluster id:"+getID()+" ... viewerState == NULL!!");
+			System.out.println("Cluster.getViewerDistance()... cluster id:"+getID()+" ... viewerState == NULL!!");
 			return 0.f;
 		}
 	}
@@ -2047,6 +2064,34 @@ public class WMV_Cluster
 		return state.hasSound();
 	}
 	
+	/**
+	 * Compare distance this time segment with given one
+	 * @param t Cluster to compare to
+	 */
+	public int compareTo(WMV_Cluster c)
+	{
+		float dist = getViewerDistance();
+		float cDist = c.getViewerDistance();
+		return Float.compare(dist, cDist);		
+	}
+	
+	/**
+	 * Comparator for cluster distance
+	 */
+	public static Comparator<WMV_Cluster> WMV_ClusterDistanceComparator = new Comparator<WMV_Cluster>() 
+	{
+		public int compare(WMV_Cluster c1, WMV_Cluster c2) 
+		{
+			float dist1 = c1.getViewerDistance();
+			float dist2 = c2.getViewerDistance();
+
+			dist1 *= 1000000.f;
+			dist2 *= 1000000.f;
+
+			return (int)(dist1 - dist2);
+		}
+	};
+
 	/**
 	 * Print cluster data
 	 */

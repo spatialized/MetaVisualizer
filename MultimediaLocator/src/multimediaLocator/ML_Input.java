@@ -371,7 +371,7 @@ public class ML_Input
 	
 				/* Time */
 				case "OpenTimeWindow":
-					if(!ml.display.window.showTimelineWindow)
+					if(!ml.display.window.showTimeWindow)
 						ml.display.window.openTimelineWindow();
 					else
 						ml.display.window.openTimelineWindow();

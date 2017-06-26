@@ -7,7 +7,7 @@ import com.apporiented.algorithm.clustering.*;
 import processing.core.PVector;
 
 /******************************************
- * Spatiotemporal model of a field
+ * Media environment spatial model
  * @author davidgordon
  */
 
@@ -18,19 +18,19 @@ public class WMV_Model
 	WMV_WorldState worldState;			// World state
 	WMV_ViewerSettings viewerSettings;	// Viewer settings
 	WMV_ViewerState viewerState;		// Viewer state
-	ML_DebugSettings debugSettings;		// Debug settings
-	WMV_ModelState state;
+	WMV_ModelState state;				// Model state
 	WMV_Utilities utilities;			// Utility methods
+	ML_DebugSettings debugSettings;		// Debug settings
 
 	WMV_Model(){}
 
 	public void initialize(WMV_WorldSettings newWorldSettings, ML_DebugSettings newDebugSettings)
 	{
-		state = new WMV_ModelState();
-		worldSettings = newWorldSettings;
-		debugSettings = newDebugSettings;
+		state = new WMV_ModelState();									// Initialize model state
+		worldSettings = newWorldSettings;								// Load world settings
+		debugSettings = newDebugSettings;								// Load debug settings
 		
-		utilities = new WMV_Utilities();								// Utility methods
+		utilities = new WMV_Utilities();								// Initialize utility class
 		state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
 	}
 
@@ -67,10 +67,10 @@ public class WMV_Model
 			{
 				state.fieldWidth = 1000.f;
 				state.fieldLength = 1000.f;
-				state.fieldHeight = 1000.f;
+				state.fieldHeight = 50.f;
 			}
 
-			state.fieldArea = state.fieldWidth * state.fieldLength;				// -- Use field volume instead?
+			state.fieldArea = state.fieldWidth * state.fieldLength;				// Calculate field area    -- Also use field volume?
 			state.mediaDensity = state.validMedia / state.fieldArea;			// Media per sq. m.
 
 			setMinClusterDistance(worldSettings.minClusterDistance); 			// Minimum distance between clusters, i.e. closer than which clusters are merged

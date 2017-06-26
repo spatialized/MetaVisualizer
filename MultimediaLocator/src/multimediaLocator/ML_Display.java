@@ -247,9 +247,11 @@ public class ML_Display
 							map2D.update(ml.world);
 						}
 						break;
-					case 2:								// Timeline View
-						displayTimeView(ml.world);
+					case 2:								// Time View
 						updateFieldTimeline(ml.world);
+						displayTimeView(ml.world);
+//						displayTimeView(ml.world);
+//						updateFieldTimeline(ml.world);
 						break;
 					case 3:								// Library view
 						displayLibraryView(ml.world);
@@ -1060,8 +1062,13 @@ public class ML_Display
 				return sd;
 		}
 		
-		if(PVector.dist(mouseLoc, allDates.getLocation()) < allDates.radius)
-			return allDates;
+		if(allDates != null)
+		{
+			if(PVector.dist(mouseLoc, allDates.getLocation()) < allDates.radius)
+				return allDates;
+			else
+				return null;
+		}
 		else
 			return null;
 	}
@@ -2061,7 +2068,7 @@ public class ML_Display
 					window.setMapControlsEnabled(false);
 					window.btnMapView.setEnabled(true);
 				}
-				if(window.setupTimelineWindow)
+				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
 				}
@@ -2094,7 +2101,7 @@ public class ML_Display
 					window.setMapControlsEnabled(true);
 					window.btnMapView.setEnabled(false);
 				}
-				if(window.setupTimelineWindow)
+				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
 				}
@@ -2110,7 +2117,7 @@ public class ML_Display
 				{
 					window.btnMapView.setEnabled(true);
 				}
-				if(window.setupTimelineWindow)
+				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(false);
 				}

@@ -928,7 +928,9 @@ public class WMV_Field
 		{
 			if(debugSettings.ml) System.out.println("Initializing field #"+state.id);
 
-			if(randomSeed == -100000L) model.state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
+			if(randomSeed == -100000L) 
+				model.state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
+			
 			else model.state.clusteringRandomSeed = randomSeed;
 
 			model.setup(images, panoramas, videos, sounds); 						// Initialize field for first time 

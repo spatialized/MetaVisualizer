@@ -168,8 +168,8 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.viewer.getMovementTeleport();
 			ml.world.viewer.setMovementTeleport( state );
-			if(ml.display.window.setupNavigationWindow)
-				ml.display.window.chkbxMovementTeleport.setSelected(state);
+//			if(ml.display.window.setupNavigationWindow)
+//				ml.display.window.chkbxMovementTeleport.setSelected(state);
 		}
 
 		if( key == 't' && input.optionKey )
@@ -348,8 +348,6 @@ public class ML_KeyboardControls
 			else
 			{
 				ml.world.viewer.stopFollowing();
-				if(ml.display.window.setupNavigationWindow)
-					ml.display.window.chkbxPathFollowing.setSelected(false);
 			}
 		}
 		
@@ -1089,8 +1087,8 @@ public class ML_KeyboardControls
 	{
 		if (key == ' ') 
 		{
-			if(ml.display.window.showMLWindow)
-				ml.display.window.hideMLWindow();
+			if(ml.display.window.showMainMenu)
+				ml.display.window.hideMainMenu();
 			else
 				ml.display.window.openMLWindow();
 		}
@@ -1129,10 +1127,10 @@ public class ML_KeyboardControls
 
 		if (key == '%') 
 		{
-			if(!ml.display.window.showTimelineWindow)
+			if(!ml.display.window.showTimeWindow)
 				ml.display.window.openTimelineWindow();
 			else
-				ml.display.window.closeTimelineWindow();
+				ml.display.window.closeTimeWindow();
 		}
 		
 		if (key == '^') 

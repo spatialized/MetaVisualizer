@@ -128,11 +128,19 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	void displayModel(MultimediaLocator ml)
 	{
+		float brightness = state.outlineAlpha * getViewerSettings().userBrightness;
+		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactor); 
+		
+		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+
+//		if( getWorldState().timeFading && time != null && !ml.world.viewer.isMoving() )
+//			brightness *= getTimeBrightness(); 							// Fade iBrightness based on time
+
 		/* Draw frame */
 		ml.pushMatrix();
 
-		ml.stroke(0.f, 0.f, 255.f, state.outlineAlpha);	 
-//		ml.stroke(0.f, 0.f, 255.f, getViewingBrightness());	 
+		ml.stroke(0.f, 0.f, 255.f, brightness);	 
+//		ml.stroke(0.f, 0.f, 255.f, state.outlineAlpha);	 
 		ml.strokeWeight(2.f);
 		
 		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
@@ -242,7 +250,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				setVisible(false);
 				
 			if(isVisible() && !getViewerSettings().orientationMode)
-				setVisible(getDistanceBrightness(viewer) > 0.f);
+				setVisible(getDistanceBrightness(viewer, viewer.getFarViewingDistance()) > 0.f);
 
 			if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide orientations of 180 or 270 (avoid upside down images)
 				setVisible(false);
@@ -694,16 +702,16 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	}
 
 	/** 
-	 * @return Distance visibility multiplier between 0. and 1.
 	 * Find video visibility due to distance (fades away in distance and as camera gets close)
+	 * @return Distance visibility multiplier between 0. and 1.
 	 */
-	public float getDistanceBrightness(WMV_Viewer viewer)
+	public float getDistanceBrightness(WMV_Viewer viewer, float farViewingDistance)
 	{
 		float viewDist = getViewingDistance(viewer);
 		float distVisibility = 1.f;
 
-		float farViewingDistance = getViewerSettings().getFarViewingDistance();
-		float nearViewingDistance = getViewerSettings().getNearViewingDistance();
+//		float farViewingDistance = getViewerSettings().getFarViewingDistance();
+		float nearViewingDistance = viewer.getNearViewingDistance();
 		
 		if(viewDist > farViewingDistance)
 		{
@@ -714,7 +722,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 				distVisibility = 0.f;
 		}
 		else if(viewDist < nearViewingDistance) 													// Near distance at which transparency reaches zero
-			distVisibility = PApplet.constrain(PApplet.map(viewDist, getViewerSettings().getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
+			distVisibility = PApplet.constrain(PApplet.map(viewDist, viewer.getNearClippingDistance(), nearViewingDistance, 0.f, 1.f), 0.f, 1.f);   					  // Fade out until visibleNearDistance
 
 		return distVisibility;
 	}

@@ -115,7 +115,8 @@ public class WMV_Field
 	 */
 	public void display( MultimediaLocator ml ) 				
 	{
-		if(ml.frameCount % 10 == 0) updateVisibleClusters(ml);		/* Find visible clusters */
+//		if(ml.frameCount % 15 == 0) 
+			updateVisibleClusters(ml);		/* Find visible clusters */
 		
 		state.imagesVisible = visibleImages.size();
 		state.panoramasVisible = visiblePanoramas.size();
@@ -139,14 +140,14 @@ public class WMV_Field
 		updateSounds(ml);
 		
 		/* Display media */
-		displayVisibleImages(ml, visibleImages);
-		displayVisiblePanoramas(ml, visiblePanoramas);
-		displayVisibleVideos(ml, visibleVideos);
-		displayAudibleSounds(ml, audibleSounds);			// Sounds visible when Show Model setting is on
+		displayImages(ml, visibleImages);						// Display visible images
+		displayPanoramas(ml, visiblePanoramas);					// Display visible panoramas
+		displayVideos(ml, visibleVideos);						// Display visible videos
+		displaySounds(ml, audibleSounds);						// Display visible sounds
 
-		if(ml.world.getState().showModel)
+		if(ml.world.getState().showModel)						// Display models (diff. clipping distance)
 		{
-			displayImageModels(ml, images);						// Display models (diff. clipping distance)
+			displayImageModels(ml, images);
 			displayVideoModels(ml, videos);
 		}
 		
@@ -171,7 +172,7 @@ public class WMV_Field
 				if(!img.isDisabled())
 				{
 					float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactor;		// Distance where transparency reaches zero
-					float distance = img.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
+					float distance = img.getViewingDistance(ml.world.viewer); 									// Estimate image distance to camera based on capture location
 					boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 					if(inVisibleRange)
 					{
@@ -197,16 +198,20 @@ public class WMV_Field
 //		}
 	}
 	
+	/**
+	 * Display video models
+	 * @param ml Parent app
+	 * @param imageList Video list
+	 */
 	public void displayVideoModels(MultimediaLocator ml, ArrayList<WMV_Video> videoList)
 	{
 		if(!ml.world.viewer.getSettings().hideVideos)
 		{
-
 			for(WMV_Video vid : videoList)
 			{
 				if(!vid.isDisabled())
 				{
-					float vanishingPoint = viewerSettings.farViewingDistance * 3.f;		// Distance where transparency reaches zero
+					float vanishingPoint = viewerSettings.farViewingDistance * ml.world.getState().modelDistanceVisibilityFactor;		// Distance where transparency reaches zero
 					float distance = vid.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 					boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 					if(inVisibleRange)
@@ -248,10 +253,12 @@ public class WMV_Field
 				float distance = m.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 				boolean inVisibleRange = ( distance < vanishingPoint && distance > viewerSettings.nearClippingDistance );
 
-//				m.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
-					m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
+					if(m.getAssociatedClusterID() < clusters.size())
+						m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
+					else
+						System.out.println("Field.updateImages()... ERROR: Image #"+m.getID()+" is associated with cluster #"+m.getAssociatedClusterID()+" but field only has:"+getClusters().size());
 				}
 
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
@@ -283,7 +290,6 @@ public class WMV_Field
 				float distance = n.getViewingDistance(ml.world.viewer); // Estimate image distance to camera based on capture location
 				boolean inVisibleRange = (distance < vanishingPoint);
 
-//				n.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);	// Update world + viewer states
 				if(worldState.timeFading)
 				{
 					n.updateTimeBrightness(clusters.get(n.getAssociatedClusterID()), timeline, utilities);
@@ -592,7 +598,7 @@ public class WMV_Field
 		float brightness = m.getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
 
-		float distanceBrightnessFactor = m.getDistanceBrightness(ml.world.viewer); 
+		float distanceBrightnessFactor = m.getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance()); 
 		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
 
 		if( getWorldState().timeFading && m.time != null && !getViewerState().isMoving() )
@@ -696,7 +702,7 @@ public class WMV_Field
 		float brightness = v.getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
 
-		distanceBrightness = v.getDistanceBrightness(ml.world.viewer); 
+		distanceBrightness = v.getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance()); 
 		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
 
 		if( getWorldState().timeFading && v.time != null && !getViewerState().isMoving() )
@@ -801,7 +807,7 @@ public class WMV_Field
 	 * @param ml Parent app
 	 * @param visibleImages List of visible images
 	 */
-	private void displayVisibleImages(MultimediaLocator ml, List<Integer> visibleImages)
+	private void displayImages(MultimediaLocator ml, List<Integer> visibleImages)
 	{
 		state.imagesSeen = 0;
 		for(int i : visibleImages)
@@ -813,7 +819,7 @@ public class WMV_Field
 	 * @param ml Parent app
 	 * @param visiblePanoramas List of visible panoramas
 	 */
-	private void displayVisiblePanoramas(MultimediaLocator ml, List<Integer> visiblePanoramas)
+	private void displayPanoramas(MultimediaLocator ml, List<Integer> visiblePanoramas)
 	{
 		for(int i : visiblePanoramas)
 			displayPanorama(ml, i);
@@ -824,7 +830,7 @@ public class WMV_Field
 	 * @param ml Parent app
 	 * @param visibleVideos List of visible videos
 	 */
-	private void displayVisibleVideos(MultimediaLocator ml, List<Integer> visibleVideos)
+	private void displayVideos(MultimediaLocator ml, List<Integer> visibleVideos)
 	{
 		for(int i : visibleVideos)
 			displayVideo(ml, i);
@@ -835,7 +841,7 @@ public class WMV_Field
 	 * @param ml Parent app
 	 * @param audibleSounds List of audible sounds
 	 */
-	private void displayAudibleSounds(MultimediaLocator ml, List<Integer> audibleSounds)
+	private void displaySounds(MultimediaLocator ml, List<Integer> audibleSounds)
 	{
 		for(int i : audibleSounds)
 			displaySound(ml, i);
@@ -858,6 +864,10 @@ public class WMV_Field
 			else
 				ml.world.settings.maxVisibleClusters = -1;
 		}
+		if( ml.world.viewer.getClusterDistanceVisibilityFactor() <= 0.9f)			// Increase cluster distance visibility factor
+		{
+			ml.world.viewer.setClusterDistanceVisibilityFactor(ml.world.viewer.getClusterDistanceVisibilityFactor() + 0.1f);
+		}
 	}
 	
 	/**
@@ -878,6 +888,10 @@ public class WMV_Field
 				if(debugSettings.world && debugSettings.detailed)
 					System.out.println("> reduceClusterVisibility()... Reduced cluster visibility to:"+ml.world.settings.maxVisibleClusters);
 			}
+		}
+		if( ml.world.viewer.getClusterDistanceVisibilityFactor() >= 0.2f)			// Dencrease cluster distance visibility factor
+		{
+			ml.world.viewer.setClusterDistanceVisibilityFactor(ml.world.viewer.getClusterDistanceVisibilityFactor() - 0.1f);
 		}
 	}
 	

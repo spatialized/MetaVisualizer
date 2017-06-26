@@ -279,13 +279,19 @@ public class WMV_World
 		else setCurrentTime(curTimePoint + settings.timeInc);
 	}
 	
+	/**
+	 * Get current position in Time Cycle
+	 * @return Current time point
+	 */
 	public float getCurrentTimePoint()
 	{
 		float timePoint = 0.f;						// Normalized time position between 0.f and 1.f
 		switch(getState().getTimeMode())
 		{
 			case 0:
-				timePoint = utilities.mapValue(getCurrentCluster().getState().currentTime, 0, getCurrentCluster().getState().timeCycleLength, 0.f, 1.f);
+				WMV_Cluster c = getCurrentCluster();
+				if(c != null)
+					timePoint = utilities.mapValue(c.getState().currentTime, 0, c.getState().timeCycleLength, 0.f, 1.f);
 				break;
 			case 1:
 				timePoint = utilities.mapValue(getState().currentTime, 0, getSettings().timeCycleLength, 0.f, 1.f);
@@ -1262,7 +1268,7 @@ public class WMV_World
 	void decrementTimeCycleLength()
 	{
 		int cycleLength;
-		if(ml.display.window.setupNavigationWindow)
+		if(ml.display.window.setupTimeWindow)
 			cycleLength = ml.display.window.sdrTimeCycleLength.getValueI();
 		else
 			cycleLength = settings.timeCycleLength;
@@ -1290,7 +1296,7 @@ public class WMV_World
 	{
 		int cycleMax;
 		int cycleLength;
-		if(ml.display.window.setupNavigationWindow)
+		if(ml.display.window.setupTimeWindow)
 		{
 			cycleLength = ml.display.window.sdrTimeCycleLength.getValueI();
 			cycleMax = (int) ml.display.window.sdrTimeCycleLength.getEndLimit();
@@ -1763,7 +1769,7 @@ public class WMV_World
 	public void setTimeMode(int newTimeMode)
 	{
 		state.timeMode = newTimeMode;
-		if(ml.display.window.setupNavigationWindow)
+		if(ml.display.window.setupTimeWindow)
 		{
 			switch(state.timeMode)
 			{
@@ -1788,8 +1794,8 @@ public class WMV_World
 						ml.display.message(ml, "Set Time Mode to: Field");
 					break;
 			}		
+			if(ml.world.state.timeFading) ml.display.window.sdrCurrentTime.setValue(ml.world.getCurrentTimePoint());
 		}
-
 	}
 	
 	/**
@@ -2012,8 +2018,10 @@ public class WMV_World
 	 */
 	public ArrayList<WMV_Cluster> getVisibleClusters()
 	{
+		float maxClusterDistance = settings.maxClusterDistance * viewer.getClusterDistanceVisibilityFactor();
+		
+		ArrayList<WMV_Cluster> nearClusters = viewer.getNearClusters(settings.maxVisibleClusters, maxClusterDistance);
 		ArrayList<WMV_Cluster> clusters = new ArrayList<WMV_Cluster>();
-		ArrayList<WMV_Cluster> nearClusters = viewer.getNearClusters(settings.maxVisibleClusters, settings.maxClusterDistance);
 		
 		if(nearClusters != null)
 		{
@@ -2091,62 +2099,6 @@ public class WMV_World
 		}
 		else 
 			return new ArrayList<Integer>();
-		
-//		WMV_Field f = getCurrentField();
-//		List<Integer> clusters = new ArrayList<Integer>();
-//		ArrayList<WMV_Cluster> nearClusters = viewer.getNearClusters(settings.maxVisibleClusters, settings.maxClusterDistance);
-//		
-//		if(nearClusters != null)
-//		{
-//			for(WMV_Cluster c : nearClusters)
-//			{
-//				//			WMV_Cluster c = f.getCluster(i);
-//
-//				if(c.isActive() && !c.isEmpty())
-//				{
-//					boolean visible = true;
-//
-//					if(settings.clusterLength < 1.f)			// Get visibility based on Time Mode
-//					{
-//						visible = false;
-//						switch(state.timeMode)
-//						{
-//						case 0:									// Cluster Time Mode
-//							visible = true;
-//							break;
-//
-//						case 1:									// Field Time Mode
-//							float first = c.getTimeline().timeline.get( c.getFirstTimeSegmentClusterTimelineID(true) ).getLower().getTime();
-//							float last = c.getTimeline().timeline.get( c.getLastTimeSegmentClusterTimelineID(true) ).getUpper().getTime();
-//							float center;
-//
-//							if(first == last)
-//								center = first;
-//							else
-//								center = first + last * 0.5f;
-//
-//							float current = utilities.mapValue(state.currentTime, 0, settings.timeCycleLength, 0.f, 1.f);
-//							float timeDiff = (float)Math.abs(current - center);
-//							if(timeDiff <= settings.clusterLength) 
-//								visible = true;
-//							break;
-//
-//						case 2:
-//							visible = true;
-//							break;
-//						}
-//					}
-//
-//					if(visible) 
-//						clusters.add(c.getID());
-//				}
-//			}
-//
-//			return clusters;
-//		}
-//		else return null;
-		
-		
 	}
 	
 	/**

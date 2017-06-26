@@ -118,6 +118,11 @@ public class WMV_Panorama extends WMV_Media
 			setVisible(false);
 	}
 	
+	/**
+	 * Calculate visibility due to fading behavior
+	 * @param f
+	 * @param wasVisible
+	 */
 	public void calculateFadingVisibility(WMV_Field f, boolean wasVisible)
 	{
 		boolean visibilitySetToTrue = false;

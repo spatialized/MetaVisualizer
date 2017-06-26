@@ -168,8 +168,11 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.viewer.getMovementTeleport();
 			ml.world.viewer.setMovementTeleport( state );
-//			if(ml.display.window.setupNavigationWindow)
-//				ml.display.window.chkbxMovementTeleport.setSelected(state);
+			if(ml.display.window.setupNavigationWindow)
+			{
+				ml.display.window.optMove.setSelected(state);
+				ml.display.window.optTeleport.setSelected(!state);
+			}
 		}
 
 		if( key == 't' && input.optionKey )
@@ -189,7 +192,7 @@ public class ML_KeyboardControls
 		{
 			boolean state = !ml.world.getState().timeFading;
 			ml.world.setTimeFading(state);
-			if(ml.display.window.setupNavigationWindow)
+			if(ml.display.window.setupTimeWindow)
 				ml.display.window.chkbxTimeFading.setSelected(state);
 		}
 
@@ -288,7 +291,6 @@ public class ML_KeyboardControls
 
 				if(ml.display.window.setupNavigationWindow)
 				{
-
 					switch(ml.world.viewer.getPathNavigationMode())		// 0: Timeline 1: GPS Track 2: Memory
 					{
 						case 0:					// Timeline

@@ -4642,6 +4642,16 @@ public class WMV_Viewer
 		return settings;
 	}
 
+	public void setClusterDistanceVisibilityFactor(float newValue)
+	{
+		settings.clusterDistanceVisibilityFactor = newValue;
+	}
+
+	public float getClusterDistanceVisibilityFactor()
+	{
+		return settings.clusterDistanceVisibilityFactor;
+	}
+	
 	/**
 	 * @return List of waypoints representing memory path
 	 */
@@ -4848,9 +4858,9 @@ public class WMV_Viewer
 		if(p.getSettings().screenMessagesOn)
 		{
 			if(state.movementTeleport)
-				p.ml.display.message(p.ml, "Teleporting ON for Auto Navigation Commands");
+				p.ml.display.message(p.ml, "Navigation Teleporting ON");
 			else
-				p.ml.display.message(p.ml, "Teleporting OFF for Auto Navigation Commands");
+				p.ml.display.message(p.ml, "Navigation Teleporting OFF");
 		}
 	}
 

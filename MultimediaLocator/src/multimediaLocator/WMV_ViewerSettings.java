@@ -29,7 +29,7 @@ public class WMV_ViewerSettings
 	public boolean angleThinning = false;					// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;					// Transition length from one alpha value to next
-
+	public float clusterDistanceVisibilityFactor = 1.f;		// Current scaling of cluster distance visibility
 	/* Video */
 	public boolean autoPlayVideos = true;					// Automatically play videos near viewer
 	public int autoPlayMaxVideoCount = 2;					// Maximum videos to auto play simultaneously

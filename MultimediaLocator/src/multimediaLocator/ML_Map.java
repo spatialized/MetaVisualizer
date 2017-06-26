@@ -28,7 +28,7 @@ import de.fhpotsdam.unfolding.providers.OpenStreetMap;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
 
 /***********************************
- * Methods for displaying interactive 2D maps of 3D environments
+ * Interactive 2D map of virtual media environment
  * @author davidgordon
  */
 public class ML_Map 

@@ -123,7 +123,30 @@ public class ML_Input
 				world.viewer.setPathWaitLength( slider.getValueI() );
 			if (slider.tag == "MediaLength") 
 				world.settings.defaultMediaLength = slider.getValueI();
+		}
+		
+		if(display.window.setupMediaWindow)
+		{
+			if (slider.tag == "VisibleAngle") 
+				world.viewer.setVisibleAngle( slider.getValueF() );
 			
+			if (slider.tag == "Alpha") 
+				world.state.alpha = slider.getValueF();
+			
+			if (slider.tag == "Brightness") 
+				world.viewer.setUserBrightness( slider.getValueF() );
+			
+			if (slider.tag == "AltitudeScaling") 
+			{
+				world.settings.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
+				world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
+				world.getCurrentField().recalculateGeometries();			// Recalculate media geometries at new locations
+				world.getCurrentField().createClusters();					// Recalculate cluster locations
+			}
+		}
+		
+		if(display.window.setupTimeWindow)
+		{
 			if (slider.tag == "TimeCycleLength") 
 			{
 				switch(world.state.timeMode)
@@ -148,31 +171,11 @@ public class ML_Input
 			if (slider.tag == "ClusterLength") 
 				world.settings.clusterLength = slider.getValueF();
 		}
-		
-		if(display.window.setupMediaWindow)
-		{
-			if (slider.tag == "VisibleAngle") 
-				world.viewer.setVisibleAngle( slider.getValueF() );
-			
-			if (slider.tag == "Alpha") 
-				world.state.alpha = slider.getValueF();
-			
-			if (slider.tag == "Brightness") 
-				world.viewer.setUserBrightness( slider.getValueF() );
-			
-			if (slider.tag == "AltitudeScaling") 
-			{
-				world.settings.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
-				world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
-				world.getCurrentField().recalculateGeometries();			// Recalculate media geometries at new locations
-				world.getCurrentField().createClusters();					// Recalculate cluster locations
-			}
-		}
 	}
 
 	/**
 	 * Handle button input
-	 * @param ml Parent App
+	 * @param ml Parent app
 	 * @param display Display object
 	 * @param button GButton that was pressed
 	 * @param event GEvent that occurred
@@ -697,6 +700,17 @@ public class ML_Input
 				break;
 
 			/* Navigation */
+			case "NavigationTeleport":
+				world.viewer.setMovementTeleport( true );
+				if(!world.viewer.getMovementTeleport())
+					world.viewer.stopFollowing();
+				break;
+			case "NavigationMove":
+				world.viewer.setMovementTeleport( false );
+				if(!world.viewer.getMovementTeleport())
+					world.viewer.stopFollowing();
+				break;
+				
 			case "FollowTimeline":
 				if(option.isSelected())
 				{
@@ -721,11 +735,11 @@ public class ML_Input
 					display.window.optGPSTrack.setSelected(false);
 				}
 				break;
-			case "MovementTeleport":
-				world.viewer.setMovementTeleport( option.isSelected() );
-				if(!world.viewer.getMovementTeleport())
-					world.viewer.stopFollowing();
-				break;
+//			case "MovementTeleport":
+//				world.viewer.setMovementTeleport( option.isSelected() );
+//				if(!world.viewer.getMovementTeleport())
+//					world.viewer.stopFollowing();
+//				break;
 			
 			case "Following":
 				if(option.isSelected())

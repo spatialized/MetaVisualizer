@@ -431,9 +431,6 @@ public abstract class WMV_Media
 					
 					if(mState.hideAfterFadingOut)
 					{
-						if(debugSettings.sound)
-							if(mState.mediaType == 3)	// Sound
-								System.out.println("Media.updateFading()... Will hide sound #"+getID()+" mState.hideAfterFadingOut:"+mState.hideAfterFadingOut);
 						setHidden(true);
 						mState.hideAfterFadingOut = false;
 					}
@@ -442,15 +439,12 @@ public abstract class WMV_Media
 					{
 						case 0:
 							if(f.visibleImages.contains(getID()))
-							{
-//								System.out.println("Removing image #"+getID());
 								f.visibleImages.remove(f.visibleImages.indexOf(getID()));
-							}
 							break;
 						case 1:
 							if(f.visiblePanoramas.contains(getID()))
 							{
-								System.out.println("Removing panorama #"+getID());
+								if(debugSettings.panorama) System.out.println("Media.updateFading()... Removing faded out panorama #"+getID());
 								f.visiblePanoramas.remove(f.visiblePanoramas.indexOf(getID()));
 							}
 							break;

@@ -2107,10 +2107,6 @@ public class WMV_World
 		ArrayList<WMV_Cluster> visible = getVisibleClusters();
 		List<Integer> clusters = new ArrayList<Integer>();
 		
-//		if(ml.debugSettings.detailed && ml.frameCount % 30 == 0)
-//			if(ml.debugSettings.world || ml.debugSettings.media)
-//				System.out.println("World.getVisibleClusterIDs()... Clusters visible:"+visible.size());
-		
 		if(visible != null)
 		{
 			for(WMV_Cluster c : visible)

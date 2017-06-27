@@ -4107,12 +4107,14 @@ public class WMV_Field
 		List<Integer> clusterImages = getCluster(clusterID).getImageIDs();
 		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
 		
-		for(WMV_Image image : imageList)
+		for(int i:clusterImages)
 		{
-			if(clusterImages.contains( image.getID() ))
+			WMV_Image image = imageList.get(i);
+			if(image.getID() == i)
 				cImages.add(image);
+			else
+				System.out.println("Field.getImagesInCluster()... image #"+getID()+" not at index #"+i+"...");
 		}
-		
 		return cImages;
 	}
 
@@ -4124,10 +4126,14 @@ public class WMV_Field
 	{
 		List<Integer> clusterPanoramas = getCluster(clusterID).getPanoramaIDs();
 		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
-		for(WMV_Panorama panorama : panoramaList)
+		
+		for(int i:clusterPanoramas)
 		{
-			if(clusterPanoramas.contains( panorama.getID() ))
+			WMV_Panorama panorama = panoramaList.get(i);
+			if(panorama.getID() == i)
 				cPanoramas.add(panorama);
+			else
+				System.out.println("Field.getPanoramasInCluster()... panorama #"+getID()+" not at index #"+i+"...");
 		}
 		return cPanoramas;
 	}
@@ -4140,10 +4146,14 @@ public class WMV_Field
 	{
 		List<Integer> clusterVideos = getCluster(clusterID).getVideoIDs();
 		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
-		for(WMV_Video video : videoList)
+		
+		for(int i:clusterVideos)
 		{
-			if(clusterVideos.contains( video.getID() ))
+			WMV_Video video = videoList.get(i);
+			if(video.getID() == i)
 				cVideos.add(video);
+			else
+				System.out.println("Field.getVideosInCluster()... image #"+getID()+" not at index #"+i+"...");
 		}
 		return cVideos;
 	}
@@ -4156,10 +4166,14 @@ public class WMV_Field
 	{
 		List<Integer> clusterSounds = getCluster(clusterID).getSoundIDs();
 		ArrayList<WMV_Sound> cSounds = new ArrayList<WMV_Sound>();
-		for(WMV_Sound sound : soundList)
+		
+		for(int i:clusterSounds)
 		{
-			if(clusterSounds.contains( sound.getID() ))
+			WMV_Sound sound = soundList.get(i);
+			if(sound.getID() == i)
 				cSounds.add(sound);
+			else
+				System.out.println("Field.getSoundsInCluster()... sound #"+getID()+" not at index #"+i+"...");
 		}
 		return cSounds;
 	}

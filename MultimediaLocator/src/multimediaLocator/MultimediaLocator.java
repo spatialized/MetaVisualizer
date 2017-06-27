@@ -514,7 +514,7 @@ public class MultimediaLocator extends PApplet
 					display.window.setLibraryWindowText("Building media library...");		/* Change Library Window Text */
 
 				if(debugSettings.ml || debugSettings.world) 
-					System.out.println("ML.initializeField()... Failed at loading simulation state... Initializing field #"+f.getID());
+					System.out.println("ML.initializeField()... No simulation state to load... initializing Field #"+f.getID());
 				
 				world.getField(fieldID).initialize(-100000L);
 				world.getField(fieldID).setDataFolderLoaded(false);

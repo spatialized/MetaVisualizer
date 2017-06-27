@@ -99,9 +99,18 @@ public class WMV_World
 	 */
 	public void run()
 	{
-		updateState();
+		update();
 		display();
 		updateBehavior();
+	}
+	
+	public void update()
+	{
+		state.frameCount = ml.frameCount;
+		viewer.updateState(settings, state);
+		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
+		
+		getCurrentField().findVisibleClusters(ml);		/* Find visible clusters */
 	}
 	
 	/**
@@ -256,6 +265,9 @@ public class WMV_World
 			case 3:													// Flexible Time Mode -- In progress
 				break;
 		}
+		
+		if(state.timeFading && !state.paused)
+			ml.display.window.sdrCurrentTime.setValue(getCurrentTimePoint());
 	}
 	
 	/**
@@ -408,29 +420,29 @@ public class WMV_World
 	/**
 	 * Update viewer and current field about world state and settings
 	 */
-	void updateState()
-	{
-		state.frameCount = ml.frameCount;
-		viewer.updateState(settings, state);
-		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
-	}
+//	void updateState()
+//	{
+//		state.frameCount = ml.frameCount;
+//		viewer.updateState(settings, state);
+//		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
+//	}
 
 	/**
 	 * Update all media settings
 	 */
-	public void updateAllMediaSettings()
-	{
-		WMV_Field f = getCurrentField();
-		
-		for(WMV_Image img : f.getImages())
-			img.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-		for(WMV_Panorama pano : f.getPanoramas())
-			pano.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-		for(WMV_Video vid : f.getVideos())
-			vid.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-		for(WMV_Sound snd : f.getSounds())
-			snd.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-	}
+//	public void updateAllMediaSettings()
+//	{
+//		WMV_Field f = getCurrentField();
+//		
+//		for(WMV_Image img : f.getImages())
+//			img.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
+//		for(WMV_Panorama pano : f.getPanoramas())
+//			pano.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
+//		for(WMV_Video vid : f.getVideos())
+//			vid.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
+//		for(WMV_Sound snd : f.getSounds())
+//			snd.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
+//	}
 
 	/**
 	 * Draw terrain as wireframe grid
@@ -852,17 +864,17 @@ public class WMV_World
 	
 	/**
 	 * Load field's associated simulation state, i.e. world and viewer states + settings
-	 * @param curField Field to load state for
+	 * @param field Field to load state for
 	 * @return Field with loaded simulation state
 	 */
-	public WMV_Field loadSimulationState(WMV_Field curField)
+	public WMV_Field loadSimulationState(WMV_Field field)
 	{
-		PApplet.println("Loading Simulation State... Field #"+curField.getID());
+		PApplet.println("Loading Simulation State... Field #"+field.getID());
 
-		WMV_WorldState newWorldState = loadState(curField.getID());
-		WMV_WorldSettings newWorldSettings = loadSettings(curField.getID());
-		WMV_ViewerState newViewerState = loadViewerState(curField.getID());
-		WMV_ViewerSettings newViewerSettings = loadViewerSettings(curField.getID());
+		WMV_WorldState newWorldState = loadState(field.getID());
+		WMV_WorldSettings newWorldSettings = loadSettings(field.getID());
+		WMV_ViewerState newViewerState = loadViewerState(field.getID());
+		WMV_ViewerSettings newViewerSettings = loadViewerSettings(field.getID());
 		newWorldState.frameCount = ml.frameCount;
 
 		/* Check world and viewer state/settings */
@@ -874,18 +886,19 @@ public class WMV_World
 			if(newViewerSettings != null) System.out.println("ViewerSettings exists...");
 		}
 		
-		String fieldName = curField.getName();
-		int fieldID = curField.getID();
-		curField = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, ml.debugSettings, fieldName, fieldID);
-		curField= loadFieldState(curField);
-		curField.setID(fieldID);
+		String fieldName = field.getName();
+		int fieldID = field.getID();
+		field = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, ml.debugSettings, fieldName, fieldID);
+		
+		field= loadFieldState(field);
+		field.setID(fieldID);
 		
 		if(ml.debugSettings.world && ml.debugSettings.detailed)
-			System.out.println("Loaded Field State... Field #"+curField.getID()+" clusters:"+curField.getClusters().size());
+			System.out.println("Loaded Field State... Field #"+field.getID()+" clusters:"+field.getClusters().size());
 
-		return curField;
+		return field;
 	}
-
+	
 	/**
 	 * Set world and viewer states from saved data in given field
 	 * @param field Given field
@@ -902,7 +915,7 @@ public class WMV_World
 
 		state.frameCount = ml.frameCount;
 		viewer.setFrameCount(ml.frameCount);
-		
+
 		if(field.getID() < fields.size())
 		{
 			viewer.setCurrentFieldID(field.getID());
@@ -955,10 +968,14 @@ public class WMV_World
 				System.out.println("  setSimulationStateFromField()... currentCluster id:"+getCurrentCluster().getID()+" cluster location:"+getCurrentCluster().getLocation()+" current location:"+viewer.getLocation());
 			else
 				System.out.println("  setSimulationStateFromField()... currentCluster is null!!!");
+			
+			System.out.println("--------VERIFYING FIELD--------");
+			getCurrentField().verify(true);			// -- Test
 		}
 		
-		updateState();
-		getCurrentField().updateAllMediaWorldStates();
+//		updateState();
+		update();
+		getCurrentField().updateAllMediaStates();
 	}
 
 	/**
@@ -1224,7 +1241,7 @@ public class WMV_World
 	 */
 	public WMV_Field getCurrentField()
 	{
-		WMV_Field f = fields.get(viewer.getState().getCurrentField());
+		WMV_Field f = fields.get(viewer.getCurrentFieldID());
 		return f;
 	}
 	
@@ -1638,9 +1655,9 @@ public class WMV_World
 			
 			for(WMV_Cluster c : cl)
 			{
-				settings.timeCycleLength += c.getImages( getCurrentField().getImages() ).size() * settings.defaultMediaLength;
-				settings.timeCycleLength += c.getPanoramas( getCurrentField().getPanoramas() ).size() * settings.defaultMediaLength;
-				for(WMV_Video v: c.getVideos( getCurrentField().getVideos()) )
+				settings.timeCycleLength += getCurrentField().getImagesInCluster( c.getID(), getCurrentField().getImages() ).size() * settings.defaultMediaLength;
+				settings.timeCycleLength += getCurrentField().getPanoramasInCluster( c.getID(), getCurrentField().getPanoramas() ).size() * settings.defaultMediaLength;
+				for(WMV_Video v: getCurrentField().getVideosInCluster( c.getID(), getCurrentField().getVideos()) )
 					settings.timeCycleLength += PApplet.round( v.getLength() * 29.98f );		// Add videos' actual (approx.) lengths
 //				for(WMV_Sound s: c.getSounds( getCurrentField().getSounds() )
 //					settings.timeCycleLength += PApplet.round( s.getLength() * 29.98f );		// Add sounds' actual (approx.) lengths -- Obsolete??
@@ -2089,6 +2106,11 @@ public class WMV_World
 	{
 		ArrayList<WMV_Cluster> visible = getVisibleClusters();
 		List<Integer> clusters = new ArrayList<Integer>();
+		
+//		if(ml.debugSettings.detailed && ml.frameCount % 30 == 0)
+//			if(ml.debugSettings.world || ml.debugSettings.media)
+//				System.out.println("World.getVisibleClusterIDs()... Clusters visible:"+visible.size());
+		
 		if(visible != null)
 		{
 			for(WMV_Cluster c : visible)
@@ -2113,8 +2135,8 @@ public class WMV_World
 			{
 				c.setTimeCycleLength( newTimeCycleLength );
 
-				c.updateAllMediaSettings(getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
-						getCurrentField().getSounds(), settings, state, viewer.getSettings(), viewer.getState());
+				c.updateAllMediaStates( getCurrentField().getImages(), getCurrentField().getPanoramas(), getCurrentField().getVideos(),
+										getCurrentField().getSounds(), settings, state, viewer.getSettings(), viewer.getState() );
 			}
 		}
 	}

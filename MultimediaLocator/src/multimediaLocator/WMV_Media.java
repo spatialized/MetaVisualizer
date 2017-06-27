@@ -81,6 +81,8 @@ public abstract class WMV_Media
 	public void updateWorldState( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, 
 								WMV_ViewerState newViewerState )
 	{
+//		if(debugSettings.image)
+//			System.out.println("Media.updateWorldState()... id #"+getID());
 		worldSettings = newWorldSettings;
 		worldState = newWorldState;
 		viewerSettings = newViewerSettings;
@@ -324,6 +326,8 @@ public abstract class WMV_Media
 		switch(mState.mediaType)			// Media Type,  0: image 1: panorama 2: video 3: sound 
 		{
 			case 0:
+//				if(getDebugSettings().image)
+//					System.out.println("Media.fadeIn()  Image #"+getID());
 				f.visibleImages.add(getID());
 				break;
 			case 1:
@@ -333,8 +337,8 @@ public abstract class WMV_Media
 				if(getDebugSettings().video)
 					System.out.println("Video.fadeIn()... id #"+getID()+" adding to visible videos...");
 				f.visibleVideos.add(getID());
-				if(getDebugSettings().video)
-					System.out.println("  f.visibleVideos.size():"+f.visibleVideos.size());
+//				if(getDebugSettings().video)
+//					System.out.println("  f.visibleVideos.size():"+f.visibleVideos.size());
 				break;
 			case 3:	
 				f.audibleSounds.add(getID());
@@ -399,21 +403,32 @@ public abstract class WMV_Media
 	void updateFading(WMV_Field f)
 	{
 		float newFadeValue = 0.f;
-
+//		if(getDebugSettings().image && getID() == 10)
+//			System.out.println("TEST image #10 worldState.frameCount:"+worldState.frameCount);
+		
 		if(mState.beginFading)
 		{
 			mState.fadingStartFrame = worldState.frameCount;					
 			mState.fadingEndFrame = worldState.frameCount + viewerSettings.teleportLength;	
 			mState.beginFading = false;
+//			if(getDebugSettings().image)
+//				System.out.println("Media.updateFading()  begin fading ID #"+getID()+" mState.fadingStartFrame:"+mState.fadingStartFrame+" mState.fadingEndFrame:"+mState.fadingEndFrame+" worldState.frameCount:"+worldState.frameCount);
 		}
+
+//		if(getDebugSettings().image && worldState.frameCount % 10 == 0)
+//			System.out.println("-- Media.updateFading()  ID #"+getID()+" Reached end frame at worldState.frameCount:"+worldState.frameCount+" mState.fadingEndFrame:"+mState.fadingEndFrame);
 
 		if (worldState.frameCount >= mState.fadingEndFrame)
 		{
+//			if(getDebugSettings().image)
+//				System.out.println("Media.updateFading()  ID #"+getID()+" Reached end frame at worldState.frameCount:"+worldState.frameCount+" mState.fadingEndFrame:"+mState.fadingEndFrame);
 			mState.fading = false;
 			if(isFadingIn())
 			{
 				if(mState.fadingTarget == 1.f)
 				{
+//					if(getDebugSettings().image)
+//						System.out.println("Media.updateFading()  ID #"+getID()+" Reached target newFadeValue:"+newFadeValue);
 					newFadeValue = mState.fadingTarget;
 					mState.isFadingIn = false;
 					mState.fadedIn = true;

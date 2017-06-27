@@ -1883,7 +1883,7 @@ public class ML_Display
 					}
 				}
 				
-				drawClusterImages(p, c.getImages(p.getCurrentField().getImages()));
+				drawClusterImages(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 				ml.popMatrix();
 				
 				map2D.displaySmallBasicMap(p);

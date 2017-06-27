@@ -246,6 +246,9 @@ public class WMV_Image extends WMV_Media
 				ml.noStroke(); 
 		}
 
+//		if(ml.debugSettings.image && ml.debugSettings.detailed)
+//			System.out.println("Image.display()... id #"+getID()+" getViewingBrightness():"+getViewingBrightness());
+
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
 		ml.textureMode(PApplet.NORMAL);
@@ -487,6 +490,9 @@ public class WMV_Image extends WMV_Media
 	{
 		if( !isHidden() && !isDisabled() )
 		{
+			if(ml.debugSettings.world && ml.debugSettings.detailed) 
+				System.out.println("Image.loadMedia()... id #"+getID());
+			
 			calculateVertices();
 			image = ml.requestImage(getFilePath());
 			setRequested(true);

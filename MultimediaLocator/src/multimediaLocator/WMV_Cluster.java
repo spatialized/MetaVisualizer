@@ -345,95 +345,23 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 * @param currentViewerSettings
 	 * @param currentViewerState
 	 */
-	public void update( WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
+	public void update( WMV_Field f, WMV_WorldSettings currentWorldSettings, WMV_WorldState currentWorldState, WMV_ViewerSettings currentViewerSettings, 
 						WMV_ViewerState currentViewerState )
 	{
-		worldSettings = currentWorldSettings;	// Update world settings
-		worldState = currentWorldState;			// Update world settings
-		viewerSettings = currentViewerSettings;	// Update viewer settings
-		viewerState = currentViewerState;		// Update viewer state
+		worldSettings = currentWorldSettings;		// Update world settings
+		worldState = currentWorldState;				// Update world settings
+		viewerSettings = currentViewerSettings;		// Update viewer settings
+		viewerState = currentViewerState;			// Update viewer state
+		
+		ArrayList<WMV_Image> cImages = f.getImagesInCluster(getID(), f.getImages());				// Get images in cluster
+		ArrayList<WMV_Panorama> cPanoramas = f.getPanoramasInCluster(getID(), f.getPanoramas());	// Get panoramas in cluster
+		ArrayList<WMV_Video> cVideos = f.getVideosInCluster(getID(), f.getVideos());				// Get videos in cluster
+		ArrayList<WMV_Sound> cSounds = f.getSoundsInCluster(getID(), f.getSounds());				// Get sounds in cluster
+		
+		updateAllMediaStates( cImages, cPanoramas, cVideos, cSounds, currentWorldSettings, 			// Update cluster + media world states
+							  currentWorldState, currentViewerSettings, currentViewerState );		
 	}
 
-	/**
-	 * Stitch images based on current selection: if nothing selected, attempt to stitch all media segments in cluster
-	 * @param stitcher Stitching object to use
-	 * @param libraryFolder Library folder
-	 * @param selectedImages Selected images to stitch
-	 */
-	public void stitchImages(ML_Stitcher stitcher, String libraryFolder, ArrayList<WMV_Image> selectedImages)
-	{
-		if(viewerSettings.multiSelection || viewerSettings.groupSelection)		// Segment or group is selected
-		{
-			List<Integer> allSelected = new ArrayList<Integer>();
-			List<Integer> visible = new ArrayList<Integer>();
-
-			for( WMV_Image image : selectedImages )
-			{
-				allSelected.add(image.getID());
-				if(image.isVisible()) visible.add(image.getID());
-			}
-
-			WMV_Panorama pano = stitcher.stitch(libraryFolder, visible, getID(), -1, allSelected);
-
-			if(pano != null)
-			{
-				if(debugSettings.panorama || debugSettings.stitching)
-					System.out.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
-
-				pano.initializeSphere();
-				stitched.add(pano);
-			}
-		}
-		else
-		{
-			for(WMV_MediaSegment m : segments)			// Stitch panorama for each media segment
-			{
-				if(m.getImages().size() > 1)
-				{
-					ArrayList<WMV_Image> wholeSegment = new ArrayList<WMV_Image>();	
-					ArrayList<WMV_Image> validImages = new ArrayList<WMV_Image>();	
-					for( WMV_Image image : selectedImages )
-					{
-						wholeSegment.add(image);
-						if(image.isVisible()) validImages.add(image);
-					}
-
-					if(viewerSettings.angleThinning)				// Remove invisible images
-					{
-						List<Integer> remove = new ArrayList<Integer>();		// Not needed
-						
-						int count = 0;
-						for(WMV_Image v:validImages)
-						{
-							if(!v.getThinningVisibility())
-								remove.add(count);
-							count++;
-						}
-
-						for(int i=remove.size()-1; i>=0; i--)
-							validImages.remove(i);	
-					}
-					
-					List<Integer> valid = new ArrayList<Integer>();
-					
-					for(WMV_Image img : validImages) 
-						valid.add(img.getID());
-					
-					if(valid.size() > 1)
-					{					
-						WMV_Panorama pano = stitcher.stitch(libraryFolder, valid, getID(), m.getID(), null);
-						
-						if(pano != null)
-						{
-							pano.initializeSphere();
-							stitched.add(pano);
-						}
-					}
-				}
-			}
-		}		
-	}
-	
 	/**
 	 * Analyze associated media capture times (Need to implement: find on which scales it operates, i.e. minute, day, month, year)
 	 */
@@ -800,7 +728,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			for(int i=added.size()-1; i>=0; i--)
 			{
 				int removed = allImages.remove(i);			// Remove images added to curSegment
-				if(debugSettings.cluster && debugSettings.detailed) System.out.println("Removed image ID "+removed+" from allImages");
+//				if(debugSettings.cluster && debugSettings.detailed) System.out.println("Removed image ID "+removed+" from allImages");
 			}
 
 			if(curImages.size() == 1)							// Only one image
@@ -863,61 +791,61 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		return segments;
 	}
 	
-	/**
-	 * @param imageList Image List
-	 * @return Images associated with cluster
-	 */
-	public ArrayList<WMV_Image> getImages(ArrayList<WMV_Image> imageList)
-	{
-		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
-		
-		for(int i : state.images)
-			cImages.add(imageList.get(i));
-		
-		return cImages;
-	}
-
-	/**
-	 * @param panoramaList Panorama List
-	 * @return Panoramas associated with cluster
-	 */
-	public ArrayList<WMV_Panorama> getPanoramas(ArrayList<WMV_Panorama> panoramaList)
-	{
-		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
-		for(int i : state.panoramas)
-		{
-			cPanoramas.add(panoramaList.get(i));
-		}
-		return cPanoramas;
-	}
-	
-	/**
-	 * @param videoList Video list
-	 * @return Videos associated with cluster
-	 */
-	public ArrayList<WMV_Video> getVideos(ArrayList<WMV_Video> videoList)
-	{
-		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
-		for(int i : state.videos)
-		{
-			cVideos.add(videoList.get(i));
-		}
-		return cVideos;
-	}
-	
-	/**
-	 * @param soundList Sound list
-	 * @return Sounds associated with cluster
-	 */
-	public ArrayList<WMV_Sound> getSounds(ArrayList<WMV_Sound> soundList)
-	{
-		ArrayList<WMV_Sound> cSounds = new ArrayList<WMV_Sound>();
-		for(int i : state.sounds)
-		{
-			cSounds.add(soundList.get(i));
-		}
-		return cSounds;
-	}
+//	/**
+//	 * @param imageList Image List
+//	 * @return Images associated with cluster
+//	 */
+//	public ArrayList<WMV_Image> getImages(ArrayList<WMV_Image> imageList)
+//	{
+//		ArrayList<WMV_Image> cImages = new ArrayList<WMV_Image>();
+//		
+//		for(int i : state.images)
+//			cImages.add(imageList.get(i));
+//		
+//		return cImages;
+//	}
+//
+//	/**
+//	 * @param panoramaList Panorama List
+//	 * @return Panoramas associated with cluster
+//	 */
+//	public ArrayList<WMV_Panorama> getPanoramas(ArrayList<WMV_Panorama> panoramaList)
+//	{
+//		ArrayList<WMV_Panorama> cPanoramas = new ArrayList<WMV_Panorama>();
+//		for(int i : state.panoramas)
+//		{
+//			cPanoramas.add(panoramaList.get(i));
+//		}
+//		return cPanoramas;
+//	}
+//	
+//	/**
+//	 * @param videoList Video list
+//	 * @return Videos associated with cluster
+//	 */
+//	public ArrayList<WMV_Video> getVideos(ArrayList<WMV_Video> videoList)
+//	{
+//		ArrayList<WMV_Video> cVideos = new ArrayList<WMV_Video>();
+//		for(int i : state.videos)
+//		{
+//			cVideos.add(videoList.get(i));
+//		}
+//		return cVideos;
+//	}
+//	
+//	/**
+//	 * @param soundList Sound list
+//	 * @return Sounds associated with cluster
+//	 */
+//	public ArrayList<WMV_Sound> getSounds(ArrayList<WMV_Sound> soundList)
+//	{
+//		ArrayList<WMV_Sound> cSounds = new ArrayList<WMV_Sound>();
+//		for(int i : state.sounds)
+//		{
+//			cSounds.add(soundList.get(i));
+//		}
+//		return cSounds;
+//	}
 	
 	/**
 	 * Detect whether any media in cluster are active
@@ -1694,12 +1622,89 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	}
 	
 	/**
-	 * Verify cluster has no duplicates
+	 * Verify cluster contains valid images with no duplicates
 	 * @return Whether valid or not
 	 */
-	public boolean verify()
+	public boolean verify(WMV_Field f)
 	{
 		boolean valid = true;
+		boolean found = false;
+		
+		ArrayList<WMV_Image> fieldImages = f.getImages();
+		for(int i:getImageIDs())
+		{
+			for(WMV_Image img : fieldImages)
+			{
+				if(img.getID() == i)
+				{
+					found = true;
+				}
+			}
+			
+			if(!found)
+			{
+				valid = false;
+				System.out.println("Cluster.verify()... Cluster #"+getID()+" has image id:"+i+" not in field!  Missing id #"+i);
+			}
+		}
+		
+		found = false;
+		ArrayList<WMV_Panorama> fieldPanoramas = f.getPanoramas();
+		for(int i:getPanoramaIDs())
+		{
+			for(WMV_Panorama pano : fieldPanoramas)
+			{
+				if(pano.getID() == i)
+				{
+					found = true;
+				}
+			}
+			
+			if(!found)
+			{
+				valid = false;
+				System.out.println("Cluster.verify()... Cluster #"+getID()+" has panorama id:"+i+" not in field!  Missing id #"+i);
+			}
+		}
+
+		found = false;
+		ArrayList<WMV_Video> fieldVideos = f.getVideos();
+		for(int i:getVideoIDs())
+		{
+			for(WMV_Video vid : fieldVideos)
+			{
+				if(vid.getID() == i)
+				{
+					found = true;
+				}
+			}
+			
+			if(!found)
+			{
+				valid = false;
+				System.out.println("Cluster.verify()... Cluster #"+getID()+" has video id:"+i+" not in field!  Missing id #"+i);
+			}
+		}
+
+		found = false;
+		ArrayList<WMV_Sound> fieldSounds = f.getSounds();
+		for(int i:getSoundIDs())
+		{
+			for(WMV_Sound snd : fieldSounds)
+			{
+				if(snd.getID() == i)
+				{
+					found = true;
+				}
+			}
+			
+			if(!found)
+			{
+				valid = false;
+				System.out.println("Cluster.verify()... Cluster #"+getID()+" has sound id:"+i+" not in field!  Missing id #"+i);
+			}
+		}
+
 		if(utilities.hasDuplicateInteger(state.images))
 			valid = false;
 		if(utilities.hasDuplicateInteger(state.panoramas))
@@ -1827,60 +1832,32 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 	 * @param newViewerSettings Current viewer settings
 	 * @param newViewerState Current viewer state
 	 */
-	public void updateAllMediaSettings(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, 
+	public void updateAllMediaStates(ArrayList<WMV_Image> imageList, ArrayList<WMV_Panorama> panoramaList, ArrayList<WMV_Video> videoList, 
 			ArrayList<WMV_Sound> soundList, WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, 
 			WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState )
 	{
-		for (int i:state.images)  			// Update images
+		for (WMV_Image img : imageList)  			// Update images
 		{
-			if(i < imageList.size())
-			{
-				if(!imageList.get(i).isDisabled())
-					imageList.get(i).updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
-			}
-			else
-			{
-				System.out.println("Cluster #"+getID()+" has image id:"+i+" over imageList.size():"+imageList.size());
-			}
+			if(!img.isDisabled())
+				img.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 		}
 	
-		for (int n:state.panoramas)  		// Update panoramas
+		for (WMV_Panorama pano : panoramaList)  	// Update panoramas
 		{
-			if(n < panoramaList.size())
-			{
-				if(!panoramaList.get(n).isDisabled())
-					panoramaList.get(n).updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
-			}
-			else
-			{
-				System.out.println("Cluster #"+getID()+" has panorama id:"+n+" over panoramaList.size():"+panoramaList.size());
-			}
+			if(!pano.isDisabled())
+				pano.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 		}
 
-		for (int v : state.videos)  		// Update videos
+		for (WMV_Video vid : videoList)  		// Update videos
 		{
-			if(v < videoList.size())
-			{
-				if(!videoList.get(v).isDisabled())
-					videoList.get(v).updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
-			}
-			else
-			{
-				System.out.println("Cluster #"+getID()+" has video id:"+v+" over videoList.size():"+videoList.size());
-			}
+			if(!vid.isDisabled())
+				vid.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 		}
 
-		for (int s : state.sounds)  		// Update sounds
+		for (WMV_Sound snd : soundList)  		// Update sounds
 		{
-			if(s < soundList.size())
-			{
-				if(!soundList.get(s).isDisabled())
-					soundList.get(s).updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
-			}
-			else
-			{
-				System.out.println("Cluster #"+getID()+" has sound id:"+s+" over soundList.size():"+soundList.size());
-			}
+			if(!snd.isDisabled())
+				snd.updateWorldState(worldSettings, worldState, viewerSettings, viewerState);
 		}
 	}
 
@@ -2091,6 +2068,86 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 			return (int)(dist1 - dist2);
 		}
 	};
+
+	/**
+	 * Stitch images based on current selection: if nothing selected, attempt to stitch all media segments in cluster
+	 * @param stitcher Stitching object to use
+	 * @param libraryFolder Library folder
+	 * @param selectedImages Selected images to stitch
+	 */
+	public void stitchImages(ML_Stitcher stitcher, String libraryFolder, ArrayList<WMV_Image> selectedImages)
+	{
+		if(viewerSettings.multiSelection || viewerSettings.groupSelection)		// Segment or group is selected
+		{
+			List<Integer> allSelected = new ArrayList<Integer>();
+			List<Integer> visible = new ArrayList<Integer>();
+
+			for( WMV_Image image : selectedImages )
+			{
+				allSelected.add(image.getID());
+				if(image.isVisible()) visible.add(image.getID());
+			}
+
+			WMV_Panorama pano = stitcher.stitch(libraryFolder, visible, getID(), -1, allSelected);
+
+			if(pano != null)
+			{
+				if(debugSettings.panorama || debugSettings.stitching)
+					System.out.println("Adding panorama at location x:"+getLocation().x+" y:"+getLocation().y);
+
+				pano.initializeSphere();
+				stitched.add(pano);
+			}
+		}
+		else
+		{
+			for(WMV_MediaSegment m : segments)			// Stitch panorama for each media segment
+			{
+				if(m.getImages().size() > 1)
+				{
+					ArrayList<WMV_Image> wholeSegment = new ArrayList<WMV_Image>();	
+					ArrayList<WMV_Image> validImages = new ArrayList<WMV_Image>();	
+					for( WMV_Image image : selectedImages )
+					{
+						wholeSegment.add(image);
+						if(image.isVisible()) validImages.add(image);
+					}
+
+					if(viewerSettings.angleThinning)				// Remove invisible images
+					{
+						List<Integer> remove = new ArrayList<Integer>();		// Not needed
+						
+						int count = 0;
+						for(WMV_Image v:validImages)
+						{
+							if(!v.getThinningVisibility())
+								remove.add(count);
+							count++;
+						}
+
+						for(int i=remove.size()-1; i>=0; i--)
+							validImages.remove(i);	
+					}
+					
+					List<Integer> valid = new ArrayList<Integer>();
+					
+					for(WMV_Image img : validImages) 
+						valid.add(img.getID());
+					
+					if(valid.size() > 1)
+					{					
+						WMV_Panorama pano = stitcher.stitch(libraryFolder, valid, getID(), m.getID(), null);
+						
+						if(pano != null)
+						{
+							pano.initializeSphere();
+							stitched.add(pano);
+						}
+					}
+				}
+			}
+		}		
+	}
 
 	/**
 	 * Print cluster data

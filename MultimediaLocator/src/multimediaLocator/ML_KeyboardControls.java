@@ -156,7 +156,7 @@ public class ML_KeyboardControls
 			ml.world.viewer.startMoveXTransition(1);
 
 		if( key == 'l' )
-			ml.world.viewer.moveToLastCluster(ml.world.viewer.getMovementTeleport());
+			ml.world.viewer.moveToLastCluster(ml.world.viewer.getNavigationTeleport());
 
 		if( key == 'L' )
 			ml.world.viewer.lookAtNearestMedia();
@@ -166,8 +166,8 @@ public class ML_KeyboardControls
 
 		if( key == 't' && !input.optionKey )
 		{
-			boolean state = !ml.world.viewer.getMovementTeleport();
-			ml.world.viewer.setMovementTeleport( state );
+			boolean state = !ml.world.viewer.getNavigationTeleport();
+			ml.world.viewer.setNavigationTeleport( state );
 			if(ml.display.window.setupNavigationWindow)
 			{
 				ml.display.window.optMove.setSelected(state);
@@ -175,6 +175,7 @@ public class ML_KeyboardControls
 			}
 		}
 
+//		if( key == '†' )		// OPT t
 		if( key == 't' && input.optionKey )
 		{
 			boolean state = ml.world.state.displayTerrain;
@@ -250,7 +251,7 @@ public class ML_KeyboardControls
 		if (key == 'n')						// Teleport to next time segment on same date
 		{
 			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
 			else
 				ml.world.viewer.moveToNextTimeSegment(true, true, true, false);
 		}
@@ -258,7 +259,7 @@ public class ML_KeyboardControls
 		if (key == 'b')						// Teleport to previous time segment on same date
 		{
 			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
 			else
 				ml.world.viewer.moveToPreviousTimeSegment(true, true, true, false);
 		}
@@ -266,7 +267,7 @@ public class ML_KeyboardControls
 		if (key == 'N')						// Teleport to next time segment on any date
 		{
 			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.moveToNextTimeSegment(false, true, ml.world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToNextTimeSegment(false, true, ml.world.viewer.getNavigationTeleport(), true);
 			else
 				ml.world.viewer.moveToNextTimeSegment(false, true, true, false);
 		}
@@ -274,7 +275,7 @@ public class ML_KeyboardControls
 		if (key == 'B')						// Teleport to previous time segment on any date
 		{
 			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.moveToPreviousTimeSegment(false, true, ml.world.viewer.getMovementTeleport(), true);
+				ml.world.viewer.moveToPreviousTimeSegment(false, true, ml.world.viewer.getNavigationTeleport(), true);
 			else
 				ml.world.viewer.moveToPreviousTimeSegment(false, true, true, false);
 		}
@@ -361,19 +362,19 @@ public class ML_KeyboardControls
 		}
 		
 		if (key == 'i') 		// Go to nearest cluster ID with image
-			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 0, false);
+			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 0, false);
 
 		if (key == 'p') 		// Go to nearest cluster ID with panorama
-			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 1, false);
+			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 1, false);
 
 		if (key == 'v') 		// Go to nearest cluster ID with video
-			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 2, false);
+			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 2, false);
 
 		if (key == 'u') 		// Go to nearest cluster ID with sound
-			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 3, false);
+			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 3, false);
 
 		if (key == 'm') 
-			ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
+			ml.world.viewer.moveToNearestCluster(ml.world.viewer.getNavigationTeleport());
 
 		if (key == '_') 
 			ml.world.getCurrentField().fadeObjectDistances(0.85f);
@@ -397,7 +398,7 @@ public class ML_KeyboardControls
 	public void handleWorldViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (key == 'j') 
-			ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport(), true);				// Jump (teleport) to random cluster
+			ml.world.viewer.moveToRandomCluster(ml.world.viewer.getNavigationTeleport(), true);				// Jump (teleport) to random cluster
 
 		if (key == '|')
 			ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			

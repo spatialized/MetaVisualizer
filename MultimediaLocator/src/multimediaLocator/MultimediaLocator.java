@@ -490,7 +490,7 @@ public class MultimediaLocator extends PApplet
 					loadedField = loadFieldSimulationState(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
 
 				if(world.getFields().size() == 0)				// Reset current viewer field
-					if(world.viewer.getState().field > 0)
+					if(world.viewer.getCurrentFieldID() > 0)
 						world.viewer.setCurrentField(0, false);
 
 				/* Check if field loaded correctly */
@@ -550,7 +550,7 @@ public class MultimediaLocator extends PApplet
 			if(set)
 				return world.loadAndSetSimulationState(f);
 			else
-				return world.loadSimulationState(f);
+				return world.loadSimulationState(f);			// -- Obsolete
 		}
 		else return null;
 	}
@@ -575,7 +575,7 @@ public class MultimediaLocator extends PApplet
 
 					if(addedFields == null)				/* Check if field division succeeded */
 					{
-						f.organize();		/* If failed, analyze spatial and temporal features to create model */
+						f.organize(true);		/* If failed, analyze spatial and temporal features to create model */
 					}
 					else 
 					{
@@ -589,10 +589,10 @@ public class MultimediaLocator extends PApplet
 					}
 				}
 				else
-					f.organize();
+					f.organize(true);
 			}
 			else
-				f.organize();
+				f.organize(true);
 		}
 		
 		for(WMV_Field f : newFields) world.addField(f);			/* Add any new fields to world */
@@ -623,7 +623,7 @@ public class MultimediaLocator extends PApplet
 	{
 		System.out.println("ML.finishInitialization()...");
 		world.setBlurMasks();						// Set blur masks
-		world.updateAllMediaSettings();				// -- Only needed if field(s) loaded from data folder!
+		world.getCurrentField().updateAllMediaStates();				// -- Only needed if field(s) loaded from data folder!
 
 		state.inFieldInitialization = false;				
 		display.worldSetup = false;
@@ -666,7 +666,7 @@ public class MultimediaLocator extends PApplet
 				if(count < newFields.size() - 1)
 				{
 					initializeField(f, false, false);			/* Initialize field */
-					f.organize();								/* Analyze spatial and temporal features and create model */
+					f.organize(true);								/* Analyze spatial and temporal features and create model */
 					library.moveFieldMediaFiles(field, f);		/* Move media into new field folders */
 				}
 				else
@@ -675,7 +675,7 @@ public class MultimediaLocator extends PApplet
 					field.reset();								/* Clear field */
 					copyAllFieldMedia(f, field);					/* Re-add media from last added field */
 					initializeField(field, false, false);		/* Initialize field */
-					field.organize();
+					field.organize(true);
 				}
 				count++;
 			}

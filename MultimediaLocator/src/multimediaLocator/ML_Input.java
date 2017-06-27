@@ -293,26 +293,26 @@ public class ML_Input
 					break;
 
 				case "NearestCluster":
-					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getMovementTeleport());
+					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getNavigationTeleport());
 					break;
 				case "RandomCluster":
-					ml.world.viewer.moveToRandomCluster(ml.world.viewer.getMovementTeleport(), true);
+					ml.world.viewer.moveToRandomCluster(ml.world.viewer.getNavigationTeleport(), true);
 					break;
 				case "LastCluster":
-					ml.world.viewer.moveToLastCluster(ml.world.viewer.getMovementTeleport());
+					ml.world.viewer.moveToLastCluster(ml.world.viewer.getNavigationTeleport());
 					break;
 					
 				case "NearestImage":
-					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 0, false);
+					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 0, false);
 					break;
 				case "NearestPanorama":
-					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 1, false);
+					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 1, false);
 					break;
 				case "NearestVideo":
-					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 2, false);
+					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 2, false);
 					break;
 				case "NearestSound":
-					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getMovementTeleport(), 3, false);
+					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 3, false);
 					break;
 					
 				case "NextField":
@@ -380,10 +380,10 @@ public class ML_Input
 						ml.display.window.openTimelineWindow();
 					break;
 				case "NextTime":
-					ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
+					ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
 					break;
 				case "PreviousTime":
-					ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getMovementTeleport(), true);
+					ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
 					break;
 	
 				case "ChooseGPSTrack":
@@ -701,13 +701,13 @@ public class ML_Input
 
 			/* Navigation */
 			case "NavigationTeleport":
-				world.viewer.setMovementTeleport( true );
-				if(!world.viewer.getMovementTeleport())
+				world.viewer.setNavigationTeleport( true );
+				if(!world.viewer.getNavigationTeleport())
 					world.viewer.stopFollowing();
 				break;
 			case "NavigationMove":
-				world.viewer.setMovementTeleport( false );
-				if(!world.viewer.getMovementTeleport())
+				world.viewer.setNavigationTeleport( false );
+				if(!world.viewer.getNavigationTeleport())
 					world.viewer.stopFollowing();
 				break;
 				
@@ -952,7 +952,7 @@ public class ML_Input
 			world.viewer.walkSlower();
 			world.viewer.getState().lastMovementFrame = frameCount;
 			if(doubleClick)									
-				world.viewer.moveToNearestCluster(world.viewer.getMovementTeleport());
+				world.viewer.moveToNearestCluster(world.viewer.getNavigationTeleport());
 		}
 		
 		if(display.getDisplayView() == 1)

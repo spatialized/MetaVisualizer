@@ -4,17 +4,16 @@ package multimediaLocator;
  * MultimediaLocator debugging settings
  * @author davidgordon
  */
-
 public class ML_DebugSettings 
 {
 	/* Debug Modes */
 	public boolean detailed = false;				// Verbose debugging messages
-	public boolean print = true;				// Print all user messages
+	public boolean print = false;				// Print all user messages
 	public boolean messages = false;			// On screen debug messages
 	
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = true;				// Debug WMV_Field class
+	public boolean world = false;				// Debug WMV_World and WMV_Field class
 	public boolean library = false;
 	public boolean memory = false;				// Debug memory
 	
@@ -31,7 +30,7 @@ public class ML_DebugSettings
 	public boolean sound = false;				// Debug WMV_Sound class
 	
 	/* Viewer */
-	public boolean viewer = true;				// Debug WMV_Viewer class
+	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean path = false;					// Debug WMV_Viewer class
 
 	/* Viewer */

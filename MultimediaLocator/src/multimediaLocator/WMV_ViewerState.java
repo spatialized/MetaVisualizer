@@ -20,7 +20,7 @@ public class WMV_ViewerState
 	public int currentMedia = -1;						// In Single Time Mode, media index currently visible
 	public int currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
 	public int nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
-	public boolean lookAtCurrentMedia = false;			// In Single Time Mode, whether to turn and look at current media  -- bugs
+	public boolean followCurrentMediaInTime = false;	// In Single Time Mode, whether to turn and look at current media  -- bugs
 	public int nearbyClusterTimelineMediaCount = 0;		// Number of media in nearbyClusterTimeline
 	
 	/* Navigation */
@@ -35,7 +35,7 @@ public class WMV_ViewerState
 	/* Clusters */
 	public ArrayList<WMV_Orientation> clusterOrientations;	// List of viewer orientations at each cluster 
 	public List<Integer> clustersVisibleInOrientationMode;				// Clusters visible to viewer in Orientation Mode
-	public int field = 0;								// Current field
+	private int field = 0;								// Current field
 	public int currentCluster = 0;						// Cluster currently in view
 	public boolean atCurrentCluster = false;			// Whether viewer is centered at current cluster (false if has moved)
 	public int lastCluster = -1;						// Last cluster visited
@@ -47,8 +47,8 @@ public class WMV_ViewerState
 	public float clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
 	
 	/* Teleporting */
-	public boolean movementTeleport = false;		// Teleport when following navigation commands
-	public boolean followTeleport = false;			// Teleport when following navigation commands
+	public boolean navigationTeleport = false;		// Teleport when following navigation commands
+	public boolean followTeleport = false;			// Teleport when in Path Navigation Mode
 	public PVector teleportGoal;					// Coordinates of teleport goal
 	public boolean ignoreTeleportGoal = false;		// Ignore teleport goal when teleporting (for setting location manually)
 	public boolean teleporting = false;				// Transition where all images fade in or out
@@ -162,7 +162,7 @@ public class WMV_ViewerState
 		currentMedia = -1;						// In Single Time Mode, media index currently visible
 		currentMediaStartTime = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
 		nextMediaStartFrame = 100000;			// In Single Time Mode, frame at which next media in timeline becomes current
-		lookAtCurrentMedia = false;				// In Single Time Mode, whether to turn and look at current media  -- bugs
+		followCurrentMediaInTime = false;				// In Single Time Mode, whether to turn and look at current media  -- bugs
 		nearbyClusterTimelineMediaCount = 0;	// Number of media in nearbyClusterTimeline
 	}
 
@@ -265,7 +265,15 @@ public class WMV_ViewerState
 	/**
 	 * @return Current field ID
 	 */
-	public int getCurrentField()
+	public void setCurrentFieldID( int newFieldID )
+	{
+		field = newFieldID;
+	}
+
+	/**
+	 * @return Current field ID
+	 */
+	public int getCurrentFieldID()
 	{
 		return field;
 	}

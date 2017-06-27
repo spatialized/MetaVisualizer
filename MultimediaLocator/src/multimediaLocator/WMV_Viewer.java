@@ -181,7 +181,7 @@ public class WMV_Viewer
 		setOrientation();
 		
 		if(attractorPoint != null) 
-			attractorPoint.update(worldSettings, worldState, settings, state);
+			attractorPoint.update(p.getCurrentField(), worldSettings, worldState, settings, state);
 	}
 	
 	/*** 
@@ -404,22 +404,24 @@ public class WMV_Viewer
 			setCurrentFieldID( newField );
 
 			if(debugSettings.viewer && debugSettings.detailed)		
-				System.out.println("Viewer.setCurrentField().. after set field ID... new state.field:"+state.field+" currentField ID:"+p.getCurrentField().getID()+" currentCluster:"+state.currentCluster);
+				System.out.println("Viewer.setCurrentField().. after set field ID... new state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster);
 
 			if(setSimulationState)											// Set simulation state from saved
 			{
 				p.setSimulationStateFromField(p.getField(newField), true);
-
 				if(debugSettings.viewer && debugSettings.detailed)		
-					System.out.println("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+state.field+" currentField ID:"+p.getCurrentField().getID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
+					System.out.println("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
+//				p.loadAndSetSimulationState(p.getField(newField));		// -- TESTING
+//				if(debugSettings.viewer && debugSettings.detailed)		
+//					System.out.println("Viewer.setCurrentField().. after loadAndSetSimulationState...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
 			}
 			else
 			{
-				p.getCurrentField().updateAllMediaWorldStates();
+				p.getCurrentField().updateAllMediaStates();
 			}
 
-			if(!p.getField(state.field).hasBeenVisited()) 
-				p.getField(state.field).setVisited(true);
+			if(!p.getField(getCurrentFieldID()).hasBeenVisited()) 
+				p.getField(getCurrentFieldID()).setVisited(true);
 		}
 	}
 
@@ -429,7 +431,7 @@ public class WMV_Viewer
 	 */
 	public void setCurrentFieldID(int newFieldID)
 	{
-		state.field = newFieldID;
+		state.setCurrentFieldID( newFieldID );
 	}
 	
 	/**
@@ -1057,7 +1059,7 @@ public class WMV_Viewer
 	public void teleportToFieldOffset(int offset, boolean moveToFirstTimeSegment, boolean fade) 
 	{
 		if(p.getFieldCount() > 1)
-			teleportToField(state.field + offset, moveToFirstTimeSegment, fade);
+			teleportToField(getCurrentFieldID() + offset, moveToFirstTimeSegment, fade);
 	}
 	
 	/**
@@ -1162,7 +1164,7 @@ public class WMV_Viewer
 	public void moveToNextTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
 	{
 		chooseNextTimeSegment(currentDate);
-		moveToTimeSegmentInField(p.getCurrentField().getID(), state.currentFieldTimeSegment, teleport, fade);
+		moveToTimeSegmentInField(getCurrentFieldID(), state.currentFieldTimeSegment, teleport, fade);
 	}
 	
 	/**
@@ -1227,7 +1229,7 @@ public class WMV_Viewer
 	public void moveToPreviousTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
 	{
 		choosePreviousTimeSegment(currentDate);
-		moveToTimeSegmentInField(p.getCurrentField().getID(), state.currentFieldTimeSegment, teleport, fade);
+		moveToTimeSegmentInField(getCurrentFieldID(), state.currentFieldTimeSegment, teleport, fade);
 	}
 	
 	/**
@@ -1874,7 +1876,6 @@ public class WMV_Viewer
 		state.following = false;					// Is the camera currently navigating from memory?
 		
 		/* Clusters */
-		state.field = 0;						// Current field
 		state.currentCluster = 0;				// Cluster currently in view
 		state.lastCluster = -1;					// Last cluster visited
 		state.attractorCluster = -1;			// Cluster attracting the camera
@@ -1883,7 +1884,7 @@ public class WMV_Viewer
 		state.clusterNearDistanceFactor = 2.f;	// Multiplier for clusterCenterSize to get clusterNearDistance
 		
 		/* Teleporting */
-		state.movementTeleport = false;		// Teleport when following navigation commands
+		state.navigationTeleport = false;		// Teleport when following navigation commands
 		state.teleporting = false;			// Transition where all images fade in or out
 		state.teleportToField = -1;			// What field ID to fade transition to	 (-1 remains in current field)
 		state.teleportWaitingCount = 0;		// How long has the viewer been waiting for media to fade out before teleport?
@@ -1940,7 +1941,7 @@ public class WMV_Viewer
 		path = new ArrayList<WMV_Waypoint>();
 		state.teleportGoal = new PVector(0, 0, 0);
 
-		state.field = 0;
+		setCurrentFieldID( 0 );						// Current field
 		state.currentCluster = 0;
 		state.clusterNearDistance = worldSettings.clusterCenterSize * state.clusterNearDistanceFactor;
 
@@ -3918,7 +3919,7 @@ public class WMV_Viewer
 		if(ignoreDate)
 		{
 			if(debugSettings.viewer) System.out.println("Viewer.moveToFirstTimeSegment()... Moving to first time segment on any date");
-			moveToTimeSegmentInField(p.getCurrentField().getID(), 0, true, true);		// Move to first time segment in field
+			moveToTimeSegmentInField(getCurrentFieldID(), 0, true, true);		// Move to first time segment in field
 			return true;
 		}		
 		else
@@ -3943,7 +3944,7 @@ public class WMV_Viewer
 			{
 				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.moveToFirstTimeSegment()... Will move to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
 				int curFieldTimeSegment = p.getCurrentField().getTimeSegmentOnDate(state.currentFieldTimeSegmentOnDate, state.currentFieldDate).getFieldTimelineID();
-				moveToTimeSegmentInField(p.getCurrentField().getID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
+				moveToTimeSegmentInField(getCurrentFieldID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
 			}
 			else if(debugSettings.viewer)
 				System.out.println("Viewer.moveToFirstTimeSegment()... Couldn't move to first time segment...");
@@ -4550,7 +4551,7 @@ public class WMV_Viewer
 			if(p.getCurrentField().getTimelines().size() > 0 && p.getCurrentField().getTimelines().size() > state.currentFieldDate)
 			{
 //				if(debugSettings.viewer && debugSettings.detailed)
-//					System.out.println("setCurrentFieldTimeSegmentOnDate()... "+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+p.getCurrentField().getID());
+//					System.out.println("setCurrentFieldTimeSegmentOnDate()... "+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+getField());
 			}
 			else 
 			{
@@ -4762,46 +4763,15 @@ public class WMV_Viewer
 		return state.halting;
 	}
 
-	public int getCurrentMedia()
-	{
-		return state.currentMedia;
-	}
-	
-	public void setCurrentMedia( int newCurrentMedia )
-	{
-		state.currentMedia = newCurrentMedia;
-	}
-	
-	public int getCurrentMediaStartTime()
-	{
-		return state.currentMediaStartTime;
-	}
-	
-	public void setCurrentMediaStartTime(int newCurrentMediaStartTime)
-	{
-		state.currentMediaStartTime = newCurrentMediaStartTime;
-	}
-	
-	public int getNextMediaStartTime()
-	{
-		return state.nextMediaStartFrame;
-	}
-	
-	public boolean lookAtCurrentMedia()
-	{
-		return state.lookAtCurrentMedia;
-	}
-	
-	public void setNextMediaStartTime(int newNextMediaStartFrame)
-	{
-		state.nextMediaStartFrame = newNextMediaStartFrame;
-	}
-	
 	public ArrayList<WMV_TimeSegment>getNearbyClusterTimeline()
 	{
 		return visibleClusterTimeline;
 	}
 	
+	/**
+	 * Get number of media in nearby cluster timeline
+	 * @return Nearby cluster timeline media count 
+	 */
 	public int getNearbyClusterTimelineMediaCount()
 	{
 		return state.nearbyClusterTimelineMediaCount;
@@ -4829,11 +4799,23 @@ public class WMV_Viewer
 		else return null;
 	}
 
+	/**
+	 * Get current attractor point
+	 * @return Cluster representing current attractor point
+	 */
 	public WMV_Cluster getAttractorPoint()
 	{
 		return attractorPoint;
 	}
-
+	
+	/**
+	 * @return Current field ID
+	 */
+	public int getCurrentFieldID()
+	{
+		return state.getCurrentFieldID();
+	}
+	
 	/**
 	 * @return Index of last cluster
 	 */
@@ -4842,22 +4824,30 @@ public class WMV_Viewer
 		return state.lastCluster;
 	}
 	
-	public boolean getMovementTeleport()
+	public boolean getNavigationTeleport()
 	{
-		return state.movementTeleport;
+		return state.navigationTeleport;
 	}
 
+	/**
+	 * Get Path Navigation teleport setting
+	 * @return Path teleport setting
+	 */
 	public boolean getFollowTeleport()
 	{
 		return state.followTeleport;
 	}
 
-	public void setMovementTeleport(boolean newMovementTeleport)
+	/**
+	 * Set Navigation Teleport setting
+	 * @param newNavigationTeleport New Navigation Teleport setting
+	 */
+	public void setNavigationTeleport(boolean newNavigationTeleport)
 	{
-		state.movementTeleport = newMovementTeleport;
+		state.navigationTeleport = newNavigationTeleport;
 		if(p.getSettings().screenMessagesOn)
 		{
-			if(state.movementTeleport)
+			if(state.navigationTeleport)
 				p.ml.display.message(p.ml, "Navigation Teleporting ON");
 			else
 				p.ml.display.message(p.ml, "Navigation Teleporting OFF");
@@ -5291,14 +5281,6 @@ public class WMV_Viewer
 		return state.movingToCluster;
 	}
 
-	/**
-	 * @return Current field ID
-	 */
-	public int getField()
-	{
-		return state.field;
-	}
-	
 	public List<Integer> getClustersVisible()
 	{
 		return state.clustersVisibleInOrientationMode;
@@ -5312,6 +5294,63 @@ public class WMV_Viewer
 		return state.clusterNearDistance;
 	}
 	
+	/**
+	 * Get current media (In Single Time Mode)
+	 * @return Current media ID
+	 */
+	public int getCurrentMedia()
+	{
+		return state.currentMedia;
+	}
+	
+	/**
+	 * Set current media (In Single Time Mode)
+	 * @param newCurrentMedia New current media ID
+	 */
+	public void setCurrentMedia( int newCurrentMedia )
+	{
+		state.currentMedia = newCurrentMedia;
+	}
+	
+	/**
+	 * Get current media start time (In Single Time Mode)
+	 * @return Current media start time 
+	 */
+	public int getCurrentMediaStartTime()
+	{
+		return state.currentMediaStartTime;
+	}
+	
+	/**
+	 * Set current media start time (In Single Time Mode)
+	 * @param newCurrentMediaStartTime New current media start time
+	 */
+	public void setCurrentMediaStartTime(int newCurrentMediaStartTime)
+	{
+		state.currentMediaStartTime = newCurrentMediaStartTime;
+	}
+	
+	/**
+	 * @return Next media start time (In Single Time Mode)
+	 */
+	public int getNextMediaStartTime()
+	{
+		return state.nextMediaStartFrame;
+	}
+	
+	/**
+	 * @return Whether viewer is following current media (In Single Time Mode)
+	 */
+	public boolean isFollowingCurrentMediaInTime()		// -- Disabled
+	{
+		return state.followCurrentMediaInTime;
+	}
+	
+	public void setNextMediaStartTime(int newNextMediaStartFrame)
+	{
+		state.nextMediaStartFrame = newNextMediaStartFrame;
+	}
+
 	/**
 	 * Get ID of closest image in front of viewer
 	 * @return ID of image closest to viewer in front

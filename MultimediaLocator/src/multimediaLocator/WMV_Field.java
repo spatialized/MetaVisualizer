@@ -520,7 +520,8 @@ public class WMV_Field
 				}
 				else if( v.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !v.isLoaded() )
 				{
-//					System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible());
+					if(debugSettings.video)
+						System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible());
 					v.loadMedia(ml); 							// Load video frames from disk
 				}
 			}
@@ -601,17 +602,10 @@ public class WMV_Field
 		WMV_Image m = images.get(i);
 
 		float brightness = m.getFadingBrightness();					// Fade in and out
-//		if(ml.debugSettings.image && ml.debugSettings.detailed)
-//			System.out.println("Field.displayImage()... id #"+getID()+" -1 brightness:"+brightness);
 		brightness *= getViewerSettings().userBrightness;
-//		if(ml.debugSettings.image && ml.debugSettings.detailed)
-//			System.out.println("  id #"+getID()+" 0 brightness:"+brightness);
 
 		float distanceBrightnessFactor = m.getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance()); 
 		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
-		
-//		if(ml.debugSettings.image && ml.debugSettings.detailed)
-//			System.out.println("  id #"+getID()+" 1 brightness:"+brightness);
 
 		if( getWorldState().timeFading && m.time != null && !getViewerState().isMoving() )
 			brightness *= m.getTimeBrightness(); 					// Fade iBrightness based on time
@@ -4465,6 +4459,10 @@ public class WMV_Field
 		return state.named;
 	}
 
+	/**
+	 * Set field GPS tracks
+	 * @param newGPSTracks
+	 */
 	public void setGPSTracks(ArrayList<ArrayList<WMV_Waypoint>> newGPSTracks)
 	{
 		if(newGPSTracks != null) state.gpsTracks = newGPSTracks;

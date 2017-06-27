@@ -128,10 +128,15 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	 */
 	void displayModel(MultimediaLocator ml)
 	{
-		float brightness = state.outlineAlpha * getViewerSettings().userBrightness;
+//		float brightness = state.outlineAlpha * getViewerSettings().userBrightness;
+//		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactor); 
+//		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+
+		float brightness = getFadingBrightness() * getViewerSettings().userBrightness;
 		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactor); 
-		
 		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+
+		float modelBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, state.outlineAlpha);				// Scale to setting for alpha range
 
 //		if( getWorldState().timeFading && time != null && !ml.world.viewer.isMoving() )
 //			brightness *= getTimeBrightness(); 							// Fade iBrightness based on time
@@ -139,7 +144,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		/* Draw frame */
 		ml.pushMatrix();
 
-		ml.stroke(0.f, 0.f, 255.f, brightness);	 
+		ml.stroke(0.f, 0.f, 255.f, modelBrightness);	 
 //		ml.stroke(0.f, 0.f, 255.f, state.outlineAlpha);	 
 		ml.strokeWeight(2.f);
 		

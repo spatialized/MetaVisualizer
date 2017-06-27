@@ -501,6 +501,7 @@ public class MultimediaLocator extends PApplet
 			}
 			if(success)									/* Loaded field state from disk */
 			{
+				if(metadata.gpsTrackFilesFound) f.setGPSTracks( metadata.loadGPSTracks(f) );	// Load GPS tracks
 				world.getField(fieldID).setDataFolderLoaded(true);
 				if(f.getID() == 0)
 					display.window.setLibraryWindowText("Loading media library...");		/* Change Library Window Text */
@@ -518,18 +519,16 @@ public class MultimediaLocator extends PApplet
 				
 				world.getField(fieldID).initialize(-100000L);
 				world.getField(fieldID).setDataFolderLoaded(false);
-				
-//				f.initialize(-100000L);
+				if(metadata.gpsTrackFilesFound) f.setGPSTracks( metadata.loadGPSTracks(f) );	// Load GPS tracks
+
 				if(setSoundGPSLocations)
 					if(f.getSounds().size() > 0)
 						metadata.setSoundGPSLocations(f, f.getSounds());
 			}
 
 			world.getField(fieldID).setLoadedState(success);		/* Set field loaded state flag */
-//			f.setLoadedState(success);		/* Set field loaded state flag */
 		}
 		world.getField(fieldID).setLoadedState(false);			/* Set field loaded state flag */
-//		f.setLoadedState(false);			/* Set field loaded state flag */
 	}
 	
 	/**

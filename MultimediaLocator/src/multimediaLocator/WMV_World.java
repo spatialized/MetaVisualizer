@@ -969,8 +969,8 @@ public class WMV_World
 			else
 				System.out.println("  setSimulationStateFromField()... currentCluster is null!!!");
 			
-			System.out.println("--------VERIFYING FIELD--------");
-			getCurrentField().verify(true);			// -- Test
+//			System.out.println("--------VERIFYING FIELD--------");
+//			getCurrentField().verify(true);			// -- Test
 		}
 		
 //		updateState();
@@ -1696,7 +1696,6 @@ public class WMV_World
 					highest = high;
 			}
 			
-//			float val = PApplet.map(highest - lowest, 0.f, 1.f, 0.f, settings.defaultMediaLength);
 			if(cl.size() == 0)
 				settings.timeCycleLength = -1;
 		}
@@ -2421,6 +2420,10 @@ public class WMV_World
 		return null;
 	}
 	
+	/**
+	 * Set Time Fading setting
+	 * @param newShowMetadata New Time Fading setting
+	 */
 	public void setTimeFading( boolean newTimeFading )
 	{
 		state.timeFading = newTimeFading;
@@ -2433,6 +2436,10 @@ public class WMV_World
 		}
 	}
 	
+	/**
+	 * Set Show Metadata setting
+	 * @param newShowMetadata New Show Metadata setting
+	 */
 	public void setShowMetadata(boolean newShowMetadata)
 	{
 		state.showMetadata = newShowMetadata;
@@ -2445,6 +2452,10 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Set Show Model Option
+	 * @param newShowModel New Show Model Option setting
+	 */
 	public void setShowModel(boolean newShowModel)
 	{
 		state.showModel = newShowModel;
@@ -2466,6 +2477,9 @@ public class WMV_World
 		}
 	}
 	
+	/**
+	 * Load all image and video masks
+	 */
 	public void loadMasks()
 	{
 		loadImageMasks();					
@@ -2495,11 +2509,6 @@ public class WMV_World
 		blurMaskBothBottom = getMaskImageResource(maskPath, "blurMaskBothBottom.jpg");
 		blurMaskBothBoth = getMaskImageResource(maskPath, "blurMaskBothBoth.jpg");
 		
-//		System.out.println("blurMaskBothBoth == null?"+(blurMaskBothBoth==null));
-		
-		maskPath = "/masks_panorama/";
-		blurMaskPanorama = getMaskImageResource(maskPath, "blurMaskPanorama.jpg");
-
 		maskPath = "/masks_image_vert/";
 
 		vertBlurMaskLeftTop = getMaskImageResource(maskPath, "vertBlurMaskLeftTop.jpg");
@@ -2518,6 +2527,9 @@ public class WMV_World
 		vertBlurMaskBothCenter = getMaskImageResource(maskPath, "vertBlurMaskBothCenter.jpg");
 		vertBlurMaskBothBottom = getMaskImageResource(maskPath, "vertBlurMaskBothBottom.jpg");
 		vertBlurMaskBothBoth = getMaskImageResource(maskPath, "vertBlurMaskBothBoth.jpg");
+		
+		maskPath = "/masks_panorama/";
+		blurMaskPanorama = getMaskImageResource(maskPath, "blurMaskPanorama.jpg");
 	}
 	
 	/**

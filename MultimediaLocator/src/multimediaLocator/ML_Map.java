@@ -45,6 +45,7 @@ public class ML_Map
 	private MultiMarker allClustersMarker;
 	private SimplePointMarker viewerMarker, plainMapViewerMarker;
 	private SimpleLinesMarker gpsTrackMarker;
+	public boolean createdGPSMarker = false;
 	
 	private int clusterZoomLevel = 18, fieldZoomLevel = 14;
 	
@@ -81,6 +82,7 @@ public class ML_Map
 	/* Fields Map */
 	PVector mapVectorOrigin, mapVectorVector;
 	private final float fieldSelectedHue = 20.f, fieldSelectedSaturation = 255.f, fieldSelectedBrightness = 255.f;
+	private final float gpsTrackHue = 215.f, gpsTrackSaturation = 235.f, gpsTrackBrightness = 255.f;
 	private final float clusterSaturation = 160.f, clusterBrightness = 185.f;
 	private final float fieldTransparency = 80.f;
 	private final float fieldHueRangeLow = 50.f, fieldHueRangeHigh = 160.f;
@@ -618,29 +620,32 @@ public class ML_Map
 	 * @param world Parent world
 	 * @param gpsTrack GPS track waypoint list
 	 */
-	private void createGPSTrackMarker(WMV_World world, ArrayList<WMV_Waypoint> gpsTrack)
+	public void createGPSTrackMarker(WMV_World world, ArrayList<WMV_Waypoint> gpsTrack)
 	{
 		List<Location> gpsPoints = new ArrayList<Location>();
 		
 		for(WMV_Waypoint w : gpsTrack)					 /* Waypoint GPS location format: {longitude, latitude} */
 		{
 			Location loc = new Location(w.getGPSLocation().y, w.getGPSLocation().x);	 /* Unfolding Location format: {latitude, longitude} */
-			if(world.ml.debugSettings.gps)
-				System.out.println("Adding gps loc x:"+loc.x+" loc.y");
+
+//			if(world.ml.debugSettings.gps)
+//				System.out.println("Adding GPS loc x:"+loc.x+" loc.y:"+loc.y);
+			
 			gpsPoints.add(loc);
 		}
 		
 		if(gpsPoints.size() > 0)
 		{
 			if(world.ml.debugSettings.gps)
-				System.out.println("Adding GPS track marker to satellite map...");
+				System.out.println("Map.createGPSTrackMarker()... Adding GPS track marker to satellite map...  Length:"+gpsPoints.size());
 
 			gpsTrackMarker = new SimpleLinesMarker(gpsPoints);
+			gpsTrackMarker.setColor(world.ml.color(gpsTrackHue, gpsTrackSaturation, gpsTrackBrightness, 255.f));
 			satelliteMarkerManager.addMarker(gpsTrackMarker);
+			createdGPSMarker = true;
 		}
 		else if(world.ml.debugSettings.gps)
-			System.out.println("Map.createGPSTrackMarker()... No gpsPoint markers to add!");
-
+			System.out.println("Map.createGPSTrackMarker()...  No gpsPoint markers to add!");
 	}
 	
 	/**

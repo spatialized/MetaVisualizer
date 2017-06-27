@@ -3255,12 +3255,12 @@ public class WMV_Viewer
 			
 			if(state.pathLocationIdx < path.size())
 			{
-				state.pathGoal = path.get(state.pathLocationIdx).getLocation();
+				state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
 				if(debugSettings.path) System.out.println("--> updateFollowing()... Next path location:"+state.pathGoal);
 				
 				if(state.pathLocationIdx >= 1)
 				{
-					if( state.pathGoal != path.get(state.pathLocationIdx-1).getLocation() && PVector.dist(state.pathGoal, state.location) > worldSettings.clusterCenterSize)
+					if( state.pathGoal != path.get(state.pathLocationIdx-1).getCaptureLocation() && PVector.dist(state.pathGoal, state.location) > worldSettings.clusterCenterSize)
 					{
 						if(debugSettings.path) System.out.println("Will "+(state.followTeleport?"teleport":"move") +" to next attraction point..."+state.pathGoal);
 						if(state.followTeleport)
@@ -3282,13 +3282,13 @@ public class WMV_Viewer
 							if(debugSettings.path) System.out.println("Ignoring pathLocationIdx #"+state.pathLocationIdx+" at same location as previous...");
 							
 							state.pathLocationIdx++;
-							state.pathGoal = path.get(state.pathLocationIdx).getLocation();
+							state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
 							
-							while(state.pathGoal == path.get(state.pathLocationIdx-1).getLocation())
+							while(state.pathGoal == path.get(state.pathLocationIdx-1).getCaptureLocation())
 							{
 								if(debugSettings.path) System.out.println(" Also ignoring pathLocationIdx #"+state.pathLocationIdx+" at same location as previous...");
 								state.pathLocationIdx++;
-								state.pathGoal = path.get(state.pathLocationIdx).getLocation();
+								state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
 							}
 						}
 						
@@ -3535,10 +3535,10 @@ public class WMV_Viewer
 						}
 
 						if(debugSettings.viewer)
-							System.out.println("followTimeline()... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
+							System.out.println("followTimeline()... Setting first path goal: "+path.get(state.pathLocationIdx).getCaptureLocation());
 
 
-						state.pathGoal = path.get(state.pathLocationIdx).getLocation();
+						state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
 //						setAttractorPoint(state.pathGoal);
 						if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
 							teleportToPoint(state.pathGoal, true);
@@ -3555,7 +3555,7 @@ public class WMV_Viewer
 			else
 			{
 				if(debugSettings.viewer)
-					System.out.println("Already called followTimeline(): Stopping... "+path.get(state.pathLocationIdx).getLocation());
+					System.out.println("Already called followTimeline(): Stopping... "+path.get(state.pathLocationIdx).getCaptureLocation());
 				state.pathLocationIdx = 0;
 				state.following = false;
 			}
@@ -3582,8 +3582,8 @@ public class WMV_Viewer
 			state.following = true;
 			state.pathLocationIdx = 0;
 			if(debugSettings.viewer)
-				System.out.println("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
-			state.pathGoal = path.get(state.pathLocationIdx).getLocation();
+				System.out.println("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getCaptureLocation());
+			state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
 //			setAttractorPoint(state.pathGoal);
 			if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
 				teleportToPoint(state.pathGoal, true);
@@ -3603,17 +3603,25 @@ public class WMV_Viewer
 	{
 		if(state.gpsTrackSelected > -1 && state.gpsTrackSelected < p.getCurrentField().getGPSTracks().size())
 		{
-			path = new ArrayList<WMV_Waypoint>(gpsTrack);								// Set path waypoints to GPS track 
+			path = new ArrayList<WMV_Waypoint>(gpsTrack);
+//			path = getGPSTrackAsPath();								// Set path waypoints to GPS track 
 			
+//			if(debugSettings.viewer || debugSettings.gps)
+//				System.out.println("Viewer.startFollowingGPSTrack()...  points:"+path.size());
+
 			if(path.size() > 0)
 			{
 				state.following = true;
 				state.pathLocationIdx = 0;
 				
 				if(debugSettings.viewer || debugSettings.gps)
-					System.out.println("Viewer.startFollowingGPSTrack()...  points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getLocation());
+				{
+					System.out.println("Viewer.startFollowingGPSTrack()...  points:"+path.size());
+					System.out.println("    path.get(state.pathLocationIdx).getCaptureLocation()"+path.get(state.pathLocationIdx).getCaptureLocation());
+					System.out.println("    path.get(state.pathLocationIdx).getGPSLocation()"+path.get(state.pathLocationIdx).getGPSLocation());
+				}
 				
-				state.pathGoal = path.get(state.pathLocationIdx).getLocation();			// Set path goal from GPS track
+				state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();			// Set path goal from GPS track
 				
 				if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
 					teleportToPoint(state.pathGoal, true);
@@ -3633,6 +3641,8 @@ public class WMV_Viewer
 	public void chooseGPSTrack()
 	{
 		ArrayList<String> tracks = p.getCurrentField().getGPSTrackNames();
+		if(p.ml.display.initializedMaps)
+			p.ml.display.map2D.createdGPSMarker = false;
 		p.ml.display.window.openChooseItemDialog(tracks, "Use arrow keys to select GPS track file and press ENTER", 1);
 	}
 	
@@ -3880,7 +3890,7 @@ public class WMV_Viewer
 			if(p.getSettings().screenMessagesOn)
 				p.ml.display.message(p.ml, "Saved Viewpoint to Memory.  Path Length:"+memory.size()+"...");
 			
-			if(debugSettings.viewer) System.out.println("Saved Viewpoint to Memory... "+curWaypoint.getLocation()+" Path length:"+memory.size());
+			if(debugSettings.viewer) System.out.println("Saved Viewpoint to Memory... "+curWaypoint.getCaptureLocation()+" Path length:"+memory.size());
 		}
 		else if(debugSettings.viewer) System.out.println("Couldn't add memory point... walking? "+state.walking+" teleporting?"+state.teleporting+" velocity.mag():"+state.velocity.mag());
 	}
@@ -4670,14 +4680,6 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Set current GPS track	-- Deprecated, use selectGPSTrack()
-	 */
-	public void setGPSTrack(ArrayList<WMV_Waypoint> newGPSTrack)
-	{
-		gpsTrack = newGPSTrack;
-	}
-
-	/**
 	 * @return List of waypoints representing current GPS track path
 	 */
 	public void selectGPSTrack(int gpsTrackID)
@@ -5463,9 +5465,9 @@ public class WMV_Viewer
 			
 //			float dist = w1.getDistance(w2);
 			
-			hv = new PVector(  w1.getLocation().x-w2.getLocation().x, 	//  Vector from the camera to the face.      
-					w1.getLocation().y-w2.getLocation().y, 
-					w1.getLocation().z-w2.getLocation().z   );			
+			hv = new PVector(  w1.getCaptureLocation().x-w2.getCaptureLocation().x, 	//  Vector from the camera to the face.      
+					w1.getCaptureLocation().y-w2.getCaptureLocation().y, 
+					w1.getCaptureLocation().z-w2.getCaptureLocation().z   );			
 		}
 		
 		return hv;
@@ -5488,7 +5490,7 @@ public class WMV_Viewer
 				System.out.println("i:"+i);
 				WMV_Waypoint w = history.get(i);
 				
-				if(p.getLocation() == w.getLocation())
+				if(p.getCaptureLocation() == w.getCaptureLocation())
 					found.add(p);
 			}
 		}
@@ -5514,7 +5516,7 @@ public class WMV_Viewer
 				System.out.println("i:"+i);
 				WMV_Waypoint w = history.get(i);
 				
-				if(p.getCurrentField().getCluster(cPoint).getLocation() == w.getLocation())
+				if(p.getCurrentField().getCluster(cPoint).getLocation() == w.getCaptureLocation())
 				{
 					found.add(p.getCurrentField().getCluster(cPoint));
 				}

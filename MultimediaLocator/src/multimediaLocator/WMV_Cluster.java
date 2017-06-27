@@ -353,13 +353,16 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		viewerSettings = currentViewerSettings;		// Update viewer settings
 		viewerState = currentViewerState;			// Update viewer state
 		
-		ArrayList<WMV_Image> cImages = f.getImagesInCluster(getID(), f.getImages());				// Get images in cluster
-		ArrayList<WMV_Panorama> cPanoramas = f.getPanoramasInCluster(getID(), f.getPanoramas());	// Get panoramas in cluster
-		ArrayList<WMV_Video> cVideos = f.getVideosInCluster(getID(), f.getVideos());				// Get videos in cluster
-		ArrayList<WMV_Sound> cSounds = f.getSoundsInCluster(getID(), f.getSounds());				// Get sounds in cluster
-		
-		updateAllMediaStates( cImages, cPanoramas, cVideos, cSounds, currentWorldSettings, 			// Update cluster + media world states
-							  currentWorldState, currentViewerSettings, currentViewerState );		
+		if(getID() != -1)
+		{
+			ArrayList<WMV_Image> cImages = f.getImagesInCluster(getID(), f.getImages());				// Get images in cluster
+			ArrayList<WMV_Panorama> cPanoramas = f.getPanoramasInCluster(getID(), f.getPanoramas());	// Get panoramas in cluster
+			ArrayList<WMV_Video> cVideos = f.getVideosInCluster(getID(), f.getVideos());				// Get videos in cluster
+			ArrayList<WMV_Sound> cSounds = f.getSoundsInCluster(getID(), f.getSounds());				// Get sounds in cluster
+
+			updateAllMediaStates( cImages, cPanoramas, cVideos, cSounds, currentWorldSettings, 			// Update cluster + media world states
+					currentWorldState, currentViewerSettings, currentViewerState );	
+		}
 	}
 
 	/**

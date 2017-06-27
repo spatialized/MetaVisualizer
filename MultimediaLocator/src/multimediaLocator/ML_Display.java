@@ -2074,7 +2074,20 @@ public class ML_Display
 				}
 				break;
 			case 1:														// Map View
-				if(!initializedMaps) map2D.initialize(p);
+				if(!initializedMaps) 
+					map2D.initialize(p);
+				else if(ml.world.getCurrentField().getGPSTracks() != null)
+				{
+					if(ml.world.getCurrentField().getGPSTracks().size() > 0)
+					{
+						if(ml.world.viewer.getSelectedGPSTrackID() != -1)
+						{
+							if(!ml.display.map2D.createdGPSMarker)
+								ml.display.map2D.createGPSTrackMarker(ml.world, ml.world.viewer.getGPSTrack());
+						}
+					}
+				}
+
 				switch(mapViewMode)
 				{
 					case 0:												// World Mode

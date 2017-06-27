@@ -12,7 +12,6 @@ import processing.core.PApplet;
  */
 public class ML_KeyboardControls 
 {
-
 	private ML_Input input;
 	
 	ML_KeyboardControls(ML_Input parent)
@@ -65,6 +64,7 @@ public class ML_KeyboardControls
 			ml.world.settings.screenMessagesOn = !ml.world.settings.screenMessagesOn;
 			if(ml.display.window.setupMLWindow)
 				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);
+			
 //			ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
 		}
 
@@ -904,8 +904,8 @@ public class ML_KeyboardControls
 		
 		if (key == PApplet.CODED) 
 		{
-			if(ml.display.getDisplayView() == 0)
-			{
+//			if(ml.display.getDisplayView() == 0)
+//			{
 				if (keyCode == PApplet.DOWN) 
 				{
 					ml.display.window.listItemWindowSelectedItem++;
@@ -936,7 +936,7 @@ public class ML_KeyboardControls
 							break;
 					}
 				}
-			}
+//			}
 		}
 	}
 	
@@ -1120,18 +1120,18 @@ public class ML_KeyboardControls
 				ml.display.window.closeStatisticsWindow();
 		}
 
+//		if (key == '$') 
+//		{
+//			if(!ml.display.window.showMapWindow)
+//				ml.display.window.openMapWindow();
+//			else
+//				ml.display.window.closeMapWindow();
+//		}
+
 		if (key == '$') 
 		{
-			if(!ml.display.window.showMapWindow)
-				ml.display.window.openMapWindow();
-			else
-				ml.display.window.closeMapWindow();
-		}
-
-		if (key == '%') 
-		{
 			if(!ml.display.window.showTimeWindow)
-				ml.display.window.openTimelineWindow();
+				ml.display.window.openTimeWindow();
 			else
 				ml.display.window.closeTimeWindow();
 		}

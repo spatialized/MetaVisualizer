@@ -57,61 +57,6 @@ public class WMV_Image extends WMV_Media
 	}
 
 	/**
-	 * @param size Size to draw the video center
-	 * Draw the video center as a colored sphere
-	 */
-	void displayModel(MultimediaLocator ml)
-	{
-		float brightness = state.outlineAlpha * getViewerSettings().userBrightness;
-		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactor); 
-		
-		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
-
-//		if( getWorldState().timeFading && time != null && !ml.world.viewer.isMoving() )
-//			brightness *= getTimeBrightness(); 							// Fade iBrightness based on time
-
-		/* Draw frame */
-		ml.pushMatrix();
-		ml.stroke(0.f, 0.f, 255.f, brightness);	 
-//		ml.stroke(0.f, 0.f, 255.f, state.outlineAlpha);	 
-		ml.strokeWeight(2.f);
-
-		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
-		ml.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
-		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
-		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
-
-		PVector c = ml.world.getCurrentField().getCluster(getMediaState().getClusterID()).getLocation();
-		PVector loc = getLocation();
-		PVector cl = getCaptureLocation();
-		ml.popMatrix();
-
-		/* Draw media, cluster and capture location */
-		ml.pushMatrix();
-		if(getWorldState().showMediaToCluster)
-		{
-			ml.strokeWeight(3.f);
-			ml.stroke(80, 135, 255, getMediaState().viewingBrightness * 0.8f);
-			ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
-		}
-
-		if(getWorldState().showCaptureToMedia)
-		{
-			ml.strokeWeight(3.f);
-			ml.stroke(160, 100, 255, getMediaState().viewingBrightness * 0.8f);
-			ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
-		}
-
-		if(getWorldState().showCaptureToCluster)
-		{
-			ml.strokeWeight(3.f);
-			ml.stroke(120, 55, 255, getMediaState().viewingBrightness * 0.8f);
-			ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
-		}
-		ml.popMatrix();
-	}
-
-	/**
 	 * Calculate and set image visibility based on viewer location and orientation
 	 * @param viewer Viewer
 	 * @param utilities Utilities object
@@ -246,9 +191,6 @@ public class WMV_Image extends WMV_Media
 				ml.noStroke(); 
 		}
 
-//		if(ml.debugSettings.image && ml.debugSettings.detailed)
-//			System.out.println("Image.display()... id #"+getID()+" getViewingBrightness():"+getViewingBrightness());
-
 		ml.pushMatrix();
 		ml.beginShape(PApplet.POLYGON);    // Begin the shape containing the image
 		ml.textureMode(PApplet.NORMAL);
@@ -283,6 +225,66 @@ public class WMV_Image extends WMV_Media
 		}
 
 		ml.endShape(PApplet.CLOSE);       // End the shape containing the image
+		ml.popMatrix();
+	}
+	
+	/**
+	 * @param size Size to draw the video center
+	 * Draw the video center as a colored sphere
+	 */
+	void displayModel(MultimediaLocator ml)
+	{
+//		float brightness = state.outlineAlpha * getViewerSettings().userBrightness;
+//		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactor); 
+//		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+
+		float brightness = getFadingBrightness() * getViewerSettings().userBrightness;
+		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactor); 
+		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+
+		float modelBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, state.outlineAlpha);				// Scale to setting for alpha range
+
+//		if( getWorldState().timeFading && time != null && !ml.world.viewer.isMoving() )
+//			brightness *= getTimeBrightness(); 							// Fade iBrightness based on time
+
+		/* Draw frame */
+		ml.pushMatrix();
+		ml.stroke(0.f, 0.f, 255.f, modelBrightness);	 
+//		ml.stroke(0.f, 0.f, 255.f, state.outlineAlpha);	 
+		ml.strokeWeight(2.f);
+
+		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
+		ml.line(state.vertices[1].x, state.vertices[1].y, state.vertices[1].z, state.vertices[2].x, state.vertices[2].y, state.vertices[2].z);
+		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
+		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
+
+		PVector c = ml.world.getCurrentField().getCluster(getMediaState().getClusterID()).getLocation();
+		PVector loc = getLocation();
+		PVector cl = getCaptureLocation();
+		ml.popMatrix();
+
+		/* Draw media, cluster and capture location */
+		ml.pushMatrix();
+		if(getWorldState().showMediaToCluster)
+		{
+			ml.strokeWeight(3.f);
+			ml.stroke(80, 135, 255, getMediaState().viewingBrightness * 0.8f);
+			ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
+		}
+
+		if(getWorldState().showCaptureToMedia)
+		{
+			ml.strokeWeight(3.f);
+			ml.stroke(160, 100, 255, getMediaState().viewingBrightness * 0.8f);
+			ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
+		}
+
+		if(getWorldState().showCaptureToCluster)
+		{
+			ml.strokeWeight(3.f);
+			ml.stroke(120, 55, 255, getMediaState().viewingBrightness * 0.8f);
+			ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
+		}
 		ml.popMatrix();
 	}
 

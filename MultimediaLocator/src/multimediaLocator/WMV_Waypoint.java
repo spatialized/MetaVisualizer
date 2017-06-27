@@ -11,15 +11,15 @@ public class WMV_Waypoint
 	private WMV_Time time;
 	private WMV_Orientation orientation;
 
-	private int id;					// ID (Cluster)
-	private PVector location;		// World location
-	private PVector gpsLocation;	// GPS location {longitude, latitude}
-	private float altitude;			// GPS Altitude
+	private int id;							// ID (Cluster)
+	private PVector captureLocation;		// World location
+	private PVector gpsLocation;			// GPS location {longitude, latitude}
+	private float altitude;					// GPS Altitude
 	
-	WMV_Waypoint(int newID, PVector newLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
+	WMV_Waypoint(int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
 	{
 		id = newID;
-		location = newLocation;
+		captureLocation = newCaptureLocation;
 		time = newTime;
 		gpsLocation = newGPSLocation;
 		altitude = newAltitude;
@@ -31,7 +31,7 @@ public class WMV_Waypoint
 	 */
 	public float getDistance(WMV_Waypoint cPoint)
 	{
-		float dist = PVector.dist(location, cPoint.location);
+		float dist = PVector.dist(captureLocation, cPoint.captureLocation);
 		return dist;
 	}
 	
@@ -55,9 +55,14 @@ public class WMV_Waypoint
 		return orientation;
 	}
 	
-	public PVector getLocation()
+	public void setCaptureLocation(PVector newLocation)
 	{
-		return location;
+		captureLocation = newLocation;
+	}
+	
+	public PVector getCaptureLocation()
+	{
+		return captureLocation;
 	}
 
 	public WMV_Time getTime()

@@ -831,7 +831,7 @@ public class WMV_Utilities
 				float altitude = Float.parseFloat(elevationVal.getTextContent());
 
 				/* Parse Node Date */
-				String dateTimeStr = timeVal.getTextContent(); 						// Ex. string: 2016-05-01T23:55:33Z   <time>2017-02-05T23:31:23Z</time>
+				String dateTimeStr = timeVal.getTextContent(); 			// Ex. string: 2016-05-01T23:55:33Z   <time>2017-02-05T23:31:23Z</time>
 				
 				ZonedDateTime zoned = parseUTCDateTimeString(dateTimeStr, f.getTimeZoneID());
 				WMV_Time zonedTime = new WMV_Time();
@@ -840,8 +840,10 @@ public class WMV_Utilities
 				PVector gpsLocation = new PVector(longitude, latitude);
 				PVector captureLocation = getCaptureLocationFromGPSAndAltitude(ml, gpsLocation, altitude, f.getModel());
 				
-				WMV_Waypoint wp = new WMV_Waypoint(count, captureLocation, gpsLocation, altitude, zonedTime);			// Convert GPS track node to Waypoint
-				gpsTrack.add(wp);																			// Add Waypoint to GPS track
+//				System.out.println("Utilities.getGPSTrackFromFile()... captureLocation x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y);
+				
+				WMV_Waypoint wp = new WMV_Waypoint(count, captureLocation, gpsLocation, altitude, zonedTime);		// Convert GPS track node to Waypoint
+				gpsTrack.add(wp);																					// Add Waypoint to GPS track
 				
 				count++;
 			}
@@ -863,6 +865,8 @@ public class WMV_Utilities
 	{
 		float newX = 0.f, newZ = 0.f, newY = 0.f;
 		
+//		System.out.println("getCaptureLocationFromGPSAndAltitude()... model.getState().highLongitude:"+model.getState().highLongitude+" model.getState().lowLongitude:"+model.getState().lowLongitude);
+
 		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000)
 		{
 			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
@@ -879,6 +883,8 @@ public class WMV_Utilities
 			else
 			{
 				newX = newY = newZ = 0.f;
+//				System.out.println("getCaptureLocationFromGPSAndAltitude()... ERROR high longitude:"+model.getState().highLongitude+" lowLongitude:"+model.getState().lowLongitude);
+//				System.out.println("    high latitude:"+model.getState().highLatitude+" low latitude:"+model.getState().lowLatitude);
 			}
 		}
 

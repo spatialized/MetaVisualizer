@@ -188,12 +188,9 @@ class WMV_Metadata
 			if(panoramaFilesFound) loadImages(f, panoramaFiles); 						    // Load panorama metadata
 			if(smallVideoFilesFound) loadVideos(f, smallVideoFiles);	 	 				// Load video metadata 
 			if(soundFilesFound) loadSounds(f, soundFiles);				 					// Load sound file metadata
-			if(gpsTrackFilesFound) 
-				f.setGPSTracks( loadGPSTracks(f) );							// Load GPS tracks 
 		}
 		
 		return false;
-//		return null;
 	}
 
 	/**
@@ -207,14 +204,14 @@ class WMV_Metadata
 		boolean valid = false;
 		if (newTrackFile == null) 
 		{
-			System.out.println("loadGPSTrack() window was closed or the user hit cancel.");
+			System.out.println("Metadata.loadGPSTrack() window was closed or the user hit cancel.");
 		} 
 		else 
 		{
 			String input = newTrackFile.getPath();
 			gpsTrackName = input;
 
-			if(debugSettings.metadata) System.out.println("User selected GPS Track: " + input);
+			if(debugSettings.metadata) System.out.println("  User selected GPS Track: " + input);
 			
 			try
 			{

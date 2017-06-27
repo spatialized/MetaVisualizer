@@ -8,12 +8,12 @@ public class ML_DebugSettings
 {
 	/* Debug Modes */
 	public boolean detailed = false;				// Verbose debugging messages
-	public boolean print = false;				// Print all user messages
+	public boolean print = true;				// Print all user messages
 	public boolean messages = false;			// On screen debug messages
 	
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = false;				// Debug WMV_World and WMV_Field class
+	public boolean world = true;				// Debug WMV_World and WMV_Field class
 	public boolean library = false;
 	public boolean memory = false;				// Debug memory
 	
@@ -26,7 +26,7 @@ public class ML_DebugSettings
 	public boolean media = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;				// Debug WMV_Panorama class
-	public boolean video = false;				// Debug WMV_Video class
+	public boolean video = true;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
 	
 	/* Viewer */
@@ -40,7 +40,7 @@ public class ML_DebugSettings
 	/* Other */
 	public boolean stitching = false;			// Debug WMV_Stitcher class
 	public boolean mouse = false;
-	public boolean gps = false;					// Debug WMV_Viewer class
+	public boolean gps = true;					// Debug WMV_Viewer class
 	
 	ML_DebugSettings (){}
 }

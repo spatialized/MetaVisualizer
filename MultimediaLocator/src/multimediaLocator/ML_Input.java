@@ -85,11 +85,23 @@ public class ML_Input
 		keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
 	}
 
+	/**
+	 * Handle key pressed in List Item View
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		keyboardInput.handleListItemWindowKeyPressed(ml, key, keyCode);
 	}
 	
+	/**
+	 * Handle key pressed in Library Window
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	public void handleLibraryWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		keyboardInput.handleLibraryWindowKeyPressed(ml, key, keyCode);
@@ -375,9 +387,9 @@ public class ML_Input
 				/* Time */
 				case "OpenTimeWindow":
 					if(!ml.display.window.showTimeWindow)
-						ml.display.window.openTimelineWindow();
+						ml.display.window.openTimeWindow();
 					else
-						ml.display.window.openTimelineWindow();
+						ml.display.window.openTimeWindow();
 					break;
 				case "NextTime":
 					ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
@@ -460,12 +472,12 @@ public class ML_Input
 					break;
 	
 				/* Map */
-				case "OpenMapWindow":
-					if(!ml.display.window.showMapWindow)
-						ml.display.window.openMapWindow();
-					else
-						ml.display.window.closeMapWindow();
-					break;
+//				case "OpenMapWindow":
+//					if(!ml.display.window.showMapWindow)
+//						ml.display.window.openMapWindow();
+//					else
+//						ml.display.window.closeMapWindow();
+//					break;
 				case "SetMapView":
 					if(display.getDisplayView() != 1)
 						display.setDisplayView(ml.world, 1);

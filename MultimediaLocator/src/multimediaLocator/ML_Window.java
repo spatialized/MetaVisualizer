@@ -227,7 +227,7 @@ public class ML_Window
 		statisticsWindowHeight = mediumWindowHeight - 30;
 		helpWindowHeight = mediumWindowHeight + 100;
 		mapWindowHeight = shortWindowHeight - 25;
-		timeWindowHeight = mediumWindowHeight - 120;
+		timeWindowHeight = mediumWindowHeight - 60;
 		
 		if(world.ml.displayHeight < tallWindowHeight + 5)					// Small screen: compress windows
 		{
@@ -450,7 +450,7 @@ public class ML_Window
 
 		int x = 0, y = iTopMargin;
 		
-		if(compressTallWindows) x = 105;
+		if(compressTallWindows) x = 95;
 		else x = 0;
 
 		lblNavigationWindow = new GLabel(navigationWindow, x, y, navigationWindow.width, iMediumBoxHeight, "Navigation");
@@ -546,45 +546,23 @@ public class ML_Window
 		btnMoveToNearestVideo.tag = "NearestVideo";
 		btnMoveToNearestVideo.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		btnMoveToNearestSound = new GButton(navigationWindow, x+=90, y, 100, iVerySmallBoxHeight, "Sound (u)");
+		btnMoveToNearestSound = new GButton(navigationWindow, x+90, y, 100, iVerySmallBoxHeight, "Sound (u)");
 		btnMoveToNearestSound.tag = "NearestSound";
 		btnMoveToNearestSound.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		world.ml.delay(delayAmount);
 
-		x = 70;
+		x = 105;
 		y += iMediumBoxHeight;
 		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Last (l)");
 		btnMoveToLastCluster.tag = "LastCluster";
 		btnMoveToLastCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x += 80;
-		btnJumpToRandomCluster = new GButton(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Random (j)");
+		btnJumpToRandomCluster = new GButton(navigationWindow, x+90, y, 90, iVerySmallBoxHeight, "Random (j)");
 		btnJumpToRandomCluster.tag = "RandomCluster";
-		btnJumpToRandomCluster.setLocalColorScheme(G4P.GREEN_SCHEME);
-
-		x = 75;
-		y += iLargeBoxHeight;
-		btnZoomOut = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "Out (z)");
-		btnZoomOut.tag = "ZoomOut";
-		btnZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnZoomOut.fireAllEvents(true);
-
-		if(compressTallWindows) x = 135;
-		else x = 0;
-		lblZoom = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Zoom");
-		lblZoom.setLocalColorScheme(G4P.SCHEME_10);
-		lblZoom.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		if(!compressTallWindows) lblZoom.setTextAlign(GAlign.CENTER, null);
-		lblZoom.setTextBold();
+		btnJumpToRandomCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		world.ml.delay(delayAmount / 2);
-
-		x = 190;
-		btnZoomIn = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "In (q)");
-		btnZoomIn.tag = "ZoomIn";
-		btnZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnZoomIn.fireAllEvents(true);
 
 		if(world.getFields() != null)
 		{
@@ -608,25 +586,29 @@ public class ML_Window
 			}
 		}
 
-		x = 40;
-		y += iMediumBoxHeight;
-		lblMemory = new GLabel(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Memory");
-		lblMemory.setLocalColorScheme(G4P.SCHEME_10);
-		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		lblMemory.setTextBold();
-		
 		world.ml.delay(delayAmount / 2);
+		
+		x = 75;
+		y += iLargeBoxHeight;
+		btnZoomOut = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "Out (z)");
+		btnZoomOut.tag = "ZoomOut";
+		btnZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnZoomOut.fireAllEvents(true);
 
-		x = 120;
-		btnSaveLocation = new GButton(navigationWindow, x, y, 60, iVerySmallBoxHeight, "Save (`)");
-		btnSaveLocation.tag = "SaveLocation";
-		btnSaveLocation.setLocalColorScheme(G4P.CYAN_SCHEME);
+		if(compressTallWindows) x = 135;
+		else x = 0;
+		lblZoom = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Zoom");
+		lblZoom.setLocalColorScheme(G4P.SCHEME_10);
+		lblZoom.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		if(!compressTallWindows) lblZoom.setTextAlign(GAlign.CENTER, null);
+		lblZoom.setTextBold();
 
 		x = 190;
-		btnClearMemory = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Clear (y)");
-		btnClearMemory.tag = "ClearMemory";
-		btnClearMemory.setLocalColorScheme(G4P.ORANGE_SCHEME);
-		
+		btnZoomIn = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "In (q)");
+		btnZoomIn.tag = "ZoomIn";
+		btnZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnZoomIn.fireAllEvents(true);
+
 		if(compressTallWindows)
 			x = 90;
 		else
@@ -685,7 +667,7 @@ public class ML_Window
 
 		x = iLeftMargin;
 		y += iMediumBoxHeight * 0.5f;
-		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Select GPS Track");
+		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 120, iVerySmallBoxHeight, "Select GPS Track");
 		btnChooseGPSTrack.tag = "ChooseGPSTrack";
 		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
@@ -707,6 +689,23 @@ public class ML_Window
 			chkbxPathFollowing.moveTo(100, chkbxPathFollowing.getY());;
 			chkbxFollowTeleport.moveTo(100, chkbxFollowTeleport.getY());;
 		}
+		
+		x = 25;
+		y += iMediumBoxHeight;
+		lblMemory = new GLabel(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Memory");
+		lblMemory.setLocalColorScheme(G4P.SCHEME_10);
+		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+//		lblMemory.setTextBold();
+		
+		x = 105;
+		btnSaveLocation = new GButton(navigationWindow, x, y, 60, iVerySmallBoxHeight, "Save (`)");
+		btnSaveLocation.tag = "SaveLocation";
+		btnSaveLocation.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		x = 190;
+		btnClearMemory = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Clear (y)");
+		btnClearMemory.tag = "ClearMemory";
+		btnClearMemory.setLocalColorScheme(G4P.ORANGE_SCHEME);
 
 		x = 160;
 		y += iMediumBoxHeight;
@@ -732,7 +731,7 @@ public class ML_Window
 		sdrPathWaitLength.tag = "PathWaitLength";
 		
 		x = 25;
-		y += iMediumBoxHeight;
+		y += iSmallBoxHeight - 2;
 		lblTeleportLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Teleport Time");
 		lblTeleportLength.setLocalColorScheme(G4P.SCHEME_10);
 
@@ -740,9 +739,9 @@ public class ML_Window
 		lblPathWaitLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Wait Time");
 		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
 
-		y += iVeryLargeBoxHeight + 10;
-		x = 78;
-		btnStopViewer = new GButton(navigationWindow, x, y, 160, iSmallBoxHeight, "Stop Viewer (.)");
+		y += iVeryLargeBoxHeight + 15;
+		x = 85;
+		btnStopViewer = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Stop (.)");
 		btnStopViewer.tag = "StopViewer";
 		btnStopViewer.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
@@ -852,10 +851,10 @@ public class ML_Window
 		btnPanDown.setLocalColorScheme(G4P.CYAN_SCHEME);
 		btnPanDown.fireAllEvents(true);
 
-		x = 115;
+		x = 123;
 		if(compressTallWindows) x += windowWidth;
-		y += iLargeBoxHeight;
-		btnZoomOutToField = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Field");
+		y += iLargeBoxHeight + 15;
+		btnZoomOutToField = new GButton(navigationWindow, x, y, 65, iVerySmallBoxHeight, "Field");
 		btnZoomOutToField.tag = "ZoomToField";
 		btnZoomOutToField.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -865,7 +864,7 @@ public class ML_Window
 		lblZoomTo = new GLabel(navigationWindow, x, y, navigationWindow.width, iSmallBoxHeight, "Zoom To:");
 		lblZoomTo.setLocalColorScheme(G4P.SCHEME_10);
 		lblZoomTo.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		lblZoomTo.setTextBold();
+//		lblZoomTo.setTextBold();
 
 		x = 205;
 		if(compressTallWindows) x += windowWidth;
@@ -880,10 +879,10 @@ public class ML_Window
 //		btnZoomToSelected.setLocalColorScheme(G4P.CYAN_SCHEME);
 //		x += 95;
 		
-		x = 115;
+		x = 123;
 		if(compressTallWindows) x += windowWidth;
 		y += iMediumBoxHeight * 0.5f;
-		btnZoomToWorld = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "World");
+		btnZoomToWorld = new GButton(navigationWindow, x, y, 65, iVerySmallBoxHeight, "World");
 		btnZoomToWorld.tag = "ZoomToWorld";
 		btnZoomToWorld.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -1611,7 +1610,6 @@ public class ML_Window
 		optClusterTimeMode.tag = "ClusterTimeMode";
 		
 		x = iLeftMargin;
-		
 		y += iMediumBoxHeight * 0.5f;
 		lblTimeMode = new GLabel(timeWindow, x, y, 100, iVerySmallBoxHeight, "Time Mode");
 		lblTimeMode.setLocalColorScheme(G4P.SCHEME_10);
@@ -1620,7 +1618,6 @@ public class ML_Window
 		world.ml.delay(delayAmount / 2);
 
 		x = 135;
-		
 		y += iMediumBoxHeight * 0.5f;
 		optFieldTimeMode = new GOption(timeWindow, x, y, 135, 20, "Field (OPT z)");
 		optFieldTimeMode.setLocalColorScheme(G4P.SCHEME_10);
@@ -1652,8 +1649,7 @@ public class ML_Window
 		chkbxTimeFading.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		chkbxTimeFading.setSelected(world.getState().timeFading);
 
-		x = 35;
-		
+		x = iLeftMargin;
 		y += iMediumBoxHeight * 0.5f;
 		lblTimeCycle = new GLabel(timeWindow, x, y, 85, iVerySmallBoxHeight, "Cycle");
 		lblTimeCycle.setLocalColorScheme(G4P.SCHEME_10);
@@ -1682,7 +1678,7 @@ public class ML_Window
 		sdrCurrentTime.tag = "CurrentTime";
 
 		x = 35;
-		y += 30;
+		y += iLargeBoxHeight;
 		lblCurrentTime = new GLabel(timeWindow, x, y, 100, iVerySmallBoxHeight, "Current Time");
 		lblCurrentTime.setLocalColorScheme(G4P.SCHEME_10);
 
@@ -1792,8 +1788,8 @@ public class ML_Window
 		y += iMediumBoxHeight * 0.5f;
 		lblTimelineZoomTo = new GLabel(timeWindow, x, y, timeWindow.width, iSmallBoxHeight, "Zoom To:");
 		lblTimelineZoomTo.setLocalColorScheme(G4P.SCHEME_10);
-		lblTimelineZoomTo.setFont(new Font("Monospaced", Font.ITALIC, iMediumTextSize));
-		lblTimelineZoomTo.setTextBold();
+		lblTimelineZoomTo.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+//		lblTimelineZoomTo.setTextBold();
 		
 		x = 125;
 		y += iMediumBoxHeight * 0.5f;

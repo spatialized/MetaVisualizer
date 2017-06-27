@@ -2083,7 +2083,10 @@ public class ML_Display
 						if(ml.world.viewer.getSelectedGPSTrackID() != -1)
 						{
 							if(!ml.display.map2D.createdGPSMarker)
-								ml.display.map2D.createGPSTrackMarker(ml.world, ml.world.viewer.getGPSTrack());
+							{
+//								ml.display.map2D.initialize(ml.world);
+								ml.display.map2D.createMarkers(ml.world);
+							}
 						}
 					}
 				}
@@ -2092,12 +2095,12 @@ public class ML_Display
 				{
 					case 0:												// World Mode
 						map2D.satelliteMarkerManager.enableDrawing();
-						map2D.largeMarkerManager.disableDrawing();
-						map2D.smallMarkerManager.disableDrawing();
+//						map2D.largeMarkerManager.disableDrawing();
+//						map2D.smallMarkerManager.disableDrawing();
 						break;
 					case 1:												// Field Mode
-						map2D.largeMarkerManager.enableDrawing();
-						map2D.smallMarkerManager.enableDrawing();
+//						map2D.largeMarkerManager.enableDrawing();
+//						map2D.smallMarkerManager.enableDrawing();
 						if(map2D.satelliteMarkerManager != null)
 							map2D.satelliteMarkerManager.disableDrawing();
 						map2D.zoomToField(p, p.getCurrentField(), false);
@@ -2201,15 +2204,15 @@ public class ML_Display
 //				if(!initializedWorldMap) map2D.initializeWorldMap(ml.world);
 				map2D.zoomToWorld(false);
 				map2D.satelliteMarkerManager.enableDrawing();
-				if(map2D.largeMarkerManager != null)
-					map2D.largeMarkerManager.disableDrawing();
-				if(map2D.smallMarkerManager != null)
-					map2D.smallMarkerManager.disableDrawing();
+//				if(map2D.largeMarkerManager != null)
+//					map2D.largeMarkerManager.disableDrawing();
+//				if(map2D.smallMarkerManager != null)
+//					map2D.smallMarkerManager.disableDrawing();
 				break;
 			case 1:												// Field Mode
 //				if(!initializedSatelliteMap) map2D.initializeSatelliteMap(ml.world);
-				map2D.largeMarkerManager.enableDrawing();
-				map2D.smallMarkerManager.enableDrawing();
+//				map2D.largeMarkerManager.enableDrawing();
+//				map2D.smallMarkerManager.enableDrawing();
 				if(map2D.satelliteMarkerManager != null)
 					map2D.satelliteMarkerManager.disableDrawing();
 				map2D.zoomToField(ml.world, ml.world.getCurrentField(), false);

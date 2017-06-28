@@ -895,7 +895,7 @@ public class ML_KeyboardControls
 					ml.world.enterFieldByIndex( ml.display.window.listItemWindowSelectedItem );								/* Enter first field */
 					break;
 				case 1:						// 1: GPS Track
-					ml.world.viewer.selectGPSTrack( ml.display.window.listItemWindowSelectedItem );
+					ml.world.viewer.selectGPSTrackID( ml.display.window.listItemWindowSelectedItem );
 					break;
 			}
 			

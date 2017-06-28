@@ -35,7 +35,7 @@ public class ML_DebugSettings
 
 	/* Viewer */
 	public boolean display = false;				// Debug WMV_Display class
-	public boolean map = false;					// Debug WMV_Map class
+	public boolean map = true;					// Debug WMV_Map class
 
 	/* Other */
 	public boolean stitching = false;			// Debug WMV_Stitcher class

@@ -665,7 +665,7 @@ public class ML_Window
 		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxPathFollowing.setSelected(world.viewer.isFollowing());
 
-		x = iLeftMargin;
+		x = 25;
 		y += iMediumBoxHeight * 0.5f;
 		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 120, iVerySmallBoxHeight, "Select GPS Track");
 		btnChooseGPSTrack.tag = "ChooseGPSTrack";

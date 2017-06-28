@@ -4680,12 +4680,24 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * @return List of waypoints representing current GPS track path
+	 * Set selected GPS Track ID
+	 * @param gpsTrackID New GPS track path ID
 	 */
-	public void selectGPSTrack(int gpsTrackID)
+	public void selectGPSTrackID(int gpsTrackID)
 	{
-		state.gpsTrackSelected = gpsTrackID;
-		gpsTrack = p.getCurrentField().getGPSTracks().get(state.gpsTrackSelected);	// Set viewer GPS track from selection
+		if(state.gpsTrackSelected != gpsTrackID)
+		{
+			state.gpsTrackSelected = gpsTrackID;
+			gpsTrack = p.getCurrentField().getGPSTracks().get(state.gpsTrackSelected);	// Set viewer GPS track from selection
+			if(p.ml.display.initializedMaps)
+			{
+				if( !p.ml.display.map2D.createdGPSMarker)
+				{
+//					p.ml.display.map2D.createMarkers(p);
+					p.ml.display.map2D.initialize(p);
+				}
+			}
+		}
 	}
 
 	/**

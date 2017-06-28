@@ -34,14 +34,15 @@ import de.fhpotsdam.unfolding.utils.ScreenPosition;
 public class ML_Map 
 {
 	/* Map */
-	private UnfoldingMap satellite, osm, large, small;
+	private UnfoldingMap satellite;
+//	private UnfoldingMap osm, large, small;
 	private final int mapDelay = 100;
 	
 	private List<SimplePolygonMarker> fieldMarkers;		// Markers for fields in library
 	private List<Location> fieldMarkerCenters, allClusterLocations;
 	
 	private EventDispatcher eventDispatcher; // plainMapEventDispatcher;
-	public MarkerManager<Marker> satelliteMarkerManager; //, osmMarkerManager, smallMarkerManager, largeMarkerManager;
+	public MarkerManager<Marker> satelliteMarkerManager, largeMarkerManager; //, osmMarkerManager, smallMarkerManager, largeMarkerManager;
 	public MarkerManager<Marker> gpsMarkerManager; 
 	private MultiMarker allClustersMarker;
 	private SimplePointMarker viewerMarker, plainMapViewerMarker;
@@ -120,10 +121,21 @@ public class ML_Map
 	 */
 	public void initialize(WMV_World world)
 	{
-//		createdGPSMarker = false;
-		blankTile = world.ml.getImageResource("blank.jpg");
-
-		initializeBasicMaps(world);
+		if(p.initializedMaps) p.initializedMaps = false;
+		if(satelliteMarkerManager != null)
+		{
+			satelliteMarkerManager.disableDrawing();
+		}
+		if(createdGPSMarker) 
+		{
+			gpsMarkerManager.disableDrawing();
+			createdGPSMarker = false;
+		}
+		
+		if(blankTile == null)
+			blankTile = world.ml.getImageResource("blank.jpg");	// -- Move to constructor?
+		
+//		initializeBasicMaps(world);
 		initializeSatelliteMap(world);
 		initializeWorldMap(world);
 		
@@ -164,27 +176,24 @@ public class ML_Map
 	 * Initialize maps
 	 * @param p Parent world
 	 */
-	public void initializeSatelliteMap(WMV_World p)
+	private void initializeSatelliteMap(WMV_World p)
 	{
 		satellite = new UnfoldingMap(p.ml, "Satellite", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
-		osm = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
+//		osm = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new OpenStreetMap.OpenStreetMapProvider());
+		p.ml.delay(mapDelay);
 
 //		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
 		satellite.setBackgroundColor(0);
-		osm.setBackgroundColor(0);
-		p.ml.delay(mapDelay);
+//		osm.setBackgroundColor(0);
 	
 		satellite.setTweening(true);
 		satellite.setZoomRange(2, 19);
-		osm.setTweening(true);
-		osm.setZoomRange(2, 19);
+//		osm.setTweening(true);
+//		osm.setZoomRange(2, 19);
 
-//		createFieldClusterMarkers(p);
-		p.ml.delay(mapDelay);
-		
-//		p.ml.delay(mapDelay);
 		
 		p.ml.display.initializedSatelliteMap = true;
+		p.ml.delay(mapDelay);
 	}
 
 	/**
@@ -193,37 +202,37 @@ public class ML_Map
 	 */
 	private void initializeBasicMaps(WMV_World p)
 	{
-		large = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new BlankMapProvider());
-//		large = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
-		small = new UnfoldingMap(p.ml, "Map", 0, 0, zoomMapWidth, zoomMapHeight, true, false, new BlankMapProvider());
-		p.ml.delay(mapDelay);
-		
-		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
-
-		large.setBackgroundColor(0);
-		small.setBackgroundColor(0);
-		p.ml.delay(mapDelay);
-		
-		large.setTweening(true);
-		large.setZoomRange(2, 21);
-		small.setTweening(true);
-		small.setZoomRange(2, 21);
-
-		/* Add mouse interaction */
-		eventDispatcher = new EventDispatcher();
-		MouseHandler mouseHandler = new MouseHandler(p.ml, large);
-		eventDispatcher.addBroadcaster(mouseHandler);
-		eventDispatcher.register(large, "pan", large.getId());
-		eventDispatcher.register(large, "zoom", large.getId());
-
+//		large = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new BlankMapProvider());
+////		large = new UnfoldingMap(p.ml, "Map", 0, 0, screenWidth, screenHeight, true, false, new Microsoft.AerialProvider());
+//		small = new UnfoldingMap(p.ml, "Map", 0, 0, zoomMapWidth, zoomMapHeight, true, false, new BlankMapProvider());
+//		p.ml.delay(mapDelay);
+//		
+//		PVector gpsLoc = utilities.getGPSLocation(p.getCurrentField(), new PVector(0,0,0));
+//
+//		large.setBackgroundColor(0);
+//		small.setBackgroundColor(0);
+//		p.ml.delay(mapDelay);
+//		
+//		large.setTweening(true);
+//		large.setZoomRange(2, 21);
+//		small.setTweening(true);
+//		small.setZoomRange(2, 21);
+//
+//		/* Add mouse interaction */
+//		eventDispatcher = new EventDispatcher();
+//		MouseHandler mouseHandler = new MouseHandler(p.ml, large);
+//		eventDispatcher.addBroadcaster(mouseHandler);
+//		eventDispatcher.register(large, "pan", large.getId());
+//		eventDispatcher.register(large, "zoom", large.getId());
+//
 //		createBasicMapsClusterMarkers(p);
-		p.ml.delay(mapDelay);				// -- Scale to number of clusters
-		
-		PVector vLoc = p.viewer.getGPSLocation();
-		plainMapViewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
-		plainMapViewerMarker.setId("viewer");
-		plainMapViewerMarker.setDiameter(viewerDiameter);
-		plainMapViewerMarker.setColor(p.ml.color(0, 0, 255, 255));
+//		p.ml.delay(mapDelay);				// -- Scale to number of clusters
+//		
+//		PVector vLoc = p.viewer.getGPSLocation();
+//		plainMapViewerMarker = new SimplePointMarker(new Location(vLoc.y, vLoc.x));
+//		plainMapViewerMarker.setId("viewer");
+//		plainMapViewerMarker.setDiameter(viewerDiameter);
+//		plainMapViewerMarker.setColor(p.ml.color(0, 0, 255, 255));
 	}
 	
 	/**
@@ -248,12 +257,9 @@ public class ML_Map
 		if(gpsLoc != null)
 		{
 			if(viewerMarker != null)
-			{
 				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-//				satelliteMarkerManager.addMarker(viewerMarker);				// -- Needed??
-//				osmMarkerManager.addMarker(viewerMarker);					// -- Needed??
-			}
-			else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
+			else 
+				System.out.println("Map.displaySatelliteMap()... viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
 		}
 
 		world.ml.perspective();
@@ -291,22 +297,22 @@ public class ML_Map
 	 */
 	public void displayOSMMap(WMV_World world)				// -- Need to finish
 	{
-		PVector vLoc = world.viewer.getGPSLocation();
-		Location gpsLoc = new Location(vLoc.y, vLoc.x);
-		if(gpsLoc != null)
-		{
-			if(viewerMarker != null)
-			{
-				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-//				osmMarkerManager.addMarker(viewerMarker);					// -- Needed??
-			}
-			else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
-		}
-
-		world.ml.perspective();
-		world.ml.camera();												// Reset to default camera setting
-		world.ml.tint(255.f, 255.f);
-		osm.draw();														// Draw the Unfolding Map
+//		PVector vLoc = world.viewer.getGPSLocation();
+//		Location gpsLoc = new Location(vLoc.y, vLoc.x);
+//		if(gpsLoc != null)
+//		{
+//			if(viewerMarker != null)
+//			{
+//				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
+////				osmMarkerManager.addMarker(viewerMarker);					// -- Needed??
+//			}
+//			else System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
+//		}
+//
+//		world.ml.perspective();
+//		world.ml.camera();												// Reset to default camera setting
+//		world.ml.tint(255.f, 255.f);
+//		osm.draw();														// Draw the Unfolding Map
 	}
 	
 	/**
@@ -315,20 +321,20 @@ public class ML_Map
 	 */
 	public void displayLargeBasicMap(WMV_World world)				// -- Need to finish
 	{
-		PVector vLoc = world.viewer.getGPSLocation();
-		Location gpsLoc = new Location(vLoc.y, vLoc.x);
-		if(gpsLoc != null)
-		{
-			if(viewerMarker != null)
-				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-			else 
-				System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
-		}
-
-		world.ml.perspective();
-		world.ml.camera();												// Reset to default camera setting
-		world.ml.tint(255.f, 255.f);
-		large.draw();														// Draw the Unfolding Map
+//		PVector vLoc = world.viewer.getGPSLocation();
+//		Location gpsLoc = new Location(vLoc.y, vLoc.x);
+//		if(gpsLoc != null)
+//		{
+//			if(viewerMarker != null)
+//				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
+//			else 
+//				System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
+//		}
+//
+//		world.ml.perspective();
+//		world.ml.camera();												// Reset to default camera setting
+//		world.ml.tint(255.f, 255.f);
+//		large.draw();														// Draw the Unfolding Map
 	}
 
 	/**
@@ -337,20 +343,20 @@ public class ML_Map
 	 */
 	public void displaySmallBasicMap(WMV_World world)				// -- Need to finish
 	{
-		PVector vLoc = world.viewer.getGPSLocation();
-		Location gpsLoc = new Location(vLoc.y, vLoc.x);
-		if(gpsLoc != null)
-		{
-			if(viewerMarker != null)
-				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
-			else 
-				System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
-		}
-
-		world.ml.perspective();
-		world.ml.camera();												// Reset to default camera setting
-		world.ml.tint(255.f, 255.f);
-		small.draw();														// Draw the Unfolding Map
+//		PVector vLoc = world.viewer.getGPSLocation();
+//		Location gpsLoc = new Location(vLoc.y, vLoc.x);
+//		if(gpsLoc != null)
+//		{
+//			if(viewerMarker != null)
+//				viewerMarker.setLocation(gpsLoc);						// Update location of viewer marker
+//			else 
+//				System.out.println("viewerMarker == null!"+" frameCount:"+world.getState().frameCount);
+//		}
+//
+//		world.ml.perspective();
+//		world.ml.camera();												// Reset to default camera setting
+//		world.ml.tint(255.f, 255.f);
+//		small.draw();														// Draw the Unfolding Map
 	}
 
 	/**
@@ -369,7 +375,7 @@ public class ML_Map
 				PVector mapLoc = c.getLocation();
 				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
 				zoomAndPanMapTo(satellite, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
-				zoomAndPanMapTo(osm, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
+//				zoomAndPanMapTo(osm, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
 			}
 		}
 		else
@@ -403,7 +409,7 @@ public class ML_Map
 	{
 		PVector gpsLoc = new PVector(f.getModel().getState().centerLongitude, f.getModel().getState().centerLatitude);
 		zoomAndPanMapTo(satellite, fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
-		zoomAndPanMapTo(osm, fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
+//		zoomAndPanMapTo(osm, fieldZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
 	}
 	
 	/**
@@ -556,28 +562,28 @@ public class ML_Map
 	{
 //		smallMarkerManager = new MarkerManager<Marker>();
 //		largeMarkerManager = new MarkerManager<Marker>();
-		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
-		{
-			if(!c.isEmpty() && c.getState().mediaCount != 0)
-			{
-				PVector mapLoc = c.getLocation();
-				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
-				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
-				marker.setId("Cluster_"+String.valueOf(c.getID()));
-				marker.setColor(world.ml.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
-				marker.setHighlightColor(world.ml.color(170, 255, 255, 255.f));
-				marker.setStrokeWeight(0);
-				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
-				small.addMarker(marker);
-				large.addMarker(marker);
+//		for( WMV_Cluster c : world.getCurrentField().getClusters() )	
+//		{
+//			if(!c.isEmpty() && c.getState().mediaCount != 0)
+//			{
+//				PVector mapLoc = c.getLocation();
+//				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
+//				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
+//				marker.setId("Cluster_"+String.valueOf(c.getID()));
+//				marker.setColor(world.ml.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
+//				marker.setHighlightColor(world.ml.color(170, 255, 255, 255.f));
+//				marker.setStrokeWeight(0);
+//				marker.setDiameter((float)Math.sqrt(c.getState().mediaCount) * 3.f);
+//				small.addMarker(marker);
+//				large.addMarker(marker);
 //				smallMarkerManager.addMarker(marker);
 //				largeMarkerManager.addMarker(marker);
-			}
-		}
-		
+//			}
+//		}
+////		
 //		large.addMarkerManager(largeMarkerManager);
 //		small.addMarkerManager(smallMarkerManager);
-
+//
 //		if(p.getDisplayView() == 1)
 //		{
 //			largeMarkerManager.enableDrawing();
@@ -593,6 +599,10 @@ public class ML_Map
 	{
 		satelliteMarkerManager = new MarkerManager<Marker>();
 		gpsMarkerManager = new MarkerManager<Marker>();
+
+		satelliteMarkerManager.disableDrawing();
+		gpsMarkerManager.disableDrawing();
+
 //		osmMarkerManager = new MarkerManager<Marker>();
 
 		createFieldClusterMarkers(world);		// Field Mode
@@ -612,15 +622,22 @@ public class ML_Map
 		}
 
 		satellite.addMarkerManager(satelliteMarkerManager);
-		satellite.addMarkerManager(gpsMarkerManager);
-
-		satelliteMarkerManager.enableDrawing();
-		gpsMarkerManager.enableDrawing();
+		if(createdGPSMarker) satellite.addMarkerManager(gpsMarkerManager);
 		
+//		System.out.println("About to enable drawing...");
+		
+		satelliteMarkerManager.enableDrawing();
+		if(createdGPSMarker) 
+		{
+			world.ml.delay(mapDelay * 2);
+			gpsMarkerManager.enableDrawing();
+		}
+
+//		System.out.println("Enabled drawing...");
+
 //		osm.addMarkerManager(osmMarkerManager);
 //		osmMarkerManager.enableDrawing();
 
-		world.ml.delay(mapDelay);
 	}
 	
 	/**
@@ -668,7 +685,7 @@ public class ML_Map
 		if(gpsPoints.size() > 0)
 		{
 			if(world.ml.debugSettings.gps)
-				System.out.println("Map.createGPSTrackMarker()... Adding GPS track marker to satellite map...  Length:"+gpsPoints.size());
+				System.out.println("Map.createGPSTrackMarker()... Adding GPS track marker to GPS map marker manager...  Length:"+gpsPoints.size());
 
 			gpsTrackMarker = new SimpleLinesMarker(gpsPoints);
 //			gpsTrackMarker.setColor(world.ml.color(0, gpsTrackSaturation, gpsTrackBrightness, gpsTrackAlpha));
@@ -676,7 +693,7 @@ public class ML_Map
 			gpsTrackMarker.setColor(world.ml.color(gpsTrackHue, gpsTrackSaturation, gpsTrackBrightness, gpsTrackAlpha));
 			gpsTrackMarker.setStrokeColor(world.ml.color(gpsTrackHue, gpsTrackSaturation, gpsTrackBrightness, gpsTrackAlpha));
 			gpsTrackMarker.setStrokeWeight(2);
-			satelliteMarkerManager.addMarker(gpsTrackMarker);
+			gpsMarkerManager.addMarker(gpsTrackMarker);
 //			satellite.addMarker(gpsTrackMarker);
 			createdGPSMarker = true;
 			
@@ -694,11 +711,13 @@ public class ML_Map
 	 * @param mapHeight Map height
 	 * @return
 	 */
-	PVector getMapLocation(WMV_World world, WMV_Field f, PVector point, float mapWidth, float mapHeight)
+	private PVector getMapLocation(WMV_World world, WMV_Field f, PVector point, float mapWidth, float mapHeight)
 	{
-		PVector gpsPoint = utilities.getGPSLocation(f, point);
-		ScreenPosition screenPos = large.getScreenPosition(new Location(gpsPoint.y, gpsPoint.x));
-		return new PVector(screenPos.x, screenPos.y);
+//		PVector gpsPoint = utilities.getGPSLocation(f, point);
+//		ScreenPosition screenPos = satellite.getScreenPosition(new Location(gpsPoint.y, gpsPoint.x));
+//		ScreenPosition screenPos = large.getScreenPosition(new Location(gpsPoint.y, gpsPoint.x));
+//		return new PVector(screenPos.x, screenPos.y);
+		return null;
 	}
 
 	/**
@@ -765,6 +784,9 @@ public class ML_Map
 //					hitMarkers = satellite.getHitMarkers(adjustedMouse.x, adjustedMouse.y);
 					hitMarkers = satellite.getHitMarkers(world.ml.mouseX, world.ml.mouseY);
 					
+					if(hitMarkers.size() > 0)
+						System.out.println("Hit markers:"+hitMarkers.size());
+					
 					for(Marker marker : hitMarkers)
 					{
 						if(marker != null)
@@ -772,7 +794,7 @@ public class ML_Map
 							String mID = marker.getId();
 							if(mID != null)
 							{
-//								System.out.println("mID:"+mID);
+								System.out.println("mID:"+mID);
 								String[] parts = mID.split("_");
 								if(parts.length == 2)
 								{
@@ -924,7 +946,7 @@ public class ML_Map
 	 * Initialize map for all fields in world
 	 * @param world Parent world
 	 */
-	public void initializeWorldMap(WMV_World world)
+	private void initializeWorldMap(WMV_World world)
 	{
 		float highLongitude = -100000, lowLongitude = 100000;
 		float highLatitude = -100000, lowLatitude = 100000;
@@ -1051,7 +1073,7 @@ public class ML_Map
 		allClustersMarker.setId("allClusters");
 		
 		satellite.addMarkers(allClustersMarker);
-		osm.addMarkers(allClustersMarker);
+//		osm.addMarkers(allClustersMarker);
 		
 		world.ml.delay(mapDelay);
 	}

@@ -158,9 +158,6 @@ public class ML_KeyboardControls
 		if( key == 'l' )
 			ml.world.viewer.moveToLastCluster(ml.world.viewer.getNavigationTeleport());
 
-		if( key == 'L' )
-			ml.world.viewer.lookAtNearestMedia();
-
 		if( key == '/' )
 			ml.world.saveCurrentSimulationState();
 
@@ -170,13 +167,12 @@ public class ML_KeyboardControls
 			ml.world.viewer.setNavigationTeleport( state );
 			if(ml.display.window.setupNavigationWindow)
 			{
-				ml.display.window.optMove.setSelected(state);
-				ml.display.window.optTeleport.setSelected(!state);
+				ml.display.window.optMove.setSelected(!state);
+				ml.display.window.optTeleport.setSelected(state);
 			}
 		}
 
-//		if( key == '†' )		// OPT t
-		if( key == 't' && input.optionKey )
+		if( key == 'T' && !input.optionKey )
 		{
 			boolean state = ml.world.state.displayTerrain;
 			if(state)
@@ -189,7 +185,7 @@ public class ML_KeyboardControls
 			}
 		}
 
-		if (key == 'T') 
+		if (key == 'f') 
 		{
 			boolean state = !ml.world.getState().timeFading;
 			ml.world.setTimeFading(state);
@@ -208,12 +204,6 @@ public class ML_KeyboardControls
 
 		if (key == 'Q')
 			ml.exitProgram();
-
-		if (!input.optionKey && key == 'e')									// Move UP
-			ml.world.viewer.walkUp();
-
-		if (key == 'c') 													// Move DOWN
-			ml.world.viewer.walkDown();
 
 		if (key == 'C') 													// Choose field from list
 			ml.world.viewer.chooseFieldDialog();
@@ -382,11 +372,13 @@ public class ML_KeyboardControls
 		if (key == '+')
 			ml.world.getCurrentField().fadeObjectDistances(1.176f);
 
-		if (key == 'Z')
-			ml.world.setTimeMode(0);
-		
-		if (key == 'Ω')		// OPT + z
-			ml.world.setTimeMode(1);
+		if (key == '=')
+		{
+			if(ml.world.state.timeMode == 0)
+				ml.world.setTimeMode(1);
+			else				
+				ml.world.setTimeMode(0);
+		}
 	}
 	
 	/**
@@ -397,6 +389,12 @@ public class ML_KeyboardControls
 	 */
 	public void handleWorldViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
+		if (!input.optionKey && key == 'e')									// Move UP
+			ml.world.viewer.walkUp();
+
+		if (key == 'c') 													// Move DOWN
+			ml.world.viewer.walkDown();
+
 		if (key == 'j') 
 			ml.world.viewer.moveToRandomCluster(ml.world.viewer.getNavigationTeleport(), true);				// Jump (teleport) to random cluster
 
@@ -418,6 +416,9 @@ public class ML_KeyboardControls
 		if (key == '.')
 			ml.world.viewer.stop(true);
 		
+		if( key == 'L' )
+			ml.world.viewer.lookAtNearestMedia();
+
 		if (key == PApplet.ENTER)
 		{
 			if(ml.display.getDisplayView() == 0)
@@ -602,6 +603,9 @@ public class ML_KeyboardControls
 	 */
 	public void handleMapViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
+		if (key == 'r')									// Zoom out to whole timeline
+			ml.display.map2D.resetMapZoom(true);
+
 		if(key == 'L')
 		{
 			ml.display.setMapViewMode(0);
@@ -686,11 +690,10 @@ public class ML_KeyboardControls
 		{
 			WMV_Cluster current = ml.world.getCurrentCluster();
 			if(current != null) ml.display.map2D.zoomToCluster(ml.world, current, true);	// Zoom to current cluster
-			else System.out.println("z Cannot move to cluster: ml.world.getCurrentCluster() is NULL!");
 		}
 
 		if (key == 'Z')
-			ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);	// Zoom to current field
+			ml.display.map2D.zoomToField(ml.world.getCurrentField(), true);	// Zoom to current field
 
 		if (key == PApplet.CODED) 					
 		{
@@ -708,6 +711,12 @@ public class ML_KeyboardControls
 		}
 	}
 	
+	/**
+	 * 
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	public void handleLibraryViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (key == 'j') 
@@ -793,6 +802,12 @@ public class ML_KeyboardControls
 		}
 	}
 	
+	/**
+	 * 
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	public void handleTimelineViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (key == 'j') 
@@ -804,7 +819,7 @@ public class ML_KeyboardControls
 		if (key == 'z')									// Zoom to fit timeline
 			ml.display.zoomToTimeline(ml.world, true);
 
-		if (key == 't')									// Zoom to fit current time segment
+		if (key == 'c')									// Zoom to fit current time segment
 			ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
 
 		if (key == 'd')									// Zoom to fit current time segment
@@ -886,7 +901,6 @@ public class ML_KeyboardControls
 	 */
 	public void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-//		System.out.println("handleListItemWindowKeyPressed:"+key);
 		if(key == PApplet.ENTER)
 		{
 			switch(ml.display.window.listItemWindowResultCode)
@@ -904,42 +918,45 @@ public class ML_KeyboardControls
 		
 		if (key == PApplet.CODED) 
 		{
-//			if(ml.display.getDisplayView() == 0)
-//			{
-				if (keyCode == PApplet.DOWN) 
+			if (keyCode == PApplet.DOWN) 
+			{
+				ml.display.window.listItemWindowSelectedItem++;
+				switch(ml.display.window.listItemWindowResultCode)
 				{
-					ml.display.window.listItemWindowSelectedItem++;
-					switch(ml.display.window.listItemWindowResultCode)
-					{
-						case 0:						// 0: Field
-							if(ml.display.window.listItemWindowSelectedItem >= ml.world.getFieldCount())
-								ml.display.window.listItemWindowSelectedItem = 0;
-							break;
-						case 1:						// 1: GPS Track
-							if(ml.display.window.listItemWindowSelectedItem >= ml.world.getCurrentField().getGPSTracks().size())
-								ml.display.window.listItemWindowSelectedItem = 0;
-							break;
-					}
+				case 0:							// 0: Field
+					if(ml.display.window.listItemWindowSelectedItem >= ml.world.getFieldCount())
+						ml.display.window.listItemWindowSelectedItem = 0;
+					break;
+				case 1:							// 1: GPS Track
+					if(ml.display.window.listItemWindowSelectedItem >= ml.world.getCurrentField().getGPSTracks().size())
+						ml.display.window.listItemWindowSelectedItem = 0;
+					break;
 				}
-				if (keyCode == PApplet.UP) 
+			}
+			if (keyCode == PApplet.UP) 
+			{
+				ml.display.window.listItemWindowSelectedItem--;
+				switch(ml.display.window.listItemWindowResultCode)
 				{
-					ml.display.window.listItemWindowSelectedItem--;
-					switch(ml.display.window.listItemWindowResultCode)
-					{
-						case 0:						// 0: Field
-							if(ml.display.window.listItemWindowSelectedItem < 0)
-								ml.display.window.listItemWindowSelectedItem = ml.world.getFieldCount() - 1;
-							break;
-						case 1:						// 1: GPS Track
-							if(ml.display.window.listItemWindowSelectedItem < 0)
-								ml.display.window.listItemWindowSelectedItem = ml.world.getCurrentField().getGPSTracks().size() - 1;
-							break;
-					}
+				case 0:							// 0: Field
+					if(ml.display.window.listItemWindowSelectedItem < 0)
+						ml.display.window.listItemWindowSelectedItem = ml.world.getFieldCount() - 1;
+					break;
+				case 1:							// 1: GPS Track
+					if(ml.display.window.listItemWindowSelectedItem < 0)
+						ml.display.window.listItemWindowSelectedItem = ml.world.getCurrentField().getGPSTracks().size() - 1;
+					break;
 				}
-//			}
+			}
 		}
 	}
 	
+	/**
+	 * 
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
 	public void handleInteractiveClusteringKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (!input.optionKey && key == 'h')
@@ -1114,28 +1131,20 @@ public class ML_KeyboardControls
 
 		if (key == '#') 
 		{
+			if(!ml.display.window.showTimeWindow)
+				ml.display.window.openTimeWindow();
+			else
+				ml.display.window.closeTimeWindow();
+		}
+
+		if (key == '$') 
+		{
 			if(!ml.display.window.showStatisticsWindow)
 				ml.display.window.openStatisticsWindow();
 			else
 				ml.display.window.closeStatisticsWindow();
 		}
 
-//		if (key == '$') 
-//		{
-//			if(!ml.display.window.showMapWindow)
-//				ml.display.window.openMapWindow();
-//			else
-//				ml.display.window.closeMapWindow();
-//		}
-
-		if (key == '$') 
-		{
-			if(!ml.display.window.showTimeWindow)
-				ml.display.window.openTimeWindow();
-			else
-				ml.display.window.closeTimeWindow();
-		}
-		
 		if (key == '^') 
 		{
 			if(!ml.display.window.showHelpWindow)
@@ -1156,7 +1165,7 @@ public class ML_KeyboardControls
 				ml.world.viewer.stopMoveZTransition();
 		}
 		
-		if(display.getDisplayView() == 0)			/* World View Controls */
+		if(display.getDisplayView() == 0)				/* World View Controls */
 		{
 			if (key == 'e') 
 				ml.world.viewer.stopMoveYTransition();

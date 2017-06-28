@@ -148,7 +148,7 @@ public class ML_Input
 			if (slider.tag == "Brightness") 
 				world.viewer.setUserBrightness( slider.getValueF() );
 			
-			if (slider.tag == "AltitudeScaling") 
+			if (slider.tag == "AltitudeFactor") 
 			{
 				world.settings.altitudeScalingFactor = PApplet.round(slider.getValueF() * 1000.f) * 0.001f;
 				world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
@@ -502,13 +502,14 @@ public class ML_Input
 					ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
 					break;
 				case "ZoomToField":
-					if(ml.world.getFields().size() > 1)
-						ml.display.map2D.zoomToField(ml.world, ml.world.getCurrentField(), true);
-					else
-						ml.display.map2D.zoomToWorld(true);
+//					if(ml.world.getFields().size() > 1)
+						ml.display.map2D.zoomToField(ml.world.getCurrentField(), true);
+//					else
+//						ml.display.map2D.zoomToWorld(true);
 					break;
-				case "ZoomToWorld":
-					ml.display.map2D.zoomToWorld(true);
+				case "ResetMapZoom":
+					ml.display.map2D.resetMapZoom(true);
+//					ml.display.map2D.zoomToWorld(true);
 					break;
 //				case "ZoomToSelected":
 //					break;
@@ -792,7 +793,8 @@ public class ML_Input
 //				break;
 				
 			case "TimeFading":
-				world.getState().timeFading = option.isSelected();
+				world.setTimeFading(option.isSelected());
+//				world.getState().timeFading = option.isSelected();
 				break;
 			case "Paused":
 				world.getState().paused = option.isSelected();

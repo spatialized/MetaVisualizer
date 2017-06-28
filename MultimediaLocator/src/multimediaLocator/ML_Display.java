@@ -2075,7 +2075,9 @@ public class ML_Display
 				break;
 			case 1:														// Map View
 				if(!initializedMaps) 
+				{
 					map2D.initialize(p);
+				}
 				else if(ml.world.getCurrentField().getGPSTracks() != null)
 				{
 					if(ml.world.getCurrentField().getGPSTracks().size() > 0)
@@ -2084,22 +2086,14 @@ public class ML_Display
 						{
 							if(!ml.display.map2D.createdGPSMarker)
 							{
-//								ml.display.map2D.initialize(ml.world);
 								ml.display.map2D.createMarkers(ml.world);
 							}
 						}
 					}
 				}
 
-				switch(mapViewMode)
-				{
-					case 0:												// World Mode
-						map2D.zoomToWorld(false);
-						break;
-					case 1:												// Field Mode
-						map2D.zoomToField(p, p.getCurrentField(), false);
-						break;	
-				}
+				map2D.resetMapZoom(false);
+				
 				if(window.setupMLWindow)
 				{
 					window.optWorldView.setSelected(false);
@@ -2201,19 +2195,20 @@ public class ML_Display
 			else
 			{
 				map2D.createMarkers(ml.world);		// Create map markers for new mode
-
-				switch(mapViewMode)
-				{
-					case 0:												// World Mode
-						map2D.zoomToWorld(false);
-//						map2D.satelliteMarkerManager.enableDrawing();
-						break;
-					case 1:												// Field Mode
-//						if(map2D.satelliteMarkerManager != null)
-//							map2D.satelliteMarkerManager.disableDrawing();
-						map2D.zoomToField(ml.world, ml.world.getCurrentField(), false);
-						break;
-				}
+				map2D.resetMapZoom(true);
+				
+//				switch(mapViewMode)
+//				{
+//					case 0:												// World Mode
+//						map2D.zoomToWorld(false);
+////						map2D.satelliteMarkerManager.enableDrawing();
+//						break;
+//					case 1:												// Field Mode
+////						if(map2D.satelliteMarkerManager != null)
+////							map2D.satelliteMarkerManager.disableDrawing();
+//						map2D.zoomToField(ml.world, ml.world.getCurrentField(), false);
+//						break;
+//				}
 			}
 		}
 	}

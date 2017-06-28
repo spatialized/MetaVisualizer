@@ -161,7 +161,6 @@ public class MultimediaLocator extends PApplet
 		}
 		else if(!state.running)
 		{
-//			background(0.f);									/* Clear screen */
 			if(state.inLibrarySetup)
 			{
 				if(createNewLibrary)
@@ -1424,7 +1423,22 @@ public class MultimediaLocator extends PApplet
 	{
 //		if(world.viewer.mouseNavigation)
 //			input.handleMousePressed(mouseX, mouseY);
+		
+		System.out.println("ML.mousePressed()... Mouse x:"+mouseX+" y:"+mouseY);
+		
 		display.map2D.mousePressedFrame = frameCount;
+		if(display.window.showMainMenu)
+			display.window.hideMainMenu();
+		if(display.window.showNavigationWindow)
+			display.window.closeNavigationWindow();
+		if(display.window.showMediaWindow)
+			display.window.closeMediaWindow();
+		if(display.window.showTimeWindow)
+			display.window.closeTimeWindow();
+		if(display.window.showStatisticsWindow)
+			display.window.closeStatisticsWindow();
+		if(display.window.showHelpWindow)
+			display.window.closeHelpWindow();
 	}
 
 	/**

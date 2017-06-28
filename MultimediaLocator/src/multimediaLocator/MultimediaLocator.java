@@ -68,7 +68,7 @@ public class MultimediaLocator extends PApplet
 	ML_Input input;									// Mouse / keyboard input
 	ML_Stitcher stitcher;							// Panoramic stitching
 	ML_Display display;								// Displaying 2D graphics and text
-	ML_DebugSettings debugSettings;					// Debug settings
+	ML_DebugSettings debug;					// Debug settings
 	
 	/* WorldMediaViewer */
 	WMV_World world;						// World simulation
@@ -96,6 +96,9 @@ public class MultimediaLocator extends PApplet
 	public long approxUsableFreeMemory;
 	public int availableProcessors;
 
+	/* Debugging */
+	ArrayList<String> systemMessages;
+	
 	/* Temp Directory */
 	public static final String tempDir = System.getProperty("java.io.tmpdir")+"tmp"+System.nanoTime();		
 	static {
@@ -116,8 +119,9 @@ public class MultimediaLocator extends PApplet
 		
 //		delay(delayAmount);
 		
-		debugSettings = new ML_DebugSettings();		
-		if(debugSettings.ml) System.out.println("Starting initial setup...");
+		debug = new ML_DebugSettings();
+		systemMessages = new ArrayList<String>();
+		if(debug.ml) systemMessage("Starting initial setup...");
 
 		input = new ML_Input(appWidth, appHeight);
 
@@ -131,10 +135,10 @@ public class MultimediaLocator extends PApplet
 		display.window = new ML_Window(world, display);				// Setup and display interaction window
 //		display.initializeWindows(world);
 
-		metadata = new WMV_Metadata(this, debugSettings);
+		metadata = new WMV_Metadata(this, debug);
 		stitcher = new ML_Stitcher(world);
 		
-		if(debugSettings.ml) System.out.println("Initial setup complete...");
+		if(debug.ml) systemMessage("Initial setup complete...");
 
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
@@ -185,7 +189,7 @@ public class MultimediaLocator extends PApplet
 				else if(state.selectedNewLibraryDestination)
 				{
 					if(state.selectedNewLibraryMedia) createNewLibrary();
-					else System.out.println("ML.draw()... ERROR: Selected library destination but no media folder selected!");
+					else systemMessage("ML.draw()... ERROR: Selected library destination but no media folder selected!");
 				}
 				display.display(this);			/* Update display */
 			}
@@ -235,7 +239,7 @@ public class MultimediaLocator extends PApplet
 //			if(state.exportCubeMap && world.outputFolderSelected)				/* Cubemap exporting */
 //				exportCubeMap();
 
-			if ( debugSettings.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
+			if ( debug.memory && frameCount % world.getState().memoryCheckFrequency == 0 )		/* Memory debugging */
 			{
 				checkMemory();
 				checkFrameRate();
@@ -391,8 +395,8 @@ public class MultimediaLocator extends PApplet
 					File file = fileList[i];
 					if(file.getName().equals("data") && file.isDirectory())
 					{
-//						if(debugSettings.ml || debugSettings.library) 
-						System.out.println("Purging data folder:"+file.getName());
+						if(debug.ml || debug.library) 
+							System.out.println("Purging data folder:"+file.getName());
 
 						world.utilities.purgeDirectory(file);
 						file.delete();
@@ -401,7 +405,7 @@ public class MultimediaLocator extends PApplet
 			}
 			else
 			{
-				System.out.println("ML.rebuildSelectedLibrary()... ERROR: folderFile missing or not a directory!  (library.getLibraryFolder() + strFolderName):"+library.getLibraryFolder() + "/" + strFolderName);
+				systemMessage("ML.rebuildSelectedLibrary()... ERROR: folderFile missing or not a directory!  (library.getLibraryFolder() + strFolderName):"+library.getLibraryFolder() + "/" + strFolderName);
 			}
 		}
 		
@@ -414,7 +418,7 @@ public class MultimediaLocator extends PApplet
 	public void startFieldInitialization()
 	{
 		display.startupMessages = new ArrayList<String>();	// Clear startup messages
-		if(debugSettings.metadata)
+		if(debug.metadata)
 		{
 			display.sendSetupMessage(world, "Library folder: "+library.getLibraryFolder());	// Show library folder name
 			display.sendSetupMessage(world, " ");
@@ -454,7 +458,7 @@ public class MultimediaLocator extends PApplet
 		if( state.initializationField >= world.getFields().size() )	
 		{
 			state.fieldsInitialized = true;
-			if(debugSettings.ml) System.out.println("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
+			if(debug.ml) systemMessage("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
 			display.setupProgress(1.f);
 			if(display.window.showCreateLibraryWindow) display.window.closeCreateLibraryWindow();
 			if(display.window.showLibraryWindow) display.window.closeLibraryWindow();
@@ -470,7 +474,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void initializeField(WMV_Field f, boolean loadState, boolean setSoundGPSLocations)
 	{
-		if(debugSettings.ml && debugSettings.detailed) 
+		if(debug.ml && debug.detailed) 
 			System.out.println("ML.initializeField()... fields initialized? "+state.fieldsInitialized);
 
 		int fieldID = f.getID();
@@ -505,16 +509,16 @@ public class MultimediaLocator extends PApplet
 				if(f.getID() == 0)
 					display.window.setLibraryWindowText("Loading media library...");		/* Change Library Window Text */
 
-				if(debugSettings.ml || debugSettings.world) 
-					System.out.println("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
+				if(debug.ml || debug.world) 
+					systemMessage("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
 			}
 			else										/* If failed to load field, initialize from metadata */
 			{
 				if(f.getID() == 0)
 					display.window.setLibraryWindowText("Building media library...");		/* Change Library Window Text */
 
-				if(debugSettings.ml || debugSettings.world) 
-					System.out.println("ML.initializeField()... No simulation state to load... initializing Field #"+f.getID());
+				if(debug.ml || debug.world) 
+					systemMessage("ML.initializeField()... No simulation state to load... initializing Field #"+f.getID());
 				
 				world.getField(fieldID).initialize(-100000L);
 				world.getField(fieldID).setDataFolderLoaded(false);
@@ -543,7 +547,7 @@ public class MultimediaLocator extends PApplet
 
 		if(savedStateData)		/* Attempt to load simulation state */
 		{
-			if(debugSettings.ml && debugSettings.detailed) System.out.println("ML.loadField()... Simulation State exists...");
+			if(debug.ml && debug.detailed) systemMessage("ML.loadField()... Simulation State exists...");
 	
 			if(set)
 				return world.loadAndSetSimulationState(f);
@@ -564,7 +568,7 @@ public class MultimediaLocator extends PApplet
 		{
 			if(world.getSettings().divideFields)				/* Only divide fields if library created, not opened */
 			{
-				System.out.println("Attempting to divide field #"+f.getID()+"...");
+				systemMessage("Attempting to divide field #"+f.getID()+"...");
 				ArrayList<WMV_Field> addedFields = new ArrayList<WMV_Field>();
 
 				if(state.createdLibrary)
@@ -619,7 +623,6 @@ public class MultimediaLocator extends PApplet
 	 */
 	private void finishInitialization()
 	{
-		System.out.println("ML.finishInitialization()...");
 		world.setBlurMasks();						// Set blur masks
 		world.getCurrentField().updateAllMediaStates();				// -- Only needed if field(s) loaded from data folder!
 
@@ -634,8 +637,8 @@ public class MultimediaLocator extends PApplet
 		
 //		if(!appWindowVisible) showAppWindow();
 
-		if(debugSettings.ml && debugSettings.detailed) 
-			System.out.println("Finishing MultimediaLocator initialization..");
+		if(debug.ml && debug.detailed) 
+			systemMessage("Finishing MultimediaLocator initialization..");
 		
 		if(world.getFieldCount() > 1)
 			world.chooseStartingField();					/* Choose starting field */
@@ -658,7 +661,7 @@ public class MultimediaLocator extends PApplet
 			int count = 0;
 			for(WMV_Field f : newFields)
 			{
-				System.out.println("ML.divideField()... Will initialize field #"+f.getID()+" name:"+f.getName()+" of "+newFields.size()+"...");
+				systemMessage("ML.divideField()... Will initialize field #"+f.getID()+" name:"+f.getName()+" of "+newFields.size()+"...");
 
 				f.renumberMedia();							/* Renumber media in field from index 0 */
 				if(count < newFields.size() - 1)
@@ -669,7 +672,7 @@ public class MultimediaLocator extends PApplet
 				}
 				else
 				{
-					System.out.println("ML.divideField()... Last of new fields from dividing field id #"+field.getID());
+					systemMessage("ML.divideField()... Last of new fields from dividing field id #"+field.getID());
 					field.reset();								/* Clear field */
 					copyAllFieldMedia(f, field);					/* Re-add media from last added field */
 					initializeField(field, false, false);		/* Initialize field */
@@ -736,7 +739,7 @@ public class MultimediaLocator extends PApplet
 
 		display.reset();						// Initialize displays
 
-		metadata = new WMV_Metadata(this, debugSettings);		// Reset metadata loader
+		metadata = new WMV_Metadata(this, debug);		// Reset metadata loader
 		stitcher = new ML_Stitcher(world);						// Reset panoramic stitcher
 
 		colorMode(PConstants.HSB);
@@ -747,7 +750,7 @@ public class MultimediaLocator extends PApplet
 		display.window.hideWindows();
 		world.reset(true);						// Reset world
 
-		if(debugSettings.ml) System.out.println("World resetting complete...");
+		if(debug.ml) systemMessage("World resetting complete...");
 
 		display.window.openStartupWindow();
 	}
@@ -758,7 +761,7 @@ public class MultimediaLocator extends PApplet
 	public void exportScreenImage()
 	{
 		saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
-		System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
+//		System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
 		state.export = false;
 	}
 
@@ -856,7 +859,7 @@ public class MultimediaLocator extends PApplet
 		boolean selectedFolder = false;
 		
 		if (selection == null) {
-			if (debugSettings.ml)
+			if (debug.ml)
 				System.out.println("openLibraryDestination()... Window was closed or the user hit cancel.");
 		} 
 		else 
@@ -864,7 +867,7 @@ public class MultimediaLocator extends PApplet
 			String input = selection.getPath();
 			String[] parts = input.split("/");
 
-			if (debugSettings.ml)
+			if (debug.ml)
 				System.out.println("User selected library destination: " + input);
 
 			File file = new File(input);
@@ -915,7 +918,7 @@ public class MultimediaLocator extends PApplet
 		{
 			String input = selection.getPath();
 
-			if (debugSettings.metadata)
+			if (debug.metadata)
 				System.out.println("User selected media folder: " + input);
 
 			File file = new File(input);
@@ -948,7 +951,7 @@ public class MultimediaLocator extends PApplet
 		{
 			String input = selection.getPath();
 
-			if (debugSettings.metadata)
+			if (debug.metadata)
 				System.out.println("User selected library folder: " + input);
 
 			library = new ML_Library(input);
@@ -1020,7 +1023,7 @@ public class MultimediaLocator extends PApplet
 	{
 		if(library.mediaFolders.size() > 0)
 		{
-			if(debugSettings.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
+			if(debug.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
 			state.selectedLibrary = library.create(this, library.mediaFolders);
 
 			state.createdLibrary = true;
@@ -1262,7 +1265,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void exportCubeMapFace(int faceID, PGL pgl)				// Starts at 34069
 	{
-		System.out.println("exportCubeMap()... faceID:"+faceID);	
+//		System.out.println("exportCubeMap()... faceID:"+faceID);	
 		
 //		int idx = faceID-34068;
 	    ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * Integer.SIZE / 8);
@@ -1338,14 +1341,38 @@ public class MultimediaLocator extends PApplet
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 	        @Override
-	        public void run() {
-	            //stackless deletion
+	        public void run() {	 								// Stackless deletion
 	            System.out.println("Running Shutdown Hook");
 
+	            try {
+	            	String homeDir = System.getProperty("user.home");
+	                File errorTextFile = new File(homeDir + "/MultimediaLocator_Log.txt");
+	                if ( !errorTextFile.exists() )
+	                	errorTextFile.createNewFile();
+
+	                FileWriter fw = new FileWriter(errorTextFile);
+	            	for(String line : systemMessages)
+		                fw.write(line + System.lineSeparator());
+	                fw.close();
+
+	            } catch (IOException iox) {
+	                //do stuff with exception
+	                iox.printStackTrace();
+	                File errorFile = new File("~/MultimediaLocator_ErrorLog.txt");
+	                try{
+	                	PrintWriter pr = new PrintWriter(errorFile);
+	                	iox.printStackTrace(pr);
+	                }
+	                catch(Throwable t)
+	                {
+	                	System.out.println("Error...");
+	                }
+	            }
 	            String root = MultimediaLocator.tempDir;
 	            Stack<String> dirStack = new Stack<String>();
 	            dirStack.push(root);
-	            while(!dirStack.empty()) {
+	            while(!dirStack.empty()) 
+	            {
 	                String dir = dirStack.pop();
 	                File f = new File(dir);
 	                if(f.listFiles().length==0)
@@ -1355,7 +1382,8 @@ public class MultimediaLocator extends PApplet
 	                }
 	                else {
 	                    dirStack.push(dir);
-	                    for(File ff: f.listFiles()) {
+	                    for(File ff: f.listFiles()) 
+	                    {
 	                        if(ff.isFile())
 	                        {
 	    	                	System.out.println("Deleting ff:"+ff.getName());
@@ -1378,14 +1406,14 @@ public class MultimediaLocator extends PApplet
 	{
 		if (selection == null) 
 		{
-			if (debugSettings.ml)
+			if (debug.ml)
 				println("Window was closed or the user hit cancel.");
 		} 
 		else 
 		{
 			String input = selection.getPath();
 
-			if (debugSettings.ml)
+			if (debug.ml)
 				println("----> User selected output folder: " + input);
 
 			world.outputFolder = input;
@@ -1406,12 +1434,12 @@ public class MultimediaLocator extends PApplet
 		}
 		catch(NullPointerException npe)
 		{
-			if(debugSettings.video)
+			if(debug.video)
 				println("movieEvent() NullPointerException:"+npe);
 		}
 		catch(Throwable t)
 		{
-			if(debugSettings.video)
+			if(debug.video)
 				println("movieEvent() Throwable:"+t);
 		}
 	}
@@ -1424,7 +1452,8 @@ public class MultimediaLocator extends PApplet
 //		if(world.viewer.mouseNavigation)
 //			input.handleMousePressed(mouseX, mouseY);
 		
-		System.out.println("ML.mousePressed()... Mouse x:"+mouseX+" y:"+mouseY);
+		if(debug.mouse)
+			System.out.println("ML.mousePressed()... Mouse x:"+mouseX+" y:"+mouseY);
 		
 		display.map2D.mousePressedFrame = frameCount;
 		if(display.window.showMainMenu)
@@ -1722,7 +1751,7 @@ public class MultimediaLocator extends PApplet
 			if(!performanceSlow)
 				performanceSlow = true;
 			
-			if(performanceSlow && debugSettings.memory)
+			if(performanceSlow && debug.memory)
 				display.message(this, "Performance slow...");
 		}
 		else
@@ -1742,9 +1771,9 @@ public class MultimediaLocator extends PApplet
 		  allocatedMemory = (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
 		  approxUsableFreeMemory = Runtime.getRuntime().maxMemory() - allocatedMemory;
 
-		  if(debugSettings.memory)
+		  if(debug.memory)
 		  {
-			  if(debugSettings.detailed)
+			  if(debug.detailed)
 			  {
 				  System.out.println("Total memory (bytes): " + totalMemory);
 				  System.out.println("Available processors (cores): "+availableProcessors);
@@ -1850,12 +1879,16 @@ public class MultimediaLocator extends PApplet
 		appWindowVisible = true;
 	}
 
-	public void debugMessage(String message)
+	public void systemMessage(String message)
 	{
-		if(debugSettings.print)
+		if(debug.print)
 			System.out.println(message);
-		if(debugSettings.messages)
-		display.message(this, message);
+		if(debug.messages)
+			display.message(this, message);
+		if(debug.output)
+			systemMessages.add(message);
+//		if(debugSettings.output)
+//			debugMessages.add(frameCount + " :" + message);
 	}
 	
 	@SuppressWarnings("restriction")
@@ -1863,7 +1896,8 @@ public class MultimediaLocator extends PApplet
 	{
 		Application.getApplication().setDockIconImage(img.getImage());
 		setAppIcon = false;
-		if(debugSettings.ml && debugSettings.detailed) System.out.println("setAppIcon()... frameCount:"+frameCount);
+//		if(debugSettings.ml && debugSettings.detailed)
+//			System.out.println("setAppIcon()... frameCount:"+frameCount);
 	}
 
 	public void setSurfaceSize(int newWidth, int newHeight)

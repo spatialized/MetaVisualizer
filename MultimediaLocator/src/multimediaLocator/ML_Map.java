@@ -364,7 +364,7 @@ public class ML_Map
 		{
 			if(!c.isEmpty() && c.getState().mediaCount > 0)
 			{
-				if(world.ml.debugSettings.map)
+				if(world.ml.debug.map)
 					System.out.println("Zooming to cluster:"+c.getID());
 				PVector mapLoc = c.getLocation();
 				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
@@ -686,7 +686,7 @@ public class ML_Map
 		
 		if(gpsPoints.size() > 0)
 		{
-			if(world.ml.debugSettings.gps)
+			if(world.ml.debug.gps)
 				System.out.println("Map.createGPSTrackMarker()... Adding GPS track marker to GPS map marker manager...  Length:"+gpsPoints.size());
 
 			gpsTrackMarker = new SimpleLinesMarker(gpsPoints);
@@ -705,7 +705,7 @@ public class ML_Map
 
 			world.ml.delay(mapDelay);
 		}
-		else if(world.ml.debugSettings.gps)
+		else if(world.ml.debug.gps)
 			System.out.println("Map.createGPSTrackMarker()...  No gpsPoint markers to add!");
 	}
 
@@ -869,12 +869,12 @@ public class ML_Map
 		float offsetX = dispX * offsetXFactor;
 		float offsetY = dispY * offsetYFactor;
 
-		if(p.ml.debugSettings.mouse) System.out.println("Map.getMapMouseLocation()... x:"+x+" y:"+y);
+		if(p.ml.debug.mouse) System.out.println("Map.getMapMouseLocation()... x:"+x+" y:"+y);
 		
 		x += offsetX;
 		y += offsetY;
 		
-		if(p.ml.debugSettings.mouse || p.ml.debugSettings.map)
+		if(p.ml.debug.mouse || p.ml.debug.map)
 		{
 			System.out.println("	Center x:"+centerX+" y:"+centerY+" Offset x:"+offsetX+" y:"+offsetY +"  result x:"+x+" y:"+y);
 			System.out.println("    screenWidth:"+screenWidth+" screenHeight:"+screenHeight);  	//	Screen width:1280 height:800	1/2=640/400
@@ -888,7 +888,7 @@ public class ML_Map
 		PVector result = new PVector(x, y);			
 //		PVector result = new PVector(x, y, 0);		
 		
-		if(p.ml.debugSettings.mouse)
+		if(p.ml.debug.mouse)
 		{
 			p.ml.stroke(155, 0, 255);
 			p.ml.strokeWeight(5);

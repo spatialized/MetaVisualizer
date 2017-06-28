@@ -85,7 +85,7 @@ public class WMV_World
 		utilities = new WMV_Utilities();
 		
 		state = new WMV_WorldState();
-		viewer = new WMV_Viewer(this, settings, state, ml.debugSettings);			// Initialize navigation + viewer
+		viewer = new WMV_Viewer(this, settings, state, ml.debug);			// Initialize navigation + viewer
 		
 		/* Setup interpolation variables */
 		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
@@ -230,7 +230,7 @@ public class WMV_World
 			if(viewer.getAttractorPoint() != null)
 				viewer.getAttractorPoint().attractViewer(viewer);		// Attract the camera to the memory navigation goal
 			else 
-				System.out.println("viewer.attractorPoint == NULL!!");
+				ml.systemMessage("viewer.attractorPoint == NULL!!");
 		}
 		else if(viewer.getState().isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
 		{
@@ -391,8 +391,8 @@ public class WMV_World
 		if(!state.paused)
 		{
 			state.currentTime++;
-			if(ml.debugSettings.time && ml.debugSettings.detailed)
-				System.out.println("currentTime:"+state.currentTime);
+			if(ml.debug.time && ml.debug.detailed)
+				ml.systemMessage("currentTime:"+state.currentTime);
 
 			if(state.currentTime >= viewer.getNextMediaStartTime())
 			{
@@ -402,8 +402,8 @@ public class WMV_World
 				}
 				else
 				{
-					if(ml.debugSettings.world)
-						System.out.println("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
+					if(ml.debug.world)
+						ml.systemMessage("Reached end of last media with "+(settings.timeCycleLength - state.currentTime)+ " frames to go...");
 					state.currentTime = 0;
 					startMediaTimeModeCycle();
 				}
@@ -694,7 +694,7 @@ public class WMV_World
 		File soundDirectory = new File(soundDataPath);
 		if(!soundDirectory.exists()) soundDirectory.mkdir();			// Create directory if doesn't exist
 
-		if(ml.debugSettings.world)
+		if(ml.debug.world)
 			PApplet.println("Saving Simulation State to: "+folderPath);
 		
 		WMV_Field f = getCurrentField();
@@ -794,7 +794,7 @@ public class WMV_World
 			if(!soundDirectory.exists()) 
 				soundDirectory.mkdir();			// Create sound directory if doesn't exist
 
-			if(ml.debugSettings.world && ml.debugSettings.detailed) PApplet.println("Saving Simulation State to: "+folderPath);
+			if(ml.debug.world && ml.debug.detailed) PApplet.println("Saving Simulation State to: "+folderPath);
 			
 			f.captureState();											// Capture current state, i.e. save timeline and dateline
 
@@ -815,7 +815,7 @@ public class WMV_World
 			ml.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
 			ml.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
 			
-			if(ml.debugSettings.world) System.out.println("Saved simulation state for field #"+f.getID());
+			if(ml.debug.world) ml.systemMessage("Saved simulation state for field #"+f.getID());
 		}
 		
 //		if(ml.world.getSettings().screenMessagesOn)
@@ -829,7 +829,7 @@ public class WMV_World
 	 */
 	public WMV_Field loadAndSetSimulationState(WMV_Field field)
 	{
-		if(ml.debugSettings.world && ml.debugSettings.detailed) PApplet.println("Loading and setting Simulation State... Field #"+field.getID());
+		if(ml.debug.world && ml.debug.detailed) PApplet.println("Loading and setting Simulation State... Field #"+field.getID());
 
 		loadAndSetState(field.getID());
 		loadAndSetSettings(field.getID());
@@ -841,23 +841,23 @@ public class WMV_World
 		viewer.resetTimeState();
 		
 		/* Check world and viewer state/settings */
-		if(ml.debugSettings.world && ml.debugSettings.detailed)
+		if(ml.debug.world && ml.debug.detailed)
 		{
-			if(state != null) System.out.println("WorldState exists...");
-			if(settings != null) System.out.println("WorldSettings exists...");
-			if(viewer.getState() != null) System.out.println("ViewerState exists...");
-			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
+			if(state != null) ml.systemMessage("WorldState exists...");
+			if(settings != null) ml.systemMessage("WorldSettings exists...");
+			if(viewer.getState() != null) ml.systemMessage("ViewerState exists...");
+			if(viewer.getSettings() != null) ml.systemMessage("ViewerSettings exists...");
 		}
 		
 		String fieldName = field.getName();
 		int fieldID = field.getID();
-		field = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debugSettings, fieldName, fieldID);
+		field = new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debug, fieldName, fieldID);
 		
 		field = loadFieldState(field);
 		field.setID(fieldID);
 		
-		if(ml.debugSettings.world && ml.debugSettings.detailed)
-			System.out.println("Loaded and Set Field State... Field #"+field.getID()+" clusters:"+field.getClusters().size());
+		if(ml.debug.world && ml.debug.detailed)
+			ml.systemMessage("Loaded and Set Field State... Field #"+field.getID()+" clusters:"+field.getClusters().size());
 
 		return field;
 	}
@@ -878,23 +878,23 @@ public class WMV_World
 		newWorldState.frameCount = ml.frameCount;
 
 		/* Check world and viewer state/settings */
-		if(ml.debugSettings.world && ml.debugSettings.detailed)
+		if(ml.debug.world && ml.debug.detailed)
 		{
-			if(newWorldState != null) System.out.println("WorldState exists...");
-			if(newWorldSettings != null) System.out.println("WorldSettings exists...");
-			if(newViewerState != null) System.out.println("ViewerState exists...");
-			if(newViewerSettings != null) System.out.println("ViewerSettings exists...");
+			if(newWorldState != null) ml.systemMessage("WorldState exists...");
+			if(newWorldSettings != null) ml.systemMessage("WorldSettings exists...");
+			if(newViewerState != null) ml.systemMessage("ViewerState exists...");
+			if(newViewerSettings != null) ml.systemMessage("ViewerSettings exists...");
 		}
 		
 		String fieldName = field.getName();
 		int fieldID = field.getID();
-		field = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, ml.debugSettings, fieldName, fieldID);
+		field = new WMV_Field(newWorldSettings, newWorldState, newViewerSettings, newViewerState, ml.debug, fieldName, fieldID);
 		
 		field= loadFieldState(field);
 		field.setID(fieldID);
 		
-		if(ml.debugSettings.world && ml.debugSettings.detailed)
-			System.out.println("Loaded Field State... Field #"+field.getID()+" clusters:"+field.getClusters().size());
+		if(ml.debug.world && ml.debug.detailed)
+			ml.systemMessage("Loaded Field State... Field #"+field.getID()+" clusters:"+field.getClusters().size());
 
 		return field;
 	}
@@ -905,8 +905,8 @@ public class WMV_World
 	 */
 	void setSimulationStateFromField(WMV_Field field, boolean moveToCurrentCluster)
 	{
-		if(ml.debugSettings.world)
-			System.out.println("World.setSimulationStateFromField()... Field #"+field.getID());
+		if(ml.debug.world)
+			ml.systemMessage("World.setSimulationStateFromField()... Field #"+field.getID());
 
 		setState(field.getWorldState());
 		setSettings(field.getWorldSettings());
@@ -929,7 +929,7 @@ public class WMV_World
 			}
 			else
 			{
-				ml.debugMessage("  Error in setting field ID... field.getID():"+field.getID()+" fields.size():"+fields.size());
+				ml.systemMessage("  Error in setting field ID... field.getID():"+field.getID()+" fields.size():"+fields.size());
 				ml.exit();
 			}
 		}
@@ -938,13 +938,13 @@ public class WMV_World
 		{
 			if(getCurrentCluster() != null)
 			{
-				if(ml.debugSettings.viewer || ml.debugSettings.world)
-					System.out.println("World.setSimulationStateFromField()... Moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" viewer loc before:"+viewer.getLocation());
+				if(ml.debug.viewer || ml.debug.world)
+					ml.systemMessage("World.setSimulationStateFromField()... Moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" viewer loc before:"+viewer.getLocation());
 			}
 			else
 			{
-				if(ml.debugSettings.viewer || ml.debugSettings.world)
-					System.out.println("World.setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
+				if(ml.debug.viewer || ml.debug.world)
+					ml.systemMessage("World.setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
 				viewer.setCurrentCluster(0, 0);
 			}
 			viewer.setLocation(getCurrentCluster().getLocation(), false);					// Set location to current cluster
@@ -954,22 +954,22 @@ public class WMV_World
 		viewer.resetTimeState();
 
 		/* Check world and viewer state/settings */
-		if(ml.debugSettings.world && ml.debugSettings.detailed)
+		if(ml.debug.world && ml.debug.detailed)
 		{
-			if(state != null) System.out.println("WorldState exists...");
-			if(settings != null) System.out.println("WorldSettings exists...");
-			if(viewer.getState() != null) System.out.println("ViewerState exists...");
-			if(viewer.getSettings() != null) System.out.println("ViewerSettings exists...");
+			if(state != null) ml.systemMessage("WorldState exists...");
+			if(settings != null) ml.systemMessage("WorldSettings exists...");
+			if(viewer.getState() != null) ml.systemMessage("ViewerState exists...");
+			if(viewer.getSettings() != null) ml.systemMessage("ViewerSettings exists...");
 		}
 		
-		if(ml.debugSettings.world)
+		if(ml.debug.world)
 		{
 			if(getCurrentCluster() != null)
-				System.out.println("  setSimulationStateFromField()... currentCluster id:"+getCurrentCluster().getID()+" cluster location:"+getCurrentCluster().getLocation()+" current location:"+viewer.getLocation());
+				ml.systemMessage("  setSimulationStateFromField()... currentCluster id:"+getCurrentCluster().getID()+" cluster location:"+getCurrentCluster().getLocation()+" current location:"+viewer.getLocation());
 			else
-				System.out.println("  setSimulationStateFromField()... currentCluster is null!!!");
+				ml.systemMessage("  setSimulationStateFromField()... currentCluster is null!!!");
 			
-//			System.out.println("--------VERIFYING FIELD--------");
+//			ml.systemMessage("--------VERIFYING FIELD--------");
 //			getCurrentField().verify(true);			// -- Test
 		}
 		
@@ -1099,7 +1099,7 @@ public class WMV_World
 	 */
 	void reset(boolean system)
 	{
-		if(ml.debugSettings.world) System.out.println("Resetting world...");
+		if(ml.debug.world) ml.systemMessage("Resetting world...");
 		settings.reset();
 		
 		/* Clustering Modes */
@@ -1162,8 +1162,8 @@ public class WMV_World
 		
 		for(String fieldFolder : fieldFolders)
 		{
-			if(ml.debugSettings.world) System.out.println("Adding field for folder:"+fieldFolder);
-			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debugSettings, fieldFolder, count));
+			if(ml.debug.world) ml.systemMessage("Adding field for folder:"+fieldFolder);
+			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debug, fieldFolder, count));
 			count++;
 		}
 	}
@@ -1345,7 +1345,7 @@ public class WMV_World
 	 */
 	public void exportCurrentView() 
 	{
-		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will save screenshot to disk.");
+		if(ml.debug.ml && ml.debug.detailed) ml.systemMessage("Will save screenshot to disk.");
 		ml.state.export = true;
 	}
 
@@ -1354,7 +1354,7 @@ public class WMV_World
 	 */
 	public void exportCurrentMedia() 
 	{
-		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output selected media file(s) to disk.");
+		if(ml.debug.ml && ml.debug.detailed) ml.systemMessage("Will output selected media file(s) to disk.");
 		ml.state.exportMedia = true;
 	}
 
@@ -1403,7 +1403,7 @@ public class WMV_World
 			} 
 			catch(Throwable t)
 			{
-				System.out.println("ERROR 1 in exportImages:"+t);
+				ml.systemMessage("ERROR 1 in exportImages:"+t);
 			}
 			finally 
 			{
@@ -1414,7 +1414,7 @@ public class WMV_World
 				} 
 				catch (IOException e) 
 				{
-					System.out.println("ERROR 2 in exportImages:"+e);
+					ml.systemMessage("ERROR 2 in exportImages:"+e);
 				}
 			}
 		}
@@ -1446,7 +1446,7 @@ public class WMV_World
 			} 
 			catch(Throwable t)
 			{
-				System.out.println("ERROR 1 in exportPanoramas:"+t);
+				ml.systemMessage("ERROR 1 in exportPanoramas:"+t);
 			}
 			finally 
 			{
@@ -1457,7 +1457,7 @@ public class WMV_World
 				} 
 				catch (IOException e) 
 				{
-					System.out.println("ERROR 2 in exportPanoramas:"+e);
+					ml.systemMessage("ERROR 2 in exportPanoramas:"+e);
 				}
 			}
 		}
@@ -1488,7 +1488,7 @@ public class WMV_World
 			} 
 			catch(Throwable t)
 			{
-				System.out.println("ERROR 1 in exportVideos:"+t);
+				ml.systemMessage("ERROR 1 in exportVideos:"+t);
 			}
 			finally 
 			{
@@ -1499,7 +1499,7 @@ public class WMV_World
 				} 
 				catch (IOException e) 
 				{
-					System.out.println("ERROR 2 in exportVideos:"+e);
+					ml.systemMessage("ERROR 2 in exportVideos:"+e);
 				}
 			}
 		}
@@ -1531,7 +1531,7 @@ public class WMV_World
 			} 
 			catch(Throwable t)
 			{
-				System.out.println("ERROR 1 in exportSounds:"+t);
+				ml.systemMessage("ERROR 1 in exportSounds:"+t);
 			}
 			finally 
 			{
@@ -1542,7 +1542,7 @@ public class WMV_World
 				} 
 				catch (IOException e) 
 				{
-					System.out.println("ERROR 2 in exportSounds:"+e);
+					ml.systemMessage("ERROR 2 in exportSounds:"+e);
 				}
 			}
 		}
@@ -1553,7 +1553,7 @@ public class WMV_World
 	 */
 	public void saveCubeMapToDisk() 
 	{
-		if(ml.debugSettings.ml && ml.debugSettings.detailed) System.out.println("Will output cubemap images to disk.");
+		if(ml.debug.ml && ml.debug.detailed) ml.systemMessage("Will output cubemap images to disk.");
 		ml.state.exportCubeMap = true;
 	}
 
@@ -1575,7 +1575,7 @@ public class WMV_World
 			return fields.get(fieldIndex);
 		else
 		{
-			System.out.println("World.getField()... ERROR: fieldIndex:"+fieldIndex+" fields.size():"+fields.size());
+			ml.systemMessage("World.getField()... ERROR: fieldIndex:"+fieldIndex+" fields.size():"+fields.size());
 			return null;
 		}
 	}
@@ -1668,7 +1668,7 @@ public class WMV_World
 				if(cl.get(0).getTimeline().timeline.size() > 0)
 					viewer.setNearbyClusterTimeline(cl.get(0).getTimeline().timeline);
 				else
-					System.out.println("CreateTimeCycle Error... Cluster #"+cl.get(0).getID()+"  getTimeline().size() == 0!");
+					ml.systemMessage("CreateTimeCycle Error... Cluster #"+cl.get(0).getID()+"  getTimeline().size() == 0!");
 			}
 			else if(cl.size() > 1)
 			{
@@ -1756,11 +1756,11 @@ public class WMV_World
 			}
 			else
 			{
-				System.out.println("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timeSegmentIndex);
+				ml.systemMessage("ERROR in setSingleTimeModeCurrentMedia... time == null!!... timelineIndex:"+timeSegmentIndex);
 			}
 		}
 		else
-			System.out.println("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
+			ml.systemMessage("ERROR in setSingleTimeModeCurrentMedia  viewer.nearbyClusterTimeline.size() == 0!!");
 	}
 	
 	/**
@@ -1983,8 +1983,8 @@ public class WMV_World
 	 */
 	public void clearAllAttractors()
 	{
-		if(ml.debugSettings.viewer && ml.debugSettings.detailed)
-			System.out.println("Clearing all attractors...");
+		if(ml.debug.viewer && ml.debug.detailed)
+			ml.systemMessage("Clearing all attractors...");
 
 		if(viewer.getAttractorClusterID() != -1)
 			viewer.clearAttractorCluster();
@@ -2206,8 +2206,8 @@ public class WMV_World
 			break;
 		case 15:
 			f.setImageBlurMask(image, blurMaskBothBoth);
-//			System.out.println("blurMaskBothBoth added to image #"+image.getID()+" name:"+image.getName());
-//			System.out.println("	mask == null?"+image.blurMask);
+//			ml.systemMessage("blurMaskBothBoth added to image #"+image.getID()+" name:"+image.getName());
+//			ml.systemMessage("	mask == null?"+image.blurMask);
 			break;
 		}
 	}
@@ -2348,7 +2348,7 @@ public class WMV_World
 
 		for(WMV_Field f : fields)
 		{
-//			System.out.println("World.setBlurMasks()... f.getImages().size():"+f.getImages().size());
+//			ml.systemMessage("World.setBlurMasks()... f.getImages().size():"+f.getImages().size());
 			for(WMV_Image image : f.getImages())
 			{
 				int bmID = image.getState().blurMaskID;
@@ -2358,10 +2358,10 @@ public class WMV_World
 					setVerticalBlurMask(image, bmID);
 				else
 				{
-					if(ml.debugSettings.image)
+					if(ml.debug.image)
 					{
-						System.out.println("World.setBlurMasks()... ERROR: Could not set mask... image has size other than 640x480 or 480x640!"+image.getName());
-						System.out.println("Setting image to disabled..."+image.getName());
+						ml.systemMessage("World.setBlurMasks()... ERROR: Could not set mask... image has size other than 640x480 or 480x640!"+image.getName());
+						ml.systemMessage("Setting image to disabled..."+image.getName());
 					}
 					image.setDisabled(true);
 				}
@@ -2372,9 +2372,9 @@ public class WMV_World
 					setPanoramaBlurMask(panorama);				// Should check width / height if possible
 				else
 				{
-					if(ml.debugSettings.panorama)
+					if(ml.debug.panorama)
 					{
-						System.out.println("World.setBlurMasks()... ERROR: Could not set mask... panorama has size other than 5376x2688!"+panorama.getName());
+						ml.systemMessage("World.setBlurMasks()... ERROR: Could not set mask... panorama has size other than 5376x2688!"+panorama.getName());
 					}
 				}
 			}
@@ -2385,11 +2385,11 @@ public class WMV_World
 					setVideoBlurMask(video, bmID);				// Should check width / height if possible
 				else
 				{
-					if(ml.debugSettings.video)
+					if(ml.debug.video)
 					{
-						System.out.println("World.setBlurMasks()... ERROR: Could not set mask... video has size other than 640x360!"+video.getName()+
+						ml.systemMessage("World.setBlurMasks()... ERROR: Could not set mask... video has size other than 640x360!"+video.getName()+
 								" width:"+video.getWidth()+" height:"+video.getHeight());
-						System.out.println("Setting video to disabled..."+video.getName());
+						ml.systemMessage("Setting video to disabled..."+video.getName());
 					}
 					video.setDisabled(true);
 				}
@@ -2414,7 +2414,7 @@ public class WMV_World
 		}
 		catch(Throwable t)
 		{
-			System.out.println("ERROR in getMaskImageResource()... t:"+t+" imageURL == null? "+(imageURL == null));
+			ml.systemMessage("World.getMaskImageResource()... ERROR t:"+t+" imageURL == null? "+(imageURL == null));
 		}
 		
 		return null;

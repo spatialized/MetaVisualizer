@@ -53,6 +53,69 @@ public class WMV_Utilities
 	WMV_Utilities(){}
 
 	/**
+	 * Get path of specified program
+	 * @param programName
+	 */
+	public String getProgramPath(String programName)
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+
+		command = new ArrayList<String>();				/* Create small_images directory */
+		command.add("which");
+		command.add(programName);
+		commandExecutor = new WMV_Command("", command);
+		
+		try {
+			int result = commandExecutor.execute();
+			StringBuilder stderr = commandExecutor.getStandardError();
+			StringBuilder stdout = commandExecutor.getStandardOutput();
+
+			if (stderr.length() > 0 || result != 0)
+				System.out.println("Utilities.getProgramPath()... getting program name "+ programName+ "... result:"+result+" stderr:"+stderr.toString());
+			
+			System.out.println("Utilities.getProgramPath()... stdout: "+stdout.toString());
+			
+			if(result == 0) 
+			{
+				return stdout.toString();
+			}
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable t while creating small_images directory:"+t);
+			return null;
+		}
+		return null;
+	}
+	
+	public void checkPath()
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+
+		command = new ArrayList<String>();				/* Create small_images directory */
+		command.add("env");
+//		command.add(programName);
+		commandExecutor = new WMV_Command("", command);
+		
+		try {
+			int result = commandExecutor.execute();
+			StringBuilder stderr = commandExecutor.getStandardError();
+			StringBuilder stdout = commandExecutor.getStandardOutput();
+
+			if (stderr.length() > 0 || result != 0)
+				System.out.println("Utilities.checkUnixPath() ... result:"+result+" stderr:"+stderr.toString());
+			
+			System.out.println("Utilities.checkUnixPath()... stdout: "+stdout.toString());
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable t while checking Unix PATH:"+t);
+		}
+	}
+	
+	/**
 	 * Perform linear interpolation between two 3D points
 	 * @param point1 First point
 	 * @param point2 Second point 
@@ -1220,7 +1283,7 @@ public class WMV_Utilities
 		String scriptPath = ml.getScriptResource("Convert_to_480p.txt");
 		ml.delay(200);
 
-		if(ml.debugSettings.video )
+		if(ml.debug.video )
 		{
 			System.out.println("Utilities.convertVideos()... scriptPath:"+scriptPath);
 			System.out.println(" ... inputPath:"+inputPath);
@@ -1268,7 +1331,7 @@ public class WMV_Utilities
 		String scriptPath = ml.getScriptResource("Convert_File_to_480p.txt");
 		ml.delay(200);
 
-		if(ml.debugSettings.video )
+		if(ml.debug.video )
 		{
 			System.out.println("Utilities.convertVideo()... scriptPath:"+scriptPath);
 			System.out.println(" ... filePath:"+filePath);

@@ -544,8 +544,9 @@ public class ML_KeyboardControls
 		/* GPS */
 		if (!input.optionKey && key == 'g') 
 		{
-			if(ml.world.getCurrentField().getGPSTracks().size() > 0)
-				ml.world.viewer.chooseGPSTrack();
+			if(ml.world.getCurrentField().getGPSTracks() != null)
+				if(ml.world.getCurrentField().getGPSTracks().size() > 0)
+					ml.world.viewer.chooseGPSTrack();
 		}
 		
 		/* Memory */

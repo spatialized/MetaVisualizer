@@ -492,7 +492,7 @@ public class WMV_Image extends WMV_Media
 	{
 		if( !isHidden() && !isDisabled() )
 		{
-			if(ml.debugSettings.world && ml.debugSettings.detailed) 
+			if(ml.debug.world && ml.debug.detailed) 
 				System.out.println("Image.loadMedia()... id #"+getID());
 			
 			calculateVertices();

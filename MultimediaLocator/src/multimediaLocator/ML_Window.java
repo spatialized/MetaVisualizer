@@ -2484,9 +2484,9 @@ public class ML_Window
 //				applet.textSize(fMediumTextSize);
 //				applet.text(" Media Output Folder:"+world.outputFolder, x, y += lineWidthVeryWide * 1.5f);
 
-				if(world.ml.debugSettings.memory)
+				if(world.ml.debug.memory)
 				{
-					if(world.ml.debugSettings.detailed)
+					if(world.ml.debug.detailed)
 					{
 						applet.text("Total memory (bytes): " + world.ml.totalMemory, x, y += lineWidthVeryWide);
 						applet.text("Available processors (cores): "+world.ml.availableProcessors, x, y += lineWidthVeryWide);

@@ -386,7 +386,7 @@ public class WMV_Viewer
 			setCurrentCluster( -1, -1 );
 			if(state.atCurrentCluster) state.atCurrentCluster = false;
 			
-			if(debugSettings.viewer) System.out.println("Viewer.updateCurrentCluster()... Cleared current cluster...");
+			if(debugSettings.viewer) p.ml.systemMessage("Viewer.updateCurrentCluster()... Cleared current cluster...");
 		}
 	}
 	
@@ -397,23 +397,23 @@ public class WMV_Viewer
 	public void setCurrentField(int newField, boolean setSimulationState)		
 	{
 		if(debugSettings.viewer && debugSettings.detailed)		
-			System.out.println("Viewer.setCurrentField().. newField:"+newField+" setSimulationState? "+setSimulationState);
+			p.ml.systemMessage("Viewer.setCurrentField().. newField:"+newField+" setSimulationState? "+setSimulationState);
 
 		if(newField < p.getFieldCount())
 		{
 			setCurrentFieldID( newField );
 
 			if(debugSettings.viewer && debugSettings.detailed)		
-				System.out.println("Viewer.setCurrentField().. after set field ID... new state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster);
+				p.ml.systemMessage("Viewer.setCurrentField().. after set field ID... new state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster);
 
 			if(setSimulationState)											// Set simulation state from saved
 			{
 				p.setSimulationStateFromField(p.getField(newField), true);
 				if(debugSettings.viewer && debugSettings.detailed)		
-					System.out.println("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
+					p.ml.systemMessage("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
 //				p.loadAndSetSimulationState(p.getField(newField));		// -- TESTING
 //				if(debugSettings.viewer && debugSettings.detailed)		
-//					System.out.println("Viewer.setCurrentField().. after loadAndSetSimulationState...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
+//					p.ml.systemMessage("Viewer.setCurrentField().. after loadAndSetSimulationState...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
 			}
 			else
 			{
@@ -442,7 +442,7 @@ public class WMV_Viewer
 	void moveToImageCaptureLocation(int imageID, boolean teleport) 
 	{
 		if (debugSettings.viewer)
-			System.out.println("Moving to capture location... "+imageID);
+			p.ml.systemMessage("Moving to capture location... "+imageID);
 
 		PVector newLocation = p.getCurrentFieldImages().get(imageID).getCaptureLocation();
 		
@@ -453,7 +453,7 @@ public class WMV_Viewer
 		else
 		{
 			if(debugSettings.viewer && debugSettings.detailed)
-				System.out.println("moveToCaptureLocation... setting attractor point:"+newLocation);
+				p.ml.systemMessage("moveToCaptureLocation... setting attractor point:"+newLocation);
 			setAttractorPoint(newLocation);
 		}
 	}
@@ -471,7 +471,7 @@ public class WMV_Viewer
 		}
 		else
 		{
-			if(debugSettings.viewer) System.out.println("Moving to cluster... setting attractor:"+newCluster);
+			if(debugSettings.viewer) p.ml.systemMessage("Moving to cluster... setting attractor:"+newCluster);
 			setAttractorCluster( newCluster );
 		}
 	}
@@ -485,7 +485,7 @@ public class WMV_Viewer
 		int nearest = getNearestCluster(false);		
 		
 		if (debugSettings.viewer)
-			System.out.println("Moving to nearest cluster... "+nearest+" from current:"+state.currentCluster);
+			p.ml.systemMessage("Moving to nearest cluster... "+nearest+" from current:"+state.currentCluster);
 
 		if(settings.teleportToFarClusters && !teleport)
 		{
@@ -514,7 +514,7 @@ public class WMV_Viewer
 		if(ahead != state.currentCluster)					// If a cluster ahead has been found
 		{
 			if (debugSettings.viewer)
-				System.out.println("moveToNearestClusterAhead goal:"+ahead);
+				p.ml.systemMessage("moveToNearestClusterAhead goal:"+ahead);
 
 			if(settings.teleportToFarClusters && !teleport)
 			{
@@ -534,7 +534,7 @@ public class WMV_Viewer
 		else
 		{
 			if(debugSettings.viewer)
-				System.out.println("Viewer.moveToNearestClusterAhead()... can't move to same cluster!... "+ahead);
+				p.ml.systemMessage("Viewer.moveToNearestClusterAhead()... can't move to same cluster!... "+ahead);
 		}
 	}
 	
@@ -546,7 +546,7 @@ public class WMV_Viewer
 	void moveToLastCluster(boolean teleport) 
 	{
 		if (debugSettings.viewer)
-			System.out.println("Moving to last cluster... "+state.lastCluster);
+			p.ml.systemMessage("Moving to last cluster... "+state.lastCluster);
 		if(state.lastCluster > 0)
 		{
 			if(settings.teleportToFarClusters && !teleport)
@@ -559,7 +559,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					if(debugSettings.viewer) System.out.println("moveToLastCluster... setting attractor and currentCluster:"+state.currentCluster);
+					if(debugSettings.viewer) p.ml.systemMessage("moveToLastCluster... setting attractor and currentCluster:"+state.currentCluster);
 					setAttractorCluster( state.lastCluster );
 				}
 			}
@@ -573,7 +573,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					if(debugSettings.viewer) System.out.println("moveToLastCluster... setting attractor and currentCluster:"+state.currentCluster);
+					if(debugSettings.viewer) p.ml.systemMessage("moveToLastCluster... setting attractor and currentCluster:"+state.currentCluster);
 					setAttractorCluster( state.lastCluster );
 				}
 			}
@@ -592,7 +592,7 @@ public class WMV_Viewer
 		boolean found = false;
 		int result = -1;
 		
-		if(debugSettings.viewer) System.out.println("moveToNextCluster()... mediaType "+mediaType);
+		if(debugSettings.viewer) p.ml.systemMessage("moveToNextCluster()... mediaType "+mediaType);
 
 		/* Find goal cluster */
 		if(mediaType == -1)		// Any media type
@@ -612,13 +612,13 @@ public class WMV_Viewer
 				}
 
 				if(p.getCurrentField().getCluster(next).getState().mediaCount != 0)
-					System.out.println("Error: Cluster marked empty but mediaPoints != 0!  clusterID:"+next);
+					p.ml.systemMessage("Error: Cluster marked empty but mediaPoints != 0!  clusterID:"+next);
 			}
 
 			if(iterationCount <= 3)				// If a cluster was found in 2 iterations
 			{
 				found = true;
-				if(debugSettings.viewer) System.out.println("Moving to next cluster:"+next+" from current cluster:"+state.currentCluster);
+				if(debugSettings.viewer) p.ml.systemMessage("Moving to next cluster:"+next+" from current cluster:"+state.currentCluster);
 			}
 		}
 		else 
@@ -652,7 +652,7 @@ public class WMV_Viewer
 	 */
 	public void teleportToPoint( PVector dest, boolean fade ) 
 	{
-		System.out.println("Viewer.teleportToPoint("+dest+")...");
+		p.ml.systemMessage("Viewer.teleportToPoint("+dest+")...");
 		
 		if(isMoving())
 			stop(true);
@@ -681,7 +681,7 @@ public class WMV_Viewer
 	 */
 	public void jumpTeleport(PVector dest, boolean update)
 	{
-//		System.out.println("Viewer.jumpTeleport()... :"+dest);
+//		p.ml.systemMessage("Viewer.jumpTeleport()... :"+dest);
 		if(state.atCurrentCluster)
 		{
 			saveCurrentClusterOrientation();
@@ -735,7 +735,7 @@ public class WMV_Viewer
 		boolean found = false;
 		int result = -1;
 		
-		if(debugSettings.viewer) System.out.println("Viewer.moveToNearestClusterWithType()... mediaType "+mediaType+" inclCurrent:"+inclCurrent);
+		if(debugSettings.viewer) p.ml.systemMessage("Viewer.moveToNearestClusterWithType()... mediaType "+mediaType+" inclCurrent:"+inclCurrent);
 
 		/* Find goal cluster */
 		if(mediaType < 0 || mediaType > 3)		// Incorrect media type
@@ -747,7 +747,7 @@ public class WMV_Viewer
 			{
 				found = true;
 				nearest = result;
-				if(debugSettings.viewer) System.out.println("Viewer.moveToNearestClusterWithType()... found media #:"+nearest);
+				if(debugSettings.viewer) p.ml.systemMessage("Viewer.moveToNearestClusterWithType()... found media #:"+nearest);
 			}
 		}
 		
@@ -782,7 +782,7 @@ public class WMV_Viewer
 					break;
 			}
 			if(debugSettings.viewer)
-				System.out.println("No clusters with "+strMediaType+" found... result:"+result);
+				p.ml.systemMessage("No clusters with "+strMediaType+" found... result:"+result);
 			if(p.getSettings().screenMessagesOn)
 				p.ml.display.message(p.ml, "No clusters with "+strMediaType+" found...");
 		}
@@ -813,8 +813,8 @@ public class WMV_Viewer
 				if(id >= 0 && id < currentField.getPanoramaCount())
 					result = currentField.getPanorama(id).getAssociatedClusterID();
 				
-//				System.out.println("Viewer.getNearestClusterWithType()... type Panorama... found id#"+id+" in cluster #"+result);
-//				System.out.println("	has pano?  "+currentField.getCluster(result).hasPanorama()+"	is pano in cluster?  "+currentField.getCluster(result).getPanoramas(currentField.getPanoramas()).contains(id));
+//				p.ml.systemMessage("Viewer.getNearestClusterWithType()... type Panorama... found id#"+id+" in cluster #"+result);
+//				p.ml.systemMessage("	has pano?  "+currentField.getCluster(result).hasPanorama()+"	is pano in cluster?  "+currentField.getCluster(result).getPanoramas(currentField.getPanoramas()).contains(id));
 				
 				break;
 			case 2:
@@ -831,7 +831,7 @@ public class WMV_Viewer
 
 		if(result == -1)
 		{
-			if(debugSettings.viewer) System.out.println("Viewer.getNearestClusterWithType()... No media of type "+mediaType+" found...");
+			if(debugSettings.viewer) p.ml.systemMessage("Viewer.getNearestClusterWithType()... No media of type "+mediaType+" found...");
 			return -1;
 		}
 		else
@@ -862,7 +862,7 @@ public class WMV_Viewer
 				if(iterationCount > 3)
 				{
 					if(debugSettings.viewer)
-						System.out.println("1  No media found...");
+						p.ml.systemMessage("1  No media found...");
 					end = true;
 					break;
 				}
@@ -907,7 +907,7 @@ public class WMV_Viewer
 							if(iterationCount > 3)
 							{
 								if(debugSettings.viewer)
-									System.out.println("2 No media found...");
+									p.ml.systemMessage("2 No media found...");
 								end = true;
 								break;
 							}
@@ -919,12 +919,12 @@ public class WMV_Viewer
 
 		if(iterationCount <= 3)				// If a cluster was found in 2 iterations
 		{
-			if(debugSettings.viewer) System.out.println("Moving to next cluster with media type:"+mediaType+" cluster found:"+next+"... moving from current cluster:"+state.currentCluster);
+			if(debugSettings.viewer) p.ml.systemMessage("Moving to next cluster with media type:"+mediaType+" cluster found:"+next+"... moving from current cluster:"+state.currentCluster);
 			return next;
 		}
 		else
 		{
-			if(debugSettings.viewer) System.out.println("No media of type "+mediaType+" found...");
+			if(debugSettings.viewer) p.ml.systemMessage("No media of type "+mediaType+" found...");
 			return -1;
 		}
 	}
@@ -942,7 +942,7 @@ public class WMV_Viewer
 		if(f.getTimeline().timeline.size()>0)
 		{
 			if(debugSettings.viewer && debugSettings.detailed)
-				System.out.println("Viewer.moveToTimeSegmentInField()... fieldID:"+fieldID+" fieldTimeSegment:"+fieldTimeSegment+" fieldTimelineID:"+f.getTimeline().timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().timeline.size());
+				p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... fieldID:"+fieldID+" fieldTimeSegment:"+fieldTimeSegment+" fieldTimelineID:"+f.getTimeline().timeline.get(fieldTimeSegment).getFieldTimelineID()+" f.getTimeline().size():"+f.getTimeline().timeline.size());
 			int clusterID = f.getTimeline().timeline.get(fieldTimeSegment).getClusterID();
 			if(clusterID > 0)
 			{
@@ -950,7 +950,7 @@ public class WMV_Viewer
 				{
 					setCurrentFieldTimeSegment(fieldTimeSegment, true);
 					if(debugSettings.viewer && debugSettings.detailed)
-						System.out.println("Viewer.moveToTimeSegmentInField()... Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
+						p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... Advanced to time segment "+fieldTimeSegment+" in same cluster... ");
 				}
 				else
 				{
@@ -967,7 +967,7 @@ public class WMV_Viewer
 								setAttractorCluster(clusterID);
 						} 
 						else if(debugSettings.viewer)
-							System.out.println("Viewer.moveToTimeSegmentInField()... Error! clusterID >= p.getCurrentField().getClusters().size()! clusterID:"+clusterID+" p.getCurrentField() cluster count:"+p.getCurrentField().getClusters().size());
+							p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... Error! clusterID >= p.getCurrentField().getClusters().size()! clusterID:"+clusterID+" p.getCurrentField() cluster count:"+p.getCurrentField().getClusters().size());
 					}
 					else
 					{
@@ -981,14 +981,14 @@ public class WMV_Viewer
 			else
 			{
 				if(debugSettings.viewer)
-					System.out.println("Viewer.moveToTimeSegmentInField()... fieldTimeSegment in field #"+f.getID()+" cluster is -1!! Will move to cluster 0...");
+					p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... fieldTimeSegment in field #"+f.getID()+" cluster is -1!! Will move to cluster 0...");
 				teleportToCluster(0, fade, 0);
 			}
 		}
 		else
 		{
 			if(debugSettings.viewer)
-				System.out.println("Viewer.moveToTimeSegmentInField()... timeline is empty!");
+				p.ml.systemMessage("Viewer.moveToTimeSegmentInField()... timeline is empty!");
 		}
 	}
 	
@@ -1000,7 +1000,7 @@ public class WMV_Viewer
 	public void moveToClusterOnMap( int clusterID, boolean switchTo3DView )
 	{
 		if(debugSettings.viewer || debugSettings.map)
-			System.out.println("Viewer.moveToClusterOnMap()... Moving to cluster on map:"+clusterID);
+			p.ml.systemMessage("Viewer.moveToClusterOnMap()... Moving to cluster on map:"+clusterID);
 
 		if(switchTo3DView)
 		{
@@ -1025,7 +1025,7 @@ public class WMV_Viewer
 	public void teleportToCluster( int dest, boolean fade, int fieldTimeSegment ) 
 	{
 		if(debugSettings.viewer && debugSettings.detailed)
-			System.out.println("Viewer.teleportToCluster()... dest:"+dest+" fade:"+fade);
+			p.ml.systemMessage("Viewer.teleportToCluster()... dest:"+dest+" fade:"+fade);
 		
 		if(!isTeleporting() && !isMoving())
 		{
@@ -1046,7 +1046,7 @@ public class WMV_Viewer
 				}
 			}
 			else 
-				System.out.println("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().getClusters().size());
+				p.ml.systemMessage("ERROR: Can't teleport to cluster:"+dest+"... clusters.size() =="+p.getCurrentField().getClusters().size());
 		}
 	}
 
@@ -1078,7 +1078,7 @@ public class WMV_Viewer
 			if(newField >= p.getFieldCount()) newField = 0;
 			
 			if(debugSettings.viewer)
-				System.out.println("teleportToField()... newField: "+newField+" out of "+p.getFieldCount());
+				p.ml.systemMessage("teleportToField()... newField: "+newField+" out of "+p.getFieldCount());
 
 			if(p.getField(newField).getClusters().size() > 0)
 			{
@@ -1088,13 +1088,13 @@ public class WMV_Viewer
 					if(goalSegment != null)
 						state.teleportGoalCluster = goalSegment.getClusterID();
 					else
-						System.out.println("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
+						p.ml.systemMessage("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
 				}
 				else
 				{
 					state.teleportGoalCluster = -1;
 					if(debugSettings.viewer)
-						System.out.println("teleportToField()... Not moving to first time segment: will setCurrentCluster to "+state.teleportGoalCluster);
+						p.ml.systemMessage("teleportToField()... Not moving to first time segment: will setCurrentCluster to "+state.teleportGoalCluster);
 				}
 
 				if(fade)
@@ -1102,9 +1102,9 @@ public class WMV_Viewer
 					if(state.teleportGoalCluster >= 0 && state.teleportGoalCluster < p.getField(newField).getClusters().size())
 						state.teleportGoal = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();	 // Set goal cluster 
 					else
-						if(debugSettings.viewer) System.out.println("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
+						if(debugSettings.viewer) p.ml.systemMessage("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
 					
-					if(debugSettings.viewer) System.out.println("  teleportToField()...  Teleported to field "+state.teleportToField+" moveToFirstTimeSegment?"+moveToFirstTimeSegment+" state.teleportGoal:"+state.teleportGoal);
+					if(debugSettings.viewer) p.ml.systemMessage("  teleportToField()...  Teleported to field "+state.teleportToField+" moveToFirstTimeSegment?"+moveToFirstTimeSegment+" state.teleportGoal:"+state.teleportGoal);
 					
 					if(p.getSettings().screenMessagesOn) 
 						p.ml.display.message(p.ml, "Moving to "+p.getField(newField).getName());
@@ -1117,7 +1117,7 @@ public class WMV_Viewer
 						p.ml.display.message(p.ml, "Moving to "+p.getField(newField).getName());
 
 					enterField(newField); 				/* Enter new field */
-					System.out.println("  teleportToField()...  Entered field "+newField+"... moveToFirstTimeSegment? "+moveToFirstTimeSegment);
+					p.ml.systemMessage("  teleportToField()...  Entered field "+newField+"... moveToFirstTimeSegment? "+moveToFirstTimeSegment);
 
 					if(moveToFirstTimeSegment) 
 					{
@@ -1128,23 +1128,23 @@ public class WMV_Viewer
 							if(state.teleportGoalCluster >= 0 && state.teleportGoalCluster < p.getField(newField).getClusters().size())
 								state.teleportGoal = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();
 							else
-								if(debugSettings.viewer) System.out.println("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
+								if(debugSettings.viewer) p.ml.systemMessage("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
 						}
 						else
-							System.out.println("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
+							p.ml.systemMessage("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
 						
 						if(debugSettings.viewer)
-							System.out.println("  teleportToField()...  Teleported to field "+state.teleportToField+"... will teleport to new location:"+state.teleportGoal+"...");
+							p.ml.systemMessage("  teleportToField()...  Teleported to field "+state.teleportToField+"... will teleport to new location:"+state.teleportGoal+"...");
 
 						setLocation(state.teleportGoal, false);															// Set location
 						setCurrentCluster( state.teleportGoalCluster, goalSegment.getFieldTimelineID() );
 						if(debugSettings.viewer)
-							System.out.println("  teleportToField()...  Will set location to state.teleportGoal:"+state.teleportGoal+"...");
+							p.ml.systemMessage("  teleportToField()...  Will set location to state.teleportGoal:"+state.teleportGoal+"...");
 					}
 					else
 					{
 						if(debugSettings.viewer)
-							System.out.println("  teleportToField()...  not moving to first time segment.. will set location to state.currentCluster:"+state.currentCluster+"...");
+							p.ml.systemMessage("  teleportToField()...  not moving to first time segment.. will set location to state.currentCluster:"+state.currentCluster+"...");
 						state.teleportGoalCluster = state.currentCluster;
 						setLocation( p.getCurrentCluster().getLocation(), false );					// Set location to current cluster
 						setCurrentCluster( 0, -1 );
@@ -1180,18 +1180,18 @@ public class WMV_Viewer
 			{
 				state.currentFieldDate = 0;
 				state.currentFieldTimeSegmentOnDate = 0;
-				System.out.println( "--> Current field date reset! currentFieldDate was greater than timelines.size(): "
+				p.ml.systemMessage( "--> Current field date reset! currentFieldDate was greater than timelines.size(): "
 									+ p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size() );
 			}
 			else
 			{
 				if(newValue >= p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()) 	// Reached end of day
 				{
-					if(debugSettings.viewer) System.out.println("Reached end of day...");
+					if(debugSettings.viewer) p.ml.systemMessage("Reached end of day...");
 					state.currentFieldDate++;
 					if(state.currentFieldDate >= p.getCurrentField().getDateline().size()) 
 					{
-						if(debugSettings.viewer) System.out.println("Reached end of year...");
+						if(debugSettings.viewer) p.ml.systemMessage("Reached end of year...");
 						state.currentFieldDate = 0;
 						setCurrentFieldTimeSegmentOnDate(0, true);												// Return to first segment
 					}
@@ -1203,7 +1203,7 @@ public class WMV_Viewer
 							if(state.currentFieldDate >= p.getCurrentField().getDateline().size())
 								state.currentFieldDate = 0;
 						}
-						if(debugSettings.viewer) System.out.println("Moved to next date: "+state.currentFieldDate);
+						if(debugSettings.viewer) p.ml.systemMessage("Moved to next date: "+state.currentFieldDate);
 						setCurrentFieldTimeSegmentOnDate(0, true);												// Start at first segment
 					}
 				}
@@ -1245,7 +1245,7 @@ public class WMV_Viewer
 			{
 				state.currentFieldDate = 0;
 				state.currentFieldTimeSegmentOnDate = 0;
-				System.out.println("--> Current field date reset!... was greater than timelines.size(): "
+				p.ml.systemMessage("--> Current field date reset!... was greater than timelines.size(): "
 								+p.getCurrentField().getTimelines().size()+"  dateline.size(): "+p.getCurrentField().getDateline().size());
 			}
 			else
@@ -1283,7 +1283,7 @@ public class WMV_Viewer
 	 */
 	public void turnXToAngle(float angle, int turnDirection)
 	{
-		if(debugSettings.viewer) System.out.println("Viewer.turnXToAngle()... angle:"+angle);
+		if(debugSettings.viewer) p.ml.systemMessage("Viewer.turnXToAngle()... angle:"+angle);
 		if(!state.turningX)
 		{
 			state.turnXStart = getXOrientation();
@@ -1308,7 +1308,7 @@ public class WMV_Viewer
 	 */
 	public void turnYToAngle(float angle, int turnDirection)
 	{
-		if(debugSettings.viewer) System.out.println("ViewerturnYToAngle()... angle:"+angle);
+		if(debugSettings.viewer) p.ml.systemMessage("ViewerturnYToAngle()... angle:"+angle);
 
 		if(!state.turningY)
 		{
@@ -1344,7 +1344,7 @@ public class WMV_Viewer
 			state.turnXDirection = turnInfo.x;
 			state.turnXStartFrame = worldState.frameCount;
 
-			if(debugSettings.viewer && debugSettings.detailed) System.out.println("turnXStartFrame:"+state.turnXStartFrame+" turnXTargetFrame:"+state.turnXTargetFrame+" turnXDirection:"+state.turnXDirection);
+			if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("turnXStartFrame:"+state.turnXStartFrame+" turnXTargetFrame:"+state.turnXTargetFrame+" turnXDirection:"+state.turnXDirection);
 			state.turningX = true;
 		}
 	}
@@ -1380,7 +1380,7 @@ public class WMV_Viewer
 		PVector turnLoc = new PVector(0,0,0);
 		
 		if(debugSettings.viewer)
-			System.out.println("Looking at media:"+id+" mediaType:"+mediaType);
+			p.ml.systemMessage("Looking at media:"+id+" mediaType:"+mediaType);
 
 		switch(mediaType)
 		{
@@ -1420,7 +1420,7 @@ public class WMV_Viewer
 	private void turnTowards( PVector goal ) 
 	{
 		if(debugSettings.viewer) 
-			System.out.println("Turning towards... goal.x:"+goal.x+" goal.y:"+goal.y+" goal.z:"+goal.z);
+			p.ml.systemMessage("Turning towards... goal.x:"+goal.x+" goal.y:"+goal.y+" goal.z:"+goal.z);
 
 		PVector cameraPosition = getLocation();
 		PVector camOrientation = getOrientation();
@@ -1602,14 +1602,14 @@ public class WMV_Viewer
 			
 			if(Math.abs(result) < PApplet.PI / 6.f && !c.isEmpty())
 			{
-				System.out.println("Finding Distance of Centered Cluster:"+c.getID()+" at Angle "+result+" from History Vector...");
+				p.ml.systemMessage("Finding Distance of Centered Cluster:"+c.getID()+" at Angle "+result+" from History Vector...");
 				if(c.getID() != state.currentCluster)
 					clustersAlongVector.append(c.getID());
 			}
 			else
 			{
 				if(debugSettings.viewer && debugSettings.detailed)
-					System.out.println("Cluster ID:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
+					p.ml.systemMessage("Cluster ID:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
 			}
 		}
 
@@ -1621,7 +1621,7 @@ public class WMV_Viewer
 			PVector cPos = getLocation();
 			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().getCluster(i);
 			if(debugSettings.viewer && debugSettings.detailed)
-				System.out.println("Checking Centered Cluster... "+c.getID());
+				p.ml.systemMessage("Checking Centered Cluster... "+c.getID());
 		
 			float dist = PVector.dist(cPos, c.getLocation());
 			if (dist < smallest) 
@@ -1636,7 +1636,7 @@ public class WMV_Viewer
 		else
 		{
 			if(debugSettings.viewer && debugSettings.detailed)
-				System.out.println("No clusters found along vector!");
+				p.ml.systemMessage("No clusters found along vector!");
 			return state.currentCluster;
 		}
 	}
@@ -1667,7 +1667,7 @@ public class WMV_Viewer
 			found = true;
 
 		if(debugSettings.viewer && debugSettings.detailed)
-			System.out.println("Viewer.moveToNearestClusterWithTimes... setting attractor:"+p.getCurrentField().getTimeline().timeline.get(nextCluster).getFieldTimelineID());
+			p.ml.systemMessage("Viewer.moveToNearestClusterWithTimes... setting attractor:"+p.getCurrentField().getTimeline().timeline.get(nextCluster).getFieldTimelineID());
 
 		if(found)
 		{
@@ -1742,7 +1742,7 @@ public class WMV_Viewer
 			state.atCurrentCluster = false;
 		}
 
-		if(debugSettings.viewer) System.out.println("Setting new attractor:"+newCluster+" old attractor:"+state.attractorCluster);
+		if(debugSettings.viewer) p.ml.systemMessage("Setting new attractor:"+newCluster+" old attractor:"+state.attractorCluster);
 			
 		state.attractionStart = worldState.frameCount;									// Set attraction starting frame 
 		state.attractorCluster = newCluster;											// Set attractor cluster
@@ -1759,12 +1759,12 @@ public class WMV_Viewer
 			}
 			else if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize * 0.01f)
 			{
-				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.setAttractorCluster()... Centering at attractor cluster#"+state.attractorCluster+"...");
+				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.setAttractorCluster()... Centering at attractor cluster#"+state.attractorCluster+"...");
 				startCenteringAtAttractor();
 			}
 			else
 			{
-				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.setAttractorCluster()... Reached attractor cluster #"+state.attractorCluster+" without moving...");
+				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.setAttractorCluster()... Reached attractor cluster #"+state.attractorCluster+" without moving...");
 				handleReachedAttractor();				// Reached attractor without moving
 			}
 		}
@@ -1818,7 +1818,7 @@ public class WMV_Viewer
 	private void setMovementVectorsToZero()
 	{
 		if(debugSettings.viewer)
-			System.out.println("Stopping...");
+			p.ml.systemMessage("Stopping...");
 
 		state.attraction = new PVector(0,0,0);						
 		state.acceleration = new PVector(0,0,0);							
@@ -2259,7 +2259,7 @@ public class WMV_Viewer
 			state.turningAcceleration.y *= settings.turningHaltInc;
 		}
 
-//		System.out.println("updateTurning()... turningVelocity.mag():"+turningVelocity.mag()+" turningVelocity.mag()) > 0.f:"+(turningVelocity.mag() > 0.f)+"  turningX:"+ turningX+" turningY:"+turningY+"  turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
+//		p.ml.systemMessage("updateTurning()... turningVelocity.mag():"+turningVelocity.mag()+" turningVelocity.mag()) > 0.f:"+(turningVelocity.mag() > 0.f)+"  turningX:"+ turningX+" turningY:"+turningY+"  turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
 
 		if(Math.abs(state.turningVelocity.mag()) > 0.f || Math.abs(state.turningAcceleration.mag()) > 0.f)				/* Walking if walkingVelocity or walkingAcceleration > 0 */
 		{
@@ -2385,11 +2385,11 @@ public class WMV_Viewer
 								break;
 						}
 						
-//						System.out.println("keepMediaVisible... goalMediaBrightness:"+goalMediaBrightness);
+//						p.ml.systemMessage("keepMediaVisible... goalMediaBrightness:"+goalMediaBrightness);
 						if(goalMediaBrightness == 0.f && settings.angleFading)
 						{
 							if(debugSettings.viewer)
-								System.out.println("Set angle fading to false...");
+								p.ml.systemMessage("Set angle fading to false...");
 							settings.angleFading = false;
 						}
 						
@@ -2462,7 +2462,7 @@ public class WMV_Viewer
 				if(Math.abs(state.acceleration.mag()) < settings.accelerationMax)			/* Apply attraction up to maximum acceleration */
 					state.acceleration.add( PVector.div(state.attraction, settings.cameraMass) );	
 				else
-					System.out.println("--> Attraction but no acceleration... attraction.mag():"+state.attraction.mag()+" acceleration.mag():"+state.acceleration.mag());
+					p.ml.systemMessage("--> Attraction but no acceleration... attraction.mag():"+state.attraction.mag()+" acceleration.mag():"+state.acceleration.mag());
 			}
 
 			if(state.slowing)
@@ -2502,7 +2502,7 @@ public class WMV_Viewer
 				if(state.attractorCluster != -1)
 				{
 					curAttractor = getAttractorCluster();
-//					System.out.println(" attractorCluster:"+attractorCluster+" is null? "+(curAttractor == null));
+//					p.ml.systemMessage(" attractorCluster:"+attractorCluster+" is null? "+(curAttractor == null));
 				}
 			}
 			else if( state.movingToAttractor )
@@ -2511,14 +2511,14 @@ public class WMV_Viewer
 				{
 					curAttractor = attractorPoint;
 					if(debugSettings.viewer && debugSettings.detailed)					/* If not slowing and attraction force exists */
-						System.out.println("--> attractorCluster:"+state.attractorCluster+" slowing:"+state.slowing+" halting:"+state.halting+" attraction.mag():"+state.attraction.mag()+" null? "+(curAttractor == null));
+						p.ml.systemMessage("--> attractorCluster:"+state.attractorCluster+" slowing:"+state.slowing+" halting:"+state.halting+" attraction.mag():"+state.attraction.mag()+" null? "+(curAttractor == null));
 					if(debugSettings.viewer && debugSettings.detailed)					/* If not slowing and attraction force exists */
-						System.out.println("--> attractorPoint distance:"+attractorPoint.getClusterDistance()+" mass:"+attractorPoint.getClusterMass()+" acceleration.mag():"+state.acceleration.mag()+" curAttractor dist: "+(curAttractor.getClusterDistance()));
+						p.ml.systemMessage("--> attractorPoint distance:"+attractorPoint.getClusterDistance()+" mass:"+attractorPoint.getClusterMass()+" acceleration.mag():"+state.acceleration.mag()+" curAttractor dist: "+(curAttractor.getClusterDistance()));
 					if(p.utilities.isNaN(state.attraction.mag()))
 					{
 						state.movingToAttractor = false;
 						if(debugSettings.viewer)					/* If not slowing and attraction force exists */
-							System.out.println("--> attraction was NaN... set movingToAttractor to false");
+							p.ml.systemMessage("--> attraction was NaN... set movingToAttractor to false");
 					}
 				}
 			}
@@ -2547,7 +2547,7 @@ public class WMV_Viewer
 							else
 							{
 								if(debugSettings.viewer && debugSettings.detailed)
-									System.out.println("Viewer.updatePhysics()... Centered on attractor cluster... curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance()+" worldSettings.clusterCenterSize:"+worldSettings.clusterCenterSize);
+									p.ml.systemMessage("Viewer.updatePhysics()... Centered on attractor cluster... curAttractor.getClusterDistance(): "+curAttractor.getClusterDistance()+" worldSettings.clusterCenterSize:"+worldSettings.clusterCenterSize);
 								reachedAttractor = true;
 							}
 						}
@@ -2575,7 +2575,7 @@ public class WMV_Viewer
 				}
 				else
 				{
-					if(debugSettings.viewer && debugSettings.detailed) System.out.println("Waiting...");
+					if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Waiting...");
 				}
 			}
 
@@ -2593,7 +2593,7 @@ public class WMV_Viewer
 			{
 				if(debugSettings.viewer && state.attractionStart - worldState.frameCount > 20)
 				{
-					System.out.println("---> Getting farther from attractor: will stop moving...");
+					p.ml.systemMessage("---> Getting farther from attractor: will stop moving...");
 					stop(true);
 				}
 			}
@@ -2633,7 +2633,7 @@ public class WMV_Viewer
 	 */
 	private void handleReachedAttractor()
 	{
-		System.out.println("Viewer.handleReachedAttractor()... movingToCluster:"+state.movingToCluster+" movingToAttractor:"+state.movingToAttractor+" attractorCluster:"+state.attractorCluster);
+		p.ml.systemMessage("Viewer.handleReachedAttractor()... movingToCluster:"+state.movingToCluster+" movingToAttractor:"+state.movingToAttractor+" attractorCluster:"+state.attractorCluster);
 
 		if(state.following && path.size() > 0)		/* Reached attractor when following a path */	
 		{
@@ -2641,20 +2641,20 @@ public class WMV_Viewer
 			
 			setCurrentCluster( state.attractorCluster, -1 );
 			if(debugSettings.path)
-				System.out.println("Viewer.handleReachedAttractor()... Reached path goal #"+state.pathLocationIdx+", will start waiting...");
+				p.ml.systemMessage("Viewer.handleReachedAttractor()... Reached path goal #"+state.pathLocationIdx+", will start waiting...");
 			startWaiting();
 		}
 
 		if(state.movingToCluster)		/* Reached attractor when moving to cluster */		
 		{
 			if(debugSettings.viewer)
-				System.out.println("Viewer.handleReachedAttractor()... Moving to cluster... current:"+state.currentCluster+" attractor: "+state.attractorCluster+"...");
+				p.ml.systemMessage("Viewer.handleReachedAttractor()... Moving to cluster... current:"+state.currentCluster+" attractor: "+state.attractorCluster+"...");
 			
 			if(state.attractorCluster != -1)
 			{
 				if(debugSettings.viewer)									// -- Debugging:
 					if(state.attractorCluster != getNearestCluster(true))	// -- Check if attractor cluster is nearest cluster
-						System.out.println("Viewer.handleReachedAttractor()... WARNING: attractor cluster is: "+state.attractorCluster+" but nearest cluster is different:"+getNearestCluster(true));
+						p.ml.systemMessage("Viewer.handleReachedAttractor()... WARNING: attractor cluster is: "+state.attractorCluster+" but nearest cluster is different:"+getNearestCluster(true));
 
 				if(state.movingToTimeSegment)
 					setCurrentCluster( state.attractorCluster, state.timeSegmentTarget );
@@ -2671,7 +2671,7 @@ public class WMV_Viewer
 			}
 			
 			if(debugSettings.viewer)
-				System.out.println("Viewer.handleReachedAttractor()... Reached cluster... current:"+state.currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+state.currentFieldTimeSegment);
+				p.ml.systemMessage("Viewer.handleReachedAttractor()... Reached cluster... current:"+state.currentCluster+" nearest: "+getNearestCluster(false)+" set current time segment to "+state.currentFieldTimeSegment);
 			
 			state.movingToCluster = false;
 			state.movingToAttractor = false;
@@ -2817,7 +2817,7 @@ public class WMV_Viewer
 		else
 		{
 			if(debugSettings.cluster)
-				System.out.println("No clusters in field...");
+				p.ml.systemMessage("No clusters in field...");
 		}
 
 		return smallestIdx;
@@ -2966,16 +2966,16 @@ public class WMV_Viewer
 //					}
 //				}
 //				
-//				System.out.println("SORTING FrameCount: "+p.ml.frameCount);
-//				System.out.println(">>> BEFORE <<<");
+//				p.ml.systemMessage("SORTING FrameCount: "+p.ml.frameCount);
+//				p.ml.systemMessage(">>> BEFORE <<<");
 //				for(WMV_Cluster c : nearClusters)
-//					System.out.println("id #"+c.getID()+" dist:"+c.getViewerDistance());
+//					p.ml.systemMessage("id #"+c.getID()+" dist:"+c.getViewerDistance());
 //				
 //				nearClusters.sort(WMV_Cluster.WMV_ClusterDistanceComparator);				/* Sort clusters by distance */
 //				
-//				System.out.println(">>> AFTER <<<");
+//				p.ml.systemMessage(">>> AFTER <<<");
 //				for(WMV_Cluster c : nearClusters)
-//					System.out.println("id #"+c.getID()+" dist:"+c.getViewerDistance());
+//					p.ml.systemMessage("id #"+c.getID()+" dist:"+c.getViewerDistance());
 //				
 //				if(nearClusters.size() > amount)
 //				{
@@ -2988,9 +2988,9 @@ public class WMV_Viewer
 //					}
 //				}
 //
-//				System.out.println(">>> AFTER REMOVAL <<<");
+//				p.ml.systemMessage(">>> AFTER REMOVAL <<<");
 //				for(WMV_Cluster c : nearClusters)
-//					System.out.println("id #"+c.getID()+" dist:"+c.getViewerDistance());
+//					p.ml.systemMessage("id #"+c.getID()+" dist:"+c.getViewerDistance());
 //			}
 //		}
 //		else
@@ -3151,12 +3151,12 @@ public class WMV_Viewer
 			if(Math.abs(result) < settings.fieldOfView && c.getID() != state.currentCluster && !c.isEmpty())			// If cluster (center) is within field of view
 			{
 				if(debugSettings.cluster || debugSettings.viewer)
-					System.out.println("Centered cluster:"+c.getID()+" == "+c.getID()+" at angle "+result+" from camera...");
+					p.ml.systemMessage("Centered cluster:"+c.getID()+" == "+c.getID()+" at angle "+result+" from camera...");
 				frontClusters.append(c.getID());
 			}
 			else
 				if(debugSettings.cluster || debugSettings.viewer)
-					System.out.println("Non-centered, current or empty cluster:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
+					p.ml.systemMessage("Non-centered, current or empty cluster:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
 		}
 
 		float smallest = 100000.f;
@@ -3166,13 +3166,13 @@ public class WMV_Viewer
 		{
 			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().getCluster(i);
 			if(debugSettings.cluster || debugSettings.viewer)
-				System.out.println("Checking Centered Cluster... "+c.getID());
+				p.ml.systemMessage("Checking Centered Cluster... "+c.getID());
 		
 			float dist = PVector.dist(getLocation(), c.getLocation());
 			if (dist < smallest) 
 			{
 				if(debugSettings.cluster || debugSettings.viewer)
-					System.out.println("Cluster "+c.getID()+" is closer!");
+					p.ml.systemMessage("Cluster "+c.getID()+" is closer!");
 				smallest = dist;
 				smallestIdx = i;
 			}
@@ -3182,7 +3182,7 @@ public class WMV_Viewer
 			return smallestIdx;
 		else
 		{
-			System.out.println("No clusters ahead!");
+			p.ml.systemMessage("No clusters ahead!");
 			return state.currentCluster;
 		}
 	}
@@ -3232,7 +3232,7 @@ public class WMV_Viewer
 				if( !mediaAreVisible(false, 1) )	// Check whether any images are currently visible anywhere in front of camera
 				{
 					if(debugSettings.viewer)
-						System.out.println("No images visible! will look at nearest image...");
+						p.ml.systemMessage("No images visible! will look at nearest image...");
 					if(settings.alwaysLookAtMedia)
 						lookAtNearestMedia();			// Look for images around the camera
 				}
@@ -3249,20 +3249,20 @@ public class WMV_Viewer
 		if(worldState.frameCount > state.pathWaitStartFrame + waitLength )		// Finished waiting, will move to next path location
 		{
 			state.waiting = false;
-			if(debugSettings.path) System.out.println("Finished waiting...");
+			if(debugSettings.path) p.ml.systemMessage("Finished waiting...");
 
 			state.pathLocationIdx++;
 			
 			if(state.pathLocationIdx < path.size())
 			{
 				state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
-				if(debugSettings.path) System.out.println("--> updateFollowing()... Next path location:"+state.pathGoal);
+				if(debugSettings.path) p.ml.systemMessage("--> updateFollowing()... Next path location:"+state.pathGoal);
 				
 				if(state.pathLocationIdx >= 1)
 				{
 					if( state.pathGoal != path.get(state.pathLocationIdx-1).getCaptureLocation() && PVector.dist(state.pathGoal, state.location) > worldSettings.clusterCenterSize)
 					{
-						if(debugSettings.path) System.out.println("Will "+(state.followTeleport?"teleport":"move") +" to next attraction point..."+state.pathGoal);
+						if(debugSettings.path) p.ml.systemMessage("Will "+(state.followTeleport?"teleport":"move") +" to next attraction point..."+state.pathGoal);
 						if(state.followTeleport)
 						{
 							if(!p.getCurrentField().mediaAreFading())
@@ -3275,24 +3275,24 @@ public class WMV_Viewer
 					}
 					else
 					{
-						if(debugSettings.path) System.out.println("Same or very close attraction point!");
+						if(debugSettings.path) p.ml.systemMessage("Same or very close attraction point!");
 						
 						if(settings.orientationModeConstantWaitLength)
 						{
-							if(debugSettings.path) System.out.println("Ignoring pathLocationIdx #"+state.pathLocationIdx+" at same location as previous...");
+							if(debugSettings.path) p.ml.systemMessage("Ignoring pathLocationIdx #"+state.pathLocationIdx+" at same location as previous...");
 							
 							state.pathLocationIdx++;
 							state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
 							
 							while(state.pathGoal == path.get(state.pathLocationIdx-1).getCaptureLocation())
 							{
-								if(debugSettings.path) System.out.println(" Also ignoring pathLocationIdx #"+state.pathLocationIdx+" at same location as previous...");
+								if(debugSettings.path) p.ml.systemMessage(" Also ignoring pathLocationIdx #"+state.pathLocationIdx+" at same location as previous...");
 								state.pathLocationIdx++;
 								state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
 							}
 						}
 						
-						if(debugSettings.path) System.out.println("--> Chose new path location:"+state.pathGoal);
+						if(debugSettings.path) p.ml.systemMessage("--> Chose new path location:"+state.pathGoal);
 						if(state.followTeleport)
 						{
 							if(!p.getCurrentField().mediaAreFading())
@@ -3309,15 +3309,15 @@ public class WMV_Viewer
 			{
 				if(debugSettings.path)
 				{
-					System.out.println("Reached end of path... ");
-					System.out.println(" ");
+					p.ml.systemMessage("Reached end of path... ");
+					p.ml.systemMessage(" ");
 				}
 				stopFollowing();
 			}
 		}
 		
 		if(state.waiting == false && debugSettings.path) 
-			System.out.println("Finished waiting...");
+			p.ml.systemMessage("Finished waiting...");
 	}
 	
 	/**
@@ -3433,17 +3433,17 @@ public class WMV_Viewer
 	{
 		if(worldState.frameCount >= state.teleportStart + settings.teleportLength)		// If the teleport has finished
 		{
-			if(debugSettings.viewer && debugSettings.detailed) System.out.println(" Reached teleport goal...");
+			if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage(" Reached teleport goal...");
 			
 			if( !p.getCurrentField().mediaAreFading() )						// Once no more media are fading
 			{
-				if(debugSettings.viewer && debugSettings.detailed) System.out.println(" Media finished fading...");
+				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage(" Media finished fading...");
 				
 				if(state.following && path.size() > 0)
 				{
 					setCurrentCluster( getNearestCluster(true), -1 );
 					if(debugSettings.path)
-						System.out.println("Reached path goal #"+state.pathLocationIdx+", will start waiting...");
+						p.ml.systemMessage("Reached path goal #"+state.pathLocationIdx+", will start waiting...");
 					startWaiting();
 				}
 
@@ -3451,7 +3451,7 @@ public class WMV_Viewer
 				{
 					enterField(state.teleportToField);					// Enter new field
 					if(debugSettings.viewer) 
-						System.out.println(" Teleported to field "+state.teleportToField+" goal point: x:"+state.teleportGoal.x+" y:"+state.teleportGoal.y+" z:"+state.teleportGoal.z);
+						p.ml.systemMessage(" Teleported to field "+state.teleportToField+" goal point: x:"+state.teleportGoal.x+" y:"+state.teleportGoal.y+" z:"+state.teleportGoal.z);
 					state.teleportToField = -1;
 				}
 				
@@ -3490,7 +3490,7 @@ public class WMV_Viewer
 			{
 				state.teleportWaitingCount++;
 				if(debugSettings.viewer && debugSettings.detailed)
-					System.out.println("Waiting to finish teleport... "+state.teleportWaitingCount);
+					p.ml.systemMessage("Waiting to finish teleport... "+state.teleportWaitingCount);
 			}
 		}
 	}
@@ -3535,7 +3535,7 @@ public class WMV_Viewer
 						}
 
 						if(debugSettings.viewer)
-							System.out.println("followTimeline()... Setting first path goal: "+path.get(state.pathLocationIdx).getCaptureLocation());
+							p.ml.systemMessage("followTimeline()... Setting first path goal: "+path.get(state.pathLocationIdx).getCaptureLocation());
 
 
 						state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
@@ -3548,14 +3548,14 @@ public class WMV_Viewer
 						if(p.getSettings().screenMessagesOn)
 							p.ml.display.message(p.ml, "Started Following Path: Timeline...");
 					}
-					else System.out.println("No current cluster!");
+					else p.ml.systemMessage("No current cluster!");
 				}
-				else System.out.println("No timeline points!");
+				else p.ml.systemMessage("No timeline points!");
 			}
 			else
 			{
 				if(debugSettings.viewer)
-					System.out.println("Already called followTimeline(): Stopping... "+path.get(state.pathLocationIdx).getCaptureLocation());
+					p.ml.systemMessage("Already called followTimeline(): Stopping... "+path.get(state.pathLocationIdx).getCaptureLocation());
 				state.pathLocationIdx = 0;
 				state.following = false;
 			}
@@ -3582,7 +3582,7 @@ public class WMV_Viewer
 			state.following = true;
 			state.pathLocationIdx = 0;
 			if(debugSettings.viewer)
-				System.out.println("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getCaptureLocation());
+				p.ml.systemMessage("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getCaptureLocation());
 			state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();
 //			setAttractorPoint(state.pathGoal);
 			if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
@@ -3593,7 +3593,7 @@ public class WMV_Viewer
 			if(p.getSettings().screenMessagesOn)
 				p.ml.display.message(p.ml, "Started Following Path: Memory...");
 		}
-		else System.out.println("followMemory()... path.size() == 0!");
+		else p.ml.systemMessage("followMemory()... path.size() == 0!");
 	}
 
 	/**
@@ -3607,7 +3607,7 @@ public class WMV_Viewer
 //			path = getGPSTrackAsPath();								// Set path waypoints to GPS track 
 			
 //			if(debugSettings.viewer || debugSettings.gps)
-//				System.out.println("Viewer.startFollowingGPSTrack()...  points:"+path.size());
+//				p.ml.systemMessage("Viewer.startFollowingGPSTrack()...  points:"+path.size());
 
 			if(path.size() > 0)
 			{
@@ -3616,9 +3616,9 @@ public class WMV_Viewer
 				
 				if(debugSettings.viewer || debugSettings.gps)
 				{
-					System.out.println("Viewer.startFollowingGPSTrack()...  points:"+path.size());
-					System.out.println("    path.get(state.pathLocationIdx).getCaptureLocation()"+path.get(state.pathLocationIdx).getCaptureLocation());
-					System.out.println("    path.get(state.pathLocationIdx).getGPSLocation()"+path.get(state.pathLocationIdx).getGPSLocation());
+					p.ml.systemMessage("Viewer.startFollowingGPSTrack()...  points:"+path.size());
+					p.ml.systemMessage("    path.get(state.pathLocationIdx).getCaptureLocation()"+path.get(state.pathLocationIdx).getCaptureLocation());
+					p.ml.systemMessage("    path.get(state.pathLocationIdx).getGPSLocation()"+path.get(state.pathLocationIdx).getGPSLocation());
 				}
 				
 				state.pathGoal = path.get(state.pathLocationIdx).getCaptureLocation();			// Set path goal from GPS track
@@ -3631,7 +3631,7 @@ public class WMV_Viewer
 				if(p.getSettings().screenMessagesOn)
 					p.ml.display.message(p.ml, "Started Following Path: GPS Track");
 			}
-			else System.out.println("Viewer.followGPSTrack()... path.size() == 0!");
+			else p.ml.systemMessage("Viewer.followGPSTrack()... path.size() == 0!");
 		}
 	}
 	
@@ -3815,7 +3815,7 @@ public class WMV_Viewer
 					if(result < settings.centeredAngle)					// Find closest to camera orientation
 					{
 						if(debugSettings.viewer && debugSettings.detailed)
-							System.out.println("Image:"+i.getID()+" result:"+result+" is less than centeredAngle:"+settings.centeredAngle);
+							p.ml.systemMessage("Image:"+i.getID()+" result:"+result+" is less than centeredAngle:"+settings.centeredAngle);
 						imagesVisible = true;
 						visImages++;
 						if(visImages >= threshold)
@@ -3890,9 +3890,9 @@ public class WMV_Viewer
 			if(p.getSettings().screenMessagesOn)
 				p.ml.display.message(p.ml, "Saved Viewpoint to Memory.  Path Length:"+memory.size()+"...");
 			
-			if(debugSettings.viewer) System.out.println("Saved Viewpoint to Memory... "+curWaypoint.getCaptureLocation()+" Path length:"+memory.size());
+			if(debugSettings.viewer) p.ml.systemMessage("Saved Viewpoint to Memory... "+curWaypoint.getCaptureLocation()+" Path length:"+memory.size());
 		}
-		else if(debugSettings.viewer) System.out.println("Couldn't add memory point... walking? "+state.walking+" teleporting?"+state.teleporting+" velocity.mag():"+state.velocity.mag());
+		else if(debugSettings.viewer) p.ml.systemMessage("Couldn't add memory point... walking? "+state.walking+" teleporting?"+state.teleporting+" velocity.mag():"+state.velocity.mag());
 	}
 	
 	/**
@@ -3928,13 +3928,13 @@ public class WMV_Viewer
 		int newDate = 0;
 		if(ignoreDate)
 		{
-			if(debugSettings.viewer) System.out.println("Viewer.moveToFirstTimeSegment()... Moving to first time segment on any date");
+			if(debugSettings.viewer) p.ml.systemMessage("Viewer.moveToFirstTimeSegment()... Moving to first time segment on any date");
 			moveToTimeSegmentInField(getCurrentFieldID(), 0, true, true);		// Move to first time segment in field
 			return true;
 		}		
 		else
 		{
-			if(debugSettings.viewer) System.out.println("Viewer.moveToFirstTimeSegment()... Moving to first time segment on first date");
+			if(debugSettings.viewer) p.ml.systemMessage("Viewer.moveToFirstTimeSegment()... Moving to first time segment on first date");
 			int count = 0;
 			boolean success = false;
 			while(!success)
@@ -3952,12 +3952,12 @@ public class WMV_Viewer
 			}
 			if(success)
 			{
-				if(debugSettings.viewer && debugSettings.detailed) System.out.println("Viewer.moveToFirstTimeSegment()... Will move to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
+				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.moveToFirstTimeSegment()... Will move to first time segment on date "+newDate+" state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" state.currentFieldDate:"+state.currentFieldDate);
 				int curFieldTimeSegment = p.getCurrentField().getTimeSegmentOnDate(state.currentFieldTimeSegmentOnDate, state.currentFieldDate).getFieldTimelineID();
 				moveToTimeSegmentInField(getCurrentFieldID(), curFieldTimeSegment, true, true);		// Move to first time segment in field
 			}
 			else if(debugSettings.viewer)
-				System.out.println("Viewer.moveToFirstTimeSegment()... Couldn't move to first time segment...");
+				p.ml.systemMessage("Viewer.moveToFirstTimeSegment()... Couldn't move to first time segment...");
 			
 			return success;
 		}
@@ -4008,14 +4008,14 @@ public class WMV_Viewer
 			p.ml.display.setDisplayView(p, 4);			// Set current view to Media Display View
 		}
 		else if(selected.size() > 1)
-			System.out.println("Viewer.startViewingSelectedMedia()... More than 1 media selected!");
+			p.ml.systemMessage("Viewer.startViewingSelectedMedia()... More than 1 media selected!");
 		else
-			System.out.println("Viewer.startViewingSelectedMedia()... No media selected!");
+			p.ml.systemMessage("Viewer.startViewingSelectedMedia()... No media selected!");
 	}
 	
 	public void stopViewingSelectedMedia()
 	{
-		System.out.println("stopViewingSelectedMedia...");
+		p.ml.systemMessage("stopViewingSelectedMedia...");
 		p.ml.display.setDisplayView(p, 0);			// Set current view to Media Display View
 	}
 	
@@ -4127,7 +4127,7 @@ public class WMV_Viewer
 
 			if(closestImageDist < closestVideoDist && closestImageDist < closestSoundDist && closestImageID != -1)	// Image closer than video
 			{
-				if(debugSettings.viewer) System.out.println("Selected image in front: "+closestImageID);
+				if(debugSettings.viewer) p.ml.systemMessage("Selected image in front: "+closestImageID);
 
 				if(settings.groupSelection)											// Segment selection
 				{
@@ -4167,12 +4167,12 @@ public class WMV_Viewer
 			}
 			else if(closestVideoDist < closestImageDist && closestVideoDist < closestSoundDist && closestVideoID != -1)	// Video closer than image
 			{
-				if(debugSettings.viewer) 	System.out.println("Selected video in front: "+closestVideoID);
+				if(debugSettings.viewer) 	p.ml.systemMessage("Selected video in front: "+closestVideoID);
 				p.getCurrentField().getVideo(closestVideoID).setSelected(select);
 			}
 			else if(closestSoundDist < closestImageDist && closestSoundDist < closestVideoDist && closestSoundID != -1)	// Video closer than image
 			{
-				if(debugSettings.viewer) 	System.out.println("Selected sound in front: "+closestSoundID);
+				if(debugSettings.viewer) 	p.ml.systemMessage("Selected sound in front: "+closestSoundID);
 				p.getCurrentField().getSound(closestSoundID).setSelected(select);
 			}
 		}
@@ -4189,7 +4189,7 @@ public class WMV_Viewer
 				v.stopVideo();
 			
 			if(debugSettings.viewer) 
-				System.out.println("Video is "+(v.isPlaying()?"playing":"not playing: ")+v.getID());
+				p.ml.systemMessage("Video is "+(v.isPlaying()?"playing":"not playing: ")+v.getID());
 		}
 	}
 	
@@ -4227,13 +4227,13 @@ public class WMV_Viewer
 				{
 					p.getCurrentField().getPanorama(newSelected).setSelected(select);
 					if(debugSettings.panorama)
-						System.out.println("choosePanoramaNearby()... Selected #"+newSelected);
+						p.ml.systemMessage("choosePanoramaNearby()... Selected #"+newSelected);
 				}
 			}
 			else
 			{
 				if(debugSettings.panorama)
-					System.out.println("choosePanoramaNearby()... No panoramas nearby...");
+					p.ml.systemMessage("choosePanoramaNearby()... No panoramas nearby...");
 			}
 		}
 	}
@@ -4260,7 +4260,7 @@ public class WMV_Viewer
 		ArrayList<WMV_TimeSegment> timeline = new ArrayList<WMV_TimeSegment>();
 		
 		if(debugSettings.time)
-			System.out.println(">>> Creating Viewer Timeline (Nearby Visible Clusters)... <<<");
+			p.ml.systemMessage(">>> Creating Viewer Timeline (Nearby Visible Clusters)... <<<");
 
 		for(WMV_Cluster c : clusters)											// Find all media cluster times
 			for(WMV_TimeSegment t : c.getTimeline().timeline)
@@ -4275,7 +4275,7 @@ public class WMV_Viewer
 			state.nearbyClusterTimelineMediaCount += t.getTimeline().size();
 
 		if(debugSettings.time)
-			System.out.println("createNearbyClusterTimeline  nearbyClusterTimeline.size():"+visibleClusterTimeline.size());
+			p.ml.systemMessage("createNearbyClusterTimeline  nearbyClusterTimeline.size():"+visibleClusterTimeline.size());
 	}
 
 	/**
@@ -4414,7 +4414,7 @@ public class WMV_Viewer
 		for (int i = 0; i < f.getSounds().size(); i++) 
 		{
 			float soundDist = f.getSound(i).getCaptureDistance();
-			System.out.println("Viewer.getNearestSound()... id #"+i+" soundDist:"+soundDist);
+			p.ml.systemMessage("Viewer.getNearestSound()... id #"+i+" soundDist:"+soundDist);
 			
 			if (soundDist < smallest) 
 			{
@@ -4429,18 +4429,18 @@ public class WMV_Viewer
 					{
 						smallest = soundDist;
 						smallestIdx = i;
-						System.out.println("Viewer.getNearestSound()... found smallestIdx:"+smallestIdx);
+						p.ml.systemMessage("Viewer.getNearestSound()... found smallestIdx:"+smallestIdx);
 
 					}
 					else
 					{
-						System.out.println("Viewer.getNearestSound()... Smallest is at current cluster:"+getCurrentClusterID());
+						p.ml.systemMessage("Viewer.getNearestSound()... Smallest is at current cluster:"+getCurrentClusterID());
 
 					}
 				}
 			}
 		}
-		System.out.println("Viewer.getNearestSound()... result: smallestIdx:"+smallestIdx);
+		p.ml.systemMessage("Viewer.getNearestSound()... result: smallestIdx:"+smallestIdx);
 
 		return smallestIdx;
 	}
@@ -4463,7 +4463,7 @@ public class WMV_Viewer
 			c = p.getCurrentCluster();
 			
 			if(debugSettings.viewer && debugSettings.detailed) 
-				System.out.println("viewer.setCurrentCluster() to "+newCluster+" at field time segment "+newFieldTimeSegment+"  cluster location:"+c.getLocation()+" viewer location:"+getLocation());
+				p.ml.systemMessage("viewer.setCurrentCluster() to "+newCluster+" at field time segment "+newFieldTimeSegment+"  cluster location:"+c.getLocation()+" viewer location:"+getLocation());
 			
 			if(c != null)
 			{
@@ -4480,7 +4480,7 @@ public class WMV_Viewer
 							if(t.getFieldTimelineID() == f.getTimeSegmentInCluster(c.getID(), 0).getFieldTimelineID())			// Compare cluster time segment to field time segment
 								setCurrentFieldTimeSegment(t.getFieldTimelineID(), true);
 						}
-						else System.out.println("Current Cluster timeline is NULL!:"+c.getID());
+						else p.ml.systemMessage("Current Cluster timeline is NULL!:"+c.getID());
 					}
 				}
 				else
@@ -4497,7 +4497,7 @@ public class WMV_Viewer
 			}
 			else
 			{
-				if(debugSettings.viewer) System.out.println("New current cluster is null!");
+				if(debugSettings.viewer) p.ml.systemMessage("New current cluster is null!");
 			}
 		}
 		else
@@ -4505,11 +4505,11 @@ public class WMV_Viewer
 			if(newCluster == -1)
 			{
 				state.currentCluster = newCluster;
-				if(debugSettings.viewer) System.out.println("Set currentCluster to -1...");
+				if(debugSettings.viewer) p.ml.systemMessage("Set currentCluster to -1...");
 			}
 			else
 			{
-				if(debugSettings.viewer) System.out.println("New cluster "+newCluster+" is invalid!");
+				if(debugSettings.viewer) p.ml.systemMessage("New cluster "+newCluster+" is invalid!");
 			}
 		}
 	}
@@ -4524,7 +4524,7 @@ public class WMV_Viewer
 		p.ml.display.updateCurrentSelectableTimeSegment = true;
 		boolean success = true;
 		
-//		if(debugSettings.viewer && debugSettings.detailed) System.out.println("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
+//		if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("setCurrentFieldTimeSegment()... "+newCurrentFieldTimeSegment+" current state.currentFieldTimeSegmentOnDate:"+state.currentFieldTimeSegmentOnDate+" getLocation().x:"+getLocation().x);
 		
 		if(updateTimelinesSegment)
 		{
@@ -4543,7 +4543,7 @@ public class WMV_Viewer
 		else
 		{
 			if(debugSettings.viewer && debugSettings.detailed)
-				System.out.println("Couldn't set newCurrentFieldTimeSegment... currentField.getTimeline().timeline.size():"+p.getCurrentField().getTimeline().timeline.size());
+				p.ml.systemMessage("Couldn't set newCurrentFieldTimeSegment... currentField.getTimeline().timeline.size():"+p.getCurrentField().getTimeline().timeline.size());
 			return false;
 		}
 	}
@@ -4561,17 +4561,17 @@ public class WMV_Viewer
 			if(p.getCurrentField().getTimelines().size() > 0 && p.getCurrentField().getTimelines().size() > state.currentFieldDate)
 			{
 //				if(debugSettings.viewer && debugSettings.detailed)
-//					System.out.println("setCurrentFieldTimeSegmentOnDate()... "+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+getField());
+//					p.ml.systemMessage("setCurrentFieldTimeSegmentOnDate()... "+newCurrentFieldTimeSegmentOnDate+" currentFieldDate:"+state.currentFieldDate+" currentField.getTimelines().get(currentFieldDate).size():"+p.getCurrentField().getTimelines().get(state.currentFieldDate).timeline.size()+" getLocation():"+getLocation()+" current field:"+getField());
 			}
 			else 
 			{
-				System.out.println("setCurrentFieldTimeSegmentOnDate() Error.. currentField.getTimelines().size() == "+p.getCurrentField().getTimelines().size()+" but currentFieldDate == "+state.currentFieldDate+"...");
+				p.ml.systemMessage("setCurrentFieldTimeSegmentOnDate() Error.. currentField.getTimelines().size() == "+p.getCurrentField().getTimelines().size()+" but currentFieldDate == "+state.currentFieldDate+"...");
 				return false;
 			}
 		}
 		else
 		{
-			System.out.println("setCurrentFieldTimeSegmentOnDate() currentField.getTimelines() == null!!!");
+			p.ml.systemMessage("setCurrentFieldTimeSegmentOnDate() currentField.getTimelines() == null!!!");
 			return false;
 		}
 	
@@ -5457,7 +5457,7 @@ public class WMV_Viewer
 		
 		if(o != null) 
 		{
-			System.out.println("Viewer.turnToCurrentClusterOrientation()... Found cluster #"+state.currentCluster+" orientation, x:"+o.getDirection()+" y:"+o.getElevation());
+			p.ml.systemMessage("Viewer.turnToCurrentClusterOrientation()... Found cluster #"+state.currentCluster+" orientation, x:"+o.getDirection()+" y:"+o.getElevation());
 			turnToOrientation(o);
 		}
 	}
@@ -5499,7 +5499,6 @@ public class WMV_Viewer
 		{
 			for(int i = history.size()-1; i >= history.size()-historyDepth; i--)		// Iterate through history from last element to 
 			{
-				System.out.println("i:"+i);
 				WMV_Waypoint w = history.get(i);
 				
 				if(p.getCaptureLocation() == w.getCaptureLocation())
@@ -5521,11 +5520,11 @@ public class WMV_Viewer
 		
 		for( int cPoint : check )
 		{
-			System.out.println("clustersInList()... memory:"+memory);
+			p.ml.systemMessage("clustersInList()... memory:"+memory);
 
 			for(int i = history.size()-1; i >= history.size()-memory; i--)		// Iterate through history from last element to 
 			{
-				System.out.println("i:"+i);
+				p.ml.systemMessage("i:"+i);
 				WMV_Waypoint w = history.get(i);
 				
 				if(p.getCurrentField().getCluster(cPoint).getLocation() == w.getCaptureLocation())

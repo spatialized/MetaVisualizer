@@ -280,14 +280,14 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		{
 			if( framesBeforeEnd == 0 )	// Fade in at first frame
 			{
-				if(ml.debugSettings.video)
+				if(ml.debug.video)
 					System.out.println("  Video.updateVolume()... id #"+getID()+" First frame, will fade sound in...");
 				fadeSoundIn();
 				state.playbackStartFrame = ml.frameCount;
 			}
 			else if( framesBeforeEnd == ml.world.viewer.getSettings().soundFadingLength && !isFadingVolume())	
 			{
-				if(ml.debugSettings.video)
+				if(ml.debug.video)
 					System.out.println("  Video.updateVolume()... id #"+getID()+" Near end, will fade sound out...");
 				fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
 			}
@@ -344,7 +344,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			if(!isVisible() && state.thinningVisibility && !isFading() && !hasFadedOut()) 
 			{
 				if(!state.loaded) loadMedia(ml); 						// Request video frames from disk
-				if(ml.debugSettings.video)
+				if(ml.debug.video)
 					System.out.println("Video.updateFading()... will fade in video id#"+getID());
 				fadeIn(ml.world.getCurrentField());
 			}
@@ -354,7 +354,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			if(visibilitySetToTrue && !isFading() && !hasFadedOut())	// If should be visible and already fading, fade in 
 			{
 				if(!state.loaded) loadMedia(ml);
-				if(ml.debugSettings.video)
+				if(ml.debug.video)
 					System.out.println("Video.updateFading()... will fade in video id#"+getID());
 				fadeIn(ml.world.getCurrentField());											// Fade in
 			}
@@ -449,7 +449,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 			calculateVertices(); 
 
 			setLength( video.duration() );				// Set video length (in seconds)
-			if(ml.debugSettings.video)
+			if(ml.debug.video)
 				System.out.println("Loading video file..."+getMetadata().filePath+" video.duration():"+video.duration()+" state.length:"+state.length);
 			
 			state.loaded = true;
@@ -466,7 +466,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 
 		state.playing = true;
 		state.playbackStartFrame = ml.frameCount;
-		if(ml.debugSettings.video)
+		if(ml.debug.video)
 			System.out.println("Video.play()... id #"+getID()+" set playbackStartFrame:"+state.playbackStartFrame);
 		video.volume(0.f);
 		state.volume = 0.f;

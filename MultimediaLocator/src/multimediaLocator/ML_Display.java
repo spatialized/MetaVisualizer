@@ -1003,14 +1003,14 @@ public class ML_Display
 		float offsetX = dispX * offsetXFactor;
 		float offsetY = dispY * offsetYFactor;
 
-		if(ml.debugSettings.mouse) System.out.println("Display.getMouse3DLocation()... x:"+x+" y:"+y);
+		if(ml.debug.mouse) System.out.println("Display.getMouse3DLocation()... x:"+x+" y:"+y);
 		
 		x += offsetX;
 		y += offsetY;
 		
-		if(ml.debugSettings.mouse)
+		if(ml.debug.mouse)
 			System.out.println("	Center x:"+centerX+" y:"+centerY+" Offset x:"+offsetX+" y:"+offsetY +"  result x:"+x+" y:"+y);
-		if(ml.debugSettings.mouse)
+		if(ml.debug.mouse)
 			System.out.println("    screenWidth:"+screenWidth+" screenHeight:"+screenHeight);  	//	Screen width:1280 height:800	1/2=640/400
 
 //		timelineYOffset = 0.f;
@@ -1023,7 +1023,7 @@ public class ML_Display
 		PVector result = new PVector(x, y, hudDistanceInit);		// -- Doesn't affect selection!
 //		PVector result = new PVector(x, y, timelineHUDDistance);		// -- Doesn't affect selection!
 		
-		if(ml.debugSettings.mouse)
+		if(ml.debug.mouse)
 		{
 			ml.stroke(155, 0, 255);
 			ml.strokeWeight(5);
@@ -1089,7 +1089,7 @@ public class ML_Display
 				selectedTime = timeSelected.getID();				// Set to selected
 				selectedCluster = timeSelected.getClusterID();
 
-				if(ml.debugSettings.time && ml.debugSettings.detailed)
+				if(ml.debug.time && ml.debug.detailed)
 					System.out.println("Selected time segment:"+selectedTime+" selectedCluster:"+selectedCluster);
 				updateFieldTimeline = true;				// Update timeline to show selected segment
 			}
@@ -1708,7 +1708,7 @@ public class ML_Display
 			while(startupMessages.size() > 16)
 				startupMessages.remove(0);
 
-			if(ml.debugSettings.print)
+			if(ml.debug.print)
 				System.out.println(message);
 		}
 	}
@@ -1875,7 +1875,7 @@ public class ML_Display
 				{
 					ml.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistanceInit);
 					ml.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistanceInit);
-					if(ml.debugSettings.viewer) 
+					if(ml.debug.viewer) 
 					{
 						ml.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistanceInit);
 						ml.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistanceInit);
@@ -2052,7 +2052,7 @@ public class ML_Display
 			if(oldDisplayView == 1 && newDisplayView != 1)
 				window.setMapControlsEnabled(false);
 
-		if(p.ml.debugSettings.display) System.out.println("Display.setDisplayView()... displayView:"+displayView);
+		if(p.ml.debug.display) System.out.println("Display.setDisplayView()... displayView:"+displayView);
 		
 		switch(newDisplayView)
 		{

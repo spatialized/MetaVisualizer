@@ -130,20 +130,20 @@ public class WMV_Sound extends WMV_Media
 //			if( framesSinceStart == 0 && !isFadingVolume())	// Fade in at first frame
 			if( framesBeforeEnd == 0 )	// Fade in at first frame
 			{
-				if(ml.debugSettings.sound)
+				if(ml.debug.sound)
 					System.out.println("  Sound.updateVolume()... First frame, will fade sound in...");
 				fadeSoundIn();
 				state.playbackStartFrame = ml.frameCount;
 			}
 			else if( framesBeforeEnd == ml.world.viewer.getSettings().soundFadingLength && !isFadingVolume())	
 			{
-				if(ml.debugSettings.sound) System.out.println("  Sound.updateVolume()... Near end, will fade sound out...");
+				if(ml.debug.sound) System.out.println("  Sound.updateVolume()... Near end, will fade sound out...");
 				fadeSoundOut(true);			// Fade out at <soundFadingLength> before end and pause video once finished
 			}
 		}
 		else
 		{
-			if(ml.debugSettings.sound) System.out.println("Sound.updateVolume()... ERROR... video #"+getID()+" has no length!");
+			if(ml.debug.sound) System.out.println("Sound.updateVolume()... ERROR... video #"+getID()+" has no length!");
 		}
 	}
 	
@@ -245,7 +245,7 @@ public class WMV_Sound extends WMV_Media
 	 */
 	public void loadMedia(MultimediaLocator ml)
 	{
-		if(ml.debugSettings.sound) System.out.println("Sound loadMedia()... id #"+getID());
+		if(ml.debug.sound) System.out.println("Sound loadMedia()... id #"+getID());
 		
 		if( !getMediaState().hidden && !getMediaState().disabled )
 		{
@@ -657,7 +657,7 @@ public class WMV_Sound extends WMV_Media
 		ml.display.metadata(frameCount, strLatitude + strLongitude);
 		ml.display.metadata(frameCount, strAltitude);
 
-		if(ml.debugSettings.sound)
+		if(ml.debug.sound)
 		{
 			ml.display.metadata(frameCount, strTitleDebug);
 			ml.display.metadata(frameCount, strBrightness);

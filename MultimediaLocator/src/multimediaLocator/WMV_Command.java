@@ -26,7 +26,8 @@ public class WMV_Command
     directory = newDirectory;
     if (command==null) throw new NullPointerException("The command is required.");
     this.command = command;
-//    this.adminPassword = null;
+    
+//    System.out.println("Command... 1:"+command.get(0)+" 2:"+command.get(1));
   }
 
   public int execute() throws IOException, InterruptedException

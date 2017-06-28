@@ -257,7 +257,7 @@ public class WMV_Field
 					if(m.getAssociatedClusterID() < clusters.size())
 						m.updateTimeBrightness(getCluster(m.getAssociatedClusterID()), timeline, utilities);
 					else
-						System.out.println("Field.updateImages()... ERROR: Image #"+m.getID()+" is associated with cluster #"+m.getAssociatedClusterID()+" but field only has:"+getClusters().size());
+						ml.systemMessage("Field.updateImages()... ERROR: Image #"+m.getID()+" is associated with cluster #"+m.getAssociatedClusterID()+" but field only has:"+getClusters().size());
 				}
 
 				if(!m.verticesAreNull() && (m.isFading() || m.getMediaState().fadingFocusDistance))
@@ -521,7 +521,7 @@ public class WMV_Field
 				else if( v.getViewingDistance(ml.world.viewer) < getViewerSettings().getFarViewingDistance() && !v.isLoaded() )
 				{
 					if(debugSettings.video)
-						System.out.println("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible());
+						ml.systemMessage("Field.updateVideo()... Will call loadMedia() for video #"+getID()+" v.isVisible():"+v.isVisible());
 					v.loadMedia(ml); 							// Load video frames from disk
 				}
 			}
@@ -869,7 +869,7 @@ public class WMV_Field
 			{
 				ml.world.settings.maxVisibleClusters++;
 				if(debugSettings.world)
-					System.out.println("> increaseClusterVisibility()... Increased cluster visibility to:"+ml.world.settings.maxVisibleClusters);
+					ml.systemMessage("> increaseClusterVisibility()... Increased cluster visibility to:"+ml.world.settings.maxVisibleClusters);
 			}
 			else
 				ml.world.settings.maxVisibleClusters = -1;
@@ -896,7 +896,7 @@ public class WMV_Field
 			{
 				ml.world.settings.maxVisibleClusters--;
 				if(debugSettings.world && debugSettings.detailed)
-					System.out.println("> reduceClusterVisibility()... Reduced cluster visibility to:"+ml.world.settings.maxVisibleClusters);
+					ml.systemMessage("> reduceClusterVisibility()... Reduced cluster visibility to:"+ml.world.settings.maxVisibleClusters);
 			}
 		}
 		if( ml.world.viewer.getClusterDistanceVisibilityFactor() >= 0.2f)			// Dencrease cluster distance visibility factor
@@ -1899,22 +1899,22 @@ public class WMV_Field
 	 */
 	public void runKMeansClustering(float epsilon, int refinement, float populationFactor)
 	{
-		if(debugSettings.cluster && debugSettings.detailed)
-		{
-			System.out.println("Field.runKMeansClustering()... Running K-Means Clustering... Iterations:"+refinement+"  Population Factor:"+populationFactor);
-			System.out.println("Image Count:"+images.size());
-			if(worldState.mergeClusters)
-				System.out.println("Field.runKMeansClustering()... Cluster Merging"+"...   Min. Cluster Distance:"+worldSettings.minClusterDistance+" Max. Cluster Distance:"+worldSettings.maxClusterDistance);
-			System.out.println(" ");
-		}
+//		if(debugSettings.cluster && debugSettings.detailed)
+//		{
+//			System.out.println("Field.runKMeansClustering()... Running K-Means Clustering... Iterations:"+refinement+"  Population Factor:"+populationFactor);
+//			System.out.println("Image Count:"+images.size());
+//			if(worldState.mergeClusters)
+//				System.out.println("Field.runKMeansClustering()... Cluster Merging"+"...   Min. Cluster Distance:"+worldSettings.minClusterDistance+" Max. Cluster Distance:"+worldSettings.maxClusterDistance);
+//			System.out.println(" ");
+//		}
 		
 		setClusters( new ArrayList<WMV_Cluster>() );			// Clear current cluster list
 
 		/* Estimate number of clusters */
 		int numClusters = estimateClusterAmount(model.getState(), populationFactor);
 
-		if(debugSettings.cluster && debugSettings.detailed)
-			System.out.println("Field.runKMeansClustering()... Creating "+numClusters+" clusters based on "+model.getState().validMedia+" valid media...");
+//		if(debugSettings.cluster && debugSettings.detailed)
+//			System.out.println("Field.runKMeansClustering()... Creating "+numClusters+" clusters based on "+model.getState().validMedia+" valid media...");
 		
 //		System.out.println("model.getState().mediaDensity: "+model.getState().mediaDensity +" populationFactor:"+populationFactor);
 

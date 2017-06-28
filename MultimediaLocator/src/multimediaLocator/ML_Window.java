@@ -488,13 +488,13 @@ public class ML_Window
 		
 		if(world.viewer.getNavigationTeleport())
 		{
-			optMove.setEnabled(false);
-			optTeleport.setEnabled(true);
+			optMove.setSelected(false);
+			optTeleport.setSelected(true);
 		}
 		else
 		{
-			optMove.setEnabled(true);
-			optTeleport.setEnabled(false);
+			optMove.setSelected(true);
+			optTeleport.setSelected(false);
 		}
 
 		tgNavigationTeleport = new GToggleGroup();

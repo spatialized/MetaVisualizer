@@ -716,11 +716,13 @@ public class ML_Input
 				world.viewer.setNavigationTeleport( true );
 				if(!world.viewer.getNavigationTeleport())
 					world.viewer.stopFollowing();
+				display.window.optMove.setSelected(false);
 				break;
 			case "NavigationMove":
 				world.viewer.setNavigationTeleport( false );
 				if(!world.viewer.getNavigationTeleport())
 					world.viewer.stopFollowing();
+				display.window.optTeleport.setSelected(false);
 				break;
 				
 			case "FollowTimeline":

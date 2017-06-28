@@ -39,7 +39,7 @@ public class ML_Display
 	/* Map View */
 	public int mapViewMode = 1;								// 0: World, 1: Field 	-- In progress, 2: Cluster 
 	public boolean initializedMaps = false;
-	public boolean initializedWorldMap = false;
+//	public boolean initializedWorldMap = false;
 	public boolean initializedSatelliteMap = false;
 	
 	/* Library View */
@@ -2094,15 +2094,9 @@ public class ML_Display
 				switch(mapViewMode)
 				{
 					case 0:												// World Mode
-						map2D.satelliteMarkerManager.enableDrawing();
-//						map2D.largeMarkerManager.disableDrawing();
-//						map2D.smallMarkerManager.disableDrawing();
+						map2D.zoomToWorld(false);
 						break;
 					case 1:												// Field Mode
-//						map2D.largeMarkerManager.enableDrawing();
-//						map2D.smallMarkerManager.enableDrawing();
-						if(map2D.satelliteMarkerManager != null)
-							map2D.satelliteMarkerManager.disableDrawing();
 						map2D.zoomToField(p, p.getCurrentField(), false);
 						break;	
 				}
@@ -2196,27 +2190,31 @@ public class ML_Display
 	 */
 	public void setMapViewMode(int newMapViewMode)
 	{
-		mapViewMode = newMapViewMode;		// Set Map View Mode
-		if(!initializedMaps) map2D.initialize(ml.world);
-		switch(mapViewMode)
+		if(mapViewMode != newMapViewMode)
 		{
-			case 0:												// World Mode
-//				if(!initializedWorldMap) map2D.initializeWorldMap(ml.world);
-				map2D.zoomToWorld(false);
-				map2D.satelliteMarkerManager.enableDrawing();
-//				if(map2D.largeMarkerManager != null)
-//					map2D.largeMarkerManager.disableDrawing();
-//				if(map2D.smallMarkerManager != null)
-//					map2D.smallMarkerManager.disableDrawing();
-				break;
-			case 1:												// Field Mode
-//				if(!initializedSatelliteMap) map2D.initializeSatelliteMap(ml.world);
-//				map2D.largeMarkerManager.enableDrawing();
-//				map2D.smallMarkerManager.enableDrawing();
-				if(map2D.satelliteMarkerManager != null)
-					map2D.satelliteMarkerManager.disableDrawing();
-				map2D.zoomToField(ml.world, ml.world.getCurrentField(), false);
-				break;
+			mapViewMode = newMapViewMode;			// Set Map View Mode
+			
+			if(!initializedMaps) 
+			{
+				map2D.initialize(ml.world);
+			}
+			else
+			{
+				map2D.createMarkers(ml.world);		// Create map markers for new mode
+
+				switch(mapViewMode)
+				{
+					case 0:												// World Mode
+						map2D.zoomToWorld(false);
+//						map2D.satelliteMarkerManager.enableDrawing();
+						break;
+					case 1:												// Field Mode
+//						if(map2D.satelliteMarkerManager != null)
+//							map2D.satelliteMarkerManager.disableDrawing();
+						map2D.zoomToField(ml.world, ml.world.getCurrentField(), false);
+						break;
+				}
+			}
 		}
 	}
 

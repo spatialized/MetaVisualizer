@@ -136,8 +136,6 @@ public class WMV_Camera
 		updateUp();
 	}
 
-	//--- Behaviors ----------
-
 	/** 
 	 * Set viewport to this camera's view 
 	 */

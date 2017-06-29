@@ -73,6 +73,7 @@ public class MultimediaLocator extends PApplet
 	/* WorldMediaViewer */
 	WMV_World world;						// World simulation
 	WMV_Metadata metadata;					// Metadata reading and writing
+	WMV_Utilities utilities;
 
 	/* Graphics */
 	public PShader cubemapShader;
@@ -112,6 +113,9 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void setup()
 	{
+		utilities = new WMV_Utilities();
+//		display = new ML_Display(this);			
+
 		surface.setResizable(true);
 		hideAppWindow();
 		
@@ -123,15 +127,13 @@ public class MultimediaLocator extends PApplet
 
 		input = new ML_Input(appWidth, appHeight);
 
-
 		world = new WMV_World(this);
-//		world.initialize();				-- Obsolete
 		
 		appIcon = getImageResource("icon.png");
+//		display.window = new ML_Window(world, display);				// Setup and display interaction window
 		
 		display = new ML_Display(this);			
 		display.window = new ML_Window(world, display);				// Setup and display interaction window
-//		display.initializeWindows(world);
 
 		metadata = new WMV_Metadata(this, debug);
 		stitcher = new ML_Stitcher(world);
@@ -1049,7 +1051,7 @@ public class MultimediaLocator extends PApplet
 		URL imageURL = MultimediaLocator.class.getResource(resourcePath + fileName);
 		try{
 			image = ImageIO.read(imageURL.openStream());
-			return world.utilities.bufferedImageToPImage(image);
+			return utilities.bufferedImageToPImage(image);
 		}
 		catch(Throwable t)
 		{

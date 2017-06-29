@@ -165,8 +165,14 @@ public class WMV_World
 		WMV_Field f = getField(fieldIdx);
 		
 		viewer.enterField( fieldIdx );								// Enter field
-		viewer.updateState(settings, state);						// Update viewer about world settings + state
-		if(!f.getState().loadedState) viewer.moveToFirstTimeSegment(false);	// Move to first time segment if start location not set from saved data 
+//		viewer.updateState(settings, state);						// -- Moved to Viewer
+		
+//		if(!f.getState().loadedState)
+		if(f.getState().entryLocation.initialized())
+			viewer.moveToWaypoint(f.getState().entryLocation, false);
+		else
+			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+			
 		viewer.updateNavigation();									// Update navigation
 		viewer.start();												// Start the viewer if this is the first frame
 

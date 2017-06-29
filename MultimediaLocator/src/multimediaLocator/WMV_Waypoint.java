@@ -2,10 +2,9 @@ package multimediaLocator;
 import processing.core.PVector;
 
 /*****************************
- *  Waypoint in virtual path navigable by viewer
+ *  Waypoint in a 3D virtual path 
  *  @author davidgordon
  */
-
 public class WMV_Waypoint 
 {
 	private WMV_Time time;
@@ -14,17 +13,55 @@ public class WMV_Waypoint
 	private int id;							// ID (Cluster)
 	private PVector captureLocation;		// World location
 	private PVector gpsLocation;			// GPS location {longitude, latitude}
+	private PVector gpsLocationWithAltitude; // GPS location with altitude {longitude, altitude, latitude}
 	private float altitude;					// GPS Altitude
 	
-	WMV_Waypoint(int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
+	private boolean initialized = false;	// Whether waypoint has been initialized
+	
+	/**
+	 * Constructor for waypoint
+	 * @param newID
+	 * @param newCaptureLocation
+	 * @param newGPSLocation
+	 * @param newAltitude
+	 * @param newTime
+	 */
+	public WMV_Waypoint(int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
 	{
 		id = newID;
 		captureLocation = newCaptureLocation;
 		time = newTime;
 		gpsLocation = newGPSLocation;
 		altitude = newAltitude;
+		gpsLocationWithAltitude = new PVector(gpsLocation.x, altitude, gpsLocation.y);
+		
+		initialized = true;
 	}
 	
+	/**
+	 * Dummy constructor for waypoint
+	 */
+	public WMV_Waypoint(){}
+	
+	/**
+	 * Initialize waypoint
+	 * @param newID
+	 * @param newCaptureLocation
+	 * @param newGPSLocation
+	 * @param newAltitude
+	 * @param newTime
+	 */
+	public void initialize(int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
+	{
+		id = newID;
+		captureLocation = newCaptureLocation;
+		time = newTime;
+		gpsLocation = newGPSLocation;
+		altitude = newAltitude;
+		
+		initialized = true;
+	}
+
 	/**
 	 * @param cPoint Waypoint to compare
 	 * @return Distance between this and comparison point
@@ -60,7 +97,7 @@ public class WMV_Waypoint
 		captureLocation = newLocation;
 	}
 	
-	public PVector getCaptureLocation()
+	public PVector getWorldLocation()
 	{
 		return captureLocation;
 	}
@@ -95,7 +132,7 @@ public class WMV_Waypoint
 	 */
 	public PVector getGPSLocationWithAltitude()
 	{
-		return new PVector(gpsLocation.x, altitude, gpsLocation.y);
+		return gpsLocationWithAltitude;
 	}
 
 	/**
@@ -106,4 +143,9 @@ public class WMV_Waypoint
 	{
 		gpsLocation = newGPSLocation;
 	}
-}  
+	
+	public boolean initialized()
+	{
+		return initialized;
+	}
+}

@@ -22,42 +22,44 @@ import processing.video.Movie;
  */
 public class WMV_Field 
 {
-	/* Classes */
-	private WMV_WorldSettings worldSettings;	// World settings
-	private WMV_WorldState worldState;			// World state
-	private WMV_ViewerSettings viewerSettings;	// Viewer settings
-	private WMV_ViewerState viewerState;		// Viewer state
-	private ML_DebugSettings debugSettings;		// Debug settings
-	private WMV_FieldState state;				// Field state
-	private WMV_Utilities utilities;			// Utility methods
-	private WMV_Model model;					// Model of environment
+	/* World */
+	private WMV_WorldSettings worldSettings;		// World settings
+	private WMV_WorldState worldState;				// World state
+	private WMV_ViewerSettings viewerSettings;		// Viewer settings
+	private WMV_ViewerState viewerState;			// Viewer state
+	private ML_DebugSettings debugSettings;			// Debug settings
+	private WMV_Utilities utilities;				// Utilities class
+	
+	/* Data */
+	private WMV_FieldState state;					// Field state
+	private WMV_Model model;						// Field spatial model 
 
 	/* Model */
-	private ArrayList<PVector> border;			// Convex hull (border) of media points in field
+	private ArrayList<PVector> border;				// Convex hull (border) of media points in field
 
 	/* Time */
-	private WMV_Timeline timeline;						// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
-	private ArrayList<WMV_Timeline> timelines;			// Lists of time segments in field ordered by date
-	private ArrayList<WMV_Date> dateline;				// List of dates in this field, whose indices correspond with timelines in timelines list
+	private WMV_Timeline timeline;					// List of time segments in this field ordered by time from 0:00 to 24:00 as a single day
+	private ArrayList<WMV_Timeline> timelines;		// Lists of time segments in field ordered by date
+	private ArrayList<WMV_Date> dateline;			// List of dates in this field, whose indices correspond with timelines in timelines list
 
 	/* Data */
-	private ArrayList<WMV_Cluster> clusters;			// Clusters (spatial groupings) of media 
-	private ArrayList<WMV_Image> images; 				// All images in this field
-	private ArrayList<WMV_Panorama> panoramas; 			// All panoramas in this field
-	private ArrayList<WMV_Video> videos; 				// All videos in this field
-	private ArrayList<WMV_Sound> sounds; 				// All videos in this field
+	private ArrayList<WMV_Cluster> clusters;		// Clusters (spatial groupings) of media 
+	private ArrayList<WMV_Image> images; 			// All images in this field
+	private ArrayList<WMV_Panorama> panoramas; 		// All panoramas in this field
+	private ArrayList<WMV_Video> videos; 			// All videos in this field
+	private ArrayList<WMV_Sound> sounds; 			// All videos in this field
 
 	/* Clustering */
 	List<Integer> visibleClusters;
-	private Cluster dendrogramTop;						// Top cluster of the dendrogram
-	private String[] names;								// Media names
-	private double[][] distances;						// Media distances
+	private Cluster dendrogramTop;					// Top cluster of the dendrogram
+	private String[] names;							// Media names
+	private double[][] distances;					// Media distances
 	
 	/* Media */
-	public List<Integer> visibleImages;			// Currently visible images
-	public List<Integer> visiblePanoramas;		// Currently visible panoramas
-	public List<Integer> visibleVideos;			// Currently visible videos
-	public List<Integer> audibleSounds;			// Currently audible sounds
+	public List<Integer> visibleImages;				// Currently visible images
+	public List<Integer> visiblePanoramas;			// Currently visible panoramas
+	public List<Integer> visibleVideos;				// Currently visible videos
+	public List<Integer> audibleSounds;				// Currently audible sounds
 
 	/**
 	 * Constructor for media field
@@ -82,15 +84,16 @@ public class WMV_Field
 		model.initialize(worldSettings, debugSettings);
 
 		state = new WMV_FieldState();
+		state.initialize(newFieldID, newMediaFolder);
+		
+//		state.name = newMediaFolder;
+//		state.id = newFieldID;
+//		state.clustersByDepth = new ArrayList<Integer>();
+//		state.entryLocation = new WMV_Waypoint();
 
 		utilities = new WMV_Utilities();
 
-		state.name = newMediaFolder;
-		state.id = newFieldID;
-
-		state.clustersByDepth = new ArrayList<Integer>();
 		clusters = new ArrayList<WMV_Cluster>();
-
 		images = new ArrayList<WMV_Image>();
 		panoramas = new ArrayList<WMV_Panorama>();
 		videos = new ArrayList<WMV_Video>();		
@@ -945,7 +948,7 @@ public class WMV_Field
 	 * Initialize all media locations and geometry
 	 * @param randomSeed Clustering random seed
 	 */
-	public void initialize(long randomSeed)
+	public void initialize()
 	{
 		if(debugSettings.world) System.out.println("Field.initialize()... id #"+getID()+" images.size():"+images.size());
 
@@ -953,10 +956,10 @@ public class WMV_Field
 		{
 			if(debugSettings.ml) System.out.println("Initializing field #"+state.id);
 
-			if(randomSeed == -100000L) 
+			if(model.state.clusteringRandomSeed == 0L)								
 				model.state.clusteringRandomSeed = System.currentTimeMillis();		// Save clustering random seed
-			
-			else model.state.clusteringRandomSeed = randomSeed;
+			else
+				if(debugSettings.world) System.out.println("Using saved clustering random seed: "+model.state.clusteringRandomSeed);
 
 			model.setup(images, panoramas, videos, sounds); 						// Initialize field for first time 
 
@@ -1038,12 +1041,22 @@ public class WMV_Field
 	 */
 	public void setSoundLocations()
 	{
-		if(debugSettings.sound) System.out.println("setSoundLocations()... clusters.size():"+clusters.size());
+		if(debugSettings.sound) System.out.println("Field.setSoundLocations()... clusters.size():"+clusters.size());
 		for(WMV_Sound snd : sounds)
 		{
 			setSoundLocation(snd);												// Set location
 //			if(snd.getAssociatedClusterID() == -1) setSoundCluster(snd);		// Set cluster
 		}
+	}
+	
+	/**
+	 * Set field entry point
+	 * @param newHome
+	 */
+	public void setHome(WMV_Waypoint newHome)
+	{
+		if(debugSettings.world) System.out.println("Field.setHome()... newHome.location x:"+newHome.getWorldLocation().x+" y:"+newHome.getWorldLocation().y+" z:"+newHome.getWorldLocation().z);
+		state.entryLocation = newHome;
 	}
 	
 	/**
@@ -4356,13 +4369,10 @@ public class WMV_Field
 		model.initialize(worldSettings, debugSettings);
 
 		state = new WMV_FieldState();
-
+		state.initialize(-1, "");
 		utilities = new WMV_Utilities();
 
-//		state.name = ";
-//		state.id = newFieldID;
-
-		state.clustersByDepth = new ArrayList<Integer>();
+//		state.clustersByDepth = new ArrayList<Integer>();
 		clusters = new ArrayList<WMV_Cluster>();
 
 		images = new ArrayList<WMV_Image>();

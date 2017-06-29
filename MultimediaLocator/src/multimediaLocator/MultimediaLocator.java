@@ -53,7 +53,7 @@ public class MultimediaLocator extends PApplet
 	public int appWidth = 1680, appHeight = 960;	// App window dimensions
 	private PImage appIcon;							// App icon
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
-	private final int delayAmount = 60;	
+	private final int basicDelay = 50;	
 	
 	/* Windows */
 	private boolean appWindowVisible = false;		// Main window visible (for hiding when opening)
@@ -112,8 +112,6 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void setup()
 	{
-//		delay(delayAmount);
-		
 		surface.setResizable(true);
 		hideAppWindow();
 		
@@ -121,7 +119,7 @@ public class MultimediaLocator extends PApplet
 		
 		debug = new ML_DebugSettings();
 		systemMessages = new ArrayList<String>();
-		if(debug.ml) systemMessage("Starting initial setup...");
+		if(debug.ml) systemMessage("ML.setup()... Starting initial setup... Screen Width:"+displayWidth+" Height:"+displayHeight);
 
 		input = new ML_Input(appWidth, appHeight);
 
@@ -509,18 +507,16 @@ public class MultimediaLocator extends PApplet
 				if(f.getID() == 0)
 					display.window.setLibraryWindowText("Loading media library...");		/* Change Library Window Text */
 
-				if(debug.ml || debug.world) 
-					systemMessage("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID()+"... clusters:"+f.getClusters().size());
+				if(debug.ml || debug.world) systemMessage("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID());
 			}
 			else										/* If failed to load field, initialize from metadata */
 			{
 				if(f.getID() == 0)
 					display.window.setLibraryWindowText("Building media library...");		/* Change Library Window Text */
 
-				if(debug.ml || debug.world) 
-					systemMessage("ML.initializeField()... No simulation state to load... initializing Field #"+f.getID());
+				if(debug.ml || debug.world) systemMessage("ML.initializeField()... No simulation state to load... Initializing Field #"+f.getID());
 				
-				world.getField(fieldID).initialize(-100000L);
+				world.getField(fieldID).initialize();
 				world.getField(fieldID).setDataFolderLoaded(false);
 				if(metadata.gpsTrackFilesFound) f.setGPSTracks( metadata.loadGPSTracks(f) );	// Load GPS tracks
 
@@ -880,7 +876,7 @@ public class MultimediaLocator extends PApplet
 
 					library.setLibraryFolder(libFilePath);
 					library.addFolder("field");
-					delay(delayAmount);
+					delay(basicDelay);
 				}
 			}
 		}
@@ -927,7 +923,7 @@ public class MultimediaLocator extends PApplet
 				if(file.isDirectory())
 				{
 					library.mediaFolders.add(input);
-					delay(delayAmount);
+					delay(basicDelay);
 				}
 			}
 		}
@@ -1918,6 +1914,9 @@ public class MultimediaLocator extends PApplet
 //		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
 
 		fullScreen(processing.core.PConstants.P3D);										// Full screen
+		
+		delay(basicDelay);
+		
 //		fullScreen(processing.core.PConstants.P3D, processing.core.PConstants.SPAN);	// Multi monitor setup
 		
 //		PJOGL.setIcon("resources/images/icon.png");				// -- Obsolete, doesn't work in JAR

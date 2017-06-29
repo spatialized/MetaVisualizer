@@ -135,6 +135,7 @@ public class ML_Display
 		
 		screenWidth = ml.displayWidth;
 		screenHeight = ml.displayHeight;
+		
 //		screenWidth = ml.appWidth;
 //		screenHeight = ml.appHeight;
 		
@@ -984,50 +985,62 @@ public class ML_Display
 	 */
 	public PVector getMouse3DLocation(float mouseX, float mouseY)
 	{
-		float wFactor = 2.55f;
-		float hFactor = 2.55f;
-		float sWidthFactor = 0.775f;
-		float sHeightFactor = 0.775f;
-		float offsetXFactor = 0.033f;
-		float offsetYFactor = 0.033f;
-
-		float x = mouseX * wFactor - screenWidth * sWidthFactor;
-		float y = mouseY * hFactor - screenHeight * sHeightFactor;
-
-		float centerX = screenWidth * 0.5f;
-		float centerY = screenHeight * 0.5f;
+//		/* WORKS */
+		float centerX = screenWidth * 0.5f;			/* Center X location */
+		float centerY = screenHeight * 0.5f;		/* Center Y location */
 		
-		float dispX = x - centerX;
-		float dispY = y - centerY;
+		float mouseXFactor = 2.55f;
+		float mouseYFactor = 2.55f;
+		float screenXFactor = 0.775f;	
+		float screenYFactor = 0.775f;	
 		
-		float offsetX = dispX * offsetXFactor;
-		float offsetY = dispY * offsetYFactor;
+		float x = mouseX * mouseXFactor - screenWidth * screenXFactor;
+		float y = mouseY * mouseYFactor - screenHeight * screenYFactor;
+		
+		float dispX = x - centerX;						/* Mouse X displacement from the center */
+		float dispY = y - centerY;						/* Mouse Y displacement from the center */
+		
+		float offsetXFactor = 0, offsetYFactor = 0;
+		if(screenWidth == 1280 && screenHeight == 800)
+		{
+			offsetXFactor = 0.111f;					/* Offset X displacement from the center */		/* DEFAULT */
+			offsetYFactor = 0.111f;					/* Offset Y displacement from the center */	
+		}
+		else if(screenWidth == 1440 && screenHeight == 900)
+		{
+			offsetXFactor = 0.039f;					/* Offset X displacement from the center */		/* SCALED x 1 */
+			offsetYFactor = 0.039f;					/* Offset Y displacement from the center */
+		}
+		else if(screenWidth == 1680 && screenHeight == 1050)
+		{
+			offsetXFactor = -0.043f;				/* Offset X displacement from the center */		/* SCALED x 2 */
+			offsetYFactor = -0.043f;				/* Offset Y displacement from the center */	
+		}
+		
+		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
+		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
 
-		if(ml.debug.mouse) System.out.println("Display.getMouse3DLocation()... x:"+x+" y:"+y);
-		
 		x += offsetX;
 		y += offsetY;
-		
-		if(ml.debug.mouse)
-			System.out.println("	Center x:"+centerX+" y:"+centerY+" Offset x:"+offsetX+" y:"+offsetY +"  result x:"+x+" y:"+y);
-		if(ml.debug.mouse)
-			System.out.println("    screenWidth:"+screenWidth+" screenHeight:"+screenHeight);  	//	Screen width:1280 height:800	1/2=640/400
 
-//		timelineYOffset = 0.f;
-//		datelineYOffset = screenHeight * 0.2f;
+//		if(ml.debug.mouse) 
+//			System.out.println("Display.getMouse3DLocation()...  screenWidth:"+screenWidth+" screenHeight:"+screenHeight+" offsetXFactor:"+offsetXFactor+" offsetYFactor:"+offsetYFactor);
+//		if(ml.debug.mouse) 
+//			System.out.println("Display.getMouse3DLocation()... x2:"+x+" y2:"+y+" offsetX:"+offsetX+" offsetY:"+offsetY);
 		
-//		timelineXOffset = -screenWidth / 1.66f;
-//		datelineXOffset = timelineXOffset;
-
-//		x += ;
 		PVector result = new PVector(x, y, hudDistanceInit);		// -- Doesn't affect selection!
-//		PVector result = new PVector(x, y, timelineHUDDistance);		// -- Doesn't affect selection!
-		
+
 		if(ml.debug.mouse)
 		{
 			ml.stroke(155, 0, 255);
 			ml.strokeWeight(5);
 			ml.point(result.x, result.y, result.z);		// Show mouse location for debugging
+			
+			ml.stroke(0, 255, 255);
+			ml.strokeWeight(10);
+//			ml.point(centerX, centerY, hudDistanceInit);
+			ml.point(0, 0, hudDistanceInit);
+			
 			System.out.println("Mouse 3D Location: x:"+result.x+" y:"+result.y);
 		}
 
@@ -1079,7 +1092,10 @@ public class ML_Display
 	 */
 	public void updateTimelineMouse(WMV_World p)
 	{
-		PVector mouseLoc = getMouse3DLocation(ml.mouseX, ml.mouseY);
+		PVector mouseLoc;
+
+		System.out.println("Display.updateTimelineMouse()... mouseX:"+ml.mouseX+" mouseY:"+ml.mouseY);
+		mouseLoc = getMouse3DLocation(ml.mouseX, ml.mouseY);
 		
 		if(selectableTimeSegments != null)
 		{

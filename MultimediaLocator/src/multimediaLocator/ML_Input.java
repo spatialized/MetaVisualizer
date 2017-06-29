@@ -409,6 +409,9 @@ public class ML_Input
 				case "ClearMemory":
 					ml.world.viewer.clearMemory();
 					break;
+				case "SetHome":
+					ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
+					break;
 
 				/* Media */
 				case "OpenMediaWindow":

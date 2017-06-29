@@ -3,6 +3,8 @@ package multimediaLocator;
 import java.util.ArrayList;
 import java.util.List;
 
+//import processing.core.PVector;
+
 /******************************************
  * Current field state 
  * @author davidgordon
@@ -14,13 +16,16 @@ public class WMV_FieldState
 	public int id;											// Field ID
 	public String name;										// Field Name
 	public boolean named = true;							// Whether field has been named
-	public boolean visited = false;							// Whether viewer has visited field
-	public boolean loadedState = false;
+	public boolean dataFolderLoaded = false;				// Whether a data folder was found in field folder
+	public boolean loadedState = false;						// Whether field was loaded from a saved state
 	
-	/* Data */
+	/* Model */
 	public WMV_ModelState model;							// Model state for importing / exporting
+	
+	/* Navigation */
 	public ArrayList<ArrayList<WMV_Waypoint>> gpsTracks;	// GPS tracks
-	public boolean dataFolderLoaded = false;					// Whether a data folder was found in field folder
+	public WMV_Waypoint entryLocation;						// Next goal point for camera in navigating from memory
+	public boolean visited = false;							// Whether viewer has visited field
 	
 	/* Time */
 	public WMV_Timeline timeline;							// Field timeline
@@ -36,13 +41,13 @@ public class WMV_FieldState
 	public boolean dendrogramCreated = false;				// Whether dendrogram has been created
 
 	/* Media */
-	public int imagesInRange = 0;			// Number of images in visible range
-	public int panoramasInRange = 0;		// Number of panoramas in visible range
-	public int videosInRange = 0;			 // Number of videos in visible range
-	public int soundsInRange = 0; 			// Number of sounds in audible range
+	public int imagesInRange = 0;							// Number of images in visible range
+	public int panoramasInRange = 0;						// Number of panoramas in visible range
+	public int videosInRange = 0;							// Number of videos in visible range
+	public int soundsInRange = 0; 							// Number of sounds in audible range
 
-	public int imagesVisible = 0, imagesSeen = 0;			// Number of visible photos / currently seen
-	public int panoramasVisible = 0, panoramasSeen = 0;		// Number of visible panoramas / currently seen
+	public int imagesVisible = 0, imagesSeen = 0;				// Number of visible photos / currently seen
+	public int panoramasVisible = 0, panoramasSeen = 0;			// Number of visible panoramas / currently seen
 	public int videosVisible = 0, videosLoaded = 0, videosPlaying = 0, videosSeen = 0; // Number of visible videos / currently seen
 	public int soundsAudible = 0, soundsLoaded = 0, soundsPlaying = 0, soundsHeard = 0; // Number of audible sounds / currently heard
 	public int imageErrors = 0, videoErrors = 0, panoramaErrors = 0, soundErrors = 0;			// Metadata loading errors per media type
@@ -51,7 +56,17 @@ public class WMV_FieldState
 //	public int disassociatedVideos = 0;
 //	public int disassociatedSounds = 0;
 	
-	public WMV_FieldState(){}
+	public WMV_FieldState()
+	{}
+	
+	public void initialize(int newFieldID, String newMediaFolder)
+	{
+		name = newMediaFolder;
+		id = newFieldID;
+		
+		clustersByDepth = new ArrayList<Integer>();
+		entryLocation = new WMV_Waypoint();
+	}
 	
 	public void reset()
 	{
@@ -67,7 +82,10 @@ public class WMV_FieldState
 		imageErrors = 0; videoErrors = 0; panoramaErrors = 0; soundErrors = 0;	// Metadata loading errors per media type
 		indexPanoramaOffset = -1; indexVideoOffset = -1;		
 		indexSoundOffset = -1;
+		
+		/* Navigation */
 		gpsTracks = new ArrayList<ArrayList<WMV_Waypoint>>();
+		entryLocation = new WMV_Waypoint();
 		
 		/* Clusters */
 		deepestLevel = -1;	

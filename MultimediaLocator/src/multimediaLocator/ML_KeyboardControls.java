@@ -59,6 +59,9 @@ public class ML_KeyboardControls
 //		if (key == '4')									// Library View -- Disabled 
 //			ml.display.setDisplayView(ml.world, 3);
 
+		if (key == 'h')
+			ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
+			
 		if (key == 'H')
 		{
 			ml.world.settings.screenMessagesOn = !ml.world.settings.screenMessagesOn;
@@ -199,8 +202,12 @@ public class ML_KeyboardControls
 		if (!input.optionKey && key == 'w') 
 			ml.world.viewer.walkForward();
 
-		if (key == '9')														// -- Disabled
+		if (key == '9')														
+		{
 			ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
+			if(ml.display.window.setupMediaWindow)
+				ml.display.window.chkbxOrientationMode.setSelected(ml.world.viewer.getSettings().orientationMode);
+		}
 
 		if (key == 'Q')
 			ml.exitProgram();
@@ -208,8 +215,12 @@ public class ML_KeyboardControls
 		if (key == 'C') 													// Choose field from list
 			ml.world.viewer.chooseFieldDialog();
 
-		if (key == '-') 								
+		if (key == '-')
+		{
 			ml.world.state.paused = !ml.world.getState().paused;
+			if(ml.display.window.setupTimeWindow)
+				ml.display.window.chkbxPaused.setSelected(ml.world.getState().paused);
+		}
 
 		if (key == 'W') 
 			ml.world.viewer.moveToNearestClusterAhead(false);

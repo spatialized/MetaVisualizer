@@ -20,7 +20,7 @@ public class ML_Window
 	
 	/* General */
 	private int windowWidth = 310;
-	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 885;
+	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 880;
 	private int compressedNavigationWindowHeight = 560, compressedMediaWindowHeight = 485;
 	private int delayAmount = 100;							// Delay length to avoid G4P library concurrent modification exception
 	
@@ -92,7 +92,7 @@ public class ML_Window
 	public GSlider sdrTeleportLength, sdrPathWaitLength;											/* Navigation Window Sliders */
 
 	private GButton btnZoomIn, btnZoomOut;															/* Navigation Window Buttons */
-	private GButton btnSaveLocation, btnClearMemory;
+	private GButton btnSaveLocation, btnClearMemory, btnSetHome;
 	private GButton btnJumpToRandomCluster;
 	public GButton btnExportScreenshot, btnExportMedia, btnOutputFolder;
 	private GButton btnNextTimeSegment, btnPreviousTimeSegment, btnStopViewer;
@@ -218,7 +218,7 @@ public class ML_Window
 		utilities = new WMV_Utilities();
 		
 		mlWindowHeight = shortWindowHeight + 110;
-		navigationWindowHeight = tallWindowHeight;
+//		navigationWindowHeight = tallWindowHeight;
 		libraryWindowHeight = shortWindowHeight / 2;
 		createLibraryWindowHeight = shortWindowHeight + 30;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
@@ -239,9 +239,8 @@ public class ML_Window
 		}
 		else																// Large screen
 		{
-//			timeWindowHeight = tallWindowHeight - 150;	
 			navigationWindowHeight = tallWindowHeight;		
-			mediaWindowHeight = tallWindowHeight - 15;
+			mediaWindowHeight = tallWindowHeight - 5;
 			mediaWindowWidth = windowWidth;
 			navigationWindowWidth = windowWidth;
 			compressTallWindows = false;
@@ -425,12 +424,26 @@ public class ML_Window
 		if(compressTallWindows)					// Compressed window
 		{
 			if(world.getFields().size() > 1)
-				navigationWindowHeight += 55;	// Multiple fields, more buttons
+			{
+				navigationWindowHeight = compressedNavigationWindowHeight + 45;			// Multiple fields, more buttons
+//				navigationWindowHeight += 55;
+			}
+			else
+			{
+				navigationWindowHeight = compressedNavigationWindowHeight;
+			}
 		}
 		else									// Tall window
 		{
 			if(world.getFields().size() == 1) 
-				navigationWindowHeight -= 55;	// Single field, fewer buttons
+			{
+				navigationWindowHeight = tallWindowHeight - 55;							// Single field, fewer buttons
+//				navigationWindowHeight -= 55;	
+			}
+			else
+			{
+				navigationWindowHeight = tallWindowHeight;
+			}
 		}
 		
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
@@ -502,20 +515,18 @@ public class ML_Window
 		btnNextTimeSegment.tag = "NextTime";
 		btnNextTimeSegment.setLocalColorScheme(G4P.CYAN_SCHEME);
 	
-		x = 105;
-		y += iMediumBoxHeight;
-		btnMoveToNearestCluster = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Media (m)");
-		btnMoveToNearestCluster.tag = "NearestCluster";
-		btnMoveToNearestCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
 		x = iLeftMargin;
 		y += iLargeBoxHeight;
 		lblNearest = new GLabel(navigationWindow, x, y, 85, iVerySmallBoxHeight, "Nearest:");
 		lblNearest.setLocalColorScheme(G4P.SCHEME_10);
 		lblNearest.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-//		lblNearest.setTextBold();
-		
+
 		x = 105;
+		btnMoveToNearestCluster = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Media (m)");
+		btnMoveToNearestCluster.tag = "NearestCluster";
+		btnMoveToNearestCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		y += iMediumBoxHeight;
 		btnMoveToNearestImage = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Image (i)");
 		btnMoveToNearestImage.tag = "NearestImage";
 		btnMoveToNearestImage.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -534,44 +545,6 @@ public class ML_Window
 		btnMoveToNearestSound.tag = "NearestSound";
 		btnMoveToNearestSound.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		world.ml.delay(delayAmount);
-
-		x = 105;
-		y += iMediumBoxHeight;
-		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Last (l)");
-		btnMoveToLastCluster.tag = "LastCluster";
-		btnMoveToLastCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		btnJumpToRandomCluster = new GButton(navigationWindow, x+90, y, 90, iVerySmallBoxHeight, "Random (j)");
-		btnJumpToRandomCluster.tag = "RandomCluster";
-		btnJumpToRandomCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-		world.ml.delay(delayAmount / 2);
-
-		if(world.getFields() != null)
-		{
-			if(world.getFieldCount() > 1)
-			{
-				x = 85;
-				y += iMediumBoxHeight;
-				btnChooseField = new GButton(navigationWindow, x, y, 130, iVerySmallBoxHeight, "Choose Field  ⇧C");
-				btnChooseField.tag = "ChooseField";
-				btnChooseField.setLocalColorScheme(G4P.GREEN_SCHEME);
-
-				x = 40;
-				y += iMediumBoxHeight;
-				btnGoToPreviousField = new GButton(navigationWindow, x, y, 120, iVerySmallBoxHeight, "Previous Field  ⇧[");
-				btnGoToPreviousField.tag = "PreviousField";
-				btnGoToPreviousField.setLocalColorScheme(G4P.CYAN_SCHEME);
-
-				btnGoToNextField = new GButton(navigationWindow, x+=125, y, 100, iVerySmallBoxHeight, "Next Field  ⇧]");
-				btnGoToNextField.tag = "NextField";
-				btnGoToNextField.setLocalColorScheme(G4P.CYAN_SCHEME);
-			}
-		}
-
-		world.ml.delay(delayAmount / 2);
-		
 		x = 70;
 		y += iLargeBoxHeight;
 		btnZoomOut = new GButton(navigationWindow, x, y, 50, iVerySmallBoxHeight, "Out (z)");
@@ -593,6 +566,50 @@ public class ML_Window
 		btnZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
 		btnZoomIn.fireAllEvents(true);
 
+		world.ml.delay(delayAmount);
+
+		x = iLeftMargin;
+		y += iMediumBoxHeight;
+		btnMoveToLastCluster = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Last (l)");
+		btnMoveToLastCluster.tag = "LastCluster";
+		btnMoveToLastCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		btnJumpToRandomCluster = new GButton(navigationWindow, x+=90, y, 90, iVerySmallBoxHeight, "Random (j)");
+		btnJumpToRandomCluster.tag = "RandomCluster";
+		btnJumpToRandomCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+		world.ml.delay(delayAmount / 2);
+		
+		x += 110;
+		btnStopViewer = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Stop (.)");
+		btnStopViewer.tag = "StopViewer";
+//		btnStopViewer.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
+
+		if(world.getFields() != null)
+		{
+			if(world.getFieldCount() > 1)
+			{
+				x = 85;
+				y += iMediumBoxHeight;
+				btnChooseField = new GButton(navigationWindow, x, y, 130, iVerySmallBoxHeight, "Choose Field  ⇧C");
+				btnChooseField.tag = "ChooseField";
+				btnChooseField.setLocalColorScheme(G4P.ORANGE_SCHEME);
+
+				x = 40;
+				y += iMediumBoxHeight;
+				btnGoToPreviousField = new GButton(navigationWindow, x, y, 120, iVerySmallBoxHeight, "Previous Field  ⇧[");
+				btnGoToPreviousField.tag = "PreviousField";
+				btnGoToPreviousField.setLocalColorScheme(G4P.CYAN_SCHEME);
+
+				btnGoToNextField = new GButton(navigationWindow, x+=125, y, 100, iVerySmallBoxHeight, "Next Field  ⇧]");
+				btnGoToNextField.tag = "NextField";
+				btnGoToNextField.setLocalColorScheme(G4P.CYAN_SCHEME);
+			}
+		}
+
+		world.ml.delay(delayAmount / 2);
+		
 		if(compressTallWindows)
 			x = 90;
 		else
@@ -691,6 +708,12 @@ public class ML_Window
 		btnClearMemory.tag = "ClearMemory";
 		btnClearMemory.setLocalColorScheme(G4P.ORANGE_SCHEME);
 
+		x = 105;
+		y += iMediumBoxHeight;
+		btnSetHome = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Set Start Location (h)");
+		btnSetHome.tag = "SetHome";
+		btnSetHome.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
 		x = 160;
 		y += iMediumBoxHeight;
 		sdrTeleportLength = new GSlider(navigationWindow, x, y, 65, 80, iVerySmallBoxHeight);
@@ -723,12 +746,12 @@ public class ML_Window
 		lblPathWaitLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Wait Time");
 		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
 
-		y += iVeryLargeBoxHeight + 15;
-		x = 85;
-		btnStopViewer = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Stop (.)");
-		btnStopViewer.tag = "StopViewer";
-		btnStopViewer.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
+//		y += iVeryLargeBoxHeight + 15;
+//		x = 85;
+//		btnStopViewer = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Stop (.)");
+//		btnStopViewer.tag = "StopViewer";
+//		btnStopViewer.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+//		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
 
 		world.ml.delay(delayAmount);
 
@@ -744,7 +767,7 @@ public class ML_Window
 		}
 
 		/* Time */
-		navigationWindowLineBreakY_2 = y - 10;
+		navigationWindowLineBreakY_2 = y - 3;
 //		if(compressTallWindows) 
 //			x = 115 + windowWidth;
 //		else
@@ -1046,7 +1069,7 @@ public class ML_Window
 
 		if(compressTallWindows) x = 100;
 		else x = 0;
-		y += iLargeBoxHeight;
+		y += iMediumBoxHeight;
 		lblHideMedia = new GLabel(mediaWindow, x, y, mediaWindow.width, iVerySmallBoxHeight, "Hide Media");
 		lblHideMedia.setLocalColorScheme(G4P.SCHEME_10);
 		lblHideMedia.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
@@ -1213,9 +1236,27 @@ public class ML_Window
 			lblAdvanced.setTextAlign(GAlign.CENTER, null);
 		lblAdvanced.setTextBold();
 
-		x = iLeftMargin;
+		x = 85;
 		if(compressTallWindows) x += windowWidth;
 		y += iLargeBoxHeight;
+		chkbxOrientationMode = new GCheckbox(mediaWindow, x, y, 155, iVerySmallBoxHeight, "Static Mode (9)");
+		chkbxOrientationMode.tag = "OrientationMode";
+		chkbxOrientationMode.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxOrientationMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxOrientationMode.setSelected(world.viewer.getSettings().orientationMode);
+
+//		x = 110;
+//		if(compressTallWindows) x += windowWidth;
+//		y += iMediumBoxHeight;
+//		chkbxDomeView = new GCheckbox(mediaWindow, x, y, 160, iSmallBoxHeight, "Sphere View (BETA)");
+//		chkbxDomeView.tag = "DomeView";
+//		chkbxDomeView.setLocalColorScheme(G4P.SCHEME_10);
+//		chkbxDomeView.setEnabled(world.viewer.getSettings().orientationMode);
+//		chkbxDomeView.setSeleted(world.viewer.getSettings().);
+
+		x = iLeftMargin;
+		if(compressTallWindows) x += windowWidth;
+		y += iSmallBoxHeight;
 		chkbxShowModel = new GCheckbox(mediaWindow, x, y, 160, iVerySmallBoxHeight, "Show Model (5)");
 		chkbxShowModel.tag = "ShowModel";
 		chkbxShowModel.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
@@ -1243,24 +1284,6 @@ public class ML_Window
 		chkbxCaptureToCluster.setEnabled(world.getState().showModel);
 		chkbxCaptureToCluster.setSelected(world.getState().showCaptureToCluster);
 
-		x = 85;
-		if(compressTallWindows) x += windowWidth;
-		y += iSmallBoxHeight - 2;
-		chkbxOrientationMode = new GCheckbox(mediaWindow, x, y, 155, iVerySmallBoxHeight, "Static Mode (9)");
-		chkbxOrientationMode.tag = "OrientationMode";
-		chkbxOrientationMode.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxOrientationMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxOrientationMode.setSelected(world.viewer.getSettings().orientationMode);
-
-//		x = 110;
-//		if(compressTallWindows) x += windowWidth;
-//		y += iMediumBoxHeight;
-//		chkbxDomeView = new GCheckbox(mediaWindow, x, y, 160, iSmallBoxHeight, "Sphere View (BETA)");
-//		chkbxDomeView.tag = "DomeView";
-//		chkbxDomeView.setLocalColorScheme(G4P.SCHEME_10);
-//		chkbxDomeView.setEnabled(world.viewer.getSettings().orientationMode);
-//		chkbxDomeView.setSeleted(world.viewer.getSettings().);
-		
 		if(!world.viewer.getSettings().selection)
 		{
 			btnSelectFront.setEnabled(false);
@@ -1592,18 +1615,18 @@ public class ML_Window
 		lblTimeMode.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimeMode.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 
-		x = 120;
-		optClusterTimeMode = new GOption(timeWindow, x, y, 85, 20, "Cluster");
+		x = 125;
+		optClusterTimeMode = new GOption(timeWindow, x, y, 75, 20, "Cluster");
 		optClusterTimeMode.setLocalColorScheme(G4P.SCHEME_10);
-		optClusterTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+//		optClusterTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optClusterTimeMode.tag = "ClusterTimeMode";
 		
 		world.ml.delay(delayAmount);
 
-		x += 90;
-		optFieldTimeMode = new GOption(timeWindow, x, y, 115, 20, "Field (=)");
+		x += 80;
+		optFieldTimeMode = new GOption(timeWindow, x, y, 115, 20, "Field  (=)");
 		optFieldTimeMode.setLocalColorScheme(G4P.SCHEME_10);
-		optFieldTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+//		optFieldTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optFieldTimeMode.tag = "FieldTimeMode";
 		
 		switch(world.getState().getTimeMode())
@@ -2431,9 +2454,9 @@ public class ML_Window
 				applet.text(" Visible Points of Interest:  "+world.getVisibleClusters().size(), x, y += lineWidthVeryWide);
 				
 				y = 240;
-				applet.text(" Field Name:  "+ f.getName(), x, y += lineWidthVeryWide);
 				if(world.getFieldCount() > 1)
 					applet.text(" Current Field #"+ (f.getID()+1)+" of "+ world.getFields().size(), x, y += lineWidthVeryWide);
+				applet.text(" Field Name:  "+ f.getName(), x, y += lineWidthVeryWide);
 				applet.text(" Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 ) + " Length:  "+utilities.round( f.getModel().getState().fieldLength, 3), x, y += lineWidthVeryWide);
 				applet.text(" Field Height:  " + utilities.round( f.getModel().getState().fieldHeight, 3 ), x, y += lineWidthVeryWide);
 				applet.text(" Points of Interest:  "+f.getClusters().size(), x, y += lineWidthVeryWide * 1.5f);

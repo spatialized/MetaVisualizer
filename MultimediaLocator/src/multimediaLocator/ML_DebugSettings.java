@@ -10,12 +10,12 @@ public class ML_DebugSettings
 	public boolean detailed = false;			// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	public boolean messages = false;			// On screen debug messages
-	public boolean output = true;				// Output debug messages to file
+	public boolean output = false;				// Output debug messages to file
 	
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = true;				// Debug WMV_World and WMV_Field class
-	public boolean library = true;
+	public boolean world = false;				// Debug WMV_World and WMV_Field class
+	public boolean library = false;
 	public boolean memory = false;				// Debug memory
 	
 	/* Model */
@@ -24,14 +24,14 @@ public class ML_DebugSettings
 	public boolean time = false;				// Debug WMV_Time class
 	
 	/* Media */
-	public boolean media = true;				// Debug WMV_Viewable class
-	public boolean image = true;				// Debug WMV_Image class
+	public boolean media = false;				// Debug WMV_Viewable class
+	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;				// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class
 	public boolean sound = false;				// Debug WMV_Sound class
 	
 	/* Viewer */
-	public boolean viewer = true;				// Debug WMV_Viewer class
+	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean path = false;					// Debug WMV_Viewer class
 
 	/* Viewer */
@@ -41,7 +41,7 @@ public class ML_DebugSettings
 	/* Other */
 	public boolean stitching = false;			// Debug WMV_Stitcher class
 	public boolean mouse = false;
-	public boolean gps = true;					// Debug WMV_Viewer class
+	public boolean gps = false;					// Debug WMV_Viewer class
 	
 	ML_DebugSettings (){}
 }

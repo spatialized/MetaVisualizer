@@ -1474,8 +1474,6 @@ public class MultimediaLocator extends PApplet
 	public void mouseReleased() {
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseReleased(mouseX, mouseY);
-
-//		if(display.displayView == 1 || (display.displayView == 3 && display.libraryViewMode == 0))
 		if(display.getDisplayView() == 1)				// Map View
 			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 		else if(display.getDisplayView() == 2)			// Timeline View

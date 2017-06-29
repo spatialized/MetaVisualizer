@@ -43,7 +43,7 @@ public class ML_Window
 	public boolean showCreateLibraryWindow, showLibraryWindow = false;
 
 	/* Library Window */
-	private int libraryWindowHeight;
+	private int startupWindowHeight;
 	public GButton btnCreateLibrary, btnOpenLibrary, btnLibraryHelp;
 	public GCheckbox chkbxRebuildLibrary;
 	public GLabel lblStartupWindowText;
@@ -219,7 +219,7 @@ public class ML_Window
 		
 		mlWindowHeight = shortWindowHeight + 110;
 //		navigationWindowHeight = tallWindowHeight;
-		libraryWindowHeight = shortWindowHeight / 2;
+		startupWindowHeight = shortWindowHeight / 2;
 		createLibraryWindowHeight = shortWindowHeight + 30;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = 120;
@@ -1830,9 +1830,9 @@ public class ML_Window
 	public void openStartupWindow()
 	{
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth;
-		int topEdge = world.ml.displayHeight / 2 - libraryWindowHeight / 2;
+		int topEdge = world.ml.displayHeight / 2 - startupWindowHeight / 2;
 		
-		startupWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, libraryWindowHeight, PApplet.JAVA2D);
+		startupWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, startupWindowHeight, PApplet.JAVA2D);
 		
 		startupWindow.addData(new ML_WinData());
 		startupWindow.addDrawHandler(this, "libraryWindowDraw");
@@ -1860,7 +1860,7 @@ public class ML_Window
 		btnCreateLibrary = new GButton(startupWindow, x, y, 190, iLargeBoxHeight + 2, "Create Library");
 		btnCreateLibrary.tag = "CreateLibrary";
 		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
-		btnCreateLibrary.setLocalColorScheme(G4P.ORANGE_SCHEME);
+		btnCreateLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
 		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 175, iLargeBoxHeight + 2, "Open Library");
 		btnOpenLibrary.tag = "OpenLibrary";
 		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
@@ -1941,7 +1941,7 @@ public class ML_Window
 		btnImportMediaFolder = new GButton(createLibraryWindow, x, y, 160, iLargeBoxHeight, "Add Folder");
 		btnImportMediaFolder.tag = "AddMediaFolder";
 		btnImportMediaFolder.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
-		btnImportMediaFolder.setLocalColorScheme(G4P.ORANGE_SCHEME);
+		btnImportMediaFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
 		btnMakeLibrary = new GButton(createLibraryWindow, x+220, y, 100, iLargeBoxHeight, "Done");
 		btnMakeLibrary.tag = "MakeLibrary";
 		btnMakeLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
@@ -2119,7 +2119,7 @@ public class ML_Window
 			{
 				int x = (int)utilities.round( 40 + i * 2.f, 0 );
 				if(x % 2 == 0)
-					applet.line(x, libraryWindowHeight - 85, x, libraryWindowHeight - 45);
+					applet.line(x, startupWindowHeight - 85, x, startupWindowHeight - 45);
 			}
 		}
 	}

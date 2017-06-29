@@ -44,26 +44,29 @@ public class ML_Display
 	public boolean initializedSatelliteMap = false;
 	
 	/* Library View */
-	public int libraryViewMode = 0;						// 0: World, 1: Field, 2: Cluster
+	public int libraryViewMode = 2;							// 0: World, 1: Field, 2: Cluster 
 	public int currentDisplayCluster = 0;
+	private final float thumbnailWidth = 90.f;
+	private final float thumbnailSpacing = 0.1f;
 	
 	/* Time View */
-	float timelineScreenSize, timelineHeight = 100.f;
+	float timelineScreenSize, timelineHeight;
 	float timelineStart = 0.f, timelineEnd = 0.f;
 	float datelineStart = 0.f, datelineEnd = 0.f;
 	int displayDate = -1;
 	public boolean updateCurrentSelectableTimeSegment = true, updateCurrentSelectableDate = true;
 	private final float timeTextSize = 16.f;
-//	private final float timeTextSize = 44.f;
-	private float timelineCenterTextXOffset, timelineTopTextYOffset;
-	private float timelineVeryLargeTextSize = 32.f;
-	private float timelineLargeTextSize = 26.f;
-	private float timelineMediumTextSize = 22.f;
-	private float timelineSmallTextSize = 18.f;
-	private final float timelineLinePadding = 3.f;
-	private final float timelineLineWidth = timelineSmallTextSize + timelineLinePadding;			
-	private final float timelineLineWidthWide = timelineLargeTextSize + timelineLinePadding;			
-	private final float timelineLineWidthVeryWide = timelineLargeTextSize * 2.f;			
+
+	private float hudCenterXOffset, hudTopMargin;
+	private float hudVeryLargeTextSize = 32.f;
+	private float hudLargeTextSize = 26.f;
+	private float hudMediumTextSize = 22.f;
+	private float hudSmallTextSize = 18.f;
+	private final float hudLinePadding = 4.f;
+	private final float hudLinePaddingWide = 8.f;
+	private final float hudLineWidth = hudMediumTextSize + hudLinePadding;			
+	private final float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;			
+	private final float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
 
 	private ArrayList<SelectableTimeSegment> selectableTimeSegments;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;						// Selectable dates on dateline
@@ -71,7 +74,7 @@ public class ML_Display
 	private final float minSegmentSeconds = 15.f;
 	
 	private boolean fieldTimelineCreated = false, fieldDatelineCreated = false, updateFieldTimeline = true;
-	private float timelineXOffset = 0.f, timelineYOffset = 0.f;
+	private float hudLeftMargin = 0.f, timelineYOffset = 0.f;
 	private float datelineXOffset = 0.f, datelineYOffset = 0.f;
 
 	private SelectableTimeSegment currentSelectableTimeSegment;
@@ -161,8 +164,6 @@ public class ML_Display
 
 //		topTextYOffset = -screenHeight / 1.66f;
 		topTextYOffset = -screenHeight / 1.6f;
-		clusterImageXOffset = -screenWidth / 1.85f;
-		clusterImageYOffset = screenHeight * 1.33f;
 		
 //		fieldsXOffset = -screenWidth / 1.88f;
 //		fieldsYOffset = -screenHeight / 1.33f;
@@ -181,6 +182,7 @@ public class ML_Display
 
 //		timelineScreenSize = screenWidth * 2.2f;
 		timelineScreenSize = screenWidth * 0.86f;
+		timelineHeight = screenHeight * 0.1f;
 		
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
@@ -189,13 +191,18 @@ public class ML_Display
 //		timelineYOffset = 0.f;
 //		datelineXOffset = timelineXOffset;
 //		datelineYOffset = screenHeight * 0.266f;
-		timelineXOffset = screenWidth * 0.07f;
+		hudLeftMargin = screenWidth * 0.07f;
 		timelineYOffset = screenHeight * 0.33f;
 
-		timelineCenterTextXOffset = screenWidth * 0.5f;
-		timelineTopTextYOffset = screenHeight * 0.1f;
+		hudCenterXOffset = screenWidth * 0.5f;
+		hudTopMargin = screenHeight * 0.085f;
 
-		datelineXOffset = timelineXOffset;
+		clusterImageXOffset = hudLeftMargin;
+		clusterImageYOffset = screenHeight * 0.5f;
+//		clusterImageXOffset = -screenWidth / 1.85f;
+//		clusterImageYOffset = screenHeight * 1.33f;
+		
+		datelineXOffset = hudLeftMargin;
 		datelineYOffset = screenHeight * 0.5f;
 		
 		currentSelectableTimeSegment = null;
@@ -316,26 +323,26 @@ public class ML_Display
 	 */
 	public void displayTimeView(WMV_World p)
 	{
-		startTimelineHUD();
+		startDisplayHUD();
 		ml.pushMatrix();
 		
 		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
 //		float xPos = centerTextXOffset;
 //		float yPos = topTextYOffset;						// Starting vertical position
-		float xPos = timelineCenterTextXOffset;
-		float yPos = timelineTopTextYOffset;						// Starting vertical position
+		float xPos = hudCenterXOffset;
+		float yPos = hudTopMargin;						// Starting vertical position
 
 		WMV_Field f = p.getCurrentField();
 
 		ml.fill(0, 0, 255, 255);
 
-		ml.textSize(timelineVeryLargeTextSize);
+		ml.textSize(hudVeryLargeTextSize);
 //		ml.textSize(veryLargeTextSize);
 		ml.text(""+p.getCurrentField().getName(), xPos, yPos, 0);
 //		ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistanceInit);
 
-		ml.textSize(timelineLargeTextSize - 5.f);
+		ml.textSize(hudLargeTextSize - 5.f);
 //		ml.textSize(largeTextSize - 5.f);
 		String strDisplayDate = "";
 		
@@ -349,13 +356,13 @@ public class ML_Display
 			ml.fill(35, 115, 255, 255);
 		}
 
-		ml.text(strDisplayDate, xPos, yPos += timelineLineWidthVeryWide * 1.5f, 0);
+		ml.text(strDisplayDate, xPos, yPos += hudLineWidthVeryWide * 1.5f, 0);
 //		ml.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistanceInit);
 		
-		ml.textSize(timelineMediumTextSize);
+		ml.textSize(hudMediumTextSize);
 //		ml.textSize(mediumTextSize);
 		ml.fill(0, 0, 255, 255);
-		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += timelineLineWidthVeryWide, 0);
+		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += hudLineWidthVeryWide, 0);
 //		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
 
 		yPos = timelineYOffset + timelineHeight * 4.f;
@@ -692,10 +699,10 @@ public class ML_Display
 			upperSeconds += minSegmentSeconds * 0.5f;
 		}
 		
-		float xOffset = utilities.mapValue(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
-		float xOffset2 = utilities.mapValue(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+		float xOffset = utilities.mapValue(lowerSeconds, timelineStart, timelineEnd, hudLeftMargin, hudLeftMargin + timelineScreenSize);
+		float xOffset2 = utilities.mapValue(upperSeconds, timelineStart, timelineEnd, hudLeftMargin, hudLeftMargin + timelineScreenSize);
  
-		if(xOffset > timelineXOffset && xOffset2 < timelineXOffset + timelineScreenSize)
+		if(xOffset > hudLeftMargin && xOffset2 < hudLeftMargin + timelineScreenSize)
 		{
 			float rectLeftEdge, rectRightEdge, rectTopEdge, rectBottomEdge;
 			float rectWidth = xOffset2 - xOffset;
@@ -751,7 +758,7 @@ public class ML_Display
 		ml.strokeWeight(3.f);
 		ml.fill(0.f, 0.f, 255.f, 255.f);
 		
-		ml.line(timelineXOffset, timelineYOffset, 0, timelineXOffset + timelineScreenSize, timelineYOffset, 0);
+		ml.line(hudLeftMargin, timelineYOffset, 0, hudLeftMargin + timelineScreenSize, timelineYOffset, 0);
 //		ml.line(timelineXOffset, timelineYOffset, hudDistanceInit, timelineXOffset + timelineScreenSize, timelineYOffset, hudDistanceInit);
 		
 		String startTime = utilities.secondsToTimeAsString(timelineStart, false, false);
@@ -768,7 +775,7 @@ public class ML_Display
 		
 		if(lastHour / 3600.f - firstHour / 3600.f <= 16.f)
 		{
-			float xOffset = timelineXOffset + (firstHour - timelineStart) * timeToScreenRatio - 20.f;
+			float xOffset = hudLeftMargin + (firstHour - timelineStart) * timeToScreenRatio - 20.f;
 			
 			float pos;
 			for( pos = firstHour ; pos <= lastHour ; pos += 3600.f )
@@ -780,17 +787,17 @@ public class ML_Display
 			}
 			
 			if( (firstHour - timelineStart) * timeToScreenRatio - 20.f > 200.f)
-				ml.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
+				ml.text(startTime, hudLeftMargin, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
 //				ml.text(startTime, timelineXOffset, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistanceInit);
 			
 			xOffset -= 3600.f * timeToScreenRatio;
-			if(timelineXOffset + timelineScreenSize - 40.f - xOffset > 200.f)
-				ml.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
+			if(hudLeftMargin + timelineScreenSize - 40.f - xOffset > 200.f)
+				ml.text(endTime, hudLeftMargin + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, 0);
 //				ml.text(endTime, timelineXOffset + timelineScreenSize - 40.f, timelineYOffset - timelineHeight * 0.5f - 40.f, hudDistanceInit);
 		}
 		else
 		{
-			float xOffset = timelineXOffset;
+			float xOffset = hudLeftMargin;
 			for( float pos = firstHour - 3600.f ; pos <= lastHour ; pos += 7200.f )
 			{
 				String time = utilities.secondsToTimeAsString(pos, false, false);
@@ -934,10 +941,10 @@ public class ML_Display
 		ArrayList<PVector> times = new ArrayList<PVector>();
 		for(WMV_Time ti : tsTimeline) times.add(ti.getTimeAsPVector());
 
-		float xOffset = utilities.mapValue(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
-		float xOffset2 = utilities.mapValue(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+		float xOffset = utilities.mapValue(lowerSeconds, timelineStart, timelineEnd, hudLeftMargin, hudLeftMargin + timelineScreenSize);
+		float xOffset2 = utilities.mapValue(upperSeconds, timelineStart, timelineEnd, hudLeftMargin, hudLeftMargin + timelineScreenSize);
 
-		if(xOffset > timelineXOffset && xOffset2 < timelineXOffset + timelineScreenSize)
+		if(xOffset > hudLeftMargin && xOffset2 < hudLeftMargin + timelineScreenSize)
 		{
 			ml.pushMatrix();
 			
@@ -950,8 +957,8 @@ public class ML_Display
 			{
 				PVector time = ti.getTimeAsPVector();
 				float seconds = utilities.getTimePVectorSeconds(time);
-				float xOff = utilities.mapValue(seconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
-				if(xOff > timelineXOffset && xOff < timelineXOffset + timelineScreenSize)
+				float xOff = utilities.mapValue(seconds, timelineStart, timelineEnd, hudLeftMargin, hudLeftMargin + timelineScreenSize);
+				if(xOff > hudLeftMargin && xOff < hudLeftMargin + timelineScreenSize)
 				{
 					switch(ti.getMediaType())
 					{
@@ -1221,7 +1228,7 @@ public class ML_Display
 		
 		if(ml.debug.mouse)
 		{
-			startTimelineHUD();
+			startDisplayHUD();
 			ml.stroke(155, 0, 255);
 			ml.strokeWeight(5);
 			ml.point(mouseLocOrig.x, mouseLocOrig.y, 0);					// Show mouse location for debugging
@@ -1674,10 +1681,10 @@ public class ML_Display
 		updateCurrentSelectableTimeSegment = true;
 		updateCurrentSelectableDate = true;
 		
-		timelineXOffset = -screenWidth / 1.66f;
+		hudLeftMargin = -screenWidth / 1.66f;
 //		timelineYOffset = -screenHeight / 2.f;
 		timelineYOffset = 0.f;
-		datelineXOffset = timelineXOffset;
+		datelineXOffset = hudLeftMargin;
 		datelineYOffset = screenHeight * 0.2f;
 
 		selectableTimeSegments = new ArrayList<SelectableTimeSegment>();
@@ -1962,112 +1969,117 @@ public class ML_Display
 		}
 
 		WMV_Cluster c;
-		float xPos = centerTextXOffset;
-		float yPos = topTextYOffset;			// Starting vertical position
+		float xPos = hudCenterXOffset;
+		float yPos = hudTopMargin;			// Starting vertical position
 
 		switch(libraryViewMode)
 		{
-			case 0:														// -- Obsolete
+			case 0:														// World   -- In progress
 //				startHUD();
 //				if(initializedMaps) map2D.displayWorldMap(p);
 				break;
-			case 1:														// Field
-				startHUD();
-				ml.pushMatrix();
-				ml.fill(0, 0, 255, 255);
-				ml.textSize(veryLargeTextSize);
-				ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistanceInit);
-				c = p.getCurrentCluster();
+			case 1:														// Field   -- In progress
+//				startHUD();
+//				ml.pushMatrix();
+//				ml.fill(0, 0, 255, 255);
+//				ml.textSize(veryLargeTextSize);
+//				ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistanceInit);
+//				c = p.getCurrentCluster();
+//
+//				ml.textSize(largeTextSize);
+//				ml.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
+//
+//				if(c != null)
+//				{
+//					ml.textSize(largeTextSize);
+//					ml.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistanceInit);
+//				}		
+//
+//				ml.textSize(mediumTextSize);
+//				ml.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
+//				ml.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistanceInit);
+//				if(p.getState().hierarchical) ml.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistanceInit);
+//				ml.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistanceInit);
+//				ml.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistanceInit);
+//				ml.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistanceInit);
+//
+//				if(f.getDateline() != null)
+//				{
+//					ml.textSize(mediumTextSize);
+//					if(f.getDateline().size() > 0)
+//					{
+//						int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
+//						ml.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistanceInit);
+//						ml.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistanceInit);
+//						ml.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistanceInit);
+//						ml.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
+//								+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistanceInit);
+//					}
+//				}
+//				ml.popMatrix();
+//
+//				map2D.displaySmallBasicMap(p);
+//				break;
 
-				ml.textSize(largeTextSize);
-				ml.text(" Current Field #"+ f.getID()+" of "+ p.getFields().size(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
-
-				if(c != null)
-				{
-					ml.textSize(largeTextSize);
-					ml.text(" Current Cluster #"+ c.getID()+" of "+ f.getClusters().size(), xPos, yPos += lineWidthWide, hudDistanceInit);
-				}		
-
-				ml.textSize(mediumTextSize);
-				ml.text(" Field Cluster Count:"+(f.getClusters().size()), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
-				ml.text("   Merged: "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", xPos, yPos += lineWidth, hudDistanceInit);
-				if(p.getState().hierarchical) ml.text(" Current Cluster Depth: "+f.getState().clusterDepth, xPos, yPos += lineWidth, hudDistanceInit);
-				ml.text("   Minimum Distance: "+p.settings.minClusterDistance, xPos, yPos += lineWidth, hudDistanceInit);
-				ml.text("   Maximum Distance: "+p.settings.maxClusterDistance, xPos, yPos += lineWidth, hudDistanceInit);
-				ml.text("   Population Factor: "+f.getModel().getState().clusterPopulationFactor, xPos, yPos += lineWidth, hudDistanceInit);
-
-				if(f.getDateline() != null)
-				{
-					ml.textSize(mediumTextSize);
-					if(f.getDateline().size() > 0)
-					{
-						int fieldDate = p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldDateID();
-						ml.text(" Current Time Segment", xPos, yPos += lineWidthWide, hudDistanceInit);
-						ml.text("   ID: "+ p.viewer.getCurrentFieldTimeSegment()+" of "+ p.getCurrentField().getTimeline().timeline.size() +" in Main Timeline", xPos, yPos += lineWidthWide, hudDistanceInit);
-						ml.text("   Date: "+ (fieldDate)+" of "+ p.getCurrentField().getDateline().size(), xPos, yPos += lineWidth, hudDistanceInit);
-						ml.text("   Date-Specific ID: "+ p.getCurrentField().getTimeSegment(p.viewer.getCurrentFieldTimeSegment()).getFieldTimelineIDOnDate()
-								+" of "+ p.getCurrentField().getTimelines().get(fieldDate).timeline.size() + " in Timeline #"+(fieldDate), xPos, yPos += lineWidth, hudDistanceInit);
-					}
-				}
-				ml.popMatrix();
-
-				map2D.displaySmallBasicMap(p);
-				break;
-				
 			case 2:								// Cluster
-				startHUD();
+				startDisplayHUD();
+				
 				ml.pushMatrix();
 				ml.fill(0, 0, 255, 255);
-				ml.textSize(veryLargeTextSize);
-				ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistanceInit);
+				ml.textSize(hudVeryLargeTextSize);
+				ml.text(""+p.getCurrentField().getName(), xPos, yPos, 0);
 	
-				ml.textSize(largeTextSize);
+				yPos += hudLineWidthVeryWide;
+				ml.textSize(hudLargeTextSize);
 				c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
 				WMV_Cluster cl = p.getCurrentCluster();
-				ml.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
-				ml.textSize(mediumTextSize);
+
+				ml.text(" Cluster #"+ c.getID() + ((c.getID() == cl.getID())?" (Current Cluster)":""), xPos, yPos, 0);
+				ml.textSize(hudMediumTextSize);
 				if(c.getState().images.size() > 0)
-					ml.text("   Images: "+ c.getState().images.size(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
+					ml.text("   Images: "+ c.getState().images.size(), xPos, yPos += hudLineWidthWide, 0);
 				if(c.getState().panoramas.size() > 0)
-					ml.text("   Panoramas: "+ c.getState().panoramas.size(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
+					ml.text("   Panoramas: "+ c.getState().panoramas.size(), xPos, yPos += hudLineWidthWide, 0);
 				if(c.getState().videos.size() > 0)
-					ml.text("   Videos: "+ c.getState().videos.size(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
+					ml.text("   Videos: "+ c.getState().videos.size(), xPos, yPos += hudLineWidthWide, 0);
 				if(c.getState().sounds.size() > 0)
-					ml.text("     Sounds: "+ c.getState().sounds.size(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
-				ml.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += lineWidthVeryWide, hudDistanceInit);
-				ml.text("   Location: "+ c.getLocation(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
-				ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += lineWidth, hudDistanceInit);
-				ml.text(" ", xPos, yPos += lineWidth, hudDistanceInit);
-				ml.text("   Media Segments: "+ c.segments.size(), xPos, yPos += lineWidth, hudDistanceInit);
+					ml.text("     Sounds: "+ c.getState().sounds.size(), xPos, yPos += hudLineWidthWide, 0);
+				ml.text("   Total Count: "+ c.getState().mediaCount, xPos, yPos += hudLineWidthWide, 0);
+				ml.text("   Location: "+ c.getLocation(), xPos, yPos += hudLineWidthWide, 0);
+				ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), xPos, yPos += hudLineWidth, 0);
+				ml.text(" ", xPos, yPos += hudLineWidth, 0);
+				ml.text("   Media Segments: "+ c.segments.size(), xPos, yPos += hudLineWidth, 0);
 	
 				if(c.getTimeline().timeline.size() > 0)
 				{
-					ml.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += lineWidthWide, hudDistanceInit);
-					ml.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += lineWidth, hudDistanceInit);
+					ml.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += hudLineWidthWide, 0);
+					ml.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += hudLineWidth, 0);
 				}
 				if(c.getDateline() != null)
 					if(c.getDateline().size() > 0)
-						ml.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += lineWidth, hudDistanceInit);
+						ml.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += hudLineWidth, 0);
 	
-				if(cl != null)
-					ml.text("   Stitched Panoramas: "+cl.stitched.size(), xPos, yPos += lineWidth, hudDistanceInit);
+//				if(cl != null)
+//					ml.text("   Stitched Panoramas: "+cl.stitched.size(), xPos, yPos += hudLineWidth, 0);
 	
 				if(p.viewer.getAttractorClusterID() != -1)
 				{
-					ml.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += lineWidth, hudDistanceInit);
-					ml.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += lineWidth, hudDistanceInit);
+					ml.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += hudLineWidth, 0);
+					ml.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += hudLineWidth, 0);
 					if(ml.debug.viewer) 
 					{
-						ml.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += lineWidth, hudDistanceInit);
-						ml.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += lineWidth, hudDistanceInit);
-						ml.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += lineWidth, hudDistanceInit);
+						ml.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += hudLineWidth, 0);
+						ml.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += hudLineWidth, 0);
+						ml.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += hudLineWidth, 0);
 					}
 				}
 				
 				drawClusterImages(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 				ml.popMatrix();
 				
-				map2D.displaySmallBasicMap(p);
+				endTimelineHUD();
+				
+//				map2D.displaySmallBasicMap(p);
 				break;
 		}
 	}
@@ -2157,7 +2169,7 @@ public class ML_Display
 	 * Initialize 2D drawing 
 	 * @param p Parent world
 	 */
-	private void startTimelineHUD()
+	private void startDisplayHUD()
 	{
 		beginHUD(ml);
 	}
@@ -2201,24 +2213,26 @@ public class ML_Display
 			ml.pushMatrix();
 			float origWidth = i.getWidth();
 			float origHeight = i.getHeight();
-			float width = 120.f;
-			float height = width * origHeight / origWidth;
+			float thumbnailHeight = thumbnailWidth * origHeight / origWidth;
 			
-			ml.translate(imgXPos, imgYPos, hudDistanceInit);
+//			int imageLineCount = 20;
+			int imageLineCount = (int)utilities.round( (timelineScreenSize-clusterImageXOffset) / (thumbnailWidth+thumbnailWidth * thumbnailSpacing), 0 );
+			
+			ml.translate(imgXPos, imgYPos, 0);
 			ml.tint(255);
 			
 			if(count < 60)
 			{
 				PImage image = ml.loadImage(i.getFilePath());
-				ml.image(image, 0, 0, width, height);
+				ml.image(image, 0, 0, thumbnailWidth, thumbnailHeight);
 			}
 			
-			imgXPos += width * 1.5f;
+			imgXPos += thumbnailWidth + thumbnailWidth * thumbnailSpacing;
 
-			if(count % 20 == 0)
+			if(count % imageLineCount == 0)
 			{
 				imgXPos = clusterImageXOffset;
-				imgYPos += height * 1.5f;
+				imgXPos += thumbnailWidth + thumbnailWidth * thumbnailSpacing;
 			}
 			
 			ml.popMatrix();
@@ -2326,7 +2340,7 @@ public class ML_Display
 				}
 				zoomToTimeline(ml.world, true);
 				break;
-			case 3:													// Library View  -- Disabled
+			case 3:													// Library View 
 				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
 				break;
 			case 4:													// Media View
@@ -2505,7 +2519,7 @@ public class ML_Display
 			if(preview)
 			{
 				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-				ml.textSize(timelineSmallTextSize);
+				ml.textSize(hudSmallTextSize);
 //				ml.textSize(smallTextSize);
 				String strTimespan = segment.getTimespanAsString(false, false);
 				String strPreview = String.valueOf( segment.getTimeline().size() ) + " media, "+strTimespan;
@@ -2572,7 +2586,7 @@ public class ML_Display
 			if(selected && selectedDate != -1)
 			{
 				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
-				ml.textSize(timelineSmallTextSize);
+				ml.textSize(hudSmallTextSize);
 //				ml.textSize(smallTextSize);
 				String strDate = date.getDateAsString();
 //				String strPreview = String.valueOf( segment.getTimeline().size() ) + " media, "+strTimespan;

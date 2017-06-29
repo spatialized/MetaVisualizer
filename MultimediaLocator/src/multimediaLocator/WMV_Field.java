@@ -71,7 +71,7 @@ public class WMV_Field
 	 * @param newMediaFolder New media folder 
 	 * @param newFieldID New field ID
 	 */
-	WMV_Field( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
+	public WMV_Field( WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState, WMV_ViewerSettings newViewerSettings, WMV_ViewerState newViewerState, 
 			ML_DebugSettings newDebugSettings, String newMediaFolder, int newFieldID )
 	{
 		worldSettings = newWorldSettings;
@@ -3877,15 +3877,15 @@ public class WMV_Field
 	 * @return Whether successful 
 	 */
 	public boolean setState( MultimediaLocator ml, WMV_FieldState newFieldState, WMV_ClusterStateList newClusterStateList, 
-			WMV_ImageStateList newImageStateList, WMV_PanoramaStateList newPanoramaStateList, WMV_VideoStateList newVideoStateList,
-			WMV_SoundStateList newSoundStateList )
+							 WMV_ImageStateList newImageStateList, WMV_PanoramaStateList newPanoramaStateList, 
+							 WMV_VideoStateList newVideoStateList, WMV_SoundStateList newSoundStateList )
 	{
 		boolean error = false, clusterError = false;
 		if( newFieldState != null && newClusterStateList.clusters != null && (newImageStateList != null 
 				|| newPanoramaStateList != null || newVideoStateList != null ) ) //|| newFieldState.sounds != null) )
 		{
 			PImage emptyImage = ml.createImage(0,0,processing.core.PConstants.RGB);
-
+			
 			try{
 				int curFieldID = state.id;
 				state = newFieldState;

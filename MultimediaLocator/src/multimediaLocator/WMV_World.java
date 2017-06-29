@@ -273,7 +273,10 @@ public class WMV_World
 		}
 		
 		if(state.timeFading && !state.paused)
-			ml.display.window.sdrCurrentTime.setValue(getCurrentTimePoint());
+		{
+			if(ml.display.window.setupTimeWindow)
+				ml.display.window.sdrCurrentTime.setValue(getCurrentTimePoint());
+		}
 	}
 	
 	/**

@@ -1016,6 +1016,7 @@ public class ML_Library
 		try {
 			file = new File(filePath);
 			WMV_FieldState fState = mapper.readValue(file, WMV_FieldState.class);
+			fState.initialize(fState.id, fState.name);
 			return fState;
 		}
 		catch (Throwable t)

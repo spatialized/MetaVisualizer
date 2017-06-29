@@ -56,8 +56,8 @@ public class ML_KeyboardControls
 		if (key == '3') 
 			ml.display.setDisplayView(ml.world, 2);		// Time View
 
-//		if (key == '4')									// Library View -- Disabled 
-//			ml.display.setDisplayView(ml.world, 3);
+		if (key == '4')									// Library View
+			ml.display.setDisplayView(ml.world, 3);
 
 		if (key == 'h')
 			ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
@@ -737,19 +737,19 @@ public class ML_KeyboardControls
 		if (key == 'c')
 			ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
 
-		if (key == '[') 
-		{
-			ml.display.libraryViewMode--;
-			if(ml.display.libraryViewMode < 0)
-				ml.display.libraryViewMode = ml.world.getCurrentFieldClusters().size() - 1;
-		}
-
-		if (key == ']') 
-		{
-			ml.display.libraryViewMode++;
-			if( ml.display.libraryViewMode >= ml.world.getCurrentFieldClusters().size())
-				ml.display.libraryViewMode = 0;
-		}
+//		if (key == '[') 
+//		{
+//			ml.display.libraryViewMode--;
+//			if(ml.display.libraryViewMode < 0)
+//				ml.display.libraryViewMode = ml.world.getCurrentFieldClusters().size() - 1;
+//		}
+//
+//		if (key == ']') 
+//		{
+//			ml.display.libraryViewMode++;
+//			if( ml.display.libraryViewMode >= ml.world.getCurrentFieldClusters().size())
+//				ml.display.libraryViewMode = 0;
+//		}
 
 		if (key == PApplet.CODED) 					
 		{
@@ -759,21 +759,23 @@ public class ML_KeyboardControls
 //			}
 			if(ml.display.libraryViewMode == 1)					// Library Field View
 			{
-				if (keyCode == PApplet.LEFT)
-					ml.world.viewer.rotateX(-1);
-
-				if (keyCode == PApplet.RIGHT) 
-					ml.world.viewer.rotateX(1);
-				
-				if (keyCode == PApplet.UP) 
-					ml.display.map2D.zoomOut(ml.world);
-					
-				if (keyCode == PApplet.DOWN) 
-					ml.display.map2D.zoomIn(ml.world);
+//				if (keyCode == PApplet.LEFT)
+//					ml.world.viewer.rotateX(-1);
+//
+//				if (keyCode == PApplet.RIGHT) 
+//					ml.world.viewer.rotateX(1);
+//				
+//				if (keyCode == PApplet.UP) 
+//					ml.display.map2D.zoomOut(ml.world);
+//					
+//				if (keyCode == PApplet.DOWN) 
+//					ml.display.map2D.zoomIn(ml.world);
 			}
 			else if(ml.display.libraryViewMode == 2)			// Library Cluster View
 			{
-				if (keyCode == PApplet.DOWN) 
+//				System.out.println("Keyboard.handleLibraryViewKeyPressed()... CODED key:"+key+" keyCode:"+keyCode);
+
+				if (keyCode == PApplet.LEFT) 
 				{
 					ml.display.currentDisplayCluster--;
 					if(ml.display.currentDisplayCluster < 0)
@@ -792,7 +794,7 @@ public class ML_KeyboardControls
 					}
 				}
 
-				if (keyCode == PApplet.UP) 
+				if (keyCode == PApplet.RIGHT) 
 				{
 					ml.display.currentDisplayCluster++;
 					if( ml.display.currentDisplayCluster >= ml.world.getCurrentFieldClusters().size())

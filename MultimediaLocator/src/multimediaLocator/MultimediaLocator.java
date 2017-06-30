@@ -2053,7 +2053,7 @@ public class MultimediaLocator extends PApplet
 				{
 					String windowTitle = nativeFrame.getTitle();
 					
-					if(debug.ml) System.out.println(">>> Window: "+windowTitle+" lost focus...");
+//					if(debug.ml) System.out.println(">>> Window: "+windowTitle+" lost focus...");
 					
 			  	  	display.window.handleWindowLostFocus(windowTitle);
 				}

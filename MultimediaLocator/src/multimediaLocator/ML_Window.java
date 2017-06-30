@@ -1,11 +1,16 @@
 package multimediaLocator;
 
+import java.awt.Canvas;
 import java.awt.Font;
 import java.util.ArrayList;
 
+import com.jogamp.newt.opengl.GLWindow;
+
 import g4p_controls.*;
+import processing.awt.PSurfaceAWT.SmoothCanvas;
 import processing.core.PApplet;
 import processing.core.PConstants;
+import processing.core.PVector;
 import processing.event.MouseEvent;
 
 /**
@@ -20,7 +25,7 @@ public class ML_Window
 	
 	/* General */
 	private int windowWidth = 310;
-	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 880;
+	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 870;
 	private int compressedNavigationWindowHeight = 560, compressedMediaWindowHeight = 485;
 	private int delayAmount = 100;							// Delay length to avoid G4P library concurrent modification exception
 	
@@ -42,6 +47,13 @@ public class ML_Window
 				   showHelpWindow = false, showTimeWindow = false;;
 	public boolean showCreateLibraryWindow, showLibraryWindow = false;
 
+	private int mainMenuX = -1, mainMenuY = -1;
+	private int navigationWindowX = -1, navigationWindowY = -1;
+	private int mediaWindowX = -1, mediaWindowY = -1;
+	private int timeWindowX = -1, timeWindowY = -1;
+	private int libraryViewWindowX = -1, libraryViewWindowY = -1;
+	private int helpWindowX = -1, helpWindowY = -1;
+	
 	/* Library Window */
 	private int startupWindowHeight;
 	public GButton btnCreateLibrary, btnOpenLibrary, btnLibraryHelp;
@@ -231,7 +243,7 @@ public class ML_Window
 		mapWindowHeight = shortWindowHeight - 25;
 		timeWindowHeight = mediumWindowHeight - 40;
 		
-		if(world.ml.displayHeight < tallWindowHeight + 5)					// Small screen: compress windows
+		if(world.ml.displayHeight < tallWindowHeight + 10)					// Small screen: compress windows
 		{
 			navigationWindowHeight = compressedNavigationWindowHeight;	
 			navigationWindowWidth = windowWidth * 2;
@@ -242,7 +254,7 @@ public class ML_Window
 		else																// Large screen
 		{
 			navigationWindowHeight = tallWindowHeight;		
-			mediaWindowHeight = tallWindowHeight - 5;
+			mediaWindowHeight = tallWindowHeight;
 			mediaWindowWidth = windowWidth;
 			navigationWindowWidth = windowWidth;
 			compressTallWindows = false;
@@ -257,6 +269,12 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - mainMenuHeight / 2;
 		
+		if(mainMenuX > -1 && mainMenuY > -1)
+		{
+			leftEdge = mainMenuX;
+			topEdge = mainMenuY;
+		}
+
 		mainMenu = GWindow.getWindow(world.ml, "Main Menu", leftEdge, topEdge, windowWidth, mainMenuHeight, PApplet.JAVA2D);
 		mainMenu.addData(new ML_WinData());
 		mainMenu.addDrawHandler(this, "mlWindowDraw");
@@ -438,7 +456,7 @@ public class ML_Window
 		else									// Tall window
 		{
 			if(world.getFields().size() == 1) 
-				navigationWindowHeight = tallWindowHeight - 55;							// Single field, fewer buttons
+				navigationWindowHeight = tallWindowHeight - 45;							// Single field, fewer buttons
 			else
 				navigationWindowHeight = tallWindowHeight;
 		}
@@ -446,6 +464,12 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - navigationWindowHeight / 2;
 		
+		if(navigationWindowX > -1 && navigationWindowY > -1)
+		{
+			leftEdge = navigationWindowX;
+			topEdge = navigationWindowY;
+		}
+
 		navigationWindow = GWindow.getWindow(world.ml, "Navigation", leftEdge, topEdge, navigationWindowWidth, navigationWindowHeight, PApplet.JAVA2D);
 		navigationWindow.setVisible(true);
 
@@ -810,7 +834,7 @@ public class ML_Window
 
 		x = 55;
 		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight;
+		y += iSmallBoxHeight;
 		btnPanLeft = new GButton(navigationWindow, x, y, 60, iVerySmallBoxHeight, "Left (A)");
 		btnPanLeft.tag = "PanLeft";
 		btnPanLeft.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -836,7 +860,7 @@ public class ML_Window
 
 		x = 123;
 		if(compressTallWindows) x += windowWidth;
-		y += iMediumBoxHeight;
+		y += iSmallBoxHeight;
 		btnPanDown = new GButton(navigationWindow, x, y, 65, iVerySmallBoxHeight, "Down (S)");
 		btnPanDown.tag = "PanDown";
 		btnPanDown.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -872,7 +896,7 @@ public class ML_Window
 		
 		x = 110;
 		if(compressTallWindows) x += windowWidth;
-		y += iLargeBoxHeight;
+		y += iMediumBoxHeight;
 		btnZoomToWorld = new GButton(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Reset (r)");
 		btnZoomToWorld.tag = "ResetMapZoom";
 		btnZoomToWorld.setLocalColorScheme(G4P.RED_SCHEME);
@@ -906,6 +930,12 @@ public class ML_Window
 	{
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - mediaWindowHeight / 2;
+
+		if(mediaWindowX > -1 && mediaWindowY > -1)
+		{
+			leftEdge = mediaWindowX;
+			topEdge = mediaWindowY;
+		}
 
 		mediaWindow = GWindow.getWindow(world.ml, "Media", leftEdge, topEdge, mediaWindowWidth, mediaWindowHeight, PApplet.JAVA2D);
 		mediaWindow.setVisible(true);
@@ -1312,6 +1342,12 @@ public class ML_Window
 	{
 		int leftEdge = world.ml.displayWidth / 2 - (windowWidth / 2) - 50;
 		int topEdge = world.ml.displayHeight / 2 - libraryViewWindowHeight / 2;
+		
+		if(libraryViewWindowX > -1 && libraryViewWindowY > -1)
+		{
+			leftEdge = libraryViewWindowX;
+			topEdge = libraryViewWindowY;
+		}
 
 		libraryViewWindow = GWindow.getWindow(world.ml, "Library", leftEdge, topEdge, windowWidth + 60, libraryViewWindowHeight, PApplet.JAVA2D);
 		libraryViewWindow.setVisible(true);
@@ -1627,6 +1663,12 @@ public class ML_Window
 	{
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - timeWindowHeight / 2;
+
+		if(timeWindowX > -1 && timeWindowY > -1)
+		{
+			leftEdge = timeWindowX;
+			topEdge = timeWindowY;
+		}
 
 		timeWindow = GWindow.getWindow(world.ml, "Time", leftEdge, topEdge, windowWidth, timeWindowHeight, PApplet.JAVA2D);
 		timeWindow.setVisible(true);
@@ -3056,6 +3098,8 @@ public class ML_Window
 		showMainMenu = false;
 		if(setupMainMenu)
 		{
+			mainMenuX = (int)getLocation(mainMenu).x;
+			mainMenuY = (int)getLocation(mainMenu).y;
 			mainMenu.setVisible(false);
 			mainMenu.close();
 			mainMenu.dispose();
@@ -3074,6 +3118,8 @@ public class ML_Window
 		if(setupNavigationWindow)
 		{
 			navigationWindow.setVisible(false);
+			navigationWindowX = (int)getLocation(navigationWindow).x;
+			navigationWindowY = (int)getLocation(navigationWindow).y;
 			navigationWindow.close();
 			navigationWindow.dispose();
 			setupNavigationWindow = false;
@@ -3090,6 +3136,8 @@ public class ML_Window
 		showMediaWindow = false;
 		if(setupMediaWindow)
 		{
+			mediaWindowX = (int)getLocation(mediaWindow).x;
+			mediaWindowY = (int)getLocation(mediaWindow).y;
 			mediaWindow.setVisible(false);
 			mediaWindow.close();
 			mediaWindow.dispose();
@@ -3107,6 +3155,8 @@ public class ML_Window
 		showLibraryViewWindow = false;
 		if(setupLibraryViewWindow)
 		{
+			libraryViewWindowX = (int)getLocation(libraryViewWindow).x;
+			libraryViewWindowY = (int)getLocation(libraryViewWindow).y;
 			libraryViewWindow.setVisible(false);
 			libraryViewWindow.close();
 			libraryViewWindow.dispose();
@@ -3124,6 +3174,8 @@ public class ML_Window
 		showHelpWindow = false;
 		if(setupHelpWindow)
 		{
+			helpWindowX = (int)getLocation(helpWindow).x;
+			helpWindowY = (int)getLocation(helpWindow).y;
 			helpWindow.setVisible(false);
 			helpWindow.close();
 			helpWindow.dispose();
@@ -3131,26 +3183,15 @@ public class ML_Window
 		}
 	}
 	/**
-	 * Close all windows
+	 * Close and reload navigation window
 	 */
 	public void reloadNavigationWindow()
 	{
-//		closeMainMenu();
 		if(showNavigationWindow)
 		{
 			closeNavigationWindow();
 			openNavigationWindow();
 		}
-//		if(showMediaWindow)
-//		{
-//			closeMediaWindow();
-//			openMediaWindow();
-//		}
-//		if(showLibraryViewWindow)
-//		{
-//			closeLibraryViewWindow();
-//			openLibraryViewWindow();
-//		}
 	}
 	/**
 	 * Close all windows
@@ -3163,6 +3204,33 @@ public class ML_Window
 		closeLibraryWindow();
 		closeHelpWindow();
 	}
+	
+	/**
+	 * Get location of a window
+	 * @param applet PApplet of the window
+	 * @return Window location 
+	 */
+	private PVector getLocation(PApplet applet) {
+		if(applet.getGraphics().isGL())
+			return new PVector(
+					((GLWindow) applet.getSurface().getNative()).getX(),
+					((GLWindow) applet.getSurface().getNative()).getY()
+					);
+		else
+			try {
+				return new PVector(
+						((SmoothCanvas) applet.getSurface().getNative()).getFrame().getX(),
+						((SmoothCanvas) applet.getSurface().getNative()).getFrame().getY()
+						);
+			}
+		catch (Exception e) {
+			return new PVector(
+					(int) ((Canvas) applet.getSurface().getNative()).getLocation().getX(),
+					(int) ((Canvas) applet.getSurface().getNative()).getLocation().getY()
+					);
+		}
+	}
+
 //	public void hideMapWindow()
 //	{
 //		showMapWindow = false;

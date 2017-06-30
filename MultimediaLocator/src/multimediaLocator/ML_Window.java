@@ -27,11 +27,11 @@ public class ML_Window
 	/* Windows */
 	public boolean compressTallWindows = false;
 	
-	public GWindow mainMenu, navigationWindow, mediaWindow, statisticsWindow,  helpWindow, 
+	public GWindow mainMenu, navigationWindow, mediaWindow, libraryViewWindow,  helpWindow, 
 				   mapWindow, timeWindow;
 	public GWindow startupWindow, createLibraryWindow, listItemWindow, textEntryWindow;
 
-	public GLabel lblMainMenu, lblNavigationWindow, lblMedia, lblStatistics, lblHelp, lblMap, lblTimeline;
+	public GLabel lblMainMenu, lblNavigationWindow, lblMedia, lblLibrary, lblHelp, lblMap, lblTimeline;
 	public GLabel lblStartup, lblImport;	
 	
 	public boolean setupMLWindow, setupNavigationWindow = false, setupMediaWindow = false, setupHelpWindow = false, 
@@ -74,12 +74,12 @@ public class ML_Window
 	public int textEntryWindowResultCode = -1;		// 1: GPS Track  
 	
 	/* Main Window */
-	private GButton btnNavigationWindow, btnMediaWindow, btnStatisticsWindow, btnMapWindow, btnTimeWindow, btnHelpWindow;
+	private GButton btnNavigationWindow, btnMediaWindow, btnLibraryViewWindow, btnMapWindow, btnTimeWindow, btnHelpWindow;
 	private GButton btnChooseField, btnSaveLibrary, btnSaveField, btnRestart, btnQuit;
 	private GLabel lblViewMode, lblWindows, lblCommands, lblSpaceBar;
 	public GToggleGroup tgDisplayView;	
-	public GOption optWorldView, optMapView, optTimelineView;
-	private int mlWindowHeight;
+	public GOption optWorldView, optMapView, optTimelineView, optLibraryView;
+	private int mainMenuHeight;
 	public GCheckbox chkbxScreenMessagesOn;
 
 	/* Navigation Window */
@@ -147,10 +147,11 @@ public class ML_Window
 
 	private int mediaWindowLineBreakY_1, mediaWindowLineBreakY_2;
 
-	/* Statistics Window */
+	/* Library View Window */
 	public GLabel lblViewerStats, lblWorldStats;					
 	public GLabel lblShift3;
-	int statisticsWindowHeight;
+	public GButton btnLibraryView;
+	int libraryViewWindowHeight;
 	
 	/* Help Window */
 	private GButton btnAboutHelp, btnImportHelp, btnCloseHelp;
@@ -217,14 +218,14 @@ public class ML_Window
 		display = newDisplay;
 		utilities = new WMV_Utilities();
 		
-		mlWindowHeight = shortWindowHeight + 110;
-//		navigationWindowHeight = tallWindowHeight;
+//		private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 880;
+		mainMenuHeight = mediumWindowHeight - 115;
 		startupWindowHeight = shortWindowHeight / 2;
 		createLibraryWindowHeight = shortWindowHeight + 30;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = 120;
 		
-		statisticsWindowHeight = mediumWindowHeight - 30;
+		libraryViewWindowHeight = mediumWindowHeight - 30;
 		helpWindowHeight = mediumWindowHeight + 100;
 		mapWindowHeight = shortWindowHeight - 25;
 		timeWindowHeight = mediumWindowHeight - 40;
@@ -255,9 +256,9 @@ public class ML_Window
 //		-- Adjust if compressTallWindows 
 		
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
-		int topEdge = world.ml.displayHeight / 2 - mlWindowHeight / 2;
+		int topEdge = world.ml.displayHeight / 2 - mainMenuHeight / 2;
 		
-		mainMenu = GWindow.getWindow(world.ml, "Main Menu", leftEdge, topEdge, windowWidth, mlWindowHeight, PApplet.JAVA2D);
+		mainMenu = GWindow.getWindow(world.ml, "Main Menu", leftEdge, topEdge, windowWidth, mainMenuHeight, PApplet.JAVA2D);
 		mainMenu.addData(new ML_WinData());
 		mainMenu.addDrawHandler(this, "mlWindowDraw");
 		mainMenu.addMouseHandler(this, "mlWindowMouse");
@@ -275,27 +276,33 @@ public class ML_Window
 
 		y += iLargeBoxHeight;
 		lblViewMode = new GLabel(mainMenu, x, y, mainMenu.width, iSmallBoxHeight);						/* Display Mode Label */
-		lblViewMode.setText("View Mode");
+		lblViewMode.setText("Current View");
 		lblViewMode.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		lblViewMode.setLocalColorScheme(G4P.SCHEME_10);
 		lblViewMode.setTextAlign(GAlign.CENTER, null);
 
-		x = iLeftMargin + 3;
-		y += iMediumBoxHeight;
-		optWorldView = new GOption(mainMenu, x, y, 95, iVerySmallBoxHeight, "World (1)");
-		optWorldView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
+		x = 55;
+		y += iLargeBoxHeight;
+		optWorldView = new GOption(mainMenu, x, y, 100, iVerySmallBoxHeight, "World (1)");
+		optWorldView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optWorldView.setLocalColorScheme(G4P.SCHEME_10);
 		optWorldView.tag = "SceneView";
-		optMapView = new GOption(mainMenu, x += 105, y, 80, iVerySmallBoxHeight, "Map (2)");
-		optMapView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
+		optMapView = new GOption(mainMenu, x += 110, y, 80, iVerySmallBoxHeight, "Map (2)");
+		optMapView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optMapView.setLocalColorScheme(G4P.SCHEME_10);
 		optMapView.tag = "MapView";
-		optTimelineView = new GOption(mainMenu, x += 90, y, 100, iVerySmallBoxHeight, "Time (3)");
-		optTimelineView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
+		x = 55;
+		y += iSmallBoxHeight;
+		optTimelineView = new GOption(mainMenu, x, y, 90, iVerySmallBoxHeight, "Time (3)");
+		optTimelineView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optTimelineView.setLocalColorScheme(G4P.SCHEME_10);
 		optTimelineView.tag = "TimelineView";
+		optLibraryView = new GOption(mainMenu, x += 110, y, 115, iVerySmallBoxHeight, "Library (4)");
+		optLibraryView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		optLibraryView.setLocalColorScheme(G4P.SCHEME_10);
+		optLibraryView.tag = "LibraryView";
 
-		world.ml.delay(delayAmount  / 2);
+		world.ml.delay(delayAmount);
 
 		switch(display.getDisplayView())
 		{
@@ -303,27 +310,36 @@ public class ML_Window
 				optWorldView.setSelected(true);
 				optMapView.setSelected(false);
 				optTimelineView.setSelected(false);
+				optLibraryView.setSelected(false);
 				break;
 			case 1:
 				optWorldView.setSelected(false);
 				optMapView.setSelected(true);
 				optTimelineView.setSelected(false);
+				optLibraryView.setSelected(false);
 				break;
 			case 2:
 				optWorldView.setSelected(false);
 				optMapView.setSelected(false);
 				optTimelineView.setSelected(true);
+				optLibraryView.setSelected(false);
+				break;
+			case 3:
+				optWorldView.setSelected(false);
+				optMapView.setSelected(false);
+				optTimelineView.setSelected(false);
+				optLibraryView.setSelected(true);
 				break;
 		}
 		
 		tgDisplayView = new GToggleGroup();
-		tgDisplayView.addControls(optWorldView, optMapView, optTimelineView);
+		tgDisplayView.addControls(optWorldView, optMapView, optTimelineView, optLibraryView);
 	
-		x = 65;
-		y += iMediumBoxHeight;
+		x = 70;
+		y += iLargeBoxHeight;
 		chkbxScreenMessagesOn = new GCheckbox(mainMenu, x, y, 220, iVerySmallBoxHeight, "Screen Messages (H)");
 		chkbxScreenMessagesOn.tag = "ScreenMessagesOn";
-		chkbxScreenMessagesOn.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxScreenMessagesOn.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
 		chkbxScreenMessagesOn.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxScreenMessagesOn.setSelected(world.getSettings().screenMessagesOn);
 
@@ -359,9 +375,9 @@ public class ML_Window
 		btnTimeWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
 		y += iSmallBoxHeight;
-		btnStatisticsWindow = new GButton(mainMenu, x, y, 120, iVerySmallBoxHeight, "Statistics  ⇧4");
-		btnStatisticsWindow.tag = "OpenStatisticsWindow";
-		btnStatisticsWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnLibraryViewWindow = new GButton(mainMenu, x, y, 120, iVerySmallBoxHeight, "Library  ⇧4");
+		btnLibraryViewWindow.tag = "OpenStatisticsWindow";
+		btnLibraryViewWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = 0;
 		y += iMediumBoxHeight;
@@ -377,13 +393,13 @@ public class ML_Window
 		btnSaveLibrary.tag = "SaveWorld";
 		btnSaveLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		if(world.getFieldCount() > 1)
-		{
+//		if(world.getFieldCount() > 1)
+//		{
 			y += iSmallBoxHeight;
 			btnSaveField = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Save Field  /");
 			btnSaveField.tag = "SaveField";
 			btnSaveField.setLocalColorScheme(G4P.CYAN_SCHEME);
-		}
+//		}
 
 		world.ml.delay(delayAmount);
 
@@ -398,14 +414,14 @@ public class ML_Window
 		btnQuit.tag = "Quit";
 		btnQuit.setLocalColorScheme(G4P.RED_SCHEME);
 
-		y = mlWindowHeight - iBottomTextY * 5 / 2;
+		y = mainMenuHeight - iBottomTextY * 5 / 2;
 		btnHelpWindow = new GButton(mainMenu, windowWidth - 30 - iLeftMargin, y, 30, 30, "?");
 		btnHelpWindow.tag = "OpenHelpWindow";
 		btnHelpWindow.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnHelpWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
 		x = 0;
-		y = mlWindowHeight - iBottomTextY;
+		y = mainMenuHeight - iBottomTextY;
 		lblSpaceBar = new GLabel(mainMenu, x, y, mainMenu.width, iVerySmallBoxHeight);						/* Display Mode Label */
 		lblSpaceBar.setText("Press SPACEBAR to show / hide");
 		lblSpaceBar.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
@@ -1314,39 +1330,47 @@ public class ML_Window
 	/**
 	 * Setup the Statistics Window
 	 */
-	public void setupStatisticsWindow()
+	public void setupLibraryViewWindow()
 	{
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth * 2 / 3;
-		int topEdge = world.ml.displayHeight / 2 - statisticsWindowHeight / 2;
+		int topEdge = world.ml.displayHeight / 2 - libraryViewWindowHeight / 2;
 
-		statisticsWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth * 4 / 3, statisticsWindowHeight, PApplet.JAVA2D);
-		statisticsWindow.setVisible(true);
-		statisticsWindow.addData(new ML_WinData());
-		statisticsWindow.addDrawHandler(this, "statisticsWindowDraw");
-//		statisticsWindow.addMouseHandler(this, "statisticsWindowMouse");
-		statisticsWindow.addKeyHandler(world.ml, "statisticsWindowKey");
-		statisticsWindow.setActionOnClose(GWindow.KEEP_OPEN);
+		libraryViewWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth * 4 / 3, libraryViewWindowHeight, PApplet.JAVA2D);
+		libraryViewWindow.setVisible(true);
+		libraryViewWindow.addData(new ML_WinData());
+		libraryViewWindow.addDrawHandler(this, "libraryViewWindowDraw");
+//		libraryViewWindow.addMouseHandler(this, "libraryViewWindowMouse");
+		libraryViewWindow.addKeyHandler(world.ml, "libraryViewWindowKey");
+		libraryViewWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
 		int x = 0, y = iTopMargin;
 		world.ml.delay(delayAmount);
 
-		lblStatistics = new GLabel(statisticsWindow, x, y, statisticsWindow.width, iVerySmallBoxHeight, "Statistics");
-		lblStatistics.setLocalColorScheme(G4P.SCHEME_10);
-		lblStatistics.setTextAlign(GAlign.CENTER, null);
-		lblStatistics.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
-		lblStatistics.setTextBold();
+		lblLibrary = new GLabel(libraryViewWindow, x, y, libraryViewWindow.width, iVerySmallBoxHeight, "Library");
+		lblLibrary.setLocalColorScheme(G4P.SCHEME_10);
+		lblLibrary.setTextAlign(GAlign.CENTER, null);
+		lblLibrary.setFont(new Font("Monospaced", Font.PLAIN, iVeryLargeTextSize));
+		lblLibrary.setTextBold();
 		
 		world.ml.delay(delayAmount);
 
-		y += iLargeBoxHeight;
-		lblViewerStats = new GLabel(statisticsWindow, x, y, statisticsWindow.width, iMediumBoxHeight, "Viewer");
+		x += 105;
+		y += iVeryLargeBoxHeight;
+		btnLibraryView = new GButton(libraryViewWindow, x, y, 195, iSmallBoxHeight, "Open Library View (4)");
+		btnLibraryView.tag = "SetLibraryView";
+		btnLibraryView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		btnLibraryView.setLocalColorScheme(G4P.GOLD_SCHEME);
+
+		x = 0;
+		y += iVeryLargeBoxHeight + 5;
+		lblViewerStats = new GLabel(libraryViewWindow, x, y, libraryViewWindow.width, iMediumBoxHeight, "Viewer");
 		lblViewerStats.setLocalColorScheme(G4P.SCHEME_10);
 		lblViewerStats.setTextAlign(GAlign.CENTER, null);
 		lblViewerStats.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblViewerStats.setTextBold();
 
-		y = 200;
-		lblWorldStats = new GLabel(statisticsWindow, x, y, statisticsWindow.width, iMediumBoxHeight, "World");
+		y = 245;
+		lblWorldStats = new GLabel(libraryViewWindow, x, y, libraryViewWindow.width, iMediumBoxHeight, "World");
 		lblWorldStats.setLocalColorScheme(G4P.SCHEME_10);
 		lblWorldStats.setTextAlign(GAlign.CENTER, null);
 		lblWorldStats.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
@@ -1355,8 +1379,8 @@ public class ML_Window
 		world.ml.delay(delayAmount);
 
 		x = 0;
-		y = statisticsWindowHeight - iBottomTextY;
-		lblShift3 = new GLabel(statisticsWindow, x, y, statisticsWindow.width, iVerySmallBoxHeight);						/* Display Mode Label */
+		y = libraryViewWindowHeight - iBottomTextY;
+		lblShift3 = new GLabel(libraryViewWindow, x, y, libraryViewWindow.width, iVerySmallBoxHeight);						/* Display Mode Label */
 		lblShift3.setText("Press SHIFT + 4 to show / hide");
 		lblShift3.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		lblShift3.setLocalColorScheme(G4P.SCHEME_10);
@@ -2480,7 +2504,7 @@ public class ML_Window
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 */
-	public void statisticsWindowDraw(PApplet applet, GWinData data) 
+	public void libraryViewWindowDraw(PApplet applet, GWinData data) 
 	{
 		if(world.ml.state.running)
 		{
@@ -2492,7 +2516,7 @@ public class ML_Window
 			float lineWidthVeryWide = 20f;
 
 			float x = iLeftMargin;			// Starting horizontal position
-			float y = 90;					// Starting vertical position
+			float y = 140;					// Starting vertical position
 
 			WMV_Field f = world.getCurrentField();
 			
@@ -2507,7 +2531,7 @@ public class ML_Window
 				applet.text(" Current Point of Interest:  "+ (c.getID()+1)+" of "+ f.getClusters().size(), x, y += lineWidthVeryWide * 1.5f);
 				applet.text(" Visible Points of Interest:  "+world.getVisibleClusters().size(), x, y += lineWidthVeryWide);
 				
-				y = 240;
+				y = 270;
 				if(world.getFieldCount() > 1)
 					applet.text(" Current Field #"+ (f.getID()+1)+" of "+ world.getFields().size(), x, y += lineWidthVeryWide);
 				applet.text(" Field Name:  "+ f.getName(), x, y += lineWidthVeryWide);
@@ -2954,7 +2978,7 @@ public class ML_Window
 	{
 		showStatisticsWindow = true;
 		if(setupStatisticsWindow)
-			statisticsWindow.setVisible(true);
+			libraryViewWindow.setVisible(true);
 	} 
 	public void showHelpWindow()
 	{
@@ -3028,16 +3052,16 @@ public class ML_Window
 	{
 		showStatisticsWindow = false;
 		if(setupStatisticsWindow)
-			statisticsWindow.setVisible(false);
+			libraryViewWindow.setVisible(false);
 	} 
 	public void closeStatisticsWindow()
 	{
 		showStatisticsWindow = false;
 		if(setupStatisticsWindow)
 		{
-			statisticsWindow.setVisible(false);
-			statisticsWindow.close();
-			statisticsWindow.dispose();
+			libraryViewWindow.setVisible(false);
+			libraryViewWindow.close();
+			libraryViewWindow.dispose();
 			setupStatisticsWindow = false;
 		}
 	} 
@@ -3164,7 +3188,7 @@ public class ML_Window
 	public void openStatisticsWindow()
 	{
 		if(!setupStatisticsWindow)
-			setupStatisticsWindow();
+			setupLibraryViewWindow();
 		showStatisticsWindow();
 	}
 	public void openHelpWindow()

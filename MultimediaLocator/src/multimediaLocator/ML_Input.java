@@ -389,7 +389,7 @@ public class ML_Input
 					if(!ml.display.window.showTimeWindow)
 						ml.display.window.openTimeWindow();
 					else
-						ml.display.window.openTimeWindow();
+						ml.display.window.closeTimeWindow();
 					break;
 				case "NextTime":
 					ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
@@ -548,6 +548,12 @@ public class ML_Input
 				case "TimelineZoomToFull":
 					ml.display.resetZoom(ml.world, true);
 					break;
+					
+				/* Library */
+				case "SetLibraryView":
+					if(display.getDisplayView() != 3)
+						display.setDisplayView(ml.world, 3);
+					break;
 			}
 		}
 		
@@ -698,9 +704,10 @@ public class ML_Input
 				if(display.getDisplayView() != 2)
 					display.setDisplayView(world, 2);
 				break;
-//			case "LibraryView":							// -- Disabled
-//				display.setDisplayView(world, 3);
-//				break;
+			case "LibraryView":							// -- Disabled
+				if(display.getDisplayView() != 3)
+					display.setDisplayView(world, 3);
+				break;
 			case "ScreenMessagesOn":
 				world.settings.screenMessagesOn = option.isSelected();
 //				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);

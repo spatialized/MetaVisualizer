@@ -2297,6 +2297,7 @@ public class ML_Display
 					window.optWorldView.setSelected(true);
 					window.optMapView.setSelected(false);
 					window.optTimelineView.setSelected(false);
+					window.optLibraryView.setSelected(false);
 				}
 				if(window.setupMapWindow)
 				{
@@ -2313,6 +2314,10 @@ public class ML_Display
 					window.btnTimelineZoomToField.setEnabled(false);
 					window.btnTimelineZoomToSelected.setEnabled(false);
 					window.btnTimelineZoomToFull.setEnabled(false);		
+				}
+				if(window.setupStatisticsWindow)
+				{
+					window.btnLibraryView.setEnabled(true);
 				}
 				break;
 			case 1:														// Map View
@@ -2341,6 +2346,7 @@ public class ML_Display
 					window.optWorldView.setSelected(false);
 					window.optMapView.setSelected(true);
 					window.optTimelineView.setSelected(false);
+					window.optLibraryView.setSelected(false);
 				}
 				if(window.setupMapWindow)
 				{
@@ -2358,6 +2364,10 @@ public class ML_Display
 					window.btnTimelineZoomToSelected.setEnabled(false);
 					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
+				if(window.setupStatisticsWindow)
+				{
+					window.btnLibraryView.setEnabled(true);
+				}
 				break;
 			case 2:														// Time View
 				if(window.setupMLWindow)
@@ -2365,6 +2375,7 @@ public class ML_Display
 					window.optWorldView.setSelected(false);
 					window.optMapView.setSelected(false);
 					window.optTimelineView.setSelected(true);
+					window.optLibraryView.setSelected(false);
 				}
 				if(window.setupMapWindow)
 				{
@@ -2380,12 +2391,41 @@ public class ML_Display
 					window.btnTimelineZoomToField.setEnabled(true);
 					window.btnTimelineZoomToSelected.setEnabled(true);
 					window.btnTimelineZoomToFull.setEnabled(true);		
-
+				}
+				if(window.setupStatisticsWindow)
+				{
+					window.btnLibraryView.setEnabled(true);
 				}
 				zoomToTimeline(ml.world, true);
 				break;
 			case 3:													// Library View 
 				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
+				if(window.setupMLWindow)
+				{
+					window.optWorldView.setSelected(false);
+					window.optMapView.setSelected(false);
+					window.optTimelineView.setSelected(true);
+					window.optLibraryView.setSelected(false);
+				}
+				if(window.setupMapWindow)
+				{
+					window.btnMapView.setEnabled(true);
+				}
+				if(window.setupTimeWindow)
+				{
+					window.btnTimeView.setEnabled(true);
+					window.btnTimelineReverse.setEnabled(false);
+					window.btnTimelineForward.setEnabled(false);	
+					window.btnTimelineZoomIn.setEnabled(false);
+					window.btnTimelineZoomOut.setEnabled(false);		
+					window.btnTimelineZoomToField.setEnabled(false);
+					window.btnTimelineZoomToSelected.setEnabled(false);
+					window.btnTimelineZoomToFull.setEnabled(false);		
+				}
+				if(window.setupStatisticsWindow)
+				{
+					window.btnLibraryView.setEnabled(false);
+				}
 				break;
 			case 4:													// Media View
 				break;

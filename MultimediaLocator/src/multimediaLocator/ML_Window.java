@@ -250,12 +250,10 @@ public class ML_Window
 	}
 
 	/**
-	 * Setup MultimediaLocator Window
+	 * Setup Main Menu window
 	 */
-	public void setupMLWindow()
+	public void setupMainMenu()
 	{
-//		-- Adjust if compressTallWindows 
-		
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - mainMenuHeight / 2;
 		
@@ -448,7 +446,7 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - navigationWindowHeight / 2;
 		
-		navigationWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, navigationWindowWidth, navigationWindowHeight, PApplet.JAVA2D);
+		navigationWindow = GWindow.getWindow(world.ml, "Navigation", leftEdge, topEdge, navigationWindowWidth, navigationWindowHeight, PApplet.JAVA2D);
 		navigationWindow.setVisible(true);
 
 		navigationWindow.addData(new ML_WinData());
@@ -909,7 +907,7 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - mediaWindowHeight / 2;
 
-		mediaWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, mediaWindowWidth, mediaWindowHeight, PApplet.JAVA2D);
+		mediaWindow = GWindow.getWindow(world.ml, "Media", leftEdge, topEdge, mediaWindowWidth, mediaWindowHeight, PApplet.JAVA2D);
 		mediaWindow.setVisible(true);
 
 		mediaWindow.addData(new ML_WinData());
@@ -1315,7 +1313,7 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - (windowWidth / 2) - 50;
 		int topEdge = world.ml.displayHeight / 2 - libraryViewWindowHeight / 2;
 
-		libraryViewWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth + 60, libraryViewWindowHeight, PApplet.JAVA2D);
+		libraryViewWindow = GWindow.getWindow(world.ml, "Library", leftEdge, topEdge, windowWidth + 60, libraryViewWindowHeight, PApplet.JAVA2D);
 		libraryViewWindow.setVisible(true);
 		libraryViewWindow.addData(new ML_WinData());
 		libraryViewWindow.addDrawHandler(this, "libraryViewWindowDraw");
@@ -1630,7 +1628,7 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
 		int topEdge = world.ml.displayHeight / 2 - timeWindowHeight / 2;
 
-		timeWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth, timeWindowHeight, PApplet.JAVA2D);
+		timeWindow = GWindow.getWindow(world.ml, "Time", leftEdge, topEdge, windowWidth, timeWindowHeight, PApplet.JAVA2D);
 		timeWindow.setVisible(true);
 		timeWindow.addData(new ML_WinData());
 		timeWindow.addDrawHandler(this, "timeWindowDraw");
@@ -2146,6 +2144,32 @@ public class ML_Window
 		setupTextEntryWindow = false;
 	}
 
+	public void handleWindowLostFocus(String windowTitle)
+	{
+		switch(windowTitle)
+		{
+			case "Main Menu":
+				hideMainMenu();
+				break;
+			case "Navigation":
+				hideNavigationWindow();
+				break;
+			case "Media":
+				hideMediaWindow();
+				break;
+			case "Time":
+				hideTimeWindow();
+				break;
+			case "Library":
+				hideLibraryWindow();
+				break;
+			case "Help":
+				hideHelpWindow();
+				break;
+		}
+	}
+	
+	
 	/**
 	 * Handles drawing to the ML Window
 	 * @param applet the main PApplet object
@@ -3229,7 +3253,7 @@ public class ML_Window
 	}
 	public void openMLWindow()
 	{
-		if(!setupMainMenu) setupMLWindow();
+		if(!setupMainMenu) setupMainMenu();
 		showMainMenu();
 	}
 	public void openNavigationWindow()

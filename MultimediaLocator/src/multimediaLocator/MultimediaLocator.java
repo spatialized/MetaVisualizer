@@ -12,8 +12,13 @@
 */
 
 package multimediaLocator;
+import java.awt.AWTEvent;
+import java.awt.Frame;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.color.ColorSpace;
+import java.awt.event.AWTEventListener;
+import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
@@ -25,6 +30,9 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+
+//import org.bytedeco.javacv.Frame;
 
 import g4p_controls.GButton;
 import g4p_controls.GEditableTextControl;
@@ -32,7 +40,7 @@ import g4p_controls.GEvent;
 import g4p_controls.GToggleControl;
 import g4p_controls.GValueControl;
 import g4p_controls.GWinData;
-
+import processing.awt.PSurfaceAWT;
 import processing.core.*;
 import processing.opengl.PGL;
 import processing.opengl.PShader;
@@ -136,6 +144,9 @@ public class MultimediaLocator extends PApplet
 		
 		display = new ML_Display(this);			
 		display.window = new ML_Window(world, display);				// Setup and display interaction window
+
+		Toolkit.getDefaultToolkit().addAWTEventListener(
+				new WMV_MouseListener(), AWTEvent.MOUSE_EVENT_MASK | AWTEvent.FOCUS_EVENT_MASK);
 
 		stitcher = new ML_Stitcher(world);
 		metadata = new WMV_Metadata(this, debug);
@@ -792,7 +803,7 @@ public class MultimediaLocator extends PApplet
 		else 
 		{
 			String input = selection.getPath();
-			String[] parts = input.split("/");
+//			String[] parts = input.split("/");
 
 			if (debug.ml)
 				System.out.println("User selected library destination: " + input);
@@ -2015,6 +2026,46 @@ public class MultimediaLocator extends PApplet
 //		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
 	}
 	
+	/**
+	 * Mouse listener class for detecting when windows lose focus
+	 * @author davidgordon
+	 */
+	private class WMV_MouseListener implements AWTEventListener
+	{
+		public void eventDispatched(AWTEvent event) 
+		{
+			//System.out.print(MouseInfo.getPointerInfo().getLocation() + " | ");
+			//System.out.println(">> event:"+event);
+			//System.out.println("source:"+event.getSource()+" type:"+event.getSource().getClass());
+
+			//		    JFrame jFrame;
+			//		    if (event.getSource().getClass().toString().equals("class javax.swing.JFrame"))
+			//		    {
+			//		      jFrame = (JFrame)event.getSource();
+			//		    }
+
+			if (event.getSource().getClass().toString().equals("class processing.awt.PSurfaceAWT$SmoothCanvas"))
+			{
+				PSurfaceAWT.SmoothCanvas pSurface = (PSurfaceAWT.SmoothCanvas)event.getSource();
+				Frame nativeFrame = pSurface.getFrame();
+				//System.out.println(" PSurfaceAWT.SmoothCanvas Event title:"+nativeFrame.getTitle()+" id:"+event.getID());
+				if(event.getID() == FocusEvent.FOCUS_LOST)
+				{
+					String windowTitle = nativeFrame.getTitle();
+					
+					if(debug.ml) System.out.println(">>> Window: "+windowTitle+" lost focus...");
+					
+			  	  	display.window.handleWindowLostFocus(windowTitle);
+				}
+			}
+		}
+	}
+
+//	private void handleWindowLostFocus(String windowTitle)
+//	{
+//  	  	display.window.handleWindowLostFocus(windowTitle);
+//	}
+
 //	private void setAppTitle(String title) 
 //	{
 //		surface.setTitle(title);

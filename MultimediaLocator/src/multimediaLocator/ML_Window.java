@@ -35,7 +35,7 @@ public class ML_Window
 	public GLabel lblStartup, lblImport;	
 	
 	public boolean setupMainMenu, setupNavigationWindow = false, setupMediaWindow = false, setupHelpWindow = false, 
-				   setupStatisticsWindow = false, setupMapWindow = false, setupTimeWindow = false;
+				   setupLibraryViewWindow = false, setupMapWindow = false, setupTimeWindow = false;
 	public boolean setupCreateLibraryWindow = false, setupLibraryWindow = false, setupTextEntryWindow = false;
 	
 	public boolean showMainMenu = false, showNavigationWindow = false, showMediaWindow = false, showLibraryViewWindow = false, 
@@ -1371,6 +1371,8 @@ public class ML_Window
 		lblViewerStats.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblViewerStats.setTextBold();
 
+		world.ml.delay(delayAmount);
+
 		libraryWindowViewerTextYOffset = y + iMediumBoxHeight + 15;
 		
 		y = 315;
@@ -1392,7 +1394,7 @@ public class ML_Window
 		lblShift3.setLocalColorScheme(G4P.SCHEME_10);
 		lblShift3.setTextAlign(GAlign.CENTER, null);
 		
-		setupStatisticsWindow = true;
+		setupLibraryViewWindow = true;
 		world.ml.setAppIcon = true;
 	}
 	
@@ -2090,8 +2092,6 @@ public class ML_Window
 	 */
 	public void openTextEntryWindow(String promptText, String initText, int resultCode)
 	{
-//		textEntryWindowUserEntry = "";
-//		textEntryWindowText = promptText;
 		textEntryWindowResultCode = resultCode;					// Flag indicating what to do with dialog result value
 
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth;
@@ -2983,7 +2983,7 @@ public class ML_Window
 	public void showStatisticsWindow()
 	{
 		showLibraryViewWindow = true;
-		if(setupStatisticsWindow)
+		if(setupLibraryViewWindow)
 			libraryViewWindow.setVisible(true);
 	} 
 	public void showHelpWindow()
@@ -3068,18 +3068,18 @@ public class ML_Window
 	public void hideStatisticsWindow()
 	{
 		showLibraryViewWindow = false;
-		if(setupStatisticsWindow)
+		if(setupLibraryViewWindow)
 			libraryViewWindow.setVisible(false);
 	} 
 	public void closeLibraryViewWindow()
 	{
 		showLibraryViewWindow = false;
-		if(setupStatisticsWindow)
+		if(setupLibraryViewWindow)
 		{
 			libraryViewWindow.setVisible(false);
 			libraryViewWindow.close();
 			libraryViewWindow.dispose();
-			setupStatisticsWindow = false;
+			setupLibraryViewWindow = false;
 		}
 	} 
 	public void hideHelpWindow()
@@ -3237,7 +3237,7 @@ public class ML_Window
 	}
 	public void openLibraryViewWindow()
 	{
-		if(!setupStatisticsWindow)
+		if(!setupLibraryViewWindow)
 			setupLibraryViewWindow();
 		showStatisticsWindow();
 	}

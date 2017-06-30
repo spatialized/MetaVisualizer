@@ -1726,7 +1726,7 @@ public class ML_Display
 		WMV_Field f = p.getCurrentField();
 		if(currentDisplayCluster < 0 || currentDisplayCluster >= f.getClusters().size())
 		{
-			System.out.println("Fixed currentDisplayCluster out of range! was: "+currentDisplayCluster+" getClusters().size():"+f.getClusters().size());
+			System.out.println("Display.displayLibraryView()... Fixed currentDisplayCluster out of range! was: "+currentDisplayCluster+" getClusters().size():"+f.getClusters().size());
 			currentDisplayCluster = 0;
 		}
 
@@ -1812,29 +1812,29 @@ public class ML_Display
 				ml.text(" ", xPos, yPos += hudLineWidth, 0);
 				ml.text("   Media Segments: "+ c.segments.size(), xPos, yPos += hudLineWidth, 0);
 	
-				if(c.getTimeline().timeline.size() > 0)
-				{
-					ml.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += hudLineWidthWide, 0);
-					ml.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += hudLineWidth, 0);
-				}
-				if(c.getDateline() != null)
-					if(c.getDateline().size() > 0)
-						ml.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += hudLineWidth, 0);
-	
-//				if(cl != null)
-//					ml.text("   Stitched Panoramas: "+cl.stitched.size(), xPos, yPos += hudLineWidth, 0);
-	
-				if(p.viewer.getAttractorClusterID() != -1)
-				{
-					ml.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += hudLineWidth, 0);
-					ml.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += hudLineWidth, 0);
-					if(ml.debug.viewer) 
-					{
-						ml.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += hudLineWidth, 0);
-						ml.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += hudLineWidth, 0);
-						ml.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += hudLineWidth, 0);
-					}
-				}
+//				if(c.getTimeline().timeline.size() > 0)
+//				{
+//					ml.text(" Timeline Segments: "+ c.getTimeline().timeline.size(), xPos, yPos += hudLineWidthWide, 0);
+//					ml.text(" Timeline Length (sec.): "+ utilities.getTimelineLength(c.getTimeline().timeline), xPos, yPos += hudLineWidth, 0);
+//				}
+//				if(c.getDateline() != null)
+//					if(c.getDateline().size() > 0)
+//						ml.text(" Timeline Dates: "+ c.getDateline().size(), xPos, yPos += hudLineWidth, 0);
+//	
+////				if(cl != null)
+////					ml.text("   Stitched Panoramas: "+cl.stitched.size(), xPos, yPos += hudLineWidth, 0);
+//	
+//				if(p.viewer.getAttractorClusterID() != -1)
+//				{
+//					ml.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += hudLineWidth, 0);
+//					ml.text("    Destination Distance: "+PApplet.round( PVector.dist(f.getClusters().get(p.viewer.getAttractorClusterID()).getLocation(), p.viewer.getLocation() )), xPos, yPos += hudLineWidth, 0);
+//					if(ml.debug.viewer) 
+//					{
+//						ml.text(" Debug: Current Attraction:"+p.viewer.getAttraction().mag(), xPos, yPos += hudLineWidth, 0);
+//						ml.text(" Debug: Current Acceleration:"+p.viewer.getAcceleration().mag(), xPos, yPos += hudLineWidth, 0);
+//						ml.text(" Debug: Current Velocity:"+ p.viewer.getVelocity().mag() , xPos, yPos += hudLineWidth, 0);
+//					}
+//				}
 				
 				drawClusterImages(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 				ml.popMatrix();
@@ -2103,7 +2103,7 @@ public class ML_Display
 					window.btnTimelineZoomToSelected.setEnabled(false);
 					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
-				if(window.setupStatisticsWindow)
+				if(window.setupLibraryViewWindow)
 				{
 					window.btnLibraryView.setEnabled(true);
 				}
@@ -2152,7 +2152,7 @@ public class ML_Display
 					window.btnTimelineZoomToSelected.setEnabled(false);
 					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
-				if(window.setupStatisticsWindow)
+				if(window.setupLibraryViewWindow)
 				{
 					window.btnLibraryView.setEnabled(true);
 				}
@@ -2180,7 +2180,7 @@ public class ML_Display
 					window.btnTimelineZoomToSelected.setEnabled(true);
 					window.btnTimelineZoomToFull.setEnabled(true);		
 				}
-				if(window.setupStatisticsWindow)
+				if(window.setupLibraryViewWindow)
 				{
 					window.btnLibraryView.setEnabled(true);
 				}
@@ -2210,7 +2210,7 @@ public class ML_Display
 					window.btnTimelineZoomToSelected.setEnabled(false);
 					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
-				if(window.setupStatisticsWindow)
+				if(window.setupLibraryViewWindow)
 				{
 					window.btnLibraryView.setEnabled(false);
 				}

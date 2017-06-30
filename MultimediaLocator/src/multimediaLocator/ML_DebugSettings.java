@@ -10,16 +10,16 @@ public class ML_DebugSettings
 	public boolean detailed = false;			// Verbose debugging messages
 	public boolean print = true;				// Print all user messages
 	public boolean messages = false;			// On screen debug messages
-	public boolean output = false;				// Output debug messages to file
+	public boolean output = true;				// Output debug messages to file
 	
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = false;				// Debug WMV_World and WMV_Field class
+	public boolean world = true;				// Debug WMV_World and WMV_Field class
 	public boolean library = false;
 	public boolean memory = false;				// Debug memory
 
 	/* Input */
-	public boolean mouse = true;
+	public boolean mouse = false;
 	
 	/* Model */
 	public boolean metadata = false;			// Debug WMV_Metadata class

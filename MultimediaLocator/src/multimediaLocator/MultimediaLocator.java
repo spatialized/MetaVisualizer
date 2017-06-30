@@ -1,9 +1,9 @@
 /********************************************************************************
-* MultimediaLocator v0.9.0
+* MultimediaLocator v0.9.2
 * @author davidgordon
 * 
-* Software for displaying large multimedia collections as navigable virtual
-* environments based on spatial, temporal and orientation metadata. 
+* A 3D multimedia library management and visualization system 
+* based on spatial, temporal and orientation metadata. 
 *********************************************************************************/
 
 /************************************
@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 
@@ -135,8 +137,9 @@ public class MultimediaLocator extends PApplet
 		display = new ML_Display(this);			
 		display.window = new ML_Window(world, display);				// Setup and display interaction window
 
-		metadata = new WMV_Metadata(this, debug);
 		stitcher = new ML_Stitcher(world);
+		metadata = new WMV_Metadata(this, debug);
+		loadExiftoolPath();
 		
 		if(debug.ml) systemMessage("Initial setup complete...");
 
@@ -677,70 +680,6 @@ public class MultimediaLocator extends PApplet
 		if(debug.ml) systemMessage("World resetting complete...");
 
 		display.window.openStartupWindow();
-	}
-	
-	/**
-	 * Open dialog to name created library
-	 */
-	private void openLibraryNamingDialog()
-	{
-		display.window.openTextEntryWindow("Enter new library name:", "library", 1);
-//		state.inLibraryNaming = true;
-	}
-	
-	/**
-	 * Start naming fields
-	 */
-	private void startFieldNaming()
-	{
-		for(WMV_Field f : world.getFields())	
-			f.setNamed(false);
-		
-		String curName = world.getField(state.namingField).getName();
-		display.window.openTextEntryWindow("Enter field #"+(state.namingField+1)+" name...", curName, 0);						// Open text entry dialog
-
-		state.namingField = 0;
-		state.inFieldNaming = true;
-		state.oldFieldName = world.getField(state.namingField).getName();
-	}
-	
-	/**
-	 * Run field naming process
-	 */
-	private void runFieldNaming()
-	{
-		if(state.namingField + 1 >= world.getFieldCount())
-		{
-			if(world.getField(state.namingField).getState().named)
-			{
-				updateFieldFolderName(state.namingField);
-				state.fieldsNamed = true;
-				state.inFieldNaming = false;
-				library.updateFolderNames(world);		// Update library folder names to match fields
-			}
-		}
-		else
-		{
-			updateFieldFolderName(state.namingField);
-			state.namingField++;
-			if(!display.window.showTextEntryWindow && state.namingField < world.getFieldCount())
-			{
-				String curName = world.getField(state.namingField).getName();
-				display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
-			}
-		}
-	}
-	
-	/**
-	 * Update field folder name
-	 * @param fieldIdx Field idx to update name for
-	 */
-	private void updateFieldFolderName(int fieldIdx)
-	{
-		String fieldName = world.getField(fieldIdx).getName();
-		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, library.getLibraryFolder() + "/" + fieldName, false);
-//		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
-		world.updateMediaFilePaths();		// Update media file paths with new library name
 	}
 	
 	/**
@@ -1704,6 +1643,162 @@ public class MultimediaLocator extends PApplet
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Open dialog to name created library
+	 */
+	private void openExiftoolPathDialog()
+	{
+		display.window.openTextEntryWindow("Please enter enter Exiftool location:", "/usr/local/bin/Exiftool", 2);
+//		state.inLibraryNaming = true;
+	}
+	
+	/**
+	 * Attempt to load and set path to Exiftool from preferences
+	 */
+	public void loadExiftoolPath()
+	{
+//		utilities.checkPath();
+		
+		boolean setExiftoolPath = setExiftoolPathFromPrefs();
+		
+		if(!setExiftoolPath)
+		{
+			String exiftoolPath = "/usr/local/bin/exiftool";
+			metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
+			if(metadata.exiftoolFile.exists())												// Fatal error if Exiftool not found
+			{
+				saveExiftoolPath(exiftoolPath);
+			}
+			else
+			{
+				if(debug.ml) 
+					systemMessage("Metadata.Metadata()... Exiftool not found at exiftoolPath:"+exiftoolPath+"!  Will search...");
+				metadata.exiftoolFile = new File(utilities.getProgramPath("exiftool"));
+				if(metadata.exiftoolFile.exists())												// Fatal error if Exiftool not found
+				{
+					if(debug.ml) 
+						systemMessage("Metadata.Metadata()... Exiftool not found in expected folders...  Will ask for user entry...");
+					openExiftoolPathDialog();
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Save Exiftool file path to preferences and load Exiftool program file
+	 * @param newExiftoolPath
+	 */
+	public void setExiftoolPath(String newExiftoolPath)
+	{
+		saveExiftoolPath(newExiftoolPath);
+		metadata.exiftoolFile = new File(newExiftoolPath);
+	}
+	/**
+	 * Save path to Exiftool program
+	 * @param exiftoolPath
+	 */
+	public void saveExiftoolPath(String exiftoolPath) {
+		Preferences preferences = Preferences.userNodeForPackage(this.getClass());
+		preferences.put("Exiftool", exiftoolPath);
+		
+		if(debug.ml)
+			systemMessage("ML.saveExiftoolPath exiftoolPath:"+exiftoolPath);
+
+		try {
+			preferences.flush();
+		}
+		catch(BackingStoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Attempt to set Exiftool path from preferences
+	 * @return Whether succeeded
+	 */
+	public boolean setExiftoolPathFromPrefs() 
+	{
+		Preferences preferences = Preferences.userNodeForPackage(this.getClass());
+		String exiftoolPath = preferences.get("Exiftool", "");
+		
+		if(exiftoolPath != null)
+		{
+			if(exiftoolPath != "")
+			{
+				if(debug.ml)
+					systemMessage("Metadata.setExiftoolPathFromPrefs()... Found exiftoolPath:"+exiftoolPath);
+				metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
+				return true;
+			}
+		}
+			
+		return false;
+	}
+	
+	/**
+	 * Open dialog to name created library
+	 */
+	private void openLibraryNamingDialog()
+	{
+		display.window.openTextEntryWindow("Enter new library name:", "library", 1);
+//		state.inLibraryNaming = true;
+	}
+	
+	/**
+	 * Start naming fields
+	 */
+	private void startFieldNaming()
+	{
+		for(WMV_Field f : world.getFields())	
+			f.setNamed(false);
+		
+		String curName = world.getField(state.namingField).getName();
+		display.window.openTextEntryWindow("Enter field #"+(state.namingField+1)+" name...", curName, 0);						// Open text entry dialog
+
+		state.namingField = 0;
+		state.inFieldNaming = true;
+		state.oldFieldName = world.getField(state.namingField).getName();
+	}
+	
+	/**
+	 * Run field naming process
+	 */
+	private void runFieldNaming()
+	{
+		if(state.namingField + 1 >= world.getFieldCount())
+		{
+			if(world.getField(state.namingField).getState().named)
+			{
+				updateFieldFolderName(state.namingField);
+				state.fieldsNamed = true;
+				state.inFieldNaming = false;
+				library.updateFolderNames(world);		// Update library folder names to match fields
+			}
+		}
+		else
+		{
+			updateFieldFolderName(state.namingField);
+			state.namingField++;
+			if(!display.window.showTextEntryWindow && state.namingField < world.getFieldCount())
+			{
+				String curName = world.getField(state.namingField).getName();
+				display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
+			}
+		}
+	}
+	
+	/**
+	 * Update field folder name
+	 * @param fieldIdx Field idx to update name for
+	 */
+	private void updateFieldFolderName(int fieldIdx)
+	{
+		String fieldName = world.getField(fieldIdx).getName();
+		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, library.getLibraryFolder() + "/" + fieldName, false);
+//		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
+		world.updateMediaFilePaths();		// Update media file paths with new library name
 	}
 
 	public void mediaFolderDialog()

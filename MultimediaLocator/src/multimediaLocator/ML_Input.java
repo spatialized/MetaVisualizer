@@ -292,6 +292,11 @@ public class ML_Input
 							ml.state.libraryNamed = true;
 							ml.state.fieldsNamed = false;
 							break;
+						case 2:						// 2: Exiftool Path
+							String exiftoolPath = ml.display.window.txfInputText.getText();
+							System.out.println("Input.buttonPressed()... Set exiftoolPath:"+exiftoolPath);
+							ml.setExiftoolPath(exiftoolPath);
+							break;
 					}
 					ml.display.window.closeTextEntryWindow();
 					break;

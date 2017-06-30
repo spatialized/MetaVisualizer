@@ -325,16 +325,16 @@ public class ML_Input
 					break;
 					
 				case "NearestImage":
-					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 0, false);
+					ml.world.viewer.moveToNearestClusterWithType(0, false, ml.world.viewer.getNavigationTeleport(), true);
 					break;
 				case "NearestPanorama":
-					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 1, false);
+					ml.world.viewer.moveToNearestClusterWithType(1, false, ml.world.viewer.getNavigationTeleport(), true);
 					break;
 				case "NearestVideo":
-					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 2, false);
+					ml.world.viewer.moveToNearestClusterWithType(2, false, ml.world.viewer.getNavigationTeleport(), true);
 					break;
 				case "NearestSound":
-					ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 3, false);
+					ml.world.viewer.moveToNearestClusterWithType(3, false, ml.world.viewer.getNavigationTeleport(), true);
 					break;
 					
 				case "NextField":
@@ -497,8 +497,8 @@ public class ML_Input
 						else if(ml.display.getDisplayView() == 4)
 							ml.world.viewer.stopViewingSelectedMedia();
 						break;
-					case "StitchPanorama":
-						ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
+					case "StitchPanorama":				// -- Disabled
+//						ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
 						break;
 		
 					/* Output */
@@ -557,14 +557,19 @@ public class ML_Input
 					if(display.getDisplayView() != 3)
 						display.setDisplayView(ml.world, 3);
 					break;
+				
+				/* Library View Window */
 				case "PreviousCluster":
-					ml.display.showPreviousCluster();
+					ml.display.showPreviousItem();
 					break;
 				case "NextCluster":
-					ml.display.showNextCluster();
+					ml.display.showNextItem();
 					break;
 				case "CurrentCluster":
-					ml.display.setDisplayCluster( ml.world.viewer.getCurrentClusterID() );
+					if(ml.display.getLibraryViewMode() == 1)
+						ml.display.setDisplayItem( ml.world.viewer.getCurrentFieldID() );
+					else if(ml.display.getLibraryViewMode() == 2)
+						ml.display.setDisplayItem( ml.world.viewer.getCurrentClusterID() );
 					break;
 			}
 		}
@@ -901,6 +906,20 @@ public class ML_Input
 				
 			case "ViewMetadata":
 				world.state.showMetadata = option.isSelected();
+				break;
+				
+			/* Library View */
+			case "LibraryViewModeLibrary":
+				if(world.ml.display.getLibraryViewMode() != 0)
+					world.ml.display.setLibraryViewMode(0);
+				break;
+			case "LibraryViewModeField":
+				if(world.ml.display.getLibraryViewMode() != 1)
+					world.ml.display.setLibraryViewMode(1);
+				break;
+			case "LibraryViewModeCluster":
+				if(world.ml.display.getLibraryViewMode() != 2)
+					world.ml.display.setLibraryViewMode(2);
 				break;
 		}
 	}

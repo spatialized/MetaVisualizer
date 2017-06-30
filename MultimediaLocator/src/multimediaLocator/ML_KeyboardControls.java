@@ -71,96 +71,6 @@ public class ML_KeyboardControls
 //			ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
 		}
 
-		/* Settings for Show Model Option */
-		if (key == '5')
-			ml.world.setShowModel(!ml.world.getState().showModel);
-
-		if (key == '6')
-		{
-			if(ml.world.getState().showModel)
-			{
-				ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
-				if(ml.display.window.showMediaWindow)
-					ml.display.window.chkbxMediaToCluster.setSelected( ml.world.state.showMediaToCluster );
-			}			
-		}
-
-		if (key == '7')
-		{
-			if(ml.world.getState().showModel)
-			{
-				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
-				if(ml.display.window.showMediaWindow)
-					ml.display.window.chkbxCaptureToMedia.setSelected( ml.world.state.showCaptureToMedia );
-			}
-		}
-
-		if (key == '8')
-		{
-			if(ml.world.getState().showModel)
-			{
-				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
-				if(ml.display.window.showMediaWindow)
-					ml.display.window.chkbxCaptureToCluster.setSelected( ml.world.state.showCaptureToCluster );
-			}
-		}
-
-//		if (key == '0')
-//			ml.state.sphericalView = !ml.state.sphericalView;
-		
-//		/* Navigation */
-//		if (keyCode == PApplet.LEFT) 
-//			ml.world.viewer.rotateX(-1);
-//
-//		if (keyCode == PApplet.RIGHT) 
-//			ml.world.viewer.rotateX(1);
-//
-//		if (keyCode == PApplet.UP) 
-//			ml.world.viewer.rotateY(-1);
-//
-//		if (keyCode == PApplet.DOWN) 
-//			ml.world.viewer.rotateY(1);
-//
-//		/* Time */
-//		if (input.shiftKey && keyCode == PApplet.UP) 
-//			ml.world.incrementTime();
-//
-//		if (input.shiftKey && keyCode == PApplet.DOWN) 
-//			ml.world.decrementTime();
-//
-//		if (input.shiftKey && keyCode == PApplet.LEFT) 
-//			ml.world.decrementTimeCycleLength();
-//
-//		if (input.shiftKey && keyCode == PApplet.RIGHT) 
-//			ml.world.incrementTimeCycleLength();
-		
-		/* Graphics */
-		if (input.optionKey && key == '[')
-		{
-			if(ml.world.viewer.getThinningAngle() > PApplet.PI / 64.f)
-				ml.world.viewer.setThinningAngle( ml.world.viewer.getThinningAngle() - PApplet.PI / 128.f );
-			ml.world.getCurrentField().findClusterMediaDirections();
-		}
-
-		if (input.optionKey && key == ']')
-		{
-			if(ml.world.viewer.getThinningAngle() < ml.world.viewer.getVisibleAngle() - PApplet.PI / 128.f)
-				ml.world.viewer.setThinningAngle(ml.world.viewer.getThinningAngle() + PApplet.PI / 128.f);
-			ml.world.getCurrentField().findClusterMediaDirections();
-		}
-
-//		if (input.optionKey && key == '\\')
-//			ml.world.getCurrentField().stitchAllClusters(ml.stitcher, ml.library.getLibraryFolder());		// Teleport to cluster with > 1 times
-
-		if (!input.optionKey && key == 'a') 
-			ml.world.viewer.startMoveXTransition(-1);
-
-		if (!input.optionKey && key == 'd') 
-			ml.world.viewer.startMoveXTransition(1);
-
-		if( key == 'l' )
-			ml.world.viewer.moveToLastCluster(ml.world.viewer.getNavigationTeleport());
-
 		if( key == '/' )
 			ml.world.saveCurrentSimulationState();
 
@@ -196,12 +106,6 @@ public class ML_KeyboardControls
 				ml.display.window.chkbxTimeFading.setSelected(state);
 		}
 
-		if (!input.optionKey && key == 's') 
-			ml.world.viewer.walkBackward();
-
-		if (!input.optionKey && key == 'w') 
-			ml.world.viewer.walkForward();
-
 		if (key == '9')														
 		{
 			ml.world.viewer.setOrientationMode( !ml.world.viewer.getSettings().orientationMode );
@@ -222,8 +126,56 @@ public class ML_KeyboardControls
 				ml.display.window.chkbxPaused.setSelected(ml.world.getState().paused);
 		}
 
-		if (key == 'W') 
-			ml.world.viewer.moveToNearestClusterAhead(false);
+		if (key == '=')
+		{
+			if(ml.world.state.timeMode == 0)
+				ml.world.setTimeMode(1);
+			else				
+				ml.world.setTimeMode(0);
+		}
+	}
+	
+	/**
+	 * Handle key pressed in World View
+	 * @param ml
+	 * @param key
+	 * @param keyCode
+	 */
+	public void handleWorldViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	{
+		/* Settings for Show Model Option */
+		if (key == '5')
+			ml.world.setShowModel(!ml.world.getState().showModel);
+
+		if (key == '6')
+		{
+			if(ml.world.getState().showModel)
+			{
+				ml.world.state.showMediaToCluster = !ml.world.getState().showMediaToCluster;			// Draw line from each media point to cluster
+				if(ml.display.window.showMediaWindow)
+					ml.display.window.chkbxMediaToCluster.setSelected( ml.world.state.showMediaToCluster );
+			}			
+		}
+
+		if (key == '7')
+		{
+			if(ml.world.getState().showModel)
+			{
+				ml.world.state.showCaptureToMedia = !ml.world.getState().showCaptureToMedia;			// Draw line from each media point to its capture location
+				if(ml.display.window.showMediaWindow)
+					ml.display.window.chkbxCaptureToMedia.setSelected( ml.world.state.showCaptureToMedia );
+			}
+		}
+
+		if (key == '8')
+		{
+			if(ml.world.getState().showModel)
+			{
+				ml.world.state.showCaptureToCluster = !ml.world.getState().showCaptureToCluster;		// Draw line from each media capture location to associated cluster
+				if(ml.display.window.showMediaWindow)
+					ml.display.window.chkbxCaptureToCluster.setSelected( ml.world.state.showCaptureToCluster );
+			}
+		}
 
 		if (key == 'M') 
 		{
@@ -233,53 +185,17 @@ public class ML_KeyboardControls
 				ml.display.window.chkbxShowMetadata.setSelected(state);
 		}
 
-		if (!input.optionKey && key == ']') {
-			float value = ml.world.settings.altitudeScalingFactor * 1.052f;
-			ml.world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
-			ml.world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
-			ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
-			ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
-		}
-
-		if (!input.optionKey && key == '[') {
-			float value = ml.world.settings.altitudeScalingFactor *= 0.95f;
-			ml.world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
-			ml.world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
-			ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
-			ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
-		}
-
 		if (key == 'n')						// Teleport to next time segment on same date
-		{
-			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
-			else
-				ml.world.viewer.moveToNextTimeSegment(true, true, true, false);
-		}
+			ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
 
 		if (key == 'b')						// Teleport to previous time segment on same date
-		{
-			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
-			else
-				ml.world.viewer.moveToPreviousTimeSegment(true, true, true, false);
-		}
+			ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
 
 		if (key == 'N')						// Teleport to next time segment on any date
-		{
-			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.moveToNextTimeSegment(false, true, ml.world.viewer.getNavigationTeleport(), true);
-			else
-				ml.world.viewer.moveToNextTimeSegment(false, true, true, false);
-		}
+			ml.world.viewer.moveToNextTimeSegment(false, true, ml.world.viewer.getNavigationTeleport(), true);
 
 		if (key == 'B')						// Teleport to previous time segment on any date
-		{
-			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.moveToPreviousTimeSegment(false, true, ml.world.viewer.getNavigationTeleport(), true);
-			else
-				ml.world.viewer.moveToPreviousTimeSegment(false, true, true, false);
-		}
+			ml.world.viewer.moveToPreviousTimeSegment(false, true, ml.world.viewer.getNavigationTeleport(), true);
 
 		if (key == '~')
 		{
@@ -315,20 +231,6 @@ public class ML_KeyboardControls
 			}
 		}
 		
-		if (input.optionKey && key == 'g')
-		{
-			if(!ml.world.viewer.isFollowing())
-			{
-				ml.world.viewer.startFollowingGPSTrack();
-				if(ml.display.window.setupNavigationWindow)
-				{
-					ml.display.window.optTimeline.setSelected(false);
-					ml.display.window.optGPSTrack.setSelected(true);
-					ml.display.window.optMemory.setSelected(false);
-				}
-			}
-		}
-
 		if (!input.optionKey && key == '>')
 		{
 			if(!ml.world.viewer.isFollowing())
@@ -362,55 +264,37 @@ public class ML_KeyboardControls
 				ml.display.window.chkbxFollowTeleport.setSelected( ml.world.viewer.getFollowTeleport() );
 		}
 		
-		if (key == 'i') 		// Go to nearest cluster ID with image
-			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 0, false);
+//		if (input.optionKey && key == 'g')
+//		{
+//			if(!ml.world.viewer.isFollowing())
+//			{
+//				ml.world.viewer.startFollowingGPSTrack();
+//				if(ml.display.window.setupNavigationWindow)
+//				{
+//					ml.display.window.optTimeline.setSelected(false);
+//					ml.display.window.optGPSTrack.setSelected(true);
+//					ml.display.window.optMemory.setSelected(false);
+//				}
+//			}
+//		}
 
-		if (key == 'p') 		// Go to nearest cluster ID with panorama
-			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 1, false);
-
-		if (key == 'v') 		// Go to nearest cluster ID with video
-			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 2, false);
-
-		if (key == 'u') 		// Go to nearest cluster ID with sound
-			ml.world.viewer.moveToNearestClusterWithType(ml.world.viewer.getNavigationTeleport(), 3, false);
-
-		if (key == 'm') 
-			ml.world.viewer.moveToNearestCluster(ml.world.viewer.getNavigationTeleport());
-
-		if (key == '_') 
-			ml.world.getCurrentField().fadeObjectDistances(0.85f);
-
-		if (key == '+')
-			ml.world.getCurrentField().fadeObjectDistances(1.176f);
-
-		if (key == '=')
-		{
-			if(ml.world.state.timeMode == 0)
-				ml.world.setTimeMode(1);
-			else				
-				ml.world.setTimeMode(0);
-		}
-	}
-	
-	/**
-	 * Handle key pressed in World View
-	 * @param ml
-	 * @param key
-	 * @param keyCode
-	 */
-	public void handleWorldViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
-	{
 		if (!input.optionKey && key == 'e')									// Move UP
 			ml.world.viewer.walkUp();
 
 		if (key == 'c') 													// Move DOWN
 			ml.world.viewer.walkDown();
 
-		if (key == 'j') 
-			ml.world.viewer.moveToRandomCluster(ml.world.viewer.getNavigationTeleport(), true);				// Jump (teleport) to random cluster
+		if (!input.optionKey && key == 's') 
+			ml.world.viewer.walkBackward();
 
-		if (key == '|')
-			ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
+		if (!input.optionKey && key == 'w') 
+			ml.world.viewer.walkForward();
+
+		if (!input.optionKey && key == 'a') 
+			ml.world.viewer.sidestepLeft();
+
+		if (!input.optionKey && key == 'd') 
+			ml.world.viewer.sidestepRight();
 
 		if (key == '{')
 			ml.world.viewer.teleportToFieldOffset(-1, true, true);
@@ -426,9 +310,55 @@ public class ML_KeyboardControls
 
 		if (key == '.')
 			ml.world.viewer.stop(true);
+
+		if( key == 'l' )
+			ml.world.viewer.moveToLastCluster(ml.world.viewer.getNavigationTeleport());
+
+		if (key == 'j') 
+			ml.world.viewer.moveToRandomCluster(ml.world.viewer.getNavigationTeleport(), true);				// Jump (teleport) to random cluster
+
+		if (key == 'i') 		// Go to nearest cluster ID with image
+			ml.world.viewer.moveToNearestClusterWithType(0, false, ml.world.viewer.getNavigationTeleport(), true);
+
+		if (key == 'p') 		// Go to nearest cluster ID with panorama
+			ml.world.viewer.moveToNearestClusterWithType(1, false, ml.world.viewer.getNavigationTeleport(), true);
+
+		if (key == 'v') 		// Go to nearest cluster ID with video
+			ml.world.viewer.moveToNearestClusterWithType(2, false, ml.world.viewer.getNavigationTeleport(), true);
+
+		if (key == 'u') 		// Go to nearest cluster ID with sound
+			ml.world.viewer.moveToNearestClusterWithType(3, false, ml.world.viewer.getNavigationTeleport(), true);
+
+		if (key == 'm') 
+			ml.world.viewer.moveToNearestCluster(ml.world.viewer.getNavigationTeleport());
+
+//		if (key == 'W') 
+//		ml.world.viewer.moveToNearestClusterAhead(false);
 		
 		if( key == 'L' )
 			ml.world.viewer.lookAtNearestMedia();
+
+		if (key == '_') 
+			ml.world.getCurrentField().fadeObjectDistances(0.85f);
+
+		if (key == '+')
+			ml.world.getCurrentField().fadeObjectDistances(1.176f);
+		
+		if (!input.optionKey && key == ']') {
+			float value = ml.world.settings.altitudeScalingFactor * 1.052f;
+			ml.world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
+			ml.world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
+			ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
+			ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
+		}
+
+		if (!input.optionKey && key == '[') {
+			float value = ml.world.settings.altitudeScalingFactor *= 0.95f;
+			ml.world.settings.altitudeScalingFactor = PApplet.constrain(value, 0.f, 1.f);
+			ml.world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
+			ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
+			ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
+		}
 
 		if (key == PApplet.ENTER)
 		{
@@ -494,6 +424,9 @@ public class ML_KeyboardControls
 			float newAlpha = PApplet.constrain(ml.world.getState().alpha-15.f, 0.f, 255.f);
 			ml.world.startFadingAlpha(newAlpha);
 		}
+
+//		if (key == '|')					// -- Disabled
+//			ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
 
 //		if (key == ':')
 //			ml.world.settings.showUserPanoramas = !ml.world.settings.showUserPanoramas;
@@ -643,38 +576,36 @@ public class ML_KeyboardControls
 	 */
 	public void handleMapViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
+		/* General Map Controls */
 		if (key == 'r')									// Zoom out to whole timeline
 			ml.display.map2D.resetMapZoom(true);
 
 		if(key == 'L')
 		{
 			ml.display.setMapViewMode(0);
-			if(ml.display.window.setupMapWindow) 
+			if(ml.display.window.setupNavigationWindow) 
 			{
 				ml.display.window.optMapViewWorldMode.setEnabled(true);
 				ml.display.window.optMapViewFieldMode.setEnabled(true);
 				ml.display.window.optMapViewWorldMode.setSelected(true);	
 				ml.display.window.optMapViewFieldMode.setSelected(false);	
-				ml.display.window.optMapViewWorldMode.setEnabled(ml.display.getDisplayView() == 1);
-				ml.display.window.optMapViewFieldMode.setEnabled(ml.display.getDisplayView() == 1);
 			}
 		}
 	
 		if(key == 'F')
 		{
 			ml.display.setMapViewMode(1);
-			if(ml.display.window.setupMapWindow) 
+			if(ml.display.window.setupNavigationWindow) 
 			{
 				ml.display.window.optMapViewWorldMode.setEnabled(true);
 				ml.display.window.optMapViewFieldMode.setEnabled(true);
 				ml.display.window.optMapViewWorldMode.setSelected(false);	
 				ml.display.window.optMapViewFieldMode.setSelected(true);	
-				ml.display.window.optMapViewWorldMode.setEnabled(ml.display.getDisplayView() == 1);
-				ml.display.window.optMapViewFieldMode.setEnabled(ml.display.getDisplayView() == 1);
 			}
 		}
 
-		if(ml.display.mapViewMode == 0)		// World Mode Commands
+		/* Map Controls Specific to Map View Mode */
+		if(ml.display.mapViewMode == 0)			// World Map Commands
 		{
 			if(key == PApplet.ENTER)
 			{
@@ -693,7 +624,7 @@ public class ML_KeyboardControls
 //			if (input.shiftKey && key == 'c')
 //				ml.startInitialClustering();				// Re-run clustering on all fields
 		}
-		else									// Field Mode Commands
+		else									// Field Map Commands
 		{
 //			if (key == 'c')
 //			{
@@ -707,7 +638,10 @@ public class ML_KeyboardControls
 			}	
 		}
 		
-		// Commands in both World and Field Modes
+		/* Navigation Controls for Both Field and World Maps */
+		if (key == '.')
+			ml.world.viewer.stop(true);
+
 		if (key == 'A') 
 			ml.display.map2D.panLeft();
 		if (key == 'D') 
@@ -719,13 +653,116 @@ public class ML_KeyboardControls
 
 		if (key == 'j') 
 			ml.world.viewer.moveToRandomCluster(true, false);				// Teleport to random cluster
-		
+
+		if (key == 'i') 		// Go to nearest cluster ID with image
+			ml.world.viewer.moveToNearestClusterWithType(0, false, true, false);
+
+		if (key == 'p') 		// Go to nearest cluster ID with panorama
+			ml.world.viewer.moveToNearestClusterWithType(1, false, true, false);
+
+		if (key == 'v') 		// Go to nearest cluster ID with video
+			ml.world.viewer.moveToNearestClusterWithType(2, false, true, false);
+
+		if (key == 'u') 		// Go to nearest cluster ID with sound
+			ml.world.viewer.moveToNearestClusterWithType(3, false, true, false);
+
+		if (key == 'm') 
+			ml.world.viewer.moveToNearestCluster(false);
+
 		if (key == '{')
 			ml.world.viewer.teleportToFieldOffset(-1, true, false);
 
 		if (key == '}') 
 			ml.world.viewer.teleportToFieldOffset(1, true, false);
 
+		if (!input.optionKey && key == 's') 
+			ml.world.viewer.walkBackward();
+
+		if (!input.optionKey && key == 'w') 
+			ml.world.viewer.walkForward();
+
+		if (!input.optionKey && key == 'a') 
+			ml.world.viewer.sidestepLeft();
+
+		if (!input.optionKey && key == 'd') 
+			ml.world.viewer.sidestepRight();
+
+		if( key == 'l' )
+			ml.world.viewer.moveToLastCluster(false);
+
+		if (key == 'n')						// Teleport to next time segment on same date
+			ml.world.viewer.moveToNextTimeSegment(true, true, true, false);
+
+		if (key == 'b')						// Teleport to previous time segment on same date
+			ml.world.viewer.moveToPreviousTimeSegment(true, true, true, false);
+
+		if (key == 'N')						// Teleport to next time segment on any date
+			ml.world.viewer.moveToNextTimeSegment(false, true, true, false);
+
+		if (key == 'B')						// Teleport to previous time segment on any date
+			ml.world.viewer.moveToPreviousTimeSegment(false, true, true, false);
+
+		if (key == '~')
+		{
+			if(!ml.world.viewer.isFollowing())
+			{
+				int followMode = ml.world.viewer.getPathNavigationMode();
+				if(followMode >= 2) followMode = 0;
+				else followMode++;
+
+				ml.world.viewer.setPathNavigationMode(followMode);
+
+				if(ml.display.window.setupNavigationWindow)
+				{
+					switch(ml.world.viewer.getPathNavigationMode())		// 0: Timeline 1: GPS Track 2: Memory
+					{
+						case 0:					// Timeline
+							ml.display.window.optTimeline.setSelected(true);
+							ml.display.window.optGPSTrack.setSelected(false);
+							ml.display.window.optMemory.setSelected(false);
+							break;
+						case 1:					// GPS Track
+							ml.display.window.optTimeline.setSelected(false);
+							ml.display.window.optGPSTrack.setSelected(true);
+							ml.display.window.optMemory.setSelected(false);
+							break;
+						case 2:					// Memory
+							ml.display.window.optTimeline.setSelected(false);
+							ml.display.window.optGPSTrack.setSelected(false);
+							ml.display.window.optMemory.setSelected(true);
+							break;
+					}
+				}
+			}
+		}
+		
+		if (!input.optionKey && key == '>')
+		{
+			if(!ml.world.viewer.isFollowing())
+			{
+				switch(ml.world.viewer.getPathNavigationMode())
+				{
+					case 0:
+						ml.world.viewer.followTimeline(true, false);
+						break;
+					case 1:
+						ml.world.viewer.startFollowingGPSTrack();
+						break;
+					case 2:
+						ml.world.viewer.followMemory();
+						break;
+				}
+
+				if(ml.display.window.setupNavigationWindow)
+					ml.display.window.chkbxPathFollowing.setSelected(true);
+			}
+			else
+			{
+				ml.world.viewer.stopFollowing();
+			}
+		}
+
+		/* Map Controls for Both Field and World Maps */
 		if (key == 'z')
 		{
 			WMV_Cluster current = ml.world.getCurrentCluster();
@@ -763,59 +800,84 @@ public class ML_KeyboardControls
 			ml.world.viewer.moveToRandomCluster(true, false);				/* Teleport to random cluster */
 
 		if (key == 'c')
-			ml.display.setDisplayCluster(ml.world.viewer.getCurrentClusterID());
-//			ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
+		{
+			if( ml.display.getLibraryViewMode() == 1 )
+				ml.display.setDisplayItem( ml.world.viewer.getCurrentFieldID() );
+			else if( ml.display.getLibraryViewMode() == 2 )
+				ml.display.setDisplayItem( ml.world.viewer.getCurrentClusterID() );
+		}
+
+		if (key == 'L')
+		{
+			if( ml.display.getLibraryViewMode() != 0 )
+				ml.display.setLibraryViewMode( 0 );
+		}
+
+		if (key == 'F')
+		{
+			if( ml.display.getLibraryViewMode() != 1 )
+				ml.display.setLibraryViewMode( 1 );
+		}
+
+		if (key == 'C')
+		{
+			if( ml.display.getLibraryViewMode() != 2 )
+				ml.display.setLibraryViewMode( 2 );
+		}
 
 		if (key == PApplet.ENTER)
 		{
-			if(ml.display.currentDisplayCluster >= 0 && ml.display.currentDisplayCluster < ml.world.getCurrentFieldClusters().size())
+			if( ml.display.currentDisplayCluster >= 0 && ml.display.currentDisplayCluster < ml.world.getCurrentFieldClusters().size() )
 			{
 				ml.world.viewer.teleportToCluster(ml.display.currentDisplayCluster, true, -1); 
 				ml.display.setDisplayView(ml.world, 0);
 			}
 		}
 
-//		if (key == '[') 
-//		{
-//			ml.display.libraryViewMode--;
-//			if(ml.display.libraryViewMode < 0)
-//				ml.display.libraryViewMode = ml.world.getCurrentFieldClusters().size() - 1;
-//		}
-//
-//		if (key == ']') 
-//		{
-//			ml.display.libraryViewMode++;
-//			if( ml.display.libraryViewMode >= ml.world.getCurrentFieldClusters().size())
-//				ml.display.libraryViewMode = 0;
-//		}
+		if (key == '-' || key == '_') 
+		{
+			int newLibraryViewMode = ml.display.getLibraryViewMode()+1;
+			ml.display.setLibraryViewMode(newLibraryViewMode);
+		}
+
+		if (key == '=' || key == '+') 
+		{
+			int newLibraryViewMode = ml.display.getLibraryViewMode()-1;
+			ml.display.setLibraryViewMode(newLibraryViewMode);
+		}
 
 		if (key == PApplet.CODED) 					
 		{
-//			if(ml.display.libraryViewMode == 0)					// Library World View
-//			{
-//			
-//			}
-			if(ml.display.libraryViewMode == 1)					// Library Field View
+			if(ml.display.getLibraryViewMode() == 0)					// Library World View
 			{
 //				if (keyCode == PApplet.LEFT)
 //					ml.world.viewer.rotateX(-1);
-//
+//	
 //				if (keyCode == PApplet.RIGHT) 
 //					ml.world.viewer.rotateX(1);
-//				
+//	
 //				if (keyCode == PApplet.UP) 
 //					ml.display.map2D.zoomOut(ml.world);
-//					
+//	
 //				if (keyCode == PApplet.DOWN) 
 //					ml.display.map2D.zoomIn(ml.world);
 			}
-			else if(ml.display.libraryViewMode == 2)			// Library Cluster View
+			if(ml.display.getLibraryViewMode() == 1)					// Library Field View
 			{
 				if (keyCode == PApplet.LEFT) 
-					ml.display.showPreviousCluster();
+					ml.display.showPreviousItem();
 
 				if (keyCode == PApplet.RIGHT) 
-					ml.display.showNextCluster();
+					ml.display.showNextItem();
+
+			}
+			else if(ml.display.getLibraryViewMode() == 2)			// Library Cluster View
+			{
+				if (keyCode == PApplet.LEFT) 
+					ml.display.showPreviousItem();
+
+				if (keyCode == PApplet.RIGHT) 
+					ml.display.showNextItem();
 			}
 		}
 	}
@@ -830,7 +892,103 @@ public class ML_KeyboardControls
 	{
 		/* Navigation */
 		if (key == 'j') 
-			ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
+			ml.world.viewer.moveToRandomCluster(true, false);				// Jump to random cluster
+
+		if (key == 'i') 		// Go to nearest cluster ID with image
+			ml.world.viewer.moveToNearestClusterWithType(0, false, true, false);
+
+		if (key == 'p') 		// Go to nearest cluster ID with panorama
+			ml.world.viewer.moveToNearestClusterWithType(1, false, true, false);
+
+		if (key == 'v') 		// Go to nearest cluster ID with video
+			ml.world.viewer.moveToNearestClusterWithType(2, false, true, false);
+
+		if (key == 'u') 		// Go to nearest cluster ID with sound
+			ml.world.viewer.moveToNearestClusterWithType(3, false, true, false);
+
+		if (key == 'm') 
+			ml.world.viewer.moveToNearestCluster(false);
+
+		if (key == '{')
+			ml.world.viewer.teleportToFieldOffset(-1, true, false);
+
+		if (key == '}') 
+			ml.world.viewer.teleportToFieldOffset(1, true, false);
+
+		if( key == 'l' )
+			ml.world.viewer.moveToLastCluster(false);
+
+		if (key == 'n')						// Teleport to next time segment on same date
+			ml.world.viewer.moveToNextTimeSegment(true, true, true, false);
+
+		if (key == 'b')						// Teleport to previous time segment on same date
+			ml.world.viewer.moveToPreviousTimeSegment(true, true, true, false);
+
+		if (key == 'N')						// Teleport to next time segment on any date
+			ml.world.viewer.moveToNextTimeSegment(false, true, true, false);
+
+		if (key == 'B')						// Teleport to previous time segment on any date
+			ml.world.viewer.moveToPreviousTimeSegment(false, true, true, false);
+
+		if (key == '~')
+		{
+			if(!ml.world.viewer.isFollowing())
+			{
+				int followMode = ml.world.viewer.getPathNavigationMode();
+				if(followMode >= 2) followMode = 0;
+				else followMode++;
+
+				ml.world.viewer.setPathNavigationMode(followMode);
+
+				if(ml.display.window.setupNavigationWindow)
+				{
+					switch(ml.world.viewer.getPathNavigationMode())		// 0: Timeline 1: GPS Track 2: Memory
+					{
+						case 0:					// Timeline
+							ml.display.window.optTimeline.setSelected(true);
+							ml.display.window.optGPSTrack.setSelected(false);
+							ml.display.window.optMemory.setSelected(false);
+							break;
+						case 1:					// GPS Track
+							ml.display.window.optTimeline.setSelected(false);
+							ml.display.window.optGPSTrack.setSelected(true);
+							ml.display.window.optMemory.setSelected(false);
+							break;
+						case 2:					// Memory
+							ml.display.window.optTimeline.setSelected(false);
+							ml.display.window.optGPSTrack.setSelected(false);
+							ml.display.window.optMemory.setSelected(true);
+							break;
+					}
+				}
+			}
+		}
+		
+		if (!input.optionKey && key == '>')
+		{
+			if(!ml.world.viewer.isFollowing())
+			{
+				switch(ml.world.viewer.getPathNavigationMode())
+				{
+					case 0:
+						ml.world.viewer.followTimeline(true, false);
+						break;
+					case 1:
+						ml.world.viewer.startFollowingGPSTrack();
+						break;
+					case 2:
+						ml.world.viewer.followMemory();
+						break;
+				}
+
+				if(ml.display.window.setupNavigationWindow)
+					ml.display.window.chkbxPathFollowing.setSelected(true);
+			}
+			else
+			{
+				ml.world.viewer.stopFollowing();
+			}
+		}
 
 		/* Timeline */
 		if (key == 'r')									// Zoom out to whole timeline

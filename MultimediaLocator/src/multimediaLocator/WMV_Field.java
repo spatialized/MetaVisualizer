@@ -1053,7 +1053,7 @@ public class WMV_Field
 	 */
 	public void setHome(WMV_Waypoint newHome)
 	{
-		if(debugSettings.world) System.out.println("Field.setHome()... newHome.location x:"+newHome.getWorldLocation().x+" y:"+newHome.getWorldLocation().y+" z:"+newHome.getWorldLocation().z);
+		if(debugSettings.viewer) System.out.println("Field.setHome()... newHome.location x:"+newHome.getWorldLocation().x+" y:"+newHome.getWorldLocation().y+" z:"+newHome.getWorldLocation().z);
 		state.entryLocation = newHome;
 	}
 	

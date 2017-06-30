@@ -378,6 +378,16 @@ public class WMV_Viewer
 	{
 		startMoveYTransition(1);
 	}
+	
+	public void sidestepLeft()
+	{
+		startMoveXTransition(-1);
+	}
+	
+	public void sidestepRight()
+	{
+		startMoveXTransition(1);
+	}
 
 	/**
 	 * Slow viewer movement along active walking axes
@@ -764,7 +774,7 @@ public class WMV_Viewer
 	 * @param mediaType Media type without which clusters are skipped...  {0: image, 1: panorama, 2: video, 3: sound}
 	 * @param inclCurrent Whether to include current cluster
 	 */
-	public void moveToNearestClusterWithType(boolean teleport, int mediaType, boolean inclCurrent) 
+	public void moveToNearestClusterWithType(int mediaType, boolean inclCurrent, boolean teleport, boolean fade) 
 	{
 		int nearest = state.currentCluster;
 		boolean found = false;
@@ -790,7 +800,7 @@ public class WMV_Viewer
 		{
 			if(teleport)		/* Teleport or move */
 			{
-				teleportToCluster(nearest, true, -1);
+				teleportToCluster(nearest, fade, -1);
 			}
 			else
 			{

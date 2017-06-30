@@ -2034,21 +2034,22 @@ public class MultimediaLocator extends PApplet
 	{
 		public void eventDispatched(AWTEvent event) 
 		{
-			//System.out.print(MouseInfo.getPointerInfo().getLocation() + " | ");
-			//System.out.println(">> event:"+event);
-			//System.out.println("source:"+event.getSource()+" type:"+event.getSource().getClass());
-
-			//		    JFrame jFrame;
-			//		    if (event.getSource().getClass().toString().equals("class javax.swing.JFrame"))
-			//		    {
-			//		      jFrame = (JFrame)event.getSource();
-			//		    }
+//			System.out.print(MouseInfo.getPointerInfo().getLocation() + " | ");
+//			System.out.println(">> event:"+event);
+//			System.out.println("source:"+event.getSource()+" type:"+event.getSource().getClass());
+//
+//			JFrame jFrame;
+//			if (event.getSource().getClass().toString().equals("class javax.swing.JFrame"))
+//			{
+//				jFrame = (JFrame)event.getSource();
+//			}
 
 			if (event.getSource().getClass().toString().equals("class processing.awt.PSurfaceAWT$SmoothCanvas"))
 			{
 				PSurfaceAWT.SmoothCanvas pSurface = (PSurfaceAWT.SmoothCanvas)event.getSource();
 				Frame nativeFrame = pSurface.getFrame();
 				//System.out.println(" PSurfaceAWT.SmoothCanvas Event title:"+nativeFrame.getTitle()+" id:"+event.getID());
+				
 				if(event.getID() == FocusEvent.FOCUS_LOST)
 				{
 					String windowTitle = nativeFrame.getTitle();
@@ -2061,23 +2062,11 @@ public class MultimediaLocator extends PApplet
 		}
 	}
 
-//	private void handleWindowLostFocus(String windowTitle)
-//	{
-//  	  	display.window.handleWindowLostFocus(windowTitle);
-//	}
-
 //	private void setAppTitle(String title) 
 //	{
 //		surface.setTitle(title);
 //	}
 	
-//	public void convertVideosTest()		// -- Debugging
-//	{
-//		String inputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testInput/";
-//		String outputPath = "/Users/davidgordon/Dropbox/Projects/Software/MultimediaLocator/Code/TestsAndExamples/AppleScriptConvertVideos/testOutput/";
-//		world.utilities.convertVideos(this, inputPath, outputPath);
-//	}
-
 	/* Obsolete */
 //	
 //	public void setSurfaceVisible(boolean newState)

@@ -340,13 +340,13 @@ public class ML_Display
 			ml.fill(35, 115, 255, 255);
 		}
 
-		ml.text(strDisplayDate, xPos, yPos += hudLineWidthVeryWide * 1.5f, 0);
+		ml.text(strDisplayDate, xPos, yPos += hudLineWidthVeryWide * 1.2f, 0);
 //		ml.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistanceInit);
 		
 		ml.textSize(hudMediumTextSize);
 //		ml.textSize(mediumTextSize);
 		ml.fill(0, 0, 255, 255);
-		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += hudLineWidthVeryWide, 0);
+		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += hudLineWidthWide, 0);
 //		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
 
 		yPos = timelineYOffset + timelineHeight * 4.f;

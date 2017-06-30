@@ -1041,7 +1041,7 @@ public class ML_Window
 //		if(!compressTallWindows) lblSubjectDistance.setTextAlign(GAlign.CENTER, null);
 		lblSubjectDistance.setTextBold();
 
-		world.ml.delay(delayAmount / 2);
+		world.ml.delay(delayAmount);
 
 		x = 215;
 		btnSubjectDistanceUp = new GButton(mediaWindow, x, y, 30, iVerySmallBoxHeight, "+");
@@ -1054,7 +1054,7 @@ public class ML_Window
 		chkbxBlurMasks.tag = "FadeEdges";
 		chkbxBlurMasks.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxBlurMasks.setSelected(world.getState().useBlurMasks);
-		chkbxAlphaMode = new GCheckbox(mediaWindow, x+125, y, 135, iVerySmallBoxHeight, "Alpha On/Off (OPT p)");
+		chkbxAlphaMode = new GCheckbox(mediaWindow, x+125, y, 115, iVerySmallBoxHeight, "Alpha On/Off (;)");
 		chkbxAlphaMode.tag = "AlphaMode";
 		chkbxAlphaMode.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxAlphaMode.setSelected(world.getState().alphaMode);
@@ -1319,7 +1319,6 @@ public class ML_Window
 		libraryViewWindow.setVisible(true);
 		libraryViewWindow.addData(new ML_WinData());
 		libraryViewWindow.addDrawHandler(this, "libraryViewWindowDraw");
-//		libraryViewWindow.addMouseHandler(this, "libraryViewWindowMouse");
 		libraryViewWindow.addKeyHandler(world.ml, "libraryViewWindowKey");
 		libraryViewWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
@@ -1357,6 +1356,8 @@ public class ML_Window
 		lblInterestPoint.setLocalColorScheme(G4P.SCHEME_10);
 		lblInterestPoint.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 
+		world.ml.delay(delayAmount);
+
 		x = 160;
 		y += iMediumBoxHeight * 0.5f;
 		btnCurrentCluster = new GButton(libraryViewWindow, x, y, 100, iVerySmallBoxHeight, "Current (c)");
@@ -1384,7 +1385,7 @@ public class ML_Window
 		
 		libraryWindowWorldTextYOffset = y + iMediumBoxHeight + 15;
 		
-		world.ml.delay(delayAmount);
+		world.ml.delay(delayAmount / 2);
 
 		x = 0;
 		y = libraryViewWindowHeight - iBottomTextY;
@@ -1396,6 +1397,8 @@ public class ML_Window
 		
 		setupLibraryViewWindow = true;
 		world.ml.setAppIcon = true;
+		
+		world.ml.delay(delayAmount / 2);
 	}
 	
 	/**
@@ -2409,8 +2412,8 @@ public class ML_Window
 		applet.stroke(0, 0, 65, 255);
 		applet.strokeWeight(1);
 		applet.line(0, navigationWindowLineBreakY_1, windowWidth, navigationWindowLineBreakY_1);
-		applet.stroke(0, 0, 155, 255);
-		applet.strokeWeight(2);
+//		applet.stroke(0, 0, 155, 255);
+//		applet.strokeWeight(2);
 		if(!compressTallWindows) applet.line(0, navigationWindowLineBreakY_2, windowWidth, navigationWindowLineBreakY_2);
 		
 //		if(world.state.timeFading && !world.state.paused)
@@ -2457,8 +2460,10 @@ public class ML_Window
 		applet.background(0);
 	
 		applet.colorMode(PConstants.HSB);
-		applet.stroke(0, 0, 155, 255);
-		applet.strokeWeight(2);
+		applet.stroke(0, 0, 75, 255);
+		applet.strokeWeight(1);
+//		applet.stroke(0, 0, 155, 255);
+//		applet.strokeWeight(2);
 		if(!compressTallWindows)
 			applet.line(0, mediaWindowLineBreakY_1, windowWidth, mediaWindowLineBreakY_1);
 		if(!compressTallWindows)

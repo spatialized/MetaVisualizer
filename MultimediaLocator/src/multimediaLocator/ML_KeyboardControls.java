@@ -477,7 +477,7 @@ public class ML_KeyboardControls
 				ml.world.viewer.hideSounds();
 		}
 
-		if (input.optionKey && key == 'p')
+		if (key == ';')
 		{
 			boolean state = !ml.world.getState().alphaMode;
 			ml.world.state.alphaMode = state;

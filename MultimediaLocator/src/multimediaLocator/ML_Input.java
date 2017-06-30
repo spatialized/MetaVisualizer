@@ -547,6 +547,15 @@ public class ML_Input
 					if(display.getDisplayView() != 3)
 						display.setDisplayView(ml.world, 3);
 					break;
+				case "PreviousCluster":
+					ml.display.showPreviousCluster();
+					break;
+				case "NextCluster":
+					ml.display.showNextCluster();
+					break;
+				case "CurrentCluster":
+					ml.display.setDisplayCluster( ml.world.viewer.getCurrentClusterID() );
+					break;
 			}
 		}
 		

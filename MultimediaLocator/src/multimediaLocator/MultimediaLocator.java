@@ -448,14 +448,14 @@ public class MultimediaLocator extends PApplet
 				if(metadata.gpsTrackFilesFound) f.setGPSTracks( metadata.loadGPSTracks(f) );	// Load GPS tracks
 				world.getField(fieldID).setDataFolderLoaded(true);
 				if(f.getID() == 0)
-					display.window.setLibraryWindowText("Loading media library...");		/* Change Library Window Text */
+					display.window.setLibraryWindowText("Loading MultimediaLocator library...");		/* Change Library Window Text */
 
 				if(debug.ml || debug.world) systemMessage("ML.initializeField()... Succeeded at loading simulation state for Field #"+f.getID());
 			}
 			else										/* If failed to load field, initialize from metadata */
 			{
 				if(f.getID() == 0)
-					display.window.setLibraryWindowText("Building media library...");		/* Change Library Window Text */
+					display.window.setLibraryWindowText("Building MultimediaLocator library...");		/* Change Library Window Text */
 
 				if(debug.ml || debug.world) systemMessage("ML.initializeField()... No simulation state to load... Initializing Field #"+f.getID());
 				

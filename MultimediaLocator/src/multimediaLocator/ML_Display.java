@@ -1847,6 +1847,59 @@ public class ML_Display
 	}
 	
 	/**
+	 * Set display cluster in Library View
+	 * @param clusterID
+	 */
+	public void setDisplayCluster(int clusterID)
+	{
+		currentDisplayCluster = clusterID;
+	}
+	
+	/**
+	 * 
+	 */
+	public void showPreviousCluster()
+	{
+		ml.display.currentDisplayCluster--;
+		if(ml.display.currentDisplayCluster < 0)
+			ml.display.currentDisplayCluster = ml.world.getCurrentFieldClusters().size() - 1;
+
+		int count = 0;
+		while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
+		{
+			ml.display.currentDisplayCluster--;
+			count++;
+			if(ml.display.currentDisplayCluster < 0)
+				ml.display.currentDisplayCluster = ml.world.getCurrentFieldClusters().size() - 1;
+
+			if(count > ml.world.getCurrentFieldClusters().size())
+				break;
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void showNextCluster()
+	{
+		ml.display.currentDisplayCluster++;
+		if( ml.display.currentDisplayCluster >= ml.world.getCurrentFieldClusters().size())
+			ml.display.currentDisplayCluster = 0;
+
+		int count = 0;
+		while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
+		{
+			ml.display.currentDisplayCluster++;
+			count++;
+			if( ml.display.currentDisplayCluster >= ml.world.getCurrentFieldClusters().size())
+				ml.display.currentDisplayCluster = 0;
+
+			if(count > ml.world.getCurrentFieldClusters().size())
+				break;
+		}
+	}
+	
+	/**
 	 * Set current object viewable in Media View
 	 * @param mediaType Media type
 	 * @param mediaID Media ID
@@ -2027,7 +2080,7 @@ public class ML_Display
 		switch(newDisplayView)
 		{
 			case 0:													// World View
-				if(window.setupMLWindow)
+				if(window.setupMainMenu)
 				{
 					window.optWorldView.setSelected(true);
 					window.optMapView.setSelected(false);
@@ -2076,7 +2129,7 @@ public class ML_Display
 
 				map2D.resetMapZoom(false);
 				
-				if(window.setupMLWindow)
+				if(window.setupMainMenu)
 				{
 					window.optWorldView.setSelected(false);
 					window.optMapView.setSelected(true);
@@ -2105,7 +2158,7 @@ public class ML_Display
 				}
 				break;
 			case 2:														// Time View
-				if(window.setupMLWindow)
+				if(window.setupMainMenu)
 				{
 					window.optWorldView.setSelected(false);
 					window.optMapView.setSelected(false);
@@ -2135,7 +2188,7 @@ public class ML_Display
 				break;
 			case 3:													// Library View 
 				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
-				if(window.setupMLWindow)
+				if(window.setupMainMenu)
 				{
 					window.optWorldView.setSelected(false);
 					window.optMapView.setSelected(false);

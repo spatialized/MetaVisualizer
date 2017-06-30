@@ -17,6 +17,9 @@ public class ML_DebugSettings
 	public boolean world = false;				// Debug WMV_World and WMV_Field class
 	public boolean library = false;
 	public boolean memory = false;				// Debug memory
+
+	/* Input */
+	public boolean mouse = true;
 	
 	/* Model */
 	public boolean metadata = false;			// Debug WMV_Metadata class
@@ -40,7 +43,6 @@ public class ML_DebugSettings
 
 	/* Other */
 	public boolean stitching = false;			// Debug WMV_Stitcher class
-	public boolean mouse = false;
 	public boolean gps = false;					// Debug WMV_Viewer class
 	
 	ML_DebugSettings (){}

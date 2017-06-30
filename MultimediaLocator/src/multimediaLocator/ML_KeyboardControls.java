@@ -65,7 +65,7 @@ public class ML_KeyboardControls
 		if (key == 'H')
 		{
 			ml.world.settings.screenMessagesOn = !ml.world.settings.screenMessagesOn;
-			if(ml.display.window.setupMLWindow)
+			if(ml.display.window.setupMainMenu)
 				ml.display.window.chkbxScreenMessagesOn.setSelected(ml.world.settings.screenMessagesOn);
 			
 //			ml.world.settings.showStitchedPanoramas = !ml.world.settings.showStitchedPanoramas;
@@ -432,8 +432,7 @@ public class ML_KeyboardControls
 
 		if (key == PApplet.ENTER)
 		{
-			if(ml.display.getDisplayView() == 0)
-				ml.world.viewer.startViewingSelectedMedia();
+			ml.world.viewer.startViewingSelectedMedia();
 		}
 
 		if (key == 'E')
@@ -764,7 +763,17 @@ public class ML_KeyboardControls
 			ml.world.viewer.moveToRandomCluster(true, false);				/* Teleport to random cluster */
 
 		if (key == 'c')
-			ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
+			ml.display.setDisplayCluster(ml.world.viewer.getCurrentClusterID());
+//			ml.display.currentDisplayCluster = ml.world.viewer.getState().getCurrentClusterID();
+
+		if (key == PApplet.ENTER)
+		{
+			if(ml.display.currentDisplayCluster >= 0 && ml.display.currentDisplayCluster < ml.world.getCurrentFieldClusters().size())
+			{
+				ml.world.viewer.teleportToCluster(ml.display.currentDisplayCluster, true, -1); 
+				ml.display.setDisplayView(ml.world, 0);
+			}
+		}
 
 //		if (key == '[') 
 //		{
@@ -802,45 +811,11 @@ public class ML_KeyboardControls
 			}
 			else if(ml.display.libraryViewMode == 2)			// Library Cluster View
 			{
-//				System.out.println("Keyboard.handleLibraryViewKeyPressed()... CODED key:"+key+" keyCode:"+keyCode);
-
 				if (keyCode == PApplet.LEFT) 
-				{
-					ml.display.currentDisplayCluster--;
-					if(ml.display.currentDisplayCluster < 0)
-						ml.display.currentDisplayCluster = ml.world.getCurrentFieldClusters().size() - 1;
-
-					int count = 0;
-					while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
-					{
-						ml.display.currentDisplayCluster--;
-						count++;
-						if(ml.display.currentDisplayCluster < 0)
-							ml.display.currentDisplayCluster = ml.world.getCurrentFieldClusters().size() - 1;
-
-						if(count > ml.world.getCurrentFieldClusters().size())
-							break;
-					}
-				}
+					ml.display.showPreviousCluster();
 
 				if (keyCode == PApplet.RIGHT) 
-				{
-					ml.display.currentDisplayCluster++;
-					if( ml.display.currentDisplayCluster >= ml.world.getCurrentFieldClusters().size())
-						ml.display.currentDisplayCluster = 0;
-
-					int count = 0;
-					while(ml.world.getCurrentField().getCluster(ml.display.currentDisplayCluster).isEmpty())
-					{
-						ml.display.currentDisplayCluster++;
-						count++;
-						if( ml.display.currentDisplayCluster >= ml.world.getCurrentFieldClusters().size())
-							ml.display.currentDisplayCluster = 0;
-
-						if(count > ml.world.getCurrentFieldClusters().size())
-							break;
-					}
-				}
+					ml.display.showNextCluster();
 			}
 		}
 	}

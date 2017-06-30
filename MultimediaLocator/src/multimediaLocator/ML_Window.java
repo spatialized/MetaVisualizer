@@ -1923,7 +1923,7 @@ public class ML_Window
 		lblImport.setTextBold();
 
 		x = 0;
-		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y + 35, createLibraryWindow.width, 22, "Creating media library...");
+		lblCreateLibraryWindowText = new GLabel(createLibraryWindow, x, y + 35, createLibraryWindow.width, 22, "Creating MultimediaLocator library...");
 		lblCreateLibraryWindowText.setLocalColorScheme(G4P.SCHEME_10);
 		lblCreateLibraryWindowText.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
 		lblCreateLibraryWindowText.setTextAlign(GAlign.CENTER, null);

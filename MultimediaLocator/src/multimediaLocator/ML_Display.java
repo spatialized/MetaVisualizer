@@ -26,7 +26,10 @@ public class ML_Display
 	public float setupProgress = 0.f;
 	
 	/* Graphics */
-	PMatrix3D originalMatrix; 							/* For HUD */
+	private PMatrix3D originalMatrix; 							/* For restoring 3D view after 2D HUD */
+	private WMV_Camera camera3D;								/* For restoring 3D view after 2D HUD */
+	private float currentFieldOfView;
+	
 	public boolean drawGrid = false; 					/* Draw 3D grid */   			// -- Unused
 //	PImage startupImage;
 
@@ -140,37 +143,21 @@ public class ML_Display
 	public ML_Display(MultimediaLocator parent)
 	{
 		ml = parent;
+		utilities = new WMV_Utilities();
 		
 		originalMatrix = ml.getMatrix((PMatrix3D)null);
 
 		screenWidth = ml.displayWidth;
 		screenHeight = ml.displayHeight;
 		
-//		screenWidth = ml.appWidth;
-//		screenHeight = ml.appHeight;
-		
-		utilities = new WMV_Utilities();
-		
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
+		/* 3D HUD Displays */
 		centerTextXOffset = screenWidth / 2.f;
-		
-//		leftTextXOffset = 0.f;
-//		midLeftTextXOffset = screenWidth / 3.f;
-//		rightTextXOffset = 0.f;
-//		midRightTextXOffset = screenWidth / 1.5f;
-
-//		topTextYOffset = -screenHeight / 1.66f;
 		topTextYOffset = -screenHeight / 1.6f;
 		
-//		fieldsXOffset = -screenWidth / 1.88f;
-//		fieldsYOffset = -screenHeight / 1.33f;
-//		
-//		fieldsXScreenSize = screenWidth * 1.75f;
-//		fieldsYScreenSize = screenHeight * 1.33f;
-
 		messageXOffset = screenWidth * 1.75f;
 		messageYOffset = -screenHeight * 0.33f;
 
@@ -180,17 +167,13 @@ public class ML_Display
 		startupMessageXOffset = screenWidth / 2.f;
 		startupMessageYOffset = -screenHeight /2.f;
 
-//		timelineScreenSize = screenWidth * 2.2f;
+		/* 2D HUD Displays */
 		timelineScreenSize = screenWidth * 0.86f;
 		timelineHeight = screenHeight * 0.1f;
 		
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
-//		timelineXOffset = -screenWidth / 1.66f;
-//		timelineYOffset = 0.f;
-//		datelineXOffset = timelineXOffset;
-//		datelineYOffset = screenHeight * 0.266f;
 		hudLeftMargin = screenWidth * 0.07f;
 		timelineYOffset = screenHeight * 0.33f;
 
@@ -199,8 +182,6 @@ public class ML_Display
 
 		clusterImageXOffset = hudLeftMargin;
 		clusterImageYOffset = screenHeight * 0.5f;
-//		clusterImageXOffset = -screenWidth / 1.85f;
-//		clusterImageYOffset = screenHeight * 1.33f;
 		
 		datelineXOffset = hudLeftMargin;
 		datelineYOffset = screenHeight * 0.5f;
@@ -214,8 +195,7 @@ public class ML_Display
 		messageFont = ml.createFont("ArialNarrow-Bold", messageTextSize);
 		defaultFont = ml.createFont("SansSerif", smallTextSize);
 
-//		messageFont = ml.createFont("ArialNarrow-Bold", 48);
-		ml.textFont(messageFont);
+//		ml.textFont(messageFont);
 		
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
@@ -291,21 +271,23 @@ public class ML_Display
 	  /**
 	   * 
 	   */
-	  public void beginHUD(MultimediaLocator ml) {
-	    ml.g.pushMatrix();
-	    ml.g.hint(PConstants.DISABLE_DEPTH_TEST);
-	    // Load the identity matrix.
-	    ml.g.resetMatrix();
-	    // Apply the original Processing transformation matrix.
-	    ml.g.applyMatrix(originalMatrix);
+	  public void beginHUD(MultimediaLocator ml) 
+	  {
+		  ml.g.pushMatrix();
+		  ml.g.hint(PConstants.DISABLE_DEPTH_TEST);
+		  // Load the identity matrix.
+		  ml.g.resetMatrix();
+		  // Apply the original Processing transformation matrix.
+		  ml.g.applyMatrix(originalMatrix);
 	  }
 
 	  /**
 	   * 
 	   */
-	  public void endHUD(MultimediaLocator ml) {
+	  public void endHUD(MultimediaLocator ml) 
+	  {
 //	    ml.g.hint(PConstants.ENABLE_DEPTH_TEST);
-	    ml.g.popMatrix();
+		  ml.g.popMatrix();
 	  }
 
 	/**
@@ -1611,146 +1593,179 @@ public class ML_Display
 	}
 
 	/**
-	 * Draw Interactive Clustering footer text
-	 * @param ml Parent app
+	 * Reset all HUD displays
 	 */
-	void displayClusteringInfo(MultimediaLocator ml)
+	public void reset()
 	{
-		if(ml.world.state.hierarchical)
-		{
-			message(ml, "Hierarchical Clustering");
-			message(ml, " ");
-			message(ml, "Use arrow keys UP and DOWN to change clustering depth... ");
-			message(ml, "Use [ and ] to change Minimum Cluster Distance... ");
-		}
-		else
-		{
-			message(ml, "K-Means Clustering");
-			message(ml, " ");
-			message(ml, "Use arrow keys LEFT and RIGHT to change Iterations... ");
-			message(ml, "Use arrow keys UP and DOWN to change Population Factor... ");
-			message(ml, "Use [ and ] to change Minimum Cluster Distance... ");
-		}
+//		ml = parent;
+//		utilities = new WMV_Utilities();
 		
-		message(ml, " ");
-		message(ml, "Press <spacebar> to restart simulation...");
-	}
+//		originalMatrix = ml.getMatrix((PMatrix3D)null);
 
-	/**
-	 * Reset display object
-	 */
-	void reset()
-	{
-		System.out.println("Display.reset()... ");
-		/* Window Modes */
-//		fullscreen = true;
-		initializedMaps = false;
-
-		/* Display Mode */
-		displayView = 0;
-		
-		/* Debug */
-		drawForceVector = false;
-		
-		/* Graphics */
-		drawGrid = false; 			// Draw 3D grid   			-- Unused
-
-		blendMode = 0;							// Alpha blending mode
-		numBlendModes = 10;						// Number of blending modes
-
-		/* Timeline */
-		timelineHeight = 80.f;
-		displayDate = -1;
-		
-		selectedTime = -1; 
-		selectedCluster = -1;
-		currentSelectableTimeSegmentID = -1;
-		currentSelectableTimeSegment = null;
-		selectedDate = -1; 
-		currentSelectableDate = -1;
-
-		timelineScreenSize = screenWidth * 2.2f;
-		timelineStart = 0.f;
-		timelineEnd = utilities.getTimePVectorSeconds( new PVector(24,0,0) );
-
-//		System.out.println("Display.reset()... 1");
-
-		datelineStart = 0.f;
-		datelineEnd = 0.f;
-		
-		updateCurrentSelectableTimeSegment = true;
-		updateCurrentSelectableDate = true;
-		
-		hudLeftMargin = -screenWidth / 1.66f;
-//		timelineYOffset = -screenHeight / 2.f;
-		timelineYOffset = 0.f;
-		datelineXOffset = hudLeftMargin;
-		datelineYOffset = screenHeight * 0.2f;
-
-		selectableTimeSegments = new ArrayList<SelectableTimeSegment>();
-		selectableDates = new ArrayList<SelectableDate>();
-
-		fieldTimelineCreated = false;
-		fieldDatelineCreated = false;
-		updateFieldTimeline = true;
-
-		timelineTransition = false; 
-		timelineZooming = false; 
-		timelineScrolling = false;   
-		
-		transitionScrollDirection = -1; 
-		transitionZoomDirection = -1;
-		timelineTransitionStartFrame = 0; 
-		timelineTransitionEndFrame = 0;
-		timelineTransitionLength = 30; 
-		timelineStartTransitionStart = 0; 
-		timelineStartTransitionTarget = 0;
-		timelineEndTransitionStart = 0; 
-		timelineEndTransitionTarget = 0;
-		transitionScrollIncrement = 2000.f; 
-		transitionZoomInIncrement = 0.95f; transitionZoomOutIncrement = 1.052f;	
-
-//		System.out.println("Display.reset()... 2");
-
-		/* Library View */
-		libraryViewMode = 0;
-		currentDisplayCluster = 0;
-		
-		/* Messages */
-		messageStartFrame = -1;
-		metadataStartFrame = -1;
-		startupMessageStartFrame = -1;
-		messageDuration = 60;
-		
-		messageHUDDistance = hudDistanceInit * 6.f;
+		screenWidth = ml.displayWidth;
+		screenHeight = ml.displayHeight;
 		
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
-//		System.out.println("Display.reset()... 3");
-
+		/* 3D HUD Displays */
 		centerTextXOffset = screenWidth / 2.f;
-//		leftTextXOffset = 0.f;
-//		midLeftTextXOffset = screenWidth / 3.f;
-//		rightTextXOffset = 0.f;
-//		midRightTextXOffset = screenWidth / 1.5f;
-
 		topTextYOffset = -screenHeight / 1.6f;
-		clusterImageXOffset = -screenWidth/ 1.9f;
-		clusterImageYOffset = screenHeight / 2.5f;
+		
+		messageXOffset = screenWidth * 1.75f;
+		messageYOffset = -screenHeight * 0.33f;
 
-		messageXOffset = screenWidth;
-		messageYOffset = 0;
-
+		metadataXOffset = -screenWidth * 1.33f;
 		metadataYOffset = -screenHeight / 2.f;
 
 		startupMessageXOffset = screenWidth / 2.f;
 		startupMessageYOffset = -screenHeight /2.f;
+
+		/* 2D HUD Displays */
+		timelineScreenSize = screenWidth * 0.86f;
+		timelineHeight = screenHeight * 0.1f;
 		
-//		System.out.println("Display.reset()... 4");
+		timelineStart = 0.f;
+		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
+
+		hudLeftMargin = screenWidth * 0.07f;
+		timelineYOffset = screenHeight * 0.33f;
+
+		hudCenterXOffset = screenWidth * 0.5f;
+		hudTopMargin = screenHeight * 0.085f;
+
+		clusterImageXOffset = hudLeftMargin;
+		clusterImageYOffset = screenHeight * 0.5f;
+		
+		datelineXOffset = hudLeftMargin;
+		datelineYOffset = screenHeight * 0.5f;
+		
+		currentSelectableTimeSegment = null;
+		currentSelectableTimeSegmentID = -1;
+		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+
 		map2D.reset();
+		
+//		messageFont = ml.createFont("ArialNarrow-Bold", messageTextSize);
+//		defaultFont = ml.createFont("SansSerif", smallTextSize);
 	}
+	
+	/**
+	 * Reset display object
+	 */
+//	void reset()
+//	{
+//		System.out.println("Display.reset()... ");
+//		/* Window Modes */
+////		fullscreen = true;
+//		initializedMaps = false;
+//
+//		/* Display Mode */
+//		displayView = 0;
+//		
+//		/* Debug */
+//		drawForceVector = false;
+//		
+//		/* Graphics */
+//		drawGrid = false; 			// Draw 3D grid   			-- Unused
+//
+//		blendMode = 0;							// Alpha blending mode
+//		numBlendModes = 10;						// Number of blending modes
+//
+//		/* Timeline */
+//		timelineHeight = 80.f;
+//		displayDate = -1;
+//		
+//		selectedTime = -1; 
+//		selectedCluster = -1;
+//		currentSelectableTimeSegmentID = -1;
+//		currentSelectableTimeSegment = null;
+//		selectedDate = -1; 
+//		currentSelectableDate = -1;
+//
+//		timelineScreenSize = screenWidth * 2.2f;
+//		timelineStart = 0.f;
+//		timelineEnd = utilities.getTimePVectorSeconds( new PVector(24,0,0) );
+//
+////		System.out.println("Display.reset()... 1");
+//
+//		datelineStart = 0.f;
+//		datelineEnd = 0.f;
+//		
+//		updateCurrentSelectableTimeSegment = true;
+//		updateCurrentSelectableDate = true;
+//		
+//		hudLeftMargin = -screenWidth / 1.66f;
+////		timelineYOffset = -screenHeight / 2.f;
+//		timelineYOffset = 0.f;
+//		datelineXOffset = hudLeftMargin;
+//		datelineYOffset = screenHeight * 0.2f;
+//
+//		selectableTimeSegments = new ArrayList<SelectableTimeSegment>();
+//		selectableDates = new ArrayList<SelectableDate>();
+//
+//		fieldTimelineCreated = false;
+//		fieldDatelineCreated = false;
+//		updateFieldTimeline = true;
+//
+//		timelineTransition = false; 
+//		timelineZooming = false; 
+//		timelineScrolling = false;   
+//		
+//		transitionScrollDirection = -1; 
+//		transitionZoomDirection = -1;
+//		timelineTransitionStartFrame = 0; 
+//		timelineTransitionEndFrame = 0;
+//		timelineTransitionLength = 30; 
+//		timelineStartTransitionStart = 0; 
+//		timelineStartTransitionTarget = 0;
+//		timelineEndTransitionStart = 0; 
+//		timelineEndTransitionTarget = 0;
+//		transitionScrollIncrement = 2000.f; 
+//		transitionZoomInIncrement = 0.95f; transitionZoomOutIncrement = 1.052f;	
+//
+////		System.out.println("Display.reset()... 2");
+//
+//		/* Library View */
+//		libraryViewMode = 0;
+//		currentDisplayCluster = 0;
+//		
+//		/* Messages */
+//		messageStartFrame = -1;
+//		metadataStartFrame = -1;
+//		startupMessageStartFrame = -1;
+//		messageDuration = 60;
+//		
+//		messageHUDDistance = hudDistanceInit * 6.f;
+//		
+//		messages = new ArrayList<String>();
+//		metadata = new ArrayList<String>();
+//		startupMessages = new ArrayList<String>();
+//
+////		System.out.println("Display.reset()... 3");
+//
+//		centerTextXOffset = screenWidth / 2.f;
+////		leftTextXOffset = 0.f;
+////		midLeftTextXOffset = screenWidth / 3.f;
+////		rightTextXOffset = 0.f;
+////		midRightTextXOffset = screenWidth / 1.5f;
+//
+//		topTextYOffset = -screenHeight / 1.6f;
+//		clusterImageXOffset = -screenWidth/ 1.9f;
+//		clusterImageYOffset = screenHeight / 2.5f;
+//
+//		messageXOffset = screenWidth;
+//		messageYOffset = 0;
+//
+//		metadataYOffset = -screenHeight / 2.f;
+//
+//		startupMessageXOffset = screenWidth / 2.f;
+//		startupMessageYOffset = -screenHeight /2.f;
+//		
+////		System.out.println("Display.reset()... 4");
+//		map2D.reset();
+//	}
 
 	/**
 	 * Add message to queue
@@ -2019,7 +2034,7 @@ public class ML_Display
 //				ml.popMatrix();
 //
 //				map2D.displaySmallBasicMap(p);
-//				break;
+				break;
 
 			case 2:								// Cluster
 				startDisplayHUD();
@@ -2171,6 +2186,9 @@ public class ML_Display
 	 */
 	private void startDisplayHUD()
 	{
+//		camera3D = ml.world.viewer.getCamera();
+		currentFieldOfView = ml.world.viewer.getFieldOfView();
+	    ml.world.viewer.resetFieldOfView();
 		beginHUD(ml);
 	}
 
@@ -2181,6 +2199,8 @@ public class ML_Display
 	private void endTimelineHUD()
 	{
 		endHUD(ml);
+//		ml.world.viewer.setCamera(camera3D);
+		ml.world.viewer.zoomToFieldOfView(currentFieldOfView);
 	}
 
 	/**
@@ -2380,15 +2400,42 @@ public class ML_Display
 	/**
 	 * Reset display modes and clear messages
 	 */
-	void resetDisplayModes()
+	public void resetDisplayModes()
 	{
-		displayView = 0;
+		setDisplayView(ml.world, 0);
+//		displayView = 0;
 		
 		mapViewMode = 0;
-		libraryViewMode = 0;
+		libraryViewMode = 2;
 
 		clearMessages();
 		clearMetadata();
+	}
+
+	/**
+	 * Draw Interactive Clustering footer text
+	 * @param ml Parent app
+	 */
+	void displayClusteringInfo(MultimediaLocator ml)
+	{
+		if(ml.world.state.hierarchical)
+		{
+			message(ml, "Hierarchical Clustering");
+			message(ml, " ");
+			message(ml, "Use arrow keys UP and DOWN to change clustering depth... ");
+			message(ml, "Use [ and ] to change Minimum Cluster Distance... ");
+		}
+		else
+		{
+			message(ml, "K-Means Clustering");
+			message(ml, " ");
+			message(ml, "Use arrow keys LEFT and RIGHT to change Iterations... ");
+			message(ml, "Use arrow keys UP and DOWN to change Population Factor... ");
+			message(ml, "Use [ and ] to change Minimum Cluster Distance... ");
+		}
+		
+		message(ml, " ");
+		message(ml, "Press <spacebar> to restart simulation...");
 	}
 	
 	/**

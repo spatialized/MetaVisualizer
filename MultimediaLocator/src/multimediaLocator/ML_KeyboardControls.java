@@ -108,31 +108,31 @@ public class ML_KeyboardControls
 //		if (key == '0')
 //			ml.state.sphericalView = !ml.state.sphericalView;
 		
-		/* Navigation */
-		if (keyCode == PApplet.LEFT) 
-			ml.world.viewer.rotateX(-1);
-
-		if (keyCode == PApplet.RIGHT) 
-			ml.world.viewer.rotateX(1);
-
-		if (keyCode == PApplet.UP) 
-			ml.world.viewer.rotateY(-1);
-
-		if (keyCode == PApplet.DOWN) 
-			ml.world.viewer.rotateY(1);
-
-		/* Time */
-		if (input.shiftKey && keyCode == PApplet.UP) 
-			ml.world.incrementTime();
-
-		if (input.shiftKey && keyCode == PApplet.DOWN) 
-			ml.world.decrementTime();
-
-		if (input.shiftKey && keyCode == PApplet.LEFT) 
-			ml.world.decrementTimeCycleLength();
-
-		if (input.shiftKey && keyCode == PApplet.RIGHT) 
-			ml.world.incrementTimeCycleLength();
+//		/* Navigation */
+//		if (keyCode == PApplet.LEFT) 
+//			ml.world.viewer.rotateX(-1);
+//
+//		if (keyCode == PApplet.RIGHT) 
+//			ml.world.viewer.rotateX(1);
+//
+//		if (keyCode == PApplet.UP) 
+//			ml.world.viewer.rotateY(-1);
+//
+//		if (keyCode == PApplet.DOWN) 
+//			ml.world.viewer.rotateY(1);
+//
+//		/* Time */
+//		if (input.shiftKey && keyCode == PApplet.UP) 
+//			ml.world.incrementTime();
+//
+//		if (input.shiftKey && keyCode == PApplet.DOWN) 
+//			ml.world.decrementTime();
+//
+//		if (input.shiftKey && keyCode == PApplet.LEFT) 
+//			ml.world.decrementTimeCycleLength();
+//
+//		if (input.shiftKey && keyCode == PApplet.RIGHT) 
+//			ml.world.incrementTimeCycleLength();
 		
 		/* Graphics */
 		if (input.optionKey && key == '[')
@@ -605,6 +605,35 @@ public class ML_KeyboardControls
 			if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
 			ml.world.exportCurrentMedia();
 		}
+		
+		if(key == PApplet.CODED)
+		{
+			/* Navigation */
+			if (keyCode == PApplet.LEFT) 
+				ml.world.viewer.rotateX(-1);
+
+			if (keyCode == PApplet.RIGHT) 
+				ml.world.viewer.rotateX(1);
+
+			if (keyCode == PApplet.UP) 
+				ml.world.viewer.rotateY(-1);
+
+			if (keyCode == PApplet.DOWN) 
+				ml.world.viewer.rotateY(1);
+
+			/* Time */
+			if (input.shiftKey && keyCode == PApplet.UP) 
+				ml.world.incrementTime();
+
+			if (input.shiftKey && keyCode == PApplet.DOWN) 
+				ml.world.decrementTime();
+
+			if (input.shiftKey && keyCode == PApplet.LEFT) 
+				ml.world.decrementTimeCycleLength();
+
+			if (input.shiftKey && keyCode == PApplet.RIGHT) 
+				ml.world.incrementTimeCycleLength();
+		}
 	}
 	
 	/**
@@ -822,7 +851,7 @@ public class ML_KeyboardControls
 	 * @param key
 	 * @param keyCode
 	 */
-	public void handleTimelineViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
+	public void handleTimeViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if (key == 'j') 
 			ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster

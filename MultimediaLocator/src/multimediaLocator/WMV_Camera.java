@@ -451,4 +451,10 @@ public class WMV_Camera
 		float magnitude = (float)Math.sqrt(x * x + y * y + z * z);
 		return (magnitude < 0.00001f) ? 1 : magnitude;
 	}
+	
+	public void setFieldOfView(float newFieldOfView)
+	{
+		fov = newFieldOfView;
+		show();
+	}
 }

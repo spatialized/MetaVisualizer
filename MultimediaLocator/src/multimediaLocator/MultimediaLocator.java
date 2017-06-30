@@ -119,7 +119,7 @@ public class MultimediaLocator extends PApplet
 		surface.setResizable(true);
 		hideAppWindow();
 		
-//		delay(delayAmount);
+		delay(basicDelay);
 		
 		debug = new ML_DebugSettings();
 		systemMessages = new ArrayList<String>();
@@ -143,8 +143,10 @@ public class MultimediaLocator extends PApplet
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
 		textAlign(PConstants.CENTER, PConstants.CENTER);
-		
+		delay(basicDelay);
+
 		initCubeMap();
+		delay(basicDelay);
 		
 //		delay(delayAmount);
 
@@ -382,30 +384,33 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void rebuildSelectedLibrary()
 	{
-		ArrayList<String> libFolders = library.getFolders();
-		display.window.setLibraryWindowText("Rebuilding media library...");		// -- Not being called
-		for(String strFolderName : libFolders)
+		if(library.getFolders() != null)
 		{
-			File folderFile = new File(library.getLibraryFolder() + "/" + strFolderName);
-			if(folderFile.exists() && folderFile.isDirectory())
+			ArrayList<String> libFolders = library.getFolders();
+			display.window.setLibraryWindowText("Rebuilding MultimediaLocator library...");		// -- Not being called
+			for(String strFolderName : libFolders)
 			{
-				File[] fileList = folderFile.listFiles();
-				for(int i=0; i<fileList.length; i++)
+				File folderFile = new File(library.getLibraryFolder() + "/" + strFolderName);
+				if(folderFile.exists() && folderFile.isDirectory())
 				{
-					File file = fileList[i];
-					if(file.getName().equals("data") && file.isDirectory())
+					File[] fileList = folderFile.listFiles();
+					for(int i=0; i<fileList.length; i++)
 					{
-						if(debug.ml || debug.library) 
-							System.out.println("Purging data folder:"+file.getName());
+						File file = fileList[i];
+						if(file.getName().equals("data") && file.isDirectory())
+						{
+							if(debug.ml || debug.library) 
+								System.out.println("ML.rebuildSelectedLibrary()... Purging data folder:"+file.getName());
 
-						world.utilities.purgeDirectory(file);
-						file.delete();
+							world.utilities.purgeDirectory(file);
+							file.delete();
+						}
 					}
 				}
-			}
-			else
-			{
-				systemMessage("ML.rebuildSelectedLibrary()... ERROR: folderFile missing or not a directory!  (library.getLibraryFolder() + strFolderName):"+library.getLibraryFolder() + "/" + strFolderName);
+				else
+				{
+					systemMessage("ML.rebuildSelectedLibrary()... ERROR: folderFile missing or not a directory!  (library.getLibraryFolder() + strFolderName):"+library.getLibraryFolder() + "/" + strFolderName);
+				}
 			}
 		}
 		

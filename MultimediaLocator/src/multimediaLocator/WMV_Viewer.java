@@ -131,6 +131,32 @@ public class WMV_Viewer
 	}
 	
 	/**
+	 * Reset field of view to initial value
+	 */
+	public void resetFieldOfView()
+	{
+		zoomToFieldOfView( getInitFieldOfView() );
+	}
+	
+	/**
+	 * Get the current camera
+	 * @return
+	 */
+	public WMV_Camera getCamera()
+	{
+		return camera;
+	}
+	
+	/**
+	 * Set the camera
+	 * @param newCamera
+	 */
+	public void setCamera(WMV_Camera newCamera)
+	{
+		camera = newCamera;
+	}
+	
+	/**
 	 * Prompt user to select field to enter
 	 */
 	public void chooseFieldDialog()
@@ -3478,13 +3504,22 @@ public class WMV_Viewer
 	}
 	
 	/**
+	 * Set viewer field of view and zoom the camera
+	 * @param newFieldOfView
+	 */
+	public void zoomToFieldOfView(float newFieldOfView)
+	{
+		setFieldOfView( newFieldOfView );
+		camera.setFieldOfView(newFieldOfView);
+	}
+	
+	/**
 	 * Zoom by given amount
 	 * @param zoom Zoom amount
 	 */
 	public void zoomByAmount(float zoom)
 	{
 		setFieldOfView( settings.fieldOfView + zoom );
-//		settings.fieldOfView += zoom;
 		camera.zoom(zoom);
 	}
 
@@ -5179,7 +5214,12 @@ public class WMV_Viewer
 		settings.userBrightness = newValue;
 	}
 	
-	public void setFieldOfView( float newFieldOfView )
+	/**
+	 * Set field of view. Note: Does not affect camera!
+	 * Use zoomToFieldOfView() to set both the viewer and camera field of view values
+	 * @param newFieldOfView
+	 */
+	private void setFieldOfView( float newFieldOfView )
 	{
 		settings.fieldOfView = newFieldOfView;
 	}

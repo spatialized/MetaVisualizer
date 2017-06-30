@@ -62,7 +62,7 @@ public class ML_Input
 					if(ml.display.getDisplayView() == 1)											 /* Map View */
 						keyboardInput.handleMapViewKeyPressed(ml, key, keyCode);
 					else if(ml.display.getDisplayView() == 2)									 /* Time View */
-						keyboardInput.handleTimelineViewKeyPressed(ml, key, keyCode);
+						keyboardInput.handleTimeViewKeyPressed(ml, key, keyCode);
 					else if(ml.display.getDisplayView() == 3)									 /* Library View */
 						keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);
 					else if(ml.display.getDisplayView() == 4)							 		/* Media View */

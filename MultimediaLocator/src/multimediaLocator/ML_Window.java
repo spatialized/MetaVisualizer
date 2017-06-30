@@ -38,7 +38,7 @@ public class ML_Window
 				   setupStatisticsWindow = false, setupMapWindow = false, setupTimeWindow = false;
 	public boolean setupCreateLibraryWindow = false, setupLibraryWindow = false, setupTextEntryWindow = false;
 	
-	public boolean showMainMenu = false, showNavigationWindow = false, showMediaWindow = false, showStatisticsWindow = false, 
+	public boolean showMainMenu = false, showNavigationWindow = false, showMediaWindow = false, showLibraryViewWindow = false, 
 				   showHelpWindow = false, showTimeWindow = false;;
 	public boolean showCreateLibraryWindow, showLibraryWindow = false;
 
@@ -364,11 +364,6 @@ public class ML_Window
 		btnMediaWindow.tag = "OpenMediaWindow";
 		btnMediaWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-//		y += iSmallBoxHeight;
-//		btnMapWindow = new GButton(mainMenu, x, y, 120, iVerySmallBoxHeight, "Map  ⇧4");
-//		btnMapWindow.tag = "OpenMapWindow";
-//		btnMapWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
 		y += iSmallBoxHeight;
 		btnTimeWindow = new GButton(mainMenu, x, y, 120, iVerySmallBoxHeight, "Time  ⇧3");
 		btnTimeWindow.tag = "OpenTimeWindow";
@@ -376,7 +371,7 @@ public class ML_Window
 		
 		y += iSmallBoxHeight;
 		btnLibraryViewWindow = new GButton(mainMenu, x, y, 120, iVerySmallBoxHeight, "Library  ⇧4");
-		btnLibraryViewWindow.tag = "OpenStatisticsWindow";
+		btnLibraryViewWindow.tag = "OpenLibraryWindow";
 		btnLibraryViewWindow.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = 0;
@@ -393,13 +388,10 @@ public class ML_Window
 		btnSaveLibrary.tag = "SaveWorld";
 		btnSaveLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-//		if(world.getFieldCount() > 1)
-//		{
-			y += iSmallBoxHeight;
-			btnSaveField = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Save Field  /");
-			btnSaveField.tag = "SaveField";
-			btnSaveField.setLocalColorScheme(G4P.CYAN_SCHEME);
-//		}
+		y += iSmallBoxHeight;
+		btnSaveField = new GButton(mainMenu, x, y, 140, iVerySmallBoxHeight, "Save Field  /");
+		btnSaveField.tag = "SaveField";
+		btnSaveField.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		world.ml.delay(delayAmount);
 
@@ -440,26 +432,16 @@ public class ML_Window
 		if(compressTallWindows)					// Compressed window
 		{
 			if(world.getFields().size() > 1)
-			{
 				navigationWindowHeight = compressedNavigationWindowHeight + 45;			// Multiple fields, more buttons
-//				navigationWindowHeight += 55;
-			}
 			else
-			{
 				navigationWindowHeight = compressedNavigationWindowHeight;
-			}
 		}
 		else									// Tall window
 		{
 			if(world.getFields().size() == 1) 
-			{
 				navigationWindowHeight = tallWindowHeight - 55;							// Single field, fewer buttons
-//				navigationWindowHeight -= 55;	
-			}
 			else
-			{
 				navigationWindowHeight = tallWindowHeight;
-			}
 		}
 		
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth / 2;
@@ -520,7 +502,6 @@ public class ML_Window
 		lblTimeNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Time:");
 		lblTimeNavigation.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimeNavigation.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-//		lblTimeNavigation.setTextBold();
 
 		x = 105;
 		btnPreviousTimeSegment = new GButton(navigationWindow, x, y, 95, iVerySmallBoxHeight, "Previous (b)");
@@ -599,9 +580,8 @@ public class ML_Window
 		x += 110;
 		btnStopViewer = new GButton(navigationWindow, x, y, 80, iVerySmallBoxHeight, "Stop (.)");
 		btnStopViewer.tag = "StopViewer";
-//		btnStopViewer.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
-
+		
 		if(world.getFields() != null)
 		{
 			if(world.getFieldCount() > 1)
@@ -762,13 +742,6 @@ public class ML_Window
 		lblPathWaitLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Wait Time");
 		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
 
-//		y += iVeryLargeBoxHeight + 15;
-//		x = 85;
-//		btnStopViewer = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Stop (.)");
-//		btnStopViewer.tag = "StopViewer";
-//		btnStopViewer.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-//		btnStopViewer.setLocalColorScheme(G4P.RED_SCHEME);
-
 		world.ml.delay(delayAmount);
 
 		if(compressTallWindows)
@@ -784,10 +757,7 @@ public class ML_Window
 
 		/* Time */
 		navigationWindowLineBreakY_2 = y - 3;
-//		if(compressTallWindows) 
-//			x = 115 + windowWidth;
-//		else
-//			x = 0;
+		
 		lblMap = new GLabel(navigationWindow, x, y, navigationWindow.width, iSmallBoxHeight, "Map");
 		lblMap.setLocalColorScheme(G4P.SCHEME_10);
 		if(!compressTallWindows) lblMap.setTextAlign(GAlign.CENTER, null);
@@ -2976,7 +2946,7 @@ public class ML_Window
 	}
 	public void showStatisticsWindow()
 	{
-		showStatisticsWindow = true;
+		showLibraryViewWindow = true;
 		if(setupStatisticsWindow)
 			libraryViewWindow.setVisible(true);
 	} 
@@ -3050,13 +3020,13 @@ public class ML_Window
 	} 
 	public void hideStatisticsWindow()
 	{
-		showStatisticsWindow = false;
+		showLibraryViewWindow = false;
 		if(setupStatisticsWindow)
 			libraryViewWindow.setVisible(false);
 	} 
-	public void closeStatisticsWindow()
+	public void closeLibraryViewWindow()
 	{
-		showStatisticsWindow = false;
+		showLibraryViewWindow = false;
 		if(setupStatisticsWindow)
 		{
 			libraryViewWindow.setVisible(false);
@@ -3161,7 +3131,7 @@ public class ML_Window
 			hideNavigationWindow();
 		if(showMediaWindow)
 			hideMediaWindow();
-		if(showStatisticsWindow)
+		if(showLibraryViewWindow)
 			hideStatisticsWindow();
 		if(showHelpWindow)
 			hideHelpWindow();
@@ -3185,7 +3155,7 @@ public class ML_Window
 		if(!setupMediaWindow) setupMediaWindow();
 		showMediaWindow();
 	}
-	public void openStatisticsWindow()
+	public void openLibraryViewWindow()
 	{
 		if(!setupStatisticsWindow)
 			setupLibraryViewWindow();

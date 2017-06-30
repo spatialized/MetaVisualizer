@@ -47,6 +47,13 @@ public class MultimediaLocator extends PApplet
 {
 	/* Deployment */
 	private boolean createJar = false;				// Determines how to load cubemap shader
+
+	/* Classes */
+	ML_Library library;								// Multimedia library
+	ML_Input input;									// Mouse / keyboard input
+	ML_Stitcher stitcher;							// Panoramic stitching
+	ML_Display display;								// Displaying 2D graphics and text
+	ML_DebugSettings debug;					// Debug settings
 	
 	/* App */
 	private String appName = "MultimediaLocator 0.9.2";
@@ -63,13 +70,6 @@ public class MultimediaLocator extends PApplet
 	boolean createNewLibrary = false;
 	boolean cubeMapInitialized = false;
 
-	/* MultimediaLocator */
-	ML_Library library;								// Multimedia library
-	ML_Input input;									// Mouse / keyboard input
-	ML_Stitcher stitcher;							// Panoramic stitching
-	ML_Display display;								// Displaying 2D graphics and text
-	ML_DebugSettings debug;					// Debug settings
-	
 	/* WorldMediaViewer */
 	WMV_World world;						// World simulation
 	WMV_Metadata metadata;					// Metadata reading and writing
@@ -313,70 +313,6 @@ public class MultimediaLocator extends PApplet
 			if(!appWindowVisible) showAppWindow();
 			display.setupProgress(0.f);
 		}
-	}
-	
-	/**
-	 * Open dialog to name created library
-	 */
-	private void openLibraryNamingDialog()
-	{
-		display.window.openTextEntryWindow("Enter new library name:", "library", 1);
-//		state.inLibraryNaming = true;
-	}
-	
-	/**
-	 * Start naming fields
-	 */
-	private void startFieldNaming()
-	{
-		for(WMV_Field f : world.getFields())	
-			f.setNamed(false);
-		
-		String curName = world.getField(state.namingField).getName();
-		display.window.openTextEntryWindow("Enter field #"+(state.namingField+1)+" name...", curName, 0);						// Open text entry dialog
-
-		state.namingField = 0;
-		state.inFieldNaming = true;
-		state.oldFieldName = world.getField(state.namingField).getName();
-	}
-	
-	/**
-	 * Run field naming process
-	 */
-	private void runFieldNaming()
-	{
-		if(state.namingField + 1 >= world.getFieldCount())
-		{
-			if(world.getField(state.namingField).getState().named)
-			{
-				updateFieldFolderName(state.namingField);
-				state.fieldsNamed = true;
-				state.inFieldNaming = false;
-				library.updateFolderNames(world);		// Update library folder names to match fields
-			}
-		}
-		else
-		{
-			updateFieldFolderName(state.namingField);
-			state.namingField++;
-			if(!display.window.showTextEntryWindow && state.namingField < world.getFieldCount())
-			{
-				String curName = world.getField(state.namingField).getName();
-				display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
-			}
-		}
-	}
-	
-	/**
-	 * Update field folder name
-	 * @param fieldIdx Field idx to update name for
-	 */
-	private void updateFieldFolderName(int fieldIdx)
-	{
-		String fieldName = world.getField(fieldIdx).getName();
-		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, library.getLibraryFolder() + "/" + fieldName, false);
-//		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
-		world.updateMediaFilePaths();		// Update media file paths with new library name
 	}
 	
 	/**
@@ -716,21 +652,6 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Initialize 2D drawing 				// -- Obsolete
-	 */
-//	public void start3DHUD()
-//	{
-//		PVector camLoc = world.viewer.getLocation();
-//		PVector camOrientation = world.viewer.getOrientation();
-//		perspective(world.viewer.getInitFieldOfView(), (float)width/(float)height, world.viewer.getNearClippingDistance(), 10000);
-//		PVector t = new PVector(camLoc.x, camLoc.y, camLoc.z);
-//		translate(t.x, t.y, t.z);
-//		rotateY(camOrientation.x);
-//		rotateX(-camOrientation.y);
-//		rotateZ(camOrientation.z);
-//	}
-
-	/**
 	 * Restart program and open Library dialog
 	 */
 	public void restart()
@@ -756,6 +677,70 @@ public class MultimediaLocator extends PApplet
 		if(debug.ml) systemMessage("World resetting complete...");
 
 		display.window.openStartupWindow();
+	}
+	
+	/**
+	 * Open dialog to name created library
+	 */
+	private void openLibraryNamingDialog()
+	{
+		display.window.openTextEntryWindow("Enter new library name:", "library", 1);
+//		state.inLibraryNaming = true;
+	}
+	
+	/**
+	 * Start naming fields
+	 */
+	private void startFieldNaming()
+	{
+		for(WMV_Field f : world.getFields())	
+			f.setNamed(false);
+		
+		String curName = world.getField(state.namingField).getName();
+		display.window.openTextEntryWindow("Enter field #"+(state.namingField+1)+" name...", curName, 0);						// Open text entry dialog
+
+		state.namingField = 0;
+		state.inFieldNaming = true;
+		state.oldFieldName = world.getField(state.namingField).getName();
+	}
+	
+	/**
+	 * Run field naming process
+	 */
+	private void runFieldNaming()
+	{
+		if(state.namingField + 1 >= world.getFieldCount())
+		{
+			if(world.getField(state.namingField).getState().named)
+			{
+				updateFieldFolderName(state.namingField);
+				state.fieldsNamed = true;
+				state.inFieldNaming = false;
+				library.updateFolderNames(world);		// Update library folder names to match fields
+			}
+		}
+		else
+		{
+			updateFieldFolderName(state.namingField);
+			state.namingField++;
+			if(!display.window.showTextEntryWindow && state.namingField < world.getFieldCount())
+			{
+				String curName = world.getField(state.namingField).getName();
+				display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
+			}
+		}
+	}
+	
+	/**
+	 * Update field folder name
+	 * @param fieldIdx Field idx to update name for
+	 */
+	private void updateFieldFolderName(int fieldIdx)
+	{
+		String fieldName = world.getField(fieldIdx).getName();
+		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, library.getLibraryFolder() + "/" + fieldName, false);
+//		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
+		world.updateMediaFilePaths();		// Update media file paths with new library name
 	}
 	
 	/**
@@ -1015,7 +1000,6 @@ public class MultimediaLocator extends PApplet
 		{
 			state.selectedLibrary = false;	// Library in improper format if masks are missing
 			state.inLibrarySetup = true;	// Still in library setup
-//			librarySelectionDialog();		// Retry folder prompt
 		}
 	}
 	
@@ -1467,8 +1451,8 @@ public class MultimediaLocator extends PApplet
 			display.window.closeMediaWindow();
 		if(display.window.showTimeWindow)
 			display.window.closeTimeWindow();
-		if(display.window.showStatisticsWindow)
-			display.window.closeStatisticsWindow();
+		if(display.window.showLibraryViewWindow)
+			display.window.closeLibraryViewWindow();
 		if(display.window.showHelpWindow)
 			display.window.closeHelpWindow();
 	}

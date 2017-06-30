@@ -156,43 +156,6 @@ public class WMV_World
 	}
 
 	/**
-	 * Enter field with specified ID
-	 * @param fieldIdx The field to enter
-	 * @param first Whether to tell viewer this is the first frame
-	 */
-	public void enterFieldByIndex(int fieldIdx)
-	{
-		WMV_Field f = getField(fieldIdx);
-		
-		viewer.enterField( fieldIdx );								// Enter field
-//		viewer.updateState(settings, state);						// -- Moved to Viewer
-		
-//		if(!f.getState().loadedState)
-		if(f.getState().entryLocation.initialized())
-			viewer.moveToWaypoint(f.getState().entryLocation, false);
-		else
-			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
-			
-		viewer.updateNavigation();									// Update navigation
-		viewer.start();												// Start the viewer if this is the first frame
-
-		if(state.displayTerrain)
-			state.waitingToFadeInTerrainAlpha = true;
-	}
-	
-	/**
-	 * Get field names as list of strings
-	 * @return List of field names
-	 */
-	public ArrayList<String> getFieldNames()
-	{
-		ArrayList<String> names = new ArrayList<String>();
-		for(WMV_Field field : fields)
-			names.add(field.getName());
-		return names;
-	}
-
-	/**
 	 * Display the current field in World View
 	 */
 	public void display3D()
@@ -226,26 +189,6 @@ public class WMV_World
 		if(ml.display.getDisplayView() == 4) viewer.showHUD();			/* Set camera angle in Media View */
 	}
 
-	/**
-	 * Update viewer attraction to attracting cluster(s)
-	 */
-	public void updateViewerAttraction()
-	{
-		if(viewer.getState().isMovingToAttractor())
-		{
-			if(viewer.getAttractorPoint() != null)
-				viewer.getAttractorPoint().attractViewer(viewer);		// Attract the camera to the memory navigation goal
-			else 
-				ml.systemMessage("viewer.attractorPoint == NULL!!");
-		}
-		else if(viewer.getState().isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
-		{
-			for( WMV_Cluster c : getCurrentField().getAttractingClusters() )
-				if(c.getClusterDistance() > settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
-					c.attractViewer(viewer);
-		}
-	}
-
 	/** 
 	 * Update main time loop
 	 */
@@ -277,27 +220,6 @@ public class WMV_World
 			if(ml.display.window.setupTimeWindow)
 				ml.display.window.sdrCurrentTime.setValue(getCurrentTimePoint());
 		}
-	}
-	
-	/**
-	 * Manually move back in time
-	 */
-	void decrementTime()
-	{
-		float curTimePoint = getCurrentTimePoint();
-		if (curTimePoint - settings.timeInc < 0) setCurrentTime(0);
-		else setCurrentTime(curTimePoint - settings.timeInc);
-	}
-	
-	/**
-	 * Manually move forward in time
-	 */
-	void incrementTime()
-	{
-		float curTimePoint = getCurrentTimePoint();
-		float endTimePoint = 1.f;
-		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTime(endTimePoint);
-		else setCurrentTime(curTimePoint + settings.timeInc);
 	}
 	
 	/**
@@ -427,32 +349,46 @@ public class WMV_World
 	}
 	
 	/**
-	 * Update viewer and current field about world state and settings
+	 * Manually move back in time
 	 */
-//	void updateState()
-//	{
-//		state.frameCount = ml.frameCount;
-//		viewer.updateState(settings, state);
-//		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
-//	}
-
+	void decrementTime()
+	{
+		float curTimePoint = getCurrentTimePoint();
+		if (curTimePoint - settings.timeInc < 0) setCurrentTime(0);
+		else setCurrentTime(curTimePoint - settings.timeInc);
+	}
+	
 	/**
-	 * Update all media settings
+	 * Manually move forward in time
 	 */
-//	public void updateAllMediaSettings()
-//	{
-//		WMV_Field f = getCurrentField();
-//		
-//		for(WMV_Image img : f.getImages())
-//			img.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-//		for(WMV_Panorama pano : f.getPanoramas())
-//			pano.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-//		for(WMV_Video vid : f.getVideos())
-//			vid.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-//		for(WMV_Sound snd : f.getSounds())
-//			snd.updateWorldState(settings, state, viewer.getSettings(), viewer.getState());
-//	}
-
+	void incrementTime()
+	{
+		float curTimePoint = getCurrentTimePoint();
+		float endTimePoint = 1.f;
+		if (curTimePoint + settings.timeInc > endTimePoint) setCurrentTime(endTimePoint);
+		else setCurrentTime(curTimePoint + settings.timeInc);
+	}
+	
+	/**
+	 * Update viewer attraction to attracting cluster(s)
+	 */
+	public void updateViewerAttraction()
+	{
+		if(viewer.getState().isMovingToAttractor())
+		{
+			if(viewer.getAttractorPoint() != null)
+				viewer.getAttractorPoint().attractViewer(viewer);		// Attract the camera to the memory navigation goal
+			else 
+				ml.systemMessage("viewer.attractorPoint == NULL!!");
+		}
+		else if(viewer.getState().isMovingToCluster())				// If the camera is moving to a cluster (besides memoryCluster)
+		{
+			for( WMV_Cluster c : getCurrentField().getAttractingClusters() )
+				if(c.getClusterDistance() > settings.clusterCenterSize)		// If not already at attractor cluster center, attract camera 
+					c.attractViewer(viewer);
+		}
+	}
+	
 	/**
 	 * Draw terrain as wireframe grid
 	 */
@@ -547,6 +483,44 @@ public class WMV_World
 			row++;
 		}
 	}
+	
+	
+	/**
+	 * Enter field with specified ID
+	 * @param fieldIdx The field to enter
+	 * @param first Whether to tell viewer this is the first frame
+	 */
+	public void enterFieldByIndex(int fieldIdx)
+	{
+		WMV_Field f = getField(fieldIdx);
+		
+		viewer.enterField( fieldIdx );								// Enter field
+//		viewer.updateState(settings, state);						// -- Moved to Viewer
+		
+//		if(!f.getState().loadedState)
+		if(f.getState().entryLocation.initialized())
+			viewer.moveToWaypoint(f.getState().entryLocation, false);
+		else
+			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+			
+		viewer.updateNavigation();									// Update navigation
+		viewer.start();												// Start the viewer if this is the first frame
+
+		if(state.displayTerrain)
+			state.waitingToFadeInTerrainAlpha = true;
+	}
+	
+	/**
+	 * Get field names as list of strings
+	 * @return List of field names
+	 */
+	public ArrayList<String> getFieldNames()
+	{
+		ArrayList<String> names = new ArrayList<String>();
+		for(WMV_Field field : fields)
+			names.add(field.getName());
+		return names;
+	}
 
 	/**
 	 * Stop any currently playing videos
@@ -578,12 +552,11 @@ public class WMV_World
 		fadeOutTerrain(false, false);
 	}
 
-//	public void fadeOutAllVideosAndSounds()
-//	{
-//		getCurrentField().fadeOutAllVideosAndSounds();
-//		fadeOutTerrain(false);
-//	}
-	
+	/**
+	 * Fade out terrain
+	 * @param turnOff
+	 * @param message
+	 */
 	public void fadeOutTerrain(boolean turnOff, boolean message)
 	{
 		if(state.terrainAlpha != 0.f)
@@ -600,6 +573,10 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Fade in terrain
+	 * @param message
+	 */
 	public void fadeInTerrain(boolean message)
 	{
 		if(state.terrainAlpha != state.terrainAlphaMax)
@@ -617,7 +594,7 @@ public class WMV_World
 	}
 
 	/**
-	 * Update fadingTerrainAlpha each frame
+	 * Update terrain alpha value
 	 */
 	void updateFadingTerrainAlpha()
 	{
@@ -644,6 +621,83 @@ public class WMV_World
 		state.terrainAlpha = newFadeValue;
 	}
 	
+	/**
+	 * Reset variables
+	 */
+	void reset(boolean system)
+	{
+		if(ml.debug.world) ml.systemMessage("World.reset()... Resetting world...");
+		settings.reset();
+		
+		/* Clustering Modes */
+		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
+
+		/* Time */
+		state.timeFading = false;					// Does time affect media brightness? 
+		state.paused = false;						// Time is paused
+
+		state.currentTime = 0;						// Time units since start of time cycle (day / month / year)
+		state.currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
+
+		/* Graphics */
+		state.loadedMasks = false;
+		state.hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera
+
+		state.alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
+		state.alpha = 195.f;						// Transparency
+		state.beginFadingAlpha = false;
+		state.fadingAlpha = false;
+		state.fadingAlphaStartFrame = 0;
+		state.fadingAlphaEndFrame = 0; 
+		state.fadingAlphaLength = 20;	
+
+		state.useBlurMasks = true;						// Blur image edges
+		drawForceVector = true;						// Show attraction vector on map (mostly for debugging)
+		
+		/* Video */
+		state.showModel = false;					// Display model 
+		state.showMediaToCluster = false;			// Draw line from each media point to cluster
+		state.showCaptureToMedia = false;			// Draw line from each media point to its capture location
+		state.showCaptureToCluster = false;			// Draw line from each media capture location to associated cluster
+
+		/* Clusters */
+		state.mergeClusters = true;					// Merge nearby clusters?
+		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
+
+		/* Create main classes */
+		viewer.reset();								// Initialize navigation + viewer
+
+		/* Initialize graphics and text parameters */
+		ml.colorMode(PConstants.HSB);
+		ml.rectMode(PConstants.CENTER);
+		ml.textAlign(PConstants.CENTER, PConstants.CENTER);
+
+		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
+		timeFadeMap.setMapFunction(circularEaseOut);
+
+		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
+		distanceFadeMap.setMapFunction(circularEaseIn);
+	}
+	
+	/**
+	 * Create a field from each media folder in library
+	 */
+	void createFields(ArrayList<String> fieldFolders)
+	{
+		fields = new ArrayList<WMV_Field>();					// Initialize fields array
+		int count = 0;
+		
+		for(String fieldFolder : fieldFolders)
+		{
+			if(ml.debug.world) ml.systemMessage("Adding field for folder:"+fieldFolder);
+			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debug, fieldFolder, count));
+			count++;
+		}
+	}
+
+	/**
+	 * Update media file paths after update to library or field folder paths
+	 */
 	void updateMediaFilePaths()
 	{
 		for(WMV_Field f : fields)
@@ -659,15 +713,6 @@ public class WMV_World
 		}
 	}
 	
-//	public void updateGPSTrackFilePaths()
-//	{
-//		for(WMV_Field f : fields)
-//		{
-//			for(ArrayList<WMV_Waypoint> gps:f.getGPSTracks())
-//				gps.updateFilePath(ml, f);
-//		}
-//	}
-
 	/**
 	 * Save the current world, field and viewer states and settings to file
 	 */
@@ -729,7 +774,6 @@ public class WMV_World
 //		if(ml.world.getSettings().screenMessagesOn)
 //			ml.display.message(ml, "Saved Current Field...");
 	}
-
 
 	/**
 	 * Save the current world, field and viewer states and settings to file
@@ -826,9 +870,6 @@ public class WMV_World
 			
 			if(ml.debug.world) ml.systemMessage("Saved simulation state for field #"+f.getID());
 		}
-		
-//		if(ml.world.getSettings().screenMessagesOn)
-//			ml.display.message(ml, "Saved Library...");
 	}
 
 	/**
@@ -1104,83 +1145,9 @@ public class WMV_World
 	}
 
 	/**
-	 * Reset variables
-	 */
-	void reset(boolean system)
-	{
-		if(ml.debug.world) ml.systemMessage("Resetting world...");
-		settings.reset();
-		
-		/* Clustering Modes */
-		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
-
-		/* Time */
-		state.timeFading = false;					// Does time affect media brightness? 
-		state.paused = false;						// Time is paused
-
-		state.currentTime = 0;						// Time units since start of time cycle (day / month / year)
-		state.currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
-
-		/* Graphics */
-		state.loadedMasks = false;
-		state.hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera
-
-		state.alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
-		state.alpha = 195.f;						// Transparency
-		state.beginFadingAlpha = false;
-		state.fadingAlpha = false;
-		state.fadingAlphaStartFrame = 0;
-		state.fadingAlphaEndFrame = 0; 
-		state.fadingAlphaLength = 20;	
-
-		state.useBlurMasks = true;						// Blur image edges
-		drawForceVector = true;						// Show attraction vector on map (mostly for debugging)
-		
-		/* Video */
-		state.showModel = false;					// Display model 
-		state.showMediaToCluster = false;			// Draw line from each media point to cluster
-		state.showCaptureToMedia = false;			// Draw line from each media point to its capture location
-		state.showCaptureToCluster = false;			// Draw line from each media capture location to associated cluster
-
-		/* Clusters */
-		state.mergeClusters = true;					// Merge nearby clusters?
-		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
-
-		/* Create main classes */
-		viewer.reset();								// Initialize navigation + viewer
-
-		/* Initialize graphics and text parameters */
-		ml.colorMode(PConstants.HSB);
-		ml.rectMode(PConstants.CENTER);
-		ml.textAlign(PConstants.CENTER, PConstants.CENTER);
-
-		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
-		timeFadeMap.setMapFunction(circularEaseOut);
-
-		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
-		distanceFadeMap.setMapFunction(circularEaseIn);
-	}
-	
-	/**
-	 * Create a field from each media folder in library
-	 */
-	void createFields(ArrayList<String> fieldFolders)
-	{
-		fields = new ArrayList<WMV_Field>();					// Initialize fields array
-		int count = 0;
-		
-		for(String fieldFolder : fieldFolders)
-		{
-			if(ml.debug.world) ml.systemMessage("Adding field for folder:"+fieldFolder);
-			fields.add(new WMV_Field(settings, state, viewer.getSettings(), viewer.getState(), ml.debug, fieldFolder, count));
-			count++;
-		}
-	}
-	
-	/**
 	 * Transition alpha from current to given value
 	 */
-	void fadeAlpha(float target)
+	void startFadingAlpha(float target)
 	{
 		if(target != state.alpha)			// Check if already at target
 		{

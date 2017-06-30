@@ -488,12 +488,12 @@ public class ML_KeyboardControls
 
 		if (key == ')') {		
 			float newAlpha = PApplet.constrain(ml.world.getState().alpha+15.f, 0.f, 255.f);
-			ml.world.fadeAlpha(newAlpha);
+			ml.world.startFadingAlpha(newAlpha);
 		}
 
 		if (key == '(') {
 			float newAlpha = PApplet.constrain(ml.world.getState().alpha-15.f, 0.f, 255.f);
-			ml.world.fadeAlpha(newAlpha);
+			ml.world.startFadingAlpha(newAlpha);
 		}
 
 //		if (key == ':')
@@ -1184,10 +1184,10 @@ public class ML_KeyboardControls
 
 		if (key == '$') 
 		{
-			if(!ml.display.window.showStatisticsWindow)
-				ml.display.window.openStatisticsWindow();
+			if(!ml.display.window.showLibraryViewWindow)
+				ml.display.window.openLibraryViewWindow();
 			else
-				ml.display.window.closeStatisticsWindow();
+				ml.display.window.closeLibraryViewWindow();
 		}
 
 		if (key == '^') 

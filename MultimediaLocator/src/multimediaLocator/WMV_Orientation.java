@@ -1,7 +1,7 @@
 package multimediaLocator;
 
 /**
- * Euler angle orientation of a point in virtual space
+ * Orientation of a point in virtual space in Euler angle format
  * @author davidgordon
  */
 public class WMV_Orientation 

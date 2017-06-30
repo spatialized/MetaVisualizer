@@ -356,7 +356,7 @@ public class ML_Display
 		if(fieldDatelineCreated) displayFieldDateline(p);
 		if(fieldTimelineCreated) displayFieldTimeline(p);
 		
-		endTimelineHUD();					// -- Added 6/29/17
+		endDisplayHUD();					// -- Added 6/29/17
 
 		updateTimelineMouse(p);
 	}
@@ -1015,145 +1015,6 @@ public class ML_Display
 			ml.popMatrix();
 		}
 	}
-
-	/**
-	 * Get mouse 3D location from screen location
-	 * @param mouseX
-	 * @param mouseY
-	 * @return
-	 */
-//	public PVector getMouse3DLocation(float mouseX, float mouseY)
-//	{
-//		float centerX = screenWidth * 0.5f;			/* Center X location */
-//		float centerY = screenHeight * 0.5f;		/* Center Y location */
-//		
-//		float mouseXFactor = 2.55f;
-//		float mouseYFactor = 2.55f;
-//		float screenXFactor = 0.775f;	
-//		float screenYFactor = 0.775f;	
-//		
-//		float x = mouseX * mouseXFactor - screenWidth * screenXFactor;
-//		float y = mouseY * mouseYFactor - screenHeight * screenYFactor;
-//		
-//		float dispX = x - centerX;						/* Mouse X displacement from the center */
-//		float dispY = y - centerY;						/* Mouse Y displacement from the center */
-//		
-//		float offsetXFactor = 0, offsetYFactor = 0;
-//		if(screenWidth == 1280 && screenHeight == 800)
-//		{
-//			offsetXFactor = 0.111f;					/* Offset X displacement from the center */		/* DEFAULT */
-//			offsetYFactor = 0.111f;					/* Offset Y displacement from the center */	
-//		}
-//		else if(screenWidth == 1440 && screenHeight == 900)
-//		{
-//			offsetXFactor = 0.039f;					/* Offset X displacement from the center */		/* SCALED x 1 */
-//			offsetYFactor = 0.039f;					/* Offset Y displacement from the center */
-//		}
-//		else if(screenWidth == 1680 && screenHeight == 1050)
-//		{
-//			offsetXFactor = -0.043f;				/* Offset X displacement from the center */		/* SCALED x 2 */
-//			offsetYFactor = -0.043f;				/* Offset Y displacement from the center */	
-//		}
-//		
-//		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
-//		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
-//
-//		x += offsetX;
-//		y += offsetY;
-//
-////		if(ml.debug.mouse) 
-////			System.out.println("Display.getMouse3DLocation()...  screenWidth:"+screenWidth+" screenHeight:"+screenHeight+" offsetXFactor:"+offsetXFactor+" offsetYFactor:"+offsetYFactor);
-////		if(ml.debug.mouse) 
-////			System.out.println("Display.getMouse3DLocation()... x2:"+x+" y2:"+y+" offsetX:"+offsetX+" offsetY:"+offsetY);
-//		
-//		PVector result = new PVector(x, y, hudDistanceInit);		// -- Doesn't affect selection!
-//
-//		if(ml.debug.mouse)
-//		{
-//			ml.stroke(155, 0, 255);
-//			ml.strokeWeight(5);
-//			ml.point(result.x, result.y, result.z);		// Show mouse location for debugging
-//			
-//			ml.stroke(0, 255, 255);
-//			ml.strokeWeight(10);
-//			ml.point(centerX, centerY, hudDistanceInit);
-////			ml.point(0, 0, hudDistanceInit);
-//			
-//			System.out.println("Mouse 3D Location: x:"+result.x+" y:"+result.y);
-//		}
-//
-//		return result;
-//	}
-
-	/**
-	 * Get mouse 3D location from screen location
-	 * @param mouseX
-	 * @param mouseY
-	 * @return
-	 */
-	public PVector getMouse3DLocation(float mouseX, float mouseY)
-	{
-//		/* WORKS */
-		float centerX = screenWidth * 0.5f;			/* Center X location */
-		float centerY = screenHeight * 0.5f;		/* Center Y location */
-		
-		float mouseXFactor = 2.55f;
-		float mouseYFactor = 2.55f;
-		float screenXFactor = 0.775f;	
-		float screenYFactor = 0.775f;	
-		
-		float x = mouseX * mouseXFactor - screenWidth * screenXFactor;
-		float y = mouseY * mouseYFactor - screenHeight * screenYFactor;
-		
-		float dispX = x - centerX;						/* Mouse X displacement from the center */
-		float dispY = y - centerY;						/* Mouse Y displacement from the center */
-		
-		float offsetXFactor = 0, offsetYFactor = 0;
-		if(screenWidth == 1280 && screenHeight == 800)
-		{
-			offsetXFactor = 0.111f;					/* Offset X displacement from the center */		/* DEFAULT */
-			offsetYFactor = 0.111f;					/* Offset Y displacement from the center */	
-		}
-		else if(screenWidth == 1440 && screenHeight == 900)
-		{
-			offsetXFactor = 0.039f;					/* Offset X displacement from the center */		/* SCALED x 1 */
-			offsetYFactor = 0.039f;					/* Offset Y displacement from the center */
-		}
-		else if(screenWidth == 1680 && screenHeight == 1050)
-		{
-			offsetXFactor = -0.043f;				/* Offset X displacement from the center */		/* SCALED x 2 */
-			offsetYFactor = -0.043f;				/* Offset Y displacement from the center */	
-		}
-		
-		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
-		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
-
-		x += offsetX;
-		y += offsetY;
-
-//		if(ml.debug.mouse) 
-//			System.out.println("Display.getMouse3DLocation()...  screenWidth:"+screenWidth+" screenHeight:"+screenHeight+" offsetXFactor:"+offsetXFactor+" offsetYFactor:"+offsetYFactor);
-//		if(ml.debug.mouse) 
-//			System.out.println("Display.getMouse3DLocation()... x2:"+x+" y2:"+y+" offsetX:"+offsetX+" offsetY:"+offsetY);
-		
-		PVector result = new PVector(x, y, hudDistanceInit);		// -- Doesn't affect selection!
-
-		if(ml.debug.mouse)
-		{
-			ml.stroke(155, 0, 255);
-			ml.strokeWeight(5);
-			ml.point(result.x, result.y, result.z);		// Show mouse location for debugging
-			
-			ml.stroke(0, 255, 255);
-			ml.strokeWeight(10);
-			ml.point(centerX, centerY, hudDistanceInit);
-//			ml.point(0, 0, hudDistanceInit);
-			
-			System.out.println("Mouse 3D Location: x:"+result.x+" y:"+result.y);
-		}
-
-		return result;
-	}
 	
 	/**
 	 * Get selected time segment for given mouse 3D location
@@ -1220,7 +1081,7 @@ public class ML_Display
 			ml.stroke(0, 255, 255);
 			ml.strokeWeight(10);
 			ml.point(mouseLoc.x, mouseLoc.y, 0);						// Show mouse adjusted location for debugging
-			endTimelineHUD();
+			endDisplayHUD();
 
 //			System.out.println("Display.updateTimelineMouse()... Mouse 2D Location: x:"+mouseLoc.x+" y:"+mouseLoc.y+" original x:"+ml.mouseX+" y:"+ml.mouseY);
 		}
@@ -1654,122 +1515,6 @@ public class ML_Display
 	}
 	
 	/**
-	 * Reset display object
-	 */
-//	void reset()
-//	{
-//		System.out.println("Display.reset()... ");
-//		/* Window Modes */
-////		fullscreen = true;
-//		initializedMaps = false;
-//
-//		/* Display Mode */
-//		displayView = 0;
-//		
-//		/* Debug */
-//		drawForceVector = false;
-//		
-//		/* Graphics */
-//		drawGrid = false; 			// Draw 3D grid   			-- Unused
-//
-//		blendMode = 0;							// Alpha blending mode
-//		numBlendModes = 10;						// Number of blending modes
-//
-//		/* Timeline */
-//		timelineHeight = 80.f;
-//		displayDate = -1;
-//		
-//		selectedTime = -1; 
-//		selectedCluster = -1;
-//		currentSelectableTimeSegmentID = -1;
-//		currentSelectableTimeSegment = null;
-//		selectedDate = -1; 
-//		currentSelectableDate = -1;
-//
-//		timelineScreenSize = screenWidth * 2.2f;
-//		timelineStart = 0.f;
-//		timelineEnd = utilities.getTimePVectorSeconds( new PVector(24,0,0) );
-//
-////		System.out.println("Display.reset()... 1");
-//
-//		datelineStart = 0.f;
-//		datelineEnd = 0.f;
-//		
-//		updateCurrentSelectableTimeSegment = true;
-//		updateCurrentSelectableDate = true;
-//		
-//		hudLeftMargin = -screenWidth / 1.66f;
-////		timelineYOffset = -screenHeight / 2.f;
-//		timelineYOffset = 0.f;
-//		datelineXOffset = hudLeftMargin;
-//		datelineYOffset = screenHeight * 0.2f;
-//
-//		selectableTimeSegments = new ArrayList<SelectableTimeSegment>();
-//		selectableDates = new ArrayList<SelectableDate>();
-//
-//		fieldTimelineCreated = false;
-//		fieldDatelineCreated = false;
-//		updateFieldTimeline = true;
-//
-//		timelineTransition = false; 
-//		timelineZooming = false; 
-//		timelineScrolling = false;   
-//		
-//		transitionScrollDirection = -1; 
-//		transitionZoomDirection = -1;
-//		timelineTransitionStartFrame = 0; 
-//		timelineTransitionEndFrame = 0;
-//		timelineTransitionLength = 30; 
-//		timelineStartTransitionStart = 0; 
-//		timelineStartTransitionTarget = 0;
-//		timelineEndTransitionStart = 0; 
-//		timelineEndTransitionTarget = 0;
-//		transitionScrollIncrement = 2000.f; 
-//		transitionZoomInIncrement = 0.95f; transitionZoomOutIncrement = 1.052f;	
-//
-////		System.out.println("Display.reset()... 2");
-//
-//		/* Library View */
-//		libraryViewMode = 0;
-//		currentDisplayCluster = 0;
-//		
-//		/* Messages */
-//		messageStartFrame = -1;
-//		metadataStartFrame = -1;
-//		startupMessageStartFrame = -1;
-//		messageDuration = 60;
-//		
-//		messageHUDDistance = hudDistanceInit * 6.f;
-//		
-//		messages = new ArrayList<String>();
-//		metadata = new ArrayList<String>();
-//		startupMessages = new ArrayList<String>();
-//
-////		System.out.println("Display.reset()... 3");
-//
-//		centerTextXOffset = screenWidth / 2.f;
-////		leftTextXOffset = 0.f;
-////		midLeftTextXOffset = screenWidth / 3.f;
-////		rightTextXOffset = 0.f;
-////		midRightTextXOffset = screenWidth / 1.5f;
-//
-//		topTextYOffset = -screenHeight / 1.6f;
-//		clusterImageXOffset = -screenWidth/ 1.9f;
-//		clusterImageYOffset = screenHeight / 2.5f;
-//
-//		messageXOffset = screenWidth;
-//		messageYOffset = 0;
-//
-//		metadataYOffset = -screenHeight / 2.f;
-//
-//		startupMessageXOffset = screenWidth / 2.f;
-//		startupMessageYOffset = -screenHeight /2.f;
-//		
-////		System.out.println("Display.reset()... 4");
-//		map2D.reset();
-//	}
-
-	/**
 	 * Add message to queue
 	 * @param ml Parent app
 	 * @param message Message to send
@@ -2094,7 +1839,7 @@ public class ML_Display
 				drawClusterImages(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 				ml.popMatrix();
 				
-				endTimelineHUD();
+				endDisplayHUD();
 				
 //				map2D.displaySmallBasicMap(p);
 				break;
@@ -2139,7 +1884,7 @@ public class ML_Display
 				case 2:
 					displayVideo2D(p.getCurrentField().getVideo(mediaViewMediaID));
 					break;
-//				case 3:
+//				case 3:						// -- In progress
 //					displaySound2D(p.getCurrentField().getSound(mediaViewMediaID));		
 //					break;
 			}
@@ -2195,25 +1940,15 @@ public class ML_Display
 	}
 
 	/**
-	 * Initialize 2D drawing 
+	 * End 2D drawing 
 	 * @param p Parent world
 	 */
-	private void endTimelineHUD()
+	private void endDisplayHUD()
 	{
 		endHUD(ml);
 //		ml.world.viewer.setCamera(camera3D);
 		ml.world.viewer.zoomToFieldOfView(currentFieldOfView);
 	}
-
-	/**
-	 * Initialize 2D drawing   OLD – WORKS
-	 * @param p Parent world
-	 */
-//	private void startTimelineHUD()
-//	{
-//		ml.perspective(ml.world.viewer.getInitFieldOfView(), (float)screenWidth/(float)screenHeight, ml.world.viewer.getSettings().nearClippingDistance, 10000.f);;
-//		ml.camera();
-//	}
 
 	/**
 	 * Draw thumbnails (grid) of image list
@@ -2726,8 +2461,80 @@ public class ML_Display
 		return currentSelectableTimeSegmentID;
 	}
 	
+
+	/**														-- Obsolete
+	 * Get mouse 3D location from screen location
+	 * @param mouseX
+	 * @param mouseY
+	 * @return
+	 */
+//	private PVector getMouse3DLocation(float mouseX, float mouseY)
+//	{
+////		/* WORKS */
+//		float centerX = screenWidth * 0.5f;			/* Center X location */
+//		float centerY = screenHeight * 0.5f;		/* Center Y location */
+//		
+//		float mouseXFactor = 2.55f;
+//		float mouseYFactor = 2.55f;
+//		float screenXFactor = 0.775f;	
+//		float screenYFactor = 0.775f;	
+//		
+//		float x = mouseX * mouseXFactor - screenWidth * screenXFactor;
+//		float y = mouseY * mouseYFactor - screenHeight * screenYFactor;
+//		
+//		float dispX = x - centerX;						/* Mouse X displacement from the center */
+//		float dispY = y - centerY;						/* Mouse Y displacement from the center */
+//		
+//		float offsetXFactor = 0, offsetYFactor = 0;
+//		if(screenWidth == 1280 && screenHeight == 800)
+//		{
+//			offsetXFactor = 0.111f;					/* Offset X displacement from the center */		/* DEFAULT */
+//			offsetYFactor = 0.111f;					/* Offset Y displacement from the center */	
+//		}
+//		else if(screenWidth == 1440 && screenHeight == 900)
+//		{
+//			offsetXFactor = 0.039f;					/* Offset X displacement from the center */		/* SCALED x 1 */
+//			offsetYFactor = 0.039f;					/* Offset Y displacement from the center */
+//		}
+//		else if(screenWidth == 1680 && screenHeight == 1050)
+//		{
+//			offsetXFactor = -0.043f;				/* Offset X displacement from the center */		/* SCALED x 2 */
+//			offsetYFactor = -0.043f;				/* Offset Y displacement from the center */	
+//		}
+//		
+//		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
+//		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
+//
+//		x += offsetX;
+//		y += offsetY;
+//
+////		if(ml.debug.mouse) 
+////			System.out.println("Display.getMouse3DLocation()...  screenWidth:"+screenWidth+" screenHeight:"+screenHeight+" offsetXFactor:"+offsetXFactor+" offsetYFactor:"+offsetYFactor);
+////		if(ml.debug.mouse) 
+////			System.out.println("Display.getMouse3DLocation()... x2:"+x+" y2:"+y+" offsetX:"+offsetX+" offsetY:"+offsetY);
+//		
+//		PVector result = new PVector(x, y, hudDistanceInit);		// -- Doesn't affect selection!
+//
+//		if(ml.debug.mouse)
+//		{
+//			ml.stroke(155, 0, 255);
+//			ml.strokeWeight(5);
+//			ml.point(result.x, result.y, result.z);		// Show mouse location for debugging
+//			
+//			ml.stroke(0, 255, 255);
+//			ml.strokeWeight(10);
+//			ml.point(centerX, centerY, hudDistanceInit);
+////			ml.point(0, 0, hudDistanceInit);
+//			
+//			System.out.println("Mouse 3D Location: x:"+result.x+" y:"+result.y);
+//		}
+//
+//		return result;
+//	}
+
+	
 	/**
-	 * Display the main key commands on screen
+	 * Display the main key commands on screen			-- Obsolete
 	 */
 //	void displayControls(WMV_World p)
 //	{

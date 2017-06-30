@@ -417,8 +417,6 @@ public class WMV_Field
 
 				if(m.image.width > 0)								// Image has been loaded and isn't mState.hidden or disabled
 				{
-//					if(ml.debugSettings.image && ml.debugSettings.detailed)
-//					System.out.println("Image.updateImage()... id #"+getID()+" 1   visible? "+m.isVisible()+" viewing dist:"+m.getViewingDistance(ml.world.viewer));
 					boolean wasVisible = m.isVisible();
 					m.calculateVisibility(ml.world.viewer, utilities);
 					if(!clusterIsVisible(m.getAssociatedClusterID())) m.setVisible( false );		
@@ -1140,10 +1138,8 @@ public class WMV_Field
 
 		model.update( currentWorldSettings, currentWorldState, currentViewerSettings, currentViewerState );	// Update model
 
-		for(WMV_Cluster c : clusters)			// Update all clusters and inform associated media about world state
+		for(WMV_Cluster c : clusters)			// Update all clusters / inform associated media about world state
 			c.update(this, currentWorldSettings, currentWorldState, currentViewerSettings, currentViewerState);
-		
-//		updateAllMediaStates();
 	}
 
 	/**
@@ -1526,23 +1522,6 @@ public class WMV_Field
 		for (WMV_Sound s : sounds) 
 			s.fadeOut(this, false);
 	}
-
-	/**
-	 * Gradually fade all video and sound brightness / volume to zero
-	 */
-//	public void fadeOutAllVideosAndSounds()
-//	{
-//		if(debugSettings.world) System.out.println("Fading out videos and sounds...");
-//
-//		for (WMV_Video v : videos)
-//		{
-//			v.fadeOut(this, false);
-//			v.fadeSoundOut(true);
-//		}
-//
-//		for (WMV_Sound s : sounds) 
-//			s.fadeOut(this, false);
-//	}
 
 	/**
 	 * Immediately set all media brightness to zero

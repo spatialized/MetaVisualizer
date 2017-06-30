@@ -412,75 +412,8 @@ public class ML_Input
 				case "SetHome":
 					ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
 					break;
-
-				/* Media */
-				case "OpenMediaWindow":
-					if(!ml.display.window.showMediaWindow)
-						ml.display.window.openMediaWindow();
-					else
-						ml.display.window.closeMediaWindow();
-					break;
-	
-				case "SelectFront":
-					ml.world.viewer.chooseMediaInFront(true);
-					break;
-				case "SelectPanorama":
-					ml.world.viewer.choosePanoramaNearby(true);
-					break;
-					
-				case "DeselectFront":
-					ml.world.viewer.chooseMediaInFront(false);
-					if(ml.display.getDisplayView() == 4)
-						ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
-					break;
-				case "DeselectPanorama":
-					ml.world.viewer.choosePanoramaNearby(false);
-					break;
-
-				case "DeselectAll":
-					ml.world.getCurrentField().deselectAllMedia(false);
-					if(ml.display.getDisplayView() == 4)
-						ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
-					break;
-	
-				case "ViewSelected":
-					if(ml.display.getDisplayView() == 0)
-						ml.world.viewer.startViewingSelectedMedia();
-					else if(ml.display.getDisplayView() == 4)
-						ml.world.viewer.stopViewingSelectedMedia();
-					break;
-				case "StitchPanorama":
-					ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
-					break;
-	
-				/* Output */
-				case "SaveScreenshot":
-					if(!ml.world.outputFolderSelected) ml.selectFolder("", "outputFolderSelected");
-					ml.world.exportCurrentView();
-					break;
-				case "ExportMedia":
-					if(!ml.world.outputFolderSelected) ml.selectFolder("", "outputFolderSelected");
-					ml.world.exportCurrentMedia();
-					break;
-				case "OutputFolder":
-					ml.selectFolder("", "outputFolderSelected");
-					break;
-				
-				/* Statistics */
-				case "OpenStatisticsWindow":
-					if(!ml.display.window.showStatisticsWindow)
-						ml.display.window.openStatisticsWindow();
-					else
-						ml.display.window.closeStatisticsWindow();
-					break;
 	
 				/* Map */
-//				case "OpenMapWindow":
-//					if(!ml.display.window.showMapWindow)
-//						ml.display.window.openMapWindow();
-//					else
-//						ml.display.window.closeMapWindow();
-//					break;
 				case "SetMapView":
 					if(display.getDisplayView() != 1)
 						display.setDisplayView(ml.world, 1);
@@ -517,6 +450,60 @@ public class ML_Input
 //				case "ZoomToSelected":
 //					break;
 				
+
+					/* Media */
+					case "OpenMediaWindow":
+						if(!ml.display.window.showMediaWindow)
+							ml.display.window.openMediaWindow();
+						else
+							ml.display.window.closeMediaWindow();
+						break;
+		
+					case "SelectFront":
+						ml.world.viewer.chooseMediaInFront(true);
+						break;
+					case "SelectPanorama":
+						ml.world.viewer.choosePanoramaNearby(true);
+						break;
+						
+					case "DeselectFront":
+						ml.world.viewer.chooseMediaInFront(false);
+						if(ml.display.getDisplayView() == 4)
+							ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
+						break;
+					case "DeselectPanorama":
+						ml.world.viewer.choosePanoramaNearby(false);
+						break;
+
+					case "DeselectAll":
+						ml.world.getCurrentField().deselectAllMedia(false);
+						if(ml.display.getDisplayView() == 4)
+							ml.display.setDisplayView(ml.world, 0);			// Set current view to Media Display View
+						break;
+		
+					case "ViewSelected":
+						if(ml.display.getDisplayView() == 0)
+							ml.world.viewer.startViewingSelectedMedia();
+						else if(ml.display.getDisplayView() == 4)
+							ml.world.viewer.stopViewingSelectedMedia();
+						break;
+					case "StitchPanorama":
+						ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
+						break;
+		
+					/* Output */
+					case "SaveScreenshot":
+						if(!ml.world.outputFolderSelected) ml.selectFolder("", "outputFolderSelected");
+						ml.world.exportCurrentView();
+						break;
+					case "ExportMedia":
+						if(!ml.world.outputFolderSelected) ml.selectFolder("", "outputFolderSelected");
+						ml.world.exportCurrentMedia();
+						break;
+					case "OutputFolder":
+						ml.selectFolder("", "outputFolderSelected");
+						break;
+	
 				/* Time */
 				case "SetTimeView":
 					if(display.getDisplayView() != 2)
@@ -550,6 +537,12 @@ public class ML_Input
 					break;
 					
 				/* Library */
+				case "OpenLibraryWindow":
+					if(!ml.display.window.showLibraryViewWindow)
+						ml.display.window.openLibraryViewWindow();
+					else
+						ml.display.window.closeLibraryViewWindow();
+					break;
 				case "SetLibraryView":
 					if(display.getDisplayView() != 3)
 						display.setDisplayView(ml.world, 3);

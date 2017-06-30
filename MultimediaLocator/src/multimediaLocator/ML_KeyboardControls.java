@@ -853,9 +853,11 @@ public class ML_KeyboardControls
 	 */
 	public void handleTimeViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
+		/* Navigation */
 		if (key == 'j') 
 			ml.world.viewer.moveToRandomCluster(true, false);				// Jump (teleport) to random cluster
 
+		/* Timeline */
 		if (key == 'r')									// Zoom out to whole timeline
 			ml.display.resetZoom(ml.world, true);
 

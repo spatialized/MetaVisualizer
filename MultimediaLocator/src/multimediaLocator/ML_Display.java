@@ -1,5 +1,7 @@
 package multimediaLocator;
 import java.util.ArrayList;
+
+import g4p_controls.GButton;
 import processing.core.*;
 
 /***********************************
@@ -1282,40 +1284,6 @@ public class ML_Display
 	}
 	
 	/**
-	 * Zoom out to full timeline
-	 * @param p Parent world
-	 * @param transition Whether to use smooth zooming transition
-	 */
-	public void zoomToTimeline(WMV_World p, boolean transition)
-	{
-		WMV_Field f = p.getCurrentField();
-		
-		float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
-		float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
-		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
-
-		first *= day;					// Convert from normalized value to seconds
-		last *= day;
-		
-		float newTimelineStart = utilities.roundSecondsToHour(first);		// Round down to nearest hour
-		if(newTimelineStart > first) newTimelineStart -= 3600;
-		if(newTimelineStart < 0.f) newTimelineStart = 0.f;
-		float newTimelineEnd = utilities.roundSecondsToHour(last);			// Round up to nearest hour
-		if(newTimelineEnd < last) newTimelineEnd += 3600;
-		if(newTimelineEnd > day) newTimelineEnd = day;
-
-		if(transition)
-		{
-			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
-		}
-		else
-		{
-			timelineStart = newTimelineStart;
-			timelineEnd = newTimelineEnd;
-		}
-	}
-	
-	/**
 	 * Zoom to current selectable time segment
 	 * @param p Parent World
 	 * @param transition Whether to use smooth zooming transition
@@ -1384,6 +1352,40 @@ public class ML_Display
 				timelineStart = newTimelineStart;
 				timelineEnd = newTimelineEnd;
 			}
+		}
+	}
+	
+	/**
+	 * Zoom out to full timeline
+	 * @param p Parent world
+	 * @param transition Whether to use smooth zooming transition
+	 */
+	public void zoomToTimeline(WMV_World p, boolean transition)
+	{
+		WMV_Field f = p.getCurrentField();
+		
+		float first = f.getTimeSegment(0).getLower().getTime();						// First field media time, normalized
+		float last = f.getTimeSegment(f.getTimeline().timeline.size()-1).getUpper().getTime();		// Last field media time, normalized
+		float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
+
+		first *= day;					// Convert from normalized value to seconds
+		last *= day;
+		
+		float newTimelineStart = utilities.roundSecondsToHour(first);		// Round down to nearest hour
+		if(newTimelineStart > first) newTimelineStart -= 3600;
+		if(newTimelineStart < 0.f) newTimelineStart = 0.f;
+		float newTimelineEnd = utilities.roundSecondsToHour(last);			// Round up to nearest hour
+		if(newTimelineEnd < last) newTimelineEnd += 3600;
+		if(newTimelineEnd > day) newTimelineEnd = day;
+
+		if(transition)
+		{
+			timelineTransition(newTimelineStart, newTimelineEnd, initTimelineTransitionLength, ml.frameCount);
+		}
+		else
+		{
+			timelineStart = newTimelineStart;
+			timelineEnd = newTimelineEnd;
 		}
 	}
 	
@@ -2304,6 +2306,13 @@ public class ML_Display
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
+					window.btnTimelineReverse.setEnabled(false);
+					window.btnTimelineForward.setEnabled(false);	
+					window.btnTimelineZoomIn.setEnabled(false);
+					window.btnTimelineZoomOut.setEnabled(false);		
+					window.btnTimelineZoomToField.setEnabled(false);
+					window.btnTimelineZoomToSelected.setEnabled(false);
+					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
 				break;
 			case 1:														// Map View
@@ -2341,6 +2350,13 @@ public class ML_Display
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(true);
+					window.btnTimelineReverse.setEnabled(false);
+					window.btnTimelineForward.setEnabled(false);	
+					window.btnTimelineZoomIn.setEnabled(false);
+					window.btnTimelineZoomOut.setEnabled(false);		
+					window.btnTimelineZoomToField.setEnabled(false);
+					window.btnTimelineZoomToSelected.setEnabled(false);
+					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
 				break;
 			case 2:														// Time View
@@ -2357,6 +2373,14 @@ public class ML_Display
 				if(window.setupTimeWindow)
 				{
 					window.btnTimeView.setEnabled(false);
+					window.btnTimelineReverse.setEnabled(true);
+					window.btnTimelineForward.setEnabled(true);	
+					window.btnTimelineZoomIn.setEnabled(true);
+					window.btnTimelineZoomOut.setEnabled(true);		
+					window.btnTimelineZoomToField.setEnabled(true);
+					window.btnTimelineZoomToSelected.setEnabled(true);
+					window.btnTimelineZoomToFull.setEnabled(true);		
+
 				}
 				zoomToTimeline(ml.world, true);
 				break;

@@ -171,10 +171,10 @@ public class ML_Window
 	/* Time Window */
 	public GToggleGroup tgMapViewMode;	
 	public GButton btnTimeView;		
-	private GButton btnTimelineReverse, btnTimelineForward;		
-	private GButton btnTimelineZoomIn, btnTimelineZoomOut;		
-	private GButton btnTimelineZoomToField, btnTimelineZoomToSelected, btnTimelineZoomToFull;		
-	public GLabel lblTimelineZoomTo;					
+	public GButton btnTimelineReverse, btnTimelineForward;		
+	public GButton btnTimelineZoomIn, btnTimelineZoomOut;		
+	public GButton btnTimelineZoomToField, btnTimelineZoomToSelected, btnTimelineZoomToFull;		
+	public GLabel lblTimelineZoomTo, lblTimelineScroll;					
 	public GLabel lblShift5;
 	int timeWindowHeight;
 
@@ -1611,22 +1611,22 @@ public class ML_Window
 
 		x = iLeftMargin;
 		y += iVeryLargeBoxHeight;
-		lblTimeMode = new GLabel(timeWindow, x, y, 100, iVerySmallBoxHeight, "Time Mode");
+		lblTimeMode = new GLabel(timeWindow, x, y, 70, iVerySmallBoxHeight, "Mode");
 		lblTimeMode.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimeMode.setFont(new Font("Monospaced", Font.BOLD, iMediumTextSize));
 
-		x = 125;
-		optClusterTimeMode = new GOption(timeWindow, x, y, 75, 20, "Cluster");
+		x = 90;
+		optClusterTimeMode = new GOption(timeWindow, x, y, 85, 20, "Cluster");
 		optClusterTimeMode.setLocalColorScheme(G4P.SCHEME_10);
-//		optClusterTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		optClusterTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optClusterTimeMode.tag = "ClusterTimeMode";
 		
 		world.ml.delay(delayAmount);
 
-		x += 80;
-		optFieldTimeMode = new GOption(timeWindow, x, y, 115, 20, "Field  (=)");
+		x += 95;
+		optFieldTimeMode = new GOption(timeWindow, x, y, 115, 20, "Field (=)");
 		optFieldTimeMode.setLocalColorScheme(G4P.SCHEME_10);
-//		optFieldTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		optFieldTimeMode.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optFieldTimeMode.tag = "FieldTimeMode";
 		
 		switch(world.getState().getTimeMode())
@@ -1647,7 +1647,7 @@ public class ML_Window
 
 		x = 120;
 		y += iMediumBoxHeight;
-		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, iVerySmallBoxHeight, "Run Cycle (f)");
+		chkbxTimeFading = new GCheckbox(timeWindow, x, y, 160, iVerySmallBoxHeight, "Run (f)");
 		chkbxTimeFading.tag = "TimeFading";
 		chkbxTimeFading.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxTimeFading.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
@@ -1664,7 +1664,7 @@ public class ML_Window
 		chkbxPaused = new GCheckbox(timeWindow, x, y, 140, iVerySmallBoxHeight, "Pause (-)");
 		chkbxPaused.tag = "Paused";
 		chkbxPaused.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxPaused.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxPaused.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize-1));
 		chkbxPaused.setSelected(world.getState().paused);
 
 		x = 120;
@@ -1763,27 +1763,41 @@ public class ML_Window
 		btnTimeView.tag = "SetTimeView";
 		btnTimeView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnTimeView.setLocalColorScheme(G4P.GOLD_SCHEME);
-		if(world.ml.display.getDisplayView() == 2) btnTimeView.setEnabled(false);
+//		if(world.ml.display.getDisplayView() == 2) btnTimeView.setEnabled(false);
+		
+//		if (key == 'r')									// Zoom out to whole timeline
+//			ml.display.resetZoom(ml.world, true);
+//
+//		if (key == 'z')									// Zoom to fit timeline
+//			ml.display.zoomToTimeline(ml.world, true);
+//
+//		if (key == 'c')									// Zoom to fit current time segment
+//			ml.display.zoomToCurrentSelectableTimeSegment(ml.world, true);
+//
+//		if (key == 'd')									// Zoom to fit current time segment
+//			ml.display.zoomToCurrentSelectableDate(ml.world, true);
+//
+//		if (key == 'a')									// Timeline zoom to fit
+//			ml.display.showAllDates();
 
-		x = 70;
+		x = 35;
 		y += iVeryLargeBoxHeight + 5;
-		btnTimelineReverse = new GButton(timeWindow, x, y, 90, iVerySmallBoxHeight, "Reverse");
-		btnTimelineReverse.tag = "TimelineReverse";
-		btnTimelineReverse.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnTimelineReverse.fireAllEvents(true);
+		btnTimelineZoomIn = new GButton(timeWindow, x, y, 115, iVerySmallBoxHeight, "Zoom In (up)");
+		btnTimelineZoomIn.tag = "TimelineZoomIn";
+		btnTimelineZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnTimelineZoomIn.fireAllEvents(true);
+		x += 125;
+		btnTimelineZoomOut = new GButton(timeWindow, x, y, 125, iVerySmallBoxHeight, "Zoom Out (down)");
+		btnTimelineZoomOut.tag = "TimelineZoomOut";
+		btnTimelineZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnTimelineZoomOut.fireAllEvents(true);
 
-		x += 100;
-		btnTimelineForward = new GButton(timeWindow, x, y, 90, iVerySmallBoxHeight, "Forward");
-		btnTimelineForward.tag = "TimelineForward";
-		btnTimelineForward.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnTimelineForward.fireAllEvents(true);
-
-		x = 125;
+		x = 110;
 		y += iLargeBoxHeight;
-		btnTimelineZoomToField = new GButton(timeWindow, x, y, 65, iVerySmallBoxHeight, "Fit");
+		btnTimelineZoomToField = new GButton(timeWindow, x, y, 75, iVerySmallBoxHeight, "Fit (z)");
 		btnTimelineZoomToField.tag = "TimelineZoomToFit";
 		btnTimelineZoomToField.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnTimelineZoomToSelected = new GButton(timeWindow, x+80, y, 90, iVerySmallBoxHeight, "Selected");
+		btnTimelineZoomToSelected = new GButton(timeWindow, x+80, y, 100, iVerySmallBoxHeight, "Selected (c)");
 		btnTimelineZoomToSelected.tag = "TimelineZoomToSelected";
 		btnTimelineZoomToSelected.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -1792,25 +1806,30 @@ public class ML_Window
 		lblTimelineZoomTo = new GLabel(timeWindow, x, y, timeWindow.width, iSmallBoxHeight, "Zoom To:");
 		lblTimelineZoomTo.setLocalColorScheme(G4P.SCHEME_10);
 		lblTimelineZoomTo.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-//		lblTimelineZoomTo.setTextBold();
 		
-		x = 125;
+		x = 110;
 		y += iMediumBoxHeight * 0.5f;
-		btnTimelineZoomToFull = new GButton(timeWindow, x, y, 130, iVerySmallBoxHeight, "Full Timeline");
+		btnTimelineZoomToFull = new GButton(timeWindow, x, y, 105, iVerySmallBoxHeight, "Timeline (r)");
 		btnTimelineZoomToFull.tag = "TimelineZoomToFull";
 		btnTimelineZoomToFull.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
-		x = 70;
+
+		x = iLeftMargin;
 		y += iLargeBoxHeight;
-		btnTimelineZoomIn = new GButton(timeWindow, x, y, 90, iVerySmallBoxHeight, "Zoom In");
-		btnTimelineZoomIn.tag = "TimelineZoomIn";
-		btnTimelineZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnTimelineZoomIn.fireAllEvents(true);
-		x += 100;
-		btnTimelineZoomOut = new GButton(timeWindow, x, y, 90, iVerySmallBoxHeight, "Zoom Out");
-		btnTimelineZoomOut.tag = "TimelineZoomOut";
-		btnTimelineZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnTimelineZoomOut.fireAllEvents(true);
+		lblTimelineScroll = new GLabel(timeWindow, x, y, timeWindow.width, iSmallBoxHeight, "Scroll:");
+		lblTimelineScroll.setLocalColorScheme(G4P.SCHEME_10);
+		lblTimelineScroll.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+
+		x = 110;
+		btnTimelineReverse = new GButton(timeWindow, x, y, 75, iVerySmallBoxHeight, "Back (left)");
+		btnTimelineReverse.tag = "TimelineReverse";
+		btnTimelineReverse.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnTimelineReverse.fireAllEvents(true);
+
+		x += 80;
+		btnTimelineForward = new GButton(timeWindow, x, y, 105, iVerySmallBoxHeight, "Forward (right)");
+		btnTimelineForward.tag = "TimelineForward";
+		btnTimelineForward.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnTimelineForward.fireAllEvents(true);
 
 		x = 0;
 		y = timeWindowHeight - iBottomTextY;
@@ -1819,6 +1838,41 @@ public class ML_Window
 		lblShift4.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		lblShift4.setLocalColorScheme(G4P.SCHEME_10);
 		lblShift4.setTextAlign(GAlign.CENTER, null);
+		
+		switch(display.getDisplayView())
+		{
+			case 0:					// World 
+			case 1:					// Map
+				btnTimeView.setEnabled(true);
+				btnTimelineReverse.setEnabled(false);
+				btnTimelineForward.setEnabled(false);	
+				btnTimelineZoomIn.setEnabled(false);
+				btnTimelineZoomOut.setEnabled(false);		
+				btnTimelineZoomToField.setEnabled(false);
+				btnTimelineZoomToSelected.setEnabled(false);
+				btnTimelineZoomToFull.setEnabled(false);		
+				break;
+			case 2:					// Time
+				btnTimeView.setEnabled(false);
+				btnTimelineReverse.setEnabled(true);
+				btnTimelineForward.setEnabled(true);	
+				btnTimelineZoomIn.setEnabled(true);
+				btnTimelineZoomOut.setEnabled(true);		
+				btnTimelineZoomToField.setEnabled(true);
+				btnTimelineZoomToSelected.setEnabled(true);
+				btnTimelineZoomToFull.setEnabled(true);		
+				break;
+			case 3:					// Library
+				btnTimeView.setEnabled(true);
+				btnTimelineReverse.setEnabled(false);
+				btnTimelineForward.setEnabled(false);	
+				btnTimelineZoomIn.setEnabled(false);
+				btnTimelineZoomOut.setEnabled(false);		
+				btnTimelineZoomToField.setEnabled(false);
+				btnTimelineZoomToSelected.setEnabled(false);
+				btnTimelineZoomToFull.setEnabled(false);		
+				break;
+		}
 		
 		setupTimeWindow = true;
 		world.ml.setAppIcon = true;

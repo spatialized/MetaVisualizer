@@ -1312,10 +1312,10 @@ public class ML_Window
 	 */
 	public void setupLibraryViewWindow()
 	{
-		int leftEdge = world.ml.displayWidth / 2 - windowWidth * 2 / 3;
+		int leftEdge = world.ml.displayWidth / 2 - (windowWidth / 2) - 50;
 		int topEdge = world.ml.displayHeight / 2 - libraryViewWindowHeight / 2;
 
-		libraryViewWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth * 4 / 3, libraryViewWindowHeight, PApplet.JAVA2D);
+		libraryViewWindow = GWindow.getWindow(world.ml, "", leftEdge, topEdge, windowWidth + 60, libraryViewWindowHeight, PApplet.JAVA2D);
 		libraryViewWindow.setVisible(true);
 		libraryViewWindow.addData(new ML_WinData());
 		libraryViewWindow.addDrawHandler(this, "libraryViewWindowDraw");
@@ -1333,15 +1333,22 @@ public class ML_Window
 		
 		world.ml.delay(delayAmount);
 
-		x += 105;
+		x += 85;
 		y += iVeryLargeBoxHeight;
 		btnLibraryView = new GButton(libraryViewWindow, x, y, 195, iSmallBoxHeight, "Open Library View (4)");
 		btnLibraryView.tag = "SetLibraryView";
 		btnLibraryView.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		btnLibraryView.setLocalColorScheme(G4P.GOLD_SCHEME);
 
-		x = 160;
+		x = 0;
 		y += iVeryLargeBoxHeight + 5;
+		lblInterestPoint = new GLabel(libraryViewWindow, x, y, libraryViewWindow.width, iMediumBoxHeight, "Interest Point:");
+		lblInterestPoint.setLocalColorScheme(G4P.SCHEME_10);
+		lblInterestPoint.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		lblInterestPoint.setTextAlign(GAlign.CENTER, null);
+
+		x = 55;
+		y += iLargeBoxHeight;
 		btnPreviousCluster = new GButton(libraryViewWindow, x, y, 120, iVerySmallBoxHeight, "Previous (left)");
 		btnPreviousCluster.tag = "PreviousCluster";
 		btnPreviousCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -1350,17 +1357,11 @@ public class ML_Window
 		btnPreviousCluster.tag = "NextCluster";
 		btnPreviousCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x = iLeftMargin;
-		y += iMediumBoxHeight * 0.5f;
-		lblInterestPoint = new GLabel(libraryViewWindow, x, y, 155, iMediumBoxHeight, "Interest Point:");
-		lblInterestPoint.setLocalColorScheme(G4P.SCHEME_10);
-		lblInterestPoint.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-
 		world.ml.delay(delayAmount);
 
-		x = 160;
-		y += iMediumBoxHeight * 0.5f;
-		btnCurrentCluster = new GButton(libraryViewWindow, x, y, 100, iVerySmallBoxHeight, "Current (c)");
+		x = 125;
+		y += iMediumBoxHeight;
+		btnCurrentCluster = new GButton(libraryViewWindow, x, y, 130, iVerySmallBoxHeight, "Show Current (c)");
 		btnCurrentCluster.tag = "CurrentCluster";
 		btnCurrentCluster.setLocalColorScheme(G4P.CYAN_SCHEME);
 
@@ -1376,7 +1377,7 @@ public class ML_Window
 
 		libraryWindowViewerTextYOffset = y + iMediumBoxHeight + 15;
 		
-		y = 315;
+		y = libraryWindowViewerTextYOffset + 115;
 		lblWorldStats = new GLabel(libraryViewWindow, x, y, libraryViewWindow.width, iMediumBoxHeight, "World");
 		lblWorldStats.setLocalColorScheme(G4P.SCHEME_10);
 		lblWorldStats.setTextAlign(GAlign.CENTER, null);
@@ -2517,9 +2518,10 @@ public class ML_Window
 	 */
 	public void libraryViewWindowDraw(PApplet applet, GWinData data) 
 	{
-		if(world.ml.state.running)
+		applet.background(0);
+		if(world.ml.state.running && setupLibraryViewWindow && libraryWindowViewerTextYOffset > 0)
 		{
-			applet.background(0);
+//			applet.background(0);
 			applet.stroke(255);
 			applet.strokeWeight(1);
 			applet.fill(255, 255, 255);
@@ -2536,7 +2538,7 @@ public class ML_Window
 				WMV_Cluster c = world.getCurrentCluster();
 
 				applet.textSize(fMediumTextSize);
-				applet.text(" GPS Latitude:"+utilities.round( world.viewer.getGPSLocation().y, 4 )+" Longitude:  "+utilities.round( world.viewer.getGPSLocation().x, 4 ), x, y);		
+				applet.text(" Latitude:"+utilities.round( world.viewer.getGPSLocation().y, 4 )+" Longitude:  "+utilities.round( world.viewer.getGPSLocation().x, 4 ), x, y);		
 				applet.text(" Altitude:  "+utilities.round( world.viewer.getAltitude(), 4 ), x, y += lineWidthVeryWide);		
 				applet.text(" Field of View:" + utilities.round( world.viewer.getSettings().fieldOfView, 3), x, y += lineWidthVeryWide);
 				applet.text(" Current Point of Interest:  "+ (c.getID()+1)+" of "+ f.getClusters().size(), x, y += lineWidthVeryWide * 1.5f);

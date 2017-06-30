@@ -142,6 +142,11 @@ public class ML_Input
 			if (slider.tag == "VisibleAngle") 
 				world.viewer.setVisibleAngle( slider.getValueF() );
 			
+			if (slider.tag == "FarClipping")
+			{
+				world.viewer.setFarViewingDistance( slider.getValueF() );
+			}
+			
 			if (slider.tag == "Alpha") 
 				world.state.alpha = slider.getValueF();
 			

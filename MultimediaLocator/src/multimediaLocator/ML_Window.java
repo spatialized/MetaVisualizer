@@ -997,13 +997,13 @@ public class ML_Window
 		x = 25;
 		y += 30;
 		lblAltitudeFactor = new GLabel(mediaWindow, x, y, 100, iVerySmallBoxHeight, "Altitude Factor");
-		lblAltitudeFactor .setLocalColorScheme(G4P.SCHEME_10);
+		lblAltitudeFactor.setLocalColorScheme(G4P.SCHEME_10);
 
 		x = 120;
 		y += 10;
 		sdrFarClipping = new GSlider(mediaWindow, x, y, 160, 80, 20);
 		sdrFarClipping.setLocalColorScheme(G4P.GOLD_SCHEME);
-		sdrFarClipping.setLimits(world.viewer.getSettings().getFarViewingDistance(), 0.1f, (float)Math.PI * 0.5f);
+		sdrFarClipping.setLimits(world.viewer.getSettings().getFarViewingDistance(), 2.f, 50.f);
 		sdrFarClipping.setTextOrientation(G4P.ORIENT_TRACK);
 		sdrFarClipping.setEasing(0);
 		sdrFarClipping.setShowValue(true);

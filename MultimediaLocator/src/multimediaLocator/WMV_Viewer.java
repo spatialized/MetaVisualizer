@@ -2164,7 +2164,7 @@ public class WMV_Viewer
 
 	/**
 	 * Get viewer GPS location in format: {longitude, latitude}
-	 * @return Current viewer GPS location
+	 * @return Current GPS location
 	 */
 	public PVector getGPSLocation()
 	{
@@ -2176,7 +2176,27 @@ public class WMV_Viewer
 
 		return new PVector(newX, newY);
 	}
+
+	/**
+	 * Get viewer GPS location in format: {longitude, altitude, latitude}
+	 * @return Current GPS location with altitude component
+	 */
+	public PVector getGPSLocationWithAltitude()
+	{
+		PVector vLoc = getLocation();
+		WMV_ModelState m = p.getCurrentField().getModel().getState();
+		
+		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
+		float newY = getAltitude();																								// Altitude
+		float newZ = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+
+		return new PVector(newX, newY);
+	}
 	
+	/**
+	 * Get current viewer altitude in meters
+	 * @return Current altitude
+	 */
 	public float getAltitude()
 	{
 		return p.utilities.getAltitude(getLocation());

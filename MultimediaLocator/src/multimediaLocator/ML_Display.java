@@ -1763,6 +1763,12 @@ public class ML_Display
 				ml.textSize(hudMediumTextSize);
 				ml.text(" Output Folder:"+ml.world.outputFolder, x, y += lineWidthVeryWide * 1.5f);
 				
+				if(ml.debug.ml && ml.debug.print)
+				{
+					ml.text("   Viewer GPS Location, Longitude:"+utilities.round(p.viewer.getGPSLocation().x, 5) +
+							"  Latitude:"+utilities.round(p.viewer.getGPSLocation().y, 5), x, y += hudLineWidth, 0);
+				}
+				
 				ml.popMatrix();
 				endDisplayHUD();
 

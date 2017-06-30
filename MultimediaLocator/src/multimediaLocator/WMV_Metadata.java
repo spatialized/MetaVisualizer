@@ -873,6 +873,12 @@ class WMV_Metadata
 		/* Set image variables from metadata */
 		if (imageMetadata != null) 
 		{
+			if (debugSettings.metadata && debugSettings.image && debugSettings.detailed) 
+			{
+				ml.systemMessage("*******************************************************");
+				ml.systemMessage("*  Loading Image Metadata: "+sName);
+			}
+
 			for (Directory directory : imageMetadata.getDirectories()) 
 			{
 				for (Tag tag : directory.getTags()) 
@@ -890,7 +896,7 @@ class WMV_Metadata
 					if (tagName.equals("Model")) // Model
 					{
 						sCameraModel = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadImageMetadata()... Found Camera Model..." + sCameraModel);
+						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found Camera Model..." + sCameraModel);
 
 						try
 						{
@@ -906,12 +912,13 @@ class WMV_Metadata
 					if (tagName.equals("Orientation")) // Orientation
 					{
 						sOrientation = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found Orientation..." + sOrientation);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+							ml.systemMessage("Found Orientation..." + sOrientation);
 					}
 					if (tagName.equals("Date/Time Original")) // Orientation
 					{
 						sDateTime = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) 
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
 							ml.systemMessage("Found DateTimeOriginal..." + sDateTime);
 						String[] parts = sDateTime.split(" - ");
 						sDateTime = parts[1];
@@ -919,33 +926,39 @@ class WMV_Metadata
 					if (tagName.equals("GPS Latitude")) // Latitude
 					{
 						sLatitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found Latitude..." + sLatitude);
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps) 
+							ml.systemMessage("Found Latitude..." + sLatitude);
 					}
 					if (tagName.equals("GPS Longitude")) // Longitude
 					{
 						sLongitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found Longitude..." + sLongitude);
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps) 
+							ml.systemMessage("Found Longitude..." + sLongitude);
 					}
 					if (tagName.equals("GPS Altitude")) // Altitude
 					{
 						sAltitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found Altitude..." + sAltitude);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+							ml.systemMessage("Found Altitude..." + sAltitude);
 					}
 					if (tagName.equals("Focal Length")) // Focal Length
 					{
 						sFocalLength = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found Focal Length..." + sFocalLength);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+							ml.systemMessage("Found Focal Length..." + sFocalLength);
 					}
 
 					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
 					{
 						sFocalLength35mm = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found Focal Length 35mm Equivalent..." + sFocalLength);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image) 
+							ml.systemMessage("Found Focal Length 35mm Equivalent..." + sFocalLength);
 					}
 					if (tagName.equals("GPS Img Direction")) // Image Direction
 					{
 						sDirection = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Found GPS Img Direction..." + sDirection);
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps)
+							ml.systemMessage("Found GPS Img Direction..." + sDirection);
 					}
 					if (tagName.equals("Image Description")) 	// Description (for Theodolite app vertical / elevation angles)
 					{
@@ -968,8 +981,8 @@ class WMV_Metadata
 							if(debugSettings.metadata) ml.systemMessage("Metadata.loadImageMetadata()...  Not a Theodolite image...");
 						}
 
-						if (debugSettings.metadata && debugSettings.detailed)
-							ml.systemMessage("Metadata.loadImageMetadata()... Found Description..." + sDescription);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.image)
+							ml.systemMessage("Found Description..." + sDescription);
 					}
 					
 					if (tagName.equals("AFPointsUsed")) // Orientation
@@ -990,7 +1003,7 @@ class WMV_Metadata
 					if (tagName.equals("Keywords"))
 					{
 						if (debugSettings.metadata)
-							ml.systemMessage("Metadata.loadImageMetadata()...   Keywords: "+tagString);
+							ml.systemMessage("Keywords: "+tagString);
 						
 						sKeywords = ParseKeywordArray(tagString);
 					}
@@ -1133,15 +1146,18 @@ class WMV_Metadata
 
 		Metadata panoramaMetadata = null;				// For images
 
-		if(debugSettings.metadata && debugSettings.panorama && debugSettings.detailed)
-			ml.systemMessage("Metadata.loadPanoramaMetadata()... Loading panorama: "+sName);
+		if (debugSettings.metadata && debugSettings.panorama && debugSettings.detailed) 
+		{
+			ml.systemMessage("*******************************************************");
+			ml.systemMessage("*  Loading Panorama Metadata: "+sName);
+		}
 
 		try {
 			panoramaMetadata = JpegMetadataReader.readMetadata(file);		/* Read metadata with JpegMetadataReader */
 		}
 		catch (Throwable t) 
 		{
-			if(debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Throwable:" + t);
+			if(debugSettings.metadata || debugSettings.panorama) ml.systemMessage("Metadata.loadPanoramaMetadata()... Throwable:" + t);
 			if(!dataMissing) dataMissing = true;
 		}
 
@@ -1158,22 +1174,25 @@ class WMV_Metadata
 					if (tag.getTagName().equals("Software")) // Software
 					{
 						sSoftware = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Software..." + sSoftware);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+							ml.systemMessage("Found Software..." + sSoftware);
 					}
 
 					if (tagName.equals("Model")) // Model
 					{
 						sCameraModel = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Camera Model..." + sCameraModel);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+							ml.systemMessage("Found Camera Model..." + sCameraModel);
 
 						try
 						{
 							iCameraModel = parseCameraModel(sCameraModel);
-							if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()...   Set iCameraModel:" + iCameraModel);
+							if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+								ml.systemMessage("Set iCameraModel:" + iCameraModel);
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata) ml.systemMessage("Metadata.loadPanoramaMetadata()... Throwable in camera model..." + t);
+							if (debugSettings.metadata || debugSettings.panorama) ml.systemMessage("Metadata.loadPanoramaMetadata()... Throwable in camera model..." + t);
 							if(!dataMissing) dataMissing = true;
 						}
 					}
@@ -1181,60 +1200,66 @@ class WMV_Metadata
 					if (tagName.equals("Orientation")) 			// Orientation		-- Not needed for panorama?
 					{
 						sOrientation = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Orientation..." + sOrientation);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+							ml.systemMessage("Found Orientation..." + sOrientation);
 					}
 					if (tagName.equals("Date/Time Original")) 	// Date/Time
 					{
 						sDateTime = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) 
-							ml.systemMessage("Metadata.loadPanoramaMetadata()... Found DateTimeOriginal..." + sDateTime);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+							ml.systemMessage("Found DateTimeOriginal..." + sDateTime);
 						String[] parts = sDateTime.split(" - ");
 						sDateTime = parts[1];
 					}
 					if (tagName.equals("GPS Latitude")) // Latitude
 					{
 						sLatitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Latitude..." + sLatitude);
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+							ml.systemMessage("Found Latitude..." + sLatitude);
 					}
 					if (tagName.equals("GPS Longitude")) // Longitude
 					{
 						sLongitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Longitude..." + sLongitude);
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+							ml.systemMessage("Found Longitude..." + sLongitude);
 					}
 					if (tagName.equals("GPS Altitude")) // Altitude
 					{
 						sAltitude = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Altitude..." + sAltitude);
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+							ml.systemMessage("Found Altitude..." + sAltitude);
 					}
 					if (tagName.equals("Focal Length")) // Focal Length
 					{
 						sFocalLength = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Focal Length..." + sFocalLength);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+							ml.systemMessage("Found Focal Length..." + sFocalLength);
 					}
 
-					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
-					{
+//					if (tagName.equals("Focal Length 35")) // Focal Length (35 mm. equivalent)
+//					{
 //						sFocalLength35mm = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Focal Length 35mm Equivalent..." + sFocalLength);
-					}
+//						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) 
+//							ml.systemMessage("Found Focal Length 35mm Equivalent..." + sFocalLength);
+//					}
 					if (tagName.equals("GPS Img Direction")) // Image Direction
 					{
 						sDirection = tagString;
 						
-						if (debugSettings.metadata && debugSettings.detailed)
-							ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Panorama Direction..." + sDirection);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+							ml.systemMessage("Found Panorama Direction..." + sDirection);
 					}
 					if (tagName.equals("Image Description")) 	// Description	 -- Unused for panorama?
 					{
 						sDescription = tagString;
-						if (debugSettings.metadata && debugSettings.detailed)
-							ml.systemMessage("Metadata.loadPanoramaMetadata()... Found Description..." + sDescription);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+							ml.systemMessage("Found Description..." + sDescription);
 					}
 					
 					if (tagName.equals("Keywords"))
 					{
-						if (debugSettings.metadata)
-							ml.systemMessage("Metadata.loadPanoramaMetadata()...  Keywords: "+tagString);
+						if (debugSettings.metadata && debugSettings.detailed && debugSettings.panorama)
+							ml.systemMessage("Keywords: "+tagString);
 						
 						sKeywords = ParseKeywordArray(tagString);
 					}
@@ -1261,7 +1286,8 @@ class WMV_Metadata
 
 				if (directory.hasErrors()) {
 					for (String error : directory.getErrors()) {
-						ml.systemMessage("Metadata.loadPanoramaMetadata()... ERROR: " + error);
+						if (debugSettings.metadata || debugSettings.panorama) 
+							ml.systemMessage("Metadata.loadPanoramaMetadata()... ERROR: " + error);
 					}
 				}
 			}
@@ -1271,27 +1297,13 @@ class WMV_Metadata
 			} 
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata) ml.systemMessage("Metadata.loadPanoramaMetadata()... Error in date / time... " + ex);
+				if (debugSettings.metadata || debugSettings.panorama) 
+					ml.systemMessage("Metadata.loadPanoramaMetadata()... Error in date / time... " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 
-//			if(!panorama)			// -- Update this
-//			{
-//				try {
-//					fFocalLength = parseFocalLength(sFocalLength);
-//					fSensorSize = parseSensorSize(sFocalLength35mm);		// 29 mm for iPhone 6S+
-//				} 
-//				catch (Throwable t) // If not, must be only one keyword
-//				{
-//					if (debugSettings.metadata) ml.systemMessage("Throwable in camera model / focal length..." + t);
-//					if(!dataMissing) dataMissing = true;
-//				}
-//			}
-//			else
-//			{
-				iCameraModel = -1;
-				fFocalLength = -1.f;
-//			}
+//			iCameraModel = -1;
+			fFocalLength = -1.f;
 
 			try {
 				float xCoord, yCoord, zCoord;
@@ -1377,6 +1389,12 @@ class WMV_Metadata
 			ml.systemMessage("Metadata.loadVideoMetadata()... Loading video metadata for file: "+sName);
 
 		Map<String, String> videoMetadata = null;
+
+		if (debugSettings.metadata && debugSettings.video && debugSettings.detailed) 
+		{
+			ml.systemMessage("*******************************************************");
+			ml.systemMessage("*  Loading Video Metadata: "+sName);
+		}
 
 		/* Read video metadata from file using ExifToolWrapper */
 		try {
@@ -1536,7 +1554,7 @@ class WMV_Metadata
 					if (tag.getTagName().equals("Software")) // Software
 					{
 						String sSoftware = tagString;
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.fileIsPanorama()... Found Software..." + sSoftware);
+//						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.fileIsPanorama()... Found Software..." + sSoftware);
 
 						if(sSoftware.equals("[Exif IFD0] Software - Occipital 360 Panorama"))
 							return true;		// Image is a panorama
@@ -1547,7 +1565,7 @@ class WMV_Metadata
 						String sCameraModel = tagString;
 						int iCameraModel;
 						
-						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.fileIsPanorama()... Found Camera Model..." + sCameraModel);
+//						if (debugSettings.metadata && debugSettings.detailed) ml.systemMessage("Metadata.fileIsPanorama()... Found Camera Model..." + sCameraModel);
 						
 						try
 						{
@@ -1557,7 +1575,7 @@ class WMV_Metadata
 						}
 						catch (Throwable t) // If not, must be only one keyword
 						{
-							if (debugSettings.metadata) ml.systemMessage("fileIsPanorama()... Throwable in parsing camera model..." + t);
+							if (debugSettings.metadata) ml.systemMessage("Metadata.fileIsPanorama()... Throwable in parsing camera model..." + t);
 						}
 					}
 				}

@@ -1844,7 +1844,7 @@ class WMV_Metadata
 	}
 
 	/**
-	 * Parse metadata input for camera sensor size, given in mm.
+	 * Parse metadata input for camera sensor size in mm.
 	 * @param input String input
 	 * @return Camera sensor size in millimeters
 	 */

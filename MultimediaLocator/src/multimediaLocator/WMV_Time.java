@@ -161,7 +161,7 @@ public class WMV_Time implements Comparable<WMV_Time>
 	}
 
 	/**
-	 * @return Time as a normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day
+	 * @return Time as normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day
 	 */
 	public float getTime()
 	{
@@ -228,28 +228,18 @@ public class WMV_Time implements Comparable<WMV_Time>
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
 	}
 	
-	
 	/**
-	 * Map a value from given range to new range
-	 * @param val Value to map
-	 * @param min Initial range minimum
-	 * @param max Initial range maximum
-	 * @param min2 New range minimum
-	 * @param max2 New range maximum
-	 * @return
+	 * Set spatial cluster ID associated with this time
+	 * @param newClusterID New cluster ID
 	 */
-	public float mapValue(float val, float min, float max, float min2, float max2)
-	{
-	  float res;
-	  res = (((max2-min2)*(val-min))/(max-min)) + min2;
-	  return res;
-	}
-
 	public void setClusterID(int newClusterID)
 	{
 		clusterID = newClusterID;
 	}
-
+	
+	/**
+	 * Initialize time object from loaded date/time string
+	 */
 	public void initializeTime()
 	{
 		dateTime = parseDateTime(dateTimeString);
@@ -275,6 +265,22 @@ public class WMV_Time implements Comparable<WMV_Time>
 
 		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
 		return pac;
+	}
+	
+	/**
+	 * Map a value from given range to new range
+	 * @param val Value to map
+	 * @param min Initial range minimum
+	 * @param max Initial range maximum
+	 * @param min2 New range minimum
+	 * @param max2 New range maximum
+	 * @return Mapped value
+	 */
+	public float mapValue(float val, float min, float max, float min2, float max2)
+	{
+	  float res;
+	  res = (((max2-min2)*(val-min))/(max-min)) + min2;
+	  return res;
 	}
 }
 

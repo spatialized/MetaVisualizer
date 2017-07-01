@@ -13,9 +13,8 @@ import toxi.math.InterpolateStrategy;
 import toxi.math.ScaleMap;
 
 /***************************************
- * Media object viewable in a 3D environment
+ * Media object in virtual 3D environment
  * @author davidgordon
- * 
  */
 public abstract class WMV_Media
 {
@@ -496,58 +495,22 @@ public abstract class WMV_Media
 //		float newX = 0.f, newZ = 0.f, newY = 0.f;
 		PVector newCaptureLocation = new PVector(0,0,0);
 		
-//		if(model.debugSettings.gps && model.debugSettings.detailed)
-		if(model.debugSettings.gps)
+		if(model.debugSettings.gps && model.debugSettings.detailed)
 		{
 			System.out.println("Media.calculateCaptureLocation()... ID #"+getID()+" Type: "+getType());
 			System.out.println("   gpsLocation x:"+mState.gpsLocation.x+" y: "+mState.gpsLocation.y+" z:"+mState.gpsLocation.z);
 			System.out.println("   longitudeRef:"+mState.longitudeRef+" latitudeRef: "+mState.latitudeRef);
-			
-//			longitudeRef = newLongitudeRef;
-//			latitudeRef = newLatitudeRef;
 		}
 		
 		if( model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && 
 			model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000 )
 		{
 			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
-			{
 				newCaptureLocation = model.utilities.getCaptureLocationFromGPSLocation(mState.gpsLocation, mState.longitudeRef, mState.latitudeRef, model);
-				
-				/* OLD METHOD */
-//				newX = model.utilities.mapValue( mState.gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude decreases from left to right
-//												 model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f 
-//												 * model.getState().fieldWidth); 					
-//				newY = -model.utilities.mapValue( mState.gpsLocation.y, model.getState().lowAltitude,  // Convert altitude feet to meters, negative to match P3D coordinate space
-//												  model.getState().highAltitude, 
-//												  0.f, model.getState().fieldHeight); 	
-//				newZ = model.utilities.mapValue( mState.gpsLocation.z, model.getState().lowLatitude,   // GPS latitude increases from bottom to top, reversed to match P3D coordinate space
-//												 model.getState().highLatitude, 0.5f * model.getState().fieldLength, 
-//												 -0.5f * model.getState().fieldLength); 		
-				
-//				newX = PApplet.map(mState.gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, 
-//								   -0.5f * model.getState().fieldWidth, 0.5f * model.getState().fieldWidth); 			// GPS longitude decreases from left to right
-//				newY = -PApplet.map(mState.gpsLocation.y, model.getState().lowAltitude, model.getState().highAltitude, 
-//									0.f, model.getState().fieldHeight); 												// Convert altitude feet to meters, negative sign to match P3D coordinate space
-//				newZ = PApplet.map(mState.gpsLocation.z, model.getState().lowLatitude, model.getState().highLatitude, 
-//									0.5f * model.getState().fieldLength, -0.5f * model.getState().fieldLength); 		// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
-				
-//				if(worldSettings != null)
-//				{
-//					if(worldSettings.altitudeScaling)	
-//						newY *= worldSettings.altitudeScalingFactor;
-//				}
-//				else
-//					newY *= mState.defaultAltitudeScalingFactor;
-			}
 			else
-			{
 				newCaptureLocation = new PVector(0,0,0);
-//				newX = newY = newZ = 0.f;
-			}
 		}
 
-//		mState.captureLocation = new PVector(newX, newY, newZ);
 		mState.captureLocation = newCaptureLocation;
 	}
 	
@@ -614,7 +577,6 @@ public abstract class WMV_Media
 		float distance = PVector.dist(mState.captureLocation, point);     
 		return distance;
 	}
-
 
 	/**
 	 * Rotate list of vertices using matrices
@@ -920,57 +882,96 @@ public abstract class WMV_Media
 		return mState.hidden;
 	}
 
+	/**
+	 * @return Media ID
+	 */
 	public int getID()
 	{
 		return mState.id;
 	}
 	
+	/**
+	 * @return Media type {0: image 1: panorama 2: video 3: sound}
+	 */
 	public int getMediaType()
 	{
 		return mState.mediaType;
 	}
 
+	/**
+	 * @return Media capture time as normalized value where 0.f is midnight on calendar date and 1.f is midnight the following day
+	 */
 	public float getTime()
 	{
 		return time.getTime();
 	}
 
+	/**
+	 * @return Date object associated with this time
+	 */
 	public WMV_Date getDate()
 	{
 		return time.asDate();
 	}
 
+	/**
+	 * @return Media filename without extension
+	 */
 	public String getName()
 	{
 		return mState.name;
 	}
 
+	/**
+	 * Set aspect ratio
+	 * @param newAspectRatio New aspect ratio
+	 */
 	public void setAspectRatio(float newAspectRatio)
 	{
 		mState.aspectRatio = newAspectRatio;
 	}
 	
+	/**
+	 * Get aspect ratio
+	 * @return Media aspect ratio
+	 */
 	public float getAspectRatio()
 	{
 		return mState.aspectRatio;
 	}
 	
+	/**
+	 * Set requested state
+	 * @param newState New requested state
+	 */
 	public void setRequested(boolean newState)
 	{
 		mState.requested = newState;
 	}
 	
+	/**
+	 * Get requested state
+	 * @return Whether media data has been requested from disk
+	 */
 	public boolean isRequested()
 	{
 		return mState.requested;
 	}
 	
+	/**
+	 * Set original path to media file
+	 * @param newPath New media filepath
+	 */
 	public void setOriginalPath(String newPath)
 	{
 		mState.originalPath = newPath;
 		mState.hasOriginal = true;
 	}
 	
+	/**
+	 * Get original path to media file
+	 * @return Original media filepath 
+	 */
 	public String getOriginalPath()
 	{
 		return mState.originalPath;
@@ -987,6 +988,7 @@ public abstract class WMV_Media
 	}
 	
 	/**
+	 * Get spatial cluster associated with media
 	 * @return Associated cluster
 	 */
 	public int getAssociatedClusterID()
@@ -994,64 +996,107 @@ public abstract class WMV_Media
 		return mState.getClusterID();
 	}
 
+	/**
+	 * Set media virtual location
+	 * @param newLocation New media location
+	 */
 	public void setLocation(PVector newLocation)
 	{
 		mState.location = newLocation;
 	}
-	
-	public void addVectorToLocation(PVector disp)
-	{
-		mState.location.add(disp);     													 
-	}
-	
+
+	/**
+	 * Get media virtual location
+	 * @return
+	 */
 	public PVector getLocation()
 	{
 		return mState.location;
 	}
 	
+	/**
+	 * Add displacement vector to location
+	 * @param disp Displacement vector
+	 */
+	public void addToLocation(PVector disp)
+	{
+		mState.location.add(disp);     													 
+	}
+	
+	/**
+	 * Set virtual capture location
+	 * @param newCaptureLocation New capture location
+	 */
 	public void setCaptureLocation(PVector newCaptureLocation)
 	{
 		mState.captureLocation = newCaptureLocation;
 	}
 
+	/**
+	 * Get virtual capture location
+	 * @return Capture location
+	 */
 	public PVector getCaptureLocation()
 	{
 		return mState.captureLocation;
 	}
 
+	/**
+	 * Get location in original GPS coordinates in format {longitude, altitude, latitude}
+	 * @return GPS location
+	 */
 	public PVector getGPSLocation()
 	{
 		return mState.gpsLocation;
 	}
 
+	/**
+	 * Set fading focus distance state
+	 * @param newState New fading focus distance state
+	 */
 	public void setFadingFocusDistance(boolean newState)
 	{
 		mState.fadingFocusDistance = newState;
 	}
 	
+	/**
+	 * @return Whether media is fading focus distance
+	 */
 	public boolean isFadingFocusDistance()
 	{
 		return mState.fadingFocusDistance;
 	}
 
+	/**
+	 * Set viewing brightness
+	 * @param newViewingBrightness New viewing brightness
+	 */
 	public void setViewingBrightness(float newViewingBrightness)
 	{
 		mState.viewingBrightness = newViewingBrightness;
 	}
 
+	/**
+	 * Get viewing brightness
+	 * @return Viewing brightness
+	 */
 	public float getViewingBrightness()
 	{
 		return mState.viewingBrightness;
 	}
 
+	/**
+	 * Get brightness due to fading in and out
+	 * @return Fading brightness
+	 */
 	public float getFadingBrightness()
 	{
 		return mState.fadingBrightness;
 	}
 
 	/**
-	 * Select or deselect this image
-	 * @param selection Whether to select or deselect
+	 * Set whether media is selected
+	 * @param selection New selected state
 	 */
 	public void setSelected(boolean selection)
 	{
@@ -1059,41 +1104,72 @@ public abstract class WMV_Media
 		if(selection) mState.showMetadata = selection;
 	}
 
+	/**
+	 * @return Whether media is selected or not
+	 */
 	public boolean isSelected()
 	{
 		return mState.selected;
 	}
 
+	/**
+	 * Set media type  {0: image 1: panorama 2: video 3: sound}
+	 * @param newMediaType New media type 
+	 */
 	public void setMediaType(int newMediaType)
 	{
 		mState.mediaType = newMediaType;
 	}
 	
+	/**
+	 * Get media type  {0: image 1: panorama 2: video 3: sound}
+	 * @return Media type
+	 */
 	public int getType()
 	{
 		return mState.mediaType;
 	}
 	
+	/**
+	 * Get current world settings
+	 * @return World settings
+	 */
 	public WMV_WorldSettings getWorldSettings()
 	{
 		return worldSettings;
 	}
 	
+	/**
+	 * Get current world state
+	 * @return World state
+	 */
 	public WMV_WorldState getWorldState()
 	{
 		return worldState;
 	}
 	
+	/**
+	 * Get current viewer settings
+	 * @return Viewer settings
+	 */
 	public WMV_ViewerSettings getViewerSettings()
 	{
 		return viewerSettings;
 	}
 	
+	/**
+	 * Get current viewer state
+	 * @return Viewer state
+	 */
 	public WMV_ViewerState getViewerState()
 	{
 		return viewerState;
 	}
 	
+	/**
+	 * Get debug settings
+	 * @return Debug settings
+	 */
 	public ML_DebugSettings getDebugSettings()
 	{
 		return debugSettings;

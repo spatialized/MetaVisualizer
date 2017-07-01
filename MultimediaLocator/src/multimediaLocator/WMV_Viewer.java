@@ -183,28 +183,6 @@ public class WMV_Viewer
 		
 		if(p.ml.display.window.setupNavigationWindow)
 			p.ml.display.window.reloadNavigationWindow();
-		
-//		if(p.ml.display.window.setupNavigationWindow)
-//		{
-//			boolean noGPSTracks = p.getCurrentField().getGPSTracks() == null;	// Update Select GPS Track button state
-//			if(!noGPSTracks) noGPSTracks = p.getCurrentField().getGPSTracks().size() == 0;
-//			if(noGPSTracks)
-//			{
-//				p.ml.display.window.btnChooseGPSTrack.setEnabled(false);
-//				p.ml.display.window.btnChooseGPSTrack.setVisible(false);
-//				p.ml.display.window.chkbxPathFollowing.moveTo(100, p.ml.display.window.chkbxPathFollowing.getY());;
-//				p.ml.display.window.chkbxFollowTeleport.moveTo(100, p.ml.display.window.chkbxFollowTeleport.getY());;
-//			}
-//			else
-//			{
-//				p.ml.display.window.btnChooseGPSTrack.setEnabled(true);
-//				p.ml.display.window.btnChooseGPSTrack.setVisible(true);
-//				p.ml.display.window.chkbxPathFollowing.moveTo(180, p.ml.display.window.chkbxPathFollowing.getY());;
-//				p.ml.display.window.chkbxFollowTeleport.moveTo(180, p.ml.display.window.chkbxFollowTeleport.getY());;
-//			}
-//		}
-		
-//		updateState(p.settings, p.state);					// Update viewer about world settings + state
 	}
 	
 	/**
@@ -290,7 +268,7 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * Update Orientation Mode parameters
+	 * Update Orientation (Static) Mode parameters
 	 */
 	private void updateOrientationMode()
 	{

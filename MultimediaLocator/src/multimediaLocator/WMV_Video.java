@@ -410,7 +410,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 		state.vertices = translateVertices(state.vertices, state.disp);          // Translate image vertices from capture to viewing location
 
 		setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );	// Location in Path Mode
-		addVectorToLocation(state.disp);
+		addToLocation(state.disp);
 	}
 	
 	public PVector getDisplacementVector()

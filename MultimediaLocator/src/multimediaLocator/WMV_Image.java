@@ -462,7 +462,7 @@ public class WMV_Image extends WMV_Media
 			state.sVertices = translateVertices(state.sVertices, state.displacement);      // Translate image static vertices from capture to viewing location
 
 			setLocation( new PVector(getCaptureLocation().x, getCaptureLocation().y, getCaptureLocation().z) );
-			addVectorToLocation(state.displacement);     													 
+			addToLocation(state.displacement);     													 
 		}
 	}
 

@@ -933,13 +933,13 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * Get capture location from GPS location and altitude
-	 * @param gpsLocation
-	 * @param altitude
-	 * @param longitudeRef
-	 * @param latitudeRef
-	 * @param model
-	 * @return
+	 * Calculate virtual capture location based on GPS location in format {longitude, latitude} and GPS altitude
+	 * @param gpsLocation GPS location in format {longitude, altitude, latitude}
+	 * @param altitude Altitude
+	 * @param longitudeRef Longitude reference
+	 * @param latitudeRef Latitude reference
+	 * @param model Field model
+	 * @return Capture location associated with GPS location
 	 */
 	public PVector getCaptureLocationFromGPSAndAltitude( PVector gpsLocation, float altitude, String longitudeRef, String latitudeRef, WMV_Model model )                                  
 	{
@@ -948,8 +948,12 @@ public class WMV_Utilities
 	}
 	
 	/**
-	 * Calculate media capture state.location in virtual space based on GPS location in format {longitude, latitude} and GPS altitude
+	 * Calculate virtual capture.location based on GPS location in format {longitude, altitude, latitude}
+	 * @param gpsLocation GPS location in format {longitude, altitude, latitude}
+	 * @param longitudeRef Longitude reference
+	 * @param latitudeRef Latitude reference
 	 * @param model Field model
+	 * @return Capture location associated with GPS location
 	 */
 	public PVector getCaptureLocationFromGPSLocation( PVector gpsLocation, String longitudeRef, String latitudeRef, WMV_Model model )                                  
 	{

@@ -28,7 +28,7 @@ public class WMV_MediaState
 	public String name = "";					// Media filename
 	public PVector gpsLocation;            		// Location in original GPS coordinates {longitude, altitude, latitude}
 	public String longitudeRef, latitudeRef;	// Longitude / latitude reference (i.e. sign)
-	public int mediaType;						// Media Type,  0: image 1: panorama 2: video 3: sound 
+	public int mediaType;						// Media Type  {0: image 1: panorama 2: video 3: sound}
 
 	/* Time */
 	public float clusterLowDate, clusterLowTime;		// Low date and time of other media in cluster (position between 0. and 1.)
@@ -40,7 +40,7 @@ public class WMV_MediaState
 	
 	/* Model */
 	public PVector captureLocation;				// Media capture location in simulation – EXIF GPS coords scaled to fieldSize.
-	public PVector location;        			// Media location in simulation 
+	public PVector location;        			// Media virtual location 
 	public int cluster = -1;				 	// Cluster it belongs to	
 	public boolean fadingFocusDistance = false;
 	public boolean beginFadingObjectDistance = false;			// Whether fading distance of object in image
@@ -90,6 +90,7 @@ public class WMV_MediaState
 		viewingBrightness = 0.f;	
 		fadingBrightness = 0.f;	
 		
+		/* Fading */
 		isFadingIn = false; isFadingOut = false;
 		beginFading = false;
 		fading = false;		

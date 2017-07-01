@@ -19,20 +19,20 @@ public class WMV_MediaState
 	public boolean requested = false;			// Indicates a recent request to load media from disk
 	public boolean showMetadata = false;		// Show metadata
 
-	/* Files */
+	/* General */
+	public int id;								// Media ID
 	public String originalPath = "";			// Path to original (full size) media
 	public boolean hasOriginal = false;			// Whether has original (full size) media
 	
 	/* Metadata */
+	public String name = "";					// Media filename
 	public PVector gpsLocation;            		// Location in original GPS coordinates {longitude, altitude, latitude}
-	public int id;
+	public String longitudeRef, latitudeRef;	// Longitude / latitude reference (i.e. sign)
 	public int mediaType;						// Media Type,  0: image 1: panorama 2: video 3: sound 
-	public String name = "";
-//	public String filePath = "";				// -- Obsolete
 
 	/* Time */
-	public float clusterLowDate, clusterLowTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
-	public float clusterHighDate, clusterHighTime;		// Date and time relative to other images in cluster (position between 0. and 1.)
+	public float clusterLowDate, clusterLowTime;		// Low date and time of other media in cluster (position between 0. and 1.)
+	public float clusterHighDate, clusterHighTime;		// High date and time of other media in cluster (position between 0. and 1.)
 	public boolean isCurrentMedia;
 	public ZonedDateTime dateTime;				// Media date and time
 	public String timeZone;						// Media time zone

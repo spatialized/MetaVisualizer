@@ -33,7 +33,7 @@ public class WMV_Sound extends WMV_Media
 	WMV_Sound ( int newID, int newType, WMV_SoundMetadata newSoundMetadata )
 	{
 		super( newID, newType, newSoundMetadata.name, newSoundMetadata.filePath, newSoundMetadata.dateTime, newSoundMetadata.timeZone, 
-				newSoundMetadata.gpsLocation );
+				newSoundMetadata.gpsLocation, newSoundMetadata.longitudeRef, newSoundMetadata.latitudeRef );
 
 		state = new WMV_SoundState();
 
@@ -48,6 +48,9 @@ public class WMV_Sound extends WMV_Media
 		initializeTime();
 	}  
 
+	/**
+	 * Calculate sound audibility
+	 */
 	public void calculateAudibility()
 	{
 		setVisible(true);     										 		
@@ -62,6 +65,11 @@ public class WMV_Sound extends WMV_Media
 		}
 	}
 
+	/**
+	 * Calculate visiblity due to fading in and out
+	 * @param ml Parent app
+	 * @param wasVisible Whether sound was visible last frame
+	 */
 	public void calculateFadingVisibility(MultimediaLocator ml, boolean wasVisible)
 	{
 		boolean visibilitySetToTrue = false;
@@ -406,8 +414,15 @@ public class WMV_Sound extends WMV_Media
 
 		if(closestIdx >= 0)
 		{
-			setGPSLocation( gpsTrack.get(closestIdx).getGPSLocationWithAltitude() );			// Format: {longitude, altitude, latitude}
-			setGPSLocationInMetadata( gpsTrack.get(closestIdx).getGPSLocationWithAltitude() );	// Format: {longitude, altitude, latitude}
+			WMV_Waypoint wp = gpsTrack.get(closestIdx);
+			setGPSLocation( wp.getGPSLocationWithAltitude() );			// Format: {longitude, altitude, latitude}
+			setGPSLocationInMetadata( wp.getGPSLocationWithAltitude() );	// Format: {longitude, altitude, latitude}
+			setGPSLongitudeRef( wp.longitudeRef );
+			setGPSLongitudeRefInMetadata( wp.longitudeRef );
+			setGPSLatitudeRef( wp.latitudeRef );
+			setGPSLatitudeRefInMetadata( wp.latitudeRef );
+//			setGPSLocation( gpsTrack.get(closestIdx).getGPSLocationWithAltitude() );			// Format: {longitude, altitude, latitude}
+//			setGPSLocationInMetadata( gpsTrack.get(closestIdx).getGPSLocationWithAltitude() );	// Format: {longitude, altitude, latitude}
 
 			if(getDebugSettings().sound)
 			{
@@ -573,6 +588,21 @@ public class WMV_Sound extends WMV_Media
 		metadata.gpsLocation = newGPSLocation;
 	}
 	
+	public void setGPSLongitudeRefInMetadata(String newLongitudeRef)
+	{
+		metadata.longitudeRef = newLongitudeRef;
+	}
+	
+	public void setGPSLatitudeRefInMetadata(String newLatitudeRef)
+	{
+		metadata.latitudeRef = newLatitudeRef;
+	}
+	
+//	setGPSLongitudeRef( wp.longitudeRef );
+//	setGPSLongitudeRefInMetadata( wp.longitudeRef );
+//	setGPSLatitudeRef( wp.latitudeRef );
+//	setGPSLatitudeRefInMetadata( wp.latitudeRef );
+
 	public boolean isFadingVolume()
 	{
 		return state.fadingVolume;

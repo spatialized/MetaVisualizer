@@ -25,12 +25,31 @@ public class WMV_VideoMetadata extends WMV_MediaMetadata
 
 	/**
 	 * Constructor for video metadata
+	 * @param newName Video name
+	 * @param newFilePath Filepath
+	 * @param newGPSLocation GPS Location
+	 * @param newDateTime Date/time
+	 * @param newDateTimeString Date/time as string
+	 * @param newTimeZone Time zone
+	 * @param newTheta Compass direction
+	 * @param newFocalLength Focal length
+	 * @param newOrientation Orientation {0, 90, 180 or 270}
+	 * @param newElevation Elevation angle
+	 * @param newRotation Rotation angle
+	 * @param newCameraModel Camera model
+	 * @param newWidth Video width
+	 * @param newHeight Video height
+	 * @param newBrightness Brightness (n/a)
+	 * @param newKeywords Keyword list
+	 * @param newSoftware Recording software
+	 * @param newLongitudeRef Longitude Reference {E or W}
+	 * @param newLatitudeRef Latitude reference {N or S}
 	 */
 	public WMV_VideoMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, int newCameraModel, 
-			int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware )
+			int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware, String newLongitudeRef, String newLatitudeRef )
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
+		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware, newLongitudeRef, newLatitudeRef);
 
 		videoWidth = newWidth;
 		videoHeight = newHeight;
@@ -47,29 +66,34 @@ public class WMV_VideoMetadata extends WMV_MediaMetadata
 	public WMV_VideoMetadata(){}
 	
 	/**
-	 * 
-	 * @param newName
-	 * @param newFilePath
-	 * @param newGPSLocation
-	 * @param newDateTime
-	 * @param newDateTimeString
-	 * @param newTimeZone
-	 * @param newTheta
-	 * @param newFocalLength
-	 * @param newOrientation
-	 * @param newElevation
-	 * @param newRotation
-	 * @param newCameraModel
-	 * @param newWidth
-	 * @param newHeight
-	 * @param newBrightness
-	 * @param newKeywords
+	 * Initialize video metadata
+	 * @param newName Video name
+	 * @param newFilePath Filepath
+	 * @param newGPSLocation GPS Location
+	 * @param newDateTime Date/time
+	 * @param newDateTimeString Date/time as string
+	 * @param newTimeZone Time zone
+	 * @param newTheta Compass direction
+	 * @param newFocalLength Focal length
+	 * @param newOrientation Orientation {0, 90, 180 or 270}
+	 * @param newElevation Elevation angle
+	 * @param newRotation Rotation angle
+	 * @param newCameraModel Camera model
+	 * @param newWidth Video width
+	 * @param newHeight Video height
+	 * @param newBrightness Brightness (n/a)
+	 * @param newKeywords Keyword list
+	 * @param newSoftware Recording software
+	 * @param newLongitudeRef Longitude Reference {E or W}
+	 * @param newLatitudeRef Latitude reference {N or S}
 	 */
 	public void initialize( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, int newCameraModel, 
-			int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware )
+			int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware, String newLongitudeRef, 
+			String newLatitudeRef )
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
+		super.init( newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware, newLongitudeRef,
+				    newLatitudeRef );
 
 		videoWidth = newWidth;
 		videoHeight = newHeight;

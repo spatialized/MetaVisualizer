@@ -16,28 +16,69 @@ public class WMV_Waypoint
 	private PVector gpsLocationWithAltitude; // GPS location with altitude {longitude, altitude, latitude}
 	private float altitude;					// GPS Altitude
 	
+	public String longitudeRef = "E";
+	public String latitudeRef = "N";
+	
 	private boolean initialized = false;	// Whether waypoint has been initialized
 	
 	/**
-	 * Constructor for waypoint
-	 * @param newID
-	 * @param newCaptureLocation
-	 * @param newGPSLocation
-	 * @param newAltitude
-	 * @param newTime
+	 * Constructor for waypoint without longitude / latitude ref
+	 * @param newID Waypoint ID
+	 * @param newCaptureLocation Capture location
+	 * @param newGPSLocation GPS location with signed longitude and latitude
+	 * @param newAltitude Altitude (in m.)
+	 * @param newTime Time
 	 */
 	public WMV_Waypoint(int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
 	{
 		id = newID;
+
+		/* Location */
 		captureLocation = newCaptureLocation;
-		time = newTime;
 		gpsLocation = newGPSLocation;
 		altitude = newAltitude;
 		gpsLocationWithAltitude = new PVector(gpsLocation.x, altitude, gpsLocation.y);
-		
+		if( (int)Math.signum(gpsLocation.x) == -1 )
+			longitudeRef = "W";
+		if( (int)Math.signum(gpsLocation.y) == -1 )
+			latitudeRef = "S";
+
+		/* Time */
+		time = newTime;						
+
 		initialized = true;
 	}
+
 	
+	/**
+	 * Constructor for waypoint without longitude / latitude ref
+	 * @param newID Waypoint ID
+	 * @param newCaptureLocation Capture location
+	 * @param newGPSLocation GPS location (longitude and latitude with no sign)
+	 * @param newAltitude Altitude (in m.)
+	 * @param newLongitudeRef Longitude reference
+	 * @param newLatitudeRef Latitude reference
+	 * @param newTime Time
+	 */
+	public WMV_Waypoint( int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, String newLongitudeRef, 
+						 String newLatitudeRef, WMV_Time newTime ) 
+	{
+		id = newID;
+
+		/* Location */
+		captureLocation = newCaptureLocation;
+		gpsLocation = newGPSLocation;
+		altitude = newAltitude;
+		gpsLocationWithAltitude = new PVector(gpsLocation.x, altitude, gpsLocation.y);
+		longitudeRef = newLongitudeRef;
+		latitudeRef = newLatitudeRef;
+
+		/* Time */
+		time = newTime;						
+
+		initialized = true;
+	}
+
 	/**
 	 * Dummy constructor for waypoint
 	 */

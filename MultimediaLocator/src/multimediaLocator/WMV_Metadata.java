@@ -268,12 +268,9 @@ class WMV_Metadata
 		
 		if(debugSettings.metadata)
 		{
-			ml.systemMessage("Metadata.loadImageFolders()... smallImageFolder: "+smallImageFolder);
-			ml.systemMessage("              				   smallImageFolderFound: "+smallImageFolderFound);
-			ml.systemMessage("               				   largeImageFolder: "+largeImageFolder);
-			ml.systemMessage("               				   largeImageFolderFound: "+largeImageFolderFound);
-			ml.systemMessage("                          	   panoramaFolder: "+panoramaFolder);
-			ml.systemMessage("                               panoramaFolderFound: "+panoramaFolderFound);
+			ml.systemMessage("Metadata.loadImageFolders()... smallImageFolder: "+smallImageFolder+" found? "+smallImageFolderFound);
+			ml.systemMessage("               				 largeImageFolder: "+largeImageFolder+" found? "+largeImageFolderFound);
+			ml.systemMessage("                          	 panoramaFolder: "+panoramaFolder+" found? "+panoramaFolderFound);
 		}
 	}
 	
@@ -577,41 +574,6 @@ class WMV_Metadata
 		}
 	}
 	
-	/**
-	 * Load sound metadata for specified sound file 
-	 * @param f Field containing sound
-	 * @param file Sound file 
-	 * @param fieldTimeZoneID Time zone ID
-	 * @return
-	 */
-	public WMV_SoundMetadata loadSoundMetadata(WMV_Field f, File file, String fieldTimeZoneID)
-	{
-		String sName = file.getName();
-		String sFilePath = file.getPath();
-		Path path = FileSystems.getDefault().getPath(sFilePath);
-
-		if(!file.getName().equals(".DS_Store"))
-		{
-			try
-			{
-				if(debugSettings.sound || debugSettings.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Loading sound file:"+sFilePath);
-				BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-				FileTime creationTime = attr.creationTime();
-				if(ml.debug.sound && ml.debug.metadata) ml.systemMessage("file: "+file.getName()+" creationTime: "+creationTime);
-				ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
-				String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundTime);		// 2016:04:10 17:52:39
-				
-				return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, soundDateTimeString, fieldTimeZoneID, null, "");				
-			}
-			catch(Throwable t)
-			{
-				ml.systemMessage("Throwable in loadSounds()... "+t);
-			}
-		}
-		
-		return null;
-	}
-	
 	/** 
 	 * Read metadata tags from image and panorama files and add 3D media objects to field
 	 * @param f Field to load images and panoramas into
@@ -845,8 +807,11 @@ class WMV_Metadata
 
 		String[] sKeywords = new String[0];	
 		
-		String sDateTime = null;
-		String sLatitude = null, sLongitude = null, sAltitude = null;
+		String sDateTime = null;										// Time
+		
+		String sLatitude = null, sLongitude = null, sAltitude = null;	// GPS Location
+		String sLatitudeRef = null, sLongitudeRef = null;
+
 		String sOrientation = null, sDirection = null;
 		String sFocalLength = null, sFocalLength35mm = null;
 		String sSoftware = null;
@@ -922,6 +887,18 @@ class WMV_Metadata
 							ml.systemMessage("Found DateTimeOriginal..." + sDateTime);
 						String[] parts = sDateTime.split(" - ");
 						sDateTime = parts[1];
+					}
+					if (tagName.equals("GPS Latitude Ref")) // Latitude
+					{
+						sLatitudeRef = tagString;
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps) 
+							ml.systemMessage("Found Latitude Ref..." + sLatitudeRef);
+					}
+					if (tagName.equals("GPS Longitude Ref")) // Longitude
+					{
+						sLongitudeRef = tagString;
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.image) || debugSettings.gps) 
+							ml.systemMessage("Found Longitude Ref..." + sLongitudeRef);
 					}
 					if (tagName.equals("GPS Latitude")) // Latitude
 					{
@@ -1049,12 +1026,22 @@ class WMV_Metadata
 				if (debugSettings.metadata) ml.systemMessage("Throwable in camera model / focal length..." + t);
 				if(!dataMissing) dataMissing = true;
 			}
+			
 
 			try {
 				float xCoord, yCoord, zCoord;
-				xCoord = parseLongitude(sLongitude);
+				sLongitudeRef = parseLongitudeRef(sLongitudeRef);
+				sLatitudeRef = parseLatitudeRef(sLatitudeRef);
+				
+				if(ml.debug.gps && ml.debug.detailed)
+				{
+					ml.systemMessage(" Parsed image longitude Ref:"+sLongitudeRef);
+					ml.systemMessage(" Parsed image latitude Ref:"+sLatitudeRef);
+				}
+				
+				xCoord = parseLongitude(sLongitude, sLongitudeRef);
 				yCoord = parseAltitude(sAltitude);
-				zCoord = parseLatitude(sLatitude);
+				zCoord = parseLatitude(sLatitude, sLatitudeRef);
 
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
 				{
@@ -1098,8 +1085,9 @@ class WMV_Metadata
 		{
 			if(!dataMissing)
 			{
-				return new WMV_ImageMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, fFocalLength, fOrientation, fElevation, fRotation, fFocusDistance, 
-						fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords, sSoftware);
+				return new WMV_ImageMetadata( sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, fFocalLength, fOrientation, 
+						fElevation, fRotation, fFocusDistance, fSensorSize, iCameraModel, iWidth, iHeight, fBrightness, sKeywords, sSoftware,
+						sLongitudeRef, sLatitudeRef );
 			}
 			else
 				if(debugSettings.metadata) ml.systemMessage("Metadata.loadImageMetadata()... Data missing! Excluded image:"+sName);
@@ -1134,9 +1122,12 @@ class WMV_Metadata
 
 		String[] sKeywords = new String[0];	
 		
-		String sDateTime = null;
-		String sLatitude = null, sLongitude = null, sAltitude = null;
-		String sOrientation = null, sDirection = null;
+		String sDateTime = null;										// Time
+		
+		String sLatitude = null, sLongitude = null, sAltitude = null;	// GPS Location
+		String sLatitudeRef = null, sLongitudeRef = null;
+		
+		String sOrientation = null, sDirection = null;					// Orientation / Direction
 		String sFocalLength = null; // sFocalLength35mm = null;
 		String sSoftware = null;
 		String sCameraModel = null, sDescription = null;
@@ -1210,6 +1201,18 @@ class WMV_Metadata
 							ml.systemMessage("Found DateTimeOriginal..." + sDateTime);
 						String[] parts = sDateTime.split(" - ");
 						sDateTime = parts[1];
+					}
+					if (tagName.equals("GPS Latitude Ref")) // Latitude
+					{
+						sLatitudeRef = tagString;
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+							ml.systemMessage("Found Latitude Ref..." + sLatitudeRef);
+					}
+					if (tagName.equals("GPS Longitude Ref")) // Longitude
+					{
+						sLongitudeRef = tagString;
+						if ((debugSettings.metadata && debugSettings.detailed && debugSettings.panorama) || debugSettings.gps) 
+							ml.systemMessage("Found Longitude Ref..." + sLongitudeRef);
 					}
 					if (tagName.equals("GPS Latitude")) // Latitude
 					{
@@ -1307,10 +1310,18 @@ class WMV_Metadata
 
 			try {
 				float xCoord, yCoord, zCoord;
-				xCoord = parseLongitude(sLongitude);
+				sLongitudeRef = parseLongitudeRef(sLongitudeRef);
+				sLatitudeRef = parseLatitudeRef(sLatitudeRef);
+				xCoord = parseLongitude(sLongitude, sLongitudeRef);
 				yCoord = parseAltitude(sAltitude);
-				zCoord = parseLatitude(sLatitude);
+				zCoord = parseLatitude(sLatitude, sLatitudeRef);
 
+				if(ml.debug.gps && ml.debug.detailed)
+				{
+					ml.systemMessage("  Parsed longitude Ref:"+sLongitudeRef);
+					ml.systemMessage("  Parsed latitude Ref:"+sLatitudeRef);
+				}
+				
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
 				{
 					gpsLoc = new PVector(0, 0, 0);
@@ -1347,8 +1358,8 @@ class WMV_Metadata
 		{
 			if(!dataMissing)
 			{
-				return new WMV_PanoramaMetadata( sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, 
-												 iCameraModel, iWidth, iHeight, fBrightness, sKeywords, sSoftware );
+				return new WMV_PanoramaMetadata( sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, fDirection, iCameraModel, 
+												 iWidth, iHeight, fBrightness, sKeywords, sSoftware, sLongitudeRef, sLatitudeRef  );
 			}
 			else
 				ml.systemMessage("Metadata.loadPanoramaMetadata()... Data missing!  Could not get panorama metadata:"+sName);
@@ -1379,9 +1390,14 @@ class WMV_Metadata
 		PVector gpsLoc = new PVector(0, 0, 0);
 		String sFilePath = "";
 		
+		String sWidth = null, sHeight = null;
+
+		String sDateTime = null;										// Time
+		
+		String sLatitude = null, sLongitude = null, altitude = null;	// GPS Location
+		String sLatitudeRef = null, sLongitudeRef = null;
+		
 		String duration = null;										
-		String sDateTime = null, sWidth = null, sHeight = null;
-		String sLatitude = null, sLongitude = null, altitude = null;
 		String sKeywords = null;
 		String[] keywords = new String[0];	
 
@@ -1409,6 +1425,8 @@ class WMV_Metadata
 
 		/* Set video variables from metadata */
 		try {
+//			sLongitudeRef = videoMetadata.get("GPSLongitudeRef");
+//			sLatitudeRef = videoMetadata.get("GPSLatitudeRef");
 			sLongitude = videoMetadata.get("GPSLongitude");
 			sLatitude = videoMetadata.get("GPSLatitude");
 			altitude = videoMetadata.get("GPSAltitude");
@@ -1423,8 +1441,10 @@ class WMV_Metadata
 
 			if(debugSettings.metadata && debugSettings.video && debugSettings.detailed)
 			{
-				ml.systemMessage("Metadata.loadVideoMetadata()...  Video latitude:"+sLatitude+"  longitude:"+sLongitude+"  altitude:"+altitude);
-				ml.systemMessage("  date:"+sDateTime+"  duration:"+duration+"  width:"+sWidth+"  height:"+sHeight);
+				ml.systemMessage("  Latitude:"+sLatitude+"  Longitude:"+sLongitude+"  Altitude:"+altitude);
+				ml.systemMessage("  Date:"+sDateTime+"  duration:"+duration+"  width:"+sWidth+"  height:"+sHeight);
+				ml.systemMessage("  Longitude Ref:"+sLongitudeRef);
+				ml.systemMessage("  Latitude Ref:"+sLatitudeRef);
 				ml.systemMessage("  keywords:"+sKeywords);
 			}
 
@@ -1439,9 +1459,17 @@ class WMV_Metadata
 			/* Parse video GPS coordinates */
 			try {
 				float xCoord, yCoord, zCoord;
-				xCoord = Float.valueOf(sLongitude);				// Flip sign of longitude?
-				yCoord = Float.valueOf(altitude);
-				zCoord = Float.valueOf(sLatitude);				// Flip sign of latitude?
+				
+				xCoord = parseFloatLongitude(sLongitude);			// Get longitude decimal value without sign
+				yCoord = Float.valueOf(altitude);					// Get altitude in m. (Altitude ref. assumed to be sea level)
+				zCoord = parseFloatLatitude(sLatitude);				// Get longitude decimal value without sign
+
+				sLongitudeRef = getFloatLongitudeRef(sLongitude);	// Get reference (sign) of longitude sign of longitude
+				sLatitudeRef = getFloatLatitudeRef(sLatitude);		// Get reference (sign) of latitude sign of longitude
+				
+//				xCoord = Float.valueOf(sLongitude);				
+//				yCoord = Float.valueOf(altitude);
+//				zCoord = Float.valueOf(sLatitude);				
 
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
 				{
@@ -1471,8 +1499,8 @@ class WMV_Metadata
 		{
 			if(!dataMissing)
 			{
-				WMV_VideoMetadata vMetadata = new WMV_VideoMetadata(sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, fieldTimeZoneID, 
-						-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords, "");
+				WMV_VideoMetadata vMetadata = new WMV_VideoMetadata( sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, fieldTimeZoneID, 
+						-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords, "", sLongitudeRef, sLatitudeRef );
 				return vMetadata;
 			}
 			else if(debugSettings.metadata || debugSettings.video)
@@ -1489,6 +1517,44 @@ class WMV_Metadata
 
 		return null;
 	}
+	
+	/**
+	 * Load sound metadata for specified sound file 
+	 * @param f Field containing sound
+	 * @param file Sound file 
+	 * @param fieldTimeZoneID Time zone ID
+	 * @return
+	 */
+	public WMV_SoundMetadata loadSoundMetadata(WMV_Field f, File file, String fieldTimeZoneID)
+	{
+		String sName = file.getName();
+		String sFilePath = file.getPath();
+		Path path = FileSystems.getDefault().getPath(sFilePath);
+
+		if(!file.getName().equals(".DS_Store"))
+		{
+			try
+			{
+				if(debugSettings.sound || debugSettings.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Loading sound file:"+sFilePath);
+				BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
+				FileTime creationTime = attr.creationTime();
+				if(ml.debug.sound && ml.debug.metadata) ml.systemMessage("file: "+file.getName()+" creationTime: "+creationTime);
+				ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
+				String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundTime);		// 2016:04:10 17:52:39
+				
+				return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, soundDateTimeString, fieldTimeZoneID, 
+					   null, "", "", "" );				
+			}
+			catch(Throwable t)
+			{
+				ml.systemMessage("Throwable in loadSounds()... "+t);
+			}
+		}
+		
+		return null;
+	}
+	
+
 	
 	/**
 	 * Read video metadata using ExifToolWrapper
@@ -1586,11 +1652,44 @@ class WMV_Metadata
 	}
 
 	/**
+	 * Parse longitude reference
+	 * @param inputLongitudeRef
+	 * @return Longitude reference string {"N" or "S"}
+	 */
+	public String parseLongitudeRef(String inputLongitudeRef)
+	{
+		if(inputLongitudeRef.equals("[GPS] GPS Longitude Ref - W"))
+			return "W";
+		else if(inputLongitudeRef.equals("[GPS] GPS Longitude Ref - E"))
+			return "E";
+		
+		if(ml.debug.metadata)
+			ml.systemMessage("Metadata.parseLongitudeRef()... ERROR: >>>"+inputLongitudeRef+"<<< not recognized...");
+		return "";
+	}
+
+	/**
+	 * Parse latitude reference metadata string
+	 * @param inputLatitudeRef
+	 * @return Latitude reference string {"N" or "S"}
+	 */
+	public String parseLatitudeRef(String inputLatitudeRef)
+	{
+		if(inputLatitudeRef.equals("[GPS] GPS Latitude Ref - N"))
+			return "N";
+		else if(inputLatitudeRef.equals("[GPS] GPS Latitude Ref - S"))
+			return "S";
+		if(ml.debug.metadata)
+			ml.systemMessage("Metadata.parseLatitudeRef()... ERROR: >>>"+inputLatitudeRef+"<<< not recognized...");
+		return "";
+	}
+	
+	/**
 	 * Parse metadata input for GPS longitude in D/M/S format
 	 * @param input String input
 	 * @return GPS decimal longitude
 	 */
-	public float parseLongitude(String input) {
+	public float parseLongitude(String input, String direction) {
 		String[] parts = input.split("Longitude -");
 		input = parts[1];
 		parts = input.split("°");
@@ -1602,7 +1701,7 @@ class WMV_Metadata
 		parts = input.split("\"");
 		float seconds = Float.valueOf(parts[0]);
 
-		float decimal = ConvertDMSToDDLongitude(degrees, minutes, seconds);
+		float decimal = convertDMSCoordsToDecimal(degrees, minutes, seconds, direction);
 		return decimal;
 	}
 
@@ -1611,7 +1710,7 @@ class WMV_Metadata
 	 * @param input String input
 	 * @return GPS decimal latitude
 	 */
-	public float parseLatitude(String input) {
+	public float parseLatitude(String input, String direction) {
 		String[] parts = input.split("Latitude -");
 		input = parts[1];
 		parts = input.split("°");
@@ -1623,32 +1722,84 @@ class WMV_Metadata
 		parts = input.split("\"");
 		float seconds = Float.valueOf(parts[0]);
 
-		float decimal = ConvertDMSToDD(degrees, minutes, seconds);
+		float decimal = convertDMSCoordsToDecimal(degrees, minutes, seconds, direction);
 		return decimal;
 	}
 
 	/**
-	 * Parse metadata input for GPS longitude in decimal format
-	 * @param input String input
-	 * @return GPS decimal longitude
+	 * Convert GPS coordinates in DMS format to decimal
+	 * @param degrees Degrees
+	 * @param minutes Minutes
+	 * @param seconds Seconds
+	 * @return Decimal value 
 	 */
-	public float parseFloatLongitude(String input) {
-		String[] parts = input.split("W");
-		float decimal = Float.valueOf(parts[0]);
-		return decimal;
-	}
+	public float convertDMSCoordsToDecimal(float degrees, float minutes, float seconds, String direction) 
+	{
+	    float decimal = Math.signum(degrees) * (Math.abs(degrees) + (minutes / 60.0f) + (seconds / 3600.0f));
 
-	/**
-	 * Parse metadata input for GPS latitude in decimal format
-	 * @param input String input
-	 * @return GPS decimal latitude
-	 */
-	public float parseFloatLatitude(String input) {
-		String[] parts = input.split("N");
-		float decimal = Float.valueOf(parts[0]);
+		if (direction == "S" || direction == "W") 			// -- Added 6/30/17
+		{
+			if(Math.signum(decimal) == 1)					// Make decimal negative if necessary
+				decimal *= -1; 
+		}
+
 		return decimal;
+		
+		/* Old Method */
+//		float dd = degrees + minutes / 60 + seconds / (60 * 60);
+//		return dd;
 	}
 	
+	/**
+	 * Parse metadata input string for GPS longitude in decimal format
+	 * @param input Input string
+	 * @return GPS decimal longitude (without sign)
+	 */
+	private float parseFloatLongitude( String input ) 
+	{	
+		float decimal = Float.valueOf(input);
+		return decimal;
+	}
+
+	/**
+	 * Parse metadata input string for GPS latitude in decimal format
+	 * @param input Input string
+	 * @return GPS decimal latitude (without sign)
+	 */
+	private float parseFloatLatitude( String input ) 
+	{	
+		float decimal = Float.valueOf(input);
+		return decimal;
+	}
+
+	/**
+	 * Get longitude reference of longitude metadata input
+	 * @param input Longitude metadata input
+	 * @return Longitude reference
+	 */
+	private String getFloatLongitudeRef( String input )
+	{
+		float decimal = Float.valueOf(input);
+		String gpsLongitudeRef = "E";
+		if( (int)Math.signum(decimal) == -1 )
+			gpsLongitudeRef = "W";
+		return gpsLongitudeRef;
+	}
+	
+	/**
+	 * Get latitude reference of latitude metadata input
+	 * @param input Latitude metadata input
+	 * @return Latitude reference
+	 */
+	private String getFloatLatitudeRef( String input )
+	{
+		float decimal = Float.valueOf(input);
+		String gpsLatitudeRef = "N";
+		if( (int)Math.signum(decimal) == -1 )
+			gpsLatitudeRef = "S";
+		return gpsLatitudeRef;
+	}
+
 	/**
 	 * Parse metadata input for GPS bearing (i.e. compass orientation) in decimal format, given in degrees
 	 * @param input String input
@@ -1845,33 +1996,6 @@ class WMV_Metadata
 		else 
 			return -1.f;
 	}
-
-	/**
-	 * ConvertDMSToDD()
-	 * @param degrees Degrees
-	 * @param minutes Minutes
-	 * @param seconds Seconds
-	 * @return Decimal value of coordinates
-	 */
-	public float ConvertDMSToDD(float degrees, float minutes, float seconds) 
-	{
-		float dd = degrees + minutes / 60 + seconds / (60 * 60);
-
-		/*
-		 * if (direction == "S" || direction == "W") { dd = dd * -1; } // Don't
-		 * do anything for N or E
-		 */
-
-		return dd;
-	}
-
-	public float ConvertDMSToDDLongitude(float degrees, float minutes, float seconds) {
-		float dd;
-		dd = degrees - minutes/60.f - seconds/(60.f*60.f);
-		return dd;
-	}
-
-
 
 	public int[] parseAFPointsArray(String input) 
 	{

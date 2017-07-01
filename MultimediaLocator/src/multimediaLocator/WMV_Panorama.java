@@ -39,7 +39,7 @@ public class WMV_Panorama extends WMV_Media
 	WMV_Panorama ( int newID, int newType, float newElevation, PVector newLocation, PImage newTexture, WMV_PanoramaMetadata newPanoMetadata )
 	{
 		super( newID, newType, newPanoMetadata.name, newPanoMetadata.filePath, newPanoMetadata.dateTime, newPanoMetadata.timeZone, 
-				newPanoMetadata.gpsLocation );
+				newPanoMetadata.gpsLocation, newPanoMetadata.longitudeRef, newPanoMetadata.latitudeRef );
 
 		metadata = newPanoMetadata;
 		state = new WMV_PanoramaState();

@@ -38,7 +38,7 @@ class WMV_Video extends WMV_Media          		// Represents a video in virtual sp
 	WMV_Video ( int newID, Movie newVideo, int newType, WMV_VideoMetadata newVideoMetadata )
 	{
 		super( newID, newType, newVideoMetadata.name, newVideoMetadata.filePath, newVideoMetadata.dateTime, newVideoMetadata.timeZone, 
-			   newVideoMetadata.gpsLocation );
+			   newVideoMetadata.gpsLocation, newVideoMetadata.longitudeRef, newVideoMetadata.latitudeRef );
 
 		metadata = newVideoMetadata;
 		state = new WMV_VideoState();

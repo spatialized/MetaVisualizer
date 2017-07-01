@@ -41,7 +41,7 @@ public class WMV_Model
 	{
 		if (images.size() > 0 || panoramas.size() > 0 || videos.size() > 0 || sounds.size() > 0)
 		{
-			if(debugSettings.world) System.out.println("Initializing field model...");
+			if(debugSettings.world || debugSettings.gps) System.out.println("Model.setup()... Initializing field model...");
 			
 			analyzeSpatialDimensions(images, panoramas, videos, null); 		// Calculate bounds of field from spatial metadata
 																			// -- No sounds, since need model to set sound locations) -- Fix model later!
@@ -226,22 +226,30 @@ public class WMV_Model
 				 state.highLongitude = i.getMediaState().gpsLocation.x;
 				 state.lowLongitude = i.getMediaState().gpsLocation.x;
 			 }
-			 if (init) 	// Initialize high and low latitude
-			 {	
-				 state.highLatitude = i.getMediaState().gpsLocation.z;
-				 state.lowLatitude = i.getMediaState().gpsLocation.z;
-			 }
 			 if (init) 	// Initialize high and low altitude
 			 {		
 				 state.highAltitude = i.getMediaState().gpsLocation.y;
 				 state.lowAltitude = i.getMediaState().gpsLocation.y;
 				 init = false;
 			 }
-			 
-			 if(i.getMediaState().gpsLocation.x == 0.f)
-			 {
-				 System.out.println("ERROR:   image #"+i.getID()+" gpsLocation.x == "+i.getMediaState().gpsLocation.x+" name:"+i.getName());
+			 if (init) 	// Initialize high and low latitude
+			 {	
+				 state.highLatitude = i.getMediaState().gpsLocation.z;
+				 state.lowLatitude = i.getMediaState().gpsLocation.z;
 			 }
+
+			 if(i.getDebugSettings().gps && i.getDebugSettings().detailed)
+			 {
+				 if(init) System.out.println("Model.analyzeSpatialDimensions()... ");
+				 System.out.println(" Image #"+i.getID()+" mGPSLocation.x: "+i.getMediaState().gpsLocation.x+" mGPSLocation.y: "+i.getMediaState().gpsLocation.y+
+				 					" mGPSLocation.z: "+i.getMediaState().gpsLocation.z+" name:"+i.getName());
+				 System.out.println(" > gpsLocation.x: "+i.getGPSLocation().x+" gpsLocation.y: "+i.getGPSLocation().y+" gpsLocation.z: "+i.getGPSLocation().z);
+			 }
+
+//			 if(i.getMediaState().gpsLocation.x == 0.f)
+//			 {
+//				 System.out.println("ERROR:   image #"+i.getID()+" gpsLocation.x == "+i.getMediaState().gpsLocation.x+" name:"+i.getName());
+//			 }
 
 			 if (i.getMediaState().gpsLocation.x > state.highLongitude)
 				 state.highLongitude = i.getMediaState().gpsLocation.x;

@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import processing.core.PVector;
 
 /**
- * Metadata associated with a rectangular image
+ * Metadata of a rectangular image
  * @author davidgordon
  */
 public class WMV_ImageMetadata extends WMV_MediaMetadata
@@ -42,12 +42,16 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 	 * @param newHeight Image height
 	 * @param newBrightness Image brightness
 	 * @param newKeywords Image keyword array
+	 * @param newLongitudeRef Longitude Reference {E or W}
+	 * @param newLatitudeRef Latitude reference {N or S}
 	 */
 	WMV_ImageMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone,
-			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
-			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware )
+					   float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
+					   float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware,
+					   String newLongitudeRef, String newLatitudeRef )
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
+		super( newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware, newLongitudeRef, 
+			   newLatitudeRef );
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
@@ -91,9 +95,11 @@ public class WMV_ImageMetadata extends WMV_MediaMetadata
 	 */
 	public void initialize( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone,
 			float newTheta, float newFocalLength, float newOrientation, float newElevation, float newRotation, float newFocusDistance, 
-			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware )
+			float newSensorSize, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware,
+			String newLongitudeRef, String newLatitudeRef )
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
+		super.init( newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware, newLongitudeRef,
+				    newLatitudeRef );
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;

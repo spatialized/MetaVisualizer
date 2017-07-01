@@ -13,8 +13,8 @@ public class WMV_SoundMetadata extends WMV_MediaMetadata
 {
 	/**
 	 * Constructor for sound metadata
-	 * @param newName
-	 * @param newFilePath
+	 * @param newName Sound name
+	 * @param newFilePath File path
 	 * @param newGPSLocation
 	 * @param newTheta
 	 * @param newCameraModel
@@ -23,11 +23,16 @@ public class WMV_SoundMetadata extends WMV_MediaMetadata
 	 * @param newDateTimeString
 	 * @param newTimeZone
 	 * @param newKeywords
+	 * @param newSoftware Recording software
+	 * @param newLongitudeRef Longitude Reference {E or W}
+	 * @param newLatitudeRef Latitude reference {N or S}
 	 */
-	WMV_SoundMetadata(String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, float newBrightness, 
-			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords, String newSoftware)
+	WMV_SoundMetadata( String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, float newBrightness, 
+			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords, String newSoftware,
+			String newLongitudeRef, String newLatitudeRef )
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
+		super( newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware, newLongitudeRef, 
+			   newLatitudeRef );
 		
 	}
 
@@ -50,9 +55,11 @@ public class WMV_SoundMetadata extends WMV_MediaMetadata
 	 * @param newKeywords
 	 */
 	public void initialize(String newName, String newFilePath, PVector newGPSLocation, float newTheta, int newCameraModel, float newBrightness, 
-			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords, String newSoftware)
+			ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, String[] newKeywords, String newSoftware, String newLongitudeRef, 
+			String newLatitudeRef )
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
+		super.init( newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware, newLongitudeRef,
+				    newLatitudeRef );
 	}
 	
 	/**

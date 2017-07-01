@@ -29,7 +29,7 @@ public class WMV_Image extends WMV_Media
 	public WMV_Image ( int newID, PImage newImage, int newMediaType, WMV_ImageMetadata newImageMetadata ) 
 	{
 		super( newID, newMediaType, newImageMetadata.name, newImageMetadata.filePath, newImageMetadata.dateTime, newImageMetadata.timeZone, 
-				newImageMetadata.gpsLocation );
+				newImageMetadata.gpsLocation, newImageMetadata.longitudeRef, newImageMetadata.latitudeRef );
 
 		metadata = newImageMetadata;					// Image metadata
 
@@ -471,9 +471,10 @@ public class WMV_Image extends WMV_Media
 	 */
 	public PVector getDisplacementVector()
 	{
-		float r;				  				 // Viewing sphere radius
+		float r;				  				 			// Viewing sphere radius
+		
 		if(metadata.focusDistance == -1.f)
-			r = state.defaultFocusDistance;		 // Use default if no focus distance in metadata					      
+			r = state.defaultFocusDistance;		 			// Use default if no focus distance in metadata					      
 		else
 			r = metadata.focusDistance;							
 
@@ -492,8 +493,8 @@ public class WMV_Image extends WMV_Media
 	{
 		if( !isHidden() && !isDisabled() )
 		{
-			if(ml.debug.world && ml.debug.detailed) 
-				System.out.println("Image.loadMedia()... id #"+getID());
+//			if(ml.debug.world && ml.debug.detailed) 
+//				System.out.println("Image.loadMedia()... id #"+getID());
 			
 			calculateVertices();
 			image = ml.requestImage(getFilePath());
@@ -510,24 +511,6 @@ public class WMV_Image extends WMV_Media
 	{
 		float distance = PVector.dist(getLocation(), point);     
 		return distance;
-	}
-
-	/**
-	 * Set thinning visibility of image
-	 * @param state New visibility
-	 */
-	public void setThinningVisibility(boolean newState)
-	{
-		state.thinningVisibility = newState;
-	}
-
-	/**
-	 * Get thinning visibility of image
-	 * @param state New visibility
-	 */
-	public boolean getThinningVisibility()
-	{
-		return state.thinningVisibility;
 	}
 
 	/**
@@ -1381,6 +1364,25 @@ public class WMV_Image extends WMV_Media
 	{
 		image = newImage;
 	}
+
+	/**
+	 * Set thinning visibility of image
+	 * @param state New visibility
+	 */
+	public void setThinningVisibility(boolean newState)
+	{
+		state.thinningVisibility = newState;
+	}
+
+	/**
+	 * Get thinning visibility of image
+	 * @param state New visibility
+	 */
+	public boolean getThinningVisibility()
+	{
+		return state.thinningVisibility;
+	}
+
 
 //	/**
 //	 * @return Average brightness across all pixels

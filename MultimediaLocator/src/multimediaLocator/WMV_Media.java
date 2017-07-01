@@ -43,19 +43,21 @@ public abstract class WMV_Media
 	 * @param newGPSLocation GPS location
 	 */
 	public WMV_Media( int newID, int newMediaType, String newName, String newFilePath, ZonedDateTime newDateTime, String newTimeZone,
-				PVector newGPSLocation )
+				PVector newGPSLocation, String newLongitudeRef, String newLatitudeRef )
 	{
 		mState = new WMV_MediaState();
 
+		mState.id = newID; 
 		mState.name = newName;
-//		mState.filePath = newFilePath;
+		mState.mediaType = newMediaType;
+		
 		mState.dateTime = newDateTime;
 		mState.timeZone = newTimeZone;
-		mState.gpsLocation = newGPSLocation;
-	
-		mState.id = newID; 
-		mState.mediaType = newMediaType;
+
 		mState.captureLocation = new PVector(0, 0, 0);
+		mState.gpsLocation = newGPSLocation;
+		mState.longitudeRef = newLongitudeRef;
+		mState.latitudeRef = newLatitudeRef;
 
 		mState.fadingBrightness = 0.f;			
 		mState.fadingStart = 0.f;
@@ -491,31 +493,62 @@ public abstract class WMV_Media
 	 */
 	void calculateCaptureLocation(WMV_Model model)                                  
 	{
-		float newX = 0.f, newZ = 0.f, newY = 0.f;
+//		float newX = 0.f, newZ = 0.f, newY = 0.f;
+		PVector newCaptureLocation = new PVector(0,0,0);
 		
-		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000)
+//		if(model.debugSettings.gps && model.debugSettings.detailed)
+		if(model.debugSettings.gps)
+		{
+			System.out.println("Media.calculateCaptureLocation()... ID #"+getID()+" Type: "+getType());
+			System.out.println("   gpsLocation x:"+mState.gpsLocation.x+" y: "+mState.gpsLocation.y+" z:"+mState.gpsLocation.z);
+			System.out.println("   longitudeRef:"+mState.longitudeRef+" latitudeRef: "+mState.latitudeRef);
+			
+//			longitudeRef = newLongitudeRef;
+//			latitudeRef = newLatitudeRef;
+		}
+		
+		if( model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && 
+			model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000 )
 		{
 			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
 			{
-				newX = PApplet.map(mState.gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f*model.getState().fieldWidth); 			// GPS longitude decreases from left to right
-				newY = -PApplet.map(mState.gpsLocation.y, model.getState().lowAltitude, model.getState().highAltitude, 0.f, model.getState().fieldHeight); 													// Convert altitude feet to meters, negative sign to match P3D coordinate space
-				newZ = PApplet.map(mState.gpsLocation.z, model.getState().lowLatitude, model.getState().highLatitude, 0.5f*model.getState().fieldLength, -0.5f * model.getState().fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+				newCaptureLocation = model.utilities.getCaptureLocationFromGPSLocation(mState.gpsLocation, mState.longitudeRef, mState.latitudeRef, model);
 				
-				if(worldSettings != null)
-				{
-					if(worldSettings.altitudeScaling)	
-						newY *= worldSettings.altitudeScalingFactor;
-				}
-				else
-					newY *= mState.defaultAltitudeScalingFactor;
+				/* OLD METHOD */
+//				newX = model.utilities.mapValue( mState.gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude decreases from left to right
+//												 model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f 
+//												 * model.getState().fieldWidth); 					
+//				newY = -model.utilities.mapValue( mState.gpsLocation.y, model.getState().lowAltitude,  // Convert altitude feet to meters, negative to match P3D coordinate space
+//												  model.getState().highAltitude, 
+//												  0.f, model.getState().fieldHeight); 	
+//				newZ = model.utilities.mapValue( mState.gpsLocation.z, model.getState().lowLatitude,   // GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+//												 model.getState().highLatitude, 0.5f * model.getState().fieldLength, 
+//												 -0.5f * model.getState().fieldLength); 		
+				
+//				newX = PApplet.map(mState.gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, 
+//								   -0.5f * model.getState().fieldWidth, 0.5f * model.getState().fieldWidth); 			// GPS longitude decreases from left to right
+//				newY = -PApplet.map(mState.gpsLocation.y, model.getState().lowAltitude, model.getState().highAltitude, 
+//									0.f, model.getState().fieldHeight); 												// Convert altitude feet to meters, negative sign to match P3D coordinate space
+//				newZ = PApplet.map(mState.gpsLocation.z, model.getState().lowLatitude, model.getState().highLatitude, 
+//									0.5f * model.getState().fieldLength, -0.5f * model.getState().fieldLength); 		// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+				
+//				if(worldSettings != null)
+//				{
+//					if(worldSettings.altitudeScaling)	
+//						newY *= worldSettings.altitudeScalingFactor;
+//				}
+//				else
+//					newY *= mState.defaultAltitudeScalingFactor;
 			}
 			else
 			{
-				newX = newY = newZ = 0.f;
+				newCaptureLocation = new PVector(0,0,0);
+//				newX = newY = newZ = 0.f;
 			}
 		}
 
-		mState.captureLocation = new PVector(newX, newY, newZ);
+//		mState.captureLocation = new PVector(newX, newY, newZ);
+		mState.captureLocation = newCaptureLocation;
 	}
 	
 	/**
@@ -691,6 +724,16 @@ public abstract class WMV_Media
 		return mState;
 	}
 
+	public void setGPSLongitudeRef(String newLongitudeRef)
+	{
+		mState.longitudeRef = newLongitudeRef;
+	}
+	
+	public void setGPSLatitudeRef(String newLatitudeRef)
+	{
+		mState.latitudeRef = newLatitudeRef;
+	}
+	
 	/**
 	 * @return Time brightness factor between 0. and 1.
 	 */

@@ -31,11 +31,15 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 	 * @param newHeight
 	 * @param newBrightness
 	 * @param newKeywords
+	 * @param newLongitudeRef Longitude Reference {E or W}
+	 * @param newLatitudeRef Latitude reference {N or S}
 	 */
-	WMV_PanoramaMetadata(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
-			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware)
+	WMV_PanoramaMetadata( String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, 
+			String newTimeZone, float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, 
+			String newSoftware, String newLongitudeRef, String newLatitudeRef )
 	{
-		super(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
+		super( newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware, newLongitudeRef, 
+			   newLatitudeRef );
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;
@@ -63,9 +67,11 @@ public class WMV_PanoramaMetadata extends WMV_MediaMetadata
 	 * @param newKeywords
 	 */
 	public void initialize(String newName, String newFilePath, PVector newGPSLocation, ZonedDateTime newDateTime, String newDateTimeString, String newTimeZone, 
-			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware)
+			float newTheta, int newCameraModel, int newWidth, int newHeight, float newBrightness, String[] newKeywords, String newSoftware,
+			String newLongitudeRef, String newLatitudeRef )
 	{
-		super.init(newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware);
+		super.init( newName, newFilePath, newGPSLocation, newDateTime, newDateTimeString, newTimeZone, newKeywords, newSoftware, newLongitudeRef,
+				    newLatitudeRef );
 		
 		imageWidth = newWidth;
 		imageHeight = newHeight;

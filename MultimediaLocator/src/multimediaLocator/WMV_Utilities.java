@@ -47,7 +47,6 @@ import com.luckycatlabs.sunrisesunset.dto.Location;
  * @author davidgordon
  * Utility methods 
  */
-
 public class WMV_Utilities 
 {
 	WMV_Utilities(){}
@@ -87,32 +86,6 @@ public class WMV_Utilities
 			return null;
 		}
 		return null;
-	}
-	
-	public void checkPath()
-	{
-		WMV_Command commandExecutor;
-		ArrayList<String> command = new ArrayList<String>();
-
-		command = new ArrayList<String>();				/* Create small_images directory */
-		command.add("env");
-//		command.add(programName);
-		commandExecutor = new WMV_Command("", command);
-		
-		try {
-			int result = commandExecutor.execute();
-			StringBuilder stderr = commandExecutor.getStandardError();
-			StringBuilder stdout = commandExecutor.getStandardOutput();
-
-			if (stderr.length() > 0 || result != 0)
-				System.out.println("Utilities.checkUnixPath() ... result:"+result+" stderr:"+stderr.toString());
-			
-			System.out.println("Utilities.checkUnixPath()... stdout: "+stdout.toString());
-		}
-		catch(Throwable t)
-		{
-			System.out.println("Throwable t while checking Unix PATH:"+t);
-		}
 	}
 	
 	/**
@@ -965,35 +938,36 @@ public class WMV_Utilities
 		{
 			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
 			{
-				if(longitudeRef.equals("E"))
-				{
+//				if(longitudeRef.equals("E"))
+//				{
 					newCaptureLocation.x = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude decreases from left to right
 							model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f 
 							* model.getState().fieldWidth); 					
-				}
-				else
-				{
-					newCaptureLocation.x = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude increases from left to right
-							model.getState().highLongitude, 0.5f * model.getState().fieldWidth, -0.5f 
-							* model.getState().fieldWidth); 					
-				}
+//				}
+//				else
+//				{
+//					newCaptureLocation.x = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude increases from left to right
+//							model.getState().highLongitude, 0.5f * model.getState().fieldWidth, -0.5f 
+//							* model.getState().fieldWidth); 					
+//				}
 
 				newCaptureLocation.y = -model.utilities.mapValue( gpsLocation.y, model.getState().lowAltitude,  	// Convert altitude feet to meters, negative to match P3D coordinate space
 						model.getState().highAltitude, 0.f, model.getState().fieldHeight); 	
 				
-				if(latitudeRef.equals("N"))
-				{
+//				if(latitudeRef.equals("N"))
+//				{
 					newCaptureLocation.z = model.utilities.mapValue( gpsLocation.z, model.getState().lowLatitude,   // GPS latitude increases from bottom to top, reversed to match P3D coordinate space
 							model.getState().highLatitude, 0.5f * model.getState().fieldLength, 
 							-0.5f * model.getState().fieldLength); 
-				}
-				else
-				{
-					newCaptureLocation.z = model.utilities.mapValue( gpsLocation.z, model.getState().lowLatitude,   // GPS latitude decreases from bottom to top, reversed to match P3D coordinate space
-							model.getState().highLatitude, -0.5f * model.getState().fieldLength, 
-							0.5f * model.getState().fieldLength); 
-				}
+//				}
+//				else
+//				{
+//					newCaptureLocation.z = model.utilities.mapValue( gpsLocation.z, model.getState().lowLatitude,   // GPS latitude decreases from bottom to top, reversed to match P3D coordinate space
+//							model.getState().highLatitude, -0.5f * model.getState().fieldLength, 
+//							0.5f * model.getState().fieldLength); 
+//				}
 
+				/* OLD METHOD */
 //				newX = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, // GPS longitude decreases from left to right
 //											    -0.5f * model.getState().fieldWidth, 0.5f*model.getState().fieldWidth); 			
 //				newY = -model.utilities.mapValue( gpsLocation.y, model.getState().lowAltitude, model.getState().highAltitude, 	    // Convert altitude feet to meters, negative sign to match P3D coordinate space
@@ -1005,19 +979,18 @@ public class WMV_Utilities
 //				newY = -PApplet.map(altitude, model.getState().lowAltitude, model.getState().highAltitude, 0.f, model.getState().fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
 //				newZ = PApplet.map(gpsLocation.y, model.getState().lowLatitude, model.getState().highLatitude, 0.5f*model.getState().fieldLength, -0.5f * model.getState().fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
 				
-//				if(model.debugSettings.gps && model.debugSettings.detailed)
-				if(model.debugSettings.gps)
+				if(model.worldSettings.altitudeScaling)	
+					newCaptureLocation.y *= model.worldSettings.altitudeScalingFactor;
+				else
+					newCaptureLocation.y *= model.worldSettings.defaultAltitudeScalingFactor;
+				
+				if(model.debugSettings.gps && model.debugSettings.detailed)
 				{
 					System.out.println("Utilities.getCaptureLocationFromGPSLocation()... gpsLocation x:"+gpsLocation.x+" y:"+gpsLocation.y+" z:"+gpsLocation.z);
 					System.out.println("    High longitude:"+model.getState().highLongitude+"  Low longitude:"+model.getState().lowLongitude);
 					System.out.println("    High latitude:"+model.getState().highLatitude+"  Low latitude:"+model.getState().lowLatitude);
 					System.out.println(">>  newX:"+newCaptureLocation.x+" newY"+newCaptureLocation.y+" newZ"+newCaptureLocation.z);
 				}
-
-				if(model.worldSettings.altitudeScaling)	
-					newCaptureLocation.y *= model.worldSettings.altitudeScalingFactor;
-				else
-					newCaptureLocation.y *= model.worldSettings.defaultAltitudeScalingFactor;
 			}
 			else
 			{
@@ -2108,6 +2081,35 @@ public class WMV_Utilities
 	public float getAltitude(PVector loc)
 	{
 		return loc.y;
+	}
+	
+	/**
+	 * Check Unix path	-- Debugging
+	 */
+	public void checkPath()
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+
+		command = new ArrayList<String>();				/* Create small_images directory */
+		command.add("env");
+//		command.add(programName);
+		commandExecutor = new WMV_Command("", command);
+		
+		try {
+			int result = commandExecutor.execute();
+			StringBuilder stderr = commandExecutor.getStandardError();
+			StringBuilder stdout = commandExecutor.getStandardOutput();
+
+			if (stderr.length() > 0 || result != 0)
+				System.out.println("Utilities.checkUnixPath() ... result:"+result+" stderr:"+stderr.toString());
+			
+			System.out.println("Utilities.checkUnixPath()... stdout: "+stdout.toString());
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable t while checking Unix PATH:"+t);
+		}
 	}
 	
 //	 private PImage getDesaturated(PImage in, float amt) 

@@ -1974,76 +1974,127 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		return state.clusterMass;
 	}
 	
+	/**
+	 * Set cluster ID
+	 * @param newID New ID
+	 */
 	public void setID(int newID)
 	{
 		state.id = newID;
 	}
 	
+	/**
+	 * Get cluster ID
+	 * @return Cluster ID
+	 */
 	public int getID()
 	{
 		return state.id;
 	}
 	
+	/**
+	 * Get cluster location in virtual world
+	 * @return Cluster location
+	 */
 	public PVector getLocation()
 	{
 		return state.location;
 	}
 	
+	/**
+	 * Get cluster location in virtual world
+	 * @param newLocation New cluster location
+	 */
 	public void setLocation(PVector newLocation)
 	{
 		state.location = newLocation;
 	}
 	
-	public boolean isSelected()
-	{
-		return state.selected;
-	}
-	
-	public void setSelected(boolean newState)
-	{
-		state.selected = newState;
-	}
-	
+	/**
+	 * Set whether cluster has at least one image
+	 * @param newState New state
+	 */
 	public void setHasImage(boolean newState)
 	{
 		state.setHasImage(newState);
 	}
 	
+	/**
+	 * @return Whether cluster has at least one image
+	 */
 	public boolean hasImage()
 	{
 		return state.hasImage();
 	}
 	
+	/**
+	 * Set whether cluster has at least one panorama
+	 * @param newState New state
+	 */
 	public void setHasPanorama(boolean newState)
 	{
 		state.setHasPanorama(newState);
 	}
 	
+	/**
+	 * @return Whether cluster has at least one panorama
+	 */
 	public boolean hasPanorama()
 	{
 		return state.hasPanorama();
 	}
 	
+	/**
+	 * Set whether cluster has at least one video
+	 * @param newState New state
+	 */
 	public void setHasVideo(boolean newState)
 	{
 		state.setHasVideo(newState);
 	}
 	
+	/**
+	 * @return Whether cluster has at least one video
+	 */
 	public boolean hasVideo()
 	{
 		return state.hasVideo();
 	}
 	
+	/**
+	 * Set whether cluster has at least one sound
+	 * @param newState New state
+	 */
 	public void setHasSound(boolean newState)
 	{
 		state.setHasSound(newState);
 	}
 
+	/**
+	 * @return Whether cluster has at least one sound
+	 */
 	public boolean hasSound()
 	{
 		return state.hasSound();
 	}
 	
+	/**
+	 * @return Whether cluster is selected			-- In progress
+	 */
+	public boolean isSelected()
+	{
+		return state.selected;
+	}
+	
+	/**
+	 * Select cluster								-- In progress
+	 * @param newState New selected state
+	 */
+	public void setSelected(boolean newState)
+	{
+		state.selected = newState;
+	}
+
 	/**
 	 * Compare distance this time segment with given one
 	 * @param t Cluster to compare to
@@ -2152,27 +2203,27 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		}		
 	}
 
-	/**
-	 * Print cluster data
-	 */
-	private void displayClusterData()
-	{
-		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
-		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);
-		System.out.println("Cluster "+state.id+" High Altitude:" + state.highAltitude);
-		System.out.println("Cluster "+state.id+" Low Longitude:" + state.lowLongitude);
-		System.out.println("Cluster "+state.id+" Low Latitude:" + state.lowLatitude);
-		System.out.println("Cluster "+state.id+" Low Altitude:" + state.lowAltitude);	
-		
-		System.out.println("Cluster "+state.id+" High Time:" + state.highTime);
-		System.out.println("Cluster "+state.id+" High Date:" + state.highDate);
-		System.out.println("Cluster "+state.id+" Low Time:" + state.lowTime);
-		System.out.println("Cluster "+state.id+" Low Date:" + state.lowDate);
-		
-		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);
-		System.out.println("Cluster "+state.id+" Low Latitude:" + state.lowLatitude);
-		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
-		System.out.println("Cluster "+state.id+" Low Longitude:" + state.lowLongitude);
-		System.out.println(" ");
-	}
+//	/**
+//	 * Print cluster data
+//	 */
+//	private void displayClusterData()
+//	{
+//		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
+//		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);
+//		System.out.println("Cluster "+state.id+" High Altitude:" + state.highAltitude);
+//		System.out.println("Cluster "+state.id+" Low Longitude:" + state.lowLongitude);
+//		System.out.println("Cluster "+state.id+" Low Latitude:" + state.lowLatitude);
+//		System.out.println("Cluster "+state.id+" Low Altitude:" + state.lowAltitude);	
+//		
+//		System.out.println("Cluster "+state.id+" High Time:" + state.highTime);
+//		System.out.println("Cluster "+state.id+" High Date:" + state.highDate);
+//		System.out.println("Cluster "+state.id+" Low Time:" + state.lowTime);
+//		System.out.println("Cluster "+state.id+" Low Date:" + state.lowDate);
+//		
+//		System.out.println("Cluster "+state.id+" High Latitude:" + state.highLatitude);
+//		System.out.println("Cluster "+state.id+" Low Latitude:" + state.lowLatitude);
+//		System.out.println("Cluster "+state.id+" High Longitude:" + state.highLongitude);
+//		System.out.println("Cluster "+state.id+" Low Longitude:" + state.lowLongitude);
+//		System.out.println(" ");
+//	}
 }

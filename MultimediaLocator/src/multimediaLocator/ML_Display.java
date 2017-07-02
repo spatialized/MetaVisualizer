@@ -23,7 +23,7 @@ public class ML_Display
 	public boolean drawForceVector = false;
 	
 	/* Setup */
-	public boolean worldSetup = true;
+	private boolean worldSetup = true;
 	public boolean dataFolderFound = false;
 	public float setupProgress = 0.f;
 	
@@ -1506,6 +1506,7 @@ public class ML_Display
 		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
 
 		map2D.reset();
+		startWorldSetup();						// Start World Setup Display Mode after reset
 		
 //		messageFont = ml.createFont("ArialNarrow-Bold", messageTextSize);
 //		defaultFont = ml.createFont("SansSerif", smallTextSize);
@@ -2712,6 +2713,29 @@ public class ML_Display
 		return currentSelectableTimeSegmentID;
 	}
 	
+	/**
+	 * Start World Setup Display Mode
+	 */
+	public void startWorldSetup()
+	{
+		worldSetup = true;
+	}
+
+	/**
+	 * Stop World Setup Display Mode
+	 */
+	public void stopWorldSetup()
+	{
+		worldSetup = false;
+	}
+
+	/**
+	 * @return Whether in World Setup Display Mode
+	 */
+	public boolean inWorldSetup()
+	{
+		return worldSetup;
+	}
 
 	/**														-- Obsolete
 	 * Get mouse 3D location from screen location

@@ -526,7 +526,8 @@ public class MultimediaLocator extends PApplet
 		world.getCurrentField().updateAllMediaStates();				// -- Only needed if field(s) loaded from data folder!
 
 		state.inFieldInitialization = false;				
-		display.worldSetup = false;
+//		display.worldSetup = false;
+		display.stopWorldSetup();
 		
 		state.running = true;
 		state.startedRunning = true;
@@ -547,9 +548,9 @@ public class MultimediaLocator extends PApplet
 	{
 		state.reset();
 		
-		display.reset();						// Initialize displays
+		display.reset();										// Initialize displays
 
-		metadata = new WMV_Metadata(this, debug);		// Reset metadata loader
+		metadata = new WMV_Metadata(this, debug);				// Reset metadata loader
 		stitcher = new ML_Stitcher(world);						// Reset panoramic stitcher
 
 		colorMode(PConstants.HSB);
@@ -558,7 +559,7 @@ public class MultimediaLocator extends PApplet
 //		initCubeMap();
 
 		display.window.hideWindows();
-		world.reset(true);						// Reset world
+		world.reset(true);										// Reset world
 
 		if(debug.ml) systemMessage("World resetting complete...");
 
@@ -652,6 +653,18 @@ public class MultimediaLocator extends PApplet
 		
 		world.viewer.setCurrentCluster( world.viewer.getNearestCluster(false), -1 );
 		world.getCurrentField().blackoutAllMedia();
+	}
+	
+	/**
+	 * Begin new library creation 					
+	 */
+	public void startCreatingNewLibrary()
+	{
+		state.inLibrarySetup = true;
+		state.createdLibrary = false;			// Added 7-1-17
+		state.chooseLibraryDestination = false;	// Added
+		createNewLibrary = true;
+		state.chooseMediaFolders = true;
 	}
 	
 	/**

@@ -11,7 +11,6 @@ import processing.core.PVector;
  * Sound in a 3D environment
  * @author davidgordon
  */
-
 public class WMV_Sound extends WMV_Media						 
 {
 	//	/* Classes */

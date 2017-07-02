@@ -1987,7 +1987,7 @@ public class ML_Window
 		btnImportMediaFolder = new GButton(createLibraryWindow, x, y, 160, iLargeBoxHeight, "Add Folder");
 		btnImportMediaFolder.tag = "AddMediaFolder";
 		btnImportMediaFolder.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
-		btnImportMediaFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnImportMediaFolder.setLocalColorScheme(G4P.GREEN_SCHEME);
 
 		x = windowWidth * 3 / 2 - 60;
 		y = createLibraryWindowHeight - iLargeBoxHeight * 3 / 2 - 10;

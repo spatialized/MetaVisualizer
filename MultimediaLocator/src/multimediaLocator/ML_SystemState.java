@@ -15,7 +15,6 @@ public class ML_SystemState
 	
 	public boolean reset = false;				// Whether program was recently reset
 	public boolean exit = false;				// System message to exit the program
-	
 	public boolean hints = true;				// Whether to show hints
 
 	/* Setup */

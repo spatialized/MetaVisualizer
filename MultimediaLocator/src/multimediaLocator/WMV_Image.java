@@ -239,13 +239,20 @@ public class WMV_Image extends WMV_Media
 //		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
 
 		float brightness = getFadingBrightness() * getViewerSettings().userBrightness;
-		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactor); 
-		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+
+		float farViewingDistance;
+		if(ml.world.viewer.getSettings().showInvisibleModels)
+			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorFar;
+		else
+			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorNear;
+
+		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, farViewingDistance); 
+		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
 		float modelBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, state.outlineAlpha);				// Scale to setting for alpha range
 
 //		if( getWorldState().timeFading && time != null && !ml.world.viewer.isMoving() )
-//			brightness *= getTimeBrightness(); 							// Fade iBrightness based on time
+//			brightness *= getTimeBrightness(); 							// Fade model brightness based on time -- Disabled
 
 		/* Draw frame */
 		ml.pushMatrix();

@@ -16,7 +16,7 @@ public class WMV_ViewerSettings
 	public float farViewingDistance = 11.f; 						// Far distance (m.) at which media start fading out
 	public float userBrightness = 1.f;								// User brightness
 
-	/* Graphics */
+	/* Media */
 	public final float defaultFocusDistance = 9.0f;			// Default focus distance for images and videos (m.)
 	public boolean orientationMode = false;					// Viewer "moves" by standing still (images fade in and out across space)
 	public boolean angleFading = true;						// Do photos fade out as the camera turns away from them?
@@ -29,23 +29,28 @@ public class WMV_ViewerSettings
 	public boolean angleThinning = false;					// Thin images and videos of similar orientation
 	public float thinningAngle = (float)Math.PI / 6.f;		// Angle to thin images and videos within
 	public int alphaTransitionLength = 15;					// Transition length from one alpha value to next
+	
 	public float clusterDistanceVisibilityFactor = 1.f;		// Current scaling of cluster distance visibility
+	public boolean showInvisibleModels = true;				// Whether to show models even when media would be invisible
+
+	/* Image */
+	public boolean hideImages = false;						// Whether to hide images
+
+	/* Panorama */
+	public boolean hidePanoramas = false;					// Whether to hide panoramas
+
 	/* Video */
 	public boolean autoPlayVideos = true;					// Automatically play videos near viewer
 	public int autoPlayMaxVideoCount = 2;					// Maximum videos to auto play simultaneously
+	public boolean hideVideos = false;						// Whether to hide videos
 
 	/* Sound */
 	public boolean autoPlaySounds = true;					// Automatically play videos near viewer
 	public int autoPlayMaxSoundCount = 3;					// Maximum videos to auto play simultaneously
 	public float farHearingDistance = 36.f; 				// Far distance (m.) at which media start fading out
 	public int soundFadingLength = 30;						// Frame length of sounds, including video sound, to fade in and out 
+	public boolean hideSounds = false;						// Whether to hide videos
 	
-//	/* Media Visibility */
-	public boolean hideImages = false;						// Hide images
-	public boolean hidePanoramas = false;					// Hide panoramas
-	public boolean hideVideos = false;						// Hide videos
-	public boolean hideSounds = false;						// Hide videos
-
 	/* Physics */
 	public float lastAttractorDistance = -1.f;
 	public float cameraMass = 0.33f;						// Camera mass for cluster attraction

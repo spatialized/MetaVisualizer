@@ -403,7 +403,7 @@ public class WMV_Viewer
 		else
 		{
 			if(fade)
-				fadeTeleport(dest, -1, -1);
+				teleportWithFading(dest, -1, -1);
 			else
 				jumpTo(dest, true);
 		}
@@ -430,34 +430,6 @@ public class WMV_Viewer
 		}
 	}
 	
-	/**
-	 * Teleport by fading: fade out visible media, move to goal, then fade in media in visible range
-	 * @param newField Goal field ID; value of -1 indicates to stay in current field
-	 */
-	private void fadeTeleport(PVector newLocation, int goalClusterID, int newField) 
-	{
-//		if(worldState.frameCount >= state.teleportStart + settings.teleportLength)		// If the teleport has finished
-
-		state.teleportGoalCluster = goalClusterID;
-		if(newLocation != null)
-			state.teleportGoal = newLocation;
-
-		p.fadeOutAllMedia();
-
-		if(state.atCurrentCluster)
-		{
-			saveCurrentClusterOrientation();
-			state.atCurrentCluster = false;
-		}
-
-		state.teleporting = true;
-		state.teleportStart = worldState.frameCount;
-		state.teleportWaitingCount = 0;
-		
-		if(newField != -1)
-			state.teleportToField = newField;
-	}
-
 	/**
 	 * Go to the nearest cluster containing specified media type
 	 * @param teleport Whether to teleport or move
@@ -522,7 +494,6 @@ public class WMV_Viewer
 				p.ml.display.message(p.ml, "No clusters with "+strMediaType+" found...");
 		}
 	}
-
 
 	/**
 	 * Find cluster in field contains at least one object of given media type
@@ -752,6 +723,48 @@ public class WMV_Viewer
 	}
 
 	/**
+	 * Move to given point
+	 * @param goalPoint
+	 * @param teleport
+	 */
+	public void moveToPoint(PVector goalPoint, boolean teleport)
+	{
+		if(debugSettings.viewer)
+			p.ml.systemMessage("Viewer.moveToPoint()... x:"+goalPoint.x+" y:"+goalPoint.y+" z:"+goalPoint.z);
+
+		if(teleport)
+			teleportToPoint(goalPoint, true);
+		else
+			setAttractorPoint(goalPoint);									// Set attractor point from path goal
+	}
+	
+	/**
+	 * Move to given waypoint
+	 * @param waypoint 
+	 * @param fade
+	 */
+	public void moveToWaypoint(WMV_Waypoint waypoint, boolean teleport)
+	{
+		if(debugSettings.viewer)
+			p.ml.systemMessage("Viewer.moveToWaypoint()... x:"+waypoint.getWorldLocation().x+" y:"+waypoint.getWorldLocation().y+" z:"+waypoint.getWorldLocation().z);
+		PVector goalPoint = waypoint.getWorldLocation();
+		moveToPoint(goalPoint, teleport);
+	}
+	/**
+	 * Move to cluster corresponding to one time segment later on timeline
+	 * @param currentDate Whether to consider only segments on current date
+	 * @param newCluster Whether to force moving to a different cluster -- NEED TO IMPLEMENT
+	 * @param teleport Whether to teleport or move
+	 * @param fade Whether to fade or jump when teleporting
+	 */
+	public void moveToNextTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
+	{
+		chooseNextTimeSegment(currentDate);
+		moveToTimeSegmentInField(getCurrentFieldID(), state.currentFieldTimeSegment, teleport, fade);
+	}
+	
+
+	/**
 	 * Teleport viewer to the given cluster ID
 	 * @param dest Destination cluster ID
 	 * @param fade Whether to fade smoothly (true) or jump (false)
@@ -770,7 +783,7 @@ public class WMV_Viewer
 
 				if(fade)
 				{
-					fadeTeleport(c.getLocation(), c.getID(), -1);
+					teleportWithFading(c.getLocation(), c.getID(), -1);
 				}
 				else
 				{
@@ -846,7 +859,7 @@ public class WMV_Viewer
 					if(p.getSettings().screenMessagesOn) 
 						p.ml.display.message(p.ml, "Moving to "+p.getField(newField).getName());
 					
-					fadeTeleport(null, -1, newField);
+					teleportWithFading(null, -1, newField);
 				}
 				else
 				{
@@ -871,101 +884,39 @@ public class WMV_Viewer
 
 					if(p.state.displayTerrain)
 						p.state.waitingToFadeInTerrainAlpha = true;
-					
-//					if(moveToFirstTimeSegment) 
-//					{
-//						WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
-//						if(goalSegment != null)
-//						{
-//							state.teleportGoalCluster = goalSegment.getClusterID();
-//							if(state.teleportGoalCluster >= 0 && state.teleportGoalCluster < p.getField(newField).getClusters().size())
-//								state.teleportGoal = p.getField(newField).getCluster(state.teleportGoalCluster).getLocation();
-//							else
-//								if(debugSettings.viewer) p.ml.systemMessage("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
-//						}
-//						else
-//							p.ml.systemMessage("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
-//						
-//						if(debugSettings.viewer)
-//							p.ml.systemMessage("  teleportToField()...  Teleported to field "+state.teleportToField+"... will teleport to new location:"+state.teleportGoal+"...");
-//
-//						setLocation(state.teleportGoal, false);															// Set location
-//						setCurrentCluster( state.teleportGoalCluster, goalSegment.getFieldTimelineID() );
-//						if(debugSettings.viewer)
-//							p.ml.systemMessage("  teleportToField()...  Will set location to state.teleportGoal:"+state.teleportGoal+"...");
-//					}
-//					else
-//					{
-//						if(debugSettings.viewer)
-//							p.ml.systemMessage("  teleportToField()...  not moving to first time segment.. will set location to state.currentCluster:"+state.currentCluster+"...");
-//						state.teleportGoalCluster = state.currentCluster;
-//						setLocation( p.getCurrentCluster().getLocation(), false );					// Set location to current cluster
-//						setCurrentCluster( 0, -1 );
-//					}
 				}
 			}
 		}
 	}
 
 	/**
-	 * Move to given point
-	 * @param goalPoint
-	 * @param teleport
+	 * Teleport by fading: fade out visible media, move to goal, then fade in media in visible range
+	 * @param newField Goal field ID; value of -1 indicates to stay in current field
 	 */
-	public void moveToPoint(PVector goalPoint, boolean teleport)
+	private void teleportWithFading(PVector newLocation, int goalClusterID, int newField) 
 	{
-		if(debugSettings.viewer)
-			p.ml.systemMessage("Viewer.moveToPoint()... x:"+goalPoint.x+" y:"+goalPoint.y+" z:"+goalPoint.z);
+//		if(worldState.frameCount >= state.teleportStart + settings.teleportLength)		// If the teleport has finished
 
-		if(teleport)
-			teleportToPoint(goalPoint, true);
-		else
-			setAttractorPoint(goalPoint);									// Set attractor point from path goal
-	}
-	
-	/**
-	 * Move to given waypoint
-	 * @param waypoint 
-	 * @param fade
-	 */
-	public void moveToWaypoint(WMV_Waypoint waypoint, boolean teleport)
-	{
-		if(debugSettings.viewer)
-			p.ml.systemMessage("Viewer.moveToWaypoint()... x:"+waypoint.getWorldLocation().x+" y:"+waypoint.getWorldLocation().y+" z:"+waypoint.getWorldLocation().z);
-		PVector goalPoint = waypoint.getWorldLocation();
-		moveToPoint(goalPoint, teleport);
+		state.teleportGoalCluster = goalClusterID;
+		if(newLocation != null)
+			state.teleportGoal = newLocation;
+
+		p.fadeOutAllMedia();
+
+		if(state.atCurrentCluster)
+		{
+			saveCurrentClusterOrientation();
+			state.atCurrentCluster = false;
+		}
+
+		state.teleporting = true;
+		state.teleportStart = worldState.frameCount;
+		state.teleportWaitingCount = 0;
 		
-//		if(teleport)
-//			teleportToPoint(goalPoint, true);
-//		else
-//			setAttractorPoint(goalPoint);									// Set attractor point from path goal
+		if(newField != -1)
+			state.teleportToField = newField;
 	}
-	
-	/**
-	 * Get current viewer location as waypoint
-	 * @return Current viewer location as waypoint
-	 */
-	public WMV_Waypoint getCurrentWaypoint()
-	{
-//		public WMV_Waypoint(int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
 
-		WMV_Waypoint current = new WMV_Waypoint(-1, getLocation(), getGPSLocation(), getAltitude(), null);	// -- Should set time
-		return current;
-	}
-	
-	/**
-	 * Move to cluster corresponding to one time segment later on timeline
-	 * @param currentDate Whether to consider only segments on current date
-	 * @param newCluster Whether to force moving to a different cluster -- NEED TO IMPLEMENT
-	 * @param teleport Whether to teleport or move
-	 * @param fade Whether to fade or jump when teleporting
-	 */
-	public void moveToNextTimeSegment(boolean currentDate, boolean newCluster, boolean teleport, boolean fade)
-	{
-		chooseNextTimeSegment(currentDate);
-		moveToTimeSegmentInField(getCurrentFieldID(), state.currentFieldTimeSegment, teleport, fade);
-	}
-	
 	/**
 	 * Choose next field time segment 
 	 * @param currentDate Whether to consider only segments on current date
@@ -1237,126 +1188,6 @@ public class WMV_Viewer
 		
 		turnXToAngle(yaw, 0);		// Calculate which way to turn and start turning in X axis
 		turnYToAngle(pitch, 0);		// Calculate which way to turn and start turning in Y axis
-	}
-
-	/**	 
-	 * Calculate the direction, increment size and length of time needed to turn from startingAngle to targetAngle
-	 * @param startAngle	Starting angle
-	 * @param targetAngle	Target angle
-	 * @return				PVector (direction, increment, length in frames): direction -> 1: clockwise and -1: counterclockwise
-	 */
-	private PVector getTurnInfo(float startAngle, float targetAngle, int direction)
-	{
-		PVector result;
-		float length = 0;
-		
-		float diffRight = -1.f;		// Difference when turning right (dir = 1)
-		float diffLeft = -1.f;		// Difference when turning left (dir = -1)
-
-		if(targetAngle < 0.f)
-			targetAngle += PApplet.PI * 2.f;
-		if(startAngle < 0.f)
-			startAngle += PApplet.PI * 2.f;
-
-		if(targetAngle > startAngle)									// Clockwise
-		{
-			diffRight = targetAngle - startAngle;
-			diffLeft = (startAngle + 2.f*PApplet.PI) - targetAngle;
-		}
-		else if(targetAngle < startAngle)								// Counterclockwise
-		{
-			diffRight = (targetAngle + 2.f*PApplet.PI) - startAngle;
-			diffLeft = startAngle - targetAngle;
-		}
-		else if(targetAngle == startAngle)								// Full rotation
-		{
-			diffRight = 2.f*PApplet.PI;
-			diffLeft = 2.f*PApplet.PI;
-		}
-
-		if(direction == 0)						// Calculate direction
-		{
-			if(diffRight <= diffLeft)
-			{
-				length = diffRight;		// Frames until target reached
-				result = new PVector(-1, length);
-				return result;								// Return 1 for clockwise 
-			}
-			else
-			{
-				length = diffLeft;		// Frames until target reached
-				result = new PVector(1, length);
-				return result;								// Return -1 for counterclockwise 
-			}
-		}
-		else												// Full rotation
-		{
-			if(direction == 1)								// Turn left
-				length = diffLeft;
-			else if(direction == -1)						// Turn right
-				length = diffRight;
-			
-			result = new PVector(direction, length);		// Return direction, increment value and transition frame length 
-			return result;
-		}
-	}
-	
-	/**
-	 * Calculate distance needed to turn between two angles
-	 * @param startAngle Starting angle
-	 * @param targetAngle Target angle
-	 * @param direction Direction to turn (1: clockwise, 0: fastest, -1: counterclockwise)
-	 * @return Angular distance
-	 */
-	float getTurnDistance(float startAngle, float targetAngle, float direction)
-	{
-		float diffRight = -1.f;		// Difference when turning right (dir = 1)
-		float diffLeft = -1.f;		// Difference when turning left (dir = -1)
-		float length = 0.f;
-		
-		if(targetAngle < 0.f)
-			targetAngle += PApplet.PI * 2.f;
-		if(startAngle < 0.f)
-			startAngle += PApplet.PI * 2.f;
-		
-		if(targetAngle > startAngle)									// Clockwise
-		{
-			diffRight = targetAngle - startAngle;
-			diffLeft = (startAngle + 2.f*PApplet.PI) - targetAngle;
-		}
-		else if(targetAngle < startAngle)								// Counterclockwise
-		{
-			diffRight = (targetAngle + 2.f*PApplet.PI) - startAngle;
-			diffLeft = startAngle - targetAngle;
-		}
-		else if(targetAngle == startAngle)								// Full rotation
-		{
-			diffRight = 2.f*PApplet.PI;
-			diffLeft = 2.f*PApplet.PI;
-		}
-
-		if(direction == 0)						// Calculate direction
-		{
-			if(diffRight <= diffLeft)
-			{
-				length = diffRight;		// Frames until target reached
-				return length;
-			}
-			else
-			{
-				length = diffLeft;		// Frames until target reached
-				return length;
-			}
-		}
-		else												// Full rotation
-		{
-			if(direction == 1.f)								// Turn left
-				length = diffLeft;
-			else if(direction == -1.f)						// Turn right
-				length = diffRight;
-			
-			return length;
-		}
 	}
 
 	/**
@@ -1645,6 +1476,136 @@ public class WMV_Viewer
 
 		if(state.waiting) state.waiting = false;
 		if(state.teleporting) state.teleporting = false;
+	}
+	
+	/**
+	 * Get current viewer location as waypoint
+	 * @return Current viewer location as waypoint
+	 */
+	public WMV_Waypoint getCurrentWaypoint()
+	{
+		WMV_Waypoint current = new WMV_Waypoint(-1, getLocation(), getGPSLocation(), getAltitude(), null);	// -- Should set time
+		return current;
+	}
+	
+	/**	 
+	 * Calculate the direction, increment size and length of time needed to turn from startingAngle to targetAngle
+	 * @param startAngle	Starting angle
+	 * @param targetAngle	Target angle
+	 * @return				PVector (direction, increment, length in frames): direction -> 1: clockwise and -1: counterclockwise
+	 */
+	private PVector getTurnInfo(float startAngle, float targetAngle, int direction)
+	{
+		PVector result;
+		float length = 0;
+		
+		float diffRight = -1.f;		// Difference when turning right (dir = 1)
+		float diffLeft = -1.f;		// Difference when turning left (dir = -1)
+
+		if(targetAngle < 0.f)
+			targetAngle += PApplet.PI * 2.f;
+		if(startAngle < 0.f)
+			startAngle += PApplet.PI * 2.f;
+
+		if(targetAngle > startAngle)									// Clockwise
+		{
+			diffRight = targetAngle - startAngle;
+			diffLeft = (startAngle + 2.f*PApplet.PI) - targetAngle;
+		}
+		else if(targetAngle < startAngle)								// Counterclockwise
+		{
+			diffRight = (targetAngle + 2.f*PApplet.PI) - startAngle;
+			diffLeft = startAngle - targetAngle;
+		}
+		else if(targetAngle == startAngle)								// Full rotation
+		{
+			diffRight = 2.f*PApplet.PI;
+			diffLeft = 2.f*PApplet.PI;
+		}
+
+		if(direction == 0)						// Calculate direction
+		{
+			if(diffRight <= diffLeft)
+			{
+				length = diffRight;		// Frames until target reached
+				result = new PVector(-1, length);
+				return result;								// Return 1 for clockwise 
+			}
+			else
+			{
+				length = diffLeft;		// Frames until target reached
+				result = new PVector(1, length);
+				return result;								// Return -1 for counterclockwise 
+			}
+		}
+		else												// Full rotation
+		{
+			if(direction == 1)								// Turn left
+				length = diffLeft;
+			else if(direction == -1)						// Turn right
+				length = diffRight;
+			
+			result = new PVector(direction, length);		// Return direction, increment value and transition frame length 
+			return result;
+		}
+	}
+	
+	/**
+	 * Calculate distance needed to turn between two angles
+	 * @param startAngle Starting angle
+	 * @param targetAngle Target angle
+	 * @param direction Direction to turn (1: clockwise, 0: fastest, -1: counterclockwise)
+	 * @return Angular distance
+	 */
+	float getTurnDistance(float startAngle, float targetAngle, float direction)
+	{
+		float diffRight = -1.f;		// Difference when turning right (dir = 1)
+		float diffLeft = -1.f;		// Difference when turning left (dir = -1)
+		float length = 0.f;
+		
+		if(targetAngle < 0.f)
+			targetAngle += PApplet.PI * 2.f;
+		if(startAngle < 0.f)
+			startAngle += PApplet.PI * 2.f;
+		
+		if(targetAngle > startAngle)									// Clockwise
+		{
+			diffRight = targetAngle - startAngle;
+			diffLeft = (startAngle + 2.f*PApplet.PI) - targetAngle;
+		}
+		else if(targetAngle < startAngle)								// Counterclockwise
+		{
+			diffRight = (targetAngle + 2.f*PApplet.PI) - startAngle;
+			diffLeft = startAngle - targetAngle;
+		}
+		else if(targetAngle == startAngle)								// Full rotation
+		{
+			diffRight = 2.f*PApplet.PI;
+			diffLeft = 2.f*PApplet.PI;
+		}
+
+		if(direction == 0)						// Calculate direction
+		{
+			if(diffRight <= diffLeft)
+			{
+				length = diffRight;		// Frames until target reached
+				return length;
+			}
+			else
+			{
+				length = diffLeft;		// Frames until target reached
+				return length;
+			}
+		}
+		else												// Full rotation
+		{
+			if(direction == 1.f)								// Turn left
+				length = diffLeft;
+			else if(direction == -1.f)						// Turn right
+				length = diffRight;
+			
+			return length;
+		}
 	}
 
 	/**

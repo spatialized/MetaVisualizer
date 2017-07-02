@@ -217,9 +217,10 @@ public class ML_Input
 				
 				/* Library */
 				case "CreateLibrary":
-					ml.state.inLibrarySetup = true;
-					ml.createNewLibrary = true;
-					ml.state.chooseMediaFolders = true;
+					ml.startCreatingNewLibrary();
+//					ml.state.inLibrarySetup = true;
+//					ml.createNewLibrary = true;
+//					ml.state.chooseMediaFolders = true;
 					break;
 					
 				case "OpenLibrary":

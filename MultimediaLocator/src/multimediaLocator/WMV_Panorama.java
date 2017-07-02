@@ -5,7 +5,7 @@ import processing.core.PImage;
 import processing.core.PVector;
 
 /**********************************************
- * Spherical 360-degree panorama in a 3D environment
+ * Spherical 360 degree panorama in a 3D environment
  * @author davidgordon
  */
 public class WMV_Panorama extends WMV_Media 

@@ -8,14 +8,14 @@ public class ML_DebugSettings
 {
 	/* Debug Modes */
 	public boolean detailed = false;			// Verbose debugging messages
-	public boolean print = false;				// Print all user messages
+	public boolean print = true;				// Print all user messages
 	public boolean messages = false;			// On screen debug messages
-	public boolean output = false;				// Output debug messages to file
+	public boolean output = true;				// Output debug messages to file
 	
 	/* Main */
-	public boolean ml = false;					// Debug MultimediaLocator class
+	public boolean ml = true;					// Debug MultimediaLocator class
 	public boolean world = false;				// Debug WMV_World and WMV_Field class
-	public boolean library = false;
+	public boolean library = false;				// Debug library and file handling
 	public boolean memory = false;				// Debug memory
 
 	/* Input */

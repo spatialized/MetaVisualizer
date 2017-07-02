@@ -234,22 +234,26 @@ public class MultimediaLocator extends PApplet
 	{
 		if(state.startedRunning)												/* If simulation just started running */
 		{
-//			if(!enteredField) world.enterFieldByIndex(0);						/* Enter world at field ID 0 	-- Change this */
 			state.startedRunning = false;
 			state.framesSinceStart = 0;
 		}
-		else
+		if ( state.exit ) 
 		{
-			if ( !state.inFieldInitialization && !state.interactive && !state.exit ) 	/* Running the program */
+			exitProgram();														/* Exit program */		
+		}
+		else 
+		{
+//			if ( !state.inFieldInitialization && !state.interactive && !state.exit ) 	/* Run the program */
+			if ( !state.inFieldInitialization && !state.interactive ) 			/* Run program */
 			{
 				world.run();
 //	 			input.updateLeapMotion();			// Update Leap Motion 
 			}
 
-			if(state.export && world.outputFolderSelected)						/* Image exporting */
+			if(state.export && world.outputFolderSelected)						/* Screen capture */
 				exportScreenImage();
 
-			if(state.exportMedia && world.outputFolderSelected)						/* Image exporting */
+			if(state.exportMedia && world.outputFolderSelected)					/* Media exporting */
 				exportMedia();
 
 //			if(state.exportCubeMap && world.outputFolderSelected)				/* Cubemap exporting */
@@ -263,12 +267,10 @@ public class MultimediaLocator extends PApplet
 			
 			state.framesSinceStart++;
 		}
-		
-		if ( state.exit ) exitProgram();							/* Stopping the program */		
 	}
 	
 	/**
-	 * Run field initialization and start clustering process
+	 * Initialize world, performing clustering and initialization on each field
 	 */
 	public void runWorldInitialization()
 	{
@@ -284,41 +286,38 @@ public class MultimediaLocator extends PApplet
 		else
 		{
 			if(!world.state.loadedMasks) world.loadMasks();
-//			if(!appWindowVisible) showAppWindow();
-			
 			runFieldInitialization();
 		}
 	}
 	
 	/**
-	 * Run process of initializing fields, one per draw() frame
+	 * Begin and run initialization for each field 
 	 */
 	public void runFieldInitialization()
 	{
 		if( !state.fieldsInitialized )				/* Call until fields are initialized */
 		{
-			if (!state.initializingFields) 			/* Not yet initializing fields */
+			if (!state.initializingFields) 			/* Begin initializing fields */
 			{
-				world.createFields(library.getFolders());	/* Create field objects for each folder */
+				world.createFields(library.getFolders());		/* Create field objects for each folder */
 				state.initializingFields = true;
 				display.setupProgress(0.25f);
 			}
-			else initializeNextField();				/* Initialize next field */
+			else 
+				initializeNextField();				/* Initialize next field */
 		}
 		else if( state.createdLibrary && !state.libraryNamed)
 		{
 			if(!display.window.showTextEntryWindow)
-			{
-				openLibraryNamingDialog();				/* Open dialog to get library name */
-			}
+				openLibraryNamingDialog();			/* Open dialog to get library name */
 		}
 		else if( state.createdLibrary && !state.fieldsNamed && !state.inFieldNaming )
 		{
-			startFieldNaming();
+			startFieldNaming();						/* Start field naming*/
 		}
-		else if( state.createdLibrary && state.inFieldNaming )
+		else if( state.createdLibrary && state.inFieldNaming )							
 		{
-			runFieldNaming();
+			runFieldNaming();						/* Run field naming*/
 		}
 		else
 		{
@@ -327,44 +326,6 @@ public class MultimediaLocator extends PApplet
 			if(!appWindowVisible) showAppWindow();
 			display.setupProgress(0.f);
 		}
-	}
-	
-	/**
-	 * Delete data folders to rebuild library
-	 */
-	public void rebuildSelectedLibrary()
-	{
-		if(library.getFolders() != null)
-		{
-			ArrayList<String> libFolders = library.getFolders();
-			display.window.setLibraryWindowText("Rebuilding MultimediaLocator library...");		// -- Not being called
-			for(String strFolderName : libFolders)
-			{
-				File folderFile = new File(library.getLibraryFolder() + "/" + strFolderName);
-				if(folderFile.exists() && folderFile.isDirectory())
-				{
-					File[] fileList = folderFile.listFiles();
-					for(int i=0; i<fileList.length; i++)
-					{
-						File file = fileList[i];
-						if(file.getName().equals("data") && file.isDirectory())
-						{
-							if(debug.ml || debug.library) 
-								System.out.println("ML.rebuildSelectedLibrary()... Purging data folder:"+file.getName());
-
-							world.utilities.purgeDirectory(file);
-							file.delete();
-						}
-					}
-				}
-				else
-				{
-					systemMessage("ML.rebuildSelectedLibrary()... ERROR: folderFile missing or not a directory!  (library.getLibraryFolder() + strFolderName):"+library.getLibraryFolder() + "/" + strFolderName);
-				}
-			}
-		}
-		
-		state.rebuildLibrary = false;
 	}
 
 	/**
@@ -382,24 +343,6 @@ public class MultimediaLocator extends PApplet
 
 		state.running = false;						// Stop running
 		state.inFieldInitialization = true;				// Start clustering 
-	}
-
-	/**
-	 * Start interactive clustering mode
-	 */
-	public void startInteractiveClustering()
-	{
-		background(0.f);						// Clear screen
-		
-		state.running = false;					// Stop running simulation
-		state.interactive = true;				// Start interactive clustering mode
-		state.startInteractive = false;			// Have started
-		
-		display.map2D.initialize(world);
-		display.resetDisplayModes();			// Reset display view and clear messages
-		display.displayClusteringInfo(this);
-		
-		world.getCurrentField().blackoutAllMedia();	// Blackout all media
 	}
 	
 	/**
@@ -425,7 +368,10 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Initialize current initialization field
+	 * Initialize specified field
+	 * @param f Field to initialize
+	 * @param loadState Whether to load simulation state from data
+	 * @param setSoundGPSLocations Whether to set sound GPS locations from GPS track
 	 */
 	public void initializeField(WMV_Field f, boolean loadState, boolean setSoundGPSLocations)
 	{
@@ -443,9 +389,9 @@ public class MultimediaLocator extends PApplet
 			{
 				WMV_Field loadedField;
 				if(fieldID + 1 >= world.getFields().size())
-					loadedField = loadFieldSimulationState(f, library.getLibraryFolder(), true);	// Load field (load simulation state or, if fails, metadata), and set simulation state if exists
+					loadedField = loadFieldState(f, library.getLibraryFolder(), true);	// Load field (load simulation state or, if fails, metadata), and set simulation state if exists
 				else
-					loadedField = loadFieldSimulationState(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
+					loadedField = loadFieldState(f, library.getLibraryFolder(), false);	// Load field (load simulation state or, if fails, metadata)
 
 				if(world.getFields().size() == 0)				// Reset current viewer field
 					if(world.viewer.getCurrentFieldID() > 0)
@@ -488,13 +434,13 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Load simulation state from disk
+	 * Load field state from disk
 	 * @param f The field to initialize
 	 * @param libraryFolder Library folder
 	 * @param set Whether to set simulation state
 	 * @return True if succeeded, false if failed
 	 */
-	private WMV_Field loadFieldSimulationState(WMV_Field f, String libraryFolder, boolean set)
+	private WMV_Field loadFieldState(WMV_Field f, String libraryFolder, boolean set)
 	{
 		boolean savedStateData = metadata.load(f, libraryFolder);		/* Load metadata from media associated with field */
 
@@ -582,14 +528,9 @@ public class MultimediaLocator extends PApplet
 		state.inFieldInitialization = false;				
 		display.worldSetup = false;
 		
-//		if(display.window.showCreateLibraryWindow) display.window.closeCreateLibraryWindow();
-//		if(display.window.showLibraryWindow) display.window.closeLibraryWindow();
-		
 		state.running = true;
 		state.startedRunning = true;
 		
-//		if(!appWindowVisible) showAppWindow();
-
 		if(debug.ml && debug.detailed) 
 			systemMessage("Finishing MultimediaLocator initialization..");
 		
@@ -599,6 +540,54 @@ public class MultimediaLocator extends PApplet
 			world.enterFieldByIndex(0);						/* Enter first field */
 	}
 
+	/**
+	 * Restart program and open Library dialog
+	 */
+	public void restart()
+	{
+		state.reset();
+		
+		display.reset();						// Initialize displays
+
+		metadata = new WMV_Metadata(this, debug);		// Reset metadata loader
+		stitcher = new ML_Stitcher(world);						// Reset panoramic stitcher
+
+		colorMode(PConstants.HSB);
+		rectMode(PConstants.CENTER);
+
+//		initCubeMap();
+
+		display.window.hideWindows();
+		world.reset(true);						// Reset world
+
+		if(debug.ml) systemMessage("World resetting complete...");
+
+		display.window.openStartupWindow();
+	}
+	
+	/**
+	 * Export screen image or selected media files
+	 */
+	public void exportScreenImage()
+	{
+		saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
+//		System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
+		state.export = false;
+	}
+
+	/**
+	 * Export screen image or selected media files
+	 */
+	public void exportMedia()
+	{
+		if(world.viewer.getSettings().selection)
+		{
+			world.exportSelectedMedia();
+			System.out.println("Exported image(s) to "+world.outputFolder);
+		}
+		state.exportMedia = false;
+	}
+	
 	/**
 	 * If large gaps are detected between media locations, divide target field into separate fields
 	 * @param field Target field to divide
@@ -666,56 +655,68 @@ public class MultimediaLocator extends PApplet
 	}
 	
 	/**
-	 * Restart program and open Library dialog
+	 * Import media folders and create new library
 	 */
-	public void restart()
+	private void createNewLibrary()
 	{
-		state.reset();
-		
-//		surface.setResizable(true);
-//		hideMainWindow();
-
-		display.reset();						// Initialize displays
-
-		metadata = new WMV_Metadata(this, debug);		// Reset metadata loader
-		stitcher = new ML_Stitcher(world);						// Reset panoramic stitcher
-
-		colorMode(PConstants.HSB);
-		rectMode(PConstants.CENTER);
-
-//		initCubeMap();
-
-		display.window.hideWindows();
-		world.reset(true);						// Reset world
-
-		if(debug.ml) systemMessage("World resetting complete...");
-
-		display.window.openStartupWindow();
-	}
-	
-	/**
-	 * Export screen image or selected media files
-	 */
-	public void exportScreenImage()
-	{
-		saveFrame(world.outputFolder + "/" + world.getCurrentField().getName() + "-######.jpg");
-//		System.out.println("Saved screen image: "+world.outputFolder + "/image" + "-######.jpg");
-		state.export = false;
-	}
-
-	/**
-	 * Export screen image or selected media files
-	 */
-	public void exportMedia()
-	{
-		if(world.viewer.getSettings().selection)
+		if(library.mediaFolders.size() > 0)
 		{
-			world.exportSelectedMedia();
-			System.out.println("Exported image(s) to "+world.outputFolder);
+			if(debug.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
+			state.selectedLibrary = library.create(this, library.mediaFolders);
+
+			state.createdLibrary = true;
+			state.libraryNamed = false;
+
+			world.state.stitchingPath = library.getLibraryFolder() + "/stitched/";
+			System.out.println("ML.createNewLibraryFromMediaFolders()... Set stitching path:"+world.getState().stitchingPath);
+
+			if(!state.selectedLibrary)
+			{
+				System.out.println("ML.createNewLibraryFromMediaFolders()... Error importing media to create library...");
+				exit();
+			}
 		}
-		state.exportMedia = false;
 	}
 	
+	
+	/**
+	 * Prepare library for rebuilding by deleting data folders
+	 */
+	public void rebuildSelectedLibrary()
+	{
+		if(library.getFolders() != null)
+		{
+			ArrayList<String> libFolders = library.getFolders();
+			display.window.setLibraryWindowText("Rebuilding MultimediaLocator library...");		// -- Not being called
+			for(String strFolderName : libFolders)
+			{
+				File folderFile = new File(library.getLibraryFolder() + "/" + strFolderName);
+				if(folderFile.exists() && folderFile.isDirectory())
+				{
+					File[] fileList = folderFile.listFiles();
+					for(int i=0; i<fileList.length; i++)
+					{
+						File file = fileList[i];
+						if(file.getName().equals("data") && file.isDirectory())
+						{
+							if(debug.ml || debug.library) 
+								System.out.println("ML.rebuildSelectedLibrary()... Purging data folder:"+file.getName());
+
+							world.utilities.purgeDirectory(file);
+							file.delete();
+						}
+					}
+				}
+				else
+				{
+					systemMessage("ML.rebuildSelectedLibrary()... ERROR: folderFile missing or not a directory!  (library.getLibraryFolder() + strFolderName):"+library.getLibraryFolder() + "/" + strFolderName);
+				}
+			}
+		}
+		
+		state.rebuildLibrary = false;
+	}
+
 	/**
 	 * Open library folder when folder has been selected
 	 * @param selection File object for selected folder
@@ -952,29 +953,456 @@ public class MultimediaLocator extends PApplet
 			state.inLibrarySetup = true;	// Still in library setup
 		}
 	}
+
+	public void addShutdownHook()
+	{
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+	        @Override
+	        public void run() {	 								// Stackless deletion
+	            System.out.println("Running Shutdown Hook");
+
+	            try {
+	            	String homeDir = System.getProperty("user.home");
+	                File errorTextFile = new File(homeDir + "/MultimediaLocator_Log.txt");
+	                if ( !errorTextFile.exists() )
+	                	errorTextFile.createNewFile();
+
+	                FileWriter fw = new FileWriter(errorTextFile);
+	            	for(String line : systemMessages)
+		                fw.write(line + System.lineSeparator());
+	                fw.close();
+
+	            } catch (IOException iox) {
+	                //do stuff with exception
+	                iox.printStackTrace();
+	                File errorFile = new File("~/MultimediaLocator_ErrorLog.txt");
+	                try{
+	                	PrintWriter pr = new PrintWriter(errorFile);
+	                	iox.printStackTrace(pr);
+	                }
+	                catch(Throwable t)
+	                {
+	                	System.out.println("Error...");
+	                }
+	            }
+	            String root = MultimediaLocator.tempDir;
+	            Stack<String> dirStack = new Stack<String>();
+	            dirStack.push(root);
+	            while(!dirStack.empty()) 
+	            {
+	                String dir = dirStack.pop();
+	                File f = new File(dir);
+	                if(f.listFiles().length==0)
+	                {
+	                	System.out.println("Deleting f:"+f.getName());
+	                    f.delete();
+	                }
+	                else {
+	                    dirStack.push(dir);
+	                    for(File ff: f.listFiles()) 
+	                    {
+	                        if(ff.isFile())
+	                        {
+	    	                	System.out.println("Deleting ff:"+ff.getName());
+	                            ff.delete();
+	                        }
+	                        else if(ff.isDirectory())
+	                            dirStack.push(ff.getPath());
+	                    }
+	                }
+	            }
+	        }
+	    });
+	}
 	
 	/**
-	 * Import media folders and create new library
+	 * Called when image output folder has been selected
+	 * @param selection
 	 */
-	private void createNewLibrary()
+	public void outputFolderSelected(File selection) 
 	{
-		if(library.mediaFolders.size() > 0)
+		if (selection == null) 
 		{
-			if(debug.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
-			state.selectedLibrary = library.create(this, library.mediaFolders);
+			if (debug.ml)
+				println("Window was closed or the user hit cancel.");
+		} 
+		else 
+		{
+			String input = selection.getPath();
 
-			state.createdLibrary = true;
-			state.libraryNamed = false;
+			if (debug.ml)
+				println("----> User selected output folder: " + input);
 
-			world.state.stitchingPath = library.getLibraryFolder() + "/stitched/";
-			System.out.println("ML.createNewLibraryFromMediaFolders()... Set stitching path:"+world.getState().stitchingPath);
+			world.outputFolder = input;
+			world.outputFolderSelected = true;
+		}
+	}
+	
+	/**
+	 * Called when a new video frame is available to read
+	 * @param m Movie the event pertains to
+	 */
+	public void movieEvent(Movie m) 	
+	{
+		try{
+			if(m != null)				// Testing skipping 30th frame to avoid NullPointerException
+				if(m.available())		// If a frame is available,
+					m.read();			// read from disk
+		}
+		catch(NullPointerException npe)
+		{
+			if(debug.video)
+				println("movieEvent() NullPointerException:"+npe);
+		}
+		catch(Throwable t)
+		{
+			if(debug.video)
+				println("movieEvent() Throwable:"+t);
+		}
+	}
+		
+	/**
+	 * Respond to button event
+	 * @param button Button acted on
+	 * @param event Button event
+	 */
+	public void handleButtonEvents(GButton button, GEvent event) { 
+		input.handleButtonEvent(this, display, button, event);
+	}
+	
+	/**
+	 * Respond to toggle control event
+	 * @param button Toggle control acted on
+	 * @param event Toggle control event
+	 */
+	public void handleToggleControlEvents(GToggleControl option, GEvent event) 
+	{
+		input.handleToggleControlEvent(world, display, option, event);
+	}
+	
+	/**
+	 * Respond to slider event
+	 * @param button Slider acted on
+	 * @param event Slider event
+	 */
+	public void handleSliderEvents(GValueControl slider, GEvent event) 
+	{ 
+		input.handleSliderEvent(world, display, slider, event);
+	}
 
-			if(!state.selectedLibrary)
+	public void handleTextEvents(GEditableTextControl textcontrol, GEvent event) {
+//		  if (textcontrol == txaDemo)
+//		    lblAction.setText("TextArea: " + event);
+//		  if (textcontrol == txfDemo)
+//		    lblAction.setText("TextField: " + event);
+		}
+
+	/**
+	 * Processing method called when a key is pressed
+	 */
+	public void keyPressed() 
+	{
+		if(state.running) 
+			input.handleKeyPressed(this, key, keyCode);
+//		if(state.running && state.framesSinceStart > world.viewer.getSettings().teleportLength) 
+//			input.handleKeyPressed(this, key, keyCode);
+	}
+
+	/**
+	 * Processing method called when a key is released
+	 */
+	public void keyReleased() 
+	{
+		input.handleKeyReleased(this, display, key, keyCode);
+	}
+	
+	/**
+	 * Respond to key pressed in MultimediaLocator Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void mlWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Respond to key pressed in MultimediaLocator Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void libraryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleLibraryWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Respond to key pressed in MultimediaLocator Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void importWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+
+	/**
+	 * Respond to key pressed in List Item Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void listItemWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleListItemWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+//		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+//			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Respond to key pressed in Navigation Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+//		System.out.println("navigationWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction());
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+//		else
+//			System.out.println(" navigationWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction()+" != "+processing.event.KeyEvent.PRESS);
+
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Respond to key pressed in Media Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+
+	/**
+	 * Respond to key pressed in Statistics Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void libraryViewWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Respond to key pressed in Help Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+	/**
+	 * Respond to key pressed in Media Window
+	 * @param applet Parent App
+	 * @param windata Window data
+	 * @param keyevent Key event
+	 */
+	public void timelineWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
+	{
+		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
+			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
+		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
+			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
+	}
+	
+
+	/**
+	 * Respond to mouse pressed event
+	 */
+	public void mousePressed()
+	{
+//		if(world.viewer.mouseNavigation)
+//			input.handleMousePressed(mouseX, mouseY);
+		
+		if(debug.mouse)
+			System.out.println("ML.mousePressed()... Mouse x:"+mouseX+" y:"+mouseY);
+		
+		display.map2D.mousePressedFrame = frameCount;
+	}
+
+	/**
+	 * Respond to mouse released event
+	 */
+	public void mouseReleased() 
+	{
+//		if(world.viewer.mouseNavigation)
+//			input.handleMouseReleased(mouseX, mouseY);
+		if(display.getDisplayView() == 1)				// Map View
+			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
+		else if(display.getDisplayView() == 2)			// Timeline View
+			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
+	}
+	
+	/**
+	 * Respond to mouse clicked event
+	 */
+	public void mouseClicked() 
+	{
+//		if(world.viewer.mouseNavigation)
+//			input.handleMouseClicked(mouseX, mouseY);
+	}
+	
+	/**
+	 * Respond to mouse dragged event
+	 */
+	public void mouseDragged() {
+//		if(display.satelliteMap)
+//		{
+		display.map2D.mouseDraggedFrame = frameCount;
+//		}
+//		System.out.println("dragged");
+//		if(world.mouseNavigation)
+//		{
+//			if(display.inDisplayView())
+//			{
+//				System.out.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
+//				System.out.println("mouseX:"+mouseX+" mouseY:"+mouseY);
+//				input.handleMouseDragged(pmouseX, pmouseY);
+//			}
+//		}
+	}
+	
+	/**
+	 * Respond to mouse moved event
+	 */
+	public void mouseMoved()
+	{
+//		if(display.displayView == 1)
+//			if(display.satelliteMap)
+//				display.map2D.handleMouseMoved(mouseX, mouseY);
+	}
+	
+	/**
+	 * Open dialog to name created library
+	 */
+	private void openExiftoolPathDialog()
+	{
+		display.window.openTextEntryWindow("Please enter enter Exiftool location:", "/usr/local/bin/Exiftool", 2);
+//		state.inLibraryNaming = true;
+	}
+	
+	/**
+	 * Attempt to load and set path to Exiftool from preferences
+	 */
+	public void loadExiftoolPath()
+	{
+//		utilities.checkPath();
+		
+		boolean setExiftoolPath = setExiftoolPathFromPrefs();
+		
+		if(!setExiftoolPath)
+		{
+			String exiftoolPath = "/usr/local/bin/exiftool";
+			metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
+			if(metadata.exiftoolFile.exists())												// Fatal error if Exiftool not found
 			{
-				System.out.println("ML.createNewLibraryFromMediaFolders()... Error importing media to create library...");
-				exit();
+				saveExiftoolPath(exiftoolPath);
+			}
+			else
+			{
+				if(debug.ml) 
+					systemMessage("Metadata.Metadata()... Exiftool not found at exiftoolPath:"+exiftoolPath+"!  Will search...");
+				metadata.exiftoolFile = new File(utilities.getProgramPath("exiftool"));
+				if(metadata.exiftoolFile.exists())												// Fatal error if Exiftool not found
+				{
+					if(debug.ml) 
+						systemMessage("Metadata.Metadata()... Exiftool not found in expected folders...  Will ask for user entry...");
+					openExiftoolPathDialog();
+				}
 			}
 		}
+	}
+	
+	/**
+	 * Save Exiftool file path to preferences and load Exiftool program file
+	 * @param newExiftoolPath
+	 */
+	public void setExiftoolPath(String newExiftoolPath)
+	{
+		saveExiftoolPath(newExiftoolPath);
+		metadata.exiftoolFile = new File(newExiftoolPath);
+	}
+	/**
+	 * Save path to Exiftool program
+	 * @param exiftoolPath
+	 */
+	public void saveExiftoolPath(String exiftoolPath) {
+		Preferences preferences = Preferences.userNodeForPackage(this.getClass());
+		preferences.put("Exiftool", exiftoolPath);
+		
+		if(debug.ml)
+			systemMessage("ML.saveExiftoolPath exiftoolPath:"+exiftoolPath);
+
+		try {
+			preferences.flush();
+		}
+		catch(BackingStoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Attempt to set Exiftool path from preferences
+	 * @return Whether succeeded
+	 */
+	public boolean setExiftoolPathFromPrefs() 
+	{
+		Preferences preferences = Preferences.userNodeForPackage(this.getClass());
+		String exiftoolPath = preferences.get("Exiftool", "");
+		
+		if(exiftoolPath != null)
+		{
+			if(exiftoolPath != "")
+			{
+				if(debug.ml)
+					systemMessage("Metadata.setExiftoolPathFromPrefs()... Found exiftoolPath:"+exiftoolPath);
+				metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
+				return true;
+			}
+		}
+			
+		return false;
 	}
 	
 	/**
@@ -1065,7 +1493,296 @@ public class MultimediaLocator extends PApplet
 
 		return scriptPath;
 	}
+
+	/**
+	 * Open dialog to name created library
+	 */
+	private void openLibraryNamingDialog()
+	{
+		display.window.openTextEntryWindow("Enter new library name:", "library", 1);
+//		state.inLibraryNaming = true;
+	}
 	
+	/**
+	 * Start naming fields
+	 */
+	private void startFieldNaming()
+	{
+		for(WMV_Field f : world.getFields())	
+			f.setNamed(false);
+		
+		String curName = world.getField(state.namingField).getName();
+		display.window.openTextEntryWindow("Enter field #"+(state.namingField+1)+" name...", curName, 0);						// Open text entry dialog
+
+		state.namingField = 0;
+		state.inFieldNaming = true;
+		state.oldFieldName = world.getField(state.namingField).getName();
+	}
+	
+	/**
+	 * Run field naming process
+	 */
+	private void runFieldNaming()
+	{
+		if(state.namingField + 1 >= world.getFieldCount())
+		{
+			if(world.getField(state.namingField).getState().named)
+			{
+				updateFieldFolderName(state.namingField);
+				state.fieldsNamed = true;
+				state.inFieldNaming = false;
+				library.updateFolderNames(world);		// Update library folder names to match fields
+			}
+		}
+		else
+		{
+			updateFieldFolderName(state.namingField);
+			state.namingField++;
+			if(!display.window.showTextEntryWindow && state.namingField < world.getFieldCount())
+			{
+				String curName = world.getField(state.namingField).getName();
+				display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
+			}
+		}
+	}
+	
+	/**
+	 * Update field folder name
+	 * @param fieldIdx Field idx to update name for
+	 */
+	private void updateFieldFolderName(int fieldIdx)
+	{
+		String fieldName = world.getField(fieldIdx).getName();
+		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, library.getLibraryFolder() + "/" + fieldName, false);
+		world.updateMediaFilePaths();		// Update media file paths with new library name
+	}
+
+	public void mediaFolderDialog()
+	{
+		display.window.lblStartupWindowText.setVisible(true);
+		selectFolder("Select media folder:", "mediaFolderSelected");		// Get filepath of PhotoSceneLibrary folder
+	}
+	
+	public void libraryDestinationDialog()
+	{
+		state.chooseLibraryDestination = false;
+		display.window.setCreateLibraryWindowText("Please select library destination...", null);
+
+		selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
+	}
+	
+	public void librarySelectionDialog()
+	{
+		state.inLibrarySetup = false;
+		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
+	}
+
+	/**
+	 * Check current frame rate
+	 */
+	public void checkFrameRate()
+	{
+		if(frameRate < world.getState().minFrameRate)
+		{
+			if(!performanceSlow)
+				performanceSlow = true;
+			
+			if(performanceSlow && debug.memory)
+				display.message(this, "Performance slow...");
+		}
+		else
+		{
+			if(performanceSlow)
+				performanceSlow = false;
+		}
+	}
+
+	/**
+	 * Check current memory 
+	 */
+	public void checkMemory()
+	{
+		  availableProcessors = Runtime.getRuntime().availableProcessors();		/* Total number of processors or cores available to the JVM */
+		  freeMemory = Runtime.getRuntime().freeMemory();		  /* Total amount of free memory available to the JVM */
+		  maxMemory = Runtime.getRuntime().maxMemory();		  /* Maximum amount of memory the JVM will attempt to use */
+		  totalMemory = Runtime.getRuntime().totalMemory();		  /* Total memory currently in use by the JVM */
+		  allocatedMemory = (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
+		  approxUsableFreeMemory = Runtime.getRuntime().maxMemory() - allocatedMemory;
+
+		  if(debug.memory)
+		  {
+			  if(debug.detailed)
+			  {
+				  System.out.println("Total memory (bytes): " + totalMemory);
+				  System.out.println("Available processors (cores): "+availableProcessors);
+				  System.out.println("Maximum memory (bytes): " +  (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory)); 
+				  System.out.println("Total memory (bytes): " + totalMemory);
+				  System.out.println("Allocated memory (bytes): " + allocatedMemory);
+			  }
+			  System.out.println("Free memory (bytes): "+freeMemory);
+			  System.out.println("Approx. usable free memory (bytes): " + approxUsableFreeMemory);
+		  }
+		  
+		  if(approxUsableFreeMemory < world.getState().minAvailableMemory && !lowMemory)
+			  lowMemory = true;
+		  if(approxUsableFreeMemory > world.getState().minAvailableMemory && lowMemory)
+			  lowMemory = false;
+		  
+		  /* Possible memory tests: */
+//		  MemoryMXBean memBean = ManagementFactory.getMemoryMXBean();
+//		  MemoryUsage heap = memBean.getHeapMemoryUsage();
+//		  MemoryUsage nonheap = memBean.getNonHeapMemoryUsage();
+		  
+		  /* Get a list of all filesystem roots on this system */
+//		  File[] roots = File.listRoots();
+
+		  /* For each filesystem root, print some info */
+//		  for (File root : roots) {
+//		    System.out.println("File system root: " + root.getAbsolutePath());
+//		    System.out.println("Total space (bytes): " + root.getTotalSpace());
+//		    System.out.println("Free space (bytes): " + root.getFreeSpace());
+//		    System.out.println("Usable space (bytes): " + root.getUsableSpace());
+//		  }
+	}
+
+	/**
+	 * Hide main app window
+	 */
+	private void hideAppWindow()
+	{
+		setSurfaceSize(3, 2);
+		appWindowVisible = false;
+	}
+	
+	/**
+	 * Show main app window
+	 */
+	private void showAppWindow()
+	{
+		setSurfaceSize(displayWidth, displayHeight);		// Set surface size in fullscreen mode
+//		setSurfaceSize(appWidth, appHeight);				// Set surface size for window	-- Obsolete
+		appWindowVisible = true;
+	}
+
+	/**
+	 * Send debug message (effect depends on debug settings)
+	 * @param message Message to be sent
+	 */
+	public void systemMessage(String message)
+	{
+		if(debug.print)
+			System.out.println(message);
+		if(debug.messages)
+			display.message(this, message);
+		if(debug.output)
+			systemMessages.add(message);
+//		if(debugSettings.output)
+//			debugMessages.add(frameCount + " :" + message);
+	}
+	
+	/**
+	 * Set application icon
+	 * @param img
+	 */
+	@SuppressWarnings("restriction")
+	private void setAppIcon(PImage img) 
+	{
+		Application.getApplication().setDockIconImage(img.getImage());
+		setAppIcon = false;
+//		if(debugSettings.ml && debugSettings.detailed)
+//			System.out.println("setAppIcon()... frameCount:"+frameCount);
+	}
+
+	/**
+	 * Set main window size
+	 * @param newWidth New width
+	 * @param newHeight New height
+	 */
+	public void setSurfaceSize(int newWidth, int newHeight)
+	{
+		surface.setSize(newWidth, newHeight);
+	}
+
+	/**
+	 * Set window resolution and graphics mode
+	 */
+	public void settings() 
+	{
+		fullScreen(processing.core.PConstants.P3D);										// Full screen
+//		fullScreen(processing.core.PConstants.P3D, processing.core.PConstants.SPAN);	// Multi monitor setup
+		
+//		size(appWidth, appHeight, processing.core.PConstants.P3D);						// MacBook Pro-size Window
+//		size(displayWidth, displayHeight, processing.core.PConstants.P3D);				// Screen size Window
+//		size(960, 540, processing.core.PConstants.P3D);									// Web Video Large
+		
+		delay(basicDelay);
+	}
+
+	/** 
+	 * Load the PApplet either in a window of specified size or in fullscreen
+	 */
+	static public void main(String[] args) 
+	{
+		PApplet.main("multimediaLocator.MultimediaLocator");						// Open PApplet in window
+//		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
+	}
+	
+	/**
+	 * Mouse listener class for detecting when windows lose focus
+	 * @author davidgordon
+	 */
+	private class WMV_MouseListener implements AWTEventListener
+	{
+		public void eventDispatched(AWTEvent event) 
+		{
+//			System.out.print(MouseInfo.getPointerInfo().getLocation() + " | ");
+//			System.out.println(">> event:"+event);
+//			System.out.println("source:"+event.getSource()+" type:"+event.getSource().getClass());
+//
+//			JFrame jFrame;
+//			if (event.getSource().getClass().toString().equals("class javax.swing.JFrame"))
+//			{
+//				jFrame = (JFrame)event.getSource();
+//			}
+
+			if (event.getSource().getClass().toString().equals("class processing.awt.PSurfaceAWT$SmoothCanvas"))
+			{
+				PSurfaceAWT.SmoothCanvas pSurface = (PSurfaceAWT.SmoothCanvas)event.getSource();
+				Frame nativeFrame = pSurface.getFrame();
+				//System.out.println(" PSurfaceAWT.SmoothCanvas Event title:"+nativeFrame.getTitle()+" id:"+event.getID());
+				
+				if(event.getID() == FocusEvent.FOCUS_LOST)
+				{
+					String windowTitle = nativeFrame.getTitle();
+					
+//					if(debug.ml) 
+//						System.out.println(">>> Window: "+windowTitle+" lost focus...");
+					
+			  	  	display.window.handleWindowLostFocus(windowTitle);
+				}
+			}
+		}
+	}
+	
+	/* Disabled */
+	/**
+	 * Start interactive clustering mode
+	 */
+	public void startInteractiveClustering()
+	{
+		background(0.f);						// Clear screen
+		
+		state.running = false;					// Stop running simulation
+		state.interactive = true;				// Start interactive clustering mode
+		state.startInteractive = false;			// Have started
+		
+		display.map2D.initialize(world);
+		display.resetDisplayModes();			// Reset display view and clear messages
+		display.displayClusteringInfo(this);
+		
+		world.getCurrentField().blackoutAllMedia();	// Blackout all media
+	}
+
 	public void display360()
 	{
 		/* Start cubemap */
@@ -1273,631 +1990,7 @@ public class MultimediaLocator extends PApplet
 		if(faceID >= 34074)									// Stop exporting after face 6
 			state.exportCubeMap = false;
 	}
-
-	public void addShutdownHook()
-	{
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-	        @Override
-	        public void run() {	 								// Stackless deletion
-	            System.out.println("Running Shutdown Hook");
-
-	            try {
-	            	String homeDir = System.getProperty("user.home");
-	                File errorTextFile = new File(homeDir + "/MultimediaLocator_Log.txt");
-	                if ( !errorTextFile.exists() )
-	                	errorTextFile.createNewFile();
-
-	                FileWriter fw = new FileWriter(errorTextFile);
-	            	for(String line : systemMessages)
-		                fw.write(line + System.lineSeparator());
-	                fw.close();
-
-	            } catch (IOException iox) {
-	                //do stuff with exception
-	                iox.printStackTrace();
-	                File errorFile = new File("~/MultimediaLocator_ErrorLog.txt");
-	                try{
-	                	PrintWriter pr = new PrintWriter(errorFile);
-	                	iox.printStackTrace(pr);
-	                }
-	                catch(Throwable t)
-	                {
-	                	System.out.println("Error...");
-	                }
-	            }
-	            String root = MultimediaLocator.tempDir;
-	            Stack<String> dirStack = new Stack<String>();
-	            dirStack.push(root);
-	            while(!dirStack.empty()) 
-	            {
-	                String dir = dirStack.pop();
-	                File f = new File(dir);
-	                if(f.listFiles().length==0)
-	                {
-	                	System.out.println("Deleting f:"+f.getName());
-	                    f.delete();
-	                }
-	                else {
-	                    dirStack.push(dir);
-	                    for(File ff: f.listFiles()) 
-	                    {
-	                        if(ff.isFile())
-	                        {
-	    	                	System.out.println("Deleting ff:"+ff.getName());
-	                            ff.delete();
-	                        }
-	                        else if(ff.isDirectory())
-	                            dirStack.push(ff.getPath());
-	                    }
-	                }
-	            }
-	        }
-	    });
-	}
 	
-	/**
-	 * Called when image output folder has been selected
-	 * @param selection
-	 */
-	public void outputFolderSelected(File selection) 
-	{
-		if (selection == null) 
-		{
-			if (debug.ml)
-				println("Window was closed or the user hit cancel.");
-		} 
-		else 
-		{
-			String input = selection.getPath();
-
-			if (debug.ml)
-				println("----> User selected output folder: " + input);
-
-			world.outputFolder = input;
-			world.outputFolderSelected = true;
-		}
-	}
-	
-	/**
-	 * Called whenever a new frame is available to read
-	 * @param m Movie the event pertains to
-	 */
-	public void movieEvent(Movie m) 	
-	{
-		try{
-			if(m != null)				// Testing skipping 30th frame to avoid NullPointerException
-				if(m.available())		// If a frame is available,
-					m.read();			// read from disk
-		}
-		catch(NullPointerException npe)
-		{
-			if(debug.video)
-				println("movieEvent() NullPointerException:"+npe);
-		}
-		catch(Throwable t)
-		{
-			if(debug.video)
-				println("movieEvent() Throwable:"+t);
-		}
-	}
-	
-	/**
-	 * Respond to mouse pressed event
-	 */
-	public void mousePressed()
-	{
-//		if(world.viewer.mouseNavigation)
-//			input.handleMousePressed(mouseX, mouseY);
-		
-		if(debug.mouse)
-			System.out.println("ML.mousePressed()... Mouse x:"+mouseX+" y:"+mouseY);
-		
-		display.map2D.mousePressedFrame = frameCount;
-		if(display.window.showMainMenu)
-			display.window.hideMainMenu();
-		if(display.window.showNavigationWindow)
-			display.window.closeNavigationWindow();
-		if(display.window.showMediaWindow)
-			display.window.closeMediaWindow();
-		if(display.window.showTimeWindow)
-			display.window.closeTimeWindow();
-		if(display.window.showLibraryViewWindow)
-			display.window.closeLibraryViewWindow();
-		if(display.window.showHelpWindow)
-			display.window.closeHelpWindow();
-	}
-
-	/**
-	 * Respond to mouse released event
-	 */
-	public void mouseReleased() {
-//		if(world.viewer.mouseNavigation)
-//			input.handleMouseReleased(mouseX, mouseY);
-		if(display.getDisplayView() == 1)				// Map View
-			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
-		else if(display.getDisplayView() == 2)			// Timeline View
-			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
-	}
-	
-	/**
-	 * Respond to mouse clicked event
-	 */
-	public void mouseClicked() {
-//		if(world.viewer.mouseNavigation)
-//			input.handleMouseClicked(mouseX, mouseY);
-	}
-	
-	/**
-	 * Respond to mouse moved event
-	 */
-	public void mouseMoved()
-	{
-//		if(display.displayView == 1)
-//			if(display.satelliteMap)
-//				display.map2D.handleMouseMoved(mouseX, mouseY);
-	}
-
-	/**
-	 * Respond to mouse dragged event
-	 */
-	public void mouseDragged() {
-//		if(display.satelliteMap)
-//		{
-		display.map2D.mouseDraggedFrame = frameCount;
-//		}
-//		System.out.println("dragged");
-//		if(world.mouseNavigation)
-//		{
-//			if(display.inDisplayView())
-//			{
-//				System.out.println("pmouseX:"+pmouseX+" pmouseY:"+pmouseY);
-//				System.out.println("mouseX:"+mouseX+" mouseY:"+mouseY);
-//				input.handleMouseDragged(pmouseX, pmouseY);
-//			}
-//		}
-	}
-	
-	/**
-	 * Respond to button event
-	 * @param button Button acted on
-	 * @param event Button event
-	 */
-	public void handleButtonEvents(GButton button, GEvent event) { 
-		input.handleButtonEvent(this, display, button, event);
-	}
-	
-	/**
-	 * Respond to toggle control event
-	 * @param button Toggle control acted on
-	 * @param event Toggle control event
-	 */
-	public void handleToggleControlEvents(GToggleControl option, GEvent event) 
-	{
-		input.handleToggleControlEvent(world, display, option, event);
-	}
-	
-	/**
-	 * Respond to slider event
-	 * @param button Slider acted on
-	 * @param event Slider event
-	 */
-	public void handleSliderEvents(GValueControl slider, GEvent event) 
-	{ 
-		input.handleSliderEvent(world, display, slider, event);
-	}
-
-	public void handleTextEvents(GEditableTextControl textcontrol, GEvent event) {
-//		  if (textcontrol == txaDemo)
-//		    lblAction.setText("TextArea: " + event);
-//		  if (textcontrol == txfDemo)
-//		    lblAction.setText("TextField: " + event);
-		}
-
-	/**
-	 * Processing method called when a key is pressed
-	 */
-	public void keyPressed() 
-	{
-		if(state.running) 
-			input.handleKeyPressed(this, key, keyCode);
-//		if(state.running && state.framesSinceStart > world.viewer.getSettings().teleportLength) 
-//			input.handleKeyPressed(this, key, keyCode);
-	}
-
-	/**
-	 * Processing method called when a key is released
-	 */
-	public void keyReleased() 
-	{
-		input.handleKeyReleased(this, display, key, keyCode);
-	}
-	
-	/**
-	 * Respond to key pressed in MultimediaLocator Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void mlWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in MultimediaLocator Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void libraryWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleLibraryWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in MultimediaLocator Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void importWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-
-	/**
-	 * Respond to key pressed in List Item Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void listItemWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleListItemWindowKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-//		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-//			input.handleKeyReleased(world.viewer, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in Navigation Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-//		System.out.println("navigationWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction());
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-//		else
-//			System.out.println(" navigationWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction()+" != "+processing.event.KeyEvent.PRESS);
-
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in Media Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void mediaWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-
-	/**
-	 * Respond to key pressed in Statistics Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void libraryViewWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in Help Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void helpWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in Navigation Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void mapWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Respond to key pressed in Media Window
-	 * @param applet Parent App
-	 * @param windata Window data
-	 * @param keyevent Key event
-	 */
-	public void timelineWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
-	{
-		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
-			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
-			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
-	}
-	
-	/**
-	 * Open dialog to name created library
-	 */
-	private void openExiftoolPathDialog()
-	{
-		display.window.openTextEntryWindow("Please enter enter Exiftool location:", "/usr/local/bin/Exiftool", 2);
-//		state.inLibraryNaming = true;
-	}
-	
-	/**
-	 * Attempt to load and set path to Exiftool from preferences
-	 */
-	public void loadExiftoolPath()
-	{
-//		utilities.checkPath();
-		
-		boolean setExiftoolPath = setExiftoolPathFromPrefs();
-		
-		if(!setExiftoolPath)
-		{
-			String exiftoolPath = "/usr/local/bin/exiftool";
-			metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
-			if(metadata.exiftoolFile.exists())												// Fatal error if Exiftool not found
-			{
-				saveExiftoolPath(exiftoolPath);
-			}
-			else
-			{
-				if(debug.ml) 
-					systemMessage("Metadata.Metadata()... Exiftool not found at exiftoolPath:"+exiftoolPath+"!  Will search...");
-				metadata.exiftoolFile = new File(utilities.getProgramPath("exiftool"));
-				if(metadata.exiftoolFile.exists())												// Fatal error if Exiftool not found
-				{
-					if(debug.ml) 
-						systemMessage("Metadata.Metadata()... Exiftool not found in expected folders...  Will ask for user entry...");
-					openExiftoolPathDialog();
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Save Exiftool file path to preferences and load Exiftool program file
-	 * @param newExiftoolPath
-	 */
-	public void setExiftoolPath(String newExiftoolPath)
-	{
-		saveExiftoolPath(newExiftoolPath);
-		metadata.exiftoolFile = new File(newExiftoolPath);
-	}
-	/**
-	 * Save path to Exiftool program
-	 * @param exiftoolPath
-	 */
-	public void saveExiftoolPath(String exiftoolPath) {
-		Preferences preferences = Preferences.userNodeForPackage(this.getClass());
-		preferences.put("Exiftool", exiftoolPath);
-		
-		if(debug.ml)
-			systemMessage("ML.saveExiftoolPath exiftoolPath:"+exiftoolPath);
-
-		try {
-			preferences.flush();
-		}
-		catch(BackingStoreException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Attempt to set Exiftool path from preferences
-	 * @return Whether succeeded
-	 */
-	public boolean setExiftoolPathFromPrefs() 
-	{
-		Preferences preferences = Preferences.userNodeForPackage(this.getClass());
-		String exiftoolPath = preferences.get("Exiftool", "");
-		
-		if(exiftoolPath != null)
-		{
-			if(exiftoolPath != "")
-			{
-				if(debug.ml)
-					systemMessage("Metadata.setExiftoolPathFromPrefs()... Found exiftoolPath:"+exiftoolPath);
-				metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
-				return true;
-			}
-		}
-			
-		return false;
-	}
-	
-	/**
-	 * Open dialog to name created library
-	 */
-	private void openLibraryNamingDialog()
-	{
-		display.window.openTextEntryWindow("Enter new library name:", "library", 1);
-//		state.inLibraryNaming = true;
-	}
-	
-	/**
-	 * Start naming fields
-	 */
-	private void startFieldNaming()
-	{
-		for(WMV_Field f : world.getFields())	
-			f.setNamed(false);
-		
-		String curName = world.getField(state.namingField).getName();
-		display.window.openTextEntryWindow("Enter field #"+(state.namingField+1)+" name...", curName, 0);						// Open text entry dialog
-
-		state.namingField = 0;
-		state.inFieldNaming = true;
-		state.oldFieldName = world.getField(state.namingField).getName();
-	}
-	
-	/**
-	 * Run field naming process
-	 */
-	private void runFieldNaming()
-	{
-		if(state.namingField + 1 >= world.getFieldCount())
-		{
-			if(world.getField(state.namingField).getState().named)
-			{
-				updateFieldFolderName(state.namingField);
-				state.fieldsNamed = true;
-				state.inFieldNaming = false;
-				library.updateFolderNames(world);		// Update library folder names to match fields
-			}
-		}
-		else
-		{
-			updateFieldFolderName(state.namingField);
-			state.namingField++;
-			if(!display.window.showTextEntryWindow && state.namingField < world.getFieldCount())
-			{
-				String curName = world.getField(state.namingField).getName();
-				display.window.openTextEntryWindow("Enter field #"+state.namingField+" name...", curName, 0);						// Open text entry dialog
-			}
-		}
-	}
-	
-	/**
-	 * Update field folder name
-	 * @param fieldIdx Field idx to update name for
-	 */
-	private void updateFieldFolderName(int fieldIdx)
-	{
-		String fieldName = world.getField(fieldIdx).getName();
-		boolean result = world.utilities.renameFolder(library.getLibraryFolder() + "/" + state.oldFieldName, library.getLibraryFolder() + "/" + fieldName, false);
-//		System.out.println(">>> ML.updateFieldFolderName()... result:"+result);
-		world.updateMediaFilePaths();		// Update media file paths with new library name
-	}
-
-	public void mediaFolderDialog()
-	{
-		display.window.lblStartupWindowText.setVisible(true);
-		selectFolder("Select media folder:", "mediaFolderSelected");		// Get filepath of PhotoSceneLibrary folder
-	}
-	
-	public void libraryDestinationDialog()
-	{
-		state.chooseLibraryDestination = false;
-		display.window.setCreateLibraryWindowText("Please select library destination...", null);
-
-		selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
-	}
-	
-	public void librarySelectionDialog()
-	{
-		state.inLibrarySetup = false;
-		selectFolder("Select library folder:", "libraryFolderSelected");		// Get filepath of PhotoSceneLibrary folder
-	}
-
-	/**
-	 * Check current frame rate
-	 */
-	public void checkFrameRate()
-	{
-		if(frameRate < world.getState().minFrameRate)
-		{
-			if(!performanceSlow)
-				performanceSlow = true;
-			
-			if(performanceSlow && debug.memory)
-				display.message(this, "Performance slow...");
-		}
-		else
-		{
-			if(performanceSlow)
-				performanceSlow = false;
-		}
-	}
-
-	
-	public void checkMemory()
-	{
-		  availableProcessors = Runtime.getRuntime().availableProcessors();		/* Total number of processors or cores available to the JVM */
-		  freeMemory = Runtime.getRuntime().freeMemory();		  /* Total amount of free memory available to the JVM */
-		  maxMemory = Runtime.getRuntime().maxMemory();		  /* Maximum amount of memory the JVM will attempt to use */
-		  totalMemory = Runtime.getRuntime().totalMemory();		  /* Total memory currently in use by the JVM */
-		  allocatedMemory = (Runtime.getRuntime().totalMemory()-Runtime.getRuntime().freeMemory());
-		  approxUsableFreeMemory = Runtime.getRuntime().maxMemory() - allocatedMemory;
-
-		  if(debug.memory)
-		  {
-			  if(debug.detailed)
-			  {
-				  System.out.println("Total memory (bytes): " + totalMemory);
-				  System.out.println("Available processors (cores): "+availableProcessors);
-				  System.out.println("Maximum memory (bytes): " +  (maxMemory == Long.MAX_VALUE ? "no limit" : maxMemory)); 
-				  System.out.println("Total memory (bytes): " + totalMemory);
-				  System.out.println("Allocated memory (bytes): " + allocatedMemory);
-			  }
-			  System.out.println("Free memory (bytes): "+freeMemory);
-			  System.out.println("Approx. usable free memory (bytes): " + approxUsableFreeMemory);
-		  }
-		  
-		  if(approxUsableFreeMemory < world.getState().minAvailableMemory && !lowMemory)
-			  lowMemory = true;
-		  if(approxUsableFreeMemory > world.getState().minAvailableMemory && lowMemory)
-			  lowMemory = false;
-		  
-		  /* Possible memory tests: */
-//		  MemoryMXBean memBean = ManagementFactory.getMemoryMXBean();
-//		  MemoryUsage heap = memBean.getHeapMemoryUsage();
-//		  MemoryUsage nonheap = memBean.getNonHeapMemoryUsage();
-		  
-		  /* Get a list of all filesystem roots on this system */
-//		  File[] roots = File.listRoots();
-
-		  /* For each filesystem root, print some info */
-//		  for (File root : roots) {
-//		    System.out.println("File system root: " + root.getAbsolutePath());
-//		    System.out.println("Total space (bytes): " + root.getTotalSpace());
-//		    System.out.println("Free space (bytes): " + root.getFreeSpace());
-//		    System.out.println("Usable space (bytes): " + root.getUsableSpace());
-//		  }
-	}
-
 	public void initCubeMap()
 	{
 		sphereDetail(50);
@@ -1954,112 +2047,6 @@ public class MultimediaLocator extends PApplet
 		URL vsURL = MultimediaLocator.class.getResource(resourcePath + "cubemapvert.glsl");
 		cubemapShader = new PShader(this, fsURL, vsURL);
 		cubemapShader.set("cubemap", 1);
-	}
-	
-	private void hideAppWindow()
-	{
-//		public int appWidth = 1680, appHeight = 960;		// App window dimensions
-		setSurfaceSize(3, 2);
-		appWindowVisible = false;
-	}
-	
-	private void showAppWindow()
-	{
-//		setSurfaceSize(appWidth, appHeight);
-		setSurfaceSize(displayWidth, displayHeight);
-		appWindowVisible = true;
-	}
-
-	public void systemMessage(String message)
-	{
-		if(debug.print)
-			System.out.println(message);
-		if(debug.messages)
-			display.message(this, message);
-		if(debug.output)
-			systemMessages.add(message);
-//		if(debugSettings.output)
-//			debugMessages.add(frameCount + " :" + message);
-	}
-	
-	@SuppressWarnings("restriction")
-	private void setAppIcon(PImage img) 
-	{
-		Application.getApplication().setDockIconImage(img.getImage());
-		setAppIcon = false;
-//		if(debugSettings.ml && debugSettings.detailed)
-//			System.out.println("setAppIcon()... frameCount:"+frameCount);
-	}
-
-	public void setSurfaceSize(int newWidth, int newHeight)
-	{
-		surface.setSize(newWidth, newHeight);
-	}
-
-	/**
-	 * Set window resolution and graphics mode
-	 */
-	public void settings() 
-	{
-//		size(appWidth, appHeight, processing.core.PConstants.P3D);						// MacBook Pro-size Window
-//		size(displayWidth, displayHeight, processing.core.PConstants.P3D);				// Screen size Window
-//		size(1680, 960, processing.core.PConstants.P3D);								
-		
-//		size(1980, 1080, processing.core.PConstants.P3D);		// 
-//		size(960, 540, processing.core.PConstants.P3D);			// Web Video Large
-
-		fullScreen(processing.core.PConstants.P3D);										// Full screen
-		
-		delay(basicDelay);
-		
-//		fullScreen(processing.core.PConstants.P3D, processing.core.PConstants.SPAN);	// Multi monitor setup
-		
-//		PJOGL.setIcon("resources/images/icon.png");				// -- Obsolete, doesn't work in JAR
-	}
-
-	/** 
-	 * Load the PApplet either in a window of specified size or in fullscreen
-	 */
-	static public void main(String[] args) 
-	{
-		PApplet.main("multimediaLocator.MultimediaLocator");						// Open PApplet in window
-//		PApplet.main(new String[] { "--present", "wmViewer.MultimediaLocator" });	// Open PApplet in fullscreen mode
-	}
-	
-	/**
-	 * Mouse listener class for detecting when windows lose focus
-	 * @author davidgordon
-	 */
-	private class WMV_MouseListener implements AWTEventListener
-	{
-		public void eventDispatched(AWTEvent event) 
-		{
-//			System.out.print(MouseInfo.getPointerInfo().getLocation() + " | ");
-//			System.out.println(">> event:"+event);
-//			System.out.println("source:"+event.getSource()+" type:"+event.getSource().getClass());
-//
-//			JFrame jFrame;
-//			if (event.getSource().getClass().toString().equals("class javax.swing.JFrame"))
-//			{
-//				jFrame = (JFrame)event.getSource();
-//			}
-
-			if (event.getSource().getClass().toString().equals("class processing.awt.PSurfaceAWT$SmoothCanvas"))
-			{
-				PSurfaceAWT.SmoothCanvas pSurface = (PSurfaceAWT.SmoothCanvas)event.getSource();
-				Frame nativeFrame = pSurface.getFrame();
-				//System.out.println(" PSurfaceAWT.SmoothCanvas Event title:"+nativeFrame.getTitle()+" id:"+event.getID());
-				
-				if(event.getID() == FocusEvent.FOCUS_LOST)
-				{
-					String windowTitle = nativeFrame.getTitle();
-					
-//					if(debug.ml) System.out.println(">>> Window: "+windowTitle+" lost focus...");
-					
-			  	  	display.window.handleWindowLostFocus(windowTitle);
-				}
-			}
-		}
 	}
 
 //	private void setAppTitle(String title) 

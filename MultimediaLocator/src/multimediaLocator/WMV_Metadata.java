@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
+//import java.util.prefs.BackingStoreException;
+//import java.util.prefs.Preferences;
 
 /**************
  * Class for extracting metadata and adding media to field 
@@ -1108,17 +1108,15 @@ class WMV_Metadata
 	public WMV_PanoramaMetadata loadPanoramaMetadata(File file, String timeZoneID)
 	{
 		String sName = file.getName();
-//		boolean panorama = true;
 		boolean dataMissing = false;
 		boolean brightnessMissing = false, descriptionMissing = false;
 
 		ZonedDateTime zonedDateTime = null;
 		
 		int iWidth = -1, iHeight = -1;
-		float fDirection = 0, fElevation = 0, fRotation = 0, fFocalLength = 0, fOrientation = 0, fSensorSize = 0;
-		float fFocusDistance = -1.f;										
-		float fBrightness = -1.f;
 		int iCameraModel = 0;
+		float fDirection = 0, fOrientation = 0, fBrightness = -1.f;
+//		float fDirection = 0, fElevation = 0, fRotation = 0, fFocalLength = 0, fOrientation = 0, fSensorSize = 0, fFocusDistance = -1.f;										
 
 		String[] sKeywords = new String[0];	
 		
@@ -1306,7 +1304,7 @@ class WMV_Metadata
 			}
 
 //			iCameraModel = -1;
-			fFocalLength = -1.f;
+//			fFocalLength = -1.f;
 
 			try {
 				float xCoord, yCoord, zCoord;

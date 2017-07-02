@@ -28,7 +28,7 @@ import toxi.math.ScaleMap;
 import toxi.math.ZoomLensInterpolation;
 
 /********************************************
- * Virtual world, containing one or more media environments ("fields") and viewer 
+ * Virtual world consisting of a viewer and field(s) containing media
  * @author davidgordon
  */
 
@@ -73,7 +73,7 @@ public class WMV_World
 	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
 	/**
-	 * Constructor for world object
+	 * Constructor for virtual world
 	 * @param parent Parent App
 	 */
 	public WMV_World(MultimediaLocator parent)
@@ -95,49 +95,32 @@ public class WMV_World
 	}
 	
 	/**
-	 * Run world simulation
+	 * Update and display virtual world
 	 */
 	public void run()
 	{
-		update();
-		display();
-		updateBehavior();
+		updateState();			// Update viewer and media about the current world state
+		display();				// Display 3D world and/or 2D graphics + text
+		update();				// Update world 
 	}
 	
+	/**
+	 * Update virtual world
+	 */
 	public void update()
-	{
-		state.frameCount = ml.frameCount;
-		viewer.updateState(settings, state);
-		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
-		
-		getCurrentField().findVisibleClusters(ml);		/* Find visible clusters */
-	}
-	
-	/**
-	 * Choose starting field
-	 */
-	public void chooseStartingField()
-	{
-		viewer.chooseFieldDialog();
-	}
-
-	/**
-	 * Update world behavior
-	 */
-	public void updateBehavior()
 	{
 		updateViewerAttraction();										/* Attract the viewer */
 		if(ml.display.getDisplayView() < 3) viewer.updateNavigation();	/* Update navigation */
 		if(state.fadingAlpha)  updateFadingAlpha();						/* Update global alpha fading */
 		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();		/* Update grid fading */
 		updateTimeBehavior();											/* Update time cycle */
-
+		ml.display.window.update();										/* Update windows */
 //		if(viewer.getSettings().mouseNavigation)						/* Update mouse navigation   -- Disabled */
 //		input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
 	}
 
 	/**
-	 * Display graphics
+	 * Display 3D world and/or 2D graphics and text
 	 * @param sphericalView Display in spherical view
 	 */
 	public void display()
@@ -153,6 +136,18 @@ public class WMV_World
 			if(ml.display.getDisplayView() == 0) display3D();	/* Display 3D Graphics */
 			display2D();										/* Display 2D Graphics */
 		}
+	}
+
+	/**
+	 * Update viewer and media about the current world state
+	 */
+	public void updateState()
+	{
+		state.frameCount = ml.frameCount;
+		viewer.updateState(settings, state);
+		getCurrentField().update(settings, state, viewer.getSettings(), viewer.getState());				// Update clusters in current field
+		
+		getCurrentField().findVisibleClusters(ml);		/* Find visible clusters */
 	}
 
 	/**
@@ -390,102 +385,6 @@ public class WMV_World
 	}
 	
 	/**
-	 * Draw terrain as wireframe grid
-	 */
-	private void displayTerrain()
-	{
-		ArrayList<ArrayList<PVector>> gridPoints = new ArrayList<ArrayList<PVector>>();		// Points to draw
-		PVector vLoc = viewer.getLocation();
-		PVector gridLoc = vLoc;
-		gridLoc = new PVector(utilities.round(vLoc.x, 0), vLoc.y, utilities.round(vLoc.z, 0));
-		if((int)gridLoc.x % 2 == 0) gridLoc.x++;
-		if((int)gridLoc.z % 2 == 0) gridLoc.z++;
-
-		float gridSize = settings.defaultFocusDistance * 5.f;
-		float gridHeight = settings.defaultFocusDistance * 0.9f;
-		float defaultHeight = gridLoc.y + gridHeight;				// -- Get this from media points!	
-		
-		for(int x=0; x<gridSize; x+=2)
-		{
-			ArrayList<PVector> row = new ArrayList<PVector>();
-			for(int z=0; z<gridSize; z+=2)
-			{
-				float xStart = gridLoc.x - gridSize * 0.5f;
-				float zStart = gridLoc.z - gridSize * 0.5f;
-				float xEnd = gridLoc.x + gridSize * 0.5f;
-				float zEnd = gridLoc.z + gridSize * 0.5f;
-
-				PVector pLoc = new PVector(0,defaultHeight,0);
-				pLoc.x = utilities.mapValue(x, 0, gridSize, xStart, xEnd);
-				pLoc.z = utilities.mapValue(z, 0, gridSize, zStart, zEnd);
-
-				row.add(pLoc);
-			}
-			gridPoints.add(row);
-		}
-
-		ArrayList<WMV_Cluster> clusterList = getCurrentField().getClusters();
-		for(WMV_Cluster c : clusterList)	// Adjust points within cluster viewing distance to cluster height
-		{
-			PVector cLoc = c.getLocation();
-			for(ArrayList<PVector> row : gridPoints)
-			{
-				for(PVector pv : row)
-				{
-					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance * 1.5f)
-					{
-						pv.y = cLoc.y + gridHeight;
-					}
-				}
-			}
-		}
-
-		int row = 0;
-		int col;
-		for(ArrayList<PVector> pvList : gridPoints)
-		{
-			col = 0;
-			for(PVector pv : pvList)
-			{
-				if(pv.y == defaultHeight)
-					ml.stroke(0.f, 0.f, 155.f, state.terrainAlpha * 0.33f);
-				else
-					ml.stroke(0.f, 0.f, 255.f, state.terrainAlpha);
-
-				ml.strokeWeight(6.f);
-				ml.point(pv.x, pv.y, pv.z);				
-				
-				ml.strokeWeight(1.f);
-				if(col-1 >= 0)
-				{
-					PVector pt2 = gridPoints.get(row).get(col-1);
-					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
-				}
-				if(col+1 < pvList.size())
-				{
-					PVector pt2 = gridPoints.get(row).get(col+1);
-					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
-				}
-				if(row-1 >= 0)
-				{
-					PVector pt2 = gridPoints.get(row-1).get(col);
-					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
-				}
-				if(row+1 < gridPoints.size())
-				{
-					PVector pt2 = gridPoints.get(row+1).get(col);
-					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
-				}
-				
-				col++;
-			}
-			
-			row++;
-		}
-	}
-	
-	
-	/**
 	 * Enter field with specified ID
 	 * @param fieldIdx The field to enter
 	 * @param first Whether to tell viewer this is the first frame
@@ -495,9 +394,7 @@ public class WMV_World
 		WMV_Field f = getField(fieldIdx);
 		
 		viewer.enterField( fieldIdx );								// Enter field
-//		viewer.updateState(settings, state);						// -- Moved to Viewer
 		
-//		if(!f.getState().loadedState)
 		if(f.getState().entryLocation.initialized())
 			viewer.moveToWaypoint(f.getState().entryLocation, false);
 		else
@@ -546,6 +443,9 @@ public class WMV_World
 		}
 	}
 
+	/**
+	 * Fade out all media
+	 */
 	public void fadeOutAllMedia()
 	{
 		getCurrentField().fadeOutAllMedia();
@@ -714,9 +614,25 @@ public class WMV_World
 	}
 	
 	/**
-	 * Save the current world, field and viewer states and settings to file
+	 * Choose starting field
 	 */
-	public void saveCurrentSimulationState()
+	public void chooseStartingField()
+	{
+		viewer.chooseFieldDialog();
+	}
+
+	/**
+	 * Save world state for current field to file
+	 */
+	public void saveCurrentFieldState()
+	{
+		saveFieldState(getCurrentField());
+	}
+	
+	/**
+	 * Save world state for given field to file
+	 */
+	public void saveFieldState(WMV_Field f)
 	{
 		if(ml.world.getSettings().screenMessagesOn)
 			ml.display.message(ml, "Saving "+getCurrentField().getName()+"...");
@@ -751,7 +667,7 @@ public class WMV_World
 		if(ml.debug.world)
 			PApplet.println("Saving Simulation State to: "+folderPath);
 		
-		WMV_Field f = getCurrentField();
+//		WMV_Field f = getCurrentField();
 		f.captureState();											// Capture current state, i.e. save timeline and dateline
 
 		WMV_ClusterStateList csl = f.captureClusterStates();
@@ -772,13 +688,13 @@ public class WMV_World
 		ml.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
 		
 //		if(ml.world.getSettings().screenMessagesOn)
-//			ml.display.message(ml, "Saved Current Field...");
+//			ml.display.message(ml, "Saved Field: "+f.getName()+"...");
 	}
 
 	/**
-	 * Save the current world, field and viewer states and settings to file
+	 * Save world states for all fields to file
 	 */
-	void saveAllSimulationStates()
+	void saveLibrary()
 	{
 		if(ml.world.getSettings().screenMessagesOn)
 			ml.display.message(ml, "Saving Library...");
@@ -1024,7 +940,7 @@ public class WMV_World
 		}
 		
 //		updateState();
-		update();
+		updateState();
 		getCurrentField().updateAllMediaStates();
 	}
 
@@ -1313,6 +1229,101 @@ public class WMV_World
 					settings.timeInc = settings.timeCycleLength / 30.f;			
 				}
 				break;
+		}
+	}
+	
+	/**
+	 * Draw terrain as wireframe grid
+	 */
+	private void displayTerrain()
+	{
+		ArrayList<ArrayList<PVector>> gridPoints = new ArrayList<ArrayList<PVector>>();		// Points to draw
+		PVector vLoc = viewer.getLocation();
+		PVector gridLoc = vLoc;
+		gridLoc = new PVector(utilities.round(vLoc.x, 0), vLoc.y, utilities.round(vLoc.z, 0));
+		if((int)gridLoc.x % 2 == 0) gridLoc.x++;
+		if((int)gridLoc.z % 2 == 0) gridLoc.z++;
+
+		float gridSize = settings.defaultFocusDistance * 5.f;
+		float gridHeight = settings.defaultFocusDistance * 0.9f;
+		float defaultHeight = gridLoc.y + gridHeight;				// -- Get this from media points!	
+		
+		for(int x=0; x<gridSize; x+=2)
+		{
+			ArrayList<PVector> row = new ArrayList<PVector>();
+			for(int z=0; z<gridSize; z+=2)
+			{
+				float xStart = gridLoc.x - gridSize * 0.5f;
+				float zStart = gridLoc.z - gridSize * 0.5f;
+				float xEnd = gridLoc.x + gridSize * 0.5f;
+				float zEnd = gridLoc.z + gridSize * 0.5f;
+
+				PVector pLoc = new PVector(0,defaultHeight,0);
+				pLoc.x = utilities.mapValue(x, 0, gridSize, xStart, xEnd);
+				pLoc.z = utilities.mapValue(z, 0, gridSize, zStart, zEnd);
+
+				row.add(pLoc);
+			}
+			gridPoints.add(row);
+		}
+
+		ArrayList<WMV_Cluster> clusterList = getCurrentField().getClusters();
+		for(WMV_Cluster c : clusterList)	// Adjust points within cluster viewing distance to cluster height
+		{
+			PVector cLoc = c.getLocation();
+			for(ArrayList<PVector> row : gridPoints)
+			{
+				for(PVector pv : row)
+				{
+					if(pv.dist(c.getLocation()) < settings.defaultFocusDistance * 1.5f)
+					{
+						pv.y = cLoc.y + gridHeight;
+					}
+				}
+			}
+		}
+
+		int row = 0;
+		int col;
+		for(ArrayList<PVector> pvList : gridPoints)
+		{
+			col = 0;
+			for(PVector pv : pvList)
+			{
+				if(pv.y == defaultHeight)
+					ml.stroke(0.f, 0.f, 155.f, state.terrainAlpha * 0.33f);
+				else
+					ml.stroke(0.f, 0.f, 255.f, state.terrainAlpha);
+
+				ml.strokeWeight(6.f);
+				ml.point(pv.x, pv.y, pv.z);				
+				
+				ml.strokeWeight(1.f);
+				if(col-1 >= 0)
+				{
+					PVector pt2 = gridPoints.get(row).get(col-1);
+					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+				}
+				if(col+1 < pvList.size())
+				{
+					PVector pt2 = gridPoints.get(row).get(col+1);
+					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+				}
+				if(row-1 >= 0)
+				{
+					PVector pt2 = gridPoints.get(row-1).get(col);
+					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+				}
+				if(row+1 < gridPoints.size())
+				{
+					PVector pt2 = gridPoints.get(row+1).get(col);
+					ml.line(pv.x, pv.y, pv.z, pt2.x, pt2.y, pt2.z);
+				}
+				
+				col++;
+			}
+			
+			row++;
 		}
 	}
 

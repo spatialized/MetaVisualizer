@@ -6,8 +6,6 @@ import java.util.List;
 import processing.core.PApplet;
 import processing.core.PImage;
 import processing.core.PVector;
-//import processing.data.IntList;
-//import toxi.math.ScaleMap;
 
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.core.Coordinate;
@@ -20,12 +18,12 @@ import de.fhpotsdam.unfolding.marker.MultiMarker;
 import de.fhpotsdam.unfolding.marker.SimpleLinesMarker;
 import de.fhpotsdam.unfolding.marker.SimplePointMarker;
 import de.fhpotsdam.unfolding.marker.SimplePolygonMarker;
-//import de.fhpotsdam.unfolding.providers.Google;
 import de.fhpotsdam.unfolding.providers.MBTilesMapProvider;
 import de.fhpotsdam.unfolding.providers.Microsoft;
-import de.fhpotsdam.unfolding.providers.OpenStreetMap;
-//import de.fhpotsdam.unfolding.utils.MapUtils;
 import de.fhpotsdam.unfolding.utils.ScreenPosition;
+//import de.fhpotsdam.unfolding.providers.Google;
+//import de.fhpotsdam.unfolding.providers.OpenStreetMap;
+//import de.fhpotsdam.unfolding.utils.MapUtils;
 
 /***********************************
  * Interactive 2D map of virtual media environment
@@ -45,7 +43,7 @@ public class ML_Map
 	private MarkerManager<Marker> satelliteMarkerManager; //, osmMarkerManager, smallMarkerManager, largeMarkerManager;
 	public MarkerManager<Marker> gpsMarkerManager; 
 	private MultiMarker allClustersMarker;
-	private SimplePointMarker viewerMarker, plainMapViewerMarker;
+	private SimplePointMarker viewerMarker;		//, plainMapViewerMarker;
 	private SimpleLinesMarker gpsTrackMarker;
 	public boolean createdGPSMarker = false;
 	
@@ -79,7 +77,7 @@ public class ML_Map
 //	private final float cameraHue = 140.f;
 //	private final float mediaTransparency = 120.f;
 	
-	private final float zoomMapWidth = 500.f, zoomMapHeight = 500.f;
+//	private final float zoomMapWidth = 500.f, zoomMapHeight = 500.f;
 
 	/* Fields Map */
 	PVector mapVectorOrigin, mapVectorVector;
@@ -367,7 +365,7 @@ public class ML_Map
 				if(world.ml.debug.map)
 					System.out.println("Zooming to cluster:"+c.getID());
 				PVector mapLoc = c.getLocation();
-				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
+				PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(world.getCurrentField(), mapLoc);
 				zoomAndPanMapTo(satellite, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
 //				zoomAndPanMapTo(osm, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), fade);
 			}
@@ -535,7 +533,7 @@ public class ML_Map
 			if(!c.isEmpty() && c.getState().mediaCount != 0)
 			{
 				PVector mapLoc = c.getLocation();
-				PVector gpsLoc = utilities.getGPSLocation(world.getCurrentField(), mapLoc);
+				PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(world.getCurrentField(), mapLoc);
 				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
 				
 				marker.setId("Cluster_"+String.valueOf(c.getID()));
@@ -1029,7 +1027,7 @@ public class ML_Map
 			for(WMV_Cluster c : f.getClusters())
 			{
 				PVector cLoc = c.getLocation();
-				PVector gpsLoc = utilities.getGPSLocation(f, cLoc);
+				PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, cLoc);
 				Location loc = new Location(gpsLoc.y, gpsLoc.x);
 				
 				float hue = utilities.mapValue(fCount, 0, world.getFields().size(), fieldHueRangeLow, fieldHueRangeHigh);

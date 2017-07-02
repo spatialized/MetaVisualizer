@@ -9,7 +9,7 @@ import processing.data.FloatList;
 import processing.data.IntList;
 
 /*********************************
- * The virtual viewer, with methods for navigating and interacting with 3D multimedia-based environments
+ * Viewer that navigates and interacts with media environments
  * @author davidgordon
  */
 public class WMV_Viewer 
@@ -24,21 +24,20 @@ public class WMV_Viewer
 	private ML_DebugSettings debugSettings;					// Debug settings
 
 	/* Memory */
-	public ArrayList<WMV_Waypoint> memory;				// Path for camera to take
-	public ArrayList<WMV_Waypoint> path; 				// Record of camera path
+	public ArrayList<WMV_Waypoint> memory;					// Path for camera to take
+	public ArrayList<WMV_Waypoint> path; 					// Record of camera path
 
 	/* Time */
 	public ArrayList<WMV_TimeSegment> visibleClusterTimeline;	// Combined timeline of nearby (visible) clusters
 
 	/* Navigation */
-	public WMV_Cluster attractorPoint;							// For navigation to points outside cluster list
+	public WMV_Cluster attractorPoint;						// For navigation to points outside cluster list
 
 	/* GPS Tracks */
-	private ArrayList<WMV_Waypoint> history;			// Stores a GPS track in virtual coordinates
-	private ArrayList<WMV_Waypoint> gpsTrack;			// Stores a GPS track in virtual coordinates
+	private ArrayList<WMV_Waypoint> gpsTrack;				// Stores a GPS track in virtual coordinates
+	private ArrayList<WMV_Waypoint> history;				// Viewer history -- Disabled (?)
 	
-//	WMV_Field currentField;
-	WMV_World p;
+	WMV_World p;											// Parent world
 	
 	/**
 	 * Constructor for viewer class
@@ -87,85 +86,6 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Start the viewer
-	 */
-	public void start()
-	{
-		state.firstRunningFrame = true;
-	}
-
-	/**
-	 * Set World View camera view angle
-	 */
-	public void show()
-	{
-		camera.show();						
-	}
-
-	/**
-	 * Set Media View camera view angle
-	 */
-	public void showHUD()
-	{
-		hudCamera.show();						
-	}
-
-	/**
-	 * Set viewer state
-	 * @param newState New viewer state
-	 */
-	public void setState(WMV_ViewerState newState)
-	{
-		state = newState;
-		setLocation(state.location, false);			// Update the camera location
-		setTarget(state.target);					// Update the camera target
-	}
-	
-	/**
-	 * Set viewer settings
-	 * @param newSettings New viewer settings
-	 */
-	public void setSettings(WMV_ViewerSettings newSettings)
-	{
-		settings = newSettings;
-	}
-	
-	/**
-	 * Reset field of view to initial value
-	 */
-	public void resetFieldOfView()
-	{
-		zoomToFieldOfView( getInitFieldOfView() );
-	}
-	
-	/**
-	 * Get the current camera
-	 * @return
-	 */
-	public WMV_Camera getCamera()
-	{
-		return camera;
-	}
-	
-	/**
-	 * Set the camera
-	 * @param newCamera
-	 */
-	public void setCamera(WMV_Camera newCamera)
-	{
-		camera = newCamera;
-	}
-	
-	/**
-	 * Prompt user to select field to enter
-	 */
-	public void chooseFieldDialog()
-	{
-		ArrayList<String> fields = p.getFieldNames();
-		p.ml.display.window.openChooseItemDialog(fields, "Use arrow keys to select field and press ENTER...", 0);
-	}
-
-	/**
 	 * Enter given field
 	 * @param fieldID Field to enter
 	 */
@@ -183,21 +103,6 @@ public class WMV_Viewer
 		
 		if(p.ml.display.window.setupNavigationWindow)
 			p.ml.display.window.reloadNavigationWindow();
-	}
-	
-	/**
-	 * Update viewer about world state
-	 * @param newWorldSettings
-	 * @param newWorldState
-	 */
-	void updateState(WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState)
-	{
-		worldSettings = newWorldSettings;
-		worldState = newWorldState;
-		setOrientation();
-		
-		if(attractorPoint != null) 
-			attractorPoint.update(p.getCurrentField(), worldSettings, worldState, settings, state);
 	}
 	
 	/*** 
@@ -265,199 +170,6 @@ public class WMV_Viewer
 		}
 		
 		if(settings.orientationMode) updateOrientationMode();
-	}
-	
-	/**
-	 * Update Orientation (Static) Mode parameters
-	 */
-	private void updateOrientationMode()
-	{
-		state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
-
-		for(WMV_Cluster c : p.getCurrentField().getClusters())
-		{
-			if(settings.orientationModeForceVisible)
-			{
-				if(!c.isEmpty())
-					state.clustersVisibleInOrientationMode.add(c.getID());
-			}
-			else
-			{
-				if(!c.isEmpty())
-					if(c.getLocation().dist(state.location) < settings.orientationModeClusterViewingDistance)
-						state.clustersVisibleInOrientationMode.add(c.getID());
-			}
-		}
-
-		if(state.clustersVisibleInOrientationMode.size() > settings.orientationModeMaxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
-		{
-			List<Integer> allClusters = state.clustersVisibleInOrientationMode;
-			state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
-
-			for(int i=0; i<allClusters.size(); i++)
-			{
-				if(state.clustersVisibleInOrientationMode.size() < (settings.orientationModeForceVisible ? settings.orientationModeMinVisibleClusters : settings.orientationModeMaxVisibleClusters))
-				{
-					state.clustersVisibleInOrientationMode.add(i);
-				}
-				else
-				{
-					WMV_Cluster c = p.getCurrentField().getCluster(i);
-					float cDist = c.getLocation().dist(state.location);
-					float largest = -10000;
-					int largestIdx = -1;
-					int count = 0;
-
-					for(int n : state.clustersVisibleInOrientationMode)		// Find farthest
-					{
-						WMV_Cluster v = p.getCurrentField().getCluster(n);
-						float vDist = v.getLocation().dist(state.location);
-						if(vDist > largest)
-						{
-							largest = vDist;
-							largestIdx = count;
-
-							count++;
-						}
-					}
-
-					if(cDist < largest)					// Remove farthest and add new index
-					{
-						state.clustersVisibleInOrientationMode.remove(largestIdx);
-						state.clustersVisibleInOrientationMode.add(i);
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * Move viewer forward
-	 */
-	public void walkForward()
-	{
-		startMoveZTransition(-1);
-	}
-
-	/**
-	 * Move viewer backward
-	 */
-	public void walkBackward()
-	{
-		startMoveZTransition(1);
-	}
-
-	public void walkUp()
-	{
-		startMoveYTransition(-1);
-	}
-	
-	public void walkDown()
-	{
-		startMoveYTransition(1);
-	}
-	
-	public void sidestepLeft()
-	{
-		startMoveXTransition(-1);
-	}
-	
-	public void sidestepRight()
-	{
-		startMoveXTransition(1);
-	}
-
-	/**
-	 * Slow viewer movement along active walking axes
-	 */
-	public void walkSlower()
-	{
-		if(state.movingX)
-		{
-			state.movingX = false;
-			state.slowingX = true;
-		}
-		if(state.movingY)
-		{
-			state.movingY = false;
-			state.slowingY = true;
-		}
-		if(state.movingZ)
-		{
-			state.movingZ = false;
-			state.slowingZ = true;
-		}
-	}
-
-	/**
-	 * Set current cluster if one is nearby, or else set to -1
-	 * @param forceUpdate Force setting current cluster, even if already at current cluster
-	 */
-	private void updateCurrentCluster(boolean forceUpdate)
-	{
-		int nearest;
-		
-		if(forceUpdate) nearest = getNearestCluster(true);
-		else nearest = getNearestCluster(false);
-		
-		if(nearest >= 0 && nearest < p.getCurrentFieldClusters().size())
-		{
-			WMV_Cluster c = p.getCurrentField().getCluster(nearest);
-			float dist = c.getViewerDistance();
-			if(dist > p.settings.maxClusterDistance)
-				setCurrentCluster( nearest, -1 );
-		}
-		else
-		{
-			setCurrentCluster( -1, -1 );
-			if(state.atCurrentCluster) state.atCurrentCluster = false;
-			
-			if(debugSettings.viewer) p.ml.systemMessage("Viewer.updateCurrentCluster()... Cleared current cluster...");
-		}
-	}
-	
-	/**
-	 * Set specified field as current field
-	 * @param newField  Field to set as current
-	 */
-	public void setCurrentField(int newField, boolean setSimulationState)		
-	{
-		if(debugSettings.viewer && debugSettings.detailed)		
-			p.ml.systemMessage("Viewer.setCurrentField().. newField:"+newField+" setSimulationState? "+setSimulationState);
-
-		if(newField < p.getFieldCount())
-		{
-			setCurrentFieldID( newField );
-
-			if(debugSettings.viewer && debugSettings.detailed)		
-				p.ml.systemMessage("Viewer.setCurrentField().. after set field ID... new state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster);
-
-			if(setSimulationState)											// Set simulation state from saved
-			{
-				p.setSimulationStateFromField(p.getField(newField), true);
-				if(debugSettings.viewer && debugSettings.detailed)		
-					p.ml.systemMessage("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
-//				p.loadAndSetSimulationState(p.getField(newField));		// -- TESTING
-//				if(debugSettings.viewer && debugSettings.detailed)		
-//					p.ml.systemMessage("Viewer.setCurrentField().. after loadAndSetSimulationState...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
-			}
-			else
-			{
-				p.getCurrentField().updateAllMediaStates();
-			}
-
-			if(!p.getField(getCurrentFieldID()).hasBeenVisited()) 
-				p.getField(getCurrentFieldID()).setVisited(true);
-		}
-	}
-
-	/**
-	 * Set current field ID
-	 * @param newFieldID New current field ID
-	 */
-	public void setCurrentFieldID(int newFieldID)
-	{
-		state.setCurrentFieldID( newFieldID );
 	}
 	
 	/**
@@ -1648,87 +1360,6 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Rotate viewer along X axis
-	 * @param dir Direction to rotate (1: clockwise, -1: counterclockwise)
-	 */
-	public void rotateX(int dir)
-	{
-		state.rotateXDirection = dir;
-		state.rotatingX = true;
-	}
-
-	/**
-	 * Rotate viewer along Y axis
-	 * @param dir Direction to rotate (1: clockwise, -1: counterclockwise)
-	 */
-	public void rotateY(int dir)
-	{
-		state.rotateYDirection = dir;
-		state.rotatingY = true;
-	}
-
-	/**
-	 * Get cluster along given vector
-	 * @param clusterList Clusters to search through
-	 * @param direction Directional vector of camera movement
-	 * @return Cluster in the approximate direction of given vector from camera. If none within 30 degrees, returns currentCluster
-	 */
-	public int getClusterAlongVector(ArrayList<WMV_Cluster> clusterList, PVector direction)
-	{
-		if(clusterList.size() == 0)
-			clusterList = p.getActiveClusters();
-		
-		IntList clustersAlongVector = new IntList();
-		
-		for (WMV_Cluster c : clusterList) 							// Iterate through the clusters
-		{
-			PVector clusterVector = getVectorToCluster(c);
-			PVector crossVector = new PVector();
-			PVector.cross(direction, clusterVector, crossVector);		// Cross vector gives angle between camera and image
-			float result = crossVector.mag();
-			
-			if(Math.abs(result) < PApplet.PI / 6.f && !c.isEmpty())
-			{
-				p.ml.systemMessage("Finding Distance of Centered Cluster:"+c.getID()+" at Angle "+result+" from History Vector...");
-				if(c.getID() != state.currentCluster)
-					clustersAlongVector.append(c.getID());
-			}
-			else
-			{
-				if(debugSettings.viewer && debugSettings.detailed)
-					p.ml.systemMessage("Cluster ID:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
-			}
-		}
-
-		float smallest = 100000.f;
-		int smallestIdx = 0;
-
-		for (int i = 0; i < clustersAlongVector.size(); i++) 		// Compare distances of clusters in front
-		{
-			PVector cPos = getLocation();
-			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().getCluster(i);
-			if(debugSettings.viewer && debugSettings.detailed)
-				p.ml.systemMessage("Checking Centered Cluster... "+c.getID());
-		
-			float dist = PVector.dist(cPos, c.getLocation());
-			if (dist < smallest) 
-			{
-				smallest = dist;
-				smallestIdx = i;
-			}
-		}		
-		
-		if(clustersAlongVector.size() > 0)
-			return smallestIdx;
-		else
-		{
-			if(debugSettings.viewer && debugSettings.detailed)
-				p.ml.systemMessage("No clusters found along vector!");
-			return state.currentCluster;
-		}
-	}
-
-	/**
 	 * @param minTimelinePoints Minimum points in timeline of cluster to move to
 	 */
 	void moveToNearestClusterWithTimes(int minTimelinePoints, boolean teleport)
@@ -1816,49 +1447,78 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * @param newCluster New attractor cluster
-	 * Set a specific cluster as the current attractor
+	 * Start walking forward
 	 */
-	private void setAttractorCluster(int newCluster)
+	public void walkForward()
 	{
-		stop(true);					
-		
-		if(state.atCurrentCluster)
-		{
-			saveCurrentClusterOrientation();
-			state.atCurrentCluster = false;
-		}
+		startMoveZTransition(-1);
+	}
 
-		if(debugSettings.viewer) p.ml.systemMessage("Setting new attractor:"+newCluster+" old attractor:"+state.attractorCluster);
-			
-		state.attractionStart = worldState.frameCount;									// Set attraction starting frame 
-		state.attractorCluster = newCluster;											// Set attractor cluster
-		state.movingToCluster = true;													// Move to cluster
-		
-		p.getCurrentField().clearAllAttractors();										// Clear all attractors
-		p.getCurrentField().getCluster(state.attractorCluster).setAttractor(true);		// Set attractor cluster
-		
-		if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() < state.clusterNearDistance)
+	/**
+	 * Start walking backward
+	 */
+	public void walkBackward()
+	{
+		startMoveZTransition(1);
+	}
+
+	/**
+	 * Start walking up
+	 */
+	public void walkUp()
+	{
+		startMoveYTransition(-1);
+	}
+	
+	/**
+	 * Start walking down
+	 */
+	public void walkDown()
+	{
+		startMoveYTransition(1);
+	}
+	
+	/**
+	 * Start sidestepping left
+	 */
+	public void sidestepLeft()
+	{
+		startMoveXTransition(-1);
+	}
+	
+	/**
+	 * Start sidestepping right
+	 */
+	public void sidestepRight()
+	{
+		startMoveXTransition(1);
+	}
+
+	/**
+	 * Slow viewer movement along active walking axes
+	 */
+	public void walkSlower()
+	{
+		if(state.movingX)
 		{
-			if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize)
-			{
-				state.movingNearby = true;
-			}
-			else if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize * 0.01f)
-			{
-				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.setAttractorCluster()... Centering at attractor cluster#"+state.attractorCluster+"...");
-				startCenteringAtAttractor();
-			}
-			else
-			{
-				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.setAttractorCluster()... Reached attractor cluster #"+state.attractorCluster+" without moving...");
-				handleReachedAttractor();				// Reached attractor without moving
-			}
+			state.movingX = false;
+			state.slowingX = true;
+		}
+		if(state.movingY)
+		{
+			state.movingY = false;
+			state.slowingY = true;
+		}
+		if(state.movingZ)
+		{
+			state.movingZ = false;
+			state.slowingZ = true;
 		}
 	}
 
 	/** 
 	 * Stop any movement, turning, zooming and teleporting behaviors
+	 * @param clearAttractors Whether to clear attractor(s)
 	 */
 	public void stop(boolean clearAttractors)
 	{
@@ -1868,6 +1528,10 @@ public class WMV_Viewer
 		stopTeleporting();					// Stop teleporting
 	}
 	
+	/**
+	 * Stop moving
+	 * @param clearAttractors Whether to clear attractor(s)
+	 */
 	public void stopMoving(boolean clearAttractors)
 	{
 		stopMovementTransitions();			// Stop moving
@@ -1878,7 +1542,52 @@ public class WMV_Viewer
 			clearAttractor();
 		}
 	}
+
+	/**
+	 * Rotate viewer along X axis
+	 * @param dir Direction to rotate (1: clockwise, -1: counterclockwise)
+	 */
+	public void rotateX(int dir)
+	{
+		state.rotateXDirection = dir;
+		state.rotatingX = true;
+	}
+
+	/**
+	 * Rotate viewer along Y axis
+	 * @param dir Direction to rotate (1: clockwise, -1: counterclockwise)
+	 */
+	public void rotateY(int dir)
+	{
+		state.rotateYDirection = dir;
+		state.rotatingY = true;
+	}
+
+	/**
+	 * Stop turning along X axis
+	 */
+	public void stopTurningX()
+	{
+		state.turningX = false;
+		state.turnSlowingX = false;
+		state.turnHaltingX = false;
+		state.turningVelocity.x = 0.f;			
+	}
 	
+	/**
+	 * Stop turning along Y axis
+	 */
+	public void stopTurningY()
+	{
+		state.turningY = false;
+		state.turnSlowingY = false;
+		state.turnHaltingY = false;
+		state.turningVelocity.y = 0.f;			
+	}
+
+	/**
+	 * Stop rotating and/or turning
+	 */
 	private void stopTurningTransitions()
 	{
 		if(state.rotatingX) 
@@ -1893,6 +1602,9 @@ public class WMV_Viewer
 			state.turningY = false;
 	}
 	
+	/**
+	 * Stop teleporting
+	 */
 	private void stopTeleporting()
 	{
 		state.teleporting = false;
@@ -2108,221 +1820,109 @@ public class WMV_Viewer
 	}
 
 	/**
-	 * Set viewer location
-	 * @param newLocation New viewer location
-	 * @param update Whether to update current cluster
+	 * Update viewer about world state
+	 * @param newWorldSettings
+	 * @param newWorldState
 	 */
-	public void setLocation(PVector newLocation, boolean update)
+	void updateState(WMV_WorldSettings newWorldSettings, WMV_WorldState newWorldState)
 	{
-		if(settings.orientationMode)
-			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
-		else
+		worldSettings = newWorldSettings;
+		worldState = newWorldState;
+		setOrientation();
+		
+		if(attractorPoint != null) 
+			attractorPoint.update(p.getCurrentField(), worldSettings, worldState, settings, state);
+	}
+
+	/**
+	 * Update Orientation (Static) Mode parameters
+	 */
+	private void updateOrientationMode()
+	{
+		state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
+
+		for(WMV_Cluster c : p.getCurrentField().getClusters())
 		{
-			jumpTo(newLocation, update);
-			state.location = getLocation();										// Update to precise camera location
+			if(settings.orientationModeForceVisible)
+			{
+				if(!c.isEmpty())
+					state.clustersVisibleInOrientationMode.add(c.getID());
+			}
+			else
+			{
+				if(!c.isEmpty())
+					if(c.getLocation().dist(state.location) < settings.orientationModeClusterViewingDistance)
+						state.clustersVisibleInOrientationMode.add(c.getID());
+			}
+		}
+
+		if(state.clustersVisibleInOrientationMode.size() > settings.orientationModeMaxVisibleClusters)		// Show only closest clusters if over maxVisibleClusters
+		{
+			List<Integer> allClusters = state.clustersVisibleInOrientationMode;
+			state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
+
+			for(int i=0; i<allClusters.size(); i++)
+			{
+				if(state.clustersVisibleInOrientationMode.size() < (settings.orientationModeForceVisible ? settings.orientationModeMinVisibleClusters : settings.orientationModeMaxVisibleClusters))
+				{
+					state.clustersVisibleInOrientationMode.add(i);
+				}
+				else
+				{
+					WMV_Cluster c = p.getCurrentField().getCluster(i);
+					float cDist = c.getLocation().dist(state.location);
+					float largest = -10000;
+					int largestIdx = -1;
+					int count = 0;
+
+					for(int n : state.clustersVisibleInOrientationMode)		// Find farthest
+					{
+						WMV_Cluster v = p.getCurrentField().getCluster(n);
+						float vDist = v.getLocation().dist(state.location);
+						if(vDist > largest)
+						{
+							largest = vDist;
+							largestIdx = count;
+
+							count++;
+						}
+					}
+
+					if(cDist < largest)					// Remove farthest and add new index
+					{
+						state.clustersVisibleInOrientationMode.remove(largestIdx);
+						state.clustersVisibleInOrientationMode.add(i);
+					}
+				}
+			}
 		}
 	}
 
 	/**
-	 * Get current viewer location in field
-	 * @return Viewer virtual location
+	 * Set current cluster if one is nearby, or else set to -1
+	 * @param forceUpdate Force setting current cluster, even if already at current cluster
 	 */
-	public PVector getLocation()
+	private void updateCurrentCluster(boolean forceUpdate)
 	{
-		if(settings.orientationMode)
+		int nearest;
+		
+		if(forceUpdate) nearest = getNearestCluster(true);
+		else nearest = getNearestCluster(false);
+		
+		if(nearest >= 0 && nearest < p.getCurrentFieldClusters().size())
 		{
-			return state.location;
+			WMV_Cluster c = p.getCurrentField().getCluster(nearest);
+			float dist = c.getViewerDistance();
+			if(dist > p.settings.maxClusterDistance)
+				setCurrentCluster( nearest, -1 );
 		}
 		else
 		{
-			state.location = new PVector(camera.getPosition()[0], camera.getPosition()[1], camera.getPosition()[2]);			// Update location
-			return state.location;
+			setCurrentCluster( -1, -1 );
+			if(state.atCurrentCluster) state.atCurrentCluster = false;
+			
+			if(debugSettings.viewer) p.ml.systemMessage("Viewer.updateCurrentCluster()... Cleared current cluster...");
 		}
-	}
-
-	/**
-	 * Get viewer GPS location in format: {longitude, latitude}
-	 * @return Current GPS location
-	 */
-	public PVector getGPSLocation()
-	{
-		PVector vLoc = getLocation();
-		WMV_ModelState m = p.getCurrentField().getModel().getState();
-		
-		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
-		float newY = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
-
-		return new PVector(newX, newY);
-	}
-
-	/**
-	 * Get viewer GPS location in format: {longitude, altitude, latitude}
-	 * @return Current GPS location with altitude component
-	 */
-	public PVector getGPSLocationWithAltitude()
-	{
-		PVector vLoc = getLocation();
-		WMV_ModelState m = p.getCurrentField().getModel().getState();
-		
-		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
-		float newY = getAltitude();																								// Altitude
-		float newZ = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
-
-		return new PVector(newX, newY);
-	}
-	
-	/**
-	 * Get current viewer altitude in meters
-	 * @return Current altitude
-	 */
-	public float getAltitude()
-	{
-		return p.utilities.getAltitude(getLocation());
-	}
-	
-	/**
-	 * @return Current viewer velocity
-	 */
-	public PVector getVelocity()
-	{
-		if(state.walking)
-			return state.walkingVelocity;
-		else
-			return state.velocity;
-	}
-
-	/**
-	 * @return Current viewer acceleration
-	 */
-	public PVector getAcceleration()
-	{
-		if(state.walking)
-			return state.walkingAcceleration;
-		else
-			return state.acceleration;
-	}
-
-	/**
-	 * Attract viewer with given force vector
-	 * @param force Force vector
-	 */
-	public void attract(PVector force)
-	{
-		state.attraction.add( force );		// Add attraction force to camera 
-	}
-	
-	/**
-	 * @return Vector representing attracting forces on the viewer
-	 */
-	public PVector getAttraction()
-	{
-		return state.attraction;
-	}
-
-	/**
-	 * @return Current camera X orientation (Yaw)
-	 */
-	public float getXOrientation()
-	{
-		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update X orientation
-		return state.orientation.x;
-	}
-
-	/**
-	 * @return Current camera Y orientation (Pitch)
-	 */
-	public float getYOrientation()
-	{
-		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update Y orientation
-		return state.orientation.y;
-	}
-
-	/**
-	 * @return Current camera Z orientation (Roll)
-	 */
-	public float getZOrientation()
-	{
-		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update Z orientation
-		return state.orientation.z;
-	}
-	
-	/**
-	 * @return Current camera orientation as PVector in format: Yaw, Pitch, Roll
-	 */
-	public PVector getOrientation()
-	{
-		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
-		return state.orientation;
-	}
-
-	/**
-	 * @return Current camera orientation as PVector in format: Yaw, Pitch, Roll
-	 */
-	public WMV_Orientation getOrientationAtCluster()
-	{
-		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
-		WMV_Orientation orientation = new WMV_Orientation(state.currentCluster, state.orientation.x, state.orientation.y, state.orientation.z);
-		return orientation;
-	}
-
-	/**
-	 * Set the current viewer orientation from the OCD camera state
-	 */
-	public void setOrientation()
-	{
-		float[] cAtt = camera.getAttitude();			// Get camera attitude (orientation)
-		float pitch = cAtt[1], yaw = cAtt[0];
-//		float roll = cAtt[2];
-
-		float sinYaw = PApplet.sin(yaw);
-		float cosYaw = PApplet.cos(yaw);
-		float sinPitch = PApplet.sin(-pitch);
-		float cosPitch = PApplet.cos(-pitch);
-
-		PVector camOrientation = new PVector (-cosPitch * sinYaw, sinPitch, -cosPitch * cosYaw);	
-		camOrientation.normalize();
-		
-		state.orientationVector = camOrientation;
-		state.target = getTarget();
-	}
-	
-	/**
-	 * Set viewer target (look at) point
-	 * @param newTarget New target point
-	 */
-	public void setTarget(PVector newTarget)
-	{
-		if(newTarget != null)
-			camera.aim(newTarget.x, newTarget.y, newTarget.z);
-	}
-	
-	/**
-	 * Get viewer target (look at) point
-	 */
-	public PVector getTarget()
-	{
-		return new PVector(camera.getTarget()[0], camera.getTarget()[1], camera.getTarget()[2]);	
-	}
-	
-	/**
-	 * Get unit vector pointing towards current viewer target point 
-	 * @return Current viewer target vector
-	 */
-	public PVector getTargetVector()
-	{
-		float[] cTar = camera.getTarget();			// Get camera attitude (orientation)
-		float pitch = cTar[1], yaw = cTar[0];
-//		float roll = cTar[2];
-
-		float sinYaw = PApplet.sin(yaw);
-		float cosYaw = PApplet.cos(yaw);
-		float sinPitch = PApplet.sin(-pitch);
-		float cosPitch = PApplet.cos(-pitch);
-
-		PVector camOrientation = new PVector (-cosPitch * sinYaw, sinPitch, -cosPitch * cosYaw);	
-		camOrientation.normalize();
-		
-		return camOrientation;
 	}
 	
 	/**
@@ -2330,13 +1930,13 @@ public class WMV_Viewer
 	 */
 	void updateTurning()
 	{
-		if (state.turningX && !state.turnSlowingX) 		// Turn X Transition
+		if (state.turningX && !state.turnSlowingX) 		// Turning along X axis transition
 		{
 			state.turningAcceleration.x += settings.turningXAccelInc * state.turnXDirection;
 			state.lastMovementFrame = worldState.frameCount;
 		}
 
-		if (state.turningY && !state.turnSlowingY) 		// Turn Y Transition
+		if (state.turningY && !state.turnSlowingY) 		// Turning along Y axis transition
 		{
 			state.turningAcceleration.y += settings.turningYAccelInc * state.turnYDirection;
 			state.lastMovementFrame = worldState.frameCount;
@@ -2366,8 +1966,6 @@ public class WMV_Viewer
 			state.turningAcceleration.y *= settings.turningHaltInc;
 		}
 
-//		p.ml.systemMessage("updateTurning()... turningVelocity.mag():"+turningVelocity.mag()+" turningVelocity.mag()) > 0.f:"+(turningVelocity.mag() > 0.f)+"  turningX:"+ turningX+" turningY:"+turningY+"  turnSlowingX:"+turnSlowingX+" turnSlowingY:"+turnSlowingY+" turnHaltingX:"+turnHaltingX+" turnHaltingY:"+turnHaltingY);
-
 		if(Math.abs(state.turningVelocity.mag()) > 0.f || Math.abs(state.turningAcceleration.mag()) > 0.f)				/* Walking if walkingVelocity or walkingAcceleration > 0 */
 		{
 			if(!state.turningX)
@@ -2382,16 +1980,16 @@ public class WMV_Viewer
 				state.turningVelocity.y = 0.f;
 			}
 
-			if(Math.abs(state.turningAcceleration.x) > settings.turningAccelerationMax)			// Decelerate if above camMaxVelocity
+			if(Math.abs(state.turningAcceleration.x) > settings.turningAccelerationMax)			// Decelerate in X dimension if above turningAccelerationMax
 				state.turningAcceleration.x *= settings.turningDecelInc;				
 
-			if(Math.abs(state.turningAcceleration.y) > settings.turningAccelerationMax)			// Decelerate if above camMaxVelocity
+			if(Math.abs(state.turningAcceleration.y) > settings.turningAccelerationMax)			// Decelerate in Y dimension if above turningAccelerationMax
 				state.turningAcceleration.y *= settings.turningDecelInc;				
 
-			if(Math.abs(state.turningVelocity.x) > settings.turningVelocityMax)			// Decelerate if above camMaxVelocity
+			if(Math.abs(state.turningVelocity.x) > settings.turningVelocityMax)					// Reduce X velocity if above turningVelocityMax
 				state.turningAcceleration.x *= settings.turningDecelInc;				
 
-			if(Math.abs(state.turningVelocity.y) > settings.turningVelocityMax)			// Decelerate if above camMaxVelocity
+			if(Math.abs(state.turningVelocity.y) > settings.turningVelocityMax)					// Reduce Y velocity if above turningVelocityMax
 				state.turningAcceleration.y *= settings.turningDecelInc;				
 
 			state.turningVelocity.add(state.turningAcceleration);							// Add acceleration to velocity
@@ -2492,7 +2090,6 @@ public class WMV_Viewer
 								break;
 						}
 						
-//						p.ml.systemMessage("keepMediaVisible... goalMediaBrightness:"+goalMediaBrightness);
 						if(goalMediaBrightness == 0.f && settings.angleFading)
 						{
 							if(debugSettings.viewer)
@@ -2505,22 +2102,6 @@ public class WMV_Viewer
 				}
 			}
 		}
-	}
-	
-	public void stopTurningX()
-	{
-		state.turningX = false;
-		state.turnSlowingX = false;
-		state.turnHaltingX = false;
-		state.turningVelocity.x = 0.f;			
-	}
-	
-	public void stopTurningY()
-	{
-		state.turningY = false;
-		state.turnSlowingY = false;
-		state.turnHaltingY = false;
-		state.turningVelocity.y = 0.f;			
 	}
 	
 	/**
@@ -2609,7 +2190,6 @@ public class WMV_Viewer
 				if(state.attractorCluster != -1)
 				{
 					curAttractor = getAttractorCluster();
-//					p.ml.systemMessage(" attractorCluster:"+attractorCluster+" is null? "+(curAttractor == null));
 				}
 			}
 			else if( state.movingToAttractor )
@@ -2714,26 +2294,6 @@ public class WMV_Viewer
 		state.walkingAcceleration = new PVector(0,0,0);	// Clear acceleration vector
 		state.attraction = new PVector(0,0,0);			// Clear attraction vector
 	}
-	
-	/**
-	 * Center viewer at attractor cluster
-	 */
-	public void startCenteringAtAttractor()
-	{
-		state.centering = true;
-		state.centeringTransitionStart = p.ml.frameCount;
-		state.centeringTransitionEnd = state.centeringTransitionStart + state.centeringTransitionLength;
-	}
-	
-	public void stopCentering()
-	{
-		state.centering = false;
-	}
-	
-	private void center(PVector dest)
-	{
-		setLocation( p.utilities.lerp3D(getLocation(), dest, 1.f/state.centeringTransitionLength), false );
-	}
 			
 	/**
 	 * Handle when viewer has reached attractorPoint or attractorCluster
@@ -2773,8 +2333,8 @@ public class WMV_Viewer
 			}
 			else
 			{
-				updateCurrentCluster(true);
-//				turnToCurrentClusterOrientation();
+				updateCurrentCluster(true);					// Force updating current cluster
+//				turnToCurrentClusterOrientation();			// -- Disabled
 			}
 			
 			if(debugSettings.viewer)
@@ -2873,6 +2433,309 @@ public class WMV_Viewer
 		state.halting = true;										// Slowing when close to attractor
 	}
 
+
+	/**
+	 * Set specified field as current field
+	 * @param newField  Field to set as current
+	 */
+	public void setCurrentField(int newField, boolean setSimulationState)		
+	{
+		if(debugSettings.viewer && debugSettings.detailed)		
+			p.ml.systemMessage("Viewer.setCurrentField().. newField:"+newField+" setSimulationState? "+setSimulationState);
+
+		if(newField < p.getFieldCount())
+		{
+			setCurrentFieldID( newField );
+
+			if(debugSettings.viewer && debugSettings.detailed)		
+				p.ml.systemMessage("Viewer.setCurrentField().. after set field ID... new state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster);
+
+			if(setSimulationState)											// Set simulation state from saved
+			{
+				p.setSimulationStateFromField(p.getField(newField), true);
+				if(debugSettings.viewer && debugSettings.detailed)		
+					p.ml.systemMessage("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
+			}
+			else
+			{
+				p.getCurrentField().updateAllMediaStates();
+			}
+
+			if(!p.getField(getCurrentFieldID()).hasBeenVisited()) 
+				p.getField(getCurrentFieldID()).setVisited(true);
+		}
+	}
+
+	
+	/**
+	 * @param newCluster New attractor cluster
+	 * Set a specific cluster as the current attractor
+	 */
+	private void setAttractorCluster(int newCluster)
+	{
+		stop(true);					
+		
+		if(state.atCurrentCluster)
+		{
+			saveCurrentClusterOrientation();
+			state.atCurrentCluster = false;
+		}
+
+		if(debugSettings.viewer) p.ml.systemMessage("Setting new attractor:"+newCluster+" old attractor:"+state.attractorCluster);
+			
+		state.attractionStart = worldState.frameCount;									// Set attraction starting frame 
+		state.attractorCluster = newCluster;											// Set attractor cluster
+		state.movingToCluster = true;													// Move to cluster
+		
+		p.getCurrentField().clearAllAttractors();										// Clear all attractors
+		p.getCurrentField().getCluster(state.attractorCluster).setAttractor(true);		// Set attractor cluster
+		
+		if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() < state.clusterNearDistance)
+		{
+			if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize)
+			{
+				state.movingNearby = true;
+			}
+			else if(p.getCurrentField().getCluster(state.attractorCluster).getClusterDistance() > worldSettings.clusterCenterSize * 0.01f)
+			{
+				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.setAttractorCluster()... Centering at attractor cluster#"+state.attractorCluster+"...");
+				startCenteringAtAttractor();
+			}
+			else
+			{
+				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.setAttractorCluster()... Reached attractor cluster #"+state.attractorCluster+" without moving...");
+				handleReachedAttractor();				// Reached attractor without moving
+			}
+		}
+	}
+
+	/**
+	 * Set current field ID
+	 * @param newFieldID New current field ID
+	 */
+	public void setCurrentFieldID(int newFieldID)
+	{
+		state.setCurrentFieldID( newFieldID );
+	}
+
+	/**
+	 * Set viewer location
+	 * @param newLocation New viewer location
+	 * @param update Whether to update current cluster
+	 */
+	public void setLocation(PVector newLocation, boolean update)
+	{
+		if(settings.orientationMode)
+			state.location = new PVector(newLocation.x, newLocation.y, newLocation.z);
+		else
+		{
+			jumpTo(newLocation, update);
+			state.location = getLocation();										// Update to precise camera location
+		}
+	}
+
+	/**
+	 * Get current viewer location in field
+	 * @return Viewer virtual location
+	 */
+	public PVector getLocation()
+	{
+		if(settings.orientationMode)
+		{
+			return state.location;
+		}
+		else
+		{
+			state.location = new PVector(camera.getPosition()[0], camera.getPosition()[1], camera.getPosition()[2]);			// Update location
+			return state.location;
+		}
+	}
+
+	/**
+	 * Get viewer GPS location in format: {longitude, latitude}
+	 * @return Current GPS location
+	 */
+	public PVector getGPSLocation()
+	{
+		PVector vLoc = getLocation();
+		WMV_ModelState m = p.getCurrentField().getModel().getState();
+		
+		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
+		float newY = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+
+		return new PVector(newX, newY);
+	}
+
+	/**
+	 * Get viewer GPS location in format: {longitude, altitude, latitude}
+	 * @return Current GPS location with altitude component
+	 */
+	public PVector getGPSLocationWithAltitude()
+	{
+		PVector vLoc = getLocation();
+		WMV_ModelState m = p.getCurrentField().getModel().getState();
+		
+		float newX = PApplet.map( vLoc.x, -0.5f * m.fieldWidth, 0.5f*m.fieldWidth, m.lowLongitude, m.highLongitude ); 			// GPS longitude decreases from left to right
+		float newY = getAltitude();																								// Altitude
+		float newZ = PApplet.map( vLoc.z, -0.5f * m.fieldLength, 0.5f*m.fieldLength, m.highLatitude, m.lowLatitude ); 			// GPS latitude increases from bottom to top; negative to match P3D coordinate space
+
+		return new PVector(newX, newY);
+	}
+	
+	/**
+	 * Get current viewer altitude in meters
+	 * @return Current altitude
+	 */
+	public float getAltitude()
+	{
+		return p.utilities.getAltitude(getLocation());
+	}
+
+	/**
+	 * Set the current viewer orientation from the OCD camera state
+	 */
+	public void setOrientation()
+	{
+		float[] cAtt = camera.getAttitude();			// Get camera attitude (orientation)
+		float pitch = cAtt[1], yaw = cAtt[0];
+//		float roll = cAtt[2];
+
+		float sinYaw = PApplet.sin(yaw);
+		float cosYaw = PApplet.cos(yaw);
+		float sinPitch = PApplet.sin(-pitch);
+		float cosPitch = PApplet.cos(-pitch);
+
+		PVector camOrientation = new PVector (-cosPitch * sinYaw, sinPitch, -cosPitch * cosYaw);	
+		camOrientation.normalize();
+		
+		state.orientationVector = camOrientation;
+		state.target = getTarget();
+	}
+	
+	/**
+	 * Set viewer target (look at) point
+	 * @param newTarget New target point
+	 */
+	public void setTarget(PVector newTarget)
+	{
+		if(newTarget != null)
+			camera.aim(newTarget.x, newTarget.y, newTarget.z);
+	}
+	
+	/**
+	 * Get viewer target (look at) point
+	 */
+	public PVector getTarget()
+	{
+		return new PVector(camera.getTarget()[0], camera.getTarget()[1], camera.getTarget()[2]);	
+	}
+	
+	
+	/**
+	 * @return Current viewer velocity
+	 */
+	public PVector getVelocity()
+	{
+		if(state.walking)
+			return state.walkingVelocity;
+		else
+			return state.velocity;
+	}
+
+	/**
+	 * @return Current viewer acceleration
+	 */
+	public PVector getAcceleration()
+	{
+		if(state.walking)
+			return state.walkingAcceleration;
+		else
+			return state.acceleration;
+	}
+
+	/**
+	 * Attract viewer with given force vector
+	 * @param force Force vector
+	 */
+	public void attract(PVector force)
+	{
+		state.attraction.add( force );		// Add attraction force to camera 
+	}
+	
+	/**
+	 * @return Vector representing attracting forces on the viewer
+	 */
+	public PVector getAttraction()
+	{
+		return state.attraction;
+	}
+
+	/**
+	 * @return Current camera X orientation (Yaw)
+	 */
+	public float getXOrientation()
+	{
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update X orientation
+		return state.orientation.x;
+	}
+
+	/**
+	 * @return Current camera Y orientation (Pitch)
+	 */
+	public float getYOrientation()
+	{
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update Y orientation
+		return state.orientation.y;
+	}
+
+	/**
+	 * @return Current camera Z orientation (Roll)
+	 */
+	public float getZOrientation()
+	{
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update Z orientation
+		return state.orientation.z;
+	}
+	
+	/**
+	 * @return Current camera orientation as PVector in format: Yaw, Pitch, Roll
+	 */
+	public PVector getOrientation()
+	{
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
+		return state.orientation;
+	}
+
+	/**
+	 * @return Current camera orientation as PVector in format: Yaw, Pitch, Roll
+	 */
+	public WMV_Orientation getOrientationAtCluster()
+	{
+		state.orientation = new PVector(camera.getAttitude()[0], camera.getAttitude()[1], camera.getAttitude()[2]);			// Update orientation
+		WMV_Orientation orientation = new WMV_Orientation(state.currentCluster, state.orientation.x, state.orientation.y, state.orientation.z);
+		return orientation;
+	}
+	
+	/**
+	 * Get unit vector pointing towards current viewer target point 
+	 * @return Current viewer target vector
+	 */
+	public PVector getTargetVector()
+	{
+		float[] cTar = camera.getTarget();			// Get camera attitude (orientation)
+		float pitch = cTar[1], yaw = cTar[0];		// Ignore roll
+
+		float sinYaw = PApplet.sin(yaw);
+		float cosYaw = PApplet.cos(yaw);
+		float sinPitch = PApplet.sin(-pitch);
+		float cosPitch = PApplet.cos(-pitch);
+
+		PVector camOrientation = new PVector (-cosPitch * sinYaw, sinPitch, -cosPitch * cosYaw);	
+		camOrientation.normalize();
+		
+		return camOrientation;
+	}
+
 	/**
 	 * @param cluster Cluster to calculate vector from camera
 	 * @return Current camera orientation as a directional unit vector
@@ -2929,257 +2792,6 @@ public class WMV_Viewer
 
 		return smallestIdx;
 	}
-
-//	/**
-//	 * Get IDs of n closest clusters to current viewer location, not including current cluster
-//	 * @param n Number of closest clusters to return
-//	 * @return Closest <n> clusters
-//	 */
-//	private IntList getClosestClusters(int n)				
-//	{
-//		IntList list;
-//		if(n > 0)
-//		{
-//			list = new IntList();
-//
-//			int leastIdx = -1;			// Closest cluster ID in list
-//			float leastDist = 100000.f;			
-//			int highestIdx = -1;		// farthest cluster ID in list
-//			float highestDist = 0.f;		
-//
-//			for(WMV_Cluster c : p.getCurrentField().getClusters())
-//			{
-//				if(!c.isEmpty())
-//				{
-//					float dist = PVector.dist(c.getLocation(), state.location);
-//					float highest = 0.f;
-//
-//					if(dist > highest)
-//						highest = dist;
-//
-//					if(leastIdx == -1)				// Init leastIdx
-//					{
-//						leastIdx = c.getID();
-//						leastDist = dist;
-//					}
-//
-//					if(highestIdx == -1)			// Init highestIdx
-//					{
-//						highestIdx = c.getID();
-//						highestDist = dist;
-//					}
-//
-//					if(list.size() < n)				// Fill list with first 3 cluster IDs
-//					{
-//						if(!list.hasValue(c.getID()) && !(state.currentCluster == c.getID()))
-//							list.append(c.getID());
-//					}
-//					else
-//					{
-//						for(int i : list)				// Sort the list lowest to highest
-//						{
-//							float checkDist = PVector.dist(p.getCurrentField().getCluster(i).getLocation(), state.location);
-//							if(checkDist < leastDist)
-//							{
-//								leastDist = checkDist;
-//								leastIdx = i;
-//							}
-//							if(checkDist > highestDist)
-//							{
-//								highestDist = checkDist;
-//								highestIdx = i;
-//							}
-//						}
-//
-//						while(list.size() > n)		// Trim any extra elements from list
-//							list.removeValue(highestIdx);
-//					}
-//
-//					if(dist < leastDist && !(state.currentCluster == c.getID()))		// Ignore the current cluster, since the distance is zero (?)
-//					{
-//						if(list.size() >= n)
-//							list.remove(n-1);				// Remove highest
-//
-//						leastIdx = c.getID();
-//						leastDist = dist;
-//						if(!list.hasValue(c.getID()))
-//							list.append(leastIdx);			// Replace with new lowest
-//					}
-//				}
-//			}
-//		}
-//		else
-//		{
-//			list = new IntList();
-//			list.append(state.currentCluster);
-//		}
-//
-//		return list;
-//	}
-
-//	 * @param n Number of closest clusters to return
-//	 * @return Closest <n> clusters
-//	 */
-//	private IntList getClosestClusters(int n)				
-
-	/**
-	 * Get list of media clusters within a given distance threshold from the viewer, excluding current cluster
-	 * @param amount Number of nearest clusters to return
-	 * @param threshold If distance exceeds, will return less than <amount> nearest clusters
-	 * @return List of indices of nearest clusters to camera			
-	 */
-//	public ArrayList<WMV_Cluster> getNearClusters(int amount, float threshold) 			
-//	{
-//		ArrayList<WMV_Cluster> nearClusters;
-//		
-//		if(amount > 0)
-//		{
-//			nearClusters = new ArrayList<WMV_Cluster>();
-//			
-//			int leastIdx = -1;			// Closest cluster ID in list
-//			float leastDist = 100000.f;			
-//			int highestIdx = -1;		// Farthest cluster ID in list
-//			float highestDist = 0.f;		
-//			ArrayList<WMV_Cluster> activeClusters = p.getActiveClusters();
-//			
-//			if(activeClusters.size() > 0)
-//			{
-////				for(WMV_Cluster c : p.getCurrentField().getClusters())
-//				for(WMV_Cluster c : activeClusters)					/* Fill list with active clusters under threshold distance */
-//				{
-//					if(!c.isEmpty())
-//					{
-//						float dist = PVector.dist(c.getLocation(), getLocation());
-//						float highest = 0.f;
-//
-//						if(dist > highest)
-//							highest = dist;
-//
-//						if(leastIdx == -1)						
-//						{
-//							leastIdx = c.getID();				// Init leastIdx
-//							leastDist = dist;
-//						}
-//
-//						if(highestIdx == -1)
-//						{
-//							highestIdx = c.getID();				// Init highestIdx
-//							highestDist = dist;
-//						}
-//
-//						if(!(state.currentCluster == c.getID()))
-//							if(dist < threshold && !nearClusters.contains(c))
-//								nearClusters.add(c);
-//					}
-//				}
-//				
-//				p.ml.systemMessage("SORTING FrameCount: "+p.ml.frameCount);
-//				p.ml.systemMessage(">>> BEFORE <<<");
-//				for(WMV_Cluster c : nearClusters)
-//					p.ml.systemMessage("id #"+c.getID()+" dist:"+c.getViewerDistance());
-//				
-//				nearClusters.sort(WMV_Cluster.WMV_ClusterDistanceComparator);				/* Sort clusters by distance */
-//				
-//				p.ml.systemMessage(">>> AFTER <<<");
-//				for(WMV_Cluster c : nearClusters)
-//					p.ml.systemMessage("id #"+c.getID()+" dist:"+c.getViewerDistance());
-//				
-//				if(nearClusters.size() > amount)
-//				{
-//					int remaining = nearClusters.size() - amount;
-//					
-//					for(int i = nearClusters.size()-1; remaining > 0; i--)
-//					{
-//						nearClusters.remove(i);
-//						remaining--;
-//					}
-//				}
-//
-//				p.ml.systemMessage(">>> AFTER REMOVAL <<<");
-//				for(WMV_Cluster c : nearClusters)
-//					p.ml.systemMessage("id #"+c.getID()+" dist:"+c.getViewerDistance());
-//			}
-//		}
-//		else
-//		{
-//			return null;
-//		}
-//
-//		return nearClusters;
-//	}
-
-//	/**		-- WORKS
-//	 * Get list of media clusters within a given distance threshold from the viewer
-//	 * @param amount Number of nearest clusters to return
-//	 * @param threshold If distance exceeds, will return less than <amount> nearest clusters
-//	 * @param inclCurrent Include the current cluster?
-//	 * @return List of indices of nearest clusters to camera			
-//	 */
-//	public ArrayList<WMV_Cluster> getNearClusters(int amount, float threshold) 			// -- Excluding the current cluster??
-//	{
-//		PVector vPos = getLocation();
-//		IntList nearList = new IntList();
-//		FloatList distList = new FloatList();
-//		ArrayList<WMV_Cluster> cl = new ArrayList<WMV_Cluster>( p.getActiveClusters() );
-//		ArrayList<WMV_Cluster> removeList = new ArrayList<WMV_Cluster>();
-//		
-//		if(amount == -1)										// No limit on number of clusters to search for
-//			amount = cl.size();
-//		
-//		for (WMV_Cluster c : cl) 								// Fill the list with <amount> locations under <threshold> distance from viewer
-//		{
-//			float dist = PVector.dist(vPos, c.getLocation());	// Distance from cluster to viewer
-//			if(dist < threshold)
-//			{
-//				if(nearList.size() < amount)
-//				{
-//					nearList.append(c.getID());
-//					distList.append(dist);
-//					removeList.add(c);
-//				}
-//				else break;
-//			}
-//		}
-//		
-//		for(WMV_Cluster c : removeList)
-//			cl.remove(c);
-//
-//		for (WMV_Cluster c : cl) 								// Test remaining clusters against list locations and update lists
-//		{
-//			float dist = PVector.dist(vPos, c.getLocation());	// Distance from cluster to viewer
-//			if(dist < threshold)
-//			{
-//				int count = 0;
-//				int largestIdx = -1;
-//				float largest = -1000.f;
-//
-//				for(float f : distList)							// Find farthest distance in nearList to compare
-//				{
-//					if(f > largest)
-//					{
-//						largestIdx = count;
-//						largest = f;
-//					}
-//					count++;
-//				}
-//
-//				float fcDist = PVector.dist(vPos, p.getCurrentField().getCluster(largestIdx).getLocation());		// Distance of farthest cluster on nearList
-//				if(dist < fcDist)
-//				{
-//					nearList.remove(largestIdx);
-//					nearList.append(c.getID());
-//					distList.remove(largestIdx);
-//					distList.append(dist);
-//				}
-//			}
-//		}
-//		
-//		ArrayList<WMV_Cluster> result = new ArrayList<WMV_Cluster>();
-//		for(int i:nearList)
-//			result.add(p.getCurrentField().getCluster(i));
-//		
-//		return result;
-//	}
 
 	/**
 	 * Get list of media clusters within a given distance threshold from the viewer
@@ -3400,6 +3012,7 @@ public class WMV_Viewer
 						}
 						
 						if(debugSettings.path) p.ml.systemMessage("--> Chose new path location:"+state.pathGoal);
+						
 						if(state.followTeleport)
 						{
 							if(!p.getCurrentField().mediaAreFading())
@@ -3539,7 +3152,7 @@ public class WMV_Viewer
 	 */
 	public void resetCamera()
 	{
-		initialize( getLocation().x, getLocation().y, getLocation().z );							// Initialize camera
+		initialize( getLocation().x, getLocation().y, getLocation().z );				// Initialize camera
 	}
 	
 	/**
@@ -3551,7 +3164,7 @@ public class WMV_Viewer
 		{
 			if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.updateTeleporting()...  Reached teleport goal...");
 			
-			if( !p.getCurrentField().mediaAreFading() )						// Once no more media are fading
+			if( !p.getCurrentField().mediaAreFading() )									// Once no more media are fading
 			{
 				if(debugSettings.viewer && debugSettings.detailed) p.ml.systemMessage("Viewer.updateTeleporting()... Media finished fading...");
 				
@@ -3591,17 +3204,17 @@ public class WMV_Viewer
 				}
 				else
 				{
-					if(state.movingToCluster)									// Teleporting to cluster
+					if(state.movingToCluster)							
 						state.movingToCluster = false;
 					if(state.movingToAttractor)
 						state.movingToAttractor = false;
 
-					setCurrentCluster( getNearestCluster(true), -1 );		// Set currentCluster to nearest
+					setCurrentCluster( getNearestCluster(true), -1 );	// Set currentCluster to nearest
 				}
 				
 				p.getCurrentField().clearAllAttractors();				// Clear current attractors
 				
-				if(p.state.waitingToFadeInTerrainAlpha) 		// Fade in terrain
+				if(p.state.waitingToFadeInTerrainAlpha) 				// Fade in terrain
 					p.fadeInTerrain(false);
 			}
 			else
@@ -3660,10 +3273,6 @@ public class WMV_Viewer
 						
 						boolean teleport = ( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance );
 						moveToPoint(state.pathGoal, teleport);
-//						if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
-//							teleportToPoint(state.pathGoal, true);
-//						else
-//							setAttractorPoint(state.pathGoal);									// Set attractor point from path goal
 						
 						if(p.getSettings().screenMessagesOn)
 							p.ml.display.message(p.ml, "Started Following Path: Timeline...");
@@ -3708,11 +3317,6 @@ public class WMV_Viewer
 			boolean teleport = ( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance );
 			moveToPoint(state.pathGoal, teleport);
 
-//			if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
-//				teleportToPoint(state.pathGoal, true);
-//			else
-//				setAttractorPoint(state.pathGoal);									// Set attractor point from path goal
-
 			if(p.getSettings().screenMessagesOn)
 				p.ml.display.message(p.ml, "Started Following Path: Memory...");
 		}
@@ -3727,7 +3331,6 @@ public class WMV_Viewer
 		if(state.gpsTrackSelected > -1 && state.gpsTrackSelected < p.getCurrentField().getGPSTracks().size())
 		{
 			path = new ArrayList<WMV_Waypoint>(gpsTrack);
-//			path = getGPSTrackAsPath();								// Set path waypoints to GPS track 
 			
 //			if(debugSettings.viewer || debugSettings.gps)
 //				p.ml.systemMessage("Viewer.startFollowingGPSTrack()...  points:"+path.size());
@@ -3749,11 +3352,6 @@ public class WMV_Viewer
 				boolean teleport = ( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance );
 				moveToPoint(state.pathGoal, teleport);
 
-//				if( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance )
-//					teleportToPoint(state.pathGoal, true);
-//				else
-//					setAttractorPoint(state.pathGoal);									// Set attractor point from path goal
-				
 				if(p.getSettings().screenMessagesOn)
 					p.ml.display.message(p.ml, "Started Following Path: GPS Track");
 			}
@@ -3783,6 +3381,85 @@ public class WMV_Viewer
 	}
 	
 	/**
+	 * Start the viewer
+	 */
+	public void start()
+	{
+		state.firstRunningFrame = true;
+	}
+
+	/**
+	 * Prompt user to select field to enter
+	 */
+	public void chooseFieldDialog()
+	{
+		ArrayList<String> fields = p.getFieldNames();
+		p.ml.display.window.openChooseItemDialog(fields, "Use arrow keys to select field and press ENTER...", 0);
+	}
+
+	/**
+	 * Show what viewer sees on screen
+	 */
+	public void show()
+	{
+		camera.show();						
+	}
+
+	/**
+	 * Set Media View camera view angle
+	 */
+	public void showHUD()
+	{
+		hudCamera.show();						
+	}
+
+	/**
+	 * Set viewer state
+	 * @param newState New viewer state
+	 */
+	public void setState(WMV_ViewerState newState)
+	{
+		state = newState;
+		setLocation(state.location, false);			// Update the camera location
+		setTarget(state.target);					// Update the camera target
+	}
+	
+	/**
+	 * Set viewer settings
+	 * @param newSettings New viewer settings
+	 */
+	public void setSettings(WMV_ViewerSettings newSettings)
+	{
+		settings = newSettings;
+	}
+	
+	/**
+	 * Reset field of view to initial value
+	 */
+	public void resetFieldOfView()
+	{
+		zoomToFieldOfView( getInitFieldOfView() );
+	}
+	
+	/**
+	 * Get the current camera
+	 * @return
+	 */
+	public WMV_Camera getCamera()
+	{
+		return camera;
+	}
+	
+	/**
+	 * Set the camera
+	 * @param newCamera
+	 */
+	public void setCamera(WMV_Camera newCamera)
+	{
+		camera = newCamera;
+	}
+
+	/**
 	 * @param newPoint Point of interest to attract camera 
 	 */
 	private void setAttractorPoint(PVector newPoint)
@@ -3811,6 +3488,27 @@ public class WMV_Viewer
 		state.movingToAttractor = false;
 		attractorPoint = null;
 	}
+	
+	/**
+	 * Center viewer at attractor cluster
+	 */
+	public void startCenteringAtAttractor()
+	{
+		state.centering = true;
+		state.centeringTransitionStart = p.ml.frameCount;
+		state.centeringTransitionEnd = state.centeringTransitionStart + state.centeringTransitionLength;
+	}
+	
+	public void stopCentering()
+	{
+		state.centering = false;
+	}
+	
+	private void center(PVector dest)
+	{
+		setLocation( p.utilities.lerp3D(getLocation(), dest, 1.f/state.centeringTransitionLength), false );
+	}
+
 	
 	private void saveCurrentClusterOrientation()
 	{
@@ -5593,6 +5291,67 @@ public class WMV_Viewer
 		}
 	}
 	
+	/**
+	 * Get cluster along given vector
+	 * @param clusterList Clusters to search through
+	 * @param direction Directional vector of camera movement
+	 * @return Cluster in the approximate direction of given vector from camera. If none within 30 degrees, returns currentCluster
+	 */
+	private int getClusterAlongVector(ArrayList<WMV_Cluster> clusterList, PVector direction)
+	{
+		if(clusterList.size() == 0)
+			clusterList = p.getActiveClusters();
+		
+		IntList clustersAlongVector = new IntList();
+		
+		for (WMV_Cluster c : clusterList) 							// Iterate through the clusters
+		{
+			PVector clusterVector = getVectorToCluster(c);
+			PVector crossVector = new PVector();
+			PVector.cross(direction, clusterVector, crossVector);		// Cross vector gives angle between camera and image
+			float result = crossVector.mag();
+			
+			if(Math.abs(result) < PApplet.PI / 6.f && !c.isEmpty())
+			{
+				p.ml.systemMessage("Finding Distance of Centered Cluster:"+c.getID()+" at Angle "+result+" from History Vector...");
+				if(c.getID() != state.currentCluster)
+					clustersAlongVector.append(c.getID());
+			}
+			else
+			{
+				if(debugSettings.viewer && debugSettings.detailed)
+					p.ml.systemMessage("Cluster ID:"+c.getID()+" at angle "+result+" from camera..."+" NOT centered!");
+			}
+		}
+
+		float smallest = 100000.f;
+		int smallestIdx = 0;
+
+		for (int i = 0; i < clustersAlongVector.size(); i++) 		// Compare distances of clusters in front
+		{
+			PVector cPos = getLocation();
+			WMV_Cluster c = (WMV_Cluster) p.getCurrentField().getCluster(i);
+			if(debugSettings.viewer && debugSettings.detailed)
+				p.ml.systemMessage("Checking Centered Cluster... "+c.getID());
+		
+			float dist = PVector.dist(cPos, c.getLocation());
+			if (dist < smallest) 
+			{
+				smallest = dist;
+				smallestIdx = i;
+			}
+		}		
+		
+		if(clustersAlongVector.size() > 0)
+			return smallestIdx;
+		else
+		{
+			if(debugSettings.viewer && debugSettings.detailed)
+				p.ml.systemMessage("No clusters found along vector!");
+			return state.currentCluster;
+		}
+	}
+
 	/**
 	 * Get vector of direction of camera motion by comparing current and previous waypoints
 	 * @return Vector of direction of camera motion

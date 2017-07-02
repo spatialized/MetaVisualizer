@@ -44,11 +44,14 @@ import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 
 /******************
- * @author davidgordon
  * Utility methods 
+ * @author davidgordon
  */
 public class WMV_Utilities 
 {
+	/**
+	 * Constructor for utilities class
+	 */
 	WMV_Utilities(){}
 
 	/**
@@ -281,187 +284,6 @@ public class WMV_Utilities
 		return borderPts;
 	}
 	
-	/**
-	 * Class for finding convex hull using Jarvis March Algorithm
-	 * Based on JarvisMarch class by UncleBob
-	 * @author davidgordon
-	 */
-	public class JarvisMarch 
-	{
-	  JarvisPoints pts;
-	  private JarvisPoints hullPoints = null;
-	  private List<Float> hy;
-	  private List<Float> hx;
-	  private int startingPoint;
-	  private double currentAngle;
-	  private static final double MAX_ANGLE = 4;
-
-	  /**
-	   * Constructor for JarvisMarch class
-	   * @param pts JarvisPoints for which to find border 
-	   */
-	  JarvisMarch(JarvisPoints pts) {
-	    this.pts = pts;
-	  }
-
-	  /**
-	   * The Jarvis March, i.e. Gift Wrap Algorithm. The next point is the point with the next largest angle. 
-	   * Imagine wrapping a string around a set of nails in a board.  Tie the string to the leftmost nail
-	   * and hold the string vertical.  Now move the string clockwise until you hit the next, then the next, then
-	   * the next.  When the string is vertical again, you will have found the hull.
-	   */
-	  public int calculateHull() 
-	  {
-	    initializeHull();
-
-	    startingPoint = getStartingPoint();
-	    currentAngle = 0;
-
-	    addToHull(startingPoint);
-	    for (int p = getNextPoint(startingPoint); p != startingPoint; p = getNextPoint(p))
-	      addToHull(p);
-
-	    buildHullPoints();
-	    return hullPoints.pts.length;
-	  }
-
-	  public int getStartingPoint() {
-	    return pts.startingPoint();
-	  }
-
-	  private int getNextPoint(int p) {
-	    double minAngle = MAX_ANGLE;
-	    int minP = startingPoint;
-	    for (int i = 0; i < pts.pts.length; i++) {
-	      if (i != p) {
-	        double thisAngle = relativeAngle(i, p);
-	        if (thisAngle >= currentAngle && thisAngle <= minAngle) {
-	          minP = i;
-	          minAngle = thisAngle;
-	        }
-	      }
-	    }
-	    currentAngle = minAngle;
-	    return minP;
-	  }
-
-	  /**
-	   * Find relative angle between two poins
-	   * @param i First point
-	   * @param p Second point
-	   * @return Relative angle
-	   */
-	  private double relativeAngle(int i, int p) {
-		return pseudoAngle(pts.pts[i].x - pts.pts[p].x, pts.pts[i].y - pts.pts[p].y);
-	  }
-
-	  /**
-	   * Initialize points in hx and hy
-	   */
-	  private void initializeHull() {
-	    hx = new LinkedList<Float>();
-	    hy = new LinkedList<Float>();
-	  }
-
-	  /**
-	   * Build points in convex hull
-	   */
-	  private void buildHullPoints() {
-	    float[] ax = new float[hx.size()];
-	    float[] ay = new float[hy.size()];
-	    int n = 0;
-	    for (Iterator<Float> ix = hx.iterator(); ix.hasNext(); )
-	      ax[n++] = ix.next();
-
-	    n = 0;
-	    for (Iterator<Float> iy = hy.iterator(); iy.hasNext(); )
-	      ay[n++] = iy.next();
-
-	    ArrayList<PVector> newPts = new ArrayList<PVector>();
-	    for(int i=0; i<ax.length; i++)
-	    {
-	    	newPts.add(new PVector(ax[i], ay[i]));
-	    }
-	    hullPoints = new JarvisPoints(newPts);
-	  }
-
-	  /**
-	   * Add point to hull
-	   * @param p Index of point to add
-	   */
-	  private void addToHull(int p) {
-	    hx.add(pts.pts[p].x);
-	    hy.add(pts.pts[p].y);
-	  }
-
-	  /**
-	   * The PseudoAngle increases as the angle from vertical increases. Current implementation has the maximum pseudo angle < 4.  
-	   * The pseudo angle for each quadrant is 1. The algorithm finds where the angle intersects a square and measures the
-	   * perimeter of the square at that point
-	   */
-	  double pseudoAngle(double dx, double dy) {
-	    if (dx >= 0 && dy >= 0)
-	      return quadrantOnePseudoAngle(dx, dy);
-	    if (dx >= 0 && dy < 0)
-	      return 1 + quadrantOnePseudoAngle(Math.abs(dy), dx);
-	    if (dx < 0 && dy < 0)
-	      return 2 + quadrantOnePseudoAngle(Math.abs(dx), Math.abs(dy));
-	    if (dx < 0 && dy >= 0)
-	      return 3 + quadrantOnePseudoAngle(dy, Math.abs(dx));
-	    throw new Error("pseudoAngle()... Impossible");
-	  }
-
-	  double quadrantOnePseudoAngle(double dx, double dy) {
-	    return dx / (dy + dx);
-	  }
-
-	  public JarvisPoints getHullPoints() {
-	    return hullPoints;
-	  }
-	}
-	
-	/**
-	 * Array of points for Jarvis March algorithm
-	 * Based on JarvisPoints by UncleBob
-	 * @author davidgordon
-	 *
-	 */
-	class JarvisPoints 
-	{
-		public PVector[] pts;
-		
-		public JarvisPoints(ArrayList<PVector> newPts) 
-		{
-			pts = new PVector[newPts.size()];
-			for(int i=0; i<newPts.size(); i++)
-				pts[i] = newPts.get(i);
-		}
-
-		// The starting point is the point with the lowest X with ties going to the lowest Y.  This guarantees
-		// that the next point over is clockwise.
-		int startingPoint() 
-		{
-			double minX = pts[0].x;
-			double minY = pts[0].y;
-			
-			int iMin = 0;
-			for (int i = 1; i < pts.length; i++) 
-			{
-				if (pts[i].x < minX) 
-				{
-					minX = pts[i].x;
-					iMin = i;
-				} 
-				else if (minX == pts[i].x && pts[i].y < minY) 
-				{
-					minY = pts[i].y;
-					iMin = i;
-				}
-			}
-			return iMin;
-		}
-	}
-
 	/**
 	 * Round value to nearest <n> decimal places
 	 * @param val Value to round
@@ -715,7 +537,8 @@ public class WMV_Utilities
 	}
 	
 	/**
-	 * @return Current date in days since Jan 1, 1980
+	 * Get current date in days since Jan 1, 1980
+	 * @return Days since Jan 1, 1980
 	 */
 	public int getCurrentDateInDaysSince1980(String timeZoneID)
 	{
@@ -774,33 +597,6 @@ public class WMV_Utilities
 	}
 
 	/**
-	 * Get GPS location for a given point in a field
-	 * @param f Given field 
-	 * @param loc Given point
-	 * @return GPS location for given point
-	 */
-	public PVector getGPSLocation(WMV_Field f, PVector loc)			
-	{
-		if(loc != null)
-		{
-			WMV_Model m = f.getModel();
-			
-//			newX = PApplet.map(mState.gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f*model.getState().fieldWidth); 			// GPS longitude decreases from left to right
-//			newZ = PApplet.map(mState.gpsLocation.z, model.getState().lowLatitude, model.getState().highLatitude, 0.5f*model.getState().fieldLength, -0.5f * model.getState().fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
-
-			float gpsX = mapValue( loc.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, m.getState().lowLongitude, m.getState().highLongitude ); 			// GPS longitude decreases from left to right
-			float gpsY = mapValue( loc.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, m.getState().highLatitude, m.getState().lowLatitude ); 			// GPS latitude increases from bottom to top
-
-			PVector gpsLoc = new PVector(gpsX, gpsY);
-			return gpsLoc;
-		}
-		else 
-		{
-			return null;
-		}
-	}
-	
-	/**
 	 * Get sound locations from GPS track
 	 */
 	public void setSoundGPSLocationsFromGPSTrack(ArrayList<WMV_Sound> soundList, ArrayList<WMV_Waypoint> gpsTrack)
@@ -823,7 +619,6 @@ public class WMV_Utilities
 			DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 			Document doc = dBuilder.parse(gpsTrackFile);
 
-			//http://stackoverflow.com/questions/13786607/normalization-in-dom-parsing-with-java-how-does-it-work
 			doc.getDocumentElement().normalize();
 
 //			System.out.println("\ngetGPSTrackFromFile()... Analyzing GPS Track:"+gpsTrackFile.getName());
@@ -836,14 +631,13 @@ public class WMV_Utilities
 			int count = 0;
 			
 			len = allNodes.getLength();
-//			System.out.println("getGPSTrackFromFile()... ");
 			
-			for (int h=0; h < 5; h++)												// Iterate through each item in .gpx XML file
-			{
-				Element e;
-				e = (Element)allNodes.item(h);										// Location
-//				System.out.println("Node "+h+" is "+e.getTagName() + ":");
-			}
+//			for (int h=0; h < 5; h++)												// Iterate through each item in .gpx XML file
+//			{
+//				Element e;
+//				e = (Element)allNodes.item(h);										// Location
+////				System.out.println("Node "+h+" is "+e.getTagName() + ":");
+//			}
 			for (int h=4; h < len; h+=3)												// Iterate through each item in .gpx XML file
 			{
 				NamedNodeMap locationNodeMap;
@@ -852,7 +646,6 @@ public class WMV_Utilities
 				locationVal = (Element)allNodes.item(h);							// Location
 				elevationVal = (Element)allNodes.item(h+1);							// Elevation
 				timeVal = (Element)allNodes.item(h+2);								// Time
-
 //				System.out.println("Node "+h+" Start ---> "+locationVal.getTagName() + ":");
 
 				/* Parse Location */
@@ -867,16 +660,10 @@ public class WMV_Utilities
 				float latitude = fLat;
 				float longitude = fLong;
 				
-//				float latitude = Math.abs( fLat );
-//				float longitude = Math.abs( fLong );
 				float altitude = Float.parseFloat(elevationVal.getTextContent());
 				
 				String latitudeRef = getLatitudeRefFromDecimal( fLat );
 				String longitudeRef = getLongitudeRefFromDecimal( fLong );
-				
-//				float latitude = Float.parseFloat(latitudeVal.getNodeValue());
-//				float longitude = Float.parseFloat(longitudeVal.getNodeValue());
-//				float altitude = Float.parseFloat(elevationVal.getTextContent());
 
 				/* Parse Node Date */
 				String dateTimeStr = timeVal.getTextContent(); 			// Ex. string: 2016-05-01T23:55:33Z   <time>2017-02-05T23:31:23Z</time>
@@ -903,208 +690,6 @@ public class WMV_Utilities
 		}
 		
 		return gpsTrack;
-	}
-
-	/**
-	 * Calculate virtual capture location based on GPS location in format {longitude, latitude} and GPS altitude
-	 * @param gpsLocation GPS location in format {longitude, altitude, latitude}
-	 * @param altitude Altitude
-	 * @param longitudeRef Longitude reference
-	 * @param latitudeRef Latitude reference
-	 * @param model Field model
-	 * @return Capture location associated with GPS location
-	 */
-	public PVector getCaptureLocationFromGPSAndAltitude( PVector gpsLocation, float altitude, String longitudeRef, String latitudeRef, WMV_Model model )                                  
-	{
-		PVector gpsWithAltitude = new PVector(gpsLocation.x, altitude, gpsLocation.z);
-		return getCaptureLocationFromGPSLocation(gpsWithAltitude, longitudeRef, latitudeRef, model);
-	}
-	
-	/**
-	 * Calculate virtual capture.location based on GPS location in format {longitude, altitude, latitude}
-	 * @param gpsLocation GPS location in format {longitude, altitude, latitude}
-	 * @param longitudeRef Longitude reference
-	 * @param latitudeRef Latitude reference
-	 * @param model Field model
-	 * @return Capture location associated with GPS location
-	 */
-	public PVector getCaptureLocationFromGPSLocation( PVector gpsLocation, String longitudeRef, String latitudeRef, WMV_Model model )                                  
-	{
-//		float newX = 0.f, newZ = 0.f, newY = 0.f;
-		PVector newCaptureLocation = new PVector(0,0,0);
-		
-		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && 
-				model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000)
-		{
-			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
-			{
-//				if(longitudeRef.equals("E"))
-//				{
-					newCaptureLocation.x = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude decreases from left to right
-							model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f 
-							* model.getState().fieldWidth); 					
-//				}
-//				else
-//				{
-//					newCaptureLocation.x = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude increases from left to right
-//							model.getState().highLongitude, 0.5f * model.getState().fieldWidth, -0.5f 
-//							* model.getState().fieldWidth); 					
-//				}
-
-				newCaptureLocation.y = -model.utilities.mapValue( gpsLocation.y, model.getState().lowAltitude,  	// Convert altitude feet to meters, negative to match P3D coordinate space
-						model.getState().highAltitude, 0.f, model.getState().fieldHeight); 	
-				
-//				if(latitudeRef.equals("N"))
-//				{
-					newCaptureLocation.z = model.utilities.mapValue( gpsLocation.z, model.getState().lowLatitude,   // GPS latitude increases from bottom to top, reversed to match P3D coordinate space
-							model.getState().highLatitude, 0.5f * model.getState().fieldLength, 
-							-0.5f * model.getState().fieldLength); 
-//				}
-//				else
-//				{
-//					newCaptureLocation.z = model.utilities.mapValue( gpsLocation.z, model.getState().lowLatitude,   // GPS latitude decreases from bottom to top, reversed to match P3D coordinate space
-//							model.getState().highLatitude, -0.5f * model.getState().fieldLength, 
-//							0.5f * model.getState().fieldLength); 
-//				}
-
-				/* OLD METHOD */
-//				newX = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, // GPS longitude decreases from left to right
-//											    -0.5f * model.getState().fieldWidth, 0.5f*model.getState().fieldWidth); 			
-//				newY = -model.utilities.mapValue( gpsLocation.y, model.getState().lowAltitude, model.getState().highAltitude, 	    // Convert altitude feet to meters, negative sign to match P3D coordinate space
-//											     0.f, model.getState().fieldHeight); 											
-//				newZ = model.utilities.mapValue( gpsLocation.z, model.getState().lowLatitude, model.getState().highLatitude,   // GPS latitude increases from bottom to top, reversed to match P3D coordinate space
-//											     0.5f*model.getState().fieldLength, -0.5f * model.getState().fieldLength); 			
-
-//				newX = PApplet.map(gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f*model.getState().fieldWidth); 			// GPS longitude decreases from left to right
-//				newY = -PApplet.map(altitude, model.getState().lowAltitude, model.getState().highAltitude, 0.f, model.getState().fieldHeight); 										// Convert altitude feet to meters, negative sign to match P3D coordinate space
-//				newZ = PApplet.map(gpsLocation.y, model.getState().lowLatitude, model.getState().highLatitude, 0.5f*model.getState().fieldLength, -0.5f * model.getState().fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
-				
-				if(model.worldSettings.altitudeScaling)	
-					newCaptureLocation.y *= model.worldSettings.altitudeScalingFactor;
-				else
-					newCaptureLocation.y *= model.worldSettings.defaultAltitudeScalingFactor;
-				
-				if(model.debugSettings.gps && model.debugSettings.detailed)
-				{
-					System.out.println("Utilities.getCaptureLocationFromGPSLocation()... gpsLocation x:"+gpsLocation.x+" y:"+gpsLocation.y+" z:"+gpsLocation.z);
-					System.out.println("    High longitude:"+model.getState().highLongitude+"  Low longitude:"+model.getState().lowLongitude);
-					System.out.println("    High latitude:"+model.getState().highLatitude+"  Low latitude:"+model.getState().lowLatitude);
-					System.out.println(">>  newX:"+newCaptureLocation.x+" newY"+newCaptureLocation.y+" newZ"+newCaptureLocation.z);
-				}
-			}
-			else
-			{
-				System.out.println("Utilities.getCaptureLocationFromGPSAndAltitude()... ERROR high longitude:"+model.getState().highLongitude+" lowLongitude:"+model.getState().lowLongitude);
-				System.out.println("    High latitude:"+model.getState().highLatitude+" Low latitude:"+model.getState().lowLatitude);
-			}
-		}
-
-		return newCaptureLocation;
-	}
-	
-	/**
-	 * 
-	 * @param input
-	 * @return
-	 */
-	private String getLongitudeRefFromDecimal( float decimal )
-	{
-		String gpsLongitudeRef = "E";
-		if( (int)Math.signum(decimal) == -1 )
-			gpsLongitudeRef = "W";
-		return gpsLongitudeRef;
-	}
-	
-	/**
-	 * 
-	 * @param input
-	 * @return
-	 */
-	private String getLatitudeRefFromDecimal( float decimal )
-	{
-		String gpsLatitudeRef = "N";
-		if( (int)Math.signum(decimal) == -1 )
-			gpsLatitudeRef = "S";
-		return gpsLatitudeRef;
-	}
-
-	/**
-	 * Parse date time string in UTC format (Ex. 2016-05-01T23:55:33Z)
-	 * @param dateTimeStr Given date/time string
-	 * @param zoneIDStr Time zone ID string
-	 * @return ZonedDateTime object from date/time string
-	 */
-	private ZonedDateTime parseUTCDateTimeString(String dateTimeStr, String zoneIDStr)
-	{
-		String[] parts = dateTimeStr.split("T");
-		String dateStr = parts[0];			
-		String timeStr = parts[1];
-
-		parts = dateStr.split("-");
-		String yearStr, monthStr, dayStr;
-		yearStr = parts[0];
-		monthStr = parts[1];
-		dayStr = parts[2];
-		int year = Integer.parseInt(yearStr);
-		int month = Integer.parseInt(monthStr);
-		int day = Integer.parseInt(dayStr);
-
-		/* Parse Node Time */
-		parts = timeStr.split("Z");
-		timeStr = parts[0];
-
-		parts = timeStr.split(":");
-		String hourStr, minuteStr, secondStr;
-
-		hourStr = parts[0];
-		minuteStr = parts[1];
-		secondStr = parts[2];
-		int hour = Integer.parseInt(hourStr);
-		int minute = Integer.parseInt(minuteStr);
-		int second = Integer.parseInt(secondStr);
-
-
-//      public static LocalDateTime of(int year, int month, int dayOfMonth, int hour, int minute, int second, int nanoOfSecond)
-        LocalDateTime ldt = LocalDateTime.of(year, month, day, hour, minute, second);
-        ZonedDateTime utc = ldt.atZone(ZoneId.of("UTC"));
-
-//        DateTimeFormatter format = DateTimeFormatter.ofPattern("HHmm, dd MMM yyyy");
-//        System.out.println("---> parseGPSDateTimeString()...  hour:"+hour+"  minute:"+minute+"  second:"+second+"    year:"+year+"  month:"+month+"  day:"+day);
-//        System.out.println("  LocalDateTime: " + format.format(ldt));
-
-//        ZonedDateTime expected = ZonedDateTime.parse("2012-12-21T00:00:00.000Z");
-//        ZonedDateTime stored = expected.withZoneSameInstant(ZoneId.systemDefault());
-        ZonedDateTime zoned = utc.withZoneSameInstant(ZoneId.of(zoneIDStr));
-        
-//		ZonedDateTime zoned = ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneId.of(zoneIDStr));
-//        System.out.println("   zoned... zone:"+zoned.getZone()+"  hour:"+zoned.getHour()+"  minute:"+zoned.getMinute()+"  second:"+zoned.getSecond()+"     year:"+zoned.getYear()+"  month:"+zoned.getMonthValue()+"  day:"+zoned.getDayOfMonth());
-
-		return zoned;
-	}
-
-	/** 
-	 * Get approximate distance between two GPS points in meters 
-	 * @param startLatitude Latitude of first point
-	 * @param startLongitude Longitude of first point
-	 * @param endLatitude Latitude of second point
-	 * @param endLongitude Longitude of second point 
-	 * @return Distance in meters
-	 */
-	public float gpsToMeters(double startLatitude, double startLongitude, double endLatitude, double endLongitude)
-	{
-		double R = 6371000;												// Radius of Earth (m.)
-
-		double φ1 = Math.toRadians(startLatitude);
-		double φ2 = Math.toRadians(endLatitude);
-		double Δφ = Math.toRadians(endLatitude-startLatitude);
-		double Δλ = Math.toRadians(endLongitude-startLongitude);
-
-		double a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
-
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-		double d = R * c;
-
-		return (float)d;
 	}
 
 	/**
@@ -1794,6 +1379,486 @@ public class WMV_Utilities
 		return null;
 	}
 
+	public String getCurrentTimeZoneID(float latitude, float longitude)
+	{
+		JSONObject json;
+		String start = "https://maps.googleapis.com/maps/api/timezone/json?location=";
+		String end = "&timestamp=1331161200&key=AIzaSyBXrzfHmo4t8hhrTX1lVgXwfbuThSokjNY";
+		String url = start+String.valueOf(latitude)+","+String.valueOf(longitude)+end;
+//		String url = "https://maps.googleapis.com/maps/api/timezone/json?location=37.77492950,-122.41941550&timestamp=1331161200&key=AIzaSyBXrzfHmo4t8hhrTX1lVgXwfbuThSokjNY";
+		try
+		{
+			json = readJsonFromUrl(url);
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Error reading JSON from Google Time Zone API: "+t);
+			return null;
+		}
+
+		if (json!=null)
+		{
+			String timeZoneID= ((String)json.get("timeZoneId"));
+			return timeZoneID;
+		} 
+		else
+			return null;
+	}
+	
+	/**
+	 * Calculate virtual capture location based on GPS location in format {longitude, latitude} and GPS altitude
+	 * @param gpsLocation GPS location in format {longitude, altitude, latitude}
+	 * @param altitude Altitude
+	 * @param longitudeRef Longitude reference
+	 * @param latitudeRef Latitude reference
+	 * @param model Field model
+	 * @return Capture location associated with GPS location
+	 */
+	public PVector getCaptureLocationFromGPSAndAltitude( PVector gpsLocation, float altitude, String longitudeRef, String latitudeRef, WMV_Model model )                                  
+	{
+		PVector gpsWithAltitude = new PVector(gpsLocation.x, altitude, gpsLocation.z);
+		return getCaptureLocationFromGPSLocation(gpsWithAltitude, longitudeRef, latitudeRef, model);
+	}
+	
+	/**
+	 * Calculate virtual capture.location based on GPS location in format {longitude, altitude, latitude}
+	 * @param gpsLocation GPS location in format {longitude, altitude, latitude}
+	 * @param longitudeRef Longitude reference
+	 * @param latitudeRef Latitude reference
+	 * @param model Field model
+	 * @return Capture location associated with GPS location
+	 */
+	public PVector getCaptureLocationFromGPSLocation( PVector gpsLocation, String longitudeRef, String latitudeRef, WMV_Model model )                                  
+	{
+//		float newX = 0.f, newZ = 0.f, newY = 0.f;
+		PVector newCaptureLocation = new PVector(0,0,0);
+		
+		if(model.getState().highLongitude != -1000000 && model.getState().lowLongitude != 1000000 && model.getState().highLatitude != -1000000 && 
+				model.getState().lowLatitude != 1000000 && model.getState().highAltitude != -1000000 && model.getState().lowAltitude != 1000000)
+		{
+			if(model.getState().highLongitude != model.getState().lowLongitude && model.getState().highLatitude != model.getState().lowLatitude)
+			{
+				newCaptureLocation.x = model.utilities.mapValue( gpsLocation.x, model.getState().lowLongitude, 	// GPS longitude decreases from left to right
+						model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f 
+						* model.getState().fieldWidth); 					
+
+				newCaptureLocation.y = -model.utilities.mapValue( gpsLocation.y, model.getState().lowAltitude,  // Convert altitude feet to meters, negative to match P3D coordinate space
+						model.getState().highAltitude, 0.f, model.getState().fieldHeight); 	
+
+				newCaptureLocation.z = model.utilities.mapValue( gpsLocation.z, model.getState().lowLatitude,   // GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+						model.getState().highLatitude, 0.5f * model.getState().fieldLength, 
+						-0.5f * model.getState().fieldLength); 
+				
+				if(model.worldSettings.altitudeScaling)	
+					newCaptureLocation.y *= model.worldSettings.altitudeScalingFactor;
+				else
+					newCaptureLocation.y *= model.worldSettings.defaultAltitudeScalingFactor;
+				
+				if(model.debugSettings.gps && model.debugSettings.detailed)
+				{
+					System.out.println("Utilities.getCaptureLocationFromGPSLocation()... gpsLocation x:"+gpsLocation.x+" y:"+gpsLocation.y+" z:"+gpsLocation.z);
+					System.out.println("    High longitude:"+model.getState().highLongitude+"  Low longitude:"+model.getState().lowLongitude);
+					System.out.println("    High latitude:"+model.getState().highLatitude+"  Low latitude:"+model.getState().lowLatitude);
+					System.out.println(">>  newX:"+newCaptureLocation.x+" newY"+newCaptureLocation.y+" newZ"+newCaptureLocation.z);
+				}
+			}
+			else
+			{
+				System.out.println("Utilities.getCaptureLocationFromGPSAndAltitude()... ERROR high longitude:"+model.getState().highLongitude+" lowLongitude:"+model.getState().lowLongitude);
+				System.out.println("    High latitude:"+model.getState().highLatitude+" Low latitude:"+model.getState().lowLatitude);
+			}
+		}
+
+		return newCaptureLocation;
+	}
+	
+	/**
+	 * Get GPS location for a given point in a field						-- Need to account for Longitude Ref?
+	 * @param f Given field 
+	 * @param loc Given point
+	 * @return GPS location for given point in format {longitude, latitude}
+	 */
+	public PVector getGPSLocationFromCaptureLocation(WMV_Field f, PVector loc)			
+	{
+		if(loc != null)
+		{
+			WMV_Model m = f.getModel();
+			
+//			newX = PApplet.map(mState.gpsLocation.x, model.getState().lowLongitude, model.getState().highLongitude, -0.5f * model.getState().fieldWidth, 0.5f*model.getState().fieldWidth); 			// GPS longitude decreases from left to right
+//			newZ = PApplet.map(mState.gpsLocation.z, model.getState().lowLatitude, model.getState().highLatitude, 0.5f*model.getState().fieldLength, -0.5f * model.getState().fieldLength); 			// GPS latitude increases from bottom to top, reversed to match P3D coordinate space
+
+			float gpsX = mapValue( loc.x, -0.5f * m.getState().fieldWidth, 0.5f*m.getState().fieldWidth, m.getState().lowLongitude, m.getState().highLongitude ); 			// GPS longitude decreases from left to right
+			float gpsY = mapValue( loc.z, -0.5f * m.getState().fieldLength, 0.5f*m.getState().fieldLength, m.getState().highLatitude, m.getState().lowLatitude ); 			// GPS latitude increases from bottom to top
+
+			PVector gpsLoc = new PVector(gpsX, gpsY);
+			return gpsLoc;
+		}
+		else 
+		{
+			return null;
+		}
+	}
+	
+	/**
+	 * Get longitude reference from decimal longitude value
+	 * @param decimal Decimal longitude input
+	 * @return Longitude ref
+	 */
+	private String getLongitudeRefFromDecimal( float decimal )
+	{
+		String gpsLongitudeRef = "E";
+		if( (int)Math.signum(decimal) == -1 )
+			gpsLongitudeRef = "W";
+		return gpsLongitudeRef;
+	}
+	
+	/**
+	 * Get latitude reference from decimal latitude value
+	 * @param decimal Decimal latitude input
+	 * @return Latitude ref
+	 */
+	private String getLatitudeRefFromDecimal( float decimal )
+	{
+		String gpsLatitudeRef = "N";
+		if( (int)Math.signum(decimal) == -1 )
+			gpsLatitudeRef = "S";
+		return gpsLatitudeRef;
+	}
+
+	/**
+	 * Parse date time string in UTC format (Ex. 2016-05-01T23:55:33Z)
+	 * @param dateTimeStr Given date/time string
+	 * @param zoneIDStr Time zone ID string
+	 * @return ZonedDateTime object from date/time string
+	 */
+	private ZonedDateTime parseUTCDateTimeString(String dateTimeStr, String zoneIDStr)
+	{
+		String[] parts = dateTimeStr.split("T");
+		String dateStr = parts[0];			
+		String timeStr = parts[1];
+
+		parts = dateStr.split("-");
+		String yearStr, monthStr, dayStr;
+		yearStr = parts[0];
+		monthStr = parts[1];
+		dayStr = parts[2];
+		int year = Integer.parseInt(yearStr);
+		int month = Integer.parseInt(monthStr);
+		int day = Integer.parseInt(dayStr);
+
+		parts = timeStr.split("Z");					/* Parse Time */
+		timeStr = parts[0];
+
+		parts = timeStr.split(":");
+		String hourStr, minuteStr, secondStr;
+
+		hourStr = parts[0];
+		minuteStr = parts[1];
+		secondStr = parts[2];
+		int hour = Integer.parseInt(hourStr);
+		int minute = Integer.parseInt(minuteStr);
+		int second = Integer.parseInt(secondStr);
+
+        LocalDateTime ldt = LocalDateTime.of(year, month, day, hour, minute, second);
+        ZonedDateTime utc = ldt.atZone(ZoneId.of("UTC"));
+        ZonedDateTime zoned = utc.withZoneSameInstant(ZoneId.of(zoneIDStr));
+
+		return zoned;
+	}
+
+	/** 
+	 * Get approximate distance between two GPS points in meters 
+	 * @param startLatitude Latitude of first point
+	 * @param startLongitude Longitude of first point
+	 * @param endLatitude Latitude of second point
+	 * @param endLongitude Longitude of second point 
+	 * @return Distance in meters
+	 */
+	public float getGPSDistanceInMeters(double startLatitude, double startLongitude, double endLatitude, double endLongitude)
+	{
+		double R = 6371000;												// Radius of Earth (m.)
+
+		double φ1 = Math.toRadians(startLatitude);
+		double φ2 = Math.toRadians(endLatitude);
+		double Δφ = Math.toRadians(endLatitude-startLatitude);
+		double Δλ = Math.toRadians(endLongitude-startLongitude);
+
+		double a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		double d = R * c;
+
+		return (float)d;
+	}
+
+	/**
+	 * Convert ZonedDateTime object to EXIF metadata-style string
+	 * @param dateTime ZonedDateTime object
+	 * @return Date/time string
+	 */
+	public String getDateTimeAsString(ZonedDateTime dateTime)
+	{
+		String result = "";				// Format: 2016:05:28 17:13:39
+		String yearStr = String.valueOf(dateTime.getYear());
+		String monthStr = String.valueOf(dateTime.getMonthValue());
+		String dayStr = String.valueOf(dateTime.getDayOfMonth());
+		String hourStr = String.valueOf(dateTime.getHour());
+		String minuteStr = String.valueOf(dateTime.getMinute());
+		String secondStr = String.valueOf(dateTime.getSecond());
+		result = yearStr + ":" + monthStr + ":" + dayStr  + " " + hourStr + ":" + minuteStr + ":" + secondStr;
+//		System.out.println("getTimeStringFromDateTime()... result:"+result);
+		return result;
+	}
+	
+	public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException 
+	{
+
+		InputStream is = new URL(url).openStream();
+		try {
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			String jsonText = readAll(rd);
+			JSONObject json = new JSONObject(jsonText);
+			return json;
+		} 
+		finally {
+			is.close();
+		}
+	}
+	
+	/**
+	 * Read all lines in input buffer
+	 * @param rd Reader object
+	 * @return Single string output
+	 * @throws IOException 
+	 */
+	private static String readAll(Reader rd) throws IOException 
+	{
+		StringBuilder sb = new StringBuilder();
+		int cp;
+		while ((cp = rd.read()) != -1) {
+			sb.append((char) cp);
+		}
+		return sb.toString();
+	}
+	 
+	/**
+	 * Get altitude from a GPS location in format {longitude, altitude, latitude}
+	 * @param loc GPS location
+	 * @return Altitude
+	 */
+	public float getAltitude(PVector loc)
+	{
+		return loc.y;
+	}
+	
+	/**
+	 * Class for finding convex hull using Jarvis March Algorithm
+	 * Based on JarvisMarch class by UncleBob
+	 * @author davidgordon
+	 */
+	public class JarvisMarch 
+	{
+		JarvisPoints pts;
+		private JarvisPoints hullPoints = null;
+		private List<Float> hy;
+		private List<Float> hx;
+		private int startingPoint;
+		private double currentAngle;
+		private static final double MAX_ANGLE = 4;
+
+		/**
+		 * Constructor for JarvisMarch class
+		 * @param pts JarvisPoints for which to find border 
+		 */
+		JarvisMarch(JarvisPoints pts) {
+			this.pts = pts;
+		}
+
+		/**
+		 * The Jarvis March, i.e. Gift Wrap Algorithm. The next point is the point with the next largest angle. 
+		 * Imagine wrapping a string around a set of nails in a board.  Tie the string to the leftmost nail
+		 * and hold the string vertical.  Now move the string clockwise until you hit the next, then the next, then
+		 * the next.  When the string is vertical again, you will have found the hull.
+		 */
+		public int calculateHull() 
+		{
+			initializeHull();
+
+			startingPoint = getStartingPoint();
+			currentAngle = 0;
+
+			addToHull(startingPoint);
+			for (int p = getNextPoint(startingPoint); p != startingPoint; p = getNextPoint(p))
+				addToHull(p);
+
+			buildHullPoints();
+			return hullPoints.pts.length;
+		}
+
+		public int getStartingPoint() {
+			return pts.startingPoint();
+		}
+
+		private int getNextPoint(int p) {
+			double minAngle = MAX_ANGLE;
+			int minP = startingPoint;
+			for (int i = 0; i < pts.pts.length; i++) {
+				if (i != p) {
+					double thisAngle = relativeAngle(i, p);
+					if (thisAngle >= currentAngle && thisAngle <= minAngle) {
+						minP = i;
+						minAngle = thisAngle;
+					}
+				}
+			}
+			currentAngle = minAngle;
+			return minP;
+		}
+
+		/**
+		 * Find relative angle between two poins
+		 * @param i First point
+		 * @param p Second point
+		 * @return Relative angle
+		 */
+		private double relativeAngle(int i, int p) {
+			return pseudoAngle(pts.pts[i].x - pts.pts[p].x, pts.pts[i].y - pts.pts[p].y);
+		}
+
+		/**
+		 * Initialize points in hx and hy
+		 */
+		private void initializeHull() {
+			hx = new LinkedList<Float>();
+			hy = new LinkedList<Float>();
+		}
+
+		/**
+		 * Build points in convex hull
+		 */
+		private void buildHullPoints() {
+			float[] ax = new float[hx.size()];
+			float[] ay = new float[hy.size()];
+			int n = 0;
+			for (Iterator<Float> ix = hx.iterator(); ix.hasNext(); )
+				ax[n++] = ix.next();
+
+			n = 0;
+			for (Iterator<Float> iy = hy.iterator(); iy.hasNext(); )
+				ay[n++] = iy.next();
+
+			ArrayList<PVector> newPts = new ArrayList<PVector>();
+			for(int i=0; i<ax.length; i++)
+			{
+				newPts.add(new PVector(ax[i], ay[i]));
+			}
+			hullPoints = new JarvisPoints(newPts);
+		}
+
+		/**
+		 * Add point to hull
+		 * @param p Index of point to add
+		 */
+		private void addToHull(int p) {
+			hx.add(pts.pts[p].x);
+			hy.add(pts.pts[p].y);
+		}
+
+		/**
+		 * The PseudoAngle increases as the angle from vertical increases. Current implementation has the maximum pseudo angle < 4.  
+		 * The pseudo angle for each quadrant is 1. The algorithm finds where the angle intersects a square and measures the
+		 * perimeter of the square at that point
+		 */
+		double pseudoAngle(double dx, double dy) {
+			if (dx >= 0 && dy >= 0)
+				return quadrantOnePseudoAngle(dx, dy);
+			if (dx >= 0 && dy < 0)
+				return 1 + quadrantOnePseudoAngle(Math.abs(dy), dx);
+			if (dx < 0 && dy < 0)
+				return 2 + quadrantOnePseudoAngle(Math.abs(dx), Math.abs(dy));
+			if (dx < 0 && dy >= 0)
+				return 3 + quadrantOnePseudoAngle(dy, Math.abs(dx));
+			throw new Error("pseudoAngle()... Impossible");
+		}
+
+		double quadrantOnePseudoAngle(double dx, double dy) {
+			return dx / (dy + dx);
+		}
+
+		public JarvisPoints getHullPoints() {
+			return hullPoints;
+		}
+	}
+	
+	/**
+	 * Array of points for Jarvis March algorithm
+	 * Based on JarvisPoints class by UncleBob
+	 * @author davidgordon
+	 */
+	class JarvisPoints 
+	{
+		public PVector[] pts;
+		
+		public JarvisPoints(ArrayList<PVector> newPts) 
+		{
+			pts = new PVector[newPts.size()];
+			for(int i=0; i<newPts.size(); i++)
+				pts[i] = newPts.get(i);
+		}
+
+		// Find starting point, i.e. point with the lowest X with ties going to the lowest Y.  This guarantees next point over is clockwise.
+		int startingPoint() 
+		{
+			double minX = pts[0].x;
+			double minY = pts[0].y;
+			
+			int iMin = 0;
+			for (int i = 1; i < pts.length; i++) 
+			{
+				if (pts[i].x < minX) 
+				{
+					minX = pts[i].x;
+					iMin = i;
+				} 
+				else if (minX == pts[i].x && pts[i].y < minY) 
+				{
+					minY = pts[i].y;
+					iMin = i;
+				}
+			}
+			return iMin;
+		}
+	}
+
+	/**
+	 * Check Unix path	-- Debugging
+	 */
+	public void checkPath()
+	{
+		WMV_Command commandExecutor;
+		ArrayList<String> command = new ArrayList<String>();
+
+		command = new ArrayList<String>();				/* Create small_images directory */
+		command.add("env");
+//		command.add(programName);
+		commandExecutor = new WMV_Command("", command);
+		
+		try {
+			int result = commandExecutor.execute();
+			StringBuilder stderr = commandExecutor.getStandardError();
+			StringBuilder stdout = commandExecutor.getStandardOutput();
+
+			if (stderr.length() > 0 || result != 0)
+				System.out.println("Utilities.checkUnixPath() ... result:"+result+" stderr:"+stderr.toString());
+			
+			System.out.println("Utilities.checkUnixPath()... stdout: "+stdout.toString());
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Throwable t while checking Unix PATH:"+t);
+		}
+	}
+	
 	/**
 	 * @param c Calendar date
 	 * @return Sunset time between 0. and 1.
@@ -1972,7 +2037,7 @@ public class WMV_Utilities
 
 		float sunriseTime = srHour * 60 + srMin + srSec/60.f;		
 		float sunsetTime = ssHour * 60 + ssMin + ssSec/60.f;			
-		float dayLength = sunsetTime - sunriseTime;
+//		float dayLength = sunsetTime - sunriseTime;
 
 		float cTime = cHour * 60 + cMin + cSec/60.f;
 		//		float time = PApplet.constrain(mapValue(cTime, sunriseTime, sunsetTime, 0.f, 1.f), 0.f, 1.f); // Time of day when photo was taken		
@@ -2002,115 +2067,7 @@ public class WMV_Utilities
 		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
 	}
 
-	public String getCurrentTimeZoneID(float latitude, float longitude)
-	{
-		JSONObject json;
-		String start = "https://maps.googleapis.com/maps/api/timezone/json?location=";
-		String end = "&timestamp=1331161200&key=AIzaSyBXrzfHmo4t8hhrTX1lVgXwfbuThSokjNY";
-		String url = start+String.valueOf(latitude)+","+String.valueOf(longitude)+end;
-//		String url = "https://maps.googleapis.com/maps/api/timezone/json?location=37.77492950,-122.41941550&timestamp=1331161200&key=AIzaSyBXrzfHmo4t8hhrTX1lVgXwfbuThSokjNY";
-		try
-		{
-			json = readJsonFromUrl(url);
-		}
-		catch(Throwable t)
-		{
-			System.out.println("Error reading JSON from Google Time Zone API: "+t);
-			return null;
-		}
 
-		if (json!=null)
-		{
-			String timeZoneID= ((String)json.get("timeZoneId"));
-			return timeZoneID;
-		} 
-		else
-			return null;
-	}
-	
-	/**
-	 * Convert ZonedDateTime object to EXIF metadata-style string
-	 * @param dateTime ZonedDateTime object
-	 * @return Date/time string
-	 */
-	public String getDateTimeAsString(ZonedDateTime dateTime)
-	{
-		String result = "";				// Format: 2016:05:28 17:13:39
-		String yearStr = String.valueOf(dateTime.getYear());
-		String monthStr = String.valueOf(dateTime.getMonthValue());
-		String dayStr = String.valueOf(dateTime.getDayOfMonth());
-		String hourStr = String.valueOf(dateTime.getHour());
-		String minuteStr = String.valueOf(dateTime.getMinute());
-		String secondStr = String.valueOf(dateTime.getSecond());
-		result = yearStr + ":" + monthStr + ":" + dayStr  + " " + hourStr + ":" + minuteStr + ":" + secondStr;
-//		System.out.println("getTimeStringFromDateTime()... result:"+result);
-		return result;
-	}
-	
-	public static JSONObject readJsonFromUrl(String url) throws IOException, JSONException 
-	{
-
-		InputStream is = new URL(url).openStream();
-		try {
-			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-			String jsonText = readAll(rd);
-			JSONObject json = new JSONObject(jsonText);
-			return json;
-		} 
-		finally {
-			is.close();
-		}
-	}
-	
-	/**
-	 * Read all lines in input buffer
-	 * @param rd Reader object
-	 * @return Single string output
-	 * @throws IOException 
-	 */
-	private static String readAll(Reader rd) throws IOException 
-	{
-		StringBuilder sb = new StringBuilder();
-		int cp;
-		while ((cp = rd.read()) != -1) {
-			sb.append((char) cp);
-		}
-		return sb.toString();
-	}
-	 
-	public float getAltitude(PVector loc)
-	{
-		return loc.y;
-	}
-	
-	/**
-	 * Check Unix path	-- Debugging
-	 */
-	public void checkPath()
-	{
-		WMV_Command commandExecutor;
-		ArrayList<String> command = new ArrayList<String>();
-
-		command = new ArrayList<String>();				/* Create small_images directory */
-		command.add("env");
-//		command.add(programName);
-		commandExecutor = new WMV_Command("", command);
-		
-		try {
-			int result = commandExecutor.execute();
-			StringBuilder stderr = commandExecutor.getStandardError();
-			StringBuilder stdout = commandExecutor.getStandardOutput();
-
-			if (stderr.length() > 0 || result != 0)
-				System.out.println("Utilities.checkUnixPath() ... result:"+result+" stderr:"+stderr.toString());
-			
-			System.out.println("Utilities.checkUnixPath()... stdout: "+stdout.toString());
-		}
-		catch(Throwable t)
-		{
-			System.out.println("Throwable t while checking Unix PATH:"+t);
-		}
-	}
 	
 //	 private PImage getDesaturated(PImage in, float amt) 
 //	 {

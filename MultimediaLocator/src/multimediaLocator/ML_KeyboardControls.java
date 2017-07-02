@@ -72,7 +72,7 @@ public class ML_KeyboardControls
 		}
 
 		if( key == '/' )
-			ml.world.saveCurrentSimulationState();
+			ml.world.saveCurrentFieldState();
 
 		if( key == 't' && !input.optionKey )
 		{
@@ -465,9 +465,9 @@ public class ML_KeyboardControls
 		if (key == 'S')						// Save all fields
 		{
 			if(ml.world.getFields().size() > 1)
-				ml.world.saveAllSimulationStates();
+				ml.world.saveLibrary();
 			else
-				ml.world.saveCurrentSimulationState();
+				ml.world.saveCurrentFieldState();
 		}
 
 		if (key == 'µ')		// opt + m
@@ -1296,7 +1296,7 @@ public class ML_KeyboardControls
 			if(!ml.display.window.showNavigationWindow)
 				ml.display.window.openNavigationWindow();
 			else
-				ml.display.window.closeNavigationWindow();
+				ml.display.window.hideNavigationWindow();
 		}
 
 		if (key == '@')
@@ -1304,7 +1304,7 @@ public class ML_KeyboardControls
 			if(!ml.display.window.showMediaWindow)
 				ml.display.window.openMediaWindow();
 			else
-				ml.display.window.closeMediaWindow();
+				ml.display.window.hideMediaWindow();
 		}
 
 		if (key == '#') 
@@ -1312,7 +1312,7 @@ public class ML_KeyboardControls
 			if(!ml.display.window.showTimeWindow)
 				ml.display.window.openTimeWindow();
 			else
-				ml.display.window.closeTimeWindow();
+				ml.display.window.hideTimeWindow();
 		}
 
 		if (key == '$') 
@@ -1320,7 +1320,7 @@ public class ML_KeyboardControls
 			if(!ml.display.window.showLibraryViewWindow)
 				ml.display.window.openLibraryViewWindow();
 			else
-				ml.display.window.closeLibraryViewWindow();
+				ml.display.window.hideLibraryViewWindow();
 		}
 
 		if (key == '^') 
@@ -1328,7 +1328,7 @@ public class ML_KeyboardControls
 			if(!ml.display.window.showHelpWindow)
 				ml.display.window.openHelpWindow();
 			else
-				ml.display.window.closeHelpWindow();
+				ml.display.window.hideHelpWindow();
 		}
 
 		if(display.getDisplayView() < 2)				/* World and Map View Controls */

@@ -31,7 +31,9 @@ public class ML_Window
 	
 	/* Windows */
 	public boolean compressTallWindows = false;
-	
+	private int lastWindowHiddenFrame;						// Frame when last window was hidden
+	private final int closeWindowWaitTime = 180;			// Time to wait before closing hidden windows
+
 	public GWindow mainMenu, navigationWindow, mediaWindow, libraryViewWindow,  helpWindow, 
 				   mapWindow, timeWindow;
 	public GWindow startupWindow, createLibraryWindow, listItemWindow, textEntryWindow;
@@ -233,7 +235,7 @@ public class ML_Window
 	private WMV_World world;			
 	
 	/**
-	 * Constructor for secondary window handler 
+	 * Constructor for window handler 
 	 * @param parent Parent world
 	 * @param newDisplay Parent display object
 	 */
@@ -243,7 +245,6 @@ public class ML_Window
 		display = newDisplay;
 		utilities = new WMV_Utilities();
 		
-//		private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 880;
 		mainMenuHeight = mediumWindowHeight - 115;
 		startupWindowHeight = shortWindowHeight / 2;
 		createLibraryWindowHeight = shortWindowHeight + 60;
@@ -1882,7 +1883,7 @@ public class ML_Window
 		
 		startupWindow.addData(new ML_WinData());
 		startupWindow.addDrawHandler(this, "libraryWindowDraw");
-		startupWindow.addMouseHandler(this, "libraryWindowMouse");
+//		startupWindow.addMouseHandler(this, "libraryWindowMouse");
 		startupWindow.addKeyHandler(world.ml, "libraryWindowKey");
 		startupWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
@@ -2103,6 +2104,10 @@ public class ML_Window
 		setupTextEntryWindow = false;
 	}
 
+	/**
+	 * Handle window with lost focus
+	 * @param windowTitle Window title
+	 */
 	public void handleWindowLostFocus(String windowTitle)
 	{
 		switch(windowTitle)
@@ -2120,7 +2125,7 @@ public class ML_Window
 				hideTimeWindow();
 				break;
 			case "Library":
-				hideLibraryWindow();
+				hideLibraryViewWindow();
 				break;
 			case "Help":
 				hideHelpWindow();
@@ -2128,6 +2133,28 @@ public class ML_Window
 		}
 	}
 	
+	/**
+	 * Update secondary windows
+	 */
+	public void update()
+	{
+//		if(world.ml.frameCount % closeWindowWaitTime == 0)							/* Close hidden windows after ~3 seconds */
+		if(world.ml.frameCount - lastWindowHiddenFrame > closeWindowWaitTime)		/* Close hidden window(s) after a few seconds */
+		{
+			if(setupMainMenu && !showMainMenu)
+				closeMainMenu();
+			if(setupNavigationWindow && !showNavigationWindow)
+				closeNavigationWindow();
+			if(setupMediaWindow && !showMediaWindow)
+				closeMediaWindow();
+			if(setupTimeWindow && !showTimeWindow)
+				closeTimeWindow();
+			if(setupLibraryViewWindow && !showLibraryViewWindow)
+				closeLibraryViewWindow();
+			if(setupHelpWindow && !showHelpWindow)
+				closeHelpWindow();
+		}
+	}
 	
 	/**
 	 * Handles drawing to the ML Window
@@ -2201,28 +2228,9 @@ public class ML_Window
 	 * @param data the data for the GWindow being used
 	 * @param event the mouse event
 	 */
-	public void libraryWindowMouse(PApplet applet, GWinData data, MouseEvent event) {
-//		ML_WinData data2 = (ML_WinData)data;
-//		switch(event.getAction()) {
-//
-//		case MouseEvent.PRESS:
-//			data2.sx = data2.ex = applet.mouseX;
-//			data2.sy = data2.ey = applet.mouseY;
-//			data2.done = false;
-////			System.out.println("Mouse pressed");
-//			break;
-//		case MouseEvent.RELEASE:
-//			data2.ex = applet.mouseX;
-//			data2.ey = applet.mouseY;
-//			data2.done = true;
-////			System.out.println("Mouse released:"+data.toString());
-//			break;
-//		case MouseEvent.DRAG:
-//			data2.ex = applet.mouseX;
-//			data2.ey = applet.mouseY;
-////			System.out.println("Mouse dragged");
-//			break;
-//		}
+	public void libraryWindowMouse(PApplet applet, GWinData data, MouseEvent event) 
+	{
+	
 	}
 	
 	/**
@@ -2922,6 +2930,7 @@ public class ML_Window
 	{
 		showMainMenu = false;
 		mainMenu.setVisible(false);
+		lastWindowHiddenFrame = world.ml.frameCount;
 	} 
 	public void closeMainMenu()
 	{
@@ -2941,6 +2950,7 @@ public class ML_Window
 		showNavigationWindow = false;
 		if(setupNavigationWindow)
 			navigationWindow.setVisible(false);
+		lastWindowHiddenFrame = world.ml.frameCount;
 	} 
 	public void closeNavigationWindow()
 	{
@@ -2960,6 +2970,7 @@ public class ML_Window
 		showMediaWindow = false;
 		if(setupMediaWindow)
 			mediaWindow.setVisible(false);
+		lastWindowHiddenFrame = world.ml.frameCount;
 	}
 	public void closeMediaWindow()
 	{
@@ -2974,11 +2985,12 @@ public class ML_Window
 			setupMediaWindow = false;
 		}
 	} 
-	public void hideStatisticsWindow()
+	public void hideLibraryViewWindow()
 	{
 		showLibraryViewWindow = false;
 		if(setupLibraryViewWindow)
 			libraryViewWindow.setVisible(false);
+		lastWindowHiddenFrame = world.ml.frameCount;
 	} 
 	public void closeLibraryViewWindow()
 	{
@@ -2998,6 +3010,7 @@ public class ML_Window
 		showHelpWindow = false;
 		if(setupHelpWindow)
 			helpWindow.setVisible(false);
+		lastWindowHiddenFrame = world.ml.frameCount;
 	}
 	public void closeHelpWindow()
 	{
@@ -3023,21 +3036,34 @@ public class ML_Window
 			openNavigationWindow();
 		}
 	}
+	
+	/**
+	 * Hide all windows
+	 */
+	public void hideAllWindows()
+	{
+		hideMainMenu();
+		hideNavigationWindow();
+		hideMediaWindow();
+		hideLibraryViewWindow();
+		hideHelpWindow();
+	}
+	
 	/**
 	 * Close all windows
 	 */
-	public void closeWindows()
+	public void closeAllWindows()
 	{
 		closeMainMenu();
 		closeNavigationWindow();
 		closeMediaWindow();
-		closeLibraryWindow();
+		closeLibraryViewWindow();
 		closeHelpWindow();
 	}
 	
 	/**
-	 * Get location of a window
-	 * @param applet PApplet of the window
+	 * Get location of specified window
+	 * @param applet PApplet of window to get location for
 	 * @return Window location 
 	 */
 	private PVector getLocation(PApplet applet) {
@@ -3141,7 +3167,7 @@ public class ML_Window
 		if(showMediaWindow)
 			hideMediaWindow();
 		if(showLibraryViewWindow)
-			hideStatisticsWindow();
+			hideLibraryViewWindow();
 		if(showHelpWindow)
 			hideHelpWindow();
 //		if(showMapWindow)

@@ -1081,8 +1081,6 @@ public class ML_Display
 			ml.strokeWeight(10);
 			ml.point(mouseLoc.x, mouseLoc.y, 0);						// Show mouse adjusted location for debugging
 			endDisplayHUD();
-
-//			System.out.println("Display.updateTimelineMouse()... Mouse 2D Location: x:"+mouseLoc.x+" y:"+mouseLoc.y+" original x:"+ml.mouseX+" y:"+ml.mouseY);
 		}
 		if(selectableTimeSegments != null)
 		{
@@ -1895,10 +1893,14 @@ public class ML_Display
 				if(c.getState().sounds.size() > 0)
 					ml.text("     Sounds: "+ c.getState().sounds.size(), x, y += hudLineWidthWide, 0);
 				ml.text("   Total Count: "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
-				ml.text("   Location: "+ c.getLocation(), x, y += hudLineWidthWide, 0);
-				ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation())), x, y += hudLineWidth, 0);
+				ml.text("   Sub-Clusters: "+ c.segments.size(), x, y += hudLineWidth, 0);
 				ml.text(" ", x, y += hudLineWidth, 0);
-				ml.text("   Media Segments: "+ c.segments.size(), x, y += hudLineWidth, 0);
+				PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, c.getLocation());
+				gpsLoc.x = utilities.round(gpsLoc.x, 4);
+				gpsLoc.y = utilities.round(gpsLoc.y, 4);
+				ml.text("   GPS Location: Longitude "+ gpsLoc.x+", Latitude "+gpsLoc.y+"", x, y += hudLineWidthWide, 0);
+//				ml.text("   Location: "+ c.getLocation(), x, y += hudLineWidthWide, 0);
+				ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation()))+" m.", x, y += hudLineWidth, 0);
 	
 //				if(p.viewer.getAttractorClusterID() != -1)
 //				{
@@ -1915,9 +1917,9 @@ public class ML_Display
 				drawClusterImages(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 				ml.popMatrix();
 				
+//				map2D.displaySmallBasicMap(p);
 				endDisplayHUD();
 				
-//				map2D.displaySmallBasicMap(p);
 				break;
 		}
 	}

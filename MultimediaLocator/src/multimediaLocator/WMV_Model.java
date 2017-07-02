@@ -59,8 +59,8 @@ public class WMV_Model
 
 			if(state.validMedia > 1)
 			{
-				state.fieldWidth = utilities.gpsToMeters(midLatitude, state.highLongitude, midLatitude, state.lowLongitude);
-				state.fieldLength = utilities.gpsToMeters(state.highLatitude, midLongitude, state.lowLatitude, midLongitude);
+				state.fieldWidth = utilities.getGPSDistanceInMeters(midLatitude, state.highLongitude, midLatitude, state.lowLongitude);
+				state.fieldLength = utilities.getGPSDistanceInMeters(state.highLatitude, midLongitude, state.lowLatitude, midLongitude);
 				state.fieldHeight = state.highAltitude - state.lowAltitude;					
 			}
 			else

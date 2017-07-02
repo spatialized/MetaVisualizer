@@ -208,11 +208,11 @@ public class ML_Input
 					ml.world.viewer.chooseFieldDialog();
 					break;
 				case "SaveWorld":
-					if(ml.world.getFields().size() > 1) ml.world.saveAllSimulationStates();
-					else ml.world.saveCurrentSimulationState();
+					if(ml.world.getFields().size() > 1) ml.world.saveLibrary();
+					else ml.world.saveCurrentFieldState();
 					break;
 				case "SaveField":
-					ml.world.saveCurrentSimulationState();
+					ml.world.saveCurrentFieldState();
 					break;
 				
 				/* Library */

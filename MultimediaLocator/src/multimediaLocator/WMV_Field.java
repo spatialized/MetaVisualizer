@@ -17,7 +17,7 @@ import processing.data.IntList;
 import processing.video.Movie;
 
 /**************************************************
- * Multimedia environment of a particular geographical area
+ * Media environment covering a small to medium sized geographical area 
  * @author davidgordon
  */
 public class WMV_Field 
@@ -62,7 +62,7 @@ public class WMV_Field
 	public List<Integer> audibleSounds;				// Currently audible sounds
 
 	/**
-	 * Constructor for media field
+	 * Constructor for media environment
 	 * @param newWorldSettings New world settings
 	 * @param newWorldState New world state
 	 * @param newViewerSettings New viewer settings
@@ -3032,7 +3032,7 @@ public class WMV_Field
 	{
 		WMV_Cluster c = clusters.get(clusterID);
 		
-		PVector gpsLoc = utilities.getGPSLocation(this, c.getLocation());
+		PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(this, c.getLocation());
 		float altitude = utilities.getAltitude(c.getLocation());
 		WMV_Waypoint result = new WMV_Waypoint(c.getID(), c.getLocation(), gpsLoc, altitude, null);			// -- Should set to center time instead of null!!
 		return result;
@@ -4843,14 +4843,14 @@ public class WMV_Field
 
 		for(WMV_Image i : images)
 		{
-			PVector iGPSLoc = utilities.getGPSLocation(this, i.getLocation());
+			PVector iGPSLoc = utilities.getGPSLocationFromCaptureLocation(this, i.getLocation());
 			points.add(new PVector(iGPSLoc.x, iGPSLoc.y));
 		}
 		for(WMV_Panorama n : panoramas)
 		{
 			if(n.getLocation() != null)
 			{
-				PVector pGPSLoc = utilities.getGPSLocation(this, n.getLocation());
+				PVector pGPSLoc = utilities.getGPSLocationFromCaptureLocation(this, n.getLocation());
 				points.add(new PVector(pGPSLoc.x, pGPSLoc.y));
 			}
 			else
@@ -4860,7 +4860,7 @@ public class WMV_Field
 					System.out.println("Fixed panorama #"+n.getID()+" missing location error...");
 
 					n.setLocation( n.getCaptureLocation() );
-					PVector pGPSLoc = utilities.getGPSLocation(this, n.getLocation());
+					PVector pGPSLoc = utilities.getGPSLocationFromCaptureLocation(this, n.getLocation());
 					points.add(new PVector(pGPSLoc.x, pGPSLoc.y));
 				}
 				else
@@ -4869,12 +4869,12 @@ public class WMV_Field
 		}
 		for(WMV_Video v : videos)
 		{
-			PVector vGPSLoc = utilities.getGPSLocation(this, v.getLocation());
+			PVector vGPSLoc = utilities.getGPSLocationFromCaptureLocation(this, v.getLocation());
 			points.add(new PVector(vGPSLoc.x, vGPSLoc.y));
 		}
 		for(WMV_Sound s : sounds)
 		{
-			PVector sGPSLoc = utilities.getGPSLocation(this, s.getLocation());
+			PVector sGPSLoc = utilities.getGPSLocationFromCaptureLocation(this, s.getLocation());
 			if(sGPSLoc != null)
 				points.add(new PVector(sGPSLoc.x, sGPSLoc.y));
 			else

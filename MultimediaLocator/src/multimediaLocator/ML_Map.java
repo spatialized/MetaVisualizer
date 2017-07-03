@@ -40,8 +40,8 @@ public class ML_Map
 	private List<Location> fieldMarkerCenters, allClusterLocations;
 	
 	private EventDispatcher eventDispatcher; // plainMapEventDispatcher;
-	private MarkerManager<Marker> satelliteMarkerManager; //, osmMarkerManager, smallMarkerManager, largeMarkerManager;
-	public MarkerManager<Marker> gpsMarkerManager; 
+//	private MarkerManager<Marker> satelliteMarkerManager; //, osmMarkerManager, smallMarkerManager, largeMarkerManager;
+//	public MarkerManager<Marker> gpsMarkerManager; 
 	private MultiMarker allClustersMarker;
 	private SimplePointMarker viewerMarker;		//, plainMapViewerMarker;
 	private SimpleLinesMarker gpsTrackMarker;
@@ -79,13 +79,18 @@ public class ML_Map
 	
 //	private final float zoomMapWidth = 500.f, zoomMapHeight = 500.f;
 
-	/* Fields Map */
+	/* World Map Mode */
 	PVector mapVectorOrigin, mapVectorVector;
 	private final float fieldSelectedHue = 20.f, fieldSelectedSaturation = 255.f, fieldSelectedBrightness = 255.f;
-	private final float gpsTrackHue = 125.f, gpsTrackSaturation = 115.f, gpsTrackBrightness = 235.f, gpsTrackAlpha = 185.f;
-	private final float clusterSaturation = 160.f, clusterBrightness = 185.f;
-	private final float fieldTransparency = 80.f;
-	private final float fieldHueRangeLow = 50.f, fieldHueRangeHigh = 160.f;
+	private final float fieldHueRangeLow = 45.f, fieldHueRangeHigh = 165.f;
+	private final float fieldTransparency = 135.f;
+
+	/* Field Map Mode */
+	private final float gpsTrackHue = 150.f, gpsTrackSaturation = 195.f, 
+						gpsTrackBrightness = 245.f, gpsTrackAlpha = 205.f;
+	
+	private final float clusterHue = 105.f, clusterSaturation = 160.f, clusterBrightness = 185.f, clusterTransparency = 145.f;
+	private final float clusterSelectedHue = 105.f, clusterSelectedBrightness = 255.f, clusterSelectedSaturation = 30.f;
 	
 	WMV_Utilities utilities;
 	ML_Display p;
@@ -117,8 +122,8 @@ public class ML_Map
 		hugePointSize = 0.0000039f * screenWidth;
 		viewerArrowPointSpacingFactor = 0.0033f * screenWidth;
 		
-		satelliteMarkerManager = new MarkerManager<Marker>();
-		gpsMarkerManager = new MarkerManager<Marker>();
+//		satelliteMarkerManager = new MarkerManager<Marker>();
+//		gpsMarkerManager = new MarkerManager<Marker>();
 		
 		blankTile = p.ml.getImageResource("blank.jpg");	// -- Move to constructor?
 	}
@@ -541,8 +546,13 @@ public class ML_Map
 				SimplePointMarker marker = new SimplePointMarker(new Location(gpsLoc.y, gpsLoc.x));
 				
 				marker.setId("Cluster_"+String.valueOf(c.getID()));
-				marker.setColor(world.ml.color(100.f, 165.f, 215.f, 225.f));			// Same color as time segments in Time View
-				marker.setHighlightColor(world.ml.color(170, 255, 255, 255.f));
+				marker.setColor(world.ml.color(clusterHue, clusterSaturation, clusterBrightness, clusterTransparency));			// Same color as time segments in Time View
+				marker.setHighlightColor(world.ml.color(clusterSelectedHue, clusterSelectedSaturation, clusterSelectedBrightness, clusterTransparency));
+//				if(selectedField == f.getID())
+//					clusterMarker.setColor(world.ml.color(hue, clusterSaturation, clusterBrightness, clusterTransparency));			
+//				else
+//					clusterMarker.setColor(world.ml.color(clusterSelectedHue, clusterSelectedSaturation, clusterSelectedBrightness, clusterTransparency));			
+
 				marker.setStrokeWeight(0);
 				marker.setDiameter((float)Math.sqrt(c.getMediaWeight()) * 3.f);
 //				System.out.println("	Cluster #"+c.getID()+" marker :"+"Cluster_"+String.valueOf(c.getID()));
@@ -553,8 +563,8 @@ public class ML_Map
 
 		for(SimplePointMarker marker : clusterMarkers)
 		{
-//			satellite.addMarkers(marker);
-			satelliteMarkerManager.addMarker(marker);
+			satellite.addMarkers(marker);
+//			satelliteMarkerManager.addMarker(marker);
 		}
 
 		world.ml.delay(mapDelay);
@@ -605,22 +615,23 @@ public class ML_Map
 	{
 		if(p.initializedMaps)
 		{
-			satelliteMarkerManager.disableDrawing();
-			satelliteMarkerManager.clearMarkers();
+			satellite.getDefaultMarkerManager().clearMarkers();
+//			satelliteMarkerManager.disableDrawing();
+//			satelliteMarkerManager.clearMarkers();
 //			satellite.removeMarkerManager(satelliteMarkerManager);
 
 //			satelliteMarkerManager = new MarkerManager<Marker>();
 		}
 		
-		if(gpsMarkerManager != null)
-		{
-			gpsMarkerManager.disableDrawing();
-			gpsMarkerManager.clearMarkers();
+//		if(gpsMarkerManager != null)
+//		{
+//			gpsMarkerManager.disableDrawing();
+//			gpsMarkerManager.clearMarkers();
 //			if(createdGPSMarker) 
 //				satellite.removeMarkerManager(gpsMarkerManager);
-			
+//			
 //			gpsMarkerManager = new MarkerManager<Marker>();
-		}
+//		}
 
 //		createViewerMarker(world);									// Viewer
 
@@ -646,8 +657,8 @@ public class ML_Map
 		
 		createViewerMarker(world);							// Viewer
 		
-		satellite.addMarkerManager(satelliteMarkerManager);
-		satelliteMarkerManager.enableDrawing();
+//		satellite.addMarkerManager(satelliteMarkerManager);
+//		satelliteMarkerManager.enableDrawing();
 		
 		world.ml.delay(mapDelay);
 	}
@@ -665,8 +676,8 @@ public class ML_Map
 		viewerMarker.setDiameter(viewerDiameter);
 		viewerMarker.setColor(p.ml.color(0, 0, 255, 255));
 
-		satelliteMarkerManager.addMarker(viewerMarker);					// CHANGED 7-2-17
-//		satellite.addMarker(viewerMarker);				
+//		satelliteMarkerManager.addMarker(viewerMarker);					// CHANGED 7-2-17
+		satellite.addMarker(viewerMarker);				
 		
 		p.ml.delay(mapDelay);
 	}
@@ -694,14 +705,15 @@ public class ML_Map
 			gpsTrackMarker = new SimpleLinesMarker(gpsPoints);
 			gpsTrackMarker.setColor(world.ml.color(gpsTrackHue, gpsTrackSaturation, gpsTrackBrightness, gpsTrackAlpha));
 			gpsTrackMarker.setStrokeColor(world.ml.color(gpsTrackHue, gpsTrackSaturation, gpsTrackBrightness, gpsTrackAlpha));
-			gpsTrackMarker.setStrokeWeight(2);
+			gpsTrackMarker.setStrokeWeight(3);
 			
-			gpsMarkerManager.addMarker(gpsTrackMarker);
+			satellite.addMarker(gpsTrackMarker);
+//			gpsMarkerManager.addMarker(gpsTrackMarker);
 			
-			System.out.println("Added GPS Marker Manager to Map");
-			satellite.addMarkerManager(gpsMarkerManager);
-			System.out.println("Will enable GPS Marker Manager drawing");
-			gpsMarkerManager.enableDrawing();
+//			System.out.println("Added GPS Marker Manager to Map");
+//			satellite.addMarkerManager(gpsMarkerManager);
+//			System.out.println("Will enable GPS Marker Manager drawing");
+//			gpsMarkerManager.enableDrawing();
 			
 			createdGPSMarker = true;
 
@@ -834,8 +846,8 @@ public class ML_Map
 					}
 					else
 					{
-						System.out.println("Map.updateMouse()... satellite marker list is NULL!");
-						System.out.println("   but satelliteMarkerManager.getMarkers().size: "+satelliteMarkerManager.getMarkers().size());
+//						System.out.println("Map.updateMouse()... satellite marker list is NULL!");
+//						System.out.println("   but satelliteMarkerManager.getMarkers().size: "+satelliteMarkerManager.getMarkers().size());
 					}
 				}
 			}
@@ -1009,8 +1021,8 @@ public class ML_Map
 
 		for(SimplePolygonMarker marker : fieldMarkers)
 		{
-//			satellite.addMarkers(marker);
-			satelliteMarkerManager.addMarker(marker);
+			satellite.addMarkers(marker);
+//			satelliteMarkerManager.addMarker(marker);
 		}
 		
 		world.ml.delay(mapDelay * 2);
@@ -1058,8 +1070,8 @@ public class ML_Map
 			allClustersMarker.setId("allClusters");
 
 			world.ml.delay(mapDelay);
-//			satellite.addMarkers(allClustersMarker);
-			satelliteMarkerManager.addMarker(allClustersMarker);
+			satellite.addMarkers(allClustersMarker);
+//			satelliteMarkerManager.addMarker(allClustersMarker);
 		}
 	}
 

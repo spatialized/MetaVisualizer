@@ -611,15 +611,12 @@ public class ML_KeyboardControls
 		if (key == '.')
 			ml.world.viewer.stop(true);
 
-		if (key == 'A') 
-			ml.display.map2D.panLeft();
-		if (key == 'D') 
-			ml.display.map2D.panRight();
-		if (key == 'S') 
-			ml.display.map2D.panDown();
-		if (key == 'W') 
-			ml.display.map2D.panUp();
-
+		if (key == 's') 
+			ml.display.map2D.zoomIn(ml.world);
+		
+		if (key == 'w') 
+			ml.display.map2D.zoomOut(ml.world);
+		
 		if (key == 'j') 
 			ml.world.viewer.moveToRandomCluster(true, false);				// Teleport to random cluster
 
@@ -644,16 +641,16 @@ public class ML_KeyboardControls
 		if (key == '}') 
 			ml.world.viewer.teleportToFieldOffset(1, true, false);
 
-		if (!input.optionKey && key == 's') 
+		if (!input.optionKey && key == 'S') 
 			ml.world.viewer.walkBackward();
 
-		if (!input.optionKey && key == 'w') 
+		if (!input.optionKey && key == 'W') 
 			ml.world.viewer.walkForward();
 
-		if (!input.optionKey && key == 'a') 
+		if (!input.optionKey && key == 'A') 
 			ml.world.viewer.sidestepLeft();
 
-		if (!input.optionKey && key == 'd') 
+		if (!input.optionKey && key == 'D') 
 			ml.world.viewer.sidestepRight();
 
 		if( key == 'l' )
@@ -695,17 +692,23 @@ public class ML_KeyboardControls
 
 		if (key == PApplet.CODED) 					
 		{
-			if (keyCode == PApplet.LEFT)
-				ml.world.viewer.rotateX(-1);
+			if (!input.shiftKey && keyCode == PApplet.LEFT)
+				ml.display.map2D.panLeft();
 
-			if (keyCode == PApplet.RIGHT) 
-				ml.world.viewer.rotateX(1);
+			if (!input.shiftKey && keyCode == PApplet.RIGHT) 
+				ml.display.map2D.panRight();
 
 			if (keyCode == PApplet.UP) 
-				ml.display.map2D.zoomOut(ml.world);
+				ml.display.map2D.panUp();
 				
 			if (keyCode == PApplet.DOWN) 
-				ml.display.map2D.zoomIn(ml.world);
+				ml.display.map2D.panDown();
+
+			if (input.shiftKey && keyCode == PApplet.LEFT)
+				ml.world.viewer.rotateX(-1);
+
+			if (input.shiftKey && keyCode == PApplet.RIGHT) 
+				ml.world.viewer.rotateX(1);
 		}
 	}
 	
@@ -1207,7 +1210,7 @@ public class ML_KeyboardControls
 				ml.display.window.hideHelpWindow();
 		}
 
-		if(display.getDisplayView() < 2)				/* World and Map View Controls */
+		if(display.getDisplayView() == 0)				/* World View Controls */
 		{
 			if (key == 'a') 
 				ml.world.viewer.stopMoveXTransition();
@@ -1217,10 +1220,6 @@ public class ML_KeyboardControls
 				ml.world.viewer.stopMoveZTransition();
 			if (key == 'w') 
 				ml.world.viewer.stopMoveZTransition();
-		}
-		
-		if(display.getDisplayView() == 0)				/* World View Controls */
-		{
 			if (key == 'e') 
 				ml.world.viewer.stopMoveYTransition();
 			if (key == 'c') 
@@ -1233,24 +1232,18 @@ public class ML_KeyboardControls
 		else if( display.getDisplayView() == 1 )		/* Map View Controls */
 		{
 			if (key == 'A') 
-				display.map2D.stopPanning();
+				ml.world.viewer.stopMoveXTransition();
 			if (key == 'D') 
-				display.map2D.stopPanning();
-			if (key == 'S') 
-				display.map2D.stopPanning();
+				ml.world.viewer.stopMoveXTransition();
+			if (key == 'S')
+				ml.world.viewer.stopMoveZTransition();
 			if (key == 'W') 
-				display.map2D.stopPanning();
-			if(display.map2D.isPanning())
-			{
-				if (key == 'a') 
-					display.map2D.stopPanning();
-				if (key == 'd') 
-					display.map2D.stopPanning();
-				if (key == 's') 
-					display.map2D.stopPanning();
-				if (key == 'w') 
-					display.map2D.stopPanning();
-			}
+				ml.world.viewer.stopMoveZTransition();
+
+			if (key == 'w') 
+				display.map2D.stopZooming();
+			if (key == 's') 
+				display.map2D.stopZooming();
 		}
 		
 		/* Coded Keys */
@@ -1269,14 +1262,22 @@ public class ML_KeyboardControls
 			}
 			else if( display.getDisplayView() == 1 )
 			{
+				if(display.map2D.isPanning())
+				{
+					if (keyCode == PApplet.LEFT) 
+						display.map2D.stopPanning();
+					if (keyCode == PApplet.RIGHT) 
+						display.map2D.stopPanning();
+					if (keyCode == PApplet.UP) 
+						display.map2D.stopPanning();
+					if (keyCode == PApplet.DOWN) 
+						display.map2D.stopPanning();
+				}
+
 				if (keyCode == PApplet.LEFT) 
 					ml.world.viewer.stopRotateXTransition();
 				if (keyCode == PApplet.RIGHT) 
 					ml.world.viewer.stopRotateXTransition();
-				if (keyCode == PApplet.UP) 
-					display.map2D.stopZooming();
-				if (keyCode == PApplet.DOWN) 
-					display.map2D.stopZooming();
 			}
 			else if(display.getDisplayView() == 2)
 			{

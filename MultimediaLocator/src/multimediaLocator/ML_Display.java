@@ -1126,10 +1126,12 @@ public class ML_Display
 		float offsetXFactor = 0.00009f * screenHeight;
 		float offsetYFactor = 0.00009f * screenWidth;
 		
-		offsetXFactor *= monitorOffsetXAdjustment;		// -- Added 7/2/17
+//		offsetXFactor *= monitorOffsetXAdjustment;		// -- Added 7/2/17
 		
 		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
 		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
+
+		offsetX *= monitorOffsetXAdjustment;			// -- Added 7/2/17
 
 		float newX = mouseX + offsetX;
 		float newY = mouseY + offsetY;
@@ -1976,7 +1978,7 @@ public class ML_Display
 						ml.text("   Videos: "+ c.getState().videos.size(), x, y += hudLineWidthWide, 0);
 					if(c.getState().sounds.size() > 0)
 						ml.text("     Sounds: "+ c.getState().sounds.size(), x, y += hudLineWidthWide, 0);
-					ml.text("   Total Count: "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
+					ml.text("   Total Media Count: "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
 					ml.text("   Sub-Clusters: "+ c.segments.size(), x, y += hudLineWidth, 0);
 					ml.text(" ", x, y += hudLineWidth, 0);
 					PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, c.getLocation());

@@ -307,161 +307,165 @@ public class ML_Input
 					}
 					break;
 	
-				/* Navigation */
-				case "OpenNavigationWindow":
-					if(!ml.display.window.showNavigationWindow)
-						ml.display.window.openNavigationWindow();
-					else
-						ml.display.window.closeNavigationWindow();
-					break;
-
-				case "NearestCluster":
-					ml.world.viewer.moveToNearestCluster(ml.world.viewer.getNavigationTeleport());
-					break;
-				case "RandomCluster":
-					ml.world.viewer.moveToRandomCluster(ml.world.viewer.getNavigationTeleport(), true);
-					break;
-				case "LastCluster":
-					ml.world.viewer.moveToLastCluster(ml.world.viewer.getNavigationTeleport());
-					break;
-					
-				case "NearestImage":
-					ml.world.viewer.moveToNearestClusterWithType(0, false, ml.world.viewer.getNavigationTeleport(), true);
-					break;
-				case "NearestPanorama":
-					ml.world.viewer.moveToNearestClusterWithType(1, false, ml.world.viewer.getNavigationTeleport(), true);
-					break;
-				case "NearestVideo":
-					ml.world.viewer.moveToNearestClusterWithType(2, false, ml.world.viewer.getNavigationTeleport(), true);
-					break;
-				case "NearestSound":
-					ml.world.viewer.moveToNearestClusterWithType(3, false, ml.world.viewer.getNavigationTeleport(), true);
-					break;
-					
-				case "NextField":
-					if(display.getDisplayView() == 1)
-						ml.world.viewer.teleportToFieldOffset(1, true, false);
-					else
-						ml.world.viewer.teleportToFieldOffset(1, true, true);
-					break;
-				case "PreviousField":
-					if(display.getDisplayView() == 1)
-						ml.world.viewer.teleportToFieldOffset(-1, true, false);
-					else
-						ml.world.viewer.teleportToFieldOffset(-1, true, true);
-					break;
-				
-				case "ZoomIn":
-					ml.world.viewer.stopZooming();
-					break;
-				case "ZoomOut":
-					ml.world.viewer.stopZooming();
-					break;
-
-				case "MoveForward":								// -- Disabled
-					ml.world.viewer.stopMoveZTransition();
-					break;
-				case "MoveBackward":							// -- Disabled
-					ml.world.viewer.stopMoveZTransition();
-					break;
-				case "MoveLeft":								// -- Disabled
-					ml.world.viewer.stopMoveXTransition();
-					break;
-				case "MoveRight":								// -- Disabled
-					ml.world.viewer.stopMoveXTransition();
-					break;
-					
-				case "StopViewer":
-					ml.world.viewer.stop(true);
-					ml.world.viewer.stopZooming();
-					break;
-
-				/* Model */
-				case "SubjectDistanceDown":
-					ml.world.getCurrentField().fadeObjectDistances(0.85f);
-					break;
-				case "SubjectDistanceUp":
-					ml.world.getCurrentField().fadeObjectDistances(1.176f);
-					break;
+					/* Navigation */
+					case "OpenNavigationWindow":
+						if(!ml.display.window.showNavigationWindow)
+							ml.display.window.openNavigationWindow();
+						else
+							ml.display.window.closeNavigationWindow();
+						break;
 	
-				/* Help */
-				case "OpenHelpWindow":
-					if(!ml.display.window.showHelpWindow)
-						ml.display.window.openHelpWindow();
-					else
-						ml.display.window.closeHelpWindow();
-					break;
-				case "CloseHelpWindow":
-					display.window.closeHelpWindow();
-					break;
-	
-				/* Time */
-				case "OpenTimeWindow":
-					if(!ml.display.window.showTimeWindow)
-						ml.display.window.openTimeWindow();
-					else
-						ml.display.window.closeTimeWindow();
-					break;
-				case "NextTime":
-					ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
-					break;
-				case "PreviousTime":
-					ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
-					break;
-	
-				case "ChooseGPSTrack":
-					ml.world.viewer.chooseGPSTrack();
-					break;
+					case "NearestCluster":
+						ml.world.viewer.moveToNearestCluster(ml.world.viewer.getNavigationTeleport());
+						break;
+					case "RandomCluster":
+						ml.world.viewer.moveToRandomCluster(ml.world.viewer.getNavigationTeleport(), true);
+						break;
+					case "LastCluster":
+						ml.world.viewer.moveToLastCluster(ml.world.viewer.getNavigationTeleport());
+						break;
+						
+					case "NearestImage":
+						ml.world.viewer.moveToNearestClusterWithType(0, false, ml.world.viewer.getNavigationTeleport(), true);
+						break;
+					case "NearestPanorama":
+						ml.world.viewer.moveToNearestClusterWithType(1, false, ml.world.viewer.getNavigationTeleport(), true);
+						break;
+					case "NearestVideo":
+						ml.world.viewer.moveToNearestClusterWithType(2, false, ml.world.viewer.getNavigationTeleport(), true);
+						break;
+					case "NearestSound":
+						ml.world.viewer.moveToNearestClusterWithType(3, false, ml.world.viewer.getNavigationTeleport(), true);
+						break;
+						
+					case "NextField":
+						if(display.getDisplayView() == 1)
+							ml.world.viewer.teleportToFieldOffset(1, true, false);
+						else
+							ml.world.viewer.teleportToFieldOffset(1, true, true);
+						break;
+					case "PreviousField":
+						if(display.getDisplayView() == 1)
+							ml.world.viewer.teleportToFieldOffset(-1, true, false);
+						else
+							ml.world.viewer.teleportToFieldOffset(-1, true, true);
+						break;
 					
-				/* Memory */
-				case "SaveLocation":
-					ml.world.viewer.addPlaceToMemory();
-					break;
-				case "ClearMemory":
-					ml.world.viewer.clearMemory();
-					break;
-				case "SetHome":
-					ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
-					break;
+					case "ZoomIn":
+						ml.world.viewer.stopZooming();
+						break;
+					case "ZoomOut":
+						ml.world.viewer.stopZooming();
+						break;
 	
-				/* Map */
-				case "SetMapView":
-					if(display.getDisplayView() != 1)
-						display.setDisplayView(ml.world, 1);
-					break;
-				case "PanUp":
-					if(ml.display.map2D.isPanning())
-						ml.display.map2D.stopPanning();
-					break;
-				case "PanLeft":
-					if(ml.display.map2D.isPanning())
-						ml.display.map2D.stopPanning();
-					break;
-				case "PanDown":
-					if(ml.display.map2D.isPanning())
-						ml.display.map2D.stopPanning();
-					break;
-				case "PanRight":
-					if(ml.display.map2D.isPanning())
-						ml.display.map2D.stopPanning();
-					break;
-				case "ZoomToViewer":
-					ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
-					break;
-				case "ZoomToField":
-//					if(ml.world.getFields().size() > 1)
-						ml.display.map2D.zoomToField(ml.world.getCurrentField(), true);
-//					else
-//						ml.display.map2D.zoomToWorld(true);
-					break;
-				case "ResetMapZoom":
-					ml.display.map2D.resetMapZoom(true);
-//					ml.display.map2D.zoomToWorld(true);
-					break;
-//				case "ZoomToSelected":
-//					break;
-				
-
+					case "MoveForward":								// -- Disabled
+						ml.world.viewer.stopMoveZTransition();
+						break;
+					case "MoveBackward":							// -- Disabled
+						ml.world.viewer.stopMoveZTransition();
+						break;
+					case "MoveLeft":								// -- Disabled
+						ml.world.viewer.stopMoveXTransition();
+						break;
+					case "MoveRight":								// -- Disabled
+						ml.world.viewer.stopMoveXTransition();
+						break;
+						
+					case "StopViewer":
+						ml.world.viewer.stop(true);
+						ml.world.viewer.stopZooming();
+						break;
+	
+					/* Model */
+					case "SubjectDistanceDown":
+						ml.world.getCurrentField().fadeObjectDistances(0.85f);
+						break;
+					case "SubjectDistanceUp":
+						ml.world.getCurrentField().fadeObjectDistances(1.176f);
+						break;
+		
+					/* Help */
+					case "OpenHelpWindow":
+						if(!ml.display.window.showHelpWindow)
+							ml.display.window.openHelpWindow();
+						else
+							ml.display.window.closeHelpWindow();
+						break;
+					case "CloseHelpWindow":
+						display.window.closeHelpWindow();
+						break;
+		
+					/* Time */
+					case "OpenTimeWindow":
+						if(!ml.display.window.showTimeWindow)
+							ml.display.window.openTimeWindow();
+						else
+							ml.display.window.closeTimeWindow();
+						break;
+					case "NextTime":
+						ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
+						break;
+					case "PreviousTime":
+						ml.world.viewer.moveToPreviousTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
+						break;
+		
+					case "ChooseGPSTrack":
+						ml.world.viewer.chooseGPSTrack();
+						break;
+						
+					/* Memory */
+					case "SaveLocation":
+						ml.world.viewer.addPlaceToMemory();
+						break;
+					case "ClearMemory":
+						ml.world.viewer.clearMemory();
+						break;
+					case "SetHome":
+						ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
+						break;
+		
+					/* Map */
+					case "SetMapView":
+						if(display.getDisplayView() != 1)
+							display.setDisplayView(ml.world, 1);
+						break;
+					case "PanUp":
+						if(ml.display.map2D.isPanning())
+							ml.display.map2D.stopPanning();
+						break;
+					case "PanLeft":
+						if(ml.display.map2D.isPanning())
+							ml.display.map2D.stopPanning();
+						break;
+					case "PanDown":
+						if(ml.display.map2D.isPanning())
+							ml.display.map2D.stopPanning();
+						break;
+					case "PanRight":
+						if(ml.display.map2D.isPanning())
+							ml.display.map2D.stopPanning();
+						break;
+					case "ZoomToViewer":
+						ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
+						break;
+					case "ZoomToField":
+	//					if(ml.world.getFields().size() > 1)
+							ml.display.map2D.zoomToField(ml.world.getCurrentField(), true);
+	//					else
+	//						ml.display.map2D.zoomToWorld(true);
+						break;
+					case "MapZoomIn":
+						ml.display.map2D.zoomIn(ml.world);
+						break;
+					case "ResetMapZoom":
+						ml.display.map2D.resetMapZoom(true);
+	//					ml.display.map2D.zoomToWorld(true);
+						break;
+					case "MapZoomOut":
+						ml.display.map2D.zoomOut(ml.world);
+						break;
+	//				case "ZoomToSelected":
+	//					break;
 					/* Media */
 					case "OpenMediaWindow":
 						if(!ml.display.window.showMediaWindow)

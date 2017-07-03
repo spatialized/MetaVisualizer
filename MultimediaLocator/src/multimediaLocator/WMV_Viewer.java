@@ -4559,7 +4559,7 @@ public class WMV_Viewer
 			}
 			if(p.ml.display.window.setupNavigationWindow)
 			{
-				System.out.println("Will enable chkbxPathFollowing... 1");
+//				System.out.println("Will enable chkbxPathFollowing... 1");
 				p.ml.display.window.chkbxPathFollowing.setEnabled(true);
 			}
 		}
@@ -4883,7 +4883,7 @@ public class WMV_Viewer
 		{
 			if(newFollowMode == 1)								// GPS Track
 			{
-				System.out.println("Will enable chkbxPathFollowing?"+ (getSelectedGPSTrackID() == -1)+" 2");
+//				System.out.println("Will enable chkbxPathFollowing?"+ (getSelectedGPSTrackID() == -1)+" 2");
 
 				if(getSelectedGPSTrackID() == -1)
 					p.ml.display.window.chkbxPathFollowing.setEnabled(false);	// Enable GPS Path Navigation if track is selected

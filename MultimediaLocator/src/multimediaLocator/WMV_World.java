@@ -70,7 +70,7 @@ public class WMV_World
 	public PImage blurMaskPanorama;																					// Panorama blur mask
 
 	/* Effects */
-	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
+//	public boolean drawForceVector = true;				// Show attraction vector on map (mostly for debugging)
 
 	/**
 	 * Constructor for virtual world
@@ -78,6 +78,33 @@ public class WMV_World
 	 */
 	public WMV_World(MultimediaLocator parent)
 	{
+//		public MultimediaLocator ml;						// Parent app
+//		private ArrayList<WMV_Field> fields;				// Virtual media environments 
+//		public WMV_Viewer viewer;							// Virtual viewer
+//		public WMV_WorldSettings settings;					// World settings
+//		public WMV_WorldState state;						// World state
+//		public WMV_Utilities utilities;						// Utility class
+//		public ML_Input input;								// Keyboard input handler
+
+//		/* File System */
+//		public String outputFolder;
+//		public boolean outputFolderSelected = false;
+//
+//		/* Masks */
+//		public PImage blurMaskLeftTop, blurMaskLeftCenter, blurMaskLeftBottom, blurMaskLeftBoth;  						// Image blur masks
+//		public PImage blurMaskCenterTop, blurMaskCenterCenter, blurMaskCenterBottom, blurMaskCenterBoth;
+//		public PImage blurMaskRightTop, blurMaskRightCenter, blurMaskRightBottom, blurMaskRightBoth;
+//		public PImage blurMaskBothTop, blurMaskBothCenter, blurMaskBothBottom, blurMaskBothBoth;
+//		public PImage vertBlurMaskLeftTop, vertBlurMaskLeftCenter, vertBlurMaskLeftBottom, vertBlurMaskLeftBoth;  		// Vertical image blur masks
+//		public PImage vertBlurMaskCenterTop, vertBlurMaskCenterCenter, vertBlurMaskCenterBottom, vertBlurMaskCenterBoth;
+//		public PImage vertBlurMaskRightTop, vertBlurMaskRightCenter, vertBlurMaskRightBottom, vertBlurMaskRightBoth;
+//		public PImage vertBlurMaskBothTop, vertBlurMaskBothCenter, vertBlurMaskBothBottom, vertBlurMaskBothBoth;
+//		public PImage videoBlurMaskLeftTop, videoBlurMaskLeftCenter, videoBlurMaskLeftBottom, videoBlurMaskLeftBoth;  	// Video blur masks
+//		public PImage videoBlurMaskCenterTop, videoBlurMaskCenterCenter, videoBlurMaskCenterBottom, videoBlurMaskCenterBoth;
+//		public PImage videoBlurMaskRightTop, videoBlurMaskRightCenter, videoBlurMaskRightBottom, videoBlurMaskRightBoth;
+//		public PImage videoBlurMaskBothTop, videoBlurMaskBothCenter, videoBlurMaskBothBottom, videoBlurMaskBothBoth;
+//		public PImage blurMaskPanorama;																					// Panorama blur mask
+
 		ml = parent;
 		
 		/* Create main classes */
@@ -114,6 +141,7 @@ public class WMV_World
 		if(state.fadingAlpha)  updateFadingAlpha();						/* Update global alpha fading */
 		if(state.fadingTerrainAlpha)  updateFadingTerrainAlpha();		/* Update grid fading */
 		updateTimeBehavior();											/* Update time cycle */
+		if(ml.frameCount % 120 == 0) checkForOrphanedMedia();			/* Check for orphaned media */
 		ml.display.window.update();										/* Update windows */
 //		if(viewer.getSettings().mouseNavigation)						/* Update mouse navigation   -- Disabled */
 //		input.updateMouseNavigation(viewer, ml.mouseX, ml.mouseY, ml.frameCount);
@@ -214,6 +242,37 @@ public class WMV_World
 		{
 			if(ml.display.window.setupTimeWindow)
 				ml.display.window.sdrCurrentTime.setValue(getCurrentTimePoint());
+		}
+	}
+	
+	/**
+	 * Check for videos and sounds playing but invisible
+	 */
+	private void checkForOrphanedMedia()
+	{
+		for(WMV_Video v : getCurrentField().getVideos())
+		{
+			if(v.isPlaying())
+			{
+				if(!v.isVisible())
+				{
+					v.stopVideo();
+					if(ml.debug.ml || ml.debug.video)
+						ml.systemMessage("Stopped video #"+v.getID()+" which was playing but out of range...");
+				}
+			}
+		}
+		for(WMV_Sound s : getCurrentField().getSounds())
+		{
+			if(s.isPlaying())
+			{
+				if(!s.isVisible())
+				{
+					s.stopSound();
+					if(ml.debug.ml || ml.debug.video)
+						ml.systemMessage("Stopped sound #"+s.getID()+" which was playing but out of range...");
+				}
+			}
 		}
 	}
 	
@@ -396,7 +455,7 @@ public class WMV_World
 		viewer.enterField( fieldIdx );								// Enter field
 		
 		if(f.getState().entryLocation.initialized())
-			viewer.moveToWaypoint(f.getState().entryLocation, false);
+			viewer.moveToWaypoint(f.getState().entryLocation, false, true);
 		else
 			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
 			
@@ -526,46 +585,41 @@ public class WMV_World
 	 */
 	void reset(boolean system)
 	{
+
+		/* CONSTRUCTOR */
+//		ml = parent;
+//		
+//		/* Create main classes */
+//		settings = new WMV_WorldSettings();
+//		utilities = new WMV_Utilities();
+//		
+//		state = new WMV_WorldState();
+//		viewer = new WMV_Viewer(this, settings, state, ml.debug);			// Initialize navigation + viewer
+//		
+//		/* Setup interpolation variables */
+//		timeFadeMap = new ScaleMap(0., 1., 0., 1.);				// Fading with time interpolation
+//		timeFadeMap.setMapFunction(circularEaseOut);
+//		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
+//		distanceFadeMap.setMapFunction(circularEaseIn);
+
+//		public MultimediaLocator ml;						// Parent app
+//		private ArrayList<WMV_Field> fields;				// Virtual media environments 
+//		public WMV_Viewer viewer;							// Virtual viewer
+//		public WMV_WorldSettings settings;					// World settings
+//		public WMV_WorldState state;						// World state
+//		public WMV_Utilities utilities;						// Utility class
+
 		if(ml.debug.world) ml.systemMessage("World.reset()... Resetting world...");
-		settings.reset();
 		
-		/* Clustering Modes */
-		state.hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
+		outputFolder = null;
+		outputFolderSelected = false;
 
-		/* Time */
-		state.timeFading = false;					// Does time affect media brightness? 
-		state.paused = false;						// Time is paused
+		settings.reset();									// Reset world settings
+		state.reset();										// Reset world state
 
-		state.currentTime = 0;						// Time units since start of time cycle (day / month / year)
-		state.currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
-
-		/* Graphics */
-		state.loadedMasks = false;
-		state.hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera
-
-		state.alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
-		state.alpha = 195.f;						// Transparency
-		state.beginFadingAlpha = false;
-		state.fadingAlpha = false;
-		state.fadingAlphaStartFrame = 0;
-		state.fadingAlphaEndFrame = 0; 
-		state.fadingAlphaLength = 20;	
-
-		state.useBlurMasks = true;						// Blur image edges
-		drawForceVector = true;						// Show attraction vector on map (mostly for debugging)
-		
-		/* Video */
-		state.showModel = false;					// Display model 
-		state.showMediaToCluster = false;			// Draw line from each media point to cluster
-		state.showCaptureToMedia = false;			// Draw line from each media point to its capture location
-		state.showCaptureToCluster = false;			// Draw line from each media capture location to associated cluster
-
-		/* Clusters */
-		state.mergeClusters = true;					// Merge nearby clusters?
-		state.lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
-
-		/* Create main classes */
-		viewer.reset();								// Initialize navigation + viewer
+		viewer.reset();										// Reset viewer
+		fields = null;										// Clear fields
+//		public ML_Input input;								// Keyboard input handler
 
 		/* Initialize graphics and text parameters */
 		ml.colorMode(PConstants.HSB);
@@ -577,6 +631,8 @@ public class WMV_World
 
 		distanceFadeMap = new ScaleMap(0., 1., 0., 1.);			// Fading with distance interpolation
 		distanceFadeMap.setMapFunction(circularEaseIn);
+		
+//		drawForceVector = true;						// Show attraction vector on map (mostly for debugging)
 	}
 	
 	/**

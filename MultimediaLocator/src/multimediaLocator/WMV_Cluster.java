@@ -375,7 +375,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		calculateTimes(imageList, panoramaList, videoList, soundList);				// Calculate cluster times
 		createDateline(imageList, panoramaList, videoList, soundList);				// Create dates histograms and analyze for date segments
 		createTimeline(imageList, panoramaList, videoList, soundList);				// Create timeline independent of date 
-		createTimelines();												// Create timeline for each capture date
+		createTimelines();															// Create timeline for each capture date
 	}
 	
 	/**
@@ -458,7 +458,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 		if(mediaTimes.size() > 0)
 		{
 			state.timeline.timeline = utilities.createTimeline(mediaTimes, worldSettings.clusterTimePrecision, getID());	// Get relative (cluster) time segments
-			state.timeline.finishTimeline();			// Finish timeline / set bounds
+			state.timeline.finish();			// Finish timeline / set bounds
 
 			int count = 0;
 			for (WMV_TimeSegment t : state.timeline.timeline) 												// Number time segments in chronological order
@@ -520,7 +520,7 @@ public class WMV_Cluster implements Comparable<WMV_Cluster>
 					count++;
 				}
 				
-				newTimeline.finishTimeline();			// Calculate upper and lower time segment bounds
+				newTimeline.finish();			// Calculate upper and lower time segment bounds
 				state.timelines.add( newTimeline );		// Calculate and add timeline to list
 
 				if(debugSettings.cluster && debugSettings.detailed)

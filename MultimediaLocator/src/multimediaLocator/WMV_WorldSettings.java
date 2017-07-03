@@ -56,8 +56,8 @@ public class WMV_WorldSettings
 	public int dateUnitLength = 1;							// How many frames between date increments
 	public float dateInc = dateCycleLength / 30.f;			
 
-	final public int initDefaultMediaLength = 50;			// Initial frame length of media in time cycle
-	public int defaultMediaLength = 50;						// Default frame length of media in time cycle
+	public final int initDefaultMediaLength = 50;			// Initial frame length of media in time cycle
+	public int defaultMediaLength = initDefaultMediaLength;						// Default frame length of media in time cycle
 	public final float clusterTimePrecision = 0.0001f;		// Precision of timesHistogram (no. of bins)
 	public float clusterLength = 1.f;						// Time interval for which close media become visible (in % of timeline length),
 															// i.e. 1.f shows all media in range; 0.1f shows 10% of timeline for media in range, etc.
@@ -71,7 +71,7 @@ public class WMV_WorldSettings
 															// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
 
 	/* Stitching */
-	public int maxStitchingImages = 30;						// Maximum number of images to try to stitch
+	public final int maxStitchingImages = 30;						// Maximum number of images to try to stitch
 	public float stitchingMinAngle = 30.f;					// Angle in degrees that determines media segments for stitching 
 	public boolean persistentStitching = false;				// Keep trying to stitch, removing one image at a time until it works or no images left
 	public boolean showUserPanoramas = false;				// Show panoramas stitched from user selected media
@@ -81,7 +81,15 @@ public class WMV_WorldSettings
 	
 	public void reset()
 	{
+		/* General */
+		screenMessagesOn = true;						// Show screen messages
+		
 		/* Model */
+		divideFields = false;							// Attempt to divide fields when loading?
+		
+		copyLargeImageFiles = false;
+		copyLargeVideoFiles = false;
+		
 		subjectSizeRatio = 0.18f;							
 		
 		altitudeScaling = true;								
@@ -90,12 +98,18 @@ public class WMV_WorldSettings
 		kMeansClusteringEpsilon = 0.005f;					
 		mediaPointMass = 0.05f;								
 		clusterFarDistance = defaultFocusDistance * farDistanceFactor;
-		minClusterDistance = 2.f; 							
-		maxClusterDistance = 10.f;							
+		minClusterDistance = 3.f; 							
+		maxClusterDistance = 16.f;							
 		maxClusterDistanceFactor = 5.f;	
 
+		/* Graphics */
+		maxVisibleClusters = -1;						// Maximum visible clusters at once (-1: no limit)
+		depthTesting = false;							// Enable depth testing
+		
 		/* Time */
+		getTimeZonesFromGoogle = false;			// Get time zone for each field center from Google Time Zone API
 		timeCycleLength = 250;							
+		
 		timeUnitLength = 1;		
 		timeInc = timeCycleLength / 30.f;	
 
@@ -104,13 +118,12 @@ public class WMV_WorldSettings
 		dateInc = dateCycleLength / 30.f;			
 
 		defaultMediaLength = initDefaultMediaLength;		
+		clusterLength = 1.f;									// Time interval for which close media become visible, as % of timeline length
 
 		/* Stitching */
-		maxStitchingImages = 30;				
 		stitchingMinAngle = 30.f;				
 		persistentStitching = false;			
-		showUserPanoramas = true;				
+		showUserPanoramas = false;				
 		showStitchedPanoramas = true;			
-
 	}
 }

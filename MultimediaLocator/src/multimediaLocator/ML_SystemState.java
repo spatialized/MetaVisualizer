@@ -15,7 +15,7 @@ public class ML_SystemState
 	
 	public boolean reset = false;				// Whether program was recently reset
 	public boolean exit = false;				// System message to exit the program
-	public boolean hints = true;				// Whether to show hints
+	public boolean hints = true;				// Whether to show hints		-- Used?
 
 	/* Setup */
 	public boolean selectedLibrary = false;					// Whether user has selected a library folder
@@ -31,38 +31,49 @@ public class ML_SystemState
 	public boolean inFieldInitialization = false;			// Performing initial setup 
 	public boolean initializingFields = false;				// Initializing fields
 	public boolean fieldsInitialized = false;				// Initialized fields
-	public boolean libraryNamed = false;		// Whether new library has been named
-	public boolean fieldsNamed = true; 			// Whether new library fields have been named
-	public boolean inFieldNaming = false;		// Whether currently naming fields
+	
+	public boolean gettingExiftoolPath = false;				// Whether getting path to Exiftool from user
+	public boolean libraryNamed = false;					// Whether new library has been named
+	public boolean fieldsNamed = true; 						// Whether new library fields have been named
+	public boolean inFieldNaming = false;					// Whether currently naming fields
 	public String oldFieldName = "";
 	
-	public int initializationField = 0;					// Field to be initialized this frame
-	public int namingField = 0;					// Field to be initialized this frame
+	public int initializationField = 0;						// Field to be initialized 
+	public int namingField = 0;								// Field to be named 
 
 	/* Graphics */
-	public boolean sphericalView = false;				// 360-degree fulldome view
+	public boolean sphericalView = false;				// 360-degree fulldome view	-- In progress
 
 	/* Clustering Modes */
-	public boolean interactive = false;					// In user clustering mode?
-	public boolean startInteractive = false;			// Start user clustering
+	public boolean startInteractive = false;			// Whether started Interactive Clustering Mode
+	public boolean interactive = false;					// Whether in Interactive Clustering Mode 	-- Disabled
 
-	public boolean export = false;
-	public boolean exportMedia = false;
-	public boolean exportCubeMap = false;
+	public boolean export = false;						// Whether to export screenshot
+	public boolean exportMedia = false;					// Whether to export selected media
+	public boolean exportCubeMap = false;				// Whethe to export cubemap -- In progress
 
 	ML_SystemState(){}
 	
+	/**
+	 * Reset system state
+	 */
 	public void reset()
 	{
 		startup = true;
 		running = false;				
-		startedRunning = false;				
-		exit = false;		
+		startedRunning = false;
+		framesSinceStart = 0;						
+		
+		reset = true;
+		exit = false;
+		hints = true;
 		
 		selectedLibrary = false;	
-		selectedNewLibraryDestination = false;		// Whether user has selected a library destination folder
-		selectedNewLibraryMedia = false;				// Whether user has selected a media folder
+		selectedNewLibraryDestination = false;		
+		selectedNewLibraryMedia = false;			
 		inLibrarySetup = false;
+		rebuildLibrary = false;
+		
 		createdLibrary = false;
 		chooseLibraryDestination = false;
 		chooseMediaFolders = false;
@@ -70,13 +81,23 @@ public class ML_SystemState
 		inFieldInitialization = false;
 		initializingFields = false;
 		fieldsInitialized = false;
-		initializationField = 0;
 		
+		gettingExiftoolPath = false;			
+		libraryNamed = false;					
+		fieldsNamed = true; 					
+		inFieldNaming = false;					
+		oldFieldName = "";
+
+		initializationField = 0;
+		namingField = 0;								
+
 		sphericalView = false;
 		
+		startInteractive = false;			// Whether started Interactive Clustering Mode
+		interactive = false;					// Whether in Interactive Clustering Mode 	-- Disabled
+
 		export = false;
+		exportMedia = false;					// Whether to export selected media
 		exportCubeMap = false;
-		
-		reset = true;								// Set program reset flag
 	}
 }

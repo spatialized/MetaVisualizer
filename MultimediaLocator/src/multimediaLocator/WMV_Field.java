@@ -86,11 +86,6 @@ public class WMV_Field
 		state = new WMV_FieldState();
 		state.initialize(newFieldID, newMediaFolder);
 		
-//		state.name = newMediaFolder;
-//		state.id = newFieldID;
-//		state.clustersByDepth = new ArrayList<Integer>();
-//		state.entryLocation = new WMV_Waypoint();
-
 		utilities = new WMV_Utilities();
 
 		clusters = new ArrayList<WMV_Cluster>();
@@ -118,8 +113,6 @@ public class WMV_Field
 	 */
 	public void display( MultimediaLocator ml ) 				
 	{
-//		findVisibleClusters(ml);		/* Find visible clusters */
-		
 		state.imagesVisible = visibleImages.size();
 		state.panoramasVisible = visiblePanoramas.size();
 		state.videosVisible = visibleVideos.size();
@@ -302,8 +295,6 @@ public class WMV_Field
 	 */
 	private void updatePanoramas(MultimediaLocator ml)
 	{
-//		float vanishingPoint = viewerSettings.farViewingDistance + worldSettings.defaultFocusDistance;		// Distance where transparency reaches zero
-
 		for (WMV_Panorama n : panoramas)  	// Update panoramas
 		{
 			if(!n.isDisabled() && !n.isHidden())
@@ -2934,7 +2925,7 @@ public class WMV_Field
 			count++;
 		}
 
-		timeline.finishTimeline();			// Finish timeline / set bounds
+		timeline.finish();			// Finish timeline / set bounds
 	}
 
 	/**

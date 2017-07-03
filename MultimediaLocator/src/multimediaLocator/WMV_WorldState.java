@@ -15,8 +15,8 @@ public class WMV_WorldState
 	public int timeMode = 0;							// Time Mode: 0 = cluster; 1 = field; 2 = (single) media
 
 	/* Model */
-	public final float modelDistanceVisibilityFactorFar = 100.f;	// Distance at which media model becomes invisible
-	public final float modelDistanceVisibilityFactorNear = 5.f;	// Distance at which media model becomes invisible
+	public final float modelDistanceVisibilityFactorFar = 50.f;		// Distance at which media model becomes invisible
+	public final float modelDistanceVisibilityFactorNear = 5.f;		// Distance at which media model becomes invisible
 	
 	/* Graphics */
 	public boolean loadedMasks = false;
@@ -65,5 +65,60 @@ public class WMV_WorldState
 	public int getTimeMode()
 	{
 		return timeMode;
+	}
+	
+	public void reset()
+	{
+//		/* Clustering Modes */
+//		hierarchical = false;					// Use hierarchical clustering (true) or k-means clustering (false) 
+
+		/* Time */
+		timeFading = false;					// Does time affect media brightness? 
+		paused = false;						// Time is paused
+
+		currentTime = 0;						// Time units since start of time cycle (day / month / year)
+		currentDate = 0;						// Current timeline ID corresponding to capture date in ordered list
+		frameCount = 0;							// Frame count
+		timeMode = 0;							// Time Mode: 0 = cluster; 1 = field; 2 = (single) media
+
+		/* Graphics */
+		loadedMasks = false;
+		hudDistance = -1000.f;				// Distance of the Heads-Up Display from the virtual camera
+
+		displayTerrain = false;
+		alphaMode = true;						// Use alpha fading (true) or brightness fading (false)
+		alpha = 195.f;							// Transparency
+		
+		beginFadingAlpha = false; fadingAlpha = false;
+		fadingAlphaStartFrame = 0; fadingAlphaEndFrame = 0; fadingAlphaLength = 20;	
+//		public float fadingAlphaStart, fadingAlphaTarget;
+
+		useBlurMasks = true;						// Blur image edges
+		showModel = false;					// Display model 
+		showMediaToCluster = false;			// Draw line from each media point to cluster
+		showCaptureToMedia = false;			// Draw line from each media point to its capture location
+		showCaptureToCluster = false;			// Draw line from each media capture location to associated cluster
+
+		fadingTerrainAlpha = false; waitingToFadeInTerrainAlpha = false; turnOffTerrainAfterFadingOut = false;		
+		terrainAlpha = 0.f; fadingTerrainStart = 0.f; fadingTerrainTarget = 0.f;
+		fadingTerrainStartFrame = 0; fadingTerrainEndFrame = 0; 
+
+		/* Clusters */
+		hierarchical = false;				// Use hierarchical clustering (true) or k-means clustering (false) 
+		mergeClusters = true;					// Merge nearby clusters?
+		lockMediaToClusters = false;			// Align media with the nearest cluster (to fix GPS uncertainty error)
+		
+		/* Media */
+		requestedImages = 0;						// Count of images currently requested to be loaded from disk
+		requestedPanoramas = 0;					// Count of panoramas currently requested to be loaded from disk	
+		showMetadata = false;
+		
+		/* Memory */
+		minAvailableMemory = 50000000;			// Minimum available memory
+		memoryCheckFrequency = 50;				// Memory check rate
+		minFrameRate = 10;						// Minimum frame rate
+
+		/* Stitching */
+		String stitchingPath = null;								// Stitched panorama output folder
 	}
 }

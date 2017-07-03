@@ -18,13 +18,16 @@ public class WMV_Timeline
 		else
 		{
 			timeline = newTimeline;
-			calculateBounds();
+			finish();
+//			calculateBounds();
+//			verify();
 		}
 	}
 	
-	public void finishTimeline()
+	public void finish()
 	{
 		calculateBounds();
+		verify();
 	}
 
 	/**
@@ -52,5 +55,24 @@ public class WMV_Timeline
 	public WMV_TimeSegment getUpper()
 	{
 		return upper;
+	}
+	
+//	public ArrayList<WMV_TimeSegment> timeline;				// Date-independent capture times for this cluster
+//	WMV_TimeSegment lower, upper;
+
+	public void verify()
+	{
+		for(WMV_TimeSegment t : timeline)
+		{
+			if(t.getClusterID() == -1)
+			{
+				System.out.println("Timeline.verify()... ERROR: field timeline ID #"+t.getFieldTimelineID()+" cluster ID is -1!");
+			}
+		}
+		
+		if(lower.getClusterID() == -1)
+			System.out.println("Timeline.verify()... ERROR: lower cluster ID is -1!");
+		if(upper.getClusterID() == -1)
+			System.out.println("Timeline.verify()... ERROR: upper cluster ID is -1!");
 	}
 }

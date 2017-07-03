@@ -40,9 +40,12 @@ public class WMV_ViewerState
 	public boolean atCurrentCluster = false;			// Whether viewer is centered at current cluster (false if has moved)
 	public int lastCluster = -1;						// Last cluster visited
 
-	public int attractorCluster = -1;					// ID of single cluster currently attracting the camera
-	public int attractionStart = 0;
 	public int teleportGoalCluster = -1;				// Cluster to navigate to (-1 == none)
+	public int attractorCluster = -1;					// ID of single cluster currently attracting viewer
+	public int attractionStart = 0;						// Frame when current attractor began attracting viewer
+	public boolean continueAtAttractor = false;			// Whether current attractor is a waypoint along a path
+	public boolean pathWaiting = false;					// Whether to stop wait at each waypoint when moving along a path
+	
 	public float clusterNearDistance;					// Distance from cluster center to slow down to prevent missing the target
 	public float clusterNearDistanceFactor = 2.f;		// Multiplier for clusterCenterSize to get clusterNearDistance
 	

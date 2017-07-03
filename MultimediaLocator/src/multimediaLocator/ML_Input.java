@@ -218,9 +218,6 @@ public class ML_Input
 				/* Library */
 				case "CreateLibrary":
 					ml.startCreatingNewLibrary();
-//					ml.state.inLibrarySetup = true;
-//					ml.createNewLibrary = true;
-//					ml.state.chooseMediaFolders = true;
 					break;
 					
 				case "OpenLibrary":
@@ -289,6 +286,7 @@ public class ML_Input
 							String fieldName = ml.display.window.txfInputText.getText();
 //							System.out.println("Input.buttonPressed()... Field name input text:"+fieldName);
 							ml.world.getField(ml.state.namingField).setName(fieldName);
+							ml.display.window.closeTextEntryWindow();
 							break;
 						case 1:						// 1: Library Name
 							String libraryName = ml.display.window.txfInputText.getText();
@@ -297,14 +295,16 @@ public class ML_Input
 							ml.world.updateMediaFilePaths();		// Update media file paths with new library name
 							ml.state.libraryNamed = true;
 							ml.state.fieldsNamed = false;
+							ml.display.window.closeTextEntryWindow();
 							break;
 						case 2:						// 2: Exiftool Path
 							String exiftoolPath = ml.display.window.txfInputText.getText();
 							System.out.println("Input.buttonPressed()... Set exiftoolPath:"+exiftoolPath);
 							ml.setExiftoolPath(exiftoolPath);
+							if(!ml.state.gettingExiftoolPath)
+								ml.display.window.closeTextEntryWindow();	// Close Text Entry Window if found valid Exiftool path
 							break;
 					}
-					ml.display.window.closeTextEntryWindow();
 					break;
 	
 				/* Navigation */
@@ -789,18 +789,7 @@ public class ML_Input
 				{
 					if(!world.viewer.isFollowing())
 					{
-						switch(world.viewer.getPathNavigationMode())
-						{
-							case 0:
-								world.viewer.followTimeline(true, false);
-								break;
-							case 1:
-								world.viewer.startFollowingGPSTrack();
-								break;
-							case 2:
-								world.viewer.followMemory();
-								break;
-						}
+						world.viewer.startFollowing();
 					}
 				}
 				else world.viewer.stopFollowing();

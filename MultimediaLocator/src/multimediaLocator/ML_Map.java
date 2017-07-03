@@ -102,8 +102,12 @@ public class ML_Map
 	public ML_Map(ML_Display parent)
 	{
 		p = parent;
-		screenWidth = p.ml.appWidth;
-		screenHeight = p.ml.appHeight;
+		
+		screenWidth = p.ml.displayWidth;
+		screenHeight = p.ml.displayHeight;
+		
+//		screenWidth = p.ml.appWidth;
+//		screenHeight = p.ml.appHeight;
 		
 		utilities = new WMV_Utilities();
 		
@@ -661,7 +665,7 @@ public class ML_Map
 		viewerMarker.setDiameter(viewerDiameter);
 		viewerMarker.setColor(p.ml.color(0, 0, 255, 255));
 
-		satelliteMarkerManager.addMarker(viewerMarker);				
+		satelliteMarkerManager.addMarker(viewerMarker);					// CHANGED 7-2-17
 //		satellite.addMarker(viewerMarker);				
 		
 		p.ml.delay(mapDelay);

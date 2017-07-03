@@ -24,7 +24,11 @@ import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Stack;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
@@ -67,10 +71,10 @@ public class MultimediaLocator extends PApplet
 	
 	/* App */
 	private String appName = "MultimediaLocator 0.9.2";
-	public int appWidth = 1680, appHeight = 960;	// App window dimensions
 	private PImage appIcon;							// App icon
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
 	private final int basicDelay = 50;	
+	public int appWidth = 1680, appHeight = 960;	// App window dimensions		-- Obsolete
 	
 	/* Windows */
 	private boolean appWindowVisible = false;		// Main window visible (for hiding when opening)
@@ -124,7 +128,6 @@ public class MultimediaLocator extends PApplet
 	public void setup()
 	{
 		utilities = new WMV_Utilities();
-//		display = new ML_Display(this);			
 
 		surface.setResizable(true);
 		hideAppWindow();
@@ -140,7 +143,6 @@ public class MultimediaLocator extends PApplet
 		world = new WMV_World(this);
 		
 		appIcon = getImageResource("icon.png");
-//		display.window = new ML_Window(world, display);				// Setup and display interaction window
 		
 		display = new ML_Display(this);			
 		display.window = new ML_Window(world, display);				// Setup and display interaction window
@@ -150,6 +152,7 @@ public class MultimediaLocator extends PApplet
 
 		stitcher = new ML_Stitcher(world);
 		metadata = new WMV_Metadata(this, debug);
+		
 		loadExiftoolPath();
 		
 		if(debug.ml) systemMessage("Initial setup complete...");
@@ -162,8 +165,6 @@ public class MultimediaLocator extends PApplet
 		initCubeMap();
 		delay(basicDelay);
 		
-//		delay(delayAmount);
-
 		addShutdownHook();
 	}
 
@@ -176,7 +177,7 @@ public class MultimediaLocator extends PApplet
 		
 		if (state.startup)
 		{
-			display.display(this);								/* Startup screen */
+			display.display(this);								/* Show startup screen */
 			state.startup = false;	
 		}
 		else if(!state.running)
@@ -546,22 +547,30 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void restart()
 	{
-		state.reset();
-		
+		if(debug.ml) systemMessage("ML.restart()... Restarting...");
+
+		state.reset();											// Reset to initial program state
 		display.reset();										// Initialize displays
 
-		metadata = new WMV_Metadata(this, debug);				// Reset metadata loader
+		delay(basicDelay);
+
 		stitcher = new ML_Stitcher(world);						// Reset panoramic stitcher
+		metadata = new WMV_Metadata(this, debug);				// Reset metadata loader
+		loadExiftoolPath();										// Load Exiftool program path
 
 		colorMode(PConstants.HSB);
 		rectMode(PConstants.CENTER);
 
 //		initCubeMap();
 
-		display.window.hideWindows();
+		display.window.hideWindows();							// Hide open windows
+
+		systemMessages = new ArrayList<String>();				// Clear system messages
 		world.reset(true);										// Reset world
 
-		if(debug.ml) systemMessage("World resetting complete...");
+		if(debug.ml) systemMessage("ML.restart()... Restart complete...");
+
+		delay(basicDelay);
 
 		display.window.openStartupWindow();
 	}
@@ -971,12 +980,21 @@ public class MultimediaLocator extends PApplet
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 	        @Override
-	        public void run() {	 								// Stackless deletion
+	        public void run() {	 									// Stackless deletion
 	            System.out.println("Running Shutdown Hook");
 
 	            try {
 	            	String homeDir = System.getProperty("user.home");
-	                File errorTextFile = new File(homeDir + "/MultimediaLocator_Log.txt");
+	            	
+
+//	            	DateTimeFormatter format = DateTimeFormatter.ofPattern("MMM d yyyy  hh:mm a");
+	            	DateTimeFormatter format = DateTimeFormatter.ofPattern("hh_mm_a-MM_d_yy");
+	            	LocalDateTime date = LocalDateTime.now();
+	            	String dateStr = format.format(date);
+//	            	System.out.println("addShutdownHook()... Date: "+dateStr); //2016/11/16 12:08:43
+	            	format.format(date);
+	            	
+	                File errorTextFile = new File(homeDir + "/MultimediaLocator_Log_"+dateStr+".txt");
 	                if ( !errorTextFile.exists() )
 	                	errorTextFile.createNewFile();
 
@@ -1331,8 +1349,8 @@ public class MultimediaLocator extends PApplet
 	 */
 	private void openExiftoolPathDialog()
 	{
-		display.window.openTextEntryWindow("Please enter enter Exiftool location:", "/usr/local/bin/Exiftool", 2);
-//		state.inLibraryNaming = true;
+		display.window.openTextEntryWindow("Please enter path to Exiftool:", "/usr/local/bin/Exiftool", 2);
+		state.gettingExiftoolPath = true;
 	}
 	
 	/**
@@ -1340,27 +1358,37 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void loadExiftoolPath()
 	{
-//		utilities.checkPath();
-		
 		boolean setExiftoolPath = setExiftoolPathFromPrefs();
+//		utilities.checkPath();	// -- Debugging
 		
 		if(!setExiftoolPath)
 		{
 			String exiftoolPath = "/usr/local/bin/exiftool";
 			metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
-			if(metadata.exiftoolFile.exists())												// Fatal error if Exiftool not found
+			if(metadata.exiftoolFile.exists())												
 			{
-				saveExiftoolPath(exiftoolPath);
+				if(metadata.exiftoolFile.getName().equals("Exiftool"))
+					saveExiftoolPath(exiftoolPath);								// Save Exiftool path if found
 			}
 			else
 			{
 				if(debug.ml) 
-					systemMessage("Metadata.Metadata()... Exiftool not found at exiftoolPath:"+exiftoolPath+"!  Will search...");
-				metadata.exiftoolFile = new File(utilities.getProgramPath("exiftool"));
-				if(metadata.exiftoolFile.exists())												// Fatal error if Exiftool not found
+					systemMessage("ML.loadExiftoolPath()... Exiftool not found at exiftoolPath:"+exiftoolPath+"!  Will search...");
+				
+				boolean found = false;
+				String programPath = utilities.getProgramPath("exiftool");
+
+				if(programPath != null) found = true;
+				if(found)
+				{
+					metadata.exiftoolFile = new File(utilities.getProgramPath("exiftool"));
+					found = metadata.exiftoolFile.exists();
+					found = metadata.exiftoolFile.getName().equals("Exiftool");
+				}
+				if(!found)												// Fatal error if Exiftool not found
 				{
 					if(debug.ml) 
-						systemMessage("Metadata.Metadata()... Exiftool not found in expected folders...  Will ask for user entry...");
+						systemMessage("ML.loadExiftoolPath()... Exiftool not found in expected folders...  Will ask for user entry...");
 					openExiftoolPathDialog();
 				}
 			}
@@ -1375,7 +1403,23 @@ public class MultimediaLocator extends PApplet
 	{
 		saveExiftoolPath(newExiftoolPath);
 		metadata.exiftoolFile = new File(newExiftoolPath);
+		
+		boolean found = metadata.exiftoolFile.exists();
+		found = metadata.exiftoolFile.getName().equals("Exiftool");
+		if(!found)												// Fatal error if Exiftool not found
+		{
+			if(debug.ml) 
+				systemMessage("ML.setExiftoolPath()... Exiftool not found in specified location...  Will ask for user entry...");
+//			openExiftoolPathDialog();
+		}
+		else 
+		{
+			System.out.println("Set Exiftool File... name:"+metadata.exiftoolFile.getName());
+			state.gettingExiftoolPath = false;					// Set getting Exiftool path flag to false
+			state.startup = true;								// Tell startup window to open
+		}
 	}
+	
 	/**
 	 * Save path to Exiftool program
 	 * @param exiftoolPath
@@ -1385,7 +1429,7 @@ public class MultimediaLocator extends PApplet
 		preferences.put("Exiftool", exiftoolPath);
 		
 		if(debug.ml)
-			systemMessage("ML.saveExiftoolPath exiftoolPath:"+exiftoolPath);
+			systemMessage("ML.saveExiftoolPath()... exiftoolPath:"+exiftoolPath);
 
 		try {
 			preferences.flush();
@@ -1409,7 +1453,7 @@ public class MultimediaLocator extends PApplet
 			if(exiftoolPath != "")
 			{
 				if(debug.ml)
-					systemMessage("Metadata.setExiftoolPathFromPrefs()... Found exiftoolPath:"+exiftoolPath);
+					systemMessage("ML.setExiftoolPathFromPrefs()... Found exiftoolPath:"+exiftoolPath);
 				metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
 				return true;
 			}

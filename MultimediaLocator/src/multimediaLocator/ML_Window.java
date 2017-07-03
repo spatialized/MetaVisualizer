@@ -512,7 +512,7 @@ public class ML_Window
 		optMove.setLocalColorScheme(G4P.SCHEME_10);
 		optMove.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optMove.tag = "NavigationMove";
-		optTeleport = new GOption(navigationWindow, x+=90, y, 150, iVerySmallBoxHeight, "Teleport  (t)");
+		optTeleport = new GOption(navigationWindow, x+=75, y, 150, iVerySmallBoxHeight, "Teleport  (t)");
 		optTeleport.setLocalColorScheme(G4P.SCHEME_10);
 		optTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		optTeleport.tag = "NavigationTeleport";
@@ -648,150 +648,6 @@ public class ML_Window
 			x = 0;
 		y += 40;
 		navigationWindowLineBreakY_1 = y - 10;
-		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Path Navigation");
-		lblPathNavigation.setLocalColorScheme(G4P.SCHEME_10);
-		lblPathNavigation.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-		if(!compressTallWindows) lblPathNavigation.setTextAlign(GAlign.CENTER, null);
-		lblPathNavigation.setTextBold();
-
-		x = 40;
-		y += iSmallBoxHeight;
-		optTimeline = new GOption(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Timeline");
-		optTimeline.setLocalColorScheme(G4P.SCHEME_10);
-		optTimeline.tag = "FollowTimeline";
-		optGPSTrack = new GOption(navigationWindow, x+=85, y, 90, iVerySmallBoxHeight, "GPS Track");
-		optGPSTrack.setLocalColorScheme(G4P.SCHEME_10);
-		optGPSTrack.tag = "FollowGPSTrack";
-		optMemory = new GOption(navigationWindow, x+=90, y, 90, iVerySmallBoxHeight, "Memory");
-		optMemory.setLocalColorScheme(G4P.SCHEME_10);
-		optMemory.tag = "FollowMemory";
-		
-		switch(world.viewer.getPathNavigationMode())			// 0: Timeline 1: GPS Track 2: Memory
-		{
-			case 0:						// Timeline
-				optTimeline.setSelected(true);
-				optGPSTrack.setSelected(false);
-				optMemory.setSelected(false);
-				break;
-			case 1:						// GPS Track
-				optTimeline.setSelected(false);
-				optGPSTrack.setSelected(true);
-				optMemory.setSelected(false);
-				break;
-			case 2:						// Memory
-				optTimeline.setSelected(false);
-				optGPSTrack.setSelected(false);
-				optMemory.setSelected(true);
-				break;
-		}
-		
-		tgFollow = new GToggleGroup();
-		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
-
-		world.ml.delay(delayAmount / 2);
-
-		x = 165;
-		y += iMediumBoxHeight - 3;
-		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 150, iVerySmallBoxHeight, "On / Off  (>)");
-		chkbxPathFollowing.tag = "Following";
-		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxPathFollowing.setSelected(world.viewer.isFollowing());
-
-		x = 25;
-		y += iMediumBoxHeight * 0.5f;
-		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 120, iVerySmallBoxHeight, "Select GPS Track");
-		btnChooseGPSTrack.tag = "ChooseGPSTrack";
-		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
-		x = 155;
-		y += iMediumBoxHeight * 0.4f;
-		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 135, iVerySmallBoxHeight, "Teleport  (,)");
-		chkbxFollowTeleport.tag = "FollowTeleport";
-		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
-		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
-		chkbxFollowTeleport.setSelected(world.viewer.getState().followTeleport);
-	
-		boolean noGPSTracks = world.getCurrentField().getGPSTracks() == null;
-		if(!noGPSTracks) noGPSTracks = world.getCurrentField().getGPSTracks().size() == 0;
-		if(noGPSTracks) 
-		{
-			btnChooseGPSTrack.setEnabled(false);
-			btnChooseGPSTrack.setVisible(false);
-			chkbxPathFollowing.moveTo(100, chkbxPathFollowing.getY());;
-			chkbxFollowTeleport.moveTo(100, chkbxFollowTeleport.getY());;
-		}
-		
-		x = 25;
-		y += iLargeBoxHeight;
-		lblMemory = new GLabel(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Memory");
-		lblMemory.setLocalColorScheme(G4P.SCHEME_10);
-		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
-//		lblMemory.setTextBold();
-		
-		x = 105;
-		btnSaveLocation = new GButton(navigationWindow, x, y, 60, iVerySmallBoxHeight, "Save (`)");
-		btnSaveLocation.tag = "SaveLocation";
-		btnSaveLocation.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
-		x = 190;
-		btnClearMemory = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Clear (y)");
-		btnClearMemory.tag = "ClearMemory";
-		btnClearMemory.setLocalColorScheme(G4P.ORANGE_SCHEME);
-
-		x = 105;
-		y += iMediumBoxHeight;
-		btnSetHome = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Set Start Location (h)");
-		btnSetHome.tag = "SetHome";
-		btnSetHome.setLocalColorScheme(G4P.CYAN_SCHEME);
-		
-		x = 160;
-		y += iMediumBoxHeight;
-		sdrTeleportLength = new GSlider(navigationWindow, x, y, 65, 80, iVerySmallBoxHeight);
-		sdrTeleportLength.setLocalColorScheme(G4P.GOLD_SCHEME);
-		sdrTeleportLength.setLimits(0.f, 300.f, 10.f);
-		sdrTeleportLength.setValue(world.viewer.getSettings().teleportLength);
-		sdrTeleportLength.setRotation(PApplet.PI/2.f);
-		sdrTeleportLength.setTextOrientation(G4P.ORIENT_LEFT);
-		sdrTeleportLength.setEasing(0);
-		sdrTeleportLength.setShowValue(true);
-		sdrTeleportLength.tag = "TeleportLength";
-
-		x = 290;
-		sdrPathWaitLength = new GSlider(navigationWindow, x, y, 65, 80, iVerySmallBoxHeight);
-		sdrPathWaitLength.setLocalColorScheme(G4P.GOLD_SCHEME);
-		sdrPathWaitLength.setLimits(0.f, 600.f, 30.f);
-		sdrPathWaitLength.setValue(world.viewer.getSettings().pathWaitLength);
-		sdrPathWaitLength.setRotation(PApplet.PI/2.f);
-		sdrPathWaitLength.setTextOrientation(G4P.ORIENT_LEFT);
-		sdrPathWaitLength.setEasing(0);
-		sdrPathWaitLength.setShowValue(true);
-		sdrPathWaitLength.tag = "PathWaitLength";
-		
-		x = 25;
-		y += iSmallBoxHeight - 2;
-		lblTeleportLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Teleport Time");
-		lblTeleportLength.setLocalColorScheme(G4P.SCHEME_10);
-
-		x = 175;
-		lblPathWaitLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Wait Time");
-		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
-
-		world.ml.delay(delayAmount);
-
-		if(compressTallWindows)
-		{
-			x = windowWidth + 130;
-			y = iTopMargin;
-		}
-		else
-		{
-			y += 55;
-			x = 0;
-		}
-
-		/* Time */
-		navigationWindowLineBreakY_2 = y - 10;
 		
 		lblMap = new GLabel(navigationWindow, x, y, navigationWindow.width, iSmallBoxHeight, "Map");
 		lblMap.setLocalColorScheme(G4P.SCHEME_10);
@@ -913,14 +769,152 @@ public class ML_Window
 		btnZoomToWorld = new GButton(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Reset (r)");
 		btnZoomToWorld.tag = "ResetMapZoom";
 		btnZoomToWorld.setLocalColorScheme(G4P.RED_SCHEME);
+		
+		world.ml.delay(delayAmount);
 
-//		x = 0;
-//		y = navigationWindowHeight - iBottomTextY;
-//		lblShift4 = new GLabel(navigationWindow, x, y, navigationWindow.width, iSmallBoxHeight);						/* Display Mode Label */
-//		lblShift4.setText("Press SHIFT + 4 to show / hide");
-//		lblShift4.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
-//		lblShift4.setLocalColorScheme(G4P.SCHEME_10);
-//		lblShift4.setTextAlign(GAlign.CENTER, null);
+		if(compressTallWindows)
+		{
+			x = windowWidth + 130;
+			y = iTopMargin;
+		}
+		else
+		{
+			y += 45;
+			x = 0;
+		}
+
+		/* Time */
+		navigationWindowLineBreakY_2 = y - 10;
+		
+		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Path Navigation");
+		lblPathNavigation.setLocalColorScheme(G4P.SCHEME_10);
+		lblPathNavigation.setFont(new Font("Monospaced", Font.PLAIN, iLargeTextSize));
+		if(!compressTallWindows) lblPathNavigation.setTextAlign(GAlign.CENTER, null);
+		lblPathNavigation.setTextBold();
+
+		x = 40;
+		y += iSmallBoxHeight;
+		optTimeline = new GOption(navigationWindow, x, y, 90, iVerySmallBoxHeight, "Timeline");
+		optTimeline.setLocalColorScheme(G4P.SCHEME_10);
+		optTimeline.tag = "FollowTimeline";
+		optGPSTrack = new GOption(navigationWindow, x+=85, y, 90, iVerySmallBoxHeight, "GPS Track");
+		optGPSTrack.setLocalColorScheme(G4P.SCHEME_10);
+		optGPSTrack.tag = "FollowGPSTrack";
+		optMemory = new GOption(navigationWindow, x+=90, y, 90, iVerySmallBoxHeight, "Memory");
+		optMemory.setLocalColorScheme(G4P.SCHEME_10);
+		optMemory.tag = "FollowMemory";
+		
+		switch(world.viewer.getPathNavigationMode())			// 0: Timeline 1: GPS Track 2: Memory
+		{
+			case 0:						// Timeline
+				optTimeline.setSelected(true);
+				optGPSTrack.setSelected(false);
+				optMemory.setSelected(false);
+				break;
+			case 1:						// GPS Track
+				optTimeline.setSelected(false);
+				optGPSTrack.setSelected(true);
+				optMemory.setSelected(false);
+				break;
+			case 2:						// Memory
+				optTimeline.setSelected(false);
+				optGPSTrack.setSelected(false);
+				optMemory.setSelected(true);
+				break;
+		}
+		
+		tgFollow = new GToggleGroup();
+		tgFollow.addControls(optTimeline, optGPSTrack, optMemory);
+
+		world.ml.delay(delayAmount / 2);
+
+		x = 165;
+		y += iMediumBoxHeight - 3;
+		chkbxPathFollowing = new GCheckbox(navigationWindow, x, y, 150, iVerySmallBoxHeight, "On / Off  (>)");
+		chkbxPathFollowing.tag = "Following";
+		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxPathFollowing.setSelected(world.viewer.isFollowing());
+		if(world.viewer.getPathNavigationMode() == 1)
+			chkbxPathFollowing.setEnabled(world.viewer.getSelectedGPSTrackID() != -1);
+
+		x = 25;
+		y += iMediumBoxHeight * 0.5f;
+		btnChooseGPSTrack = new GButton(navigationWindow, x, y, 120, iVerySmallBoxHeight, "Select GPS Track");
+		btnChooseGPSTrack.tag = "ChooseGPSTrack";
+		btnChooseGPSTrack.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		x = 165;
+		y += iMediumBoxHeight * 0.4f;
+		chkbxFollowTeleport = new GCheckbox(navigationWindow, x, y, 135, iVerySmallBoxHeight, "Teleport  (,)");
+		chkbxFollowTeleport.tag = "FollowTeleport";
+		chkbxFollowTeleport.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
+		chkbxFollowTeleport.setLocalColorScheme(G4P.SCHEME_10);
+		chkbxFollowTeleport.setSelected(world.viewer.getState().followTeleport);
+	
+		boolean noGPSTracks = world.getCurrentField().getGPSTracks() == null;
+		if(!noGPSTracks) noGPSTracks = world.getCurrentField().getGPSTracks().size() == 0;
+		if(noGPSTracks) 
+		{
+			btnChooseGPSTrack.setEnabled(false);
+			btnChooseGPSTrack.setVisible(false);
+			chkbxPathFollowing.moveTo(100, chkbxPathFollowing.getY());;
+			chkbxFollowTeleport.moveTo(100, chkbxFollowTeleport.getY());;
+		}
+		
+		x = 25;
+		y += iLargeBoxHeight;
+		lblMemory = new GLabel(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Memory");
+		lblMemory.setLocalColorScheme(G4P.SCHEME_10);
+		lblMemory.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		
+		x = 105;
+		btnSaveLocation = new GButton(navigationWindow, x, y, 60, iVerySmallBoxHeight, "Save (`)");
+		btnSaveLocation.tag = "SaveLocation";
+		btnSaveLocation.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		x = 190;
+		btnClearMemory = new GButton(navigationWindow, x, y, 70, iVerySmallBoxHeight, "Clear (y)");
+		btnClearMemory.tag = "ClearMemory";
+		btnClearMemory.setLocalColorScheme(G4P.ORANGE_SCHEME);
+
+		x = 105;
+		y += iMediumBoxHeight;
+		btnSetHome = new GButton(navigationWindow, x, y, 140, iVerySmallBoxHeight, "Set Start Location (h)");
+		btnSetHome.tag = "SetHome";
+		btnSetHome.setLocalColorScheme(G4P.CYAN_SCHEME);
+		
+		x = 160;
+		y += iMediumBoxHeight;
+		sdrTeleportLength = new GSlider(navigationWindow, x, y, 65, 80, iVerySmallBoxHeight);
+		sdrTeleportLength.setLocalColorScheme(G4P.GOLD_SCHEME);
+		sdrTeleportLength.setLimits(0.f, 300.f, 10.f);
+		sdrTeleportLength.setValue(world.viewer.getSettings().teleportLength);
+		sdrTeleportLength.setRotation(PApplet.PI/2.f);
+		sdrTeleportLength.setTextOrientation(G4P.ORIENT_LEFT);
+		sdrTeleportLength.setEasing(0);
+		sdrTeleportLength.setShowValue(true);
+		sdrTeleportLength.tag = "TeleportLength";
+
+		x = 290;
+		sdrPathWaitLength = new GSlider(navigationWindow, x, y, 65, 80, iVerySmallBoxHeight);
+		sdrPathWaitLength.setLocalColorScheme(G4P.GOLD_SCHEME);
+		sdrPathWaitLength.setLimits(0.f, 600.f, 30.f);
+		sdrPathWaitLength.setValue(world.viewer.getSettings().pathWaitLength);
+		sdrPathWaitLength.setRotation(PApplet.PI/2.f);
+		sdrPathWaitLength.setTextOrientation(G4P.ORIENT_LEFT);
+		sdrPathWaitLength.setEasing(0);
+		sdrPathWaitLength.setShowValue(true);
+		sdrPathWaitLength.tag = "PathWaitLength";
+		
+		x = 25;
+		y += iSmallBoxHeight - 2;
+		lblTeleportLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Teleport Time");
+		lblTeleportLength.setLocalColorScheme(G4P.SCHEME_10);
+
+		x = 175;
+		lblPathWaitLength = new GLabel(navigationWindow, x, y, 100, iVerySmallBoxHeight, "Wait Time");
+		lblPathWaitLength.setLocalColorScheme(G4P.SCHEME_10);
 		
 		setMapControlsEnabled(display.getDisplayView() == 1);
 		
@@ -2059,6 +2053,9 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth;
 		int topEdge = world.ml.displayHeight / 2 - createLibraryWindowHeight / 2;
 
+		String saveText = "";
+		if(setupTextEntryWindow) saveText = txfInputText.getText();
+		
 		textEntryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
 
 		textEntryWindow.addData(new ML_WinData());
@@ -2078,7 +2075,10 @@ public class ML_Window
 		
 		x = windowWidth / 8;
 		txfInputText = new GTextField(textEntryWindow, x, y, windowWidth * 3 / 2, 30, G4P.SCROLLBARS_HORIZONTAL_ONLY | G4P.SCROLLBARS_AUTOHIDE);
-		txfInputText.setText(initText);
+		
+		if(setupTextEntryWindow) txfInputText.setText(saveText);
+		else txfInputText.setText(initText);
+		
 		txfInputText.setLocalColorScheme(G4P.GREEN_SCHEME);
 
 		x = windowWidth * 2 - 50;
@@ -2916,7 +2916,7 @@ public class ML_Window
 		if(setupTimeWindow)
 			timeWindow.setVisible(true);
 	}
-	public void showLibraryWindow()
+	public void showStartupWindow()
 	{
 		hideWindows();
 		showLibraryWindow = true;
@@ -3030,7 +3030,7 @@ public class ML_Window
 	 */
 	public void reloadNavigationWindow()
 	{
-		if(showNavigationWindow)
+		if(setupNavigationWindow)
 		{
 			closeNavigationWindow();
 			openNavigationWindow();

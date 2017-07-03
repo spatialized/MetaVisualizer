@@ -16,8 +16,8 @@ public class ML_Display
 	public ML_Map map2D;
 	private WMV_Utilities utilities;					/* Utility methods */
 
-	/* Display Views */
-	private int displayView = 0;							/* 0: Scene  1: Map  2: Library  3: Timeline  4: Media */
+	/* Display View */
+	private int displayView = 0;						/* {0: Scene  1: Map  2: Library  3: Timeline  4: Media} */
 	
 	/* Debug */
 	public boolean drawForceVector = false;
@@ -29,50 +29,42 @@ public class ML_Display
 	
 	/* Graphics */
 	private PMatrix3D originalMatrix; 							/* For restoring 3D view after 2D HUD */
-	private WMV_Camera camera3D;								/* For restoring 3D view after 2D HUD */
+//	private WMV_Camera camera3D;								/* For restoring 3D view after 2D HUD */
 	private float currentFieldOfView;
 	
-	public boolean drawGrid = false; 					/* Draw 3D grid */   			// -- Unused
-//	PImage startupImage;
+	public boolean drawGrid = false; 							/* Draw 3D grid */   			// -- Unused
 
-	public int blendMode = 0;							/* Alpha blending mode */
-	private int numBlendModes = 10;						/* Number of blending modes */
-	private float hudDistanceInit = -1000.f;				/* Distance of the Heads-Up Display from the virtual camera */
+	private final float hudDistanceInit = -1000.f;				/* Distance of the Heads-Up Display from the virtual camera */
 	private float messageHUDDistance = hudDistanceInit * 6.f;
 	private int screenWidth = -1;
 	private int screenHeight = -1;
+	private float monitorOffsetXAdjustment = 1.f;
+
+	public int blendMode = 0;									/* Alpha blending mode */
+	private final int numBlendModes = 10;								/* Number of blending modes */
+	
+//	PImage startupImage;
 	
 	/* Map View */
-	public int mapViewMode = 1;								// 0: World, 1: Field 	-- In progress, 2: Cluster 
+	public int mapViewMode = 1;									// 0: World, 1: Field, (2: Cluster  -- In progress)
 	public boolean initializedMaps = false;
-//	public boolean initializedWorldMap = false;
 	public boolean initializedSatelliteMap = false;
+//	public boolean initializedWorldMap = false;
 	
-	/* Library View */
-	private int libraryViewMode = 2;							// 0: World, 1: Field, 2: Cluster 
-	public int currentDisplayField = 0, currentDisplayCluster = 0;
-	private final float thumbnailWidth = 90.f;
-	private final float thumbnailSpacing = 0.1f;
-	
+	private final float imageHue = 140.f;
+	private final float panoramaHue = 190.f;
+	private final float videoHue = 100.f;
+	private final float soundHue = 40.f;
+
 	/* Time View */
-	float timelineScreenSize, timelineHeight;
-	float timelineStart = 0.f, timelineEnd = 0.f;
-	float datelineStart = 0.f, datelineEnd = 0.f;
-	int displayDate = -1;
+	private float timelineScreenSize, timelineHeight;
+	private float timelineStart = 0.f, timelineEnd = 0.f;
+	private float datelineStart = 0.f, datelineEnd = 0.f;
+	public int displayDate = -1;
 	public boolean updateCurrentSelectableTimeSegment = true, updateCurrentSelectableDate = true;
-	private final float timeTextSize = 16.f;
 
 	private float hudCenterXOffset, hudTopMargin;
-	private float hudVeryLargeTextSize = 32.f;
-	private float hudLargeTextSize = 26.f;
-	private float hudMediumTextSize = 22.f;
-	private float hudSmallTextSize = 18.f;
-	private final float hudLinePadding = 4.f;
-	private final float hudLinePaddingWide = 8.f;
-	private final float hudLineWidth = hudMediumTextSize + hudLinePadding;			
-	private final float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;			
-	private final float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
-
+	
 	private ArrayList<SelectableTimeSegment> selectableTimeSegments;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;						// Selectable dates on dateline
 	private SelectableDate allDates;
@@ -96,37 +88,50 @@ public class ML_Display
 	private float timelineEndTransitionStart = 0, timelineEndTransitionTarget = 0;
 	public float transitionScrollIncrement = 1750.f;
 	public final float initTransitionScrollIncrement = 1750.f;								// Seconds to scroll per frame
-	public float transitionZoomInIncrement = 0.95f, transitionZoomOutIncrement = 1.052f;	
+	public final float transitionZoomInIncrement = 0.95f, transitionZoomOutIncrement = 1.052f;	
 
-	private float imageHue = 140.f;
-	private float panoramaHue = 190.f;
-	private float videoHue = 100.f;
-	private float soundHue = 40.f;
-
+	/* Library View */
+	private int libraryViewMode = 2;							// 0: World, 1: Field, 2: Cluster 
+	public int currentDisplayField = 0, currentDisplayCluster = 0;
+	private final float thumbnailWidth = 90.f;
+	private final float thumbnailSpacing = 0.1f;
+	
 	/* Media View */
 	private int mediaViewMediaType = -1;
 	private int mediaViewMediaID = -1;
 
-	/* Messages */
-	ArrayList<String> messages;							// Messages to display on screen
-	ArrayList<String> metadata;							// Metadata messages to display on screen
-	ArrayList<String> startupMessages;					// Messages to display on screen
-	PFont defaultFont, messageFont;
+	/* Text */
+	private final float hudVeryLargeTextSize = 32.f;
+	private final float hudLargeTextSize = 26.f;
+	private final float hudMediumTextSize = 22.f;
+	private final float hudSmallTextSize = 18.f;
+	private final float hudVerySmallTextSize = 16.f;
+	private final float hudLinePadding = 4.f;
+	private final float hudLinePaddingWide = 8.f;
+	private final float hudLineWidth = hudMediumTextSize + hudLinePadding;			
+	private final float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;			
+	private final float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
 
-	int messageDuration = 40;							// Frame length to display messages
-	int maxMessages = 16;								// Maximum simultaneous messages on screen
+	/* Messages */
+	public ArrayList<String> startupMessages;					// Messages to display on screen
+	private ArrayList<String> messages;							// Messages to display on screen
+	private ArrayList<String> metadata;							// Metadata messages to display on screen
+	private PFont defaultFont, messageFont;
+
+	private final int messageDuration = 40;							// Frame length to display messages
+	private final int maxMessages = 16;								// Maximum simultaneous messages on screen
 
 	int messageStartFrame = -1;
 	int metadataStartFrame = -1;
 	int startupMessageStartFrame = -1;					
 	
 	/* Text */
-	private float centerTextXOffset, topTextYOffset;
+//	private float centerTextXOffset, topTextYOffset;
 	private float messageXOffset, messageYOffset, startupMessageXOffset;
 	private float metadataXOffset, metadataYOffset, startupMessageYOffset;
 	private float clusterImageXOffset, clusterImageYOffset;
 	
-	private final float veryLargeTextSize = 64.f;
+//	private final float veryLargeTextSize = 64.f;
 	private final float largeTextSize = 56.f;
 	private final float mediumTextSize = 44.f;
 	private final float smallTextSize = 36.f;
@@ -152,13 +157,17 @@ public class ML_Display
 		screenWidth = ml.displayWidth;
 		screenHeight = ml.displayHeight;
 		
+		float aspect = (float)screenHeight / (float)screenWidth;
+		if(aspect != 0.625f)
+			monitorOffsetXAdjustment = (0.625f / aspect); 
+
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
 		/* 3D HUD Displays */
-		centerTextXOffset = screenWidth / 2.f;
-		topTextYOffset = -screenHeight / 1.6f;
+//		centerTextXOffset = screenWidth / 2.f;
+//		topTextYOffset = -screenHeight / 1.6f;
 		
 		messageXOffset = screenWidth * 1.75f;
 		messageYOffset = -screenHeight * 0.33f;
@@ -197,19 +206,8 @@ public class ML_Display
 		messageFont = ml.createFont("ArialNarrow-Bold", messageTextSize);
 		defaultFont = ml.createFont("SansSerif", smallTextSize);
 
-//		ml.textFont(messageFont);
-		
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
 	}
-
-	/**
-	 * Initialize windows
-	 * @param p Parent world
-	 */
-//	void initializeWindows(WMV_World p)
-//	{
-//		window = new ML_Window(p, this);				// Setup and display interaction window
-//	}
 
 	/**
 	 * Display HUD elements (messages, satellite map, statistics, metadata, etc.)
@@ -220,7 +218,6 @@ public class ML_Display
 		if(worldSetup)
 		{
 			ml.hint(PApplet.DISABLE_DEPTH_TEST);									// Disable depth testing for drawing HUD
-//			ml.background(0);														// Hide World View
 			displayStartup(ml.world, ml.state.inLibrarySetup);						// Draw startup messages
 		}
 		else																		
@@ -747,7 +744,7 @@ public class ML_Display
 		String startTime = utilities.secondsToTimeAsString(timelineStart, false, false);
 		String endTime = utilities.secondsToTimeAsString(timelineEnd, false, false);
 		
-		ml.textSize(timeTextSize);
+		ml.textSize(hudVerySmallTextSize);
 		float firstHour = utilities.roundSecondsToHour(timelineStart);
 		if(firstHour == (int)(timelineStart / 3600.f) * 3600.f) firstHour += 3600.f;
 		float lastHour = utilities.roundSecondsToHour(timelineEnd);
@@ -1064,9 +1061,6 @@ public class ML_Display
 
 //		System.out.println("Display.updateTimelineMouse()... mouseX:"+ml.mouseX+" mouseY:"+ml.mouseY);
 		
-//		mouseLoc = getMouse3DLocation(ml.mouseX, ml.mouseY);		// Old method
-//		mouseLoc = new PVector(ml.mouseX * 0.95f, ml.mouseY * 0.95f);
-		
 		mouseLocOrig = new PVector(ml.mouseX, ml.mouseY);
 		mouseLoc = getAdjustedMouse2DLocation(mouseLocOrig);
 		
@@ -1112,11 +1106,11 @@ public class ML_Display
 				selectedDate = -1;
 		}
 	}
-	
+
 	/**
-	 * 
-	 * @param original
-	 * @return
+	 * Get 2D mouse location, adjusted for screen size
+	 * @param original Original mouse location
+	 * @return Adjusted mouse location
 	 */
 	private PVector getAdjustedMouse2DLocation(PVector original)
 	{
@@ -1132,6 +1126,8 @@ public class ML_Display
 		float offsetXFactor = 0.00009f * screenHeight;
 		float offsetYFactor = 0.00009f * screenWidth;
 		
+		offsetXFactor *= monitorOffsetXAdjustment;		// -- Added 7/2/17
+		
 		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
 		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
 
@@ -1140,6 +1136,34 @@ public class ML_Display
 		
 		return new PVector(newX, newY);
 	}
+	
+//	/**														
+//	 * Get 2D mouse location adjusted for screen size			-- Works with 0.625 aspect monitors only
+//	 * @param original Original mouse location
+//	 * @return Adjusted mouse location
+//	 */
+//	private PVector getAdjustedMouse2DLocation(PVector original)
+//	{
+//		float mouseX = original.x;
+//		float mouseY = original.y;
+//		
+//		float centerX = screenWidth * 0.5f;			/* Center X location */
+//		float centerY = screenHeight * 0.5f;		/* Center Y location */
+//		
+//		float dispX = mouseX - centerX;						/* Mouse X displacement from the center */
+//		float dispY = mouseY - centerY;						/* Mouse Y displacement from the center */
+//		
+//		float offsetXFactor = 0.00009f * screenHeight;
+//		float offsetYFactor = 0.00009f * screenWidth;
+//		
+//		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
+//		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
+//
+//		float newX = mouseX + offsetX;
+//		float newY = mouseY + offsetY;
+//		
+//		return new PVector(newX, newY);
+//	}
 	
 	/**
 	 * Zoom to current selectable time segment
@@ -1458,21 +1482,82 @@ public class ML_Display
 	public void reset()
 	{
 //		ml = parent;
-//		utilities = new WMV_Utilities();
+		/* Display View */
+		displayView = 0;						/* {0: Scene  1: Map  2: Library  3: Timeline  4: Media} */
 		
-//		originalMatrix = ml.getMatrix((PMatrix3D)null);
+		/* Setup */
+		worldSetup = true;
+		dataFolderFound = false;
+		setupProgress = 0.f;
 
+		/* Graphics */
+//		private float currentFieldOfView;
+//		
+		drawGrid = false; 							/* Draw 3D grid */   			// -- Unused
+//
+		messageHUDDistance = hudDistanceInit * 6.f;
+		blendMode = 0;									/* Alpha blending mode */
+//		
+//		/* Map View */
+		mapViewMode = 1;									// 0: World, 1: Field, (2: Cluster  -- In progress)
+		initializedMaps = false;
+		initializedSatelliteMap = false;
+//
+//		/* Time View */
+		timelineStart = 0.f; timelineEnd = 0.f;
+		datelineStart = 0.f; datelineEnd = 0.f;
+		displayDate = -1;
+		updateCurrentSelectableTimeSegment = true; updateCurrentSelectableDate = true;
+		
+		selectableTimeSegments = new ArrayList<SelectableTimeSegment>();
+		selectableDates = new ArrayList<SelectableDate>();
+		allDates = null;
+
+		fieldTimelineCreated = false; fieldDatelineCreated = false; updateFieldTimeline = true;
+		hudLeftMargin = 0.f; timelineYOffset = 0.f;
+		datelineXOffset = 0.f; datelineYOffset = 0.f;
+		
+		selectedTime = -1; selectedCluster = -1; currentSelectableTimeSegmentID = -1; currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+		selectedDate = -1; currentSelectableDate = -1;
+
+		currentSelectableTimeSegment = null;
+//		currentSelectableTimeSegmentID = -1;
+//		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+
+		timelineTransition = false; timelineZooming = false; timelineScrolling = false;   
+		transitionScrollDirection = -1; transitionZoomDirection = -1;
+		timelineTransitionStartFrame = 0; timelineTransitionEndFrame = 0;
+		timelineTransitionLength = 30;
+
+		timelineStartTransitionStart = 0; timelineStartTransitionTarget = 0;
+		timelineEndTransitionStart = 0; timelineEndTransitionTarget = 0;
+		transitionScrollIncrement = 1750.f;
+
+		/* Library View */
+		libraryViewMode = 2;										
+		currentDisplayField = 0; currentDisplayCluster = 0;
+
+		/* Media View */
+		mediaViewMediaType = -1;
+		mediaViewMediaID = -1;
+
+		messageStartFrame = -1;
+		metadataStartFrame = -1;
+		startupMessageStartFrame = -1;
+		
+		/* --- From Setup --- */
 		screenWidth = ml.displayWidth;
 		screenHeight = ml.displayHeight;
 		
+		float aspect = (float)screenHeight / (float)screenWidth;
+		if(aspect != 0.625f)
+			monitorOffsetXAdjustment = (0.625f / aspect); 
+
+		startupMessages = new ArrayList<String>();
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
-		startupMessages = new ArrayList<String>();
 
 		/* 3D HUD Displays */
-		centerTextXOffset = screenWidth / 2.f;
-		topTextYOffset = -screenHeight / 1.6f;
-		
 		messageXOffset = screenWidth * 1.75f;
 		messageYOffset = -screenHeight * 0.33f;
 
@@ -1480,7 +1565,7 @@ public class ML_Display
 		metadataYOffset = -screenHeight / 2.f;
 
 		startupMessageXOffset = screenWidth / 2.f;
-		startupMessageYOffset = -screenHeight /2.f;
+		startupMessageYOffset = -screenHeight / 2.f;
 
 		/* 2D HUD Displays */
 		timelineScreenSize = screenWidth * 0.86f;
@@ -1501,10 +1586,6 @@ public class ML_Display
 		datelineXOffset = hudLeftMargin;
 		datelineYOffset = screenHeight * 0.5f;
 		
-		currentSelectableTimeSegment = null;
-		currentSelectableTimeSegmentID = -1;
-		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
-
 		map2D.reset();
 		startWorldSetup();						// Start World Setup Display Mode after reset
 		
@@ -1662,13 +1743,11 @@ public class ML_Display
 	}
 	
 	/**
-	 * Display startup 
+	 * Display startup windows
 	 * @param Parent world
 	 */
 	void displayStartup(WMV_World p, boolean librarySetup)
 	{
-//		float yPos = startupMessageYOffset;
-
 		startHUD();
 		ml.pushMatrix();
 		ml.fill(0, 0, 245.f, 255.f);            								
@@ -1690,18 +1769,20 @@ public class ML_Display
 				else if(!ml.state.selectedNewLibraryDestination)
 				{
 					window.setCreateLibraryWindowText("Please select new library destination...", null);
-//					ml.text("Please select new library destination...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistanceInit);
 				}
 			}
 			else
 			{
 				if(ml.state.startup && !ml.state.selectedLibrary)
 				{
-					if(!window.setupLibraryWindow)
-						window.openStartupWindow();
-					else 
-						if(!window.showLibraryWindow)
-							window.showLibraryWindow();
+					if(!ml.state.gettingExiftoolPath)			// Getting Exiftool program filepath
+					{
+						if(!window.setupLibraryWindow)
+							window.openStartupWindow();			// Open Startup Window
+						else 
+							if(!window.showLibraryWindow)
+								window.showStartupWindow();		// Show Startup Window
+					}
 				}
 			}
 			ml.textSize(largeTextSize);
@@ -1883,26 +1964,33 @@ public class ML_Display
 				c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
 				WMV_Cluster cl = p.getCurrentCluster();
 
-				ml.text(" Point of Interest #"+ c.getID() + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
-				ml.textSize(hudMediumTextSize);
-				if(c.getState().images.size() > 0)
-					ml.text("   Images: "+ c.getState().images.size(), x, y += hudLineWidthWide, 0);
-				if(c.getState().panoramas.size() > 0)
-					ml.text("   Panoramas: "+ c.getState().panoramas.size(), x, y += hudLineWidthWide, 0);
-				if(c.getState().videos.size() > 0)
-					ml.text("   Videos: "+ c.getState().videos.size(), x, y += hudLineWidthWide, 0);
-				if(c.getState().sounds.size() > 0)
-					ml.text("     Sounds: "+ c.getState().sounds.size(), x, y += hudLineWidthWide, 0);
-				ml.text("   Total Count: "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
-				ml.text("   Sub-Clusters: "+ c.segments.size(), x, y += hudLineWidth, 0);
-				ml.text(" ", x, y += hudLineWidth, 0);
-				PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, c.getLocation());
-				gpsLoc.x = utilities.round(gpsLoc.x, 4);
-				gpsLoc.y = utilities.round(gpsLoc.y, 4);
-				ml.text("   GPS Location: Longitude "+ gpsLoc.x+", Latitude "+gpsLoc.y+"", x, y += hudLineWidthWide, 0);
-//				ml.text("   Location: "+ c.getLocation(), x, y += hudLineWidthWide, 0);
-				ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation()))+" m.", x, y += hudLineWidth, 0);
-	
+				if(c != null)
+				{
+					ml.text(" Point of Interest #"+ c.getID() + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
+					ml.textSize(hudMediumTextSize);
+					if(c.getState().images.size() > 0)
+						ml.text("   Images: "+ c.getState().images.size(), x, y += hudLineWidthWide, 0);
+					if(c.getState().panoramas.size() > 0)
+						ml.text("   Panoramas: "+ c.getState().panoramas.size(), x, y += hudLineWidthWide, 0);
+					if(c.getState().videos.size() > 0)
+						ml.text("   Videos: "+ c.getState().videos.size(), x, y += hudLineWidthWide, 0);
+					if(c.getState().sounds.size() > 0)
+						ml.text("     Sounds: "+ c.getState().sounds.size(), x, y += hudLineWidthWide, 0);
+					ml.text("   Total Count: "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
+					ml.text("   Sub-Clusters: "+ c.segments.size(), x, y += hudLineWidth, 0);
+					ml.text(" ", x, y += hudLineWidth, 0);
+					PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, c.getLocation());
+					gpsLoc.x = utilities.round(gpsLoc.x, 4);
+					gpsLoc.y = utilities.round(gpsLoc.y, 4);
+					ml.text("   GPS Location: Longitude "+ gpsLoc.x+", Latitude "+gpsLoc.y+"", x, y += hudLineWidthWide, 0);
+					ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation()))+" m.", x, y += hudLineWidth, 0);
+				}
+				else
+				{
+					ml.text(" No Current Point of Interest", x, y, 0);
+//					System.out.println("");
+				}
+				
 //				if(p.viewer.getAttractorClusterID() != -1)
 //				{
 //					ml.text(" Destination Cluster ID: "+p.viewer.getAttractorCluster(), xPos, yPos += hudLineWidth, 0);

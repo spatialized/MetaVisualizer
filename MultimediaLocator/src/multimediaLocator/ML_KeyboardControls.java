@@ -14,6 +14,10 @@ public class ML_KeyboardControls
 {
 	private ML_Input input;
 	
+	/**
+	 * Constructor for keyboard input handler
+	 * @param parent
+	 */
 	ML_KeyboardControls(ML_Input parent)
 	{
 		input = parent;
@@ -27,12 +31,14 @@ public class ML_KeyboardControls
 	 */
 	public void handleUniversalKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
+		if (key == 'Q')
+			ml.exitProgram();
+
 		if (key == 'R')
 			ml.restart();
 
-		if (keyCode == PApplet.SHIFT) {
+		if (keyCode == PApplet.SHIFT) 
 			input.shiftKey = true;
-		}
 
 		if (keyCode == PApplet.ALT) 
 			input.optionKey = true;
@@ -56,8 +62,8 @@ public class ML_KeyboardControls
 		if (key == '3') 
 			ml.display.setDisplayView(ml.world, 2);		// Time View
 
-		if (key == '4')									// Library View
-			ml.display.setDisplayView(ml.world, 3);
+		if (key == '4')									
+			ml.display.setDisplayView(ml.world, 3);		// Library View
 
 		if (key == 'h')
 			ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
@@ -112,9 +118,6 @@ public class ML_KeyboardControls
 			if(ml.display.window.setupMediaWindow)
 				ml.display.window.chkbxOrientationMode.setSelected(ml.world.viewer.getSettings().orientationMode);
 		}
-
-		if (key == 'Q')
-			ml.exitProgram();
 
 		if (key == 'C') 													// Choose field from list
 			ml.world.viewer.chooseFieldDialog();
@@ -197,59 +200,45 @@ public class ML_KeyboardControls
 		if (key == 'B')						// Teleport to previous time segment on any date
 			ml.world.viewer.moveToPreviousTimeSegment(false, true, ml.world.viewer.getNavigationTeleport(), true);
 
-		if (key == '~')
-		{
-			if(!ml.world.viewer.isFollowing())
-			{
-				int followMode = ml.world.viewer.getPathNavigationMode();
-				if(followMode >= 2) followMode = 0;
-				else followMode++;
-
-				ml.world.viewer.setPathNavigationMode(followMode);
-
-				if(ml.display.window.setupNavigationWindow)
-				{
-					switch(ml.world.viewer.getPathNavigationMode())		// 0: Timeline 1: GPS Track 2: Memory
-					{
-						case 0:					// Timeline
-							ml.display.window.optTimeline.setSelected(true);
-							ml.display.window.optGPSTrack.setSelected(false);
-							ml.display.window.optMemory.setSelected(false);
-							break;
-						case 1:					// GPS Track
-							ml.display.window.optTimeline.setSelected(false);
-							ml.display.window.optGPSTrack.setSelected(true);
-							ml.display.window.optMemory.setSelected(false);
-							break;
-						case 2:					// Memory
-							ml.display.window.optTimeline.setSelected(false);
-							ml.display.window.optGPSTrack.setSelected(false);
-							ml.display.window.optMemory.setSelected(true);
-							break;
-					}
-				}
-			}
-		}
+//		if (key == '~')						// Increment Path Navigation Mode										
+//		{
+//			if(!ml.world.viewer.isFollowing())
+//			{
+//				int followMode = ml.world.viewer.getPathNavigationMode();
+//				if(followMode >= 2) followMode = 0;
+//				else followMode++;
+//
+//				ml.world.viewer.setPathNavigationMode(followMode);
+//
+//				if(ml.display.window.setupNavigationWindow)
+//				{
+//					switch(ml.world.viewer.getPathNavigationMode())		// 0: Timeline 1: GPS Track 2: Memory
+//					{
+//						case 0:					// Timeline
+//							ml.display.window.optTimeline.setSelected(true);
+//							ml.display.window.optGPSTrack.setSelected(false);
+//							ml.display.window.optMemory.setSelected(false);
+//							break;
+//						case 1:					// GPS Track
+//							ml.display.window.optTimeline.setSelected(false);
+//							ml.display.window.optGPSTrack.setSelected(true);
+//							ml.display.window.optMemory.setSelected(false);
+//							break;
+//						case 2:					// Memory
+//							ml.display.window.optTimeline.setSelected(false);
+//							ml.display.window.optGPSTrack.setSelected(false);
+//							ml.display.window.optMemory.setSelected(true);
+//							break;
+//					}
+//				}
+//			}
+//		}
 		
 		if (!input.optionKey && key == '>')
 		{
 			if(!ml.world.viewer.isFollowing())
 			{
-				switch(ml.world.viewer.getPathNavigationMode())
-				{
-					case 0:
-						ml.world.viewer.followTimeline(true, false);
-						break;
-					case 1:
-						ml.world.viewer.startFollowingGPSTrack();
-						break;
-					case 2:
-						ml.world.viewer.followMemory();
-						break;
-				}
-
-				if(ml.display.window.setupNavigationWindow)
-					ml.display.window.chkbxPathFollowing.setSelected(true);
+				ml.world.viewer.startFollowing();
 			}
 			else
 			{
@@ -264,20 +253,6 @@ public class ML_KeyboardControls
 				ml.display.window.chkbxFollowTeleport.setSelected( ml.world.viewer.getFollowTeleport() );
 		}
 		
-//		if (input.optionKey && key == 'g')
-//		{
-//			if(!ml.world.viewer.isFollowing())
-//			{
-//				ml.world.viewer.startFollowingGPSTrack();
-//				if(ml.display.window.setupNavigationWindow)
-//				{
-//					ml.display.window.optTimeline.setSelected(false);
-//					ml.display.window.optGPSTrack.setSelected(true);
-//					ml.display.window.optMemory.setSelected(false);
-//				}
-//			}
-//		}
-
 		if (!input.optionKey && key == 'e')									// Move UP
 			ml.world.viewer.walkUp();
 
@@ -333,7 +308,7 @@ public class ML_KeyboardControls
 			ml.world.viewer.moveToNearestCluster(ml.world.viewer.getNavigationTeleport());
 
 //		if (key == 'W') 
-//		ml.world.viewer.moveToNearestClusterAhead(false);
+//			ml.world.viewer.moveToNearestClusterAhead(false);
 		
 		if( key == 'L' )
 			ml.world.viewer.lookAtNearestMedia();
@@ -358,11 +333,6 @@ public class ML_KeyboardControls
 			ml.world.getCurrentField().calculateMediaLocations(true);		// Recalculate media locations
 			ml.world.getCurrentField().createClusters();				// Recalculate cluster locations
 			ml.world.getCurrentField().recalculateGeometries();				// Recalculate cluster locations
-		}
-
-		if (key == PApplet.ENTER)
-		{
-			ml.world.viewer.startViewingSelectedMedia();
 		}
 
 		if (key == 'E')
@@ -438,14 +408,10 @@ public class ML_KeyboardControls
 			ml.world.getCurrentField().deselectAllMedia(false);
 
 		if (input.optionKey && key == '-')
-		{
 			ml.world.viewer.setVisibleAngle( ml.world.viewer.getVisibleAngle() - 3.1415f / 128.f ); 
-		}
 
 		if (input.optionKey && key == '=')
-		{
 			ml.world.viewer.setVisibleAngle( ml.world.viewer.getVisibleAngle() + 3.1415f / 128.f ); 
-		}
 
 		/* Selection */
 		if (!input.optionKey && key == 'x') 
@@ -454,11 +420,9 @@ public class ML_KeyboardControls
 		if (!input.optionKey && key == 'X')
 			ml.world.viewer.chooseMediaInFront(false);
 
-//		if (key == '≈') 		
 		if (!input.optionKey && key == 'k') 		
 			ml.world.viewer.choosePanoramaNearby(true);
 
-//		if (key == '˛') 		
 		if (key == 'K') 		
 			ml.world.viewer.choosePanoramaNearby(false);
 
@@ -537,6 +501,11 @@ public class ML_KeyboardControls
 			if(!ml.world.outputFolderSelected) ml.selectFolder("Select an output folder:", "outputFolderSelected");
 			ml.world.exportCurrentMedia();
 		}
+
+		if (key == PApplet.ENTER)
+		{
+			ml.world.viewer.startViewingSelectedMedia();
+		}
 		
 		if(key == PApplet.CODED)
 		{
@@ -604,7 +573,7 @@ public class ML_KeyboardControls
 			}
 		}
 
-		/* Map Controls Specific to Map View Mode */
+		/* Map Controls Specific to View Mode */
 		if(ml.display.mapViewMode == 0)			// World Map Commands
 		{
 			if(key == PApplet.ENTER)
@@ -702,59 +671,11 @@ public class ML_KeyboardControls
 		if (key == 'B')						// Teleport to previous time segment on any date
 			ml.world.viewer.moveToPreviousTimeSegment(false, true, true, false);
 
-		if (key == '~')
-		{
-			if(!ml.world.viewer.isFollowing())
-			{
-				int followMode = ml.world.viewer.getPathNavigationMode();
-				if(followMode >= 2) followMode = 0;
-				else followMode++;
-
-				ml.world.viewer.setPathNavigationMode(followMode);
-
-				if(ml.display.window.setupNavigationWindow)
-				{
-					switch(ml.world.viewer.getPathNavigationMode())		// 0: Timeline 1: GPS Track 2: Memory
-					{
-						case 0:					// Timeline
-							ml.display.window.optTimeline.setSelected(true);
-							ml.display.window.optGPSTrack.setSelected(false);
-							ml.display.window.optMemory.setSelected(false);
-							break;
-						case 1:					// GPS Track
-							ml.display.window.optTimeline.setSelected(false);
-							ml.display.window.optGPSTrack.setSelected(true);
-							ml.display.window.optMemory.setSelected(false);
-							break;
-						case 2:					// Memory
-							ml.display.window.optTimeline.setSelected(false);
-							ml.display.window.optGPSTrack.setSelected(false);
-							ml.display.window.optMemory.setSelected(true);
-							break;
-					}
-				}
-			}
-		}
-		
 		if (!input.optionKey && key == '>')
 		{
 			if(!ml.world.viewer.isFollowing())
 			{
-				switch(ml.world.viewer.getPathNavigationMode())
-				{
-					case 0:
-						ml.world.viewer.followTimeline(true, false);
-						break;
-					case 1:
-						ml.world.viewer.startFollowingGPSTrack();
-						break;
-					case 2:
-						ml.world.viewer.followMemory();
-						break;
-				}
-
-				if(ml.display.window.setupNavigationWindow)
-					ml.display.window.chkbxPathFollowing.setSelected(true);
+				ml.world.viewer.startFollowing();
 			}
 			else
 			{
@@ -930,59 +851,11 @@ public class ML_KeyboardControls
 		if (key == 'B')						// Teleport to previous time segment on any date
 			ml.world.viewer.moveToPreviousTimeSegment(false, true, true, false);
 
-		if (key == '~')
-		{
-			if(!ml.world.viewer.isFollowing())
-			{
-				int followMode = ml.world.viewer.getPathNavigationMode();
-				if(followMode >= 2) followMode = 0;
-				else followMode++;
-
-				ml.world.viewer.setPathNavigationMode(followMode);
-
-				if(ml.display.window.setupNavigationWindow)
-				{
-					switch(ml.world.viewer.getPathNavigationMode())		// 0: Timeline 1: GPS Track 2: Memory
-					{
-						case 0:					// Timeline
-							ml.display.window.optTimeline.setSelected(true);
-							ml.display.window.optGPSTrack.setSelected(false);
-							ml.display.window.optMemory.setSelected(false);
-							break;
-						case 1:					// GPS Track
-							ml.display.window.optTimeline.setSelected(false);
-							ml.display.window.optGPSTrack.setSelected(true);
-							ml.display.window.optMemory.setSelected(false);
-							break;
-						case 2:					// Memory
-							ml.display.window.optTimeline.setSelected(false);
-							ml.display.window.optGPSTrack.setSelected(false);
-							ml.display.window.optMemory.setSelected(true);
-							break;
-					}
-				}
-			}
-		}
-		
 		if (!input.optionKey && key == '>')
 		{
 			if(!ml.world.viewer.isFollowing())
 			{
-				switch(ml.world.viewer.getPathNavigationMode())
-				{
-					case 0:
-						ml.world.viewer.followTimeline(true, false);
-						break;
-					case 1:
-						ml.world.viewer.startFollowingGPSTrack();
-						break;
-					case 2:
-						ml.world.viewer.followMemory();
-						break;
-				}
-
-				if(ml.display.window.setupNavigationWindow)
-					ml.display.window.chkbxPathFollowing.setSelected(true);
+				ml.world.viewer.startFollowing();
 			}
 			else
 			{
@@ -1066,9 +939,11 @@ public class ML_KeyboardControls
 			ml.state.inLibrarySetup = true;
 			ml.createNewLibrary = true;
 			ml.state.chooseMediaFolders = true;
-
 			ml.display.window.closeLibraryWindow();
 		}
+		
+		if(key == 'Q')
+			ml.exitProgram();
 	}
 	
 	/**
@@ -1130,10 +1005,10 @@ public class ML_KeyboardControls
 	}
 	
 	/**
-	 * 
-	 * @param ml
-	 * @param key
-	 * @param keyCode
+	 * Handle key pressed in Interactive Clustering Mode -- Disabled
+	 * @param ml Parent app
+	 * @param key Key pressed
+	 * @param keyCode Key code
 	 */
 	public void handleInteractiveClusteringKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
@@ -1146,6 +1021,7 @@ public class ML_KeyboardControls
 					ml.world.getCurrentField().runHierarchicalClustering();
 				ml.world.getCurrentField().setDendrogramDepth(ml.world.getCurrentField().getState().clusterDepth);				// Initialize clusters 
 				ml.world.getCurrentField().createTimeline();					// Create field timeline
+				// FINISH TIMELINE HERE
 			}
 
 		}
@@ -1158,6 +1034,7 @@ public class ML_KeyboardControls
 				WMV_Field f = ml.world.getCurrentField();
 				f.runKMeansClustering(ml.world.settings.kMeansClusteringEpsilon, f.getModel().getState().clusterRefinement, f.getModel().getState().clusterPopulationFactor);
 				ml.world.getCurrentField().createTimeline();					// Create field timeline
+				// FINISH TIMELINE HERE
 			}
 		}
 
@@ -1181,7 +1058,6 @@ public class ML_KeyboardControls
 			if(ml.world.settings.minClusterDistance < ml.world.settings.maxClusterDistance - 2.f)
 			{
 				ml.world.settings.minClusterDistance += 0.25f;
-//				System.out.println("ml.world.minClusterDistance:"+ml.world.minClusterDistance);
 				for(WMV_Field f : ml.world.getFields())
 				{
 					f.getModel().setMinClusterDistance(ml.world.settings.minClusterDistance);

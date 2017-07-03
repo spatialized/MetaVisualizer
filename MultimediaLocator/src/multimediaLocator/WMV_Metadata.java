@@ -1000,6 +1000,10 @@ class WMV_Metadata
 				}
 
 				sFilePath = file.getPath();
+				if(sFilePath == null)
+					dataMissing = true;
+				else if(sFilePath.equals(""))
+					dataMissing = true;
 
 				if (directory.hasErrors()) {
 					for (String error : directory.getErrors()) {
@@ -1284,6 +1288,14 @@ class WMV_Metadata
 				}
 
 				sFilePath = file.getPath();
+				if(sFilePath == null)
+				{
+					if(!dataMissing) dataMissing = true;
+				}
+				else if(sFilePath.equals(""))
+				{
+					if(!dataMissing) dataMissing = true;
+				}
 
 				if (directory.hasErrors()) {
 					for (String error : directory.getErrors()) {
@@ -1461,14 +1473,7 @@ class WMV_Metadata
 				xCoord = parseFloatLongitude(sLongitude);			// Get longitude decimal value without sign
 				yCoord = Float.valueOf(altitude);					// Get altitude in m. (Altitude ref. assumed to be sea level)
 				zCoord = parseFloatLatitude(sLatitude);				// Get longitude decimal value without sign
-
-				sLongitudeRef = getFloatLongitudeRef(sLongitude);	// Get reference (sign) of longitude sign of longitude
-				sLatitudeRef = getFloatLatitudeRef(sLatitude);		// Get reference (sign) of latitude sign of longitude
 				
-//				xCoord = Float.valueOf(sLongitude);				
-//				yCoord = Float.valueOf(altitude);
-//				zCoord = Float.valueOf(sLatitude);				
-
 				if (u.isNaN(xCoord) || u.isNaN(yCoord) || u.isNaN(zCoord)) 
 				{
 					gpsLoc = new PVector(0, 0, 0);
@@ -1476,6 +1481,9 @@ class WMV_Metadata
 				}
 				else 
 					gpsLoc = new PVector(xCoord, yCoord, zCoord);
+				
+				sLongitudeRef = getFloatLongitudeRef(sLongitude);	// Get reference direction of longitude sign of longitude
+				sLatitudeRef = getFloatLatitudeRef(sLatitude);		// Get reference direction of latitude sign of longitude
 			} 
 			catch (RuntimeException ex) 
 			{
@@ -1486,7 +1494,16 @@ class WMV_Metadata
 
 			iWidth = Integer.valueOf(sWidth);
 			iHeight = Integer.valueOf(sHeight);
+
 			sFilePath = file.getPath();
+			if(sFilePath == null)
+			{
+				if(!dataMissing) dataMissing = true;
+			}
+			else if(sFilePath.equals(""))
+			{
+				if(!dataMissing) dataMissing = true;
+			}
 		}
 		catch (Throwable t) {
 			ml.systemMessage("Metadata.loadVideoMetadata()... Throwable while extracting video EXIF data:" + t);
@@ -1528,20 +1545,35 @@ class WMV_Metadata
 		String sName = file.getName();
 		String sFilePath = file.getPath();
 		Path path = FileSystems.getDefault().getPath(sFilePath);
+		boolean dataMissing = false;
+
+		if(sFilePath == null)
+		{
+			if(!dataMissing) dataMissing = true;
+		}
+		else if(sFilePath.equals(""))
+		{
+			if(!dataMissing) dataMissing = true;
+		}
 
 		if(!file.getName().equals(".DS_Store"))
 		{
 			try
 			{
-				if(debugSettings.sound || debugSettings.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Loading sound file:"+sFilePath);
-				BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
-				FileTime creationTime = attr.creationTime();
-				if(ml.debug.sound && ml.debug.metadata) ml.systemMessage("file: "+file.getName()+" creationTime: "+creationTime);
-				ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
-				String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundTime);		// 2016:04:10 17:52:39
-				
-				return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, soundDateTimeString, fieldTimeZoneID, 
-					   null, "", "", "" );				
+				if(!dataMissing)
+				{
+					if(debugSettings.sound || debugSettings.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Loading sound file:"+sFilePath);
+					BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
+					FileTime creationTime = attr.creationTime();
+					if(ml.debug.sound && ml.debug.metadata) ml.systemMessage("file: "+file.getName()+" creationTime: "+creationTime);
+					ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
+					String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundTime);		// 2016:04:10 17:52:39
+
+					return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, soundDateTimeString, fieldTimeZoneID, 
+							null, "", "", "" );
+				}
+				else
+					if(debugSettings.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Data missing! Excluded sound:"+sName);
 			}
 			catch(Throwable t)
 			{
@@ -1551,8 +1583,6 @@ class WMV_Metadata
 		
 		return null;
 	}
-	
-
 	
 	/**
 	 * Read video metadata using ExifToolWrapper

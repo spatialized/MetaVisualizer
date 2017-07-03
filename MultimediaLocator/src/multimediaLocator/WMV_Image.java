@@ -234,17 +234,20 @@ public class WMV_Image extends WMV_Media
 	 */
 	void displayModel(MultimediaLocator ml)
 	{
-//		float brightness = state.outlineAlpha * getViewerSettings().userBrightness;
-//		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactor); 
-//		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
-
-		float brightness = getFadingBrightness() * getViewerSettings().userBrightness;
+		float brightness;
+//		brightness = getFadingBrightness() * getViewerSettings().userBrightness;
 
 		float farViewingDistance;
 		if(ml.world.viewer.getSettings().showInvisibleModels)
+		{
+			brightness = getViewerSettings().userBrightness;
 			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorFar;
+		}
 		else
+		{
+			brightness = getFadingBrightness() * getViewerSettings().userBrightness;
 			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorNear;
+		}
 
 		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, farViewingDistance); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
@@ -257,7 +260,6 @@ public class WMV_Image extends WMV_Media
 		/* Draw frame */
 		ml.pushMatrix();
 		ml.stroke(0.f, 0.f, 255.f, modelBrightness);	 
-//		ml.stroke(0.f, 0.f, 255.f, state.outlineAlpha);	 
 		ml.strokeWeight(2.f);
 
 		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
@@ -265,7 +267,7 @@ public class WMV_Image extends WMV_Media
 		ml.line(state.vertices[2].x, state.vertices[2].y, state.vertices[2].z, state.vertices[3].x, state.vertices[3].y, state.vertices[3].z);
 		ml.line(state.vertices[3].x, state.vertices[3].y, state.vertices[3].z, state.vertices[0].x, state.vertices[0].y, state.vertices[0].z);
 
-		PVector c = ml.world.getCurrentField().getCluster(getMediaState().getClusterID()).getLocation();
+		PVector c = ml.world.getCurrentField().getCluster(getAssociatedClusterID()).getLocation();
 		PVector loc = getLocation();
 		PVector cl = getCaptureLocation();
 		ml.popMatrix();
@@ -275,21 +277,21 @@ public class WMV_Image extends WMV_Media
 		if(getWorldState().showMediaToCluster)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(80, 135, 255, getMediaState().viewingBrightness * 0.8f);
+			ml.stroke(80, 135, 255, getViewingBrightness() * 0.8f);
 			ml.line(c.x, c.y, c.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToMedia)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(160, 100, 255, getMediaState().viewingBrightness * 0.8f);
+			ml.stroke(160, 100, 255, getViewingBrightness() * 0.8f);
 			ml.line(cl.x, cl.y, cl.z, loc.x, loc.y, loc.z);
 		}
 
 		if(getWorldState().showCaptureToCluster)
 		{
 			ml.strokeWeight(3.f);
-			ml.stroke(120, 55, 255, getMediaState().viewingBrightness * 0.8f);
+			ml.stroke(120, 55, 255, getViewingBrightness() * 0.8f);
 			ml.line(c.x, c.y, c.z, cl.x, cl.y, cl.z);
 		}
 		ml.popMatrix();
@@ -1127,7 +1129,6 @@ public class WMV_Image extends WMV_Media
 	{
 		state = newState;						// Set state parameters
 		setMediaState( state.getMediaState() );	// Set media state (general) parameters
-//		if(state.getMediaState().cluster == -1) System.out.println("Image.setState()... state.getMediaState().cluster == "+state.getMediaState().cluster);
 		metadata = state.getMetadata();			// Set metadata parameters
 	}
 

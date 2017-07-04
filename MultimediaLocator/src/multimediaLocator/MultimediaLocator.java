@@ -12,14 +12,9 @@
 */
 
 package multimediaLocator;
-//import org.eclipse.swt.SWT; 
-//import org.eclipse.swt.widgets.DirectoryDialog; 
-//import org.eclipse.swt.widgets.Display; 
-//import org.eclipse.swt.widgets.FileDialog; 
 
 import java.awt.AWTEvent;
 import java.awt.FileDialog;
-//import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -31,20 +26,14 @@ import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Stack;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
-//import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-
-//import org.bytedeco.javacv.Frame;
 
 import g4p_controls.GButton;
 import g4p_controls.GEditableTextControl;
@@ -147,8 +136,6 @@ public class MultimediaLocator extends PApplet
 		if(debug.ml) systemMessage("Starting "+appName+" setup...");
 
 		input = new ML_Input();
-//		input = new ML_Input(appWidth, appHeight);
-
 		world = new WMV_World(this);
 		
 		appIcon = getImageResource("icon.png");

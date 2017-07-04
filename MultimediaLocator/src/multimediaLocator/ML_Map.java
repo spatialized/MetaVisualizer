@@ -10,7 +10,9 @@ import processing.core.PVector;
 import de.fhpotsdam.unfolding.UnfoldingMap;
 import de.fhpotsdam.unfolding.core.Coordinate;
 import de.fhpotsdam.unfolding.events.EventDispatcher;
+import de.fhpotsdam.unfolding.events.ZoomMapEvent;
 import de.fhpotsdam.unfolding.geo.Location;
+import de.fhpotsdam.unfolding.interactions.KeyboardHandler;
 import de.fhpotsdam.unfolding.interactions.MouseHandler;
 import de.fhpotsdam.unfolding.marker.Marker;
 import de.fhpotsdam.unfolding.marker.MarkerManager;
@@ -129,7 +131,7 @@ public class ML_Map
 	}
 	
 	/**
-	 * Initialize maps
+	 * Initialize satellite map
 	 */
 	public void initialize(WMV_World world)
 	{
@@ -140,14 +142,32 @@ public class ML_Map
 
 		eventDispatcher = new EventDispatcher();
 		MouseHandler mouseHandler = new MouseHandler(world.ml, satellite);
+		KeyboardHandler keyboardHandler = new KeyboardHandler(world.ml, satellite);
 		eventDispatcher.addBroadcaster(mouseHandler);
+		eventDispatcher.addBroadcaster(keyboardHandler);				// Added
 		eventDispatcher.register(satellite, "pan", satellite.getId());
 		eventDispatcher.register(satellite, "zoom", satellite.getId());
-
+		satellite.setActive(true);					// Added
+		satellite.setTweening(true);				// Added
+		
 		if(p.mapViewMode == 0) setSelectedField( world, world.getCurrentField().getID() );
 		
 		if(!p.initializedMaps)
 		{
+			WMV_Cluster current = world.getCurrentCluster();
+			if(current != null) 
+				zoomToCluster(world, current, true);	// Zoom to current cluster
+			else
+			{
+				System.out.println("Map.initialize()... Couldn't pan to current cluster; current cluster is null!  Zooming to center");
+				PVector mapLoc = new PVector(0,0);
+				mapLoc.x = world.getCurrentField().getModel().getState().centerLatitude;
+				mapLoc.y = world.getCurrentField().getModel().getState().centerLongitude;
+				PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(world.getCurrentField(), mapLoc);
+				zoomAndPanMapTo(satellite, clusterZoomLevel, new Location(gpsLoc.y, gpsLoc.x), false);
+
+//				satellite.panTo(  );
+			}
 //			if(p.mapViewMode == 0)										// World Mode: Start zoomed out on multiple fields
 //				zoomToWorld(true);											
 //			else if(p.mapViewMode == 1)									// Field Mode: Start zoomed out on current field
@@ -453,16 +473,18 @@ public class ML_Map
 	/**
 	 * Start zooming in map
 	 */
-	public void zoomIn(WMV_World world)
+	public void startZoomingIn(WMV_World world)
 	{
+//		satellite.panTo( satellite.getCenter() );
 		zoomingIn = true;
 	}
 	
 	/**
 	 * Start zooming out map
 	 */
-	public void zoomOut(WMV_World world)
+	public void startZoomingOut(WMV_World world)
 	{
+//		satellite.panTo( satellite.getCenter() );
 		zoomingOut = true;
 	}
 	
@@ -525,6 +547,15 @@ public class ML_Map
 	{
 		return panningLeft || panningRight || panningUp || panningDown;
 	}
+	
+	/**
+	 * Stop panning the map
+	 */
+	public boolean isZooming()
+	{
+		return zoomingIn || zoomingOut;
+	}
+
 
 	/**
 	 * Create satellite map markers for clusters in current field
@@ -731,13 +762,25 @@ public class ML_Map
 		if(zoomingIn)
 		{
 			float zoomInPct = 1.f - 0.01f * satellite.getZoomLevel();
-			satellite.zoom(zoomInPct);
+//			satellite.zoom(zoomInPct);		// -- Fix this 
+			
+			ZoomMapEvent zoomMapEvent = new ZoomMapEvent(world.ml, satellite.getId());
+			zoomMapEvent.setSubType("zoomBy");
+			zoomMapEvent.setZoomDelta(zoomInPct);
+			zoomMapEvent.setTransformationCenterLocation(satellite.getCenter());
+			eventDispatcher.fireMapEvent(zoomMapEvent);
 		}
 		if(zoomingOut)
 		{
 			float zoomInPct = 1.f - 0.01f * satellite.getZoomLevel();
 			float zoomOutPct = 1.f / zoomInPct;
-			satellite.zoom(zoomOutPct);
+//			satellite.zoom(zoomOutPct);
+			
+			ZoomMapEvent zoomMapEvent = new ZoomMapEvent(world.ml, satellite.getId());
+			zoomMapEvent.setSubType("zoomBy");
+			zoomMapEvent.setZoomDelta(zoomOutPct);
+			zoomMapEvent.setTransformationCenterLocation(satellite.getCenter());
+			eventDispatcher.fireMapEvent(zoomMapEvent);
 		}
 		if(panningLeft)
 		{

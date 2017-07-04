@@ -468,14 +468,18 @@ public class ML_Input
 	//						ml.display.map2D.zoomToWorld(true);
 						break;
 					case "MapZoomIn":
-						ml.display.map2D.zoomIn(ml.world);
+						if(ml.display.map2D.isZooming())
+							ml.display.map2D.stopZooming();
+//						ml.display.map2D.zoomIn(ml.world);
 						break;
 					case "ResetMapZoom":
 						ml.display.map2D.resetMapZoom(true);
 	//					ml.display.map2D.zoomToWorld(true);
 						break;
 					case "MapZoomOut":
-						ml.display.map2D.zoomOut(ml.world);
+						if(ml.display.map2D.isZooming())
+							ml.display.map2D.stopZooming();
+//						ml.display.map2D.zoomOut(ml.world);
 						break;
 	//				case "ZoomToSelected":
 	//					break;
@@ -641,6 +645,20 @@ public class ML_Input
 					else
 						ml.display.map2D.panRight();
 					break;
+				case "MapZoomIn":
+					if(ml.display.map2D.isZooming())
+						ml.display.map2D.stopZooming();
+					else
+						ml.display.map2D.startZoomingIn(ml.world);
+//					ml.display.map2D.zoomIn(ml.world);
+					break;
+				case "MapZoomOut":
+					if(ml.display.map2D.isZooming())
+						ml.display.map2D.stopZooming();
+					else
+						ml.display.map2D.startZoomingOut(ml.world);
+//					ml.display.map2D.zoomOut(ml.world);
+					break;
 				
 				/* Timeline */
 				case "TimelineZoomIn":
@@ -688,6 +706,11 @@ public class ML_Input
 				case "PanRight":
 					display.map2D.stopPanning();
 //					System.out.println("Stopped panning... panningLeft:"+display.map2D.panningLeft+ " panningRight:"+display.map2D.panningRight);
+					break;
+				case "MapZoomIn":
+				case "MapZoomOut":
+					display.map2D.stopZooming();
+//					System.out.println("Stopped zooming...");
 					break;
 					
 				/* Timeline */

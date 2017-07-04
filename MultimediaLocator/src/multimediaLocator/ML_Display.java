@@ -180,9 +180,9 @@ public class ML_Display
 		metadataYOffset = -screenHeight / 2.f;
 
 		/* 2D HUD Displays */
-		timelineYOffset = screenHeight * 0.33f;
-		timelineScreenSize = screenWidth * 0.86f;
-		timelineHeight = screenHeight * 0.1f;
+//		timelineYOffset = screenHeight * 0.33f;
+//		timelineScreenSize = screenWidth * 0.86f;
+//		timelineHeight = screenHeight * 0.1f;
 		
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
@@ -190,8 +190,8 @@ public class ML_Display
 		hudCenterXOffset = screenWidth * 0.5f;
 		hudTopMargin = screenHeight * 0.085f;
 
-		timelineXOffset = screenWidth * 0.07f;
-		datelineYOffset = screenHeight * 0.5f;
+//		timelineXOffset = screenWidth * 0.07f;
+//		datelineYOffset = screenHeight * 0.5f;
 		
 		currentSelectableTimeSegment = null;
 		currentSelectableTimeSegmentID = -1;
@@ -213,7 +213,16 @@ public class ML_Display
 		windowWidth = ml.width;
 		windowHeight = ml.height;
 		clusterMediaXOffset = windowWidth * 0.1f;
-		clusterMediaYOffset = screenHeight * 0.5f;
+		clusterMediaYOffset = windowHeight * 0.5f;
+//		clusterMediaYOffset = screenHeight * 0.5f;
+		
+		timelineXOffset = windowWidth * 0.1f;
+		timelineYOffset = windowHeight * 0.33f;
+//		timelineYOffset = screenHeight * 0.33f;
+		timelineScreenSize = windowWidth * 0.8f;
+		timelineHeight = screenHeight * 0.1f;
+//		datelineYOffset = screenHeight * 0.5f;
+		datelineYOffset = windowHeight * 0.5f;
 	}
 
 	/**
@@ -480,7 +489,7 @@ public class ML_Display
 			datelineStart = utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), firstDay, firstMonth, firstYear) - padding;
 			datelineEnd = utilities.getDaysSince1980(p.getCurrentField().getTimeZoneID(), lastDay, lastMonth, lastYear) + padding;
 			
-			createFieldSelectableDates(p);
+			createSelectableDates(p);
 			fieldDatelineCreated = true;
 		}
 		else
@@ -556,7 +565,7 @@ public class ML_Display
 	 * Create selectable dates for current field
 	 * @param p Parent world
 	 */
-	private void createFieldSelectableDates(WMV_World p)
+	private void createSelectableDates(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
 		selectableDates = new ArrayList<SelectableDate>();

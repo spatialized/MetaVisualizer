@@ -29,9 +29,9 @@ public class ML_Window
 	
 	/* Windows */
 	private final int windowWidth = 310;
-	private final int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 875;
+	private final int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 895;
 	public boolean compressTallWindows = false;
-	private int compressedNavigationWindowHeight = mediumWindowHeight, compressedMediaWindowHeight = 510;
+	private int compressedNavigationWindowHeight = mediumWindowHeight + 10, compressedMediaWindowHeight = 515;
 
 	private final int closeWindowWaitTime = 180;			// Time to wait before closing hidden windows
 	private int lastWindowHiddenFrame;						// Frame when last window was hidden
@@ -240,13 +240,13 @@ public class ML_Window
 		display = newDisplay;
 		utilities = new WMV_Utilities();
 		
-		mainMenuHeight = mediumWindowHeight - 130;
+		mainMenuHeight = mediumWindowHeight - 125;
 		startupWindowHeight = shortWindowHeight / 2;
 		createLibraryWindowHeight = shortWindowHeight + 60;
 		listItemWindowHeight = shortWindowHeight;			// -- Update this
 		textEntryWindowHeight = 120;
 		
-		libraryViewWindowHeight = shortWindowHeight;
+		libraryViewWindowHeight = shortWindowHeight - 30;
 		helpWindowHeight = mediumWindowHeight + 100;
 		mapWindowHeight = shortWindowHeight - 25;
 		timeWindowHeight = mediumWindowHeight - 40;
@@ -262,7 +262,7 @@ public class ML_Window
 		else																// Large screen
 		{
 			navigationWindowHeight = tallWindowHeight;		
-			mediaWindowHeight = tallWindowHeight;
+			mediaWindowHeight = tallWindowHeight - 20;
 			mediaWindowWidth = windowWidth;
 			navigationWindowWidth = windowWidth;
 			compressTallWindows = false;
@@ -464,7 +464,7 @@ public class ML_Window
 		else									// Tall window
 		{
 			if(world.getFields().size() == 1) 
-				navigationWindowHeight = tallWindowHeight - 45;							// Single field, fewer buttons
+				navigationWindowHeight = tallWindowHeight - 60;							// Single field, fewer buttons
 			else
 				navigationWindowHeight = tallWindowHeight;
 		}

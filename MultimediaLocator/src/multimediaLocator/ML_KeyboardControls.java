@@ -660,10 +660,10 @@ public class ML_KeyboardControls
 			ml.world.viewer.stop(true);
 
 		if (key == 's') 
-			ml.display.map2D.zoomIn(ml.world);
+			ml.display.map2D.startZoomingIn(ml.world);
 		
 		if (key == 'w') 
-			ml.display.map2D.zoomOut(ml.world);
+			ml.display.map2D.startZoomingOut(ml.world);
 		
 		if (key == 'j') 
 			ml.world.viewer.moveToRandomCluster(true, false);				// Teleport to random cluster

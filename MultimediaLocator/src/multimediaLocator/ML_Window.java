@@ -26,7 +26,7 @@ public class ML_Window
 	/* General */
 	private int windowWidth = 310;
 	private int shortWindowHeight = 340, mediumWindowHeight = 600, tallWindowHeight = 875;
-	private int compressedNavigationWindowHeight = 560, compressedMediaWindowHeight = 495;
+	private int compressedNavigationWindowHeight = 560, compressedMediaWindowHeight = 510;
 	private int delayAmount = 100;							// Delay length to avoid G4P library concurrent modification exception
 	
 	/* Windows */
@@ -1938,11 +1938,11 @@ public class ML_Window
 
 		x = 60;
 		y += 50;
-		btnCreateLibrary = new GButton(startupWindow, x, y, 190, iLargeBoxHeight + 2, "Create Library");
+		btnCreateLibrary = new GButton(startupWindow, x, y, 190, iLargeBoxHeight, "Create Library");
 		btnCreateLibrary.tag = "CreateLibrary";
 		btnCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnCreateLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
-		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 175, iLargeBoxHeight + 2, "Open Library");
+		btnOpenLibrary = new GButton(startupWindow, x+=220, y, 175, iLargeBoxHeight, "Open Library");
 		btnOpenLibrary.tag = "OpenLibrary";
 		btnOpenLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 		btnOpenLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);

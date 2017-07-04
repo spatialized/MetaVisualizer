@@ -925,7 +925,8 @@ public class WMV_World
 	 * Set world and viewer states from saved data in given field
 	 * @param field Given field
 	 */
-	void setSimulationStateFromField(WMV_Field field, boolean moveToCurrentCluster)
+//	void setSimulationStateFromField(WMV_Field field, boolean moveToCurrentCluster)
+	void setSimulationStateFromField(WMV_Field field)
 	{
 		if(ml.debug.world)
 			ml.systemMessage("World.setSimulationStateFromField()... Field #"+field.getID());
@@ -956,22 +957,22 @@ public class WMV_World
 			}
 		}
 		
-		if(moveToCurrentCluster)
-		{
-			if(getCurrentCluster() != null)
-			{
-				if(ml.debug.viewer || ml.debug.world)
-					ml.systemMessage("World.setSimulationStateFromField()... Moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" viewer loc before:"+viewer.getLocation());
-			}
-			else
-			{
-				if(ml.debug.viewer || ml.debug.world)
-					ml.systemMessage("World.setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
-				viewer.setCurrentCluster(0, 0);
-			}
-			viewer.setLocation(getCurrentCluster().getLocation(), false);					// Set location to current cluster
-			viewer.ignoreTeleportGoal();
-		}
+//		if(moveToCurrentCluster)
+//		{
+//			if(getCurrentCluster() != null)
+//			{
+//				if(ml.debug.viewer || ml.debug.world)
+//					ml.systemMessage("World.setSimulationStateFromField()... Moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" viewer loc before:"+viewer.getLocation());
+//			}
+//			else
+//			{
+//				if(ml.debug.viewer || ml.debug.world)
+//					ml.systemMessage("World.setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
+//				viewer.setCurrentCluster(0, 0);
+//			}
+//			viewer.setLocation(getCurrentCluster().getLocation(), false);					// Set location to current cluster
+//			viewer.ignoreTeleportGoal();
+//		}
 
 		viewer.resetTimeState();
 
@@ -995,7 +996,6 @@ public class WMV_World
 //			getCurrentField().verify(true);			// -- Test
 		}
 		
-//		updateState();
 		updateState();
 		getCurrentField().updateAllMediaStates();
 	}

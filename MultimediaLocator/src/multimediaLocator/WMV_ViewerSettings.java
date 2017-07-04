@@ -12,6 +12,8 @@ public class WMV_ViewerSettings
 	public float rotateIncrement = 3.1415f / 256.f;					// Rotation amount per frame when turning
 	public float zoomIncrement = 3.1415f / 32.f;					// Zoom amount per frame when zooming
 	public float nearClippingDistance = 3.f; 						// Distance (m.) of near clipping plane
+	public float farClippingDistance = 10000.f;						// Distance (m.) of far clipping plane
+	
 	public float nearViewingDistance = nearClippingDistance * 2.f; 	// Near distance (m.) at which media start fading out
 	public float farViewingDistance = 11.f; 						// Far distance (m.) at which media start fading out
 	public float userBrightness = 1.f;								// User brightness

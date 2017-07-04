@@ -66,7 +66,7 @@ public class ML_KeyboardControls
 			ml.display.setDisplayView(ml.world, 3);		// Library View
 
 		if (key == 'h')
-			ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
+			ml.world.getCurrentField().setHome(ml.world.viewer.getLocationAsWaypoint());
 			
 		if (key == 'H')
 		{
@@ -272,10 +272,10 @@ public class ML_KeyboardControls
 			ml.world.viewer.sidestepRight();
 
 		if (key == '{')
-			ml.world.viewer.teleportToFieldOffset(-1, true, true);
+			ml.world.viewer.teleportToFieldOffset(-1, true);
 
 		if (key == '}') 
-			ml.world.viewer.teleportToFieldOffset(1, true, true);
+			ml.world.viewer.teleportToFieldOffset(1, true);
 
 		if (key == 'q') 
 			ml.world.viewer.zoomIn();
@@ -581,11 +581,11 @@ public class ML_KeyboardControls
 				int selectedField = ml.display.map2D.getSelectedFieldID();
 				if(input.shiftKey)
 				{
-					ml.world.viewer.teleportToField(selectedField, true, false);
+					ml.world.viewer.teleportToField(selectedField, false);
 				}
 				else
 				{
-					ml.world.viewer.teleportToField(selectedField, true, true);
+					ml.world.viewer.teleportToField(selectedField, true);
 					ml.display.setDisplayView( ml.world, 0 );
 				}
 			}
@@ -636,10 +636,10 @@ public class ML_KeyboardControls
 			ml.world.viewer.moveToNearestCluster(false);
 
 		if (key == '{')
-			ml.world.viewer.teleportToFieldOffset(-1, true, false);
+			ml.world.viewer.teleportToFieldOffset(-1, false);
 
 		if (key == '}') 
-			ml.world.viewer.teleportToFieldOffset(1, true, false);
+			ml.world.viewer.teleportToFieldOffset(1, false);
 
 		if (!input.optionKey && key == 'S') 
 			ml.world.viewer.walkBackward();
@@ -834,10 +834,10 @@ public class ML_KeyboardControls
 			ml.world.viewer.moveToNearestCluster(false);
 
 		if (key == '{')
-			ml.world.viewer.teleportToFieldOffset(-1, true, false);
+			ml.world.viewer.teleportToFieldOffset(-1, false);
 
 		if (key == '}') 
-			ml.world.viewer.teleportToFieldOffset(1, true, false);
+			ml.world.viewer.teleportToFieldOffset(1, false);
 
 		if( key == 'l' )
 			ml.world.viewer.moveToLastCluster(false);

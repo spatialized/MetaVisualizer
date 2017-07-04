@@ -108,8 +108,8 @@ public class ML_Display
 	private final float hudVerySmallTextSize = 16.f;
 	private final float hudLinePadding = 4.f;
 	private final float hudLinePaddingWide = 8.f;
-	private final float hudLineWidth = hudMediumTextSize + hudLinePadding;			
-	private final float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;			
+	private final float hudLineWidth = hudMediumTextSize + hudLinePadding;
+	private final float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
 	private final float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
 
 	/* Messages */
@@ -308,8 +308,6 @@ public class ML_Display
 		
 		ml.textFont(defaultFont); 					// = ml.createFont("SansSerif", 30);
 
-//		float xPos = centerTextXOffset;
-//		float yPos = topTextYOffset;						// Starting vertical position
 		float xPos = hudCenterXOffset;
 		float yPos = hudTopMargin;						// Starting vertical position
 
@@ -318,7 +316,6 @@ public class ML_Display
 		ml.fill(0, 0, 255, 255);
 
 		ml.textSize(hudVeryLargeTextSize);
-//		ml.textSize(veryLargeTextSize);
 		ml.text(""+p.getCurrentField().getName(), xPos, yPos, 0);
 //		ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistanceInit);
 
@@ -336,7 +333,7 @@ public class ML_Display
 			ml.fill(35, 115, 255, 255);
 		}
 
-		ml.text(strDisplayDate, xPos, yPos += hudLineWidthVeryWide * 1.2f, 0);
+		ml.text(strDisplayDate, xPos, yPos += hudLineWidthVeryWide, 0);
 //		ml.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistanceInit);
 		
 		ml.textSize(hudMediumTextSize);
@@ -688,8 +685,6 @@ public class ML_Display
 			float rectWidth = xOffset2 - xOffset;
 
 			PVector loc = new PVector(xOffset, timelineYOffset, 0);  	// -- Z doesn't affect selection!
-//			PVector loc = new PVector(xOffset, timelineYOffset, hudDistanceInit);  	// -- Z doesn't affect selection!
-//			PVector loc = new PVector(xOffset * 1.166f, timelineYOffset * 1.166f, timelineHUDDistance);  	// -- Test
 
 			rectLeftEdge = loc.x;
 			rectRightEdge = rectLeftEdge + rectWidth;
@@ -1057,22 +1052,24 @@ public class ML_Display
 	 */
 	public void updateTimelineMouse(WMV_World p)
 	{
-		PVector mouseLocOrig, mouseLoc;
+//		PVector mouseLocOrig, mouseLoc;
 
 //		System.out.println("Display.updateTimelineMouse()... mouseX:"+ml.mouseX+" mouseY:"+ml.mouseY);
 		
-		mouseLocOrig = new PVector(ml.mouseX, ml.mouseY);
-		mouseLoc = getAdjustedMouse2DLocation(mouseLocOrig);
+		PVector mouseLoc = new PVector(ml.mouseX, ml.mouseY);
+
+//		mouseLocOrig = new PVector(ml.mouseX, ml.mouseY);
+//		mouseLoc = getAdjustedMouse2DLocation(mouseLocOrig);
 		
 		if(ml.debug.mouse)
 		{
 			startDisplayHUD();
 			ml.stroke(155, 0, 255);
 			ml.strokeWeight(5);
-			ml.point(mouseLocOrig.x, mouseLocOrig.y, 0);					// Show mouse location for debugging
+//			ml.point(mouseLocOrig.x, mouseLocOrig.y, 0);					// Show mouse location for debugging
 
-			ml.stroke(0, 255, 255);
-			ml.strokeWeight(10);
+//			ml.stroke(0, 255, 255);
+//			ml.strokeWeight(10);
 			ml.point(mouseLoc.x, mouseLoc.y, 0);						// Show mouse adjusted location for debugging
 			endDisplayHUD();
 		}
@@ -2183,7 +2180,8 @@ public class ML_Display
 	{
 //		camera3D = ml.world.viewer.getCamera();
 		currentFieldOfView = ml.world.viewer.getFieldOfView();
-	    ml.world.viewer.resetFieldOfView();
+//	    ml.world.viewer.setInitialFieldOfView();
+		ml.world.viewer.resetPerspective();
 		beginHUD(ml);
 	}
 

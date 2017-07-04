@@ -65,23 +65,55 @@ public class WMV_Viewer
 		path = new ArrayList<WMV_Waypoint>();
 
 		visibleClusterTimeline = new ArrayList<WMV_TimeSegment>();
-		initialize(0, 0, 0);
+		initialize();
+//		initialize(0, 0, 0);
 	}
 
 	/** 
-	 * Initialize camera at a given virtual point
-	 * @param x Initial X coordinate
-	 * @param y Initial Y coordinate
-	 * @param z Initial Z coordinate
+	 * Initialize camera at location {0,0,0} with default parameters
 	 */
-	public void initialize(float x, float y, float z)
+//	public void initialize(float x, float y, float z)
+	public void initialize()
 	{
-		camera = new WMV_Camera( p.ml, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
-		hudCamera = new WMV_Camera( p.ml, 0.f, 0.f, 500.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, (float)Math.PI / 3.f, settings.nearClippingDistance, 10000.f);
+		float x, y, z; 
+		x = y = z = 0;
+		
+		float cX, cY, cZ;
+		cX = cY = cZ = 0.f;
+		
+		camera = new WMV_Camera( p.ml, x, y, z, cX, cY, cZ, 0.f, 1.f, 0.f, settings.fieldOfView, 
+								 settings.nearClippingDistance, settings.farClippingDistance );
+		
+//		camera = new WMV_Camera( p.ml, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
+//		hudCamera = new WMV_Camera( p.ml, 0.f, 0.f, 500.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, (float)Math.PI / 3.f, settings.nearClippingDistance, 10000.f);
 
-		state.location = new PVector(x, y, z);
-		state.teleportGoal = new PVector(x, y, z);
+		state.location = new PVector(0.f, 0.f, 0.f);
+		state.teleportGoal = new PVector(0.f, 0.f, 0.f);		// -- Needed?
 		settings.initialize();
+		
+//		camera = new WMV_Camera( p.ml, settings.initFieldOfView, settings.nearClippingDistance, settings.farClippingDistance );			// Initialize at default location {0,0,0} with default parameters
+		
+		state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
+	}
+
+	/** 
+	 * Initialize camera at given location with default parameters
+	 * @param x X coord
+	 * @param y Y coord 
+	 * @param z Z coord
+	 */
+	public void initializeAtLocation(float x, float y, float z)
+	{
+		float cX, cY, cZ;
+		cX = cY = cZ = 0.f;
+		
+		camera = new WMV_Camera( p.ml, x, y, z, cX, cY, cZ, 0.f, 1.f, 0.f, settings.fieldOfView, 
+								 settings.nearClippingDistance, settings.farClippingDistance );
+		
+		state.location = new PVector(x, y, z);
+		state.teleportGoal = new PVector(x, y, z);		// -- Needed?
+		settings.initialize();
+		
 		state.clustersVisibleInOrientationMode = new ArrayList<Integer>();
 	}
 
@@ -822,10 +854,10 @@ public class WMV_Viewer
 	 * @param moveToFirstTimeSegment Whether to move to first time segment in field
 	 * @param fade Whether to fade smoothly or jump
 	 */
-	public void teleportToFieldOffset(int offset, boolean moveToFirstTimeSegment, boolean fade) 
+	public void teleportToFieldOffset(int offset, boolean fade) 
 	{
 		if(p.getFieldCount() > 1)
-			teleportToField(getCurrentFieldID() + offset, moveToFirstTimeSegment, fade);
+			teleportToField(getCurrentFieldID() + offset, fade);
 	}
 	
 	/**
@@ -834,10 +866,12 @@ public class WMV_Viewer
 	 * @param moveToFirstTimeSegment Whether to move to first time segment in field
 	 * @param fade Whether to fade smoothly or jump
 	 */
-	public void teleportToField(int newField, boolean moveToFirstTimeSegment, boolean fade) 
+	public void teleportToField(int newField, boolean fade) 
 	{
+//		if(debugSettings.viewer)
+//			p.ml.systemMessage("Viewer.teleportToField()... newField:"+newField+" mtf time segment:"+moveToFirstTimeSegment+" fade:"+fade);
 		if(debugSettings.viewer)
-			p.ml.systemMessage("Viewer.teleportToField()... newField:"+newField+" mtf time segment:"+moveToFirstTimeSegment+" fade:"+fade);
+			p.ml.systemMessage("Viewer.teleportToField()... newField:"+newField+" fade:"+fade);
 		if(newField >= 0)
 		{
 			p.stopAllVideos();									/* Stop currently playing videos */
@@ -850,19 +884,42 @@ public class WMV_Viewer
 
 			if(p.getField(newField).getClusters().size() > 0)
 			{
-				if(moveToFirstTimeSegment)
+//				if(moveToFirstTimeSegment)
+//				{
+//					WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
+//					if(goalSegment != null)
+//						state.teleportGoalCluster = goalSegment.getClusterID();
+//					else
+//						p.ml.systemMessage("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
+//				}
+//				else
+//				{
+//					state.teleportGoalCluster = -1;
+//					if(debugSettings.viewer)
+//						p.ml.systemMessage("teleportToField()... Not moving to first time segment: will setCurrentCluster to "+state.teleportGoalCluster);
+//				}
+
+				WMV_Waypoint entry = p.getField(newField).getState().entryLocation;
+				boolean hasEntryPoint = false;
+				
+				if(entry != null)
+					hasEntryPoint = entry.initialized();
+
+				if(hasEntryPoint)
+				{
+//					state.teleportGoalCluster = -1;
+					state.teleportGoalCluster = entry.getID();
+//					here
+					if(debugSettings.viewer)
+						p.ml.systemMessage("teleportToField()... Found entry point... will set Current Cluster to "+state.teleportGoalCluster);
+				}
+				else
 				{
 					WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
 					if(goalSegment != null)
 						state.teleportGoalCluster = goalSegment.getClusterID();
 					else
 						p.ml.systemMessage("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
-				}
-				else
-				{
-					state.teleportGoalCluster = -1;
-					if(debugSettings.viewer)
-						p.ml.systemMessage("teleportToField()... Not moving to first time segment: will setCurrentCluster to "+state.teleportGoalCluster);
 				}
 
 				if(fade)
@@ -872,7 +929,7 @@ public class WMV_Viewer
 					else
 						if(debugSettings.viewer) p.ml.systemMessage("Invalid goal cluster! "+state.teleportGoalCluster+" field clusters.size():"+p.getField(newField).getClusters().size());
 					
-					if(debugSettings.viewer) p.ml.systemMessage("  teleportToField()...  Teleported to field "+state.teleportToField+" moveToFirstTimeSegment?"+moveToFirstTimeSegment+" state.teleportGoal:"+state.teleportGoal);
+					if(debugSettings.viewer) p.ml.systemMessage("  teleportToField()...  Teleported to field "+state.teleportToField+" at state.teleportGoal:"+state.teleportGoal);
 					
 					if(p.getSettings().screenMessagesOn) 
 						p.ml.display.message(p.ml, "Moving to "+p.getField(newField).getName());
@@ -886,20 +943,30 @@ public class WMV_Viewer
 
 					enterField(newField); 						/* Enter new field */
 
-					if(debugSettings.viewer) p.ml.systemMessage("  teleportToField()...  Entered field "+newField+"... moveToFirstTimeSegment? "+moveToFirstTimeSegment);
+					if(debugSettings.viewer) p.ml.systemMessage("  teleportToField()...  Entered field "+newField+" hasEntryPoint? "+hasEntryPoint);
 
-					if(moveToFirstTimeSegment) 
+					if(hasEntryPoint)
 					{
-						moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+						moveToWaypoint( p.getField(newField).getState().entryLocation, false, 	// Move to waypoint 
+								p.viewer.getState().pathWaiting );						
 					}
 					else
 					{
-						if(p.getField(newField).getState().entryLocation.initialized())
-							moveToWaypoint( p.getField(newField).getState().entryLocation, false, 	// Move to waypoint 
-											p.viewer.getState().pathWaiting );						
-						else
-							moveToFirstTimeSegment(false);				// Move to first time segment if start location not set from saved data 
+						moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
 					}
+
+//					if(moveToFirstTimeSegment) 
+//					{
+//						moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+//					}
+//					else
+//					{
+//						if(hasEntryPoint)
+//							moveToWaypoint( p.getField(newField).getState().entryLocation, false, 	// Move to waypoint 
+//											p.viewer.getState().pathWaiting );						
+//						else
+//							moveToFirstTimeSegment(false);				// Move to first time segment if start location not set from saved data 
+//					}
 
 					if(p.state.displayTerrain)
 						p.state.waitingToFadeInTerrainAlpha = true;
@@ -934,6 +1001,9 @@ public class WMV_Viewer
 		
 		if(newField != -1)
 			state.teleportToField = newField;
+		
+		if(p.state.displayTerrain)						// Added 7-3-17
+			p.state.waitingToFadeInTerrainAlpha = true;
 	}
 
 	/**
@@ -1502,9 +1572,16 @@ public class WMV_Viewer
 	 * Get current viewer location as waypoint
 	 * @return Current viewer location as waypoint
 	 */
-	public WMV_Waypoint getCurrentWaypoint()
+	public WMV_Waypoint getLocationAsWaypoint()
 	{
-		WMV_Waypoint current = new WMV_Waypoint(-1, getLocation(), getGPSLocation(), getAltitude(), null);	// -- Should set time
+		WMV_Waypoint current;
+		WMV_Cluster currentCluster = p.getCurrentCluster();
+		int clusterID = -1;
+		
+		if( currentCluster.getViewerDistance() < p.settings.clusterCenterSize )
+			clusterID = currentCluster.getID();
+		
+		current = new WMV_Waypoint( clusterID, getLocation(), getGPSLocation(), getAltitude(), null );	// -- Should set time
 		return current;
 	}
 	
@@ -1728,7 +1805,8 @@ public class WMV_Viewer
 		state.currentCluster = 0;
 		state.clusterNearDistance = worldSettings.clusterCenterSize * state.clusterNearDistanceFactor;
 
-		initialize(0, 0, 0);
+//		initialize(0, 0, 0);
+		initialize();
 	}
 
 	/**
@@ -2433,7 +2511,6 @@ public class WMV_Viewer
 		state.halting = true;										// Slowing when close to attractor
 	}
 
-
 	/**
 	 * Set specified field as current field
 	 * @param newField  Field to set as current
@@ -2452,7 +2529,8 @@ public class WMV_Viewer
 
 			if(setSimulationState)											// Set simulation state from saved
 			{
-				p.setSimulationStateFromField(p.getField(newField), true);
+				p.setSimulationStateFromField(p.getField(newField));
+//				p.setSimulationStateFromField(p.getField(newField), true);
 				if(debugSettings.viewer && debugSettings.detailed)		
 					p.ml.systemMessage("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
 			}
@@ -3152,7 +3230,7 @@ public class WMV_Viewer
 	 */
 	public void resetCamera()
 	{
-		initialize( getLocation().x, getLocation().y, getLocation().z );				// Initialize camera
+		initializeAtLocation( getLocation().x, getLocation().y, getLocation().z );				// Initialize camera
 	}
 	
 	/**
@@ -3458,9 +3536,17 @@ public class WMV_Viewer
 	/**
 	 * Reset field of view to initial value
 	 */
-	public void resetFieldOfView()
+	public void setInitialFieldOfView()
 	{
 		zoomToFieldOfView( getInitFieldOfView() );
+	}
+	
+	/**
+	 * Reset field of view to initial value
+	 */
+	public void resetPerspective()
+	{
+		camera.resetPerspective();
 	}
 	
 	/**

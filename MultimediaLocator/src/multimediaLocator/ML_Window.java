@@ -462,7 +462,7 @@ public class ML_Window
 		if(compressTallWindows)					// Compressed window
 		{
 			if(world.getFields().size() > 1)
-				navigationWindowHeight = compressedNavigationWindowHeight + 45;			// Multiple fields, more buttons
+				navigationWindowHeight = compressedNavigationWindowHeight + 55;			// Multiple fields, more buttons
 			else
 				navigationWindowHeight = compressedNavigationWindowHeight;
 		}
@@ -960,9 +960,8 @@ public class ML_Window
 		setMapControlsEnabled(display.getDisplayView() == 1);
 		
 		x = 0;
-		if(compressTallWindows) x += windowWidth;
 		y = navigationWindowHeight - iBottomTextY;
-		lblShift1 = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight);		/* Display Mode Label */
+		lblShift1 = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight);		/* Window Label */
 		lblShift1.setText("Press SHIFT + 1 to show / hide");
 		lblShift1.setFont(new Font("Monospaced", Font.PLAIN, iVerySmallTextSize));
 		lblShift1.setLocalColorScheme(G4P.SCHEME_10);

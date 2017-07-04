@@ -13,7 +13,8 @@ import processing.core.*;
  */ 
 public class WMV_Camera
 {
-	private PApplet p;
+//	private PApplet p;
+	private MultimediaLocator p;
 
 	// Camera orientation 
 	private float azimuth;			// Azimuth (yaw) in radians
@@ -37,21 +38,47 @@ public class WMV_Camera
 	private float dX, dY, dZ;
 	
 	// Field of view
-	private float fov;
+	private float fov, initFov;
 	
 	// Aspect ratio
 	private float aspectRatio;
 	
 	// Clipping planes
-	private float nearClip;
-	private float farClip;
+	private float nearClip, initNearClip;
+	private float farClip, initFarClip;
 	
 	// View vector Length
 	private float shotLength;
 
 	// Constructors
+//	/**
+//	 * Constructor without aspect ratio
+//	 * @param newParent Parent app
+//	 * @param newCameraX
+//	 * @param newCameraY
+//	 * @param newCameraZ
+//	 * @param newTargetX
+//	 * @param newTargetY
+//	 * @param newTargetZ
+//	 * @param newUpX
+//	 * @param newUpY
+//	 * @param newUpZ
+//	 * @param newFoV
+//	 * @param newNearClip
+//	 * @param newFarClip
+//	 */
+//	public WMV_Camera(MultimediaLocator newParent, float newCameraX, float newCameraY, float newCameraZ,
+//			float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
+//			float newFoV, float newNearClip, float newFarClip)
+//	{
+//		this(newParent, newCameraX, newCameraY, newCameraZ,
+//				newTargetX, newTargetY, newTargetZ,
+//				newUpX,    newUpY,    newUpZ,
+//				newFoV, (float)(1f * newParent.width / newParent.height), newNearClip, newFarClip);
+//	}
+
 	/**
-	 * Constructor without aspect ratio
+	 * Main constructor with all parameters
 	 * @param newParent Parent app
 	 * @param newCameraX
 	 * @param newCameraY
@@ -62,18 +89,42 @@ public class WMV_Camera
 	 * @param newUpX
 	 * @param newUpY
 	 * @param newUpZ
-	 * @param newFoV
-	 * @param newNearClip
-	 * @param newFarClip
+	 * @param newFieldOfView
+	 * @param newNearClippingDistance
+	 * @param newFarClippingDistance
 	 */
 	public WMV_Camera(MultimediaLocator newParent, float newCameraX, float newCameraY, float newCameraZ,
 			float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
-			float newFoV, float newNearClip, float newFarClip)
+			float newFieldOfView, float newNearClippingDistance, float newFarClippingDistance)
 	{
-		this(newParent, newCameraX, newCameraY, newCameraZ,
-				newTargetX, newTargetY, newTargetZ,
-				newUpX,    newUpY,    newUpZ,
-				newFoV, (float)(1f * newParent.width / newParent.height), newNearClip, newFarClip);
+		p = newParent;
+		
+		cameraX  = newCameraX;
+		cameraY  = newCameraY;
+		cameraZ  = newCameraZ;
+		targetX  = newTargetX;
+		targetY  = newTargetY;
+		targetZ  = newTargetZ;
+		
+		upX = newUpX;
+		upY = newUpY;
+		upZ = newUpZ;
+		
+		fov = newFieldOfView;
+		aspectRatio = (float)(1.f * newParent.width / newParent.height);
+		nearClip = newNearClippingDistance;
+		farClip = newFarClippingDistance;
+		
+		initFov = newFieldOfView;
+		initNearClip = newNearClippingDistance;
+		initFarClip = newFarClippingDistance;
+
+		setup();
+
+//		this(newParent, newCameraX, newCameraY, newCameraZ,
+//				newTargetX, newTargetY, newTargetZ,
+//				newUpX,    newUpY,    newUpZ,
+//				newFoV, (float)(1f * newParent.width / newParent.height), newNearClip, newFarClip);
 	}
 
 	/**
@@ -93,25 +144,105 @@ public class WMV_Camera
 	 * @param newNearClip
 	 * @param newFarClip
 	 */
-	public WMV_Camera(MultimediaLocator newParent, float newCameraX, float newCameraY, float newCameraZ,
-			float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
-			float newFoV, float newAspect, float newNearClip, float newFarClip)
+//	public void WMV_Camera(MultimediaLocator newParent, float newCameraX, float newCameraY, float newCameraZ,
+//			float newTargetX, float newTargetY, float newTargetZ, float newUpX, float newUpY, float newUpZ,
+//			float newFoV, float newAspect, float newNearClip, float newFarClip)
+//	{
+//		p = newParent;
+//		cameraX  = newCameraX;
+//		cameraY  = newCameraY;
+//		cameraZ  = newCameraZ;
+//		targetX  = newTargetX;
+//		targetY  = newTargetY;
+//		targetZ  = newTargetZ;
+//		upX = newUpX;
+//		upY = newUpY;
+//		upZ = newUpZ;
+//		fov = newFoV;
+//		aspectRatio = newAspect;
+//		nearClip = newNearClip;
+//		farClip = newFarClip;
+//
+//		init();
+//		
+////		dX = cameraX - targetX;
+////		dY = cameraY - targetY;
+////		dZ = cameraZ - targetZ;
+////
+////		shotLength = getMagnitude(dX, dY, dZ);
+////
+////		azimuth = (float)Math.atan2(dX, dZ);
+////		elevation  = (float)Math.atan2(dY, (float)Math.sqrt(dZ * dZ + dX * dX));
+////
+////		if (elevation < 0.00001f - (float)(Math.PI * 0.5))
+////		{
+////			upY =  0;
+////			upZ =  1;
+////		}
+////
+////		if (elevation > (float)(Math.PI * 0.5) - 0.00001f)
+////		{
+////			upY =  0;
+////			upZ = -1;
+////		}     
+////		
+////		updateUp();
+//	}
+	
+	/**
+	 * Constructor for camera at default location and target
+	 */
+	public WMV_Camera(MultimediaLocator newParent, float fieldOfView, float nearClippingDistance, float farClippingDistance)
 	{
 		p = newParent;
-		cameraX  = newCameraX;
-		cameraY  = newCameraY;
-		cameraZ  = newCameraZ;
-		targetX  = newTargetX;
-		targetY  = newTargetY;
-		targetZ  = newTargetZ;
-		upX = newUpX;
-		upY = newUpY;
-		upZ = newUpZ;
-		fov = newFoV;
-		aspectRatio = newAspect;
-		nearClip = newNearClip;
-		farClip = newFarClip;
+		initialize(fieldOfView, nearClippingDistance, farClippingDistance);
+	}
+	
+	/**
+	 * Initialize camera at default location and target
+	 * @param fieldOfView
+	 * @param nearClippingDistance
+	 * @param farClippingDistance
+	 */
+	public void initialize(float fieldOfView, float nearClippingDistance, float farClippingDistance)
+	{
+//		REFERENCE:
+//		perspective(fovy, aspect, zNear, zFar)
+//		camera(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ)
+//	
+//		DEFAULT:
+//		camera(width/2.0, height/2.0, (height/2.0) / tan(PI*30.0 / 180.0), width/2.0, height/2.0, 0, 0, 1, 0).;
+//		perspective(PI/3.0, width/height, cameraZ/10.0, cameraZ*10.0);
 
+		cameraX  = 0.f;
+		cameraY  = 0.f;
+		cameraZ  = 0.f;
+		targetX  = 0.f;
+		targetY  = 0.f;
+		targetZ  = 0.f;
+		
+		upX = 0.f;
+		upY = 1.f;
+		upZ = 0.f;
+
+		fov = fieldOfView;
+		aspectRatio = (float)(1.f * p.width / p.height);
+//		aspectRatio = p.displayWidth/p.displayHeight;		// ERROR HERE?
+		nearClip = nearClippingDistance;
+		farClip = farClippingDistance;
+		
+		initFov = fieldOfView;
+		initNearClip = nearClippingDistance;
+		initFarClip = farClippingDistance;
+		
+		setup();
+	}
+	
+	/**
+	 * Setup camera with current parameters
+	 */
+	private void setup()
+	{
 		dX = cameraX - targetX;
 		dY = cameraY - targetY;
 		dZ = cameraZ - targetZ;
@@ -135,12 +266,35 @@ public class WMV_Camera
 		
 		updateUp();
 	}
+	
+	public void resetPerspective()
+	{
+//		perspective(PI/3.0, width/height, cameraZ/10.0, cameraZ*10.0) where cameraZ is ((height/2.0) / tan(PI*60.0/360.0))
+		
+//		float cameraZ = ((p.displayHeight/2.0f) / (float)Math.tan((float)Math.PI*60.0f/360.0f));
+//		p.perspective((float)Math.PI/3.0f, p.displayWidth/p.displayHeight, cameraZ/10.0f, cameraZ*10.0f); 	// where cameraZ is ((height/2.0) / tan(PI*60.0/360.0))
+
+		fov = (float)Math.PI/3.0f;		// TESTING
+//		fov = initFov;
+		aspectRatio = (float)(1.f * p.width / p.height);
+		nearClip = initNearClip;
+		farClip = initFarClip;
+
+		show();
+		
+//		p.perspective();
+
+//		p.world.viewer.zoomToFieldOfView( p.world.viewer.getSettings().initFieldOfView );
+	}
 
 	/** 
 	 * Set viewport to this camera's view 
 	 */
 	public void show() 
 	{
+//		Default Values: 
+//		perspective(PI/3.0, width/height, cameraZ/10.0, cameraZ*10.0) where cameraZ is ((height/2.0) / tan(PI*60.0/360.0))
+		
 		p.perspective(fov, aspectRatio, nearClip, farClip);
 		p.camera(cameraX, cameraY, cameraZ,
 				targetX, targetY, targetZ,
@@ -452,6 +606,10 @@ public class WMV_Camera
 		return (magnitude < 0.00001f) ? 1 : magnitude;
 	}
 	
+	/**
+	 * Set camera field of view
+	 * @param newFieldOfView New field of view
+	 */
 	public void setFieldOfView(float newFieldOfView)
 	{
 		fov = newFieldOfView;

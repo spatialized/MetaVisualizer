@@ -340,15 +340,15 @@ public class ML_Input
 						
 					case "NextField":
 						if(display.getDisplayView() == 1)
-							ml.world.viewer.teleportToFieldOffset(1, true, false);
+							ml.world.viewer.teleportToFieldOffset(1, false);
 						else
-							ml.world.viewer.teleportToFieldOffset(1, true, true);
+							ml.world.viewer.teleportToFieldOffset(1, true);
 						break;
 					case "PreviousField":
 						if(display.getDisplayView() == 1)
-							ml.world.viewer.teleportToFieldOffset(-1, true, false);
+							ml.world.viewer.teleportToFieldOffset(-1, false);
 						else
-							ml.world.viewer.teleportToFieldOffset(-1, true, true);
+							ml.world.viewer.teleportToFieldOffset(-1, true);
 						break;
 					
 					case "ZoomIn":
@@ -421,7 +421,7 @@ public class ML_Input
 						ml.world.viewer.clearMemory();
 						break;
 					case "SetHome":
-						ml.world.getCurrentField().setHome(ml.world.viewer.getCurrentWaypoint());
+						ml.world.getCurrentField().setHome(ml.world.viewer.getLocationAsWaypoint());
 						break;
 		
 					/* Map */

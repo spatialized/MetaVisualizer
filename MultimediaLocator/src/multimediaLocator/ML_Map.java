@@ -142,9 +142,9 @@ public class ML_Map
 
 		eventDispatcher = new EventDispatcher();
 		MouseHandler mouseHandler = new MouseHandler(world.ml, satellite);
-		KeyboardHandler keyboardHandler = new KeyboardHandler(world.ml, satellite);
+//		KeyboardHandler keyboardHandler = new KeyboardHandler(world.ml, satellite);
 		eventDispatcher.addBroadcaster(mouseHandler);
-		eventDispatcher.addBroadcaster(keyboardHandler);				// Added
+//		eventDispatcher.addBroadcaster(keyboardHandler);				// Added
 		eventDispatcher.register(satellite, "pan", satellite.getId());
 		eventDispatcher.register(satellite, "zoom", satellite.getId());
 		satellite.setActive(true);					// Added
@@ -739,12 +739,6 @@ public class ML_Map
 			gpsTrackMarker.setStrokeWeight(3);
 			
 			satellite.addMarker(gpsTrackMarker);
-//			gpsMarkerManager.addMarker(gpsTrackMarker);
-			
-//			System.out.println("Added GPS Marker Manager to Map");
-//			satellite.addMarkerManager(gpsMarkerManager);
-//			System.out.println("Will enable GPS Marker Manager drawing");
-//			gpsMarkerManager.enableDrawing();
 			
 			createdGPSMarker = true;
 
@@ -764,9 +758,6 @@ public class ML_Map
 			float zoomOutPct = 1.f - 0.01f * satellite.getZoomLevel();
 			float zoomInPct = 1.f / zoomOutPct;
 
-//			float zoomInPct = 1.f - 0.01f * satellite.getZoomLevel();
-//			satellite.zoom(zoomInPct);		// -- Fix this 
-			
 			ZoomMapEvent zoomMapEvent = new ZoomMapEvent(world.ml, satellite.getId());
 			zoomMapEvent.setSubType("zoomBy");
 			zoomMapEvent.setZoomDelta(zoomInPct);
@@ -776,8 +767,6 @@ public class ML_Map
 		if(zoomingOut)
 		{
 			float zoomOutPct = 1.f - 0.01f * satellite.getZoomLevel();
-//			float zoomOutPct = 1.f / zoomInPct;
-//			satellite.zoom(zoomOutPct);
 			
 			ZoomMapEvent zoomMapEvent = new ZoomMapEvent(world.ml, satellite.getId());
 			zoomMapEvent.setSubType("zoomBy");

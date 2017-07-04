@@ -790,13 +790,13 @@ public class ML_Window
 
 		world.ml.delay(delayAmount / 2);
 
-		x = 88;
-		y += iVeryLargeBoxHeight;
-		navigationWindowLineBreakY_2 = y - 10;
-		
-		btnSetHome = new GButton(navigationWindow, x, y, 145, iVerySmallBoxHeight, "Save Start Location (h)");
-		btnSetHome.tag = "SetHome";
-		btnSetHome.setLocalColorScheme(G4P.CYAN_SCHEME);
+//		x = 88;
+//		y += iVeryLargeBoxHeight;
+//		navigationWindowLineBreakY_2 = y - 10;
+//		
+//		btnSetHome = new GButton(navigationWindow, x, y, 145, iVerySmallBoxHeight, "Save Start Location (h)");
+//		btnSetHome.tag = "SetHome";
+//		btnSetHome.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		if(compressTallWindows)
 		{
@@ -808,7 +808,8 @@ public class ML_Window
 			y += 45;
 			x = 0;
 		}
-		navigationWindowLineBreakY_3 = y - 10;
+		navigationWindowLineBreakY_2 = y - 10;
+//		navigationWindowLineBreakY_3 = y - 10;
 
 		/* Path Navigation */
 		lblPathNavigation = new GLabel(navigationWindow, x, y, navigationWindow.width, iVerySmallBoxHeight, "Path Navigation");
@@ -2501,9 +2502,9 @@ public class ML_Window
 		applet.line(0, navigationWindowLineBreakY_1, windowWidth, navigationWindowLineBreakY_1);
 //		applet.stroke(0, 0, 155, 255);
 //		applet.strokeWeight(2);
-		applet.line(0, navigationWindowLineBreakY_2, windowWidth, navigationWindowLineBreakY_2);
+//		applet.line(0, navigationWindowLineBreakY_2, windowWidth, navigationWindowLineBreakY_2);
 //		if(!compressTallWindows) applet.line(0, navigationWindowLineBreakY_2, windowWidth, navigationWindowLineBreakY_2);
-		if(!compressTallWindows) applet.line(0, navigationWindowLineBreakY_3, windowWidth, navigationWindowLineBreakY_3);
+		if(!compressTallWindows) applet.line(0, navigationWindowLineBreakY_2, windowWidth, navigationWindowLineBreakY_2);
 		
 //		if(world.state.timeFading && !world.state.paused)
 //			sdrCurrentTime.setValue(world.getCurrentTimePoint());

@@ -433,9 +433,9 @@ public class ML_Input
 					case "ClearMemory":
 						ml.world.viewer.clearMemory();
 						break;
-					case "SetHome":
-						ml.world.getCurrentField().setHome(ml.world.viewer.getLocationAsWaypoint());
-						break;
+//					case "SetHome":
+//						ml.world.getCurrentField().setHome(ml.world.viewer.getLocationAsWaypoint());
+//						break;
 		
 					/* Map */
 					case "SetMapView":

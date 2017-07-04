@@ -113,8 +113,8 @@ public class ML_KeyboardControls
 		if (key == '4')									
 			ml.display.setDisplayView(ml.world, 3);		// Library View
 
-		if (key == 'h')
-			ml.world.getCurrentField().setHome(ml.world.viewer.getLocationAsWaypoint());
+//		if (key == 'h')
+//			ml.world.getCurrentField().setHome(ml.world.viewer.getLocationAsWaypoint());
 			
 		if (key == 'H')
 		{
@@ -660,10 +660,10 @@ public class ML_KeyboardControls
 			ml.world.viewer.stop(true);
 
 		if (key == 's') 
-			ml.display.map2D.startZoomingIn(ml.world);
+			ml.display.map2D.startZoomingOut(ml.world);
 		
 		if (key == 'w') 
-			ml.display.map2D.startZoomingOut(ml.world);
+			ml.display.map2D.startZoomingIn(ml.world);
 		
 		if (key == 'j') 
 			ml.world.viewer.moveToRandomCluster(true, false);				// Teleport to random cluster

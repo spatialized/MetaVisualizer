@@ -260,41 +260,6 @@ public class ML_Library
 		}
 	}
 	
-	/**
-	 * Rename field folder
-	 * @param field Field to rename
-	 * @param newName New name to attempt
-	 * @return Whether operation succeeded
-	 */
-//	private boolean renameFieldFolder(WMV_Field field, String newName)
-//	{
-//		field.setName(newName);
-//		String fieldFolderPath = getLibraryFolder() + "/" + field.getName();
-//		File fieldFolderFile = new File(fieldFolderPath);
-//		String newFilePath = getLibraryFolder() + "/" + newName;
-//		File newNameFile = new File(newFilePath);
-//		boolean success = false;
-//
-//		if(!newNameFile.exists())
-//			success = fieldFolderFile.renameTo(newNameFile);
-//
-//		if(!success)
-//		{
-//			ml.systemMessage("Failed at renaming to :"+newFilePath+"... will try appending numbers...");
-//			boolean found = false;
-//			int count = 2;
-//			while(!found)				// Append count to file name until non-duplicate name found
-//			{
-//				String path = getLibraryFolder() + "/" + newName + "_" + String.valueOf(count);
-//				newNameFile = new File(path);
-//				if(!newNameFile.exists()) found = true;
-//				count++;
-//			}
-//			success = fieldFolderFile.renameTo(newNameFile);
-//		}
-//		
-//		return success;
-//	}
 	
 	/**
 	 * Move matching media in source field to target

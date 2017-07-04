@@ -12,7 +12,14 @@
 */
 
 package multimediaLocator;
+//import org.eclipse.swt.SWT; 
+//import org.eclipse.swt.widgets.DirectoryDialog; 
+//import org.eclipse.swt.widgets.Display; 
+//import org.eclipse.swt.widgets.FileDialog; 
+
 import java.awt.AWTEvent;
+import java.awt.FileDialog;
+//import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -34,6 +41,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
+//import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 
 //import org.bytedeco.javacv.Frame;
@@ -779,13 +787,15 @@ public class MultimediaLocator extends PApplet
 			}
 			else
 			{
-				System.out.println("newLibraryDestinationSelected error... not a directory!");
-				selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
+				System.out.println("ML.newLibraryDestinationSelected()... ERROR... not a directory!");
+				selectFolderDialog("Select library destination:", 0);  
+//				selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of Library folder
 			}
 		}
 		else
 		{
-			selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
+			selectFolderDialog("Select library destination:", 0);  
+//			selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of Library folder
 		}
 	}
 
@@ -1623,9 +1633,10 @@ public class MultimediaLocator extends PApplet
 	public void libraryDestinationDialog()
 	{
 		state.chooseLibraryDestination = false;
-		display.window.setCreateLibraryWindowText("Please select library destination...", null);
+//		display.window.setCreateLibraryWindowText("Please select library destination...", null);
 
-		selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
+		selectFolderDialog("Select library destination:", 0);  
+//		selectFolder("Select library destination:", "newLibraryDestinationSelected");		// Get filepath of PhotoSceneLibrary folder
 	}
 	
 	public void librarySelectionDialog()
@@ -2106,6 +2117,108 @@ public class MultimediaLocator extends PApplet
 		cubemapShader.set("cubemap", 1);
 	}
 
+	/**
+	 * Open select folder dialog
+	 * @param title Dialog title 			-- Invisible
+	 * @param fileExtension Files with this extension will be visible; if "" or null, all files are visible
+	 */
+	public void selectFolderDialog(String title, int resultCode)
+	{
+		final String property = System.getProperty("apple.awt.fileDialogForDirectories");
+		System.setProperty("apple.awt.fileDialogForDirectories", "true");
+		
+		try{
+//			String strAllowed = "";
+//			if(fileExtension != null)
+//				if(!fileExtension.equals(""))
+//					strAllowed = "*."+fileExtension;
+
+			FileDialog fd = new FileDialog(this.frame, title, FileDialog.LOAD);
+			fd.setDirectory("C:\\");
+//			if(!strAllowed.equals(""))
+//				fd.setFile(strAllowed);			
+			fd.setVisible(true);
+
+			String fileName = fd.getFile();
+			
+			if (fileName == null)
+			{
+				if(debug.library) System.out.println("ML.selectFolderDialog()... User cancelled dialog...");
+			}
+			else
+			{
+				String filePath = fd.getDirectory() + fileName;
+				if(debug.library) System.out.println("ML.selectFolderDialog()... User chose filePath: " + filePath);
+
+				File selectedFile = new File(filePath);
+				
+				switch(resultCode)
+				{
+				case 0:	
+					newLibraryDestinationSelected(selectedFile);
+					break;
+				}
+			}
+		}
+		finally {
+//	        if (property != null) {
+//	            System.setProperty("apple.awt.fileDialogForDirectories", property);
+//	        }
+	    }
+	}
+
+	/**
+	 * Open select folder dialog
+	 * @param title Dialog title 			-- Invisible
+	 * @param fileExtension Files with this extension will be visible; if "" or null, all files are visible
+	 */
+	public void selectFileDialog(String title, String fileExtension, int resultCode)
+	{
+		final String property = System.getProperty("apple.awt.fileDialogForDirectories");
+		System.setProperty("apple.awt.fileDialogForDirectories", "true");
+		
+		try{
+			String strAllowed = "";
+			if(fileExtension != null)
+				if(!fileExtension.equals(""))
+					strAllowed = "*."+fileExtension;
+
+			FileDialog fd = new FileDialog(this.frame, title, FileDialog.LOAD);
+			fd.setDirectory("~/");
+			
+			if(!strAllowed.equals(""))
+				fd.setFile(strAllowed);			
+			fd.setVisible(true);
+
+			String fileName = fd.getFile();
+			
+			if (fileName == null)
+			{
+				if(debug.library) System.out.println("ML.selectFolderDialog()... User cancelled dialog...");
+			}
+			else
+			{
+				String filePath = fd.getDirectory() + fileName;
+				if(debug.library) System.out.println("ML.selectFolderDialog()... User chose filePath: " + filePath);
+
+				File selectedFile = new File(filePath);
+				
+				switch(resultCode)
+				{
+				case 0:	
+					newLibraryDestinationSelected(selectedFile);
+					break;
+				}
+			}
+		}
+		finally {
+	        if (property != null) {
+	            System.setProperty("apple.awt.fileDialogForDirectories", property);
+	        }
+	    }
+	}
+
+	
 //	private void setAppTitle(String title) 
 //	{
 //		surface.setTitle(title);

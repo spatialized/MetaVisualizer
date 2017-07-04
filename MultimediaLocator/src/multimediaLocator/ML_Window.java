@@ -2017,24 +2017,24 @@ public class ML_Window
 		lblCreateLibraryWindowText2.setTextAlign(GAlign.CENTER, null);
 		lblCreateLibraryWindowText2.setVisible(false);
 
-		x = windowWidth * 3 / 2 - 80;
+		x = windowWidth * 3 / 2 - 78;
 		y += 45;
-		btnImportMediaFolder = new GButton(createLibraryWindow, x, y, 160, iLargeBoxHeight, "Add Folder");
+		btnImportMediaFolder = new GButton(createLibraryWindow, x, y, 155, iMediumBoxHeight, "Add Folder");
 		btnImportMediaFolder.tag = "AddMediaFolder";
-		btnImportMediaFolder.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
-		btnImportMediaFolder.setLocalColorScheme(G4P.GREEN_SCHEME);
+		btnImportMediaFolder.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		btnImportMediaFolder.setLocalColorScheme(G4P.CYAN_SCHEME);
 
-		x = windowWidth * 3 / 2 - 60;
+		x = windowWidth * 3 / 2 - 105;
 		y = createLibraryWindowHeight - iLargeBoxHeight * 3 / 2 - 10;
-		btnMakeLibrary = new GButton(createLibraryWindow, x, y, 120, iLargeBoxHeight, "Done");
+		btnMakeLibrary = new GButton(createLibraryWindow, x, y, 210, iMediumBoxHeight, "Choose Location");
 		btnMakeLibrary.tag = "MakeLibrary";
-		btnMakeLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
-		btnMakeLibrary.setLocalColorScheme(G4P.GREEN_SCHEME);
+		btnMakeLibrary.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
+		btnMakeLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
 
 		x = windowWidth * 3 - 120;
 		btnCancelCreateLibrary = new GButton(createLibraryWindow, x, y, 100, iLargeBoxHeight, "Cancel");
 		btnCancelCreateLibrary.tag = "CancelCreateLibrary";
-		btnCancelCreateLibrary.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
+		btnCancelCreateLibrary.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize));
 		btnCancelCreateLibrary.setLocalColorScheme(G4P.RED_SCHEME);
 
 		setupCreateLibraryWindow = true;

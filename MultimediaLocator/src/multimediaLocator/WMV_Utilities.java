@@ -118,10 +118,21 @@ public class WMV_Utilities
 	    }
 	}
 	
+	/**
+	 * Rename folder
+	 * @param oldFolderPath Folder to rename
+	 * @param newFolderPath New folder name
+	 * @param ignoreDirectoryStatus Whether to ignore whether paths are directories or not
+	 * @return Whether successful
+	 */
 	public boolean renameFolder(String oldFolderPath, String newFolderPath, boolean ignoreDirectoryStatus)
 	{
+		if(oldFolderPath.equals(newFolderPath))			// No need to rename
+			return true;
+		
 		File oldFolderFile = new File(oldFolderPath);
 		File newNameFile = new File(newFolderPath);
+		
 		boolean success = false;
 		
 		if(!newNameFile.exists())

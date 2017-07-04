@@ -971,7 +971,7 @@ public class ML_KeyboardControls
 			ml.display.window.btnCreateLibrary.setVisible(false);
 			ml.display.window.btnOpenLibrary.setVisible(false);
 			ml.display.window.chkbxRebuildLibrary.setVisible(false);
-			ml.display.window.btnLibraryHelp.setVisible(false);
+//			ml.display.window.btnLibraryHelp.setVisible(false);
 			ml.display.window.lblStartup.setVisible(false);
 		}
 

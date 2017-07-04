@@ -752,7 +752,7 @@ public class MultimediaLocator extends PApplet
 			display.window.btnCreateLibrary.setVisible(true);
 			display.window.btnOpenLibrary.setVisible(true);
 			display.window.chkbxRebuildLibrary.setVisible(true);
-			display.window.btnLibraryHelp.setVisible(true);
+//			display.window.btnLibraryHelp.setVisible(true);
 			display.window.lblStartup.setVisible(true);
 			display.window.lblStartupWindowText.setVisible(false);
 		}

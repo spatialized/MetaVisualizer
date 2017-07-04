@@ -40,12 +40,14 @@ public class ML_Display
 	private float messageHUDDistance = hudDistanceInit * 6.f;
 	private int screenWidth = -1, screenHeight = -1;			/* Display dimensions */
 	private int windowWidth = -1, windowHeight = -1;			/* Window dimensions */
-	private float monitorOffsetXAdjustment = 1.f;
+//	private float monitorOffsetXAdjustment = 1.f;
 
 	public int blendMode = 0;									/* Alpha blending mode */
 	private final int numBlendModes = 10;								/* Number of blending modes */
 	
 //	PImage startupImage;
+	private float hudCenterXOffset, hudTopMargin;
+	private float screenWidthFactor;
 	
 	/* Map View */
 	public int mapViewMode = 1;									// 0: World, 1: Field, (2: Cluster  -- In progress)
@@ -65,7 +67,6 @@ public class ML_Display
 	public int displayDate = -1;
 	public boolean updateCurrentSelectableTimeSegment = true, updateCurrentSelectableDate = true;
 
-	private float hudCenterXOffset, hudTopMargin;
 	
 	private ArrayList<SelectableTimeSegment> selectableTimeSegments;		// Selectable time segments on timeline
 	private ArrayList<SelectableDate> selectableDates;						// Selectable dates on dateline
@@ -109,16 +110,27 @@ public class ML_Display
 	private int mediaViewMediaID = -1;
 
 	/* Text */
-	private final float hudVeryLargeTextSize = 32.f;
-	private final float hudLargeTextSize = 26.f;
-	private final float hudMediumTextSize = 22.f;
-	private final float hudSmallTextSize = 18.f;
-	private final float hudVerySmallTextSize = 16.f;
-	private final float hudLinePadding = 4.f;
-	private final float hudLinePaddingWide = 8.f;
-	private final float hudLineWidth = hudMediumTextSize + hudLinePadding;
-	private final float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
-	private final float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
+//	private final float hudVeryLargeTextSize = 32.f;
+//	private final float hudLargeTextSize = 26.f;
+//	private final float hudMediumTextSize = 22.f;
+//	private final float hudSmallTextSize = 18.f;
+//	private final float hudVerySmallTextSize = 16.f;
+//	private final float hudLinePadding = 4.f;
+//	private final float hudLinePaddingWide = 8.f;
+//	private final float hudLineWidth = hudMediumTextSize + hudLinePadding;
+//	private final float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
+//	private final float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
+
+	private float hudVeryLargeTextSize = 32.f;
+	private float hudLargeTextSize = 26.f;
+	private float hudMediumTextSize = 22.f;
+	private float hudSmallTextSize = 18.f;
+	private float hudVerySmallTextSize = 16.f;
+	private float hudLinePadding = 4.f;
+	private float hudLinePaddingWide = 8.f;
+	private float hudLineWidth = hudMediumTextSize + hudLinePadding;
+	private float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
+	private float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
 
 	/* Messages */
 	public ArrayList<String> startupMessages;					// Messages to display on screen
@@ -161,9 +173,9 @@ public class ML_Display
 		
 		originalMatrix = ml.getMatrix((PMatrix3D)null);
 
-		float aspect = (float)screenHeight / (float)screenWidth;
-		if(aspect != 0.625f)
-			monitorOffsetXAdjustment = (0.625f / aspect); 
+//		float aspect = (float)screenHeight / (float)screenWidth;
+//		if(aspect != 0.625f)
+//			monitorOffsetXAdjustment = (0.625f / aspect); 
 
 		screenWidth = ml.displayWidth;
 		screenHeight = ml.displayHeight;
@@ -180,18 +192,11 @@ public class ML_Display
 		metadataYOffset = -screenHeight / 2.f;
 
 		/* 2D HUD Displays */
-//		timelineYOffset = screenHeight * 0.33f;
-//		timelineScreenSize = screenWidth * 0.86f;
-//		timelineHeight = screenHeight * 0.1f;
-		
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
-		hudCenterXOffset = screenWidth * 0.5f;
-		hudTopMargin = screenHeight * 0.085f;
-
-//		timelineXOffset = screenWidth * 0.07f;
-//		datelineYOffset = screenHeight * 0.5f;
+//		hudCenterXOffset = screenWidth * 0.5f;
+//		hudTopMargin = screenHeight * 0.085f;
 		
 		currentSelectableTimeSegment = null;
 		currentSelectableTimeSegmentID = -1;
@@ -214,15 +219,32 @@ public class ML_Display
 		windowHeight = ml.height;
 		clusterMediaXOffset = windowWidth * 0.1f;
 		clusterMediaYOffset = windowHeight * 0.5f;
-//		clusterMediaYOffset = screenHeight * 0.5f;
 		
+		hudCenterXOffset = windowWidth * 0.5f;
+		hudTopMargin = windowHeight * 0.08f;
+//		hudCenterXOffset = screenWidth * 0.5f;
+//		hudTopMargin = screenHeight * 0.085f;
+
 		timelineXOffset = windowWidth * 0.1f;
 		timelineYOffset = windowHeight * 0.33f;
-//		timelineYOffset = screenHeight * 0.33f;
 		timelineScreenSize = windowWidth * 0.8f;
 		timelineHeight = screenHeight * 0.1f;
-//		datelineYOffset = screenHeight * 0.5f;
+//		timelineScreenSize = screenWidth * 0.86f;
+//		timelineHeight = screenHeight * 0.1f;
 		datelineYOffset = windowHeight * 0.5f;
+		
+		screenWidthFactor = ml.width / 1440.f;
+		
+		hudVeryLargeTextSize = 32.f * screenWidthFactor;
+		hudLargeTextSize = 26.f * screenWidthFactor;
+		hudMediumTextSize = 22.f * screenWidthFactor;
+		hudSmallTextSize = 18.f * screenWidthFactor;
+		hudVerySmallTextSize = 16.f * screenWidthFactor;
+		hudLinePadding = 4.f * screenWidthFactor;
+		hudLinePaddingWide = 8.f * screenWidthFactor;
+		hudLineWidth = (hudMediumTextSize + hudLinePadding) * screenWidthFactor;
+		hudLineWidthWide = (hudLargeTextSize + hudLinePaddingWide) * screenWidthFactor;
+		hudLineWidthVeryWide = (hudLargeTextSize * 2.f) * screenWidthFactor;			
 	}
 
 	/**
@@ -358,8 +380,8 @@ public class ML_Display
 
 		ml.popMatrix();
 		
-		if(fieldDatelineCreated) displayFieldDateline(p);
-		if(fieldTimelineCreated) displayFieldTimeline(p);
+		if(fieldDatelineCreated) displayDateline(p);
+		if(fieldTimelineCreated) displayTimeline(p);
 		
 		endDisplayHUD();					// -- Added 6/29/17
 
@@ -733,6 +755,9 @@ public class ML_Display
 	 */
 	private SelectableDate getSelectableDate(WMV_Date d, int id)
 	{
+//		float xOffset = utilities.mapValue(lowerSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+//		float xOffset2 = utilities.mapValue(upperSeconds, timelineStart, timelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
+
 		float date = d.getDaysSince1980();
 		float xOffset = utilities.mapValue(date, datelineStart, datelineEnd, timelineXOffset, timelineXOffset + timelineScreenSize);
 
@@ -751,7 +776,7 @@ public class ML_Display
 	 * Draw the field timeline
 	 * @param p Parent world
 	 */
-	private void displayFieldTimeline(WMV_World p)
+	private void displayTimeline(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
 			
@@ -862,7 +887,7 @@ public class ML_Display
 	 * Display dateline for current field
 	 * @param p Parent world
 	 */
-	private void displayFieldDateline(WMV_World p)
+	private void displayDateline(WMV_World p)
 	{
 		WMV_Field f = p.getCurrentField();
 			
@@ -893,7 +918,7 @@ public class ML_Display
 			allDates.display(p, 55.f, 120.f, 255.f, false);
 			ml.textSize(smallTextSize);
 			ml.fill(35, 115, 255, 255);
-			ml.text("Show All", allDates.getLocation().x - 16, allDates.getLocation().y + 50, hudDistanceInit);
+			ml.text("Show All", allDates.getLocation().x - 16, allDates.getLocation().y + 50, 0);
 		}
 	}
 
@@ -915,7 +940,8 @@ public class ML_Display
 			ml.pushMatrix();
 			ml.stroke(120.f, 165.f, 245.f, 155.f);
 			ml.strokeWeight(25.f);
-			ml.point(xOffset, datelineYOffset, hudDistanceInit);
+//			ml.point(xOffset, datelineYOffset, hudDistanceInit);
+			ml.point(xOffset, datelineYOffset, 0);
 			ml.popMatrix();
 		}
 	}
@@ -1180,32 +1206,32 @@ public class ML_Display
 	 * @param original Original mouse location
 	 * @return Adjusted mouse location
 	 */
-	private PVector getAdjustedMouse2DLocation(PVector original)
-	{
-		float mouseX = original.x;
-		float mouseY = original.y;
-		
-		float centerX = screenWidth * 0.5f;			/* Center X location */
-		float centerY = screenHeight * 0.5f;		/* Center Y location */
-		
-		float dispX = mouseX - centerX;						/* Mouse X displacement from the center */
-		float dispY = mouseY - centerY;						/* Mouse Y displacement from the center */
-		
-		float offsetXFactor = 0.00009f * screenHeight;
-		float offsetYFactor = 0.00009f * screenWidth;
-		
-//		offsetXFactor *= monitorOffsetXAdjustment;		// -- Added 7/2/17
-		
-		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
-		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
-
-		offsetX *= monitorOffsetXAdjustment;			// -- Added 7/2/17
-
-		float newX = mouseX + offsetX;
-		float newY = mouseY + offsetY;
-		
-		return new PVector(newX, newY);
-	}
+//	private PVector getAdjustedMouse2DLocation(PVector original)
+//	{
+//		float mouseX = original.x;
+//		float mouseY = original.y;
+//		
+//		float centerX = screenWidth * 0.5f;			/* Center X location */
+//		float centerY = screenHeight * 0.5f;		/* Center Y location */
+//		
+//		float dispX = mouseX - centerX;						/* Mouse X displacement from the center */
+//		float dispY = mouseY - centerY;						/* Mouse Y displacement from the center */
+//		
+//		float offsetXFactor = 0.00009f * screenHeight;
+//		float offsetYFactor = 0.00009f * screenWidth;
+//		
+////		offsetXFactor *= monitorOffsetXAdjustment;		// -- Added 7/2/17
+//		
+//		float offsetX = dispX * offsetXFactor;			/* Adjusted X offset */
+//		float offsetY = dispY * offsetYFactor;			/* Adjusted Y offset */
+//
+//		offsetX *= monitorOffsetXAdjustment;			// -- Added 7/2/17
+//
+//		float newX = mouseX + offsetX;
+//		float newY = mouseY + offsetY;
+//		
+//		return new PVector(newX, newY);
+//	}
 	
 //	/**														
 //	 * Get 2D mouse location adjusted for screen size			-- Works with 0.625 aspect monitors only
@@ -1651,9 +1677,9 @@ public class ML_Display
 		screenWidth = ml.displayWidth;
 		screenHeight = ml.displayHeight;
 		
-		float aspect = (float)screenHeight / (float)screenWidth;
-		if(aspect != 0.625f)
-			monitorOffsetXAdjustment = (0.625f / aspect); 
+//		float aspect = (float)screenHeight / (float)screenWidth;
+//		if(aspect != 0.625f)
+//			monitorOffsetXAdjustment = (0.625f / aspect); 
 
 		startupMessages = new ArrayList<String>();
 		messages = new ArrayList<String>();
@@ -1667,19 +1693,19 @@ public class ML_Display
 		metadataYOffset = -screenHeight / 2.f;
 
 		/* 2D HUD Displays */
-		timelineScreenSize = screenWidth * 0.86f;
-		timelineHeight = screenHeight * 0.1f;
+//		timelineScreenSize = screenWidth * 0.86f;
+//		timelineHeight = screenHeight * 0.1f;
 		
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
-		timelineYOffset = screenHeight * 0.33f;
+//		timelineYOffset = screenHeight * 0.33f;
 
-		hudCenterXOffset = screenWidth * 0.5f;
-		hudTopMargin = screenHeight * 0.085f;
+//		hudCenterXOffset = screenWidth * 0.5f;
+//		hudTopMargin = screenHeight * 0.085f;
 
-		timelineXOffset = screenWidth * 0.07f;
-		datelineYOffset = screenHeight * 0.5f;
+//		timelineXOffset = screenWidth * 0.07f;
+//		datelineYOffset = screenHeight * 0.5f;
 		
 		finishSetup();
 		
@@ -1963,7 +1989,7 @@ public class ML_Display
 //				if(ml.world.getFieldCount() > 1)
 //					ml.text(" Current Field #"+ (f.getID()+1)+" of "+ ml.world.getFields().size(), x, y += hudLineWidthVeryWide);
 				ml.text(" Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 ), x, y += hudLineWidthWide * 2);
-				ml.text(" Field Length:  "+utilities.round( f.getModel().getState().fieldLength, 3), x, y += hudLineWidthWide * 2);
+				ml.text(" Field Length:  "+utilities.round( f.getModel().getState().fieldLength, 3), x, y += hudLineWidthWide);
 				ml.text(" Field Height:  " + utilities.round( f.getModel().getState().fieldHeight, 3 ), x, y += hudLineWidthWide);
 				
 				ml.text(" Media Density (per sq. m.):  "+utilities.round( f.getModel().getState().mediaDensity, 3 ), x, y += hudLineWidthWide);
@@ -2031,7 +2057,6 @@ public class ML_Display
 //					}
 //				}
 				
-				
 				ml.popMatrix();
 				endDisplayHUD();
 
@@ -2088,7 +2113,6 @@ public class ML_Display
 				else
 					createSelectableMedia(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 				
-//				drawClusterImages(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));	// -- SelectableMedia
 				ml.popMatrix();
 				
 //				map2D.displaySmallBasicMap(p);
@@ -2370,53 +2394,6 @@ public class ML_Display
 		}
 	}
 
-
-//	/**
-//	 * Draw thumbnails (grid) of image list
-//	 * @param p Parent world
-//	 * @param imageList Images in cluster
-//	 */
-//	private void drawClusterImages(WMV_World p, ArrayList<WMV_Image> imageList)
-//	{
-//		int count = 1;
-//		float imgXPos = clusterImageXOffset;
-//		float imgYPos = clusterImageYOffset;			// Starting vertical position
-//
-//		ml.stroke(255, 255, 255);
-//		ml.strokeWeight(15);
-//		ml.fill(0, 0, 255, 255);
-//
-//		for(WMV_Image i : imageList)
-//		{
-//			ml.pushMatrix();
-//			float origWidth = i.getWidth();
-//			float origHeight = i.getHeight();
-//			float thumbnailHeight = thumbnailWidth * origHeight / origWidth;
-//			
-////			int imageLineCount = 20;
-//			int imageLineCount = (int)utilities.round( (timelineScreenSize-clusterImageXOffset) / (thumbnailWidth+thumbnailWidth * thumbnailSpacing), 0 );
-//			
-//			ml.translate(imgXPos, imgYPos, 0);
-//			ml.tint(255);
-//			
-//			if(count < 60)
-//			{
-//				PImage image = ml.loadImage(i.getFilePath());
-//				ml.image(image, 0, 0, thumbnailWidth, thumbnailHeight);
-//			}
-//			
-//			imgXPos += thumbnailWidth + thumbnailWidth * thumbnailSpacing;
-//
-//			if(count % imageLineCount == 0)
-//			{
-//				imgXPos = clusterImageXOffset;
-//				imgXPos += thumbnailWidth + thumbnailWidth * thumbnailSpacing;
-//			}
-//			
-//			ml.popMatrix();
-//			count++;
-//		}
-//	}
 
 	/**
 	 * @return Whether current view mode is a 2D display mode (true) or 3D World View (false)
@@ -2823,10 +2800,6 @@ public class ML_Display
 
 			ml.pushMatrix();
 
-//			ml.line(leftEdge, topEdge, hudDistanceInit, leftEdge, bottomEdge, hudDistanceInit);	
-//			ml.line(rightEdge, topEdge, hudDistanceInit, rightEdge, bottomEdge, hudDistanceInit);			
-//			ml.line(leftEdge, topEdge, hudDistanceInit, rightEdge, topEdge, hudDistanceInit);			
-//			ml.line(leftEdge, bottomEdge, hudDistanceInit, rightEdge, bottomEdge, hudDistanceInit);			
 			ml.line(leftEdge, topEdge, 0, leftEdge, bottomEdge, 0);	
 			ml.line(rightEdge, topEdge, 0, rightEdge, bottomEdge, 0);			
 			ml.line(leftEdge, topEdge, 0, rightEdge, topEdge, 0);			
@@ -2844,7 +2817,6 @@ public class ML_Display
 				float day = utilities.getTimePVectorSeconds(new PVector(24,0,0));		// Seconds in a day
 				float xOffset = -35.f * utilities.mapValue(length, 0.f, day, 0.2f, 1.f);
 				ml.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, 0);
-//				ml.text(strPreview, (rightEdge+leftEdge)/2.f + xOffset, bottomEdge + 25.f, hudDistanceInit);
 			}
 			
 			ml.popMatrix();
@@ -2907,7 +2879,8 @@ public class ML_Display
 				ml.fill(hue, saturation, brightness, 255);												// Yellow rectangle around selected time segment
 				ml.textSize(hudSmallTextSize);
 				String strDate = date.getDateAsString();
-				ml.text(strDate, location.x - 15.f, location.y + 50.f, location.z);	// -- Should center based on actual text size!
+				float textWidth = strDate.length() * screenWidthFactor;
+				ml.text(strDate, location.x - textWidth * 0.5f, location.y + 50.f, location.z);	// -- Should center based on actual text size!
 			}
 		
 			ml.popMatrix();

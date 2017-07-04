@@ -616,13 +616,16 @@ public class WMV_Field
 		float brightness = m.getFadingBrightness();					// Fade in and out
 		brightness *= getViewerSettings().userBrightness;
 
-		float distanceBrightnessFactor = m.getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance()); 
-		brightness *= distanceBrightnessFactor; 						// Fade iBrightness based on distance to camera
+		float distanceBrightnessFactor = m.getDistanceBrightness( ml.world.viewer, 
+																  ml.world.viewer.getFarViewingDistance(), 
+																  m.getMetadata().focusDistance );
+		
+		brightness *= distanceBrightnessFactor; 				// Fade iBrightness based on distance to camera
 
 		if( getWorldState().timeFading && m.time != null && !getViewerState().isMoving() )
-			brightness *= m.getTimeBrightness(); 					// Fade iBrightness based on time
+			brightness *= m.getTimeBrightness(); 				// Fade iBrightness based on time
 
-		float angleBrightnessFactor;								// Fade with angle
+		float angleBrightnessFactor;							// Fade with angle
 		if( getViewerSettings().angleFading )
 		{
 			float imageAngle = m.getFacingAngle(getViewerState().getOrientationVector());
@@ -718,19 +721,23 @@ public class WMV_Field
 		
 		if(v.getMediaState().showMetadata) v.displayMetadata(ml);
 
-		float distanceBrightness = 0.f; 					// Fade with distance
+//		float distanceBrightness = 0.f; 					// Fade with distance
 		float angleBrightness;
 
 		float brightness = v.getFadingBrightness();					
 		brightness *= getViewerSettings().userBrightness;
 
-		distanceBrightness = v.getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance()); 
-		brightness *= distanceBrightness; 								// Fade alpha based on distance to camera
+//		float distanceBrightness = v.getDistanceBrightness(ml.world.viewer, ml.world.viewer.getFarViewingDistance()); 
+		float distanceBrightnessFactor = v.getDistanceBrightness( ml.world.viewer, 
+				  ml.world.viewer.getFarViewingDistance(), 
+				  v.getMetadata().focusDistance );
+
+		brightness *= distanceBrightnessFactor; 								// Fade alpha based on distance to camera
 
 		if( getWorldState().timeFading && v.time != null && !getViewerState().isMoving() )
 			brightness *= v.getTimeBrightness(); 					// Fade brightness based on time
 
-		if(v.state.isClose && distanceBrightness == 0.f)						// Video recently moved out of range
+		if(v.state.isClose && distanceBrightnessFactor == 0.f)					// Video recently moved out of range
 		{
 			v.state.isClose = false;
 			v.fadeOut(this, false);

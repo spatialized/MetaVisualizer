@@ -11,6 +11,9 @@ import processing.core.PVector;
  */
 public class WMV_ViewerState 
 {
+	/* Display */
+	public int lastDisplayView = 0;						// Last Display View (before switching to Media View)
+	
 	/* Time */
 	public boolean firstRunningFrame = false;			// Flag indicating first World simulation frame
 	public int currentFieldTimeSegment = 0;				// Current time segment in field timeline
@@ -154,8 +157,12 @@ public class WMV_ViewerState
 		currentCluster = 0;
 	}
 	
+	/**
+	 * Reset viewer state
+	 */
 	public void reset()
 	{
+		lastDisplayView = 0;
 		clusterOrientations = new ArrayList<WMV_Orientation>();
 
 		currentFieldTimeSegment = 0;			// Current time segment in field timeline

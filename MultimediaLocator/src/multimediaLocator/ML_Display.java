@@ -38,8 +38,8 @@ public class ML_Display
 
 	private final float hudDistanceInit = -1000.f;				/* Distance of the Heads-Up Display from the virtual camera */
 	private float messageHUDDistance = hudDistanceInit * 6.f;
-	private int screenWidth = -1;
-	private int screenHeight = -1;
+	private int screenWidth = -1, screenHeight = -1;			/* Display dimensions */
+	private int windowWidth = -1, windowHeight = -1;			/* Window dimensions */
 	private float monitorOffsetXAdjustment = 1.f;
 
 	public int blendMode = 0;									/* Alpha blending mode */
@@ -96,7 +96,7 @@ public class ML_Display
 	/* Library View */
 	private int libraryViewMode = 2;							// 0: World, 1: Field, 2: Cluster 
 	public int currentDisplayField = 0, currentDisplayCluster = 0;
-	private final float thumbnailWidth = 90.f;
+	private final float thumbnailWidth = 85.f;
 	private final float thumbnailSpacing = 0.1f;
 	private boolean createdSelectableMedia = false;
 	ArrayList<SelectableMedia> selectableMedia;					/* Selectable media thumbnails */
@@ -134,10 +134,9 @@ public class ML_Display
 	int startupMessageStartFrame = -1;					
 	
 	/* Text */
-//	private float centerTextXOffset, topTextYOffset;
-	private float messageXOffset, messageYOffset, startupMessageXOffset;
-	private float metadataXOffset, metadataYOffset, startupMessageYOffset;
-	private float clusterImageXOffset, clusterImageYOffset;
+	private float messageXOffset, messageYOffset;
+	private float metadataXOffset, metadataYOffset;
+	private float clusterMediaXOffset, clusterMediaYOffset;
 	
 //	private final float veryLargeTextSize = 64.f;
 	private final float largeTextSize = 56.f;
@@ -162,47 +161,35 @@ public class ML_Display
 		
 		originalMatrix = ml.getMatrix((PMatrix3D)null);
 
-		screenWidth = ml.displayWidth;
-		screenHeight = ml.displayHeight;
-		
 		float aspect = (float)screenHeight / (float)screenWidth;
 		if(aspect != 0.625f)
 			monitorOffsetXAdjustment = (0.625f / aspect); 
 
+		screenWidth = ml.displayWidth;
+		screenHeight = ml.displayHeight;
+		
 		messages = new ArrayList<String>();
 		metadata = new ArrayList<String>();
 		startupMessages = new ArrayList<String>();
 
 		/* 3D HUD Displays */
-//		centerTextXOffset = screenWidth / 2.f;
-//		topTextYOffset = -screenHeight / 1.6f;
-		
 		messageXOffset = screenWidth * 1.75f;
 		messageYOffset = -screenHeight * 0.33f;
 
-		metadataXOffset = -screenWidth * 1.33f;
+		metadataXOffset = -screenWidth * 1.5f;
 		metadataYOffset = -screenHeight / 2.f;
 
-		startupMessageXOffset = screenWidth / 2.f;
-		startupMessageYOffset = -screenHeight /2.f;
-
 		/* 2D HUD Displays */
+		timelineYOffset = screenHeight * 0.33f;
 		timelineScreenSize = screenWidth * 0.86f;
 		timelineHeight = screenHeight * 0.1f;
 		
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
-//		hudLeftMargin = screenWidth * 0.07f;
-//		hudLeftMargin = ml.width * 0.07f;			// TESTING
-		timelineYOffset = screenHeight * 0.33f;
-
 		hudCenterXOffset = screenWidth * 0.5f;
 		hudTopMargin = screenHeight * 0.085f;
 
-		clusterImageXOffset = ml.width * 0.07f;
-		clusterImageYOffset = screenHeight * 0.5f;
-		
 		timelineXOffset = screenWidth * 0.07f;
 		datelineYOffset = screenHeight * 0.5f;
 		
@@ -216,6 +203,17 @@ public class ML_Display
 		defaultFont = ml.createFont("SansSerif", smallTextSize);
 
 //		startupImage = p.p.loadImage("res/WMV_Title.jpg");
+	}
+	
+	/**
+	 * Finish 2D display setup
+	 */
+	void finishSetup()
+	{
+		windowWidth = ml.width;
+		windowHeight = ml.height;
+		clusterMediaXOffset = windowWidth * 0.1f;
+		clusterMediaYOffset = screenHeight * 0.5f;
 	}
 
 	/**
@@ -277,30 +275,30 @@ public class ML_Display
 	}
 
 	  /**
-	   * 
+	   * Begin Heads-Up Display
+	   * @param ml Parent app
 	   */
 	  public void beginHUD(MultimediaLocator ml) 
 	  {
 		  ml.g.pushMatrix();
 		  ml.g.hint(PConstants.DISABLE_DEPTH_TEST);
-		  // Load the identity matrix.
-		  ml.g.resetMatrix();
-		  // Apply the original Processing transformation matrix.
-		  ml.g.applyMatrix(originalMatrix);
+		  ml.g.resetMatrix();		 			 	// Load identity matrix.
+		  ml.g.applyMatrix(originalMatrix);		  	// Apply original transformation matrix.
 	  }
 
 	  /**
-	   * 
+	   * End Heads-Up Display
+	   * @param ml Parent app
 	   */
 	  public void endHUD(MultimediaLocator ml) 
 	  {
-//	    ml.g.hint(PConstants.ENABLE_DEPTH_TEST);
+//	   	  ml.g.hint(PConstants.ENABLE_DEPTH_TEST);
 		  ml.g.popMatrix();
 	  }
 
 	/**
 	 * Set the current initialization progress bar position
-	 * @param progress New position {0.f to 1.f}
+	 * @param progress New progress bar position {0.f to 1.f}
 	 */
 	public void setupProgress(float progress)
 	{
@@ -327,10 +325,8 @@ public class ML_Display
 
 		ml.textSize(hudVeryLargeTextSize);
 		ml.text(""+p.getCurrentField().getName(), xPos, yPos, 0);
-//		ml.text(""+p.getCurrentField().getName(), xPos, yPos, hudDistanceInit);
 
 		ml.textSize(hudLargeTextSize - 5.f);
-//		ml.textSize(largeTextSize - 5.f);
 		String strDisplayDate = "";
 		
 		if(displayDate >= 0)
@@ -344,13 +340,10 @@ public class ML_Display
 		}
 
 		ml.text(strDisplayDate, xPos, yPos += hudLineWidthVeryWide, 0);
-//		ml.text(strDisplayDate, xPos, yPos += lineWidthVeryWide * 1.5f, hudDistanceInit);
 		
 		ml.textSize(hudMediumTextSize);
-//		ml.textSize(mediumTextSize);
 		ml.fill(0, 0, 255, 255);
 		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += hudLineWidthWide, 0);
-//		ml.text(" Time Zone: "+ f.getTimeZoneID(), xPos, yPos += lineWidthVeryWide, hudDistanceInit);
 
 		yPos = timelineYOffset + timelineHeight * 4.f;
 
@@ -394,6 +387,10 @@ public class ML_Display
 		}
 	}
 	
+	/**
+	 * Update Library View
+	 * @param p Parent world
+	 */
 	private void updateLibraryView(WMV_World p)
 	{
 		if(updateSelectableMedia)
@@ -403,16 +400,6 @@ public class ML_Display
 			createSelectableMedia(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 			updateSelectableMedia = false;
 		}
-
-//		if(updateCurrentSelectableMedia)
-//		{
-//			if(p.viewer.getCurrentFieldTimeSegment() >= 0)
-//			{
-//				updateTimelineSelection(p);
-//			}
-//			else 
-//				System.out.println("Display.updateCurrentSelectableTimeSegment()... ERROR: No current time segment!");
-//		}
 	}
 	
 	/**
@@ -1172,8 +1159,6 @@ public class ML_Display
 
 					if(ml.debug.library && ml.debug.detailed)
 						System.out.println("Display.updateLibraryMouse()... Selected media: "+selectedMedia);
-
-					updateSelectableMedia = true;				// Update timeline to show selected segment
 				}
 			}
 			else
@@ -1530,7 +1515,7 @@ public class ML_Display
 	 * @param mouseX Mouse x position
 	 * @param mouseY Mouse y position
 	 */
-	public void handleMouseReleased(WMV_World p, float mouseX, float mouseY)
+	public void handleTimeViewMouseReleased(WMV_World p, float mouseX, float mouseY)
 	{
 		updateTimelineMouse(p);
 		
@@ -1540,6 +1525,33 @@ public class ML_Display
 
 		if(selectedDate != -1)
 			setCurrentSelectableDate(selectedDate);
+	}
+	
+	/**
+	 * Handle mouse released event in Library View
+	 * @param p Parent world
+	 * @param mouseX Mouse x position
+	 * @param mouseY Mouse y position
+	 */
+	public void handleLibraryViewMouseReleased(WMV_World p, float mouseX, float mouseY)
+	{
+		updateLibraryMouse(p);
+		
+		if(selectedMedia != -1)
+			p.viewer.startViewingMedia(0, selectedMedia);			// Only images currently implemented
+		
+//		p.viewer.teleportToCluster(selectedCluster, false, selectableTimeSegments.get(selectedTime).segment.getFieldTimelineID());
+	}
+
+	/**
+	 * Handle mouse released event in Library View
+	 * @param p Parent world
+	 * @param mouseX Mouse x position
+	 * @param mouseY Mouse y position
+	 */
+	public void handleMediaViewMouseReleased(WMV_World p, float mouseX, float mouseY)
+	{
+		p.viewer.exitMediaView();
 	}
 
 	/**
@@ -1598,8 +1610,8 @@ public class ML_Display
 		selectedDate = -1; currentSelectableDate = -1;
 
 		currentSelectableTimeSegment = null;
-//		currentSelectableTimeSegmentID = -1;
-//		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
+		currentSelectableTimeSegmentID = -1;
+		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
 
 		timelineTransition = false; timelineZooming = false; timelineScrolling = false;   
 		transitionScrollDirection = -1; transitionZoomDirection = -1;
@@ -1627,7 +1639,6 @@ public class ML_Display
 		metadataStartFrame = -1;
 		startupMessageStartFrame = -1;
 		
-		/* --- From Setup --- */
 		screenWidth = ml.displayWidth;
 		screenHeight = ml.displayHeight;
 		
@@ -1646,9 +1657,6 @@ public class ML_Display
 		metadataXOffset = -screenWidth * 1.33f;
 		metadataYOffset = -screenHeight / 2.f;
 
-		startupMessageXOffset = screenWidth / 2.f;
-		startupMessageYOffset = -screenHeight / 2.f;
-
 		/* 2D HUD Displays */
 		timelineScreenSize = screenWidth * 0.86f;
 		timelineHeight = screenHeight * 0.1f;
@@ -1656,17 +1664,15 @@ public class ML_Display
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
-//		hudLeftMargin = screenWidth * 0.07f;
 		timelineYOffset = screenHeight * 0.33f;
 
 		hudCenterXOffset = screenWidth * 0.5f;
 		hudTopMargin = screenHeight * 0.085f;
 
-		clusterImageXOffset = ml.width * 0.07f;
-		clusterImageYOffset = screenHeight * 0.5f;
-		
 		timelineXOffset = screenWidth * 0.07f;
 		datelineYOffset = screenHeight * 0.5f;
+		
+		finishSetup();
 		
 		map2D.reset();
 		startWorldSetup();						// Start World Setup Display Mode after reset
@@ -1778,12 +1784,9 @@ public class ML_Display
 	 */
 	void displayMetadata(WMV_World p)
 	{
-//		float xFactor = (float) Math.pow( ml.world.viewer.getSettings().fieldOfView * 12.f, 3) * 0.33f;
 		float yFactor = ml.world.viewer.getSettings().fieldOfView * 4.f;
-//		float xPos = metadataXOffset * xFactor; 
 		float yPos = metadataYOffset * yFactor - lineWidth * yFactor;
 
-//		ml.textFont(messageFont);
 		ml.textFont(defaultFont);
 		ml.pushMatrix();
 
@@ -2045,20 +2048,20 @@ public class ML_Display
 					ml.text(" Point of Interest #"+ c.getID() + ((c.getID() == cl.getID())?" (Current)":""), x, y, 0);
 					ml.textSize(hudMediumTextSize);
 					if(c.getState().images.size() > 0)
-						ml.text("   Images: "+ c.getState().images.size(), x, y += hudLineWidthWide, 0);
+						ml.text("   Images:  "+ c.getState().images.size(), x, y += hudLineWidthWide, 0);
 					if(c.getState().panoramas.size() > 0)
-						ml.text("   Panoramas: "+ c.getState().panoramas.size(), x, y += hudLineWidthWide, 0);
+						ml.text("   Panoramas:  "+ c.getState().panoramas.size(), x, y += hudLineWidthWide, 0);
 					if(c.getState().videos.size() > 0)
-						ml.text("   Videos: "+ c.getState().videos.size(), x, y += hudLineWidthWide, 0);
+						ml.text("   Videos:  "+ c.getState().videos.size(), x, y += hudLineWidthWide, 0);
 					if(c.getState().sounds.size() > 0)
-						ml.text("     Sounds: "+ c.getState().sounds.size(), x, y += hudLineWidthWide, 0);
-					ml.text("   Total Media Count: "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
-					ml.text("   Sub-Clusters: "+ c.segments.size(), x, y += hudLineWidth, 0);
+						ml.text("     Sounds:  "+ c.getState().sounds.size(), x, y += hudLineWidthWide, 0);
+					ml.text("   Total Media Count:  "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
+					ml.text("   Sub-Clusters:  "+ c.segments.size(), x, y += hudLineWidth, 0);
 					ml.text(" ", x, y += hudLineWidth, 0);
 					PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, c.getLocation());
 					gpsLoc.x = utilities.round(gpsLoc.x, 4);
 					gpsLoc.y = utilities.round(gpsLoc.y, 4);
-					ml.text("   GPS Location: Longitude "+ gpsLoc.x+", Latitude "+gpsLoc.y+"", x, y += hudLineWidthWide, 0);
+					ml.text("   GPS Location: {Longitude: "+ gpsLoc.x+", Latitude: "+gpsLoc.y+"}", x, y += hudLineWidthWide, 0);
 					ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation()))+" m.", x, y += hudLineWidth, 0);
 				}
 				else
@@ -2091,64 +2094,44 @@ public class ML_Display
 		selectableMedia = new ArrayList<SelectableMedia>();
 		
 		int count = 1;
-		float imgXPos = clusterImageXOffset;
-		float imgYPos = clusterImageYOffset;			// Starting vertical position
+		float imgXPos = clusterMediaXOffset;
+		float imgYPos = clusterMediaYOffset;			// Starting vertical position
 
-//		ml.stroke(255, 255, 255);
-//		ml.strokeWeight(15);
-//		ml.fill(0, 0, 255, 255);
-
-//		int imageLineCount = (int)utilities.round( (timelineScreenSize-clusterImageXOffset) / (thumbnailWidth+thumbnailWidth * thumbnailSpacing), 0 );
 		for(WMV_Image i : imageList)
 		{
-//			ml.pushMatrix();
 			float origWidth = i.getWidth();
 			float origHeight = i.getHeight();
 			float thumbnailHeight = thumbnailWidth * origHeight / origWidth;
 			
-//			ml.translate(imgXPos, imgYPos, 0);
-//			ml.tint(255);
-			
-//			getScaledInstance(100, 100, BufferedImage.SCALE_SMOOTH);
-//			if(count < 60)
-//			{
-//				PImage image = ml.loadImage(i.getFilePath());
-//				ml.image(image, 0, 0, thumbnailWidth, thumbnailHeight);
-//			}
-
 			/* Create thumbnail */
 			PImage image = ml.loadImage(i.getFilePath());
-//			ml.image(image, 0, 0, thumbnailWidth, thumbnailHeight);
-			Image thumbnail = image.getImage().getScaledInstance((int)thumbnailWidth, (int)thumbnailHeight, BufferedImage.SCALE_SMOOTH);
-			PImage imgThumbnail = new PImage(thumbnail);
-//			p.ml.delay(5);
-			
-//			Image thumbnail = image.getImage().getScaledInstance(100, 100, BufferedImage.SCALE_SMOOTH);
-			imgXPos += thumbnailWidth + thumbnailWidth * thumbnailSpacing;
+			Image iThumbnail = image.getImage().getScaledInstance((int)thumbnailWidth, (int)thumbnailHeight, BufferedImage.SCALE_SMOOTH);
+			PImage thumbnail = new PImage(iThumbnail);
 
-//			if(count % imageLineCount == 0)
-			if(imgXPos > ml.width - clusterImageXOffset)
-			{
-				imgXPos = clusterImageXOffset;
-				imgYPos += thumbnailHeight + thumbnailHeight * thumbnailSpacing;
-//				imgXPos += thumbnailWidth + thumbnailWidth * thumbnailSpacing;
-			}
+			SelectableMedia newMedia = new SelectableMedia( i.getID(), thumbnail, new PVector(imgXPos, imgYPos),
+					thumbnailWidth, thumbnailHeight );
 
-			SelectableMedia newMedia = new SelectableMedia( count, imgThumbnail, new PVector(imgXPos, imgYPos),
-															thumbnailWidth, thumbnailHeight );
-//			SelectableMedia(int newID, PImage thumbnail, PVector newLocation, float newWidth, float newHeight)
+//			SelectableMedia newMedia = new SelectableMedia( count, thumbnail, new PVector(imgXPos, imgYPos),
+//															thumbnailWidth, thumbnailHeight );
 			
 			selectableMedia.add(newMedia);
 			
-//			ml.popMatrix();
+			imgXPos += thumbnailWidth + thumbnailWidth * thumbnailSpacing;
+			if(imgXPos > ml.width - clusterMediaXOffset)
+			{
+				imgXPos = clusterMediaXOffset;
+				imgYPos += thumbnailHeight + thumbnailHeight * thumbnailSpacing;
+			}
+
 			count++;
 			
 //			if(count > maxSelectableMedia)
 //				break;
 		}
 		
-//		ml.systemMessage("Display.createSelectableMedia()... Created selectable media...  Count: "+selectableMedia.size());
-		
+		if(p.ml.debug.ml) 
+			ml.systemMessage("Display.createSelectableMedia()... Created selectable media...  Count: "+selectableMedia.size()+" p.ml.width:"+p.ml.width+"clusterMediaXOffset:"+clusterMediaXOffset);
+
 		createdSelectableMedia = true;
 	}
 	
@@ -2159,18 +2142,22 @@ public class ML_Display
 	public void setDisplayItem(int itemID)
 	{
 		if(libraryViewMode == 1)
-			currentDisplayField = itemID;
+		{
+			if(currentDisplayField != itemID)
+				currentDisplayField = itemID;
+		}
 		else if(libraryViewMode == 2)
-			currentDisplayCluster = itemID;
+		{
+			if(currentDisplayCluster != itemID)
+			{
+				currentDisplayCluster = itemID;
+				updateSelectableMedia = true;
+			}
+		}
 	}
 	
-//	public void setDisplayFieldX(int fieldID)
-//	{
-//		currentDisplayField = fieldID;
-//	}
-	
 	/**
-	 * 
+	 * Move to previous Display Item in Library View
 	 */
 	public void showPreviousItem()
 	{
@@ -2197,11 +2184,13 @@ public class ML_Display
 				if(count > ml.world.getCurrentFieldClusters().size())
 					break;
 			}
+
+			updateSelectableMedia = true;
 		}
 	}
 	
 	/**
-	 * 
+	 * Move to next Display Item in Library View
 	 */
 	public void showNextItem()
 	{
@@ -2228,6 +2217,8 @@ public class ML_Display
 				if(count > ml.world.getCurrentFieldClusters().size())
 					break;
 			}
+
+			updateSelectableMedia = true;
 		}
 	}
 	
@@ -2236,7 +2227,7 @@ public class ML_Display
 	 * @param mediaType Media type
 	 * @param mediaID Media ID
 	 */
-	public void setMediaViewObject(int mediaType, int mediaID)
+	public void setMediaViewItem(int mediaType, int mediaID)
 	{
 		mediaViewMediaType = mediaType;
 		mediaViewMediaID = mediaID;
@@ -2357,28 +2348,10 @@ public class ML_Display
 				boolean selected = m.getID() == selectedMedia;
 				
 				if(count < 200) m.display(ml.world, 0.f, 0.f, 255.f, selected);
-				count++;
 				
-//				if(m.thumbnail != null)
-//				{
-//					ml.pushMatrix();
-//
-//					ml.translate(m.location.x, m.location.y, 0);
-//					ml.tint(255);
-//
-//					if(count < 200)
-//					{
-////						PImage image = ml.loadImage(i.getFilePath());
-//						ml.image(m.thumbnail, 0, 0, m.width, m.height);
-//					}
-//
-//					ml.popMatrix();
-//					count++;
-//				}
-//				else
-//				{
-//					ml.systemMessage("Display.drawSelectableMedia()... Selected media #"+m.getID()+" thumbnail is null!");
-//				}
+//				if(selected) ml.systemMessage("Display.drawSelectableMedia()... Drew selected media: "+m.getID()+" frameCount:"+ml.frameCount);
+				
+				count++;
 			}
 			else
 			{
@@ -2453,7 +2426,8 @@ public class ML_Display
 	 */
 	public void setDisplayView(WMV_World p, int newDisplayView)
 	{
-		int oldDisplayView = displayView;
+		p.viewer.setLastDisplayView( displayView );
+		
 		displayView = newDisplayView;								// Set display view
 
 //		if(window.setupNavigationWindow) 
@@ -2481,26 +2455,11 @@ public class ML_Display
 				{
 					window.btnTimeView.setEnabled(true);
 					window.setTimeWindowControlsEnabled(false);
-					
-//					window.btnTimelineReverse.setEnabled(false);
-//					window.btnTimelineForward.setEnabled(false);	
-//					window.btnTimelineZoomIn.setEnabled(false);
-//					window.btnTimelineZoomOut.setEnabled(false);		
-//					window.btnTimelineZoomToField.setEnabled(false);
-//					window.btnTimelineZoomToSelected.setEnabled(false);
-//					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
 				if(window.setupLibraryViewWindow)
 				{
 					window.btnLibraryView.setEnabled(true);
 					window.setLibraryViewWindowControlsEnabled(false);
-					
-//					window.optLibraryViewLibraryMode.setEnabled(false);
-//					window.optLibraryViewFieldMode.setEnabled(false);
-//					window.optLibraryViewClusterMode.setEnabled(false);
-//					window.btnPreviousCluster.setEnabled(false);
-//					window.btnNextCluster.setEnabled(false);
-//					window.btnCurrentCluster.setEnabled(false);
 				}
 				break;
 				
@@ -2541,28 +2500,14 @@ public class ML_Display
 				{
 					window.btnTimeView.setEnabled(true);
 					window.setTimeWindowControlsEnabled(false);
-					
-//					window.btnTimelineReverse.setEnabled(false);
-//					window.btnTimelineForward.setEnabled(false);	
-//					window.btnTimelineZoomIn.setEnabled(false);
-//					window.btnTimelineZoomOut.setEnabled(false);		
-//					window.btnTimelineZoomToField.setEnabled(false);
-//					window.btnTimelineZoomToSelected.setEnabled(false);
-//					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
 				if(window.setupLibraryViewWindow)
 				{
 					window.btnLibraryView.setEnabled(true);
 					window.setLibraryViewWindowControlsEnabled(false);
-
-//					window.optLibraryViewLibraryMode.setEnabled(false);
-//					window.optLibraryViewFieldMode.setEnabled(false);
-//					window.optLibraryViewClusterMode.setEnabled(false);
-//					window.btnPreviousCluster.setEnabled(false);
-//					window.btnNextCluster.setEnabled(false);
-//					window.btnCurrentCluster.setEnabled(false);
 				}
 				break;
+				
 			case 2:														// Time View
 				if(window.setupMainMenu)
 				{
@@ -2580,31 +2525,30 @@ public class ML_Display
 				{
 					window.btnTimeView.setEnabled(false);
 					window.setTimeWindowControlsEnabled(true);
-					
-//					window.btnTimelineReverse.setEnabled(true);
-//					window.btnTimelineForward.setEnabled(true);	
-//					window.btnTimelineZoomIn.setEnabled(true);
-//					window.btnTimelineZoomOut.setEnabled(true);		
-//					window.btnTimelineZoomToField.setEnabled(true);
-//					window.btnTimelineZoomToSelected.setEnabled(true);
-//					window.btnTimelineZoomToFull.setEnabled(true);		
 				}
 				if(window.setupLibraryViewWindow)
 				{
 					window.btnLibraryView.setEnabled(true);
 					window.setLibraryViewWindowControlsEnabled(false);
-
-//					window.optLibraryViewLibraryMode.setEnabled(false);
-//					window.optLibraryViewFieldMode.setEnabled(false);
-//					window.optLibraryViewClusterMode.setEnabled(false);
-//					window.btnPreviousCluster.setEnabled(false);
-//					window.btnNextCluster.setEnabled(false);
-//					window.btnCurrentCluster.setEnabled(false);
 				}
 				zoomToTimeline(ml.world, true);
 				break;
-			case 3:													// Library View 
-				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
+				
+			case 3:													/* Library View */
+				switch(libraryViewMode)
+				{
+					case 0:
+						break;
+					case 1:
+						setDisplayItem(p.getCurrentField().getID());
+						break;
+					case 2:
+						setDisplayItem(p.viewer.getCurrentClusterID());
+						break;
+				}
+//				currentDisplayCluster = p.viewer.getState().getCurrentClusterID();
+//				updateSelectableMedia = true;
+
 				if(window.setupMainMenu)
 				{
 					window.optWorldView.setSelected(false);
@@ -2621,26 +2565,11 @@ public class ML_Display
 				{
 					window.btnTimeView.setEnabled(true);
 					window.setTimeWindowControlsEnabled(false);
-					
-//					window.btnTimelineReverse.setEnabled(false);
-//					window.btnTimelineForward.setEnabled(false);	
-//					window.btnTimelineZoomIn.setEnabled(false);
-//					window.btnTimelineZoomOut.setEnabled(false);		
-//					window.btnTimelineZoomToField.setEnabled(false);
-//					window.btnTimelineZoomToSelected.setEnabled(false);
-//					window.btnTimelineZoomToFull.setEnabled(false);		
 				}
 				if(window.setupLibraryViewWindow)
 				{
 					window.btnLibraryView.setEnabled(false);
 					window.setLibraryViewWindowControlsEnabled(true);
-					
-//					window.optLibraryViewLibraryMode.setEnabled(true);
-//					window.optLibraryViewFieldMode.setEnabled(true);
-//					window.optLibraryViewClusterMode.setEnabled(true);
-//					window.btnPreviousCluster.setEnabled(true);
-//					window.btnNextCluster.setEnabled(true);
-//					window.btnCurrentCluster.setEnabled(true);
 				}
 				break;
 			case 4:													// Media View
@@ -2660,7 +2589,6 @@ public class ML_Display
 			libraryViewMode = 2;
 		else if( newLibraryViewMode >= 3) 
 			libraryViewMode = 0;
-//		System.out.print("Display.setLibraryViewMode()... newLibraryViewMode:"+newLibraryViewMode+" AFTER:"+libraryViewMode);
 
 		if(window.setupLibraryViewWindow)
 		{
@@ -2674,6 +2602,7 @@ public class ML_Display
 					break;
 	
 				case 1:
+					setDisplayItem(ml.world.getCurrentField().getID());
 					window.optLibraryViewWorldMode.setSelected(false);
 					window.optLibraryViewFieldMode.setSelected(true);
 					window.optLibraryViewClusterMode.setSelected(false);
@@ -2681,6 +2610,7 @@ public class ML_Display
 					break;
 	
 				case 2:
+					setDisplayItem(ml.world.viewer.getCurrentClusterID());
 					window.optLibraryViewWorldMode.setSelected(false);
 					window.optLibraryViewFieldMode.setSelected(false);
 					window.optLibraryViewClusterMode.setSelected(true);

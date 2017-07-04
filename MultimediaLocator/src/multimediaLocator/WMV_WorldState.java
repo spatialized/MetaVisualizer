@@ -15,7 +15,7 @@ public class WMV_WorldState
 	public int timeMode = 0;							// Time Mode: 0 = cluster; 1 = field; 2 = (single) media
 
 	/* Model */
-	public final float modelDistanceVisibilityFactorFar = 50.f;		// Distance at which media model becomes invisible
+	public final float modelDistanceVisibilityFactorFar = 75.f;		// Distance at which media model becomes invisible
 	public final float modelDistanceVisibilityFactorNear = 5.f;		// Distance at which media model becomes invisible
 	
 	/* Graphics */

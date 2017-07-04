@@ -23,18 +23,15 @@ public class ML_Input
 	private int clickedRecentlyFrame = 1000000;
 	private int doubleClickSpeed = 10;
 
-	private int screenWidth, screenHeight;
+//	private int screenWidth, screenHeight;
 
 	/**
 	 * Constructor for input class
 	 * @param newScreenWidth
 	 * @param newScreenHeight
 	 */
-	public ML_Input(int newScreenWidth, int newScreenHeight) 
+	public ML_Input() 
 	{
-		screenWidth = newScreenWidth;
-		screenHeight = newScreenHeight;
-		
 		keyboardInput = new ML_KeyboardControls(this);
 	}
 
@@ -255,10 +252,10 @@ public class ML_Input
 					ml.display.window.helpAboutText = 1;
 					break;
 					
-				case "CloseHelp":
-					if(ml.display.window.setupHelpWindow && ml.display.window.showHelpWindow) 
-						ml.display.window.hideHelpWindow();
-					break;
+//				case "CloseHelp":
+//					if(ml.display.window.setupHelpWindow && ml.display.window.showHelpWindow) 
+//						ml.display.window.hideHelpWindow();
+//					break;
 	
 				case "AddMediaFolder":
 					ml.mediaFolderDialog();
@@ -313,6 +310,12 @@ public class ML_Input
 							ml.display.window.openNavigationWindow();
 						else
 							ml.display.window.closeNavigationWindow();
+						break;
+					case "CloseNavigationWindow":
+						ml.display.window.closeNavigationWindow();
+						break;
+					case "ExitNavigationWindow":
+						display.window.openMainMenu();
 						break;
 	
 					case "NearestCluster":
@@ -378,10 +381,10 @@ public class ML_Input
 	
 					/* Model */
 					case "SubjectDistanceDown":
-						ml.world.getCurrentField().fadeObjectDistances(0.85f);
+						ml.world.getCurrentField().fadeObjectDistances(1.176f);
 						break;
 					case "SubjectDistanceUp":
-						ml.world.getCurrentField().fadeObjectDistances(1.176f);
+						ml.world.getCurrentField().fadeObjectDistances(0.85f);
 						break;
 		
 					/* Help */
@@ -394,6 +397,9 @@ public class ML_Input
 					case "CloseHelpWindow":
 						display.window.closeHelpWindow();
 						break;
+					case "ExitHelpWindow":
+						display.window.openMainMenu();
+						break;
 		
 					/* Time */
 					case "OpenTimeWindow":
@@ -402,6 +408,13 @@ public class ML_Input
 						else
 							ml.display.window.closeTimeWindow();
 						break;
+					case "CloseTimeWindow":
+						ml.display.window.closeTimeWindow();
+						break;
+					case "ExitTimeWindow":
+						display.window.openMainMenu();
+						break;
+
 					case "NextTime":
 						ml.world.viewer.moveToNextTimeSegment(true, true, ml.world.viewer.getNavigationTeleport(), true);
 						break;
@@ -473,6 +486,12 @@ public class ML_Input
 						else
 							ml.display.window.closeMediaWindow();
 						break;
+					case "CloseMediaWindow":
+						ml.display.window.closeMediaWindow();
+						break;
+					case "ExitMediaWindow":
+						display.window.openMainMenu();
+						break;
 		
 					case "SelectFront":
 						ml.world.viewer.chooseMediaInFront(true);
@@ -500,7 +519,7 @@ public class ML_Input
 						if(ml.display.getDisplayView() == 0)
 							ml.world.viewer.startViewingSelectedMedia();
 						else if(ml.display.getDisplayView() == 4)
-							ml.world.viewer.stopViewingSelectedMedia();
+							ml.world.viewer.exitMediaView();
 						break;
 					case "StitchPanorama":				// -- Disabled
 //						ml.world.getCurrentCluster().stitchImages(ml.stitcher, ml.library.getLibraryFolder(), ml.world.getCurrentField().getSelectedImages());    			
@@ -551,19 +570,25 @@ public class ML_Input
 					ml.display.resetZoom(ml.world, true);
 					break;
 					
-				/* Library */
-				case "OpenLibraryWindow":
+				/* Library View */
+				case "OpenLibraryViewWindow":
 					if(!ml.display.window.showLibraryViewWindow)
 						ml.display.window.openLibraryViewWindow();
 					else
 						ml.display.window.closeLibraryViewWindow();
 					break;
+				case "CloseLibraryViewWindow":
+					ml.display.window.closeLibraryViewWindow();
+					break;
+				case "ExitLibraryViewWindow":
+					display.window.openMainMenu();
+					break;
+
 				case "SetLibraryView":
 					if(display.getDisplayView() != 3)
 						display.setDisplayView(ml.world, 3);
 					break;
 				
-				/* Library View Window */
 				case "PreviousCluster":
 					ml.display.showPreviousItem();
 					break;
@@ -936,57 +961,53 @@ public class ML_Input
 	 * @param mouseY
 	 * @param frameCount
 	 */
-	void updateMouseNavigation(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
-	{			
-		if(frameCount - clickedRecentlyFrame > doubleClickSpeed && mouseClickedRecently)
-		{
-			mouseClickedRecently = false;
-//			mouseReleasedRecently = false;
-		}
-		
-		if(frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
-			viewer.addPlaceToMemory();				// Held mouse
-		
-		if (mouseX < screenWidth * 0.25 && mouseX > -1) 
-		{
-			if(!viewer.turningX())
-				viewer.turnXToAngle(PApplet.radians(5.f), -1);
-		}
-		else if (mouseX > screenWidth * 0.75 && mouseX < screenWidth + 1) 
-		{
-			if(!viewer.turningX())
-				viewer.turnXToAngle(PApplet.radians(5.f), 1);
-		}
-		else if (mouseY < screenHeight * 0.25 && mouseY > -1) 
-		{
-			if(!viewer.turningY())
-				viewer.turnYToAngle(PApplet.radians(5.f), -1);
-		}
-		else if (mouseY > screenHeight * 0.75 && mouseY < screenHeight + 1) 
-		{
-			if(!viewer.turningY())
-				viewer.turnYToAngle(PApplet.radians(5.f), 1);
-		}
-		else
-		{
-			if(viewer.turningX()) viewer.setTurningX( false );
-			if(viewer.turningY()) viewer.setTurningY( false );
-		}
-	}
+//	void updateMouseNavigation(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
+//	{			
+//		if(frameCount - clickedRecentlyFrame > doubleClickSpeed && mouseClickedRecently)
+//		{
+//			mouseClickedRecently = false;
+////			mouseReleasedRecently = false;
+//		}
+//		
+//		if(frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
+//			viewer.addPlaceToMemory();				// Held mouse
+//		
+//		if (mouseX < screenWidth * 0.25 && mouseX > -1) 
+//		{
+//			if(!viewer.turningX())
+//				viewer.turnXToAngle(PApplet.radians(5.f), -1);
+//		}
+//		else if (mouseX > screenWidth * 0.75 && mouseX < screenWidth + 1) 
+//		{
+//			if(!viewer.turningX())
+//				viewer.turnXToAngle(PApplet.radians(5.f), 1);
+//		}
+//		else if (mouseY < screenHeight * 0.25 && mouseY > -1) 
+//		{
+//			if(!viewer.turningY())
+//				viewer.turnYToAngle(PApplet.radians(5.f), -1);
+//		}
+//		else if (mouseY > screenHeight * 0.75 && mouseY < screenHeight + 1) 
+//		{
+//			if(!viewer.turningY())
+//				viewer.turnYToAngle(PApplet.radians(5.f), 1);
+//		}
+//		else
+//		{
+//			if(viewer.turningX()) viewer.setTurningX( false );
+//			if(viewer.turningY()) viewer.setTurningY( false );
+//		}
+//	}
 
 	void handleMousePressed(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
 	{
-//		boolean doubleClick = false, switchedViews = false;
-		if(!viewer.getSettings().orientationMode && viewer.getState().lastMovementFrame > 5)
-		{
-			if(mouseX > screenWidth * 0.25 && mouseX < screenWidth * 0.75 && mouseY < screenHeight * 0.75 && mouseY > screenHeight * 0.25)
-				viewer.walkForward();
-			viewer.getState().lastMovementFrame = frameCount;
-		}
-		else viewer.moveToNextCluster(false, -1);
-
-//		mouseOffsetX = 0;
-//		mouseOffsetY = 0;
+//		if(!viewer.getSettings().orientationMode && viewer.getState().lastMovementFrame > 5)
+//		{
+//			if(mouseX > screenWidth * 0.25 && mouseX < screenWidth * 0.75 && mouseY < screenHeight * 0.75 && mouseY > screenHeight * 0.25)
+//				viewer.walkForward();
+//			viewer.getState().lastMovementFrame = frameCount;
+//		}
+//		else viewer.moveToNextCluster(false, -1);
 	}
 
 	void handleMouseReleased(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
@@ -1009,9 +1030,11 @@ public class ML_Input
 		if(display.getDisplayView() == 1)
 			display.map2D.handleMouseReleased(world, mouseX, mouseY);
 		else if(display.getDisplayView() == 2)
-			display.handleMouseReleased(world, mouseX, mouseY);
-//		else if(display.getDisplayView() == 3)
-//			display.handleMouseReleased(mouseX, mouseY);
+			display.handleTimeViewMouseReleased(world, mouseX, mouseY);
+		else if(display.getDisplayView() == 3)
+			display.handleLibraryViewMouseReleased(world, mouseX, mouseY);
+		else if(display.getDisplayView() == 4)
+			display.handleMediaViewMouseReleased(world, mouseX, mouseY);
 	}
 	
 	void handleMouseClicked(int mouseX, int mouseY, int frameCount)

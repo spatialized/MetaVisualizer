@@ -44,8 +44,10 @@ public class WMV_VideoState
 	public PVector verticalAxis = new PVector(1, 0, 0);
 	public PVector rotationAxis = new PVector(0, 0, 1);
 	public float outlineSize = 5.f;					// Selection outline line width
-	public float outlineAlpha = 180.f;				// Selection outline alpha
 	public float outlineHue = 90.f;					// Selection outline hue
+	public float outlineSaturation = 160.f;			// Selection outline saturation
+	public float outlineBrightness = 255.f;			// Selection outline brightness
+	public float outlineAlpha = 180.f;				// Selection outline alpha
 	public final float videoFocusDistanceFactor = 0.8f;		// Scaling from defaultFocusDistance to video focus distance
 	
 	public int blurMaskID;							// ID of blur mask 

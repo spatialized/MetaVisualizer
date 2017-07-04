@@ -1,5 +1,5 @@
 /********************************************************************************
-* MultimediaLocator v0.9.2
+* MultimediaLocator v0.9.0
 * @author davidgordon
 * 
 * A 3D multimedia library management and visualization system 
@@ -78,7 +78,7 @@ public class MultimediaLocator extends PApplet
 	ML_DebugSettings debug;					// Debug settings
 	
 	/* App */
-	private String appName = "MultimediaLocator 0.9.2";
+	private String appName = "MultimediaLocator 0.9";
 	private PImage appIcon;							// App icon
 	boolean setAppIcon = true;						// Set App icon (after G4P changes it)
 	private final int basicDelay = 50;	
@@ -144,9 +144,10 @@ public class MultimediaLocator extends PApplet
 		
 		debug = new ML_DebugSettings();
 		systemMessages = new ArrayList<String>();
-		if(debug.ml) systemMessage("ML.setup()... Starting initial setup... Screen Width:"+displayWidth+" Height:"+displayHeight);
+		if(debug.ml) systemMessage("Starting "+appName+" setup...");
 
-		input = new ML_Input(appWidth, appHeight);
+		input = new ML_Input();
+//		input = new ML_Input(appWidth, appHeight);
 
 		world = new WMV_World(this);
 		
@@ -241,7 +242,7 @@ public class MultimediaLocator extends PApplet
 	 */
 	void run()
 	{
-		if(state.startedRunning)												/* If simulation just started running */
+		if( state.startedRunning )												/* If simulation just started running */
 		{
 			state.startedRunning = false;
 			state.framesSinceStart = 0;
@@ -252,17 +253,16 @@ public class MultimediaLocator extends PApplet
 		}
 		else 
 		{
-//			if ( !state.inFieldInitialization && !state.interactive && !state.exit ) 	/* Run the program */
 			if ( !state.inFieldInitialization && !state.interactive ) 			/* Run program */
 			{
 				world.run();
 //	 			input.updateLeapMotion();			// Update Leap Motion 
 			}
 
-			if(state.export && world.outputFolderSelected)						/* Screen capture */
+			if( state.export && world.outputFolderSelected )						/* Screen capture */
 				exportScreenImage();
 
-			if(state.exportMedia && world.outputFolderSelected)					/* Media exporting */
+			if( state.exportMedia && world.outputFolderSelected )					/* Media exporting */
 				exportMedia();
 
 //			if(state.exportCubeMap && world.outputFolderSelected)				/* Cubemap exporting */
@@ -332,7 +332,8 @@ public class MultimediaLocator extends PApplet
 		{
 			organizeMedia();						/* Analyze and organize media */
 			finishInitialization();					/* Finish initialization and start running */
-			if(!appWindowVisible) showAppWindow();
+			if(!appWindowVisible) showAppWindow();	/* Show App Window */
+			display.finishSetup();					/* Finish display setup after App Window is visible*/
 			display.setupProgress(0.f);
 		}
 	}
@@ -547,7 +548,7 @@ public class MultimediaLocator extends PApplet
 		if(world.getFieldCount() > 1)
 			world.chooseStartingField();					/* Choose starting field */
 		else
-			world.enterFieldByIndex(0);						/* Enter first field */
+			world.enterFieldAtBeginning(0);						/* Enter first field */
 	}
 
 	/**
@@ -939,7 +940,7 @@ public class MultimediaLocator extends PApplet
 			String parentFilePath = "";
 			if(singleField)
 			{
-				System.out.println("Loading field...");
+				if(debug.ml) systemMessage("ML.openLibraryFolder()... Loading single field...");
 				String libFilePath = "";
 				for(int i=0; i<parts.length-1; i++)
 				{
@@ -956,7 +957,7 @@ public class MultimediaLocator extends PApplet
 			}
 			else
 			{
-				System.out.println("Loading media library...");
+				if(debug.ml) systemMessage("ML.openLibraryFolder()... Loading media library...");
 				File libFile = new File(library.getLibraryFolder());
 				
 				String[] mediaFolderList = libFile.list();
@@ -991,7 +992,7 @@ public class MultimediaLocator extends PApplet
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 	        @Override
 	        public void run() {	 									// Stackless deletion
-	            System.out.println("Running Shutdown Hook");
+	            if(debug.ml) systemMessage("Running Shutdown Hook");
 
 	            try {
 	            	String homeDir = System.getProperty("user.home");
@@ -1001,7 +1002,7 @@ public class MultimediaLocator extends PApplet
 	            	DateTimeFormatter format = DateTimeFormatter.ofPattern("hh_mm_a-MM_d_yy");
 	            	LocalDateTime date = LocalDateTime.now();
 	            	String dateStr = format.format(date);
-//	            	System.out.println("addShutdownHook()... Date: "+dateStr); //2016/11/16 12:08:43
+//	            	if(debug.ml) systemMessage("addShutdownHook()... Date: "+dateStr); //2016/11/16 12:08:43
 	            	format.format(date);
 	            	
 	                File errorTextFile = new File(homeDir + "/MultimediaLocator_Log_"+dateStr+".txt");
@@ -1035,7 +1036,7 @@ public class MultimediaLocator extends PApplet
 	                File f = new File(dir);
 	                if(f.listFiles().length==0)
 	                {
-	                	System.out.println("Deleting f:"+f.getName());
+	                	if(debug.ml) systemMessage("Deleting f:"+f.getName());
 	                    f.delete();
 	                }
 	                else {
@@ -1044,7 +1045,7 @@ public class MultimediaLocator extends PApplet
 	                    {
 	                        if(ff.isFile())
 	                        {
-	    	                	System.out.println("Deleting ff:"+ff.getName());
+	    	                	if(debug.ml) systemMessage("Deleting ff:"+ff.getName());
 	                            ff.delete();
 	                        }
 	                        else if(ff.isDirectory())
@@ -1221,11 +1222,8 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void navigationWindowKey(PApplet applet, GWinData windata, processing.event.KeyEvent keyevent)
 	{
-//		System.out.println("navigationWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction());
 		if(keyevent.getAction() == processing.event.KeyEvent.PRESS)
 			input.handleKeyPressed(this, keyevent.getKey(), keyevent.getKeyCode());
-//		else
-//			System.out.println(" navigationWindowKey()... key:"+key+" keyevent.getAction(): "+keyevent.getAction()+" != "+processing.event.KeyEvent.PRESS);
 
 		if(keyevent.getAction() == processing.event.KeyEvent.RELEASE)
 			input.handleKeyReleased(this, display, keyevent.getKey(), keyevent.getKeyCode());
@@ -1307,12 +1305,10 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void mouseReleased() 
 	{
+		if(display.getDisplayView() != 0)				// Mouse not used in World View
+			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 //		if(world.viewer.mouseNavigation)
 //			input.handleMouseReleased(mouseX, mouseY);
-		if(display.getDisplayView() == 1)				// Map View
-			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
-		else if(display.getDisplayView() == 2)			// Timeline View
-			input.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
 	}
 	
 	/**
@@ -1462,8 +1458,8 @@ public class MultimediaLocator extends PApplet
 		{
 			if(exiftoolPath != "")
 			{
-				if(debug.ml)
-					systemMessage("ML.setExiftoolPathFromPrefs()... Found exiftoolPath:"+exiftoolPath);
+//				if(debug.ml)
+//					systemMessage("ML.setExiftoolPathFromPrefs()... Found exiftoolPath:"+exiftoolPath);
 				metadata.exiftoolFile = new File(exiftoolPath);						// Initialize metadata extraction class	
 				return true;
 			}

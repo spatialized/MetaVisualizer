@@ -31,6 +31,54 @@ public class ML_KeyboardControls
 	 */
 	public void handleUniversalKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
+		if (key == ' ') 
+		{
+			if(ml.display.window.showMainMenu)
+				ml.display.window.hideMainMenu();
+			else
+				ml.display.window.openMainMenu();
+		}
+
+		if (key == '!') 
+		{
+			if(!ml.display.window.showNavigationWindow)
+				ml.display.window.openNavigationWindow();
+			else
+				ml.display.window.hideNavigationWindow();
+		}
+
+		if (key == '@')
+		{
+			if(!ml.display.window.showMediaWindow)
+				ml.display.window.openMediaWindow();
+			else
+				ml.display.window.hideMediaWindow();
+		}
+
+		if (key == '#') 
+		{
+			if(!ml.display.window.showTimeWindow)
+				ml.display.window.openTimeWindow();
+			else
+				ml.display.window.hideTimeWindow();
+		}
+
+		if (key == '$') 
+		{
+			if(!ml.display.window.showLibraryViewWindow)
+				ml.display.window.openLibraryViewWindow();
+			else
+				ml.display.window.hideLibraryViewWindow();
+		}
+
+		if (key == '^') 
+		{
+			if(!ml.display.window.showHelpWindow)
+				ml.display.window.openHelpWindow();
+			else
+				ml.display.window.hideHelpWindow();
+		}
+		
 		if (key == 'Q')
 			ml.exitProgram();
 
@@ -314,10 +362,10 @@ public class ML_KeyboardControls
 			ml.world.viewer.lookAtNearestMedia();
 
 		if (key == '_') 
-			ml.world.getCurrentField().fadeObjectDistances(0.85f);
+			ml.world.getCurrentField().fadeObjectDistances(1.176f);
 
 		if (key == '+')
-			ml.world.getCurrentField().fadeObjectDistances(1.176f);
+			ml.world.getCurrentField().fadeObjectDistances(0.85f);
 		
 		if (!input.optionKey && key == ']') {
 			float value = ml.world.settings.altitudeScalingFactor * 1.052f;
@@ -774,17 +822,7 @@ public class ML_KeyboardControls
 		{
 			if(ml.display.getLibraryViewMode() == 0)					// Library World View
 			{
-//				if (keyCode == PApplet.LEFT)
-//					ml.world.viewer.rotateX(-1);
-//	
-//				if (keyCode == PApplet.RIGHT) 
-//					ml.world.viewer.rotateX(1);
-//	
-//				if (keyCode == PApplet.UP) 
-//					ml.display.map2D.zoomOut(ml.world);
-//	
-//				if (keyCode == PApplet.DOWN) 
-//					ml.display.map2D.zoomIn(ml.world);
+
 			}
 			if(ml.display.getLibraryViewMode() == 1)					// Library Field View
 			{
@@ -915,7 +953,7 @@ public class ML_KeyboardControls
 	public void handleMediaViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
 		if(key == PApplet.ENTER)
-			ml.world.viewer.stopViewingSelectedMedia();
+			ml.world.viewer.exitMediaView();
 	}
 	
 	/**
@@ -959,10 +997,26 @@ public class ML_KeyboardControls
 	{
 		if(key == PApplet.ENTER)
 		{
+			WMV_Field f;
 			switch(ml.display.window.listItemWindowResultCode)
 			{
 				case 0:						// 0: Field
-					ml.world.enterFieldByIndex( ml.display.window.listItemWindowSelectedItem );								/* Enter first field */
+					f = ml.world.getField(ml.display.window.listItemWindowSelectedItem);
+					boolean loaded = f.getDataFolderLoaded();
+					if(!loaded)
+					{
+						if(ml.debug.ml) ml.systemMessage("Keyboard.handleListItemWindowKeyPressed()... No state loaded, will enter field at beginning...");
+						ml.world.enterFieldAtBeginning( ml.display.window.listItemWindowSelectedItem );			/* Enter first field */
+					}
+					else
+					{
+						if(ml.debug.ml) ml.systemMessage("Keyboard.handleListItemWindowKeyPressed()... State loaded, will enter field at saved location? "+f.hasBeenVisited());
+						if( f.hasBeenVisited() )	
+							ml.world.viewer.enterField( ml.display.window.listItemWindowSelectedItem, true );		/* Enter field at saved location */
+						else
+							ml.world.enterFieldAtBeginning( ml.display.window.listItemWindowSelectedItem );		/* Enter field at saved location */
+//						ml.world.viewer.enterField( ml.display.window.listItemWindowSelectedItem, f.hasBeenVisited() );		/* Enter field at saved location */
+					}
 					break;
 				case 1:						// 1: GPS Track
 					ml.world.viewer.selectGPSTrackID( ml.display.window.listItemWindowSelectedItem );
@@ -1162,53 +1216,53 @@ public class ML_KeyboardControls
 	
 	public void handleKeyReleased(MultimediaLocator ml, ML_Display display, char key, int keyCode)
 	{
-		if (key == ' ') 
-		{
-			if(ml.display.window.showMainMenu)
-				ml.display.window.hideMainMenu();
-			else
-				ml.display.window.openMLWindow();
-		}
-
-		if (key == '!') 
-		{
-			if(!ml.display.window.showNavigationWindow)
-				ml.display.window.openNavigationWindow();
-			else
-				ml.display.window.hideNavigationWindow();
-		}
-
-		if (key == '@')
-		{
-			if(!ml.display.window.showMediaWindow)
-				ml.display.window.openMediaWindow();
-			else
-				ml.display.window.hideMediaWindow();
-		}
-
-		if (key == '#') 
-		{
-			if(!ml.display.window.showTimeWindow)
-				ml.display.window.openTimeWindow();
-			else
-				ml.display.window.hideTimeWindow();
-		}
-
-		if (key == '$') 
-		{
-			if(!ml.display.window.showLibraryViewWindow)
-				ml.display.window.openLibraryViewWindow();
-			else
-				ml.display.window.hideLibraryViewWindow();
-		}
-
-		if (key == '^') 
-		{
-			if(!ml.display.window.showHelpWindow)
-				ml.display.window.openHelpWindow();
-			else
-				ml.display.window.hideHelpWindow();
-		}
+//		if (key == ' ') 
+//		{
+//			if(ml.display.window.showMainMenu)
+//				ml.display.window.hideMainMenu();
+//			else
+//				ml.display.window.openMainMenu();
+//		}
+//
+//		if (key == '!') 
+//		{
+//			if(!ml.display.window.showNavigationWindow)
+//				ml.display.window.openNavigationWindow();
+//			else
+//				ml.display.window.hideNavigationWindow();
+//		}
+//
+//		if (key == '@')
+//		{
+//			if(!ml.display.window.showMediaWindow)
+//				ml.display.window.openMediaWindow();
+//			else
+//				ml.display.window.hideMediaWindow();
+//		}
+//
+//		if (key == '#') 
+//		{
+//			if(!ml.display.window.showTimeWindow)
+//				ml.display.window.openTimeWindow();
+//			else
+//				ml.display.window.hideTimeWindow();
+//		}
+//
+//		if (key == '$') 
+//		{
+//			if(!ml.display.window.showLibraryViewWindow)
+//				ml.display.window.openLibraryViewWindow();
+//			else
+//				ml.display.window.hideLibraryViewWindow();
+//		}
+//
+//		if (key == '^') 
+//		{
+//			if(!ml.display.window.showHelpWindow)
+//				ml.display.window.openHelpWindow();
+//			else
+//				ml.display.window.hideHelpWindow();
+//		}
 
 		if(display.getDisplayView() == 0)				/* World View Controls */
 		{

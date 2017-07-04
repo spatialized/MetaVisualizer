@@ -19,6 +19,8 @@ public class WMV_ImageState
 	public int vertBordersID = -1;					// Vertical borders ID,		0: Bottom 1: Center 2: Top  3: Both (Top+Bottom)
 	public float outlineSize = 5.f;					// Size of the outline around a selected image
 	public float outlineHue = 90.f;					// Selection outline hue
+	public float outlineSaturation = 160.f;			// Selection outline saturation
+	public float outlineBrightness = 255.f;			// Selection outline brightness
 	public float outlineAlpha = 180.f;				// Selection outline alpha
 
 	/* Model */

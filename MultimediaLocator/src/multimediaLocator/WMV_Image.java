@@ -101,7 +101,7 @@ public class WMV_Image extends WMV_Media
 				setVisible(false);
 
 			if(getMediaState().visible && !getViewerSettings().orientationMode)
-				setVisible(getDistanceBrightness(viewer, viewer.getFarViewingDistance()) > 0.f);
+				setVisible(getDistanceBrightness(viewer, viewer.getFarViewingDistance(), metadata.focusDistance) > 0.f);
 
 			if(metadata.orientation != 0 && metadata.orientation != 90)          	// Hide state.orientations of 180 or 270 (avoid upside down images)
 				setVisible(false);
@@ -174,7 +174,7 @@ public class WMV_Image extends WMV_Media
 		{
 			if (isSelected())     // Draw outline
 			{
-				ml.stroke(state.outlineHue, 120, 245, state.outlineAlpha);
+				ml.stroke(state.outlineHue, state.outlineSaturation, state.outlineBrightness, state.outlineAlpha);
 				ml.strokeWeight(state.outlineSize);
 			}
 			else
@@ -184,7 +184,7 @@ public class WMV_Image extends WMV_Media
 		{
 			if(ml.world.getState().showModel)
 			{
-				ml.stroke(state.outlineHue, 0, 245, state.outlineAlpha);
+				ml.stroke(state.outlineHue, 0.f, state.outlineBrightness, state.outlineAlpha);
 				ml.strokeWeight(1);
 			}
 			else
@@ -205,9 +205,7 @@ public class WMV_Image extends WMV_Media
 		if(!getWorldState().alphaMode)
 			ml.tint(getViewingBrightness(), 255);          				
 		else
-		{
 			ml.tint(255, PApplet.map(getViewingBrightness(), 0.f, 255.f, 0.f, getWorldState().alpha));          				
-		}
 
 		if(getViewerSettings().orientationMode)
 		{
@@ -234,32 +232,36 @@ public class WMV_Image extends WMV_Media
 	 */
 	void displayModel(MultimediaLocator ml)
 	{
-		float brightness;
-//		brightness = getFadingBrightness() * getViewerSettings().userBrightness;
+		float brightness = getViewerSettings().userBrightness;
 
 		float farViewingDistance;
 		if(ml.world.viewer.getSettings().showInvisibleModels)
 		{
-			brightness = getViewerSettings().userBrightness;
 			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorFar;
 		}
 		else
 		{
-			brightness = getFadingBrightness() * getViewerSettings().userBrightness;
+			brightness *= getFadingBrightness();
 			farViewingDistance = ml.world.viewer.getFarViewingDistance() * ml.world.getState().modelDistanceVisibilityFactorNear;
 		}
 
-		float distanceBrightnessFactor = getDistanceBrightness(ml.world.viewer, farViewingDistance); 
+		float distanceBrightnessFactor = getDistanceBrightness( ml.world.viewer, 
+															    ml.world.viewer.getFarViewingDistance() + metadata.focusDistance, 
+															    farViewingDistance ); 
 		brightness *= distanceBrightnessFactor; 						// Fade brightness based on distance to camera
 
+		
+//		System.out.println("Image #"+getID()+" brightness:"+brightness+" distanceBrightnessFactor:"+distanceBrightnessFactor);
 		float modelBrightness = PApplet.map(brightness, 0.f, 1.f, 0.f, state.outlineAlpha);				// Scale to setting for alpha range
+//		System.out.println("  Model brightness:"+modelBrightness+" farViewingDistance:"+farViewingDistance+" state.outlineAlpha:"+state.outlineAlpha);
 
 //		if( getWorldState().timeFading && time != null && !ml.world.viewer.isMoving() )
 //			brightness *= getTimeBrightness(); 							// Fade model brightness based on time -- Disabled
 
 		/* Draw frame */
 		ml.pushMatrix();
-		ml.stroke(0.f, 0.f, 255.f, modelBrightness);	 
+//		ml.stroke(0.f, 0.f, 255.f, modelBrightness);	 
+		ml.stroke(0.f, 0.f, modelBrightness, modelBrightness);	 
 		ml.strokeWeight(2.f);
 
 		ml.line(state.vertices[0].x, state.vertices[0].y, state.vertices[0].z, state.vertices[1].x, state.vertices[1].y, state.vertices[1].z);
@@ -418,25 +420,30 @@ public class WMV_Image extends WMV_Media
 	/** 
 	 * Find image transparency due to distance (fades away in distance and as camera gets close)
 	 * @return Distance visibility multiplier between 0. and 1.
+	 * @param viewer Viewer 
+	 * @param farViewingDistance Distance at which image starts fading out
+	 * @param vanishingDistance Distance beyond far viewing distance when image fades to invisible
+	 * @return Distance visibility multiplier between 0. and 1.
 	 */
-	public float getDistanceBrightness(WMV_Viewer viewer, float farViewingDistance)									
+	public float getDistanceBrightness(WMV_Viewer viewer, float farViewingDistance, float vanishingDistance)									
 	{
-		float viewDist = getViewingDistance(viewer);
+		float viewingDist = getViewingDistance(viewer);
 //		float farViewingDistance = getViewerSettings().getFarViewingDistance();
 		float nearViewingDistance = getViewerSettings().getNearViewingDistance();
 
 		float distVisibility = 1.f;
 
-		if(viewDist > farViewingDistance)
+		if(viewingDist > farViewingDistance)
 		{
-			float vanishingPoint = farViewingDistance + metadata.focusDistance;	// Distance where transparency reaches zero
-			if(viewDist < vanishingPoint)
-				distVisibility = PApplet.constrain(1.f - PApplet.map(viewDist, farViewingDistance, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
+			float vanishingPoint = farViewingDistance + vanishingDistance;	// Distance where transparency reaches zero
+//			float vanishingPoint = farViewingDistance + metadata.focusDistance;	// Distance where transparency reaches zero
+			if(viewingDist < vanishingPoint)
+				distVisibility = PApplet.constrain(1.f - PApplet.map(viewingDist, farViewingDistance, vanishingPoint, 0.f, 1.f), 0.f, 1.f);    // Fade out until cam.visibleFarDistance
 			else
 				distVisibility = 0.f;
 		}
-		else if(viewDist < nearViewingDistance)								
-			distVisibility = PApplet.constrain(PApplet.map(viewDist, viewer.getNearClippingDistance(), viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
+		else if(viewingDist < nearViewingDistance)								
+			distVisibility = PApplet.constrain(PApplet.map(viewingDist, viewer.getNearClippingDistance(), viewer.getNearViewingDistance(), 0.f, 1.f), 0.f, 1.f);
 
 		return distVisibility;
 	}

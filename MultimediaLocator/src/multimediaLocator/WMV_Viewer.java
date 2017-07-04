@@ -16,7 +16,7 @@ public class WMV_Viewer
 {
 	/* Camera */
 	private WMV_Camera camera;								// Camera object
-	private WMV_Camera hudCamera;								// Camera object
+	private WMV_Camera mediaViewCamera;								// Camera object
 	private WMV_WorldSettings worldSettings;				// World settings
 	private WMV_WorldState worldState;						// World state
 	private WMV_ViewerSettings settings;					// Viewer settings
@@ -85,7 +85,7 @@ public class WMV_Viewer
 								 settings.nearClippingDistance, settings.farClippingDistance );
 		
 //		camera = new WMV_Camera( p.ml, x, y, z, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, settings.fieldOfView, settings.nearClippingDistance, 10000.f);
-//		hudCamera = new WMV_Camera( p.ml, 0.f, 0.f, 500.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, (float)Math.PI / 3.f, settings.nearClippingDistance, 10000.f);
+		mediaViewCamera = new WMV_Camera( p.ml, 0.f, 0.f, 500.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, (float)Math.PI / 3.f, settings.nearClippingDistance, 10000.f);
 
 		state.location = new PVector(0.f, 0.f, 0.f);
 		state.teleportGoal = new PVector(0.f, 0.f, 0.f);		// -- Needed?
@@ -121,14 +121,11 @@ public class WMV_Viewer
 	 * Enter given field
 	 * @param fieldID Field to enter
 	 */
-	public void enterField(int fieldID)
+	public void enterField(int fieldID, boolean setState)
 	{
 		if(debugSettings.viewer) p.ml.systemMessage("Viewer.enterField()... Field id #"+fieldID);
-		
-		if(p.getField(fieldID).hasBeenVisited())
-			setCurrentField(fieldID, true);					// Set new field and simulation state
-		else
-			setCurrentField(fieldID, false);				// Set new field without setting simulation state
+
+		setCurrentField(fieldID, setState);					// Set new field and simulation state
 
 		if(p.ml.display.getDisplayView() == 1)
 			p.ml.display.map2D.initialize(p);				// Initialize map if in Map View
@@ -868,8 +865,6 @@ public class WMV_Viewer
 	 */
 	public void teleportToField(int newField, boolean fade) 
 	{
-//		if(debugSettings.viewer)
-//			p.ml.systemMessage("Viewer.teleportToField()... newField:"+newField+" mtf time segment:"+moveToFirstTimeSegment+" fade:"+fade);
 		if(debugSettings.viewer)
 			p.ml.systemMessage("Viewer.teleportToField()... newField:"+newField+" fade:"+fade);
 		if(newField >= 0)
@@ -884,21 +879,6 @@ public class WMV_Viewer
 
 			if(p.getField(newField).getClusters().size() > 0)
 			{
-//				if(moveToFirstTimeSegment)
-//				{
-//					WMV_TimeSegment goalSegment = p.getField(newField).getTimeline().getLower();
-//					if(goalSegment != null)
-//						state.teleportGoalCluster = goalSegment.getClusterID();
-//					else
-//						p.ml.systemMessage("teleportToField()... p.getField("+newField+").getTimeline().getLower() returns null!!");
-//				}
-//				else
-//				{
-//					state.teleportGoalCluster = -1;
-//					if(debugSettings.viewer)
-//						p.ml.systemMessage("teleportToField()... Not moving to first time segment: will setCurrentCluster to "+state.teleportGoalCluster);
-//				}
-
 				WMV_Waypoint entry = p.getField(newField).getState().entryLocation;
 				boolean hasEntryPoint = false;
 				
@@ -939,34 +919,25 @@ public class WMV_Viewer
 				else
 				{
 					if(p.getSettings().screenMessagesOn) 
-						p.ml.display.message(p.ml, "Moving to "+p.getField(newField).getName());
+						p.ml.display.message(p.ml, "Moving to "+p.getField(newField).getName()+" will set state? "+p.getField(newField).hasBeenVisited());
 
-					enterField(newField); 						/* Enter new field */
+					enterField(newField, p.getField(newField).hasBeenVisited()); 						/* Enter new field */
 
-					if(debugSettings.viewer) p.ml.systemMessage("  teleportToField()...  Entered field "+newField+" hasEntryPoint? "+hasEntryPoint);
+					if(debugSettings.viewer) 
+						p.ml.systemMessage("Viewer.teleportToField()...  Entered field #"+newField);
 
 					if(hasEntryPoint)
 					{
-						moveToWaypoint( p.getField(newField).getState().entryLocation, false, 	// Move to waypoint 
-								p.viewer.getState().pathWaiting );						
+						if(debugSettings.viewer) 
+							p.ml.systemMessage("Viewer.teleportToField()...  Field has Entry Point... "+p.getField(newField).getState().entryLocation.getWorldLocation());
+						moveToWaypoint( p.getField(newField).getState().entryLocation, false, true );	 // Move to waypoint and stop				
 					}
 					else
 					{
+						if(debugSettings.viewer) 
+							p.ml.systemMessage("Viewer.teleportToField()...  No Entry Point found...");
 						moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
 					}
-
-//					if(moveToFirstTimeSegment) 
-//					{
-//						moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
-//					}
-//					else
-//					{
-//						if(hasEntryPoint)
-//							moveToWaypoint( p.getField(newField).getState().entryLocation, false, 	// Move to waypoint 
-//											p.viewer.getState().pathWaiting );						
-//						else
-//							moveToFirstTimeSegment(false);				// Move to first time segment if start location not set from saved data 
-//					}
 
 					if(p.state.displayTerrain)
 						p.state.waitingToFadeInTerrainAlpha = true;
@@ -2529,7 +2500,7 @@ public class WMV_Viewer
 
 			if(setSimulationState)											// Set simulation state from saved
 			{
-				p.setSimulationStateFromField(p.getField(newField));
+				p.setStateFromField(p.getField(newField));
 //				p.setSimulationStateFromField(p.getField(newField), true);
 				if(debugSettings.viewer && debugSettings.detailed)		
 					p.ml.systemMessage("Viewer.setCurrentField().. after setSimulationStateFromField...  state.field:"+getCurrentFieldID()+" currentField ID:"+getCurrentFieldID()+" currentCluster:"+state.currentCluster+" location:"+getLocation());
@@ -3256,9 +3227,36 @@ public class WMV_Viewer
 
 				if(state.teleportToField != -1)							// If a new field has been specified 
 				{
-					if(debugSettings.viewer) p.ml.systemMessage("Viewer.updateTeleporting()... Will call enterField()... ");
+					if(debugSettings.viewer) p.ml.systemMessage("Viewer.updateTeleporting()... Calling enterField()...  will set state? "+p.getField(state.teleportToField).hasBeenVisited());
 					
-					enterField(state.teleportToField);					// Enter new field
+					enterField(state.teleportToField, p.getField(state.teleportToField).hasBeenVisited());					// Enter new field
+					if(debugSettings.viewer) 
+						p.ml.systemMessage("Viewer.updateTeleporting()...  Entered field... "+state.teleportToField);
+
+					WMV_Waypoint entry = null;
+					if(state.teleportToField >= 0 && state.teleportToField < p.getFieldCount())
+						entry = p.getField(state.teleportToField).getState().entryLocation;
+
+					boolean hasEntryPoint = false;
+					if(entry != null)
+						hasEntryPoint = entry.initialized();
+
+					if(hasEntryPoint)
+					{
+						if(debugSettings.viewer) 
+							p.ml.systemMessage("Viewer.updateTeleporting()...  Field has Entry Point... "+p.getField(state.teleportToField).getState().entryLocation.getWorldLocation());
+						moveToWaypoint( p.getField(state.teleportToField).getState().entryLocation, false, true );	 // Move to waypoint and stop				
+//						state.ignoreTeleportGoal = true;	// Added 7-4-17
+//						moveToWaypoint( p.getField(newField).getState().entryLocation, false, 	// Move to waypoint 
+//								p.viewer.getState().pathWaiting );						
+					}
+					else
+					{
+						if(debugSettings.viewer) 
+							p.ml.systemMessage("Viewer.teleportToField()...  No Entry Point found...");
+						moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+					}
+					
 
 					if(debugSettings.viewer)  p.ml.systemMessage("Viewer.updateTeleporting()...  Teleported to field "+state.teleportToField+" goal point: x:"+state.teleportGoal.x+" y:"+state.teleportGoal.y+" z:"+state.teleportGoal.z);
 					state.teleportToField = -1;
@@ -3510,7 +3508,7 @@ public class WMV_Viewer
 	 */
 	public void showHUD()
 	{
-		hudCamera.show();						
+		mediaViewCamera.show();						
 	}
 
 	/**
@@ -3910,6 +3908,45 @@ public class WMV_Viewer
 	}
 	
 	/**
+	 * Start viewing specified media in (2D) Media View
+	 * @param mediaType Media type
+	 * @param mediaID Media ID
+	 */
+	public void startViewingMedia(int mediaType, int mediaID)
+	{
+		boolean view = false;
+		switch(mediaType)
+		{
+			case 0:
+				if(mediaID < p.getCurrentFieldImages().size())
+				{
+					viewImage(mediaID);
+					view = true;
+				}
+				break;
+			case 1:
+				if(mediaID < p.getCurrentFieldPanoramas().size())
+				{
+					viewPanorama(mediaID);
+					view = true;
+				}
+				break;
+			case 2:
+				if(mediaID < p.getCurrentFieldVideos().size())
+				{
+					viewVideo(mediaID);
+					view = true;
+				}
+				break;
+		//	case 3:
+		//		viewSound(selected.get(0));
+		//		break;
+		}
+		
+		if(view) p.ml.display.setDisplayView(p, 4);			// Set current view to Media Display View if mediaID and type are valid
+	}
+
+	/**
 	 * Start viewing selected media in (2D) Media View
 	 */
 	public void startViewingSelectedMedia()
@@ -3959,30 +3996,33 @@ public class WMV_Viewer
 			p.ml.systemMessage("Viewer.startViewingSelectedMedia()... No media selected!");
 	}
 	
-	public void stopViewingSelectedMedia()
+	/**
+	 * Exit Media View and return to previous Display View
+	 */
+	public void exitMediaView()
 	{
-		p.ml.systemMessage("stopViewingSelectedMedia...");
-		p.ml.display.setDisplayView(p, 0);			// Set current view to Media Display View
+//		p.ml.systemMessage("Viewer.exitMediaView()...");
+		p.ml.display.setDisplayView(p, getLastDisplayView());	// Return to previous Display View
 	}
 	
 	public void viewImage(int id)
 	{
-		p.ml.display.setMediaViewObject(0, id);
+		p.ml.display.setMediaViewItem(0, id);
 	}
 	
 	public void viewPanorama(int id)
 	{
-		p.ml.display.setMediaViewObject(1, id);
+		p.ml.display.setMediaViewItem(1, id);
 	}
 	
 	public void viewVideo(int id)
 	{
-		p.ml.display.setMediaViewObject(2, id);
+		p.ml.display.setMediaViewItem(2, id);
 	}
 
 	public void viewSound(int id)
 	{
-		p.ml.display.setMediaViewObject(3, id);
+		p.ml.display.setMediaViewItem(3, id);
 	}
 	
 	/**
@@ -4860,7 +4900,7 @@ public class WMV_Viewer
 			p.getCurrentField().deselectAllMedia(false);		// Deselect media if left Selection Mode
 			if(p.ml.display.getDisplayView() == 4)
 			{
-				p.ml.display.setMediaViewObject(-1, -1);		// Reset current Media View object
+				p.ml.display.setMediaViewItem(-1, -1);		// Reset current Media View object
 				p.ml.display.setDisplayView(p, 0);			// Set Display View to World
 			}
 			if(p.ml.display.window.setupMediaWindow)
@@ -5050,6 +5090,24 @@ public class WMV_Viewer
 	public float getFarViewingDistance()
 	{
 		return settings.farViewingDistance;
+	}
+
+	/**
+	 * Set last Display View
+	 * @param newLastDisplayView New value
+	 */
+	public void setLastDisplayView(int newLastDisplayView)
+	{
+		state.lastDisplayView = newLastDisplayView;
+	}
+
+	/**
+	 * Get last Display View
+	 * @return Last DisplayView 
+	 */
+	public int getLastDisplayView()
+	{
+		return state.lastDisplayView;
 	}
 
 	public void setAngleThinning(boolean newAngleThinning)
@@ -5278,6 +5336,16 @@ public class WMV_Viewer
 		return state.clusterNearDistance;
 	}
 	
+	public void setIgnoreTeleportGoal( boolean newState )
+	{
+		state.ignoreTeleportGoal = newState;
+	}
+
+	public boolean getIgnoreTeleportGoal()
+	{
+		return state.ignoreTeleportGoal;
+	}
+
 	/**
 	 * Get current media (In Single Time Mode)
 	 * @return Current media ID

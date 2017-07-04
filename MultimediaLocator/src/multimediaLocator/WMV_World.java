@@ -448,17 +448,42 @@ public class WMV_World
 	 * @param fieldIdx The field to enter
 	 * @param first Whether to tell viewer this is the first frame
 	 */
-	public void enterFieldByIndex(int fieldIdx)
+	public void enterFieldAtBeginning(int fieldIdx)
 	{
 		WMV_Field f = getField(fieldIdx);
 		
-		viewer.enterField( fieldIdx );								// Enter field
+		if(ml.debug.ml) ml.systemMessage("World.enterFieldAtBeginning()... fieldIdx:"+fieldIdx);
+		viewer.enterField( fieldIdx, false );								// Enter field
 		
-		if(f.getState().entryLocation.initialized())
-			viewer.moveToWaypoint(f.getState().entryLocation, false, true);
-		else
-			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
-			
+		/* NEW METHOD */
+//		WMV_Waypoint entry = f.getState().entryLocation;
+//
+//		boolean hasEntryPoint = false;
+//		if(entry != null)
+//			hasEntryPoint = entry.initialized();
+//
+//		if(hasEntryPoint)
+//		{
+//			if(ml.debug.viewer) 
+//				ml.systemMessage("World.enterFieldByIndex()...  Field has Entry Point... "+f.getState().entryLocation.getWorldLocation());
+//			viewer.moveToWaypoint( f.getState().entryLocation, true, true );	 // Move to waypoint and stop				
+////			viewer.setIgnoreTeleportGoal( true );	// Added 7-4-17
+//		}
+//		else
+//		{
+//			if(ml.debug.viewer) 
+//				ml.systemMessage("World.enterFieldByIndex()...  No Entry Point found... f.getState() == null? "+(f.getState()==null));
+//			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+//		}
+		
+		/* OLD METHOD */
+//		if(f.getState().entryLocation.initialized())
+//			viewer.moveToWaypoint(f.getState().entryLocation, true, true);
+//		else
+//			viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+
+		viewer.moveToFirstTimeSegment(false);					// Move to first time segment if start location not set from saved data 
+
 		viewer.updateNavigation();									// Update navigation
 		viewer.start();												// Start the viewer if this is the first frame
 
@@ -690,9 +715,6 @@ public class WMV_World
 	 */
 	public void saveFieldState(WMV_Field f)
 	{
-		if(ml.world.getSettings().screenMessagesOn)
-			ml.display.message(ml, "Saving "+getCurrentField().getName()+"...");
-		
 		ml.display.display(ml);
 
 		String folderPath = ml.library.getDataFolder(getCurrentField().getID());
@@ -720,8 +742,7 @@ public class WMV_World
 		File soundDirectory = new File(soundDataPath);
 		if(!soundDirectory.exists()) soundDirectory.mkdir();			// Create directory if doesn't exist
 
-		if(ml.debug.world)
-			PApplet.println("Saving Simulation State to: "+folderPath);
+		if(ml.debug.world) PApplet.println("Saving Simulation State to: "+folderPath);
 		
 //		WMV_Field f = getCurrentField();
 		f.captureState();											// Capture current state, i.e. save timeline and dateline
@@ -743,8 +764,8 @@ public class WMV_World
 		ml.library.saveVideoStateList(vsl, videoDataPath+"ml_library_videoStates.json");
 		ml.library.saveSoundStateList(ssl, soundDataPath+"ml_library_soundStates.json");
 		
-//		if(ml.world.getSettings().screenMessagesOn)
-//			ml.display.message(ml, "Saved Field: "+f.getName()+"...");
+		if(ml.world.getSettings().screenMessagesOn)
+			ml.display.message(ml, "Saved "+getCurrentField().getName()+"...");
 	}
 
 	/**
@@ -753,7 +774,7 @@ public class WMV_World
 	void saveLibrary()
 	{
 		if(ml.world.getSettings().screenMessagesOn)
-			ml.display.message(ml, "Saving Library...");
+			ml.display.message(ml, "Saved Library...");
 		ml.display.display(ml);
 
 		for(WMV_Field f : fields)
@@ -925,19 +946,18 @@ public class WMV_World
 	 * Set world and viewer states from saved data in given field
 	 * @param field Given field
 	 */
-//	void setSimulationStateFromField(WMV_Field field, boolean moveToCurrentCluster)
-	void setSimulationStateFromField(WMV_Field field)
+	void setStateFromField(WMV_Field field)
 	{
 		if(ml.debug.world)
 			ml.systemMessage("World.setSimulationStateFromField()... Field #"+field.getID());
 
-		setState(field.getWorldState());
-		setSettings(field.getWorldSettings());
-		viewer.setState(field.getViewerState());
-		viewer.setSettings(field.getViewerSettings());
+		setState( field.getWorldState() );
+		setSettings( field.getWorldSettings() );
+		viewer.setState( field.getViewerState() );
+		viewer.setSettings( field.getViewerSettings() );
 
 		state.frameCount = ml.frameCount;
-		viewer.setFrameCount(ml.frameCount);
+		viewer.setFrameCount( ml.frameCount );
 
 		if(field.getID() < fields.size())
 		{
@@ -957,23 +977,6 @@ public class WMV_World
 			}
 		}
 		
-//		if(moveToCurrentCluster)
-//		{
-//			if(getCurrentCluster() != null)
-//			{
-//				if(ml.debug.viewer || ml.debug.world)
-//					ml.systemMessage("World.setSimulationStateFromField()... Moving to current cluster #"+getCurrentCluster().getID()+" at "+getCurrentCluster().getLocation()+" viewer loc before:"+viewer.getLocation());
-//			}
-//			else
-//			{
-//				if(ml.debug.viewer || ml.debug.world)
-//					ml.systemMessage("World.setSimulationStateFromField()... getCurrentCluster() == null!  Moving to cluster 0...");
-//				viewer.setCurrentCluster(0, 0);
-//			}
-//			viewer.setLocation(getCurrentCluster().getLocation(), false);					// Set location to current cluster
-//			viewer.ignoreTeleportGoal();
-//		}
-
 		viewer.resetTimeState();
 
 		/* Check world and viewer state/settings */
@@ -988,12 +991,9 @@ public class WMV_World
 		if(ml.debug.world)
 		{
 			if(getCurrentCluster() != null)
-				ml.systemMessage("  setSimulationStateFromField()... currentCluster id:"+getCurrentCluster().getID()+" cluster location:"+getCurrentCluster().getLocation()+" current location:"+viewer.getLocation());
+				ml.systemMessage("World.setSimulationStateFromField()... currentCluster id:"+getCurrentCluster().getID()+" cluster location:"+getCurrentCluster().getLocation()+" current location:"+viewer.getLocation());
 			else
-				ml.systemMessage("  setSimulationStateFromField()... currentCluster is null!!!");
-			
-//			ml.systemMessage("--------VERIFYING FIELD--------");
-//			getCurrentField().verify(true);			// -- Test
+				ml.systemMessage("World.setSimulationStateFromField()... currentCluster is null!!!");
 		}
 		
 		updateState();

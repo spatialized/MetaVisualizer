@@ -761,7 +761,10 @@ public class ML_Map
 	{
 		if(zoomingIn)
 		{
-			float zoomInPct = 1.f - 0.01f * satellite.getZoomLevel();
+			float zoomOutPct = 1.f - 0.01f * satellite.getZoomLevel();
+			float zoomInPct = 1.f / zoomOutPct;
+
+//			float zoomInPct = 1.f - 0.01f * satellite.getZoomLevel();
 //			satellite.zoom(zoomInPct);		// -- Fix this 
 			
 			ZoomMapEvent zoomMapEvent = new ZoomMapEvent(world.ml, satellite.getId());
@@ -772,8 +775,8 @@ public class ML_Map
 		}
 		if(zoomingOut)
 		{
-			float zoomInPct = 1.f - 0.01f * satellite.getZoomLevel();
-			float zoomOutPct = 1.f / zoomInPct;
+			float zoomOutPct = 1.f - 0.01f * satellite.getZoomLevel();
+//			float zoomOutPct = 1.f / zoomInPct;
 //			satellite.zoom(zoomOutPct);
 			
 			ZoomMapEvent zoomMapEvent = new ZoomMapEvent(world.ml, satellite.getId());

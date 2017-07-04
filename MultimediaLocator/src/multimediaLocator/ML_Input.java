@@ -462,15 +462,11 @@ public class ML_Input
 						ml.display.map2D.zoomToCluster(ml.world, ml.world.getCurrentCluster(), true);	// Zoom to current cluster
 						break;
 					case "ZoomToField":
-	//					if(ml.world.getFields().size() > 1)
 							ml.display.map2D.zoomToField(ml.world.getCurrentField(), true);
-	//					else
-	//						ml.display.map2D.zoomToWorld(true);
 						break;
 					case "MapZoomIn":
 						if(ml.display.map2D.isZooming())
 							ml.display.map2D.stopZooming();
-//						ml.display.map2D.zoomIn(ml.world);
 						break;
 					case "ResetMapZoom":
 						ml.display.map2D.resetMapZoom(true);
@@ -479,7 +475,6 @@ public class ML_Input
 					case "MapZoomOut":
 						if(ml.display.map2D.isZooming())
 							ml.display.map2D.stopZooming();
-//						ml.display.map2D.zoomOut(ml.world);
 						break;
 	//				case "ZoomToSelected":
 	//					break;
@@ -650,14 +645,13 @@ public class ML_Input
 						ml.display.map2D.stopZooming();
 					else
 						ml.display.map2D.startZoomingIn(ml.world);
-//					ml.display.map2D.zoomIn(ml.world);
 					break;
 				case "MapZoomOut":
+//					System.out.println("MapZoomOut PRESSED...");
 					if(ml.display.map2D.isZooming())
 						ml.display.map2D.stopZooming();
 					else
 						ml.display.map2D.startZoomingOut(ml.world);
-//					ml.display.map2D.zoomOut(ml.world);
 					break;
 				
 				/* Timeline */
@@ -709,6 +703,7 @@ public class ML_Input
 					break;
 				case "MapZoomIn":
 				case "MapZoomOut":
+//					System.out.println("MapZoomIn/Out RELEASED...");
 					display.map2D.stopZooming();
 //					System.out.println("Stopped zooming...");
 					break;

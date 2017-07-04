@@ -2064,14 +2064,15 @@ public class ML_Display
 						ml.text("   Videos:  "+ c.getState().videos.size(), x, y += hudLineWidthWide, 0);
 					if(c.getState().sounds.size() > 0)
 						ml.text("     Sounds:  "+ c.getState().sounds.size(), x, y += hudLineWidthWide, 0);
-					ml.text("   Total Media Count:  "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
-					ml.text("   Sub-Clusters:  "+ c.segments.size(), x, y += hudLineWidth, 0);
+					ml.text("   Number of Media:  "+ c.getState().mediaCount, x, y += hudLineWidthWide, 0);
+					ml.text("   Spatial Segments:  "+ c.segments.size(), x, y += hudLineWidthVeryWide, 0);
+					ml.text("   Temporal Segments:  "+ c.getTimeline().timeline.size(), x, y += hudLineWidthWide, 0);
 					ml.text(" ", x, y += hudLineWidth, 0);
 					PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(f, c.getLocation());
 					gpsLoc.x = utilities.round(gpsLoc.x, 4);
 					gpsLoc.y = utilities.round(gpsLoc.y, 4);
 					ml.text("   GPS Location: {Longitude: "+ gpsLoc.x+", Latitude: "+gpsLoc.y+"}", x, y += hudLineWidthWide, 0);
-					ml.text("   Viewer Distance: "+PApplet.round(PVector.dist(c.getLocation(), p.viewer.getLocation()))+" m.", x, y += hudLineWidth, 0);
+					ml.text("   Viewer Distance: "+utilities.round(PVector.dist(c.getLocation(), p.viewer.getLocation()), 1)+" m.", x, y += hudLineWidth, 0);
 				}
 				else
 				{

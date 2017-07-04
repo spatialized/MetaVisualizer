@@ -740,12 +740,14 @@ public class ML_Window
 		btnMapZoomOut = new GButton(navigationWindow, x+=65, y, 55, iVerySmallBoxHeight, "In (w)");
 		btnMapZoomOut.tag = "MapZoomIn";
 		btnMapZoomOut.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnMapZoomOut.fireAllEvents(true);
 		btnZoomToWorld = new GButton(navigationWindow, x+=65, y, 75, iVerySmallBoxHeight, "Reset (r)");
 		btnZoomToWorld.tag = "ResetMapZoom";
 		btnZoomToWorld.setLocalColorScheme(G4P.RED_SCHEME);
 		btnMapZoomIn = new GButton(navigationWindow, x+=85, y, 65, iVerySmallBoxHeight, "Out (d)");
 		btnMapZoomIn.tag = "MapZoomOut";
 		btnMapZoomIn.setLocalColorScheme(G4P.CYAN_SCHEME);
+		btnMapZoomIn.fireAllEvents(true);
 		
 		x = 125;
 //		if(compressTallWindows) x += windowWidth;

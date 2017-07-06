@@ -906,6 +906,12 @@ public abstract class WMV_Media
 		return time.getTime();
 	}
 
+	public ZonedDateTime getUTCZonedDateTime()
+	{
+		ZonedDateTime utc = time.getDateTimeWithTimeZone("UTC");
+		return utc;
+	}
+	
 	/**
 	 * @return Date object associated with this time
 	 */

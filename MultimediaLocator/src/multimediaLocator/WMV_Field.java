@@ -1053,25 +1053,23 @@ public class WMV_Field
 	}
 	
 	/**
-	 * Set sound locations from GPS locations
+	 * Update sound virtual locations from already calculated GPS locations 
 	 */
-	public void setSoundLocations()
+	public void updateSoundLocations()
 	{
-		if(debugSettings.sound) System.out.println("Field.setSoundLocations()... clusters.size():"+clusters.size());
+		if(debugSettings.sound) System.out.println("Field.updateSoundLocations()... clusters.size():"+clusters.size());
 		for(WMV_Sound snd : sounds)
-		{
-			setSoundLocation(snd);												// Set location
-//			if(snd.getAssociatedClusterID() == -1) setSoundCluster(snd);		// Set cluster
-		}
+			setSoundLocationFromState(snd);										/* Set sound location from state */
 	}
 	
 	/**
-	 * Set field entry point
-	 * @param newHome
+	 * Set field entry point  				-- Disabled
+	 * @param newHome New home location
 	 */
 	public void setHome(WMV_Waypoint newHome)
 	{
-		if(debugSettings.viewer) System.out.println("Field.setHome()... newHome.location x:"+newHome.getWorldLocation().x+" y:"+newHome.getWorldLocation().y+" z:"+newHome.getWorldLocation().z);
+		if(debugSettings.viewer) 
+			System.out.println("Field.setHome()... newHome.location x:"+newHome.getWorldLocation().x+" y:"+newHome.getWorldLocation().y+" z:"+newHome.getWorldLocation().z);
 		state.entryLocation = newHome;
 	}
 	
@@ -1080,42 +1078,45 @@ public class WMV_Field
 	 */
 	public void setSoundClusters()
 	{
-		if(debugSettings.sound) System.out.println("setSoundLocations()... clusters.size():"+clusters.size());
+		if(debugSettings.sound) System.out.println("Field.setSoundClusters()... clusters.size():"+clusters.size());
 		for(WMV_Sound snd : sounds)
-		{
-//			setSoundLocation(snd);												// Set location
-			if(snd.getAssociatedClusterID() == -1) setSoundCluster(snd);		// Set cluster
-		}
+			if(snd.getAssociatedClusterID() == -1) setSoundCluster(snd);		/* Set cluster */
 	}
 	
 	/**
 	 * Set sound location and location metadata from GPS location in <mState>
 	 * @param snd Sound to set location for
 	 */
-	private void setSoundLocation(WMV_Sound snd)
+	private void setSoundLocationFromState(WMV_Sound snd)
 	{
-		snd.setGPSLocationFromMetadata();
+		snd.setGPSLocationInMetadataFromState();
 		snd.calculateCaptureLocation(model);
-		snd.setLocation(snd.getCaptureLocation());
+		snd.setLocation( snd.getCaptureLocation() );
 		
-		if(debugSettings.sound)
-			System.out.println("Field.setSoundLocation()...   sound #"+snd.getID()+" snd.gpsLoc:"+snd.getGPSLocation()+"  snd.getCaptureLocation(): "+snd.getCaptureLocation()+" snd.getLocation(): "+snd.getLocation()+"...");
+		if( snd.getAssociatedGPSTrackWaypoint() == null )
+		{
+			System.out.println("Field.setSoundLocationFromState()... No GPS track waypoint found for sound #"+snd.getID()+" snd.gpsLoc:"+snd.getGPSLocation()+"  will set sound to disabled...");
+			snd.setDisabled(true);
+		}
+		else if( snd.getGPSLocation().x == 0 && snd.getGPSLocation().y == 0 && snd.getGPSLocation().z == 0 )
+		{
+			System.out.println("Field.setSoundLocationFromState()... No GPS location loaded for sound #"+snd.getID()+" snd.gpsLoc:"+snd.getGPSLocation()+"  will set sound to disabled...");
+			snd.setDisabled(true);
+		}
+		else if(debugSettings.sound)
+			System.out.println("Field.setSoundLocationFromState()... #"+snd.getID()+" snd.gpsLoc:"+snd.getGPSLocation()+"  snd.getCaptureLocation(): "+snd.getCaptureLocation()+" snd.getLocation(): "+snd.getLocation()+"...");
 	}
 
 	private void setSoundCluster(WMV_Sound snd)
 	{
-//		if(snd.getAssociatedClusterID() == -1)				// Search for existing cluster near sound
-//		{
-//			System.out.println("Field.setSoundLocation()...  Field.findAssociatedCluster()... sound #"+snd.getID()+" cluster ID was "+snd.getAssociatedClusterID()+"...");
-			boolean success = snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);
-			if(success)
-			{
-				WMV_Cluster c = clusters.get(snd.getAssociatedClusterID());
-				if(!c.getSoundIDs().contains(snd.getID()))
-					c.addSound(snd);
-//				System.out.println("Field.setSoundLocation()...   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
-			}
-//		}
+		boolean success = snd.findAssociatedCluster(clusters, model.getState().maxClusterDistance);
+		if(success)
+		{
+			WMV_Cluster c = clusters.get(snd.getAssociatedClusterID());
+			if(!c.getSoundIDs().contains(snd.getID()))
+				c.addSound(snd);
+//			System.out.println("Field.setSoundLocation()...   Set sound #"+snd.getID()+" cluster ID to:"+snd.getAssociatedClusterID());
+		}
 		
 		if(snd.getAssociatedClusterID() == -1)				// Create cluster for single sound if no existing cluster nearby
 		{
@@ -1934,7 +1935,7 @@ public class WMV_Field
 			if(debugSettings.cluster && debugSettings.detailed) 
 				System.out.println("Field.runKMeansClustering()... Running k-means clustering... model.validMedia:"+model.getState().validMedia);
 
-			setSoundLocations();								/* Set sound locations */
+			updateSoundLocations();								/* Set sound locations */
 			
 			initializeKMeansClusters(numClusters, true);		/* Create initial clusters at random image locations */
 			refineKMeansClusters(epsilon, refinement, true);	/* Refine clusters over many iterations */
@@ -3052,7 +3053,7 @@ public class WMV_Field
 		
 		PVector gpsLoc = utilities.getGPSLocationFromCaptureLocation(this, c.getLocation());
 		float altitude = utilities.getAltitude(c.getLocation());
-		WMV_Waypoint result = new WMV_Waypoint(c.getID(), c.getLocation(), gpsLoc, altitude, null);			// -- Should set to center time instead of null!!
+		WMV_Waypoint result = new WMV_Waypoint(0, c.getID(), -1, c.getLocation(), gpsLoc, altitude, null);			// -- Should set to center time instead of null!!
 		return result;
 	}
 

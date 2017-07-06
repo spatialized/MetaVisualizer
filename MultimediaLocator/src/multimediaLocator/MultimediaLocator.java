@@ -350,10 +350,11 @@ public class MultimediaLocator extends PApplet
 		initializeField(world.getField(state.initializationField), true, true);		/* Initialize field */	
 		
 		state.initializationField++;		/* Set next field to initialize */
-		if( state.initializationField >= world.getFields().size() )	
+//		if( state.initializationField >= world.getFields().size() )	
+		if( state.initializationField >= world.getFields().size() || state.singleField )	
 		{
 			state.fieldsInitialized = true;
-			if(debug.ml) systemMessage("ML.initializeField()... " + world.getFields().size() + " fields initialized...");
+			if(debug.ml) systemMessage("ML.initializeField()... " + world.getFields().size() + " field"+(world.getFields().size()>1?"s":"")+" initialized...");
 			display.setupProgress(1.f);
 			if(display.window.showCreateLibraryWindow) display.window.closeCreateLibraryWindow();
 			if(display.window.showLibraryWindow) display.window.closeLibraryWindow();
@@ -422,7 +423,7 @@ public class MultimediaLocator extends PApplet
 
 				if(setSoundGPSLocations)
 					if(f.getSounds().size() > 0)
-						metadata.setSoundGPSLocations(f, f.getSounds());
+						metadata.setSoundLocationsFromGPSTracks(f, f.getSounds());
 			}
 
 			world.getField(fieldID).setLoadedState(success);		/* Set field loaded state flag */
@@ -918,14 +919,14 @@ public class MultimediaLocator extends PApplet
 			String[] parts = input.split("/");
 			String[] nameParts = parts[parts.length-1].split("\\.");		// Check if single field library 
 
-			boolean singleField;
+//			boolean singleField;
 			if(nameParts[nameParts.length-1].equals("mlibrary"))
-				singleField = false;
+				state.singleField = false;
 			else
-				singleField = true;
+				state.singleField = true;
 			
 			String parentFilePath = "";
-			if(singleField)
+			if(state.singleField)
 			{
 				if(debug.ml) systemMessage("ML.openLibraryFolder()... Loading single field...");
 				String libFilePath = "";

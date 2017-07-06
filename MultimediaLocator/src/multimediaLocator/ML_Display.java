@@ -1988,11 +1988,11 @@ public class ML_Display
 				ml.textSize(hudMediumTextSize);
 //				if(ml.world.getFieldCount() > 1)
 //					ml.text(" Current Field #"+ (f.getID()+1)+" of "+ ml.world.getFields().size(), x, y += hudLineWidthVeryWide);
-				ml.text(" Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 ), x, y += hudLineWidthWide * 2);
-				ml.text(" Field Length:  "+utilities.round( f.getModel().getState().fieldLength, 3), x, y += hudLineWidthWide);
-				ml.text(" Field Height:  " + utilities.round( f.getModel().getState().fieldHeight, 3 ), x, y += hudLineWidthWide);
+				ml.text(" Field Width:  " + utilities.round( f.getModel().getState().fieldWidth, 3 ), x, y += hudLineWidth * 2);
+				ml.text(" Field Length:  "+utilities.round( f.getModel().getState().fieldLength, 3), x, y += hudLineWidth);
+				ml.text(" Field Height:  " + utilities.round( f.getModel().getState().fieldHeight, 3 ), x, y += hudLineWidth);
 				
-				ml.text(" Media Density (per sq. m.):  "+utilities.round( f.getModel().getState().mediaDensity, 3 ), x, y += hudLineWidthWide);
+				ml.text(" Media Density (per sq. m.):  "+utilities.round( f.getModel().getState().mediaDensity, 3 ), x, y += hudLineWidth);
 
 				ml.text(" Points of Interest:  "+(f.getClusters().size()), x, y += hudLineWidthVeryWide, 0);
 //				ml.text("    Merged:  "+f.getModel().getState().mergedClusters+" out of "+(f.getModel().getState().mergedClusters+f.getClusters().size())+" Total", x, y += hudLineWidth, 0);
@@ -2001,43 +2001,43 @@ public class ML_Display
 //				ml.text("    Maximum Distance: "+p.settings.maxClusterDistance, x, y += hudLineWidth, 0);
 //				ml.text("    Population Factor: "+f.getModel().getState().clusterPopulationFactor, x, y += hudLineWidth, 0);
 				if(c != null)
-					ml.text(" Current:  "+ (c.getID()+1), x, y += hudLineWidthWide, 0);
-				ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidthWide);
+					ml.text(" Current:  "+ (c.getID()+1), x, y += hudLineWidth, 0);
+				ml.text("    Visible:  "+ml.world.getVisibleClusters().size(), x, y += hudLineWidth);
 
 				// --  Flag media missing originals
 				if(f.getImageCount() > 0) ml.text(" Images:  "+f.getImageCount(), x, y += hudLineWidthVeryWide);
 				if(f.getImagesVisible() > 0) 
 				{
-					ml.text("   In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidthWide);
-//					ml.text("   Seen:  "+f.getImagesSeen(), x, y += hudLineWidthWide);
+					ml.text("   In Visible Range:  "+f.getImagesVisible(), x, y += hudLineWidth);
+//					ml.text("   Seen:  "+f.getImagesSeen(), x, y += hudLineWidth);
 				}
 
 				if(f.getPanoramaCount() > 0) ml.text(" Panoramas:  "+f.getPanoramaCount(), x, y += hudLineWidthVeryWide);		
 				if(f.getPanoramasVisible() > 0)
 				{
-					ml.text("   In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidthWide);
-//					ml.text("   Seen:  "+f.getPanoramasSeen(), x, y += hudLineWidthWide);
+					ml.text("   In Visible Range:  "+f.getPanoramasVisible(), x, y += hudLineWidth);
+//					ml.text("   Seen:  "+f.getPanoramasSeen(), x, y += hudLineWidth);
 				}
 
 				if(f.getVideoCount() > 0) ml.text(" Videos:  "+f.getVideoCount(), x, y += hudLineWidthVeryWide);					
 				if(f.getVideosVisible() > 0)
 				{
-					ml.text("   In Visible Range:  "+f.getVideosVisible(), x, y += hudLineWidthWide);
+					ml.text("   In Visible Range:  "+f.getVideosVisible(), x, y += hudLineWidth);
 				}
 				if(f.getVideosPlaying() > 0)
 				{
-					ml.text("   Playing:  "+f.getVideosPlaying(), x, y += hudLineWidthWide);
-//					ml.text("   Seen:  "+f.getVideosSeen(), x, y += hudLineWidthWide);
+					ml.text("   Playing:  "+f.getVideosPlaying(), x, y += hudLineWidth);
+//					ml.text("   Seen:  "+f.getVideosSeen(), x, y += hudLineWidth);
 				}
 
-				if(f.getSoundCount() > 0) ml.text(" Sounds:  "+f.getSoundCount(), x, y += hudLineWidthVeryWide);					
+				if(f.getSoundCount() > 0) ml.text(" Sounds:  "+f.getSoundCount(), x, y += hudLineWidthWide);					
 				if(f.getSoundsAudible() > 0)
 				{
-					ml.text(" In Audible Range:  "+f.getSoundsAudible(), x, y += hudLineWidthWide);
+					ml.text(" In Audible Range:  "+f.getSoundsAudible(), x, y += hudLineWidth);
 				}
 				if(f.getSoundsPlaying() > 0) 
 				{
-					ml.text("   Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidthWide);
+					ml.text("   Playing:  "+f.getSoundsPlaying(), x, y += hudLineWidth);
 //					ml.text("   Heard:  "+f.getSoundsHeard(), x, y += hudLineWidthWide);
 				}
 

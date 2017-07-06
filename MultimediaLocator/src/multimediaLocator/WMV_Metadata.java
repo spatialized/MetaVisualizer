@@ -200,21 +200,21 @@ class WMV_Metadata
 	 * Load and analyze GPS track file in response to user selection
 	 * @param newTrackFile GPS track file
 	 */
-	public ArrayList<WMV_Waypoint> loadGPSTrack(WMV_Field f, File newTrackFile, WMV_WorldSettings worldSettings) 
+	public ArrayList<WMV_Waypoint> loadGPSTrack(WMV_Field f, File newTrackFile, int gpsTrackID, WMV_WorldSettings worldSettings) 
 	{
 		File gpsTrackFile = null;
 		String gpsTrackName = "";
 		boolean valid = false;
 		if (newTrackFile == null) 
 		{
-			ml.systemMessage("Metadata.loadGPSTrack() window was closed or the user hit cancel.");
+			ml.systemMessage("Metadata.loadGPSTrack()... newTrackFile is null!");
 		} 
 		else 
 		{
 			String input = newTrackFile.getPath();
 			gpsTrackName = input;
 
-			if(debugSettings.metadata) ml.systemMessage("  User selected GPS Track: " + input);
+			if(debugSettings.metadata) ml.systemMessage("Metadata.loadGPSTrack()... Adding GPS Track: " + input);
 			
 			try
 			{
@@ -242,7 +242,7 @@ class WMV_Metadata
 		
 		if(valid)
 		{
-			return ml.world.utilities.getGPSTrackFromFile(ml, f, gpsTrackFile);
+			return ml.world.utilities.getGPSTrackFromFile(ml, f, gpsTrackFile, gpsTrackID);
 		}
 		else 
 			return null;
@@ -369,12 +369,14 @@ class WMV_Metadata
 		File[] files = gpsTrackFiles;
 		ArrayList<ArrayList<WMV_Waypoint>> tracks = new ArrayList<ArrayList<WMV_Waypoint>>();
 		
+		int count = 0;
 		if(files != null)
 		{
 			for(File file : files)
 			{
-				ArrayList<WMV_Waypoint> gpsTrack = loadGPSTrack(f, file, ml.world.settings); 
+				ArrayList<WMV_Waypoint> gpsTrack = loadGPSTrack(f, file, count, ml.world.settings); 
 				tracks.add(gpsTrack);
+				count++;
 			}
 		}
 		return tracks;
@@ -385,20 +387,21 @@ class WMV_Metadata
 	 * @param f Field to load sound locations for
 	 * @param soundList Sound list
 	 */
-	public void setSoundGPSLocations(WMV_Field f, ArrayList<WMV_Sound> soundList)
+	public void setSoundLocationsFromGPSTracks(WMV_Field f, ArrayList<WMV_Sound> soundList)
 	{
 		if(f.getState().gpsTracks != null)
 		{
 			for(ArrayList<WMV_Waypoint> track : f.getState().gpsTracks)
 			{
-				ml.systemMessage("  Setting sound locations from track...");
-				ml.world.utilities.setSoundGPSLocationsFromGPSTrack(f.getSounds(), track);
+				if(debugSettings.metadata && debugSettings.sound)
+					ml.systemMessage("Metadata.setSoundLocationsFromGPSTracks()...  Setting sound locations from track...");
+				ml.world.utilities.setSoundGPSLocationsFromGPSTrack( f.getSounds(), track, ml.world.getSettings().soundGPSTimeThreshold );
 			}
 		}
 		else
 		{
-			if(debugSettings.metadata)
-				ml.systemMessage("setSoundGPSLocations()... No GPS tracks in field #"+f.getID());
+			if(debugSettings.metadata && debugSettings.sound)
+				ml.systemMessage("Metadata.setSoundLocationsFromGPSTracks()... No GPS tracks in field #"+f.getID());
 		}
 	}
 	
@@ -1013,11 +1016,11 @@ class WMV_Metadata
 			}
 
 			try {
-				zonedDateTime = parseDateTime(sDateTime);
+				zonedDateTime = parseDateTime(sDateTime, timeZoneID);
 			} 
 			catch (RuntimeException ex) 
 			{
-				if (debugSettings.metadata) ml.systemMessage("Error in date / time... " + ex);
+				if (debugSettings.metadata) ml.systemMessage("Error in getting zoned date / time... " + ex);
 				if(!dataMissing) dataMissing = true;
 			}
 
@@ -1306,7 +1309,7 @@ class WMV_Metadata
 			}
 
 			try {
-				zonedDateTime = parseDateTime(sDateTime);
+				zonedDateTime = parseDateTime(sDateTime, timeZoneID);
 			} 
 			catch (RuntimeException ex) 
 			{
@@ -1385,10 +1388,10 @@ class WMV_Metadata
 	/**
 	 * Load video metadata from disk
 	 * @param file Video file
-	 * @param fieldTimeZoneID Video time zone
+	 * @param timeZoneID Video time zone
 	 * @return Video metadata
 	 */
-	public WMV_VideoMetadata loadVideoMetadata(File file, String fieldTimeZoneID)
+	public WMV_VideoMetadata loadVideoMetadata(File file, String timeZoneID)
 	{
 		String sName = file.getName();
 
@@ -1459,7 +1462,7 @@ class WMV_Metadata
 			}
 
 			try {
-				zonedDateTime = parseDateTime(sDateTime);
+				zonedDateTime = parseDateTime(sDateTime, timeZoneID);
 			} 
 			catch (Throwable t) {
 				ml.systemMessage("Metadata.loadVideoMetadata()... Throwable while parsing date / time... " + t);
@@ -1514,7 +1517,7 @@ class WMV_Metadata
 		{
 			if(!dataMissing)
 			{
-				WMV_VideoMetadata vMetadata = new WMV_VideoMetadata( sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, fieldTimeZoneID, 
+				WMV_VideoMetadata vMetadata = new WMV_VideoMetadata( sName, sFilePath, gpsLoc, zonedDateTime, sDateTime, timeZoneID, 
 						-1, -1, -1, -1, -1, -1, iWidth, iHeight, fBrightness, keywords, "", sLongitudeRef, sLatitudeRef );
 				return vMetadata;
 			}
@@ -1537,10 +1540,10 @@ class WMV_Metadata
 	 * Load sound metadata for specified sound file 
 	 * @param f Field containing sound
 	 * @param file Sound file 
-	 * @param fieldTimeZoneID Time zone ID
-	 * @return
+	 * @param timeZoneID Time zone ID
+	 * @return Sound metadata
 	 */
-	public WMV_SoundMetadata loadSoundMetadata(WMV_Field f, File file, String fieldTimeZoneID)
+	public WMV_SoundMetadata loadSoundMetadata(WMV_Field f, File file, String timeZoneID)
 	{
 		String sName = file.getName();
 		String sFilePath = file.getPath();
@@ -1565,11 +1568,17 @@ class WMV_Metadata
 					if(debugSettings.sound || debugSettings.metadata) ml.systemMessage("Metadata.loadSoundMetadata()... Loading sound file:"+sFilePath);
 					BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 					FileTime creationTime = attr.creationTime();
-					if(ml.debug.sound && ml.debug.metadata) ml.systemMessage("file: "+file.getName()+" creationTime: "+creationTime);
-					ZonedDateTime soundTime = getTimeFromTimeStamp(creationTime);
-					String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundTime);		// 2016:04:10 17:52:39
+					
+					if(ml.debug.sound && ml.debug.metadata)
+						ml.systemMessage("Metadata.loadSoundMetadata()... Sound file: "+file.getName()+" Creation Time: "+creationTime);
+					
+					ZonedDateTime soundDateTime = getZonedTimeFromTimeStamp(creationTime, timeZoneID);
+					String soundDateTimeString = ml.world.utilities.getDateTimeAsString(soundDateTime);		// 2016:04:10 17:52:39
 
-					return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundTime, soundDateTimeString, fieldTimeZoneID, 
+					if(debugSettings.metadata && debugSettings.sound)
+						ml.systemMessage("Metadata.loadSoundMetadata()... soundDateTimeString:"+soundDateTimeString+" timeZoneID:"+timeZoneID+" Zoned Day:"+soundDateTime.getDayOfMonth()+" Hour:"+soundDateTime.getHour()+" Min:"+soundDateTime.getMinute());
+
+					return new WMV_SoundMetadata( sName, sFilePath, new PVector(0,0,0), 0.f, -1, -1.f, soundDateTime, soundDateTimeString, timeZoneID, 
 							null, "", "", "" );
 				}
 				else
@@ -1577,7 +1586,7 @@ class WMV_Metadata
 			}
 			catch(Throwable t)
 			{
-				ml.systemMessage("Throwable in loadSounds()... "+t);
+				ml.systemMessage("Metadata.loadSoundMetadata()... ERROR... Throwable :"+t);
 			}
 		}
 		
@@ -2075,7 +2084,13 @@ class WMV_Metadata
 		return 1000;
 	}
 
-	public ZonedDateTime parseDateTime(String input)  	// [Exif SubIFD] Date/Time Original - 2016:08:11 16:40:10
+	/**
+	 * Get ZonedDateTime object from metadata "Date/Time Original" string using specified time zone
+	 * @param input Date/time string, e.g. "[Exif SubIFD] Date/Time Original - 2016:08:11 16:40:10"
+	 * @param timeZoneID Time zone ID string, e.g. "America/Los_Angeles"
+	 * @return ZonedDateTime object for given date/time and time zone
+	 */
+	public ZonedDateTime parseDateTime(String input, String timeZoneID)
 	{		
 		String[] parts = input.split(":");
 
@@ -2088,8 +2103,10 @@ class WMV_Metadata
 		int day = Integer.valueOf(parts[0]);
 		int hour = Integer.valueOf(parts[1]);
 
-		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
-		return pac;
+		ZonedDateTime zoned = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
+		return zoned;
+//		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of("America/Los_Angeles"));
+//		return pac;
 	}
 	
 	/**
@@ -2097,11 +2114,11 @@ class WMV_Metadata
 	 * @param creationTime FileTime object
 	 * @return ZonedDateTime object
 	 */
-	private ZonedDateTime getTimeFromTimeStamp(FileTime creationTime)
+	private ZonedDateTime getZonedTimeFromTimeStamp(FileTime creationTime, String timeZoneID)
 	{
 		Instant creationInstant = creationTime.toInstant();
-		ZonedDateTime mediaTime = creationInstant.atZone(ZoneId.of(ml.world.getCurrentField().getTimeZoneID()));
-//		ml.systemMessage("getTimeFromTimeStamp()... mediaTime.string:"+mediaTime.toString());
+		ZonedDateTime mediaTime = creationInstant.atZone( ZoneId.of(timeZoneID) );
+//		ZonedDateTime mediaTime = creationInstant.atZone( ZoneId.of(ml.world.getCurrentField().getTimeZoneID()) );
 		return mediaTime;
 	}
 	

@@ -12,7 +12,8 @@ public class ML_SystemState
 	public boolean running = false;				// Whether simulation is running
 	public boolean startedRunning = false;		// Program just started running
 	public int framesSinceStart = 0;			// Frames since simulation start
-	
+	public boolean singleField = false;							// Loaded single field of a library
+
 	public boolean reset = false;				// Whether program was recently reset
 	public boolean exit = false;				// System message to exit the program
 	public boolean hints = true;				// Whether to show hints		-- Used?
@@ -63,7 +64,8 @@ public class ML_SystemState
 		running = false;				
 		startedRunning = false;
 		framesSinceStart = 0;						
-		
+		singleField = false;							// Loaded single field of a library
+
 		reset = true;
 		exit = false;
 		hints = true;

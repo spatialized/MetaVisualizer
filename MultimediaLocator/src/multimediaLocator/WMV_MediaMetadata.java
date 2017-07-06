@@ -5,7 +5,7 @@ import java.time.ZonedDateTime;
 import processing.core.PVector;
 
 /**
- * Abstract media metadata, independent of media type
+ * Abstract media metadata, independent of type
  * @author davidgordon
  */
 public abstract class WMV_MediaMetadata 

@@ -610,18 +610,18 @@ public class WMV_Utilities
 	/**
 	 * Get sound locations from GPS track
 	 */
-	public void setSoundGPSLocationsFromGPSTrack(ArrayList<WMV_Sound> soundList, ArrayList<WMV_Waypoint> gpsTrack)
+	public void setSoundGPSLocationsFromGPSTrack(ArrayList<WMV_Sound> soundList, ArrayList<WMV_Waypoint> gpsTrack, float soundGPSTimeThreshold)
 	{
 		for(WMV_Sound s : soundList)
 		{
-			s.calculateLocationFromGPSTrack(gpsTrack);
+			s.calculateLocationFromGPSTrack(gpsTrack, soundGPSTimeThreshold);
 		}
 	}
 
 	/**
 	 * Analyze current GPS track
 	 */
-	public ArrayList<WMV_Waypoint> getGPSTrackFromFile(MultimediaLocator ml, WMV_Field f, File gpsTrackFile)
+	public ArrayList<WMV_Waypoint> getGPSTrackFromFile(MultimediaLocator ml, WMV_Field f, File gpsTrackFile, int gpsTrackID)
 	{
 		ArrayList<WMV_Waypoint> gpsTrack = new ArrayList<WMV_Waypoint>();			
 		
@@ -679,7 +679,7 @@ public class WMV_Utilities
 				/* Parse Node Date */
 				String dateTimeStr = timeVal.getTextContent(); 			// Ex. string: 2016-05-01T23:55:33Z   <time>2017-02-05T23:31:23Z</time>
 				
-				ZonedDateTime zoned = parseUTCDateTimeString(dateTimeStr, f.getTimeZoneID());
+				ZonedDateTime zoned = parseUTCDateTimeString(dateTimeStr, f.getTimeZoneID());	// Parse node time in UTC 
 				WMV_Time zonedTime = new WMV_Time();
 				zonedTime.initialize( zoned, "", count, 0, -1, f.getTimeZoneID() );
 
@@ -688,7 +688,7 @@ public class WMV_Utilities
 				
 //				System.out.println("Utilities.getGPSTrackFromFile()... captureLocation x:"+captureLocation.x+" captureLocation.y:"+captureLocation.y);
 				
-				WMV_Waypoint wp = new WMV_Waypoint(count, captureLocation, gpsLocation, altitude, zonedTime);		// Convert GPS track node to Waypoint
+				WMV_Waypoint wp = new WMV_Waypoint(count, -1, gpsTrackID, captureLocation, gpsLocation, altitude, zonedTime);		// Convert GPS track node to Waypoint
 				gpsTrack.add(wp);																					// Add Waypoint to GPS track
 				
 				count++;

@@ -70,6 +70,9 @@ public class WMV_WorldSettings
 															// (WMV assumes videographers will take a photo with Theodolite shortly before hitting record,
 															// which will serve as its "associated" photo, containing necessary elevation and rotation angle data.)
 
+	/* Sound */
+	public final float soundGPSTimeThreshold = 12.f;		// Threshold allowable between GPS track waypoint and associated sound capture times (in sec.) 
+	
 	/* Stitching */
 	public final int maxStitchingImages = 30;						// Maximum number of images to try to stitch
 	public float stitchingMinAngle = 30.f;					// Angle in degrees that determines media segments for stitching 

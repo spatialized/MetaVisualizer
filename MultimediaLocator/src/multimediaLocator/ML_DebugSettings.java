@@ -7,7 +7,7 @@ package multimediaLocator;
 public class ML_DebugSettings 
 {
 	/* Debug Mode */
-	public boolean detailed = false;			// Verbose debugging messages
+	public boolean detailed = false;			// Verbose Debug Mode On/Off
 	
 	/* Output Methods */
 	public boolean print = true;				// Print all user messages
@@ -19,13 +19,16 @@ public class ML_DebugSettings
 	public boolean world = false;				// Debug WMV_World and WMV_Field classes
 	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean library = false;				// Debug library and file handling
+	public boolean gps = false;					// Debug WMV_Viewer class
+
+	/* Memory */
 	public boolean memory = false;				// Debug memory
 
 	/* Input */
 	public boolean mouse = false;
 	
 	/* Model */
-	public boolean metadata = false;			// Debug WMV_Metadata class
+	public boolean metadata = true;			// Debug WMV_Metadata class
 	public boolean cluster = false;				// Debug WMV_Cluster class
 	public boolean time = false;				// Debug WMV_Time class
 	
@@ -33,18 +36,17 @@ public class ML_DebugSettings
 	public boolean media = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;				// Debug WMV_Panorama class
-	public boolean video = false;				// Debug WMV_Video class
-	public boolean sound = false;				// Debug WMV_Sound class
+	public boolean video = true;				// Debug WMV_Video class
+	public boolean sound = true;				// Debug WMV_Sound class
 	
 	/* Viewer */
 	public boolean path = false;					// Debug WMV_Viewer class
 
 	/* Viewer */
 	public boolean display = false;				// Debug WMV_Display class
-	public boolean map = true;					// Debug WMV_Map class
+	public boolean map = false;					// Debug WMV_Map class
 
 	/* Other */
-	public boolean gps = false;					// Debug WMV_Viewer class
 	public boolean stitching = false;			// Debug WMV_Stitcher class			-- Disabled
 	
 	ML_DebugSettings (){}

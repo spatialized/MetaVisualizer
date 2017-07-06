@@ -207,25 +207,25 @@ public class WMV_Time implements Comparable<WMV_Time>
 	 */
 	public float getSimulationTime(ZonedDateTime c) 	
 	{		
-		Location location = new Location("39.9522222", "-75.1641667");
-		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, "America/Los_Angeles");
+//		Location location = new Location("39.9522222", "-75.1641667");
+//		SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, "America/Los_Angeles");
 
 //		Calendar sr = calculator.getOfficialSunriseCalendarForDate(c);		// Get sunrise time
 //		Calendar ss = calculator.getOfficialSunsetCalendarForDate(c);		// Get sunset time
 
-		/* Adjust for sunset time */
-		int cHour, cMin, cSec;
-//		int srHour, srMin, srSec, ssHour, ssMin, ssSec;
+//		int srHour, srMin, srSec, ssHour, ssMin, ssSec;		/* Adjust for sunset time */
 //		int cDay, cMonth, cYear;
+
+		int cHour, cMin, cSec;
 
 		cHour = c.getHour();
 		cMin = c.getMinute();
 		cSec = c.getSecond();
 
 		float cTime = cHour * 60 + cMin + cSec/60.f;
-		float time = mapValue(cTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken	--Why 1439??		
+		float time = mapValue(cTime, 0.f, 1439.f, 0.f, 1.f); // Time of day when photo was taken	(1440 == 24 * 60)		
 
-		return time;				// Date between 0.f and 1.f, time between 0. and 1., dayLength in minutes
+		return time;				// Date between 0.f and 1.f, time between 0. and 1.
 	}
 	
 	/**
@@ -250,6 +250,28 @@ public class WMV_Time implements Comparable<WMV_Time>
 	 * @param input String to parse
 	 * @return ZonedDateTime object corresponding to given string
 	 */
+	public ZonedDateTime getDateTimeWithTimeZone(String newTimeZoneID) 					// 2016:04:10 17:52:39
+	{		
+		String[] parts = dateTimeString.split(":");
+
+		int year = Integer.valueOf(parts[0].trim());
+		int month = Integer.valueOf(parts[1]);
+		int min = Integer.valueOf(parts[3]);
+		int sec = Integer.valueOf(parts[4]);
+		String input = parts[2];
+		parts = input.split(" ");
+		int day = Integer.valueOf(parts[0]);
+		int hour = Integer.valueOf(parts[1]);
+
+		ZonedDateTime zoned = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(newTimeZoneID));
+		return zoned;
+	}
+
+	/**
+	 * Parse date/time string from metadata given media time zone
+	 * @param input String to parse
+	 * @return ZonedDateTime object corresponding to given string
+	 */
 	public ZonedDateTime parseDateTime(String input) 					// 2016:04:10 17:52:39
 	{		
 		String[] parts = input.split(":");
@@ -263,8 +285,8 @@ public class WMV_Time implements Comparable<WMV_Time>
 		int day = Integer.valueOf(parts[0]);
 		int hour = Integer.valueOf(parts[1]);
 
-		ZonedDateTime pac = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
-		return pac;
+		ZonedDateTime zoned = ZonedDateTime.of(year, month, day, hour, min, sec, 0, ZoneId.of(timeZoneID));
+		return zoned;
 	}
 	
 	/**

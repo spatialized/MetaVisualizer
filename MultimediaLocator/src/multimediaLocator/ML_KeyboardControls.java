@@ -982,6 +982,11 @@ public class ML_KeyboardControls
 			ml.state.chooseMediaFolders = true;
 			ml.display.window.closeLibraryWindow();
 		}
+
+		if(key == 'r')
+		{
+			ml.display.window.chkbxRebuildLibrary.setSelected(!ml.display.window.chkbxRebuildLibrary.isSelected());
+		}
 		
 		if(key == 'Q')
 			ml.exitProgram();

@@ -888,7 +888,7 @@ public class WMV_Viewer
 				if(hasEntryPoint)
 				{
 //					state.teleportGoalCluster = -1;
-					state.teleportGoalCluster = entry.getID();
+					state.teleportGoalCluster = entry.getClusterID();
 //					here
 					if(debugSettings.viewer)
 						p.ml.systemMessage("teleportToField()... Found entry point... will set Current Cluster to "+state.teleportGoalCluster);
@@ -1552,7 +1552,7 @@ public class WMV_Viewer
 		if( currentCluster.getViewerDistance() < p.settings.clusterCenterSize )
 			clusterID = currentCluster.getID();
 		
-		current = new WMV_Waypoint( clusterID, getLocation(), getGPSLocation(), getAltitude(), null );	// -- Should set time
+		current = new WMV_Waypoint(0, clusterID, -1, getLocation(), getGPSLocation(), getAltitude(), null );	// -- Should set time
 		return current;
 	}
 	
@@ -3330,7 +3330,7 @@ public class WMV_Viewer
 							int count = 0;
 							for(WMV_Waypoint w : path)
 							{
-								if(w.getID() == c.getID())
+								if(w.getClusterID() == c.getID())
 								{
 									state.pathLocationIdx = count;
 									break;
@@ -3818,9 +3818,9 @@ public class WMV_Viewer
 	{
 		if(!state.teleporting && !state.walking && state.velocity.mag() == 0.f)		// Only record points when stationary
 		{
-			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), getLocation(), getGPSLocation(), getAltitude(), null);		// -- Use simulation time instead of null!!
+			WMV_Waypoint curWaypoint = new WMV_Waypoint(path.size(), -1, 0, getLocation(), getGPSLocation(), getAltitude(), null);		// -- Use simulation time instead of null!!
 			curWaypoint.setOrientation(getOrientationAtCluster());
-			curWaypoint.setID(state.currentCluster);						// Need to make sure camera is at current cluster!
+			curWaypoint.setClusterID(state.currentCluster);						// Need to make sure camera is at current cluster!
 			
 			while(memory.size() > 100)								// Prevent memory path from getting too long
 				memory.remove(0);

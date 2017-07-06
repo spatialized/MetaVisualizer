@@ -7,10 +7,13 @@ import processing.core.PVector;
  */
 public class WMV_Waypoint 
 {
-	private WMV_Time time;
-	private WMV_Orientation orientation;
+	private WMV_Time time;					// Date/time matching time zone of field
+	private WMV_Orientation orientation;	// Waypoint orientation		-- In progress
 
-	private int id;							// ID (Cluster)
+	private int id;
+	private int clusterID;					// Cluster ID 
+	private int pathID = -1;				// Path ID (GPS Track or Memory) 
+	
 	private PVector captureLocation;		// World location
 	private PVector gpsLocation;			// GPS location {longitude, latitude}
 	private PVector gpsLocationWithAltitude; // GPS location with altitude {longitude, altitude, latitude}
@@ -23,15 +26,18 @@ public class WMV_Waypoint
 	
 	/**
 	 * Constructor for waypoint without longitude / latitude ref
-	 * @param newID Waypoint ID
+	 * @param newClusterID Associated cluster ID
+	 * @param newPathID Associated GPS track or memory path ID
 	 * @param newCaptureLocation Capture location
 	 * @param newGPSLocation GPS location with signed longitude and latitude
 	 * @param newAltitude Altitude (in m.)
 	 * @param newTime Time
 	 */
-	public WMV_Waypoint(int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
+	public WMV_Waypoint(int newID, int newClusterID, int newPathID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
 	{
 		id = newID;
+		clusterID = newClusterID;
+		pathID = newPathID;
 
 		/* Location */
 		captureLocation = newCaptureLocation;
@@ -63,7 +69,7 @@ public class WMV_Waypoint
 	public WMV_Waypoint( int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, String newLongitudeRef, 
 						 String newLatitudeRef, WMV_Time newTime ) 
 	{
-		id = newID;
+		clusterID = newID;
 
 		/* Location */
 		captureLocation = newCaptureLocation;
@@ -94,7 +100,7 @@ public class WMV_Waypoint
 	 */
 	public void initialize(int newID, PVector newCaptureLocation, PVector newGPSLocation, float newAltitude, WMV_Time newTime) 
 	{
-		id = newID;
+		clusterID = newID;
 		captureLocation = newCaptureLocation;
 		time = newTime;
 		gpsLocation = newGPSLocation;
@@ -121,6 +127,26 @@ public class WMV_Waypoint
 	public void setID(int newID)
 	{
 		id = newID;
+	}
+	
+	public int getClusterID()
+	{
+		return clusterID;
+	}
+	
+	public void setClusterID(int newID)
+	{
+		clusterID = newID;
+	}
+	
+	public int getGPSTrackID()
+	{
+		return pathID;
+	}
+	
+	public void setGPSTrackID(int newID)
+	{
+		pathID = newID;
 	}
 
 	public void setOrientation(WMV_Orientation newOrientation)

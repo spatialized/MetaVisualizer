@@ -1,5 +1,7 @@
 package multimediaLocator;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import beads.*;
@@ -374,9 +376,9 @@ public class WMV_Sound extends WMV_Media
 	 * Calculate sound location from GPS track waypoint closest to capture time
 	 * @param gpsTrack GPS track as waypoint list
 	 */
-	void calculateLocationFromGPSTrack(ArrayList<WMV_Waypoint> gpsTrack)
+	void calculateLocationFromGPSTrack(ArrayList<WMV_Waypoint> gpsTrack, float soundGPSTimeThreshold)
 	{
-		if(getDebugSettings().sound) System.out.println("Sound.calculateLocationFromGPSTrack() for sound id#"+getID()+"...");
+		if(getDebugSettings().sound) System.out.println("Sound.calculateLocationFromGPSTrack()... id#"+getID()+"...");
 
 		float closestDist = 1000000.f;
 		int closestIdx = -1;
@@ -388,7 +390,7 @@ public class WMV_Sound extends WMV_Media
 		int sMinute = time.getMinute();
 		int sSecond = time.getSecond();
 
-		for(WMV_Waypoint w : gpsTrack)
+		for(WMV_Waypoint w : gpsTrack)										/* GPS track initialized for field time zone */
 		{
 			int wYear = w.getTime().getYear();
 			int wMonth = w.getTime().getMonth();
@@ -396,14 +398,14 @@ public class WMV_Sound extends WMV_Media
 			int wHour = w.getTime().getHour();
 			int wMinute = w.getTime().getMinute();
 			int wSecond = w.getTime().getSecond();
-
-			if(wYear == sYear && wMonth == sMonth && wDay == sDay)			// On same day
+			
+			if(wYear == sYear && wMonth == sMonth && wDay == sDay)			/* Find waypoints on same day as sound */
 			{
 				int sTime = sHour * 60 + sMinute * 60 + sSecond;
 				int wTime = wHour * 60 + wMinute * 60 + wSecond;
 
 				float timeDist = Math.abs(wTime - sTime);
-				if(timeDist <= closestDist)
+				if(timeDist <= closestDist && timeDist < soundGPSTimeThreshold)
 				{
 					closestDist = timeDist;
 					closestIdx = w.getID();
@@ -414,26 +416,29 @@ public class WMV_Sound extends WMV_Media
 		if(closestIdx >= 0)
 		{
 			WMV_Waypoint wp = gpsTrack.get(closestIdx);
+			setAssociatedGPSTrackWaypoint( wp );
+			
 			setGPSLocation( wp.getGPSLocationWithAltitude() );			// Format: {longitude, altitude, latitude}
 			setGPSLocationInMetadata( wp.getGPSLocationWithAltitude() );	// Format: {longitude, altitude, latitude}
 			setGPSLongitudeRef( wp.longitudeRef );
 			setGPSLongitudeRefInMetadata( wp.longitudeRef );
 			setGPSLatitudeRef( wp.latitudeRef );
 			setGPSLatitudeRefInMetadata( wp.latitudeRef );
-//			setGPSLocation( gpsTrack.get(closestIdx).getGPSLocationWithAltitude() );			// Format: {longitude, altitude, latitude}
-//			setGPSLocationInMetadata( gpsTrack.get(closestIdx).getGPSLocationWithAltitude() );	// Format: {longitude, altitude, latitude}
 
 			if(getDebugSettings().sound)
 			{
-				System.out.println("Set sound #"+getID()+" GPS location to waypoint "+closestIdx+" waypoint hour:"+gpsTrack.get(closestIdx).getTime().getHour()+"   min:"+gpsTrack.get(closestIdx).getTime().getMinute());
-				System.out.println("  Sound hour:"+sHour+" Sound min:"+sMinute+" Sound GPS X:"+getGPSLocation().x+" GPS Y:"+getGPSLocation().y+" GPS Z:"+getGPSLocation().z);
+				WMV_Time wpt = gpsTrack.get(closestIdx).getTime();
+				System.out.println( "Sound.calculateLocationFromGPSTrack()... Set sound " + "#"+getID()+" GPS location to waypoint "+closestIdx);
+				System.out.println( "  Waypoint Day:"+wpt.getDay()+" Hour:"+wpt.getHour()+"   Min:"+wpt.getMinute());
+				System.out.println( "  Sound Day:"+sDay+" Hour:"+sHour+" Min:"+sMinute+" Sound GPS X:"+getGPSLocation().x+" GPS Y:"+getGPSLocation().y+" GPS Z:"+getGPSLocation().z);
 			}
+			
 		}
 		else 
 			if(getDebugSettings().sound)
-				System.out.println("No gps nodes on same day!");
+				System.out.println("Sound.calculateLocationFromGPSTrack()... No gps nodes on Day:"+sDay+" Month:"+sMonth+" Year:"+sYear+"!");
 	}
-
+	
 	/** 
 	 * @return Distance audibility multiplier between 0. and 1.
 	 * Find sound audibility due to distance (fades away in distance and as camera gets close)
@@ -538,6 +543,7 @@ public class WMV_Sound extends WMV_Media
 				metadata.dateTime = parseDateTime(metadata.dateTimeString);
 				time = new WMV_Time();
 				time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 3, getAssociatedClusterID(), metadata.timeZone );
+//				System.out.println("Sound.initializeTime()... Initialized #"+getID()+" date / time from metadata string... Hour:" + time.getHour()+" Min.:" + time.getMinute()+" Norm: "+time.getTime());
 			} 
 			catch (Throwable t) 
 			{
@@ -548,6 +554,7 @@ public class WMV_Sound extends WMV_Media
 		{
 			time = new WMV_Time();
 			time.initialize( metadata.dateTime, metadata.dateTimeString, getID(), 3, getAssociatedClusterID(), metadata.timeZone );
+			System.out.println("Sound.initializeTime()... Initialized #"+getID()+" date / time from metadata dateTime... Hour:" + time.getHour()+" Min.:" + time.getMinute()+" Norm: "+time.getTime());
 		}
 	}
 
@@ -576,47 +583,68 @@ public class WMV_Sound extends WMV_Media
 		state.setMediaState(getMediaState(), metadata);
 	}
 
-	public void setGPSLocationFromMetadata()
+	/**
+	 * Set GPS location in metadata from media state
+	 */
+	public void setGPSLocationInMetadataFromState()
 	{
 		metadata.gpsLocation = getMediaState().gpsLocation;
-//		System.out.println("SOUND GPS ID#"+getID()+" LOC:"+metadata.gpsLocation);
 	}
 	
+	/**
+	 * Set GPS location in metadata 
+	 * @param newGPSLocation New GPS location
+	 */
 	public void setGPSLocationInMetadata(PVector newGPSLocation)
 	{
 		metadata.gpsLocation = newGPSLocation;
 	}
 	
+	/**
+	 * Set GPS longitude reference
+	 * @param newLongitudeRef New longitude reference
+	 */
 	public void setGPSLongitudeRefInMetadata(String newLongitudeRef)
 	{
 		metadata.longitudeRef = newLongitudeRef;
 	}
 	
+	/**
+	 * Set GPS latitude reference
+	 * @param newLatitudeRef New latitude reference
+	 */
 	public void setGPSLatitudeRefInMetadata(String newLatitudeRef)
 	{
 		metadata.latitudeRef = newLatitudeRef;
 	}
 	
-//	setGPSLongitudeRef( wp.longitudeRef );
-//	setGPSLongitudeRefInMetadata( wp.longitudeRef );
-//	setGPSLatitudeRef( wp.latitudeRef );
-//	setGPSLatitudeRefInMetadata( wp.latitudeRef );
-
+	/**
+	 * @return Whether volume is fading
+	 */
 	public boolean isFadingVolume()
 	{
 		return state.fadingVolume;
 	}
 
+	/**
+	 * @return Whether sound sample is loaded from disk
+	 */
 	public boolean isLoaded()
 	{
 		return state.loaded;
 	}
 
+	/**
+	 * @return Whether sound is playing
+	 */
 	public boolean isPlaying()
 	{
 		return state.playing;
 	}
 
+	/**
+	 * @return Sound length
+	 */
 	public float getLength()
 	{
 		return state.length;
@@ -640,6 +668,24 @@ public class WMV_Sound extends WMV_Media
 	 {
 		 return metadata;
 	 }
+
+		/**
+		 * Set GPS Track waypoint associated with this sound
+		 * @param newWaypoint New waypoint
+		 */
+		public void setAssociatedGPSTrackWaypoint( WMV_Waypoint newWaypoint )
+		{
+			state.associatedWaypoint = newWaypoint;
+		}
+
+		/**
+		 * Set GPS Track waypoint associated with this sound
+		 * @param newWaypoint New waypoint
+		 */
+		public WMV_Waypoint getAssociatedGPSTrackWaypoint()
+		{
+			return state.associatedWaypoint;
+		}
 
 	/**
 	 * Draw the image metadata in Heads-Up Display

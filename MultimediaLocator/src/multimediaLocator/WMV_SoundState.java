@@ -9,11 +9,11 @@ public class WMV_SoundState
 {
 	public WMV_MediaState mState;
 	public WMV_SoundMetadata metadata;
+	public WMV_Waypoint associatedWaypoint;
 	
 	public int id;
 	public float length;
 	public float volume = 0.f;					// Sound volume between 0. and 1.
-//	public float radius = 10.f;					// Audible distance			-- Set globally
 	
 	public boolean loaded = false;				// Whether sound is loaded
 	public boolean playing = false;				// Whether sound is playing

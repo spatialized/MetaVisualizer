@@ -756,6 +756,7 @@ class WMV_Metadata
 			if (debugSettings.metadata)
 			{
 				ml.systemMessage("Could not add video! Error: "+t);
+				t.printStackTrace();
 			}
 		}	
 	}

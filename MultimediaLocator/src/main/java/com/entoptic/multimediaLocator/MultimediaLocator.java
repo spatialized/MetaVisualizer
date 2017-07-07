@@ -23,12 +23,14 @@ import java.awt.event.AWTEventListener;
 import java.awt.event.FocusEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.prefs.BackingStoreException;
@@ -54,8 +56,6 @@ import processing.video.Movie;
 //import com.adobe.xmp.impl.Utils;
 import com.apple.eawt.Application;
 
-//import java.io.*;
-
 /**
  * MultimediaLocator App  
  * @author davidgordon
@@ -64,7 +64,11 @@ import com.apple.eawt.Application;
 public class MultimediaLocator extends PApplet 
 {
 	/* Deployment */
-	private boolean createJar = false;				// Determines how to load cubemap shader
+	private static boolean createJar = true;				// Determines how to load cubemap shader
+	private static String appPath = "";						// Runtime path to application
+	private static String appDirectory = "";				// Runtime path to directory containing application 
+	private static String gStreamerDirectory = "";			// Runtime path to /lib directory with GStreamer .dylib files
+	private static String gStreamerPluginDirectory = "";	// Runtime path to GStreamer (.so) plugins
 
 	/* Classes */
 	ML_Library library;								// Multimedia library
@@ -124,6 +128,54 @@ public class MultimediaLocator extends PApplet
 	    File tempDirFile = new File(tempDir);
 	    if(!tempDirFile.exists())
 	    	tempDirFile.mkdir();
+
+	    if(createJar)
+	    	setupLibraries();
+	}
+	
+	/**
+	 * Tell program where to look for native libraries		-- Improve this
+	 */
+	private static void setupLibraries()
+	{
+		try{
+			URL appURL = getAppLocation();
+			File appFile = urlToFile(appURL);
+			appPath = appFile.getAbsolutePath();
+			appDirectory = appFile.getParentFile().getAbsolutePath() + "/";
+			gStreamerDirectory = appDirectory + "lib/macosx64/";					// GStreamer directory
+			gStreamerPluginDirectory = appDirectory + "lib/macosx64/plugins/";		// GStreamer plugin directory
+		}
+		catch (Throwable t)
+		{
+			System.out.println("ML.setupLibraries()... Error getting application path...");
+		}
+		
+		if(!appPath.equals(""))
+		{
+			try{
+				addLibraryPath(appDirectory+"lib/macosx64/");
+				addLibraryPath(appDirectory+"lib/macosx64/plugins/");
+			}
+			catch(Throwable t)
+			{
+				System.out.println("ML.setupLibraries()... Error adding library paths...");
+			}
+		}
+		else
+		{
+			System.out.println("ML.setupLibraries()... No app path!");
+			return;
+		}
+		
+		try{
+			loadNativeLibraryDependencies();
+		}
+		catch(Throwable t)
+		{
+			System.out.println("ML.setupLibraries()... Error loading libraries... t:"+t);
+			t.printStackTrace();
+		}
 	}
 	
 	/** 
@@ -131,9 +183,6 @@ public class MultimediaLocator extends PApplet
 	 */
 	public void setup()
 	{
-//		if(createJar) 
-//			loadLibraries();					// Load native libraries
-		
 		utilities = new WMV_Utilities();
 
 		surface.setResizable(true);
@@ -144,15 +193,9 @@ public class MultimediaLocator extends PApplet
 		debug = new ML_DebugSettings();
 		systemMessages = new ArrayList<String>();
 		if(debug.ml) systemMessage("Starting "+appName+" setup...");
-		
-		systemMessage("ML.setup()... Java Library Path:");
-//		System.out.println("ML.setup()... Java Library Path:");
-		String property = System.getProperty("java.library.path");
-		StringTokenizer parser = new StringTokenizer(property, ";");
-		while (parser.hasMoreTokens()) {
-			systemMessage(parser.nextToken());
-		}
 
+		printLibraryPath();
+		
 		input = new ML_Input();
 		world = new WMV_World(this);
 		
@@ -1834,7 +1877,540 @@ public class MultimediaLocator extends PApplet
 			}
 		}
 	}
+
+	/**
+	 * Open folder selection dialog
+	 * @param title Dialog title 			-- Invisible
+	 * @param fileExtension Files with this extension will be visible; if "" or null, all files are visible
+	 */
+	public void selectFileDialog(String title, String fileExtension, int resultCode)
+	{
+		final String property = System.getProperty("apple.awt.fileDialogForDirectories");
+		System.setProperty("apple.awt.fileDialogForDirectories", "true");
+		
+		try{
+			String strAllowed = "";
+			if(fileExtension != null)
+				if(!fileExtension.equals(""))
+					strAllowed = "*."+fileExtension;
+
+			FileDialog fd = new FileDialog(this.frame, title, FileDialog.LOAD);
+			fd.setDirectory("~/");
+			
+			if(!strAllowed.equals(""))
+				fd.setFile(strAllowed);			
+			fd.setVisible(true);
+
+			String fileName = fd.getFile();
+			
+			if (fileName == null)
+			{
+				if(debug.library) System.out.println("ML.selectFolderDialog()... User cancelled dialog...");
+			}
+			else
+			{
+				String filePath = fd.getDirectory() + fileName;
+				if(debug.library) System.out.println("ML.selectFolderDialog()... User chose filePath: " + filePath);
+
+				File selectedFile = new File(filePath);
+				
+				switch(resultCode)
+				{
+				case 0:	
+					newLibraryDestinationSelected(selectedFile);
+					break;
+				}
+			}
+		}
+		finally {
+	        if (property != null) {
+	            System.setProperty("apple.awt.fileDialogForDirectories", property);
+	        }
+	    }
+	}
 	
+	/**
+	 * Load native library from java.library.path
+	 * @param filename Native library name
+	 */
+	public static void loadNativeLibrary(String filename)
+	{
+		try{
+			System.loadLibrary(filename);					// Load the library
+		}
+		catch(Throwable t)
+		{
+//			System.out.println(" ML.loadNativeLibrary()... Error while loading library: "+filename+" t:"+t);
+		}
+	}
+
+	/**
+	 * Load native library from absolute filepath
+	 * @param filepath Absolute filepath
+	 */
+	public static void loadNativeLibraryFromPath(String filepath)
+	{
+		try{
+			if (!filepath.startsWith("/")) {
+				throw new IllegalArgumentException("ML.loadLibrary()... The path has to start with '/'.");
+			}
+
+//			System.out.print(" ML.loadNativeLibraryFromPath()...  Will load library from path: "+filepath+"...");
+
+			System.load(filepath);					// Load the library
+//			System.out.println(" ML.loadNativeLibraryFromPath()...  Loaded library from path: "+filepath+" successfully...");
+		}
+		catch(Throwable t)
+		{
+//			System.out.println(" ML.loadNativeLibraryFromPath()... Error while loading library from path: "+filepath+" t:"+t);
+		}
+	}
+
+	/**
+	 * Gets the base location of the given class.
+	 * If the class is directly on the file system (e.g.,
+	 * "/path/to/my/package/MyClass.class") then it will return the base directory
+	 * (e.g., "file:/path/to").
+	 * 
+	 * If the class is within a JAR file (e.g.,
+	 * "/path/to/my-jar.jar!/my/package/MyClass.class") then it will return the
+	 * path to the JAR (e.g., "file:/path/to/my-jar.jar").
+	 *
+	 * @param c The class whose location is desired.
+	 * @see FileUtils#urlToFile(URL) to convert the result to a {@link File}.
+	 */
+	public static URL getAppLocation() 
+	{
+		Class<MultimediaLocator> c = MultimediaLocator.class;
+//		if (c == null) return null; // could not load the class
+
+	    // try the easy way first
+	    try {
+	        final URL codeSourceLocation =
+	            c.getProtectionDomain().getCodeSource().getLocation();
+	    	System.out.println("ML.getAppLocation()... Found codeSourceLocation: "+codeSourceLocation.toURI().toString()+" and will convert to URL...");
+	        if (codeSourceLocation != null) return codeSourceLocation;
+	    }
+	    catch (final SecurityException e) {
+	    	System.out.println("ML.getAppLocation()... SecurityException: e:"+e);
+	        // NB: Cannot access protection domain.
+	    }
+	    catch (final NullPointerException e) {
+	    	System.out.println("ML.getAppLocation()... NullPointerException: e:"+e);
+	        // NB: Protection domain or code source is null.
+	    }
+	    catch (final Throwable t) {
+	    	System.out.println("ML.getAppLocation()... ERROR: t:"+t);
+	    	t.printStackTrace();
+	        // NB: Protection domain or code source is null.
+	    }
+
+	    // NB: The easy way failed, so we try the hard way. We ask for the class
+	    // itself as a resource, then strip the class's path from the URL string,
+	    // leaving the base path.
+
+	    // get the class's raw resource path
+	    final URL classResource = c.getResource(c.getSimpleName() + ".class");
+	    if (classResource == null) return null; // cannot find class resource
+
+	    final String url = classResource.toString();
+	    final String suffix = c.getCanonicalName().replace('.', '/') + ".class";
+	    if (!url.endsWith(suffix)) return null; // weird URL
+
+	    // strip the class's path from the URL string
+	    final String base = url.substring(0, url.length() - suffix.length());
+
+	    String path = base;
+
+	    // remove the "jar:" prefix and "!/" suffix, if present
+	    if (path.startsWith("jar:")) path = path.substring(4, path.length() - 2);
+
+	    try {
+	    	System.out.println("ML.getAppLocation()... Found path: "+path+" and will convert to URL...");
+	        return new URL(path);
+	    }
+	    catch (final MalformedURLException e) {
+	    	System.out.println("ML.getAppLocation()... ERROR converting application path to URL... e:"+e);
+	        e.printStackTrace();
+	        return null;
+	    }
+	} 
+	
+	/**
+	* Adds specified path to the java library path
+	* @param newPath Path to add
+	* @throws Exception
+	*/
+	public static void addLibraryPath(String newPath) throws Exception
+	{
+	    final java.lang.reflect.Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+	    usrPathsField.setAccessible(true);
+	 
+	    // Get array of paths
+	    final String[] paths = (String[])usrPathsField.get(null);
+
+    	System.out.println("ML.addLibraryPath()... will add newPath:"+newPath);
+
+	    // Check if the path to add is already present
+	    for(String path : paths) {
+	        if(path.equals(newPath)) {
+	            return;
+	        }
+	    }
+	 
+	    // Add new path
+	    final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+	    newPaths[newPaths.length-1] = newPath;
+	    usrPathsField.set(null, newPaths);
+	    
+	    int count = 0;
+	    for(String path : paths) {
+	    	System.out.println(" userPaths["+count+"], path: "+path.toString());
+	    	count++;
+	    }
+	    
+	    System.out.println("------");
+	}
+	
+	/**
+	 * Converts the given {@link URL} to its corresponding {@link File}.
+	 * <p>
+	 * This method is similar to calling {@code new File(url.toURI())} except that
+	 * it also handles "jar:file:" URLs, returning the path to the JAR file.
+	 * </p>
+	 * 
+	 * @param url The URL to convert.
+	 * @return A file path suitable for use with e.g. {@link FileInputStream}
+	 * @throws IllegalArgumentException if the URL does not correspond to a file.
+	 */
+	private static File urlToFile(final URL url) {
+	    return url == null ? null : urlToFile(url.toString());
+	}
+
+	/**
+	 * Converts the given URL string to its corresponding {@link File}.
+	 * 
+	 * @param url The URL to convert.
+	 * @return A file path suitable for use with e.g. {@link FileInputStream}
+	 * @throws IllegalArgumentException if the URL does not correspond to a file.
+	 */
+	private static File urlToFile(final String url) {
+	    String path = url;
+	    if (path.startsWith("jar:")) {
+	        // remove "jar:" prefix and "!/" suffix
+	        final int index = path.indexOf("!/");
+	        path = path.substring(4, index);
+	    }
+	    if (path.startsWith("file:")) {
+	        // pass through the URL as-is, minus "file:" prefix
+	        path = path.substring(5);
+	        return new File(path);
+	    }
+	    throw new IllegalArgumentException("Invalid URL: " + url);
+	}
+	
+	/**
+	 * Copy library from JAR to java.library.path
+	 * 
+	 * The file from JAR is copied into system temporary directory and then loaded. The temporary file is deleted after exiting.
+	 * Method uses String as filename because the pathname is "abstract", not system-dependent.
+	 * 
+	 * @param path The path of file inside JAR as absolute path (beginning with '/'), e.g. /package/File.ext
+	 * @throws IOException If temporary file creation or read/write operation fails
+	 * @throws IllegalArgumentException If source file (param path) does not exist
+	 * @throws IllegalArgumentException If the path is not absolute or if the filename is shorter than three characters (restriction of {@see File#createTempFile(java.lang.String, java.lang.String)}).
+	 */
+	public static void loadLibraryFromJar(String path)
+	{
+		try{
+			if (!path.startsWith("/")) {
+				throw new IllegalArgumentException("The path has to be absolute (start with '/').");
+			}
+
+			// Obtain filename from path
+			String[] parts = path.split("/");
+			String filename = (parts.length > 1) ? parts[parts.length - 1] : null;
+
+			// Split filename to prefix and extension
+			String prefix = "";
+			String suffix = null;
+			if (filename != null) {
+				parts = filename.split("\\.", 2);
+				prefix = parts[0];
+				suffix = (parts.length > 1) ? "."+parts[parts.length - 1] : null; 
+			}
+
+			// Check if the filename is okay
+			if (filename == null || prefix.length() < 3) {
+				throw new IllegalArgumentException("The filename has to be at least 3 characters long.");
+			}
+
+			// Prepare temporary file
+			File temp = File.createTempFile(prefix, suffix);
+			temp.deleteOnExit();
+
+			if (!temp.exists()) {
+				throw new FileNotFoundException("File " + temp.getAbsolutePath() + " does not exist.");
+			}
+
+			// Prepare buffer for data copying
+			byte[] buffer = new byte[1024];
+			int readBytes;
+
+			// Open and check input stream
+			InputStream is = MultimediaLocator.class.getResourceAsStream(path);
+			if (is == null) {
+				throw new FileNotFoundException("File " + path + " was not found inside JAR.");
+			}
+
+			// Open output stream and copy data between source file in JAR and the temporary file
+			OutputStream os = new FileOutputStream(temp);
+			try {
+				while ((readBytes = is.read(buffer)) != -1) {
+					os.write(buffer, 0, readBytes);
+				}
+			} finally {
+				// If read/write fails, close streams safely before throwing an exception
+				os.close();
+				is.close();
+			}
+
+			// Finally, load the library
+			System.load(temp.getAbsolutePath());
+			
+			System.out.println(">>> Loaded library: "+path+" successfully...");
+		}
+		catch(Throwable t)
+		{
+			System.out.println("Error while loading library: "+path+" t:"+t);
+		}
+	}
+
+	
+	/**
+	 * Load GStreamer, Video and JNA native library dependencies
+	 */
+	private static void loadNativeLibraryDependencies()		// Ex. "/opencv/mac/libopencv_java245.dylib"
+	{
+		loadNativeLibraryFromPath(gStreamerDirectory + "libcrypto.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libdc1394.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libdca.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libdv.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libffi.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgio-2.0.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libglib-2.0.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgmodule-2.0.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgobject-2.0.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstapp-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstaudio-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstbase-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstbasecamerabinsrc-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstbasevideo-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstcodecparsers-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstcontroller-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstdataprotocol-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstfft-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstinterfaces-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstnetbuffer-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstpbutils-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstphotography-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstreamer-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstriff-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstrtp-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstrtsp-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstsdp-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgsttag-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgstvideo-0.10.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libgthread-2.0.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libiconv.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libintl.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libjasper.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libjpeg.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libmpcdec.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libncurses.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libogg.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "liborc-0.4.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "liborc-test-0.4.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libssl.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libtheoradec.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libtheoraenc.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libusb-1.0.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libvorbis.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libvorbisenc.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libxml2.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libxvidcore.dylib");
+		loadNativeLibraryFromPath(gStreamerDirectory + "libz.dylib");
+		
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstadder.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstadpcmdec.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstadpcmenc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstaiff.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstalaw.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstalpha.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstalphacolor.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstannodex.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstapetag.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstapexsink.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstapp.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstapplemedia.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstasfmux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstaudioconvert.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstaudiofx.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstaudioparsers.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstaudiorate.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstaudioresample.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstaudiotestsrc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstauparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstautoconvert.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstautodetect.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstavi.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstbayer.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstbz2.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstcamerabin.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstcamerabin2.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstcdxaparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstcoloreffects.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstcolorspace.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstcoreelements.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstcoreindexers.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstcutter.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdataurisrc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdc1394.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdccp.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdebug.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdebugutilsbad.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdecodebin.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdecodebin2.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdeinterlace.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdtmf.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdtsdec.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdv.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdvbsuboverlay.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstdvdspu.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstefence.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsteffectv.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstencodebin.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstequalizer.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstfestival.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstffmpeg.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstffmpegcolorspace.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstffmpegscale.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstfieldanalysis.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstflv.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstflxdec.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstfragmented.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstfreeze.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstfrei0r.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstgaudieffects.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstgdp.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstgeometrictransform.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstgio.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstgoom.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstgoom2k1.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstgsettingselements.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsth264parse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsthdvparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsticydemux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstid3demux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstid3tag.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstimagefreeze.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstinterlace.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstinterleave.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstisomp4.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstivfparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstjp2k.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstjp2kdecimator.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstjpegformat.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstlegacyresample.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstlevel.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstliveadder.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmatroska.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmpegdemux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmpegpsmux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmpegtsdemux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmpegtsmux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmpegvideoparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmulaw.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmultifile.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmultipart.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmusepack.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmve.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstmxf.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstnavigationtest.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstnsf.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstnuvdemux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstogg.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstoss4audio.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstosxaudio.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstosxvideosink.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstpatchdetect.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstpcapparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstplaybin.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstpnm.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstpostproc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstrawparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstreal.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstreplaygain.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstrfbsrc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstrtp.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstrtpmanager.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstrtpmux.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstrtpvp8.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstrtsp.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstscaletempoplugin.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstsdi.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstsdpelem.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstsegmentclip.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstshapewipe.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstsiren.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstsmpte.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstspectrum.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstspeed.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgststereo.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstsubenc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstsubparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsttcp.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsttheora.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsttta.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsttypefindfunctions.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstudp.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideobox.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideocrop.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideofilter.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideofiltersbad.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideomaxrate.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideomeasure.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideomixer.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideoparsersbad.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideorate.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideoscale.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideosignal.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvideotestsrc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvmnc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvolume.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstvorbis.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstwavenc.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstwavparse.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgstxvid.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsty4mdec.so");
+		loadNativeLibraryFromPath(gStreamerPluginDirectory + "libgsty4menc.so");
+	}
+
+	/**
+	 * Print library path (for debugging)
+	 */
+	private void printLibraryPath()
+	{
+		systemMessage("ML.printLibraryPath()... Java Library Path:");
+		String property = System.getProperty("java.library.path");
+		StringTokenizer parser = new StringTokenizer(property, ";");
+		while (parser.hasMoreTokens()) {
+			systemMessage(parser.nextToken());
+		}
+		systemMessage("ML.printLibraryPath()... appPath: "+appPath);
+		systemMessage("ML.printLibraryPath()...  +/lib/macosx64/ == "+appDirectory+"/lib/macosx64/");
+	}
+
 	/* Disabled */
 	/**
 	 * Start interactive clustering mode
@@ -2114,7 +2690,7 @@ public class MultimediaLocator extends PApplet
 
 	private void loadCubeMapShader()
 	{
-		String resourcePath = "/shaders/";
+		String resourcePath = "/main/resources/shaders/";
 		URL fsURL = MultimediaLocator.class.getResource(resourcePath + "cubemapfrag.glsl");
 		URL vsURL = MultimediaLocator.class.getResource(resourcePath + "cubemapvert.glsl");
 		cubemapShader = new PShader(this, fsURL, vsURL);
@@ -2171,343 +2747,7 @@ public class MultimediaLocator extends PApplet
 	    }
 	}
 
-	/**
-	 * Open select folder dialog
-	 * @param title Dialog title 			-- Invisible
-	 * @param fileExtension Files with this extension will be visible; if "" or null, all files are visible
-	 */
-	public void selectFileDialog(String title, String fileExtension, int resultCode)
-	{
-		final String property = System.getProperty("apple.awt.fileDialogForDirectories");
-		System.setProperty("apple.awt.fileDialogForDirectories", "true");
-		
-		try{
-			String strAllowed = "";
-			if(fileExtension != null)
-				if(!fileExtension.equals(""))
-					strAllowed = "*."+fileExtension;
-
-			FileDialog fd = new FileDialog(this.frame, title, FileDialog.LOAD);
-			fd.setDirectory("~/");
-			
-			if(!strAllowed.equals(""))
-				fd.setFile(strAllowed);			
-			fd.setVisible(true);
-
-			String fileName = fd.getFile();
-			
-			if (fileName == null)
-			{
-				if(debug.library) System.out.println("ML.selectFolderDialog()... User cancelled dialog...");
-			}
-			else
-			{
-				String filePath = fd.getDirectory() + fileName;
-				if(debug.library) System.out.println("ML.selectFolderDialog()... User chose filePath: " + filePath);
-
-				File selectedFile = new File(filePath);
-				
-				switch(resultCode)
-				{
-				case 0:	
-					newLibraryDestinationSelected(selectedFile);
-					break;
-				}
-			}
-		}
-		finally {
-	        if (property != null) {
-	            System.setProperty("apple.awt.fileDialogForDirectories", property);
-	        }
-	    }
-	}
-
-	/**
-	 * Load GStreamer, Video and JNA native libraries
-	 */
-	private static void loadLibraries()		// Ex. "/opencv/mac/libopencv_java245.dylib"
-	{
-		loadLibrary("/lib/macosx64/libcrypto.dylib");
-		loadLibrary("/lib/macosx64/libdc1394.dylib");
-		loadLibrary("/lib/macosx64/libdca.dylib");
-		loadLibrary("/lib/macosx64/libdv.dylib");
-		loadLibrary("/lib/macosx64/libffi.dylib");
-		loadLibrary("/lib/macosx64/libgio-2.0.dylib");
-		loadLibrary("/lib/macosx64/libglib-2.0.dylib");
-		loadLibrary("/lib/macosx64/libgmodule-2.0.dylib");
-		loadLibrary("/lib/macosx64/libgobject-2.0.dylib");
-		loadLibrary("/lib/macosx64/libgstapp-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstaudio-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstbase-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstbasecamerabinsrc-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstbasevideo-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstcodecparsers-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstcontroller-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstdataprotocol-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstfft-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstinterfaces-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstnetbuffer-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstpbutils-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstphotography-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstreamer-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstriff-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstrtp-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstrtsp-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstsdp-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgsttag-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgstvideo-0.10.dylib");
-		loadLibrary("/lib/macosx64/libgthread-2.0.dylib");
-		loadLibrary("/lib/macosx64/libiconv.dylib");
-		loadLibrary("/lib/macosx64/libintl.dylib");
-		loadLibrary("/lib/macosx64/libjasper.dylib");
-		loadLibrary("/lib/macosx64/libjpeg.dylib");
-		loadLibrary("/lib/macosx64/libmpcdec.dylib");
-		loadLibrary("/lib/macosx64/libncurses.dylib");
-		loadLibrary("/lib/macosx64/libogg.dylib");
-		loadLibrary("/lib/macosx64/liborc-0.4.dylib");
-		loadLibrary("/lib/macosx64/liborc-test-0.4.dylib");
-		loadLibrary("/lib/macosx64/libssl.dylib");
-		loadLibrary("/lib/macosx64/libtheoradec.dylib");
-		loadLibrary("/lib/macosx64/libtheoraenc.dylib");
-		loadLibrary("/lib/macosx64/libusb-1.0.dylib");
-		loadLibrary("/lib/macosx64/libvorbis.dylib");
-		loadLibrary("/lib/macosx64/libvorbisenc.dylib");
-		loadLibrary("/lib/macosx64/libxml2.dylib");
-		loadLibrary("/lib/macosx64/libxvidcore.dylib");
-		loadLibrary("/lib/macosx64/libz.dylib");
-		
-		loadLibrary("/lib/macosx64/plugins/libgstadder.so");
-		loadLibrary("/lib/macosx64/plugins/libgstadpcmdec.so");
-		loadLibrary("/lib/macosx64/plugins/libgstadpcmenc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstaiff.so");
-		loadLibrary("/lib/macosx64/plugins/libgstalaw.so");
-		loadLibrary("/lib/macosx64/plugins/libgstalpha.so");
-		loadLibrary("/lib/macosx64/plugins/libgstalphacolor.so");
-		loadLibrary("/lib/macosx64/plugins/libgstannodex.so");
-		loadLibrary("/lib/macosx64/plugins/libgstapetag.so");
-		loadLibrary("/lib/macosx64/plugins/libgstapexsink.so");
-		loadLibrary("/lib/macosx64/plugins/libgstapp.so");
-		loadLibrary("/lib/macosx64/plugins/libgstapplemedia.so");
-		loadLibrary("/lib/macosx64/plugins/libgstasfmux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstaudioconvert.so");
-		loadLibrary("/lib/macosx64/plugins/libgstaudiofx.so");
-		loadLibrary("/lib/macosx64/plugins/libgstaudioparsers.so");
-		loadLibrary("/lib/macosx64/plugins/libgstaudiorate.so");
-		loadLibrary("/lib/macosx64/plugins/libgstaudioresample.so");
-		loadLibrary("/lib/macosx64/plugins/libgstaudiotestsrc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstauparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgstautoconvert.so");
-		loadLibrary("/lib/macosx64/plugins/libgstautodetect.so");
-		loadLibrary("/lib/macosx64/plugins/libgstavi.so");
-		loadLibrary("/lib/macosx64/plugins/libgstbayer.so");
-		loadLibrary("/lib/macosx64/plugins/libgstbz2.so");
-		loadLibrary("/lib/macosx64/plugins/libgstcamerabin.so");
-		loadLibrary("/lib/macosx64/plugins/libgstcamerabin2.so");
-		loadLibrary("/lib/macosx64/plugins/libgstcdxaparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgstcoloreffects.so");
-		loadLibrary("/lib/macosx64/plugins/libgstcolorspace.so");
-		loadLibrary("/lib/macosx64/plugins/libgstcoreelements.so");
-		loadLibrary("/lib/macosx64/plugins/libgstcoreindexers.so");
-		loadLibrary("/lib/macosx64/plugins/libgstcutter.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdataurisrc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdc1394.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdccp.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdebug.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdebugutilsbad.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdecodebin.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdecodebin2.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdeinterlace.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdtmf.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdtsdec.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdv.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdvbsuboverlay.so");
-		loadLibrary("/lib/macosx64/plugins/libgstdvdspu.so");
-		loadLibrary("/lib/macosx64/plugins/libgstefence.so");
-		loadLibrary("/lib/macosx64/plugins/libgsteffectv.so");
-		loadLibrary("/lib/macosx64/plugins/libgstencodebin.so");
-		loadLibrary("/lib/macosx64/plugins/libgstequalizer.so");
-		loadLibrary("/lib/macosx64/plugins/libgstfestival.so");
-		loadLibrary("/lib/macosx64/plugins/libgstffmpeg.so");
-		loadLibrary("/lib/macosx64/plugins/libgstffmpegcolorspace.so");
-		loadLibrary("/lib/macosx64/plugins/libgstffmpegscale.so");
-		loadLibrary("/lib/macosx64/plugins/libgstfieldanalysis.so");
-		loadLibrary("/lib/macosx64/plugins/libgstflv.so");
-		loadLibrary("/lib/macosx64/plugins/libgstflxdec.so");
-		loadLibrary("/lib/macosx64/plugins/libgstfragmented.so");
-		loadLibrary("/lib/macosx64/plugins/libgstfreeze.so");
-		loadLibrary("/lib/macosx64/plugins/libgstfrei0r.so");
-		loadLibrary("/lib/macosx64/plugins/libgstgaudieffects.so");
-		loadLibrary("/lib/macosx64/plugins/libgstgdp.so");
-		loadLibrary("/lib/macosx64/plugins/libgstgeometrictransform.so");
-		loadLibrary("/lib/macosx64/plugins/libgstgio.so");
-		loadLibrary("/lib/macosx64/plugins/libgstgoom.so");
-		loadLibrary("/lib/macosx64/plugins/libgstgoom2k1.so");
-		loadLibrary("/lib/macosx64/plugins/libgstgsettingselements.so");
-		loadLibrary("/lib/macosx64/plugins/libgsth264parse.so");
-		loadLibrary("/lib/macosx64/plugins/libgsthdvparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgsticydemux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstid3demux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstid3tag.so");
-		loadLibrary("/lib/macosx64/plugins/libgstimagefreeze.so");
-		loadLibrary("/lib/macosx64/plugins/libgstinterlace.so");
-		loadLibrary("/lib/macosx64/plugins/libgstinterleave.so");
-		loadLibrary("/lib/macosx64/plugins/libgstisomp4.so");
-		loadLibrary("/lib/macosx64/plugins/libgstivfparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgstjp2k.so");
-		loadLibrary("/lib/macosx64/plugins/libgstjp2kdecimator.so");
-		loadLibrary("/lib/macosx64/plugins/libgstjpegformat.so");
-		loadLibrary("/lib/macosx64/plugins/libgstlegacyresample.so");
-		loadLibrary("/lib/macosx64/plugins/libgstlevel.so");
-		loadLibrary("/lib/macosx64/plugins/libgstliveadder.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmatroska.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmpegdemux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmpegpsmux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmpegtsdemux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmpegtsmux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmpegvideoparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmulaw.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmultifile.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmultipart.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmusepack.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmve.so");
-		loadLibrary("/lib/macosx64/plugins/libgstmxf.so");
-		loadLibrary("/lib/macosx64/plugins/libgstnavigationtest.so");
-		loadLibrary("/lib/macosx64/plugins/libgstnsf.so");
-		loadLibrary("/lib/macosx64/plugins/libgstnuvdemux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstogg.so");
-		loadLibrary("/lib/macosx64/plugins/libgstoss4audio.so");
-		loadLibrary("/lib/macosx64/plugins/libgstosxaudio.so");
-		loadLibrary("/lib/macosx64/plugins/libgstosxvideosink.so");
-		loadLibrary("/lib/macosx64/plugins/libgstpatchdetect.so");
-		loadLibrary("/lib/macosx64/plugins/libgstpcapparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgstplaybin.so");
-		loadLibrary("/lib/macosx64/plugins/libgstpnm.so");
-		loadLibrary("/lib/macosx64/plugins/libgstpostproc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstrawparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgstreal.so");
-		loadLibrary("/lib/macosx64/plugins/libgstreplaygain.so");
-		loadLibrary("/lib/macosx64/plugins/libgstrfbsrc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstrtp.so");
-		loadLibrary("/lib/macosx64/plugins/libgstrtpmanager.so");
-		loadLibrary("/lib/macosx64/plugins/libgstrtpmux.so");
-		loadLibrary("/lib/macosx64/plugins/libgstrtpvp8.so");
-		loadLibrary("/lib/macosx64/plugins/libgstrtsp.so");
-		loadLibrary("/lib/macosx64/plugins/libgstscaletempoplugin.so");
-		loadLibrary("/lib/macosx64/plugins/libgstsdi.so");
-		loadLibrary("/lib/macosx64/plugins/libgstsdpelem.so");
-		loadLibrary("/lib/macosx64/plugins/libgstsegmentclip.so");
-		loadLibrary("/lib/macosx64/plugins/libgstshapewipe.so");
-		loadLibrary("/lib/macosx64/plugins/libgstsiren.so");
-		loadLibrary("/lib/macosx64/plugins/libgstsmpte.so");
-		loadLibrary("/lib/macosx64/plugins/libgstspectrum.so");
-		loadLibrary("/lib/macosx64/plugins/libgstspeed.so");
-		loadLibrary("/lib/macosx64/plugins/libgststereo.so");
-		loadLibrary("/lib/macosx64/plugins/libgstsubenc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstsubparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgsttcp.so");
-		loadLibrary("/lib/macosx64/plugins/libgsttheora.so");
-		loadLibrary("/lib/macosx64/plugins/libgsttta.so");
-		loadLibrary("/lib/macosx64/plugins/libgsttypefindfunctions.so");
-		loadLibrary("/lib/macosx64/plugins/libgstudp.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideobox.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideocrop.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideofilter.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideofiltersbad.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideomaxrate.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideomeasure.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideomixer.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideoparsersbad.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideorate.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideoscale.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideosignal.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvideotestsrc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvmnc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvolume.so");
-		loadLibrary("/lib/macosx64/plugins/libgstvorbis.so");
-		loadLibrary("/lib/macosx64/plugins/libgstwavenc.so");
-		loadLibrary("/lib/macosx64/plugins/libgstwavparse.so");
-		loadLibrary("/lib/macosx64/plugins/libgstxvid.so");
-		loadLibrary("/lib/macosx64/plugins/libgsty4mdec.so");
-		loadLibrary("/lib/macosx64/plugins/libgsty4menc.so");
-	}
-	
-	/**
-	 * Copy library from JAR to java.library.path
-	 * 
-	 * The file from JAR is copied into system temporary directory and then loaded. The temporary file is deleted after exiting.
-	 * Method uses String as filename because the pathname is "abstract", not system-dependent.
-	 * 
-	 * @param path The path of file inside JAR as absolute path (beginning with '/'), e.g. /package/File.ext
-	 * @throws IOException If temporary file creation or read/write operation fails
-	 * @throws IllegalArgumentException If source file (param path) does not exist
-	 * @throws IllegalArgumentException If the path is not absolute or if the filename is shorter than three characters (restriction of {@see File#createTempFile(java.lang.String, java.lang.String)}).
-	 */
-	public static void loadLibrary(String path)
-	{
-		try{
-			if (!path.startsWith("/")) {
-				throw new IllegalArgumentException("The path has to be absolute (start with '/').");
-			}
-
-			// Obtain filename from path
-			String[] parts = path.split("/");
-			String filename = (parts.length > 1) ? parts[parts.length - 1] : null;
-
-			// Split filename to prefix and extension
-			String prefix = "";
-			String suffix = null;
-			if (filename != null) {
-				parts = filename.split("\\.", 2);
-				prefix = parts[0];
-				suffix = (parts.length > 1) ? "."+parts[parts.length - 1] : null; 
-			}
-
-			// Check if the filename is okay
-			if (filename == null || prefix.length() < 3) {
-				throw new IllegalArgumentException("The filename has to be at least 3 characters long.");
-			}
-
-			// Prepare temporary file
-			File temp = File.createTempFile(prefix, suffix);
-			temp.deleteOnExit();
-
-			if (!temp.exists()) {
-				throw new FileNotFoundException("File " + temp.getAbsolutePath() + " does not exist.");
-			}
-
-			// Prepare buffer for data copying
-			byte[] buffer = new byte[1024];
-			int readBytes;
-
-			// Open and check input stream
-			InputStream is = MultimediaLocator.class.getResourceAsStream(path);
-			if (is == null) {
-				throw new FileNotFoundException("File " + path + " was not found inside JAR.");
-			}
-
-			// Open output stream and copy data between source file in JAR and the temporary file
-			OutputStream os = new FileOutputStream(temp);
-			try {
-				while ((readBytes = is.read(buffer)) != -1) {
-					os.write(buffer, 0, readBytes);
-				}
-			} finally {
-				// If read/write fails, close streams safely before throwing an exception
-				os.close();
-				is.close();
-			}
-
-			// Finally, load the library
-			System.load(temp.getAbsolutePath());
-			
-			System.out.println(">>> Loaded library: "+path+" successfully...");
-		}
-		catch(Throwable t)
-		{
-			System.out.println("Error while loading library: "+path+" t:"+t);
-		}
-	}
-
+	/* Obsolete */
 	/**
 	 * A simple library class which helps with loading dynamic libraries stored in the
 	 * JAR archive. These libraries usualy contain implementation of some methods in
@@ -2680,5 +2920,214 @@ public class MultimediaLocator extends PApplet
 //	public void setSurfaceLocation(int newX, int newY)
 //	{
 //		surface.setLocation(newX, newY);
+//	}
+	
+	/**
+	 * Load GStreamer, Video and JNA native libraries
+	 */
+//	private static void loadLibraries()		// Ex. "/opencv/mac/libopencv_java245.dylib"
+//	{
+//		loadNativeLibrary("libcrypto.dylib");
+//		loadNativeLibrary("libdc1394.dylib");
+//		loadNativeLibrary("libdca.dylib");
+//		loadNativeLibrary("libdv.dylib");
+//		loadNativeLibrary("libffi.dylib");
+//		loadNativeLibrary("libgio-2.0.dylib");
+//		loadNativeLibrary("libglib-2.0.dylib");
+//		loadNativeLibrary("libgmodule-2.0.dylib");
+//		loadNativeLibrary("libgobject-2.0.dylib");
+//		loadNativeLibrary("libgstapp-0.10.dylib");
+//		loadNativeLibrary("libgstaudio-0.10.dylib");
+//		loadNativeLibrary("libgstbase-0.10.dylib");
+//		loadNativeLibrary("libgstbasecamerabinsrc-0.10.dylib");
+//		loadNativeLibrary("libgstbasevideo-0.10.dylib");
+//		loadNativeLibrary("libgstcodecparsers-0.10.dylib");
+//		loadNativeLibrary("libgstcontroller-0.10.dylib");
+//		loadNativeLibrary("libgstdataprotocol-0.10.dylib");
+//		loadNativeLibrary("libgstfft-0.10.dylib");
+//		loadNativeLibrary("libgstinterfaces-0.10.dylib");
+//		loadNativeLibrary("libgstnetbuffer-0.10.dylib");
+//		loadNativeLibrary("libgstpbutils-0.10.dylib");
+//		loadNativeLibrary("libgstphotography-0.10.dylib");
+//		loadNativeLibrary("libgstreamer-0.10.dylib");
+//		loadNativeLibrary("libgstriff-0.10.dylib");
+//		loadNativeLibrary("libgstrtp-0.10.dylib");
+//		loadNativeLibrary("libgstrtsp-0.10.dylib");
+//		loadNativeLibrary("libgstsdp-0.10.dylib");
+//		loadNativeLibrary("libgsttag-0.10.dylib");
+//		loadNativeLibrary("libgstvideo-0.10.dylib");
+//		loadNativeLibrary("libgthread-2.0.dylib");
+//		loadNativeLibrary("libiconv.dylib");
+//		loadNativeLibrary("libintl.dylib");
+//		loadNativeLibrary("libjasper.dylib");
+//		loadNativeLibrary("libjpeg.dylib");
+//		loadNativeLibrary("libmpcdec.dylib");
+//		loadNativeLibrary("libncurses.dylib");
+//		loadNativeLibrary("libogg.dylib");
+//		loadNativeLibrary("liborc-0.4.dylib");
+//		loadNativeLibrary("liborc-test-0.4.dylib");
+//		loadNativeLibrary("libssl.dylib");
+//		loadNativeLibrary("libtheoradec.dylib");
+//		loadNativeLibrary("libtheoraenc.dylib");
+//		loadNativeLibrary("libusb-1.0.dylib");
+//		loadNativeLibrary("libvorbis.dylib");
+//		loadNativeLibrary("libvorbisenc.dylib");
+//		loadNativeLibrary("libxml2.dylib");
+//		loadNativeLibrary("libxvidcore.dylib");
+//		loadNativeLibrary("libz.dylib");
+//		
+//		loadNativeLibrary("libgstadder.so");
+//		loadNativeLibrary("libgstadpcmdec.so");
+//		loadNativeLibrary("libgstadpcmenc.so");
+//		loadNativeLibrary("libgstaiff.so");
+//		loadNativeLibrary("libgstalaw.so");
+//		loadNativeLibrary("libgstalpha.so");
+//		loadNativeLibrary("libgstalphacolor.so");
+//		loadNativeLibrary("libgstannodex.so");
+//		loadNativeLibrary("libgstapetag.so");
+//		loadNativeLibrary("libgstapexsink.so");
+//		loadNativeLibrary("libgstapp.so");
+//		loadNativeLibrary("libgstapplemedia.so");
+//		loadNativeLibrary("libgstasfmux.so");
+//		loadNativeLibrary("libgstaudioconvert.so");
+//		loadNativeLibrary("libgstaudiofx.so");
+//		loadNativeLibrary("libgstaudioparsers.so");
+//		loadNativeLibrary("libgstaudiorate.so");
+//		loadNativeLibrary("libgstaudioresample.so");
+//		loadNativeLibrary("libgstaudiotestsrc.so");
+//		loadNativeLibrary("libgstauparse.so");
+//		loadNativeLibrary("libgstautoconvert.so");
+//		loadNativeLibrary("libgstautodetect.so");
+//		loadNativeLibrary("libgstavi.so");
+//		loadNativeLibrary("libgstbayer.so");
+//		loadNativeLibrary("libgstbz2.so");
+//		loadNativeLibrary("libgstcamerabin.so");
+//		loadNativeLibrary("libgstcamerabin2.so");
+//		loadNativeLibrary("libgstcdxaparse.so");
+//		loadNativeLibrary("libgstcoloreffects.so");
+//		loadNativeLibrary("libgstcolorspace.so");
+//		loadNativeLibrary("libgstcoreelements.so");
+//		loadNativeLibrary("libgstcoreindexers.so");
+//		loadNativeLibrary("libgstcutter.so");
+//		loadNativeLibrary("libgstdataurisrc.so");
+//		loadNativeLibrary("libgstdc1394.so");
+//		loadNativeLibrary("libgstdccp.so");
+//		loadNativeLibrary("libgstdebug.so");
+//		loadNativeLibrary("libgstdebugutilsbad.so");
+//		loadNativeLibrary("libgstdecodebin.so");
+//		loadNativeLibrary("libgstdecodebin2.so");
+//		loadNativeLibrary("libgstdeinterlace.so");
+//		loadNativeLibrary("libgstdtmf.so");
+//		loadNativeLibrary("libgstdtsdec.so");
+//		loadNativeLibrary("libgstdv.so");
+//		loadNativeLibrary("libgstdvbsuboverlay.so");
+//		loadNativeLibrary("libgstdvdspu.so");
+//		loadNativeLibrary("libgstefence.so");
+//		loadNativeLibrary("libgsteffectv.so");
+//		loadNativeLibrary("libgstencodebin.so");
+//		loadNativeLibrary("libgstequalizer.so");
+//		loadNativeLibrary("libgstfestival.so");
+//		loadNativeLibrary("libgstffmpeg.so");
+//		loadNativeLibrary("libgstffmpegcolorspace.so");
+//		loadNativeLibrary("libgstffmpegscale.so");
+//		loadNativeLibrary("libgstfieldanalysis.so");
+//		loadNativeLibrary("libgstflv.so");
+//		loadNativeLibrary("libgstflxdec.so");
+//		loadNativeLibrary("libgstfragmented.so");
+//		loadNativeLibrary("libgstfreeze.so");
+//		loadNativeLibrary("libgstfrei0r.so");
+//		loadNativeLibrary("libgstgaudieffects.so");
+//		loadNativeLibrary("libgstgdp.so");
+//		loadNativeLibrary("libgstgeometrictransform.so");
+//		loadNativeLibrary("libgstgio.so");
+//		loadNativeLibrary("libgstgoom.so");
+//		loadNativeLibrary("libgstgoom2k1.so");
+//		loadNativeLibrary("libgstgsettingselements.so");
+//		loadNativeLibrary("libgsth264parse.so");
+//		loadNativeLibrary("libgsthdvparse.so");
+//		loadNativeLibrary("libgsticydemux.so");
+//		loadNativeLibrary("libgstid3demux.so");
+//		loadNativeLibrary("libgstid3tag.so");
+//		loadNativeLibrary("libgstimagefreeze.so");
+//		loadNativeLibrary("libgstinterlace.so");
+//		loadNativeLibrary("libgstinterleave.so");
+//		loadNativeLibrary("libgstisomp4.so");
+//		loadNativeLibrary("libgstivfparse.so");
+//		loadNativeLibrary("libgstjp2k.so");
+//		loadNativeLibrary("libgstjp2kdecimator.so");
+//		loadNativeLibrary("libgstjpegformat.so");
+//		loadNativeLibrary("libgstlegacyresample.so");
+//		loadNativeLibrary("libgstlevel.so");
+//		loadNativeLibrary("libgstliveadder.so");
+//		loadNativeLibrary("libgstmatroska.so");
+//		loadNativeLibrary("libgstmpegdemux.so");
+//		loadNativeLibrary("libgstmpegpsmux.so");
+//		loadNativeLibrary("libgstmpegtsdemux.so");
+//		loadNativeLibrary("libgstmpegtsmux.so");
+//		loadNativeLibrary("libgstmpegvideoparse.so");
+//		loadNativeLibrary("libgstmulaw.so");
+//		loadNativeLibrary("libgstmultifile.so");
+//		loadNativeLibrary("libgstmultipart.so");
+//		loadNativeLibrary("libgstmusepack.so");
+//		loadNativeLibrary("libgstmve.so");
+//		loadNativeLibrary("libgstmxf.so");
+//		loadNativeLibrary("libgstnavigationtest.so");
+//		loadNativeLibrary("libgstnsf.so");
+//		loadNativeLibrary("libgstnuvdemux.so");
+//		loadNativeLibrary("libgstogg.so");
+//		loadNativeLibrary("libgstoss4audio.so");
+//		loadNativeLibrary("libgstosxaudio.so");
+//		loadNativeLibrary("libgstosxvideosink.so");
+//		loadNativeLibrary("libgstpatchdetect.so");
+//		loadNativeLibrary("libgstpcapparse.so");
+//		loadNativeLibrary("libgstplaybin.so");
+//		loadNativeLibrary("libgstpnm.so");
+//		loadNativeLibrary("libgstpostproc.so");
+//		loadNativeLibrary("libgstrawparse.so");
+//		loadNativeLibrary("libgstreal.so");
+//		loadNativeLibrary("libgstreplaygain.so");
+//		loadNativeLibrary("libgstrfbsrc.so");
+//		loadNativeLibrary("libgstrtp.so");
+//		loadNativeLibrary("libgstrtpmanager.so");
+//		loadNativeLibrary("libgstrtpmux.so");
+//		loadNativeLibrary("libgstrtpvp8.so");
+//		loadNativeLibrary("libgstrtsp.so");
+//		loadNativeLibrary("libgstscaletempoplugin.so");
+//		loadNativeLibrary("libgstsdi.so");
+//		loadNativeLibrary("libgstsdpelem.so");
+//		loadNativeLibrary("libgstsegmentclip.so");
+//		loadNativeLibrary("libgstshapewipe.so");
+//		loadNativeLibrary("libgstsiren.so");
+//		loadNativeLibrary("libgstsmpte.so");
+//		loadNativeLibrary("libgstspectrum.so");
+//		loadNativeLibrary("libgstspeed.so");
+//		loadNativeLibrary("libgststereo.so");
+//		loadNativeLibrary("libgstsubenc.so");
+//		loadNativeLibrary("libgstsubparse.so");
+//		loadNativeLibrary("libgsttcp.so");
+//		loadNativeLibrary("libgsttheora.so");
+//		loadNativeLibrary("libgsttta.so");
+//		loadNativeLibrary("libgsttypefindfunctions.so");
+//		loadNativeLibrary("libgstudp.so");
+//		loadNativeLibrary("libgstvideobox.so");
+//		loadNativeLibrary("libgstvideocrop.so");
+//		loadNativeLibrary("libgstvideofilter.so");
+//		loadNativeLibrary("libgstvideofiltersbad.so");
+//		loadNativeLibrary("libgstvideomaxrate.so");
+//		loadNativeLibrary("libgstvideomeasure.so");
+//		loadNativeLibrary("libgstvideomixer.so");
+//		loadNativeLibrary("libgstvideoparsersbad.so");
+//		loadNativeLibrary("libgstvideorate.so");
+//		loadNativeLibrary("libgstvideoscale.so");
+//		loadNativeLibrary("libgstvideosignal.so");
+//		loadNativeLibrary("libgstvideotestsrc.so");
+//		loadNativeLibrary("libgstvmnc.so");
+//		loadNativeLibrary("libgstvolume.so");
+//		loadNativeLibrary("libgstvorbis.so");
+//		loadNativeLibrary("libgstwavenc.so");
+//		loadNativeLibrary("libgstwavparse.so");
+//		loadNativeLibrary("libgstxvid.so");
+//		loadNativeLibrary("libgsty4mdec.so");
+//		loadNativeLibrary("libgsty4menc.so");
 //	}
 }

@@ -10,7 +10,6 @@
 * MultimediaLocator application class
 * @author davidgordon 
 */
-
 package main.java.com.entoptic.multimediaLocator;
 
 import java.awt.AWTEvent;
@@ -120,7 +119,8 @@ public class MultimediaLocator extends PApplet
 	public int availableProcessors;
 
 	/* Debugging */
-	ArrayList<String> systemMessages;
+	private ArrayList<String> systemMessages;
+	static private ArrayList<String> startupMessages = new ArrayList<String>();
 	
 	/* Temp Directory */
 	public static final String tempDir = System.getProperty("java.io.tmpdir")+"tmp"+System.nanoTime();		
@@ -130,7 +130,7 @@ public class MultimediaLocator extends PApplet
 	    	tempDirFile.mkdir();
 
 	    if(createJar)
-	    	setupLibraries();
+	    		setupLibraries();
 	}
 	
 	/**
@@ -141,41 +141,62 @@ public class MultimediaLocator extends PApplet
 		try{
 			URL appURL = getAppLocation();
 			File appFile = urlToFile(appURL);
-			appPath = appFile.getAbsolutePath();
-			appDirectory = appFile.getParentFile().getAbsolutePath() + "/";
-			gStreamerDirectory = appDirectory + "lib/macosx64/";					// GStreamer directory
-			gStreamerPluginDirectory = appDirectory + "lib/macosx64/plugins/";		// GStreamer plugin directory
+			
+//			appPath = appFile.getAbsolutePath();
+//			appDirectory = appFile.getParentFile().getAbsolutePath();
+			gStreamerDirectory = "/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64";					// GStreamer directory
+			gStreamerPluginDirectory = appDirectory + "/lib/macosx64/plugins/";		// GStreamer plugin directory
+
+//			appPath = appFile.getAbsolutePath();
+//			appDirectory = appFile.getParentFile().getAbsolutePath();
+//			gStreamerDirectory = appDirectory + "/lib/macosx64/";					// GStreamer directory
+//			gStreamerPluginDirectory = appDirectory + "/lib/macosx64/plugins/";		// GStreamer plugin directory
 		}
 		catch (Throwable t)
 		{
+			startupMessages.add("ML.setupLibraries()... Error getting application path...");
 			System.out.println("ML.setupLibraries()... Error getting application path...");
 		}
 		
 		if(!appPath.equals(""))
 		{
 			try{
-				addLibraryPath(appDirectory+"lib/macosx64/");
-				addLibraryPath(appDirectory+"lib/macosx64/plugins/");
+//				if (appPath.endsWith("/")) 
+				{
+//					addLibraryPath(appDirectory+"lib/macosx64");
+//					addLibraryPath(appDirectory+"lib/macosx64/plugins");
+					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64");
+					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library/macosx64/plugins");
+					addLibraryPath("/Users/davidgordon/Documents/Processing/libraries/video/library");
+				}
+//				else
+//				{
+//					addLibraryPath(appDirectory+"/lib/macosx64");
+//					addLibraryPath(appDirectory+"/lib/macosx64/plugins");
+//				}
 			}
 			catch(Throwable t)
 			{
+				startupMessages.add("ML.setupLibraries()... Error adding library paths...");
 				System.out.println("ML.setupLibraries()... Error adding library paths...");
 			}
 		}
 		else
 		{
+			startupMessages.add("ML.setupLibraries()... No app path!");
 			System.out.println("ML.setupLibraries()... No app path!");
 			return;
 		}
 		
-		try{
-			loadNativeLibraryDependencies();
-		}
-		catch(Throwable t)
-		{
-			System.out.println("ML.setupLibraries()... Error loading libraries... t:"+t);
-			t.printStackTrace();
-		}
+//		try{
+//			loadNativeLibraryDependencies();
+//		}
+//		catch(Throwable t)
+//		{
+//			startupMessages.add("ML.setupLibraries()... Error loading libraries... t:"+t);
+//			System.out.println("ML.setupLibraries()... Error loading libraries... t:"+t);
+//			t.printStackTrace();
+//		}
 	}
 	
 	/** 
@@ -192,6 +213,14 @@ public class MultimediaLocator extends PApplet
 		
 		debug = new ML_DebugSettings();
 		systemMessages = new ArrayList<String>();
+		
+		if(debug.dependencies)
+		{
+			for(String s : startupMessages)
+				systemMessages.add(s);
+
+			systemMessage("----------------------------------------");
+		}
 		if(debug.ml) systemMessage("Starting "+appName+" setup...");
 
 		printLibraryPath();
@@ -1940,7 +1969,8 @@ public class MultimediaLocator extends PApplet
 		}
 		catch(Throwable t)
 		{
-//			System.out.println(" ML.loadNativeLibrary()... Error while loading library: "+filename+" t:"+t);
+			startupMessages.add(" ML.loadNativeLibrary()... Error while loading library: "+filename+" t:"+t);
+			System.out.println(" ML.loadNativeLibrary()... Error while loading library: "+filename+" t:"+t);
 		}
 	}
 
@@ -1955,14 +1985,17 @@ public class MultimediaLocator extends PApplet
 				throw new IllegalArgumentException("ML.loadLibrary()... The path has to start with '/'.");
 			}
 
-//			System.out.print(" ML.loadNativeLibraryFromPath()...  Will load library from path: "+filepath+"...");
+			startupMessages.add(" ML.loadNativeLibraryFromPath()...  Will load library from path: "+filepath+"...");
+			System.out.print(" ML.loadNativeLibraryFromPath()...  Will load library from path: "+filepath+"...");
 
 			System.load(filepath);					// Load the library
-//			System.out.println(" ML.loadNativeLibraryFromPath()...  Loaded library from path: "+filepath+" successfully...");
+			startupMessages.add(" ML.loadNativeLibraryFromPath()...  Loaded library from path: "+filepath+" successfully...");
+			System.out.println(" ML.loadNativeLibraryFromPath()...  Loaded library from path: "+filepath+" successfully...");
 		}
 		catch(Throwable t)
 		{
-//			System.out.println(" ML.loadNativeLibraryFromPath()... Error while loading library from path: "+filepath+" t:"+t);
+			startupMessages.add(" ML.loadNativeLibraryFromPath()... Error while loading library from path: "+filepath+" t:"+t);
+			System.out.println(" ML.loadNativeLibraryFromPath()... Error while loading library from path: "+filepath+" t:"+t);
 		}
 	}
 
@@ -1988,21 +2021,25 @@ public class MultimediaLocator extends PApplet
 	    try {
 	        final URL codeSourceLocation =
 	            c.getProtectionDomain().getCodeSource().getLocation();
-	    	System.out.println("ML.getAppLocation()... Found codeSourceLocation: "+codeSourceLocation.toURI().toString()+" and will convert to URL...");
-	        if (codeSourceLocation != null) return codeSourceLocation;
+			startupMessages.add("ML.getAppLocation()... Found codeSourceLocation: "+codeSourceLocation.toURI().toString()+" and will convert to URL...");
+			System.out.println("ML.getAppLocation()... Found codeSourceLocation: "+codeSourceLocation.toURI().toString()+" and will convert to URL...");
+			if (codeSourceLocation != null) return codeSourceLocation;
 	    }
 	    catch (final SecurityException e) {
+	    	startupMessages.add("ML.getAppLocation()... SecurityException: e:"+e);
 	    	System.out.println("ML.getAppLocation()... SecurityException: e:"+e);
-	        // NB: Cannot access protection domain.
+	    	// NB: Cannot access protection domain.
 	    }
 	    catch (final NullPointerException e) {
+	    	startupMessages.add("ML.getAppLocation()... NullPointerException: e:"+e);
 	    	System.out.println("ML.getAppLocation()... NullPointerException: e:"+e);
-	        // NB: Protection domain or code source is null.
+	    	// NB: Protection domain or code source is null.
 	    }
 	    catch (final Throwable t) {
+	    	startupMessages.add("ML.getAppLocation()... ERROR: t:"+t);
 	    	System.out.println("ML.getAppLocation()... ERROR: t:"+t);
 	    	t.printStackTrace();
-	        // NB: Protection domain or code source is null.
+	    	// NB: Protection domain or code source is null.
 	    }
 
 	    // NB: The easy way failed, so we try the hard way. We ask for the class
@@ -2026,10 +2063,12 @@ public class MultimediaLocator extends PApplet
 	    if (path.startsWith("jar:")) path = path.substring(4, path.length() - 2);
 
 	    try {
+	    	startupMessages.add("ML.getAppLocation()... Found path: "+path+" and will convert to URL...");
 	    	System.out.println("ML.getAppLocation()... Found path: "+path+" and will convert to URL...");
 	        return new URL(path);
 	    }
 	    catch (final MalformedURLException e) {
+	    	startupMessages.add("ML.getAppLocation()... ERROR converting application path to URL... e:"+e);
 	    	System.out.println("ML.getAppLocation()... ERROR converting application path to URL... e:"+e);
 	        e.printStackTrace();
 	        return null;
@@ -2046,30 +2085,35 @@ public class MultimediaLocator extends PApplet
 	    final java.lang.reflect.Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
 	    usrPathsField.setAccessible(true);
 	 
-	    // Get array of paths
-	    final String[] paths = (String[])usrPathsField.get(null);
+	    final String[] paths = (String[])usrPathsField.get(null);	    // Get array of paths
 
-    	System.out.println("ML.addLibraryPath()... will add newPath:"+newPath);
+	    for(String path : paths) 					// Check if the path to add is already present
+	    {
 
-	    // Check if the path to add is already present
-	    for(String path : paths) {
 	        if(path.equals(newPath)) {
 	            return;
 	        }
 	    }
 	 
-	    // Add new path
-	    final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+	    startupMessages.add("ML.addLibraryPath()... will add newPath:"+newPath);
+	    System.out.println("ML.addLibraryPath()... will add newPath:"+newPath);
+	    
+	    final String[] newPaths = Arrays.copyOf(paths, paths.length + 1);	    // Add new path
 	    newPaths[newPaths.length-1] = newPath;
 	    usrPathsField.set(null, newPaths);
 	    
 	    int count = 0;
-	    for(String path : paths) {
+	    for(String path : paths) 
+	    {
+	    	startupMessages.add(" userPaths["+count+"], path: "+path.toString());
 	    	System.out.println(" userPaths["+count+"], path: "+path.toString());
 	    	count++;
 	    }
 	    
+	    startupMessages.add("------");
+	    startupMessages.add("");
 	    System.out.println("------");
+	    System.out.println("");
 	}
 	
 	/**
@@ -2401,14 +2445,86 @@ public class MultimediaLocator extends PApplet
 	 */
 	private void printLibraryPath()
 	{
-		systemMessage("ML.printLibraryPath()... Java Library Path:");
+		if(debug.dependencies) systemMessage("ML.printLibraryPath()... Java Library Path:");
 		String property = System.getProperty("java.library.path");
 		StringTokenizer parser = new StringTokenizer(property, ";");
 		while (parser.hasMoreTokens()) {
-			systemMessage(parser.nextToken());
+			if(debug.dependencies) systemMessage(parser.nextToken());
 		}
-		systemMessage("ML.printLibraryPath()... appPath: "+appPath);
-		systemMessage("ML.printLibraryPath()...  +/lib/macosx64/ == "+appDirectory+"/lib/macosx64/");
+		
+		try{
+			if(debug.dependencies) 
+			{
+				systemMessage("Ex. 1: file path: "+gStreamerPluginDirectory + "libgstwavenc.so");
+				File testFile = new File(gStreamerPluginDirectory + "libgstwavenc.so");
+				if(testFile.exists())
+					systemMessage(" EXISTS");
+				else
+					systemMessage(" DOES NOT EXIST!");
+			}
+			if(debug.dependencies)
+			{
+				systemMessage("Ex. 2: file path: "+gStreamerPluginDirectory + "libgsty4menc.so");
+				File testFile = new File(gStreamerPluginDirectory + "libgstwavenc.so");
+				if(testFile.exists())
+					systemMessage(" EXISTS");
+				else
+					systemMessage(" DOES NOT EXIST!");
+			}
+//			if(debug.dependencies) systemMessage("ML.printLibraryPath()... Java User Paths:");
+//			java.lang.reflect.Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+
+//			final String[] paths = (String[])usrPathsField.get(null);
+//			int count = 0;
+//			for(String path : paths) 
+//			{
+//				if(debug.dependencies) systemMessage("Java userPaths["+count+"], path: "+path.toString());
+//				count++;
+//			}
+			if(debug.dependencies) systemMessage("------");
+		}
+		catch(Throwable t)
+		{
+			if(debug.dependencies) systemMessage("ML.printLibraryPath()... ERROR: t:"+t);
+		}
+
+		if(debug.dependencies) 
+		{
+			systemMessage("ML.printLibraryPath()... appPath: "+appPath);
+			systemMessage("ML.printLibraryPath()... appDirectory: "+appDirectory);
+			systemMessage("ML.printLibraryPath()... gStreamerDirectory: "+gStreamerDirectory);
+			systemMessage("ML.printLibraryPath()... gStreamerPluginDirectory: "+gStreamerPluginDirectory);
+			systemMessage("");
+			systemMessage("ML.printLibraryPath()... sketchPath(): "+sketchPath(""));
+			systemMessage("ML.printLibraryPath()... sketchPath(/lib): "+sketchPath("/lib"));
+			systemMessage("ML.printLibraryPath()... sketchPath(../lib): "+sketchPath("../lib"));
+			systemMessage("");
+			systemMessage("ML.printLibraryPath()... File.sketchPath().absPath(): "+ (new File(sketchPath("")).getAbsolutePath() ) );
+			systemMessage("ML.printLibraryPath()... File.sketchPath(/lib).absPath(): "+ (new File(sketchPath("/lib")).getAbsolutePath() ) );
+			systemMessage("ML.printLibraryPath()... File.sketchPath(../lib).absPath(): "+ (new File(sketchPath("../lib")).getAbsolutePath() ) );
+			systemMessage("");
+			systemMessage("");
+
+			File appPathFile = new File(appPath);
+			systemMessage("Testing appPath: "+appPath);
+			if(appPathFile.exists()) systemMessage(" EXISTS");
+			else systemMessage(" DOES NOT EXIST!");
+
+			File appDirectoryFile = new File(appDirectory);
+			systemMessage("Testing appDirectory: "+appDirectory);
+			if(appDirectoryFile.exists()) systemMessage(" EXISTS");
+			else systemMessage(" DOES NOT EXIST!");
+
+			File gStreamerDirectoryFile = new File(gStreamerDirectory);
+			systemMessage("Testing gStreamerDirectory: "+gStreamerDirectory);
+			if(gStreamerDirectoryFile.exists()) systemMessage(" EXISTS");
+			else systemMessage(" DOES NOT EXIST!");
+
+			File gStreamerPluginDirectoryFile = new File(gStreamerPluginDirectory);
+			systemMessage("Testing gStreamerPluginDirectory: "+gStreamerPluginDirectory);
+			if(gStreamerPluginDirectoryFile.exists()) systemMessage(" EXISTS");
+			else systemMessage(" DOES NOT EXIST!");
+		}
 	}
 
 	/* Disabled */

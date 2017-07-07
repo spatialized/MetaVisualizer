@@ -20,7 +20,7 @@ public class ML_DebugSettings
 	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean library = true;				// Debug library and file handling
 	public boolean gps = false;					// Debug WMV_Viewer class
-
+	public boolean dependencies = true;			// Debug native dependencies
 	/* Memory */
 	public boolean memory = false;				// Debug memory
 

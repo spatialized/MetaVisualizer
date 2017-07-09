@@ -13,17 +13,11 @@ import processing.core.PApplet;
 public class ML_Input
 {
 	/* Classes */
-	ML_KeyboardControls keyboardInput;					/* Keyboard input class */
+	ML_KeyboardControls keyboard;					/* Keyboard input class */
+	private ML_MouseControls mouse;
 	
 	public boolean shiftKey = false;
 	public boolean optionKey = false;
-	
-	private boolean mouseClickedRecently = false;
-	private boolean mouseReleased = false;
-	private int clickedRecentlyFrame = 1000000;
-	private int doubleClickSpeed = 10;
-
-//	private int screenWidth, screenHeight;
 
 	/**
 	 * Constructor for input class
@@ -32,7 +26,9 @@ public class ML_Input
 	 */
 	public ML_Input() 
 	{
-		keyboardInput = new ML_KeyboardControls(this);
+		keyboard = new ML_KeyboardControls(this);
+		mouse = new ML_MouseControls();
+//		mouse = new ML_MouseControls(this);
 	}
 
 	/**
@@ -46,27 +42,27 @@ public class ML_Input
 		if (ml.state.running && ml.state.selectedLibrary && ml.state.fieldsInitialized )
 		{
 			/* General */
-			keyboardInput.handleUniversalKeyPressed(ml, key, keyCode);
+			keyboard.handleUniversalKeyPressed(ml, key, keyCode);
 
 			if (ml.state.interactive)					
-				keyboardInput.handleInteractiveClusteringKeyPressed(ml, key, keyCode);
+				keyboard.handleInteractiveClusteringKeyPressed(ml, key, keyCode);
 			else 						// Interactive Clustering Mode
 			{
-				keyboardInput.handleAllViewsKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
+				keyboard.handleAllViewsKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
 				
 				if(ml.display.inDisplayView())							
 				{
 					if(ml.display.getDisplayView() == 1)											 /* Map View */
-						keyboardInput.handleMapViewKeyPressed(ml, key, keyCode);
+						keyboard.handleMapViewKeyPressed(ml, key, keyCode);
 					else if(ml.display.getDisplayView() == 2)									 /* Time View */
-						keyboardInput.handleTimeViewKeyPressed(ml, key, keyCode);
+						keyboard.handleTimeViewKeyPressed(ml, key, keyCode);
 					else if(ml.display.getDisplayView() == 3)									 /* Library View */
-						keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);
+						keyboard.handleLibraryViewKeyPressed(ml, key, keyCode);
 					else if(ml.display.getDisplayView() == 4)							 		/* Media View */
-						keyboardInput.handleMediaViewKeyPressed(ml, key, keyCode);
+						keyboard.handleMediaViewKeyPressed(ml, key, keyCode);
 				}
 				else
-					keyboardInput.handleWorldViewKeyPressed(ml, key, keyCode); 		/* Controls for World View only */
+					keyboard.handleWorldViewKeyPressed(ml, key, keyCode); 		/* Controls for World View only */
 			}
 		}
 	}
@@ -79,7 +75,7 @@ public class ML_Input
 	 */
 	void handleLibraryViewKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		keyboardInput.handleLibraryViewKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
+		keyboard.handleLibraryViewKeyPressed(ml, key, keyCode);	 	 	/* Controls for both 3D + HUD Views */
 	}
 
 	/**
@@ -90,7 +86,7 @@ public class ML_Input
 	 */
 	void handleListItemWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		keyboardInput.handleListItemWindowKeyPressed(ml, key, keyCode);
+		keyboard.handleListItemWindowKeyPressed(ml, key, keyCode);
 	}
 	
 	/**
@@ -101,7 +97,7 @@ public class ML_Input
 	 */
 	public void handleLibraryWindowKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		keyboardInput.handleLibraryWindowKeyPressed(ml, key, keyCode);
+		keyboard.handleLibraryWindowKeyPressed(ml, key, keyCode);
 	}
 	
 	/**
@@ -111,7 +107,7 @@ public class ML_Input
 	{
 		if (ml.state.running && ml.state.selectedLibrary && ml.state.fieldsInitialized )
 		{
-			keyboardInput.handleKeyReleased(ml, display, key, keyCode);
+			keyboard.handleKeyReleased(ml, display, key, keyCode);
 		}
 	}
 	
@@ -196,7 +192,7 @@ public class ML_Input
 	 */
 	public void handleButtonEvent(MultimediaLocator ml, ML_Display display, GButton button, GEvent event) 
 	{
-		if(event == GEvent.CLICKED)
+		if(event == GEvent.CLICKED)				// Button clicked
 		{
 			switch(button.tag) 
 			{
@@ -603,7 +599,7 @@ public class ML_Input
 			}
 		}
 		
-		if(event == GEvent.PRESSED)
+		if(event == GEvent.PRESSED)				// Button pressed
 		{
 			switch(button.tag)
 			{
@@ -682,7 +678,7 @@ public class ML_Input
 			}
 		}
 		
-		if(event == GEvent.RELEASED)
+		if(event == GEvent.RELEASED)			// Button released 
 		{
 			switch(button.tag)
 			{
@@ -735,7 +731,6 @@ public class ML_Input
 //				case "MoveRight":
 //					ml.world.viewer.stopMoveXTransition();
 //					break;
-
 			}
 		}
 	}
@@ -769,7 +764,7 @@ public class ML_Input
 				if(display.getDisplayView() != 2)
 					display.setDisplayView(world, 2);
 				break;
-			case "LibraryView":							// -- Disabled
+			case "LibraryView":							
 				if(display.getDisplayView() != 3)
 					display.setDisplayView(world, 3);
 				break;
@@ -900,6 +895,18 @@ public class ML_Input
 			case "AlphaMode":
 				world.state.alphaMode = option.isSelected();
 				break;
+			case "DisplayTerrain":
+				boolean state = world.state.displayTerrain;
+				if(state)
+					world.fadeOutTerrain(true, true);
+				else
+				{
+					world.state.terrainAlpha = 0.f;
+					world.state.displayTerrain = true;
+					world.fadeInTerrain(true);
+				}
+				break;
+			
 			case "OrientationMode":
 				world.viewer.setOrientationMode( !world.viewer.getSettings().orientationMode );
 //				display.window.chkbxDomeView.setEnabled(world.viewer.getSettings().orientationMode);
@@ -961,17 +968,30 @@ public class ML_Input
 		}
 	}
 
-
 	/* Mouse */
 	public void updateMouseSelection(int mouseX, int mouseY, int frameCount)
 	{
-		if(frameCount - clickedRecentlyFrame > doubleClickSpeed && mouseClickedRecently)
-			mouseClickedRecently = false;
-		
-		if(frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
-			System.out.println("Held mouse...");
+		mouse.updateMouseSelection(mouseX, mouseY, frameCount);
 	}
 	
+	void handleMousePressed(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
+	{
+		mouse.handleMousePressed(viewer, mouseX, mouseY, frameCount);
+		
+	}
+	void handleMouseReleased(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
+	{
+		mouse.handleMouseReleased(world, display, mouseX, mouseY, frameCount);
+	}
+	void handleMouseClicked(int mouseX, int mouseY, int frameCount)
+	{
+		mouse.handleMouseClicked(mouseX, mouseY, frameCount);
+	}
+	void handleMouseDragged(int mouseX, int mouseY)
+	{
+		mouse.handleMouseDragged(mouseX, mouseY);
+	}
+
 	/**
 	 * Update mouse navigation									//-- Disabled
 	 * @param viewer
@@ -981,91 +1001,6 @@ public class ML_Input
 	 */
 //	void updateMouseNavigation(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
 //	{			
-//		if(frameCount - clickedRecentlyFrame > doubleClickSpeed && mouseClickedRecently)
-//		{
-//			mouseClickedRecently = false;
-////			mouseReleasedRecently = false;
-//		}
-//		
-//		if(frameCount - clickedRecentlyFrame > 20 && !mouseReleased)
-//			viewer.addPlaceToMemory();				// Held mouse
-//		
-//		if (mouseX < screenWidth * 0.25 && mouseX > -1) 
-//		{
-//			if(!viewer.turningX())
-//				viewer.turnXToAngle(PApplet.radians(5.f), -1);
-//		}
-//		else if (mouseX > screenWidth * 0.75 && mouseX < screenWidth + 1) 
-//		{
-//			if(!viewer.turningX())
-//				viewer.turnXToAngle(PApplet.radians(5.f), 1);
-//		}
-//		else if (mouseY < screenHeight * 0.25 && mouseY > -1) 
-//		{
-//			if(!viewer.turningY())
-//				viewer.turnYToAngle(PApplet.radians(5.f), -1);
-//		}
-//		else if (mouseY > screenHeight * 0.75 && mouseY < screenHeight + 1) 
-//		{
-//			if(!viewer.turningY())
-//				viewer.turnYToAngle(PApplet.radians(5.f), 1);
-//		}
-//		else
-//		{
-//			if(viewer.turningX()) viewer.setTurningX( false );
-//			if(viewer.turningY()) viewer.setTurningY( false );
-//		}
+//		mouse.updateMouseNavigation(viewer, mouseX, mouseY, frameCount);
 //	}
-
-	void handleMousePressed(WMV_Viewer viewer, int mouseX, int mouseY, int frameCount)
-	{
-//		if(!viewer.getSettings().orientationMode && viewer.getState().lastMovementFrame > 5)
-//		{
-//			if(mouseX > screenWidth * 0.25 && mouseX < screenWidth * 0.75 && mouseY < screenHeight * 0.75 && mouseY > screenHeight * 0.25)
-//				viewer.walkForward();
-//			viewer.getState().lastMovementFrame = frameCount;
-//		}
-//		else viewer.moveToNextCluster(false, -1);
-	}
-
-	void handleMouseReleased(WMV_World world, ML_Display display, int mouseX, int mouseY, int frameCount)
-	{
-		mouseReleased = true;
-//		releasedRecentlyFrame = frameCount;
-		
-		boolean doubleClick = false;
-		if(mouseClickedRecently)							// Double click
-			doubleClick = true;
-
-		if(world.viewer.getSettings().mouseNavigation)
-		{
-			world.viewer.walkSlower();
-			world.viewer.getState().lastMovementFrame = frameCount;
-			if(doubleClick)									
-				world.viewer.moveToNearestCluster(world.viewer.getNavigationTeleport());
-		}
-		
-		if(display.getDisplayView() == 1)
-			display.map2D.handleMouseReleased(world, mouseX, mouseY);
-		else if(display.getDisplayView() == 2)
-			display.handleTimeViewMouseReleased(world, mouseX, mouseY);
-		else if(display.getDisplayView() == 3)
-			display.handleLibraryViewMouseReleased(world, mouseX, mouseY);
-		else if(display.getDisplayView() == 4)
-			display.handleMediaViewMouseReleased(world, mouseX, mouseY);
-	}
-	
-	void handleMouseClicked(int mouseX, int mouseY, int frameCount)
-	{
-		mouseClickedRecently = true;
-		clickedRecentlyFrame = frameCount;
-		mouseReleased = false;
-	}
-
-	void handleMouseDragged(int mouseX, int mouseY)
-	{
-//		mouseOffsetX = mouseClickedX - mouseX;
-//		mouseOffsetY = mouseClickedY - mouseY;
-//		viewer.lastMovementFrame = frameCount;			// Turn faster if larger offset X or Y?
-	}
 }

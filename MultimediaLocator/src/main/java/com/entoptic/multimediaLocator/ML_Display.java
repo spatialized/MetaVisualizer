@@ -31,7 +31,6 @@ public class ML_Display
 	
 	/* Graphics */
 	private PMatrix3D originalMatrix; 							/* For restoring 3D view after 2D HUD */
-//	private WMV_Camera camera3D;								/* For restoring 3D view after 2D HUD */
 	private float currentFieldOfView;
 	
 	public boolean drawGrid = false; 							/* Draw 3D grid */   			// -- Unused
@@ -40,10 +39,9 @@ public class ML_Display
 	private float messageHUDDistance = hudDistanceInit * 6.f;
 	private int screenWidth = -1, screenHeight = -1;			/* Display dimensions */
 	private int windowWidth = -1, windowHeight = -1;			/* Window dimensions */
-//	private float monitorOffsetXAdjustment = 1.f;
 
 	public int blendMode = 0;									/* Alpha blending mode */
-	private final int numBlendModes = 10;								/* Number of blending modes */
+//	private final int numBlendModes = 10;								/* Number of blending modes */
 	
 //	PImage startupImage;
 	private float hudCenterXOffset, hudTopMargin;
@@ -53,7 +51,6 @@ public class ML_Display
 	public int mapViewMode = 1;									// 0: World, 1: Field, (2: Cluster  -- In progress)
 	public boolean initializedMaps = false;
 	public boolean initializedSatelliteMap = false;
-//	public boolean initializedWorldMap = false;
 	
 	private final float imageHue = 140.f;
 	private final float panoramaHue = 190.f;
@@ -74,8 +71,6 @@ public class ML_Display
 	private final float minSegmentSeconds = 15.f;
 	
 	private boolean fieldTimelineCreated = false, fieldDatelineCreated = false, updateFieldTimeline = true;
-//	private float hudLeftMargin = 0.f, timelineYOffset = 0.f;
-//	private float timelineXOffset = 0.f, datelineYOffset = 0.f;
 	private float timelineXOffset = 0.f, timelineYOffset = 0.f,  datelineYOffset = 0.f;
 
 	private SelectableTimeSegment currentSelectableTimeSegment;
@@ -97,8 +92,11 @@ public class ML_Display
 	/* Library View */
 	private int libraryViewMode = 2;							// 0: World, 1: Field, 2: Cluster 
 	public int currentDisplayField = 0, currentDisplayCluster = 0;
+
+	private float clusterMediaXOffset, clusterMediaYOffset;
 	private final float thumbnailWidth = 85.f;
 	private final float thumbnailSpacing = 0.1f;
+
 	private boolean createdSelectableMedia = false;
 	ArrayList<SelectableMedia> selectableMedia;					/* Selectable media thumbnails */
 	private SelectableMedia currentSelectableMedia;				/* Current selected media in grid */
@@ -109,18 +107,22 @@ public class ML_Display
 	private int mediaViewMediaType = -1;
 	private int mediaViewMediaID = -1;
 
-	/* Text */
-//	private final float hudVeryLargeTextSize = 32.f;
-//	private final float hudLargeTextSize = 26.f;
-//	private final float hudMediumTextSize = 22.f;
-//	private final float hudSmallTextSize = 18.f;
-//	private final float hudVerySmallTextSize = 16.f;
-//	private final float hudLinePadding = 4.f;
-//	private final float hudLinePaddingWide = 8.f;
-//	private final float hudLineWidth = hudMediumTextSize + hudLinePadding;
-//	private final float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
-//	private final float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
+	/* Text (3D Overlay) */
+	private float messageXOffset, messageYOffset;
+	private float metadataXOffset, metadataYOffset;
+	
+	private final float largeTextSize = 56.f;					// -- Set from display size??
+	private final float mediumTextSize = 44.f;
+	private final float smallTextSize = 36.f;
+	
+	private final float messageTextSize = 48.f;
+	
+	private final float linePadding = 20.f;
+	private final float lineWidth = smallTextSize + linePadding;			
+//	private final float lineWidthWide = largeTextSize + linePadding;			
+	private final float lineWidthVeryWide = largeTextSize * 2.f;			
 
+	/* Text (HUD No 3D Overlay) */
 	private float hudVeryLargeTextSize = 32.f;
 	private float hudLargeTextSize = 26.f;
 	private float hudMediumTextSize = 22.f;
@@ -131,36 +133,20 @@ public class ML_Display
 	private float hudLineWidth = hudMediumTextSize + hudLinePadding;
 	private float hudLineWidthWide = hudLargeTextSize + hudLinePaddingWide;
 	private float hudLineWidthVeryWide = hudLargeTextSize * 2.f;			
-
+	
 	/* Messages */
 	public ArrayList<String> startupMessages;					// Messages to display on screen
 	private ArrayList<String> messages;							// Messages to display on screen
 	private ArrayList<String> metadata;							// Metadata messages to display on screen
 	private PFont defaultFont, messageFont;
 
-	private final int messageDuration = 40;							// Frame length to display messages
-	private final int maxMessages = 16;								// Maximum simultaneous messages on screen
+	private final int messageDuration = 40;						// Frame length to display messages
+	private final int maxMessages = 16;							// Maximum simultaneous messages on screen
 
 	int messageStartFrame = -1;
 	int metadataStartFrame = -1;
 	int startupMessageStartFrame = -1;					
 	
-	/* Text */
-	private float messageXOffset, messageYOffset;
-	private float metadataXOffset, metadataYOffset;
-	private float clusterMediaXOffset, clusterMediaYOffset;
-	
-//	private final float veryLargeTextSize = 64.f;
-	private final float largeTextSize = 56.f;
-	private final float mediumTextSize = 44.f;
-	private final float smallTextSize = 36.f;
-	
-	private final float messageTextSize = 48.f;
-	
-	private final float linePadding = 20.f;
-	private final float lineWidth = smallTextSize + linePadding;			
-	private final float lineWidthWide = largeTextSize + linePadding;			
-	private final float lineWidthVeryWide = largeTextSize * 2.f;			
 
 	/**
 	 * Constructor for 2D display 
@@ -213,7 +199,7 @@ public class ML_Display
 	/**
 	 * Finish 2D display setup
 	 */
-	void finishSetup()
+	void setupScreen()
 	{
 		windowWidth = ml.width;
 		windowHeight = ml.height;
@@ -221,17 +207,14 @@ public class ML_Display
 		clusterMediaYOffset = windowHeight * 0.5f;
 		
 		hudCenterXOffset = windowWidth * 0.5f;
-		hudTopMargin = windowHeight * 0.08f;
-//		hudCenterXOffset = screenWidth * 0.5f;
-//		hudTopMargin = screenHeight * 0.085f;
+		hudTopMargin = windowHeight * 0.075f;
 
 		timelineXOffset = windowWidth * 0.1f;
-		timelineYOffset = windowHeight * 0.33f;
+		timelineYOffset = windowHeight * 0.4f;
 		timelineScreenSize = windowWidth * 0.8f;
-		timelineHeight = screenHeight * 0.1f;
-//		timelineScreenSize = screenWidth * 0.86f;
+		timelineHeight = windowHeight * 0.1f;
 //		timelineHeight = screenHeight * 0.1f;
-		datelineYOffset = windowHeight * 0.5f;
+		datelineYOffset = windowHeight * 0.57f;
 		
 		screenWidthFactor = ml.width / 1440.f;
 		
@@ -916,9 +899,9 @@ public class ML_Display
 		if(displayDate >= 0 && allDates != null)
 		{
 			allDates.display(p, 55.f, 120.f, 255.f, false);
-			ml.textSize(smallTextSize);
+			ml.textSize(hudSmallTextSize);
 			ml.fill(35, 115, 255, 255);
-			ml.text("Show All", allDates.getLocation().x - 16, allDates.getLocation().y + 50, 0);
+			ml.text("Show All", allDates.getLocation().x - 3, allDates.getLocation().y + 30, 0);
 		}
 	}
 
@@ -1707,7 +1690,7 @@ public class ML_Display
 //		timelineXOffset = screenWidth * 0.07f;
 //		datelineYOffset = screenHeight * 0.5f;
 		
-		finishSetup();
+		setupScreen();
 		
 		map2D.reset();
 		startWorldSetup();						// Start World Setup Display Mode after reset
@@ -2540,8 +2523,8 @@ public class ML_Display
 				{
 					window.optWorldView.setSelected(false);
 					window.optMapView.setSelected(false);
-					window.optTimelineView.setSelected(true);
-					window.optLibraryView.setSelected(false);
+					window.optTimelineView.setSelected(false);
+					window.optLibraryView.setSelected(true);
 				}
 				if(window.setupNavigationWindow)
 				{
@@ -2880,7 +2863,7 @@ public class ML_Display
 				ml.textSize(hudSmallTextSize);
 				String strDate = date.getDateAsString();
 				float textWidth = strDate.length() * screenWidthFactor;
-				ml.text(strDate, location.x - textWidth * 0.5f, location.y + 50.f, location.z);	// -- Should center based on actual text size!
+				ml.text(strDate, location.x - textWidth * 0.5f, location.y + 30.f, location.z);	// -- Should center based on actual text size!
 			}
 		
 			ml.popMatrix();

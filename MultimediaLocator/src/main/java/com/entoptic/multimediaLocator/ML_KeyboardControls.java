@@ -6,8 +6,8 @@ package main.java.com.entoptic.multimediaLocator;
 //import g4p_controls.GButton;
 import processing.core.PApplet;
 
-/**
- * Keyboard input handler
+/******************************
+ * Keyboard handler
  * @author davidgordon
  */
 public class ML_KeyboardControls 
@@ -15,7 +15,7 @@ public class ML_KeyboardControls
 	private ML_Input input;
 	
 	/**
-	 * Constructor for keyboard input handler
+	 * Constructor for keyboard handler
 	 * @param parent
 	 */
 	ML_KeyboardControls(ML_Input parent)
@@ -150,6 +150,8 @@ public class ML_KeyboardControls
 				ml.world.state.displayTerrain = true;
 				ml.world.fadeInTerrain(true);
 			}
+			if(ml.display.window.setupMediaWindow)
+				ml.display.window.chkbxDisplayTerrain.setSelected(!state);
 		}
 
 		if (key == 'f') 
@@ -791,7 +793,7 @@ public class ML_KeyboardControls
 				ml.display.setLibraryViewMode( 1 );
 		}
 
-		if (key == 'C')
+		if (key == 'U')
 		{
 			if( ml.display.getLibraryViewMode() != 2 )
 				ml.display.setLibraryViewMode( 2 );
@@ -1065,6 +1067,105 @@ public class ML_KeyboardControls
 			}
 		}
 	}
+
+	/**
+	 * Handle key released event
+	 * @param ml Parent app
+	 * @param display Display ojbect
+	 * @param key Key released
+	 * @param keyCode Key code
+	 */
+	public void handleKeyReleased(MultimediaLocator ml, ML_Display display, char key, int keyCode)
+	{
+		if(display.getDisplayView() == 0)				/* World View Controls */
+		{
+			if (key == 'a') 
+				ml.world.viewer.stopMoveXTransition();
+			if (key == 'd') 
+				ml.world.viewer.stopMoveXTransition();
+			if (key == 's')
+				ml.world.viewer.stopMoveZTransition();
+			if (key == 'w') 
+				ml.world.viewer.stopMoveZTransition();
+			if (key == 'e') 
+				ml.world.viewer.stopMoveYTransition();
+			if (key == 'c') 
+				ml.world.viewer.stopMoveYTransition();
+			if (key == 'q')
+				ml.world.viewer.stopZooming();
+			if (key == 'z')
+				ml.world.viewer.stopZooming();
+		}
+		else if( display.getDisplayView() == 1 )		/* Map View Controls */
+		{
+			if (key == 'A') 
+				ml.world.viewer.stopMoveXTransition();
+			if (key == 'D') 
+				ml.world.viewer.stopMoveXTransition();
+			if (key == 'S')
+				ml.world.viewer.stopMoveZTransition();
+			if (key == 'W') 
+				ml.world.viewer.stopMoveZTransition();
+
+			if (key == 'w') 
+				display.map2D.stopZooming();
+			if (key == 's') 
+				display.map2D.stopZooming();
+		}
+		
+		/* Coded Keys */
+		if (key == PApplet.CODED) 
+		{
+			if(display.getDisplayView() == 0)
+			{
+				if (keyCode == PApplet.LEFT) 
+					ml.world.viewer.stopRotateXTransition();
+				if (keyCode == PApplet.RIGHT) 
+					ml.world.viewer.stopRotateXTransition();
+				if (keyCode == PApplet.UP) 
+					ml.world.viewer.stopRotateYTransition();
+				if (keyCode == PApplet.DOWN) 
+					ml.world.viewer.stopRotateYTransition();
+			}
+			else if( display.getDisplayView() == 1 )
+			{
+				if(display.map2D.isPanning())
+				{
+					if (keyCode == PApplet.LEFT) 
+						display.map2D.stopPanning();
+					if (keyCode == PApplet.RIGHT) 
+						display.map2D.stopPanning();
+					if (keyCode == PApplet.UP) 
+						display.map2D.stopPanning();
+					if (keyCode == PApplet.DOWN) 
+						display.map2D.stopPanning();
+				}
+
+				if (keyCode == PApplet.LEFT) 
+					ml.world.viewer.stopRotateXTransition();
+				if (keyCode == PApplet.RIGHT) 
+					ml.world.viewer.stopRotateXTransition();
+			}
+			else if(display.getDisplayView() == 2)
+			{
+				if (keyCode == PApplet.UP)  				// Timeline scroll left
+					display.stopZooming();
+				if (keyCode == PApplet.DOWN)  				// Timeline scroll right
+					display.stopZooming();
+				if (keyCode == PApplet.LEFT)  				// Timeline scroll left
+					display.stopScrolling();
+				if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
+					display.stopScrolling();
+			}
+			
+			if (keyCode == PApplet.SHIFT) 
+				input.shiftKey = false;
+			if (keyCode == PApplet.ALT) 
+				input.optionKey = false;
+		}
+	}
+	
+	/* Disabled */
 	
 	/**
 	 * Handle key pressed in Interactive Clustering Mode -- Disabled
@@ -1216,144 +1317,6 @@ public class ML_KeyboardControls
 					else ml.world.getCurrentField().getModel().state.clusterPopulationFactor -= 1.f;
 				}
 			}
-		}
-	}
-	
-	public void handleKeyReleased(MultimediaLocator ml, ML_Display display, char key, int keyCode)
-	{
-//		if (key == ' ') 
-//		{
-//			if(ml.display.window.showMainMenu)
-//				ml.display.window.hideMainMenu();
-//			else
-//				ml.display.window.openMainMenu();
-//		}
-//
-//		if (key == '!') 
-//		{
-//			if(!ml.display.window.showNavigationWindow)
-//				ml.display.window.openNavigationWindow();
-//			else
-//				ml.display.window.hideNavigationWindow();
-//		}
-//
-//		if (key == '@')
-//		{
-//			if(!ml.display.window.showMediaWindow)
-//				ml.display.window.openMediaWindow();
-//			else
-//				ml.display.window.hideMediaWindow();
-//		}
-//
-//		if (key == '#') 
-//		{
-//			if(!ml.display.window.showTimeWindow)
-//				ml.display.window.openTimeWindow();
-//			else
-//				ml.display.window.hideTimeWindow();
-//		}
-//
-//		if (key == '$') 
-//		{
-//			if(!ml.display.window.showLibraryViewWindow)
-//				ml.display.window.openLibraryViewWindow();
-//			else
-//				ml.display.window.hideLibraryViewWindow();
-//		}
-//
-//		if (key == '^') 
-//		{
-//			if(!ml.display.window.showHelpWindow)
-//				ml.display.window.openHelpWindow();
-//			else
-//				ml.display.window.hideHelpWindow();
-//		}
-
-		if(display.getDisplayView() == 0)				/* World View Controls */
-		{
-			if (key == 'a') 
-				ml.world.viewer.stopMoveXTransition();
-			if (key == 'd') 
-				ml.world.viewer.stopMoveXTransition();
-			if (key == 's')
-				ml.world.viewer.stopMoveZTransition();
-			if (key == 'w') 
-				ml.world.viewer.stopMoveZTransition();
-			if (key == 'e') 
-				ml.world.viewer.stopMoveYTransition();
-			if (key == 'c') 
-				ml.world.viewer.stopMoveYTransition();
-			if (key == 'q')
-				ml.world.viewer.stopZooming();
-			if (key == 'z')
-				ml.world.viewer.stopZooming();
-		}
-		else if( display.getDisplayView() == 1 )		/* Map View Controls */
-		{
-			if (key == 'A') 
-				ml.world.viewer.stopMoveXTransition();
-			if (key == 'D') 
-				ml.world.viewer.stopMoveXTransition();
-			if (key == 'S')
-				ml.world.viewer.stopMoveZTransition();
-			if (key == 'W') 
-				ml.world.viewer.stopMoveZTransition();
-
-			if (key == 'w') 
-				display.map2D.stopZooming();
-			if (key == 's') 
-				display.map2D.stopZooming();
-		}
-		
-		/* Coded Keys */
-		if (key == PApplet.CODED) 
-		{
-			if(display.getDisplayView() == 0)
-			{
-				if (keyCode == PApplet.LEFT) 
-					ml.world.viewer.stopRotateXTransition();
-				if (keyCode == PApplet.RIGHT) 
-					ml.world.viewer.stopRotateXTransition();
-				if (keyCode == PApplet.UP) 
-					ml.world.viewer.stopRotateYTransition();
-				if (keyCode == PApplet.DOWN) 
-					ml.world.viewer.stopRotateYTransition();
-			}
-			else if( display.getDisplayView() == 1 )
-			{
-				if(display.map2D.isPanning())
-				{
-					if (keyCode == PApplet.LEFT) 
-						display.map2D.stopPanning();
-					if (keyCode == PApplet.RIGHT) 
-						display.map2D.stopPanning();
-					if (keyCode == PApplet.UP) 
-						display.map2D.stopPanning();
-					if (keyCode == PApplet.DOWN) 
-						display.map2D.stopPanning();
-				}
-
-				if (keyCode == PApplet.LEFT) 
-					ml.world.viewer.stopRotateXTransition();
-				if (keyCode == PApplet.RIGHT) 
-					ml.world.viewer.stopRotateXTransition();
-			}
-			else if(display.getDisplayView() == 2)
-			{
-				if (keyCode == PApplet.UP)  				// Timeline scroll left
-					display.stopZooming();
-				if (keyCode == PApplet.DOWN)  				// Timeline scroll right
-					display.stopZooming();
-				if (keyCode == PApplet.LEFT)  				// Timeline scroll left
-					display.stopScrolling();
-				if (keyCode == PApplet.RIGHT)  				// Timeline scroll right
-					display.stopScrolling();
-			}
-			
-			if (keyCode == PApplet.SHIFT) 
-				input.shiftKey = false;
-			if (keyCode == PApplet.ALT) 
-				input.optionKey = false;
 		}
 	}
 }

@@ -3057,8 +3057,11 @@ public class WMV_Field
 		return result;
 	}
 
-
-	public int getFirstTimeSegment()
+	/**
+	 * Get ID of first time segment in field
+	 * @return First time segment ID
+	 */
+	public int getFirstTimeSegmentID()
 	{
 		if(timeline.timeline.size() > 0)
 			return timeline.timeline.get(0).getFieldTimelineID();
@@ -4809,46 +4812,6 @@ public class WMV_Field
 		state.soundsLoaded = newValue;
 	}
 
-//	public int getDisassociatedImages()
-//	{
-//		return state.disassociatedImages;
-//	}
-//
-//	public int getDisassociatedPanoramas()
-//	{
-//		return state.disassociatedPanoramas;
-//	}
-//
-//	public int getDisassociatedVideos()
-//	{
-//		return state.disassociatedVideos;
-//	}
-//
-//	public int getDisassociatedSounds()
-//	{
-//		return state.disassociatedVideos;
-//	}
-//
-//	public void setDisassociatedImages(int newValue)
-//	{
-//		state.disassociatedImages = newValue;
-//	}
-//
-//	public void setDisassociatedPanoramas(int newValue)
-//	{
-//		state.disassociatedPanoramas = newValue;
-//	}
-//
-//	public void setDisassociatedVideos(int newValue)
-//	{
-//		state.disassociatedVideos = newValue;
-//	}
-//
-//	public void setDisassociatedSounds(int newValue)
-//	{
-//		state.disassociatedSounds = newValue;
-//	}
-
 	/**
 	 * Get convex hull of set of n points using Jarvis March algorithm.
 	 * Based on: http://www.geeksforgeeks.org/convex-hull-set-1-jarviss-algorithm-or-wrapping/
@@ -4942,193 +4905,191 @@ public class WMV_Field
 	}
 	
 	/* Obsolete */
-	private List<Integer> sortVisibleImages(WMV_World world, List<Integer> visibleImages)
-	{
-//		System.out.println("sortVisibleImages()...");
-
-		ArrayList<ImageDistance> distances = new ArrayList<ImageDistance>();
-		for(int i : visibleImages)
-		{
-			WMV_Image img = images.get(i);
-			distances.add(new ImageDistance(i, img.getViewingDistance(world.viewer)));
-		}
-		
-		distances.sort(null);
-		
-		List<Integer> sorted  = new ArrayList<Integer>();
-		for(ImageDistance imgDist : distances)
-			sorted.add(imgDist.id);
-		
-		return sorted;
-	}
-
-	private List<Integer> sortVisiblePanoramas(WMV_World world, List<Integer> visiblePanoramas)
-	{
-//		System.out.println("sortVisiblePanoramas()...");
-
-		ArrayList<PanoramaDistance> distances = new ArrayList<PanoramaDistance>();
-		for(int i : visiblePanoramas)
-		{
-			WMV_Panorama pano = panoramas.get(i);
-			distances.add(new PanoramaDistance(i, pano.getViewingDistance(world.viewer)));
-		}
-		
-		distances.sort(null);
-		
-		List<Integer> sorted  = new ArrayList<Integer>();
-		for(PanoramaDistance panoDist : distances)
-			sorted.add(panoDist.id);
-		
-		return sorted;
-	}
-
-	private List<Integer> sortVisibleVideos(WMV_World world, List<Integer> visibleVideos)
-	{
-//		System.out.println("sortVisiblePanoramas()...");
-
-		ArrayList<VideoDistance> distances = new ArrayList<VideoDistance>();
-		for(int i : visibleVideos)
-		{
-			WMV_Video vid = videos.get(i);
-			distances.add(new VideoDistance(i, vid.getViewingDistance(world.viewer)));
-		}
-		
-		distances.sort(null);
-		
-		List<Integer> sorted  = new ArrayList<Integer>();
-		for(VideoDistance vidDist : distances)
-			sorted.add(vidDist.id);
-		
-		return sorted;
-	}
-
-	private List<Integer> sortAudibleSounds(WMV_World world, List<Integer> audibleSounds)
-	{
-//		System.out.println("sortVisiblePanoramas()...");
-
-		ArrayList<SoundDistance> distances = new ArrayList<SoundDistance>();
-		for(int i : audibleSounds)
-		{
-			WMV_Sound snd = sounds.get(i);
-			distances.add(new SoundDistance(i, snd.getViewingDistance(world.viewer)));
-		}
-		
-		distances.sort(null);
-		
-		List<Integer> sorted  = new ArrayList<Integer>();
-		for(SoundDistance sndDist : distances)
-			sorted.add(sndDist.id);
-		
-		return sorted;
-	}
-
-	private class ImageDistance implements Comparable<ImageDistance>{
-		int id = -1;
-		float distance = -1.f;
-		public ImageDistance(int newID, float newDistance)
-		{
-			id = newID;
-			distance = newDistance;
-		}
-		
-		public int compareTo(ImageDistance imgDistance)
-		{
-			return Float.compare(this.distance, imgDistance.distance);		
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-
-			if (o == this) return true;
-			if (!(o instanceof ImageDistance)) {
-				return false;
-			}
-			ImageDistance iDist = (ImageDistance) o;
-
-			return distance == iDist.distance && Objects.equals(id, iDist.id);
-		}
-	}
-	
-	private class PanoramaDistance implements Comparable<PanoramaDistance>{
-		int id = -1;
-		float distance = -1.f;
-		public PanoramaDistance(int newID, float newDistance)
-		{
-			id = newID;
-			distance = newDistance;
-		}
-		
-		public int compareTo(PanoramaDistance panoDistance)
-		{
-			return Float.compare(this.distance, panoDistance.distance);		
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-
-			if (o == this) return true;
-			if (!(o instanceof PanoramaDistance)) {
-				return false;
-			}
-			
-			PanoramaDistance pDist = (PanoramaDistance) o;
-			return distance == pDist.distance && Objects.equals(id, pDist.id);
-		}
-	}
-
-	private class VideoDistance implements Comparable<VideoDistance>{
-		int id = -1;
-		float distance = -1.f;
-		public VideoDistance(int newID, float newDistance)
-		{
-			id = newID;
-			distance = newDistance;
-		}
-		
-		public int compareTo(VideoDistance vidDistance)
-		{
-			return Float.compare(this.distance, vidDistance.distance);		
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-
-			if (o == this) return true;
-			if (!(o instanceof VideoDistance)) {
-				return false;
-			}
-			
-			VideoDistance vDist = (VideoDistance) o;
-			return distance == vDist.distance && Objects.equals(id, vDist.id);
-		}
-	}
-
-	private class SoundDistance implements Comparable<SoundDistance>{
-		int id = -1;
-		float distance = -1.f;
-		public SoundDistance(int newID, float newDistance)
-		{
-			id = newID;
-			distance = newDistance;
-		}
-		
-		public int compareTo(SoundDistance sndDistance)
-		{
-			return Float.compare(this.distance, sndDistance.distance);		
-		}
-		
-		@Override
-		public boolean equals(Object o) {
-
-			if (o == this) return true;
-			if (!(o instanceof SoundDistance)) {
-				return false;
-			}
-			
-			SoundDistance sDist = (SoundDistance) o;
-			return distance == sDist.distance && Objects.equals(id, sDist.id);
-		}
-	}
-
-
+//	private List<Integer> sortVisibleImages(WMV_World world, List<Integer> visibleImages)
+//	{
+////		System.out.println("sortVisibleImages()...");
+//
+//		ArrayList<ImageDistance> distances = new ArrayList<ImageDistance>();
+//		for(int i : visibleImages)
+//		{
+//			WMV_Image img = images.get(i);
+//			distances.add(new ImageDistance(i, img.getViewingDistance(world.viewer)));
+//		}
+//		
+//		distances.sort(null);
+//		
+//		List<Integer> sorted  = new ArrayList<Integer>();
+//		for(ImageDistance imgDist : distances)
+//			sorted.add(imgDist.id);
+//		
+//		return sorted;
+//	}
+//
+//	private List<Integer> sortVisiblePanoramas(WMV_World world, List<Integer> visiblePanoramas)
+//	{
+////		System.out.println("sortVisiblePanoramas()...");
+//
+//		ArrayList<PanoramaDistance> distances = new ArrayList<PanoramaDistance>();
+//		for(int i : visiblePanoramas)
+//		{
+//			WMV_Panorama pano = panoramas.get(i);
+//			distances.add(new PanoramaDistance(i, pano.getViewingDistance(world.viewer)));
+//		}
+//		
+//		distances.sort(null);
+//		
+//		List<Integer> sorted  = new ArrayList<Integer>();
+//		for(PanoramaDistance panoDist : distances)
+//			sorted.add(panoDist.id);
+//		
+//		return sorted;
+//	}
+//
+//	private List<Integer> sortVisibleVideos(WMV_World world, List<Integer> visibleVideos)
+//	{
+////		System.out.println("sortVisiblePanoramas()...");
+//
+//		ArrayList<VideoDistance> distances = new ArrayList<VideoDistance>();
+//		for(int i : visibleVideos)
+//		{
+//			WMV_Video vid = videos.get(i);
+//			distances.add(new VideoDistance(i, vid.getViewingDistance(world.viewer)));
+//		}
+//		
+//		distances.sort(null);
+//		
+//		List<Integer> sorted  = new ArrayList<Integer>();
+//		for(VideoDistance vidDist : distances)
+//			sorted.add(vidDist.id);
+//		
+//		return sorted;
+//	}
+//
+//	private List<Integer> sortAudibleSounds(WMV_World world, List<Integer> audibleSounds)
+//	{
+////		System.out.println("sortVisiblePanoramas()...");
+//
+//		ArrayList<SoundDistance> distances = new ArrayList<SoundDistance>();
+//		for(int i : audibleSounds)
+//		{
+//			WMV_Sound snd = sounds.get(i);
+//			distances.add(new SoundDistance(i, snd.getViewingDistance(world.viewer)));
+//		}
+//		
+//		distances.sort(null);
+//		
+//		List<Integer> sorted  = new ArrayList<Integer>();
+//		for(SoundDistance sndDist : distances)
+//			sorted.add(sndDist.id);
+//		
+//		return sorted;
+//	}
+//
+//	private class ImageDistance implements Comparable<ImageDistance>{
+//		int id = -1;
+//		float distance = -1.f;
+//		public ImageDistance(int newID, float newDistance)
+//		{
+//			id = newID;
+//			distance = newDistance;
+//		}
+//		
+//		public int compareTo(ImageDistance imgDistance)
+//		{
+//			return Float.compare(this.distance, imgDistance.distance);		
+//		}
+//		
+//		@Override
+//		public boolean equals(Object o) {
+//
+//			if (o == this) return true;
+//			if (!(o instanceof ImageDistance)) {
+//				return false;
+//			}
+//			ImageDistance iDist = (ImageDistance) o;
+//
+//			return distance == iDist.distance && Objects.equals(id, iDist.id);
+//		}
+//	}
+//	
+//	private class PanoramaDistance implements Comparable<PanoramaDistance>{
+//		int id = -1;
+//		float distance = -1.f;
+//		public PanoramaDistance(int newID, float newDistance)
+//		{
+//			id = newID;
+//			distance = newDistance;
+//		}
+//		
+//		public int compareTo(PanoramaDistance panoDistance)
+//		{
+//			return Float.compare(this.distance, panoDistance.distance);		
+//		}
+//		
+//		@Override
+//		public boolean equals(Object o) {
+//
+//			if (o == this) return true;
+//			if (!(o instanceof PanoramaDistance)) {
+//				return false;
+//			}
+//			
+//			PanoramaDistance pDist = (PanoramaDistance) o;
+//			return distance == pDist.distance && Objects.equals(id, pDist.id);
+//		}
+//	}
+//
+//	private class VideoDistance implements Comparable<VideoDistance>{
+//		int id = -1;
+//		float distance = -1.f;
+//		public VideoDistance(int newID, float newDistance)
+//		{
+//			id = newID;
+//			distance = newDistance;
+//		}
+//		
+//		public int compareTo(VideoDistance vidDistance)
+//		{
+//			return Float.compare(this.distance, vidDistance.distance);		
+//		}
+//		
+//		@Override
+//		public boolean equals(Object o) {
+//
+//			if (o == this) return true;
+//			if (!(o instanceof VideoDistance)) {
+//				return false;
+//			}
+//			
+//			VideoDistance vDist = (VideoDistance) o;
+//			return distance == vDist.distance && Objects.equals(id, vDist.id);
+//		}
+//	}
+//
+//	private class SoundDistance implements Comparable<SoundDistance>{
+//		int id = -1;
+//		float distance = -1.f;
+//		public SoundDistance(int newID, float newDistance)
+//		{
+//			id = newID;
+//			distance = newDistance;
+//		}
+//		
+//		public int compareTo(SoundDistance sndDistance)
+//		{
+//			return Float.compare(this.distance, sndDistance.distance);		
+//		}
+//		
+//		@Override
+//		public boolean equals(Object o) {
+//
+//			if (o == this) return true;
+//			if (!(o instanceof SoundDistance)) {
+//				return false;
+//			}
+//			
+//			SoundDistance sDist = (SoundDistance) o;
+//			return distance == sDist.distance && Objects.equals(id, sDist.id);
+//		}
+//	}
 }

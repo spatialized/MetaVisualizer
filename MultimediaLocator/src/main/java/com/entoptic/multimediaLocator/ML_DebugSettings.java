@@ -1,7 +1,7 @@
 package main.java.com.entoptic.multimediaLocator;
 
 /******************************
- * MultimediaLocator debugging settings
+ * Program debug settings
  * @author davidgordon
  */
 public class ML_DebugSettings 
@@ -12,15 +12,16 @@ public class ML_DebugSettings
 	/* Output Methods */
 	public boolean print = true;				// Print all user messages
 	public boolean messages = false;			// On screen debug messages
-	public boolean output = true;				// Output debug messages to file
+	public boolean file = true;				// Output debug messages to file
 	
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
-	public boolean world = true;				// Debug WMV_World and WMV_Field classes
+	public boolean world = true;					// Debug WMV_World and WMV_Field classes
 	public boolean viewer = false;				// Debug WMV_Viewer class
-	public boolean library = true;				// Debug library and file handling
-	public boolean gps = false;					// Debug WMV_Viewer class
-	public boolean dependencies = true;			// Debug native dependencies
+	public boolean library = false;				// Debug library and file handling
+	public boolean gps = true;					// Debug WMV_Viewer class
+//	public boolean dependencies = false;			// Debug native dependencies
+	
 	/* Memory */
 	public boolean memory = false;				// Debug memory
 
@@ -28,16 +29,16 @@ public class ML_DebugSettings
 	public boolean mouse = false;				// Debug mouse interaction
 	
 	/* Model */
-	public boolean metadata = true;				// Debug WMV_Metadata class
+	public boolean metadata = false;				// Debug WMV_Metadata class
 	public boolean cluster = false;				// Debug WMV_Cluster class
-	public boolean time = false;				// Debug WMV_Time class
+	public boolean time = false;					// Debug time behavior
 	
 	/* Media */
-	public boolean media = false;				// Debug WMV_Viewable class
+	public boolean media = true;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;				// Debug WMV_Panorama class
-	public boolean video = true;				// Debug WMV_Video class
-	public boolean sound = true;				// Debug WMV_Sound class
+	public boolean video = false;				// Debug WMV_Video class
+	public boolean sound = false;				// Debug WMV_Sound class
 	
 	/* Viewer */
 	public boolean path = false;					// Debug WMV_Viewer class

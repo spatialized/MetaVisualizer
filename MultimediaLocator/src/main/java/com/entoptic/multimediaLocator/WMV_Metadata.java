@@ -758,7 +758,7 @@ class WMV_Metadata
 				ml.systemMessage("Could not add video! Error: "+t);
 				t.printStackTrace();
 				StackTraceElement[] stes = t.getStackTrace();
-				if (debugSettings.dependencies || debugSettings.video)
+				if (debugSettings.video)
 					for(StackTraceElement ste : stes)
 						ml.systemMessage("     : "+ste.toString());
 			}

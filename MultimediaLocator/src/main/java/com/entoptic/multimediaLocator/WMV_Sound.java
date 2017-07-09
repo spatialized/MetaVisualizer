@@ -1,7 +1,5 @@
 package main.java.com.entoptic.multimediaLocator;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 
 import beads.*;
@@ -20,8 +18,8 @@ public class WMV_Sound extends WMV_Media
 	WMV_SoundState state;
 
 	/* Sound */
-	AudioContext ac;				/* Beads audio context */
-	private SamplePlayer player;	/* Beads sample player */
+	AudioContext ac;					/* Beads audio context */
+	private SamplePlayer player;		/* Beads sample player */
 	private Bead sound;				/* Beads sound object */
 	Gain g;							/* Gain object */
 

@@ -170,7 +170,8 @@ public class ML_Map
 		
 		world.ml.delay(mapDelay);
 		
-		setSelectedCluster( -1 );
+		System.out.println("Map.initialize()... will set selected cluster to -1");
+		setSelectedClusterID( -1 );
 		p.initializedMaps = true;
 	}
 	
@@ -182,7 +183,8 @@ public class ML_Map
 		mousePressedFrame = -1;
 		mouseDraggedFrame = -1;
 		
-		setSelectedCluster( -1 );
+		System.out.println("Map.reset()... will set selected cluster to -1");
+		setSelectedClusterID( -1 );
 		selectedField = -1;
 		
 		zoomingIn = false; 
@@ -655,13 +657,13 @@ public class ML_Map
 	{
 		if(p.getDisplayView() == 1)							// In Map View
 		{
-			if(p.mapViewMode == 1)						// Field Mode
+			if(p.mapViewMode == 1)							// Field Mode
 			{
 				if(world.ml.display.initializedMaps)
 				{
 					List<Marker> hitMarkers;
-					for (Marker m : satellite.getMarkers()) 
-						if(m.isSelected()) m.setSelected(false);
+//					for (Marker m : satellite.getMarkers()) 
+//						if(m.isSelected()) m.setSelected(false);
 
 					hitMarkers = satellite.getHitMarkers(world.ml.mouseX, world.ml.mouseY);
 					
@@ -679,20 +681,27 @@ public class ML_Map
 //									System.out.println("parts[0]:"+parts[0]);
 									if(parts[0].equals("Cluster"))
 									{
-										marker.setSelected(true);
-										setSelectedCluster( Integer.parseInt(parts[1]) );
+										if(!marker.isSelected())
+										{
+											for (Marker m : satellite.getMarkers()) 
+												if(m.isSelected()) m.setSelected(false);	
+											marker.setSelected(true);
+											int newClusterID= Integer.parseInt(parts[1]);
+											if(selectedCluster != newClusterID)
+												setSelectedClusterID( newClusterID );
+										}
 									}
 								}
 							}
-							else
-							{
-								setSelectedCluster( world.viewer.getState().getCurrentClusterID() );
-							}
+//							else
+//							{
+//								setSelectedClusterID( world.viewer.getState().getCurrentClusterID() );
+//							}
 						}
-						else
-						{
-							setSelectedCluster( world.viewer.getState().getCurrentClusterID() );
-						}
+//						else
+//						{
+//							setSelectedClusterID( world.viewer.getState().getCurrentClusterID() );
+//						}
 					}
 				}
 			}
@@ -749,14 +758,18 @@ public class ML_Map
 	{
 		if(mousePressedFrame > mouseDraggedFrame)
 		{
-			if(p.getDisplayView() == 1)					// In Map View
+			if(p.getDisplayView() == 1)				// In Map View
 			{
 				if(p.mapViewMode == 1)				// Field Mode
 				{
 					if(selectedCluster != world.viewer.getState().getCurrentClusterID())
 					{
 						if(selectedCluster >= 0 && selectedCluster < world.getCurrentField().getClusters().size())
+						{
 							zoomToCluster(world, world.getCurrentField().getCluster(selectedCluster), true);
+							if(world.ml.input.shiftKey)									// Shift key moves viewer to selected cluster
+								world.viewer.moveToClusterOnMap(selectedCluster, true);	// Move to cluster on map and stay in Map View
+						}
 					}
 				}
 				else if(p.mapViewMode == 0)			// World Mode
@@ -915,8 +928,9 @@ public class ML_Map
 	 * Set selected cluster
 	 * @param newCluster New selected cluster
 	 */
-	public void setSelectedCluster( int newCluster )
+	public void setSelectedClusterID( int newCluster )
 	{
+		System.out.println("setSelectedClusterID()... newCluster: "+newCluster);
 		selectedCluster = newCluster;
 	}
 

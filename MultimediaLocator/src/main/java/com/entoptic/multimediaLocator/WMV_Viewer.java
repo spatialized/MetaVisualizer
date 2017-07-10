@@ -130,8 +130,12 @@ public class WMV_Viewer
 		if(p.ml.display.getDisplayView() == 1)
 			p.ml.display.map2D.initialize(p);				// Initialize map if in Map View
 		
-		if(p.ml.display.window.setupNavigationWindow)
+		if(p.ml.display.window.setupNavigationWindow)		// Reload field-specific navigation controls
 			p.ml.display.window.reloadNavigationWindow();
+		
+		if(p.ml.display.getDisplayView() == 2)				// Zoom to timeline for new field
+			p.ml.display.zoomToTimeline(p, true);
+;
 	}
 	
 	/*** 
@@ -730,14 +734,14 @@ public class WMV_Viewer
 	/**
 	 * Move to cluster selected on map
 	 * @param clusterID Cluster ID
-	 * @param switchTo3DView Whether to switch from Map to World View
+	 * @param stayInMapView Whether to stay in Map View (true) or switch to World View (false)
 	 */
-	public void moveToClusterOnMap( int clusterID, boolean switchTo3DView )
+	public void moveToClusterOnMap( int clusterID, boolean stayInMapView )
 	{
 		if(debugSettings.viewer || debugSettings.map)
 			p.ml.systemMessage("Viewer.moveToClusterOnMap()... Moving to cluster on map:"+clusterID);
 
-		if(switchTo3DView)
+		if(stayInMapView)
 		{
 			teleportToCluster(clusterID, false, -1);
 		}
@@ -748,7 +752,7 @@ public class WMV_Viewer
 		}
 		
 		if(p.ml.display.map2D.getSelectedClusterID() != clusterID) 
-			p.ml.display.map2D.setSelectedCluster(clusterID);
+			p.ml.display.map2D.setSelectedClusterID(clusterID);
 	}
 
 	/**
@@ -3258,7 +3262,7 @@ public class WMV_Viewer
 		ArrayList<String> tracks = p.getCurrentField().getGPSTrackNames();
 		if(p.ml.display.initializedMaps)
 			p.ml.display.map2D.createdGPSMarker = false;
-		p.ml.display.window.openChooseItemDialog(tracks, "Use arrow keys to select GPS track file and press ENTER", 1);
+		p.ml.display.window.openListItemWindow(tracks, "Use arrow keys to select GPS track file and press ENTER", 1);
 	}
 	
 	/**
@@ -3285,7 +3289,7 @@ public class WMV_Viewer
 	public void chooseFieldDialog()
 	{
 		ArrayList<String> fields = p.getFieldNames();
-		p.ml.display.window.openChooseItemDialog(fields, "Use arrow keys to select field and press ENTER...", 0);
+		p.ml.display.window.openListItemWindow(fields, "Use arrow keys to select field and press ENTER...", 0);
 	}
 
 	/**

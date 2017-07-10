@@ -31,52 +31,57 @@ public class ML_KeyboardControls
 	 */
 	public void handleUniversalKeyPressed(MultimediaLocator ml, char key, int keyCode)
 	{
-		if (key == ' ') 
+		if( !ml.display.window.showListItemWindow && !ml.display.window.showCreateLibraryWindow
+			&& !ml.display.window.showStartupWindow )
 		{
-			if(ml.display.window.showMainMenu)
-				ml.display.window.hideMainMenu();
-			else
-				ml.display.window.openMainMenu();
-		}
 
-		if (key == '!') 
-		{
-			if(!ml.display.window.showNavigationWindow)
-				ml.display.window.openNavigationWindow();
-			else
-				ml.display.window.hideNavigationWindow();
-		}
+			if (key == ' ') 
+			{
+				if(ml.display.window.showMainMenu)
+					ml.display.window.hideMainMenu();
+				else
+					ml.display.window.openMainMenu();
+			}
 
-		if (key == '@')
-		{
-			if(!ml.display.window.showMediaWindow)
-				ml.display.window.openMediaWindow();
-			else
-				ml.display.window.hideMediaWindow();
-		}
+			if (key == '!') 
+			{
+				if(!ml.display.window.showNavigationWindow)
+					ml.display.window.openNavigationWindow();
+				else
+					ml.display.window.hideNavigationWindow();
+			}
 
-		if (key == '#') 
-		{
-			if(!ml.display.window.showTimeWindow)
-				ml.display.window.openTimeWindow();
-			else
-				ml.display.window.hideTimeWindow();
-		}
+			if (key == '@')
+			{
+				if(!ml.display.window.showMediaWindow)
+					ml.display.window.openMediaWindow();
+				else
+					ml.display.window.hideMediaWindow();
+			}
 
-		if (key == '$') 
-		{
-			if(!ml.display.window.showLibraryViewWindow)
-				ml.display.window.openLibraryViewWindow();
-			else
-				ml.display.window.hideLibraryViewWindow();
-		}
+			if (key == '#') 
+			{
+				if(!ml.display.window.showTimeWindow)
+					ml.display.window.openTimeWindow();
+				else
+					ml.display.window.hideTimeWindow();
+			}
 
-		if (key == '^') 
-		{
-			if(!ml.display.window.showHelpWindow)
-				ml.display.window.openHelpWindow();
-			else
-				ml.display.window.hideHelpWindow();
+			if (key == '$') 
+			{
+				if(!ml.display.window.showLibraryViewWindow)
+					ml.display.window.openLibraryViewWindow();
+				else
+					ml.display.window.hideLibraryViewWindow();
+			}
+
+			if (key == '^') 
+			{
+				if(!ml.display.window.showHelpWindow)
+					ml.display.window.openHelpWindow();
+				else
+					ml.display.window.hideHelpWindow();
+			}
 		}
 		
 		if (key == 'Q')
@@ -982,7 +987,7 @@ public class ML_KeyboardControls
 			ml.state.inLibrarySetup = true;
 			ml.createNewLibrary = true;
 			ml.state.chooseMediaFolders = true;
-			ml.display.window.closeLibraryWindow();
+			ml.display.window.closeStartupWindow();
 		}
 
 		if(key == 'r')
@@ -1030,7 +1035,7 @@ public class ML_KeyboardControls
 					break;
 			}
 			
-			ml.display.window.closeChooseItemDialog();
+			ml.display.window.closeListItemWindow();
 		}
 		
 		if (key == PApplet.CODED) 

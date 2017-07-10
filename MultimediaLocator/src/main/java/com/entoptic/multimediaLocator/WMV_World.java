@@ -697,7 +697,7 @@ public class WMV_World
 	/**
 	 * Choose starting field
 	 */
-	public void chooseStartingField()
+	public void openChooseFieldDialog()
 	{
 		viewer.chooseFieldDialog();
 	}

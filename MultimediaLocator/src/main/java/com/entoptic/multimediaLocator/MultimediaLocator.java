@@ -370,6 +370,10 @@ public class MultimediaLocator extends PApplet
 		{
 			if (!state.initializingFields) 			/* Begin initializing fields */
 			{
+//				if(!display.window.startupWindow.isVisible())
+//					display.window.startupWindow.setVisible(true);
+//				display.window.showStartupWindow(true);			// TEST
+				
 				world.createFields(library.getFolders());		/* Create field objects for each folder */
 				state.initializingFields = true;
 				display.setupProgress(0.25f);
@@ -411,7 +415,10 @@ public class MultimediaLocator extends PApplet
 			display.sendSetupMessage(world, "Library folder: "+library.getLibraryFolder());	// Show library folder name
 			display.sendSetupMessage(world, " ");
 		}
-		display.display(this);											
+		display.display(this);
+		
+		if(!state.createdLibrary)
+			display.window.showStartupWindow(true);			// TEST
 
 		state.running = false;						// Stop running
 		state.inFieldInitialization = true;				// Start clustering 
@@ -424,15 +431,19 @@ public class MultimediaLocator extends PApplet
 	{
 		initializeField(world.getField(state.initializationField), true, true);		/* Initialize field */	
 		
-		state.initializationField++;		/* Set next field to initialize */
-//		if( state.initializationField >= world.getFields().size() )	
+//		System.out.println( "ML.initializeNextField()... >>> showStartupWindow? "+display.window.showStartupWindow+
+//				" setupStartupWindow:"+display.window.setupStartupWindow);
+		
+		state.initializationField++;				/* Set next field to initialize */
+
 		if( state.initializationField >= world.getFields().size() || state.singleField )	
 		{
 			state.fieldsInitialized = true;
 			if(debug.ml) systemMessage("ML.initializeField()... " + world.getFields().size() + " field"+(world.getFields().size()>1?"s":"")+" initialized...");
 			display.setupProgress(1.f);
+			
 			if(display.window.showCreateLibraryWindow) display.window.closeCreateLibraryWindow();
-			if(display.window.showLibraryWindow) display.window.closeLibraryWindow();
+			if(display.window.setupStartupWindow) display.window.closeStartupWindow();
 		}
 		else
 		{
@@ -609,7 +620,7 @@ public class MultimediaLocator extends PApplet
 			systemMessage("Finishing MultimediaLocator initialization..");
 		
 		if(world.getFieldCount() > 1)
-			world.chooseStartingField();					/* Choose starting field */
+			world.openChooseFieldDialog();					/* Choose starting field */
 		else
 			world.enterFieldAtBeginning(0);						/* Enter first field */
 	}
@@ -1046,7 +1057,7 @@ public class MultimediaLocator extends PApplet
 		else
 		{
 			state.selectedLibrary = false;	// Library in improper format if masks are missing
-			state.inLibrarySetup = true;	// Still in library setup
+			state.inLibrarySetup = true;		// Still in library setup
 		}
 	}
 
@@ -1881,7 +1892,7 @@ public class MultimediaLocator extends PApplet
 //					if(debug.ml) 
 //						System.out.println(">>> Window: "+windowTitle+" lost focus...");
 					
-			  	  	display.window.handleWindowLostFocus(windowTitle);
+			  	  	display.window.handleWindowLostFocus(state.running, windowTitle);
 				}
 			}
 		}

@@ -37,19 +37,22 @@ public class ML_Window
 
 	public GWindow mainMenu, navigationWindow, mediaWindow, libraryViewWindow,  helpWindow, 
 				   mapWindow, timeWindow;
-	public GWindow startupWindow, createLibraryWindow, listItemWindow, textEntryWindow;
+	public GWindow startupWindow;
+	public GWindow createLibraryWindow, listItemWindow, textEntryWindow;
 
 	public GLabel lblMainMenu, lblNavigationWindow, lblMedia, lblLibrary, lblHelp, lblMap, lblTimeline;
 	public GLabel lblStartup, lblImport;	
 	
 	public boolean setupMainMenu, setupNavigationWindow = false, setupMediaWindow = false, setupHelpWindow = false, 
 				   setupLibraryViewWindow = false, setupTimeWindow = false;
-	public boolean setupCreateLibraryWindow = false, setupLibraryWindow = false, setupTextEntryWindow = false;
+	public boolean setupCreateLibraryWindow = false, setupStartupWindow = false, setupTextEntryWindow = false;
 	
 	public boolean showMainMenu = false, showNavigationWindow = false, showMediaWindow = false, showLibraryViewWindow = false, 
 				   showHelpWindow = false, showTimeWindow = false;;
-	public boolean showCreateLibraryWindow, showLibraryWindow = false;
+	public boolean showCreateLibraryWindow, showStartupWindow = false;
 
+	public boolean closeStartupWindow = false, closeTextEntryWindow = false, closeListItemWindow = false;
+	
 	private int mainMenuX = -1, mainMenuY = -1;
 	private int navigationWindowX = -1, navigationWindowY = -1;
 	private int mediaWindowX = -1, mediaWindowY = -1;
@@ -69,7 +72,7 @@ public class ML_Window
 	public GLabel lblCreateLibraryWindowText, lblCreateLibraryWindowText2;
 
 	/* List Item Window */
-	public boolean showListItemWindow = false;
+	public boolean showListItemWindow = false, setupListItemWindow = false;
 	private int listItemWindowHeight;
 	private ArrayList<String> listItemWindowList;
 	private String listItemWindowText;
@@ -1982,8 +1985,7 @@ public class ML_Window
 		startupWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, startupWindowHeight, PApplet.JAVA2D);
 		
 		startupWindow.addData(new ML_WinData());
-		startupWindow.addDrawHandler(this, "libraryWindowDraw");
-//		startupWindow.addMouseHandler(this, "libraryWindowMouse");
+		startupWindow.addDrawHandler(this, "startupWindowDraw");
 		startupWindow.addKeyHandler(world.ml, "libraryWindowKey");
 		startupWindow.setActionOnClose(GWindow.KEEP_OPEN);
 		
@@ -2023,8 +2025,8 @@ public class ML_Window
 //		btnLibraryHelp.setFont(new Font("Monospaced", Font.BOLD, iLargeTextSize));
 //		btnLibraryHelp.setLocalColorScheme(G4P.CYAN_SCHEME);
 		
-		setupLibraryWindow = true;
-		showLibraryWindow = true;
+		setupStartupWindow = true;
+		showStartupWindow = true;
 		world.ml.setAppIcon = true;
 	}
 	
@@ -2051,7 +2053,7 @@ public class ML_Window
 		int leftEdge = world.ml.displayWidth / 2 - windowWidth * 3 / 2;
 		int topEdge = world.ml.displayHeight / 2 - createLibraryWindowHeight / 2;
 		
-		createLibraryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 3, 
+		createLibraryWindow = GWindow.getWindow( world.ml, "Create Library", leftEdge, topEdge, windowWidth * 3, 
 				   createLibraryWindowHeight, PApplet.JAVA2D);
 
 		createLibraryWindow.addData(new ML_WinData());
@@ -2091,7 +2093,7 @@ public class ML_Window
 
 		x = windowWidth * 3 / 2 - 115;
 		y = createLibraryWindowHeight - iLargeBoxHeight * 3 / 2 - 10;
-		btnMakeLibrary = new GButton(createLibraryWindow, x, y, 230, iSmallBoxHeight, "Finish and Choose Location...");
+		btnMakeLibrary = new GButton(createLibraryWindow, x, y, 210, iSmallBoxHeight, "Choose Location...");
 		btnMakeLibrary.tag = "MakeLibrary";
 		btnMakeLibrary.setFont(new Font("Monospaced", Font.PLAIN, iMediumTextSize-1));
 		btnMakeLibrary.setLocalColorScheme(G4P.CYAN_SCHEME);
@@ -2113,7 +2115,7 @@ public class ML_Window
 	 * @param list List items
 	 * @return Index of chosen item from list
 	 */
-	public void openChooseItemDialog(ArrayList<String> list, String promptText, int resultCode)
+	public void openListItemWindow(ArrayList<String> list, String promptText, int resultCode)
 	{
 		if(list.size() > 0)
 		{
@@ -2126,20 +2128,25 @@ public class ML_Window
 			int leftEdge = world.ml.displayWidth / 2 - windowWidth;
 			int topEdge = world.ml.displayHeight / 2 - listItemWindowHeight / 2;
 
-			listItemWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, listItemWindowHeight, PApplet.JAVA2D);
+			listItemWindow = GWindow.getWindow( world.ml, "  ", leftEdge, topEdge, windowWidth * 2, listItemWindowHeight, PApplet.JAVA2D);
 
 			listItemWindow.addData(new ML_WinData());
 			listItemWindow.addDrawHandler(this, "listItemWindowDraw");
 			listItemWindow.addKeyHandler(world.ml, "listItemWindowKey");
 			listItemWindow.setActionOnClose(GWindow.KEEP_OPEN);
 			
+			setupListItemWindow = true;
 			showListItemWindow = true;
 			world.ml.setAppIcon = true;
 		}
 	}
 	
-	public void closeChooseItemDialog()
+	/**
+	 * Close List Item Window
+	 */
+	public void closeListItemWindow()
 	{
+		closeListItemWindow = true;
 		listItemWindow.setVisible(false);
 		listItemWindow.close();
 		listItemWindow.dispose();
@@ -2162,7 +2169,7 @@ public class ML_Window
 		String saveText = "";
 		if(setupTextEntryWindow) saveText = txfInputText.getText();
 		
-		textEntryWindow = GWindow.getWindow( world.ml, "", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
+		textEntryWindow = GWindow.getWindow( world.ml, " ", leftEdge, topEdge, windowWidth * 2, textEntryWindowHeight, PApplet.JAVA2D);
 
 		textEntryWindow.addData(new ML_WinData());
 		textEntryWindow.addDrawHandler(this, "textEntryWindowDraw");
@@ -2203,6 +2210,7 @@ public class ML_Window
 	 */
 	public void closeTextEntryWindow()
 	{
+		closeTextEntryWindow = true;
 		textEntryWindow.setVisible(false);
 		textEntryWindow.close();
 		textEntryWindow.dispose();
@@ -2214,10 +2222,29 @@ public class ML_Window
 	 * Handle window with lost focus
 	 * @param windowTitle Window title
 	 */
-	public void handleWindowLostFocus(String windowTitle)
+	public void handleWindowLostFocus(boolean running, String windowTitle)
 	{
 		switch(windowTitle)
 		{
+			case "":					// Startup Window
+				System.out.println("handleWindowLostFocus()... Startup Window ... running? "+running+" showCreateLibraryWindow: "+showCreateLibraryWindow+" closeStartupWindow:"+closeStartupWindow);
+				if(closeStartupWindow)
+					closeStartupWindow = false;
+				else if(showStartupWindow && !showCreateLibraryWindow)
+					showStartupWindow(true);
+				break;
+			case " ":				// Text Entry Window
+				if(closeTextEntryWindow) 
+					closeTextEntryWindow = false;
+				else if(showTextEntryWindow)
+					showTextEntryWindow(true);
+				break;
+			case "  ":				// List Item Window
+				if(closeListItemWindow)
+					closeListItemWindow = false;
+				else if(showListItemWindow)
+					showListItemWindow(true);
+				break;
 			case "Main Menu":
 				hideMainMenu();
 				break;
@@ -2305,16 +2332,16 @@ public class ML_Window
 	}
 	
 	/**
-	 * Handles drawing to the ML Window
+	 * Handles drawing to the Startup Window
 	 * @param applet the main PApplet object
 	 * @param data the data for the GWindow being used
 	 */
-	public void libraryWindowDraw(PApplet applet, GWinData data) 
+	public void startupWindowDraw(PApplet applet, GWinData data) 
 	{
 		applet.background(0);
 		applet.stroke(0, 25, 255);
 		applet.strokeWeight(1);
-//		applet.fill(255, 255, 255);
+
 		int barWidth = windowWidth-40;
 		
 		if(display.setupProgress > 0.f)
@@ -2328,17 +2355,6 @@ public class ML_Window
 		}
 	}
 
-	/**
-	 * Handles mouse events for all GWindow objects
-	 * @param applet the main PApplet object
-	 * @param data the data for the GWindow being used
-	 * @param event the mouse event
-	 */
-	public void libraryWindowMouse(PApplet applet, GWinData data, MouseEvent event) 
-	{
-	
-	}
-	
 	/**
 	 * Handles drawing to the ML Window
 	 * @param applet the main PApplet object
@@ -2955,51 +2971,116 @@ public class ML_Window
 	 */
 	public void showNavigationWindow()
 	{
-		showNavigationWindow = true;
 		if(setupNavigationWindow)
+		{
 			navigationWindow.setVisible(true);
+			showNavigationWindow = true;
+		}
 	} 
 	/**
 	 * Show Media Window
 	 */
 	public void showMediaWindow()
 	{
-		showMediaWindow = true;
 		if(setupMediaWindow)
+		{
 			mediaWindow.setVisible(true);
+			showMediaWindow = true;
+		}
 	}
 	public void showStatisticsWindow()
 	{
-		showLibraryViewWindow = true;
 		if(setupLibraryViewWindow)
+		{
 			libraryViewWindow.setVisible(true);
+			showLibraryViewWindow = true;
+		}
 	} 
 	public void showHelpWindow()
 	{
-		showHelpWindow = true;
 		if(setupHelpWindow)
+		{
 			helpWindow.setVisible(true);
-		helpAboutText = 0;					// Always start with "About" text
+			showHelpWindow = true;
+			helpAboutText = 0;					// Always start with "About" text
+		}
 	}
-//	public void showMapWindow()
-//	{
-//		showMapWindow = true;
-//		if(setupMapWindow)
-//			mapWindow.setVisible(true);
-//	}
 	public void showTimeWindow()
 	{
-		showTimeWindow = true;
 		if(setupTimeWindow)
+		{
 			timeWindow.setVisible(true);
+			showTimeWindow = true;
+		}
 	}
-	public void showStartupWindow()
+	
+	/**
+	 * Show Startup Window
+	 * @param force Force visibility
+	 */
+	public void showStartupWindow(boolean force)
+	{
+		if(force)
+		{
+			showStartupWindow = false;
+			startupWindow.setVisible(false);
+			startupWindow.setVisible(true);
+			showStartupWindow = true;
+		}
+		else
+		{
+			if(setupStartupWindow)
+			{
+				startupWindow.setVisible(true);
+				showStartupWindow = true;
+			}
+		}
+	}
+
+	/**
+	 * Show Text Entry Window
+	 * @param force
+	 */
+	public void showTextEntryWindow(boolean force)
 	{
 		hideWindows();
-		showLibraryWindow = true;
-		if(setupLibraryWindow)
-			startupWindow.setVisible(true);
+		if(force)
+		{
+			showTextEntryWindow = false;
+			textEntryWindow.setVisible(false);
+			textEntryWindow.setVisible(true);
+			showTextEntryWindow = true;
+		}
+		else
+		{
+			if(setupTextEntryWindow)
+			{
+				textEntryWindow.setVisible(true);
+				showTextEntryWindow = true;
+			}
+		}
 	}
+
+	public void showListItemWindow(boolean force)
+	{
+		hideWindows();
+		if(force)
+		{
+			showListItemWindow = false;
+			listItemWindow.setVisible(false);
+			listItemWindow.setVisible(true);
+			showListItemWindow = true;
+		}
+		else
+		{
+			if(setupListItemWindow)
+			{
+				listItemWindow.setVisible(true);
+				showListItemWindow = true;
+			}
+		}
+	}
+
 	/**
 	 * Hide Main Menu
 	 */
@@ -3198,21 +3279,23 @@ public class ML_Window
 			setupTimeWindow = false;
 		}
 	}
-	public void hideLibraryWindow()
+	public void hideStartupWindow()
 	{
-		showLibraryWindow = false;
-		if(setupLibraryWindow)
+		showStartupWindow = false;
+		if(setupStartupWindow)
 			startupWindow.setVisible(false);
 	} 
-	public void closeLibraryWindow()
+	public void closeStartupWindow()
 	{
-		showLibraryWindow = false;
-		if(setupLibraryWindow)
+//		System.out.println("closeStartupWindow()... showStartupWindow:"+showStartupWindow+" setupStartupWindow:"+setupStartupWindow);
+		showStartupWindow = false;
+		if(setupStartupWindow)
 		{
+			closeStartupWindow = true;
 			startupWindow.setVisible(false);
 			startupWindow.close();
 			startupWindow.dispose();
-			setupLibraryWindow = false;
+			setupStartupWindow = false;
 		}
 	} 
 	public void hideCreateLibraryWindow()
@@ -3247,8 +3330,6 @@ public class ML_Window
 			hideLibraryViewWindow();
 		if(showHelpWindow)
 			hideHelpWindow();
-//		if(showMapWindow)
-//			hideMapWindow();
 		if(showTimeWindow)
 			hideTimeWindow();
 	}

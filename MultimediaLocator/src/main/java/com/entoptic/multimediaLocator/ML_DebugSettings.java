@@ -19,7 +19,7 @@ public class ML_DebugSettings
 	public boolean world = true;					// Debug WMV_World and WMV_Field classes
 	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean library = false;				// Debug library and file handling
-	public boolean gps = true;					// Debug WMV_Viewer class
+	public boolean gps = false;					// Debug WMV_Viewer class
 //	public boolean dependencies = false;			// Debug native dependencies
 	
 	/* Memory */
@@ -34,7 +34,7 @@ public class ML_DebugSettings
 	public boolean time = false;					// Debug time behavior
 	
 	/* Media */
-	public boolean media = true;				// Debug WMV_Viewable class
+	public boolean media = false;				// Debug WMV_Viewable class
 	public boolean image = false;				// Debug WMV_Image class
 	public boolean panorama = false;				// Debug WMV_Panorama class
 	public boolean video = false;				// Debug WMV_Video class

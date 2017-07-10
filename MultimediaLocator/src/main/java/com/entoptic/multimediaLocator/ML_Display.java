@@ -181,9 +181,6 @@ public class ML_Display
 		timelineStart = 0.f;
 		timelineEnd = utilities.getTimePVectorSeconds(new PVector(24,0,0));
 
-//		hudCenterXOffset = screenWidth * 0.5f;
-//		hudTopMargin = screenHeight * 0.085f;
-		
 		currentSelectableTimeSegment = null;
 		currentSelectableTimeSegmentID = -1;
 		currentSelectableTimeSegmentFieldTimeSegmentID = -1;
@@ -204,7 +201,7 @@ public class ML_Display
 		windowWidth = ml.width;
 		windowHeight = ml.height;
 		clusterMediaXOffset = windowWidth * 0.1f;
-		clusterMediaYOffset = windowHeight * 0.5f;
+		clusterMediaYOffset = windowHeight * 0.5f;		// Default; actual value changes with Library View text line count
 		
 		hudCenterXOffset = windowWidth * 0.5f;
 		hudTopMargin = windowHeight * 0.075f;
@@ -277,8 +274,8 @@ public class ML_Display
 						displayTimeView(ml.world);
  						break;
 					case 3:								// Library view
-						updateLibraryView(ml.world);
 						displayLibraryView(ml.world);
+						updateLibraryView(ml.world);		
 						break;
 					case 4:								// Media View
 						displayMediaView(ml.world);
@@ -411,7 +408,7 @@ public class ML_Display
 		{
 			WMV_Field f = p.getCurrentField();
 			WMV_Cluster c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
-			createSelectableMedia(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
+			createClusterSelectableMedia(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 			updateSelectableMedia = false;
 		}
 	}
@@ -1865,6 +1862,7 @@ public class ML_Display
 //					ml.text("Please select media folder(s)...", screenWidth / 2.1f, yPos += lineWidthVeryWide * 5.f, hudDistanceInit);
 					if(!window.setupCreateLibraryWindow)
 					{
+						window.showCreateLibraryWindow = true;
 						window.openCreateLibraryWindow();
 						ml.library = new ML_Library("");		// Create new library
 					}
@@ -1880,11 +1878,11 @@ public class ML_Display
 				{
 					if(!ml.state.gettingExiftoolPath)			// Getting Exiftool program filepath
 					{
-						if(!window.setupLibraryWindow)
+						if(!window.setupStartupWindow)
 							window.openStartupWindow();			// Open Startup Window
 						else 
-							if(!window.showLibraryWindow)
-								window.showStartupWindow();		// Show Startup Window
+							if(!window.showStartupWindow)
+								window.showStartupWindow(false);		// Show Startup Window
 					}
 				}
 			}
@@ -2057,7 +2055,7 @@ public class ML_Display
 	
 				y += hudLineWidthVeryWide;
 				ml.textSize(hudLargeTextSize);
-				c = f.getCluster(currentDisplayCluster);	// Get the cluster to display info about
+				c = f.getCluster(currentDisplayCluster);		// Get cluster to display info for
 				WMV_Cluster cl = p.getCurrentCluster();
 
 				if(c != null)
@@ -2085,16 +2083,17 @@ public class ML_Display
 				else
 				{
 					ml.text(" No Current Point of Interest", x, y, 0);
-//					System.out.println("");
 				}
+				
+				clusterMediaYOffset = y + 65.f;			// Set cluster media Y offset
 				
 				if(createdSelectableMedia)
 				{
-					drawSelectableMedia();
+					drawClusterMediaGrid();				// Draw media in cluster in grid
 					updateLibraryMouse(p);
 				}
 				else
-					createSelectableMedia(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
+					createClusterSelectableMedia(p, f.getImagesInCluster(c.getID(), p.getCurrentField().getImages()));
 				
 				ml.popMatrix();
 				
@@ -2105,8 +2104,7 @@ public class ML_Display
 		}
 	}
 	
-//	private void createClusterImages()
-	private void createSelectableMedia(WMV_World p, ArrayList<WMV_Image> imageList)
+	private void createClusterSelectableMedia(WMV_World p, ArrayList<WMV_Image> imageList)
 	{
 		selectableMedia = new ArrayList<SelectableMedia>();
 		
@@ -2147,7 +2145,7 @@ public class ML_Display
 		}
 		
 		if(p.ml.debug.ml) 
-			ml.systemMessage("Display.createSelectableMedia()... Created selectable media...  Count: "+selectableMedia.size()+" p.ml.width:"+p.ml.width+"clusterMediaXOffset:"+clusterMediaXOffset);
+			ml.systemMessage("Display.createClusterSelectableMedia()... Created selectable media...  Count: "+selectableMedia.size()+" p.ml.width:"+p.ml.width+"clusterMediaXOffset:"+clusterMediaXOffset);
 
 		createdSelectableMedia = true;
 	}
@@ -2345,11 +2343,11 @@ public class ML_Display
 	}
 	
 	/**
-	 * Draw thumbnails (grid) of image list
+	 * Draw thumbnails of media in cluster in grid format
 	 * @param p Parent world
 	 * @param imageList Images in cluster
 	 */
-	private void drawSelectableMedia()
+	private void drawClusterMediaGrid()
 	{
 		int count = 0;
 		
@@ -2361,7 +2359,6 @@ public class ML_Display
 		{
 			if(m != null)
 			{
-//				public void display(WMV_World p, float hue, float saturation, float brightness, boolean selected)
 				boolean selected = m.getID() == selectedMedia;
 				
 				if(count < 200) m.display(ml.world, 0.f, 0.f, 255.f, selected);
@@ -2478,7 +2475,7 @@ public class ML_Display
 				}
 				break;
 				
-			case 2:														// Time View
+			case 2:														// Timeline View
 				if(window.setupMainMenu)
 				{
 					window.optWorldView.setSelected(false);

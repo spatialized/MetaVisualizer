@@ -29,8 +29,8 @@ public class WMV_WorldSettings
 	public final float clusterCenterSize = 1.f;					// Size of cluster center, where autoNavigation stops
 	
 	public float mediaPointMass = 0.05f;							// Mass contribution of each media point
-	public float attractorMass = 1.5f;							// Mass of ordinary attractor point
-	public float pathAttractorMass = 0.75f;						// Mass of path attractor point
+	public float attractorMass = 1.25f;							// Mass of ordinary attractor point
+	public float pathAttractorMass = 0.5f;						// Mass of path attractor point
 	public float attractorMassDistanceFactor = 0.25f;				// Distance factor for attractor + path attractor mass calculation
 	public float minAttractorMass = 0.1f;						// Minimum attractor point mass
 	public float maxAttractorMass = 20.f;						// Maximum attractor point mass

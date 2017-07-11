@@ -63,9 +63,6 @@ public class MultimediaLocator extends PApplet
 	/* Deployment */
 	private static boolean createJar = false;		// Determines how to load cubemap shader
 
-	/* Development*/
-	public static boolean pathNavigationOn = true;	// -- In progress feature
-	
 	/* Classes */
 	ML_Library library;								// Multimedia library
 	ML_Input input;									// Mouse / keyboard input

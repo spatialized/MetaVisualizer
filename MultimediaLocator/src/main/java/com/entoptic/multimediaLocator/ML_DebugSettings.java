@@ -17,10 +17,9 @@ public class ML_DebugSettings
 	/* Main */
 	public boolean ml = true;					// Debug MultimediaLocator class
 	public boolean world = false;					// Debug WMV_World and WMV_Field classes
-	public boolean viewer = true;				// Debug WMV_Viewer class
+	public boolean viewer = false;				// Debug WMV_Viewer class
 	public boolean library = false;				// Debug library and file handling
 	public boolean gps = false;					// Debug WMV_Viewer class
-//	public boolean dependencies = false;			// Debug native dependencies
 	
 	/* Memory */
 	public boolean memory = false;				// Debug memory
@@ -41,7 +40,7 @@ public class ML_DebugSettings
 	public boolean sound = false;				// Debug WMV_Sound class
 	
 	/* Viewer */
-	public boolean path = true;					// Debug WMV_Viewer class
+	public boolean path = false;					// Debug WMV_Viewer class
 
 	/* Viewer */
 	public boolean display = false;				// Debug WMV_Display class

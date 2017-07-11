@@ -843,7 +843,7 @@ public class WMV_Viewer
 		}
 		else
 		{
-			p.ml.systemMessage("Viewer.moveToPathPoint()... ERROR: invalid point id:"+id);
+			p.ml.systemMessage("Viewer.moveToPathPoint()... ERROR: invalid point id:"+id+" path.size():"+path.size());
 		}
 	}
 
@@ -2353,24 +2353,16 @@ public class WMV_Viewer
 					}
 					else if(curAttractor.getClusterDistance() < worldSettings.clusterCenterSize)		
 					{
-//						if(state.continueAtAttractor)		/* Don't slow down at attractor */
-//						{
-//							if(debug.viewer) p.ml.systemMessage("Viewer.updatePhysics()... Will continue at attractor...");
-//							reachedAttractor = true;
-//						}
-//						else
-//						{
-							if(Math.abs(state.velocity.mag()) > settings.velocityMin)		/* Halt at attractor center */
-							{
-								if(!state.halting) halt();
-							}
-							else 
-							{
-								if(state.halting) state.halting = false;
-								if(state.slowing) state.slowing = false;
-								startCenteringAtAttractor();
-							}
-//						}
+						if(Math.abs(state.velocity.mag()) > settings.velocityMin)		/* Halt at attractor center */
+						{
+							if(!state.halting) halt();
+						}
+						else 
+						{
+							if(state.halting) state.halting = false;
+							if(state.slowing) state.slowing = false;
+							startCenteringAtAttractor();
+						}
 					}
 
 					if(reachedAttractor) 
@@ -2423,33 +2415,15 @@ public class WMV_Viewer
 		{
 			if(debug.viewer)
 				p.ml.systemMessage( "Viewer.handleReachedAttractor()... following path size:"+path.size() );
-//									+"  state.continueAtAttractor:"+state.continueAtAttractor );
 
-//			if(state.continueAtAttractor)			// Continue at attractor
-//			{
-//				p.ml.systemMessage( "Viewer.handleReachedAttractor()... Continuing... getAcceleration().mag():"
-//									+ getAcceleration().mag()+" ... "+settings.accelerationMax * 0.1f );
-//				p.ml.systemMessage( "      getVelocity().mag():"+getVelocity().mag()+" ... "+settings.velocityMax * 0.1f );
-//				
-//				if( getAcceleration().mag() > settings.accelerationMax * 0.1f )		
-//					stopMoving(true);				// Stop if accelerating too much		-- Should slow down instead
-//				else if( getVelocity().mag() > settings.velocityMax * 0.1f )		
-//					stopMoving(true);				// Stop if moving too fast   		-- Should slow down instead
-//				else
-//					clearAttractor();				// Simply clear attractor
-//			}
-//			else
-				stopMoving(true);
+			stopMoving(true);
 
 			setCurrentCluster( state.attractorCluster, -1 );		// Set current cluster to attractor cluster, if one exists
 			
 			if(debug.path)
 				p.ml.systemMessage("Viewer.handleReachedAttractor()... Reached path goal #"+state.pathLocationIdx+", will start waiting...");
 			
-//			if(state.continueAtAttractor)			// -- Added 7-2-17
-//				startWaiting(1);
-//			else
-				startWaiting(settings.pathWaitLength);
+			startWaiting(settings.pathWaitLength);
 		}
 
 		if(state.movingToCluster)					/* Reached attractor when moving to cluster */		
@@ -2487,8 +2461,6 @@ public class WMV_Viewer
 		{
 			p.getCurrentField().clearAllAttractors();
 			state.movingToAttractor = false;
-//			if(state.continueAtAttractor && !state.following) 
-//				state.continueAtAttractor = false;
 			
 			updateCurrentCluster(true);
 //			turnToCurrentClusterOrientation();
@@ -2900,6 +2872,7 @@ public class WMV_Viewer
 	private void updateFollowing()
 	{
 		int waitLength = settings.pathWaitLength;
+		
 		if(worldState.frameCount > state.pathWaitStartFrame + waitLength )		// Finished waiting, will move to next path location
 		{
 			state.waiting = false;
@@ -2911,7 +2884,6 @@ public class WMV_Viewer
 			{
 				state.pathGoal = path.get(state.pathLocationIdx).getWorldLocation();
 				if(debug.path) p.ml.systemMessage("Viewer.updateFollowing()... Next path location:"+state.pathGoal);
-//				if(debug.path) p.ml.systemMessage("Viewer.updateFollowing()... Next path location:"+state.pathGoal+" state.continueAtAttractor:"+state.continueAtAttractor);
 				
 				if(state.pathLocationIdx >= 1)
 				{
@@ -3197,107 +3169,207 @@ public class WMV_Viewer
 	}
 	
 	/**
-	 * Follow the current field timeline as a path
+	 * Start following current field timeline as a path
 	 */
 	public void startFollowingTimeline(boolean fromBeginning)
 	{
-//		if(start)								/* Start following timeline */
-//		{
-			if(!state.following)
-			{
-				path = p.getCurrentField().getTimelineAsPath();			/* Get timeline as path of Waypoints matching cluster IDs */
-				
-				if(path.size() > 0)
-				{
-					WMV_Cluster c = p.getCurrentCluster();
-					if(c != null)
-					{
-						state.following = true;
-						state.pathLocationIdx = -1;							
+		if(!state.following)
+		{
+			path = p.getCurrentField().getTimelineAsPath();			/* Get timeline as path of Waypoints matching cluster IDs */
 
-						if(fromBeginning)						/* Start at beginning */
+			if(path.size() > 0)
+			{
+				WMV_Cluster c = p.getCurrentCluster();
+				if(c != null)
+				{
+					state.following = true;
+
+					if(fromBeginning)						/* Start at beginning */
+					{
+						state.pathLocationIdx = 0;
+					}
+					else									/* Find path location of current cluster and set as beginning */
+					{
+						int count = 0;
+						state.pathLocationIdx = -1;
+						
+						for(WMV_Waypoint w : path)
 						{
-							state.pathLocationIdx = 0;
-						}
-						else									/* Find path location of current cluster and set as beginning */
-						{
-							int count = 0;
-							for(WMV_Waypoint w : path)
+							if(w.getClusterID() == c.getID())
 							{
-								if(w.getClusterID() == c.getID())
+								state.pathLocationIdx = count;
+								break;
+							}
+							count++;
+						}
+
+						if(state.pathLocationIdx == -1) 
+							state.pathLocationIdx = 0;
+					}
+
+					if(debug.viewer)
+						p.ml.systemMessage("Viewer.followTimeline()... Setting first path goal: "+path.get(state.pathLocationIdx).getWorldLocation());
+					
+					state.pathGoal = path.get(state.pathLocationIdx).getWorldLocation();
+
+					if(fromBeginning)
+					{
+						if(state.pathGoal.dist(getLocation()) > worldSettings.clusterCenterSize)
+							moveToFirstPathPoint();
+						else										// First path point is current point
+						{
+							boolean found = false;				// Find next path point, if one exists, not at current point
+							while(!found)
+							{
+								state.pathLocationIdx++;
+								if(state.pathLocationIdx < path.size())
 								{
-									state.pathLocationIdx = count;
+									state.pathGoal = path.get(state.pathLocationIdx).getWorldLocation();
+									if(state.pathGoal.dist(getLocation()) > worldSettings.clusterCenterSize)
+									{
+										moveToPathPoint(state.pathLocationIdx);	
+										found = true;
+									}
+								}
+								else
+								{
+									stopFollowing();
 									break;
 								}
-								count++;
 							}
-
-							if(state.pathLocationIdx == -1) state.pathLocationIdx = 0;
 						}
-
-						if(debug.viewer)
-							p.ml.systemMessage("followTimeline()... Setting first path goal: "+path.get(state.pathLocationIdx).getWorldLocation());
-
-						state.pathGoal = path.get(state.pathLocationIdx).getWorldLocation();
-						
-						if(fromBeginning)
-							moveToFirstPathPoint();
-						else
-							moveToPathPoint(state.pathLocationIdx);	
-						
-						if(p.getSettings().screenMessagesOn)
-							p.ml.display.message(p.ml, "Started Following Timeline...");
 					}
-					else p.ml.systemMessage("No current cluster!");
+					else
+					{
+						moveToPathPoint(state.pathLocationIdx);	
+					}
+
+					if(p.getSettings().screenMessagesOn)
+						p.ml.display.message(p.ml, "Started Following Timeline...");
 				}
-				else p.ml.systemMessage("No timeline points!");
+				else p.ml.systemMessage("Viewer.startFollowingTimeline()... No current cluster!");
 			}
-//			else
-//			{
-//				if(debug.viewer)
-//					p.ml.systemMessage("Already called followTimeline(): Stopping... "+path.get(state.pathLocationIdx).getWorldLocation());
-//				state.pathLocationIdx = 0;
-//				state.following = false;
-//			}
-//		}
-//		else																/* Stop following timeline */
-//		{
-//			if(state.following)
-//				stop(true);										/* Stop all movement and following behavior */
-//		}
+			else p.ml.systemMessage("Viewer.startFollowingTimeline()... No timeline points!");
+		}
 	}
 
 	/**
 	 * Follow memory path
-	 * @param fromBeginning Whether to start at beginning (true) or nearest point (false -- In progress)
+	 * @param fromBeginning Whether to start at beginning (true) or nearest point (false)
 	 */
 	public void startFollowingMemory(boolean fromBeginning)
 	{
-		path = new ArrayList<WMV_Waypoint>(memory);								// Follow memory path 
-		
-		if(path.size() > 0)
+		if(!state.following)
 		{
-			state.following = true;
-			state.pathLocationIdx = 0;
-			if(debug.viewer)
-				p.ml.systemMessage("--> followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getWorldLocation());
-			state.pathGoal = path.get(state.pathLocationIdx).getWorldLocation();
+			path = new ArrayList<WMV_Waypoint>(memory);		/* Follow memory path */
 
-			if(fromBeginning)
+			if(path.size() > 0)
 			{
-				moveToFirstPathPoint();
-			}
-			else
-			{
-//				boolean teleport = ( PVector.dist(state.pathGoal, getLocation()) > settings.farClusterTeleportDistance );
-				moveToPathPoint(state.pathLocationIdx);
-			}
+				WMV_Cluster c = p.getCurrentCluster();
+				if(c != null)
+				{
+					state.following = true;
 
-			if(p.getSettings().screenMessagesOn)
-				p.ml.display.message(p.ml, "Started Following Path: Memory...");
+					if(fromBeginning)						/* Start at beginning */
+					{
+						state.pathLocationIdx = 0;
+					}
+					else										/* Find path location of current cluster and set as beginning */
+					{
+						int count = 0;
+						state.pathLocationIdx = -1;
+						
+						for(WMV_Waypoint w : path)
+						{
+							if(w.getClusterID() == c.getID())
+							{
+								state.pathLocationIdx = count;
+								break;
+							}
+							count++;
+						}
+
+						if(state.pathLocationIdx == -1) 
+							state.pathLocationIdx = 0;
+					}
+
+					if(debug.viewer)
+						p.ml.systemMessage("Viewer.startFollowingMemory()... Setting first path goal: "+path.get(state.pathLocationIdx).getWorldLocation());
+					
+					state.pathGoal = path.get(state.pathLocationIdx).getWorldLocation();
+
+					if(fromBeginning)
+					{
+						if(state.pathGoal.dist(getLocation()) > worldSettings.clusterCenterSize)
+							moveToFirstPathPoint();
+						else										// First path point is current point
+						{
+							boolean found = false;				// Find next path point, if one exists, not at current point
+							while(!found)
+							{
+								state.pathLocationIdx++;
+								if(state.pathLocationIdx < path.size())
+								{
+									state.pathGoal = path.get(state.pathLocationIdx).getWorldLocation();
+									if(state.pathGoal.dist(getLocation()) > worldSettings.clusterCenterSize)
+									{
+										moveToPathPoint(state.pathLocationIdx);	
+										found = true;
+									}
+								}
+								else
+								{
+									stopFollowing();
+									break;
+								}
+							}
+						}
+					}
+					else
+					{
+						moveToPathPoint(state.pathLocationIdx);	
+					}
+
+					if(p.getSettings().screenMessagesOn)
+						p.ml.display.message(p.ml, "Started Following Memory...");
+				}
+				else p.ml.systemMessage("Viewer.startFollowingMemory()... No current cluster!");
+			}
+			else p.ml.systemMessage("Viewer.startFollowingMemory()... No timeline points!");
 		}
-		else p.ml.systemMessage("followMemory()... path.size() == 0!");
 	}
+
+//	/**
+//	 * Follow memory path
+//	 * @param fromBeginning Whether to start at beginning (true) or nearest point (false -- In progress)
+//	 */
+//	private void startFollowingMemoryX(boolean fromBeginning)
+//	{
+//		path = new ArrayList<WMV_Waypoint>(memory);								// Follow memory path 
+//		
+//		if(path.size() > 0)
+//		{
+//			state.following = true;
+//			state.pathLocationIdx = 0;
+//			if(debug.viewer)
+//				p.ml.systemMessage("Viewer.followMemory() points:"+path.size()+"... Setting first path goal: "+path.get(state.pathLocationIdx).getWorldLocation());
+//			
+//			state.pathGoal = path.get(state.pathLocationIdx).getWorldLocation();
+//
+//			if(fromBeginning)
+//			{
+//				moveToFirstPathPoint();
+//			}
+//			else
+//			{
+//				moveToPathPoint( state.pathLocationIdx );
+//			}
+//
+//			if(p.getSettings().screenMessagesOn)
+//				p.ml.display.message(p.ml, "Started Following Path: Memory...");
+//		}
+//		else p.ml.systemMessage("Viewer.followMemory()... path.size() == 0!");
+//	}
 
 	/**
 	 * Start following path in current Path Navigation Mode
@@ -3307,10 +3379,10 @@ public class WMV_Viewer
 		switch(getPathNavigationMode())
 		{
 			case 0:
-				startFollowingTimeline(false);
+				startFollowingTimeline(true);
 				break;
 			case 1:
-				startFollowingGPSTrack();
+				startFollowingGPSTrack(true);
 				break;
 			case 2:
 				startFollowingMemory(true);
@@ -3324,8 +3396,10 @@ public class WMV_Viewer
 	/**
 	 * Start following GPS track
 	 */
-	public void startFollowingGPSTrack()
+	public void startFollowingGPSTrack(boolean fromBeginning)
 	{
+//		if(fromBeginning)
+//		{
 		if(state.gpsTrackID > -1 && state.gpsTrackID < p.getCurrentField().getGPSTracks().size())
 		{
 			if(gpsTrack.size() > 0)
@@ -3345,7 +3419,6 @@ public class WMV_Viewer
 						p.ml.systemMessage("    path.get(state.pathLocationIdx).getCaptureLocation()"+path.get(state.pathLocationIdx).getWorldLocation());
 						p.ml.systemMessage("    path.get(state.pathLocationIdx).getGPSLocation()"+path.get(state.pathLocationIdx).getGPSLocation());
 						p.ml.systemMessage("    state.pathGoal: "+state.pathGoal);
-//						p.ml.systemMessage("    state.pathGoal: "+state.pathGoal+" state.continueAtAttractor:"+state.continueAtAttractor);
 					}
 
 					moveToFirstPathPoint();
@@ -3369,21 +3442,17 @@ public class WMV_Viewer
 					if(p.ml.debug.viewer)
 						p.ml.systemMessage("   Original GPS location:"+gpsTrack.get(state.gpsTrackLocationIdx).getGPSLocation() + " state.gpsTrackLocationIdx:"+state.gpsTrackLocationIdx);
 					
-//					if(p.ml.debug.viewer)
-//					{
-//						p.ml.systemMessage("  DEBUG:  ");
-//						p.ml.systemMessage("  Calling gpsTrack = new ArrayList<WMV_Waypoint>(gpsTrack);  ");
-//						gpsTrack = new ArrayList<WMV_Waypoint>(gpsTrack);
-//						p.ml.systemMessage("    state.gpsTrackGoal now would be set to:"+gpsTrack.get(state.gpsTrackLocationIdx).getWorldLocation());
-//					}
-					
 					moveToFirstGPSTrackPoint();
-//					moveToPoint( state.gpsTrackGoal, teleport );		// Move to first GPS track point
 				}
 			}
 			else p.ml.systemMessage("Viewer.startFollowingGPSTrack()... ERROR: path.size() == 0!");
 		}
 		else p.ml.systemMessage("Viewer.startFollowingGPSTrack()... ERROR...");
+//		}
+//		else
+//		{
+//			
+//		}
 	}
 
 	/**
@@ -3391,42 +3460,30 @@ public class WMV_Viewer
 	 */
 	private void updateGPSTrackFollowing()
 	{
-//		PVector gpsTrackGoal;								// Next goal point for camera in navigating from memory
-//		int gpsTrackLocationIdx;								// Index of current cluster in memory
-//		final int gpsTrackTransitionLength = 20;				// Frame length of GPS track transition
-//		int gpsTrackTransitionStart, gpsTrackTransitionEnd;	// GPS track transition start / end frame
-		
 		if(p.ml.frameCount >= state.gpsTrackTransitionEnd)		// Reached end of transition
 		{
-			setLocation( state.gpsTrackGoal, true );				// Set location to path goal
-			p.ml.systemMessage("updateGPSTrackFollowing()... Reached path goal: " + getLocation() +" == "+state.gpsTrackGoal);   // Debug
-
-//			setLocation( state.gpsTrackGoal, false );
+			if(state.gpsTrackLocationIdx > 0)
+				setLocation( state.gpsTrackGoal, true );				// Set location to path goal
+			
+			if(p.ml.debug.viewer || p.ml.debug.gps || p.ml.debug.path)
+				if(p.ml.debug.detailed) 
+					p.ml.systemMessage("updateGPSTrackFollowing()... Reached path goal: " + getLocation() + " == "+state.gpsTrackGoal);   // Debug
 
 			state.gpsTrackLocationIdx++;
 			if(state.gpsTrackLocationIdx < gpsTrack.size())
-			{
-				transitionToGPSTrackPointID( state.gpsTrackLocationIdx );
-			}
-			else						// Reached end of GPS track
-			{
-				state.followingGPSTrack = false;
-			}
+				transitionToGPSTrackPointID( state.gpsTrackLocationIdx );			// Reached end of GPS track
+			else				
+				stopFollowingGPSTrack();
 		}
 		else							// Perform interpolation between points
 		{
-			PVector	last = getLocation(); 														// Debug
-//			p.ml.systemMessage("");  		
-//			p.ml.systemMessage("updateGPSTrackFollowing()... Last Location: " + getLocation());   // Debug
-			
-			float framePosition = p.ml.frameCount - state.gpsTrackTransitionStart;				// 0 to gpsTrackTransitionLength
-//			float framePosition = state.gpsTrackTransitionEnd - p.ml.frameCount;
-			float percent = p.ml.utilities.mapValue(framePosition, 0.f, state.gpsTrackTransitionLength, 0.f, 1.f);
-//			float position = percent * (state.gpsTrackTransitionEnd - state.gpsTrackTransitionStart);
-			
-//			p.ml.systemMessage("       framePosition:"+framePosition+" percent: " + percent);   	// Debug
-
-			setLocation( p.utilities.lerp3D(state.gpsTrackStartLocation, state.gpsTrackGoal, percent), false );
+			if(state.gpsTrackLocationIdx > 0)
+			{
+				float framePosition = p.ml.frameCount - state.gpsTrackTransitionStart;				// 0 to gpsTrackTransitionLength
+				float percent = p.ml.utilities.mapValue(framePosition, 0.f, state.gpsTrackTransitionLength, 0.f, 1.f);
+				setLocation( p.utilities.lerp3D(state.gpsTrackStartLocation, state.gpsTrackGoal, percent), false );
+			}
+			else p.ml.systemMessage("Viewer.updateGPSTrackFollowing()... path index 0... not updating location...");
 //			p.ml.systemMessage("Viewer.updateGPSTrackFollowing()... state.gpsTrackStartLocation: " + state.gpsTrackStartLocation+" state.gpsTrackGoal: " + state.gpsTrackGoal);   					// Debug
 //			p.ml.systemMessage("  ... Moved by: "+last.dist( getLocation() ));    
 		}
@@ -3449,7 +3506,7 @@ public class WMV_Viewer
 	 */
 	private void transitionToGPSTrackPointID(int gpsTrackLocationIdx)
 	{
-		if(p.ml.debug.viewer) 
+		if(p.ml.debug.viewer && p.ml.debug.detailed) 
 			p.ml.systemMessage("Viewer.transitionToGPSTrackPointID()... gpsTrackLocationIdx:"+gpsTrackLocationIdx);
 		
 		state.gpsTrackGoal = gpsTrack.get( gpsTrackLocationIdx ).getWorldLocation();
@@ -3457,16 +3514,12 @@ public class WMV_Viewer
 		state.gpsTrackStartLocation = getLocation();
 		state.gpsTrackTransitionStart = p.ml.frameCount;
 		state.gpsTrackTransitionEnd = p.ml.frameCount + state.gpsTrackTransitionLength;
-		
-		if(p.ml.debug.viewer) 
-			p.ml.systemMessage("    state.gpsTrackGoal:"+state.gpsTrackGoal+" state.gpsTrackTransitionLength:"+
-								   state.gpsTrackTransitionLength);
 	}
 	
 	/**
 	 * Choose GPS track from list and set to selected
 	 */
-	public void chooseGPSTrack()
+	public void openChooseGPSTrackWindow()
 	{
 		ArrayList<String> tracks = p.getCurrentField().getGPSTrackNames();
 		if(p.ml.display.initializedMaps)
@@ -3601,11 +3654,20 @@ public class WMV_Viewer
 		float distance = newPoint.dist( getLocation() );					// Adjust mass for attractor distance from viewer
 		float mass; 
 		
-		if(state.following && distance < 10.f)
+		if(state.following)
 		{
-			mass = worldSettings.pathAttractorMass;		
-			mass = PApplet.constrain( mass * (float)Math.sqrt(distance) * worldSettings.attractorMassDistanceFactor, 
-					worldSettings.minPathAttractorMass,  worldSettings.maxPathAttractorMass );			
+//			if(distance < 10.f)
+//			{
+				mass = worldSettings.pathAttractorMass;		
+				mass = PApplet.constrain( mass * (float)Math.sqrt(distance) * worldSettings.attractorMassDistanceFactor, 
+						worldSettings.minPathAttractorMass,  worldSettings.maxPathAttractorMass );			
+//			}
+//			else
+//			{
+//				mass = worldSettings.pathAttractorMass;		
+//				mass = PApplet.constrain( mass * (float)Math.sqrt(distance) * worldSettings.attractorMassDistanceFactor, 
+//						worldSettings.minPathAttractorMass,  worldSettings.maxPathAttractorMass );			
+//			}
 		}
 		else 
 		{
@@ -4745,8 +4807,7 @@ public class WMV_Viewer
 			}
 			if(p.ml.display.window.setupNavigationWindow)
 			{
-				if(MultimediaLocator.pathNavigationOn)
-					p.ml.display.window.chkbxPathFollowing.setEnabled(true);
+				p.ml.display.window.chkbxPathFollowing.setEnabled(true);
 			}
 		}
 	}
@@ -5283,11 +5344,9 @@ public class WMV_Viewer
 				if(getSelectedGPSTrackID() == -1)
 					p.ml.display.window.chkbxPathFollowing.setEnabled(false);	// Enable GPS Path Navigation if track is selected
 				else
-					if(MultimediaLocator.pathNavigationOn)
 					p.ml.display.window.chkbxPathFollowing.setEnabled(true);	// Disable GPS Path Navigation if track is selected
 			}
 			else
-				if(MultimediaLocator.pathNavigationOn)
 				p.ml.display.window.chkbxPathFollowing.setEnabled(true);	// Disable GPS Path Navigation if track is selected
 		}
 	}

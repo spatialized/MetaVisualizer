@@ -418,7 +418,7 @@ public class ML_Input
 						break;
 		
 					case "ChooseGPSTrack":
-						ml.world.viewer.chooseGPSTrack();
+						ml.world.viewer.openChooseGPSTrackWindow();
 						break;
 						
 					/* Memory */

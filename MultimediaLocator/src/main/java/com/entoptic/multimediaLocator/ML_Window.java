@@ -866,14 +866,8 @@ public class ML_Window
 		chkbxPathFollowing.setFont(new Font("Monospaced", Font.PLAIN, iSmallTextSize));
 		chkbxPathFollowing.setLocalColorScheme(G4P.SCHEME_10);
 		chkbxPathFollowing.setSelected(world.viewer.isFollowing());
-		if(MultimediaLocator.pathNavigationOn)
-		{
-			if(world.viewer.getPathNavigationMode() == 1)
-				chkbxPathFollowing.setEnabled(world.viewer.getSelectedGPSTrackID() != -1);
-		}
-		else
-			chkbxPathFollowing.setEnabled(false);
-
+		if(world.viewer.getPathNavigationMode() == 1)
+			chkbxPathFollowing.setEnabled(world.viewer.getSelectedGPSTrackID() != -1);
 
 		x = 25;
 		if(compressTallWindows) x += windowWidth;

@@ -508,7 +508,7 @@ public class ML_KeyboardControls
 		{
 			if(ml.world.getCurrentField().getGPSTracks() != null)
 				if(ml.world.getCurrentField().getGPSTracks().size() > 0)
-					ml.world.viewer.chooseGPSTrack();
+					ml.world.viewer.openChooseGPSTrackWindow();
 		}
 		
 		/* Memory */

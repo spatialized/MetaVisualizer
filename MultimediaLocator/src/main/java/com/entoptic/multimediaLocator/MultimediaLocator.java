@@ -266,15 +266,15 @@ public class MultimediaLocator extends PApplet
 			}
 			else
 			{
-				if(state.selectedLibrary) 
-				{
-					if(state.rebuildLibrary) rebuildSelectedLibrary();	/* Purge data directories to rebuild library during initialization */
-					runWorldInitialization();							/* Initialize world once a library has been selected */
-				}
-				else if(state.selectedNewLibraryDestination)
+				if(state.selectedNewLibraryDestination)
 				{
 					if(state.selectedNewLibraryMedia) createNewLibrary();
 					else systemMessage("ML.draw()... ERROR: Selected library destination but no media folder selected!");
+				}
+				else if(state.selectedLibrary)
+				{
+					if(state.rebuildLibrary) rebuildSelectedLibrary();	/* Purge data directories to rebuild library during initialization */
+					runWorldInitialization();							/* Initialize world once a library has been selected */
 				}
 				display.display(this);			/* Update display */
 			}
@@ -369,7 +369,6 @@ public class MultimediaLocator extends PApplet
 			{
 //				if(!display.window.startupWindow.isVisible())
 //					display.window.startupWindow.setVisible(true);
-//				display.window.showStartupWindow(true);			// TEST
 				
 				world.createFields(library.getFolders());		/* Create field objects for each folder */
 				state.initializingFields = true;
@@ -395,9 +394,9 @@ public class MultimediaLocator extends PApplet
 		{
 			organizeMedia();						/* Analyze and organize media */
 			finishInitialization();					/* Finish initialization and start running */
-//			if(!appWindowVisible) showAppWindow();	/* Show App Window */
 			display.setupScreen();					/* Finish display setup after App Window is visible*/
 			display.setupProgress(0.f);
+//			if(!appWindowVisible) showAppWindow();	/* Show App Window */
 		}
 	}
 
@@ -558,7 +557,7 @@ public class MultimediaLocator extends PApplet
 			{
 				systemMessage("Attempting to divide field #"+f.getID()+"...");
 				ArrayList<WMV_Field> addedFields = new ArrayList<WMV_Field>();
-
+				
 				if(state.createdLibrary)
 				{
 					addedFields = divideField(f);		/* Attempt to divide field */
@@ -615,7 +614,6 @@ public class MultimediaLocator extends PApplet
 		world.getCurrentField().updateAllMediaStates();				// -- Only needed if field(s) loaded from data folder!
 
 		state.inFieldInitialization = false;				
-//		display.worldSetup = false;
 		display.stopWorldSetup();
 		
 		state.running = true;
@@ -693,35 +691,61 @@ public class MultimediaLocator extends PApplet
 	 */
 	private ArrayList<WMV_Field> divideField(WMV_Field field)
 	{
-		ArrayList<WMV_Field> newFields = new ArrayList<WMV_Field>();
-		newFields = field.divide(world, 3000.f, 15000.f);				// Attempt to divide field
-		
-		if(newFields.size() > 0)
-		{
-			int count = 0;
-			for(WMV_Field f : newFields)
-			{
-				systemMessage("ML.divideField()... Will initialize field #"+f.getID()+" name:"+f.getName()+" of "+newFields.size()+"...");
+		ArrayList<WMV_Field> newFields = new ArrayList<WMV_Field>();				// List of new fields after division
+		ArrayList<ArrayList<WMV_Waypoint>> gpsTracks = new ArrayList<ArrayList<WMV_Waypoint>>(field.getGPSTracks());	// Store GPS tracks
 
-				f.renumberMedia();							/* Renumber media in field from index 0 */
-				if(count < newFields.size() - 1)
+//		field.setGPSTracks(null);												// Clear GPS tracks from original field
+
+		newFields = field.divide(world, 3000.f, 15000.f);				// Attempt to divide field
+
+		if(newFields != null)
+		{
+			if(newFields.size() > 1)
+			{
+				int count = 0;
+				for(WMV_Field f : newFields)
 				{
-					initializeField(f, false, false);			/* Initialize field */
-					f.organize(true);								/* Analyze spatial and temporal features and create model */
-					library.moveFieldMediaFiles(field, f);		/* Move media into new field folders */
+					systemMessage("ML.divideField()... Will initialize field #"+f.getID()+" name:"+f.getName()+" of "+newFields.size()+"...");
+
+					f.renumberMedia();							/* Renumber media in field from index 0 */
+					if(count < newFields.size() - 1)
+					{
+						initializeField(f, false, false);			/* Initialize field */
+						f.organize(true);							/* Analyze media locations and times to create model */
+						library.moveFieldMediaFiles(field, f);		/* Move media into new field folders */
+					}
+					else												/* Initialize last field */
+					{
+						systemMessage("ML.divideField()... Last of new fields from dividing field id #"+field.getID());
+
+						field.reset();								/* Clear field */
+						copyAllFieldMedia(f, field);					/* Re-add media from last added field */
+						initializeField(field, false, false);		/* Initialize field */
+						field.organize(true);						/* Analyze media locations and times to create model */
+					}
+					count++;
 				}
-				else
+
+				if(gpsTracks.size() > 0)
 				{
-					systemMessage("ML.divideField()... Last of new fields from dividing field id #"+field.getID());
-					field.reset();								/* Clear field */
-					copyAllFieldMedia(f, field);					/* Re-add media from last added field */
-					initializeField(field, false, false);		/* Initialize field */
-					field.organize(true);
+					field.setGPSTracks(null);						/* Clear GPS tracks from original field */
+					for(ArrayList<WMV_Waypoint> gt : gpsTracks)		/* Look through saved GPS tracks for matching field */
+					{
+						for(WMV_Field f : newFields)
+						{
+							WMV_Model m = f.getModel();
+							for(WMV_Waypoint w : gt)
+							{
+								if(m.containsGPSPoint(w.getGPSLocation()))	// Point is in field
+									f.addGPSTrack(gt);
+							}
+						}
+					}
 				}
-				count++;
+				return newFields;
 			}
-			
-			return newFields;
+			else
+				return null;
 		}
 		else
 			return null;
@@ -772,7 +796,7 @@ public class MultimediaLocator extends PApplet
 		if(library.mediaFolders.size() > 0)
 		{
 			if(debug.ml) System.out.println("Will create new library at: "+library.getLibraryFolder()+" from "+library.mediaFolders.size()+" imported media folders...");
-			state.selectedLibrary = library.create(this, library.mediaFolders);
+			state.selectedLibrary = library.create(this, library.mediaFolders);	// Set selectedLibrary to true
 
 			state.createdLibrary = true;
 			state.libraryNamed = false;

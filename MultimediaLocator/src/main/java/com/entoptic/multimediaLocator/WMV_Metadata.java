@@ -281,12 +281,6 @@ class WMV_Metadata
 			
 			len = allNodes.getLength();
 			
-//			for (int h=0; h < 5; h++)												// Iterate through each item in .gpx XML file
-//			{
-//				Element e;
-//				e = (Element)allNodes.item(h);										// Location
-////				System.out.println("Node "+h+" is "+e.getTagName() + ":");
-//			}
 			for (int h=4; h < len; h+=3)												// Iterate through each item in .gpx XML file
 			{
 				NamedNodeMap locationNodeMap;

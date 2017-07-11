@@ -3288,7 +3288,7 @@ public class WMV_Field
 		if(debugSettings.world && debugSettings.detailed) 
 			System.out.println("Field.divide()... Returning "+result.size()+" new fields...");
 
-		if(result.size() > 0)
+		if(result.size() > 1)
 			return result;
 		else
 			return null;
@@ -4373,7 +4373,6 @@ public class WMV_Field
 		state.initialize(-1, "");
 		utilities = new WMV_Utilities();
 
-//		state.clustersByDepth = new ArrayList<Integer>();
 		clusters = new ArrayList<WMV_Cluster>();
 
 		images = new ArrayList<WMV_Image>();
@@ -4393,7 +4392,6 @@ public class WMV_Field
 		
 		visibleClusters = new ArrayList<Integer>();
 	}
-	
 	
 	public String getName()
 	{
@@ -4614,27 +4612,58 @@ public class WMV_Field
 	{
 		clusters.add(cluster);
 	}
+	
+	/**
+	 * Add GPS track to field and ensure parameters are correct
+	 * @param newGPSTrack New GPS track
+	 */
+	public void addGPSTrack(ArrayList<WMV_Waypoint> newGPSTrack)
+	{
+		for(WMV_Waypoint w : newGPSTrack)
+		{
+			if(w.getGPSTrackID() != state.gpsTracks.size())
+				w.setGPSTrackID(state.gpsTracks.size());	
+			w.recalculateCaptureLocation(utilities, model);
+		}
+		state.gpsTracks.add(newGPSTrack);
+	}
 
+	/**
+	 * Add image to field
+	 * @param image
+	 */
 	public void addImage(WMV_Image image)
 	{
 		images.add(image);
 	}
 
+	/**
+	 * Add panorama to field
+	 * @param panorama
+	 */
 	public void addPanorama(WMV_Panorama panorama)
 	{
 		panoramas.add(panorama);
 	}
 
+	/**
+	 * Add video to field
+	 * @param video
+	 */
 	public void addVideo(WMV_Video video)
 	{
 		videos.add(video);
 	}
 
+	/**
+	 * Add sound to field
+	 * @param sound
+	 */
 	public void addSound(WMV_Sound sound)
 	{
 		sounds.add(sound);
 	}
-
+	
 	public void addImageError()
 	{
 		state.imageErrors++;

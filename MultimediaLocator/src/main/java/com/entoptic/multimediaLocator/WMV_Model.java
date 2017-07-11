@@ -329,7 +329,20 @@ public class WMV_Model
 			 System.out.println("Model.analyzeSpatialDimensions()... Low Altitude:" + state.lowAltitude);
 		 }
 	 }
-
+	 
+	 /**
+	  * Whether field contains a point in GPS coordinates {longitude, latitude}
+	  * @param gpsPoint {longitude, latitude}
+	  */
+	 public boolean containsGPSPoint(PVector gpsPoint)
+	 {
+		 if ( gpsPoint.x < state.highLongitude && gpsPoint.x > state.lowLongitude && 
+			  gpsPoint.y < state.highLatitude && gpsPoint.y > state.lowLatitude )
+			 return true;
+		 else
+			 return false;
+	 }
+	 
 	 /**
 	  * Analyze media capture times, calculate time / date limits
 	  * @param images Image list

@@ -119,6 +119,16 @@ public class WMV_Waypoint
 		return dist;
 	}
 	
+	/**
+	 * Recalculate capture location (e.g. if moved GPS track to new field)
+	 * @param utilities Utilities class
+	 * @param model Field model
+	 */
+	public void recalculateCaptureLocation(WMV_Utilities utilities, WMV_Model model)
+	{
+		captureLocation = utilities.getCaptureLocationFromGPSAndAltitude(gpsLocation, altitude, longitudeRef, latitudeRef, model);
+	}
+	
 	public int getID()
 	{
 		return id;
